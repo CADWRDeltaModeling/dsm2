@@ -1,0 +1,69 @@
+# Configuration.inp
+# Define variables and file names here
+
+ENVVARS
+NAME			VALUE
+BINDIR                  ..\..\..\bin
+HYDROEXE		hydro.exe
+QUALEXE			qual.exe
+
+SIMNAME		        historical		# name of simulation
+DSM2MODIFIER		hist    		# Study name used for DSM2 output
+DSM2AGENCY		dwr
+HISTFLOWVERSION         DWR-DMS-200512
+HISTSTAGEVERSION        ${HISTFLOWVERSION}
+HISTQUALVERSION         ${HISTFLOWVERSION}
+
+#runtime
+START_DATE      	28JUN1996
+START_TIME              0600
+#qual
+QUAL_START_DATE      	14JUL1996
+PTM_START_DATE          ${QUAL_START_DATE}
+END_DATE        	01SEP1996
+END_TIME                0000
+FINE_OUT                1HOUR
+
+
+
+# Input envvars
+STUDYDIR                .
+TSINPUTDIR              ./timeseries
+
+#BNDRYINPUT              ${TSINPUTDIR}/hydro-merged-9002.dss	# Historical boundary input
+BNDRYINPUT              ${TSINPUTDIR}/hist19902005.dss
+
+GATEFILE		${TSINPUTDIR}/gates_db_200611.dss			# Gates DSS file
+
+
+DICUFILE	        ${TSINPUTDIR}/dicu.dss			# DICU flow file
+#QUALBNDINP		${TSINPUTDIR}/qual-merged-9002.dss
+QUALBNDINP		${TSINPUTDIR}/hist_do.dss
+DICUFILE-ECS            ${TSINPUTDIR}/dicu.dss		# seasonal DICU file for EC 
+DICUFILE-ECE            ${TSINPUTDIR}/dicu-ecexpnd.dss	# expanded DICU file for EC 
+CLIMATE                 ${TSINPUTDIR}/climate-5years.dss
+
+
+
+# Output
+DSM2OUTPUTDIR  		${STUDYDIR}/output
+OUTPUTFILE              ${DSM2MODIFIER}.dss
+HYDROOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
+HYDROOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
+HYDROTIDEFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.htf
+HYDRORSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
+HYDROHDF5FILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
+GATEOUTPUTFILE          ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+# Qual
+QUALOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
+QUALOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+#QUALTIDEFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qtf
+QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+QUALOUTDSSFILE		${DSM2OUTPUTDIR}/qualout.dss
+QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+QUALOUTFILE		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+FINE_OUT                15MIN
+
+END
+
+
