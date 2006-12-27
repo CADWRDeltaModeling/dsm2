@@ -1,17 +1,17 @@
 from vista.set import RegularTimeSeries, Constants
-#from vtimeseries import first_missing,timewindow
 from vtimeseries import timewindow
 from jarray import zeros
 from math import sqrt,exp
 def gCalc(ndo,beta,g0=None):
-    # Calculates antecedent outflow from a stream of ndo
-    # Arguments:
-    #     ndo: a regular time series. Must be 15MIN, 1HOUR. Thus, NDO has been interpolated first.
-    #     g0:  initial condition. If g0 is not given it is equal to ndo at the first time step.
-    #     beta: g-model parameter.
-    # Output:
-    #      g:  a regular time series, same sampling rate as input
-    #          with the same start time as ndo
+    """ Calculates antecedent outflow from a stream of ndo
+        Arguments:
+          ndo: a regular time series. Must be 15MIN, 1HOUR. Thus, NDO has been interpolated first.
+          g0:  initial condition. If g0 is not given it is equal to ndo at the first time step.
+          beta: g-model parameter.
+        Output:
+          g:  a regular time series, same sampling rate as input
+              with the same start time as ndo
+    """
 
     ti = ndo.getTimeInterval()
     if not ((ti.toString() == "15MIN") | (ti.toString() == "1HOUR")):
@@ -80,19 +80,16 @@ def first_missing(rts,filter=Constants.DEFAULT_FLAG_FILTER):
     return -1
 #
 def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
-    # Estimate 15min EC at the boundary.
-    # Inputs:
-    # stage   astronomical tide estimate. Only 15min data are acceptable
-    # ndo     ndo estimate -- e.g., from CALSIM
+    """ Estimate 15min EC at the boundary.
+        Inputs:
+          stage   astronomical tide estimate. Only 15min data are acceptable
+          ndo     ndo estimate -- e.g., from CALSIM
+    """
     import interpolate
     from vista.set import Units
-    #print "estimating EC: "
-    #print "beta = %s" % beta
-    #print "filter coefficients: %s" % (c)
-    #print "g[0] = %s" % (g0)
-    
-    #if not isinstanceof(stage,RegularTimeSeries) or not isinstanceof(ndo,RegularTimeSeries):
-    #    raise "stage and ndo must be RegularTimeSeries"
+    if not isinstanceof(stage,RegularTimeSeries) or \
+           not isinstanceof(ndo,RegularTimeSeries):
+        raise "stage and ndo must be RegularTimeSeries"
 
     if ndo.getTimeInterval().toString() == "1DAY":
         ndo=interpolate.spline(ndo,"15MIN",0.5) << 95
@@ -116,10 +113,6 @@ def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
     
     newstart=ndo.getStartTime() - "21HOURS"
     newend  =ndo.getEndTime() - "3HOURS"
-#    print newstart
-#    print newend
-#    print stage.getStartTime()
-#    print stage.getEndTime()
     if (stage.getStartTime().getTimeInMinutes() - newstart.getTimeInMinutes() > 0):
         print "Stage record starts %s and NDO starts %s" % (stage.getStartTime().toString(),ndo.getStartTime().toString())
         raise "stage record must begin at least 21 hours before ndo"
@@ -159,22 +152,23 @@ def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
 
 
 def gCalcFlatQ(ndo, beta, g0,out = "inst"):
-    # Calculates antecedent outflow from ndo based on the flat ndo 
-    # assumption in the g documentation. In this case, the integration of g is exact
-    # rather than numeric, but the approximation to ndo is a series of flat lines. In the
-    # case of daily data this is probably acceptable. In the case of monthly data it leads
-    # to large errors, though it is common
-    #     Arguments:
-    #     ndo: a regular time series. Must be 1DAY, 1MONTH
-    #     g0:  initial condition. If g0 is not given it is equal to ndo at the first time step.
-    #     beta: g-model parameter.
-    #     out: must be "inst" to calculate instantaneous values of g or "ave" to calculate averages over
-    #          the time step. 
-    # Output:
-    #      g:  a regular time series, same sampling rate as input
-    #          with the same start time as ndo, ending at the end of ndo or the first piece of bad
-    #          data in ndo.
+    """ Calculates antecedent outflow from ndo based on the flat ndo 
+        assumption in the g documentation. In this case, the integration of g is exact
+        rather than numeric, but the approximation to ndo is a series of flat lines. In the
+        case of daily data this is probably acceptable. In the case of monthly data it leads
+        to large errors, though it is common
+          Arguments:
+           ndo: a regular time series. Must be 1DAY, 1MONTH
+           g0:  initial condition. If g0 is not given it is equal to ndo at the first time step.
+           beta: g-model parameter.
+           out: must be "inst" to calculate instantaneous values of g or "ave" to calculate averages over
+               the time step. 
+          Output:
+           g:  a regular time series, same sampling rate as input
+               with the same start time as ndo, ending at the end of ndo or the first piece of bad
+                 data in ndo.
 
+    """
 
     if ndo.getTimeInterval().toString() != "1DAY" | ndo.getTimeInterval().toString() != "1MONTH":
         raise "Time step for input must be 1DAY or 1MONTH"
