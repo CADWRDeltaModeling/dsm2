@@ -1,7 +1,7 @@
 """
 Preprocessor script for Delta Cross Channel output from CALSIM.
 Routines:
-   DaysPerMonthToITS Computational routine converts a time series of
+   daysPerMonthToITS Computational routine converts a time series of
                     'days operating per month' to a time series of
                      opening and closing operations. The input
                      and output to this routine are time series,
@@ -10,12 +10,12 @@ Routines:
                      
    dxcOp             Driver routine takes input and output path and
                      file names as arguments, loads time series,
-                     calls DaysPerMonthToITS and writes output
+                     calls daysPerMonthToITS and writes output
                      to dss.
    test              testing routine
 """
 
-def DaysPerMonthToITS(dxc,value,allThirty): 
+def daysPerMonthToITS(dxc,value,allThirty): 
   """
   Computational routine converts a monthly time series of
   days per month to an irregular time series of opening
@@ -122,7 +122,7 @@ def dxcOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
   dxc=dxcref.getData()
   if not dxc:
     raise "Cross channel data not found"
-  dxcITS=DaysPerMonthToITS(dxc,value,allThirty)
+  dxcITS=daysPerMonthToITS(dxc,value,allThirty)
   writedss(outfile,outpath,dxcITS)
   return dxcITS
   

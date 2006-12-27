@@ -1,20 +1,18 @@
 # config.py
-# 
-# Purpose:
-#         To define the environmental variables required for gates, ec at mtz, hydro and qual
+#
+# A configuration utility for converting name-value pairs
+# in a "configuration file" into jython-accessible values
 
-# Input: s
-#        input-envvars.inp
-# Output:
-#        different envars variables for input and outputs of gates, ec estimate at mtz, hydro and qual
-# initialize some of the environments
 
 config={}
 
-# Substitute config values for environmental variables
-# Args:
-#     val   input string that possibly includes environmental variables
 def subEnv(val):
+  """Performs a DSM2 ENVVAR type substitution.
+     Input val A string, possibly referencing config variables
+               For instance if OUTFILE is a config variable
+               'studydir/${OUTPUT}/etc' contains a reference
+     Output a string with the substitution
+  """
   import string
   import re
   if string.find(val,'$')>=0:
@@ -29,6 +27,14 @@ def subEnv(val):
 
 
 def setConfigVars(infile):
+  """Add name-value pairs from a file
+     Input: infile name of a 'config' file whose contents
+            look like a single ENVVARS section in dsm2 input
+     Output: the dictionary containing the name-value pairs.
+            the name-value pairs from the file will also
+            be added to the system environment.
+  """
+
   import re
   from jnios import os
   import string
@@ -63,6 +69,7 @@ def setConfigVars(infile):
 
 
 def getAttr(attrName):
+  """Retrieve a config value by name"""
   import string
   name=string.lower(attrName)
   if name in config.keys():
