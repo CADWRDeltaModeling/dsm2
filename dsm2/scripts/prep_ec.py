@@ -1,5 +1,5 @@
 from jnios import os
-import ExpandSeasonal
+import expand_seasonal
 import sys,string
 import config
 import interpolate
@@ -19,5 +19,5 @@ if __name__ == '__main__':
         infile = sys.argv[1]
         config.setConfigVars(infile)
         print "Expanding seasonal DICU WQ drainage values"
-        ExpandSeasonal.mainExpandSeasonal()
+        expand_seasonal.mainExpandSeasonal()
     sys.exit()

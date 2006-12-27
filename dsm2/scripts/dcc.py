@@ -93,7 +93,7 @@ def daysPerMonthToITS(dxc,value,allThirty):
   return dxcITS
 
 # Preprocessor script for Delta Cross Channel 
-def dxcOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
+def dccOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
           tw="01OCT1974 0000 - 01OCT1991 0000"):
   """
   Converts Delta Cross Channel gate operation
@@ -139,5 +139,5 @@ def test():
   val=1.0
   allThirty=1.
   tw=timewindow("01oct1974 0000 - 30SEP1991 2400")
-  dxcITS=dxcOp(infile,outfile,inpath,outpath,allThirty,val,tw)
+  dccITS=dccOp(infile,outfile,inpath,outpath,allThirty,val,tw)
   tabulate(dxcITS)
