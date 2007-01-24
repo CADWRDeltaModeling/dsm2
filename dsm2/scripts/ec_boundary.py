@@ -87,8 +87,8 @@ def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
     """
     import interpolate
     from vista.set import Units
-    if not isinstanceof(stage,RegularTimeSeries) or \
-           not isinstanceof(ndo,RegularTimeSeries):
+    if not isinstance(stage,RegularTimeSeries) or \
+           not isinstance(ndo,RegularTimeSeries):
         raise "stage and ndo must be RegularTimeSeries"
 
     if ndo.getTimeInterval().toString() == "1DAY":

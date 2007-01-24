@@ -14,6 +14,8 @@ Routines:
                      to dss.
    test              testing routine
 """
+import string 
+
 
 def daysPerMonthToITS(dxc,value,allThirty): 
   """
@@ -31,7 +33,6 @@ def daysPerMonthToITS(dxc,value,allThirty):
   from vista.time import TimeWindow
   import vista.time.Time
   from vista.set import IrregularTimeSeries
-  import string 
   import config
   debug=0  
   daysinmonth = {'jan': 31, 'feb': 28, 'mar': 31, 'apr': 30, 'may': 31, 'jun': 30,
@@ -112,18 +113,22 @@ def dccOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
   from vdss import opendss,findpath,writedss
   from vista.time import TimeWindow
   from vista.set import DataReference
-  g=opendss(infile)  
+  import types
+  g=opendss(infile)
+  if not (type(outfile) == types.StringType):
+    raise TypeError("Argument outfile should be name of a dss file")
   if not isinstance(tw,TimeWindow):
-    print tw
     tw = timewindow(tw)
   if not (value==1.0 or value==2.0):
     raise "Output time series 'on' value should be 1.0 (gate op) or 2.0 (gates operating)"
+  x=findpath(g,inpath)[0]
   dxcref = DataReference.create(findpath(g,inpath)[0],tw)
   dxc=dxcref.getData()
   if not dxc:
     raise "Cross channel data not found"
   dxcITS=daysPerMonthToITS(dxc,value,allThirty)
   writedss(outfile,outpath,dxcITS)
+
   return dxcITS
   
 def test():
@@ -133,7 +138,7 @@ def test():
   from vista.set import DataReference
   from vdisplay import tabulate  
   inpath='/CALSIM/DXC/GATE-DAYS-OPEN//1MON//'
-  outpath='/CALSIM/DXC/GATE//IR-YEAR/TEST/'
+  outpath='/CALSIM_PROCESSED/DCC/GATE//IR-YEAR/TEST/'
   infile="../timeseries/2001d10adv.dss"
   outfile = "d:/delta/gates/dxc.dss"
   val=1.0

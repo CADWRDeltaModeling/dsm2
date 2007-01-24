@@ -43,8 +43,7 @@ if dsm2module == "both" or dsm2module == "hydro":
     if hydroinp:
         command=command+" "+hydroinp
     else:
-        raise "no path to hydro.inp is specified"
-   #command=getAttr('hydroexe') + ' hydro.inp '
+        command=getAttr('hydroexe') + ' hydro.inp '
  ##################################################       
    
     
@@ -71,15 +70,13 @@ if dsm2module == "both" or dsm2module == "qual" or dsm2module == "qual_ec":
         from os.path import exists
         if not exists(command):
             raise command+' is not a valid path'
-
     else:
         command='qual.exe'
         
     if qualinp:
-        command=command+" "+qualinp
+        command=command+" " + qualinp
     else:
-        raise "no path to qual.inp is specified"
-     #command=getAttr('qualexe') + ' qual_ec.inp ' 
+        command=getAttr('qualexe') + ' qual_ec.inp ' 
  ##################################################  
    
     #command='"C:\Program Files\Microsoft Visual Studio\Common\MSDev98\Bin\DFDEV.EXE"' + ' d:\delta\models\dsm2-dbase\dsm2.dsw'

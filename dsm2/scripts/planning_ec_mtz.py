@@ -9,22 +9,25 @@
 #     astro: bandlimited estimate of astronomical stage     
 
 
-def createECatMTZ(): # MTZ = RSAC054 BC for the qual
+def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
     from vdss import opendss,findpath,writedss
     from vtimeseries import timewindow   # for monthly add ,interpolate
     from vmath import godin
     from vista.set import DataReference
     import interpolate   # daily only
-    import ECBoundary
+    import ec_boundary
     from jnios import os
     import config
     import string
     import conserve
     
-    OUTPUT=config.getAttr('BOUNDARY')
+    OUTPUT=config.getAttr('QUALBOUNDARYFILE')
     CALSIM=opendss(config.getAttr('CALSIMFILE'))
-    PLANNINGTIDE=opendss('./timeseries/planningtide.dss')
+    PLANNINGTIDE=opendss(config.getAttr('STAGEFILE'))
     STEP=string.lower(config.getAttr('CALSIMSTEP'))
+    outputpath="/FILL+CHAN/RSAC054/EC//15MIN/"+config.getAttr("DSM2MODIFIER")+"/"
+    if not(OUTPUT and os.path.exists(OUTPUT)):
+        raise "Envvar QUALBOUNDARYFILE must exist as destination for EC"
 
     years= [ [1974,1979],[1980,1985],[1986,1992] ]    # the multi year block should be broken up into 5-6 year blocks
                                                       # for memory reasons (year 2001).
@@ -44,15 +47,17 @@ def createECatMTZ(): # MTZ = RSAC054 BC for the qual
         ndo=DataReference.create(findpath(CALSIM,"/CALSIM/NDO/FLOW-NDO//"+STEP+"/"
                                   +os.environ['CALSIMSTUDY']+"/")[0],TWINDBUF).getData()
         ndo15=conserve.conserveSpline(ndo,"15MIN")
-        mtzastro=DataReference.create(findpath(PLANNINGTIDE,"/FILL\+CHAN/RSAC054/STAGE//15MIN/ASTRO-PLANNING-1/")[0],TWINDBUF).getData()
+        mtzastro=DataReference.create(findpath(PLANNINGTIDE,"/FILL\+CHAN/RSAC054/STAGE//15MIN/"+config.getAttr("STAGE_VERSION") + "/")[0],TWINDBUF).getData()
 
         astrorms=godin((mtzastro*mtzastro)**0.5)           # RMS energy of tide (used to predict filling and draining)
         dastrorms=(  (astrorms-(astrorms>>1))*96. ).createSlice(TWIND)    
         fifteenflo2=ndo15  - 40000*(dastrorms)
 
         # call to ec estimator. all parameters are included. g0 is an
-        [mtzecest, g1]=ECBoundary.ECEst(mtzastro,fifteenflo2,beta=600,npow1=0.75,npow2=1,g0=g0,zrms=astrorms)
-        writedss(OUTPUT,"/FILL+CHAN/RSAC054/EC//15MIN/"+config.getAttr("DSM2MODIFIER")+"/",mtzecest)
+        [mtzecest, g1]=ec_boundary.ECEst(mtzastro,fifteenflo2,beta=600,npow1=0.75,npow2=1,g0=g0,zrms=astrorms)
+        print "writing: %s::%s" % (OUTPUT,outputpath)
+        writedss(OUTPUT,outputpath,mtzecest)
+        print "done writing"
         g0=g1
     return 0
 
