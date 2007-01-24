@@ -1,0 +1,68 @@
+# Configuration.inp
+# Define the frequently changing variables and file names here
+
+# The key words "ENVVARS" and "END" should be used 
+# to start and end the list. Syntax is just like
+# a DSM2 ENVVARS section.
+
+# Created:  1-27-03 Jamie Anderson (jamiea)
+# Modified: 1-29-04 Jamie Anderson (jamiea)
+# 1-29-04 modified DSM2 environment variable for reference to Himal from Gromit
+# Modified 10-26-2004 Bijaya 
+# Modified 12-02-2004 Bijaya 
+# Modified 10-18-2005 Bijaya for PlanC or Modified Plan C run
+
+
+ENVVARS
+NAME			VALUE
+
+# Change the following 5 lines according to the directory and the study
+
+
+DSM2           	c:/delta/dsm2                          # Where grid and executables are stored
+
+CALSIMFILE	OCAP_2020D09DDV_FUTUREEWA5A_032404	
+CALSIMSTUDY	2020D09D                               # Appears in F-PART of 
+
+DSM2MODIFIER	2020OCAP_EWA                           # Study name used for DSM2 and prepro 
+DICU 		    	./timeseries/dicu-2020.dss     # DICU file
+DICU_ALT 		2020-1A                        # Appears in F-PART of DICU data
+
+
+# Following lines do not need to be changed, but check for the filename
+
+HYDROEXE		${DSM2}/bin/hydro.exe          # hydro executable
+QUALEXE			${DSM2}/bin/qual.exe           # qual executable
+
+
+START_DATE      	28Jun1985
+#END_DATE        	04oct1974
+END_DATE        	30Sep1985
+
+CALSIMSTEP      	1MON
+
+
+CALSIM          	./timeseries/${CALSIMFILE}.dss          # Calsim output file
+CALSIM-SMOOTH   	./timeseries/${CALSIMFILE}_smooth.dss   # Pre-processed boundary input (hydro/qual)
+CALSIM-VAMP		./timeseries/${CALSIMFILE}_VAMP.dss     # Pre-processed VAMP flows and exports
+
+DICU_EC         	./timeseries/dicu_ec_based_on_historical.dss    # DICU file for EC 
+
+GATE_DXC                ./timeseries/gates_DXC_${DSM2MODIFIER}.dss      # dcc gate positions
+GATE_CCF_MTZSL          ./timeseries/SDIP_gates_CCF_MTZSL.dss           # Gate MTZ Slough and CCF
+GATE_CCF_PRIORITY3      ./timeseries/Priority3.dss                      # Gate CCF Priority 3
+
+MTZEC                   ./timeseries/${DSM2MODIFIER}_MartEC.dss
+TIDE                    ./timeseries/planningtide.dss
+
+
+# do not change at this time (Bijaya 10/13/05)
+
+GATEALT                 standard  # use standard for Standard PlanC and Modified for Modified PlanC
+
+GATE_FISH_AGBAR         ./timeseries/gates_FISH_AGBAR_${GATEALT}_${DSM2MODIFIER}.dss  # PlanC Ag and Fish Barriers
+
+END
+
+
+

@@ -1,0 +1,145 @@
+# Configuration.inp
+# Define the frequently changing variables and file names here
+
+# The key words "ENVVARS" and "END" should be used 
+# to start and end the list. Syntax is just like
+# a DSM2 ENVVARS section.
+
+# Created:  1-27-03 Jamie Anderson (jamiea)
+# Modified: 1-29-04 Jamie Anderson (jamiea)
+# 1-29-04 modified DSM2 environment variable for reference to Himal from Gromit
+# Modified 10-26-2004 Bijaya 
+# Modified 12-02-2004 Bijaya 
+# Modified 10-18-2005 Bijaya for PlanC or Modified Plan C run
+
+
+ENVVARS
+NAME			VALUE
+
+# Change the following 5 lines according to the directory and the study
+
+
+DSM2           	d:/delta/dsm2                          # Where grid and executables are stored
+SIMNAME         planning_sdip
+
+
+CALSIMSTUDY	2020D09D                            # Appears in F-PART of 
+CALSIMNAME	OCAP_2020D09DDV_FUTUREEWA5A_032404  
+
+DSM2MODIFIER	2020OCAP_EWA              # Study name used for DSM2 and prepro 
+CALSIMSTEP      1MON
+DICU_ALT 	2020-1A                   # Appears in F-PART of DICU data
+TSINPUTDIR      ${DSM2}/timeseries        # Where timeseries are stored.
+TSINPUTLOCAL    ./timeseries              # Local timeseries location
+
+
+
+# Following lines do not need to be changed, but check for the filename
+
+HYDROEXE		${DSM2}/bin/hydro.exe          # hydro executable
+QUALEXE			${DSM2}/bin/qual.exe           # qual executable
+
+START_DATE      	28Jun1985
+START_TIME              0000
+#END_DATE        	04oct1974
+END_DATE        	30Sep1985
+END_TIME                0000
+
+
+STUDYDIR           .
+BOUNDARYINPUT           ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
+
+DICUFILE                ${TSINPUTDIR}/dicu-2020.dss               # DICU file
+CALSIMFILE          	${TSINPUTDIR}/${CALSIMNAME}.dss           # Calsim output file
+CALSIM-SMOOTH   	${TSINPUTDIR}/${CALSIMFILE}_processed.dss # Pre-processed boundary input (hydro/qual)
+CALSIM-VAMP		${TSINPUTDIR}/${CALSIMFILE}_vamp.dss      # Pre-processed VAMP flows and exports
+
+DICUFILE_EC         	${TSINPUTDIR}/dicu-wq-2020.dss            # Base DICU file for EC 
+DICUFILE_ECE		${TSINPUTLOCAL}/dicu_ec.dss		  # Extended DICU EC used as DSM2 input
+DICUFILE_ECE            ${BOUNDARYINPUT}
+GATEFILE                ${TSINPUTLOCAL}/gates.dss                 # Processed DSS gate input for dsm2
+GATEFILE                ${BOUNDARYINPUT}
+CLIFTONCT_GATEFILE      ${TSINPUTDIR}/clifton_planning.dss        # File containing Clifton Ct Priority Ops
+CLIFTONCT_GATEOP        PRIORITY3                                 # Version of Clifton Court Op to use
+
+
+MTZEC                   ${TSINPUTDIR}/${DSM2MODIFIER}_MartEC.dss
+TIDE                    ${TSINPUTDIR}/planningtide.dss
+
+
+# do not change at this time (Bijaya 10/13/05)
+
+GATEALT                 standard  # use standard for Standard PlanC and Modified for Modified PlanC
+
+GATE_FISH_AGBAR         ${TSINPUTDIR}/gates_FISH_AGBAR_${GATEALT}_${DSM2MODIFIER}.dss  # PlanC Ag and Fish Barriers
+
+# Output
+
+DSM2OUTPUTDIR  		./output
+OUTPUTFILE              ${DSM2MODIFIER}.dss
+HYDROOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
+HYDROOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
+HYDROTIDEFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.htf
+HYDRORSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
+HYDROHDF5FILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
+GATEOUTPUTFILE          ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+# Qual
+QUALOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
+QUALOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+#QUALTIDEFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qtf
+QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+QUALOUTDSSFILE		${DSM2OUTPUTDIR}/qualout.dss
+QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+QUALOUTFILE		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+FINE_OUT                15MIN
+
+
+
+
+
+
+
+END
+
+
+
+# This is the main input file; other input files
+# are specified here.
+# verification run using 90-99 data
+
+TITLES
+DSM2 DELTA HISTORIC SIMULATION: $DSM2MODIFIER  
+END
+
+SCALAR
+database         dsm2input
+model_name       $(SIMNAME)_qual_ec
+run_start_date   $QUAL_START_DATE
+run_end_date     $END_DATE
+run_start_time	$START_TIME
+run_end_time    $END_TIME
+temp_dir	 z:/temp
+init_conc       20.0
+END
+
+IO_FILES
+MODEL	TYPE	IO   INTERVAL	FILENAME
+output	none	none  none	$QUALOUTFILE    # echoed input
+qual	restart	out  1day	$QUALRSTFILE    # initial condition in case run must be restarted
+qual    restart in   none       qualinit_30SEP1999.qrf
+#$QUALINITCOND  # restart file used as initial condition
+END
+
+TIDEFILE
+START_DATE    END_DATE     FILENAME
+#runtime       length      output/hist.h5
+#runtime       20JUL1996  output/tf1.h5
+#20JUL1996     24JUL1996  output/tf2.h5
+#last          length     output/tf3.h5
+#01SEP1996     length     ficticious.h5
+END
+
+OUTPUTPATHS
+CHAN     DIST   NAME	 TYPE	INTERVAL PERIOD	 FILENAME
+441     LENGTH  RSAC054  STAGE  15MIN   INST     $QUALOUTDSSFILE
+END
