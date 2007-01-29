@@ -9,7 +9,7 @@
 """
 
 nodes_to_smooth=["C169","C644","C639"]
-nodes_to_transfer=["C508","C501","C503",
+nodes_to_transfer=["C501","C504",
                    "C508","C157",
                    "D408","D418","D419",
                    "D403A","D403B"
@@ -25,23 +25,27 @@ from config import getAttr,setConfigVars
 
 def calsim_path(calsimname):
     if calsimname.startswith("C"):
-        return "/CALSIM/"+calsimname+"/FLOW-CHANNEL//1MON/" \
-               + getAttr("CALSIMSTUDY") + "/"
+        datalabel="FLOW-CHANNEL"
     elif calsimname.startswith("D"):
-        return "/CALSIM/"+calsimname+"/FLOW-DELIVERY//1MON/" \
-               + getAttr("CALSIMSTUDY") + "/"
+        datalabel="FLOW-DELIVERY"
+    elif calsimname.startswith("I"):
+        datalabel="FLOW-INFLOW"
     else:
+        return 
         raise "Unknown CALSIM prefix"
+    return "/CALSIM/"+calsimname+"/"+datalabel+"//1MON/" \
+           + getAttr("CALSIMSTUDY") + "/"
+
     
 def smooth_flow():
     """ A slightly smoothed version of monthly flows to avoid sharp transitions
         between months. Uses a tension spline.
     """
-    f=opendss(getAttr("CALSIMFILE"))           # open CALSIM file
+    calsimfile=getAttr("CALSIMFILE")
+    f=opendss(calsimfile)           # open CALSIM file
     outfile=getAttr("BOUNDARYFILE")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"
-    fpart=getAttr("DSM2MODIFIER")
     fpart = getAttr("CALSIMSTUDY")
     if not fpart:
         print "Config variable DSM2MODIFIER not set. Assuming blank, may cause unwanted behavior"
@@ -49,12 +53,17 @@ def smooth_flow():
     
     tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
 
+
     for calsimname in nodes_to_smooth:      # Extend the list as needed, but please keep in mind the
                                             # limitations of the conservative spline, at least at present.
                                             # Mainly, input flows should be substantially greater than
                                             # zero at all times (yolo would be inappropriate, for instance)
         dsspath = calsim_path(calsimname)
-        ref=DataReference.create(findpath(f,dsspath)[0],tw)
+        paths=findpath(f,dsspath)
+        if not paths or len(paths)>1:
+            print "File: %s" % calsimfile
+            raise "Path %s not found or not unique" % dsspath
+        ref=DataReference.create(paths[0],tw)
         monthly=ref.getData()
         if monthly:
             daily=conserve.conserveSpline(monthly,"1DAY")
@@ -69,7 +78,8 @@ def smooth_flow():
 def transfer_flow():
     """ Unsmoothed transfer from CALSIM file to model input file.
     """
-    f=opendss(getAttr("CALSIMFILE"))           # open CALSIM file
+    calsimfile=getAttr("CALSIMFILE") 
+    f=opendss(calsimfile)           # open CALSIM file
     outfile=getAttr("BOUNDARYFILE")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
@@ -81,13 +91,46 @@ def transfer_flow():
                                             # zero at all times (yolo would be inappropriate, for instance)
 
         dsspath = calsim_path(calsimname)
-        ref=DataReference.create(findpath(f,dsspath)[0],tw)
+        paths = findpath(f,dsspath)
+        if not paths or len(paths)>1:
+            print "File: %s" % calsimfile
+            raise "Path %s not found or not unique" % dsspath
+        ref=DataReference.create(paths[0],tw)
         monthly=ref.getData()
         if monthly:
             writedss(outfile,dsspath, monthly)
 
         else:
             raise "Failure to find CALSIM input data for: " + calsimname 
+
+def moke_consumnes():
+    calsimfile=getAttr("CALSIMFILE") 
+    f=opendss(calsimfile)           # open CALSIM file
+    outfile=getAttr("BOUNDARYFILE")
+    if not outfile or outfile == "":
+        raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
+    tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
+
+    moke_us_path=calsim_path("I504")
+    moke_ref=findpath(f,moke_us_path)
+    if(moke_ref and len(moke_ref)>0):
+        print "Upstream mokelumne flow found, not calculated"
+    
+    consumnes_path=calsim_path("C501")
+    moke_ds_path=calsim_path("C504")
+    consumnes_ref=findpath(f,consumnes_path)
+    if not consumnes_ref:
+        raise "Consumnes path %s not found" % consumnes_path
+    moke_ds_ref=findpath(f,moke_ds_path)
+    if not moke_ds_ref:
+        raise "Mokulemne downstream path %s not found" % moke_ds_path
+    consumnes=DataReference.create(consumnes_ref[0],tw).getData()
+    moke_ds=DataReference.create(moke_ds_ref[0],tw).getData()
+
+    moke_us=moke_ds-consumnes
+    writedss(outfile,moke_us_path,moke_us)
+    return
+
 
 #
 if __name__ == '__main__':
@@ -104,5 +147,7 @@ if __name__ == '__main__':
         smooth_flow()
         print "Transfering unsmoothed flows"
         transfer_flow()
+        print "Allocating Moke and Consumnes"
+        moke_consumnes()
         sys.exit()
 
