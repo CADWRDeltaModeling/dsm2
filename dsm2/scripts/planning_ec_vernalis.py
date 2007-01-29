@@ -5,7 +5,7 @@
 """
 
 nodes_to_smooth=["C169","C644","C639"]
-nodes_to_transfer=["C508","C501","C503",
+nodes_to_transfer=["C508","I501","I504",
                    "C508","C157",
                    "D408","D418","D419",
                    "D403A","D403B"
