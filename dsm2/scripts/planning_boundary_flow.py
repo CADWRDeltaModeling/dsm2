@@ -136,7 +136,7 @@ def moke_consumnes():
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         raise SystemExit("""
-        Usage: vscript prepFlow.py configfile
+        Usage: vscript planning_boundary_flow.py configfile
         where configfile is the input file for configuration variables
         (give full path if not in current running shell)
         """)

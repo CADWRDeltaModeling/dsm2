@@ -34,7 +34,7 @@ def daysPerMonthToITS(dxc,value,allThirty):
   import vista.time.Time
   from vista.set import IrregularTimeSeries
   import config
-  debug=0  
+  debug=0
   daysinmonth = {'jan': 31, 'feb': 28, 'mar': 31, 'apr': 30, 'may': 31, 'jun': 30,
             'jul': 31, 'aug': 31, 'sep': 30, 'oct': 31, 'nov': 30, 'dec': 31}
 
@@ -48,9 +48,11 @@ def daysPerMonthToITS(dxc,value,allThirty):
   for el in dxc:
     if el:
       xval = el.getX()
+      xstr=time(long(xval)).toString()
       xdate=time(long(xval)-1)
       xdate=xdate.floor(ti)
-      xstr=xdate.toString()
+      if debug:
+        print "Processing date %s" % time(long(xval))
       yval = el.getY()
       maxYVal=max(maxYVal,yval)
       month = string.lower(xstr[2:5])
@@ -70,7 +72,8 @@ def daysPerMonthToITS(dxc,value,allThirty):
         lastopen=0
       else:
         if (not lastopen) or first:  # closed, must open it
-          if debug:print "xdate: %s yval=%s nday=%s" % (xdate,yval,ndays_month)
+          if debug:
+            print "opening on: %s ndays=%s days/mo=%s" % (xdate,yval,ndays_month)
           x.append(time(xdate.getTimeInMinutes()))
           y.append(value)
         if (ndays_month-yval)>1E-5:     # some days open in month
@@ -128,7 +131,6 @@ def dccOp(infile,outfile,inpath,outpath,allThirty=1,value=1.0,
     raise "Cross channel data not found"
   dxcITS=daysPerMonthToITS(dxc,value,allThirty)
   writedss(outfile,outpath,dxcITS)
-
   return dxcITS
   
 def test():
