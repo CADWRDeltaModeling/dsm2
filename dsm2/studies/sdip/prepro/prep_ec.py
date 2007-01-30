@@ -31,7 +31,6 @@ if __name__ == '__main__':
         planning_ec_mtz.planning_ec_mtz()
         planning_ec_vernalis.planning_ec_vernalis()  #direct copy of planning ec, no vamp
 
-
         
 
 
