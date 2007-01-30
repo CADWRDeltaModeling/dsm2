@@ -17,6 +17,7 @@ if __name__ == '__main__':
         (give full path if not in current running shell)
         """)
     else:
+        print "IN prep EC"
         infile = sys.argv[1]
         config.setConfigVars(infile)
         tws=config.getAttr('START_DATE')+ " 0000 - " + \
