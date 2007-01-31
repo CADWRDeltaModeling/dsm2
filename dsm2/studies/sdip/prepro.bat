@@ -13,12 +13,11 @@ set CONFIGFILE=%1%
 rem do not add spaces to the following command
 if NOT EXIST %CONFIGFILE% GOTO noconfig
 echo Prepro is needed only when the CALSIM file changes.
-vscript prepro/prep_gates.py %CONFIGFILE%
-echo back
-vscript ../../scripts/planning_boundary_flow.py %CONFIGFILE%
-vscript prepro/prep_ec.py %CONFIGFILE%
-rem vscript prepro/prep_vamp.py %CONFIGFILE%
-echo Done with Qual
+call vscript ../../scripts/planning_boundary_flow.py %CONFIGFILE%
+call vscript prepro/prep_gates.py %CONFIGFILE%
+call vscript prepro/prep_ec.py %CONFIGFILE%
+rem call vscript prepro/prep_vamp.py %CONFIGFILE%
+
 )
 
 goto fin
