@@ -1,6 +1,7 @@
 from jnios import os
 import expand_seasonal
 import planning_ec_mtz
+import planning_ec_vernalis
 import sys,string
 import config
 import interpolate
@@ -29,7 +30,7 @@ if __name__ == '__main__':
             config.getAttr('DICUFILE_ECE'),       # processed DICU DSS file (will be input for DSM2)
             tw)
         planning_ec_mtz.planning_ec_mtz()
-        planning_ec_vernalis.planning_ec_vernalis()  #direct copy of planning ec, no vamp
+        planning_ec_vernalis.transfer_ec()  #direct copy of planning ec, no vamp
 
         
 
