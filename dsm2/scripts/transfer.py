@@ -6,7 +6,7 @@ from vdss import *
 from vmath import *
 from vista.set import DataReference,Pathname
 
-def transfer(infile,outfile,select,window,transform,interval):
+def transfer(infile,outfile,select,window,transform,interval,unique=0):
     f=opendss(infile)
     g=findpath(f,select)
     select=select.upper()
@@ -17,6 +17,8 @@ def transfer(infile,outfile,select,window,transform,interval):
     if not g or len(g) == 0:
         raise "No matches for selection [%s] found in file %s" % (select,infile)
 
+    if (unique and len(g) > 1):
+        raise "Selection not unique and the unique flag is set true for selection [%s] in file %s" % (select,infile)
     
     for ref in g:
         if window:
@@ -72,18 +74,26 @@ def usage():
     --out        name of outputfile
                  default out.dss
     --selection  regular expression identifying pattern to match
-                 default /////// matches all
-    --transform  name of transform:
+                 default: /////// matches all
+                 alternatives: ///(FLOW|STAGE)//(1HOUR|15MIN)//
+                 for partial wildcards: //RSAC.*/FLOW///
+    --transform  name of transform, performed after time window subset is taken
                  [period_max, period_min, period_ave, tidal_ave, godin]
                  default None copies directly
     --interval   time interval to use in transform if applicable (e.g. 1DAY for daily ave)
     --window     sub time window to copy, default is whole series
+    --unique     indicate
 
-    Example:
+    Example 1:
     A batch script might have a line:
     
-    >call vscript transfer.py --out=out.dss --transform=period_min --interval=1DAY
-     --window='01JAN2000 0000 - 31JAN2000 0000' --selection=///STAGE//1HOUR// in.dss
+    >call vscript transfer.py --out=out.dss --transform=period_min --interval=1DAY --window='01JAN2000 0000 - 31JAN2000 0000' --selection=///STAGE//1HOUR// in.dss
+    
+    Note: this example selects a subset in time and then applies a period_min operation. The call vscript part is what you would write in a batch script (vscript itself is a batch file and is most
+
+   >call vscript transfer.py --out=out.dss  --selection=//RSAC.*/EC//1HOUR// --transform=period_min --interval=1DAY --unique in.dss
+    Note: this example copies all matching paths and then applies a period_min. It will fail if the selection isn't unique.
+
 
     """
 
