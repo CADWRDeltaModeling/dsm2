@@ -7,6 +7,8 @@ from config import setConfigVars, getAttr
 import dcc
 import vdss
 from vista.set import DataReference
+from calsim_study_fpart import calsim_study_fpart
+
 #
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -19,13 +21,20 @@ if __name__ == '__main__':
         infile = sys.argv[1]
 
         c=setConfigVars(infile)
+        print infile
         print 'Creating Delta Cross Channel daily ops from monthly...'
+
+        fpart_mod=calsim_study_fpart(modify=1)
+        fpart=calsim_study_fpart(modify=0)        
+        print getAttr('CALSIMFILE')
+        
         dcc.dccOp(
             getAttr('CALSIMFILE'),              # CALSIM DSS file (input for DSM2)
             getAttr('GATEFILE'),                # processed gate DSS file (will be input for DSM2)
-            '/CALSIM/DXC/GATE-DAYS-OPEN//1MON//' + getAttr('CALSIMSTUDY') + '/', # CALSIM DXC pathname
+            '/CALSIM/DXC/GATE-DAYS-OPEN//1MON//'
+            + fpart        + '/',               # CALSIM DCC pathname
             '/CALSIM-PROCESSED/DCC/OP//IR-YEAR/' +   \
-            getAttr('CALSIMSTUDY') + '/', # processed cross channel pathname
+            fpart_mod + '/', # processed cross channel pathname
             0,                                  # 0: CALSIM input is hardwired to 30-day months
             1,                                  # operate gate between 0 & 1
             '01JAN1974 0000 - 31DEC1991 2400'   # time window
