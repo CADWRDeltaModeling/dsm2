@@ -15,14 +15,28 @@ def subEnv(val):
   """
   import string
   import re
+  import jnios.os
+  osenv=jnios.os.environ.copy()
+  if osenv.has_key('PATH'): del osenv['PATH']
+  
   if string.find(val,'$')>=0:
     value=val
     for key in config.keys():
        # Substitute ${ENV} or $(ENV) or $ENV- or $ENV_ or $ENV<whitespace>
-       brack=r"(\${"+key+"})|\$\("+key+"\)|(\$"+key+"(?!(\w|_|-)))"    # See python re module docs
+       brack=r"(\${"+key+"})|\$\("+key+"\)"    # See python re module docs
        value=re.sub(brack,config[key],value)
   if string.find(value,'$')>=0:
-    raise "Unknown environmental variable in string: %s" % value
+    env_pattern=r"(\${(.*)})|\$\((.*)\)"    # See python re module docs    
+    env_match=re.findall(env_pattern,value)
+    if env_match:
+      for m in env_match:
+        env_str=m[1]
+        full_str=m[0]
+        if osenv.has_key(env_str.upper()):
+          subenv=osenv[env_str.upper()]
+          value=value.replace(full_str,subenv)
+    else:
+      raise "Unknown environmental variable in string: %s" % value
   return value
 
 

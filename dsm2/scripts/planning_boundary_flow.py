@@ -22,8 +22,9 @@ from vista.set import DataReference, Units
 from vdss import opendss,findpath,writedss
 from vtimeseries import timewindow
 from config import getAttr,setConfigVars
+from calsim_study_fpart import calsim_study_fpart
 
-def calsim_path(calsimname):
+def calsim_path(calsimname,modified_fpart=None):
     if calsimname.startswith("C"):
         datalabel="FLOW-CHANNEL"
     elif calsimname.startswith("D"):
@@ -33,8 +34,12 @@ def calsim_path(calsimname):
     else:
         return 
         raise "Unknown CALSIM prefix"
+    if modified_fpart:
+        fpart=modified_fpart
+    else:
+        fpart=calsim_study_fpart(modify=0)
     return "/CALSIM/"+calsimname+"/"+datalabel+"//1MON/" \
-           + getAttr("CALSIMSTUDY") + "/"
+           + fpart + "/"
 
     
 def smooth_flow():
@@ -46,10 +51,7 @@ def smooth_flow():
     outfile=getAttr("BOUNDARYFILE")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"
-    fpart = getAttr("CALSIMSTUDY")
-    if not fpart:
-        print "Config variable DSM2MODIFIER not set. Assuming blank, may cause unwanted behavior"
-        fpart = ""
+    fpart_mod=calsim_study_fpart(modify=1)
     
     tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
 
@@ -70,7 +72,7 @@ def smooth_flow():
             daily.getAttributes().setYUnits(Units.CFS)
             writedss(outfile,
                      "/CALSIM-SMOOTH/"+calsimname+"/FLOW/1DAY//" \
-                     +fpart+"/",
+                     +fpart_mod+"/",
                      daily)
         else:
             raise "Failure to find CALSIM input data for: " + calsimname 
@@ -89,7 +91,6 @@ def transfer_flow():
                                             # limitations of the conservative spline, at least at present.
                                             # Mainly, input flows should be substantially greater than
                                             # zero at all times (yolo would be inappropriate, for instance)
-
         dsspath = calsim_path(calsimname)
         paths = findpath(f,dsspath)
         if not paths or len(paths)>1:
@@ -97,6 +98,8 @@ def transfer_flow():
             raise "Path %s not found or not unique" % dsspath
         ref=DataReference.create(paths[0],tw)
         monthly=ref.getData()
+        mf=calsim_study_fpart(modify=1)
+        dsspath = calsim_path(calsimname,modified_fpart=mf)        
         if monthly:
             writedss(outfile,dsspath, monthly)
 
@@ -126,8 +129,10 @@ def moke_consumnes():
         raise "Mokulemne downstream path %s not found" % moke_ds_path
     consumnes=DataReference.create(consumnes_ref[0],tw).getData()
     moke_ds=DataReference.create(moke_ds_ref[0],tw).getData()
-
+    mf=calsim_study_fpart(modify=1)
+    moke_us_path=calsim_path("I504",mf)
     moke_us=moke_ds-consumnes
+    
     writedss(outfile,moke_us_path,moke_us)
     return
 

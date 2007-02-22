@@ -20,6 +20,7 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
     import config
     import string
     import conserve
+    from calsim_study_fpart import calsim_study_fpart
     
     OUTPUT=config.getAttr('QUALBOUNDARYFILE')
     CALSIM=opendss(config.getAttr('CALSIMFILE'))
@@ -44,8 +45,9 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
         TWINDBUF=timewindow("26DEC%s 0000 - 04JAN%s 0000" % (syear-1, eyear+1) )     # Conservative buffered period for retrieval
                                                                                    # so that after prelimiary operations (e.g. time average)
                                                                                    # time series will still span at least TWIND
+        fpart=calsim_study_fpart(modify=0)
         ndo=DataReference.create(findpath(CALSIM,"/CALSIM/NDO/FLOW-NDO//"+STEP+"/"
-                                  +os.environ['CALSIMSTUDY']+"/")[0],TWINDBUF).getData()
+                                  +fpart+"/")[0],TWINDBUF).getData()
         ndo15=conserve.conserveSpline(ndo,"15MIN")
         mtzastro=DataReference.create(findpath(PLANNINGTIDE,"/FILL\+CHAN/RSAC054/STAGE//15MIN/"+config.getAttr("STAGE_VERSION") + "/")[0],TWINDBUF).getData()
 

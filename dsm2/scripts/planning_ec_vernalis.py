@@ -4,8 +4,6 @@
    input file (BOUNDARYINPUT in the config). No vamp
 """
 
-
-
 import sys
 import config
 import conserve
@@ -13,6 +11,7 @@ from vista.set import DataReference, Units
 from vdss import opendss,findpath,writedss
 from vtimeseries import timewindow,interpolate
 from config import getAttr,setConfigVars
+from calsim_study_fpart import calsim_study_fpart
 
 def calsim_path(calsimname):
     if calsimname.startswith("C"):
@@ -35,11 +34,13 @@ def transfer_ec():
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
     tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
-    calsimstudy=getAttr("CALSIMSTUDY")
+    calsimstudy=calsim_study_fpart(modify=0)
+    calsimstudyout=calsim_study_fpart(modify=1)
     if not calsimstudy or calsimstudy=="":
         print "CALSIMSTUDY envvar not set"
     dsspath="/CALSIM.*/VERNWQFINAL/SALINITY-EC//1MON/%s/" % calsimstudy
-    processedpath=dsspath.replace(".*","-NOVAMP").replace("1MON","1DAY")
+    processedpath=dsspath.replace(".*","-NOVAMP").replace(
+        "1MON","1DAY").replace(calsimstudy,calsimstudyout)
     print processedpath
     refs=findpath(f,dsspath)
     if not refs or len(refs)> 1:
