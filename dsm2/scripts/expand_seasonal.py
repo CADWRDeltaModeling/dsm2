@@ -18,8 +18,6 @@ def expand_seasonal(seasonal, tw):
         if el and filter.isAcceptable(el):
             xval = el.getX()
             xdate=time(long(xval))
-#            xdate=time(long(xval)-1)
-#            xdate=xdate.floor(ti)
             xstr=xdate.toString()
             yval = el.getY()
             month = string.lower(xstr[2:5])
@@ -30,23 +28,21 @@ def expand_seasonal(seasonal, tw):
     #
     if len(seasonalVal) != 12:
         raise "Not all seasonal values found"
-    
-    start=time(tw.getStartTime().getTimeInMinutes())
-    end=tw.getEndTime()
+    t=tw.getStartTime()
+    t=t.create(t.floor(ti)) # need copy
+    start=t.create(tw.getStartTime().floor(ti))
+    end=tw.getEndTime().ceiling(ti)
     n=start.getNumberOfIntervalsTo(end,ti)
     from jarray import zeros
     y=zeros(n+1,'d')
     i=0
-
-    while(start.getTimeInMinutes() <= end.getTimeInMinutes() ):
-       xval=start.getTimeInMinutes()
-       xdate=time(xval)
-       xstr=xdate.toString()
+    while(t.getTimeInMinutes() <= end.getTimeInMinutes() ):
+       xstr=t.toString()
        month=string.lower(xstr[2:5])
        y[i]=seasonalVal[month]
-       start.incrementBy(ti)
+       t.incrementBy(ti)
        i=i+1
-    out=RegularTimeSeries(seasonal.getName(),tw.getStartTime().toString(),
+    out=RegularTimeSeries(seasonal.getName(),start.toString(),
                           timeinterval("1MON").toString(),y,None,seasonal.getAttributes())
     return out
 
@@ -73,5 +69,8 @@ def main():
     tws=config.getAttr('START_DATE')+ " 0000 - " + config.getAttr('END_DATE') + " 2400"
     tw=timewindow(tws)
 
-    #tabulate(s)  # tabulate last one to check the conversion
-    #tabulate(ts)
+    tabulate(s)  # tabulate last one to check the conversion
+    tabulate(ts)
+
+if __name__=="__main__":
+    setConfigVars("config_climate_base.inp")
