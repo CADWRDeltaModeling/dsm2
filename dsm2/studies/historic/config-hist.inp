@@ -1,6 +1,9 @@
 # Configuration.inp
 # Define variables and file names here
 
+
+#TEST
+
 ENVVARS
 NAME			VALUE
 BINDIR                  D:\Delta\dsm2\bin
