@@ -36,18 +36,14 @@ def transfer(infile,outfile,select,window,transform,interval,unique=0):
         if transform:
             transform=transform.lower()
             if transform == "period_max":
-                #if d.getTimeInterval() >= interval: break
                 d=per_max(d,interval.toString())
             elif transform == "period_min":
                 d=per_min(d,interval.toString())
             elif transform == "period_ave":
-                #if d.getTimeInterval() >= interval: break
                 d=per_avg(d,interval.toString())
             elif transform == "tidal_ave":
-                #if not d.getTimeInterval().toS in ["1D
                 d=tidal_avg(d)
             elif transform == "godin":
-                #if d.getTimeInterval() >= timeinterval("1DAY"): break
                 d=godin(d)
             else:
                 raise "Transform %s not recognized" %transform
