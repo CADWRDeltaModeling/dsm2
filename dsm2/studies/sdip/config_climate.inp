@@ -1,0 +1,153 @@
+# Configuration.inp
+# Define the frequently changing variables and file names here
+
+# The key words "ENVVARS" and "END" should be used 
+# to start and end the list. Syntax is just like
+# a DSM2 ENVVARS section.
+
+# Created:  3-1-07 Jamie Anderson (jamiea) and Eli Ateljevich (eli)
+
+
+ENVVARS
+NAME			VALUE
+
+# Change the following 5 lines according to the directory and the study
+
+
+DSM2           	g:/delta/dsm2                          # Where grid and executables are stored
+#DSM2            .                                      # for condor
+SIMNAME         planning_sdip
+
+
+CALSIMNAME	2020D09E_SA_DV
+DSM2MODIFIER	${batch_dsm2modifier}     # Study name used for DSM2 and prepro
+CALSIMSTUDY_ORIGINAL  2020D09E            # fpart straight out of calsim
+CALSIMSTUDY_MODIFIED ${DSM2MODIFIER}      # modified fpart after preprocessing
+CALSIMSTUDY     ${CALSIMSTUDY_MODIFIED}   # CALSIM study name used for DSM2
+CALSIMSTEP      1MON
+DICU_VERSION 	2020                      # Appears in F-PART of DICU data
+STAGE_VERSION   PLANNING-2-SL
+SJR_PROCESS     NOVAMP
+
+# Following lines do not need to be changed, but check for the filename
+
+HYDROEXE		${DSM2}/bin/hydro.exe          # hydro executable
+QUALEXE			${DSM2}/bin/qual.exe           # qual executable
+
+START_DATE      	01Oct1974
+QUAL_START_DATE   02Oct1974
+START_TIME             0000
+END_DATE        	10Oct1974
+END_TIME               0000
+
+TSINPUTDIR              ${DSM2}/timeseries       # Where timeseries are stored.
+#TSINPUTDIR		      .                  # For condor
+CALSIMDIR               ${TSINPUTDIR}            # For single prepro
+#CALSIMDIR               ${batch_calsimdir}      # For batch prepro
+
+TSINPUTLOCAL            ./timeseries             # Local timeseries location
+#TSINPUTLOCAL            .                        # For Condor
+BOUNDARYFILE            ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
+QUALBOUNDARYFILE        ${BOUNDARYFILE}
+DICUDIR                 ${TSINPUTDIR}
+#DICUDIR                 .                         # For condor
+DICUFILE                ${DICUDIR}/dicu-2020.dss                  # DICU file
+CALSIMFILE          	${CALSIMDIR}/${CALSIMNAME}.dss            # Calsim output file
+CALSIM-SMOOTH   	      ${BOUNDARYFILE}                           # Pre-processed boundary input (hydro/qual)
+CALSIM-VAMP		      ${BOUNDARYFILE}                           # Pre-processed VAMP flows and exports
+ 
+DICUFILE_EC         	${TSINPUTDIR}/dicu-wq-2020.dss            # Base DICU file for EC 
+DICUFILE_ECE		${TSINPUTLOCAL}/dicu_ec.dss		  # Extended (recycled) DICU EC used as DSM2 input
+DICUFILE_ECE            ${BOUNDARYFILE}
+
+GATEFILE                ${TSINPUTLOCAL}/gates.dss                 # Processed DSS gate input for dsm2
+GATEFILE                ${BOUNDARYFILE}
+CLIFTONCT_GATEFILE      ${TSINPUTDIR}/clifton_planning.dss        # File containing Clifton Ct Priority Ops
+CLIFTONCT_GATEOP        PRIORITY3                                 # Version of Clifton Court Op to use
+STAGEFILE               ${TSINPUTDIR}/planningtide.dss
+
+
+# Output
+DSM2OUTPUTDIR  		./output
+#DSM2OUTPUTDIR  		.                                    # For condor
+OUTPUTFILE              ${DSM2MODIFIER}_out.dss
+# Hydro
+HYDROOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
+HYDROOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
+HYDROTIDEFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
+HYDRORSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
+GATEOUTPUTFILE          ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+# Qual
+QUALOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
+QUALOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+#QUALTIDEFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qtf
+QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+QUALOUTFILE		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+FINE_OUT                15MIN
+
+
+MSCS_EC_THRESH	        20000
+
+# SDIP Gate Op Parameters
+FALL_START                  01OCT    # start of fall season for SDIP, inclusive
+FALL_END                    01DEC    # end of fall, exclusive of this date
+SUMMER_END                  16JUL    # end of summer season, time 00:00
+                                     # this is immediately "post-vamp" summer season, 
+                                     # not including late summer season if there is one
+VAMP_START                  15APR    # start of vamp season, inclusive
+VAMP_END                    16MAY    # end of vamp season, time 00:00
+SJR_HIGH_FLOW	            10000.   # high sjr flow threshold for opening all gates
+                                     # (if other conditions met)
+LO_ORH_PARTIAL_FLOW           800.   # low end of flow bracket where orh partial flow used (cfs)
+HI_ORH_PARTIAL_FLOW          2500.   # high end of flow bracket where orh partial flow used (cfs)
+VERNALIS_CLEAN     ts(name=vernalis_ec)<600   
+                                     # indicator that vernalis inflow is clean enough to refresh
+                                     # the south delta. this will usually be:
+                                     # vernalis_ec<600  based on boundary ec NO SPACES!!!!!!!
+                                     # true/false       hardwire so that vernalis is considered
+                                     #                  automatically clean enough/never clean enough
+CLOSE_THRESH       0.4               # stage threshold for closing ag gates to protect stage (ft)
+OPEN_THRESH        0.5               # stage threshold for reopening on ascending stage (ft)
+GLC_FLOOD          glc_flood         # indicator of flood tide for glc
+GLC_STAGE_OP       glc_op            # indicates glc is operating using a trigger to
+                                     # protect stage. this will usually be:
+                                     #   glc_op................seasonal,flow-based determination
+                                     #   true/false ...........hard-wired to use/disable trigger
+GLC_UNIDIR         false             # indicates glc is operating tidally (unidirectional)
+                                     # this will usually be
+                                     #   glc_unidir...........seasonal,flow-based determination
+                                     #   true/false...........hard-wired to use/disable
+GLC_OPEN_FLOW      ${SJR_HIGH_FLOW}  # sjr flow at which glc is fixed open.
+                                     #   ${SJR_HIGH_FLOW}.....only when sjr flooding and all gates open
+                                     #   8000.................plan c
+GLC_STAGE_RELAX    glc_stage_relax   # indicator stage is (no longer) critical, could be:
+                                     #   glc_stage_relax.............by just glc acceptable
+                                     #   south_delta_stage_relax.....all three SD channels OK
+GLC_STAGE_LOW      glc_stage_low     # indicator stage is critically low, could be: 
+                                     #   glc_stage_low...........just glc critical
+                                     #   south_delta_stage_low...any of 3 SD channel critical
+GLC_PROTECT_ELEV   -0.5              # level the weir crest is raised to in protect mode
+OLDR_PROTECT_ELEV   -0.5
+MIDR_PROTECT_ELEV   -0.5
+LEAKY_OP           0.2
+PARTIAL_OP         0.1
+MIDR_FLOOD         midr_flood       
+MIDR_STAGE_OP      midr_op    
+MIDR_STAGE_RELAX   midr_stage_relax 
+MIDR_UNIDIR        midr_unidir      
+MIDR_OPEN_FLOW     ${SJR_HIGH_FLOW}  # effectively off unless sjr forces all open
+MIDR_TRIGGER_FLOW  4000
+MIDR_STAGE_LOW     midr_stage_low
+OLDR_FLOOD         oldr_flood
+OLDR_STAGE_OP      oldr_op
+OLDR_STAGE_RELAX   oldr_stage_relax
+OLDR_UNIDIR        oldr_unidir      
+OLDR_OPEN_FLOW     ${SJR_HIGH_FLOW}
+OLDR_TRIGGER_FLOW  2500
+OLDR_STAGE_LOW     oldr_stage_low  
+OLDR_STAGE_RELAX   oldr_stage_relax
+END
+
+
+
