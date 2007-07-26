@@ -15,9 +15,10 @@ TEMPDIR			d:\temp
 SIMNAME		        historical		# name of simulation
 DSM2MODIFIER		hist    		# Study name used for DSM2 output
 DSM2AGENCY		dwr
-HISTFLOWVERSION         DWR-DMS-200610
+VERSIONDATE             200705
+HISTFLOWVERSION         DWR-DMS-${VERSIONDATE}
 HISTSTAGEVERSION        ${HISTFLOWVERSION}
-HISTQUALVERSION         ${HISTFLOWVERSION}
+HISTQUALVERSION         DWR-DMS-${VERSIONDATE}
 
 #runtime
 START_DATE      	01JAN1996
@@ -29,15 +30,18 @@ END_TIME                2400
 
 
 
+
 # Input envvars
 STUDYDIR                .
-TSINPUTDIR              D:\Delta\dsm2\timeseries
+TSINPUTDIR              ../../timeseries
 
-BNDRYINPUT              ${TSINPUTDIR}/hist.dss #_19902007.dss
-GATEFILE		${TSINPUTDIR}/gates_db_jw.dss		
-DICUFILE	        ${TSINPUTDIR}/dicu_200610.dss			
+
+BNDRYINPUT              ${TSINPUTDIR}/hist19902007.dss 
+GATEFILE		${TSINPUTDIR}/gates_db.dss		
+DICUFILE	        ${TSINPUTDIR}/dicu_${VERSIONDATE}.dss			
 QUALBNDINP		${TSINPUTDIR}/hist_19902007.dss
-DICUFILE_ECE		${TSINPUTDIR}/dicuwq_200611.dss # expanded DICU file for EC 
+DICUFILE_ECS            ${TSINPUTDIR}/dicuwq_200611.dss		# seasonal DICU file for EC 
+DICUFILE_ECE		${TSINPUTDIR}/dicuwq_200611_expand.dss  # expanded DICU file for EC 
 DICUFILE-ECS            ${TSINPUTDIR}/dicu.dss		# seasonal DICU file for EC 
 CLIMATE                 ${TSINPUTDIR}/climate-5years.dss
 
@@ -47,6 +51,7 @@ CLIMATE                 ${TSINPUTDIR}/climate-5years.dss
 DSM2OUTPUTDIR  		${STUDYDIR}/output
 OUTPUTFILE              ${DSM2MODIFIER}.dss
 # hydro
+FLOWPATTERN             ./output/FLOWPATTERN.dss
 HYDROOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
 HYDROOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
 HYDRORSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
@@ -61,6 +66,8 @@ QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
 QUALOUTFILE		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
 FINE_OUT                15MIN
 
+# Jones Tract Levee Break 
+EVENTSINPUT             ${TSINPUTDIR}/events.dss
 END
 
 
