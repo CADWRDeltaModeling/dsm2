@@ -26,14 +26,14 @@ output	      none	none   none	    ${HYDROOUTFILE}      # Echoed input and run st
 END 
 
 # Intensive output for suisun
-OUTPUTPATHS     
-NAME 	   CHAN	DIST	TYPE	INTERVAL	PERIOD	FILENAME
-511_LEN	   511	length	flow	15min		inst	${HYDROOUTDSSFILE}
-512_0      512	0	flow	15min		inst	${HYDROOUTDSSFILE}
-513_LENGTH 513	length	flow	15min		inst	${HYDROOUTDSSFILE}
-517_LENGTH 517	length	flow	15min		inst	${HYDROOUTDSSFILE}
-473_0      473	0	flow	15min		inst	${HYDROOUTDSSFILE}
-472_LENGTH 472	length	flow	15min		inst	${HYDROOUTDSSFILE}
-471_0      471	0	flow	15min		inst	${HYDROOUTDSSFILE}
-END
+#OUTPUTPATHS     
+#NAME 	   CHAN	DIST	TYPE	INTERVAL	PERIOD	FILENAME
+#511_LEN    511	length	flow	15min		inst	${HYDROOUTDSSFILE}
+#512_0      512	0	flow	15min		inst	${HYDROOUTDSSFILE}
+#513_LENGTH 513	length	flow	15min		inst	${HYDROOUTDSSFILE}
+#517_LENGTH 517	length	flow	15min		inst	${HYDROOUTDSSFILE}
+#473_0      473	0	flow	15min		inst	${HYDROOUTDSSFILE}
+#472_LENGTH 472	length	flow	15min		inst	${HYDROOUTDSSFILE}
+#471_0      471	0	flow	15min		inst	${HYDROOUTDSSFILE}
+#END
 
