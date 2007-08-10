@@ -6,7 +6,6 @@ import sys,string
 import config
 import interpolate
 from vtimeseries import timewindow
-from vdss import findpath,opendss,writedss
 from vista.set import DataReference
 import config
 #
