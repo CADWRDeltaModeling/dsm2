@@ -14,49 +14,48 @@ NAME			VALUE
 # Change the following 5 lines according to the directory and the study
 
 
-DSM2           	d:/delta/dsm2               # Where grid and executables are stored
-DSM2            .                           # for condor
+DSM2           	d:/delta/dsm2         # Where grid and executables are stored
+#DSM2            .                     # for condor
 SIMNAME         planning_sdip
 
 
-CALSIMNAME	2005a01advsa
+CALSIMNAME	base_common_assumptions      # Name of CALSIM file without ".dss" part
 
-#DSM2MODIFIER	${batch_dsm2modifier}     # Study name used for DSM2 and prepro (batch prepro)
-DSM2MODIFIER	2020OCAP_EWA              # Study name used for DSM2 and prepro 
-CALSIMSTUDY_ORIGINAL  2005A01A            # fpart straight out of calsim
-CALSIMSTUDY_MODIFIED ${DSM2MODIFIER}      # modified fpart desired after preprocessing
+#DSM2MODIFIER	${batch_dsm2modifier}     # Study name used for DSM2 and prepro
+DSM2MODIFIER    PC                        # Study name used for DSM2 and prepro 
+CALSIMSTUDY_ORIGINAL  2020D09E            # fpart straight out of calsim
+CALSIMSTUDY_MODIFIED ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER}      # modified fpart after preprocessing
 CALSIMSTUDY     ${CALSIMSTUDY_MODIFIED}   # CALSIM study name used for DSM2
 CALSIMSTEP      1MON
-DICU_VERSION 	2020                      # Appears in F-PART of DICU data
+DICU_VERSION 	2020                      # Appears in F-PART of DICU data after DICU-DRN
 STAGE_VERSION   PLANNING-2-SL
-SJR_PROCESS     NOVAMP                    # Whether to use vamp in preprocessing
+SJR_PROCESS     NOVAMP                    # VAMP or NOVAMP
 
-# Run times
 START_DATE      	01Oct1974
-QUAL_START_DATE         02Oct1974
-START_TIME              0000
-END_DATE                01OCT1991
-END_TIME                0000
+QUAL_START_DATE     02Oct1974
+START_TIME          0000
+END_DATE            31Oct1974
+END_TIME            0000
 
-TSINPUTDIR              ${DSM2}/timeseries       # Where timeseries are stored.
-T#SINPUTDIR		      .                  # For condor
-#CALSIMDIR               ${TSINPUTDIR}           # For Condor or single prepro
-CALSIMDIR               ${batch_calsimdir}       # For batch prepro
-TEMPDIR                 ./extra_out              # For Condor
-TEMPDIR                 z:/temp                 
-TSINPUTLOCAL            ./timeseries             # Local timeseries location
-#TSINPUTLOCAL            .                        # For Condor
-BOUNDARYFILE            ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
-QUALBOUNDARYFILE        ${BOUNDARYFILE}
+TSINPUTDIR           ${DSM2}/timeseries  # Where timeseries are stored.
+#TSINPUTDIR		      .                  # For condor
+CALSIMDIR            ${TSINPUTDIR}       # For Condor or single prepro
+#CALSIMDIR           ${batch_calsimdir}      # For batch prepro
+#TEMPDIR             ./extra_out             # For Condor      
+TEMPDIR              z:/temp
+TSINPUTLOCAL         ./timeseries            # Local timeseries location
+#TSINPUTLOCAL        .                        # For Condor
+BOUNDARYFILE         ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
+QUALBOUNDARYFILE     ${BOUNDARYFILE}
 DICUDIR                 ${TSINPUTDIR}
-#DICUDIR                 .                       # For condor
+#DICUDIR                 .                         # For condor
 DICUFILE                ${DICUDIR}/dicu-2020.dss                  # DICU file
 CALSIMFILE          	${CALSIMDIR}/${CALSIMNAME}.dss            # Calsim output file
-CALSIM-SMOOTH   	${BOUNDARYFILE}                           # Pre-processed boundary input (hydro/qual)
-CALSIM-VAMP		${BOUNDARYFILE}                           # Pre-processed VAMP flows and exports
+CALSIM-SMOOTH   	    ${BOUNDARYFILE}                           # Pre-processed boundary input (hydro/qual)
+CALSIM-VAMP		        ${BOUNDARYFILE}                           # Pre-processed VAMP flows and exports
 
 DICUFILE_EC         	${TSINPUTDIR}/dicu-wq-2020.dss            # Base DICU file for EC 
-DICUFILE_ECE		${TSINPUTLOCAL}/dicu_ec.dss		  # Extended (recycled) DICU EC used as DSM2 input
+DICUFILE_ECE		    ${TSINPUTLOCAL}/dicu_ec.dss		  # Extended (recycled) DICU EC used as DSM2 input
 DICUFILE_ECE            ${BOUNDARYFILE}
 
 GATEFILE                ${TSINPUTLOCAL}/gates.dss                 # Processed DSS gate input for dsm2
@@ -67,24 +66,24 @@ STAGEFILE               ${TSINPUTDIR}/planningtide.dss
 
 
 # Output
-DSM2OUTPUTDIR  		./output
-#DSM2OUTPUTDIR  		.                                    # For condor
+#DSM2OUTPUTDIR  		./output
+DSM2OUTPUTDIR  		.                                    # For condor
 OUTPUTFILE              ${DSM2MODIFIER}_out.dss
 # Hydro
 HYDROOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
 HYDROOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
-HYDROTIDEFILE          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
-#HYDROTIDEFILE  		./extra_out/${DSM2MODIFIER}.h5  # For Condor  avoiding tidefile return
+HYDROTIDEFILE       ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
+#HYDROTIDEFILE  		./extra_out/${DSM2MODIFIER}.h5  # For  avoiding tidefile return
 HYDRORSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
-GATEOUTPUTFILE          ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+GATEOUTPUTFILE      ${DSM2OUTPUTDIR}/${OUTPUTFILE}
 # Qual
 QUALOUTDSSFILE  	${DSM2OUTPUTDIR}/${OUTPUTFILE}
 QUALOUTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
 #QUALTIDEFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qtf
 QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
 QUALRSTFILE  		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
-QUALOUTFILE		${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
-FINE_OUT                15MIN
+QUALOUTFILE		    ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+FINE_OUT            15MIN
 
 
 MSCS_EC_THRESH	        20000
