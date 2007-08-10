@@ -20,7 +20,7 @@ END
 
 IO_FILES 
 MODEL	TYPE	IO   INTERVAL	FILENAME
-hydro	hdf5	out  1hour        $HYDROHDF5FILE     # Flow data to be passed to qual and ptm
+hydro	hdf5	out  1hour  $HYDROTIDEFILE     # Flow data to be passed to qual and ptm
 hydro	restart	out  1mon	$HYDRORSTFILE      # Initial condition a restart is required
 output	none	none none	$HYDROOUTFILE      # Echoed input and run status
 END 
