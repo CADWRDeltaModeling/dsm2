@@ -6,9 +6,6 @@
 
 ENVVARS
 NAME			VALUE
-BINDIR                  D:\Delta\dsm2\bin
-HYDROEXE		hydro.exe
-QUALEXE			qual.exe
 DBASE			dsm2input
 TEMPDIR			d:\temp
 
@@ -21,12 +18,12 @@ HISTSTAGEVERSION        ${HISTFLOWVERSION}
 HISTQUALVERSION         DWR-DMS-${VERSIONDATE}
 
 #runtime
-START_DATE      	01JAN1996
+START_DATE      	01FEB1999
 START_TIME              0000
-QUAL_START_DATE      	01JAN1996
+QUAL_START_DATE      	02FEB2006
 PTM_START_DATE          ${QUAL_START_DATE}
-END_DATE        	31DEC1996
-END_TIME                2400
+END_DATE        	02SEP1999
+END_TIME                0000
 
 
 
@@ -34,17 +31,16 @@ END_TIME                2400
 # Input envvars
 STUDYDIR                .
 TSINPUTDIR              ../../timeseries
-
-
-BNDRYINPUT              ${TSINPUTDIR}/hist19902007.dss 
+BNDRYINPUT              ${TSINPUTDIR}/hist_19902007.dss 
 GATEFILE		${TSINPUTDIR}/gates_db.dss		
 DICUFILE	        ${TSINPUTDIR}/dicu_${VERSIONDATE}.dss			
 QUALBNDINP		${TSINPUTDIR}/hist_19902007.dss
 DICUFILE_ECS            ${TSINPUTDIR}/dicuwq_200611.dss		# seasonal DICU file for EC 
 DICUFILE_ECE		${TSINPUTDIR}/dicuwq_200611_expand.dss  # expanded DICU file for EC 
-DICUFILE-ECS            ${TSINPUTDIR}/dicu.dss		# seasonal DICU file for EC 
+DICUFILE-ECS            ${TSINPUTDIR}/dicu.dss		        # seasonal DICU file for EC 
 CLIMATE                 ${TSINPUTDIR}/climate-5years.dss
-
+STOCKTON_FLOW_FILE      constant      # needed for DO runs, if not available use constant
+STOCKTON_EFF_FLOW       0.0           # needed for DO runs, if not available use 0.0
 
 
 # Output
