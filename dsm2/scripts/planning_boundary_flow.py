@@ -67,7 +67,9 @@ def smooth_flow():
             raise "Path %s not found or not unique" % dsspath
         ref=DataReference.create(paths[0],tw)
         monthly=ref.getData()
-        if monthly:
+        if monthly:		
+            if len(monthly) < 4:
+			    raise "Length of monthly data too short for smoothing. Wrong time window?"
             daily=conserve.conserveSpline(monthly,"1DAY")
             daily.getAttributes().setYUnits(Units.CFS)
             writedss(outfile,
