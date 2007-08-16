@@ -8,12 +8,12 @@ END
 
 SCALAR
 database         dsm2input
-model_name       $(SIMNAME)_qual_ec
-run_start_date   $QUAL_START_DATE
-run_end_date     $END_DATE
-run_start_time	$START_TIME
+model_name      $(SIMNAME)_qual
+run_start_date  $QUAL_START_DATE
+run_end_date    $END_DATE
+run_start_time  $START_TIME
 run_end_time    $END_TIME
-temp_dir	 z:/temp
+temp_dir	    ${TEMPDIR}
 init_conc       20.0
 END
 
@@ -21,13 +21,13 @@ IO_FILES
 MODEL	TYPE	IO   INTERVAL	FILENAME
 output	none	none  none	$QUALOUTFILE    # echoed input
 qual	restart	out  1day	$QUALRSTFILE    # initial condition in case run must be restarted
-qual    restart in   none       qualinit_30SEP1999.qrf
+#qual    restart in   none       qualinit_30SEP1999.qrf
 #$QUALINITCOND  # restart file used as initial condition
 END
 
 TIDEFILE
 START_DATE    END_DATE     FILENAME
-#runtime       length      output/hist.h5
+runtime       length      ${HYDROTIDEFILE}
 #runtime       20JUL1996  output/tf1.h5
 #20JUL1996     24JUL1996  output/tf2.h5
 #last          length     output/tf3.h5
