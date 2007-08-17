@@ -30,5 +30,6 @@ if __name__ == '__main__':
             tw)
         planning_ec_mtz.planning_ec_mtz()
         planning_ec_vernalis.transfer_ec()  #direct copy of planning ec, no vamp
+        sys.exit()
 
 
