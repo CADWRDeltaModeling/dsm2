@@ -11,18 +11,12 @@
 ENVVARS
 NAME        VALUE
 
-# Change the following 5 lines according to the directory and the study
-
-
-DSM2               d:/delta/dsm2         # Where grid and executables are stored
-#DSM2           .                        # for condor
 SIMNAME         planning_sdip
-
 
 CALSIMNAME    base_common_assumptions           # Name of CALSIM file without ".dss" part
 
 #DSM2MODIFIER         ${batch_dsm2modifier}     # Study name used for DSM2 and prepro
-DSM2MODIFIER          PC                        # Study name used for DSM2 and prepro 
+DSM2MODIFIER          sdip                        # Study name used for DSM2 and prepro 
 CALSIMSTUDY_ORIGINAL  2020D09E                  # fpart straight out of calsim
 CALSIMSTUDY_MODIFIED  ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER}      # modified fpart after preprocessing
 CALSIMSTUDY     ${CALSIMSTUDY_MODIFIED}         # CALSIM study name used for DSM2
@@ -37,7 +31,7 @@ START_TIME          0000
 END_DATE            01Nov1991
 END_TIME            0000
 
-TSINPUTDIR           ${DSM2}/timeseries  # Where timeseries are stored.
+TSINPUTDIR           ../../timeseries  # Where timeseries are stored.
 #TSINPUTDIR          .                  # For condor
 CALSIMDIR            ${TSINPUTDIR}      # For Condor or single prepro
 #CALSIMDIR           ${batch_calsimdir} # For batch prepro
