@@ -22,10 +22,14 @@ if %DSM2MODULE%==hydro (
 type %CONFIGFILE% > hydrotemp.inp & type hydro.inp >> hydrotemp.inp
 set HYDRO_COMMAND=hydro hydrotemp.inp
 ) 
-if %DSM2MODULE%==qual (
+if %DSM2MODULE%==qual_ec (
 type %CONFIGFILE% > qualectemp.inp & type qual_ec.inp >> qualectemp.inp
 set QUAL_COMMAND=qual qualectemp.inp
-) 
+)
+if %DSM2MODULE%==qual_do (
+type %CONFIGFILE% > qualdotemp.inp & type qual_do.inp >> qualdotemp.inp
+set QUAL_COMMAND=qual qualdotemp.inp
+)
 if %DSM2MODULE%==both (
 type %CONFIGFILE% > hydrotemp.inp & type hydro.inp >> hydrotemp.inp
 type %CONFIGFILE% > qualectemp.inp & type qual_ec.inp >> qualectemp.inp
@@ -34,11 +38,11 @@ set QUAL_COMMAND=qual qualectemp.inp
 )
 
 %HYDRO_COMMAND% & if exist hydrotemp.inp del hydrotemp.inp
-%QUAL_COMMAND% & if exist qualtemp.inp del qualtemp.inp
+%QUAL_COMMAND% & if exist qual*temp.inp del qual*temp.inp
 goto end
 
 :helpmsg
-echo "Usage: dsm2.bat hydro|qual|both config.inp"
+echo "Usage: dsm2.bat hydro|qual_ec|qual_do|both config.inp"
 goto end
 
 :noconfig
