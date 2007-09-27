@@ -27,7 +27,7 @@ def transfer(infile,outfile,select,window,transform,interval,unique=0):
                 print "No data in window for reference: %s" % ref
                 continue
         else:
-            r=ref
+            r=DataReference.create(ref)
         
         d = r.getData()
 
@@ -55,6 +55,8 @@ def transfer(infile,outfile,select,window,transform,interval,unique=0):
             p.setPart(Pathname.C_PART,new_c)
         path=p.toString()
         writedss(outfile,path,d)
+        del d
+        del r
 
     #
     return
