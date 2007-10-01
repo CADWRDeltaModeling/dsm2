@@ -135,13 +135,11 @@ def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
                                    even_allocation,
                                    cvp_min_pump)
     swp_limit=limit-cvp_limit
-    writedss("out","/CALC/APRMAY/////",is_april_may)    
     writedss("out","/CALC/EVENALLOC/////",even_allocation)   
     writedss("out","/CALC/CVPLIM/////",cvp_limit)
     writedss("out","/CALC/SWPLIM/////",swp_limit)
     writedss("out","/CALC/PULSELIM/////",pulse_limit)
     writedss("out","/CALC/EILIM/////",eilimit)
-    writedss("out","/CALC/EVENALLOC/////",even_allocation)   
     return swp_limit,cvp_limit
 
 def month_numbers(series):
