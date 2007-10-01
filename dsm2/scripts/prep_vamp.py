@@ -269,12 +269,12 @@ def calculate_exports(limit,average_value):
     # and the volume-corrected pulse/non-pulse combination otherwise.
     export_value = ts_where(limit_exceeds_average,average_value,
                             volume_corrected_limit)
-    writedss("out.dss","/EXP/EXPORT//////",export_value)        
-    writedss("out.dss","/EXP/VCL/////",volume_corrected_limit)
-    writedss("out.dss","/EXP/NONPULSE//////",interpolate(non_pulse_flow,'1DAY'))    
-    writedss("out.dss","/EXP/AVE/////",average_value)
-    writedss("out.dss","/EXP/LIM/////",interpolate(limit,'1DAY'))
-    writedss("out.dss","/EXP/LIM_EXCEED//////",limit_exceeds_average)
+    writedss("out.dss","/EXP/CVP/EXPORT//////",export_value)        
+    writedss("out.dss","/EXP/CVP/VCL/////",volume_corrected_limit)
+    writedss("out.dss","/EXP/CVP/NONPULSE//////",interpolate(non_pulse_flow,'1DAY'))    
+    writedss("out.dss","/EXP/CVP/AVE/////",average_value)
+    writedss("out.dss","/EXP/CVP/LIM/////",interpolate(limit,'1DAY'))
+    writedss("out.dss","/EXP/CVP/LIM_EXCEED_AVE//////",limit_exceeds_average)
    
                     
     export_value.getAttributes().setYUnits("CFS")
