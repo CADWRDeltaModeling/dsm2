@@ -345,7 +345,7 @@ def main():
         fpart=calsim_study_fpart(modify=0)
         fpart_modified=calsim_study_fpart(modify=1)
     
-    #prep_vamp_vernalis(calsimdss,outdss,fpart,fpart_modified) 
+    prep_vamp_vernalis(calsimdss,outdss,fpart,fpart_modified) 
     prep_vamp_exports(calsimdss,outdss,fpart,fpart_modified)
     sys.exit()
         
