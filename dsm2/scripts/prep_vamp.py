@@ -7,9 +7,14 @@ import config
 from vista.set import RegularTimeSeries,DataSetAttr,DataType,Constants
 from vtimeseries import timeinterval,interpolate
 from vdss import opendss,findpath,writedss
+from vmath import tsmax,tsmin
 from config import getAttr,setConfigVars
 from jarray import zeros,array
+CVP_MAX_PUMP=4600.
 CVP_MIN_PUMP=800.
+SWP_MAX_PUMP=8500.
+
+
 monthlist=[m.upper() for m in month_abbr]
 filter=Constants.DEFAULT_FLAG_FILTER
 NA_VAL=-901,0
@@ -303,7 +308,9 @@ def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod):
     swp_limit,cvp_limit=project_export_limits(
                     total_export_limit,ei_ratio,delta_inflow)
     swp=calculate_exports(swp_limit,swp_average_exports)
+    assert ts_max(swp) <= SWP_MAX_PUMP, "SWP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
     cvp=calculate_exports(cvp_limit,cvp_average_exports)
+    assert ts_max(swp) <= CVP_MAX_PUMP, "CVP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
 
     swp_path="/CALSIM-VAMP/D419/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
     dss_store_ts(outfile,swp_path,swp)
