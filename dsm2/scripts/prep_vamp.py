@@ -123,7 +123,9 @@ def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
     # Limit pulse according to EI ratio
     eilimit=ei_ratio*delta_inflow
     
-    # Now apply export limit, may have values only for APR and MAY
+    # Now apply export limit. in the CALSIM file the limit probably
+    # will have values only for APR and MAY, whereas the ei limit 
+    # exists every month
     tsmonth=month_numbers(pulse_limit)
     is_april_may=(tsmonth==4)+(tsmonth==5)
     limit=ts_where(is_april_may *(pulse_limit < eilimit) > 0.,
@@ -190,12 +192,31 @@ def calculate_vamp_times(series):
     total=days_in_month(series)
     n=len(series)
     first_month=monthlist.index(series.getStartTime().toString()[2:5])
+    
+    # Now switch to entirely zero-based arrays for remainder of routine
+    first_month_ndx_yr1=first_month - 1   #zero based index of first month
+    
+    # This array has the number of pulse days per month for a single 
+    # year starting in January. We are going to repeat it over and over
+    # with a subarray at the beginning and end because the input doesn't
+    # necessarily start in January and end in December.
     single_year_pulse_days=[0,0,0,16,15,0,0,0,0,0,0,0]
-    months_year1=13-first_month
-    repeat_months=(n-months_year1)/12
-    extra_months=(n-months_year1)%12
+    
+    if first_month_ndx_yr1 + n > 12:
+       months_year1=12-first_month_ndx_yr1
+       last_month_ndx_yr1=11
+       repeat_months=(n-months_year1)/12
+       extra_months=(n-months_year1)%12
+    else:
+       months_year1=n
+       
+       last_month_ndx_yr1=first_month_ndx_yr1+n-1
+       
+       repeat_months=0
+       extra_months=0
+    
     pulse_days=array(
-               single_year_pulse_days[first_month-1:] + 
+               single_year_pulse_days[first_month_ndx_yr1:(last_month_ndx_yr1+1)] + 
                repeat_months*single_year_pulse_days +
                single_year_pulse_days[0:extra_months], 'd')
     pulse=RegularTimeSeries("/pulse//////",series.getStartTime().toString(),
