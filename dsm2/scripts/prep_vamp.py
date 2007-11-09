@@ -4,6 +4,7 @@
 from calendar import monthrange,month_abbr
 import sys
 import config
+from calsim_study_fpart import calsim_study_fpart
 from vista.set import RegularTimeSeries,DataSetAttr,DataType,Constants
 from vtimeseries import timeinterval,interpolate
 from vdss import opendss,findpath,writedss
@@ -13,7 +14,7 @@ from jarray import zeros,array
 CVP_MAX_PUMP=4600.
 CVP_MIN_PUMP=800.
 SWP_MAX_PUMP=8500.
-
+DEBUG=0
 
 monthlist=[m.upper() for m in month_abbr]
 filter=Constants.DEFAULT_FLAG_FILTER
@@ -291,23 +292,23 @@ def calculate_exports(limit,average_value):
     average_value=interpolate(average_value,'1DAY')
     # Now use average_value for months where the pulse limit would lead to an increase
     # and the volume-corrected pulse/non-pulse combination otherwise.
-    export_value = ts_where(limit_exceeds_average,average_value,
-                            volume_corrected_limit)
-    writedss("out.dss","/EXP/CVP/EXPORT////",export_value)        
-    writedss("out.dss","/EXP/CVP/VCL////",volume_corrected_limit)
-    writedss("out.dss","/EXP/CVP/NONPULSE////",interpolate(non_pulse_flow,'1DAY'))    
-    writedss("out.dss","/EXP/CVP/AVE////",average_value)
-    writedss("out.dss","/EXP/CVP/LIM////",interpolate(limit,'1DAY'))
-    writedss("out.dss","/EXP/CVP/LIM_EXCEED_AVE////",limit_exceeds_average)
-   
-                    
+    export_value = ts_where(limit_exceeds_average,average_value, volume_corrected_limit)
+    if (DEBUG):
+	writedss("out.dss","/EXP/CVP/EXPORT////",export_value)        
+	writedss("out.dss","/EXP/CVP/VCL////",volume_corrected_limit)
+	writedss("out.dss","/EXP/CVP/NONPULSE////",interpolate(non_pulse_flow,'1DAY'))    
+	writedss("out.dss","/EXP/CVP/AVE////",average_value)
+	writedss("out.dss","/EXP/CVP/LIM////",interpolate(limit,'1DAY'))
+	writedss("out.dss","/EXP/CVP/LIM_EXCEED_AVE////",limit_exceeds_average)
+	
     export_value.getAttributes().setYUnits("CFS")
     export_value.getAttributes().setYType("PER-AVER")
+    
     return export_value
 
    
    
-def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod):
+def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod,sjr_process):
     """Driver routine to construct SWP and CVP export flows.
       This routine extracts required time series from the
       CALSIM file, calls a few high level routines to orchestrate
@@ -323,15 +324,22 @@ def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod):
     ei_ratio=dss_retrieve_ts(calsimfile,path)
     path="/CALSIM/DINFLOW/INFLOW-PULSE//1MON/fpart/".replace("fpart",fpart)
     delta_inflow=dss_retrieve_ts(calsimfile,path)
-    path="/CALSIM/PULSEVAMPEXP/EXPORT//1MON/fpart/".replace("fpart",fpart)
+    
+    if (sjr_process.upper()!="SINGLE_STEP") and (sjr_process.upper()!="MULTI_STEP"):
+    	raise ValueError("For preparing VAMP process, SJR_PROCESS has to be either SINGLE_STEP or MULTI_STEP")
+    if sjr_process.upper()=="MULTI_STEP":
+	path="/CALSIM/PULSEVAMPEXP/EXPORT//1MON/fpart/".replace("fpart",fpart)
+    else:
+	path="/CALSIM/D1641/EXPORT//1MON/fpart/".replace("fpart",fpart)
+
     total_export_limit=dss_retrieve_ts(calsimfile,path)
    
     swp_limit,cvp_limit=project_export_limits(
                     total_export_limit,ei_ratio,delta_inflow)
     swp=calculate_exports(swp_limit,swp_average_exports)
-    assert ts_max(swp) <= SWP_MAX_PUMP, "SWP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
+    #assert ts_max(swp) <= SWP_MAX_PUMP, "SWP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
     cvp=calculate_exports(cvp_limit,cvp_average_exports)
-    assert ts_max(swp) <= CVP_MAX_PUMP, "CVP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
+    #assert ts_max(swp) <= CVP_MAX_PUMP, "CVP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
 
     swp_path="/CALSIM-VAMP/D419/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
     dss_store_ts(outfile,swp_path,swp)
@@ -344,18 +352,18 @@ vscript prep_vamp.py configfile
 - OR -
 vscript.bat prep_vamp.py calsimdss outdss
     configfile  the input file for configuration variables
-    calsimdss   the CALSIM output file to be processed
+    calsimdss   the CALSIM file to be processed
     outdss      the destination dss file for calculated flows
     
 The command line version does not include a dss FPART in its search.
 It assumes that the CALSIM file does includes only one version (FPART)
 for each of the required inputs. .
 '''
-def main():    
+def main():
     if len(sys.argv) == 3 or len(sys.argv) == 4:
         calsimdss=sys.argv[1]
         outdss=sys.argv[2]
-        config=0
+        #config=0
         if len(sys.argv) == 4:
             fpart=sys.argv[3]
         else:            
@@ -363,16 +371,19 @@ def main():
         fpart_modified=fpart
         if not(calsimdss.endswith(".dss") and outdss.endswith("dss")):
             raise SystemExit(use)
-    elif len(sys.argv) != 2:
+    elif len(sys.argv) == 2:
         configfile=sys.argv[1]
-        setConfigVars(configfile)
-        calsimdss=config.getValue("CALSIMFILE")
-        outdss=config.getValue("CALSIM-VAMP")
+        config.setConfigVars(configfile)
+        calsimdss=config.getAttr("CALSIMFILE")
+        sjr_process=config.getAttr("SJR_PROCESS")
+        outdss=config.getAttr("CALSIM-VAMP")
         fpart=calsim_study_fpart(modify=0)
         fpart_modified=calsim_study_fpart(modify=1)
-    
+    else:
+	    raise "wrong number of arguments in script prep_vamp"
+	
     prep_vamp_vernalis(calsimdss,outdss,fpart,fpart_modified) 
-    prep_vamp_exports(calsimdss,outdss,fpart,fpart_modified)
+    prep_vamp_exports(calsimdss,outdss,fpart,fpart_modified,sjr_process)
     sys.exit()
         
 if __name__ == '__main__':
