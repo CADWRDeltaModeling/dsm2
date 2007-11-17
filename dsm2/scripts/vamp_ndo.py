@@ -1,7 +1,8 @@
 from vtimeseries import interpolate
 from prep_vamp import dss_retrieve_ts
 import string
-
+"""
+"""
 # remember this function always return a daily rts
 def calc_vamp_delta_ndo(calsimfile,vamp_dss,fpart,fpart_mod,sjr_process):
     # sjr flow
