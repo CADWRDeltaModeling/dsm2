@@ -15,9 +15,8 @@ if NOT EXIST %CONFIGFILE% GOTO noconfig
 echo Prepro is needed only when the CALSIM file changes.
 call vscript ../../scripts/planning_boundary_flow.py %CONFIGFILE%
 call vscript prepro/prep_gates.py %CONFIGFILE%
+call vscript ../../scripts/prep_vamp.py %CONFIGFILE%
 call vscript prepro/prep_ec.py %CONFIGFILE%
-rem call vscript prepro/prep_vamp.py %CONFIGFILE%
-
 )
 
 goto fin
