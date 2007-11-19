@@ -56,10 +56,11 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
         ndo=DataReference.create(findpath(CALSIM,"/CALSIM/NDO/FLOW-NDO//"+STEP+"/"
                                   +fpart+"/")[0],TWINDBUF).getData()
         ndo15=conserve.conserveSpline(ndo,"15MIN")
-	if (SJR_PROCESS.upper()=="SINGLE_STEP") or (SJR_PROCESS.upper()=="MULTI_STEP"):
-	  fpart_modified=calsim_study_fpart(modify=1)
-	  delta_ndo = vamp_ndo.calc_vamp_delta_ndo(calsimfile,vamp_corrected_dss,fpart,fpart_modified,SJR_PROCESS)
-	  ndo15 = ndo15 + interpolate(delta_ndo, "15MIN")
+        # correct for vamp caused ndo change
+        if (SJR_PROCESS.upper()=="SINGLE_STEP") or (SJR_PROCESS.upper()=="MULTI_STEP"):
+            fpart_modified=calsim_study_fpart(modify=1)
+            delta_ndo = vamp_ndo.calc_vamp_delta_ndo(calsimfile,vamp_corrected_dss,fpart,fpart_modified,SJR_PROCESS)
+            ndo15 = ndo15 + interpolate(delta_ndo, "15MIN")
 		
         mtzastro=DataReference.create(findpath(PLANNINGTIDE,"/FILL\+CHAN/RSAC054/STAGE//15MIN/"+config.getAttr("STAGE_VERSION") + "/")[0],TWINDBUF).getData()
 
