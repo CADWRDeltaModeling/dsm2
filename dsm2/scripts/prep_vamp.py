@@ -1,5 +1,6 @@
 """Script to prepare San Joaquin flow and EC, SWP pumping and CVP 
     pumping given a CALSIM output file.
+    
 """
 from calendar import monthrange,month_abbr
 import sys
@@ -143,11 +144,12 @@ def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
                                    even_allocation,
                                    cvp_min_pump)
     swp_limit=limit-cvp_limit
-    writedss("out","/CALC/EVENALLOC/////",even_allocation)   
-    writedss("out","/CALC/CVPLIM/////",cvp_limit)
-    writedss("out","/CALC/SWPLIM/////",swp_limit)
-    writedss("out","/CALC/PULSELIM/////",pulse_limit)
-    writedss("out","/CALC/EILIM/////",eilimit)
+    if DEBUG:
+        writedss("out","/CALC/EVENALLOC/////",even_allocation)   
+        writedss("out","/CALC/CVPLIM/////",cvp_limit)
+        writedss("out","/CALC/SWPLIM/////",swp_limit)
+        writedss("out","/CALC/PULSELIM/////",pulse_limit)
+        writedss("out","/CALC/EILIM/////",eilimit)
     return swp_limit,cvp_limit
 
 def month_numbers(series):
@@ -294,12 +296,12 @@ def calculate_exports(limit,average_value):
     # and the volume-corrected pulse/non-pulse combination otherwise.
     export_value = ts_where(limit_exceeds_average,average_value, volume_corrected_limit)
     if (DEBUG):
-	writedss("out.dss","/EXP/CVP/EXPORT////",export_value)        
-	writedss("out.dss","/EXP/CVP/VCL////",volume_corrected_limit)
-	writedss("out.dss","/EXP/CVP/NONPULSE////",interpolate(non_pulse_flow,'1DAY'))    
-	writedss("out.dss","/EXP/CVP/AVE////",average_value)
-	writedss("out.dss","/EXP/CVP/LIM////",interpolate(limit,'1DAY'))
-	writedss("out.dss","/EXP/CVP/LIM_EXCEED_AVE////",limit_exceeds_average)
+        writedss("out.dss","/EXP/CVP/EXPORT////",export_value)        
+        writedss("out.dss","/EXP/CVP/VCL////",volume_corrected_limit)
+        writedss("out.dss","/EXP/CVP/NONPULSE////",interpolate(non_pulse_flow,'1DAY'))    
+        writedss("out.dss","/EXP/CVP/AVE////",average_value)
+        writedss("out.dss","/EXP/CVP/LIM////",interpolate(limit,'1DAY'))
+        writedss("out.dss","/EXP/CVP/LIM_EXCEED_AVE////",limit_exceeds_average)
 	
     export_value.getAttributes().setYUnits("CFS")
     export_value.getAttributes().setYType("PER-AVER")
