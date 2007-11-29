@@ -23,7 +23,7 @@ CALSIMSTUDY     ${CALSIMSTUDY_MODIFIED}         # CALSIM study name used for DSM
 CALSIMSTEP      1MON
 DICU_VERSION     2020                           # Appears in F-PART of DICU data after DICU-DRN
 STAGE_VERSION   PLANNING-2-SL
-SJR_PROCESS     NOVAMP                          # VAMP or NOVAMP
+SJR_PROCESS     SINGLE_STEP                         # SINGLE_STEP or MULTI_STEP
 
 START_DATE          01Oct1974
 QUAL_START_DATE     02Oct1974
