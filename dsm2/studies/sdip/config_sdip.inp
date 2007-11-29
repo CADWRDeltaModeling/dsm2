@@ -45,8 +45,8 @@ DICUDIR              ${TSINPUTDIR}
 #DICUDIR             .                  # For condor
 DICUFILE             ${DICUDIR}/dicu-2020.dss          # DICU file
 CALSIMFILE           ${CALSIMDIR}/${CALSIMNAME}.dss    # Calsim output file
-CALSIM-SMOOTH        ${BOUNDARYFILE}                   # Pre-processed boundary input (hydro/qual)
-CALSIM-VAMP          ${BOUNDARYFILE}                   # Pre-processed VAMP flows and exports
+CALSIM_SMOOTH        ${BOUNDARYFILE}                   # Pre-processed boundary input (hydro/qual)
+CALSIM_VAMP          ${BOUNDARYFILE}                   # Pre-processed VAMP flows and exports
 
 DICUFILE_EC          ${TSINPUTDIR}/dicu-wq-2020.dss    # Base DICU file for EC 
 DICUFILE_ECE         ${TSINPUTLOCAL}/dicu_ec.dss       # Extended (recycled) DICU EC used as DSM2 input
