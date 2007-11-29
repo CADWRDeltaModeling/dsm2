@@ -1,4 +1,0 @@
-PACKAGE=DWR.DMS.PTM
-
-JAVA_FILES = PTMI.java FileMenu.java ToolBar.java EditMenu.java RunPTM.java Display.java FileUtils.java PTMFileFilter.java
-
