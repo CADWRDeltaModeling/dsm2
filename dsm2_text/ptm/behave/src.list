@@ -1,0 +1,3 @@
+PACKAGE=DWR.DMS.PTM
+
+JAVA_FILES = Behavior.java Phase.java PhaseGUI.java PhysicalElement.java PhysicalPanel.java TimePanel.java mainGUI.java Units.java BehaviorField.java PositionElement.java FlowElement.java PositionTable.java FlowTable.java GroupableHeaderUI.java GroupableHeader.java ColumnGroup.java PositionPanel.java FlowPanel.java

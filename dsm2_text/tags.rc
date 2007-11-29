@@ -1,0 +1,13 @@
+#!/bin/csh -f
+
+# create tags file of all DSM2 fortran codes
+
+set modules = (hydro qual ptm ptm/native ptm/behave ptm/gui ptm/tools/image input/time-varying input/fixed)
+set main_dir = ~/models/dsm2
+
+rm -f $main_dir/TAGS
+foreach dir ( $modules )
+echo $dir
+(cd $dir; etags *.{f,c,cc,inc,h,hh,hc,java})
+etags -a $dir/*.{f,c,cc,inc,h,hh,hc,java}
+end

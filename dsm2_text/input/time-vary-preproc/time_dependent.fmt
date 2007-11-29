@@ -1,0 +1,50 @@
+             ============= TIME-DEPENDENT MODEL INPUT ==========
+ NOTE: For Time pattern use...
+	exact time value if event occurs only at that time.
+	(...) if event occurs for a set of time units.
+	[...] if event occurs at a constant interval. 
+          *   if event occurs for all time units.
+		e.g.  	Hour(s)> 1200
+	 	         Day(s)> 3
+		       Month(s)> (Mar,Apr,May)
+		        Year(s)> *
+	Occurs at 1200 on the 3rd day in March, April and May.
+
+Area> \area,area-type
+Location> \location
+Data-type> \data-type          Data-units> \data-units
+Study> \study
+
+Time Step Duration> \step,time-step
+Time Range:  From> \sdate,date-ddmmmyyyy,min-width=11  \stime,timestr
+	       To> \edate,date-ddmmmyyyy,min-width=11  \etime,timestr
+Time Pattern:  
+ 	 Time(s)> \phr
+	  Day(s)> \pdy
+	Month(s)> \pmh
+	 Year(s)> \pyr
+Value> \value
+Save in DSS file> \dssfile
+Comments> \comment
+Local Variables:
+eval: (load-file "/delta/models/new/input/time-varying/time_dependent_fn.el")
+eval: (database-set-fieldnames-to-list database
+				(setq fieldnames-list
+				 '((area . area-type)
+				   (location . one-line-string-or-nil)
+				   (data-type . dtype)
+				   (data-units . dunits)
+				   (study . one-line-string-or-nil)
+				   (step . time-step)
+				   (sdate . date )  
+				   (stime . timestr)
+				   (edate . date)
+				   (etime . timestr)
+				   (phr . one-line-string-or-nil)
+				   (pdy . one-line-string-or-nil)
+				   (pmh . one-line-string-or-nil)
+				   (pyr . one-line-string-or-nil)
+				   (value . one-line-string-or-nil)
+				   (dssfile .  one-line-string)
+				   (comment . comment-type))))
+End:
