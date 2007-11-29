@@ -4,7 +4,7 @@ import java.lang.*;
  * Encapsulates the fixed information for this model
  *
  * @author Nicky Sandhu
- * @version $Id: PTMFixedData.java,v 1.6 2001/01/06 00:49:00 miller Exp $
+ * @version $Id: PTMFixedData.java,v 1.4 2000/01/07 00:53:28 miller Exp $
  */
 public class PTMFixedData {
   /**
@@ -60,24 +60,22 @@ public particleFixedData getParticleFixedData(){
   int[] nInjected = getParticleNumberOfParticlesInjected();
   int[] startJulmin = getParticleInjectionStartJulmin();
   int[] lengthJulmin = getParticleInjectionLengthJulmin();
-  boolean qBinary = qualBinaryBooleanInput();
   int ngroups = getNumberOfChannelGroups();
-  String[] qNames = getQualConstituentNames();
-
   pFD.setVariables(booleanInputs[0],booleanInputs[1],
 		   booleanInputs[2],booleanInputs[3],
 		   booleanInputs[4],booleanInputs[5],
 		   booleanInputs[6],booleanInputs[7],
 		   booleanInputs[8]);
+  //  System.out.println(booleanInputs[0]+"  "+booleanInputs[1]+"  "+booleanInputs[2]+"  "+booleanInputs[3]+"  "+booleanInputs[4]+"  "+booleanInputs[5]);
+
   pFD.setVariables((int) floatInputs[0],floatInputs[1],
 		   floatInputs[2],floatInputs[3],
 		   floatInputs[4],floatInputs[5],
-		   (int) floatInputs[6],floatInputs[7]);
+		   (int) floatInputs[6]);
   pFD.setVariables(nInjections,
 		   nNode, nInjected,
 		   startJulmin, lengthJulmin);
-  pFD.setVariables(ngroups,qBinary,qNames);
-
+  pFD.setVariables(ngroups);
   return pFD;
 }
 
@@ -97,11 +95,6 @@ public fluxFixedData[] getFluxFixedData(){
   return fFD;
 }
 
-
-  public boolean qualBinaryBooleanInput(){
-    int exist = doesQualBinaryExist();
-    return exist == 0 ? false : true;
-  }
 
   /**
     *
@@ -145,8 +138,6 @@ public native int getNumberOfXSections();
  static native int getUniqueIdForStageBoundary(int i);
  static native int getUniqueIdForConveyor(int i);
   //
- static native int doesQualBinaryExist();
- static native String[] getQualConstituentNames();
   //
  native int getNumberOfWaterbodiesForNode(int i);
  native int[] getWaterbodyIdArrayForNode(int i);

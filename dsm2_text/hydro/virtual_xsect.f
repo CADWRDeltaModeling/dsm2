@@ -6,15 +6,15 @@ C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,15 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 
       subroutine virtual_xsect
 
@@ -59,7 +60,8 @@ c-----The height is the distance above the lowest point in the cross-section.
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
+	include 'virt_xsect.inc'
+
 
       integer
      &     channo               ! dsm channel number
@@ -164,7 +166,8 @@ c-----added to the list.
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
+	include 'virt_xsect.inc'
+
 
       integer
      &     channo               ! dsm channel number
@@ -183,7 +186,8 @@ c-----added to the list.
 c-----function required by qsort function
       external compar
       integer*2 compar
-
+
+
 
 c-----check array bounds
       if(irreg_geom_assg(channo).num_sec_assg .gt. max_assg_sec) then
@@ -306,7 +310,8 @@ c-----rise over run.
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
+	include 'virt_xsect.inc'
+
 
       integer
      &     channo               ! dsm channel number
@@ -471,7 +476,8 @@ c-----upstream end
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
+	include 'virt_xsect.inc'
+
 
       REAL*8
      &     interp              ! interpolation function
@@ -684,7 +690,8 @@ c-----direction.
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
+	include 'virt_xsect.inc'
+
 	
       integer
      &     secno                ! real cross-section number
@@ -702,7 +709,8 @@ c-----direction.
 
 c-----statement functions to interpolate/extrapolate wrt to two points
       interp(x1,x2,y1,y2,x) =-((y2-y1)/(x2-x1))*(x2-x) + y2
-
+
+
 c-----statement function to calculate index of elevation array
       eindex(channo,virtelev)=elev_index(channo)+virtelev-1
 
@@ -772,8 +780,10 @@ c-----vertical direction.
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
-
+	include 'virt_xsect.inc'
+
+
+
 
       integer
      &     secno                ! real cross-section number
@@ -846,7 +856,8 @@ c-----This subroutine interpolates z centroid values in the vertical direction.
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
+	include 'virt_xsect.inc'
+
 
       integer
      &     rsecno               ! real cross-section number
@@ -928,7 +939,8 @@ c-----This subroutine calculates cross-section properties for rectangular sectio
 
       include '../input/fixed/common.f'
       include '../input/fixed/common_irreg_geom.f'
-	include 'virt_xsect.inc'
+	include 'virt_xsect.inc'
+
 
       integer
      &     channo               ! dsm channel number

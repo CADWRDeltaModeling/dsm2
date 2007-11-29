@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: waterbody.java,v 1.3 2000/08/18 23:12:58 miller Exp $
+//$Id: waterbody.java,v 1.2.2.1 2003/04/08 00:46:23 miller Exp $
 package DWR.DMS.PTM;
 import java.lang.*;
 import java.util.*;
@@ -57,7 +57,7 @@ import edu.cornell.RngPack.*;
  * that creates it.
  *
  * @author Nicky Sandhu
- * @version $Id: waterbody.java,v 1.3 2000/08/18 23:12:58 miller Exp $
+ * @version $Id: waterbody.java,v 1.2.2.1 2003/04/08 00:46:23 miller Exp $
  */
 public abstract class waterbody{
   /**
@@ -115,9 +115,9 @@ public abstract class waterbody{
     nodeIdArray = nodeIds;
     nodeArray = new node[nNodes]; 
     depthAt = new float[nNodes];
+    stageAt = new float[nNodes];
     flowAt = new float[nNodes];
     velocityAt = new float[nNodes];
-    qualityAt = new float[nNodes][getNumConstituents()];
     if(randomNumberGenerator == null)
       randomNumberGenerator = new Ranecu(INITIAL_SEED);
   }
@@ -271,20 +271,6 @@ public abstract class waterbody{
     return _group;
   }
   /**
-   *  returns upstream water quality for constituent
-   */
-  public float getQuality(int nodeNum, int constituent){
-    return qualityAt[nodeNum][constituent];
-  }
-
-  /**
-   *  returns number of available quality constituents
-   */
-  public int getNumConstituents(){
-    return PTMFixedData.getQualConstituentNames().length;
-  }
-
-  /**
    * String representation
    */
   public String toString(){
@@ -307,7 +293,6 @@ public abstract class waterbody{
     }
     return rep;
   }
-
   /**
    *  index in PTMEnv waterbody array
    */
@@ -336,11 +321,7 @@ public abstract class waterbody{
   /**
    *  Flow, depth, velocity, width and area information read from tide file
    */
-  protected float[] flowAt, depthAt, velocityAt, widthAt;
-  /**
-   *  Water quality information read from Qual binary file
-   */
-  protected float[][] qualityAt;
+  protected float[] flowAt, depthAt, stageAt, velocityAt, widthAt;
   /**
    *  gaussian random number generator
    */

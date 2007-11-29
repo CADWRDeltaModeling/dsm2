@@ -58,7 +58,7 @@ import java.util.*;
 
 /**
  * @author Aaron Miller
- * @version $Id: mainGUI.java,v 1.8 2002/07/22 23:57:57 miller Exp $
+ * @version $Id: mainGUI.java,v 1.7.8.1 2003/04/08 00:59:18 miller Exp $
  */
 
 public class mainGUI implements MouseListener, MouseMotionListener {

@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: PTMTraceOutput.java,v 1.2 2000/08/07 17:00:29 miller Exp $
+//$Id: PTMTraceOutput.java,v 1.2.8.1 2003/04/08 21:21:15 miller Exp $
 package DWR.DMS.PTM;
 import java.io.*;
 import java.lang.*;
@@ -115,7 +115,8 @@ protected final void writeOutputBinary(int tmStamp,
 				       int wbNum){
   try{
     outputStream.writeInt(tmStamp); 
-    outputStream.writeShort(particleNum);
+//      outputStream.writeShort(particleNum);
+    outputStream.writeInt(particleNum);
     outputStream.writeShort(nodeNum);
     outputStream.writeShort(wbNum);
     outputStream.flush();

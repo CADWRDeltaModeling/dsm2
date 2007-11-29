@@ -1,0 +1,87 @@
+# Makefile for creating shared library
+
+JAVA_HOME = /site/java/jdk
+JAVAH = $(JAVA_HOME)/bin/javah
+PTM_CLASS_DIR = ../classes
+
+#F77=f77
+F77=/opt/SUNWspro/SC4.2/bin/f77
+
+CC=/opt/SUNWspro/SC/bin/CC
+
+LINKER=f77
+
+SRC_CC=DWR_DMS_PTM_PTMFixedData.c DWR_DMS_PTM_PTMHydroInput.c \
+DWR_DMS_PTM_Globals.c DWR_DMS_PTM_PTMFluxOutput.c
+OBJ_CC=${SRC_CC:%.c=%.o}
+
+INCLUDES = -I/site/java/jdk/include -I/site/java/jdk/include/solaris 
+
+SRC_H=DWR_DMS_PTM_PTMFixedData.h DWR_DMS_PTM_PTMHydroInput.h \
+DWR_DMS_PTM_Globals.h DWR_DMS_PTM_PTMFluxOutput.h dynamicData.h fixedData.h
+
+SRC_INC=ptmLocal.inc version.inc
+
+SRC_F77= dynamicData.f fixedData.f miscData.f ptmLocal.f
+OBJ_F77=${SRC_F77:%.f=%.o} 
+
+opt:=CFLAGS= -PIC -fast -dalign -O4 -D_REENTRANT ${INCLUDES}
+dbg:=CFLAGS= -PIC -g -D_REENTRANT ${INCLUDES}
+
+fixed:=CFLAGS= -PIC -D_REENTRANT ${INCLUDES}
+dynamic:=CFLAGS= -PIC -D_REENTRANT ${INCLUDES}
+
+opt:=FFLAGS= -e -Nl99 -dalign -fast -PIC -O4
+dbg:=FFLAGS= -e -Nl99 -PIC -g
+
+opt:=LFLAGS= -G 
+dbg:=LFLAGS= -g -G 
+
+LOPTS= -Bdynamic -lC -lF77 -lsunmath -lc -lM77
+opt:=LIBALL = ../lib/libPTM.so
+dbg:=LIBALL = ../lib/libPTM_g.so
+
+SOURCES_ALL=${SRC_CC} ${SRC_H} ${SRC_INC} ${SCR_F77}
+
+src: ${SOURCES_ALL} ${LIBFIX} ${LIBTV}
+
+#library definitions
+LIB=lib.a
+LIBFIX=../../input/fixed/${LIB}
+LIBTV=../../input/time-varying/${LIB}
+LIBHYDRO=../../hydro/${LIB}
+LIBLOC=/usr/hec/code/local/lib.a
+LIBDSS=/usr/hec/lib/heclib.a
+DBGPATCH=patch.o
+
+patch:=PATCH= ${DBGPATCH}
+dbg:=PATCH=${DBGPATCH}
+opt:=PATCH=
+
+src := TARGET = src
+opt:=TARGET = optmax
+dbg:=TARGET = dbg #optmax
+
+.KEEP_STATE:
+
+patch: FORCE 
+	rtc_patch_area -o ${PATCH} -size 2000000
+
+opt dbg: ${LIBFIX} ${LIBTV} ${OBJ_F77} ${OBJ_CC} 
+	${LINKER} ${LFLAGS} -o ${LIBALL} ${PATCH} ${OBJ_F77} ${OBJ_CC} \
+	${LIBFIX} ${LIBTV} ${LIBLOC} ${LIBDSS} \
+	${LOPTS};
+
+${LIBFIX}: FORCE
+	cd ${@D}; make ${TARGET}
+
+${LIBTV}: FORCE
+	cd ${@D}; make ${TARGET}
+
+
+src: ${SOURCES_ALL}
+
+FORCE:	;
+
+DWR_DMS_PTM_PTMFixedDate.c: ../PTMFixedData.java
+        ${JAVAH} -classpath ${PTM_CLASS_DIR}:$$CLASSPATH -jni DWR.DMS.PTM.PTMFixedData

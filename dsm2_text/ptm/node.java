@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: node.java,v 1.2 2000/08/07 17:00:33 miller Exp $
+//$Id: node.java,v 1.2.8.1 2003/10/09 19:20:54 miller Exp $
 
 package DWR.DMS.PTM;
 import java.lang.*;
@@ -148,12 +148,18 @@ public final boolean isJunctionDeadEnd(){
   /**
    *  Get total positive outflow from node.. add up all flows leaving the node
    */
-public final float getTotalOutflow(){
+public final float getTotalOutflow(boolean addSeep){
   float outflow=0.0f;
   //  System.out.println(this.toString());
   // for each waterbody connected to junction add the outflows
   for (int id=0; id < numberOfWaterbodies; id++) {
-    outflow += getOutflow(id);
+	  if(!addSeep){
+		  if(getWaterbody(id).getAccountingType() != flowTypes.evap)
+			  outflow += getOutflow(id);
+	  }
+	  else{
+		  outflow += getOutflow(id);
+	  }
   }
   return (outflow);
 }

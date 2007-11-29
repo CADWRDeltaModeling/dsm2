@@ -6,15 +6,15 @@ C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,15 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 
 c-----common blocks for DSM2 I/O
 
@@ -82,20 +83,19 @@ c-----Scalars for ptm
 
       real
      &     ptm_trans_constant,
-     &     ptm_vonkarman,
+     &     ptm_vert_constant,
      &     ptm_trans_a_coef,
      &     ptm_trans_b_coef,
-     &     ptm_trans_c_coef,
-     &     ptm_shear_vel
+     &     ptm_trans_c_coef
 
-      common /com_r_ptm/ ptm_trans_constant, ptm_vonkarman,
+      common /com_r_ptm/ ptm_trans_constant, ptm_vert_constant,
      &     ptm_trans_a_coef, ptm_trans_b_coef,
-     &     ptm_trans_c_coef, ptm_shear_vel
+     &     ptm_trans_c_coef
 
 c-----Values that indicate whether a scalar was specified in the input
       integer
      &     ptm_random_seed_int,
-     &     ptm_vonkarman_int,
+     &     ptm_vert_constant_int,
      &     ptm_trans_constant_int,
      &     ptm_iprof_int,
      &     ptm_igroup_int,
@@ -107,14 +107,13 @@ c-----Values that indicate whether a scalar was specified in the input
      &     ptm_trans_a_coef_int,
      &     ptm_trans_b_coef_int,
      &     ptm_trans_c_coef_int,
-     &     ptm_shear_vel_int,
      &     ptm_flux_percent_int,
      &     ptm_group_percent_int,
      &     ptm_flux_cumulative_int,
      &     ptm_no_animated_int
 
       common /com_r_ptmint/ ptm_random_seed_int
-     &     , ptm_vonkarman_int
+     &     , ptm_vert_constant_int
      &     , ptm_trans_constant_int
      &     , ptm_iprof_int
      &     , ptm_igroup_int
@@ -126,7 +125,6 @@ c-----Values that indicate whether a scalar was specified in the input
      &     , ptm_trans_a_coef_int
      &     , ptm_trans_b_coef_int
      &     , ptm_trans_c_coef_int
-     &     , ptm_shear_vel_int
      &     , ptm_flux_percent_int
      &     , ptm_group_percent_int
      &     , ptm_flux_cumulative_int

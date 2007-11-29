@@ -52,17 +52,18 @@ import java.awt.event.*;
 
 /**
  * @author Aaron Miller
- * @version $Id: PhaseGUI.java,v 1.5 2000/08/07 17:05:07 miller Exp $
+ * @version $Id: PhaseGUI.java,v 1.5.8.1 2003/04/08 01:01:13 miller Exp $
  */
 
 public class PhaseGUI implements FocusListener {
 
-  JFrame frame;
+  JDialog frame;
   JPanel mainPanel, tabPanel, buttonPanel;
   PhysicalPanel physical;
   TimePanel time;
   PositionPanel position;
   FlowPanel flow;
+	StagePanel stage;
   //  QualityPanel quality;
   JTabbedPane tabbedPane;
   JButton doneBtn, cancelBtn;
@@ -71,7 +72,7 @@ public class PhaseGUI implements FocusListener {
 
   public PhaseGUI(JFrame parent, Phase phase) {
     origPhase = phase;
-    frame = new JFrame("Behavior Center for "+phase.getName());
+    frame = new JDialog(parent, "Behavior Center for "+phase.getName(),true);
     mainPanel = new JPanel(false);
     tabPanel = new JPanel(false);
     buttonPanel = new JPanel(false);
@@ -81,17 +82,17 @@ public class PhaseGUI implements FocusListener {
     physical.setLayout(new GridLayout(1,1));
     tabbedPane.addTab("Physical",null,physical,"Give Physical Behavior");
 
-    time = new TimePanel();
-    time.setLayout(new GridLayout(1,1));
-    tabbedPane.addTab("Time",null,time,"Give Time Behavior");
-
     position = new PositionPanel(origPhase.getPosition());
     position.setLayout(new GridLayout(1,1));
-    tabbedPane.addTab("Position",null,position,"Give Position Behavior");
+    tabbedPane.addTab("Time",null,position,"Give Position Behavior");
 
     flow = new FlowPanel(origPhase.getFlow());
     flow.setLayout(new GridLayout(1,1));
     tabbedPane.addTab("Flow",null,flow,"Give Flow Behavior");
+
+    stage = new StagePanel(origPhase.getStage());
+//      stage.setLayout(new GridLayout(1,1));
+	tabbedPane.addTab("stage",null,stage,"Give Flow Behavior");
 
     tabPanel.setLayout(new GridLayout(1,1));
     tabPanel.add(tabbedPane);
@@ -105,6 +106,7 @@ public class PhaseGUI implements FocusListener {
 	physical.setParams();
 	position.setParams();
 	flow.setParams();
+	stage.setParams();
 	frame.setVisible(false);
 	phase_closed = true;
       }
@@ -130,7 +132,10 @@ public class PhaseGUI implements FocusListener {
     mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
     frame.addWindowListener(new WindowAdapter() {
-      public void windowClosing(WindowEvent e) {System.exit(0);}
+      public void windowClosing(WindowEvent e) {
+		  frame.setVisible(false);
+		  phase_closed = true;
+	  }
     });
 
     frame.getContentPane().add(mainPanel);

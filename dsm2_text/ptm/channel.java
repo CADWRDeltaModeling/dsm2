@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: channel.java,v 1.4 2001/01/06 00:49:00 miller Exp $
+//$Id: channel.java,v 1.2.2.1 2003/04/08 00:46:22 miller Exp $
 package DWR.DMS.PTM;
 import java.lang.*;
 /**
@@ -54,9 +54,13 @@ import java.lang.*;
  * properties such as cross-sections.
  *
  * @author Nicky Sandhu
- * @version $Id: channel.java,v 1.4 2001/01/06 00:49:00 miller Exp $
+ * @version $Id: channel.java,v 1.2.2.1 2003/04/08 00:46:22 miller Exp $
  */
 public class channel extends waterbody{
+  /**
+   * a constant for vertical velocity profiling.
+   */
+  public final static float VONKARMAN = 0.4f;
   /**
    * local index of up stream node
    */
@@ -68,19 +72,11 @@ public class channel extends waterbody{
   /**
    * a constant defining the resolution of velocity profile
    */
-  public final static int MAX_PROFILE = 10000;
+  public final static int MAX_PROFILE = 1000;
   /**
    *  an array of coefficients for profile
    */
   public static float[] vertProfile = new float[channel.MAX_PROFILE];
-  /**
-   *  an array of coefficients for profile
-   */
-  public static float[] transProfile = new float[channel.MAX_PROFILE];
-  /**
-   *  an array of coefficients for profile
-   */
-  public static float[] dTransProfile = new float[channel.MAX_PROFILE];
   /**
    *  use vertical profile
    */
@@ -132,6 +128,16 @@ public class channel extends waterbody{
     return depth;
   }
   /**
+   *  Gets the depth of the channel at that particular x position
+   */
+  public final float getStage(float xPos){
+    float stage = 0.0f;
+    float alfx = xPos/length;
+    
+    stage=alfx*stageAt[DOWNNODE] + (1-alfx)*stageAt[UPNODE];
+    return stage;
+  }
+  /**
    *  Gets the velocity of water in channel at that particular x,y,z position
    */
   public final float getVelocity(float xPos, float yPos, float zPos){
@@ -141,8 +147,6 @@ public class channel extends waterbody{
     float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, getDepth(xPos));
     if(useTransProfile) tp = calcTransProfile(yPos, getWidth(xPos));
-    //    (test code)
-    //    System.out.println(calcTransProfile(yPos, getWidth(xPos))+" "+calcTransProfile2(yPos, getWidth(xPos)));
     return (v*vp*tp);
   }
   /**
@@ -154,8 +158,6 @@ public class channel extends waterbody{
     float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, depth);
     if(useTransProfile) tp = calcTransProfile(yPos, width);
-    //(test code)
-    //    System.out.println(calcTransProfile(yPos, getWidth(xPos))+" "+calcTransProfile2(yPos, getWidth(xPos)));
     return (averageVelocity*vp*tp);
   }
   /**
@@ -196,32 +198,20 @@ public class channel extends waterbody{
   /**
    *  Gets the Transverse velocity A coefficient
    */
-   public static float getTransverseACoef(){
+   public float getTransverseACoef(){
      return Globals.Environment.pInfo.getTransverseACoef();
    }
   /**
    *  Gets the Transverse velocity B coefficient
    */
-   public static float getTransverseBCoef(){
+   public float getTransverseBCoef(){
      return Globals.Environment.pInfo.getTransverseBCoef();
    }
   /**
    *  Gets the Transverse velocity A coefficient
    */
-   public static float getTransverseCCoef(){
+   public float getTransverseCCoef(){
      return Globals.Environment.pInfo.getTransverseCCoef();
-   }
-  /**
-   *  Gets the Von Karman coefficient
-   */
-   public static float getVonKarman(){
-     return Globals.Environment.pInfo.getVonKarmanConstant();
-   }
-  /**
-   *  Gets the Shear velocity proportion coefficient
-   */
-   public static float getShearVel(){
-     return Globals.Environment.pInfo.getShearVelConstant();
    }
   /**
    *  Returns flow type ie.
@@ -245,27 +235,16 @@ public class channel extends waterbody{
     return Math.max(0.0f, vertProfile[(int)zfrac]);
   }
   /**
-   *  transvers profile multiplier (test code)
+   *  transvers profile multiplier
    */
-  final float calcTransProfile(float y, float width){
-    float yfrac = (y/width + 0.5f)*(MAX_PROFILE-1);
-    return Math.max(0.0f, transProfile[(int)yfrac]);
+  private final float calcTransProfile(float y, float width){
+    float yfrac = 2.0f*y/width;
+    float yfrac2=yfrac*yfrac;
+    float a = getTransverseACoef();
+    float b = getTransverseBCoef();
+    float c = getTransverseCCoef();
+    return a+b*yfrac2+c*yfrac2*yfrac2; // quartic profile across channel width
   }
-  //(old code)
-//   final float calcTransProfile2(float y, float width){
-//      float yfrac = 2.0f*y/width;
-//      float yfrac2=yfrac*yfrac;
-//      float a = getTransverseACoef();
-//      float b = getTransverseBCoef();
-//      float c = getTransverseCCoef();
-//      return a+b*yfrac2+c*yfrac2*yfrac2; // quartic profile across channel width
-//    }
-
-  final float calcDTransProfile(float y, float width){
-    float yfrac = (y/width + 0.5f)*(MAX_PROFILE-1);
-    return dTransProfile[(int)yfrac];
-  }
-
   /**
    *  returns the number of cross sections
    */
@@ -308,6 +287,13 @@ public class channel extends waterbody{
     depthAt[DOWNNODE] = depthArray[1];
   }
   /**
+   *  Set depth information
+   */
+  public final void setStage(float[] stageArray){
+    stageAt[UPNODE] = stageArray[0];
+    stageAt[DOWNNODE] = stageArray[1];
+  }
+  /**
    *  Set area information
    */
   public final void setArea(float[] areaArray){
@@ -315,15 +301,6 @@ public class channel extends waterbody{
     widthAt[UPNODE] = areaAt[UPNODE]/depthAt[UPNODE];
     areaAt[DOWNNODE] = areaArray[1];
     widthAt[DOWNNODE] = areaAt[DOWNNODE]/depthAt[DOWNNODE];
-  }
-  /**
-   *  Set quality information
-   */
-  public final void setQuality(float[][] qualArray){
-    for (int i = 0; i < qualArray[0].length; i++){
-      qualityAt[UPNODE][i] = qualArray[0][i];
-      qualityAt[DOWNNODE][i] = qualArray[1][i];
-    }
   }
   /**
    *  Get average velocity
@@ -379,24 +356,9 @@ public class channel extends waterbody{
    *  calculate profile
    */
   public final static void constructProfile(){
-    float yfrac, yfrac2;
-    float a = getTransverseACoef();
-    float b = getTransverseBCoef();
-    float c = getTransverseCCoef();
-    float vonKarman = getVonKarman();
-    float shearVel = getShearVel();
-
-    vertProfile[0] = (float) (1.0f+(shearVel/vonKarman)*(1.0f+Math.log((0.01f)/MAX_PROFILE)));
-    for(int i=1; i< MAX_PROFILE; i++) 
-      vertProfile[i] = (float) (1.0f+(shearVel/vonKarman)*(1.0f+Math.log(((float)i)/MAX_PROFILE)));
-
-    for(int i=0; i< MAX_PROFILE; i++) {
-      yfrac = 2*((float)i/MAX_PROFILE - 0.5f);
-      yfrac2 = yfrac*yfrac;
-      transProfile[i] = a+b*yfrac2+c*yfrac2*yfrac2;
-
-      dTransProfile[i] = yfrac*(4.0f * b + 8.0f * c * yfrac2);
-    }
+    vertProfile[0] = (float) (1.0f+0.1f*(1.0f+Math.log((0.01f)/MAX_PROFILE)/VONKARMAN));
+    for(int i=1; i< MAX_PROFILE; i++)
+      vertProfile[i] = (float) (1.0f+(0.1f/VONKARMAN)*(1.0f+Math.log(((float)i)/MAX_PROFILE)));
   }
   /**
    *  Number of cross sections

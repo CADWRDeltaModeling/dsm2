@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: particle.java,v 1.6 2001/01/06 00:49:00 miller Exp $
+//$Id: particle.java,v 1.5.2.2 2003/10/09 19:20:55 miller Exp $
 package DWR.DMS.PTM;
 import java.lang.*;
 import java.util.*;
@@ -133,7 +133,7 @@ import edu.cornell.RngPack.*;
  *  Then the probability that a particle will leave the reservoir through a
  *  certain node is proportional to the ratio of Vi:Vtotal.
  * @author Nicky Sandhu
- * @version $Id: particle.java,v 1.6 2001/01/06 00:49:00 miller Exp $
+ * @version $Id: particle.java,v 1.5.2.2 2003/10/09 19:20:55 miller Exp $
  * 
  */
 public class particle{
@@ -229,17 +229,12 @@ public class particle{
     */
   public final static void setFixedInfo(particleFixedInfo pFI){
     if (DEBUG) System.out.println("in setfixedinfo for particle");
-    particle.vonKarman = pFI.getVonKarmanConstant();
-    if (DEBUG) System.out.println("von karman = "+vonKarman);
+    particle.verticalConstant = pFI.getVerticalConstant();
+    if (DEBUG) System.out.println("vertical constant");
     particle.transverseConstant = pFI.getTransverseConstant();
-    if (DEBUG) System.out.println("trans constant = "+transverseConstant);
-    particle.shearVel = pFI.getShearVelConstant();
-    if (DEBUG) System.out.println("shear velocity = "+shearVel);
-    particle.Ct = transverseConstant * shearVel;
-    if (DEBUG) System.out.println("Ct = "+Ct);
-
-    //    particle.CtCv = (float) (Math.sqrt(transverseConstant/verticalConstant));
-    //    if (DEBUG) System.out.println("CtCv");
+    if (DEBUG) System.out.println("trans constant");
+    particle.CtCv = (float) (Math.sqrt(transverseConstant/verticalConstant));
+    if (DEBUG) System.out.println("CtCv");
     particle.vertMove = pFI.moveVertically();
     if (DEBUG) System.out.println("vert move");
     particle.transMove = pFI.moveLaterally();
@@ -323,25 +318,28 @@ public class particle{
   /**
     *  updates position of particle.
     */
-  public final void updatePosition(float delT){
-    if (DEBUG) System.out.println("In update position for particle " + this);
-    if(inserted){
-      recursionCounter=0;
-      updateXYZPosition(delT);
-      //      System.out.println("update "+Id);
-      if(! isDead) checkHealth();
-      //      if (Id == 1) System.out.println(Id+" "+age+" "+getFallVel());
+	public final void updatePosition(float delT){
+		particleWait = false;  //set or reset pariticle wait variable
+		if (DEBUG) System.out.println("In update position for particle " + this);
+		if(inserted){
+			recursionCounter=0;
+			updateXYZPosition(delT);
+			updateOtherParameters(delT);
+			//      System.out.println("update "+Id);
+			if(! isDead) checkHealth();
+			//      if (Id == 1) System.out.println(Id+" "+age+" "+getFallVel());
       
-    }    
-    else if (!inserted && Globals.currentModelTime >= insertionTime) {
-      if ( (Globals.currentModelTime - insertionTime)/60.0 > delT )
-	warning("Particle insertion time specification may be incorrect");
-      insert();
-      recursionCounter=0;
-      if (DEBUG) System.out.println("updating xyz positions");
-      updateXYZPosition(delT);
-    }
-  }
+		}    
+		else if (!inserted && Globals.currentModelTime >= insertionTime) {
+			if ( (Globals.currentModelTime - insertionTime)/60.0 > delT )
+				warning("Particle insertion time specification may be incorrect");
+			insert();
+			recursionCounter=0;
+			if (DEBUG) System.out.println("updating xyz positions");
+			updateXYZPosition(delT);
+			updateOtherParameters(delT);
+		}
+	}
   
   
   /**
@@ -386,14 +384,14 @@ public class particle{
   protected static float transverseConstant;
   
   /**
+    *  The vertical constant for mixing
+    */
+  protected static float verticalConstant;
+  
+  /**
     *  A factor calculated from transverse and vertical constant's for mixing
     */
   protected static float CtCv;
-
-  /**
-    *  A transverse diffusivity factor based on the Darcy-Wiesbach friction factor
-    */
-  protected static float Ct;
   
   /**
     *  Limiting factor for the movement during one time step due to mixing.
@@ -428,32 +426,19 @@ public class particle{
   /**
     *  Mixing co-efficients
     */
-  protected float Ev,Et,Evdt,Etdt;
-
-  /**
-    *  Vertical diffusive gradient contribution to mixing
-    */
-  protected float verDifGra;
-
-  /**
-    *  Transverse diffusive gradient contribution to mixing
-    */
-  protected float tranDifGra;
+  protected float Ev,Evdt,Etdt;
   
   /**
-    *  Von Karman logrithmic coefficient
+    *  Falling velocity of particle through water
     */
-  protected static float vonKarman;
-
-  /**
-    *  Channel shear velocity
-    */
-  protected static float shearVel;
-
-  /**
-    *  normalized z position
-    */
-  protected float zRatio;
+  //  protected float fallvel;
+	/**
+	 *  A particle may be asked to wait instead of move with the velocity
+	 *  An example is when seep flows control at a node and particle to seep
+	 *  has been turned off.  The particle is asked to remain at its current 
+	 *  position.
+	 */
+	private boolean particleWait;
 
   /**
     *  Gaussian random number generator for y and z dispersive movements
@@ -487,17 +472,17 @@ public class particle{
       while( tmLeft >= tmstep && isDead == false){
 	age+=tmstep;
 
-	updateAllParameters(tmstep);
-	
-	// gets the x,y, and z position of the particle after time step
-	x=calcXPosition(tmstep);
-	if ( wb.getPTMType() != waterbody.CHANNEL ) return;
-	// after recursion this may be true.
-	if ( tmLeft >= tmstep && isDead == false ) {
-	  y=calcYPosition(tmstep);
-	  z=calcZPosition(tmstep);
+	updateAllParameters(tmstep);											
+	if (particleWait == false){												
+		// gets the x,y, and z position of the particle after time step			
+		x=calcXPosition(tmstep);												
+		if ( wb.getPTMType() != waterbody.CHANNEL ) return;						
+		// after recursion this may be true.									
+		if ( tmLeft >= tmstep && isDead == false) {	
+			y=calcYPosition(tmstep);												
+			z=calcZPosition(tmstep);												
+		}																		
 	}
-      
 	// update number of time steps taken
 	tmLeft -= tmstep;
       }// end while
@@ -539,18 +524,9 @@ public class particle{
   /**
     *  Generates random numbers for y and z positioning
     */
-  //(test code)
-  //  boolean pointSource = true;
   protected final void setYZLocationInChannel(){
-//     if(pointSource){
-//       y = ((channel)wb).getWidth(x)*0.0f;
-//       z = ((channel)wb).getDepth(x)*0.5f;
-//       pointSource = false;
-//     }
-//     else {
-      y = ((channel)wb).getWidth(x)*(wb.getRandomNumber()-0.5f);
-      z = ((channel)wb).getDepth(x)*wb.getRandomNumber();
-      //    }
+    y = ((channel)wb).getWidth(x)*(wb.getRandomNumber()-0.5f);
+    z = ((channel)wb).getDepth(x)*wb.getRandomNumber();
   }
   
   
@@ -577,10 +553,12 @@ public class particle{
     
    //   if (recursionCounter++ > 5) error("Too many recursions in calcXPosition(float)");
    if (recursionCounter++ > 5) {
-     if (repositionFactor < MAX_R_F)
-	 repositionFactor += RFIncrement;
-     System.out.println("Reposition Factor set to "+repositionFactor+" for particle "+getId());
+	   if (repositionFactor < MAX_R_F){
+		   repositionFactor += RFIncrement;
+		   System.out.println("Reposition Factor set to "+repositionFactor+" for particle "+getId()+" at node "+((channel)wb).getUpNodeId());
+	   }
      recursionCounter = 0;
+	 
    }
    updateXYZPosition(tmLeft);
    return x;
@@ -602,19 +580,19 @@ public class particle{
           + calcYDisplacementIntDeterministic(timeStep)
           + calcYDisplacementIntRandom(timeStep);
   
-    // reflection from ends of channel
-    int k=0, MAX_BOUNCING=100; // max num of iterations to do reflection
-    float halfWidth = channelWidth/2.0f;
-    while ((yPos < -halfWidth || yPos > halfWidth) && (k<=MAX_BOUNCING)){
-      if (yPos < -halfWidth) yPos = -halfWidth + (-halfWidth-yPos);
-      if (yPos > halfWidth ) yPos =  halfWidth - (  yPos-  halfWidth);
-      k++;
-    }
-    
-    if (k > MAX_BOUNCING)     
-      error("Too many iterations in calcYPosition()");
+// reflection from ends of channel
+ int k=0, MAX_BOUNCING=100; // max num of iterations to do reflection
+ float halfWidth = channelWidth/2.0f;
+ while ((yPos < -halfWidth || yPos > halfWidth) && (k<MAX_BOUNCING)){
+   if (yPos < -halfWidth) yPos = -halfWidth + (-halfWidth-yPos);
+   if (yPos > halfWidth ) yPos =  halfWidth - (  yPos-  halfWidth);
+   k++;
+ }
+  
+ if (k > MAX_BOUNCING)     
+   error("Too many iterations in calcYPosition()");
 
-    return (yPos);
+ return (yPos);
   }  
   
   /**
@@ -685,10 +663,8 @@ public class particle{
     */
   protected float calcYDisplacementExtRandom(float timeStep){
   
-    Etdt = (float) Math.sqrt(2.0f * Et * timeStep);
     // get a gaussian distributed random number for y mixing
     float dypos = (float) (randomNumberGenerator.gaussian()*Etdt);
-    dypos = dypos + tranDifGra*timeStep;
 
     // if transverse mixing allowed return the random y movement
     if (transMove) return(dypos);
@@ -721,13 +697,10 @@ public class particle{
     *  Externally induced Random
     */
   protected float calcZDisplacementExtRandom(float timeStep){
-  
+
     // get the random mixing component
-    Evdt = (float) Math.sqrt(2.0f * Ev * timeStep);
-    //(old code)
-    //    Etdt=Evdt*CtCv;
     float dz = (float) (randomNumberGenerator.gaussian()*Evdt);
-    dz = dz + verDifGra*timeStep;
+  
     if (vertMove) return(dz);
     else return 0.0f;
   
@@ -785,7 +758,10 @@ public class particle{
     // send message to observer about change 
     if (observer != null) 
       observer.observeChange(particleObserver.NODE_CHANGE,this);
-    float outflow = nd.getTotalOutflow();
+
+	// changed getTotalOut
+
+    float outflow = nd.getTotalOutflow(false);
 
     // if the node is at a node with zero flow, for example at the
     // end of a slough, then move the particle into the channel a 
@@ -794,22 +770,36 @@ public class particle{
       x = getPerturbedXLocation();
       return;
     }
+
+	float out2 = outflow;
+
     float rand = nd.getRandomNumber();
     outflow = rand*outflow;
-  
+
     int waterbodyId=-1;
     float flow=0.0f;
-  
+
+	if(outflow == 0.0){
+		particleWait = true;
+		return;
+	}
+
     // add flow from each node till the flow is greater than the outflow
     do {
       waterbodyId++;
-      flow += nd.getOutflow(waterbodyId);
+	  
+	  // this conditional statement added to exclude seepage
+	  // this should be read in as an argument
+	  if(nd.getWaterbody(waterbodyId).getAccountingType() != flowTypes.evap){
+		  flow += nd.getOutflow(waterbodyId);
+	  }
     }
     while ( flow < outflow && 
 	    waterbodyId < nd.getNumberOfWaterbodies());
   
     // get a pointer to the water body in which particle entered.
     wb = nd.getWaterbody(waterbodyId);
+	
     // send message to observer about change 
     if (observer != null) 
       observer.observeChange(particleObserver.WATERBODY_CHANGE,this);
@@ -914,7 +904,7 @@ public class particle{
 
   private static final float Emin=0.0001f;
   
-  private static final int MAX_NUM_OF_SUB_TIME_STEPS=750;
+  private static final int MAX_NUM_OF_SUB_TIME_STEPS=10000;
   private static final int MISSING = -99999;
   
   private final void insert(){
@@ -947,41 +937,22 @@ public class particle{
   
   }
   
+	protected void updateOtherParameters(float delT){
+	}
+
   private final void updateParticleParameters(float timeStep){
     z = z*channelDepth/previousChannelDepth; // adjust for changing depth
     y = y*channelWidth/previousChannelWidth; // adjust for changing width
     //set previouses to the news..
-
-    if (Math.abs(y) > channelWidth)
-      System.out.println("y "+y+" ch "+channelWidth+" pch "+previousChannelWidth);
-
     previousChannelDepth=channelDepth;
     previousChannelWidth=channelWidth;
   
-    //calculate zRatio
-    zRatio = z/channelDepth;
     //recalculate mixing co-efficients..
-    // new calculation of diffusion (test code)
-    Ev = vonKarman * channelDepth * shearVel * channelVave * zRatio * (1.0f - zRatio);
-    // (old code) calculation of diffusion will be removed after testing of new scheme
-    //    Ev = Math.abs(verticalConstant*channelDepth*channelVave);
+    Ev = Math.abs(verticalConstant*channelDepth*channelVave);
     Ev = Math.max(Ev,Emin);
-
-    Et = Ct * channelDepth * channelVave * 
-      ((channel)wb).calcTransProfile(y,channelWidth);
-
-    Et = Math.max(Et, Emin);
-
-    // Vertical Diffusive Gradient contribution (test code)
-    verDifGra = vonKarman * shearVel * (1.0f - 2.0f * zRatio);
-    //      Evdt = (float) Math.sqrt(2.0f * Ev * timeStep);
-    //(old code)
-    //    Etdt=Evdt*CtCv;
-
-    tranDifGra = Ct * channelDepth * channelVave * 
-      (((channel)wb).calcDTransProfile(y,channelWidth)/channelWidth);
-    //      Etdt = (float) Math.sqrt(2.0f * Et * timeStep);
-    //    System.out.println(y+" "+channelVave+" "+channelDepth+" "+channelWidth+" "+Etdt+" "+tranDifGra);
+    Evdt=(float) Math.sqrt(2.0f*Ev*timeStep);
+    Etdt=Evdt*CtCv;
+  
   }
   
   
@@ -995,7 +966,11 @@ public class particle{
       nd = wb.getNode(channel.DOWNNODE);
     }
     else return false;
-    return true;
+
+	// if the particle has been asked to wait then return false
+	if(particleWait)
+		return false;
+	return true;
   }
   
   private final float calcTimeToNode(float xpos){
@@ -1050,19 +1025,18 @@ public class particle{
     updateAllParameters(0.0f); // time step not really a factor here.
     float dzmax=dfac*channelDepth;
     float dymax=dfac*channelWidth;
-    float dtz=Math.min(dzmax/terminalVelocity,(dzmax*dzmax-verDifGra*verDifGra)/(2*Ev));
-    //    float dtz=Math.min(dzmax/terminalVelocity,(dzmax*dzmax)/(Ev));
-
-    //(test code)
-    float dty=Math.min(dymax/terminalVelocity,(dymax*dymax-tranDifGra*tranDifGra)/(2*Et));
-    //    float dty=Math.min(dymax/terminalVelocity,(dymax*dymax)/(Et));
-    //    float dty = (dymax*dymax)/(CtCv*CtCv*Ev);
+    float dtz=Math.min(dzmax/terminalVelocity,dzmax*dzmax/Ev);
+    float dty = (dymax*dymax)/(CtCv*CtCv*Ev);
+  
+//  	System.out.println("dzmax="+dzmax+"; dymax="+dymax+"; Ev="+Ev+"; CtCv="+CtCv+
+//  					   "; dtz="+dtz+"; dty="+dty);
 
     float minTimeStep = 0.0f;
   
     if ((vertMove==true) && (transMove==true)) minTimeStep=Math.min(dty,dtz);
     else if ((vertMove==true) && (transMove!=true)) minTimeStep=dtz;
     else if ((vertMove!=true) && (transMove==true)) minTimeStep=dty;
+  
     return minTimeStep;
   }
 
@@ -1088,7 +1062,7 @@ public class particle{
   /**
     *  Reposition Factor increment
     */
-  private float RFIncrement = 0.00001f;
+  private float RFIncrement = 0.0001f;
 
   /**
     *  Maximum Repositioning Factor

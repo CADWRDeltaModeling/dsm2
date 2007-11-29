@@ -1,7 +1,8 @@
 package DWR.DMS.PTM;
 
 class instantaneousOutput{
-  short particleNumber;
+//    short particleNumber;
+  int particleNumber;
   short channelNumber;
   short normXDistance;
   short normYDistance;

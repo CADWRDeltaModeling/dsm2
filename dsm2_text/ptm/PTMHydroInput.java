@@ -55,7 +55,7 @@ package DWR.DMS.PTM;
  * <p>
  * 
  * @author Nicky Sandhu
- * @version $Id: PTMHydroInput.java,v 1.3 2000/08/18 23:12:57 miller Exp $
+ * @version $Id: PTMHydroInput.java,v 1.2.2.1 2003/04/08 00:46:23 miller Exp $
  */
 public class PTMHydroInput{
   /**
@@ -75,11 +75,10 @@ public final void getNextChunk(int currentModelTime) {
 public final void updateWaterbodiesHydroInfo(waterbody [] wbArray, 
 					     limitsFixedData lFD){
   //update channel depths, flows and area of flow
-  int numConst = PTMFixedData.getQualConstituentNames().length;
   float[] depthArray = new float[2];
+  float[] stageArray = new float[2];
   float[] flowArray = new float[2];
   float[] areaArray = new float[2];
-  float[][] qualityArray = new float[2][numConst];
   for(int channelNumber=1; 
       channelNumber <= PTMFixedData.getMaximumNumberOfChannels(); 
       channelNumber++){
@@ -87,6 +86,9 @@ public final void updateWaterbodiesHydroInfo(waterbody [] wbArray,
     if(wbArray[dsmNumber] !=null){
       depthArray[channel.UPNODE]   = getUpNodeDepth(channelNumber);
       depthArray[channel.DOWNNODE] = getDownNodeDepth(channelNumber);
+
+      stageArray[channel.UPNODE]   = getUpNodeStage(channelNumber);
+      stageArray[channel.DOWNNODE] = getDownNodeStage(channelNumber);
       
       flowArray[channel.UPNODE]   = getUpNodeFlow(channelNumber);
       flowArray[channel.DOWNNODE] = getDownNodeFlow(channelNumber);
@@ -94,21 +96,10 @@ public final void updateWaterbodiesHydroInfo(waterbody [] wbArray,
       areaArray[channel.UPNODE]   = getUpNodeArea(channelNumber);
       areaArray[channel.DOWNNODE] = getDownNodeArea(channelNumber);
 
-      for (int indx = 0; indx < qualityArray[0].length; indx++){
-	qualityArray[channel.UPNODE][0] = getUpNodeQuality(dsmNumber,indx+1);
-	qualityArray[channel.DOWNNODE][0] = getDownNodeQuality(dsmNumber,indx+1);
-      }
-
-      //      if(channelNumber == 54 || dsmNumber == 54)
-      //	System.out.println("channel:"+dsmNumber+"upnode:"+qualityArray[0][0]);
-      //      if(channelNumber == 7)
-      //	System.out.println("channel:"+dsmNumber+"flow:"+flowArray[1]);
-      //      if(dsmNumber == 8 || dsmNumber == 54)
-      //	System.out.println("channel:"+channelNumber+"flow:"+flowArray[0]);
       ((channel) wbArray[dsmNumber]).setDepth(depthArray);
+      ((channel) wbArray[dsmNumber]).setStage(stageArray);
       ((channel) wbArray[dsmNumber]).setFlow(flowArray);
       ((channel) wbArray[dsmNumber]).setArea(areaArray);
-      ((channel) wbArray[dsmNumber]).setQuality(qualityArray);
     }
   }
   // update reservoir dynamic information
@@ -208,6 +199,8 @@ private native void  readMultTide(int currentModelTime);
 private native int   getExtFromInt(int channelNumber);
 private native float getUpNodeDepth(int channelNumber);
 private native float getDownNodeDepth(int channelNumber);
+private native float getUpNodeStage(int channelNumber);
+private native float getDownNodeStage(int channelNumber);
 private native float getUpNodeFlow(int channelNumber);
 private native float getDownNodeFlow(int channelNumber);
 private native float getUpNodeArea(int channelNumber);
@@ -227,8 +220,5 @@ private native float getReservoirPumping(int reservoirNumber);
 private native float getBoundaryFlow(int bId);
 private native float getStageBoundaryFlow(int bId);
 private native float getConveyorFlow(int cId);
-
-private native float getUpNodeQuality(int channelNumber, int constituent);
-private native float getDownNodeQuality(int channelNumber, int constituent);
 
 }

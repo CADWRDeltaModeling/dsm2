@@ -48,7 +48,7 @@
 package DWR.DMS.PTM;
 /**
  * @author Aaron Miller
- * @version $Id: BehavedParticle.java,v 1.5 2001/01/06 00:49:00 miller Exp $
+ * @version $Id: BehavedParticle.java,v 1.4.2.1 2003/04/08 00:46:22 miller Exp $
  */
 public class BehavedParticle extends particle{
 
@@ -56,30 +56,81 @@ public class BehavedParticle extends particle{
    * 
    *  value of ratio of internal to external velocity
    */
-public BehavedParticle(particleFixedInfo pFI){
-  super(pFI);
-  behaviorData = pFI.getBehavior();
-}
+	public BehavedParticle(particleFixedInfo pFI){
+		super(pFI);
+		behaviorData = pFI.getBehavior();
+	}
+
+	protected void updateOtherParameters(float delT){
+		updateStageInfo(delT);
+	}
+
+	private void updateStageInfo(float delT){
+		float stageValue, slope;
+		if (wb.getPTMType() == waterbody.CHANNEL) {
+			stageValue = ((channel)wb).getStage(x);
+			if(_stageSet){
+				slope = (stageValue - _lastStageValue)/delT;
+				if(slope >= MIN_SLOPE){
+					_stagePhase = STAGE_RISING;
+				}
+				else if(slope <= -MIN_SLOPE){
+					_stagePhase = STAGE_FALLING;
+				}
+				else{
+					_stagePhase = STAGE_TRANSITIONAL;
+				}
+			}
+			_lastStageValue = stageValue;
+			_stageSet = true;
+		}
+	}
 
   /**
     *  Returns the normalized upper bound of the allowable in channel depth range
     */
-  private float getZUpperBound(){
-    float upper;
-    upper = behaviorData.getZUpperLimit(age,getModelTime());
-    if(upper != 0) upper = upper/100f;
-    return upper;
+	private float getZUpperBound(){
+		float upper = 100;
+		upper = behaviorData.getTimeZUpperLimit(age,getModelTime());
+		if(upper != 0 && upper != 100){
+			upper = upper/100f;
+			return upper;
+		}
+		if(_stagePhase == STAGE_FALLING){
+			upper = behaviorData.getStageZUpperLimit(age,STAGE_FALLING);
+		}
+		else if(_stagePhase == STAGE_RISING){
+			upper = behaviorData.getStageZUpperLimit(age,STAGE_RISING);
+		}
+		if(upper != 0) upper = upper/100f;
+		return upper;
   }
 
   /**
     *  Returns the normalized lower bound of the allowable in channel depth range
     */
-  private float getZLowerBound(){
-    float lower;
-    lower = behaviorData.getZLowerLimit(age,getModelTime());
-    if(lower != 0) lower = lower/100f;
-    return lower;
-  }
+	private float getZLowerBound(){
+		float lower = 0;
+		//  	if(_ageId != behaviorData.getCurrentAgeId()){
+		lower = behaviorData.getTimeZLowerLimit(age,getModelTime());
+		if(lower != 0){
+			lower = lower/100f;
+//  			_lastLowerValue = lower;
+			return lower;
+		}
+		if(_stagePhase == STAGE_FALLING){
+			lower = behaviorData.getStageZLowerLimit(age,STAGE_FALLING);
+		}
+		else if(_stagePhase == STAGE_RISING){
+			lower = behaviorData.getStageZLowerLimit(age,STAGE_RISING);
+		}
+		if(lower != 0) lower = lower/100f;
+//  		_lastLowerValue = lower;
+//  	}
+//  	else
+//  		lower = _lastLowerValue;
+		return lower;
+	}
 
   /**
     *  Returns the normalized allowable in channel depth range
@@ -91,36 +142,26 @@ public BehavedParticle(particleFixedInfo pFI){
   /**
     *  Externally induced Random
     */
-  protected float calcZDisplacementExtRandom(float timeStep){
-    // get the random mixing component
-    Evdt = (float) Math.sqrt(2.0f * Ev * timeStep);
-    float dz = (float) (randomNumberGenerator.gaussian()*Evdt);
-    dz = dz + verDifGra*timeStep;
-
-    // if there is positioning information available
-    if (getZRangeMagnitude() != 1f){
-      // if the particle is outside the allowable range
-      if (z < getZLowerBound()*channelDepth || z > getZUpperBound()*channelDepth){
-	// if the particle is below
-	if (z < getZLowerBound()*channelDepth)
-	  dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude() 
-			+ (getZLowerBound() * channelDepth - z));
-	// if the particle is above
-	else if (z > getZUpperBound()*channelDepth)
-	  dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude() 
-			- (z - getZUpperBound() * channelDepth));
-      }
-      // if the particle is with in the allowable range
-      else dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude());
-    }
-    // if the particle is not restricted to a range
-    else dz = (float) (randomNumberGenerator.gaussian()*Evdt);
-    if (DEBUG) System.out.println(" Id = "+Id+" dz = "+dz+" channelDepth = "+channelDepth
-				  +" z = "+z+" mag = "+getZRangeMagnitude());
-    if (vertMove) return(dz);
-    else return 0.0f;
+	protected float calcZDisplacementExtRandom(float timeStep){
+		// get the random mixing component
+//  		behaviorData.setCurrentAgeId(age);
+		
+		float dz = 0.0f;
+		if (getZRangeMagnitude() != 1f){  // if there is positioning information available
+			if (z < getZLowerBound()*channelDepth || z > getZUpperBound()*channelDepth){  // if the particle is outside the allowable range
+				if (z < getZLowerBound()*channelDepth) // if the particle is below
+					dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude() + (getZLowerBound() * channelDepth - z));
+				else if (z > getZUpperBound()*channelDepth) // if the particle is above
+					dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude() - (z - getZUpperBound() * channelDepth));
+			}
+			else dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude()); // if the particle is with in the allowable range
+		}
+		else dz = (float) (randomNumberGenerator.gaussian()*Evdt); // if the particle is not restricted to a range
+		if (DEBUG) System.out.println(" Id = "+Id+" dz = "+dz+" channelDepth = "+channelDepth+" z = "+z+" mag = "+getZRangeMagnitude());
+		if (vertMove) return(dz);
+		else return 0.0f;
   
-  }
+	}
 
   /**
     *  Externally induced Deterministic
@@ -136,16 +177,13 @@ public BehavedParticle(particleFixedInfo pFI){
     float mortRate;
     mortRate = behaviorData.getMortality(age);
     if (mortRate != _prevMortRate) { 
-      // assign a random number to this particle (Health of particle)
-      _rand = (float) randomNumberGenerator.uniform(0.0, 1.0);
+      _rand = (float) randomNumberGenerator.uniform(0.0, 1.0); // assign a random number to this particle (Health of particle)
       _prevMortRate = mortRate;
       _baseAge = behaviorData.getPhaseAge();
       if (DEBUG) System.out.println("_baseAge"+_baseAge+" "+mortRate+" "+_prevMortRate);
     }
-    // exponential probability distribution
-    float deathDeterminer = 1.0f - (float) Math.exp(-mortRate*(age-_baseAge));
-    // if this particles number is < the resulting probability then particle dies
-    if (_rand <= deathDeterminer) {
+    float deathDeterminer = 1.0f - (float) Math.exp(-mortRate*(age-_baseAge)); // exponential probability distribution
+    if (_rand <= deathDeterminer) { // if this particles number is < the resulting probability then particle dies
       isDead = true;
       observer.observeChange(particleObserver.DEATH,this);
       if (DEBUG) System.out.println(Id+" died at age "+age+" and "+_baseAge+" with a mortality rate of "+
@@ -199,5 +237,28 @@ public BehavedParticle(particleFixedInfo pFI){
     *  used to calculate the age in a particular phase
     */
   protected float _baseAge;
+	
+	protected float _lastStageValue;
+	
+	protected int _stagePhase;
+
+	protected int _ageId = -901; // set to non ageId number
+
+	protected float _lastLowerValue = 0; // set to initial value
+
+	protected float _lastUpperValue = 1; // set to initial value
+
+	public static int STAGE_RISING = 0;
+
+	public static int STAGE_FALLING = 1;
+
+	public static int STAGE_TRANSITIONAL = 2;
+
+	public static float MIN_SLOPE = 0.0001f; // about 0.1 ft in 15 min or 900 sec
+
+	/**
+	 * True after one cycle when _lastStageValue has been set.
+	 */
+	protected boolean _stageSet = false;
 }
 

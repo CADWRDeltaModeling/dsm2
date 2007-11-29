@@ -14,7 +14,7 @@ C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,7 +35,7 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
@@ -59,16 +59,23 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       REAL*8 Discharge( 1+MaxConnectingChannels )
       REAL*8 WSElev( 1+MaxConnectingChannels )
 
-      COMMON  /UserConstraintVariables_I/ 
+      COMMON  /UserConstraintVariables_I/ 
+
      &     ConnectingExtremity,
      &     ConditionCode,ConnectingChannels
-
-	  COMMON /UserConstraintVariables_R/
-     &      ConstraintCoef,
-     &     ConstraintRightSide,
-     &     Discharge, WSElev
 
-      SAVE / UserConstraintVariables_I /,
+
+	  COMMON /UserConstraintVariables_R/
+
+     &      ConstraintCoef,
+
+     &     ConstraintRightSide,
+
+     &     Discharge, WSElev
+
+
+      SAVE / UserConstraintVariables_I /,
+
      &      /UserConstraintVariables_R/
 
 *   Definitions:

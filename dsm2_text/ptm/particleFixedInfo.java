@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: particleFixedInfo.java,v 1.7 2001/01/06 00:49:00 miller Exp $
+//$Id: particleFixedInfo.java,v 1.5 2000/08/07 17:00:34 miller Exp $
 package DWR.DMS.PTM;
 /**
  *  CLASS
@@ -95,18 +95,16 @@ public final void setVariables(boolean ivert,boolean itrans,
    *  sets the float variable values
    */
 public final void setVariables(int random_seed,
-			       float trans_constant,float vonkarman_constant,
+			       float trans_constant,float vert_constant,
 			       float trans_a_coef, float trans_b_coef,
-			       float trans_c_coef, int animated_particles,
-			       float shear_vel){
+			       float trans_c_coef, int animated_particles){
   randomSeed = random_seed;
   Ct = trans_constant;
-  vonKarman = vonkarman_constant;
+  Cv = vert_constant;
   Aq = trans_a_coef;
   Bq = trans_b_coef;
   Cq = trans_c_coef;
   animatedParticles = animated_particles;
-  shearVel = shear_vel;
 }
 
   /**
@@ -126,15 +124,6 @@ public final void setVariables(int nInjections,
   particleInjectionLengthJulmin = lengthJulmin;
 
 }
-
-  /**
-   *  sets the number of groups and Qual binary file info
-   */
-  public final void setVariables(int nGroups, boolean qBinary, String[] qNames){
-    numberOfGroups = nGroups;
-    qualityBinary = qBinary;
-    qualityNames = qNames;
-  }
 
   /**
    *  return random seed
@@ -165,18 +154,12 @@ public final int getAnimatedParticles(){
 }
 
   /**
-   *  return the Von Karman constant
+   *  return the vertical constant
    */
-public final float getVonKarmanConstant(){
-  return vonKarman;
+public final float getVerticalConstant(){
+  return Cv;
 }
 
-  /**
-   *  return the shear velocity proportion constant
-   */
-public final float getShearVelConstant(){
-  return shearVel;
-}
 
   /**
    *  return the transverse constant
@@ -258,24 +241,6 @@ public final boolean doGroupPercentage(){
    */
 public final boolean doFluxCumulative(){
   return doFluxCumulative;
-}
-  /**
-   *  return the number of channel groups
-   */
-public int getNumberOfGroups(){
-  return numberOfGroups;
-}
-  /**
-   *  returns true if a qual binary is available
-   */
-public boolean getBinaryExistance(){
-  return qualityBinary;
-}
-  /**
-   *  return the number of channel groups
-   */
-public String[] getQualityNames(){
-  return qualityNames;
 }
 
   /**
@@ -414,14 +379,9 @@ protected int animatedParticles;
 protected float Ct;
 
   /**
-   *  Von Karman Constant
+   *  Vertical constant Cv
    */
-protected float vonKarman;
-
-  /**
-   *  Shear Velocity Proportion Constant
-   */
-protected float shearVel;
+protected float Cv;
 
   /**
    *  Transverse velocity A coefficient
@@ -462,18 +422,7 @@ protected int[] particleInjectionStartJulmin;
    *  length of injection
    */
 protected int[] particleInjectionLengthJulmin;
-  /**
-   *  number of channel groups
-   */
-protected int numberOfGroups;
-  /**
-   *  binary file existance
-   */
-protected boolean qualityBinary;
-  /**
-   *  array of quality constituent names
-   */
-protected String[] qualityNames;
+
 
 }
 

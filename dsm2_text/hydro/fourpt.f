@@ -6,15 +6,15 @@ C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,15 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 
 *==== BOF fourpt =====================================================
 
@@ -51,7 +52,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       PROGRAM FourPt
 
-c      USE DFLIB                 !! <NT>
+c 
+      USE DFLIB                 !! <NT> Comment this line for UNIX version of executable
 
       IMPLICIT NONE
 
@@ -189,8 +191,9 @@ c      USE DFLIB                 !! <NT>
 c-----DSM2 module, name and version number
       include 'version.inc'
 
-c      open(unit_screen, carriagecontrol='list') !! <NT>
-c      open(unit_error, carriagecontrol='list') !! <NT>
+c 
+      open(unit_screen, carriagecontrol='list') !! <NT> Comment this line for UNIX version of executable
+      open(unit_error, carriagecontrol='list') !! <NT> Comment this line for UNIX version of executable
 
 c-----get optional starting input file from command line,
 c-----then from environment variables,
@@ -240,8 +243,10 @@ c-----read input file(s)
 
       prev_julmin=0
       julmin=start_julmin
-      current_dt=jmin2cdt(julmin)
-
+      current_dt=jmin2cdt(julmin)
+
+
+
 c-----calculate julian minute of end of each DSS interval
       call update_intervals
 
@@ -378,7 +383,8 @@ c               end_julmin=start_julmin+tide_cycle_length_mins
                write(unit_screen,612)
  612           format('Dynamic steady state tide achieved.')
             endif
-            if (FinalCycle) then
+            if (FinalCycle) then
+
             end_julmin=start_julmin+tide_cycle_length_mins
                OK=WriteHydroFile() ! initialize hydro tidefile
                if (PrintLevel .ge. 1) then

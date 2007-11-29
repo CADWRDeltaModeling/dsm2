@@ -92,7 +92,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: PTMTraceInput.java,v 1.2 2000/08/07 17:00:29 miller Exp $
+//$Id: PTMTraceInput.java,v 1.2.8.1 2003/04/08 21:21:15 miller Exp $
 /**
  *  CLASS
  * 
@@ -198,7 +198,8 @@ protected final void readInputAscii() throws IOException{
 protected final void readInputBinary() throws IOException{
  try{
     trace.timeStamp = inputStream.readInt();
-    trace.particleNumber = (int) inputStream.readShort();
+//      trace.particleNumber = (int) inputStream.readShort();
+    trace.particleNumber = inputStream.readInt();
     trace.nodeNumber = (int) inputStream.readShort();
     trace.waterbodyNumber = (int) inputStream.readShort();
   }

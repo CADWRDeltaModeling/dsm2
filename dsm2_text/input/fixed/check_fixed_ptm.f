@@ -6,15 +6,15 @@ C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,15 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 
       subroutine check_fixed_ptm(istat)
 
@@ -184,16 +185,6 @@ c-----Check scalar variables
          write(unit_error,609)'ptm_no_animated',ptm_no_animated
       endif
 
-      if (ptm_trans_constant_int .eq. 0) then
-         ptm_trans_constant=0.60
-         write(unit_error,608)'ptm_trans_constant',ptm_trans_constant
-      endif
-
-      if (ptm_vonkarman_int .eq. 0) then
-         ptm_vonkarman=0.40
-         write(unit_error,608)'ptm_vonkarman',ptm_vonkarman
-      endif
-
       if (ptm_trans_a_coef_int .eq. 0) then
          ptm_trans_a_coef=1.62
          write(unit_error,608)'ptm_trans_a_coef',ptm_trans_a_coef
@@ -207,11 +198,6 @@ c-----Check scalar variables
       if (ptm_trans_c_coef_int .eq. 0) then
          ptm_trans_c_coef=0.60
          write(unit_error,608)'ptm_trans_c_coef',ptm_trans_c_coef
-      endif
-
-      if (ptm_shear_vel_int .eq. 0) then
-         ptm_shear_vel=0.10
-         write(unit_error,608)'ptm_shear_vel',ptm_shear_vel
       endif
 
 c-----Check times for injection

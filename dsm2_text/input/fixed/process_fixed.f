@@ -6,15 +6,15 @@ C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,15 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 
       subroutine input_channels(field_names, mxflds, nfields, nflds,
      &     ifld, rifld, line, ibegf, ilenf, istat)
@@ -3399,15 +3400,15 @@ c--------keyword 'length' means use channel length for each delta x
             read(cstring1,'(f7.4)', err=810) ptm_trans_constant
          endif
       else if (
-     &        cstring1 .eq. 'ptm_vonkarman' .or.
-     &        cstring2 .eq. 'ptm_vonkarman') then
-         ptm_vonkarman_int=1
-         if (cstring1 .eq. 'ptm_vonkarman') then
+     &        cstring1 .eq. 'ptm_vert_constant' .or.
+     &        cstring2 .eq. 'ptm_vert_constant') then
+         ptm_vert_constant_int=1
+         if (cstring1 .eq. 'ptm_vert_constant') then
             field_names(1)=cstring1
-            read(cstring2,'(f7.4)', err=810) ptm_vonkarman
+            read(cstring2,'(f7.4)', err=810) ptm_vert_constant
          else
             field_names(1)=cstring2
-            read(cstring1,'(f7.4)', err=810) ptm_vonkarman
+            read(cstring1,'(f7.4)', err=810) ptm_vert_constant
          endif
       else if (
      &        cstring1 .eq. 'ptm_iprof' .or.
@@ -3452,17 +3453,6 @@ c--------keyword 'length' means use channel length for each delta x
          else
             field_names(1)=cstring2
             read(cstring1,'(f7.4)', err=810) ptm_trans_c_coef
-         endif
-      else if (
-     &        cstring1 .eq. 'ptm_shear_vel' .or.
-     &        cstring2 .eq. 'ptm_shear_vel') then
-         ptm_shear_vel_int=1
-         if (cstring1 .eq. 'ptm_shear_vel') then
-            field_names(1)=cstring1
-            read(cstring2,'(f7.4)', err=810) ptm_shear_vel
-         else
-            field_names(1)=cstring2
-            read(cstring1,'(f7.4)', err=810) ptm_shear_vel
          endif
       else
          print*,cstring1,cstring2

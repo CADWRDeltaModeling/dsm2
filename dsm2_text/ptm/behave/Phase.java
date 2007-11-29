@@ -56,7 +56,7 @@ import java.util.*;
  * a label, text field and a combo box. <br>
  * 
  * @author Aaron Miller
- * @version $Id: Phase.java,v 1.5 2000/08/07 17:05:06 miller Exp $
+ * @version $Id: Phase.java,v 1.5.8.1 2003/04/08 01:01:13 miller Exp $
  */
 
 public class Phase {
@@ -87,6 +87,11 @@ public class Phase {
   private FlowElement flow;
 
   /**
+    *  Stage related behaviors
+    */
+  private StageElement stage;
+
+  /**
     *  Quality related behaviors
     */
   //  private QualityElement quality;
@@ -105,6 +110,7 @@ public class Phase {
     //    time = new TimeElement();
     position = new PositionElement();
     flow = new FlowElement();
+    stage = new StageElement();
     //    quality = new QualityElement();
   }
 
@@ -150,14 +156,14 @@ public class Phase {
   /**
     *  gets the vertical positions from PositionElement
     */
-  public int [][][] getVerticalPosition(){
+  public int [][][] getTimeVerticalPosition(){
     return position.getVerticalArray();
   }
 
   /**
     *  gets the transverse positions from PositionElement
     */
-  public int [][][] getTransversePosition(){
+  public int [][][] getTimeTransversePosition(){
     return position.getVerticalArray();
   }
 
@@ -180,6 +186,31 @@ public class Phase {
   //****************************************************************
 
   /**
+    *  returns the StageElement object
+    */
+  public StageElement getStage(){
+    return stage;
+  }
+
+  /**
+    *  gets the vertical positions from PositionElement
+    */
+  public int [][][] getStageVerticalPosition(){
+    return stage.getVerticalArray();
+  }
+
+  /**
+    *  gets the transverse positions from PositionElement
+    */
+  public int [][][] getStageTransversePosition(){
+    return stage.getVerticalArray();
+  }
+
+
+  //****************************************************************
+
+
+  /**
     *  passes this Element to the specific behaviors
     */
   public void fromXml(Element phaseElement){
@@ -190,6 +221,7 @@ public class Phase {
     //    time.fromXml(phaseElement);
     position.fromXml(phaseElement);
     flow.fromXml(phaseElement);
+    stage.fromXml(phaseElement);
     //    quality.fromXml(phaseElement);
     //    System.out.println(physical.getFallVel());
     //    System.out.println(physical.getMortality());
@@ -207,6 +239,7 @@ public class Phase {
     //    time.toXml(doc,phaseElement);
     position.toXml(doc,phaseElement);
     flow.toXml(doc,phaseElement);
+    stage.toXml(doc,phaseElement);
     //    quality.toXml(doc,phaseElement);
 
     element.appendChild(phaseElement);

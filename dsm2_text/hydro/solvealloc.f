@@ -1,18 +1,20 @@
-C!    DSM2 - SPARSE LIBRARY INTERFACE COPYRIGHT
-C!    Copyright (C) 1998, 1999 Eli Ateljevich
-
-C!    Note that the routines contained below
-C!    were created by Eli Ateljevich and comprise part of
-C!    an interface to the SPARSE matrix library, created
-C!    by Kenneth S. Kundert and the University of California
-C!    for which copyright information is given below
-
+C!    Copyright (C) 1996, 1997, 1998 State of California,
+C!    Department of Water Resources.
+C!
+C!    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
+C!    numerical model.  No protection claimed in original FOURPT and
+C!    Branched Lagrangian Transport Model (BLTM) code written by the
+C!    United States Geological Survey.  Protection claimed in the
+C!    routines and files listed in the accompanying file "Protect.txt".
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
+C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -33,16 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
-C!
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 C!      For information about the solver routines, contact:
 C!      Eli Ateljevich
 C!      (510) 843-1569
@@ -303,14 +305,22 @@ C!
                DownConstraintEq(M)=I
 
             END IF
-
-c     These lines are very common as diagnostics
-c    
-c	If (UpConstraintRow.LE. 1589 .and. DownConstraintRow.GE.1589)Then
-c	print*,Int2Ext(M),M,UpConstraintRow,DownConstraintRow,CodeUp,CodeDown
-c	pause
-c	Endif
-
+
+
+c     These lines are very common as diagnostics
+
+c    
+
+c	If (UpConstraintRow.LE. 1589 .and. DownConstraintRow.GE.1589)Then
+
+c	print*,Int2Ext(M),M,UpConstraintRow,DownConstraintRow,CodeUp,CodeDown
+
+c	pause
+
+c	Endif
+
+
+
 
 *-----------Reserve matrix elements for constraints
 *-----------based on constraint type

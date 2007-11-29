@@ -56,7 +56,7 @@ import java.util.*;
 
 /**
  * @author Aaron Miller
- * @version $Id: ParticleBehavior.java,v 1.5 2000/08/07 17:00:30 miller Exp $
+ * @version $Id: ParticleBehavior.java,v 1.5.8.1 2003/04/08 00:46:23 miller Exp $
  */
 
 public class ParticleBehavior {
@@ -71,13 +71,17 @@ public class ParticleBehavior {
   float [] ageId;
   float _baseAge;
   boolean DEBUG = false;
-  int [][][] zPosData;
-  int [][][] yPosData;
+  int [][][] zTimePosData;
+  int [][][] yTimePosData;
+	// [phase no][row no][start/end/index]
+	int [][][] zStagePosData;
+	int [][][] yStagePosData;
+	// [phase no][tidephase][index]
   int _currentAgeId;
-  int LL = 0;
-  int UL = 1;
-  int ST = 2;
-  int ET = 3;
+  public static int LL = 0;
+  public static int UL = 1;
+  public static int ST = 2;
+  public static int ET = 3;
 
   public ParticleBehavior (String filename) throws IOException {
     phases = new Hashtable();
@@ -100,6 +104,10 @@ public class ParticleBehavior {
   public float getPhaseAge(){
     return _baseAge;
   }
+
+	public Phase getPhase(){
+		return thisPhase;
+	}
 
   public void setId(int id){
     _id = id;
@@ -129,25 +137,43 @@ public class ParticleBehavior {
     Phase tmpPhase;
     ageId = new float [phaseId.size()];
 
-    zPosData = new int [phaseId.size()][][];
-    yPosData = new int [phaseId.size()][][];
+	// initialize time position
+    zTimePosData = new int [phaseId.size()][][];
+    yTimePosData = new int [phaseId.size()][][];
+
+	// initialize stage position
+	zStagePosData = new int [phaseId.size()][][];
+	yStagePosData = new int [phaseId.size()][][];
 
     tmpPhase = (Phase) phases.get(phaseId.elementAt(0));
     ageId [0] = tmpPhase.getDevelopTime();
 
-    System.arraycopy(tmpPhase.getVerticalPosition(), 0, zPosData, 0, 1);
-    System.arraycopy(tmpPhase.getTransversePosition(), 0, yPosData, 0, 1);
+	dump3DArray(tmpPhase.getTimeVerticalPosition());
+
+    System.arraycopy(tmpPhase.getTimeVerticalPosition(), 0, zTimePosData, 0, 1);
+    System.arraycopy(tmpPhase.getTimeTransversePosition(), 0, yTimePosData, 0, 1);
+
+    System.arraycopy(tmpPhase.getStageVerticalPosition(), 0, zStagePosData, 0, 1);
+    System.arraycopy(tmpPhase.getStageTransversePosition(), 0, yStagePosData, 0, 1);
 
     for ( int i = 1; i < phaseId.size(); i++){
       tmpPhase = (Phase) phases.get(phaseId.elementAt(i));
       ageId [i] = ageId [i-1] + tmpPhase.getDevelopTime();
 
-      System.arraycopy(tmpPhase.getVerticalPosition(), 0, zPosData, i, 1);
-      System.arraycopy(tmpPhase.getTransversePosition(), 0, yPosData, i, 1);
+      System.arraycopy(tmpPhase.getTimeVerticalPosition(), 0, zTimePosData, i, 1);
+      System.arraycopy(tmpPhase.getTimeTransversePosition(), 0, yTimePosData, i, 1);
+
+      System.arraycopy(tmpPhase.getStageVerticalPosition(), 0, zStagePosData, i, 1);
+      System.arraycopy(tmpPhase.getStageTransversePosition(), 0, yStagePosData, i, 1);
 
       if (DEBUG) System.out.println("age "+i+" "+ageId[i]);
     }
+
   }
+
+	public void addIndexData(int data[]){
+
+	}
 
   public float getFallVel(float age){
     setCurrentAgeId(age);
@@ -168,33 +194,33 @@ public class ParticleBehavior {
   }
   //**********************************************************************************
 
-  //**************** Position Information ********************************************
+  //**************** Time Position Information ********************************************
 
   public void initPositioning(){
 
   }
 
-  public int getZLowerLimit(float age, int time){
+  public int getTimeZLowerLimit(float age, int time){
     setCurrentAgeId(age);
-    return extractData(zPosData,this.LL,time,0);
+    return extractTimeData(zTimePosData,this.LL,time,0);
   }
 
-  public int getZUpperLimit(float age, int time){
+  public int getTimeZUpperLimit(float age, int time){
     setCurrentAgeId(age);
-    return extractData(zPosData,this.UL,time,100);
+    return extractTimeData(zTimePosData,this.UL,time,100);
   }
 
   public int getYLowerLimit(float age, int time){
     setCurrentAgeId(age);
-    return extractData(yPosData,this.LL,time,0);
+    return extractTimeData(yTimePosData,this.LL,time,0);
   }
 
   public int getYUpperLimit(float age, int time){
     setCurrentAgeId(age);
-    return extractData(yPosData,this.UL,time,50);
+    return extractTimeData(yTimePosData,this.UL,time,50);
   }
 
-  private int extractData(int [][][] dataArray, int index, int time, int defaultVal){
+  private int extractTimeData(int [][][] dataArray, int index, int time, int defaultVal){
     int answer = defaultVal;
 
     if (dataArray[_currentAgeId] != null)
@@ -215,6 +241,39 @@ public class ParticleBehavior {
     return answer;
   }
 
+  //**************** Stage Position Information ********************************************
+
+	public int getStageZLowerLimit(float age, int tidalPhase){
+		setCurrentAgeId(age);
+		return extractStageData(zStagePosData,this.LL,tidalPhase,0);
+	}
+	
+	public int getStageZUpperLimit(float age, int tidalPhase){
+		setCurrentAgeId(age);
+		return extractStageData(zStagePosData,this.UL,tidalPhase,100);
+	}
+
+	private int extractStageData(int [][][] dataArray, int index, int tidalPhase, int defaultVal){
+		int answer = defaultVal;
+		if (dataArray[_currentAgeId] != null)
+			answer = dataArray[_currentAgeId][tidalPhase][index];
+		
+//  		System.out.println("index="+index+" tidalPhase="+tidalPhase+" ans="+answer);
+//  		dump3DArray(dataArray);
+		return answer;
+		
+	}
+
+	public static void dump3DArray(int [][][] dataArray){
+//  		System.out.println("Array Dimensions "+dataArray.length+"X"+dataArray[0]+"X"+dataArray[0][0]);
+		for(int i=0; i<dataArray.length; i++){
+			for(int j=0; j<dataArray[i].length; j++){
+				for(int k=0; k<dataArray[i][j].length; k++){
+					System.out.println("i="+i+" j="+j+" k="+k+" val="+dataArray[i][j][k]);
+				}
+			}
+		}
+	}
 
   //**********************************************************************************
 

@@ -28,7 +28,8 @@ c      integer*4 start_julmin
      &     ,file=filenm
      &     ,status='old'
      &     ,form='unformatted'
-c     &     ,convert='big_endian'          !! <NT>
+c 
+     &     ,convert='big_endian'          !! <NT> Comment this line for UNIX executable
      &     ,err=900
      &     )
       

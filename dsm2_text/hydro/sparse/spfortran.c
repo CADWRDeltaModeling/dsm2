@@ -105,7 +105,7 @@
 static char copyright[] =
     "Sparse1.3: Copyright (c) 1985,86,87,88 by Kenneth S. Kundert";
 static char RCSid[] =
-    "@(#)$Header: /delta/models/CVS/dsm2/hydro/sparse/spfortran.c,v 1.2 1999/12/27 19:32:44 miller Exp $";
+    "@(#)$Header: /delta/models/CVS/dsm2/hydro/sparse/spfortran.c,v 1.2.8.1 2005/05/18 19:55:50 bijaya Exp $";
 #endif
 
 
@@ -136,7 +136,7 @@ static char RCSid[] =
 /*
  *  Routine Renaming. Put "UNIX" or "NT" on the next line !! <NT>
  */
-#define UNIX 
+#define INTEL 
 
 #ifdef UNIX
 #define sfCreate                 sfcreate_
@@ -228,6 +228,50 @@ static char RCSid[] =
 #define sfAdd4Equation		__stdcall SFADD4EQUATION
 #endif
 
+#ifdef INTEL
+#define sfCreate                 SFCREATE
+#define sfStripFills             SFSTRIPFILLS
+#define sfDestroy                SFDESTROY
+#define sfClear                  SFCLEAR
+#define sfGetElement             SFGETELEMENT
+#define sfGetAdmittance          SFGETADMITTANCE
+#define sfGetQuad                SFGETQUAD
+#define sfGetOnes                SFGETONES
+#define sfAdd1Real               SFADD1REAL
+#define sfAdd1Imag               SFADD1IMAG
+#define sfAdd1Complex            SFADD1COMPLEX
+#define sfAdd4Real               SFADD4REAL
+#define sfAdd4Imag               SFADD4IMAG
+#define sfAdd4Complex            SFADD4COMPLEX
+#define sfOrderAndFactor         SFORDERANDFACTOR
+#define sfFactor                 SFFACTOR
+#define sfPartition              SFPARTITION
+#define sfSolve                  SFSOLVE
+#define sfSolveTransposed        SFSOLVETRANSPOSED
+#define sfPrint                  SFPRINT
+#define sfFileMatrix             SFFILEMATRIX
+#define sfFileVector             SFFILEVECTOR
+#define sfFileStats              SFFILESTATS
+#define sfMNA_Preorder           SFMNA_PREORDER
+#define sfScale                  SFSCALE
+#define sfMultiply               SFMULTIPLY
+#define sfDeterminant            SFDETERMINANT
+#define sfError                  SFERROR
+#define sfWhereSingular          SFWHERESINGULAR
+#define sfGetSize                SFGETSIZE
+#define sfSetReal                SFSETREAL
+#define sfSetComplex             SFSETCOMPLEX
+#define sfFillinCount            SFFILLINCOUNT
+#define sfElementCount           SFELEMENTCOUNT
+#define sfDeleteRowAndCol        SFDELETEROWANDCOL
+#define sfPseudoCondition        SFPSEUDOCONDITION
+#define sfCondition              SFCONDITION
+#define sfNorm                   SFNORM
+#define sfLargestElement         SFLARGESTELEMENT
+#define sfRoundoff               SFROUNDOFF
+#define sfAdd4Reservoir		 SFADD4RESERVOIR
+#define sfAdd4Equation		 SFADD4EQUATION
+#endif
 
 
 /*

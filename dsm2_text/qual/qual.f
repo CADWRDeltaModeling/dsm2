@@ -1,20 +1,20 @@
 C!    Copyright (C) 1996, 1997, 1998 State of California,
 C!    Department of Water Resources.
-
+C!
 C!    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
 C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,19 +35,21 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
    
       program watqual
   
-c      USE DFLIB   !! <NT>
+c 
+      USE DFLIB   !! <NT> Comment this line for UNIX version of executable
 
 C-----************ MULTIPLE BRANCH ESTUARY TRANSPORT MODEL
 c-----******************
@@ -221,8 +223,9 @@ c-----.3)
 c-----module, name and version
       include 'version.inc'
 
-c      open(unit_screen, carriagecontrol='list')    !! <NT>
-c      open(unit_error, carriagecontrol='list')     !! <NT>
+c 
+      open(unit_screen, carriagecontrol='list')    !! <NT> Comment this line for UNIX version of executable
+      open(unit_error, carriagecontrol='list')     !! <NT> Comment this line for UNIX version of executable
 c-----get optional starting input file from command line,
 c-----then from environment variables,
 c-----then default
@@ -340,7 +343,8 @@ c-----To open qual binary output file
          open(unit=io_files(qual,io_tide,io_write).unit,
      &        file=io_files(qual,io_tide,io_write).filename,
      &        form='unformatted',
-c     &        convert='big_endian',                 !! <NT>
+c 
+     &        convert='big_endian',                 !! <NT> Comment this line for UNIX version of executable
      &        status='unknown')
 
          call WriteQualBinaryDataHeader

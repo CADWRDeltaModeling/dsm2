@@ -39,7 +39,7 @@ JAVADOC = /site/java/jdk1.2/bin/javadoc
 JAVADOC_OPT= -classpath ../${CLASSPATH_DEF} -d docs -version -author
 JAR = /site/java/jdk1.2/bin/jar
 
-opt optmax dbg: native #gui behave
+opt optmax dbg: native gui behave
 	$(JAVAC) -classpath ${CLASSPATH_DEF} $(JAVAC_OPT) ${JAVA_FILES}
 
 native: FORCE

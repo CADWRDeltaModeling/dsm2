@@ -54,7 +54,7 @@ import javax.swing.plaf.basic.*;
 
 /**
  * @author Aaron Miller
- * @version $Id: GroupableHeaderUI.java,v 1.3 2002/07/22 23:57:31 miller Exp $
+ * @version $Id: GroupableHeaderUI.java,v 1.2.8.1 2003/04/08 00:59:18 miller Exp $
  */
 
 public class GroupableHeaderUI extends BasicTableHeaderUI {

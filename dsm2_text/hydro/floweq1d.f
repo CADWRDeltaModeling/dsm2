@@ -1,20 +1,20 @@
-C!    Copyright (C) 1996, 1997 State of California, Department of Water
-C!    Resources.
+C!    Copyright (C) 1996, 1997, 1998 State of California,
+C!    Department of Water Resources.
 C!
 C!    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
 C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,15 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 
 *==== BOF floweq1d =====================================================
 
@@ -196,9 +197,12 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 *-----Water-surface slope, assumed constant from X1 to X2.
       DZDX = (Z2 - Z1) / DX
-
-
-
+
+
+
+
+
+
 
       IF( Forward ) THEN
 
@@ -245,7 +249,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
      &     Q1 * BetaVelocity1
      &     - Q2 * BetaVelocity2
      &     ) * DT
-
+
+
 
 *-----Contribution from spatial dimension,
 *        integrated in space or time and space.

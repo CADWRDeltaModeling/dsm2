@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://wwwdelmod.water.ca.gov/
 
-//$Id: particleObserver.java,v 1.3 2000/08/07 17:00:34 miller Exp $
+//$Id: particleObserver.java,v 1.3.8.1 2003/04/08 21:21:15 miller Exp $
 package DWR.DMS.PTM;
 import java.io.*;
 class particleObserver{
@@ -116,7 +116,8 @@ public  void observeWaterbodyChange(particle observed){
   if (traceOn) {
 
     int time = observed.getCurrentParticleTime();
-    short pId = (short) observed.getId();
+//      short pId = (short) observed.getId();
+    int pId = observed.getId();
     short nodeId = -1;
     if (observed.getRecentNode() != null) 
       nodeId = (short) observed.getRecentNode().getEnvIndex();
@@ -149,7 +150,8 @@ public  void observeDeath(particle observed){
   if (traceOn) {
 
     int time = observed.getCurrentParticleTime();
-    short pId = (short) observed.getId();
+//      short pId = (short) observed.getId();
+    int pId = observed.getId();
     short nodeId = -1;
     short wbId = (short) observed.getCurrentWaterbody().getEnvIndex();
     //    short wbId = -1;

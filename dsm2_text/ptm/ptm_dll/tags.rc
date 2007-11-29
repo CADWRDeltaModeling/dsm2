@@ -1,0 +1,12 @@
+#!/bin/csh -f
+
+# create tags file of all DSM2 fortran codes
+
+set modules = (./)
+
+foreach dir ( $modules )
+echo $dir
+(cd $dir; etags *.f *.h *.c *.inc)
+end
+
+gfind ${modules} -maxdepth 1 \( -name '*.f' -o -name '*.h' -o -name '*.c' \) -print | gxargs etags

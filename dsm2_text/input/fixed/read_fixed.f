@@ -6,15 +6,15 @@ C!    numerical model.  No protection claimed in original FOURPT and
 C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
+C!    If you did not receive a copy of this file contact Tara Smith,
+C!    below.
 C!
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
 C!    Foundation.
 C!
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
+C!    along with this program; if not, contact Tara Smith, below,
 C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
 C!    02139, USA.
 C!
@@ -35,15 +35,16 @@ C!    DAMAGE.
 C!
 C!    For more information about DSM2, contact:
 C!
-C!    Dr. Paul Hutton
+C!    Tara Smith
 C!    California Dept. of Water Resources
 C!    Division of Planning, Delta Modeling Section
 C!    1416 Ninth Street
 C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
+C!    916-653-9885
+C!    tara@water.ca.gov
 C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
+
 
       subroutine read_fixed(init_input_file,istat)
 
@@ -199,11 +200,11 @@ c-----(multi-tasking OS) or random number (other OS)
       irid=abs(getpid())        ! Sun Unix and NT
 C!OTHER  irid=int(rand(0)*1000000)  ! others
       write(crid,'(i6.6)') irid
-
 c-----date of run
       call cdate(ctemp1)
       call datjul(ctemp1, itmp1, istat)
       crdt14=' '
+      ctemp1=' '
       call juldat(itmp1, 104, crdt14(1:9), itmp2) ! DDMMMYYYY
       call juldat(itmp1, -11, ctemp1, itmp2)
       crdt10=' '
@@ -211,7 +212,8 @@ c-----date of run
       crdt10(3:4)=ctemp1(1:2)
       crdt10(5:6)=ctemp1(4:5)
 c-----time of run
-      call ctime(ctemp1)
+      ctemp1=" " // char(0)
+      call ctime(ctemp1)    
       crdt14(11:12)=ctemp1(1:2) ! hhmm
       crdt14(13:14)=ctemp1(4:5)
       crdt10(7:8)=ctemp1(1:2)   ! hhmm
@@ -261,7 +263,6 @@ c-----keywords
       hdr_form(nsects).fld(res_maxq2res)='maxq2res'
       hdr_form(nsects).fld(res_maxstage)='maxstage'
       hdr_form(nsects).fld(max_fields)=delimiter
-
       nsects=nsects+1
       hdr_form(nsects).sect='gates'
       hdr_form(nsects).fld(gate_name)='name'
@@ -468,7 +469,6 @@ c-----or use default
          input_line=init_input_file
       endif
       input_files(1)=input_line
-
       do while (input_files(ifile) .ne. ' ')
          open (
      &        unit=unit_input

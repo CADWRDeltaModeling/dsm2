@@ -108,7 +108,7 @@ import java.io.*;
  * @see waterbody
  * @see node
  * @author Nicky Sandhu
- * @version $Id: PTMEnv.java,v 1.5 2000/08/07 17:00:28 miller Exp $
+ * @version $Id: PTMEnv.java,v 1.5.8.1 2003/04/08 21:21:15 miller Exp $
  */
 public class PTMEnv{
 private static boolean DEBUG = false;
@@ -518,17 +518,17 @@ void setParticleInsertionInfo(particle [] particlePtrArray,
   if (DEBUG) System.out.println("Injection info in PTMEnv");
   while(pNum < getNumberOfParticlesInjected() + numberOfRestartParticles){
     int injectionNode = pInfo.getLocationOfParticlesInjected(injNum);
-    int injectionLength = pInfo.getInjectionLengthJulmin(injNum);
-    int numberOfInjectedParticles = pInfo.getNumberOfParticlesInjected(injNum);
-    for(int injection=0; 
+    long injectionLength = pInfo.getInjectionLengthJulmin(injNum);
+    long numberOfInjectedParticles = pInfo.getNumberOfParticlesInjected(injNum);
+    for(long injection=0; 
 	injection < numberOfInjectedParticles; 
 	injection++){
-      int insertionTime = pInfo.getInjectionStartJulmin(injNum) + 
-	(injectionLength*injection)/numberOfInjectedParticles;
+		int insertionTime = pInfo.getInjectionStartJulmin(injNum) + 
+		  (int)((injectionLength*injection)/numberOfInjectedParticles);
       node nd = getNode(injectionNode);
       particlePtrArray[pNum].setInsertionInfo(insertionTime, nd);
       pNum++;
-      if (DEBUG) System.out.println("Particle injection for particle " + pNum);
+      if (DEBUG) System.out.println("Particle injection for particle "+pNum+" at "+insertionTime);
     } // end of for( injection = 0;...
     injNum++;
   }
