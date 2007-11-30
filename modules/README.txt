@@ -1,0 +1,1 @@
+This directory is a common output directory for f90 output files built in this project

@@ -1,0 +1,18 @@
+DELTA	*	FLOW	CFS	*	1DAY	01/00/00	0100	01/00/00	0100	*	*	*	*	*	DSSFILE	#
+DELTA	STATION1	FLOW	CFS	STUDY3	1DAY	01/01/1940	0100	01/03/1940	0100	*	*	*	*	*	testfile	#This was a test
+DELTA	UNK	*	*	*	1DAY	01/00/00	0100	01/00/00	0100	*	*	*	*	*	testfile	#
+DELTA	Gate3	*	*	*	1WEEK	01/01/1993	0100	02/01/1993	0100	*	[7]	*	*	1	test2file	#This is the first of many records.
+delta	Gate12	*	*	*	IR-DECADE	01/01/1981	0100	01/01/1982	0100	0200	15	*	*	10	testfile	#This is a test
+delta	Gate12	*	*	*	15MIN	01/01/1981	0100	01/01/1981	0300	*	*	*	*	1	testfile	#Did it work ?
+DELTA	*	FLOW	CFS	*	1DAY	01/00/00	0100	01/00/00	0100	*	*	*	*	*	testfile	#
+delta	Gate2	FLOW	CFS	st1	IR-DECADE	01/01/1983	0200	03/01/1993	0200	*	*	*	[2]	10.45	testfile	#This is a comment
+delta	Gate2	FLOW	CFS	st1	IR-DECADE	01/01/1983	0200	01/01/1984	0200	*	*	[2]	*	10.45	testfile	#This is a comment
+delta	Gate2	FLOW	CFS	st1	IR-MONTH	01/01/1983	0200	02/01/1983	0200	*	[2]	*	*	10.45	testfile	#This is a comment
+delta	Gate2	FLOW	CFS	st1	IR-DAY	01/01/1983	0202	01/02/1983	0200	[60]	*	*	*	10.45	testfile	#This is a comment
+delta	Flow	*	*	*	1YEAR	01/01/1980	1200	01/01/2000	0100	*	*	(11,11,12)	[1]	3000	testfile	#
+delta	Flow12	*	*	*	1HOUR	01/01/1980	0100	01/07/1980	0100	0100	*	*	*	1000	testfile	#
+delta	Flow12	*	*	*	1HOUR	01/01/1980	0200	01/07/1981	0200	0200	10	6	(1981,1980)	1000.2345	testfile	#
+DELTA	*	FLOW	CFS	*	1DAY	01/00/00	0100	01/00/00	0100	*	*	*	*	123.43	testfile	#
+DELTA	*	FLOW	CFS	*	1DAY	01/01/1986	0100	01/05/1986	0100	100	*	*	*	3425	testfile	#
+DELTA	*	FLOW	CFS	*	1DAY	01/01/1982	0100	01/05/1982	0100	100	*	*	*	3425	testfile	#
+delta	Flow12	FLOW	CFS	123Study	1HOUR	01/01/1980	1234	01/07/1981	1123	1234	(10,9,8,7,6,5,4,3,2,1)	(3,1,6)	(1981,1980)	1000	testfile	# this is 

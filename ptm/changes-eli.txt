@@ -1,0 +1,15 @@
+
+PhaseGUI: v1-> db
+ptmLocal.f: converted
+ptmLocal.inc: unchanged
+fixedData.f: convert
+fixedData.h: unchanged
+version.inc: changed to 7.2???
+dynamicData.f: converted
+DWR.._PTMFixedData.c: convert
+DWR.._PTMFixedData.h: SKIPPED
+DWR_DMS_PTM_PTMHydroInput.c: convert
+DWR_DMS_PTM_PTMHydroInput: convert. IS THIS OK?
+DWR_DMS_PTM_Globals: unchanged
+i/f/common_ptm.inc: unchanged
+waterbody.java: unchanged
