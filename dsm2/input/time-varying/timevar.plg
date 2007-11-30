@@ -1,0 +1,24 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: timevar - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\eli\LOCALS~1\Temp\RSP187.tmp" with contents
+[
+/architecture:pn4 /assume:buffered_io /assume:noaccuracy_sensitive /check:noflawed_pentium /compile_only /extend_source:132 /fpconstant /fpscomp:nolibs /include:"../../modules/release" /include:"../../../lib/hdf5" /math_library:fast /nologo /traceback /transform_loops /warn:argument_checking /warn:nofileopt /fast /module:"../../modules/release" /object:"Release/" 
+"D:\Delta\models\dsm2-dbase\input\time-varying\hdf5_init.f"
+]
+<h3>Output Window</h3>
+Compiling Fortran...
+D:\Delta\models\dsm2-dbase\input\time-varying\hdf5_init.f
+
+
+
+<h3>Results</h3>
+hdf5_init.obj - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
