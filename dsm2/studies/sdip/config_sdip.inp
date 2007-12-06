@@ -85,10 +85,10 @@ MSCS_EC_THRESH            20000
 
 # SDIP Gate Op Parameters
 USE_BARRIERS      TRUE   # TRUE: use barriers normally FALSE:  barriers uninstalled
-MIDR_INSTALL        ${USE_BARRIERS}
-OLDR_INSTALL        ${USE_BARRIERS}
-GLC_INSTALL        ${USE_BARRIERS}
-ORH_INSTALL        ${USE_BARRIERS}
+MIDR_REMOVE       NOT(${USE_BARRIERS})
+OLDR_REMOVE       NOT(${USE_BARRIERS})
+GLC_REMOVE        NOT(${USE_BARRIERS})
+ORH_REMOVE        NOT(${USE_BARRIERS})
 
 
 FALL_START                  01OCT    # start of fall season for SDIP, inclusive
