@@ -25,10 +25,10 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
     from calsim_study_fpart import calsim_study_fpart
     from vtimeseries import interpolate
     import vamp_ndo
-    
+    DEBUG = 0
     OUTPUT=config.getAttr('QUALBOUNDARYFILE')
     calsimfile = config.getAttr('CALSIMFILE')
-    vamp_corrected_dss = config.getAttr('CALSIM-VAMP')
+    vamp_corrected_dss = config.getAttr('CALSIM_VAMP')
     CALSIM=opendss(calsimfile)
     PLANNINGTIDE=opendss(config.getAttr('STAGEFILE'))
     STEP=string.lower(config.getAttr('CALSIMSTEP'))
@@ -42,6 +42,8 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
 
     g0=5000.                                          # initial value of g (antecedent outflow) for the beginning
                                                       # of the first year. This is pretty arbitrary and makes little difference
+    if DEBUG:
+        g0_no_vamp = 5000.
 
     for yearpair in years:
         syear = yearpair[0]
@@ -56,7 +58,10 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
         ndo=DataReference.create(findpath(CALSIM,"/CALSIM/NDO/FLOW-NDO//"+STEP+"/"
                                   +fpart+"/")[0],TWINDBUF).getData()
         ndo15=conserve.conserveSpline(ndo,"15MIN")
-        # correct for vamp caused ndo change
+        ndo15_no_vamp = 0
+        if DEBUG:
+            ndo15_no_vamp = ndo15
+        # calc  vamp caused ndo change
         if (SJR_PROCESS.upper()=="SINGLE_STEP") or (SJR_PROCESS.upper()=="MULTI_STEP"):
             fpart_modified=calsim_study_fpart(modify=1)
             delta_ndo = vamp_ndo.calc_vamp_delta_ndo(calsimfile,vamp_corrected_dss,fpart,fpart_modified,SJR_PROCESS)
@@ -70,9 +75,20 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
 
         # call to ec estimator. all parameters are included. g0 is an
         [mtzecest, g1]=ec_boundary.ECEst(mtzastro,fifteenflo2,beta=600,npow1=0.75,npow2=1,g0=g0,zrms=astrorms)
+        
+        if DEBUG:
+            fifteenflo2_no_vamp = ndo15_no_vamp  - 40000*(dastrorms)
+            [mtzecest_no_vamp, g1_no_vamp]=ec_boundary.ECEst(mtzastro,fifteenflo2_no_vamp,beta=600,npow1=0.75,npow2=1,g0=g0_no_vamp,zrms=astrorms)
+            g0_no_vamp = g1_no_vamp
+            writedss("out_ec_check","/CALC/ndo_no_vamp/ndo////", ndo15_no_vamp)
+            writedss("out_ec_check","/CALC/ndo_with_vamp/ndo////", ndo15)
+            writedss("out_ec_check","/CALC/ndo_no_vamp/ec////", mtzecest_no_vamp)
+            writedss("out_ec_check","/CALC/ndo_with_vamp/ec////", mtzecest)
+        
         print "writing: %s::%s" % (OUTPUT,outputpath)
         writedss(OUTPUT,outputpath,mtzecest)
         print "done writing"
+            
         g0=g1
     return 0
 
