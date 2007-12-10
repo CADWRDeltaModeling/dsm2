@@ -24,3 +24,5 @@ def calc_vamp_delta_ndo(calsimfile,vamp_dss,fpart,fpart_mod,sjr_process):
     delta_cvp_exports = cvp_vamp_exports - interpolate(cvp_average_exports,"1DAY")
     delta_swp_exports = swp_vamp_exports - interpolate(swp_average_exports,"1DAY")
     return delta_sjr_flow - delta_cvp_exports - delta_swp_exports
+                
+            
