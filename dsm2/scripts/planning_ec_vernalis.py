@@ -31,6 +31,7 @@ def transfer_ec():
     
     f=opendss(getAttr("CALSIMFILE"))           # open CALSIM file
     outfile=getAttr("BOUNDARYFILE")
+    process=getAttr("SJR_PROCESS")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
     tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
@@ -39,7 +40,7 @@ def transfer_ec():
     if not calsimstudy or calsimstudy=="":
         print "CALSIMSTUDY envvar not set"
     dsspath="/CALSIM.*/VERNWQFINAL/SALINITY-EC//1MON/%s/" % calsimstudy
-    processedpath=dsspath.replace(".*","-NOVAMP").replace(
+    processedpath=dsspath.replace(".*","-"+process).replace(
         "1MON","1DAY").replace(calsimstudy,calsimstudyout)
     print processedpath
     refs=findpath(f,dsspath)
