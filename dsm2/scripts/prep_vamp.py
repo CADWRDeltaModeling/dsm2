@@ -247,6 +247,14 @@ def ts_where(criteria,trueval,falseval):
     out.getAttributes().setYType(trueval.getAttributes().getYType())
     return out
 
+def get_calsim_path(sjr_process, fpart):
+    process = sjr_process.upper()
+    if (process!="SINGLE_STEP") and (process!="MULTI_STEP"):
+    	raise ValueError("For preparing VAMP process, SJR_PROCESS has to be COMMON_ASSUMPTIONS, SINGLE_STEP or MULTI_STEP")
+    if process=="MULTI_STEP":
+        return "/CALSIM/PULSEVAMPEXP/EXPORT//1MON/fpart/".replace("fpart",fpart)
+    else:
+        return "/CALSIM/PULSEEXPCTRL/EXPORT-CTRL-PULSE//1MON/fpart/".replace("fpart",fpart)
    
 def calculate_exports(limit,average_value):
     """Determines pulse and non-pulse export flows
@@ -326,14 +334,7 @@ def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod,sjr_process):
     ei_ratio=dss_retrieve_ts(calsimfile,path)
     path="/CALSIM/DINFLOW/INFLOW-PULSE//1MON/fpart/".replace("fpart",fpart)
     delta_inflow=dss_retrieve_ts(calsimfile,path)
-    
-    if (sjr_process.upper()!="SINGLE_STEP") and (sjr_process.upper()!="MULTI_STEP"):
-    	raise ValueError("For preparing VAMP process, SJR_PROCESS has to be either SINGLE_STEP or MULTI_STEP")
-    if sjr_process.upper()=="MULTI_STEP":
-	path="/CALSIM/PULSEVAMPEXP/EXPORT//1MON/fpart/".replace("fpart",fpart)
-    else:
-	path="/CALSIM/D1641/EXPORT//1MON/fpart/".replace("fpart",fpart)
-
+    path = get_calsim_path(sjr_process, fpart)
     total_export_limit=dss_retrieve_ts(calsimfile,path)
    
     swp_limit,cvp_limit=project_export_limits(
@@ -378,7 +379,7 @@ def main():
         config.setConfigVars(configfile)
         calsimdss=config.getAttr("CALSIMFILE")
         sjr_process=config.getAttr("SJR_PROCESS")
-        outdss=config.getAttr("CALSIM-VAMP")
+        outdss=config.getAttr("CALSIM_VAMP")
         fpart=calsim_study_fpart(modify=0)
         fpart_modified=calsim_study_fpart(modify=1)
     else:
