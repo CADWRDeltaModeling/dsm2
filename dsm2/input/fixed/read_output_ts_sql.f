@@ -202,7 +202,7 @@ c--------clean up char variables, replace environment variables
          end if
 
          FileName=ctmp
-         call locase(FileName)
+         !call locase(FileName)
          LocName=LocName(1:LocNameLen)
          nenv=repl_envvars(LocName,ctmp)
          LocName=ctmp

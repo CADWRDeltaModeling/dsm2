@@ -308,7 +308,7 @@ c-----calculate julian minute of end of each DSS interval
       if ( io_files(hydro,io_hdf5,io_write).use ) then ! hydro binary file output
          call DetermineFirstTidefileInterval()
          call InitHydroTidefile
-	   call WriteHydroToTidefile
+	   OK = WriteHydroToTidefile()
       endif
 
  605  format('Starting DSM2-Hydro at time: ',a)
@@ -425,7 +425,7 @@ c-----------------interruptions to the model
 
 c--------close HDF5
       if (io_files(hydro,io_hdf5,io_write).use) then
-         call CloseHDF5()
+         OK = CloseHDF5()
       endif
 
 c-----close all DSS input files

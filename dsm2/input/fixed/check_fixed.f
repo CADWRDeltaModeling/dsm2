@@ -330,6 +330,7 @@ c-----------correct tf start date for odd minutes (not multiple of tidefile inte
             tf_start_julmin=max(start_julmin,tf_start_julmin) ! correct for too-soon tf start
          endif
       endif
+      tf_start_date = jmin2cdt(start_julmin)
 
 c-----warning fix, until scalar variables fixed
       cont_missing=cont_missing .and. cont_bad
