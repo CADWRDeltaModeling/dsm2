@@ -50,10 +50,10 @@ public:
 typedef ::Loki::StaticDispatcher<
         DSM2ModelInterfaceResolver,
         oprule::rule::ModelInterface<double>,
-        TYPELIST_3(GateInstallInterface,DeviceInterface,ExternalFlowInterface),
+        LOKI_TYPELIST_3(GateInstallInterface,DeviceInterface,ExternalFlowInterface),
         true,
         oprule::rule::ModelInterface<double>,
-        TYPELIST_3(GateInstallInterface,DeviceInterface,ExternalFlowInterface),
+        LOKI_TYPELIST_3(GateInstallInterface,DeviceInterface,ExternalFlowInterface),
         bool > DSM2Resolver;
 
 
