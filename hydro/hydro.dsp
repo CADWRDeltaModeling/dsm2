@@ -82,7 +82,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 f90sql.lib heclib-6-ND-dvf-mtd.lib oprule_parser_msvc6_std.lib hdf5_fortran.lib szlib.lib zdll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /profile /debug /machine:I386 /nodefaultlib:"LIBC" /libpath:"..\..\lib" /libpath:"..\..\lib\hdf5"
+# ADD LINK32 f90sql.lib heclib-6-ND-dvf-mtd.lib oprule_parser_msvc6_std.lib hdf5_fortran.lib hdf5.lib hdf5_hl.lib szlib.lib zdll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /profile /debug /machine:I386 /nodefaultlib:"LIBC" /libpath:"..\..\lib" /libpath:"..\..\lib\hdf5"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
@@ -100,10 +100,10 @@ DEP_F90_FOURP=\
 	"..\input\fixed\misc.f"\
 	"..\input\time-varying\dss.inc"\
 	"..\input\time-varying\readdss.inc"\
-	"..\modules\Release\dsm2_database.mod"\
-	"..\modules\Release\Gates.mod"\
-	"..\modules\Release\Groups.mod"\
-	"..\modules\Release\IO_Units.mod"\
+	"..\modules\debug\dsm2_database.mod"\
+	"..\modules\debug\Gates.mod"\
+	"..\modules\debug\Groups.mod"\
+	"..\modules\debug\IO_Units.mod"\
 	".\chconnec.inc"\
 	".\chnlcomp.inc"\
 	".\chstatus.inc"\

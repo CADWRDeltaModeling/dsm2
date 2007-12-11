@@ -419,6 +419,7 @@ DEP_F90_READ_F=\
 
 SOURCE=.\read_grid_sql.f
 DEP_F90_READ_G=\
+	"..\..\hydro\network.inc"\
 	"..\..\modules\debug\dsm2_database.mod"\
 	"..\..\modules\debug\Gates.mod"\
 	"..\..\modules\debug\IO_Units.mod"\
