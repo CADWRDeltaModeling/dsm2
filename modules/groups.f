@@ -140,7 +140,6 @@ c     Calculates all objects of type objtype matching the pattern string
       integer, intent(out) :: nmatch ! number of matches
 	integer i
 	integer istat
-	logical,external :: pattern_match
 	integer,external :: pattern_match_count
 	integer rangebegin,rangeend
 

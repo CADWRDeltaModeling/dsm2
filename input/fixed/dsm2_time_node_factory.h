@@ -14,7 +14,7 @@ class DSM2HydroTimeNodeFactory : public oprule::parser::ModelTimeNodeFactory
 public:
    
    virtual oprule::expression::DoubleNodePtr getDateTimeNode(){
-      return new DSM2HydroDateTimeNode();
+	   return DSM2HydroDateTimeNode::create();
    }
 
    virtual oprule::expression::DoubleNodePtr getDateTimeNode(
@@ -30,7 +30,7 @@ public:
       datetime += " ";
       datetime += adjtime;
       int juldt=cdate_to_jul_min(datetime.c_str(),datetime.length());
-      return new oprule::expression::DoubleScalarNode((double) juldt);
+	  return oprule::expression::DoubleScalarNode::create((double) juldt);
    }
 
    virtual oprule::expression::DoubleNodePtr getSeasonNode(){ 

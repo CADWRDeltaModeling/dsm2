@@ -47,9 +47,6 @@ public:
                 
 };
 
-/*
-typedef TYPELIST_3(GateInstallInterface,PipeOpInterface,WeirOpInterface) types;
-*/
 typedef ::Loki::StaticDispatcher<
         DSM2ModelInterfaceResolver,
         oprule::rule::ModelInterface<double>,

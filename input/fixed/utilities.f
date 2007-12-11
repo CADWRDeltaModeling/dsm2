@@ -491,6 +491,30 @@ c-----Convert from julian minute to character date/time
 
       end
 
+      character*19 function jmin2iso(julmin)
+
+c-----Convert from julian minute to character date/time
+c     in ISO compliant format yyyy-mmm-dd hh:mm::ss
+c     with no military time conversion (and 00:00 is 
+c     always used instead of 2400)
+      implicit none
+
+      integer*4 julmin          ! minutes since 31dec1899 2400
+	integer*4 julday
+	integer*4 minute
+	integer*4 y,m,d,ihr,imin
+      character*14 jmin2cdt
+
+      julday=julmin/(24*60)       ! julday
+      minute=mod(julmin,24*60)    ! minutes past midnight
+
+	call jliymd(julday,y,m,d)
+      ihr=minute/60
+	imin=mod(minute,60)
+	write(jmin2iso,231)y,m,d,ihr,imin
+ 231  format (i4,'-',i2.2,'-',i2.2,' ',i2.2,':',i2.2,':00')
+      return
+      end
       character*80 function dates2diff(cdate1,cdate2)
 
 c-----Given 2 DSS date/times, return the difference between them
