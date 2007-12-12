@@ -5,8 +5,8 @@ c     Manages groups of DSM2 objects such as boundary flows, channels,...
 
       Implicit None
 
-      include '../../hydro/network.inc'
-      include '../input/fixed/misc.f'
+      include '../hydrolib/network.inc'
+      include '../fixed/misc.f'
                                 ! Maximums for pre-dimensioned arrays
       integer, parameter :: MAX_GROUPS=50 ! Max no. of group definitions
       integer, parameter :: MAX_MEMBERS=2000 ! Max no. of members in one group,
@@ -131,8 +131,8 @@ c     Calculates all objects of type objtype matching the pattern string
 	Use Gates,only:gateArray,nGate
 	use IO_Units, only: unit_error
       implicit none
-      include '../input/fixed/common.f'
-	include '../input/time-varying/tide.inc'
+      include '../fixed/common.f'
+	include '../hdf_tidefile/tide.inc'
       integer, intent(in) :: objtype ! the type of object being matched (obj_channel...)
       character*(*), intent(in) :: pattern ! the regular expression to use for matching
 	                                        ! see BOOST docs for details, but pretty typical stuff
