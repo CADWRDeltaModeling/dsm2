@@ -62,13 +62,13 @@ c-----to internal.
       include 'common_ptm.inc'
       include 'common_irreg_geom.f'
 
-      include '../time-varying/dss.inc'
-      include '../time-varying/readdss.inc'
-      include '../time-varying/writedss.inc'
-      include '../time-varying/common_tide.f'
-      include '../../hydro/network.inc'
-      include '../../hydro/chconnec.inc'
-      include '../time-varying/tide.inc'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
+      include '../hdf_tidefile/common_tide.f'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/chconnec.inc'
+      include '../hdf_tidefile/tide.inc'
 c-----Local variables
 
       logical

@@ -55,16 +55,16 @@ c-----the model run.  Supply default values where possible.
       include 'common.f'
       include 'common_ptm.inc'
       
-      include '../../hydro/network.inc'
-      include '../../hydro/netcntrl.inc'
-      include '../../hydro/chconnec.inc'
-      include '../../hydro/chnluser.inc'
-      include '../../hydro/chcxrec1.inc'
-      include '../time-varying/dss.inc'
-      include '../time-varying/readdss.inc'
-      include '../time-varying/writedss.inc'
-      include '../time-varying/common_tide.f'
-      include '../time-varying/common_qual_bin.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chconnec.inc'
+      include '../hydrolib/chnluser.inc'
+      include '../hydrolib/chcxrec1.inc'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
+      include '../hdf_tidefile/common_tide.f'
+      include '../hdf_tidefile/common_qual_bin.inc'
 
 c-----Local variables
 

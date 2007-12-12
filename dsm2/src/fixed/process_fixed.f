@@ -54,8 +54,8 @@ c-----tide file info.
       implicit none
 
       include 'common.f'
-      include '../../hydro/network.inc'
-      include '../time-varying/common_tide.f'
+      include '../hydrolib/network.inc'
+      include '../hdf_tidefile/common_tide.f'
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -226,7 +226,7 @@ c-----tide file info.
       implicit none
 
       include 'common.f'
-      include '../time-varying/common_qual_bin.inc'
+      include '../hdf_tidefile/common_qual_bin.inc'
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -661,8 +661,8 @@ c-----quadrature integration info
      &     ldefault             ! true if values are for defaults
       common /read_fix_l/ ldefault
 
-      include '../../hydro/network.inc'
-      include '../../hydro/netcntrl.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
 
 c-----local variables
 
@@ -827,9 +827,9 @@ c-----process a character line into data arrays for scalar info
 
       implicit none
 
-      include '../../hydro/network.inc'
-      include '../../hydro/netcntrl.inc'
-      include '../../hydro/chconnec.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chconnec.inc'
 
       include 'common.f'
       include 'common_qual.inc'

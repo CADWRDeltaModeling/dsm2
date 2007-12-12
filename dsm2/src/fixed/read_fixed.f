@@ -52,14 +52,14 @@ c-----Read the fixed (non-time-varying) input data for DSM2 modules.
       USE DFLIB                 !! <NT>
       implicit none
       
-      include '../../hydro/network.inc'
+      include '../hydrolib/network.inc'
 
       include 'common.f'
       include 'common_ptm.inc'
-      include '../time-varying/common_tide.f'
-      include '../time-varying/dss.inc'
-      include '../time-varying/readdss.inc'
-      include '../time-varying/tide.inc'
+      include '../hdf_tidefile/common_tide.f'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../hdf_tidefile/tide.inc'
 
 c-----local variable declaration
 

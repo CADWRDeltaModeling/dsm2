@@ -50,7 +50,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       implicit none
 
       include 'common_ptm.inc'
-      include '../time-varying/common_qual_bin.inc'
+      include '../hdf_tidefile/common_qual_bin.inc'
       integer i
 
 c-----Initialize the integer values for the ptm scalars
