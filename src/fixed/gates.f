@@ -51,9 +51,9 @@ c-----Module: Gates
 
       Implicit None
 
-      include '../hydro/network.inc'
-      include '../input/fixed/misc.f'
-	include '../input/fixed/defs.f'
+      include '../hydrolib/network.inc'
+      include '../fixed/misc.f'
+	include '../fixed/defs.f'
                                 ! Maximums for pre-dimensioned arrays
       integer, parameter :: MAX_DEV=10 ! Max no. of devices per gate
       integer, parameter :: MAX_GATES=MaxNGate ! Max no. of gates
@@ -154,7 +154,7 @@ c-----an "equal stage" internal boundary condition. This routine takes care
 c-----of the clean-up required in order to make the transition.
 c-----use Gates, only: Gate, GATE_OPEN
       implicit none
-	include '../input/fixed/common.f'
+	include '../fixed/common.f'
       Type(Gate) :: inGate
       logical*4 :: isfree
       integer i
@@ -177,7 +177,7 @@ c     miss_val_i if the name is not a gate name in the current model.
 c     Element-by-element search, so this routine is expensive. 
       integer function gateIndex(gateName)
 	implicit none
-	include '../input/fixed/misc.f'
+	include '../fixed/misc.f'
 	integer igate
 	character :: gateName*32
 	character :: lowerName*32
@@ -199,7 +199,7 @@ c     of the device. If the gate does not contain the device name, miss_val_i
 c     is returned. Element-by-element search, so this routine is expensive. 
       integer function deviceIndex(parentgate,devName)
       implicit none
-      include '../input/fixed/misc.f'
+      include '../fixed/misc.f'
       Type(Gate) parentgate
       Character :: devName*32
       Character :: parname*32=' '
