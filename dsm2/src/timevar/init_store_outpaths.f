@@ -50,7 +50,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 c-----Initialization for storing time-varying output data in temporary
 c-----files.
       use IO_Units
-      use dsm2_database
+c      use dsm2_database
       implicit none
 
       include '../fixed/common.f'

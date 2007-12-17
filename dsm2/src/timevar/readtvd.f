@@ -60,9 +60,9 @@ c-----process further (interpolate, fillin missing, ...)
 c-----common blocks
 
       include '../fixed/common.f'
-      include '../../hydro/network.inc'
-      include '../../hydro/netbnd.inc'
-      include '../../hydro/chconnec.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netbnd.inc'
+      include '../hydrolib/chconnec.inc'
 
 c-----subroutine arguments
 
@@ -240,11 +240,13 @@ c--------don't interpolate if not requested or gate values
 
 c--------if this path has a different start date offset than the previous
 c--------path, force recalculation of buffer indices
-         if (i .gt. 1 .and.
-     &        pathinput(inpath_ptr(i-1)).diff_julmin .ne.
-     &        pathinput(ptr).diff_julmin) then
-            bufndx_next_sync=-1
-            bufndx_next_nosync=-1
+         if (i .gt. 1) then
+            if(
+     &         pathinput(inpath_ptr(i-1)).diff_julmin .ne.
+     &         pathinput(ptr).diff_julmin) then
+              bufndx_next_sync=-1
+              bufndx_next_nosync=-1
+            end if
          endif
 
 c--------ndx_next is index in dss buffer for data forward of current
