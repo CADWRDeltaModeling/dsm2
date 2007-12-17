@@ -3,8 +3,9 @@
 #include<time.h>
 #include <iostream>
 
-#define attach_hydro_scales __stdcall ATTACH_HYDRO_DIMSCALES
-#define iso_time __stdcall ISO_TIME
+#define STDCALL 
+#define attach_hydro_scales STDCALL ATTACH_HYDRO_DIMSCALES
+#define iso_time STDCALL ISO_TIME
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,10 +20,10 @@ void attach_dim(hid_t * fid, char*setname,
 
  herr_t err = 0;
  // open the main dataset
- hid_t dsetid = H5Dopen(* fid, setname);
+ hid_t dsetid = H5Dopen1(* fid, setname);
  if(dimsetname != 0){
 	 // open the dimension scale set
-	 hid_t dimsetid = H5Dopen(* fid,dimsetname);
+	 hid_t dimsetid = H5Dopen1(* fid,dimsetname);
 	 // convert to dimension scale
 	 err = H5DSset_scale(dimsetid, label);
 	 // attach to dataset
