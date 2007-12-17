@@ -55,9 +55,9 @@ C-----FOR ALL THE CHANNELS AND ALL SECTIONS.
 
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../hydro/network.inc'
-      INCLUDE '../input/fixed/common.f'
-      INCLUDE '../input/time-varying/common_tide.f'
+      INCLUDE '../hydrolib/network.inc'
+      INCLUDE '../fixed/common.f'
+      INCLUDE '../hdf_tidefile/common_tide.f'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

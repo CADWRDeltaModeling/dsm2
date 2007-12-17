@@ -60,7 +60,7 @@ C-----------------in all the channels and reservoirs.
 C-----=2   Calculate the amount of constituent entering and leaving
  
       INCLUDE 'param.inc'
-      INCLUDE '../input/fixed/common.f'
+      INCLUDE '../fixed/common.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -280,8 +280,8 @@ c-------------------------------------------------open_masstrack_output_files
       Use IO_Units
       implicit none
       INCLUDE 'param.inc'
-      INCLUDE '../input/fixed/common.f'
-      INCLUDE '../input/fixed/common_qual.inc'
+      INCLUDE '../fixed/common.f'
+      INCLUDE '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
 
                                 ! local variables
@@ -340,7 +340,7 @@ c-----reservoir_salinity_update_formtk
 
       INCLUDE 'param.inc'
 
-      INCLUDE '../input/fixed/common.f'
+      INCLUDE '../fixed/common.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -393,8 +393,8 @@ c-----print_results_for_masstracking
       implicit none
       INCLUDE 'param.inc'
 
-      INCLUDE '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      INCLUDE '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'
@@ -523,8 +523,8 @@ c-----read_input_data_for_masstracking
       implicit none
       INCLUDE 'param.inc'
 
-      INCLUDE '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      INCLUDE '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'
@@ -749,7 +749,7 @@ c-----The flags are set true if they are located on either end of the channel.
 
       INCLUDE 'param.inc'
 
-      INCLUDE '../input/fixed/common.f'
+      INCLUDE '../fixed/common.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -783,8 +783,8 @@ c-----The flags are set true if they are located on either end of the channel.
 
       INCLUDE 'param.inc'
 
-      INCLUDE '../input/fixed/common.f'
-      INCLUDE '../input/time-varying/common_tide.f'
+      INCLUDE '../fixed/common.f'
+      INCLUDE '../hdf_tidefile/common_tide.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -833,8 +833,8 @@ c-----The flags are set true if they are located on either end of the channel.
       IMPLICIT NONE
       
       INCLUDE 'param.inc'
-      INCLUDE '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      INCLUDE '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

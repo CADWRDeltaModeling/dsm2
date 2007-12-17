@@ -141,9 +141,9 @@ C-----(NOPR should be at least 20 + 2 times NOSC)
 	use groups, only: GROUP_ALL
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
-      INCLUDE '../input/time-varying/common_tide.f'
+      INCLUDE '../fixed/common.f'
+      include '../fixed/common_qual.inc'
+      INCLUDE '../hdf_tidefile/common_tide.f'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

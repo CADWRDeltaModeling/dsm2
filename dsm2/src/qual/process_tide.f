@@ -55,11 +55,11 @@ c-----Process Hydro tidefile data into arrays needed by Qual.
       implicit none
 
       include 'param.inc'
-      include '../hydro/network.inc'
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
-      include '../input/time-varying/common_tide.f'
-      include '../input/time-varying/tide.inc'
+      include '../hydrolib/network.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
+      include '../hdf_tidefile/common_tide.f'
+      include '../hdf_tidefile/tide.inc'
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'
@@ -193,7 +193,7 @@ c-----Check Hydro tidefile for size compatibility with Qual.
       Use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm3.inc'
