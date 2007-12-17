@@ -8,7 +8,7 @@ c-----load f90SQL modules
       use IO_Units
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -237,7 +237,7 @@ c-----------find object number given external object number
             else if(ObjTypeID .eq. OBJ_RESERVOIR .or.
      &              ObjTypeID .eq. OBJ_GATE .OR. 
      &              ObjTypeID .eq. OBJ_OBJ2OBJ)then
-               pathinput(ninpaths).object_name=LocName
+               pathinput(ninpaths).object_name=trim(LocName)
                pathinput(ninpaths).object_no=name_to_objno(ObjTypeID,LocName)
                if (pathinput(ninpaths).object_no .eq.miss_val_i )then
                   write(unit_error,'(a,a)')

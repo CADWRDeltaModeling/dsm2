@@ -115,7 +115,7 @@ c	end if
 
       subroutine open_database(istat)      
       implicit none
-	include '../input/fixed/common.f'
+	include '../fixed/common.f'
       integer(SQLRETURN_KIND) iret
       integer istat
 c-----allocate an environment handle
@@ -192,7 +192,7 @@ c-----load f90SQL modules
       use f90SQL
       use IO_Units
       implicit none
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
