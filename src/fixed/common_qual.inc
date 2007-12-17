@@ -14,7 +14,7 @@ C-----Qual Parameters
      &     ,no_of_nonconserve_constituent ! no. of nonconservative constituents
      &     ,no_all_source       ! number of constituents tracked from all sources
 
-      record /constituents_s/ constituents(max_constituent)
+      type(constituent_t) constituents(max_constituent)
 c-----parameter max_constituent is defined in defs.f=60, Jon 4/12/06
 
       integer
