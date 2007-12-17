@@ -1,9 +1,9 @@
 c----- 
       subroutine updateWBHydroInfo
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/tide.inc'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/tide.inc'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
 c----- functions
       integer get_unique_id_for_channel
@@ -96,7 +96,7 @@ c----- check node balance
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_flow_balance_at_node(nodeId)
       implicit none
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       include 'ptmLocal.inc'
       integer nodeId, j
       real get_flow_for_wb_node, get_flow_balance_at_node, cumFlow
@@ -113,7 +113,7 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_flow_for_wb_node(wbId, nodeId)
       implicit none
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       include 'ptmLocal.inc'
       real get_flow_for_wb_node
       integer i, wbId, nodeId
@@ -140,7 +140,7 @@ c      call read_quality_bin()
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_ext_from_int(internal)
       implicit none
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       integer get_ext_from_int
       integer internal
       get_ext_from_int= int2ext(internal)
@@ -150,8 +150,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_depth(number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_up_node_depth
       integer number
@@ -162,8 +162,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_depth( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_down_node_depth
       integer number
@@ -174,8 +174,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_stage(number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_up_node_stage
       integer number
@@ -187,8 +187,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_stage( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_down_node_stage
       integer number
@@ -200,8 +200,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_flow( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_up_node_flow
       integer number
@@ -212,8 +212,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_flow( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_down_node_flow
       integer number
@@ -224,8 +224,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_area( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_up_node_area
       integer number
@@ -236,8 +236,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_area( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_down_node_area
       integer number
@@ -248,8 +248,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_volume( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_reservoir_volume
       integer number
@@ -261,8 +261,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_node_number_for_connection( reservoirNumber, 
      &     connection)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       integer get_node_number_for_connection
      &     , get_unique_id_for_reservoir
@@ -276,8 +276,8 @@ c     &     res_geom(reservoirNumber).node_no(connection)
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_resevoir_depth( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_resevoir_depth
       integer number
@@ -289,8 +289,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_flow_for_connection(
      &     reservoirNumber, connection)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_reservoir_flow_for_connection
       integer reservoirNumber, connection
@@ -304,8 +304,8 @@ c     &     Qresv(reservoirNumber, connection)
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_diversion_flow( number )
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include '../../input/time-varying/tide.inc'
       include 'ptmLocal.inc'
       real get_diversion_flow
@@ -320,7 +320,7 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_diversion_massfrac( number )
       implicit none
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       include '../../input/time-varying/tide.inc'
       real get_diversion_massfrac
       integer number
@@ -334,8 +334,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_diversion_at_node( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_diversion_at_node
       integer number
@@ -347,8 +347,8 @@ c-----get_diversion_at_node= qNodeDiversion(number)
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_pumping( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_reservoir_pumping
       integer number
@@ -359,8 +359,8 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_boundary_flow( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_boundary_flow
       integer number,id, get_unique_id_for_boundary
@@ -372,8 +372,8 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_stage_boundary_flow( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_stage_boundary_flow
       integer number,id, get_unique_id_for_stage_boundary
@@ -385,8 +385,8 @@ c-----
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_conveyor_flow( number)
       implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
       include 'ptmLocal.inc'
       real get_conveyor_flow
       integer number,id, get_unique_id_for_conveyor
@@ -400,7 +400,7 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_quality(number, constituent)
       implicit none
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       include '../../input/time-varying/common_qual_bin.inc'
       include 'ptmLocal.inc'
       real get_up_node_quality
@@ -412,7 +412,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_quality(number, constituent)
       implicit none
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       include '../../input/time-varying/common_qual_bin.inc'
       include 'ptmLocal.inc'
       real get_down_node_quality

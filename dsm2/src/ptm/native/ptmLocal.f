@@ -49,7 +49,7 @@ c-----convert a character interval to minutes
       subroutine CharIntvl2Mins(interval, minutes)
       implicit none
 
-      include '../../input/fixed/misc.f'
+      include '../../fixed/misc.f'
 
       integer*4 incr_intvl,minutes
       character interval*80
@@ -79,7 +79,7 @@ c-----$Id: ptmLocal.f,v 1.6.6.6 2007/07/31 18:30:41 eli2 Exp $
 
 c-----global variables
 
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       include 'ptmLocal.inc'
 c-----local variables
       integer
@@ -111,10 +111,10 @@ C-----Processes tide file input
       implicit none
 C-----This subroutine is called from read_mult_tide after reading in the tide
 C-----information
-      include '../../hydro/network.inc'
-      include '../../input/fixed/common.f'
-      include '../../input/time-varying/common_tide.f'
-      include '../../input/time-varying/tide.inc'
+      include '../../hydrolib/network.inc'
+      include '../../fixed/common.f'
+      include '../../hdf_tidefile/common_tide.f'
+      include '../../hdf_tidefile/tide.inc'
       include 'ptmLocal.inc'
 c-----argumnents
       logical
@@ -153,7 +153,7 @@ c-----sets the model julmin time just before calling read_mult_tide
       subroutine set_tidefile_time(modelTime)
       integer*4 modelTime
       character*14 jmin2cdt
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       julmin = modelTime
       current_date=jmin2cdt(julmin)
       return
@@ -165,7 +165,7 @@ c-----Check Hydro tidefile for size compatibility with PTM.
      &     ,tidefile)
       implicit none
 
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
 
 ! c-----argumnents
       integer
@@ -182,8 +182,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	use dsm2_database
 	use groups,only:ConvertGroupPatternsToMembers,PrintGroupMembers
 	implicit none
-      include '../../input/fixed/common.f'
-	include '../../input/fixed/common_ptm.inc'
+      include '../../fixed/common.f'
+	include '../../fixed/common_ptm.inc'
       integer istat
       character
      &     init_input_file*130  ! initial input file on command line [optional]
@@ -289,8 +289,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----global variables
 
-      include '../../input/fixed/common.f'
-      include '../../input/fixed/common_ptm.inc'
+      include '../../fixed/common.f'
+      include '../../fixed/common_ptm.inc'
       integer*4 next_output_flush,incr_intvl
       common /local/ next_output_flush
       character
@@ -321,7 +321,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----global variables
 
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       character
      &     jmin2cdt*14          ! convert from julian minute to char date/time
       integer*4 next_output_flush,incr_intvl
@@ -347,7 +347,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine set_flux(fluxId, fluxValue)
       implicit none
 c-----global variables
-      include '../../input/fixed/common.f'
+      include '../../fixed/common.f'
       include 'ptmLocal.inc'
       integer fluxId
       real fluxValue
@@ -359,8 +359,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine set_group(groupId, groupValue)
       implicit none
 c-----global variables
-      include '../../input/fixed/common.f'
-      include '../../input/fixed/common_ptm.inc'
+      include '../../fixed/common.f'
+      include '../../fixed/common_ptm.inc'
       include 'ptmLocal.inc'
       integer groupId, tmpval
       real groupValue
@@ -381,8 +381,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	use IO_UNITS
 	use Groups, only:WriteGroupMembers2File
 	implicit none
-      include '../../input/fixed/common.f'
-      include '../../input/fixed/common_ptm.inc'
+      include '../../fixed/common.f'
+      include '../../fixed/common_ptm.inc'
 	integer i
 c-----copyright notices
       write(unit_screen, 805)
