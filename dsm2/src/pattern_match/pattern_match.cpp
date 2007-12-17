@@ -1,13 +1,14 @@
-#pragma warning(disable:4786) // warnings about long template names
+#pragma warning(disable:4786) 
+// warnings about long template names
 // If compiling this file causes problems, try "rebuild all". This 
 // is a problem coordinating boost with MS Visual studio 6
 #include "boost/regex.hpp"
-#include "pattern_match.hpp"
+#include "pattern_match.h"
 #include<vector>
 #include<iostream>
 static std::vector<int> match_ndx;
 
-
+#define STDCALL 
 
 extern "C" {
 
@@ -16,7 +17,7 @@ extern "C" {
  * Append a match to the list of matches. This is public in order to allow 
  * forced matches without bothering with regular expressions.
  */
-void __stdcall append_match(int * ndx){
+void STDCALL append_match(int * ndx){
   match_ndx.push_back(*ndx);
 }
 
@@ -32,9 +33,11 @@ void __stdcall append_match(int * ndx){
  *  @arg pattern the pattern to look for
  *  @arg length of the pattern
  */
-void __stdcall pattern_match(int* ndx, char* matchstr, int lenmatchstr,
-				                       char* pattern, int lenpattern,
-									   int* istat)
+void STDCALL pattern_match(int* ndx, char* matchstr,
+				                       char* pattern,
+									   int* istat,
+									   int lenmatchstr,
+									   int lenpattern)
 {
 
    bool match=false;
@@ -59,7 +62,7 @@ void __stdcall pattern_match(int* ndx, char* matchstr, int lenmatchstr,
  * Retrieves the index (ndx) stored on the ith successful match since the 
  * match vector match_ndx was last cleared. Returns -901 if i is out of range
  */
-int __stdcall  pattern_match_index(int * i){
+int STDCALL  pattern_match_index(int * i){
    if (*i > match_ndx.size()) return -901;
    return match_ndx[*i-1];
 }
@@ -69,12 +72,12 @@ int __stdcall  pattern_match_index(int * i){
 /**
  * Reset the number of stored matching indexes to zero
  */
-void __stdcall pattern_match_clear(){
+void STDCALL pattern_match_clear(){
 	//std::cout << "clearing matcher"<<std::endl;
 	match_ndx.clear();
 }
 
-int __stdcall pattern_match_count(){
+int STDCALL pattern_match_count(){
 	return match_ndx.size();
 }
 
