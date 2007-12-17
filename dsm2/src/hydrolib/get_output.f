@@ -59,7 +59,7 @@ c-----arguments
 
 c-----global variables
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
       include 'network.inc'
       include 'chconnec.inc'
 

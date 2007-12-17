@@ -92,7 +92,7 @@ c
       include 'network.inc'
       include 'chconnec.inc'
       include 'solver.inc'
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
       integer ChanCompPt,ChannelConnect,ChannelRow
@@ -239,7 +239,7 @@ c     &         res_geom(i).name,i,j,dy, y1, y2, coefSqrtTwoG, QRes(i,j), ResEqR
       include 'network.inc'
       include 'chconnec.inc'
       include 'solver.inc'
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
       integer ChanCompPt,ChannelConnect,ChannelRow

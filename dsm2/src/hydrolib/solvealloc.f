@@ -90,7 +90,7 @@ C!
 	include 'chnlcomp.inc'
       include 'chconnec.inc'
       include 'solver.inc'
-      include '../input/fixed/common.f' ! only nreser
+      include '../fixed/common.f' ! only nreser
 
 *     Local Variables:
 

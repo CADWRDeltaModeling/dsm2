@@ -62,9 +62,9 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       include 'network.inc'
       include 'netbnd.inc'
 
-      include '../input/fixed/common.f'
-      include '../input/time-varying/dss.inc'
-      include '../input/time-varying/tide.inc'
+      include '../fixed/common.f'
+      include '../timevar/dss.inc'
+      include '../hdf_tidefile/tide.inc'
 
 *   Routines by module:
 
@@ -123,10 +123,10 @@ c-----call apply_boundary_values
 	subroutine UpdateTimeVaryingData()
 	implicit none
 *   Module data:
-      include '../input/fixed/common.f'
-c      include '../input/fixed/defs.f'
-      include '../input/time-varying/dss.inc'
-      include '../input/time-varying/readdss.inc'
+      include '../fixed/common.f'
+c      include '../fixed/defs.f'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
 
 	integer i
 
@@ -179,8 +179,8 @@ c-----flow structure for tidefile
 
 c-----common blocks
 
-      include '../input/fixed/common.f'
-      include '../input/time-varying/tide.inc'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/tide.inc'
       include 'network.inc'
       include 'netbnd.inc'
       include 'netcntrl.inc'
@@ -261,10 +261,10 @@ c todo: gate_free, fetching data from expression
 	implicit none
 
 *   Purpose:  Move data from boundary objects to hydro arrays and data structures. 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
       include 'network.inc'
       include 'netbnd.inc'
-      include '../input/time-varying/tide.inc'
+      include '../hdf_tidefile/tide.inc'
       include 'chconnec.inc'
 
       integer intchan,i,obj_type,node
@@ -356,8 +356,8 @@ c-----argument
 
 c-----includes
 
-      include '../input/fixed/common.f'
-      include '../input/time-varying/tide.inc'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/tide.inc'
 
 c-----local variables
       integer
@@ -416,8 +416,8 @@ c-----argument
 
 c-----includes
 
-      include '../input/fixed/common.f'
-      include '../input/time-varying/tide.inc'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/tide.inc'
 
 c-----local variables
       integer

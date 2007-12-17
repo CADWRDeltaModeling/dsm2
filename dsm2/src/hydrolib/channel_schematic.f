@@ -151,7 +151,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 *   Module data:
       INCLUDE 'network.inc'
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
 
@@ -325,7 +325,7 @@ c      END IF
 *   Argument definitions:
 
 *   Module data:
-	INCLUDE '../input/fixed/common.f'
+	INCLUDE '../fixed/common.f'
       INCLUDE 'network.inc'
       INCLUDE 'chnluser.inc'
       INCLUDE 'chnlcomp.inc'
@@ -1171,7 +1171,7 @@ c      OK = SetNetworkTimeSeriesLocations()
       implicit none
 	include 'network.inc'
       include 'chnlcomp.inc'
-	include '../input/fixed/common.f'
+	include '../fixed/common.f'
 
 *   Arguments:
       integer :: intchan  ! Channel where comp point is being requested
