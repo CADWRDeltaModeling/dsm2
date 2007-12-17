@@ -56,13 +56,9 @@ c-----print the output
       include 'common_irreg_geom.f'
       
 
-      include '../../hydro/network.inc'
-      include '../../hydro/netcntrl.inc'
-      include '../../hydro/chconnec.inc'
-c      include '../../hydro/chnluser.inc'
-c      include '../time-varying/dss.inc'
-c      include '../time-varying/readdss.inc'
-c     include '../time-varying/writedss.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chconnec.inc'
 
 c-----Local variables
 
