@@ -26,8 +26,9 @@
 #endif
 
 #ifdef NT
-#define sfAdd5Reservoir		__stdcall SFADD5RESERVOIR
-#define sfAdd4Equation		__stdcall SFADD4EQUATION
+#define STDCALL 
+#define sfAdd5Reservoir		STDCALL SFADD5RESERVOIR
+#define sfAdd4Equation		STDCALL SFADD4EQUATION
 #endif
 
 #if FORTRAN

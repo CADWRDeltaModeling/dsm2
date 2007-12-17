@@ -182,46 +182,47 @@ static char RCSid[] =
 #endif
 
 #ifdef NT
-#define sfCreate                __stdcall SFCREATE
-#define sfStripFills            __stdcall SFSTRIPFILLS
-#define sfDestroy               __stdcall SFDESTROY
-#define sfClear                 __stdcall SFCLEAR
-#define sfGetElement            __stdcall SFGETELEMENT
-#define sfGetAdmittance         __stdcall SFGETADMITTANCE
-#define sfGetQuad               __stdcall SFGETQUAD
-#define sfGetOnes               __stdcall SFGETONES
-#define sfAdd1Real              __stdcall SFADD1REAL
-#define sfAdd1Imag              __stdcall SFADD1IMAG
-#define sfAdd1Complex           __stdcall SFADD1COMPLEX
-#define sfAdd4Real              __stdcall SFADD4REAL
-#define sfAdd4Imag              __stdcall SFADD4IMAG
-#define sfAdd4Complex           __stdcall SFADD4COMPLEX
-#define sfOrderAndFactor        __stdcall SFORDERANDFACTOR
-#define sfFactor                __stdcall SFFACTOR
-#define sfPartition             __stdcall SFPARTITION
-#define sfSolve                 __stdcall SFSOLVE
-#define sfSolveTransposed       __stdcall SFSOLVETRANSPOSED
-#define sfPrint                 __stdcall SFPRINT
-#define sfFileMatrix            __stdcall SFFILEMATRIX
-#define sfFileVector            __stdcall SFFILEVECTOR
-#define sfFileStats             __stdcall SFFILESTATS
-#define sfMNA_Preorder          __stdcall SFMNA_PREORDER
-#define sfScale                 __stdcall SFSCALE
-#define sfMultiply              __stdcall SFMULTIPLY
-#define sfDeterminant           __stdcall SFDETERMINANT
-#define sfError                 __stdcall SFERROR
-#define sfWhereSingular         __stdcall SFWHERESINGULAR
-#define sfGetSize               __stdcall SFGETSIZE
-#define sfSetReal               __stdcall SFSETREAL
-#define sfSetComplex            __stdcall SFSETCOMPLEX
-#define sfFillinCount           __stdcall SFFILLINCOUNT
-#define sfElementCount          __stdcall SFELEMENTCOUNT
-#define sfDeleteRowAndCol       __stdcall SFDELETEROWANDCOL
-#define sfPseudoCondition       __stdcall SFPSEUDOCONDITION
-#define sfCondition             __stdcall SFCONDITION
-#define sfNorm                  __stdcall SFNORM
-#define sfLargestElement        __stdcall SFLARGESTELEMENT
-#define sfRoundoff              __stdcall SFROUNDOFF
+#define STDCALL  
+#define sfCreate                STDCALL SFCREATE
+#define sfStripFills            STDCALL SFSTRIPFILLS
+#define sfDestroy               STDCALL SFDESTROY
+#define sfClear                 STDCALL SFCLEAR
+#define sfGetElement            STDCALL SFGETELEMENT
+#define sfGetAdmittance         STDCALL SFGETADMITTANCE
+#define sfGetQuad               STDCALL SFGETQUAD
+#define sfGetOnes               STDCALL SFGETONES
+#define sfAdd1Real              STDCALL SFADD1REAL
+#define sfAdd1Imag              STDCALL SFADD1IMAG
+#define sfAdd1Complex           STDCALL SFADD1COMPLEX
+#define sfAdd4Real              STDCALL SFADD4REAL
+#define sfAdd4Imag              STDCALL SFADD4IMAG
+#define sfAdd4Complex           STDCALL SFADD4COMPLEX
+#define sfOrderAndFactor        STDCALL SFORDERANDFACTOR
+#define sfFactor                STDCALL SFFACTOR
+#define sfPartition             STDCALL SFPARTITION
+#define sfSolve                 STDCALL SFSOLVE
+#define sfSolveTransposed       STDCALL SFSOLVETRANSPOSED
+#define sfPrint                 STDCALL SFPRINT
+#define sfFileMatrix            STDCALL SFFILEMATRIX
+#define sfFileVector            STDCALL SFFILEVECTOR
+#define sfFileStats             STDCALL SFFILESTATS
+#define sfMNA_Preorder          STDCALL SFMNA_PREORDER
+#define sfScale                 STDCALL SFSCALE
+#define sfMultiply              STDCALL SFMULTIPLY
+#define sfDeterminant           STDCALL SFDETERMINANT
+#define sfError                 STDCALL SFERROR
+#define sfWhereSingular         STDCALL SFWHERESINGULAR
+#define sfGetSize               STDCALL SFGETSIZE
+#define sfSetReal               STDCALL SFSETREAL
+#define sfSetComplex            STDCALL SFSETCOMPLEX
+#define sfFillinCount           STDCALL SFFILLINCOUNT
+#define sfElementCount          STDCALL SFELEMENTCOUNT
+#define sfDeleteRowAndCol       STDCALL SFDELETEROWANDCOL
+#define sfPseudoCondition       STDCALL SFPSEUDOCONDITION
+#define sfCondition             STDCALL SFCONDITION
+#define sfNorm                  STDCALL SFNORM
+#define sfLargestElement        STDCALL SFLARGESTELEMENT
+#define sfRoundoff              STDCALL SFROUNDOFF
 #endif
 
 
