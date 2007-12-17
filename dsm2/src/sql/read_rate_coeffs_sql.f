@@ -15,8 +15,8 @@ c-----load f90SQL modules
 	use rate_coeff_assignment,only:assign_rate_to_group,rate_var_require_flag
       implicit none
 
-      include 'common.f'
-	include 'common_qual.inc'
+      include '../fixed/common.f'
+	include '../fixed/common_qual.inc'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

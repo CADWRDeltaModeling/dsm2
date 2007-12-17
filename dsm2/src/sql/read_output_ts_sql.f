@@ -10,7 +10,7 @@ c-----load f90SQL modules
       use IO_Units
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
       
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

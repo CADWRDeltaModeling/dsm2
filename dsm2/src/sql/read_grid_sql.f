@@ -7,7 +7,7 @@ c-----load f90SQL modules
 
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -168,8 +168,8 @@ c-----load f90SQL modules
 
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -340,8 +340,8 @@ c-----load f90SQL modules
 
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -525,7 +525,7 @@ c-----load f90SQL modules
       use DSM2_database
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -672,8 +672,8 @@ c-----load f90SQL modules
 
       implicit none
 
-      include 'common.f'
-      include '../../hydro/network.inc'
+      include '../fixed/common.f'
+      include '../hydrolib/network.inc'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -814,7 +814,7 @@ c-----load f90SQL modules
       use DSM2_database
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -879,7 +879,7 @@ c-----Bind variables to columns in result set
       ObjConnID=" "
       channoStr=" "
 
-      ColNumber=ColNumber+1
+      ColNumber=1
 
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, ID,
      &     f90SQL_NULL_PTR, iRet)
@@ -917,7 +917,7 @@ c-----Loop to fetch records, one at a time
       do while (.true.)
 
 c--------Fetch a record from the result set
-         name=miss_val_c
+
          call f90SQLFetch(StmtHndl,iRet)
          if (iRet .eq. SQL_NO_DATA) exit
          if (iRet .ne. SQL_SUCCESS) then
@@ -1021,7 +1021,7 @@ c-----load f90SQL modules
       use IO_Units
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -1242,7 +1242,7 @@ c-----load f90SQL modules
       use DSM2_database
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
       integer(DBASE_ID_KIND) ModelID           ! which ModelID to select
@@ -1415,7 +1415,7 @@ c-----with hydro and qual. The function also changes
 c-----chan_geom.upnode and chan_geom.downnode from external to internal
       logical function order_nodes()
       implicit none
-      include 'common.f'
+      include '../fixed/common.f'
       integer nn,n,node
       integer intchan
       integer ext2intnode

@@ -1,8 +1,24 @@
+      subroutine set_database_name(name)
+      use dsm2_database
+      implicit none
+      character(LEN=32) name
+  	database_name=trim(name)
+      ServerName=trim(name)
+      end subroutine
+
+      subroutine set_model_name(name)
+      use dsm2_database
+      implicit none
+      character(LEN=32) name
+      model_name=trim(name)
+      end subroutine
+          
+
       subroutine read_sql(istat)
       use dsm2_database
 	use groups, only: ConvertGroupPatternsToMembers
       implicit none
-      include 'common.f'
+      include '../fixed/common.f'
 
       integer :: istat          ! status
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -86,14 +102,13 @@ c-----load f90SQL modules
       use dsm2_database
       implicit none
 
-      include '../../hydro/network.inc'
-      include '../../hydro/netcntrl.inc'
-      include '../../hydro/chconnec.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chconnec.inc'
 
-      include 'common.f'
-      include 'common_ptm.inc'
-      include 'common_qual.inc'
-c-----include 'database.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_ptm.inc'
+      include '../fixed/common_qual.inc'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -616,7 +631,7 @@ c-----char-to-value conversion errors
 c-----convert sql timestamp structure into a julian minute
       use f90SQLStructures
       implicit none
-      include 'common.f'
+      include '../fixed/common.f'
       type(TIMESTAMP_STRUCT) :: time
 
       integer*4
@@ -644,7 +659,7 @@ c     is not the internal model number
       use gates, only: nGate, gateArray
       use Groups, only: nGroup, groupArray
 
-      include 'common.f'
+      include '../fixed/common.f'
 
 c-----arguments
       integer*4
@@ -705,7 +720,7 @@ c-----local variables
 c     get the integer type code given a character string representing the type
       integer*4 function obj_type_code(objtype)
 	implicit none
-	include 'common.f'
+	include '../fixed/common.f'
 	character*(*) :: objtype
       character*32  :: cstring
 	obj_type_code=miss_val_i
@@ -743,7 +758,7 @@ c-----load f90SQL modules
       use IO_Units
       implicit none
 
-      include 'common.f'
+      include '../fixed/common.f'
 
       integer(SQLHANDLE_KIND)::Hndl
       integer(SQLSMALLINT_KIND)::HndlType

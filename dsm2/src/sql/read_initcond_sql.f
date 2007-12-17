@@ -7,9 +7,9 @@ c-----load f90SQL modules
       use DSM2_database
       implicit none
 
-      include 'common.f'
-      include '../../hydro/network.inc'
-      include '../../hydro/chinitcd.inc'
+      include '../fixed/common.f'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/chinitcd.inc'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -241,9 +241,9 @@ c-----load f90SQL modules
       use DSM2_database
       implicit none
 
-      include 'common.f'
-      include '../../hydro/network.inc'
-      include '../../hydro/chconnec.inc'
+      include '../fixed/common.f'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/chconnec.inc'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
