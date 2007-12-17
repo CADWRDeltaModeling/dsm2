@@ -33,11 +33,13 @@ extern void set_input_string(char*);
 extern int op_ruleparse();
 extern OperatingRule* getOperatingRule();
 
+#define STDCALL 
+#define init_parser_f STDCALL INIT_PARSER_F
+#define advance_op_rules STDCALL ADVANCEOPRULES
+#define test_rule_activation STDCALL TESTOPRULEACTIVATION
+#define parse_rule PARSE_RULE
 
-#define init_parser_f __stdcall INIT_PARSER_F
-#define advance_op_rules __stdcall ADVANCEOPRULES
-#define test_rule_activation __stdcall TESTOPRULEACTIVATION
-#define parse_rule __stdcall PARSE_RULE
+
 
 ModelInterfaceActionResolver<DSM2ModelTimer, DSM2Resolver,
                              DSM2ModelInterfaceResolver> resolver;

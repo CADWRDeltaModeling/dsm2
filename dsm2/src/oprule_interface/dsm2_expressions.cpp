@@ -8,7 +8,7 @@ typedef std::vector<oprule::expression::DoubleNodePtr> data_expr_container;
 data_expr_container expr_used_as_data;
 typedef data_expr_container::iterator data_expr_iter;
 
-extern "C" double __stdcall get_expression_data(int* express){
+extern "C" double STDCALL get_expression_data(int* express){
    return (expr_used_as_data[*express])->eval(); 
 }
 
