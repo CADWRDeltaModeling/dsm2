@@ -80,7 +80,7 @@ C!
 
 *   Module data:
       include 'network.inc'
-      include '../input/fixed/common.f' ! only nreser
+      include '../fixed/common.f' ! only nreser
       include 'solver.inc'
       include 'chconnec.inc'
 
@@ -337,8 +337,8 @@ c-----INTEGER N
 
       INCLUDE 'network.inc'
       INCLUDE 'solver.inc'
-c@@@     INCLUDE '../input/fixed/misc.f'
-      INCLUDE '../input/fixed/common.f'
+c@@@     INCLUDE '../fixed/misc.f'
+      INCLUDE '../fixed/common.f'
       INCLUDE 'chstatus.inc'
 
 *   Purpose:  Interface to SPARSE solver for solution

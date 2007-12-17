@@ -4,9 +4,9 @@ c-----display values in a hydro tidefile
 
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/time-varying/tide.inc'
-      include '../input/time-varying/common_tide.f'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/tide.inc'
+      include '../hdf_tidefile/common_tide.f'
 
 c-----local variables
       integer
@@ -263,7 +263,7 @@ c-----end of tidefile
 c-----list channel sequence
       implicit none
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
       integer
      &     int2ext_tmp(0:max_channels)

@@ -787,7 +787,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 *   Module data:
       INCLUDE 'network.inc'
       INCLUDE 'netcntrl.inc'
-      INCLUDE '../input/fixed/common.f'
+      INCLUDE '../fixed/common.f'
 
 *   Local Variables:
       CHARACTER*1 Star, Blank
@@ -864,7 +864,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'network.inc'
       INCLUDE 'netcntrl.inc'
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
       INTEGER PrintUnit
@@ -1138,7 +1138,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 *   Module data:
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
       INTEGER PrintUnit

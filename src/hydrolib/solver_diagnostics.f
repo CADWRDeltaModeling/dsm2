@@ -14,7 +14,7 @@ c     called diagnostics.txt
 	include 'chconnec.inc'
 	include 'solver.inc'
       include 'chnlcomp.inc'
-	include '../input/fixed/common.f'
+	include '../fixed/common.f'
 
       integer,external :: UpstreamPointer,DownstreamPointer
 	integer,parameter :: DF=2

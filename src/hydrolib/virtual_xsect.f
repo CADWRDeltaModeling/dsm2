@@ -57,8 +57,8 @@ c-----The height is the distance above the lowest point in the cross-section.
 
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
       include 'virt_xsect.inc'
 
       integer
@@ -156,8 +156,8 @@ c-----added to the list.
       use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -298,8 +298,8 @@ c-----rise over run.
       use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -408,8 +408,8 @@ c-----the channel and at distances along the channel length defined by (deltax/2
       use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
       integer
      &     channo               ! dsm channel number
@@ -463,8 +463,8 @@ c-----upstream end
 
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -562,8 +562,8 @@ c-----interpolate cross-section properties in the x direction
       use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
       include 'virt_xsect.inc'
 
       integer
@@ -674,8 +674,8 @@ c-----direction.
 
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 	
@@ -739,8 +739,8 @@ c-----This subroutine interpolates area values in the vertical direction.  This
 c-----subroutine is always called after interp_width.
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
       REAL*8
      &     a                    ! interpolated area
@@ -764,8 +764,8 @@ c-----vertical direction.
 
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -840,8 +840,8 @@ c-----This subroutine interpolates z centroid values in the vertical direction.
 
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -923,8 +923,8 @@ c-----This subroutine calculates cross-section properties for rectangular sectio
       use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -1008,8 +1008,8 @@ c-----This subroutine prints a list of all cross-section properties for all laye
 c-----of all virtual cross-sections.
       use IO_Units
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
       integer
      &     channo               ! dsm channel number
@@ -1072,8 +1072,8 @@ c-----message is printed with the names of the cross-sections.
       use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
       integer
      &     channo               ! do loop counters
@@ -1175,8 +1175,8 @@ c-----------compare area(MSL) of all xsect--find max & min
       subroutine array_bounds_exceeded(channo)
       use IO_Units
 	implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
       integer channo
 

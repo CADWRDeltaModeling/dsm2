@@ -88,7 +88,7 @@ c-----and for writing to the tidefile
       INCLUDE 'chconnec.inc'
       INCLUDE 'chcxrec1.inc'
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
       REAL*8    y,x,xx,h,Area,Q
@@ -139,9 +139,9 @@ c-----and for writing to the tidefile
 *   Purpose:  Calculate the first interval that will be in the 
 *             (output) hydro tidefile. Due to averaging and 
 *             alignment to calendar time boundaries, this may be delayed.
-      INCLUDE '../input/fixed/common.f'
+      INCLUDE '../fixed/common.f'
       INCLUDE 'network.inc'
-      INCLUDE '../input/time-varying/common_tide.f'
+      INCLUDE '../hdf_tidefile/common_tide.f'
       INCLUDE 'chconnec.inc'
       integer, external :: incr_intvl
 	integer :: first_hydro_interval
@@ -179,10 +179,10 @@ c-----didn't start on an even time boundary, this will be delayed
 *     Nsample   - Number of time steps within a unit time in hydro file
 
 *   Module data:
-      INCLUDE '../input/fixed/common.f'
-      INCLUDE '../input/time-varying/tide.inc'
+      INCLUDE '../fixed/common.f'
+      INCLUDE '../hdf_tidefile/tide.inc'
       INCLUDE 'network.inc'
-      INCLUDE '../input/time-varying/common_tide.f'
+      INCLUDE '../hdf_tidefile/common_tide.f'
       INCLUDE 'chnlcomp.inc'
       INCLUDE 'chconnec.inc'
       INCLUDE 'chstatus.inc'
@@ -293,8 +293,9 @@ C--------Initialize
 
       LOGICAL FUNCTION InitHydroTidefile()
 
-      use HDFVARS
+      use hdfvars
       use io_units, only : unit_hydro
+
       IMPLICIT NONE
 
 *   Purpose:  To write information in a hydro file
@@ -304,10 +305,10 @@ C--------Initialize
 
       INCLUDE 'network.inc'
       INCLUDE 'chconnec.inc'
-      include '../input/fixed/common.f'
-      include '../input/time-varying/dss.inc'
-      INCLUDE '../input/time-varying/tide.inc'
-      INCLUDE '../input/time-varying/common_tide.f'
+      include '../fixed/common.f'
+      include '../timevar/dss.inc'
+      INCLUDE '../hdf_tidefile/tide.inc'
+      INCLUDE '../hdf_tidefile/common_tide.f'
 *   Local Variables:
       INTEGER i,j,lnblnk,ptr
 
@@ -366,10 +367,10 @@ C--------Initialize
 
       INCLUDE 'network.inc'
       INCLUDE 'chconnec.inc'
-      include '../input/fixed/common.f'
-      include '../input/time-varying/dss.inc'
-      INCLUDE '../input/time-varying/tide.inc'
-      INCLUDE '../input/time-varying/common_tide.f'
+      include '../fixed/common.f'
+      include '../timevar/dss.inc'
+      INCLUDE '../hdf_tidefile/tide.inc'
+      INCLUDE '../hdf_tidefile/common_tide.f'
 *   Local Variables:
       INTEGER i,j,lnblnk,ptr
 
@@ -440,8 +441,8 @@ C--------Save only the values which have changed
       INCLUDE 'chnlcomp.inc'
       INCLUDE 'chstatus.inc'
       INCLUDE 'chcxtbl.inc'
-      include '../input/fixed/common.f'
-      include '../input/time-varying/common_tide.f'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/common_tide.f'
 *   Local Variables:
       INTEGER Up, Down, nn, j
       real*8 xx,zz

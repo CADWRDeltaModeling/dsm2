@@ -266,8 +266,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'network.inc'
       INCLUDE 'chcxtbl.inc'
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 *   Local Variables:
       integer
@@ -317,8 +317,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'network.inc'
       INCLUDE 'chcxtbl.inc'
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 *   Functions:
       LOGICAL  CxShapeFunction
@@ -397,8 +397,8 @@ c-----statement function to interpolate wrt two points
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -483,8 +483,8 @@ c-----statement function to calculate indices of virtual data arrays
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -595,8 +595,8 @@ c-----statement function to calculate indices of virtual data arrays
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -754,7 +754,7 @@ c@@@      ENDIF
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -962,8 +962,8 @@ c@@@      dEffectiveN = dEffectiveN/dH
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -1049,8 +1049,8 @@ c-----statement function to interpolate wrt two points
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -2539,8 +2539,8 @@ C     + + + END SPECIFICATIONS + + +
       use IO_Units
       implicit none
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_irreg_geom.f'
+      include '../fixed/common.f'
+      include '../fixed/common_irreg_geom.f'
 
       integer
      &     Branch               ! hydro channel number

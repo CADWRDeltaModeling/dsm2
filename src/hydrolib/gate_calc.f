@@ -100,7 +100,7 @@ DEC$ DEFINE GATETRANSFORM
 *     Module data:
       include 'network.inc'
       include 'chconnec.inc'
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
       include 'strmcnst.inc'
       include 'solver.inc'
 
@@ -617,7 +617,7 @@ c      GateEqResid= abs(QDevice)*QDevice-CxA**2.*dh
       use Gates, only: gateArray,Gate,NGate
       implicit none
 c     include '../fixed/misc.f'
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
       include 'network.inc'
       include 'chconnec.inc'
       integer gt

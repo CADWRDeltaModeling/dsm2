@@ -170,8 +170,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'chstatus.inc'
       INCLUDE 'chconnec.inc'
 
-      include '../input/fixed/common.f'
-      include '../input/time-varying/tide.inc'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/tide.inc'
 
 *   Local Variables:
       INTEGER      fUnit, I, J
@@ -301,7 +301,7 @@ C--------Reservoir Stage, nodal flows
       INCLUDE 'chconnec.inc'
       INCLUDE 'chnlcomp.inc'
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
       INTEGER      Channels,extchan,intchan
@@ -1171,7 +1171,7 @@ c          No interpolation is necessary, since the computational points are mat
       INCLUDE 'chinitcd.inc'
       INCLUDE 'chnluser.inc'
       INCLUDE 'chconnec.inc'
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
 *   Local Variables:
       INTEGER I, J, K
