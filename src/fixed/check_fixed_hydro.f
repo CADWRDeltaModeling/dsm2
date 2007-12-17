@@ -58,17 +58,16 @@ c-----to internal.  Write to FourPt arrays.
 
       include 'common.f'
       include 'common_irreg_geom.f'
-      include '../../hydro/network.inc'
-      include '../../hydro/netcntrl.inc'
-      include '../../hydro/chconnec.inc'
-      include '../../hydro/chnluser.inc'
-      include '../../hydro/chcxtbl.inc'
-      include '../time-varying/dss.inc'
-      include '../time-varying/readdss.inc'
-      include '../time-varying/writedss.inc'
-      include '../time-varying/tide.inc'
-      include '../time-varying/common_tide.f'
-
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chconnec.inc'
+      include '../hydrolib/chnluser.inc'
+      include '../hydrolib/chcxtbl.inc'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
+      include '../hdf_tidefile/common_tide.f'
+	include '../hdf_tidefile/tide.inc'
 c-----Local variables
 
       integer*4
@@ -714,6 +713,8 @@ c--------from reservoir name
          endif
 c--------to reservoir name
          if (obj2obj(i).to.object .eq. obj_reservoir) then
+            print *,max_reservoirs
+            print *,"hello"
             loc=loccarr(obj2obj(i).to.obj_name,cresnames,max_reservoirs
      &           ,EXACT_MATCH)
             if (loc .le. 0) then
@@ -852,11 +853,11 @@ c-----arguments
 c-----include files
       include 'common.f'
 
-      include '../../hydro/network.inc'
-      include '../../hydro/netcntrl.inc'
-      include '../../hydro/chconnec.inc'
-      include '../../hydro/chnluser.inc'
-      include '../../hydro/chcxtbl.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chconnec.inc'
+      include '../hydrolib/chnluser.inc'
+      include '../hydrolib/chcxtbl.inc'
       
 c-----local variables
       integer j                 ! index
@@ -881,27 +882,23 @@ c--------cannot have flow to fixed stage node
       if (data_flow_type) then  ! node flow input
          node2hydrochan=0
 c--------check upstream channel end connections to node first...
-         j=1
-         do while (j .le. node_geom(node).nup .and.
-     &        (upboundarycode(node_geom(node).upstream(j)) .ne. 12
-     &        .and.
-     &        upboundarycode(node_geom(node).upstream(j)) .ne. 2))
-            j=j+1
+! eli: heavily rewritten for intel
+         do j=1,node_geom(node).nup
+           if (upboundarycode(node_geom(node).upstream(j)) .eq. 12
+     &        .or.
+     &        upboundarycode(node_geom(node).upstream(j)) .eq. 2)then
+                 node2hydrochan=node_geom(node).upstream(j)
+                 exit
+            end if
          enddo
-         if (j .le. node_geom(node).nup) then
-            node2hydrochan=node_geom(node).upstream(j)
-         else                   ! 2 or 12 is on downstream channel end to node
-            j=1
-            do while (j .le. node_geom(node).ndown .and.
-     &           (downboundarycode(node_geom(node).downstream(j)) .ne. 12
-     &           .and.
-     &           downboundarycode(node_geom(node).downstream(j)) .ne. 2))
-               j=j+1
-            enddo
-            if (j .le. node_geom(node).ndown) then
-               node2hydrochan=-node_geom(node).downstream(j)
-            endif
-         endif
+         do j=1, node_geom(node).ndown
+           if(downboundarycode(node_geom(node).downstream(j)) .eq. 12
+     &        .or.
+     &        downboundarycode(node_geom(node).downstream(j)) .ne. 2) then
+                 node2hydrochan=-node_geom(node).downstream(j)
+                 exit
+            end if
+         enddo
       endif
 
       if (node2hydrochan .eq. miss_val_i) then

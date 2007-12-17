@@ -51,6 +51,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       use IO_Units, only: unit_output
       use Gates, only: GATE_OPEN, GATE_FREE
       USE DFLIB                 !! <NT>
+      
 c-----initialize variables for DSM2
 
       implicit none
@@ -58,12 +59,12 @@ c-----initialize variables for DSM2
       include 'common.f'
       include 'common_ptm.inc'
       include 'common_qual.inc'
-      include '../time-varying/common_tide.f'
-      include '../time-varying/dss.inc'
-      include '../time-varying/writedss.inc'
-      include '../time-varying/readdss.inc'
-      include '../time-varying/tide.inc'
-      include '../../hydro/network.inc'
+      include '../hdf_tidefile/common_tide.f'
+      include '../timevar/dss.inc'
+      include '../timevar/writedss.inc'
+      include '../timevar/readdss.inc'
+      include '../hdf_tidefile/tide.inc'
+      include '../hydrolib/network.inc'
       
 c-----local variables
 
@@ -73,7 +74,7 @@ c-----local variables
      &     ,i,iu,k,j
      &     ,itmp1,itmp2         ! temp variables
      &     ,getpid              ! unix fortran system call to get process ID
-
+     &     ,ihr,imin,isec,ihundredth
       data
      &     run_start_date /' '/
      &     ,run_end_date /' '/
@@ -88,7 +89,7 @@ c-----local variables
      &     ,time_step_intvl_qual /' '/
      &     ,time_step_intvl_ptm /' '/
      &     ,tide_cycle_length /' '/
-     &     ,dss_direct /.FALSE./
+     &     ,dss_direct /.TRUE./
      &     ,binary_output /.FALSE./
      &     ,need_tmp_outfiles /.FALSE./
 
@@ -311,16 +312,20 @@ c-----date of run
       crdt14=' '
       call juldat(itmp1, 104, crdt14(1:9), itmp2) ! DDMMMYYYY
       call juldat(itmp1, -11, ctemp1, itmp2)
+      ctemp1=ctemp1(:itmp2)
       crdt10=' '
       crdt10(1:2)=ctemp1(7:8)   ! YYMMDD (easy to sort on)
       crdt10(3:4)=ctemp1(1:2)
       crdt10(5:6)=ctemp1(4:5)
 c-----time of run
-      call ctime(ctemp1)
+      ctemp1=' '
+c      call ctime(ctemp1)
+      call gettim(ihr,imin,isec,ihundredth)
+      write (ctemp1,'(2I2)') ihr,imin
       crdt14(11:12)=ctemp1(1:2) ! hhmm
-      crdt14(13:14)=ctemp1(4:5)
+      crdt14(13:14)=ctemp1(3:4)
       crdt10(7:8)=ctemp1(1:2)   ! hhmm
-      crdt10(9:10)=ctemp1(4:5)
+      crdt10(9:10)=ctemp1(3:4)
 	
 	return
       end

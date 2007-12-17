@@ -613,17 +613,19 @@ c-----whether exact or substring match requested.
       integer i                 ! loop index
      &     ,lstring             ! length of nonblank part of cstring
      &     ,lnblnk              ! last nonblank function
-
+      
       i=1
       if (exact) then           ! exact match
-         do while (i .le. dim_carr .and.
-     &        (carr(i) .ne. cstring .and. carr(i) .ne. ' '))
+         do while (i .le. dim_carr)
+            if (carr(i) .eq. cstring .or. carr(i) .eq. ' ') exit
             i=i+1
          enddo
       else                      ! substring match
          lstring=lnblnk(cstring)
-         do while (i .le. dim_carr .and.
-     &        (carr(i)(:lstring) .ne. cstring(:lstring) .and. carr(i) .ne. ' '))
+         do while (i .le. dim_carr) 
+            if (carr(i)(:lstring) .eq. cstring(:lstring) 
+     &          .or. 
+     &          carr(i) .ne. ' ')exit
             i=i+1
          enddo
       endif
@@ -797,19 +799,16 @@ c-----its value in EVALUE
       
       call locase(estring)      ! convert to lower case
       evalue=' '
-      i=1
-      do while (i .le. max_envvars .and.
-     &     envvars(i).name .ne. ' ')
-         nlen=lnblnk(estring)
+
+      do i=1,max_envvars
+         if (envvars(i).name .eq. ' ')exit    
 	   evarname=envvars(i).name
 	   call locase(evarname)
-         if (evarname .eq. estring) then
+         if (trim(evarname) .eq. trim(estring)) then
             evalue=envvars(i).value
             return
          endif
-         i=i+1
       enddo
-
       return
       end
 

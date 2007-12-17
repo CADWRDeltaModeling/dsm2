@@ -54,14 +54,13 @@ c-----print the output
 
       include 'common.f'
 
-c      include '../../hydro/network.inc'
-      include '../../qual/param.inc'
-      include '../../qual/bltm1.inc'
-      include '../../qual/bltm3.inc'
-      include '../../qual/bltm2.inc'
-      include '../time-varying/dss.inc'
-      include '../time-varying/readdss.inc'
-      include '../time-varying/writedss.inc'
+      include '../qual/param.inc'
+      include '../qual/bltm1.inc'
+      include '../qual/bltm3.inc'
+      include '../qual/bltm2.inc'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
 
 c-----Local variables
 

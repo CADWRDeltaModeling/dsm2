@@ -8,7 +8,7 @@ c-----get internal object number, given object type and external (map) ID
       use groups, only: ngroup, groupArray
       use IO_Units
       include 'common.f'
-	include '..\time-varying\tide.inc'
+	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
       integer*4
@@ -91,7 +91,7 @@ c-----get internal object number, given object type and external (map) ID
       use IO_Units
 	implicit none
       include 'common.f'
-	include '..\time-varying\tide.inc'
+	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
       integer*4
@@ -140,7 +140,7 @@ c-----get internal object number, given object type and external (map) ID
       use IO_Units
 	implicit none
       include 'common.f'
-	include '..\time-varying\tide.inc'
+	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
       integer*4

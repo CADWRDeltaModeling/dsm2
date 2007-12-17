@@ -58,15 +58,15 @@ c-----to internal.  Write to Qual arrays.
 
       include 'common.f'
       include 'common_qual.inc'
-      include '../../qual/param.inc'
-      include '../../qual/bltm1.inc'
-      include '../../qual/bltm3.inc'
-      include '../../qual/bltm2.inc'
+      include '../qual/param.inc'
+      include '../qual/bltm1.inc'
+      include '../qual/bltm3.inc'
+      include '../qual/bltm2.inc'
 
-      include '../time-varying/dss.inc'
-      include '../time-varying/readdss.inc'
-      include '../time-varying/writedss.inc'
-      include '../time-varying/common_tide.f'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
+      include '../hdf_tidefile/common_tide.f'
 
 c-----Local variables
 

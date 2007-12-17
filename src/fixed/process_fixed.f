@@ -822,7 +822,7 @@ c-----name required for each line; empty value indicates erase it
 
       use PhysicalConstants
       use IO_Units
-      use dsm2_database
+
 c-----process a character line into data arrays for scalar info
 
       implicit none
@@ -899,10 +899,9 @@ c-----'tide' (use date from tidefile)
       else if (cstring1 .eq. 'tf_start_time') then
          tf_start_date(11:14)=cstring2(1:4)
       else if (cstring1 .eq. 'database') then
-	   database_name=cstring2
-         ServerName=cstring2
+         call set_database_name(cstring2(1:32))
       else if (cstring1 .eq. 'model_name') then
-         model_name=cstring2(1:48)
+         call set_model_name(cstring2(1:48))
       else if (cstring1 .eq. 'print_start_date') then
          if (nprints .eq. 0) nprints=1
          print_start_date(nprints)(1:9)=cstring2(1:9)
@@ -1224,7 +1223,6 @@ c--------keyword 'length' means use channel length for each delta x
 	   istat=-1
 	   goto 900
       else
-         print*,cstring1,cstring2
          write(unit_error, 610) line
          istat=-1
          goto 900
@@ -1969,7 +1967,11 @@ c--------parse for comma-separated reservoir names
          do while (next_res .ne. ' ')
             if (next_res .ne. 'none') then ! "none" - no reservoir
 c--------------see if information for this reservoir has been given previously
-               res_num=loccarr(next_res,coeff_res_name,max_reservoirs,EXACT_MATCH)
+               !res_num=name_to_objno(obj_reservoir,name)
+               res_num=loccarr(next_res,
+     &                         coeff_res_name,
+     &                         max_reservoirs,
+     &                         EXACT_MATCH)
                if (res_num .le. 0) then
 c-----------------No match was found. i.e. this is a new reservoir.
                   num_res=num_res+1

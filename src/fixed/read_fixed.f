@@ -345,12 +345,15 @@ c--------remove comment portion of line
          if (itmp1 .gt. 1) line=line(1:itmp1-1)
 
 c--------get rid of ending tab chars
-         nl_line=lnblnk(line)
+         nl_line=len_trim(line)
+         line=trim(line)
+         if (nl_line .gt. 0)then
          do while ( nl_line .gt. 0 .and.
      &        line(nl_line:nl_line) .eq. '	') ! tab char
             nl_line=nl_line-1
             if (nl_line .ne. 0) line=line(:nl_line)
          enddo
+         end if
          if (nl_line.eq.0) goto 100 ! comment or blank line
 
 c--------replace environment variables in line with their value
@@ -407,9 +410,8 @@ c-----------check that section keyword is valid
             lsect=.false.
             lfield=.true.
 c-----------check if field values will be for default
-            if (nfields .eq. 2 .and.
-     &           (line(ibegf(2):ibegf(2)+3) .eq. 'def')) then
-               ldefault=.true.
+            if (nfields .eq. 2)then
+               ldefault=(line(ibegf(2):ibegf(2)+3) .eq. 'def')
             else
                ldefault=.false.
             endif
