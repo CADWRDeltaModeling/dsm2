@@ -7,7 +7,7 @@ C!    Branched Lagrangian Transport Model (BLTM) code written by the
 C!    United States Geological Survey.  Protection claimed in the
 C!    routines and files listed in the accompanying file "Protect.txt".
 C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below. 
+C!    Hutton, below.
 C!    
 C!    This program is licensed to you under the terms of the GNU General
 C!    Public License, version 2, as published by the Free Software
@@ -94,19 +94,19 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 *                      modification of code used by FourPt include
 *                      Barry Wicktom, Jenifer Johnson, Victoria Israel.
 
-      include 'network.inc'
-      include 'solver.inc'
-      include 'netcntrl.inc'
-      include 'chnlcomp.inc'
-      include 'chconnec.inc'
-      include 'chstatus.inc'
-      include '../input/fixed/common.f'
-      include '../input/time-varying/dss.inc'
-      include '../input/time-varying/readdss.inc'
+      include '../hydrolib/network.inc'
+      include '../hydrolib/solver.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chnlcomp.inc'
+      include '../hydrolib/chconnec.inc'
+      include '../hydrolib/chstatus.inc'
+      include '../fixed/common.f'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
 c-----include '../input/time-varying/writedss.inc'
 
 *   Local variables:
-      LOGICAL   OK
+      LOGICAL   OK, isopen
 
       integer*4
      &     incr_intvl           ! increment julian minute by interval function
@@ -435,6 +435,8 @@ c-----close all DSS input files
          call zclose (ifltab_in(1,i))
          i=i+1
       enddo
+
+
       if (dss_direct) then
 c--------close all DSS output files
          i=1
@@ -445,42 +447,45 @@ c--------close all DSS output files
          enddo
       endif
 
-c--------close solver
-      OK = CloseSolver()
+
 
 
 
 *-----Compute and report final volume and mass balances.
 c@@@         OK = ReportNetBalance()
 
-      WRITE(*,*) '   -----------------------------'
-      WRITE(*,*) ' '
-      WRITE(*,*) ' ',
+      WRITE(unit_screen,*) '   -----------------------------'
+      WRITE(unit_screen,*) ' '
+      WRITE(unit_screen,*) ' ',
      &     TotalNetworkIterations(),' total network iterations...'
-
-
-
-      WRITE(Unit_Output,*) ' Normal program end.'
-
-      WRITE(Unit_Output,*) ' '
-      WRITE(Unit_Output,*)
-     &     '   -----------------------------'
-      WRITE(Unit_Output,*) ' '
-      WRITE(Unit_Output,*)
-     &     TotalNetworkIterations(),'  total network iterations...'
-      WRITE(Unit_Output,*) ' '
-      WRITE(Unit_Output,*)
-     &     '   -----------------------------'
-
 
       WRITE(unit_screen,*) ' '
       WRITE(unit_screen,*) '   Normal program end.'
       WRITE(unit_screen,*) ' '
       WRITE(unit_screen,*) '   -----------------------------'
 
-      close (unit_output)
 
+
+      WRITE(unit_output,*) '   -----------------------------'
+      WRITE(unit_output,*) ' '
+      WRITE(unit_output,*)
+     &     TotalNetworkIterations(),'  total network iterations...'
+      WRITE(unit_output,*) ' '
+      WRITE(unit_output,*) ' Normal program end.'
+      WRITE(unit_output,*)
+     &     '   -----------------------------'
+
+      
+      inquire(unit_output,opened=isopen)
+      if(isopen)close(unit_output, err=1222)
+      OK = CloseSolver()
+
+1222  write(unit_screen,*) 'Exit with code 0'
       call exit(0)
+
+
+c--------close solver
+
 
       END
 
@@ -501,16 +506,16 @@ c@@@         OK = ReportNetBalance()
 
 *   Module data:
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
 
-      INCLUDE 'network.inc'
-      INCLUDE 'netcntrl.inc'
-      INCLUDE 'chconnec.inc'
-      INCLUDE 'solver.inc'
+      INCLUDE '../hydrolib/network.inc'
+      INCLUDE '../hydrolib/netcntrl.inc'
+      INCLUDE '../hydrolib/chconnec.inc'
+      INCLUDE '../hydrolib/solver.inc'
 
-      INCLUDE 'chstatus.inc'
+      INCLUDE '../hydrolib/chstatus.inc'
 
-      INCLUDE 'netbnd.inc'
+      INCLUDE '../hydrolib/netbnd.inc'
 *   Local variables:
       INTEGER ChannelNumber
      &     ,tide_count          ! number of tide cycles simulated
@@ -891,11 +896,11 @@ c-----------Calculate Reservoir flows
       LOGICAL OK
 
 *   Routines by module:
-      Include '../input/fixed/common.f' ! only nreser
-      INCLUDE 'network.inc'
-      INCLUDE 'netcntrl.inc'
-      INCLUDE 'chconnec.inc'
-      INCLUDE 'solver.inc'
+      Include '../fixed/common.f' ! only nreser
+      INCLUDE '../hydrolib/network.inc'
+      INCLUDE '../hydrolib/netcntrl.inc'
+      INCLUDE '../hydrolib/chconnec.inc'
+      INCLUDE '../hydrolib/solver.inc'
 
 ***** Channel flow status:
       LOGICAL  SetStreamSurfaceElevation, SetStreamFlow
