@@ -1,15 +1,15 @@
 	module inclvars
 	  ! Module that loads include variables from DSM2
-        include '../hydro/network.inc'
-        include '../hydro/chconnec.inc'
-        include '../hydro/chnlcomp.inc'
-        include '../hydro/chstatus.inc'
-        include '../hydro/chcxtbl.inc'
-        include '../input/fixed/common.f'
-        include '../input/time-varying/dss.inc'
-        include '../input/time-varying/readdss.inc'
-        include '../input/time-varying/tide.inc'
-        include '../input/time-varying/common_tide.f'
+        include '../hydrolib/network.inc'
+        include '../hydrolib/chconnec.inc'
+        include '../hydrolib/chnlcomp.inc'
+        include '../hydrolib/chstatus.inc'
+        include '../hydrolib/chcxtbl.inc'
+        include '../fixed/common.f'
+        include '../timevar/dss.inc'
+        include '../timevar/readdss.inc'
+        include '../hdf_tidefile/tide.inc'
+        include '../hdf_tidefile/common_tide.f'
 	end module inclvars
 
 ***********************************************************************
@@ -17,15 +17,13 @@
 
 	module hdfvars
 				! Module that contains shared variables for HDF5 writing
-	use HDF5
+	use hdf5
 	integer		   :: hdf5point	! index representing time step
 	integer		   :: hdf5length ! time length of file
       integer(HID_T),save :: file_id ! HDF5 File ID
       integer(HID_T),save :: hydro_id ! Group identifier 
       integer(HID_T),save :: geom_id ! Group identifier 
       integer(HID_T),save :: data_id ! Group identifier 
-
-
 	integer(HID_T) :: in_dset_id ! int2ext Dataset identifier 
 
       integer(HSIZE_T), dimension(1) :: in_dims != (/0/) ! Dataset dimensions
