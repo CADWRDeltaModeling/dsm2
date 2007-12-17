@@ -55,8 +55,8 @@ C     benthic supply/demand, and constituent interaction for each constituent
 C     at the current time step.
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       integer  i ,ii
 
@@ -110,8 +110,8 @@ c-----add write routine here for scsk of oxygen if necessary for analysis
 c-----calculate source, sink terms for BOD
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -145,8 +145,8 @@ c-----if DO is simulated, calculate demand on DO
 c-----calculate source, sink terms for DO
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm3.inc'
@@ -246,8 +246,8 @@ c-----account for benthic oxygen demand
 c-----calculate source, sink terms for ORG-N
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -281,8 +281,8 @@ c-----if NH3 is simulated, decay of ORG-N is a source of NH3
 c-----calculate source, sink terms for NH3-N
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -320,8 +320,8 @@ c-----if DO is simulated, oxidation of NH3 exerts demand on DO
 c-----calculate source, sink terms for NO2-N
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -350,8 +350,8 @@ c-----if DO is simulated, oxidation of NO2 exerts demand on DO
       subroutine CALNO3 (c)
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -366,8 +366,8 @@ c-----if DO is simulated, oxidation of NO2 exerts demand on DO
 c-----calculate source, sink terms for ORG-P
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -402,8 +402,8 @@ c-----if PO4 is simulated, decay of ORG-P is a source of PO4
 c-----calculate source, sink terms for PO4
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -429,8 +429,8 @@ c-----account for benthos source
 c-----calculate source, sink terms for ALGAE
 c      use IO_Units,only: unit_output
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -580,8 +580,8 @@ c-----Solar radiation and atmospheric radiation are
 c-----calculated in subroutine heat
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -647,8 +647,8 @@ c-----the following write statements are for diagnostics purposes only
       subroutine tempfactors(temp)
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       real*8 temp

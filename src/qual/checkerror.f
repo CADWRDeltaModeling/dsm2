@@ -51,7 +51,7 @@ C-----This subroutine checks for error in the input
       Use IO_Units
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../input/fixed/common.f'
+      INCLUDE '../fixed/common.f'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

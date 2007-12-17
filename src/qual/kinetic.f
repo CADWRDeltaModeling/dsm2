@@ -47,8 +47,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       subroutine kinetic(c)
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'

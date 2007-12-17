@@ -51,8 +51,8 @@ c-----This subroutine decides whether to use rate coeffs for reservoirs
 c-----or for channels: if chan_res =1, channel; if chan_res=2, reservoir
 
       implicit none
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'

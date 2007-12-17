@@ -148,10 +148,10 @@ C-----NOPR     Maximum number of parcels allowed in branch
 C-----(NOPR should be at least 20 + 2 times NOSC)
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../input/fixed/common.f'
-      INCLUDE '../input/fixed/common_qual.inc'
-      INCLUDE '../hydro/network.inc'
-      INCLUDE '../input/time-varying/common_tide.f'
+      INCLUDE '../fixed/common.f'
+      INCLUDE '../fixed/common_qual.inc'
+      INCLUDE '../hydrolib/network.inc'
+      INCLUDE '../hdf_tidefile/common_tide.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -190,9 +190,9 @@ C-----+ + + LOCAL VARIABLES + + +C
       integer iprnt_mass
       common /mass_tracking_1/ iprnt_mass
 
-      include '../input/time-varying/dss.inc'
-      include '../input/time-varying/readdss.inc'
-      include '../input/time-varying/writedss.inc'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
 
 	integer MIXED, NOT_MIXED
 	parameter (MIXED=0,NOT_MIXED=2)
@@ -781,14 +781,14 @@ c-----subroutine arguments
 
 c-----common blocks
 
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
 
-      include '../input/time-varying/dss.inc'
-      include '../input/time-varying/readdss.inc'
-      include '../input/time-varying/writedss.inc'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
 
       integer
      &     chan,grid,constituent_no ! array indices
@@ -843,8 +843,8 @@ c-----Fill time-varying data arrays for Qual
 c-----common blocks
 
       include 'param.inc'
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'
@@ -908,8 +908,8 @@ c-----read or write a restart file for qual
 
 c-----include files
 
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm1.inc'
 
@@ -1052,10 +1052,10 @@ c-----Ganesh Pandey 11/22/1999
       implicit none
 
       INCLUDE 'param.inc'
-      include '../hydro/network.inc'
-      INCLUDE '../input/fixed/common.f'
-      include '../input/time-varying/common_tide.f'
-      include '../input/time-varying/tide.inc'
+      include '../hydrolib/network.inc'
+      INCLUDE '../fixed/common.f'
+      include '../hdf_tidefile/common_tide.f'
+      include '../hdf_tidefile/tide.inc'
 
       INCLUDE 'bltm1.inc'
       include 'bltm2.inc'
@@ -1085,13 +1085,13 @@ c-----Ganesh Pandey 11/22/1999
       implicit none
 
       INCLUDE 'param.inc'
-      include '../hydro/network.inc'
-      INCLUDE '../input/fixed/common.f'
-      include '../input/time-varying/common_tide.f'
-      include '../input/time-varying/tide.inc'
+      include '../hydrolib/network.inc'
+      INCLUDE '../fixed/common.f'
+      include '../hdf_tidefile/common_tide.f'
+      include '../hdf_tidefile/tide.inc'
 
-      include '../input/time-varying/dss.inc'
-                                !include '../input/time-varying/readdss.inc'
+      include '../timevar/dss.inc'
+                                !include '../timevar/readdss.inc'
 
       INCLUDE 'bltm1.inc'
       include 'bltm2.inc'

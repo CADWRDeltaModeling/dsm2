@@ -9,10 +9,10 @@ c-----labels).
       implicit none
 
       include 'param.inc'
-      include '../hydro/network.inc'
-      include '../input/fixed/common.f'
-      include '../input/time-varying/common_tide.f'
-      include '../input/time-varying/tide.inc'
+      include '../hydrolib/network.inc'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/common_tide.f'
+      include '../hdf_tidefile/tide.inc'
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'

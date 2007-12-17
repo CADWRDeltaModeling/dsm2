@@ -52,8 +52,8 @@ C-----in a junction to the connecting channels
       use IO_Units
       implicit none
       include 'param.inc'
-      include '../input/fixed/common.f'
-      include '../input/time-varying/common_tide.f'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/common_tide.f'
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'

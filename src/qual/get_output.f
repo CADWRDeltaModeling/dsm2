@@ -59,8 +59,8 @@ c-----arguments
 
 c-----global variables
 
-      include '../input/fixed/common.f'
-      include '../input/time-varying/common_tide.f'
+      include '../fixed/common.f'
+      include '../hdf_tidefile/common_tide.f'
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
@@ -185,8 +185,8 @@ c-----subroutine arguments
 c-----common blocks
 
       include 'param.inc'
-      include '../input/fixed/common.f'
-      include '../input/fixed/common_qual.inc'
+      include '../fixed/common.f'
+      include '../fixed/common_qual.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'
@@ -241,7 +241,7 @@ c-----arguments
 c-----common blocks
 
       include 'param.inc'
-      include '../input/fixed/common.f'
+      include '../fixed/common.f'
       include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'
