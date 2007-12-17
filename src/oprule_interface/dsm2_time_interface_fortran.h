@@ -16,19 +16,21 @@
 #define cdate_to_jul_min CDT2JMIN
 #define time_step_seconds NETWORKTIMEINCREMENT
 
+#define STDCALL 
+
 extern "C" {
-   int __stdcall get_model_year();
-   int __stdcall get_model_month();
-   int __stdcall get_model_day();
-   int __stdcall get_model_day_of_year();
-   int __stdcall get_model_ticks();
-   int __stdcall get_model_minute_of_day();
-   int __stdcall get_model_minute_of_year();
-   int __stdcall get_reference_minute_of_year(int &mon, int &day, int &hour, int &min);
-   int __stdcall get_model_minute();
-   int __stdcall get_model_hour();
-   int __stdcall cdate_to_jul_min(const char* name, 
+   int STDCALL get_model_year();
+   int STDCALL get_model_month();
+   int STDCALL get_model_day();
+   int STDCALL get_model_day_of_year();
+   int STDCALL get_model_ticks();
+   int STDCALL get_model_minute_of_day();
+   int STDCALL get_model_minute_of_year();
+   int STDCALL get_reference_minute_of_year(int &mon, int &day, int &hour, int &min);
+   int STDCALL get_model_minute();
+   int STDCALL get_model_hour();
+   int STDCALL cdate_to_jul_min(const char* name, 
                                     unsigned int len);
-   int __stdcall time_step_seconds();
+   int STDCALL time_step_seconds();
 }
 #endif //include guard

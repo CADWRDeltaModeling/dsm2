@@ -2,7 +2,7 @@
 
       logical function InitOpRules()
 	implicit none
-      include 'common.f'
+      include '../fixed/common.f'
 c	character*801 line
 
       call init_parser_f()

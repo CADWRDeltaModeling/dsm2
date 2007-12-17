@@ -3,9 +3,10 @@
 
 #include "oprule/expression/ExpressionNode.h"
 #include <string>
+#define STDCALL 
 
 #define value_from_inputpath VALUE_FROM_INPUTPATH
-extern "C" double __stdcall value_from_inputpath(const int*);
+extern "C" double STDCALL value_from_inputpath(const int*);
 
 class DSM2TimeSeriesNode : public oprule::expression::DoubleNode  
 {
