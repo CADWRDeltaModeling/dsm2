@@ -7,7 +7,8 @@ c-----get internal object number, given object type and external (map) ID
       use gates, only: ngate, gateArray
       use groups, only: ngroup, groupArray
       use IO_Units
-      include 'common.f'
+      use grid_data
+      use constants
 	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
@@ -89,8 +90,9 @@ c-----get internal object number, given object type and external (map) ID
       use gates, only: ngate, gateArray
       use groups, only: ngroup, groupArray
       use IO_Units
+      use grid_data
+      use constants
 	implicit none
-      include 'common.f'
 	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
@@ -138,8 +140,9 @@ c------Jon add this line to account for sink/source object
 c-----get internal object number, given object type and external (map) ID
       subroutine obj_type_name(objtype, typename)
       use IO_Units
-	implicit none
-      include 'common.f'
+      use grid_data
+      use constants
+     	implicit none
 	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
