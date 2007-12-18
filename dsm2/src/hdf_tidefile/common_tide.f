@@ -46,7 +46,7 @@ C!
 C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----multiple tidefiles for Qual, PTM
-      
+      module common_tide
       integer max_tide_files    ! maximum number of tidefiles to use
      &     ,nintides            ! actual number of tidefiles
      &     ,dim_res_tf,dim_chan_tf ! reservoir and channel array dimensions used in tidefile
@@ -56,24 +56,8 @@ c-----multiple tidefiles for Qual, PTM
       parameter (max_tide_files=300)
       character*21 chead
 
-      structure /tide_file_str/
-         character*14 start_date ! when to start using this tidefile (date and time)
-         character*30 end_date  ! when to quit using this tidefile (date and time, or time length (e.g. 5day_3hour))
-         logical binarytf       ! true for binary tidefile (not HDF5)
-         integer*4 start_julmin_file ! file timestamp start
-         integer*4 end_julmin_file ! file timestamp end
-         integer*4 start_julmin ! when to start using this tidefile (wrt tidefile date)
-         integer*4 end_julmin   ! when to quit using this tidefile (wrt tidefile date)
-         integer ntideblocks    ! number of tideblocks
-         integer interval       ! minutes between tideblocks
-         character*150 filename ! tidefile name
-      end structure
-      record /tide_file_str/ tide_files(0:max_tide_files)
-      common /com_tide_files/ tide_files,
-     &     nintides,
-     &     current_tidefile,
-     &     dim_res_tf,dim_chan_tf,
-     &     n_res_tf,n_chan_tf,chead
+
+      type(tide_file_t) tide_files(0:max_tide_files)
 
       real*4
      &     Ychan                ! Depth at both ends of a channel
@@ -104,3 +88,4 @@ c-----update changes to ../../ptm/common_tide_type.hc
      &     QchNet(Max_Channels)
       COMMON /DerivedFlows_I/ TideFileWriteInterval,NSample
 
+      end module

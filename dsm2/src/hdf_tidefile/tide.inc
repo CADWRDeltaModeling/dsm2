@@ -57,7 +57,7 @@ c     &     ,nqext_changed       ! number of external flows that changed from la
      &     max_qext=1000
      &     )
 
-      record /qext_s/ qext(max_qext)
+      type(qext_t) qext(max_qext)
       common /tidefile/
      &     qext,nqext
 c	 &    ,nqext_changed
