@@ -44,7 +44,7 @@ C!    916-653-5601
 C!    hutton@water.ca.gov
 C!
 C!    or see our home page: http://wwwdelmod.water.ca.gov/
-
+      module common_xsect
       integer
      &     max_elevations       ! max elevations (incl. duplicates) in a channel
      &     ,max_assg_sec        ! max real sections assigned to a channel
@@ -77,7 +77,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       integer nirg              ! actual number of irregular cross sections
 
-      structure /irreg_geom_str/
+      type(xsect_t)
          real*8 dist_ratio      ! dist from upstr end/centerline length
          real*8 dist_actual     ! actual dist (ratio*act. chan length)
          real*8 min_elev        ! minimum elevation in the sec
@@ -92,13 +92,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
          integer chan_no        ! channel number
          integer secno          ! cross-section number
          integer num_elev       ! number of elevations in the sec
-      end structure
+      end type
 
-      record /irreg_geom_str/ irreg_geom(max_irr_xsects)
-      common /com_s_irr_geom/ irreg_geom
-      common /com_i_irr_geom/ nirg
+      type(xsect_t) irreg_geom(max_irr_xsects)
 
-      structure /xsect_assg_str/
+      type(xsect_assg_t)
 c--------cross-section assignment structure.  index of sec_index
 c--------is the irreg. section number, which is also the index
 c--------of the irreg_geom structure
@@ -108,10 +106,9 @@ c--------of the irreg_geom structure
          logical original(max_assg_sec) ! true if the section is original (not copy)
          logical rect(max_assg_sec) ! true if the section is rectangular
          real*8 dist(max_assg_sec)
-      end structure
+      end type
 
-      record /xsect_assg_str/ xsect_assg(0:max_channels)
-      common /com_s_irr_assg/ xsect_assg
+      type(xsect_assg_t) xsect_assg(0:max_channels)
 
 c-----arrays for virtual cross-sections to replace structure which was to large.
 c-----chan_index and num_layers will be used to calculate index of real arrays below
@@ -130,16 +127,5 @@ c-----chan_index and num_layers will be used to calculate index of real arrays b
      &     ,virt_min_elev(max_virt_xsects)
      &     ,virt_deltax(max_channels)
 
-      common /com_virtsec/
-     &     chan_index
-     &     ,num_virt_sec
-     &     ,num_layers
-     &     ,elev_index
-     &     ,virt_area
-     &     ,virt_wet_p
-     &     ,virt_width
-     &     ,virt_z_centroid
-     &     ,virt_elevation
-     &     ,virt_min_elev
-     &     ,virt_deltax
-     &     ,minelev_index
+
+      end module
