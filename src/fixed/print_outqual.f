@@ -46,13 +46,15 @@ C!
 C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       subroutine print_outqual(istat)
-      Use IO_Units
+      Use io_Units
+      use constants
+      use grid_data
+      use runtime_data
+      use iopath_data
 c-----print the output
-      Use groups, only:WriteGroupMembers2File
+      use groups, only:WriteGroupMembers2File
 	use rate_coeff_assignment,only:output_rate_to_file
       implicit none
-
-      include 'common.f'
 
       include '../qual/param.inc'
       include '../qual/bltm1.inc'
