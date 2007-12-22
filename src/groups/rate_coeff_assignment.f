@@ -2,11 +2,9 @@ c      definiation of structure for rate coefficient assignment and some
 c      utility functions Jon 4/12/06
 
       module rate_coeff_assignment
-
+      use common_qual
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
 	integer, parameter :: MAX_RATE_ASSIGNS_SIZE = 400 ! int for th size of assigment struct array
       integer,save:: struct_index !iterating index for assignment struct arrary
       logical,dimension(max_constituent,ncoef_type),save:: rate_var_require_flag 
@@ -33,11 +31,14 @@ c      utility functions Jon 4/12/06
 
 
       subroutine deallocate_assign_s(isat)
+      use constants
+      implicit none
+      
      	integer,intent(inout)::isat
      	isat=0
       if (allocated(rate_assign)) then
            deallocate(rate_assign,STAT=isat)
-	     struct_index=-9999
+	     struct_index=miss_val_i
 	end if
 	end subroutine
 
