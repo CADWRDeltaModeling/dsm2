@@ -49,10 +49,10 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----Write output data periodically to temporary files.
 c-----Initialize the temporary files first with init_store_outpaths.
-
+      use runtime_data
       implicit none
 
-      include '../fixed/common.f'
+
       include 'dss.inc'
       include 'intervals.inc'
       include 'writedss.inc'
@@ -161,7 +161,8 @@ c-----the storage index pointer for each block of data
 
 c-----General store outpaths.  This fills output buffer arrays and
 c-----writes temp file.
-
+      use runtime_data
+      use iopath_data
       implicit none
 
 c-----subroutine arguments
@@ -190,7 +191,6 @@ c-----subroutine arguments
      &     ,lupdate             ! true to update value arrays
      &     ,need_tmpfile        ! true if tmp file is needed for this group
 
-      include '../fixed/common.f'
 
 c-----local variables
 

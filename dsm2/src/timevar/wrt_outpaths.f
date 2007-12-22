@@ -49,9 +49,10 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----Write from scratch files to DSS or text files.
       use IO_Units
+      use constants
+      use iopath_data
       implicit none
 
-      include '../fixed/common.f'
       include 'dss.inc'
       include 'writedss.inc'
 

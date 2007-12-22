@@ -49,7 +49,7 @@ c-----Define arrays to be used as buffers for data values, data
 c-----quality flags from DSS, and julian minute timestamp.
 c-----Use one array for each kind of data interval for DSS.
 
-      record /dataqual_s/
+      type(dataqual_t)
      &     datain_15min(mins15,max_inp_min) ! 15 minute data
      &     ,datain_1hour(hrs,max_inp_hour) ! hourly data
      &     ,datain_1day(dys,max_inp_day) ! daily data

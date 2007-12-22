@@ -49,10 +49,10 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----Update the julian minute values representing the end of each
 c-----DSS interval.
-
+      use runtime_data
+      use constants
       implicit none
 
-      include '../fixed/common.f'
       include 'intervals.inc'
       integer*4
      &     incr_intvl          ! increment julian minute by interval function
