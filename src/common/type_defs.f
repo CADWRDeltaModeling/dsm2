@@ -1,8 +1,25 @@
-C!<license>
-C!</license>
+!<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
+
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public License as published by
+C!    the Free Software Foundation, either version 3 of the License, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public License for more details.
+
+C!    You should have received a copy of the GNU General Public License
+C!    along with DSM2.  If not, see <http://www.gnu.org/licenses/>.
+!</license>
 
 c-----type definitions for DSM2
       module type_defs
+      use constants, only: miss_val_c,miss_val_i,miss_val_r
 
 c----- basic object
 
@@ -28,7 +45,7 @@ c-----encapsulate a datasource
 c-----input section maximums
       integer,parameter :: max_sections=50 
       integer,parameter :: max_fields=30   ! max fields per  section
-      integer,parameter :: max_inp_files=1 ! max input files allowed
+      integer,parameter :: max_inp_files=2 ! max input files allowed
 
 
 c-----valid keywords type
@@ -65,30 +82,30 @@ c-----track internal and external flows at nodes and reservoirs
 
       type node_t
       sequence
-         integer node_id        ! external (map) node ID of this node
+         integer :: node_id = 0   ! external (map) node ID of this node
 		                          ! fixme ID is probably a holdover from database id, 
 								  ! should be node_no for consistency
-         integer nconnect       ! number of channels connected to node
-         integer nup            ! number of channels connected on chan upstream end
-         integer ndown          ! number of channels connected on chan downstream end
-         integer boundary_type  ! type of boundary condition
-         logical*4 qual_int	  ! if TRUE, node is a Qual "internal" node (not on grid boundary)
-         integer upstream(max_cpn) ! upstream channel numbers
-         integer downstream(max_cpn) ! downstream channel numbers
-         integer qint(max_qobj) ! index of internal flows at node
-         integer qext(max_qobj) ! index of external flows at node
-	   integer sumQChan       ! index of sum of attached channel with flow boundary
+         integer :: nconnect = 0       ! number of channels connected to node
+         integer :: nup = 0            ! number of channels connected on chan upstream end
+         integer :: ndown = 0          ! number of channels connected on chan downstream end
+         integer :: boundary_type = miss_val_i       ! type of boundary condition
+         integer :: upstream(max_cpn) = 0   ! upstream channel numbers
+         integer :: downstream(max_cpn) = 0 ! downstream channel numbers
+         integer :: qint(max_qobj) = 0 ! index of internal flows at node miss_val_i breaks the code
+         integer :: qext(max_qobj) = 0 ! index of external flows at node
+	   integer :: sumQChan = miss_val_i       ! index of sum of attached channel with flow boundary
+         logical*4 :: qual_int = .false.     ! if TRUE, node is a Qual "internal" node (not on grid boundary)
       end type
 
 c-----Right now this is for rectangular x-sects only.  Later will generalize.
-      type xsects_t
+      type xsect_t
       sequence
-         real*8    width        ! width of channel in feet
-         real*8    botelv       ! bottom stage (NGVD, feet)
-         real*8    init_stage   ! initial stage at cross section (NGVD, feet)
-         real*8    init_flow    ! initial flow at cross section (cfs)
-         logical upstream       ! true if upstream xsect; false if the downstream         
-         integer*4 id           ! RDB ID number
+         real*8 :: width = miss_val_r        ! width of channel in feet
+         real*8 :: botelv = miss_val_r       ! bottom stage (NGVD, feet)
+         real*8 :: init_stage = miss_val_r   ! initial stage at cross section (NGVD, feet)
+         real*8 :: init_flow = miss_val_r     ! initial flow at cross section (cfs)
+         logical :: upstream = .false.        ! true if upstream xsect; false if the downstream         
+         integer*4 :: id = miss_val_i          ! RDB ID number
       end type
 
 c      MaxResConnectChannel must be consistent with maxresnodes
@@ -96,21 +113,21 @@ c      MaxResConnectChannel must be consistent with maxresnodes
 
       type reservoir_t
       sequence
-         character*32 name      ! reservoir name
-         real*8 area            ! average top area
-         real*8 botelv          ! bottom elevation wrt datum
-         real*8 stage           ! stage elevation
-         real*8 coeff2res(maxresnodes) ! to reservoir flow coefficient to node
-         real*8 coeff2chan(maxresnodes) ! to channel flow coefficient to node
-         integer*4 id           ! RDB ID number
-         logical*4 inUse        ! true to use this reservoir
-         logical*4 isNodeGated(maxresnodes) ! flag that a node is gated
-         integer*4 nConnect     ! number of nodes connected using reservoir connections
-         integer*4 nnodes       ! total nodes connected to this reservoir, whether by
-                                ! reservoir connections or gates
-         integer*4 node_no(maxresnodes) ! (internal) connecting node number
-         integer*4 qint(max_qobj) ! index of internal flows at reservoir
-         integer*4 qext(max_qobj) ! index of external flows at reservoir
+         character*32 :: name = ' '      ! reservoir name
+         real*8 :: area = 0.D0           ! average top area
+         real*8 :: botelv = 0.D0         ! bottom elevation wrt datum
+         real*8 :: stage = 0.D0          ! stage elevation
+         real*8 :: coeff2res(maxresnodes) = 0.D0  ! to reservoir flow coefficient to node
+         real*8 :: coeff2chan(maxresnodes) = 0.D0 ! to channel flow coefficient to node
+         integer*4 :: id = miss_val_i             ! RDB ID number !todo: needed?
+         logical*4 :: inUse = .false.             ! true to use this reservoir
+         logical*4 :: isNodeGated(maxresnodes) = .false. ! flag that a node is gated
+         integer*4 :: nConnect = 0                ! number of nodes connected using reservoir connections
+         integer*4 :: nnodes = 0      ! total nodes connected to this reservoir, whether by
+                                      ! reservoir connections or gates
+         integer*4 :: node_no(maxresnodes) = 0    ! (internal) connecting node number
+         integer*4 :: qint(max_qobj) = 0 ! index of internal flows at reservoir, miss_val_i will break code
+         integer*4 :: qext(max_qobj) = 0 ! index of external flows at reservoir
       end type
 
 c-----path input (time-varying data)
@@ -124,37 +141,33 @@ c-----path input (time-varying data)
 
       type pathinput_t
       sequence
-         character*32 name      ! name of the data stream needed to match
+         character*32 :: name = ' ' 
+                                ! name of the data stream needed to match
                                 ! flow and concentration paths between hydro and qual)
-c--------"from" tags: construct the DSS pathname using a-f parts, or give
-c--------IEP-style information
-c--------if a-f parts are not input, these will be constructed from the
-c--------IEP tags
-         character*128 filename ! DSS filename
-         character*32 a_part    ! DSS A part
-         character*32 b_part    ! DSS B part
-         character*32 c_part    ! DSS C part
-         character*32 e_part    ! DSS E part
-         character*32 f_part    ! DSS F part
-         character*32 ID        ! ID or study name string
-         character*15 interval  ! e.g. MIN, DAY
+         character*128 :: filename = ' ' ! DSS filename
+         character*32 :: a_part = ' '    ! DSS A part
+         character*32 :: b_part = ' '    ! DSS B part
+         character*32 :: c_part = ' '    ! DSS C part
+         character*32 :: e_part = ' '    ! DSS E part
+         character*32 :: f_part = ' '    ! DSS F part
+         character*32 :: ID  = ' '       ! ID or study name string
+         character*15 :: interval = ' '  ! e.g. MIN, DAY
          character*1 dummy1     ! make up for character*15 in type alignment
-         character*32 object_name
+         character*32 :: object_name  = ' ' !todo needed?
          character*80 path      ! DSS pathname (constructed from a-f parts)
          
-         real*8 constant_value  ! constant value (instead of reading from DSS filename)
-         real*8 value           ! value for this timestep
-         real*8 mass_frac       ! fraction of mass this flow takes
-         real*8 value_in        ! incoming value to check
-         real*8 value_out       ! outgoing value to change to         
+         real*8 :: constant_value  = miss_val_r  ! constant value (instead of reading from DSS filename)
+         real*8 :: value = miss_val_r            ! value for this timestep
+         real*8 :: mass_frac =1.D0               ! fraction of mass this flow takes. needed?
+         real*8 :: value_in = miss_val_r         ! incoming value to check
+         real*8 :: value_out = miss_val_r        ! outgoing value to change to         
 
-         integer*4 value_flag   ! data quality flag for this timestep
-c--------other values that may be input by user
-         integer fillin         ! how to fill in between data (first, last, interp, data)
-         integer priority       ! priority to use for replacing data at a location
-         integer locid          ! location id where the input path applies (for checking duplicates)
-         integer object         ! object type this data goes to: channel, reservoir, node, gate?
-         integer object_no      ! number of object
+         integer :: value_flag                   ! data quality flag for this timestep
+         integer :: fillin  = miss_val_i        ! how to fill in between data (first, last, interp, data)
+         integer :: priority = 0                ! priority to use for replacing data at a location
+         integer :: locid = miss_val_i          ! location id where the input path applies (for checking duplicates)
+         integer :: object = miss_val_i         ! object type this data goes to: channel, reservoir, node, gate?
+         integer :: object_no = miss_val_i      ! number of object
          integer data_type      ! data type: flow, stage, gate position..
 c--------'type' section
          integer group_ndx      ! group index
@@ -168,14 +181,13 @@ c--------'type' section
          integer no_intervals   ! e.g. 1, 15
          integer intvl_path     ! path number for this interval
          integer per_type       ! period type: per-average, instantaneous, etc.
-         logical replace        ! used with old "priority" system, needed to compile
-         logical sync           ! needed for backward compatibility
-         logical use            ! true to use this input path         
-         character*1 sign       ! sign to change value to (+, -, or ' ' for none)
-	   character*7 dummy3     ! make up for character*1 in data alignment
-         character*14 start_date ! path start date and time
-	   character*2 dummy2     ! make up for character*14 in data alignment
-
+         logical :: use = .false.! true to use this input path         
+         character*1 :: sign  = ' ' ! sign to change value to (+, -, or ' ' for none)
+	   character*7 dummy2         ! make up for character*1 in data alignment
+         character*14 :: start_date  = ' '! path start date and time
+	   character*2 dummy3     ! make up for character*14 in data alignment
+         logical :: sync = .false.
+         logical :: replace = .false.
       end type
 
 c-----path output (time-varying data)
@@ -205,40 +217,41 @@ c-----source of constituents
 
       type pathoutput_t
       sequence
-         character*80 path      ! DSS pathname
-         character*32 object_name         
-         character*32 name      !station name (b part) for path (optional)
-         character*32 a_part    ! DSS A part
-         character*32 b_part    ! DSS B part
-         character*32 c_part    ! DSS C part
-         character*32 e_part    ! DSS E part
-         character*32 f_part    ! DSS F part
-         character*32 device    ! Gate device name
-         character*32 modifier  ! used for study name or such         
-         character*16 interval  ! e.g. MIN, DAY
-         character*16 meas_type ! e.g. STAGE, VELOCITY, TDS         
-         character*8 units      ! e.g. cfs, feet, umhos/cm              
-         integer object         ! output from which object: channel, reservoir, etc.
-         integer ndx_file       ! pointer to outfilename         
-         integer object_no      ! object number of output
-         integer chan_dist      ! distance downstream from upstream end of chan
-         integer gate_device    ! gate device
-         integer res_node_no
-         integer reservoir_hydro_node_no
-c--------type(reserv_t) reservoir ! reservoir sub-type
-         integer flux_from_type
-	   integer flux_to_type
-	   integer flux_from_ndx
-         integer flux_to_ndx
-	   integer flux_group_ndx
-         integer source_group_ndx ! source of constituents type
-         integer const_ndx      ! constituent number index
-         integer no_intervals   ! e.g. 1, 15
-         integer per_type       ! PER-AVER or INST-VALUE
-         integer intvl_path     ! path number for this interval
-         logical*4 need_tmp_outfile ! true if this path should be written to tmp file
-         character*130 filename ! output filename
-         logical use            ! true to use this output path         
+         character*130 :: filename = ' '     ! output filename
+         character*6 :: dummy                ! for alignment
+         character*32 :: name = ' '     !station name (b part) for path (optional)      
+         character*80 :: path = ' '      ! DSS pathname
+         character*32 :: object_name = ' '         
+         character*32 :: a_part = ' '    ! DSS A part
+         character*32 :: b_part = ' '    ! DSS B part
+         character*32 :: c_part = ' '    ! DSS C part
+         character*32 :: e_part = ' '    ! DSS E part
+         character*32 :: f_part = ' '    ! DSS F part
+         character*32 :: device = ' '    ! Gate device name
+         character*32 :: modifier = ' '  ! used for study name or such         
+         character*16 :: interval = ' '  ! e.g. MIN, DAY
+         character*16 :: meas_type = ' ' ! e.g. STAGE, VELOCITY, TDS         
+         character*8 :: units = ' '      ! e.g. cfs, feet, umhos/cm              
+         integer :: object = miss_val_i  ! output from which object: channel, reservoir, etc.
+         integer :: ndx_file = miss_val_i      ! pointer to outfilename         
+         integer :: object_no = miss_val_i      ! object number of output
+         integer :: chan_dist = miss_val_i       ! distance downstream from upstream end of chan
+         integer :: gate_device = miss_val_i    ! gate device
+         integer :: res_node_no = miss_val_i
+         integer :: reservoir_hydro_node_no = miss_val_i
+         integer :: flux_from_type = miss_val_i
+	   integer :: flux_to_type = miss_val_i
+	   integer :: flux_from_ndx = miss_val_i
+         integer :: flux_to_ndx = miss_val_i
+	   integer :: flux_group_ndx = miss_val_i
+         integer :: source_group_ndx = miss_val_i ! source of constituents type
+         integer :: const_ndx = miss_val_i        ! constituent number index
+         integer :: no_intervals = miss_val_i     ! e.g. 1, 15
+         integer :: per_type = miss_val_i         ! PER-AVER or INST-VALUE
+         integer :: intvl_path = miss_val_i       ! path number for this interval
+         logical*4 :: need_tmp_outfile = miss_val_i             ! true if this path should be written to tmp file
+         logical :: use = .false.            ! true to use this output path         
+         character*20 :: dummy2    ! Alignment
       end type
 
 c-----pseudo (internal) environment variables
@@ -274,13 +287,13 @@ c-----location name --> chan/dist pair, node, or reservoir name
 
 C-----Qual Parameters
 
-      type constituents_t
+      type constituent_t
       sequence
-         logical conservative   ! true if conservative, false if nonconservative
-         character*16 name      ! constituent name
-         integer object         ! object type of injection
-         integer object_no      ! object number of injection
-         integer group_ndx      ! index to group
+         character*16 :: name = ' '     ! constituent name
+         integer :: object = miss_val_i        ! object type of injection
+         integer :: object_no = miss_val_i      ! object number of injection
+         integer :: group_ndx = miss_val_i      ! index to group
+         logical :: conservative = .true.   ! true if conservative, false if nonconservative
       end type
 
       integer
@@ -296,45 +309,47 @@ c-----external flows
 
       type qext_t
       sequence
-         character*32 name      ! name of external flow (for matching flow/concentration)
-         character*32 obj_name  ! ID of this flow (e.g. CVP, SWP, ...) needed???
-         type(datasource_t) datasource  ! global pathnumber of flow
-         type(object_t) attach ! object info this flow is attached to
-         real*4 flow            ! external flow value for this timestep
-         real*4 prev_flow       ! external flow value for previous timestep
-         real*4 avg             ! external flow value averaged over tideblock time interval
-         real*4 prev_avg        ! previous avg
-         real*4 mass_frac       ! fraction of mass this flow takes
-         integer changed_ndx    ! index of nqext_ndx of changed flows
-         integer group_ndx      ! index to group
+         character*32 :: name = ' '     ! name of external flow (for matching flow/concentration)
+         character*32 :: obj_name = ' '  ! ID of this flow (e.g. CVP, SWP, ...) needed???
+         type(datasource_t) :: datasource  ! global pathnumber of flow
+         type(object_t) :: attach ! object info this flow is attached to
+         !eli changed from real*4 next 5
+         real*4 :: flow            ! external flow value for this timestep
+         real*4 :: prev_flow       ! external flow value for previous timestep
+         real*4 :: avg             ! external flow value averaged over tideblock time interval
+         real*4 :: prev_avg        ! previous avg
+         real*4 :: mass_frac = 1.D0 ! fraction of mass this flow takes
+         integer :: changed_ndx = 0    ! index of nqext_ndx of changed flows
+         integer :: group_ndx = 0     ! index to group
+         character*4 :: dummy  ! for alignment
       end type
 
 c-----object-to-object water transfer
 c-----from- and to-object sub-type
       type from_to_t
       sequence
-         integer object         ! object type code (e.g. channel, node, or reservoir)
-         character*32 obj_name  ! object name or...
-         integer object_no      ! ...object number
+         character*32 :: obj_name = ' '     ! object name or...
+         integer :: object = miss_val_i     ! object type code (e.g. channel, node, or reservoir)
+         integer :: object_no = miss_val_i  ! ...object number
          integer hydrochan      ! hydro channel number for node flow
          integer group_ndx      ! index to group
-         real*4 mass_frac       ! fraction of mass this flow takes
-         real*4 coeff           ! Flow coefficient for stage-driven transfer
+         real*4 :: mass_frac = 1.0  ! fraction of mass this flow takes
+         real*4 coeff               ! Flow coefficient for stage-driven transfer
       end type
 
       type obj2obj_t
       sequence
-         character*32 name      ! name of this flow (e.g. IF, HOOD_DIV)
+         character*32 :: name = ' '     ! name of this flow (e.g. IF, HOOD_DIV)
 	   type(datasource_t) datasource  ! source of time varying flow
-         type(from_to_t) from   ! From object
-         type(from_to_t) to     ! To object
-         integer*4 ID           ! transfer ID         
-         real*4 constant_value  ! fixed flow value (if given), or head diff code
+         type(from_to_t) :: from   ! From object
+         type(from_to_t) :: to     ! To object
+         integer*4 id            ! transfer ID         
+         real*4 constant_value   ! fixed flow value (if given), or head diff code
          real*4 flow            ! flow between the two objects at this time step
          real*4 prev_flow       ! flow between the two objects at previous time step
          real*4 flow_avg        ! Average flow between the two objects
          real*4 constituent_conc(max_constituent) ! Concentration of each constituent
-         logical use            ! true to use this transfer
+         logical :: use = .false.         ! true to use this transfer
       end type
 
 c-----stage boundary object
@@ -353,5 +368,19 @@ c-----data value, quality flags, and timestamp object
          integer*4 flag
          integer*4 julmin
       end type
+
+      type tidefile_t
+         character*14 start_date ! when to start using this tidefile (date and time)
+         character*30 end_date  ! when to quit using this tidefile (date and time, or time length (e.g. 5day_3hour))
+         logical binarytf       ! true for binary tidefile (not HDF5)
+         integer*4 start_julmin_file ! file timestamp start
+         integer*4 end_julmin_file ! file timestamp end
+         integer*4 start_julmin ! when to start using this tidefile (wrt tidefile date)
+         integer*4 end_julmin   ! when to quit using this tidefile (wrt tidefile date)
+         integer ntideblocks    ! number of tideblocks
+         integer interval       ! minutes between tideblocks
+         character*160 filename ! tidefile name
+      end type
+
       
       end module
