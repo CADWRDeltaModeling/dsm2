@@ -19,6 +19,8 @@
 
 	use hdfvars
 	use inclvars
+	use runtime_data
+	use common_tide
 
 	implicit none
 	integer span
@@ -130,10 +132,9 @@
 
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
+      use common_tide
 
       implicit none
-      include '../fixed/common.f'
-      include 'common_tide.f'
 
 
       integer(HID_T) :: attr_id ! Attribute identifier 
@@ -169,12 +170,8 @@
 
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
-     
+      use common_tide
       implicit none
-
-      include '../fixed/common.f'
-      include 'common_tide.f'
-
 
       integer(HID_T) :: attr_id ! Attribute identifier 
       integer(HID_T) :: atype_id ! Attribute Dataspace identifier 
@@ -205,9 +202,8 @@
 
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
+      use common_tide
       implicit none
-      include '../fixed/common.f'
-      include 'common_tide.f'
 
       integer(HID_T) :: attr_id ! Attribute identifier 
       integer(HID_T) :: atype_id ! Attribute Dataspace identifier 

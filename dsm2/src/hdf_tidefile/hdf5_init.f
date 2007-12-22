@@ -143,6 +143,8 @@ c**********contains routines for writing data to an HDF5 file
 	use hdfvars
 	use inclvars
 	use IO_Units
+	use common_tide
+	use runtime_data
 
 	implicit none
 
@@ -314,6 +316,7 @@ c-------involved in reading/writing time-varying model data
 	use HDF5		! HDF5 This module contains all necessary modules 
 	use hdfvars
 	use inclvars
+	use grid_data
 	implicit none
 	integer error
 	integer getHDF5NumberOfTimeIntervals
@@ -470,6 +473,8 @@ c-------involved in reading/writing time-varying model data
 	use HDF5
 	use hdfvars
 	use inclvars
+	use runtime_data
+	use iopath_data
       implicit none
 	integer(HID_T) :: dset_id ! Attribute identifier 
 	integer(HID_T) :: aspace_id ! Attribute Dataspace identifier 
@@ -551,6 +556,8 @@ c-------involved in reading/writing time-varying model data
 	use HDF5		! HDF5 This module contains all necessary modules 
 	use hdfvars
 	use inclvars
+	use runtime_data
+	use common_tide
 
 	implicit none
 
@@ -741,6 +748,7 @@ c-------Create the datasets
 	use HDF5		! HDF5 This module contains all necessary modules 
 	use hdfvars
 	use inclvars
+	use grid_data
 
 	implicit none
 
@@ -799,6 +807,7 @@ c-------Create the datasets
 	use HDF5		! HDF5 This module contains all necessary modules 
 	use hdfvars
 	use inclvars
+	use grid_data
 
 	implicit none
 
@@ -857,6 +866,7 @@ c-------Create the datasets
 	use hdfvars
 	use objvars
 	use inclvars
+	use grid_data
 
 	implicit none
 
@@ -963,6 +973,7 @@ c-------print*,"Obj2Obj type size: (2)", type_size
 	use hdfvars
 	use objvars
 	use inclvars
+	use grid_data
 
 	implicit none
 
@@ -1086,6 +1097,7 @@ c-------print*,"Obj2Obj type size: (2)", type_size
 	use hdfvars
 	use qextvars
 	use inclvars
+	use grid_data
 
 	implicit none
 
@@ -1168,6 +1180,7 @@ c-------print*,"Obj2Obj type size: (2)", type_size
 	use hdfvars
 	use qextvars
 	use inclvars
+	use grid_data
 
 	implicit none
 

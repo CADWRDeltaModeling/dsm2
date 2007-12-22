@@ -48,14 +48,12 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       subroutine get_tidefile_dates(itide)
 	use hdfvars
 	use io_units
+      use common_tide
 c-----Get the start julian datetime from tidefile number itide
 
       implicit none
 
 c-----included common blocks
-
-      include '../fixed/common.f'
-      include 'common_tide.f'
 
       integer,external :: getHDF5NumberOfTimeIntervals
       integer,external :: getHDF5StartTime

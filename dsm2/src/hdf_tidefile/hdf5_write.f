@@ -76,6 +76,9 @@ c**********contains routines for writing data to an HDF5 file
       use HDF5
       use hdfvars
       use inclvars
+      use runtime_data
+      use grid_data
+      use common_tide
 
       implicit none
 
@@ -453,6 +456,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use inclvars
+      use common_tide
 
       implicit none
 
@@ -510,6 +514,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       use HDF5                  ! HDF5 This module contains all necessary modules
       use hdfvars
       use inclvars
+      use common_tide
 
       implicit none
 
@@ -541,6 +546,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
       use inclvars
+      use common_tide
 
       implicit none
 
@@ -576,6 +582,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
       use inclvars
+      use common_tide
 
       implicit none
 
@@ -606,6 +613,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
       use inclvars
+      use common_tide
 
       implicit none
 
@@ -641,6 +649,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
       use inclvars
+      use common_tide
 
       implicit none
 
@@ -653,15 +662,15 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
 
 c-----Preprocess the values to changes
 ! fixme: should this be done here?
-      if (hdf5point .eq. 0) then
+      !if (hdf5point .eq. 0) then
+      !   do i=1,max_qext
+      !      qextavg(i) = qext(i).avg
+      !   end do
+      !else
          do i=1,max_qext
-            qextavg(i) = qext(i).avg
+            qextavg(i) = qext(i).avg !- qext(i).prev_avg 
          end do
-      else
-         do i=1,max_qext
-            qextavg(i) = qext(i).avg - qext(i).prev_avg 
-         end do
-      endif
+      !endif
       do i=1,max_qext
          qext(i).prev_avg = qext(i).avg
       end do
@@ -689,6 +698,7 @@ c-----Preprocess the values to changes
       use hdfvars
       use objvars
       use inclvars
+      use grid_data
 
       implicit none
 
@@ -768,6 +778,7 @@ c-----Preprocess the values to changes
       use hdfvars
       use qextvars
       use inclvars
+      use grid_data
 
       implicit none
 

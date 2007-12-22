@@ -53,12 +53,12 @@ c-----if check_headers is true, also check headers
       use IO_Units
       use Groups, only: ngroup
       use hdfvars
-
+      use common_tide
+      use runtime_data
+      use iopath_data
+      use grid_data      
       implicit none
 
-      include '../fixed/common.f'
-      include 'common_tide.f'
-      include 'tide.inc'
 
 c-----local variables
 
@@ -121,7 +121,7 @@ c-----open tidefile and check version
          endif
       endif
 
-      repeating_tidefile = .false.
+
 
 
       do i=1,nqext
