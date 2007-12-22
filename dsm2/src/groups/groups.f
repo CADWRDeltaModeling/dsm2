@@ -2,11 +2,10 @@ c-----Module: Groups
 c     Manages groups of DSM2 objects such as boundary flows, channels,...
 
       Module Groups
-
+      use constants
       Implicit None
 
       include '../hydrolib/network.inc'
-      include '../fixed/misc.f'
                                 ! Maximums for pre-dimensioned arrays
       integer, parameter :: MAX_GROUPS=50 ! Max no. of group definitions
       integer, parameter :: MAX_MEMBERS=2000 ! Max no. of members in one group,
@@ -128,11 +127,12 @@ c-----Constants
 
 c     Calculates all objects of type objtype matching the pattern string
       subroutine NumberMatches(objtype,pattern,nmatch)
-	Use Gates,only:gateArray,nGate
-	use IO_Units, only: unit_error
+	Use gates,only:gateArray,nGate
+	use constants
+	use grid_data
+	use io_units, only: unit_error
       implicit none
-      include '../fixed/common.f'
-	include '../hdf_tidefile/tide.inc'
+
       integer, intent(in) :: objtype ! the type of object being matched (obj_channel...)
       character*(*), intent(in) :: pattern ! the regular expression to use for matching
 	                                        ! see BOOST docs for details, but pretty typical stuff
