@@ -55,9 +55,12 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----Buffer time series data from DSS for model input
       use IO_Units
+      use type_defs
+      use iopath_data
+      use constants
+      use runtime_data
       implicit none
-
-      include '../fixed/common.f'
+      
       include 'dss.inc'
 
 c-----arguments
@@ -70,7 +73,7 @@ c-----arguments
       integer*4
      &     jmin                 ! date/time for start of data [INPUT]
 
-      record /dataqual_s/
+      type(dataqual_t)
      &     indata(block_dim,inpaths_dim) ! data, flags, and julmin structure array [OUTPUT]
 
       character
@@ -191,15 +194,10 @@ c-----------data quality flags, use from DSS file or user-specified value?
          enddo
       else                      ! irregular time series
 c--------julian day/minute for end of data:
-c--------use end of run adjusted for data offset, but if repeating
-c--------tide, use data start + tide cycle length
-         if (.not. repeating_tide) then
-            jule=(end_julmin+pathinput(pathnumber).diff_julmin)/(24*60)
-            ietime=end_julmin+pathinput(pathnumber).diff_julmin-jule*24*60
-         else
-            jule=(jmin+tide_cycle_length_mins)/(24*60)
-            ietime=jmin+tide_cycle_length_mins-jule*24*60
-         endif
+c--------use end of run adjusted for data offset
+         jule=(end_julmin+pathinput(pathnumber).diff_julmin)/(24*60)
+         ietime=end_julmin+pathinput(pathnumber).diff_julmin-jule*24*60
+
 c--------zritsx doesn't initialize flags to zero
          do i=1,maxinpsize
             flags(i)=0

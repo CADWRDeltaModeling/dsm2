@@ -51,7 +51,12 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
      &     ,inpath_ptr
      &     ,indata
      &     )
-      use IO_Units
+      use io_units
+      use type_defs
+      use runtime_data
+      use constants
+      
+      use iopath_data
       implicit none
 
 c-----Retrieve time-varying data from DSS, if necessary, and then
@@ -59,7 +64,6 @@ c-----process further (interpolate, fillin missing, ...)
 
 c-----common blocks
 
-      include '../fixed/common.f'
       include '../hydrolib/network.inc'
       include '../hydrolib/netbnd.inc'
       include '../hydrolib/chconnec.inc'
@@ -74,14 +78,13 @@ c-----subroutine arguments
      &     npaths               ! number of input paths for this interval
      &     ,inpath_ptr(inpaths_dim) ! pointer array to global input pathnames
 
-      record /dataqual_s/
+      type(dataqual_t) ::
      &     indata(block_dim,inpaths_dim) ! raw input data structure array
 
 c-----local variables
 
-      record /dataqual_s/
-     &     last_value(max_inputpaths) ! last good value for path
-     &     ,tmpval
+      type(dataqual_t) :: last_value(max_inputpaths) 
+      type(dataqual_t) :: tmpval
 
       logical check_dataqual    ! function to test quality of data
      &     ,interpolate_value   ! true to interpolate this path's final value
@@ -118,7 +121,7 @@ c-----local variables
       character*8 per_type      ! per-aver or inst-val
       character*32 ce           ! DSS E part
 
-      record /dataqual_s/ indata_tmp
+      type(dataqual_t) ::  indata_tmp
 
       data last_ndx_next /max_inputpaths * 1/
       save last_ndx_next,last_value
@@ -204,28 +207,6 @@ c-----force initial calculation of buffer indices
             call set_dataqual(tmpval,GOOD_DATA)
             pathinput(ptr).value_flag=tmpval.flag
             goto 100
-         endif
-
-c--------check for warmup run
-         if (warmup_run) then
-c-----------warmup run means:
-c-----------Set all input paths to use the first value for all values,
-c-----------except for those that have a generic date and are equal in
-c-----------length to the tidecycle length
-c-----------For qual, use only first tidefile; if not repeating, use
-c-----------only first time's values from tidefile
-            if (pathinput(ptr).start_date .ne. generic_date) then
-               pathinput(ptr).fillin=fill_first
-            else                ! generic data; equal tidal cycle length?
-               lnm=find_miss(indata, i, block_dim, inpaths_dim) - 1
-               istat=1
-               ce=pathinput(ptr).e_part
-               call upcase(ce)
-               call zgintl(nmins_intvl, ce, nvals, istat)
-               if (lnm*nmins_intvl .ne. tide_cycle_length_mins) then
-                  pathinput(ptr).fillin=fill_first
-               endif
-            endif
          endif
 
 c--------use value from DSS file
@@ -368,36 +349,6 @@ c--------for interpolated value, need second value
          jul_next=indata(ndx_next,i).julmin
          jul_prev_curr=indata(ndx_prev_curr,i).julmin
 
-c--------check for rewind of generic data
-c--------missing value means start over for generic, except
-c--------for synchronized data
-         if (check_dataqual(indata(ndx,i),MISSING_DATA) .and.
-     &        prev_julmin .ne. start_julmin .and.
-     &        pathinput(ptr).start_date .eq. generic_date) then
-            js_data=cdt2jmin(pathinput(ptr).start_date)
-c-----------synchronized data should not hit a missing value
-            if (pathinput(ptr).sync) then
-               write(unit_error,626) trim(current_date),trim(pathinput(ptr).path)
-               call exit(2)
-            endif
-c-----------update the offset between generic time and current time
-            if (.not. repeating_tide) ! repeating tide recycles julmin
-     &           pathinput(ptr).diff_julmin=jul_generic_date - julmin
-c-----------new buffer indices
-            ndx_next=2
-            ndx_prev_curr=1
-
-            jul_next=indata(ndx_next,i).julmin
-            jul_prev_curr=indata(ndx_prev_curr,i).julmin
-            ndx=getndx(julmin, jul_next, jul_prev_curr, ndx_next,
-     &           ndx_prev_curr, pathinput(ptr).per_type,
-     &           interpolate_value)
-            if (interpolate_value) then
-               tmpval=indata(2,i)
-               val1=indata(1,i).data
-               val2=indata(2,i).data
-            endif
-         endif
 
 c--------check for questionable, missing, or rejected data
          if (check_dataqual(indata(ndx,i),QUESTION_DATA) .or.
@@ -515,14 +466,12 @@ c--------change value if desired
 
       integer function bufndx_nosync(indata, jm, path, last_ndx,
      &     max_v, max_paths)
-
+      use constants
+      use type_defs
 c-----Find index in julian minute array that is less than
 c-----target julian minute.
 
       implicit none
-
-      include '../fixed/defs.f'
-      include '../fixed/misc.f'
 
 c-----arguments and local variables
       integer
@@ -532,7 +481,7 @@ c-----arguments and local variables
      &     ,i                   ! loop index
      &     ,path                ! path index
 
-      record /dataqual_s/
+      type(dataqual_t)
      &     indata(max_v,max_paths) ! input data structure array
 
       integer*4
@@ -552,15 +501,15 @@ c-----arguments and local variables
 
       integer function bufndx_sync(indata, path, sync_str, e_part,
      &     last_ndx, max_v, max_paths)
-
+      use constants
+      use type_defs
+c
 c-----Find index in julian minute array that matches the DSS part to
 c-----synchronize with the current time
 
       implicit none
 
-      include '../fixed/defs.f'
-      include '../fixed/misc.f'
-
+ 
 c-----arguments and local variables
       integer
      &     last_ndx             ! bufndx value from last timestep
@@ -569,7 +518,7 @@ c-----arguments and local variables
      &     ,i                   ! loop index
      &     ,path                ! path index
 
-      record /dataqual_s/
+      type(dataqual_t)
      &     indata(max_v,max_paths) ! input data structure array
 
       character*(*)
@@ -610,10 +559,9 @@ c-----check last timestep's value, probably still good
 
 c-----Return either next or previous data index as the base index to
 c-----use for correct data for this timestep.
-
+      use constants
       implicit none
 
-      include '../fixed/misc.f'
 
       logical interpolated      ! true if this path's value is to be interpolated
 
@@ -656,10 +604,10 @@ c-----always use prev_curr index if current time and data time are equal
 
 c-----Find first missing value in data vector for path
       use IO_Units
+      use constants
+      use type_defs
       implicit none
 
-      include '../fixed/misc.f'
-      include '../fixed/defs.f'
 
       logical check_dataqual    ! function to test whether data is 'missing'
 
@@ -668,7 +616,7 @@ c-----Find first missing value in data vector for path
      &     ,max_paths           ! max number of paths
      &     ,path                ! path index
 
-      record /dataqual_s/
+      type(dataqual_t)
      &     indata(max_v,max_paths) ! input data structure array
 
       do find_miss=1, max_v
@@ -684,12 +632,12 @@ c-----Find first missing value in data vector for path
 
 c-----Check the quality of data.
       use IO_Units
+      use constants
+      use type_defs
       implicit none
 
-      include '../fixed/misc.f'
-      include '../fixed/defs.f'
 
-      record /dataqual_s/ value ! data value to be tested [INPUT]
+      type(dataqual_t) value ! data value to be tested [INPUT]
       integer qualflag          ! type of quality flag to check [INPUT]
       logical
      &     btest                ! external bit checking function
@@ -722,15 +670,14 @@ c-----Check the quality of data.
       end
 
       subroutine set_dataqual(value,qualflag)
-
+      use type_defs
+      use constants
 c-----Set the quality data flags.
       use IO_Units
       implicit none
 
-      include '../fixed/misc.f'
-      include '../fixed/defs.f'
 
-      record /dataqual_s/ value ! data value to be set [INPUT, OUTPUT]
+      type(dataqual_t) :: value ! data value to be set [INPUT, OUTPUT]
       integer qualflag          ! type of quality flag to check [INPUT]
 
       value.flag=and(value.flag,0)
@@ -757,11 +704,13 @@ c-----Set the quality data flags.
 
 c-----Get input data from buffers for computations
       use IO_Units
+      use type_defs
+      use iopath_data
+      use runtime_data
       implicit none
 
 c-----common blocks
 
-      include '../fixed/common.f'
 
       integer
      &     ptr                  ! pathname array index
@@ -769,7 +718,7 @@ c-----common blocks
       logical
      &     check_dataqual       ! function checks quality of data
 
-      record /dataqual_s/ dataqual
+      type(dataqual_t) dataqual
 
  610  format(/'No replacement path given for '
      &     /a

@@ -48,16 +48,15 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       subroutine writedss(pathnumber, cdt, in_values, nvals)
 
 c-----Write out a block of data to DSS
-      use IO_Units
+      use io_units
+      use runtime_data
+      use iopath_data
       implicit none
 
-      include '../fixed/common.f'
       include 'dss.inc'
       include 'writedss.inc'
 
-      logical
-     &     isopen(max_dssoutfiles) ! true if DSS output file is already zopened
-
+      logical,dimension(max_dssoutfiles) :: isopen = .false.
       character
      &     cdt*(*)              ! date/time for start of data
      &     ,cdatx*9             ! date
@@ -71,10 +70,9 @@ c-----Write out a block of data to DSS
      &     ,npath,na,nb,nc,nd,ne,nf
 
       integer i
-      REAL*8 in_values(nvals)
-      REAL*4 values(nvals)
+      real*8 in_values(nvals)
+      real*4 values(nvals)
 
-      data isopen /max_dssoutfiles * .false./
 
       if (nvals .le. 0) return
       do i =1,nvals

@@ -50,10 +50,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 c-----Initialization for storing time-varying output data in temporary
 c-----files.
       use IO_Units
-c      use dsm2_database
+      use iopath_data
+      use runtime_data
+      use constants
       implicit none
 
-      include '../fixed/common.f'
       include 'dss.inc'
       include 'writedss.inc'
 
@@ -307,10 +308,9 @@ c-----------only write those paths that need tmp file output
 c-----Find a usable directory from the given list; return the
 c-----array index of the one to use.  The list must end with
 c-----miss_val_c.
-
+      use constants
       implicit none
 
-      include '../fixed/misc.f'
 
 c-----argument
       character*(*) dir_arr(*)  ! list of directory names to try
@@ -349,10 +349,9 @@ c-----local variables
 
 c-----Make a full filename (directory + filename) from directory name
 c-----and filename.
-
+      use constants
       implicit none
 
-      include '../fixed/misc.f'
 
 c-----arguments
       character*(*)
