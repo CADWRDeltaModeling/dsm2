@@ -49,6 +49,9 @@ C     **************************  ROUTE  *************************************
    
       SUBROUTINE ROUTE
       Use IO_Units
+      use common_qual
+      use logging
+      use runtime_data
 
 C     + + + PURPOSE + + +
 
@@ -61,8 +64,6 @@ C     MAX_CONSTITUENT     Maximum number of constituents allowed
 
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../fixed/common.f'
-      INCLUDE '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

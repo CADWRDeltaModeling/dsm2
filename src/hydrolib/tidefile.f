@@ -69,7 +69,7 @@ c-----and for writing to the tidefile
 *== Public (ChannelVelocity) ===================================
 
       REAL*8 FUNCTION ChannelVelocity(ChannNum,x)
-
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Compute velocity of flow in the channels.
@@ -88,7 +88,6 @@ c-----and for writing to the tidefile
       INCLUDE 'chconnec.inc'
       INCLUDE 'chcxrec1.inc'
 
-      include '../fixed/common.f'
 
 *   Local Variables:
       REAL*8    y,x,xx,h,Area,Q
@@ -117,11 +116,11 @@ c-----and for writing to the tidefile
       OK = OpenChannel(ChannNum)
       nodedown=-StreamEndNode(-ChannNum)
       nodeup=StreamEndNode(ChannNum)
-      closest_node=int(dfloat(nodeup)+x/dfloat(chan_geom(ChannNum).length)*
-     &     (dfloat(nodedown)-dfloat(nodeup))+0.5)
+      closest_node=int(dble(nodeup)+x/dble(chan_geom(ChannNum).length)*
+     &     (dble(nodedown)-dble(nodeup))+0.5)
 
-      xx=dfloat(closest_node-nodeup)/dfloat(nodedown-nodeup)*
-     &     dfloat(chan_geom(ChannNum).length)
+      xx=dble(closest_node-nodeup)/dble(nodedown-nodeup)*
+     &     dble(chan_geom(ChannNum).length)
 
       y=globalStreamSurfaceElevation(closest_node)
       h=y-BtmElev(xx)
@@ -135,13 +134,14 @@ c-----and for writing to the tidefile
 
 *== Public (DetermineFirstTidefileInterval =================
       subroutine DetermineFirstTidefileInterval
+      use runtime_data
+      use common_tide
+      use iopath_data
       implicit none
 *   Purpose:  Calculate the first interval that will be in the 
 *             (output) hydro tidefile. Due to averaging and 
 *             alignment to calendar time boundaries, this may be delayed.
-      INCLUDE '../fixed/common.f'
       INCLUDE 'network.inc'
-      INCLUDE '../hdf_tidefile/common_tide.f'
       INCLUDE 'chconnec.inc'
       integer, external :: incr_intvl
 	integer :: first_hydro_interval
@@ -165,7 +165,9 @@ c-----didn't start on an even time boundary, this will be delayed
 *== Public (AverageFlow) ===================================
 
       LOGICAL FUNCTION AverageFlow()
-
+      use common_tide
+      use runtime_data
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  To calculate the average flow in the channels and
@@ -179,10 +181,10 @@ c-----didn't start on an even time boundary, this will be delayed
 *     Nsample   - Number of time steps within a unit time in hydro file
 
 *   Module data:
-      INCLUDE '../fixed/common.f'
-      INCLUDE '../hdf_tidefile/tide.inc'
+
+
       INCLUDE 'network.inc'
-      INCLUDE '../hdf_tidefile/common_tide.f'
+
       INCLUDE 'chnlcomp.inc'
       INCLUDE 'chconnec.inc'
       INCLUDE 'chstatus.inc'
@@ -190,9 +192,6 @@ c-----didn't start on an even time boundary, this will be delayed
 
 *   Local Variables:
       INTEGER i,j,Up, Down
-      logical OK
-      integer*4
-     &     incr_intvl           ! increment julian minute by interval function
 
 *   Routines by module:
 
@@ -295,7 +294,9 @@ C--------Initialize
 
       use hdfvars
       use io_units, only : unit_hydro
-
+      use common_tide
+      use iopath_data
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  To write information in a hydro file
@@ -305,12 +306,10 @@ C--------Initialize
 
       INCLUDE 'network.inc'
       INCLUDE 'chconnec.inc'
-      include '../fixed/common.f'
       include '../timevar/dss.inc'
-      INCLUDE '../hdf_tidefile/tide.inc'
-      INCLUDE '../hdf_tidefile/common_tide.f'
+
 *   Local Variables:
-      INTEGER i,j,lnblnk,ptr
+      INTEGER i
 
 *   Routines by module:
 
@@ -358,6 +357,10 @@ C--------Initialize
 
       use HDFVARS
       use io_units, only : unit_hydro
+      use common_tide
+      use runtime_data
+      use iopath_data
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  To write information in a hydro file
@@ -367,12 +370,10 @@ C--------Initialize
 
       INCLUDE 'network.inc'
       INCLUDE 'chconnec.inc'
-      include '../fixed/common.f'
       include '../timevar/dss.inc'
-      INCLUDE '../hdf_tidefile/tide.inc'
-      INCLUDE '../hdf_tidefile/common_tide.f'
+
 *   Local Variables:
-      INTEGER i,j,lnblnk,ptr
+      INTEGER i
 
       logical ok, Compute_ChArea, AverageFlow
 *   Routines by module:
@@ -380,9 +381,6 @@ C--------Initialize
 ***** Channel flow status:
       INTEGER  NumberofChannels
       EXTERNAL NumberofChannels
-
-      logical first_call
-      data first_call /.true./
 
 *   Programmed by: Parviz Nader
 *   Date:          October 1994
@@ -430,7 +428,7 @@ C--------Save only the values which have changed
 *== Public (Compute_ChArea) ===================================
 
       LOGICAL FUNCTION Compute_ChArea()
-
+      use common_tide
       IMPLICIT NONE
 
 *   Purpose:  Compute channel area at the two ends of a channel and the average value
@@ -441,8 +439,6 @@ C--------Save only the values which have changed
       INCLUDE 'chnlcomp.inc'
       INCLUDE 'chstatus.inc'
       INCLUDE 'chcxtbl.inc'
-      include '../fixed/common.f'
-      include '../hdf_tidefile/common_tide.f'
 *   Local Variables:
       INTEGER Up, Down, nn, j
       real*8 xx,zz
@@ -456,7 +452,7 @@ C--------Save only the values which have changed
       REAL*8     CxArea, ChannelWidth, BtmElev
       EXTERNAL CxArea, ChannelWidth, BtmElev
 
-      real*8 delx,zavg,aavg
+      real*8 delx,aavg
 
 *   Programmed by: Parviz Nader
 *   Date:          December 97
@@ -473,10 +469,10 @@ C--------Save only the values which have changed
          AChan_Avg(Branch)=0.
 	   aavg = 0.D0
          AChan(Branch,1)=CxArea(Dble(0.),Dble(YChan(Branch,1)))
-         AChan(Branch,2)=CxArea(dfloat(chan_geom(Branch).length),Dble(YChan(Branch,2)))
-         delx=dfloat(chan_geom(Branch).length)/dfloat(Down-Up)
+         AChan(Branch,2)=CxArea(dble(chan_geom(Branch).length),Dble(YChan(Branch,2)))
+         delx=dble(chan_geom(Branch).length)/dble(Down-Up)
          DO j=Up, Down-1
-            xx=(dfloat(j-Up)+0.5)*delx
+            xx=(dble(j-Up)+0.5)*delx
 
            ! old version of this routine (never used, but may be better)
 c-----------zavg=(ws(j)+ws(j+1))/2.

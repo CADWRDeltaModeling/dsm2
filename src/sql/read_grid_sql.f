@@ -4,10 +4,10 @@
 c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
+      use logging
+      use grid_data
 
       implicit none
-
-      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -165,11 +165,12 @@ c--------skip the channel if marked not-use
 c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
-
+      use grid_data
+      !use constants
+      use common_xsect
+      use logging
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -337,11 +338,12 @@ c-----------------search for similar xsect distance
 c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
+      use common_xsect
+      use grid_data
+      use logging
 
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -523,9 +525,10 @@ c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
       use DSM2_database
+      use grid_data
+      use logging
       implicit none
 
-      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -669,10 +672,10 @@ c                resext2int(resno)=nreser    !todo: resext2int
 c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
+      use grid_data
+      use logging
 
       implicit none
-
-      include '../fixed/common.f'
       include '../hydrolib/network.inc'
 
 c-----arguments
@@ -812,9 +815,11 @@ c-----load f90SQL modules
       use Gates, only: gateArray,nGate, MAX_GATES
       use IO_Units
       use DSM2_database
+      use logging
+      use constants
+      use grid_data
       implicit none
 
-      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -1018,10 +1023,11 @@ c-----load f90SQL modules
       use f90SQLConstants
       use f90SQLStructures
       use f90SQL
-      use IO_Units
+      use io_units
+      use logging
+      use constants
+      
       implicit none
-
-      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -1240,9 +1246,11 @@ c-----load f90SQL modules
       use f90SQL
       use IO_Units
       use DSM2_database
+      use grid_data
+      use logging
+      use constants
       implicit none
 
-      include '../fixed/common.f'
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
       integer(DBASE_ID_KIND) ModelID           ! which ModelID to select
@@ -1414,8 +1422,8 @@ c-----Order nodes in node_geom in a way that is compatible
 c-----with hydro and qual. The function also changes 
 c-----chan_geom.upnode and chan_geom.downnode from external to internal
       logical function order_nodes()
+      use grid_data
       implicit none
-      include '../fixed/common.f'
       integer nn,n,node
       integer intchan
       integer ext2intnode

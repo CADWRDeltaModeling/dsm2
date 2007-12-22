@@ -4,10 +4,11 @@ c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
       use Groups, only: groupArray,ngroup,MAX_MEMBERS
-      use IO_Units
+      use io_units
+      use logging
+      use constants
       implicit none
 
-      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -135,10 +136,10 @@ c-----load f90SQL modules
       use Groups, only: groupArray,ngroup,GroupMember
      &      ,GroupMemberPattern
      &     ,MAX_MEMBERS,MAX_GROUP_PATTERNS
-      use IO_Units
+      use io_units
+      use logging
+      use constants
       implicit none
-
-      include '..\fixed\common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

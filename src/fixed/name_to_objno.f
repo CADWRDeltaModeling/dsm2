@@ -6,10 +6,11 @@ c-----get internal object number, given object type and external (map) ID
       integer function name_to_objno(ObjType, name)
       use gates, only: ngate, gateArray
       use groups, only: ngroup, groupArray
-      use IO_Units
+      use io_units
       use grid_data
       use constants
-	include '..\hdf_tidefile\tide.inc'
+      use type_defs
+
 
 c-----arguments
       integer*4
@@ -83,8 +84,6 @@ c-----local variables
       end
 
 
-
-
 c-----get internal object number, given object type and external (map) ID
       subroutine objno_to_name(objtype, index, name)
       use gates, only: ngate, gateArray
@@ -92,16 +91,14 @@ c-----get internal object number, given object type and external (map) ID
       use IO_Units
       use grid_data
       use constants
+      use type_defs
 	implicit none
-	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
       integer*4
      &     ObjType              ! object type
 
-
       character*32 :: name      ! name/identifier
-
 
 c-----local variables
       integer index
@@ -140,10 +137,9 @@ c------Jon add this line to account for sink/source object
 c-----get internal object number, given object type and external (map) ID
       subroutine obj_type_name(objtype, typename)
       use IO_Units
-      use grid_data
       use constants
+      use type_defs
      	implicit none
-	include '..\hdf_tidefile\tide.inc'
 
 c-----arguments
       integer*4
@@ -183,8 +179,6 @@ c-----local variables
          call exit(3)
  611     format(/'Object type ',i4,' unrecognized.')
       end if
-
-
       return
       end
 

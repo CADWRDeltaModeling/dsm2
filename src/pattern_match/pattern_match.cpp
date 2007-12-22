@@ -63,8 +63,8 @@ void STDCALL pattern_match(int* ndx, char* matchstr,
  * match vector match_ndx was last cleared. Returns -901 if i is out of range
  */
 int STDCALL  pattern_match_index(int * i){
-   if (*i > match_ndx.size()) return -901;
-   return match_ndx[*i-1];
+   if (*i > (int)match_ndx.size()) return -901;
+   return (int) match_ndx[*i-1];
 }
 
 

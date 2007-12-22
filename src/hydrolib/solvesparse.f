@@ -70,6 +70,7 @@ C!
       logical function InitializeSolver()
       use IO_Units
       use Gates, only: NGate,GateArray
+      use grid_data
       implicit none
 
 *   Purpose: Initialize the solution matrix
@@ -80,7 +81,7 @@ C!
 
 *   Module data:
       include 'network.inc'
-      include '../fixed/common.f' ! only nreser
+        
       include 'solver.inc'
       include 'chconnec.inc'
 
@@ -333,19 +334,19 @@ c-----INTEGER N
 
       LOGICAL FUNCTION SolveFourPt()
       Use IO_Units
+
       IMPLICIT NONE
 
       INCLUDE 'network.inc'
       INCLUDE 'solver.inc'
-c@@@     INCLUDE '../fixed/misc.f'
-      INCLUDE '../fixed/common.f'
+
       INCLUDE 'chstatus.inc'
 
 *   Purpose:  Interface to SPARSE solver for solution
 *             of incremental change in flow/stage
 
 *   Arguments:
-      INTEGER I,IterSinceOrder,Iter,Counter
+      INTEGER I,IterSinceOrder
       logical,save :: FirstTime =.true.
       logical,save :: FirstBackTrack
       logical,save :: LastBackTrack

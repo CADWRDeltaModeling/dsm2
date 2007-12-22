@@ -1,7 +1,10 @@
       subroutine init_fixed_data(filename)
+      use constants
+      use runtime_data
+      use grid_data
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       character*(*) filename
       integer i
       include 'version.inc'
@@ -92,11 +95,11 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine updateFluxInfo
+      use common_tide
+      use ptm_local
+      use iopath_data
+      use common_ptm      
       implicit none
-      include '../../fixed/common.f'
-      include '../../fixed/common_ptm.inc'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       integer getWaterbodyUniqueId, getStageWaterbodyForNode
       integer i
 c-----
@@ -115,11 +118,13 @@ c-----
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine updateGroupOutputInfo
+      use common_tide
+      use iopath_data
+      use ptm_local
+      use common_ptm
       implicit none
-      include '../../fixed/common.f'
-      include '../../fixed/common_ptm.inc'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+
+
       integer getWaterbodyUniqueId, getStageWaterbodyForNode
       integer i
 
@@ -138,11 +143,13 @@ c-----
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine updateWBInfo
 	use IO_Units
+      use grid_data
+      use constants
+      use ptm_local
+      use common_ptm
       implicit none
-      include '../../fixed/common.f'
-      include '../../fixed/common_ptm.inc'
-      include '../../input/time-varying/tide.inc'
-      include 'ptmLocal.inc'
+
+
 c----- functions
       integer get_unique_id_for_channel
      &     , get_unique_id_for_reservoir
@@ -283,10 +290,11 @@ c----- end
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine updateNodeInfo
+      use grid_data   
+      use constants   
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
-      include 'ptmLocal.inc'
+
       integer i, j, k, nodeId, nUp, nDown, conveyorId, nnId, objId, qId
       integer get_unique_id_for_reservoir,
      &     get_unique_id_for_boundary, get_unique_id_for_conveyor,
@@ -416,6 +424,7 @@ c--------to object
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_waterbodies()
+      use grid_data
       implicit none
       integer get_number_of_waterbodies
       integer get_number_of_channels
@@ -423,7 +432,6 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       integer get_number_of_boundary_waterbodies
       integer get_number_of_stage_boundaries
       integer get_number_of_conveyors
-      include '../../fixed/common.f'
       get_number_of_waterbodies = 
      &     get_number_of_channels() 
      &     + get_number_of_reservoirs()
@@ -434,27 +442,31 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_channels()
+      use grid_data
       implicit none
       integer get_number_of_channels
-      include '../../fixed/common.f'
+
       get_number_of_channels = nchans
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_reservoirs()
+      use grid_data
       implicit none
       integer get_number_of_reservoirs
-      include '../../fixed/common.f'
+
       get_number_of_reservoirs = nreser
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_nodes()
+      use grid_data
+      use constants
       implicit none
       integer get_number_of_nodes
 c-----integer get_maximum_number_of_pumps
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
+
+
       integer i
 
       get_number_of_nodes = nnodes 
@@ -478,37 +490,38 @@ c----- do the same for internal flows or conveyors
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_xsections()
+      use grid_data
       implicit none
       integer get_number_of_xsections
-      include '../../fixed/common.f'
       get_number_of_xsections = nxsects
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_diversions()
+      use grid_data      
       implicit none
       integer get_number_of_diversions
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
+
 c-----Number of diversions = 0
       get_number_of_diversions = 0
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_pumps()
+      use grid_data
       implicit none
       integer get_number_of_pumps
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
+
 c-----pumping from a reservoir is the same as a diversion?
       get_number_of_pumps = 0
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_conveyors()
+      use grid_data
       implicit none
       integer get_number_of_conveyors
-      include '../../fixed/common.f'
+
 c-----internal flows
       get_number_of_conveyors = nobj2obj
       return
@@ -516,32 +529,32 @@ c-----internal flows
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_boundary_waterbodies()
+      use grid_data
+      use ptm_local
       implicit none
       integer get_number_of_boundary_waterbodies
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
-      include 'ptmLocal.inc'
+
       get_number_of_boundary_waterbodies = nqext
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_stage_boundaries()
+      use grid_data
+      use ptm_local
       implicit none
       integer get_number_of_stage_boundaries
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
-      include 'ptmLocal.inc'
+
       get_number_of_stage_boundaries = nStageBoundaries
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_channel_groups()
+      use grid_data
+      use ptm_local      
+      use common_ptm
       implicit none
+
       integer get_number_of_channel_groups
-      include '../../fixed/common.f'
-      include '../../fixed/common_ptm.inc'
-      include '../../input/time-varying/tide.inc'
-      include 'ptmLocal.inc'
       get_number_of_channel_groups = ngroup_output
       return 
       end
@@ -569,52 +582,59 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_channels()
+      use grid_data
       implicit none
       integer get_maximum_number_of_channels
-      include '../../fixed/common.f'
+
       get_maximum_number_of_channels = max_channels
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_reservoirs()
+      use grid_data
       implicit none
       integer get_maximum_number_of_reservoirs
-      include '../../fixed/common.f'
+
       get_maximum_number_of_reservoirs = max_reservoirs
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_conveyors()
+      use grid_data
       implicit none
       integer get_maximum_number_of_conveyors
-      include '../../fixed/common.f'
+
       get_maximum_number_of_conveyors = max_obj2obj
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_nodes()
+      use grid_data
       implicit none
       integer get_maximum_number_of_nodes
 c-----integer get_maximum_number_of_pumps
       integer get_maximum_number_of_conveyors
-      include '../../fixed/common.f'
+
       get_maximum_number_of_nodes = max_nodes 
      &     + 2*get_maximum_number_of_conveyors()
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_xsections()
+      
+      use grid_data
       implicit none
       integer get_maximum_number_of_xsections
-      include '../../fixed/common.f'
+
       get_maximum_number_of_xsections = max_xsects_tot
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_reservoir_nodes()
+      use grid_data
       implicit none
       integer get_maximum_number_of_reservoir_nodes
-      include '../../fixed/common.f'
+
       get_maximum_number_of_reservoir_nodes = maxresnodes
       return 
       end
@@ -622,7 +642,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_diversions()
       implicit none
       integer get_maximum_number_of_diversions
-      include '../../fixed/common.f'
+
 c      get_maximum_number_of_diversions = max_nodes
       get_maximum_number_of_diversions = 0
       return 
@@ -631,42 +651,43 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_pumps()
       implicit none
       integer get_maximum_number_of_pumps
-      include '../../fixed/common.f'
+
 c      get_maximum_number_of_pumps = max_reservoirs
       get_maximum_number_of_pumps = 0
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_boundary_waterbodies()
+      use grid_data
       implicit none
       integer get_maximum_number_of_boundary_waterbodies
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
+
       get_maximum_number_of_boundary_waterbodies = max_qext
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_stage_boundaries()
+      use ptm_local
       implicit none
       integer get_maximum_number_of_stage_boundaries
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       get_maximum_number_of_stage_boundaries = maxStageBoundaries
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_maximum_number_of_group_elements()
+      use constants_ptm
+      use common_ptm
       implicit none
       integer get_maximum_number_of_group_elements
-      include '../../fixed/common_ptm.inc'
       get_maximum_number_of_group_elements = max_chanres
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_channel_length(i)
+      use grid_data
       implicit none
       integer get_channel_length
-      include '../../fixed/common.f'
       integer i
       get_channel_length = chan_geom(i).length
       return
@@ -674,7 +695,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_channel_number_of_nodes(i)
       implicit none
-      include '../../fixed/common.f'
+
       integer get_channel_number_of_nodes
       integer i
       get_channel_number_of_nodes = 2
@@ -682,8 +703,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_channel_number_of_xsections(i)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       integer get_channel_number_of_xsections
       integer i
       get_channel_number_of_xsections = chan_geom(i).nxsect
@@ -691,8 +713,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_channel_node_array(i, nodeArray)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       integer nodeArray(50)
       integer i
       nodeArray(1) = chan_geom(i).upnode
@@ -701,8 +724,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_channel_xsection_ids(i, xSectionIds)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       integer xSectionIds(50)
       integer get_channel_number_of_xsections
       integer i
@@ -715,8 +739,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_channel_xsection_distances(i, xSectionDistances)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       real xSectionDistances(50)
       integer i, get_channel_number_of_xsections
       integer xid, nXs
@@ -728,8 +753,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_area(reservoirNumber)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       real get_reservoir_area
       integer reservoirNumber
       get_reservoir_area = res_geom(reservoirNumber).area
@@ -737,8 +763,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_bottom_elevation(reservoirNumber)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       real get_reservoir_bottom_elevation
       integer reservoirNumber
       get_reservoir_bottom_elevation = 
@@ -747,8 +774,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_reservoir_name(reservoirNumber, name)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       character*(*) name
       integer reservoirNumber, lastNonBlank
       integer lnblnk
@@ -759,9 +787,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_number_of_nodes(reservoirNumber)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer reservoirNumber,get_reservoir_number_of_nodes
       integer uniqId, get_unique_id_for_reservoir
       uniqId = get_unique_id_for_reservoir(reservoirNumber)
@@ -790,9 +818,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_reservoir_node_array(reservoirNumber, nodeArray)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer reservoirNumber, nodeArray(50)
       integer i, uniqId, get_unique_id_for_reservoir
       uniqId = get_unique_id_for_reservoir(reservoirNumber)
@@ -842,9 +870,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_internal_node_id_for_unique_ids( id1, id2 )
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer get_internal_node_id_for_unique_ids
       integer id1, id2
       integer id
@@ -862,8 +890,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_diversion_number_of_nodes(diversionNumber)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
+
       integer diversionNumber,get_diversion_number_of_nodes
       if ( diversionNumber .le. max_nodes) then
          if ( node_geom(diversionNumber).nup +  
@@ -879,8 +908,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_diversion_node_array(diversionNumber, nodeArray)
+
       implicit none
-      include '../../fixed/common.f'
+
       integer get_diversion_number_of_nodes
       integer diversionNumber, nodeArray(50)
       integer i, nn
@@ -892,8 +922,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_pump_number_of_nodes(pumpNumber)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       integer pumpNumber,get_pump_number_of_nodes
       if(res_geom(pumpNumber).area .gt. 0.0) then
          get_pump_number_of_nodes = 1
@@ -906,7 +937,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_pump_node_array(pumpNumber, nodeArray)
       implicit none
-      include '../../fixed/common.f'
+
       integer get_pump_number_of_nodes, get_maximum_number_of_diversions
       integer pumpNumber, nodeArray(50)
       integer i, nn
@@ -932,9 +963,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_boundary_waterbody_node_array(
      &     number, nodeArray)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
+
       integer get_unique_id_for_boundary
       integer number, nodeArray(50)
       integer i, uniqId
@@ -960,9 +992,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_stage_boundary_node_array(
      &     number, nodeArray)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
+ 
       integer get_stage_boundary_number_of_nodes
       integer number, nodeArray(50)
       nNodes = 
@@ -977,9 +1010,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_conveyor_number_of_nodes(number)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer number, get_conveyor_number_of_nodes
       integer get_unique_id_for_conveyor,id
       id = get_unique_id_for_conveyor(number)
@@ -989,9 +1022,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_conveyor_node_array(
      &     conveyorNumber, nodeArray)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer conveyorNumber
 c-----integer get_node_for_conveyor
       integer nodeArray(50), id
@@ -1009,9 +1042,6 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       function get_node_for_boundary_waterbody(index)
 !       implicit none
 !       integer get_node_for_boundary_waterbody, index
-!       include '../../fixed/common.f'
-!       include '../../input/time-varying/tide.inc'
-!       include 'ptmLocal.inc'
 !       integer i, nBoundary
 !       i=1
 !       if ( index .le. nqext ) then
@@ -1039,9 +1069,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_waterbodies_for_node(nodeNumber)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer get_number_of_waterbodies_for_node
       integer nodeNumber
       get_number_of_waterbodies_for_node = nodes(nodeNumber).nwbs
@@ -1068,8 +1098,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_boundary_type_for_node(nodeNumber, name)
+      use grid_data
+      use constants
       implicit none
-      include '../../fixed/common.f'
+
       character*(*) name
       integer nodeNumber, lastNonBlank
 c-----integer lnblnk
@@ -1080,14 +1112,14 @@ c-----lastNonBlank = lnblnk(node_geom(nodeNumber).boundary_type)
      &    node_geom(nodeNumber).boundary_type .eq. stage_boundary ) then
          name = 'STAGE'
       endif
-      name = name(1:lastNonBlank) // char(0)
+      name = trim(name) // char(0)
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_waterbody_id_array_for_node(nodeNumber, array)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer nodeNumber, array(50)
       integer i
       if ( nodeNumber .gt. maxNodesPTM) goto 999
@@ -1116,15 +1148,16 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_xsection_number_of_elevations()
       implicit none
-      include '../../fixed/common.f'
+
       integer get_xsection_number_of_elevations
       get_xsection_number_of_elevations = 2 ! regular sections yet
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_xsection_widths(number, array)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       integer number
       real array(50)
       array(1) = xsect_geom(number).width ! regular sections
@@ -1134,8 +1167,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       subroutine get_xsection_elevations(number, array)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       integer number
       real array(50)
       array(1) = xsect_geom(number).botelv
@@ -1145,7 +1179,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_xsection_areas(number, array)
       implicit none
-      include '../../fixed/common.f'
+
       integer number
       real array(50)
       array(1) = -1
@@ -1153,8 +1187,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_xsection_minimum_elevation(number)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
+
       real get_xsection_minimum_elevation
       integer number
       get_xsection_minimum_elevation = xsect_geom(number).botelv
@@ -1162,8 +1197,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_boolean_inputs(array)
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       integer array(50)
       array(1)=ptm_ivert
       array(2)=ptm_itrans
@@ -1178,8 +1213,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_float_inputs(array)
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       real array(50)
       array(1)=ptm_random_seed
       array(2)=ptm_trans_constant
@@ -1193,16 +1228,16 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_particle_number_of_injections()
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       integer get_particle_number_of_injections
       get_particle_number_of_injections = npartno
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_injection_nodes(array)
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       integer array(50)
       integer i
       if (npartno .gt. 50) 
@@ -1214,8 +1249,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_number_of_particles_injected(array)
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       integer array(50)
       integer i
       if (npartno .gt. 50) 
@@ -1227,8 +1262,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_injection_start_julmin(array)
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       integer array(50)
       integer i
       if (npartno .gt. 50) 
@@ -1240,8 +1275,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_injection_length_julmin(array)
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       integer array(50)
       integer i
       if (npartno .gt. 50) 
@@ -1254,10 +1289,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer function get_number_of_group_outputs()
+      use ptm_local
       implicit none
       integer get_number_of_fluxes
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       get_number_of_group_outputs = ngroup_output
       return
       end
@@ -1265,10 +1300,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer function get_number_of_group_members(index)
 	use groups,only : groupArray
+      use ptm_local
       implicit none
       integer get_number_incoming
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer index
 	get_number_of_group_members 
      &           = groupArray(groupOut(index).groupNdx).nMember
@@ -1277,10 +1312,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_fluxes()
+      use ptm_local
       implicit none
       integer get_number_of_fluxes
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       get_number_of_fluxes = nFlux
       return
       end
@@ -1288,9 +1323,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_group_member_index(index, array, nmember)
 	use groups,only: groupArray
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 	integer index              ! index of flux in global flux array
 	integer,intent(in) :: nmember  ! number of members (dimension of array)
       integer :: array(nmember)  ! array to be filled with members
@@ -1308,9 +1343,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_group_member_type(index, array, nmember)
 	use groups,only: groupArray
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 	integer index              ! index of flux in global flux array
 	integer,intent(in) :: nmember  ! number of members (dimension of array)
       integer :: array(nmember)  ! array to be filled with members
@@ -1327,10 +1362,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_incoming(index)
 	use groups,only : groupArray
+      use ptm_local
+      use constants
       implicit none
       integer get_number_incoming
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer index
 	get_number_incoming = 1
 	if (flux(index).inType .eq. obj_group)then
@@ -1341,10 +1377,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_outgoing(index)
 	use groups,only : groupArray
+      use ptm_local
+      use constants
       implicit none
       integer get_number_outgoing
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer index
 	get_number_outgoing = 1
 	if (flux(index).outType .eq. obj_group)then
@@ -1354,10 +1391,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_flux_incoming(index, array, nmember)
+      use ptm_local
+      use constants
 	use groups,only: groupArray,GROUP_ANY_INDEX,GROUP_ANY_TYPE
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 	integer index              ! index of flux in global flux array
 	integer,intent(in) :: nmember  ! number of members (dimension of array)
       integer :: array(nmember)  ! array to be filled with members
@@ -1383,10 +1421,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_flux_outgoing(index, array, nmember)
+      use ptm_local
+      use constants
 	use groups,only: groupArray,GROUP_ANY_INDEX,GROUP_ANY_TYPE
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 	integer index              ! index of flux in global flux array
 	integer,intent(in) :: nmember  ! number of members (dimension of array)
       integer :: array(nmember)  ! array to be filled with members
@@ -1412,10 +1451,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_flux_incoming_type(index, array, nmember)
+      use ptm_local
 	use groups,only: groupArray,GROUP_ANY_INDEX,GROUP_ANY_TYPE
+	use constants
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 	integer index              ! index of flux in global flux array
 	integer,intent(in) :: nmember  ! number of members (dimension of array)
       integer :: array(nmember)  ! array to be filled with members
@@ -1440,10 +1480,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_flux_outgoing_type(index, array, nmember)
+      use ptm_local
+      use constants
 	use groups,only: groupArray,GROUP_ANY_INDEX,GROUP_ANY_TYPE
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 	integer index              ! index of flux in global flux array
 	integer,intent(in) :: nmember  ! number of members (dimension of array)
       integer :: array(nmember)  ! array to be filled with members
@@ -1468,32 +1509,36 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_model_start_time()
+      use runtime_data
       implicit none
-      include '../../fixed/common.f'
+
       integer get_model_start_time
       get_model_start_time = start_julmin
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_model_end_time()
+      use runtime_data
       implicit none
-      include '../../fixed/common.f'
+
       integer get_model_end_time
       get_model_end_time = end_julmin
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_model_ptm_time_step()
+      use common_ptm
       implicit none
-      include '../../fixed/common_ptm.inc'
       integer get_model_ptm_time_step
       get_model_ptm_time_step = ptm_time_step
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_display_interval()
+      use constants
+      use runtime_data
       implicit none
-      include '../../fixed/common.f'
+
       integer*4 get_display_interval
       integer*4 incr_intvl
       get_display_interval = incr_intvl(0,display_intvl,IGNORE_BOUNDARY)
@@ -1501,8 +1546,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_animation_filename(array)
+      use iopath_data
       implicit none
-      include '../../fixed/common.f'
+
       character*(*) array
       integer lnblnk
       array = io_files(ptm,io_animation,io_write).filename
@@ -1511,8 +1557,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_model_animation_output_interval()
+      use iopath_data
       implicit none
-      include '../../fixed/common.f'
+
       integer get_model_animation_output_interval
       integer mins
       character*80 intvl
@@ -1523,8 +1570,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_behavior_filename(array)
+      use iopath_data
       implicit none
-      include '../../fixed/common.f'
+
       character*(*) array
       integer lnblnk
       array = io_files(ptm,io_behavior,io_read).filename
@@ -1533,18 +1581,19 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_trace_filename(array)
+      use iopath_data      
       implicit none
-      include '../../fixed/common.f'
+
       character*(*) array
-      integer lnblnk
       array = io_files(ptm,io_trace,io_write).filename
-      array = array(1:lnblnk(array)) // char(0)
+      array = trim(array) // char(0)
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_model_trace_output_interval()
+      use iopath_data      
       implicit none
-      include '../../fixed/common.f'
+
       integer get_model_trace_output_interval
       integer mins
       character*80 intvl
@@ -1555,8 +1604,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_restart_output_filename(array)
+      use iopath_data      
       implicit none
-      include '../../fixed/common.f'
+
       character*(*) array
       integer lnblnk
       array = io_files(ptm,io_restart,io_write).filename
@@ -1565,8 +1615,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_restart_output_interval()
+      use iopath_data      
       implicit none
-      include '../../fixed/common.f'
+
       integer get_restart_output_interval, mins
       character*80 intvl
       intvl = io_files(ptm,io_restart,io_write).interval
@@ -1576,8 +1627,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_restart_input_filename(array)
+      use iopath_data      
       implicit none
-      include '../../fixed/common.f'
+
       character*(*) array
       integer lnblnk
       array = io_files(ptm,io_restart,io_read).filename
@@ -1586,8 +1638,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       integer function ptm_type_code(dsm_type)
+      use constants
 	implicit none
-	include '../../fixed/common.f'
+
 	integer dsm_type
       if ( dsm_type .eq. obj_channel ) then
          ptm_type_code = 100
@@ -1607,9 +1660,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer function get_waterbody_type( id )
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer id, wbtype, ptm_type_code
       wbtype = wb(id).type
 	get_waterbody_type=ptm_type_code(wbtype)
@@ -1617,27 +1670,27 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_local_id_for_waterbody( id )
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer id, get_local_id_for_waterbody
       get_local_id_for_waterbody = wb(id).localIndex
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_nodes_for_waterbody( id )
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer id, get_number_of_nodes_for_waterbody
       get_number_of_nodes_for_waterbody = wb(id).numberOfNodes
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_node_array_for_waterbody(id, nodeArray)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       integer i,id, nodeArray(50)
       do i=1,wb(id).numberOfNodes
          nodeArray(i) = wb(id).node(i)
@@ -1646,9 +1699,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++++++
       function getWaterbodyUniqueId(wbtype, id)
+      use ptm_local
+      use constants
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 c-----
       integer getWaterbodyUniqueId
       integer get_unique_id_for_channel
@@ -1675,9 +1729,9 @@ c-----
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++++++
       function getStageWaterbodyForNode(id)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 c-----
       integer getStageWaterbodyForNode, id
       integer wbId, i, uniqId
@@ -1696,9 +1750,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c     DEPRECATED. Water bodies don't have one-to-one relationships with
 c     accounting types any more
       function get_waterbody_accounting_type(id)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 c-----
       integer get_waterbody_accounting_type, id
       integer wbtype
@@ -1708,9 +1762,9 @@ c-----
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_waterbody_object_type(id)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 c-----
 
       integer get_waterbody_object_type, id
@@ -1721,9 +1775,9 @@ c-----
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_waterbody_group(id)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
 c-----
       integer get_waterbody_group, id
       integer group
@@ -1747,7 +1801,7 @@ c-----
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_qual_constituent_names(id, array)
       implicit none
-      include '../../fixed/common.f'
+
       include '../../input/time-varying/common_qual_bin.inc'
 c-----
       character*(*) array
@@ -1776,10 +1830,10 @@ c-----
      &     ,veindex
      &     )
       use IO_Units
+      use common_xsect
+      use runtime_data
       implicit none
 
-      include '../../fixed/common.f'
-      include '../../fixed/common_irreg_geom.f'
 
       integer
      &     Branch               ! hydro channel number
@@ -1845,6 +1899,7 @@ c-----if lower level is above H, move down
 
       REAL*8 FUNCTION ChannelWidth(X,H)
       use IO_Units
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -1863,8 +1918,6 @@ c-----if lower level is above H, move down
       INCLUDE '../../hydrolib/network.inc'
       INCLUDE '../../hydrolib/chcxtbl.inc'
 
-      include '../../fixed/common.f'
-      include '../../fixed/common_irreg_geom.f'
 
 *   Functions:
       LOGICAL  CxShapeFunction
@@ -1929,7 +1982,7 @@ c-----statement function to interpolate wrt two points
 *=======================================================================
 
       REAL*8 FUNCTION CxArea(X, H)
-
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -1944,8 +1997,6 @@ c-----statement function to interpolate wrt two points
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../../fixed/common.f'
-      include '../../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE '../../hydrolib/network.inc'

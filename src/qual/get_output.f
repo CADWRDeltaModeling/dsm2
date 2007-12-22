@@ -48,8 +48,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       real*8 function get_output(ptr)
 
 c-----Get the desired output variable from the particular DSM module
-      Use IO_Units
-	Use Groups, Only: groupArray
+      Use io_units
+	Use groups, Only: groupArray
+      use common_tide
+      use grid_data
+      use iopath_data
       implicit none
 
 c-----arguments
@@ -59,8 +62,6 @@ c-----arguments
 
 c-----global variables
 
-      include '../fixed/common.f'
-      include '../hdf_tidefile/common_tide.f'
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
@@ -169,6 +170,8 @@ c-----statement function to interpolate value along channel
 
       real*8 function chan_qual(qualchan, chan_distance, const_no)
       Use IO_Units
+      use common_qual
+      
 c-----this routine reports water quality of DSM2-Qual channel
 
       implicit none
@@ -185,8 +188,6 @@ c-----subroutine arguments
 c-----common blocks
 
       include 'param.inc'
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'
@@ -227,6 +228,7 @@ c--------pick the last parcel concentration
 
       real*8 function node_qual(intnode,const_no)
       Use IO_Units
+      use grid_data
 c-----Return the mixed quality at a node
 
       implicit none
@@ -241,7 +243,6 @@ c-----arguments
 c-----common blocks
 
       include 'param.inc'
-      include '../fixed/common.f'
       include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'

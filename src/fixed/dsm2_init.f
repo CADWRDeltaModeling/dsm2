@@ -50,20 +50,22 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 	use rate_coeff_assignment,only:initialize_rate_coefficient
       use IO_Units, only: unit_output
       use Gates, only: GATE_OPEN, GATE_FREE
-      USE DFLIB                 !! <NT>
-      
+      use dflib              !! <NT>
+      use constants
+      use logging
+      use runtime_data
+      use iopath_data
+      use grid_data
+      use common_qual
+      use common_ptm
+
+      use common_tide
 c-----initialize variables for DSM2
 
       implicit none
-
-      include 'common.f'
-      include 'common_ptm.inc'
-      include 'common_qual.inc'
-      include '../hdf_tidefile/common_tide.f'
       include '../timevar/dss.inc'
       include '../timevar/writedss.inc'
       include '../timevar/readdss.inc'
-      include '../hdf_tidefile/tide.inc'
       include '../hydrolib/network.inc'
       
 c-----local variables
@@ -75,28 +77,9 @@ c-----local variables
      &     ,itmp1,itmp2         ! temp variables
      &     ,getpid              ! unix fortran system call to get process ID
      &     ,ihr,imin,isec,ihundredth
-      data
-     &     run_start_date /' '/
-     &     ,run_end_date /' '/
-     &     ,run_length /' '/
-     &     ,tf_start_date /' '/
-     &     ,flush_intvl /'5DAY'/
-     &     ,display_intvl /' '/
-     &     ,temp_dir /' '/
-     &     ,print_start_date /max_print_dates*' '/
-     &     ,print_end_date /max_print_dates*' '/
-     &     ,time_step_intvl_hydro /' '/
-     &     ,time_step_intvl_qual /' '/
-     &     ,time_step_intvl_ptm /' '/
-     &     ,tide_cycle_length /' '/
-     &     ,dss_direct /.TRUE./
-     &     ,binary_output /.FALSE./
-     &     ,need_tmp_outfiles /.FALSE./
+
 
 c-----filled in check_fixed
-      data
-     &     nonconserve_list / max_constituent * ' ' /
-
       print_level=miss_val_i
 
 
@@ -118,83 +101,12 @@ c-----filled in check_fixed
       obj_names(obj_stage)='stage'
       obj_names(obj_null)=miss_val_c
 
-      do i=0,max_nodes
-         node_geom(i).boundary_type=miss_val_i
-	   node_geom(i).qual_int=.false.
-      enddo
-
-      do i=1,max_reservoirs
-         res_geom(i).inUse=.false.
-         res_geom(i).id=0
-         res_geom(i).name=' '
-         res_geom(i).nnodes=0
-         coeff_res_name(i)=' '
-      enddo
-
-      do i=0,max_inputpaths
-         pathinput(i).use=.false.
-         pathinput(i).name=' '
-         pathinput(i).filename=' '
-         pathinput(i).object_name=' '
-         pathinput(i).path=' '
-         pathinput(i).a_part=' '
-         pathinput(i).b_part=' '
-         pathinput(i).c_part=' '
-         pathinput(i).e_part=' '
-         pathinput(i).f_part=' '
-         pathinput(i).start_date=' '
-         pathinput(i).interval=' '
-         pathinput(i).ID=' '
-         pathinput(i).per_type=miss_val_i
-         pathinput(i).sign=' '
-         pathinput(i).object=miss_val_i
-         pathinput(i).object_no=miss_val_i
-         pathinput(i).constant_value=miss_val_r
-         pathinput(i).value=miss_val_r
-         pathinput(i).mass_frac=1.0 ! default, take 100% of mass in a sink
-         pathinput(i).priority=0 ! no priority default
-         pathinput(i).fillin=miss_val_i
-         pathinput(i).use_flag=miss_val_i
-      enddo
-
-      do i=1,max_dssinfiles
-         infilenames(i)=' '
-      enddo
-
-      do i=1,max_outputpaths
-         pathoutput(i).use=.false.
-         pathoutput(i).filename=' '
-         pathoutput(i).path=' '
-         pathoutput(i).name=' '
-         pathoutput(i).object_name=' '
-         pathoutput(i).meas_type=' '
-         pathoutput(i).interval=' '
-         pathoutput(i).modifier=' '
-         pathoutput(i).a_part=' '
-         pathoutput(i).b_part=' '
-         pathoutput(i).c_part=' '
-         pathoutput(i).e_part=' '
-         pathoutput(i).f_part=' '
-         pathoutput(i).object=miss_val_i
-         pathoutput(i).object_no=miss_val_i
-         pathoutput(i).flux_from_ndx=miss_val_i
-         pathoutput(i).flux_to_ndx=miss_val_i
-         pathoutput(i).flux_from_type=miss_val_i
-         pathoutput(i).flux_to_type=miss_val_i
-         pathoutput(i).source_group_ndx=miss_val_i
-      enddo
-
       need_tmpfile_min15=.false.
       need_tmpfile_hour1=.false.
       need_tmpfile_day1=.false.
       need_tmpfile_week1=.false.
       need_tmpfile_month1=.false.
       need_tmpfile_year1=.false.
-
-      do i=1,max_dssoutfiles
-         outfilenames(i)=' '
-      enddo
-
       output_filename=' '
       iu=unit_output+1
       do i=1,max_iogroups
@@ -209,7 +121,7 @@ c-----filled in check_fixed
          enddo
       enddo
 
-c-----groups. initialize the "wildcard" grou
+c-----groups. initialize the "wildcard" group
       call InitGroupAll()
 
 
@@ -229,10 +141,7 @@ c-----default HDF5 output intervals
       io_files(qual,io_hdf5,io_write).interval='15MIN'
       io_files(ptm,io_hdf5,io_write).interval='15MIN'
 
-      do i=1,max_xsects
-         xsect_geom(i).init_stage=miss_val_r
-         xsect_geom(i).init_flow=miss_val_r
-      enddo
+
 
       current_tidefile=miss_val_i
       do i=1,max_tide_files
@@ -241,12 +150,6 @@ c-----default HDF5 output intervals
          tide_files(i).filename=' '
       enddo
 
-      do i=1,max_constituent
-         constituents(i).name=' '
-         constituents(i).group_ndx=miss_val_i
-         constituents(i).object=miss_val_i
-         constituents(i).object_no=miss_val_i
-      enddo
 
       do i=1,max_injection
          part_injection(i).slength=' '
@@ -256,18 +159,6 @@ c-----default HDF5 output intervals
          part_injection(i).type=' '
       enddo
 
-      do i=1,max_qext
-         qext(i).obj_name=' '
-         qext(i).attach.obj_name=' '
-         qext(i).mass_frac=1.0  ! default, take 100% of mass in a sink
-      enddo
-
-      do i=1,max_obj2obj
-         obj2obj(i).use=.false.
-         obj2obj(i).name=' '
-         obj2obj(i).from.mass_frac=1.0 ! default, take 100% of mass in a sink
-         obj2obj(i).to.mass_frac=1.0 ! default, take 100% of mass in a sink
-      enddo
 
 c-----set non-conservative constituent names for DSS C part
       nonconserve_list(ncc_do)='do'

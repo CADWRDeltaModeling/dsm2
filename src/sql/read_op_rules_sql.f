@@ -20,9 +20,9 @@ c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
       use IO_Units
+      use logging
+      use constants
       implicit none
-
-      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

@@ -13,10 +13,10 @@ c-----load f90SQL modules
       use DSM2_database
 	use Groups, only: groupContains,IsAllChannelReservoir,groupArray
 	use rate_coeff_assignment,only:assign_rate_to_group,rate_var_require_flag
+	use common_qual
+	use constants
+	use logging
       implicit none
-
-      include '../fixed/common.f'
-	include '../fixed/common_qual.inc'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

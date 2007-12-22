@@ -50,10 +50,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 C-----This subroutine distributes any unbalanced flow
 C-----in a junction to the connecting channels
       use IO_Units
+      use grid_data
+      use common_tide
+      use runtime_data
       implicit none
       include 'param.inc'
-      include '../fixed/common.f'
-      include '../hdf_tidefile/common_tide.f'
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'
@@ -64,7 +65,7 @@ C-----Local variables
       real*8 objflow,massrate(max_constituent) ! flow and massrate at object
       real*8 totflo, totabsflo
       real*8, parameter :: REL_CONTINUITY_TOL =1.D-4 ! fractional node imbalance allowed
-      real*8, parameter :: ABS_CONTINUITY_TOL =5.D-2 ! exception for small absolute flows
+      real*8, parameter :: ABS_CONTINUITY_TOL =5.D-3 ! exception for small absolute flows
 
       do 100 jn=1,nnodes
          if (node_geom(jn).qual_int) then
@@ -91,7 +92,7 @@ c-----------external, internal flows, and rservoir-node flows
             totflo=totflo+objflow
             call node_rate(jn,FROM_OBJ,0,objflow,massrate)
             totflo=totflo+objflow
-            if(totabsflo.NE.0)then
+            if(totabsflo .NE. 0.d0)then
                if(abs(totflo)/totabsflo .GT. REL_CONTINUITY_TOL
      &              .and. abs(totflo) .gt. ABS_CONTINUITY_TOL )then !
                   if (julmin .le. start_julmin+tide_files(1).interval) then

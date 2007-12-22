@@ -46,7 +46,10 @@ C!
 C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       subroutine check_fixed_qual(istat)
-
+      use common_tide
+      use common_qual
+      use runtime_data
+      use grid_data
 c-----Check the fixed input for omissions and errors before starting
 c-----the model run.  Supply default values where possible.  Translate
 c-----from nodes to channel numbers, and from external channel numbers
@@ -56,8 +59,6 @@ c-----to internal.  Write to Qual arrays.
 	use rate_coeff_assignment,only:rate_coeffs_to_waterbodies,check_rate_for_waterbody
       implicit none
 
-      include 'common.f'
-      include 'common_qual.inc'
       include '../qual/param.inc'
       include '../qual/bltm1.inc'
       include '../qual/bltm3.inc'
@@ -66,7 +67,6 @@ c-----to internal.  Write to Qual arrays.
       include '../timevar/dss.inc'
       include '../timevar/readdss.inc'
       include '../timevar/writedss.inc'
-      include '../hdf_tidefile/common_tide.f'
 
 c-----Local variables
 

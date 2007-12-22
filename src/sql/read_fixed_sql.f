@@ -17,8 +17,9 @@
       subroutine read_sql(istat)
       use dsm2_database
 	use groups, only: ConvertGroupPatternsToMembers
+      use runtime_data
+      use iopath_data
       implicit none
-      include '../fixed/common.f'
 
       integer :: istat          ! status
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -98,17 +99,22 @@ c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
       use IO_Units
+      use logging
       Use PhysicalConstants
       use dsm2_database
+      use constants
+      use runtime_data
+      use iopath_data
+      use common_qual
+      use common_ptm
+
       implicit none
 
       include '../hydrolib/network.inc'
       include '../hydrolib/netcntrl.inc'
       include '../hydrolib/chconnec.inc'
 
-      include '../fixed/common.f'
-      include '../fixed/common_ptm.inc'
-      include '../fixed/common_qual.inc'
+
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
@@ -447,24 +453,6 @@ c--------------keyword 'length' means use channel length for each delta x
             else if (Param .eq. 'luinc') then
                read(Value,'(i5)', err=810) luinc
 
-            else if (Param .eq. 'repeating_tide') then
-               read(Value,'(l2)', err=810) repeating_tide
-
-            else if (Param .eq. 'warmup_run') then
-               read(Value,'(l2)', err=810) warmup_run
-
-            else if (Param .eq. 'max_tides') then
-               read(Value,'(i5)', err=810) max_tides
-
-            else if (Param .eq. 'tide_length') then
-               tide_cycle_length=Value
-
-            else if (Param .eq. 'toler_stage') then
-               read(Value,'(f10.0)', err=810) repeat_stage_tol
-
-            else if (Param .eq. 'toler_flow') then
-               read(Value,'(f10.0)', err=810) repeat_flow_tol
-
             else if (Param .eq. 'printlevel') then
                if(print_level .eq. miss_val_i) then
                                 ! setting this over the text value will cause
@@ -566,6 +554,12 @@ c--------------keyword 'length' means use channel length for each delta x
 	         write(unit_error,610)"ptm_shear_vel not used in this version of PTM"
                istat=-2
 	         goto 900
+            else if (Param .eq. 'repeating_tide') then
+	         write(unit_error,610)"repeating tide is deprecated"
+	         goto 900	         
+            else if (Param .eq. 'warmup_run') then
+	         write(unit_error,610)"repeating tide is deprecated"
+	         goto 900	         
             else
                write(unit_error,610), Param, Value
                istat=-1
@@ -630,8 +624,8 @@ c-----char-to-value conversion errors
       integer*4 function sqlTime2JulMin(time)
 c-----convert sql timestamp structure into a julian minute
       use f90SQLStructures
+      use grid_data
       implicit none
-      include '../fixed/common.f'
       type(TIMESTAMP_STRUCT) :: time
 
       integer*4
@@ -657,9 +651,8 @@ c     by the database. It is not the external map number and it
 c     is not the internal model number
       use IO_Units
       use gates, only: nGate, gateArray
-      use Groups, only: nGroup, groupArray
-
-      include '../fixed/common.f'
+      use groups, only: nGroup, groupArray
+      use grid_data
 
 c-----arguments
       integer*4
@@ -719,8 +712,8 @@ c-----local variables
 
 c     get the integer type code given a character string representing the type
       integer*4 function obj_type_code(objtype)
+      use constants
 	implicit none
-	include '../fixed/common.f'
 	character*(*) :: objtype
       character*32  :: cstring
 	obj_type_code=miss_val_i
@@ -758,7 +751,6 @@ c-----load f90SQL modules
       use IO_Units
       implicit none
 
-      include '../fixed/common.f'
 
       integer(SQLHANDLE_KIND)::Hndl
       integer(SQLSMALLINT_KIND)::HndlType

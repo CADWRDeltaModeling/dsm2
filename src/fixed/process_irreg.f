@@ -48,11 +48,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       subroutine process_irreg
 
 c-----Assign cross-sections to channels
-      use IO_Units
+      use io_units
+      use grid_data
+      use logging
+      use common_xsect
       implicit none
-
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
 c-----local variables
       integer maxf              ! maximum number of fields in data files
@@ -134,10 +134,10 @@ c-----Cross-sections that are within a specified distance from the end of a chan
 c-----are moved to the end.  Cross-sections are also copied to the ends of channels
 c-----if it will not be possible to interpolate.
       Use IO_Units
+      use grid_data
+      use common_xsect
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
 c-----local variables
 
@@ -170,11 +170,9 @@ c-----(defined in the input file) only.
       subroutine sort_assignments
 
 c-----sort assignments by dist from upstream end
-
+      use common_xsect
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
 c-----local variables
 c-----do loop counters
@@ -221,11 +219,11 @@ c-----sorting variables
 
 c-----Move cross-sections to channel endpoints if within specified dist from end.
 c-----Cross-sections are moved by changing the value of xsect_assg().dist.
+      use common_xsect
+      use grid_data
 
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
       integer
      &     i
@@ -298,11 +296,10 @@ c-----copy distances from irreg_geom() to xsect_assg()
       subroutine copy_xsects
 
 c-----Copy cross-sections to ends of channels
-
+      use grid_data
+      use common_xsect
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
       integer
      &     i
@@ -400,10 +397,11 @@ c-----Assign cross-sections in adjacent channels to current channel
 c-----(for interpolation).  Upstream distance will be < 0; downstream distance will
 c-----be > channel length.
       Use IO_Units
+      use grid_data
+      use common_xsect
+      use constants
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
       integer
      &     i
@@ -579,10 +577,10 @@ c-----This subroutine prints an error message when the rectangular cross-section
 c-----that are assigned to both sides of a node connected to two channels are
 c-----different.
       use IO_Units
+      use grid_data
+      use common_xsect
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
       integer
      &     channo               ! current channel number
@@ -635,10 +633,10 @@ c-----don't print message if adj_end is downstream and adj_near_end is upstream
 c-----This subroutine prints a list of all the irregular cross-sections and a list
 c-----of the cross-section assignments.
       use IO_Units
+      use grid_data
+      use common_xsect
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
       integer
      &     j
@@ -709,11 +707,11 @@ c-----attached to the upstream and downstream ends, the numbers of the
 c-----channels that are attached to the upstream and downstream ends,
 c-----and the numbers of the cross-sections that are assigned to the
 c-----adjacent ends of the adjacent channels.
-
+      use grid_data
+      use common_xsect
+      use constants
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
       
 c-----local variables
       

@@ -113,9 +113,9 @@ c	end if
 	end subroutine
 
 
-      subroutine open_database(istat)      
+      subroutine open_database(istat)
+      use logging
       implicit none
-	include '../fixed/common.f'
       integer(SQLRETURN_KIND) iret
       integer istat
 c-----allocate an environment handle
@@ -189,10 +189,11 @@ c-----Allocate statement handle
 
 c-----load f90SQL modules
       use f90SQLConstants
-      use f90SQL
+      use f90SQL 
       use IO_Units
+      use logging
       implicit none
-      include '../fixed/common.f'
+
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

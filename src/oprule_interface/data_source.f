@@ -1,13 +1,16 @@
 *=================================================
 
       real*8 function fetch_data(source)
+      use type_defs
+      use constants
+      use iopath_data
       implicit none
 c----- Fetch time varying data from a data source such as
 c      DSS, an expression or a constant value
       real*8 get_expression_data
 	external get_expression_data
-      include '../fixed/common.f'
-	record /datasource_s/ source
+      
+	type(datasource_t) ::  source
 
       if (source.source_type .eq. const_data)  then
        fetch_data=source.value

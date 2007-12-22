@@ -50,12 +50,13 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----process a character line into data arrays for
 c-----tide file info.
-      Use IO_Units
+      use io_units
+      use constants
+      use common_tide
       implicit none
 
-      include 'common.f'
+
       include '../hydrolib/network.inc'
-      include '../hdf_tidefile/common_tide.f'
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -90,7 +91,7 @@ c-----local variables
       character
      &     input_line*250       ! raw input line
       common /input_lines/ input_line
-      data nintides /1/
+
 
 c! The optional starting and ending datetimes specify when to use
 c! each tidefile; they override the timestamp in the tidefile
@@ -217,64 +218,6 @@ c-----------determine if binary or HDF5 tidefile
 
       end
 
-      subroutine input_qualbin(field_names, mxflds, nfields, nflds,
-     &     ifld, rifld, line, ibegf, ilenf, istat)
-
-c-----process a character line into data arrays for
-c-----tide file info.
-
-      implicit none
-
-      include 'common.f'
-      include '../hdf_tidefile/common_qual_bin.inc'
-
-      logical
-     &     ldefault             ! true if values are for defaults
-      common /read_fix_l/ ldefault
-
-c-----local variables
-
-      integer
-     &     mxflds               ! maximum number of fields
-     &     ,nfields             ! number of fields in data line (input)
-     &     ,nflds               ! number of fields in headers (input)
-     &     ,ifld(mxflds)        ! ifld(i)=order header keyword i occurs in file (input)
-     &     ,rifld(mxflds)       ! reverse ifld
-     &     ,ibegf(mxflds)       ! beginning position of each field in line (input)
-     &     ,ilenf(mxflds)       ! length of each field in line (input)
-     &     ,istat               ! conversion status of this line (output)
-
-      character line*(*)        ! line from file (input)
-      character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
-
-      integer
-     &     i                    ! index
-
-      integer*4
-     &     incr_intvl           ! increment julian minute by interval function
-
-      character
-     &     cstring*80           ! string field
-
-      character
-     &     input_line*250       ! raw input line
-      common /input_lines/ input_line
-
-      i=1
-      do while (i .le. nfields)
-         cstring=' '
-         cstring=line(ibegf(i):ibegf(i)+ilenf(i)-1)
-
-         if (rifld(i) .eq. binary_fname) then
-            qual_bin_file.filename=
-     &           input_line(ibegf(i):ibegf(i)+ilenf(i)-1) ! use raw input to preserve case
-         endif
-         i=i+1
-      enddo
-
-      return
-
-      end
 
       subroutine input_outputpath(field_names, mxflds, nfields, nflds,
      &     ifld, rifld, line, ibegf, ilenf, istat)
@@ -283,10 +226,9 @@ c-----process a character line into data arrays for
 c-----print out info: names and type of data to print
       Use IO_Units
 	Use Groups, only : GROUP_ALL
+	use iopath_data
       implicit none
       
-      include 'common.f'
-
       logical
      &     ldefault             ! true if values are for defaults
       common /read_fix_l/ ldefault
@@ -323,7 +265,6 @@ c-----local variables
      &     input_line*250       ! raw input line
       common /input_lines/ input_line
 
-      data noutpaths /0/
 
  610  format(/a)
  620  format(/a
@@ -498,10 +439,11 @@ c-----char-to-value conversion errors
 c-----process a character line into data arrays for
 c-----output file names
       Use IO_Units
+      use iopath_data
+      use constants_ptm
+      use common_ptm
       implicit none
 
-      include 'common.f'
-      include 'common_ptm.inc'
 c-----local variables
 
       integer
@@ -652,10 +594,10 @@ c-----fill in structure
 
 c-----process a character line into data arrays for
 c-----quadrature integration info
-      Use IO_Units
+      use io_units
+      use constants
+      use grid_data
       implicit none
-
-      include 'common.f'
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -683,8 +625,7 @@ c-----local variables
       character
      &     cstring*15           ! string field
 
-      data nquadpts /1/
-
+!todo: is the initialization of nquadpts OK?
  620  format(/a
      &     /'Input string is: ',a)
  630  format(/a,f10.2)
@@ -741,10 +682,12 @@ c-----char-to-value conversion errors
 
 c-----process a character line into data arrays for
 c-----pseudo environment variable info
-      Use IO_Units
+      use io_units
+      use iopath_data
+      use constants
       implicit none
 
-      include 'common.f'
+      include '../common/common.f'
 
       character
      &     input_line*250       ! raw input line
@@ -822,7 +765,13 @@ c-----name required for each line; empty value indicates erase it
 
       use PhysicalConstants
       use IO_Units
-
+      use logging      
+      use constants
+      use common_qual
+      use runtime_data
+      use grid_data
+      use iopath_data
+      use common_ptm
 c-----process a character line into data arrays for scalar info
 
       implicit none
@@ -831,9 +780,6 @@ c-----process a character line into data arrays for scalar info
       include '../hydrolib/netcntrl.inc'
       include '../hydrolib/chconnec.inc'
 
-      include 'common.f'
-      include 'common_qual.inc'
-      include 'common_ptm.inc'
       logical
      &     ldefault             ! true if values are for defaults
       common /read_fix_l/ ldefault
@@ -858,7 +804,7 @@ c-----local variables
      &     ,cstring2*48         ! string field for keyword or value
      &     ,ctmp*48             ! scratch character variable
 
-      data nprints /1/
+
 
 c-----defaults
 
@@ -1109,23 +1055,6 @@ c--------keyword 'length' means use channel length for each delta x
       else if (cstring1 .eq. 'luinc') then
          field_names(1)=cstring1
          read(cstring2,'(i5)', err=810) luinc
-      else if (cstring1 .eq. 'repeating_tide') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) repeating_tide
-      else if (cstring1 .eq. 'warmup_run') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) warmup_run
-      else if (cstring1 .eq. 'max_tides') then
-         field_names(1)=cstring1
-         read(cstring2,'(i5)', err=810) max_tides
-      else if (cstring1 .eq. 'tide_length') then
-         tide_cycle_length=cstring2
-      else if (cstring1 .eq. 'toler_stage') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) repeat_stage_tol
-      else if (cstring1 .eq. 'toler_flow') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) repeat_flow_tol
       else if (cstring1 .eq. 'printlevel') then
          field_names(1)=cstring1
          read(cstring2,'(i5)', err=810) print_level
@@ -1244,10 +1173,11 @@ c-----char-to-value conversion errors
 c-----process a character line into data arrays for particle flux counting
       use IO_Units
 	use Groups, only: GROUP_ANY_INDEX
+	use iopath_data
+      use common_ptm
+      use constants_ptm
       implicit none
 
-      include 'common.f'
-      include 'common_ptm.inc'
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -1436,10 +1366,12 @@ c      noutpaths=noutpaths+1
  
 c-----process a character line into data arrays for particle group output
       use IO_Units
+      use iopath_data
+      use common_ptm
+      use constants_ptm
+      !use ptm_local   !todo: why is ptm_local leaking into common?
       implicit none
- 
-      include 'common.f'
-      include 'common_ptm.inc'
+
  
       logical
      &     ldefault             ! true if values are for defaults
@@ -1540,7 +1472,6 @@ c--------------accumulate unique dss output filenames
       pathoutput(noutpaths).meas_type='ptm_group'
       pathoutput(noutpaths).units='percent'
       pathoutput(noutpaths).per_type=per_type_inst_cum
- 
 
 	ngroup_outputs=ngroup_outputs+1
 
@@ -1572,10 +1503,9 @@ c--------------accumulate unique dss output filenames
 c-----process a character line into data arrays for
 c-----particle injection over time periods
       use IO_Units
+      use constants_ptm
+      use common_ptm
       implicit none
-
-      include 'common.f'
-      include 'common_ptm.inc'
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -1602,8 +1532,7 @@ c-----local variables
       character
      &     cstring*80           ! string field
 
-      data npartno /1/
-
+ 
  610  format(/a)
  620  format(/a
      &     /'Input string is: ',a)
@@ -1628,29 +1557,13 @@ c-----local variables
          else if (rifld(i) .eq. partno_length) then
             part_injection(npartno).length=cstring
          else if (rifld(i) .eq. partno_sdate) then
-            if (index(cstring,'gen') .gt. 0) then
-               part_injection(npartno).start_date=generic_date
-            else
-               part_injection(npartno).start_date(1:9)=cstring(1:9)
-            endif
+            part_injection(npartno).start_date(1:9)=cstring(1:9)
          else if (rifld(i) .eq. partno_stime) then
-            if (index(cstring,'gen') .gt. 0) then
-               part_injection(npartno).start_date=generic_date
-            else
                part_injection(npartno).start_date(11:14)=cstring(1:4)
-            endif
          else if (rifld(i) .eq. partno_edate) then
-            if (index(cstring,'gen') .gt. 0) then
-               part_injection(npartno).end_date=generic_date
-            else
                part_injection(npartno).end_date(1:9)=cstring(1:9)
-            endif
          else if (rifld(i) .eq. partno_etime) then
-            if (index(cstring,'gen') .gt. 0) then
-               part_injection(npartno).end_date=generic_date
-            else
                part_injection(npartno).end_date(11:14)=cstring(1:4)
-            endif
          else if (rifld(i) .eq. partno_type) then
             part_injection(npartno).type=cstring
          endif
@@ -1687,15 +1600,14 @@ c-----char-to-value conversion errors
 
 c-----process a character line into data arrays for
 c-----channnels and open water areas contained in groups
-      Use IO_Units
-	Use Groups,only:GroupArray,GroupMember,nGroup,AddGroupMembers,
-     &                MAX_GROUPS,MAX_MEMBER_PATTERNS,
-     &                NumberMatches,RetrieveMatch
+      use io_units
+	use groups
+      use constants
+      use constants_ptm
 	
       implicit none
 
-      include 'common.f'
-      include 'common_ptm.inc'
+      
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -1802,11 +1714,13 @@ c-----char-to-value conversion errors
 c-----process a character line into data arrays for
 c-----channel coefficient info
       use IO_Units
+      use common_qual
+      use constants
+      use grid_data
+      use common_xsect
       implicit none
 
-      include 'common.f'
-      include 'common_qual.inc'
-      include 'common_irreg_geom.f'
+
 
 c-----local variables
 

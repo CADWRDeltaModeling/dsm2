@@ -80,6 +80,8 @@ c
 
       logical function CalculateReservoirFlow()
       use IO_Units
+      use grid_data
+      use constants
       implicit none
 
 *   Purpose:  Compute flow between reservoirs and channels
@@ -92,10 +94,9 @@ c
       include 'network.inc'
       include 'chconnec.inc'
       include 'solver.inc'
-      include '../fixed/common.f'
 
 *   Local Variables:
-      integer ChanCompPt,ChannelConnect,ChannelRow
+      integer ChanCompPt,ChannelConnect
       integer ResIndex,ResRow,NodeContinuityRow
       integer i,j,DF
       parameter(DF = 2)
@@ -103,10 +104,10 @@ c
       real*8 Theta
       real*8 dVdtKnown
       real*8 knownresflow
-	real*8 ResEqResidual,dResEqdZres,val
+	real*8 ResEqResidual,dResEqdZres
 	real*8 dResEqdQ,coefSqrtTwoG
 
-      real*8 y1,y2,dy,q1,dT,qCalc
+      real*8 y1,y2,dy,q1,dT
       logical OK
 
 *   Routines by module:
@@ -128,7 +129,7 @@ c
       logical AddAtLocation,StoreAtRow,AddAtRow,ForwardElim
       External AddAtLocation,StoreAtRow,AddAtRow,ForwardElim
 
-      logical InitReservoirFlow
+
 
 *   Programmed by: Parviz Nader
 *   Date:          August 1992
@@ -227,6 +228,7 @@ c     &         res_geom(i).name,i,j,dy, y1, y2, coefSqrtTwoG, QRes(i,j), ResEqR
 
       logical FUNCTION InitReservoirFlow()
       use IO_Units
+      use grid_data
       implicit none
 
 *   Purpose:  Compute flow between reservoirs and channels
@@ -239,10 +241,10 @@ c     &         res_geom(i).name,i,j,dy, y1, y2, coefSqrtTwoG, QRes(i,j), ResEqR
       include 'network.inc'
       include 'chconnec.inc'
       include 'solver.inc'
-      include '../fixed/common.f'
+
 
 *   Local Variables:
-      integer ChanCompPt,ChannelConnect,ChannelRow
+      integer ChanCompPt,ChannelConnect
       integer i,j,DF
       parameter(DF = 2)
       real*8 y1,y2,dy

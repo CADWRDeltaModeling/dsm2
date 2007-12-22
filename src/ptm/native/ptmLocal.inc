@@ -56,7 +56,7 @@ c----- stage boundaries
       integer*2 maxStageBoundaries
       parameter( maxStageBoundaries = 5 )
       integer*2 nStageBoundaries
-      record /qext_s/ stageBoundary(maxStageBoundaries)
+      type(qext_t) stageBoundary(maxStageBoundaries)
       common /stg_bound/ stageBoundary, nStageBoundaries
 c----- waterbodies ( curret memory estimate ~ 136 kb)
       integer*2 max_wbs, max_nodes_per_wb, max_groups

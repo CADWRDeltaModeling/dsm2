@@ -50,7 +50,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 C-----This subroutine performs a set of calculation to be used
 C-----as a diagnostic test or mass tracking
 C-----The tasks completed here is based an COMMAND
-      Use IO_Units
+      use io_units
+      use logging
+      use grid_data
+      use constants
+      
       IMPLICIT NONE
       INTEGER COMMAND
 
@@ -60,7 +64,6 @@ C-----------------in all the channels and reservoirs.
 C-----=2   Calculate the amount of constituent entering and leaving
  
       INCLUDE 'param.inc'
-      INCLUDE '../fixed/common.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -278,10 +281,12 @@ c--------------------need to change the sign. See above
 c-------------------------------------------------open_masstrack_output_files
       subroutine open_masstrack_output_files(CONS_NO)
       Use IO_Units
+      use logging
+      use grid_data
+      use common_qual
       implicit none
       INCLUDE 'param.inc'
-      INCLUDE '../fixed/common.f'
-      INCLUDE '../fixed/common_qual.inc'
+
       INCLUDE 'bltm1.inc'
 
                                 ! local variables
@@ -335,12 +340,13 @@ c-----initialize masstrack through boundary lines
       
 c-----reservoir_salinity_update_formtk
       subroutine reservoir_salinity_update_formtk(res_num_clfct)
-      Use IO_Units
+      use IO_Units
+      use grid_data
+      use logging
+      use runtime_data
       implicit none
 
       INCLUDE 'param.inc'
-
-      INCLUDE '../fixed/common.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -390,11 +396,12 @@ c--------------roundoff error. Not a big deal
 c-----print_results_for_masstracking
       subroutine print_results_for_masstracking
       Use IO_Units
+      use logging
+      use runtime_data
+      use grid_data
       implicit none
       INCLUDE 'param.inc'
 
-      INCLUDE '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'
@@ -520,11 +527,11 @@ c-----------mass tracking by region
 c-----read_input_data_for_masstracking
       subroutine read_input_data_for_masstracking
       Use IO_Units
+      use common_qual
+      use logging
       implicit none
       INCLUDE 'param.inc'
 
-      INCLUDE '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'
@@ -745,11 +752,11 @@ c-----read_nodeflags_for_masstracking_region
 c-----This subroutine records the flags for the nodes contained within the
 c-----mass tracking region.
 c-----The flags are set true if they are located on either end of the channel.
+      use grid_data
       implicit none
 
       INCLUDE 'param.inc'
 
-      INCLUDE '../fixed/common.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -779,12 +786,10 @@ c-----update_resvol_for_masstracking_region
 c-----This subroutine records the flags for the nodes contained within the
 c-----mass tracking region.
 c-----The flags are set true if they are located on either end of the channel.
+      use common_tide
       implicit none
 
       INCLUDE 'param.inc'
-
-      INCLUDE '../fixed/common.f'
-      INCLUDE '../hdf_tidefile/common_tide.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -830,11 +835,10 @@ c-----The flags are set true if they are located on either end of the channel.
       end
 
       subroutine determine_mass_in_delta(totconstit_adjust)
+      use common_qual
       IMPLICIT NONE
       
       INCLUDE 'param.inc'
-      INCLUDE '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

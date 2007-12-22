@@ -776,6 +776,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       LOGICAL FUNCTION ScreenNetworkStatus()
       use IO_Units
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Write network iteration/timestep information to screen.
@@ -787,7 +788,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 *   Module data:
       INCLUDE 'network.inc'
       INCLUDE 'netcntrl.inc'
-      INCLUDE '../fixed/common.f'
+
 
 *   Local Variables:
       CHARACTER*1 Star, Blank
@@ -852,6 +853,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       LOGICAL FUNCTION IntermediateNetworkResults()
       use IO_Units
+      use runtime_data
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Report values of variables, current iteration.
@@ -864,7 +867,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'network.inc'
       INCLUDE 'netcntrl.inc'
 
-      include '../fixed/common.f'
+ 
 
 *   Local Variables:
       INTEGER PrintUnit
@@ -1128,6 +1131,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       LOGICAL FUNCTION ReportNetworkStatus()
       use IO_Units
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Report current status of flow in a network of open channels.
@@ -1138,7 +1142,6 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 *   Module data:
 
-      include '../fixed/common.f'
 
 *   Local Variables:
       INTEGER PrintUnit

@@ -52,14 +52,16 @@ c!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----Process Hydro tidefile data into arrays needed by Qual.
       Use IO_Units
+      use common_qual
+      use common_tide
+      use logging
+      use runtime_data
+      use grid_data      
       implicit none
 
       include 'param.inc'
       include '../hydrolib/network.inc'
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
-      include '../hdf_tidefile/common_tide.f'
-      include '../hdf_tidefile/tide.inc'
+
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'
@@ -190,10 +192,10 @@ c--------Now adjust the reservoirs
      &     ,tidefile)
 
 c-----Check Hydro tidefile for size compatibility with Qual.
-      Use IO_Units
+      use io_units
+      use grid_data
       implicit none
 
-      include '../fixed/common.f'
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm3.inc'

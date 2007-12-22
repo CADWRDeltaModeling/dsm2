@@ -78,9 +78,9 @@ c!    But if NEAREST_BOUNDARY is requested, and jmins is on a boundary,
 c!    then jmins will be returned for a positive interval; the previous
 c!    boundary will be returned for a negative interval.   
 
+      use constants
       implicit none
 
-      include 'misc.f'
 
       logical
      &     on_boundary          ! true if already on interval boundary
@@ -309,10 +309,8 @@ c-----and number of intervals (e.g. 1, 5).
 c-----Assume that every interval is unitary (e.g. 6HOUR means
 c-----six 1HOUR intervals, not a single interval of 6HOUR).
 c-----However 15MIN means a single 15MIN interval.
-
+      use constants
       implicit none
-
-      include 'misc.f'
 
       character e_part*(*)      ! DSS E part [INPUT]
      &     ,interval*(*)        ! DSS interval [RETURN]
@@ -378,10 +376,9 @@ c--------for minutes, treat 15MIN intervals as unit
 c-----Given a character date/time string (e.g. 05JAN1996 0530), and a
 c-----DSS E part interval (e.g. 1HOUR, 1MONTH), return the
 c-----corresponding portion from the date.
-
+      use constants
       implicit none
 
-      include 'misc.f'
 
 c-----subroutine arguments
 
@@ -425,10 +422,8 @@ c-----local variables
       integer*4 function cdt2jmin(cdatx)
 
 c-----Convert from character date/time to julian minute
-
+      use constants
       implicit none
-
-      include 'misc.f'
 
       character*(*) cdatx       ! character date/time (e.g. 05JUN1983 0510) (input)
 
@@ -460,10 +455,8 @@ c-----Convert from character date/time to julian minute
       character*14 function jmin2cdt(julmin)
 
 c-----Convert from julian minute to character date/time
-
+      use constants
       implicit none
-
-      include 'misc.f'
 
       integer*4 julmin          ! minutes since 31dec1899 2400
 
@@ -572,10 +565,9 @@ c-----in terms of years, months, days, hour, and minutes
 
 c-----Given a character DSS start date, and a character interval,
 c-----return the DSS character end date.
-
+      use constants
       implicit none
 
-      include 'misc.f'
 
       character*(*)
      &     start_date           ! DSS start date
@@ -782,10 +774,8 @@ c-----------if empty value, print warning
 
 c-----Look for ESTRING in the internal env vars list, if found return
 c-----its value in EVALUE
-
+      use iopath_data
       implicit none
-
-      include 'common.f'
       
       integer
      &     i                    ! index
@@ -843,16 +833,16 @@ c-----Given a flow value and an instance of an obj2obj array element,
 c-----return the from (Q>0) and the to object (Q<0), depending
 c-----on the flow direction (positive or negative).
 
+      use type_defs
+      use constants
       implicit none
 
-      include 'misc.f'
-      include 'defs.f'
 
 c-----args
 
       real*4 flow                 ! flow value
-      record /obj2obj_s/ obj2obj ! the obj2obj array element
-      record /from_to_s/ from,to ! the from and to substructure
+      type(obj2obj_t) obj2obj ! the obj2obj array element
+      type(from_to_t) from,to ! the from and to substructure
 
       if (flow .ge. 0) then
          from=obj2obj.from
@@ -870,9 +860,9 @@ c-----args
 c-----Return true if test_version is 'newer' or same as current_version;
 c-----false if older than current_version, or either current or test are blank
 
+      use constants
       implicit none
 
-      include 'misc.f'
 
 c-----arguments
 
@@ -934,10 +924,9 @@ c-----similar dot numbers differ, or when the end is reached.
 c-----Given a dotted version number string (e.g. '5.67.23'), and a dot
 c-----group (e.g. 2, counting from left), return the version number for
 c-----that group number (e.g. 67).
-
+      use constants
       implicit none
 
-      include 'misc.f'
 
 c-----arguments
       
@@ -987,10 +976,11 @@ c-----use dot as delimiter
       end
 
       subroutine get_command_args(init_input_file, SimName)
-
 c-----get optional starting input file from command line,
 c-----then from environment variables,
 c-----then default
+      use runtime_data
+      implicit none
 
 c-----arguments
       character SimName*(*)     ! ModelID in RDB
@@ -998,7 +988,6 @@ c-----arguments
       character
      &     init_input_file*(*)  ! initial input file on command line [optional]
 
-      include 'common.f'
 
 c-----local variables
       logical

@@ -6,20 +6,21 @@ c-----for given group index (if none given ignore group).
 
       Use IO_Units
       Use Groups,only: groupArray
+      use common_tide
+      use iopath_data
+      use grid_data      
       implicit none
 
       include 'param.inc'
       include '../hydrolib/network.inc'
-      include '../fixed/common.f'
-      include '../hdf_tidefile/common_tide.f'
-      include '../hdf_tidefile/tide.inc'
+
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'
 
 c-----local variables
       logical group_ndx_ok      ! true if flow's group match input
-     &     ,err_node(max_nodes) ! nodal error counter
+      logical, save :: err_node(max_nodes) ! nodal error counter
 
       integer
      &     intnode              ! internal node number [INPUT]
@@ -36,18 +37,16 @@ c-----local variables
      &     ,massrate(max_constituent) ! total external and internal massrate at node [OUTPUT]
      &     ,conc                ! flow concentration
      &     ,node_qual           ! node quality function
-     &     ,tol				  ! error tolerance
+      real*8 :: tol	= 1.0D-8    ! error tolerance
 
-      record /from_to_s/ from,to ! from and to objects
-	data tol /1.0E-4/
-      save err_node
+      type(from_to_t) from,to ! from and to objects
 
       objflow=0.0
       massrate=0.0
 
 c-----external flows
       i=1
-      do while (node_geom(intnode).qext(i) .ne. 0)
+      do while (node_geom(intnode).qext(i) .gt. 0) ! todo: bad way of looping nqext
          qndx=node_geom(intnode).qext(i)
          group_ndx_ok=
      &        group_ndx .eq. ALL_FLOWS .or.
@@ -62,6 +61,9 @@ c--------fixme:group need multiple group membership
             if (direction .eq. TO_OBJ .and.
      &           qext(qndx).avg .gt. tol) then ! direction and flow to node
                objflow=objflow + qext(qndx).avg
+               if (qndx == 5)then
+               print*,"hello"
+               end if
                if (n_conqext(qndx) .eq. 0 .and. .not. err_node(intnode)) then
                   err_node(intnode)=.true.
                   write(unit_error,610)

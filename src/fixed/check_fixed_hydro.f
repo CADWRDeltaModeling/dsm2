@@ -53,11 +53,17 @@ c-----from nodes to channel numbers, and from external channel numbers
 c-----to internal.  Write to FourPt arrays.
       use Gates, only:gateArray, nGate
       use PhysicalConstants
-      use IO_Units
-      implicit none
+      use IO_units
+      use logging
+      use grid_data
+      use runtime_data
+      use constants
+      use iopath_data
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
+      use common_xsect
+      use common_tide
+      implicit none
+      include '../common/common.f'
       include '../hydrolib/network.inc'
       include '../hydrolib/netcntrl.inc'
       include '../hydrolib/chconnec.inc'
@@ -66,8 +72,7 @@ c-----to internal.  Write to FourPt arrays.
       include '../timevar/dss.inc'
       include '../timevar/readdss.inc'
       include '../timevar/writedss.inc'
-      include '../hdf_tidefile/common_tide.f'
-	include '../hdf_tidefile/tide.inc'
+
 c-----Local variables
 
       integer*4
@@ -178,7 +183,7 @@ c-----check constants
 	  return
       end if
 
-
+ 
       nquadpts=nquadpts-1
 
       if (time_step_intvl_hydro .ne. ' ') then
@@ -844,6 +849,8 @@ c-----correspond to which nodes and reservoirs;
 c-----convert a DSM2 node number to a hydro connecting channel,
 c-----depending on input data type (flow or stage)
       use IO_Units
+      use grid_data
+      use constants
       implicit none
 
 c-----arguments
@@ -851,7 +858,7 @@ c-----arguments
       logical data_flow_type    ! true if input is flow type [INPUT]
 
 c-----include files
-      include 'common.f'
+
 
       include '../hydrolib/network.inc'
       include '../hydrolib/netcntrl.inc'
@@ -912,11 +919,12 @@ c--------check upstream channel end connections to node first...
 
 
       subroutine datasource_from_path(source,ndx,path)
+      use iopath_data
+      use constants
       implicit none
-	include 'defs.f'
-	include 'misc.f'
-      record /pathinput_s/ path
-	record /datasource_s/ source
+	
+      type(pathinput_t) path
+	type(datasource_t) source
 	integer ndx
 	if (path.constant_value .ne. miss_val_r) then
 	   source.value=path.constant_value

@@ -47,9 +47,8 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----convert a character interval to minutes
       subroutine CharIntvl2Mins(interval, minutes)
+      use constants
       implicit none
-
-      include '../../fixed/misc.f'
 
       integer*4 incr_intvl,minutes
       character interval*80
@@ -72,6 +71,8 @@ c-----$Id: ptmLocal.f,v 1.6.6.6 2007/07/31 18:30:41 eli2 Exp $
 
       real*8 function get_output(ptr)
       use io_units
+      use ptm_local
+      use iopath_data
       implicit none
 
       integer
@@ -79,8 +80,6 @@ c-----$Id: ptmLocal.f,v 1.6.6.6 2007/07/31 18:30:41 eli2 Exp $
 
 c-----global variables
 
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
 c-----local variables
       integer
      &     i
@@ -107,15 +106,14 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine process_tide(new_tidefile, 
      &     first_used_tidefile, curr_tidefile)
 
+      use common_tide
+      use ptm_local
 C-----Processes tide file input
       implicit none
 C-----This subroutine is called from read_mult_tide after reading in the tide
 C-----information
       include '../../hydrolib/network.inc'
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include '../../hdf_tidefile/tide.inc'
-      include 'ptmLocal.inc'
+
 c-----argumnents
       logical
      &     new_tidefile         ! true if new tidefile
@@ -151,9 +149,10 @@ c----- update all waterbody flows
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----sets the model julmin time just before calling read_mult_tide
       subroutine set_tidefile_time(modelTime)
+      use runtime_data
+      implicit none
       integer*4 modelTime
       character*14 jmin2cdt
-      include '../../fixed/common.f'
       julmin = modelTime
       current_date=jmin2cdt(julmin)
       return
@@ -165,7 +164,6 @@ c-----Check Hydro tidefile for size compatibility with PTM.
      &     ,tidefile)
       implicit none
 
-      include '../../fixed/common.f'
 
 ! c-----argumnents
       integer
@@ -180,10 +178,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine read_ptm(init_input_file)
 	use IO_Units
 	use dsm2_database
+      use iopath_data
 	use groups,only:ConvertGroupPatternsToMembers,PrintGroupMembers
+      use common_ptm
 	implicit none
-      include '../../fixed/common.f'
-	include '../../fixed/common_ptm.inc'
       integer istat
       character
      &     init_input_file*130  ! initial input file on command line [optional]
@@ -285,12 +283,13 @@ c      call PrintGroupMembers
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine init_flux_output()
+      use runtime_data
+      use constants
+      use common_ptm      
       implicit none
 
 c-----global variables
 
-      include '../../fixed/common.f'
-      include '../../fixed/common_ptm.inc'
       integer*4 next_output_flush,incr_intvl
       common /local/ next_output_flush
       character
@@ -317,11 +316,12 @@ c-----global variables
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine write_flux_output()
+      use runtime_data
+      use constants
       implicit none
 
 c-----global variables
 
-      include '../../fixed/common.f'
       character
      &     jmin2cdt*14          ! convert from julian minute to char date/time
       integer*4 next_output_flush,incr_intvl
@@ -345,10 +345,9 @@ c-----global variables
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine set_flux(fluxId, fluxValue)
+      use ptm_local
       implicit none
 c-----global variables
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
       integer fluxId
       real fluxValue
       flux(fluxId).fluxOut = fluxValue
@@ -357,11 +356,10 @@ c-----global variables
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine set_group(groupId, groupValue)
+      use ptm_local
+      use common_ptm      
       implicit none
 c-----global variables
-      include '../../fixed/common.f'
-      include '../../fixed/common_ptm.inc'
-      include 'ptmLocal.inc'
       integer groupId, tmpval
       real groupValue
       groupOut(groupId).value = groupValue
@@ -378,11 +376,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine echoversion()
-	use IO_UNITS
-	use Groups, only:WriteGroupMembers2File
+	use io_units
+	use runtime_data
+	use groups, only:WriteGroupMembers2File
+	use common_ptm
 	implicit none
-      include '../../fixed/common.f'
-      include '../../fixed/common_ptm.inc'
 	integer i
 c-----copyright notices
       write(unit_screen, 805)

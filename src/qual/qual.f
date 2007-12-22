@@ -49,6 +49,10 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       Use IO_Units
       USE DFLIB                 !! <NT>
       use dsm2_database
+      use common_qual
+      use common_tide
+      use runtime_data
+      use iopath_data
 
 C-----************ MULTIPLE BRANCH ESTUARY TRANSPORT MODEL
 c-----******************
@@ -148,10 +152,7 @@ C-----NOPR     Maximum number of parcels allowed in branch
 C-----(NOPR should be at least 20 + 2 times NOSC)
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../fixed/common.f'
-      INCLUDE '../fixed/common_qual.inc'
       INCLUDE '../hydrolib/network.inc'
-      INCLUDE '../hdf_tidefile/common_tide.f'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -770,9 +771,11 @@ c--------close all DSS output files
 
       call exit(0)
       END
+c==================================================
 
       subroutine read_boundary_values
-
+      use iopath_data
+      use grid_data
       implicit none
 
 c-----read time-varying data arrays for Qual
@@ -781,7 +784,6 @@ c-----subroutine arguments
 
 c-----common blocks
 
-      include '../fixed/common.f'
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
@@ -837,14 +839,14 @@ c-----common blocks
       end
 
       subroutine store_values
+      use common_qual
+      use iopath_data
       implicit none
 c-----Fill time-varying data arrays for Qual
 
 c-----common blocks
 
       include 'param.inc'
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'
@@ -903,13 +905,14 @@ c--------------flow ECs are handled in node_rate and res_rate
       subroutine restart_file(action)
 
 c-----read or write a restart file for qual
+      use common_qual
+      use runtime_data
+      use iopath_data
       Use IO_Units
       implicit none
 
 c-----include files
 
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm1.inc'
 
@@ -1048,16 +1051,18 @@ c-----subroutine to print the qual nodal constituents at
 c-----specified time steps in binary format.
 c-----Ganesh Pandey 11/22/1999
       subroutine WriteQualBinaryData
-
+      use common_tide
+      use grid_data
+      use iopath_data
+      use runtime_data
+      use grid_data      
       implicit none
 
-      INCLUDE 'param.inc'
+      include 'param.inc'
       include '../hydrolib/network.inc'
-      INCLUDE '../fixed/common.f'
-      include '../hdf_tidefile/common_tide.f'
-      include '../hdf_tidefile/tide.inc'
 
-      INCLUDE 'bltm1.inc'
+
+      include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'
 
@@ -1081,19 +1086,19 @@ c-----subroutine to print header for the qual nodal constituents
 c-----binary output file.
 c-----Ganesh Pandey 11/22/1999
       subroutine WriteQualBinaryDataHeader
-
+      use common_tide
+      use runtime_data
+      use iopath_data
+      use grid_data      
       implicit none
 
-      INCLUDE 'param.inc'
+      include 'param.inc'
       include '../hydrolib/network.inc'
-      INCLUDE '../fixed/common.f'
-      include '../hdf_tidefile/common_tide.f'
-      include '../hdf_tidefile/tide.inc'
+
 
       include '../timevar/dss.inc'
-                                !include '../timevar/readdss.inc'
 
-      INCLUDE 'bltm1.inc'
+      include 'bltm1.inc'
       include 'bltm2.inc'
       include 'bltm3.inc'
 
