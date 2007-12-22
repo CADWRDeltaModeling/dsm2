@@ -1,15 +1,13 @@
 	module inclvars
+	  use type_defs
 	  ! Module that loads include variables from DSM2
         include '../hydrolib/network.inc'
         include '../hydrolib/chconnec.inc'
         include '../hydrolib/chnlcomp.inc'
         include '../hydrolib/chstatus.inc'
         include '../hydrolib/chcxtbl.inc'
-        include '../fixed/common.f'
         include '../timevar/dss.inc'
         include '../timevar/readdss.inc'
-        include '../hdf_tidefile/tide.inc'
-        include '../hdf_tidefile/common_tide.f'
 	end module inclvars
 
 ***********************************************************************

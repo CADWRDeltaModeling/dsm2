@@ -47,22 +47,6 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----common block for  tide file (DSM2-Hydro binary file output)
 
-      integer
-     &     max_qext             ! maximum number of external flows
-     &     ,nqext               ! number of actual external flows
-c     &     ,nqext_changed       ! number of external flows that changed from last tideblock
-
-
-      parameter (
-     &     max_qext=1000
-     &     )
-
-      type(qext_t) qext(max_qext)
-      common /tidefile/
-     &     qext,nqext
-c	 &    ,nqext_changed
 
 c-----constituents connected to external flows
-      integer const_qext(max_qext,max_conqext)
-      integer n_conqext(max_qext) ! number of constituents at external flow
-      common /com_conqext/ const_qext, n_conqext
+

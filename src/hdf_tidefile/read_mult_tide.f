@@ -52,12 +52,12 @@ c-----tides.  A tide is flow data averaged between the last and
 c-----this timestamp for each tide.
 c-----Determine if data is available in current or new tidefile;
 c-----read tidefile if necessary and store data.
-      use IO_Units
+      use io_units
+      use logging
+      use common_tide
+      use runtime_data
+      use iopath_data
       implicit none
-
-      include '../fixed/common.f'
-      include 'common_tide.f'
-      include 'tide.inc'
 
 c-----local variables
       character

@@ -56,12 +56,10 @@ c-----it will search within the tidefile for the correct tide block.
 
       use IO_Units
       use hdfvars
-
+      use common_tide
+      use grid_data
       implicit none
 
-      include '../fixed/common.f'
-      include 'common_tide.f'
-      include 'tide.inc'
 
 c-----arguments
 
