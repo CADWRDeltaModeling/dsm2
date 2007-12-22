@@ -48,13 +48,12 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 c-----Module: Gates
 
       Module Gates
-
+      use type_defs
+      use constants
       Implicit None
 
       include '../hydrolib/network.inc'
-      include '../fixed/misc.f'
-	include '../fixed/defs.f'
-                                ! Maximums for pre-dimensioned arrays
+      ! Maximums for pre-dimensioned arrays
       integer, parameter :: MAX_DEV=10 ! Max no. of devices per gate
       integer, parameter :: MAX_GATES=MaxNGate ! Max no. of gates
 
@@ -105,11 +104,11 @@ c-----constants for flow coeff direction
       integer*4 :: gate         ! index of gate in which device appears (fixme: why?)
 	integer*4 :: calcRow      ! Row (equation) in which gate device equation is expressed
       character :: name*32=' ' ! index of device in gate     
-      record /datasource_s/ pos_datasource  ! datasource that controls 
+      type(datasource_t) pos_datasource  ! datasource that controls 
 	                       ! (via time series) the position of the gate control
-	record /datasource_s/ op_to_node_datasource   !datasource that controls the 
+	type(datasource_t) op_to_node_datasource   !datasource that controls the 
 	                                              !operating coefficient of the
-	record /datasource_s/ op_from_node_datasource ! device in the direction indicated
+	type(datasource_t) op_from_node_datasource ! device in the direction indicated
       END TYPE
 
 !Variables are in natural (8byte) alignment.
@@ -154,7 +153,6 @@ c-----an "equal stage" internal boundary condition. This routine takes care
 c-----of the clean-up required in order to make the transition.
 c-----use Gates, only: Gate, GATE_OPEN
       implicit none
-	include '../fixed/common.f'
       Type(Gate) :: inGate
       logical*4 :: isfree
       integer i
@@ -176,8 +174,8 @@ c     Given a gate name, obtain its internal index in gateArray or
 c     miss_val_i if the name is not a gate name in the current model. 
 c     Element-by-element search, so this routine is expensive. 
       integer function gateIndex(gateName)
+      use constants
 	implicit none
-	include '../fixed/misc.f'
 	integer igate
 	character :: gateName*32
 	character :: lowerName*32
@@ -198,8 +196,8 @@ c     Given a gate, converts a character name of a device into the index
 c     of the device. If the gate does not contain the device name, miss_val_i
 c     is returned. Element-by-element search, so this routine is expensive. 
       integer function deviceIndex(parentgate,devName)
+      
       implicit none
-      include '../fixed/misc.f'
       Type(Gate) parentgate
       Character :: devName*32
       Character :: parname*32=' '

@@ -46,13 +46,12 @@ C!
 C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       subroutine prep_irreg
-
+      use grid_data
+      use constants
+      use common_xsect
 c-----Prepare irregular cross section arrays
 
       implicit none
-
-      include 'common.f'
-      include 'common_irreg_geom.f'
 
 c-----local variables
       integer maxf              ! maximum number of fields in data files

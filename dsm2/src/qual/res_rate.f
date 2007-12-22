@@ -6,20 +6,24 @@ c-----for given group label index (if none given ignore group
 c-----labels).
       Use IO_Units
       Use Groups, only: groupArray
+      use common_tide
+      use constants
+      use type_defs
+      use iopath_data
+      use grid_data      
       implicit none
 
       include 'param.inc'
       include '../hydrolib/network.inc'
-      include '../fixed/common.f'
-      include '../hdf_tidefile/common_tide.f'
-      include '../hdf_tidefile/tide.inc'
+
+
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'
 
 c-----local variables
       logical group_ndx_ok      ! true if flow's group label match input
-     &     ,err_res(max_reservoirs) ! nodal error counter
+      logical, save :: err_res(max_reservoirs) ! nodal error counter
 
       integer
      &     res                  ! qual reservoir number [INPUT]
@@ -36,11 +40,10 @@ c-----local variables
      &     ,massrate(max_constituent) ! total external and internal massrate at reservoir [OUTPUT]
      &     ,conc                ! flow concentration
      &     ,node_qual           ! node quality function
-     &     ,tol                 ! tolerance
+     
 
-      record /from_to_s/ from,to ! from and to objects
-      data tol /1.0e-3/         ! "zero" with a tolerance
-      save err_res
+      type(from_to_t) from,to ! from and to objects
+      real*8 :: tol = 1.0d-3         ! "zero" with a tolerance
 
       objflow=0.0
       massrate=0.0

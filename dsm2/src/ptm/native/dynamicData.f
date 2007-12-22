@@ -1,10 +1,12 @@
 c----- 
       subroutine updateWBHydroInfo
+      use common_tide
+      use type_defs
+      use ptm_local
+      use grid_data      
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/tide.inc'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+
+
 c----- functions
       integer get_unique_id_for_channel
      &     , get_unique_id_for_reservoir
@@ -95,9 +97,9 @@ c----- check node balance
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_flow_balance_at_node(nodeId)
+      use ptm_local
+     
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
       integer nodeId, j
       real get_flow_for_wb_node, get_flow_balance_at_node, cumFlow
       integer wbId
@@ -112,9 +114,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_flow_for_wb_node(wbId, nodeId)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include 'ptmLocal.inc'
+
       real get_flow_for_wb_node
       integer i, wbId, nodeId
       i=1
@@ -139,8 +141,8 @@ c      call read_quality_bin()
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_ext_from_int(internal)
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
       integer get_ext_from_int
       integer internal
       get_ext_from_int= int2ext(internal)
@@ -149,10 +151,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_depth(number)
+      use ptm_local
+      use common_tide
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_up_node_depth
       integer number
       get_up_node_depth= Ychan(number,1)*theta + YchanPrev(number,1)*(1-theta)
@@ -161,10 +162,10 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_depth( number)
+      use ptm_local
+      use common_tide
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+
       real get_down_node_depth
       integer number
       get_down_node_depth= Ychan(number,2)*theta + YchanPrev(number,2)*(1-theta)
@@ -173,10 +174,10 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_stage(number)
+      use common_tide
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+
       real get_up_node_stage
       integer number
       get_up_node_stage= (Ychan(number,1)+chan_geom(number).bottomelev(1))*theta
@@ -186,10 +187,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_stage( number)
+      use common_tide
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_down_node_stage
       integer number
       get_down_node_stage= (Ychan(number,2)+chan_geom(number).bottomelev(2))*theta
@@ -199,10 +199,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_flow( number)
+      use common_tide
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_up_node_flow
       integer number
       get_up_node_flow= Qchan(number,1)
@@ -211,10 +210,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_flow( number)
+      use common_tide
+      use ptm_local      
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_down_node_flow
       integer number
       get_down_node_flow= Qchan(number,2)
@@ -223,10 +221,11 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_area( number)
+      use common_tide
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+      include '../../hydrolib/network.inc'
+      include "../../hydrolib/netcntrl.inc"
       real get_up_node_area
       integer number
       get_up_node_area= Achan(number,1)*theta + AchanPrev(number,1)*(1.-theta)
@@ -235,10 +234,11 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_area( number)
+      use grid_data   
+      use common_tide
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+      include '../../hydrolib/network.inc'
+      include "../../hydrolib/netcntrl.inc"
       real get_down_node_area
       integer number
       get_down_node_area= Achan(number,2)*theta + AchanPrev(number,2)*(1.-theta)
@@ -247,10 +247,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_volume( number)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_reservoir_volume
       integer number
       get_reservoir_volume= reservoirVolume(number)
@@ -260,25 +258,21 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_node_number_for_connection( reservoirNumber, 
      &     connection)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       integer get_node_number_for_connection
      &     , get_unique_id_for_reservoir
       integer reservoirNumber, connection, uniqId
       uniqId = get_unique_id_for_reservoir(reservoirNumber)
       get_node_number_for_connection= wb(uniqId).node(connection)
-c     &     res_geom(reservoirNumber).node_no(connection)
       return
       end
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_resevoir_depth( number)
+      use common_tide
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+
       real get_resevoir_depth
       integer number
       get_resevoir_depth= Eresv(number)
@@ -288,26 +282,23 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_flow_for_connection(
      &     reservoirNumber, connection)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+
       real get_reservoir_flow_for_connection
       integer reservoirNumber, connection
       integer get_unique_id_for_reservoir, id
       id = get_unique_id_for_reservoir(reservoirNumber)
       get_reservoir_flow_for_connection= 
      &     wb(id).flowToNode(connection)
-c     &     Qresv(reservoirNumber, connection)
+
       return
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_diversion_flow( number )
+      use ptm_local
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include '../../input/time-varying/tide.inc'
-      include 'ptmLocal.inc'
       real get_diversion_flow
       integer number
       if ( number .le. nqext ) then
@@ -319,9 +310,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_diversion_massfrac( number )
+      use grid_data
       implicit none
-      include '../../fixed/common.f'
-      include '../../input/time-varying/tide.inc'
       real get_diversion_massfrac
       integer number
       if ( number .le. nqext ) then
@@ -334,9 +324,7 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_diversion_at_node( number)
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+      ! todo
       real get_diversion_at_node
       integer number
       get_diversion_at_node=0
@@ -346,10 +334,9 @@ c-----get_diversion_at_node= qNodeDiversion(number)
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_pumping( number)
+      
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
+      ! todo
       real get_reservoir_pumping
       integer number
       get_reservoir_pumping=0
@@ -358,10 +345,8 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_boundary_flow( number)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_boundary_flow
       integer number,id, get_unique_id_for_boundary
 c-----get_reservoir_pumping= qReservoirPumping(number)
@@ -371,10 +356,8 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_stage_boundary_flow( number)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_stage_boundary_flow
       integer number,id, get_unique_id_for_stage_boundary
 c-----
@@ -384,10 +367,8 @@ c-----
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_conveyor_flow( number)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../hdf_tidefile/common_tide.f'
-      include 'ptmLocal.inc'
       real get_conveyor_flow
       integer number,id, get_unique_id_for_conveyor
 c-----get_reservoir_pumping= qReservoirPumping(number)
@@ -399,10 +380,9 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_quality(number, constituent)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../input/time-varying/common_qual_bin.inc'
-      include 'ptmLocal.inc'
+      include "../../hdf_tidefile/common_qual_bin.inc"
       real get_up_node_quality
       integer number,nodeid,constituent
       nodeid = wb(number).node(1) ! upnode
@@ -411,10 +391,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_quality(number, constituent)
+      use ptm_local
       implicit none
-      include '../../fixed/common.f'
-      include '../../input/time-varying/common_qual_bin.inc'
-      include 'ptmLocal.inc'
+   
+      include "../../hdf_tidefile/common_qual_bin.inc"
       real get_down_node_quality
       integer number,nodeid,constituent
       nodeid = wb(number).node(2) ! downnode

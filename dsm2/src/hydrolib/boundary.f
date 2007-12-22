@@ -50,7 +50,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 *== Public (SetBoundaryValues) ================================================
 
       LOGICAL FUNCTION SetBoundaryValuesFromData()
-
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Master routine for setting user-supplied boundary values as
@@ -59,12 +59,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 *   Argument definitions:
 
 *   Module data:
+
       include 'network.inc'
       include 'netbnd.inc'
 
-      include '../fixed/common.f'
       include '../timevar/dss.inc'
-      include '../hdf_tidefile/tide.inc'
 
 *   Routines by module:
 
@@ -75,7 +74,6 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       EXTERNAL AssignNetworkBoundaryValues
 
       integer i                 ! loop index
-     &     ,intchan             ! hydro internal channel number
 
 ***** Network control:
       INTEGER  NetworkSeconds
@@ -121,9 +119,10 @@ c-----call apply_boundary_values
       
 *== Public (UpdateTimeVaryingData) ================================================
 	subroutine UpdateTimeVaryingData()
+	use type_defs
+	use iopath_data
 	implicit none
 *   Module data:
-      include '../fixed/common.f'
 c      include '../fixed/defs.f'
       include '../timevar/dss.inc'
       include '../timevar/readdss.inc'
@@ -172,6 +171,7 @@ c      include '../fixed/defs.f'
       subroutine store_values
       Use Gates, only: gateArray,gate,ngate
       use IO_Units
+      use grid_data
       implicit none
 
 c-----Fill time-varying data arrays for FourPt, and fill external
@@ -179,8 +179,6 @@ c-----flow structure for tidefile
 
 c-----common blocks
 
-      include '../fixed/common.f'
-      include '../hdf_tidefile/tide.inc'
       include 'network.inc'
       include 'netbnd.inc'
       include 'netcntrl.inc'
@@ -188,14 +186,10 @@ c-----common blocks
 
 c-----local variables
 
-      integer
-     &     ptr                  ! pathname array index
-     &     ,intchan             ! internal channel number
-     &     ,i,j
+      integer i,j
 
       real*8
-     &     value                ! time-varying value
-     &     ,fetch_data
+     &     fetch_data
       
 	type(gate),pointer :: currentGate
 
@@ -258,13 +252,13 @@ c todo: gate_free, fetching data from expression
 *== Public (ApplyBoundaryValues) ================================================
 
       subroutine ApplyBoundaryValues()
+      use grid_data
+      use constants
 	implicit none
 
 *   Purpose:  Move data from boundary objects to hydro arrays and data structures. 
-      include '../fixed/common.f'
       include 'network.inc'
       include 'netbnd.inc'
-      include '../hdf_tidefile/tide.inc'
       include 'chconnec.inc'
 
       integer intchan,i,obj_type,node
@@ -347,7 +341,8 @@ c--------to a node
 
 c-----Given a reservoir number, add the sources and sinks
 c-----from previous time step and return the value.
-
+      use grid_data
+      use constants
       implicit none
 
 c-----argument
@@ -355,9 +350,6 @@ c-----argument
      &     ,acct_ndx            ! accounting index, if 0 ignore [INPUT]
 
 c-----includes
-
-      include '../fixed/common.f'
-      include '../hdf_tidefile/tide.inc'
 
 c-----local variables
       integer
@@ -371,7 +363,7 @@ c-----external flows
      &     acct_ndx .eq. ALL_FLOWS .or.
      &     acct_ndx .eq. QEXT_FLOWS) then
          i=1
-         do while (res_geom(reservoir_no).qext(i) .ne. 0)
+         do while (res_geom(reservoir_no).qext(i) .gt. 0) ! todo: bad substitute for nqext
             qndx=res_geom(reservoir_no).qext(i)
             reservoir_source_sink_prev=reservoir_source_sink_prev+
      &           qext(qndx).prev_flow
@@ -407,17 +399,15 @@ c-----internal flows
 
 c-----Given a reservoir number, add the sources and sinks
 c-----to that reservoir and return the value
-
+      use grid_data
+      use constants
       implicit none
-
+    
 c-----argument
       integer reservoir_no      ! reservoir number [INPUT]
      &     ,acct_ndx            ! accounting index, if 0 ignore [INPUT]
 
 c-----includes
-
-      include '../fixed/common.f'
-      include '../hdf_tidefile/tide.inc'
 
 c-----local variables
       integer
@@ -431,7 +421,7 @@ c-----external flows
      &     acct_ndx .eq. ALL_FLOWS .or.
      &     acct_ndx .eq. QEXT_FLOWS) then
          i=1
-         do while (res_geom(reservoir_no).qext(i) .ne. 0)
+         do while (res_geom(reservoir_no).qext(i) .gt. 0) ! todo: unclear way looping res.nqext
             qndx=res_geom(reservoir_no).qext(i)
             reservoir_source_sink=reservoir_source_sink+
      &           qext(qndx).flow
@@ -444,7 +434,7 @@ c-----internal flows
      &     acct_ndx .eq. ALL_FLOWS .or.
      &     acct_ndx .eq. QINT_FLOWS) then
          i=1
-         do while (res_geom(reservoir_no).qint(i) .ne. 0)
+         do while (res_geom(reservoir_no).qint(i) .gt. 0) !todo: unclear substitute for looping nqext
             qndx=res_geom(reservoir_no).qint(i)
             if (obj2obj(qndx).from.object .eq. obj_reservoir) then ! from reservoir
                reservoir_source_sink=reservoir_source_sink -

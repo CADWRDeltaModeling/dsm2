@@ -7,10 +7,13 @@ c-----load f90SQL modules
       use f90SQL
       use Gates, only: gateArray,gateIndex,deviceIndex,WEIR,PIPE
 	use Groups, only: GROUP_ALL
-      use IO_Units
+      use io_units
+      use logging
+      use iopath_data
+      use grid_data
+
       implicit none
 
-      include '../fixed/common.f'
       
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

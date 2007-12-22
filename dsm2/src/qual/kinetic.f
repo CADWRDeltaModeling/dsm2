@@ -46,9 +46,8 @@ C!
 C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       subroutine kinetic(c)
-
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+      use common_qual
+      implicit none
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -64,7 +63,7 @@ c-----local variables---------------------------
       real*8 c1(max_constituent),scsk1(max_constituent)
       real*8 rirdt, idtm,  nsmalldtt
 
-      integer i
+      integer i,ii
       real*8 dt_rem, dt_react
 
 c	if (julmin .eq. 50916600)startprint = .true.

@@ -50,10 +50,14 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 c-----print the output
       use IO_Units
       use Gates, ONLY: gateArray, nGate, deviceTypeString, controlTypeString
+      use grid_data
+      use runtime_data
+      use constants
+      use logging
+      use iopath_data
+      use common_xsect
       implicit none
 
-      include 'common.f'
-      include 'common_irreg_geom.f'
       
 
       include '../hydrolib/network.inc'

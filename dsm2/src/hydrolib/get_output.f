@@ -50,6 +50,9 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 c-----Get the desired output variable from the particular DSM module
       use Gates, only:gateArray
 	use IO_Units
+	use grid_data
+	use iopath_data
+	use constants
       implicit none
 
 c-----arguments
@@ -59,7 +62,6 @@ c-----arguments
 
 c-----global variables
 
-      include '../fixed/common.f'
       include 'network.inc'
       include 'chconnec.inc'
 

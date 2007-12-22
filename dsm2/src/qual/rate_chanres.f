@@ -49,10 +49,8 @@ c!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----This subroutine decides whether to use rate coeffs for reservoirs
 c-----or for channels: if chan_res =1, channel; if chan_res=2, reservoir
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'

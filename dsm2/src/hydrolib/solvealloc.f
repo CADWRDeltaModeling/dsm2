@@ -74,6 +74,8 @@ C!
       logical function ReserveMatrix()
       use Gates, only:gateArray,Gate,NGate
       use IO_Units
+      use grid_data
+      use constants
       implicit none
 
 *     Purpose:  To reserve elements in the sparse matrix and create pointers
@@ -90,7 +92,7 @@ C!
 	include 'chnlcomp.inc'
       include 'chconnec.inc'
       include 'solver.inc'
-      include '../fixed/common.f' ! only nreser
+
 
 *     Local Variables:
 

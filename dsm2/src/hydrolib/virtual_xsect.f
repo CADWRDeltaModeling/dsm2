@@ -1,49 +1,20 @@
-C!    Copyright (C) 1996, 1997, 1998 State of California,
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
 C!    Department of Water Resources.
-C!
-C!    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
-C!    numerical model.  No protection claimed in original FOURPT and
-C!    Branched Lagrangian Transport Model (BLTM) code written by the
-C!    United States Geological Survey.  Protection claimed in the
-C!    routines and files listed in the accompanying file "Protect.txt".
-C!    If you did not receive a copy of this file contact Dr. Paul
-C!    Hutton, below.
-C!
-C!    This program is licensed to you under the terms of the GNU General
-C!    Public License, version 2, as published by the Free Software
-C!    Foundation.
-C!
+C!    This file is part of DSM2.
+
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public License as published by
+C!    the Free Software Foundation, either version 3 of the License, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public License for more details.
+
 C!    You should have received a copy of the GNU General Public License
-C!    along with this program; if not, contact Dr. Paul Hutton, below,
-C!    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
-C!    02139, USA.
-C!
-C!    THIS SOFTWARE AND DOCUMENTATION ARE PROVIDED BY THE CALIFORNIA
-C!    DEPARTMENT OF WATER RESOURCES AND CONTRIBUTORS "AS IS" AND ANY
-C!    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-C!    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-C!    PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE CALIFORNIA
-C!    DEPARTMENT OF WATER RESOURCES OR ITS CONTRIBUTORS BE LIABLE FOR
-C!    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-C!    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-C!    OR SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA OR PROFITS; OR
-C!    BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-C!    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-C!    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-C!    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-C!    DAMAGE.
-C!
-C!    For more information about DSM2, contact:
-C!
-C!    Dr. Paul Hutton
-C!    California Dept. of Water Resources
-C!    Division of Planning, Delta Modeling Section
-C!    1416 Ninth Street
-C!    Sacramento, CA  95814
-C!    916-653-5601
-C!    hutton@water.ca.gov
-C!
-C!    or see our home page: http://wwwdelmod.water.ca.gov/
+C!    along with DSM2.  If not, see <http://www.gnu.org/licenses/>.
+
 
       subroutine virtual_xsect
 
@@ -54,11 +25,9 @@ c-----which are then used as lookup tables.
 c-----Elevations are now heights of layers.  A layer consists of all cross-section
 c-----properties in a cross-section that have the same elevation (or height).
 c-----The height is the distance above the lowest point in the cross-section.
-
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
       include 'virt_xsect.inc'
 
       integer
@@ -154,10 +123,11 @@ c-----If the maximum height in the list is < = the specified maximum layer heigh
 c-----then a top height defined by the user in common_irreg_geom.f is
 c-----added to the list.
       use IO_Units
+      use common_xsect
+      use constants
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
+
 	include 'virt_xsect.inc'
 
 
@@ -296,10 +266,9 @@ c-----the maximum height in the current cross-section.  Extrapolation is done by
 c-----calculating a top width using the user-specified value levee_slope, which is
 c-----rise over run.
       use IO_Units
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -406,10 +375,9 @@ c-----x direction (along the length of the channel) to make virtual cross-sectio
 c-----at each computational point.  Computational points are located at the ends of
 c-----the channel and at distances along the channel length defined by (deltax/2).
       use IO_Units
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
       integer
      &     channo               ! dsm channel number
@@ -460,11 +428,9 @@ c-----Bottom elevations--interpolate from 2 nearest xsect.  xsects at channel en
 c-----could be outside channel (dist could be < 0 or > channel length).  If no xsect
 c-----upstream or downstream of virtual xsect, then use rectangular bottom elev.
 c-----upstream end
-
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -559,11 +525,9 @@ c--------if there is a xsect with dist=x, then both indices will be the same
       subroutine interp_xs_prop_horizontal(channo)
 
 c-----interpolate cross-section properties in the x direction
+      use common_xsect
       use IO_Units
       implicit none
-
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
       include 'virt_xsect.inc'
 
       integer
@@ -671,11 +635,9 @@ c-----------calculate xsect property array index for current layer
 
 c-----This subroutine interpolates or extrapolates width values in the vertical
 c-----direction.
-
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 	
@@ -737,10 +699,9 @@ c--------otherwise, interpolate
 
 c-----This subroutine interpolates area values in the vertical direction.  This
 c-----subroutine is always called after interp_width.
-
+      use common_xsect
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
+
 
       REAL*8
      &     a                    ! interpolated area
@@ -761,11 +722,9 @@ c-----and previous layers
 
 c-----This subroutine interpolates or extrapolates wetted perimeter values in the 
 c-----vertical direction.
-
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -837,11 +796,9 @@ c--------otherwise, interpolate
       subroutine interp_z_centroid(rsecno,secno,channo,assgindex,virtelev,zc)
 
 c-----This subroutine interpolates z centroid values in the vertical direction.
-
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -921,10 +878,10 @@ c-----values will be sorted in ascending order with one exception:zeros will be 
 
 c-----This subroutine calculates cross-section properties for rectangular sections.
       use IO_Units
+      use common_xsect
+      use constants
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 	include 'virt_xsect.inc'
 
 
@@ -1007,9 +964,9 @@ c-----use width to calculate area and wetted perimeter
 c-----This subroutine prints a list of all cross-section properties for all layers
 c-----of all virtual cross-sections.
       use IO_Units
+      use common_xsect
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
+
 
       integer
      &     channo               ! dsm channel number
@@ -1070,10 +1027,9 @@ c-----This subroutine compares the MSL areas of virtual cross-sections within
 c-----channels.  If the ratio is > a user-specified area tolerance, an error
 c-----message is printed with the names of the cross-sections.
       use IO_Units
+      use common_xsect
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
       integer
      &     channo               ! do loop counters
@@ -1174,9 +1130,9 @@ c-----------compare area(MSL) of all xsect--find max & min
 
       subroutine array_bounds_exceeded(channo)
       use IO_Units
+      use common_xsect
 	implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
+
 
       integer channo
 

@@ -100,6 +100,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       INTEGER FUNCTION CurrentChannel()
       use IO_Units
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Return current channel number.
@@ -138,6 +139,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       LOGICAL FUNCTION OpenChannel(ChannelNumber)
       use IO_Units
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Set current channel number.
@@ -151,7 +153,6 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 *   Module data:
       INCLUDE 'network.inc'
 
-      include '../fixed/common.f'
 
 *   Local Variables:
 
@@ -316,6 +317,7 @@ c      END IF
 
       LOGICAL FUNCTION SetCompLocations()
       use IO_Units
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:
@@ -325,7 +327,6 @@ c      END IF
 *   Argument definitions:
 
 *   Module data:
-	INCLUDE '../fixed/common.f'
       INCLUDE 'network.inc'
       INCLUDE 'chnluser.inc'
       INCLUDE 'chnlcomp.inc'
@@ -339,7 +340,7 @@ c      END IF
 *   Routines by module:
 
 ***** Channel properties:
-      EXTERNAL UserStreamLocations
+
 
 ***** Linear interpolation utilities:
       LOGICAL  XINSRT
@@ -1167,11 +1168,10 @@ c      OK = SetNetworkTimeSeriesLocations()
 
 *-----Purpose: Locate the global computation points bracketing a given
 *     channel distance 
-
+      use grid_data
       implicit none
 	include 'network.inc'
       include 'chnlcomp.inc'
-	include '../fixed/common.f'
 
 *   Arguments:
       integer :: intchan  ! Channel where comp point is being requested

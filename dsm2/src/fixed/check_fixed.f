@@ -51,24 +51,27 @@ c-----Check the fixed input for omissions and errors before starting
 c-----the model run.  Supply default values where possible.  Translate
 c-----from nodes to channel numbers, and from external channel numbers
 c-----to internal.
-      use IO_Units
-      use Gates, only: gateArray, nGate
-      use Groups, only: groupArray, groupContains,ConvertGroupPatternsToMembers, 
+      use io_units
+      
+      use gates, only: gateArray, nGate
+      use groups, only: groupArray, groupContains,ConvertGroupPatternsToMembers, 
      &                  GROUP_ALL,IsAllChannelReservoir,GroupTarget
+      use constants
+      use logging
+      use common_qual
+      use grid_data
+      use iopath_data
+      use runtime_data
+      use common_xsect
+      use common_tide
       implicit none
 
-      include 'common.f'
-      include 'common_qual.inc'
-      include 'common_ptm.inc'
-      include 'common_irreg_geom.f'
 
       include '../timevar/dss.inc'
       include '../timevar/readdss.inc'
       include '../timevar/writedss.inc'
-      include '../hdf_tidefile/common_tide.f'
       include '../hydrolib/network.inc'
       include '../hydrolib/chconnec.inc'
-      include '../hdf_tidefile/tide.inc'
 c-----Local variables
 
       logical
@@ -93,8 +96,7 @@ c-----Local variables
 
 
       integer
-     &     holdgrp(max_chanres) ! hold group numbers
-     &     ,advance             ! added to the grpindx
+     &     advance             ! added to the grpindx
      &     ,adjpathout          ! adjusted pathoutput (original npathouts + ngroups)
      &     ,outindx             ! holds value of original npathouts
      &     ,itmp                ! index
@@ -253,7 +255,7 @@ c-----adjust totals
       nprints=nprints-1
 
 c-----generic date in julian minutes
-      jul_generic_date=cdt2jmin(generic_date)
+! eli      jul_generic_date=cdt2jmin(generic_date)
 
 c-----run start date and time can be a DSS date (e.g. 01jan1994 0100),
 c-----or 'restart' (use date from restart file), or
@@ -335,8 +337,6 @@ c-----------correct tf start date for odd minutes (not multiple of tidefile inte
 c-----warning fix, until scalar variables fixed
       cont_missing=cont_missing .and. cont_bad
 
-c-----tide_cycle_length is slated for removal      
-	tide_cycle_length_mins=25*60
 
 c-----fixme: make sure reservoir is attached to something?
 
@@ -581,8 +581,6 @@ c--------in tidefile.
 	      n_tidefiles_used = n_tidefiles_used + 1
             call get_tidefile_dates(i)
 
-c-----slated for removal
-            repeating_tidefile=.false.
 
 c-----------start datetime
             tide_files(i).start_julmin=miss_val_i
@@ -590,7 +588,7 @@ c-----------start datetime
                tide_files(i).start_julmin=tide_files(i).start_julmin_file
             endif
 
-            if ((tide_files(i).start_date .eq. 'last' .or. repeating_tidefile)
+            if (tide_files(i).start_date .eq. 'last' 
      &           .and. i .gt. 1) then ! start this after end of previous
                tide_files(i).start_julmin=tide_files(i-1).end_julmin
             endif
@@ -1191,9 +1189,9 @@ c     Convert an external channel number to internal number
 c     using a binary search. 
       integer function ext2int(extchan)
       use dflib
+      use grid_data
       implicit none
       integer extchan
-      include 'common.f'
       ext2int=bsearchqq(loc(extchan),loc(int2ext(1)),nchans,SRT$INTEGER4)
       return
       end function
@@ -1201,7 +1199,6 @@ c     using a binary search.
 c     Compare two integers (e.g., as needed for qsort)
       integer(2) function compareInt(arg1, arg2)
       implicit none
-      include 'common.f'
       integer arg1,arg2
       compareInt=arg1-arg2
       return
@@ -1211,8 +1208,8 @@ c-----Convert an external node number to an internal one using
 c     binary search
       integer function ext2intnode(extnode)
       use dflib
+      use grid_data
       implicit none
-      include 'common.f'
       integer extnode
       ext2intnode=bsearchqq(loc(extnode),loc(nodelist(1)),
      &                      nintnodes,SRT$INTEGER4)
@@ -1236,10 +1233,10 @@ c     binary search
 c-----Return true if given chemical name is a non-conservative constituent
 c-----name.
 
+      use common_qual
+      use constants
       implicit none
 
-      include 'common.f'
-      include 'common_qual.inc'
       integer loccarr           ! location in character array function
 
       character*(*) chemical_name
@@ -1259,7 +1256,9 @@ c-----constituent.  Unique for conservative means the combination
 c-----of chemical constituent name, and one of group, source
 c-----flow type, or source location, are unique; for nonconservative,
 c-----only the chemical name need be unique.
-
+      use common_qual
+      use iopath_data
+      use constants
       implicit none
 
 c-----argument
@@ -1267,8 +1266,7 @@ c-----argument
       integer
      &     outpath              ! pointer to outputpath structure index
 
-      include 'common.f'
-      include 'common_qual.inc'
+      
 
 c-----local variables
 

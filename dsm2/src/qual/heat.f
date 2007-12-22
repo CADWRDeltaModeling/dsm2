@@ -54,9 +54,11 @@ c-----It computes net solar radiation for the time interval delta t
 c-----and rate of atmospheric radiation
 c-----exchanged through the air-water interface
       Use IO_Units
+      use common_qual
+      use runtime_data
+      use logging
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
 

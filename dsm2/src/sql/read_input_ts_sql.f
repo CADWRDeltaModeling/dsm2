@@ -5,10 +5,12 @@ c-----load f90SQL modules
       use f90SQL
       use Gates,only:GateArray,deviceIndex
      &     ,WEIR,PIPE,GATE_OPEN,NO_GATE_CONTROL
-      use IO_Units
+      use io_units
+      use iopath_data
+      use logging
+      use grid_data
       implicit none
 
-      include '../fixed/common.f'
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl

@@ -100,156 +100,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 
 *=======================================================================
-*   Public: UserStreamLocations
-*=======================================================================
-
-      SUBROUTINE UserStreamLocations
-     &     ( NumberOfLocations, LocationID,
-     &     UserLocation                  )
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:
-*     Get an array of downstream coordinates for the user cross sections
-*     in the current channel.
-
-*   Arguments:
-      INTEGER NumberOfLocations
-      REAL*8   UserLocation( NumberOfLocations )
-      CHARACTER*16 LocationID( NumberOfLocations )
-
-*   Argument definitions:
-*     NumberOfLocations - dimension of UserLocation().
-*     UserLocation(i) - downstream user-supplied cross-section location.
-*     LocationID(i) - location identifiers.
-*     i - user cross-section sequence number.
-
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chcxtbl.inc'
-	INCLUDE 'chnluser.inc'
-
-*   Local Variables:
-      INTEGER I, J, Locations, L
-      LOGICAL Match
-      CHARACTER*255 String1, String2
-
-*   Routines by module:
-
-***** Channel-schematic module:
-      EXTERNAL GetUserStreamLocationIDs
-
-***** String manipulation:
-      CHARACTER*255   LeftTrim, RightTrim
-      EXTERNAL        LeftTrim, RightTrim
-
-*   Programmed by: Lew DeLong
-*   Date:          July 1991
-*   Modified by:   Lew DeLong
-*   Last modified: July 1993
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      Match = .TRUE.
-
-      Locations = NumUserLoc
-
-      IF( Locations .LE. NumberOfLocations ) THEN
-
-*--------Search for IDs and get corresponding locations.
-
-         CALL GetUserStreamLocationIDs(Locations, LocationID)
-
-         DO 200 I=1,Locations
-
-*-----------Check for range error.
-
-            IF( LastTable(Branch) .GT. MaxTables ) THEN
-               WRITE(unit_error,*) ' #### error{1}(UserStreamLocations)'
-               WRITE(unit_error,*) ' Branch...',Branch
-               WRITE(unit_error,*) ' MaxTables exceeded...'
-               WRITE(unit_error,*) ' ',LastTable(Branch),'>',MaxTables
-            END IF
-
-*-----------Look for cross-section ID.
-
-            DO 100 J=FirstTable(Branch),LastTable(Branch)
-
-               L = J
-               IF( LocationID(I) .EQ. ID(J) ) GO TO 102
-
- 100        CONTINUE
-
-*-----------Failed to find ID, remove leading and trailing
-*         blanks and try again.
-
-            String1 = LeftTrim( LocationID(I) )
-            String1 = RightTrim( String1 )
-            DO 101 J=FirstTable(Branch),LastTable(Branch)
-
-               L = J
-               String2 = LeftTrim( ID(J) )
-               String2 = RightTrim( String2 )
-               IF( String1 .EQ. String2 ) GO TO 102
-
- 101        CONTINUE
-
-            WRITE(unit_error,*) ' #### error{2}(UserStreamLocations)'
-            WRITE(unit_error,*) ' Branch...',Branch
-            WRITE(unit_error,*) ' No match for...',LocationID(I)
-            Match = .FALSE.
-            UserLocation(J) = -9999999999.99
-            GO TO 200
-
- 102        CONTINUE
-
-*-----------Match for ID found, get location.
-
-            UserLocation(I) = XDistance(L)
-
- 200     CONTINUE
-
-         IF( Match ) THEN
-         ELSE
-
-            WRITE(unit_error,*) ' '
-            WRITE(unit_error,*) '            ID                Location'
-            DO 300 I=1,Locations
-
-               WRITE(*,'(I5,2X,A16,2X,F14.2)')
-     &              I, LocationID(I), UserLocation(I)
-
- 300        CONTINUE
-            WRITE(unit_error,*) ' '
-
-            WRITE(unit_error,*) 'Abnormal program end.'
-            STOP
-         END IF
-
-      ELSE
-         WRITE(unit_error,*) ' Locations...', Locations
-         WRITE(unit_error,*) ' NumberOfLocations...', NumberOfLocations
-         WRITE(unit_error,*) ' #### error{3}(UserStreamLocations)'
-         WRITE(unit_error,*) ' Branch...',Branch
-         WRITE(unit_error,*)
-     &        ' Number of user locations exceeds passed dimension.'
-         WRITE(unit_error,*) ' MaxLocations too small...'
-         WRITE(unit_error,*) ' Abnormal program end.'
-         STOP
-
-      END IF
-
-      RETURN
-      END
-
-*=======================================================================
 *   Public: BtmElev
 *=======================================================================
 
       REAL*8 FUNCTION BtmElev(X)
-
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -266,8 +121,6 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'network.inc'
       INCLUDE 'chcxtbl.inc'
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 *   Local Variables:
       integer
@@ -299,6 +152,7 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       REAL*8 FUNCTION ChannelWidth(X,H)
       use IO_Units
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -317,8 +171,6 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'network.inc'
       INCLUDE 'chcxtbl.inc'
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 *   Functions:
       LOGICAL  CxShapeFunction
@@ -382,7 +234,7 @@ c-----statement function to interpolate wrt two points
 *=======================================================================
 
       REAL*8 FUNCTION CxArea(X, H)
-
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -396,9 +248,6 @@ c-----statement function to interpolate wrt two points
 *   Argument definitions:
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
-
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -468,6 +317,7 @@ c-----statement function to calculate indices of virtual data arrays
 
       REAL*8 FUNCTION CxCentroid(X, H)
       use IO_Units
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -483,8 +333,6 @@ c-----statement function to calculate indices of virtual data arrays
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -580,6 +428,7 @@ c-----statement function to calculate indices of virtual data arrays
 
       REAL*8 FUNCTION dCxCentroid(X, H)
       use IO_Units
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -595,8 +444,6 @@ c-----statement function to calculate indices of virtual data arrays
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -739,6 +586,7 @@ c@@@      ENDIF
 
       REAL*8 FUNCTION dConveyance(X, H)
       use IO_Units
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -754,7 +602,7 @@ c@@@      ENDIF
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../fixed/common.f'
+
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -948,6 +796,7 @@ c@@@      dEffectiveN = dEffectiveN/dH
 
       REAL*8 FUNCTION WetPerimeter(X, H)
       use IO_Units
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -961,9 +810,6 @@ c@@@      dEffectiveN = dEffectiveN/dH
 *   Argument definitions:
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
-
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -1035,6 +881,7 @@ c-----statement function to interpolate wrt two points
 
       REAL*8 FUNCTION dWetPerimeter(X, H)
       use IO_Units
+      use common_xsect
       IMPLICIT NONE
 
 *   Purpose:
@@ -1049,8 +896,6 @@ c-----statement function to interpolate wrt two points
 *     X - downstream distance.
 *     H - distance above lowest point in cross section.
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -2537,10 +2382,10 @@ C     + + + END SPECIFICATIONS + + +
      &     ,veindex
      &     )
       use IO_Units
+      use common_xsect
+      use runtime_data      
       implicit none
 
-      include '../fixed/common.f'
-      include '../fixed/common_irreg_geom.f'
 
       integer
      &     Branch               ! hydro channel number

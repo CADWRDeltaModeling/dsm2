@@ -9,12 +9,13 @@ c     called diagnostics.txt
       subroutine solver_diagnostics(row)
 	use IO_Units
 	use Gates, only: NGate, GateArray, deviceTypeString
+	use grid_data
       implicit none
 	include 'network.inc'
 	include 'chconnec.inc'
 	include 'solver.inc'
       include 'chnlcomp.inc'
-	include '../fixed/common.f'
+
 
       integer,external :: UpstreamPointer,DownstreamPointer
 	integer,parameter :: DF=2

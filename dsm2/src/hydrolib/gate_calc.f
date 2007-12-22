@@ -53,6 +53,8 @@ c     All variable definitions are in the Gates module
       USE GATES, only: GateArray, Gate,Ngate,GateDevice,ApplyDevicePosition,
      &     WEIR, PIPE
       use IO_Units
+      use constants
+      use grid_data
       IMPLICIT NONE
 
 *     Purpose:  Compute solution components constraining
@@ -100,7 +102,6 @@ DEC$ DEFINE GATETRANSFORM
 *     Module data:
       include 'network.inc'
       include 'chconnec.inc'
-      include '../fixed/common.f'
       include 'strmcnst.inc'
       include 'solver.inc'
 
@@ -615,9 +616,10 @@ c      GateEqResid= abs(QDevice)*QDevice-CxA**2.*dh
 *     in the gate structure for later use in gate computations
 
       use Gates, only: gateArray,Gate,NGate
+      use grid_data
+      use constants
       implicit none
-c     include '../fixed/misc.f'
-      include '../fixed/common.f'
+
       include 'network.inc'
       include 'chconnec.inc'
       integer gt

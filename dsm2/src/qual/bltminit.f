@@ -139,11 +139,15 @@ C     NOPR     Maximum number of parcels allowed in branch
 C-----(NOPR should be at least 20 + 2 times NOSC)
       use IO_Units
 	use groups, only: GROUP_ALL
+      use grid_data
+      use common_qual
+      use common_tide
+      use logging
+      use runtime_data
+      use iopath_data
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../fixed/common.f'
-      include '../fixed/common_qual.inc'
-      INCLUDE '../hdf_tidefile/common_tide.f'
+
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

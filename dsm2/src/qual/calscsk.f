@@ -53,10 +53,9 @@ C     construct the Source/Sink matrix, SCSK.  The SCSK matrix contains
 C     values of the net gain or loss  due to growth, decay, settling,
 C     benthic supply/demand, and constituent interaction for each constituent
 C     at the current time step.
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       integer  i ,ii
 
@@ -108,10 +107,9 @@ c-----add write routine here for scsk of oxygen if necessary for analysis
       subroutine CALBOD (c)
 
 c-----calculate source, sink terms for BOD
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -143,10 +141,11 @@ c-----if DO is simulated, calculate demand on DO
       subroutine CALDO (c)
 
 c-----calculate source, sink terms for DO
-
+      use common_qual
+      use logging
+      use runtime_data
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm3.inc'
@@ -244,10 +243,8 @@ c-----account for benthic oxygen demand
       subroutine CALORGN (c)
 
 c-----calculate source, sink terms for ORG-N
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -279,10 +276,9 @@ c-----if NH3 is simulated, decay of ORG-N is a source of NH3
       subroutine CALNH3 (c)
 
 c-----calculate source, sink terms for NH3-N
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -318,10 +314,9 @@ c-----if DO is simulated, oxidation of NH3 exerts demand on DO
       subroutine CALNO2 (c)
 
 c-----calculate source, sink terms for NO2-N
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -348,10 +343,8 @@ c-----if DO is simulated, oxidation of NO2 exerts demand on DO
       end
 
       subroutine CALNO3 (c)
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -364,10 +357,9 @@ c-----if DO is simulated, oxidation of NO2 exerts demand on DO
       subroutine CALORGP (c)
 
 c-----calculate source, sink terms for ORG-P
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -400,10 +392,9 @@ c-----if PO4 is simulated, decay of ORG-P is a source of PO4
       subroutine CALPO4 (c)
 
 c-----calculate source, sink terms for PO4
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -425,12 +416,13 @@ c-----account for benthos source
       end
 
       subroutine CALALG (c)
-
+      use common_qual
+      use logging
+      use runtime_data
 c-----calculate source, sink terms for ALGAE
 c      use IO_Units,only: unit_output
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -578,10 +570,11 @@ c---- radiation, back radiation, conduction and evaporation.
 
 c-----Solar radiation and atmospheric radiation are
 c-----calculated in subroutine heat
-
+      use common_qual
+      use logging
+      use runtime_data
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
@@ -645,10 +638,9 @@ c-----the following write statements are for diagnostics purposes only
       end
 
       subroutine tempfactors(temp)
-
+      use common_qual
       implicit none
-      include '../fixed/common.f'
-      include '../fixed/common_qual.inc'
+
       include 'param.inc'
       include 'bltm3.inc'
       real*8 temp

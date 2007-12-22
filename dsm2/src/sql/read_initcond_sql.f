@@ -5,9 +5,11 @@ c-----load f90SQL modules
       use f90SQL
       use IO_Units
       use DSM2_database
+      use logging
+      use constants
+      use grid_data
       implicit none
 
-      include '../fixed/common.f'
       include '../hydrolib/network.inc'
       include '../hydrolib/chinitcd.inc'
 
@@ -239,9 +241,11 @@ c-----load f90SQL modules
       use f90SQL
       use IO_Units
       use DSM2_database
+      use constants
+      use logging
+      use grid_data
       implicit none
 
-      include '../fixed/common.f'
       include '../hydrolib/network.inc'
       include '../hydrolib/chconnec.inc'
 

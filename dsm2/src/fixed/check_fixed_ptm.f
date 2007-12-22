@@ -49,11 +49,16 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----Check the PTM fixed input for omissions and errors before starting
 c-----the model run.  Supply default values where possible.
+      use constants
       use IO_Units
+      use type_defs
+
+      use grid_data
+      use runtime_data
+      use common_tide
+      use common_ptm
       implicit none
 
-      include 'common.f'
-      include 'common_ptm.inc'
       
       include '../hydrolib/network.inc'
       include '../hydrolib/netcntrl.inc'
@@ -63,7 +68,6 @@ c-----the model run.  Supply default values where possible.
       include '../timevar/dss.inc'
       include '../timevar/readdss.inc'
       include '../timevar/writedss.inc'
-      include '../hdf_tidefile/common_tide.f'
       include '../hdf_tidefile/common_qual_bin.inc'
 
 c-----Local variables

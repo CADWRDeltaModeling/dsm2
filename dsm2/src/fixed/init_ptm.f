@@ -46,10 +46,10 @@ C!
 C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       subroutine init_ptm
-
+      use common_ptm
+      
       implicit none
 
-      include 'common_ptm.inc'
       include '../hdf_tidefile/common_qual_bin.inc'
       integer i
 

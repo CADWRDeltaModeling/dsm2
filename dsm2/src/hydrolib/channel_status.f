@@ -155,6 +155,9 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
       LOGICAL FUNCTION WriteNetworkRestartFile()
       use IO_Units
+      use runtime_data
+      use iopath_data
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Write current values of dependent and independent
@@ -170,8 +173,6 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       INCLUDE 'chstatus.inc'
       INCLUDE 'chconnec.inc'
 
-      include '../fixed/common.f'
-      include '../hdf_tidefile/tide.inc'
 
 *   Local Variables:
       INTEGER      fUnit, I, J
@@ -287,6 +288,9 @@ C--------Reservoir Stage, nodal flows
 
       LOGICAL FUNCTION ReadNetworkInitialConditions()
       use IO_Units
+      use runtime_data
+      use grid_data
+      use iopath_data
       IMPLICIT NONE
 
 *   Purpose:  Read initial values of dependent variables.
@@ -301,7 +305,6 @@ C--------Reservoir Stage, nodal flows
       INCLUDE 'chconnec.inc'
       INCLUDE 'chnlcomp.inc'
 
-      include '../fixed/common.f'
 
 *   Local Variables:
       INTEGER      Channels,extchan,intchan
@@ -1155,6 +1158,7 @@ c          No interpolation is necessary, since the computational points are mat
       LOGICAL FUNCTION InitializeNetworkFlowValues()
       Use PhysicalConstants, only: gravity
       use IO_Units
+      use grid_data
       IMPLICIT NONE
 
 *   Purpose:  Set initial values of water-surface elevation and flow
@@ -1171,7 +1175,7 @@ c          No interpolation is necessary, since the computational points are mat
       INCLUDE 'chinitcd.inc'
       INCLUDE 'chnluser.inc'
       INCLUDE 'chconnec.inc'
-      include '../fixed/common.f'
+
 
 *   Local Variables:
       INTEGER I, J, K
@@ -1212,8 +1216,6 @@ c          No interpolation is necessary, since the computational points are mat
 
       real*8   Conveyance, dConveyance
       EXTERNAL Conveyance, dConveyance
-
-      EXTERNAL UserStreamLocations
 
 ***** Channel schematic:
       INTEGER  NumberOfUserStreamLocations, NumberOfStreamLocations

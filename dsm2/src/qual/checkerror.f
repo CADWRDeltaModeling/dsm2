@@ -48,10 +48,11 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
       SUBROUTINE CHECKERROR
 
 C-----This subroutine checks for error in the input
-      Use IO_Units
+      use io_units
+      use grid_data
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../fixed/common.f'
+
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'

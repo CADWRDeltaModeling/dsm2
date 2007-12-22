@@ -49,17 +49,17 @@ C!    or see our home page: http://wwwdelmod.water.ca.gov/
 
 c-----Read the fixed (non-time-varying) input data for DSM2 modules.
       use IO_Units
-      USE DFLIB                 !! <NT>
+      use DFLIB                 !! <NT>
+      use common_tide
+      use runtime_data
+      use constants_ptm
       implicit none
       
       include '../hydrolib/network.inc'
 
-      include 'common.f'
-      include 'common_ptm.inc'
-      include '../hdf_tidefile/common_tide.f'
       include '../timevar/dss.inc'
       include '../timevar/readdss.inc'
-      include '../hdf_tidefile/tide.inc'
+
 
 c-----local variable declaration
 
@@ -568,12 +568,6 @@ c--------pass the data as char strings to appropriate section handler
      &           hdr_form(vsect).sect .eq. 'tidefile') then
             call input_tidefile(field_names, max_fields, nfields, nflds, ifld,
      &           rifld(1), line, ibegf, ilenf, istat)
-
-         else if (.not. env_only .and.
-     &           hdr_form(vsect).sect .eq. 'qual_binary') then
-            call input_qualbin(field_names, max_fields, nfields, nflds, ifld,
-     &           rifld(1), line, ibegf, ilenf, istat)
-
          else if (.not. env_only .and.
      &           hdr_form(vsect).sect .eq. 'rate_coeffs') then
             call input_rate_coeffs(field_names, max_fields, nfields, nflds, ifld,

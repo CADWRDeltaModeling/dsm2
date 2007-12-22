@@ -52,12 +52,10 @@ C-----THE LANDWARD AND SEAWARD ENDS OF A CHANNEL
 
 C-----THIS SUBROUTINE INTERPOLATES FLOW AND STAGE (FLOW AREA)
 C-----FOR ALL THE CHANNELS AND ALL SECTIONS.
-
+      use common_tide
       IMPLICIT NONE
       INCLUDE 'param.inc'
       INCLUDE '../hydrolib/network.inc'
-      INCLUDE '../fixed/common.f'
-      INCLUDE '../hdf_tidefile/common_tide.f'
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
       INCLUDE 'bltm2.inc'
