@@ -1,13 +1,32 @@
+!<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
 
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public License as published by
+C!    the Free Software Foundation, either version 3 of the License, or
+C!    (at your option) any later version.
 
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public License for more details.
+
+C!    You should have received a copy of the GNU General Public License
+C!    along with DSM2.  If not, see <http://www.gnu.org/licenses/>.
+!</license>
+
+      module common_qual
+      use type_defs
+      use constants
+      use grid_data
 C-----Qual Parameters
 
-      logical mass_tracking,dispersion
+      logical mass_tracking
+      logical dispersion
       integer nres_conc         ! Number of reservoirs for which initial conc. specified
       real*8 init_conc            ! initial concentration
-
-      common/qual_scalars/nres_conc,mass_tracking,
-     &     init_conc,dispersion
 
       integer
      &     no_of_constituent    ! total number of conserv+nonconserv constituents
@@ -22,13 +41,9 @@ c-----parameter max_constituent is defined in defs.f=60, Jon 4/12/06
      &     ,all_source_ptr(max_constituent) ! pointer back to sonstituents from all sources
      &     ,constituent_ptr(max_constituent) ! pointer to correctly transfer rate coefficients
 
-      character*20
-     &     nonconserve_list(max_constituent) ! list of nonconservative constituents
+      ! list of nonconservative constituents names
+      character*20, dimension(max_constituent) :: nonconserve_list = ' '
 
-      common /constituent_param/ constituents,
-     &     no_of_constituent,no_of_nonconserve_constituent,no_all_source
-     &     ,nonconserve_list,nonconserve_ptr,all_source_ptr
-     &     ,constituent_ptr
 
 c-----misc max values for non-conservative constituents
       integer
@@ -38,16 +53,12 @@ c-----misc max values for non-conservative constituents
 
 c-----reaction rate coefficients
       integer num_res
-      real*8 rcoef_chan, rcoef_res_temp, rcoef_res, rcoef
-      character*20 coeff_res_name
-
-      common /rate_coeff_c_i/num_res
-      common /rate_coeff_c_r/
-     &     rcoef_chan(max_constituent,ncoef_type,max_channels)
-     &     ,rcoef_res_temp(max_constituent,ncoef_type,max_reservoirs)
-     &     ,rcoef_res(max_constituent,ncoef_type,max_reservoirs)
-     &     ,rcoef(max_constituent,ncoef_type)
-     &     ,coeff_res_name(max_reservoirs)
+      real*8 :: rcoef_chan(max_constituent,ncoef_type,max_channels)
+      real*8 :: rcoef_res_temp(max_constituent,ncoef_type,max_reservoirs)
+      real*8 :: rcoef(max_constituent,ncoef_type)
+      real*8 :: rcoef_res(max_constituent,ncoef_type,max_reservoirs)
+      
+      character*20 :: coeff_res_name(max_reservoirs)
 
 c-----qual global parameters
 c-----constituents related
@@ -70,22 +81,8 @@ c-----constituents related
 	              
 
 
-      common/global_param/
-     &     algaefract_n
-     &     ,algaefract_p
-     &     ,oxy_photo
-     &     ,oxy_resp
-     &     ,oxy_nh3
-     &     ,oxy_no2
-     &     ,alg_chl_ratio
-     &     ,pref_factor
-     &     ,klight_half
-     &     ,knit_half
-     &     ,kpho_half
-     &     ,lambda0
-     &     ,lambda1
-     &     ,lambda2
-     &     ,alg_bod 
+
+      integer, parameter :: temp_coeff_type = 30
 
 c-----heat and temperature related
       real*8
@@ -97,26 +94,14 @@ c-----heat and temperature related
      &     ,dust_attcoeff       ! Dust attenuation coefficient
      &     ,evapcoeff_a		! Evaporation coefficient, A
      &     ,evapcoeff_b		! Evaporation coefficient, B
-     &     ,thet
-     &     ,thetadj
-     &     ,thettbl
-
-      integer
-     &     temp_coeff_type
-
-      parameter (temp_coeff_type=30)
-
-      common /temperature_param/
-     &     elev
-     &     ,lat
-     &     ,longitude
-     &     ,long_std_merid
-     &     ,dust_attcoeff
-     &     ,evapcoeff_a
-     &     ,evapcoeff_b
      &     ,thet(temp_coeff_type)
      &     ,thetadj(temp_coeff_type)
      &     ,thettbl(temp_coeff_type,81)
+
+
+      end module
+
+
 
 
 
