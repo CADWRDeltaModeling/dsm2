@@ -1,10 +1,12 @@
       module envvar
       
+      integer, parameter:: ENVVAR_NAME_LEN = 128
+      integer, parameter:: ENVVAR_VALUE_LEN = 128
 c-----pseudo (internal) environment variables
       type envvar_t
       sequence
-         character*128 name
-         character*128 value
+         character (len=ENVVAR_NAME_LEN) :: name
+         character (len=ENVVAR__LEN) :: 
       end type
       private envvar_t
             
