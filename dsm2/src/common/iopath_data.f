@@ -82,15 +82,7 @@ c-----input/output file names
       character*8 per_type_names(per_type_null) ! data type names (e.g. 'PER-AVER')
 
 
-c-----pseudo environment variables
-      integer
-     &     max_envvars          ! max number of pseudo (internal) env vars
 
-      parameter (
-     &     max_envvars=100
-     &     )
-
-      type(envvar_t) envvars(max_envvars)
 
 
       end module
