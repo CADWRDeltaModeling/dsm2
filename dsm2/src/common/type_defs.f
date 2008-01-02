@@ -254,12 +254,7 @@ c-----source of constituents
          character*20 :: dummy2    ! Alignment
       end type
 
-c-----pseudo (internal) environment variables
-      type envvar_t
-      sequence
-         character*130 name
-         character*130 value
-      end type
+
 
 c-----input/output file names
 
