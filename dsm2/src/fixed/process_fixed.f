@@ -687,7 +687,7 @@ c-----pseudo environment variable info
       use constants
       implicit none
 
-      include '../common/common.f'
+      include '../common/envvar.f'
 
       character
      &     input_line*250       ! raw input line
