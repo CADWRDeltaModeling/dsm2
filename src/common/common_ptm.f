@@ -17,19 +17,20 @@ C!    You should have received a copy of the GNU General Public License
 C!    along with DSM2.  If not, see <http://www.gnu.org/licenses/>.
 !</license>
 
+
       module common_ptm
       type part_injection_t
-         character*16 type      ! particle type (e.g. 'striped bass', 'salmon')
-         character*16 slength   ! Length of time from the start of the simulation when parts are injected e.g. 15min, 1day
-         character*16 length    ! Length of injection e.g. 15min, 1day
-         character*14 start_date  ! start date and time
+         character*16 type          ! particle type (e.g. 'striped bass', 'salmon')
+         character*16 slength = ' ' ! Length of time from the start of the simulation when parts are injected e.g. 15min, 1day
+         character*16 length = ' '  ! Length of injection e.g. 15min, 1day
+         character*14 :: start_date = ' ' ! start date and time of injection
          character*2 dummy1
-         character*14 end_date    ! end date and time
+         character*14 :: end_date = ' '   ! end date and time
          character*2 dummy2
-         integer      node      ! Location where particles are injected
-         integer      nparts    ! Number of particles injected at location
-         integer*4    start_julmin ! start julian minute
-         integer*4    end_julmin ! end julian minute
+         integer   :: node=0     ! Location where particles are injected
+         integer   :: nparts=0   ! Number of particles injected at location
+         integer*4 :: start_julmin ! start julian minute
+         integer*4 :: end_julmin ! end julian minute
          integer*4    length_julmin ! injection length in minutes
       end type
 
@@ -63,29 +64,28 @@ c-----Scalars for ptm
 
 
 c-----Values that indicate whether a scalar was specified in the input
-      integer
-     &     ptm_random_seed_int,
-     &     ptm_vert_constant_int,
-     &     ptm_trans_constant_int,
-     &     ptm_iprof_int,
-     &     ptm_igroup_int,
-     &     ptm_ivert_int,
-     &     ptm_itrans_int,
-     &     ptm_iey_int,
-     &     ptm_iez_int,
-     &     ptm_time_step_int,
-     &     ptm_trans_a_coef_int,
-     &     ptm_trans_b_coef_int,
-     &     ptm_trans_c_coef_int,
-     &     ptm_flux_percent_int,
-     &     ptm_group_percent_int,
-     &     ptm_flux_cumulative_int,
-     &     ptm_no_animated_int
+      integer :: ptm_random_seed_int = 0
+      integer :: ptm_vert_constant_int = 0
+      integer :: ptm_trans_constant_int = 0
+      integer :: ptm_iprof_int = 0
+      integer :: ptm_igroup_int = 0
+      integer :: ptm_ivert_int = 0
+      integer :: ptm_itrans_int = 0
+      integer :: ptm_iey_int = 0
+      integer :: ptm_iez_int = 0
+      integer :: ptm_time_step_int = 0
+      integer :: ptm_trans_a_coef_int = 0
+      integer :: ptm_trans_b_coef_int = 0
+      integer :: ptm_trans_c_coef_int = 0
+      integer :: ptm_flux_percent_int = 0
+      integer :: ptm_group_percent_int = 0
+      integer :: ptm_flux_cumulative_int = 0
+      integer :: ptm_no_animated_int = 0
 
 
       integer,parameter :: max_injection = 200 ! Maximum Injection Locations and time of injections combined
       integer :: npartno   = 1       ! Actual No of Injection Loc and times combined
-      integer :: ngroup_outputs       ! Actual No of Groups requested
+      integer :: ngroup_outputs = 0      ! Actual No of Groups requested
 
 
       type(part_injection_t) :: part_injection(max_injection)
