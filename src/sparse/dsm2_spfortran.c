@@ -5,7 +5,7 @@
  *     Eli Ateljevich
  *     California Department of Water resources
  *  Copyright (c) 2007 California Department of Water Resources.
- *  This file is part of dsm2 and is distributed under the same license
+ *  This file is part of dsm2 and is distributed under the same !<license
  *  as dsm2
  */
 
