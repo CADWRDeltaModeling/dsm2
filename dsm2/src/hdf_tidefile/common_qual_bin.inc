@@ -60,8 +60,8 @@ c-----Qual binary for PTM
          integer interval       ! minutes between tideblocks
          character*14 start_date ! file timestamp start
          character*14 end_date  ! file timestamp end
-         character*14 constituent(max_num_const) ! name of quality constituent
-         character*150 filename ! tidefile name
+         character*14 :: constituent(max_num_const) = ' ' ! name of quality constituent
+         character*150 :: filename = ' '                  ! tidefile name
          character*7 version    ! binary file version
       end structure
       record /qual_bin_file_str/ qual_bin_file

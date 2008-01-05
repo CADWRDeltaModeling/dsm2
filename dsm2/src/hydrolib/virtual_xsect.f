@@ -1,3 +1,4 @@
+<license>
 C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
@@ -14,7 +15,7 @@ C!    GNU General Public License for more details.
 
 C!    You should have received a copy of the GNU General Public License
 C!    along with DSM2.  If not, see <http://www.gnu.org/licenses/>.
-
+</license>
 
       subroutine virtual_xsect
 
