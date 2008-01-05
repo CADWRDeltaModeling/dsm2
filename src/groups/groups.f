@@ -42,16 +42,16 @@ c     Manages groups of DSM2 objects such as boundary flows, channels,...
       type GroupMemberPattern
 	character*32 :: predicate
 	character*32 :: pattern
-	integer*4 :: object ! object_type in database
+	integer*4 :: obj_type ! object_type in database
 	end type
 
 
       Type GroupMember
       character*32 :: name=miss_val_c ! Context-dependent name of group member,
                                 ! e.g. "sjr" is name of a time series 
-      integer*4    :: object=obj_null ! Type of member, e.g. "flow"
+      integer*4    :: obj_type=obj_null ! Type of member, e.g. "flow"
 	integer*4    :: number=miss_val_i
-      integer*4    :: object_no=miss_val_i ! Context-dependent internal index 
+      integer*4    :: obj_no=miss_val_i ! Context-dependent internal index 
                                 ! of member, e.g. index in pathinput
       End Type
 
@@ -79,8 +79,8 @@ c-----Constants
 	groupArray(0).id=0
 	groupArray(0).nMember=1
       allocate(groupArray(0).members(1),STAT=allocstat)
-	groupArray(0).members(1).object=GROUP_ANY_TYPE
-	groupArray(0).members(1).object_no=GROUP_ANY_INDEX
+	groupArray(0).members(1).obj_type=GROUP_ANY_TYPE
+	groupArray(0).members(1).obj_no=GROUP_ANY_INDEX
 	return
 	end subroutine
 
@@ -97,8 +97,8 @@ c-----Constants
 	n=groupArray(grp).nMember
 	target_type = TargetType(obj_type)
       do i=1,n
-         if ( groupArray(grp).members(i).object .eq. obj_type .and. 
-     &      groupArray(grp).members(i).object_no .eq. ndx)then
+         if ( groupArray(grp).members(i).obj_type .eq. obj_type .and. 
+     &      groupArray(grp).members(i).obj_no .eq. ndx)then
             
 	      GroupContains =.true.
 	      exit
@@ -120,8 +120,8 @@ c-----Constants
       nnew=0
 	norig=groupArray(grp).nMember
 	do i = 1, nmember
-         if (.not. groupContains(grp,addmembers(i).object,
-     &                   addmembers(i).object_no))then
+         if (.not. groupContains(grp,addmembers(i).obj_type,
+     &                   addmembers(i).obj_no))then
 	      nnew=nnew+1
             ndx_new(nnew)=i
    	    end if
@@ -296,20 +296,20 @@ c     matching the pattern string.
 	  
 	  do j=1,groupArray(i).nMemberPatterns
            cstring=groupArray(i).memberPatterns(j).pattern
-	     objtype=groupArray(i).memberPatterns(j).object
+	     objtype=groupArray(i).memberPatterns(j).obj_type
 
 	     if( trim(cstring) .eq. 'all')then
 	        nmatch=1
 	        allocate(newmembers(1),STAT=alloc_stat)
-	        newmembers(1).object=TargetType(objtype)
-	        newmembers(1).object_no=GROUP_ANY_INDEX
+	        newmembers(1).obj_type=TargetType(objtype)
+	        newmembers(1).obj_no=GROUP_ANY_INDEX
            else
 	        call NumberMatches(objtype,cstring,nmatch) ! pre calculate all objects
 		                                            ! that match and returns # matches
 	        if (nmatch .gt. 0) allocate(newmembers(nmatch),STAT=alloc_stat)  ! allocate space for these matches
  	        do k=1,nmatch
-	           newmembers(k).object=TargetType(objtype) ! load objects that match into new members
-	           call RetrieveMatch(k,newmembers(k).object_no)	            
+	           newmembers(k).obj_type=TargetType(objtype) ! load objects that match into new members
+	           call RetrieveMatch(k,newmembers(k).obj_no)	            
 	        end do
 	     end if
 	     if (nmatch .gt. 0)then
@@ -330,8 +330,8 @@ c     matching the pattern string.
 	IsAllChannelReservoir=.false.
        ! loop through patterns, check object type == obj_channel or obj_reservoir
      	do i=1,a_group.nMemberPatterns
-         if (not((a_group.memberPatterns(i).object.eq.obj_channel).or.
-     &	   (a_group.memberPatterns(i).object.eq.obj_reservoir)) )then
+         if (not((a_group.memberPatterns(i).obj_type.eq.obj_channel).or.
+     &	   (a_group.memberPatterns(i).obj_type.eq.obj_reservoir)) )then
              return 
 	   end if
 	end do
@@ -389,12 +389,12 @@ c     local variable
       character*16 typename
 	character*32 obj_identifier
 
-      call obj_type_name(a_group.members(j).object,typename)
-      if(a_group.members(j).object_no .eq. GROUP_ANY_INDEX) then
+      call obj_type_name(a_group.members(j).obj_type,typename)
+      if(a_group.members(j).obj_no .eq. GROUP_ANY_INDEX) then
               write(obj_identifier,*)'all'
       else 
-	        call objno_to_name(a_group.members(j).object,
-     &           a_group.members(j).object_no,obj_identifier)
+	        call objno_to_name(a_group.members(j).obj_type,
+     &           a_group.members(j).obj_no,obj_identifier)
 	end if
       GroupToString="Type: "//trim(typename)//" Identifier: "//trim(obj_identifier)
       return 
