@@ -48,7 +48,7 @@ c-----path input (time-varying data)
       integer ifltab_in(600,max_dssinfiles)           ! DSS table for each input file
 
 
-      integer,parameter :: max_outputpaths=500  ! maximum number of output pathnames
+      integer,parameter :: max_outputpaths=1000  ! maximum number of output pathnames
       integer :: noutpaths = 0                  ! actual number of output pathnames
 
 
