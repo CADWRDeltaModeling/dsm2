@@ -24,25 +24,33 @@ bool GateInstallInterface::operator==( const GateInstallInterface& rhs){
 //   set_gate_install_datasource( ndx, register_express_for_data_source(express),
 //      express->eval(), express->isTimeDependent()); //todo: finish this up
 //}
-
-///////////////
+///////////////////////////
 
 void DeviceOpInterface::set(double val){ 
    set_device_op_coef(ndx,devndx,direction,val); 
 }
 
 void DeviceOpInterface::setDataExpression(DoubleNodePtr express){
-   set_device_op_datasource( ndx, devndx, direction, register_express_for_data_source(express),
+   set_device_op_datasource( ndx, 
+                             devndx, 
+							 direction, 
+							 register_express_for_data_source(express),
       express->eval(), express->isTimeDependent()); //todo: finish this up
 }
 
 double DeviceOpInterface::eval(){
+	if (direction == 0)
+	{
+	   throw logic_error("Gate op cannot be requested from 'both' directions");
+	}
    return get_device_op_coef(ndx,devndx,direction);
 }
 
 bool DeviceOpInterface::operator==( const DeviceOpInterface& rhs){
    return ndx == rhs.ndx && devndx == rhs.ndx && direction == rhs.direction;
 }
+
+
 
 ////////////////////
 

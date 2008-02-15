@@ -21,8 +21,6 @@ C!</license>
       use f90SQLConstants
       use f90SQL
       use IO_Units
-      use DFLIB
-      use DFPORT
 
       implicit none
 

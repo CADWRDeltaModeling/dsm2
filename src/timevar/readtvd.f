@@ -126,15 +126,6 @@ c-----local variables
  630  format(/'Unrecognized data period type: ',a
      &     /' for path: ',a)
 
-c-----get synchronize string for current model time, in case there is
-c-----a synchronize pathinput
-      if (pathinput(inpath_ptr(1)).interval(:3) .ne. 'ir-') then ! regular interval data
-         jm_next=incr_intvl(julmin, pathinput(inpath_ptr(1)).e_part,
-     &        nearest_boundary)
-         datetime1=jmin2cdt(jm_next)
-         call get_intvl(datetime1, pathinput(inpath_ptr(1)).e_part,
-     &        current_sync)
-      endif
 
 c-----Check if new data needs to be read from DSS to arrays
       do i=1,npaths
@@ -207,42 +198,24 @@ c--------time step; depends on whether data is to be synced or not
 c--------calculate this once each for synchronized and non-synchronized
 c--------paths, for regular data; for irregular, calc for every path
 
-         if (pathinput(ptr).sync) then ! synchronized data
-            if (bufndx_next_sync .eq. -1 .or.
-     &           pathinput(ptr).interval(:3) .eq. 'ir-') then
-               ndx_next=bufndx_sync(indata, i, current_sync,
-     &              pathinput(ptr).e_part, last_ndx_next(ptr), block_dim,
-     &              inpaths_dim)
-               bufndx_next_sync=ndx_next
-            else
-               ndx_next=bufndx_next_sync
-            endif
-         else
-            if (bufndx_next_nosync .eq. -1 .or.
+        if (bufndx_next_nosync .eq. -1 .or.
      &           pathinput(ptr).interval(:3) .eq. 'ir-') then
                ndx_next=bufndx_nosync(indata, julmin+pathinput(ptr).
      &              diff_julmin, i, last_ndx_next(ptr),
      &              block_dim, inpaths_dim)
                bufndx_next_nosync=ndx_next
-            else
+         else
                ndx_next=bufndx_next_nosync
-            endif
          endif
 
-         if (ndx_next .eq. -1) then
-c-----------either all irregular data for this path is before current time,
-c-----------or synchronize didn't work
-            if (.not. pathinput(ptr).sync) then ! not a synch request
+
+        if (ndx_next .eq. -1) then
 c--------------if the 'last' value is wanted, finding newer data doesn't matter
-               if (interpolate_value) then
-                  write(unit_error,625) trim(current_date),trim(pathinput(ptr).path)
-                  call exit(2)
-               else             ! simply use last data available
-                  ndx_next=block_dim ! readdss.f copies last value to end of buffer
-               endif
-            else                ! sync request
-               write(unit_error,626) trim(current_date),trim(pathinput(ptr).path)
+            if (interpolate_value) then
+               write(unit_error,625) trim(current_date),trim(pathinput(ptr).path)
                call exit(2)
+            else             ! simply use last data available
+               ndx_next=block_dim ! readdss.f copies last value to end of buffer
             endif
          endif
          jul_next=indata(ndx_next,i).julmin
@@ -259,28 +232,16 @@ c--------later
 
 c--------fixme: check this if statement
          if (ndx_next .eq. 1 .and.
-     &        pathinput(ptr).interval(:3) .eq. 'ir-') then ! all irregular data for this path is after current time
-c-----------generate error if no other priority path, else perhaps
-c-----------lesser priority path has data
-            if (pathinput(ptr).priority .eq. 0) then
+     &        pathinput(ptr).interval(:3) .eq. 'ir-') then 
+            ! all irregular data for this path is after current time
                datetime1=jmin2cdt(indata(1,i).julmin)
                write(unit_error,620) trim(current_date),trim(pathinput(ptr).path)
                call exit(2)
-            endif
-            pathinput(ptr).replace=.true. ! later try to replace this
-            call set_dataqual(indata(ndx_next,i),REJECT_DATA)
-            ndx_next=2
          endif
 
 c--------index in dss buffer for data at previous or current time step
          if (ndx_next .ge. 2) then
             ndx_prev_curr=ndx_next-1
-         else if (pathinput(ptr).start_date .eq. generic_date) then ! previous index wraps backward for generic data
-            ndx_prev_curr=1
-            do while (ndx_prev_curr .lt. block_dim .and.
-     &           .not. check_dataqual(indata(ndx_prev_curr+1,i),MISSING_DATA))
-               ndx_prev_curr=ndx_prev_curr+1
-            enddo
          else                   ! this shouldn't happen
             datetime1=jmin2cdt(indata(ndx_next,i).julmin)
             write(unit_error,613)
@@ -331,9 +292,9 @@ c-----------to fill in; or continue if the path is part of a priority list
 c-----------(a last check will be made for bogus data just before use)
             if ( (cont_question .or. cont_missing) .and.
      &           (.not. check_dataqual(last_value(ptr),QUESTION_DATA) .and.
-     &           .not. check_dataqual(last_value(ptr),MISS_OR_REJ_DATA)) .or.
-     &           pathinput(ptr).priority .ge. 1) then
-               if (pathinput(ptr).priority .le. 1 .and.
+     &           .not. check_dataqual(last_value(ptr),MISS_OR_REJ_DATA)) 
+     &           ) then
+               if (
      &              warn_question .and.
      &              check_dataqual(indata(ndx,i),QUESTION_DATA) .and.
      &              .not. check_dataqual(last_value(ptr),MISS_OR_REJ_DATA)) then
@@ -344,7 +305,7 @@ c-----------(a last check will be made for bogus data just before use)
      &                 datetime1,current_date,last_value(ptr).data,
      &                 datetime2
                endif
-               if (pathinput(ptr).priority .le. 1 .and.
+               if (
      &              warn_missing .and.
      &              check_dataqual(indata(ndx,i),MISS_OR_REJ_DATA) .and.
      &              .not. check_dataqual(last_value(ptr),MISS_OR_REJ_DATA)) then
@@ -361,12 +322,10 @@ c-----------(a last check will be made for bogus data just before use)
                   val1=indata(ndx,i).data
                endif
             else                ! don't continue on quest/miss/rej data, and no replacement data available
-               if (pathinput(ptr).priority .eq. 0) then
                   write(unit_error, 611)
      &                 trim(pathinput(ptr).path),
      &                 datetime1,current_date
                   call exit(2)
-               endif
             endif
          endif
 
@@ -381,12 +340,11 @@ c-----------assume that the full range of data can fit into a data block
 c--------------continue if user requests it and good data is available
 c--------------to fill in, or the path is for replacement only
                if ( (cont_missing .and.
-     &              .not. check_dataqual(last_value(ptr),MISS_OR_REJ_DATA)) .or.
-     &              pathinput(ptr).priority .ge. 1) then
+     &              .not. check_dataqual(last_value(ptr),MISS_OR_REJ_DATA)) 
+     &             ) then
                   pathinput(ptr).replace=.true. ! later try to replace this
                   val2=last_value(ptr).data
-                  if (pathinput(ptr).priority .le. 1 .and.
-     &                 warn_missing) then
+                  if (warn_missing) then
                      datetime2=jmin2cdt(last_value(ptr).julmin)
                      write(unit_screen, 615)
      &                    trim(pathinput(ptr).path),
@@ -420,9 +378,9 @@ c-----------interpolate to end of time step
  100     continue
 
 c--------change sign if desired
-         if (pathinput(ptr).sign .eq. '-') then
+         if (pathinput(ptr).sign .eq. -1) then
             pathinput(ptr).value=-abs(pathinput(ptr).value)
-         else if (pathinput(ptr).sign .eq. '+') then
+         else if (pathinput(ptr).sign .eq. 1) then
             pathinput(ptr).value=abs(pathinput(ptr).value)
          endif
 c--------change value if desired

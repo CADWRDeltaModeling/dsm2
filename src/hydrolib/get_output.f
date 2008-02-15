@@ -60,9 +60,9 @@ c-----statement function to interpolate value along channel
 c      val_x(val_up,val_down,chan_dist,chan_len)=val_up-(val_up
 c     &     -val_down)*(chan_dist/chan_len)
 
-      if (pathoutput(ptr).object .eq. obj_channel) then ! output is from channel
+      if (pathoutput(ptr).obj_type .eq. obj_channel) then ! output is from channel
 
-         intchan=pathoutput(ptr).object_no
+         intchan=pathoutput(ptr).obj_no
          nodedown=-StreamEndNode(-intchan)
          nodeup=StreamEndNode(intchan)
          ngpoints=nodedown-nodeup+1
@@ -91,49 +91,49 @@ c     &     -val_down)*(chan_dist/chan_len)
          else if (pathoutput(ptr).meas_type .eq. 'flow') then
             get_output=globalStreamFlow(closest_node)
          endif
-      else if (pathoutput(ptr).object .eq. obj_reservoir) then ! output is from reservoir
-         hydrores=pathoutput(ptr).object_no
+      else if (pathoutput(ptr).obj_type .eq. obj_reservoir) then ! output is from reservoir
+         hydrores=pathoutput(ptr).obj_no
          nodeup=pathoutput(ptr).res_node_no
          if (nodeup .gt. 0) then ! flow to node
             get_output=-qres(hydrores,nodeup) ! + qres: flow from res to chan
          else if (pathoutput(ptr).meas_type .eq. 'stage') then ! stage of reservoir
             get_output=yres(hydrores)
          else if (pathoutput(ptr).meas_type .eq. 'flow-net') then ! net flow in/out of reservoir
-            get_output=reservoir_source_sink(pathoutput(ptr).object_no, ALL_FLOWS)
+            get_output=reservoir_source_sink(pathoutput(ptr).obj_no, ALL_FLOWS)
             do i=1,res_geom(hydrores).nnodes
                get_output=get_output-qres(hydrores,i)
             enddo
          else if (pathoutput(ptr).meas_type .eq. 'pump') then ! net pumping out of reservoir
-            get_output=reservoir_source_sink(pathoutput(ptr).object_no, ALL_FLOWS)
+            get_output=reservoir_source_sink(pathoutput(ptr).obj_no, ALL_FLOWS)
          endif
 
-	else if (pathoutput(ptr).object .eq. obj_gate) then
+	else if (pathoutput(ptr).obj_type .eq. obj_gate) then
 	   if(pathoutput(ptr).meas_type .eq. 'pos') then
 	       ! //@todo: 'pos' is deprecated
-	       get_output=gateArray(pathoutput(ptr).object_no).Devices(
+	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).opCoefToNode
 	   else if(pathoutput(ptr).meas_type .eq. 'flow') then
-     	       get_output=gateArray(pathoutput(ptr).object_no).flow
+     	       get_output=gateArray(pathoutput(ptr).obj_no).flow
 	   else if(pathoutput(ptr).meas_type .eq. 'device-flow') then
-   	       get_output=gateArray(pathoutput(ptr).object_no).Devices(
+   	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).flow
 	   else if(pathoutput(ptr).meas_type .eq. 'op-to-node') then
-     	       get_output=gateArray(pathoutput(ptr).object_no).Devices(
+     	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).opCoefToNode
 	   else if(pathoutput(ptr).meas_type .eq. 'op-from-node') then
-     	       get_output=gateArray(pathoutput(ptr).object_no).Devices(
+     	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).opCoefFromNode
 	   else if(pathoutput(ptr).meas_type .eq. 'position') then
-     	       get_output=gateArray(pathoutput(ptr).object_no).Devices(
+     	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).position
 	   else if(pathoutput(ptr).meas_type .eq. 'install') then
 	       get_output=1.0
-	       if(gateArray(pathoutput(ptr).object_no).free) get_output=0.
+	       if(gateArray(pathoutput(ptr).obj_no).free) get_output=0.
 	   else if(pathoutput(ptr).meas_type .eq. 'height') then
-   	       get_output=gateArray(pathoutput(ptr).object_no).Devices(
+   	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).height
 	   else if(pathoutput(ptr).meas_type .eq. 'elev') then
-   	       get_output=gateArray(pathoutput(ptr).object_no).Devices(
+   	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).baseElev
 	   else
 	       get_output=miss_val_r

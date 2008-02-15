@@ -218,6 +218,7 @@ device_coef_factory(const NamedValueLookup::ArgMap& argmap){
      string dstr=iter->second;
      if (dstr == "to_node") direct=direct_to_node();
      else if (dstr == "from_node") direct=direct_from_node();
+	 else if (dstr == "both") direct=direct_to_from_node();
      else throw oprule::parser::InvalidIdentifier("Illegal op direction: " + dstr);
   }
 
@@ -244,6 +245,8 @@ device_op_factory(const NamedValueLookup::ArgMap& argmap){
      if (dstr == "to_node"){ 
 		 direct=direct_to_node();
 	 }else if (dstr == "from_node") {
+		 direct=direct_from_node();
+	 }else if (dstr == "to_from_node") {
 		 direct=direct_from_node();
 	 }else throw oprule::parser::InvalidIdentifier("Illegal op direction: " + dstr);
   }

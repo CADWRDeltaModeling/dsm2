@@ -240,10 +240,10 @@ c-----object-to-object flows that involve nodes
 c-----(reservoir obj2obj flows are handled in the reservoir calcs)
       do i=1,nobj2obj
 c--------from a node
-         if (obj2obj(i).from.object .eq. obj_node) then
-            intchan=abs(obj2obj(i).from.hydrochan) ! - channel number denotes downstream end connected
+         if (obj2obj(i).from_obj.obj_type .eq. obj_node) then
+            intchan=abs(obj2obj(i).from_obj.hydrochan) ! - channel number denotes downstream end connected
 c-----------note sign: from flow is subtracted
-            if (obj2obj(i).from.hydrochan .gt. 0) then ! upstream end of channel connected to node
+            if (obj2obj(i).from_obj.hydrochan .gt. 0) then ! upstream end of channel connected to node
                StreamBndValue(intchan*2-1) =
      &              StreamBndValue(intchan*2-1) - obj2obj(i).flow
             else                ! downstream end of channel connected to node
@@ -253,9 +253,9 @@ c-----------note sign: from flow is subtracted
          endif
 
 c--------to a node
-         if (obj2obj(i).to.object .eq. obj_node) then
-            intchan=abs(obj2obj(i).to.hydrochan) ! - channel number denotes downstream end connected
-            if (obj2obj(i).to.hydrochan .gt. 0) then ! upstream end of channel connected to node
+         if (obj2obj(i).to_obj.obj_type .eq. obj_node) then
+            intchan=abs(obj2obj(i).to_obj.hydrochan) ! - channel number denotes downstream end connected
+            if (obj2obj(i).to_obj.hydrochan .gt. 0) then ! upstream end of channel connected to node
                StreamBndValue(intchan*2-1) =
      &              StreamBndValue(intchan*2-1) + obj2obj(i).flow
             else                ! downstream end of channel connected to node
@@ -266,10 +266,10 @@ c--------to a node
       enddo
 
       do i=1,nqext
-	   obj_type=qext(i).attach.object
+	   obj_type=qext(i).attach_obj_type
 	   value=qext(i).flow
          if (obj_type.eq. obj_node) then
-            intchan=node_geom(qext(i).attach.object_no).sumQChan
+            intchan=node_geom(qext(i).attach_obj_no).sumQChan
 	      if (intchan .gt. 0)then
 		      ! neg channel number denotes downstream end
                 StreamBndValue(intchan*2-1) = 
@@ -348,9 +348,9 @@ c-----internal flows
      &     acct_ndx .eq. ALL_FLOWS .or.
      &     acct_ndx .eq. QINT_FLOWS) then
          i=1
-         do while (res_geom(reservoir_no).qint(i) .ne. 0)
-            qndx=res_geom(reservoir_no).qint(i)
-            if (obj2obj(qndx).from.object .eq. obj_reservoir) then ! from reservoir
+         do while (res_geom(reservoir_no).qinternal(i) .ne. 0)
+            qndx=res_geom(reservoir_no).qinternal(i)
+            if (obj2obj(qndx).from_obj.obj_type .eq. obj_reservoir) then ! from reservoir
                reservoir_source_sink_prev=reservoir_source_sink_prev -
      &              obj2obj(qndx).prev_flow
             else                ! to reservoir
@@ -406,9 +406,9 @@ c-----internal flows
      &     acct_ndx .eq. ALL_FLOWS .or.
      &     acct_ndx .eq. QINT_FLOWS) then
          i=1
-         do while (res_geom(reservoir_no).qint(i) .gt. 0) !todo: unclear substitute for looping nqext
-            qndx=res_geom(reservoir_no).qint(i)
-            if (obj2obj(qndx).from.object .eq. obj_reservoir) then ! from reservoir
+         do while (res_geom(reservoir_no).qinternal(i) .gt. 0) !todo: unclear substitute for looping nqext
+            qndx=res_geom(reservoir_no).qinternal(i)
+            if (obj2obj(qndx).from_obj.obj_type .eq. obj_reservoir) then ! from reservoir
                reservoir_source_sink=reservoir_source_sink -
      &              obj2obj(qndx).flow
             else                ! to reservoir

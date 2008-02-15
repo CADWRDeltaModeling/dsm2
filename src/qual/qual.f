@@ -19,7 +19,6 @@ C!</license>
 
       program watqual
       Use IO_Units
-      USE DFLIB                 !! <NT>
       use dsm2_database
       use common_qual
       use common_tide
@@ -839,20 +838,20 @@ c--------(priority 2 or higher)
          call get_inp_data(ptr) ! get input data from buffers
 
 c--------meteorological values
-         if (pathinput(ptr).c_part .eq. 'cloud') then
+         if (pathinput(ptr).variable .eq. 'cloud') then
             cloud=pathinput(ptr).value
-         else if (pathinput(ptr).c_part .eq. 'dryblb') then
+         else if (pathinput(ptr).variable .eq. 'dryblb') then
             dryblb=pathinput(ptr).value
-         else if (pathinput(ptr).c_part .eq. 'wetblb') then
+         else if (pathinput(ptr).variable .eq. 'wetblb') then
             wetblb=pathinput(ptr).value
-         else if (pathinput(ptr).c_part .eq. 'wind') then
+         else if (pathinput(ptr).variable .eq. 'wind') then
             wind=pathinput(ptr).value
-         else if (pathinput(ptr).c_part .eq. 'atmpr') then
+         else if (pathinput(ptr).variable .eq. 'atmpr') then
             atmpr=pathinput(ptr).value
          else
 c-----------water quality constituent
-            if (pathinput(ptr).object .eq. obj_node) then
-               intnode=pathinput(ptr).object_no
+            if (pathinput(ptr).obj_type .eq. obj_node) then
+               intnode=pathinput(ptr).obj_no
 c--------------only the stage type boundary EC is used later from this section;
 c--------------flow ECs are handled in node_rate and res_rate
                do i=1,nstgbnd

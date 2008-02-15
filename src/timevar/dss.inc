@@ -48,9 +48,9 @@ C!</license>
      &     ,max_inp_month = 1000 ! maximum input paths for month intervals
      &     ,max_inp_year = 3200 ! maximum input paths for year intervals !@todo was 10, changed because of constant
      &     ,max_inp_irr = 250   ! maximum input paths for irregular intervals
-     &     ,max_out_min = 500   ! maximum output paths for 15minute intervals
+     &     ,max_out_min = 1000   ! maximum output paths for 15minute intervals
      &     ,max_out_hour = 200  ! maximum output paths for hour intervals
-     &     ,max_out_day = 200   ! maximum output paths for day intervals
+     &     ,max_out_day = 1000   ! maximum output paths for day intervals
      &     ,max_out_week = 10   ! maximum output paths for week intervals
      &     ,max_out_month = 200 ! maximum output paths for month intervals
      &     ,max_out_year = 10   ! maximum output paths for year intervals

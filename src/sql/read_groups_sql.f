@@ -243,7 +243,7 @@ c-----loop through members
 	      return
          else
 	     nsubgroup=nsubgroup+1
-           groupArray(GroupNdx).memberPatterns(nsubgroup).object=objType
+           groupArray(GroupNdx).memberPatterns(nsubgroup).obj_type=objType
 	     groupArray(GroupNdx).memberPatterns(nsubgroup).pattern=pattern(1:patternlen)
          end if
       end do

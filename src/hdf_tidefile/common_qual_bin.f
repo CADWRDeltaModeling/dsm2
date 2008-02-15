@@ -23,7 +23,7 @@ c     The Qual binary file must be written
 c     in HDF5 and not based on nodes. 
 c     This module is here to keep legacy references happy.
       module common_qual_bin
-      integer, parameter :: max_num_cons = 10    ! maximum number of constituents
+      integer, parameter :: max_num_const = 10    ! maximum number of constituents
       integer, parameter :: max_qual_nodes = 650 ! maximum number of nodes
 
       type qual_bin_file_t
@@ -34,7 +34,7 @@ c     This module is here to keep legacy references happy.
          integer*4 interval       ! minutes between tideblocks
          character*14 start_date ! file timestamp start
          character*14 end_date  ! file timestamp end
-         character*14 :: constituent(max_num_const) = ' ' ! name of quality constituent
+         character*14,dimension(max_num_const) :: constituent = ' ' ! name of quality constituent
          character*150 :: filename = ' '                  ! tidefile name
          character*7 version    ! binary file version
       end type

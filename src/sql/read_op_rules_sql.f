@@ -41,6 +41,7 @@ c-----load f90SQL modules
       use IO_Units
       use logging
       use constants
+      use envvar
       implicit none
 
 c-----arguments
@@ -63,7 +64,7 @@ c-----local variables
      &     ,allocstat
      &     ,ext2int
      &     ,name_to_objno       ! Function for converting object name to internal number
-     &     ,nenv,repl_envvars   ! environment var replacement
+     &     ,nenv                ! environment var replacement
      &     ,deflen
 
       character
@@ -131,7 +132,7 @@ c--------Fetch a record from the result set
          call locase(name)
 	   if (name .ne. prev_name ) then ! use highest layer, if UseObj=T
 	      definitiontext=definitiontext(1:definelen)
-            nenv=repl_envvars(definitiontext,ctmp)
+            nenv=replace_envvars(definitiontext,ctmp)
 	      definitiontext=ctmp
 	      ctmp=" "
 		  write(ctmp,"(a,1x,':=',1x,a,';')")
@@ -237,9 +238,9 @@ c--------Fetch a record from the result set
          if (name .ne. prev_name .and. UseObj) then ! use highest layer, if UseObj=T
 	      definitiontext=definitiontext(1:definelen)
             triggertext=triggertext(1:triggerlen)
-            nenv=repl_envvars(definitiontext,ctmp)
+            nenv=replace_envvars(definitiontext,ctmp)
 	      definitiontext=ctmp
-            nenv=repl_envvars(triggertext,ctmp)
+            nenv=replace_envvars(triggertext,ctmp)
 	      triggertext=ctmp
 	      ctmp=" "
 		  write(ctmp,"(a,1x,':=',1x,a,1x,'WHEN',1x,a,';')")

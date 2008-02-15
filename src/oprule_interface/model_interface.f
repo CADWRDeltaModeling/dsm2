@@ -225,7 +225,7 @@ c            better for hydro to keep track of its own time
 
 c     return the constant, so FORTRAN and C can share it
 	integer function direct_to_node()
-	use GATES, only: FLOW_COEF_TO_NODE
+	use GATES
 	implicit none
 	direct_to_node=FLOW_COEF_TO_NODE
 	return
@@ -233,12 +233,22 @@ c     return the constant, so FORTRAN and C can share it
 
 c     return the constant, so FORTRAN and C can share it
 	integer function direct_from_node()
-	use GATES, only: FLOW_COEF_FROM_NODE
+	use GATES
 	implicit none
 	direct_from_node=FLOW_COEF_FROM_NODE
 	return
 	end function
 
+c     return the constant, so FORTRAN and C can share it
+	integer function direct_to_from_node()
+	use GATES
+	implicit none
+	direct_to_from_node=FLOW_COEF_TO_FROM_NODE
+	return
+	end function	
+	
+	
+	
 
       real*8 function get_external_flow(ndx)
 	use grid_data
@@ -326,10 +336,12 @@ c     return the constant, so FORTRAN and C can share it
       real(8) function get_device_op_coef(gndx, devndx, direction)
 	use Gates, only: GateArray
       implicit none
-	integer gndx, devndx, direction, direct_to_node
+	integer gndx, devndx, direction
+	integer direct_to_node,direct_from_node,direct_to_from_node
+	get_device_op_coef = -901.0
 	if (direction .eq. direct_to_node())then
         get_device_op_coef=GateArray(gndx).Devices(devndx).opCoefToNode
-	else
+	else if(direction .eq. direct_from_node())then
 	  get_device_op_coef=GateArray(gndx).Devices(devndx).opCoefFromNode
 	end if
       return 
@@ -338,13 +350,17 @@ c     return the constant, so FORTRAN and C can share it
       subroutine set_device_op_coef(gndx, devndx, direction, val)
 	use Gates, only: GateArray
       implicit none
-	integer gndx, devndx,direction, direct_to_node
+	integer gndx, devndx,direction
+	integer direct_to_node,direct_from_node,direct_to_from_node
 	real(8) val
 	if (direction .eq. direct_to_node())then
         GateArray(gndx).Devices(devndx).opCoefToNode=val
-	else
+	else if(direction .eq. direct_from_node())then
         GateArray(gndx).Devices(devndx).opCoefFromNode=val
-	end if
+	else if(direction .eq. direct_to_from_node())then
+        GateArray(gndx).Devices(devndx).opCoefToNode=val	
+        GateArray(gndx).Devices(devndx).opCoefFromNode=val
+      end if
 	return
       end subroutine
 
@@ -352,14 +368,15 @@ c     return the constant, so FORTRAN and C can share it
      *                        direction, expr, val, timedep)
 	use Gates, only: GateArray
       implicit none
-	integer gndx, devndx, direction, direct_to_node
+	integer gndx, devndx, direction
+	integer direct_to_node,direct_from_node,direct_to_from_node
 	integer expr
 	real*8 val
 	logical timedep
 	if (direction .eq. direct_to_node())then
 	 call set_datasource(
      &    GateArray(gndx).Devices(devndx).op_to_node_datasource,expr,val,timedep)
-	else
+	else if(direction .eq. direct_from_node())then
 	 call set_datasource(
      &    GateArray(gndx).Devices(devndx).op_from_node_datasource,expr,val,timedep)
       end if

@@ -158,11 +158,7 @@ c-----------set julian minute for each data value
 c-----------fill data array
             indata(i,pn_intvl).data=values(i)
 c-----------data quality flags, use from DSS file or user-specified value?
-            if (pathinput(pathnumber).use_flag .eq. miss_val_i) then
-               indata(i,pn_intvl).flag=flags(i)
-            else
-               indata(i,pn_intvl).flag=pathinput(pathnumber).use_flag
-            endif
+            indata(i,pn_intvl).flag=flags(i)
          enddo
       else                      ! irregular time series
 c--------julian day/minute for end of data:
@@ -201,11 +197,7 @@ c--------zritsx doesn't initialize flags to zero
             indata(i,pn_intvl).julmin=itimes(i)+jul_jbdate
             indata(i,pn_intvl).data=values(i)
 c-----------data quality flags, use from DSS file or user-specified value?
-            if (pathinput(pathnumber).use_flag .eq. miss_val_i) then
-               indata(i,pn_intvl).flag=flags(i)
-            else
-               indata(i,pn_intvl).flag=pathinput(pathnumber).use_flag
-            endif
+            indata(i,pn_intvl).flag=flags(i)
          enddo
 c--------if less values returned than block_dim, fill in remainder of data
 c--------array with last value so readtvd doesn't keep re-reading data.

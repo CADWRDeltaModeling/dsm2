@@ -119,12 +119,12 @@ c-----------------matched external flow and this input path
                   do n=1,n_conqext(i)
 c--------------------check for same constituent multiple times to same flow
 c--------------------compare constituent type
-                     if (pathinput(p).c_part .eq.
-     &                    pathinput(const_qext(i,n)).c_part) then ! same constituent
+                     if (pathinput(p).variable .eq.
+     &                    pathinput(const_qext(i,n)).variable) then ! same constituent
                         constituent_found=.true.
                         write(unit_error,815)
-     &                       trim(obj_names(qext(i).attach.object)),
-     &                       trim(qext(i).attach.obj_name)
+     &                       trim(obj_names(qext(i).attach_obj_type)),
+     &                       trim(qext(i).attach_obj_name)
                         const_qext(i,n)=p
                      endif
                   enddo

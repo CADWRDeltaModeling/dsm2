@@ -42,8 +42,8 @@ c----- fill up stage boundary information
 	
       do i=1,nstgbnd
 	   node_geom(stgbnd(i).node).boundary_type = stage_boundary
-	   stageBoundary(i).attach.object = obj_node
-	   stageBoundary(i).attach.object_no = stgbnd(i).node
+	   stageBoundary(i).attach_obj_type= obj_node
+	   stageBoundary(i).attach_obj_no = stgbnd(i).node
       enddo
 
 c-----endtemp
@@ -151,7 +151,7 @@ c-----
       do i=1, noutpaths
          if (index(pathoutput(i).meas_type,'ptm_group') .eq. 1) then
 	      ngroup_output=ngroup_output+1
-	      groupOut(ngroup_output).groupNdx = pathoutput(i).object_no
+	      groupOut(ngroup_output).groupNdx = pathoutput(i).obj_no
             pathoutput(ngroup_output).flux_group_ndx=ngroup_output
          endif
       enddo
@@ -209,10 +209,10 @@ c----- update reservoir info
             wb(id).node(j) = res_geom(i).node_no(j)
          enddo
          j=1
-         do while(res_geom(i).qint(j) .ne. 0)
+         do while(res_geom(i).qinternal(j) .ne. 0)
             wb(id).numberOfNodes = wb(id).numberOfNodes + 1
             numNodes = wb(id).numberOfNodes
-            objId = res_geom(i).qint(j)
+            objId = res_geom(i).qinternal(j)
             objId = get_unique_id_for_conveyor( objId )
             wb(id).node(numNodes) = 
      &           get_internal_node_id_for_unique_ids( id, objId )
@@ -237,7 +237,7 @@ c----- update stage boundary info
          wb(id).globalIndex = id
          wb(id).numberOfNodes = 1
          wb(id).group = 0
-         wb(id).node(1) = stageBoundary(i).attach.object_no
+         wb(id).node(1) = stageBoundary(i).attach_obj_no
       enddo
 
 
@@ -253,17 +253,17 @@ c         wb(id).acctType = qext(i).group_ndx
          wb(id).globalIndex = id
          wb(id).numberOfNodes = 1
          wb(id).group = 0
-         if ( qext(i).attach.object .eq. obj_node ) then
-            wb(id).node(1) = qext(i).attach.object_no
-         else if ( qext(i).attach.object .eq. obj_reservoir ) then
-            objId = qext(i).attach.object_no
+         if ( qext(i).attach_obj_type .eq. obj_node ) then
+            wb(id).node(1) = qext(i).attach_obj_no
+         else if ( qext(i).attach_obj_type .eq. obj_reservoir ) then
+            objId = qext(i).attach_obj_no
             objId = get_unique_id_for_reservoir( objId )
             wb(id).node(1) = get_internal_node_id_for_unique_ids( 
      &           objId
      &           , id )
          else
 c-----------write(*,*) ' External types connection to type: ' ,
-c-----------&           qext(i).object, ' not handled '
+c-----------&           qext(i).obj_type, ' not handled '
          endif
       enddo
 c----- update conveyor info
@@ -277,29 +277,29 @@ c         wb(id).acctType = obj2obj(i).from.group_ndx
          wb(id).globalIndex = id
          wb(id).numberOfNodes = 2
          wb(id).group = 0
-         if ( obj2obj(i).from.object .eq. obj_node ) then
-            wb(id).node(1) = obj2obj(i).from.object_no
-         else if ( obj2obj(i).from.object .eq. obj_reservoir ) then
-            objId = obj2obj(i).from.object_no
+         if ( obj2obj(i).from_obj.obj_type .eq. obj_node ) then
+            wb(id).node(1) = obj2obj(i).from_obj.obj_no
+         else if ( obj2obj(i).from_obj.obj_type .eq. obj_reservoir ) then
+            objId = obj2obj(i).from_obj.obj_no
             objId = get_unique_id_for_reservoir(objId)
             wb(id).node(1) = get_internal_node_id_for_unique_ids( 
      &           objId
      &           , id )
          else
 c-----------write(*,*) ' Internal types connection from type: ' ,
-c-----------&           obj2obj(i).from.object, ' not handled '
+c-----------&           obj2obj(i).from.obj_type, ' not handled '
          endif
-         if ( obj2obj(i).to.object .eq. obj_node ) then
-            wb(id).node(2) = obj2obj(i).to.object_no
-         else if ( obj2obj(i).to.object .eq. obj_reservoir ) then
-            objId = obj2obj(i).to.object_no
+         if ( obj2obj(i).to_obj.obj_type .eq. obj_node ) then
+            wb(id).node(2) = obj2obj(i).to_obj.obj_no
+         else if ( obj2obj(i).to_obj.obj_type .eq. obj_reservoir ) then
+            objId = obj2obj(i).to_obj.obj_no
             objId = get_unique_id_for_reservoir(objId)
             wb(id).node(2) = get_internal_node_id_for_unique_ids( 
      &           objId
      &           , id )
          else
 c-----------write(*,*) ' Internal types connection to type: ' ,
-c-----------&           obj2obj(i).to.object, ' not handled '
+c-----------&           obj2obj(i).to.obj_type, ' not handled '
          endif
       enddo
 
@@ -346,9 +346,9 @@ c-------- add external flows at node
          enddo
 c-------- add internal flows at node
          j=1
-         do while(node_geom(i).qint(j) .gt. 0 .and. j .le. max_qobj )
+         do while(node_geom(i).qinternal(j) .gt. 0 .and. j .le. max_qobj )
             nodes(i).nwbs = nodes(i).nwbs+1
-            qId = node_geom(i).qint(j)
+            qId = node_geom(i).qinternal(j)
             nodes(i).wbs(nodes(i).nwbs) = 
      &           get_unique_id_for_conveyor(qId)
             j = j + 1
@@ -365,7 +365,7 @@ c----- add reservoirs
       enddo
 c-------- add stage boundaries
       do j=1, nStageBoundaries
-         nnId = stageBoundary(j).attach.object_no
+         nnId = stageBoundary(j).attach_obj_no
          nodes(nnId).nwbs = nodes(nnId).nwbs + 1
          nodes(nnId).wbs(nodes(nnId).nwbs) = 
      &        get_unique_id_for_stage_boundary(j)
@@ -374,24 +374,24 @@ c-----create internal nodes info. These are connections between
 c-----waterbodies not explicitly connected through nodes. 
 c-----check external flows connected to a waterbody (ie. not a node)
       do i=1, nqext
-         if ( qext(i).attach.object .eq. obj_channel ) then
+         if ( qext(i).attach_obj_type .eq. obj_channel ) then
             nodeId = nodeId + 1
             nodes(nodeId).id = nodeId
             nodes(nodeId).nwbs = 2
-            nodes(nodeId).wbs(1) = qext(i).attach.object_no
+            nodes(nodeId).wbs(1) = qext(i).attach_obj_no
             nodes(nodeId).wbs(2) = get_unique_id_for_boundary(i)
-         elseif( qext(i).attach.object .eq. obj_reservoir ) then
+         elseif( qext(i).attach_obj_type .eq. obj_reservoir ) then
             nodeId = nodeId + 1
             nodes(nodeId).id = nodeId
             nodes(nodeId).nwbs = 2
-            objId = qext(i).attach.object_no
+            objId = qext(i).attach_obj_no
             nodes(nodeId).wbs(1) = 
      &           get_unique_id_for_reservoir(objId)
             nodes(nodeId).wbs(2) = get_unique_id_for_boundary(i)
 c----------- add nodes to reservoir if not present
 c-----------add_node_to_reservoir(nodeId)
-         else if( qext(i).attach.object .eq. obj_node ) then
-!             nnId = qext(i).object_no 
+         else if( qext(i).attach_obj_type .eq. obj_node ) then
+!             nnId = qext(i).obj_no 
 !             nodes(nnId).nwbs = nodes(nnId).nwbs + 1
 !             nodes(nnId).wbs(nodes(nnId).nwbs) = 
 !      &           get_unique_id_for_boundary(i)
@@ -406,33 +406,33 @@ c-----for now )
 c--------get global unique id for this internal flow
          conveyorId = get_unique_id_for_conveyor(i)
 c--------from object
-         if( obj2obj(i).from.object .eq. obj_reservoir) then
+         if( obj2obj(i).from_obj.obj_type .eq. obj_reservoir) then
             nodeId = nodeId+1
             nodes(nodeId).id = nodeId
-            objId = obj2obj(i).from.object_no
+            objId = obj2obj(i).from_obj.obj_no
             nodes(nodeId).nwbs = 2
             nodes(nodeId).wbs(1) = 
      &           get_unique_id_for_reservoir(objId)
             nodes(nodeId).wbs(2) = conveyorId
 c----------- add nodes to reservoir if not present
 c-----------add_node_to_reservoir(nodeId)
-         else if( obj2obj(i).from.object .eq. obj_node ) then
-!             nnId = obj2obj(i).from.object_no 
+         else if( obj2obj(i).from_obj.obj_type .eq. obj_node ) then
+!             nnId = obj2obj(i).from.obj_no 
 !             nodes(nnId).nwbs = nodes(nnId).nwbs + 1
 !             nodes(nnId).wbs(nodes(nnId).nwbs) = 
 !      &           get_unique_id_for_conveyor(i)
          endif
 c--------to object
-         if( obj2obj(i).to.object .eq. obj_reservoir) then
+         if( obj2obj(i).to_obj.obj_type .eq. obj_reservoir) then
             nodeId = nodeId+1
             nodes(nodeId).id = nodeId
             nodes(nodeId).nwbs = 2
-            objId = obj2obj(i).to.object_no
+            objId = obj2obj(i).to_obj.obj_no
             nodes(nodeId).wbs(1) =  
      &           get_unique_id_for_reservoir(objId)
             nodes(nodeId).wbs(2) = conveyorId
-         else if( obj2obj(i).to.object .eq. obj_node ) then
-!             nnId = obj2obj(i).to.object_no 
+         else if( obj2obj(i).to_obj.obj_type .eq. obj_node ) then
+!             nnId = obj2obj(i).to.obj_no 
 !             nodes(nnId).nwbs = nodes(nnId).nwbs + 1
 !             nodes(nnId).wbs(nodes(nnId).nwbs) = 
 !      &           get_unique_id_for_conveyor(i)
@@ -491,16 +491,16 @@ c-----integer get_maximum_number_of_pumps
 c----- create internal nodes for object to object flows
 c----- which are not nodes.
       do i=1,nqext
-         if(qext(i).attach.object .ne. obj_node) then
+         if(qext(i).attach_obj_type .ne. obj_node) then
             get_number_of_nodes = get_number_of_nodes + 1
          endif
       enddo
 c----- do the same for internal flows or conveyors
       do i=1,nobj2obj
-         if(obj2obj(i).from.object .ne. obj_node) then
+         if(obj2obj(i).from_obj.obj_type .ne. obj_node) then
             get_number_of_nodes = get_number_of_nodes + 1
          endif
-         if(obj2obj(i).to.object .ne. obj_node) then
+         if(obj2obj(i).to_obj.obj_type .ne. obj_node) then
             get_number_of_nodes = get_number_of_nodes + 1
          endif
       enddo
@@ -826,7 +826,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       enddo
 ! c----- add internal flow connection nodes
 !       i=0
-!       do while( res_geom(reservoirNumber).qint(i) .ne. 0 
+!       do while( res_geom(reservoirNumber).qinternal(i) .ne. 0 
 !      &     .and. i .le. max_qobj )
 !          get_reservoir_number_of_nodes = 
 !      &        get_reservoir_number_of_nodes + 1  
@@ -868,9 +868,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       enddo
 ! c----- add nodes for internal flows
 !       i=0
-!       do while( res_geom(reservoirNumber).qint(i) .ne. 0 ) 
+!       do while( res_geom(reservoirNumber).qinternal(i) .ne. 0 ) 
 !          nodeId = nodeId + 1
-!          qId = res_geom(reservoirNumber).qint(i)
+!          qId = res_geom(reservoirNumber).qinternal(i)
 !          extId = 
 !      &        get_unique_id_for_conveyor( qId )
 !          resId = 
@@ -1023,7 +1023,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
          nodeArray(1) = 0
          return
       endif
-      nodeArray(1) = stageBoundary(number).attach.object_no
+      nodeArray(1) = stageBoundary(number).attach_obj_no
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1063,8 +1063,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 !       integer i, nBoundary
 !       i=1
 !       if ( index .le. nqext ) then
-!          if ( qext(index).object .eq. obj_node ) then
-!             get_node_for_boundary_waterbody = qext(index).object_no
+!          if ( qext(index).obj_type .eq. obj_node ) then
+!             get_node_for_boundary_waterbody = qext(index).obj_no
 !          else
 !             get_node_for_boundary_waterbody = 0
 !          endif
@@ -1352,8 +1352,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 	integer :: objndx
 	integer :: getWaterbodyUniqueId
 	do i=1,nmember
-	   objtype=groupArray(groupOut(index).groupNdx).members(i).object
-	   objndx=groupArray(groupOut(index).groupNdx).members(i).object_no
+	   objtype=groupArray(groupOut(index).groupNdx).members(i).obj_type
+	   objndx=groupArray(groupOut(index).groupNdx).members(i).obj_no
 	   array(i) = getWaterbodyUniqueId(objtype,objndx)
       enddo
       return
@@ -1371,7 +1371,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 	integer :: ptm_type_code
 	do i=1,nmember
          array(i) = ptm_type_code(
-     &     groupArray(groupOut(index).groupNdx).members(i).object
+     &     groupArray(groupOut(index).groupNdx).members(i).obj_type
      &   )
 	   
       enddo
@@ -1424,8 +1424,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	if (flux(index).inType .eq. obj_group)then
          do i=1,nmember
-	      objtype=groupArray(flux(index).inIndex).members(i).object
-	      objndx=groupArray(flux(index).inIndex).members(i).object_no
+	      objtype=groupArray(flux(index).inIndex).members(i).obj_type
+	      objndx=groupArray(flux(index).inIndex).members(i).obj_no
 	      if( objndx .eq. GROUP_ANY_INDEX)then
 	         array(i) = GROUP_ANY_INDEX
 	      else
@@ -1454,8 +1454,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	if (flux(index).outType .eq. obj_group)then
          do i=1,nmember
-	      objtype=groupArray(flux(index).outIndex).members(i).object
-	      objndx=groupArray(flux(index).outIndex).members(i).object_no
+	      objtype=groupArray(flux(index).outIndex).members(i).obj_type
+	      objndx=groupArray(flux(index).outIndex).members(i).obj_no
             if( objndx .eq. GROUP_ANY_INDEX)then
 	         array(i) = GROUP_ANY_INDEX
 	      else
@@ -1482,7 +1482,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 	integer :: objndx
 	if (flux(index).inType .eq. obj_group)then
          do i=1,nmember
-	      objndx=groupArray(flux(index).inIndex).members(i).object
+	      objndx=groupArray(flux(index).inIndex).members(i).obj_type
             if( objndx .eq. GROUP_ANY_TYPE)then
 	         array(i) = GROUP_ANY_TYPE
 	      else
@@ -1512,7 +1512,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	if (flux(index).outType .eq. obj_group)then
          do i=1,nmember
-	      objndx=groupArray(flux(index).outIndex).members(i).object
+	      objndx=groupArray(flux(index).outIndex).members(i).obj_type
             if( objndx .eq. GROUP_ANY_TYPE)then
 	         array(i) = GROUP_ANY_TYPE
 	      else
