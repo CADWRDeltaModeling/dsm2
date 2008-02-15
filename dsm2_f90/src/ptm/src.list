@@ -1,0 +1,4 @@
+PACKAGE=DWR.DMS.PTM
+
+JAVA_FILES = Globals.java PTMException.java nodeNotFoundException.java xSection.java Macro.java flowTypes.java  waterbody.java node.java channel.java reservoir.java boundary.java conveyor.java fluxFixedData.java particleFluxData.java particleFixedData.java limitsFixedData.java PTMFixedData.java PTMHydroInput.java particleFixedInfo.java fluxInfo.java PTMFixedInput.java PTMInput.java PTMOutput.java PTMTraceOutput.java particleObserver.java particle.java ebbParticle.java PTMEnv.java instantaneousOutput.java PTMAnimationOutput.java traceData.java particleTrace.java PTMTraceInput.java PTMRestartOutput.java PTMRestartInput.java flux.java nodeFlux.java typeFlux.java PTMFluxOutput.java group.java groupInfo.java groupFlux.java fluxMonitor.java mainPTM.java mainFlux.java ParticleBehavior.java BehavedParticle.java
+
