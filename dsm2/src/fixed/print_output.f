@@ -232,7 +232,7 @@ c         call check_area
      &     '   ---------------------------------------')
 
       do i=1,ninpaths
-         write(unit_output,1620)pathinput(i).name,pathinput(i).c_part
+         write(unit_output,1620)pathinput(i).name,pathinput(i).variable
      &        ,pathinput(i).filename,pathinput(i).path
  1620    format(a30,1x,a16,1x,a80,1x,a50)
       enddo

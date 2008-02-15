@@ -17,9 +17,9 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
 
-
-c ---- This module contains functions that map object names and types to 
-c      corresponding model objects and vice versa
+c=================== name_to_objno=================================
+c ---- This module contains functions that map object identifiers
+c      and types to corresponding model object indexes and vice versa
 
 
 c-----get internal object number, given object type and external (map) ID

@@ -358,10 +358,10 @@ c--------------set up stage boundary object structure
                stgbnd(nstgbnd).name=' '
 c--------------search for input path with stage boundary at this node
                do i=1,ninpaths
-                  if (pathinput(i).use .and.
+                  if (pathinput(i).useobj .and.
      &                 pathinput(i).data_type .eq. obj_stage .and.
-     &                 pathinput(i).object .eq. obj_node .and.
-     &                 pathinput(i).object_no .eq. node) then
+     &                 pathinput(i).obj_type .eq. obj_node .and.
+     &                 pathinput(i).obj_no .eq. node) then
                      stgbnd(nstgbnd).name=pathinput(i).name
 ! fixme: needs to be changed when constant data is moved from pathinput to datasource
 	               call datasource_from_path(stgbnd(nstgbnd).datasource,
@@ -633,8 +633,8 @@ c-----------assign connection to a fourpt sum-of-flow channel
 c--------convert node flow and stage inputs to a hydro channel
 	   role = pathinput(pth).data_type
 	   is_node_flow = role .eq. obj_boundary_flow .or. role .eq. obj_source_sink
-         if (pathinput(pth).object .eq. obj_node) then
-            node=pathinput(pth).object_no
+         if (pathinput(pth).obj_type .eq. obj_node) then
+            node=pathinput(pth).obj_no
             pathinput(pth).locnum=node2hydrochan(node,is_node_flow)
          endif
 c--------set external flow index
@@ -643,9 +643,9 @@ c--------set external flow index
             nqext=nqext+1
             qext(nqext).name=pathinput(pth).name
             call datasource_from_path(qext(nqext).datasource,pth,pathinput(pth))
-            qext(nqext).attach.object=pathinput(pth).object
-            qext(nqext).attach.obj_name=pathinput(pth).object_name
-            qext(nqext).attach.object_no=pathinput(pth).object_no
+            qext(nqext).attach_obj_type=pathinput(pth).obj_type
+            qext(nqext).attach_obj_name=pathinput(pth).obj_name
+            qext(nqext).attach_obj_no=pathinput(pth).obj_no
             qext(nqext).mass_frac=pathinput(pth).mass_frac
 c-----------for node, use node number for object name
          endif
@@ -655,13 +655,13 @@ c-----------for node, use node number for object name
 
 c-----convert obj2obj node flow to a hydro channel
       do i=1,nobj2obj
-         if (obj2obj(i).from.object .eq. obj_node) then
-            node=obj2obj(i).from.object_no
-            obj2obj(i).from.hydrochan=node2hydrochan(node,.true.)
+         if (obj2obj(i).from_obj.obj_type .eq. obj_node) then
+            node=obj2obj(i).from_obj.obj_no
+            obj2obj(i).from_obj.hydrochan=node2hydrochan(node,.true.)
          endif
-         if (obj2obj(i).to.object .eq. obj_node) then
-            node=obj2obj(i).to.object_no
-            obj2obj(i).to.hydrochan=node2hydrochan(node,.true.)
+         if (obj2obj(i).to_obj.obj_type .eq. obj_node) then
+            node=obj2obj(i).to_obj.obj_no
+            obj2obj(i).to_obj.hydrochan=node2hydrochan(node,.true.)
          endif
       enddo
 
@@ -678,35 +678,35 @@ c-----reservoirs, and input path indices for labeled connections
 
       do i=1,nobj2obj
 c--------from reservoir name
-         if (obj2obj(i).from.object .eq. obj_reservoir) then
-            loc=loccarr(obj2obj(i).from.obj_name,cresnames,max_reservoirs,
+         if (obj2obj(i).from_obj.obj_type .eq. obj_reservoir) then
+            loc=loccarr(obj2obj(i).from_obj.obj_name,cresnames,max_reservoirs,
      &           EXACT_MATCH)
             if (loc .le. 0) then
-               write(unit_error, 710) 'from', trim(obj2obj(i).from.obj_name)
+               write(unit_error, 710) 'from', trim(obj2obj(i).from_obj.obj_name)
                goto 900
             else
-               obj2obj(i).from.object_no=loc
+               obj2obj(i).from_obj.obj_no=loc
             endif
          endif
 c--------to reservoir name
-         if (obj2obj(i).to.object .eq. obj_reservoir) then
+         if (obj2obj(i).to_obj.obj_type .eq. obj_reservoir) then
             print *,max_reservoirs
             print *,"hello"
-            loc=loccarr(obj2obj(i).to.obj_name,cresnames,max_reservoirs
+            loc=loccarr(obj2obj(i).to_obj.obj_name,cresnames,max_reservoirs
      &           ,EXACT_MATCH)
             if (loc .le. 0) then
-               write(unit_error, 710) 'to', trim(obj2obj(i).to.obj_name)
+               write(unit_error, 710) 'to', trim(obj2obj(i).to_obj.obj_name)
                goto 900
             else
-               obj2obj(i).to.object_no=loc
+               obj2obj(i).to_obj.obj_no=loc
             endif
          endif
 
          obj2obj(i).datasource.indx_ptr=miss_val_i
 c--------assign an input path (dss or constant valued)
          do pth=1,ninpaths
-            if ((pathinput(pth).object .eq. obj_obj2obj)
-     &           .and. (pathinput(pth).object_name .eq. obj2obj(i).name))then ! fixme:
+            if ((pathinput(pth).obj_type .eq. obj_obj2obj)
+     &           .and. (pathinput(pth).obj_name .eq. obj2obj(i).name))then ! fixme:
                call datasource_from_path(obj2obj(i).datasource,pth,pathinput(pth))
 	         obj2obj(i).flow=fetch_data(obj2obj(i).datasource)
 	         obj2obj(i).prev_flow=obj2obj(i).flow ! todo: is this implemented right?
@@ -734,47 +734,47 @@ c-----correspond to which nodes and reservoirs;
          nextres(i)=0
       enddo
       do i=1,nobj2obj
-         number=obj2obj(i).from.object_no
-         name=obj2obj(i).from.obj_name
-         if (obj2obj(i).from.object .eq. obj_node) then
+         number=obj2obj(i).from_obj.obj_no
+         name=obj2obj(i).from_obj.obj_name
+         if (obj2obj(i).from_obj.obj_type .eq. obj_node) then
             if (nintnode(number) .lt. max_qobj) then
                nintnode(number)=nintnode(number)+1
             else
                write(unit_error,830) 'internal','node',trim(name)
                call exit(2)
             endif
-            node_geom(number).qint(nintnode(number))=i
+            node_geom(number).qinternal(nintnode(number))=i
          endif
-         if (obj2obj(i).from.object .eq. obj_reservoir) then
+         if (obj2obj(i).from_obj.obj_type .eq. obj_reservoir) then
             if (nintres(number) .lt. max_qobj) then
                nintres(number)=nintres(number)+1
             else
                write(unit_error,830) 'internal','reservoir',trim(name)
                call exit(2)
             endif
-            res_geom(number).qint(nintres(number))=i
+            res_geom(number).qinternal(nintres(number))=i
          endif
 
 c--------to object
-         number=obj2obj(i).to.object_no
-         name=obj2obj(i).to.obj_name
-         if (obj2obj(i).to.object .eq. obj_node) then
+         number=obj2obj(i).to_obj.obj_no
+         name=obj2obj(i).to_obj.obj_name
+         if (obj2obj(i).to_obj.obj_type .eq. obj_node) then
             if (nintnode(number) .lt. max_qobj) then
                nintnode(number)=nintnode(number)+1
             else
                write(unit_error,830) 'internal','node',trim(name)
                call exit(2)
             endif
-            node_geom(number).qint(nintnode(number))=i
+            node_geom(number).qinternal(nintnode(number))=i
          endif
-         if (obj2obj(i).to.object .eq. obj_reservoir) then
+         if (obj2obj(i).to_obj.obj_type .eq. obj_reservoir) then
             if (nintres(number) .lt. max_qobj) then
                nintres(number)=nintres(number)+1
             else
                write(unit_error,830) 'internal','reservoir',trim(name)
                call exit(2)
             endif
-            res_geom(number).qint(nintres(number))=i
+            res_geom(number).qinternal(nintres(number))=i
          endif
 
       enddo
@@ -782,9 +782,9 @@ c--------to object
 c-----generate an index of which external flows
 c-----correspond to which nodes and reservoirs;
       do i=1,nqext
-         number=qext(i).attach.object_no
-         name=qext(i).attach.obj_name
-         if (qext(i).attach.object .eq. obj_node) then
+         number=qext(i).attach_obj_no
+         name=qext(i).attach_obj_name
+         if (qext(i).attach_obj_type .eq. obj_node) then
             if (nextnode(number) .lt. max_qobj) then
                nextnode(number)=nextnode(number)+1
             else
@@ -793,7 +793,7 @@ c-----correspond to which nodes and reservoirs;
             endif
             node_geom(number).qext(nextnode(number))=i
          endif
-         if (qext(i).attach.object .eq. obj_reservoir) then
+         if (qext(i).attach_obj_type .eq. obj_reservoir) then
             if (nextres(number) .lt. max_qobj) then
                nextres(number)=nextres(number)+1
             else

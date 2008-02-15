@@ -265,7 +265,7 @@ c-----default source group is from all sources
 
          if (rifld(i) .eq. outpath_name) then
             pathoutput(noutpaths).name=cstring
-            pathoutput(noutpaths).object_name=cstring
+            pathoutput(noutpaths).obj_name=cstring
          else if (rifld(i) .eq. outpath_filename) then
             pathoutput(noutpaths).filename=
      &           input_line(ibegf(i):ibegf(i)+ilenf(i)-1) ! use raw input to preserve case
@@ -287,32 +287,32 @@ c--------------accumulate unique dss output filenames
                endif
             endif
          else if (rifld(i) .eq. outpath_chan) then
-            read(cstring,'(i5)',err=810) pathoutput(noutpaths).object_no
-            pathoutput(noutpaths).object_no=ext2int(pathoutput(noutpaths).object_no)
-            pathoutput(noutpaths).object=obj_channel
-            if (pathoutput(noutpaths).object_no .le. 0) then
+            read(cstring,'(i5)',err=810) pathoutput(noutpaths).obj_no
+            pathoutput(noutpaths).obj_no=ext2int(pathoutput(noutpaths).obj_no)
+            pathoutput(noutpaths).obj_type=obj_channel
+            if (pathoutput(noutpaths).obj_no .le. 0) then
                write(unit_error, 630)
      &              'Invalid output channel number given:',
-     &              pathoutput(noutpaths).object_no
+     &              pathoutput(noutpaths).obj_no
                istat=-1
                goto 900
             endif
          else if (rifld(i) .eq. outpath_dist) then
-            pathoutput(noutpaths).object=obj_channel
+            pathoutput(noutpaths).obj_type=obj_channel
             if (index(cstring,'len') .gt. 0) then
                pathoutput(noutpaths).chan_dist=chan_length
             else
                read(cstring,'(i10)',err=810) pathoutput(noutpaths).chan_dist
             endif
          else if (rifld(i) .eq. outpath_node) then
-            read(cstring,'(i5)',err=810) pathoutput(noutpaths).object_no
-            pathoutput(noutpaths).object_no=ext2intnode(pathoutput(noutpaths).object_no)
-            pathoutput(noutpaths).object=obj_node
+            read(cstring,'(i5)',err=810) pathoutput(noutpaths).obj_no
+            pathoutput(noutpaths).obj_no=ext2intnode(pathoutput(noutpaths).obj_no)
+            pathoutput(noutpaths).obj_type=obj_node
          else if (rifld(i) .eq. outpath_res_name) then
-            pathoutput(noutpaths).object=obj_reservoir
-            pathoutput(noutpaths).object_name=cstring
+            pathoutput(noutpaths).obj_type=obj_reservoir
+            pathoutput(noutpaths).obj_name=cstring
          else if (rifld(i) .eq. outpath_res_node) then
-            pathoutput(noutpaths).object=obj_reservoir
+            pathoutput(noutpaths).obj_type=obj_reservoir
             if (cstring .ne. 'none') then
                read(cstring,'(i5)',err=810) pathoutput(noutpaths).res_node_no
                pathoutput(noutpaths).res_node_no=ext2intnode(pathoutput(noutpaths).res_node_no) 
@@ -1207,7 +1207,7 @@ c-----local variables
 
       lfldndx=1
       kfldndx=1
-      pathoutput(noutpaths).object=obj_flux
+      pathoutput(noutpaths).obj_type=obj_flux
 
       do while (lfldndx .le. nfields)
          cstring=' '
@@ -1430,8 +1430,8 @@ c--------------accumulate unique dss output filenames
          else if (rifld(i) .eq. b_part) then
             pathoutput(noutpaths).b_part=cstring
          else if (rifld(i) .eq. ptm_group) then
-	       pathoutput(noutpaths).object_no=name_to_objno(obj_group,cstring)
-	       if(pathoutput(noutpaths).object_no .eq. miss_val_i)then
+	       pathoutput(noutpaths).obj_no=name_to_objno(obj_group,cstring)
+	       if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
 	          write(unit_error,*)"Unrecognized group name for group output spec: " 
      &             // trim(cstring)
 	          goto 900
@@ -1659,7 +1659,7 @@ c-----local variables
          return
 	endif
       groupArray(groupno).nMemberPatterns=npattern
-	groupArray(groupno).MemberPatterns(npattern).object=objtype
+	groupArray(groupno).MemberPatterns(npattern).obj_type=objtype
 	groupArray(groupno).MemberPatterns(npattern).pattern=trim(adjustl(pattern))
 
       return

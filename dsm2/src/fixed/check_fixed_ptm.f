@@ -29,7 +29,7 @@ c-----the model run.  Supply default values where possible.
       use runtime_data
       use common_tide
       use common_ptm
-      !use common_qual_bin
+      use common_qual_bin
       implicit none
 
       
