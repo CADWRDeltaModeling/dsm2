@@ -28,6 +28,7 @@ c-----load f90SQL modules
       use iopath_data
       use logging
       use grid_data
+      use envvar
       implicit none
 
 
@@ -63,7 +64,7 @@ c-----local variables
      &     ,itmp
      &     ,counter
      &     ,loccarr             ! locate string in char array function
-     &     ,nenv,repl_envvars   ! environment var replacement
+     &     ,nenv                ! environment var replacement
      &     ,name_to_objno       ! function to get object number
      &     ,gateNo,devNo,devType
 
@@ -190,13 +191,13 @@ c--------Fetch a record from the result set
 c--------clean up name variable, replace environment variables
          namelen=min(32,namelen)
          Name=Name(1:namelen)   ! preserve case for filename
-         nenv=repl_envvars(Name,ctmp)
+         nenv=replace_envvars(Name,ctmp)
          call locase(ctmp)
          Name=ctmp
          call locase(Name)
 
          Param=Param(1:ParamLen)
-         nenv=repl_envvars(Param,ctmp)
+         nenv=replace_envvars(Param,ctmp)
          Param=ctmp
          call locase(Param)
 
@@ -215,17 +216,17 @@ c--------if marked as not-use
 
 c-----------clean up character variables, replace environment variables
             InPath=InPath(1:PathLen)
-            nenv=repl_envvars(InPath,ctmp)
+            nenv=replace_envvars(InPath,ctmp)
             InPath=ctmp
             call locase(InPath)
 
             LocName=locName(1:locnamelen)
-            nenv=repl_envvars(LocName,ctmp)
+            nenv=replace_envvars(LocName,ctmp)
             LocName=ctmp
             call locase(LocName)
 
             SubLoc=SubLoc(1:subloclen)
-            nenv=repl_envvars(SubLoc,ctmp)
+            nenv=replace_envvars(SubLoc,ctmp)
             SubLoc=ctmp
             call locase(SubLoc)
 
@@ -233,34 +234,38 @@ c-----------clean up character variables, replace environment variables
             call locase(RoleName)
 
             FileName=FileName(1:filelen) ! preserve case for filename
-            nenv=repl_envvars(FileName,ctmp)
+            nenv=replace_envvars(FileName,ctmp)
             FileName=ctmp
 
             pathinput(ninpaths).name=Name
-            pathinput(ninpaths).use=.true.
-            pathinput(ninpaths).object_name=LocName
-            pathinput(ninpaths).object=ObjTypeID
+            pathinput(ninpaths).useobj=.true.
+            pathinput(ninpaths).obj_name=LocName
+            pathinput(ninpaths).obj_type=ObjTypeID
 
             if (SignLen .gt. 0) then
                if (sign .eq. -1) then
-                  pathinput(ninpaths).sign = '-'
+                  pathinput(ninpaths).sign = -1
                elseif (sign .eq. 1) then
-                  pathinput(ninpaths).sign = '+'
-               endif
+                  pathinput(ninpaths).sign = 1
+               else
+                  write(unit_error,*)"Incorrect sign for input time series"
+                  istat=-3
+                  return
+               end if
             else
-               sign = ' '
+               sign = 0
             end if
 
 c-----------find object number given external object number
             if (ObjTypeID .eq. OBJ_NODE)then
-               pathinput(ninpaths).object_no=ext2intnode(LocNum)
-               pathinput(ninpaths).object_name=LocName
+               pathinput(ninpaths).obj_no=ext2intnode(LocNum)
+               pathinput(ninpaths).obj_name=LocName
             else if(ObjTypeID .eq. OBJ_RESERVOIR .or.
      &              ObjTypeID .eq. OBJ_GATE .OR. 
      &              ObjTypeID .eq. OBJ_OBJ2OBJ)then
-               pathinput(ninpaths).object_name=trim(LocName)
-               pathinput(ninpaths).object_no=name_to_objno(ObjTypeID,LocName)
-               if (pathinput(ninpaths).object_no .eq.miss_val_i )then
+               pathinput(ninpaths).obj_name=trim(LocName)
+               pathinput(ninpaths).obj_no=name_to_objno(ObjTypeID,LocName)
+               if (pathinput(ninpaths).obj_no .eq.miss_val_i )then
                   write(unit_error,'(a,a)')
      &                 'Time Series Input: ',trim(pathinput(ninpaths).name),
      &                 ' attached to unrecognized object: ',LocName
@@ -270,14 +275,14 @@ c-----------find object number given external object number
             else if(ObjTypeID .eq. OBJ_OPRULE)then
                                 ! there aren't really object numbers, but this loads
                                 ! defaults and prevents an error
-               pathinput(ninpaths).object_name=LocName
-               pathinput(ninpaths).object_no = miss_val_i
+               pathinput(ninpaths).obj_name=LocName
+               pathinput(ninpaths).obj_no = miss_val_i
 
             else if(ObjTypeID .eq. OBJ_CLIMATE)then
                                 ! there aren't really object numbers, but this loads
                                 ! defaults and prevents an error
-               pathinput(ninpaths).object_name='global'
-               pathinput(ninpaths).object_no = miss_val_i  ! this could be an index into climate variables.
+               pathinput(ninpaths).obj_name='global'
+               pathinput(ninpaths).obj_no = miss_val_i  ! this could be an index into climate variables.
             else
                write(unit_error,'(a,i4,a)')'Unrecogized object type (',
      &              ObjTypeID, ')in input path named: ',LocName
@@ -288,7 +293,7 @@ c-----------find object number given external object number
      &             FileName(:8) .eq. 'CONSTANT') then
                read(InPath,'(1f10.0)') ftmp
                pathinput(ninpaths).constant_value=ftmp
-               pathinput(ninpaths).c_part=Param
+               pathinput(ninpaths).variable=Param
                pathinput(ninpaths).fillin=fill_last
             else
 c--------------Break up the input pathname
@@ -304,12 +309,9 @@ c--------------Break up the input pathname
                   return
                end if
 
-               pathinput(ninpaths).a_part=ca
-               pathinput(ninpaths).b_part=cb
-               pathinput(ninpaths).c_part=Param
+               pathinput(ninpaths).variable=Param
                call split_epart(ce,itmp,ctmp)
                if (itmp .ne. miss_val_i) then ! valid interval, parse it
-                  pathinput(ninpaths).e_part=ce(1:15)
                   pathinput(ninpaths).no_intervals=itmp
                   pathinput(ninpaths).interval=ctmp
                else
@@ -318,11 +320,6 @@ c--------------Break up the input pathname
                   write(unit_error,'(a)') 'Path: ' // trim(InPath)
                   istat=-1
                   return
-               endif
-               if (cf(1:4) .eq. 'none') then
-                  pathinput(ninpaths).f_part=' '
-               else
-                  pathinput(ninpaths).f_part=cf
                endif
                pathinput(ninpaths).filename=FileName
 c--------------accumulate unique dss input filenames
@@ -374,7 +371,7 @@ c-----------set data type fixme:groups is this right
                      return
                   end if
                else
-                  gateNo=pathinput(ninpaths).object_no
+                  gateNo=pathinput(ninpaths).obj_no
                   devNo=deviceIndex(gateArray(gateNo),subLoc)
                   devType=gateArray(gateNo).Devices(devNo).structureType
                   if( gateNo .ne. miss_val_i .and. devNo .ne. miss_val_i)then
@@ -415,7 +412,7 @@ c-----------set data type fixme:groups is this right
      &                       gateArray(gateNo).Devices(
      &                       devNo).pos_datasource,
      &                       ninpaths,pathinput(ninpaths))
-                        gateArray(pathinput(ninpaths).object_no).Devices(
+                        gateArray(pathinput(ninpaths).obj_no).Devices(
      &                       devNo).position=gateArray(gateNo).Devices(
      &                       devNo).pos_datasource.value
                         if(pathinput(ninpaths).constant_value .ne. miss_val_r)then
@@ -442,7 +439,7 @@ c-----------set data type fixme:groups is this right
      &                          gateArray(gateNo).Devices(
      &                          devNo).op_to_node_datasource,
      &                          ninpaths,pathinput(ninpaths))
-                           gateArray(pathinput(ninpaths).object_no).Devices(
+                           gateArray(pathinput(ninpaths).obj_no).Devices(
      &                          devNo).opCoefToNode=fetch_data(
      &                            gateArray(gateNo).Devices(
      &                          devNo).op_to_node_datasource)
@@ -457,10 +454,10 @@ c-----------set data type fixme:groups is this right
      &                          gateArray(gateNo).Devices(
      &                          devNo).op_from_node_datasource,
      &                          ninpaths,pathinput(ninpaths))
-                           gateArray(pathinput(ninpaths).object_no).Devices(
+                           gateArray(pathinput(ninpaths).obj_no).Devices(
      &                          devNo).opCoefFromNode=fetch_data(
      &                          gateArray(
-     &                          pathinput(ninpaths).object_no
+     &                          pathinput(ninpaths).obj_no
      &                          ).Devices(devNo).op_from_node_datasource)
 
                         end if
@@ -486,15 +483,14 @@ c     &                    devNo).pos_datasource.value
                end if           ! subloclen >0 (ie, both gate and device given)
             end if              ! input is a gate
             if ( pathinput(ninpaths).data_type .eq. obj_stage) then
-               if (pathinput(ninpaths).object .eq. obj_node) then
-                  node_geom(pathinput(ninpaths).object_no).boundary_type=stage_boundary
+               if (pathinput(ninpaths).obj_type .eq. obj_node) then
+                  node_geom(pathinput(ninpaths).obj_no).boundary_type=stage_boundary
                else
                   write(unit_error, '(a)')
      &                 'Input TS: Stage boundary must be at a node.'
                end if
             end if
 
-            pathinput(ninpaths).priority=0
             if (print_level .ge. 3)then
                write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
      &              trim(InPath(:24)),

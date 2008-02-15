@@ -247,7 +247,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
                                 ! Write out node_geom.qint
       do i = 1,max_qobj
          do j = 1,max_nodes
-            node_obj(j) = node_geom(j).qint(i)
+            node_obj(j) = node_geom(j).qinternal(i)
          end do
          h_offset(2) = i - 1
          call h5dget_space_f(ng_dset_id, filespace, error)
@@ -293,7 +293,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
                                 ! Write out res_geom.qint
       do i = 1,max_qobj
          do j = 1,max_reservoirs
-            res_obj(j) = res_geom(j).qint(i)
+            res_obj(j) = res_geom(j).qinternal(i)
          end do
          call h5dget_space_f(rg_dset_id, filespace, error)
          h_offset(2) = i - 1
@@ -679,29 +679,29 @@ c-----Preprocess the values to changes
          call h5screate_simple_f(rank, h_data_dims, memspace, error)
          call h5dwrite_f(obj2obj_dset_id, o_name_tid, obj2obj(i).name, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_id_tid, obj2obj(i).from.object, data_dims, error,
+         call h5dwrite_f(obj2obj_dset_id, fo_id_tid, obj2obj(i).from_obj.obj_type, data_dims, error,
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_name_tid, obj2obj(i).from.obj_name, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, fo_name_tid, obj2obj(i).from_obj.obj_name, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_num_tid, obj2obj(i).from.object_no, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, fo_num_tid, obj2obj(i).from_obj.obj_no, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_hychan_tid, obj2obj(i).from.hydrochan, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, fo_hychan_tid, obj2obj(i).from_obj.hydrochan, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_massfrac_tid, obj2obj(i).from.mass_frac, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, fo_massfrac_tid, obj2obj(i).from_obj.mass_frac, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_coeff_tid, obj2obj(i).from.coeff, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, fo_coeff_tid, obj2obj(i).from_obj.coeff, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_id_tid, obj2obj(i).to.object, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, to_id_tid, obj2obj(i).to_obj.obj_type, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_name_tid, obj2obj(i).to.obj_name, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, to_name_tid, obj2obj(i).to_obj.obj_name, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_num_tid, obj2obj(i).to.object_no, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, to_num_tid, obj2obj(i).to_obj.obj_no, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_hychan_tid, obj2obj(i).to.hydrochan, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, to_hychan_tid, obj2obj(i).to_obj.hydrochan, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_massfrac_tid, obj2obj(i).to.mass_frac, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, to_massfrac_tid, obj2obj(i).to_obj.mass_frac, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_coeff_tid, obj2obj(i).to.coeff, data_dims, error, 
+         call h5dwrite_f(obj2obj_dset_id, to_coeff_tid, obj2obj(i).to_obj.coeff, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(obj2obj_dset_id, constval_tid, obj2obj(i).constant_value, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
@@ -785,11 +785,11 @@ c-----Preprocess the values to changes
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(qext_dset_id, q_obj_name_tid, qext(i).obj_name, data_dims, error,
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_attach_id_tid, qext(i).attach.object, data_dims, error,
+         call h5dwrite_f(qext_dset_id, q_attach_id_tid, qext(i).attach_obj_type, data_dims, error,
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_attach_name_tid, qext(i).attach.obj_name, data_dims, error,
+         call h5dwrite_f(qext_dset_id, q_attach_name_tid, qext(i).attach_obj_name, data_dims, error,
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_attach_num_tid, qext(i).attach.object_no, data_dims, error,
+         call h5dwrite_f(qext_dset_id, q_attach_num_tid, qext(i).attach_obj_no, data_dims, error,
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(qext_dset_id, q_grp_idx_tid, qext(i).group_ndx, data_dims, error,
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)

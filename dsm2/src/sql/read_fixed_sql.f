@@ -126,6 +126,7 @@ c-----load f90SQL modules
       use iopath_data
       use common_qual
       use common_ptm
+      use envvar
 
       implicit none
 
@@ -148,7 +149,6 @@ c-----f90SQL variables
 c-----local variables
       integer
      &     counter
-     &     ,repl_envvars        ! replace env variable function
      &     ,itmp
 
       character
@@ -255,11 +255,11 @@ c--------use only the last version of a parameter
                flush_intvl=Value
 
             else if (Param .eq. 'binary_output') then
-               itmp=repl_envvars(Value,ctmp)
+               itmp=replace_envvars(Value,ctmp)
                read(ctmp,'(l2)', err=810) binary_output
 
             else if (Param .eq. 'dss_direct') then
-               itmp=repl_envvars(Value,ctmp)
+               itmp=replace_envvars(Value,ctmp)
                read(ctmp,'(l2)', err=810) dss_direct
 
             else if (Param .eq. 'hydro_time_step') then

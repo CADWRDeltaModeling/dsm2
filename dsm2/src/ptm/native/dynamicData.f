@@ -64,9 +64,9 @@ c----------- flow outof reservoir is +ve, thus towards node thus +ve
 c-------- update internal flows ( assumption of order important: fixedData.f)
          j=1
          k = res_geom(i).nnodes
-         do while(res_geom(i).qint(j) .ne. 0)
+         do while(res_geom(i).qinternal(j) .ne. 0)
             k=k+1
-            qId = res_geom(i).qint(j)
+            qId = res_geom(i).qinternal(j)
             wb(id).flowToNode(k) = 
      &           -obj2obj(qId).flow_avg
             j = j + 1
@@ -402,7 +402,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       use ptm_local
       use common_qual_bin
       implicit none
-      include "../../hdf_tidefile/common_qual_bin.inc"
+
       real get_up_node_quality
       integer number,nodeid,constituent
       nodeid = wb(number).node(1) ! upnode
@@ -414,8 +414,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       use ptm_local
       use common_qual_bin
       implicit none
-   
-      include "../../hdf_tidefile/common_qual_bin.inc"
+
       real get_down_node_quality
       integer number,nodeid,constituent
       nodeid = wb(number).node(2) ! downnode

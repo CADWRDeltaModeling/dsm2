@@ -49,6 +49,7 @@
 #define get_chan_velocity CHANNELVELOCITY
 #define direct_to_node DIRECT_TO_NODE
 #define direct_from_node DIRECT_FROM_NODE
+#define direct_to_from_node DIRECT_TO_FROM_NODE
 #define channel_length CHANNEL_LENGTH
 
 
@@ -79,6 +80,8 @@ extern "C" int STDCALL transfer_index(const char* name, unsigned int len);
 
 extern "C" int STDCALL direct_to_node();
 extern "C" int STDCALL direct_from_node();
+extern "C" int STDCALL direct_to_from_node();
+
 
 ///////////////////////////
 

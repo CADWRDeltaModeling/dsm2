@@ -87,8 +87,8 @@ c--------fixme:group need multiple group membership
                if (n_conqext(qndx) .eq. 0 .and. .not. err_res(res)) then
                   err_res(res)=.true.
                   write(unit_error,610)
-     &                 trim(obj_names(qext(qndx).attach.object)),
-     &                 trim(qext(qndx).attach.obj_name),
+     &                 trim(obj_names(qext(qndx).attach_obj_type)),
+     &                 trim(qext(qndx).attach_obj_name),
      &                 trim(qext(qndx).name),
      &                 trim(groupArray(qext(qndx).group_ndx).name)
  610              format(/'Warning; no constituent input',/
@@ -120,16 +120,16 @@ c--------fixme:group need multiple group membership
 
 c-----internal flows
       i=1
-      do while (res_geom(res).qint(i) .ne. 0)
-         qndx=res_geom(res).qint(i)
+      do while (res_geom(res).qinternal(i) .ne. 0)
+         qndx=res_geom(res).qinternal(i)
 
          call obj2obj_direc(obj2obj(qndx).flow_avg,
      &        obj2obj(qndx), from, to)
 
          if (direction .eq. TO_OBJ) then ! flow to reservoir wanted
 c-----------is the object correct type and number?
-            if (to.object .eq. obj_reservoir .and.
-     &           to.object_no .eq. res) then
+            if (to.obj_type .eq. obj_reservoir .and.
+     &           to.obj_no .eq. res) then
 c--------------does group label match?
                group_ndx_ok=
      &              group_ndx .eq. ALL_FLOWS .or.
@@ -143,10 +143,10 @@ c--------------does group label match?
                   objflow=objflow + abs(obj2obj(qndx).flow_avg)
                   do j=1,neq
 c--------------------determine concentration of 'from' object
-                     if (from.object .eq. obj_node) then
-                        conc=node_qual(from.object_no,j)
-                     else if (from.object .eq. obj_reservoir) then
-                        conc=cres(from.object_no,j)
+                     if (from.obj_type .eq. obj_node) then
+                        conc=node_qual(from.obj_no,j)
+                     else if (from.obj_type .eq. obj_reservoir) then
+                        conc=cres(from.obj_no,j)
                      endif
                      massrate(j)= massrate(j)
      &                    + abs(obj2obj(qndx).flow_avg) * conc * from.mass_frac
@@ -155,8 +155,8 @@ c--------------------determine concentration of 'from' object
             endif
          else                   ! flow from reservoir wanted
 c-----------is the object correct type and number?
-            if (from.object .eq. obj_reservoir .and.
-     &           from.object_no .eq. res) then
+            if (from.obj_type .eq. obj_reservoir .and.
+     &           from.obj_no .eq. res) then
 c--------------does group label match?
                group_ndx_ok=
      &              group_ndx .eq. ALL_FLOWS .or.

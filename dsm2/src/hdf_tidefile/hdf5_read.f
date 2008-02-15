@@ -192,7 +192,7 @@ c	call h5dclose_f(cg_dset_id)
          call h5dread_f(ng_dset_id,H5T_NATIVE_INTEGER, node_obj, ng_data_dims, 
      &        error, memspace, filespace)
          do j = 1,max_nodes
-            node_geom(j).qint(i) = node_obj(j)
+            node_geom(j).qinternal(i) = node_obj(j)
          end do
       end do
                                 ! Write out node_geom.qext
@@ -232,7 +232,7 @@ c	call h5dclose_f(cg_dset_id)
          call h5dread_f(rg_dset_id,H5T_NATIVE_INTEGER, res_obj, rg_data_dims, 
      &        error, memspace, filespace)
          do j = 1,max_reservoirs
-            res_geom(j).qint(i) = res_obj(j)
+            res_geom(j).qinternal(i) = res_obj(j)
          end do
       end do
 
@@ -605,11 +605,11 @@ c-----call h5dget_space_f(res_dset_id, res_fspace_id, error)
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dread_f(qext_dset_id, q_obj_name_tid, qext(i).obj_name, data_dims, error, 
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_id_tid, qext(i).attach.object, data_dims, error, 
+         call h5dread_f(qext_dset_id, q_attach_id_tid, qext(i).attach_obj_type, data_dims, error, 
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_name_tid, qext(i).attach.obj_name, data_dims, error, 
+         call h5dread_f(qext_dset_id, q_attach_name_tid, qext(i).attach_obj_name, data_dims, error, 
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_num_tid, qext(i).attach.object_no, data_dims, error, 
+         call h5dread_f(qext_dset_id, q_attach_num_tid, qext(i).attach_obj_no, data_dims, error, 
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dread_f(qext_dset_id, q_grp_idx_tid, qext(i).group_ndx, data_dims, error, 
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)

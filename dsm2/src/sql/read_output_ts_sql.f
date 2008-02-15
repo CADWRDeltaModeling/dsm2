@@ -28,6 +28,7 @@ c-----load f90SQL modules
       use logging
       use iopath_data
       use grid_data
+      use envvar
 
       implicit none
 
@@ -57,7 +58,7 @@ c-----local variables
      &     ,itmp
      &     ,counter
      &     ,loccarr             ! locate string in char array function
-     &     ,nenv,repl_envvars   ! environment var replacement
+     &     ,nenv                ! environment var replacement
      &     ,gateNo,devNo,devType
      &     ,i
 
@@ -193,20 +194,20 @@ c--------Fetch a record from the result set
 
 c--------clean up char variables, replace environment variables
          Name=Name(1:namelen)
-         nenv=repl_envvars(Name,ctmp)
+         nenv=replace_envvars(Name,ctmp)
          Name=ctmp
          call locase(Name)
 
          Param=Param(1:ParamLen)
-         nenv=repl_envvars(Param,ctmp)
+         nenv=replace_envvars(Param,ctmp)
          Param=ctmp
          call locase(Param)
          Interval=Interval(1:IntvlLen)
-         nenv=repl_envvars(Interval,ctmp)
+         nenv=replace_envvars(Interval,ctmp)
          Interval=ctmp
          call locase(Interval)
          PerOp=PerOp(1:PerOpLen)
-         nenv=repl_envvars(PerOp,ctmp)
+         nenv=replace_envvars(PerOp,ctmp)
          PerOp=ctmp
          call locase(PerOp)
 
@@ -214,7 +215,7 @@ c--------clean up char variables, replace environment variables
 	   call locase(SourceGroup)
 
          FileName=FileName(1:FileLen) ! preserve case for filename
-         nenv=repl_envvars(FileName,ctmp)
+         nenv=replace_envvars(FileName,ctmp)
          if (len_trim(ctmp) .eq. 0) then
             write(unit_error,'(a)')'File name evaluated to blank string: ',FileName
             istat=-3
@@ -224,7 +225,7 @@ c--------clean up char variables, replace environment variables
          FileName=ctmp
          !call locase(FileName)
          LocName=LocName(1:LocNameLen)
-         nenv=repl_envvars(LocName,ctmp)
+         nenv=replace_envvars(LocName,ctmp)
          LocName=ctmp
          call locase(LocName)
          if (SubLocLen .gt. 0)then
@@ -232,7 +233,7 @@ c--------clean up char variables, replace environment variables
          else 
             SubLoc=' '
          end if
-         nenv=repl_envvars(SubLoc,ctmp)
+         nenv=replace_envvars(SubLoc,ctmp)
          SubLoc=ctmp
          call locase(SubLoc)
 
@@ -255,7 +256,7 @@ c--------if the path is marked as not-use
 
             pathoutput(noutpaths).use=.true.
             pathoutput(noutpaths).name=Name
-            pathoutput(noutpaths).object=ObjType
+            pathoutput(noutpaths).obj_type=ObjType
             if (SourceGroupLen .eq. SQL_NULL_DATA .or.
      &          SourceGroupLen .eq. 0) then
                pathoutput(noutpaths).source_group_ndx=GROUP_ALL
@@ -265,28 +266,28 @@ c--------if the path is marked as not-use
 c-----------find object number given object ID
 
             if (ObjType .eq. OBJ_NODE) then
-               pathoutput(noutpaths).object_name=' '
-               pathoutput(noutpaths).object_no = ext2intnode(LocNum)
+               pathoutput(noutpaths).obj_name=' '
+               pathoutput(noutpaths).obj_no = ext2intnode(LocNum)
             else if (ObjType .eq. OBJ_CHANNEL) then
-               pathoutput(noutpaths).object_no = ext2int(locNum)
-	         if (pathoutput(noutpaths).object_no .eq. 0) 
-     &               pathoutput(noutpaths).object_no = miss_val_i ! quick fix?
-               if(pathoutput(noutpaths).object_no .eq. miss_val_i)then
+               pathoutput(noutpaths).obj_no = ext2int(locNum)
+	         if (pathoutput(noutpaths).obj_no .eq. 0) 
+     &               pathoutput(noutpaths).obj_no = miss_val_i ! quick fix?
+               if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
                   write(unit_error,*)'Ignoring output TS: ', trim(name), 
      &                 ' request for unrecognized channel ', locNum
                    noutpaths=noutpaths-1
                    goto 100
                end if
-               pathoutput(noutpaths).object_name=' '      
+               pathoutput(noutpaths).obj_name=' '      
                read(SubLoc,'(i10)')pathoutput(noutpaths).chan_dist !fixme: dist
                if(pathoutput(noutpaths).chan_dist .eq. chan_length) then
-                  pathoutput(noutpaths).chan_dist = chan_geom(pathoutput(noutpaths).object_no).length
+                  pathoutput(noutpaths).chan_dist = chan_geom(pathoutput(noutpaths).obj_no).length
                end if
             else if (ObjType .eq. OBJ_RESERVOIR) then
                                 ! fixme: same decision, especially since this doesn't really exist
-               pathoutput(noutpaths).object_name=LocName
-               pathoutput(noutpaths).object_no=  name_to_objno(ObjType, locName)
-               if(pathoutput(noutpaths).object_no .eq. miss_val_i)then
+               pathoutput(noutpaths).obj_name=LocName
+               pathoutput(noutpaths).obj_no=  name_to_objno(ObjType, locName)
+               if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
                   write(unit_error,*)'Ignoring output TS: ', trim(name), 
      &                 ' request for unrecognized reservoir ', locName
 	            noutpaths=noutpaths-1
@@ -302,8 +303,8 @@ c-----------find object number given object ID
 c     fixme: this search part should also be avaible to text reading routine
 c     better to transform it into a funtion and called by both routines.
                   do while(.not. foundNode .and.
-     &                 i .le. res_geom(pathoutput(noutpaths).object_no).nnodes)
-                     if (res_geom(pathoutput(noutpaths).object_no).node_no(i) .eq.
+     &                 i .le. res_geom(pathoutput(noutpaths).obj_no).nnodes)
+                     if (res_geom(pathoutput(noutpaths).obj_no).node_no(i) .eq.
      &                    pathoutput(noutpaths).res_node_no) then
 	                pathoutput(noutpaths).res_node_no=i
 	                foundNode=.true.
@@ -314,16 +315,16 @@ c     better to transform it into a funtion and called by both routines.
      &                 .not. foundNode)then
                      write(unit_error,*)'Output TS: ',trim(name),
      &                    ' requested non-existent reservoir connection'
-                     write(unit_error, *)'Reservoir: ', pathoutput(noutpaths).object_name,
+                     write(unit_error, *)'Reservoir: ', pathoutput(noutpaths).obj_name,
      &                    'Node: ',SubLoc
                      istat=-3
                      return
                   end if
                end if
             else if (ObjType .eq. OBJ_GATE) then
-               pathoutput(noutpaths).object_name=LocName
+               pathoutput(noutpaths).obj_name=LocName
 	         gateNo = name_to_objno(ObjType, LocName)
-               pathoutput(noutpaths).object_no= gateNo
+               pathoutput(noutpaths).obj_no= gateNo
                if (gateNo .eq. miss_val_i)then
                   write(unit_error,*)'Ignoring output TS: ' // name
 	            write(unit_error,*)'Unknown gate: ',LocName
@@ -459,7 +460,7 @@ c-----------accumulate unique dss output filenames
             if (PerOp(1:3) .eq. 'max')
      &           pathoutput(noutpaths).per_type=per_type_per_max
 
-c-----------pathoutput(noutpaths).source.object = SourceTypeID     fixme: this is broken
+c-----------pathoutput(noutpaths).source.obj_type = SourceTypeID     fixme: this is broken
 c-----------if (SourceLocLen .gt. 0)
 c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 

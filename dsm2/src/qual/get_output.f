@@ -67,8 +67,8 @@ c-----statement function to interpolate value along channel
       val_x(val_up,val_down,chan_dist,chan_len)=val_up-(val_up
      &     -val_down)*(chan_dist/chan_len)
 
-      object=pathoutput(ptr).object
-      object_no=pathoutput(ptr).object_no
+      object=pathoutput(ptr).obj_type
+      object_no=pathoutput(ptr).obj_no
       if (object .eq. obj_channel) then ! output at channel requested
          qualchan=object_no
       endif
@@ -98,7 +98,7 @@ c-----statement function to interpolate value along channel
      &           dble(pathoutput(ptr).chan_dist),
      &           dble(chan_geom(object_no).length))
          else if (object .eq. obj_reservoir) then ! reservoir output
-            hydro_res_no=pathoutput(ptr).object_no
+            hydro_res_no=pathoutput(ptr).obj_no
             get_output=eresv(hydro_res_no)
          endif
       elseif (pathoutput(ptr).meas_type .eq. 'flow') then
@@ -107,7 +107,7 @@ c-----statement function to interpolate value along channel
      &           dble(pathoutput(ptr).chan_dist),
      &           dble(chan_geom(object_no).length))
          else if (object .eq. obj_reservoir) then
-            hydro_res_no=pathoutput(ptr).object_no
+            hydro_res_no=pathoutput(ptr).obj_no
             hydro_node_no=pathoutput(ptr).res_node_no
             get_output=-qres(hydro_res_no,hydro_node_no) ! + qres: flow from res to chan
          endif
@@ -117,8 +117,8 @@ c-----statement function to interpolate value along channel
       elseif (pathoutput(ptr).meas_type .eq. 'flow-net') then ! net reservoir pump+gate flow
          if (object .eq. obj_reservoir) then
             get_output=0.0
-            do i=1,res_geom(pathoutput(ptr).object_no).nnodes
-               hydro_node_no=res_geom(pathoutput(ptr).object_no).node_no(i)
+            do i=1,res_geom(pathoutput(ptr).obj_no).nnodes
+               hydro_node_no=res_geom(pathoutput(ptr).obj_no).node_no(i)
                get_output=get_output-qres(hydro_res_no,i) ! + qres: flow from res to chan
             enddo
 
