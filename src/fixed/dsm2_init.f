@@ -22,7 +22,7 @@ C!</license>
 	use rate_coeff_assignment,only:initialize_rate_coefficient
       use IO_Units, only: unit_output
       use Gates, only: GATE_OPEN, GATE_FREE
-      use dflib              !! <NT>
+      use ifport              !! <INTEL>
       use constants
       use logging
       use runtime_data
@@ -47,7 +47,6 @@ c-----local variables
      &     istat                ! status variable (returned)
      &     ,i,iu,k,j
      &     ,itmp1,itmp2         ! temp variables
-     &     ,getpid              ! unix fortran system call to get process ID
      &     ,ihr,imin,isec,ihundredth
 
 

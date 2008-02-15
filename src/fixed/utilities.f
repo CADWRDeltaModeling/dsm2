@@ -671,7 +671,7 @@ c-----Scan STRING for occurrence of any characters in CHARS.
       return
       end
 
-      subroutine obj2obj_direc(flow,obj2obj,from,to)
+      subroutine obj2obj_direc(flow,obj2obj,from_object,to_object)
 
 c-----Given a flow value and an instance of an obj2obj array element,
 c-----return the from (Q>0) and the to object (Q<0), depending
@@ -686,14 +686,14 @@ c-----args
 
       real*4 flow                 ! flow value
       type(obj2obj_t) obj2obj ! the obj2obj array element
-      type(from_to_t) from,to ! the from and to substructure
+      type(from_to_t) :: from_object,to_object ! the from and to substructure
 
       if (flow .ge. 0) then
-         from=obj2obj.from
-         to=obj2obj.to
+         from_object=obj2obj.from_obj
+         to_object=obj2obj.to_obj
       else
-         from=obj2obj.to
-         to=obj2obj.from
+         from_object=obj2obj.to_obj
+         to_object=obj2obj.from_obj
       endif
 
       return

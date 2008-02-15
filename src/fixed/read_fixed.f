@@ -25,6 +25,7 @@ c-----Read the fixed (non-time-varying) input data for DSM2 modules.
       use common_tide
       use runtime_data
       use constants_ptm
+      use envvar
       implicit none
       
       include '../hydrolib/network.inc'
@@ -69,7 +70,7 @@ c-----local variable declaration
      &     ,getpid              ! unix fortran system call to get process ID
      &     ,line_size           ! size of character line
      &     ,len                 ! size of character variable function
-     &     ,nenv,repl_envvars   ! environment var replacement
+     &     ,nenv  ! environment var replacement
 
 c!OTHER      real
 c!OTHER     &     rand                 ! fortran intrinsic
@@ -332,7 +333,7 @@ c--------replace environment variables in line with their value
 c--------env vars are of this form: $[({]string[)}]
 c--------pseudo/internal env vars (from the ENVVARS section) will
 c--------be replaced too
-         nenv=repl_envvars(line,ctmpl)
+         nenv=replace_envvars(line,ctmpl)
          line=ctmpl
 
          input_line=line ! (almost) raw input line

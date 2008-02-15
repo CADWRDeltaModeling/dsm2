@@ -36,6 +36,7 @@ c-----to internal.
       use runtime_data
       use common_xsect
       use common_tide
+      use envvar
       implicit none
 
 
@@ -60,7 +61,7 @@ c-----Local variables
      &     ,n_tidefiles_used    ! number of tide files used to cover simulation period
      &     ,loc,loccarr         ! array index; function to find string in char array
      &     ,data_types          ! function to determine type of data (stage, flow,...)
-
+     &     ,replace_status
       integer*4
      &     cdt2jmin             ! character date/time to julian minute
      &     ,incr_intvl          ! increment julian minute by interval function
@@ -368,17 +369,17 @@ c-----------which wasn't always used in FourPt, isn't used in the Fisher
 c-----------Delta Model (both consider equal energy instead).
 c-----------Why is allowing stage at a node important
 c-----------given that it is more ambiguous, redundant.
-            if (pathoutput(i).object .eq. obj_node)
+            if (pathoutput(i).obj_type .eq. obj_node)
      &           then
                if (pathoutput(i).meas_type .eq. 'stage') then
-                  pathoutput(i).object=obj_channel
-                  if (node_geom(pathoutput(i).object_no).nup .gt. 0) then
-                     pathoutput(i).object_no=
-     &                    node_geom(pathoutput(i).object_no).upstream(1)
+                  pathoutput(i).obj_type=obj_channel
+                  if (node_geom(pathoutput(i).obj_no).nup .gt. 0) then
+                     pathoutput(i).obj_no=
+     &                    node_geom(pathoutput(i).obj_no).upstream(1)
                      pathoutput(i).chan_dist=0
                   else
-                     pathoutput(i).object_no=
-     &                    node_geom(pathoutput(i).object_no).downstream(1)
+                     pathoutput(i).obj_no=
+     &                    node_geom(pathoutput(i).obj_no).downstream(1)
                      pathoutput(i).chan_dist=chan_length
                   endif
                end if
@@ -388,13 +389,13 @@ c--------------must have only two channels connecting
 
                if (pathoutput(i).meas_type .eq. 'flow' .or.
      &              pathoutput(i).meas_type .eq. 'vel') then
-                  if (node_geom(pathoutput(i).object_no).nup .eq. 1) then
-                     pathoutput(i).object=obj_channel
-                     pathoutput(i).object_no=node_geom(pathoutput(i).object_no).upstream(1)
+                  if (node_geom(pathoutput(i).obj_no).nup .eq. 1) then
+                     pathoutput(i).obj_type=obj_channel
+                     pathoutput(i).obj_no=node_geom(pathoutput(i).obj_no).upstream(1)
                      pathoutput(i).chan_dist=0
-                  else if (node_geom(pathoutput(i).object_no).ndown .eq. 1) then
-                     pathoutput(i).object=obj_channel
-                     pathoutput(i).object_no=node_geom(pathoutput(i).object_no).downstream(1)
+                  else if (node_geom(pathoutput(i).obj_no).ndown .eq. 1) then
+                     pathoutput(i).obj_type=obj_channel
+                     pathoutput(i).obj_no=node_geom(pathoutput(i).obj_no).downstream(1)
                      pathoutput(i).chan_dist=chan_length
                   else
 c--------------------can't have flow/vel at a node with multiple channels
@@ -403,40 +404,40 @@ c--------------------can't have flow/vel at a node with multiple channels
      &                    trim(pathoutput(i).meas_type),
      &                    trim(pathoutput(i).interval),
      &                    trim(pathoutput(i).modifier),
-     &                    pathoutput(i).object_no
+     &                    pathoutput(i).obj_no
                      goto 900
                   endif
                end if
             endif
 
 c-----------check reservoir output
-            if (pathoutput(i).object_name .ne. ' ' .and.
-     &           pathoutput(i).object .eq. obj_reservoir) then
+            if (pathoutput(i).name .ne. ' ' .and.
+     &           pathoutput(i).obj_type .eq. obj_reservoir) then
                if (pathoutput(i).meas_type .eq. 'stage') then
                   pathoutput(i).res_node_no=0
                endif
 c--------------check for valid reservoir name
-               loc=loccarr(pathoutput(i).object_name,res_names,max_reservoirs,
+               loc=loccarr(pathoutput(i).obj_name,res_names,max_reservoirs,
      &              EXACT_MATCH)
                if (loc .le. 0) then ! no reservoir with that name
                   write(unit_error, 610) 'reservoir',
-     &                 trim(pathoutput(i).object_name)
+     &                 trim(pathoutput(i).obj_name)
                   goto 900
                else
-                  pathoutput(i).object_no=loc
+                  pathoutput(i).obj_no=loc
                   if (pathoutput(i).res_node_no .gt. 0) then
 c--------------------check that if a node was given, flow was specified
                      if (pathoutput(i).meas_type .ne. 'flow' .and.
      &                    pathoutput(i).meas_type .ne. 'flow-net' .and.
      &                    pathoutput(i).meas_type .ne. 'pump') then
-                        write(unit_error, 620) trim(pathoutput(i).object_name)
+                        write(unit_error, 620) trim(pathoutput(i).obj_name)
                         goto 900
                      endif
 c--------------------check for valid node number
                      if (node_geom(pathoutput(i).res_node_no).nup +
      &                    node_geom(pathoutput(i).res_node_no).ndown
      &                    .eq. 0) then
-                        write(unit_error, 630) pathoutput(i).object_name,
+                        write(unit_error, 630) pathoutput(i).obj_name,
      &                       pathoutput(i).res_node_no
                         goto 900
                      endif
@@ -459,7 +460,7 @@ c-----create DSS input pathnames, check for sign change for each path
 
       do p=1,ninpaths
          if (pathinput(p).no_intervals .eq. 1 .and.
-     &        pathinput(p).e_part(1:5) .eq. '15min') then
+     &        pathinput(p).interval .eq. '15min') then ! eli
             npthsin_min15=npthsin_min15+1
             if (npthsin_min15 .gt. max_inp_min) then
                write(unit_error, 651) '15MIN',max_inp_min
@@ -468,7 +469,7 @@ c-----create DSS input pathnames, check for sign change for each path
             pathinput(p).intvl_path=npthsin_min15
             ptin_min15(npthsin_min15)=p
          else if (pathinput(p).no_intervals .eq. 1 .and.
-     &           pathinput(p).e_part(1:5) .eq. '1hour') then
+     &           pathinput(p).interval(:5) .eq. '1hour') then !eli could be 1hour
             npthsin_hour1=npthsin_hour1+1
             if (npthsin_hour1 .gt. max_inp_hour) then
                write(unit_error, 651) '1HOUR',max_inp_hour
@@ -477,7 +478,7 @@ c-----create DSS input pathnames, check for sign change for each path
             pathinput(p).intvl_path=npthsin_hour1
             ptin_hour1(npthsin_hour1)=p
          else if (pathinput(p).no_intervals .eq. 1 .and.
-     &           pathinput(p).e_part(1:4) .eq. '1day') then
+     &           pathinput(p).interval(:4) .eq. '1day') then
             npthsin_day1=npthsin_day1+1
             if (npthsin_day1 .gt. max_inp_day) then
                write(unit_error, 651) '1DAY',max_inp_day
@@ -486,7 +487,7 @@ c-----create DSS input pathnames, check for sign change for each path
             pathinput(p).intvl_path=npthsin_day1
             ptin_day1(npthsin_day1)=p
          else if (pathinput(p).no_intervals .eq. 1 .and.
-     &           pathinput(p).e_part(1:5) .eq. '1week') then
+     &           pathinput(p).interval(:5) .eq. '1week') then
             npthsin_week1=npthsin_week1+1
             if (npthsin_week1 .gt. max_inp_week) then
                write(unit_error, 651) '1WEEK',max_inp_week
@@ -495,7 +496,7 @@ c-----create DSS input pathnames, check for sign change for each path
             pathinput(p).intvl_path=npthsin_week1
             ptin_week1(npthsin_week1)=p
          else if (pathinput(p).no_intervals .eq. 1 .and.
-     &           pathinput(p).e_part(1:4) .eq. '1mon') then
+     &           pathinput(p).interval(:4) .eq. '1mon') then
             npthsin_month1=npthsin_month1+1
             if (npthsin_month1 .gt. max_inp_month) then
                write(unit_error, 651) '1MON',max_inp_month
@@ -504,10 +505,9 @@ c-----create DSS input pathnames, check for sign change for each path
             pathinput(p).intvl_path=npthsin_month1
             ptin_month1(npthsin_month1)=p
          else if ((pathinput(p).no_intervals .eq. 1 .and.
-     &           pathinput(p).e_part(1:5) .eq. '1year') .or.
+     &           pathinput(p).interval(:5) .eq. '1year') .or.
      &           pathinput(p).constant_value .ne. miss_val_r ! constant value: use 1year
      &           ) then
-            pathinput(p).e_part='1year'
             pathinput(p).no_intervals=1
             pathinput(p).interval='year'
             npthsin_year1=npthsin_year1+1
@@ -517,7 +517,7 @@ c-----create DSS input pathnames, check for sign change for each path
             endif
             pathinput(p).intvl_path=npthsin_year1
             ptin_year1(npthsin_year1)=p
-         else if (pathinput(p).e_part(:3) .eq. 'ir-') then ! irregular interval
+         else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
             npthsin_irr=npthsin_irr+1
             if (npthsin_irr .gt. max_inp_irr) then
                write(unit_error, 651) 'IR-',max_inp_irr
@@ -527,13 +527,13 @@ c-----create DSS input pathnames, check for sign change for each path
             ptin_irr(npthsin_irr)=p
          else                   ! unrecognized interval
             write(unit_error,650) 'input', pathinput(p).no_intervals,
-     &           trim(pathinput(p).e_part)
+     &           trim(pathinput(p).interval)
             goto 900
          endif
          call upcase(pathinput(p).path) ! convert to upper case
       end do
 
-      call repl_envvars('$(DSM2AGENCY)', dsm2_agency)
+      replace_status=replace_envvars('$(DSM2AGENCY)', dsm2_agency)
 
 
 
@@ -816,7 +816,7 @@ c--------constituents which may come from the same input (applies only to conser
 
          do p=1,ninpaths
             pathinput(p).n_consts=0
-            path_constituent=pathinput(p).c_part ! fixme: meas_type?
+            path_constituent=pathinput(p).variable
             do j=1,no_of_constituent  
                if (path_constituent .eq. constituents(j).name) then
                   if (
@@ -896,7 +896,7 @@ c--------remove output file, if text, and flag if tmp output files are needed
 c--------replace magic number channel length with correct channel length
          if (pathoutput(p).chan_dist .eq. chan_length)
      &        pathoutput(p).chan_dist =
-     &        chan_geom(pathoutput(p).object_no).length
+     &        chan_geom(pathoutput(p).obj_no).length
 c--------DSS a part
          if (pathoutput(p).a_part .ne. ' ') then
             ca=pathoutput(p).a_part
@@ -905,21 +905,21 @@ c-----------ctmp='DSM2-' // trim(dsm2_name) // '-' //
 c-----------&           dsm2_version
             ctmp= trim(dsm2_name) // dsm2_version
             ca=ctmp
-c-----------if (pathoutput(p).object .eq. obj_channel) then
+c-----------if (pathoutput(p).obj_type .eq. obj_channel) then
 c-----------ca=trim(ctmp) // '+CHAN'
-c-----------else if (pathoutput(p).object .eq. obj_node) then
+c-----------else if (pathoutput(p).obj_type .eq. obj_node) then
 c-----------ca=trim(ctmp) // '+NODE'
-c-----------else if (pathoutput(p).object .eq. obj_reservoir) then
+c-----------else if (pathoutput(p).obj_type .eq. obj_reservoir) then
 c-----------ca=trim(ctmp) // '+RSVR'
-c-----------else if (pathoutput(p).object .eq. obj_gate) then
+c-----------else if (pathoutput(p).obj_type .eq. obj_gate) then
 c-----------ca=trim(ctmp) // '+GATE'
-c-----------else if (pathoutput(p).object .eq. obj_qext) then
+c-----------else if (pathoutput(p).obj_type .eq. obj_qext) then
 c-----------ca=trim(ctmp) // '+QEXT'
-c-----------else if (pathoutput(p).object .eq. obj_obj2obj) then
+c-----------else if (pathoutput(p).obj_type .eq. obj_obj2obj) then
 c-----------ca=trim(ctmp) // '+OBJ2OBJ'
-c-----------else if (pathoutput(p).object .eq. obj_flux) then
+c-----------else if (pathoutput(p).obj_type .eq. obj_flux) then
 c-----------ca=trim(ctmp) // '+FLUX'
-c-----------else if (pathoutput(p).object .eq. obj_stage) then
+c-----------else if (pathoutput(p).obj_type .eq. obj_stage) then
 c-----------ca=trim(ctmp) // '+STAGE'
 c-----------else
 c-----------ca=trim(ctmp) // '+UNK'
@@ -934,17 +934,17 @@ c-----------if name given, use that, else channel/dist; node number; reservoir n
                cb=pathoutput(p).name
 c--------------object is a reservoir, and output is flow through a node,
 c--------------then add on node number to reservoir name
-               if (pathoutput(p).object .eq. obj_reservoir .and.
+               if (pathoutput(p).obj_type .eq. obj_reservoir .and.
      &              pathoutput(p).res_node_no .gt. 0) then
                   write(ctmp,'(i3)') pathoutput(p).res_node_no
                   cb=trim(cb) // '-NODE' // trim(ctmp)
                endif
             else                ! use chan/dist; node number
-               if (pathoutput(p).object .eq. obj_channel) then
+               if (pathoutput(p).obj_type .eq. obj_channel) then
                   write(cdist,'(i10)') pathoutput(p).chan_dist
-                  write(cb,'(i3.3,''_'',a)') pathoutput(p).object_no,cdist
-               else if (pathoutput(p).object .eq. obj_node) then
-                  write(cb,'(i3)') node_geom(pathoutput(p).object_no).node_ID
+                  write(cb,'(i3.3,''_'',a)') pathoutput(p).obj_no,cdist
+               else if (pathoutput(p).obj_type .eq. obj_node) then
+                  write(cb,'(i3)') node_geom(pathoutput(p).obj_no).node_ID
                endif
             endif
          endif
@@ -971,7 +971,7 @@ c-----------optional modifier (study name, etc)
             if (pathoutput(p).modifier .ne. ' ') then
                modifier=pathoutput(p).modifier
             else
-               call repl_envvars('$(DSM2MODIFIER)', ctmp)
+               replace_status=replace_envvars('$(DSM2MODIFIER)', ctmp)
                if (ctmp .ne. ' ') then
                   modifier=ctmp
                endif
@@ -1099,11 +1099,11 @@ c--------DSS e part
          end if
 
 c--------check for valid output channel distance
-         if (pathoutput(p).object .eq. obj_channel)then
+         if (pathoutput(p).obj_type .eq. obj_channel)then
             if(pathoutput(p).chan_dist .eq. -1) then
-               pathoutput(p).chan_dist = chan_geom(pathoutput(p).object_no).length
+               pathoutput(p).chan_dist = chan_geom(pathoutput(p).obj_no).length
             else if(pathoutput(p).chan_dist .gt.
-     &              chan_geom(pathoutput(p).object_no).length) then
+     &              chan_geom(pathoutput(p).obj_no).length) then
                write(unit_error,635) trim(pathoutput(p).path),
      &              pathoutput(p).chan_dist
                goto 900
@@ -1160,7 +1160,7 @@ c-----Open the DSS files for reading
 c     Convert an external channel number to internal number
 c     using a binary search. 
       integer function ext2int(extchan)
-      use dflib
+      use ifport
       use grid_data
       implicit none
       integer extchan
