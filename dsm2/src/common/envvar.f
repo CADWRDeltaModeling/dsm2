@@ -35,9 +35,9 @@ c-----pseudo (internal) environment variables
       
       contains
 
-      integer function repl_envvars(instring, outstring)
-      Use IO_Units
-      USE DFLIB                 !! <NT>
+      integer function replace_envvars(instring, outstring)
+      use io_units
+      use ifport
 
 c-----Replace any environment variables in a string with their values.
 c-----env vars are of this form: $[({]string[)}]
@@ -73,7 +73,7 @@ c-----if changed, also change declared length, above
      &     )
 
       lins=len_trim(instring)
-      repl_envvars=0
+      replace_envvars=0
       outstring=' '
       out_ndx=1
       end_ndx=1
@@ -120,7 +120,7 @@ c-----------if empty value, print warning
          if (evlen .gt. 0) then ! env var found
             outstring(out_ndx:)=evalue(:evlen)
             out_ndx=out_ndx+evlen
-            repl_envvars=repl_envvars+1
+            replace_envvars=replace_envvars+1
          endif
 
          start_ndx=index(instring(end_ndx:),'$')

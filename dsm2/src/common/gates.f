@@ -49,7 +49,7 @@ c-----gate operations/states
 c-----constants for flow coeff direction
 	integer, parameter :: FLOW_COEF_TO_NODE = 1
 	integer, parameter :: FLOW_COEF_FROM_NODE = -1
-
+	integer, parameter :: FLOW_COEF_TO_FROM_NODE = 0
 
 
       
