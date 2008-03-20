@@ -1,0 +1,47 @@
+Hydro Version 7.4    
+The following data corresponds to   29FEB1992 2400
+
+
+           6 /Channels
+           1 /Channel
+           4 /Locations
+           0.000        2.6959473          200.000 /Distance, WSElev, Q
+        5000.000        2.6950536          200.000 /Distance, WSElev, Q
+       10000.000        2.6941597          200.000 /Distance, WSElev, Q
+       15000.000        2.6932657          200.000 /Distance, WSElev, Q
+           2 /Channel
+           4 /Locations
+           0.000        0.0206901          200.000 /Distance, WSElev, Q
+        5000.000        0.0193430          200.000 /Distance, WSElev, Q
+       10000.000        0.0179957          200.000 /Distance, WSElev, Q
+       15000.000        0.0166481          200.000 /Distance, WSElev, Q
+           3 /Channel
+           4 /Locations
+           0.000        0.0166481          146.967 /Distance, WSElev, Q
+        5000.000        0.0159203          146.967 /Distance, WSElev, Q
+       10000.000        0.0151924          146.967 /Distance, WSElev, Q
+       15000.000        0.0144645          146.967 /Distance, WSElev, Q
+           5 /Channel
+           4 /Locations
+           0.000        0.0104186          200.000 /Distance, WSElev, Q
+        6000.000        0.0086923          200.000 /Distance, WSElev, Q
+       12000.000        0.0070362          200.000 /Distance, WSElev, Q
+       18000.000        0.0053311          200.000 /Distance, WSElev, Q
+           6 /Channel
+           3 /Locations
+           0.000        0.0053311          240.000 /Distance, WSElev, Q
+        6000.000        0.0026662          240.000 /Distance, WSElev, Q
+       12000.000        0.0000000          240.000 /Distance, WSElev, Q
+        2004 /Channel
+           4 /Locations
+           0.000        0.0144645          200.000 /Distance, WSElev, Q
+        5000.000        0.0131161          200.000 /Distance, WSElev, Q
+       10000.000        0.0117675          200.000 /Distance, WSElev, Q
+       15000.000        0.0104186          200.000 /Distance, WSElev, Q
+
+    1 /Number of Reservoir
+    1 /Reservoir Number
+    2 /Connections
+       1.5556290E-02 /Yres
+    1 -5.3032893E+01 /Connection, Qres
+    2  5.3032893E+01 /Connection, Qres

@@ -1,0 +1,18 @@
+# Additional text-designated output
+
+OUTPUTPATHS     
+
+NAME    CHAN     DIST        TYPE  INTERVAL    PERIOD      FILENAME
+ds_gate   2      0           stage 15min       inst  ${HYDROOUTDSSFILE}
+us_gate   1      length      stage 15min       inst  ${HYDROOUTDSSFILE}
+ds_gate   2       0           flow  15min       inst ${HYDROOUTDSSFILE}
+ds_res    2004    0           flow  15min       inst ${HYDROOUTDSSFILE}  
+END
+
+ 
+
+OUTPUTPATHS     
+NAME    RESERVOIR            TYPE  INTERVAL    PERIOD      FILENAME
+res_1    res_1                stage 15min       inst  ${HYDROOUTDSSFILE}
+END
+

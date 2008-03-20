@@ -1,0 +1,39 @@
+# Input system for DSM2-QUAL
+
+ENVVARS
+NAME          VALUE
+OUTPUT        output.inp
+SIMNAME	      tutorial
+QUALOUTDSSFILE	output.dss
+DSM2MODIFIER  oprule
+TUTORIALINPUT	..\timeseries\tutorial.dss
+END
+
+TITLES
+DSM2 TUTORIAL SIMULATION: $DSM2MODIFIER  
+END
+
+SCALAR
+database	dsm2input_access
+model_name      ${SIMNAME}_qual_ec
+run_start_date  01JAN1992
+run_end_date    01MAR1992
+run_start_time	0100
+run_end_time	0000
+temp_dir	c:/temp
+init_conc	400
+END
+
+
+IO_FILES 
+MODEL	TYPE	IO   INTERVAL	FILENAME
+qual	restart	out  1mon	${DSM2MODIFIER}.qrf        # Initial condition a restart is required
+output	none	none none	${DSM2MODIFIER}_qual.out   # Echoed input, run status
+END 
+
+TIDEFILE
+START_DATE    END_DATE     FILENAME
+runtime       length    $DSM2MODIFIER.h5
+END
+
+
