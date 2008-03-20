@@ -1,0 +1,32 @@
+# Input system for DSM2-HYDRO
+
+ENVVARS
+NAME          VALUE
+SIMNAME	      tutorial
+HYDROOUTDSSFILE	output.dss
+DSM2MODIFIER  timevar_1
+TUTORIALINPUT	..\timeseries\tutorial.dss
+END
+
+TITLES
+DSM2 TUTORIAL SIMULATION: $DSM2MODIFIER  
+END
+
+SCALAR
+database	dsm2input_access
+model_name      ${SIMNAME}_hydro
+run_start_date  01JAN1992
+run_end_date    01MAR1992
+run_start_time	0000
+run_end_time	0000
+temp_dir	c:/temp
+END
+
+IO_FILES 
+MODEL	TYPE	IO   INTERVAL	FILENAME
+hydro	hdf5	out  1hour	$DSM2MODIFIER.h5       # Flow data to be passed to qual and ptm
+hydro	restart	out  1mon	$DSM2MODIFIER.hrf      # Initial condition a restart is required
+output	none	none none	$DSM2MODIFIER.out      # Echoed input and run status
+END
+
+
