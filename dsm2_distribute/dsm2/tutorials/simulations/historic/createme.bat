@@ -2,7 +2,7 @@
 :: strip out all the Informix references and replace them with Access
 echo off
 SETLOCAL
-SET origloc=%DSM2_HOME%\studies\historic
+SET origloc=%DSM2_HOME%\study_templates\historic
 echo Copying from %origloc%
 if not exist %origloc% echo Original location %origloc% not found
 xcopy /Y/Q %origloc%\*.* .
