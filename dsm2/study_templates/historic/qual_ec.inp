@@ -1,7 +1,3 @@
-# This is the main input file; other input files
-# are specified here.
-# verification run using 90-99 data
-
 TITLES
 DSM2 DELTA HISTORIC SIMULATION: $DSM2MODIFIER  
 END
