@@ -2,24 +2,29 @@
 :: strip out all the Informix references and replace them with Access
 echo off
 SETLOCAL
-SET origloc=%DSM2_HOME%\study_templates\historic
+set base=historic
+
+SET origloc=%DSM2_HOME%\study_templates\%base%
 echo Copying from %origloc%
 if not exist %origloc% echo Original location %origloc% not found
 xcopy /Y/Q %origloc%\*.* .
-move hydro.inp hydro.inp.move_to_access
-move qual_ec.inp qual_ec.inp.move_to_access
-move qual_do.inp qual_do.inp.move_to_access
-move ptm.inp ptm.inp.move_to_access
-move config-hist.inp config-hist.inp.move_to_access
 
-call vscript move_to_access.py hydro.inp
-call vscript move_to_access.py qual_ec.inp
-call vscript move_to_access.py qual_do.inp
-call vscript move_to_access.py ptm.inp
-call vscript move_to_access.py config-hist.inp
+echo moving scripts to temporary location
+for %%f in (hydro*.inp) do move %%f %%f.move_to_access
+for %%f in (qual*.inp) do move %%f %%f.move_to_access
+for %%f in (ptm*.inp) do move %%f %%f.move_to_access
+for %%f in (config*.inp) do move %%f %%f.move_to_access
+
+echo removing informix references
+SET MOVE_SCRIPT=%DSM2_HOME%\scripts\move_to_access.py
+for %%f in (hydro*.inp.move_to_access) do call %MOVE_SCRIPT% %%f
+for %%f in (qual*.inp.move_to_access) do call %MOVE_SCRIPT% %%f
+for %%f in (ptm*.inp.move_to_access) do call %MOVE_SCRIPT% %%f
+for %%f in (config*.inp.move_to_access) do call %MOVE_SCRIPT% %%f
 
 ENDLOCAL
 del *.*.move_to_access
 if not exist .\output mkdir .\output
 
 
+:end
