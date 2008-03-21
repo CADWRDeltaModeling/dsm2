@@ -27,3 +27,4 @@ for line in f.readlines():
     
 f.close()
 outfile.close()
+sys.exit()
