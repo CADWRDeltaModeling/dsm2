@@ -17,12 +17,13 @@ if not exist %CONFIGFILE% goto noconfig
 
 set HYDRO_COMMAND=^echo Not executing hydro
 set QUAL_COMMAND=^echo Not executing qual
+set PTM_COMMAND=^echo Not executing ptm
 
 if %DSM2MODULE%==hydro (
 type %CONFIGFILE% > hydrotemp.inp & type hydro.inp >> hydrotemp.inp
 set HYDRO_COMMAND=hydro hydrotemp.inp
 ) 
-if %DSM2MODULE%==qual_ec (
+if %DSM2MODULE%==qual (
 type %CONFIGFILE% > qualectemp.inp & type qual_ec.inp >> qualectemp.inp
 set QUAL_COMMAND=qual qualectemp.inp
 )
@@ -36,13 +37,18 @@ type %CONFIGFILE% > qualectemp.inp & type qual_ec.inp >> qualectemp.inp
 set HYDRO_COMMAND=hydro hydrotemp.inp
 set QUAL_COMMAND=qual qualectemp.inp
 )
+if %DSM2MODULE%==ptm (
+type %CONFIGFILE% > ptmtemp.inp & type ptm.inp >> ptmtemp.inp
+set QUAL_COMMAND=ptm ptmtemp.inp
+) 
 
 %HYDRO_COMMAND% & if exist hydrotemp.inp del hydrotemp.inp
 %QUAL_COMMAND% & if exist qual*temp.inp del qual*temp.inp
+%PTM_COMMAND% & if exist ptmtemp.inp del ptmtemp.inp
 goto end
 
 :helpmsg
-echo "Usage: dsm2.bat hydro|qual_ec|qual_do|both config.inp"
+echo "Usage: dsm2.bat hydro|qual|both config.inp"
 goto end
 
 :noconfig
