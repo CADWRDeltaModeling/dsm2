@@ -1,0 +1,31 @@
+5
+./dual/right_panel/ptmout.txt
+/PTM7.2/EXPORT_SWP/PTM_FLUX//15MIN/DWR+HIST/
+SWP Pumping
+556
+0 50
+./dual/right_panel/ptmout.txt
+/PTM7.2/EXPORT_CVP/PTM_FLUX//15MIN/DWR+HIST/
+CVP Pumping
+555
+0 50
+./dual/right_panel/ptmout.txt
+/PTM7.2/PAST_MTZ/PTM_FLUX//15MIN/DWR+HIST/
+Martinez
+503
+0 50
+./dual/right_panel/ptmout.txt
+/PTM7.2/PAST_CHIPPS/PTM_FLUX//15MIN/DWR+HIST/
+Chipps Island
+507
+0 50
+./dual/right_panel/ptmout.txt
+/PTM7.2/DIVERSION_AG/PTM_FLUX//15MIN/DWR+HIST/
+Ag Diversions
+501
+0 50
+
+
+
+
+
