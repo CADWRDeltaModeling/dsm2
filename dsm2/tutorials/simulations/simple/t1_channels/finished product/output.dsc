@@ -1,9 +1,9 @@
 
-     HECDSS Complete Catalog of Record Pathnames in File d:\dsm2_training\tutorial\simulations\simple\t1_channels\finishe
+     HECDSS Complete Catalog of Record Pathnames in File D:\Delta\models\dsm2_distribute\dsm2\tutorials\simulations\simpl
 
-     Catalog Created on Oct 10, 2006 at 13:59    File Created on Oct 10, 2006
-     Number of Records:     40                   DSS Version 6-ND,  File 6-ND
-     Sort Order: ABCFED
+     Catalog Created on Mar 24, 2008 at 15:17    File Created on Oct 10, 2006
+     Number of Records:     40                   DSS Version 6-MC,  File 6-ND
+     Sort Order: ABCFED      CA.NC
 
   Ref.
  Number   Tag           Record Pathname
