@@ -38,7 +38,8 @@ TSINPUTLOCAL           ./timeseries                                    # Local t
 BOUNDARYFILE           ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
 QUALBOUNDARYFILE       ${BOUNDARYFILE}
 DICUDIR                ${TSINPUTDIR}
-DICUFILE               ${DICUDIR}/dicu-2001.dss                        # DICU file
+DICUFLOWFILE           ${DICUDIR}/dicu-${DICU_VERSION}.dss             # DICU file
+DICUFILE              ${BOUNDARYFILE}                                  # DICU file for hydro, assumes copied to boundary file
 CALSIMFILE             ${CALSIMDIR}/${CALSIMNAME}.dss                  # Calsim output file
 CALSIM_SMOOTH          ${BOUNDARYFILE}                                 # Pre-processed boundary input (hydro/qual)
 CALSIM_VAMP            ${BOUNDARYFILE}                                 # Pre-processed VAMP flows and exports
