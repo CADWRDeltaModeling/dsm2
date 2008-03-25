@@ -12,9 +12,9 @@ from config import getAttr,setConfigVars
 def copy_dicu_flow():
     """ Unsmoothed transfer from DICU file to model input file.
     """
-    dicufile=getAttr("DICUFILE") 
+    dicufile=getAttr("DICUFLOWFILE") 
     f=opendss(dicufile)           # open CALSIM file
-    outfile=getAttr("BOUNDARYFILE")
+    outfile=getAttr("DICUFILE")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
     tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
