@@ -13,7 +13,7 @@ DSM2 TUTORIAL SIMULATION: $DSM2MODIFIER
 END
 
 SCALAR
-database	dsm2input_t1
+database	dbase_in_tutorial
 model_name      ${SIMNAME}_hydro
 run_start_date  01JAN1992
 run_end_date    01MAR1992
