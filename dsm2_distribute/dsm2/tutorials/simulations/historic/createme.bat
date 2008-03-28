@@ -16,7 +16,7 @@ for %%f in (ptm*.inp) do move %%f %%f.move_to_access
 for %%f in (config*.inp) do move %%f %%f.move_to_access
 
 echo removing informix references
-SET MOVE_SCRIPT=%DSM2_HOME%\scripts\move_to_access.py
+SET MOVE_SCRIPT=%DSM2_HOME%\vista\bin\vscript %DSM2_HOME%\scripts\move_to_access.py
 for %%f in (hydro*.inp.move_to_access) do call %MOVE_SCRIPT% %%f
 for %%f in (qual*.inp.move_to_access) do call %MOVE_SCRIPT% %%f
 for %%f in (ptm*.inp.move_to_access) do call %MOVE_SCRIPT% %%f
