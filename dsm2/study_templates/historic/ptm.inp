@@ -3,7 +3,7 @@ ENVVARS
 NAME		VALUE
 MODEL_NAME      historical
 PTMOUTPUTTEXT   ${DSM2OUTPUTDIR}/ptmout.txt
-PTMOUTPUTFILE   ${DSM2OUTPUTDIR}/ptmout.dss
+PTMOUTPUTDSS    ${DSM2OUTPUTDIR}/ptmout.dss
 END
 
 SCALAR
@@ -19,10 +19,10 @@ ptm_time_step           15min   # PTM time step
 display_intvl           1day    # How often to display run progress
 ptm_no_animated         2000    # Maximum number of particles to animate
 
-ptm_ivert               t       # Use Vertical velocity profile
-ptm_itrans              t       # Use Transverse velocity profile
-ptm_iey			t	# Use transverse mixing
-ptm_iez			t	# Use vertical mixing
+ptm_ivert               f       # Use Vertical velocity profile
+ptm_itrans              f       # Use Transverse velocity profile
+ptm_iey			f	# Use transverse mixing
+ptm_iez			f	# Use vertical mixing
 
 ptm_flux_percent	t	# Output flux as percentage
 ptm_group_percent	t	# Output groups as percentage
@@ -31,8 +31,7 @@ ptm_flux_cumulative	t	# Output flux as cumulative values
 ptm_random_seed		32001	# Starting Random Number Seed
 ptm_trans_constant  	0.6	# Transverse Mixing Constant
 ptm_vert_constant   	0.0067		# Vertical Mixing Constant
-#ptm_vonkarman   	0.4	# Von Karman Constant
-#ptm_shear_vel		0.1	# Shear Velocity Proportion - multiplied by Vave to calc shear vel
+
 ptm_trans_a_coef    	1.2	# Transverse a coefficient
 ptm_trans_b_coef    	0.3	# Transverse b coefficient
 ptm_trans_c_coef    	-1.500	# Transverse c coefficient
@@ -70,17 +69,12 @@ swp           qext              swp
 cvp           qext              cvp
 mtz           stage             mtz.*
 ccc           qext              ccc
-sac_below_chipps		channels	range:438-441
-sac_below_chipps		channels	(443|452)
-
 END
   
 GROUP_OUTPUT
 GROUP   	INTERVAL	FILENAME	  B_PART
 twitchell           1hour   ${PTMOUTPUTFILE}  TWITCHELL
 emmaton             1hour   ${PTMOUTPUTFILE}  EMMATON
-sac_below_chipps    1hour   ${PTMOUTPUTFILE}  SAC_BELOW_CHIPPS
-#res:franks_tract   1hour   ${PTMOUTPUTFILE}  FRANKS_TRACT
 END
 
 PARTICLE_FLUX
@@ -91,12 +85,6 @@ chan:441             group:mtz    15min     ${PTMOUTPUTFILE}  Past_MTZ
 group:chipps_east    group:chipps_west   15min   ${PTMOUTPUTFILE}    Past_Chipps
 group:all            group:ag_div  15min    ${PTMOUTPUTFILE}  DIVERSION_AG
 
-# text output should be used if fluxes are to be added to animator
-#res:clifton_court    group:swp    15min     ${PTMOUTPUTTEXT}  EXPORT_SWP
-#chan:216             group:cvp    15min     ${PTMOUTPUTTEXT}  EXPORT_CVP
-#chan:441             group:mtz    15min     ${PTMOUTPUTTEXT}  Past_MTZ
-#group:chipps_east    group:chipps_west   15min   ${PTMOUTPUTTEXT}    Past_Chipps
-#group:all            group:ag_div  15min    ${PTMOUTPUTTEXT}  DIVERSION_AG
 END
 
 
@@ -104,7 +92,7 @@ END
 PARTINP
 NODE     NPARTS	 SLENGTH    LENGTH
 354	1000	   0hour      1day
-113     1000      0hour      1day
+#113     1000      0hour      1day
 END
 
 
