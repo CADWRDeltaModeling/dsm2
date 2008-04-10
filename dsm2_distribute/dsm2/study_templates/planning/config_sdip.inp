@@ -10,17 +10,18 @@
 
 ENVVARS
 NAME                             VALUE
+DBASE                 dsm2input_not_set
 SIMNAME               planning_sdip
-CALSIMNAME            base_common_assumptions   # Name of CALSIM file without ".dss" part
+CALSIMNAME            base_common_assumptions        # Name of CALSIM file without ".dss" part
 #DSM2MODIFIER         ${batch_dsm2modifier}          # Study name used for DSM2 and prepro
-DSM2MODIFIER          sdip                                          # Study name used for DSM2 and prepro 
-CALSIMSTUDY_ORIGINAL  2020D09E                                # fpart straight out of calsim
+DSM2MODIFIER          sdip                           # Study name used for DSM2 and prepro 
+CALSIMSTUDY_ORIGINAL  2020D09E                       # fpart straight out of calsim
 CALSIMSTUDY_MODIFIED  ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER}      # modified fpart after preprocessing
-CALSIMSTUDY           ${CALSIMSTUDY_MODIFIED}      # CALSIM study name used for DSM2
+CALSIMSTUDY           ${CALSIMSTUDY_MODIFIED}        # CALSIM study name used for DSM2
 CALSIMSTEP            1MON
-DICU_VERSION          2020                                         # Appears in F-PART of DICU data after DICU-DRN
+DICU_VERSION          2020                           # Appears in F-PART of DICU data after DICU-DRN
 STAGE_VERSION         PLANNING-2-SL
-SJR_PROCESS           SINGLE_STEP                                # SINGLE_STEP or MULTI_STEP
+SJR_PROCESS           SINGLE_STEP                    # SINGLE_STEP or MULTI_STEP
 
 START_DATE            01Oct1974
 QUAL_START_DATE       02Oct1974
@@ -28,7 +29,7 @@ START_TIME            0000
 END_DATE              01Nov1991
 END_TIME              0000
 
-TSINPUTDIR            ${DSM2_HOME}/timeseries                             # Where timeseries are stored.
+TSINPUTDIR            ${DSM2_HOME}/timeseries                      # Where timeseries are stored.
 CALSIMDIR             ${TSINPUTDIR}                                # For Condor or single prepro     
 #CALSIMDIR            ${batch_calsimdir} # For batch prepro
 TEMPDIR               z:/temp
@@ -36,7 +37,7 @@ TSINPUTLOCAL          ./timeseries                                 # Local times
 BOUNDARYFILE          ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
 QUALBOUNDARYFILE      ${BOUNDARYFILE}
 DICUDIR               ${TSINPUTDIR}
-DICUFLOWFILE          ${DICUDIR}/dicu-${DICU_VERSION}.dss           # DICU file
+DICUFLOWFILE          ${DICUDIR}/dicu-${DICU_VERSION}.dss          # DICU file
 DICUFILE              ${BOUNDARYFILE}                              # DICU file for hydro, assumes copied to boundary file
 CALSIMFILE            ${CALSIMDIR}/${CALSIMNAME}.dss               # Calsim output file
 CALSIM_SMOOTH         ${BOUNDARYFILE}                              # Pre-processed boundary input (hydro/qual)
