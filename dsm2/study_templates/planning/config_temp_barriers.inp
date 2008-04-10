@@ -12,7 +12,7 @@
 
 ENVVARS
 NAME                   VALUE
-
+DBASE                  dsm2input_not_set
 SIMNAME                planning_temp_barrier
 
 CALSIMNAME             OCAP_2001D10ADV_TodayEWA_012104                # Name of CALSIM file without ".dss" part
@@ -28,10 +28,10 @@ SJR_PROCESS            SINGLE_STEP                                    # SINGLE_S
 START_DATE             01Oct1974
 QUAL_START_DATE        02Oct1974
 START_TIME             0000
-END_DATE               01JAN1991
+END_DATE               01OCT1991
 END_TIME               0000
 
-TSINPUTDIR             ../../timeseries                                # Where timeseries are stored.
+TSINPUTDIR             ${DSM2_HOME}/timeseries                         # Where seldom-changing timeseries are stored (local archive)
 CALSIMDIR              ${TSINPUTDIR}                                   # For Condor or single prepro
 TEMPDIR                z:/temp                                         # temporary directory. Please change
 TSINPUTLOCAL           ./timeseries                                    # Local timeseries location
@@ -39,7 +39,7 @@ BOUNDARYFILE           ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
 QUALBOUNDARYFILE       ${BOUNDARYFILE}
 DICUDIR                ${TSINPUTDIR}
 DICUFLOWFILE           ${DICUDIR}/dicu-${DICU_VERSION}.dss             # DICU file
-DICUFILE              ${BOUNDARYFILE}                                  # DICU file for hydro, assumes copied to boundary file
+DICUFILE               ${BOUNDARYFILE}                                  # DICU file for hydro, assumes copied to boundary file
 CALSIMFILE             ${CALSIMDIR}/${CALSIMNAME}.dss                  # Calsim output file
 CALSIM_SMOOTH          ${BOUNDARYFILE}                                 # Pre-processed boundary input (hydro/qual)
 CALSIM_VAMP            ${BOUNDARYFILE}                                 # Pre-processed VAMP flows and exports

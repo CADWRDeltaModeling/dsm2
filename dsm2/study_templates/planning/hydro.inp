@@ -8,7 +8,7 @@ DSM2 DELTA HISTORIC SIMULATION: $DSM2MODIFIER
 END
 
 SCALAR
-database         dsm2input
+database         ${DBASE}
 model_name       $(SIMNAME)_hydro
 run_start_date   $START_DATE
 run_end_date     $END_DATE
