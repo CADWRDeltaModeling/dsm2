@@ -22,8 +22,7 @@ C!</license>
 c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
-      use Gates,only:GateArray,deviceIndex
-     &     ,WEIR,PIPE,GATE_OPEN,NO_GATE_CONTROL
+      use Gates
       use io_units
       use iopath_data
       use logging
@@ -72,8 +71,10 @@ c-----local variables
       external data_types
 
       real*8 ftmp
-
+      integer :: gatendx
       real*8, external :: fetch_data
+      real*8  :: fetcheddata
+      logical free
 
       character
      &     InPath*80
@@ -361,7 +362,17 @@ c-----------set data type fixme:groups is this right
                if (subloclen.le. 0 ) then
                   if ( param(1:7) .eq. 'install')then
                      pathinput(ninpaths).gate_param=gate_install
-                  else          ! device wasn't specified and not installation
+                     pathinput(ninpaths).locnum=devNo
+                     gatendx=pathinput(ninpaths).obj_no
+                     call datasource_from_path(
+     &                          gateArray(gatendx).install_datasource,
+     &                          ninpaths,
+     &                          pathinput(ninpaths))
+                     fetcheddata=fetch_data(
+     &                            gateArray(gatendx).install_datasource)
+                     free = fetcheddata .eq. 0.
+                     call setFree(gateArray(gatendx), free)
+                  else   ! device wasn't specified and not installation
                      write(unit_error,*)
      &                    'Input TS: For gate: ' // trim(LocName) //
      &                    ' a time series was entered with no device name.'
@@ -386,13 +397,19 @@ c-----------set data type fixme:groups is this right
                      
                      if (param(1:3) .eq. 'pos' .and. ParamLen .eq. 3)then
                         write(unit_error,*)
-     &                       "Time series variable 'pos' has been deprecated. " //
-     &                       "Please use 'op' or 'position' and note 'position'" //
-     &                       "is different from 'pos' in previous versions."
+     &                    "Time series variable 'pos' has been deprecated. "
                         istat=-3
                         return
                      end if
                      if (param(1:8) .eq. 'position') then
+c                        write(unit_error,*)
+c     &                    "Time series variable 'position' has been deprecated. " //
+c     &                    "Please use 'height','elev' or 'width' to manipulate the" //
+c     &                    "position directly. Use 'height' for a radial " //
+c     &                    "gate and elev for a bottom-operated gate. "//
+c     &                    "The last version of HYDRO that accepts position "//
+c     &                    "without a warning was 7.8."   
+                     
                         devType=gateArray(gateNo).Devices(devNo).structureType
                         if( devType .eq. miss_val_i .or.
      &                     devType .eq. NO_GATE_CONTROL)then
@@ -461,10 +478,43 @@ c-----------set data type fixme:groups is this right
      &                          ).Devices(devNo).op_from_node_datasource)
 
                         end if
-c     !fixme: what about constant value stuff??
-c     gateArray(gateNo).Devices(devNo).height
-c     &                   =gateArray(gateNo).Devices(
-c     &                    devNo).pos_datasource.value
+                     else if (param(1:5) .eq. 'width') then
+                        pathinput(ninpaths).gate_param = gate_width
+                        pathinput(ninpaths).locnum=devNo
+                        call datasource_from_path(
+     &                          gateArray(gateNo).Devices(
+     &                          devNo).width_datasource,
+     &                          ninpaths,pathinput(ninpaths))
+                           gateArray(pathinput(ninpaths).obj_no).Devices(
+     &                          devNo).maxWidth=fetch_data(
+     &                          gateArray(
+     &                          pathinput(ninpaths).obj_no
+     &                          ).Devices(devNo).width_datasource)
+                     else if (param(1:6) .eq. 'height') then
+                        pathinput(ninpaths).gate_param = gate_height
+                        pathinput(ninpaths).locnum=devNo
+                        call datasource_from_path(
+     &                          gateArray(gateNo).Devices(
+     &                          devNo).height_datasource,
+     &                          ninpaths,pathinput(ninpaths))
+                           gateArray(pathinput(ninpaths).obj_no).Devices(
+     &                          devNo).height=fetch_data(
+     &                          gateArray(
+     &                          pathinput(ninpaths).obj_no
+     &                          ).Devices(devNo).height_datasource)
+                     else if (param(1:4) .eq. 'elev') then
+                        pathinput(ninpaths).gate_param = gate_elev
+                        pathinput(ninpaths).locnum=devNo
+                        call datasource_from_path(
+     &                          gateArray(gateNo).Devices(
+     &                          devNo).elev_datasource,
+     &                          ninpaths,pathinput(ninpaths))
+                           gateArray(pathinput(ninpaths).obj_no).Devices(
+     &                          devNo).baseElev=fetch_data(
+     &                          gateArray(
+     &                          pathinput(ninpaths).obj_no
+     &                          ).Devices(devNo).elev_datasource)
+
                      else
                         write(unit_error,*)  
      &                       "Unknown time series parameter. Gate: " 

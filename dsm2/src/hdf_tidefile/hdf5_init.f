@@ -178,7 +178,7 @@ c**********contains routines for writing data to an HDF5 file
 	use HDF5		! HDF5 This module contains all necessary modules 
 	use hdfvars
 	use io_units, only: unit_error,unit_screen
-
+      use logging
 	implicit none
 
 				! Called in fourpoint.f to close out the HDF5 file properly
@@ -186,8 +186,7 @@ c**********contains routines for writing data to an HDF5 file
 	integer        :: error	! HDF5 Error flag
 
 c-------Close the datasets corresponding to model states
-
-      write(unit_screen,*)"Closing HDF5 data sets"
+      if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data sets"
 
 	call h5dclose_f(chan_z_dset_id,error)
 	if (error .ne. 0)then
@@ -228,7 +227,7 @@ c-------Close the datasets corresponding to model states
 
 c-------Close the groups in the dataset
   
-	write(unit_screen,*)"Closing HDF5 data groups"
+      if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data groups"
 	call h5gclose_f(geom_id, error)
 	if (error .ne. 0)then
 	   write(unit_error,*)"HDF5 error closing geometry group: ",error
@@ -245,18 +244,18 @@ c-------Close the groups in the dataset
 	end if
 
 c-------Close the file
- 333  write(unit_screen,*)"Closing HDF5 file"
+ 333  if (print_level .gt.1) write(unit_screen,*)"Closing HDF5 file"
 	call h5fclose_f(file_id, error)
 	if (error .ne. 0)then
 	   write(unit_error,*)"HDF5 error closing hdf file: ",error
 	end if
 
-	write(unit_screen,*)"Closing HDF5"
+      if (print_level .gt.2) write(unit_screen,*)"Closing HDF5"
 	call h5close_f(error)
 	if (error .ne. 0)then
 	   write(unit_error,*)"HDF5 error closing hdf5: ",error
 	end if
-	write(unit_screen,*)"Closed HDF5"      
+      if (print_level .gt.2) write(unit_screen,*)"Closed HDF5"      
 
 	return
 	end subroutine

@@ -39,7 +39,10 @@ bool TransferFlowInterface::operator==( const TransferFlowInterface& rhs){
 
 ChannelFlowNode::ChannelFlowNode(
                    const int intchan, 
-                   const double dist) {
+				   const double dist) :
+  channel(intchan),
+  distance(dist)
+  {
   int points[2];
   double weights[2];
   chan_comp_point(intchan, dist, points, weights);
@@ -56,7 +59,10 @@ inline double ChannelFlowNode::eval(){
    
 ChannelWSNode::ChannelWSNode(
                  const int intchan, 
-                 const double dist) {
+                 const double dist):
+  channel(intchan),
+  distance(dist)
+{
   int points[2];
   double weights[2];
   chan_comp_point(intchan, dist, points, weights);
@@ -74,7 +80,10 @@ double ChannelWSNode::eval(){
 //fixme: this stinks, but keep it for now for comparison to old op rules
 ChannelVelocityNode::ChannelVelocityNode(
                  const int intchan, 
-                 const double dist) : channel(intchan),distance(dist) {
+                 const double dist) : 
+      channel(intchan), 
+	  distance(dist) 
+{
   int points[2];
   double weights[2];
   chan_comp_point(intchan, dist, points, weights);
@@ -92,7 +101,8 @@ double ChannelVelocityNode::eval(){
 ReservoirFlowNode::ReservoirFlowNode( 
                       const int res, 
                       const int connect)  
-                      : _res(res), _conn(connect){
+                      : _res(res), 
+					    _conn(connect){
 }
 
 double ReservoirFlowNode::eval(){

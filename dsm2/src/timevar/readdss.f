@@ -170,7 +170,6 @@ c--------zritsx doesn't initialize flags to zero
          do i=1,maxinpsize
             flags(i)=0
          enddo
-
          call zritsx(ifltab_in(1,pathinput(pathnumber).ndx_file),
      &        pathinput(pathnumber).path,
      &        juls, istime, jule, ietime,

@@ -141,7 +141,7 @@ c      include '../fixed/defs.f'
 
 *== Public (store_values) ================================================
       subroutine store_values
-      Use Gates, only: gateArray,gate,ngate
+      Use Gates, only: gateArray,gate,ngate,setFree
       use IO_Units
       use grid_data
       implicit none
@@ -162,7 +162,7 @@ c-----local variables
 
       real*8
      &     fetch_data
-      
+      real*8 install
 	type(gate),pointer :: currentGate
 
 
@@ -211,6 +211,14 @@ c-----gate controls
             !fixme: either store this or interpret it better
 	      currentGate.Devices(j).position=fetch_data(
      &         currentGate.Devices(j).pos_datasource)
+	      currentGate.Devices(j).baseElev=fetch_data(
+     &         currentGate.Devices(j).elev_datasource)     
+	      currentGate.Devices(j).height=fetch_data(
+     &         currentGate.Devices(j).height_datasource)       
+	      currentGate.Devices(j).maxWidth=fetch_data(
+     &         currentGate.Devices(j).width_datasource)
+            install = fetch_data(currentGate.install_datasource)
+!            call setFree(currentGate,install.eq. 0.D0)
 	   end do
       end do
 
@@ -255,10 +263,13 @@ c-----------note sign: from flow is subtracted
 c--------to a node
          if (obj2obj(i).to_obj.obj_type .eq. obj_node) then
             intchan=abs(obj2obj(i).to_obj.hydrochan) ! - channel number denotes downstream end connected
-            if (obj2obj(i).to_obj.hydrochan .gt. 0) then ! upstream end of channel connected to node
+            !todo: eli,experiment
+            intchan=node_geom(obj2obj(i).to_obj.obj_no).sumQchan
+            if (intchan .gt. 0) then ! upstream end of channel connected to node
                StreamBndValue(intchan*2-1) =
      &              StreamBndValue(intchan*2-1) + obj2obj(i).flow
             else                ! downstream end of channel connected to node
+               intchan = -intchan
                StreamBndValue(intchan*2) =
      &              StreamBndValue(intchan*2) + obj2obj(i).flow
             endif

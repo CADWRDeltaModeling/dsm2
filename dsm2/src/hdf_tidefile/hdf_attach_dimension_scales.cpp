@@ -37,9 +37,14 @@ void attach_dim(hid_t * fid, char*setname,
  err = H5Dclose(dsetid);
 }
 
+//There is nothing wrong with dimension scales in hdf5
+//and it should be all ready to go, but PyTables doesn't
+//support it yet and we are disabling it until then
+#define BROKEN_PYTABLE_VAR_LEN_STRING
+
 
 void attach_hydro_scales(hid_t * fid){
- 
+#ifndef BROKEN_PYTABLE_VAR_LEN_STRING 
  char*setname = "hydro/data/channel stage";
 
  attach_dim( fid, setname,
@@ -112,7 +117,7 @@ setname = "hydro/data/transfer flow";
  attach_dim( fid, setname,
              0,"time",1);
 
-
+#endif
 
 }
 

@@ -246,14 +246,14 @@ device_op_factory(const NamedValueLookup::ArgMap& argmap){
 		 direct=direct_to_node();
 	 }else if (dstr == "from_node") {
 		 direct=direct_from_node();
-	 }else if (dstr == "to_from_node") {
-		 direct=direct_from_node();
+	 }else if (dstr == "to_from_node" || dstr == "bidir") {
+		 direct=direct_to_from_node();
 	 }else throw oprule::parser::InvalidIdentifier("Illegal op direction: " + dstr);
   }
 
   if (gatendx != -901 && devndx != -901 && direct!= -901) return 
      DeviceOpInterface::create(gatendx,devndx,direct);
-  else return oprule::expression::DoubleNode::NodePtr();
+  else throw oprule::parser::InvalidIdentifier("Unknown gate and device");
 }
 
 
@@ -264,13 +264,14 @@ external_flow_factory(const NamedValueLookup::ArgMap& argmap){
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("name");
   if(iter == argmap.end()){
-     return oprule::expression::DoubleNode::NodePtr();   //@todo better error
+     cerr << "name missing" << endl;
+     throw oprule::parser::MissingIdentifier("external flow name not specified");
   }else{ 
      string name=iter->second;
      int ndx=qext_index(name.c_str(),name.length());
      if (ndx > 0) return 
        ExternalFlowInterface::create(ndx);
-     else return oprule::expression::DoubleNode::NodePtr();
+     else throw oprule::parser::InvalidIdentifier("Unknown external flow: "+name);
   }
 }
 

@@ -425,7 +425,7 @@ JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelXSectionDi
 JNIEXPORT jfloat JNICALL Java_DWR_DMS_PTM_PTMFixedData_getReservoirArea
 (JNIEnv * env, jobject thisOne, jint i){
   int reservoirNumber = (int)i;
-  jfloat area = (jint) getReservoirArea(&reservoirNumber);
+  jfloat area = getReservoirArea(&reservoirNumber);
   return area;
 }
 
@@ -437,7 +437,7 @@ JNIEXPORT jfloat JNICALL Java_DWR_DMS_PTM_PTMFixedData_getReservoirArea
 JNIEXPORT jfloat JNICALL Java_DWR_DMS_PTM_PTMFixedData_getReservoirBottomElevation
 (JNIEnv * env, jobject thisOne, jint i){
   int reservoirNumber = (int)i;
-  jfloat bottomElevation = (jint) getReservoirArea(&reservoirNumber);
+  jfloat bottomElevation = getReservoirArea(&reservoirNumber);
   return bottomElevation;
 }
 

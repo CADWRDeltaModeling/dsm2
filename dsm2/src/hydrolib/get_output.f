@@ -73,17 +73,17 @@ c     &     -val_down)*(chan_dist/chan_len)
             call exit(2)
          endif
          closest_node=int(dfloat(nodeup)+dfloat(pathoutput(ptr).chan_dist)/
-     &        float(chan_geom(intchan).length)*(dfloat(nodedown)-
-     &        float(nodeup))+0.5)
+     &        dfloat(chan_geom(intchan).length)*(dfloat(nodedown)-
+     &        dfloat(nodeup))+0.5)
          if (closest_node.lt.nodeup .or. closest_node.gt.nodedown) then
-            write(unit_error,902)chan_geom(intchan).chan_no,pathoutput(ptr).chan_dist,
-     &        chan_geom(intchan).length
+            write(unit_error,902)chan_geom(intchan).chan_no,
+     &           pathoutput(ptr).chan_dist,
+     &           chan_geom(intchan).length
  902        format('Error in output specification for channel=',i6/
      &             'output specified for distance=',i10/
      &             'channel length=',i10)
             call exit(2)
          endif
-
          if (pathoutput(ptr).meas_type .eq. 'stage') then
             get_output=globalStreamSurfaceElevation(closest_node)
          else if (pathoutput(ptr).meas_type(1:3) .eq. 'vel') then
@@ -91,11 +91,18 @@ c     &     -val_down)*(chan_dist/chan_len)
          else if (pathoutput(ptr).meas_type .eq. 'flow') then
             get_output=globalStreamFlow(closest_node)
          endif
+      !else if (pathoutput(ptr).obj_type .eq. obj_qext) then 
+      !   get_output=qext(pathoutput(ptr).obj_no)
       else if (pathoutput(ptr).obj_type .eq. obj_reservoir) then ! output is from reservoir
          hydrores=pathoutput(ptr).obj_no
          nodeup=pathoutput(ptr).res_node_no
          if (nodeup .gt. 0) then ! flow to node
-            get_output=-qres(hydrores,nodeup) ! + qres: flow from res to chan
+            do i=1,res_geom(hydrores).nnodes
+               if (res_geom(hydrores).node_no(i) .eq. nodeup)then
+                   get_output=-qres(hydrores,i)
+               end if
+            end do
+            !get_output=-qres(hydrores,nodeup) ! + qres: flow from res to chan
          else if (pathoutput(ptr).meas_type .eq. 'stage') then ! stage of reservoir
             get_output=yres(hydrores)
          else if (pathoutput(ptr).meas_type .eq. 'flow-net') then ! net flow in/out of reservoir
@@ -117,10 +124,12 @@ c     &     -val_down)*(chan_dist/chan_len)
 	   else if(pathoutput(ptr).meas_type .eq. 'device-flow') then
    	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).flow
-	   else if(pathoutput(ptr).meas_type .eq. 'op-to-node') then
+	   else if(pathoutput(ptr).meas_type .eq. 'op-to-node' .or. 
+     &           pathoutput(ptr).meas_type .eq. 'op_to_node' ) then
      	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).opCoefToNode
-	   else if(pathoutput(ptr).meas_type .eq. 'op-from-node') then
+	   else if(pathoutput(ptr).meas_type .eq. 'op-from-node' .or. 
+     &           pathoutput(ptr).meas_type .eq. 'op_from_node' ) then
      	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).opCoefFromNode
 	   else if(pathoutput(ptr).meas_type .eq. 'position') then
@@ -135,6 +144,9 @@ c     &     -val_down)*(chan_dist/chan_len)
 	   else if(pathoutput(ptr).meas_type .eq. 'elev') then
    	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
      &	     pathoutput(ptr).gate_device).baseElev
+	   else if(pathoutput(ptr).meas_type .eq. 'width') then
+   	       get_output=gateArray(pathoutput(ptr).obj_no).Devices(
+     &	     pathoutput(ptr).gate_device).maxWidth
 	   else
 	       get_output=miss_val_r
 	   end if

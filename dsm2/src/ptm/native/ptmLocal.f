@@ -172,7 +172,9 @@ c-----then default
       endif
 c-----initialize all arrays and logical variables.
       call dsm2_init()
-      call init_ptm()
+      !todo: think this initialization is already done in modules,
+      ! that is why it is commented
+      !call init_ptm()
 c-----read input file(s)
       database_name='DSM2Input'
 

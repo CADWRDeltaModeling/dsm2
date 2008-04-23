@@ -448,7 +448,7 @@ c@@@         OK = ReportNetBalance()
       if(isopen)close(unit_output, err=1222)
       OK = CloseSolver()
 
-1222  write(unit_screen,*) 'Exit with code 0'
+1222  write(unit_screen,*) 'Successful Exit (Code 0)'
       call exit(0)
 c--------close solver
 

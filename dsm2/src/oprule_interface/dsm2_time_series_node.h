@@ -19,10 +19,15 @@ public:
 	};
 	virtual ~DSM2TimeSeriesNode(){};
    
-   static NodePtr create(const std::string& tsname, const int path_ndx){
-      return NodePtr(new NodeType(tsname, path_ndx));
+   static NodePtr create(const std::string& tsname, 
+	                     const int path_ndx){
+      return NodePtr(new NodeType(tsname, 
+		                          path_ndx)
+					 );
    }
-
+   virtual public oprule::expression::DoubleNode::NodePtr copy(){
+      return NodePtr(new NodeType(_name,_ndx));
+   }
    std::string getSeriesName(){ return _name; }
    virtual double eval(){
       return value_from_inputpath(&_ndx);}

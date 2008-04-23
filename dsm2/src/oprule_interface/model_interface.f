@@ -319,6 +319,19 @@ c     return the constant, so FORTRAN and C can share it
       return
 	end subroutine
 
+      subroutine set_gate_install_datasource(gndx,  expr, val, timedep)
+	use Gates, only: GateArray
+      implicit none
+	integer gndx
+	integer expr
+	real*8 val
+	logical timedep
+	call set_datasource(
+     &    GateArray(gndx).install_datasource,expr,val,timedep)
+      return
+ 	end subroutine
+
+
 
 	real*8 function is_gate_install(ndx)
 	use Gates, only: GateArray
@@ -343,6 +356,11 @@ c     return the constant, so FORTRAN and C can share it
         get_device_op_coef=GateArray(gndx).Devices(devndx).opCoefToNode
 	else if(direction .eq. direct_from_node())then
 	  get_device_op_coef=GateArray(gndx).Devices(devndx).opCoefFromNode
+	else 
+	  if(direction .eq. direct_to_from_node())then
+	     get_device_op_coef=(GateArray(gndx).Devices(devndx).opCoefFromNode+
+     &                        GateArray(gndx).Devices(devndx).opCoefFromNode)/2.D0
+	  end if
 	end if
       return 
       end function
@@ -379,6 +397,11 @@ c     return the constant, so FORTRAN and C can share it
 	else if(direction .eq. direct_from_node())then
 	 call set_datasource(
      &    GateArray(gndx).Devices(devndx).op_from_node_datasource,expr,val,timedep)
+	else if(direction .eq. direct_to_from_node())then
+	 call set_datasource(
+     &    GateArray(gndx).Devices(devndx).op_from_node_datasource,expr,val,timedep)
+	 call set_datasource(
+     &    GateArray(gndx).Devices(devndx).op_to_node_datasource,expr,val,timedep)      
       end if
       return
  	end subroutine
@@ -430,6 +453,20 @@ c     return the constant, so FORTRAN and C can share it
       GateArray(gndx).Devices(devndx).height=val
       end subroutine
 
+      subroutine set_device_height_datasource(gndx, devndx, expr, val, timedep)
+	use Gates, only: GateArray
+      implicit none
+	integer gndx, devndx
+	integer expr
+	real*8 val
+	logical timedep
+	call set_datasource(
+     &    GateArray(gndx).Devices(devndx).height_datasource,expr,val,timedep)
+      return
+ 	end subroutine
+      
+      
+
       real(8) function get_device_width(gndx, devndx)
 	use Gates, only: GateArray
       implicit none
@@ -446,6 +483,19 @@ c     return the constant, so FORTRAN and C can share it
       GateArray(gndx).Devices(devndx).maxWidth=val
 	return
       end subroutine
+
+      subroutine set_device_width_datasource(gndx, devndx, expr, val, timedep)
+	use Gates, only: GateArray
+      implicit none
+	integer gndx, devndx
+	integer expr
+	real*8 val
+	logical timedep
+	call set_datasource(
+     &    GateArray(gndx).Devices(devndx).width_datasource,expr,val,timedep)
+      return
+ 	end subroutine
+
 
       real(8) function get_device_nduplicate(gndx, devndx)
 	use Gates, only: GateArray
@@ -481,7 +531,17 @@ c     return the constant, so FORTRAN and C can share it
 	return
 	end subroutine
 
-
+      subroutine set_device_elev_datasource(gndx, devndx, expr, val, timedep)
+	use Gates, only: GateArray
+      implicit none
+	integer gndx, devndx
+	integer expr
+	real*8 val
+	logical timedep
+	call set_datasource(
+     &    GateArray(gndx).Devices(devndx).elev_datasource,expr,val,timedep)
+      return
+ 	end subroutine
 
       real(8) function get_device_flow_coef(gndx, devndx, direct)
 	use Gates, only: GateArray

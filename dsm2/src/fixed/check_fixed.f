@@ -358,7 +358,7 @@ c-----reservoir name vectors to be able to use
          res_names(i)=res_geom(i).name
       enddo
 
-      do i=1,noutpaths          ! output paths
+      do i=1,noutpaths          ! output paths   
          if (pathoutput(i).use) then
 c-----------change stage output at node to channel/distance
 c-----------fixme: this
@@ -383,6 +383,7 @@ c-----------given that it is more ambiguous, redundant.
                      pathoutput(i).chan_dist=chan_length
                   endif
                end if
+               
 
 c--------------try to change flow or velocity output at node to channel/distance:
 c--------------must have only two channels connecting
@@ -897,6 +898,15 @@ c--------replace magic number channel length with correct channel length
          if (pathoutput(p).chan_dist .eq. chan_length)
      &        pathoutput(p).chan_dist =
      &        chan_geom(pathoutput(p).obj_no).length
+
+c-------replace op-to-node with op_to_node
+         if (pathoutput(p).meas_type .eq. 'op-to-node')
+     &       pathoutput(p).meas_type = 'op_to_node'
+         if (pathoutput(p).meas_type .eq. 'op-from-node')
+     &       pathoutput(p).meas_type = 'op_from_node'
+
+
+
 c--------DSS a part
          if (pathoutput(p).a_part .ne. ' ') then
             ca=pathoutput(p).a_part
@@ -936,7 +946,7 @@ c--------------object is a reservoir, and output is flow through a node,
 c--------------then add on node number to reservoir name
                if (pathoutput(p).obj_type .eq. obj_reservoir .and.
      &              pathoutput(p).res_node_no .gt. 0) then
-                  write(ctmp,'(i3)') pathoutput(p).res_node_no
+                  write(ctmp,'(i3)') node_geom(pathoutput(p).res_node_no).node_id
                   cb=trim(cb) // '-NODE' // trim(ctmp)
                endif
             else                ! use chan/dist; node number

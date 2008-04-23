@@ -24,7 +24,7 @@
 #define getUpNodeQuality get_up_node_quality_
 #define getDownNodeQuality get_down_node_quality_
 #else // Microsoft C++ version
-#define STDCALL _stdcall
+#define STDCALL 
 #define STRLEN_TYPE int
 #define readMultTide READ_MULT_TIDE
 #define setTideFileTime SET_TIDE_FILE_TIME

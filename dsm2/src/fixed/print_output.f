@@ -145,8 +145,8 @@ c-----------upstream node
       write(unit_output,1100)
  1100 format(///,8x,'GATE CONNECTION INFORMATION'/
      &     8x,'------------------------------------------------------'///
-     &     '                    CONNECTED                    # DEVICES' /
-     &     '    NAME            WATER BODY       TO NODE    WEIR   PIPE' /
+     &     '                    CONNECTED          TO        # DEVICES' /
+     &     '    NAME            WATER BODY      EXT NODE    WEIR   PIPE' /
      &     '  ----------------  -------------    -------    -----  -----')
 
       do i=1,ngate
@@ -160,7 +160,7 @@ c-----------upstream node
 	      write(unit_output,1160)
      &           gateArray(i).name,objtype
      &          ,gateArray(i).objConnectedID
-     &          ,gateArray(i).node
+     &          ,node_geom(gateArray(i).node).node_id
      &          ,gateArray(i).nDevice
  1160 format(a19,1x,a4,2x,i7,4x,i5,2x,i5,2x,i5)
 		end if
@@ -205,8 +205,11 @@ C-----Franks Tract              141.17864   5.02     -10.1     72     2000.     
 C-----1234567890123456789012345678901234567890123456789012345678901234567890'
 
       do i=1,nreser
-         write(unit_output,1420)res_geom(i).name,res_geom(i).area,res_geom(i).stage,
-     &        res_geom(i).botelv,res_geom(i).node_no(1),
+         write(unit_output,1420)res_geom(i).name,
+     &        res_geom(i).area,
+     &        res_geom(i).stage,
+     &        res_geom(i).botelv,
+     &        res_geom(i).node_no(1),
      &        res_geom(i).coeff2res(1),res_geom(i).coeff2chan(1)
  1420    format(/a19,1x,f10.5,1x,f8.2,1x,f9.1,2x,i4,2x,f8.0,4x,f8.0,5x)
          do j=2,res_geom(i).nnodes

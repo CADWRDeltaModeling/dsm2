@@ -574,10 +574,10 @@ c--------------keyword 'length' means use channel length for each delta x
                istat=-2
 	         goto 900
             else if (Param .eq. 'repeating_tide') then
-	         write(unit_error,610)"repeating tide is deprecated"
+c	         write(unit_error,610)"repeating tide is deprecated"
 	         goto 900	         
             else if (Param .eq. 'warmup_run') then
-	         write(unit_error,610)"repeating tide is deprecated"
+c	         write(unit_error,610)"repeating tide is deprecated"
 	         goto 900	         
             else
                write(unit_error,610), Param, Value

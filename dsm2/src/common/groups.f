@@ -433,12 +433,13 @@ c      (qext, stage boundary)
 
 ! printGroupMembers loops through groups and members and uses single memeber covert     
       subroutine PrintGroupMembers
+      use io_units
 	implicit none
 	integer i,j
 	character*64 member_str
 	do i=1,ngroup
-         print*,"Group: ",groupArray(i).name
-	   print*,"Members:"
+         write(unit_screen,*)"Group: ",groupArray(i).name
+	   write(unit_screen,*)"Members:"
           do j=1,groupArray(i).nmember 
 	      member_str=GroupToString(groupArray(i),j)
 	      print*,member_str

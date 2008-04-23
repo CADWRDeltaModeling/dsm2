@@ -75,7 +75,7 @@ DSM2HydroNamedValueLookup::DSM2HydroNamedValueLookup(){
   ADD_EXPRESS_2ARG(info,chan_vel,READONLY,&chan_vel_factory,channel,dist);
   ADD_EXPRESS_2ARG(info,res_flow,READONLY,&reservoir_flow_factory,res,connect);
   ADD_EXPRESS_1ARG(info,res_stage,READONLY,&reservoir_surf_factory,res);
-  ADD_EXPRESS_1ARG(info,external_flow,READWRITE,&external_flow_factory,name);
+  ADD_EXPRESS_1ARG(info,ext_flow,READWRITE,&external_flow_factory,name);
   ADD_EXPRESS_1ARG(info,transfer_flow,READWRITE,&transfer_flow_factory,transfer);
   ADD_EXPRESS_1ARG(info,gate_install,READWRITE,&gate_install_factory,gate);
   ADD_EXPRESS_2ARG(info,gate_op,READWRITE,&device_op_factory,gate,device);
