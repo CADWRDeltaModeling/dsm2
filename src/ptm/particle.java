@@ -777,7 +777,6 @@ public class particle{
     float rand = nd.getRandomNumber();
     outflow = rand*outflow;
   
-    int waterbodyId=-1;
     float flow=0.0f;
   
     if(outflow == 0.0){
@@ -786,8 +785,9 @@ public class particle{
     }
     
     // add flow from each node till the flow is greater than the outflow
-    do {
-      waterbodyId++;
+    for (int waterbodyId = 0; 
+	     flow < outflow && waterbodyId < nd.getNumberOfWaterbodies() ; 
+		 waterbodyId++) {
 	  // this conditional statement added to exclude seepage
 	  // this should be read in as an argument
 	  //@todo: disabled this feature
@@ -795,8 +795,8 @@ public class particle{
       flow += nd.getOutflow(waterbodyId);
       //}
     }
-    while ( flow < outflow && 
-	    waterbodyId < nd.getNumberOfWaterbodies());
+    //while ( flow < outflow && 
+	//    waterbodyId < nd.getNumberOfWaterbodies());
   
     // get a pointer to the water body in which particle entered.
     wb = nd.getWaterbody(waterbodyId);
@@ -910,9 +910,6 @@ public class particle{
   private final void insert(){
     inserted=true;
     makeNodeDecision();
-    if (observer != null) {
-         observer.observeChange(particleObserver.WATERBODY_CHANGE,this);
-    }
     setXYZLocationInChannel();
   }
   
