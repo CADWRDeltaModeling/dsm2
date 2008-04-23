@@ -1,99 +1,31 @@
-//    Copyright (C) 1996 State of California, Department of Water
-//    Resources.
-//
-//    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
-//    numerical model.  No protection claimed in original FOURPT and
-//    Branched Lagrangian Transport Model (BLTM) code written by the
-//    United States Geological Survey.  Protection claimed in the
-//    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact Dr. Paul
-//    Hutton, below.
-//
-//    This program is licensed to you under the terms of the GNU General
-//    Public License, version 2, as published by the Free Software
-//    Foundation.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, contact Dr. Paul Hutton, below,
-//    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
-//    02139, USA.
-//
-//    THIS SOFTWARE AND DOCUMENTATION ARE PROVIDED BY THE CALIFORNIA
-//    DEPARTMENT OF WATER RESOURCES AND CONTRIBUTORS "AS IS" AND ANY
-//    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-//    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-//    PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE CALIFORNIA
-//    DEPARTMENT OF WATER RESOURCES OR ITS CONTRIBUTORS BE LIABLE FOR
-//    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-//    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-//    OR SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA OR PROFITS; OR
-//    BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-//    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-//    DAMAGE.
-//
-//    For more information about DSM2, contact:
-//
-//    Dr. Paul Hutton
-//    California Dept. of Water Resources
-//    Division of Planning, Delta Modeling Section
-//    1416 Ninth Street
-//    Sacramento, CA  95814
-//    916-653-5601
-//    hutton@water.ca.gov
-//
-//    or see our home page: http://wwwdelmod.water.ca.gov/
+/*<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
+
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public !<license as published by
+C!    the Free Software Foundation, either version 3 of the !<license, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public !<license for more details.
+
+C!    You should have received a copy of the GNU General Public !<license
+C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
+</license>*/
+
 package DWR.DMS.PTM;
 import java.io.*;
 /**
  *  PTM is an acronym for "Particle Tracking Model". This is version 2 of PTM
  *  which utilizes information from DSM2 to track particles moving according
  *  to hydrodynamics and quality information.<p>
- * 
- * 
- *  GENERAL OUTLINE<br>
- * 
- *  For those of us who are in touch with the deeper things in life
- *  the Particle Tracking Model concepts are explained in detail
- *  <a href="http://wwwdelmod/docs/dsm2/ptm/ptm_descript.html">here</a><p>
- * 
- *  For the programmers in use this is a description of the implementation
- *  using such an approach is to allow various hypothesis to be incorporated
- *  in the code much more easily.<p>
- * 
- *  The figure below gives the general outline of the conceptual implementation
- *  model.<p>
- * 
- *  <img align=MIDDLE src="./ptmsystem.gif">
- * 
- *  Furthermore to look at how messages are passed between the various classes
- *  the diagram below explains the main message passing.<p>
- * 
- *  <img align=MIDDLE src="./interactions.gif">
- * 
- * 
- *  FUTURE DIRECTIONS<p>
- * 
- *  Some future directions are compiled in this
- *  <a href = "./PTM_tasklist.txt"> file </a>
- *  However this file has been static for quite some time so some of the changes may
- *  already be implemented<p>
- * 
- *  For any suggestions you may mail the persons involved in this project.<p>
- * 
- * 
- *  CONTRIBUTING PEOPLE !!<p>
- * 
- *  The pioneering lady: Tara<br>
- * 
- *  The director: Ralph<br>
- * 
- *  The drone: Nicky<br>
- * 
- * This defines the parameters and information about the environment
- * of a particle.<p>
- * Most of this information is either fixed or dynamic. Fixed information
+  * 
+ * This class defines the parameters and information about the environment
+ * a particle moves in. This information is either fixed or dynamic. Fixed information
  * is information that is relatively fixed during a run of the model such
  * as the output filenames, the flow network etcetra. Dynamic information
  * is information that most likely changes every time step such as the
