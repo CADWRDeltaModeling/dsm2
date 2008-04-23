@@ -971,6 +971,9 @@ c--------if the gate is marked as not-use
             gateArray(ngate).name=name
             gateArray(ngate).objConnectedType = ObjConnType
             gateArray(ngate).node=ext2intnode(NodeConn)
+	      gateArray(ngate).install_datasource.source_type=const_data
+	      gateArray(ngate).install_datasource.indx_ptr=0 !fixme: is this is OK?
+	      gateArray(ngate).install_datasource.value=1.            
             ObjConnID=ObjConnID(1:objidlen)
             call locase(ObjConnID)
             if ( (ObjConnType .eq. OBJ_CHANNEL) ) then
@@ -1218,17 +1221,30 @@ c--------Fetch a record from the result set and append it to gateWeirHistory,
 	      end if
 	      gateArray(gateNo).devices(devNo).op_to_node_datasource.source_type=const_data
 	!fixme: is this next line OK?
-	      gateArray(gateNo).devices(devNo).op_to_node_datasource.indx_ptr=0  !fixme: is this OK?
+	      gateArray(gateNo).devices(devNo).op_to_node_datasource.indx_ptr=0
 	      gateArray(gateNo).devices(devNo).op_to_node_datasource.value=to_op
+
 	      gateArray(gateNo).devices(devNo).op_from_node_datasource.source_type=const_data
-	!fixme: is this next line OK?
-	      gateArray(gateNo).devices(devNo).op_from_node_datasource.indx_ptr=0  
+	      gateArray(gateNo).devices(devNo).op_from_node_datasource.indx_ptr=0    !fixme: is this OK?
 	      gateArray(gateNo).devices(devNo).op_from_node_datasource.value=from_op
 
+	      gateArray(gateNo).devices(devNo).width_datasource.source_type=const_data
+	      gateArray(gateNo).devices(devNo).width_datasource.indx_ptr=0    !fixme: is this OK?
+	      gateArray(gateNo).devices(devNo).width_datasource.value=max_width
+	      gateArray(gateNo).devices(devNo).height_datasource.source_type=const_data
+	      gateArray(gateNo).devices(devNo).height_datasource.indx_ptr=0    !fixme: is this OK?
+	      gateArray(gateNo).devices(devNo).height_datasource.value=height
+	      gateArray(gateNo).devices(devNo).elev_datasource.source_type=const_data
+	      gateArray(gateNo).devices(devNo).elev_datasource.indx_ptr=0    !fixme: is this OK?
+	      gateArray(gateNo).devices(devNo).elev_datasource.value=base_elev
 
 	      gateArray(gateNo).devices(devNo).pos_datasource.source_type=const_data
 	      gateArray(gateNo).devices(devNo).pos_datasource.indx_ptr=0 !fixme: is this is OK?
 	      gateArray(gateNo).devices(devNo).pos_datasource.value=miss_val_r
+
+
+	      
+	      
 	      count=count + 1
          enddo
 

@@ -148,6 +148,10 @@ c-----index numbers for gates
       integer, parameter :: gate_op_from_node=222
       integer, parameter :: gate_install=128
 	integer, parameter :: gate_position=129
+	integer, parameter :: gate_height=130
+	integer, parameter :: gate_width=131
+	integer, parameter :: gate_elev=132
+
 
 c-----constants representing different kinds of data sources
       integer
@@ -227,6 +231,9 @@ c-----index numbers for printout
      &     ,outpath_variable
      &     ,outpath_fromwb      ! from waterbody (PTM)
      &     ,outpath_towb
+     &     ,outpath_gate
+     &     ,outpath_gate_device
+     
 
       parameter (
      &     outpath_filename=1
@@ -250,6 +257,8 @@ c-----index numbers for printout
      &     ,outpath_variable=19
      &     ,outpath_fromwb=20
      &     ,outpath_towb=21
+     &     ,outpath_gate=22
+     &     ,outpath_gate_device=23          
      &     )
 
 c-----"internal/pseudo" environment variables

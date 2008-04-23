@@ -189,7 +189,9 @@ c-----keywords
       hdr_form(nsects).fld(outpath_variable)='variable'
       hdr_form(nsects).fld(outpath_fromwb)='from_wb'
       hdr_form(nsects).fld(outpath_towb)='to_wb'
-
+      hdr_form(nsects).fld(outpath_gate)='gate'
+      hdr_form(nsects).fld(outpath_gate_device)='device'
+      
       nsects=nsects+1
       hdr_form(nsects).sect='io_files'
       hdr_form(nsects).fld(io_model)='model'

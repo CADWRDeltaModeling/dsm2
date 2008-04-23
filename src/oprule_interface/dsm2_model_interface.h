@@ -31,11 +31,13 @@ public:
    static NodePtr create(const int index){
       return NodePtr(new NodeType(index));
    }
+   virtual oprule::expression::DoubleNodePtr copy(){
+      return NodePtr(new NodeType(ndx));
+   }
    virtual double eval();
    virtual void set(double val);
-   virtual bool isStaticParameter() const{ return false; }
    virtual bool isTimeDependent() const{ return true; }
-   virtual void setDataExpression(oprule::expression::DoubleNode::NodePtr express);
+   virtual void setDataExpression(oprule::expression::DoubleNodePtr express);
    virtual bool ExternalFlowInterface::operator==( const ExternalFlowInterface& rhs);
 private:
    int ndx;
@@ -52,12 +54,14 @@ public:
    static NodePtr create(int index){
       return NodePtr(new NodeType(index));
    }
+   virtual oprule::expression::DoubleNodePtr copy(){
+      return NodePtr(new NodeType(ndx));
+   }
 
    virtual double eval();
    virtual void set(double val);
-   virtual bool isStaticParameter() const{ return false; }
    virtual bool isTimeDependent() const{ return true; }
-   virtual void setDataExpression(oprule::expression::ExpressionNode<double>::NodePtr express);
+   virtual void setDataExpression(oprule::expression::DoubleNodePtr express);
    virtual bool TransferFlowInterface::operator==( const TransferFlowInterface& rhs);
 private:
    int ndx;
@@ -75,10 +79,14 @@ public:
    static NodePtr create(const int intchan, const double dist){
       return NodePtr(new NodeType(intchan,dist));
    }
-
+   virtual oprule::expression::DoubleNodePtr copy(){
+      return NodePtr(new NodeType(channel,distance));
+   }
    virtual double eval();
    virtual bool isTimeDependent() const{ return true; }
 private:
+   int channel;
+   int distance;
    int upCompPt;
    int downCompPt;
    double upWt;
@@ -97,10 +105,14 @@ public:
    static NodePtr create(const int intchan, const double dist){
       return NodePtr(new NodeType(intchan, dist));
    }
-
+   virtual oprule::expression::DoubleNodePtr copy(){
+      return NodePtr(new NodeType(channel,distance));
+   }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
 private:
+   int channel;
+   int distance;
    int upCompPt;
    int downCompPt;
    double upWt;
@@ -117,7 +129,9 @@ public:
    static NodePtr create(const int intchan, const double dist){
       return NodePtr(new NodeType(intchan,dist));
    }
-
+   virtual oprule::expression::DoubleNodePtr copy(){
+      return NodePtr(new NodeType(channel,distance));
+   }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
 private:
@@ -139,7 +153,9 @@ public:
    static NodePtr create(const int res, const int connect){
       return NodePtr(new NodeType(res,connect));
    }
-
+   virtual oprule::expression::DoubleNodePtr copy(){
+      return NodePtr(new NodeType(_res,_conn));
+   }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
 private:
@@ -156,7 +172,9 @@ public:
    static NodePtr create(int res){
       return NodePtr(new NodeType(res));
    }
-
+   virtual oprule::expression::DoubleNodePtr copy(){
+      return NodePtr(new NodeType(_res));
+   }
    double eval();
    virtual bool isTimeDependent() const{ return true; }
 private:

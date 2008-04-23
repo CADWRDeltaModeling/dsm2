@@ -30,6 +30,7 @@ c-----the model run.  Supply default values where possible.
       use common_tide
       use common_ptm
       use common_qual_bin
+      use groups, only: WriteGroupMembers2File
       implicit none
 
       
@@ -258,10 +259,13 @@ c-----check that quality tide file includes full runtime
             goto 900
          endif
       endif
+      
+      open(unit=911,file='group_member.out',status='unknown',err=890)
+      call WriteGroupMembers2File(911)
+      close(unit=911)
 
 
-
-      return
+ 890  return
 
  900  continue                  !here for fatal error
       istat= -1

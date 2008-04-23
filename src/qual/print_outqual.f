@@ -144,14 +144,13 @@ c-----------upstream node
      &     '------ ------ ----------------------------------------------------------',
      &     '   -----------------------------------')
 
-      do i=1,ninpaths
-         write(unit_output,1620)pathinput(i).name,pathinput(i).variable
-     &        ,pathinput(i).filename,pathinput(i).path
- 1620    format(a6,1x,a6,1x,a60,1x,a40)
-      enddo
+
+      WRITE(unit_output,1610)
+ 1610 format(////,45x,'GROUP DEFINITIONS'/
+     &     45x,'-----------'///)
 
 
-c     an output of imported group memebers Jon 4/5/06
+c     Group memebers
 	call WriteGroupMembers2File(unit_output)
 
 	call output_rate_to_file(unit_output)

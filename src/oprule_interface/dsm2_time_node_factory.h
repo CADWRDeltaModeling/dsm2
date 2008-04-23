@@ -29,8 +29,9 @@ public:
       std::string datetime(dt);
       datetime += " ";
       datetime += adjtime;
-      int juldt=cdate_to_jul_min(datetime.c_str(),datetime.length());
-	  return oprule::expression::DoubleScalarNode::create((double) juldt);
+      double juldt= (double)cdate_to_jul_min(datetime.c_str(),
+                                            (int) datetime.length());
+	  return oprule::expression::DoubleScalarNode::create(juldt);
    }
 
    virtual oprule::expression::DoubleNodePtr getSeasonNode(){ 
@@ -58,6 +59,10 @@ public:
    }
    virtual oprule::expression::DoubleNodePtr getMinNode(){
       return DSM2HydroMinuteNode::create(); }
+
+   virtual oprule::expression::DoubleNodePtr getTimeStepNode(){
+       return DSM2HydroTimeStepNode::create();
+   }
 
    virtual bool isFixedStepSize(){ return true; }
 

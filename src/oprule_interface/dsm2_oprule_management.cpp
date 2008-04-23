@@ -11,7 +11,6 @@
 
 #include "dsm2_named_value_lookup.h"
 #include "dsm2_time_node_factory.h"
-#include "dsm2_model_action_factory.h"
 #include "dsm2_time_interface.h"
 #include "dsm2_model_interface_resolver.h"
 
@@ -35,47 +34,55 @@ extern OperatingRule* getOperatingRule();
 
 #define STDCALL 
 #define init_parser_f STDCALL INIT_PARSER_F
-#define advance_op_rules STDCALL ADVANCEOPRULES
+#define advance_oprule_actions STDCALL ADVANCEOPRULEACTIONS
+#define step_oprule_expressions STDCALL STEPOPRULEEXPRESSIONS
 #define test_rule_activation STDCALL TESTOPRULEACTIVATION
 #define parse_rule PARSE_RULE
 
 
 
-ModelInterfaceActionResolver<DSM2ModelTimer, DSM2Resolver,
+ModelInterfaceActionResolver<DSM2Resolver,
                              DSM2ModelInterfaceResolver> resolver;
 OperationManager dsm2_op_manager(resolver);
 
 using namespace std;
 extern "C"{
-void init_parser_f(){
-     lexer_init();
-     init_expression();
-     init_lookup(new DSM2HydroNamedValueLookup());
-     init_model_time_factory(new  DSM2HydroTimeNodeFactory());
-     init_action_factory(new dsm2_model_action_factory());
-}
+    void init_parser_f(){
+        lexer_init();
+        init_expression();
+        init_lookup(new DSM2HydroNamedValueLookup());
+        init_model_time_factory(new  DSM2HydroTimeNodeFactory());
+    }
 
-bool advance_op_rules(){
-   dsm2_op_manager.advanceStep();
-   return true;
-}
+    bool step_oprule_expressions(double* dt_sec){
+        //cout << "Advancing expressions " << *dt_sec << endl;
+        dsm2_op_manager.stepExpressions(*dt_sec);
+        return true;
+    }
 
-bool test_rule_activation(){
-   dsm2_op_manager.manageActivation();
-   return true;
-}
+    bool advance_oprule_actions(double* dt_sec){
+        //cout << "Advancing actions " << *dt_sec << endl;
+        dsm2_op_manager.advanceActions(*dt_sec);
+        return true;
+    }
 
-bool parse_rule(char* text, int len){
-   string parse_str(text,len);
-   set_input_string(parse_str);
-   int parseok=op_ruleparse(); // make sure it was a rule??
-   if( !(parseok==0) || get_parsed_type() == oprule::parser::PARSE_ERROR)return false;
-   if (get_parsed_type() == oprule::parser::OP_RULE){
-     OperatingRule * rule=getOperatingRule();
-     dsm2_op_manager.addRule(rule);
-   }
-   return true;
-}
+    bool test_rule_activation(){
+        dsm2_op_manager.manageActivation();
+        return true;
+    }
+
+    bool parse_rule(char* text, int len){
+        string parse_str(text,len);
+        set_input_string(parse_str);
+        int parseok=op_ruleparse(); // make sure it was a rule??
+        if( !(parseok==0) || get_parsed_type() == oprule::parser::PARSE_ERROR)
+            return false;
+        if (get_parsed_type() == oprule::parser::OP_RULE){
+            OperatingRule * rule=getOperatingRule();
+            dsm2_op_manager.addRule(rule);
+        }
+        return true;
+    }
 }
 
 

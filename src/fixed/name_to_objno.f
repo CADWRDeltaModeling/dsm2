@@ -55,7 +55,8 @@ c-----local variables
          end do
       else if (ObjType .eq. obj_gate) then
          do i = 1,ngate
-            if (gateArray(i).name .eq. name) then
+            !todo: trim may mess things up (eli)
+            if (trim(gateArray(i).name) .eq. trim(name)) then
                name_to_objno = i
                return
             end if

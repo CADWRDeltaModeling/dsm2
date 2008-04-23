@@ -7,7 +7,7 @@
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_DWR_DMS_PTM_PTMHydroInput_readMultTide
-(JNIEnv * env, jobject, jint i){
+(JNIEnv * env, jobject obj, jint i){
   int modelTime = (int) i;
   setTideFileTime(&modelTime);
   readMultTide();

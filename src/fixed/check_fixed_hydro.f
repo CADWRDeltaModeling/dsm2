@@ -656,6 +656,8 @@ c-----------for node, use node number for object name
 c-----convert obj2obj node flow to a hydro channel
       do i=1,nobj2obj
          if (obj2obj(i).from_obj.obj_type .eq. obj_node) then
+            print*,"from node ",node, "ext ",
+     &          node_geom(node).node_id,"hydrochan",node2hydrochan(node,.true.)         
             node=obj2obj(i).from_obj.obj_no
             obj2obj(i).from_obj.hydrochan=node2hydrochan(node,.true.)
          endif

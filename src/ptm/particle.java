@@ -244,6 +244,7 @@ public class particle{
     channel.useVertProfile=pFI.doVerticalProfile();
     channel.useTransProfile=pFI.doTransverseProfile();
     channel.constructProfile();
+    channel.constructProfile();
     //  if (DEBUG) System.out.println("set random seed");
     if( randomNumberGenerator == null)
       randomNumberGenerator = new Ranecu(pFI.getRandomSeed());
@@ -909,6 +910,9 @@ public class particle{
   private final void insert(){
     inserted=true;
     makeNodeDecision();
+    if (observer != null) {
+         observer.observeChange(particleObserver.WATERBODY_CHANGE,this);
+    }
     setXYZLocationInChannel();
   }
   

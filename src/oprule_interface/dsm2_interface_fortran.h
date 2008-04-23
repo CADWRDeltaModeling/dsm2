@@ -15,6 +15,7 @@
 
 
 #define set_gate_install SET_GATE_INSTALL
+#define set_gate_install_datasource SET_GATE_INSTALL_DATASOURCE
 #define is_gate_install IS_GATE_INSTALL
 #define set_device_op_coef SET_DEVICE_OP_COEF
 #define get_device_op_coef GET_DEVICE_OP_COEF
@@ -24,10 +25,13 @@
 #define set_device_position_datasource SET_DEVICE_POSITION_DATASOURCE
 #define set_device_height SET_DEVICE_HEIGHT
 #define get_device_height GET_DEVICE_HEIGHT
+#define set_device_height_datasource SET_DEVICE_HEIGHT_DATASOURCE
 #define set_device_width SET_DEVICE_WIDTH
 #define get_device_width GET_DEVICE_WIDTH
+#define set_device_width_datasource SET_DEVICE_WIDTH_DATASOURCE
 #define set_device_elev SET_DEVICE_ELEV
 #define get_device_elev GET_DEVICE_ELEV
+#define set_device_elev_datasource SET_DEVICE_ELEV_DATASOURCE
 #define set_device_nduplicate SET_DEVICE_NDUPLICATE
 #define get_device_nduplicate GET_DEVICE_NDUPLICATE
 #define set_device_flow_coef SET_DEVICE_FLOW_COEF
@@ -109,11 +113,11 @@ extern "C" double STDCALL is_gate_install(const int& ndx);
 
 extern "C" double STDCALL set_gate_install(const int& ndx, 
                                              const double& install);
-/*extern "C" void STDCALL set_gate_install_datasource(const int& ndx, 
+extern "C" void STDCALL set_gate_install_datasource(const int& ndx, 
                                                       const int& expr,
                                                       const int& val,
                                                       const bool& timedep);
-*/
+
 extern "C" double STDCALL get_surf_elev(const int& comp_pt);
 extern "C" double STDCALL get_flow(const int& comp_pt);
 extern "C" double STDCALL get_res_flow(const int& resndx, 
@@ -154,21 +158,38 @@ extern "C" double STDCALL get_device_height(const int& ndx,
 extern "C" void STDCALL set_device_height(const int& ndx, 
                                            const int& devndx,
                                            const double& val);
-
+extern "C" void STDCALL set_device_height_datasource(const int& ndx, 
+                                           const int& devndx,
+                                           const int& expr,
+                                           const double& val,
+                                           const bool& timedep);
+										   
+										   
 extern "C" double STDCALL get_device_elev(const int& ndx, 
                                              const int& devndx);
 
 extern "C" void STDCALL set_device_elev(const int& ndx, 
                                            const int& devndx,
                                            const double& val);
-
+extern "C" void STDCALL set_device_elev_datasource(const int& ndx, 
+                                           const int& devndx,
+                                           const int& expr,
+                                           const double& val,
+                                           const bool& timedep);
+										   
 extern "C" double STDCALL get_device_width(const int& ndx, 
                                              const int& devndx);
 
 extern "C" void STDCALL set_device_width(const int& ndx, 
                                            const int& devndx,
                                            const double& val);
-
+extern "C" void STDCALL set_device_width_datasource(const int& ndx, 
+                                           const int& devndx,
+                                           const int& expr,
+                                           const double& val,
+                                           const bool& timedep);
+										   
+										   
 extern "C" double STDCALL get_device_nduplicate(const int& ndx, 
                                              const int& devndx);
 

@@ -75,12 +75,15 @@ c-----constants for flow coeff direction
       integer*4 :: nDuplicate = 0 ! number of identical structures treated as one device
       integer*4 :: gate         ! index of gate in which device appears (fixme: why?)
 	integer*4 :: calcRow      ! Row (equation) in which gate device equation is expressed
-      character :: name*32=' ' ! index of device in gate     
+      character :: name*32=' ' ! index of device in gate
+      type(datasource_t) height_datasource  ! datasource that controls
+      type(datasource_t) width_datasource  ! datasource that controls
+      type(datasource_t) elev_datasource  ! datasource that controls                    
       type(datasource_t) pos_datasource  ! datasource that controls 
 	                       ! (via time series) the position of the gate control
-	type(datasource_t) op_to_node_datasource   !datasource that controls the 
-	                                              !operating coefficient of the
-	type(datasource_t) op_from_node_datasource ! device in the direction indicated
+	type(datasource_t) op_to_node_datasource   ! datasource that controls op
+	type(datasource_t) op_from_node_datasource ! in the direction indicated
+
       END TYPE
 
 !Variables are in natural (8byte) alignment.
@@ -105,7 +108,9 @@ c-----constants for flow coeff direction
       integer*4 :: node             ! Node to which gate is attached
       integer*4 :: nodeCompPoint    ! Index of (stage reference) computation point at node
       integer*4 :: nDevice = 0      ! number of devices in gate structure
+	type(datasource_t) install_datasource ! in the direction indicated
       Type(GateDevice),dimension(MAX_DEV) :: devices ! Array of devices in gate
+
       character :: name*32 = ' '   ! name of gate
       End Type
 

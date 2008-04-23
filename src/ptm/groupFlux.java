@@ -81,7 +81,6 @@ public class groupFlux extends flux{
 	numberOfParticles = numberOfTraceParticles;
 	int pNum;
 	int particleFlux = 0;
-	int previousIndex;
 	boolean contributedToFlux = false;
 	int index;
 	// do for each particle...
@@ -89,7 +88,6 @@ public class groupFlux extends flux{
 	for (pNum = 0; pNum < numberOfParticles; pNum++) {
 	    contributedToFlux = false;
 	    particleFlux = 0;
-	    previousIndex = 0;
 	    int traceNum = 1;
 	    int maxTraces = traceArray[pNum].getNumberOfTraces();
 	    try {
@@ -123,7 +121,7 @@ public class groupFlux extends flux{
 				particleFlux++;
 				contributedToFlux = true;
 			    }
-			}
+			} 
 			traceNum++;
 		    }
 		    flux[index] += particleFlux;

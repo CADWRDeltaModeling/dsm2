@@ -4,15 +4,17 @@
 #include "MultiMethods.h"
 #include "dsm2_model_interface.h"
 #include "dsm2_model_interface_gate.h"
-
-
+#include<iostream>
+using namespace std;
 class DSM2ModelInterfaceResolver{
 public:
-   bool Fire(const ExternalFlowInterface & lhs, const ExternalFlowInterface & rhs){
+   bool Fire(const ExternalFlowInterface & lhs, const ExternalFlowInterface & rhs)
+   {
         return lhs.ndx == rhs.ndx;
    }
    bool Fire(const ExternalFlowInterface & lhs, 
-             const oprule::rule::ModelInterface<double> & rhs){
+             const oprule::rule::ModelInterface<double> & rhs)
+   {
         return false;
    }
    bool Fire(const TransferFlowInterface & lhs, const TransferFlowInterface & rhs){
@@ -41,7 +43,7 @@ public:
    }
    bool OnError(const oprule::rule::ModelInterface<double>& lhs, 
                 const oprule::rule::ModelInterface<double>& rhs){
-      std::cerr<< " Default"<< std::endl;
+        std::cerr<< "Default: assume no conflict between actions"<< std::endl;
       return false;
    }
                 
@@ -50,10 +52,10 @@ public:
 typedef ::Loki::StaticDispatcher<
         DSM2ModelInterfaceResolver,
         oprule::rule::ModelInterface<double>,
-        LOKI_TYPELIST_3(GateInstallInterface,DeviceInterface,ExternalFlowInterface),
+        LOKI_TYPELIST_4(ExternalFlowInterface,TransferFlowInterface,GateInstallInterface,DeviceInterface),
         true,
         oprule::rule::ModelInterface<double>,
-        LOKI_TYPELIST_3(GateInstallInterface,DeviceInterface,ExternalFlowInterface),
+        LOKI_TYPELIST_4(ExternalFlowInterface,TransferFlowInterface,GateInstallInterface,DeviceInterface),
         bool > DSM2Resolver;
 
 

@@ -199,6 +199,7 @@ c-----print out info: names and type of data to print
       Use IO_Units
 	Use Groups, only : GROUP_ALL
 	use iopath_data
+	use gates, only : gateArray,deviceIndex
       implicit none
       
       logical
@@ -227,8 +228,9 @@ c-----local variables
      &     ,ext2int             ! function converting ext chan number to internal
      &     ,ext2intnode         ! function converting ext node number to internal
      &     ,name_to_objno       ! function converting an object name to object number
-      
+     &     ,gateno,devno
 
+      
       character
      &     cstring*80           ! string field
      &     ,ctmp*80             ! temporary char variable
@@ -257,7 +259,7 @@ c-----local variables
       endif
 c-----default source group is from all sources
       pathoutput(noutpaths).source_group_ndx=GROUP_ALL
-
+      gateno=-901
       i=1
       do while (i .le. nfields)
          cstring=' '
@@ -319,6 +321,25 @@ c--------------accumulate unique dss output filenames
             else
                pathoutput(noutpaths).res_node_no=0
             endif
+         else if (rifld(i) .eq. outpath_gate) then
+            pathoutput(noutpaths).obj_type=obj_gate
+            pathoutput(noutpaths).obj_name=cstring
+	      gateno = name_to_objno(obj_gate, cstring)
+            if (gateno .eq. miss_val_i)then
+               write(unit_error,*)"Unknown gate (not allowed for text input)" // cstring
+	         istat = -1
+	         goto 900
+            end if
+            pathoutput(noutpaths).obj_no= gateno
+         else if (rifld(i) .eq. outpath_gate_device) then
+            ! todo: trap possibility that gate is read after device
+            pathoutput(noutpaths).obj_type=obj_gate
+            if (trim(cstring) .ne. 'none') then
+               pathoutput(noutpaths).gate_device 
+     &                 = deviceIndex(gateArray(gateno),cstring)   
+            else
+               pathoutput(noutpaths).gate_device = miss_val_i
+            endif
          else if (rifld(i) .eq. outpath_type .or.
      &            rifld(i) .eq. outpath_variable ) then
             pathoutput(noutpaths).meas_type=cstring
@@ -330,6 +351,16 @@ c--------------accumulate unique dss output filenames
                pathoutput(noutpaths).units='ft/s'
             else if (cstring .eq. 'stage') then
                pathoutput(noutpaths).units='feet'
+            else if (cstring .eq. 'position') then
+               pathoutput(noutpaths).units='ft'
+            else if (cstring .eq. 'elev') then
+               pathoutput(noutpaths).units='ft'
+            else if (cstring .eq. 'height') then
+               pathoutput(noutpaths).units='ft'
+            else if (cstring .eq. 'install') then
+               pathoutput(noutpaths).units='boolean'
+            else if (cstring .eq. 'width') then
+               pathoutput(noutpaths).units='ft'               
             else if (cstring .eq. 'tds') then
                pathoutput(noutpaths).units='ppm'
             else if (cstring .eq. 'ec') then
@@ -400,7 +431,7 @@ c-----char-to-value conversion errors
 
       istat=-2
 
- 900  continue                  ! fatal error
+ 900  continue               ! fatal error
 
       return
       end

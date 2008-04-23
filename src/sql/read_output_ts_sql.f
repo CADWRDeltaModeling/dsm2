@@ -349,8 +349,10 @@ c     better to transform it into a funtion and called by both routines.
 	            Param='op-from-node'
 	         else if (trim(Param) .eq. 'height')then
 	            Param='height'
-	         else if (trim(Param) .eq. 'elev' .or. trim(Param) .eq. 'elevation')then
+	         else if (Param(1:4) .eq. 'elev' )then
 	            Param='elev'
+	         else if (trim(Param) .eq. 'width' .or. trim(Param) .eq. 'radius')then
+	            Param='width'	            
 	         else if(trim(Param) .eq. 'install') then
 	            Param='install'
 	            device_required=.false.
@@ -414,11 +416,19 @@ c-----------accumulate unique dss output filenames
             if (index(Param, 'flow') .gt. 0 .or.
      &           index(Param, 'pump') .gt. 0) then
                pathoutput(noutpaths).units='cfs'
-            else if (Param(1:3) .eq. 'vel') then
+            else if (Param(1:3) .eq. 'vel' ) then
                pathoutput(noutpaths).meas_type='vel'
                pathoutput(noutpaths).units='ft/s'
             else if (Param .eq. 'stage') then
                pathoutput(noutpaths).units='feet'
+            else if (Param .eq. 'elev') then
+               pathoutput(noutpaths).units='feet'
+            else if (Param .eq. 'height') then
+               pathoutput(noutpaths).units='feet'
+            else if (Param .eq. 'height') then
+               pathoutput(noutpaths).units='position'               
+            else if (Param .eq. 'width') then
+               pathoutput(noutpaths).units='feet'                                             
             else if (Param .eq. 'tds') then
                pathoutput(noutpaths).units='ppm'
             else if (index(Param,'weir-pos') .gt. 0) then
@@ -499,6 +509,7 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 
       istat=noutpaths
 
+      istat=noutpaths
       return
       end
 
