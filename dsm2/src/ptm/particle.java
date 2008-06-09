@@ -1,51 +1,21 @@
-//    Copyright (C) 1996 State of California, Department of Water
-//    Resources.
-//
-//    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
-//    numerical model.  No protection claimed in original FOURPT and
-//    Branched Lagrangian Transport Model (BLTM) code written by the
-//    United States Geological Survey.  Protection claimed in the
-//    routines and files listed in the accompanying file "Protect.txt".
-//    If you did not receive a copy of this file contact Dr. Paul
-//    Hutton, below.
-//
-//    This program is licensed to you under the terms of the GNU General
-//    Public License, version 2, as published by the Free Software
-//    Foundation.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, contact Dr. Paul Hutton, below,
-//    or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
-//    02139, USA.
-//
-//    THIS SOFTWARE AND DOCUMENTATION ARE PROVIDED BY THE CALIFORNIA
-//    DEPARTMENT OF WATER RESOURCES AND CONTRIBUTORS "AS IS" AND ANY
-//    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-//    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-//    PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE CALIFORNIA
-//    DEPARTMENT OF WATER RESOURCES OR ITS CONTRIBUTORS BE LIABLE FOR
-//    ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-//    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-//    OR SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA OR PROFITS; OR
-//    BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-//    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-//    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-//    DAMAGE.
-//
-//    For more information about DSM2, contact:
-//
-//    Dr. Paul Hutton
-//    California Dept. of Water Resources
-//    Division of Planning, Delta Modeling Section
-//    1416 Ninth Street
-//    Sacramento, CA  95814
-//    916-653-5601
-//    hutton@water.ca.gov
-//
-//    or see our home page: http://wwwdelmod.water.ca.gov/
+/*<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
 
-//$Id: particle.java,v 1.6.6.1 2006/04/04 18:16:25 eli2 Exp $
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public !<license as published by
+C!    the Free Software Foundation, either version 3 of the !<license, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public !<license for more details.
+
+C!    You should have received a copy of the GNU General Public !<license
+C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
+</license>*/
 package DWR.DMS.PTM;
 import java.lang.*;
 import java.util.*;
@@ -57,41 +27,7 @@ import edu.cornell.RngPack.*;
   *  a modular class. The only public function needed to use this class is
   *  the updateXYZposition function.
   *  <p>
-  * 
-  *  FUTURE DIRECTIONS
-  * 
-  *  Some further classes that may be dervied later are the egg class and the
-  *  fish class.
- * 
- *  Groups or schools of such objects can be defined. Interaction between
- *  particles could be handled by friend functions although some more elegant
- *  way may be devised later.
- *  <p>
- *  At some later date the node decision function should be change to
- *  probablities due to different environmental parameters and this function
- 
- *  Ralph or Tara about this)
- *  Perhaps the most effective way to achieve this is by defining the node
- *  decision function in terms of probablities and have hookup functions to
- *  define the actual calculation of such probabilities.
- *  <p>
- *  particle should have a moveIn function which should be overloaded with the
- *  different types of waterbodies. This would allow some kind of double dispatching
- *  mechanism to call the appropriate function for the particle
- *  <p>
- *  dfac is a factor that limits the movement due to dispersion in one calculation time step.
- *  It is really important when using particles that have fall velocities,
- *  i.e. non-neutrally bouyant particles. There could be significant differences between similar
- *  runs with different values for this parameter.
- *  <p>
- *  CONCEPT NOTES<p>
- * 
- *  A particle's position is defined by x,y and z values and the waterbody in
- *  which it is located.<br>
- * 
- *  A particle in a pump or agricultural diversion is assumed to have died.
- * 
- *  A particle's junction decision is based on flow ratios.<br>
+*particle's junction decision is based on flow ratios.<br>
  * 
  *  A particle's swimming in the reservoir is not simulated instead it is assumed
  *  that a particle entering a reservoir is fully mixed and therefore it is possible
@@ -193,8 +129,10 @@ public class particle{
     first=true;
     inserted=false;
     particle.dfac=0.1f;
-    age=0; 
-    wb = null;
+    age=0;
+	wb = null;
+    //todo: eli did this work?
+	//wb = NullWaterbody.getInstance();
     nd = null;
     isDead = false;
     if (DEBUG) System.out.println("Fall velocity");
@@ -337,9 +275,9 @@ public class particle{
 	warning("Particle insertion time specification may be incorrect");
       insert();
       recursionCounter=0;
-      if (DEBUG) System.out.println("updating xyz positions");
+      //if (DEBUG) 
       updateXYZPosition(delT);
-      updateOtherParameters(delT);
+	  updateOtherParameters(delT);
     }
   }
   
@@ -785,18 +723,17 @@ public class particle{
     }
     
     // add flow from each node till the flow is greater than the outflow
-    for (int waterbodyId = 0; 
-	     flow < outflow && waterbodyId < nd.getNumberOfWaterbodies() ; 
-		 waterbodyId++) {
+    int waterbodyId = -1;
+	do {
+	  waterbodyId ++;
 	  // this conditional statement added to exclude seepage
 	  // this should be read in as an argument
 	  //@todo: disabled this feature
       //if(nd.getWaterbody(waterbodyId).getAccountingType() != flowTypes.evap){
       flow += nd.getOutflow(waterbodyId);
       //}
-    }
-    //while ( flow < outflow && 
-	//    waterbodyId < nd.getNumberOfWaterbodies());
+    }while ( flow < outflow && 
+	    waterbodyId < nd.getNumberOfWaterbodies());
   
     // get a pointer to the water body in which particle entered.
     wb = nd.getWaterbody(waterbodyId);
@@ -908,6 +845,8 @@ public class particle{
   private static final int MISSING = -99999;
   
   private final void insert(){
+  if (observer != null) 
+      observer.observeChange(particleObserver.INSERT,this);
     inserted=true;
     makeNodeDecision();
     setXYZLocationInChannel();

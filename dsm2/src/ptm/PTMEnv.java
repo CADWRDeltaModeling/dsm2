@@ -69,6 +69,10 @@ public PTMEnv(String fixedInputFilename){
   // fill in waterbodies, nodes, xSections with information
   if(DEBUG) System.out.println("Creating waterbodies ");
   wbArray = fixedInput.createWaterbodyFixedInfo();
+  
+  //todo: eli is this working?
+  wbArray[0]=NullWaterbody.getInstance();
+  
   //
   if(DEBUG) System.out.println("Creating nodes ");
   nodeArray = fixedInput.createNodeFixedInfo();

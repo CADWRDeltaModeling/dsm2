@@ -830,14 +830,22 @@ c--------constituents which may come from the same input (applies only to conser
   	            else
 	              call GroupTarget(pathinput(p).data_type,pathinput(p).name,
      &                               target_type,target_id)
-	              if (target_id .eq. miss_val_i)then  !fixme: stage boundaries not identified in qual
+	              if (target_id .eq. miss_val_i)then  
+	                  !fixme: stage boundaries not identified in qual at this stage??
 	                  call GroupTarget(obj_stage,pathinput(p).name, target_type,target_id)
 	              end if
 	              if (target_id .eq. miss_val_i)then
 	                  write(unit_error,*) "Source group not found: ",pathinput(p).name
 	                  call exit(2)
 	              end if
-
+                    if (constituents(j).group_ndx .lt. 0)then
+                       write(unit_error,*) "Error with constituent group index"
+                       write(unit_error,*) "Constituent index: ",j,
+     &                               " Name: ", constituents(j).name, 
+     &                               "Group index: ",constituents(j).group_ndx
+                       call exit(2)
+                    end if
+                       
 	              if (GroupContains(constituents(j).group_ndx,
      &                                target_type,target_id))then
                       pathinput(p).n_consts=pathinput(p).n_consts+1

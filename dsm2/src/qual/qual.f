@@ -500,19 +500,24 @@ C--------compute inflow flux at known junction
  400     CONTINUE
          AllJunctionsMixed=.false.
          do while (.not.AllJunctionsMixed)
-
-            DO JN=1,NNODES
+            DO 640 JN=1,NNODES
                if (node_geom(jn).qual_int) then
 
                   TOTFLO=0.
-                  IF (JCD(JN) .EQ. MIXED) EXIT
+                  IF (JCD(JN) .EQ. MIXED) GOTO 640
                   VJ=0.0
                   DO KK=1,NUMUP(JN)
                      N=LISTUP(JN,KK)
                      TOTFLO=TOTFLO-FLOW(N,1,1)
                      IF (FLOW(N,1,1).LT.0.0) THEN
                         IF(abs(dvu(n)) .gt. 1.0 .AND.
-     &                       node_geom(JNCD(N)).qual_int) EXIT
+     &                       node_geom(JNCD(N)).qual_int) THEN
+                           !print*,"upstream unknown flow gt 0"
+                           !print*,"Channel: Internal: ",N," Ext: ", chan_geom(N).chan_no
+                           !print*,"D Node: Internal: ",JNCD(N)," Ext: ", node_geom(JNCD(N)).node_id
+                           !print*,"Also Up: ", JNCU(N),node_geom(JNCU(N)).node_id
+                           GOTO 640
+                        END IF
                         VJ=VJ-FLOW(N,1,1)*DTT
                         DO CONS_NO=1,NEQ
                            CJ(CONS_NO,JN)=CJ(CONS_NO,JN)+GPTU(CONS_NO,N)
@@ -525,7 +530,13 @@ C--------compute inflow flux at known junction
                      TOTFLO=TOTFLO+FLOW(N,1,NXSEC(N))
                      IF (FLOW(N,1,NXSEC(N)).GT.0.0) THEN
                         IF (abs(dvd(n)).gt. 1.0 .AND.
-     &                       node_geom(JNCU(N)).qual_int) EXIT
+     &                       node_geom(JNCU(N)).qual_int)  THEN
+                           !print*,"Down unknown flow gt 0"
+                           !print*,"Channel: Internal: ",N," Ext: ", chan_geom(N).chan_no
+                           !print*,"Up Node: Internal: ",JNCU(N)," Ext: ", node_geom(JNCU(N)).node_id
+                           !print*,"Down: ", JNCD(N),node_geom(JNCD(N)).node_id
+                           GOTO 640
+                        END IF
                         VJ=VJ+FLOW(N,1,NXSEC(N))*DTT
                         DO CONS_NO=1,NEQ
                            CJ(CONS_NO,JN)=CJ(CONS_NO,JN)+GPTD(CONS_NO,N)
@@ -585,7 +596,7 @@ C                  ! @todo: NS(N) should never be zero. This condition was encou
                              GPTU(CONS_NO,N)=GPTU(CONS_NO,N)+CJ(CONS_NO,JN)*DVU(N)
                           ENDDO
 	                  ELSE
-	                    write(unit_error, *) "0 parcel happens at channel",N
+	                    write(unit_error, *) "0 parcels in channel",N
 	                  END IF
 
 c                        VOL=GPV(N,NS(N))+DVU(N)
@@ -600,21 +611,21 @@ c                        ENDDO
                      DVU(N)=0.0
                   ENDDO
                endif
-            ENDDO
-
-            AllJunctionsMixed=.true.
-            DO JN=1,NNODES
-               if (node_geom(jn).qual_int) then
-                  IF(JCD(JN) .NE. MIXED) THEN
+ 640     ENDDO
+            
+         AllJunctionsMixed=.true.
+         DO JN=1,NNODES
+           if (node_geom(jn).qual_int) then
+               IF(JCD(JN) .NE. MIXED) THEN
 C--------------------This JUNCTION NOT MIXED YET. Have to go back
-                     AllJunctionsMixed=.false.
-                     DO CONS_NO=1,NEQ
-                        CJ(CONS_NO,JN)=0.0
-                     ENDDO
-                  ENDIF
-               endif
-            enddo
+                  AllJunctionsMixed=.false.
+                  DO CONS_NO=1,NEQ
+                    CJ(CONS_NO,JN)=0.0
+                  ENDDO
+               ENDIF
+            endif
          ENDDO
+      ENDDO
 
 C--------Now all junctions have been mixed
          if(mass_tracking) then

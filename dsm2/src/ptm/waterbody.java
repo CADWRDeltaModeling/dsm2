@@ -32,6 +32,7 @@ import edu.cornell.RngPack.*;
  * @version $Id: waterbody.java,v 1.3.6.2 2006/01/27 19:52:24 eli2 Exp $
  */
 public abstract class waterbody{
+
   /**
    *  reservoir type id
    */
@@ -64,6 +65,8 @@ public abstract class waterbody{
    *
    */
   public static final int INFLOW = 1;
+
+  public static final int NULL = -10001;
   /**
    *
    */
@@ -83,13 +86,15 @@ public abstract class waterbody{
     EnvIndex = nId;
     numberId = nId;
     // set # of nodes and odeArray
-    nNodes = nodeIds.length;
-    nodeIdArray = nodeIds;
-    nodeArray = new node[nNodes]; 
-    depthAt = new float[nNodes];
-    flowAt = new float[nNodes];
-    velocityAt = new float[nNodes];
-    qualityAt = new float[nNodes][getNumConstituents()];
+	if (nodeIds != null){
+      nNodes = nodeIds.length;
+      nodeIdArray = nodeIds;
+      nodeArray = new node[nNodes]; 
+      depthAt = new float[nNodes];
+      flowAt = new float[nNodes];
+      velocityAt = new float[nNodes];
+      qualityAt = new float[nNodes][getNumConstituents()];
+	}
     if(randomNumberGenerator == null)
       randomNumberGenerator = new Ranecu(INITIAL_SEED);
   }

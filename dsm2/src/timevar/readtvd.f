@@ -176,6 +176,11 @@ c--------use value from DSS file
 
 c--------should this path's value be interpolated?
 c--------don't interpolate if not requested or gate values
+c         if (
+c     &        pathinput(ptr).fillin .eq. fill_interp
+c     &        .and. pathinput(ptr).per_type .ne. per_type_inst_val) then
+c         print*,pathinput(ptr).name, " is weird"
+c         end if
          interpolate_value=(pathinput(ptr).fillin .eq. fill_interp .or.
      &        (pathinput(ptr).fillin .eq. fill_bydata .and.
      &        (pathinput(ptr).per_type .eq. per_type_inst_val .or.
