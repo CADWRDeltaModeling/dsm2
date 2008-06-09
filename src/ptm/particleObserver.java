@@ -21,7 +21,7 @@ package DWR.DMS.PTM;
 import java.io.*;
 class particleObserver{
 
-public final static int WATERBODY_CHANGE=1, NODE_CHANGE=2, TIME_INTERVAL=3, DEATH=4;
+public final static int INSERT=5, WATERBODY_CHANGE=1, NODE_CHANGE=2, TIME_INTERVAL=3, DEATH=4; 
   /**
    *  constructor
    */
@@ -61,6 +61,9 @@ public final void setObserverForParticle(particle observed){
    */
 public final void observeChange(int change, particle observed) {
   switch(change) {
+  case INSERT:
+    observeInsert(observed);
+    break;	
   case WATERBODY_CHANGE: 
     observeWaterbodyChange(observed);
     break;
@@ -77,6 +80,21 @@ public final void observeChange(int change, particle observed) {
     return;
   }				  
 };
+
+
+  /**
+   *  observes the fact that the particle has entered a waterbody
+   *  after encountering a node
+   */
+public void observeInsert(particle observed){ 
+  if (traceOn) {
+    int time = observed.getCurrentParticleTime();
+    int pId = (int) observed.getId();
+    short nodeId = -1;
+	short wbId = 0;
+    output.output(time,pId,nodeId,0);
+  }
+}
 
 
   /**

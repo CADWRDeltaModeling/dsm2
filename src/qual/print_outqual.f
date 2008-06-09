@@ -48,8 +48,9 @@ c-----copyright notices
       write(unit_screen, 805)
  805  format(/
      &     /'Delta Simulation Model 2: A river and estuary simulation model'
-     &     /'Copyright (C) 1996, 1997, 1998 State of California,'
+     &     /'Copyright (C) 1996-2007 State of California,'
      &     /'Department of Water Resources.'
+     &     /'Licensed under the GNU Public License.'     
      &     ) 
 
       write(unit_screen, 808) dsm2_name, dsm2_version

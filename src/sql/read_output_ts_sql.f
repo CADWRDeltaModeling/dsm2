@@ -262,6 +262,11 @@ c--------if the path is marked as not-use
                pathoutput(noutpaths).source_group_ndx=GROUP_ALL
             else
                pathoutput(noutpaths).source_group_ndx=name_to_objno(obj_group,SourceGroup)
+               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i)then
+                   write(unit_error,*)"Source group ",SourceGroup,
+     &              " not recognized for output request: ", pathoutput(noutpaths).name
+                   call exit(2)
+               end if
             endif
 c-----------find object number given object ID
 
@@ -298,21 +303,7 @@ c-----------find object number given object ID
                   read(SubLoc,'(i10)')pathoutput(noutpaths).res_node_no
                   pathoutput(noutpaths).res_node_no=
      &                 ext2intnode(pathoutput(noutpaths).res_node_no)
-                  foundNode=.false.
-                  i=1
-c     fixme: this search part should also be avaible to text reading routine
-c     better to transform it into a funtion and called by both routines.
-                  do while(.not. foundNode .and.
-     &                 i .le. res_geom(pathoutput(noutpaths).obj_no).nnodes)
-                     if (res_geom(pathoutput(noutpaths).obj_no).node_no(i) .eq.
-     &                    pathoutput(noutpaths).res_node_no) then
-	                pathoutput(noutpaths).res_node_no=i
-	                foundNode=.true.
-                     end if
-                     i=i+1
-                  end do
-                  if (pathoutput(noutpaths).res_node_no .eq. miss_val_i .or.
-     &                 .not. foundNode)then
+                  if (pathoutput(noutpaths).res_node_no .eq. miss_val_i)then
                      write(unit_error,*)'Output TS: ',trim(name),
      &                    ' requested non-existent reservoir connection'
                      write(unit_error, *)'Reservoir: ', pathoutput(noutpaths).obj_name,

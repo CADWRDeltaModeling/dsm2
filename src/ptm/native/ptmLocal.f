@@ -359,8 +359,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----copyright notices
       write(unit_screen, 805)
  805  format(/
-     &     /'Copyright (C) 1996 State of California, Department of Water'
-     &     /'Resources.'
+     &     /'Copyright (C) 1996-2007 State of California, Department of Water'
+     &     /'Resources.  Licensed under the GNU Public License.'
      &     /
      &     /'Delta Simulation Model 2 (DSM2): A River, Estuary, and Land'
      &     /'numerical model.  No protection claimed in original FOURPT and'

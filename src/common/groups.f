@@ -413,7 +413,7 @@ c ========================================
 
 
       subroutine GroupTarget(objtype,str_identifier,outtype,outid)
-c     Convert the data_type and identifier to 
+c     Convert the data type and identifier to 
 c     the type and index of the corresponding model object
 c      (qext, stage boundary)
 	use IO_Units, only: unit_error
