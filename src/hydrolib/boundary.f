@@ -186,6 +186,7 @@ c-----object-to-object flow values
       do i=1,nobj2obj
 	   !fixme: ask Ralph/Parviz if they know why this if statement is here   
          !if (obj2obj(i).datasource.indx_ptr .ne. 0) then
+         ! todo: dangerous!!!! multiplication is just for debug
             obj2obj(i).flow=fetch_data(obj2obj(i).datasource)
          !endif
       enddo
@@ -249,12 +250,14 @@ c-----(reservoir obj2obj flows are handled in the reservoir calcs)
       do i=1,nobj2obj
 c--------from a node
          if (obj2obj(i).from_obj.obj_type .eq. obj_node) then
-            intchan=abs(obj2obj(i).from_obj.hydrochan) ! - channel number denotes downstream end connected
+            intchan=abs(obj2obj(i).from_obj.hydrochan) ! neg channel number -> downstream end            
 c-----------note sign: from flow is subtracted
-            if (obj2obj(i).from_obj.hydrochan .gt. 0) then ! upstream end of channel connected to node
+            if (obj2obj(i).from_obj.hydrochan .gt. 0) then 
+              ! upstream end of channel connected to node
                StreamBndValue(intchan*2-1) =
      &              StreamBndValue(intchan*2-1) - obj2obj(i).flow
-            else                ! downstream end of channel connected to node
+            else
+              ! downstream end of channel connected to node
                StreamBndValue(intchan*2) =
      &              StreamBndValue(intchan*2) - obj2obj(i).flow
             endif
@@ -263,7 +266,7 @@ c-----------note sign: from flow is subtracted
 c--------to a node
          if (obj2obj(i).to_obj.obj_type .eq. obj_node) then
             intchan=abs(obj2obj(i).to_obj.hydrochan) ! - channel number denotes downstream end connected
-            !todo: eli,experiment
+            !todo: eli,experiment  intchan .gt. 0 is probably wrong
             intchan=node_geom(obj2obj(i).to_obj.obj_no).sumQchan
             if (intchan .gt. 0) then ! upstream end of channel connected to node
                StreamBndValue(intchan*2-1) =
