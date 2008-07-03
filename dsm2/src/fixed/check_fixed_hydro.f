@@ -656,9 +656,7 @@ c-----------for node, use node number for object name
 c-----convert obj2obj node flow to a hydro channel
       do i=1,nobj2obj
          if (obj2obj(i).from_obj.obj_type .eq. obj_node) then
-            print*,"from node ",node, "ext ",
-     &          node_geom(node).node_id,"hydrochan",node2hydrochan(node,.true.)         
-            node=obj2obj(i).from_obj.obj_no
+            node=obj2obj(i).from_obj.obj_no     
             obj2obj(i).from_obj.hydrochan=node2hydrochan(node,.true.)
          endif
          if (obj2obj(i).to_obj.obj_type .eq. obj_node) then
@@ -683,7 +681,7 @@ c--------from reservoir name
          if (obj2obj(i).from_obj.obj_type .eq. obj_reservoir) then
             loc=loccarr(obj2obj(i).from_obj.obj_name,cresnames,max_reservoirs,
      &           EXACT_MATCH)
-            if (loc .le. 0) then
+            if (loc .ne. obj2obj(i).to_obj.obj_no) then
                write(unit_error, 710) 'from', trim(obj2obj(i).from_obj.obj_name)
                goto 900
             else
@@ -691,16 +689,14 @@ c--------from reservoir name
             endif
          endif
 c--------to reservoir name
+c        todo: this is redundant, so disabled it and just checks for
+c        consistency
          if (obj2obj(i).to_obj.obj_type .eq. obj_reservoir) then
-            print *,max_reservoirs
-            print *,"hello"
             loc=loccarr(obj2obj(i).to_obj.obj_name,cresnames,max_reservoirs
      &           ,EXACT_MATCH)
-            if (loc .le. 0) then
+            if (loc  .ne. obj2obj(i).to_obj.obj_no) then
                write(unit_error, 710) 'to', trim(obj2obj(i).to_obj.obj_name)
                goto 900
-            else
-               obj2obj(i).to_obj.obj_no=loc
             endif
          endif
 
@@ -711,7 +707,8 @@ c--------assign an input path (dss or constant valued)
      &           .and. (pathinput(pth).obj_name .eq. obj2obj(i).name))then ! fixme:
                call datasource_from_path(obj2obj(i).datasource,pth,pathinput(pth))
 	         obj2obj(i).flow=fetch_data(obj2obj(i).datasource)
-	         obj2obj(i).prev_flow=obj2obj(i).flow ! todo: is this implemented right?
+	         ! todo: is below implemented right? Seems to be initialized as -901.
+	         obj2obj(i).prev_flow=obj2obj(i).flow 
 	         exit
             end if
          end do
@@ -869,15 +866,15 @@ c--------check upstream channel end connections to node first...
      &        .or.
      &        upboundarycode(node_geom(node).upstream(j)) .eq. 2)then
                  node2hydrochan=node_geom(node).upstream(j)
-                 exit
+                 return
             end if
          enddo
          do j=1, node_geom(node).ndown
            if(downboundarycode(node_geom(node).downstream(j)) .eq. 12
      &        .or.
-     &        downboundarycode(node_geom(node).downstream(j)) .ne. 2) then
+     &        downboundarycode(node_geom(node).downstream(j)) .eq. 2) then
                  node2hydrochan=-node_geom(node).downstream(j)
-                 exit
+                 return
             end if
          enddo
       endif
