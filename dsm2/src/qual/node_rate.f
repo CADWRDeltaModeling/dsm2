@@ -81,7 +81,6 @@ c--------fixme:group need multiple group membership
      &           qext(qndx).avg .gt. tol) then ! direction and flow to node
                objflow=objflow + qext(qndx).avg
                if (qndx == 5)then
-               print*,"hello"
                end if
                if (n_conqext(qndx) .eq. 0 .and. .not. err_node(intnode)) then
                   err_node(intnode)=.true.
