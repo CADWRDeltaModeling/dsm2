@@ -2381,8 +2381,10 @@ c-----if lower level is above H, move down
          write(unit_error,*) 'Error in find_layer_index'
          write(unit_error,610) chan_geom(Branch).chan_no,
      &        virt_elevation(elev_index(Branch)+num_layers(Branch)-1),h
- 610     format('Top elevation in cross-section is too low.'
-     &        /'Change variable ''max_layer_height'' in common_irreg_geom.f.'
+ 610     format('Top elevation in cross-section is too low or a runtime '
+     &        /'instability developed (which may have to do with other inputs.'
+     &        /'If this is really a problem with the maximum xsect elevation,'
+     &        /'change variable ''max_layer_height'' in common_irreg_geom.f.'
      &        /'Chan no. ',i3,' Chan top elev=',f6.2,' H=',f6.2)
          call exit(2)
       endif
