@@ -135,7 +135,7 @@ c-----Local variables
      &     /
 
  601  format(/'Error opening output file:',a
-     &     /'Status value: ',i3)
+     &     /'Status value: ',i3,/'(Does the directory exist?)')
 
  602  format(/'Error opening/reading restart input file: ',a)
 
