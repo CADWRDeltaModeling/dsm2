@@ -1,6 +1,6 @@
 ##!d:/vista/bin/vscript.bat 
 
-print "$version$"
+print "$Revision$"
 
 
 
