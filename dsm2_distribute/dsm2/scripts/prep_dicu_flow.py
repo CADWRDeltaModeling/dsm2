@@ -7,7 +7,7 @@ from vista.set import DataReference, Units
 from vdss import opendss,findpath,writedss
 from vtimeseries import timewindow
 from config import getAttr,setConfigVars
-
+from planning_time_window import prepro_window
 
 def copy_dicu_flow():
     """ Unsmoothed transfer from DICU file to model input file.
@@ -17,7 +17,7 @@ def copy_dicu_flow():
     outfile=getAttr("DICUFILE")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
-    tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
+    tw=prepro_window()
 
     for item in f : 
         ref=DataReference.create(item,tw)

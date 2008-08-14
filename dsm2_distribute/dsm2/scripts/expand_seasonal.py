@@ -66,11 +66,8 @@ def main():
     import config
     infile=config.getAttr('DICUFILE-ECS')
     outfile=config.getAttr('DICUFILE-ECE')
-    tws=config.getAttr('START_DATE')+ " 0000 - " + config.getAttr('END_DATE') + " 2400"
-    tw=timewindow(tws)
+    tw = prepro_window()
 
     tabulate(s)  # tabulate last one to check the conversion
     tabulate(ts)
 
-if __name__=="__main__":
-    setConfigVars("config_climate_base.inp")

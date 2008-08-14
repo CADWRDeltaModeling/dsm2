@@ -12,6 +12,7 @@ from vdss import opendss,findpath,writedss
 from vtimeseries import timewindow,interpolate
 from config import getAttr,setConfigVars
 from calsim_study_fpart import calsim_study_fpart
+from planning_time_window import prepro_window,grow_window
 
 def calsim_path(calsimname):
     if calsimname.startswith("C"):
@@ -34,7 +35,7 @@ def transfer_ec():
     process=getAttr("SJR_PROCESS")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
-    tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
+    tw=prepro_window()
     calsimstudy=calsim_study_fpart(modify=0)
     calsimstudyout=calsim_study_fpart(modify=1)
     if not calsimstudy or calsimstudy=="":

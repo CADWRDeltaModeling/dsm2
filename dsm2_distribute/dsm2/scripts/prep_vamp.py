@@ -134,7 +134,8 @@ def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
                               pulse_limit,
                               eilimit)
     
-    writedss("out","/CALC/LIM/////",limit) 
+    if DEBUG:
+        writedss("out","/CALC/LIM/////",limit) 
 
     # Try to allocate to cvp and swp equally. CVP has a 
     # mimimum pumping level of 800cfs in which case SWP takes the rest
@@ -339,13 +340,16 @@ def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod,sjr_process):
    
     swp_limit,cvp_limit=project_export_limits(
                     total_export_limit,ei_ratio,delta_inflow)
-    swp=calculate_exports(swp_limit,swp_average_exports)
+    swp_limit_corrected_for_vol_avg=calculate_exports(swp_limit,swp_average_exports)
     #assert ts_max(swp) <= SWP_MAX_PUMP, "SWP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
-    cvp=calculate_exports(cvp_limit,cvp_average_exports)
+    cvp_limit_corrected_for_vol_avg=calculate_exports(cvp_limit,cvp_average_exports)
     #assert ts_max(swp) <= CVP_MAX_PUMP, "CVP pumping exceeds physical bounds. This was assumed not to happen, so the preprocessor needs fixing"
-
+    
+    swp = replace_vamp(swp_average_exports,swp_limit_corrected_for_vol_avg,include_shoulder=1)  
     swp_path="/CALSIM-VAMP/D419/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
     dss_store_ts(outfile,swp_path,swp)
+    
+    cvp = replace_vamp(cvp_average_exports,cvp_limit_corrected_for_vol_avg,include_shoulder=1)
     cvp_path="/CALSIM-VAMP/D418/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
     dss_store_ts(outfile,cvp_path,cvp)
 

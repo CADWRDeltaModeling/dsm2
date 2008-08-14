@@ -1,8 +1,5 @@
 # Eli Ateljevich July 12, 2001
-# Purpose: This script estimates EC for a multi-year planning run. Planning runs
-# are usually scheduled in terms of water years (e.g. 01OCT1974 - 30SEP1991).
-# However, this script prepares EC estimates
-# for the overlapping calander year (01JAN1974 - 30SEP1974) 
+# Purpose: This script estimates EC for a multi-year planning run. 
 
 # Input
 #     ndo: ndo time series
@@ -25,19 +22,31 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
     from calsim_study_fpart import calsim_study_fpart
     from vtimeseries import interpolate
     import vamp_ndo
+    from planning_time_window import prepro_window,grow_window    
     DEBUG = 0
     OUTPUT=config.getAttr('QUALBOUNDARYFILE')
     calsimfile = config.getAttr('CALSIMFILE')
     vamp_corrected_dss = config.getAttr('CALSIM_VAMP')
     CALSIM=opendss(calsimfile)
-    PLANNINGTIDE=opendss(config.getAttr('STAGEFILE'))
+    PLANNINGTIDE=opendss(config.getAttr('STAGE_SOURCE_FILE'))
     STEP=string.lower(config.getAttr('CALSIMSTEP'))
     SJR_PROCESS=config.getAttr("SJR_PROCESS")    
     outputpath="/FILL+CHAN/RSAC054/EC//15MIN/"+config.getAttr("DSM2MODIFIER")+"/"
     if not(OUTPUT and os.path.exists(OUTPUT)):
         raise "Envvar QUALBOUNDARYFILE must exist as destination for EC"
-
-    years= [ [1974,1979],[1980,1985],[1986,1992] ]    # the multi year block should be broken up into 5-6 year blocks
+        
+    startyr=int(config.getAttr('START_DATE')[5:])
+    endyr=int(config.getAttr('END_DATE')[5:])
+    
+    if (startyr < 1974 and endyr > 1991):
+        blocks= [ "01NOV1921 0000 - 01OCT1940 0000",
+             "01OCT1940 0000 - 01OCT1960 0000",
+             "01OCT1960 0000 - 01OCT1974 0000",
+             "01OCT1974 0000 - 01OCT1991 0000",
+             "01OCT1991 0000 - 01OCT2003 0000"
+                ]
+    else: 
+        blocks = [ "01OCT1974 0000 - 01OCT1991 0000" ]
                                                       # for memory reasons (year 2001).
 
     g0=5000.                                          # initial value of g (antecedent outflow) for the beginning
@@ -45,18 +54,15 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
     if DEBUG:
         g0_no_vamp = 5000.
 
-    for yearpair in years:
-        syear = yearpair[0]
-        eyear = yearpair[1]    
-    
-        TWIND=timewindow("01JAN%s 0000 - 01JAN%s 0000" % (syear, eyear+1))        # Actual period to be estimated
+    for twstr in blocks:    
+        TWIND=timewindow(twstr)        # Actual period to be estimated
         print "Calculating boundary salinity for the period "+TWIND.toString()
-        TWINDBUF=timewindow("26DEC%s 0000 - 04JAN%s 0000" % (syear-1, eyear+1) )     # Conservative buffered period for retrieval
-                                                                                   # so that after prelimiary operations (e.g. time average)
-                                                                                   # time series will still span at least TWIND
+        TWINDBUF=grow_window(TWIND,"1MON","1MON")     # Conservative buffered period for retrieval
+                                                      # so that after prelimiary operations (e.g. time average)
+                                                      # time series will still span at least TWIND
         fpart=calsim_study_fpart(modify=0)
         ndo=DataReference.create(findpath(CALSIM,"/CALSIM/NDO/FLOW-NDO//"+STEP+"/"
-                                  +fpart+"/")[0],TWINDBUF).getData()
+                                  +fpart+"/")[0],TWIND).getData()
         ndo15=conserve.conserveSpline(ndo,"15MIN")
         ndo15_no_vamp = 0
         if DEBUG:
@@ -67,7 +73,8 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
             delta_ndo = vamp_ndo.calc_vamp_delta_ndo(calsimfile,vamp_corrected_dss,fpart,fpart_modified,SJR_PROCESS)
             ndo15 = ndo15 + interpolate(delta_ndo, "15MIN")
 		
-        mtzastro=DataReference.create(findpath(PLANNINGTIDE,"/FILL\+CHAN/RSAC054/STAGE//15MIN/"+config.getAttr("STAGE_VERSION") + "/")[0],TWINDBUF).getData()
+        astro_stage_version = config.getAttr("ASTRO_STAGE_VERSION")
+        mtzastro=DataReference.create(findpath(PLANNINGTIDE,"/FILL\+CHAN/RSAC054/STAGE//15MIN/"+astro_stage_version + "/")[0],TWINDBUF).getData()
 
         astrorms=godin((mtzastro*mtzastro)**0.5)           # RMS energy of tide (used to predict filling and draining)
         dastrorms=(  (astrorms-(astrorms>>1))*96. ).createSlice(TWIND)    
@@ -84,10 +91,7 @@ def planning_ec_mtz(): # MTZ = RSAC054 BC for the qual
             writedss("out_ec_check","/CALC/ndo_with_vamp/ndo////", ndo15)
             writedss("out_ec_check","/CALC/ndo_no_vamp/ec////", mtzecest_no_vamp)
             writedss("out_ec_check","/CALC/ndo_with_vamp/ec////", mtzecest)
-        
-        print "writing: %s::%s" % (OUTPUT,outputpath)
         writedss(OUTPUT,outputpath,mtzecest)
-        print "done writing"
             
         g0=g1
     return 0

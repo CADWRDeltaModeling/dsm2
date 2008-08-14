@@ -8,13 +8,6 @@
    will be moved unaltered.
 """
 
-nodes_to_smooth=["C169","C644","C639"]
-nodes_to_transfer=["C501","C504","C639",
-                   "C508","C157",
-                   "D408","D418","D419",
-                   "D403A","D403B"
-                   ]
-
 import sys
 import config
 import conserve
@@ -23,6 +16,7 @@ from vdss import opendss,findpath,writedss
 from vtimeseries import timewindow
 from config import getAttr,setConfigVars
 from calsim_study_fpart import calsim_study_fpart
+from planning_time_window import prepro_window
 
 def calsim_path(calsimname,modified_fpart=None):
     if calsimname.startswith("C"):
@@ -42,7 +36,7 @@ def calsim_path(calsimname,modified_fpart=None):
            + fpart + "/"
 
     
-def smooth_flow():
+def smooth_flow(nodes_to_smooth):
     """ A slightly smoothed version of monthly flows to avoid sharp transitions
         between months. Uses a tension spline.
     """
@@ -53,7 +47,7 @@ def smooth_flow():
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"
     fpart_mod=calsim_study_fpart(modify=1)
     
-    tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
+    tw=prepro_window()
 
 
     for calsimname in nodes_to_smooth:      # Extend the list as needed, but please keep in mind the
@@ -65,12 +59,18 @@ def smooth_flow():
         if not paths or len(paths)>1:
             print "File: %s" % calsimfile
             raise "Path %s not found or not unique" % dsspath
+        
         ref=DataReference.create(paths[0],tw)
         monthly=ref.getData()
         if monthly:		
             if len(monthly) < 4:
 			    raise "Length of monthly data too short for smoothing. Wrong time window?"
-            daily=conserve.conserveSpline(monthly,"1DAY")
+            try:
+                daily=conserve.conserveSpline(monthly,"1DAY")
+            except:
+                print "Failure to smooth path: %s over time window: %s" % (paths[0], tw)
+                raise 
+                
             daily.getAttributes().setYUnits(Units.CFS)
             writedss(outfile,
                      "/CALSIM-SMOOTH/"+calsimname+"/FLOW/1DAY//" \
@@ -79,7 +79,7 @@ def smooth_flow():
         else:
             raise "Failure to find CALSIM input data for: " + calsimname 
 
-def transfer_flow():
+def transfer_flow(nodes_to_transfer):
     """ Unsmoothed transfer from CALSIM file to model input file.
     """
     calsimfile=getAttr("CALSIMFILE") 
@@ -87,7 +87,7 @@ def transfer_flow():
     outfile=getAttr("BOUNDARYFILE")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
-    tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
+    tw=prepro_window()
 
     for calsimname in nodes_to_transfer:    # Extend the list as needed, but please keep in mind the
                                             # limitations of the conservative spline, at least at present.
@@ -114,7 +114,7 @@ def moke_consumnes():
     outfile=getAttr("BOUNDARYFILE")
     if not outfile or outfile == "":
         raise "Config variable BOUNDARYFILE not set and needed for prepro output"    
-    tw=timewindow(getAttr("START_DATE")+ " 0000 - " + getAttr("END_DATE") + " 2400")
+    tw=prepro_window()
 
     moke_us_path=calsim_path("I504")
     moke_ref=findpath(f,moke_us_path)
@@ -149,11 +149,14 @@ if __name__ == '__main__':
         """)
     else:
         infile = sys.argv[1]
-        setConfigVars(infile)
+        setConfigVars(infile)   
+        nodes_to_smooth_list=["C169","C644","C639"]
+        # todo: once the use of 402B for Northbay Aq. is established, get rid of C403A
+        nodes_to_transfer_list=["C501","C504","C508","C157","D408","D418","D419","C402B","D403A","D403B"]        
         print "Smoothing Boundary Flows..."
-        smooth_flow()
+        smooth_flow(nodes_to_smooth_list)
         print "Transfering unsmoothed flows"
-        transfer_flow()
+        transfer_flow(nodes_to_transfer_list)
         print "Allocating Moke and Consumnes"
         moke_consumnes()
         sys.exit()

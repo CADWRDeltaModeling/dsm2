@@ -7,6 +7,7 @@ from config import setConfigVars, getAttr
 import dcc
 import vdss
 from vista.set import DataReference
+from planning_time_window import prepro_window
 #
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -20,6 +21,14 @@ if __name__ == '__main__':
 
         c=setConfigVars(infile)
         print 'Creating Delta Cross Channel daily ops from monthly...'
+        sdate = getAttr('START_DATE')
+        if int(sdate[5:]) < 1974:
+            tw = prepro_window("82yr")
+        else:
+            tw = prepro_window("16yr")
+        tws = str(tw)
+        print "Using time window: %s (dcc processing may exceed your run dates)" % tws
+        
         dcc.dccOp(
             getAttr('CALSIMFILE'),              # CALSIM DSS file (input for DSM2)
             getAttr('GATEFILE'),                # processed gate DSS file (will be input for DSM2)
@@ -28,7 +37,7 @@ if __name__ == '__main__':
             getAttr('CALSIMSTUDY') + '/', # processed cross channel pathname
             0,                                  # 0: CALSIM input is hardwired to 30-day months
             1,                                  # operate gate between 0 & 1
-            '01JAN1974 0000 - 31DEC1991 2400'   # time window
+            tws                                 # time window
             )
 
         print 'Copying gate ops for Clifton Court'

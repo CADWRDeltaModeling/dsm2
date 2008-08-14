@@ -106,10 +106,9 @@ def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
     #    raise "Wrong number (%s) of coefficients in the array c" % len(c)
 
     if (first_missing(ndo)) >= 0:
-        print first_missing(ndo)
-        raise "missing data not allowed in ndo"
+        raise "missing data not allowed in ndo. First missing data at index: %s" % first_missing(ndo)
     if (first_missing(stage)) >= 0:
-        raise "missing data not allowed in stage"
+        raise "missing data not allowed in stage. First missing data at index: %s" % first_missing(stage)
     
     newstart=ndo.getStartTime() - "21HOURS"
     newend  =ndo.getEndTime() - "3HOURS"

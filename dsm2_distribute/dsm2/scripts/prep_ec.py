@@ -8,6 +8,8 @@ import interpolate
 from vtimeseries import timewindow
 from vista.set import DataReference
 import config
+from planning_time_window import prepro_window
+
 #
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -20,9 +22,7 @@ if __name__ == '__main__':
         print "IN prep EC"
         infile = sys.argv[1]
         config.setConfigVars(infile)
-        tws=config.getAttr('START_DATE')+ " 0000 - " + \
-            config.getAttr('END_DATE') + " 2400"
-        tw=timewindow(tws)
+        tw=prepro_window()
         print "Expanding seasonal DICU WQ drainage values"
         expand_seasonal.prep_dicu(
             config.getAttr('DICUFILE_EC'),        # original DICU DSS file for EC
