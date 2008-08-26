@@ -228,9 +228,7 @@ c--------if so, zero out the injected particles
          part_injection(m).length_julmin=
      &        part_injection(m).end_julmin-part_injection(m).start_julmin
 c--------convert injection nodes to internal and check if injection node exists
-         print*,"Injection node",part_injection(m).node
          part_injection(m).node = ext2intnode(part_injection(m).node)
-	   print*,"Converted to internal node: ",part_injection(m).node
          nodeexist = .false.
 	   do nodeindex=1,nchans
 		!  fixme: could just use node_geom

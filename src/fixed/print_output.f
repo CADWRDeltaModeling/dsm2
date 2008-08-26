@@ -44,7 +44,9 @@ c-----Local variables
      &     ,chan                ! channel numbers
 
       character
-     &     objtype*4            ! string representing object type (reservoir, channel)              
+     &     objtype*4,            ! string representing object type (reservoir, channel)
+     &     from_obj_type*16,to_obj_type*16,
+     &     from_obj_identifier*32,to_obj_identifier*32              
 c-----copyright notices
       write(unit_output, 805)
       write(unit_screen, 805)
@@ -220,10 +222,35 @@ C-----1234567890123456789012345678901234567890123456789012345678901234567890'
          enddo
       enddo
 
+      write(unit_output,1400)
+ 1500 format(/////25x,'OBJ2OBJ Flow Transfers'/
+     &     28x,'----------'//
+     &     '                         '/
+     &     ' Name                  From                  To              '/
+     &     '-------              ---------   --------   --------- -----  ')
+
+      do i=1,nobj2obj
+         call obj_type_name(obj2obj(i).from_obj.obj_type,from_obj_type)
+         call obj_type_name(obj2obj(i).to_obj.obj_type,to_obj_type)
+         call obj_type_name(obj2obj(i).from_obj.obj_type,
+     &                      obj2obj(i).from_obj.obj_no,
+     &                      from_obj_identifier)
+         call obj_type_name(obj2obj(i).to_obj.obj_type,
+     &                      obj2obj(i).to_obj.obj_no,
+     &                      to_obj_identifier)
+
+         write(unit_output,1520)trim(obj2obj(i).name),
+     &        trim(from_obj_type),trim(from_obj_identifier),
+     &        trim(to_obj_type), trim(to_obj_identifier)
+ 1520    format(/a22,1x,a12,1x,a32,1x,a12,1x,a32)
+      enddo
+
       if (print_level .ge. 5) then
          call geom_output
 c-----todo: commented these out because they refer to hydro 
-c           and the compiler for qual complains
+c           and the compiler for qual complains. We should really have a general
+c           print_output that resides in /common, a print_outhydro here 
+c           and a print_outqual (the latter exists)
 c         call virt_output
 c         call check_area
       endif
