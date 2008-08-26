@@ -531,10 +531,6 @@ C--------compute inflow flux at known junction
                      IF (FLOW(N,1,NXSEC(N)).GT.0.0) THEN
                         IF (abs(dvd(n)).gt. 1.0 .AND.
      &                       node_geom(JNCU(N)).qual_int)  THEN
-                           !print*,"Down unknown flow gt 0"
-                           !print*,"Channel: Internal: ",N," Ext: ", chan_geom(N).chan_no
-                           !print*,"Up Node: Internal: ",JNCU(N)," Ext: ", node_geom(JNCU(N)).node_id
-                           !print*,"Down: ", JNCD(N),node_geom(JNCD(N)).node_id
                            GOTO 640
                         END IF
                         VJ=VJ+FLOW(N,1,NXSEC(N))*DTT
