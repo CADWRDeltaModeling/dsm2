@@ -364,10 +364,14 @@ c-----internal flows
          i=1
          do while (res_geom(reservoir_no).qinternal(i) .ne. 0)
             qndx=res_geom(reservoir_no).qinternal(i)
-            if (obj2obj(qndx).from_obj.obj_type .eq. obj_reservoir) then ! from reservoir
+            if (obj2obj(qndx).from_obj.obj_type .eq. obj_reservoir
+     &          .and. obj2obj(qndx).from_obj.obj_no .eq. reservoir_no) then 
+            ! from this reservoir
                reservoir_source_sink_prev=reservoir_source_sink_prev -
      &              obj2obj(qndx).prev_flow
-            else                ! to reservoir
+            end if
+            if (obj2obj(qndx).to_obj.obj_type .eq. obj_reservoir
+     &          .and. obj2obj(qndx).to_obj.obj_no .eq. reservoir_no) then             
                reservoir_source_sink_prev=reservoir_source_sink_prev +
      &              obj2obj(qndx).prev_flow
             endif
@@ -420,12 +424,23 @@ c-----internal flows
      &     acct_ndx .eq. ALL_FLOWS .or.
      &     acct_ndx .eq. QINT_FLOWS) then
          i=1
-         do while (res_geom(reservoir_no).qinternal(i) .gt. 0) !todo: unclear substitute for looping nqext
+         do while (res_geom(reservoir_no).qinternal(i) .gt. 0) 
+            !todo: unclear substitute for looping nqext
             qndx=res_geom(reservoir_no).qinternal(i)
-            if (obj2obj(qndx).from_obj.obj_type .eq. obj_reservoir) then ! from reservoir
+            if (obj2obj(qndx).from_obj.obj_type .eq. obj_reservoir 
+     &          .and. obj2obj(qndx).from_obj.obj_no .eq. reservoir_no) then 
+               ! from reservoir
+               print*,trim(obj2obj(qndx).name), " subtracting ",obj2obj(qndx).flow,
+     &               " from reservoir: ",trim(res_geom(reservoir_no).name)
+
                reservoir_source_sink=reservoir_source_sink -
      &              obj2obj(qndx).flow
-            else                ! to reservoir
+            end if
+            if (obj2obj(qndx).to_obj.obj_type .eq. obj_reservoir
+     &          .and. obj2obj(qndx).to_obj.obj_no .eq. reservoir_no) then             
+                            ! to reservoir
+               print*,trim(obj2obj(qndx).name), " adding ",obj2obj(qndx).flow,
+     &               " to reservoir: ",trim(res_geom(reservoir_no).name)            
                reservoir_source_sink=reservoir_source_sink +
      &              obj2obj(qndx).flow
             endif
