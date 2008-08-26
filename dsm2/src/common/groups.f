@@ -442,7 +442,6 @@ c      (qext, stage boundary)
 	   write(unit_screen,*)"Members:"
           do j=1,groupArray(i).nmember 
 	      member_str=GroupToString(groupArray(i),j)
-	      print*,member_str
 	    end do
 	end do
 	end subroutine
