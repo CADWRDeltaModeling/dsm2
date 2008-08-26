@@ -78,13 +78,7 @@ c-----update constituent concentrations
          scsk1(i) = scsk(i)
       enddo
 
-	if (startprint)then
-	  print*,"c1", c(2),c(3),c(4),c(5)
-	  print*,"scsk1:",scsk(2),scsk(3),scsk(4),scsk(5)
 
-	  print*,"cp", cp(2),cp(3),cp(4),cp(5)
-	  print*,"scsk:",scsk(2),scsk(3),scsk(4),scsk(5)
-      end if
 c-----iskip is used to avoid calling heat and reading met data
 c-----more than once for the same time step
 
@@ -99,21 +93,12 @@ c-----more than once for the same time step
          delta_c=0.5*(scsk(i)+scsk1(i))*dt_react
          c(i) = c1(i)+delta_c
 
-c         if(c(i).lt.0.000001) c(i)=0
-
-		if(startprint)then
-		  	  print*,"c(2)", c(2),c(3),c(4),c(5)
-	          print*,"scsk:",scsk(2),scsk(3),scsk(4),scsk(5)
-	   end if
         if(c1(i).lt.0.000001) c1(i)=0.000001
-c         if(c1(i).lt.0.000001) c1(i)=0.00000
 
-c	   if(abs(c1(i)).ge.0.000001) then
           if(abs(delta_c)/c1(i) .gt. del_c)then
 c-----------tolerance not met
             converged=.false.
           endif
-c	   endif
 
          if (abs((scsk1(i))).ge.0.0001) then
             if(abs((scsk(i)-scsk1(i))/scsk1(i)). gt. 20.)then
