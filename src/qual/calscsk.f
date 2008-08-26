@@ -433,12 +433,6 @@ c-----account for algal self shading
      &     lambda2 * (alg_chl_ratio*cmalg)**(2./3.)
       inten = tsolhr
 	
-
-
-c	if (julmin .eq. 50916600)startprint = .true.
-	if (startprint)then
-	  print*, "in calalg:",julmin,lambda, lambda0,lambda1,alg_chl_ratio,cmalg,lambda2
-      end if
       fl = 1/(lambda*depth)*log((klight_half+inten)/(klight_half+inten*
      &     exp(-lambda*depth)))
       fnnn=fl*min(fn,fp)

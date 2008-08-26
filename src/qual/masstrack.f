@@ -792,8 +792,7 @@ c-----The flags are set true if they are located on either end of the channel.
          
          RESVOL(I)=RESVOL(I) + reschgvol(i)
 
-	   !print*, "Res ",res_geom(i).name(1:12)," ",res_geom(i).botelv,ERESV(I),hres(i),resvol(i)
-         
+        
          IF(RESVOL(I) .LT. 1.0D-03)THEN
             ERZ=RESVOL(I)/ARES(I)
             WRITE(UNIT_ERROR,922)res_geom(i).name,ERZ
