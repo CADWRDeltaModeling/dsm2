@@ -406,7 +406,6 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       real get_up_node_quality
       integer number,nodeid,constituent
       nodeid = wb(number).node(1) ! upnode
-!      print*,'upnode', nodeid
       get_up_node_quality = Qnode(qual2node(nodeid),constituent)
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -418,6 +417,5 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       real get_down_node_quality
       integer number,nodeid,constituent
       nodeid = wb(number).node(2) ! downnode
-!      print*,'downnode',nodeid, wb(number).globalIndex, qual2node(nodeid)
       get_down_node_quality = Qnode(qual2node(nodeid),constituent)
       end
