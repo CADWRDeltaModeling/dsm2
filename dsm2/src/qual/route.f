@@ -91,6 +91,9 @@ C     + + + LOCAL VARIABLES + + +
 
       real*8  RQ,CONCMIX,DTSEC,RNDMAX
       real*8  DIFFGPT(NOPR+1)
+      !real*8  QPARCEL  Average of cross-section upstream and downstream of parcel
+                      ! Hasn't been thought out for flow fields
+                      ! with more than the NXSEC=2 assumption in DSM2
       integer KR, NN, NDD(NOPR+1)
 
       INTEGER JN,NSN,NXSECN
@@ -154,6 +157,10 @@ C--------No dispersion if only 1 parcel is left
          DO 20 K=2,NSN
             IF(GPV(N,K-1).GT.VI.AND.GPV(N,K).GT.VI)THEN
                MX=NIPX(N,K)
+               !todo: this change to an average eliminates one-sidedness
+               !(different answers depending on channel orientation
+               !QPARCEL=(Q(MX)+Q(MX+1))/2.D0
+               !DQ(K)=ABS(DQQ(N)*QPARCEL)
                DQ(K)=ABS(DQQ(N)*Q(MX))
                DQMIN=DQV*A(MX)*0.5
                IF(DQ(K).LT.DQMIN)DQ(K)=DQMIN
@@ -456,10 +463,7 @@ C--------complete decay step
             dtsub = prdt(k)
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0) then
 c		if (julmin .eq. 50916600)startprint = .true.
-	
-           	 if (startprint .and. l.eq.12 .and. k.eq.11 .and. n .eq. 494)then
-	             print*,julmin,l,k,n,c(3),c(4)
-               end if
+
                call rate_chanres(n)
                call kinetic(c)
             end if
