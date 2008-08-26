@@ -40,8 +40,6 @@ c      DSS, an expression or a constant value
 	else
 	  fetch_data=miss_val_r
 	end if
-      ! fixme: need expressions
-c      print*,source.source_type, source.value
 	return
 	end function
 
