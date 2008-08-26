@@ -677,29 +677,6 @@ c-----reservoirs, and input path indices for labeled connections
       if (ninpaths .lt. max_inputpaths) cinputnames(ninpaths+1)=' '
 
       do i=1,nobj2obj
-c--------from reservoir name
-         if (obj2obj(i).from_obj.obj_type .eq. obj_reservoir) then
-            loc=loccarr(obj2obj(i).from_obj.obj_name,cresnames,max_reservoirs,
-     &           EXACT_MATCH)
-            if (loc .ne. obj2obj(i).to_obj.obj_no) then
-               write(unit_error, 710) 'from', trim(obj2obj(i).from_obj.obj_name)
-               goto 900
-            else
-               obj2obj(i).from_obj.obj_no=loc
-            endif
-         endif
-c--------to reservoir name
-c        todo: this is redundant, so disabled it and just checks for
-c        consistency
-         if (obj2obj(i).to_obj.obj_type .eq. obj_reservoir) then
-            loc=loccarr(obj2obj(i).to_obj.obj_name,cresnames,max_reservoirs
-     &           ,EXACT_MATCH)
-            if (loc  .ne. obj2obj(i).to_obj.obj_no) then
-               write(unit_error, 710) 'to', trim(obj2obj(i).to_obj.obj_name)
-               goto 900
-            endif
-         endif
-
          obj2obj(i).datasource.indx_ptr=miss_val_i
 c--------assign an input path (dss or constant valued)
          do pth=1,ninpaths
