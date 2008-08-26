@@ -570,11 +570,6 @@ C!
 
       END IF
 
-      if (Channel .eq. 402 .or. Channel .eq. 403 ) then
-c      print*,"Other node: ", GlobalStreamSurfaceElevation(Node), " this node: ", 
-c     &        GlobalStreamSurfaceElevation(ConstraintNode), "Ref node: ",GlobalStreamSurfaceElevation(
-c     &       IABS(StreamEndNode(346)))
-      end if
 
       IF( ConnectingNodes .GT. 0 ) THEN
          ConstraintIndex = ConstraintIndex + 1

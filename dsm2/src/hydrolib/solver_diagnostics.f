@@ -101,7 +101,6 @@ c---- treat channel or reservoir separately
 	   end if
       else if ( row .gt. TotalChanResRows) then
 	   ! gate device equation
-	print*,"Row: ",row
 	   do i=1,NGate
              do j=1,gateArray(i).nDevice
                 if (gateArray(i).Devices(j).calcRow .eq. row)then

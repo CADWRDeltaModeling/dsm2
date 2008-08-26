@@ -261,8 +261,6 @@ c-----------reservoir mass balance and also must put the gate flow into QRes
                OK = AddAtLocation(GateEqPointer(gatendx+4),theta)
             end if              ! Reservoir
          end if                 ! Gate is in operation
-c	   print*, gateArray(gt).name," flow: ",gateArray(gt).flow," Object flow: ",q1
-c         gateArray(gt).flow=q1
 
  100  enddo                     ! Gate Loop       
 

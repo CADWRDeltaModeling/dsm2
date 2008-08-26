@@ -155,13 +155,6 @@ c
               dResEqdZres=-1
             end if
 
-c-----------Save for diagnostics
-c          if(dResEqdQ .le. 1.D-6)dResEqdQ=1.D-6 ! protect against bad scaling
-c	      if (i.eq.4)write (unit_screen,"('Iter: ',i5,' Res: ',a15,
-c     &         1x,2i4,' dy,y1,y2: ',3f8.5,/,f13.2,f10.2,f15.6)")NetworkIteration(),
-c     &         res_geom(i).name,i,j,dy, y1, y2, coefSqrtTwoG, QRes(i,j), ResEqResidual
-
-
             KnownResFlow=theta*q1 + (1.-theta)*QResOld(i,j)
 
 *-----------Add matrix elements.
