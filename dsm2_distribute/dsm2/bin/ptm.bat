@@ -1,13 +1,10 @@
 @echo off
 
-set ptm_home=%~dp0%../
 
 if exist %ptm_home%/lib/ptm.jar goto :valid
 
-
 :notfound
-
-echo ## An Error has occured ##
+echo ## An Error has occured in the batch file. PTM_HOME not set correctly or ptm.jar not found.##
 PAUSE
 goto :end
 
