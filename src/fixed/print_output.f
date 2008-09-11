@@ -182,7 +182,7 @@ c-----------upstream node
          do j=1,gateArray(i).nDevice
 c--------------Flow can occur through the gate
                write(unit_output,1220)
-     &              trim(gateArray(i).name) //
+     &              gateArray(i).name,
      &                '(' //trim(gateArray(i).devices(j).name) // ')',
      &              trim(deviceTypeString(gateArray(i).Devices(j).structureType)),
      &              trim(controlTypeString(gateArray(i).Devices(j).controlType)),
@@ -192,7 +192,7 @@ c--------------Flow can occur through the gate
      &              gateArray(i).Devices(j).height,
      &              gateArray(i).Devices(j).flowCoefToNode,
      &              gateArray(i).Devices(j).flowCoefFromNode
- 1220          format(a32,a6,2x,a12,1x,i4,2x,f13.2,1x,f9.2,1x,2f9.2,2f9.2)
+ 1220          format(a16,1x,a16,a6,2x,a12,1x,i4,2x,f13.2,1x,f9.2,1x,2f9.2,2f9.2)
          end do
       enddo
 
@@ -222,7 +222,7 @@ C-----1234567890123456789012345678901234567890123456789012345678901234567890'
          enddo
       enddo
 
-      write(unit_output,1400)
+      write(unit_output,1500)
  1500 format(/////25x,'OBJ2OBJ Flow Transfers'/
      &     28x,'----------'//
      &     '                         '/
@@ -232,17 +232,17 @@ C-----1234567890123456789012345678901234567890123456789012345678901234567890'
       do i=1,nobj2obj
          call obj_type_name(obj2obj(i).from_obj.obj_type,from_obj_type)
          call obj_type_name(obj2obj(i).to_obj.obj_type,to_obj_type)
-         call obj_type_name(obj2obj(i).from_obj.obj_type,
+         call objno_to_name(obj2obj(i).from_obj.obj_type,
      &                      obj2obj(i).from_obj.obj_no,
      &                      from_obj_identifier)
-         call obj_type_name(obj2obj(i).to_obj.obj_type,
+         call objno_to_name(obj2obj(i).to_obj.obj_type,
      &                      obj2obj(i).to_obj.obj_no,
      &                      to_obj_identifier)
 
-         write(unit_output,1520)trim(obj2obj(i).name),
-     &        trim(from_obj_type),trim(from_obj_identifier),
-     &        trim(to_obj_type), trim(to_obj_identifier)
- 1520    format(/a22,1x,a12,1x,a32,1x,a12,1x,a32)
+         write(unit_output,1520)obj2obj(i).name,
+     &        from_obj_type,from_obj_identifier,
+     &        to_obj_type, to_obj_identifier
+ 1520    format(/a20,1x,a12,1x,a20,1x,a12,1x,a20)
       enddo
 
       if (print_level .ge. 5) then
