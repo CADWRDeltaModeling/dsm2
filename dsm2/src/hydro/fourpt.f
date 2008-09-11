@@ -163,11 +163,13 @@ c-----DSM2 module, name and version number
      &    unit_screen
      &    ,carriagecontrol='list'
      &    ,buffered='NO'
-     &    ) !! <NT>
+     &    ,iostat=istat
+     &    )
       open (
      &    unit_error
      &    ,carriagecontrol='list'
      &    ,buffered='NO'
+     &    ,iostat=istat
      &    ) !! <NT>
 
 c-----get optional starting input file from command line and
@@ -184,7 +186,7 @@ c-----dsm2 initialization
          call exit(1)
       end if
 
-      database_name='DSM2Input'
+      database_name=' '
 
       if (init_input_file .ne. ' ') then
          call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
@@ -444,13 +446,15 @@ c@@@         OK = ReportNetBalance()
      &     '   -----------------------------'
 
       
-      inquire(unit_output,opened=isopen)
-      if(isopen)close(unit_output, err=1222)
+
       OK = CloseSolver()
 
-1222  write(unit_screen,*) 'Successful Exit (Code 0)'
-      call exit(0)
-c--------close solver
+      inquire(unit_output,opened=isopen)
+      if(isopen)close(unit_output, err=1222)
+      inquire(unit_screen,opened=isopen)
+      if(isopen)close(unit_output, err=1222)
+
+1222  call exit(0)
 
       END
 
