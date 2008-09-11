@@ -178,7 +178,7 @@ c     &      OutConnectionString, OutConnectionStringLength, DriverCompletion, i
          return
       else
          if (print_level .ge. 2)
-     &        write(unit_screen,'(a)') 'Made SQL connection'
+     &        write(unit_screen,'(a)') 'Made SQL connection to ',ServerName
       endif
 
 c-----Allocate statement handle
@@ -194,10 +194,10 @@ c-----Allocate statement handle
 	subroutine close_database()
          implicit none
          integer(SQLRETURN_KIND) iret
-
 	   !todo: error handling
          call f90SQLDisconnect(ConnHndl, iRet)
-         call f90SQLFreeHandle(SQL_HANDLE_DBC, ConnHndl, iRet)
+         !call f90SQLFreeHandle(SQL_HANDLE_DBC, ConnHndl, iRet)
+         !call f90SQLFreeHandle(SQL_HANDLE_ENV, EnvHndl, iRet)
          dbase_open=.false.
 	   return
 	end subroutine
