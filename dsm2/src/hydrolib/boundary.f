@@ -430,17 +430,12 @@ c-----internal flows
             if (obj2obj(qndx).from_obj.obj_type .eq. obj_reservoir 
      &          .and. obj2obj(qndx).from_obj.obj_no .eq. reservoir_no) then 
                ! from reservoir
-               print*,trim(obj2obj(qndx).name), " subtracting ",obj2obj(qndx).flow,
-     &               " from reservoir: ",trim(res_geom(reservoir_no).name)
-
                reservoir_source_sink=reservoir_source_sink -
      &              obj2obj(qndx).flow
             end if
             if (obj2obj(qndx).to_obj.obj_type .eq. obj_reservoir
      &          .and. obj2obj(qndx).to_obj.obj_no .eq. reservoir_no) then             
-                            ! to reservoir
-               print*,trim(obj2obj(qndx).name), " adding ",obj2obj(qndx).flow,
-     &               " to reservoir: ",trim(res_geom(reservoir_no).name)            
+                            ! to reservoir       
                reservoir_source_sink=reservoir_source_sink +
      &              obj2obj(qndx).flow
             endif
