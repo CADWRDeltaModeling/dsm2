@@ -21,6 +21,7 @@ CALSIMSTUDY           ${CALSIMSTUDY_MODIFIED}        # CALSIM study name used fo
 CALSIMSTEP            1MON
 DICU_VERSION          2020                           # Appears in F-PART of DICU data after DICU-DRN
 STAGE_VERSION         PLANNING-2-SL
+ASTRO_STAGE_VERSION   ASTRO-PLANNING-2               # Use for EC processing. Use astro, *not* STAGE_VERSION
 SJR_PROCESS           SINGLE_STEP                    # SINGLE_STEP or MULTI_STEP
 
 START_DATE            01Oct1974
@@ -51,8 +52,8 @@ GATEFILE              ${TSINPUTLOCAL}/gates.dss                    # Processed D
 GATEFILE              ${BOUNDARYFILE}
 CLIFTONCT_GATEFILE    ${TSINPUTDIR}/clifton_planning.dss           # File containing Clifton Ct Priority Ops
 CLIFTONCT_GATEOP      PRIORITY3                                    # Version of Clifton Court Op to use
-STAGEFILE             ${TSINPUTDIR}/planningtide.dss
-
+STAGE_SOURCE_FILE     ${TSINPUTDIR}/planningtide.dss
+STAGEFILE             ${BOUNDARYFILE}
 
 # Output
 DSM2OUTPUTDIR           ./output
