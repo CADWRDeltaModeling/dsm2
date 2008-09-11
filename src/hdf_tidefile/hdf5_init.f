@@ -101,6 +101,7 @@ c**********contains routines for writing data to an HDF5 file
 	use hdfvars
 	use inclvars
 	use IO_Units
+	use logging
 	use common_tide
 	use runtime_data
 
@@ -143,7 +144,9 @@ c**********contains routines for writing data to an HDF5 file
 	! start up garbage collection 
 	!call h5pset_gc_references_f(access_plist_id,1,error)
 
-	print*, "Creating new HDF5 file"
+	if (print_level .gt. 1)then
+	   write(unit_screen,*)"Creating new HDF5 file"
+	end if
 	call h5fcreate_f(hdf5_hydrofile, H5F_ACC_TRUNC_F, file_id, error,
      &                H5P_DEFAULT_F, access_plist)
 
