@@ -147,6 +147,7 @@ c-----write formats
 
  680  format(/a,a)
 
+      print*,"Reading fixed data"
 c-----local initialization
       do i=1,max_sections
          hdr_form(i).fldnum=0
@@ -320,8 +321,14 @@ c--------remove comment portion of line
          if (itmp1 .gt. 1) line=line(1:itmp1-1)
 
 c--------get rid of ending tab chars
+         do i=1,len_trim(line)
+            if (line(i:i) .eq. '	')then ! tab
+                line(i:i) = ' '
+            end if
+         end do 
          nl_line=len_trim(line)
          line=trim(line)
+         
          if (nl_line .gt. 0)then
          do while ( nl_line .gt. 0 .and.
      &        line(nl_line:nl_line) .eq. '	') ! tab char
