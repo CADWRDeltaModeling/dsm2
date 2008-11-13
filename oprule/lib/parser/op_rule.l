@@ -35,7 +35,7 @@ using namespace oprule::parser;
 using namespace oprule::rule;
 using namespace oprule::expression;
 
-
+#define YY_NO_UNISTD_H
 #define YYPARSE op_ruleparse
 #define YYLEX op_rulelex
 #undef YY_INPUT
