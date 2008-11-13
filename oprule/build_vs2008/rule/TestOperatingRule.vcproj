@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="TestOperatingRule"
 	ProjectGUID="{2A837B5E-C4E3-47C1-AE9D-1D9ABD262899}"
 	RootNamespace="TestOperatingRule"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -71,13 +72,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libboost_unit_test_framework-vc80-mt-s-1_34_1.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="libboost_unit_test_framework-vc90-mt-s-1_36.lib odbc32.lib odbccp32.lib"
 				OutputFile=".\Release/TestOperatingRule.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				ProgramDatabaseFile=".\Release/TestOperatingRule.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -99,9 +102,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -164,7 +164,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libboost_unit_test_framework-vc80-mt-sgd-1_34_1.lib"
+				UseLibraryDependencyInputs="true"
+				AdditionalDependencies="libboost_unit_test_framework-vc90-mt-sgd-1_36.lib"
 				OutputFile=".\Debug/TestOperatingRule.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -173,6 +174,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/TestOperatingRule.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -194,9 +197,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"

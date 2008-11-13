@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="OpRuleParser"
 	ProjectGUID="{1EB68E06-498A-4DA1-8B23-B5E0C32474C5}"
 	RootNamespace="OpRuleParser"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -279,10 +280,6 @@
 			</File>
 			<File
 				RelativePath="..\..\oprule\parser\Symbol.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\oprule\parser\unistd.h"
 				>
 			</File>
 		</Filter>

@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpRuleParser", "parser\OpRuleParser.vcproj", "{1EB68E06-498A-4DA1-8B23-B5E0C32474C5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{96001BAE-BE3D-4D58-A0CA-CE29D6B6EBBB} = {96001BAE-BE3D-4D58-A0CA-CE29D6B6EBBB}
