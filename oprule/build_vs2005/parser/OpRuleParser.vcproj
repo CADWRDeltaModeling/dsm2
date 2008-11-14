@@ -281,10 +281,6 @@
 				RelativePath="..\..\oprule\parser\Symbol.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\oprule\parser\unistd.h"
-				>
-			</File>
 		</Filter>
 		<File
 			RelativePath="..\..\oprule\rule\ActionSet.h"
