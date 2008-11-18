@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="OperatingRule"
 	ProjectGUID="{96001BAE-BE3D-4D58-A0CA-CE29D6B6EBBB}"
+	RootNamespace="OperatingRule"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -69,7 +70,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Debug\oprule_vs8_mtd.lib"
+				OutputFile="Debug\oprule_vs9_mtd.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -146,7 +147,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Release\oprule_vs8_mt.lib"
+				OutputFile="Release\oprule_vs9_mt.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool

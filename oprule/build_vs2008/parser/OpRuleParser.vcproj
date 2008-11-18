@@ -70,7 +70,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Release\oprule_parser_vs8_mt.lib"
+				OutputFile="Release\oprule_parser_vs9_mt.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -148,7 +148,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="Debug\oprule_parser_vs8_mtd.lib"
+				OutputFile="Debug\oprule_parser_vs9_mtd.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
