@@ -252,10 +252,15 @@ public:
             (StaticModelState::StateType)INIT_STATE);
         DynamicModelState::StateType origin=_dynModelState->eval();
 
-
-        ActionChain chain;
+        
+        boost::shared_ptr<ActionChain> chainPtr(new ActionChain);
+        ActionChain& chain = *chainPtr;
+        _actionEven->registerParent(chainPtr);
         chain.pushBackAction(_actionEven);
+        
+        _actionDynamic->registerParent(chainPtr);
         chain.pushBackAction(_actionDynamic);
+
         chain.setActive(true);
         test_model::model_goto_step(3);
         chain.advance(HUGE_VAL);  
@@ -345,9 +350,6 @@ public:
             ));		
     }
     ~ActionSetTest(){ 
-        //delete _actionEven;
-        //delete _actionInexact;
-        //delete _actionDynamic;
     }
 private:
     boost::shared_ptr<DynamicModelState> _dynModelState;

@@ -1,7 +1,6 @@
 // Boost.Test
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
-extern "C" void op_rule_delete_buffer;
 
 using boost::unit_test_framework::test_suite;
 using namespace std;
@@ -495,7 +494,6 @@ struct ParserTestSuite : public test_suite {
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseRule, instance));
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseRuleWithActionSet, instance));
         add( BOOST_CLASS_TEST_CASE( &ParserTest::testParseRuleWithActionChain, instance));
-        op_rule_delete_buffer();
         
     }
 };
