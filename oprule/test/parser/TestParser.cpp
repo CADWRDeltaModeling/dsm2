@@ -461,6 +461,24 @@ public:
         BOOST_CHECK_CLOSE(TestModelInterface::val,13.,DOUBLETOL);
         BOOST_CHECK_CLOSE(TestModelInterface2::val,15.,DOUBLETOL);
         BOOST_CHECK_CLOSE(TestModelInterface3::val,15.,DOUBLETOL);
+
+        /* This second pass is a regression test of a problem case */
+        resetInterfaces();
+        testRule=
+           "myrule2 := (SET test_interface(first_arg='quoted string with spaces' ,"
+           "second_arg=0, third_arg=unquoted ) TO 13. WHILE "
+           "SET second_interface(first_arg=0) TO 14. )  WHEN true;";
+        set_input_string(testRule);
+        parseok=op_ruleparse();
+        BOOST_CHECK(parseok==0);
+        rule=getOperatingRule();
+        BOOST_CHECK( rule->testTrigger() );
+        BOOST_CHECK( rule->getName() == "myrule2");
+        rule->setActive(true);
+        rule->advanceAction(HUGE_VAL);
+        BOOST_CHECK_CLOSE(TestModelInterface::val,13.,DOUBLETOL);
+        BOOST_CHECK_CLOSE(TestModelInterface2::val,14.,DOUBLETOL);
+
         init_expression();
         init_rule_names();
         clear_temp_expr();
