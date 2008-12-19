@@ -20,8 +20,9 @@ public:
     */
     ValueNode(T value) : _val(value){};
 
-    static NodePtr create(T arg){ 
-        return NodePtr(new NodeType(arg));
+    static NodePtr create(T arg){
+        NodeType * t = new NodeType(arg);
+        return NodePtr(t);
     }
     //todo: should be const
     virtual ExpressionNode<T>::NodePtr copy(){

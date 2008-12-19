@@ -18,18 +18,18 @@ public:
     ActionSet();
     virtual ~ActionSet();
     /** Type used to list subactions*/
-    typedef std::vector<OperationAction*> ActionList;
+    typedef std::vector<OperationActionPtr> ActionList;
 
     /** Add an action to the set
     * @param operationAction action to append to set.
     */
-    void addAction(OperationAction* operationAction);
+    void addAction(OperationActionPtr operationAction);
     void advance(double dt);
     void setActive(bool active);
     bool isActive();
     virtual bool hasSubActions(){ return true; }
     virtual void childComplete();
-    virtual void appendToActionList( OperationAction::ActionListType& listToConstruct);
+    virtual void appendSubActionsToList( OperationAction::ActionListType& listToConstruct);
 
 
 private:

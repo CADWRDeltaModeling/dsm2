@@ -12,15 +12,17 @@
 using namespace std;
 using namespace oprule::rule;
 
-ActionSet::ActionSet(){
+ActionSet::ActionSet()
+{
+  m_collectionType=OperationAction::SET_COLLECTION;
 }
 
-ActionSet::~ActionSet(){
+ActionSet::~ActionSet(){ subactions.clear();
 }
 
-void ActionSet::addAction(OperationAction *action){
+void ActionSet::addAction(OperationActionPtr action){
    assert(! action->isActive());
-   action->registerParent(this);
+   //action->registerParent(this);
    subactions.push_back(action);
 }
 
@@ -43,7 +45,7 @@ void ActionSet::setActive(bool active){
 }
 
 
-bool rule_active(OperationAction* op){ return op->isActive(); }
+bool rule_active(OperationActionPtr op){ return op->isActive(); }
 
 
 bool ActionSet::isActive(){
@@ -61,10 +63,18 @@ void ActionSet::childComplete(){
    }
 }
 
-void ActionSet::appendToActionList(ActionListType& listToConstruct){
+void ActionSet::appendSubActionsToList(ActionListType& listToConstruct){
    for (ActionSet::ActionList::iterator it = subactions.begin();
-         it != subactions.end(); it++){
-      (*it)->appendToActionList(listToConstruct);
+         it != subactions.end(); ++it){
+             OperationActionPtr actPtr = *it;
+             if ( actPtr->hasSubActions())
+             {
+                 actPtr->appendSubActionsToList(listToConstruct);
+             }
+             else
+             {
+                 listToConstruct.push_back(actPtr);
+             }
    }
 }
 

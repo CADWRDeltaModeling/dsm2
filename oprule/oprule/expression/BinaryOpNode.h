@@ -40,9 +40,10 @@ public:
     */
    BinaryOpNode(FirstArgPtr pLeft, 
 		          SecondArgPtr pRight)
-      : _pLeft (pLeft), _pRight (pRight),
-        _timeDependent(_pLeft->isTimeDependent() ||
-		               _pRight->isTimeDependent()) {}
+     : _pLeft (pLeft), 
+       _pRight (pRight),
+       _timeDependent(_pLeft->isTimeDependent() ||
+		              _pRight->isTimeDependent()) {}
 	
     virtual ~BinaryOpNode()
 	{
@@ -51,9 +52,10 @@ public:
 	};
 
    static NodePtr create(FirstArgPtr pLeft, 
-		          SecondArgPtr pRight){ 
+		          SecondArgPtr pRight)
+   {
      return NodePtr(new NodeType(pLeft,pRight));
-  }
+   }
 
    virtual ExpressionNodePtr copy(){ 
      return NodePtr(new NodeType(_pLeft->copy(),_pRight->copy()));

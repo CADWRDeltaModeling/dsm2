@@ -1,5 +1,6 @@
 #ifndef oprule_rule_TRIGGER_H__INCLUDED_
 #define oprule_rule_TRIGGER_H__INCLUDED_
+#include "boost/shared_ptr.hpp"
 
 namespace oprule {
 namespace rule {
@@ -25,6 +26,7 @@ public:
    virtual void step(double dt)=0;
 
 };
+typedef boost::shared_ptr<Trigger> TriggerPtr;
 
 }}     //namespace
 #endif // !include guard

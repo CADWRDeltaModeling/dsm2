@@ -121,11 +121,11 @@ void OperationManager::stepExpressions(double dt){
 }
 
 class overlapper 
- : public std::binary_function<OperationAction*,OperationAction*,bool>{
+ : public std::binary_function<OperationActionPtr,OperationActionPtr,bool>{
 public:
     overlapper(ActionResolver& res) : m_resolver(res){}
-    bool operator()(OperationAction* oldAct, 
-                   OperationAction* newAct)const
+    bool operator()(OperationActionPtr oldAct, 
+                   OperationActionPtr newAct)const
     {
         return m_resolver.overlap(*oldAct,*newAct);
     }
@@ -135,14 +135,15 @@ private:
 
 
 class list_overlapper
- : public std::binary_function<OperationAction*,
+ : public std::binary_function<OperationActionPtr,
                                OperationAction::ActionListType*,
                                bool>{
 public:
    list_overlapper(ActionResolver& res) : m_resolver(res){}
-   bool operator()(OperationAction* act,
+   bool operator()(OperationActionPtr act,
                    OperationAction::ActionListType* alist)const{
-      return find_if(alist->begin(),  alist->end(), 
+      return find_if(alist->begin(),  
+                     alist->end(), 
                      std::bind2nd(overlapper(m_resolver),act))
              != alist->end(); }
 private:

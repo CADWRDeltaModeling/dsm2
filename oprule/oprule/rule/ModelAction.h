@@ -27,15 +27,15 @@ public:
     * @todo transition could be a policy.
     */
     ModelAction(
-        typename ModelInterface<T>::NodePtr model,
-        typename ExpressionNode<T>::NodePtr expression,
-        const Transition& transition
+        typename ModelInterface<T>::NodePtr  model,
+        typename ExpressionNode<T>::NodePtr  expression,
+        const TransitionPtr                  transition
         ) :
-    _interface(model), 
+        _interface(model), 
         _expression(expression), 
-        _transDuration(transition.getDuration()) ,
+        _transDuration(transition->getDuration()) ,
         _elapsed(0.),
-        _transition(transition.copy())
+        _transition(transition->copy())
     {
         setActive(false);
     }

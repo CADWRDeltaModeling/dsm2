@@ -1,6 +1,6 @@
 #include "boost/test/unit_test.hpp"
 using boost::unit_test_framework::test_suite;
-
+#define _CRTDBG_MAP_ALLOC
 test_suite* getParserTestSuite();
 test_suite* getExpressionTestSuite();
 

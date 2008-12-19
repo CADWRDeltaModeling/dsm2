@@ -9,24 +9,17 @@
 #pragma warning (disable:4786)   // identifier truncated to '255' characters
 #pragma warning (disable:4065)   // switch contains 'default'
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
-#include<stdlib.h>
-#include<string.h>
+
 #include<iostream>
 #include<string>
-//#include<cstddef>
 #include<map>
 #include<vector>
-#include "stddef.h"
-#include "oprule/expression/ExpressionNode.h"
-#include "oprule/parser/Symbol.h"
-#include "oprule/rule/ModelInterface.h"
-#include "oprule/rule/ModelAction.h"
-#include "oprule/rule/Transition.h"
-#include "oprule/rule/OperatingRule.h"
-#include "oprule/parser/NamedValueLookup.h"
-#include "oprule/rule/OperationAction.h"
-#include "oprule/rule/ExpressionTrigger.h"
+
+#include "oprule/parser/ParseSymbolManagement.h"
 #include "op_rule_tab.h"
 
 
@@ -43,20 +36,9 @@ using namespace oprule::expression;
 #define yylval op_rulelval
 
 extern symbol name_lookup(const std::string&);
-extern NamedValueLookup& get_lookup();
 
-
-//extern template int reg_temp_expr<double>( ExpressionNode<double>::NodePtr);
-//extern template int reg_temp_expr<bool>( ExpressionNode<bool>::NodePtr);
-
-template<typename T>
-int reg_temp_expr(typename ExpressionNode<T>::NodePtr ptr);
-
-extern void clear_temp_expr();
-extern void clear_arg_map();
-
-#define _SETD reg_temp_expr<double>
-#define _SETB reg_temp_expr<bool>
+#define _SETD add_temp_symbol
+#define _SETB add_temp_symbol
 
 char *strinput;
 char *strinputptr; 
@@ -136,23 +118,25 @@ PID|pid                 {return PID;   }
 
 
  /* Terminal quanitities: named time series, numbers, etc. */
-[0-3][0-9]{mon}[123][0-9]{3}  { yylval.strgval=new string(yytext); 
+[0-3][0-9]{mon}[123][0-9]{3}  { yylval.stringval=add_to_string_list(yytext);
 							   return REFDATE;  }
-[0-2][0-9]:[0-5][0-9]       { yylval.strgval=new string(yytext); 
+[0-2][0-9]:[0-5][0-9]         { yylval.stringval=add_to_string_list(yytext);
 							    return REFTIME; }
 
-[0-3][0-9]{mon}               { yylval.strgval=new string(yytext); return REFSEASON; }
-{mon}   { yylval.dval=month_to_double(yytext); return NUMBER; }
+[0-3][0-9]{mon}               { yylval.stringval=add_to_string_list(yytext);
+                                return REFSEASON; }
+{mon}   {                       yylval.dval=month_to_double(yytext); 
+                                return NUMBER; }
 
 date|DATE|DATETIME {return DATETIME;}
 season|SEASON {return SEASON;}
 
-year|YEAR    {yylval.strval=yytext; return YEAR;}
-month|MONTH   {yylval.strval=yytext; return MONTH;}
-day|DAY     {yylval.strval=yytext; return DAY;}
-hour|HOUR    {yylval.strval=yytext; return HOUR;}
-min|MIN     {yylval.strval=yytext; return MIN;}
-dt|DT       {yylval.strval=yytext; return DT;} 
+year|YEAR   {yylval.stringval=add_to_string_list(yytext); return YEAR;}
+month|MONTH {yylval.stringval=add_to_string_list(yytext); return MONTH;}
+day|DAY     {yylval.stringval=add_to_string_list(yytext); return DAY;}
+hour|HOUR   {yylval.stringval=add_to_string_list(yytext); return HOUR;}
+min|MIN     {yylval.stringval=add_to_string_list(yytext); return MIN;}
+dt|DT       {yylval.stringval=add_to_string_list(yytext); return DT;} 
 
 (([0-9]+)|([0-9]*\.[0-9]*)([eE][-+]?[0-9]+)?)  { 
              /* number, possibly with exponent*/
@@ -164,7 +148,7 @@ dt|DT       {yylval.strval=yytext; return DT;}
 			string parsetext(yytext);
 			size_t beg=parsetext.find_first_not_of(" \"\'");
 			size_t end=parsetext.find_last_not_of(" \"\'");
-			yylval.strgval=new string(parsetext,beg, end-beg+1);
+			yylval.strgval=add_to_string_list(string(parsetext,beg, end-beg+1));
             return QUOTEDSTRING;
 			}
 
@@ -176,41 +160,45 @@ dt|DT       {yylval.strval=yytext; return DT;}
 			//     2. model variables and names (including constants, time
 			//        series, etc...anything the model provider designates as
 			//        a named, retrievable variable.
-			//     3. a new name -- we give the parser the name as a string
-            std::string * name=new std::string(yytext);
-			symbol sym=name_lookup(*name);
+			//     3. an unknown name -- we give the parser the name as a string
+            std::string name(yytext);
+			symbol sym=name_lookup(name);
 			// First shot: look up names that have been defined
 			// earlier in oprule expressions 
-			if (sym.type() != symbol.EMPTY ){
-			   if (sym.type() == symbol.DOUBLE) { 
+			if (sym.type() != symbol::EMPTY ){
+			   if (sym.type() == symbol::DOUBLE) { 
 			      yylval.pnode=_SETD(sym.dblval); 
 				  return NAMEDVAL;}                  
-			   else if(sym.type()== symbol.BOOL){ 
+			   else if(sym.type()== symbol::BOOL){
 			      yylval.pbnode=_SETB(sym.boolval); return BOOLNAMEDVAL; 
 			   }
 			 }
 			// Second shot: ask the model-provided NamedValueLookup 
 			// to interpret the name
-            NamedValueLookup & lookup = get_lookup();
+            NamedValueLookup & lookup = *get_lookup();
 
-            if ( lookup.isModelName(*name) ){
-               if (lookup.readWriteType(*name)== NamedValueLookup::READWRITE){
-                 if(lookup.takesArguments(*name)){
+            if ( lookup.isModelName(name) ){
+               if (lookup.readWriteType(name)== NamedValueLookup::READWRITE){
+                 if(lookup.takesArguments(name)){
 				    clear_arg_map();
-				    yylval.strgval=name;
+				    symbol s(name);
+				    yylval.stringval=add_temp_symbol(s);
                     return IFPARAM;
                  }else{
-				    yylval.strgval=name;
+                    symbol s(name);
+				    yylval.stringval=add_temp_symbol(s);
 	                return IFNAME;
                  }
                }else{
-			     assert( lookup.readWriteType(*name)==NamedValueLookup::READONLY);
-                 if(lookup.takesArguments(*name)){
+			     assert( lookup.readWriteType(name)==NamedValueLookup::READONLY);
+                 if(lookup.takesArguments(name)){
 				   clear_arg_map();
-                   yylval.strgval=name;
+				   symbol s(name);
+                   yylval.stringval=add_temp_symbol(s);
 				   return EXPRESSPARAM;
                  }else{
-				    yylval.strgval=name;
+                    symbol s(name);
+				    yylval.stringval=add_temp_symbol(s);
 	                return EXPRESS;
                  }
 			     assert(false);
@@ -219,7 +207,8 @@ dt|DT       {yylval.strval=yytext; return DT;}
 			}
 
 			// Last shot: just return the name.
-			yylval.strgval=new string(yytext);
+			symbol s(name);
+			yylval.stringval=add_temp_symbol(s);
             return NAME;
 		}
 

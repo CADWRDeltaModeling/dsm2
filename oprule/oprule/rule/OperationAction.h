@@ -4,10 +4,14 @@
 #include<deque>
 #include "assert.h"
 #include<iostream>
-
+#include "boost/shared_ptr.hpp"
+#include "boost/weak_ptr.hpp"
 
 namespace oprule {
 namespace rule {
+
+class OperationAction;
+typedef boost::shared_ptr<OperationAction> OperationActionPtr;
 
 /** Abstract base class for all actions
  * Interface for all actions. This base class contains mostly pure
@@ -15,10 +19,9 @@ namespace rule {
  */
 class OperationAction 
 {
-protected:
-   OperationAction() : _parent(0){}
-
 public:
+    enum CollectionType { NO_COLLECTION, CHAIN_COLLECTION, SET_COLLECTION };
+
    /** Advance the action in time */
 	virtual void advance(double dt) = 0;
 
@@ -44,8 +47,8 @@ public:
    * Context dependent. Performs any wrapup activity.
    */
    virtual void onCompletion(){ 
-      if (_parent){
-        _parent->childComplete();
+       if (hasParent()){
+          parent()->childComplete();
       } 
    };
 
@@ -69,11 +72,16 @@ public:
    * Registration is carried out when assembling actions into collections. Refer
    * to collections for examples.
    */
-   void registerParent(OperationAction* parent){
-      if (_parent) throw std::domain_error("Parent already registered");
+   void registerParent(OperationActionPtr parent){
+      if (hasParent()) throw std::domain_error("Parent already registered");
       _parent=parent;
+      _hasParent = true;
    }
    
+   /** Query if object has a parent registered */
+   bool hasParent(){ return _hasParent; }
+
+
    /**
     * Used if this action is a container, this method
     * is the mechanism for children to inform the parent container that
@@ -95,7 +103,7 @@ public:
    }
 
    /** Type of collection used for lists of subactions */
-   typedef std::deque<OperationAction*> ActionListType;
+   typedef std::deque<OperationActionPtr> ActionListType;
 
    /** Create an exhaustive (but not carefully ordered)
     * list of all actions in an operating rule. The current action will
@@ -103,28 +111,37 @@ public:
     * request its subactions to do so
     * @todo: is this not done?
     */
-   virtual void appendToActionList(
+   virtual void appendSubActionsToList(
       OperationAction::ActionListType& listToConstruct){
       //std::cout << "Subactions: " << this->hasSubActions()<<std::endl;
       if (this->hasSubActions()){
          //std::cout << " identified subactions" <<std::endl;
          /**@todo: critical to finish this*/
-      }else{
-         listToConstruct.push_back(this);
       }
    }
 
+   CollectionType getCollectionType(){return m_collectionType;}
+
 protected: 
+   OperationAction(): m_collectionType(NO_COLLECTION), _hasParent(false){}
+
    /** 
     * Get the parent of this action assuming the action is in a collection.
     *@return The parent (collection) holding this action.
     *@todo: what if not member of a collection?
    */
-   OperationAction* parent(){ return _parent;}
+   OperationActionPtr parent()
+    {  
+       OperationActionPtr parentRef(_parent);
+       return parentRef;
+   }
 
+   CollectionType m_collectionType;
 private:
-   OperationAction* _parent;
-
+    boost::weak_ptr<OperationAction> _parent;
+    bool _hasParent;
 };
+
+
 }}     //namespace
 #endif // include guard

@@ -1,7 +1,7 @@
 #ifndef oprule_rule_TRANSITION_H__INCLUDED_
 #define oprule_rule_TRANSITION_H__INCLUDED_
 #include<math.h>
-
+#include "boost/shared_ptr.hpp"
 /**
  * Function objects representing transitions. They map a 
  * fraction of completion in time to a fraction of
@@ -10,6 +10,7 @@
 
 namespace oprule {
 namespace rule {
+
 
 class Transition{
 public:
@@ -52,7 +53,7 @@ private:
     double tc;
 };
 
-
+typedef boost::shared_ptr<Transition> TransitionPtr;
 
 }}     //namespace
 #endif // !include guard

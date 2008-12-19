@@ -20,12 +20,12 @@ public:
    /**
     Create an OperatingRule given an action. Trigger will be trivial.
    */
-	OperatingRule(OperationAction* opact);
+	OperatingRule(OperationActionPtr opact);
 
    /**
     * Create an OperatingRule given an action and a trigger.
     */
-	OperatingRule(OperationAction* opact, Trigger* trigger);
+	OperatingRule(OperationActionPtr opact, TriggerPtr trigger);
 
    /**
     * Assign a name to this operating rule
@@ -103,12 +103,14 @@ public:
    virtual ~OperatingRule();
 
 private:
-   OperationAction* _action;
+   OperationActionPtr _action;
    OperationAction::ActionListType _actionList;
-   Trigger* _trigger;
+   TriggerPtr _trigger;
    bool _prevTriggerValue;   // todo: move this to trigger
    std::string _name;
 };
+
+typedef boost::shared_ptr<OperatingRule> OperatingRulePtr;
 
 }}     //namespace
 #endif // !include guard

@@ -9,24 +9,29 @@
 
 using namespace oprule::rule;
 
-ActionChain::ActionChain() : _active(false){
+ActionChain::ActionChain() :
+  _active(false)
+{
+  m_collectionType=OperationAction::CHAIN_COLLECTION;
 }
 
-ActionChain::~ActionChain(){
+ActionChain::~ActionChain()
+{
+    actionSequence.clear();
 }
 
-OperationAction* ActionChain::getCurrentAction(){
+OperationActionPtr ActionChain::getCurrentAction(){
     return *(this->actionIterator);
 }
 
 
-void ActionChain::pushBackAction(OperationAction* opAction){	
-   opAction->registerParent(this);
+void ActionChain::pushBackAction(OperationActionPtr opAction){	
+   //opAction->registerParent(this); //was a good idea -- circular?
    this->actionSequence.push_back(opAction);
 }
 
-void ActionChain::pushFrontAction(OperationAction* opAction){
-   opAction->registerParent(this);   
+void ActionChain::pushFrontAction(OperationActionPtr opAction){
+   //opAction->registerParent(this);   
    this->actionSequence.push_front(opAction);
 }
 
@@ -63,12 +68,21 @@ void ActionChain::childComplete(){
 }
 
 
-void ActionChain::appendToActionList(
-  OperationAction::ActionListType& listToConstruct){
+void ActionChain::appendToActionList(OperationAction::ActionListType& listToConstruct)
+{
    std::cout <<"Appending chain to actionlist" <<std::endl;
    for (ActionChain::ActionSequence::iterator it = actionSequence.begin();
-         it != actionSequence.end(); it++){
-      (*it)->appendToActionList(listToConstruct);
+         it != actionSequence.end(); ++it)
+   {
+         OperationActionPtr actPtr = *it;
+         if ( actPtr->hasSubActions())
+         {
+           actPtr->appendSubActionsToList(listToConstruct);
+         }
+           else
+         {
+           listToConstruct.push_back(actPtr);
+         }
    }
 }
 

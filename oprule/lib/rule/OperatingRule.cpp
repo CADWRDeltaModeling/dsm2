@@ -11,11 +11,11 @@
 
 using namespace oprule::rule;
 
-OperatingRule::OperatingRule(OperationAction* opact) :
-   _action(opact), _trigger(0), _prevTriggerValue(false){
+OperatingRule::OperatingRule(OperationActionPtr opact) :
+   _action(opact), _prevTriggerValue(false){
 }
 
-OperatingRule::OperatingRule(OperationAction* opact,Trigger* trigger) :
+OperatingRule::OperatingRule(OperationActionPtr opact,TriggerPtr trigger) :
    _action(opact), _trigger(trigger), _prevTriggerValue(false){
 }
 
@@ -54,14 +54,21 @@ OperationAction::ActionListType& OperatingRule::getActionList(){
    if (this->_action == NULL) throw new std::domain_error(
       "Op rule action not initialized when action list requested.");
 
-   if (_actionList.empty()){
-     this->_action->appendToActionList( _actionList );
+   if (_actionList.empty())
+   {
+       if(_action->hasSubActions())
+       {    
+         _action->appendSubActionsToList( _actionList );
+       }
+       else
+       {
+           _actionList.push_back(_action);
+       }
    }
    return _actionList;
 }
 
 OperatingRule::~OperatingRule(){
-  delete _action;
-  delete _trigger;
+  //delete _trigger;
 }
 

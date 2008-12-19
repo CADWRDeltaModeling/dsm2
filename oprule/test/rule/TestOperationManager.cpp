@@ -63,8 +63,8 @@ public:
 
 class OperationManagerTest{
 public:
-   typedef TrivialOperationAction* TrivialOperationActionPtr ;
-   typedef EveryNTimeTrigger* EveryNTimeTriggerPtr;
+   typedef boost::shared_ptr<TrivialOperationAction> TrivialOperationActionPtr ;
+   typedef boost::shared_ptr<EveryNTimeTrigger> EveryNTimeTriggerPtr;
    OperationManagerTest(): act1(new TrivialOperationAction(1)),
 						   trig1(new EveryNTimeTrigger(2)),
 						   rule1(act1,trig1),

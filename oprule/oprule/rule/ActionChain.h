@@ -22,24 +22,24 @@ class ActionChain : public OperationAction
 
 public:
 	ActionChain();
-	virtual ~ActionChain();
+    virtual ~ActionChain();
 
    /** sequence type used to store subactions*/
-   typedef std::deque<OperationAction*> ActionSequence;
+   typedef std::deque<OperationActionPtr> ActionSequence;
 
    /** Add action to end of chain.
     * @param action action to be added
     */
-	void pushBackAction(OperationAction* action);
+	void pushBackAction(OperationActionPtr action);
 	
    /** Add action to front of chain.
     * @param action action to be added
     */
-   void pushFrontAction(OperationAction* action);
+   void pushFrontAction(OperationActionPtr action);
 
    /** Get the action in chain that is currently active.
    */
-	OperationAction* getCurrentAction();
+	OperationActionPtr getCurrentAction();
 
    /** Advance the chain in time.
     * Will advance the chain in time. This may cause one of the serial
@@ -65,9 +65,9 @@ public:
    virtual void childComplete();
 
 private:
-	ActionChain::ActionSequence actionSequence;
+   ActionChain::ActionSequence actionSequence;
    ActionChain::ActionSequence::iterator actionIterator;
-	bool _active;
+   bool _active;
 };
 
 }}     //namespace

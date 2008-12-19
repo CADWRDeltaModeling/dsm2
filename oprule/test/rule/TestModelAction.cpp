@@ -38,7 +38,8 @@ using namespace oprule::rule;
 
 class ModelActionTest {
 public:
-    ModelActionTest() : _staticModelState(new StaticModelState()),
+    ModelActionTest() : 
+        _staticModelState(new StaticModelState()),
         _staticModelState2(new AnotherStaticModelState()),
         _dynModelState(new DynamicModelState()){
             typedef oprule::expression::DoubleNode DoubleNode;
@@ -47,28 +48,31 @@ public:
             DoubleNode::NodePtr expression2=DoubleScalarNode::create(TARGET_DYNAMIC_STATE);
             double duration1=EVEN_RAMP_DURATION;
             double duration2=INEXACT_RAMP_DURATION;
-            _actionEven=new ModelAction<double >(
+            TransitionPtr trans1 = TransitionPtr(new LinearTransition(duration1));
+
+            _actionEven=OperationActionPtr( new ModelAction<double >(
                 _staticModelState,
                 expression,
-                LinearTransition(duration1)
-                );
-            _actionInexact=new ModelAction<double>(
+                trans1));
+
+            TransitionPtr trans2 = TransitionPtr(new LinearTransition(duration2));
+            _actionInexact=OperationActionPtr(new ModelAction<double>(
                 _staticModelState2,
                 expression,
-                LinearTransition(duration2)
-                );
+                trans2
+                ));
 
-            _actionDynamic=new ModelAction<double>(
+            _actionDynamic=OperationActionPtr(new ModelAction<double>(
                 _dynModelState,
                 expression2,
-                LinearTransition(duration1)
-                );		
+                trans1
+                ));		
     }
 
     ~ModelActionTest(){ 
-        delete _actionEven;
-        delete _actionInexact;
-        delete _actionDynamic;
+        //delete _actionEven;
+        //delete _actionInexact;
+        //delete _actionDynamic;
     }
 
 
@@ -300,11 +304,11 @@ private:
     boost::shared_ptr<AnotherStaticModelState> _staticModelState2;
     // Action with a ramping duration that is an exact 
     // multiple of the model time step
-    ModelAction<double>* _actionEven;
+    OperationActionPtr _actionEven;
     // Action with a ramping duration that is an inexact multiple
-    ModelAction<double>* _actionInexact;
+    OperationActionPtr _actionInexact;
     // Action that manipulates a dynamic model state
-    ModelAction<double>* _actionDynamic;
+    OperationActionPtr _actionDynamic;
 
 };
 
@@ -322,26 +326,28 @@ public:
         DoubleScalarNode::NodePtr expression2=DoubleScalarNode::create(TARGET_DYNAMIC_STATE);
         double duration1=EVEN_RAMP_DURATION;
         double duration2=INEXACT_RAMP_DURATION;
-        _actionEven=new ModelAction<double>(
+        TransitionPtr trans1 = TransitionPtr(new LinearTransition(duration1));
+        TransitionPtr trans2 = TransitionPtr(new LinearTransition(duration2));
+        _actionEven=OperationActionPtr(new ModelAction<double>(
             _staticModelState,
             expression,
-            LinearTransition(duration1)
-            );
-        _actionInexact=new ModelAction<double>(
+            trans1
+            ));
+        _actionInexact=OperationActionPtr(new ModelAction<double>(
             _staticModelState2,
             expression,
-            LinearTransition(duration2)
-            );
-        _actionDynamic = new ModelAction<double>(
+            trans2
+            ));
+        _actionDynamic = OperationActionPtr(new ModelAction<double>(
             _dynModelState,
             expression2,
-            LinearTransition(duration1)
-            );		
+            trans1
+            ));		
     }
     ~ActionSetTest(){ 
-        delete _actionEven;
-        delete _actionInexact;
-        delete _actionDynamic;
+        //delete _actionEven;
+        //delete _actionInexact;
+        //delete _actionDynamic;
     }
 private:
     boost::shared_ptr<DynamicModelState> _dynModelState;
@@ -349,11 +355,13 @@ private:
     boost::shared_ptr<AnotherStaticModelState> _staticModelState2;
     // Action with a ramping duration that is an exact 
     // multiple of the model time step
-    ModelAction<double>* _actionEven;
+    OperationActionPtr _actionEven;
+    //ModelAction<double>* _actionEven;
     // Action with a ramping duration that is an inexact multiple
-    ModelAction<double>* _actionInexact;
+    //ModelAction<double>* _actionInexact;
+    OperationActionPtr _actionInexact;
     // Action that manipulates a dynamic model state
-    ModelAction<double>* _actionDynamic;
+    OperationActionPtr _actionDynamic;
 };
 
 

@@ -1,3 +1,4 @@
+%{
 /* Parser specification for operating rules 
 
    This file requires flex and bison to compile. The executables
@@ -9,179 +10,31 @@
       $(InputName)_tab.cpp
       $(InputName)_tab.h
 */
-
-
-%{
-// The following pragmas disable stupid warnings in MSVC
-#pragma warning (disable:4786)   // identifier truncated to '255' characters
-#pragma warning (disable:4065)   // switch contains 'default'
-#define NOMINMAX
-#include <map>
-#include <functional>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <malloc.h>
-#include <vector>
-
-#include "oprule/expression/ValueNode.h"
-#include "oprule/rule/ModelInterface.h"
-#include "oprule/rule/ModelAction.h"
-#include "oprule/rule/Transition.h"
-#include "oprule/expression/TernaryOpNode.h"
-#include "oprule/expression/BinaryOpNode.h"
-#include "oprule/expression/UnaryOpNode.h"
-#include "oprule/expression/LookupNode.h"
-#include "oprule/expression/LaggedExpressionNode.h"
-#include "oprule/expression/AccumulationNode.h"
-#include "oprule/expression/LinearExtrapolationNode.h"
-#include "oprule/expression/QuadExtrapolationNode.h"
-#include "oprule/expression/ExpressionPtr.h"
-#include "oprule/expression/PIDNode.h"
-
-#include "oprule/parser/Symbol.h"
-#include "oprule/parser/ModelNameParseError.h"
-
-#include "oprule/rule/ExpressionTrigger.h"
-#include "oprule/rule/OperatingRule.h"
-#include "oprule/parser/NamedValueLookup.h"
-#include "oprule/rule/OperationAction.h"
-#include "oprule/rule/ActionSet.h"
-#include "oprule/rule/ActionChain.h"
-#include "oprule/parser/ModelTimeNodeFactory.h"
-//#include "Parser.h"
-#include "oprule/parser/ParseResultType.h"
-#include "oprule/parser/ptr_wrapper.h"
-
-
-
-using namespace std;
-using namespace oprule::rule;
-using namespace oprule::parser;
-using namespace oprule::expression;
-
-
-
-#define EVAL "eval__"
-#define yylval op_rulelval
-
-NamedValueLookup* lookup;
-ModelTimeNodeFactory* appModelTimeFactory;
-
-
-typedef map<string, symbol > express_map;
-typedef map<string, symbol >::iterator expressIterType;
-typedef pair<string, symbol> symbol_pair;
-
-#define _EI express_index
-vector<symbol > express_index;
-typedef vector<symbol >::iterator indexIterType;
-
-template<typename T>
-int reg_temp_expr(typename ExpressionNode<T>::NodePtr ptr){
-   symbol s=symbol(ptr);
-   express_index.push_back(s);
-   return express_index.size() - 1;
-}
-
-
-#define _SETD reg_temp_expr<double>
-#define _SETB reg_temp_expr<bool>
-#define _GETD(NDX) express_index[NDX].dblval
-#define _GETB(NDX) express_index[NDX].boolval
-#define _GETS(NDX) express_index[NDX]
-
-
-
-
-
-void clear_temp_expr(void);
-void clear_arg_map();
-
-typedef map<string, OperatingRule*> rule_map;
-typedef map<pair<string, int>, double> initial_value_map;
-typedef pair<string, int> initializer_pair;
-
-
-void init_lookup( NamedValueLookup*);
-void init_model_time_factory(ModelTimeNodeFactory * );
-void init_expression();
-void init_rule_names();
-void apply_lagged_values(const string&name, DoubleNodePtr expression);
-
-void set_parsed_type(oprule::parser::parse_type);
-oprule::parser::parse_type get_parsed_type();
-bool add_symbol(const string & dbkey, symbol& expression);
-bool add_rule(const string& name, OperatingRule* rule);
-
-OperationAction* chain_actions( OperationAction* op1, OperationAction* op2);
-OperationAction* chain_actions( ActionChain* op1, OperationAction* op2);
-OperationAction* group_actions( OperationAction* op1, OperationAction* op2);
-
-
-symbol make_symbol(DoubleNodePtr dnode);
-symbol make_symbol(BoolNodePtr bnode);
-symbol name_lookup(const string& name);
-extern void lexer_init(); 
-
-
-const string EVAL_STR=string(EVAL);
-
-int op_ruleerror(const char* s);
-int month_to_int(const string&);
-extern int op_rulelex();
-express_map express;
-rule_map rulenames;
-initial_value_map init_cond;
-typedef pair<string, OE_NODE_PTR(LaggedExpressionNode<double> >) lagged_expression_pair;
-
-typedef vector< lagged_expression_pair >lagged_expression_list;
-lagged_expression_list laggedvals;
-
-NamedValueLookup::ArgList arglist;
-NamedValueLookup::ArgMap argmap;
-OperatingRule * eval_rule;
-oprule::parser::parse_type _parsed_type;
-
-
-template<class T>
-string ToString(const T& val){
-   std::stringstream stream;
-   stream << val;
-   return stream.str();
-}
-
-long padded_string_to_int(const string& str){
-   char* end;
-   if(str.substr(0,1) == "0"){
-      return strtol(str.substr(1,1).c_str(),&end,0);
-   }else{ 
-      return strtol(str.substr(0,2).c_str(),&end,0);
-	}
-}				   
+#include "oprule/parser/ParseSymbolManagement.h"			   
  
-
+#define _SETD add_temp_symbol<DoubleNodePtr>
+#define _SETB add_temp_symbol<BoolNodePtr>
+#define _GETD(NDX) get_express_index()[NDX].dblval
+#define _GETB(NDX) get_express_index()[NDX].boolval
+#define _GETS(NDX) get_express_index()[NDX]
 
 %}
 
 %error-verbose
 %union {
-   oprule::parser::symbol* symval;
    int intval;
    double dval;
-   char * strval;
-   std::string* strgval;
+   int stringval;
    int pnode;
    int pbnode;
-   std::vector<double>* dvector;
-   oprule::rule::Transition * ptransition;
-   oprule::rule::ModelInterfaceDouble * modelif;
-   oprule::rule::ExpressionTrigger * trigval;
-   oprule::rule::OperationAction * opaction;
-   oprule::rule::OperatingRule * opruleval;
+   int dvectorndx;
+   int transition;
+   int trigval;
+   int opaction;
+   int opruleval;
 }
-%token <strgval> NAME
-%token <strgval> IFNAME IFPARAM EXPRESS EXPRESSPARAM
+%token <stringval> NAME
+%token <stringval> IFNAME IFPARAM EXPRESS EXPRESSPARAM
 %token <pnode> NAMEDVAL
 %token <pbnode> BOOLNAMEDVAL
 %token <intval> LT LE GT GE EQ NE
@@ -196,9 +49,9 @@ long padded_string_to_int(const string& str){
 %token <intval> YEAR MONTH DAY HOUR MINDAY MIN DT
 %token <intval> SEASON
 %token <intval> DATETIME
-%token <strgval> REFDATE REFTIME REFSEASON
+%token <stringval> REFDATE REFTIME REFSEASON
 %token <dval> NUMBER
-%token <strgval> QUOTEDSTRING
+%token <stringval> QUOTEDSTRING
 %token <intval> ASSIGN
 %token <intval> FALSE TRUE
 %token <intval> OR AND
@@ -231,68 +84,82 @@ long padded_string_to_int(const string& str){
 %type <pnode> laggedval
 %type <pnode> actionspec
 %type <pnode> targetspec
-%type <ptransition>  transitionspec
+%type <transition>  transitionspec
 %type <pbnode> namedboolval
 %type <symval> arg
 %type <symval> arglist
-%type <trigval> triggerexpression
+%type <trigval> trigger
 %type <opaction> action
 %type <opaction> modelaction
 %type <opruleval> oprule
-%type <dvector> array
-
+%type <dvectorndx> array
 %type <intval> reassignment
 %%
 
 
 line:
     NAME ASSIGN boolexpression ';' {
-	   string dbkey=*$1;
+	   string dbkey=get_temp_symbol($1).stringval;
 	   add_symbol(dbkey,_GETS($3));
 	   set_parsed_type(oprule::parser::BOOL_EXPRESS);
+	   clear_string_list();
+	   clear_temp_expr();
         }
    | NAME ASSIGN expression ';' {
-	   string dbkey=*$1;
+	   string dbkey=get_temp_symbol($1).stringval;
 	   add_symbol(dbkey,_GETS($3));
-	   apply_lagged_values(*$1,_GETD($3));
+	   apply_lagged_values(dbkey,_GETD($3));
 	   set_parsed_type(oprule::parser::NUMERICAL_EXPRESS);
+	   clear_string_list();
+	   clear_temp_expr();
         } 
    | boolexpression ';'{
        string dbkey=EVAL_STR;
 	   add_symbol(dbkey,_GETS($1));
 	   set_parsed_type(oprule::parser::BOOL_EXPRESS);
+	   clear_string_list();	   
 	    }
    | expression ';'{
        string dbkey=EVAL_STR;
 	   add_symbol(dbkey,_GETS($1));
 	   set_parsed_type(oprule::parser::NUMERICAL_EXPRESS);
+	   clear_string_list();	   
 	   }
    | NAME ASSIGN oprule ';' {
-        eval_rule=$3;
-	    string rulename=*$1;
-		if (add_rule(rulename,eval_rule)){
-          ($3)->setName(rulename);
-  	      set_parsed_type(oprule::parser::OP_RULE);   
+	    string rulename=get_temp_symbol($1).stringval;
+	    OperatingRulePtr rulePtr = get_temp_symbol($3).rule;
+        rulePtr->setName(rulename);
+		if (add_rule(rulename,rulePtr)){
+		  set_parsed_type(oprule::parser::OP_RULE);  	    
         }else{
 		  op_ruleerror(
 		    ("Operating rule name " + rulename + " used more than once.").c_str());
           YYABORT;
 		 }
+	    clear_string_list();
+	    clear_temp_expr();
+	    clear_arg_map();
+
         } 
    | oprule ';' {
-        eval_rule=$1;
 		static int ruleno;
-        char * num=0;
-        itoa(ruleno++,num,10);
-		eval_rule->setName(string("OpRule") +num);
+        char num[16];
+        _itoa_s(ruleno++,num,16,10);
+        OperatingRulePtr opPtr = get_temp_symbol($1).rule;
+        string rulename = string("OpRule") + num;
+        opPtr->setName(rulename);
+        add_rule(rulename,opPtr);
 	    set_parsed_type(oprule::parser::OP_RULE);
+	    clear_string_list();
+	    clear_temp_expr();
+	    clear_arg_map();
 		}
    | reassignment {               // really just captures error
         set_parsed_type(oprule::parser::REASSIGNMENT);
 		}
 
    | error ';' {
-                cout << "Error parsing expression." << endl;
+                cerr << "Error parsing expression." << endl;
 				YYABORT}
 
 ; 
@@ -306,34 +173,56 @@ reassignment:
 		                   }
 
 oprule:
-action triggerexpression{
-	 $$=new OperatingRule($1,$2);
+action trigger{
+     OperationActionPtr  act     = get_temp_symbol($1).action;
+     TriggerPtr trigger = get_temp_symbol($2).trigger;
+	 OperatingRulePtr op(new OperatingRule(act,trigger));
+	 symbol s(op);
+	 $$ = add_temp_symbol(op);
+     add_rule(EVAL_STR,op);
    }
 
 
-triggerexpression: 
+trigger: 
 WHEN boolexpression{
-			  $$=new ExpressionTrigger(_GETB($2)->copy());
+              TriggerPtr trigger(new ExpressionTrigger(_GETB($2)->copy()));
+              symbol s(trigger);
+              $$=add_temp_symbol(s);
 			  }
 
 action:
 	modelaction { $$=$1; }
-  | action THEN action {$$=chain_actions($1, $3);  }
-  | action WHILE action { $$=group_actions($1, $3);}
+  | action THEN action { 
+            OperationActionPtr firstPtr = get_temp_symbol($1).action;
+            OperationActionPtr secondPtr = get_temp_symbol($3).action;
+            OperationActionPtr chain = chain_actions(firstPtr,secondPtr);
+            $$ = add_temp_symbol(chain);
+            }
+  | action WHILE action {
+            OperationActionPtr firstPtr = get_temp_symbol($1).action;
+            OperationActionPtr secondPtr = get_temp_symbol($3).action;
+            OperationActionPtr chain = group_actions(firstPtr,secondPtr);
+            $$ = add_temp_symbol(chain);
+            }
   | '(' action ')' { $$=$2; }
 
 modelaction:
     actionspec targetspec transitionspec{ 
 			 ModelInterface<double>::NodePtr ifc
 			   =boost::static_pointer_cast<ModelInterface<double> >( _GETD($1) );
-			 $$=new ModelAction<double>(ifc,_GETD($2)->copy(),*$3);
-			 delete $3;
+			 TransitionPtr transition = get_temp_symbol($3).transition;
+			 OperationActionPtr act( new ModelAction<double>(ifc,
+			                        _GETD($2)->copy(),
+			                        transition));
+			 $$=add_temp_symbol(act); //was ModelAction, also below was too
 	}
 
   | actionspec targetspec{ 
 			 ModelInterface<double>::NodePtr ifc
 			   =boost::static_pointer_cast<ModelInterface<double> >( _GETD($1) );
-			 $$=new ModelAction<double>(ifc,_GETD($2)->copy(), AbruptTransition());
+			 TransitionPtr abrupt(new AbruptTransition());
+			 OperationActionPtr act( new ModelAction<double>(ifc,_GETD($2)->copy(), abrupt));
+			 $$=add_temp_symbol(act);
 			}
 
 actionspec:
@@ -343,7 +232,10 @@ targetspec:
    TO expression {$$=$2;}
 ;
 transitionspec:
-   RAMP NUMBER MIN {$$=new LinearTransition($2*60.);}
+   RAMP NUMBER MIN {
+                    TransitionPtr t(new LinearTransition($2*60.));
+                    $$=add_temp_symbol(t);
+                    }
 
 ;
 term:
@@ -364,14 +256,11 @@ boolterm:
  ;
 
 array:
-   '[' NUMBER    {if ($$ != NULL){
-                    $$->clear(); 
-                    delete $$;
-                  }
-                  $$ = new vector<double>; 
-                  $$->push_back($2); 
-                  }
- | array ',' NUMBER {$1->push_back($3)}
+   '[' NUMBER   {
+                  $$ = add_array_vector();
+                  get_array_vector($$).push_back($2); 
+                }
+ | array ',' NUMBER {get_array_vector($1).push_back($3)}
  | array ']'
 ;
 
@@ -385,11 +274,11 @@ unary:
  | EXP '(' expression ')'  {
            $$=_SETD(UnaryOpNode<exp_func>::create(_GETD($3)));}
  | LOOKUP '(' expression ',' array ',' array ')' {
-           $$=_SETD(LookupNode::create(_GETD($3), *$5, *$7));
-           $5->clear();
-           $7->clear();
-           delete $5;
-           delete $7;
+           $$=_SETD(LookupNode::create(_GETD($3), 
+                                       get_array_vector($5), 
+                                       get_array_vector($7)));
+           get_array_vector($5).clear();
+           get_array_vector($7).clear();
            }
 ;
 
@@ -449,8 +338,8 @@ laggedval:
    NAME '(' 't' '-' NUMBER ')' { 
               LaggedExpressionNode<double>::NodePtr 
 			     laggedNode=LaggedDoubleNode::create((int)$5);
-               const string nm(*($1));
-               laggedvals.push_back(
+               const string nm=get_temp_symbol($1).stringval;;
+               get_lagged_vals().push_back(
 			      make_pair<string, LaggedExpressionNode<double>::NodePtr>(
 				     nm,laggedNode));
 				$$=_SETD(laggedNode);
@@ -466,47 +355,50 @@ arglist:
  
 arg:
    NAME DEFINE NUMBER  { 
-                         argmap[*$1]=ToString<double>($3);
+                         get_arg_map()[get_temp_symbol($1).stringval]=ToString<double>($3);
 					   }
   | NAME DEFINE QUOTEDSTRING
                        { 
-					     argmap[*$1]=*$3;
+					     get_arg_map()[get_temp_symbol($1).stringval]=get_temp_symbol($3).stringval;
 						}
   | NAME DEFINE NAME   { 
-                        argmap[*$1]=*$3;
+                        get_arg_map()[get_temp_symbol($1).stringval]=get_temp_symbol($3).stringval;
                        }
 ;
 
 
 date:
-   DATETIME {$$=_SETD(appModelTimeFactory->getDateTimeNode());}
- | REFDATE REFTIME {$$=_SETD(appModelTimeFactory->getDateTimeNode(*$1,*$2));}
- | REFDATE { $$=_SETD(appModelTimeFactory->getDateTimeNode(*$1,"00:00"));}
- | SEASON { $$=_SETD(appModelTimeFactory->getSeasonNode()); }
- | REFSEASON REFTIME { int mon=month_to_int($1->substr(2,3));
-                       int day=padded_string_to_int($1->substr(0,2));
-                       int hour=padded_string_to_int($2->substr(2,3));
-                       int min=padded_string_to_int($2->substr(3,2));
-                       $$=_SETD(appModelTimeFactory->getReferenceSeasonNode(mon,day,hour,min));
+   DATETIME {$$=_SETD(get_time_factory()->getDateTimeNode());}
+ | REFDATE REFTIME {$$=_SETD(get_time_factory()->getDateTimeNode(get_temp_symbol($1).stringval,
+                                                                 get_temp_symbol($2).stringval));
+                   }
+ | REFDATE { $$=_SETD(get_time_factory()->getDateTimeNode(get_temp_symbol($1).stringval,"00:00"));}
+ | SEASON { $$=_SETD(get_time_factory()->getSeasonNode()); }
+ | REFSEASON REFTIME { int mon=month_to_int(get_temp_symbol($1).stringval.substr(2,3));
+                       int day=padded_string_to_int(get_temp_symbol($1).stringval.substr(0,2));
+                       int hour=padded_string_to_int(get_temp_symbol($2).stringval.substr(2,3));
+                       int min=padded_string_to_int(get_temp_symbol($2).stringval.substr(3,2));
+                       $$=_SETD(get_time_factory()->getReferenceSeasonNode(mon,day,hour,min));
 					   }
- | REFSEASON         { int mon=month_to_int($1->substr(2,3));
-                       int day=padded_string_to_int($1->substr(0,2));
-                       $$=_SETD(appModelTimeFactory->getReferenceSeasonNode(mon,day,0,0));
+ | REFSEASON         { int mon=month_to_int(get_temp_symbol($1).stringval.substr(2,3));
+                       int day=padded_string_to_int(get_temp_symbol($1).stringval.substr(0,2));
+                       $$=_SETD(get_time_factory()->getReferenceSeasonNode(mon,day,0,0));
 					   }
- | YEAR   { $$=_SETD(appModelTimeFactory->getYearNode()); }
- | MONTH  { $$=_SETD(appModelTimeFactory->getMonthNode()); }
- | DAY    { $$=_SETD(appModelTimeFactory->getDayNode()); }
- | HOUR   { $$=_SETD(appModelTimeFactory->getHourNode()); }
- | MINDAY { $$=_SETD(appModelTimeFactory->getMinOfDayNode()); }
- | MIN    { $$=_SETD(appModelTimeFactory->getMinNode()); }  
- | DT     { $$=_SETD(appModelTimeFactory->getTimeStepNode()); }   
+ | YEAR   { $$=_SETD(get_time_factory()->getYearNode()); }
+ | MONTH  { $$=_SETD(get_time_factory()->getMonthNode()); }
+ | DAY    { $$=_SETD(get_time_factory()->getDayNode()); }
+ | HOUR   { $$=_SETD(get_time_factory()->getHourNode()); }
+ | MINDAY { $$=_SETD(get_time_factory()->getMinOfDayNode()); }
+ | MIN    { $$=_SETD(get_time_factory()->getMinNode()); }  
+ | DT     { $$=_SETD(get_time_factory()->getTimeStepNode()); }   
 ;
 
 interface:
    IFPARAM '(' arglist ')' {
-                         argmap["modelname"]=*$1;
+                         string ifname=get_temp_symbol($1).stringval;
+                         get_arg_map()["modelname"]=ifname;
 						 try{
-						   $$=_SETD(lookup->getModelExpression(*$1,argmap));
+						   $$=_SETD(get_lookup()->getModelExpression(ifname,get_arg_map()));
 						 }catch(oprule::parser::MissingIdentifier& e){
 						    string message("Missing identifier: ");
 						    op_ruleerror((message+e.what()).c_str());
@@ -522,9 +414,10 @@ interface:
 						 }
 			}
   | IFNAME { 
-             argmap["modelname"]=*$1;
+             string ifname=get_temp_symbol($1).stringval;
+             get_arg_map()["modelname"]=ifname;
 			 try{
-                $$=_SETD(lookup->getModelExpression(*$1,argmap));
+                $$=_SETD(get_lookup()->getModelExpression(ifname,get_arg_map()));
 			 }catch(oprule::parser::ModelNameNotFound& e){
 						    string message("Model name not found: ");
 						    op_ruleerror((message+e.what()).c_str());
@@ -536,12 +429,13 @@ interface:
 namedval:
     NAMEDVAL { $$=$1; }
   | EXPRESSPARAM '(' arglist ')' { 
-                         argmap["modelname"]=*$1;
+                         string valname=get_temp_symbol($1).stringval;
+                         get_arg_map()["modelname"]=valname;
 						 try{
-						    $$=_SETD(lookup->getModelExpression(*$1,argmap));
+						    $$=_SETD(get_lookup()->getModelExpression(valname,get_arg_map()));
 						 }catch(oprule::parser::MissingIdentifier& e){
 						    string message("Missing identifier in ");
-						    op_ruleerror((message+*$1+":  "+e.what()).c_str());
+						    op_ruleerror((message+valname+":  "+e.what()).c_str());
 							YYERROR;
 						 }catch(oprule::parser::InvalidIdentifier& e){
 						    string message("Invalid identifier: ");
@@ -554,9 +448,10 @@ namedval:
 						 }
 			}
   | EXPRESS { 
-             argmap["modelname"]=*$1;
+             string expressname=get_temp_symbol($1).stringval;
+             get_arg_map()["modelname"]=expressname;
 			 try{
-                $$=_SETD(lookup->getModelExpression(*$1,argmap));
+                $$=_SETD(get_lookup()->getModelExpression(expressname,get_arg_map()));
 			 }catch(oprule::parser::ModelNameNotFound& e){
 						    string message("Model name not found: ");
 						    op_ruleerror((message+e.what()).c_str());
@@ -577,174 +472,6 @@ namedboolval:
 
 %%
 
-
-BoolNodePtr getBoolExpression(const char * name = 0){
-  if (name == 0){
-    return express[EVAL_STR].boolval;
-  }
-  else
-  { 
-    string sb=string(name);
-    return express[sb].boolval;
-  }
-}
-
-DoubleNodePtr getDoubleExpression(const char *name = 0){
-  if (name ==0)
-  {
-     return express[EVAL_STR].dblval;
-  }
-  else 
-  { 
-     string sd=string(name);
-     return express[sd].dblval;
-  }
-}
-
-OperatingRule* getOperatingRule(){
-  return eval_rule;
-}
-
-
-template<class T1>
-bool add_to_collection(T1 &collection, 
-                       const typename T1::key_type key,
-                       typename T1::referent_type& item){
-   typedef T1::iterator IterType;
-   typedef T1::referent_type ReferentType;
-   typedef T1::key_type KeyType;
-   if (key == EVAL_STR){
-      collection[EVAL_STR]=item;
-	  return true;
-   }
-   IterType i = collection.find(key);
-   if (i == collection.end())
-   {
-      pair<KeyType,ReferentType> vb = make_pair<KeyType,ReferentType>(key, item);
-	  collection.insert(vb);
-      return true;
-   }else{
-      return false;
-   }
-}
-
-
-
-bool add_symbol( const string & key, symbol& expression){
-   return add_to_collection<express_map>( express, key, expression);
-}
-
-bool add_rule(const string & name, OperatingRule * rule){
-  return add_to_collection<rule_map>(rulenames, name, rule);
-}
-
-void init_lookup(NamedValueLookup * a_lookup){
-   lookup=a_lookup;
-}
-
-void init_model_time_factory(ModelTimeNodeFactory * tnf){
-   appModelTimeFactory=tnf;
-}
-
-
-void init_rule_names(){rulenames.clear();}
-
-
-void init_expression(){
-  if (! express.empty()){
-    //for_each(express.begin(),express.end(), symbol_deleter());
-     express.clear(); //erase(remove(express)); //@todo is erase-remove idiom correct for map?
-   }
-} 
-
-NamedValueLookup& get_lookup(){
-   return *lookup;
-}
-
-symbol name_lookup(const string& name){
-   
-   // attempt to look up previously defined and named oprule expression
-   expressIterType i = express.find(name);            
-   // attempt oprule (previously parsed) expression
-   if (i != express.end()) {
-     return ((*i).second);
-   }else{
-     return symbol();
-   }   
-     
-}
-
-
-symbol make_symbol(DoubleNodePtr dnode){
-  symbol result(dnode);
-  return result; 
-}
-
-symbol make_symbol(BoolNodePtr bnode){
-  symbol result(bnode);
-  return result; 
- }
-
-
-OperationAction* chain_actions( ActionChain* op1, OperationAction* op2){
-  op1->pushBackAction(op2);
-  return op1;
-} 
-
-OperationAction* chain_actions( OperationAction* op1, OperationAction* op2){
-   ActionChain * returnChain=new ActionChain();
-   returnChain->pushBackAction(op1);
-   returnChain->pushBackAction(op2);
-   return returnChain;
-}
-
-
-OperationAction* group_actions( OperationAction* op1, OperationAction* op2){
-  assert(op1 != NULL);
-  assert(op1->isApplicable());
-  ActionSet* setptr=dynamic_cast<ActionSet*>(op1);
-  if (setptr){ 
-     setptr->addAction(op2);
-     return setptr;
-  }
-  else{ ActionSet * returnSet=new ActionSet();
-        returnSet->addAction(op1);
-        returnSet->addAction(op2);
-		return returnSet;
-  }
-}
-
-
-void clear_arg_map(){ argmap.clear();}
-
-void add_expression(const string& name, 
-                    DoubleNodePtr expr){
-  oprule::parser::symbol asymbol(expr);
-     add_symbol(name, asymbol);
-}
-
-
-void apply_lagged_values(const string& name, DoubleNodePtr expr){
-  for(lagged_expression_list::iterator i =laggedvals.begin(); 
-                           i < laggedvals.end(); i++){
-    if (i->first == name){
-        i->second->setExpression(expr);
-	}else{
-        i->second->setExpression(name_lookup(name).dblval);
-    }
-  }
-}
-
-
-void set_parsed_type(oprule::parser::parse_type ptype){ _parsed_type = ptype; }
-
-
-oprule::parser::parse_type get_parsed_type(){ return _parsed_type; }
-
-
-void clear_temp_expr(void){
-  express_index.clear();
-}
 
 
 

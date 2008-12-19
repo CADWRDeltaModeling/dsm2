@@ -105,16 +105,16 @@ oprule::expression::DoubleNode::NodePtr
 interface3_factory(const NamedValueLookup::ArgMap &argmap);
 
 #define _VEC_ASSG1(_NAME,_VEC,_TYPE,S1) \
-_TYPE _NAME[]={ S1}; \
-_VEC.assign(_NAME,_NAME+1);
+_VEC.push_back(S1); \
 
 #define _VEC_ASSG2(_NAME,_VEC,_TYPE,S1,S2) \
-_TYPE _NAME[]={ S1,S2 }; \
-_VEC.assign(_NAME,_NAME +2);
+_VEC.push_back(S1); \
+_VEC.push_back(S2);
 
 #define _VEC_ASSG3(_NAME,_VEC,_TYPE,S1,S2,S3) \
-_TYPE _NAME[]={ S1,S2,S3 }; \
-_VEC.assign(_NAME,_NAME+3);
+_VEC.push_back(S1); \
+_VEC.push_back(S2); \
+_VEC.push_back(S3);
 
 class TestNamedValueLookup : public oprule::parser::NamedValueLookupImpl
 {

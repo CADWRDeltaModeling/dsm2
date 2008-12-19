@@ -244,6 +244,14 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\..\lib\parser\ParseSymbolManagement.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\lib\rule\Symbol.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -275,6 +283,10 @@
 			</File>
 			<File
 				RelativePath="..\..\oprule\parser\ParseResultType.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\oprule\parser\ParseSymbolManagement.h"
 				>
 			</File>
 			<File
