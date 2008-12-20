@@ -35,8 +35,6 @@ using namespace oprule::expression;
 #define YY_INPUT(b, r, ms) (r = yaccstring(b, ms))
 #define yylval op_rulelval
 
-extern symbol name_lookup(const std::string&);
-
 #define _SETD add_temp_symbol
 #define _SETB add_temp_symbol
 
@@ -148,7 +146,7 @@ dt|DT       {yylval.stringval=add_to_string_list(yytext); return DT;}
 			string parsetext(yytext);
 			size_t beg=parsetext.find_first_not_of(" \"\'");
 			size_t end=parsetext.find_last_not_of(" \"\'");
-			yylval.strgval=add_to_string_list(string(parsetext,beg, end-beg+1));
+			yylval.stringval=add_to_string_list(string(parsetext,beg, end-beg+1));
             return QUOTEDSTRING;
 			}
 
