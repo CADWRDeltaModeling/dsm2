@@ -20,9 +20,9 @@ Grammar
     9 reassignment: boolexpression ASSIGN
    10             | expression ASSIGN
 
-   11 oprule: action triggerexpression
+   11 oprule: action trigger
 
-   12 triggerexpression: WHEN boolexpression
+   12 trigger: WHEN boolexpression
 
    13 action: modelaction
    14       | action THEN action
@@ -211,7 +211,7 @@ reassignment (74)
     on left: 9 10, on right: 7
 oprule (75)
     on left: 11, on right: 5 6
-triggerexpression (76)
+trigger (76)
     on left: 12, on right: 11
 action (77)
     on left: 13 14 15 16, on right: 11 14 15 16
@@ -768,7 +768,7 @@ state 42
 
 state 43
 
-   11 oprule: action . triggerexpression
+   11 oprule: action . trigger
    14 action: action . THEN action
    15       | action . WHILE action
 
@@ -776,7 +776,7 @@ state 43
     WHILE  shift, and go to state 89
     THEN   shift, and go to state 90
 
-    triggerexpression  go to state 91
+    trigger  go to state 91
 
 
 state 44
@@ -1860,7 +1860,7 @@ state 87
 
 state 88
 
-   12 triggerexpression: WHEN . boolexpression
+   12 trigger: WHEN . boolexpression
 
     NAME          shift, and go to state 77
     IFNAME        shift, and go to state 3
@@ -1938,7 +1938,7 @@ state 90
 
 state 91
 
-   11 oprule: action triggerexpression .
+   11 oprule: action trigger .
 
     $default  reduce using rule 11 (oprule)
 
@@ -3004,14 +3004,14 @@ state 135
 
 state 136
 
-   12 triggerexpression: WHEN boolexpression .
+   12 trigger: WHEN boolexpression .
    64 boolexpression: boolexpression . OR boolexpression
    65               | boolexpression . AND boolexpression
 
     OR   shift, and go to state 108
     AND  shift, and go to state 109
 
-    $default  reduce using rule 12 (triggerexpression)
+    $default  reduce using rule 12 (trigger)
 
 
 state 137
