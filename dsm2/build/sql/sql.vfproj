@@ -12,7 +12,7 @@
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/></Configuration>
-		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
+		<Configuration Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\Release" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
 				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/sql.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
@@ -33,6 +33,7 @@
 	<Files>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\sql\dsm2_database.f"/>
+		<File RelativePath="..\..\src\sql\read_channels_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_fixed_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_grid_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_groups_sql.f"/>

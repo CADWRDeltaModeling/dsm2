@@ -40,6 +40,7 @@
 		<File RelativePath="..\..\src\fixed\name_to_objno.f"/>
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\print_output.f"/>
+		<File RelativePath="..\..\src\fixed\process_channel.f"/>
 		<File RelativePath="..\..\src\fixed\process_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\process_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\read_fixed.f"/>

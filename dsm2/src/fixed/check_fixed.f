@@ -1152,9 +1152,6 @@ c-----Open the DSS files for reading
          i=i+1
       enddo
 
-
-
-
       return
 
  900  continue                  ! here for fatal error
@@ -1206,6 +1203,7 @@ c     binary search
       if (ext2intnode .gt. 0)return
       ext2intnode=bsearchqq(loc(extnode),loc(nodelist(nintnodes+1)),
      &     (nnodes-nintnodes),SRT$INTEGER4)+nintnodes
+      if (ext2intnode .lt. 0) ext2intnode = miss_val_i
       return
       end function
 
