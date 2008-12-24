@@ -11,7 +11,7 @@ using namespace oprule::rule;
 OperationManager::OperationManager(ActionResolver & resolver)
     : _resolver(resolver){}
 
-void OperationManager::addRule(OperatingRule* rule){
+void OperationManager::addRule(OperatingRulePtr rule){
 	rule->setActive(false);
     this->pool.push_back(rule);
 }
@@ -31,7 +31,7 @@ OperationManager::checkActionPriority(
 
 
 
-bool OperationManager::isActive(OperatingRule* rule){ 
+bool OperationManager::isActive(OperatingRulePtr rule){ 
    return rule->isActive();
 }
 
@@ -40,7 +40,7 @@ void OperationManager::manageActivation(){
    for( OpPool::iterator it=pool.begin() ; 
         it != pool.end() ; 
         it++){  	   
-	   OperatingRule* rulePtr=(*it);
+	   OperatingRulePtr rulePtr=(*it);
        if (rulePtr->isActive())continue;
        //cout << rulePtr->getName() << " start test trigger" <<endl;
 	   if (rulePtr->testNewlyTriggered()){
@@ -57,7 +57,7 @@ void OperationManager::manageActivation(){
             for( OpPool::iterator activeiter = pool.begin() ;
                                  activeiter != pool.end() ;
                                  ++activeiter){
-                OperatingRule * activePtr = (*activeiter);
+                OperatingRulePtr activePtr = (*activeiter);
                 //cout << "testing against rule :" << activePtr->getName()<<endl;
                 
                 if ((!activePtr->isActive()) || rulePtr == activePtr)continue;

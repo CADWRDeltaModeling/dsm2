@@ -67,45 +67,45 @@ public:
    typedef boost::shared_ptr<EveryNTimeTrigger> EveryNTimeTriggerPtr;
    OperationManagerTest(): act1(new TrivialOperationAction(1)),
 						   trig1(new EveryNTimeTrigger(2)),
-						   rule1(act1,trig1),
+						   rule1(new OperatingRule(act1,trig1)),
 	                       act2(new TrivialOperationAction(1)),
 						   trig2(new EveryNTimeTrigger(3)),
-						   rule2(act2,trig2),
+						   rule2(new OperatingRule(act2,trig2)),
 	                       act3(new TrivialOperationAction(2)),
 						   trig3(new EveryNTimeTrigger(2)),
-						   rule3(act3,trig3),
+						   rule3(new OperatingRule(act3,trig3)),
 						   resolve(), manager(resolve)
                            {}
    void testConstruction(){
-      BOOST_CHECK(!rule1.isActive());
-      BOOST_CHECK(!rule2.isActive());
-      BOOST_CHECK(!rule3.isActive());
+      BOOST_CHECK(!rule1->isActive());
+      BOOST_CHECK(!rule2->isActive());
+      BOOST_CHECK(!rule3->isActive());
       BOOST_CHECK(*act1 == *act2);
       BOOST_CHECK(!(*act1 == *act3));
    };
 
    void testAddRule(){
-      manager.addRule(&rule1);
-      BOOST_CHECK(! manager.isActive(&rule1) && !manager.isActive(&rule2));
-      manager.addRule(&rule2);
-      manager.addRule(&rule3);
-      BOOST_CHECK( ! rule2.isActive() && 
-                   ! rule3.isActive());
+      manager.addRule(rule1);
+      BOOST_CHECK(! manager.isActive(rule1) && !manager.isActive(rule2));
+      manager.addRule(rule2);
+      manager.addRule(rule3);
+      BOOST_CHECK( ! rule2->isActive() && 
+                   ! rule3->isActive());
    };
 
    void testManageActivation(){
       manager.manageActivation();  // none active yet, n=1
-      BOOST_CHECK( ! rule1.isActive() ); 
-      BOOST_CHECK( ! rule2.isActive()); 
-      BOOST_CHECK( ! rule3.isActive());
+      BOOST_CHECK( ! rule1->isActive() ); 
+      BOOST_CHECK( ! rule2->isActive()); 
+      BOOST_CHECK( ! rule3->isActive());
       manager.manageActivation();  // 1 and 3 active  because n=2 and blocking is not an issue
-      BOOST_CHECK( manager.isActive(&rule1)); 
-      BOOST_CHECK( !manager.isActive(&rule2)); 
-      BOOST_CHECK( manager.isActive(&rule3));
+      BOOST_CHECK( manager.isActive(rule1)); 
+      BOOST_CHECK( !manager.isActive(rule2)); 
+      BOOST_CHECK( manager.isActive(rule3));
       manager.manageActivation();  // 1 and 3 active. Two attempts to activate, but is blocked
-      BOOST_CHECK( manager.isActive(&rule1)); 
-      BOOST_CHECK( !manager.isActive(&rule2)); 
-      BOOST_CHECK( manager.isActive(&rule3));
+      BOOST_CHECK( manager.isActive(rule1)); 
+      BOOST_CHECK( !manager.isActive(rule2)); 
+      BOOST_CHECK( manager.isActive(rule3));
    };
 
    void testAdvanceStep(){
@@ -114,18 +114,18 @@ public:
       trig3->reset();
       manager.manageActivation();
       manager.manageActivation(); //1 and 3
-      rule1.setActive(false);
+      rule1->setActive(false);
       manager.advanceActions(HUGE_VAL);  //todo: urgent      
       manager.manageActivation();
-      BOOST_CHECK( !manager.isActive(&rule1)); 
-      BOOST_CHECK( manager.isActive(&rule2)); 
-      BOOST_CHECK( manager.isActive(&rule3));
+      BOOST_CHECK( !manager.isActive(rule1)); 
+      BOOST_CHECK( manager.isActive(rule2)); 
+      BOOST_CHECK( manager.isActive(rule3));
    };
 
    void testCheckActionPriority(){
-	  BOOST_CHECK_EQUAL(manager.checkActionPriority(rule1,rule2),
+	  BOOST_CHECK_EQUAL(manager.checkActionPriority(*rule1,*rule2),
 		  ActionResolver::DEFER_NEW_RULE);
-      BOOST_CHECK_EQUAL(manager.checkActionPriority(rule3,rule2),
+      BOOST_CHECK_EQUAL(manager.checkActionPriority(*rule3,*rule2),
 		  ActionResolver::RULES_COMPATIBLE);
    };
 
@@ -133,7 +133,7 @@ public:
    OperationManager manager;
    TrivialOperationActionPtr act1, act2, act3;
    EveryNTimeTriggerPtr trig1, trig2, trig3;
-   oprule::rule::OperatingRule rule1, rule2, rule3;
+   oprule::rule::OperatingRulePtr rule1, rule2, rule3;
 
 };
 

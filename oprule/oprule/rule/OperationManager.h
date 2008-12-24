@@ -27,12 +27,12 @@ public:
    virtual ~OperationManager(){};
 
    /** Type of collection used to keep pools of inactive and active rules*/
-   typedef std::list<OperatingRule*> OpPool ;
+   typedef std::list<OperatingRulePtr> OpPool ;
 
    /** Add a rule to be managed.
     * @param rule the new rule
     */
-	virtual void addRule(OperatingRule* rule);
+	virtual void addRule(OperatingRulePtr rule);
 
    /** Handle activation of inactive rules.
     * Tests inactive rules for activation by testing their triggers.
@@ -72,7 +72,7 @@ public:
    /** Query whether rule is in the active pool
    * @return true if the rule is in the active pool
    */
-   virtual bool isActive(OperatingRule*);
+   virtual bool isActive(OperatingRulePtr);
 
 
 private:
