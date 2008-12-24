@@ -147,7 +147,7 @@ c-----write formats
 
  680  format(/a,a)
 
-      print*,"Reading fixed data"
+
 c-----local initialization
       do i=1,max_sections
          hdr_form(i).fldnum=0
@@ -167,7 +167,19 @@ c-----set line size for later DSS calls
 
 c-----keywords
 
-      nsects=1
+      nsects=0
+
+      nsects=nsects+1
+      hdr_form(nsects).sect='channels'
+      hdr_form(nsects).fld(chan_no)='chan'
+      hdr_form(nsects).fld(length)='length'
+      hdr_form(nsects).fld(manning)='manning'
+      hdr_form(nsects).fld(disp)='disp'
+      hdr_form(nsects).fld(upnode)='upnode'
+      hdr_form(nsects).fld(downnode)='downnode'
+      hdr_form(nsects).fld(max_fields)=delimiter ! denotes repeating fields for this section      
+      
+      nsects=nsects+1
       hdr_form(nsects).sect='outputpaths'
       hdr_form(nsects).fld(outpath_filename)='filename'
       hdr_form(nsects).fld(outpath_a_part)='a_part'
@@ -482,6 +494,10 @@ c--------pass the data as char strings to appropriate section handler
      &              max_titles
             endif
 
+         else if (env_only .and. hdr_form(vsect).sect .eq. 'channels') then
+            call input_channels(field_names, max_fields, nfields, nflds,
+     &           ifld, rifld(1), line, ibegf, ilenf, istat)
+
 
          else if (.not. env_only .and.
      &           hdr_form(vsect).sect .eq. 'outputpaths') then
@@ -492,6 +508,7 @@ c--------pass the data as char strings to appropriate section handler
      &           hdr_form(vsect).sect .eq. 'io_files') then
             call input_iofiles(field_names, max_fields, nfields, nflds,
      &           ifld, rifld(1), line, ibegf, ilenf, istat)
+
 
 
          else if (.not. env_only .and.

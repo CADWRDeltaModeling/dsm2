@@ -141,6 +141,8 @@ c-----include '../input/time-varying/writedss.inc'
       EXTERNAL InitializeChannelNetwork, InitializeSolver,InitOpRules
       LOGICAL CloseHDF5
       EXTERNAL CloseHDF5
+      
+      logical, external :: order_nodes
 
 *   Programmed by: Lew DeLong
 *   Date:          February 1991
@@ -190,6 +192,10 @@ c-----dsm2 initialization
 
       if (init_input_file .ne. ' ') then
          call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
+         if (  .not. order_nodes())then
+          ! todo: this is for textify very awkward placement
+          write(unit_error,*)"Node order failed"
+         end if
          if (istat .ne. 0) then
             write(unit_error, *)'Error in loading fixed data from text files; run stopped.'
             call exit(1)
