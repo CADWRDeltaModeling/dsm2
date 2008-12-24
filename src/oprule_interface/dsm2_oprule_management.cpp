@@ -8,6 +8,7 @@
 #include "oprule/rule/OperationManager.h"
 #include "oprule/parser/ParseResultType.h"
 #include "oprule/rule/ModelInterfaceActionResolver.h"
+#include "oprule/parser/ParseSymbolManagement.h"
 
 #include "dsm2_named_value_lookup.h"
 #include "dsm2_time_node_factory.h"
@@ -19,18 +20,10 @@ using namespace oprule::parser;
 using namespace oprule::expression;
 using namespace std;
 
-extern parse_type get_parsed_type();
-extern void init_expression();
 extern void lexer_init();
-extern void add_expression(const string& name, 
-                           oprule::expression::DoubleNodePtr expr);
-extern void init_lookup( NamedValueLookup*);
-extern void init_model_time_factory(ModelTimeNodeFactory * );
-extern void init_action_factory(ModelActionFactory *);
 extern void set_input_string(string &);
 extern void set_input_string(char*);
 extern int op_ruleparse();
-extern OperatingRule* getOperatingRule();
 
 #define STDCALL 
 #define init_parser_f STDCALL INIT_PARSER_F
@@ -78,7 +71,7 @@ extern "C"{
         if( !(parseok==0) || get_parsed_type() == oprule::parser::PARSE_ERROR)
             return false;
         if (get_parsed_type() == oprule::parser::OP_RULE){
-            OperatingRule * rule=getOperatingRule();
+            OperatingRulePtr rule=getOperatingRule();
             dsm2_op_manager.addRule(rule);
         }
         return true;
