@@ -55,7 +55,7 @@ c-----Load data
       call load_scalar_SQL(StmtHndl, ModelID, istat)
       if (istat .lt. 0) goto 901
 
-      !call load_channels_SQL(StmtHndl, HydroID, istat)
+      call load_channels_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
       call load_channel_xsects_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
