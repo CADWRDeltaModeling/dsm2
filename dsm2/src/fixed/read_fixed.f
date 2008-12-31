@@ -494,9 +494,9 @@ c--------pass the data as char strings to appropriate section handler
      &              max_titles
             endif
 
-         else if (env_only .and. hdr_form(vsect).sect .eq. 'channels') then
-            call input_channels(field_names, max_fields, nfields, nflds,
-     &           ifld, rifld(1), line, ibegf, ilenf, istat)
+c         else if (env_only .and. hdr_form(vsect).sect .eq. 'channels') then
+c            call input_channels(field_names, max_fields, nfields, nflds,
+c     &           ifld, rifld(1), line, ibegf, ilenf, istat)
 
 
          else if (.not. env_only .and.
