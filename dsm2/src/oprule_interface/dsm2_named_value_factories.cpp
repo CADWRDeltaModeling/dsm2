@@ -103,7 +103,7 @@ void convert_reservoir_identifiers(
    }
 
    string name=iter->second;
-   resno=reservoir_index(name.c_str(),name.length());
+   resno=(int)reservoir_index(name.c_str(),name.length());
    iter = argmap.find("connect");
    if (iter == argmap.end() ){
 	   if (conn_requested){
