@@ -536,7 +536,6 @@ C!</license>
 *-----Implementation -----------------------------------------------------
 
 *---- Store current values.
-
       RatioQ         = MaxRatioQ
       ChannelRatioQ  = ChannelQ
       NodeRatioQ     = NodeQ
@@ -545,7 +544,8 @@ C!</license>
       ChannelChangeZ = ChannelZ
       NodeChangeZ    = NodeZ
 
-*---- Test for overall closure.
+*---- Test for overall closure. 
+      StoreNetworkClosure = .FALSE.
 
       IF( ChangeZ .GT. ToleranceZ ) THEN
          StoreNetworkClosure = .FALSE.
@@ -564,16 +564,13 @@ C!</license>
       IF(NormClose)then ! CloseZ .AND. CloseQ ) THEN
          StoreNetworkClosure = .TRUE.
       ELSE
-
 *--------Check for exceedence of maximum number of iterations.
          IF( Iteration .GE. MaxIterations ) THEN
             StoreNetworkClosure = .TRUE.
          END IF
-
       END IF
 
       EndIteration = StoreNetworkClosure
-
       RETURN
       END
 
