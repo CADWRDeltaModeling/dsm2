@@ -205,7 +205,6 @@ c-----local variables
       integer
      &     channo,prev_chan    ! channel number
      &     ,layer,prev_layer
-     &     ,chanID              ! channel ID
      &     ,xsectID             ! cross section ID
      &     ,i                   ! loop index
      &     ,ext2int
@@ -222,9 +221,9 @@ c-----Bind the parameter representing ModelID
      &     ModelID, f90SQL_NULL_PTR, iRet)
 
 c-----Execute SQL statement
-      StmtStr="SELECT channel_xsect.channel_id, " //
+      StmtStr="SELECT channel.channel_number," //
      &     "channel_xsect.channel_fract_dist, channel_xsect.xsect_id, " //
-     &     "channel.channel_number,layer,channel.used " //
+     &     "layer,channel.used " //
      &     "FROM (channel_xsect inner join channel " //
      &     "ON channel_xsect.channel_id = channel.channel_id) " //
      &     "INNER JOIN model_component on channel.layer_id = model_component.component_id " //
@@ -244,8 +243,8 @@ c-----Execute SQL statement
       endif
 
 c-----Bind variables to columns in result set
-      ColNumber=1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, chanID,
+      ColNumber=ColNumber+1
+      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, channo,
      &     f90SQL_NULL_PTR, iRet)
 
       ColNumber=ColNumber+1
@@ -254,10 +253,6 @@ c-----Bind variables to columns in result set
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, xsectID,
-     &     f90SQL_NULL_PTR, iRet)
-
-      ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, channo,
      &     f90SQL_NULL_PTR, iRet)
 
       ColNumber=ColNumber+1
@@ -278,52 +273,14 @@ c-----Loop to fetch records, one at a time
 c--------Fetch a record from the result set
          call f90SQLFetch(StmtHndl,iRet)
          if (iRet .eq. SQL_NO_DATA) exit
-         chan_fdist = NINT(chan_fdist/DISTANCE_RESOLUTION)*DISTANCE_RESOLUTION
-         print*,"XSect: ",channo,ext2int(channo),use_obj, chan_fdist
          if (.not.(channo .eq. prev_chan .and.
      &        layer .ne. prev_layer)) then
             if (ext2int(channo) .gt. 0) then ! valid channel number
                ! This channel is not just a lower priority version of the last channel
                if( use_obj )then ! don't move this
-                  print*,"Processing"
-                  if (chan_fdist .le. max_dist_ratio) then
-                     chan_fdist = 0.0d0
-                  endif
-                  if (chan_fdist .ge. (1.0-max_dist_ratio)) then
-                     chan_fdist = 1.0d0
-                  endif
-
-c-----------------search for similar xsect distance
-                  if (chan_fdist .ne. 0.0d0) then
-                     do i=1,nirg
-                        if (irreg_geom(i).chan_no .eq. channo .and.
-     &                       irreg_geom(i).dist_ratio/chan_fdist .lt. 1.01d0 .and.
-     &                       irreg_geom(i).dist_ratio/chan_fdist .gt. 0.99d0) then
-                           exit
-                        endif
-                     enddo
-                  else
-                     do i=1,nirg
-                        if (irreg_geom(i).chan_no .eq. channo .and.
-     &                       irreg_geom(i).dist_ratio .eq. 0.0d0) then
-                           exit
-                        endif
-                     enddo
-                  endif
-                  if (i .le. nirg) then ! similar xsect distance found
-                     write(unit_error,'(a/a,i5,a,i5,i5/a,2f10.3)')
-     &                    'Warning in load_channel_xsects_SQL; similar xsect distance found',
-     &                    'Channel ', channo, ' xsect IDs ', irreg_geom(i).ID, xsectID,
-     &                    'distances ', irreg_geom(i).dist_ratio, chan_fdist
-                  endif
-
-                  nirg=nirg+1
-                  irreg_geom(nirg).ID = xsectID
-                  irreg_geom(nirg).chan_no = ext2int(channo)
-                  irreg_geom(nirg).dist_ratio=chan_fdist
-                  if (print_level .ge. 3)
-     &                 write(unit_screen,'(a,i10,i10,i10,i10,i10)')
-     &                 'Add xsect ',nirg, xsectid, channo, chan_fdist
+                  !todo: Eli moved this, make sure OK
+                  chan_fdist = NINT(chan_fdist/DISTANCE_RESOLUTION)*DISTANCE_RESOLUTION
+                  call process_xsect(channo,chan_fdist,xsectId)
                end if           ! object is in use
                prev_chan=channo
                prev_layer=layer
@@ -358,8 +315,8 @@ c-----------------search for similar xsect distance
 c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
-      use common_xsect
       use grid_data
+      use common_xsect  
       use logging
 
       implicit none
@@ -459,55 +416,7 @@ c-----------Fetch a record from the result set
             call f90SQLFetch(StmtHndl,iRet)
             if (iRet .eq. SQL_NO_DATA) exit
             elev = NINT(elev/VERT_RESOLUTION)*VERT_RESOLUTION
-c-----------no duplicate or deleted layers are allowed; create a new
-c-----------cross section instead
-            irreg_geom(xsectno_gbl).num_elev=irreg_geom(xsectno_gbl).num_elev+1
-            nl=irreg_geom(xsectno_gbl).num_elev
-            nl_gbl=nl_gbl+1
-            irreg_geom(xsectno_gbl).elevation(nl)=elev
-            irreg_geom(xsectno_gbl).min_elev=
-     &           min(irreg_geom(xsectno_gbl).elevation(nl),
-     &           irreg_geom(xsectno_gbl).min_elev)
-            irreg_geom(xsectno_gbl).width(nl)=width
-c-----------adjust area to make sure:
-c-----------upper layer area=lower layer area+trapezoidal area between them 
-            if (counter .gt. 0) then
-	         if (area .lt. prev_area) then
-                  write(unit_error,'(a,i5)')
-     &			  "Channel areas decreasing with elevation in channel ",
-     &              chan_geom(irreg_geom(xsectno_gbl).chan_no).chan_no
-	            istat=-3
-	            return
-	         end if
-	         if (width .lt. prev_width) then
-                  write(unit_error,'(a,i5)')
-     &			  "Channel width decreasing with elevation in channel ",
-     &              chan_geom(irreg_geom(xsectno_gbl).chan_no).chan_no
-	            istat=-3
-	            return
-	         end if
-	         calc_area=prev_area + 
-     &            (elev-prev_elev)*0.5*(width+prev_width)
-			 if ( abs(area - calc_area ) .gt. AREA_PRECISION) then
-	            if ( abs(area - calc_area ) .gt. AREA_READ_PRECISION) then
-                    write(unit_error,'(a,i5,a,2f13.5)')
-     &                "Area-width relationship grossly wrong in channel ",
-     &                 chan_geom(irreg_geom(xsectno_gbl).chan_no).chan_no,": area, calc area: ",
-     &			     area, calc_area
-                  end if
-	            area=calc_area
-	         end if
-            end if
-            irreg_geom(xsectno_gbl).area(nl)=area
-            irreg_geom(xsectno_gbl).wet_p(nl)=wetperim
-	      if (wetperim .ne. 0.0d0) then
-              irreg_geom(xsectno_gbl).h_radius(nl)=area/wetperim
-	      else
-	         irreg_geom(xsectno_gbl).h_radius(nl)=0.0d0
-		  endif
-            if (print_level .ge. 5)
-     &           write(unit_screen,'(a,4i10)') 'Add xsect layer ',
-     &           nl, nl_gbl, xsectID, irreg_geom(xsectno_gbl).elevation(nl)
+            call process_xsect_layer(xsectno_gbl,elev,area,width,wetperim)
             counter=counter+1
 	      prev_area=area
 	      prev_width=width
@@ -539,54 +448,14 @@ c-----------upper layer area=lower layer area+trapezoidal area between them
       return
       end
       
-      
-      
-      subroutine process_channel(
-     &                           extcounter,
-     &                           id,     
-     &                           channo,
-     &                           chan_len,
-     &                           chan_manning,
-     &                           chan_dispersion,
-     &                           chan_downnode,
-     &                           chan_upnode)
-     
-     
-      use logging
-      use grid_data     
-      implicit none
-      integer
-     &     id
-     &     ,channo              ! channel number
-     &     ,prev_channo         ! track same channel numbers
-     &     ,chan_len            ! channel length
-     &     ,chan_downnode       ! channel downstream node
-     &     ,chan_upnode         ! channel upstream node
-     &     ,extcounter          ! channel count to be returned
-      integer,save :: counter = 0
 
-!     todo: get rid of real*4. Time to get past the 1990s
-      real*4
-     &     chan_manning
-     &     ,chan_dispersion
-     
-      counter = nchans
-      counter=counter+1
-      chan_geom(counter).id=id
-      chan_geom(counter).chan_no=channo
-      chan_geom(counter).inUse=.true.
-      chan_geom(counter).length=chan_len
-      chan_geom(counter).manning=chan_manning
-      chan_geom(counter).disp=chan_dispersion
-                                ! These node numbers are external, and will be made
-                                ! internal later in the call to order_nodes
-      chan_geom(counter).downnode=chan_downnode
-      chan_geom(counter).upnode=chan_upnode
-      int2ext(counter)=channo
-      nchans = counter
-      extcounter = counter
-      return 
-      end subroutine
+      
+      
+      
+      
+      
+      
+      
       
       
       

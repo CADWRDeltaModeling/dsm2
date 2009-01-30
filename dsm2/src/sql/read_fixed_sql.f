@@ -80,6 +80,20 @@ c-----Load data
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')
      &      call load_input_ts_SQL(StmtHndl, ModelID, istat)
       if (istat .lt. 0) goto 901
+      
+      if( dsm2_name .eq. 'Hydro')then
+          call load_reservoir_ts_SQL(StmtHndl, ModelID, istat) 
+          if (istat .lt. 0) goto 901
+          call load_gate_ts_SQL(StmtHndl, ModelID, istat)
+          if (istat .lt. 0) goto 901
+          call load_transfer_ts_SQL(StmtHndl, ModelID, istat) 
+          if (istat .lt. 0) goto 901          
+          call load_oprule_ts_SQL(StmtHndl, ModelID, istat) 
+      end if
+      if( dsm2_name .eq. 'Qual')then
+          call load_climate_ts_SQL(StmtHndl, ModelID, istat) 
+          if (istat .lt. 0) goto 901
+      end if
 
       call load_groups_sql(StmtHndl, ModelID,istat)
       if (istat .lt. 0) goto 901
@@ -88,12 +102,18 @@ c-----Load data
      &    call load_rate_coeffs_SQL(StmtHndl, ModelID,istat)
       if (istat .lt. 0) goto 901
 
-	
-
-      if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')
-     &   call load_output_ts_SQL(StmtHndl, ModelID, istat)
-      
-	if (istat .lt. 0) goto 901
+      if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')then
+         !call load_output_ts_SQL(StmtHndl, ModelID, istat)
+	   !if (istat .lt. 0) goto 901
+	   call load_channel_output_ts_SQL(StmtHndl, ModelID, istat)
+	   if (istat .lt. 0) goto 901
+	   call load_node_output_ts_SQL(StmtHndl, ModelID, istat)
+	   if (istat .lt. 0) goto 901	   
+	   call load_reservoir_output_ts_SQL(StmtHndl, ModelID, istat)
+	   if (istat .lt. 0) goto 901
+	   call load_gate_output_ts_SQL(StmtHndl, ModelID, istat)
+	   if (istat .lt. 0) goto 901	   	   
+	end if
 
       if ( (dsm2_name .eq. 'Hydro') .and.
      &     (.not. (io_files(hydro,io_restart,io_read).use)) ) then
