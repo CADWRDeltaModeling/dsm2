@@ -35,6 +35,7 @@
 		<File RelativePath="..\..\src\sql\dsm2_database.f"/>
 		<File RelativePath="..\..\src\sql\read_channels_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_fixed_sql.f"/>
+		<File RelativePath="..\..\src\sql\read_gate_ts_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_grid_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_groups_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_initcond_sql.f"/>
