@@ -34,6 +34,10 @@
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Header Files">
+		<File RelativePath="..\..\src\hydrolib\chcxtbl.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chstatus.inc"/>
+		<File RelativePath="..\..\src\hydrolib\network.inc"/>
+		<File RelativePath="..\..\src\hydrolib\solver.inc"/>
 		<File RelativePath="..\..\src\hydro\version.inc"/></Filter>
 		<Filter Name="Source Files">
 		<File RelativePath="..\..\src\hydro\fourpt.f"/></Filter></Files>
