@@ -200,7 +200,7 @@ c-----arguments
 c-----f90SQL variables
       character(len=1000)::StmtStr
       integer(SQLRETURN_KIND)::iRet
-      integer(SQLSMALLINT_KIND)::ColNumber ! SQL table column number
+      integer(SQLSMALLINT_KIND)::ColNumber = 0! SQL table column number
 
       integer*2 use_obj
 c-----local variables
@@ -228,7 +228,8 @@ c-----Execute SQL statement
      &     "layer,channel.used " //
      &     "FROM (channel_xsect inner join channel " //
      &     "ON channel_xsect.channel_id = channel.channel_id) " //
-     &     "INNER JOIN model_component on channel.layer_id = model_component.component_id " //
+     &     "INNER JOIN model_component ON "//
+     &     "channel.layer_id = model_component.component_id " //
      &     "WHERE model_component.component_type = 'grid' " // " " //
      &     "AND model_component.model_id = ? " //
      &     "ORDER BY channel.channel_number, model_component.layer DESC, " //
@@ -243,6 +244,7 @@ c-----Execute SQL statement
          return
       endif
 
+      ColNumber=0
 c-----Bind variables to columns in result set
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, channo,
