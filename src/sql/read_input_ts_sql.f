@@ -43,8 +43,6 @@ c-----f90SQL variables
       integer(SQLINTEGER_KIND)::
      &     SignLen
      &     ,NameLen
-     &     ,LocNameLen
-     &     ,SubLocLen
      &     ,FileLen
      &     ,PathLen
      &     ,ParamLen
@@ -77,7 +75,6 @@ c-----local variables
      &     ,Param*32
      &     ,PrevParam*32
      &     ,LocName*32
-     &     ,SubLoc*32           ! Object-dependent sublocation (gate device, reservoir node connect..)
      &     ,PrevName*32
      &     ,RoleName*32
      &     ,Name*64
@@ -210,15 +207,8 @@ c-----------clean up character variables, replace environment variables
             InPath=ctmp
             call locase(InPath)
 
-            LocName=locName(1:locnamelen)
-            nenv=replace_envvars(LocName,ctmp)
-            LocName=ctmp
-            call locase(LocName)
-
-            SubLoc=SubLoc(1:subloclen)
-            nenv=replace_envvars(SubLoc,ctmp)
-            SubLoc=ctmp
-            call locase(SubLoc)
+            !read(LocName(1:10),'(i10)')LocNum
+            LocName = ''
 
             RoleName=RoleName(1:RoleNameLen)
             call locase(RoleName)
@@ -967,7 +957,6 @@ c-----f90SQL variables
       integer(SQLSMALLINT_KIND)::ColNumber ! SQL table column number
       integer(SQLINTEGER_KIND)::
      &     NameLen
-     &     ,LocNameLen
      &     ,FileLen
      &     ,PathLen
      &     ,ParamLen
