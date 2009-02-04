@@ -96,7 +96,7 @@ c-----Execute SQL statement
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
 
       if (iRet.ne.SQL_SUCCESS) then
-         write(unit_error,'(a,i5/)') 'Error in making Output TS SQL request',iRet
+         write(unit_error,'(a,i5/)') 'Error in making node output TS SQL request',iRet
          call ShowDiags(SQL_HANDLE_STMT, StmtHndl)
          istat=-3
          return
@@ -404,7 +404,7 @@ c-----Execute SQL statement
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
 
       if (iRet.ne.SQL_SUCCESS) then
-         write(unit_error,'(a,i5/)') 'Error in making Channel Output TS SQL request',iRet
+         write(unit_error,'(a,i5/)') 'Error in making channel Output TS SQL request',iRet
          call ShowDiags(SQL_HANDLE_STMT, StmtHndl)
          istat=-3
          return
@@ -723,16 +723,16 @@ c-----Execute SQL statement
 
       StmtStr="SELECT out_id, name, gate, " //
      &     "device, used, variable_name, time_interval, " //
-     &     "period_op, source_group, output_file " //
+     &     "period_op, output_file " //
      &     "FROM (output_time_series_gate INNER JOIN model_component ON " //
      &     "output_time_series_gate.layer_id = model_component.component_id) "// 
      &     "WHERE model_id = ? " //
-     &     "ORDER BY name, variable_name, time_interval, period_op, source_group, layer DESC;"
+     &     "ORDER BY name, variable_name, time_interval, period_op, layer DESC;"
 
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
 
       if (iRet.ne.SQL_SUCCESS) then
-         write(unit_error,'(a,i5/)') 'Error in making Output TS SQL request',iRet
+         write(unit_error,'(a,i5/)') 'Error in making gate output TS SQL request',iRet
          call ShowDiags(SQL_HANDLE_STMT, StmtHndl)
          istat=-3
          return
@@ -775,10 +775,6 @@ c-----Bind variables to columns in result set
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, PerOp,
      &     loc(PerOpLen), iRet)
-
-      ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, SourceGroup,
-     &     loc(SourceGroupLen), iRet)
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, FileName,
@@ -1109,7 +1105,7 @@ c-----Execute SQL statement
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
 
       if (iRet.ne.SQL_SUCCESS) then
-         write(unit_error,'(a,i5/)') 'Error in making Output TS SQL request',iRet
+         write(unit_error,'(a,i5/)') 'Error in making reservoir output TS SQL request',iRet
          call ShowDiags(SQL_HANDLE_STMT, StmtHndl)
          istat=-3
          return
@@ -1162,7 +1158,8 @@ c-----Bind variables to columns in result set
 
       
       ObjType = obj_reservoir
-      if (print_level .ge. 3) write(unit_screen,'(a)') 'Made Output TS bind request'
+      if (print_level .ge. 3) 
+     &  write(unit_screen,'(a)') 'Made reservoir output TS bind request'
 
 c-----Loop to fetch records, one at a time
       counter=1
