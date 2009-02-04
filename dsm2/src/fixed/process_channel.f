@@ -47,23 +47,27 @@
       return 
       end subroutine
       
-      subroutine process_xsect(channo,chan_fdist,xsect_id)
+      subroutine process_xsect(channo,chan_fdist,xsectid)
       use f90SQLConstants
       use f90SQL
       use grid_data
       !use constants
       use common_xsect
       use logging
+      use io_units
+      implicit none
       integer :: channo
       real*8  :: chan_fdist
-      integer :: xsect_id
+      integer :: xsectid
+      integer :: i
+      integer, external :: ext2int
+      
       if (chan_fdist .le. max_dist_ratio) then
         chan_fdist = 0.0d0
       endif
       if (chan_fdist .ge. (1.0-max_dist_ratio)) then
         chan_fdist = 1.0d0
       endif
-
 c-----------------search for similar xsect distance
       if (chan_fdist .ne. 0.0d0) then
         do i=1,nirg
@@ -92,6 +96,7 @@ c-----------------search for similar xsect distance
       irreg_geom(nirg).ID = xsectID
       irreg_geom(nirg).chan_no = ext2int(channo)
       irreg_geom(nirg).dist_ratio=chan_fdist
+      
       if (print_level .ge. 3)
      &    write(unit_screen,'(a,i10,i10,i10,i10,i10)')
      &      'Add xsect ',nirg, xsectid, channo, chan_fdist
@@ -104,14 +109,25 @@ c-----------------search for similar xsect distance
       use f90SQLConstants
       use f90SQL
       use grid_data
-      use common_xsect  
+      use logging
+      use io_units
+      use common_xsect
+      implicit none
       integer :: xsectno
+      integer :: nl
       real*8 ::  elev,area,width,wetperim
+      real*8 ::  prev_area, prev_width,prev_elev, calc_area
+      real*8,parameter :: VERT_RESOLUTION = 0.001
+      real*8,parameter :: AREA_PRECISION = 0.0001
+       
+	!@todo: if CSDP gets fixed, make below 0.2
+      real*8,parameter :: AREA_READ_PRECISION = 10000.        
+      
+      
 c-----------no duplicate or deleted layers are allowed; create a new
 c-----------cross section instead
       irreg_geom(xsectno).num_elev=irreg_geom(xsectno).num_elev+1
       nl=irreg_geom(xsectno).num_elev
-      nl_gbl=nl_gbl+1
       irreg_geom(xsectno).elevation(nl)=elev
       irreg_geom(xsectno).min_elev=
      &       min(irreg_geom(xsectno).elevation(nl),
@@ -119,21 +135,25 @@ c-----------cross section instead
       irreg_geom(xsectno).width(nl)=width
 c-----------adjust area to make sure:
 c-----------upper layer area=lower layer area+trapezoidal area between them 
-      if (irreg_geom(xsectno).num_elev .gt. 0) then
-	   if (area .lt. irreg_geom(xsectno).area(nl)) then
+      if (nl .gt. 1) then
+	   prev_area = irreg_geom(xsectno).area(nl-1)
+	   prev_width = irreg_geom(xsectno).width(nl-1)
+	   prev_elev = irreg_geom(xsectno).elevation(nl-1)
+	   if (area .lt. prev_area) then
             write(unit_error,'(a,i5)')
      &		  "Channel areas decreasing with elevation in channel ",
      &         chan_geom(irreg_geom(xsectno).chan_no).chan_no
-	         istat=-3
+	         call exit(-3)
 	         return
 	   end if
-	   if (width .lt. irreg_geom(xsectno-1).width(nl)) then
+	   if (width .lt. prev_width) then
             write(unit_error,'(a,i5)')
      &       "Channel width decreasing with elevation in channel ",
      &        chan_geom(irreg_geom(xsectno).chan_no).chan_no
-	        istat=-3
+	        call exit(-3)
 	      return
 	   end if
+
 	   calc_area=prev_area + 
      &    (elev-prev_elev)*0.5*(width+prev_width)
 	   if ( abs(area - calc_area ) .gt. AREA_PRECISION) then
@@ -153,9 +173,7 @@ c-----------upper layer area=lower layer area+trapezoidal area between them
 	 else
 	  irreg_geom(xsectno).h_radius(nl)=0.0d0
 	 endif
-       if (print_level .ge. 5)
-     &   write(unit_screen,'(a,4i10)') 'Add xsect layer ',
-     &   nl, nl_gbl, xsectID, irreg_geom(xsectno).elevation(nl)
+! todo: log for high print level?
       
       return
       end subroutine
