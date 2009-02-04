@@ -512,10 +512,8 @@ c--------clean up char variables, replace environment variables
 
          FileName=ctmp
          !call locase(FileName)
-         LocName=LocName(1:LocNameLen)
-         nenv=replace_envvars(LocName,ctmp)
-         LocName=ctmp
-         call locase(LocName)
+         write(LocName,'(i)')LocNum
+         LocName=trim(LocName)
 
 c--------use only the last version of a path, and skip
 c--------if the path is marked as not-use
@@ -679,7 +677,7 @@ c-----f90SQL variables
       integer(SQLSMALLINT_KIND)::ColNumber ! SQL table column number
       integer(SQLINTEGER_KIND):: PerOpLen, IntvlLen, NameLen
      &                           ,LocNameLen, SubLocLen
-     &                           ,SourceGroupLen, ParamLen, FileLen
+     &                           ,ParamLen, FileLen
       integer name_to_objno
 
 c-----local variables
@@ -705,8 +703,7 @@ c-----local variables
      &     ,LocName*32
      &     ,SubLoc*32           ! Object-dependent sublocation (gate device, reservoir node connect..)
      &     ,ctmp*200
-     &     ,SourceGroup*32
-     &     ,PrevSourceGroup*32
+
 
       integer ext2int
       integer get_objnumber
@@ -787,7 +784,6 @@ c-----Bind variables to columns in result set
 c-----Loop to fetch records, one at a time
       counter=1
 
-      PrevSourceGroup=miss_val_c
       PrevName=miss_val_c
       PrevParam=miss_val_c
 
@@ -824,8 +820,6 @@ c--------clean up char variables, replace environment variables
          PerOp=ctmp
          call locase(PerOp)
 
-         SourceGroup=SourceGroup(1:SourceGroupLen)
-	   call locase(SourceGroup)
 
          FileName=FileName(1:FileLen) ! preserve case for filename
          nenv=replace_envvars(FileName,ctmp)
@@ -855,7 +849,6 @@ c--------if the path is marked as not-use
          if ( .not.(
      &        Name .eq. PrevName 
      &        .and. Param .eq. PrevParam
-     &        .and. PrevSourceGroup .eq. SourceGroup
      &        ) .and.
      &        UseObj) then
             noutpaths=noutpaths+1
@@ -870,17 +863,7 @@ c--------if the path is marked as not-use
             pathoutput(noutpaths).use=.true.
             pathoutput(noutpaths).name=Name
             pathoutput(noutpaths).obj_type=ObjType
-            if (SourceGroupLen .eq. SQL_NULL_DATA .or.
-     &          SourceGroupLen .eq. 0) then
-               pathoutput(noutpaths).source_group_ndx=GROUP_ALL
-            else
-               pathoutput(noutpaths).source_group_ndx=name_to_objno(obj_group,SourceGroup)
-               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i)then
-                   write(unit_error,*)"Source group ",SourceGroup,
-     &              " not recognized for output request: ", pathoutput(noutpaths).name
-                   call exit(2)
-               end if
-            endif
+
 c-----------find object number given object ID
 
             pathoutput(noutpaths).obj_name=LocName
@@ -997,7 +980,6 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
  300     continue
          counter=counter+1
          prevName=Name
-         PrevSourceGroup=SourceGroup
          PrevParam=Param	
       enddo
 
