@@ -177,6 +177,8 @@ c--------skip the channel if marked not-use
 
       return
       end
+c------------------------------------------------------------------
+c------------------------------------------------------------------
 
       subroutine load_channel_xsects_SQL(StmtHndl, ModelID, istat)
       use IO_Units
@@ -233,7 +235,6 @@ c-----Execute SQL statement
      &     "channel_xsect.channel_fract_dist;"
 
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
-
       if (iRet.ne.SQL_SUCCESS) then
          write(unit_error,'(a,i5/)')
      &        'Error in making Channel Xsect SQL request ',iRet
@@ -345,13 +346,9 @@ c-----local variables
      &     ,width,prev_width
      &     ,area,prev_area,calc_area
      &     ,wetperim
-
-      
       real*8,parameter :: VERT_RESOLUTION = 0.001
-      real*8,parameter :: AREA_PRECISION = 0.0001
-       
-	!@todo: if CSDP gets fixed, make below 0.2
-      real*8,parameter :: AREA_READ_PRECISION = 10000.  
+      
+
 c-----prepare statement, with a parameter representing xsectID
 
       xsectno_gbl=0
@@ -417,6 +414,7 @@ c-----------Fetch a record from the result set
             if (iRet .eq. SQL_NO_DATA) exit
             elev = NINT(elev/VERT_RESOLUTION)*VERT_RESOLUTION
             call process_xsect_layer(xsectno_gbl,elev,area,width,wetperim)
+            nl_gbl = nl_gbl+1
             counter=counter+1
 	      prev_area=area
 	      prev_width=width
