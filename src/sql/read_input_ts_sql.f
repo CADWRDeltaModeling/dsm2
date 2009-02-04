@@ -207,8 +207,7 @@ c-----------clean up character variables, replace environment variables
             InPath=ctmp
             call locase(InPath)
 
-            !read(LocName(1:10),'(i10)')LocNum
-            LocName = ''
+            write(LocName,'(i)')LocNum
 
             RoleName=RoleName(1:RoleNameLen)
             call locase(RoleName)
