@@ -276,17 +276,21 @@ c--------Fetch a record from the result set
          if (iRet .eq. SQL_NO_DATA) exit
          if (.not.(channo .eq. prev_chan .and.
      &        layer .ne. prev_layer)) then
-            if (ext2int(channo) .gt. 0) then ! valid channel number
-               ! This channel is not just a lower priority version of the last channel
-               if( use_obj )then ! don't move this
-                  !todo: Eli moved this, make sure OK
-                  chan_fdist = NINT(chan_fdist/DISTANCE_RESOLUTION)*DISTANCE_RESOLUTION
-                  call process_xsect(channo,chan_fdist,xsectId)
-               end if           ! object is in use
-               prev_chan=channo
-               prev_layer=layer
-               counter=counter+1
-            end if              ! check that object is not lower priority layer
+            chan_fdist = NINT(chan_fdist/DISTANCE_RESOLUTION)*DISTANCE_RESOLUTION
+            if (ext2int(channo) .lt. 0) then ! valid channel number
+               write(unit_error, '(a,i8,f10.6)')
+     &              "Invalid channel in xsect specification",channo,chan_fdist
+               call exit(-3)
+            end if
+            ! This channel is not just a lower priority version of the last channel
+            if( use_obj )then ! don't move this
+                !todo: Eli moved this, make sure OK
+                  
+                call process_xsect(channo,chan_fdist,xsectId)
+             end if           ! object is in use
+             prev_chan=channo
+             prev_layer=layer
+             counter=counter+1
          endif
       enddo
 
