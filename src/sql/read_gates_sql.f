@@ -39,7 +39,7 @@ c-----arguments
 c-----f90SQL variables
       character(len=1000)::StmtStr
       integer(SQLRETURN_KIND)::iRet
-      integer(SQLSMALLINT_KIND)::ColNumber ! SQL table column number
+      integer(SQLSMALLINT_KIND)::ColNumber=0 ! SQL table column number
       integer(SQLINTEGER_KIND):: objidlen,namelen
 
 c-----local variables
@@ -93,9 +93,10 @@ c-----Execute SQL statement
 c-----Bind variables to columns in result set
       ObjConnID=" "
       channoStr=" "
+      name=" "
+      ColNumber=0
 
-      ColNumber=1
-
+      ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, ID,
      &     f90SQL_NULL_PTR, iRet)
 
@@ -143,67 +144,25 @@ c--------Fetch a record from the result set
          endif
 
          name=name(:namelen)
-	   name=trim(name)
          call locase(name)
+         
+         objConnID=objConnID(:objidlen)
 
 c--------use only the last version of a gate, and skip
 c--------if the gate is marked as not-use
          if (name .ne. prev_name .and.
      &        UseObj) then
-            ngate=ngate+1
-            if (ngate .gt. max_gates) then
-               write(unit_error,630)
-     &              'Too many gates specified; max allowed is:' ,max_gates
-               istat=-1
-               return
-            endif
-            gateArray(ngate).ID = ID
-            gateArray(ngate).inUse=useObj
-            gateArray(ngate).name=name
-            gateArray(ngate).objConnectedType = ObjConnType
-            gateArray(ngate).node=ext2intnode(NodeConn)
-	      gateArray(ngate).install_datasource.source_type=const_data
-	      gateArray(ngate).install_datasource.indx_ptr=0 !fixme: is this is OK?
-	      gateArray(ngate).install_datasource.value=1.            
-            ObjConnID=ObjConnID(1:objidlen)
-            call locase(ObjConnID)
-            if ( (ObjConnType .eq. OBJ_CHANNEL) ) then
-               read(ObjConnID,'(I10)')channo
-               gateArray(ngate).objConnectedID	=channo
-            else if(ObjConnType .eq. OBJ_RESERVOIR) then
-               resno=name_to_objno(ObjConnType, objConnID)
-               gateArray(ngate).objConnectedID=resno
-	         do i=1,res_geom(resno).nnodes
-	             if (res_geom(resno).node_no(i) .eq. gateArray(ngate).node) then
-	                write(unit_error,627)trim(name),trim(res_geom(resno).name),
-     &                  node_geom(gateArray(ngate).node).node_ID
- 627	                format('Gate ',a, ' attached from reservoir ', a, ' to node ',
-     &                  i5, /'conflicts with a gate or reservoir connection ' /
-     &                  'defined between the same reservoir and node. ' /
-     &                  'Use a single gate or reservoir connection.')     
-                      call exit(1)
-	             end if
-	         end do
-               res_geom(resno).nnodes=res_geom(resno).nnodes+1
-               res_geom(resno).node_no(res_geom(resno).nnodes)=gateArray(ngate).node
-               res_geom(resno).isNodeGated(res_geom(resno).nnodes)=.true.
-	         gateArray(ngate).subLocation=res_geom(resno).nnodes
-            else
-               write(unit_error,628) name
- 628           format(/'Gate ',a,' connected to an object that is not supported')
-            end if
-
-            gateArray(ngate).flowDirection=0.D0 ! fixme: depends on location upstream or down.
-            if (print_level .ge. 3)
-     &           write(unit_screen,'(i5,1x,a,2i10)')
-     &           ngate,
-     &           trim(gateArray(ngate).name),
-     &           gateArray(ngate).ID,LayerID
+            call process_gate(id,
+     &                        useObj,
+     &                        name,
+     &                        ObjConnType,
+     &                        ObjConnID,
+     &                        nodeConn)
          endif
          prev_name=name
          counter=counter+1
       enddo
-
+      
       if (counter .eq. 0) then
          write(unit_error, '(a)') 'Note: no gate records retrieved.'
       endif
@@ -221,11 +180,14 @@ c--------if the gate is marked as not-use
          if (print_level .ge. 3) write(unit_screen,'(a//)') 'Unbound gate SQL'
       endif
 
- 630  format(/a,i5)
+
       istat = ngate
 
       return
       end
+
+c==============================================================================
+
 
       subroutine load_gate_devices_SQL(StmtHndl, istat)
 
@@ -238,13 +200,12 @@ c-----load f90SQL modules
       use f90SQL
       use io_units
       use logging
-      use constants
       
       implicit none
 
 c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
-     &     ,istat               ! status
+     &     ,istat               
 
 c-----f90SQL variables
       character(len=1000)::StmtStr
@@ -274,9 +235,8 @@ c-----local variables
      &     ,CFfrom,CFto
      &     ,from_op,to_op
 
-      character*32
-     &     name
-     &     ,gatename
+      character*32 :: name = " "
+      character*32 :: gatename = " "
 
       
 c-----Create query statement. All devices of a particular type are fetched at
@@ -359,83 +319,26 @@ c-----------Execute SQL statement
             istat=-1
             return
          endif
-         
 	   gateArray(gateNo).ndevice=0
 c-----Loop to fetch records, one at a time
          do while (.true.)
 c--------Fetch a record from the result set and append it to gateWeirHistory, 
 
             call f90SQLFetch(StmtHndl,iRet) 
-            name=name(1:namelen)
-            call locase(name)  
             if (iRet .eq. SQL_NO_DATA) exit
-            gateArray(gateNo).ndevice=gateArray(gateNo).ndevice+1
-	      devNo=gateArray(gateNo).ndevice
-            if (devNo .gt. MAX_DEV)then
-           ! too many devices at one gate
-              write(unit_error, '(/a)')
-     &        'Maximum number of weirs exceeded for gate:',
-     &         gateArray(gateNo).name
-               istat=-3
-              return
-	      end if
-
-            gateArray(gateNo).devices(devNo).name=name(1:namelen)
-            gateArray(gateNo).devices(devNo).structureType=struct_type
-            gateArray(gateNo).devices(devNo).controlType=control_type
-            gateArray(gateNo).devices(devNo).nduplicate=nduplicate
-            gateArray(gateNo).devices(devNo).maxWidth=max_width
-            gateArray(gateNo).devices(devNo).baseElev=base_elev
-            gateArray(gateNo).devices(devNo).height=height
-
-            gateArray(gateNo).devices(devNo).flowCoefFromNode=CFfrom
-            gateArray(gateNo).devices(devNo).flowCoefToNode=CFto
-	      
-	
-		  if( default_op .eq. GATE_CLOSE)then
-	         to_op=0.
-			 from_op=0.
-	      else if(default_op .eq. GATE_OPEN)then
-	         to_op=1.
-			 from_op=1.
-	      else if(default_op .eq. UNIDIR_TO_NODE)then
-	         to_op=1.
-	         from_op=0.
-	      else if(default_op .eq. UNIDIR_FROM_NODE)then
-	         to_op=0.
-	         from_op=1.0
-	      else
-		     write (unit_error,"('Unrecognized default operation for gate',1x,
-     &                   a,' device ',a)")gatename,name
-               istat=-3
-	         return
-	      end if
-	      gateArray(gateNo).devices(devNo).op_to_node_datasource.source_type=const_data
-	!fixme: is this next line OK?
-	      gateArray(gateNo).devices(devNo).op_to_node_datasource.indx_ptr=0
-	      gateArray(gateNo).devices(devNo).op_to_node_datasource.value=to_op
-
-	      gateArray(gateNo).devices(devNo).op_from_node_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).op_from_node_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).op_from_node_datasource.value=from_op
-
-	      gateArray(gateNo).devices(devNo).width_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).width_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).width_datasource.value=max_width
-	      gateArray(gateNo).devices(devNo).height_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).height_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).height_datasource.value=height
-	      gateArray(gateNo).devices(devNo).elev_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).elev_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).elev_datasource.value=base_elev
-
-	      gateArray(gateNo).devices(devNo).pos_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).pos_datasource.indx_ptr=0 !fixme: is this is OK?
-	      gateArray(gateNo).devices(devNo).pos_datasource.value=miss_val_r
-
-
-	      
-	      
+            name=name(1:namelen)
+            call locase(name)              
+            call process_gate_device(gatename,
+     &                               name,
+     &                               struct_type,
+     &                               control_type,
+     &                               nduplicate,
+     &                               max_width,
+     &                               base_elev,
+     &                               height,
+     &                               CFfrom,
+     &                               CFto,
+     &                               default_op)
 	      count=count + 1
          enddo
 

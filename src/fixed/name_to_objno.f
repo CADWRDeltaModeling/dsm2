@@ -42,7 +42,6 @@ c-----arguments
 
 c-----local variables
       integer i
-
       name_to_objno=miss_val_i
 	name=trim(name)
 
