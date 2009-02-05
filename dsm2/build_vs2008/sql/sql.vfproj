@@ -36,11 +36,13 @@
 		<File RelativePath="..\..\src\sql\read_channels_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_fixed_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_gate_ts_sql.f"/>
-		<File RelativePath="..\..\src\sql\read_grid_sql.f"/>
+		<File RelativePath="..\..\src\sql\read_gates_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_groups_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_initcond_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_input_ts_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_op_rules_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_output_ts_sql.f"/>
-		<File RelativePath="..\..\src\sql\read_rate_coeffs_sql.f"/></Filter></Files>
+		<File RelativePath="..\..\src\sql\read_rate_coeffs_sql.f"/>
+		<File RelativePath="..\..\src\sql\read_reservoirs_sql.f"/>
+		<File RelativePath="..\..\src\sql\read_transfers_sql.f"/></Filter></Files>
 	<Globals/></VisualStudioProject>
