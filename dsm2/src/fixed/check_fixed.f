@@ -326,8 +326,8 @@ c     flow convention for the water body (e.g., upstream to downstream)
 
       do i=1,ngate
          gateArray(i).flowDirection = 1.0D0 ! this initialization works for gates from reservoirs
-         extchan=gateArray(i).objConnectedID
-         intchan=ext2int(extchan)
+         intchan=gateArray(i).objConnectedID
+         extchan=chan_geom(intchan).chan_no
          intupnode=chan_geom(intchan).upnode
          intdownnode=chan_geom(intchan).downnode
          extupnode=node_geom(intupnode).node_ID
@@ -344,8 +344,8 @@ c     flow convention for the water body (e.g., upstream to downstream)
                write(unit_error, *)
      &              'Invalid node number for gate ',
      &              trim(gateArray(i).name),
-     &              ' channel ', extchan,
-     &              ' node ', extgatenode
+     &              ' channel #', extchan,
+     &              ' node #', extgatenode
                goto 900
             endif
 c-----------id must be reset to internal channel number.

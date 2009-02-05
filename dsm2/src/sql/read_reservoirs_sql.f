@@ -110,35 +110,20 @@ c-----Loop to fetch records, one at a time
       counter=0
       do while (.true.)
 c--------Fetch a record from the result set
-         reser_name=' '
          call f90SQLFetch(StmtHndl,iRet)
          if (iRet .eq. SQL_NO_DATA) exit
 
          reser_name=reser_name(1:namelen)
-	   reser_name=trim(reser_name)
          call locase(reser_name)
 
 c--------use only the last version of a reservoir, and skip
 c--------if the reservoir is marked as not-use
          if (reser_name .ne. prev_name .and.
      &        UseObj) then
-            nreser=nreser+1
-            if (nreser .gt. max_reservoirs) then
-               write(unit_error,630)
-     &              'Reservoir number too high; max allowed is:',
-     &              max_reservoirs
-               istat=-1
-               return
-            endif
-            res_geom(nreser).id=ID
-            res_geom(nreser).inUse=.true.
-            res_geom(nreser).name=trim(reser_name)
-            res_geom(nreser).area=reser_area
-            res_geom(nreser).botelv=reser_botelv
-            if (print_level .ge. 3)
-     &           write(unit_screen,'(i5,1x,a)')
-     &           nreser,trim(res_geom(nreser).name)
-c                resext2int(resno)=nreser    !todo: resext2int
+            call process_reservoir(id,
+     &                             reser_name(1:namelen),
+     &                             reser_area,
+     &                             reser_botelv)
          endif
          prev_name=reser_name
          counter=counter+1
@@ -161,10 +146,10 @@ c                resext2int(resno)=nreser    !todo: resext2int
          if (print_level .ge. 3) write(unit_screen,'(a//)') 'Unbound reservoir SQL'
       endif
 
- 630  format(/a,i5)
-
       return
       end
+
+c=================================================================================
 
       subroutine load_reservoir_connections_SQL(StmtHndl, istat)
       use IO_Units
