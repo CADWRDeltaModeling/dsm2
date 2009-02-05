@@ -301,7 +301,7 @@ ts_factory(const NamedValueLookup::ArgMap& argmap){
      if (pathindex > -1){ 
          return DSM2TimeSeriesNode::create(name,pathindex);
       }
-     throw oprule::parser::InvalidIdentifier("Transfer name not found"+name); 
+     throw oprule::parser::InvalidIdentifier("Transfer name not found "+name); 
 
    }
 }
