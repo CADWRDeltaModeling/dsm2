@@ -769,12 +769,14 @@ c-----name required for each line; empty value indicates erase it
       use IO_Units
       use logging      
       use constants
-      use common_qual
       use runtime_data
-      use grid_data
       use iopath_data
+      use common_qual
       use common_ptm
-c-----process a character line into data arrays for scalar info
+      use envvar   !kc To match process_scalar_SQL
+      use grid_data
+
+!c-----process a character line into data arrays for scalar info
 
       implicit none
 
@@ -786,7 +788,7 @@ c-----process a character line into data arrays for scalar info
      &     ldefault             ! true if values are for defaults
       common /read_fix_l/ ldefault
 
-c-----local variables
+!c-----local variables
 
       integer
      &     mxflds               ! maximum number of fields
@@ -797,18 +799,20 @@ c-----local variables
      &     ,ibegf(mxflds)       ! beginning position of each field in line (input)
      &     ,ilenf(mxflds)       ! length of each field in line (input)
      &     ,istat               ! conversion status of this line (output)
+      
+      integer                  :: itmp   !kc
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
 
       character
-     &     cstring1*48          ! string field for keyword or value
-     &     ,cstring2*48         ! string field for keyword or value
+     &     Param*48          ! string field for keyword or value
+     &     ,Value*48         ! string field for keyword or value
      &     ,ctmp*48             ! scratch character variable
 
 
 
-c-----defaults
+!c-----defaults
 
       data
      &     variabledensity /.false./
@@ -819,356 +823,19 @@ c-----defaults
      &     ,toleranceq /0.0005/
      &     ,tolerancez /0.0005/
 
- 610  format(/'Unrecognized line in SCALAR section:'
-     &     /a)
- 615  format(/'Theta must be between 0.5 and 1.0:',f5.2)
- 620  format(/a,' ',a/a)
- 630  format(/a)
+
 
 	if (nfields .ne. 2) return  ! must have two fields
-      cstring1=line(ibegf(1):ibegf(1)+ilenf(1)-1)
-      cstring2=line(ibegf(2):ibegf(2)+ilenf(2)-1)
+      Param=line(ibegf(1):ibegf(1)+ilenf(1)-1)
+      Value=line(ibegf(2):ibegf(2)+ilenf(2)-1)
 
-c-----run start date and time can be a DSS date (e.g. 01jan1994 0100),
-c-----or 'restart' (use date from restart file), or
-c-----'tide' (use date from tidefile)
-      if (cstring1 .eq. 'run_start_date') then
-         run_start_date(1:9)=cstring2(1:9)
-      else if (cstring1 .eq. 'run_start_time') then
-         run_start_date(11:14)=cstring2(1:4)
-      else if (cstring1 .eq. 'run_end_date') then
-         run_end_date(1:9)=cstring2(1:9)
-      else if (cstring1 .eq. 'run_end_time') then
-         run_end_date(11:14)=cstring2(1:4)
-      else if (cstring1 .eq. 'run_length') then
-         run_length=cstring2
-      else if (cstring1 .eq. 'tf_start_date') then
-         tf_start_date(1:9)=cstring2(1:9)
-      else if (cstring1 .eq. 'tf_start_time') then
-         tf_start_date(11:14)=cstring2(1:4)
-      else if (cstring1 .eq. 'database') then
-         call set_database_name(cstring2(1:32))
-      else if (cstring1 .eq. 'model_name') then
-         call set_model_name(cstring2(1:48))
-      else if (cstring1 .eq. 'print_start_date') then
-         if (nprints .eq. 0) nprints=1
-         print_start_date(nprints)(1:9)=cstring2(1:9)
-         nprints=nprints+1
-      else if (cstring1 .eq. 'print_start_time') then
-         if (nprints .eq. 0) nprints=1
-         print_start_date(nprints)(11:14)=cstring2(1:4)
-      else if (cstring1 .eq. 'flush_output') then
-         flush_intvl=cstring2
-      else if (cstring1 .eq. 'binary_output') then
-         read(cstring2,'(l2)', err=810) binary_output
-      else if (cstring1 .eq. 'dss_direct') then
-         read(cstring2,'(l2)', err=810) dss_direct
-      else if (cstring1 .eq. 'hydro_time_step') then
-         time_step_intvl_hydro=cstring2
-      else if (cstring1 .eq. 'qual_time_step') then
-         time_step_intvl_qual=cstring2
-      else if (cstring1 .eq. 'ptm_time_step') then
-         ptm_time_step_int=1
-         time_step_intvl_ptm=cstring2
-      else if (cstring1 .eq. 'mass_tracking') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) mass_tracking
-      else if (cstring1 .eq. 'init_conc') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) init_conc
-      else if (cstring1 .eq. 'dispersion') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) dispersion
-c--------global rates for non-conserative const.
-      else if (cstring1 .eq. 'algaefract_n') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) algaefract_n
-      else if (cstring1 .eq. 'algaefract_p') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) algaefract_p
-      else if (cstring1 .eq. 'oxy_photo') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) oxy_photo
-      else if (cstring1 .eq. 'oxy_resp') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) oxy_resp
-      else if (cstring1 .eq. 'oxy_nh3') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) oxy_nh3
-      else if (cstring1 .eq. 'oxy_no2') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) oxy_no2
-      else if (cstring1 .eq. 'alg_chl_ratio') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) alg_chl_ratio
-      else if (cstring1 .eq. 'pref_factor') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) pref_factor
-      else if (cstring1 .eq. 'klight_half') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) klight_half
-      else if (cstring1 .eq. 'knit_half') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) knit_half
-      else if (cstring1 .eq. 'kpho_half') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) kpho_half
-      else if (cstring1 .eq. 'lambda0') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.2)', err=810) lambda0
-      else if (cstring1 .eq. 'lambda1') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.4)', err=810) lambda1
-      else if (cstring1 .eq. 'lambda2') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.4)', err=810) lambda2
-c--------heat and temperature related parameters
-      else if (cstring1 .eq. 'elev') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.2)', err=810) elev
-      else if (cstring1 .eq. 'lat') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.2)', err=810) lat
-      else if (cstring1 .eq. 'long') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.2)', err=810) longitude
-      else if (cstring1 .eq. 'long_std_merid') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.2)', err=810) long_std_merid
-      else if (cstring1 .eq. 'dust_attcoeff') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.2)', err=810) dust_attcoeff
-      else if (cstring1 .eq. 'evapcoeff_a') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.5)', err=810) evapcoeff_a
-      else if (cstring1 .eq. 'evapcoeff_b') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.5)', err=810) evapcoeff_b
-      else if (cstring1 .eq. 'temp_bod_decay') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_bod_decay)
-      else if (cstring1 .eq. 'temp_bod_set') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_bod_set)
-      else if (cstring1 .eq. 'temp_reaer') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_reaer)
-      else if (cstring1 .eq. 'temp_do_ben') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_do_ben)
-      else if (cstring1 .eq. 'temp_orgn_decay') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_orgn_decay)
-      else if (cstring1 .eq. 'temp_orgn_set') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_orgn_set)
-      else if (cstring1 .eq. 'temp_nh3_decay') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_nh3_decay)
-      else if (cstring1 .eq. 'temp_nh3_ben') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_nh3_ben)
-      else if (cstring1 .eq. 'temp_no2_decay') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_no2_decay)
-      else if (cstring1 .eq. 'temp_orgp_decay') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_orgp_decay)
-      else if (cstring1 .eq. 'temp_orgp_set') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_orgp_set)
-      else if (cstring1 .eq. 'temp_po4_ben') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_po4_ben)
-      else if (cstring1 .eq. 'temp_alg_grow') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_alg_grow)
-      else if (cstring1 .eq. 'temp_alg_resp') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_alg_resp)
-      else if (cstring1 .eq. 'temp_alg_set') then
-         field_names(1)=cstring1
-         read(cstring2,'(f8.3)', err=810) thet(temp_alg_set)
-      else if (cstring1 .eq. 'display_intvl') then
-         display_intvl=cstring2
-      else if (cstring1 .eq. 'deltax') then
-c--------keyword 'length' means use channel length for each delta x
-         if (index(cstring2, 'len') .eq. 0) then
-            field_names(1)=cstring1
-            read(cstring2,'(f10.0)', err=810) deltax_requested
-         else
-            deltax_requested=0.0
-         endif
-      else if (cstring1 .eq. 'levee_slope') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) levee_slope
-      else if (cstring1 .eq. 'theta') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) theta
-         if (
-     &        theta .lt. 0.5 .or.
-     &        theta .gt. 1.0
-     &        ) then
-            write(unit_error, 615) theta
-            istat=-1
-            goto 900
-         endif
-      else if (cstring1 .eq. 'terms') then
-         ctmp=cstring2
-         terms=0
-         if (ctmp(1:3) .eq. 'dyn') then
-            terms=1             ! dynamic wave
-         else
-            write(unit_error, 620)
-     &           'You selected solution method:',
-     &           trim(ctmp),
-     &           'Only dynamic supported.'
-            istat=-1
-            goto 900
-         endif
-      else if (cstring1 .eq. 'vardensity') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) variabledensity
-         if (variabledensity .and. terms .ne. 1) then
-            variabledensity=.false.
-            write(unit_error, 630)
-     &           'Warning: Variable Density allowed only with dynamic wave.'
-         endif
-      else if (cstring1 .eq. 'varsinuosity') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) variablesinuosity
-         if (variablesinuosity .and. terms .eq. 3) then
-            variablesinuosity=.false.
-            write(unit_error, 630)
-     &           'Warning: variable sinuosity not allowed with kinematic wave.'
-         endif
-      else if (cstring1 .eq. 'gravity') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) gravity
-      else if (cstring1 .eq. 'toleranceq') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) toleranceq
-      else if (cstring1 .eq. 'tolerancez') then
-         field_names(1)=cstring1
-         read(cstring2,'(f10.0)', err=810) tolerancez
-      else if (cstring1 .eq. 'maxiter') then
-         field_names(1)=cstring1
-         read(cstring2,'(i5)', err=810) maxiterations
-      else if (cstring1 .eq. 'luinc') then
-         field_names(1)=cstring1
-         read(cstring2,'(i5)', err=810) luinc
-      else if (cstring1 .eq. 'printlevel') then
-         field_names(1)=cstring1
-         read(cstring2,'(i5)', err=810) print_level
-      else if (cstring1 .eq. 'temp_dir') then
-         temp_dir=cstring2
-      else if (cstring1 .eq. 'checkdata') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) check_input_data
-      else if (cstring1 .eq. 'cont_missing') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) cont_missing
-      else if (cstring1 .eq. 'cont_unchecked') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) cont_unchecked
-      else if (cstring1 .eq. 'cont_question') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) cont_question
-      else if (cstring1 .eq. 'cont_bad') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) cont_bad
-      else if (cstring1 .eq. 'warn_missing') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) warn_missing
-      else if (cstring1 .eq. 'warn_unchecked') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) warn_unchecked
-      else if (cstring1 .eq. 'warn_question') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) warn_question
-      else if (cstring1 .eq. 'warn_bad') then
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) warn_bad
-      else if (cstring1 .eq. 'ptm_ivert') then
-         ptm_ivert_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_ivert
-      else if (cstring1 .eq. 'ptm_itrans') then
-         ptm_itrans_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_itrans
-      else if (cstring1 .eq. 'ptm_iey') then
-         ptm_iey_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_iey
-      else if (cstring1 .eq. 'ptm_iez') then
-         ptm_iez_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_iez
-      else if (cstring1 .eq. 'ptm_flux_percent') then
-         ptm_flux_percent_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_flux_percent
-      else if (cstring1 .eq. 'ptm_group_percent') then
-         ptm_group_percent_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_group_percent
-      else if (cstring1 .eq. 'ptm_flux_cumulative') then
-         ptm_flux_cumulative_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_flux_cumulative
-      else if (cstring1 .eq. 'ptm_random_seed') then
-         ptm_random_seed_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(i5)', err=810) ptm_random_seed
-      else if (cstring1 .eq. 'ptm_no_animated') then
-         ptm_no_animated_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(i5)', err=810) ptm_no_animated
-      else if (cstring1 .eq. 'ptm_trans_constant') then
-         ptm_trans_constant_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(f7.4)', err=810) ptm_trans_constant
-      else if (cstring1 .eq. 'ptm_vert_constant') then
-         ptm_vert_constant_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(f7.4)', err=810) ptm_vert_constant
-      else if (cstring1 .eq. 'ptm_iprof') then
-         ptm_iprof_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(l2)', err=810) ptm_iprof
-      else if (cstring1 .eq. 'ptm_trans_a_coef') then
-         ptm_trans_a_coef_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(f7.4)', err=810) ptm_trans_a_coef
-      else if (cstring1 .eq. 'ptm_trans_b_coef') then
-         ptm_trans_b_coef_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(f7.4)', err=810) ptm_trans_b_coef
-      else if (cstring1 .eq. 'ptm_trans_c_coef') then
-         ptm_trans_c_coef_int=1
-         field_names(1)=cstring1
-         read(cstring2,'(f7.4)', err=810) ptm_trans_c_coef
-      else if (cstring1 .eq. 'ptm_shear_vel') then
-	   write(unit_error)"ptm_shear_vel not used in this version of PTM"
-	   istat=-1
-	   goto 900
-      else
-         write(unit_error, 610) line
-         istat=-1
-         goto 900
-      endif
-      return
-c-----char-to-value conversion errors
- 810  continue
-      write(unit_error, 620) 'Conversion error on field ' //
-     &     field_names(1), cstring1 // '  ' // cstring2
-      istat=-2
 
- 900  continue                  ! fatal error
-      return
-      end
+        !include '../test/include_merged.f'
+        call process_scalar(Param, Value, istat)
 
+
+      
+      endsubroutine
       subroutine input_particle_flux(field_names, mxflds, nfields, nflds,
      &     ifld, rifld, line, ibegf, ilenf, idelmt, istat)
 
