@@ -74,7 +74,7 @@ c-----Load data
          if (istat .lt. 0) goto 901
       end if
 
-      call load_obj2obj_SQL(StmtHndl, HydroID, istat)
+      call load_transfers_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
 
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')
