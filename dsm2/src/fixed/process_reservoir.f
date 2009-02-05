@@ -49,3 +49,45 @@ C!</license>
  630   format(/a,i5)
       return
       end subroutine
+      
+      subroutine process_reservoir_connection(resname,
+     &                                        con_node,
+     &                                        rescon_incoef,
+     &                                        rescon_outcoef)
+      use constants
+      use grid_data
+      use logging
+      use io_units
+      implicit none
+      include '../hydrolib/network.inc'      
+      
+      character*32 resname
+      integer :: con_node
+      integer :: resno
+      integer :: nn
+      integer, external :: ext2intnode, name_to_objno
+      real*4 rescon_incoef      !todo: change to real*8
+      real*4 rescon_outcoef
+      resno = name_to_objno(obj_reservoir,resname)
+      res_geom(resno).nnodes=res_geom(resno).nnodes+1
+	if (res_geom(resno).nnodes .gt. MaxResConnectChannel)then
+          write(unit_error,*) 'Number of reservoir connections for ',
+     &      res_geom(resno).name, ' exceeds maximum of ',
+     &      MaxResConnectChannel
+            call exit(-1)
+          return
+       endif	                   
+       nn=res_geom(resno).nnodes
+       res_geom(resno).isNodeGated(nn)=.false.
+         ! todo fixme check that only gated or reservoir connection, not both
+       res_geom(resno).node_no(nn)=ext2intnode(con_node)
+       res_geom(resno).coeff2res(nn)=rescon_incoef
+       res_geom(resno).coeff2chan(nn)=rescon_outcoef     
+       return
+       end subroutine
+      
+      
+      
+      
+      
+      

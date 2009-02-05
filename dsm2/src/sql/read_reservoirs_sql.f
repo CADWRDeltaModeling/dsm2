@@ -168,14 +168,13 @@ c-----arguments
 
 c-----f90SQL variables
       character(len=1000)::StmtStr
-      integer(SQLRETURN_KIND)::iRet
-      integer(SQLSMALLINT_KIND)::ColNumber ! SQL table column number
+      integer(SQLRETURN_KIND)::iRet=0
+      integer(SQLSMALLINT_KIND)::ColNumber=0 ! SQL table column number
 
 c-----local variables
 
       integer
-     &     connID               ! connection ID
-     &     ,resno               ! reservoir number
+     &      resno               ! reservoir number
      &     ,con_node            ! connecting node number
      &     ,nn                  ! connecting node number
      &     ,resID
@@ -193,7 +192,7 @@ c-----local variables
 c-----prepare statement including a parameter for resIDStr
 
       StmtStr="SELECT " //
-     &     "Connection_ID, Connected_Node_Number, " //
+     &     "Connected_Node_Number, " //
      &     "In_Coef, Out_Coef " //
      &     "FROM Reservoir_Connections " //
      &     "WHERE Reservoir_ID = ?" // " " //
@@ -205,10 +204,6 @@ c-----prepare statement including a parameter for resIDStr
      &     resID, f90SQL_NULL_PTR, iRet)
 
 c-----Bind variables to columns in result set
-      ColNumber=1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, connID,
-     &     f90SQL_NULL_PTR, iRet)
-
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, con_node,
      &     f90SQL_NULL_PTR, iRet)
@@ -249,23 +244,12 @@ c-----------Loop to fetch records, one at a time
 c--------------Fetch a record from the result set
                call f90SQLFetch(StmtHndl,iRet)
                if (iRet .eq. SQL_NO_DATA) exit
+               call process_reservoir_connection(res_geom(resno).name,
+     &                                           con_node,
+     &                                           rescon_incoef,
+     &                                           rescon_outcoef)
+      
 
-c--------------no duplicate or deleted connections are allowed; create a new
-c--------------reservoir instead
-               res_geom(resno).nnodes=res_geom(resno).nnodes+1
-	         if (res_geom(resno).nnodes .gt. MaxResConnectChannel)then
-                    write(unit_error,*) 'Number of reservoir connections for ',
-     &               res_geom(resno).name, ' exceeds maximum of ',
-     &               MaxResConnectChannel
-                     istat=-1
-                  return
-               endif	                   
-               nn=res_geom(resno).nnodes
-               res_geom(resno).isNodeGated(nn)=.false.
-                                ! fixme check that only gated or reservoir connection, not both
-               res_geom(resno).node_no(nn)=ext2intnode(con_node)
-               res_geom(resno).coeff2res(nn)=rescon_incoef
-               res_geom(resno).coeff2chan(nn)=rescon_outcoef
                counter=counter+1
             enddo
             call f90SQLFreeStmt(StmtHndl,SQL_CLOSE, iRet) 

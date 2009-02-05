@@ -35,7 +35,6 @@ c-----Convert model name to model id
 c-----Load data
       call load_scalar_SQL(StmtHndl, ModelID, istat)
       if (istat .lt. 0) goto 901
-
       call load_channels_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
       call load_channel_xsects_SQL(StmtHndl, HydroID, istat)
@@ -47,7 +46,6 @@ c-----Load data
       if (istat .lt. 0) goto 901
       call load_reservoir_connections_SQL(StmtHndl, istat)
       if (istat .lt. 0) goto 901
-
       call load_gates_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
       if (istat .gt. 0) then    ! gates are included
