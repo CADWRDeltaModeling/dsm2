@@ -47,6 +47,7 @@
 		<File RelativePath="..\..\src\fixed\process_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\process_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_scalar.f"/>
+		<File RelativePath="..\..\src\fixed\process_transfer.f"/>
 		<File RelativePath="..\..\src\fixed\read_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\utilities.f"/></Filter></Files>
 	<Globals/></VisualStudioProject>
