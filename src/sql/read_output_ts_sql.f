@@ -523,6 +523,7 @@ c--------if the path is marked as not-use
      &        .and. PrevSourceGroup .eq. SourceGroup
      &        ) .and.
      &        UseObj) then
+!todo start extract
             noutpaths=noutpaths+1
             if (noutpaths .gt. max_outputpaths) then
                write(unit_error,630)
@@ -617,7 +618,7 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
      &           write(unit_screen,'(i5,i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths, ID,
      &           trim(Name),trim(LocName),trim(Param),trim(Interval),
      &           trim(FileName)
-
+!todo end extract
          endif
  200     continue
          counter=counter+1
