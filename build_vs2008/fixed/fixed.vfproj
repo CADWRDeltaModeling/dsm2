@@ -4,7 +4,7 @@
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Debug" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Debug" FixedFormLineLength="fixedLength132" WarnUnusedVariables="true" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
 				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/fixed.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
@@ -42,6 +42,7 @@
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\print_output.f"/>
 		<File RelativePath="..\..\src\fixed\process_channel.f"/>
+		<File RelativePath="..\..\src\fixed\process_channel_output_ts.f"/>
 		<File RelativePath="..\..\src\fixed\process_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\process_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_irreg.f"/>
