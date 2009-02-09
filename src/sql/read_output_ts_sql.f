@@ -1,3 +1,22 @@
+C!<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
+
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public !<license as published by
+C!    the Free Software Foundation, either version 3 of the !<license, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public !<license for more details.
+
+C!    You should have received a copy of the GNU General Public !<license
+C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
+C!</license>
+
       subroutine load_node_output_ts_sql(StmtHndl, ModelID, istat)
 
 c-----load f90SQL modules
@@ -301,15 +320,17 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
       return
       end subroutine
 
-!c//////////////////////////////////////////////////////////////////
+
+c//////////////////////////////////////////////////////////////////
+
 
       subroutine load_channel_output_ts_sql(StmtHndl, ModelID, istat)
 
-!c-----load f90SQL modules
+c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
       use Gates, only: gateArray,gateIndex,deviceIndex,WEIR,PIPE
-	  use Groups, only: GROUP_ALL
+	use Groups, only: GROUP_ALL
       use io_units
       use logging
       use iopath_data
@@ -319,12 +340,12 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
       implicit none
 
       
-!c-----arguments
+c-----arguments
       integer(SQLHANDLE_KIND):: StmtHndl
       integer ModelID           ! which ModelID to select
      &     ,istat               ! status
 
-!c-----f90SQL variables
+c-----f90SQL variables
       character(len=1000)::StmtStr
       integer(SQLRETURN_KIND)::iRet
       integer(SQLSMALLINT_KIND)::ColNumber ! SQL table column number
@@ -333,7 +354,7 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
      &                           ,SourceGroupLen, ParamLen, FileLen
       integer name_to_objno
 
-!c-----local variables
+c-----local variables
       integer UseObj
       integer*4
      &     ID                   ! transfer ID
@@ -363,14 +384,14 @@ c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
       integer get_objnumber
       external ext2int, get_objnumber
 
-!c-----Bind the parameter representing ModelID	
+c-----Bind the parameter representing ModelID	
       call f90SQLBindParameter (StmtHndl, int(1,SQLUSMALLINT_KIND), SQL_PARAM_INPUT,
      &     SQL_F_SLONG, SQL_INTEGER, int(4,SQLUINTEGER_KIND),  int(0,SQLSMALLINT_KIND),
      &     ModelID, f90SQL_NULL_PTR, iRet) 
 
 
 
-!c-----Execute SQL statement
+c-----Execute SQL statement
 
       StmtStr="SELECT out_id, name, channel, " //
      &     "distance, used, variable_name, time_interval, " //
@@ -479,7 +500,7 @@ c--------clean up char variables, replace environment variables
          call locase(PerOp)
 
          SourceGroup=SourceGroup(1:SourceGroupLen)
-	     call locase(SourceGroup)
+	   call locase(SourceGroup)
 
          FileName=FileName(1:FileLen) ! preserve case for filename
          nenv=replace_envvars(FileName,ctmp)
@@ -494,12 +515,111 @@ c--------clean up char variables, replace environment variables
          write(LocName, '(i)')LocNum
          LocName=trim(LocName)
 
+c--------use only the last version of a path, and skip
+c--------if the path is marked as not-use
+         if ( .not.(
+     &        Name .eq. PrevName 
+     &        .and. Param .eq. PrevParam
+     &        .and. PrevSourceGroup .eq. SourceGroup
+     &        ) .and.
+     &        UseObj) then
+!todo start extract
+            noutpaths=noutpaths+1
+            if (noutpaths .gt. max_outputpaths) then
+               write(unit_error,630)
+     &              'Too many pathoutput paths specified; max allowed is:'
+     &              ,max_outputpaths
+               istat=-1
+               return
+            endif
+
+            pathoutput(noutpaths).use=.true.
+            pathoutput(noutpaths).name=Name
+            pathoutput(noutpaths).obj_type=ObjType
+            if (SourceGroupLen .eq. SQL_NULL_DATA .or.
+     &          SourceGroupLen .eq. 0) then
+               pathoutput(noutpaths).source_group_ndx=GROUP_ALL
+            else
+               pathoutput(noutpaths).source_group_ndx=name_to_objno(obj_group,SourceGroup)
+               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i)then
+                   write(unit_error,*)"Source group ",SourceGroup,
+     &              " not recognized for output request: ", pathoutput(noutpaths).name
+                   call exit(2)
+               end if
+            endif
+c-----------find object number given object ID
+            pathoutput(noutpaths).obj_no = ext2int(locNum)
+            if (pathoutput(noutpaths).obj_no .eq. 0) 
+     &               pathoutput(noutpaths).obj_no = miss_val_i ! quick fix?
+      
+               if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
+                  write(unit_error,*)'Ignoring output TS: ', trim(name), 
+     &                 ' request for unrecognized channel ', locNum
+                   noutpaths=noutpaths-1
+                   goto 200
+               end if
+            pathoutput(noutpaths).obj_name=' '      
+            pathoutput(noutpaths).chan_dist=SubLoc !fixme: dist
+            if(pathoutput(noutpaths).chan_dist .eq. chan_length) then
+               pathoutput(noutpaths).chan_dist = chan_geom(pathoutput(noutpaths).obj_no).length
+            end if
 
 
-            call process_channel_output_ts(istat)  
+            pathoutput(noutpaths).a_part=' '
+            pathoutput(noutpaths).b_part=Name
+            pathoutput(noutpaths).c_part=Param
+            call split_epart(Interval,itmp,ctmp)
+            if (itmp .ne. miss_val_i) then ! valid interval, parse it
+               pathoutput(noutpaths).e_part=Interval
+               pathoutput(noutpaths).no_intervals=itmp
+               pathoutput(noutpaths).interval=ctmp
+            else
+               write(unit_error, "('Unknown output time interval: '//a)") Interval
+               istat=-1
+               return
+            endif
+            pathoutput(noutpaths).f_part=' '
+            pathoutput(noutpaths).filename=FileName
+c-----------accumulate unique dss output filenames
+            itmp=loccarr(pathoutput(noutpaths).filename,outfilenames,
+     &           max_dssoutfiles, EXACT_MATCH)
+            if (itmp .lt. 0) then
+               if (abs(itmp) .le. max_dssoutfiles) then
+                  outfilenames(abs(itmp))=pathoutput(noutpaths).filename
+                  pathoutput(noutpaths).ndx_file=abs(itmp)
+               else
+                  write(unit_error,610)
+     &                 'Maximum number of unique DSS output files exceeded'
+                  istat=-3
+                  return
+               endif
+            else
+               pathoutput(noutpaths).ndx_file=itmp
+            endif
 
+            pathoutput(noutpaths).meas_type=Param
+            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'            
+            call assign_output_units(pathoutput(noutpaths).units,Param)
 
+            if (PerOp(1:4) .eq. 'inst')
+     &           pathoutput(noutpaths).per_type=per_type_inst_val
+            if (PerOp(1:2) .eq. 'av')
+     &           pathoutput(noutpaths).per_type=per_type_per_aver
+            if (PerOp(1:3) .eq. 'min')
+     &           pathoutput(noutpaths).per_type=per_type_per_min
+            if (PerOp(1:3) .eq. 'max')
+     &           pathoutput(noutpaths).per_type=per_type_per_max
 
+c-----------pathoutput(noutpaths).source.obj_type = SourceTypeID     fixme: this is broken
+c-----------if (SourceLocLen .gt. 0)
+c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
+
+            if (print_level .ge. 3)
+     &           write(unit_screen, '(i5,i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths, ID,
+     &           trim(Name),trim(LocName),trim(Param),trim(Interval),
+     &           trim(FileName)
+!todo end extract
+         endif
  200     continue
          counter=counter+1
          prevName=Name
@@ -1033,7 +1153,7 @@ c-----Loop to fetch records, one at a time
 
       do while (.true.)
 
-!c--------Fetch a record from the result set
+c--------Fetch a record from the result set
 
          call f90SQLFetch(StmtHndl,iRet)
          if (iRet .eq. SQL_NO_DATA) exit
@@ -1045,7 +1165,7 @@ c-----Loop to fetch records, one at a time
             return
          endif
 
-!c--------clean up char variables, replace environment variables
+c--------clean up char variables, replace environment variables
          Name=Name(1:namelen)
          nenv=replace_envvars(Name,ctmp)
          Name=ctmp
@@ -1085,8 +1205,8 @@ c-----Loop to fetch records, one at a time
             SubLoc=miss_val_i
          end if
 
-!c--------use only the last version of a path, and skip
-!c--------if the path is marked as not-use
+c--------use only the last version of a path, and skip
+c--------if the path is marked as not-use
          if ( .not.(
      &        Name .eq. PrevName 
      &        .and. Param .eq. PrevParam
@@ -1116,7 +1236,7 @@ c-----Loop to fetch records, one at a time
                    call exit(2)
                end if
             endif
-!c-----------find object number given object ID
+c-----------find object number given object ID
          ! fixme: same decision, especially since this doesn't really exist
             pathoutput(noutpaths).obj_name=LocName
             pathoutput(noutpaths).obj_no=  name_to_objno(ObjType, locName)
@@ -1156,8 +1276,7 @@ c-----Loop to fetch records, one at a time
             endif
             pathoutput(noutpaths).f_part=' '
             pathoutput(noutpaths).filename=FileName
-
-!c-----------accumulate unique dss output filenames
+c-----------accumulate unique dss output filenames
             itmp=loccarr(pathoutput(noutpaths).filename,outfilenames,
      &           max_dssoutfiles, EXACT_MATCH)
             if (itmp .lt. 0) then
@@ -1217,10 +1336,9 @@ c-----Loop to fetch records, one at a time
  630  format(/a,i5)
 
       istat=noutpaths
-      
       return
-      
       end subroutine
+
 
       subroutine assign_output_units(units, param)
       implicit none
@@ -1274,3 +1392,4 @@ c-----Loop to fetch records, one at a time
       end subroutine
 
 
+ 
