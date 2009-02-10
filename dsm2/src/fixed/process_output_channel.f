@@ -24,9 +24,10 @@ c-----load f90SQL modules
       character*32 :: perop
       character*32 :: sourcegroup
       character*128 :: filename
-      integer,external :: name_to_objno
-      integer,external :: ext2int
-      integer,external :: loccarr
+      
+      integer, external :: name_to_objno
+      integer, external :: ext2int
+      integer, external :: loccarr
 
       character*(100) ctmp
       integer itmp
@@ -63,7 +64,7 @@ c----------find object number given object ID
                noutpaths=noutpaths-1
             return
          end if
-      write(pathoutput(noutpaths).obj_name,'(i)') channo     
+      write(pathoutput(noutpaths).obj_name, '(i)') channo     
       pathoutput(noutpaths).chan_dist=distance 
       if(pathoutput(noutpaths).chan_dist .eq. chan_length) then
           pathoutput(noutpaths).chan_dist 
@@ -79,7 +80,7 @@ c----------find object number given object ID
          pathoutput(noutpaths).no_intervals=itmp
          pathoutput(noutpaths).interval=ctmp
       else
-         write(unit_error,"('Unknown output time interval: '//a)") Interval
+         write(unit_error, "('Unknown output time interval: '//a)") Interval
          call exit(-1)
          return
       endif
@@ -122,7 +123,7 @@ c-----------if (SourceLocLen .gt. 0)
 c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 
           if (print_level .ge. 3)
-     &           write(unit_screen,'(i5,a,1x,i,a30,1x,a8,1x,a80)') 
+     &           write(unit_screen, '(i5,a,1x,i,a30,1x,a8,1x,a80)') 
      &           noutpaths,
      &           trim(Name),channo,trim(Param),trim(Interval),
      &           trim(FileName)
