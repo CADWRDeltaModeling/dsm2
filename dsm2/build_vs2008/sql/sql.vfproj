@@ -42,6 +42,7 @@
 		<File RelativePath="..\..\src\sql\read_input_ts_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_op_rules_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_output_ts_channel_sql.f"/>
+		<File RelativePath="..\..\src\sql\read_output_ts_gate_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_output_ts_node_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_output_ts_sql.f"/>
 		<File RelativePath="..\..\src\sql\read_rate_coeffs_sql.f"/>
