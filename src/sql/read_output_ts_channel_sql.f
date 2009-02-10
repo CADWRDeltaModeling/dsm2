@@ -96,14 +96,14 @@ c-----Execute SQL statement
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
 
       if (iRet.ne.SQL_SUCCESS) then
-         write(unit_error,'(a,i5/)') 'Error in making channel Output TS SQL request',iRet
+         write(unit_error, '(a,i5/)') 'Error in making channel Output TS SQL request',iRet
          call ShowDiags(SQL_HANDLE_STMT, StmtHndl)
          istat=-3
          return
       else
          istat=0
          if (print_level .ge. 3)
-     &        write(unit_screen,'(a)') 'Made Output TS SQL request'
+     &        write(unit_screen, '(a)') 'Made Output TS SQL request'
       endif
 
 c-----Bind variables to columns in result set
@@ -149,7 +149,7 @@ c-----Bind variables to columns in result set
 
       
       ObjType = obj_channel
-      if (print_level .ge. 3) write(unit_screen,'(a)') 'Made Output TS bind request'
+      if (print_level .ge. 3) write(unit_screen, '(a)') 'Made Output TS bind request'
 
 c-----Loop to fetch records, one at a time
       counter=1
@@ -197,7 +197,7 @@ c--------clean up char variables, replace environment variables
          FileName=FileName(1:FileLen) ! preserve case for filename
          nenv=replace_envvars(FileName,ctmp)
          if (len_trim(ctmp) .eq. 0) then
-            write(unit_error,'(a)')'File name evaluated to blank string: ',FileName
+            write(unit_error, '(a)')'File name evaluated to blank string: ',FileName
             istat=-3
             return
          end if
@@ -230,22 +230,22 @@ c--------if the path is marked as not-use
       enddo
 
       if (print_level .ge. 2)
-     &     write(unit_screen,'(a,i5/)') 'Read in all Output TS data',noutpaths
+     &     write(unit_screen, '(a,i5/)') 'Read in all Output TS data',noutpaths
 
       call f90SQLFreeStmt(StmtHndl,SQL_UNBIND, iRet)
       call f90SQLCloseCursor (StmtHndl, iRet)
       if (iRet.ne.SQL_SUCCESS) then
-         write(unit_error,'(a,i5//)') 'Error in unbinding Output TS SQL',iRet
+         write(unit_error, '(a,i5//)') 'Error in unbinding Output TS SQL',iRet
          call ShowDiags(SQL_HANDLE_STMT, StmtHndl)
          istat=-3
          return
       else
-         if (print_level .ge. 3) write(unit_screen,'(a//)') 'Unbound Output TS SQL'
+         if (print_level .ge. 3) write(unit_screen, '(a//)') 'Unbound Output TS SQL'
       endif
 
 
       istat=noutpaths
 
-      istat=noutpaths
+
       return
-      end
+      end subroutine
