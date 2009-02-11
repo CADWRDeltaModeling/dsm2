@@ -120,7 +120,6 @@ c-----------find object number given object ID
             else
                write(unit_error, "('Unknown output time interval: '//a)") Interval
                call exit(-1)
-
             endif
             pathoutput(noutpaths).f_part=' '
             pathoutput(noutpaths).filename=FileName
