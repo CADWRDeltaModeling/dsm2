@@ -16,7 +16,7 @@
 
       subroutine read_sql(istat)
       use dsm2_database
-	use groups, only: ConvertGroupPatternsToMembers
+      use groups, only: ConvertGroupPatternsToMembers
       use runtime_data
       use iopath_data
       implicit none
@@ -28,8 +28,8 @@
                                              ! (may be same as ModelID)
       call get_statement_handle(StmtHndl, istat)
       call get_model_id(ModelID,istat)
-	call get_hydro_model_id(HydroID, istat)
-	if (istat .lt. 0) goto 901
+      call get_hydro_model_id(HydroID, istat)
+      if (istat .lt. 0) goto 901
 c-----Convert model name to model id
       
 c-----Load data
@@ -224,10 +224,7 @@ c--------Fetch a record from the result set
 c--------use only the last version of a parameter
          if (Param .ne. prev_param) then
          
-           call process_scalar_SQL(Param, Value, istat)
-           
-           !if (err_status == 810) goto 810
-           !if (err_status == 900) goto 900
+           call process_scalar_SQL(Param, Value)
                   
          endif 
          
