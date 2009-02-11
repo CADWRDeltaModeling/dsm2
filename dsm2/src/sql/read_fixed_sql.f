@@ -57,7 +57,7 @@ c-----Load data
       if (istat .lt. 0) goto 901
 
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')
-     &      call load_input_ts_SQL(StmtHndl, ModelID, istat)
+     &      call load_input_ts_node_SQL(StmtHndl, ModelID, istat)
       if (istat .lt. 0) goto 901
       
       if( dsm2_name .eq. 'Hydro')then
