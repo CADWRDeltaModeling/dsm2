@@ -15,11 +15,6 @@
       use envvar
       implicit none
 
-      integer*4
-     &     ID                   ! transfer ID
-     &     ,itmp
-     &     ,gateNo,devNo
-
       character
      &     FileName*128
      &     ,Name*32
@@ -30,6 +25,11 @@
      &     ,SubLoc*32           ! Object-dependent sublocation (gate device, reservoir node connect..)
      &     ,ctmp*200
 
+      integer*4
+     &     ID                   ! transfer ID
+     &     ,itmp
+     &     ,gateNo,devNo     
+     
       integer, external :: name_to_objno
       integer, external :: ext2int
       integer, external :: loccarr      
