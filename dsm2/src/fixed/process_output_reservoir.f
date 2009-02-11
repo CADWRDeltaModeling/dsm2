@@ -27,7 +27,6 @@
 
       integer*4
      &     ID                   ! transfer ID
-     &     ,ObjType
      &     ,itmp
      &     ,SubLoc
 
@@ -43,7 +42,6 @@
      &              'Too many pathoutput paths specified; max allowed is:'
      &              ,max_outputpaths
                call exit(-1)
-               return
             endif
 
             pathoutput(noutpaths).use=.true.
@@ -62,7 +60,7 @@
 c-----------find object number given object ID
          ! fixme: same decision, especially since this doesn't really exist
             pathoutput(noutpaths).obj_name=LocName
-            pathoutput(noutpaths).obj_no=  name_to_objno(ObjType, locName)
+            pathoutput(noutpaths).obj_no=  name_to_objno(obj_reservoir, locName)
             if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
                write(unit_error,*)'Ignoring output TS: ', trim(name), 
      &              ' request for unrecognized reservoir ', locName
@@ -70,7 +68,7 @@ c-----------find object number given object ID
                return
             end if
             pathoutput(noutpaths).res_node_no = miss_val_i
-            if (SubLoc .gt. 0)then  !fixme  SubLoc could be 0 or less?
+            if (SubLoc .NE. miss_val_i)then 
                pathoutput(noutpaths).res_node_no = ext2intnode(SubLoc)
                if (pathoutput(noutpaths).res_node_no .eq. miss_val_i)then
                   write(unit_error,*)'Output TS: ',trim(name),

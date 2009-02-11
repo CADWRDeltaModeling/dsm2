@@ -10,7 +10,7 @@ c-----load f90SQL modules
       !use f90SQLConstants
       !use f90SQL
       use Gates, only: gateArray,gateIndex,deviceIndex,WEIR,PIPE
-	  use Groups, only: GROUP_ALL
+      use Groups, only: GROUP_ALL
       use io_units
       use logging
       use iopath_data

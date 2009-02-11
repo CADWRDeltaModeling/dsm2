@@ -17,19 +17,21 @@ c-----load f90SQL modules
       implicit none
       
       character*32 name
-      integer :: channo
-      integer :: distance
+
       character*32 :: param
       character*32 :: interval
-      character*32 :: perop
+      character*8  :: perop
       character*32 :: sourcegroup
       character*128 :: filename
+
+      integer :: channo
+      integer :: distance
       
       integer, external :: name_to_objno
       integer, external :: ext2int
       integer, external :: loccarr
 
-      character*(100) ctmp
+      character*(200) ctmp
       integer itmp
 
       noutpaths=noutpaths+1
@@ -38,7 +40,6 @@ c-----load f90SQL modules
      &     'Too many pathoutput paths specified; max allowed is:'
      &         ,max_outputpaths
          call exit(-1)
-         return
       endif
 
       pathoutput(noutpaths).use=.true.
