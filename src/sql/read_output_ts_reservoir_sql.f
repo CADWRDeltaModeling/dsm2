@@ -1,28 +1,9 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
-
-C!    DSM2 is free software: you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public !<license as published by
-C!    the Free Software Foundation, either version 3 of the !<license, or
-C!    (at your option) any later version.
-
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public !<license for more details.
-
-C!    You should have received a copy of the GNU General Public !<license
-C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
-C!</license>
-
       subroutine load_reservoir_output_ts_sql(StmtHndl, ModelID, istat)
 
 c-----load f90SQL modules
       use f90SQLConstants
       use f90SQL
-	use Groups, only: GROUP_ALL
+      use Groups, only: GROUP_ALL
       use io_units
       use logging
       use iopath_data
@@ -222,102 +203,17 @@ c--------if the path is marked as not-use
      &        .and. PrevSourceGroup .eq. SourceGroup
      &        ) .and.
      &        UseObj) then
-            noutpaths=noutpaths+1
-            if (noutpaths .gt. max_outputpaths) then
-               write(unit_error,630)
-     &              'Too many pathoutput paths specified; max allowed is:'
-     &              ,max_outputpaths
-               istat=-1
-               return
-            endif
 
-            pathoutput(noutpaths).use=.true.
-            pathoutput(noutpaths).name=Name
-            pathoutput(noutpaths).obj_type=ObjType
-            if (SourceGroupLen .eq. SQL_NULL_DATA .or.
-     &          SourceGroupLen .eq. 0) then
-               pathoutput(noutpaths).source_group_ndx=GROUP_ALL
-            else
-               pathoutput(noutpaths).source_group_ndx=name_to_objno(obj_group,SourceGroup)
-               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i)then
-                   write(unit_error,*)"Source group ",SourceGroup,
-     &              " not recognized for output request: ", pathoutput(noutpaths).name
-                   call exit(2)
-               end if
-            endif
-c-----------find object number given object ID
-         ! fixme: same decision, especially since this doesn't really exist
-            pathoutput(noutpaths).obj_name=LocName
-            pathoutput(noutpaths).obj_no=  name_to_objno(ObjType, locName)
-            if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
-               write(unit_error,*)'Ignoring output TS: ', trim(name), 
-     &              ' request for unrecognized reservoir ', locName
-	         noutpaths=noutpaths-1
-	         goto 400
-               return
-            end if
-            pathoutput(noutpaths).res_node_no = miss_val_i
-            if (subloclen .gt. 0)then
-               pathoutput(noutpaths).res_node_no = ext2intnode(SubLoc)
-               if (pathoutput(noutpaths).res_node_no .eq. miss_val_i)then
-                  write(unit_error,*)'Output TS: ',trim(name),
-     &                ' requested non-existent reservoir connection'
-                  write(unit_error, *)'Reservoir: ', pathoutput(noutpaths).obj_name,
-     &                'Node: ',SubLoc
-                  istat=-3
-                  return
-               end if               
-            else
-               pathoutput(noutpaths).res_node_no = miss_val_i
-            end if
-            pathoutput(noutpaths).a_part=' '
-            pathoutput(noutpaths).b_part=Name
-            pathoutput(noutpaths).c_part=Param
-            call split_epart(Interval,itmp,ctmp)
-            if (itmp .ne. miss_val_i) then ! valid interval, parse it
-               pathoutput(noutpaths).e_part=Interval
-               pathoutput(noutpaths).no_intervals=itmp
-               pathoutput(noutpaths).interval=ctmp
-            else
-               write(unit_error, "('Unknown output time interval: '//a)") Interval
-               istat=-1
-               return
-            endif
-            pathoutput(noutpaths).f_part=' '
-            pathoutput(noutpaths).filename=FileName
-c-----------accumulate unique dss output filenames
-            itmp=loccarr(pathoutput(noutpaths).filename,outfilenames,
-     &           max_dssoutfiles, EXACT_MATCH)
-            if (itmp .lt. 0) then
-               if (abs(itmp) .le. max_dssoutfiles) then
-                  outfilenames(abs(itmp))=pathoutput(noutpaths).filename
-                  pathoutput(noutpaths).ndx_file=abs(itmp)
-               else
-                  write(unit_error,610)
-     &                 'Maximum number of unique DSS output files exceeded'
-                  istat=-3
-                  return
-               endif
-            else
-               pathoutput(noutpaths).ndx_file=itmp
-            endif
-
-            pathoutput(noutpaths).meas_type=Param
-            if (Param(1:3) .eq. 'vel')pathoutput(noutpaths).meas_type='vel'            
-            call assign_output_units(pathoutput(noutpaths).units,Param)
-            if (PerOp(1:4) .eq. 'inst')
-     &           pathoutput(noutpaths).per_type=per_type_inst_val
-            if (PerOp(1:2) .eq. 'av')
-     &           pathoutput(noutpaths).per_type=per_type_per_aver
-            if (PerOp(1:3) .eq. 'min')
-     &           pathoutput(noutpaths).per_type=per_type_per_min
-            if (PerOp(1:3) .eq. 'max')
-     &           pathoutput(noutpaths).per_type=per_type_per_max
-
-            if (print_level .ge. 3)
-     &           write(unit_screen, '(i5,i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths, ID,
-     &           trim(Name),trim(LocName),trim(Param),trim(Interval),
-     &           trim(FileName)
+     
+            call process_output_reservoir(Name,
+     &                                  LocName,
+     &                                  SubLoc,
+     &                                  Param,
+     &                                  Interval,
+     &                                  PerOp,
+     &                                  SourceGroup,
+     &                                  Filename)    
+     
 
          endif
  400     continue
@@ -346,58 +242,4 @@ c-----------accumulate unique dss output filenames
 
       istat=noutpaths
       return
-      end
-
-
-      subroutine assign_output_units(units, param)
-      implicit none
-      character*(*) units, param
-      if (index(Param, 'flow') .gt. 0 .or.
-     &    index(Param, 'pump') .gt. 0) then
-          units='cfs'
-      else if (Param(1:3) .eq. 'vel' ) then
-          units='ft/s'
-      else if (Param .eq. 'stage') then
-          units='feet'
-      else if (Param .eq. 'elev') then
-          units='feet'
-      else if (Param .eq. 'height') then
-          units='feet'
-      else if (Param .eq. 'height') then
-          units='position'               
-      else if (Param .eq. 'width') then
-          units='feet'                                             
-      else if (Param .eq. 'tds') then
-          units='ppm'
-      else if (index(Param, 'weir-pos') .gt. 0) then
-          units=' '
-      else if (index(Param, 'pipe-pos') .gt. 0) then
-          units=' '
-      else if (Param .eq. 'ec') then
-          units='umhos/cm'
-      else if (Param .eq. 'do') then
-          units='mg/l'
-      else if (Param .eq. 'nh3-n') then
-          units='mg/l'
-      else if (Param .eq. 'org-n') then
-          units='mg/l'
-      else if (Param .eq. 'no2-n') then
-          units='mg/l'
-      else if (Param .eq. 'no3-n') then
-          units='mg/l'
-      else if (Param .eq. 'bod') then
-          units='mg/l'
-      else if (Param .eq. 'org-p') then
-          units='mg/l'
-      else if (Param .eq. 'po4-p') then
-          units='mg/l'
-      else if (Param .eq. 'algae') then
-          units='mg/l'
-      else if (Param .eq. 'temp') then
-          units='deg c'
-      else   
-          units=' '
-      endif      
       end subroutine
-
-
