@@ -33,6 +33,7 @@
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\src\fixed\assign_output_units.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_hydro.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_ptm.f"/>
@@ -48,6 +49,7 @@
 		<File RelativePath="..\..\src\fixed\process_output_channel.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_node.f"/>
+		<File RelativePath="..\..\src\fixed\process_output_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_scalar.f"/>
 		<File RelativePath="..\..\src\fixed\process_transfer.f"/>
