@@ -108,12 +108,11 @@ c--------Fetch a record from the result set
             write(unit_error,'(a,i5//)') 'Error in fetching group',iRet
             call ShowDiags(SQL_HANDLE_STMT, StmtHndl)
          end if
-         name=name(1:namelen)
 
+         name=name(:namelen)
+         call locase(name)
          if (name .ne. prev_name .and. UseObj) then
-            counter=counter+1
-            groupArray(counter).id=ID
-            groupArray(counter).name=name(1:namelen)
+            call process_group(name,id)
          end if
          prev_name=name
       enddo
@@ -178,7 +177,6 @@ c-----local variables
       integer
      &     objType
      &     ,nmember
-     &     ,nsubgroup
      &     ,n,i
      &     ,allocstat
      &     ,name_to_objno
@@ -231,28 +229,15 @@ c-----Bind variables to columns in result set
          return
       end if
 
-
-	nsubgroup = 0
 c-----loop through members
       do while (.true.)
          call f90SQLFetch(StmtHndl,iRet)
          if (iRet .eq. SQL_NO_DATA .or. iRet .eq. SQL_ERROR) exit
-         if (ObjType .eq. obj_group)then ! member is another group
-            write(unit_error, *)"Subgroups not supported"
-	      istat=-2
-	      return
-         else
-	     nsubgroup=nsubgroup+1
-           groupArray(GroupNdx).memberPatterns(nsubgroup).obj_type=objType
-	     groupArray(GroupNdx).memberPatterns(nsubgroup).pattern=pattern(1:patternlen)
-         end if
+         call process_group_member(groupArray(GroupNdx).name, 
+     &                             objtype, 
+     &                             pattern(:patternlen))
       end do
-	    
-      groupArray(GroupNdx).nMemberPatterns=nsubgroup
 	call f90SQLFreeStmt(StmtHndl,SQL_CLOSE, iRet)
-     
-
-
       call f90SQLFreeStmt(StmtHndl,SQL_UNBIND, iRet)
 
       if (iRet.ne.SQL_SUCCESS) then
@@ -266,9 +251,9 @@ c-----loop through members
      &        write(unit_screen,'(a//)') 'Unbound group member SQL'
       endif
       
-      istat=nsubgroup
+      istat=groupArray(GroupNdx).nsubgroups
 
-
+      return
       end subroutine
 
 
