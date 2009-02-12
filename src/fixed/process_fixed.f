@@ -1331,17 +1331,7 @@ c-----local variables
          if (rifld(i) .eq. group_name) then
 	      groupname=' '
 	      groupname=trim(cstring(1:32))
-	      groupno=name_to_objno(obj_group,groupname)
-	      if(groupno .eq. miss_val_i)then
-	         ngroup=ngroup+1
-	         groupno=ngroup
-	         groupArray(groupno).name=groupname
-	         if (groupno .gt. MAX_GROUPS) then
-	            write(unit_error,*)"Maximum number of groups exceeded"
-	            istat = -1
-	            return
-	         end if
-	      end if
+	      call process_group(groupname,miss_val_i)
          else if (rifld(i) .eq. group_memtype) then
 	      objtype=obj_type_code(cstring)
          else if (rifld(i) .eq. group_memid) then
@@ -1350,16 +1340,7 @@ c-----local variables
          endif
          i=i+1
       enddo
-      npattern=groupArray(groupno).nMemberPatterns+1
-      if (npattern .gt. MAX_MEMBER_PATTERNS)then
-	   write(unit_error,*)"Maximum number of member patterns exceeded for group"
-         istat=-2
-         return
-	endif
-      groupArray(groupno).nMemberPatterns=npattern
-	groupArray(groupno).MemberPatterns(npattern).obj_type=objtype
-	groupArray(groupno).MemberPatterns(npattern).pattern=trim(adjustl(pattern))
-
+      call process_group_member(groupname,objtype,pattern)
       return
 
 c-----char-to-value conversion errors
