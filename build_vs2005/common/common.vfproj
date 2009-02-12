@@ -42,7 +42,7 @@
 		<File RelativePath="..\..\src\common\constants_ptm.f"/>
 		<File RelativePath="..\..\src\common\envvar.f"/>
 		<File RelativePath="..\..\src\common\gates.f"/>
-		<File RelativePath="..\ptm_fortran\grid_data.f"/>
+		<File RelativePath="..\..\src\common\grid_data.f"/>
 		<File RelativePath="..\..\src\common\groups.f"/>
 		<File RelativePath="..\..\src\common\io_units.f"/>
 		<File RelativePath="..\..\src\common\iopath_data.f"/>
