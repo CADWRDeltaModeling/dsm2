@@ -1,0 +1,25 @@
+#include "ApplicationTextReader.h"
+#include "input_storage.h"
+#include "InputState.h"
+#include "ItemInputState.h"
+#include "InsertFileState.h"
+#include <string>
+
+
+//////////////////////
+ApplicationTextReader::InputStateMap input_state_map()
+{ 
+  ApplicationTextReader::InputStateMap inputMap;
+
+  //Add all available item readers to map
+// Item readers DO NOT ALTER THIS LINE AT ALL
+  
+
+  // Include file definitions
+// Include definitions DO NOT ALTER THIS LINE AT ALL
+
+  return inputMap;
+}    
+
+
+

@@ -1,0 +1,118 @@
+/*! \mainpage input_storage library
+
+
+\section intro_sec Introduction
+This library facilitates I/O using text and hdf5 tables. The package contains the following components:
+- Scripts for describing user-defined objects and autogenerating corresponding parsing and storage code.
+- Input parsing and storage programming interfaces in C++ and FORTRAN.
+- Some support for validation (this is still evolving) and
+- Unit tests of important functionality
+
+The main usage scenario for the libary is that a client programmer writes some descriptions of the data objects in Python, generates the C++ code to read and write tables, compiles and links the routines to other code that uses the read/write capabilities. 
+
+To make use of the module, you should understand the \ref concepts and \ref howto.
+
+\section concepts Input System Concepts
+\subsection Model Data Type and Text Representation
+Assume the client code is a model that requires objects called "channels" that are defined on a directional graph, with upstream and dowstream "nodes". The channels have an integer identifier called "chan_no" and have two real-valued data attributes called "manning" and "dispersion" representing bottom friction and a local dispersion coefficient.
+
+We want to read these attributes from a text files that has blocks written like this:
+\code
+<file channel.inp>
+CHANNEL
+CHAN_NO   MANNING   DISPERSION   UP_NODE    DOWN_NODE
+1         0.030     0.80         1          2
+2         0.040     0.80         2          3
+...
+412       0.033     0.80         312        413         # This is a comment
+END
+<eof channel.inp>
+\endcode
+
+The block is delineated by a keyword <CODE> CHANNEL </CODE> and a terminal <CODE> END </CODE>
+
+The fields (CHAN_NO, etc) are called the "header", and the remaining lines comprise the entry. The CHAN_NO column has a special importance -- it is the "identifier" that will be used in other parts of the input system to uniquely identify or order the channels. A comment is shown, using the # sign as the start of the comment block.
+
+\subsection Parent-child Table Relationships
+The library can be configured to handle rudimentary many-to-one parent-child relationships by identifying a column that links the child table to the parent (like a foreign key in RDMS lingo). For instance, assume that a CHANNEL can have multiple cross-sections. The cross-sections will be represented by the fractional distance (from upstream node to downstream node) along the channel and will have input that is stored in a file in a distinct format whose name is given here:
+\code
+<file channel_standard.inp>
+CHANNEL
+CHAN_NO   MANNING   DISPERSION   UP_NODE    DOWN_NODE
+1         0.030     0.80         1          2
+2         0.040     0.80         2          3
+...
+412       0.033     0.80         312        413
+END
+
+XSECT
+CHAN_NO   FRAC_DIST    FILE
+1         0.200       1_0_200.txt
+1         0.800       1_0_800.txt
+2         0.500       2_0_500.txt
+<eof channel.inp>
+\endcode
+
+Here the XSECT table is the child and the parent table is CHANNEL. The identifier of the XSECT table is the tuple(CHAN_NO, FRAC_DIST). The parent identifier is CHAN_NO and the parent-child relationship is based on this key as well.
+
+\subsection include Include Files
+The input system can be configured to allow "include" input from other files. For instance the keyword GRID could be set this way. The input system would then process lines in a GRID block as if each line is the name of an include files. The include files will be sequentially read and scanned for data such as CHANNEL or XSECT sections:
+
+\code
+<file hydro.inp>
+...
+GRID
+channel_standard.inp
+channel_montezuma_slough.inp
+END
+...
+<eof hydro.inp>
+\endcode
+
+For each keyword you designate as an include block name, you can designate a set of keywords that will be legal in the included files. The GRID section could thus be restricted to allow CHANNEL and XSECT blocks, but not a block called BOUNDARY_FLOW. The items that are designated legal are called "context items". A keyword that is encountered out of context will be treated as illegal input.
+
+
+\subsection layer File-based Layers (Prioritization)
+You may want to group your input in separate files. Each file might represent a distinct version or subsystem. In this case it must be clear how one entry is prioritized against the next. The input system assumes that input is prioritized in the order in which it is encountered. Each file is assigned a "layer" number when the file is first encountered. 
+- When parent items that have layers (channel in the example on parent-child relationships) are redefined in the same file it is an error. Redefinition means that the identifier for a parent table (CHAN_NO) is used on more than one row. The client program will decide which fields are the identifier.
+- When parent items are redefined in a later file (and is assigned a higher layer number), the later definition overwrites the prior
+- When parent items are redefined, all their child items are completely replaced.
+- Child items can only be replaced by replacing the parent as well.
+- Parent items can be deleted in later layers by marking them as not used (currently ^ in the first column). The advantage of this is that you can eliminate, add or alter items in a "revision" layer without marking up the original file.
+
+
+\subsection textsub Environmental and User-defined Text Substitution
+When the input system is reading items, it can perform text substitution. It will replace items delineated like ${THIS}. The variables it replaces can come from a user-provided map or from the system environment. By default both are searched and the user provided keys are given precedence.
+
+Within a complete input system, it is possible to do collect name-value pairs on a first pass through the input system and use them for text substitution on a second pass. The examples do this. You must designate the keyword that you will use for blocks of variables (e.g. ENVVARS) and its field names must be NAME and VALUE.
+
+\subsection active_items Activating Items
+The input system can be configured to only parse certain items. An item is inactive if it is a legal input item but will not be read on the current "pass" of the parser. The item (e.g. CHANNEL) block will be read without any processing and the buffer for that type will not be filled. However, it must be emphasized that the item must still be legal -- a misspelled keyword such as "CHASNEL" would still be an input error, and so would an item encountered out of context as described in the \ref include section
+
+In C++, the set of active items is changed by defining a vector of active items and delivering it to ApplicationTextReader::setActiveItems. You can also set all defined input items active using ApplicationTextReader::setAllActive.
+
+In FORTRAN, this capability is not general. The API allows you to activate only the text substitution (ENVVAR, say) section.
+
+\subsection hdf HDF5
+HDF5 is a high performance binary data format. The input_storage library has the option to write its buffers to tables in HDF5 and to read buffers back from HDF5.
+
+\subsection statemach State Machine
+The state machine is the design concept between the input reader. The book <EM>Text Processing in Python</EM> by Mertz is a good introduction to this topic. State Machines are ubiquitous in text processing applications. The idea is that the input reader processes the stream of input transitioning from state to state. For instance, the reader starts in a FileInputState that represents general perusing of the input files. It might then transition to a particular ItemInputState representing an item like a channel or to an InsertFileState representing parsing of include files. Typically, the terminal state is an EndOfFileState. Each state consumes input until it reaches the end of the relevant input (for instance the end of a block) and then transitions to the next state.
+
+
+\section howto How to Program Using the Package
+In order to use this library in a new context you will need to
+-# Define some user data items in a python file that imports the input_storage_generator module. An example is provided in a file called generate_example.py. This file is used for the unit tests.
+-# Run the python script and generate c++ and fortran bindings.
+-# Write code that interacts with the generated code and compile them together:
+   -# Request text be read into buffers
+   -# Prioritize the items in buffers
+   -# Write or read buffers to hdf5
+   -# Query the items held in the buffer
+   -# Release resources being held in the buffer
+-# Use the data queried from the buffer in your application.
+
+
+
+ */
+/** \defgroup userdata Application-Defined Input Data Types (autogenerated)*/
