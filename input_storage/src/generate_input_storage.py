@@ -58,10 +58,16 @@ class Field(object):
         
     def member(self):
         return "%s %s;" % (self.type,self.name)
-        
-    def assign(self,prefix1,prefix2):
-        return "%s%s=%s%s;" % (prefix1,self.name,prefix2,self.name)
-    
+ 
+    def simple_assign(self,name,other):
+        return "%s=%s;" % (name,other)
+ 
+    def assign(self,prefix1="",prefix2="",other=None):
+        if (not other): other = self.name
+        other = prefix2+other
+        return self.simple_assign("%s%s" % (prefix1,self.name), \
+                                  "%s" % other)
+
     def default(self):
         return -901
 
@@ -101,9 +107,9 @@ class CharField(Field):
     def initializer(self,style):
         return None    
 
-    def assign(self,prefix1,prefix2):
-        return "strcpy(%s%s, %s%s);" % (prefix1,self.name,prefix2,self.name)        
-        
+    def simple_assign(self,name,other):
+        return "strcpy(%s,%s);" % (name,other)        
+            
     def constructor(self,style):
         if not style in ("arg","copy","default"): raise IllegalArgumentException("Style argument not understood")
         if (style == "arg" or style == "copy"):
@@ -381,6 +387,8 @@ def prep_component(component,outdir):
 
     identifiers = string.join([component.get_member(x).name for x in component.identifiers],",")
     identifiertypes = string.join([referencify(component.get_member(x).type,True) for x in component.identifiers],",")
+    identifiereq = string.join([component.get_member(x).assign(other="identifier.get<%s>()" % i) for x,i in zip(component.identifiers, range(len(component.identifiers)))],"\n      ")
+
     outstreamformat = string.join([x.output_format() for x in component.members],"<<")
     instreamformat = string.join([x.input_code() for x in component.members], "\n")
 
@@ -438,6 +446,8 @@ def prep_component(component,outdir):
         
         txt = txt.replace("@IDENTIFIERTYPES",identifiertypes)
         txt = txt.replace("@IDENTIFIERS",identifiers)
+        txt = txt.replace("@IDENTIFIEREQ",identifiereq)
+
         txt = txt.replace("@COMPARETABLEITEM",compareitems)
         txt = txt.replace("@PRIORITIZE",prioritizecode)
         txt = txt.replace("@ZPARENTIDENTIFIERS",parentid)

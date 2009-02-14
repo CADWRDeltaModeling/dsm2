@@ -19,8 +19,11 @@ using namespace boost::unit_test;
 void test_envvar()
 {
   EnvSubstitution sub;
-  //setenv("TESTEXPR","answer",0);
+#ifdef _WIN32
   _putenv_s("TESTEXPR","answer");
+#else
+  setenv("TESTEXPR","answer",0);
+#endif
   sub.add("_@EXPR%ESS1","one");
   sub.add("NESTED_1","nested ${_@EXPR%ESS1}");
   string teststr("a test the ${TESTEXPR} now again ${TESTEXPR} now another ${_@EXPR%ESS1} and a ${NESTED_1} and the end.");

@@ -54,7 +54,8 @@ public:
     @CONSTRUCT  
   }
   
-  /**Copy constructor)
+  /**Copy constructor) 
+   */
   @TABLEOBJ (const @TABLEOBJ & other) :
     @COPYINIT
     used(other.used),
@@ -69,12 +70,17 @@ public:
      return identifier_type( @IDENTIFIERS );
   }
   
+  void set_identifier(identifier_type identifier)
+  {
+     @IDENTIFIEREQ
+  }
+  
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
       of this class.
   */
-  @PARENT::identifier_type parent()  const
+  @PARENT::identifier_type parent_identifier()  const
   {
      return @PARENT::identifier_type( @ZPARENTIDENTIFIERS );
   }
@@ -83,8 +89,13 @@ public:
   int parent_version()  const
   {
     vector<@PARENT>& pbuf = HDFTableManager<@PARENT>::instance().buffer();
-    vector<@PARENT>::iterator loc = lower_bound(pbuf.begin(),pbuf.end(),parent(),identifier_compare2<@PARENT>());
-    bool found = loc->identifier() == parent();
+    @PARENT parent;
+    parent.set_identifier(parent_identifier());
+    vector<@PARENT>::iterator loc = lower_bound(pbuf.begin(),
+                                                pbuf.end(),
+                                                parent,
+                                                identifier_compare<@PARENT>());
+    bool found = loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }

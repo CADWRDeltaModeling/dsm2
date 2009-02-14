@@ -2,6 +2,7 @@
 #define TableDescription_H__
 #include "hdf5.h"
 #include<vector>
+#include<string>
 using namespace std;
 
 /** Description of a table of user defined objects, including field (column) descriptions required by the HDF5 Table API.
