@@ -6,17 +6,16 @@ DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
 */ 
-
+#define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
 #include "hdf_storage.h"
-#include<iostream>
+#include "HDFTableManager.h"
+#include "TableDescription.h"
+#include "TableItemFunctors.h"
 #include "boost/tuple/tuple_comparison.hpp"
 #include "boost/tuple/tuple_io.hpp"
-
-#include "TableDescription.h"
-#include "HDFTableManager.h"
-#include "TableItemFunctors.h"
+#include<iostream>
 #include<vector>
 #include<algorithm>
 #include<string.h>
@@ -84,7 +83,7 @@ public:
   int parent_version()  const
   {
     vector<@PARENT>& pbuf = HDFTableManager<@PARENT>::instance().buffer();
-    vector<@PARENT>::iterator loc = lower_bound(pbuf.begin(),pbuf.end(),parent(),identifier_compare1<@PARENT>());
+    vector<@PARENT>::iterator loc = lower_bound(pbuf.begin(),pbuf.end(),parent(),identifier_compare2<@PARENT>());
     bool found = loc->identifier() == parent();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }

@@ -10,7 +10,7 @@ bool InputState::isBlockEnd(string & line)
 
 string InputState::strip(const string& line) const
 {
-  string trimmed = trim_copy(line);
+  string trimmed =  boost::algorithm::trim_copy(line);
   size_t commentCol = line.find_first_of(COMMENT);
 
   if (trimmed.size() == 0 || commentCol == 0) 
@@ -20,7 +20,7 @@ string InputState::strip(const string& line) const
   if (commentCol != string::npos)
     { 
       trimmed = trimmed.substr(0, commentCol);
-      trim(trimmed);
+      boost::algorithm::trim(trimmed);
     }
   return trimmed;
 }

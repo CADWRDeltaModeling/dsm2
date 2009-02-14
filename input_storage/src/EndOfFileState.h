@@ -18,6 +18,7 @@ public:
 InputStatePtr process(istream& in)
 {
   handleFatalError("End of file reached. Processing not allowed");
+  return InputStatePtr();
 }
 
 /** Override of method to indicate end of file. Returns true. */

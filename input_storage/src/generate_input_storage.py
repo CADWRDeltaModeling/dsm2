@@ -138,7 +138,7 @@ class CharField(Field):
         return arg
 
     def stringlen_assign(self):
-        return "%s_len=strlen(a_%s);" % (self.name,self.name) 
+        return "%s_len=(int)strlen(a_%s);" % (self.name,self.name) 
 
     def output_width(self):
         return max( len(self.name)+2, self.size)

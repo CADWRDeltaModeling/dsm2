@@ -2,8 +2,9 @@
 #define APPLICATIONTEXTREADER_H__
 #include<string>
 #include<vector>
-#include "InputState.h"
 #include<map>
+#include "InputState.h"
+
 
 /**Tne main text reader, a state machine using InputStates to traverse files of input */
 class ApplicationTextReader

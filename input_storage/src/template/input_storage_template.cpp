@@ -30,6 +30,7 @@ IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRES
 #include "ParseValidationFunctors.h"
 #include "boost/filesystem/operations.hpp"
 #include "boost/algorithm/string/case_conv.hpp"
+#include "boost/scoped_array.hpp"
 
 using namespace std;
 using namespace boost;
@@ -145,16 +146,14 @@ herr_t @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id){
 
     if (nfields != table.description.nfields) return err;
 
-    table.buffer().clear();  
-    @TABLEOBJ buffer[nrecords];
+    table.buffer().resize(static_cast<int>(nrecords)); 
 
     err = H5TBread_table(*file_id, 
 			 table.description.title, 
 			 table.description.struct_size, 
 			 table.description.field_offsets, 
 			 table.description.field_sizes,
-			 &buffer[0]);
-    for (int i=0 ; i < nrecords; ++i) {table.buffer().push_back(buffer[i]);}
+			 &(table.buffer()[0]));	
     return err;                             
 }
 
@@ -178,11 +177,11 @@ herr_t @TABLEOBJ_query_from_buffer_f(size_t* row,
                         )
 {
   //if (row > @TABLEOBJ_table::instance().buffer().size()) return -2; //todo: HDF_STORAGE_ERROR;
-  int ndx = *row - 1;
+  size_t ndx = *row - 1;
   @TABLEOBJ obj =@TABLEOBJ_table::instance().buffer()[ndx];
   @BUFFER_QUERY
   @STRLENASSIGN
-    return 0;
+  return 0;
 }
 
 /** Prioritize buffer by layers, delete unused items and sort */
@@ -194,7 +193,7 @@ void @TABLEOBJ_prioritize_buffer_f()
 /** Query the size of the storage buffer for objects of type @TABLEOBJ */
 int @TABLEOBJ_buffer_size_f()
 { 
-  return @TABLEOBJ_table::instance().buffer().size();
+  return (int) @TABLEOBJ_table::instance().buffer().size();
 }
 
 void @TABLEOBJ_write_buffer_to_stream(ostream & out, const bool& append)

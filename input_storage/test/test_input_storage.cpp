@@ -1,14 +1,17 @@
-#include <boost/test/unit_test.hpp>
-#include <sstream>
-#include <iostream>
-#include <functional>
-#include <algorithm>
+#include "input_storage.h"
 #include "InputState.h"
 #include "FileInputState.h"
 #include "ItemInputState.h"
 #include "InsertFileState.h"
-#include "input_storage.h"
 #include "EnvSubstitution.h"
+#include <stdlib.h>
+#include <sstream>
+#include <iostream>
+#include <functional>
+#include <algorithm>
+
+#include <boost/test/unit_test.hpp>
+
 
 using namespace boost::unit_test;
 
@@ -16,7 +19,8 @@ using namespace boost::unit_test;
 void test_envvar()
 {
   EnvSubstitution sub;
-  setenv("TESTEXPR","answer",0);
+  //setenv("TESTEXPR","answer",0);
+  _putenv_s("TESTEXPR","answer");
   sub.add("_@EXPR%ESS1","one");
   sub.add("NESTED_1","nested ${_@EXPR%ESS1}");
   string teststr("a test the ${TESTEXPR} now again ${TESTEXPR} now another ${_@EXPR%ESS1} and a ${NESTED_1} and the end.");
@@ -240,7 +244,7 @@ void test_input_reader()
   vector<envvar> &envvars = HDFTableManager<envvar>::instance().buffer();
 
 
-  for ( int i = 0 ; i < envvars.size();i++)
+  for ( size_t i = 0 ; i < envvars.size();i++)
     {
       sub.add(envvars[i].name, envvars[i].value);
     }
@@ -271,14 +275,14 @@ void test_input_reader()
   xsect_prioritize_buffer_f();
 
   cout << "# Channels=" << chans.size()<< endl;
-  for (int i = 0 ; i < chans.size() ; ++ i)
+  for (size_t i = 0 ; i < chans.size() ; ++ i)
     {
       cout << chans[i] << endl;
     }
 
   vector<xsect> & xsects = HDFTableManager<xsect>::instance().buffer();
   cout << "# Xsect=" << xsects.size()<< endl;
-  for (int i = 0 ; i < xsects.size() ; ++ i)
+  for (size_t  i = 0 ; i < xsects.size() ; ++ i)
     {
       cout << xsects[i] << endl;
     }

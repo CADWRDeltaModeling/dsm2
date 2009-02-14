@@ -1,4 +1,12 @@
 #include "EnvSubstitution.h"
+#include<iostream>
+#include<string>
+#include "boost/regex.hpp"
+#include "boost/algorithm/string/replace.hpp"
+#define _CRT_SECURE_NO_DEPRECATE
+using namespace boost::algorithm;
+using namespace boost;
+using namespace std;
 
 void EnvSubstitution::add(string name, string value)
 {
@@ -12,50 +20,48 @@ void EnvSubstitution::add(string name, string value)
 
 void EnvSubstitution::remove(string name)
 {
-
 }
 
 
-
-
-
-string EnvSubstitution::operator()(string & arg)
+string EnvSubstitution::operator()(const std::string & arg)
 {
-  string str = arg;
-  if(arg.find_first_of("${") == string::npos) return arg;
-  boost::regex expr("\\$\\{([a-zA-Z0-9_@%\\^ ]*)\\}");
-  sregex_iterator m1(str.begin(), str.end(), expr);
-  sregex_iterator m2;
-  vector<string> subList;
-  for( ; (m1 != m2) ; m1++ )
+    std::string str(arg);
+
+    //if(arg.find_first_of("${") == string::npos) return arg;
+    boost::regex expr("\\$\\{([a-zA-Z0-9_@%\\^ ]*)\\}");
+    sregex_iterator m1(str.begin(), str.end(), expr);
+    sregex_iterator m2;
+    vector<string> subList;
+    for( ; (m1 != m2) ; m1++ )
     {
-      subList.push_back((*m1)[1].str());
+        subList.push_back((*m1)[1].str());
     }
-  for (int isub = 0; isub < subList.size(); ++isub)
+    for (size_t isub = 0; isub < subList.size(); ++isub)
     {
-      string toReplace=subList[isub];
-      bool found = false;
-      if(m_subMap.find(toReplace) != m_subMap.end())
-	{
-	  string replacement = m_subMap[toReplace];
-	  replace_all(str, "${"+toReplace+"}", replacement);
-          found = true;
-	}
-      else
-	{ 
-	  const char* envvar = getenv(toReplace.c_str());
-	  if (envvar != NULL)
-	    {
-	      replace_all(str,"${"+toReplace+"}",string(envvar));
-              found = true;
-	    }
-	}
-      if (!found)
-	{
-	  throw logic_error("Fatal error in text substitution: envvar not found: " + toReplace); // todo unify fatal error handling
-	}
+        string toReplace=subList[isub];
+        bool found = false;
+        if(m_subMap.find(toReplace) != m_subMap.end())
+        {
+            std::string replacement = m_subMap[toReplace];
+            boost::algorithm::replace_all(str, "${"+toReplace+"}", replacement);
+            found = true;
+        }
+        else
+        { 
+            const char* envvar = getenv(toReplace.c_str());
+            if (envvar != NULL)
+            {   
+                string envWithBrace="${" + toReplace + "}";
+                replace_all(str,envWithBrace,string(envvar));
+                found = true;
+            }
+        }
+        if (!found)
+        {
+            throw logic_error("Fatal error in text substitution: envvar not found: " + toReplace); // todo unify fatal error handling
+        }
     }
-  return str;
+    return str;
 }
 
 

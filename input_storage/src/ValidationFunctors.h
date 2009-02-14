@@ -30,9 +30,18 @@ public:
 {
    return first < second.identifier();
 }
-                  
-
 };
+
+template<typename T>
+class identifier_compare3 : public binary_function<typename T::identifier_type, T,bool>
+{
+public:
+   bool operator()(const typename T::identifier_type &first, const typename T::identifier_type &second)
+{
+   return first < second;
+}
+};
+
 template<typename T>
 class identifier_equal: public binary_function<T,T,bool>
 {

@@ -5,6 +5,7 @@
 #include<sstream>
 #include "FileInputState.h"
 #include "HDFTableManager.h"
+#include "ItemInputState.h"
 
 using namespace boost::algorithm;
 using namespace boost;
@@ -61,7 +62,7 @@ bool ItemInputState<T>::verifyHeader(string& line)
   StringVec colNames = splitLine;   //todo:   get from T
   bool headersOK = splitLine.size() == colNames.size();
   if (! headersOK) return false;
-  for (int i = 0; i < colNames.size() ; ++i)
+  for (size_t i = 0; i < colNames.size() ; ++i)
     {
       headersOK &= (splitLine[i] == colNames[i]);
       if (!headersOK) break;

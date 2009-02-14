@@ -34,15 +34,15 @@ public:
       if (find(layers.begin(),layers.end(),name) == layers.end())
 	{
 	  layers.push_back(name);
-          return layers.size()-1;
+      return (int) layers.size()-1;
 	}
-      //todo: make sure this isn't slowing us
-      return (find(layers.begin(),layers.end(),name) - layers.begin());
+      //todo: make sure this isn't slowing us  // todo: verify it is std::find, not boost
+      return (int)(std::find(layers.begin(),layers.end(),name) - layers.begin());
   }   
    
   int layerIndex(string& name)
   {
-      return (find(layers.begin(),layers.end(),name) - layers.begin());
+      return (int) (find(layers.begin(),layers.end(),name) - layers.begin());
   }
 
   string layerName(int index)

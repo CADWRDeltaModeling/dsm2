@@ -1,5 +1,5 @@
-#include "ApplicationTextReader.h"
 #include "input_storage.h"
+#include "ApplicationTextReader.h"
 #include "InputState.h"
 #include "ItemInputState.h"
 #include "InsertFileState.h"

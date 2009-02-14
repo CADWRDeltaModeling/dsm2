@@ -1,5 +1,6 @@
 #include "ApplicationTextReader.h"
 #include "FileInputState.h"
+#include<fstream>
 #include<boost/filesystem/operations.hpp>
 
 using namespace std;
@@ -61,7 +62,7 @@ void ApplicationTextReader::processInput(const string & filename)
   InputStatePtr startState(new FileInputState(m_inputMap,m_activeItems,filename));
   startState->setActiveItems(m_activeItems);  
   InputStatePtr currentState(startState);
-  ifstream input(filename.c_str());
+  std::ifstream input(filename.c_str());
 
   while (!currentState->isEndOfFile())
     {

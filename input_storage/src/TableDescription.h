@@ -21,7 +21,7 @@ public:
   /** Create a new table description given the necessary descriptive information */
   TableDescription(const char* a_title,
                    const size_t & a_struct_size,
-		   const hsize_t & a_nfields,
+          		   const hsize_t & a_nfields,
                    const char * a_field_names[],
                    const hid_t  a_field_types[],
                    const size_t a_field_offsets[],
@@ -30,23 +30,25 @@ public:
     title(new char[strlen(a_title)]),
     struct_size(a_struct_size),
     nfields(a_nfields),
-    field_names(new const char*[nfields]),
-    field_types(new hid_t[nfields]),
-    field_offsets(new size_t[nfields]),
-    field_sizes(new size_t[nfields]),
+    field_names(new const char*[static_cast<size_t>(nfields)]),
+    field_types(new hid_t[static_cast<size_t>(nfields)]),
+    field_offsets(new size_t[static_cast<size_t>(nfields)]),
+    field_sizes(new size_t[static_cast<size_t>(nfields)]),
     chunk_size(a_chunk_size)
     { 
-        strcpy(title,a_title);
-        for(int i = 0; i<nfields ; ++i)
+      strcpy(title,a_title);
+      size_t nf = static_cast<size_t>(nfields);
+      for(size_t i = 0; i<nf ; ++i)
 	  { 
             char* temp = new char[strlen(a_field_names[i])];
             strcpy(temp,a_field_names[i]);
             field_names[i]=const_cast<char*>(temp);
             header.push_back(string(temp));
 	  }
-	  memcpy(field_types,a_field_types,nfields*sizeof(hid_t)); 
-  	  memcpy(field_offsets,a_field_offsets,nfields*sizeof(size_t)); 
-	  memcpy(field_sizes,a_field_sizes,nfields*sizeof(size_t));
+
+	  memcpy(field_types,a_field_types,nf*sizeof(hid_t)); 
+  	  memcpy(field_offsets,a_field_offsets,nf*sizeof(size_t)); 
+	  memcpy(field_sizes,a_field_sizes,nf*sizeof(size_t));
     }
 
     /** Copy constructor*/
@@ -54,23 +56,24 @@ public:
       title(new char[strlen(other.title)]),
       struct_size(other.struct_size),
       nfields(other.nfields),
-      field_names(new const char*[nfields]),
-      field_types(new hid_t[nfields]),
-      field_offsets(new size_t[nfields]),
-      field_sizes(new size_t[nfields]),
+      field_names(new const char*[static_cast<size_t>(nfields)]),
+      field_types(new hid_t[static_cast<size_t>(nfields)]),
+      field_offsets(new size_t[static_cast<size_t>(nfields)]),
+      field_sizes(new size_t[static_cast<size_t>(nfields)]),
       chunk_size(other.chunk_size)
 	{ 
-	  strcpy(title,other.title);
-	  for(int i = 0; i<nfields ; ++i)
+      size_t nf = static_cast<size_t>(nfields);
+      strcpy(title,other.title);
+      for(size_t i = 0; i<nf ; ++i)
 	    { 
 	      char* temp = new char[strlen(other.field_names[i])];
 	      strcpy(temp,other.field_names[i]);
 	      field_names[i]=const_cast<char*>(temp);
           header.push_back(string(temp));
         }
-	  memcpy(field_types,other.field_types,nfields*sizeof(hid_t)); 
-	  memcpy(field_offsets,other.field_offsets,nfields*sizeof(size_t)); 
-	  memcpy(field_sizes,other.field_sizes,nfields*sizeof(size_t));
+	  memcpy(field_types,other.field_types,nf*sizeof(hid_t)); 
+	  memcpy(field_offsets,other.field_offsets,nf*sizeof(size_t)); 
+	  memcpy(field_sizes,other.field_sizes,nf*sizeof(size_t));
 	}
 
   

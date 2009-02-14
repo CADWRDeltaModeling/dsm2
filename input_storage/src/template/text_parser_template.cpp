@@ -1,7 +1,7 @@
+#include "input_storage.h"
 #include "ApplicationTextReader.h"
 #include "ItemInputState.h"
 #include "InsertFileState.h"
-#include "input_storage.h"
 #define FCALL extern "C"
 
 // This function must be provided by the client application for the library to link properly
@@ -40,7 +40,7 @@ FCALL void process_text_substitution(const char* startfile, int startfilelen)
     reader.processInput(filename);
     EnvSubstitution sub;
     vector<envvar> &envvars = HDFTableManager<envvar>::instance().buffer();
-    for ( int i = 0 ; i < envvars.size();i++)
+    for ( size_t i = 0 ; i < envvars.size();i++)
       {
 	sub.add(envvars[i].name, envvars[i].value);
       }
