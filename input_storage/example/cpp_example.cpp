@@ -1,172 +1,39 @@
+#pragma warning(disable: 4996)
 #include <boost/test/unit_test.hpp>
+#include<boost/filesystem/operations.hpp>
+
 #include <sstream>
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <stdlib.h>
+
 #include "InputState.h"
 #include "FileInputState.h"
 #include "ItemInputState.h"
 #include "InsertFileState.h"
 #include "input_storage.h"
 #include "EnvSubstitution.h"
+#include "ApplicationTextReader.h"
 
 using namespace boost::unit_test;
 
 
-void test_envvar()
+void setup_envvar()
 {
   EnvSubstitution sub;
-  setenv("TESTEXPR","answer",0);
   sub.add("_@EXPR%ESS1","one");
   sub.add("NESTED_1","nested ${_@EXPR%ESS1}");
-  string teststr("a test the ${TESTEXPR} now again ${TESTEXPR} now another ${_@EXPR%ESS1} and a ${NESTED_1} and the end.");
-  string out = sub(teststr);
-  std::cout << out << std::endl;
   sub.add("TESTEXPR","newanswer");
-  out = sub(teststr);
-  std::cout << out << std::endl;
   sub.add("TESTEXPR","redefine");  
-  out = sub(teststr);
-  std::cout << out << std::endl;
 }
 
 
-/** Test streaming output and input of classes with various
-    constituent data types
-*/
-void test_stream()
-{
-  channel cOut = channel(1, 0.0022, 2,3);
-  ostringstream os;
-  os << cOut;
-  string outStr = os.str();
-  channel cIn; 
-  istringstream is(outStr);
-  is >> cIn;
-  
-  BOOST_CHECK( !(cIn < cOut || cOut < cIn));
-  BOOST_CHECK( cIn.manning == cOut.manning);
-  BOOST_CHECK( cIn.upnode == cOut.upnode);
-  BOOST_CHECK( cIn.downnode == cOut.downnode);
-  BOOST_CHECK( cIn.chan_no == cOut.chan_no);
-  BOOST_CHECK( cIn.identifier() == cOut.identifier());
-  BOOST_CHECK( cIn.layer == cOut.layer);
-}
 
-/** Test streaming with bad input //todo: need more of this
-*/
-void test_bad_stream_input()
-{
-  string datastring("12 0.0022 3.4 5");
-  istringstream is(datastring);
-  channel chan;
-  BOOST_CHECK_THROW(is >> chan, invalid_argument);
-
-  datastring="12 0.0022 apple 5";
-  is.clear();
-  is.str(datastring);
-  BOOST_CHECK_THROW(is >> chan, invalid_argument);
-
-}
-
-
-void test_setup_buffer()
-{ 
-    //Create a new file using default properties.
-    channel_clear_buffer_f();
-
-    int channo=525;  // deliberately out of order
-    int layer=2;
-    double manning=0.035;
-    int upnode=5;
-    int downnode=6;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
-
-    channo = 1;
-    layer = 1;
-    manning=0.035;
-    upnode = 1;
-    downnode = 2;
-    channo=1;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
-    channo=2;
-    layer=1;
-    upnode=2;
-    downnode = 3;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
-    channo=2;
-    layer=2;
-    manning=0.04;    
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
-    channo=3;
-    layer=1;
-    manning=0.035;
-    upnode=3;
-    downnode = 4;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
-    channo=14;
-    layer=1;
-    manning=0.035;
-    upnode=4;
-    downnode = 5;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
-
-    xsect_clear_buffer_f();
-    channo=1;
-    layer=1;
-    double dist = 0.800;
-    char* file = "1_0_800.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-
-    channo=1;
-    layer=1;
-    dist = 0.200;   // deliberately out of order
-    file = "1_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-
-    channo = 2;
-    layer=1;
-    dist = 0.200;
-    file = "2_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-    channo = 2;
-    layer=2;
-    dist = 0.200;
-    file = "2_0_200b.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-    channo = 2;
-    layer=2;
-    dist = 0.400;
-    file = "2_0_400b.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-    channo = 3;
-    layer=1;
-    dist = 0.200;
-    file = "3_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-    channo = 14;
-    layer=1;
-    dist = 0.200;
-    file = "14_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-    channo = 525;
-    layer=1;
-    dist = 0.200;
-    file = "525_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
-    //todo: what if there were accidently a chan 525 xsect on level 2?
-}
-
-void test_prioritize_buffer()
-{
-  cout << "Testing priorities" << endl;
-  //channel_prioritize_buffer();
-  //xsect_prioritize_buffer();
-}
 
 
 // Test writing and read of buffer to hdf5. This test is dependent on test_setup_buffer
-void test_hdf()
+void write_hdf()
 {
     cout << "Testing hdf" <<endl;
     hid_t file_id = H5Fcreate( "chan.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
@@ -199,14 +66,13 @@ void test_input_reader()
   contextItems.push_back("ENVVAR");
 
   vector<string> noSubItems;
-  map<string, InputStatePtr> emptyMap;
   map<string, InputStatePtr> inputMap;
   InputStatePtr channelPtr(new ItemInputState<channel>());
   InputStatePtr xsectPtr(new ItemInputState<xsect>());
   InputStatePtr gatePtr(new ItemInputState<channel>());
   InputStatePtr resPtr(new ItemInputState<channel>());
   InputStatePtr envPtr(new ItemInputState<envvar>());
-  InputStatePtr includePtr(new InsertFileState(inputMap,contextItems));
+  InputStatePtr includePtr(new InsertFileState(contextItems));
 
   inputMap["CHANNEL"] = channelPtr;
   inputMap["XSECT"]   = xsectPtr;
@@ -223,11 +89,16 @@ void test_input_reader()
   active.push_back("XSECT");
   active.push_back("INCLUDE");
 
-  InputStatePtr startState(new FileInputState(inputMap,contextItems,"test.txt"));
+  ApplicationTextReader::instance().setInputStateMap(inputMap);
+  InputStatePtr startState(new FileInputState(contextItems,"example.txt"));
   InputStatePtr currentState(startState);
 
+  string filename("test.txt");
+  boost::filesystem::path p(filename);
+  BOOST_CHECK(boost::filesystem::exists(p));
+  std::ifstream input(filename.c_str());
 
-  ifstream input("test.txt");
+
   // First pass with envvars
   currentState->setActiveItems(envvarActive);
   while (!currentState->isEndOfFile())
@@ -240,7 +111,7 @@ void test_input_reader()
   vector<envvar> &envvars = HDFTableManager<envvar>::instance().buffer();
 
 
-  for ( int i = 0 ; i < envvars.size();i++)
+  for ( size_t i = 0 ; i < envvars.size();i++)
     {
       sub.add(envvars[i].name, envvars[i].value);
     }
@@ -271,14 +142,14 @@ void test_input_reader()
   xsect_prioritize_buffer_f();
 
   cout << "# Channels=" << chans.size()<< endl;
-  for (int i = 0 ; i < chans.size() ; ++ i)
+  for (size_t i = 0 ; i < chans.size() ; ++ i)
     {
       cout << chans[i] << endl;
     }
 
   vector<xsect> & xsects = HDFTableManager<xsect>::instance().buffer();
   cout << "# Xsect=" << xsects.size()<< endl;
-  for (int i = 0 ; i < xsects.size() ; ++ i)
+  for (size_t i = 0 ; i < xsects.size() ; ++ i)
     {
       cout << xsects[i] << endl;
     }
@@ -286,27 +157,13 @@ void test_input_reader()
 
 
 
-void test_bad_input()
-{
-  envvar env;
-  istringstream in("superlongnamesolongitshouldcertainlycauseanerror  modestlengthvalue");  
-  //BOOST_CHECK_THROW( in >> env;,  std::logic_error )
-}
-
 
 test_suite*
 init_unit_test_suite( int argc, char* argv[] )
 {
+    setup_envvar();
     test_suite* test= BOOST_TEST_SUITE( "io generation tests" );
-    test->add( BOOST_TEST_CASE( &test_envvar ) );
-    test->add( BOOST_TEST_CASE( &test_stream ) );
-    test->add( BOOST_TEST_CASE( &test_bad_stream_input ) );
-    test->add( BOOST_TEST_CASE( &test_setup_buffer ) );
-    test->add( BOOST_TEST_CASE( &test_prioritize_buffer ) );
-    test->add( BOOST_TEST_CASE( &test_hdf ) );
     test->add( BOOST_TEST_CASE( &test_input_reader ) );
-    test->add( BOOST_TEST_CASE( &test_bad_input ) );
-
     return test;
 }
 

@@ -4,8 +4,6 @@
 !! module_name::routine_name
 !@{ 
 module input_storage_fortran_data
-       !DEC$ ATTRIBUTES ALIAS:'_@TABLEOBJ_write_buffer_to_hdf5_f' :: @TABLEOBJ_write_buffer_to_hdf5_f
-        !DEC$ ATTRIBUTES ALIAS:'_@TABLEOBJ_write_buffer_to_hdf5_f' :: @TABLEOBJ_write_buffer_to_hdf5_f
 	   contains
 
        // Fortran Include Files DO NOT ALTER THIS LINE AT ALL

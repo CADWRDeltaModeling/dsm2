@@ -9,7 +9,7 @@ ApplicationTextReader::InputStateMap input_state_map();
 
 
 ///////////////////
-FCALL void init_text_substitution(const char* include_block_name, int includelen)
+FCALL void init_text_substitution_f(const char* include_block_name, int includelen)
 {
   ApplicationTextReader & reader = ApplicationTextReader::instance();
   string keywordName("$TEXTSUBTYPE");
@@ -32,7 +32,7 @@ FCALL void init_text_substitution(const char* include_block_name, int includelen
 
 
 ////////////////////
-FCALL void process_text_substitution(const char* startfile, int startfilelen)
+FCALL void process_text_substitution_f(const char* startfile, int startfilelen)
 {
 
     ApplicationTextReader & reader = ApplicationTextReader::instance();
@@ -48,7 +48,7 @@ FCALL void process_text_substitution(const char* startfile, int startfilelen)
 }
 
 //////////////////////
-FCALL void init_file_reader()
+FCALL void init_file_reader_f()
 {
   //ApplicationTextReader::InputStateMap states = input_state_map();
   ApplicationTextReader & reader = ApplicationTextReader::instance();
@@ -58,7 +58,7 @@ FCALL void init_file_reader()
 }
 
 /////////////////////
-FCALL void read_buffer_from_text(const char* startfile, int startfilelen)
+FCALL void read_buffer_from_text_f(const char* startfile, int startfilelen)
 {
     ApplicationTextReader & reader = ApplicationTextReader::instance();
     reader.setAllActive();

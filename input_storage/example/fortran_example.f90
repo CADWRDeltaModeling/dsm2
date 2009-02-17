@@ -4,21 +4,21 @@ use input_storage_fortran_data
 implicit none
 integer :: nchan, nxsect
 integer :: error
-character(len=8), PARAMETER :: filename = "testf.h5" ! File name
+character(len=8), PARAMETER :: filename = "fortran_example.h5" ! File name
 integer(HID_T) :: file_id                            ! File identifier
 logical :: ext
 
 
 call clear_all_buffers()
 
-call init_text_substitution("ENVVAR","INCLUDE",1)
-call process_text_substitution("test.txt")
+call init_text_substitution("INCLUDE")
+call process_text_substitution("example.txt")
 call envvar_clear_buffer()
 
 
 call init_file_reader()
 
-call read_buffer_from_text("test.txt")
+call read_buffer_from_text("example.txt")
 
 call channel_prioritize_buffer()
 call xsect_prioritize_buffer()
