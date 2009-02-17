@@ -13,6 +13,10 @@ class EnvSubstitution
  
  public:
   EnvSubstitution(){}
+  ~EnvSubstitution()
+  {
+      m_subMap.clear();
+  }
 
   void add(std::string key, std::string value);
   void remove(std::string key);

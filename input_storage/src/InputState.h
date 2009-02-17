@@ -38,24 +38,17 @@ typedef vector<string> StringVec;
                 used to determine which items this reader will allow itself to transition to...for instance
                 a file input state would have as its context items a list of item states.
 */
-InputState(const InputStateMap  & a_inputStateMap,
-	       const vector<string> & a_contextItems)
+InputState(const vector<string> & a_contextItems)
   :
   m_contextItems(a_contextItems),
   m_active(true)
 { 
-  m_inputStateMap = a_inputStateMap;
 }
 
 /** Construct the InputState with no context items or state map
 */
 InputState() : m_active(true){}
 
-/** Set the state map of an InputState.*/
-void setInputStateMap(const InputStateMap & a_inputStateMap)
-{
-  m_inputStateMap=a_inputStateMap;
-}
 
   /** Set the list of items valid in this context (e.g., allowed in the file */
 void setContextItems(const vector<string> & a_contextItems)
@@ -65,7 +58,10 @@ void setContextItems(const vector<string> & a_contextItems)
 
 
 /** Virtual destructor */
-virtual ~InputState(){}
+virtual ~InputState()
+ {
+   m_contextItems.clear();
+ }
 
 /** Return whether this InputState is active.
 */
@@ -95,11 +91,6 @@ virtual void setActiveItems(const StringVec & a_activeItems)
   m_activeItems = a_activeItems;
 }
 
-virtual void setContextState(InputStatePtr a_context)
-{
-  m_contextState = a_context;
-}
-  
 
 /** Process stream of input. Subclasses must
 // provide processing that consumes some of the input
@@ -175,13 +166,11 @@ void setEnvSubstitution(EnvSubstitution & substitution)
 
 
 protected:  
-map<string,InputStatePtr> m_inputStateMap;
 StringVec                       m_activeItems;
 StringVec                       m_contextItems;
 string                          m_filename;
 bool                            m_active;
 EnvSubstitution                 m_substitution;
-InputStatePtr                   m_contextState;
 
 virtual void onFilenameSet(){}
 

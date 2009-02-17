@@ -43,7 +43,7 @@ InputStatePtr ItemInputState<T>::process(istream& in)
 	}
       if(isBlockEnd(line))
 	{
-	  InputStatePtr newState(new FileInputState(m_inputStateMap, m_contextItems, m_filename));
+	  InputStatePtr newState(new FileInputState(m_contextItems, m_filename));
           newState->setActiveItems(m_activeItems);
           return newState;  // graceful return to file state
 	}

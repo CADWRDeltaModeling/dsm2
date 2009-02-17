@@ -17,7 +17,7 @@ InputStatePtr InsertFileState::process(istream& in)
       }
       if ( isBlockEnd(line))
 	{ 
-	  InputStatePtr newState(new FileInputState(m_inputStateMap,m_contextItems,m_filename));
+	  InputStatePtr newState(new FileInputState(m_contextItems,m_filename));
           return newState;
 	}
 
@@ -32,9 +32,7 @@ InputStatePtr InsertFileState::process(istream& in)
 	      handleFatalError( "File does not exist" + filename);
 	    }
           
-	  InputStatePtr newState ( new FileInputState (m_inputStateMap,
-						       m_contextItems,
-						       filename));
+	  InputStatePtr newState ( new FileInputState(m_contextItems,filename));
 	  newState->setActiveItems(m_activeItems);
 	  ifstream newStream(filename.c_str());
 	  int nTransition = 0;

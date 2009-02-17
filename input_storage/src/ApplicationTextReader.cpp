@@ -32,7 +32,12 @@ void ApplicationTextReader::setAllActive()
 ///////////////////
 void ApplicationTextReader::setTextSubstitution(const EnvSubstitution & a_sub)
 {
-  m_sub=a_sub;   //todo: what about appying it?
+    m_sub=a_sub;   //todo: what about appying it?
+    for(InputState::InputStateMap::iterator it = m_inputMap.begin();
+      it != m_inputMap.end() ; ++it)
+    {
+      it->second->setEnvSubstitution(m_sub);
+    }
 }
 
 ///////////////////
@@ -59,7 +64,7 @@ void ApplicationTextReader::processInput(const string & filename)
     }
   
   // to do: assumes all active items are valid in initial file context
-  InputStatePtr startState(new FileInputState(m_inputMap,m_activeItems,filename));
+  InputStatePtr startState(new FileInputState(m_activeItems,filename));
   startState->setActiveItems(m_activeItems);  
   InputStatePtr currentState(startState);
   std::ifstream input(filename.c_str());

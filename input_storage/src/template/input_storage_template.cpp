@@ -105,7 +105,7 @@ void @TABLEOBJ_clear_buffer_f(){
 }
 
 /** append to buffer, compatible with fortran, returns new size*/
-size_t @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_OUTPUT_SIGNATURE)
+size_t @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE)
 {
    @TABLEOBJ_table::instance().buffer().push_back(
                                       @TABLEOBJ(
@@ -117,9 +117,9 @@ size_t @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_OUTPUT_SIGNATURE)
 /** both makes the table and writes the contents of the buffer to it */
 herr_t @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id){
   @TABLEOBJ_table & table = @TABLEOBJ_table::instance();
-    herr_t err=H5TBmake_table( @TABLEOBJ_table::instance().description.title, 
+    herr_t err=H5TBmake_table( @TABLEOBJ_table::instance().description.title.c_str(), 
                        *file_id, 
-		       table.description.title, 
+		       table.description.title.c_str(), 
                        table.description.nfields, 
                        table.buffer().size(), 
                        table.description.struct_size, 
@@ -139,7 +139,7 @@ herr_t @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id){
     hsize_t nrecords;
     @TABLEOBJ_table & table = @TABLEOBJ_table::instance();
     herr_t err = H5TBget_table_info (*file_id, 
-                               table.description.title, 
+                               table.description.title.c_str(), 
                                &nfields, 
 			       &nrecords ); 
     if ( err < 0) return err;
@@ -149,7 +149,7 @@ herr_t @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id){
     table.buffer().resize(static_cast<int>(nrecords)); 
 
     err = H5TBread_table(*file_id, 
-			 table.description.title, 
+			 table.description.title.c_str(), 
 			 table.description.struct_size, 
 			 table.description.field_offsets, 
 			 table.description.field_sizes,
@@ -162,7 +162,7 @@ herr_t @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id){
     hsize_t nfields = 0;
 
     herr_t err = H5TBget_table_info (*file_id, 
-				     @TABLEOBJ_table::instance().description.title, 
+				     @TABLEOBJ_table::instance().description.title.c_str(), 
 				     &nfields, 
 				     nrecords);
     if ( err < 0) return err;

@@ -4,6 +4,7 @@
 #include "ItemInputState.h"
 #include "InsertFileState.h"
 #include "EnvSubstitution.h"
+#include "ApplicationTextReader.h"
 #include <stdlib.h>
 #include <sstream>
 #include <iostream>
@@ -11,6 +12,7 @@
 #include <algorithm>
 
 #include <boost/test/unit_test.hpp>
+#include<boost/filesystem/operations.hpp>
 
 
 using namespace boost::unit_test;
@@ -73,7 +75,6 @@ void test_bad_stream_input()
   is.clear();
   is.str(datastring);
   BOOST_CHECK_THROW(is >> chan, invalid_argument);
-
 }
 
 
@@ -122,45 +123,46 @@ void test_setup_buffer()
     channo=1;
     layer=1;
     double dist = 0.800;
-    char* file = "1_0_800.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    string file = "1_0_800.txt";
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
 
     channo=1;
     layer=1;
     dist = 0.200;   // deliberately out of order
     file = "1_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
 
     channo = 2;
     layer=1;
     dist = 0.200;
     file = "2_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
     channo = 2;
     layer=2;
     dist = 0.200;
     file = "2_0_200b.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
     channo = 2;
     layer=2;
     dist = 0.400;
     file = "2_0_400b.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
     channo = 3;
     layer=1;
     dist = 0.200;
     file = "3_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
     channo = 14;
     layer=1;
     dist = 0.200;
     file = "14_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
     channo = 525;
     layer=1;
     dist = 0.200;
     file = "525_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file, 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    
     //todo: what if there were accidently a chan 525 xsect on level 2?
 }
 
@@ -191,13 +193,18 @@ void test_hdf()
     //cout<< channo_in << " " << layer_in << " " << manning_in << " " << upnode_in << " " << endl;
     //Close the file. 
     H5Fclose( file_id );
+    cout << "Done testing hdf" <<endl;
+
 }
 
 
 void test_input_reader()
 {
+  cout << "Testing input reader" <<endl;
+
   HDFTableManager<channel>::instance().buffer().clear();
   HDFTableManager<xsect>::instance().buffer().clear();
+  HDFTableManager<envvar>::instance().buffer().clear();
 
   vector<string> contextItems;
   contextItems.push_back("CHANNEL");
@@ -206,51 +213,48 @@ void test_input_reader()
   contextItems.push_back("ENVVAR");
 
   vector<string> noSubItems;
-  map<string, InputStatePtr> emptyMap;
   map<string, InputStatePtr> inputMap;
-  InputStatePtr channelPtr(new ItemInputState<channel>());
-  InputStatePtr xsectPtr(new ItemInputState<xsect>());
-  InputStatePtr gatePtr(new ItemInputState<channel>());
-  InputStatePtr resPtr(new ItemInputState<channel>());
-  InputStatePtr envPtr(new ItemInputState<envvar>());
-  InputStatePtr includePtr(new InsertFileState(inputMap,contextItems));
+  inputMap["CHANNEL"] = InputStatePtr(new ItemInputState<channel>());
+  inputMap["XSECT"]   = InputStatePtr(new ItemInputState<xsect>());
+  inputMap["ENVVAR"]  = InputStatePtr(new ItemInputState<envvar>());
+  inputMap["INCLUDE"] = InputStatePtr(new InsertFileState(contextItems));
+  ApplicationTextReader::instance().setInputStateMap(inputMap);
 
-  inputMap["CHANNEL"] = channelPtr;
-  inputMap["XSECT"]   = xsectPtr;
-  inputMap["GATE"] = gatePtr;
-  inputMap["RESERVOIR"] = resPtr;
-  inputMap["ENVVAR"] = envPtr;
-  inputMap["INCLUDE"] = includePtr;
 
   vector<string> envvarActive;
   envvarActive.push_back("ENVVAR");
 
-  vector<string> active;
-  active.push_back("CHANNEL");
-  active.push_back("XSECT");
-  active.push_back("INCLUDE");
+  string filename("test.txt");
+  boost::filesystem::path p(filename);
+  BOOST_CHECK(boost::filesystem::exists(p));
+  std::ifstream input(filename.c_str());
 
-  InputStatePtr startState(new FileInputState(inputMap,contextItems,"test.txt"));
+  InputStatePtr startState(new FileInputState(contextItems,filename));
   InputStatePtr currentState(startState);
 
-
-  ifstream input("test.txt");
   // First pass with envvars
+  
   currentState->setActiveItems(envvarActive);
   while (!currentState->isEndOfFile())
     {
       currentState = currentState->process(input);
     }
-
-  cout<<"\nENVVARS" << endl;
-  EnvSubstitution sub;
+  input.close();
+  
   vector<envvar> &envvars = HDFTableManager<envvar>::instance().buffer();
 
+  EnvSubstitution sub;
+  vector<string> active;
+  active.push_back("CHANNEL");
+  active.push_back("XSECT");
+  active.push_back("INCLUDE");
 
+  
   for ( size_t i = 0 ; i < envvars.size();i++)
     {
       sub.add(envvars[i].name, envvars[i].value);
     }
+  
 
   for(InputState::InputStateMap::iterator it = inputMap.begin();
       it != inputMap.end() ; ++it)
@@ -263,7 +267,7 @@ void test_input_reader()
   input.seekg(0, ios::beg);
   input.clear();
 
-
+  //InputStatePtr currentState(startState);
   currentState=startState;
   currentState->setActiveItems(active);
 
@@ -289,6 +293,10 @@ void test_input_reader()
     {
       cout << xsects[i] << endl;
     }
+  cout << "Done testing input reader" <<endl;
+
+  inputMap.clear();
+  contextItems.clear();
 }
 
 

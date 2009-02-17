@@ -23,10 +23,14 @@ public:
   */
   void setInputStateMap(const InputStateMap & a_inputMap);
 
+  /** Get a reference to the current input state map */
   InputStateMap& getInputMap(){return m_inputMap;}
 
   /** Set the text substitution object for the reader */    
   void setTextSubstitution(const EnvSubstitution & textSub);
+
+  /** Get the current text substitutino object */
+  EnvSubstitution & getTextSubstitution();
 
   /** Set the list of items (keywords) that will be read */
   void setActiveItems(const std::vector<std::string> & a_activeItems);

@@ -4,15 +4,43 @@
 !! module_name::routine_name
 !@{ 
 module input_storage_fortran_data
-       contains
+       !DEC$ ATTRIBUTES ALIAS:'_@TABLEOBJ_write_buffer_to_hdf5_f' :: @TABLEOBJ_write_buffer_to_hdf5_f
+        !DEC$ ATTRIBUTES ALIAS:'_@TABLEOBJ_write_buffer_to_hdf5_f' :: @TABLEOBJ_write_buffer_to_hdf5_f
+	   contains
 
        // Fortran Include Files DO NOT ALTER THIS LINE AT ALL
 
        subroutine clear_all_buffers
+          !DEC$ ATTRIBUTES ALIAS:'_clear_all_buffers_f' :: clear_all_buffers_f
          call clear_all_buffers_f()
        end subroutine
        subroutine prioritize_all_buffers()
+          !DEC$ ATTRIBUTES ALIAS:'_prioritize_all_buffers_f' :: prioritize_all_buffers_f
          call prioritize_all_buffers_f
        end subroutine
+       
+       subroutine init_file_reader()
+          !DEC$ ATTRIBUTES ALIAS:'_init_file_reader_f' :: init_file_reader_f
+          call init_file_reader_f
+       end subroutine       
+
+       subroutine init_text_substitution(includename)
+          character*(*) includename
+          !DEC$ ATTRIBUTES ALIAS:'_init_text_substitution_f' :: init_text_substitution_f
+          call init_text_substitution_f(includename)
+       end subroutine 
+
+       subroutine process_text_substitution(startfilename)
+          character*(*) startfilename
+          !DEC$ ATTRIBUTES ALIAS:'_process_text_substitution_f' :: process_text_substitution_f
+          call process_text_substitution_f(startfilename)
+       end subroutine        
+ 
+        subroutine read_buffer_from_text(startfilename)
+          character*(*) startfilename
+          !DEC$ ATTRIBUTES ALIAS:'_read_buffer_from_text_f' :: read_buffer_from_text_f
+          call read_buffer_from_text_f(startfilename)
+       end subroutine        
+
 end module
 !@}

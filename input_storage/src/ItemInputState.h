@@ -23,7 +23,7 @@ ItemInputState()
   : InputState()
 {}
 
-
+virtual ~ItemInputState(){}
 
 /** Process a concrete item inside of an input block.
 This function will validate the headers of the item and then

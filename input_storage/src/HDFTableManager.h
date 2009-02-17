@@ -50,7 +50,10 @@ public:
   /* more (non-static, singleton - enforcing) functions here */
   HDFTableManager();
 
-  ~HDFTableManager(){}; // destructor hidden
+  ~HDFTableManager()
+  {
+     m_buffer.clear();
+  }; // destructor hidden
 };
 
 #endif

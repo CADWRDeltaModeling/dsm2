@@ -1,3 +1,4 @@
+#include "ApplicationTextReader.h"
 #include "FileInputState.h"
 #include "EndOfFileState.h"
 #include<iostream>
@@ -41,11 +42,12 @@ InputStatePtr FileInputState::nextState(const string &line) const
   assert(line.size() > 0);
   string item(line);
   boost::algorithm::to_upper(item);
-  InputStateMap::const_iterator it = m_inputStateMap.find(item);
-  if (it == m_inputStateMap.end())
+  InputStateMap & stateMap = ApplicationTextReader::instance().getInputMap();
+  InputStateMap::const_iterator it = stateMap.find(item);
+  if (it == stateMap.end())
     { 
-      for (InputStateMap::const_iterator mapIter = m_inputStateMap.begin() ;
-           mapIter != m_inputStateMap.end() ; ++ mapIter) cout << "Item: " << mapIter->first << endl;
+      for (InputStateMap::const_iterator mapIter = stateMap.begin() ;
+           mapIter != stateMap.end() ; ++ mapIter) cout << "Item: " << mapIter->first << endl;
       handleFatalError(" Keyword not recognized:" + item + ":");
     }
    
@@ -56,7 +58,6 @@ InputStatePtr FileInputState::nextState(const string &line) const
 
    InputStatePtr next = it->second;
    next->setFilename(m_filename);
-   next->setInputStateMap(m_inputStateMap);
    next->setContextItems(m_contextItems);
    next->setActiveItems(m_activeItems);
    next->setActive( find(m_activeItems.begin(),m_activeItems.end(),item) != m_activeItems.end());

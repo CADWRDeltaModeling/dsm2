@@ -160,7 +160,7 @@ FCALL int @TABLEOBJ_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL size_t @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_OUTPUT_SIGNATURE);
+FCALL size_t @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE);
   
 /** both makes the table and writes the contents of the buffer to it */
 FCALL herr_t @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id);

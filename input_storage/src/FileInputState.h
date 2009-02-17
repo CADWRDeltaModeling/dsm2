@@ -21,11 +21,12 @@ public:
  well as a list of the ones that are activated in the current
  context and te name of the file being processed.
 */
-FileInputState(const InputStateMap  & a_inputStateMap,
-	       const vector<string> & a_contextItems,
-	       const string         & a_fileName
-	   ) :
-  InputState(a_inputStateMap,a_contextItems),
+FileInputState(
+	           const vector<string> & a_contextItems,
+	           const string         & a_fileName
+	   ) : 
+  InputState(
+  a_contextItems),
   m_filename(a_fileName)
 {}
 

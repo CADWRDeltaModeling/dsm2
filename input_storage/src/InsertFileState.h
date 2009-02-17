@@ -11,10 +11,9 @@ class InsertFileState : public InputState
 public:
 
 
-InsertFileState(const InputStateMap  & a_inputStateMap,
-		const vector<string> & a_contextItems)
+InsertFileState(const vector<string> & a_contextItems)
   :
-  InputState(a_inputStateMap,a_contextItems)
+  InputState(a_contextItems)
 {}
 
 

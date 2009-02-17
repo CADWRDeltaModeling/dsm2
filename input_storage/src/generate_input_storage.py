@@ -96,10 +96,13 @@ class CharField(Field):
     
     def c_arg(self,input = True):
         arg = " char a_%s[%s]" % (self.name,self.size)
+        if (input): 
+            arg="const "+arg
         return arg
 
+
     def fc_arg(self,input = True):
-        return self.c_arg()
+        return self.c_arg(input)
 
     def fortran_type(self):
         return "character(len=%s)" % self.size
@@ -152,7 +155,7 @@ class CharField(Field):
     def output_format(self):
         return \
         """
-            setw(max((size_t)%s,strlen(obj.%s)))
+            setw(max(%s,(int)strlen(obj.%s)))
             << setfill(\' \')
             << left
             << obj.%s  
@@ -523,7 +526,7 @@ def process_include_defs():
         include_code += "    vector<string> %s;\n" % (contextName)
         for item in block[1]:
             include_code += "    %s.push_back(\"%s\");\n" % (contextName,item.upper());
-        include_code += "    InputStatePtr %sPtr(new InsertFileState(inputMap,%s));\n" % (blockName, contextName)
+        include_code += "    InputStatePtr %sPtr(new InsertFileState(%s));\n" % (blockName, contextName)
         include_code += "    inputMap[\"%s\"] = %sPtr;\n" % (blockName.upper(), blockName)
     return include_code
 
