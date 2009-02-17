@@ -137,7 +137,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/VERBOSE:LIB"
 				AdditionalDependencies="szlib.lib zlib.lib hdf5.lib hdf5_hl.lib"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="libc.lib;msvcrt.lib;libcd.lib;libcmtd.lib;msvcrtd.lib"

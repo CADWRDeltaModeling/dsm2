@@ -77,8 +77,12 @@ void test_bad_stream_input()
   BOOST_CHECK_THROW(is >> chan, invalid_argument);
 }
 
-
-void test_setup_buffer()
+/** Add thing to the buffer using the FORTRAN API for appends.
+    todo: the fortran API does not add layer numbers, so this
+    function doesn't work when there are duplicate entries -- 
+    prioritize_buffer will throw an exception
+*/
+void append_buffer_fortran_api()
 { 
     //Create a new file using default properties.
     channel_clear_buffer_f();
@@ -95,7 +99,6 @@ void test_setup_buffer()
     manning=0.035;
     upnode = 1;
     downnode = 2;
-    channo=1;
     channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
     channo=2;
     layer=1;
@@ -166,19 +169,110 @@ void test_setup_buffer()
     //todo: what if there were accidently a chan 525 xsect on level 2?
 }
 
+
+
+/** Predictable test fixture for channels and cross sections. The 
+    buffer that is set up here includes some overridden items, so it 
+    is necessary to prioritize the buffer.
+*/
+void setup_buffer()
+{ 
+    //Create a new file using default properties.
+    channel_clear_buffer_f();
+    
+    vector<channel> & cbuffer = HDFTableManager<channel>::instance().buffer();
+    cbuffer.push_back(channel(525,0.035,5,6,true,1));
+    cbuffer.push_back(channel(1,0.035,1,2,true,0));
+    cbuffer.push_back(channel(2,0.035,2,3,true,0));
+    cbuffer.push_back(channel(2,0.04,2,3,true,1));
+    cbuffer.push_back(channel(3,0.035,3,4,true,0));
+    cbuffer.push_back(channel(14,0.35,4,5,true,0));
+
+    xsect_clear_buffer_f();
+    vector<xsect> & xbuffer = HDFTableManager<xsect>::instance().buffer();
+    string file = "1_0_800.txt";
+    int channo=1;
+    int layer = 0;
+    double dist = 0.800;
+    bool use = true;
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+
+    channo=1;
+    layer=0;
+    dist = 0.200;   // deliberately out of order
+    file = "1_0_200.txt";
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+
+    channo = 2;
+    layer=1;
+    dist = 0.200;
+    file = "2_0_200.txt";
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+    channo = 2;
+    layer=2;
+    dist = 0.200;
+    file = "2_0_200b.txt";
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+    channo = 2;
+    layer=2;
+    dist = 0.400;
+    file = "2_0_400b.txt";
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+    channo = 3;
+    layer=1;
+    dist = 0.200;
+    file = "3_0_200.txt";
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+    channo = 14;
+    layer=1;
+    dist = 0.200;
+    file = "14_0_200.txt";
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+    channo = 525;
+    layer=1;
+    dist = 0.200;
+    file = "525_0_200.txt";
+    xbuffer.push_back(xsect(channo,dist,file.c_str(),use,layer));
+    
+    //todo: what if there were accidently a chan 525 xsect on level 2?
+}
+
+void test_prioritize_buffer_duplicates()
+{
+    setup_buffer();
+    // deliberately add a duplicate of the first entry at the bottom
+    int channo=525;
+    int layer=2;
+    double manning=0.035;
+    int upnode=5;
+    int downnode=6;
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
+    BOOST_CHECK_THROW(channel_prioritize_buffer_f(),runtime_error);
+}
+
+
+
+void test_setup_buffer()
+{
+   setup_buffer();
+}
+
+
 void test_prioritize_buffer()
 {
   cout << "Testing priorities" << endl;
-  //channel_prioritize_buffer();
-  //xsect_prioritize_buffer();
+  channel_prioritize_buffer_f();
+  xsect_prioritize_buffer_f();
 }
+
+
 
 
 // Test writing and read of buffer to hdf5. This test is dependent on test_setup_buffer
 void test_hdf()
 {
     cout << "Testing hdf" <<endl;
-    hid_t file_id = H5Fcreate( "chan.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
+    hid_t file_id = H5Fcreate( "test_cpp.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
     channel_write_buffer_to_hdf5_f(&file_id);
     xsect_write_buffer_to_hdf5_f(&file_id);
     channel_clear_buffer_f();

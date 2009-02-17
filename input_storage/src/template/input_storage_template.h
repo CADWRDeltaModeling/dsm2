@@ -46,10 +46,10 @@ public:
   };
 
   /** Construct a @TABLEOBJ with actual data values */
-  @TABLEOBJ(@C_INPUT_SIGNATURE) :
+  @TABLEOBJ(@C_INPUT_SIGNATURE, bool a_used=true, int a_layer = 0) :
     @INIT
-    used(true),
-    layer(0)
+    used(a_used),
+    layer(a_layer)
   {
     @CONSTRUCT  
   }
@@ -111,6 +111,12 @@ public:
   {
      return @COMPARETABLEITEM;
   }
+
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  bool operator== (const @TABLEOBJ & other) const
+  {
+     return ((*this < other ) || (other < *this)) ? false : true;
+  }
   
   /** Assignment that includes all the data plus the used and layer fields */
   @TABLEOBJ& operator=(const @TABLEOBJ& rhs)
@@ -122,7 +128,7 @@ public:
   }
 
   /** Return the class name of this object (@TABLEOBJ) */
-  string objectName()
+  string objectName() const
   { 
     return "@TABLEOBJ"; 
   }

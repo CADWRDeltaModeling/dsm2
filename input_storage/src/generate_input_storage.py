@@ -302,6 +302,14 @@ def prioritize(component):
     // Sort by identifier (lexicographical order) and
     // layer (decreasing order of priority)
     std::sort(buffer().begin(),buffer().end());
+	vector<@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
+	if ( dupl != buffer().end())
+	{   
+	    string message = "Duplicate identifiers in the same input layer: ";
+        stringstream messagestrm;
+        messagestrm << message << *dupl << " (" << (*dupl).objectName() <<") ";
+	    throw runtime_error(messagestrm.str());
+	}
     // Eliminate duplicates. Because of prior ordering, 
     // this will eliminate lower layers
     buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<@TABLEOBJ>()),buffer().end());
