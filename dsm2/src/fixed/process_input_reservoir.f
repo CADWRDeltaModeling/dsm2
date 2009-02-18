@@ -1,11 +1,10 @@
-      subroutine process_input_node (name,
-     &                               LocNum,
-     &                               InPath,    
-     &                               param,
-     &                               Sign,
-     &                               Fillin,
-     &                               RoleName,    
-     &                               filename)
+      subroutine process_input_reservoir(Name,
+     &                                   LocName,
+     &                                   InPath,
+     &                                   Param,
+     &                                   Sign,
+     &                                   Fillin,
+     &                                   Filename) 
 
       use Gates
       use io_units
@@ -21,27 +20,26 @@
      &     ,FileName*128
      &     ,Param*32
      &     ,LocName*32
-     &     ,RoleName*32
      &     ,Name*64
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
 
+
       integer*4
      &     Fillin              ! code for fill in type (last, none, linear)
      &     ,Sign                ! sign restriction on input
-     &     ,LocNum              ! object map id of input data if applicable (channel,node)
      &     ,npath,na,nb,nc,nd,ne,nf
      &     ,itmp
      &     ,istat
 
+      integer, external :: name_to_objno
       integer, external :: data_types
       integer, external :: ext2intnode
-      integer, external :: loccarr 
+      integer, external :: loccarr
+      integer, external :: get_objnumber  
 
       real*8 ftmp
       real*8, external :: fetch_data
-
-
 
             ninpaths=ninpaths+1
             if (ninpaths .gt. max_inputpaths) then
@@ -51,15 +49,10 @@
                call exit(-1)
             endif
 
-c-----------clean up character variables, replace environment variables
-
-            write(LocName, '(i)')LocNum
-
             pathinput(ninpaths).name=Name
             pathinput(ninpaths).useobj=.true.
             pathinput(ninpaths).obj_name=LocName
-            pathinput(ninpaths).obj_type=obj_node
-
+            pathinput(ninpaths).obj_type=obj_reservoir
 
                if (sign .eq. -1) then
                   pathinput(ninpaths).sign = -1
@@ -72,13 +65,20 @@ c-----------clean up character variables, replace environment variables
                   call exit(-3)
                end if
 
+c-----------find object number given external object number
+            pathinput(ninpaths).obj_name=trim(LocName)
+            pathinput(ninpaths).obj_no=name_to_objno(obj_reservoir,LocName)
+            if (pathinput(ninpaths).obj_no .eq.miss_val_i )then
+               write(unit_error,'(a,a)')
+     &              'Reservoir Time Series Input: ',trim(pathinput(ninpaths).name),
+     &              ' attached to unrecognized object: ',LocName
+               call exit(-3)
+               return
+            end if
 
-c-----------find object number given external object number 
-            pathinput(ninpaths).obj_no=ext2intnode(LocNum)
-            pathinput(ninpaths).obj_name=LocName
             if (FileName(:8) .eq. 'constant' .or.
      &             FileName(:8) .eq. 'CONSTANT') then
-               read(InPath, '(1f10.0)') ftmp
+               read(InPath,'(1f10.0)') ftmp
                pathinput(ninpaths).constant_value=ftmp
                pathinput(ninpaths).variable=Param
                pathinput(ninpaths).fillin=fill_last
@@ -103,7 +103,7 @@ c--------------Break up the input pathname
                else
                   write(unit_error,610)
      &                 'Input TS: Unknown input E part or interval: ' // ce
-                  write(unit_error, '(a)') 'Path: ' // trim(InPath)
+                  write(unit_error,'(a)') 'Path: ' // trim(InPath)
                   call exit(-1)
                endif
                pathinput(ninpaths).filename=FileName
@@ -124,28 +124,11 @@ c--------------accumulate unique dss input filenames
                endif
                pathinput(ninpaths).fillin=Fillin
             endif
-                                !fixme: the next line should probably be based on RoleName
+
 c-----------set data type fixme:groups is this right
-            if (
-     &           RoleName .eq. "inflow")then
-               pathinput(ninpaths).data_type=obj_boundary_flow
-            else if (RoleName .eq. "source-sink")then
-               pathinput(ninpaths).data_type=obj_source_sink
-            else if (RoleName .eq. "stage")then
-               pathinput(ninpaths).data_type=obj_stage
-            end if
-
-            if ( pathinput(ninpaths).data_type .eq. obj_stage) then
-               if (pathinput(ninpaths).obj_type .eq. obj_node) then
-                  node_geom(pathinput(ninpaths).obj_no).boundary_type=stage_boundary
-               else
-                  write(unit_error, '(a)')
-     &                 'Input TS: Stage boundary must be at a node.'
-               end if
-            end if
-
+            pathinput(ninpaths).data_type=obj_source_sink
             if (print_level .ge. 3)then
-               write(unit_screen, '(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
+               write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
      &              trim(InPath(:24)),
      &              trim(FileName(:24))
             end if
