@@ -1,3 +1,22 @@
+C!<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
+
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public !<license as published by
+C!    the Free Software Foundation, either version 3 of the !<license, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public !<license for more details.
+
+C!    You should have received a copy of the GNU General Public !<license
+C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
+C!</license>
+
       subroutine load_oprule_ts_sql(StmtHndl, ModelID, istat)
 
 c-----load f90SQL modules
@@ -136,109 +155,26 @@ c--------clean up name variable, replace environment variables
          Name=ctmp
          call locase(Name)
 
+         InPath=InPath(1:PathLen)
+         nenv=replace_envvars(InPath,ctmp)
+         InPath=ctmp
+         call locase(InPath)
+
+         FileName=FileName(1:filelen) ! preserve case for filename
+         nenv=replace_envvars(FileName,ctmp)
+         FileName=ctmp
+
 c--------use only the highest layer version of the input, and skip
 c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName)).and. UseObj) then
-            ninpaths=ninpaths+1
-            if (ninpaths .gt. max_inputpaths) then
-               write(unit_error,630)
-     &              'Too many input paths specified; max allowed is:'
-     &              ,max_inputpaths
-               istat=-1
-               return
-            endif
 
-c-----------clean up character variables, replace environment variables
-            InPath=InPath(1:PathLen)
-            nenv=replace_envvars(InPath,ctmp)
-            InPath=ctmp
-            call locase(InPath)
+            call process_input_oprule(Name,
+     &                                InPath,
+     &                                Sign,
+     &                                Fillin,
+     &                                FileName)
 
-            FileName=FileName(1:filelen) ! preserve case for filename
-            nenv=replace_envvars(FileName,ctmp)
-            FileName=ctmp
-
-            pathinput(ninpaths).name=Name
-            pathinput(ninpaths).useobj=.true.
-            pathinput(ninpaths).obj_type=ObjTypeID
-
-            if (SignLen .gt. 0) then
-               if (sign .eq. -1) then
-                  pathinput(ninpaths).sign = -1
-               elseif (sign .eq. 1) then
-                  pathinput(ninpaths).sign = 1
-               else
-                  write(unit_error,*)"Incorrect sign for input time series"
-                  istat=-3
-                  return
-               end if
-            else
-               sign = 0
-            end if
-
-c-----------find object number given external object number
-            ObjTypeID = OBJ_OPRULE
-            pathinput(ninpaths).obj_name=LocName
-            pathinput(ninpaths).obj_no = miss_val_i
-
-            if (FileName(:8) .eq. 'constant' .or.
-     &             FileName(:8) .eq. 'CONSTANT') then
-               read(InPath,'(1f10.0)') ftmp
-               pathinput(ninpaths).constant_value=ftmp
-               pathinput(ninpaths).fillin=fill_last
-            else
-c--------------Break up the input pathname
-               ! todo: this can be consolidated
-
-               pathinput(ninpaths).path=trim(InPath)
-               call chrlnb(InPath, npath)
-               call zufpn(ca, na, cb, nb, cc, nc, cd, nd, ce, ne,
-     &              cf, nf, InPath, npath, istat)
-               if (istat .lt. 0) then
-                  write(unit_error, '(/a/a)')
-     &                 'Input TS: Illegal pathname', InPath
-                  istat = -1
-                  return
-               end if
-
-               call split_epart(ce,itmp,ctmp)
-               if (itmp .ne. miss_val_i) then ! valid interval, parse it
-                  pathinput(ninpaths).no_intervals=itmp
-                  pathinput(ninpaths).interval=ctmp
-               else
-                  write(unit_error,610)
-     &                 'Input TS: Unknown input E part or interval: ' // ce
-                  write(unit_error,'(a)') 'Path: ' // trim(InPath)
-                  istat=-1
-                  return
-               endif
-               pathinput(ninpaths).filename=FileName
-c--------------accumulate unique dss input filenames
-               itmp=loccarr(pathinput(ninpaths).filename,infilenames,
-     &              max_dssinfiles, EXACT_MATCH)
-               if (itmp .lt. 0) then
-                  if (abs(itmp) .le. max_dssinfiles) then
-                     infilenames(abs(itmp))=pathinput(ninpaths).filename
-                     pathinput(ninpaths).ndx_file=abs(itmp)
-                  else
-                     write(unit_error,610)
-     &                    'Maximum number of unique DSS input files exceeded'
-                     istat=-3
-                     return
-                  endif
-               else
-                  pathinput(ninpaths).ndx_file=itmp
-               endif
-               pathinput(ninpaths).fillin=Fillin
-            endif
-            !fixme: the next line should probably be based on RoleName
-c-----------set data type fixme:groups is this right
-            if (print_level .ge. 3)then
-               write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
-     &              trim(InPath(:24)),
-     &              trim(FileName(:24))
-            end if
-         end if                 !inputpath name not equals last name processed
+         end if           
          counter=counter+1
          prevName=Name
 
