@@ -55,27 +55,7 @@ c-----local variables
 
 c-----------clean up character variables, replace environment variables
 
-            call trim_null_space(InPath)
-            InPath=trim(InPath)
-            nenv=replace_envvars(InPath,ctmp)
-            InPath=ctmp
-            call locase(InPath)
-
-
             write(LocName, '(i)')LocNum
-
-
-            call trim_null_space(RoleName)
-            RoleName = trim(RoleName)
-            call locase(RoleName)
-
-
-            call trim_null_space(FileName)
-            FileName = trim(FileName)
-            nenv=replace_envvars(FileName,ctmp)
-            FileName=ctmp
-
-
 
             pathinput(ninpaths).name=Name
             pathinput(ninpaths).useobj=.true.
