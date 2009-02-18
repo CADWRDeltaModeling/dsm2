@@ -169,11 +169,28 @@ c--------clean up name variable, replace environment variables
          Param=ctmp
          call locase(Param)
 
+         InPath=InPath(1:PathLen)
+         nenv=replace_envvars(InPath,ctmp)
+         InPath=ctmp
+         call locase(InPath)
+
+         RoleName=RoleName(1:RoleNameLen)
+         nenv=replace_envvars(RoleName,ctmp)
+         RoleName=ctmp
+         call locase(RoleName)
+
+         FileName=FileName(1:FileLen)
+         nenv=replace_envvars(FileName,ctmp)
+         FileName=ctmp
+         call locase(FileName)
+
+
 c--------use only the highest layer version of the input, and skip
 c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName .and. Param .eq. PrevParam))
      &        .and. UseObj) then
 
+             
              call process_input_node(name,
      &                               LocNum,
      &                               InPath,    
