@@ -70,7 +70,7 @@ c-----Bind the parameter representing ModelID
 
 c-----Execute SQL statement
 c-----Execute SQL statement
-            StmtStr="SELECT input_series_id,used,climate_variable_description.name,transfer, " //
+            StmtStr="SELECT input_series_id,climate_variable_description.name,transfer, " //
      &     "path,variable_name,fillin,input_file " //
      &     "FROM input_time_series_climate INNER JOIN model_component ON " //
      &     "input_time_series_climate.layer_id = model_component.component_id "//
@@ -97,9 +97,6 @@ c-----Bind variables to columns in result set
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, ID,
      &     f90SQL_NULL_PTR, iRet)
 
-      ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, UseObj,
-     &     f90SQL_NULL_PTR, iRet)
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, Name,
@@ -134,6 +131,7 @@ c-----Loop to fetch records, one at a time
 	prevParam=miss_val_c
       istat=0
 
+      useObj = .TRUE.
       do while (.true.)
 c--------Fetch a record from the result set
          call f90SQLFetch(StmtHndl,iRet)
