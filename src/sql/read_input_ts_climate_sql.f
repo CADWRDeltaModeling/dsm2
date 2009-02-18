@@ -70,15 +70,16 @@ c-----Bind the parameter representing ModelID
 
 c-----Execute SQL statement
 c-----Execute SQL statement
-            StmtStr="SELECT input_series_id,climate_variable_description.name,transfer, " //
-     &     "path,variable_name,fillin,input_file " //
-     &     "FROM input_time_series_climate INNER JOIN model_component ON " //
-     &     "input_time_series_climate.layer_id = model_component.component_id "//
+            StmtStr="SELECT input_series_id,climate_variable_description.name, " //
+     &     "path,sign,fillin,input_file " //
+     &     "FROM (input_time_series_climate INNER JOIN model_component ON " //
+     &     "input_time_series_climate.layer_id = model_component.component_id) "//
      &     "INNER JOIN climate_variable_description " //
-     &     "ON input_time_series_climate.climate_variable_id = climate_variable_description.climate_variable_id "
+     &     "ON input_time_series_climate.climate_variable_id = "//
+     &     "climate_variable_description.climate_variable_id " //
      &     "WHERE model_component.model_id = ? " //
      &     "AND model_component.component_type = 'input' " //
-     &     "ORDER BY name, layer DESC;"
+     &     "ORDER BY climate_variable_description.name, layer DESC;"
 
 
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
@@ -102,10 +103,6 @@ c-----Bind variables to columns in result set
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, Name,
      &     loc(namelen), iRet)
 
-      ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, ObjTypeID,
-     &     f90SQL_NULL_PTR, iRet)
-
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, InPath,
@@ -124,6 +121,7 @@ c-----Bind variables to columns in result set
      &     loc(FileLen), iRet)
 
       if (print_level .ge. 3) write(unit_screen,'(a)') 'Made Input TS bind request'
+      ObjTypeID = obj_climate
 c-----Loop to fetch records, one at a time
       ninpaths=0
       counter=1
