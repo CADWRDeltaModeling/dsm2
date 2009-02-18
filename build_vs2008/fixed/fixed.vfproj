@@ -48,6 +48,7 @@
 		<File RelativePath="..\..\src\fixed\process_group.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_climate.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_node.f"/>
+		<File RelativePath="..\..\src\fixed\process_input_oprule.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_transfer.f"/>
 		<File RelativePath="..\..\src\fixed\process_irreg.f"/>
