@@ -179,10 +179,9 @@ c--------clean up name variable, replace environment variables
          RoleName=ctmp
          call locase(RoleName)
 
-         FileName=FileName(1:FileLen)
+         FileName=FileName(1:filelen) ! preserve case for filename
          nenv=replace_envvars(FileName,ctmp)
          FileName=ctmp
-         call locase(FileName)
 
 
 c--------use only the highest layer version of the input, and skip
