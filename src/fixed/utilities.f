@@ -906,38 +906,3 @@ c-----an HDF5 tidefile, or unknown (fatal error)
  610     format(/'Fatal error: cannot determine tidefile type: ',a)
       endif
       end
-
-
-      subroutine trim_null_space(string_in_out)
-
-      implicit none
-
-      character *(*)  string_in_out
-
-      integer*4  i,j
-
-      i=len(string_in_out)
-      do while (i>1) 
-          if (iachar(string_in_out(i:i)) .eq. 0 ) then
-             string_in_out(i:i) = achar(32)
-             i = i-1
-          else
-             !i=0
-             i=i-1
-          end if
-      end do
-
-        
-      ! wipe out anyyhing that follows a " "
-       do i = 2, len(string_in_out)
-          if (iachar(string_in_out(i:i)) .eq. 32 ) then
-             do j = i+1, len(string_in_out)
-                string_in_out(j:j) = achar(32)
-             enddo
-             exit
-          endif
-       enddo   
-
-      string_in_out = trim(string_in_out)
-
-      end subroutine
