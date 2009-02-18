@@ -25,7 +25,6 @@ c-----f90SQL variables
      &     SignLen
      &     ,NameLen
      &     ,LocNameLen
-     &     ,SubLocLen
      &     ,FileLen
      &     ,PathLen
      &     ,RoleNameLen
@@ -56,7 +55,6 @@ c-----local variables
      &     ,Param*32
      &     ,PrevParam*32
      &     ,LocName*32
-     &     ,SubLoc*32           ! Object-dependent sublocation (gate device, reservoir node connect..)
      &     ,PrevName*32
      &     ,RoleName*32
      &     ,Name*64
@@ -98,11 +96,9 @@ c-----Bind variables to columns in result set
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, ID,
      &     f90SQL_NULL_PTR, iRet)
 
-
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, Name,
      &     loc(namelen), iRet)
-
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, InPath,
@@ -123,7 +119,7 @@ c-----Bind variables to columns in result set
       if (print_level .ge. 3) write(unit_screen,'(a)') 'Made Input TS bind request'
       ObjTypeID = obj_climate
 c-----Loop to fetch records, one at a time
-      ninpaths=0
+
       counter=1
       prevName=miss_val_c
 	prevParam=miss_val_c
@@ -153,124 +149,36 @@ c--------clean up name variable, replace environment variables
 c-------- special case for climate
          Param=trim(Name)
 
+         InPath=InPath(1:PathLen)
+         nenv=replace_envvars(InPath,ctmp)
+         InPath=ctmp
+         call locase(InPath)
+
+         LocName=locName(1:locnamelen)
+         nenv=replace_envvars(LocName,ctmp)
+         LocName=ctmp
+         call locase(LocName)
+
+         RoleName=RoleName(1:RoleNameLen)
+         call locase(RoleName)
+
+         FileName=FileName(1:filelen) ! preserve case for filename
+         nenv=replace_envvars(FileName,ctmp)
+         FileName=ctmp
+
 c--------use only the highest layer version of the input, and skip
 c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName .and. Param .eq. PrevParam))
      &        .and. UseObj) then
-            ninpaths=ninpaths+1
-            if (ninpaths .gt. max_inputpaths) then
-               write(unit_error,630)
-     &              'Too many input paths specified; max allowed is:'
-     &              ,max_inputpaths
-               istat=-1
-               return
-            endif
 
-c-----------clean up character variables, replace environment variables
-            InPath=InPath(1:PathLen)
-            nenv=replace_envvars(InPath,ctmp)
-            InPath=ctmp
-            call locase(InPath)
+            call process_input_climate(Name,
+     &                                 InPath,
+     &                                 Param,
+     &                                 Sign,
+     &                                 Fillin,
+     &                                 Filename) 
 
-            LocName=locName(1:locnamelen)
-            nenv=replace_envvars(LocName,ctmp)
-            LocName=ctmp
-            call locase(LocName)
-
-            SubLoc=SubLoc(1:subloclen)
-            nenv=replace_envvars(SubLoc,ctmp)
-            SubLoc=ctmp
-            call locase(SubLoc)
-
-            RoleName=RoleName(1:RoleNameLen)
-            call locase(RoleName)
-
-            FileName=FileName(1:filelen) ! preserve case for filename
-            nenv=replace_envvars(FileName,ctmp)
-            FileName=ctmp
-
-            pathinput(ninpaths).name=Name
-            pathinput(ninpaths).useobj=.true.
-            pathinput(ninpaths).obj_name=LocName
-            pathinput(ninpaths).obj_type=ObjTypeID
-
-            if (SignLen .gt. 0) then
-               if (sign .eq. -1) then
-                  pathinput(ninpaths).sign = -1
-               elseif (sign .eq. 1) then
-                  pathinput(ninpaths).sign = 1
-               else
-                  write(unit_error,*)"Incorrect sign for input time series"
-                  istat=-3
-                  return
-               end if
-            else
-               sign = 0
-            end if
-
-            pathinput(ninpaths).obj_name='global'
-            pathinput(ninpaths).obj_no = miss_val_i  ! this could be an index into climate variables.
-            if (FileName(:8) .eq. 'constant' .or.
-     &             FileName(:8) .eq. 'CONSTANT') then
-               read(InPath,'(1f10.0)') ftmp
-               pathinput(ninpaths).constant_value=ftmp
-               pathinput(ninpaths).variable=Param
-               pathinput(ninpaths).fillin=fill_last
-            else
-c--------------Break up the input pathname
-
-               pathinput(ninpaths).path=trim(InPath)
-               call chrlnb(InPath, npath)
-               call zufpn(ca, na, cb, nb, cc, nc, cd, nd, ce, ne,
-     &              cf, nf, InPath, npath, istat)
-               if (istat .lt. 0) then
-                  write(unit_error, '(/a/a)')
-     &                 'Input TS: Illegal pathname', InPath
-                  istat = -1
-                  return
-               end if
-
-               pathinput(ninpaths).variable=Param
-               call split_epart(ce,itmp,ctmp)
-               if (itmp .ne. miss_val_i) then ! valid interval, parse it
-                  pathinput(ninpaths).no_intervals=itmp
-                  pathinput(ninpaths).interval=ctmp
-               else
-                  write(unit_error,610)
-     &                 'Input TS: Unknown input E part or interval: ' // ce
-                  write(unit_error,'(a)') 'Path: ' // trim(InPath)
-                  istat=-1
-                  return
-               endif
-               pathinput(ninpaths).filename=FileName
-c--------------accumulate unique dss input filenames
-               itmp=loccarr(pathinput(ninpaths).filename,infilenames,
-     &              max_dssinfiles, EXACT_MATCH)
-               if (itmp .lt. 0) then
-                  if (abs(itmp) .le. max_dssinfiles) then
-                     infilenames(abs(itmp))=pathinput(ninpaths).filename
-                     pathinput(ninpaths).ndx_file=abs(itmp)
-                  else
-                     write(unit_error,610)
-     &                    'Maximum number of unique DSS input files exceeded'
-                     istat=-3
-                     return
-                  endif
-               else
-                  pathinput(ninpaths).ndx_file=itmp
-               endif
-               pathinput(ninpaths).fillin=Fillin
-            endif
-                                !fixme: the next line should probably be based on RoleName
-c-----------set data type fixme:groups is this right
-            pathinput(ninpaths).data_type=obj_climate
-            
-            if (print_level .ge. 3)then
-               write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
-     &              trim(InPath(:24)),
-     &              trim(FileName(:24))
-            end if
-         end if                 !inputpath name not equals last name processed
+         end if                
          counter=counter+1
          prevName=Name
 	   prevParam=Param
