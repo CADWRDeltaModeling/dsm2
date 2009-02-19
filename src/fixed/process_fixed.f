@@ -773,7 +773,7 @@ c-----name required for each line; empty value indicates erase it
       use iopath_data
       use common_qual
       use common_ptm
-      use envvar   !kc To match process_scalar_SQL
+      use envvar   
       use grid_data
 
 !c-----process a character line into data arrays for scalar info
@@ -800,7 +800,7 @@ c-----name required for each line; empty value indicates erase it
      &     ,ilenf(mxflds)       ! length of each field in line (input)
      &     ,istat               ! conversion status of this line (output)
       
-      integer                  :: itmp   !kc
+      integer                  :: itmp 
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
@@ -829,13 +829,10 @@ c-----name required for each line; empty value indicates erase it
       Param=line(ibegf(1):ibegf(1)+ilenf(1)-1)
       Value=line(ibegf(2):ibegf(2)+ilenf(2)-1)
 
-
-        !include '../test/include_merged.f'
         call process_scalar(Param, Value, istat)
-
-
       
-      endsubroutine
+      end subroutine
+      
       subroutine input_particle_flux(field_names, mxflds, nfields, nflds,
      &     ifld, rifld, line, ibegf, ilenf, idelmt, istat)
 
