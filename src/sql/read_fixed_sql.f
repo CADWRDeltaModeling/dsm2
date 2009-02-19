@@ -325,7 +325,7 @@ c-----char-to-value conversion errors
 
       integer, intent(inout) :: istat !status
       integer                  :: itmp
-      character*15 field_names(1) !kc to match text input
+      character*15 field_names(1) 
       character, intent(in)    :: Value*20 ! parameter value
       character, intent(in)    :: Param*20 ! parameter
       character                :: ctmp*20  ! local
