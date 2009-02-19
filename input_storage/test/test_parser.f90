@@ -4,7 +4,7 @@ use input_storage_fortran_data
 implicit none
 integer :: nchan, nxsect
 integer :: error
-character(len=8), PARAMETER :: filename = "testf.h5" ! File name
+character(len=15), PARAMETER :: filename = "fortran_test.h5" ! File name
 integer(HID_T) :: file_id                            ! File identifier
 logical :: ext
 
