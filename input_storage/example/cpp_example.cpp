@@ -36,7 +36,10 @@ void setup_envvar()
 void write_hdf()
 {
     cout << "Testing hdf" <<endl;
-    hid_t file_id = H5Fcreate( "chan.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
+    hid_t file_id = H5Fcreate( "cpp_example.h5", 
+		                        H5F_ACC_TRUNC, 
+								H5P_DEFAULT, 
+								H5P_DEFAULT );
     channel_write_buffer_to_hdf5_f(&file_id);
     xsect_write_buffer_to_hdf5_f(&file_id);
     channel_clear_buffer_f();
