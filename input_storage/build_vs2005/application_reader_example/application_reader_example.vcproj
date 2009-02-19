@@ -27,6 +27,8 @@
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				CommandLine="python.exe $(InputPath)"
+				Outputs=".\input_storage.h"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -201,6 +203,19 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath="..\..\example\generate.py"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="python.exe $(InputPath)"
+					Outputs=".\input_storage.h"
+				/>
+			</FileConfiguration>
+		</File>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>

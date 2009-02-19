@@ -202,8 +202,17 @@
 			>
 		</Filter>
 		<File
-			RelativePath=".\ReadMe.txt"
+			RelativePath="..\..\test\generate.py"
 			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="python.exe $(InputPath)"
+					Outputs=".\input_storage.h"
+				/>
+			</FileConfiguration>
 		</File>
 	</Files>
 	<Globals>

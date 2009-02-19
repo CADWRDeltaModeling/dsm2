@@ -5,6 +5,7 @@
 
 import sys
 sys.path.append("../src")
+sys.path.append("../../src")
 from generate_input_storage import *
 
 
