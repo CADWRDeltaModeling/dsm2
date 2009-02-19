@@ -33,10 +33,9 @@ C!</license>
 
       include '../hydrolib/network.inc'
       include '../hydrolib/netcntrl.inc'
-      !include '../hydrolib/chconnec.inc'
 
       integer                  :: itmp
-      character*15 field_names(1) !kc to match text input
+      character*15 field_names(1) 
       character, intent(in)    :: Val*20 ! parameter Val
       character, intent(in)    :: Param*20 ! parameter
       character                :: ctmp*20  ! local
@@ -84,10 +83,10 @@ C!</license>
       elseif (Param .eq. 'flush_output') then
          flush_intvl=Val
       elseif (Param .eq. 'binary_output') then
-         itmp=replace_envvars(Val,ctmp) !kc to match sql
+         itmp=replace_envvars(Val,ctmp) 
          read(ctmp, '(l2)', err=810) binary_output
       elseif (Param .eq. 'dss_direct') then
-         itmp=replace_envvars(Val,ctmp) !kc to match sql
+         itmp=replace_envvars(Val,ctmp) 
          read(ctmp, '(l2)', err=810) dss_direct
       elseif (Param .eq. 'hydro_time_step') then
          time_step_intvl_hydro=Val
