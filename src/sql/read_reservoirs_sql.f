@@ -273,4 +273,4 @@ c--------------Fetch a record from the result set
      &     write(unit_screen,'(a/)') 'Read in all reservoir connection data'
 
       return
-      end
+      end subroutine
