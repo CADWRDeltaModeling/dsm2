@@ -1,3 +1,22 @@
+C!<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
+
+C!    DSM2 is free software: you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public !<license as published by
+C!    the Free Software Foundation, either version 3 of the !<license, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public !<license for more details.
+
+C!    You should have received a copy of the GNU General Public !<license
+C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
+C!</license>
+
       subroutine set_database_name(name)
       use dsm2_database
       implicit none
@@ -57,20 +76,20 @@ c-----Load data
       if (istat .lt. 0) goto 901
 
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')
-     &      call load_input_ts_node_SQL(StmtHndl, ModelID, istat)
+     &      call read_input_ts_node_sql(StmtHndl, ModelID, istat)
       if (istat .lt. 0) goto 901
       
       if( dsm2_name .eq. 'Hydro')then
-          call load_reservoir_ts_SQL(StmtHndl, ModelID, istat) 
+          call read_input_ts_reservoir_sql(StmtHndl, ModelID, istat) 
           if (istat .lt. 0) goto 901
-          call load_gate_ts_SQL(StmtHndl, ModelID, istat)
+          call read_input_ts_gate_sql(StmtHndl, ModelID, istat)
           if (istat .lt. 0) goto 901
-          call load_transfer_ts_SQL(StmtHndl, ModelID, istat) 
+          call read_input_ts_transfer_sql(StmtHndl, ModelID, istat) 
           if (istat .lt. 0) goto 901          
-          call load_oprule_ts_SQL(StmtHndl, ModelID, istat) 
+          call read_input_ts_oprule_sql(StmtHndl, ModelID, istat) 
       end if
       if( dsm2_name .eq. 'Qual')then
-          call load_climate_ts_SQL(StmtHndl, ModelID, istat) 
+          call read_input_ts_climate_sql(StmtHndl, ModelID, istat) 
           if (istat .lt. 0) goto 901
       end if
 

@@ -17,7 +17,7 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
 
-      subroutine load_oprule_ts_sql(StmtHndl, ModelID, istat)
+      subroutine read_input_ts_oprule_sql(StmtHndl, ModelID, istat)
 
 c-----load f90SQL modules
       use f90SQLConstants
