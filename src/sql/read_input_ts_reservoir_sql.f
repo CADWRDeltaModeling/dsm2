@@ -193,6 +193,9 @@ c--------clean up name variable, replace environment variables
          nenv=replace_envvars(FileName,ctmp)
          FileName=ctmp
 
+         if (SignLen .LE. 0) then
+            sign = 0
+         end if
 c--------use only the highest layer version of the input, and skip
 c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName .and. Param .eq. PrevParam))
