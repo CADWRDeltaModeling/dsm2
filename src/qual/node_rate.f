@@ -80,8 +80,6 @@ c--------fixme:group need multiple group membership
             if (direction .eq. TO_OBJ .and.
      &           qext(qndx).avg .gt. tol) then ! direction and flow to node
                objflow=objflow + qext(qndx).avg
-               if (qndx == 5)then
-               end if
                if (n_conqext(qndx) .eq. 0 .and. .not. err_node(intnode)) then
                   err_node(intnode)=.true.
                   write(unit_error,610)
@@ -90,7 +88,7 @@ c--------fixme:group need multiple group membership
      &                 trim(qext(qndx).name),
      &                 trim(groupArray(qext(qndx).group_ndx).name)
  610              format(/'Warning; no input path constituent'/
-     &                 ' for 'a,' ',a,' (flow input name: ',a,') type ',a,'; assumed zero.')
+     &                 ' for 'a,' ',a,' (flow input name: ',a,') group ',a,'; assumed zero.')
                   conc=0.0
                else
                   do k=1,n_conqext(qndx)
