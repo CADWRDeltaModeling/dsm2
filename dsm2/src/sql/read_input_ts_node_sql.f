@@ -77,7 +77,7 @@ c-----local variables
      &     ,LocName*32
      &     ,PrevName*32
      &     ,RoleName*32
-     &     ,Name*64
+     &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
 
