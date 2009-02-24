@@ -171,11 +171,13 @@ c-----local variables
      &     ,itmp
      &     ,err_status
 
+
       character
-     &     Param*20             ! parameter
-     &     ,prev_param*20       ! previous parameter name
-     &     ,Value*20            ! parameter value
+     &     Param*32             ! parameter
+     &     ,prev_param*32       ! previous parameter name
+     &     ,Value*32            ! parameter value
      &     ,ctmp*20
+
 
       integer(SQLINTEGER_KIND):: scalarlen, vallen
 
@@ -235,16 +237,19 @@ c--------Fetch a record from the result set
 
          Param=Param(1:scalarlen)
          call locase(Param)
-
-         Value=Value(1:vallen)
-         call locase(Value)
-
-         counter=counter+1
+         err_status=replace_envvars(Param,ctmp)
+         call locase(ctmp)
+         Param=ctmp
+         
 
 c--------use only the last version of a parameter
          if (Param .ne. prev_param) then
-         
-           call process_scalar_SQL(Param, Value)
+           Value=Value(1:vallen)
+           call locase(Value)
+           err_status=replace_envvars(Value,ctmp)
+           Value=ctmp
+
+           call process_scalar(Param, Value)   
                   
          endif 
          
@@ -326,7 +331,7 @@ c-----char-to-value conversion errors
 
       integer, intent(inout) :: istat !status
       integer                  :: itmp
-      character*15 field_names(1) 
+      character*32 field_names(1) !kc to match text input
       character, intent(in)    :: Value*20 ! parameter value
       character, intent(in)    :: Param*20 ! parameter
       character                :: ctmp*20  ! local

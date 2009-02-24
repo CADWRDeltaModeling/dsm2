@@ -277,7 +277,7 @@ c      hdr_form(nsects).fld(max_fields)=delimiter ! denotes repeating fields for
       hdr_form(nsects).fld(coeff_value)='value'
 
       nsects=nsects+1
-      hdr_form(nsects).sect='envvars'
+      hdr_form(nsects).sect='envvar'
       hdr_form(nsects).fld(envvar_name)='name'
       hdr_form(nsects).fld(envvar_value)='value'
 
@@ -485,6 +485,7 @@ c--------check that data fields are same as number of headers
 c--------pass the data as char strings to appropriate section handler
          if (.not. env_only .and.
      &           hdr_form(vsect).sect .eq. 'titles') then
+            return !todo disabled
             ntitles=ntitles+1
             if (ntitles .le. max_titles) then
                title(ntitles)=' '

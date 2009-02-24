@@ -243,9 +243,9 @@ c-----input/output file names
       sequence
          logical use            ! .true. if restart/tide to be read/written
          integer unit           ! restart/tide read/write unit
-         character*80 interval  ! interval for restart/tide writing (e.g. 1HOUR)
+         character*16 interval  ! interval for restart/tide writing (e.g. 1HOUR)
          character*130 filename ! restart/tide read/write filename
-         character*42 dummy
+         character*6 dummy      ! alignment to multiple of 8
       end type
 
 c-----translations:
@@ -348,8 +348,8 @@ c-----data value, quality flags, and timestamp object
       end type
 
       type tidefile_t
-         character*14 start_date ! when to start using this tidefile (date and time)
-         character*30 end_date  ! when to quit using this tidefile (date and time, or time length (e.g. 5day_3hour))
+         character*16 start_date ! when to start using this tidefile (date and time)
+         character*16 end_date  ! when to quit using this tidefile (date and time, or time length (e.g. 5day_3hour))
          logical binarytf       ! true for binary tidefile (not HDF5)
          integer*4 start_julmin_file ! file timestamp start
          integer*4 end_julmin_file ! file timestamp end
@@ -357,7 +357,7 @@ c-----data value, quality flags, and timestamp object
          integer*4 end_julmin   ! when to quit using this tidefile (wrt tidefile date)
          integer ntideblocks    ! number of tideblocks
          integer interval       ! minutes between tideblocks
-         character*160 filename ! tidefile name
+         character*128 filename ! tidefile name
       end type
 
       
