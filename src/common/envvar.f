@@ -20,7 +20,7 @@ C!</license>
 
       module envvar
       
-      integer, parameter:: ENVVAR_NAME_LEN = 128
+      integer, parameter:: ENVVAR_NAME_LEN = 32
       integer, parameter:: ENVVAR_VALUE_LEN = 128
 c-----pseudo (internal) environment variables
       type envvar_t
@@ -32,8 +32,33 @@ c-----pseudo (internal) environment variables
       ! max number of pseudo (internal) env vars
       integer,parameter :: max_envvars = 128
       type(envvar_t) ::  envvars(max_envvars)
-      
+      integer        ::  nenvvars    ! actual number of envvars used
       contains
+
+      subroutine add_envvar(name,val)
+      use io_units
+      implicit none
+      integer j
+      character (len=ENVVAR_NAME_LEN) :: name
+      character (len=ENVVAR_VALUE_LEN) :: val
+      do j = 1, nenvvars
+         if(name .eq. envvars(j).name) then
+	    envvars(j).value =val
+	    return
+         endif
+      enddo
+      
+      nenvvars=nenvvars+1
+      if (nenvvars .gt. max_envvars) then
+         write(unit_error,'(a,i)')
+     &        'Too many envvars specified; max allowed is:',max_envvars
+         call exit(-1)
+      endif      
+            
+      envvars(nenvvars).name=name
+      envvars(nenvvars).value=val
+      return
+      end subroutine
 
       integer function replace_envvars(instring, outstring)
       use io_units

@@ -18,9 +18,6 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
 
       subroutine load_rate_coeffs_SQL(StmtHndl, ModelID, istat)
-c      subroutine load_rate_coeffs_SQL(istat) 
-
-
       use IO_Units
 c-----load f90SQL modules
       use f90SQLConstants
@@ -130,34 +127,18 @@ c--------Fetch a record from the result set
 	   group_name=trim(group_name)
          call locase(group_name)
 
+c --- todo: why is layering turned off?
 c--------use only the last version of a rate
 c--------
 c         if ((group_name .ne. prev_group_name) .or.
 c     &       (rate_variable_id.or.pre_rate_variable_id).or.
 c     &        (constituent_id.ne.pre_constituent_id)) then
 
+         call process_rate_coef(group_name, 
+     &                          rate_variable_id,
+     &                          constituent_id,
+     &                          coefficient_value)
             ncoeff=ncoeff+1
-	      groupno = name_to_objno(obj_group, group_name)
-	      if (groupno.lt.0) then
-	           istat=-3
-                 write(unit_error, '(a)') 'Group not recognized: ' // group_name
-	           return
-	      end if
-		  if (not(IsAllChannelReservoir(groupArray(groupno)))) then
-                 istat=-3
-	           write(unit_error, '(a)') 'Members of group'//group_name//" are not all channel or reservior"
-	           return
-
-	      end if
-            coefficient_value=coefficient_value/24. ! convert per day to per hour
-            call assign_rate_to_group(groupno,rate_variable_id,constituent_id,
-     &		   coefficient_value,istat,errm)
-	      if (istat.lt.0) then
-               write(unit_error, '(a)') errm
-			 return
-	      end if
-
-            rate_var_require_flag(constituent_id,rate_variable_id)=.true.
 c        end if
 c        prev_group_name=group_name
 c	   pre_rate_variable_id=rate_variable_id

@@ -31,7 +31,7 @@ c-----multiple tidefiles for Qual, PTM
      &     ,n_res_tf,n_chan_tf  ! reservoir and channels used in tidefile
      &     ,current_tidefile
 
-      parameter (max_tide_files=300)
+      parameter (max_tide_files=12)
       character*21 chead
 
 

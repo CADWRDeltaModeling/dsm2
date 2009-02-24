@@ -191,7 +191,9 @@ c-----dsm2 initialization
       database_name=' '
 
       if (init_input_file .ne. ' ') then
-         call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
+         !call input_text(init_input_file)
+         call input_text("hydrotempnew.inp")
+         !call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
          if (  .not. order_nodes())then
           ! todo: this is for textify very awkward placement
           write(unit_error,*)"Node order failed"
