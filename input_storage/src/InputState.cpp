@@ -11,6 +11,11 @@ bool InputState::isBlockEnd(string & line)
 string InputState::strip(const string& line) const
 {
   string trimmed =  boost::algorithm::trim_copy(line);
+  if (line.find_first_of("\t") != string::npos)
+  {
+      string message("Line has tabs: please remove and set your text editor to replace tabs with spaces:\n");
+      handleFatalError(message+line);
+  }
   size_t commentCol = line.find_first_of(COMMENT);
 
   if (trimmed.size() == 0 || commentCol == 0) 

@@ -32,10 +32,12 @@ string EnvSubstitution::operator()(const std::string & arg)
     sregex_iterator m1(str.begin(), str.end(), expr);
     sregex_iterator m2;
     vector<string> subList;
+    // list all matches of the ${...} pattern
     for( ; (m1 != m2) ; m1++ )
     {
         subList.push_back((*m1)[1].str());
     }
+    // go through the list of envvars needing substitution
     for (size_t isub = 0; isub < subList.size(); ++isub)
     {
         string toReplace=subList[isub];
@@ -56,10 +58,12 @@ string EnvSubstitution::operator()(const std::string & arg)
                 found = true;
             }
         }
-        if (!found)
-        {
-            throw logic_error("Fatal error in text substitution: envvar not found: " + toReplace); // todo unify fatal error handling
-        }
+//        if (!found)
+//        {
+//            string message("Fatal error in text substitution: envvar not found: ");
+//            message=message+toReplace;
+//            throw logic_error(message); // todo unify fatal error handling
+//        }
     }
     return str;
 }

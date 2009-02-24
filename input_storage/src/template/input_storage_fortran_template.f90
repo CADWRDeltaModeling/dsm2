@@ -3,7 +3,7 @@
 !! for reading and writing data from text and hdf5. Each routine is listed by
 !! module_name::routine_name
 !@{ 
-module input_storage_fortran_data
+module input_storage_fortran
 	   contains
 
        // Fortran Include Files DO NOT ALTER THIS LINE AT ALL

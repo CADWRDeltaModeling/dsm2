@@ -176,12 +176,12 @@ herr_t @TABLEOBJ_query_from_buffer_f(size_t* row,
                         @FORTRAN_C_OUTPUT_SIGNATURE
                         )
 {
-  //if (row > @TABLEOBJ_table::instance().buffer().size()) return -2; //todo: HDF_STORAGE_ERROR;
-  size_t ndx = *row - 1;
-  @TABLEOBJ obj =@TABLEOBJ_table::instance().buffer()[ndx];
-  @BUFFER_QUERY
-  @STRLENASSIGN
-  return 0;
+    //if (row > @TABLEOBJ_table::instance().buffer().size()) return -2; //todo: HDF_STORAGE_ERROR;
+    size_t ndx = *row - 1;
+    @TABLEOBJ obj =@TABLEOBJ_table::instance().buffer()[ndx];
+    @BUFFER_QUERY
+    @STRLENASSIGN
+    return 0;
 }
 
 /** Prioritize buffer by layers, delete unused items and sort */
@@ -203,7 +203,7 @@ void @TABLEOBJ_write_buffer_to_stream(ostream & out, const bool& append)
    out << keyword <<endl;
    vector<@TABLEOBJ> & obs = @TABLEOBJ_table::instance().buffer();
    @TABLEOBJ_table& table = @TABLEOBJ_table::instance();
-   for (size_t icount = 0; icount < 4; ++ icount) 
+   for (size_t icount = 0; icount < table.description.nfields; ++ icount) 
    {
      string name = table.description.field_names[icount];
      boost::to_upper(name);
@@ -224,8 +224,10 @@ void @TABLEOBJ_write_buffer_to_text_f(const char* file, const bool* append, int 
   string filename(file,filelen);
   boost::filesystem::path p(filename);
   //if (!boost::filesystem::exists(p.remove_filename()))
-   ofstream out(filename.c_str());
-   @TABLEOBJ_write_buffer_to_stream(out,*append); 
+  ios_base::openmode mode = *append ? (ios::out | ios::ate | ios::app) : (ios::out | ios::trunc );
+  ofstream out(filename.c_str(),mode);
+  
+  @TABLEOBJ_write_buffer_to_stream(out,*append); 
 }
 
 

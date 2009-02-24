@@ -71,6 +71,9 @@ class Field(object):
     def default(self):
         return -901
 
+    def pad(self):
+        return None
+
     def hdf_type(self):
         raise NotImplementedError("HDF type not defined")
 
@@ -93,6 +96,10 @@ class CharField(Field):
         Field.__init__(self,name,"char[%s]" % size)
         self.size = size
         self.format_width=format_width
+
+    def pad(self,arg=None):
+        if (not arg):arg=self.name
+        return "fill(%s+strlen(%s),%s+%s,' ');" % (arg,arg,arg,self.size)
     
     def c_arg(self,input = True):
         arg = " char a_%s[%s]" % (self.name,self.size)
@@ -302,14 +309,14 @@ def prioritize(component):
     // Sort by identifier (lexicographical order) and
     // layer (decreasing order of priority)
     std::sort(buffer().begin(),buffer().end());
-	vector<@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
-	if ( dupl != buffer().end())
-	{   
-	    string message = "Duplicate identifiers in the same input layer: ";
+    vector<@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
+    if ( dupl != buffer().end())
+    {   
+        string message = "Duplicate identifiers in the same input layer: ";
         stringstream messagestrm;
         messagestrm << message << *dupl << " (" << (*dupl).objectName() <<") ";
-	    throw runtime_error(messagestrm.str());
-	}
+        throw runtime_error(messagestrm.str());
+    }
     // Eliminate duplicates. Because of prior ordering, 
     // this will eliminate lower layers
     buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<@TABLEOBJ>()),buffer().end());
@@ -385,7 +392,8 @@ def prep_component(component,outdir):
     members = string.join([x.member() for x in component.members if x.member()],"\n  ")
     c_pass_through_call =  string.join([x.fortran_pointer()+"a_"+\
                                         x.name for x in component.members],",")
-    buffer_query =  string.join([x.assign(x.fortran_pointer()+"a_","obj.") for x in component.members],"\n    ")
+    buffer_query =  string.join([x.assign(x.fortran_pointer()+"a_","obj.") for x in component.members],"\n    ")+"\n    "
+    buffer_query += string.join([x.pad("a_"+x.name) for x in component.members if x.pad()],"\n    ")
     #offsets = string.join(["HOFFSET( %s, %s)" % (component.name, x.name) for x in component.members],",\n            ")
     offsets = string.join([" ((char*)&default_struct.%s - (char*)&default_struct)" \
                           % x.name for x in component.members],",\n            ")
