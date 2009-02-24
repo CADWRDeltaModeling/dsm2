@@ -39,6 +39,7 @@
 		<File RelativePath="..\..\src\fixed\check_fixed_qual.f"/>
 		<File RelativePath="..\..\src\fixed\dsm2_init.f"/>
 		<File RelativePath="..\..\src\fixed\input_channels.f"/>
+		<File RelativePath="..\..\src\input_storage\input_storage.f"/>
 		<File RelativePath="..\..\src\fixed\name_to_objno.f"/>
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\print_output.f"/>
@@ -52,6 +53,7 @@
 		<File RelativePath="..\..\src\fixed\process_input_oprule.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_transfer.f"/>
+		<File RelativePath="..\..\src\fixed\process_io_file.f"/>
 		<File RelativePath="..\..\src\fixed\process_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_channel.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_gate.f"/>
@@ -60,6 +62,7 @@
 		<File RelativePath="..\..\src\fixed\process_rate_coef.f"/>
 		<File RelativePath="..\..\src\fixed\process_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_scalar.f"/>
+		<File RelativePath="..\..\src\fixed\process_tidefile.f"/>
 		<File RelativePath="..\..\src\fixed\process_transfer.f"/>
 		<File RelativePath="..\..\src\fixed\read_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\utilities.f"/></Filter></Files>
