@@ -64,7 +64,7 @@ c-----local variables
      &     input_line*250       ! raw input line
       common /input_lines/ input_line
 
-
+      return !todo: disabled
 c! The optional starting and ending datetimes specify when to use
 c! each tidefile; they override the timestamp in the tidefile
 c! itself.  If not given, the timestamp in the tidefile
@@ -480,6 +480,8 @@ c-----local variables
  610  format(/a)
  620  format(/'Invalid value given in ',a,' field: ',a)
 
+
+      return !todo disabled
 c-----model, type, and io are required for each line
       if (ifld(io_model) .eq. 0) then
          write(unit_error, 610)
@@ -501,6 +503,7 @@ c-----model, type, and io are required for each line
          istat=-1
          goto 900
       endif
+
 
       i=ifld(io_model)
       cstring1=' '
@@ -707,17 +710,14 @@ c-----local variables
      &     ,ilenf(mxflds)       ! length of each field in line (input)
      &     ,istat               ! conversion status of this line (output)
      &     ,i,j                 ! array indices
-     &     ,nenvvars            ! number of env vars
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
       character*130 new_name
-      save nenvvars
-      data nenvvars /1/
 
  610  format(/a)
  630  format(/a,i3)
-
+      return  ! todo disabled
 c-----name required for each line; empty value indicates erase it
       if (ifld(envvar_name) .eq. 0) then
          write(unit_error, 610) 'No environment variable name given.'
@@ -773,7 +773,7 @@ c-----name required for each line; empty value indicates erase it
       use iopath_data
       use common_qual
       use common_ptm
-      use envvar   
+      use envvar   !kc To match process_scalar_SQL
       use grid_data
 
 !c-----process a character line into data arrays for scalar info
@@ -800,7 +800,7 @@ c-----name required for each line; empty value indicates erase it
      &     ,ilenf(mxflds)       ! length of each field in line (input)
      &     ,istat               ! conversion status of this line (output)
       
-      integer                  :: itmp 
+      integer                  :: itmp   !kc
 
       character line*(*)        ! line from file (input)
       character*15 field_names(mxflds) ! copy of hdr_form.fld(*)
@@ -824,15 +824,17 @@ c-----name required for each line; empty value indicates erase it
      &     ,tolerancez /0.0005/
 
 
-
 	if (nfields .ne. 2) return  ! must have two fields
       Param=line(ibegf(1):ibegf(1)+ilenf(1)-1)
       Value=line(ibegf(2):ibegf(2)+ilenf(2)-1)
+      
+      !todo disabled
+      !call process_scalar(Param, Value, istat)
 
-        call process_scalar(Param, Value, istat)
+
       
       end subroutine
-      
+
       subroutine input_particle_flux(field_names, mxflds, nfields, nflds,
      &     ifld, rifld, line, ibegf, ilenf, idelmt, istat)
 
@@ -1328,6 +1330,7 @@ c-----local variables
          if (rifld(i) .eq. group_name) then
 	      groupname=' '
 	      groupname=trim(cstring(1:32))
+	      ! Ensure group exists, using pseudo-id
 	      call process_group(groupname,miss_val_i)
          else if (rifld(i) .eq. group_memtype) then
 	      objtype=obj_type_code(cstring)
