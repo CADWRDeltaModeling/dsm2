@@ -1,6 +1,6 @@
 program test_parser
 use hdf5
-use input_storage_fortran_data
+use input_storage_fortran
 implicit none
 integer :: nchan, nxsect
 integer :: error
