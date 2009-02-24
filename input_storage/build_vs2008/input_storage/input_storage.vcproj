@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)_vs9_mtd.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -76,6 +77,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="cp $(TargetPath) $(SolutionDir)\..\..\..\lib"
 			/>
 		</Configuration>
 		<Configuration
@@ -121,6 +123,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)_vs8_mt.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -136,6 +139,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="cp $(TargetPath) $(SolutionDir)\..\..\..\lib"
 			/>
 		</Configuration>
 	</Configurations>
