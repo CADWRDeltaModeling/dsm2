@@ -1,13 +1,18 @@
-    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-    Department of Water Resources.
+/*
+    Copyright (C) 1996-2000 State of California, Department of 
+    Water Resources.
 
-    DSM2-PTM : DSM2 Particle Tracking Model.
-    Version: 8.0.0
+    DSM2-PTM : Delta Simulation Model 2 - Particle Tracking Model module.
+        Maintained by: Aaron Miller
     California Dept. of Water Resources
-    Bay-Delta Office, Delta Modeling Branch
+    Division of Planning, Delta Modeling Section
     1416 Ninth Street
     Sacramento, CA 95814
-    
+    (916)-653-4603
+    knam@water.ca.gov
+
+    Send bug reports to knam@water.ca.gov
+
     This program is licensed to you under the terms of the GNU General
     Public License, version 2, as published by the Free Software
     Foundation.
@@ -35,17 +40,33 @@
     For more information about PTM, contact:
 
     Tara Smith
-    Chief, Delta Modeling Section
-    Bay-Delta Office
-    California Department of Water Resources
-    1416, 9th Street, Room 215-7
-    Sacramento, CA 95814
-    e-mail: tara@water.ca.gov
-    Telephone: (916) 653-9885
-    FAX: (916) 653-6077
+    California Dept. of Water Resources
+    Division of Planning, Delta Modeling Section
+    1416 Ninth Street
+    Sacramento, CA  95814
+    916-653-9885
+    tara@water.ca.gov
 
-    or see our home page:
-    http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/index.cfm
-    
-    For bug reporting, contact: knam@water.ca.gov.
+    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 
+    Send bug reports to knam@water.ca.gov or call (916)-653-7552
+
+*/
+package DWR.DMS.PTM.tools.image;
+import java.awt.*;
+/**
+ * @author Aaron Miller
+ * @version $Id: SolidBar.java,v 1.2 2000/08/07 17:15:21 miller Exp $
+ * 
+ */
+
+public class SolidBar extends Bar{
+
+  public void drawBar(Graphics g, int x, int y, int w, int h){
+    g.setColor(getForeGroundColor());
+    g.fillRect(x,y,w,h);
+    g.setColor(Color.black);
+    g.drawRect(x,y,w,h);
+  }
+
+}
