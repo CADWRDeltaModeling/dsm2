@@ -191,8 +191,8 @@ c-----dsm2 initialization
       database_name=' '
 
       if (init_input_file .ne. ' ') then
-         !call input_text(init_input_file)
-         call input_text("hydrotempnew.inp")
+         call input_text(init_input_file)  ! reads and echoes text
+         call process_initial_text()       ! process scalar and envvars
          !call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
          if (  .not. order_nodes())then
           ! todo: this is for textify very awkward placement
@@ -225,8 +225,8 @@ c-----read input for grid
       endif
 
       if (init_input_file .ne. ' ') then ! Second pass gives text input priority
-         call read_fixed(init_input_file,.false.,istat)
-
+         !call read_fixed(init_input_file,.false.,istat)
+         call process_text_input
          if (istat .ne. 0) then
             write(unit_error, *)'Error in loading fixed data from text files; run stopped.'
             call exit(1)
