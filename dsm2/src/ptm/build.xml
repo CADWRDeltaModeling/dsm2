@@ -8,7 +8,7 @@
 
     <target name="init">
         <property name="webstart" value="D:/Java/j2sdk1.4.2/jre/javaws/javawspl.jar" />
-        <property name="sourceDir" value="." />
+        <property name="sourceDir" value="./DWR/DMS/PTM" />
         <property name="dist" value="dist" />
         <property name="build" value="classes" />
         <property name="native" value="native" />
@@ -35,14 +35,13 @@
             srcdir="${sourceDir}"
 
             classpath="${build};
-	               ${sourceDir}/lib/COM.jar;
-                       ${sourceDir}/lib/edu.jar;
-		       ${sourceDir}/lib/xml.jar"
+	            lib/COM.jar;
+                lib/edu.jar;
+                lib/xml.jar;
+                tools/image/*.java"
 
             includes= "*.java,
-	               behave/*.java,
-		       gui/*.java,
-		       tools/image/*.java"
+               behave/*.java"
 		     
 	    excludes="rArray.java,
 	              gRand.java,
@@ -54,9 +53,14 @@
 		      
             destdir="${build}"
             debug="${debug}"
-            target="1.4"
-            source="1.4"
+            target="1.6"
+            source="1.6"
         />
+<!--            includes= "*.java,
+               behave/*.java,
+	       gui/*.java,
+	       tools/image/*.java"
+               -->
     </target>
 
     <target name="jni" depends="init,compile">
@@ -100,27 +104,28 @@
     </target>
 
     <target name="jar" depends="init,clean,prepare,compile">
-        <delete file="${sourceDir}/lib/ptm.jar" />
-        <jar jarfile="${sourceDir}/lib/ptm.jar"> 
+        <delete file="lib/ptm.jar" />
+        <jar jarfile="lib/ptm.jar">
              <fileset dir="${build}" 
-             includes="**/*.class" 
+             includes="**/*.class"
              /> 
         </jar>
+        <!--<jar jarfile="lib/ptmgui.jar">
+            <fileset dir="${build}" includes="DWR/DMS/PTM/gui/*.class"/>
+        </jar>
+        <jar jarfile="lib/ptmbehave.jar">
+            <fileset dir="${build}" includes="DWR/DMS/PTM/behave/*.class"/>
+        </jar> -->
     </target>
 
     <target name="ptmdoc" depends="compile">
         <mkdir dir="${ptmdocDir}" />
-        <javadoc sourcepath="${sourceDir}"
+        <javadoc sourcepath="./"
                  destdir="${ptmdocDir}"
-                 Public="Yes"
-                 packagenames="vista.time,
-                               vista.set,
-                               vista.graph,
-                               vista.db.dss,
-                               vista.gui,
-                               vista.app"
-                 Windowtitle="Vista API documentation"
-                 bottom="&lt;a href='http://www.modeling.water.ca.gov'> DMS home&lt;/a>"
+                 packagenames="DWR.DMS.PTM,DWR.DMS.PTM.*"
+                 Public="Yes"                 
+                 Windowtitle="DSM2-PTM"
+                 bottom="&lt;a href='http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/index.cfm'> DMS home&lt;/a>"
         />
     </target>
 

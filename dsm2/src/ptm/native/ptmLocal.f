@@ -367,15 +367,15 @@ c-----copyright notices
      &     /'Branched Lagrangian Transport Model (BLTM) code written by the'
      &     /'United States Geological Survey.  Protection claimed in the'
      &     /'routines and files listed in the accompanying file "Protect.txt".'
-     &     /'If you did not receive a copy of this file contact Dr. Paul'
-     &     /'Hutton, below.'
+     &     /'If you did not receive a copy of this file contact '
+     &     /'Tara Smith, below.'
      &     /
      &     /'This program is !<licensed to you under the terms of the GNU General'
      &     /'Public !<license, version 2, as published by the Free Software'
      &     /'Foundation.'
      &     /
      &     /'You should have received a copy of the GNU General Public !<license'
-     &     /'along with this program; if not, contact Dr. Paul Hutton, below,'
+     &     /'along with this program; if not, contact Tara Smith, below,'
      &     /'or the Free Software Foundation, 675 Mass Ave, Cambridge, MA'
      &     /'02139, USA.'
      &     /
