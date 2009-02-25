@@ -1,6 +1,10 @@
 """ Example script that shows how to specify some user objects
 
 """
+DSM2_NAME_LEN=32
+DSS_FILE_LEN=128
+INTERVAL_LEN=16
+PERIOD_OP_LEN=16
 
 import sys
 sys.path.append("d:/delta/models/input_storage/src")
@@ -35,10 +39,24 @@ def generate_dsm2():
     prep_component(component,outdir)
 
     component = TableComponent("tidefile",
-	                        [CharField("start_date",16,16),\
-							 CharField("end_date",16,16),\
-							 CharField("filename",128,LAST_FIELD)],
-							 ["start_date"])
+	                          [CharField("start_date",16,16),\
+							  CharField("end_date",16,16),\
+							  CharField("filename",128,LAST_FIELD)],
+							  ["start_date"])
+    component.layered=True
+    prep_component(component,outdir)
+
+
+    component = TableComponent("output_channel",
+	                         [CharField("name",DSM2_NAME_LEN,16),
+							  IntField("channel"),\
+						      IntField("distance"),\
+							  CharField("variable",16,12),\
+						      CharField("interval",INTERVAL_LEN,10),\
+                       		  CharField("period_op",PERIOD_OP_LEN,10),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+							 ["name","variable"])   # identifier
     component.layered=True
     prep_component(component,outdir)
 	

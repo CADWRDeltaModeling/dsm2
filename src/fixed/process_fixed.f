@@ -244,7 +244,8 @@ c-----local variables
  620  format(/a
      &     /'Input string is: ',a)
  630  format(/a,i5)
-
+      !todo: disabled
+      return
       if (ldefault) then
          noutpaths=0
       endif
@@ -481,7 +482,7 @@ c-----local variables
  620  format(/'Invalid value given in ',a,' field: ',a)
 
 
-      return !todo disabled
+      return !todo: disabled
 c-----model, type, and io are required for each line
       if (ifld(io_model) .eq. 0) then
          write(unit_error, 610)
@@ -717,7 +718,7 @@ c-----local variables
 
  610  format(/a)
  630  format(/a,i3)
-      return  ! todo disabled
+      return  ! todo: disabled
 c-----name required for each line; empty value indicates erase it
       if (ifld(envvar_name) .eq. 0) then
          write(unit_error, 610) 'No environment variable name given.'

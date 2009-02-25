@@ -52,7 +52,8 @@ C!</license>
 c-----Convert model name to model id
       
 c-----Load data
-      call load_scalar_SQL(StmtHndl, ModelID, istat)
+      ! todo: disabled
+      ! call load_scalar_SQL(StmtHndl, ModelID, istat)
       if (istat .lt. 0) goto 901
       call load_channels_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
@@ -100,7 +101,9 @@ c-----Load data
       if( dsm2_name .eq. 'Qual')
      &    call load_rate_coeffs_SQL(StmtHndl, ModelID,istat)
       if (istat .lt. 0) goto 901
-
+      
+      !todo: disable
+      if( .false.)then 
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')then
          !call load_output_ts_SQL(StmtHndl, ModelID, istat)
 	   !if (istat .lt. 0) goto 901
@@ -113,6 +116,7 @@ c-----Load data
 	   call load_gate_output_ts_SQL(StmtHndl, ModelID, istat)
 	   if (istat .lt. 0) goto 901	   	   
 	end if
+      end if
 
       if ( (dsm2_name .eq. 'Hydro') .and.
      &     (.not. (io_files(hydro,io_restart,io_read).use)) ) then

@@ -38,7 +38,6 @@ C!</license>
       integer                  :: itmp
       character(LEN=32), intent(in)    :: Val   ! parameter Val
       character(LEN=32), intent(in)    :: Param  ! parameter
-      character                :: ctmp*20  ! local
 
 
 
@@ -67,8 +66,6 @@ C!</license>
          call set_database_name(Val)
       elseif (Param .eq. 'model_name') then
          call set_model_name(Val)
-
-
       elseif (Param .eq. 'print_start_date') then
          if (nprints .eq. 0) nprints=1
          print_start_date(nprints)(1:9)=Val(1:9)
@@ -79,9 +76,9 @@ C!</license>
       elseif (Param .eq. 'flush_output') then
          flush_intvl=Val
       elseif (Param .eq. 'binary_output') then
-         read(ctmp, '(l2)', err=810) binary_output
+         read(Val, '(l4)', err=810) binary_output
       elseif (Param .eq. 'dss_direct') then
-         read(ctmp, '(l2)', err=810) dss_direct
+         read(Val, '(l4)', err=810) dss_direct
       elseif (Param .eq. 'hydro_time_step') then
          time_step_intvl_hydro=Val
       elseif (Param .eq. 'qual_time_step') then
@@ -89,7 +86,6 @@ C!</license>
       elseif (Param .eq. 'ptm_time_step') then
          ptm_time_step_int=1
          time_step_intvl_ptm=Val
-
 
       elseif (Param .eq. 'mass_tracking') then
          read(Val, '(l2)', err=810) mass_tracking
