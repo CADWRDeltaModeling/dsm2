@@ -167,6 +167,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_scalar.cpp"
 				>
 			</File>
@@ -194,6 +198,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_io_file.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel.h"
 				>
 			</File>
 			<File
