@@ -17,8 +17,8 @@
      &     InPath*80
      &     ,FileName*128
      &     ,Param*32
-     &     ,LocName*32
-     &     ,Name*64
+     &     ,LocName*32                 ! name of the transfer
+     &     ,Name*32                    ! name of the time series input
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
 
@@ -38,38 +38,37 @@
       real*8, external :: fetch_data
 
 
-            ninpaths=ninpaths+1
-            if (ninpaths .gt. max_inputpaths) then
-               write(unit_error,630)
-     &              'Too many input paths specified; max allowed is:'
-     &              ,max_inputpaths
-               call exit(-1)
-            endif
+      ninpaths=ninpaths+1
+      if (ninpaths .gt. max_inputpaths) then
+          write(unit_error,630)
+     &      'Too many input paths specified; max allowed is:'
+     &      ,max_inputpaths
+          call exit(-1)
+       endif
 
 
-
-            pathinput(ninpaths).name=Name
-            pathinput(ninpaths).useobj=.true.
-            pathinput(ninpaths).obj_name=LocName
-            pathinput(ninpaths).obj_type=obj_obj2obj
+      LocName = Name
+      pathinput(ninpaths).name=Name
+      pathinput(ninpaths).useobj=.true.
+      pathinput(ninpaths).obj_name=LocName
+      pathinput(ninpaths).obj_type=obj_obj2obj
 
 c-----------find object number given external object number
-            pathinput(ninpaths).obj_name=trim(LocName)
-            pathinput(ninpaths).obj_no=name_to_objno(obj_obj2obj,LocName)
-            if (pathinput(ninpaths).obj_no .eq.miss_val_i )then
-               write(unit_error,'(a,a)')
-     &              'Time Series Input: ',trim(pathinput(ninpaths).name),
-     &              ' attached to unrecognized object: ',LocName
-               call exit(-3)
-            end if
+      pathinput(ninpaths).obj_no=name_to_objno(obj_obj2obj,LocName)
+      if (pathinput(ninpaths).obj_no .eq.miss_val_i )then
+          write(unit_error,'(a,a)')
+     &    'Time Series Input: ',trim(pathinput(ninpaths).name),
+     &    ' attached to unrecognized object: ',LocName
+          call exit(-3)
+      end if
 
-            if (FileName(:8) .eq. 'constant' .or.
-     &             FileName(:8) .eq. 'CONSTANT') then
-               read(InPath,'(1f10.0)') ftmp
-               pathinput(ninpaths).constant_value=ftmp
-               pathinput(ninpaths).variable=Param
-               pathinput(ninpaths).fillin=fill_last
-            else
+      if (FileName(:8) .eq. 'constant' .or.
+     &    FileName(:8) .eq. 'CONSTANT') then
+          read(InPath,'(1f10.0)') ftmp
+          pathinput(ninpaths).constant_value=ftmp
+          pathinput(ninpaths).variable=Param
+          pathinput(ninpaths).fillin=fill_last
+      else
 c--------------Break up the input pathname
 
                pathinput(ninpaths).path=trim(InPath)
