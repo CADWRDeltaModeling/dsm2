@@ -34,7 +34,6 @@
 		<Filter Name="Header Files" Filter="fi;fd">
 		<File RelativePath="..\..\src\timevar\dss.inc"/>
 		<File RelativePath="..\..\src\timevar\intervals.inc"/>
-		<File RelativePath="..\..\src\timevar\readdss.inc"/>
 		<File RelativePath="..\..\src\timevar\writedss.inc"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\timevar\init_store_outpaths.f"/>
