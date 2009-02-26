@@ -12,7 +12,7 @@ void EnvSubstitution::add(string name, string value)
 {
   if (m_subMap.find(name) != m_subMap.end())
     {
-      cerr << "Warning: redefinition" << endl;
+		cerr << "Warning: redefinition: " << name << ": " << value << endl;
     }
   string subbedVal = (*this)(value); 
   m_subMap[name]=subbedVal;
