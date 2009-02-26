@@ -405,16 +405,24 @@ void test_input_reader_duplicate()
   contextItems.push_back("ENVVAR");
 
   map<string, InputStatePtr> inputMap;
+  inputMap["ENVVAR"]  = InputStatePtr(new ItemInputState<envvar>());
   inputMap["CHANNEL"] = InputStatePtr(new ItemInputState<channel>());
   inputMap["XSECT"]   = InputStatePtr(new ItemInputState<xsect>());
   ApplicationTextReader::instance().setInputStateMap(inputMap);
   vector<string> active;
+  active.push_back("ENVVAR");
   active.push_back("CHANNEL");
   active.push_back("XSECT");
   ApplicationTextReader::instance().setActiveItems(active);
   string filename("test_duplicates.txt");
   ApplicationTextReader::instance().processInput(filename);
 
+  vector<envvar> & envvars =  HDFTableManager<envvar>::instance().buffer();
+  // check that it finds duplicates in strangely ordered character identifier
+  BOOST_CHECK_THROW(envvar_prioritize_buffer_f(), runtime_error);
+  //for(size_t i =0; i < envvars.size() ; ++i) cerr << envvars[i] <<endl;
+
+  // and with integer identifier
   vector<channel> & chans = HDFTableManager<channel>::instance().buffer();
   BOOST_CHECK_THROW(channel_prioritize_buffer_f(), runtime_error);
   //xsect_prioritize_buffer_f();
