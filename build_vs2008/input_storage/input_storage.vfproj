@@ -24,7 +24,12 @@
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd">
 		<File RelativePath="..\..\src\input_storage\envvar_input_storage.fi"/>
-		<File RelativePath="..\..\src\input_storage\scalar_input_storage.fi"/></Filter>
+		<File RelativePath="..\..\src\input_storage\io_file_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_channel_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_reservoir_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\scalar_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\tidefile_input_storage.fi"/></Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\input_storage\input_storage_fortran.f90"/></Filter></Files>
