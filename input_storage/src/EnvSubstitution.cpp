@@ -65,7 +65,13 @@ string EnvSubstitution::operator()(const std::string & arg)
 //            throw logic_error(message); // todo unify fatal error handling
 //        }
     }
-    return str;
+    if(str.find_first_of("$") != string::npos)
+    {
+        string message("Text substitution error in line: ");
+        message += str;
+        throw runtime_error(message);
+    }
+     return str;
 }
 
 

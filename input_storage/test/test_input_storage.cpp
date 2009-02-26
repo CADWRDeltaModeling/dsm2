@@ -36,7 +36,8 @@ void test_envvar()
   std::cout << out << std::endl;
   sub.add("TESTEXPR","redefine");  
   out = sub(teststr);
-  std::cout << out << std::endl;
+  teststr = "${NESTED_1}plus$inside";
+  BOOST_CHECK_THROW(sub(teststr),runtime_error);
 }
 
 
