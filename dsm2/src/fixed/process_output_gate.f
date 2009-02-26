@@ -16,7 +16,6 @@ C!    GNU General Public !<license for more details.
 C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
-
       subroutine process_output_gate(name,
      &                               LocName,
      &                               SubLoc,
@@ -37,7 +36,7 @@ C!</license>
       character
      &     FileName*128
      &     ,Name*32
-     &     ,Param*32
+     &     ,Param*16
      &     ,Interval*32
      &     ,PerOp*8
      &     ,LocName*32
@@ -65,7 +64,7 @@ C!</license>
      &              ,max_outputpaths
                call exit(-1)
             endif
-
+            
             pathoutput(noutpaths).use=.true.
             pathoutput(noutpaths).name=Name
             pathoutput(noutpaths).obj_type=obj_gate
@@ -114,7 +113,7 @@ c-----------find object number given object ID
 	            device_required=.false.
             else
                   write(unit_error,*) 
-     &              "Unrecognized gate output variable: " // Param
+     &              "Unrecognized gate output variable:",Param,"::"
 	            call exit(-3)
 
             end if

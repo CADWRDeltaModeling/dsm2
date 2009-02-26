@@ -27,11 +27,17 @@
      &                perop
       character*32 :: sourcegroup
       
-      
+      ! output_reservoir
+      character*32 reservoir
+      integer node
+
+      ! output_gate
+      character*32 gate, device
+  
 
       call clear_all_buffers()
       !todo: testing whether this is optional
-      call init_text_substitution("INCLUDE")
+      call init_text_substitution("PARAMETER") ! searches INCLUDE as well
       call process_text_substitution(filename)
       
       !todo: this is annoyint to have to clear
@@ -57,7 +63,9 @@
       error= scalar_write_buffer_to_hdf5(file_id)
       error= io_file_write_buffer_to_hdf5(file_id) 
       !error= tidefile_write_buffer_to_hdf5(file_id) !todo: need to handle the empty case
-      error= output_channel_write_buffer_to_hdf5(file_id) 
+      !error= output_channel_write_buffer_to_hdf5(file_id) 
+      !error= output_reservoir_write_buffer_to_hdf5(file_id) 
+      !error= output_gate_write_buffer_to_hdf5(file_id) 
 
       call h5fclose_f(file_id, error)
       print *, "file close status: ", error
@@ -69,6 +77,8 @@
       call io_file_write_buffer_to_text("testout.txt",append_text)
       call tidefile_write_buffer_to_text("testout.txt",append_text)
       call output_channel_write_buffer_to_text("testout.txt",append_text)
+      call output_reservoir_write_buffer_to_text("testout.txt",append_text)
+      call output_gate_write_buffer_to_text("testout.txt",append_text)
       print*, "text written"
  
       return
@@ -159,9 +169,13 @@ c====================================================================
       character*32 :: sourcegroup
       
       
+      ! output_reservoir
+      character*32 reservoir
+      integer node      
       
-      
-      
+       ! output_gate
+      character*32 gate, device
+     
 
       nitem = io_file_buffer_size()
       do icount = 1,nitem
@@ -198,5 +212,52 @@ c====================================================================
      &                               sourcegroup,
      &                               filename)
       end do
-      print *,"Number of output requests: ", nitem
+      print *,"Number of channel output requests: ", nitem
+
+
+
+      nitem = output_reservoir_buffer_size()
+      do icount = 1,nitem
+         err=output_reservoir_query_from_buffer(icount,
+     &                                        name,
+     &                                    reservoir,
+     &                                    node,
+     &                                    variable,
+     &                                    interval,
+     &                                    perOp,
+     &                                    filename) 
+         sourcegroup = ""
+         call process_output_reservoir(name,
+     &                                    reservoir,
+     &                                    node,
+     &                                    variable,
+     &                                    interval,
+     &                                    perOp,
+     &                                    sourceGroup,
+     &                                    filename) 
+      end do
+      print *,"Number of reservoir output requests: ", nitem
+
+
+      nitem = output_gate_buffer_size()
+      do icount = 1,nitem
+         err=output_gate_query_from_buffer(icount,
+     &                                     name,
+     &                                     gate,
+     &                                     device,
+     &                                     variable,
+     &                                     interval,
+     &                                     perop,
+     &                                     filename)
+
+         call process_output_gate(name,
+     &                            gate,
+     &                            device,
+     &                            variable,
+     &                            interval,
+     &                            perop,
+     &                            filename)
+      end do
+      print *,"Number of gate output requests: ", nitem
+
       end subroutine
