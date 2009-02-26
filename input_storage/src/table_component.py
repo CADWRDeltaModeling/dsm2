@@ -32,7 +32,7 @@ class Field(object):
         if (input): 
             arg="const "+arg
         return arg
-
+        
     def stringlen_arg(self,input = True):
         return None
 
@@ -49,13 +49,18 @@ class Field(object):
         if style == "default": val = "%s" % self.default()
         return "%s(%s)" % (self.name,val)
 
-        
+    def identifier_type(self):
+        return "const %s&" % self.type
+
+    def identifier_assign(self,ndx):
+        return self.assign(other="identifier.get<%s>()" % ndx)
+
     def constructor(self,copy):
         return None
         
     def equaler(self):
         return "this->%s=rhs.%s;" % (self.name,self.name)
-        
+
     def member(self):
         return "%s %s;" % (self.type,self.name)
  
@@ -114,7 +119,6 @@ class CharField(Field):
             arg="const "+arg
         return arg
 
-
     def fc_arg(self,input = True):
         return self.c_arg(input)
 
@@ -122,8 +126,14 @@ class CharField(Field):
         return "character(len=%s)" % self.size
         
     def initializer(self,style):
-        return None    
+        return None
 
+    def identifier_type(self):
+        return "const std::string"
+        
+    def identifier_assign(self,ndx):
+        return self.assign(other="identifier.get<%s>().c_str()" % ndx)
+        
     def simple_assign(self,name,other):
         return "strcpy(%s,%s);" % (name,other)        
             

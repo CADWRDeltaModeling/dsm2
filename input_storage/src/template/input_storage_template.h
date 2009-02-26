@@ -72,7 +72,7 @@ public:
   
   void set_identifier(identifier_type identifier)
   {
-     @IDENTIFIEREQ
+     @IDENTIFIERASSIGN
   }
   
   /** Parent object class name.

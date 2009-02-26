@@ -29,7 +29,7 @@ def fortran_declaration(field, intent):
     return "%s, intent(%s) :: %s" % (field.fortran_type(), intent, field.name)
 
 
-# todo: this may be wrong for child tables? need to delete the unused one first. On other hand, this may be harmless?
+# todo: this may be wrong for child tables? need to delete the unused one first?
 def compare_items(component):
     if  component.layered:
         compareitems = "(this->identifier() < other.identifier()) || (this->identifier() == other.identifier() && this->layer > other.layer)"
@@ -142,8 +142,9 @@ def prep_component(component,outdir):
     membersizes=string.join(["sizeof( default_struct.%s )" % x.name for x in component.members],",\n         ")
 
     identifiers = string.join([component.get_member(x).name for x in component.identifiers],",")
-    identifiertypes = string.join([referencify(component.get_member(x).type,True) for x in component.identifiers],",")
-    identifiereq = string.join([component.get_member(x).assign(other="identifier.get<%s>()" % i) for x,i in zip(component.identifiers, range(len(component.identifiers)))],"\n      ")
+    identifiertypes = string.join([component.get_member(x).identifier_type() for x in component.identifiers],",")
+    identifier_assign = string.join([component.get_member(x).identifier_assign(i) \
+           for x,i in zip(component.identifiers, range(len(component.identifiers)))],"\n      ")
 
     outstreamformat = string.join([x.output_format() for x in component.members],"<<")
     instreamformat = string.join([x.input_code() for x in component.members], "\n")
@@ -202,7 +203,7 @@ def prep_component(component,outdir):
         
         txt = txt.replace("@IDENTIFIERTYPES",identifiertypes)
         txt = txt.replace("@IDENTIFIERS",identifiers)
-        txt = txt.replace("@IDENTIFIEREQ",identifiereq)
+        txt = txt.replace("@IDENTIFIERASSIGN",identifier_assign)
 
         txt = txt.replace("@COMPARETABLEITEM",compareitems)
         txt = txt.replace("@PRIORITIZE",prioritizecode)
