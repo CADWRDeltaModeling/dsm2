@@ -2,6 +2,9 @@ ENVVAR
 NAME           VALUE
 THEVAR         envvarsub.txt
 VAR2           hello
+               # Comment after whitespace
+               # Another to catch refinition bug if comment not processed
+VAR3           "variable with spaces"    # plus comment
 END
 
 
