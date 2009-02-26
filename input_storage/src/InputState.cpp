@@ -16,7 +16,7 @@ string InputState::strip(const string& line) const
       string message("Line has tabs: please remove and set your text editor to replace tabs with spaces:\n");
       handleFatalError(message+line);
   }
-  size_t commentCol = line.find_first_of(COMMENT);
+  size_t commentCol = trimmed.find_first_of(COMMENT);
 
   if (trimmed.size() == 0 || commentCol == 0) 
     {
