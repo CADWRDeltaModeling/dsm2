@@ -18,7 +18,7 @@ c-----load f90SQL modules
       
       character*32 name
 
-      character*32 :: param
+      character*16 :: param
       character*32 :: interval
       character*8  :: perop
       character*32 :: sourcegroup

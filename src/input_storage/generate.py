@@ -61,10 +61,38 @@ def generate_dsm2():
     prep_component(component,outdir)
 	
 	
-	
+    component = TableComponent("output_reservoir",
+	                         [CharField("name",DSM2_NAME_LEN,16),
+							  CharField("reservoir",32,16),\
+						      IntField("node"),\
+							  CharField("variable",16,12),\
+						      CharField("interval",INTERVAL_LEN,10),\
+                       		  CharField("period_op",PERIOD_OP_LEN,10),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+							 ["name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)	
+
+
+    component = TableComponent("output_gate",
+	                         [CharField("name",DSM2_NAME_LEN,16),
+							  CharField("gate",32,16),\
+						      CharField("device",32,16),\
+							  CharField("variable",16,12),\
+						      CharField("interval",INTERVAL_LEN,10),\
+                       		  CharField("period_op",PERIOD_OP_LEN,10),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+							 ["name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)
+
+
 	
     define_text_sub("envvar",outdir)
-    define_include_block("include", ["scalar"])
+    define_include_block("PARAMETER", ["scalar","envvar"])
+    define_include_block("output", ["output_channel","output_reservoir","output_gate"])
 
     finalize(outdir)
 
