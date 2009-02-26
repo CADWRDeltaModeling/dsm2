@@ -50,7 +50,7 @@ def generate_dsm2():
     component = TableComponent("output_channel",
 	                         [CharField("name",DSM2_NAME_LEN,16),
 							  IntField("channel"),\
-						      IntField("distance"),\
+						      CharField("distance", 8,12),\
 							  CharField("variable",16,12),\
 						      CharField("interval",INTERVAL_LEN,10),\
                        		  CharField("period_op",PERIOD_OP_LEN,10),\

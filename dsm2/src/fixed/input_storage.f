@@ -2,6 +2,7 @@
       use hdf5
       use input_storage_fortran
       use envvar
+
       implicit none
       integer :: nitem
       integer :: error
@@ -22,7 +23,8 @@
 
       ! output_channel
       integer channo
-      integer distance
+      character*8  distance
+      integer      idistance
       character*16 variable,
      &                perop
       character*32 :: sourcegroup
@@ -110,12 +112,7 @@ c====================================================================
       integer err
       logical, parameter :: append_text=.TRUE.
 
-      ! output_channel
-      integer channo
-      integer distance
-      character*16 variable,
-     &                perop
-      character*32 :: sourcegroup
+
       
       
 
@@ -143,6 +140,7 @@ c====================================================================
       use hdf5
       use input_storage_fortran
       use envvar
+      use constants, only : chan_length
       implicit none
       integer :: nitem
       integer :: error
@@ -163,7 +161,8 @@ c====================================================================
 
       ! output_channel
       integer channo
-      integer distance
+      character*8  distance
+      integer      idistance
       character*16 variable,
      &                perop
       character*32 :: sourcegroup
@@ -203,9 +202,15 @@ c====================================================================
      &                                        perop,
      &                                        filename)
          sourcegroup = ""
+         call locase(distance)
+         if (distance(:6) .eq. "length") then 
+            idistance = chan_length
+         else 
+            read(distance,'(i)')idistance
+         end if
          call process_output_channel(name,
      &                               channo,
-     &                               distance,
+     &                               idistance,
      &                               variable,
      &                               interval,
      &                               perop,
