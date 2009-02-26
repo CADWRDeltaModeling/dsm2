@@ -303,7 +303,6 @@ void test_input_reader()
   vector<string> contextItems;
   contextItems.push_back("CHANNEL");
   contextItems.push_back("XSECT");
-  contextItems.push_back("RESERVOIR");
   contextItems.push_back("ENVVAR");
 
   vector<string> noSubItems;
@@ -393,6 +392,37 @@ void test_input_reader()
   contextItems.clear();
 }
 
+void test_input_reader_duplicate()
+{
+  cout << "Testing input reader duplicates" <<endl;
+  HDFTableManager<channel>::instance().buffer().clear();
+  HDFTableManager<xsect>::instance().buffer().clear();
+  HDFTableManager<envvar>::instance().buffer().clear();
+
+  vector<string> contextItems;
+  contextItems.push_back("CHANNEL");
+  contextItems.push_back("XSECT");
+  contextItems.push_back("ENVVAR");
+
+  map<string, InputStatePtr> inputMap;
+  inputMap["CHANNEL"] = InputStatePtr(new ItemInputState<channel>());
+  inputMap["XSECT"]   = InputStatePtr(new ItemInputState<xsect>());
+  ApplicationTextReader::instance().setInputStateMap(inputMap);
+  vector<string> active;
+  active.push_back("CHANNEL");
+  active.push_back("XSECT");
+  ApplicationTextReader::instance().setActiveItems(active);
+  string filename("test_duplicates.txt");
+  ApplicationTextReader::instance().processInput(filename);
+
+  vector<channel> & chans = HDFTableManager<channel>::instance().buffer();
+  BOOST_CHECK_THROW(channel_prioritize_buffer_f(), runtime_error);
+  //xsect_prioritize_buffer_f();
+
+}
+
+
+
 
 
 void test_bad_input()
@@ -414,6 +444,7 @@ init_unit_test_suite( int argc, char* argv[] )
     test->add( BOOST_TEST_CASE( &test_prioritize_buffer ) );
     test->add( BOOST_TEST_CASE( &test_hdf ) );
     test->add( BOOST_TEST_CASE( &test_input_reader ) );
+    test->add( BOOST_TEST_CASE( &test_input_reader_duplicate ) );
     test->add( BOOST_TEST_CASE( &test_bad_input ) );
 
     return test;

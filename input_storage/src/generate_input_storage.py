@@ -50,6 +50,8 @@ def prioritize(component):
         string message = "Duplicate identifiers in the same input layer: ";
         stringstream messagestrm;
         messagestrm << message << *dupl << " (" << (*dupl).objectName() <<") ";
+        cerr << message << endl;
+        cerr << *dupl << " (" << (*dupl).objectName() <<") " << endl;
         throw runtime_error(messagestrm.str());
     }
     // Eliminate duplicates. Because of prior ordering, 
