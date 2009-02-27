@@ -64,6 +64,10 @@
       error= scalar_write_buffer_to_hdf5(file_id)
       error= io_file_write_buffer_to_hdf5(file_id) 
       !error= tidefile_write_buffer_to_hdf5(file_id) !todo: need to handle the empty case
+      !error= input_gate_write_buffer_to_hdf5(file_id)
+      !error= input_node_write_buffer_to_hdf5(file_id) 
+      !error= input_reservoir_write_buffer_to_hdf5(file_id) 
+
       !error= output_channel_write_buffer_to_hdf5(file_id) 
       !error= output_reservoir_write_buffer_to_hdf5(file_id) 
       !error= output_gate_write_buffer_to_hdf5(file_id) 
@@ -77,6 +81,9 @@
       call scalar_write_buffer_to_text("testout.txt",append_text)
       call io_file_write_buffer_to_text("testout.txt",append_text)
       call tidefile_write_buffer_to_text("testout.txt",append_text)
+      call input_gate_write_buffer_to_text("testout.txt",append_text)
+      call input_node_write_buffer_to_text("testout.txt",append_text)
+      call input_reservoir_write_buffer_to_text("testout.txt",append_text)
       call output_channel_write_buffer_to_text("testout.txt",append_text)
       call output_reservoir_write_buffer_to_text("testout.txt",append_text)
       call output_gate_write_buffer_to_text("testout.txt",append_text)
@@ -158,6 +165,13 @@ c====================================================================
       integer err
       logical, parameter :: append_text=.TRUE.
 
+
+
+      ! input_node
+
+      character*32 :: rolename 
+
+
       ! output_channel
       integer channo
       character*8  distance
@@ -169,6 +183,9 @@ c====================================================================
       
       ! output_reservoir
       character*32 reservoir
+      character*80 inpath
+      character*8  fillin
+      integer      sign
       integer node      
       
        ! output_gate
@@ -191,6 +208,90 @@ c====================================================================
       print *,"Number of tidefiles: ", nitem
 
 c======================== Input and output ======================
+
+
+
+
+      nitem = input_gate_buffer_size()
+      do icount = 1,nitem
+         err=input_gate_query_from_buffer(icount,
+     &                                    name,
+     &                               device,
+     &                               variable,
+     &                               inpath,
+     &                               fillin,   
+     &                               filename)
+
+         call process_input_gate(name,
+     &                               device,
+     &                               variable,
+     &                               inpath,
+     &                               fillin,   
+     &                               filename)
+      end do
+      print *,"Number of gate inputs processed: ", nitem
+
+
+
+
+
+
+
+
+      nitem = input_node_buffer_size()
+      do icount = 1,nitem
+         err=input_node_query_from_buffer(icount,
+     &                                        name,
+     &                               node,
+     &                               variable,
+     &                               inpath,
+     &                               rolename,     
+     &                               sign,
+     &                               fillin,   
+     &                               filename)
+
+         call process_input_node(name,
+     &                               node,
+     &                               variable,
+     &                               inpath,
+     &                               rolename,     
+     &                               sign,
+     &                               fillin,   
+     &                               filename)
+      end do
+      print *,"Number of node inputs processed: ", nitem
+
+
+
+
+
+
+
+
+      nitem = input_reservoir_buffer_size()
+      do icount = 1,nitem
+         err=input_reservoir_query_from_buffer(icount,
+     &                                        name,
+     &                                        reservoir,
+     &                                        variable,
+     &                                        inpath,
+     &                                        sign,
+     &                                        fillin,
+     &                                        filename)
+
+         call process_input_reservoir(name,
+     &                                reservoir,
+     &                                inpath,
+     &                                variable,
+     &                                sign,
+     &                                fillin,
+     &                                filename)
+      end do
+      print *,"Number of reservoir inputs processed: ", nitem
+
+
+
+
 
 
 
