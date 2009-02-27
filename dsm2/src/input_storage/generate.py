@@ -45,6 +45,23 @@ def generate_dsm2():
 							  ["start_date"])
     component.layered=True
     prep_component(component,outdir)
+    
+    component = TableComponent("group",
+	                          [CharField("name",32,16)],
+							  ["name"])
+    component.layered=True
+    prep_component(component,outdir)
+    
+    component = TableComponent("group_member",
+	                          [CharField("group",32,16),
+	                          [CharField("pattern",32,16)],                              
+							  ["group","pattern"],
+                              parent="group",parent_id="group")
+    component.layered=False
+    prep_component(component,outdir)
+
+#    Input and output ###########################################    
+    
 
 
     component = TableComponent("output_channel",
