@@ -37,8 +37,8 @@ C!</license>
       character
      &     FileName*128
      &     ,Name*32
-     &     ,Param*32
-     &     ,Interval*32
+     &     ,Param*16
+     &     ,Interval*16
      &     ,PerOp*8
      &     ,LocName*32
      &     ,ctmp*200
