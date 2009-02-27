@@ -102,6 +102,7 @@ c-----Loop to fetch records, one at a time
 
       do while (.true.)
 c--------Fetch a record from the result set
+         name=" "
          call f90SQLFetch(StmtHndl,iRet)
          if (iRet .eq. SQL_NO_DATA) exit
          if (iRet.eq. -1) then
@@ -116,7 +117,6 @@ c--------Fetch a record from the result set
          end if
          prev_name=name
       enddo
-      nGroup=counter
 
       if (print_level .ge. 2)
      &     write(unit_screen,'(a,i4/)') 'Read in all group data ', nGroup
@@ -233,9 +233,10 @@ c-----loop through members
       do while (.true.)
          call f90SQLFetch(StmtHndl,iRet)
          if (iRet .eq. SQL_NO_DATA .or. iRet .eq. SQL_ERROR) exit
+         pattern=pattern(:patternlen)
          call process_group_member(groupArray(GroupNdx).name, 
      &                             objtype, 
-     &                             pattern(:patternlen))
+     &                             pattern)
       end do
 	call f90SQLFreeStmt(StmtHndl,SQL_CLOSE, iRet)
       call f90SQLFreeStmt(StmtHndl,SQL_UNBIND, iRet)
