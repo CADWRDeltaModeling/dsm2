@@ -214,11 +214,11 @@ c--------if marked as not-use
              
              call process_input_node(name,
      &                               LocNum,
-     &                               InPath,    
      &                               param,
-     &                               Sign,
-     &                               Fillin,
+     &                               InPath,
      &                               RoleName,    
+     &                               Sign,
+     &                               Fillin,    
      &                               filename)
 
 
