@@ -32,12 +32,10 @@ C!</license>
          ngroup=ngroup+1
          groupArray(ngroup).id=ID
          groupArray(ngroup).name=name
-         groupno=ngroup
-	   if (groupno .gt. MAX_GROUPS) then
+	   if (ngroup .gt. MAX_GROUPS) then
 	      write(unit_error,*)"Maximum number of groups exceeded"
 	      call exit(-1)
          end if
-         groupArray(groupno).name=name
       end if
       return    
       end subroutine
@@ -59,7 +57,7 @@ C!</license>
             write(unit_error, *)"Subgroups not supported"
 	      call exit(-2)
       end if
-      groupNdx = name_to_objno(groupname)
+      groupNdx = name_to_objno(obj_group,groupname)
       npattern = groupArray(GroupNdx).nMemberPatterns + 1
       if (npattern .gt. MAX_MEMBER_PATTERNS)then
 	   write(unit_error,*)"Maximum number of member patterns exceeded for group"
