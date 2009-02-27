@@ -19,11 +19,11 @@ C!</license>
 
       subroutine process_input_node (name,
      &                               LocNum,
-     &                               InPath,    
      &                               param,
-     &                               Sign,
-     &                               Fillin,
+     &                               InPath,
      &                               RoleName,    
+     &                               Sign,
+     &                               Fillin,    
      &                               filename)
 
       use Gates
@@ -41,7 +41,7 @@ C!</license>
      &     ,Param*32
      &     ,LocName*32
      &     ,RoleName*32
-     &     ,Name*64
+     &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
 
