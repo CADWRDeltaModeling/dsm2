@@ -39,7 +39,7 @@
 		<File RelativePath="..\..\src\fixed\check_fixed_qual.f"/>
 		<File RelativePath="..\..\src\fixed\dsm2_init.f"/>
 		<File RelativePath="..\..\src\fixed\input_channels.f"/>
-		<File RelativePath="..\..\src\input_storage\input_storage.f"/>
+		<File RelativePath="..\..\src\fixed\input_storage.f"/>
 		<File RelativePath="..\..\src\fixed\name_to_objno.f"/>
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\print_output.f"/>

@@ -118,11 +118,6 @@ c====================================================================
       character*128 iofile
       integer err
       logical, parameter :: append_text=.TRUE.
-
-
-      
-      
-
       nitem = envvar_buffer_size()
       do icount = 1,nitem
            err=envvar_query_from_buffer(icount,envname,envval)
