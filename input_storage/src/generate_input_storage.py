@@ -14,6 +14,7 @@ include_defs = []
 prioritize_buffer_lines=[]
 clear_buffer_lines=[]
 fortran_include_lines=[]
+write_text_buffer_lines=[]
 
     
 def referencify(typename, const=False):
@@ -252,7 +253,8 @@ def prep_component(component,outdir):
     outfile.write(txt)
     outfile.close()
     clear_buffer_lines.append("HDFTableManager<%s>::instance().buffer().clear();" % component.name)
-    prioritize_buffer_lines.append("HDFTableManager<%s>::instance().prioritize_buffer();" % component.name)                                  
+    prioritize_buffer_lines.append("HDFTableManager<%s>::instance().prioritize_buffer();" % component.name)
+    write_text_buffer_lines.append("%s_write_buffer_to_text_f(file,append,filelen);" % component.name)
     fortran_include_lines.append("include \"%s\"" % fortfile)
  
     # add the FORTRAN .f90 file for this object as an include to the main module
@@ -283,8 +285,8 @@ def process_include_defs():
         include_code += "    InputStatePtr %sPtr(new InsertFileState(%s));\n" % (blockName, contextName)
         include_code += "    inputMap[\"%s\"] = %sPtr;\n" % (blockName.upper(), blockName)
     return include_code
-
-
+    
+    
 
 def finalize(outdir):
     f=open(os.path.join(outdir,"input_storage.h"),'w')
@@ -306,6 +308,8 @@ def finalize(outdir):
     f.close()
     txt=txt.replace("// Clear all buffers DO NOT ALTER THIS LINE AT ALL",string.join(clear_buffer_lines,"\n"))
     txt=txt.replace("// Prioritize all buffers DO NOT ALTER THIS LINE AT ALL",string.join(prioritize_buffer_lines,"\n"))
+    txt=txt.replace("// Write text all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_lines,"\n"))
+
     f=open(os.path.join(outdir,"buffer_actions.cpp"),"w")
     f.write(txt)
     f.close()

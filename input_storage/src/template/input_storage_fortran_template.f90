@@ -16,6 +16,13 @@ module input_storage_fortran
           !DEC$ ATTRIBUTES ALIAS:'_prioritize_all_buffers_f' :: prioritize_all_buffers_f
          call prioritize_all_buffers_f
        end subroutine
+
+       subroutine write_all_buffers_to_text(textfile,append)
+          !DEC$ ATTRIBUTES ALIAS:'_prioritize_all_buffers_f' :: write_all_buffers_to_text_f
+         character*(*) textfile
+         logical append
+         call write_all_buffers_to_text_f(textfile)
+       end subroutine
        
        subroutine init_file_reader()
           !DEC$ ATTRIBUTES ALIAS:'_init_file_reader_f' :: init_file_reader_f
