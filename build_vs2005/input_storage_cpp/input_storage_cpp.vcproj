@@ -162,7 +162,39 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_group.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_group_member.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_gate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_node.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_reservoir.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_io_file.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_gate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_reservoir.cpp"
 				>
 			</File>
 			<File
@@ -192,7 +224,39 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_group.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_group_member.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_gate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_node.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_reservoir.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_io_file.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_gate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_reservoir.h"
 				>
 			</File>
 			<File
