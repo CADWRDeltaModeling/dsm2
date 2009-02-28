@@ -54,9 +54,10 @@ def generate_dsm2():
     
     component = TableComponent("group_member",
 	                          [CharField("group",32,16),
-	                          [CharField("pattern",32,16)],                              
-							  ["group","pattern"],
-                              parent="group",parent_id="group")
+	                           CharField("pattern",32,16)],                              
+							  ["group","pattern"],\
+                              parent="group",\
+                              parent_id=["group"])
     component.layered=False
     prep_component(component,outdir)
 
