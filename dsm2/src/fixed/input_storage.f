@@ -78,16 +78,8 @@
       call h5close_f(error)
       print*, "hdf5 shutdown status: ", error
 
-      call envvar_write_buffer_to_text("testout.txt",.false.)
-      call scalar_write_buffer_to_text("testout.txt",append_text)
-      call io_file_write_buffer_to_text("testout.txt",append_text)
-      call tidefile_write_buffer_to_text("testout.txt",append_text)
-      call input_gate_write_buffer_to_text("testout.txt",append_text)
-      call input_node_write_buffer_to_text("testout.txt",append_text)
-      call input_reservoir_write_buffer_to_text("testout.txt",append_text)
-      call output_channel_write_buffer_to_text("testout.txt",append_text)
-      call output_reservoir_write_buffer_to_text("testout.txt",append_text)
-      call output_gate_write_buffer_to_text("testout.txt",append_text)
+      ! Write all buffers to text in the order they were defined
+      call write_all_buffers_to_text("testout.txt",append_text)
       print*, "text written"
  
       return
