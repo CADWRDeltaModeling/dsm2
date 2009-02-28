@@ -178,6 +178,10 @@ c====================================================================
       character*32 gate, device
       character*512 action, trigger, definition
 
+
+
+
+
       nitem = io_file_buffer_size()
       do icount = 1,nitem
          err=io_file_query_from_buffer(icount,model,filetype,io,interval,iofile)
