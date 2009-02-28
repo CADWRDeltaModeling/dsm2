@@ -45,6 +45,7 @@ def generate_dsm2():
 							  ["start_date"])
     component.layered=True
     prep_component(component,outdir)
+
     
     component = TableComponent("group",
 	                          [CharField("name",32,16)],
@@ -61,9 +62,53 @@ def generate_dsm2():
     component.layered=False
     prep_component(component,outdir)
 
+
 #    Input and output ###########################################    
     
+   
+    component = TableComponent("input_gate",
+	                         [CharField("name",DSM2_NAME_LEN,16),\
+							  CharField("device",32,16),\
+                              CharField("variable",16,12),\
+							  CharField("inpath",80,50),\
+						      CharField("fillin", 8,12),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)
+                             ],
+							 ["name","device","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)  
+ 
 
+    component = TableComponent("input_node",
+	                         [CharField("name",DSM2_NAME_LEN,16),\
+                              IntField("node"),\
+							  CharField("variable",16,12),\
+							  CharField("inpath",80,50),\
+							  CharField("rolename",32,16),\
+                              IntField("sign"),\
+						      CharField("fillin", 8,12),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+							 ["name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)  
+
+
+ 
+
+    component = TableComponent("input_reservoir",
+	                         [CharField("name",DSM2_NAME_LEN,16),\
+							  CharField("reservoir",32,16),\
+							  CharField("variable",16,12),\
+							  CharField("inpath",80,50),\
+                              IntField("sign"),\
+						      CharField("fillin", 8,12),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+							 ["name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)    
+   
 
     component = TableComponent("output_channel",
 	                         [CharField("name",DSM2_NAME_LEN,16),
