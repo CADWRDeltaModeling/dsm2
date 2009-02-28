@@ -1,4 +1,7 @@
+
+c=======================================================================
       subroutine input_text(filename)
+!     Writes in all text starting from input filename
       use hdf5
       use input_storage_fortran
       use envvar
@@ -37,17 +40,24 @@
       character*32 gate, device
   
 
+c-----Do a first pass reading the input, activating only ENVVARS for use in later text substitution
       call clear_all_buffers()
       !todo: testing whether this is optional
-      call init_text_substitution("PARAMETER") ! searches INCLUDE as well
-      call process_text_substitution(filename)
-      
-      !todo: this is annoyint to have to clear
-      call envvar_clear_buffer()
-      call init_file_reader()
-      call read_buffer_from_text(filename)
-      call prioritize_all_buffers()
+      call init_text_substitution("PARAMETER")    ! Get ready for the pass
+      call process_text_substitution(filename)    ! Do the reading and prep the environment variables
+      call envvar_clear_buffer()                  ! Clear the envvar buffer
 
+c-----Do a second pass on all the input, making use of the text substitution we just prepped
+      call init_file_reader()                     ! Prepare for a read of everything
+      call read_buffer_from_text(filename)        ! Perform the read into buffers
+      call prioritize_all_buffers()               ! Enforce the "layering"
+
+c-----Write all buffers to text in the order they were defined
+      call write_all_buffers_to_text("testout.txt",append_text)
+      print*, "text written"
+
+c-----Write all buffers to hdf5
+      ! for the moment we are deleting and recreating the file, but this is an open question
       inquire(file=hdf_filename, exist=ext)
       if (ext)then
       call unlink(hdf_filename,error)
@@ -61,26 +71,13 @@
       call exit(2)
       end if
 
-      error= envvar_write_buffer_to_hdf5(file_id)
-      error= scalar_write_buffer_to_hdf5(file_id)
-      error= io_file_write_buffer_to_hdf5(file_id) 
-      !error= tidefile_write_buffer_to_hdf5(file_id) !todo: need to handle the empty case
-      !error= input_gate_write_buffer_to_hdf5(file_id)
-      !error= input_node_write_buffer_to_hdf5(file_id) 
-      !error= input_reservoir_write_buffer_to_hdf5(file_id) 
+      call write_all_buffers_to_hdf5(file_id)      ! Do the actual write
 
-      !error= output_channel_write_buffer_to_hdf5(file_id) 
-      !error= output_reservoir_write_buffer_to_hdf5(file_id) 
-      !error= output_gate_write_buffer_to_hdf5(file_id) 
-
-      call h5fclose_f(file_id, error)
+      call h5fclose_f(file_id, error)              ! Close down ! todo: this is too verbose
       print *, "file close status: ", error
       call h5close_f(error)
       print*, "hdf5 shutdown status: ", error
 
-      ! Write all buffers to text in the order they were defined
-      call write_all_buffers_to_text("testout.txt",append_text)
-      print*, "text written"
  
       return
       end subroutine
@@ -129,6 +126,7 @@ c====================================================================
 
 
 c====================================================================
+
       subroutine process_text_input
       
       use hdf5
@@ -178,7 +176,7 @@ c====================================================================
       
        ! output_gate
       character*32 gate, device
-     
+      character*512 action, trigger, definition
 
       nitem = io_file_buffer_size()
       do icount = 1,nitem
@@ -195,6 +193,54 @@ c====================================================================
       end do
       print *,"Number of tidefiles: ", nitem
 
+
+      nitem = oprule_time_series_buffer_size()
+      do icount = 1,nitem
+          err=oprule_time_series_query_from_buffer(icount,
+     &                                        name,
+     &                                        filename,
+     &                                        inpath,
+     &                                        fillin)
+
+          sign=0 ! currently hardwired
+          call process_input_oprule(name,
+     &                              filename,
+     &                              inpath,
+     &                              sign,
+     &                              fillin)
+      end do
+      print *,"Number of oprule time series processed: ", nitem
+
+
+
+      nitem = oprule_expression_buffer_size()
+      do icount = 1,nitem
+         err=oprule_expression_query_from_buffer(icount,
+     &                                           name,
+     &                                           definition)
+      call process_oprule_expression(name,
+     &                               definition)
+      end do
+      print *,"Number of operating rule expressions processed: ", nitem
+
+
+      nitem = operating_rule_buffer_size()
+      do icount = 1,nitem
+         err=operating_rule_query_from_buffer(icount,
+     &                                        name,
+     &                                        action,
+     &                                        trigger)
+
+      call process_oprule(name,
+     &                    action,
+     &                    trigger)
+      end do
+      print *,"Number of operating rules processed: ", nitem
+
+
+
+
+
 c======================== Input and output ======================
 
 
@@ -204,11 +250,11 @@ c======================== Input and output ======================
       do icount = 1,nitem
          err=input_gate_query_from_buffer(icount,
      &                                    name,
-     &                               device,
-     &                               variable,
-     &                               inpath,
-     &                               fillin,   
-     &                               filename)
+     &                                    device,
+     &                                    variable,
+     &                                    inpath,
+     &                                    fillin,   
+     &                                    filename)
 
          call process_input_gate(name,
      &                               device,

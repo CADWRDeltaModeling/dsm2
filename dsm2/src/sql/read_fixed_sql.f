@@ -88,7 +88,8 @@ c-----Load data
           if (istat .lt. 0) goto 901
           call read_input_ts_transfer_sql(StmtHndl, ModelID, istat) 
           if (istat .lt. 0) goto 901          
-          call read_input_ts_oprule_sql(StmtHndl, ModelID, istat) 
+          !todo: disabled
+          !call read_input_ts_oprule_sql(StmtHndl, ModelID, istat) 
       end if
       if( dsm2_name .eq. 'Qual')then
           call read_input_ts_climate_sql(StmtHndl, ModelID, istat) 

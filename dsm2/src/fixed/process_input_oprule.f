@@ -18,10 +18,10 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
 
       subroutine process_input_oprule(Name,
+     &                                Filename,
      &                                InPath,
      &                                Sign,
-     &                                Fillin,
-     &                                FileName)
+     &                                Fillin)
 
       use Gates
       use io_units
@@ -76,7 +76,9 @@ C!</license>
                elseif (sign .eq. 0) then
                   ! do nothing
                else
-                  write(unit_error,*)"Incorrect sign for input time series"
+                  write(unit_error,"(a,1x,a,1x,a1,i,a1)")
+     &            "Incorrect sign for input time series",trim(name),
+     &            "(",sign,")"
                   call exit(-3)
                end if
 

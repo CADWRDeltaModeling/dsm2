@@ -173,10 +173,10 @@ c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName)).and. UseObj) then
 
             call process_input_oprule(Name,
+     &                                Filename,
      &                                InPath,
      &                                Sign,
-     &                                Fillin,
-     &                                FileName)
+     &                                Fillin)
 
          end if           
          counter=counter+1
