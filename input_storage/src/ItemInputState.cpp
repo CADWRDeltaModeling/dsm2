@@ -74,7 +74,8 @@ bool ItemInputState<T>::verifyHeader(string& line)
 template<typename T>
 void ItemInputState<T>::processItem(string& line)
  {
-   string procline = m_substitution(line);
+   ApplicationTextReader & reader =ApplicationTextReader::instance();
+   string procline = reader.getTextSubstitution()(line);
    bool used = true;
    if(procline.substr(0,1) == "^")
      {
