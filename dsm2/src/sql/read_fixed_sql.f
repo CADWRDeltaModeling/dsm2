@@ -96,7 +96,8 @@ c-----Load data
           if (istat .lt. 0) goto 901
       end if
 
-      call load_groups_sql(StmtHndl, ModelID,istat)
+      !todo: disable
+      !call load_groups_sql(StmtHndl, ModelID,istat)
       if (istat .lt. 0) goto 901
 
       if( dsm2_name .eq. 'Qual')
