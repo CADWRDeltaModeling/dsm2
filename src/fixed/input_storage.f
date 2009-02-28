@@ -39,7 +39,8 @@
 
       call clear_all_buffers()
       !todo: testing whether this is optional
-      call init_text_substitution("PARAMETER") ! searches INCLUDE as well      call process_text_substitution(filename)
+      call init_text_substitution("PARAMETER") ! searches INCLUDE as well
+      call process_text_substitution(filename)
       
       !todo: this is annoyint to have to clear
       call envvar_clear_buffer()
