@@ -43,7 +43,7 @@ print*,"invert"
 error= xsect_write_buffer_to_hdf5(file_id)
 error= channel_write_buffer_to_hdf5(file_id)
 error= envvar_write_buffer_to_hdf5(file_id)
-call channel_write_buffer_to_text("testout.txt",.true.)
+call channel_write_buffer_to_text("example_fortran_out.txt",.true.)
 
 !
 !    Close file and  FORTRAN interface.

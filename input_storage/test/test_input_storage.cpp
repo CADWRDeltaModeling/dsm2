@@ -312,7 +312,9 @@ void test_input_reader()
   inputMap["XSECT"]   = InputStatePtr(new ItemInputState<xsect>());
   inputMap["ENVVAR"]  = InputStatePtr(new ItemInputState<envvar>());
   inputMap["INCLUDE"] = InputStatePtr(new InsertFileState(contextItems));
-  ApplicationTextReader::instance().setInputStateMap(inputMap);
+  ApplicationTextReader& reader = ApplicationTextReader::instance();
+  reader.setInputStateMap(inputMap);
+  reader.getTextSubstitution().setEnabled(false); // don't do text substitution while gathering envvars
 
 
   vector<string> envvarActive;
@@ -361,6 +363,8 @@ void test_input_reader()
   input.seekg(0, ios::beg);
   input.clear();
 
+  reader.getTextSubstitution().setEnabled(true);
+
   //InputStatePtr currentState(startState);
   currentState=startState;
   currentState->setActiveItems(active);
@@ -396,6 +400,7 @@ void test_input_reader()
 void test_input_reader_duplicate()
 {
   cout << "Testing input reader duplicates" <<endl;
+  ApplicationTextReader& reader = ApplicationTextReader::instance();
   HDFTableManager<channel>::instance().buffer().clear();
   HDFTableManager<xsect>::instance().buffer().clear();
   HDFTableManager<envvar>::instance().buffer().clear();
@@ -409,14 +414,15 @@ void test_input_reader_duplicate()
   inputMap["ENVVAR"]  = InputStatePtr(new ItemInputState<envvar>());
   inputMap["CHANNEL"] = InputStatePtr(new ItemInputState<channel>());
   inputMap["XSECT"]   = InputStatePtr(new ItemInputState<xsect>());
-  ApplicationTextReader::instance().setInputStateMap(inputMap);
+  reader.setInputStateMap(inputMap);
   vector<string> active;
   active.push_back("ENVVAR");
   active.push_back("CHANNEL");
   active.push_back("XSECT");
-  ApplicationTextReader::instance().setActiveItems(active);
+  reader.setActiveItems(active);
   string filename("test_duplicates.txt");
-  ApplicationTextReader::instance().processInput(filename);
+  reader.getTextSubstitution().setEnabled(true); // this test has nothing fancy
+  reader.processInput(filename);
 
   vector<envvar> & envvars =  HDFTableManager<envvar>::instance().buffer();
   // check that it finds duplicates in strangely ordered character identifier

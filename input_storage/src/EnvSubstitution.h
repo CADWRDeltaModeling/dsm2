@@ -12,18 +12,20 @@ class EnvSubstitution
 {
  
  public:
-  EnvSubstitution(){}
+  EnvSubstitution() : m_enabled(true){}
   ~EnvSubstitution()
   {
       m_subMap.clear();
   }
 
+  void setEnabled(const bool& enabled);
   void add(std::string key, std::string value);
   void remove(std::string key);
   std::string operator()(const std::string& arg);
 
 private:
     std::map<std::string, std::string> m_subMap;
+    bool m_enabled;
 };
 
 #endif

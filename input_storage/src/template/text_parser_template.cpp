@@ -28,6 +28,7 @@ FCALL void init_text_substitution_f(const char* include_block_name, int includel
     }
   reader.setInputStateMap(statemap);        // Initialize for text substitution only
   reader.setActiveItems(activeItems);      // Only two keywords are defined, both are active
+  reader.getTextSubstitution().setEnabled(false);
 }
 
 
@@ -53,7 +54,7 @@ FCALL void init_file_reader_f()
   //ApplicationTextReader::InputStateMap states = input_state_map();
   ApplicationTextReader & reader = ApplicationTextReader::instance();
   reader.setInputStateMap(input_state_map());
-  
+  reader.getTextSubstitution().setEnabled(true);
 
 }
 

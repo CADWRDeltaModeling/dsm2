@@ -27,6 +27,11 @@ void ApplicationTextReader::setAllActive()
   m_activeItems = activeItems;
    
 }
+
+EnvSubstitution & ApplicationTextReader::getTextSubstitution()
+{
+    return m_sub;
+}
     
 
 ///////////////////

@@ -22,9 +22,16 @@ void EnvSubstitution::remove(string name)
 {
 }
 
+void EnvSubstitution::setEnabled(const bool& enabled)
+{
+    m_enabled=enabled;
+}
+
+
 
 string EnvSubstitution::operator()(const std::string & arg)
-{
+{   
+    if (! m_enabled) return arg;
     std::string str(arg);
 
     //if(arg.find_first_of("${") == string::npos) return arg;

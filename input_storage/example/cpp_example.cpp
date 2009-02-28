@@ -91,12 +91,15 @@ void test_input_reader()
   active.push_back("CHANNEL");
   active.push_back("XSECT");
   active.push_back("INCLUDE");
+  ApplicationTextReader & reader = ApplicationTextReader::instance();
 
-  ApplicationTextReader::instance().setInputStateMap(inputMap);
+
+  reader.setInputStateMap(inputMap);
+  reader.getTextSubstitution().setEnabled(false);
   InputStatePtr startState(new FileInputState(contextItems,"example.txt"));
   InputStatePtr currentState(startState);
 
-  string filename("test.txt");
+  string filename("example.txt");
   boost::filesystem::path p(filename);
   BOOST_CHECK(boost::filesystem::exists(p));
   std::ifstream input(filename.c_str());
@@ -119,11 +122,8 @@ void test_input_reader()
       sub.add(envvars[i].name, envvars[i].value);
     }
 
-  for(InputState::InputStateMap::iterator it = inputMap.begin();
-      it != inputMap.end() ; ++it)
-    {
-      it->second->setEnvSubstitution(sub);
-    }
+  sub.setEnabled(true);
+  reader.setTextSubstitution(sub);
 
   //rewind
   input.clear();
@@ -133,7 +133,7 @@ void test_input_reader()
 
   currentState=startState;
   currentState->setActiveItems(active);
-
+  reader.getTextSubstitution().setEnabled(true);
   while (!currentState->isEndOfFile())
     {
       currentState = currentState->process(input);

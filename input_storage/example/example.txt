@@ -22,7 +22,7 @@ CHAN_NO  DIST         FILE
 END
 
 INCLUDE
-test_include.txt
+example_include.txt
 END
 
 
