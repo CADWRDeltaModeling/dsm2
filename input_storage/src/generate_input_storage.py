@@ -15,7 +15,8 @@ prioritize_buffer_lines=[]
 clear_buffer_lines=[]
 fortran_include_lines=[]
 write_text_buffer_lines=[]
-
+all_components=[]
+write_hdf5_buffer_lines=[]
     
 def referencify(typename, const=False):
     if ("char" in typename):
@@ -100,6 +101,7 @@ def ensure_line_in_file(include_line,filename):
 #
 #  The component must be defined by the calling code
 def prep_component(component,outdir):
+    all_components.append(component)
     c_signature = string.join([x.c_arg(False) for x in component.members],",")
     stringlen_output_args = string.join([x.stringlen_arg(False) for x in component.members if x.stringlen_arg(False)],",")
     fortran_c_output_signature=string.join([x.fc_arg(False) for x in component.members],",")
@@ -255,6 +257,7 @@ def prep_component(component,outdir):
     clear_buffer_lines.append("HDFTableManager<%s>::instance().buffer().clear();" % component.name)
     prioritize_buffer_lines.append("HDFTableManager<%s>::instance().prioritize_buffer();" % component.name)
     write_text_buffer_lines.append("%s_write_buffer_to_text_f(file,append,filelen);" % component.name)
+    write_hdf5_buffer_lines.append("%s_write_buffer_to_hdf5_f(file_id);" % component.name)
     fortran_include_lines.append("include \"%s\"" % fortfile)
  
     # add the FORTRAN .f90 file for this object as an include to the main module
@@ -309,7 +312,9 @@ def finalize(outdir):
     txt=txt.replace("// Clear all buffers DO NOT ALTER THIS LINE AT ALL",string.join(clear_buffer_lines,"\n"))
     txt=txt.replace("// Prioritize all buffers DO NOT ALTER THIS LINE AT ALL",string.join(prioritize_buffer_lines,"\n"))
     txt=txt.replace("// Write text all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_lines,"\n"))
+    txt=txt.replace("// Write hdf5 all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_hdf5_buffer_lines,"\n"))
 
+    
     f=open(os.path.join(outdir,"buffer_actions.cpp"),"w")
     f.write(txt)
     f.close()
@@ -321,4 +326,28 @@ def finalize(outdir):
     f=open(os.path.join(outdir,"input_storage_fortran.f90"),"w")
     f.write(txt)
     f.close()
+    
+    f=open(os.path.join(indir,"component_template.py"),"r")
+    txt=f.read()
+    f.close()
+    componentlines=[]
+    memberlines=[]
+    for c in all_components:
+        memberline="\"%s\":[" % c.name
+        members=["\""+m.name+"\"" for m in c.members]
+        memberline+=string.join(members,",")
+        memberline+="]"
+        memberlines.append(memberline)
+        componentlines.append("\"%s\"" % c.name)
+    subtxt="def component_order():\n    return["+string.join(componentlines,",\\\n      ")+"]\n\n\n"
+    subtxt+="def component_members():\n    return {" + string.join(memberlines,",\\\n      ")+"}\n\n\n"
+    txt=txt.replace("@COMPONENTSCRIPT",subtxt)
+    f=open(os.path.join(outdir,"component.py"),"w")
+    f.write(txt)
+    f.close()
+        
+        
+    
+    
+    
 

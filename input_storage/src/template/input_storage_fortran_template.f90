@@ -23,6 +23,14 @@ module input_storage_fortran
          logical append
          call write_all_buffers_to_text_f(textfile,append)
        end subroutine
+
+       subroutine write_all_buffers_to_hdf5(file_id)
+          !DEC$ ATTRIBUTES ALIAS:'_write_all_buffers_to_hdf5_f' :: write_all_buffers_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         call write_all_buffers_to_hdf5_f(file_id)
+       end subroutine
        
        subroutine init_file_reader()
           !DEC$ ATTRIBUTES ALIAS:'_init_file_reader_f' :: init_file_reader_f

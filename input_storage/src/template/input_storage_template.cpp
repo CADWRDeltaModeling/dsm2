@@ -128,8 +128,8 @@ herr_t @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id){
                        table.description.field_types, 
                        table.description.chunk_size, 
 		       &table.default_fill(), //fill data 
-		       1, //@TABLEOBJ_table::instance().description.compress, 
-		       &table.buffer()[0]);
+		       1,                     //@TABLEOBJ_table::instance().description.compress, 
+		       table.buffer().size() > 0 ? &table.buffer()[0] : NULL);
     return err;
 }
 
