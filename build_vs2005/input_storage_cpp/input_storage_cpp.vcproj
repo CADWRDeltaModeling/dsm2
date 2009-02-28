@@ -158,7 +158,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_channel.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_channel_ic.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_envvar.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_gate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_gate_device.cpp"
 				>
 			</File>
 			<File
@@ -186,6 +202,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_operating_rule.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_oprule_expression.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_oprule_time_series.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_output_channel.cpp"
 				>
 			</File>
@@ -198,11 +226,51 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_flux_output.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_group_output.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_insertion.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_rate_coefficient.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_connection.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_ic.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_scalar.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_tidefile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_transfer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_xsect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_xsect_layer.cpp"
 				>
 			</File>
 			<File
@@ -220,7 +288,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_channel.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_channel_ic.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_envvar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_gate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_gate_device.h"
 				>
 			</File>
 			<File
@@ -248,6 +332,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_operating_rule.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_oprule_expression.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_oprule_time_series.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_output_channel.h"
 				>
 			</File>
@@ -260,11 +356,51 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_flux_output.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_group_output.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_insertion.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_rate_coefficient.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_connection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_ic.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_scalar.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_tidefile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_transfer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_xsect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_xsect_layer.h"
 				>
 			</File>
 		</Filter>
