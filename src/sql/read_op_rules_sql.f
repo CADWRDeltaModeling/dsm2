@@ -68,12 +68,20 @@ c-----local variables
      &     ,deflen
 
       character
-     &     name*32,prev_name*32
-     &     ,definitiontext*255,triggertext*255
-     &     ,ctmp*512
+     &     name*32
+     &     ,prev_name*32
 
+      
+      character(LEN=512) :: definitiontext = " "     ! deliberately oversized compared to db
+      character(LEN=512) :: triggertext              ! deliberately oversized compared to db
+      character(LEN=512) :: ctmp    ! combines the actual maximum (256) of the fields in db
+      
+      
       integer(SQLINTEGER_KIND):: namelen,definelen,triggerlen
 	logical parse_rule
+
+      definitiontext = " "
+      triggertext = " "
 
 c-----Bind the parameter representing ModelID	
       call f90SQLBindParameter (StmtHndl, int(1,SQLUSMALLINT_KIND), SQL_PARAM_INPUT,
@@ -135,18 +143,8 @@ c--------Fetch a record from the result set
             nenv=replace_envvars(definitiontext,ctmp)
 	      definitiontext=ctmp
 	      ctmp=" "
-		  write(ctmp,"(a,1x,':=',1x,a,';')")
-     &        name(1:namelen),definitiontext(1:len_trim(definitiontext))
-            if (parse_rule(trim(ctmp)))then
-	         if(print_level .ge. 3) then
-			    write(unit_screen,"(/'Parsed expression: ',/a)"),trim(ctmp)
-	         end if
-            else
-               write(unit_error,"(/'Error parsing expression: ',/a)"), trim(ctmp)
-	         istat=-3
-	         return
-	      endif
-	      counter=counter+1
+	    call process_oprule_expression(name,definitiontext)
+	    counter=counter+1
          endif
          prev_name=name
       enddo
@@ -242,19 +240,7 @@ c--------Fetch a record from the result set
 	      definitiontext=ctmp
             nenv=replace_envvars(triggertext,ctmp)
 	      triggertext=ctmp
-	      ctmp=" "
-		  write(ctmp,"(a,1x,':=',1x,a,1x,'WHEN',1x,a,';')")
-     &        trim(name),trim(definitiontext),trim(triggertext)
-	      if(print_level .ge. 3) then
-		    write(unit_screen,"(/'Parsing rule: ',/a)"),trim(ctmp)
-	      end if
-	      if (parse_rule(trim(ctmp)))then
-
-            else
-               write(unit_error,"(/'Error parsing rule: ',/a)"), trim(ctmp)
-	         istat=-3
-	         return
-	      endif
+	      call process_oprule(name,definitiontext,triggertext)
 	      counter=counter+1
          endif
          prev_name=name

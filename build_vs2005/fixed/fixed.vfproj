@@ -55,6 +55,7 @@
 		<File RelativePath="..\..\src\fixed\process_input_transfer.f"/>
 		<File RelativePath="..\..\src\fixed\process_io_file.f"/>
 		<File RelativePath="..\..\src\fixed\process_irreg.f"/>
+		<File RelativePath="..\..\src\fixed\process_oprule.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_channel.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_node.f"/>

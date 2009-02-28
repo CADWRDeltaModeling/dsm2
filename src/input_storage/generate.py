@@ -33,6 +33,7 @@ def generate_dsm2():
     # Create a parent object called a channel.
     component = TableComponent("channel",         # name of the table
                            [IntField("chan_no"),  # integer field
+                           IntField("length"),
                            DoubleField("manning",10,4),  # double field with width=10 precision=4 
                            DoubleField("dispersion",12,4),  # double field with width=10 precision=4                            
                            IntField("upnode"),
@@ -180,25 +181,25 @@ def generate_dsm2():
 
     
     component = TableComponent("operating_rule",
-	                        [CharField("name",DSM2_NAME_LEN,16),\
-							 CharField("action",1024,64),\
-							 CharField("trigger",1024,LAST_FIELD)],\
+	                        [CharField("name",DSM2_NAME_LEN,32),\
+							 CharField("action",512,48),\
+							 CharField("trigger",512,LAST_FIELD)],\
 							 ["name"])
     component.layered=True
     prep_component(component,outdir)    
 
     component = TableComponent("oprule_expression",
-	                        [CharField("name",DSM2_NAME_LEN,16),\
-							 CharField("definition",1024,LAST_FIELD)],\
+	                        [CharField("name",DSM2_NAME_LEN,32),\
+							 CharField("definition",512,LAST_FIELD)],\
 							 ["name"])
     component.layered=True
     prep_component(component,outdir)    
     
     component = TableComponent("oprule_time_series",
 	                         [CharField("name",DSM2_NAME_LEN,16),\
-							  CharField("inpath",80,50),\
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,50),\
 						      CharField("fillin", 8,12),\
-							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)
                              ],
 							 ["name"])   # identifier
     component.layered=True
@@ -337,7 +338,8 @@ def generate_dsm2():
 
 	
     define_text_sub("envvar",outdir)
-    define_include_block("PARAMETER", ["scalar","envvar"])
+    define_include_block("parameter", ["scalar","envvar"])
+    define_include_block("operation", ["operating_rule","oprule_expression","oprule_time_series"])
     define_include_block("output", ["output_channel","output_reservoir","output_gate"])
 
     finalize(outdir)

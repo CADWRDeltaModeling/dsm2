@@ -270,12 +270,6 @@ c-----calculate julian minute of end of each DSS interval
          call exit(1)
       end if
 
-      call read_operating_rules(istat)
-      if (istat .ne. 0) then
-         write(unit_error, *)
-     &        'Error in loading oprules data; run stopped.'
-         call exit(1)
-      endif
       call close_database()
 
       if ( .not. InitializeSolver() ) THEN
