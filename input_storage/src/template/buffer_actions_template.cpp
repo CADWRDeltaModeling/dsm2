@@ -1,3 +1,4 @@
+#include “boost/filesystem.hpp”
 #include "input_storage.h"
 #include "ApplicationTextReader.h"
 #include "InputState.h"
@@ -26,7 +27,14 @@ FCALL void prioritize_all_buffers_f()
 //////////////////////
 FCALL void write_all_buffers_to_text_f(const char* file, const bool* append, int filelen)
 { 
-  //Prioritize all buffers
+  string filename(file,filelen);
+  boost::filesystem::path path(filename.c_str()); 
+  if (exists(path) && (! remove(path))
+  {
+     //odo  this is an error that should be reported
+  }
+
+  //Write out all buffers
 // Write text all buffers DO NOT ALTER THIS LINE AT ALL
 
 }    

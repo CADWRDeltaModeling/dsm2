@@ -18,7 +18,7 @@ module input_storage_fortran
        end subroutine
 
        subroutine write_all_buffers_to_text(textfile,append)
-          !DEC$ ATTRIBUTES ALIAS:'_prioritize_all_buffers_f' :: write_all_buffers_to_text_f
+          !DEC$ ATTRIBUTES ALIAS:'_write_all_buffers_to_text_f' :: write_all_buffers_to_text_f
          character*(*) textfile
          logical append
          call write_all_buffers_to_text_f(textfile,append)
