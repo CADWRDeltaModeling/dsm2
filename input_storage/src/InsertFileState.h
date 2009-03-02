@@ -19,17 +19,15 @@ InsertFileState(const vector<string> & a_contextItems)
 
 
 InsertFileState(InputStatePtr state,string & filename) :
-  InputState(*state),
-  m_filename(filename)
-  {}
+  InputState(*state)
+  {
+    m_filename=filename;
+  }
 
 /** Process input by treating lines as file names, opening the files and
     delegating to new FileInputStates.
 */
 virtual InputStatePtr process(istream & in);
-
-private:
-string m_filename;
 
 private:
 InputStatePtr nextState() const;

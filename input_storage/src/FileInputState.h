@@ -26,9 +26,9 @@ FileInputState(
 	           const string         & a_fileName
 	   ) : 
   InputState(
-  a_contextItems),
-  m_filename(a_fileName)
-{}
+  a_contextItems)
+{  m_filename=a_fileName;
+}
 
 
 /** Process input stream in the general part of the input file
@@ -41,7 +41,6 @@ virtual InputStatePtr process(istream &in);
 
 private:
 InputStatePtr nextState(const string& line) const;
-string m_filename;
 
 };
 

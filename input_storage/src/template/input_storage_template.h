@@ -95,7 +95,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<@PARENT>());
-    bool found = loc->identifier() == parent.identifier();
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }

@@ -111,8 +111,8 @@ class CharField(Field):
 
     def pad(self,arg=None):
         if (not arg):arg=self.name
-        return "fill(%s+strlen(%s),%s+%s,' ');" % (arg,arg,arg,self.size)
-    
+        return "if (strlen(%s) < %s)fill(%s+strlen(%s),%s+%s,' ');" % (arg,self.size,arg,arg,arg,self.size)
+ 
     def c_arg(self,input = True):
         arg = " char a_%s[%s]" % (self.name,self.size)
         if (input): 
@@ -135,7 +135,7 @@ class CharField(Field):
         return self.assign(other="identifier.get<%s>().c_str()" % ndx)
         
     def simple_assign(self,name,other):
-        return "strcpy(%s,%s);" % (name,other)        
+        return "memcpy(%s,%s,%s);" % (name,other,self.size)        
             
     def constructor(self,style):
         if not style in ("arg","copy","default"): raise IllegalArgumentException("Style argument not understood")
