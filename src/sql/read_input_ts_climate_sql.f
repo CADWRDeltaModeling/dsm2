@@ -71,12 +71,12 @@ c-----local variables
       character
      &     InPath*80
      &     ,FileName*128
-     &     ,Param*32
-     &     ,PrevParam*32
+     &     ,Param*16
+     &     ,PrevParam*16
      &     ,LocName*32
      &     ,PrevName*32
      &     ,RoleName*32
-     &     ,Name*64
+     &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
 
@@ -195,8 +195,8 @@ c--------if marked as not-use
      &        .and. UseObj) then
 
             call process_input_climate(Name,
-     &                                 InPath,
      &                                 Param,
+     &                                 InPath,
      &                                 Sign,
      &                                 Fillin,
      &                                 Filename) 
