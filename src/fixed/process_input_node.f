@@ -44,10 +44,11 @@ C!</license>
      &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
+     &     ,fillin*8
+
 
       integer*4
-     &     Fillin              ! code for fill in type (last, none, linear)
-     &     ,Sign                ! sign restriction on input
+     &     Sign                ! sign restriction on input
      &     ,LocNum              ! object map id of input data if applicable (channel,node)
      &     ,npath,na,nb,nc,nd,ne,nf
      &     ,itmp
@@ -55,7 +56,8 @@ C!</license>
 
       integer, external :: data_types
       integer, external :: ext2intnode
-      integer, external :: loccarr 
+      integer, external :: loccarr
+      integer, external :: fillin_code
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -141,7 +143,7 @@ c--------------accumulate unique dss input filenames
                else
                   pathinput(ninpaths).ndx_file=itmp
                endif
-               pathinput(ninpaths).fillin=Fillin
+               pathinput(ninpaths).fillin=fillin_code(fillin)
             endif
                                 !fixme: the next line should probably be based on RoleName
 c-----------set data type fixme:groups is this right

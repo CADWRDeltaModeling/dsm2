@@ -19,8 +19,8 @@ C!</license>
 
       subroutine process_input_gate(LocName,
      &                              SubLoc,
-     &                              InPath,
      &                              Param,
+     &                              InPath,
      &                              Fillin,
      &                              Filename) 
 
@@ -35,17 +35,17 @@ C!</license>
       character
      &     InPath*80
      &     ,FileName*128
-     &     ,Param*32
+     &     ,Param*16
      &     ,LocName*32
      &     ,SubLoc*32           ! Object-dependent sublocation (gate device, reservoir node connect..)
-     &     ,Name*64
+     &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
-     &     ,ctmp*200     
+     &     ,ctmp*200
+     &     ,fillin*8     
 
 
       integer*4
-     &     Fillin              ! code for fill in type (last, none, linear)
-     &     ,Sign                ! sign restriction on input
+     &     Sign                ! sign restriction on input
      &     ,npath,na,nb,nc,nd,ne,nf
      &     ,itmp
      &     ,loccarr             ! locate string in char array function
@@ -56,6 +56,7 @@ C!</license>
       integer :: gatendx
 
       integer, external :: data_types
+      integer, external :: fillin_code
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -142,7 +143,7 @@ c--------------accumulate unique dss input filenames
                else
                   pathinput(ninpaths).ndx_file=itmp
                endif
-               pathinput(ninpaths).fillin=Fillin
+               pathinput(ninpaths).fillin=fillin_code(fillin)
             endif
             !fixme: the next line should probably be based on RoleName
 c-----------set data type fixme:groups is this right

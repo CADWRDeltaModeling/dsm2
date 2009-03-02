@@ -905,4 +905,20 @@ c-----an HDF5 tidefile, or unknown (fatal error)
          write(unit_error,610) filename
  610     format(/'Fatal error: cannot determine tidefile type: ',a)
       endif
-      end
+      end function
+
+
+
+      integer function fillin_code(fillin)
+      use constants
+      implicit none
+      character*(*) fillin
+      fillin_code = miss_val_i
+      call locase(fillin)
+      if (fillin .eq. "last") then 
+          fillin_code =  fill_last
+      elseif (fillin .eq. "linear") then
+          fillin_code =  fill_interp
+      endif
+      return
+      end function
