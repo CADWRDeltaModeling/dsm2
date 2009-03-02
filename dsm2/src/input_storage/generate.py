@@ -248,8 +248,35 @@ def generate_dsm2():
     
 
 #    Input and output ###########################################    
+
+
+    component = TableComponent("input_climate",
+	                         [CharField("name",DSM2_NAME_LEN,16),\
+							  CharField("variable",16,12),\
+							  CharField("inpath",80,50),\
+                              IntField("sign"),\
+						      CharField("fillin", 8,12),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+							 ["name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)  
+
+
     
-   
+
+    component = TableComponent("input_transfer",
+	                         [CharField("name",DSM2_NAME_LEN,16),\
+                              CharField("variable",16,12),\
+							  CharField("inpath",80,50),\
+						      CharField("fillin", 8,12),\
+							  CharField("filename",DSS_FILE_LEN,LAST_FIELD)
+                             ],
+							 ["name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)  
+
+    
     component = TableComponent("input_gate",
 	                         [CharField("name",DSM2_NAME_LEN,16),\
 							  CharField("device",32,16),\
