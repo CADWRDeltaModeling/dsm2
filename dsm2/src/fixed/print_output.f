@@ -46,7 +46,13 @@ c-----Local variables
       character
      &     objtype*4,            ! string representing object type (reservoir, channel)
      &     from_obj_type*16,to_obj_type*16,
-     &     from_obj_identifier*32,to_obj_identifier*32              
+     &     from_obj_identifier*32,to_obj_identifier*32
+      
+      character(LEN=32) :: scratch1 
+      character(LEN=32) :: scratch2            
+      character(LEN=32) :: scratch3
+      character(LEN=32) :: scratch4
+
 c-----copyright notices
       write(unit_output, 805)
       write(unit_screen, 805)
@@ -134,8 +140,7 @@ c-----------upstream node
 
       write(unit_output,1120)
  1120 format(////20x,'NODES '/
-     &     20x,'-------------------------------------------'//
-     &     '                                                  NODE'/
+     &     8x,'-------------------------------------------'//
      &     '  NODE         NUMBERS '/
      &     '  INT          EXT     '/
      &     '---------  ----------  ')
@@ -174,25 +179,27 @@ c-----------upstream node
  1200 format(///,8x,'GATE DEVICES'/
      &     8x,'------------'///
      &     8x,'(initial installations)    '//
-     &     '                                                        #OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/
-     &     ' GATE                                       GATE        DUPLICATE  WIDTH OR   BASE               TO      FROM  '/
-     &     ' NAME(DEVICE)                    TYPE       CONTROL     DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/
-     &     '------------                     -----      -------     -----    ----------  -------  -------    ------  ---------')
+     &     ,77x,                                       '#OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/
+     &     ' GATE',60x,                    'GATE        DUPLICATE  WIDTH OR   BASE               TO      FROM  '/
+     &     ' NAME(DEVICE)',40x, 'TYPE       CONTROL     DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/
+     &     '------------',41x,  '-----      -------     -----    ----------  -------  -------    ------  ---------')
       do i=1, ngate	   
          do j=1,gateArray(i).nDevice
+               call DeviceTypeString(scratch1,gateArray(i).Devices(j).structureType)
+               call ControlTypeString(scratch2,gateArray(i).Devices(j).controlType)
 c--------------Flow can occur through the gate
                write(unit_output,1220)
      &              gateArray(i).name,
      &                '(' //trim(gateArray(i).devices(j).name) // ')',
-     &              trim(deviceTypeString(gateArray(i).Devices(j).structureType)),
-     &              trim(controlTypeString(gateArray(i).Devices(j).controlType)),
+     &              trim(scratch1),
+     &              trim(scratch2),
      &              gateArray(i).Devices(j).nDuplicate,
      &              gateArray(i).Devices(j).maxWidth,
      &              gateArray(i).Devices(j).baseElev,
      &              gateArray(i).Devices(j).height,
      &              gateArray(i).Devices(j).flowCoefToNode,
      &              gateArray(i).Devices(j).flowCoefFromNode
- 1220          format(a16,1x,a16,a6,2x,a12,1x,i4,2x,f13.2,1x,f9.2,1x,2f9.2,2f9.2)
+ 1220          format(a32,1x,a16,a8,2x,a16,1x,i4,2x,f13.2,1x,f9.2,1x,2f9.2,2f9.2)
          end do
       enddo
 

@@ -19,9 +19,9 @@ C!</license>
 
       subroutine process_transfer(ID,
      &                            TransName,
-     &                            FromObjType,
+     &                            FromType,
      &                            FromObjID,
-     &                            ToObjType,
+     &                            ToType,
      &                            ToObjID)
 
       use IO_Units
@@ -30,10 +30,15 @@ C!</license>
       use constants
       implicit none
       character*32 TransName, FromObjID, ToObjID
+      character*16 FromType
+      character*16 ToType
       integer FromObjType, ToObjType, ID
       integer, external :: ext2intnode
       integer, external :: name_to_objno
+      integer, external :: obj_type_code
 
+      FromObjType = obj_type_code(FromType)
+      ToObjType = obj_type_code(ToType)
 
       nobj2obj=nobj2obj+1
       if (nobj2obj .gt. max_obj2obj) then

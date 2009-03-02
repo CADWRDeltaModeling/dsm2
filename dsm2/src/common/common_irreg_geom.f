@@ -49,7 +49,7 @@ C!</license>
                                 ! cross-section with adj sec if adj node has 2 chan
       parameter (repl = .false.)
 
-      integer nirg              ! actual number of irregular cross sections
+      integer :: nirg=0         ! actual number of irregular cross sections
 
       type cross_section_t 
          real*8 dist_ratio      ! dist from upstr end/centerline length
@@ -68,7 +68,7 @@ C!</license>
          integer num_elev       ! number of elevations in the sec
       end type
 
-      type(cross_section_t) irreg_geom(max_irr_xsects)
+      type(cross_section_t) irreg_geom(0:max_irr_xsects)
 
       type xsect_assg_t
 c--------cross-section assignment structure.  index of sec_index

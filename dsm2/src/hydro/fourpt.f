@@ -193,11 +193,9 @@ c-----dsm2 initialization
       if (init_input_file .ne. ' ') then
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
+         call process_text_grid_input()    ! processes grid
+
          !call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
-         if (  .not. order_nodes())then
-          ! todo: this is for textify very awkward placement
-          write(unit_error,*)"Node order failed"
-         end if
          if (istat .ne. 0) then
             write(unit_error, *)'Error in loading fixed data from text files; run stopped.'
             call exit(1)
@@ -226,7 +224,7 @@ c-----read input for grid
 
       if (init_input_file .ne. ' ') then ! Second pass gives text input priority
          !call read_fixed(init_input_file,.false.,istat)
-         call process_text_input
+         call process_text_input()
          if (istat .ne. 0) then
             write(unit_error, *)'Error in loading fixed data from text files; run stopped.'
             call exit(1)

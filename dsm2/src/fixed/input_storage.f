@@ -36,7 +36,7 @@ c=======================================================================
       character*32 reservoir
       integer node
 
-      ! output_gate
+      ! output_gate_no
       character*32 gate, device
   
 
@@ -46,12 +46,15 @@ c-----Do a first pass reading the input, activating only ENVVARS for use in late
       call init_text_substitution("PARAMETER")    ! Get ready for the pass
       call process_text_substitution(filename)    ! Do the reading and prep the environment variables
       call envvar_clear_buffer()                  ! Clear the envvar buffer
+      print*,"Read and processed text substitution (ENVVARS)"
 
 c-----Do a second pass on all the input, making use of the text substitution we just prepped
       call init_file_reader()                     ! Prepare for a read of everything
       call read_buffer_from_text(filename)        ! Perform the read into buffers
+      print*,"Read text into buffers"
+      print*,"No of layers=",xsect_layer_buffer_size()
       call prioritize_all_buffers()               ! Enforce the "layering"
-
+      print*,"Prioritized buffer"
 c-----Write all buffers to text in the order they were defined
       call write_all_buffers_to_text("testout.txt",append_text)
       print*, "text written"
@@ -120,36 +123,216 @@ c====================================================================
            call process_scalar(name,value)
       end do
       print *,"Number of scalars: ", nitem
-
+       
+      return
       end subroutine
 
 
 
 c====================================================================
-
-      subroutine process_text_input
-      
-      use hdf5
+      subroutine process_text_grid_input()
       use input_storage_fortran
-      use envvar
-      use constants, only : chan_length
+      use io_units
+      !use constants
+      use hdf5, only: hid_t
+      implicit none
+      
+      integer :: node  
+      integer :: nitem
+      integer :: error
+      character*(128) filename
+      logical :: ext
+      integer :: icount
+      character*(32) name,value
+      integer err
+      
+      integer chan_no,length,up_node,down_node
+      real*8 manning,dispersion
+      
+      real*8 dist,elev,width,wet_perim
+      
+      real*8 area, bottom_elev,coef_in,coef_out
+      logical,external :: order_nodes
+
+      character(len=16) :: from_obj
+      character(len=32) :: from_identifier
+      character(len=16) :: to_obj
+      character(len=32) :: to_identifier
+      integer :: idummy = 0
+      
+
+       character(len=32) :: gate_name
+       character(len=32) :: device_name
+       character(len=16) :: default_op
+       character(len=16) :: position_control
+       character(len=8) :: struct_name
+       integer :: nduplicate
+       !real(8) :: width
+       !real(8) :: elev
+       real(8) :: height
+       real(8) :: cf_to_node
+       real(8) :: cf_from_node
+
+
+      
+      nitem = channel_buffer_size()
+      do icount = 1,nitem
+         err=channel_query_from_buffer(icount,
+     &                                 chan_no,
+     &                                 length,
+     &                                 manning,
+     &                                 dispersion,
+     &                                 up_node,
+     &                                 down_node)
+
+      nitem = channel_buffer_size()         
+         call process_channel(idummy,0,chan_no,
+     &                          length,
+     &                          manning,
+     &                          dispersion,
+     &                          up_node,
+     &                          down_node)
+       end do
+       print *,"Number of channels: ", nitem
+       
+       if (.not. order_nodes())then
+         write(unit_error,'(a)')'Error reordering nodes.'
+         call exit(-3)
+         return
+       end if
+
+      nitem = xsect_layer_buffer_size()         
+      do icount = 1,nitem
+         err=xsect_layer_query_from_buffer(icount,
+     &                                 chan_no,
+     &                                 dist,
+     &                                 elev,
+     &                                 area,
+     &                                 width,
+     &                                 wet_perim)
+         
+         call process_xsect_layer_full(chan_no,
+     &                                 dist,
+     &                                 elev,
+     &                                 area,
+     &                                 width,
+     &                                 wet_perim)
+       end do
+       print *,"Number of channel xsect layers: ", nitem
+
+
+      nitem = reservoir_buffer_size()
+      do icount = 1,nitem
+         err=reservoir_query_from_buffer(icount,
+     &                                   name,
+     &                                   area,
+     &                                   bottom_elev)
+         
+         call process_reservoir(0,name,  !todo: get rid of the id argument
+     &                          area,
+     &                          bottom_elev)
+       end do
+       print *,"Number of reservoirs: ", nitem
+
+      nitem = reservoir_connection_buffer_size()
+      do icount = 1,nitem
+         err=reservoir_connection_query_from_buffer(icount,
+     &                                   name,
+     &                                   node,
+     &                                   coef_in,     
+     &                                   coef_out)
+         
+         call process_reservoir_connection(name,
+     &                                     node, 
+     &                                     coef_in, 
+     &                                     coef_out)
+       end do
+       print *,"Number of reservoir connections: ", nitem
+
+      nitem = gate_buffer_size()
+      do icount = 1,nitem
+         err=gate_query_from_buffer(icount,
+     &                              name,
+     &                              from_obj,
+     &                              from_identifier,
+     &                              node)
+         
+         call process_gate(0,
+     &                     name,
+     &                     from_obj,
+     &                     from_identifier,
+     &                     node)
+       end do
+       print *,"Number of gates: ", nitem
+
+      nitem = gate_device_buffer_size()
+      do icount = 1,nitem
+         err=gate_device_query_from_buffer(icount,
+     &                              gate_name,
+     &                              device_name,
+     &                              struct_name,
+     &                              nduplicate,
+     &                              width,
+     &                              elev,
+     &                              height,
+     &                              cf_to_node,
+     &                              cf_from_node,
+     &                              default_op,
+     &                              position_control)
+         
+         call process_gate_device(
+     &                              gate_name,
+     &                              device_name,
+     &                              struct_name,
+     &                              nduplicate,
+     &                              width,
+     &                              elev,
+     &                              height,
+     &                              cf_to_node,
+     &                              cf_from_node,
+     &                              default_op,
+     &                              position_control)
+       end do
+       print *,"Number of gate devices: ", nitem
+
+
+
+      nitem = transfer_buffer_size()
+      do icount = 1,nitem
+         err=transfer_query_from_buffer(icount,
+     &                                  name,
+     &                                  from_obj,
+     &                                  from_identifier,
+     &                                  to_obj,
+     &                                  to_identifier)
+         
+         call process_transfer(0,name,!todo: get rid of the id argument
+     &                         from_obj,
+     &                         from_identifier,
+     &                         to_obj,
+     &                         to_identifier)
+       end do
+       print *,"Number of transfers: ", nitem      
+
+       return
+       end subroutine
+
+c======================================================================
+      subroutine process_text_input()      
+      use input_storage_fortran
+      use constants
+      
       implicit none
       integer :: nitem
       integer :: error
       character*(128) filename
-      character(LEN=7),parameter :: hdf_filename = "echo.h5" 
-      integer(HID_T) :: file_id
       logical :: ext
       integer :: icount
-      character*(16) :: sdate,edate
       character*(32) name,value
-      character*(32) envname
-      character*(128) envval
       character*8,model,filetype,io
       character*16 interval
       character*128 iofile
       integer err
-      logical, parameter :: append_text=.TRUE.
 
 
 
@@ -166,7 +349,6 @@ c====================================================================
      &                perop
       character*32 :: sourcegroup
       
-      
       ! output_reservoir
       character*32 reservoir
       character*80 inpath
@@ -179,6 +361,7 @@ c====================================================================
       character*512 action, trigger, definition
 
 
+      character*(16) :: sdate,edate
 
 
 

@@ -71,7 +71,7 @@ def generate_dsm2():
 
     component = TableComponent("reservoir",
                            [CharField("name",DSM2_NAME_LEN,16),
-                           IntField("area"),
+                           DoubleField("area",12,2),
                            DoubleField("bot_elev",12,2)],
                            ["name"])
     component.layered=True                         # Component is part of the layering system
@@ -339,6 +339,8 @@ def generate_dsm2():
 	
     define_text_sub("envvar",outdir)
     define_include_block("parameter", ["scalar","envvar"])
+    define_include_block("grid", ["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"])
+
     define_include_block("operation", ["operating_rule","oprule_expression","oprule_time_series"])
     define_include_block("output", ["output_channel","output_reservoir","output_gate"])
 

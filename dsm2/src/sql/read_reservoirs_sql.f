@@ -122,8 +122,8 @@ c--------if the reservoir is marked as not-use
      &        UseObj) then
             call process_reservoir(id,
      &                             reser_name(1:namelen),
-     &                             reser_area,
-     &                             reser_botelv)
+     &                             dble(reser_area),
+     &                             dble(reser_botelv))
          endif
          prev_name=reser_name
          counter=counter+1
@@ -246,8 +246,8 @@ c--------------Fetch a record from the result set
                if (iRet .eq. SQL_NO_DATA) exit
                call process_reservoir_connection(res_geom(resno).name,
      &                                           con_node,
-     &                                           rescon_incoef,
-     &                                           rescon_outcoef)
+     &                                           dble(rescon_incoef),
+     &                                           dble(rescon_outcoef))
       
 
                counter=counter+1

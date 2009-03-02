@@ -17,9 +17,8 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
       subroutine process_gate(id,
-     &                        useObj,
      &                        name,
-     &                        ObjConnType,
+     &                        ObjConnTypeName,
      &                        ObjConnID,
      &                        nodeConn)
       use Gates, only: gateArray,nGate, MAX_GATES
@@ -44,10 +43,13 @@ C!</license>
      &     ,prev_name*32
      &     ,ObjConnID*32        ! name of reservoir, number of channel
      &     ,channoStr*10
+      character(len=16) :: ObjConnTypeName
 
       logical :: useObj
       integer, external :: ext2intnode
-          
+      integer, external :: obj_type_code
+      
+      ObjConnType = obj_type_code(ObjConnTypeName)
             ngate=ngate+1
             if (ngate .gt. max_gates) then
                write(unit_error,630)
@@ -56,14 +58,14 @@ C!</license>
                return
             endif
  630        format(/a,i5)     
-            gateArray(ngate).ID = ID
-            gateArray(ngate).inUse=useObj
-            gateArray(ngate).name=trim(name)
-            gateArray(ngate).objConnectedType = ObjConnType
-            gateArray(ngate).node=ext2intnode(NodeConn)
-	      gateArray(ngate).install_datasource.source_type=const_data
-	      gateArray(ngate).install_datasource.indx_ptr=0 !fixme: is this is OK?
-	      gateArray(ngate).install_datasource.value=1.            
+      gateArray(ngate).ID = ID
+      gateArray(ngate).inUse=.true.
+      gateArray(ngate).name=trim(name)
+      gateArray(ngate).objConnectedType = ObjConnType
+      gateArray(ngate).node=ext2intnode(NodeConn)
+	gateArray(ngate).install_datasource.source_type=const_data
+	gateArray(ngate).install_datasource.indx_ptr=0 !fixme: is this is OK?
+	gateArray(ngate).install_datasource.value=1.            
             ObjConnID=trim(ObjConnID)
             call locase(ObjConnID)           
             if ( (ObjConnType .eq. OBJ_CHANNEL) ) then
@@ -108,20 +110,22 @@ c================================================================
       subroutine process_gate_device(
      &                               gatename,
      &                               name,
-     &                               struct_type,
-     &                               control_type,
+     &                               structure_name,
      &                               nduplicate,
      &                               max_width,
      &                               base_elev,
      &                               height,
      &                               cffrom,
      &                               cfto,
-     &                               default_op)
+     &                               default_op_name,  
+     &                               control_name)
       use Gates, only: gateArray,maxNGate,
      &     PIPE,WEIR,MAX_DEV,GATE_OPEN,GATE_CLOSE,
-     &     UNIDIR_TO_NODE,UNIDIR_FROM_NODE
+     &     UNIDIR_TO_NODE,UNIDIR_FROM_NODE, GATED_FROM_TOP,
+     &     GATED_FROM_BOTTOM, NO_GATE_CONTROL
       use io_units
       use constants
+      
       
       implicit none
 
@@ -151,71 +155,95 @@ c-----local variables
       character*32
      &     name
      &     ,gatename
-            
-            gateNo = name_to_objno(obj_gate,gatename)
-            
-            gateArray(gateNo).ndevice=gateArray(gateNo).ndevice+1
-	      devNo=gateArray(gateNo).ndevice
-            if (devNo .gt. MAX_DEV)then
-           ! too many devices at one gate
-              write(unit_error, '(/a)')
-     &        'Maximum number of weirs exceeded for gate:',
-     &         gateArray(gateNo).name
-               call exit(-3)
-              return
-	      end if
-            gateArray(gateNo).devices(devNo).name=trim(name)
-            gateArray(gateNo).devices(devNo).structureType=struct_type
-            gateArray(gateNo).devices(devNo).controlType=control_type
-            gateArray(gateNo).devices(devNo).nduplicate=nduplicate
-            gateArray(gateNo).devices(devNo).maxWidth=max_width
-            gateArray(gateNo).devices(devNo).baseElev=base_elev
-            gateArray(gateNo).devices(devNo).height=height
+      character*8  structure_name
+      character*16 control_name
+      character*16 default_op_name
+      
+      if (structure_name(1:4).eq. 'weir')then
+          struct_type = WEIR
+      elseif (structure_name(1:4) .eq. 'pipe')then
+          struct_type = PIPE
+      else
+          write(unit_error, *) "Gate structure not recognized: " 
+     &       // structure_name // ", Gate: "  // trim(gatename)
+     &       // " Device: " // trim(name)
+          call exit(-3)
+      end if
+      
+      if (control_name .eq. 'gated_bottom')then
+          control_type = GATED_FROM_BOTTOM
+      elseif (control_name .eq. 'gated_top')then
+          control_type = GATED_FROM_TOP
+      elseif (control_name .eq. 'no_gate')then
+          control_type = NO_GATE_CONTROL
+      else
+          write(unit_error, *) "Gate control not recognized: " 
+     &       // control_name // ", Gate: "  //trim(gatename)
+     &       // " Device: " // trim(name)
+          call exit(-3)
+      end if
 
-            gateArray(gateNo).devices(devNo).flowCoefFromNode=CFfrom
-            gateArray(gateNo).devices(devNo).flowCoefToNode=CFto
-	      
-	
-		  if( default_op .eq. GATE_CLOSE)then
-	         to_op=0.
-			 from_op=0.
-	      else if(default_op .eq. GATE_OPEN)then
-	         to_op=1.
-			 from_op=1.
-	      else if(default_op .eq. UNIDIR_TO_NODE)then
-	         to_op=1.
-	         from_op=0.
-	      else if(default_op .eq. UNIDIR_FROM_NODE)then
-	         to_op=0.
-	         from_op=1.0
-	      else
-		     write (unit_error,"('Unrecognized default operation for gate',1x,
-     &                   a,' device ',a)")gatename,name
+      if (default_op_name .eq. 'gate_open')then
+          default_op = GATE_OPEN
+	    to_op=1.
+		  from_op=1.
+      elseif (default_op_name .eq. 'gate_close')then
+          default_op = GATE_OPEN
+	    to_op=0.
+	    from_op=0.
+      elseif (default_op_name .eq. 'unidir_to_node')then
+          default_op = UNIDIR_TO_NODE
+	    to_op=1.
+	    from_op=0.
+      elseif (default_op_name .eq. 'unidir_from_node')then
+          default_op = UNIDIR_FROM_NODE
+	    to_op=0.
+	    from_op=1.0
+	 else
+		   write (unit_error,"('Unrecognized default operation for gate',1x,
+     &                   a,' device ',a, ' op ',a)")trim(gatename),
+     &                   trim(name),trim(default_op_name)
                call exit(-3)
 	         return
-	      end if
-	      gateArray(gateNo).devices(devNo).op_to_node_datasource.source_type=const_data
+	end if          
+      gateNo=name_to_objno(obj_gate,gatename)
+      devNo=gateArray(gateNo).nDevice
+      devNo=devNo+1
+      gateArray(gateNo).nDevice = devNo
+      call locase(name)
+      gateArray(gateNo).devices(devNo).name=trim(name)
+      gateArray(gateNo).devices(devNo).controlType=control_type
+      gateArray(gateNo).devices(devNo).structureType=struct_type
+      gateArray(gateNo).devices(devNo).flowCoefFromNode=CFfrom
+      gateArray(gateNo).devices(devNo).flowCoefToNode=CFto
+      gateArray(gateNo).devices(devNo).nduplicate=nduplicate
+      gateArray(gateNo).devices(devNo).maxWidth=max_width
+      gateArray(gateNo).devices(devNo).height=height
+      gateArray(gateNo).devices(devNo).baseElev=base_elev                  
+
+	
+	 gateArray(gateNo).devices(devNo).op_to_node_datasource.source_type=const_data
 	!fixme: is this next line OK?
-	      gateArray(gateNo).devices(devNo).op_to_node_datasource.indx_ptr=0
-	      gateArray(gateNo).devices(devNo).op_to_node_datasource.value=to_op
+	gateArray(gateNo).devices(devNo).op_to_node_datasource.indx_ptr=0
+	gateArray(gateNo).devices(devNo).op_to_node_datasource.value=to_op
 
-	      gateArray(gateNo).devices(devNo).op_from_node_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).op_from_node_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).op_from_node_datasource.value=from_op
+	gateArray(gateNo).devices(devNo).op_from_node_datasource.source_type=const_data
+	gateArray(gateNo).devices(devNo).op_from_node_datasource.indx_ptr=0    !fixme: is this OK?
+	gateArray(gateNo).devices(devNo).op_from_node_datasource.value=from_op
 
-	      gateArray(gateNo).devices(devNo).width_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).width_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).width_datasource.value=max_width
-	      gateArray(gateNo).devices(devNo).height_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).height_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).height_datasource.value=height
-	      gateArray(gateNo).devices(devNo).elev_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).elev_datasource.indx_ptr=0    !fixme: is this OK?
-	      gateArray(gateNo).devices(devNo).elev_datasource.value=base_elev
+	gateArray(gateNo).devices(devNo).width_datasource.source_type=const_data
+	gateArray(gateNo).devices(devNo).width_datasource.indx_ptr=0    !fixme: is this OK?
+	gateArray(gateNo).devices(devNo).width_datasource.value=max_width
+	gateArray(gateNo).devices(devNo).height_datasource.source_type=const_data
+	gateArray(gateNo).devices(devNo).height_datasource.indx_ptr=0    !fixme: is this OK?
+	gateArray(gateNo).devices(devNo).height_datasource.value=height
+	gateArray(gateNo).devices(devNo).elev_datasource.source_type=const_data
+	gateArray(gateNo).devices(devNo).elev_datasource.indx_ptr=0    !fixme: is this OK?
+	gateArray(gateNo).devices(devNo).elev_datasource.value=base_elev
 
-	      gateArray(gateNo).devices(devNo).pos_datasource.source_type=const_data
-	      gateArray(gateNo).devices(devNo).pos_datasource.indx_ptr=0 !fixme: is this is OK?
-	      gateArray(gateNo).devices(devNo).pos_datasource.value=miss_val_r
+	gateArray(gateNo).devices(devNo).pos_datasource.source_type=const_data
+	gateArray(gateNo).devices(devNo).pos_datasource.indx_ptr=0 !fixme: is this is OK?
+	gateArray(gateNo).devices(devNo).pos_datasource.value=miss_val_r
 
 
 
