@@ -17,19 +17,6 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
 
-      integer function fillin_code(fillin)
-      use constants
-      character*(*) fillin
-      fillin_code = miss_val_i
-      call locase(fillin)
-      if (fillin .eq. "last") then 
-          fillin_code =  fill_last
-      elseif (fillin .eq. "linear") then
-          fillin_code =  fill_interp
-      endif
-      return
-      end function
-      
 
       subroutine process_input_reservoir(Name,
      &                                   LocName,

@@ -1,6 +1,6 @@
       subroutine process_input_transfer(Name,
-     &                                  InPath,
      &                                  Param,
+     &                                  InPath,
      &                                  Fillin,
      &                                  Filename)
 
@@ -16,16 +16,16 @@
       character
      &     InPath*80
      &     ,FileName*128
-     &     ,Param*32
+     &     ,Param*16
      &     ,LocName*32                 ! name of the transfer
      &     ,Name*32                    ! name of the time series input
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
+     &     ,fillin*8
 
 
       integer*4
-     &     Fillin              ! code for fill in type (last, none, linear)
-     &     ,npath,na,nb,nc,nd,ne,nf
+     &     npath,na,nb,nc,nd,ne,nf
      &     ,itmp
      &     ,istat            
 
@@ -33,6 +33,7 @@
       integer, external :: data_types
       integer, external :: loccarr
       integer, external :: get_objnumber 
+      integer, external :: fillin_code
 
       real*8 ftmp
       real*8, external :: fetch_data
@@ -108,7 +109,7 @@ c--------------accumulate unique dss input filenames
                else
                   pathinput(ninpaths).ndx_file=itmp
                endif
-               pathinput(ninpaths).fillin=Fillin
+               pathinput(ninpaths).fillin=fillin_code(fillin)
             endif
 
 c-----------set data type
