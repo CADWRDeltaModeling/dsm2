@@ -33,8 +33,8 @@ C!</license>
 
       subroutine process_input_reservoir(Name,
      &                                   LocName,
-     &                                   InPath,
      &                                   Param,
+     &                                   InPath,
      &                                   Sign,
      &                                   Fillin,
      &                                   Filename) 
@@ -51,9 +51,9 @@ C!</license>
       character
      &     InPath*80
      &     ,FileName*128
-     &     ,Param*32
+     &     ,Param*16
      &     ,LocName*32
-     &     ,Name*64
+     &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
      &     ,fillin*8
