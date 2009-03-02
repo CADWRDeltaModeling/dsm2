@@ -502,8 +502,8 @@ c======================== Input and output ======================
 
          call process_input_reservoir(name,
      &                                reservoir,
-     &                                inpath,
      &                                variable,
+     &                                inpath,
      &                                sign,
      &                                fillin,
      &                                filename)
