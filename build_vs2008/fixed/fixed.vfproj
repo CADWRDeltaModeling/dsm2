@@ -11,8 +11,7 @@
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/>
-				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
+				<Tool Name="VFPostBuildEventTool"/></Configuration>
 		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
 				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/fixed.lib"/>
@@ -56,6 +55,7 @@
 		<File RelativePath="..\..\src\fixed\process_input_transfer.f"/>
 		<File RelativePath="..\..\src\fixed\process_io_file.f"/>
 		<File RelativePath="..\..\src\fixed\process_irreg.f"/>
+		<File RelativePath="..\..\src\fixed\process_oprule.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_channel.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_node.f"/>

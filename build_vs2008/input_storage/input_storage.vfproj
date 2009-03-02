@@ -23,13 +23,37 @@
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd">
+		<File RelativePath="..\..\src\input_storage\channel_ic_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\channel_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\envvar_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\gate_device_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\group_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\group_member_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_climate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_node_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_reservoir_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_transfer_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\io_file_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\operating_rule_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\oprule_expression_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\oprule_time_series_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\output_channel_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\output_gate_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\output_reservoir_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\particle_flux_output_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\particle_group_output_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\particle_insertion_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\rate_coefficient_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_connection_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_ic_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\scalar_input_storage.fi"/>
-		<File RelativePath="..\..\src\input_storage\tidefile_input_storage.fi"/></Filter>
+		<File RelativePath="..\..\src\input_storage\tidefile_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\transfer_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\xsect_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\xsect_layer_input_storage.fi"/></Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\input_storage\input_storage_fortran.f90"/></Filter></Files>
