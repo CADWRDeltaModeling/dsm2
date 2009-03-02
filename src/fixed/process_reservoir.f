@@ -23,7 +23,7 @@ C!</license>
       use io_units
       implicit none
       integer id   
-      real*4               !todo: this should be real*8
+      real*8               !todo: this should be real*8
      &     reser_area
      &     ,reser_botelv
 
@@ -66,8 +66,8 @@ C!</license>
       integer :: resno
       integer :: nn
       integer, external :: ext2intnode, name_to_objno
-      real*4 rescon_incoef      !todo: change to real*8
-      real*4 rescon_outcoef
+      real*8 rescon_incoef      !todo: change to real*8
+      real*8 rescon_outcoef
       resno = name_to_objno(obj_reservoir,resname)
       res_geom(resno).nnodes=res_geom(resno).nnodes+1
 	if (res_geom(resno).nnodes .gt. MaxResConnectChannel)then
@@ -78,6 +78,7 @@ C!</license>
           return
        endif	                   
        nn=res_geom(resno).nnodes
+       res_geom(resno).nConnect=res_geom(resno).nnodes   ! may add gated nodes later
        res_geom(resno).isNodeGated(nn)=.false.
          ! todo fixme check that only gated or reservoir connection, not both
        res_geom(resno).node_no(nn)=ext2intnode(con_node)

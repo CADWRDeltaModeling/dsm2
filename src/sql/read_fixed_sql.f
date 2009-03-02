@@ -55,25 +55,27 @@ c-----Load data
       ! todo: disabled
       ! call load_scalar_SQL(StmtHndl, ModelID, istat)
       if (istat .lt. 0) goto 901
-      call load_channels_SQL(StmtHndl, HydroID, istat)
+      !call load_channels_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
-      call load_channel_xsects_SQL(StmtHndl, HydroID, istat)
+      !call load_channel_xsects_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
-      call load_xsect_layers_SQL(StmtHndl, istat)
+      !call load_xsect_layers_SQL(StmtHndl, istat)
       if (istat .lt. 0) goto 901
 
-      call load_reservoirs_SQL(StmtHndl, HydroID, istat)
+      ! todo: disabled
+      !call load_reservoirs_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
-      call load_reservoir_connections_SQL(StmtHndl, istat)
+      ! todo: disabled
+      !call load_reservoir_connections_SQL(StmtHndl, istat)
       if (istat .lt. 0) goto 901
-      call load_gates_SQL(StmtHndl, HydroID, istat)
-      if (istat .lt. 0) goto 901
-      if (istat .gt. 0) then    ! gates are included
-         call load_gate_devices_SQL(StmtHndl, istat)
-         if (istat .lt. 0) goto 901
-      end if
-
-      call load_transfers_SQL(StmtHndl, HydroID, istat)
+      !call load_gates_SQL(StmtHndl, HydroID, istat)
+      !if (istat .lt. 0) goto 901
+      !if (istat .gt. 0) then    ! gates are included
+      !   call load_gate_devices_SQL(StmtHndl, istat)
+      !   if (istat .lt. 0) goto 901
+      !end if
+      ! todo: disabled
+      !call load_transfers_SQL(StmtHndl, HydroID, istat)
       if (istat .lt. 0) goto 901
 
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')then
@@ -444,32 +446,6 @@ c-----local variables
       return
       end function
 
-c     get the integer type code given a character string representing the type
-      integer*4 function obj_type_code(objtype)
-      use constants
-	implicit none
-	character*(*) :: objtype
-      character*32  :: cstring
-	obj_type_code=miss_val_i
-	cstring=trim(objtype)
-	call locase(cstring)
-	if (index(cstring,"chan") .eq. 1)then 
-	  obj_type_code=obj_channel
-	else if (index(cstring,"gate") .eq. 1)then
-	  obj_type_code=obj_gate
-	else if (index(cstring,"res") .eq. 1)then
-	  obj_type_code=obj_reservoir
-	else if (index(cstring,"transfer") .eq. 1)then
-	  obj_type_code=obj_obj2obj
-	else if (index(cstring,"group") .eq. 1)then
-	  obj_type_code=obj_group
-	else if (index(cstring,"qext") .eq. 1)then
-	  obj_type_code=obj_qext
-	else if (index(cstring,"stage") .eq. 1)then
-	  obj_type_code=obj_stage
-      end if
-	return
-	end
 
 
 

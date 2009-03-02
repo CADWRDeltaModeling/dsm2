@@ -153,7 +153,6 @@ c--------if the gate is marked as not-use
          if (name .ne. prev_name .and.
      &        UseObj) then
             call process_gate(id,
-     &                        useObj,
      &                        name,
      &                        ObjConnType,
      &                        ObjConnID,

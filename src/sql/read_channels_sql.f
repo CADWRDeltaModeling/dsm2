@@ -142,8 +142,8 @@ c--------skip the channel if marked not-use
      &                           chan_len,
      &                           chan_manning,
      &                           chan_dispersion,
-     &                           chan_downnode,
-     &                           chan_upnode)
+     &                           chan_upnode,
+     &                           chan_downnode)
 
       endif
          prev_channo=channo
@@ -155,7 +155,7 @@ c--------skip the channel if marked not-use
       endif
       nchans=counter
       if (.not. order_nodes())then
-         write(unit_error,'(a)')'Error reordering nodes.'
+         write(unit_error,'(a)')'Error reordering nodes in read_channels_sql.f.'
          istat=-3
          return
       end if
@@ -267,7 +267,6 @@ c-----Bind variables to columns in result set
      &     f90SQL_NULL_PTR, iRet)
       
 c-----Loop to fetch records, one at a time
-      nirg=0
       counter=0
 
       prev_chan=miss_val_i
@@ -288,7 +287,7 @@ c--------Fetch a record from the result set
             if( use_obj )then ! don't move this
                 !todo: Eli moved this, make sure OK
                   
-                call process_xsect(channo,chan_fdist,xsectId)
+                call process_xsect(channo,chan_fdist,xsectId,counter)
              end if           ! object is in use
              prev_chan=channo
              prev_layer=layer

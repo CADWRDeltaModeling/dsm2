@@ -191,43 +191,47 @@ c     is returned. Element-by-element search, so this routine is expensive.
       return
       end function
       
-	character*32 function deviceTypeString(devType)
+	subroutine deviceTypeString(typeString,devType)
       use IO_Units
 	implicit none
-      integer devType
+	character*32, intent(out) :: TypeString
+      integer, intent(in) :: devType
+      TypeString = " "
 	if (devType .eq. WEIR)then
-	  deviceTypeString = "weir"
+	  TypeString = "weir"
 	else if (devType .eq. PIPE) then 
-	  deviceTypeString = "pipe"
+	  TypeString = "pipe"
       else 
-	  write(unit_error,'(a)')
-     &  "Gate device type not recognized (in function deviceTypeString)"
+	  write(unit_error,'(a,i)')
+     &  "Gate device type not recognized (in function deviceTypeString):",
+     &  devType
         call exit(3)
       end if
 	return
-	end function
+	end subroutine
 
-	character*32 function controlTypeString(controlType)
+	subroutine controlTypeString(typeString,controlType)
       use IO_Units
 	implicit none
-      integer controlType
+	character*32, intent(out) :: TypeString	
+      integer, intent(in) :: controlType
 	if (controlType .eq. GATED_FROM_TOP) then
-	   controlTypeString = "gated from top"
+	   typeString = "gated from top"
 	else if (controlType .eq. NO_GATE_CONTROL) then
-	   controlTypeString = "no control"
+	   typeString = "no control"
 	else if (controlType .eq. GATED_FROM_BOTTOM) then
-	   controlTypeString = "gated from bottom"
+	   typeString = "gated from bottom"
 	else if (controlType .eq. UNIDIR_TO_NODE) then
-	   controlTypeString = "unidir to node"
+	   typeString = "unidir to node"
 	else if (controlType .eq. UNIDIR_FROM_NODE) then
-	   controlTypeString = "unidir from node"
+	   typeString = "unidir from node"
       else 
 	  write(unit_error,'(a)')"Gate control type not recognized "//
-     &"(in function controlTypeString)"
+     &                          "(in function controlTypeString)"
         call exit(3)
       end if
 	return
-	end function
+	end subroutine
 
 c===== interprets the "position" variable and applies it to the correct
 c      gate parameter      

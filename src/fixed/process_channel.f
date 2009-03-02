@@ -24,8 +24,8 @@ C!</license>
      &                           chan_len,
      &                           chan_manning,
      &                           chan_dispersion,
-     &                           chan_downnode,
-     &                           chan_upnode)
+     &                           chan_upnode,
+     &                           chan_downnode)
      
      
       use logging
@@ -41,8 +41,8 @@ C!</license>
      &     ,extcounter          ! channel count to be returned
       integer,save :: counter = 0
 
-!     todo: get rid of real*4. Time to get past the 1990s
-      real*4
+
+      real*8
      &     chan_manning
      &     ,chan_dispersion
      
@@ -64,56 +64,43 @@ C!</license>
       return 
       end subroutine
       
-      subroutine process_xsect(channo,chan_fdist,xsectid)
-      use f90SQLConstants
-      use f90SQL
+      subroutine process_xsect(channo,chan_fdist,xsectid,xsectno)
       use grid_data
-      !use constants
       use common_xsect
       use logging
       use io_units
       implicit none
       integer :: channo
       real*8  :: chan_fdist
-      integer :: xsectid
+      integer :: xsectid  ! database id
+      integer,intent(out) :: xsectno  ! xsect index
       integer :: i
       integer, external :: ext2int
-      
+      integer :: prev_chan
+      integer :: intchan
       if (chan_fdist .le. max_dist_ratio) then
         chan_fdist = 0.0d0
       endif
       if (chan_fdist .ge. (1.0-max_dist_ratio)) then
         chan_fdist = 1.0d0
       endif
+      intchan=ext2int(channo)
+      
+      ! nirg has not been incremented yet it is the previous one
+      if (irreg_geom(nirg).chan_no .eq. intchan) then
 c-----------------search for similar xsect distance
-      if (chan_fdist .ne. 0.0d0) then
-        do i=1,nirg
-            if (irreg_geom(i).chan_no .eq. channo .and.
-     &          irreg_geom(i).dist_ratio/chan_fdist .lt. 1.01d0 .and.
-     &          irreg_geom(i).dist_ratio/chan_fdist .gt. 0.99d0) then
-                exit
-             endif
-        enddo
-      else
-        do i=1,nirg
-            if (irreg_geom(i).chan_no .eq. channo .and.
-     &          irreg_geom(i).dist_ratio .eq. 0.0d0) then
-                exit
-             endif
-         enddo
-      endif
-      if (i .le. nirg) then ! similar xsect distance found
-         write(unit_error,'(a/a,i5,a,i5,i5/a,2f10.3)')
-     &         'Warning in load_channel_xsects_SQL; similar xsect distance found',
-     &         'Channel ', channo, ' xsect IDs ', irreg_geom(i).ID, xsectID,
-     &         'distances ', irreg_geom(i).dist_ratio, chan_fdist
-      endif
+         if (chan_fdist .eq. irreg_geom(nirg).dist_ratio) then
+             ! This is not a new cross section return the old index
+             xsectno = nirg
+             return
+         end if
+      end if
 
       nirg=nirg+1
-      irreg_geom(nirg).ID = xsectID
-      irreg_geom(nirg).chan_no = ext2int(channo)
+      irreg_geom(nirg).ID = xsectid
+      irreg_geom(nirg).chan_no = intchan
       irreg_geom(nirg).dist_ratio=chan_fdist
-      
+      xsectno = nirg
       if (print_level .ge. 3)
      &    write(unit_screen,'(a,i10,i10,i10,i10,i10)')
      &      'Add xsect ',nirg, xsectid, channo, chan_fdist
@@ -122,9 +109,20 @@ c-----------------search for similar xsect distance
       end subroutine
       
       
+      
+      subroutine process_xsect_layer_full(chan_no,dist,elev,area,width,wetperim)
+      implicit none
+      integer :: chan_no
+      integer :: xsectno
+      integer :: dummy_id = 0
+      integer :: nl
+      real*8 ::  dist,elev,area,width,wetperim
+      call process_xsect(chan_no,dist,dummy_id,xsectno)
+      call process_xsect_layer(xsectno,elev,area,width,wetperim)
+      return
+      end subroutine
+      
       subroutine process_xsect_layer(xsectno,elev,area,width,wetperim)
-      use f90SQLConstants
-      use f90SQL
       use grid_data
       use logging
       use io_units
@@ -133,7 +131,7 @@ c-----------------search for similar xsect distance
       integer :: xsectno
       integer :: nl
       real*8 ::  elev,area,width,wetperim
-      real*8 ::  prev_area, prev_width,prev_elev, calc_area
+      real*8 :: prev_area,prev_width,prev_elev,calc_area
       real*8,parameter :: VERT_RESOLUTION = 0.001
       real*8,parameter :: AREA_PRECISION = 0.0001
        
@@ -205,6 +203,7 @@ c-----with hydro and qual. The function also changes
 c-----chan_geom.upnode and chan_geom.downnode from external to internal
       logical function order_nodes()
       use grid_data
+      use io_units
       implicit none
       integer nn,n,node
       integer intchan
@@ -264,11 +263,25 @@ c-----add network connectivity of nodes and channels to node_geom and chan_geom
 c--------upstream node
          node=ext2intnode(chan_geom(intchan).upnode)
          node_geom(node).nup=node_geom(node).nup+1
+         if(node_geom(node).nup .gt. max_cpn)then
+             write(unit_error,"(a,i)")
+     &         "Too many upstream channel connections node "
+     &          ,node_geom(node).node_id
+             order_nodes=.false.
+             return
+         end if
          node_geom(node).upstream(node_geom(node).nup)=intchan
          chan_geom(intchan).upnode=node
 c--------downstream node
          node=ext2intnode(chan_geom(intchan).downnode)
          node_geom(node).ndown=node_geom(node).ndown+1
+         if(node_geom(node).ndown .gt. max_cpn)then
+             write(unit_error,"(a,i)")
+     &         "Too many downstream channel connections node "
+     &          ,node_geom(node).node_id
+             order_nodes=.false.
+             return
+         end if
          node_geom(node).downstream(node_geom(node).ndown)=intchan
          chan_geom(intchan).downnode=node
       enddo

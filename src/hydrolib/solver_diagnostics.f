@@ -46,7 +46,7 @@ c     called diagnostics.txt
 
 
       character*32 gatestr,devstr
-	character*6  devtypestr
+	character*32  devtypestr
 
 c---- treat channel or reservoir separately
       if ( row .le. TotalChanRows )then
@@ -107,7 +107,7 @@ c---- treat channel or reservoir separately
 	             gateno=i
 	             devno=j
                    gatestr=gateArray(i).name
-	             devtypestr=deviceTypeString(
+                   call deviceTypeString(devtypestr,
      &				 gateArray(gateNo).devices(devno).structureType)
 	             devstr=gateArray(i).Devices(j).name
 	             goto 101 ! escape loop
