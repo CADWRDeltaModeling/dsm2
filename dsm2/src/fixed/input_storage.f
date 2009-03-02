@@ -431,6 +431,46 @@ c======================================================================
 c======================== Input and output ======================
 
 
+      nitem = input_climate_buffer_size()
+      do icount = 1,nitem
+         err=input_climate_query_from_buffer(icount,
+     &                                       name,
+     &                                       variable,
+     &                                       inpath,
+     &                                       sign,
+     &                                       fillin,
+     &                                       filename) 
+
+         call process_input_climate(name,
+     &                              variable,
+     &                              inpath,
+     &                              sign,
+     &                              fillin,
+     &                              filename) 
+      end do
+      print *,"Number of climate inputs processed: ", nitem
+
+
+
+
+      nitem = input_transfer_buffer_size()
+      do icount = 1,nitem
+         err=input_transfer_query_from_buffer(icount,
+     &                                    name,
+     &                                    variable,
+     &                                    inpath,
+     &                                    fillin,   
+     &                                    filename)
+
+         call process_input_transfer(name,
+     &                               variable,
+     &                               inpath,
+     &                               fillin,   
+     &                               filename)
+      end do
+      print *,"Number of transfer inputs processed: ", nitem
+
+
 
 
       nitem = input_gate_buffer_size()
