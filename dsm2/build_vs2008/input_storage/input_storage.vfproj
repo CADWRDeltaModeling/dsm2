@@ -34,7 +34,7 @@
 		<File RelativePath="..\..\src\input_storage\input_gate_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_node_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_reservoir_input_storage.fi"/>
-		<File RelativePath="..\..\src\input_storage\input_transfer_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_transfer_flow_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\io_file_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\operating_rule_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\oprule_expression_input_storage.fi"/>
