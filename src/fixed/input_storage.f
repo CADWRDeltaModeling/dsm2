@@ -1,44 +1,13 @@
 
 c=======================================================================
       subroutine input_text(filename)
-!     Writes in all text starting from input filename
+!     Read in all text starting from input filename
       use hdf5
       use input_storage_fortran
       use envvar
 
       implicit none
-      integer :: nitem
-      integer :: error
       character*(*) filename
-      character(LEN=7),parameter :: hdf_filename = "echo.h5" 
-      integer(HID_T) :: file_id
-      logical :: ext
-      integer :: icount
-      character*(16) :: sdate,edate
-      character*(32) name,value
-      character*(32) envname
-      character*(128) envval
-      character*8,model,filetype,io
-      character*16 interval
-      character*128 iofile
-      integer err
-      logical, parameter :: append_text=.TRUE.
-
-      ! output_channel
-      integer channo
-      character*8  distance
-      integer      idistance
-      character*16 variable,
-     &                perop
-      character*32 :: sourcegroup
-      
-      ! output_reservoir
-      character*32 reservoir
-      integer node
-
-      ! output_gate_no
-      character*32 gate, device
-  
 
 c-----Do a first pass reading the input, activating only ENVVARS for use in later text substitution
       call clear_all_buffers()
@@ -55,6 +24,22 @@ c-----Do a second pass on all the input, making use of the text substitution we 
       print*,"No of layers=",xsect_layer_buffer_size()
       call prioritize_all_buffers()               ! Enforce the "layering"
       print*,"Prioritized buffer"
+ 
+      return
+      end subroutine
+c==================================================================
+
+      subroutine write_input_buffers()
+!     Writes in all text starting from input filename
+      use hdf5
+      use input_storage_fortran
+      use envvar
+      implicit none
+      character(LEN=7),parameter :: hdf_filename = "echo.h5" 
+      integer(HID_T) :: file_id
+      integer :: error
+      logical, parameter :: append_text=.TRUE.
+      logical :: ext
 c-----Write all buffers to text in the order they were defined
       call write_all_buffers_to_text("testout.txt",append_text)
       print*, "text written"
@@ -95,21 +80,11 @@ c====================================================================
       use envvar
       implicit none
       integer :: nitem
-      integer :: error
-      character*(128) filename
-      character(LEN=7),parameter :: hdf_filename = "echo.h5" 
-      integer(HID_T) :: file_id
-      logical :: ext
       integer :: icount
-      character*(16) :: sdate,edate
       character*(32) name,value
       character*(32) envname
       character*(128) envval
-      character*8,model,filetype,io
-      character*16 interval
-      character*128 iofile
       integer err
-      logical, parameter :: append_text=.TRUE.
       nitem = envvar_buffer_size()
       do icount = 1,nitem
            err=envvar_query_from_buffer(icount,envname,envval)
@@ -139,11 +114,9 @@ c====================================================================
       
       integer :: node  
       integer :: nitem
-      integer :: error
       character*(128) filename
-      logical :: ext
       integer :: icount
-      character*(32) name,value
+      character*(32) name
       integer err
       
       integer chan_no,length,up_node,down_node
@@ -174,6 +147,13 @@ c====================================================================
        real(8) :: cf_from_node
 
 
+       if ((xsect_buffer_size() .gt. 0) .and. 
+     &     (xsect_layer_buffer_size() .gt. 0))then
+         write(unit_error,*)
+     &      "Mixing of CSDP-style cross-sections and XSECT_LAYER input not supported"
+         call exit(-3)
+       end if
+
       
       nitem = channel_buffer_size()
       do icount = 1,nitem
@@ -200,6 +180,28 @@ c====================================================================
          call exit(-3)
          return
        end if
+
+
+
+! note: this must be done befere xsect_layer_buffer. what it will actually do 
+! is convert layers to xsect_layers (unless this turns out to take way too long).
+! I did this so that later when we write out the buffers we get these in the xsect_layer
+! format (ie, the complete input can still be in one file).
+! If this causes terrible performance probs, another way to do it would be
+! to process the xsect layers as we go along, still add them to buffers for reading,
+! make sure we don't redundantly call xsect_layer_buffer processing.
+      nitem = xsect_buffer_size()         
+      do icount = 1,nitem
+         err=xsect_query_from_buffer(icount,
+     &                                 chan_no,
+     &                                 dist,
+     &                                 filename)
+         
+         call process_xsect_csdp(chan_no,
+     &                           dist,
+     &                           filename)
+       end do
+       print *,"Number of channel xsects (csdp format): ", nitem
 
       nitem = xsect_layer_buffer_size()         
       do icount = 1,nitem
@@ -324,17 +326,13 @@ c======================================================================
       
       implicit none
       integer :: nitem
-      integer :: error
       character*(128) filename
-      logical :: ext
       integer :: icount
-      character*(32) name,value
+      character*(32) name
       character*8,model,filetype,io
       character*16 interval
       character*128 iofile
       integer err
-
-
 
       ! input_node
 

@@ -231,6 +231,10 @@ c-----read input for grid
          endif
       end if
 
+      ! Done with reading, echo to text/hdf
+      call write_input_buffers()
+      
+
       call check_fixed(istat)
       if (istat .ne. 0) then
          write(unit_error, *)

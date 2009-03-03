@@ -42,7 +42,7 @@ c-----arguments for DSS function FINDLM
       do j=1,nirg
 c--------convert distance
          channo=irreg_geom(j).chan_no
-         irreg_geom(j).dist_actual = irreg_geom(j).dist_ratio*float(
+         irreg_geom(j).dist_actual = irreg_geom(j).dist_ratio*dble(
      &        chan_geom(channo).length)
       enddo
       
