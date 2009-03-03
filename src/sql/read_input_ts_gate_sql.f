@@ -207,6 +207,9 @@ c--------clean up name variable, replace environment variables
          nenv=replace_envvars(FileName,ctmp)
          FileName=ctmp
 
+         Fillin=FillIN(1:fillinlen) ! preserve case for filename
+
+
 c--------use only the highest layer version of the input, and skip
 c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName .and. Param .eq. PrevParam))
