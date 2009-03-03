@@ -19,10 +19,10 @@ C!</license>
 
       subroutine process_input_climate(Name,
      &                                 Param,
-     &                                 InPath,
      &                                 Sign,
      &                                 Fillin,
-     &                                 Filename) 
+     &                                 Filename,
+     &                                 InPath) 
 
       use Gates
       use io_units

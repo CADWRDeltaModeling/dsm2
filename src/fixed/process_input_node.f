@@ -17,14 +17,14 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 C!</license>
 
-      subroutine process_input_node (name,
+      subroutine process_input_node (Name,
      &                               LocNum,
      &                               param,
-     &                               InPath,
-     &                               RoleName,    
      &                               Sign,
-     &                               Fillin,    
-     &                               filename)
+     &                               RoleName,        
+     &                               Fillin,
+     &                               Filename,
+     &                               InPath)
 
       use Gates
       use io_units

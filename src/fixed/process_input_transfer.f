@@ -1,8 +1,8 @@
       subroutine process_input_transfer(Name,
      &                                  Param,
-     &                                  InPath,
      &                                  Fillin,
-     &                                  Filename)
+     &                                  Filename,
+     &                                  InPath)
 
       use Gates
       use io_units
