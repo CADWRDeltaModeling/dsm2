@@ -79,14 +79,14 @@ c-----Load data
       if (istat .lt. 0) goto 901
 
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')then
-          !call read_input_ts_node_sql(StmtHndl, ModelID, istat)
+          call read_input_ts_node_sql(StmtHndl, ModelID, istat)
           !if (istat .lt. 0) goto 901
-          !call read_input_ts_reservoir_sql(StmtHndl, ModelID, istat) 
+          call read_input_ts_reservoir_sql(StmtHndl, ModelID, istat) 
           !if (istat .lt. 0) goto 901
       end if
       
       if( dsm2_name .eq. 'Hydro')then
-          !call read_input_ts_gate_sql(StmtHndl, ModelID, istat)
+          call read_input_ts_gate_sql(StmtHndl, ModelID, istat)
           !if (istat .lt. 0) goto 901
           !call read_input_ts_transfer_sql(StmtHndl, ModelID, istat) 
           !if (istat .lt. 0) goto 901          

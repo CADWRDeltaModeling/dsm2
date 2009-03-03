@@ -42,6 +42,7 @@ c-----f90SQL variables
      &     LocNameLen
      &     ,SubLocLen
      &     ,FileLen
+     &     ,FillinLen
      &     ,PathLen
      &     ,ParamLen
 
@@ -50,7 +51,6 @@ c-----local variables
 
       integer*4
      &     ID                   ! transfer ID
-     &     ,Fillin              ! code for fill in type (last, none, linear)
      &     ,Sign                ! sign restriction on input
      &     ,ObjTypeID           ! object type of input data (node, gate...)
      &     ,npath,na,nb,nc,nd,ne,nf
@@ -79,6 +79,7 @@ c-----local variables
      &     ,SubLoc*32           ! Object-dependent sublocation (gate device, reservoir node connect..)
      &     ,PrevName*32
      &     ,Name*32
+     &     ,Fillin*8
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
 
@@ -89,11 +90,14 @@ c-----Bind the parameter representing ModelID
 
 c-----Execute SQL statement
             StmtStr="SELECT input_series_id,used, gate, device,path," //
-     &     "variable_name,fillin,input_file " //
-     &     "FROM input_time_series_gate INNER JOIN model_component ON " //
-     &     "input_time_series_gate.layer_id = model_component.component_id "//
-     &     "WHERE model_component.model_id = ? " //
+     &     "variable_name,fill_in_type_description.name,input_file " //
+     &     "FROM input_time_series_gate, model_component, "//
+     &     "fill_in_type_description " //
+     &     "WHERE input_time_series_gate.layer_id = model_component.component_id " //
+     &     "AND model_component.model_id = ? " //
      &     "AND model_component.component_type = 'input' " //
+     &     "AND input_time_series_gate.fillin = " //
+     &     "fill_in_type_description.fill_in_type_id "//     
      &     "ORDER BY gate,device,variable_name, layer DESC;"
 
       call f90SQLExecDirect(StmtHndl, StmtStr,iRet)
@@ -133,8 +137,8 @@ c-----Bind variables to columns in result set
      &     loc(ParamLen), iRet)
 
       ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, Fillin,
-     &     f90SQL_NULL_PTR, iRet)
+      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, Fillin,
+     &     loc(Fillinlen), iRet)
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, FileName,
@@ -211,9 +215,9 @@ c--------if marked as not-use
             call process_input_gate(LocName,
      &                              SubLoc,
      &                              Param,
-     &                              InPath,
      &                              Fillin,
-     &                              Filename) 
+     &                              Filename,
+     &                              InPath) 
 
 
          end if                 

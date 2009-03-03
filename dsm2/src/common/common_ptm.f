@@ -84,7 +84,7 @@ c-----Values that indicate whether a scalar was specified in the input
 
 
       integer,parameter :: max_injection = 200 ! Maximum Injection Locations and time of injections combined
-      integer :: npartno   = 1           ! Actual No of Injection Loc and times combined
+      integer :: npartno   = 0           ! Actual No of Injection Loc and times combined   ! todo: eli changed initialization to 0 for text? consequences?
       integer :: ngroup_outputs = 0      ! Actual No of Groups requested
 
 

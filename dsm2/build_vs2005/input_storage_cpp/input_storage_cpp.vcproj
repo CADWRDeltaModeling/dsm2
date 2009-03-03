@@ -206,6 +206,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_transfer_flow.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_io_file.cpp"
 				>
 			</File>
@@ -341,6 +345,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_transfer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_transfer_flow.h"
 				>
 			</File>
 			<File

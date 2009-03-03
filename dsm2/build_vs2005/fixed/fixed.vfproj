@@ -62,6 +62,7 @@
 		<File RelativePath="..\..\src\fixed\process_output_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_node.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_reservoir.f"/>
+		<File RelativePath="..\..\src\fixed\process_ptm.f"/>
 		<File RelativePath="..\..\src\fixed\process_rate_coef.f"/>
 		<File RelativePath="..\..\src\fixed\process_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_scalar.f"/>

@@ -89,7 +89,8 @@ c-----------clean up character variables, replace environment variables
                elseif (sign .eq. 0) then
                   ! do nothing
                else
-                  write(unit_error,*)"Incorrect sign for input time series"
+                  write(unit_error,*)"Incorrect sign for node input time series:",
+     &               pathinput(ninpaths).name, pathinput(ninpaths).sign
                   call exit(-3)
                end if
 
