@@ -81,7 +81,9 @@ C!</license>
                elseif (sign .eq. 0) then
                   ! do nothing
                else
-                  write(unit_error,*)"Incorrect sign for input time series"
+                  write(unit_error,*)
+     &             "Incorrect sign for reservoir input time series: ",
+     &             trim(LocName)," ",sign
                   call exit(-3)
                end if
 

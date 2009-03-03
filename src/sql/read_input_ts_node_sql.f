@@ -41,7 +41,7 @@ c-----f90SQL variables
       integer(SQLRETURN_KIND)::iRet
       integer(SQLSMALLINT_KIND)::ColNumber ! SQL table column number
       integer(SQLINTEGER_KIND)::
-     &     SignLen
+     &     SignLen,Fillinlen
      &     ,NameLen
      &     ,FileLen
      &     ,PathLen
@@ -53,7 +53,6 @@ c-----local variables
 
       integer*4
      &     ID                   ! transfer ID
-     &     ,Fillin              ! code for fill in type (last, none, linear)
      &     ,Sign                ! sign restriction on input
      &     ,LocNum              ! object map id of input data if applicable (channel,node)
      &     ,ObjTypeID           ! object type of input data (node, gate...)
@@ -80,7 +79,8 @@ c-----local variables
      &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
-
+     &     ,fillin*8
+     
       integer ext2intnode
 
 c-----Bind the parameter representing ModelID
@@ -92,13 +92,14 @@ c-----Execute SQL statement
 c-----Execute SQL statement
             StmtStr="SELECT input_series_id,used, " //
      &     "input_time_series_node.name,node, " //
-     &     "path,variable_name,sign,fillin, "//
+     &     "path,variable_name,sign,fill_in_type_description.name, "//
      &     "input_role_description.name,input_file " //
-     &     "FROM (input_time_series_node INNER JOIN model_component ON " //
-     &     "input_time_series_node.layer_id = model_component.component_id) "//
-     &     "INNER JOIN input_role_description "//
-     &     "ON input_time_series_node.role_id = input_role_description.role_id "//
-     &     "WHERE model_component.model_id = ? " //
+     &     "FROM input_time_series_node,model_component, "//
+     &     "input_role_description, fill_in_type_description " //
+     &     "WHERE (input_time_series_node.layer_id = model_component.component_id) "//
+     &     "AND input_time_series_node.role_id = input_role_description.role_id "//
+     &     "AND input_time_series_node.fillin = fill_in_type_description.fill_in_type_id "//
+     &     "AND model_component.model_id = ? " //
      &     "AND model_component.component_type = 'input' " //
      &     "ORDER BY input_time_series_node.name, layer DESC;"
 
@@ -144,8 +145,8 @@ c-----Bind variables to columns in result set
      &     loc(SignLen), iRet)
 
       ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, Fillin,
-     &     f90SQL_NULL_PTR, iRet)
+      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, Fillin,
+     &     loc(Fillinlen), iRet)
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, RoleName,
@@ -202,6 +203,9 @@ c--------clean up name variable, replace environment variables
          nenv=replace_envvars(FileName,ctmp)
          FileName=ctmp
 
+         Fillin=FillIN(1:fillinlen) ! preserve case for filename
+
+
          if (SignLen .LE. 0) then
             sign = 0
          end if
@@ -211,15 +215,15 @@ c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName .and. Param .eq. PrevParam))
      &        .and. UseObj) then
 
-             
              call process_input_node(name,
      &                               LocNum,
      &                               param,
-     &                               InPath,
-     &                               RoleName,    
      &                               Sign,
+     &                               RoleName,  
      &                               Fillin,    
-     &                               filename)
+     &                               filename,  
+     &                               InPath
+     &                               )
 
 
          end if           
