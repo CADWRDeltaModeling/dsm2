@@ -186,6 +186,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_climate.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_gate.cpp"
 				>
 			</File>
@@ -195,6 +199,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_reservoir.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_transfer.cpp"
 				>
 			</File>
 			<File
@@ -316,6 +324,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_climate.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_gate.h"
 				>
 			</File>
@@ -325,6 +337,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_reservoir.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_transfer.h"
 				>
 			</File>
 			<File

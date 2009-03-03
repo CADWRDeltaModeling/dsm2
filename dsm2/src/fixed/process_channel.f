@@ -64,6 +64,8 @@ C!</license>
       return 
       end subroutine
       
+c=======================================      
+      
       subroutine process_xsect(channo,chan_fdist,xsectid,xsectno)
       use grid_data
       use common_xsect
@@ -289,5 +291,179 @@ c--------downstream node
       return
       end function      
       
+      
+      
+      
+      subroutine process_xsect_csdp(channo, fdist, filename)
+c-----Transfer buffer contents from xsect to xsect layer. This routine does not
+c     actually do any data processing. There are two requirements:
+c     i.  it must be called after prioritize_buffers(), otherwise the items
+c         added to the xsect_layer buffer here will disappear -- they have no layer number
+c     ii. it must be called before process_xsect_layer gets done. Otherwise the items
+c          added to the xsect_layer buffer will never be processed 
+      use grid_data
+      use input_storage_fortran
+      use common_xsect
+      use logging
+      use io_units
+c-----This subroutine reads in all the irregular cross sections,
+c-----assigns cross-sections to channels such that each end of each channel has
+c-----a rectangular or irregular cross-section.
+
+      implicit none
+c-----args
+      integer :: channo              ! DSM channel number
+      real*8  :: fdist
+      character*128 :: filename 
+
+c----- buffer
+      type(cross_section_t) buffer
+
+
+c-----local variables
+      integer maxf              ! maximum number of fields in data files
+      parameter (maxf=7)
+
+      real*8  elev,area,width,wet_p
+      real*8  ::dummy_xcentroid = 0.D0
+      real*8  ::dummy_ycentroid = 0.D0
+      real*8  ::dummy_zcentroid = 0.D0
+      real*8  ::dummy_hrad = 0.D0
+
+
+      integer
+     &     h                    ! do loop counters
+     &     ,j
+     &     ,k
+     &     ,m
+     &     ,lnblnk              ! last nonblank intrinsic function
+ 
+      character
+     &     one_line*90          ! used to separate each line into fields
+     &     ,cerr_msg*10         ! error message
+     &     ,is_it_done*5        ! used to skip headers in input files
+
+c-----sorting variables
+      integer
+     &     first
+     &     ,last
+     &     ,ptr
+     
+      real*8
+     &     hold
+c-----arguments for DSS function FINDLM
+
+      integer nbeg              ! position in one_line to begin the search
+     &     ,nlen                ! number of characters to search
+     &     ,nfield              ! number of fields to search
+     &     ,ibegf(maxf)         ! array of beginning positions of fields
+     &     ,ilenf(maxf)         ! array of widths of fields
+     &     ,idelmt(maxf)        ! array of delimiter types
+     &     ,idelmp(maxf)        ! array of delimeter positions
+     &     ,itbl(128)           ! array of information on the delimeters set
+     &     ,istat
+       integer xsectno
+
+c--------convert distance
+
+c      call process_xsect(channo,fdist,miss_val_i,xsectno)  ! this will cause double processing
+c--------open the geometry viewer output file
+      open (
+     &    unit_input,
+     &    file=filename,
+     &    status="old",
+     &    err=810
+     &    )
+
+      is_it_done = '     '
+c--------go down past the headers
+      do while(is_it_done .ne. '=====')
+          read(
+     &       unit_input,
+     &        '(a5)') 
+     &       is_it_done
+      enddo
+
+c--------read a line and determine column widths with FINDLM
+      read (
+     &    unit_input,
+     &    '(a90)'
+     &    )
+     &    one_line
+
+      m=0
+      do while (lnblnk(one_line) .gt. 0)
+         m=m+1
+         if (m .gt. max_elevations)then
+            write(unit_error,120)max_elevations,channo,fdist
+            call exit(-2)
+ 120     format("Maximum number of elevations per xsect (",i4,
+     &          ") exceeded in channel",1x,"Distance",1x,f8.3)
+         end if
+         nbeg=1
+         nlen=90
+         nfield=-7
+         call findlm(one_line, nbeg, nlen, nfield, ibegf, ilenf,
+     &       idelmt, idelmp, itbl)
+c-----------parse the line into the structure using results from
+c-----------FINDLM.
+            cerr_msg='elevation'
+c-----------here, "elevation" is wrt NGVD (i.e. same as stage); gets
+c-----------changed to a depth reference later
+c-----------Changed by Ganesh Pandey 04/03/00
+         read(one_line(ibegf(1):ilenf(1)+ibegf(1)-1)
+     &           ,'(f12.0)',err=900)buffer.elevation(m)
+         cerr_msg='cross-section area'
+         read(one_line(ibegf(2):ilenf(2)+ibegf(2)-1)
+     &       ,'(f12.0)',err=900) buffer.area(m)
+         cerr_msg='wetted perimeter'
+         read(one_line(ibegf(3):ilenf(3)+ibegf(3)-1)
+     &       ,'(f12.0)',err=900) buffer.wet_p(m)
+         cerr_msg='width'
+         read(one_line(ibegf(4):ilenf(4)+ibegf(4)-1)
+     &       ,'(f12.0)',err=900) buffer.width(m)
+         cerr_msg='hydraulic radius'
+         read(one_line(ibegf(5):ilenf(5)+ibegf(5)-1)
+     &       ,'(f12.0)',err=900) buffer.h_radius(m)
+         cerr_msg='x-centroid'
+         read(one_line(ibegf(6):ilenf(6)+ibegf(6)-1)
+     &       ,'(f12.0)',err=900) buffer.x_centroid(m)
+         cerr_msg='z-centroid'
+         read(one_line(ibegf(7):ilenf(7)+ibegf(7)-1)
+     &       ,'(f12.0)',err=900) buffer.z_centroid(m)
+         read(unit_input,'(a)',end=850) one_line
+      enddo
+      buffer.num_elev = m      
+      ! they were read in decreasing elevation, append in increasing
+      do m=buffer.num_elev,1,-1
+c-----------find minimum elevation
+         call xsect_layer_append_to_buffer(channo,
+     &                                     fdist,
+     &                                     buffer.elevation(m),
+     &                                     buffer.area(m),
+     &                                     buffer.width(m),
+     &                                     buffer.wet_p(m))
+
+      end do
+      close(unit_input)
+      return                    ! normal return
+
+ 810  continue                  ! file open error
+      write(unit_error, 605) trim(filename)
+ 605  format(/'Could not open file: ',a)
+      call exit(2)
+
+ 850  continue                  ! here for premature eof
+      write(unit_error, 610) trim(filename)
+ 610  format(/'Premature end-of-file for irregular geometry file: ',a)
+      call exit(2)
+
+ 900  continue                  ! error on reading data from line
+      write(unit_error, 620) trim(cerr_msg),one_line
+ 620  format(/'Conversion error on ', a,
+     &     ' field for irregular geometry file: ', a,'one line =',a)
+      call exit(2)
+
+      end subroutine
       
   
