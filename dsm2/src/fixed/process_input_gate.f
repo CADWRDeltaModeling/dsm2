@@ -20,9 +20,9 @@ C!</license>
       subroutine process_input_gate(LocName,
      &                              SubLoc,
      &                              Param,
-     &                              InPath,
      &                              Fillin,
-     &                              Filename) 
+     &                              Filename,
+     &                              InPath) 
 
       use Gates
       use io_units

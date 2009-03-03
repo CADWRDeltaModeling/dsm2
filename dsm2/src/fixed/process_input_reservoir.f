@@ -21,10 +21,10 @@ C!</license>
       subroutine process_input_reservoir(Name,
      &                                   LocName,
      &                                   Param,
-     &                                   InPath,
      &                                   Sign,
      &                                   Fillin,
-     &                                   Filename) 
+     &                                   Filename,
+     &                                   InPath) 
 
       use Gates
       use io_units

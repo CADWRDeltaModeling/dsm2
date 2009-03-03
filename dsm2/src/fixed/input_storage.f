@@ -436,41 +436,40 @@ c======================== Input and output ======================
          err=input_climate_query_from_buffer(icount,
      &                                       name,
      &                                       variable,
-     &                                       inpath,
-     &                                       sign,
      &                                       fillin,
-     &                                       filename) 
+     &                                       filename,
+     &                                       inpath) 
+
+         sign = 1
 
          call process_input_climate(name,
      &                              variable,
-     &                              inpath,
      &                              sign,
      &                              fillin,
-     &                              filename) 
+     &                              filename,
+     &                              inpath)
+ 
       end do
       print *,"Number of climate inputs processed: ", nitem
 
 
 
-
-      nitem = input_transfer_buffer_size()
+      nitem = input_transfer_flow_buffer_size()
       do icount = 1,nitem
-         err=input_transfer_query_from_buffer(icount,
-     &                                    name,
-     &                                    variable,
-     &                                    inpath,
-     &                                    fillin,   
-     &                                    filename)
-
+         err=input_transfer_flow_query_from_buffer(icount,
+     &                                             name,
+     &                                             fillin,   
+     &                                             filename,
+     &                                             inpath)
+         variable = 'flow'
          call process_input_transfer(name,
      &                               variable,
-     &                               inpath,
      &                               fillin,   
-     &                               filename)
+     &                               filename,
+     &                               inpath)
+
       end do
       print *,"Number of transfer inputs processed: ", nitem
-
-
 
 
       nitem = input_gate_buffer_size()
@@ -479,74 +478,66 @@ c======================== Input and output ======================
      &                                    name,
      &                                    device,
      &                                    variable,
-     &                                    inpath,
      &                                    fillin,   
-     &                                    filename)
+     &                                    filename,
+     &                                    inpath)
+
 
          call process_input_gate(name,
-     &                               device,
-     &                               variable,
-     &                               inpath,
-     &                               fillin,   
-     &                               filename)
+     &                           device,
+     &                           variable,
+     &                           fillin,   
+     &                           filename,
+     &                           inpath)
       end do
       print *,"Number of gate inputs processed: ", nitem
-
-
-
-
-
-
 
 
       nitem = input_node_buffer_size()
       do icount = 1,nitem
          err=input_node_query_from_buffer(icount,
-     &                                        name,
-     &                               node,
-     &                               variable,
-     &                               inpath,
-     &                               rolename,     
-     &                               sign,
-     &                               fillin,   
-     &                               filename)
+     &                                    name,
+     &                                    node,
+     &                                    variable,     
+     &                                    sign,
+     &                                    rolename,
+     &                                    fillin,   
+     &                                    filename,
+     &                                    inpath)
 
          call process_input_node(name,
-     &                               node,
-     &                               variable,
-     &                               inpath,
-     &                               rolename,     
-     &                               sign,
-     &                               fillin,   
-     &                               filename)
+     &                           node,
+     &                           variable,     
+     &                           sign,
+     &                           rolename,
+     &                           fillin,   
+     &                           filename,
+     &                           inpath)
+
       end do
       print *,"Number of node inputs processed: ", nitem
-
-
-
-
-
 
 
 
       nitem = input_reservoir_buffer_size()
       do icount = 1,nitem
          err=input_reservoir_query_from_buffer(icount,
-     &                                        name,
-     &                                        reservoir,
-     &                                        variable,
-     &                                        inpath,
-     &                                        sign,
-     &                                        fillin,
-     &                                        filename)
+     &                                         name,
+     &                                         reservoir,
+     &                                         variable,
+     &                                         sign,
+     &                                         fillin,
+     &                                         filename,
+     &                                         inpath)
 
          call process_input_reservoir(name,
      &                                reservoir,
      &                                variable,
-     &                                inpath,
      &                                sign,
      &                                fillin,
-     &                                filename)
+     &                                filename,
+     &                                inpath)
+
       end do
       print *,"Number of reservoir inputs processed: ", nitem
 
