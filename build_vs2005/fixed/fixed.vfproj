@@ -43,6 +43,7 @@
 			<FileConfiguration Name="Debug|Win32">
 				<Tool Name="VFFortranCompilerTool" WarnUnusedVariables="true"/></FileConfiguration></File>
 		<File RelativePath="..\..\src\fixed\name_to_objno.f"/>
+		<File RelativePath="..\..\src\fixed\nonconservative_codes.f"/>
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\print_output.f"/>
 		<File RelativePath="..\..\src\fixed\process_channel.f"/>
@@ -69,7 +70,6 @@
 		<File RelativePath="..\..\src\fixed\process_scalar.f"/>
 		<File RelativePath="..\..\src\fixed\process_tidefile.f"/>
 		<File RelativePath="..\..\src\fixed\process_transfer.f"/>
-		<File RelativePath="..\..\src\fixed\rate_coef_codes.f"/>
 		<File RelativePath="..\..\src\fixed\read_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\utilities.f"/></Filter></Files>
 	<Globals/></VisualStudioProject>
