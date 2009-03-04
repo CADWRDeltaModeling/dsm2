@@ -58,6 +58,8 @@ c-----local variables
      &     group_name*32
      &     ,prev_group_name*32        ! previous reservoir name
 
+      character*16, rate_variable, coefficient
+
       character errm*128 !error message
 
       integer(SQLINTEGER_KIND):: namelen =0
@@ -133,7 +135,8 @@ c--------
 c         if ((group_name .ne. prev_group_name) .or.
 c     &       (rate_variable_id.or.pre_rate_variable_id).or.
 c     &        (constituent_id.ne.pre_constituent_id)) then
-
+         call ncc_code_to_name(constituent_id, rate_variable)
+         call rate_variable_code_to_name(rate_variable_id, coefficient)
          call process_rate_coef(group_name, 
      &                          rate_variable_id,
      &                          constituent_id,

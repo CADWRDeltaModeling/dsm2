@@ -43,6 +43,7 @@ c-----f90SQL variables
       integer(SQLINTEGER_KIND)::
      &     NameLen
      &     ,FileLen
+     &     ,FillinLen
      &     ,PathLen
      &     ,ParamLen
 
@@ -51,7 +52,6 @@ c-----local variables
 
       integer*4
      &     ID                   ! transfer ID
-     &     ,Fillin              ! code for fill in type (last, none, linear)
      &     ,ObjTypeID           ! object type of input data (node, gate...)
      &     ,npath,na,nb,nc,nd,ne,nf
      &     ,itmp
@@ -76,6 +76,7 @@ c-----local variables
      &     ,Name*64
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
+     &     ,fillin*8
 
 c-----Bind the parameter representing ModelID
       call f90SQLBindParameter (StmtHndl, int(1,SQLUSMALLINT_KIND), SQL_PARAM_INPUT,
@@ -84,11 +85,13 @@ c-----Bind the parameter representing ModelID
 
 c-----Execute SQL statement
             StmtStr="SELECT input_series_id,used,transfer, " //
-     &     "path,variable_name,fillin,input_file " //
-     &     "FROM input_time_series_transfer INNER JOIN model_component ON " //
-     &     "input_time_series_transfer.layer_id = model_component.component_id "//
-     &     "WHERE model_component.model_id = ? " //
+     &     "path,variable_name,fill_in_type_description.name,input_file " //
+     &     "FROM input_time_series_transfer, model_component " //
+     &     "WHERE input_time_series_transfer.layer_id = model_component.component_id "//
+     &     "AND model_component.model_id = ? " //
      &     "AND model_component.component_type = 'input' " //
+     &     "AND input_time_series_transfer.fillin = " //
+     &     "fill_in_type_description.fill_in_type_id "//     
      &     "ORDER BY transfer, layer DESC;"
 
 
@@ -125,8 +128,8 @@ c-----Bind variables to columns in result set
      &     loc(ParamLen), iRet)
 
       ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, Fillin,
-     &     f90SQL_NULL_PTR, iRet)
+      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, Fillin,
+     &     loc(Fillinlen), iRet)
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, FileName,
@@ -175,16 +178,19 @@ c--------clean up name variable, replace environment variables
          nenv=replace_envvars(FileName,ctmp)
          FileName=ctmp
 
+         Fillin=FillIN(1:fillinlen) ! preserve case for filename
+
+
 c--------use only the highest layer version of the input, and skip
 c--------if marked as not-use
          if ( (.not.(Name .eq. PrevName .and. Param .eq. PrevParam))
      &        .and. UseObj) then
 
             call process_input_transfer(Name,
-     &                                  InPath,
      &                                  Param,
      &                                  Fillin,
-     &                                  Filename)
+     &                                  Filename,
+     &                                  InPath)
 
          end if                 !inputpath name not equals last name processed
          counter=counter+1

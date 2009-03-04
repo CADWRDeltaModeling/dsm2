@@ -63,25 +63,25 @@ c-----Load data
       if (istat .lt. 0) goto 901
 
       ! todo: disabled
-      !call load_reservoirs_SQL(StmtHndl, HydroID, istat)
-      if (istat .lt. 0) goto 901
+      !!call load_reservoirs_SQL(StmtHndl, HydroID, istat)
+      !if (istat .lt. 0) goto 901
       ! todo: disabled
       !call load_reservoir_connections_SQL(StmtHndl, istat)
-      if (istat .lt. 0) goto 901
+      !if (istat .lt. 0) goto 901
       !call load_gates_SQL(StmtHndl, HydroID, istat)
       !if (istat .lt. 0) goto 901
       !if (istat .gt. 0) then    ! gates are included
-      !   call load_gate_devices_SQL(StmtHndl, istat)
+      !    call load_gate_devices_SQL(StmtHndl, istat)
       !   if (istat .lt. 0) goto 901
       !end if
       ! todo: disabled
       !call load_transfers_SQL(StmtHndl, HydroID, istat)
-      if (istat .lt. 0) goto 901
+      !if (istat .lt. 0) goto 901
 
       if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')then
-          call read_input_ts_node_sql(StmtHndl, ModelID, istat)
+          !call read_input_ts_node_sql(StmtHndl, ModelID, istat)
           !if (istat .lt. 0) goto 901
-          call read_input_ts_reservoir_sql(StmtHndl, ModelID, istat) 
+          !call read_input_ts_reservoir_sql(StmtHndl, ModelID, istat) 
           !if (istat .lt. 0) goto 901
       end if
       
@@ -125,9 +125,9 @@ c-----Load data
       if ( (dsm2_name .eq. 'Hydro') .and.
      &     (.not. (io_files(hydro,io_restart,io_read).use)) ) then
                                 ! No restart. Read from database.
-         call load_channel_initcond(StmtHndl, ModelID, 'stage', istat)
-         call load_channel_initcond(StmtHndl, ModelID, 'flow', istat)
-         call load_reservoir_initcond(StmtHndl, ModelID, 'stage', istat)
+         !call load_channel_initcond(StmtHndl, ModelID, 'stage', istat)
+         !call load_channel_initcond(StmtHndl, ModelID, 'flow', istat)
+         !call load_reservoir_initcond(StmtHndl, ModelID, 'stage', istat)
          if (istat .lt. 0) goto 901
 
       end if
