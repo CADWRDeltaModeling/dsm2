@@ -165,17 +165,16 @@ def generate_dsm2():
     component = TableComponent("channel_ic",
                               [IntField("chan_no",),
                                CharField("distance",8,8),
-                               CharField("variable",16,16),
-                               DoubleField("init_value",16,4)],          
-                              ["chan_no","distance","variable"])
+                               DoubleField("stage",8,2),
+                               DoubleField("flow",12,1)],          
+                              ["chan_no","distance"])
     component.layered=True
     prep_component(component,outdir)
 
     component = TableComponent("reservoir_ic",
                               [CharField("res_name",DSM2_NAME_LEN,16),
-                               CharField("variable",16,16),
-                               DoubleField("value",16,4)],          
-                              ["res_name","variable"])
+                               DoubleField("stage",8,1)],          
+                              ["res_name"])
     component.layered=True
     prep_component(component,outdir)
 
@@ -207,8 +206,8 @@ def generate_dsm2():
     
     component = TableComponent("rate_coefficient",
                               [CharField("group_name",DSM2_NAME_LEN,16),
-                              CharField("constituent",DSM2_NAME_LEN,16),
-                              CharField("variable",DSM2_NAME_LEN,16),
+                              CharField("constituent",16,16),
+                              CharField("variable",16,16),
                               DoubleField("value",16,4)],          
                               ["group_name","constituent","variable"])
     component.layered=True
@@ -304,25 +303,86 @@ def generate_dsm2():
     prep_component(component,outdir)  
 
 
- 
-
-    component = TableComponent("input_reservoir",
+    component = TableComponent("boundary_stage",
                              [CharField("name",DSM2_NAME_LEN,16),\
-                              CharField("reservoir",32,16),\
-                              CharField("variable",16,12),\
+                              IntField("node"),
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
+                              CharField("path",80,50)
+                             ],
+                             ["name"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)  
+    
+    component = TableComponent("boundary_flow",
+                             [CharField("name",DSM2_NAME_LEN,16),\
+                              IntField("node"),\
                               IntField("sign"),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
+                              CharField("path",80,50)
+                             ],
+                             ["name"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)      
+    
+
+    component = TableComponent("source_flow",
+                             [CharField("name",DSM2_NAME_LEN,16),\
+                              IntField("node"),\
+                              IntField("sign"),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
+                              CharField("path",80,50)
+                             ],
+                             ["name"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)      
+
+   
+
+    component = TableComponent("source_flow_reservoir",
+                             [CharField("name",DSM2_NAME_LEN,16),\
+                              CharField("res_name",32,16),\
+                              IntField("sign"),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
+                              CharField("path",80,50)
+                              ],
+                             ["name"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)    
+
+    component = TableComponent("node_concentration",
+                             [CharField("name",DSM2_NAME_LEN,16),\
+                              IntField("node_no"),\
+                              CharField("variable",16,16),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
+                              CharField("path",80,50)
+                             ],
+                             ["name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)    
+    
+
+    component = TableComponent("reservoir_concentration",
+                             [CharField("name",DSM2_NAME_LEN,16),\
+                              CharField("res_name",32,16),\
+                              CharField("variable",16,16),\
                               CharField("fillin", 8,12),\
                               CharField("file",DSS_FILE_LEN,LAST_FIELD),\
                               CharField("path",80,50)
                               ],
                              ["name","variable"])   # identifier
     component.layered=True
-    prep_component(component,outdir)    
-   
-
+    prep_component(component,outdir)        
+    
+    
+    
     component = TableComponent("output_channel",
                              [CharField("name",DSM2_NAME_LEN,16),
-                              IntField("channel"),\
+                              IntField("chan_no"),\
                               CharField("distance", 8,12),\
                               CharField("variable",16,12),\
                               CharField("interval",INTERVAL_LEN,10),\
@@ -336,8 +396,8 @@ def generate_dsm2():
     
     component = TableComponent("output_reservoir",
                              [CharField("name",DSM2_NAME_LEN,16),
-                              CharField("reservoir",32,16),\
-                              IntField("node"),\
+                              CharField("res_name",32,16),\
+                              CharField("node",8,8),\
                               CharField("variable",16,12),\
                               CharField("interval",INTERVAL_LEN,10),\
                               CharField("period_op",PERIOD_OP_LEN,10),\
@@ -347,10 +407,39 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)    
 
+    component = TableComponent("output_channel_concentration",
+                             [CharField("name",DSM2_NAME_LEN,16),
+                              IntField("chan_no"),\
+                              CharField("distance", 8,12),\
+                              CharField("variable",16,12),\
+                              CharField("source_group",DSM2_NAME_LEN,12),\
+                              CharField("interval",INTERVAL_LEN,10),\
+                              CharField("period_op",PERIOD_OP_LEN,10),\
+                              CharField("file",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+                             ["name","variable","source_group"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)
+    
+    
+    component = TableComponent("output_reservoir_concentration",
+                             [CharField("name",DSM2_NAME_LEN,16),
+                              CharField("res_name",32,16),\
+                              CharField("variable",16,12),\
+                              CharField("source_group",DSM2_NAME_LEN,12),\
+                              CharField("interval",INTERVAL_LEN,10),\
+                              CharField("period_op",PERIOD_OP_LEN,10),\
+                              CharField("file",DSS_FILE_LEN,LAST_FIELD)             
+                             ],
+                             ["name","variable","source_group"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)    
 
+ 
+    
     component = TableComponent("output_gate",
                              [CharField("name",DSM2_NAME_LEN,16),
-                              CharField("gate",32,16),\
+                              CharField("gate_name",32,16),\
                               CharField("device",32,16),\
                               CharField("variable",16,12),\
                               CharField("interval",INTERVAL_LEN,10),\
@@ -364,11 +453,13 @@ def generate_dsm2():
 
     
     define_text_sub("envvar",outdir)
-    define_include_block("parameter", ["scalar","envvar"])
+    define_include_block("configuration", ["envvar"])
     define_include_block("grid", ["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"])
-
+    define_include_block("initial_condition", ["channel_ic","reservoir_ic"])
     define_include_block("operation", ["operating_rule","oprule_expression","oprule_time_series"])
-    define_include_block("output", ["output_channel","output_reservoir","output_gate"])
+    define_include_block("input_time_series", ["boundary_stage","boundary_flow","source_flow","source_flow_reservoir",\
+                                               "node_concentration","reservoir_concentration","input_climate","input_gate","input_transfer","oprule_time_series"])
+    define_include_block("output_time_series", ["output_channel","output_reservoir","output_gate"])
 
     finalize(outdir)
 

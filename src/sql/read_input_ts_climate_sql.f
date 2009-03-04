@@ -45,6 +45,7 @@ c-----f90SQL variables
      &     ,NameLen
      &     ,LocNameLen
      &     ,FileLen
+     &     ,FillinLen
      &     ,PathLen
      &     ,RoleNameLen
 
@@ -53,7 +54,6 @@ c-----local variables
 
       integer*4
      &     ID                   ! transfer ID
-     &     ,Fillin              ! code for fill in type (last, none, linear)
      &     ,Sign                ! sign restriction on input
      &     ,ObjTypeID           ! object type of input data (node, gate...)
      &     ,npath,na,nb,nc,nd,ne,nf
@@ -71,6 +71,7 @@ c-----local variables
       character
      &     InPath*80
      &     ,FileName*128
+     &     ,Fillin*8
      &     ,Param*16
      &     ,PrevParam*16
      &     ,LocName*32
@@ -87,15 +88,18 @@ c-----Bind the parameter representing ModelID
 
 c-----Execute SQL statement
 c-----Execute SQL statement
-            StmtStr="SELECT input_series_id,climate_variable_description.name, " //
-     &     "path,sign,fillin,input_file " //
-     &     "FROM (input_time_series_climate INNER JOIN model_component ON " //
-     &     "input_time_series_climate.layer_id = model_component.component_id) "//
-     &     "INNER JOIN climate_variable_description " //
-     &     "ON input_time_series_climate.climate_variable_id = "//
+            StmtStr="SELECT input_series_id, " //
+     &     "climate_variable_description.name, " //
+     &     "path,sign,fill_in_type_description.name,input_file " //
+     &     "FROM input_time_series_climate, model_component, " //
+     &     "climate_variable_description, fill_in_type_description " // 
+     &     "WHERE input_time_series_climate.layer_id = model_component.component_id) "//
+     &     "AND input_time_series_climate.climate_variable_id = "//
      &     "climate_variable_description.climate_variable_id " //
-     &     "WHERE model_component.model_id = ? " //
+     &     "AND model_component.model_id = ? " //
      &     "AND model_component.component_type = 'input' " //
+     &     "AND input_time_series_climate.fillin = " //
+     &     "fill_in_type_description.fill_in_type_id "//       
      &     "ORDER BY climate_variable_description.name, layer DESC;"
 
 
@@ -128,8 +132,9 @@ c-----Bind variables to columns in result set
      &     loc(SignLen), iRet)
 
       ColNumber=ColNumber+1
-      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_SLONG, Fillin,
-     &     f90SQL_NULL_PTR, iRet)
+      call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, Fillin,
+     &     loc(Fillinlen), iRet)
+
 
       ColNumber=ColNumber+1
       call f90SQLBindCol(StmtHndl, ColNumber, SQL_F_CHAR, FileName,
@@ -185,6 +190,9 @@ c-------- special case for climate
          nenv=replace_envvars(FileName,ctmp)
          FileName=ctmp
 
+         Fillin=FillIN(1:fillinlen) ! preserve case for filename
+
+
          if (SignLen .LE. 0) then
             sign = 0
          end if
@@ -196,10 +204,10 @@ c--------if marked as not-use
 
             call process_input_climate(Name,
      &                                 Param,
-     &                                 InPath,
      &                                 Sign,
      &                                 Fillin,
-     &                                 Filename) 
+     &                                 Filename,
+     &                                 Inpath) 
 
          end if                
          counter=counter+1

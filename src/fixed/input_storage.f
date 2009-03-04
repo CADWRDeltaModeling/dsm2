@@ -347,10 +347,22 @@ c======================================================================
      &                perop
       character*32 :: sourcegroup
       
+      character*32 :: group_name
+      character*16 :: constituent
+      real*8  :: value
+
+      integer :: channel
+      character*32 ::resname
+      character*8 cdist
+      real*8 stage
+      real*8 flow
+      
+      
       ! output_reservoir
       character*32 reservoir
       character*80 inpath
       character*8  fillin
+      character*8  node_str
       integer      sign
       integer node      
       
@@ -422,11 +434,48 @@ c======================================================================
       end do
       print *,"Number of operating rules processed: ", nitem
 
+c=======================  Initial conditions 
+      nitem = channel_ic_buffer_size()
+      do icount = 1,nitem
+         err=channel_ic_query_from_buffer(icount,
+     &                                     channel,
+     &                                     cdist,
+     &                                     stage,
+     &                                     flow)
 
+         call process_channel_ic(channel,cdist,stage,flow)
+      end do
+      print *,"Number of channel initial conditions processed: ", nitem
+
+      nitem = reservoir_ic_buffer_size()
+      do icount = 1,nitem
+         err=reservoir_ic_query_from_buffer(icount,resname,stage)
+         call process_reservoir_ic(resname,stage)
+      end do
+      print *,"Number of channel initial conditions processed: ", nitem
 
 
 
 c======================== Input and output ======================
+      nitem = rate_coefficient_buffer_size()
+      do icount = 1,nitem
+         err=rate_coefficient_query_from_buffer(icount,
+     &                                          group_name,
+     &                                          constituent,
+     &                                          variable,
+     &                                          value) 
+
+         sign = 1
+
+         call process_rate_coef(group_name,
+     &                          constituent,
+     &                          variable,
+     &                          value)
+ 
+      end do
+      print *,"Number of rate coefficients processed: ", nitem
+
+
 
 
       nitem = input_climate_buffer_size()
@@ -491,18 +540,18 @@ c======================== Input and output ======================
       print *,"Number of gate inputs processed: ", nitem
 
 
-      nitem = input_node_buffer_size()
+      nitem = boundary_stage_buffer_size()
       do icount = 1,nitem
-         err=input_node_query_from_buffer(icount,
+         err=boundary_stage_query_from_buffer(icount,
      &                                    name,
      &                                    node,
-     &                                    variable,     
-     &                                    sign,
-     &                                    rolename,
      &                                    fillin,   
      &                                    filename,
      &                                    inpath)
-
+      rolename="stage"
+      variable="stage"
+      sign=0 
+ 
          call process_input_node(name,
      &                           node,
      &                           variable,     
@@ -513,33 +562,119 @@ c======================== Input and output ======================
      &                           inpath)
 
       end do
-      print *,"Number of node inputs processed: ", nitem
+      print *,"Number of stage boundaries processed: ", nitem
 
-
-
-      nitem = input_reservoir_buffer_size()
+      nitem = boundary_flow_buffer_size()
       do icount = 1,nitem
-         err=input_reservoir_query_from_buffer(icount,
-     &                                         name,
-     &                                         reservoir,
-     &                                         variable,
-     &                                         sign,
-     &                                         fillin,
-     &                                         filename,
-     &                                         inpath)
-
-         call process_input_reservoir(name,
-     &                                reservoir,
-     &                                variable,
-     &                                sign,
-     &                                fillin,
-     &                                filename,
-     &                                inpath)
+         err=boundary_flow_query_from_buffer(icount,
+     &                                    name,
+     &                                    node,
+     &                                    sign,   
+     &                                    fillin,   
+     &                                    filename,
+     &                                    inpath)
+      rolename="inflow"
+      variable="flow"
+ 
+         call process_input_node(name,
+     &                           node,
+     &                           variable,     
+     &                           sign,
+     &                           rolename,
+     &                           fillin,   
+     &                           filename,
+     &                           inpath)
 
       end do
-      print *,"Number of reservoir inputs processed: ", nitem
+      print *,"Number of flow boundaries processed: ", nitem
 
+      nitem = source_flow_buffer_size()
+      do icount = 1,nitem
+         err=source_flow_query_from_buffer(icount,
+     &                                    name,
+     &                                    node,
+     &                                    sign,   
+     &                                    fillin,   
+     &                                    filename,
+     &                                    inpath)
+      rolename="source-sink"
+      variable="flow" 
+         call process_input_node(name,
+     &                           node,
+     &                           variable,     
+     &                           sign,
+     &                           rolename,
+     &                           fillin,   
+     &                           filename,
+     &                           inpath)
 
+      end do
+      print *,"Number of source flows processed: ", nitem
+
+      nitem = source_flow_reservoir_buffer_size()
+      do icount = 1,nitem
+         err=source_flow_reservoir_query_from_buffer(icount,
+     &                                    name,
+     &                                    resname,
+     &                                    sign,   
+     &                                    fillin,   
+     &                                    filename,
+     &                                    inpath)
+      variable="flow" 
+         call process_input_reservoir(name,
+     &                               resname,
+     &                               variable,     
+     &                               sign,
+     &                               fillin,   
+     &                               filename,
+     &                               inpath)
+
+      end do
+      print *,"Number of reservoir source flows processed: ", nitem
+
+      nitem = node_concentration_buffer_size()
+      do icount = 1,nitem
+         err=node_concentration_query_from_buffer(icount,
+     &                                    name,
+     &                                    node,
+     &                                    variable,
+     &                                    fillin,   
+     &                                    filename,
+     &                                    inpath)
+      rolename="inflow"
+      sign=0
+         call process_input_node(name,
+     &                           node,
+     &                           variable,     
+     &                           sign,
+     &                           rolename,
+     &                           fillin,   
+     &                           filename,
+     &                           inpath)
+
+      end do
+      print *,"Number of node concentration inputs processed: ", nitem
+
+      nitem = reservoir_concentration_buffer_size()
+      do icount = 1,nitem
+         err=reservoir_concentration_query_from_buffer(icount,
+     &                                    name,
+     &                                    resname,
+     &                                    variable,
+     &                                    fillin,   
+     &                                    filename,
+     &                                    inpath)
+      sign=0
+         call process_input_reservoir(name,
+     &                               resname,
+     &                               variable,     
+     &                               sign,
+     &                               fillin,   
+     &                               filename,
+     &                               inpath)
+
+      end do
+      print *,"Number of reservoir concentration inputs processed: ", nitem
 
 
 
@@ -581,12 +716,13 @@ c======================== Input and output ======================
          err=output_reservoir_query_from_buffer(icount,
      &                                        name,
      &                                    reservoir,
-     &                                    node,
+     &                                    node_str,
      &                                    variable,
      &                                    interval,
      &                                    perOp,
      &                                    filename) 
          sourcegroup = ""
+         if (node_str .eq. "none")node=miss_val_i
          call process_output_reservoir(name,
      &                                    reservoir,
      &                                    node,
@@ -619,5 +755,60 @@ c======================== Input and output ======================
      &                            filename)
       end do
       print *,"Number of gate output requests: ", nitem
+
+      nitem = output_channel_concentration_buffer_size()
+      do icount = 1,nitem
+         err=output_channel_concentration_query_from_buffer(icount,
+     &                                        name,
+     &                                        channo,
+     &                                        distance,
+     &                                        variable,
+     &                                        sourcegroup,    
+     &                                        interval,
+     &                                        perop,
+     &                                        filename)
+         if (sourcegroup .eq. "none")sourcegroup = ""
+         call locase(distance)
+         if (distance(:6) .eq. "length") then 
+            idistance = chan_length
+         else 
+            read(distance,'(i)')idistance
+         end if
+         call process_output_channel(name,
+     &                               channo,
+     &                               idistance,
+     &                               variable,
+     &                               interval,
+     &                               perop,
+     &                               sourcegroup,
+     &                               filename)
+      end do
+      print *,"Number of channel output requests: ", nitem
+
+
+
+      nitem = output_reservoir_concentration_buffer_size()
+      do icount = 1,nitem
+         err=output_reservoir_concentration_query_from_buffer(icount,
+     &                                    name,
+     &                                    reservoir,
+     &                                    variable,
+     &                                    sourcegroup,         
+     &                                    interval,
+     &                                    perOp,
+     &                                    filename) 
+      if (sourcegroup .eq. "none")sourcegroup = ""
+
+      call process_output_reservoir(name,
+     &                                    reservoir,
+     &                                    miss_val_i,
+     &                                    variable,
+     &                                    interval,
+     &                                    perOp,
+     &                                    sourceGroup,
+     &                                    filename) 
+      end do
+      print *,"Number of reservoir output requests: ", nitem
+
 
       end subroutine
