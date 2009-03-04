@@ -51,7 +51,7 @@ public:
   void setActiveItems(const std::vector<std::string> & a_activeItems);
 
   /** Set every keyword active */
-  void ApplicationTextReader::setAllActive();
+  void setAllActive();
 
   /** Get a reference to the list of active items */
   std::vector<std::string> & getActiveItems();

@@ -7,6 +7,7 @@
 #include<vector>
 #include<string>
 #include<iostream>
+#include<cstring>
 using namespace std;
 
 /** Description of a table of user defined objects, including field (column) descriptions required by the HDF5 Table API.

@@ -63,10 +63,12 @@ istream& operator>> (istream& stream, @TABLEOBJ & obj)
   return stream;
 }
 
+template<>
 HDFTableManager<@TABLEOBJ>::HDFTableManager() :
     description(@TABLEOBJ_table_description()),  
     m_default_fill(@TABLEOBJ(@DEFAULT_MEMBER_DATA)){}
 
+template<>
 void HDFTableManager<@TABLEOBJ>::prioritize_buffer()
 {
 @PRIORITIZE
