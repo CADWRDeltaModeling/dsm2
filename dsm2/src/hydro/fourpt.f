@@ -225,6 +225,8 @@ c-----read input for grid
       if (init_input_file .ne. ' ') then ! Second pass gives text input priority
          !call read_fixed(init_input_file,.false.,istat)
          call process_text_input()
+         call process_text_oprule_input()
+         call process_text_gate_input()
          if (istat .ne. 0) then
             write(unit_error, *)'Error in loading fixed data from text files; run stopped.'
             call exit(1)
