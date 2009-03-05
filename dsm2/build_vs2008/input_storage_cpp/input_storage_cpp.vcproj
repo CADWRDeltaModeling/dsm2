@@ -159,6 +159,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_boundary_flow.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_boundary_stage.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_channel.cpp"
 				>
 			</File>
@@ -211,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_node_concentration.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_operating_rule.cpp"
 				>
 			</File>
@@ -227,11 +239,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel_concentration.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_output_gate.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_output_reservoir.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_reservoir_concentration.cpp"
 				>
 			</File>
 			<File
@@ -255,6 +275,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_concentration.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir_connection.cpp"
 				>
 			</File>
@@ -264,6 +288,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_scalar.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_source_flow.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_source_flow_reservoir.cpp"
 				>
 			</File>
 			<File
@@ -294,6 +326,14 @@
 			>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_boundary_flow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_boundary_stage.h"
 				>
 			</File>
 			<File
@@ -349,6 +389,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_node_concentration.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_operating_rule.h"
 				>
 			</File>
@@ -365,11 +409,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel_concentration.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_output_gate.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_output_reservoir.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_reservoir_concentration.h"
 				>
 			</File>
 			<File
@@ -393,6 +445,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_concentration.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir_connection.h"
 				>
 			</File>
@@ -402,6 +458,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_scalar.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_source_flow.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_source_flow_reservoir.h"
 				>
 			</File>
 			<File
