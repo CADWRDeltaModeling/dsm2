@@ -50,7 +50,7 @@ if (__name__=="__main__"):
                     print "\n"
             else:
                 ordered_print(component_members()[sys.argv[2]])
-    fixup("intxt.inp", "x:/dsm2/channel_std_delta.inp", "channel",[1,2,3,4,5,6])
+
 
 
 
