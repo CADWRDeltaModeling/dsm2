@@ -41,12 +41,15 @@
 		<File RelativePath="..\..\src\fixed\input_channels.f"/>
 		<File RelativePath="..\..\src\fixed\input_storage.f"/>
 		<File RelativePath="..\..\src\fixed\name_to_objno.f"/>
+		<File RelativePath="..\..\src\fixed\nonconservative_codes.f"/>
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\print_output.f"/>
 		<File RelativePath="..\..\src\fixed\process_channel.f"/>
+		<File RelativePath="..\..\src\fixed\process_channel_initcond.f"/>
 		<File RelativePath="..\..\src\fixed\process_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\process_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_group.f"/>
+		<File RelativePath="..\..\src\fixed\process_init_condition.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_climate.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_input_node.f"/>
@@ -60,6 +63,7 @@
 		<File RelativePath="..\..\src\fixed\process_output_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_node.f"/>
 		<File RelativePath="..\..\src\fixed\process_output_reservoir.f"/>
+		<File RelativePath="..\..\src\fixed\process_ptm.f"/>
 		<File RelativePath="..\..\src\fixed\process_rate_coef.f"/>
 		<File RelativePath="..\..\src\fixed\process_reservoir.f"/>
 		<File RelativePath="..\..\src\fixed\process_scalar.f"/>
