@@ -45,6 +45,7 @@
 		<File RelativePath="..\..\src\hydrolib\netblnce.f"/>
 		<File RelativePath="..\..\src\hydrolib\netcntr1.f"/>
 		<File RelativePath="..\..\src\hydrolib\netdense.f"/>
+		<File RelativePath="..\..\src\hydrolib\process_text_hydro_input.f"/>
 		<File RelativePath="..\..\src\hydrolib\process_tide.f"/>
 		<File RelativePath="..\..\src\hydrolib\reservoirs.f"/>
 		<File RelativePath="..\..\src\hydrolib\solvealloc.f"/>
