@@ -319,6 +319,10 @@ c====================================================================
        return
        end subroutine
 
+
+
+
+
 c======================================================================
       subroutine process_text_input()      
       use input_storage_fortran
@@ -368,7 +372,6 @@ c======================================================================
       
        ! output_gate
       character*32 gate, device
-      character*512 action, trigger, definition
 
 
       character*(16) :: sdate,edate
@@ -390,49 +393,6 @@ c======================================================================
       end do
       print *,"Number of tidefiles: ", nitem
 
-
-      nitem = oprule_time_series_buffer_size()
-      do icount = 1,nitem
-          err=oprule_time_series_query_from_buffer(icount,
-     &                                        name,
-     &                                        filename,
-     &                                        inpath,
-     &                                        fillin)
-
-          sign=0 ! currently hardwired
-          call process_input_oprule(name,
-     &                              filename,
-     &                              inpath,
-     &                              sign,
-     &                              fillin)
-      end do
-      print *,"Number of oprule time series processed: ", nitem
-
-
-
-      nitem = oprule_expression_buffer_size()
-      do icount = 1,nitem
-         err=oprule_expression_query_from_buffer(icount,
-     &                                           name,
-     &                                           definition)
-      call process_oprule_expression(name,
-     &                               definition)
-      end do
-      print *,"Number of operating rule expressions processed: ", nitem
-
-
-      nitem = operating_rule_buffer_size()
-      do icount = 1,nitem
-         err=operating_rule_query_from_buffer(icount,
-     &                                        name,
-     &                                        action,
-     &                                        trigger)
-
-      call process_oprule(name,
-     &                    action,
-     &                    trigger)
-      end do
-      print *,"Number of operating rules processed: ", nitem
 
 c=======================  Initial conditions 
       nitem = channel_ic_buffer_size()
@@ -519,25 +479,6 @@ c======================== Input and output ======================
       print *,"Number of transfer inputs processed: ", nitem
 
 
-      nitem = input_gate_buffer_size()
-      do icount = 1,nitem
-         err=input_gate_query_from_buffer(icount,
-     &                                    name,
-     &                                    device,
-     &                                    variable,
-     &                                    fillin,   
-     &                                    filename,
-     &                                    inpath)
-
-
-         call process_input_gate(name,
-     &                           device,
-     &                           variable,
-     &                           fillin,   
-     &                           filename,
-     &                           inpath)
-      end do
-      print *,"Number of gate inputs processed: ", nitem
 
 
       nitem = boundary_stage_buffer_size()
