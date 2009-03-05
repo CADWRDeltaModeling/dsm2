@@ -1,0 +1,109 @@
+
+
+      subroutine process_text_gate_input()      
+      use input_storage_fortran
+      use constants
+      
+      implicit none
+      integer :: nitem
+      character*(128) filename
+      integer :: icount
+      character*(32) name
+      integer err
+
+
+      ! output_channel
+      character*16 variable
+      character*80 inpath
+      character*8  fillin
+      character*32 ::device
+      
+      
+      nitem = input_gate_buffer_size()
+      do icount = 1,nitem
+         err=input_gate_query_from_buffer(icount,
+     &                                    name,
+     &                                    device,
+     &                                    variable,
+     &                                    fillin,   
+     &                                    filename,
+     &                                    inpath)
+
+
+         call process_input_gate(name,
+     &                           device,
+     &                           variable,
+     &                           fillin,   
+     &                           filename,
+     &                           inpath)
+      end do
+      print *,"Number of gate inputs processed: ", nitem
+
+      return
+      end subroutine
+
+
+
+
+
+
+c======================================================================
+      subroutine process_text_oprule_input()      
+      use input_storage_fortran
+      use constants
+      
+      implicit none
+      integer :: nitem
+      character*(128) filename
+      integer :: icount
+      character*(32) name
+      character*512 action, trigger, definition
+      character*80 inpath
+      character*8  fillin
+      integer      sign
+
+      integer err
+      nitem = oprule_time_series_buffer_size()
+      do icount = 1,nitem
+          err=oprule_time_series_query_from_buffer(icount,
+     &                                        name,
+     &                                        filename,
+     &                                        inpath,
+     &                                        fillin)
+
+          sign=0 ! currently hardwired
+          call process_input_oprule(name,
+     &                              filename,
+     &                              inpath,
+     &                              sign,
+     &                              fillin)
+      end do
+      print *,"Number of oprule time series processed: ", nitem
+
+
+
+      nitem = oprule_expression_buffer_size()
+      do icount = 1,nitem
+         err=oprule_expression_query_from_buffer(icount,
+     &                                           name,
+     &                                           definition)
+      call process_oprule_expression(name,
+     &                               definition)
+      end do
+      print *,"Number of operating rule expressions processed: ", nitem
+
+
+      nitem = operating_rule_buffer_size()
+      do icount = 1,nitem
+         err=operating_rule_query_from_buffer(icount,
+     &                                        name,
+     &                                        action,
+     &                                        trigger)
+
+      call process_oprule(name,
+     &                    action,
+     &                    trigger)
+      end do
+      print *,"Number of operating rules processed: ", nitem
+      return
+      end subroutine
