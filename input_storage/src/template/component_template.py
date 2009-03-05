@@ -25,12 +25,30 @@ def fixup(infile,outfile,component,reorder):
         fout.write(string.join(parts, "    ")+"\n")
     fout.write("END\n\n")
 
-
-
 def ordered_print(items):
     for i,item in zip(range(len(items)),items):
          print "%s: %s" % (i,item)
 
+def generateNotepad():
+    tablelist=component_order()
+    folds = string.join([x.upper() for x in tablelist]," ")
+    member_dict=component_members()
+    keys=[]
+    for key in member_dict:
+        keys+=member_dict[key]
+    keywords = string.join([key.upper() for key in keys]," ")
+    userfile = open("userDefineLangTemplate.xml",'r')
+    usertxt = userfile.read()
+    userfile.close()
+    usertxt=usertxt.replace("@FOLDS",folds)
+    usertxt=usertxt.replace("@KEYS",keywords)
+
+    userfile = open("userDefineLang.xml","w")
+    userfile.write(usertxt)
+    userfile.close()
+                  
+         
+         
 if (__name__=="__main__"):
     if len(sys.argv) == 1:
         print "Usage: component order"
@@ -50,8 +68,7 @@ if (__name__=="__main__"):
                     print "\n"
             else:
                 ordered_print(component_members()[sys.argv[2]])
-
-
-
+        if arg == "notepad":
+            generateNotepad()
 
 

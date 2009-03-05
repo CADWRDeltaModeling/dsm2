@@ -6,6 +6,7 @@
 
 import string
 import os.path
+import shutil
 from table_component import *
 indir = os.path.join(os.path.dirname(__file__),"template")
 include_lines = []
@@ -345,7 +346,7 @@ def finalize(outdir):
     f=open(os.path.join(outdir,"component.py"),"w")
     f.write(txt)
     f.close()
-        
+    shutil.copy(os.path.join(indir,"userDefineLangTemplate.xml"),os.path.join(outdir,"."))
         
     
     
