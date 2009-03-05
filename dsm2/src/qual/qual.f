@@ -213,6 +213,9 @@ c-----dsm2 initialization
 
       database_name='DSM2Input'
       if (init_input_file .ne. ' ') then
+         call input_text(init_input_file)  ! reads and echoes text
+         call process_initial_text()       ! process scalar and envvars
+         call process_text_grid_input()    ! processes grid      
          call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
          if (istat .ne. 0) then
             write(unit_error, *)
@@ -243,13 +246,17 @@ c-----read input file(s)
       endif
 
       if (init_input_file .ne. ' ') then ! Second pass gives text input priority
-         call read_fixed(init_input_file,.false.,istat)
+         call process_text_input()
+         !call read_fixed(init_input_file,.false.,istat)
          if (istat .ne. 0) then
             write(unit_error, *)
      &           'Error in loading fixed data from text files; run stopped.'
             call exit(1)
          endif
       end if
+
+      ! Done with reading, echo to text/hdf
+      call write_input_buffers()
 
       call check_fixed(istat)
       if (istat .ne. 0) then
