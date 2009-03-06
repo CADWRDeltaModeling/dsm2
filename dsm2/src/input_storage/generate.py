@@ -446,13 +446,14 @@ def generate_dsm2():
     qual_time_series = ["node_concentration",\
                          "reservoir_concentration",\
                          "input_climate"]
+    qual_spatial = ["rate_coefficient"]
     water_body_output =   ["output_channel","output_reservoir"]
     gate_output = ["output_gate"]
     groups = ["group","group_member"]
     io_file = ["io_file"]
     tidefile = ["tidefile"]
     particle = ["particle_insertion","particle_group_output","particle_flux_output"]
-
+    
     
     define_text_sub("envvar",outdir)
     define_include_block("configuration", envvar)
@@ -461,19 +462,20 @@ def generate_dsm2():
     define_include_block("operation",oprule)
     define_include_block("groups",groups)
     define_include_block("hydro_time_series",hydro_time_series )
+    define_include_block("qual_spatial",qual_spatial)
     define_include_block("qual_time_series", qual_time_series)
     define_include_block("output_time_series",water_body_output + gate_output)
     define_include_block("particle",particle)
     
     hydro_includes=["configuration","grid","initial_condition","operation","hydro_time_series","output_time_series"]
-    qual_includes=["configuration","grid","qual_time_series","groups","output_time_series"]
+    qual_includes=["configuration","grid","qual_time_series","groups","qual_spatial","output_time_series"]
     ptm_includes=["configuration","grid","groups","particle"]
     
     define_profile("envvar",envvar)
     define_profile("scalar",scalar)
     define_profile("Hydro",envvar+scalar+io_file+grid+hydro_ic+hydro_time_series+oprule+water_body_output+gate_output+hydro_includes)
-    define_profile("Qual",envvar+scalar+grid+io_file+tidefile+qual_time_series+water_body_output+qual_includes)
-    define_profile("PTM",envvar+scalar+grid+io_file+tidefile+ptm_includes)
+    define_profile("Qual",envvar+scalar+grid+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+qual_includes)
+    define_profile("PTM",envvar+scalar+grid+io_file+tidefile+groups+ptm_includes)
     
     finalize(outdir)
 
