@@ -193,7 +193,7 @@ c-----dsm2 initialization
       if (init_input_file .ne. ' ') then
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
-         call process_text_grid_input()    ! processes grid
+         call buffer_input_grid()    ! processes grid
 
          !call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
          if (istat .ne. 0) then
@@ -224,7 +224,8 @@ c-----read input for grid
 
       if (init_input_file .ne. ' ') then ! Second pass gives text input priority
          !call read_fixed(init_input_file,.false.,istat)
-         call process_text_input()
+         call buffer_input_common()
+         call buffer_input_hydro()
          call process_text_oprule_input()
          call process_text_gate_input()
          if (istat .ne. 0) then
