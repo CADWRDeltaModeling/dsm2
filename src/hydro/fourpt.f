@@ -188,54 +188,42 @@ c-----dsm2 initialization
          call exit(1)
       end if
 
+c---- begin data reading
       database_name=' '
-
+c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. ' ') then
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
          call buffer_input_grid()    ! processes grid
-
-         !call read_fixed(init_input_file,.true.,istat) !First pass is for envvars only
-         if (istat .ne. 0) then
-            write(unit_error, *)'Error in loading fixed data from text files; run stopped.'
-            call exit(1)
-         endif
-         if (model_name .eq. miss_val_c)then
-            write(unit_error, *)
-     &           'Model name not loaded at command line or in text input file; run stopped.'
-            call exit(1)
-         end if
       end if
 
-      call init_database(istat)
-      if (istat .ne. 0) then
-         write(unit_error, *) 'Error initializing database; run stopped.'
-         call exit(1)
-      endif
+c---- possibly read from db, though it is hobbled now
+      if (model_name .ne. miss_val_c .and. model_name .ne. 'none') then
+         write(unit_screen,*) "Database model name given, reading from database"
+         write(unit_screen,*) "Set model_name to 'none' in SCALARS or remove it"
+         write(unit_screen,*) "to read only from text"
 
-c-----read input for grid
-      if (model_name .ne. miss_val_c) then
+         call init_database(istat)
+         if (istat .ne. 0) then
+            write(unit_error, *) 'Error initializing database; run stopped.'
+            call exit(1)
+         endif
          call read_sql(istat)
          if (istat .ne. 0) then
             write(unit_error, *) 'Error in loading fixed data from RDMS; run stopped.'
             call exit(1)
          endif
       endif
-
-      if (init_input_file .ne. ' ') then ! Second pass gives text input priority
-         !call read_fixed(init_input_file,.false.,istat)
-         call buffer_input_common()
-         call buffer_input_hydro()
-         call process_text_oprule_input()
-         call process_text_gate_input()
-         if (istat .ne. 0) then
-            write(unit_error, *)'Error in loading fixed data from text files; run stopped.'
-            call exit(1)
-         endif
-      end if
-
-      ! Done with reading, echo to text/hdf
+      
+c------ process input that is in buffers
+      call buffer_input_common()
+      call buffer_input_hydro()
+      call process_text_oprule_input()
+      call process_text_gate_input()
+      
       call write_input_buffers()
+
+c------ end of input reading and echo, start checking data
       
 
       call check_fixed(istat)

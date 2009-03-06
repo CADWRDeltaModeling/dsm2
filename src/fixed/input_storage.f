@@ -5,21 +5,36 @@ c=======================================================================
       use hdf5
       use input_storage_fortran
       use envvar
-
+      use runtime_data
       implicit none
       character*(*) filename
+      call clear_all_buffers()
+
+
+      call init_file_reader()
+      call set_initial_context_profile(dsm2_name)
+
 
 c-----Do a first pass reading the input, activating only ENVVARS for use in later text substitution
-      call clear_all_buffers()
-      !todo: testing whether this is optional
-      call init_text_substitution("PARAMETER")    ! Get ready for the pass
-      call process_text_substitution(filename)    ! Do the reading and prep the environment variables
+      call init_file_reader()                     ! Prepare for a read of everything
+      call set_substitution_enabled(.false.)       ! don't try to substitute now      
+      call set_active_profile("envvar")           ! read only ENVVAR blocks
+      call read_buffer_from_text(filename)        ! read starting from this file
+
+      !
+      ! process the results
+      !
+      call process_text_substitution()
+      call set_substitution_enabled(.true.)    ! substitute now
+      ! clear the buffer so that envvars are not loaded redundantly 
+
       call envvar_clear_buffer()                  ! Clear the envvar buffer
-      print*,"Read and processed text substitution (ENVVARS)"
+      print*,"Read and processed text substitution (ENVVARS), reading all data from text"
 
 c-----Do a second pass on all the input, making use of the text substitution we just prepped
-      call init_file_reader()                     ! Prepare for a read of everything
+      call set_active_profile(dsm2_name)          ! activate all keywords for the model
       call read_buffer_from_text(filename)        ! Perform the read into buffers
+      
       print*,"Read text into buffers"
       print*,"No of layers=",xsect_layer_buffer_size()
       call prioritize_all_buffers()               ! Enforce the "layering"
