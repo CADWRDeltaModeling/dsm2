@@ -22,4 +22,13 @@ ApplicationTextReader::InputStateMap input_state_map()
 }    
 
 
+const std::vector<std::string> profile(const std::string& name)
+{  
+     std::vector<std::string> out;
+// Profile definitions DO NOT ALTER THIS LINE AT ALL
+    return out;
+}
+
+
+
 

@@ -16,17 +16,18 @@ void ApplicationTextReader::setInputStateMap(const ApplicationTextReader::InputS
     }
 }
 
-void ApplicationTextReader::setAllActive()
+
+const vector<std::string> ApplicationTextReader::allKeywords()
 {
-  vector<string> activeItems;
+  vector<string> allKeys;
   for(InputStateMap::iterator it = m_inputMap.begin();
       it != m_inputMap.end(); ++it)
     {
-      activeItems.push_back(it->first);
+      allKeys.push_back(it->first);
     }
-  m_activeItems = activeItems;
-   
+  return allKeys;
 }
+
 
 EnvSubstitution & ApplicationTextReader::getTextSubstitution()
 {
@@ -58,6 +59,30 @@ vector<string> & ApplicationTextReader::getActiveItems()
 }
 
 /////////////////////
+void ApplicationTextReader::setInitialContextItems(const vector<string> & a_contextItems)
+{ 
+  m_initialContextItems = a_contextItems;
+}
+
+////////////////////
+vector<string> & ApplicationTextReader::getInitialContextItems()
+{ 
+  return m_initialContextItems;
+}
+
+
+bool ApplicationTextReader::verifyItemsInMap(std::vector<std::string> items)
+{
+    bool verify = true;
+    for (size_t i = 0; i<items.size() && verify ; ++i)
+    {
+        // if item not on map
+        verify &= (m_inputMap.find(items[i]) != m_inputMap.end());
+    }
+    return verify;
+}
+
+/////////////////////
 /* Read text starting from the given file */
 void ApplicationTextReader::processInput(const string & filename)
 { 
@@ -68,8 +93,12 @@ void ApplicationTextReader::processInput(const string & filename)
       cerr << "File does not exist" << endl;
     }
   
+  assert(! this->m_inputMap.empty());
+  assert(verifyItemsInMap(m_initialContextItems));
+  assert(verifyItemsInMap(m_activeItems));
+
   // to do: assumes all active items are valid in initial file context
-  InputStatePtr startState(new FileInputState(m_activeItems,filename));
+  InputStatePtr startState(new FileInputState(m_initialContextItems,filename));
   startState->setActiveItems(m_activeItems);  
   InputStatePtr currentState(startState);
   std::ifstream input(filename.c_str());

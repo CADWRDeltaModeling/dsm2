@@ -37,17 +37,30 @@ module input_storage_fortran
           call init_file_reader_f
        end subroutine       
 
-       subroutine init_text_substitution(includename)
-          character*(*) includename
-          !DEC$ ATTRIBUTES ALIAS:'_init_text_substitution_f' :: init_text_substitution_f
-          call init_text_substitution_f(includename)
+       subroutine set_active_profile(profilename)
+          character*(*) profilename
+          !DEC$ ATTRIBUTES ALIAS:'_set_active_profile_f' :: set_active_profile_f
+          call set_active_profile_f(profilename)
        end subroutine 
 
-       subroutine process_text_substitution(startfilename)
-          character*(*) startfilename
+       subroutine set_initial_context_profile(profilename)
+          character*(*) profilename
+          !DEC$ ATTRIBUTES ALIAS:'_set_initial_context_profile_f' :: set_initial_context_profile_f
+          call set_initial_context_profile_f(profilename)
+       end subroutine
+       
+       subroutine set_substitution_enabled(enabled)
+          logical enabled
+          !DEC$ ATTRIBUTES ALIAS:'_set_substitution_enabled_f' :: set_substitution_enabled_f
+          call set_substitution_enabled_f(enabled)
+       end subroutine   
+
+       subroutine process_text_substitution()
           !DEC$ ATTRIBUTES ALIAS:'_process_text_substitution_f' :: process_text_substitution_f
-          call process_text_substitution_f(startfilename)
+          call process_text_substitution_f()
        end subroutine        
+ 
+ 
  
         subroutine read_buffer_from_text(startfilename)
           character*(*) startfilename

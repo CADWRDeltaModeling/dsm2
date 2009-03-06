@@ -45,7 +45,8 @@ def do_example():
 
     define_include_block("include", ["channel","xsect"])
     define_text_sub("envvar",outdir)
-
+    define_profile("envvar",["envvar"])
+    define_profile("all",["envvar","channel","xsect","include"])
     finalize(outdir)
 
 

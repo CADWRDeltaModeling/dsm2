@@ -50,19 +50,30 @@ public:
   /** Set the list of items (keywords) that will be read */
   void setActiveItems(const std::vector<std::string> & a_activeItems);
 
-  /** Set every keyword active */
-  void setAllActive();
+  /** Get a copy of all items in reader, including include categories*/
+  const std::vector<std::string> allKeywords();
 
   /** Get a reference to the list of active items */
   std::vector<std::string> & getActiveItems();
 
+  /** Set the list of items (keywords) that will be read */
+  void setInitialContextItems(const std::vector<std::string> & a_activeItems);
+
+  /** Get a reference to the list of active items */
+  std::vector<std::string> & getInitialContextItems();
+
   /** Read text starting from the given file */
   void processInput(const std::string & filename);
+
 
  private:
   InputStateMap m_inputMap;
   std::vector<std::string> m_activeItems;
+  std::vector<std::string> m_initialContextItems;
   EnvSubstitution m_sub;
+  
+  /* Verify that the given list of items is in the input map */
+  bool verifyItemsInMap(std::vector<std::string> items);
 
 };
 

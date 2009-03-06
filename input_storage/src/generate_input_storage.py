@@ -18,6 +18,7 @@ fortran_include_lines=[]
 write_text_buffer_lines=[]
 all_components=[]
 write_hdf5_buffer_lines=[]
+profiles={}
     
 def referencify(typename, const=False):
     if ("char" in typename):
@@ -262,8 +263,7 @@ def prep_component(component,outdir):
     fortran_include_lines.append("include \"%s\"" % fortfile)
  
     # add the FORTRAN .f90 file for this object as an include to the main module
-    
-    
+
 
 def define_include_block(name,valid_keywords):
     include_defs.append( (name, valid_keywords))
@@ -277,6 +277,26 @@ def define_text_sub(name,outdir):
     f=open(os.path.join(outdir,"text_parser.cpp"),'w')
     f.write(txt)
 
+    
+def define_profile(profile,contents):
+    profiles[profile]=contents
+
+    
+def process_profiles():
+    profile_code = ""
+    for prof in profiles.keys():
+        contentcode = ""
+        contentcode += string.join(["out.push_back(\"%s\");" % member.upper() for member in profiles[prof] ],"\n        ")
+        p = \
+    """
+    if(name =="%s")
+    {
+        %s
+    }
+    """ % (prof,contentcode)
+        profile_code += p
+    return profile_code
+    
 
 def process_include_defs():
     include_code = "" 
@@ -303,6 +323,8 @@ def finalize(outdir):
     txt=txt.replace("// Item readers DO NOT ALTER THIS LINE AT ALL",maplines)
     includedefs = process_include_defs()
     txt=txt.replace("// Include definitions DO NOT ALTER THIS LINE AT ALL",includedefs)
+    profilelines = process_profiles()
+    txt=txt.replace("// Profile definitions DO NOT ALTER THIS LINE AT ALL", profilelines)
     f=open(os.path.join(outdir,"input_state_map.cpp"),"w")
     f.write(txt)
     f.close()
@@ -347,7 +369,7 @@ def finalize(outdir):
     f.write(txt)
     f.close()
     shutil.copy(os.path.join(indir,"userDefineLangTemplate.xml"),os.path.join(outdir,"."))
-        
+    process_profiles()
     
     
     

@@ -9,15 +9,22 @@ integer(HID_T) :: file_id                            ! File identifier
 logical :: ext
 
 
+call init_file_reader()
 call clear_all_buffers()
-
-call init_text_substitution("INCLUDE")
-call process_text_substitution("test.txt")
-call envvar_clear_buffer()
-
-
 call init_file_reader()
 
+! Read, collect and process the "ENVVAR" section used for 
+! text substitution
+call set_substitution_enabled(.false.)    ! don't try to substitute now
+call set_active_profile("ENVVAR")        ! read only ENVVAR blocks
+call read_buffer_from_text("example.txt") ! read starting from this file
+
+call process_text_substitution("example.txt")
+! so that envvars are not loaded redundantly 
+call envvar_clear_buffer()
+
+call set_active_profile("all")
+call set_substitution_enabled(.true.)    ! substitute now
 call read_buffer_from_text("test.txt")
 
 call channel_prioritize_buffer()
