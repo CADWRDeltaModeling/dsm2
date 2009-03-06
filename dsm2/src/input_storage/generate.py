@@ -457,8 +457,13 @@ def generate_dsm2():
     define_include_block("grid", ["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"])
     define_include_block("initial_condition", ["channel_ic","reservoir_ic"])
     define_include_block("operation", ["operating_rule","oprule_expression","oprule_time_series"])
-    define_include_block("input_time_series", ["boundary_stage","boundary_flow","source_flow","source_flow_reservoir",\
-                                               "node_concentration","reservoir_concentration","input_climate","input_gate","input_transfer","oprule_time_series"])
+    define_include_block("hydro_time_series", ["boundary_stage","boundary_flow","source_flow",\
+                                               "source_flow_reservoir",\
+                                               "input_gate","input_transfer","oprule_time_series"])
+    define_include_block("qual_time_series", ["node_concentration",\
+                                              "reservoir_concentration",\
+                                              "input_climate"])
+ 
     define_include_block("output_time_series", ["output_channel","output_reservoir","output_gate"])
 
     finalize(outdir)
