@@ -288,21 +288,6 @@ def generate_dsm2():
     prep_component(component,outdir)  
  
 
-    component = TableComponent("input_node",
-                             [CharField("name",DSM2_NAME_LEN,16),\
-                              IntField("node"),\
-                              CharField("variable",16,12),\
-                              IntField("sign"),\
-                              CharField("rolename",32,16),\
-                              CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
-                              CharField("path",80,50)
-                             ],
-                             ["name","variable"])   # identifier
-    component.layered=True
-    prep_component(component,outdir)  
-
-
     component = TableComponent("boundary_stage",
                              [CharField("name",DSM2_NAME_LEN,16),\
                               IntField("node"),
@@ -451,21 +436,45 @@ def generate_dsm2():
     prep_component(component,outdir)
 
 
+    envvar=["envvar"]
+    scalar = ["scalar"]
+    grid=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"]
+    hydro_ic=["channel_ic","reservoir_ic"]
+    oprule=["operating_rule","oprule_expression","oprule_time_series"]
+    hydro_time_series = ["boundary_stage","boundary_flow","source_flow",\
+                         "source_flow_reservoir","input_gate","input_transfer_flow","oprule_time_series"]
+    qual_time_series = ["node_concentration",\
+                         "reservoir_concentration",\
+                         "input_climate"]
+    water_body_output =   ["output_channel","output_reservoir"]
+    gate_output = ["output_gate"]
+    groups = ["group","group_member"]
+    io_file = ["io_file"]
+    tidefile = ["tidefile"]
+    particle = ["particle_insertion","particle_group_output","particle_flux_output"]
+
     
     define_text_sub("envvar",outdir)
-    define_include_block("configuration", ["envvar"])
-    define_include_block("grid", ["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"])
-    define_include_block("initial_condition", ["channel_ic","reservoir_ic"])
-    define_include_block("operation", ["operating_rule","oprule_expression","oprule_time_series"])
-    define_include_block("hydro_time_series", ["boundary_stage","boundary_flow","source_flow",\
-                                               "source_flow_reservoir",\
-                                               "input_gate","input_transfer","oprule_time_series"])
-    define_include_block("qual_time_series", ["node_concentration",\
-                                              "reservoir_concentration",\
-                                              "input_climate"])
- 
-    define_include_block("output_time_series", ["output_channel","output_reservoir","output_gate"])
-
+    define_include_block("configuration", envvar)
+    define_include_block("grid", grid)
+    define_include_block("initial_condition", hydro_ic)
+    define_include_block("operation",oprule)
+    define_include_block("groups",groups)
+    define_include_block("hydro_time_series",hydro_time_series )
+    define_include_block("qual_time_series", qual_time_series)
+    define_include_block("output_time_series",water_body_output + gate_output)
+    define_include_block("particle",particle)
+    
+    hydro_includes=["configuration","grid","initial_condition","operation","hydro_time_series","output_time_series"]
+    qual_includes=["configuration","grid","qual_time_series","groups","output_time_series"]
+    ptm_includes=["configuration","grid","groups","particle"]
+    
+    define_profile("envvar",envvar)
+    define_profile("scalar",scalar)
+    define_profile("Hydro",envvar+scalar+io_file+grid+hydro_ic+hydro_time_series+oprule+water_body_output+gate_output+hydro_includes)
+    define_profile("Qual",envvar+scalar+grid+io_file+tidefile+qual_time_series+water_body_output+qual_includes)
+    define_profile("PTM",envvar+scalar+grid+io_file+tidefile+ptm_includes)
+    
     finalize(outdir)
 
 
