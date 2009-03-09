@@ -33,19 +33,24 @@
 	<Files>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\fixed\assign_output_units.f"/>
+		<File RelativePath="..\..\src\fixed\buffer_input_common.f"/>
+		<File RelativePath="..\..\src\fixed\buffer_input_grid.f"/>
+		<File RelativePath="..\..\src\fixed\buffer_input_hydro.f"/>
+		<File RelativePath="..\..\src\fixed\buffer_input_qual.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_hydro.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_ptm.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_qual.f"/>
 		<File RelativePath="..\..\src\fixed\dsm2_init.f"/>
 		<File RelativePath="..\..\src\fixed\input_channels.f"/>
-		<File RelativePath="..\..\src\fixed\input_storage.f"/>
+		<File RelativePath="..\..\src\fixed\input_storage.f">
+			<FileConfiguration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" WarnUnusedVariables="true"/></FileConfiguration></File>
 		<File RelativePath="..\..\src\fixed\name_to_objno.f"/>
 		<File RelativePath="..\..\src\fixed\nonconservative_codes.f"/>
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
 		<File RelativePath="..\..\src\fixed\print_output.f"/>
 		<File RelativePath="..\..\src\fixed\process_channel.f"/>
-		<File RelativePath="..\..\src\fixed\process_channel_initcond.f"/>
 		<File RelativePath="..\..\src\fixed\process_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\process_gate.f"/>
 		<File RelativePath="..\..\src\fixed\process_group.f"/>

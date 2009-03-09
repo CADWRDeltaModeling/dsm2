@@ -203,14 +203,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_input_node.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\input_storage\input_storage_input_reservoir.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_transfer_flow.cpp"
 				>
 			</File>
@@ -370,14 +362,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_gate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\input_storage\input_storage_input_node.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\input_storage\input_storage_input_reservoir.h"
 				>
 			</File>
 			<File
