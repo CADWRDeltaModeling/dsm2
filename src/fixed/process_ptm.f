@@ -114,7 +114,7 @@ c-----process a character line into data arrays for particle group output
       use constants_ptm
       !use ptm_local   !todo: why is ptm_local leaking into common?
       implicit none
-      character*32  groupname
+      character*40  groupname
       character*32  name
       character*16  interval
       character*128 filename
