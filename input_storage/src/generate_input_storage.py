@@ -107,7 +107,7 @@ def prep_component(component,outdir):
     c_signature = string.join([x.c_arg(False) for x in component.members],",")
     stringlen_output_args = string.join([x.stringlen_arg(False) for x in component.members if x.stringlen_arg(False)],",")
     fortran_c_output_signature=string.join([x.fc_arg(False) for x in component.members],",")
-
+    fortran_c_output_signature += ", int * ierror"
     if (len(stringlen_output_args) > 0):
         fortran_c_output_signature+=(", \n              %s"  % stringlen_output_args)
 
@@ -115,6 +115,8 @@ def prep_component(component,outdir):
     c_input_signature = string.join([x.c_arg(True) for x in component.members],",")
     stringlen_input_args = string.join([x.stringlen_arg(True) for x in component.members if x.stringlen_arg(True)],",")
     fortran_c_input_signature=string.join([x.fc_arg(True) for x in component.members],",")
+    fortran_c_input_signature += ", int * ierror"
+
     if (len(stringlen_input_args) > 0):
         fortran_c_input_signature+=(", \n              %s"  % stringlen_input_args)
 
@@ -158,7 +160,6 @@ def prep_component(component,outdir):
     fortran_signature = string.join([x.name for x in component.members], ",")
     fortran_decl_in = "      "  + string.join([fortran_declaration(x,"in") for x in component.members], "\n       ")
     fortran_decl_out = "      "  + string.join([fortran_declaration(x,"out") for x in component.members], "\n       ")
-
 
     if component.parent: 
         parent = component.parent
@@ -257,9 +258,9 @@ def prep_component(component,outdir):
     outfile.write(txt)
     outfile.close()
     clear_buffer_lines.append("HDFTableManager<%s>::instance().buffer().clear();" % component.name)
-    prioritize_buffer_lines.append("HDFTableManager<%s>::instance().prioritize_buffer();" % component.name)
-    write_text_buffer_lines.append("%s_write_buffer_to_text_f(file,append,filelen);" % component.name)
-    write_hdf5_buffer_lines.append("%s_write_buffer_to_hdf5_f(file_id);" % component.name)
+    prioritize_buffer_lines.append("HDFTableManager<%s>::instance().prioritize_buffer();\n     if(*ierror != 0) return;" % component.name)
+    write_text_buffer_lines.append("%s_write_buffer_to_text_f(file,append,ierror,filelen);\n     if(*ierror != 0) return;" % component.name)
+    write_hdf5_buffer_lines.append("%s_write_buffer_to_hdf5_f(file_id,ierror);\n     if(*ierror != 0) return;" % component.name)
     fortran_include_lines.append("include \"%s\"" % fortfile)
  
     # add the FORTRAN .f90 file for this object as an include to the main module

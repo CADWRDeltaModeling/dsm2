@@ -166,31 +166,31 @@ FCALL int @TABLEOBJ_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL size_t @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE);
+FCALL void @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE);
   
 /** both makes the table and writes the contents of the buffer to it */
-FCALL herr_t @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id);
+FCALL void @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id, int* ierror);
 
 /** reads the table in from a file into the buffer*/
-FCALL herr_t @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id);
+FCALL void @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id, int* ierror);
 
 /** query size information about the table in hdf5
 */
-FCALL herr_t @TABLEOBJ_number_rows_hdf5_f(hid_t* file_id, hsize_t* nrecords);
+FCALL void @TABLEOBJ_number_rows_hdf5_f(hid_t* file_id, hsize_t* nrecords, int* ierror);
 
 
 /** get one row worth of information from the buffer */
-FCALL herr_t @TABLEOBJ_query_from_buffer_f(size_t* row, 
+FCALL void @TABLEOBJ_query_from_buffer_f(size_t* row, 
                         @FORTRAN_C_OUTPUT_SIGNATURE);
 /**
   prioritize buffer by layers, delete unused items and sort
   */
-FCALL void @TABLEOBJ_prioritize_buffer_f();
+FCALL void @TABLEOBJ_prioritize_buffer_f(int* ierror);
 /**
    write buffer to the given text file. File will be appended if exists and append flag is set to true.
    otherwise the file will be created or overwritten.
  */
-FCALL void @TABLEOBJ_write_buffer_to_text_f(const char* file, const bool* append, int filelen);
+FCALL void @TABLEOBJ_write_buffer_to_text_f(const char* file, const bool* append, int* ierror, int filelen);
 
 
 #endif

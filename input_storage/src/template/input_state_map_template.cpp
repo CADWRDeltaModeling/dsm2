@@ -26,6 +26,13 @@ const std::vector<std::string> profile(const std::string& name)
 {  
      std::vector<std::string> out;
 // Profile definitions DO NOT ALTER THIS LINE AT ALL
+    
+    if (out.empty()){
+       std::string message("Input profile name not found or is empty (case sensitivity?):\n");
+       message += name;
+       
+       throw logic_error(message);
+    }  
     return out;
 }
 

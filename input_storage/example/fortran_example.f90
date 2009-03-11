@@ -7,23 +7,33 @@ integer :: error
 character(len=18), PARAMETER :: filename="fortran_example.h5" ! File name
 integer(HID_T) :: file_id                            ! File identifier
 logical :: ext
+integer :: ierror = 0
 
 
-call clear_all_buffers()
-call init_file_reader()
+call clear_all_buffers(ierror)
+call init_file_reader(ierror)
 
 
 ! Read, collect and process the "ENVVAR" section used for 
 ! text substitution
-call set_substitution_enabled(.false.)    ! don't try to substitute now
-call set_active_profile("ENVVAR")        ! read only ENVVAR blocks
-call read_buffer_from_text("example.txt") ! read starting from this file
+call set_substitution_enabled(.false.,ierror)    ! don't try to substitute now
 
+print*, "Setting active profile to envvar"
+call set_active_profile("envvar",ierror)         ! read only ENVVAR blocks
+call verify_error(ierror)
+
+print*, "Reading from text, envvar only"
+call read_buffer_from_text("example.txt",ierror) ! read starting from this file
+call verify_error(ierror)
 !
 ! process the results
 !
-call process_text_substitution("example.txt")
-call set_substitution_enabled(.true.)    ! substitute now
+print*,"Processing text substitution"
+call process_text_substitution(ierror)
+call verify_error(ierror)
+
+print*,"Enable text substitution"
+call set_substitution_enabled(.true.,ierror)  ! substitute now
 ! clear the buffer so that envvars are not loaded redundantly 
 call envvar_clear_buffer()
 
@@ -31,13 +41,18 @@ call envvar_clear_buffer()
 !
 ! set the active profile to "all". Now all items will be read.
 !
-call set_active_profile("all")
-call read_buffer_from_text("example.txt")
+print*,"Reading all items"
+call set_active_profile("all", ierror)
+call read_buffer_from_text("example.txt",ierror)
+call verify_error(ierror)
 !
 ! check for redundancies and prioritize according to source file
 !
-call channel_prioritize_buffer()
-call xsect_prioritize_buffer()
+print*,"Prioritize buffer"
+call channel_prioritize_buffer(ierror)
+call verify_error(ierror)
+call xsect_prioritize_buffer(ierror)
+call verify_error(ierror)
 
 !
 ! do something with the data...
@@ -60,10 +75,10 @@ if (error .ne. 0) then
 end if
 print*,"invert"
 
-error= xsect_write_buffer_to_hdf5(file_id)
-error= channel_write_buffer_to_hdf5(file_id)
-error= envvar_write_buffer_to_hdf5(file_id)
-call channel_write_buffer_to_text("example_fortran_out.txt",.true.)
+call xsect_write_buffer_to_hdf5(file_id,ierror)
+call channel_write_buffer_to_hdf5(file_id,ierror)
+call envvar_write_buffer_to_hdf5(file_id,ierror)
+call channel_write_buffer_to_text("example_fortran_out.txt",.true.,ierror)
 
 !
 !    Close file and  FORTRAN interface.
@@ -76,3 +91,12 @@ print*, "hdf5 shutdown status: ", error
 
 
 end program
+
+subroutine verify_error(error)
+implicit none
+integer error
+if (error .ne. 0)then
+  write(*,*)"Input storage error"
+  call exit(error)
+end if
+end subroutine
