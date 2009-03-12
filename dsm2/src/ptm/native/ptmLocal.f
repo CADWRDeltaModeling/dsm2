@@ -192,6 +192,7 @@ c---- possibly read from db, though it is hobbled now
          write(unit_screen,*) "Set model_name to 'none' in SCALARS or remove it"
          write(unit_screen,*) "to read only from text"
 
+         istat = 0
          call init_database(istat)
          if (istat .ne. 0) then
             write(unit_error, *) 'Error initializing database; run stopped.'

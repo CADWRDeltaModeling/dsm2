@@ -142,10 +142,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       use common_ptm
       implicit none
 
-
       integer getWaterbodyUniqueId, getStageWaterbodyForNode
       integer i
-
 c-----
       ngroup_output = 0
       do i=1, noutpaths
@@ -1125,10 +1123,14 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----integer lnblnk
 c-----lastNonBlank = lnblnk(node_geom(nodeNumber).boundary_type)
       name=''
-      lastNonBlank=1    
-      if( nodeNumber .le. max_nodes .and.   !todo: Eli added this guard against high nodeNumber. Why would the code work before?
-     &    node_geom(nodeNumber).boundary_type .eq. stage_boundary ) then
-         name = 'STAGE'
+      lastNonBlank=1
+      if (nodeNumber .le. max_nodes)then
+      !todo: Eli added this guard against high nodeNumber. 
+      !      Why would the code work before?
+         if( 
+     &      node_geom(nodeNumber).boundary_type .eq. stage_boundary ) then
+            name = 'STAGE'
+         endif
       endif
       name = trim(name) // char(0)
       return 
@@ -1321,8 +1323,8 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       use ptm_local
       implicit none
       integer get_number_incoming
-
       integer index
+      
 	get_number_of_group_members 
      &           = groupArray(groupOut(index).groupNdx).nMember
       return
