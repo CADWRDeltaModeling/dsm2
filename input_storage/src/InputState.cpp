@@ -52,7 +52,7 @@ bool InputState::isItemAllowed(const string & item) const
 }
 
 void InputState::handleFatalError(const string& message) const
-{
-  std::cerr<< message<<endl;
-  abort();
+{   
+    //std::cerr << message << endl;
+    throw std::runtime_error(message);
 }

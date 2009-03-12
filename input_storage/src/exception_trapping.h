@@ -1,14 +1,13 @@
 #ifndef _EXCEPTION_TRAPPING_H
 #define _EXCEPTION_TRAPPING_H
-#include<iostream>
-#include<string>
-
+#include <string>
 static int SUCCESS = 0;
-static int RUNTIME_ERROR = 1;
-static int LOGIC_ERROR = 2;
-static int GENERAL_FAIL = 16;
+static int RUNTIME_ERROR = -3;
+static int LOGIC_ERROR = -2;
+static int GENERAL_FAIL = -1;
 
 void input_storage_log_err_f(const std::string & message);
+
 
 
 /** This macro defines the way C++ exceptions are trapped
@@ -22,21 +21,21 @@ void input_storage_log_err_f(const std::string & message);
     try{ _CODE } \
     catch (std::runtime_error rte) \
     {\
-        string message("\n*****\nRuntime/Input error:\n"); \
+        std::string message("\n*****\nRuntime/Input error:"); \
         message += rte.what();\
         input_storage_log_err_f(message);\
         _ERROR_VAR= RUNTIME_ERROR;\
     }\
     catch (std::logic_error le) \
     {\
-        string message("\n*****\nLogical/Programming error:\n");\
+        std::string message("\n*****\nLogical/Programming error:");\
         message += le.what();\
         input_storage_log_err_f(message);\
         _ERROR_VAR = LOGIC_ERROR;\
     }\
     catch (...) \
     {\
-        string message("\n*****\nGeneral error (no info)");\
+        std::string message("\n*****\nGeneral error (no info):");\
         input_storage_log_err_f(message);\
         _ERROR_VAR = GENERAL_FAIL;\
     }\
