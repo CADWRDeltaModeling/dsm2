@@ -29,8 +29,9 @@
       
       nitem = group_buffer_size()
       do icount = 1,nitem
-         err=group_query_from_buffer(icount,
-     &                               name)
+         call group_query_from_buffer(icount,
+     &                                name,
+     &                                ierror)
          call  process_group(name,
      &                       icount)
       end do
@@ -38,10 +39,11 @@
 
       nitem = group_member_buffer_size()
       do icount = 1,nitem
-         err=group_member_query_from_buffer(icount,
-     &                                      groupname,
-     &                                      member_type,
-     &                                      pattern)
+         call group_member_query_from_buffer(icount,
+     &                                       groupname,
+     &                                       member_type,
+     &                                       pattern,
+     &                                       ierror)
          obj_type = obj_type_code(member_type)
          call  process_group_member(groupname,
      &                              obj_type,
@@ -52,11 +54,11 @@
       nitem = particle_insertion_buffer_size()
       do icount = 1,nitem
          call particle_insertion_query_from_buffer(icount,
-     &                                            node,
-     &                                            nparts,   
-     &                                            delay,
-     &                                            duration,
-     &                                            ierror)
+     &                                             node,
+     &                                             nparts,   
+     &                                             delay,
+     &                                             duration,
+     &                                             ierror)
          call  process_particle_injection(node,
      &                                    nparts,
      &                                    delay,
