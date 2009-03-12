@@ -160,6 +160,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\exception_trapping.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\FileInputState.cpp"
 				>
 			</File>
@@ -195,6 +199,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\EnvSubstitution.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\exception_trapping.h"
 				>
 			</File>
 			<File
