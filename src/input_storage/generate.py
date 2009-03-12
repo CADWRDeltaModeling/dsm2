@@ -475,7 +475,7 @@ def generate_dsm2():
     define_profile("scalar",scalar)
     define_profile("Hydro",envvar+scalar+io_file+grid+hydro_ic+hydro_time_series+oprule+water_body_output+gate_output+hydro_includes)
     define_profile("Qual",envvar+scalar+grid+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+qual_includes)
-    define_profile("PTM",envvar+scalar+grid+io_file+tidefile+groups+ptm_includes)
+    define_profile("PTM",envvar+scalar+grid+io_file+tidefile+groups+particle+ptm_includes)
     
     finalize(outdir)
 
