@@ -12,13 +12,42 @@
       character*8 delay
       character*16 duration
       
+      character*32 groupname
+      character*16 member_type
+      character*32 pattern
+      integer*4 obj_type
+      
       character*32 name
       character*40 from_wb
       character*40 to_wb
       character*16 interval
       character*128 filename
       
-      character*40 groupname
+      character*40 group_name
+
+      integer*4, external :: obj_type_code
+      
+      nitem = group_buffer_size()
+      do icount = 1,nitem
+         err=group_query_from_buffer(icount,
+     &                               name)
+         call  process_group(name,
+     &                       icount)
+      end do
+      print *,"Number of groups processed: ", nitem
+
+      nitem = group_member_buffer_size()
+      do icount = 1,nitem
+         err=group_member_query_from_buffer(icount,
+     &                                      groupname,
+     &                                      member_type,
+     &                                      pattern)
+         obj_type = obj_type_code(member_type)
+         call  process_group_member(groupname,
+     &                              obj_type,
+     &                              pattern)
+      end do
+      print *,"Number of group members processed: ", nitem
 
       nitem = particle_insertion_buffer_size()
       do icount = 1,nitem
@@ -57,13 +86,13 @@
       do icount = 1,nitem
          call particle_group_output_query_from_buffer(icount,
      &                                               name,
-     &                                               groupname,
+     &                                               group_name,
      &                                               interval,
      &                                               filename,
      &                                               ierror)
          
          call process_particle_group_output(name,
-     &                                      groupname,
+     &                                      group_name,
      &                                      interval,
      &                                      filename)
       end do
