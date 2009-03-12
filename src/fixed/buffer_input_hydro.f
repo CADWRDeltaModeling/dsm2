@@ -10,8 +10,7 @@
       character*8,model,filetype,io
       character*16 interval
       character*128 iofile
-      integer err
-
+      integer :: ierror = 0
       ! input_node
 
       character*32 :: rolename 
@@ -54,11 +53,12 @@
 c=======================  Initial conditions 
       nitem = channel_ic_buffer_size()
       do icount = 1,nitem
-         err=channel_ic_query_from_buffer(icount,
+         call channel_ic_query_from_buffer(icount,
      &                                     channel,
      &                                     cdist,
      &                                     stage,
-     &                                     flow)
+     &                                     flow,
+     &                                     ierror)
 
          call process_channel_ic(channel,cdist,stage,flow)
       end do
@@ -66,7 +66,7 @@ c=======================  Initial conditions
 
       nitem = reservoir_ic_buffer_size()
       do icount = 1,nitem
-         err=reservoir_ic_query_from_buffer(icount,resname,stage)
+         call reservoir_ic_query_from_buffer(icount,resname,stage,ierror)
          call process_reservoir_ic(resname,stage)
       end do
       print *,"Number of channel initial conditions processed: ", nitem      
@@ -74,12 +74,13 @@ c=======================  Initial conditions
 
       nitem = boundary_stage_buffer_size()
       do icount = 1,nitem
-         err=boundary_stage_query_from_buffer(icount,
+         call boundary_stage_query_from_buffer(icount,
      &                                    name,
      &                                    node,
      &                                    fillin,   
      &                                    filename,
-     &                                    inpath)
+     &                                    inpath,
+     &                                    ierror)
       rolename="stage"
       variable="stage"
       sign=0 
@@ -98,13 +99,14 @@ c=======================  Initial conditions
 
       nitem = boundary_flow_buffer_size()
       do icount = 1,nitem
-         err=boundary_flow_query_from_buffer(icount,
+         call boundary_flow_query_from_buffer(icount,
      &                                    name,
      &                                    node,
      &                                    sign,   
      &                                    fillin,   
      &                                    filename,
-     &                                    inpath)
+     &                                    inpath,
+     &                                    ierror)
       rolename="inflow"
       variable="flow"
  
@@ -122,13 +124,14 @@ c=======================  Initial conditions
 
       nitem = source_flow_buffer_size()
       do icount = 1,nitem
-         err=source_flow_query_from_buffer(icount,
+         call source_flow_query_from_buffer(icount,
      &                                    name,
      &                                    node,
      &                                    sign,   
      &                                    fillin,   
      &                                    filename,
-     &                                    inpath)
+     &                                    inpath,
+     &                                    ierror)
       rolename="source-sink"
       variable="flow" 
          call process_input_node(name,
@@ -145,13 +148,14 @@ c=======================  Initial conditions
 
       nitem = source_flow_reservoir_buffer_size()
       do icount = 1,nitem
-         err=source_flow_reservoir_query_from_buffer(icount,
+         call source_flow_reservoir_query_from_buffer(icount,
      &                                    name,
      &                                    resname,
      &                                    sign,   
      &                                    fillin,   
      &                                    filename,
-     &                                    inpath)
+     &                                    inpath,
+     &                                    ierror)
       variable="flow" 
          call process_input_reservoir(name,
      &                               resname,
@@ -167,11 +171,12 @@ c=======================  Initial conditions
 
       nitem = input_transfer_flow_buffer_size()
       do icount = 1,nitem
-         err=input_transfer_flow_query_from_buffer(icount,
+         call input_transfer_flow_query_from_buffer(icount,
      &                                             name,
      &                                             fillin,   
      &                                             filename,
-     &                                             inpath)
+     &                                             inpath,
+     &                                             ierror)
          variable = 'flow'
          call process_input_transfer(name,
      &                               variable,

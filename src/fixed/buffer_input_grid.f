@@ -11,7 +11,7 @@ c====================================================================
       character*(128) filename
       integer :: icount
       character*(32) name
-      integer err
+      integer :: ierror = 0
       
       integer chan_no,length,up_node,down_node
       real*8 manning,dispersion
@@ -51,13 +51,14 @@ c====================================================================
       
       nitem = channel_buffer_size()
       do icount = 1,nitem
-         err=channel_query_from_buffer(icount,
+         call channel_query_from_buffer(icount,
      &                                 chan_no,
      &                                 length,
      &                                 manning,
      &                                 dispersion,
      &                                 up_node,
-     &                                 down_node)
+     &                                 down_node,
+     &                                 ierror)
 
       nitem = channel_buffer_size()         
          call process_channel(idummy,0,chan_no,
@@ -86,10 +87,11 @@ c====================================================================
 ! make sure we don't redundantly call xsect_layer_buffer processing.
       nitem = xsect_buffer_size()         
       do icount = 1,nitem
-         err=xsect_query_from_buffer(icount,
+         call xsect_query_from_buffer(icount,
      &                                 chan_no,
      &                                 dist,
-     &                                 filename)
+     &                                 filename,
+     &                                 ierror)
          
          call process_xsect_csdp(chan_no,
      &                           dist,
@@ -99,13 +101,14 @@ c====================================================================
 
       nitem = xsect_layer_buffer_size()         
       do icount = 1,nitem
-         err=xsect_layer_query_from_buffer(icount,
+         call xsect_layer_query_from_buffer(icount,
      &                                 chan_no,
      &                                 dist,
      &                                 elev,
      &                                 area,
      &                                 width,
-     &                                 wet_perim)
+     &                                 wet_perim,
+     &                                 ierror)
          
          call process_xsect_layer_full(chan_no,
      &                                 dist,
@@ -119,10 +122,11 @@ c====================================================================
 
       nitem = reservoir_buffer_size()
       do icount = 1,nitem
-         err=reservoir_query_from_buffer(icount,
+         call reservoir_query_from_buffer(icount,
      &                                   name,
      &                                   area,
-     &                                   bottom_elev)
+     &                                   bottom_elev,
+     &                                   ierror)
          
          call process_reservoir(0,name,  !todo: get rid of the id argument
      &                          area,
@@ -132,11 +136,12 @@ c====================================================================
 
       nitem = reservoir_connection_buffer_size()
       do icount = 1,nitem
-         err=reservoir_connection_query_from_buffer(icount,
+         call reservoir_connection_query_from_buffer(icount,
      &                                   name,
      &                                   node,
      &                                   coef_in,     
-     &                                   coef_out)
+     &                                   coef_out,
+     &                                   ierror)
          
          call process_reservoir_connection(name,
      &                                     node, 
@@ -147,11 +152,12 @@ c====================================================================
 
       nitem = gate_buffer_size()
       do icount = 1,nitem
-         err=gate_query_from_buffer(icount,
+         call gate_query_from_buffer(icount,
      &                              name,
      &                              from_obj,
      &                              from_identifier,
-     &                              node)
+     &                              node,
+     &                              ierror)
          
          call process_gate(0,
      &                     name,
@@ -163,7 +169,7 @@ c====================================================================
 
       nitem = gate_device_buffer_size()
       do icount = 1,nitem
-         err=gate_device_query_from_buffer(icount,
+         call gate_device_query_from_buffer(icount,
      &                              gate_name,
      &                              device_name,
      &                              struct_name,
@@ -174,7 +180,8 @@ c====================================================================
      &                              cf_to_node,
      &                              cf_from_node,
      &                              default_op,
-     &                              position_control)
+     &                              position_control,
+     &                              ierror)
          
          call process_gate_device(
      &                              gate_name,
@@ -195,12 +202,13 @@ c====================================================================
 
       nitem = transfer_buffer_size()
       do icount = 1,nitem
-         err=transfer_query_from_buffer(icount,
+         call transfer_query_from_buffer(icount,
      &                                  name,
      &                                  from_obj,
      &                                  from_identifier,
      &                                  to_obj,
-     &                                  to_identifier)
+     &                                  to_identifier,
+     &                                  ierror)
          
          call process_transfer(0,name,!todo: get rid of the id argument
      &                         from_obj,
