@@ -219,6 +219,8 @@ c     get the integer type code given a character string representing the type
 	  obj_type_code=obj_gate
 	else if (index(cstring,"res") .eq. 1)then
 	  obj_type_code=obj_reservoir
+	else if (index(cstring,"node") .eq. 1)then
+	  obj_type_code=obj_node	  
 	else if (index(cstring,"transfer") .eq. 1)then
 	  obj_type_code=obj_obj2obj
 	else if (index(cstring,"group") .eq. 1)then
