@@ -46,14 +46,14 @@ module input_storage_fortran
           character*(*) profilename
           integer :: ierror
           !DEC$ ATTRIBUTES ALIAS:'_set_active_profile_f' :: set_active_profile_f
-          call set_active_profile_f(profilename,ierror)
+          call set_active_profile_f(trim(profilename),ierror)
        end subroutine 
 
        subroutine set_initial_context_profile(profilename)
             !DEC$ ATTRIBUTES ALIAS:'_set_initial_context_profile_f' :: set_initial_context_profile_f
             character*(*) profilename
             integer :: ierror
-            call set_initial_context_profile_f(profilename,ierror)
+            call set_initial_context_profile_f(trim(profilename),ierror)
        end subroutine
        
        subroutine set_substitution_enabled(enabled,ierror)
