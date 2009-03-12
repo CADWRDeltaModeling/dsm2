@@ -221,9 +221,13 @@ c---- read all text into buffers and process envvironmental variables
       end if
 
 c---- possibly read from db, though it is hobbled now
-      if (model_name .ne. miss_val_c .and. model_name .ne. 'none') then
-         write(unit_screen,*) "Database model name given, reading from database"
-         write(unit_screen,*) "Set model_name to 'none' in SCALARS or remove it"
+      if ( database_name .ne. miss_val_c .and.
+     &      model_name .ne. miss_val_c 
+     &      .and. model_name .ne. 'none') then
+         write(unit_screen,*) "Database name given: ",trim(database_name),","
+         write(unit_screen,*) "Model name given: ",trim(model_name),","
+         write(unit_screen,*) "Reading from database. If not desired,"
+         write(unit_screen,*) "set model_name to 'none' in SCALARS or remove it"
          write(unit_screen,*) "to read only from text"
 
          call init_database(istat)
