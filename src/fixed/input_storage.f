@@ -7,7 +7,7 @@ c=======================================================================
       use envvar
       use runtime_data
       implicit none
-      integer ierror
+      integer :: ierror = 0
       character*(*) filename
       call clear_all_buffers(ierror)
 
@@ -20,8 +20,9 @@ c-----Do a first pass reading the input, activating only ENVVARS for use in late
       call init_file_reader(ierror)                   ! Prepare for a read of everything
       call set_substitution_enabled(.false.,ierror)   ! don't try to substitute now      
       call set_active_profile("envvar",ierror)        ! read only ENVVAR blocks
+      call verify_error(ierror,"Error setting active profile")
       call read_buffer_from_text(filename,ierror)            ! read starting from this file
-
+      call verify_error(ierror,"Error reading from text (envvar pass)")
       !
       ! process the results
       !
@@ -35,10 +36,11 @@ c-----Do a first pass reading the input, activating only ENVVARS for use in late
 c-----Do a second pass on all the input, making use of the text substitution we just prepped
       call set_active_profile(dsm2_name,ierror)          ! activate all keywords for the model
       call read_buffer_from_text(filename,ierror)        ! Perform the read into buffers
-      
+      call verify_error(ierror,"Error reading from text (full pass)")
       print*,"Read text into buffers"
       print*,"No of layers=",xsect_layer_buffer_size()
       call prioritize_all_buffers(ierror)                ! Enforce the "layering"
+      call verify_error(ierror,"Error prioritizing buffers, sorting layers")
       print*,"Prioritized buffer"
  
       return
@@ -53,11 +55,12 @@ c==================================================================
       implicit none
       character(LEN=7),parameter :: hdf_filename = "echo.h5" 
       integer(HID_T) :: file_id
-      integer :: ierror
+      integer :: ierror = 0
       logical, parameter :: append_text=.TRUE.
       logical :: ext
 c-----Write all buffers to text in the order they were defined
       call write_all_buffers_to_text("testout.txt",append_text,ierror)
+      call verify_error(ierror,"Error writing echoed text")
       print*, "text written"
 
 c-----Write all buffers to hdf5
@@ -69,14 +72,14 @@ c-----Write all buffers to hdf5
 
       call h5open_f (ierror)
       call h5fcreate_f(hdf_filename, H5F_ACC_TRUNC_F, file_id, ierror)
-      if (ierror .ne. 0) then
+      if (ierror .ne. 0) then      
       print*,"Could not open file, hdf error: ", ierror
       print*,"Check if it already exists and delete if so -- failure to replace seems to be an HDF5 bug"
       call exit(2)
       end if
 
       call write_all_buffers_to_hdf5(file_id,ierror)  ! Do the actual write
-
+      call verify_error(ierror,"Error writing echoed input to hdf5")
       call h5fclose_f(file_id, ierror)                 ! Close down ! todo: this is too verbose
       print *, "file close status: ", ierror
       call h5close_f(ierror)
@@ -125,9 +128,9 @@ c====================================================================
       use constants
       implicit none
       integer,intent(in) :: ierror
-      character,intent(in) :: message
+      character(len=*),intent(in) :: message
       if (ierror .eq. 0) return
-      write(unit_error,"(/,a,/)") message
-      write(unit_screen,"(/,a,/)") message
+      write(unit_error,"(/,a,/,'[FATAL]',1x,i)") message,ierror
+      call exit(ierror)
       end subroutine
 
