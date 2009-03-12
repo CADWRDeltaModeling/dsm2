@@ -112,7 +112,11 @@
      &                                    filename,
      &                                    ierror) 
          sourcegroup = ""
-         if (node_str .eq. "none")node=miss_val_i
+         if (node_str .eq. "none")then
+             node=miss_val_i
+         else
+             read(node_str,'(i)')node
+         end if
          call process_output_reservoir(name,
      &                                    reservoir,
      &                                    node,
