@@ -9,7 +9,7 @@
       character*(128) filename
       integer :: icount
       character*(32) name
-      integer err
+      integer :: ierror = 0
 
 
       ! output_channel
@@ -21,13 +21,14 @@
       
       nitem = input_gate_buffer_size()
       do icount = 1,nitem
-         err=input_gate_query_from_buffer(icount,
+         call input_gate_query_from_buffer(icount,
      &                                    name,
      &                                    device,
      &                                    variable,
      &                                    fillin,   
      &                                    filename,
-     &                                    inpath)
+     &                                    inpath,
+     &                                    ierror)
 
 
          call process_input_gate(name,
@@ -62,14 +63,15 @@ c======================================================================
       character*8  fillin
       integer      sign
 
-      integer err
+      integer :: ierror = 0
       nitem = oprule_time_series_buffer_size()
       do icount = 1,nitem
-          err=oprule_time_series_query_from_buffer(icount,
+          call oprule_time_series_query_from_buffer(icount,
      &                                        name,
      &                                        filename,
      &                                        inpath,
-     &                                        fillin)
+     &                                        fillin,
+     &                                        ierror)
 
           sign=0 ! currently hardwired
           call process_input_oprule(name,
@@ -84,9 +86,9 @@ c======================================================================
 
       nitem = oprule_expression_buffer_size()
       do icount = 1,nitem
-         err=oprule_expression_query_from_buffer(icount,
+         call oprule_expression_query_from_buffer(icount,
      &                                           name,
-     &                                           definition)
+     &                                           definition,ierror)
       call process_oprule_expression(name,
      &                               definition)
       end do
@@ -95,10 +97,11 @@ c======================================================================
 
       nitem = operating_rule_buffer_size()
       do icount = 1,nitem
-         err=operating_rule_query_from_buffer(icount,
+         call operating_rule_query_from_buffer(icount,
      &                                        name,
      &                                        action,
-     &                                        trigger)
+     &                                        trigger,
+     &                                        ierror)
 
       call process_oprule(name,
      &                    action,

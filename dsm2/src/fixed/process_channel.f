@@ -315,7 +315,7 @@ c-----args
       integer :: channo              ! DSM channel number
       real*8  :: fdist
       character*128 :: filename 
-
+      integer :: ierror = 0
 c----- buffer
       type(cross_section_t) buffer
 
@@ -442,7 +442,8 @@ c-----------find minimum elevation
      &                                     buffer.elevation(m),
      &                                     buffer.area(m),
      &                                     buffer.width(m),
-     &                                     buffer.wet_p(m))
+     &                                     buffer.wet_p(m),
+     &                                     ierror)
 
       end do
       close(unit_input)

@@ -10,7 +10,7 @@
       character*8,model,filetype,io
       character*16 interval
       character*128 iofile
-      integer err
+      integer :: ierror = 0
 
       ! input_node
 
@@ -53,11 +53,12 @@
 c======================== Input and output ======================
       nitem = rate_coefficient_buffer_size()
       do icount = 1,nitem
-         err=rate_coefficient_query_from_buffer(icount,
+         call rate_coefficient_query_from_buffer(icount,
      &                                          group_name,
      &                                          constituent,
      &                                          variable,
-     &                                          value) 
+     &                                          value,
+     &                                          ierror) 
 
          sign = 1
 
@@ -74,12 +75,13 @@ c======================== Input and output ======================
 
       nitem = input_climate_buffer_size()
       do icount = 1,nitem
-         err=input_climate_query_from_buffer(icount,
+         call input_climate_query_from_buffer(icount,
      &                                       name,
      &                                       variable,
      &                                       fillin,
      &                                       filename,
-     &                                       inpath) 
+     &                                       inpath,
+     &                                       ierror) 
 
          sign = 1
 
@@ -96,13 +98,14 @@ c======================== Input and output ======================
 
       nitem = node_concentration_buffer_size()
       do icount = 1,nitem
-         err=node_concentration_query_from_buffer(icount,
+         call node_concentration_query_from_buffer(icount,
      &                                    name,
      &                                    node,
      &                                    variable,
      &                                    fillin,   
      &                                    filename,
-     &                                    inpath)
+     &                                    inpath,
+     &                                    ierror)
       rolename="inflow"
       sign=0
          call process_input_node(name,
@@ -119,13 +122,14 @@ c======================== Input and output ======================
 
       nitem = reservoir_concentration_buffer_size()
       do icount = 1,nitem
-         err=reservoir_concentration_query_from_buffer(icount,
+         call reservoir_concentration_query_from_buffer(icount,
      &                                    name,
      &                                    resname,
      &                                    variable,
      &                                    fillin,   
      &                                    filename,
-     &                                    inpath)
+     &                                    inpath,
+     &                                    ierror)
       sign=0
          call process_input_reservoir(name,
      &                               resname,

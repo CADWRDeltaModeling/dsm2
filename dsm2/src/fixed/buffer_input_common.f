@@ -11,8 +11,7 @@
       character*8,model,filetype,io
       character*16 interval
       character*128 iofile
-      integer err
-
+      integer :: ierror = 0
       ! input_node
 
       character*32 :: rolename 
@@ -55,7 +54,7 @@
 
       nitem = io_file_buffer_size()
       do icount = 1,nitem
-         err=io_file_query_from_buffer(icount,model,filetype,io,interval,iofile)
+         call io_file_query_from_buffer(icount,model,filetype,io,interval,iofile,ierror)
          call process_io_file(model,filetype,io,interval,iofile)
       end do
       print *,"Number of iofiles: ", nitem
@@ -63,7 +62,7 @@
 
       nitem = tidefile_buffer_size()
       do icount = 1,nitem
-         err=tidefile_query_from_buffer(icount,sdate,edate,iofile)
+         call tidefile_query_from_buffer(icount,sdate,edate,iofile,ierror)
          call process_tidefile(model,sdate,edate,iofile)
       end do
       print *,"Number of tidefiles: ", nitem
@@ -73,14 +72,14 @@
 
       nitem = output_channel_buffer_size()
       do icount = 1,nitem
-         err=output_channel_query_from_buffer(icount,
+         call output_channel_query_from_buffer(icount,
      &                                        name,
      &                                        channo,
      &                                        distance,
      &                                        variable,
      &                                        interval,
      &                                        perop,
-     &                                        filename)
+     &                                        filename,ierror)
          sourcegroup = ""
          call locase(distance)
          if (distance(:6) .eq. "length") then 
@@ -103,14 +102,15 @@
 
       nitem = output_reservoir_buffer_size()
       do icount = 1,nitem
-         err=output_reservoir_query_from_buffer(icount,
+         call output_reservoir_query_from_buffer(icount,
      &                                        name,
      &                                    reservoir,
      &                                    node_str,
      &                                    variable,
      &                                    interval,
      &                                    perOp,
-     &                                    filename) 
+     &                                    filename,
+     &                                    ierror) 
          sourcegroup = ""
          if (node_str .eq. "none")node=miss_val_i
          call process_output_reservoir(name,
@@ -127,14 +127,15 @@
 
       nitem = output_gate_buffer_size()
       do icount = 1,nitem
-         err=output_gate_query_from_buffer(icount,
+         call output_gate_query_from_buffer(icount,
      &                                     name,
      &                                     gate,
      &                                     device,
      &                                     variable,
      &                                     interval,
      &                                     perop,
-     &                                     filename)
+     &                                     filename,
+     &                                     ierror)
 
          call process_output_gate(name,
      &                            gate,
@@ -148,7 +149,7 @@
 
       nitem = output_channel_concentration_buffer_size()
       do icount = 1,nitem
-         err=output_channel_concentration_query_from_buffer(icount,
+         call output_channel_concentration_query_from_buffer(icount,
      &                                        name,
      &                                        channo,
      &                                        distance,
@@ -156,7 +157,8 @@
      &                                        sourcegroup,    
      &                                        interval,
      &                                        perop,
-     &                                        filename)
+     &                                        filename,
+     &                                        ierror)
          if (sourcegroup .eq. "none")sourcegroup = ""
          call locase(distance)
          if (distance(:6) .eq. "length") then 
@@ -179,14 +181,15 @@
 
       nitem = output_reservoir_concentration_buffer_size()
       do icount = 1,nitem
-         err=output_reservoir_concentration_query_from_buffer(icount,
+         call output_reservoir_concentration_query_from_buffer(icount,
      &                                    name,
      &                                    reservoir,
      &                                    variable,
      &                                    sourcegroup,         
      &                                    interval,
      &                                    perOp,
-     &                                    filename) 
+     &                                    filename,
+     &                                    ierror) 
       if (sourcegroup .eq. "none")sourcegroup = ""
 
       call process_output_reservoir(name,
