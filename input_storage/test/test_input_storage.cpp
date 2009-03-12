@@ -87,85 +87,85 @@ void append_buffer_fortran_api()
 { 
     //Create a new file using default properties.
     channel_clear_buffer_f();
-
+    int ierror = 0;
     int channo=525;  // deliberately out of order
     int layer=2;
     double manning=0.035;
     int upnode=5;
     int downnode=6;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
 
     channo = 1;
     layer = 1;
     manning=0.035;
     upnode = 1;
     downnode = 2;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
     channo=2;
     layer=1;
     upnode=2;
     downnode = 3;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
     channo=2;
     layer=2;
     manning=0.04;    
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
     channo=3;
     layer=1;
     manning=0.035;
     upnode=3;
     downnode = 4;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
     channo=14;
     layer=1;
     manning=0.035;
     upnode=4;
     downnode = 5;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
 
     xsect_clear_buffer_f();
     channo=1;
     layer=1;
     double dist = 0.800;
     string file = "1_0_800.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
 
     channo=1;
     layer=1;
     dist = 0.200;   // deliberately out of order
     file = "1_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
 
     channo = 2;
     layer=1;
     dist = 0.200;
     file = "2_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
     channo = 2;
     layer=2;
     dist = 0.200;
     file = "2_0_200b.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
     channo = 2;
     layer=2;
     dist = 0.400;
     file = "2_0_400b.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
     channo = 3;
     layer=1;
     dist = 0.200;
     file = "3_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
     channo = 14;
     layer=1;
     dist = 0.200;
     file = "14_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
     channo = 525;
     layer=1;
     dist = 0.200;
     file = "525_0_200.txt";
-    xsect_append_to_buffer_f(&channo,&dist,file.c_str(), 11);
+    xsect_append_to_buffer_f(&channo,&dist,file.c_str(),&ierror,11);
     
     //todo: what if there were accidently a chan 525 xsect on level 2?
 }
@@ -241,14 +241,15 @@ void setup_buffer()
 void test_prioritize_buffer_duplicates()
 {
     setup_buffer();
+    int ierror = 0;
     // deliberately add a duplicate of the first entry at the bottom
     int channo=525;
     int layer=2;
     double manning=0.035;
     int upnode=5;
     int downnode=6;
-    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode);
-    BOOST_CHECK_THROW(channel_prioritize_buffer_f(),runtime_error);
+    channel_append_to_buffer_f(&channo,&manning,&upnode,&downnode,&ierror);
+    BOOST_CHECK(ierror != 0);
 }
 
 
@@ -262,8 +263,11 @@ void test_setup_buffer()
 void test_prioritize_buffer()
 {
   cout << "Testing priorities" << endl;
-  channel_prioritize_buffer_f();
-  xsect_prioritize_buffer_f();
+  int ierror = 0;
+  channel_prioritize_buffer_f(&ierror);
+  BOOST_CHECK(ierror == 0);
+  xsect_prioritize_buffer_f(&ierror);
+  BOOST_CHECK(ierror == 0);
 }
 
 
@@ -273,11 +277,12 @@ void test_prioritize_buffer()
 void test_hdf()
 {
     cout << "Testing hdf" <<endl;
+    int ierror = 0;
     hid_t file_id = H5Fcreate( "test_cpp.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT );
-    channel_write_buffer_to_hdf5_f(&file_id);
-    xsect_write_buffer_to_hdf5_f(&file_id);
+    channel_write_buffer_to_hdf5_f(&file_id,&ierror);
+    xsect_write_buffer_to_hdf5_f(&file_id,&ierror);
     channel_clear_buffer_f();
-    channel_read_buffer_from_hdf5_f(&file_id);;
+    channel_read_buffer_from_hdf5_f(&file_id,&ierror);;
 
     int channo_in=-2;
     double manning_in=0.0;
@@ -296,7 +301,7 @@ void test_hdf()
 void test_input_reader()
 {
   cout << "Testing input reader" <<endl;
-
+  int ierror = 0;
   HDFTableManager<channel>::instance().buffer().clear();
   HDFTableManager<xsect>::instance().buffer().clear();
   HDFTableManager<envvar>::instance().buffer().clear();
@@ -323,19 +328,9 @@ void test_input_reader()
   string filename("test.txt");
   boost::filesystem::path p(filename);
   BOOST_CHECK(boost::filesystem::exists(p));
-  std::ifstream input(filename.c_str());
 
-  InputStatePtr startState(new FileInputState(contextItems,filename));
-  InputStatePtr currentState(startState);
-
-  // First pass with envvars
-  
-  currentState->setActiveItems(envvarActive);
-  while (!currentState->isEndOfFile())
-    {
-      currentState = currentState->process(input);
-    }
-  input.close();
+  reader.setActiveItems(envvarActive);
+  reader.processInput(filename);
   
   vector<envvar> &envvars = HDFTableManager<envvar>::instance().buffer();
 
@@ -350,34 +345,16 @@ void test_input_reader()
     {
       sub.add(envvars[i].name, envvars[i].value);
     }
-  
+  sub.setEnabled(true);
+  reader.setTextSubstitution(sub);
+  reader.setActiveItems(active);
+  reader.processInput(filename);
 
-  for(InputState::InputStateMap::iterator it = inputMap.begin();
-      it != inputMap.end() ; ++it)
-    {
-      it->second->setEnvSubstitution(sub);
-    }
-
-  //rewind
-  input.clear();
-  input.seekg(0, ios::beg);
-  input.clear();
-
-  reader.getTextSubstitution().setEnabled(true);
-
-  //InputStatePtr currentState(startState);
-  currentState=startState;
-  currentState->setActiveItems(active);
-
-  while (!currentState->isEndOfFile())
-    {
-      currentState = currentState->process(input);
-    }
 
   vector<channel> & chans = HDFTableManager<channel>::instance().buffer();
 
-  channel_prioritize_buffer_f();
-  xsect_prioritize_buffer_f();
+  channel_prioritize_buffer_f(&ierror);
+  xsect_prioritize_buffer_f(&ierror);
 
   cout << "# Channels=" << chans.size()<< endl;
   for (size_t i = 0 ; i < chans.size() ; ++ i)
@@ -400,6 +377,7 @@ void test_input_reader()
 void test_input_reader_duplicate()
 {
   cout << "Testing input reader duplicates" <<endl;
+  int ierror = 0;
   ApplicationTextReader& reader = ApplicationTextReader::instance();
   HDFTableManager<channel>::instance().buffer().clear();
   HDFTableManager<xsect>::instance().buffer().clear();
@@ -426,12 +404,12 @@ void test_input_reader_duplicate()
 
   vector<envvar> & envvars =  HDFTableManager<envvar>::instance().buffer();
   // check that it finds duplicates in strangely ordered character identifier
-  BOOST_CHECK_THROW(envvar_prioritize_buffer_f(), runtime_error);
+  BOOST_CHECK_THROW(envvar_prioritize_buffer_f(&ierror), runtime_error);
   //for(size_t i =0; i < envvars.size() ; ++i) cerr << envvars[i] <<endl;
 
   // and with integer identifier
   vector<channel> & chans = HDFTableManager<channel>::instance().buffer();
-  BOOST_CHECK_THROW(channel_prioritize_buffer_f(), runtime_error);
+  BOOST_CHECK_THROW(channel_prioritize_buffer_f(&ierror), runtime_error);
   //xsect_prioritize_buffer_f();
 
 }

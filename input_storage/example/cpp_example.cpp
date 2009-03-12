@@ -36,14 +36,15 @@ void setup_envvar()
 void write_hdf()
 {
     cout << "Testing hdf" <<endl;
+    int ierr=0;
     hid_t file_id = H5Fcreate( "cpp_example.h5", 
 		                        H5F_ACC_TRUNC, 
 								H5P_DEFAULT, 
 								H5P_DEFAULT );
-    channel_write_buffer_to_hdf5_f(&file_id);
-    xsect_write_buffer_to_hdf5_f(&file_id);
+    channel_write_buffer_to_hdf5_f(&file_id,&ierr);
+    xsect_write_buffer_to_hdf5_f(&file_id,&ierr);
     channel_clear_buffer_f();
-    channel_read_buffer_from_hdf5_f(&file_id);;
+    channel_read_buffer_from_hdf5_f(&file_id,&ierr);;
 
     int channo_in=-2;
     double manning_in=0.0;
@@ -58,7 +59,8 @@ void write_hdf()
 
 
 void test_input_reader()
-{
+{ 
+
   HDFTableManager<channel>::instance().buffer().clear();
   HDFTableManager<xsect>::instance().buffer().clear();
 
@@ -96,21 +98,11 @@ void test_input_reader()
 
   reader.setInputStateMap(inputMap);
   reader.getTextSubstitution().setEnabled(false);
-  InputStatePtr startState(new FileInputState(contextItems,"example.txt"));
-  InputStatePtr currentState(startState);
-
   string filename("example.txt");
   boost::filesystem::path p(filename);
   BOOST_CHECK(boost::filesystem::exists(p));
-  std::ifstream input(filename.c_str());
-
-
-  // First pass with envvars
-  currentState->setActiveItems(envvarActive);
-  while (!currentState->isEndOfFile())
-    {
-      currentState = currentState->process(input);
-    }
+  reader.setActiveItems(envvarActive);
+  reader.processInput(filename);
 
   cout<<"\nENVVARS" << endl;
   EnvSubstitution sub;
@@ -125,24 +117,15 @@ void test_input_reader()
   sub.setEnabled(true);
   reader.setTextSubstitution(sub);
 
-  //rewind
-  input.clear();
-  input.seekg(0, ios::beg);
-  input.clear();
-
-
-  currentState=startState;
-  currentState->setActiveItems(active);
   reader.getTextSubstitution().setEnabled(true);
-  while (!currentState->isEndOfFile())
-    {
-      currentState = currentState->process(input);
-    }
+  reader.setActiveItems(active);
+  reader.processInput(filename);
 
+  
+
+  HDFTableManager<channel>::instance().prioritize_buffer();
+  HDFTableManager<xsect>::instance().prioritize_buffer();
   vector<channel> & chans = HDFTableManager<channel>::instance().buffer();
-
-  channel_prioritize_buffer_f();
-  xsect_prioritize_buffer_f();
 
   cout << "# Channels=" << chans.size()<< endl;
   for (size_t i = 0 ; i < chans.size() ; ++ i)
