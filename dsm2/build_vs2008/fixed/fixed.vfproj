@@ -36,6 +36,7 @@
 		<File RelativePath="..\..\src\fixed\buffer_input_common.f"/>
 		<File RelativePath="..\..\src\fixed\buffer_input_grid.f"/>
 		<File RelativePath="..\..\src\fixed\buffer_input_hydro.f"/>
+		<File RelativePath="..\..\src\fixed\buffer_input_ptm.f"/>
 		<File RelativePath="..\..\src\fixed\buffer_input_qual.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_hydro.f"/>
