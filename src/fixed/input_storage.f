@@ -51,9 +51,10 @@ c==================================================================
 !     Writes in all text starting from input filename
       use hdf5
       use input_storage_fortran
+      use runtime_data
       use envvar
       implicit none
-      character(LEN=7),parameter :: hdf_filename = "echo.h5" 
+      character(LEN=32) :: hdf_filename
       integer(HID_T) :: file_id
       integer :: ierror = 0
       logical, parameter :: append_text=.TRUE.
@@ -65,6 +66,7 @@ c-----Write all buffers to text in the order they were defined
 
 c-----Write all buffers to hdf5
       ! for the moment we are deleting and recreating the file, but this is an open question
+      write(hdf_filename,"(a,'_echo.h5')")dsm2_name
       inquire(file=hdf_filename, exist=ext)
       if (ext)then
       call unlink(hdf_filename,ierror)
