@@ -3,6 +3,7 @@ c-----process a character line into data arrays for particle group output
       use IO_Units
       use iopath_data
       use common_ptm
+      use constants
       use constants_ptm
       use groups
       !use ptm_local   !todo: why is ptm_local leaking into common?
@@ -130,7 +131,11 @@ c-----process a character line into data arrays for particle group output
      &        ,max_outputpaths
          call exit(1)
       endif
+      pathoutput(noutpaths).obj_type=obj_group
 	pathoutput(noutpaths).obj_no=name_to_objno(obj_group,groupname)
+      pathoutput(noutpaths).flux_group_ndx =pathoutput(noutpaths).obj_no
+
+
 	if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
 	    write(unit_error,*)"Unrecognized group name for group output spec: " 
      &      // trim(groupname)
@@ -140,7 +145,7 @@ c-----process a character line into data arrays for particle group output
 	ptm_igroup=.true.  ! fixme: what does this do?
       pathoutput(noutpaths).a_part=' '
       pathoutput(noutpaths).b_part=Name
-      pathoutput(noutpaths).c_part="GROUP"
+      pathoutput(noutpaths).c_part="ptm_group"
       call split_epart(interval,itmp,ctmp)
       if (itmp .ne. miss_val_i) then ! valid interval, parse it
          pathoutput(noutpaths).e_part=interval
