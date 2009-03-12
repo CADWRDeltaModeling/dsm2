@@ -5,7 +5,7 @@
       implicit none
       integer nitem
       integer icount
-      integer err
+      integer :: ierror = 0
       
       integer node
       integer nparts
@@ -22,11 +22,12 @@
 
       nitem = particle_insertion_buffer_size()
       do icount = 1,nitem
-         err=particle_insertion_query_from_buffer(icount,
+         call particle_insertion_query_from_buffer(icount,
      &                                            node,
      &                                            nparts,   
      &                                            delay,
-     &                                            duration)
+     &                                            duration,
+     &                                            ierror)
          call  process_particle_injection(node,
      &                                    nparts,
      &                                    delay,
@@ -36,12 +37,13 @@
 
       nitem = particle_flux_output_buffer_size()
       do icount = 1,nitem
-         err=particle_flux_output_query_from_buffer(icount,
+         call particle_flux_output_query_from_buffer(icount,
      &                                              name,
      &                                              from_wb,
      &                                              to_wb,
      &                                              interval,
-     &                                              filename)
+     &                                              filename,
+     &                                              ierror)
          
          call process_particle_flux_output(name,
      &                                     from_wb,
@@ -53,11 +55,12 @@
       
       nitem = particle_group_output_buffer_size()
       do icount = 1,nitem
-         err=particle_group_output_query_from_buffer(icount,
+         call particle_group_output_query_from_buffer(icount,
      &                                               name,
      &                                               groupname,
      &                                               interval,
-     &                                               filename)
+     &                                               filename,
+     &                                               ierror)
          
          call process_particle_group_output(name,
      &                                      groupname,
