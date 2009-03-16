@@ -301,7 +301,7 @@ C!
 
 c     These lines are very common as diagnostics
             
-c     if (UpConstraintRow .le. 1349 .and. DownConstraintRow .ge. 1347)then
+c     if (UpConstraintRow .le. 1349 .and. DownConstraintRow .ge. 1347) then
 c     write(unit_screen,110)chan_geom(m).chan_no,M,
 c     &    UpConstraintRow,DownConstraintRow,CodeUp,CodeDown
 c     110  format("Channel: ",i5," int. no: ",i5, //"Up constraint row: ",i5,
@@ -582,7 +582,7 @@ c     Endif
 
 *-----------------Flow at constraint node
                   FlowOffset = 0
-                  if (CodeDown .EQ. 31)then
+                  if (CodeDown .EQ. 31) then
                      FlowOffset = MinusOne
                   end if
                   ConstraintPointers(K)= sfGetElement(matrix,
@@ -713,7 +713,7 @@ c     Endif
                I=I+1
 	         RowScale(ResRow+jj) = ResConnectScaleFactor
                ResChannel = ResConnectingChannels(ii,jj)
-               if(ResChannel.GT.0)then
+               if(ResChannel.GT.0) then
                   NodeContinuityRow=UpConstraintEq(ResChannel)
                else
                   NodeContinuityRow=DownConstraintEq(-ResChannel)
@@ -744,7 +744,7 @@ c     of flows from devices; the summation equation and the individual gate
 c     device equations each has its own row.
       devRow=TotalChanResRows ! starting row for device equations minus 1
       K=0
-      if(NGate.GT.0)then
+      if(NGate.GT.0) then
          Do II = 1,NGate
             currentGate=>gateArray(II)
             objType=currentGate.objConnectedType
@@ -760,7 +760,7 @@ c     device equations each has its own row.
             end if
             ConnectCompPt = currentGate.nodeCompPoint
             ZnodeCol=DF*ConnectCompPt   ! Col for stage at reference channel
-            if(gateArray(II).flowDirection .gt. 0)then
+            if(gateArray(II).flowDirection .gt. 0) then
 	         ZObjCol=DF*DownCompPointer(objID)
 	      else
 	         ZObjCol=DF*UpCompPointer(objID)
@@ -776,11 +776,11 @@ c            2) an equal stage constraint if the gate is uninstalled
 c           Note that Qchan, Zobj and Znode columns are allocated, but
 c           will never all be used at once -- in case (1), the Qchan 
 c           column is used and in case (2) the Zobj and Znode columns are used
-            if(objType.EQ.obj_channel)then
+            if(objType.EQ.obj_channel) then
                if(currentGate.flowDirection .EQ. 1.D0) then      !downstream end
                   GateEqRow(ii)=DownConstraintEq(objID)
                   indx=DownConstraintIndex(objID)
-               elseif( currentGate.flowDirection .EQ. -1.D0)then !upstream end
+               elseif( currentGate.flowDirection .EQ. -1.D0) then !upstream end
                   GateEqRow(ii)=UpConstraintEq(objID)
                   indx=UpConstraintIndex(objID)
                else
@@ -795,7 +795,7 @@ c           column is used and in case (2) the Zobj and Znode columns are used
                GateEqPointer(K)=ConstraintPointers(indx+1) ! Z water body
                K=K+1
                GateEqPointer(K)=ConstraintPointers(indx+3) ! Z at node (reference channel)
-            else if(objType.EQ.obj_reservoir)then
+            else if(objType.EQ.obj_reservoir) then
                ResRow=ResEqRow(objID)         ! Reservoir volume equation
                con=GateArray(ii).subLocation  ! Reservoir connection (index)
                GateEqRow(ii)=ResRow+con
@@ -841,7 +841,7 @@ c           Allocate matrix elements for the equations representing individual d
          end do
       end if
 
-      if (k .gt. MaxGatePtr)then
+      if (k .gt. MaxGatePtr) then
 	   write(UNIT_ERROR,*)"Maximum number of matrix elements allocated for gates"
 	   write(UNIT_ERROR,*)" exceeded. Reallocate MaxGatePtr"
 	   call exit(3)

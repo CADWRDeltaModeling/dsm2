@@ -68,7 +68,7 @@ c-----Write all buffers to hdf5
       ! for the moment we are deleting and recreating the file, but this is an open question
       write(hdf_filename,"(a,'_echo.h5')")dsm2_name
       inquire(file=hdf_filename, exist=ext)
-      if (ext)then
+      if (ext) then
       call unlink(hdf_filename,ierror)
       end if
 

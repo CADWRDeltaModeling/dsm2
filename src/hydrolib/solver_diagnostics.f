@@ -49,15 +49,15 @@ c     called diagnostics.txt
 	character*32  devtypestr
 
 c---- treat channel or reservoir separately
-      if ( row .le. TotalChanRows )then
+      if ( row .le. TotalChanRows ) then
 !        !channel - binary search
         ilow=              1        ! low comparison value
 	  ihigh=nchans                ! high comparison value
         do while (ilow .le. ihigh)
            mid = (ilow+ihigh)/2;	! integer divide, rounds down
-           if (row .lt. (UpCompPointer(mid)*DF-1))then
+           if (row .lt. (UpCompPointer(mid)*DF-1)) then
 	  	   ihigh=mid-1
-           else if (row .gt. DownCompPointer(mid)*DF)then
+           else if (row .gt. DownCompPointer(mid)*DF) then
 		   ilow = mid+1
 	     else            !       (row .eq. mid)
 	     ilow=mid
@@ -72,13 +72,13 @@ c---- treat channel or reservoir separately
      &    UpCompPointer(mid)*DF-1,UpConstraintEq(mid),DownConstraintEq(mid),
      &    RowScale(row)
       else if( row .gt. TotalChanRows .and. 
-     &         row .le. TotalChanResRows)then
+     &         row .le. TotalChanResRows) then
 	  ! reservoir, find by direct search
 	   do i=1,nreser
 	      if ( 
      &           (ResEqRow(i) .le. row) .and. 
      &         ( (i .eq. nreser) .or. (ResEqRow(i+1) .gt. row) )
-     &         )then
+     &         ) then
               resno=i
 	        rescon=(row-ResEqRow(resno))
 	      end if
@@ -88,7 +88,7 @@ c---- treat channel or reservoir separately
 	   else
 	      gatestr=''
 	   end if
-	   if (rescon .ne. 0)then
+	   if (rescon .ne. 0) then
 		write(unit_screen,"('Row',i5,'Reservoir: ',a,'(',i2,')',
      &        3x,'Connection no.: ',i5,4x,' to node: ',i6,
      &        1x,a,4x,'Row Scale: ',f10.5,4x,'QRes=',f14.5)")
@@ -103,7 +103,7 @@ c---- treat channel or reservoir separately
 	   ! gate device equation
 	   do i=1,NGate
              do j=1,gateArray(i).nDevice
-                if (gateArray(i).Devices(j).calcRow .eq. row)then
+                if (gateArray(i).Devices(j).calcRow .eq. row) then
 	             gateno=i
 	             devno=j
                    gatestr=gateArray(i).name

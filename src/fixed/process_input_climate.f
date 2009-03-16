@@ -135,7 +135,7 @@ c--------------accumulate unique dss input filenames
 c-----------set data type fixme:groups is this right
             pathinput(ninpaths).data_type=obj_climate
             
-            if (print_level .ge. 3)then
+            if (print_level .ge. 3) then
                write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
      &              trim(InPath(:24)),
      &              trim(FileName(:24))

@@ -126,7 +126,7 @@ c-----Initialize x locations of initial conditions if no other initial
 c-----conditions have been loaded for other parameters. If other initial conditions
 c-----have been loaded, the x locations must match (e.g. the channel distances
 c-----for flow and stage. fixme: do we really want this?
-      if (.not. xLocationsLoaded )then
+      if (.not. xLocationsLoaded ) then
          NUserInitLocations=0
          InitialX=0.0
       end if
@@ -143,7 +143,7 @@ c-----Loop to fetch records, one at a time
 
 c--------Fetch a record from the result set
          call f90SQLFetch(StmtHndl,iRet)
-         if (iRet .eq. SQL_NO_DATA)then
+         if (iRet .eq. SQL_NO_DATA) then
             if (print_level .gt.2) then
                write(unit_screen,
      &              "('Warning: no default initial channel data found for ',a)") param
@@ -157,10 +157,10 @@ c--------use only the last version of the initial condition
      &        (extchan .eq. prev_extchan .and. layer .eq. prev_layer))  .and.
      &        UseObj) then
             k=k+1
-            if(extchan .ne. prev_extchan)then
+            if(extchan .ne. prev_extchan) then
                                 ! Check to make sure that IC were provided at beginning
                                 ! and end of last channel
-               if ( .not. (distZeroInit .and. distLenInit))then
+               if ( .not. (distZeroInit .and. distLenInit)) then
                   istat=-3
                   write(unit_error,'(a/,i5,a)')
      &                 'Initial ' // param //
@@ -184,8 +184,8 @@ c--------use only the last version of the initial condition
                goto 100
             endif
             if (distance .eq. chan_length) distance=chan_geom(chan).length
-            if (xLocationsLoaded)then
-               if( InitialX(k) .ne. dble(distance))then
+            if (xLocationsLoaded) then
+               if( InitialX(k) .ne. dble(distance)) then
                   write(unit_error,'(a,1x,i4,1x,a)')
      &                 'Initial condition points for flow and stage in channel',
      &                 extchan,
@@ -216,7 +216,7 @@ c--------use only the last version of the initial condition
       endif
 
 !     check last channel. fixme: this seems kludgy, but harmless.
-      if ( .not. distZeroInit .and. distLenInit)then
+      if ( .not. distZeroInit .and. distLenInit) then
          istat=-3
          write(unit_error,'(a/,i5)')
      &        'Initial condition not provided for the up or downstream end of channel ',prev_extchan
@@ -238,7 +238,7 @@ c--------use only the last version of the initial condition
      &        write(unit_screen,'(a//)') 'Unbound initial condition SQL'
       endif
       xlocationsLoaded=.true.
-      if ((orignumber .ne. miss_val_i) .and. (ninitcond .ne. orignumber))then
+      if ((orignumber .ne. miss_val_i) .and. (ninitcond .ne. orignumber)) then
          write(unit_error,'(a/,a/)') 'Initial conditions for flow/stage must be specified at the same points',
      &        'Some are missing.'
          istat=-3
@@ -379,7 +379,7 @@ c@@@         return
 c@@@      endif
                                 ! Verify a complete set of IC
       do i=1,nreser
-         if (YRes(i).eq.miss_val_i .and. print_level .gt.2)then
+         if (YRes(i).eq.miss_val_i .and. print_level .gt.2) then
             write(unit_error,'(a,a)')
      &           'Warning: No default initial condition for reservoir: ',
      &           res_geom(i).name

@@ -510,7 +510,7 @@ c-----call h5dget_space_f(res_dset_id, res_fspace_id, error)
 
       ! startpoint will be zero at the start of the simulation
 	
-      if (current_tidefile .ne. last_loaded_tidefile)then 
+      if (current_tidefile .ne. last_loaded_tidefile) then 
 	  startpoint =0
 	  last_loaded_tidefile = current_tidefile
 	else

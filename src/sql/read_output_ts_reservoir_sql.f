@@ -210,7 +210,7 @@ c--------clean up char variables, replace environment variables
          nenv=replace_envvars(LocName,ctmp)
          LocName=ctmp
          call locase(LocName)
-         if (SubLocLen .le. 0)then
+         if (SubLocLen .le. 0) then
             SubLoc=miss_val_i
          end if
 

@@ -18,7 +18,7 @@
 	if(print_level .ge. 3) then
 	   write(unit_screen,"(/'Parsing rule: ',/a)"),trim(ruletext)
 	end if
-	if (.not. parse_rule(trim(ruletext)))then
+	if (.not. parse_rule(trim(ruletext))) then
           write(unit_error,"(/'Error parsing rule: ',/a)"),trim(ruletext)
           call exit(-3)
           return
@@ -42,7 +42,7 @@
 	if(print_level .ge. 3) then
 	   write(unit_screen,"(/'Parsing oprule expression: ',/a)"),trim(definition)
 	end if
-	if (.not. parse_rule(trim(definition)))then
+	if (.not. parse_rule(trim(definition))) then
           write(unit_error,"(/'Error parsing expression: ',/a)"), trim(definition)
           call exit(-3)
           return

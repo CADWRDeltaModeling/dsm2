@@ -326,7 +326,7 @@ c--------------accumulate unique dss output filenames
             pathoutput(noutpaths).obj_type=obj_gate
             pathoutput(noutpaths).obj_name=cstring
 	      gateno = name_to_objno(obj_gate, cstring)
-            if (gateno .eq. miss_val_i)then
+            if (gateno .eq. miss_val_i) then
                write(unit_error,*)"Unknown gate (not allowed for text input)" // cstring
 	         istat = -1
 	         goto 900
@@ -963,13 +963,13 @@ c-----------separated with spaces--the delimiter type array tells us which
             objtmp=' '
 	      objtmp=cstring((index(cstring,":")+1):len_trim(cstring))
             if(trim(objtmp) .eq. 'all' .and. 
-     &        pathoutput(noutpaths).flux_from_type .ne. obj_group)then
+     &        pathoutput(noutpaths).flux_from_type .ne. obj_group) then
 	         pathoutput(noutpaths).flux_from_ndx=GROUP_ANY_INDEX
             else    
 		     pathoutput(noutpaths).flux_from_ndx=name_to_objno(
      &              pathoutput(noutpaths).flux_from_type,objtmp)
 	      end if
-            if( pathoutput(noutpaths).flux_from_ndx .eq. miss_val_i)then
+            if( pathoutput(noutpaths).flux_from_ndx .eq. miss_val_i) then
 	         write(unit_error, 650)trim(cstring)
  650                 format(/'Unrecognized object name: ',a)
                istat=-1
@@ -983,7 +983,7 @@ c-----------separated with spaces--the delimiter type array tells us which
 	      objtmp=' '
             objtmp=cstring((index(cstring,":")+1):len_trim(cstring))
             if(trim(objtmp) .eq. 'all' .and. 
-     &        pathoutput(noutpaths).flux_to_type .ne. obj_group)then
+     &        pathoutput(noutpaths).flux_to_type .ne. obj_group) then
 	         pathoutput(noutpaths).flux_to_ndx=GROUP_ANY_INDEX
 
             else    
@@ -992,7 +992,7 @@ c-----------separated with spaces--the delimiter type array tells us which
      &              pathoutput(noutpaths).flux_to_type,objtmp)
 	      end if
 
-            if( pathoutput(noutpaths).flux_to_ndx .eq. miss_val_i)then
+            if( pathoutput(noutpaths).flux_to_ndx .eq. miss_val_i) then
 	         write(unit_error, 650)trim(cstring)
                istat=-1
 	         goto 900
@@ -1129,7 +1129,7 @@ c--------------accumulate unique dss output filenames
             pathoutput(noutpaths).b_part=cstring
          else if (rifld(i) .eq. ptm_group) then
 	       pathoutput(noutpaths).obj_no=name_to_objno(obj_group,cstring)
-	       if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
+	       if(pathoutput(noutpaths).obj_no .eq. miss_val_i) then
 	          write(unit_error,*)"Unrecognized group name for group output spec: " 
      &             // trim(cstring)
 	          goto 900

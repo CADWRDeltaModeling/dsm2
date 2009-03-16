@@ -405,7 +405,7 @@ c-----or the restart file version (new file)
  200  CONTINUE
 
       READ(funit,*)NresStart_File
-      IF(NresStart_File.EQ.Nreser)THEN
+      IF(NresStart_File.EQ.Nreser) then
          IF (restart_version .ne. ' ') then
 c-----------restart file version supports reservoir connection flows
 c-- fixme: this is a bad idea. Should include just the model state (Yres)

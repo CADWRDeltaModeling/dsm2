@@ -265,7 +265,7 @@ c--------check for old or new restart version
 
 c-----correct start date for odd minutes (not multiple of 15 minutes)
       start_julmin=cdt2jmin(run_start_date)
-	if( start_julmin .ne. (start_julmin/15)*15)then
+	if( start_julmin .ne. (start_julmin/15)*15) then
          write(unit_error,*)"Start time must be aligned with " //
      &     "15MIN interval(0000,0015...)"
 	end if
@@ -602,7 +602,7 @@ c-----------end datetime
             endif
             if (tide_files(i).start_julmin .lt. tide_files(i).start_julmin_file 
      &          .or.
-     &          tide_files(i).end_julmin .gt. tide_files(i).end_julmin_file)then
+     &          tide_files(i).end_julmin .gt. tide_files(i).end_julmin_file) then
 	         write(unit_error,*)"Tidefile contents do not span " //
      &             "assigned start and end dates: ", tide_files(i).filename
 	         goto 900
@@ -614,7 +614,7 @@ c-----------end datetime
 c----- load header information from the first hydro tidefile
          call read_tide_head(tide_files(1).filename, .false.)
          nintides = n_tidefiles_used
-	   if (nintides .gt. 1)then 
+	   if (nintides .gt. 1) then 
            do i=2,nintides
               if (tide_files(i).start_julmin .ne. tide_files(i-1).end_julmin) then
 	           write(unit_error,*) "Tidefile dates must be ordered in time, " 
@@ -624,7 +624,7 @@ c----- load header information from the first hydro tidefile
 	     end do
 	   end if
 	   if (  tide_files(1).start_julmin .gt. start_julmin 
-     &      .or. tide_files(nintides).end_julmin .lt. end_julmin)then
+     &      .or. tide_files(nintides).end_julmin .lt. end_julmin) then
 	       write(unit_error,*)"Specified dates for tidefiles do not cover period of simulation"
 c	       write(unit_error,*)"Tidefile coverage: " // 
 c     &		       tide_files(1).start_date // " to " //
@@ -823,22 +823,22 @@ c--------constituents which may come from the same input (applies only to conser
                   if (
      &                 (.not. constituents(j).conservative)
      &                 .or.
-     &                 (constituents(j).group_ndx .eq. GROUP_ALL))then
+     &                 (constituents(j).group_ndx .eq. GROUP_ALL)) then
                      pathinput(p).n_consts=pathinput(p).n_consts+1
                      pathinput(p).const_ndx(pathinput(p).n_consts) = j
                      constituent_input(j)=.true.
   	            else
 	              call GroupTarget(pathinput(p).data_type,pathinput(p).name,
      &                               target_type,target_id)
-	              if (target_id .eq. miss_val_i)then  
+	              if (target_id .eq. miss_val_i) then  
 	                  !fixme: stage boundaries not identified in qual at this stage??
 	                  call GroupTarget(obj_stage,pathinput(p).name, target_type,target_id)
 	              end if
-	              if (target_id .eq. miss_val_i)then
+	              if (target_id .eq. miss_val_i) then
 	                  write(unit_error,*) "Source group not found: ",pathinput(p).name
 	                  call exit(2)
 	              end if
-                    if (constituents(j).group_ndx .lt. 0)then
+                    if (constituents(j).group_ndx .lt. 0) then
                        write(unit_error,*) "Error with constituent group index"
                        write(unit_error,*) "Constituent index: ",j,
      &                               " Name: ", constituents(j).name, 
@@ -847,7 +847,7 @@ c--------constituents which may come from the same input (applies only to conser
                     end if
                        
 	              if (GroupContains(constituents(j).group_ndx,
-     &                                target_type,target_id))then
+     &                                target_type,target_id)) then
                       pathinput(p).n_consts=pathinput(p).n_consts+1
                       pathinput(p).const_ndx(pathinput(p).n_consts) = j
                       constituent_input(j)=.true.
@@ -1110,14 +1110,14 @@ c--------DSS e part
          call remblk(path,pathoutput(p).path,nlen)
          call upcase(pathoutput(p).path) ! convert to upper case
          call zchkpn(trim(path),len_trim(path),istat)
-         if (istat .ne. 0)then
+         if (istat .ne. 0) then
             write(unit_error,"(a,a,a,i5)")"Illegal pathname: ",
      &           trim(path)," status: ",istat
             goto 900
          end if
 
 c--------check for valid output channel distance
-         if (pathoutput(p).obj_type .eq. obj_channel)then
+         if (pathoutput(p).obj_type .eq. obj_channel) then
             if(pathoutput(p).chan_dist .eq. -1) then
                pathoutput(p).chan_dist = chan_geom(pathoutput(p).obj_no).length
             else if(pathoutput(p).chan_dist .gt.

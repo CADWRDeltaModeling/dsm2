@@ -66,7 +66,7 @@ c     &     -val_down)*(chan_dist/chan_len)
          nodedown=-StreamEndNode(-intchan)
          nodeup=StreamEndNode(intchan)
          ngpoints=nodedown-nodeup+1
-         if(ngpoints.lt.2)then
+         if(ngpoints.lt.2) then
             write(unit_error,901)chan_geom(intchan).chan_no,ngpoints
  901        format(' Error in output specification in channel:',i6/
      &             ' Number of grid points=',i6)
@@ -98,7 +98,7 @@ c     &     -val_down)*(chan_dist/chan_len)
          nodeup=pathoutput(ptr).res_node_no
          if (nodeup .gt. 0) then ! flow to node
             do i=1,res_geom(hydrores).nnodes
-               if (res_geom(hydrores).node_no(i) .eq. nodeup)then
+               if (res_geom(hydrores).node_no(i) .eq. nodeup) then
                    get_output=-qres(hydrores,i)
                end if
             end do

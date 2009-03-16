@@ -70,7 +70,7 @@ C!</license>
       real*8 rescon_outcoef
       resno = name_to_objno(obj_reservoir,resname)
       res_geom(resno).nnodes=res_geom(resno).nnodes+1
-	if (res_geom(resno).nnodes .gt. MaxResConnectChannel)then
+	if (res_geom(resno).nnodes .gt. MaxResConnectChannel) then
           write(unit_error,*) 'Number of reservoir connections for ',
      &      res_geom(resno).name, ' exceeds maximum of ',
      &      MaxResConnectChannel

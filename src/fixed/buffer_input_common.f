@@ -112,7 +112,7 @@
      &                                    filename,
      &                                    ierror) 
          sourcegroup = ""
-         if (node_str .eq. "none")then
+         if (node_str .eq. "none") then
              node=miss_val_i
          else
              read(node_str,'(i)')node

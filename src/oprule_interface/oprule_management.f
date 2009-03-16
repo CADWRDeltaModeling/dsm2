@@ -27,7 +27,7 @@ c	do while (.not. EOF(66))
 c        read(66,'(a)')line
 c	  linelen=len_trim(line)
 c	  if (linelen .eq. 800) print*, "op rule too long"
-c          if (linelen .gt. 0)then
+c          if (linelen .gt. 0) then
 c		  print*,trim(line)
 c            call parse_rule(line)
 c	    end if

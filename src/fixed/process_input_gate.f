@@ -86,7 +86,7 @@ C!</license>
 
             pathinput(ninpaths).obj_name=trim(LocName)
             pathinput(ninpaths).obj_no=name_to_objno(obj_gate,LocName)
-            if (pathinput(ninpaths).obj_no .eq.miss_val_i )then
+            if (pathinput(ninpaths).obj_no .eq.miss_val_i ) then
                write(unit_error,'(a,a)')
      &            'Gate Time Series Input: ',trim(pathinput(ninpaths).name),
      &            ' attached to unrecognized object: ',LocName
@@ -151,7 +151,7 @@ c-----------set data type fixme:groups is this right
 
             if (pathinput(ninpaths).data_type .eq. obj_gate) then
                if ( len_trim(subloc).le. 0 ) then
-                  if ( param(1:7) .eq. 'install')then
+                  if ( param(1:7) .eq. 'install') then
                      pathinput(ninpaths).gate_param=gate_install
                      pathinput(ninpaths).locnum=devNo
                      gatendx=pathinput(ninpaths).obj_no
@@ -176,8 +176,8 @@ c-----------set data type fixme:groups is this right
                   gateNo=pathinput(ninpaths).obj_no
                   devNo=deviceIndex(gateArray(gateNo),subLoc)
                   devType=gateArray(gateNo).Devices(devNo).structureType
-                  if( gateNo .ne. miss_val_i .and. devNo .ne. miss_val_i)then
-                     if( devType .eq. miss_val_i .and. param(1:3).eq.'pos')then
+                  if( gateNo .ne. miss_val_i .and. devNo .ne. miss_val_i) then
+                     if( devType .eq. miss_val_i .and. param(1:3).eq.'pos') then
                         write(unit_error,*)  
      &                       "Time series for device position in a device with no flow control. Gate: "
      &                       // trim(LocName) //
@@ -186,7 +186,7 @@ c-----------set data type fixme:groups is this right
                         return
                      end if
                      
-                     if (param(1:3) .eq. 'pos' .and. len_trim(Param) .eq. 3)then
+                     if (param(1:3) .eq. 'pos' .and. len_trim(Param) .eq. 3) then
                         write(unit_error,*)
      &                    "Time series variable 'pos' has been deprecated. "
                         istat=-3
@@ -203,7 +203,7 @@ c     &                  "without a warning was 7.8."
                      
                         devType=gateArray(gateNo).Devices(devNo).structureType
                         if( devType .eq. miss_val_i .or.
-     &                     devType .eq. NO_GATE_CONTROL)then
+     &                     devType .eq. NO_GATE_CONTROL) then
                            write(unit_error,*)  
      &                          "Time series for device position in a device " //
      &                          "with no flow control. Gate: "
@@ -223,16 +223,16 @@ c     &                  "without a warning was 7.8."
                         gateArray(pathinput(ninpaths).obj_no).Devices(
      &                       devNo).position=gateArray(gateNo).Devices(
      &                       devNo).pos_datasource.value
-                        if(pathinput(ninpaths).constant_value .ne. miss_val_r)then
+                        if(pathinput(ninpaths).constant_value .ne. miss_val_r) then
                            gateArray(gateNo).Devices(devNo).position
      &                          =pathinput(ninpaths).constant_value
                         end if
                      else if (param(1:2) .eq. 'op') then
                         if (param(4:5) .eq. 'to' .and. 
-     &                       param(7:10) .eq. 'node')then
+     &                       param(7:10) .eq. 'node') then
                            pathinput(ninpaths).gate_param = gate_op_to_node
                         else if (param(4:7) .eq. 'from' .and. 
-     &                          param(9:12) .eq. 'node')then 
+     &                          param(9:12) .eq. 'node') then 
                            pathinput(ninpaths).gate_param = gate_op_from_node
                         else
                            pathinput(ninpaths).gate_param = gate_operation
@@ -323,7 +323,7 @@ c     &                  "without a warning was 7.8."
                   end if        ! device was recognized
                end if           ! subloclen >0 (ie, both gate and device given)
             end if              ! input is a gate
-            if (print_level .ge. 3)then
+            if (print_level .ge. 3) then
                write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
      &              trim(InPath(:24)),
      &              trim(FileName(:24))

@@ -89,22 +89,22 @@ c--------run length should be in form: '20hour' or '5day'
       endif
 c-----1D open-channel flow method
  940  format(/' Type of analysis: ', a)
-      if (terms .eq. 1)then
+      if (terms .eq. 1) then
          write(unit_output,940) 'DYNAMIC WAVE'
-      elseif(terms .eq. 2)then
+      elseif(terms .eq. 2) then
          write(unit_output,940) 'DIFFUSION WAVE'
-      elseif(terms .eq. 3)then
+      elseif(terms .eq. 3) then
          write(unit_output,940) 'KINEMATIC WAVE'
       else
          write(unit_output,940) 'Not Specified ---> DYNAMIC WAVE assumed'
       endif
 
-      if(variabledensity)then
+      if(variabledensity) then
          write(unit_output,1020)
  1020    format(/' Variable Density Option selected (i.e. baroclinic term)')
       endif
 
-      if(variablesinuosity)then
+      if(variablesinuosity) then
          write(unit_output,1040)
  1040    format(/' Variable Sinuosity Option selected')
       endif

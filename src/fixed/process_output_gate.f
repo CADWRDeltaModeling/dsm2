@@ -74,7 +74,7 @@ c-----------find object number given object ID
             pathoutput(noutpaths).obj_name=LocName
 	      gateNo = name_to_objno(obj_gate, LocName)
             pathoutput(noutpaths).obj_no= gateNo
-            if (gateNo .eq. miss_val_i)then
+            if (gateNo .eq. miss_val_i) then
               write(unit_error,*)'Ignoring output TS: ' // name
 	         write(unit_error,*)'Unknown gate: ',LocName
                noutpaths=noutpaths-1
@@ -83,29 +83,29 @@ c-----------find object number given object ID
             devNo=deviceIndex(gateArray(gateNo),subLoc)   
             pathoutput(noutpaths).gate_device=devNo
 	      device_required=.true.
-            if (trim(Param) .eq. 'pos')then
+            if (trim(Param) .eq. 'pos') then
 			   write(unit_error, *) 
      &         "Warning: 'pos' output is deprecated. Substituting op_to_node in output: " // name
 	          Param='op-to-node'
-            else if (trim(Param) .eq. 'position')then
+            else if (trim(Param) .eq. 'position') then
 	         Param='position'
             else if (trim(Param) .eq. 'op-to-node' .or. 
-     &	       trim(Param) .eq. 'op_to_node')then
+     &	       trim(Param) .eq. 'op_to_node') then
 	         Param='op-to-node'
 	      else if (trim(Param) .eq. 'op-from-node' .or. 
-     &	       trim(Param) .eq. 'op_from_node')then
+     &	       trim(Param) .eq. 'op_from_node') then
 	         Param='op-from-node'
-	      else if (trim(Param) .eq. 'height')then
+	      else if (trim(Param) .eq. 'height') then
 	         Param='height'
-	      else if (Param(1:4) .eq. 'elev' )then
+	      else if (Param(1:4) .eq. 'elev' ) then
 	         Param='elev'
-	      else if (trim(Param) .eq. 'width' .or. trim(Param) .eq. 'radius')then
+	      else if (trim(Param) .eq. 'width' .or. trim(Param) .eq. 'radius') then
 	         Param='width'	            
 	      else if(trim(Param) .eq. 'install') then
 	         Param='install'
 	         device_required=.false.
-	      else if (trim(Param) .eq. 'flow')then
-	         if (devNo .eq. miss_val_i)then
+	      else if (trim(Param) .eq. 'flow') then
+	         if (devNo .eq. miss_val_i) then
 		         Param='flow'
 		       else 
                  Param='device-flow'

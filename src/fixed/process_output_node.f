@@ -77,7 +77,7 @@ c-----load f90SQL modules
                pathoutput(noutpaths).source_group_ndx=GROUP_ALL
             else
                pathoutput(noutpaths).source_group_ndx=name_to_objno(obj_group,SourceGroup)
-               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i)then
+               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i) then
                    write(unit_error,*)"Source group ",SourceGroup,
      &              " not recognized for output request: ", pathoutput(noutpaths).name
                    call exit(2)

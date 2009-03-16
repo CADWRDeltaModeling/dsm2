@@ -49,7 +49,7 @@ c-----load f90SQL modules
           pathoutput(noutpaths).source_group_ndx=GROUP_ALL
       else
           pathoutput(noutpaths).source_group_ndx=name_to_objno(obj_group,SourceGroup)
-          if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i)then
+          if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i) then
              write(unit_error,*)"Source group ",SourceGroup,
      &       " not recognized for output request: ", pathoutput(noutpaths).name
              call exit(2)
@@ -59,7 +59,7 @@ c----------find object number given object ID
       pathoutput(noutpaths).obj_no = ext2int(channo)
       if (pathoutput(noutpaths).obj_no .eq. 0) 
      &     pathoutput(noutpaths).obj_no = miss_val_i ! quick fix?
-         if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
+         if(pathoutput(noutpaths).obj_no .eq. miss_val_i) then
             write(unit_error,*)'Ignoring output TS: ', trim(name), 
      &        ' request for unrecognized channel ', channo
                noutpaths=noutpaths-1

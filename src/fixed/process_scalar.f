@@ -59,7 +59,7 @@ C!</license>
          run_end_date(11:14)=Val(1:4)
       elseif (Param .eq. 'run_length') then
          run_length=Val
-      elseif (Param .eq. 'title')then
+      elseif (Param .eq. 'title') then
          ntitles=1
          title(ntitles)=' '
       elseif (Param .eq. 'database') then

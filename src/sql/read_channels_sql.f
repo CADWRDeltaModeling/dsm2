@@ -154,7 +154,7 @@ c--------skip the channel if marked not-use
          return
       endif
       nchans=counter
-      if (.not. order_nodes())then
+      if (.not. order_nodes()) then
          write(unit_error,'(a)')'Error reordering nodes in read_channels_sql.f.'
          istat=-3
          return
@@ -284,7 +284,7 @@ c--------Fetch a record from the result set
                call exit(-3)
             end if
             ! This channel is not just a lower priority version of the last channel
-            if( use_obj )then ! don't move this
+            if( use_obj ) then ! don't move this
                 !todo: Eli moved this, make sure OK
                   
                 call process_xsect(channo,chan_fdist,xsectId,counter)

@@ -1177,15 +1177,15 @@ c---- variation on binary search to bracket requested distanceance by bisection
 c-----note that for most 
       do while ((idown - iup) .gt. 1)
          mid = (iup+idown)/2;	! integer divide, rounds down
-         if (distance .lt. CompLocation(mid))then
+         if (distance .lt. CompLocation(mid)) then
 	      if (distance .eq. CompLocation(iup)) then
 	          idown=iup
 	          exit
 	      else 
 		      idown=mid
 	      end if
-         else if (distance .gt. CompLocation(mid))then
-	       if (distance .eq. CompLocation(idown))then
+         else if (distance .gt. CompLocation(mid)) then
+	       if (distance .eq. CompLocation(idown)) then
 		      iup=idown
 	          exit
 	       else

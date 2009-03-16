@@ -48,7 +48,7 @@ c-----local variables
       integer, external :: SetHDF5ToTime
 
          
-	if (GetCurrentTideTime() .lt. desired_time)then
+	if (GetCurrentTideTime() .lt. desired_time) then
 	  ! flow values must be updated
 	  TideTime=SetHDF5ToTime(desired_time)
 	   call ReadDataFromHDF5(TideTime)

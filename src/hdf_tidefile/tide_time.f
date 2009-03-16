@@ -27,7 +27,7 @@
 	span = end_julmin - tf_start_julmin
 	ans = span/TideFileWriteInterval
 	
-	if (mod(span,TideFileWriteInterval) .eq. 0)then
+	if (mod(span,TideFileWriteInterval) .eq. 0) then
 	  ans = ans+1
 	end if
 	return 
@@ -113,7 +113,7 @@
 	reltime = tidetime - h5_time_start
 	intvl = getHDF5TimeInterval()
 
-	if(mod(reltime,intvl).eq.0)then
+	if(mod(reltime,intvl).eq.0) then
 	  index = reltime/intvl
 	else
 	  index = (reltime/intvl)+1

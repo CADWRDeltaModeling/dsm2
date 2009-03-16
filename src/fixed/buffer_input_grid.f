@@ -42,7 +42,7 @@ c====================================================================
 
 
        if ((xsect_buffer_size() .gt. 0) .and. 
-     &     (xsect_layer_buffer_size() .gt. 0))then
+     &     (xsect_layer_buffer_size() .gt. 0)) then
          write(unit_error,*)
      &      "Mixing of CSDP-style cross-sections and XSECT_LAYER input not supported"
          call exit(-3)
@@ -70,7 +70,7 @@ c====================================================================
        end do
        print *,"Number of channels: ", nitem
        
-       if (.not. order_nodes())then
+       if (.not. order_nodes()) then
          write(unit_error,'(a)')'Error reordering nodes.'
          call exit(-3)
          return

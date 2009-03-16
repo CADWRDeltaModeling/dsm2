@@ -149,7 +149,7 @@ c     &     =chan_index(channo) + (vsecno-1)*num_layers(channo) + virtelev-1
 
 
 c-----check constants
-	if (.not. verify_gravity_terms())then
+	if (.not. verify_gravity_terms()) then
 	  write(unit_error,*)"Error checking fixed data"
 	  istat=-3
 	  return
@@ -178,7 +178,7 @@ c-----set FourPt values
 c-----hydro binary/hdf5 output file interval
 
 
-	if( io_files(hydro,io_hdf5,io_write).use )then
+	if( io_files(hydro,io_hdf5,io_write).use ) then
 	       TideFileWriteInterval=incr_intvl(0,io_files(hydro,io_hdf5,io_write).
      &        interval,TO_BOUNDARY)
 	end if
@@ -295,7 +295,7 @@ c     add gate codes
             channo=gateArray(i).objConnectedID
             node=gateArray(i).node
 c-----------verify that the node is internal
-            if ((node_geom(node).nup + node_geom(node).ndown) .le. 1)then ! external (error)
+            if ((node_geom(node).nup + node_geom(node).ndown) .le. 1) then ! external (error)
                write(unit_error,712) trim(gateArray(i).name)
  712           format(/'Gate may not be placed at external node. Gate: ',a)
                call exit(2)
@@ -510,7 +510,7 @@ c-----fill the FourPt channel ID string
       PreviousH100   = 99999
 
 c-----fill FourPt channel and related arrays and check validity
-      if (deltax_requested .le. 0.)then
+      if (deltax_requested .le. 0.) then
 	   write(unit_error,*) "Delta x not specified"
 	   call exit(3)
       end if
@@ -681,7 +681,7 @@ c-----reservoirs, and input path indices for labeled connections
 c--------assign an input path (dss or constant valued)
          do pth=1,ninpaths
             if ((pathinput(pth).obj_type .eq. obj_obj2obj)
-     &           .and. (pathinput(pth).obj_name .eq. obj2obj(i).name))then ! fixme:
+     &           .and. (pathinput(pth).obj_name .eq. obj2obj(i).name)) then ! fixme:
                call datasource_from_path(obj2obj(i).datasource,pth,pathinput(pth))
 	         obj2obj(i).flow=fetch_data(obj2obj(i).datasource)
 	         ! todo: is below implemented right? Seems to be initialized as -901.
@@ -841,7 +841,7 @@ c--------check upstream channel end connections to node first...
          do j=1,node_geom(node).nup
            if (upboundarycode(node_geom(node).upstream(j)) .eq. 12
      &        .or.
-     &        upboundarycode(node_geom(node).upstream(j)) .eq. 2)then
+     &        upboundarycode(node_geom(node).upstream(j)) .eq. 2) then
                  node2hydrochan=node_geom(node).upstream(j)
                  return
             end if

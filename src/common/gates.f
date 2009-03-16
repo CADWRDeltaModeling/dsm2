@@ -134,11 +134,11 @@ c-----use Gates, only: Gate, GATE_OPEN
       logical*4 :: isfree
       integer i
       ! fixme: is this correct?? 
-      if (isfree .and. .not. inGate.free)then ! gate is non-redundantly free
+      if (isfree .and. .not. inGate.free) then ! gate is non-redundantly free
          do i= 1,inGate.nDevice
             inGate.Devices(i).flow=0.D0 ! fixme: this may be unacceptable?
          end do
-      else if ((.not. isfree) .and. inGate.free)then 
+      else if ((.not. isfree) .and. inGate.free) then 
 	      ! gate is non-redundantly installed
       end if
       inGate.free=isfree
@@ -182,7 +182,7 @@ c     is returned. Element-by-element search, so this routine is expensive.
       do idev=1,parentgate.nDevice
          parname=parentgate.devices(idev).name
          call locase(parname)
-         if (parname .eq. devName)then
+         if (parname .eq. devName) then
             deviceIndex=idev
             return
          end if
@@ -197,7 +197,7 @@ c     is returned. Element-by-element search, so this routine is expensive.
 	character*32, intent(out) :: TypeString
       integer, intent(in) :: devType
       TypeString = " "
-	if (devType .eq. WEIR)then
+	if (devType .eq. WEIR) then
 	  TypeString = "weir"
 	else if (devType .eq. PIPE) then 
 	  TypeString = "pipe"
@@ -246,10 +246,10 @@ c      gate parameter
       if (device.structureType .eq. PIPE .or. device.controlType 
      &      .eq. NO_GATE_CONTROL) then
          return ! no gate control yet for pipes	   
-      else if (device.structureType .eq. WEIR)then
-         if (device.controlType .eq. GATED_FROM_TOP)then
+      else if (device.structureType .eq. WEIR) then
+         if (device.controlType .eq. GATED_FROM_TOP) then
 	      device.height = device.position
-         else if(device.controlType .eq. GATED_FROM_BOTTOM)then
+         else if(device.controlType .eq. GATED_FROM_BOTTOM) then
 	      device.baseElev = device.position
          end if
       else 

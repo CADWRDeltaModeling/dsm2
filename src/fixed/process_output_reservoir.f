@@ -70,7 +70,7 @@ C!</license>
                pathoutput(noutpaths).source_group_ndx=GROUP_ALL
             else
                pathoutput(noutpaths).source_group_ndx=name_to_objno(obj_group,SourceGroup)
-               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i)then
+               if (pathoutput(noutpaths).source_group_ndx .eq. miss_val_i) then
                    write(unit_error,*)"Source group ",SourceGroup,
      &              " not recognized for output request: ", pathoutput(noutpaths).name
                    call exit(2)
@@ -80,16 +80,16 @@ c-----------find object number given object ID
          ! fixme: same decision, especially since this doesn't really exist
             pathoutput(noutpaths).obj_name=LocName
             pathoutput(noutpaths).obj_no=  name_to_objno(obj_reservoir, locName)
-            if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
+            if(pathoutput(noutpaths).obj_no .eq. miss_val_i) then
                write(unit_error,*)'Ignoring output TS: ', trim(name), 
      &              ' request for unrecognized reservoir ', locName
 	         noutpaths=noutpaths-1
                return
             end if
             pathoutput(noutpaths).res_node_no = miss_val_i
-            if (SubLoc .NE. miss_val_i)then 
+            if (SubLoc .NE. miss_val_i) then 
                pathoutput(noutpaths).res_node_no = ext2intnode(SubLoc)
-               if (pathoutput(noutpaths).res_node_no .eq. miss_val_i)then
+               if (pathoutput(noutpaths).res_node_no .eq. miss_val_i) then
                   write(unit_error,*)'Output TS: ',trim(name),
      &                ' requested non-existent reservoir connection'
                   write(unit_error, *)'Reservoir: ', pathoutput(noutpaths).obj_name,
