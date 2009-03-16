@@ -163,7 +163,9 @@
      &                                        perop,
      &                                        filename,
      &                                        ierror)
+         call locase(sourcegroup)
          if (sourcegroup .eq. "none")sourcegroup = ""
+
          call locase(distance)
          if (distance(:6) .eq. "length") then 
             idistance = chan_length
