@@ -159,9 +159,9 @@ c-----local variables
       character*16 control_name
       character*16 default_op_name
       
-      if (structure_name(1:4).eq. 'weir')then
+      if (structure_name(1:4).eq. 'weir') then
           struct_type = WEIR
-      elseif (structure_name(1:4) .eq. 'pipe')then
+      elseif (structure_name(1:4) .eq. 'pipe') then
           struct_type = PIPE
       else
           write(unit_error, *) "Gate structure not recognized: " 
@@ -170,11 +170,11 @@ c-----local variables
           call exit(-3)
       end if
       
-      if (control_name .eq. 'gated_bottom')then
+      if (control_name .eq. 'gated_bottom') then
           control_type = GATED_FROM_BOTTOM
-      elseif (control_name .eq. 'gated_top')then
+      elseif (control_name .eq. 'gated_top') then
           control_type = GATED_FROM_TOP
-      elseif (control_name .eq. 'no_gate')then
+      elseif (control_name .eq. 'no_gate') then
           control_type = NO_GATE_CONTROL
       else
           write(unit_error, *) "Gate control not recognized: " 
@@ -183,19 +183,19 @@ c-----local variables
           call exit(-3)
       end if
 
-      if (default_op_name .eq. 'gate_open')then
+      if (default_op_name .eq. 'gate_open') then
           default_op = GATE_OPEN
 	    to_op=1.
 		  from_op=1.
-      elseif (default_op_name .eq. 'gate_close')then
+      elseif (default_op_name .eq. 'gate_close') then
           default_op = GATE_OPEN
 	    to_op=0.
 	    from_op=0.
-      elseif (default_op_name .eq. 'unidir_to_node')then
+      elseif (default_op_name .eq. 'unidir_to_node') then
           default_op = UNIDIR_TO_NODE
 	    to_op=1.
 	    from_op=0.
-      elseif (default_op_name .eq. 'unidir_from_node')then
+      elseif (default_op_name .eq. 'unidir_from_node') then
           default_op = UNIDIR_FROM_NODE
 	    to_op=0.
 	    from_op=1.0

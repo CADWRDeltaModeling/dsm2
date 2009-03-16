@@ -29,7 +29,7 @@ C!</license>
 	use io_units
 	implicit none
 	verify_gravity_terms = .true.
-	if(abs(gravity - 32.2) .gt. 0.1 .and. abs(gravity - 9.8) .gt. 0.1 )then
+	if(abs(gravity - 32.2) .gt. 0.1 .and. abs(gravity - 9.8) .gt. 0.1 ) then
 	  write(unit_error, "('a,i,a,a')") "Gravity value of ", gravity, " not expected.",
      &   " Either change units or alter model to accomodate new units."
         verify_gravity_terms= .false.

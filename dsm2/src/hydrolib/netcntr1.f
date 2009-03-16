@@ -561,7 +561,7 @@ C!</license>
          CloseQ = .TRUE.
       END IF
 
-      IF(NormClose)then ! CloseZ .AND. CloseQ ) THEN
+      IF(NormClose) then ! CloseZ .AND. CloseQ ) THEN
          StoreNetworkClosure = .TRUE.
       ELSE
 *--------Check for exceedence of maximum number of iterations.

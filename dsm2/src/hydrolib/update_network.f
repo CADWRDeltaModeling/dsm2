@@ -111,7 +111,7 @@ c-----elapsed iterations
 *        right hand side to zero
          XAdj=0.
 
-         if(NGate.GT.0)then
+         if(NGate.GT.0) then
 c-----------Calculate flow through all the gates
             OK = CalculateGateFlow()
          end if
@@ -133,7 +133,7 @@ c-----------Calculate flow through all the gates
  200     continue
 
          
-         if(Nreser.GT.0)then
+         if(Nreser.GT.0) then
 c-----------Calculate Reservoir flows
             OK = CalculateReservoirFlow()
          end if
@@ -243,7 +243,7 @@ c-----------Calculate Reservoir flows
 
          do 150 I=UpstreamPointer(),DownstreamPointer()-1
             Node = Node + 1
-            if( DynamicWaveEqDS(Node, Node+1) )then
+            if( DynamicWaveEqDS(Node, Node+1) ) then
             else
                UpdateChannel = .FALSE.
                WRITE(UNIT_ERROR,*) ' *** Error (UpdateChannel)'
@@ -325,9 +325,9 @@ c-----------Calculate Reservoir flows
 *****-
 *-----Set channel-extremity code to upstream.
 
-      If(Extremity .EQ. 1)Then
+      If(Extremity .EQ. 1) then
          ConstraintCode = UpstreamCode()
-      Else If(Extremity .EQ. -1)Then
+      Else If(Extremity .EQ. -1) then
          ConstraintCode = DownstreamCode()
       Else
          WRITE(UNIT_ERROR,*) ' *** Error (SetConstraint)'
@@ -340,30 +340,30 @@ c-----------Calculate Reservoir flows
       OK = .FALSE.
 
 *-----Set appropriate constraint.
-      If (Code.EQ.1)Then
+      If (Code.EQ.1) then
          IF( ForceStreamSurface(Extremity) ) THEN
          ELSE
             RETURN
          END IF
-      Else If (Code.EQ.2)Then
+      Else If (Code.EQ.2) then
          IF( ForceStreamFlow(Extremity) ) THEN
          ELSE
             RETURN
          END IF
 
-      Else If (Code.EQ.11)Then
+      Else If (Code.EQ.11) then
          IF( ForceEqualStreamSurface(Extremity) ) THEN
          ELSE
             RETURN
          END IF
 
-      Else If (Code.EQ.12)Then
+      Else If (Code.EQ.12) then
          IF( ForceSumStreamFlow(Extremity) ) THEN
          ELSE
             RETURN
          END IF
 
-      Else If (Code.EQ.51 .OR.  Code.EQ.52)Then
+      Else If (Code.EQ.51 .OR.  Code.EQ.52) then
          IF(IABS( MOD( ConstraintCode/100 , 100 ) ) .EQ.4 ) THEN
          ELSE
             RETURN

@@ -334,14 +334,14 @@ c--------remove comment portion of line
 
 c--------get rid of ending tab chars
          do i=1,len_trim(line)
-            if (line(i:i) .eq. '	')then ! tab
+            if (line(i:i) .eq. '	') then ! tab
                 line(i:i) = ' '
             end if
          end do 
          nl_line=len_trim(line)
          line=trim(line)
          
-         if (nl_line .gt. 0)then
+         if (nl_line .gt. 0) then
          do while ( nl_line .gt. 0 .and.
      &        line(nl_line:nl_line) .eq. '	') ! tab char
             nl_line=nl_line-1
@@ -404,7 +404,7 @@ c-----------check that section keyword is valid
             lsect=.false.
             lfield=.true.
 c-----------check if field values will be for default
-            if (nfields .eq. 2)then
+            if (nfields .eq. 2) then
                ldefault=(line(ibegf(2):ibegf(2)+3) .eq. 'def')
             else
                ldefault=.false.

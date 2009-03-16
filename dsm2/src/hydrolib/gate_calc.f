@@ -141,7 +141,7 @@ c--------Get required data concerning gate.
 c-----------Gate is not operation, flow is free
 c-----------node condition reverts to equal water surface
 
-            if (currentGate.objConnectedType .eq. obj_reservoir)then
+            if (currentGate.objConnectedType .eq. obj_reservoir) then
             ! not allowed for reservoirs (fixme: is there an acceptable behavior?)
                write(unit_error,'(/a/a)') 
      &              'Fully uninstalled gate not allowed for reservoirs',
@@ -171,7 +171,7 @@ c-----------node condition reverts to equal water surface
                coef3=0.D0
 
                OK=AddAtRow(currentDevice.calcRow, -GateEqResid)
-               if (forwardelim())then !Insert the matrix coefficients
+               if (forwardelim()) then !Insert the matrix coefficients
                   OK = AddAtLocation(GateEqPointer(devndx+1),coef1) ! Gate Equation for device
                   OK = AddAtLocation(GateEqPointer(devndx+2),coef2)
                   OK = AddAtLocation(GateEqPointer(devndx+3),coef3)
@@ -187,7 +187,7 @@ c     The sign parameter s converts the gate flow direction convention to
 c     the channel/resrvoir flow direction convention
 
             OK = AddAtRow(GateEqRow(gt),-s*q1)
-            if (forwardelim())then
+            if (forwardelim()) then
                OK = AddAtLocation(GateEqPointer(gatendx),s)
             end if
 
@@ -195,7 +195,7 @@ c---------------Calculate flow and derivatives for each device in this gate
             do dv = 1,currentGate.nDevice
 	         currentDevice=>currentGate.devices(dv)
 	         call ApplyDevicePosition(currentDevice)
-	         if (currentDevice.structureType .eq. PIPE)then
+	         if (currentDevice.structureType .eq. PIPE) then
                  call calcPipeFlow(currentDevice,z1,z2,qCalc,dGateEqdZ1,dGateEqdZ2,CxA)
                else 
 	           call calcWeirFlow(currentDevice,z1,z2,qCalc,dGateEqdZ1,dGateEqdZ2,CxA)
@@ -205,7 +205,7 @@ c---------------Calculate flow and derivatives for each device in this gate
                   currentDevice.flow = sign(SINGULAR_FLOW,z1-z2)
                   QDevice=currentDevice.flow
 	         end if
-               if (CxA .gt. 0.)then
+               if (CxA .gt. 0.) then
                   GateEqResid=QDevice-qcalc
 		        coef1=1.D0
 ! Next line is a compile directive
@@ -226,7 +226,7 @@ c---------------Calculate flow and derivatives for each device in this gate
                ! the residual of the device equation.
                OK=AddAtRow(GateEqRow(gt), QDevice) 
                OK=AddAtRow(currentDevice.calcRow, -GateEqResid)
-               if (forwardelim())then !Insert the matrix coefficients
+               if (forwardelim()) then !Insert the matrix coefficients
                                 ! contribution of device to total chan/res flow through gate
                   OK = AddAtLocation(GateEqPointer(devndx),-1.D0)  
                   OK = AddAtLocation(GateEqPointer(devndx+1),coef1) ! Gate Equation for device
@@ -256,7 +256,7 @@ c-----------reservoir mass balance and also must put the gate flow into QRes
      &           +OneMTheta*QResOld(currentGate.objConnectedID,
      &           currentGate.subLocation)
             OK = AddAtRow( ResRow, -KnownResFlow) 
-            if (forwardelim())then
+            if (forwardelim()) then
                OK = AddAtLocation(GateEqPointer(gatendx+3),1.D0)
                OK = AddAtLocation(GateEqPointer(gatendx+4),theta)
             end if              ! Reservoir
@@ -547,7 +547,7 @@ c      GateEqResid= abs(QDevice)*QDevice-CxA**2.*dh
 
 *-----The value calculated below  is oriented from water body to node
 
-      if (flowDepth .lt. weir.height)then  ! Area depends on free surface 
+      if (flowDepth .lt. weir.height) then  ! Area depends on free surface 
          CxT1=coefWeir*TopWidth
          CxA=CxT1*flowDepth
          CxT2=CxT1*m2

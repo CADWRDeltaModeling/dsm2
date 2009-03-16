@@ -265,7 +265,7 @@ c-----add network connectivity of nodes and channels to node_geom and chan_geom
 c--------upstream node
          node=ext2intnode(chan_geom(intchan).upnode)
          node_geom(node).nup=node_geom(node).nup+1
-         if(node_geom(node).nup .gt. max_cpn)then
+         if(node_geom(node).nup .gt. max_cpn) then
              write(unit_error,"(a,i)")
      &         "Too many upstream channel connections node "
      &          ,node_geom(node).node_id
@@ -277,7 +277,7 @@ c--------upstream node
 c--------downstream node
          node=ext2intnode(chan_geom(intchan).downnode)
          node_geom(node).ndown=node_geom(node).ndown+1
-         if(node_geom(node).ndown .gt. max_cpn)then
+         if(node_geom(node).ndown .gt. max_cpn) then
              write(unit_error,"(a,i)")
      &         "Too many downstream channel connections node "
      &          ,node_geom(node).node_id
@@ -394,7 +394,7 @@ c--------read a line and determine column widths with FINDLM
       m=0
       do while (lnblnk(one_line) .gt. 0)
          m=m+1
-         if (m .gt. max_elevations)then
+         if (m .gt. max_elevations) then
             write(unit_error,120)max_elevations,channo,fdist
             call exit(-2)
  120     format("Maximum number of elevations per xsect (",i4,

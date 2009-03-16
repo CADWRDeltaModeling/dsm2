@@ -90,7 +90,7 @@ C!</license>
 c-----------find object number given external object number
       pathinput(ninpaths).obj_name=trim(LocName)
       pathinput(ninpaths).obj_no=name_to_objno(obj_reservoir,LocName)
-      if (pathinput(ninpaths).obj_no .eq.miss_val_i )then
+      if (pathinput(ninpaths).obj_no .eq.miss_val_i ) then
           write(unit_error,'(a,a)')
      &          'Reservoir Time Series Input: ',trim(pathinput(ninpaths).name),
      &         ' attached to unrecognized object: ',LocName
@@ -148,7 +148,7 @@ c--------------accumulate unique dss input filenames
 
 c-----------set data type fixme:groups is this right
       pathinput(ninpaths).data_type=obj_source_sink
-      if (print_level .ge. 3)then
+      if (print_level .ge. 3) then
               write(unit_screen,'(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
      &              trim(InPath(:24)),
      &              trim(FileName(:24))

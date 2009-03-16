@@ -291,7 +291,7 @@ c-----INTEGER N
 
 *-----Implementation -----------------------------------------------------
 
-      If (ForwardElim())Then
+      If (ForwardElim()) then
          Value = Val
 
          Call sfAdd1Real(Location,Value)
@@ -355,7 +355,7 @@ c-----INTEGER N
       SolveFourPt = .FALSE.
 
 *-----Create RHS vector of proper size and precision
-      If ( FirstTime .OR. (Mod(IterSinceOrder,2000) .le. 1))Then
+      If ( FirstTime .OR. (Mod(IterSinceOrder,2000) .le. 1)) then
          Scaled = .True.
          FirstTime = .False.
       Else
@@ -363,7 +363,7 @@ c-----INTEGER N
 c@@@        If ( ForwardElim() )Scaled = .False.
       End If
 
-      If (NetworkIteration().eq.1)then
+      If (NetworkIteration().eq.1) then
          firstbacktrack=.true.
          lastbacktrack=.false.
          LastLInfNorm=Huge(1.D0)
@@ -386,7 +386,7 @@ c@@@    &   NetworkIteration(),LInfNorm,maxNormLoc,L2Norm,
 c@@@    &   Min(LastL2Norm,9999999.99),RowScale(maxNormLoc)
       
       NormClose=(L2Norm .LT. CLOSE_L2) ! .and. LInfNorm .lt. 5.D-1)
-c@@@     if (NetworkIteration() .eq. 19)then
+c@@@     if (NetworkIteration() .eq. 19) then
 c@@@       do i=1,Equations
 c@@@    write(59,"(i5,': ',f18.5,',',f18.5,',',f18.5)")i,xadj(i),xold(i),xx(i)
 c@@@  end do
@@ -397,7 +397,7 @@ c@@@     end if
       
 
       lasttime=(NetworkIteration() .eq. MaxNetworkIterations())
-c@@@     if (lasttime)then
+c@@@     if (lasttime) then
 c@@@ print*,'*****************Maxiter********************',
 c@@@    &      ' ',current_date,' *********'
 c@@@      call solver_diagnostics(maxNormLoc)
@@ -416,7 +416,7 @@ c@@@     end if
          Else
             Error=sfFactor(Matrix)
          End If
-         if(error .ne. 0)then
+         if(error .ne. 0) then
             write(unit_error,
      &           "('Error in linear algebra. SPARSE returned error code: ',i5)")
      &           error
@@ -432,7 +432,7 @@ c@@@   print*,"Outer iteration, rescale=",rescale
       IterSinceOrder = IterSinceOrder+1
 
 *-----Need to unscale result
-      If(Scaled)Then
+      If(Scaled) then
 *--------Need to unscale result
          Do I=1,Equations
             X(I) = X(I) * ColumnScale(I)
@@ -449,7 +449,7 @@ c@@@   print*,"Backtrack, rescale= ",Rescale
          lastbacktrack=.true.
          Rescale=0.5*Rescale
          X=0.5*X
-         if(firstbacktrack)then
+         if(firstbacktrack) then
             X=-X
             firstbacktrack=.false.
          end if

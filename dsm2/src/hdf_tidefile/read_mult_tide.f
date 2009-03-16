@@ -73,7 +73,7 @@ c-----local variables
          endif
       enddo
 
-      if (.not. foundtime)then
+      if (.not. foundtime) then
 610     format(/'Unable to find a tidefile for current time: ',a)
         write(unit_error,610) current_date
         call exit(2)
@@ -103,7 +103,7 @@ c-----local variables
 
       new_tidefile = .false.
 c-----read tide flows
-	if (julmin .gt. prev_read_tidetime )then
+	if (julmin .gt. prev_read_tidetime ) then
 	  ! flow values must be updated, rather than reused
 	   call ReadDataFromHDF5(julmin)
 	   prev_read_tidetime = getCurrentTideTime()

@@ -607,7 +607,7 @@ c-----------calculate xsect property array index for current layer
             di = dindex(channo,vsecno,virtelev)
             if (x .le. x2) then
                if ( (x1 .eq. x2) .and. (upindex .gt. 0) .and. 
-     &              (downindex .gt. 0) )then
+     &              (downindex .gt. 0) ) then
                   virt_width(di)=y1
                   virt_area(di)=y3
                   virt_wet_p(di)=y5
@@ -766,7 +766,7 @@ c-----decrement assgindex until the real elevation is le the current virt elev.
       assgindex=1
       do i=1,irreg_geom(secno).num_elev
          if ( irreg_geom(secno).elevation(assgindex) .lt.
-     &        virt_elevation(ei) )then
+     &        virt_elevation(ei) ) then
             assgindex=assgindex+1
          endif
       enddo

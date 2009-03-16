@@ -17,7 +17,7 @@ c      integer*4 start_julmin
 
       filenm = qual_bin_file.filename
 
-      if(filenm .eq. ' ')then
+      if(filenm .eq. ' ') then
          return
       endif
 

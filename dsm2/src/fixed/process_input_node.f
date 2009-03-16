@@ -148,11 +148,11 @@ c--------------accumulate unique dss input filenames
       endif
       !fixme: the next line should probably be based on RoleName
 c-----------set data type fixme:groups is this right
-      if (RoleName .eq. "inflow")then
+      if (RoleName .eq. "inflow") then
           pathinput(ninpaths).data_type=obj_boundary_flow
-      else if (RoleName .eq. "source-sink")then
+      else if (RoleName .eq. "source-sink") then
           pathinput(ninpaths).data_type=obj_source_sink
-      else if (RoleName .eq. "stage")then
+      else if (RoleName .eq. "stage") then
           pathinput(ninpaths).data_type=obj_stage
       end if
 
@@ -165,7 +165,7 @@ c-----------set data type fixme:groups is this right
           end if
       end if
 
-      if (print_level .ge. 3)then
+      if (print_level .ge. 3) then
           write(unit_screen, '(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
      &       trim(InPath(:24)),
      &       trim(FileName(:24))

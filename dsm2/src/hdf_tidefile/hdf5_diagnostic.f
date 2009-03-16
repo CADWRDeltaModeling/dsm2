@@ -25,7 +25,7 @@ C!</license>
 	integer error
 	character*(*)message
 
-	if (error .ne. 0)then
+	if (error .ne. 0) then
         write(unit_error,1212) ,message,error, hdf5point
 	  call exit(2)
       end if

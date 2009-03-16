@@ -73,21 +73,21 @@ c-----local variables
                return
             end if
          end do
-      else if (ObjType .eq. obj_qext)then
+      else if (ObjType .eq. obj_qext) then
          do i=1,max_qext   !fixme this is max instead of nqext because tidefile doesnot pick up nqext
             if (qext(i).name .eq. name) then
                name_to_objno=i
                return
             end if
          end do
-      else if (ObjType .eq. obj_stage)then
+      else if (ObjType .eq. obj_stage) then
          do i=1,nstgbnd
             if (stgbnd(i).name .eq. name) then
                name_to_objno=i
                return
             end if
          end do
-      else if (ObjType .eq. obj_group)then
+      else if (ObjType .eq. obj_group) then
          do i=0,ngroup
             if (groupArray(i).name .eq. name) then
                name_to_objno=i
@@ -135,14 +135,14 @@ c-----local variables
 	   name=trim(adjustl(name))
       else if (ObjType .eq. obj_obj2obj) then !fixme: number convention
          name=obj2obj(index).name
-      else if (ObjType .eq. obj_qext .or. ObjType .eq. obj_boundary_flow)then
+      else if (ObjType .eq. obj_qext .or. ObjType .eq. obj_boundary_flow) then
 	   name=qext(index).name
 c------Jon add this line to account for sink/source object
-      else if (ObjType .eq. obj_source_sink)then 
+      else if (ObjType .eq. obj_source_sink) then 
 	   name=qext(index).name
-      else if (ObjType .eq. obj_stage)then
+      else if (ObjType .eq. obj_stage) then
 	   name=stgbnd(index).name
-      else if (ObjType .eq. obj_group)then
+      else if (ObjType .eq. obj_group) then
          name=groupArray(index).name
       else
          write(unit_error,611) ObjType, index
@@ -182,17 +182,17 @@ c-----local variables
 	   typename='node'
       else if (ObjType .eq. obj_obj2obj) then !fixme: number convention
 	   typename='transfer'
-      else if (ObjType .eq. obj_qext)then
+      else if (ObjType .eq. obj_qext) then
          typename='qext'
-      else if (ObjType .eq. obj_stage)then
+      else if (ObjType .eq. obj_stage) then
          typename='stage_boundary'
-      else if (ObjType .eq. obj_group)then
+      else if (ObjType .eq. obj_group) then
 	   typename='group'
-      else if (ObjType .eq. obj_boundary_flow)then
+      else if (ObjType .eq. obj_boundary_flow) then
 	   typename='flow_boundary'
-      else if (ObjType .eq. obj_source_sink)then  !Jon add some extra line for more types
+      else if (ObjType .eq. obj_source_sink) then  !Jon add some extra line for more types
 	   typename='source_sink'                   !todo: Eli changed these blindly to conform to no-spaces
-	else if (ObjType .eq. obj_oprule)then
+	else if (ObjType .eq. obj_oprule) then
 	   typename='operation_rule'
       else
          write(unit_error,611) ObjType
@@ -213,21 +213,21 @@ c     get the integer type code given a character string representing the type
 	obj_type_code=miss_val_i
 	cstring=trim(objtype)
 	call locase(cstring)
-	if (index(cstring,"chan") .eq. 1)then 
+	if (index(cstring,"chan") .eq. 1) then 
 	  obj_type_code=obj_channel
-	else if (index(cstring,"gate") .eq. 1)then
+	else if (index(cstring,"gate") .eq. 1) then
 	  obj_type_code=obj_gate
-	else if (index(cstring,"res") .eq. 1)then
+	else if (index(cstring,"res") .eq. 1) then
 	  obj_type_code=obj_reservoir
-	else if (index(cstring,"node") .eq. 1)then
+	else if (index(cstring,"node") .eq. 1) then
 	  obj_type_code=obj_node	  
-	else if (index(cstring,"transfer") .eq. 1)then
+	else if (index(cstring,"transfer") .eq. 1) then
 	  obj_type_code=obj_obj2obj
-	else if (index(cstring,"group") .eq. 1)then
+	else if (index(cstring,"group") .eq. 1) then
 	  obj_type_code=obj_group
-	else if (index(cstring,"qext") .eq. 1)then
+	else if (index(cstring,"qext") .eq. 1) then
 	  obj_type_code=obj_qext
-	else if (index(cstring,"stage") .eq. 1)then
+	else if (index(cstring,"stage") .eq. 1) then
 	  obj_type_code=obj_stage
       end if
 	return
@@ -253,15 +253,15 @@ c     get the integer type code given a character string representing the type
 	   obj_type_code = obj_obj2obj
       else if (typelabel .eq. "qext") then
 	   obj_type_code = obj_qext
-      else if (typelabel(1:5) .eq. "stage")then
+      else if (typelabel(1:5) .eq. "stage") then
          obj_type_code = obj_stage
-      else if (typelabel(1:5) .eq. "group")then
+      else if (typelabel(1:5) .eq. "group") then
          obj_type_code = obj_group
-      else if (typelabel .eq. "flow_boundary")then
+      else if (typelabel .eq. "flow_boundary") then
          obj_type_code = obj_boundary_flow
-      else if (typelabel .eq. "source_sink")then
+      else if (typelabel .eq. "source_sink") then
          obj_type_code = obj_source_sink
-      else if (typelabel .eq. "obj_oprule")then
+      else if (typelabel .eq. "obj_oprule") then
          obj_type_code = obj_oprule
       else
          write(unit_error,611) typelabel

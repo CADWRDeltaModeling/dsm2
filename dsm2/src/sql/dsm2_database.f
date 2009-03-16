@@ -100,7 +100,7 @@ c	end if
 	implicit none
 	integer(DBASE_ID_KIND) model_id 
 	integer istat
-	if (.not. dbase_open)then
+	if (.not. dbase_open) then
 	   call simple_error_message(
      &       "Request for model_id made with database not open", .false.)
          model_id = 0
@@ -117,7 +117,7 @@ c	end if
 	implicit none
 	integer(DBASE_ID_KIND) model_id 
 	integer istat
-	if (.not. dbase_open)then
+	if (.not. dbase_open) then
 	   call simple_error_message(
      &       "Request for hydro_model_id made with database not open", .false.)
          model_id = 0

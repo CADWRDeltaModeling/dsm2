@@ -78,14 +78,14 @@ c-----Load data
       !call load_transfers_SQL(StmtHndl, HydroID, istat)
       !if (istat .lt. 0) goto 901
 
-      if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')then
+      if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual') then
           !call read_input_ts_node_sql(StmtHndl, ModelID, istat)
           !if (istat .lt. 0) goto 901
           !call read_input_ts_reservoir_sql(StmtHndl, ModelID, istat) 
           !if (istat .lt. 0) goto 901
       end if
       
-      if( dsm2_name .eq. 'Hydro')then
+      if( dsm2_name .eq. 'Hydro') then
           call read_input_ts_gate_sql(StmtHndl, ModelID, istat)
           !if (istat .lt. 0) goto 901
           !call read_input_ts_transfer_sql(StmtHndl, ModelID, istat) 
@@ -93,7 +93,7 @@ c-----Load data
           !todo: disabled
           !call read_input_ts_oprule_sql(StmtHndl, ModelID, istat) 
       end if
-      if( dsm2_name .eq. 'Qual')then
+      if( dsm2_name .eq. 'Qual') then
           !call read_input_ts_climate_sql(StmtHndl, ModelID, istat) 
           !if (istat .lt. 0) goto 901
       end if
@@ -107,8 +107,8 @@ c-----Load data
       if (istat .lt. 0) goto 901
       
       !todo: disable
-      if( .false.)then 
-      if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual')then
+      if( .false.) then 
+      if( dsm2_name .eq. 'Hydro' .or. dsm2_name .eq. 'Qual') then
          !call load_output_ts_SQL(StmtHndl, ModelID, istat)
 	   !if (istat .lt. 0) goto 901
 	   !call load_channel_output_ts_SQL(StmtHndl, ModelID, istat)

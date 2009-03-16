@@ -146,7 +146,7 @@ c            better for hydro to keep track of its own time
       logical timedep
       source.indx_ptr=expr
 	source.value=val
-	if (timedep)then
+	if (timedep) then
 	   source.source_type=expression_data
       else 
 	   source.source_type=const_data
@@ -311,7 +311,7 @@ c     return the constant, so FORTRAN and C can share it
       implicit none
 	integer ndx
 	real*8 install
-	if(install .eq. 0.D0)then
+	if(install .eq. 0.D0) then
 	  call setFree(GateArray(ndx), .true.)
       else
 	  call setFree(GateArray(ndx), .false.)
@@ -337,7 +337,7 @@ c     return the constant, so FORTRAN and C can share it
 	use Gates, only: GateArray
 	implicit none
 	integer ndx
-	if (GateArray(ndx).free)then
+	if (GateArray(ndx).free) then
 	   is_gate_install=0.0
 	else
 	   is_gate_install=1.0
@@ -352,12 +352,12 @@ c     return the constant, so FORTRAN and C can share it
 	integer gndx, devndx, direction
 	integer direct_to_node,direct_from_node,direct_to_from_node
 	get_device_op_coef = -901.0
-	if (direction .eq. direct_to_node())then
+	if (direction .eq. direct_to_node()) then
         get_device_op_coef=GateArray(gndx).Devices(devndx).opCoefToNode
-	else if(direction .eq. direct_from_node())then
+	else if(direction .eq. direct_from_node()) then
 	  get_device_op_coef=GateArray(gndx).Devices(devndx).opCoefFromNode
 	else 
-	  if(direction .eq. direct_to_from_node())then
+	  if(direction .eq. direct_to_from_node()) then
 	     get_device_op_coef=(GateArray(gndx).Devices(devndx).opCoefFromNode+
      &                        GateArray(gndx).Devices(devndx).opCoefFromNode)/2.D0
 	  end if
@@ -371,11 +371,11 @@ c     return the constant, so FORTRAN and C can share it
 	integer gndx, devndx,direction
 	integer direct_to_node,direct_from_node,direct_to_from_node
 	real(8) val
-	if (direction .eq. direct_to_node())then
+	if (direction .eq. direct_to_node()) then
         GateArray(gndx).Devices(devndx).opCoefToNode=val
-	else if(direction .eq. direct_from_node())then
+	else if(direction .eq. direct_from_node()) then
         GateArray(gndx).Devices(devndx).opCoefFromNode=val
-	else if(direction .eq. direct_to_from_node())then
+	else if(direction .eq. direct_to_from_node()) then
         GateArray(gndx).Devices(devndx).opCoefToNode=val	
         GateArray(gndx).Devices(devndx).opCoefFromNode=val
       end if
@@ -391,13 +391,13 @@ c     return the constant, so FORTRAN and C can share it
 	integer expr
 	real*8 val
 	logical timedep
-	if (direction .eq. direct_to_node())then
+	if (direction .eq. direct_to_node()) then
 	 call set_datasource(
      &    GateArray(gndx).Devices(devndx).op_to_node_datasource,expr,val,timedep)
-	else if(direction .eq. direct_from_node())then
+	else if(direction .eq. direct_from_node()) then
 	 call set_datasource(
      &    GateArray(gndx).Devices(devndx).op_from_node_datasource,expr,val,timedep)
-	else if(direction .eq. direct_to_from_node())then
+	else if(direction .eq. direct_to_from_node()) then
 	 call set_datasource(
      &    GateArray(gndx).Devices(devndx).op_from_node_datasource,expr,val,timedep)
 	 call set_datasource(
@@ -549,7 +549,7 @@ c     return the constant, so FORTRAN and C can share it
       implicit none
 	integer gndx, devndx, direct
 	integer direct_to_node,direct_from_node
-	if (direct .eq. direct_to_node())then
+	if (direct .eq. direct_to_node()) then
 	   get_device_flow_coef=GateArray(gndx).Devices(devndx).flowCoefToNode
 	else if (direct .eq. direct_from_node()) then
 	   get_device_flow_coef=GateArray(gndx).Devices(devndx).flowCoefFromNode
@@ -567,9 +567,9 @@ c     return the constant, so FORTRAN and C can share it
 	integer gndx, devndx, direct
 	integer direct_to_node,direct_from_node
 	real(8) val
-	if (direct .eq. direct_to_node())then
+	if (direct .eq. direct_to_node()) then
          GateArray(gndx).Devices(devndx).flowCoefToNode=val
-	else if (direct .eq. direct_from_node())then
+	else if (direct .eq. direct_from_node()) then
          GateArray(gndx).Devices(devndx).flowCoefFromNode=val
 	else
 	   write(unit_error,*)"Flow direction not recognized in set_device_flow_coef"
@@ -596,7 +596,7 @@ c     return the constant, so FORTRAN and C can share it
 	integer i
       ts_index = -1
 	do i=1,ninpaths
-	   if (trim(pathinput(i).name) .eq. trim(name))then
+	   if (trim(pathinput(i).name) .eq. trim(name)) then
 	      ts_index=i
 	      return
 	   end if
@@ -612,7 +612,7 @@ c     return the constant, so FORTRAN and C can share it
 	integer i
       qext_index = miss_val_i
 	do i=1,nqext
-	   if (qext(i).name .eq. name)then
+	   if (qext(i).name .eq. name) then
 	      qext_index=i
 	      return
 	   end if
@@ -628,7 +628,7 @@ c     return the constant, so FORTRAN and C can share it
 	integer i
       transfer_index = miss_val_i
 	do i=1,nobj2obj
-	   if (obj2obj(i).name .eq. name)then
+	   if (obj2obj(i).name .eq. name) then
 	      transfer_index=i
 	      return
 	   end if

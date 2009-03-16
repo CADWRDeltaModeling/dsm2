@@ -127,7 +127,7 @@ c
 
          DO j=1,res_geom(i).nConnect
             ChannelConnect=ResConnectingChannels(i,j)
-            if(ChannelConnect.GT.0)then
+            if(ChannelConnect.GT.0) then
                NodeContinuityRow=UpConstraintEq(ChannelConnect)
             else
                NodeContinuityRow=DownConstraintEq(-ChannelConnect)
@@ -140,12 +140,12 @@ c
 
             q1=QRes(i,j)
             dy = y1 - y2
-            if (dy .ge. 0)then
+            if (dy .ge. 0) then
 	         coefSqrtTwoG=ReservoirCoeff(i,j,1)
 	      else
 	         coefSqrtTwoG=ReservoirCoeff(i,j,2)
 	      end if
-	      if(coefSqrtTwoG .eq. 0)then
+	      if(coefSqrtTwoG .eq. 0) then
 	         ResEqResidual=q1
 	         dResEqdQ=1.D0
 	         dResEqdZres=0.D0
@@ -161,7 +161,7 @@ c
 *           The first is the flow contribution to the reservoir continuity equation.
 *           Next are the Zres Q and Zchan part of the reservoir equation. 
 *           Finally, the flow term to the node continuity equation is 1.
-            If (ForwardElim())Then
+            If (ForwardElim()) then
                call sfAdd5Reservoir(ResEqPointer(ResIndex),theta,
      &            dResEqdZres,dResEqdQ,-dResEqdZres,1.D0)
             End If
@@ -239,7 +239,7 @@ c
             y1=Yres(i)
             y2=GlobalStreamSurfaceElevation(ChanCompPt)
             dy = y1 - y2
-            if (dy .ge. 0)then
+            if (dy .ge. 0) then
 	         QRes(i,j)=ReservoirCoeff(i,j,1)*sqrt(dy)
 	      else
 	         QRes(i,j)=-ReservoirCoeff(i,j,2)*sqrt(-dy)

@@ -201,7 +201,7 @@ c--------clean up char variables, replace environment variables
          nenv=replace_envvars(LocName,ctmp)
          LocName=ctmp
          call locase(LocName)
-         if (SubLocLen .gt. 0)then
+         if (SubLocLen .gt. 0) then
             SubLoc=SubLoc(1:SubLocLen)
          else 
             SubLoc=' '

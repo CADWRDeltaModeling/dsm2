@@ -144,7 +144,7 @@ c**********contains routines for writing data to an HDF5 file
 	! start up garbage collection 
 	!call h5pset_gc_references_f(access_plist_id,1,error)
 
-	if (print_level .gt. 1)then
+	if (print_level .gt. 1) then
 	   write(unit_screen,*)"Creating new HDF5 file"
 	end if
 	call h5fcreate_f(hdf5_hydrofile, H5F_ACC_TRUNC_F, file_id, error,
@@ -192,39 +192,39 @@ c-------Close the datasets corresponding to model states
       if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data sets"
 
 	call h5dclose_f(chan_z_dset_id,error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing channel stage data set: ",error
 	end if
 
 	call h5dclose_f(chan_aa_dset_id,error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing channel avg area data set: ",error
 	end if
 
 	call h5dclose_f(chan_q_dset_id,error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing channel flow data set: ",error
 	end if
 
 	call h5dclose_f(chan_a_dset_id,error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing channel area data set: ",error
 	end if
 
 
 	call h5dclose_f(res_h_dset_id,error)
 	call h5dclose_f(res_q_dset_id,error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing reservoir data set: ",error
 	end if
 
 	call h5dclose_f(qext_change_dset_id,error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing qext data set: ",error
 	end if
 
 	call h5dclose_f(transfer_dset_id,error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing transfer data set: ",error
 	end if
 
@@ -232,30 +232,30 @@ c-------Close the groups in the dataset
   
       if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data groups"
 	call h5gclose_f(geom_id, error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing geometry group: ",error
 	end if
 
 	call h5gclose_f(data_id, error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing data group: ",error
 	end if
 
 	call h5gclose_f(hydro_id, error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing hydro group: ",error
 	end if
 
 c-------Close the file
  333  if (print_level .gt.1) write(unit_screen,*)"Closing HDF5 file"
 	call h5fclose_f(file_id, error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing hdf file: ",error
 	end if
 
       if (print_level .gt.2) write(unit_screen,*)"Closing HDF5"
 	call h5close_f(error)
-	if (error .ne. 0)then
+	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing hdf5: ",error
 	end if
       if (print_level .gt.2) write(unit_screen,*)"Closed HDF5"      
@@ -560,7 +560,7 @@ c-------involved in reading/writing time-varying model data
 		! Add chunking and compression
       cparms=0
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
 	  call h5pset_chunk_f(cparms, chan_z_fdata_rank, chan_z_chunk_dims, error)
 	  call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
@@ -582,7 +582,7 @@ c-------involved in reading/writing time-varying model data
 	cparms=0
 		! Add chunking and compression
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
 	   call h5pset_chunk_f(cparms,chan_q_fdata_rank,chan_q_chunk_dims, error)
 	   call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
@@ -602,7 +602,7 @@ c-------involved in reading/writing time-varying model data
       cparms=0
 		! Add chunking and compression
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
           call h5pset_chunk_f(cparms, chan_a_fdata_rank, chan_a_chunk_dims, error)
 	    call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
@@ -623,7 +623,7 @@ c-------involved in reading/writing time-varying model data
 	cparms=0
 			! Add chunking and compression
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-      if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+      if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
           call h5pset_chunk_f(cparms, chan_aa_fdata_rank, 
      &                        chan_aa_chunk_dims, error)
 	    call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
@@ -665,7 +665,7 @@ c-------Create the datasets
 
 		! Add chunking and compression
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
 	   call h5pset_chunk_f(cparms, res_h_fdata_rank, res_h_chunk_dims, error)
 	   call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F, 
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
@@ -685,7 +685,7 @@ c-------Create the datasets
 
 				! Add chunking and compression
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
 	    call h5pset_chunk_f(cparms, res_q_fdata_rank, res_q_chunk_dims, error)
 	    call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
@@ -732,7 +732,7 @@ c-------Create the datasets
 				! Add chunking and compression
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
 
-	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
 	   call h5pset_chunk_f(cparms, transfer_fdata_rank, transfer_chunk_dims, error)
 	   call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
@@ -791,7 +791,7 @@ c-------Create the datasets
 
 				! Add chunking and compression
 	call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING)then
+	if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
 	   call h5pset_chunk_f(cparms, qext_fdata_rank, qext_chunk_dims, error)
 	   call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
      &                    HDF_SZIP_PIXELS_PER_BLOCK, error);

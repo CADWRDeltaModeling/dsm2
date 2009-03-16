@@ -34,13 +34,13 @@ c-----process a character line into data arrays for particle group output
       objtmp=' '
 	objtmp=from_wb((index(from_wb,":")+1):len_trim(from_wb))
       if(trim(objtmp) .eq. 'all' .and. 
-     &     pathoutput(noutpaths).flux_from_type .ne. obj_group)then
+     &     pathoutput(noutpaths).flux_from_type .ne. obj_group) then
 	     pathoutput(noutpaths).flux_from_ndx=GROUP_ANY_INDEX
       else    
 		   pathoutput(noutpaths).flux_from_ndx=name_to_objno(
      &              pathoutput(noutpaths).flux_from_type,objtmp)
 	end if
-      if( pathoutput(noutpaths).flux_from_ndx .eq. miss_val_i)then
+      if( pathoutput(noutpaths).flux_from_ndx .eq. miss_val_i) then
 	    write(unit_error, 650)trim(from_wb)
  650         format(/'Unrecognized object name: ',a)
              call exit(-1)
@@ -52,13 +52,13 @@ c-----process a character line into data arrays for particle group output
       objtmp=' '
 	objtmp=to_wb((index(to_wb,":")+1):len_trim(to_wb))
       if(trim(objtmp) .eq. 'all' .and. 
-     &     pathoutput(noutpaths).flux_to_type .ne. obj_group)then
+     &     pathoutput(noutpaths).flux_to_type .ne. obj_group) then
 	     pathoutput(noutpaths).flux_to_ndx=GROUP_ANY_INDEX
       else    
 		   pathoutput(noutpaths).flux_to_ndx=name_to_objno(
      &              pathoutput(noutpaths).flux_to_type,objtmp)
 	end if
-      if( pathoutput(noutpaths).flux_to_ndx .eq. miss_val_i)then
+      if( pathoutput(noutpaths).flux_to_ndx .eq. miss_val_i) then
 	    write(unit_error, 652)trim(to_wb)
  652         format(/'Unrecognized object name: ',a)
              call exit(-1)
@@ -136,7 +136,7 @@ c-----process a character line into data arrays for particle group output
       pathoutput(noutpaths).flux_group_ndx =pathoutput(noutpaths).obj_no
 
 
-	if(pathoutput(noutpaths).obj_no .eq. miss_val_i)then
+	if(pathoutput(noutpaths).obj_no .eq. miss_val_i) then
 	    write(unit_error,*)"Unrecognized group name for group output spec: " 
      &      // trim(groupname)
 	    call exit(-3)

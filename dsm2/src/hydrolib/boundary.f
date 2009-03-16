@@ -284,7 +284,7 @@ c--------to a node
 	   value=qext(i).flow
          if (obj_type.eq. obj_node) then
             intchan=node_geom(qext(i).attach_obj_no).sumQChan
-	      if (intchan .gt. 0)then
+	      if (intchan .gt. 0) then
 		      ! neg channel number denotes downstream end
                 StreamBndValue(intchan*2-1) = 
      &            StreamBndValue(intchan*2-1) + value
@@ -304,7 +304,7 @@ c--------to a node
       do i=1,nstgbnd
 	   value=stgbnd(i).value
 	      node=stgbnd(i).node
-	      if (node_geom(node).nup .gt. 0)then
+	      if (node_geom(node).nup .gt. 0) then
 	          !upstream node is attached
 	          intchan=node_geom(node).upstream(1)
                 StreamBndValue(intchan*2-1) = value

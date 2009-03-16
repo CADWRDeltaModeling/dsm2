@@ -305,7 +305,7 @@ c-----Copy cross-sections to ends of channels
 
       do channo=1,nchans
          if ( chan_geom(channo).length .gt. 0 .and.
-     &        xsect_assg(channo).num_sec_assg .ge. 1 )then
+     &        xsect_assg(channo).num_sec_assg .ge. 1 ) then
             call xsect_numbers(channo)
             
             upstream_sec=1

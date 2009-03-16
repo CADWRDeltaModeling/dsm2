@@ -716,7 +716,7 @@ c            call exit(2)
 
 *-----Implementation -----------------------------------------------------
 
-c@@@      IF(Rectangular(Branch).AND.Prismatic(Branch))THEN
+c@@@      IF(Rectangular(Branch).AND.Prismatic(Branch)) then
          dEffectiveN = 0.
 c@@@         RETURN
 c@@@      ELSEIF(CxShapeFunction(X,H)) THEN
@@ -1040,7 +1040,7 @@ c@@@      END IF
 
 *-----Implementation -----------------------------------------------------
 
-      IF(Rectangular(Branch).AND.Prismatic(Branch))THEN
+      IF(Rectangular(Branch).AND.Prismatic(Branch)) then
          AreaWtSinuosity = 1.0
       ELSEIF(CxShapeFunction(X,H)) THEN
          AreaWtSinuosity = 0.0
@@ -1099,7 +1099,7 @@ c@@@      END IF
 
 *-----Implementation -----------------------------------------------------
 
-      IF(Rectangular(Branch).AND.Prismatic(Branch))THEN
+      IF(Rectangular(Branch).AND.Prismatic(Branch)) then
          dAreaWtSinuosity = 0.0
          RETURN
       ELSEIF(CxShapeFunction(X,H)) THEN
@@ -1161,7 +1161,7 @@ c@@@      END IF
 
 *-----Implementation -----------------------------------------------------
 
-      IF(Rectangular(Branch).AND.Prismatic(Branch))THEN
+      IF(Rectangular(Branch).AND.Prismatic(Branch)) then
          QWtSinuosity = 1.0
       ELSEIF(CxShapeFunction(X,H)) THEN
          QWtSinuosity = 0.0
@@ -1220,7 +1220,7 @@ c@@@      END IF
 
 *-----Implementation -----------------------------------------------------
 
-      IF(Rectangular(Branch).AND.Prismatic(Branch))THEN
+      IF(Rectangular(Branch).AND.Prismatic(Branch)) then
          dQWtSinuosity = 0.0
          RETURN
       ELSEIF(CxShapeFunction(X,H)) THEN
@@ -1573,7 +1573,7 @@ c@@@      END IF
          Shape(4)    = (1.0-Xi)*Eta
          dShapeDX(4) = 1.0-Xi
          sum=Shape(1)+Shape(2)+Shape(3)+Shape(4)
-         if(abs(sum-1.).gt.1.e-8)then
+         if(abs(sum-1.).gt.1.e-8) then
             fact=(1.-sum)/4.
             do i=1,4
                Shape(i)=Shape(i)+fact

@@ -28,7 +28,7 @@ C!</license>
       integer :: membertype
       integer, external :: name_to_objno
       groupno=name_to_objno(obj_group,name)
-      if(groupno .eq. miss_val_i)then
+      if(groupno .eq. miss_val_i) then
          ngroup=ngroup+1
          groupArray(ngroup).id=ID
          groupArray(ngroup).name=name
@@ -53,13 +53,13 @@ C!</license>
       integer :: groupNdx = miss_val_i
       integer :: npattern = miss_val_i
       
-      if (membertype .eq. obj_group)then ! member is another group
+      if (membertype .eq. obj_group) then ! member is another group
             write(unit_error, *)"Subgroups not supported"
 	      call exit(-2)
       end if
       groupNdx = name_to_objno(obj_group,groupname)
       npattern = groupArray(GroupNdx).nMemberPatterns + 1
-      if (npattern .gt. MAX_MEMBER_PATTERNS)then
+      if (npattern .gt. MAX_MEMBER_PATTERNS) then
 	   write(unit_error,*)"Maximum number of member patterns exceeded for group"
          call exit(-2)
          return
