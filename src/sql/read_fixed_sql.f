@@ -86,7 +86,7 @@ c-----Load data
       end if
       
       if( dsm2_name .eq. 'Hydro') then
-          call read_input_ts_gate_sql(StmtHndl, ModelID, istat)
+          !call read_input_ts_gate_sql(StmtHndl, ModelID, istat)
           !if (istat .lt. 0) goto 901
           !call read_input_ts_transfer_sql(StmtHndl, ModelID, istat) 
           !if (istat .lt. 0) goto 901          
@@ -102,8 +102,8 @@ c-----Load data
       !call load_groups_sql(StmtHndl, ModelID,istat)
       if (istat .lt. 0) goto 901
 
-      if( dsm2_name .eq. 'Qual')
-     &    call load_rate_coeffs_SQL(StmtHndl, ModelID,istat)
+      !if( dsm2_name .eq. 'Qual')
+    ! &    call load_rate_coeffs_SQL(StmtHndl, ModelID,istat)
       if (istat .lt. 0) goto 901
       
       !todo: disable
