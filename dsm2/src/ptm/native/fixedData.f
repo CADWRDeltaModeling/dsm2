@@ -150,7 +150,7 @@ c-----
          if (index(pathoutput(i).meas_type,'ptm_group') .eq. 1) then
 	      ngroup_output=ngroup_output+1
 	      groupOut(ngroup_output).groupNdx = pathoutput(i).obj_no
-            pathoutput(ngroup_output).flux_group_ndx=ngroup_output
+            pathoutput(i).flux_group_ndx=ngroup_output
          endif
       enddo
       return
