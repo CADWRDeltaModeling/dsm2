@@ -105,8 +105,8 @@ c-----adjust areas
 
 c-----adjust totals
 c-----npass_node=npass_node-1
-      nchanres=nchanres-1
-      npartno=npartno-1
+c      nchanres=nchanres-1   ! KJ: Is this variable ever used?
+c      npartno=npartno-1     ! KJ: Not necessary in the text version.
 
 c-----Check scalar variables
 
