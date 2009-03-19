@@ -3,10 +3,20 @@ from sqlquery import *
 from component import *
 
  
-INPUT_TYPE_TXT_PARENT_TABLES={
-                 "grid":["channel","gate","reservoir","transfer","channel_ic","reservoir_ic"],
-                 "input":["boundary_stage","boundary_flow","source_flow"]                  
-                 }
+INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer"],\
+                              "input":["input_climate","input_transfer_flow",\
+                              "input_gate","input_node","boundary_stage",\
+                              "boundary_flow","source_flow","source_flow_reservoir",\
+                              "node_concentration","reservoir_concentration"],
+                              "output":["output_channel","output_reservoir",\
+                                        "output_channel_concentration",\
+                                        "output_reservoir_concentration",\
+                                        "output_gate"],\
+                              "param":["envvar","scalar"],\
+                              "oprule":["operating_rule","oprule_expression",\
+                                        "oprule_time_series"],\
+                              "group":["group"],\
+                              "qual_spatial":["rate_coefficient"]}
                  
 TXT_CHILD_TABLES={"channel":["xsect_layer"],\
                   "gate":["gate_device"],\
@@ -86,7 +96,6 @@ def convert_table(fout,tablename,layerid):
             rowtxt=string.join(datastr,"        ")
             fout.write("%s\n" % rowtxt)
         fout.write("END\n\n##\n")    
-
 
 def convert_layer(db_name,cur,txt_name,group_by="parent_table"):
     """

@@ -3,7 +3,7 @@ from sqlquery import *
 from component import *
 
 
-INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer"],\
+INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","channel_ic","reservoir_ic"],\
                               "input":["input_climate","input_transfer_flow",\
                               "input_gate","input_node","boundary_stage",\
                               "boundary_flow","source_flow","source_flow_reservoir",\
@@ -20,13 +20,16 @@ INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer"],\
 
 TXT_CHILD_TABLES={"channel":["xsect_layer"],\
                   "gate":["gate_device"],\
-                  "reservoir":["reservoir_connection"],\
-                  }
+                  "reservoir":["reservoir_connection"],
+                  "group":["group_member"]
+                }
 
-PARENT_DB_SQL={"channel":channelSQL,\
+SQL={"channel":channelSQL,\
                "gate":gateSQL,\
                "reservoir":reservoirSQL,\
                "transfer":transferSQL,\
+               "channel_ic":channelicSQL,\
+               "reservoir_ic":reservoiricSQL,\
                "input_climate":inputclimateSQL,\
                "input_transfer_flow":inputtransferflowSQL,\
                "input_gate":inputgateSQL,\
@@ -42,18 +45,58 @@ PARENT_DB_SQL={"channel":channelSQL,\
                "output_channel_concentration":outputchannelconcSQL,\
                "output_reservoir_concentration":outputresconcSQL,\
                "output_gate":outputgateSQL,\
-               "envvar":envvarSQL,\
                "operating_rule":opruleSQL,\
                "oprule_expression":opruleexSQL,\
                "oprule_time_series":opruletsSQL,\
                "group":groupSQL,\
-               "rate_coefficient":ratecoeffSQL}
-
-CHILD_DB_SQL={"xsect_layer":xsectlayerSQL,
+               "rate_coefficient":ratecoeffSQL,\
+               "xsect_layer":xsectlayerSQL,
               "gate_device":gatedeviceSQL,
-              "reservoir_connection":reservoirconnectionSQL}
+              "reservoir_connection":reservoirconnectionSQL,
+              "group_member":groupmemberSQL}
+
 
 COMPONENT_MEMBERS=component_members()
+
+
+def trivial_convert(row):
+    return [str(field) for field in row]
+
+def quote_string(field):
+    if (field.find(" ") >= 0): 
+        return "\"%s\"" % field
+    else:
+        return field
+    
+def quote_string_convert(row):
+    new_row=[str(field) for field in row]
+    new_row=[quote_string(field) for field in new_row]
+    
+CONVERTERS={"channel_ic" : channel_ic_convert,
+                             "oprule": quote_string_convert,
+                             "oprule_expressions": quote_string_convert,
+                             }
+
+def convert_table(fout,tablename,layerid):
+        print "Converting table: %s\n" % tablename
+        sql=SQL[tablename]
+        data=cur.execute(sql,layerid).fetchall()
+        if not data or (len(data) ==0): 
+            print "Table \"%s\" empty" % tablename
+            return
+        header=COMPONENT_MEMBERS[tablename]
+        fout.write(tablename.upper())
+        if CONVERTERS.has_key(tablename):
+            converter=CONVERTERS[tablename]
+        else:
+            converter=trivial_convert
+        headertxt=string.join(header,"        ").upper()
+        fout.write("\n%s\n" % headertxt)
+        for row in data:
+            datastr=converter(row)
+            rowtxt=string.join(datastr,"        ")
+            fout.write("%s\n" % rowtxt)
+        fout.write("END\n\n##\n")    
 
 def convert_layer(db_name,cur,txt_name,group_by="parent_table"):
     """
@@ -66,46 +109,20 @@ def convert_layer(db_name,cur,txt_name,group_by="parent_table"):
     txt_parent_list=INPUT_TYPE_TXT_PARENT_TABLES[component_type]
     layeridSQL="SELECT layer_id FROM layer_definition WHERE name LIKE ?"    
     layerid=cur.execute(layeridSQL,db_name).fetchone()[0]
-    
-    
     for txt_parent in txt_parent_list:
         txt_child_list=[]
         if txt_parent in TXT_CHILD_TABLES.keys():
             txt_child_list=TXT_CHILD_TABLES[txt_parent]
         fname=txt_parent+"_"+txt_name+".inp"
         fout=open(fname,"w")
-        parent_SQL=PARENT_DB_SQL[txt_parent]
-        data=cur.execute(parent_SQL,layerid).fetchall()
-        header=COMPONENT_MEMBERS[txt_parent]
-        fout.write(txt_parent.upper())
-        fout.write("\n")
-        for ele in header:
-            fout.write(ele.upper())
-            fout.write(" "*8)
-        fout.write("\n")
-        for row in data:
-            for ele in row:
-                fout.write(str(ele))
-                fout.write(" "*3)
-            fout.write("\n")
-        fout.write("END\n")    
+        convert_table(fout,txt_parent,layerid)
         for txt_child in txt_child_list:
-            child_SQL=CHILD_DB_SQL[txt_child]
-           
-            data=cur.execute(child_SQL,layerid).fetchall()
-            header=COMPONENT_MEMBERS[txt_child]
-            fout.write(txt_child.upper()+"\n")
-            for ele in header:
-                fout.write(ele)
-                fout.write(" "*8)
-            fout.write("\n")
-            for row in data:
-                for ele in row:
-                    fout.write(str(ele))
-                    fout.write(" "*3)
-                fout.write("\n")
-            fout.write("END\n")
+             convert_table(fout,txt_child,layerid)
         fout.close()
+        
+        
+
+
 
         
 def get_component_type(db_layer_name,cur):
@@ -120,7 +137,9 @@ if __name__ == "__main__":
     for layer in DB_LAYER_NAME:
         convert_layer(layer,cur,layer)
 
-cur.close()
+    cur.close()
         
+    
+
     
 
