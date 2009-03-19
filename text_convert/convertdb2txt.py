@@ -2,7 +2,7 @@ from dbutil import *
 from sqlquery import *
 from component import *
 
-
+# Map of DB input types to the text tables that might contain data of this type
 INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","channel_ic","reservoir_ic"],\
                               "input":["input_climate","input_transfer_flow",\
                               "input_gate","input_node","boundary_stage",\
@@ -18,12 +18,13 @@ INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","c
                               "group":["group"],\
                               "qual_spatial":["rate_coefficient"]}
 
+# map of parent to child tables
 TXT_CHILD_TABLES={"channel":["xsect_layer"],\
                   "gate":["gate_device"],\
                   "reservoir":["reservoir_connection"],
                   "group":["group_member"]
                 }
-
+# sql to poplulate each of the text tables
 SQL={"channel":channelSQL,\
                "gate":gateSQL,\
                "reservoir":reservoirSQL,\
