@@ -34,15 +34,17 @@
       use io_units
       implicit none
       character*32 :: name
-      character*512 :: definition
+      character*512 :: definition, definition_text=" "
       logical :: parse_rule
-	definition=" "
-      write(definition,"(a,1x,':=',1x,a,';')")
+
+	definition_text=" "
+
+      write(definition_text,"(a,1x,':=',1x,a,';')")
      &     trim(name),trim(definition)
 	if(print_level .ge. 3) then
 	   write(unit_screen,"(/'Parsing oprule expression: ',/a)"),trim(definition)
 	end if
-	if (.not. parse_rule(trim(definition))) then
+	if (.not. parse_rule(trim(definition_text))) then
           write(unit_error,"(/'Error parsing expression: ',/a)"), trim(definition)
           call exit(-3)
           return
