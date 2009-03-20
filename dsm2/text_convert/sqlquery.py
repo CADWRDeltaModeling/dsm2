@@ -6,7 +6,6 @@ gateSQL=\
 FROM gate, object_type_description 
 WHERE object_type_description.object_type_id=gate.obj_connected_type AND gate.layer_id=?;"""
 
-
 channelicSQL=\
 """
 SELECT ci1.channel_number, ci1.distance, ci1.initial_value, ci2.initial_value
@@ -17,12 +16,6 @@ AND ci1.variable_name LIKE "stage" AND ci2.variable_name LIKE "flow"
 AND ci1.layer_id=? AND ci2.layer_id=ci1.layer_id
 ORDER BY ci1.channel_number, ci1.distance DESC;
 """
-
-def channel_ic_convert(data):
-    new_data=[str(field) for field in data]
-    if data[1] < -1:
-        new_data[1]="length"
-    return new_data
 
 xsectlayerSQL=\
 """
@@ -81,22 +74,48 @@ AND t.layer_id=?
 ORDER BY t.name;
 """
 #####
-inputclimateSQL=""
-inputtransferflowSQL=""
-inputgateSQL=""
-inputnodeSQL=""
-boundarystageSQL="""
-SELECT  input_time_series_node.name, node,input_file,path,fill_in_type_description.name
-FROM input_time_series_node,fill_in_type_description
-WHERE role_id=1 AND layer_id=? AND input_time_series_node.fillin = fill_in_type_description.fill_in_type_id
-ORDER BY  input_time_series_node.name;
+
+inputclimateSQL=\
+"""
+SELECT  climate.name, input_file,path,fill.name 
+FROM fill_in_type_description fill, climate_variable_description climate, input_time_series_climate inp
+WHERE layer_id =? AND inp.fillin = fill.fill_in_type_id 
+AND inp.climate_variable_id=climate.climate_variable_id
+ORDER BY  climate.name;
+"""
+
+inputtransferflowSQL=\
+"""
+SELECT  inp.transfer, input_file,path,fill.name
+FROM input_time_series_transfer inp,fill_in_type_description fill
+WHERE layer_id=? AND inp.fillin = fill.fill_in_type_id
+ORDER BY  inp.transfer;
+"""
+
+inputgateSQL=\
+"""
+SELECT  inp.gate, inp.device,variable_name,input_file,path,fill.name
+FROM input_time_series_gate inp,fill_in_type_description fill
+WHERE layer_id=? AND inp.fillin = fill.fill_in_type_id
+ORDER BY  inp.gate, inp.device, inp.variable_name;
+"""
+
+
+boundarystageSQL=\
+"""
+SELECT  inp.name, node,fill.name,input_file,path
+FROM input_time_series_node inp,fill_in_type_description fill
+WHERE role_id=1 AND layer_id=? AND inp.fillin = fill.fill_in_type_id
+ORDER BY  inp.name;
 """
 
 boundaryflowSQL=\
 """
 SELECT  input_time_series_node.name,node,sign,fill_in_type_description.name,input_file,path
 FROM input_time_series_node,fill_in_type_description
-WHERE role_id=2 AND layer_id=? AND input_time_series_node.fillin = fill_in_type_description.fill_in_type_id
+WHERE role_id=2 AND layer_id=? 
+AND input_time_series_node.fillin = fill_in_type_description.fill_in_type_id
+AND variable_name LIKE 'flow'
 ORDER BY input_time_series_node.name;
 """
 
@@ -104,7 +123,7 @@ sourceflowSQL=\
 """
 SELECT input_time_series_node.name,node,sign,fill_in_type_description.name,input_file,path
 FROM input_time_series_node,fill_in_type_description
-WHERE role_id=4 AND layer_id=? 
+WHERE role_id=4 AND layer_id=? AND variable_name LIKE 'flow'
 AND input_time_series_node.fillin = fill_in_type_description.fill_in_type_id
 ORDER BY input_time_series_node.name;
 """
@@ -115,55 +134,67 @@ sourceflowreservoirSQL=\
 """
 SELECT t.name,reservoir,sign,f.name,input_file,path
 FROM input_time_series_reservoir t, fill_in_type_description f
-WHERE role_id=4 AND layer_id=? 
+WHERE role_id=4 AND layer_id=? AND variable_name LIKE 'flow'
 AND t.fillin = f.fill_in_type_id
 ORDER BY t.name,reservoir;
 """
 
-nodeconcSQL=sourceflowSQL
-reservoirconcSQL=sourceflowreservoirSQL
+nodeconcSQL=\
+"""
+SELECT inp.name,node,variable_name,fill.name,input_file,path
+FROM input_time_series_node inp,fill_in_type_description fill
+WHERE (role_id=4 OR role_id=2) AND layer_id=? AND (NOT variable_name LIKE 'flow')
+AND inp.fillin = fill.fill_in_type_id
+ORDER BY inp.name;
+"""
+
+reservoirconcSQL=\
+"""SELECT t.name,reservoir,variable_name,f.name,input_file,path
+FROM input_time_series_reservoir t, fill_in_type_description f
+WHERE role_id=4 AND layer_id=? AND (NOT variable_name LIKE 'flow')
+AND t.fillin = f.fill_in_type_id
+ORDER BY t.name,reservoir;
+"""
   
 outputchannelSQL=\
 """
-SELECT out.name,out.channel,distance,variable_name,time_interval,period_op,output_file
-FROM output_time_series_channel out
-WHERE out.layer_id=?
-ORDER BY out.name,variable_name,time_interval;
+SELECT o.name,o.channel,distance,variable_name,time_interval,period_op,output_file
+FROM output_time_series_channel o
+WHERE o.layer_id=?
+ORDER BY o.name,variable_name,time_interval;
 """
 
-outputresSQL=""
 outputresSQL=\
 """
-SELECT out.name,out.reservoir,connection_node,variable_name,time_interval,period_op,output_file
-FROM output_time_series_reservoir out
-WHERE out.layer_id=?
-ORDER BY out.name,variable_name,time_interval;
+SELECT o.name,o.reservoir,connection_node,variable_name,time_interval,period_op,output_file
+FROM output_time_series_reservoir o
+WHERE o.layer_id=?
+ORDER BY o.name,variable_name,time_interval;
 """
-
 
 outputchannelconcSQL=\
 """
-SELECT out.name,out.channel,distance,variable_name,source_group,time_interval,period_op,output_file
-FROM output_time_series_channel out
-WHERE out.layer_id=?
-ORDER BY out.name,variable_name,source_group,time_interval;
+SELECT o.name,o.channel,distance,variable_name,source_group,time_interval,period_op,output_file
+FROM output_time_series_channel o
+WHERE o.layer_id=?
+ORDER BY o.name,variable_name,source_group,time_interval;
 """
 
 
 outputresconcSQL=\
 """
-SELECT out.name,out.reservoir,variable_name,source_group,time_interval,period_op,output_file
-FROM output_time_series_reservoir out
-WHERE out.layer_id=?
-ORDER BY out.name,variable_name,source_group,time_interval;
+SELECT o.name,o.reservoir,variable_name,source_group,time_interval,period_op,output_file
+FROM output_time_series_reservoir o
+WHERE o.layer_id=?
+ORDER BY o.name,variable_name,source_group,time_interval;
 """
 
 outputgateSQL=\
 """
-SELECT out.name,gate,device,variable_name,time_interval,period_op,output_file
-FROM output_time_series_gate out
-WHERE out.layer_id=?
-ORDER BY out.name,variable_name,time_interval;
+SELECT o.name,gate,device,variable_name,time_interval,period_op,output_file
+FROM output_time_series_gate o
+WHERE o.layer_id=?
+ORDER BY o.name,variable_name,time_interval;
 """
 
 
