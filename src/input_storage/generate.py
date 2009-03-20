@@ -467,12 +467,17 @@ def generate_dsm2():
     define_include_block("output_time_series",water_body_output + gate_output)
     define_include_block("particle",particle)
     
+    
+    # Each of these is a list of include sections that are used by the profiles below
+    envvar_includes=["configuration"]
     hydro_includes=["configuration","grid","initial_condition","operation","hydro_time_series","output_time_series"]
     qual_includes=["configuration","grid","qual_time_series","groups","qual_spatial","output_time_series"]
     ptm_includes=["configuration","grid","groups","particle"]
     
-    define_profile("envvar",envvar)
-    define_profile("scalar",scalar)
+    # These are profiles. They are lists of keywords and include sections that can
+    # be set active/legal within the code. For instance, if you are only processing
+    # "ENVVAR" you would set the envvar profile active.
+    define_profile("envvar",envvar+envvar_includes) # envvar profile: envvar + corresponding include file
     define_profile("Hydro",envvar+scalar+io_file+grid+hydro_ic+hydro_time_series+oprule+water_body_output+gate_output+hydro_includes)
     define_profile("Qual",envvar+scalar+grid+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+qual_includes)
     define_profile("PTM",envvar+scalar+grid+io_file+tidefile+groups+particle+ptm_includes)
