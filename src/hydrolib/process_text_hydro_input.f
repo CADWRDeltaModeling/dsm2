@@ -44,12 +44,7 @@
       end subroutine
 
 
-
-
-
-
-c======================================================================
-      subroutine process_text_oprule_input()      
+      subroutine process_text_oprule_ts_input()      
       use input_storage_fortran
       use constants
       
@@ -58,7 +53,6 @@ c======================================================================
       character*(128) filename
       integer :: icount
       character*(32) name
-      character*512 action, trigger, definition
       character*80 inpath
       character*8  fillin
       integer      sign
@@ -81,6 +75,26 @@ c======================================================================
      &                              fillin)
       end do
       print *,"Number of oprule time series processed: ", nitem
+
+      end subroutine
+
+c======================================================================
+      subroutine process_text_oprule_input()      
+      use input_storage_fortran
+      use constants
+      
+      implicit none
+      integer :: nitem
+      character*(128) filename
+      integer :: icount
+      character*(32) name
+      character*512 action, trigger, definition
+      character*80 inpath
+      character*8  fillin
+      integer      sign
+
+      integer :: ierror = 0
+
 
 
 
