@@ -253,10 +253,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\oprule_interface\dsm2_model_action_factory.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\oprule_interface\dsm2_model_interface.h"
 				>
 			</File>
