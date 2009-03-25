@@ -222,9 +222,9 @@ c---- possibly read from db, though it is hobbled now
 c------ process input that is in buffers
       call buffer_input_common()
       call buffer_input_hydro()
-      call process_text_oprule_input()
+
       call process_text_gate_input()
-      
+      call process_text_oprule_ts_input()      
       call write_input_buffers()
 
 c------ end of input reading and echo, start checking data
@@ -267,6 +267,8 @@ c-----calculate julian minute of end of each DSS interval
          call exit(1)
       end if
 
+      ! Oprules cannot be parsed until channel network is defined
+      call process_text_oprule_input()
       call close_database()
 
       if ( .not. InitializeSolver() ) THEN
