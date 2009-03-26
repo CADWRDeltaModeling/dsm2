@@ -87,7 +87,9 @@ public class TypeFlux extends Flux {
 			if( info.getOutGroup().containsWaterbody(wbIn)
 			    && info.getInGroup().containsWaterbody(wbOut)){
 			    //System.out.println("Reverse Flux recognized");
-			    particleFlux--;
+                if ( wbOut != null ) {
+                    particleFlux--;
+                }
 			}
 			traceNum++;
 		    }//if (traceArray[pNum].getTime(traceNum) == index*
