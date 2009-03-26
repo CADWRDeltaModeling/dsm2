@@ -33,17 +33,25 @@ public class WaterbodyGroup implements Group {
 
 	public boolean containsWaterbody(Waterbody wb) {
 		//@todo: this isn't necessarily right -- what about "any" Group?
-		if (wb == null) return false;
+		// if (wb == null) return false;
 		//if (wb == null) throw new NullPointerException("Null Waterbody");
 		int contains=indexOfWaterBody(wb);
                 return contains >= 0;
 	}
         boolean done=false;
 	private int indexOfWaterBody(Waterbody wb) {
-		if (wb == null) throw new NullPointerException("Null waterbody");
+		// if (wb == null) throw new NullPointerException("Null waterbody");
 		if (members == null) throw new IllegalStateException("Empty group");
-		int ndx= Arrays.binarySearch(members, new WaterbodyGroupMember(wb
+        int ndx = -1;
+        if ( wb != null ) {
+            ndx= Arrays.binarySearch(members, new WaterbodyGroupMember(wb
 				.getType(), wb.getEnvIndex()));
+        }
+        else {
+           if ( members[0].getMemberIndex() == -9998 ) {
+            ndx = 0;
+            }
+        }
 		//if (ndx >= 0)System.out.println("Found wb. Index in Group="+ndx);
 		return ndx;
 	}

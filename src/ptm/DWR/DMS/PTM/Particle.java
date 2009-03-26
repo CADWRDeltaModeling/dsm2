@@ -502,7 +502,7 @@ public class Particle{
      }
      recursionCounter = 0;
    }
-   updateXYZPosition(tmLeft);
+   if ( tmLeft > 1.0e-3f )  updateXYZPosition(tmLeft);
    return x;
  }//     if ( nodeReached() == true )
  return xPos;
