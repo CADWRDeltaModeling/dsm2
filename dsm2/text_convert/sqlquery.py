@@ -202,7 +202,7 @@ opruleSQL=\
 """
 SELECT t.name,oprule_action,oprule_trigger
 FROM operating_rule t
-WHEREt.layer_id=?
+WHERE t.layer_id=?
 ORDER BY t.name;
 """
 
@@ -210,23 +210,36 @@ opruleexSQL=\
 """
 SELECT t.name,t.definition
 FROM expression t
-WHEREt.layer_id=?
+WHERE t.layer_id=?
 ORDER BY t.name;
 """
 
 opruletsSQL=\
 """
-SELECT in.name,fill_in_type_description.name,input_file,path
-FROM input_time_series_oprule in,fill_in_type_description fill
+SELECT inp.name,fill.name,input_file,path
+FROM input_time_series_oprule inp,fill_in_type_description fill
 WHERE layer_id=? 
-AND in.fillin = fill.fill_in_type_id
-ORDER BY in.name;
+AND inp.fillin = fill.fill_in_type_id
+ORDER BY inp.name;
 """
+
 groupSQL=\
 """
-SELECT name from groups where layer_id=?
-OREDER BY name;
+SELECT name from groups 
+WHERE layer_id=?
+ORDER BY name;
 """
+
+paramSQL=\
+"""
+SELECT param.name, pval.parameter_value
+FROM model_parameter_description param, model_parameter_values pval
+WHERE param.model_parameter_id=pval.model_parameter_id
+AND layer_id = ?
+ORDER BY param.name;
+
+"""
+
 
 groupmemberSQL=\
 """
