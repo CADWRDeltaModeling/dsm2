@@ -227,6 +227,10 @@ c     get the integer type code given a character string representing the type
 	  obj_type_code=obj_group
 	else if (index(cstring,"qext") .eq. 1) then
 	  obj_type_code=obj_qext
+	else if (index(cstring,"flow_boundary") .eq. 1) then
+	  obj_type_code=obj_qext
+	else if (index(cstring,"source_sink") .eq. 1) then
+	  obj_type_code=obj_qext
 	else if (index(cstring,"stage") .eq. 1) then
 	  obj_type_code=obj_stage
       end if
