@@ -1,6 +1,7 @@
 from dbutil import *
 from sqlquery import *
 from component import *
+import os.path
 
 # Map of DB input types to the text tables that might contain data of this type
 INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","channel_ic","reservoir_ic"],\
@@ -116,13 +117,15 @@ CONVERTERS={"channel_ic" : channel_ic_convert,
                              "rate_coefficient":all_lower_converter
                              }
 
-def convert_table(filename,append,tablename,layerid):
-        print "Converting table: %s\n" % tablename
+def convert_table(filename,append,tablename,layerid,is_child):
+        #print "Converting table: %s\n" % tablename
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
         if not data or (len(data) ==0): 
-            print "Table \"%s\" empty" % tablename
-            return        
+            #print "Table \"%s\" empty" % tablename
+            return
+        if (not is_child):
+            print os.path.split(filename)[1]        
         if append:
             fout=open(filename,"a")
         else:
@@ -143,7 +146,7 @@ def convert_table(filename,append,tablename,layerid):
         fout.write("END\n\n##\n")
         fout.close()
 
-def convert_layer(db_name,cur,txt_name,group_by="parent_table"):
+def convert_layer(db_name,cur,txt_name,dest_dir,group_by="parent_table"):
     """
         Takes a parent layer like 'std_delta_grid' and a text name for the layer
         like txt_name is 'delta_090304' and creates corresponding text input
@@ -154,14 +157,15 @@ def convert_layer(db_name,cur,txt_name,group_by="parent_table"):
     txt_parent_list=INPUT_TYPE_TXT_PARENT_TABLES[component_type]
     layeridSQL="SELECT layer_id FROM layer_definition WHERE name LIKE ?"    
     layerid=cur.execute(layeridSQL,db_name).fetchone()[0]
+    
     for txt_parent in txt_parent_list:
         txt_child_list=[]
         if txt_parent in TXT_CHILD_TABLES.keys():
             txt_child_list=TXT_CHILD_TABLES[txt_parent]
-        fname=txt_parent+"_"+txt_name+".inp"
-        convert_table(fname,False,txt_parent,layerid)
+        fname=os.path.join(dest_dir,txt_parent+"_"+txt_name+".inp")
+        convert_table(fname,False,txt_parent,layerid,False)
         for txt_child in txt_child_list:
-             convert_table(fname,True,txt_child,layerid)
+             convert_table(fname,True,txt_child,layerid,True)
 
         
 
@@ -190,9 +194,10 @@ if __name__ == "__main__":
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
     cur=dbcnn.cnn.cursor()
     db_layer_names=get_layers_in_model(cur,"historical_hydro")
+    dest_dir="./historical_hydro"
     print db_layer_names
     for layer in db_layer_names:
-        convert_layer(layer,cur,layer)
+        convert_layer(layer,cur,layer,dest_dir)
 
     cur.close()
         
