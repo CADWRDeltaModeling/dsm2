@@ -12,7 +12,7 @@ INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","c
                                         "output_channel_concentration",\
                                         "output_reservoir_concentration",\
                                         "output_gate"],\
-                              "param":["envvar","scalar"],\
+                              "param":["scalar"],\
                               "oprule":["operating_rule","oprule_expression",\
                                         "oprule_time_series"],\
                               "group":["group"],\
@@ -34,6 +34,7 @@ SQL={"channel":channelSQL,\
                "input_climate":inputclimateSQL,\
                "input_transfer_flow":inputtransferflowSQL,\
                "input_gate":inputgateSQL,\
+               "scalar":paramSQL,\
                "boundary_stage":boundarystageSQL,\
                "boundary_flow":boundaryflowSQL,\
                "source_flow":sourceflowSQL,\
@@ -76,15 +77,43 @@ def quote_string(field):
 def quote_string_convert(row):
     new_row=[str(field) for field in row]
     new_row=[quote_string(field) for field in new_row]
+    return new_row
     
 def quote_string_drop_interior_quote_converter(row):
     new_row=[str(field).replace("\"","") for field in row]
     new_row=[str(field).replace("\'","") for field in row]    
     new_row=[quote_string(field) for field in new_row]
+    return new_row
+
+def oprule_converter(row):
+    new_row=[str(field).replace("\"","") for field in row]
+    new_row=[field.replace("\'","") for field in new_row]    
+    new_row=[quote_string(field) for field in new_row]
+    new_row[0] = str(row[0])
+    return new_row 
+
+def all_lower_converter(row):
+    new_row=[str(field).lower() for field in row]
+    return new_row
+    
+    
+def group_member_converter(row):
+    new_row=[str(field) for field in row]
+    obj_type_mappings={"Boundary Stage":"stage",\
+                       "Boundary Flow" :"flow_boundary",\
+                       "Source/Sink Flow": "source_sink"}
+    if obj_type_mappings.has_key(new_row[1]):
+        new_row[1]=obj_type_mappings[new_row[1]]
+    new_row=[field.lower() for field in new_row]
+    return new_row
+        
     
 CONVERTERS={"channel_ic" : channel_ic_convert,
-                             "oprule": quote_string_convert,
-                             "oprule_expressions": quote_string_convert,
+                             "operating_rule": oprule_converter,
+                             "oprule_expression": oprule_converter,
+                             "group_member":group_member_converter,
+                             "scalar":all_lower_converter,
+                             "rate_coefficient":all_lower_converter
                              }
 
 def convert_table(filename,append,tablename,layerid):
@@ -136,19 +165,33 @@ def convert_layer(db_name,cur,txt_name,group_by="parent_table"):
 
         
 
-
-
+def get_layers_in_model(cursor, model_name):
+    sql=\
+"""
+SELECT lay.name
+FROM layer_definition lay,model_component comp,model_definition model
+WHERE lay.layer_id=comp.component_id
+AND model.model_id = comp.model_id
+AND model.name LIKE ?
+ORDER BY comp.component_type,comp.layer
+"""
+    data=cur.execute(sql,model_name).fetchall()
+    data=[ str(mod[0]) for mod in data ]
+    return data
         
 def get_component_type(db_layer_name,cur):
+    print "layer: %s" % db_layer_name
     SQL="SELECT component_type FROM layer_definition WHERE name=?;"
-    type=cur.execute(SQL,db_layer_name).fetchone()[0]
-    return type
+    comptype=cur.execute(SQL,db_layer_name).fetchone()[0]
+    print "component type: %s" % comptype
+    return comptype
 
 if __name__ == "__main__":
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
     cur=dbcnn.cnn.cursor()
-    db_layer_name=["std_delta_grid","delta_historical_stage","delta_historical_flow","std_output_hydro_named","std_output_qual_named"]
-    for layer in db_layer_name:
+    db_layer_names=get_layers_in_model(cur,"historical_hydro")
+    print db_layer_names
+    for layer in db_layer_names:
         convert_layer(layer,cur,layer)
 
     cur.close()
