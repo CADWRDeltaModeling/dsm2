@@ -62,9 +62,9 @@
       do icount = 1,nitem
           call oprule_time_series_query_from_buffer(icount,
      &                                        name,
+     &                                        fillin,
      &                                        filename,
      &                                        inpath,
-     &                                        fillin,
      &                                        ierror)
 
           sign=0 ! currently hardwired
@@ -89,10 +89,6 @@ c======================================================================
       integer :: icount
       character*(32) name
       character*512 action, trigger, definition
-      character*80 inpath
-      character*8  fillin
-      integer      sign
-
       integer :: ierror = 0
 
 
