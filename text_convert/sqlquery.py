@@ -10,7 +10,7 @@ WHERE object_type_description.object_type_id=gate.obj_connected_type AND gate.la
 
 channelicSQL=\
 """
-SELECT ci1.channel_number, ci1.distance, ci1.initial_value, ci2.initial_value, used
+SELECT ci1.channel_number, ci1.distance, ci1.initial_value, ci2.initial_value, ci1.used
 FROM channel_init_condition ci1, channel_init_condition ci2
 WHERE ci1.channel_number=ci2.channel_number
 AND ci1.distance=ci2.distance 
@@ -46,7 +46,8 @@ reservoirSQL=\
 """SELECT name, area, bottom_elev, used
 FROM reservoir 
 WHERE layer_id=?
-ORDER BY name"""
+ORDER BY name
+"""
 
 reservoirconnectionSQL=\
 """
@@ -79,7 +80,7 @@ ORDER BY t.name;
 
 inputclimateSQL=\
 """
-SELECT  climate.name, input_file,path,fill.name, used 
+SELECT  climate.name, input_file,path,fill.name
 FROM fill_in_type_description fill, climate_variable_description climate, input_time_series_climate inp
 WHERE layer_id =? AND inp.fillin = fill.fill_in_type_id 
 AND inp.climate_variable_id=climate.climate_variable_id
@@ -210,7 +211,7 @@ ORDER BY t.name;
 
 opruleexSQL=\
 """
-SELECT t.name,t.definition, used
+SELECT t.name,t.definition
 FROM expression t
 WHERE t.layer_id=?
 ORDER BY t.name;
@@ -218,7 +219,7 @@ ORDER BY t.name;
 
 opruletsSQL=\
 """
-SELECT inp.name,fill.name,input_file,path, used
+SELECT inp.name,fill.name,input_file,path
 FROM input_time_series_oprule inp,fill_in_type_description fill
 WHERE layer_id=? 
 AND inp.fillin = fill.fill_in_type_id
@@ -235,7 +236,7 @@ ORDER BY name;
 
 paramSQL=\
 """
-SELECT param.name, pval.parameter_value, used
+SELECT param.name, pval.parameter_value
 FROM model_parameter_description param, model_parameter_values pval
 WHERE param.model_parameter_id=pval.model_parameter_id
 AND layer_id = ?
