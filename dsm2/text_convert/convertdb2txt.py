@@ -118,7 +118,7 @@ CONVERTERS={"channel_ic" : channel_ic_convert,
                              }
 
 def convert_table(filename,append,tablename,layerid,is_child):
-        #print "Converting table: %s\n" % tablename
+        print "Converting table: %s\n" % tablename
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
         if not data or (len(data) ==0): 
@@ -130,7 +130,7 @@ def convert_table(filename,append,tablename,layerid,is_child):
             fout=open(filename,"a")
         else:
             fout=open(filename,"w")
-
+        has_used_column = (sql.find("used") > 6 and sql.find("used") < sql.find("FROM"))
         header=COMPONENT_MEMBERS[tablename]
         fout.write(tablename.upper())
         if CONVERTERS.has_key(tablename):
@@ -139,9 +139,18 @@ def convert_table(filename,append,tablename,layerid,is_child):
             converter=trivial_convert
         headertxt=string.join(header,"        ").upper()
         fout.write("\n%s\n" % headertxt)
+        
+        print "has_used_column: %s" % has_used_column
         for row in data:
+            is_used = True
+            if (has_used_column):
+                is_used = row[-1]
+                row=row[:-1]   
             datastr=converter(row)
             rowtxt=string.join(datastr,"        ")
+            if not is_used:
+                rowtxt="^"+rowtxt
+                print "****** %s" % rowtxt
             fout.write("%s\n" % rowtxt)
         fout.write("END\n\n##\n")
         fout.close()
