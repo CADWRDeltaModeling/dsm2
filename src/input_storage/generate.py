@@ -196,10 +196,9 @@ def generate_dsm2():
     
     component = TableComponent("oprule_time_series",
                              [CharField("name",DSM2_NAME_LEN,16),\
-                              CharField("file",DSS_FILE_LEN,32),\
-                              CharField("path",80,50),\
                               CharField("fillin", 8,12),\
-                             ],
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)],\
                              ["name"])   # identifier
     component.layered=True
     prep_component(component,outdir)  
@@ -253,8 +252,8 @@ def generate_dsm2():
                              [CharField("name",DSM2_NAME_LEN,16),\
                               CharField("variable",16,12),\
                               CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
-                              CharField("path",80,50)
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
                              ],
                              ["name","variable"])   # identifier
     component.layered=True
@@ -265,8 +264,8 @@ def generate_dsm2():
     component = TableComponent("input_transfer_flow",
                              [CharField("transfer_name",DSM2_NAME_LEN,16),\
                               CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
-                              CharField("path",80,50)
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
                              ],
                              ["transfer_name"])   # identifier
     component.layered=True
@@ -280,8 +279,8 @@ def generate_dsm2():
                               CharField("device",32,16),\
                               CharField("variable",16,12),\
                               CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
-                              CharField("path",80,50)
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
                              ],
                              ["gate_name","device","variable"])   # identifier
     component.layered=True
@@ -292,8 +291,8 @@ def generate_dsm2():
                              [CharField("name",DSM2_NAME_LEN,16),\
                               IntField("node"),
                               CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
-                              CharField("path",80,50)
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
                              ],
                              ["name"])   # identifier
     component.layered=True
@@ -304,8 +303,8 @@ def generate_dsm2():
                               IntField("node"),\
                               IntField("sign"),\
                               CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
-                              CharField("path",80,50)
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
                              ],
                              ["name"])   # identifier
     component.layered=True
@@ -317,8 +316,8 @@ def generate_dsm2():
                               IntField("node"),\
                               IntField("sign"),\
                               CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
-                              CharField("path",80,50)
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
                              ],
                              ["name"])   # identifier
     component.layered=True
@@ -331,7 +330,7 @@ def generate_dsm2():
                               CharField("res_name",32,16),\
                               IntField("sign"),\
                               CharField("fillin", 8,12),\
-                              CharField("file",DSS_FILE_LEN,LAST_FIELD),\
+                              CharField("file",DSS_FILE_LEN,32),\
                               CharField("path",80,50)
                               ],
                              ["name"])   # identifier
@@ -456,7 +455,7 @@ def generate_dsm2():
     
     
     define_text_sub("envvar",outdir)
-    define_include_block("configuration", envvar)
+    define_include_block("configuration", envvar + scalar)
     define_include_block("grid", grid)
     define_include_block("initial_condition", hydro_ic)
     define_include_block("operation",oprule)
