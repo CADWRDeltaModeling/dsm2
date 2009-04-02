@@ -85,7 +85,6 @@ c======================================================================
       
       implicit none
       integer :: nitem
-      character*(128) filename
       integer :: icount
       character*(32) name
       character*512 action, trigger, definition
