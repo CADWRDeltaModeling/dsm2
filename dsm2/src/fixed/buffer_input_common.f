@@ -2,6 +2,7 @@
       subroutine buffer_input_common()      
       use input_storage_fortran
       use constants
+      use io_units
       
       implicit none
       integer :: nitem
@@ -115,7 +116,8 @@
          if (node_str .eq. "none") then
              node=miss_val_i
          else
-             read(node_str,'(i)')node
+             node=miss_val_i
+             read(node_str,'(i)',err=118)node
          end if
          call process_output_reservoir(name,
      &                                    reservoir,
@@ -170,7 +172,7 @@
          if (distance(:6) .eq. "length") then 
             idistance = chan_length
          else 
-            read(distance,'(i)')idistance
+            read(distance,'(i)',err=119)idistance
          end if
          call process_output_channel(name,
      &                               channo,
@@ -208,6 +210,14 @@
      &                                    filename) 
       end do
       print *,"Number of reservoir output requests: ", nitem
-
-
+      return  ! normal return
+      
+118   write(unit_error,*)"Failed to convert reservoir node from text to integer" //
+     &   "Valid entries are an integer or 'none' (case sensitive)"
+      call exit(-3)
+119   write(unit_error,*)"Failed to convert channel length from text to integer"
+      call exit(-3)
       end subroutine
+      
+      
+           
