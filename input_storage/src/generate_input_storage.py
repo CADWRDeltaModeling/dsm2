@@ -20,6 +20,7 @@ write_text_buffer_cond_lines=[]
 all_components=[]
 write_hdf5_buffer_lines=[]
 profiles={}
+include_block_assign={}
     
 def referencify(typename, const=False):
     if ("char" in typename):
@@ -271,6 +272,8 @@ def prep_component(component,outdir):
 
 def define_include_block(name,valid_keywords):
     include_defs.append( (name, valid_keywords))
+    for table in valid_keywords:
+        include_block_assign[table]=name
 
 def define_text_sub(name,outdir):
     textsub = name.lower()
@@ -369,6 +372,10 @@ def finalize(outdir):
         componentlines.append("\"%s\"" % c.name)
     subtxt="def component_order():\n    return["+string.join(componentlines,",\\\n      ")+"]\n\n\n"
     subtxt+="def component_members():\n    return {" + string.join(memberlines,",\\\n      ")+"}\n\n\n"
+    include_assign=[]
+    for key in include_block_assign:
+        include_assign.append("    \""+key+"\":\""+include_block_assign[key]+"\"")
+    subtxt+="def include_block():\n    return {\\\n" + string.join(include_assign,",\n")+"}\n"
     txt=txt.replace("@COMPONENTSCRIPT",subtxt)
     f=open(os.path.join(outdir,"component.py"),"w")
     f.write(txt)
