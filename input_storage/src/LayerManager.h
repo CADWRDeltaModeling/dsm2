@@ -20,11 +20,7 @@ public:
   string layerName(const string & fileName)
   {
     string name = fileName.substr(0,fileName.size()-4); //todo: real extension
-    vector<string> parts;
-    split(parts,name,is_any_of("__"));          //todo: not really what we want
-    if (parts.size() == 1) name = parts[0];
-    else name = parts[1];
-
+    //split(parts,name,is_any_of("__"));          //todo: not really what we want
     to_lower(name);
     return name ;
   }

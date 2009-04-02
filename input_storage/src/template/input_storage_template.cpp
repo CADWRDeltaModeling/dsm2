@@ -21,6 +21,7 @@ IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRES
 */
 #include "input_storage_@TABLEOBJ.h"
 #include "exception_trapping.h"
+#include "LayerManager.h"
 #include<iostream>
 #include<sstream>
 #include<fstream>
@@ -39,6 +40,7 @@ using namespace boost;
 /** Write the table item to an output stream */
 ostream& operator<<(ostream & stream, const @TABLEOBJ & obj)
 {  
+  quote_if_spaces quote_spaces;
   stream.setf(ios_base::fixed,ios_base::floatfield);
   return stream << @OUTSTREAMFMT;
 }

@@ -40,6 +40,24 @@ void test_envvar()
   BOOST_CHECK_THROW(sub(teststr),runtime_error);
 }
 
+void test_quoted_string_stream()
+{
+  xsect xOut = xsect(2, 2.0, "with string");
+  ostringstream os;
+  os << xOut;
+  string outStr = os.str();
+  BOOST_CHECK_EQUAL( outStr.find_first_of("\""), 17);
+  cout << outStr;
+  xsect xIn; 
+  istringstream is(outStr);
+  is >> xIn;
+  
+  BOOST_CHECK( !(xIn < xOut || xOut < xIn));
+  BOOST_CHECK_EQUAL( xOut.chan_no, xOut.chan_no);
+  BOOST_CHECK_EQUAL( xIn.file, "with string");
+
+}
+
 
 /** Test streaming output and input of classes with various
     constituent data types
@@ -404,13 +422,14 @@ void test_input_reader_duplicate()
 
   vector<envvar> & envvars =  HDFTableManager<envvar>::instance().buffer();
   // check that it finds duplicates in strangely ordered character identifier
-  BOOST_CHECK_THROW(envvar_prioritize_buffer_f(&ierror), runtime_error);
+  BOOST_CHECK_THROW(HDFTableManager<envvar>::instance().prioritize_buffer(),
+                    runtime_error);
   //for(size_t i =0; i < envvars.size() ; ++i) cerr << envvars[i] <<endl;
 
   // and with integer identifier
   vector<channel> & chans = HDFTableManager<channel>::instance().buffer();
-  BOOST_CHECK_THROW(channel_prioritize_buffer_f(&ierror), runtime_error);
-  //xsect_prioritize_buffer_f();
+  BOOST_CHECK_THROW(HDFTableManager<channel>::instance().prioritize_buffer(),
+                    runtime_error);
 
 }
 
@@ -433,6 +452,7 @@ init_unit_test_suite( int argc, char* argv[] )
     test->add( BOOST_TEST_CASE( &test_envvar ) );
     test->add( BOOST_TEST_CASE( &test_stream ) );
     test->add( BOOST_TEST_CASE( &test_bad_stream_input ) );
+    test->add( BOOST_TEST_CASE( &test_quoted_string_stream ) );
     test->add( BOOST_TEST_CASE( &test_setup_buffer ) );
     test->add( BOOST_TEST_CASE( &test_prioritize_buffer ) );
     test->add( BOOST_TEST_CASE( &test_hdf ) );

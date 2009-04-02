@@ -21,21 +21,21 @@ void input_storage_log_err_f(const std::string & message);
     try{ _CODE } \
     catch (std::runtime_error rte) \
     {\
-        std::string message("\n*****\nRuntime/Input error:"); \
+        std::string message("\n*****\nRuntime/Input error:\n"); \
         message += rte.what();\
         input_storage_log_err_f(message);\
         _ERROR_VAR= RUNTIME_ERROR;\
     }\
     catch (std::logic_error le) \
     {\
-        std::string message("\n*****\nLogical/Programming error:");\
+        std::string message("\n*****\nLogical/Programming error:\n");\
         message += le.what();\
         input_storage_log_err_f(message);\
         _ERROR_VAR = LOGIC_ERROR;\
     }\
     catch (...) \
     {\
-        std::string message("\n*****\nGeneral error (no info):");\
+        std::string message("\n*****\nGeneral error (no info):\n");\
         input_storage_log_err_f(message);\
         _ERROR_VAR = GENERAL_FAIL;\
     }\

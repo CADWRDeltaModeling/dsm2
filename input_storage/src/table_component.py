@@ -178,11 +178,11 @@ class CharField(Field):
 
     def output_format(self):
         return \
-        """
+        """ 
             setw(max(%s,(int)(2+strlen(obj.%s))))
             << setfill(\' \')
             << left
-            << obj.%s  
+            << quote_spaces(obj.%s)  
         """ % (self.format_width, self.name, self.name)
 
     def input_code(self):

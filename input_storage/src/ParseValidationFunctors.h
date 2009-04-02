@@ -33,7 +33,17 @@ struct is_all_lower
   }
 };
 
-
+struct quote_if_spaces
+{
+  string operator()(const string& x)
+  {
+     if(x.find_first_of(" ") == string::npos)
+     {
+         return x;
+     }
+     return "\"" + x + "\"";
+  }
+};
 
 
 #endif

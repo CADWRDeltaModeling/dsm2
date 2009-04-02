@@ -16,6 +16,7 @@ prioritize_buffer_lines=[]
 clear_buffer_lines=[]
 fortran_include_lines=[]
 write_text_buffer_lines=[]
+write_text_buffer_cond_lines=[]
 all_components=[]
 write_hdf5_buffer_lines=[]
 profiles={}
@@ -51,11 +52,10 @@ def prioritize(component):
     vector<@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
     if ( dupl != buffer().end())
     {   
-        string message = "Duplicate identifiers in the same input layer: ";
+        string message = "Duplicate identifiers in the same input layer:";
         stringstream messagestrm;
-        messagestrm << message << *dupl << " (" << (*dupl).objectName() <<") ";
-        cerr << message << endl;
-        cerr << *dupl << " (" << (*dupl).objectName() <<") " << endl;
+        messagestrm << message << endl << *dupl << " (" << (*dupl).objectName() <<")" << endl;
+        messagestrm << "Layer: " << LayerManager::instance().layerName((*dupl).layer);
         throw runtime_error(messagestrm.str());
     }
     // Eliminate duplicates. Because of prior ordering, 
@@ -259,7 +259,10 @@ def prep_component(component,outdir):
     outfile.close()
     clear_buffer_lines.append("HDFTableManager<%s>::instance().buffer().clear();" % component.name)
     prioritize_buffer_lines.append("HDFTableManager<%s>::instance().prioritize_buffer();\n     if(*ierror != 0) return;" % component.name)
-    write_text_buffer_lines.append("%s_write_buffer_to_text_f(file,append,ierror,filelen);\n     if(*ierror != 0) return;" % component.name)
+    write_buffer_line="%s_write_buffer_to_text_f(file,append,ierror,filelen);\n     if(*ierror != 0) return;" % (component.name)
+    conditional_write_buffer_line=("if(buffer_name == \"%s\"){" % component.name) + write_buffer_line + "}"
+    write_text_buffer_lines.append(write_buffer_line)
+    write_text_buffer_cond_lines.append(conditional_write_buffer_line)
     write_hdf5_buffer_lines.append("%s_write_buffer_to_hdf5_f(file_id,ierror);\n     if(*ierror != 0) return;" % component.name)
     fortran_include_lines.append("include \"%s\"" % fortfile)
  
@@ -336,6 +339,7 @@ def finalize(outdir):
     txt=txt.replace("// Clear all buffers DO NOT ALTER THIS LINE AT ALL",string.join(clear_buffer_lines,"\n"))
     txt=txt.replace("// Prioritize all buffers DO NOT ALTER THIS LINE AT ALL",string.join(prioritize_buffer_lines,"\n"))
     txt=txt.replace("// Write text all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_lines,"\n"))
+    txt=txt.replace("// Write text one buffer DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_cond_lines,"\n"))
     txt=txt.replace("// Write hdf5 all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_hdf5_buffer_lines,"\n"))
 
     
