@@ -179,7 +179,7 @@ outputchannelconcSQL=\
 """
 SELECT o.name,o.channel,distance,variable_name,source_group,time_interval,period_op,output_file, used
 FROM output_time_series_channel o
-WHERE o.layer_id=?
+WHERE o.layer_id=? AND NOT o.variable_name IN ("stage","flow","vel","velocity")
 ORDER BY o.name,variable_name,source_group,time_interval;
 """
 
@@ -188,7 +188,7 @@ outputresconcSQL=\
 """
 SELECT o.name,o.reservoir,variable_name,source_group,time_interval,period_op,output_file, used
 FROM output_time_series_reservoir o
-WHERE o.layer_id=?
+WHERE o.layer_id=? AND NOT o.variable_name IN ("stage","flow")
 ORDER BY o.name,variable_name,source_group,time_interval;
 """
 
