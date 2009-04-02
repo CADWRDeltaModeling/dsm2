@@ -28,7 +28,6 @@ def component_order():
       "input_climate",\
       "input_transfer_flow",\
       "input_gate",\
-      "input_node",\
       "boundary_stage",\
       "boundary_flow",\
       "source_flow",\
@@ -61,7 +60,7 @@ def component_members():
       "reservoir_ic":["res_name","stage"],\
       "operating_rule":["name","action","trigger"],\
       "oprule_expression":["name","definition"],\
-      "oprule_time_series":["name","file","path","fillin"],\
+      "oprule_time_series":["name","fillin","file","path"],\
       "rate_coefficient":["group_name","constituent","variable","value"],\
       "particle_insertion":["node","nparts","delay","duration"],\
       "particle_flux_output":["name","from_wb","to_wb","interval","file"],\
@@ -69,7 +68,6 @@ def component_members():
       "input_climate":["name","variable","fillin","file","path"],\
       "input_transfer_flow":["transfer_name","fillin","file","path"],\
       "input_gate":["gate_name","device","variable","fillin","file","path"],\
-      "input_node":["name","node","variable","sign","rolename","fillin","file","path"],\
       "boundary_stage":["name","node","fillin","file","path"],\
       "boundary_flow":["name","node","sign","fillin","file","path"],\
       "source_flow":["name","node","sign","fillin","file","path"],\
@@ -81,6 +79,49 @@ def component_members():
       "output_channel_concentration":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
       "output_reservoir_concentration":["name","res_name","variable","source_group","interval","period_op","file"],\
       "output_gate":["name","gate_name","device","variable","interval","period_op","file"]}
+
+
+def include_block():
+    return {\
+    "reservoir":"grid",
+    "particle_flux_output":"particle",
+    "xsect":"grid",
+    "output_gate":"output_time_series",
+    "scalar":"configuration",
+    "boundary_stage":"hydro_time_series",
+    "node_concentration":"qual_time_series",
+    "xsect_layer":"grid",
+    "group_member":"groups",
+    "oprule_expression":"operation",
+    "input_transfer_flow":"hydro_time_series",
+    "group":"groups",
+    "output_channel":"output_time_series",
+    "particle_group_output":"particle",
+    "transfer":"grid",
+    "input_climate":"qual_time_series",
+    "oprule_time_series":"operation",
+    "particle_insertion":"particle",
+    "gate_device":"grid",
+    "channel":"grid",
+    "boundary_flow":"hydro_time_series",
+    "input_gate":"hydro_time_series",
+    "operating_rule":"operation",
+    "reservoir_concentration":"qual_time_series",
+    "reservoir_ic":"initial_condition",
+    "gate":"grid",
+    "rate_coefficient":"qual_spatial",
+    "reservoir_connection":"grid",
+    "source_flow":"hydro_time_series",
+    "source_flow_reservoir":"hydro_time_series",
+    "channel_ic":"initial_condition",
+    "envvar":"configuration",
+    "output_reservoir":"output_time_series"}
+
+
+
+
+
+
 
 
 
@@ -99,12 +140,30 @@ def fixup(infile,outfile,component,reorder):
         fout.write(string.join(parts, "    ")+"\n")
     fout.write("END\n\n")
 
-
-
 def ordered_print(items):
     for i,item in zip(range(len(items)),items):
          print "%s: %s" % (i,item)
 
+def generateNotepad():
+    tablelist=component_order()
+    folds = string.join([x.upper() for x in tablelist]," ")
+    member_dict=component_members()
+    keys=[]
+    for key in member_dict:
+        keys+=member_dict[key]
+    keywords = string.join([key.upper() for key in keys]," ")
+    userfile = open("userDefineLangTemplate.xml",'r')
+    usertxt = userfile.read()
+    userfile.close()
+    usertxt=usertxt.replace("@FOLDS",folds)
+    usertxt=usertxt.replace("@KEYS",keywords)
+
+    userfile = open("userDefineLang.xml","w")
+    userfile.write(usertxt)
+    userfile.close()
+                  
+         
+         
 if (__name__=="__main__"):
     if len(sys.argv) == 1:
         print "Usage: component order"
@@ -124,8 +183,7 @@ if (__name__=="__main__"):
                     print "\n"
             else:
                 ordered_print(component_members()[sys.argv[2]])
-    fixup("intxt.inp", "x:/dsm2/channel_std_delta.inp", "channel",[1,2,3,4,5,6])
-
-
+        if arg == "notepad":
+            generateNotepad()
 
 

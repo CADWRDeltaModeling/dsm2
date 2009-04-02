@@ -3,6 +3,8 @@ from sqlquery import *
 from component import *
 import os.path
 
+blocks=include_block()
+files={} # all files, grouped by block
 # Map of DB input types to the text tables that might contain data of this type
 INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","channel_ic","reservoir_ic"],\
                               "input":["input_climate","input_transfer_flow",\
@@ -58,6 +60,7 @@ SQL={"channel":channelSQL,\
               "group_member":groupmemberSQL}
 
 
+              
 COMPONENT_MEMBERS=component_members()
 
 def channel_ic_convert(data):
@@ -117,19 +120,14 @@ CONVERTERS={"channel_ic" : channel_ic_convert,
                              "rate_coefficient":all_lower_converter
                              }
 
-def convert_table(filename,append,tablename,layerid,is_child):
+def convert_table(filename,tablename,layerid):
         print "Converting table: %s\n" % tablename
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
         if not data or (len(data) ==0): 
             #print "Table \"%s\" empty" % tablename
             return
-        if (not is_child):
-            print os.path.split(filename)[1]        
-        if append:
-            fout=open(filename,"a")
-        else:
-            fout=open(filename,"w")
+        fout=open(filename,"a")  # requires that the directory is initially empty or weird overwriting could result
         has_used_column = (sql.find("used") > 6 and sql.find("used") < sql.find("FROM"))
         header=COMPONENT_MEMBERS[tablename]
         fout.write(tablename.upper())
@@ -139,8 +137,7 @@ def convert_table(filename,append,tablename,layerid,is_child):
             converter=trivial_convert
         headertxt=string.join(header,"        ").upper()
         fout.write("\n%s\n" % headertxt)
-        
-        print "has_used_column: %s" % has_used_column
+
         for row in data:
             is_used = True
             if (has_used_column):
@@ -154,6 +151,12 @@ def convert_table(filename,append,tablename,layerid,is_child):
             fout.write("%s\n" % rowtxt)
         fout.write("END\n\n##\n")
         fout.close()
+        block=blocks[tablename]
+        if files.has_key(block):
+            if not filename in files[block]:
+                files[block].append(filename)
+        else:
+            files[block]=[filename]
 
 def convert_layer(db_name,cur,txt_name,dest_dir,group_by="parent_table"):
     """
@@ -171,12 +174,58 @@ def convert_layer(db_name,cur,txt_name,dest_dir,group_by="parent_table"):
         txt_child_list=[]
         if txt_parent in TXT_CHILD_TABLES.keys():
             txt_child_list=TXT_CHILD_TABLES[txt_parent]
-        fname=os.path.join(dest_dir,txt_parent+"_"+txt_name+".inp")
-        convert_table(fname,False,txt_parent,layerid,False)
+        layer_filename=create_dest_filename(txt_parent,txt_name)
+        fname=os.path.join(dest_dir,layer_filename)
+        convert_table(fname,txt_parent,layerid)
         for txt_child in txt_child_list:
-             convert_table(fname,True,txt_child,layerid,True)
+             convert_table(fname,txt_child,layerid)
 
+def file_grouping_for_table(parent_table):
+    """Return the first part of the name of the input file, which may
+        be the name of a table (channel) or larger group (grid)
+    """
+    return parent_table
+
+def init_layer_name_translations():
+    f=open("layer_translations.txt")
+    layers = f.readlines()
+    f.close()
+    for layer in layers:
+        layer=layer.strip().split(",")
+        if layer and len(layer==2):
+            LAYER_TRANSLATIONS[layer[0]]=layer[1]
+
+def translate_layer_name(layer_name):
+    if LAYER_NAME_TRANSLATIONS.has_key(layer_name):
+        return  LAYER_NAME_TRANSLATIONS[layer_name]
+    else:
+        if layer_name.lower().endswith("_flow"): return layer_name[0:-5]
+        if layer_name.lower().endswith("_stage"): return layer_name[0:-6]
+        layer_name=layer_name.replace("std_output_hydro","std_hydro")
+        layer_name=layer_name.replace("std_output_qual","std_hydro")
+        return layer_name
+
+PREFIX = {"operating_rule" : "oprule",
+                   "oprule_expression":"oprule",
+                   "oprule_time_series" : "oprule",
+                   "source_flow_reservoir" : "source_flow"}
+
+LAYER_NAME_TRANSLATIONS={}
+
+                   
+def prefix_for_table(table_name):
+    if PREFIX.has_key(table_name):
+        return  PREFIX[table_name]
+    else:
+        return table_name
         
+        
+def create_dest_filename(parent_table, layer_name):
+    # The prefix may be the name of the parent table or a bigger grouping like "op_rule"
+    prefix = prefix_for_table(parent_table)
+    layer_base_name = translate_layer_name(layer_name)
+    return prefix+"_"+layer_base_name+".inp"
+    
 
 def get_layers_in_model(cursor, model_name):
     sql=\
@@ -204,12 +253,18 @@ if __name__ == "__main__":
     cur=dbcnn.cnn.cursor()
     db_layer_names=get_layers_in_model(cur,"historical_hydro")
     dest_dir="./historical_hydro"
+    existing_inp_files = [x for x in os.listdir(dest_dir) if x.endswith(".inp")]
+    if len(existing_inp_files) != 0:
+        raise "The destination directory must be empty of .inp files."
     print db_layer_names
     for layer in db_layer_names:
         convert_layer(layer,cur,layer,dest_dir)
-
+    f=open("model.inp","w")
+    for key in files:
+        files_in_block=[os.path.split(x)[1] for x in files[key]]
+        f.write(key.upper() +"\n" + string.join([os.path.split(x)[1] for x in files[key]],"\n") + "\nEND\n\n")
+    f.close()
     cur.close()
-        
     
 
     
