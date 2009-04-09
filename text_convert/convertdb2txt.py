@@ -72,6 +72,10 @@ def channel_ic_convert(data):
 def trivial_convert(row):
     new_row=[str(field) for field in row]
     new_row=[field.replace("None","none") for field in new_row]
+    new_row=[field.replace("(","{") for field in new_row]
+    new_row=[field.replace(")","}") for field in new_row]
+    #new_row=[field.replace("EC ","ec ") for field in new_row]
+    #new_row=[field.replace("DOC ","doc ") for field in new_row]
     return new_row
     
 def quote_string(field):
@@ -256,8 +260,8 @@ def get_component_type(db_layer_name,cur):
 if __name__ == "__main__":
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
     cur=dbcnn.cnn.cursor()
-    db_layer_names=get_layers_in_model(cur,"historical_qual_ec")
-    dest_dir="./historical_qual_ec"
+    db_layer_names=get_layers_in_model(cur,"historical_qual_do")
+    dest_dir="./historical_qual_do"
     existing_inp_files = [x for x in os.listdir(dest_dir) if x.endswith(".inp")]
     if len(existing_inp_files) != 0:
         raise "The destination directory must be empty of .inp files."
