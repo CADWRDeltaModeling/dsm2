@@ -1,6 +1,7 @@
       subroutine buffer_input_qual()
       use input_storage_fortran
       use constants
+      use io_units
       
       implicit none
       integer :: nitem
@@ -143,4 +144,67 @@ c======================== Input and output ======================
       print *,"Number of reservoir concentration inputs processed: ", nitem
 
 
+      nitem = output_channel_concentration_buffer_size()
+      do icount = 1,nitem
+         call output_channel_concentration_query_from_buffer(icount,
+     &                                        name,
+     &                                        channo,
+     &                                        distance,
+     &                                        variable,
+     &                                        sourcegroup,    
+     &                                        interval,
+     &                                        perop,
+     &                                        filename,
+     &                                        ierror)
+         call locase(sourcegroup)
+         if (sourcegroup .eq. "none")sourcegroup = ""
+
+         call locase(distance)
+         if (distance(:6) .eq. "length") then 
+            idistance = chan_length
+         else 
+            read(distance,'(i)',err=120)idistance
+         end if
+         call process_output_channel(name,
+     &                               channo,
+     &                               idistance,
+     &                               variable,
+     &                               interval,
+     &                               perop,
+     &                               sourcegroup,
+     &                               filename)
+      end do
+      print *,"Number of channel output requests: ", nitem
+
+
+      nitem = output_reservoir_concentration_buffer_size()
+      do icount = 1,nitem
+         call output_reservoir_concentration_query_from_buffer(icount,
+     &                                    name,
+     &                                    reservoir,
+     &                                    variable,
+     &                                    sourcegroup,         
+     &                                    interval,
+     &                                    perOp,
+     &                                    filename,
+     &                                    ierror) 
+      if (sourcegroup .eq. "none")sourcegroup = ""
+
+      call process_output_reservoir(name,
+     &                                    reservoir,
+     &                                    miss_val_i,
+     &                                    variable,
+     &                                    interval,
+     &                                    perOp,
+     &                                    sourceGroup,
+     &                                    filename) 
+      end do
+      print *,"Number of reservoir output requests: ", nitem
+      return
+
+120   write(unit_error,*)"Failed to convert channel length from text to integer:" /
+     &   "Valid entries are an integer or 'length' (case sensitive)" /
+     &   "Output name: ", name,
+     &   "Channel: ",channo, ", " , "Distance: " , distance
+      call exit(-3)
       end subroutine
