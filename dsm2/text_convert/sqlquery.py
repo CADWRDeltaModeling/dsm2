@@ -80,7 +80,7 @@ ORDER BY t.name;
 
 inputclimateSQL=\
 """
-SELECT  climate.name, input_file,path,fill.name
+SELECT  climate.name, climate.name, fill.name,input_file,path
 FROM fill_in_type_description fill, climate_variable_description climate, input_time_series_climate inp
 WHERE layer_id =? AND inp.fillin = fill.fill_in_type_id 
 AND inp.climate_variable_id=climate.climate_variable_id
