@@ -70,8 +70,10 @@ def channel_ic_convert(data):
     return new_data
 
 def trivial_convert(row):
-    return [str(field) for field in row]
-
+    new_row=[str(field) for field in row]
+    new_row=[field.replace("None","none") for field in new_row]
+    return new_row
+    
 def quote_string(field):
     if (field.find(" ") >= 0): 
         return "\"%s\"" % field
@@ -79,30 +81,33 @@ def quote_string(field):
         return field
     
 def quote_string_convert(row):
-    new_row=[str(field) for field in row]
+    new_row=trivial_convert(row)
     new_row=[quote_string(field) for field in new_row]
     return new_row
     
 def quote_string_drop_interior_quote_converter(row):
-    new_row=[str(field).replace("\"","") for field in row]
-    new_row=[str(field).replace("\'","") for field in row]    
+    new_row=trivial_convert(row)
+    new_row=[field.replace("\"","") for field in new_row]
+    new_row=[field.replace("\'","") for field in new_row]    
     new_row=[quote_string(field) for field in new_row]
     return new_row
 
 def oprule_converter(row):
-    new_row=[str(field).replace("\"","") for field in row]
+    new_row=trivial_convert(row)
+    new_row=[field.replace("\"","") for field in new_row]
     new_row=[field.replace("\'","") for field in new_row]    
     new_row=[quote_string(field) for field in new_row]
     new_row[0] = str(row[0])
     return new_row 
 
 def all_lower_converter(row):
-    new_row=[str(field).lower() for field in row]
+    new_row=trivial_convert(row)
+    new_row=[field.lower() for field in new_row]
     return new_row
     
     
 def group_member_converter(row):
-    new_row=[str(field) for field in row]
+    new_row=trivial_convert(row)
     obj_type_mappings={"Boundary Stage":"stage",\
                        "Boundary Flow" :"flow_boundary",\
                        "Source/Sink Flow": "source_sink"}
@@ -251,8 +256,8 @@ def get_component_type(db_layer_name,cur):
 if __name__ == "__main__":
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
     cur=dbcnn.cnn.cursor()
-    db_layer_names=get_layers_in_model(cur,"historical_hydro")
-    dest_dir="./historical_hydro"
+    db_layer_names=get_layers_in_model(cur,"historical_qual_ec")
+    dest_dir="./historical_qual_ec"
     existing_inp_files = [x for x in os.listdir(dest_dir) if x.endswith(".inp")]
     if len(existing_inp_files) != 0:
         raise "The destination directory must be empty of .inp files."
