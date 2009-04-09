@@ -5,17 +5,17 @@
       implicit none
       character*16 name
       rate_variable_code = miss_val_i
-      if (name .eq. "decay") then
+      if (trim(name) .eq. "decay") then
           rate_variable_code=decay
-      elseif(name .eq. "settle") then
+      elseif(trim(name) .eq. "settle") then
           rate_variable_code=settle
-      elseif(name .eq. "benthic") then
+      elseif(trim(name) .eq. "benthic") then
           rate_variable_code=benthic
-      elseif(name .eq. "alg_grow") then
+      elseif(trim(name) .eq. "alg_grow") then
           rate_variable_code=alg_grow
-      elseif(name .eq. "alg_resp") then
+      elseif(trim(name) .eq. "alg_resp") then
           rate_variable_code=alg_resp
-      elseif(name .eq. "alg_die") then
+      elseif(trim(name) .eq. "alg_die") then
           rate_variable_code=alg_die
       end if
       return
@@ -69,7 +69,7 @@
           ncc_code=ncc_organic_p
       elseif(name .eq. "po4") then
           ncc_code=ncc_po4
-      elseif(name .eq. "ncc_algae") then
+      elseif(name .eq. "algae") then
           ncc_code=ncc_algae
       elseif(name .eq. "bod") then
           ncc_code=ncc_bod

@@ -27,29 +27,7 @@
 
       integer*4, external :: obj_type_code
       
-      nitem = group_buffer_size()
-      do icount = 1,nitem
-         call group_query_from_buffer(icount,
-     &                                name,
-     &                                ierror)
-         call  process_group(name,
-     &                       icount)
-      end do
-      print *,"Number of groups processed: ", nitem
 
-      nitem = group_member_buffer_size()
-      do icount = 1,nitem
-         call group_member_query_from_buffer(icount,
-     &                                       groupname,
-     &                                       member_type,
-     &                                       pattern,
-     &                                       ierror)
-         obj_type = obj_type_code(member_type)
-         call  process_group_member(groupname,
-     &                              obj_type,
-     &                              pattern)
-      end do
-      print *,"Number of group members processed: ", nitem
 
       nitem = particle_insertion_buffer_size()
       do icount = 1,nitem

@@ -223,8 +223,8 @@ c---- read all text into buffers and process envvironmental variables
 c---- possibly read from db, though it is hobbled now
       if ( 
 database_name .ne. miss_val_c .and.
-     &      model_name .ne. miss_val_c 
-     &      .and. model_name .ne. 'none') then
+     &      trim(database_name) .ne. 'none' .and.  trim(database_name) .ne. miss_val_c
+     &      .and. trim(model_name) .ne. 'none' .and. trim(model_name) .ne. miss_val_c) then
          write(unit_screen,*) "Database name given: ",trim(database_name),","
          write(unit_screen,*) "Model name given: ",trim(model_name),","
          write(unit_screen,*) "Reading from database. If not desired,"

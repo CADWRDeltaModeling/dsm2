@@ -1,6 +1,6 @@
-      subroutine process_rate_coef(group_name, 
-     &                             rate_variable,
+      subroutine process_rate_coef(group_name,
      &                             constituent,
+     &                             rate_variable,
      &                             coefficient_value)            
 	use Groups, only: groupContains,IsAllChannelReservoir,groupArray
 	use rate_coeff_assignment,only:assign_rate_to_group,rate_var_require_flag
@@ -23,11 +23,21 @@
       integer,external :: ncc_code
       
       rate_variable_id = rate_variable_code(rate_variable)
+      if (rate_variable_id .eq. miss_val_i)then
+          write (unit_error,'(a,1x,a)')"Rate variable not recognized:",
+     &    trim(rate_variable)
+          call exit(-3)
+      end if
       constituent_id = ncc_code(constituent)
-      
+      if (constituent_id .eq. miss_val_i)then
+          write(unit_error,'(a,1x,a)')"Constituent in rate coefficient assignment "//
+     &    "not recognized:",constituent
+          call exit(-3)
+      end if
       groupno = name_to_objno(obj_group, group_name)
 	if (groupno.lt.0) then
-	   write(unit_error, '(a)') 'Group not recognized: ' // group_name
+	   write(unit_error, '(a,1x,a)') 'Group in rate coefficient assignment: ' // 
+     &     "not recognized: ",group_name
 	   call exit(-3)
       end if
 	if (not(IsAllChannelReservoir(groupArray(groupno)))) then
