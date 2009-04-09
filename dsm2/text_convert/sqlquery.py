@@ -257,7 +257,7 @@ ORDER BY groups.name, obj.name, identifier;
 
 ratecoeffSQL=\
 """
-SELECT group_name,const.name,ratvar.name,coefficient_value, used
+SELECT group_name,const.name,ratvar.name,coefficient_value
 FROM rate_coefficient rate,nc_constituent_description const,
 rate_variable_description ratvar
 WHERE rate.rate_variable_id=ratvar.rate_variable_id
