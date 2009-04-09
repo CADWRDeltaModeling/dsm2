@@ -83,6 +83,7 @@ def component_members():
 
 def include_block():
     return {\
+    "output_reservoir_concentration":"output_time_series",
     "reservoir":"grid",
     "particle_flux_output":"particle",
     "xsect":"grid",
@@ -99,11 +100,12 @@ def include_block():
     "particle_group_output":"particle",
     "transfer":"grid",
     "input_climate":"qual_time_series",
-    "oprule_time_series":"operation",
+    "oprule_time_series":"hydro_time_series",
     "particle_insertion":"particle",
     "gate_device":"grid",
     "channel":"grid",
     "boundary_flow":"hydro_time_series",
+    "output_channel_concentration":"output_time_series",
     "input_gate":"hydro_time_series",
     "operating_rule":"operation",
     "reservoir_concentration":"qual_time_series",
