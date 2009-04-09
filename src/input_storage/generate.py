@@ -447,6 +447,7 @@ def generate_dsm2():
                          "input_climate"]
     qual_spatial = ["rate_coefficient"]
     water_body_output =   ["output_channel","output_reservoir"]
+    concentration_output = ["output_channel_concentration","output_reservoir_concentration"]
     gate_output = ["output_gate"]
     groups = ["group","group_member"]
     io_file = ["io_file"]
@@ -463,7 +464,7 @@ def generate_dsm2():
     define_include_block("hydro_time_series",hydro_time_series )
     define_include_block("qual_spatial",qual_spatial)
     define_include_block("qual_time_series", qual_time_series)
-    define_include_block("output_time_series",water_body_output + gate_output)
+    define_include_block("output_time_series",water_body_output + gate_output + concentration_output)
     define_include_block("particle",particle)
     
     
