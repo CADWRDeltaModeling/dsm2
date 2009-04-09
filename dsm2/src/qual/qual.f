@@ -212,7 +212,7 @@ c-----dsm2 initialization
       call dsm2_init
 
 c---- begin data reading
-      database_name=' '
+      database_name=miss_val_c
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
          call input_text(init_input_file)  ! reads and echoes text
@@ -221,7 +221,8 @@ c---- read all text into buffers and process envvironmental variables
       end if
 
 c---- possibly read from db, though it is hobbled now
-      if ( database_name .ne. miss_val_c .and.
+      if ( 
+database_name .ne. miss_val_c .and.
      &      model_name .ne. miss_val_c 
      &      .and. model_name .ne. 'none') then
          write(unit_screen,*) "Database name given: ",trim(database_name),","
