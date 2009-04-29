@@ -140,17 +140,22 @@ def project_export_limits(pulse_limit, ei_ratio,delta_inflow):
     # Try to allocate to cvp and swp equally. CVP has a 
     # mimimum pumping level of 800cfs in which case SWP takes the rest
     even_allocation=limit/2.
-    cvp_min_pump=even_allocation*0. + CVP_MIN_PUMP # converts cvp min to time series with same start, interval
+    # trick that converts scalar cvp min to time series with same start, interval
+    cvp_min_pump=even_allocation*0. + CVP_MIN_PUMP 
+    # forget about cavitation limit in the (fix CALSIM!!) case where
+    # the cavitation minimum is less than total pumping limit for both
+    # projects combined -- instead use the total pumping limit
+    cvp_min_pump=ts_where(cvp_min_pump > limit, limit, cvp_min_pump)
     cvp_limit=ts_where(even_allocation > cvp_min_pump,
                                    even_allocation,
                                    cvp_min_pump)
     swp_limit=limit-cvp_limit
     if DEBUG:
         writedss("out","/CALC/EVENALLOC/////",even_allocation)   
-        writedss("out","/CALC/CVP/LIM////",cvp_limit)
-        writedss("out","/CALC/SWP/LIM////",swp_limit)
-        writedss("out","/CALC/PULSE/LIM////",pulse_limit)
-        writedss("out","/CALC/EI/LIM////",eilimit)
+        writedss("out","/CALC/CVPLIM/////",cvp_limit)
+        writedss("out","/CALC/SWPLIM/////",swp_limit)
+        writedss("out","/CALC/PULSELIM/////",pulse_limit)
+        writedss("out","/CALC/EILIM/////",eilimit)
     return swp_limit,cvp_limit
 
 def month_numbers(series):

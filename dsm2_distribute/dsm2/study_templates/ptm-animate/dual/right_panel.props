@@ -1,5 +1,0 @@
-network.file=./dual/right_panel/network.dat
-animation.file=./dual/right_panel/anim_db.bin
-flux.file=./dual/right_panel/fluxInfoDB.data
-label.file=./dual/right_panel/labelsDB.data
-flux.display=true
