@@ -1,0 +1,63 @@
+0.1a1->0.1a2:
+* Added copy=1/0 argument to array
+* fixed Ellipses bug.
+* fixed __setitem__ bug (which fixed concatenate bug)
+* fixed choose.
+* fixed operations (add, etc.) on arrays of objects.
+* implemented special purpose get and set
+* sped up special case of array(PyArrayObject)
+* started to fix ufuncs for speed (add.accumulate only).
+0.1a2->01.a3
+* Added copyAToB and used to increase array copy speed.
+* Added astype()
+* added tostring() and fromstring().
+* added byteswapped().
+* added tolist().
+* fixed reduce for speed.
+* Added reduceat
+* Sped up more of the ufuncs.
+* added outer.
+* Faked three argument ufuncs (full fix waiting on three argument add, etc.)
+* added innerproduct.
+* added convolve (My results don't match those of cnumeric, but may (are?) be correct).
+* lots and lots of clean up.
+* added unaryUfuncs.
+* repackaged.
+0.1a3->01.a4
+* Fixed complex division bug.
+* Finished adding ufuncs and __x__ operations.
+* Removed Precision.py -- unecesarry in Java.
+* Added support for subclassing.
+0.1a4->01.a5
+* Added the Matrix module (more as an example of subclassing than anything else).
+* Moved ArrayRange to PyMultiarray
+* Changed behaviour of innerproduct/dot.
+* Fixed indices.
+* Moved resize to PyMultiarray.
+* Moved Searchsorted to PyMultiarray.
+* Moved indices and fromFunction to java. 
+* Fixed broadcasting bug.
+0.1a5->0.1a6
+* Added pi and e to __init__
+* Fixed bug where zero sized array still had one element.
+* Fixed absComplexDouble
+* Added complex support to add.reduce.
+* Fixed broadcasting again (was broadcasting in reverse order).
+* Added rmod.
+* Fixed choose bug (didn't work with matrices with nonzero starts.).
+* Fixed bug in accumulate and reduce on complex numbers for nonzeros axes.
+* Fixed buglet in complexAdd and complexSub where args were coerced to float
+  accuracy was lost. 
+* Restructured package.
+0.1a6->0.1a7
+* Fixed broadcasting again!
+* Fixed innerProduct bug.
+* Fixed rotateAxes bug.
+* Seperated dot and innerproduct and made innerproduct match CNumeric behaviour. 
+* Sped up most __X__ ops and add ufunc.
+0.1a7->0.1a8
+* Moved creation of Unary and Binary functions out of umath so javc would stop complaining.
+* Simplified argMax / argMin
+* Added complex support and sped up subtract and multiply reduce/accumulate. 
+0.1a8->0.1a9
+* Ooops! Forgot to keep track!!

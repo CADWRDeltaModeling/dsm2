@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='ISO-8859-1' standalone='yes' ?>
+<!DOCTYPE toc
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/toc_1_0.dtd">
+<toc version="1.0">
+<tocitem text="Vista" image="dwrlogo" target="homepage">
+ <tocitem text="Introduction to Vista Online Help" target="intro">
+  <tocitem text="VISTA GUI" target="vista.intro"/>
+  <tocitem text="VPLOTTER" target="vplotter.intro"/>
+  <tocitem text="VSCRIPT" target="vscript.intro"/>
+  <tocitem text="VSERVER" target="vserver.intro"/>
+  <tocitem text="HEC-DSS" target="dss.intro" />
+ </tocitem>
+ <tocitem text="Tutorials" target="tut">
+ <tocitem text="Vista Tutorial">
+  <tocitem text="Beginner's Guide" target="tut.beginner">
+   <tocitem text="Beginner's Guide: Getting Started" target="tut.beginner.1"  />
+   <tocitem text="Beginner's Guide: Time Series Math" target="tut.beginner.2"  />
+   <tocitem text="Beginner's Guide: Group's" target="tut.beginner.3"  />
+  </tocitem>
+ </tocitem>
+ <tocitem text="VPlotter Tutorial" target="vp.tut"  >
+  <tocitem text="Beginner's Guide" target="vp.tut.intro">
+   <tocitem text="Getting Started" target="vp.tut.start"  />
+   <tocitem text="Time Series Math" target="vp.tut.tsmath"  />
+   <tocitem text="Time Series Operations" target="vp.tut.tsops"  />
+   <tocitem text="Time Series Comparators" target="vp.tut.tscomps"  />
+  </tocitem>
+  <tocitem text="Advanced Guide" target="vp.tut.advanced">
+   <tocitem text="Scripts" target="vp.tut.start"  />
+   <tocitem text="Scriptable fields" target="vp.tut.tsmath"  />
+   <tocitem text="Aribitrary text on plots" target="vp.tut.tsops"  />
+   <tocitem text="Extending and Customizing via scripts" target="vp.tut.class2"  />
+  </tocitem>
+ </tocitem>
+ <tocitem text="VScript Tutorial" target="vs.tut"  >
+  <tocitem text="Quick Intro" target="vs.tut.intro">
+   <tocitem text="Beginner's Guide: Getting Started" target="vs.tut.start"  />
+   <tocitem text="Beginner's Guide: Time Series Math" target="vs.tut.tsmath"  />
+  </tocitem>
+  <tocitem text="Class Notes" target="vs.class" >
+   <tocitem text="Class 1" target="vs.class.1"/>
+   <tocitem text="Class 2" target="vs.class.2"/>
+   <tocitem text="Class 3" target="vs.class.3"/>
+  </tocitem>
+ </tocitem>
+ <tocitem text="How to guides" target="howto.intro">
+  <tocitem text="Vista's How To Guide" target="vista.howto">
+   <tocitem text="Managing data" target="howto.managing"/>
+   <tocitem text="Opening a dss file" target="howto.opendss"/>
+   <tocitem text="Opening multiple dss files" target="howto.multiopendss"/>
+   <tocitem text="Opening remote dss file" target="howto.openremote"/>
+   <tocitem text="Sorting a dss file(s) by pathname parts" target="howto.exportdss"/>
+   <tocitem text="Finding a pathname in a dss file" target="howto.exportdss"/>
+   <tocitem text="Exporting data to a dss file" target="howto.exportdss"/>
+   <tocitem text="Importing data from a dss file" target="howto.importdss"/>
+  </tocitem>
+  <tocitem text="Manipulating time series" target="howto.tsmath">
+   <tocitem text="Setting a time window" target="tsmath.timewindow"/>	
+   <tocitem text="Time Series Arithmetic" target="tsmath.arithmetic"/>
+   <tocitem text="Period Averages/Minimum/Maximum" target="tsmath.periodops"/>
+   <tocitem text="Moving Average" target="tsmath.mov_avg"/>
+   <tocitem text="Merging" target="tsmath.merge"/>
+   <tocitem text="Pairing data" target="tsmath.pair"/>
+  </tocitem>
+  <tocitem text="Displaying time series" target="howto.display">
+   <tocitem text="Graphing Time Series" target="howto.graph">
+    <tocitem text="Time Series" target="howto.tsgraph">
+     <tocitem text="Zooming In/Out" target="howto.zoom"/>
+     <tocitem text="Paging" target="howto.page"/>
+     <tocitem text="Displaying Coordinates" target="howto.display_coordinates"/>
+     <tocitem text="Saving to GIF or JPEG" target="howto.saveimg"/>
+     <tocitem text="Printing" target="howto.print"/>
+     <tocitem text="Editing colors, fonts, etcetra" target="howto.edit_graph"/>
+    </tocitem>
+    <tocitem text="Paired" target="howto.scatter_graph"/>
+   </tocitem>
+   <tocitem text="Tabulating Time Series" target="howto.tabulate"/>
+   <tocitem text="Editing Values" target="howto.edit_values"/>
+   <tocitem text="Editing Flags" target="howto.edit_flags"/>
+  </tocitem>
+ </tocitem>
+ <tocitem text="Concepts" target="concepts">
+  <tocitem text="Vista Concepts" target="concepts.vista">
+   <tocitem text="What is a Session?" target="session.what"/>
+   <tocitem text="What is a Group?" target="group.what"/>
+   <tocitem text="What is a Reference?" target="reference.what"/>
+   <tocitem text="What is a Pathname?" target="pathname.what"/>
+  </tocitem>
+  <tocitem text="What is a Time Series" target="ts.what">
+   <tocitem text="Time Window" target="tw.what"/>
+   <tocitem text="Time Interval" target="ti.what"/>
+   <tocitem text="Regular Time Series" target="rts.what"/>
+   <tocitem text="Irregular Time Series" target="its.what"/>
+  </tocitem>
+  <tocitem text="Paired Data" target="paired.what"/>
+ </tocitem>
+</tocitem>
+</toc>
