@@ -1,7 +1,0 @@
-those sql queries failed:
-
-create view generate_global_id (next_id) as
-   select test_gen.nextval 
-   from fill_in_type_description x0 
-   where (x0.fill_in_type_id = 1 );
--2147467259;VIEW cannot contain a parameter.;Microsoft JET Database Engine;3730;-201919498
