@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Introduction</title><!-- Changed by: , 07-Sep-2007 -->
+
+
+<link type="text/css" href="dsm2.css" rel="stylesheet"></head>
+<body>
+<div id="wrap">
+<ul id="page_navbar">
+<li><a href="#overview">Overview</a></li>
+</ul><!--end navbar-->
+
+<hr style="">
+<div id="page_title" class="dwr_logo">
+<h1>Organing a Study</h1>
+</div><!-- page_title-->
+<hr style="">
+
+<div id="contents">
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p>Within the database, DSM2 projects are grouped into 
+simulations and models. The <em>simulation</em>
+ is the top level organizational structure in DSM2: when
+ you open up the user interface (GUI), the first thing you will do is
+ open, clone or create a simulation. </p>
+ <p>Organizationally, a simulation is a package of related model
+ runs with compatible geometry and flow input. 
+ A simulation always includes a DSM2-HYDRO model run 
+ to establish a flow field. Optionally, it may also contain one or more
+ water quality and particle tracking models. The models are not
+ tightly coupled -- flow data is transfered from
+ HYDRO to QUAL or PTM through a file called a <em>tidefile</em>.</p>
+
+ <p>A <em>model</em> is one computer 
+ model component of a simulation, the input for one DSM2-HYDRO, QUAL
+ or PTM run.  If there is a simulation described as <em>planning</em> 
+ there might models called <em>planning_hydro</em>, 
+ <em>planning_qual_ec</em> and <em>planning_qual_do</em>
+ that describe hydrodynamic and water quality models that would 
+ be launched independently.</p>
+
+<p>Simulations and models are containers. The actual data 
+ such as channels, gates or boundary conditions are grouped in sets called 
+ <em>layers</span>. Layers are a means of grouping like components.
+ The layering system is described in more detail in the 
+ <a href="layers.html">Layers</a> documentation</p>
+ 
+
+
+ 
+</div><!--End contents-->
+
+<div id="footer">
+<copyright>© 2007 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+</div><!--End footer--> 
+</div> <!--End wrap-->
+</body></html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Layers</title><!-- Changed by: , 07-Sep-2007 -->
+
+
+<link type="text/css" href="dsm2.css" rel="stylesheet"></head>
+<body>
+<div id="wrap">
+<ul id="page_navbar">
+<li><a href="#overview">Overview</a></li>
+</ul><!--end navbar-->
+
+<hr style="">
+<div id="page_title" class="dwr_logo">
+<h1>Layers</h1>
+</div><!-- page_title-->
+<hr style="">
+
+<div id="contents">
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p>DSM2 batches input data into groups or "layers" in order to
+achieve the following goals:</p>
+<ul>
+<li>To group input into cohesive packages with similar content(examples: the
+standard grid, sdip operating rules).</li>
+<li>To visualize which items are changed when a new group of inputs is
+added to an existing simulation.</li>
+<li>To facilitate a permissions-based data stewardship of the
+contents of the layers: only the owner can change the contents.</li>
+</ul>
+<p>
+For example, consider the two layers of channels in the figure below.
+The first layer defines seven channels and would have seven entries in the GUI. 
+This might represent a "base" grid. The second layer changes the properties of Channel 2, 
+adds a Channel 8 and removes Channel 7. The second layer will have only three entries, 
+shown in red. These entries represent the changes relative to Layer 1, 
+and presumably are thematically related.</p>
+<p><img alt="Layering System" class="powerpoint_image alt=" src="layer_system2.png" style="border: 3px solid ; margin: 2pt; padding: 4pt; width: 271px; height: 146px;">
+</p>
+<h3>Layer Overriding</h3>
+<p>Layer overriding occurs when the same data item is defined
+in multiple layers in the same model. The layers in the model are displayed in the
+Layer Panel. Higher numbers take precendence over lower ones, 
+and you can use actions in the layer panel context menu to 
+reorder the layers in your model.</p>
+
+
+<h4>Identifiers</h4>
+<p>Whether two items represent the same data item depends on the identifier
+for the table, which is some combination of columns that uniquely identify the item using
+a name or number. Identifier columns are shaded slightly and are identified in the 
+documentation for the data view that holds the table.</p>
+
+<h4>Top-level Tables</h4>When parent-child tables are present in the data view
+(e.g., Channels, Cross Section, Cross Section Layer), overriding is done at the level of
+<em>top-level tables</em>. Top level tables are identified in the documentation, and
+have a <em>layer</em> column. When you over-ride a top-level table, its sub-table information
+is completely replaced. So, for instance, if you replace Channel 9 in a low layer with 
+a new dredged Channel 9 in a higher layer, nothing about the old Channel 9 will
+ever be read in by the model. In the Data View display, the overridden item will be displayed
+with an obvious light font to show that it has been replaced.
+
+<h4>The USE column</h4>
+Occasionally, the motivation for overriding an item is to eliminate it. You can do
+this on any top-level table that has a USE column -- just uncheck the check box
+and it is as if the item never existed. The model will never read it. Items that have
+been eliminated in this way are shown in italics.
+
+
+<h3>Layer Panel</h3>
+The layer panel is a table of layers in the bottom left of the GUI. It displays all the layers of the 
+component type of the current data view (such as <i>grid</i> or <i>input</i>) 
+that are included in the current model. When you select one or more
+ layers in the layer panel, you will change the layers that are actively
+ displayed in the current data view. Right clicking on the layer panel 
+will show a context menu with many important actions, such as adding
+a layer, creating a layer or selecting an editing layer.
+
+<h3>Layers in the Data View</h3>
+When you select active layers in the layer panel, data from 
+those layers will be shown in the data view. You can select whatever layers will
+help you concentrate on the important items for your work. The data view
+display in the right of the GUI makes it easy to identify data that have definitions 
+in more than one layer. Data that are overridden are shown in a light font color.
+Data that override 
+
+
+<hr class="table_sep" style="margin: 24px;" width="200">
+
+</div><!--End contents-->
+
+<div id="footer">
+<copyright>© 2007 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+</div><!--End footer--> 
+</div> <!--End wrap-->
+</body></html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Output</title><!-- Changed by: , 07-Sep-2007 -->
+<link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
+<body>
+<div id="wrap">
+
+<ul id="page_navbar" >
+<li><a href="#overview">Overview</a></li>
+<li><a href="#reference">Reference</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul><!--end navbar-->
+
+<hr style="header_hr"/>
+<div id="page_title" class="dwr_logo">
+<h1>OUTPUTPATHS Section</h1>
+</div><!-- page_title-->
+<hr style="header_hr"/>
+
+<div id="contents">
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p>Output paths are used to request time-varying output in
+HEC-DSS or text format. Such output is equivalent to requests made in
+the output section of the GUI (views such as Channel Output and Gate
+Output).</p>
+<p>Text OUTPUTPATHS are the preferred
+place to make study or scenario-specific output requests --
+layers should be created in the GUI only to handle regular, cohesive
+sets of output that
+will be used frequently or in multiple contexts.
+</p>
+
+<a name="reference"></a>
+<h2>Reference</h2>
+<h4 class="field_def_title">Keyword Descriptions</h4>
+<dl class="field_definitions">
+<dt>NAME</dt> <dd>Name of the output. This is the identifier attached to the
+output. It will be used as the B_PART of DSS output.&nbsp;Note: the
+meaning of this field has changed significantly from previous versions
+of DSM2 -- it has nothing to do with the location being output.
+</dd>
+<dt>CHAN</dt><dd>Channel number where output is being requested. 
+Applies only to output from channels, and cannot be mixed
+ in the same input block with gate or reservoir identifiers.</dd>
+<dt>[DIST]</dt> <dd>Distance along channel at which output is requested.</dd>
+<dt>GATE</dt><dd>Gate at which output is requested.</dd>
+<dt>[DEVICE]</dt><dd>Gate device at which output is requested. May be "none" if mixing whole-gate requests with device specific requests.</dd>
+<dt>RESERVOIR</dt><dd>Reservoir at which output is requested.</dd>
+<dt>[RESERVOIR_NODE]</dt><dd>Reservoir connected node at which output is requested. May be "none" if mixing whole reseroir requests with reservoir-node requests</dd>
+<dt>TYPE</dt><dd>Variable being output.</dd><dt>INTERVAL</dt>
+<dd>Frequency at which output is requested, 
+in the form of a DSS-compatible interval
+that is not calendar dependent. The units can be&nbsp;MIN, HOUR,
+DAY, e.g.: 15MIN, 1HOUR, 1DAY</dd>
+<dt>PERIOD</dt><dd>Aggregation that is applied
+ to convert variables from the model time step to the
+output interval.: use INST for an instantaneous snapshot and AVE to get
+a period average.</dd>
+<dt>FILENAME</dt><dd>Name of file in which to store output. 
+The file will be created if it does not exist already.</dd>
+</dl>
+
+<a name="examples"></a>
+<h2 id="examples">Examples:</h2>
+<p>The following example selects channel data and uses an ENVVAR reference for the file name.</p>
+<table class="text_input">
+<tbody>
+<tr><td>OUTPUTPATHS</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>NAME</td><td>CHAN</td><td>DIST</td><td>TYPE</td><td>INTERVAL</td><td>PERIOD</td><td>FILENAME</td><td></td></tr>
+<tr><td>MTZ</td><td>441</td><td>LENTH</td><td>STAGE</td><td>15MIN</td><td>INST</td><td>${OUTDSS}</td><td></td></tr>
+<tr><td>RIO_VISTA</td><td>430</td><td>9684</td><td>FLOW</td><td>1HOUR</td><td>INST</td><td>${OUTDSS}</td><td></td></tr>
+<tr><td>END</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody></table>
+
+<p>The following example selects gate data.</p>
+<table class="text_input">
+<tbody>
+<tr><td>OUTPUTPATHS</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>NAME</td><td>GATE</td><td>DEVICE</td><td>TYPE</td><td>INTERVAL</td><td>PERIOD</td><td>FILENAME</td><td></td></tr>
+<tr><td>MIDR_BARRIER</td><td>MIDDLE_R_BARRIER</td><td>NONE</td><td>INSTALL</td><td>15MIN</td><td>INST</td><td>${OUTDSS}</td><td></td></tr>
+<tr><td>MIDR_BARRIER</td><td>MIDDLE_R_BARRIER</td><td>BARRIER</td><td>WIDTH</td><td>1HOUR</td><td>INST</td><td>${OUTDSS}</td><td></td></tr>
+<tr><td>MIDR_BARRIER</td><td>MIDDLE_R_BARRIER</td><td>BARRIER</td><td>ELEV</td><td>1HOUR</td><td>INST</td><td>${OUTDSS}</td><td></td></tr>
+<tr><td>MIDR_BARRIER</td><td>MIDDLE_R_BARRIER</td><td>BARRIER</td><td>HEIGHT</td><td>1HOUR</td><td>INST</td><td>${OUTDSS}</td><td></td></tr>
+<tr><td>MIDR_BARRIER</td><td>MIDDLE_R_BARRIER</td><td>BARRIER</td><td>FLOW</td><td>1HOUR</td><td>INST</td><td>${OUTDSS}</td><td># careful of orientation</td></tr>
+<tr><td>END</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody></table>
+
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="usage"></a>
+<h2>Usage Notes:</h2>
+</ul>
+
+</div><!--End contents-->
+
+<div id="footer">
+<copyright>© 2007 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the 
+<a href="http://www.gnu.org/licenses/gpl.txt">GNU General Public License</a></p>
+</div><!--End footer--> 
+</div> <!--End wrap-->
+</body></html>

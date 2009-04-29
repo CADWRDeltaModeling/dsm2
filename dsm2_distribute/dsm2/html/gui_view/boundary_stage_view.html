@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Boundary Stage</title><!-- Changed by: , 07-Sep-2007 -->
+<link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
+<body>
+<div id="wrap">
+<ul id="page_navbar" >
+<li><a href="#overview">Overview</a></li>
+<li><a href="#tables">Tables</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul><!--end navbar-->
+
+<hr style="header_hr"/>
+<div id="page_title" class="dwr_logo">
+<h1>Boundary Stage</h1>
+</div><!-- page_title-->
+<hr style="header_hr"/>
+
+<div id="content">
+<a name="overview"></a><h2>Overview:</h2>
+<p>Stage Boundaries are locations where water levels are known.
+They are often used to represent tidal boundary of an estuary. 
+This view defines the tidal boundary and assigns a time series 
+to water levels at that boundary
+</p><!--End overview-->
+
+<a name="tables"></a><h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a href="#boundary_stage">Stage Boundary</a></li>
+</ul><p>Click on table name to go to the reference for that
+table. Click on image to enlarge picture of GUI page and its tables.</p>
+<p class="dataview_image"><a href="boundary_stage_view_image.html">
+<img src="image/boundary_stage_small.jpg" alt="Boundary Stage"></a>
+</p>
+
+<a name="boundary_stage"></a>
+<h3 class="table_name">Stage Boundary Table</h3>
+<p>The Stage Boundary table defines the stage boundary by giving
+it a name and
+associating it with a node. The table also assigns a time series to the
+boundary.
+Stage Boundary is a top-level layered table.</p>
+<h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions"><dt>Layer</dt>
+<dd>Layer number on which the entry is defined.</dd>
+<dt>Input Name</dt>
+<dd>Name assigned to the boundary condition. This is the
+identifier of the stage boundary and is referred to elsewhere in the
+input system. If you assign an water quality boundary condition you
+will use the same name.</dd>
+<dt>Node</dt>
+<dd>Model variable to be output. Depends on the type of object
+being queried.</dd>
+<dt>Input File</dt>
+<dd>DSS or text file in which data are stored. Use consistent
+case when referring to the same file. You may also enter the word <em>constant</em>
+if you
+would like to assign a constant value to the input (the value will be
+entered in the next column).</dd>
+<dt>Path/Value</dt>
+<dd>The path within the text or DSS file of the time series data.
+If you
+used the <em>constant</em> keyword in the Input File
+column, enter the value (e.g. <em>4.22</em>) here.</dd>
+<dt>Fillin</dt><dd>Method for
+filling in data if the time step of the assigned series
+is coarser than the time step of the model. See <a href="definitions/fillin.html">Fillin</a>.</dd><dt>Use</dt><dd>Checkbox
+indicating whether the item
+is used.</dd>
+</dl>
+
+<a name="usage"></a>
+<h2>Usage Notes:</h2>
+<ul><li>Only one boundary (flow or stage) should be
+assigned at a node.
+HYDRO is able to accept a sources and sinks at boundary nodes, but this
+is not good modeling practice.</li>
+</ul>
+
+</div><!--End contents-->
+
+<div id="footer"><copyright>© 2007 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+</div> <!--End footer-->
+</body></html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>GROUP_OUTPUT</title><!-- Changed by: , 07-Sep-2007 -->
+<link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
+<body>
+<div id="wrap">
+
+<ul id="page_navbar" >
+<li><a href="#overview">Overview</a></li>
+<li><a href="#reference">Reference</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul><!--end navbar-->
+
+<hr style="header_hr"/>
+<div id="page_title" class="dwr_logo">
+<h1>GROUP_OUTPUT Section</h1>
+</div><!-- page_title-->
+<hr style="header_hr"/>
+
+<div id="contents">
+<a name="overview"></a><h2>Overview:</h2>
+<p><em>GROUP_OUTPUT</em> is a section in the PTM text
+input that specifies DSS output to record residence of particles in
+group of water bodies.
+</p>
+
+<a name="reference"></a>
+<h2 class="section_name">Reference</h2>
+<h4 class="field_def_title">Keyword Descriptions</h4>
+<dl class="field_definitions">
+<dt>GROUP</dt><dd>Name of the group whose members are augmented by the text line. &nbsp;If
+the name does not match an existing group, a new group is created.
+Since the PTM uses only text input, the GROUP must be defined in the
+text &nbsp;input file.</dd>
+<dt>INTERVAL</dt><dd>Interval at which to record residence.&nbsp;</dd>
+<dt>B_PART</dt><dd>This is the name that will go in the B_PART of the output.</dd>
+</dl>
+<dl class="field_definitions"><dt>FILENAME</dt><dd>The
+name of the output file. If the file extension is *.dss, output is in
+DSS format. If the file extension is *.txt a text file output is
+produced.</dd>
+
+<h2 id="examples">Examples:</h2>
+<table class="text_input">
+<tbody>
+<tr><td>GROUP_OUTPUT</td><td></td><td></td><td></td><td></td></tr>
+<tr><td>GROUP</td><td>INTERVAL</td><td>B_PART</td><td>FILENAME</td><td></td></tr>
+<tr><td>twitchell</td><td>1HOUR</td><td>TWITCHELL</td><td>${PTMOUTPUTFILE}</td><td></td></tr>
+<tr><td>emmaton</td><td>1HOUR</td><td>EMMATON</td><td>${PTMOUTPUTFILE}</td><td></td></tr>
+<tr><td>END</td><td></td><td></td><td ></td><td></td></tr>
+</tbody></table>
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="usage"></a>
+<h2>Usage Notes:</h2>
+<ul><li>See flux output.<li>
+</ul>
+
+</div><!--End contents-->
+
+<div id="footer">
+<copyright>© 2007 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+</div><!--End footer--> 
+</div> <!--End wrap-->
+</body></html>
