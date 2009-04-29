@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Groups</title><!-- Changed by: , 07-Sep-2007 -->
+<link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
+<body>
+<div id="wrap">
+
+<ul id="page_navbar" >
+<li><a href="#overview">Overview</a></li>
+<li><a href="#tables">Tables</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul><!--end navbar-->
+
+<hr style="header_hr"/>
+<div id="page_title" class="dwr_logo">
+<h1>Groups</h1>
+</div><!-- page_title-->
+
+<hr style="header_hr"/>
+
+<div id="contents">
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p><em>GROUPS</em> are user-defined groups of model
+objects, for instance groups of water bodies or groups of boundary
+inputs. Groups are used a number of places in DSM2, including: tracking
+of constituents originated from grouped sources, tracking of particles as they reside or move between
+groups of water bodies and/or boundaries, and assignment of rate
+coefficients in QUAL to groups of water bodies. In each context, the types of model
+objects that are allowed in the groups may be slightly different. That
+validation takes place elsewhere: In this view of the GUI we are only
+concerned about creating the groups.</p>
+<p>The Groups View is equivalent to the <a href="group_text_input.html">GROUPS</a>
+section of the text input system, and Groups defined in the GUI can be augmented in text.
+Since PTM is entirely text-based, the Groups View of the GUI is mostly
+used for QUAL constituent tracking and rate coefficient assignment.</p>
+
+<a name="tables"></a>
+<h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a href="#group_table">Groups</a></li>
+<li><a href="#group_member_table">Group Members</a></li>
+</ul>
+<p>Click on table name to go to the reference for that
+table. Click on image to enlarge picture of GUI page and its tables.</p>
+<p class="dataview_image"><a href="group_view_image.html">
+<img alt="" src="image/group_small.jpg"></a></p>
+
+<a name="group_table"></a><h3 class="table_name">Groups Table</h3>
+<p>The Groups table defines the name and description of the
+group. Groups is a top-level layered table. Group members are defined
+in a child table.</p>
+<h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions"><dt>Layer</dt>
+<dd>Layer number on which the entry is defined.</dd>
+<dt>Name</dt>
+<dd>Name of the group. This is the identifier for the group used
+in references elsewhere in the input system.
+</dd><dt>Description of Group [optional]</dt>
+<dd>Text description of the group.</dd><dt>Use</dt>
+<dd>Check box indicating item is in use. See Use Column.</dd>
+</dl>
+
+<hr class="table_sep" width="200">
+<a name="group_member_table"></a>
+<h3 class="table_name">Group Members Table</h3>
+<p>The Group Members Table lists members of the selected group in
+the
+parent table. The group members are identified using patterns written
+using
+regular expressions.</p>
+<math></math><h4 class="field_def_title">Field
+Descriptions</h4>
+<dl class="field_definitions"><dt>Member Type</dt><dd>Picklist
+for choosing the type (Channel, etc) of model object.</dd>
+<dt>Identifier/Pattern</dt><dd>A pattern that will be
+matched against the identifier of the object (channel number, input
+name, etc). The pattern can be a regular expression or use the special
+range notation. &nbsp;Here are some examples:
+<dl><dt>range:132-176</dt>
+<dd>Matches any number in this range, inclusive</dd>
+<dt>dicu_drn_.*</dt><dd> Dot-star is a wildcard
+matches any name that starts with dicu_drn)</dd>
+<dt>mtz</dt><dd>Exact name</dd>
+<dt>(183|184|185)</dt><dd>A choice of number
+identifiers</dd>
+<dt>(mtz|sjr)</dt><dd>A choice of names.</dd><dt>14[2-7]
+</dt><dd>The regular expression way of doing ranges, which
+works for a single digit</dd>
+</dl></dd>
+</dl>
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="usage"></a>
+<h2>Usage Notes:</h2>
+<ul>
+<li>A regular expressions description can be found in <a href="http://en.wikipedia.org/wiki/Regular_expression"><span style="text-decoration: underline;">wikipedia</span></a> and a tutorial and guide can be found at <a href="http://www.regular-expressions.info/">http://www.regular-expressions.info/</a>.
+You can probably do most of the group matching you want by modifying
+the above sample patterns, but&nbsp;the possibilities are endless. </li>
+</ul>
+
+</div><!--End contents-->
+
+<div id="footer"><copyright>© 2007 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+</div><!--End footer--> 
+</div> <!--End wrap-->
+</body></html>

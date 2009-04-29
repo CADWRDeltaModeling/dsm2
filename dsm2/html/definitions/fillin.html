@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Fillin Method Definition</title>
+<link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
+</head>
+<body>
+<div id="wrap">
+<div id="page_title" class="dictionary_icon">
+<!--img src="dwrsmall.gif" alt="DWR" id="page_icon"></img-->
+<!--Begin Definition Term. This comment is used by automatic formatters.-->
+<h1>Fillin</h1>
+<!--End Definition Term. This comment is used by automatic formatters.-->
+</div><!-- page_header-->
+<hr style="header_hr"/>
+
+<div id="term_definitions" class="term_definition">
+<!--Begin Definition Description. This comment is used by automatic formatters. If you copy this file for a new definition, copy this too-->
+<!--The first paragraph of your description should be appropriate for a glossary-->
+Time interpolation method used by the model to fill time-varying input at times between data points. 
+Interpolation is needed when the available data are coarser in time (say 1 month steps) than the 
+time step of the model (say, 5 or 15 minutes).
+<dl><dt>linear</dt><dd>Linear interpolation between closest time series elements.
+This is the preferred method for instantaneous continuous
+data such as flow and stage</dd>
+<dt>last</dt><dd>Use the last value in the time interval of the input data. 
+For instance, if monthly data were input and the model requires 
+values every fifteen minutes, the last value in April
+would be substituted for every time step in April. The reason for this
+option is that period averaged data is stamped at the end of the period in HEC-DSS. It is <em>not</em> recommended
+that you use it for pre-processed inputs that have been disaggregated to instantaneous values. Use linear instead.
+</dd>
+<dt>none</dt><dd>No interpolation. For regular series, the simulation will fail if there is no 
+data available at the model time step. For irregular series such as gate ops, the previous 
+good value is used.</dd>
+</dl>
+<!--End Definition Description. This comment is used by automatic formatters.-->
+</div><!--end wrap-->
+</body>
+</html>
