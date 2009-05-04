@@ -72,8 +72,8 @@ def channel_ic_convert(data):
 def trivial_convert(row):
     new_row=[str(field) for field in row]
     new_row=[field.replace("None","none") for field in new_row]
-    new_row=[field.replace("(","{") for field in new_row]
-    new_row=[field.replace(")","}") for field in new_row]
+    #new_row=[field.replace("(","{") for field in new_row] #cause problem in oprule which accepts ( not {
+    #new_row=[field.replace(")","}") for field in new_row] #cause problem in oprule which accepts ( not {
     #new_row=[field.replace("EC ","ec ") for field in new_row]
     #new_row=[field.replace("DOC ","doc ") for field in new_row]
     return new_row
