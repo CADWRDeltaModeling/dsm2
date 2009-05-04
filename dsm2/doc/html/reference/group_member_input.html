@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>GROUPS</title><!-- Changed by: , 07-Sep-2007 -->
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>GROUP MEMBER</title><!-- Changed by: , 07-Sep-2007 -->
 <link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
 <body>
 <div id="wrap">
@@ -14,34 +14,33 @@
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>GROUPS Section</h1>
+<h1>GROUP_MEMBER Section</h1>
 </div><!-- page_title-->
 <hr style="header_hr"/>
 
 <div id="contents">
-<p><em>GROUPS</em> is a section that allows the user
+<p><em>GROUP_MEMBER</em> is a section that allows the user
 to describe groups of model objects, for instance groups of
-water bodies or groups of boundary inputs. Groups are used a number of
-places, including: tracking of constituents originated from
-grouped sources, tracking of particles as they reside or move between
-groups, and assignment of non-conservative constituents parameters to
-groups. The GROUPS Section is equivalent to the Groups View in the
-GUI.
+water bodies or groups of boundary inputs.
+The names of groups must be declared in <em>GROUP</em> section
+before they are defined in this section.
 </p>
 <a name="reference"></a>
 <h2 class="section_name">Reference</h2>
 <h4 class="field_def_title">Keyword Descriptions</h4>
 <dl class="field_definitions"><dt>GROUP_NAME</dt><dd>Name
-of the group whose members are augmented by the text line. &nbsp;If
-the name does not match an existing group, a new group is created.</dd>
+of a group whose members are augmented by the text line.
+If a group with the name is defined already,
+the members in the new definition will be added into 
+the previously-defined group.</dd>
 <dt>MEMBER_TYPE</dt><dd>Type of model object included in the group.&nbsp;</dd>
-<dt>MEMBER_ID</dt><dd>A regular expression that matches the identifier of the members.</dd>
+<dt>PATTERN</dt><dd>A regular expression that matches the identifier of the members.</dd>
 </dl>
 <br>
 <h2 id="examples">Examples:</h2>
 <table class="text_input">
-<tbody><tr><td>GROUPS</td><td></td><td></td><td></td></tr>
-<tr><td>GROUP_NAME</td><td>MEMBER_TYPE</td><td>MEMBER_ID</td><td></td></tr>
+<tbody><tr><td>GROUP_MEMBER</td><td></td><td></td><td></td></tr>
+<tr><td>GROUP_NAME</td><td>MEMBER_TYPE</td><td>PATTERN</td><td></td></tr>
 <tr><td>twitchell</td><td>channel</td><td>4[5-8]</td><td># matches channels 45-48</td></tr>
 <tr><td>twitchell</td><td>channel</td><td>(83|280|310)</td><td># matches three channels</td></tr>
 <tr><td>emmaton</td><td>channel</td><td>range:430-434</td><td># no spaces allowed</td></tr>
@@ -57,14 +56,14 @@ the name does not match an existing group, a new group is created.</dd>
 
 <a name="usage"></a>
 <h2>Usage Notes:</h2>
-<ul>
-<li>It is not recommended that you mix group member assignments between text and GUI.</li>
-</ul>
+<!--<ul>
+<li></li>
+</ul>-->
 
 </div><!--End contents-->
 
 <div id="footer">
-<copyright>© 2007 California
+<copyright>© 2009 California
 Department of Water Resources. All Rights Reserved</copyright>
 <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>
