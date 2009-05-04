@@ -1,0 +1,27 @@
+OPERATING_RULE
+NAME        ACTION        TRIGGER
+mscs_close        "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO 0.0"        "(mscs_velclose AND mscs_calc) OR ts(name=mscs_op) == 0.0"
+mscs_close_to        "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=to_node) TO 0.0"        "(mscs_velclose AND mscs_calc) OR ts(name=mscs_op) == 0.0"
+^mscs_flashboards_op        "SET gate_op(gate=montezuma_salinity_control,device=flashboards,direction=to_from_node) TO ts(name=mscs_fb_op)"        TRUE
+^mscs_modified_fb_op        "SET gate_op(gate=montezuma_salinity_control,device=modified_flashboard,direction=to_from_node) TO ts(name=mscs_modfb_op)"        TRUE
+mscs_open        "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO ts(name=mscs_fract)"        "(mscs_dhopen AND mscs_calc) OR ts(name=mscs_op) == 1.0"
+mscs_open_to        "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=to_node) TO ts(name=mscs_fract)"        "(mscs_dhopen AND mscs_calc) OR ts(name=mscs_op) == 1.0"
+END
+
+##
+OPRULE_EXPRESSION
+NAME        DEFINITION
+mscs_calc        "ts(name=mscs_op) < 0"
+mscs_dhopen        "(chan_stage(channel=512,dist=6038) - chan_stage(channel=513,dist=0)) > 0.3"
+mscs_velclose        "chan_flow(channel=513,dist=0) < 0.1"
+END
+
+##
+OPRULE_TIME_SERIES
+NAME        FILLIN        FILE        PATH
+mscs_fb_op        last        ${GATEFILE}        /HIST+GATE/MTZSL/FLASHBOARD_OP//IR-DECADE/DWR-ESO/
+mscs_fract        last        ${GATEFILE}        /HIST+GATE/MTZSL/RADIAL_FRACT//IR-DECADE/DWR-ESO/
+mscs_op        last        ${GATEFILE}        /HIST+GATE/MTZSL/RADIAL_OP//IR-DECADE/DWR-ESO/
+END
+
+##
