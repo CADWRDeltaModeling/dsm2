@@ -1,0 +1,12 @@
+BOUNDARY_FLOW
+NAME        NODE        SIGN        FILLIN        FILE        PATH
+calaveras        21        1        last        ${BNDRYINPUT}        /FILL+CHAN/RCAL009/FLOW//1DAY/${HISTFLOWVERSION}/
+cosumnes        446        1        last        ${BNDRYINPUT}        /FILL+CHAN/RCSM075/FLOW//1DAY/${HISTFLOWVERSION}/
+moke        447        1        last        ${BNDRYINPUT}        /FILL+CHAN/RMKL070/FLOW//1DAY/${HISTFLOWVERSION}/
+north_bay        273        -1        last        ${BNDRYINPUT}        /FILL+CHAN/SLBAR002/FLOW-EXPORT//1DAY/${HISTFLOWVERSION}/
+sac        330        1        last        ${BNDRYINPUT}        /FILL+CHAN/RSAC155/FLOW//1DAY/${HISTFLOWVERSION}/
+vernalis        17        1        last        ${BNDRYINPUT}        /FILL+CHAN/RSAN112/FLOW//1DAY/${HISTFLOWVERSION}/
+yolo        316        1        last        ${BNDRYINPUT}        /FILL+CHAN/BYOLO040/FLOW//1DAY/${HISTFLOWVERSION}/
+END
+
+##

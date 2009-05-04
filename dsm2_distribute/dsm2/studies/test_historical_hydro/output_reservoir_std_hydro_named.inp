@@ -1,0 +1,7 @@
+OUTPUT_RESERVOIR
+NAME        RES_NAME        NODE        VARIABLE        INTERVAL        PERIOD_OP        FILE
+clifton_court        clifton_court        72        flow        ${FINE_OUT}        inst        ${HYDROOUTDSSFILE}
+clifton_court        clifton_court        none        stage        ${FINE_OUT}        inst        ${HYDROOUTDSSFILE}
+END
+
+##
