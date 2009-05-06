@@ -1,10 +1,19 @@
+""" Script that converts DB models to equivalent text input files
+    Usage >convertdb2txt.py model_name output_dir
+"""
+
 from dbutil import *
 from sqlquery import *
 from component import *
 import os.path
+import sys
 
 blocks=include_block()
-files={} # all files, grouped by block
+
+# list of all files  grouped by block, 
+# which will be used to create the model.inp file
+files={} 
+
 # Map of DB input types to the text tables that might contain data of this type
 INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","channel_ic","reservoir_ic"],\
                               "input":["input_climate","input_transfer_flow",\
@@ -120,21 +129,35 @@ def group_member_converter(row):
     new_row=[field.lower() for field in new_row]
     return new_row
         
+def conc_with_source_converter(row):
+    new_row=trivial_convert(row)
+    if (new_row[4] == "" or new_row[4] == "none"): 
+        new_row[4] = "all"
+        print "found it"
+        print new_row
+    if (new_row[3] == "" or new_row[3] == "none"): 
+        new_row[3] = "all"
+        print "found it"
+        print new_row
+    return new_row
+    
+    
     
 CONVERTERS={"channel_ic" : channel_ic_convert,
                              "operating_rule": oprule_converter,
                              "oprule_expression": oprule_converter,
                              "group_member":group_member_converter,
                              "scalar":all_lower_converter,
-                             "rate_coefficient":all_lower_converter
+                             "rate_coefficient":all_lower_converter,
+                             "output_channel_concentration":conc_with_source_converter,
+                             "output_reservoir_concentration":conc_with_source_converter,
                              }
 
 def convert_table(filename,tablename,layerid):
-        print "Converting table: %s\n" % tablename
+        #print "Converting table: %s\n" % tablename
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
         if not data or (len(data) ==0): 
-            #print "Table \"%s\" empty" % tablename
             return
         fout=open(filename,"a")  # requires that the directory is initially empty or weird overwriting could result
         has_used_column = (sql.find("used") > 6 and sql.find("used") < sql.find("FROM"))
@@ -156,7 +179,6 @@ def convert_table(filename,tablename,layerid):
             rowtxt=string.join(datastr,"        ")
             if not is_used:
                 rowtxt="^"+rowtxt
-                print "****** %s" % rowtxt
             fout.write("%s\n" % rowtxt)
         fout.write("END\n\n##\n")
         fout.close()
@@ -212,7 +234,7 @@ def translate_layer_name(layer_name):
         if layer_name.lower().endswith("_stage"): return layer_name[0:-6]
         layer_name=layer_name.replace("std_output_hydro","std_hydro")
         layer_name=layer_name.replace("std_output_qual","std_qual")
-        layer_name.replace("concentration","conc")
+        layer_name=layer_name.replace("concentration","conc")
         return layer_name
 
 PREFIX = {"operating_rule" : "oprule",
@@ -252,21 +274,26 @@ ORDER BY comp.component_type,comp.layer
     return data
         
 def get_component_type(db_layer_name,cur):
-    print "layer: %s" % db_layer_name
     SQL="SELECT component_type FROM layer_definition WHERE name=?;"
     comptype=cur.execute(SQL,db_layer_name).fetchone()[0]
-    print "component type: %s" % comptype
     return comptype
 
 if __name__ == "__main__":
+    if (len(sys.argv) < 2):
+        print "Usage:\nconvertdb2txt.py model_name [dest_dir=model_name]"
+    model_name = sys.argv[1]
+    if (len(sys.argv) == 3):
+        dest_dir = sys.argv[2]
+    else:
+        dest_dir = model_name
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
     cur=dbcnn.cnn.cursor()
-    db_layer_names=get_layers_in_model(cur,"historical_qual_do")
-    dest_dir="./historical_qual_do"
+    db_layer_names=get_layers_in_model(cur,model_name)
+    # check to make sure the destination directory is empty
     existing_inp_files = [x for x in os.listdir(dest_dir) if x.endswith(".inp")]
     if len(existing_inp_files) != 0:
         raise "The destination directory must be empty of .inp files."
-    print db_layer_names
+    # convert the layers.
     for layer in db_layer_names:
         convert_layer(layer,cur,layer,dest_dir)
     f=open("model.inp","w")
