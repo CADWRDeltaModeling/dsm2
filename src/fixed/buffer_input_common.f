@@ -182,12 +182,6 @@
       end do
       print *,"Number of gate output requests: ", nitem
 
-
-
-
-
-
-
       return  ! normal return
       
 118   write(unit_error,*)"Failed to convert reservoir node from text to integer" /
