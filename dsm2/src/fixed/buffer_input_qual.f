@@ -174,7 +174,7 @@ c======================== Input and output ======================
      &                               sourcegroup,
      &                               filename)
       end do
-      print *,"Number of channel output requests: ", nitem
+      print *,"Number of concentration (source track) channel output requests: ", nitem
 
 
       nitem = output_reservoir_concentration_buffer_size()
@@ -199,7 +199,7 @@ c======================== Input and output ======================
      &                                    sourceGroup,
      &                                    filename) 
       end do
-      print *,"Number of reservoir output requests: ", nitem
+      print *,"Number of reservoir concentration (source track) output requests: ", nitem
       return
 
 120   write(unit_error,*)"Failed to convert channel length from text to integer:" /

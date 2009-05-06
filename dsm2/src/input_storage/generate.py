@@ -479,7 +479,7 @@ def generate_dsm2():
     # "ENVVAR" you would set the envvar profile active.
     define_profile("envvar",envvar+envvar_includes) # envvar profile: envvar + corresponding include file
     define_profile("Hydro",envvar+scalar+io_file+grid+hydro_ic+hydro_time_series+oprule+water_body_output+gate_output+hydro_includes)
-    define_profile("Qual",envvar+scalar+grid+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+qual_includes)
+    define_profile("Qual",envvar+scalar+grid+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+concentration_output+qual_includes)
     define_profile("PTM",envvar+scalar+grid+io_file+tidefile+groups+particle+ptm_includes)
     
     finalize(outdir)
