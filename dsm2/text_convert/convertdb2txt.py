@@ -133,12 +133,8 @@ def conc_with_source_converter(row):
     new_row=trivial_convert(row)
     if (new_row[4] == "" or new_row[4] == "none"): 
         new_row[4] = "all"
-        print "found it"
-        print new_row
     if (new_row[3] == "" or new_row[3] == "none"): 
         new_row[3] = "all"
-        print "found it"
-        print new_row
     return new_row
 
 def chan_output_no_source_converter(row):
@@ -163,25 +159,26 @@ CONVERTERS={"channel_ic" : channel_ic_convert,
             }
 
 def exclude_table(filename,tablename,data):
-    if tablename == "OUTPUT_CHANNEL":
-        inappropriate=[row in data if not data[4] in ["none",""]]
-        return len(inappropriate) != 0                             
-    if tablename == "OUTPUT_RESERVOIR":
-        inappropriate=[row in data if not data[3] in ["none",""]]
-        return len(inappropriate) != 0
-    if tablename == "OUTPUT_CHANNEL_CONCENTRATION":
-        inappropriate=[row in data if not data[4] in ["none",""]]
-        return len(inappropriate) == 0         
-    if tablename == "OUTPUT_RESERVOIR_CONCENTRATION":
-        inappropriate=[row in data if not data[3] in ["none",""]]
-        return len(inappropriate) == 0
+    non_specified_source=["all","none","None","",None]
+    if tablename == "output_channel":
+        source_rows=[row for row in data if not row[4] in non_specified_source]
+        return len(source_rows) != 0                             
+    if tablename == "output_reservoir":
+        source_rows=[row for row in data if not row[3] in non_specified_source]
+        return len(source_rows) != 0
+    if tablename == "output_channel_concentration":
+        source_rows=[row for row in data if not row[4] in non_specified_source]
+        return len(source_rows) == 0         
+    if tablename == "output_reservoir_concentration":
+        source_rows=[row for row in data if not row[3] in non_specified_source]
+        return len(source_rows) == 0
     return False        
                              
 def convert_table(filename,tablename,layerid):
         #print "Converting table: %s\n" % tablename
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
-        if exclude_table(tablename,data):
+        if exclude_table(filename,tablename,data):
             return
         if not data or (len(data) ==0): 
             return
