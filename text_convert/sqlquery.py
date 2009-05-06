@@ -161,7 +161,7 @@ ORDER BY t.name,reservoir;
   
 outputchannelSQL=\
 """
-SELECT o.name,o.channel,distance,variable_name,time_interval,period_op,output_file, used
+SELECT o.name,o.channel,distance,variable_name,source_group,time_interval,period_op,output_file, used
 FROM output_time_series_channel o
 WHERE o.layer_id=?
 ORDER BY o.name,variable_name,time_interval;
@@ -169,7 +169,7 @@ ORDER BY o.name,variable_name,time_interval;
 
 outputresSQL=\
 """
-SELECT o.name,o.reservoir,connection_node,variable_name,time_interval,period_op,output_file, used
+SELECT o.name,o.reservoir,connection_node,variable_name,source_group,time_interval,period_op,output_file, used
 FROM output_time_series_reservoir o
 WHERE o.layer_id=?
 ORDER BY o.name,variable_name,time_interval;
