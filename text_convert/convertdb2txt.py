@@ -211,7 +211,8 @@ def translate_layer_name(layer_name):
         if layer_name.lower().endswith("_flow"): return layer_name[0:-5]
         if layer_name.lower().endswith("_stage"): return layer_name[0:-6]
         layer_name=layer_name.replace("std_output_hydro","std_hydro")
-        layer_name=layer_name.replace("std_output_qual","std_hydro")
+        layer_name=layer_name.replace("std_output_qual","std_qual")
+        layer_name.replace("concentration","conc")
         return layer_name
 
 PREFIX = {"operating_rule" : "oprule",
