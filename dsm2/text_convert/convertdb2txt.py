@@ -140,23 +140,49 @@ def conc_with_source_converter(row):
         print "found it"
         print new_row
     return new_row
-    
+
+def chan_output_no_source_converter(row):
+    new_row=trivial_convert(row)
+    return new_row[:4] + new_row[5:]
+
+def res_output_no_source_converter(row):
+    new_row=trivial_convert(row)
+    return new_row[:3] + new_row[4:]
     
     
 CONVERTERS={"channel_ic" : channel_ic_convert,
-                             "operating_rule": oprule_converter,
-                             "oprule_expression": oprule_converter,
-                             "group_member":group_member_converter,
-                             "scalar":all_lower_converter,
-                             "rate_coefficient":all_lower_converter,
-                             "output_channel_concentration":conc_with_source_converter,
-                             "output_reservoir_concentration":conc_with_source_converter,
-                             }
+            "operating_rule": oprule_converter,
+            "oprule_expression": oprule_converter,
+            "group_member":group_member_converter,
+            "scalar":all_lower_converter,
+            "rate_coefficient":all_lower_converter,
+            "output_channel_concentration":conc_with_source_converter,
+            "output_reservoir_concentration":conc_with_source_converter,
+            "output_channel":chan_output_no_source_converter,
+            "output_reservoir":res_output_no_source_converter                             
+            }
 
+def exclude_table(filename,tablename,data):
+    if tablename == "OUTPUT_CHANNEL":
+        inappropriate=[row in data if not data[4] in ["none",""]]
+        return len(inappropriate) != 0                             
+    if tablename == "OUTPUT_RESERVOIR":
+        inappropriate=[row in data if not data[3] in ["none",""]]
+        return len(inappropriate) != 0
+    if tablename == "OUTPUT_CHANNEL_CONCENTRATION":
+        inappropriate=[row in data if not data[4] in ["none",""]]
+        return len(inappropriate) == 0         
+    if tablename == "OUTPUT_RESERVOIR_CONCENTRATION":
+        inappropriate=[row in data if not data[3] in ["none",""]]
+        return len(inappropriate) == 0
+    return False        
+                             
 def convert_table(filename,tablename,layerid):
         #print "Converting table: %s\n" % tablename
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
+        if exclude_table(tablename,data):
+            return
         if not data or (len(data) ==0): 
             return
         fout=open(filename,"a")  # requires that the directory is initially empty or weird overwriting could result
