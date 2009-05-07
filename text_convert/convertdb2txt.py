@@ -68,7 +68,7 @@ SQL={"channel":channelSQL,\
               "reservoir_connection":reservoirconnectionSQL,
               "group_member":groupmemberSQL}
 
-
+LAYER_NAME_TRANSLATIONS={}
               
 COMPONENT_MEMBERS=component_members()
 
@@ -129,14 +129,23 @@ def group_member_converter(row):
     new_row=[field.lower() for field in new_row]
     return new_row
         
-def conc_with_source_converter(row):
+def chan_conc_with_source_converter(row):
     new_row=trivial_convert(row)
     if (new_row[4] == "" or new_row[4] == "none"): 
         new_row[4] = "all"
-    if (new_row[3] == "" or new_row[3] == "none"): 
-        new_row[3] = "all"
+    if new_row[0].endswith("_"+new_row[4]):
+        new_row[0]=new_row[0][:-(len(new_row[4])+1)]  # remove source from name
     return new_row
 
+def res_conc_with_source_converter(row):
+    new_row=trivial_convert(row)
+    if (new_row[3] == "" or new_row[3] == "none"): 
+        new_row[3] = "all"
+    if new_row[0].endswith("_"+new_row[3]):
+        new_row[0]=new_row[0][:-(len(new_row[3])+1)]  # remove source from name        
+    return new_row
+    
+    
 def chan_output_no_source_converter(row):
     new_row=trivial_convert(row)
     return new_row[:4] + new_row[5:]
@@ -145,20 +154,26 @@ def res_output_no_source_converter(row):
     new_row=trivial_convert(row)
     return new_row[:3] + new_row[4:]
     
+def gate_converter(row):
+    new_row=trivial_convert(row)    
+    new_row[1]=new_row[1].lower()
+    return new_row
     
 CONVERTERS={"channel_ic" : channel_ic_convert,
+            "gate":gate_converter,
             "operating_rule": oprule_converter,
             "oprule_expression": oprule_converter,
             "group_member":group_member_converter,
             "scalar":all_lower_converter,
             "rate_coefficient":all_lower_converter,
-            "output_channel_concentration":conc_with_source_converter,
-            "output_reservoir_concentration":conc_with_source_converter,
+            "output_channel_concentration":chan_conc_with_source_converter,
+            "output_reservoir_concentration":res_conc_with_source_converter,
             "output_channel":chan_output_no_source_converter,
             "output_reservoir":res_output_no_source_converter                             
             }
 
 def exclude_table(filename,tablename,data):
+    #print "%s (%s)" %(tablename,len(data))
     non_specified_source=["all","none","None","",None]
     if tablename == "output_channel":
         source_rows=[row for row in data if not row[4] in non_specified_source]
@@ -175,11 +190,10 @@ def exclude_table(filename,tablename,data):
     return False        
                              
 def convert_table(filename,tablename,layerid):
-        #print "Converting table: %s\n" % tablename
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
         if exclude_table(filename,tablename,data):
-            return
+            return  
         if not data or (len(data) ==0): 
             return
         fout=open(filename,"a")  # requires that the directory is initially empty or weird overwriting could result
@@ -241,13 +255,13 @@ def file_grouping_for_table(parent_table):
     return parent_table
 
 def init_layer_name_translations():
-    f=open("layer_translations.txt")
+    f=open("layer_name_translations.txt")
     layers = f.readlines()
     f.close()
     for layer in layers:
         layer=layer.strip().split(",")
-        if layer and len(layer==2):
-            LAYER_TRANSLATIONS[layer[0]]=layer[1]
+        if layer and len(layer)==2:
+            LAYER_NAME_TRANSLATIONS[layer[0]]=layer[1]
 
 def translate_layer_name(layer_name):
     if LAYER_NAME_TRANSLATIONS.has_key(layer_name):
@@ -265,7 +279,7 @@ PREFIX = {"operating_rule" : "oprule",
                    "oprule_time_series" : "oprule",
                    "source_flow_reservoir" : "source_flow"}
 
-LAYER_NAME_TRANSLATIONS={}
+
 
                    
 def prefix_for_table(table_name):
@@ -302,6 +316,7 @@ def get_component_type(db_layer_name,cur):
     return comptype
 
 if __name__ == "__main__":
+    init_layer_name_translations()
     if (len(sys.argv) < 2):
         print "Usage:\nconvertdb2txt.py model_name [dest_dir=model_name]"
     model_name = sys.argv[1]
@@ -312,6 +327,8 @@ if __name__ == "__main__":
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
     cur=dbcnn.cnn.cursor()
     db_layer_names=get_layers_in_model(cur,model_name)
+    for layer in db_layer_names:
+        print layer
     # check to make sure the destination directory is empty
     existing_inp_files = [x for x in os.listdir(dest_dir) if x.endswith(".inp")]
     if len(existing_inp_files) != 0:
@@ -319,7 +336,8 @@ if __name__ == "__main__":
     # convert the layers.
     for layer in db_layer_names:
         convert_layer(layer,cur,layer,dest_dir)
-    f=open("model.inp","w")
+    fname=os.path.join(dest_dir,"model.inp")
+    f=open(fname,"w")
     for key in files:
         files_in_block=[os.path.split(x)[1] for x in files[key]]
         f.write(key.upper() +"\n" + string.join([os.path.split(x)[1] for x in files[key]],"\n") + "\nEND\n\n")
