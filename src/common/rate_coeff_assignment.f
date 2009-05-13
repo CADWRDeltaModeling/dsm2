@@ -121,8 +121,6 @@ c     local variables
 	  rate_value=rate_assign(i).rate_value
 	  do 200 j=1,nchans 
 		  if (groupContains(groupno,obj_channel,j)) then
-		        if ( j .eq. 1 .and. ncc_id==2 .and. rate_var_id .eq. 1)then
-		        end if
 			    rcoef_chan(ncc_id,rate_var_id,j)=rate_value
 		  end if
 200      end do
