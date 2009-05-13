@@ -82,7 +82,7 @@ c-----constituents related
 
 
 
-      integer, parameter :: temp_coeff_type = 30
+      integer, parameter :: temp_coeff_type = 16
 
 c-----heat and temperature related
       real*8
