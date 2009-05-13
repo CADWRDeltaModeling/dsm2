@@ -620,7 +620,7 @@ c-----integer numcalled
       if(dtemp.eq. miss_val_r)then
 c--------Create the lookup table
          do it=1,80
-            tmp=dble(it)*0.5-20.
+            tmp=dble(it)*dble(0.5)-dble(20.)
             do i=1,temp_coeff_type
                thettbl(i,it)=thet(i)**(tmp)
             enddo
@@ -629,7 +629,7 @@ c--------Create the lookup table
 c--------temperature has changed by less than 0.1,
 c--------no need to update the values
          return
-      elseif(dtemp.ge.0.5 .and. dtemp.le.40.)then
+      elseif(dtemp.ge. 5.D-01 .and. dtemp.le. 40.)then
 c--------temperature in the right range,
 c--------it's ok to use the table
 c--------interpolate between values

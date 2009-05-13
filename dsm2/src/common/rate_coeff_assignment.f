@@ -67,7 +67,7 @@ c      utility functions Jon 4/12/06
 
       integer,intent(inout)::isat !error code
 	integer,intent(in)::groupid,rate_var_id,ncc_id
-	real,intent(in)::rate_value
+	real*8,intent(in)::rate_value
 	character*(*),intent(out)::errm !error message
 
       
@@ -121,6 +121,8 @@ c     local variables
 	  rate_value=rate_assign(i).rate_value
 	  do 200 j=1,nchans 
 		  if (groupContains(groupno,obj_channel,j)) then
+		        if ( j .eq. 1 .and. ncc_id==2 .and. rate_var_id .eq. 1)then
+		        end if
 			    rcoef_chan(ncc_id,rate_var_id,j)=rate_value
 		  end if
 200      end do

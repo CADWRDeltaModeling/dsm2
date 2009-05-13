@@ -18,7 +18,7 @@
       integer :: groupno
       integer :: istat
       integer, external :: name_to_objno
-      real*4  :: coefficient_value
+      real*8  :: coefficient_value
       integer,external :: rate_variable_code
       integer,external :: ncc_code
       
