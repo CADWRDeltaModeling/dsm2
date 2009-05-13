@@ -1,4 +1,5 @@
-""" Example script that shows how to specify some user objects
+""" DSM2 input specifications. 
+This script defines the input blocks, fields, groupings and profiles for the DSM2 models.
 
 """
 DSM2_NAME_LEN=32

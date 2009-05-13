@@ -20,9 +20,12 @@ C!</license>
 
 
 
-      subroutine assign_output_units(units, param)
+      subroutine assign_output_units(units, param_name)
       implicit none
-      character*(*) units, param
+      character*(*) units, param_name
+      character*(16) param
+      param=trim(param_name)
+      call locase(param)
       if (index(Param, 'flow') .gt. 0 .or.
      &    index(Param, 'pump') .gt. 0) then
           units='cfs'
@@ -33,9 +36,7 @@ C!</license>
       else if (Param .eq. 'elev') then
           units='feet'
       else if (Param .eq. 'height') then
-          units='feet'
-      else if (Param .eq. 'height') then
-          units='position'               
+          units='feet'              
       else if (Param .eq. 'width') then
           units='feet'                                             
       else if (Param .eq. 'tds') then

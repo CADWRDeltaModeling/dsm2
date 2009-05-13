@@ -687,7 +687,9 @@ c-----magic numbers for non-conservative constituents
 
 
 c-----magic numbers for temperature coefficients
-
+c     total number of these should be equal to temp_coeff_type,
+c     so temp_coeff_type must be increased if you add more of these
+c     temp_ coefficients
       integer
      &     temp_bod_decay
      &     ,temp_bod_set
@@ -708,6 +710,7 @@ c-----magic numbers for temperature coefficients
      &     ,temp_alg_resp
      &     ,temp_alg_set
      &     ,temp_alg_die
+
 
       parameter (
      &     temp_bod_decay=1

@@ -22,6 +22,8 @@
       integer,external :: rate_variable_code
       integer,external :: ncc_code
       
+      call locase(rate_variable)
+      call locase(constituent)
       rate_variable_id = rate_variable_code(rate_variable)
       if (rate_variable_id .eq. miss_val_i)then
           write (unit_error,'(a,1x,a)')"Rate variable not recognized:",
