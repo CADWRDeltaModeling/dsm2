@@ -104,13 +104,15 @@ c     groups, if assignment finished ok, the struct will be deleted
 
 	subroutine rate_coeffs_to_waterbodies(isat,errm)
       use IO_Units
-      use Groups, only: groupContains
+      use Groups, only: groupArray, groupContains
+      use constants
       integer,intent(inout)::isat !error code
 	character*(*),intent(out)::errm !error message
 
 c     local variables
       integer i,j,groupno,rate_var_id,ncc_id
 	real*8 rate_value
+      character*(16) ncc_name_constituent, ncc_name_variable
       
 	isat=0
 	errm=""
@@ -121,7 +123,17 @@ c     local variables
 	  rate_value=rate_assign(i).rate_value
 	  do 200 j=1,nchans 
 		  if (groupContains(groupno,obj_channel,j)) then
-			    rcoef_chan(ncc_id,rate_var_id,j)=rate_value
+                if ( rcoef_chan(ncc_id,rate_var_id,j) .eq. miss_val_r) then 
+			        rcoef_chan(ncc_id,rate_var_id,j)=rate_value
+                else
+                    call ncc_code_to_name(ncc_id, ncc_name_constituent)
+                    call rate_variable_code_to_name(rate_var_id, ncc_name_variable)
+                    write(unit_error,*) "rate coefficient of: ",  trim(ncc_name_variable), 
+     &                                  " for constituent: ",      trim(ncc_name_constituent),                              
+     &                                  " is assigned more than once to Channel #", chan_geom(j).chan_no, 
+     &                                  " in group: ", trim(groupArray(groupno).name)
+                    call exit(-1)
+                end if
 		  end if
 200      end do
             
