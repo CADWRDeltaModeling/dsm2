@@ -442,7 +442,7 @@ def generate_dsm2():
     hydro_ic=["channel_ic","reservoir_ic"]
     oprule=["operating_rule","oprule_expression","oprule_time_series"]
     hydro_time_series = ["boundary_stage","boundary_flow","source_flow",\
-                         "source_flow_reservoir","input_gate","input_transfer_flow","oprule_time_series"]
+                         "source_flow_reservoir","input_gate","input_transfer_flow"]  # ,"oprule_time_series"
     qual_time_series = ["node_concentration",\
                          "reservoir_concentration",\
                          "input_climate"]

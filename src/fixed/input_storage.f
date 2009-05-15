@@ -49,47 +49,51 @@ c==================================================================
 
       subroutine write_input_buffers()
 !     Writes in all text starting from input filename
-      use hdf5
       use input_storage_fortran
+      use iopath_data
       use runtime_data
       use envvar
       implicit none
-      character(LEN=32) :: hdf_filename
-      integer(HID_T) :: file_id
       integer :: ierror = 0
-      logical, parameter :: append_text=.TRUE.
-      logical :: ext
+      logical :: append_text=.false.
 c-----Write all buffers to text in the order they were defined
-      call write_all_buffers_to_text("testout.txt",append_text,ierror)
+      if (io_files(dsm2_module,io_echo,io_write).use)then
+      print*,"File: ",io_files(dsm2_module,io_echo,io_write).filename
+      append_text=.false.
+      call write_buffer_profile_to_text(dsm2_name,
+     &                                  io_files(dsm2_module,
+     &                                          io_echo,
+     &                                          io_write).filename,
+     &                                  append_text,ierror)
       call verify_error(ierror,"Error writing echoed text")
       print*, "text written"
-
-c-----Write all buffers to hdf5
-      ! for the moment we are deleting and recreating the file, but this is an open question
-      write(hdf_filename,"(a,'_echo.h5')")dsm2_name
-      inquire(file=hdf_filename, exist=ext)
-      if (ext) then
-      call unlink(hdf_filename,ierror)
       end if
 
-      call h5open_f (ierror)
-      call h5fcreate_f(hdf_filename, H5F_ACC_TRUNC_F, file_id, ierror)
-      if (ierror .ne. 0) then      
-      print*,"Could not open file, hdf error: ", ierror
-      print*,"Check if it already exists and delete if so -- failure to replace seems to be an HDF5 bug"
-      call exit(2)
-      end if
-
-      call write_all_buffers_to_hdf5(file_id,ierror)  ! Do the actual write
-      call verify_error(ierror,"Error writing echoed input to hdf5")
-      call h5fclose_f(file_id, ierror)                 ! Close down ! todo: this is too verbose
-      print *, "file close status: ", ierror
-      call h5close_f(ierror)
-      print*, "hdf5 shutdown status: ", ierror
-
- 
       return
       end subroutine
+c============================================================
+      subroutine write_input_buffers_hdf5(loc_id)
+!     Writes in all text starting from input filename
+      use hdf5
+      use input_storage_fortran
+      use iopath_data
+      use runtime_data
+      use envvar
+      implicit none
+      character(len=5) :: group_name = "input"
+      integer(HID_T) :: loc_id 
+      integer(HID_T) :: group_id
+
+      integer :: ierror = 0
+
+c-----Write all buffers to hdf5
+      call h5gcreate_f (loc_id, group_name, group_id, ierror)
+      call write_buffer_profile_to_hdf5(dsm2_name,group_id,ierror)  ! Do the actual write
+      call verify_error(ierror,"Error writing echoed input to hdf5")
+      call h5gclose_f (group_id, ierror)
+      return
+      end subroutine
+
 
 
 

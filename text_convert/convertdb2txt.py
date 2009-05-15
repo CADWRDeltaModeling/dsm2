@@ -191,6 +191,7 @@ def exclude_table(filename,tablename,data):
                              
 def convert_table(filename,tablename,layerid):
         sql=SQL[tablename]
+        print sql
         data=cur.execute(sql,layerid).fetchall()
         if exclude_table(filename,tablename,data):
             return  
@@ -325,6 +326,7 @@ if __name__ == "__main__":
     else:
         dest_dir = model_name
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
+    dbcnn=DBConnect("dsm2_tutorial","Admin","")
     cur=dbcnn.cnn.cursor()
     db_layer_names=get_layers_in_model(cur,model_name)
     for layer in db_layer_names:

@@ -302,7 +302,7 @@ c-----model
 c-----type
       integer
      &     io_restart
-     &     ,io_tide
+     &     ,io_echo
      &     ,io_animation
      &     ,io_trace
      &     ,io_behavior
@@ -311,7 +311,7 @@ c-----type
 
       parameter(
      &     io_restart=1
-     &     ,io_tide=2
+     &     ,io_echo=2
      &     ,io_animation=3
      &     ,io_trace=4
      &     ,io_behavior=5

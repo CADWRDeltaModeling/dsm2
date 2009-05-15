@@ -75,7 +75,7 @@
      &                              fillin)
       end do
       print *,"Number of oprule time series processed: ", nitem
-
+      return
       end subroutine
 
 c======================================================================

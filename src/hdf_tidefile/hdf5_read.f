@@ -275,13 +275,9 @@ c	call h5dclose_f(cg_dset_id)
          stgbnd(i).node = bnode_obj(i)
       end do
 
-
-
       call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
       call h5aopen_name_f(hydro_id,"Number of QExt",attr_id,error)
       call h5aread_f(attr_id, atype_id, nqext, a_data_dims, error)
-
-
 
       call InitQExtType2()
       call ReadQExtHDF5()

@@ -150,10 +150,15 @@ c**********contains routines for writing data to an HDF5 file
 	call h5fcreate_f(hdf5_hydrofile, H5F_ACC_TRUNC_F, file_id, error,
      &                H5P_DEFAULT_F, access_plist)
 
+
+
 				! create group hydro
 	call h5gcreate_f(file_id, "hydro", hydro_id, error)
 	call h5gcreate_f(hydro_id, "geometry", geom_id, error)
 	call h5gcreate_f(hydro_id, "data", data_id, error)
+
+      !todo: does this create weird dependencies?
+      call write_input_buffers_hdf5(hydro_id)
 
 				! initialize attributes and datasets
 	call WriteAttributesToHDF5()

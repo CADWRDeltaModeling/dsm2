@@ -42,14 +42,10 @@ c-----fill in structure
          return
       endif      
 
-      if (filetype(1:3) .eq. 'res') then
+      if (filetype(1:7) .eq. 'restart') then
          i2=io_restart
-      else if (filetype(1:3) .eq. 'bin' .or.
-     &        filetype(1:3) .eq. 'tid') then
-         write(unit_error,*)
-     &        "Binary or tidefile should be specified in " //
-     &        "IO_FILE section using 'hdf5' file type"
-         i2=io_tide
+      else if (filetype(1:4).eq. 'echo') then
+         i2=io_echo
       else if (filetype(1:3) .eq. 'hdf') then
          i2=io_hdf5
       else if (filetype(1:3) .eq. 'ani') then

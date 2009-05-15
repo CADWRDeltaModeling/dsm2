@@ -549,9 +549,8 @@ c-----fill in structure
 
       if (cstring2(1:3) .eq. 'res') then
          i2=io_restart
-      else if (cstring2(1:3) .eq. 'bin' .or.
-     &        cstring2(1:3) .eq. 'tid') then
-         i2=io_tide
+      else if (cstring2(1:4) .eq. 'echo') then
+         i2=io_echo
       else if (cstring2(1:3) .eq. 'hdf') then
          i2=io_hdf5
       else if (cstring2(1:3) .eq. 'ani') then
