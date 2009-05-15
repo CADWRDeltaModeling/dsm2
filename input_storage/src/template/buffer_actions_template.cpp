@@ -91,7 +91,7 @@ _TRAP_EXCEPT(*ierror,
 
 
 FCALL void write_buffer_to_hdf5(const char*buffer,
-                                hid_t* file_id,, 
+                                hid_t* file_id, 
                                 int* ierror, 
                                 int bufferlen)
 {

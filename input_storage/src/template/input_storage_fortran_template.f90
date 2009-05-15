@@ -36,7 +36,7 @@ module input_storage_fortran
        end subroutine
 
        subroutine write_buffer_profile_to_hdf5(profile,file_id,ierror)
-          !DEC$ ATTRIBUTES ALIAS:'_write_all_buffers_to_hdf5_f' :: write_all_buffers_to_hdf5_f
+          !DEC$ ATTRIBUTES ALIAS:'_write_buffer_profile_to_hdf5_f' :: write_buffer_profile_to_hdf5_f
          use hdf5, only: HID_T
          implicit none
          character*(*) :: profile         
