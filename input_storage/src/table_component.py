@@ -179,7 +179,7 @@ class CharField(Field):
     def output_format(self):
         return \
         """ 
-            setw(max(%s,(int)(2+strlen(obj.%s))))
+            setw(max(4+%s,(int)(4+strlen(obj.%s))))
             << setfill(\' \')
             << left
             << quote_spaces(obj.%s)  

@@ -27,6 +27,24 @@ module input_storage_fortran
          call write_all_buffers_to_text_f(textfile,append,ierror)
        end subroutine
 
+       subroutine write_buffer_profile_to_text(profile,textfile,append,ierror)
+          !DEC$ ATTRIBUTES ALIAS:'_write_buffer_profile_to_text_f' :: write_buffer_profile_to_text_f
+         character*(*) textfile,profile
+         logical append
+         integer :: ierror
+         call write_buffer_profile_to_text_f(profile,textfile,append,ierror)
+       end subroutine
+
+       subroutine write_buffer_profile_to_hdf5(profile,file_id,ierror)
+          !DEC$ ATTRIBUTES ALIAS:'_write_all_buffers_to_hdf5_f' :: write_all_buffers_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         character*(*) :: profile         
+         integer :: ierror         
+         integer(HID_T), intent(in) :: file_id
+         call write_buffer_profile_to_hdf5_f(profile,file_id,ierror)
+       end subroutine       
+       
        subroutine write_all_buffers_to_hdf5(file_id,ierror)
           !DEC$ ATTRIBUTES ALIAS:'_write_all_buffers_to_hdf5_f' :: write_all_buffers_to_hdf5_f
          use hdf5, only: HID_T

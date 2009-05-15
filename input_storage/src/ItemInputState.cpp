@@ -94,7 +94,7 @@ void ItemInputState<T>::processItem(string& line)
        stringstream errmsg;
        string message("Error reading object in line: \n");
        errmsg << message << procline 
-              << " (" << this->getFilename() << ")" << endl;
+           << "\n(file: " << this->getFilename() << ")" << endl;
        handleFatalError(errmsg.str());
      }
    obj.layer = layerNo;

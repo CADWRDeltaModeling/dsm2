@@ -1,5 +1,6 @@
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "boost/filesystem.hpp"
+#include "boost/algorithm/string/case_conv.hpp"
 #include "exception_trapping.h"
 #include "input_storage.h"
 #include "input_state_map.h"
@@ -60,7 +61,7 @@ FCALL void write_buffer_to_text(const char*buffer,
 }
 
 //////////////////////
-FCALL void write_buffer_profile_to_text_f(const char*profile,
+FCALL void write_buffer_profile_to_text_f(const char*profilename,
                                           const char*file, 
                                           const bool* append,
                                           int* ierror, 
@@ -70,21 +71,33 @@ FCALL void write_buffer_profile_to_text_f(const char*profile,
 _TRAP_EXCEPT(*ierror,
   string filename(file,filelen);
   boost::filesystem::path path(filename.c_str()); 
+  bool doAppend=*append;
   if (boost::filesystem::exists(path))
   {
      boost::filesystem::remove(path);
      //todo  failure is an error that should be reported
   }
-  string name(profile,profilelen);
-  const std::vector<std::string> bufs;//=profile(name);
+  string name(profilename,profilelen);
+  const std::vector<std::string> bufs=profile(name);
   for(size_t ibuf = 0 ; ibuf < bufs.size() ; ++ibuf)
     {  
-        const string buf=bufs[ibuf];
-        write_buffer_to_text(buf.c_str(),file,append,ierror,(int)buf.size(),filelen);
+        string buf=bufs[ibuf];
+        to_lower(buf);
+        write_buffer_to_text(buf.c_str(),file,&doAppend,ierror,(int)buf.size(),filelen);
+        doAppend = true;
     }
 ) // end exception trap    
 } 
 
+
+FCALL void write_buffer_to_hdf5(const char*buffer,
+                                hid_t* file_id,, 
+                                int* ierror, 
+                                int bufferlen)
+{
+    string buffer_name(buffer,bufferlen);
+// Write hdf5 one buffer DO NOT ALTER THIS LINE AT ALL
+}
 
 //////////////////////
 FCALL void write_all_buffers_to_hdf5_f(hid_t* file_id, int* ierror)
@@ -96,5 +109,22 @@ _TRAP_EXCEPT(*ierror,
 ) // end exception trap    
 }    
 
+//////////////////////
 
+FCALL void write_buffer_profile_to_hdf5_f(const char*profilename,
+                                          hid_t* file_id,
+                                          int* ierror, 
+                                          int profilelen)
+{
+_TRAP_EXCEPT(*ierror,
+  string name(profilename,profilelen);
+  const std::vector<std::string> bufs=profile(name);
+  for(size_t ibuf = 0 ; ibuf < bufs.size() ; ++ibuf)
+    {  
+        string buf=bufs[ibuf];
+        to_lower(buf);
+        write_buffer_to_hdf5(buf.c_str(),file_id,ierror,(int)buf.size());
+    }
+)
+}   
 

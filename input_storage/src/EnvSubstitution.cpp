@@ -74,7 +74,7 @@ string EnvSubstitution::operator()(const std::string & arg)
     }
     if(str.find_first_of("$") != string::npos)
     {
-        string message("Text substitution error in line: ");
+        string message("Text substitution error in line:\n");
         message += str;
         throw runtime_error(message);
     }
