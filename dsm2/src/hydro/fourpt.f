@@ -367,9 +367,8 @@ c-----------------interruptions to the model
                   next_restart_output=incr_intvl(start_julmin,io_files(hydro,
      &                 io_restart,io_write).interval,TO_BOUNDARY)
                   restart_write=.true.
-          !  fixme: what are these next 2 lines. Should it be restart???
-                  io_files(hydro,io_tide,io_write).use=.true.
-                  io_files(hydro,io_hdf5,io_write).use=.true.
+          !  todo: if the model is working, this next line should be removed
+                  !io_files(hydro,io_hdf5,io_write).use=.true.
                endif
             endif
          endif

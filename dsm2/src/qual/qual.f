@@ -343,21 +343,6 @@ c------ end of input reading and echo, start checking data
       endif
 
 c-----###################################################################
-c-----To open qual binary output file
-      if (io_files(qual,io_tide,io_write).use) then
-
-         open(unit=io_files(qual,io_tide,io_write).unit,
-     &        file=io_files(qual,io_tide,io_write).filename,
-     &        form='unformatted',
-     &        convert='big_endian', !! <NT>
-     &        status='unknown')
-
-         call WriteQualBinaryDataHeader
-
-         next_binary_output=incr_intvl(start_julmin,io_files(qual,
-     &        io_tide,io_write).interval,TO_BOUNDARY)
-      endif
-
 
       if (check_input_data) then
 c--------just check input data for bogus values; no simulation
@@ -645,15 +630,6 @@ C--------write results
             call restart_file(IO_WRITE)
          ENDIF
 
-         if (io_files(qual,io_tide,io_write).use .and.
-     &        julmin .ge. next_binary_output .and.
-     &        mod(next_binary_output,julmin).eq.0 ) then ! restart file requested
-            next_binary_output=incr_intvl(next_binary_output,
-     &           io_files(qual,io_tide,io_write).interval,
-     &           TO_BOUNDARY)
-            call WriteQualBinaryData
-
-         endif
 c--------******************************************************************
 
          DO 730 N=1,NBRCH
@@ -1022,77 +998,5 @@ c--------as for channels
  605  format(/'Error opening restart file:',a)
       call exit(2)
 
-      end
+      end subroutine
 
-c-----WriteQualBinaryData
-c-----subroutine to print the qual nodal constituents at
-c-----specified time steps in binary format.
-c-----Ganesh Pandey 11/22/1999
-      subroutine WriteQualBinaryData
-      use common_tide
-      use grid_data
-      use iopath_data
-      use runtime_data
-      use grid_data      
-      implicit none
-
-      include 'param.inc'
-      include '../hydrolib/network.inc'
-
-
-      include 'bltm1.inc'
-      include 'bltm2.inc'
-      include 'bltm3.inc'
-
-      integer IntNodeNo,ConstNo
-      real*8 node_qual            ! node quality function
-      real*8 NodeQuality(Neq,Max_Nodes)
-
-c-----write binary data
-      do IntNodeNo=1,nnodes
-         do ConstNo=1,neq
-            NodeQuality(ConstNo,IntNodeNo)=node_qual(IntNodeNo,ConstNo)
-         enddo
-      enddo
-      write(io_files(qual,io_tide,io_write).unit)
-     &     current_date,((nodequality(ConstNo,IntNodeNo),IntNodeNo=1,numnode),ConstNo=1,neq)
-      return
-      end
-
-c-----WriteQualBinaryDataHeader
-c-----subroutine to print header for the qual nodal constituents
-c-----binary output file.
-c-----Ganesh Pandey 11/22/1999
-      subroutine WriteQualBinaryDataHeader
-      use common_tide
-      use runtime_data
-      use iopath_data
-      use grid_data      
-      implicit none
-
-      include 'param.inc'
-      include '../hydrolib/network.inc'
-
-
-      include '../timevar/dss.inc'
-
-      include 'bltm1.inc'
-      include 'bltm2.inc'
-      include 'bltm3.inc'
-
-      integer l
-      character*14 jmin2cdt, start_date
-
-      start_date=jmin2cdt(start_julmin)
-
-      write(io_files(qual,io_tide,io_write).unit) dsm2_version
-      write(io_files(qual,io_tide,io_write).unit) start_date
-      write(io_files(qual,io_tide,io_write).unit) start_julmin
-      write(io_files(qual,io_tide,io_write).unit)
-     &     io_files(qual,io_tide,io_write).interval
-      write(io_files(qual,io_tide,io_write).unit) numnode
-      write(io_files(qual,io_tide,io_write).unit) neq
-      write(io_files(qual,io_tide,io_write).unit) (l,l=1,numnode)
-
-      return
-      end

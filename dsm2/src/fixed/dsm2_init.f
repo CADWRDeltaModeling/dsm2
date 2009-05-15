@@ -104,9 +104,9 @@ c-----default checkpoint intervals
       io_files(qual,io_restart,io_write).interval='1HOUR'
       io_files(ptm,io_restart,io_write).interval='1HOUR'
 c-----default binary output intervals
-      io_files(hydro,io_tide,io_write).interval='15MIN'
-      io_files(qual,io_tide,io_write).interval='15MIN'
-      io_files(ptm,io_tide,io_write).interval='15MIN'
+      io_files(hydro,io_echo,io_write).interval=miss_val_c
+      io_files(qual,io_echo,io_write).interval=miss_val_c
+      io_files(ptm,io_echo,io_write).interval=miss_val_c
 c-----default HDF5 output intervals
       io_files(hydro,io_hdf5,io_write).interval='15MIN'
       io_files(qual,io_hdf5,io_write).interval='15MIN'
