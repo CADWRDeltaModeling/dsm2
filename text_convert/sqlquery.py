@@ -14,7 +14,7 @@ SELECT ci1.channel_number, ci1.distance, ci1.initial_value, ci2.initial_value, c
 FROM channel_init_condition ci1, channel_init_condition ci2
 WHERE ci1.channel_number=ci2.channel_number
 AND ci1.distance=ci2.distance 
-AND ci1.variable_name LIKE "stage" AND ci2.variable_name LIKE "flow"
+AND ci1.variable_name LIKE 'stage' AND ci2.variable_name LIKE 'flow'
 AND ci1.layer_id=? AND ci2.layer_id=ci1.layer_id
 ORDER BY ci1.channel_number, ci1.distance DESC;
 """
@@ -179,7 +179,8 @@ outputchannelconcSQL=\
 """
 SELECT o.name,o.channel,distance,variable_name,source_group,time_interval,period_op,output_file, used
 FROM output_time_series_channel o
-WHERE o.layer_id=? AND NOT o.variable_name IN ("stage","flow","vel","velocity")
+WHERE o.layer_id=? 
+AND NOT o.variable_name IN ('stage','flow','vel','velocity')
 ORDER BY o.name,variable_name,source_group,time_interval;
 """
 
@@ -188,7 +189,7 @@ outputresconcSQL=\
 """
 SELECT o.name,o.reservoir,variable_name,source_group,time_interval,period_op,output_file, used
 FROM output_time_series_reservoir o
-WHERE o.layer_id=? AND NOT o.variable_name IN ("stage","flow")
+WHERE o.layer_id=? AND NOT o.variable_name IN ('stage','flow')
 ORDER BY o.name,variable_name,source_group,time_interval;
 """
 
