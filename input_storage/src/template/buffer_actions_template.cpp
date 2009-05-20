@@ -99,6 +99,16 @@ FCALL void write_buffer_to_hdf5(const char*buffer,
 // Write hdf5 one buffer DO NOT ALTER THIS LINE AT ALL
 }
 
+FCALL void read_buffer_from_hdf5(const char*buffer,
+                                  hid_t* file_id, 
+                                  int* ierror, 
+                                  int bufferlen)
+{
+    string buffer_name(buffer,bufferlen);
+// Read hdf5 one buffer DO NOT ALTER THIS LINE AT ALL
+}
+
+
 //////////////////////
 FCALL void write_all_buffers_to_hdf5_f(hid_t* file_id, int* ierror)
 /** both makes the table and writes the contents of the buffer to it */
@@ -128,3 +138,20 @@ _TRAP_EXCEPT(*ierror,
 )
 }   
 
+
+FCALL void read_buffer_profile_from_hdf5_f(const char*profilename,
+                                           hid_t* file_id,
+                                           int* ierror, 
+                                           int profilelen)
+{
+_TRAP_EXCEPT(*ierror,
+  string name(profilename,profilelen);
+  const std::vector<std::string> bufs=profile(name);
+  for(size_t ibuf = 0 ; ibuf < bufs.size() ; ++ibuf)
+    {  
+        string buf=bufs[ibuf];
+        to_lower(buf);
+        read_buffer_from_hdf5(buf.c_str(),file_id,ierror,(int)buf.size());
+    }
+)
+}   

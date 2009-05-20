@@ -18,6 +18,7 @@ fortran_include_lines=[]
 write_text_buffer_lines=[]
 write_text_buffer_cond_lines=[]
 write_hdf5_buffer_cond_lines=[]
+read_hdf5_buffer_cond_lines=[]
 all_components=[]
 write_hdf5_buffer_lines=[]
 profiles={}
@@ -269,6 +270,11 @@ def prep_component(component,outdir):
     conditional_write_hdf5_buffer_line=("if(buffer_name == \"%s\"){" % component.name) + write_buffer_hdf5_line + "}"    
     write_hdf5_buffer_lines.append(write_buffer_hdf5_line)
     write_hdf5_buffer_cond_lines.append(conditional_write_hdf5_buffer_line)
+
+    read_buffer_hdf5_line = "%s_read_buffer_from_hdf5_f(file_id,ierror);\n     if(*ierror != 0) return;" % component.name
+    conditional_read_hdf5_buffer_line=("if(buffer_name == \"%s\"){" % component.name) + read_buffer_hdf5_line + "}"
+    read_hdf5_buffer_cond_lines.append(conditional_read_hdf5_buffer_line)
+
     fortran_include_lines.append("include \"%s\"" % fortfile)
  
     # add the FORTRAN .f90 file for this object as an include to the main module
@@ -347,7 +353,8 @@ def finalize(outdir):
     txt=txt.replace("// Prioritize all buffers DO NOT ALTER THIS LINE AT ALL",string.join(prioritize_buffer_lines,"\n"))
     txt=txt.replace("// Write text all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_lines,"\n"))
     txt=txt.replace("// Write text one buffer DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_cond_lines,"\n"))
-    txt=txt.replace("// Write hdf5 one buffer DO NOT ALTER THIS LINE AT ALL",string.join(write_hdf5_buffer_cond_lines,"\n"))    
+    txt=txt.replace("// Write hdf5 one buffer DO NOT ALTER THIS LINE AT ALL",string.join(write_hdf5_buffer_cond_lines,"\n")) 
+    txt=txt.replace("// Read hdf5 one buffer DO NOT ALTER THIS LINE AT ALL",string.join(read_hdf5_buffer_cond_lines,"\n"))    
     txt=txt.replace("// Write hdf5 all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_hdf5_buffer_lines,"\n"))
 
     
