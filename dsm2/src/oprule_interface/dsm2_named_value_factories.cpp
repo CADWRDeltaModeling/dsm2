@@ -294,14 +294,14 @@ ts_factory(const NamedValueLookup::ArgMap& argmap){
    NamedValueLookup::ArgMap::const_iterator iter
        = argmap.find("name");
   if(iter == argmap.end()){
-     throw oprule::parser::MissingIdentifier("transfer argument not supplied in transfer_flow(..)");   //@todo better error
+     throw oprule::parser::MissingIdentifier("name not supplied in time series function ts(..)");   //@todo better error
   }else{
 	 string name=iter->second;
      int pathindex=ts_index(name.c_str(),name.length());
      if (pathindex > -1){ 
          return DSM2TimeSeriesNode::create(name,pathindex);
       }
-     throw oprule::parser::InvalidIdentifier("Transfer name not found "+name); 
+     throw oprule::parser::InvalidIdentifier("Time series unknown "+name); 
 
    }
 }
