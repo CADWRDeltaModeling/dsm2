@@ -137,7 +137,7 @@ sourceflowreservoirSQL=\
 """
 SELECT t.name,reservoir,sign,f.name,input_file,path, used
 FROM input_time_series_reservoir t, fill_in_type_description f
-WHERE role_id=4 AND layer_id=? AND variable_name LIKE 'flow'
+WHERE layer_id=? AND variable_name LIKE 'flow'
 AND t.fillin = f.fill_in_type_id
 ORDER BY t.name,reservoir;
 """
