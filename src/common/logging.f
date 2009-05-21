@@ -21,8 +21,20 @@ C!</license>
       integer,parameter :: LOG_ERROR = 0
       integer,parameter :: LOG_WARNING = 1
       integer,parameter :: LOG_INFO = 2
-      integer,parameter :: LOG_FINE = 3
-      integer,parameter :: LOG_FINER = 4
-      integer,parameter :: LOG_FINEST = 4      
+      integer,parameter :: LOG_DEBUG = 2
+
       integer :: print_level   ! diagnostic printout level
+
+      contains:
+      
+      subroutine dsm2_log(level,message)
+      implicit none
+      character*(*)
+      integer :: level
+      
+      return 
+      end subroutine
+      
       end module
+      
+      
