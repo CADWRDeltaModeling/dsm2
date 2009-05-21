@@ -216,7 +216,9 @@ c---- begin data reading
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
          call input_text(init_input_file)  ! reads and echoes text
-         call process_initial_text()       ! process scalar and envvars
+         call process_initial_text()       ! reads scalar and envvars from buffer and processes
+         call buffer_input_tidefile()      ! todo: remove from buffer_input_common
+         call read_grid_from_tidefile()    ! todo
          call buffer_input_grid()    ! processes grid
       end if
 
