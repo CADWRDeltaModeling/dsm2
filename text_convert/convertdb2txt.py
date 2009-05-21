@@ -193,6 +193,7 @@ def exclude_table(filename,tablename,data):
 def convert_table(filename,tablename,layerid):
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
+        
         if exclude_table(filename,tablename,data):
             return  
         if not data or (len(data) ==0): 
@@ -212,7 +213,7 @@ def convert_table(filename,tablename,layerid):
             is_used = True
             if (has_used_column):
                 is_used = row[-1]
-                row=row[:-1]   
+                row=row[:-1]           
             datastr=converter(row)
             rowtxt=string.join(datastr,"        ")
             if not is_used:
@@ -238,7 +239,7 @@ def convert_layer(db_name,cur,txt_name,dest_dir,group_by="parent_table"):
     txt_parent_list=INPUT_TYPE_TXT_PARENT_TABLES[component_type]
     layeridSQL="SELECT layer_id FROM layer_definition WHERE name LIKE ?"    
     layerid=cur.execute(layeridSQL,db_name).fetchone()[0]
-    
+
     for txt_parent in txt_parent_list:
         txt_child_list=[]
         if txt_parent in TXT_CHILD_TABLES.keys():
