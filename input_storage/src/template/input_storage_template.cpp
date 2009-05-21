@@ -156,12 +156,15 @@ void @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id, int* ierror){
 
     table.buffer().resize(static_cast<int>(nrecords)); 
 
-    *ierror = static_cast<int>( H5TBread_table(*file_id, 
-                                  table.description.title.c_str(), 
-			                      table.description.struct_size, 
-			                      table.description.field_offsets, 
-			                      table.description.field_sizes,
-			                      &(table.buffer()[0])));
+	if (nrecords > 0) 
+	{
+		*ierror = static_cast<int>( H5TBread_table(*file_id, 
+			                        table.description.title.c_str(), 
+			                        table.description.struct_size, 
+			                        table.description.field_offsets, 
+			                        table.description.field_sizes,
+			                        &(table.buffer()[0])));
+	}
  ) // end of exception trap                                   
 }
 
