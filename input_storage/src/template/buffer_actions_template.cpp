@@ -9,6 +9,7 @@
 #include "ItemInputState.h"
 #include "InsertFileState.h"
 #include <string>
+#include "LayerManager.h"
 #define FCALL extern "C"
 
 //////////////////////
@@ -91,7 +92,7 @@ _TRAP_EXCEPT(*ierror,
 
 
 FCALL void write_buffer_to_hdf5(const char*buffer,
-                                hid_t* file_id, 
+                                const hid_t* file_id, 
                                 int* ierror, 
                                 int bufferlen)
 {
@@ -100,7 +101,7 @@ FCALL void write_buffer_to_hdf5(const char*buffer,
 }
 
 FCALL void read_buffer_from_hdf5(const char*buffer,
-                                  hid_t* file_id, 
+                                 const hid_t* file_id, 
                                   int* ierror, 
                                   int bufferlen)
 {
@@ -110,7 +111,8 @@ FCALL void read_buffer_from_hdf5(const char*buffer,
 
 
 //////////////////////
-FCALL void write_all_buffers_to_hdf5_f(hid_t* file_id, int* ierror)
+FCALL void write_all_buffers_to_hdf5_f(const hid_t* file_id, 
+                                       int* ierror)
 /** both makes the table and writes the contents of the buffer to it */
 {
 _TRAP_EXCEPT(*ierror,
@@ -122,7 +124,7 @@ _TRAP_EXCEPT(*ierror,
 //////////////////////
 
 FCALL void write_buffer_profile_to_hdf5_f(const char*profilename,
-                                          hid_t* file_id,
+                                          const hid_t* file_id,
                                           int* ierror, 
                                           int profilelen)
 {
@@ -135,12 +137,13 @@ _TRAP_EXCEPT(*ierror,
         to_lower(buf);
         write_buffer_to_hdf5(buf.c_str(),file_id,ierror,(int)buf.size());
     }
+   LayerManager::instance().writeToHdf5(*file_id,"hydro/input/layers");
 )
 }   
 
 
 FCALL void read_buffer_profile_from_hdf5_f(const char*profilename,
-                                           hid_t* file_id,
+                                           const hid_t* file_id,
                                            int* ierror, 
                                            int profilelen)
 {

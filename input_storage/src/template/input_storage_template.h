@@ -169,14 +169,14 @@ FCALL int @TABLEOBJ_buffer_size_f();
 FCALL void @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE);
   
 /** both makes the table and writes the contents of the buffer to it */
-FCALL void @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id, int* ierror);
+FCALL void @TABLEOBJ_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
 /** reads the table in from a file into the buffer*/
-FCALL void @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id, int* ierror);
+FCALL void @TABLEOBJ_read_buffer_from_hdf5_f(const hid_t* file_id, int* ierror);
 
 /** query size information about the table in hdf5
 */
-FCALL void @TABLEOBJ_number_rows_hdf5_f(hid_t* file_id, hsize_t* nrecords, int* ierror);
+FCALL void @TABLEOBJ_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nrecords, int* ierror);
 
 
 /** get one row worth of information from the buffer */

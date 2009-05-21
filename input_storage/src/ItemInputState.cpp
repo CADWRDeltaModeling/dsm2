@@ -106,7 +106,7 @@ void ItemInputState<T>::processItem(string& line)
 template<typename T>
 void ItemInputState<T>::onFilenameSet()
 { 
-  string layername = LayerManager::instance().layerName(m_filename);
+  string layername = LayerManager::instance().generateLayerName(m_filename);
   m_layerIndex = LayerManager::instance().addLayer(layername);
 }
 

@@ -121,7 +121,7 @@ void @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE)
 }
   
 /** both makes the table and writes the contents of the buffer to it */
-void @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id, int* ierror){
+void @TABLEOBJ_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror){
  _TRAP_EXCEPT(*ierror,
   @TABLEOBJ_table & table = @TABLEOBJ_table::instance();
     *ierror = static_cast<int>( H5TBmake_table( @TABLEOBJ_table::instance().description.title.c_str(), 
@@ -141,7 +141,7 @@ void @TABLEOBJ_write_buffer_to_hdf5_f(hid_t* file_id, int* ierror){
 }
 
 /** reads the table in from a file into the buffer*/
-void @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id, int* ierror){
+void @TABLEOBJ_read_buffer_from_hdf5_f(const hid_t* file_id, int* ierror){
  _TRAP_EXCEPT(*ierror,
     hsize_t nfields;
     hsize_t nrecords;
@@ -169,7 +169,7 @@ void @TABLEOBJ_read_buffer_from_hdf5_f(hid_t* file_id, int* ierror){
 }
 
 /** query size information about the table */
-void @TABLEOBJ_number_rows_hdf5_f(hid_t *file_id, hsize_t* nrecords, int* ierror){
+void @TABLEOBJ_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecords, int* ierror){
  _TRAP_EXCEPT(*ierror,
     hsize_t nfields = 0;
     *ierror = static_cast<int>(  H5TBget_table_info (*file_id, 
@@ -232,7 +232,10 @@ void @TABLEOBJ_write_buffer_to_stream(ostream & out, const bool& append)
    out << "END\n" << endl;
 }
 
-void @TABLEOBJ_write_buffer_to_text_f(const char* file, const bool* append, int* ierror, int filelen)
+void @TABLEOBJ_write_buffer_to_text_f(const char* file, 
+                                      const bool* append, 
+                                      int* ierror, 
+                                      int filelen)
 {
  _TRAP_EXCEPT(*ierror,
   string filename(file,filelen);
