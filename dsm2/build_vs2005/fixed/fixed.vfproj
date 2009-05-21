@@ -38,6 +38,7 @@
 		<File RelativePath="..\..\src\fixed\buffer_input_hydro.f"/>
 		<File RelativePath="..\..\src\fixed\buffer_input_ptm.f"/>
 		<File RelativePath="..\..\src\fixed\buffer_input_qual.f"/>
+		<File RelativePath="..\..\src\fixed\buffer_input_tidefile.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_hydro.f"/>
 		<File RelativePath="..\..\src\fixed\check_fixed_ptm.f"/>
@@ -76,5 +77,6 @@
 		<File RelativePath="..\..\src\fixed\process_tidefile.f"/>
 		<File RelativePath="..\..\src\fixed\process_transfer.f"/>
 		<File RelativePath="..\..\src\fixed\read_fixed.f"/>
+		<File RelativePath="..\..\src\fixed\read_grid_from_tidefile.f"/>
 		<File RelativePath="..\..\src\fixed\utilities.f"/></Filter></Files>
 	<Globals/></VisualStudioProject>
