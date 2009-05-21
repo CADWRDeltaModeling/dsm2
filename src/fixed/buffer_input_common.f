@@ -90,15 +90,6 @@
       print *,"Number of iofiles: ", nitem
 
 
-      nitem = tidefile_buffer_size()
-      do icount = 1,nitem
-         call tidefile_query_from_buffer(icount,sdate,edate,iofile,ierror)
-         call process_tidefile(sdate,edate,iofile)
-      end do
-      print *,"Number of tidefiles: ", nitem
-
-
-
 
       nitem = output_channel_buffer_size()
       do icount = 1,nitem

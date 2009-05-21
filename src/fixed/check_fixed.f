@@ -1169,7 +1169,7 @@ c-----Open the DSS files for reading
       istat=-1
       return
 
-      end
+      end subroutine
 
 
 c     Convert an external channel number to internal number
