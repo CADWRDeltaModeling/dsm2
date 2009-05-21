@@ -178,20 +178,26 @@ c-----initialize all arrays and logical variables.
 c-----read input file(s)
 
 c---- begin data reading
-      database_name=' '
+      database_name=miss_val_c
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
          call input_text(init_input_file)  ! reads and echoes text
-         call process_initial_text()       ! process scalar and envvars
+         call process_initial_text()       ! reads scalar and envvars from buffer and processes
+         call buffer_input_tidefile()      ! todo: remove from buffer_input_common
+         call read_grid_from_tidefile()    ! todo
          call buffer_input_grid()    ! processes grid
       end if
 
 c---- possibly read from db, though it is hobbled now
-      if (model_name .ne. miss_val_c .and. model_name .ne. 'none') then
-         write(unit_screen,*) "Database model name given, reading from database"
-         write(unit_screen,*) "Set model_name to 'none' in SCALARS or remove it"
+      if ( database_name .ne. miss_val_c .and.
+     &      model_name .ne. miss_val_c
+     &      .and. model_name .ne. 'none') then
+         write(unit_screen,*) "Database name given: ",trim(database_name),","
+         write(unit_screen,*) "Model name given: ",trim(model_name),","
+         write(unit_screen,*) "Reading from database. If not desired,"
+         write(unit_screen,*) "set model_name to 'none' in SCALARS or remove it"
          write(unit_screen,*) "to read only from text"
-
+         
          istat = 0
          call init_database(istat)
          if (istat .ne. 0) then
