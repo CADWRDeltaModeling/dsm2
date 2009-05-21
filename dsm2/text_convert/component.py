@@ -100,7 +100,7 @@ def include_block():
     "particle_group_output":"particle",
     "transfer":"grid",
     "input_climate":"qual_time_series",
-    "oprule_time_series":"hydro_time_series",
+    "oprule_time_series":"operation",
     "particle_insertion":"particle",
     "gate_device":"grid",
     "channel":"grid",
