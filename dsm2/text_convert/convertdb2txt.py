@@ -148,6 +148,7 @@ def res_conc_with_source_converter(row):
     
 def chan_output_no_source_converter(row):
     new_row=trivial_convert(row)
+    if new_row[2].startswith("-9999"): new_row[2]="length"
     return new_row[:4] + new_row[5:]
 
 def res_output_no_source_converter(row):
@@ -326,7 +327,7 @@ if __name__ == "__main__":
         dest_dir = model_name
     dbcnn=DBConnect("dsm2input","dsmtwo","User2Dmin")
     # Uncomment for MS Access
-    # dbcnn=DBConnect("dsm2_tutorial","Admin","blay")
+    #dbcnn=DBConnect("dsm2_tutorial","Admin","blay")
     cur=dbcnn.cnn.cursor()
     db_layer_names=get_layers_in_model(cur,model_name)
     for layer in db_layer_names:
