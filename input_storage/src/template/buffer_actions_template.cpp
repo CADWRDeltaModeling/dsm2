@@ -151,6 +151,9 @@ _TRAP_EXCEPT(*ierror,
     {  
         string buf=bufs[ibuf];
         to_lower(buf);
+        // todo: this is hardwired as a quick fix -- gotta get rid of the
+		// direct reference
+		if (buf == "xsect") continue;
         read_buffer_from_hdf5(buf.c_str(),file_id,ierror,(int)buf.size());
     }
 )
