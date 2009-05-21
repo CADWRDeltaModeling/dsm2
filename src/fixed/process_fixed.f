@@ -817,7 +817,7 @@ c-----name required for each line; empty value indicates erase it
       data
      &     variabledensity /.false./
      &     ,variablesinuosity /.false./
-     &     ,theta /0.6/
+     &     ,theta /0.6D0/
      &     ,maxiterations /50/
      &     ,luinc /1/
      &     ,toleranceq /0.0005/
