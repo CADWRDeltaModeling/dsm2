@@ -109,6 +109,7 @@ c=======================  Initial conditions
      &                                    ierror)
       rolename="inflow"
       variable="flow"
+      if ((sign .ne. -1) .or. (sign .ne. 1)) sign = 0  
  
          call process_input_node(name,
      &                           node,
