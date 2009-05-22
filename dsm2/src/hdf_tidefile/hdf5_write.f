@@ -29,6 +29,7 @@ c**********contains routines for writing data to an HDF5 file
       subroutine WriteAttributesToHDF5()
 
       use HDF5
+      use h5lt
       use hdfvars
       use inclvars
       use runtime_data
@@ -102,6 +103,10 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
 
       call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, error)
 
+!      call h5ltset_attribute_string_f(hydro_id,".", 
+!     &           "Hydro Version",
+!     &           'Hydro Version ' // trim(dsm2_version),error)
+
       nlen = len('Hydro Version ' // trim(dsm2_version))
       call h5tset_size_f(atype_id, nlen, error)
       call h5acreate_f(hydro_id, "Hydro Version",
@@ -109,6 +114,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       call h5awrite_f(attr_id, atype_id, 'Hydro Version ' // trim(dsm2_version),
      &     a_data_dims, error)
       nlen = len(tf_start_date)
+
       call h5tset_size_f(atype_id, nlen, error)
       call h5acreate_f(hydro_id, "Start time string",
      &     atype_id, aspace_id, attr_id, error)
