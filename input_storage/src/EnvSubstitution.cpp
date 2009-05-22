@@ -11,8 +11,9 @@ using namespace std;
 void EnvSubstitution::add(string name, string value)
 {
   if (m_subMap.find(name) != m_subMap.end())
-    {
-		cerr << "Warning: redefinition: " << name << ": " << value << endl;
+    {   //todo: real logging
+		cerr << "Warning: redefinition of text substitution variable:\n" 
+             << name << ": " << value << endl;
     }
   string subbedVal = (*this)(value); 
   m_subMap[name]=subbedVal;
@@ -65,16 +66,18 @@ string EnvSubstitution::operator()(const std::string & arg)
                 found = true;
             }
         }
-//        if (!found)
-//        {
-//            string message("Fatal error in text substitution: envvar not found: ");
-//            message=message+toReplace;
-//            throw logic_error(message); // todo unify fatal error handling
-//        }
+        if (!found)
+        {
+            string message("Fatal error in text substitution. Envvar not found:\n");
+            message=message+toReplace;
+            throw runtime_error(message); // todo unify fatal error handling
+        }
     }
     if(str.find_first_of("$") != string::npos)
     {
-        string message("Text substitution error in line:\n");
+        string message("Text substitution error in line.\n");
+        message += string("The error is most likely a syntax error, not a missing ENVVAR.\n");
+        message += string("Did you forget curly braces?\n\nProblem Line:\n");
         message += str;
         throw runtime_error(message);
     }
