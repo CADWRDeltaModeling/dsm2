@@ -22,19 +22,18 @@ C!</license>
       integer,parameter :: LOG_WARNING = 1
       integer,parameter :: LOG_INFO = 2
       integer,parameter :: LOG_DEBUG = 2
-
       integer :: print_level   ! diagnostic printout level
+      
+!      contains:
 
-      contains:
-      
-      subroutine dsm2_log(level,message)
-      implicit none
-      character*(*)
-      integer :: level
-      
-      return 
-      end subroutine
-      
+!      subroutine dsm2_log(level,message)
+!      implicit none
+!      character*(*) :: message
+!      integer :: level
+!      print *,"hello"
+!      return 
+!      end subroutine
+!      
       end module
       
       
