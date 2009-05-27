@@ -5,11 +5,6 @@ import string
 
 
 
-
-
-
-
-
 def fixup(infile,outfile,component,reorder):
     f = open(infile,'r')
     fout = open(outfile,'w')
@@ -31,7 +26,8 @@ def ordered_print(items):
 
 def generateNotepad():
     tablelist=component_order()
-    folds = string.join([x.upper() for x in tablelist]," ")
+    includes = set(include_block().values())
+    folds = string.join([x.upper() for x in tablelist+list(includes)]," ")
     member_dict=component_members()
     keys=[]
     for key in member_dict:
