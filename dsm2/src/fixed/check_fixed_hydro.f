@@ -35,7 +35,7 @@ c-----to internal.  Write to FourPt arrays.
       use common_xsect
       use common_tide
       implicit none
-      include '../common/common.f'
+
       include '../hydrolib/network.inc'
       include '../hydrolib/netcntrl.inc'
       include '../hydrolib/chconnec.inc'
