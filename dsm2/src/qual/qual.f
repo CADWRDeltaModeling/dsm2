@@ -19,7 +19,6 @@ C!</license>
 
       program watqual
       Use IO_Units
-      use dsm2_database
       use common_qual
       use common_tide
       use runtime_data
@@ -212,7 +211,7 @@ c-----dsm2 initialization
       call dsm2_init
 
 c---- begin data reading
-      database_name=miss_val_c
+
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
          call input_text(init_input_file)  ! reads and echoes text
@@ -221,29 +220,6 @@ c---- read all text into buffers and process envvironmental variables
          call read_grid_from_tidefile()    ! todo
          call buffer_input_grid()    ! processes grid
       end if
-
-c---- possibly read from db, though it is hobbled now
-      if ( 
-database_name .ne. miss_val_c .and.
-     &      trim(database_name) .ne. 'none' .and.  trim(database_name) .ne. miss_val_c
-     &      .and. trim(model_name) .ne. 'none' .and. trim(model_name) .ne. miss_val_c) then
-         write(unit_screen,*) "Database name given: ",trim(database_name),","
-         write(unit_screen,*) "Model name given: ",trim(model_name),","
-         write(unit_screen,*) "Reading from database. If not desired,"
-         write(unit_screen,*) "set model_name to 'none' in SCALARS or remove it"
-         write(unit_screen,*) "to read only from text"
-
-         call init_database(istat)
-         if (istat .ne. 0) then
-            write(unit_error, *) 'Error initializing database; run stopped.'
-            call exit(1)
-         endif
-         call read_sql(istat)
-         if (istat .ne. 0) then
-            write(unit_error, *) 'Error in loading fixed data from RDMS; run stopped.'
-            call exit(1)
-         endif
-      endif
       
 c------ process input that is in buffers
       call buffer_input_common()        ! process common items

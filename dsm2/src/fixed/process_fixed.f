@@ -773,7 +773,7 @@ c-----name required for each line; empty value indicates erase it
       use iopath_data
       use common_qual
       use common_ptm
-      use envvar   !kc To match process_scalar_SQL
+      use envvar   
       use grid_data
 
 !c-----process a character line into data arrays for scalar info

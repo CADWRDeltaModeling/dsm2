@@ -72,8 +72,6 @@ c-----local variable declaration
      &     ,len                 ! size of character variable function
      &     ,nenv  ! environment var replacement
 
-c!OTHER      real
-c!OTHER     &     rand                 ! fortran intrinsic
 
       logical
      &     lsect                ! true if program is expecting section keyword

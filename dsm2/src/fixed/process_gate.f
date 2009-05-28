@@ -23,7 +23,6 @@ C!</license>
      &                        nodeConn)
       use Gates, only: gateArray,nGate, MAX_GATES
       use IO_Units
-      use DSM2_database
       use logging
       use constants
       use grid_data
