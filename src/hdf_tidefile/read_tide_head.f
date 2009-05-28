@@ -85,7 +85,7 @@ c-----open tidefile and check version
          ! Opens the file and groups for DSM2
 	   call OpenHDF5()
 	   ! Initialize memory spaces for reading/writing
-         call ReadAttributesFromHDF5()
+         call hdf5_read_attributes()
          if (chead(:5) .ne. 'Hydro') then
             tidefile_version=' '
          else

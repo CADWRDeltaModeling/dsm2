@@ -24,7 +24,6 @@ C!</license>
 
 	use groups, only: extractrange
       use io_units
-      use dsm2_database
       use type_defs
       use constants
       use runtime_data
@@ -189,35 +188,13 @@ c-----dsm2 initialization
       end if
 
 c---- begin data reading
-      database_name=miss_val_c
+
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. ' ') then
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
          call buffer_input_grid()    ! processes grid
       end if
-
-c---- possibly read from db, though it is hobbled now
-      if ( database_name .ne. miss_val_c .and.
-     &      model_name .ne. miss_val_c 
-     &      .and. model_name .ne. 'none') then
-         write(unit_screen,*) "Database name given: ",trim(database_name),","
-         write(unit_screen,*) "Model name given: ",trim(model_name),","
-         write(unit_screen,*) "Reading from database. If not desired,"
-         write(unit_screen,*) "set model_name to 'none' in SCALARS or remove it"
-         write(unit_screen,*) "to read only from text"
-
-         call init_database(istat)
-         if (istat .ne. 0) then
-            write(unit_error, *) 'Error initializing database; run stopped.'
-            call exit(1)
-         endif
-         call read_sql(istat)
-         if (istat .ne. 0) then
-            write(unit_error, *) 'Error in loading fixed data from RDMS; run stopped.'
-            call exit(1)
-         endif
-      endif
       
 c------ process input that is in buffers
       call buffer_input_common()
@@ -269,7 +246,7 @@ c-----calculate julian minute of end of each DSS interval
 
       ! Oprules cannot be parsed until channel network is defined
       call process_text_oprule_input()
-      call close_database()
+
 
       if ( .not. InitializeSolver() ) THEN
          write(unit_error,*)

@@ -46,19 +46,20 @@ c--------use only the last version of the initial condition
 	    write(unit_error,*)"Channel: ",extchan
       else
           FirstLocation(intchan) = k
-      end if
+      !end if
       
       k=k+1
       if (dist .eq. "length") then
           distance=chan_geom(intchan).length
       else 
           read(dist,'(i)')distance
-      endif
+      end if
       
       NUserInitLocations(intchan)=NUserInitLocations(intchan)+1
       InitialX(k)=dble(distance)
       InitialWS(k)=stage
       InitialQ(k)=flow
+      end if
       return
       end subroutine
 

@@ -5,7 +5,7 @@
 	<Configurations>
 		<Configuration Name="Debug|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.ilk;*.exe;$(TargetPath)">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(ProjectDir)/../modules/Debug" FixedFormLineLength="fixedLength132" FloatingPointExceptionHandling="fpe0" ModulePath="$(ProjectDir)/../modules/Debug" ObjectFile="$(INTDIR)/" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
-				<Tool Name="VFLinkerTool" OutputFile="$(OUTDIR)/qual.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\lib;D:\devtools\hdf5-181-win-vs2005\lib" IgnoreDefaultLibraryNames="msvcrt.lib,libcmt.lib,msvcrtd.lib,libcmtd.lib,libmmt.lib" GenerateDebugInformation="true" ProgramDatabaseFile="$(OUTDIR)/qual.pdb" SubSystem="subSystemConsole" AdditionalDependencies="f90sql.lib hdf5.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib heclib_vs9_debug.lib oprule_vs9_mtd.lib oprule_parser_vs9_mtd.lib libboost_regex-vc90-mt-sgd-1_36.lib szlib.lib zlib.lib input_storage_vs9_mtd.lib libcmtd.lib libmmt.lib"/>
+				<Tool Name="VFLinkerTool" OutputFile="$(OUTDIR)/qual.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\lib;D:\devtools\hdf5-181-win-vs2005\lib" IgnoreDefaultLibraryNames="msvcrt.lib,libcmt.lib,msvcrtd.lib,libcmtd.lib,libmmt.lib" GenerateDebugInformation="true" ProgramDatabaseFile="$(OUTDIR)/qual.pdb" SubSystem="subSystemConsole" AdditionalDependencies="f90sql.lib hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib heclib_vs9_debug.lib oprule_vs9_mtd.lib oprule_parser_vs9_mtd.lib libboost_regex-vc90-mt-sgd-1_36.lib szlib.lib zlib.lib input_storage_vs9_mtd.lib libcmtd.lib libmmt.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" HeaderFileName="$(InputName).h" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
 				<Tool Name="VFCustomBuildTool"/>
@@ -15,13 +15,14 @@
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.ilk;*.exe;$(TargetPath)">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)/../modules/Release" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)/../modules/Release" ObjectFile="$(INTDIR)/"/>
-				<Tool Name="VFLinkerTool" OutputFile="$(OUTDIR)/qual.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\lib" IgnoreDefaultLibraryNames="MSVCRT.lib" SubSystem="subSystemConsole" AdditionalDependencies="f90sql.lib hdf5.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib heclib_vs9.lib oprule_vs9_mt.lib oprule_parser_vs9_mt.lib libboost_regex-vc90-mt-s-1_36.lib szlib.lib zlib.lib oprule_vs9_mt.lib oprule_parser_vs9_mt.lib input_storage_vs9_mt.lib"/>
+				<Tool Name="VFLinkerTool" OutputFile="$(OUTDIR)/qual.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\lib" IgnoreDefaultLibraryNames="MSVCRT.lib" SubSystem="subSystemConsole" AdditionalDependencies="f90sql.lib hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib heclib_vs9.lib oprule_vs9_mt.lib oprule_parser_vs9_mt.lib libboost_regex-vc90-mt-s-1_36.lib szlib.lib zlib.lib oprule_vs9_mt.lib oprule_parser_vs9_mt.lib input_storage_vs9_mt.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" HeaderFileName="$(InputName).h" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/></Configuration>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="DLL|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.ilk;*.exe;$(TargetPath)">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)/../modules/Release" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/"/>
 				<Tool Name="VFLinkerTool" OutputFile="$(OUTDIR)/qual.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="D:\devtools\hdf5-1.8.0-beta4\hdf5lib\release\lib;..\..\..\lib" IgnoreDefaultLibraryNames="MSVCRT.lib" SubSystem="subSystemConsole" AdditionalDependencies="f90sql.lib hdf5.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib heclib_vs9.lib libboost_regex-vc90-mt-s-1_36.lib szlibdll.lib zlib1.lib"/>

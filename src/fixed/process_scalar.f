@@ -62,10 +62,6 @@ C!</license>
       elseif (Param .eq. 'title') then
          ntitles=1
          title(ntitles)=' '
-      elseif (Param .eq. 'database') then
-         call set_database_name(Val)
-      elseif (Param .eq. 'model_name') then
-         call set_model_name(Val)
       elseif (Param .eq. 'print_start_date') then
          if (nprints .eq. 0) nprints=1
          print_start_date(nprints)(1:9)=Val(1:9)
@@ -309,8 +305,7 @@ c--------------heat and temperature related parameters
 	   write(unit_error,610)"ptm_shear_vel not used in this version of PTM"
          call exit(-2)
       elseif (Param .eq. 'repeating_tide') then
-         write(unit_error,610)"repeating_tide is deprecated"
-         !pause	         
+         write(unit_error,610)"repeating_tide is deprecated"         
       elseif (Param .eq. 'warmup_run') then
          call exit(-2)         
       else

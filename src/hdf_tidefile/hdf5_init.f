@@ -161,7 +161,7 @@ c**********contains routines for writing data to an HDF5 file
       call write_input_buffers_hdf5(hydro_id)
 
 				! initialize attributes and datasets
-	call WriteAttributesToHDF5()
+	call hdf5_write_attributes()
 	call InitHDF5MemoryDims()
 	call InitChannelsHDF5()
 	call InitReservoirsHDF5()

@@ -38,7 +38,9 @@
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_init.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_modules.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_read.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_read_attributes.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_write.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_write_attributes.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\read_mult_tide.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\read_tide_flow.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\read_tide_head.f"/>

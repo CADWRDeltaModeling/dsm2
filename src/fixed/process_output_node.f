@@ -25,9 +25,7 @@ C!</license>
      &                               sourcegroup,
      &                               filename)
 
-c-----load f90SQL modules
-      !use f90SQLConstants
-      !use f90SQL
+
       use Gates, only: gateArray,gateIndex,deviceIndex,WEIR,PIPE
       use Groups, only: GROUP_ALL
       use io_units
