@@ -36,7 +36,9 @@ string EnvSubstitution::operator()(const std::string & arg)
     std::string str(arg);
 
     //if(arg.find_first_of("${") == string::npos) return arg;
-    boost::regex expr("\\$\\{([a-zA-Z0-9_@%\\^ ]*)\\}");
+	// need to add dashes to this list (I don't know
+	// whether it is supposed to be without escape (-) or with escape (\-)
+    boost::regex expr("\\$\\{([a-zA-Z0-9_@%\\^ \\-]*)\\}");
     sregex_iterator m1(str.begin(), str.end(), expr);
     sregex_iterator m2;
     vector<string> subList;
