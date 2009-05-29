@@ -302,7 +302,6 @@ def generate_dsm2():
     component = TableComponent("boundary_flow",
                              [CharField("name",DSM2_NAME_LEN,16),\
                               IntField("node"),\
-                              IntField("sign"),\
                               CharField("fillin", 8,12),\
                               CharField("file",DSS_FILE_LEN,32),\
                               CharField("path",80,LAST_FIELD)
@@ -392,7 +391,7 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)    
 
-    component = TableComponent("output_channel_concentration",
+    component = TableComponent("output_channel_source_group",
                              [CharField("name",DSM2_NAME_LEN,16),
                               IntField("chan_no"),\
                               CharField("distance", 8,12),\
@@ -407,7 +406,7 @@ def generate_dsm2():
     prep_component(component,outdir)
     
     
-    component = TableComponent("output_reservoir_concentration",
+    component = TableComponent("output_reservoir_source_group",
                              [CharField("name",DSM2_NAME_LEN,16),
                               CharField("res_name",32,16),\
                               CharField("variable",16,12),\

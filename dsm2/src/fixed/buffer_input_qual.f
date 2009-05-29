@@ -144,9 +144,9 @@ c======================== Input and output ======================
       print *,"Number of reservoir concentration inputs processed: ", nitem
 
 
-      nitem = output_channel_concentration_buffer_size()
+      nitem = output_channel_source_group_buffer_size()
       do icount = 1,nitem
-         call output_channel_concentration_query_from_buffer(icount,
+         call output_channel_source_group_query_from_buffer(icount,
      &                                        name,
      &                                        channo,
      &                                        distance,
@@ -177,9 +177,9 @@ c======================== Input and output ======================
       print *,"Number of concentration (source track) channel output requests: ", nitem
 
 
-      nitem = output_reservoir_concentration_buffer_size()
+      nitem = output_reservoir_source_group_buffer_size()
       do icount = 1,nitem
-         call output_reservoir_concentration_query_from_buffer(icount,
+         call output_reservoir_source_group_query_from_buffer(icount,
      &                                    name,
      &                                    reservoir,
      &                                    variable,

@@ -101,16 +101,15 @@ c=======================  Initial conditions
       do icount = 1,nitem
          call boundary_flow_query_from_buffer(icount,
      &                                    name,
-     &                                    node,
-     &                                    sign,   
+     &                                    node,  
      &                                    fillin,   
      &                                    filename,
      &                                    inpath,
      &                                    ierror)
       rolename="inflow"
       variable="flow"
-      if ((sign .ne. -1) .or. (sign .ne. 1)) sign = 0  
- 
+      !if ((sign .ne. -1) .or. (sign .ne. 1)) sign = 0  
+      sign = 0
          call process_input_node(name,
      &                           node,
      &                           variable,     
