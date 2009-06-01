@@ -36,8 +36,8 @@ def component_order():
       "reservoir_concentration",\
       "output_channel",\
       "output_reservoir",\
-      "output_channel_concentration",\
-      "output_reservoir_concentration",\
+      "output_channel_source_group",\
+      "output_reservoir_source_group",\
       "output_gate"]
 
 
@@ -69,15 +69,15 @@ def component_members():
       "input_transfer_flow":["transfer_name","fillin","file","path"],\
       "input_gate":["gate_name","device","variable","fillin","file","path"],\
       "boundary_stage":["name","node","fillin","file","path"],\
-      "boundary_flow":["name","node","sign","fillin","file","path"],\
+      "boundary_flow":["name","node","fillin","file","path"],\
       "source_flow":["name","node","sign","fillin","file","path"],\
       "source_flow_reservoir":["name","res_name","sign","fillin","file","path"],\
       "node_concentration":["name","node_no","variable","fillin","file","path"],\
       "reservoir_concentration":["name","res_name","variable","fillin","file","path"],\
       "output_channel":["name","chan_no","distance","variable","interval","period_op","file"],\
       "output_reservoir":["name","res_name","node","variable","interval","period_op","file"],\
-      "output_channel_concentration":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
-      "output_reservoir_concentration":["name","res_name","variable","source_group","interval","period_op","file"],\
+      "output_channel_source_group":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
+      "output_reservoir_source_group":["name","res_name","variable","source_group","interval","period_op","file"],\
       "output_gate":["name","gate_name","device","variable","interval","period_op","file"]}
 
 
