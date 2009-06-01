@@ -7,7 +7,6 @@
      &                                  sourcegroup,
      &                                  filename)
 
-c-----load f90SQL modules
 	use Groups, only: GROUP_ALL
       use io_units
       use logging
