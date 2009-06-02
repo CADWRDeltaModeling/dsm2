@@ -10,7 +10,7 @@ AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppUpdatesURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 DefaultDirName=d:\delta\dsm2_v8
-DefaultGroupName=DSM2
+DefaultGroupName=DSM2_v8
 AllowNoIcons=yes
 OutputBaseFilename=DSM2setup_8.0.2
 ;Compression=lzma/ultra
@@ -70,7 +70,7 @@ Source: "..\vista\*";                    DestDir: "{app}\vista\"; Flags: recurse
 
 [Icons]
 Name: "{group}\DSM2_v8"; Filename: "{app}\"
-Name: "{group}\DSM2_v8_Uninstall"; Filename: "{uninstallexe}"
+Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 Name: "{userdesktop}\DSM2_v8"; Filename: "{app}\"; Tasks: desktopicon
 
 [Registry]
