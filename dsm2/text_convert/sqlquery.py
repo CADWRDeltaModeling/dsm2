@@ -97,7 +97,7 @@ ORDER BY  inp.transfer;
 
 inputgateSQL=\
 """
-SELECT  inp.gate, inp.device,variable_name,input_file,path,fill.name, used
+SELECT  inp.gate, inp.device,variable_name,fill.name,input_file,path, used
 FROM input_time_series_gate inp,fill_in_type_description fill
 WHERE layer_id=? AND inp.fillin = fill.fill_in_type_id
 ORDER BY  inp.gate, inp.device, inp.variable_name;
@@ -114,7 +114,7 @@ ORDER BY  inp.name;
 
 boundaryflowSQL=\
 """
-SELECT  input_time_series_node.name,node,sign,fill_in_type_description.name,input_file,path, used
+SELECT  input_time_series_node.name,node,fill_in_type_description.name,input_file,path, used
 FROM input_time_series_node,fill_in_type_description
 WHERE role_id=2 AND layer_id=? 
 AND input_time_series_node.fillin = fill_in_type_description.fill_in_type_id
