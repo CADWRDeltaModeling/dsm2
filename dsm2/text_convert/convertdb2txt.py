@@ -21,8 +21,8 @@ INPUT_TYPE_TXT_PARENT_TABLES={"grid":["channel","gate","reservoir","transfer","c
                               "boundary_flow","source_flow","source_flow_reservoir",\
                               "node_concentration","reservoir_concentration"],
                               "output":["output_channel","output_reservoir",\
-                                        "output_channel_concentration",\
-                                        "output_reservoir_concentration",\
+                                        "output_channel_source_group",\
+                                        "output_reservoir_source_group",\
                                         "output_gate"],\
                               "param":["scalar"],\
                               "oprule":["operating_rule","oprule_expression",\
@@ -55,8 +55,8 @@ SQL={"channel":channelSQL,\
                "reservoir_concentration":reservoirconcSQL,\
                "output_channel":outputchannelSQL,\
                "output_reservoir":outputresSQL,\
-               "output_channel_concentration":outputchannelconcSQL,\
-               "output_reservoir_concentration":outputresconcSQL,\
+               "output_channel_source_group":outputchannelconcSQL,\
+               "output_reservoir_source_group":outputresconcSQL,\
                "output_gate":outputgateSQL,\
                "operating_rule":opruleSQL,\
                "oprule_expression":opruleexSQL,\
@@ -167,8 +167,8 @@ CONVERTERS={"channel_ic" : channel_ic_convert,
             "group_member":group_member_converter,
             "scalar":all_lower_converter,
             "rate_coefficient":all_lower_converter,
-            "output_channel_concentration":chan_conc_with_source_converter,
-            "output_reservoir_concentration":res_conc_with_source_converter,
+            "output_channel_source_group":chan_conc_with_source_converter,
+            "output_reservoir_source_group":res_conc_with_source_converter,
             "output_channel":chan_output_no_source_converter,
             "output_reservoir":res_output_no_source_converter                             
             }
@@ -182,10 +182,10 @@ def exclude_table(filename,tablename,data):
     if tablename == "output_reservoir":
         source_rows=[row for row in data if not row[3] in non_specified_source]
         return len(source_rows) != 0
-    if tablename == "output_channel_concentration":
+    if tablename == "output_channel_source_group":
         source_rows=[row for row in data if not row[4] in non_specified_source]
         return len(source_rows) == 0         
-    if tablename == "output_reservoir_concentration":
+    if tablename == "output_reservoir_source_group":
         source_rows=[row for row in data if not row[3] in non_specified_source]
         return len(source_rows) == 0
     return False        
