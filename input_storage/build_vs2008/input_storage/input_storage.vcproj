@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="cp $(TargetPath) $(SolutionDir)\..\..\..\lib"
+				CommandLine="copy $(TargetPath) $(SolutionDir)\..\..\..\lib"
 			/>
 		</Configuration>
 		<Configuration
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="cp $(TargetPath) $(SolutionDir)\..\..\..\lib"
+				CommandLine="copy $(TargetPath) $(SolutionDir)\..\..\..\lib"
 			/>
 		</Configuration>
 	</Configurations>
