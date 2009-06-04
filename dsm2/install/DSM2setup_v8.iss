@@ -55,6 +55,7 @@ Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flag
 Source: "..\ptm\*";                      DestDir: "{app}\ptm\"; Flags: recursesubdirs createallsubdirs
 Source: "..\timeseries\*";               DestDir: "{app}\timeseries\"; Flags: recursesubdirs createallsubdirs ; Components: timeseries
 Source: "..\vista\*";                    DestDir: "{app}\vista\"; Flags: recursesubdirs createallsubdirs
+Source: "..\tools\*";                    DestDir: "{app}\tools\"; Flags: recursesubdirs createallsubdirs
 
 
 ;SVN repository files. A bit cheesy to have to do them all by hand, but we need to learn to detect hidden files
