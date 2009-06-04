@@ -36,8 +36,8 @@ def component_order():
       "reservoir_concentration",\
       "output_channel",\
       "output_reservoir",\
-      "output_channel_source_group",\
-      "output_reservoir_source_group",\
+      "output_channel_source_track",\
+      "output_reservoir_source_track",\
       "output_gate"]
 
 
@@ -76,8 +76,8 @@ def component_members():
       "reservoir_concentration":["name","res_name","variable","fillin","file","path"],\
       "output_channel":["name","chan_no","distance","variable","interval","period_op","file"],\
       "output_reservoir":["name","res_name","node","variable","interval","period_op","file"],\
-      "output_channel_source_group":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
-      "output_reservoir_source_group":["name","res_name","variable","source_group","interval","period_op","file"],\
+      "output_channel_source_track":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
+      "output_reservoir_source_track":["name","res_name","variable","source_group","interval","period_op","file"],\
       "output_gate":["name","gate_name","device","variable","interval","period_op","file"]}
 
 
@@ -91,6 +91,7 @@ def include_block():
     "boundary_stage":"hydro_time_series",
     "node_concentration":"qual_time_series",
     "xsect_layer":"grid",
+    "output_channel_source_track":"output_time_series",
     "group_member":"groups",
     "oprule_expression":"operation",
     "input_transfer_flow":"hydro_time_series",
@@ -104,20 +105,19 @@ def include_block():
     "gate_device":"grid",
     "channel":"grid",
     "boundary_flow":"hydro_time_series",
-    "output_channel_source_group":"output_time_series",
     "input_gate":"hydro_time_series",
     "operating_rule":"operation",
     "reservoir_concentration":"qual_time_series",
     "reservoir_ic":"initial_condition",
     "gate":"grid",
+    "output_reservoir_source_track":"output_time_series",
     "rate_coefficient":"qual_spatial",
     "reservoir_connection":"grid",
     "source_flow":"hydro_time_series",
     "source_flow_reservoir":"hydro_time_series",
     "channel_ic":"initial_condition",
     "envvar":"configuration",
-    "output_reservoir":"output_time_series",
-    "output_reservoir_source_group":"output_time_series",}
+    "output_reservoir":"output_time_series"}
 
 
 
