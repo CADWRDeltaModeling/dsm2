@@ -41,10 +41,10 @@
 		<File RelativePath="..\..\src\input_storage\oprule_expression_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\oprule_time_series_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\output_channel_input_storage.fi"/>
-		<File RelativePath="..\..\src\input_storage\output_channel_source_group_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_channel_source_track_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\output_gate_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\output_reservoir_input_storage.fi"/>
-		<File RelativePath="..\..\src\input_storage\output_reservoir_source_group_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_reservoir_source_track_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\particle_flux_output_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\particle_group_output_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\particle_insertion_input_storage.fi"/>

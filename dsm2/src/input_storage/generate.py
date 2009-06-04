@@ -391,7 +391,7 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)    
 
-    component = TableComponent("output_channel_source_group",
+    component = TableComponent("output_channel_source_track",
                              [CharField("name",DSM2_NAME_LEN,16),
                               IntField("chan_no"),\
                               CharField("distance", 8,12),\
@@ -406,7 +406,7 @@ def generate_dsm2():
     prep_component(component,outdir)
     
     
-    component = TableComponent("output_reservoir_source_group",
+    component = TableComponent("output_reservoir_source_track",
                              [CharField("name",DSM2_NAME_LEN,16),
                               CharField("res_name",32,16),\
                               CharField("variable",16,12),\
@@ -447,7 +447,7 @@ def generate_dsm2():
                          "input_climate"]
     qual_spatial = ["rate_coefficient"]
     water_body_output =   ["output_channel","output_reservoir"]
-    concentration_output = ["output_channel_concentration","output_reservoir_concentration"]
+    source_group_output = ["output_channel_source_track","output_reservoir_source_track"]
     gate_output = ["output_gate"]
     groups = ["group","group_member"]
     io_file = ["io_file"]
@@ -464,7 +464,7 @@ def generate_dsm2():
     define_include_block("hydro_time_series",hydro_time_series )
     define_include_block("qual_spatial",qual_spatial)
     define_include_block("qual_time_series", qual_time_series)
-    define_include_block("output_time_series",water_body_output + gate_output + concentration_output)
+    define_include_block("output_time_series",water_body_output + gate_output + source_group_output)
     define_include_block("particle",particle)
     
     
@@ -481,7 +481,7 @@ def generate_dsm2():
     define_profile("envvar",envvar+envvar_includes) # envvar profile: envvar + corresponding include file
     define_profile("Hydro",envvar+scalar+io_file+grid+hydro_ic+hydro_time_series+oprule+water_body_output+gate_output+hydro_includes)
     define_profile("Grid",grid+grid_includes) 
-    define_profile("Qual",envvar+scalar+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+concentration_output+qual_includes)
+    define_profile("Qual",envvar+scalar+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+source_group_output+qual_includes)
     define_profile("PTM",envvar+scalar+io_file+tidefile+groups+particle+ptm_includes)
     
     finalize(outdir)
