@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\LayerManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\ValidationFunctors.h"
 				>
 			</File>
