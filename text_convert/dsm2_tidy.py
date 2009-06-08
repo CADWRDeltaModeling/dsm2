@@ -14,12 +14,12 @@ import sys
 
 # Some regular expressions we want to compile once
 block_txt =\
-r"""^([A-Z_]+[ \t]*\n)(.*?)(END$)((\n|(^#.*?\n))*)
+r"""^([A-Z_]+[ \t]*\n)(.*?)(END$)(\n|(^#.*?\n)*)
 """
 
 top_comment_re=re.compile(r"(\n|(^#.*\n))*",re.M)
 block_re=re.compile(block_txt,re.M | re.DOTALL)
-number_re = re.compile(r"([0-9.]+|length|none)")
+number_re = re.compile(r"([0-9.-]+|length|none)")
 
 def is_numberlike(inp):
     """ Returns whether the input a number 
@@ -39,11 +39,10 @@ def tidy(infile,outfile):
     else:
         top_comment=""
     matches = block_re.findall(txt)
-    out=[top_comment]
-
-    
+    out=[top_comment]    
     for m in matches:
         key=m[0].strip()
+        print key
         all_block=m[1].split("\n")
         header=all_block[0].strip().split()
         lines = [line.strip() for line in all_block[1:] if len(line.strip())>0 ]
@@ -77,6 +76,9 @@ def tidy(infile,outfile):
         for input in inputs:
             fields = []
             for i in range(len(input)):
+                if input[i].find(" ") >=0:
+                    if not input[i].find("#") == 0:
+                        input[i]="\"%s\"" % input[i]
                 fieldstr=format[i] % input[i]
                 fields.append(fieldstr)
             out.append(string.join(fields," "))
