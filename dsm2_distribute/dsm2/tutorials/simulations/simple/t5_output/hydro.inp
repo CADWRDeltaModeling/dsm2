@@ -1,33 +1,84 @@
-# Input system for DSM2-HYDRO
-
-ENVVARS
-NAME          VALUE
-SIMNAME	      tutorial
-HYDROOUTDSSFILE	output.dss
-DSM2MODIFIER  output
-TUTORIALINPUT	..\timeseries\tutorial.dss
-END
-
-TITLES
-DSM2 TUTORIAL SIMULATION: $DSM2MODIFIER  
+ENVVAR
+NAME              VALUE
+HYDROOUTDSSFILE   output.dss
+DSM2MODIFIER      output
+TUTORIALINPUT     ../timeseries/tutorial.dss
 END
 
 SCALAR
-database	dsm2input_access
-model_name      ${SIMNAME}_hydro
+NAME        VALUE
+title       "TUTORIAL SIMULATION ${DSM2MODIFIER}"
 run_start_date  01JAN1992
 run_end_date    01MAR1992
-run_start_time	0000
-run_end_time	0000
-temp_dir	c:/temp
+run_start_time    0000
+run_end_time    0000
+temp_dir    c:/temp
+checkdata        false
+cont_bad        false
+cont_missing        true
+cont_question        true
+cont_unchecked        true
+deltax        5000
+display_intvl        1day
+flush_output        15day
+gravity        32.2
+hydro_time_step        15min
+levee_slope        0.33
+maxiter        20
+printlevel        1
+repeating_tide        f
+theta        0.6
+toleranceq        0.001
+tolerancez        0.0008
+warn_missing        true
+warn_question        true
+warn_unchecked        false
 END
 
-IO_FILES 
-MODEL	TYPE	IO   INTERVAL	FILENAME
-hydro	hdf5	out  1hour	$DSM2MODIFIER.h5       # Flow data to be passed to qual and ptm
-hydro	restart	out  1mon	$DSM2MODIFIER.hrf      # Initial condition a restart is required
-output	none	none none	$DSM2MODIFIER.out      # Echoed input and run status
+IO_FILE
+MODEL    TYPE    IO     INTERVAL    FILE
+hydro    hdf5       out  1hour   ${DSM2MODIFIER}.h5       # Flow data to be passed to qual and ptm
+hydro    restart    out  1mon    ${DSM2MODIFIER}.hrf      # Initial condition a restart is required
+hydro    output    none  none    ${DSM2MODIFIER}.out      # Echoed input and run status
 END
 
+HYDRO_TIME_SERIES
+input_transfer_flow_tutorial_boundary_hydro.inp
+boundary_stage_tutorial_boundary_hydro.inp
+boundary_flow_tutorial_boundary_hydro.inp
+input_transfer_flow_tutorial_hydro_ts.inp
+source_flow_tutorial_hydro_ts.inp
+boundary_stage_tutorial_hydro_tide.inp
+END
 
+GRID
+channel_tutorial_grid.inp
+gate_tutorial_grid.inp
+reservoir_tutorial_grid.inp
+transfer_tutorial_grid.inp
+reservoir_tutorial_grid_add_reservoir.inp
+channel_tutorial_grid_revision.inp
+reservoir_tutorial_grid_revision.inp
+END
 
+INITIAL_CONDITION
+channel_ic_tutorial_grid.inp
+reservoir_ic_tutorial_grid.inp
+END
+
+OUTPUT_TIME_SERIES
+output_channel_tutorial_output.inp
+END
+
+OUTPUT_CHANNEL
+NAME        CHAN_NO        DISTANCE        VARIABLE        INTERVAL        PERIOD_OP        FILE
+ds_gate      2             0           stage             15min       inst    ${HYDROOUTDSSFILE}
+us_gate      1        length           stage             15min       inst    ${HYDROOUTDSSFILE}
+ds_gate      2             0           flow              15min       inst    ${HYDROOUTDSSFILE}
+ds_res    2004             0           flow              15min       inst    ${HYDROOUTDSSFILE}  
+END
+                              
+OUTPUT_RESERVOIR
+NAME        RES_NAME        NODE     VARIABLE    INTERVAL   PERIOD_OP        FILE
+res_1       res_1            3        stage       15min        inst       ${HYDROOUTDSSFILE}
+END

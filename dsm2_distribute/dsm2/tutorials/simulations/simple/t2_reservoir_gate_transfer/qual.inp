@@ -1,38 +1,57 @@
-# Input system for DSM2-QUAL
-
-ENVVARS
+ENVVAR
 NAME          VALUE
 OUTPUT        output.inp
 DSM2MODIFIER  channel
-SIMNAME	      tutorial
-QUALOUTDSSFILE	output.dss
-END
-
-TITLES
-DSM2 TUTORIAL SIMULATION: $DSM2MODIFIER  
+QUALOUTDSSFILE    output.dss
 END
 
 SCALAR
-database	dsm2input_t2
-model_name      ${SIMNAME}_qual_ec
+NAME        VALUE
+title       "TUTORIAL SIMULATION ${DSM2MODIFIER}"
 run_start_date  01JAN1992
 run_end_date    01MAR1992
-run_start_time	0100
-run_end_time	0000
-temp_dir	c:/temp
-init_conc	400
+run_start_time    0100
+run_end_time    0000
+temp_dir    c:/temp
+checkdata        false
+cont_bad        false
+cont_missing        false
+cont_question        false
+cont_unchecked        true
+dispersion        true
+display_intvl        1day
+flush_output        8day
+init_conc        500
+printlevel        1
+qual_time_step        15min
+warn_missing        false
+warn_question        false
+warn_unchecked        false
 END
 
-
-IO_FILES 
-MODEL	TYPE	IO   INTERVAL	FILENAME
-qual	restart	out  1mon	${DSM2MODIFIER}.qrf        # Initial condition a restart is required
-output	none	none none	$DSM2MODIFIER_qual.out   # Echoed input, run status
+IO_FILE 
+MODEL    TYPE    IO   INTERVAL    FILE
+qual    restart   out   1mon    ${DSM2MODIFIER}.qrf        # Initial condition a restart is required
+qual    output    none  none    ${DSM2MODIFIER}_qual.out   # Echoed input, run status
 END 
 
 TIDEFILE
-START_DATE    END_DATE     FILENAME
-runtime       length    $DSM2MODIFIER.h5
+START_DATE    END_DATE     FILE
+runtime       length    ${DSM2MODIFIER}.h5
 END
 
+GRID
+channel_tutorial_grid.inp
+gate_tutorial_grid.inp
+reservoir_tutorial_grid.inp
+transfer_tutorial_grid.inp
+END
+
+QUAL_TIME_SERIES
+node_concentration_tutorial_boundary_qual_ec.inp
+END
+
+OUTPUT_TIME_SERIES
+output_channel_tutorial_output_ec.inp
+END
 

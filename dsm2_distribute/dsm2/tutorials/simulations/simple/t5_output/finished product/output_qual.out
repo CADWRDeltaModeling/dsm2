@@ -1,57 +1,15 @@
 
 Opened a new tidefile: 
 output.h5
- model time: 01JAN1992 0100
+ model time: 31DEC1991 2400
 
-Copyright (C) 1996, 1997, 1998 State of California,
+
+Delta Simulation Model 2: A river and estuary simulation model
+Copyright (C) 1996-2007 State of California,
 Department of Water Resources.
+Licensed under the GNU Public License.
 
-Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
-numerical model.  No protection claimed in original FOURPT and
-Branched Lagrangian Transport Model (BLTM) code written by the
-United States Geological Survey.  Protection claimed in the
-routines and files listed in the accompanying file "Protect.txt".
-If you did not receive a copy of this file contact Dr. Paul
-Hutton, below.
-
-This program is licensed to you under the terms of the GNU General
-Public License, version 2, as published by the Free Software
-Foundation.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, contact Dr. Paul Hutton, below,
-or the Free Software Foundation, 675 Mass Ave, Cambridge, MA
-02139, USA.
-
-THIS SOFTWARE AND DOCUMENTATION ARE PROVIDED BY THE CALIFORNIA
-DEPARTMENT OF WATER RESOURCES AND CONTRIBUTORS "AS IS" AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE CALIFORNIA
-DEPARTMENT OF WATER RESOURCES OR ITS CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-OR SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA OR PROFITS; OR
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-DAMAGE.
-
-For more information about DSM2, contact:
-
-Dr. Paul Hutton
-California Dept. of Water Resources
-Division of Planning, Delta Modeling Section
-1416 Ninth Street
-Sacramento, CA  95814
-916-653-5601
-hutton@water.ca.gov
-
-or see our home page: http://wwwdelmod.water.ca.gov/
-
-
-DSM2-Qual  Version 7.4    
+DSM2-Qual  Version 8.0a2  
 
 
 
@@ -59,12 +17,12 @@ DSM2-Qual  Version 7.4
    -------------------------------------------------
 
 
-Run date and time: 10OCT2006 1355
+Run date and time: 19MAY2009 1359
 
-DSM2 TUTORIAL SIMULATION: output
+
  Model run:            time
- Start date: 01jan1992 0100
- End   date: 01mar1992 0000
+ Start date: 01JAN1992 0000
+ End   date: 01MAR1992 0000
  Time-Step=   15 minutes
  Minimum dispersive velocity =  0.000  ft/s.
 
@@ -118,7 +76,7 @@ DSM2 TUTORIAL SIMULATION: output
 ------   ---------       --------   -------------
 
 
-res_1                                50.00000       -24.0        400.00     0.00     0.00
+res_1                                50.00000       -24.0        500.00     0.00     0.00
 
 
 
@@ -127,20 +85,37 @@ res_1                                50.00000       -24.0        400.00     0.00
                                              -----------
 
 
- NAME   TYPE         FILE NAME                                                DSS PATH NAME
------- ------ ----------------------------------------------------------   -----------------------------------
-downst ec     ..\timeseries\tutorial.dss                                   /TUTORIAL/DOWNSTREAM/EC//15MIN/REALISTIC
-source ec     ..\timeseries\tutorial.dss                                   /TUTORIAL/SOURCE/EC//15MIN/CONSTANT/    
-upstre ec                                                                                                          
+ NAME                TYPE         FILE NAME                                                DSS PATH NAME
+-------------------- ------ ----------------------------------------------------------   -----------------------------------
+downstream_stage                 ec               ../timeseries/tutorial.dss                                                       /TUTORIAL/DOWNSTREAM/EC//15MIN/REALISTIC/         
+source1                          ec               ../timeseries/tutorial.dss                                                       /TUTORIAL/SOURCE/EC//15MIN/CONSTANT/              
+upstream_flow                    ec                   constant   200.0000
+
+
+
+
+                                             GROUP DEFINITIONS
+                                             -----------
+
+
+
  Group: boundary                        
  Members:
+ Type: qext Identifier: upstream_flow                            
  Type: stage_boundary Identifier: downstream_stage               
- Type: flow_boundary Identifier: upstream_flow                   
  Group: sources                         
  Members:
- Type: source/sink Identifier: source1                           
+ Type: qext Identifier: source1                                  
  non-conservative constituents rate coefficients for reservoirs:
        reservoir     constituent   rate_variable           value
          channel     constituent   rate_variable           value
  3 conservative constituents simulated.
  0 non-conservative constituents simulated.
+Continuity problem: 01JAN1992 0015  node   6  net flow=    -90.099998
+If imbalance continues past first tideblock investigate.
+Continuity problem: 01JAN1992 0030  node   6  net flow=    -90.099998
+If imbalance continues past first tideblock investigate.
+Continuity problem: 01JAN1992 0045  node   6  net flow=    -90.099998
+If imbalance continues past first tideblock investigate.
+Continuity problem: 01JAN1992 0100  node   6  net flow=    -90.099998
+If imbalance continues past first tideblock investigate.

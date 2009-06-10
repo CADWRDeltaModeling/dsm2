@@ -1,36 +1,36 @@
 ENVVAR
-NAME              VALUE
+NAME                         VALUE
 HYDROOUTDSSFILE  output.dss
-DSM2MODIFIER     channel
+DSM2MODIFIER        channel
 END
 
 SCALAR
-NAME        VALUE
+NAME               VALUE
 run_start_date   01JAN1992
 run_end_date     01MAR1992
 run_start_time   0000
 run_end_time     0000
-temp_dir         c:/temp
+temp_dir            c:/temp
 title       "TUTORIAL SIMULATION ${DSM2MODIFIER}"
-checkdata        false
-cont_bad        false
-cont_missing        true
-cont_question        true
-cont_unchecked        true
-deltax        5000
+checkdata            false
+cont_bad             false
+cont_missing       true
+cont_question      true
+cont_unchecked   true
+deltax                  5000
 display_intvl        1day
 flush_output        15day
-gravity        32.2
-hydro_time_step        15min
-levee_slope        0.33
-maxiter        20
-printlevel        1
-theta        0.6
-toleranceq        0.001
-tolerancez        0.0008
-warn_missing        true
+gravity                 32.2
+hydro_time_step   15min
+levee_slope            0.33
+maxiter                 20
+printlevel                1
+theta                     0.6
+toleranceq             0.001
+tolerancez             0.0008
+warn_missing         true
 warn_question        true
-warn_unchecked        false
+warn_unchecked     false
 END
 
 IO_FILE
@@ -70,8 +70,8 @@ downstream_stage   7      last           constant       0.
 END
 
 BOUNDARY_FLOW
-NAME           NODE    FILLIN     FILE        PATH
-upstream_flow 1  1 last constant 200.
+NAME             NODE    FILLIN     FILE        PATH
+upstream_flow        1           last      constant     200.
 END
 
 
