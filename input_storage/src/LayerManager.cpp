@@ -1,14 +1,19 @@
 #include "LayerManager.h"
 #include<string>
+#include "boost/algorithm/string/trim.hpp"
+#include<iostream> //debug
 
 using namespace std;
 
 string LayerManager::generateLayerName(const string & fileName)
 {
+    string trimmed =  boost::algorithm::trim_copy(fileName);
      //todo: really use extension using boost, not this guess at 4 characters
-    string name = fileName.substr(0,fileName.size()-4);
+    string name = trimmed.substr(0,trimmed.size()-4);
     to_lower(name);
-    return name ;
+
+    cout << "Generating name: " << name << " from " << fileName << endl;
+    return name;
 }
 
 string LayerManager::layerName(int index)
@@ -27,12 +32,21 @@ int LayerManager::addLayer(const string& name)
     return (int)(std::find(layers.begin(),layers.end(),name) - layers.begin());
 }   
 
+void LayerManager::clearAllLayer()
+{   
+    cout << "Clearing" << endl;
+    layers.clear();
+}
+
 int LayerManager::layerIndex(string& name)
 {
     return (int) (find(layers.begin(),layers.end(),name) - layers.begin());
 }
 
-
+int LayerManager::getNumberLayers()
+{
+    return (int) layers.size();
+}
 
 void LayerManager::writeToHdf5(const hid_t & file_id, const string& group_name)
 {
@@ -50,7 +64,6 @@ void LayerManager::writeToHdf5(const hid_t & file_id, const string& group_name)
            data.push_back(layer);
            data[i].priority=(int)i;
            strcpy(data[i].name,layers[i].c_str());
-           
        }
 
    /* Calculate the size and the offsets of our struct members in memory */

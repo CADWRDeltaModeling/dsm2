@@ -117,6 +117,7 @@ template<typename T>
 void ItemInputState<T>::onFilenameSet()
 { 
   string layername = LayerManager::instance().generateLayerName(m_filename);
+  cout << "Adding layer:  " << layername << endl;
   m_layerIndex = LayerManager::instance().addLayer(layername);
 }
 

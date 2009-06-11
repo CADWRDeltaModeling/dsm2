@@ -26,6 +26,9 @@ public:
   /** Get the name of the layer with the given index */
   std::string layerName(int index);
 
+  /** Get the number of layers registered (so far) */
+  int getNumberLayers();
+
   /** Add a new layer to the list of layers.
       The new layer will be added in the next incremental position
   */
@@ -33,7 +36,10 @@ public:
   
   /** Get the index of the layer with the given name */
   int layerIndex(std::string& name);
-  
+
+  /** Clear all layer index assignments */
+  void clearAllLayer();
+
   /** Write the ordered list of layers to an hdf5 table at the given location */
   void writeToHdf5(const hid_t & file_id, const std::string& group_name);
 

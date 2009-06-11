@@ -41,7 +41,19 @@ public:
     {
       return m_buffer;
     }
-
+ /** Swaps layer assignments of all all elements in the buffer
+     This is used to reprioritize according to a new policy (such
+     as a policy that the first layer is prioritized last
+ */
+ void swapLayerNumbers(int first, int second)
+ {   
+     for (size_t item = 0; item < m_buffer.size(); ++ item)
+     {
+         int layer=item.layer;
+         if (layer==first)item.layer=second;
+         if (layer==second)item.layer=first;
+     }
+ }
 
  private:
   T m_default_fill;

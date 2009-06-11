@@ -92,6 +92,8 @@ _TRAP_EXCEPT(*ierror,
     assert(reader.getInitialContextItems().size() != 0);
     assert(reader.getActiveItems().size() != 0);
     string filename(startfile,startfilelen);
+    string layername=LayerManager::instance().generateLayerName(filename);  // todo: separately??
+    LayerManager::instance().addLayer(layername); // todo: separately??
     reader.processInput(filename);
 ) // end exception trap
 }

@@ -94,8 +94,14 @@ void ApplicationTextReader::processInput(const string & filename)
     }
   
   assert(! this->m_inputMap.empty());
-  assert(verifyItemsInMap(m_initialContextItems));
-  assert(verifyItemsInMap(m_activeItems));
+  if (!verifyItemsInMap(m_initialContextItems))
+  {
+      throw logic_error("An item being set valid for reading is not one of the ones known by the text parser");
+  }
+  if (!verifyItemsInMap(m_activeItems))
+  {
+      throw logic_error("An item being set active for reading is not one of the ones known by the text parser");
+  }
 
   // to do: assumes all active items are valid in initial file context
   InputStatePtr startState(new FileInputState(m_initialContextItems,filename));
