@@ -238,7 +238,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_output_channel_concentration.cpp"
+				RelativePath="..\..\src\input_storage\input_storage_output_channel_source_track.cpp"
 				>
 			</File>
 			<File
@@ -250,7 +250,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_output_reservoir_concentration.cpp"
+				RelativePath="..\..\src\input_storage\input_storage_output_reservoir_source_track.cpp"
 				>
 			</File>
 			<File
@@ -412,6 +412,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel_source_group.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_output_channel_source_track.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_output_gate.h"
 				>
 			</File>
@@ -420,7 +428,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_output_reservoir_concentration.h"
+				RelativePath="..\..\src\input_storage\input_storage_output_reservoir_source_track.h"
 				>
 			</File>
 			<File

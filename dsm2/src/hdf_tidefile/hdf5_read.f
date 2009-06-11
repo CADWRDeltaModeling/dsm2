@@ -322,36 +322,65 @@ c-----call h5dget_space_f(res_dset_id, res_fspace_id, error)
          call h5screate_simple_f(rank, h_data_dims, memspace, error)
 
                                 ! Select Hyperslab 
-         call h5dread_f(qext_dset_id, q_name_tid, qext(i).name, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_flow_tid, qext(i).flow, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_prev_flow_tid, qext(i).prev_flow, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_avg_tid, qext(i).avg, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_prev_flow_tid, qext(i).prev_avg, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_dsrc_type_tid, qext(i).datasource.source_type, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_dsrc_idx_tid, qext(i).datasource.indx_ptr, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_dsrc_val_tid, qext(i).datasource.value, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_chng_idx_tid, qext(i).changed_ndx, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_obj_name_tid, qext(i).obj_name, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_id_tid, qext(i).attach_obj_type, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_name_tid, qext(i).attach_obj_name, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_num_tid, qext(i).attach_obj_no, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_grp_idx_tid, qext(i).group_ndx, data_dims, error, 
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_mass_frac_tid, qext(i).mass_frac, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_name_tid, qext(i).name, 
+     &                data_dims, error,xfer_prp = qext_plist_id, 
+     &                mem_space_id=memspace, file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_flow_tid, 
+     &                  qext(i).flow, data_dims, error, 
+     &                  xfer_prp = qext_plist_id, 
+     &                  mem_space_id=memspace, file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_prev_flow_tid, 
+     &                  qext(i).prev_flow, data_dims, error, 
+     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
+     &                  file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_avg_tid, qext(i).avg, 
+     &                  data_dims, error, xfer_prp = qext_plist_id, 
+     &                  mem_space_id=memspace, file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_prev_flow_tid, 
+     &                  qext(i).prev_avg, data_dims, error, 
+     &                  xfer_prp = qext_plist_id, 
+     &                  mem_space_id=memspace, file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_dsrc_type_tid, 
+     &                  qext(i).datasource.source_type, data_dims, error, 
+     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
+     &                  file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_dsrc_idx_tid, 
+     &                  qext(i).datasource.indx_ptr, data_dims, error, 
+     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
+     &                  file_space_id=filespace)
+
+c         todo: URGENT this line breaks hdf5 1.8.3
+c         call h5dread_f(qext_dset_id, q_dsrc_val_tid, 
+c     &                  qext(i).datasource.value, 
+c     &                  data_dims, error, xfer_prp = qext_plist_id, 
+c     &                   mem_space_id=memspace,file_space_id=filespace)
+     
+         call h5dread_f(qext_dset_id, q_chng_idx_tid, qext(i).changed_ndx, 
+     &                  data_dims, error, xfer_prp = qext_plist_id, 
+     &                  mem_space_id=memspace, file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_obj_name_tid, qext(i).obj_name, 
+     &                  data_dims, error,xfer_prp = qext_plist_id,  
+     &                  mem_space_id=memspace, file_space_id=filespace)
+
+         call h5dread_f(qext_dset_id, q_attach_id_tid, qext(i).attach_obj_type, 
+     &                  data_dims, error, xfer_prp = qext_plist_id, 
+     &                  mem_space_id=memspace, file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_attach_name_tid,
+     &                  qext(i).attach_obj_name, data_dims, error, 
+     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
+     &                  file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_attach_num_tid, qext(i).attach_obj_no,
+     &                  data_dims, error, 
+     &                  xfer_prp = qext_plist_id, mem_space_id=memspace,
+     &                  file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_grp_idx_tid, qext(i).group_ndx, 
+     &                  data_dims, error, 
+     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
+     &                  file_space_id=filespace)
+         call h5dread_f(qext_dset_id, q_mass_frac_tid, 
+     &                  qext(i).mass_frac, data_dims, error,
+     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
+     &                  file_space_id=filespace)
       end do
 
 

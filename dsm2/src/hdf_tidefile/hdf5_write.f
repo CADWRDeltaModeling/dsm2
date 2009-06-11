@@ -365,9 +365,9 @@ c-----Preprocess the values to changes
          call h5dwrite_f(obj2obj_dset_id, datasrc_type_tid,obj2obj(i).datasource.source_type, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(obj2obj_dset_id, datasrc_idx_tid, obj2obj(i).datasource.indx_ptr, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, datasrc_val_tid, obj2obj(i).datasource.value, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
+     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)   
+c         call h5dwrite_f(obj2obj_dset_id, datasrc_val_tid, obj2obj(i).datasource.value, data_dims, error, 
+c     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(obj2obj_dset_id, curQ_tid, obj2obj(i).flow, data_dims, error, 
      &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(obj2obj_dset_id, prevQ_tid, obj2obj(i).prev_flow, data_dims, error, 
@@ -436,8 +436,9 @@ c-----Preprocess the values to changes
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(qext_dset_id, q_dsrc_idx_tid, qext(i).datasource.indx_ptr, data_dims, error,
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_dsrc_val_tid, qext(i).datasource.value, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
+c        todo: URGENT breaks compatibility with hdf5 1.8.3     
+c         call h5dwrite_f(qext_dset_id, q_dsrc_val_tid, qext(i).datasource.value, data_dims, error,
+c     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(qext_dset_id, q_chng_idx_tid, qext(i).changed_ndx, data_dims, error,
      &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
          call h5dwrite_f(qext_dset_id, q_obj_name_tid, qext(i).obj_name, data_dims, error,

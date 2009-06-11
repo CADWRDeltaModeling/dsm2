@@ -196,8 +196,7 @@ c-----Local variables
      &     /a/'but the time interval is not minutes, hours, day, or months.')
 
  690  format(/'Warning: the following input path is not being used,'
-     &     /'perhaps because no output was requested of its constituent,'
-     &     /'or because a constituent translation is needed.'/a)
+     &     /'perhaps because no output was requested of its constituent:'/a)
 
  695  format(/'Error: Maximum number of unique accounting names exceeded:',i3)
 
@@ -279,10 +278,20 @@ c--------run length should be in form: '20hour' or '5day'
       endif                     ! start/end char dates given
       end_julmin=cdt2jmin(run_end_date)
 
+      if (len_trim(run_start_date) .eq. 0)then
+         write(unit_error,*)'Start date missing'
+         goto 900
+      endif
+      if (len_trim(run_end_date) .eq. 0)then
+         write(unit_error,*)'End date missing'
+         goto 900
+      endif
+
 c-----check validity of start and end julian minutes
       if (start_julmin .ge. end_julmin) then
          write(unit_error,"('Starting date: ',a9,
-     &        ' equal to or after ending date: ',a9)")run_start_date,run_end_date
+     &        ' equal to or after ending date: ',a9,'or one/both may be missing')")
+     &        run_start_date,run_end_date
          goto 900
       endif
       if (start_julmin .eq. miss_val_i) then

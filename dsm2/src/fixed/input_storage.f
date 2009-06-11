@@ -30,7 +30,7 @@ c-----Do a first pass reading the input, activating only ENVVARS for use in late
       call set_substitution_enabled(.true.,ierror)    ! substitute now
       ! clear the buffer so that envvars are not loaded redundantly 
 
-      call envvar_clear_buffer()                  ! Clear the envvar buffer
+      call clear_all_buffers(ierror)          ! Clear the envvar buffer
       print*,"Read and processed text substitution (ENVVARS), reading all data from text"
 
 c-----Do a second pass on all the input, making use of the text substitution we just prepped
@@ -42,7 +42,6 @@ c-----Do a second pass on all the input, making use of the text substitution we 
       call prioritize_all_buffers(ierror)                ! Enforce the "layering"
       call verify_error(ierror,"Error prioritizing buffers, sorting layers")
       print*,"Prioritized buffer"
- 
       return
       end subroutine
 c==================================================================

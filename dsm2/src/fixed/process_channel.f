@@ -159,7 +159,8 @@ c-----------upper layer area=lower layer area+trapezoidal area between them
 	   if (area .lt. prev_area) then
             write(unit_error,'(a,i5)')
      &		  "Channel areas decreasing with elevation in channel ",
-     &         chan_geom(irreg_geom(xsectno).chan_no).chan_no
+     &         chan_geom(irreg_geom(xsectno).chan_no).chan_no, " Elev: ",elev,
+     &         " Area: ",area 
 	         call exit(-3)
 	         return
 	   end if
