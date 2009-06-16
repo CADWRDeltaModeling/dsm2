@@ -114,7 +114,7 @@ ORDER BY  inp.name;
 
 boundaryflowSQL=\
 """
-SELECT  input_time_series_node.name,node,fill_in_type_description.name,input_file,path, used
+SELECT  input_time_series_node.name,node,sign,fill_in_type_description.name,input_file,path, used
 FROM input_time_series_node,fill_in_type_description
 WHERE role_id=2 AND layer_id=? 
 AND input_time_series_node.fillin = fill_in_type_description.fill_in_type_id
