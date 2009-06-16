@@ -302,6 +302,7 @@ def generate_dsm2():
     component = TableComponent("boundary_flow",
                              [CharField("name",DSM2_NAME_LEN,16),\
                               IntField("node"),\
+							  IntField("sign"),\
                               CharField("fillin", 8,12),\
                               CharField("file",DSS_FILE_LEN,32),\
                               CharField("path",80,LAST_FIELD)
