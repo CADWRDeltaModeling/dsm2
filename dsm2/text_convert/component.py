@@ -69,7 +69,7 @@ def component_members():
       "input_transfer_flow":["transfer_name","fillin","file","path"],\
       "input_gate":["gate_name","device","variable","fillin","file","path"],\
       "boundary_stage":["name","node","fillin","file","path"],\
-      "boundary_flow":["name","node","fillin","file","path"],\
+      "boundary_flow":["name","node","sign","fillin","file","path"],\
       "source_flow":["name","node","sign","fillin","file","path"],\
       "source_flow_reservoir":["name","res_name","sign","fillin","file","path"],\
       "node_concentration":["name","node_no","variable","fillin","file","path"],\
@@ -122,11 +122,6 @@ def include_block():
 
 
 
-
-
-
-
-
 def fixup(infile,outfile,component,reorder):
     f = open(infile,'r')
     fout = open(outfile,'w')
@@ -148,7 +143,8 @@ def ordered_print(items):
 
 def generateNotepad():
     tablelist=component_order()
-    folds = string.join([x.upper() for x in tablelist]," ")
+    includes = set(include_block().values())
+    folds = string.join([x.upper() for x in tablelist+list(includes)]," ")
     member_dict=component_members()
     keys=[]
     for key in member_dict:
