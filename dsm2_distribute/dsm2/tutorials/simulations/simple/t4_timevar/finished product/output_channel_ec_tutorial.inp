@@ -1,0 +1,10 @@
+
+OUTPUT_CHANNEL
+NAME         CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE             
+bnd_1              1        0 ec          15min inst      ${QUALOUTDSSFILE} 
+bnd_6              6   length ec          15min inst      ${QUALOUTDSSFILE} 
+chan2_half         2     7500 ec          15min inst      ${QUALOUTDSSFILE} 
+chan2_length       2   length ec          15min inst      ${QUALOUTDSSFILE} 
+chan2004        2004        0 ec          15min inst      ${QUALOUTDSSFILE} 
+END
+
