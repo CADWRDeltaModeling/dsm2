@@ -42,7 +42,6 @@ def tidy(infile,outfile):
     out=[top_comment]    
     for m in matches:
         key=m[0].strip()
-        print key
         all_block=m[1].split("\n")
         header=all_block[0].strip().split()
         lines = [line.strip() for line in all_block[1:] if len(line.strip())>0 ]
@@ -60,15 +59,17 @@ def tidy(infile,outfile):
             else:
                 comment = ""
             input = shlex.split(splitline[0])+[comment]
+            if (len(numberlike) < len(input)):
+                print "Problem with assesing number formate in line: " + line
             for i in range(len(input)):
                 if len(input[i]) > max_width[i]: 
                     max_width[i] = len(input[i])
                 numberlike[i] &= (is_numberlike(input[i]))
             inputs.append(input )
         out.append(key)
-        
-        for i in range(len(input)):
-            if numberlike[i]: justify[i]="" 
+        for i in range(len(numberlike)):
+            if numberlike[i]: 
+                justify[i]="" 
             format[i]="%"+justify[i]+str(max_width[i])+"s"
 
         header = [format[i] % header[i] for i in range(len(header))]
