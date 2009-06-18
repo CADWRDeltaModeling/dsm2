@@ -33,29 +33,17 @@ warn_unchecked false
 END
 
 
-
 IO_FILE
-MODEL      TYPE     IO                 INTERVAL FILE                    
-qual       restart  out                1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
-qual       output   none               none     ${DSM2MODIFIER}_qual.out #Echoed input, run status               
+MODEL      TYPE     IO    INTERVAL FILE                    
+qual       restart  out   1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
+qual       output   none  none     ${DSM2MODIFIER}_qual.out #Echoed input, run status               
+qual       echo     out   none     ${DSM2MODIFIER}_qual_echo.inp  #Echoed input    
 END                
+
 TIDEFILE           
 START_DATE END_DATE FILE                       
 runtime    length   ${DSM2MODIFIER}.h5         
 END
-
-
-
-GRID
-channel_tutorial_grid.inp                
-gate_tutorial_grid.inp                    
-reservoir_tutorial_grid.inp               
-transfer_tutorial_grid.inp                
-reservoir_tutorial_grid_add_reservoir.inp 
-channel_tutorial_grid_revision.inp        
-reservoir_tutorial_grid_revision.inp      
-END
-
 
 
 QUAL_TIME_SERIES
