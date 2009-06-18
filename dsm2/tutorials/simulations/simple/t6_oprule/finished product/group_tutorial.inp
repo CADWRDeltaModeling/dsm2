@@ -1,0 +1,17 @@
+
+GROUP
+NAME    
+boundary 
+sources  
+END
+
+
+
+GROUP_MEMBER
+GROUP_NAME MEMBER_TYPE   PATTERN   
+boundary   flow_boundary .*stream.* 
+boundary   stage         .*stream.* 
+sources    source_sink   source1    
+END
+
+
