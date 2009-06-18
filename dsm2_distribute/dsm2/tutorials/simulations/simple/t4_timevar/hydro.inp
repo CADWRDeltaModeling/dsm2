@@ -2,8 +2,7 @@
 ENVVAR
 NAME            VALUE                     
 HYDROOUTDSSFILE output.dss                 
-DSM2MODIFIER    timevar_1                     
-TUTORIALINPUT   ../timeseries/tutorial.dss 
+DSM2MODIFIER    changeme
 END
 
 
@@ -64,9 +63,7 @@ END
 
 HYDRO_TIME_SERIES
 input_boundary_hydro_tutorial.inp
-input_transfer_flow_tutorial.inp  
-input_hydro_ts_tutorial.inp       
-input_gate_tutorial.inp           
+input_transfer_flow_tutorial.inp       
 END
 
 
