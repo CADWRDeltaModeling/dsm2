@@ -1,7 +1,0 @@
-
-TRANSFER
-NAME       FROM_OBJ  FROM_IDENTIFIER TO_OBJ TO_IDENTIFIER
-transfer_1 Reservoir res_1           Node               6 
-END
-
-
