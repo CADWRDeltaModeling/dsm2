@@ -1,0 +1,26 @@
+
+SCALAR
+NAME            VALUE 
+checkdata       false  
+cont_bad        false  
+cont_missing    true   
+cont_question   true   
+cont_unchecked  true   
+deltax          5000   
+display_intvl   1day   
+flush_output    15day  
+gravity         32.2   
+hydro_time_step 15min  
+levee_slope     0.33   
+maxiter         20     
+printlevel      1      
+repeating_tide  f      
+theta           0.6    
+toleranceq      0.001  
+tolerancez      0.0008 
+warn_missing    true   
+warn_question   true   
+warn_unchecked  false  
+END
+
+
