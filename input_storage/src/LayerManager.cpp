@@ -11,8 +11,6 @@ string LayerManager::generateLayerName(const string & fileName)
      //todo: really use extension using boost, not this guess at 4 characters
     string name = trimmed.substr(0,trimmed.size()-4);
     to_lower(name);
-
-    cout << "Generating name: " << name << " from " << fileName << endl;
     return name;
 }
 
@@ -34,7 +32,6 @@ int LayerManager::addLayer(const string& name)
 
 void LayerManager::clearAllLayer()
 {   
-    cout << "Clearing" << endl;
     layers.clear();
 }
 

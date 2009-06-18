@@ -43,7 +43,22 @@ struct quote_if_spaces
      }
      return "\"" + x + "\"";
   }
-};
 
+  string operator()(const string& x, const int& maxchar)
+  {
+     string y(x);
+	 if (y.size() > (size_t)maxchar)
+	 {   
+		 //Limit the number of characters to maxchar
+		 y=x.substr(0,maxchar);
+	 }
+
+     if(y.find_first_of(" ") == string::npos)
+     {
+         return y;
+     }
+     return "\"" + y + "\"";
+  }
+};
 
 #endif
