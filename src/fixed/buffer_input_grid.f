@@ -119,6 +119,11 @@ c====================================================================
        end do
        print *,"Number of channel xsect layers: ", nitem
 
+c------ Clear the xsect buffer. Why? Because we have already converted
+c       the cross sections to cross-section layer format, and when we
+c       write out the input buffers we don't want to include the xsects that
+c       are file-based
+      call xsect_clear_buffer()
 
       nitem = reservoir_buffer_size()
       do icount = 1,nitem
