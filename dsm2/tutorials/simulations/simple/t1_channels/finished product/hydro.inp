@@ -8,12 +8,7 @@ END
 
 
 SCALAR
-NAME            VALUE                              
-run_start_date  01JAN1992                           
-run_end_date    01MAR1992                           
-run_start_time  0000                                
-run_end_time    0000                                
-temp_dir        c:/temp                             
+NAME            VALUE                                                        
 title           "TUTORIAL SIMULATION ${DSM2MODIFIER}" 
 checkdata       false                               
 cont_bad        false                               
@@ -49,7 +44,7 @@ MODEL TYPE    IO  INTERVAL FILE
 hydro hdf5    out    1hour ${DSM2MODIFIER}.h5  #Flow data to be passed to qual and ptm 
 hydro restart out     1mon ${DSM2MODIFIER}.hrf #Initial condition a restart is required
 hydro output  out     none ${DSM2MODIFIER}.out #Echoed run status                      
-hydro echo    out     none echo.inp            #Echoed input                           
+hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp  #Echoed input                              
 END
 
 
