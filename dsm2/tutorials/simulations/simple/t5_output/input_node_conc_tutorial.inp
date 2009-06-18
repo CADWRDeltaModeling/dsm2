@@ -1,0 +1,8 @@
+
+NODE_CONCENTRATION
+NAME             NODE_NO VARIABLE FILLIN FILE      PATH
+downstream_stage       7 ec       last   constant 30000 
+upstream_flow          1 ec       last   constant  200. 
+END
+
+
