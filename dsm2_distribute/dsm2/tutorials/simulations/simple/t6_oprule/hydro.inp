@@ -2,7 +2,7 @@
 ENVVAR
 NAME            VALUE                     
 HYDROOUTDSSFILE output.dss                 
-DSM2MODIFIER    timevar_2                  
+DSM2MODIFIER    oprule                  
 TUTORIALINPUT   ../timeseries/tutorial.dss 
 END
 

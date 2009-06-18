@@ -2,7 +2,7 @@
 ENVVAR
 NAME           VALUE                     
 QUALOUTDSSFILE output.dss                 
-DSM2MODIFIER   output                     
+DSM2MODIFIER   output_tutorial                     
 TUTORIALINPUT  ../timeseries/tutorial.dss 
 END
 
@@ -46,23 +46,25 @@ runtime    length   ${DSM2MODIFIER}.h5
 END
 
 
+
 QUAL_TIME_SERIES
-node_concentration_tutorial_boundary_qual_ec.inp
-node_concentration_tutorial_qual_ts.inp          
-node_concentration_tutorial_qual_tide.inp        
+input_node_conc_tutorial.inp
+input_qual_ts_tutorial.inp   
 END
-
-
-
-OUTPUT_TIME_SERIES
-output_channel_tutorial_output_ec.inp                  
-output_channel_concentration_tutorial_source_output.inp 
-END
-
 
 
 GROUPS
 group_tutorial_groups.inp
 END
+
+
+
+OUTPUT_TIME_SERIES
+output_channel_ec_tutorial.inp
+END
+
+
+
+
 
 
