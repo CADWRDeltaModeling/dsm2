@@ -2,7 +2,7 @@
 ENVVAR
 NAME           VALUE                     
 QUALOUTDSSFILE output.dss                 
-DSM2MODIFIER   oprule                     
+DSM2MODIFIER   output                     
 TUTORIALINPUT  ../timeseries/tutorial.dss 
 END
 
@@ -33,35 +33,36 @@ warn_unchecked false
 END
 
 
-
 IO_FILE
-MODEL      TYPE     IO                 INTERVAL FILE                         
-qual       restart  out                1mon     ${DSM2MODIFIER}.qrf           #Initial condition a restart is required
-qual       output   none               none     ${DSM2MODIFIER}_qual.out      #Echoed input, run status               
-qual       echo     out                none     ${DSM2MODIFIER}_qual_echo.inp #Echoed input                           
+MODEL      TYPE     IO    INTERVAL FILE                    
+qual       restart  out   1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
+qual       output   none  none     ${DSM2MODIFIER}_qual.out #Echoed input, run status               
+qual       echo     out   none     ${DSM2MODIFIER}_qual_echo.inp  #Echoed input    
 END                
+
 TIDEFILE           
 START_DATE END_DATE FILE                       
 runtime    length   ${DSM2MODIFIER}.h5         
 END
 
 
-
 QUAL_TIME_SERIES
-input_node_conc_tutorial.inp
+node_concentration_tutorial_boundary_qual_ec.inp
+node_concentration_tutorial_qual_ts.inp          
+node_concentration_tutorial_qual_tide.inp        
 END
 
 
 
 OUTPUT_TIME_SERIES
-output_channel_ec_tutorial.inp                  
+output_channel_tutorial_output_ec.inp                  
 output_channel_concentration_tutorial_source_output.inp 
 END
 
 
 
 GROUPS
-group_tutorial.inp
+group_tutorial_groups.inp
 END
 
 
