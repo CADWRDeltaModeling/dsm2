@@ -145,8 +145,6 @@ class CharField(Field):
             return "strcpy(%s,%s);" % (self.name,val)
         if style == "default":
             blank = "fill_n(%s,%s,\'\\0\');" % (self.name,self.size)
-            #if self.default == "": return blank
-            #copy = "strcpy(%s,%s);" % (self.name,self.default())
             return blank  #+ "\n" + copy
 
     def fortran_pointer(self):
@@ -182,8 +180,8 @@ class CharField(Field):
             setw(max(4+%s,(int)(4+strlen(obj.%s))))
             << setfill(\' \')
             << left
-            << quote_spaces(obj.%s)  
-        """ % (self.format_width, self.name, self.name)
+            << quote_spaces(obj.%s, %s)  
+        """ % (self.format_width, self.name, self.name,self.size)
 
     def input_code(self):
         return \
