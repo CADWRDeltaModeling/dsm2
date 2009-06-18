@@ -37,7 +37,7 @@ END
 IO_FILE
 MODEL      TYPE     IO                 INTERVAL FILE                         
 qual       restart  out                1mon     ${DSM2MODIFIER}.qrf           #Initial condition a restart is required
-qual       output   none               none     ${DSM2MODIFIER}_qual.out      #Echoed input, run status               
+qual       output   none               none     ${DSM2MODIFIER}_qual.out      #Echoed run status               
 qual       echo     out                none     ${DSM2MODIFIER}_qual_echo.inp #Echoed input                           
 END                
 TIDEFILE           
@@ -47,15 +47,10 @@ END
 
 
 
+
 QUAL_TIME_SERIES
 input_node_conc_tutorial.inp
-END
-
-
-
-OUTPUT_TIME_SERIES
-output_channel_ec_tutorial.inp                  
-output_channel_concentration_tutorial_source_output.inp 
+input_qual_ts_tutorial.inp   
 END
 
 
@@ -63,5 +58,13 @@ END
 GROUPS
 group_tutorial.inp
 END
+
+
+
+OUTPUT_TIME_SERIES
+output_channel_ec_tutorial.inp
+output_qual_sourcetrack.inp    
+END
+
 
 
