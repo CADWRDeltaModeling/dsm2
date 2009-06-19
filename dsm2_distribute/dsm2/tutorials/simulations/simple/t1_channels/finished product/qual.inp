@@ -37,7 +37,6 @@ END
 IO_FILE
 MODEL      TYPE     IO                 INTERVAL FILE
 qual       restart  out    1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
-qual       output   out    none     ${DSM2MODIFIER}_qual.out #run status
 qual       output   out    none     ${DSM2MODIFIER}_qual.out #Echoed run status
 qual       echo     out    none     ${DSM2MODIFIER}_qual_echo.out #Echoed input         
 END                
