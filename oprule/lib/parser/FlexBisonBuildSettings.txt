@@ -10,7 +10,7 @@ c:\$(InputDir)\op_rule_tab.h
 
 LEXER
 Input
-%CYGWIN%\flex -L -Pop_rule -oop_rule.cpp c:\$(InputDir)\op_rule.l 
+%CYGWIN%\flex -L -P op_rule -o op_rule.cpp c:\$(InputDir)\op_rule.l 
 copy .\op_rule.cpp c:\$(InputDir)\op_rule.cpp 
 
 Output
