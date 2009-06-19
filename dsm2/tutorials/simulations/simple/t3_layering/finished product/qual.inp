@@ -31,17 +31,21 @@ warn_question  false
 warn_unchecked false                               
 END
 
+
+
 IO_FILE
-MODEL      TYPE     IO                 INTERVAL FILE                    
-qual       restart  out                1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
-qual       output   none               none     ${DSM2MODIFIER}_qual.out #Echoed processed input, run status     
-qual       echo     out                none     echo.inp                 #Echoed input file                      
+MODEL TYPE    IO   INTERVAL FILE                    
+qual  restart out      1mon ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
+qual  output  none     none ${DSM2MODIFIER}_qual.out #Echoed processed input, run status     
+qual  echo    out      none echo.inp                 #Echoed input file                      
 END
-                
-TIDEFILE           
-START_DATE END_DATE FILE                       
-runtime    length   ${DSM2MODIFIER}.h5         
+
+
+TIDEFILE
+START_DATE END_DATE FILE              
+runtime      length ${DSM2MODIFIER}.h5 
 END
+
 
 
 QUAL_TIME_SERIES
@@ -49,6 +53,8 @@ input_node_conc_tutorial.inp
 END
 
 
+
 OUTPUT_TIME_SERIES
 output_channel_ec_tutorial.inp
 END
+

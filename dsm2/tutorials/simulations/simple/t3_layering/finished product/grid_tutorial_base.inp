@@ -10,6 +10,7 @@ CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE
 END
 
 
+
 XSECT_LAYER
 CHAN_NO DIST  ELEV   AREA WIDTH WET_PERIM
 1        0.5 -24.0    0.0  40.0      40.0 
@@ -38,25 +39,30 @@ CHAN_NO DIST  ELEV   AREA WIDTH WET_PERIM
 END
 
 
+
 RESERVOIR
-NAME       AREA BOT_ELEV
-res_1      40.0    -24.0
-dummy_res  60.0    -30.0
+NAME      AREA BOT_ELEV
+res_1     40.0    -24.0 
+dummy_res 60.0    -30.0 
 END
+
 
 
 RESERVOIR_CONNECTION
-RES_NAME NODE COEF_IN COEF_OUT
-res_1       3   200.0    200.0 
-res_1       4   200.0    200.0
-dummy_res   5   220.0    220.0
-dummy_res   6   220.0    220.0 
+RES_NAME  NODE COEF_IN COEF_OUT
+res_1        3   200.0    200.0 
+res_1        4   200.0    200.0 
+dummy_res    5   220.0    220.0 
+dummy_res    6   220.0    220.0 
 END
+
+
 
 GATE
 NAME   FROM_OBJ FROM_IDENTIFIER TO_NODE
 gate_1 channel                2       2 
 END
+
 
 
 GATE_DEVICE
@@ -65,8 +71,11 @@ gate_1    pipe   pipe               2  20.0  2.0 9999.0        0.8          0.8 
 gate_1    weir   weir               2  20.0  2.0 9999.0        0.8          0.8 gate_open  gated_top        
 END
 
+
+
 TRANSFER
 NAME       FROM_OBJ  FROM_IDENTIFIER TO_OBJ TO_IDENTIFIER
 transfer_1 reservoir res_1           node               6 
 END
+
 
