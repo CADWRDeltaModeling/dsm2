@@ -33,8 +33,8 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Dirs]
 ;Name: "{app}\timeseries"
-Name: "{app}\tutorials"
-
+;Name: "{app}\tutorials"
+Name: "{app}\common_input"
 
 [Components]
 ;Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed
@@ -49,7 +49,7 @@ Name: "timeseries"; Description: "DSS Time Series Data"; Types: full
 ;folders
 Source: "..\bin\*";                      DestDir: "{app}\bin\";
 Source: "..\scripts\*";                  DestDir: "{app}\scripts\";  Flags: ignoreversion recursesubdirs createallsubdirs
-;Source: "..\tutorials\simulations\*";    Destdir: "{app}\tutorials"; Flags: ignoreversion recursesubdirs createallsubdirs   ; Components: templates
+Source: "..\tutorials\*";                Destdir: "{app}\tutorials"; Flags: ignoreversion recursesubdirs createallsubdirs   ; Components: templates
 Source: "..\studies\*";                  Destdir: "{app}\studies\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flags: ignoreversion recursesubdirs createallsubdirs;
 Source: "..\ptm\*";                      DestDir: "{app}\ptm\"; Flags: recursesubdirs createallsubdirs
