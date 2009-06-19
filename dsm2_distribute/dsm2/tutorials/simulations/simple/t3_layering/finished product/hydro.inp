@@ -2,7 +2,7 @@
 ENVVAR
 NAME            VALUE     
 HYDROOUTDSSFILE output.dss 
-DSM2MODIFIER    layers    
+DSM2MODIFIER    layers     
 END
 
 
@@ -46,29 +46,30 @@ hydro output  out     none ${DSM2MODIFIER}.out #Echoed run status
 hydro echo    out     none echo.inp            #Echoed input                           
 END
 
+
+
 GRID
-grid_tutorial_base.inp
-grid_tutorial_revision.inp
+grid_tutorial_base.inp    
+grid_tutorial_revision.inp 
 END
+
+
 
 INITIAL_CONDITION
 ic_tutorial.inp
 END
 
+
+
 HYDRO_TIME_SERIES
 input_boundary_hydro_tutorial.inp
-input_transfer_flow_tutorial.inp
+input_transfer_flow_tutorial.inp  
 END
+
+
 
 OUTPUT_TIME_SERIES
 output_hydro_tutorial.inp
 END
-
-
-
-
-
-
-
 
 

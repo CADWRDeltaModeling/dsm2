@@ -2,7 +2,7 @@
 ENVVAR
 NAME            VALUE     
 HYDROOUTDSSFILE output.dss 
-DSM2MODIFIER    layers    
+DSM2MODIFIER    layers     
 END
 
 
@@ -88,6 +88,7 @@ CHAN_NO DIST  ELEV   AREA WIDTH WET_PERIM
 END
 
 
+
 BOUNDARY_STAGE
 NAME             NODE FILLIN FILE     PATH
 downstream_stage    7 last   constant   0. 
@@ -134,10 +135,13 @@ chan2004        2004        0 flow        15min inst      ${HYDROOUTDSSFILE}
 chan2004        2004        0 stage       15min inst      ${HYDROOUTDSSFILE} 
 END
 
+
+
 RESERVOIR
 NAME  AREA BOT_ELEV
 res_1 40.0    -24.0 
 END
+
 
 
 RESERVOIR_CONNECTION
@@ -146,10 +150,13 @@ res_1       3   200.0    200.0
 res_1       4   200.0    200.0 
 END
 
+
+
 RESERVOIR_IC
 RES_NAME STAGE
 res_1      0.0 
 END
+
 
 
 GATE
@@ -158,11 +165,14 @@ gate_1 channel                2       2
 END
 
 
+
 GATE_DEVICE
 GATE_NAME DEVICE STRUCTURE NDUPLICATE WIDTH ELEV HEIGHT CF_TO_NODE CF_FROM_NODE DEFAULT_OP POSITION_CONTROL
 gate_1    pipe   pipe               2  20.0  2.0 9999.0        0.8          0.8 gate_open  no_gate          
 gate_1    weir   weir               2  20.0  2.0 9999.0        0.8          0.8 gate_open  gated_top        
 END
+
+
 
 TRANSFER
 NAME       FROM_OBJ  FROM_IDENTIFIER TO_OBJ TO_IDENTIFIER
@@ -170,8 +180,10 @@ transfer_1 reservoir res_1           node               6
 END
 
 
+
 INPUT_TRANSFER_FLOW
-TRANSFER_NAME    FILLIN      FILE        PATH
-transfer_1       last        constant      40 
+TRANSFER_NAME FILLIN FILE     PATH
+transfer_1    last   constant   40 
 END
+
 
