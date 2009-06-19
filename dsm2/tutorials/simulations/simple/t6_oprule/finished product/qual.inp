@@ -2,7 +2,7 @@
 ENVVAR
 NAME           VALUE                     
 QUALOUTDSSFILE output.dss                 
-DSM2MODIFIER   output                     
+DSM2MODIFIER   oprule                     
 TUTORIALINPUT  ../timeseries/tutorial.dss 
 END
 
