@@ -850,7 +850,7 @@ c-----local variables
      &     CLA(:2) .eq. "-h" .or.
      &     CLA(:2) .eq. "-H") then ! print version, usage, quit
          print *, 'DSM2-' // trim(dsm2_name) // ' ', dsm2_version
-         print *, 'Usage: ' // trim(dsm2_name) // ' input-file dbase-model-name'
+         print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
          call exit(1)
       else                      ! command line arg
 c--------check arg(s) if valid filename, ModelID

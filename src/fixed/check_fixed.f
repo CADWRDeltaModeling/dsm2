@@ -543,8 +543,11 @@ c-----create DSS input pathnames, check for sign change for each path
          call upcase(pathinput(p).path) ! convert to upper case
       end do
 
-      replace_status=replace_envvars('$(DSM2AGENCY)', dsm2_agency)
-
+      ! Todo: ???
+      dsm2_agency = ' '
+      replace_status=0
+      !replace_status=replace_envvars('$(DSM2AGENCY)', dsm2_agency)
+      
 
 
 
