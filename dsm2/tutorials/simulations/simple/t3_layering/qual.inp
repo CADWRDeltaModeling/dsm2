@@ -2,7 +2,7 @@
 ENVVAR
 NAME           VALUE     
 QUALOUTDSSFILE output.dss 
-DSM2MODIFIER   layering   
+DSM2MODIFIER   layers   
 END
 
 
