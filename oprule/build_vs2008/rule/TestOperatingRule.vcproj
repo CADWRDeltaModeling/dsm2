@@ -164,7 +164,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="libboost_unit_test_framework-vc90-mt-sgd-1_36.lib"
 				OutputFile=".\Debug/TestOperatingRule.exe"
 				LinkIncremental="2"
