@@ -4,7 +4,7 @@
 
 [Setup]
 AppName=DSM2_v8
-AppVerName=Version 8.0.2
+AppVerName=version 8.03
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
@@ -12,7 +12,7 @@ AppUpdatesURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/d
 DefaultDirName=d:\delta\dsm2_v8
 DefaultGroupName=DSM2_v8
 AllowNoIcons=yes
-OutputBaseFilename=DSM2setup_8.0.2
+OutputBaseFilename=DSM2setup_8.03
 ;Compression=lzma/ultra
 Compression=lzma/fast
 CompressionThreads=auto
@@ -47,15 +47,15 @@ Name: "timeseries"; Description: "DSS Time Series Data"; Types: full
 ;Source: "..\tutorials\pdf\Quick Reference Guide.pdf"; DestDir: "{app}"; Flags: isreadme
 ;Source: "..\tutorials\pdf\DSM2 tutorial.pdf";         Destdir: "{app}\tutorials";
 ;folders
-Source: "..\bin\*";                      DestDir: "{app}\bin\";
-Source: "..\scripts\*";                  DestDir: "{app}\scripts\";  Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\tutorials\*";                Destdir: "{app}\tutorials"; Flags: ignoreversion recursesubdirs createallsubdirs   ; Components: templates
-Source: "..\studies\*";                  Destdir: "{app}\studies\"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flags: ignoreversion recursesubdirs createallsubdirs;
-Source: "..\ptm\*";                      DestDir: "{app}\ptm\"; Flags: recursesubdirs createallsubdirs
-Source: "..\timeseries\*";               DestDir: "{app}\timeseries\"; Flags: recursesubdirs createallsubdirs ; Components: timeseries
-Source: "..\vista\*";                    DestDir: "{app}\vista\"; Flags: recursesubdirs createallsubdirs
-Source: "..\tools\*";                    DestDir: "{app}\tools\"; Flags: recursesubdirs createallsubdirs
+Source: "..\bin\*";                      DestDir: "{app}\bin\";             Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\scripts\*";                  DestDir: "{app}\scripts\";         Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\tutorials\*";                Destdir: "{app}\tutorials";        Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\studies\*";                  Destdir: "{app}\studies\";         Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ptm\*";                      DestDir: "{app}\ptm\";             Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";      Flags: ignoreversion recursesubdirs createallsubdirs ; Components: timeseries
+Source: "..\vista\*";                    DestDir: "{app}\vista\";           Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\tools\*";                    DestDir: "{app}\tools\";           Flags: ignoreversion recursesubdirs createallsubdirs
 
 
 ;SVN repository files. A bit cheesy to have to do them all by hand, but we need to learn to detect hidden files
@@ -84,19 +84,24 @@ Name: "{userdesktop}\DSM2_v8"; Filename: "{app}\"; Tasks: desktopicon
 ;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{app}\vista\bin;{olddata}";
 ;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{app}\bin;{olddata}";
 
-
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "VISTA_HOME";   ValueData: "{app}\vista";              Flags: uninsdeletevalue;
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PTM_HOME";     ValueData: "{app}\ptm";                Flags: uninsdeletevalue;
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "SCRIPTS_HOME"; ValueData: "{app}\scripts";            Flags: uninsdeletevalue;
 
 ;Check: myRegCheckEnv(ExpandConstant('SCRIPTS_HOME'))
 
 ;set environment variables using nested environment variables:
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "%DSM2_HOME%\bin;{olddata}";
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "%VISTA_HOME%\bin;{olddata}";
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "%PTM_HOME%\bin;{olddata}";
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PYTHONPATH";   ValueData: "{olddata};%SCRIPTS_HOME%";
+
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "{app}\vista\bin;{olddata}";
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "{app}\ptm\bin;{olddata}";
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "{app}\bin;{olddata}";
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PYTHONPATH";   ValueData: "{olddata};{app}\scripts";
+
+;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "%VISTA_HOME%\bin;{olddata}";
+;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "%PTM_HOME%\bin;{olddata}";
+;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path";         ValueData: "%DSM2_HOME%\bin;{olddata}";
+;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PYTHONPATH";   ValueData: "{olddata};%SCRIPTS_HOME%";
 ;Check: myRegCheckEnv(ExpandConstant('DSM2_HOME'))
 ;Check: myRegCheckEnv(ExpandConstant('VISTA_HOME'))
 ;checks need to the added to the previous 3 for patches.
