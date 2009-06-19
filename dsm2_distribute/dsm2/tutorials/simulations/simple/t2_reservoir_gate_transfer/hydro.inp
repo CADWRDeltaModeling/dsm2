@@ -49,7 +49,7 @@ END
 
 
 CHANNEL
-CHAN_NO LENGTH MANNINGS DISPERSION UP_NODE DOWN_NODE
+CHAN_NO LENGTH  MANNING DISPERSION  UPNODE  DOWNNODE
 1        15000    0.035        0.3       1         2 
 2        15000    0.035        0.3       2         3 
 3        15000    0.035        0.3       3         4 

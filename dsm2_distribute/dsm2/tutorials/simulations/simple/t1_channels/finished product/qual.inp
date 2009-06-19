@@ -28,8 +28,7 @@ run_start_date   02JAN1992
 run_end_date     01MAR1992
 run_start_time   0000
 run_end_time     0000
-temp_dir         c:/temp
-                                            
+temp_dir         c:/temp                                            
 END
 
 
