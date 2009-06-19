@@ -35,16 +35,15 @@ END
 
 
 IO_FILE
-MODEL      TYPE     IO                 INTERVAL FILE
-qual       restart  out                1mon     ${DSM2MODIFIER}.qrf #Initial condition or a restart is required
-qual       output   none               none     ${DSM2MODIFIER}_qual.out #processed data, run status
+MODEL      TYPE     IO                 INTERVAL FILE                    
+qual       restart  out                1mon     ${DSM2MODIFIER}.qrf      #Initial condition or a restart is required
+qual       output   none               none     ${DSM2MODIFIER}_qual.out #processed data, run status                
 END                
-
-
 TIDEFILE           
 START_DATE END_DATE FILE                       
 runtime    length   ${DSM2MODIFIER}.h5         
 END
+
 
 
 NODE_CONCENTRATION
@@ -63,4 +62,5 @@ chan2_half         2     7500 ec          15min inst      ${QUALOUTDSSFILE}
 chan2_length       2   length ec          15min inst      ${QUALOUTDSSFILE} 
 chan2004        2004        0 ec          15min inst      ${QUALOUTDSSFILE} 
 END
+
 
