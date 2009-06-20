@@ -105,7 +105,8 @@ c====================================================================
       implicit none
       integer :: nitem
       integer :: icount
-      character*(32) name,value
+      character*(32) name
+      character*(64) value
       character*(32) envname
       character*(128) envval
       integer :: ierror = 0
