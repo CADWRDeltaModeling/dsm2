@@ -23,10 +23,10 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)
 
-    # Create an object called an envvar, that will be used for text substitutions
+    # Create an object called a scalar, that will be used for text substitutions
     component = TableComponent("scalar",
                            [CharField("name",DSM2_NAME_LEN,32),\
-                            CharField("value",32,LAST_FIELD)],
+                            CharField("value",64,LAST_FIELD)],
                            ["name"])
     component.layered=True
     prep_component(component,outdir)
