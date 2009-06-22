@@ -1,0 +1,5 @@
+
+INPUT_TRANSFER_FLOW
+TRANSFER_NAME    FILLIN      FILE        PATH
+transfer_1       last        constant      40 
+END
