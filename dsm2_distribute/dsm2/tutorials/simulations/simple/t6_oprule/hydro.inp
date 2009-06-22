@@ -2,7 +2,7 @@
 ENVVAR
 NAME            VALUE                     
 HYDROOUTDSSFILE output.dss                 
-DSM2MODIFIER    oprule                     
+DSM2MODIFIER    oprule                  
 TUTORIALINPUT   ../timeseries/tutorial.dss 
 END
 
@@ -40,11 +40,11 @@ END
 
 
 IO_FILE
-MODEL TYPE    IO  INTERVAL FILE               
-hydro hdf5    out    1hour ${DSM2MODIFIER}.h5  #Flow data to be passed to qual and ptm 
-hydro restart out     1mon ${DSM2MODIFIER}.hrf #Initial condition a restart is required
-hydro output  out     none ${DSM2MODIFIER}.out #Echoed run status                      
-hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp  #Echoed input                           
+MODEL TYPE    IO  INTERVAL FILE                          
+hydro hdf5    out    1hour ${DSM2MODIFIER}.h5             #Flow data to be passed to qual and ptm 
+hydro restart out     1mon ${DSM2MODIFIER}.hrf            #Initial condition a restart is required
+hydro output  out     none ${DSM2MODIFIER}.out            #Echoed run status                      
+hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp #Echoed input                           
 END
 
 

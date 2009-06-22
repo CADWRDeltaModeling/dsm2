@@ -1,7 +1,0 @@
-
-SOURCE_FLOW
-NAME    NODE SIGN FILLIN FILE             PATH                                  
-source1    5    1 linear ${TUTORIALINPUT} /TUTORIAL/SOURCE/FLOW//15MIN/CONSTANT/ 
-END
-
-
