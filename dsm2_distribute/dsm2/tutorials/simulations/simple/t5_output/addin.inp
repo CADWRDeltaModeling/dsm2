@@ -11,8 +11,8 @@ END
 
 
 OUTPUT_RESERVOIR
-NAME  RES_NAME TYPE  INTERVAL PERIOD_OP FILE          
-res_1 res_1     stage inst         15min ${HYDROOUTDSSFILE} 
+NAME  RES_NAME NODE VARIABLE INTERVAL PERIOD_OP FILE       
+res_1 res_1    3    stage    15min    inst      ${HYDROOUTDSSFILE} 
 END
 
 
