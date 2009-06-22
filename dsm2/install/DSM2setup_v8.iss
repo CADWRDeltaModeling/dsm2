@@ -4,7 +4,8 @@
 
 [Setup]
 AppName=DSM2_v8
-AppVerName=version 8.03
+AppVerName=version 8.0.0949
+OutputBaseFilename=DSM2setup_8.0.0949
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
@@ -12,7 +13,6 @@ AppUpdatesURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/d
 DefaultDirName=d:\delta\dsm2_v8
 DefaultGroupName=DSM2_v8
 AllowNoIcons=yes
-OutputBaseFilename=DSM2setup_8.03
 ;Compression=lzma/ultra
 Compression=lzma/fast
 CompressionThreads=auto
