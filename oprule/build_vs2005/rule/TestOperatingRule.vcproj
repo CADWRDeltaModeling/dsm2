@@ -71,7 +71,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libboost_unit_test_framework-vc80-mt-s-1_34_1.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="libboost_unit_test_framework-vc80-mt-1_36.lib odbc32.lib odbccp32.lib"
 				OutputFile=".\Release/TestOperatingRule.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libboost_unit_test_framework-vc80-mt-sgd-1_34_1.lib"
+				AdditionalDependencies="libboost_unit_test_framework-vc80-mt-gd-1_36.lib"
 				OutputFile=".\Debug/TestOperatingRule.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

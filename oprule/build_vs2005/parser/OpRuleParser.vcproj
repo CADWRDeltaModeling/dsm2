@@ -248,10 +248,6 @@
 				RelativePath="..\..\lib\parser\ParseSymbolManagement.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\lib\rule\Symbol.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
