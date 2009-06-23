@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="9.10" ProjectIdGuid="{2A3DEC63-C0A0-432D-96DC-E518D78267B6}">
+<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{2A3DEC63-C0A0-432D-96DC-E518D78267B6}">
 	<Platforms>
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
