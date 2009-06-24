@@ -76,3 +76,20 @@ output_hydro_tutorial.inp
 END
 
 
+
+OUTPUT_CHANNEL
+NAME    CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE              
+ds_gate       2        0 stage       15min inst      ${HYDROOUTDSSFILE} 
+us_gate       1   length stage       15min inst      ${HYDROOUTDSSFILE} 
+ds_gate       2        0 flow        15min inst      ${HYDROOUTDSSFILE} 
+ds_res     2004        0 flow        15min inst      ${HYDROOUTDSSFILE} 
+bnd_1         1        1 flow        15min inst      ${HYDROOUTDSSFILE} 
+END
+
+
+
+OUTPUT_RESERVOIR
+NAME  RES_NAME TYPE  INTERVAL PERIOD_OP FILE          
+#res_1 res_1     stage inst         15min ${HYDROOUTDSSFILE} 
+END
+
