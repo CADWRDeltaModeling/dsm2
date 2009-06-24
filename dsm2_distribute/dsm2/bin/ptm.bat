@@ -1,7 +1,7 @@
 @echo off
 
 
-if exist %ptm_home%/lib/ptm.jar goto :valid
+if exist %dsm2_home%/bin/ptm.jar goto :valid
 
 :notfound
 echo ## An Error has occured in the batch file. PTM_HOME not set correctly or ptm.jar not found.##
@@ -10,10 +10,9 @@ goto :end
 
 :valid
 
-set path=%ptm_home%/bin;%ptm_home%/lib;%path%
+set path=%dsm2_hom3%/bin;%dsm2_home%/lib;%path%
 
-java -ss1m -mx128m -oss1m -classpath "%ptm_home%/lib/ptm.jar;%ptm_home%/lib/COM.jar;%ptm_home%/lib/edu.jar;%ptm_home%/lib/xml.jar" DWR.DMS.PTM.mainPTM %1
-rem java -ss1m -mx128m -classpath "%ptm_home%/classes;%ptm_home%/lib/COM.jar;%ptm_home%/lib/edu.jar;%ptm_home%/lib/xml.jar" DWR.DMS.PTM.mainPTM %1
+java -ss1m -mx128m -oss1m -classpath "%dsm2_home%/bin/ptm.jar;%dsm2_home%/bin/COM.jar;%dsm2_home%/bin/edu.jar;%dsm2_home%/bin/xml.jar" DWR.DMS.PTM.MainPTM %1
 
 :end
 
