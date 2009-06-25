@@ -1,0 +1,27 @@
+
+OPERATING_RULE
+NAME        ACTION                                                                         TRIGGER                                         
+flow_reduce "SET ext_flow(name=source1) TO ifelse(stage_critical,reduced_flow,full_flow)"  TRUE                                             
+weir_close  "SET gate_op(gate=gate_2, device=weir, direction=from_node) TO CLOSE RAMP 30MIN" "stage_critical AND op_applies"                  
+weir_open   "SET gate_op(gate=gate_2, device=weir, direction=from_node) TO OPEN RAMP 30MIN" "( stage_relax AND op_applies) OR NOT(op_applies)" 
+END
+
+
+
+OPRULE_EXPRESSION
+NAME           DEFINITION                                          
+full_flow      ts(name=source_flow)                                 
+op_applies     "SEASON < 01FEB"                                     
+reduced_flow   0.5*ts(name=source_flow)                             
+stage_critical "chan_stage(channel=4, dist=7500) < ${STAGE_CRITICAL}" 
+stage_relax    "chan_stage(channel=4, dist=7500) > ${STAGE_RELAX} " 
+END
+
+
+
+OPRULE_TIME_SERIES
+NAME        FILLIN FILE             PATH                                  
+source_flow linear ${TUTORIALINPUT} /TUTORIAL/SOURCE/FLOW//15MIN/CONSTANT/ 
+END
+
+
