@@ -228,7 +228,7 @@ def convert_table(filename,tablename,layerid):
         else:
             files[block]=[filename]
 
-def convert_layer(db_name,cur,txt_name,dest_dir,group_by="parent_table"):
+def convert_layer(db_name,cur,txt_name,dest_dir,suffix=None):
     """
         Takes a parent layer like 'std_delta_grid' and a text name for the layer
         like txt_name is 'delta_090304' and creates corresponding text input
@@ -244,7 +244,7 @@ def convert_layer(db_name,cur,txt_name,dest_dir,group_by="parent_table"):
         txt_child_list=[]
         if txt_parent in TXT_CHILD_TABLES.keys():
             txt_child_list=TXT_CHILD_TABLES[txt_parent]
-        layer_filename=create_dest_filename(txt_parent,txt_name)
+        layer_filename=create_dest_filename(txt_parent,txt_name,suffix)
         fname=os.path.join(dest_dir,layer_filename)
         convert_table(fname,txt_parent,layerid)
         for txt_child in txt_child_list:
@@ -291,11 +291,15 @@ def prefix_for_table(table_name):
         return table_name
         
         
-def create_dest_filename(parent_table, layer_name):
+def create_dest_filename(parent_table, layer_name,suffix=None):
     # The prefix may be the name of the parent table or a bigger grouping like "op_rule"
     prefix = prefix_for_table(parent_table)
     layer_base_name = translate_layer_name(layer_name)
-    return prefix+"_"+layer_base_name+".inp"
+    if suffix:
+	    suffix="_"+suffix
+    else:
+	    suffix = ""
+    return prefix+"_"+layer_base_name+suffix+".inp"
     
 
 def get_layers_in_model(cursor, model_name):
@@ -322,7 +326,11 @@ if __name__ == "__main__":
     if (len(sys.argv) < 2):
         print "Usage:\nconvertdb2txt.py model_name [dest_dir=model_name]"
     model_name = sys.argv[1]
-    if (len(sys.argv) == 3):
+    if len(sys.argv) >=4:
+	    suffix = sys.argv[3]
+    else:
+	    suffix = ""
+    if (len(sys.argv) >= 3):
         dest_dir = sys.argv[2]
     else:
         dest_dir = model_name
@@ -339,12 +347,15 @@ if __name__ == "__main__":
         raise "The destination directory must be empty of .inp files."
     # convert the layers.
     for layer in db_layer_names:
-        convert_layer(layer,cur,layer,dest_dir)
+        convert_layer(layer,cur,layer,dest_dir,suffix)
+		
+    # now create the top level input file
     fname=os.path.join(dest_dir,"model.inp")
     f=open(fname,"w")
     for key in files:
         files_in_block=[os.path.split(x)[1] for x in files[key]]
-        f.write(key.upper() +"\n" + string.join([os.path.split(x)[1] for x in files[key]],"\n") + "\nEND\n\n")
+        files_in_block=["${DSM2INPUTDIR}/"+x for x in files_in_block]
+        f.write(key.upper() +"\n" + string.join(files_in_block,"\n") + "\nEND\n\n")
     f.close()
     cur.close()
     

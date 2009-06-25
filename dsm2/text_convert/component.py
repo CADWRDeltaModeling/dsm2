@@ -2,6 +2,9 @@ import sys
 import string
 
 def component_order():
+    """ Returns the list of defined tables/objects in the
+	    order they were defined
+    """
     return["envvar",\
       "scalar",\
       "channel",\
@@ -42,6 +45,9 @@ def component_order():
 
 
 def component_members():
+    """ Returns a dictionary of table names mapped to a list 
+	    of all the fields in the table
+    """
     return {"envvar":["name","value"],\
       "scalar":["name","value"],\
       "channel":["chan_no","length","manning","dispersion","upnode","downnode"],\
@@ -82,12 +88,14 @@ def component_members():
 
 
 def include_block():
+    """ Returns a dictionary mapping tables to the include blocks that contain them
+	"""
     return {\
     "reservoir":"grid",
     "particle_flux_output":"particle",
     "xsect":"grid",
     "output_gate":"output_time_series",
-    "scalar":"configuration",
+    "scalar":"parameter",
     "boundary_stage":"hydro_time_series",
     "node_concentration":"qual_time_series",
     "xsect_layer":"grid",
