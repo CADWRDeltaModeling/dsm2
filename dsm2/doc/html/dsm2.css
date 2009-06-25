@@ -1,5 +1,5 @@
 ul#todc {list-style:none;width:380px;}
-#todc li {background:url(dot.gif) repeat-x 0 0.85em;}
+#todc li {background:url(image/dot.gif) repeat-x 0 0.85em;}
 #todc li a {float:right;background:#ebf4ec;padding: 0 4px 0 0;}
 #todc li span {float:left;background:#ebf4ec; padding 0 0 0 4px;}
 #toc li a {text-decoration:none; color:navy}
@@ -22,6 +22,8 @@ h2 {
 
 a{
 color:navy;
+line-height:140%;
+text-decoration:none;
 }
 
 #wrap{padding:10px 10px;
@@ -93,9 +95,11 @@ color:navy;
  
 h3.table_name{
  text-decoration:underline;
- padding-left:26px;
- font-size:12px;
- background: url("table_icon.jpg") no-repeat left center;
+ padding-left:36px;
+ background-image:url("image/table_icon.jpg");
+ background-repeat:no-repeat;
+ background-attachment:left;
+ background-position:left;
 }
 
 .text_input{
@@ -116,7 +120,9 @@ table.text_input{
 
 .table_list a {
   font-size:12pt;
+  line-height:140%;
   color:navy;
+  text-decoration:none;
   font-style:bold
  }
 
@@ -131,6 +137,13 @@ h4.field_def_title  {
    margin: 16px 0 6px 0;
    font-style:italic;
 }
+ 
+h4.table_section_title  {
+   margin: 28px 10px 8px 20px;
+   font-style:italic;
+}
+
+
  
  dl.field_definitions
 {
