@@ -457,7 +457,8 @@ def generate_dsm2():
     
     
     define_text_sub("envvar",outdir)
-    define_include_block("configuration", envvar + scalar)
+    define_include_block("configuration", envvar)
+    define_include_block("parameter",  scalar)
     define_include_block("grid", grid)
     define_include_block("initial_condition", hydro_ic)
     define_include_block("operation",oprule)
@@ -471,9 +472,9 @@ def generate_dsm2():
     
     # Each of these is a list of include sections that are used by the profiles below
     envvar_includes=["configuration"]
-    hydro_includes=["configuration","grid","initial_condition","operation","hydro_time_series","output_time_series"]
-    qual_includes=["configuration","qual_time_series","groups","qual_spatial","output_time_series"]
-    ptm_includes=["configuration","groups","particle"]
+    hydro_includes=["configuration","parameter","grid","initial_condition","operation","hydro_time_series","output_time_series"]
+    qual_includes=["configuration","parameter","qual_time_series","groups","qual_spatial","output_time_series"]
+    ptm_includes=["configuration","parameter","groups","particle"]
     grid_includes=["grid"]
     
     # These are profiles. They are lists of keywords and include sections that can
