@@ -33,6 +33,8 @@ def tidy(infile,outfile):
     f=open(infile,"r")
     outfile=open(outfile,"w")
     txt=f.read()
+    if not txt.endswith("\n"):
+        txt += "\n"
     top_comment = top_comment_re.match(txt).group(0)
     if top_comment:
         top_comment=top_comment.strip()
