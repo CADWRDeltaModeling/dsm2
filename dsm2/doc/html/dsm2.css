@@ -1,3 +1,10 @@
+ul#todc {list-style:none;width:380px;}
+#todc li {background:url(dot.gif) repeat-x 0 0.85em;}
+#todc li a {float:right;background:#ebf4ec;padding: 0 4px 0 0;}
+#todc li span {float:left;background:#ebf4ec; padding 0 0 0 4px;}
+#toc li a {text-decoration:none; color:navy}
+#toc li {text-decoration:bold ;color:navy}
+#todc li br {clear:both;}
 
 body {
   font-family:"Arial",sans-serif;
