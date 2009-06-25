@@ -1,0 +1,23 @@
+# This example shows channels using cross-sections
+# In the XSECT format. The specification is not 
+# complete -- we are really referring to 
+# Cross-Section Development Program (CSDP) files
+# which are in there own format.
+
+# CHANNEL SPECS
+CHANNEL
+CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE
+1        15000   0.035        0.3      1        2 
+2        15000   0.035        0.3      2        3
+END
+
+# This is a child table. It is an alternative to the 
+# XSECT_LAYER table (the two can co-exist, but you 
+# should not mix input for a channel). The FILE column
+# points to a file that contains the real data which
+# would normally come out of the CSDP or other tool.
+XSECT
+CHAN_NO DISTANCE  FILE
+1           0.5   1_0.50000.txt
+2           0.5   2_0.50000.txt
+END
