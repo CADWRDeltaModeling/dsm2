@@ -1,5 +1,4 @@
 
-
 OUTPUT_CHANNEL
 NAME         CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE              
 bnd_1              1        0 flow        15min inst      ${HYDROOUTDSSFILE} 
@@ -11,5 +10,14 @@ chan2_half         2     7500 stage       15min inst      ${HYDROOUTDSSFILE}
 chan2_length       2   length flow        15min inst      ${HYDROOUTDSSFILE} 
 chan2_length       2   length stage       15min inst      ${HYDROOUTDSSFILE} 
 chan2004        2004        0 flow        15min inst      ${HYDROOUTDSSFILE} 
-chan2004        2004        0 stage       15min inst      ${HYDROOUTDSSFILE}
+chan2004        2004        0 stage       15min inst      ${HYDROOUTDSSFILE} 
 END
+
+
+
+OUTPUT_GATE
+NAME          GATE_NAME DEVICE VARIABLE     INTERVAL PERIOD_OP FILE              
+gate_2_weirop gate_2    weir   op-from-node    15min inst      ${HYDROOUTDSSFILE} 
+END
+
+

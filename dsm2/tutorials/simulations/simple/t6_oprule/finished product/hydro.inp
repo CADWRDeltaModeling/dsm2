@@ -2,8 +2,10 @@
 ENVVAR
 NAME            VALUE                     
 HYDROOUTDSSFILE output.dss                 
-DSM2MODIFIER    oprule                  
+DSM2MODIFIER    oprule                     
 TUTORIALINPUT   ../timeseries/tutorial.dss 
+STAGE_CRITICAL  1.4                        
+STAGE_RELAX     1.6                        
 END
 
 
@@ -75,4 +77,10 @@ OUTPUT_TIME_SERIES
 output_hydro_tutorial.inp
 END
 
+
+
+OPERATION
+oprule_tutorial.inp         
+oprule_tutorial_revision.inp 
+END
 

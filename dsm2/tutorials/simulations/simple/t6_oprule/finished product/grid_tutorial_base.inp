@@ -61,6 +61,7 @@ END
 GATE
 NAME   FROM_OBJ FROM_IDENTIFIER TO_NODE
 gate_1 channel                2       2 
+gate_2 channel                5       5 
 END
 
 
@@ -69,6 +70,8 @@ GATE_DEVICE
 GATE_NAME DEVICE STRUCTURE NDUPLICATE WIDTH ELEV HEIGHT CF_TO_NODE CF_FROM_NODE DEFAULT_OP POSITION_CONTROL
 gate_1    pipe   pipe               2  20.0  2.0 9999.0        0.8          0.8 gate_open  no_gate          
 gate_1    weir   weir               2  20.0  2.0 9999.0        0.8          0.8 gate_open  gated_top        
+gate_2    pipe   pipe               2  20.0 -2.0 9999.0        0.8          0.8 gate_open  no_gate          
+gate_2    weir   weir               2  20.0 -2.0 9999.0        0.8          0.8 gate_open  gated_top        
 END
 
 
