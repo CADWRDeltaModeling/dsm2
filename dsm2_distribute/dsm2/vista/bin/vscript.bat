@@ -31,7 +31,7 @@ set PATH=%path%;%vista_home%/bin;%vista_home%/lib;
 
 set PYPATH="%vista_home%/jython/Lib;%vista_home%/lib/Lib;%DSM2_HOME%/scripts"
 
-set CPATH="%vista_home%/lib/vista.jar;%vista_home%/lib/vista-help.jar;%vista_home%/jython/jython.jar;%vista_home%/lib/pd.jar;%vista_home%/lib/misc.jar;%vista_home%/lib/jhall.jar;%vista_home%/lib/jnios.jar;%vista_home%/lib/widgets.jar;"
+set CPATH="%vista_home%/lib/vista.jar;%vista_home%/lib/vista-help.jar;%vista_home%/jython/jython.jar;%vista_home%/lib/jakarta-oro-2.0.8.jar;%vista_home%/lib/pd.jar;%vista_home%/lib/misc.jar;%vista_home%/lib/jhall.jar;%vista_home%/lib/jnios.jar;%vista_home%/lib/widgets.jar;"
 
 set LPATH="%vista_home%/lib" -Dvista.home="%vista_home%"
 
