@@ -315,11 +315,29 @@ ORDER BY comp.component_type,comp.layer
     data=cur.execute(sql,model_name).fetchall()
     data=[ str(mod[0]) for mod in data ]
     return data
-        
+
 def get_component_type(db_layer_name,cur):
     SQL="SELECT component_type FROM layer_definition WHERE name=?;"
     comptype=cur.execute(SQL,db_layer_name).fetchone()[0]
     return comptype
+
+def create_top_level_model_file(fname):
+    """ 
+    Create model.inp
+    This is the top file that will probably end up being called
+    something like hydro.inp
+    """    
+    f=open(fname,"w")
+    blocks = files.keys() # list of include block names
+    incl_order=include_block_order()  # order of blocks (this is the order they were defined by define_include_block() in generate.py)
+    # sort them according to the order
+    blocks.sort(lambda x,y: cmp(incl_order.index(x),incl_order.index(y)))
+    
+    for key in blocks:
+        files_in_block=[os.path.split(x)[1] for x in files[key]]  #  list of files in include block
+        f.write(key.upper() +"\n" + string.join(files_in_block,"\n") + "\nEND\n\n")
+    f.close()
+
 
 if __name__ == "__main__":
     init_layer_name_translations()
@@ -350,15 +368,8 @@ if __name__ == "__main__":
         convert_layer(layer,cur,layer,dest_dir,suffix)
 		
     # now create the top level input file
-    fname=os.path.join(dest_dir,"model.inp")
-    f=open(fname,"w")
-    for key in files:
-        files_in_block=[os.path.split(x)[1] for x in files[key]]
-        files_in_block=["${DSM2INPUTDIR}/"+x for x in files_in_block]
-        f.write(key.upper() +"\n" + string.join(files_in_block,"\n") + "\nEND\n\n")
-    f.close()
     cur.close()
-    
+    create_top_level_model_file(os.path.join(dest_dir,"model.inp"))    
 
     
 
