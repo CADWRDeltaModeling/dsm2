@@ -436,55 +436,66 @@ def generate_dsm2():
     prep_component(component,outdir)
 
 
-    envvar=["envvar"]
-    scalar = ["scalar"]
-    grid=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"]
-    hydro_ic=["channel_ic","reservoir_ic"]
-    oprule=["operating_rule","oprule_expression","oprule_time_series"]
-    hydro_time_series = ["boundary_stage","boundary_flow","source_flow",\
+    envvar_keywords=["envvar"]
+    scalar_keywords = ["scalar"]
+    grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"]
+    hydro_ic_keywords=["channel_ic","reservoir_ic"]
+    oprule_keywords=["operating_rule","oprule_expression","oprule_time_series"]
+    hydro_time_series_keywords = ["boundary_stage","boundary_flow","source_flow",\
                          "source_flow_reservoir","input_gate","input_transfer_flow"]  # ,"oprule_time_series"
-    qual_time_series = ["node_concentration",\
+    qual_time_series_keywords = ["node_concentration",\
                          "reservoir_concentration",\
                          "input_climate"]
-    qual_spatial = ["rate_coefficient"]
-    water_body_output =   ["output_channel","output_reservoir"]
-    source_group_output = ["output_channel_source_track","output_reservoir_source_track"]
-    gate_output = ["output_gate"]
-    groups = ["group","group_member"]
-    io_file = ["io_file"]
-    tidefile = ["tidefile"]
-    particle = ["particle_insertion","particle_group_output","particle_flux_output"]
+    qual_spatial_keywords = ["rate_coefficient"]
+    water_body_output_keywords   =   ["output_channel","output_reservoir"]
+    source_group_output_keywords = ["output_channel_source_track","output_reservoir_source_track"]
+    gate_output_keywords         = ["output_gate"]
+    groups_keywords   = ["group","group_member"]
+    io_file_keywords  = ["io_file"]
+    tidefile_keywords = ["tidefile"]
+    particle_keywords = ["particle_insertion","particle_group_output","particle_flux_output"]
     
     
     define_text_sub("envvar",outdir)
-    define_include_block("configuration", envvar)
-    define_include_block("parameter",  scalar)
-    define_include_block("grid", grid)
-    define_include_block("initial_condition", hydro_ic)
-    define_include_block("operation",oprule)
-    define_include_block("groups",groups)
-    define_include_block("hydro_time_series",hydro_time_series )
-    define_include_block("qual_spatial",qual_spatial)
-    define_include_block("qual_time_series", qual_time_series)
-    define_include_block("output_time_series",water_body_output + gate_output + source_group_output)
-    define_include_block("particle",particle)
-    
+    define_include_block("configuration", envvar_keywords)
+    define_include_block("parameter",  scalar_keywords)    
+    define_include_block("grid", grid_keywords)
+    define_include_block("initial_condition", hydro_ic_keywords)
+    define_include_block("hydro_time_series",hydro_time_series_keywords )
+    define_include_block("operation",oprule_keywords)
+    define_include_block("groups",groups_keywords)
+    define_include_block("qual_time_series", qual_time_series_keywords)
+    define_include_block("qual_spatial",qual_spatial_keywords)
+    define_include_block("output_time_series",water_body_output_keywords\
+                                             +gate_output_keywords\
+                                             +source_group_output_keywords)
+    define_include_block("particle",particle_keywords)
     
     # Each of these is a list of include sections that are used by the profiles below
     envvar_includes=["configuration"]
-    hydro_includes=["configuration","parameter","grid","initial_condition","operation","hydro_time_series","output_time_series"]
-    qual_includes=["configuration","parameter","qual_time_series","groups","qual_spatial","output_time_series"]
+    hydro_includes=["configuration","parameter","grid",\
+                    "initial_condition",\
+                    "operation",\
+                    "hydro_time_series",\
+                    "output_time_series"]
+    qual_includes=["configuration","parameter","qual_time_series",\
+                   "groups","qual_spatial","output_time_series"]
     ptm_includes=["configuration","parameter","groups","particle"]
     grid_includes=["grid"]
     
     # These are profiles. They are lists of keywords and include sections that can
     # be set active/legal within the code. For instance, if you are only processing
     # "ENVVAR" you would set the envvar profile active.
-    define_profile("envvar",envvar+envvar_includes) # envvar profile: envvar + corresponding include file
-    define_profile("Hydro",envvar+scalar+io_file+grid+hydro_ic+hydro_time_series+oprule+water_body_output+gate_output+hydro_includes)
-    define_profile("Grid",grid+grid_includes) 
-    define_profile("Qual",envvar+scalar+io_file+tidefile+qual_time_series+groups+qual_spatial+water_body_output+source_group_output+qual_includes)
-    define_profile("PTM",envvar+scalar+io_file+tidefile+groups+particle+ptm_includes)
+    define_profile("envvar",envvar_keywords+envvar_includes) # envvar profile: envvar + corresponding include file
+    define_profile("Hydro",envvar_keywords+scalar_keywords+io_file_keywords+grid_keywords \
+                          +hydro_ic_keywords+hydro_time_series_keywords+oprule_keywords+water_body_output_keywords\
+                          +gate_output_keywords+hydro_includes)
+    define_profile("Grid",grid_keywords+grid_includes) 
+    define_profile("Qual",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+qual_time_series_keywords\
+                         +groups_keywords+qual_spatial_keywords+water_body_output_keywords\
+                         +source_group_output_keywords+qual_includes)
+    define_profile("PTM",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords\
+                         +groups_keywords+particle_keywords+ptm_includes)
     
     finalize(outdir)
 

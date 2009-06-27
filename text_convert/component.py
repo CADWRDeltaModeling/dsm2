@@ -2,9 +2,6 @@ import sys
 import string
 
 def component_order():
-    """ Returns the list of defined tables/objects in the
-	    order they were defined
-    """
     return["envvar",\
       "scalar",\
       "channel",\
@@ -45,9 +42,6 @@ def component_order():
 
 
 def component_members():
-    """ Returns a dictionary of table names mapped to a list 
-	    of all the fields in the table
-    """
     return {"envvar":["name","value"],\
       "scalar":["name","value"],\
       "channel":["chan_no","length","manning","dispersion","upnode","downnode"],\
@@ -88,8 +82,6 @@ def component_members():
 
 
 def include_block():
-    """ Returns a dictionary mapping tables to the include blocks that contain them
-	"""
     return {\
     "reservoir":"grid",
     "particle_flux_output":"particle",
@@ -127,29 +119,29 @@ def include_block():
     "envvar":"configuration",
     "output_reservoir":"output_time_series"}
 
+def include_block_order():
+      return[\
+      "configuration",\
+      "parameter",\
+      "grid",\
+      "initial_condition",\
+      "hydro_time_series",\
+      "operation",\
+      "groups",\
+      "qual_time_series",\
+      "qual_spatial",\
+      "output_time_series",\
+      "particle"]
 
 
-
-def fixup(infile,outfile,component,reorder):
-    f = open(infile,'r')
-    fout = open(outfile,'w')
-    lines = f.readlines()
-    mlist = component_members()[component]
-    fout.write("%s\n" % component.upper())
-    fout.write(string.join([x.upper() for x in mlist],"    ")+"\n")
-    for line in lines:
-        if line.strip(" \n") == "": continue
-        parts = line.strip().split("\t")
-        if len(parts) == 0: continue
-        parts=[parts[i] for i in reorder]
-        fout.write(string.join(parts, "    ")+"\n")
-    fout.write("END\n\n")
 
 def ordered_print(items):
+    """Given a sequence of items, prints them in order with number then item"""
     for i,item in zip(range(len(items)),items):
          print "%s: %s" % (i,item)
 
 def generateNotepad():
+    """ Generates a Notepad++ user defined language file with syntax highlights for the keywords """
     tablelist=component_order()
     includes = set(include_block().values())
     folds = string.join([x.upper() for x in tablelist+list(includes)]," ")
