@@ -21,7 +21,7 @@
 <a name="overview"></a>
 <h2>Overview:</h2>
 <p>The OUTPUT_RESERVOIR table is used by both HYDRO and QUAL to
-specify output requests inside of the channel. Output is
+specify output requests inside of a reservoir. Output is
 HEC-DSS or text format. The variables that can be requested vary
 by model.
 </p>
@@ -38,8 +38,9 @@ by model.
 location, variable being output, time aggregation and destination file.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>NAME</dt><dd>Name of the parameter. This is the identifier of the table and will
-be used in the B_PART of the output if it is in DSS format.</dd>
+<dt>NAME</dt><dd>Name of the output request. This is part of the identifier of the table and will
+be used in the B_PART of the output if it is in DSS format. Avoid using VARIABLE inside this name 
+-- this causes redundancy in the output DSS path and the layering won't work as well.</dd>
 <dt>RES_NAME</dt>
 <dd>NAME of reservoir in which output is requested.
 <dt>NODE</dt><dd>Node number, if the request is for a flow to a particular connected node.</dd>
@@ -75,10 +76,10 @@ and it contains one additional field for tracking
 constituent sources.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>NAME</dt><dd>Name of the parameter. This is the identifier of the table and will
-be used in the B_PART of the output if it is in DSS format.</dd>
+<dt>NAME</dt><dd>Name of the output request. See comments above, and note
+that in this case you should also avoid using the SOURCE_NAME in the output name.</dd>
 <dt>RES_NAME</dt>
-<dd>NAME of reservoir in which output is requested.
+<dd>Name of reservoir in which output is requested.
 <dt>NODE</dt><dd>Node number, if the request is for a flow to a particular connected node. Otherwise, use <i>none</i></dd>
 </dd>
 <dt>VARIABLE</dt><dd>Model variable to be output. In HYDRO, you can request <i>stage</i>,<i>flow</i>,<i>vel</i>.

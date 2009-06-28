@@ -38,8 +38,12 @@ by model.
 location, variable being output, time aggregation and destination file.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>NAME</dt><dd>Name of the parameter. This is the identifier of the table and will
-be used in the B_PART of the output if it is in DSS format.</dd>
+<dt>NAME</dt><dd>Name of the output request. This is part of the identifier of the table and will
+be used in the B_PART of the output if it is in DSS format. Generally, non-modelers
+will have an easier time understanding your output if this is a station name that 
+is geographically fixed (e.g. "vernalis" or "RSAC075") than if it is a modeling
+construct ("ch101"). Similarly, avoid using avoid using VARIABLE inside this name 
+-- this causes redundancy in the output DSS path and the layering won't work as well.</dd>
 <dt>CHAN_NO</dt>
 <dd>Channel number in which output is requested.
 <dt>DISTANCE</dt><dd>Distance along channel (from upstream node to downstream), typically in feet. 
@@ -76,8 +80,8 @@ and it contains one additional field for tracking
 constituent sources.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>NAME</dt><dd>Name of the parameter. This is the identifier of the table and will
-be used in the B_PART of the output if it is in DSS format.</dd>
+<dt>NAME</dt><dd>Name of the output request. See comments above, and note
+that in this case you should also avoid using the SOURCE_NAME in the output name.</dd>
 <dt>CHAN_NO</dt>
 <dd>Channel number in which output is requested.
 <dt>DISTANCE</dt><dd>Distance along channel (from upstream node to downstream), typically in feet. 

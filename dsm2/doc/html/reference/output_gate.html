@@ -8,6 +8,7 @@
 <ul id="page_navbar" >
 <li><a href="#overview">Overview</a></li>
 <li><a href="#tables">Tables</a></li>
+<li><a href="#examples">Examples</a></li>
 <li><a href="#usage">Usage</a></li>
 </ul><!--end navbar-->
 
@@ -37,7 +38,9 @@ location, variable being output, time aggregation and destination file.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
 <dt>NAME</dt><dd>Name of the output request. This is the identifier of the table and will
-be used in the B_PART of the output if it is in DSS format.</dd>
+be used in the B_PART of the output if it is in DSS format. It can be the same as the
+gate name but it doesn't have to be. Avoid using VARIABLE inside this name -- this causes
+redundancy in the output and the layering won't work correctly.</dd>
 <dt>GATE_NAME</dt>
 <dd>Name of the gate at which output is requested.
 <dt>DEVICE</dt><dd>Name of the gate device, if applicable. You can request operational or physical data
@@ -73,6 +76,12 @@ in HEC-DSS format. </dd>
 
 <br />
 
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+<a name="examples"></a>
+<h2>Examples:</h2>
+<a href="example/output_gate_example.txt">output_gate_example.inp</a>
+<br />
+<br />
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
 <a name="usage"></a>
