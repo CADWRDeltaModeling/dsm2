@@ -74,7 +74,6 @@ c==================================================================
       logical :: append_text=.false.
 c-----Write all buffers to text in the order they were defined
       if (io_files(dsm2_module,io_echo,io_write).use)then
-      print*,"File: ",io_files(dsm2_module,io_echo,io_write).filename
       append_text=.false.
       call write_buffer_profile_to_text(trim(dsm2_name),
      &                                  io_files(dsm2_module,
