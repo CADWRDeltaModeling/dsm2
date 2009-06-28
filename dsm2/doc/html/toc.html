@@ -20,7 +20,15 @@
 
 <ul id="toc">
 <li> <a href="#started">Getting Started</a> <br /></li>
+    <ul>
+      <li><a href="#download">Download and installation</a></li>
+      <li><a href="#extras">Really great extras</a></li>
+      <li><a href="#testlaunch">Test Launching DSM2</a></li>    
+      <!--li><a href="reference/notepadp">Notepad++ hints</a></li-->
+      <!--li><a href="reference/notepadpp.html">Understanding path variables</a></li-->
+    </ul>
 <!--li> <a href="#">Simulation Organization</a><br /></li-->
+    <!--li> <a href="reference/boundary_flow.html">Archiving and Version Control</a><br /></li-->
 <li> <a href="layers.html">Layers, Priority, Data Management</a><br /></li>
 <!--li> <a href="reference/boundary_flow.html">Archiving and Version Control</a><br /></li-->
 <li> <a href="op_rule_guide/dsm2_op_rule_guide.html">Operating Rules</a><br /></li>
@@ -33,7 +41,7 @@
       <li><a href="reference/envvar.html">Environment substitution (ENVVAR)</a></li>      
       <li><a href="reference/gate.html">Gate</a></li>
       <li><a href="reference/group.html">Group</a></li>
-      <li><a href="reference/input_climate.html">Input Climate Flow</a></li>              
+      <li><a href="reference/input_climate.html">Input Climate</a></li>              
       <li><a href="reference/input_gate.html">Input Gate</a></li> 
       <li><a href="reference/input_transfer_flow.html">Input Transfer Flow</a></li>   
       <li><a href="reference/node_concentration.html">Node Concentration</a></li>       
@@ -61,8 +69,98 @@
 
 <a name="started"></a>
 <h2>Getting Started</h2>
-<p>Welcome to DSM2</p>
- 
+<p>Welcome to DSM2. This section of the documentation is intended to help you
+acquire and install dsm2, test that it is working and understand the layout of
+the distribution. After you have taken these steps, you will probably want to
+tackle the tutorials.</p>
+<a name="download"></a>
+<h3>Getting DSM2</h3> 
+<p>DSM2 is distributed by the California Department of 
+Water Resources Delta Modeling Section. You can find the model at our
+<a href="http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/deltaevaluation.cfm">
+delta evaluation tools</a> web site. Currently we distribute Windows executables, tutorials and a data package 
+with templates for common studies. We expect to release a source code 
+distribution in August 2009.</p>
+<a name="install"></a>
+<h3>Installing DSM2</h3>DSM2 comes with a binary installer, and you should be able
+to set it up easily with the default installation. There are two limitations:
+<ul>
+<li>DSM2 is tested only on Windows XP. It has a history of working on NT,
+and we would love to hear from you if you can confirm it works on 
+Windows Vista this year.</li>
+<li>You need administrative permission to install the package.</li>
+<li>You should not set it up in a location with spaces. We recommend: 
+D:\delta\dsm2 or C:\delta\dsm2...</li>
+<li>Set it up on a drive with a lot (gigabytes) of room. This will make it easier to 
+use in-place</li>
+</ul>
+<a name="extras"></a>
+<h3>Really Great Extras</h3>
+<p>DSM2 comes with a numerical model and scripting capabilities.
+It is easier to use the model if you also have a text editor with 
+syntax highlighting, a tool for differencing
+text files ("diff tool"), a dss viewer and an hdf5 viewer.</p>
+<ul>
+<li><a href="http://notepad-plus.sourceforge.net/uk/site.htm">Notepad++</a> is 
+a text editor that works well with DSM2 input data and integrates nicely
+into the Windows file explorer. We support the editor with 
+syntax highlighting. Here are some instructions for configuring Notepad++</li>
+<li><a href="http://www.sourcegear.com/diffmerge/">DiffMerge</a> is a good 
+free differencing tool for text files. 
+<a href "http://www.scootersoftware.com/">Beyond Compare</a>
+is an inexpensive commercial product that is intuitive and also compares Word files.</li>
+<li>Vista, one of the first graphical tools for examining 
+data in HEC-DSS format, comes with DSM2 in the /dsm2/vista/bin directory. 
+We include it because of legacy scripts, but do not support it very actively
+(DWR uses other python scripting tools internally).</li>
+<li><a href="http://www.hec.usace.army.mil/software/hec-dss/hecdss-dss.html">
+HEC-DSSVUE</a> is distributed by HEC and is actively maintained. Most people use DSSVUE
+as their primary tool with Vista for specific tasks. An Excel add-in for DSS data
+is also available on the HEC web page.</li>
+<li><a href="http://www.microsoft.com/windowsxp/Downloads/powertoys/Xppowertoys.mspx">
+Open Command Window Here</a> is a free "power tool" distributed by Microsoft (the download
+links are on the right hand side next to the description of the tool).
+It allows you to get a command window by right clicking a location in Windows
+file explorer. The tool is essential for working with DSM2 efficiently.</li>
+<li><a href="http://www.hdfgroup.org/hdf-java-html/hdfview/">HDFView</a> and
+<a href="http://www.space-research.org/">HDF-Explorer</a> are two independent
+browsers for the HDF5 file format. This lets you look inside a tidefile, one of the
+outputs of the model. You only need one of them.</li>
+</ul>
+<a name="testlaunch"></a>
+<h3>Test Launching DSM2</h3>
+<p>The first step is to see whether the installation was successful. To do this,
+get a DOS-style command prompt window either by going to the Windows Start->Run and typing cmd.exe
+in the text box, clicking on a command window shortcut on your start menu or desktop or by
+right clicking a directory in Windows file Explorer and choosing CMD Prompt Here (if
+you installed this tool)<p>
+
+<p>Once you have a prompt, type this line to see what
+version of hydro you are using:</p>
+<div class="fragment">
+<pre class="fragment">
+C:\&gt;hydro -v
+ DSM2-Hydro 8.0a2
+ Usage: Hydro input-file
+</pre>
+</div>
+<p>If you got a message like the one above, you are up and running!
+Your next stop should be tutorial #1. Please take time to
+do the simple tutorials -- they will do a lot to get you familiar with the
+installation.</p>
+
+If instead you get this:</p>
+<div class="fragment">
+<pre class="fragment">
+C:\&gt;hydro -v
+'hydro' is not recognized as an internal or external command,
+operable program or batch file.
+</pre>
+</div>
+<p>
+...you have a path problem and we need to straighten it out.
+</p>
+
 </div><!--End contents-->
 
 <div id="footer">
