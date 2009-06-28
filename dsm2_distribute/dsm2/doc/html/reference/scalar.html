@@ -31,33 +31,29 @@ SCALAR section. All of the parameters are interpreted as text and can be replace
 <br />
 <a name="tables"></a>
 <h2 id="tables">Tables:</h2>
-<ul class="table_list">
-<li><a class="table_link" href="#parameter_table">Parameters</a></li>
-</ul>
-<p>Click on table name to go to the reference for that table.
-Click on image to enlarge picture of GUI page and its tables.</p>
-<p class="dataview_image"><a href="parameter_view_image.html">
-<img alt="" src="image/parameter_small.jpg"></a>
-</p>
 
-<a name="parameter_table"></a>
-<h3 class="table_name">Parameter Table</h3>
-<p>The Parameter table comprises name-value pairs for scalars. The scalars that are allowed
-depend on the specific model. The table is a top-level, layered table but does not have the typical 
-<em>Use</em> column because parameters typically have defaults and cannot be "removed".</p>
+
+<a name="scalar_table"></a>
+<h3 class="table_name">SCALAR</h3>
+<p>The SCALAR table comprises name-value pairs for scalars. The scalars that are allowed
+depend on the specific model..</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>Layer</dt>
-<dd>Layer number on which the entry is defined.</dd>
-<dt>Parameter Name</dt>
+<dt>NAME</dt>
 <dd>Name of the parameter. This is the identifier of the parameter.
 </dd>
-<dt>Description</dt>
-<dd>Long description of the parameter.</dd>
-<dt>Value</dt>
+<dt>VALUE</dt>
 <dd>Value assigned to the parameter. These are interpreted by the model first as text (to allow substitution
-using ENVVARS) and then converted to the correct data type and validated.
+using ENVVARS) and then converted to the correct data type and validated. For boolean (true/false) one letter is
+sufficient.
 </dd>
+</dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt>
+<dd>NAME</dd>
+<dt>Parent Table:</dt><dd>Table is parent</dd>
+<dt>Include Block:</dt><dd>PARAMETER</dd>
 </dl>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
@@ -65,7 +61,8 @@ using ENVVARS) and then converted to the correct data type and validated.
 <a name="usage"></a>
 <h2>Usage Notes:</h2>
 <ul>
-<li>Usage notes for parameter are coming soon. Most of the defaults work OK.</li>
+<li>Generally you will work with the standard parameters distributed with DSM2. You always have to provide
+RUN_START_DATE, RUN_END_DATE as the defaults are deliberately designed to halt the model.</li>
 </ul>
 
 </div><!--End contents-->
