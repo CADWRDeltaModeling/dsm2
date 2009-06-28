@@ -28,12 +28,7 @@ of constituents originated from grouped sources, tracking of particles as they r
 groups of water bodies and/or boundaries, and assignment of rate
 coefficients in QUAL to groups of water bodies. In each context, the types of model
 objects that are allowed in the groups may be slightly different. That
-validation takes place elsewhere: In this view of the GUI we are only
-concerned about creating the groups.</p>
-<p>The Groups View is equivalent to the <a href="group_text_input.html">GROUPS</a>
-section of the text input system, and Groups defined in the GUI can be augmented in text.
-Since PTM is entirely text-based, the Groups View of the GUI is mostly
-used for QUAL constituent tracking and rate coefficient assignment.</p>
+validation takes place elsewhere in the object using the group.</p>
 
 <a name="tables"></a>
 <h2 id="tables">Tables:</h2>
@@ -41,38 +36,31 @@ used for QUAL constituent tracking and rate coefficient assignment.</p>
 <li><a href="#group_table">Groups</a></li>
 <li><a href="#group_member_table">Group Members</a></li>
 </ul>
-<p>Click on table name to go to the reference for that
-table. Click on image to enlarge picture of GUI page and its tables.</p>
-<p class="dataview_image"><a href="group_view_image.html">
-<img alt="" src="image/group_small.jpg"></a></p>
-
-<a name="group_table"></a><h3 class="table_name">Groups Table</h3>
-<p>The Groups table defines the name and description of the
-group. Groups is a top-level layered table. Group members are defined
-in a child table.</p>
+<a name="group_table"></a><h3 class="table_name">GROUP</h3>
+<p>The GROUP table defines the name of a group. It has one column!!!
+The reason we do this is to provide a top level table for overriding 
+and redefining groups in the layering system.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
-<dl class="field_definitions"><dt>Layer</dt>
-<dd>Layer number on which the entry is defined.</dd>
-<dt>Name</dt>
+<dl class="field_definitions">
+<dt>NAME</dt>
 <dd>Name of the group. This is the identifier for the group used
 in references elsewhere in the input system.
-</dd><dt>Description of Group [optional]</dt>
-<dd>Text description of the group.</dd><dt>Use</dt>
-<dd>Check box indicating item is in use. See Use Column.</dd>
+</dd>
 </dl>
 
 <hr class="table_sep" width="200">
 <a name="group_member_table"></a>
-<h3 class="table_name">Group Members Table</h3>
-<p>The Group Members Table lists members of the selected group in
-the
-parent table. The group members are identified using patterns written
-using
-regular expressions.</p>
-<math></math><h4 class="field_def_title">Field
-Descriptions</h4>
-<dl class="field_definitions"><dt>Member Type</dt><dd>Picklist
-for choosing the type (Channel, etc) of model object.</dd>
+<h3 class="table_name">GROUP_MEMBER</h3>
+<p>The Group Members Table lists members of the parent group. 
+The group members are identified using patterns written
+using regular expression and a special syntax for ranges of numbers.
+If this sounds like nonsense -- don't worry. The examples should cover
+most of the important ways you would want to define group members. Note
+also that you can use multiple rows to define the group -- the result
+will be the union of the members from the individual rows.</p>
+<math></math><h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions"><dt>MEMBER_TYPE</dt><dd>The type (channel, etc) 
+of model object.</dd>
 <dt>Identifier/Pattern</dt><dd>A pattern that will be
 matched against the identifier of the object (channel number, input
 name, etc). The pattern can be a regular expression or use the special

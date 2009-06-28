@@ -75,13 +75,17 @@ connected.</dd>
 
 <a name="xsect_table"></a>
 <h3 class="table_name">XSECT</h3>
-<p>This table lists locations where bathymetric
-cross-sections are specified by the user. The table lists the fraction of the distance
+<p>This table lists files where bathymetric
+cross-sections are specified by the user using the CSDP format. 
+The table lists the fraction of the distance
 along the reach (from upstream to downstream) at which the user
 cross-section is located. These cross-sections will be interpolated by
 the model at computational points. Overspecification of geometry is a 
 frequent source of user error/misconception, 
-please see <a href="#usage">usage notes</a> below</p>
+please see <a href="#usage">usage notes</a> below. Also
+note that this style of input and the XSECT_LAYER "single file" 
+format below should not be freely mixed for a given channel -- use
+one or the other.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
 <dt>CHAN_NO</dt><dd>Channel number where cross-section is located</dd>
