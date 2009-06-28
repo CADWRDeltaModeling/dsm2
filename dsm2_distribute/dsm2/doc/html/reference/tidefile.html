@@ -22,11 +22,13 @@
 <a name="overview"></a><h2>Overview:</h2>
 <p>The tidefile is the HDF5-formatted binary file used to pass
 flow and geometry date from HYDRO to QUAL and PTM. The tidefile is
-specified as output by HYDRO in the <a href="io_file_text_input.html">IO SECTION</a>.
+specified as output by HYDRO in the <a href="io_file.html">IO SECTION</a>.
  It is specified as input to QUAL and PTM in the TIDEFILE section. 
  Input tidefiles can be specified only in text.</p>
-<p>Tidefiles can be stacked if desired. The flow simulation can be divided
-temporally among several HYDRO runs and then the resulting tidefiles
+<p>Tidefiles can be stacked if desired, but this is an old
+feature that is now deprecated. 
+Stacking means that the flow simulation can be divided temporally among several 
+HYDRO runs and then the resulting tidefiles
 used sequentially in QUAL or PTM.</p>
 
 <a name="reference"></a><h2>Reference</h2>
