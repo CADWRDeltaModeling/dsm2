@@ -35,31 +35,27 @@ Series View to specify the flow -- the default is zero.
 <a name="tables"></a>
 <h2 id="tables">Tables:</h2>
 <ul class="table_list">
-<li><a class="table_link" href="#transfer_table">Transfers</a></li>
+<li><a class="table_link" href="#transfer_table">TRANSFER</a></li>
 </ul>
-<p>Click on table name to go to the reference for that table.
-Click on image to enlarge picture of GUI page and its tables.</p>
-<div class="dataview_image">
-<p><a href="transfer_view_image.html"><img alt="" src="image/transfer_small.jpg"></a></p>
 
 <a name="transfer_table"></a>
-<h3 class="table_name">Transfer Table</h3>
+<h3 class="table_name">TRANSFER</h3>
 <p>The Transfer table defines the name and connectivity of the transfer. 
-The Transfers table is a top-level layered table.</p>
+The flow is a time series input specified in <a href="input_transfer_flow.html">TRANSFER_TIME_SERIES</a></p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>Layer</dt>
-<dd>Layer number on which the entry is defined.</dd>
-<dt>Name</dt>
+<dt>NAME</dt>
 <dd>Name of the transfer. This is the identifier of the transfer used in other GUI views.
 </dd>
-<dt>From/To Object</dt>
-<dd>Type (node or reservoir) of the origin/destination object.</dd>
-<dt>Name/Number</dt>
-<dd>Identifier (node number or reservoir name) of the origin/destination object.</dd>
-<dt>Use</dt>
-<dd>Check box indicating item is in use. See Use Column.</dd>
-</dl>
+<dt>FROM_OBJ</dt>
+<dd>Type (node or reservoir) of the source object.</dd>
+<dt>FROM_IDENTIFIER</dt>
+<dd>Identifier (node number or reservoir name) of the source destination object.</dd>
+<dt>TO_OBJ</dt>
+<dd>Type (node or reservoir) of the destination object.</dd>
+<dt>FROM_IDENTIFIER</dt>
+<dd>Identifier (node number or reservoir name) of the destination object.</dd>
+
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
