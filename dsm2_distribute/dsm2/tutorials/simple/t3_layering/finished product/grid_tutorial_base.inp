@@ -50,7 +50,7 @@ END
 
 RESERVOIR_CONNECTION
 RES_NAME  NODE COEF_IN COEF_OUT
-res_1        3   200.0    200.0 
+res_1        k3   200.0    200.0 
 res_1        4   200.0    200.0 
 dummy_res    5   220.0    220.0 
 dummy_res    6   220.0    220.0 
