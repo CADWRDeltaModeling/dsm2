@@ -1,92 +1,73 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Scalar</title><!-- Changed by: , 07-Sep-2007 -->
-<link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Parameters</title>
+
+<!-- Changed by: , 07-Sep-2007 -->
+<link type="text/css" href="../dsm2.css" rel="stylesheet">
+</head>
 <body>
-<div id="wrap">
+<div id="wrap" >
 
 <ul id="page_navbar" >
 <li><a href="#overview">Overview</a></li>
-<li><a href="#reference">Reference</a></li>
-<li><a href="#examples">Examples</a></li>
+<li><a href="#tables">Tables</a></li>
 <li><a href="#usage">Usage</a></li>
 </ul><!--end navbar-->
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>SCALARS Section</h1>
+<h1>Parameters</h1>
 </div><!-- page_title-->
 <hr style="header_hr"/>
 
 <div id="contents">
-<a name="overview"></a><h2>Overview:</h2>
-<p><em>SCALARS</em> are text input variables used to
-specify model-wide numerical properties and echoed output levels.
-Scalar text input is equivalent to
-variables specified in the <a href="parameter_view.html">Parameter
-View</a> of the GUI.
-Text is the preferred way to make changes to scalars on a
-single-project or single-scenario basis. </p>
-<p>All production DSM2 model runs have a scalar section. Several
-fields are particularly important even if most of the input comes from the database. The
-database parameter (default "dsm2input") names the database. The
-model_name parameter specifies the model name in the database from
-which to load other input. The start and end times are also specified in text (usually with an
-ENVVAR text substitution) and have no default in the database.
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p><i>Parameters</i> are scalar model variables used to specify model-wide 
+numerical properties and echoed output levels. They are the equivalent of the text input
+SCALAR section. All of the parameters are interpreted as text and can be replace by ENVVARS.
 </p>
 
-<a name="reference"></a><h2>Reference</h2>
-<p>The Parameter table comprises name-value pairs for scalars.
-The scalars that are allowed
-depend on the specific model. SCALAR entries in text replace the
-equivalent GUI entries.</p>
-</p><h4 class="field_def_title">Keyword Descriptions</h4>
+<br />
+<a name="tables"></a>
+<h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a class="table_link" href="#parameter_table">Parameters</a></li>
+</ul>
+<p>Click on table name to go to the reference for that table.
+Click on image to enlarge picture of GUI page and its tables.</p>
+<p class="dataview_image"><a href="parameter_view_image.html">
+<img alt="" src="image/parameter_small.jpg"></a>
+</p>
+
+<a name="parameter_table"></a>
+<h3 class="table_name">Parameter Table</h3>
+<p>The Parameter table comprises name-value pairs for scalars. The scalars that are allowed
+depend on the specific model. The table is a top-level, layered table but does not have the typical 
+<em>Use</em> column because parameters typically have defaults and cannot be "removed".</p>
+<h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>NAME</dt><dd>Name of the parameter. This is the identifier of the
-parameter.</dd>
-<dt>VALUE</dt><dd>Value assigned to the parameter. These are interpreted by the
-model first as text (to allow substitution using ENVVARS) and then 
-converted to the correct data type and validated.</dd>
+<dt>Layer</dt>
+<dd>Layer number on which the entry is defined.</dd>
+<dt>Parameter Name</dt>
+<dd>Name of the parameter. This is the identifier of the parameter.
+</dd>
+<dt>Description</dt>
+<dd>Long description of the parameter.</dd>
+<dt>Value</dt>
+<dd>Value assigned to the parameter. These are interpreted by the model first as text (to allow substitution
+using ENVVARS) and then converted to the correct data type and validated.
+</dd>
 </dl>
-<br>
-<h2 id="examples">Examples:</h2>
-<p><span style="font-weight: bold;">HYDRO example:</span></p>
-<table class="text_input"><tbody>
-<tr><td>SCALAR</td><td></td><td></td></tr>
-<tr><td>NAME</td><td>VALUE</td><td></td></tr>
-<tr><td>model_name</td><td>historical_hydro</td><td># model name in the database</td></tr>
-<tr><td>run_start_date</td><td>${START_DATE}</td><td># runtime using envvars</td></tr>
-<tr><td>run_end_date</td><td>${END_DATE}</td><td></td></tr>
-<tr><td>run_start_time</td><td>${START_TIME}</td><td></td></tr>
-<tr><td>run_end_time</td><td>${END_TIME}</td><td></td></tr>
-<tr><td style="white-space: nowrap;">END</td><td></td><td></td></tr>
-</tbody></table>
-<hr class="table_sep" width="200">
-<p><span style="font-weight: bold;">QUAL example:</span></p>
-<table class="text_input"><tbody>
-<tr><td>SCALAR</td><td></td><td></td></tr>
-<tr><td>NAME</td><td>VALUE</td><td></td></tr>
-<tr><td>database</td><td>dsm2input_access</td><td>#dbase name (ODBC name)</td></tr>
-<tr><td>model_name</td><td>sdip_qual_ic</td><td>#model name in the database</td></tr>
-<tr><td>run_start_date</td><td>${QUAL_START_DATE}</td><td></td></tr>
-<tr><td>run_start_time</td><td>${START_TIME}</td><td></td></tr>
-<tr><td>run_end_date</td><td>${END_DATE}</td><td></td></tr>
-<tr><td>run_end_time</td><td>${END_TIME}</td><td></td></tr>
-<tr><td>temp_dir</td><td>z:/temp</td><td># reassign temp directory</td></tr>
-<tr><td>init_conc</td><td>20.0</td><td># default initial concentration</td></tr>
-<tr><td>END</td><td></td><td></td></tr>
-</tbody>
-</table>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
 <a name="usage"></a>
 <h2>Usage Notes:</h2>
 <ul>
-<li> The GUI Parameter View give a good quick reference
-of default values for
-a lot of scalar parameters.</li>
+<li>Usage notes for parameter are coming soon. Most of the defaults work OK.</li>
 </ul>
+
 </div><!--End contents-->
 
 <div id="footer">
