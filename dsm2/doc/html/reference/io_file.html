@@ -7,7 +7,7 @@
 
 <ul id="page_navbar" >
 <li><a href="#overview">Overview</a></li>
-<li><a href="#reference">Reference</a></li>
+<li><a href="#tables">Reference</a></li>
 <li><a href="#examples">Examples</a></li>
 <li><a href="#usage">Usage</a></li>
 </ul><!--end navbar-->
@@ -21,15 +21,18 @@
 <div id="contents">
 <a name="overview"></a>
 <h2>Overview:</h2>
-<p><em>IO_FILES</em> is a section for declaring most
+<p><em>IO_FILES</em> is a table for declaring most
 of the non-dss output from a simulation, including
 echoed text output files, restart files and output tidefiles (input
 tidefiles are specified for QUAL and PTM in the 
-<a href="tidefile_text_input.html">TIDEFILE</a> section). IO_FILES can only be
-specified in the text input file (hydro.inp, qual.inp, ptm.inp).
+<a href="tidefile.html">TIDEFILE</a> section). IO_FILES can only be
+specified in the main text input file (hydro.inp, qual.inp, ptm.inp).
 </p>
 
-<div class="text_input_reference"><a name="reference"></a><h2 class="section_name">Reference</h2>
+<a name="tables"></a>
+<h2 id="tables">Reference:</h2>
+<a name="operating_rule_table"></a>
+<h3 class="table_name">IO_FILE</h3>
 <h4 class="field_def_title">Keyword Descriptions</h4>
 <dl class="field_definitions">
 <dt>MODEL</dt><dd>Model generating the file. For a restart file this should be the model
@@ -48,9 +51,10 @@ for echoed output.</dd>
 <br>
 <h2 id="examples">Examples:</h2>
 <p style="font-weight: bold;">HYDRO example:</p><p>This
-example includes an echoed output file, a restart output file that is
-regenerated every model day (overwriting the previous day's file) and
-an hdf5 tidefile for passing information to QUAL. All of the file names
+example includes standard hydro runtime output file, a restart output file that is
+regenerated every model day (overwriting the previous day's file),
+an hdf5 tidefile for passing information to QUAL and 
+an echo file (replicate of input). All of the file names
 use text substitution -- the value would come from an environmental
 variable, ENVVARS section in the input file or ENVVARS section of a
 config file. </p>
@@ -61,12 +65,14 @@ config file. </p>
 <tr><td>output</td><td>none</td><td>none</td><td>none</td><td>${HYDROOUTFILE}</td><td></td></tr>
 <tr><td>hydro</td><td>restart</td><td>out</td><td>1day</td><td>${QUALRSTFILE}</td><td></td></tr>
 <tr><td>hydro</td><td>hdf5</td><td>out</td><td>1hour</td><td>${HYDROHDF5FILE}</td><td></td></tr>
+<tr><td>hydro</td><td>echo</td><td>out</td><td>none</td><td>${DSM2MODIFIER}_hydro_echo</td><td></td></tr>
 <tr><td>END</td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table>
 <p><span style="font-weight: bold;">QUAL example:</span></p><p>This
-example includes an echoed output file, a restart output file that
-is regenerated every model day (overwriting the previous day's file)
-and an hdf5 tidefile for passing information to QUAL.</p>
+example includes a general qual runtime output file, a restart output file that
+is regenerated every model day (overwriting the previous day's file),
+a restart file that will be used to generate the initial condition for the run,
+and an hdf5 tidefile for passing information to QUAL and an echo file (exact replicate of input).</p>
 <table class="text_input">
 <tbody>
 <tr><td>IO_FILES</td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -74,6 +80,7 @@ and an hdf5 tidefile for passing information to QUAL.</p>
 </tr><tr><td>output</td><td>none</td><td>none</td><td>none</td><td>${QUALOUTFILE}</td><td></td></tr>
 <tr><td>qual</td><td>restart</td><td>out</td><td>1day</td><td>${QUALRESTART}</td><td></td></tr>
 <tr><td>qual</td><td>restart</td><td>in</td><td>none</td><td>qualinit_30SEP1999.qrf</td><td></td></tr>
+<tr><td>qual</td><td>echo</td><td>out</td><td>none</td><td>${DSM2MODIFIER}_qual_echo</td><td></td></tr>
 <tr><td>END</td><td></td><td></td><td></td><td></td><td></td></tr>
 </tbody></table>
 <p><span style="font-weight: bold;">PTM example:</span></p><p>This

@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Gates</title>
+<link type="text/css" href="../dsm2.css" rel="stylesheet">
+</head>
+<body>
+<div id="wrap" >
+<ul id="page_navbar" >
+<li><a href="#overview">Overview</a></li>
+<li><a href="#tables">Tables</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul><!--end navbar-->
+
+<hr style="header_hr"/>
+<div id="page_title" class="dwr_logo">
+<h1>Gates</h1>
+</div><!-- page_title-->
+<hr style="header_hr"/>
+
+<div id="content">
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p><i>Gates</i> are sites that present a barrier or control on flow. 
+A gate may have an arbitrary number of associated hydraulic devices (pipes and weirs), 
+each of which may be operated independently to control flow.</p>
+
+<p>The Gates View is primarily for specifying the physical properties of the gate and
+some simple operating modes. Gates that are operated simply can be completely specified in this
+view of the GUI. Much more elaborate controls are possible using Gate Time Series and Operating Rules, 
+and in addition to manipulating the hydraulic devices you can completely uninstall the
+gate.</p>
+
+<a name="tables"></a>
+<h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a href="#gate_table">Gates</a></li>
+<li><a href="#device_table">Gate Devices</a></li>
+</ul>
+
+<br>
+
+<a name="gate_table"></a>
+<h3 class="table_name">GATE</h3>
+<p>The Gate table defines the name and connectivity of the gate. Gates are a top-level layered table.</p>
+<h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions">
+<dt>NAME</dt>
+<dd>Name of the gate. This is the identifier of the gate used elsewhere to refer to the gate.
+</dd>
+<dt>FROM_OBJ</dt>
+<dd>Type (channel/reservoir) of the water body to which the gate is attached. 
+Gates are always connected from a water body to a node. This column is a picklist
+that is also connected to the Name/no. column.</dd>
+<dt>FROM_IDENTIFIER</dt>
+<dd>Identifier (channel number or reservoir name) of the water body to which the gate is 
+attached.</dd>
+<dt>TO_NODE</dt>
+<dd>Node to which gate is attached.</dd>
+</dl>
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="device_table"></a>
+<h3 class="table_name">GATE_DEVICE</h3>
+<p>This table lists hydraulic structures that exist at the gate site to control flow. Currently pipes and weirs
+are supported. In this table, the user specifies physical properties of the device as well as
+default operations. Both employ the following formulas depending on whether the water surface is higher on the 
+water body or node side of the gate:</p>
+<math>
+<p>Q = nC<sub>op_to</sub>C<sub>to</sub>A(z<sub>wb</sub>, p)<em> sqrt</em>[ 2g(z<sub>wb</sub> - z<sub>node</sub>) ]       ... z<sub>wb</sub> > z<sub>node</sub>
+<p>Q = nC<sub>op_from</sub>C<sub>from</sub>A(z<sub>node</sub>, p)<em> sqrt</em>[ 2g(z<sub>node</sub> - z<sub>wb</sub>) ] ... z<sub>wb</sub> < z<sub>node</sub>
+</math>
+<p>Where: 
+<ul><li>n is the number of duplicate devices></li>
+<li>C<sub>op_to</sub> and C<sub>op_to</sub> are operating coefficient representing controls such as flap gates</li>
+<li>C<sub>to</sub> and C<sub>from</sub> are coefficients
+representing the hydraulic efficiency of the gate</li>
+<li>A is the area of flow depending on higher water surface and position p</li>
+<li>g is gravity and </li> 
+<li>z<sub>wb</sub> and z<sub>node</sub> are the water surface elevations at the water body and node (node surface is assessed by means of a reference channel that has no gates attached to it).
+</ul>
+
+Please see <a href="#usage">usage notes</a> below</p>
+<h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions">
+<dt>NAME</dt><dd>Name of the device. This is the identifier refered to in other tables.</dd>
+<dt>GATE_NAME</dt><dd>Name of the gate this device in which the device is located.</dd>
+
+<dt>STRUCTURE</dt><dd>Type of hydraulic structure (pipe/weir) represented by the device.</dd>
+<dt>NDUPLICATE</dt><dd>Number of exact duplicates, such as a number of similar pipes in parallel.
+Parameters such as width apply to a single one of the duplicates.</dd>
+<dt>WIDTH</dt><dd>Maximum width of the device (radius of a pipe, width of a weir).</dd>
+<dt>ELEV</dt><dd>Invert elevation or weir crest. </dd>
+<dt>HEIGHT</dt><dd>Height of the device from the invert elevation. This can be used to represent the height of 
+rectangular flashboards or of a radial gate. If the surface goes above this height, flow will be submerged.
+Use NA for an open top. If you click in an NA column, you
+will see that it is encoded using a large number, but you should only use 'NA' or a real height.</dd>
+<dt>CF_TO_NODE</dt><dd>Flow coefficient of the gate (0 < C<sub>to</sub> <= 1.0) describing the efficiency of the gate
+from water body to node. This parameter is the physical coefficient of flow. It should never be zero and 
+should not be used to describe a control structure or operation such as flap gates or gate openings.</dd>
+<dt>CF_FROM_NODE</dt><dd>Same as CF To Node, but for the direction from node to water body.
+</dd>
+<dt>DEFAULT_OP</dt><dd>Default operation mode. The gate operation is a "magic" parameter
+between 0.0 and 1.0 that modulates gate flow. Operating coefficients can be used to represent flap gates, fractions of duplicates operating or
+other physical controls. The default ops are simple on this table are like initial conditions -- if 
+you want more sophisticated control you will need to use a Gate Time Series or Operating Rule.
+Nevertheless, the defaults are enough to represent structures that
+are fully open or closed or operated unidirectionally. Here is how the default operation mode
+will affect the operating coefficient:
+<dl>
+<dt>gate_open</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=1.0;</dd>
+<dt>gate_close</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=0.0;</dd>
+<dt>unidir_to</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=0.0;</dd>
+<dt>unidir_from</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=1.0;</dd>
+</dd>
+<dt>POSITION_CONTROL</dt><dd>This variable specifies the type of gate control stucture and thus how the gate responds to the
+"position" variable in time series or operating rules.  Options included no gate, gated from top down
+(as in a typical radial gate, in which case position controls "height") or gated from bottom (as in the permanent gate design, in 
+which case position controls "elev").  This input is now deprecated -- it is now possible to control elev or height directly in the time series
+or operating rule.</dd>
+</dl>
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="usage"></a>
+<h2>Usage Notes:</h2>
+Several types of time series and operational controls can be placed on gates.
+<math><sqrt>z<sub>1</sub></sqrt></math>
+<ul>
+<li>At least one channel at every node must be ungated.</li>
+<li>Gates can be removed using an operation rule that sets the gates <em>install</em> variable
+to zero. Gates that are uninstalled behave like normal nodes with equal water surface constraints
+between them. Operations and time series that manipulate the device operating coefficients and
+positions will be applied, but the devices will be totally ignored in computations to
+determine flow.
+flow.</li>
+<li>Gates can be controlled by a number of variables that are time-varying and controlled by time series
+or operating rules:
+<dl>
+<dt><em>install</em> </dt><dd>Install applies to the whole gate, not individual devices. When the gate is uninstalled (install=0)
+the gate ceases to exist, none of its devices are applied (although the continue to exist in the background).
+The gate is totally replaced by an equal-stage compatibility condition. </dd>
+<dt><em>op_to_node</em> </dt><dd>Operating coefficient in the direction from water body to node.</dd>
+<dt><em>op_from_node</em> </dt><dd>Operating coefficient in the direction from node to water body.</dd>
+<dt><em>op</em> </dt><dd>Operating coefficient in both directions. This is just a convenience combo
+of the individual to/from node versions. It is write-only in operating rules, because it combines
+two variables and there is no single value that can be read.</dd>
+<dt><em>position</em> </dt><dd>Physical operating position whose interpretation depends on the Position Control
+setting of the gate device. This is now deprecated in favor of more direct manipulation of things like gate elevation.</dd>
+<dt><em>elev</em> </dt><dd>Weir crest or pipe invert elevation. This can represent evolution over time or a bottom-operating structure.</dd>
+<dt><em>width</em> </dt><dd>Weir width or pipe radius. This usually represents evolution over time.</dd>
+<dt><em>height</em> </dt><dd>Weir gate height, width of a flashboard. This can represent evolution over time or a top-operating structure like a radial gate.</dd>
+<dd></dd>
+</ul>
+</li>
+</ul>
+
+</div><!--End contents-->
+
+<div id="footer"><copyright>© 2007 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+</div> <!--End footer-->
+</body></html>
