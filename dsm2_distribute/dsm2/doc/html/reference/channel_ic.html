@@ -30,47 +30,38 @@ restart file is used.
 <h2 id="tables">Tables:</h2>
 <ul class="table_list">
 <li><a href="#channel_ic_table">Channel Initial Conditions</a></li>
-</ul><p>Click on table name to go to the reference for that
-table. Click on image to enlarge picture of GUI page and its tables.</p>
-<p class="dataview_image"><a href="channel_ic_view_image.html"></div>
-<img alt="Channel IC View" src="image/channel_ic_small.jpg"></a>
-</p>
-<br><br>
 
 <a name="channel_ic_table"></a>
-<h3 class="table_name">Channel Initial Conditions Table</h3>
-<p>The table pairs channel locationsith default initial values.
-Interpolation is used between
-locations. Water surface (stage) and flow must be specified at the
+<h3 class="table_name">CHANNEL_IC</h3>
+<p>The table pairs channel locations with default initial values.
+Interpolation is used between locations. Water surface (stage) and flow must be specified at the
 upstream and downstream ends of the channel.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
-<dl class="field_definitions"><dt>Layer</dt>
-<dd>Layer number on which the entry is defined.</dd>
-<dt>Chan #</dt>
+<dl class="field_definitions">
+<dt>CHAN_NO</dt>
 <dd>Channel number of channel where initial condition is to be
 applied.</dd>
-<dt>Distance</dt>
+<dt>DISTANCE</dt>
 <dd>Distance along channel where initial condition is to be
 applied. This may be a numerical distance or the keyword "length" to indicate the end of the channel. If you edit an entry that
 says "length", you may see a complicated coded value, which is only for internal use.</dd>
-<dt>Variable</dt>
-<dd>Variable (flow,stage) for which entry is intended. Currently hydro variables "flow" and "stage" are initialized in this way.</dd>
-<dt>Value</dt><dd>Value assigned to the parameter. These are interpreted by the
-model first as text (to allow substitution
-using ENVVARS) and then converted to the correct data type and
-validated.</dd>
-<dt>Use</dt><dd>Check
-box indicating item is in use. See Use Column.</dd><dd><br></dd><dd>
-</dd></dl>
+<dt>STAGE</dt><dd>Initial water surface elevation.</dd>
+<dt>FLOW</dt><dd>Initial flow (cfs).</dd>
+</dl>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
 <a name="usage"></a>
 <h2>Usage Notes:</h2>
 <ul><li>Default initial values specified in the GUI are
-replaced if a restart file is used.</li><li>Currently, QUAL
+replaced if a restart file is used.</li>
+<li>Currently, QUAL
 cannot take a spatially distributed default initial condition for
 constituent concentrations. It has only a single scalar.</li>
+<li>Reservoir initial surfaces should be matched to the surrounding channels.
+Differences imply a flow, and if you haven't accounted for the flow in your
+other initial conditions you will have a flow imbalance
+or even instability on the first step.</li>
 </ul>
 
 </div><!--End contents-->
