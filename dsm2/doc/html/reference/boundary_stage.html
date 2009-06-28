@@ -27,11 +27,6 @@ to water levels at that boundary
 <a name="tables"></a><h2 id="tables">Tables:</h2>
 <ul class="table_list">
 <li><a href="#boundary_stage">Stage Boundary</a></li>
-</ul><p>Click on table name to go to the reference for that
-table. Click on image to enlarge picture of GUI page and its tables.</p>
-<p class="dataview_image"><a href="boundary_stage_view_image.html">
-<img src="image/boundary_stage_small.jpg" alt="Boundary Stage"></a>
-</p>
 
 <a name="boundary_stage"></a>
 <h3 class="table_name">Stage Boundary Table</h3>
@@ -41,32 +36,25 @@ associating it with a node. The table also assigns a time series to the
 boundary.
 Stage Boundary is a top-level layered table.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
-<dl class="field_definitions"><dt>Layer</dt>
-<dd>Layer number on which the entry is defined.</dd>
-<dt>Input Name</dt>
-<dd>Name assigned to the boundary condition. This is the
-identifier of the stage boundary and is referred to elsewhere in the
-input system. If you assign an water quality boundary condition you
-will use the same name.</dd>
-<dt>Node</dt>
-<dd>Model variable to be output. Depends on the type of object
-being queried.</dd>
-<dt>Input File</dt>
-<dd>DSS or text file in which data are stored. Use consistent
+<dl class="field_definitions">
+<dt>NAME</dt>
+<dd>Name assigned to the source. This is the
+identifier of the boundary and is referred to elsewhere in the
+input system. If you assign water quality you
+will use the same name in order to match concentration to flow.</dd>
+<dt>NODE</dt>
+<dd>Node number at which the source is applied.</dd>
+<dt>FILLIN</dt><dd>Method for filling in data if the time step of the assigned series
+is coarser than the time step of the model. 
+See <a href="../definitions/fillin.html">fillin types</a></dd>
+<dt>FILE</dt><dd>DSS or text file in which data are stored. Use consistent
 case when referring to the same file. You may also enter the word <em>constant</em>
-if you
-would like to assign a constant value to the input (the value will be
+if you would like to assign a constant value to the input (the value will be
 entered in the next column).</dd>
-<dt>Path/Value</dt>
+<dt>PATH</dt>
 <dd>The path within the text or DSS file of the time series data.
-If you
-used the <em>constant</em> keyword in the Input File
+If you used the <em>constant</em> keyword in the Input File
 column, enter the value (e.g. <em>4.22</em>) here.</dd>
-<dt>Fillin</dt><dd>Method for
-filling in data if the time step of the assigned series
-is coarser than the time step of the model. See <a href="definitions/fillin.html">Fillin</a>.</dd><dt>Use</dt><dd>Checkbox
-indicating whether the item
-is used.</dd>
 </dl>
 
 <a name="usage"></a>
