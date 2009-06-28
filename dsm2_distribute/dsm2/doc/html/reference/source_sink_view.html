@@ -14,7 +14,7 @@ Stage</title><!-- Changed by: , 07-Sep-2007 -->
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>Source/Sink Views</h1>
+<h1>Source Flow</h1>
 </div><!-- page_title-->
 
 <hr style="header_hr"/>
@@ -22,55 +22,42 @@ Stage</title><!-- Changed by: , 07-Sep-2007 -->
 <div id="contents">
 <a name="overview"></a>
 <h2>Overview:</h2>
-<p>Node Source/Sinks represent inflows and outflows in the interior 
-of the model domain at nodes. Reservoir source/sinks are source sinks at
-reservoirs. More than one such source/sink is allowed per location. The 
-documentation in this section is valid for both types of source/sinks, but the
-Node Source Sink View is used for illustration.
+<p>Source flows represent inflows and outflows in the interior 
+of the model domain at nodes. An entry here creates a source and
+assigns a time series of in/outflows to it.
 </p>
 
 <a name="tables"></a>
 <h2 id="tables">Tables:</h2>
 <ul class="table_list">
-<li><a class="table_link" href="#node_source_sink_table">Node Source Sink</a></li>
-</ul><p>Click on table name to go to the reference for that
-table.
-Click on image to enlarge picture of GUI page and its tables.</p>
-<p class="dataview_image">
-<a href="source_sink_view_image.html"><img src="image/source_sink_small.jpg" alt="Node Source Sink Flow"></a>
-</p><!--dataview_image-->
-<a name="node_source_sink_table"></a>
-<h3 class="table_name">Node Source/Sink Table</h3>
-<p>The Node Source/Sink table defines sources and sinks by giving
-them names and associating them with a node. 
-The table also assigns a time series to the source. Node Source/Sink is a top-level layered table. 
-Reservoir Source/Sink is similar, except that a reservoir name is used as the connecting identifier
-instead of a node number.</p>
+<li><a class="table_link" href="#source_table">SOURCE_FLOW</a></li>
+
+<a name="source_table"></a>
+<h3 class="table_name">SOURCE_FLOW</h3>
+<p>The node SOURCE_FLOW table defines sources and sinks by giving
+them names and associating them to a node. 
+The table also assigns a time series to the source.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
-<dl class="field_definitions"><dt>Layer</dt>
-<dd>Layer number on which the entry is defined.</dd>
-<dt>Input Name</dt>
+<dt>NAME</dt>
 <dd>Name assigned to the source. This is the
 identifier of the boundary and is referred to elsewhere in the
 input system. If you assign water quality you
 will use the same name in order to match concentration to flow.</dd>
-<dt>Node/Reservoir</dt>
-<dd>Node number (alternatively, reservoir name) at which the source is applied.</dd>
-<dt>Input File</dt><dd>DSS or text file in which data are stored. Use consistent
-case when referring to the same file. You may also enter the word <em>constant</em>
-if you would like to assign a constant value to the input (the value will be
-entered in the next column).</dd>
-<dt>Path/Value</dt>
-<dd>The path within the text or DSS file of the time series data.
-If you used the <em>constant</em> keyword in the Input File
-column, enter the value (e.g. <em>4.22</em>) here.</dd>
-<dt>Fillin</dt><dd>Method for filling in data if the time step of the assigned series
-is coarser than the time step of the model.</dd>
-<dt>Sign</dt><dd>Forces the time series to be a source or a sink. Positive values are
+<dt>NODE</dt><dd>Node number at which the source is applied.</dd>
+<dt>SIGN</dt><dd>Forces the time series to be a source or a sink. Positive values are
 normally associated with a source, but the data (especially sinks such as agricultural 
 diversions) are sometimes measured in absolute flow. Use 1 to force the value to be a 
 positive source or -1 to interpret values as a sink. </dd>
-<dt>Use</dt><dd>Checkbox indicating whether the item is used.</dd>
+<dt>FILLIN</dt><dd>Method for filling in data if the time step of the assigned series
+is coarser than the time step of the model.</dd>
+<dt>FILE</dt><dd>DSS or text file in which data are stored. Use consistent
+case when referring to the same file. You may also enter the word <em>constant</em>
+if you would like to assign a constant value to the input (the value will be
+entered in the next column).</dd>
+<dt>PATH</dt>
+<dd>The path within the text or DSS file of the time series data.
+If you used the <em>constant</em> keyword in the Input File
+column, enter the value (e.g. <em>4.22</em>) here.</dd>
 </dl>
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
