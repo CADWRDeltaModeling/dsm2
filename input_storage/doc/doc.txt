@@ -105,7 +105,9 @@ The state machine is the design concept between the input reader. The book <EM>T
 In order to use this library in a new context you will need to
 -# Define some user data items in a python file. Your file will imports the input_storage_generator module. 
    An example is provided in a file called example/generate.py. 
--# Run the python script and generate c++ and fortran bindings. In a real application would have to be added to the project files or makefile.
+-# Run the python script and generate c++ and fortran bindings. In a real application 
+   you would probably want to add this step (running generate.py) to the project files
+   or makefile.
 -# Write code that interacts with the generated code and compile them together:
    -# Request text be read into buffers
    -# Prioritize the items in buffers
