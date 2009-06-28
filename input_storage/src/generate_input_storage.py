@@ -25,6 +25,7 @@ profiles={}
 include_block_assign={}
     
 def referencify(typename, const=False):
+    """ Creates a C++ reference out of a C++ type """
     if ("char" in typename):
         ref = typename.replace("char","char(&)")
     else:
@@ -46,6 +47,7 @@ def compare_items(component):
     return compareitems
 
 def prioritize(component):
+    """ Create the code that will prioritize the buffer based on layer number """
     if (component.parent == None):
        priority =  \
     """
@@ -387,11 +389,20 @@ def finalize(outdir):
     include_assign=[]
     for key in include_block_assign:
         include_assign.append("    \""+key+"\":\""+include_block_assign[key]+"\"")
-    subtxt+="def include_block():\n    return {\\\n" + string.join(include_assign,",\n")+"}\n"
+    subtxt+="def include_block():\n    return {\\\n" + string.join(include_assign,",\n")+"}\n\n"
+    include_block_order= ["\"%s\""%define[0] for define in include_defs]   # list of all include block names in order registered
+    include_block_order_txt="def include_block_order():\n      return[\\\n      "\
+                             +string.join(include_block_order,",\\\n      ")\
+                             +"]\n\n"
+    subtxt+=include_block_order_txt
+    
     txt=txt.replace("@COMPONENTSCRIPT",subtxt)
     f=open(os.path.join(outdir,"component.py"),"w")
     f.write(txt)
     f.close()
+        
+    
+    
     shutil.copy(os.path.join(indir,"userDefineLangTemplate.xml"),os.path.join(outdir,"."))
     process_profiles()
     

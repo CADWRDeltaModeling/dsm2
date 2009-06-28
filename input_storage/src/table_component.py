@@ -185,17 +185,21 @@ class CharField(Field):
 
     def input_code(self):
         return \
-        """
-           if(beg->size()<= %s)
-             {
-               strcpy(obj.%s, (beg++)->c_str());
-             }
-           else
-             {
-               cout << "fatal error" <<endl;
-               throw logic_error("String too long (max width %s):" + (*beg));
-             }
-         """ % (self.size, self.name,self.size)
+   """
+   if (beg == end)
+   {
+     throw runtime_error("Fewer input fields received than expected");
+   }        
+   if(beg->size()<= %s)
+   {
+        strcpy(obj.%s, (beg++)->c_str());
+   }
+   else
+   {
+      cout << "fatal error" <<endl;
+         throw logic_error("String too long (max width %s):" + (*beg));
+   }
+   """ % (self.size, self.name,self.size)
 
 
 
@@ -233,6 +237,10 @@ class DoubleField(Field):
     def input_code(self):
         return \
         """
+        if (beg == end)
+        {
+            throw runtime_error("Fewer input fields received than expected");
+        }        
         obj.%s = strtod((beg++)->c_str(),NULL);
          """ % (self.name)
 
@@ -268,6 +276,10 @@ class IntField(Field):
     def input_code(self):
         return \
         """
+        if (beg == end)
+        {
+            throw runtime_error("Fewer input fields received than expected");
+        }        
         tokenstrm.clear();
         tempstr = *(beg++);
         tokenstrm.str(tempstr);

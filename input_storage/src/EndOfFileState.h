@@ -16,8 +16,8 @@ public:
 
 /** Attempting to process with End of File causes fatal error */
 InputStatePtr process(istream& in)
-{
-  handleFatalError("End of file reached. Processing not allowed");
+{ 
+  throw logic_error("End of file reached. Processing not allowed");
   return InputStatePtr();
 }
 

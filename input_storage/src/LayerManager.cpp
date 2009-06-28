@@ -2,14 +2,15 @@
 #include<string>
 #include "boost/algorithm/string/trim.hpp"
 #include<iostream> //debug
-
+#include <iomanip>
 using namespace std;
 
 string LayerManager::generateLayerName(const string & fileName)
 {
     string trimmed =  boost::algorithm::trim_copy(fileName);
      //todo: really use extension using boost, not this guess at 4 characters
-    string name = trimmed.substr(0,trimmed.size()-4);
+    //string name = trimmed.substr(0,trimmed.size()-4);
+    string name = trimmed;
     to_lower(name);
     return name;
 }
@@ -43,6 +44,28 @@ int LayerManager::layerIndex(string& name)
 int LayerManager::getNumberLayers()
 {
     return (int) layers.size();
+}
+
+/* Write the ordered list of layers to an output stream 
+    Adds prefix at the begining of each line (e.g., a comment) 
+*/
+void LayerManager::writeToStream(ostream & stream, 
+                                 const std::string& prefix)
+{   
+    stream << prefix << "Entry file (top priority):  " << layers[0] << endl;
+    stream << prefix << "Other files, increasing priority: " << endl;
+    if (layers.size() == 1)
+    {
+        stream << prefix << "None" << endl;
+    }
+    else
+    {
+        for (size_t i = 1; i < layers.size(); ++i)
+        {
+            stream << prefix << setw(5) << left << i << layers[i] << endl;
+        }
+    }
+    stream << endl;
 }
 
 void LayerManager::writeToHdf5(const hid_t & file_id, const string& group_name)

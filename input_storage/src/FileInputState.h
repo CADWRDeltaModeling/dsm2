@@ -23,11 +23,13 @@ public:
 */
 FileInputState(
 	           const vector<string> & a_contextItems,
-	           const string         & a_fileName
+	           const string         & a_fileName,
+               const int            & a_lineNo=0
 	   ) : 
-  InputState(
-  a_contextItems)
-{  m_filename=a_fileName;
+  InputState(a_contextItems)
+{  
+  m_filename=a_fileName;
+  m_lineNo=a_lineNo;
 }
 
 

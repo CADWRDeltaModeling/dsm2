@@ -79,6 +79,27 @@ _TRAP_EXCEPT(*ierror,
      boost::filesystem::remove(path);
      //todo  failure is an error that should be reported
   }
+  // write out all layer names
+  //todo: maybe this should be a separate function
+  ofstream outfile;
+  if (doAppend)
+  {
+      outfile.open(file,std::ios_base::app); 
+  }
+  else
+  {
+      outfile.open(file);
+  }
+  outfile << "\n# ====================== Files used in simulation ========================\n"; 
+  outfile << endl;
+  LayerManager::instance().writeToStream(outfile,"# ");
+
+  outfile << endl;
+  outfile << "\n#===================      Simulation input data    =====================\n"; 
+  outfile << endl;
+  outfile.close();
+
+  doAppend = true;  
   string name(profilename,profilelen);
   const std::vector<std::string> bufs=profile(name);
   for(size_t ibuf = 0 ; ibuf < bufs.size() ; ++ibuf)
@@ -86,9 +107,8 @@ _TRAP_EXCEPT(*ierror,
         string buf=bufs[ibuf];
         to_lower(buf);
         write_buffer_to_text(buf.c_str(),file,&doAppend,ierror,(int)buf.size(),filelen);
-        doAppend = true;
     }
-) // end exception trap    
+  ) // end exception trap
 } 
 
 

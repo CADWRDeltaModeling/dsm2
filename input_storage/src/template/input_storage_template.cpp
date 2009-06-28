@@ -58,7 +58,8 @@ istream& operator>> (istream& stream, @TABLEOBJ & obj)
   is_not_empty predicate;
   typedef boost::filter_iterator<is_not_empty, EscTokenizer::iterator> FilterIter;
 
-  FilterIter beg(predicate, xtok.begin());
+  FilterIter beg(predicate, xtok.begin(),xtok.end());
+  FilterIter end(predicate, xtok.end());
   istringstream tokenstrm;
   string tempstr;
    

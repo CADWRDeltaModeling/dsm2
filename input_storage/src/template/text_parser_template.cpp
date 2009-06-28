@@ -1,3 +1,4 @@
+#include "boost/algorithm/string/trim.hpp"
 #include "input_storage.h"
 #include "exception_trapping.h"
 #include "ApplicationTextReader.h"
@@ -92,6 +93,7 @@ _TRAP_EXCEPT(*ierror,
     assert(reader.getInitialContextItems().size() != 0);
     assert(reader.getActiveItems().size() != 0);
     string filename(startfile,startfilelen);
+    boost::algorithm::trim(filename);
     string layername=LayerManager::instance().generateLayerName(filename);  // todo: separately??
     LayerManager::instance().addLayer(layername); // todo: separately??
     reader.processInput(filename);

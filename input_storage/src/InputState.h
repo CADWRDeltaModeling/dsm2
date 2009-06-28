@@ -32,16 +32,17 @@ typedef map<string, InputStatePtr > InputStateMap;
 typedef vector<string> StringVec;
 
 /** Construct the InputState
-      @arg  a_inputStateMap A map of block headers to corresponding reader InputState 
-                subclasses
-       @arg a_contextItems A list of input blocks that are legal "below" this context. This list is
-                used to determine which items this reader will allow itself to transition to...for instance
-                a file input state would have as its context items a list of item states.
+    @arg  a_inputStateMap A map of block headers to corresponding reader InputState 
+          subclasses
+    @arg a_contextItems A list of input blocks that are legal "below" this context. This list is
+          used to determine which items this reader will allow itself to transition to...for instance
+          a file input state would have as its context items a list of item states.
 */
 InputState(const vector<string> & a_contextItems)
   :
   m_contextItems(a_contextItems),
-  m_active(true)
+  m_active(true),
+  m_lineNo(0)
 { 
 }
 
@@ -134,7 +135,10 @@ bool isItemAllowed(const string & item) const;
 /**
 // Unified way of handling fatal error
 */
-void handleFatalError(const string & message) const;
+void handleFatalError(const string & message, 
+                      const string & line,
+                      const string & filename,
+                      const int& lineNo) const;
 
 /**
   Query if end of file is reached
@@ -142,7 +146,13 @@ void handleFatalError(const string & message) const;
 virtual bool isEndOfFile()
 { return false; }
 
-
+/** Set the line number that the processor is on.
+  This is for when you leave to an include file and come back
+ */
+void setLineNo(const int& a_lineNo)
+{
+    m_lineNo = a_lineNo;
+}
 
 /** Set the name of the file being processed */
 void setFilename(const string & a_filename)
@@ -170,6 +180,7 @@ StringVec                       m_activeItems;
 StringVec                       m_contextItems;
 string                          m_filename;
 bool                            m_active;
+int                             m_lineNo;
 EnvSubstitution                 m_substitution;
 
 virtual void onFilenameSet(){}

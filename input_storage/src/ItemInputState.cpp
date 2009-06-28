@@ -18,37 +18,43 @@ InputStatePtr ItemInputState<T>::process(istream& in)
     {
       string line;
       getline(in,line);
+      m_lineNo++;
       line = strip(line);             // strip comments, trailing/leading whitespace
       if (line.size()==0) continue;
       if (verifyHeader(line))
-	{
-	  break;               // header is in order, move on
-	}
+      {
+	    break;               // header is in order, move on
+	  }
       else
-	{
-          handleFatalError(string("Bad header in line: \n")+line);
-	}
+	  {     
+        stringstream errmsg;
+        string message("Bad header in line.");
+        handleFatalError(errmsg.str(),line,m_filename,m_lineNo);
+      }
     }
     // Process lines until END
     while(1)
     { 
       string line;
       getline(in,line);
+      m_lineNo++;
       line = strip(line);              // strip comments, trailing/leading whitespace
-      if (line.size()==0) continue;
-
       if (in.eof() && ! isBlockEnd(line))
-	{
-	  handleFatalError("End of file reached in middle of input block");
-	}
+	    { 
+          string message("End of file reached in middle of input block.");
+	      handleFatalError(message,line,m_filename,m_lineNo);
+	    }
+      if (line.size()==0) continue;
       if(isBlockEnd(line))
-	{
-	  InputStatePtr newState(new FileInputState(m_contextItems, m_filename));
+	    {
+	      InputStatePtr newState(new FileInputState(m_contextItems, 
+                                                    m_filename, 
+                                                    m_lineNo));
           newState->setActiveItems(m_activeItems);
           return newState;  // graceful return to file state
-	}
-      if (isActive()) processItem(line);               // process the item (//todo: where are errors handled?)
-    }
+	    }
+          if (isActive()) processItem(line);               // process the item (//todo: where are errors handled?)
+        }
  }
 
 
@@ -58,13 +64,19 @@ bool ItemInputState<T>::verifyHeader(string& line)
   string header = line;
   to_upper(header);
   StringVec splitLine;
-  split( splitLine, line, is_any_of(" \t"));
-  StringVec colNames = splitLine;   //todo:   get from T
-  bool headersOK = splitLine.size() == colNames.size();
+  split( splitLine, line, is_any_of("\t "),
+         token_compress_on);
+  //todo: this amount of indirection is ridiculous. We need an easy way to get
+  // the column names.
+  TableDescription table = HDFTableManager<T>::instance().description;
+  bool headersOK = splitLine.size() == table.nfields;
   if (! headersOK) return false;
-  for (size_t i = 0; i < colNames.size() ; ++i)
-    {
-      headersOK &= (splitLine[i] == colNames[i]);
+  const char** colNames = table.field_names;
+  for (size_t i = 0; i < splitLine.size() ; ++i)
+    { 
+      string refHeader(colNames[i]);
+      to_upper(refHeader);
+      headersOK &= (splitLine[i] == refHeader);
       if (!headersOK) break;
     }
   return headersOK;
@@ -99,13 +111,19 @@ void ItemInputState<T>::processItem(string& line)
      {
        s >> obj;
      }
+   catch(runtime_error e)
+     { 
+       stringstream errmsg;
+       string message("Error reading object\n");
+       message += e.what();
+       handleFatalError(message,line,m_filename,m_lineNo);
+     }
    catch(...)
      { 
        stringstream errmsg;
        string message("Error reading object in line: \n");
-       errmsg << message << procline 
-           << "\n(file: " << this->getFilename() << ")" << endl;
-       handleFatalError(errmsg.str());
+       message += procline;
+       handleFatalError(message,line,m_filename,m_lineNo);
      }
    obj.layer = layerNo;
    obj.used = used;

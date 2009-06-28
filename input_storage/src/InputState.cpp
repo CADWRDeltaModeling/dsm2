@@ -1,5 +1,6 @@
 #include "InputState.h"
 #include<iostream>
+#include<sstream>
 #include "boost/algorithm/string/trim.hpp"
 
 bool InputState::isBlockEnd(string & line)
@@ -12,8 +13,8 @@ string InputState::strip(const string& line) const
 {
   if (line.find_first_of("\t") != string::npos)
   {
-      string message("Line has tabs: please remove and set your text editor to replace tabs with spaces:\n");
-      handleFatalError(message+line);
+      string message("Line has tabs: please remove and set your text editor to replace tabs with spaces\n");
+      handleFatalError(message,line,m_filename,m_lineNo);
   }
   string trimmed =  boost::algorithm::trim_copy(line);
   size_t commentCol = trimmed.find_first_of(COMMENT);
@@ -51,8 +52,16 @@ bool InputState::isItemAllowed(const string & item) const
   return true;
 }
 
-void InputState::handleFatalError(const string& message) const
-{   
-    //std::cerr << message << endl;
-    throw std::runtime_error(message);
+void InputState::handleFatalError(const string& message, 
+                                  const string& line,
+                                  const string& filename,
+                                  const int& lineNo) const
+{       
+    std::stringstream errmsg;
+    errmsg << message << endl
+           <<"Line:"  << endl << line << endl
+           << "(file: " << filename 
+           << " line: " << lineNo
+           << ")" << endl;
+    throw std::runtime_error(errmsg.str());
 }

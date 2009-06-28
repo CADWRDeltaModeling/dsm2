@@ -7,6 +7,7 @@
 #include "boost/algorithm/string/classification.hpp"
 #include<vector>
 #include<string>
+#include<iostream>
 
 using namespace boost::algorithm;
 
@@ -42,6 +43,11 @@ public:
 
   /** Write the ordered list of layers to an hdf5 table at the given location */
   void writeToHdf5(const hid_t & file_id, const std::string& group_name);
+  
+  /** Write the ordered list of layers to an output stream 
+      using prefix at the begining of each line (e.g., a comment)  
+  */
+  void writeToStream(std::ostream & stream, const std::string& prefix);  
 
  private:  
   /* more (non-static, singleton - enforcing) functions here */

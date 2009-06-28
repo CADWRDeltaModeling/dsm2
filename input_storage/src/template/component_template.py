@@ -3,28 +3,13 @@ import string
 
 @COMPONENTSCRIPT
 
-
-
-def fixup(infile,outfile,component,reorder):
-    f = open(infile,'r')
-    fout = open(outfile,'w')
-    lines = f.readlines()
-    mlist = component_members()[component]
-    fout.write("%s\n" % component.upper())
-    fout.write(string.join([x.upper() for x in mlist],"    ")+"\n")
-    for line in lines:
-        if line.strip(" \n") == "": continue
-        parts = line.strip().split("\t")
-        if len(parts) == 0: continue
-        parts=[parts[i] for i in reorder]
-        fout.write(string.join(parts, "    ")+"\n")
-    fout.write("END\n\n")
-
 def ordered_print(items):
+    """Given a sequence of items, prints them in order with number then item"""
     for i,item in zip(range(len(items)),items):
          print "%s: %s" % (i,item)
 
 def generateNotepad():
+    """ Generates a Notepad++ user defined language file with syntax highlights for the keywords """
     tablelist=component_order()
     includes = set(include_block().values())
     folds = string.join([x.upper() for x in tablelist+list(includes)]," ")

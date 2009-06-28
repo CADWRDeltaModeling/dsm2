@@ -3,6 +3,7 @@
 #include<boost/filesystem/operations.hpp>
 
 #include<iostream>
+#define TOO_MANY_TRANSITIONS 1000
 
 InputStatePtr InsertFileState::process(istream& in)
 {  
@@ -10,14 +11,15 @@ InputStatePtr InsertFileState::process(istream& in)
     {
         string line;
         getline(in,line);
+        m_lineNo++;
         line = strip(line);             // strip comments, trailing/leading whitespace
-        if (line.size()==0) continue;
-        if (in.eof()){
-            handleFatalError("Unexpected end of file in file: "+m_filename);
+        if (in.eof() && !isBlockEnd(line)){
+            handleFatalError("Unexpected end of file in file",line,m_filename,m_lineNo);
         }
+        if (line.size()==0) continue;
         if ( isBlockEnd(line))
         { 
-            InputStatePtr newState(new FileInputState(m_contextItems,m_filename));
+            InputStatePtr newState(new FileInputState(m_contextItems,m_filename,m_lineNo));
             newState->setActiveItems(m_activeItems);
             return newState;
         }
@@ -30,10 +32,10 @@ InputStatePtr InsertFileState::process(istream& in)
             if (!boost::filesystem::exists(p))
             { 
                 //todo
-                handleFatalError( "File does not exist" + filename);
+                handleFatalError( "File does not exist: " + filename,line,m_filename,m_lineNo);
             }
 
-            InputStatePtr newState ( new FileInputState(m_contextItems,filename));
+            InputStatePtr newState ( new FileInputState(m_contextItems,filename,0));
             newState->setActiveItems(m_activeItems);
             ifstream newStream(filename.c_str());
             int nTransition = 0;
@@ -41,7 +43,11 @@ InputStatePtr InsertFileState::process(istream& in)
             {
                 newState = newState->process(newStream);
                 nTransition++;
-                if (nTransition > 1000) handleFatalError("Too many state transitions, something is wrong in input processor"); //todo hardwired number
+                if (nTransition > TOO_MANY_TRANSITIONS)
+                {
+                    throw logic_error(
+                    "Too many state transitions, something is wrong in input processor"); 
+                }
             }
         }
 
