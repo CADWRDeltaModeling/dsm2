@@ -121,8 +121,7 @@ void ItemInputState<T>::processItem(string& line)
    catch(...)
      { 
        stringstream errmsg;
-       string message("Error reading object in line: \n");
-       message += procline;
+       string message("Error reading object.");
        handleFatalError(message,line,m_filename,m_lineNo);
      }
    obj.layer = layerNo;
