@@ -35,9 +35,10 @@ END
 
 
 IO_FILE
-MODEL      TYPE     IO                 INTERVAL FILE                    
-qual       restart  out                1mon     ${DSM2MODIFIER}.qrf      #Initial condition or a restart is required
-qual       output   none               none     ${DSM2MODIFIER}_qual.out #processed data, run status                
+MODEL      TYPE     IO    INTERVAL FILE                    
+qual       restart  out   1mon     ${DSM2MODIFIER}.qrf      #Initial condition or a restart is required
+qual       output   none  none     ${DSM2MODIFIER}_qual.out #processed data, run status                
+qual       echo     out   none     ${DSM2MODIFIER}_qual_echo.inp  #Echoed input         
 END
                 
 TIDEFILE           
