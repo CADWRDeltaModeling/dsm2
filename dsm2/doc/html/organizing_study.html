@@ -7,6 +7,7 @@
 <body>
 <div id="wrap">
 <ul id="page_navbar">
+<li><a href="toc.html">TOC</a></li>
 <li><a href="#overview">Overview</a></li>
 </ul><!--end navbar-->
 
@@ -19,12 +20,42 @@
 <div id="contents">
 <a name="overview"></a>
 <h2>Overview:</h2>
-<p>Within the database, DSM2 projects are grouped into 
-simulations and models. The <em>simulation</em>
- is the top level organizational structure in DSM2: when
- you open up the user interface (GUI), the first thing you will do is
- open, clone or create a simulation. </p>
- <p>Organizationally, a simulation is a package of related model
+<p>The DSM2 installation directory is as follows:
+<div class="fragment">
+<pre class="fragment">
+/dsm2
+  /bin            # where the executable files are
+  /common_input   # a repository of common input files
+  /studies
+     [empty]
+  /study_templates
+     /historical
+     /ocap_sdip
+        config_ocap_sdip.inp
+        hydro.inp
+        qual_ec.inp
+        /timeseries
+  /timeseries     # Archivable time series (historical
+                  # and series used as basis for preprocessing)
+  /tutorials
+</pre>
+</div>
+<h3>Explaining the directory structure</h3>
+<dl>
+<dt>Study</dt>
+<dd>A study is an associated group of simulations, which might involve
+any combination of DSM2 modules. Often the study compares several different alternatives.
+Many DSM2 modelers prefer to house different alternatives in different folders, but
+there are good reasons to house them in one study folder and just use different 
+configuration files. To get started you will typically copy one of the study_template
+sub-directories to the /study folder. Don't change the ones in study_templates!</dd>
+<dd>A study is an associated group of simulations, which might involve
+any combination of DSM2 modules</dd>
+
+<p>You can arrange things any way you want, but this section will give 
+ some hints about how studies get organized.</p>
+ 
+ a simulation is a package of related model
  runs with compatible geometry and flow input. 
  A simulation always includes a DSM2-HYDRO model run 
  to establish a flow field. Optionally, it may also contain one or more
