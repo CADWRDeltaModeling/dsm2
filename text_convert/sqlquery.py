@@ -237,7 +237,7 @@ ORDER BY name;
 
 paramSQL=\
 """
-SELECT param.name, pval.parameter_value
+SELECT param.name, pval.parameter_value, "  #  ", param.description
 FROM model_parameter_description param, model_parameter_values pval
 WHERE param.model_parameter_id=pval.model_parameter_id
 AND layer_id = ?

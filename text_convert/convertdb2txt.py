@@ -265,12 +265,14 @@ def init_layer_name_translations():
         if layer and len(layer)==2:
             LAYER_NAME_TRANSLATIONS[layer[0]]=layer[1]
 
-def translate_layer_name(layer_name):
+def translate_layer_name(prefix,layer_name):
     if LAYER_NAME_TRANSLATIONS.has_key(layer_name):
         return  LAYER_NAME_TRANSLATIONS[layer_name]
     else:
         if layer_name.lower().endswith("_flow"): return layer_name[0:-5]
         if layer_name.lower().endswith("_stage"): return layer_name[0:-6]
+        if prefix.startswith("output") and layer_name.lower().endswith("_output"):
+            layer_name=layer_name[:-7]
         layer_name=layer_name.replace("std_output_hydro","std_hydro")
         layer_name=layer_name.replace("std_output_qual","std_qual")
         layer_name=layer_name.replace("concentration","conc")
@@ -294,7 +296,7 @@ def prefix_for_table(table_name):
 def create_dest_filename(parent_table, layer_name,suffix=None):
     # The prefix may be the name of the parent table or a bigger grouping like "op_rule"
     prefix = prefix_for_table(parent_table)
-    layer_base_name = translate_layer_name(layer_name)
+    layer_base_name = translate_layer_name(prefix,layer_name)
     if suffix:
 	    suffix="_"+suffix
     else:
@@ -327,12 +329,15 @@ def create_top_level_model_file(fname):
     This is the top file that will probably end up being called
     something like hydro.inp
     """    
-    f=open(fname,"w")
+
     blocks = files.keys() # list of include block names
+    if len(blocks) == 0: 
+        print "Not creating top level file because there were no files produced"
+        return
     incl_order=include_block_order()  # order of blocks (this is the order they were defined by define_include_block() in generate.py)
     # sort them according to the order
     blocks.sort(lambda x,y: cmp(incl_order.index(x),incl_order.index(y)))
-    
+    f=open(fname,"w")
     for key in blocks:
         files_in_block=[os.path.split(x)[1] for x in files[key]]  #  list of files in include block
         f.write(key.upper() +"\n" + string.join(files_in_block,"\n") + "\nEND\n\n")
