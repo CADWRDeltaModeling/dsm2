@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>PARTICLE_FLUX_OUTPUT</title><!-- Changed by: , 07-Sep-2007 -->
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Particle Flux Output</title><!-- Changed by: , 07-Sep-2007 -->
 <link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
 <body>
 <div id="wrap">
@@ -8,7 +8,7 @@
 <ul id="page_navbar" >
 <li><a href="../toc.html">TOC</a></li>
 <li><a href="#overview">Overview</a></li>
-<li><a href="#reference">Reference</a></li>
+<li><a href="#tables">Tables</a></li>
 <li><a href="#examples">Examples</a></li>
 <li><a href="#usage">Usage</a></li>
 </ul><!--end navbar-->
@@ -22,13 +22,18 @@
 <div id="contents">
 <a name="overview"></a><h2>Overview:</h2>
 <p><em>PARTICLE_FLUX_OUTPUT</em> is a section in the PTM text
-input that specifies DSS output to record movement of particles in
-group of water bodies.
+input that specifies how the PTM records the number of particles in a group of water bodies into a DSS output.
 </p>
 
-<a name="reference"></a>
-<h2 class="section_name">Reference</h2>
-<h4 class="field_def_title">Keyword Descriptions</h4>
+<a name="tables"></a>
+<h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a class="table_link" href="#particle_flux_output">PARTICLE_FLUX_OUTPUT</a></li>
+
+
+<a name="particle_flux_output"></a>
+<h3 class="table_name">PARTICLE_FLUX_OUTPUT</h3>
+<h4 class="field_def_title">Fields Descriptions</h4>
 <dl class="field_definitions">
 <dt>B_PART</dt><dd>This
 is the name that will go in the B_PART of the output.</dd>
@@ -42,7 +47,6 @@ If the file extension is *.dss, output is in
 DSS format. If the file extension is *.txt a text file output is
 produced.&nbsp;</dd><dt></dt>
 </dl>
-
 
 <h2 id="examples">Examples:</h2>
 <table class="text_input">
@@ -64,6 +68,8 @@ produced.&nbsp;</dd><dt></dt>
 <ul>
 <li>Particle flux output can be in absolute number of particles or percentage of injection.
 The option is set by <em>PTM_FLUX_PERCENT</em> in the <em>SCALAR</em> section.</li>
+</ul>
+
 </ul>
 
 </div><!--End contents-->
