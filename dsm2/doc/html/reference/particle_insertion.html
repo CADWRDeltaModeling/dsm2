@@ -23,6 +23,7 @@
 <a name="overview"></a><h2>Overview:</h2>
 <p><em>Particle Insertion</em> is a section in the PTM
 input that insertion of particles in water bodies over time.
+The PTM can insert multiple sets of particles.
 </p>
 
 <a name="reference"></a>
@@ -30,22 +31,19 @@ input that insertion of particles in water bodies over time.
 <h4 class="field_def_title">Keyword Descriptions</h4>
 <dl class="field_definitions">
 <dt>NODE</dt><dd>The node at which the insertion is made.</dd>
-<dt>NPARTS</dt><dd>Number of particles</dd>
-<dt>DELAY</dt><dd>Delay before the first insertion.</dd>
-<dt>DURATION</dt><dd>Interval over which insertion is distributed in time.</dd>
+<dt>NPARTS</dt><dd>Number of particles.</dd>
+<dt>DELAY</dt><dd>Delay before the first insertion after the beginning of the PTM runs. The unit of time needs to be attached without spaces.</dd>
+<dt>DURATION</dt><dd>Interval over which insertion is evenly distributed in time. If the time is set as zero, all the particles are inserted instantaneously. The unit of time needs to be attached without spaces.</dd>
 </dl>
 
 
 <h2 id="examples">Examples:</h2>
 <table class="text_input">
 <tbody>
-<tr><td>FLUX_OUTPUT</td><td></td><td></td><td></td><td></td></tr>
-<tr><td>NAME</td><td>FROM_WB</td><td>TO_WB</td><td>INTERVAL</td><td>FILENAME</td></tr>
-<tr><td>TWITCHELL</td><td>res:clifton_court</td><td>group:swp</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>EMMATON</td><td>chan:216</td><td>group:cvp</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>PAST_MTZ</td><td>chan:441</td><td>group:mtz</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>WEST</td><td>group:chipps_east</td><td>group:chipps_west</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>DIVERSION_AG</td><td>group:all</td><td>group:ag_div</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
+<tr><td colspan=3>PARTICLE_INSERTION</td><td></td><td></td></tr>
+<tr><td>NODE</td><td>NPARTS</td><td>DELAY</td><td>DURATION</td><td><td></tr>
+<tr><td>1</td><td>1000</td><td>0hour</td><td>1day</td><td></td></tr>
+<tr><td>13</td><td>1000</td><td>1day</td><td>0hour</td><td></td></tr>
 <tr><td>END</td><td></td><td></td><td></td><td></td></tr>
 </tbody>
 </table>
@@ -53,9 +51,9 @@ input that insertion of particles in water bodies over time.
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 <a name="usage"></a>
 <h2>Usage Notes:</h2>
-<ul>
+<!--<ul>
 <li></li>
-</ul>
+</ul>-->
 
 </div><!--End contents-->
 
