@@ -5,7 +5,7 @@
 [Setup]
 AppName=DSM2_v8
 AppVerName=version 8.0_a2_0998
-OutputBaseFilename=DSM2setup_8.0_a2_0998
+OutputBaseFilename=DSM2setup_8.0_a2_1013
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
@@ -23,6 +23,7 @@ UninstallLogMode=overwrite
 InfoBeforeFile=".\infoFile.rtf"
 OutputDir="."
 AlwaysRestart = yes
+ChangesEnvironment=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -34,7 +35,7 @@ Filename: "{app}\bin\uninstall\cscript.exe"; parameters: "{app}\bin\uninstall\un
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-
+Name: modifypath ; Description: "&Add application directory to your path"; GroupDescription: "Other Tasks:"
 
 [Dirs]
 ;Name: "{app}\timeseries"
@@ -63,13 +64,8 @@ Source: "..\extras\*";                   DestDir: "{app}\extras\";          Flag
 Source: "..\runtime\*";                  DestDir: "{tmp}";                  Flags: ignoreversion recursesubdirs createallsubdirs ; Components: runtime_lib
 
 
-;SVN repository files. A bit cheesy to have to do them all by hand, but we need to learn to detect hidden files
+;SVN repository files would be done as follows. A bit cheesy to have to do them all by hand, but we need to learn to detect hidden files
 ;Source: "..\studies\.svn\*"; Destdir: "{app}\studies\.svn"; Attribs: hidden;  Flags: recursesubdirs createallsubdirs
-;Source: "..\studies\historic\.svn\*"; DestDir: "{app}\studies\historic\.svn"; Attribs: hidden; Flags: recursesubdirs createallsubdirs
-;Source: "..\studies\sdip\.svn\*"; DestDir: "{app}\studies\sdip\.svn"; Attribs: hidden; Flags: recursesubdirs createallsubdirs
-;Source: "..\scripts\.svn\*"; DestDir: "{app}\scripts\.svn"; Attribs: hidden; Flags: recursesubdirs createallsubdirs
-;Source: "..\scripts\interpolator\.svn\*"; DestDir: "{app}\scripts\interpolator\.svn"; Attribs: hidden; Flags: recursesubdirs createallsubdirs
-
 
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -83,52 +79,28 @@ Name: "{userdesktop}\DSM2_v8"; Filename: "{app}\"; Tasks: desktopicon
 [Registry]
 
 ;Set enviroment variables in Registry:
-
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "VISTA_HOME";   ValueData: "{app}\vista";              Flags: uninsdeletevalue;
-;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "PTM_HOME"; ValueData: "{app}\ptm";                Flags: uninsdeletevalue;
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "SCRIPTS_HOME"; ValueData: "{app}\scripts";            Flags: uninsdeletevalue;
-
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "VISTA_HOME";   ValueData: "{app}\vista";              Flags: uninsdeletevalue;
 ;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PTM_HOME";     ValueData: "{app}\ptm";                Flags: uninsdeletevalue;
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
 Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "SCRIPTS_HOME"; ValueData: "{app}\scripts";            Flags: uninsdeletevalue;
 
-;Check: myRegCheckEnv(ExpandConstant('SCRIPTS_HOME'))
-
-;set environment variables using nested environment variables:
-
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "%VISTA_HOME%\bin;{olddata}";
-;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData:   "%PTM_HOME%\bin;{olddata}";
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData:  "%DSM2_HOME%\bin;{olddata}";
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "PYTHONPATH"; ValueData:   "%SCRIPTS_HOME%;{olddata}";
-
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path";         ValueData: "%VISTA_HOME%\bin;{olddata}";
-;Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path";         ValueData:   "%PTM_HOME%\bin;{olddata}";
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path";         ValueData:  "%DSM2_HOME%\bin;{olddata}";
-Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "PYTHONPATH";   ValueData:   "%SCRIPTS_HOME%;{olddata}";
-
-;Check: myRegCheckEnv(ExpandConstant('DSM2_HOME'))
-;Check: myRegCheckEnv(ExpandConstant('VISTA_HOME'))
-;checks need to the added to the previous 3 for patches.
-;Check: myRegCheckEnv(ExpandConstant('PTM_HOME'))
-
-
-
 [Run]
 Filename: "{tmp}\vcredist_x86_2005sp1.exe"; Description: "Runtime Libraries"; Flags: skipifdoesntexist
 
 
-
-
 [Code]
-function checkForConnection(SubKey: String): Boolean;
+function ModPathDir(): TArrayOfString;
+var
+	Dir:	TArrayOfString;
 begin
-    Result := not RegKeyExists(HKEY_CURRENT_USER, SubKey)
+	setArrayLength(Dir, 2)
+    // This is the order things will be prepended, so
+    // you should reverse the order you actually want to see
+	Dir[0] := ExpandConstant('{app}\vista\bin');
+	Dir[1] := ExpandConstant('{app}\bin');
+	Result := Dir;
 end;
+#include "modpath.iss"
 
-function myRegCheckEnv(keyName: String): Boolean;
-begin
-   Result := not RegValueExists(HKEY_CURRENT_USER, 'Environment',keyName)
 
-end;
+
