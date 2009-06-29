@@ -15,7 +15,7 @@
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>TIDEFILE Section</h1>
+<h1>Tidefile</h1>
 </div><!-- page_title-->
 <hr style="header_hr"/>
 
@@ -23,7 +23,7 @@
 <a name="overview"></a><h2>Overview:</h2>
 <p>The tidefile is the HDF5-formatted binary file used to pass
 flow and geometry date from HYDRO to QUAL and PTM. The tidefile is
-specified as output by HYDRO in the <a href="io_file.html">IO SECTION</a>.
+specified as output by HYDRO in the <a href="io_file.html">IO_FILE</a> table.
  It is specified as input to QUAL and PTM in the TIDEFILE section. 
  Input tidefiles can be specified only in text.</p>
 <p>Tidefiles can be stacked if desired, but this is an old
@@ -32,10 +32,17 @@ Stacking means that the flow simulation can be divided temporally among several
 HYDRO runs and then the resulting tidefiles
 used sequentially in QUAL or PTM.</p>
 
-<a name="reference"></a><h2>Reference</h2>
+<a name="tables"></a>
+<h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a href="#tidefile_table">TIDEFILE</a></li>
+</ul>
+
+<a name="tidefile_table"></a>
+<h3 class="table_name">TIDEFILE</h3>
 <h4 class="field_def_title">Keyword Descriptions</h4>
 <dl class="field_definitions">
-<dt>START_DATE [optional]</dt>
+<dt>START_DATE</dt>
 <dd>When to start using the tidefile. Tidefiles must be listed in
 temporal order. The START_DATE of the first tidefile must fall on or
 before the start of the run. The START_DATE of subsequent tidefiles
@@ -47,7 +54,7 @@ some special keywaords that can be used with START_DATE:
 <ul><li>runtime:
 start time in tidefile</li><li>last: use this tidefile
 when the previous tidefile ends</li><li>none: use default.</li></ul></dd>
-<dt>END_DATE [optional]:</dt>
+<dt>END_DATE</dt>
 <dd>When to stop using the tidefile. IF not given, the tidefile
 is used until it ends. The END_DATE of the last tidefile must overlap
 the runtime of the simulation. Note that this can be a little tricky
@@ -64,26 +71,30 @@ case sensitive.</dd></dl>
 <h2 id="examples">Examples:</h2>
 <p>The following example uses one tidefile with an environmental variable
 for the file name. This is the most treatment.</p>
-<br>
-<table class="text_input"><tbody>
-<tr><td>TIDEFILE</td><td></td><td></td><td></td></tr>
-<tr><td>START_DATE</td><td>END_DATE</td><td>FILENAME</td><td></td></tr>
-<tr><td>runtime</td><td>length</td><td>${HYDROTIDEFILE}</td><td># begin run to 20JUL</td></tr>
-<tr><td>END</td><td></td><td></td><td></td></tr>
-</tbody>
-</table>
-<br>
-<p>This example uses several tidefiles tiled together to cover a longer period.</p>
-<br>
-<table class="text_input"><tbody>
-<tr><td>TIDEFILE</td><td></td><td></td><td></td></tr>
-<tr><td>START_DATE</td><td>END_DATE</td><td>FILENAME</td><td></td></tr>
-<tr><td>runtime</td><td>20JUL1996</td><td>hist1.h5</td><td># beginning of run to 20JUL</td></tr>
-<tr><td>20JUL1996</td><td>24JUL1996</td><td>hist2.h5</td><td></td></tr>
-<tr><td>last</td><td>length</td><td>hist3.h5</td><td># end of previous to end of run</td></tr>
-<tr><td>01SEP1996</td><td>length</td><td>ficticious.h5</td><td># no error: will never be opened </td></tr>
-<tr><td>END</td><td></td><td></td><td></td></tr>
-</tbody></table>
+<div class="fragment">
+<pre class="fragment">
+TIDEFILE    
+START_DATE END_DATE FILENAME  
+runtime    length   ${HYDROTIDEFILE} # begin run to 20JUL 
+END    
+</pre>
+</div>
+
+This example uses several tidefiles tiled together to cover a longer period. Please
+let us know if you need this functionality, as it is a holdover from the old
+"repeating tide" days and will probably be deprecated.
+
+<div class="fragment">
+<pre class="fragment">
+TIDEFILE    
+START_DATE  END_DATE   FILENAME  
+runtime     20JUL1996  hist1.h5      # beginning of run to 20JUL 
+20JUL1996   24JUL1996  hist2.h5  
+last        length     hist3.h5      # end of previous to end of run 
+01SEP1996   length     ficticious.h5 # no error: will never be opened  
+END    
+</pre>
+</div>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 

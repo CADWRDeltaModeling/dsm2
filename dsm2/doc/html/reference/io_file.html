@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>IO_FILES</title><!-- Changed by: , 07-Sep-2007 -->
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>IO Files</title><!-- Changed by: , 07-Sep-2007 -->
 <link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
 <body>
 <div id="wrap">
@@ -15,24 +15,28 @@
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>IO_FILES Section</h1>
+<h1>IO Files</h1>
 </div><!-- page_title-->
 <hr style="header_hr"/>
 
 <div id="contents">
 <a name="overview"></a>
 <h2>Overview:</h2>
-<p><em>IO_FILES</em> is a table for declaring most
+<p>The <em>IO_FILES</em> table is where you declare most
 of the non-dss output from a simulation, including
-echoed text output files, restart files and output tidefiles (input
-tidefiles are specified for QUAL and PTM in the 
+echoed text output files, restart files and output tidefiles 
+from HYDRO(input tidefiles are specified for QUAL and PTM in the 
 <a href="tidefile.html">TIDEFILE</a> section). IO_FILES can only be
 specified in the main text input file (hydro.inp, qual.inp, ptm.inp).
 </p>
 
 <a name="tables"></a>
-<h2 id="tables">Reference:</h2>
-<a name="operating_rule_table"></a>
+<h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a href="#iofile_table">IO_FILE</a></li>
+</ul>
+
+<a name="iofile_table"></a>
 <h3 class="table_name">IO_FILE</h3>
 <h4 class="field_def_title">Keyword Descriptions</h4>
 <dl class="field_definitions">
@@ -59,51 +63,54 @@ an echo file (replicate of input). All of the file names
 use text substitution -- the value would come from an environmental
 variable, ENVVARS section in the input file or ENVVARS section of a
 config file. </p>
-<table class="text_input">
-<tbody>
-<tr><td>IO_FILES</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>MODEL</td><td>TYPE</td><td>IO</td><td>INTERVAL</td><td>FILENAME</td><td></td></tr>
-<tr><td>output</td><td>none</td><td>none</td><td>none</td><td>${HYDROOUTFILE}</td><td></td></tr>
-<tr><td>hydro</td><td>restart</td><td>out</td><td>1day</td><td>${QUALRSTFILE}</td><td></td></tr>
-<tr><td>hydro</td><td>hdf5</td><td>out</td><td>1hour</td><td>${HYDROHDF5FILE}</td><td></td></tr>
-<tr><td>hydro</td><td>echo</td><td>out</td><td>none</td><td>${DSM2MODIFIER}_hydro_echo</td><td></td></tr>
-<tr><td>END</td><td></td><td></td><td></td><td></td><td></td></tr>
-</tbody></table>
+<div class="fragment">
+<pre class="fragment">
+IO_FILES      
+MODEL  TYPE     IO    INTERVAL FILENAME  
+output none     none  none     ${HYDROOUTFILE}  
+hydro  restart  out   1day     ${QUALRSTFILE}  
+hydro  hdf5     out   1hour    ${HYDROHDF5FILE}  
+hydro  echo     out   none     ${DSM2MODIFIER}_hydro_echo.inp  
+END 
+</pre>
+</div>
 <p><span style="font-weight: bold;">QUAL example:</span></p><p>This
 example includes a general qual runtime output file, a restart output file that
 is regenerated every model day (overwriting the previous day's file),
 a restart file that will be used to generate the initial condition for the run,
 and an hdf5 tidefile for passing information to QUAL and an echo file (exact replicate of input).</p>
-<table class="text_input">
-<tbody>
-<tr><td>IO_FILES</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>MODEL</td><td>TYPE</td><td>IO</td><td>INTERVAL</td><td>FILENAME</td><td></td>
-</tr><tr><td>output</td><td>none</td><td>none</td><td>none</td><td>${QUALOUTFILE}</td><td></td></tr>
-<tr><td>qual</td><td>restart</td><td>out</td><td>1day</td><td>${QUALRESTART}</td><td></td></tr>
-<tr><td>qual</td><td>restart</td><td>in</td><td>none</td><td>qualinit_30SEP1999.qrf</td><td></td></tr>
-<tr><td>qual</td><td>echo</td><td>out</td><td>none</td><td>${DSM2MODIFIER}_qual_echo</td><td></td></tr>
-<tr><td>END</td><td></td><td></td><td></td><td></td><td></td></tr>
-</tbody></table>
+<div class="fragment">
+<pre class="fragment">
+IO_FILES      
+MODEL  TYPE    IO   INTERVAL FILENAME  
+output none    none none     ${QUALOUTFILE}  
+qual   restart out  1day     ${QUALRESTART}  
+qual   restart in   none     qualinit_30SEP1999.qrf  
+qual   echo    out  none     ${DSM2MODIFIER}_qual_echo.inp  
+END 
+</pre>
+</div>
 <p><span style="font-weight: bold;">PTM example:</span></p><p>This
 example includes a PTM trace file (which is required to produce flux
 DSS output) and an animation file (which is required for animated
 output).</p>
-<table class="text_input">
-<tbody>
-<tr><td>IO_FILES</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>MODEL</td><td>TYPE</td><td>IO</td><td>INTERVAL</td><td>FILENAME</td><td></td></tr>
-<tr><td>ptm</td><td>trace</td><td>out</td><td>none</td><td>${DSM2OUTPUTDIR}/trace.out</td><td></td></tr>
-<tr><td>ptm</td><td>anim</td><td>out</td><td>15min</td><td>${DSM2OUTPUTDIR}/anim.out</td><td></td></tr>
-<tr><td>END</td><td></td><td></td><td></td><td></td><td></td></tr>
-</tbody>
-</table>
+<div class="fragment">
+<pre class="fragment">
+IO_FILES      
+MODEL TYPE  IO  INTERVAL FILENAME  
+ptm   trace out none     ${DSM2OUTPUTDIR}/trace.out  
+ptm   anim  out 15min    ${DSM2OUTPUTDIR}/anim.out
+ptm   echo  out none     ${DSM2MODIFIER}_ptm_echo.inp  
+END 
+</pre>
+</div>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
 <a name="usage"></a>
 <h2>Usage Notes:</h2>
 <ul>
-<li>An echoed output file from HYDRO is used in the preparation of PTM visualization tools.</li>
+<li>The runtime output file from HYDRO is used in the preparation of PTM visualization tools.</li>
 </ul>
 </div><!--End contents-->
 
