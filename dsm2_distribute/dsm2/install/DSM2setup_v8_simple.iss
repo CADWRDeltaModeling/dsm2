@@ -90,22 +90,17 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "SCRIPTS_HOME"; ValueData: "{app}\scripts";            Flags: uninsdeletevalue;
 
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "VISTA_HOME";   ValueData: "{app}\vista";              Flags: uninsdeletevalue;
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "SCRIPTS_HOME"; ValueData: "{app}\scripts";            Flags: uninsdeletevalue;
-
-;Check: myRegCheckEnv(ExpandConstant('SCRIPTS_HOME'))
-
-;set environment variables using nested environment variables:
-
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path";       ValueData: "%VISTA_HOME%\bin;{olddata}";
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path";       ValueData:  "%DSM2_HOME%\bin;{olddata}";
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "PYTHONPATH"; ValueData:   "%SCRIPTS_HOME%;{olddata}";
 
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "VISTA_HOME";   ValueData: "{app}\vista";              Flags: uninsdeletevalue;
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "SCRIPTS_HOME"; ValueData: "{app}\scripts";            Flags: uninsdeletevalue;
+
 Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path";         ValueData: "%VISTA_HOME%\bin;{olddata}";
 Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "Path";         ValueData:  "%DSM2_HOME%\bin;{olddata}";
 Root: HKCU; Subkey: "Environment"; ValueType: expandsz; ValueName: "PYTHONPATH";   ValueData:   "%SCRIPTS_HOME%;{olddata}";
-
 
 [Run]
 Filename: "{tmp}\vcredist_x86_2005sp1.exe"; Description: "Runtime Libraries"; Flags: skipifdoesntexist
