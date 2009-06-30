@@ -1,0 +1,25 @@
+
+OUTPUT_CHANNEL
+NAME              CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE             
+14ml_sl               312    11385 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+3mile_sl              309     7593 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+chipps_s_442          442    10700 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+dcc                   365        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+disappointment_sl     314     8130 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+emptract_sl            37        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+false_r               279     8937 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+fish_cut              280    11364 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+georgiana_sl          366        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+midr_sjr              161        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+mtzma_sl_us_scg_      512     6038 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+oldr_midr              59        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+oldr_mouth            124     7062 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+potato_sl             328     7158 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+rock_sl_pp1           247        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+sac_emmaton           433    12134 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+sjr_san_andreas        45    12421 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+steamboat_sl          383    12528 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+sutter_sl             379     3300 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+END
+
+

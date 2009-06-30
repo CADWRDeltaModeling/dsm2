@@ -1,0 +1,10 @@
+
+NODE_CONCENTRATION
+NAME          NODE_NO VARIABLE FILLIN FILE           PATH                               
+jones_out         118 doc      last   ${EVENTSINPUT} /HIST+CHAN/JONES/DOC//1DAY/DWR-DMS/ 
+jones_out         118 ec       last   ${EVENTSINPUT} /HIST+CHAN/JONES/EC//1DAY/DWR-DMS/  
+jones_pumpout     121 doc      last   ${EVENTSINPUT} /HIST+CHAN/JONES/DOC//1DAY/DWR-DMS/ 
+jones_pumpout     121 ec       last   ${EVENTSINPUT} /HIST+CHAN/JONES/EC//1DAY/DWR-DMS/  
+END
+
+

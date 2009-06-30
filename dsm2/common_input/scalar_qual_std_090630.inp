@@ -1,0 +1,20 @@
+
+SCALAR
+NAME           VALUE
+checkdata      false #check input data w/o simulation                    
+cont_bad       false #continue on bad data (use previous value)          
+cont_missing   false #continue on missing data (use previous value)      
+cont_question  false #continue on questionable data (use data value)     
+cont_unchecked true  #continue on unchecked data (use data value)        
+dispersion     true  #t=activate dispersion                              
+display_intvl  1day  #how often to display model time progress           
+flush_output   8day  #interval to flush output                           
+init_conc      0     #initial concentration value                        
+printlevel     1     #amount of printing, 0 to 9, increasing with number.
+qual_time_step 15min #qual time step, in minutes                         
+warn_missing   false #warn about missing data                            
+warn_question  false #warn about questionable data                       
+warn_unchecked false #warn about unchecked data                          
+END
+
+

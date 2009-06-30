@@ -1,0 +1,12 @@
+
+OUTPUT_RESERVOIR_SOURCE_TRACK
+NAME          RES_NAME      VARIABLE SOURCE_GROUP INTERVAL        PERIOD_OP FILE             
+clifton_court clifton_court doc      all          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court doc      ag           ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court doc      east         ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court doc      mtz          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court doc      sac          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court doc      sjr          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+END
+
+

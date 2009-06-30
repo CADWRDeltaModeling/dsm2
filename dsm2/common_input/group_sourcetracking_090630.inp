@@ -1,0 +1,24 @@
+
+GROUP
+NAME 
+ag    
+east  
+jones 
+mtz   
+sac   
+sjr   
+END
+
+
+
+GROUP_MEMBER
+GROUP_NAME MEMBER_TYPE   PATTERN                  
+ag         source_sink   dicu_.*                   
+east       flow_boundary (moke|calaveras|cosumnes) 
+jones      flow_boundary (jones_out|jones_pumpout) 
+mtz        stage         mtz                       
+sac        flow_boundary (sac|yolo)                
+sjr        flow_boundary vernalis                  
+END
+
+
