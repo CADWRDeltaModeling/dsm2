@@ -1,0 +1,12 @@
+
+OUTPUT_CHANNEL_SOURCE_TRACK
+NAME     CHAN_NO DISTANCE VARIABLE SOURCE_GROUP INTERVAL    PERIOD_OP FILE             
+slrck005     247        0 doc      all          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 doc      ag           ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 doc      east         ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 doc      mtz          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 doc      sac          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 doc      sjr          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+END
+
+
