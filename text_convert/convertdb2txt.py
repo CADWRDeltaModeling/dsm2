@@ -339,7 +339,7 @@ def create_top_level_model_file(fname):
     blocks.sort(lambda x,y: cmp(incl_order.index(x),incl_order.index(y)))
     f=open(fname,"w")
     for key in blocks:
-        files_in_block=[os.path.split(x)[1] for x in files[key]]  #  list of files in include block
+        files_in_block=["${DSM2INPUTDIR}/"+os.path.split(x)[1] for x in files[key]]  #  list of files in include block
         f.write(key.upper() +"\n" + string.join(files_in_block,"\n") + "\nEND\n\n")
     f.close()
 
