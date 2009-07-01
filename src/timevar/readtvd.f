@@ -384,9 +384,9 @@ c-----------interpolate to end of time step
 
 c--------change sign if desired
          if (pathinput(ptr).sign .eq. -1) then
-            pathinput(ptr).value=-abs(pathinput(ptr).value)
+            pathinput(ptr).value=-pathinput(ptr).value
          else if (pathinput(ptr).sign .eq. 1) then
-            pathinput(ptr).value=abs(pathinput(ptr).value)
+            pathinput(ptr).value=pathinput(ptr).value
          endif
 c--------change value if desired
          if (pathinput(ptr).value_in .eq. pathinput(ptr).value)
