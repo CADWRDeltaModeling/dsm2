@@ -12,7 +12,8 @@ InputStatePtr InsertFileState::process(istream& in)
         string line;
         getline(in,line);
         m_lineNo++;
-        line = strip(line);             // strip comments, trailing/leading whitespace
+        line = strip(line);      // strip comments, trailing/leading whitespace
+        line = substitute(line);  // text/environmental variable substitution
         if (in.eof() && !isBlockEnd(line)){
             handleFatalError("Unexpected end of file in file",line,m_filename,m_lineNo);
         }

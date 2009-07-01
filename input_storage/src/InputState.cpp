@@ -1,7 +1,9 @@
+#include "ApplicationTextReader.h"
 #include "InputState.h"
 #include<iostream>
 #include<sstream>
 #include "boost/algorithm/string/trim.hpp"
+
 
 bool InputState::isBlockEnd(string & line)
 { 
@@ -31,7 +33,22 @@ string InputState::strip(const string& line) const
   return trimmed;
 }
 
-
+string InputState::substitute(const string& line) const
+{
+   ApplicationTextReader & reader = ApplicationTextReader::instance();
+   string procline;
+   try
+   {
+     procline = reader.getTextSubstitution()(line);
+   }
+   catch(runtime_error e)
+   {
+       string message = string("In file ")+this->getFilename()
+                        +string(":\n\n")+string(e.what());
+       throw runtime_error(message);
+   }
+   return procline;
+}
 
 // is this done yet?
 // loadable items is intersection of all headers, requested set

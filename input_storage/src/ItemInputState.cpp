@@ -86,18 +86,7 @@ bool ItemInputState<T>::verifyHeader(string& line)
 template<typename T>
 void ItemInputState<T>::processItem(string& line)
  {
-   ApplicationTextReader & reader =ApplicationTextReader::instance();
-   string procline;
-   try
-   {
-     procline = reader.getTextSubstitution()(line);
-   }
-   catch(runtime_error e)
-   {
-       string message = string("In file ")+this->getFilename()
-                        +string(":\n\n")+string(e.what());
-       throw runtime_error(message);
-   }
+   string procline = substitute(line);
    bool used = true;
    if(procline.substr(0,1) == "^")
      {
