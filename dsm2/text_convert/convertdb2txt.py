@@ -1,7 +1,8 @@
 """ Script that converts DB models to equivalent text input files
     Usage >convertdb2txt.py model_name output_dir
 """
-
+import dsm2_tidy
+import shutil
 from dbutil import *
 from sqlquery import *
 from component import *
@@ -78,6 +79,12 @@ def channel_ic_convert(data):
         new_data[1]="length"
     return new_data
 
+    
+####  Converters: These are functions that convert a row from
+#     database fields to acceptable text fields. Nearly all of them start
+#     by calling trivial_convert, which converts the fields to strings and
+#     replaces NULLs with the word "none". The rest of the converters 
+#     are special cases and particular tables/groups of tables    
 def trivial_convert(row):
     new_row=[str(field) for field in row]
     new_row=[field.replace("None","none") for field in new_row]
@@ -159,7 +166,19 @@ def gate_converter(row):
     new_row=trivial_convert(row)    
     new_row[1]=new_row[1].lower()
     return new_row
+
+def input_with_sign_converter(row):
+    """Converts a row with a NULL sign in column 2 to a sign of 1"""
+    new_row=trivial_convert(row)
+    if new_row[2] == "none":
+        new_row[2]="1"
+    return new_row
     
+    
+# This is a list of the converters used for tables that use special converters
+# to convert their rows to text.
+# If a table does not appear in the keys of this list,
+# only trivial_convert will be used on the table    
 CONVERTERS={"channel_ic" : channel_ic_convert,
             "gate":gate_converter,
             "operating_rule": oprule_converter,
@@ -167,6 +186,8 @@ CONVERTERS={"channel_ic" : channel_ic_convert,
             "group_member":group_member_converter,
             "scalar":all_lower_converter,
             "rate_coefficient":all_lower_converter,
+            "boundary_flow":input_with_sign_converter,
+            "source_flow":input_with_sign_converter,
             "output_channel_source_track":chan_conc_with_source_converter,
             "output_reservoir_source_track":res_conc_with_source_converter,
             "output_channel":chan_output_no_source_converter,
@@ -343,6 +364,14 @@ def create_top_level_model_file(fname):
         f.write(key.upper() +"\n" + string.join(files_in_block,"\n") + "\nEND\n\n")
     f.close()
 
+def tidy_files():    
+    blocks = files.keys()
+    for key in blocks:
+        files_in_block=files[key]
+        for f in files_in_block:
+            dsm2_tidy.tidy(f,f+".tmp")
+            shutil.move(f+".tmp",f)
+           
 
 if __name__ == "__main__":
     init_layer_name_translations()
@@ -375,6 +404,6 @@ if __name__ == "__main__":
     # now create the top level input file
     cur.close()
     create_top_level_model_file(os.path.join(dest_dir,"model.inp"))    
-
+    tidy_files()
     
 
