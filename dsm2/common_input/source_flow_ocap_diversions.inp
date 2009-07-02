@@ -1,0 +1,11 @@
+
+SOURCE_FLOW
+NAME              NODE SIGN FILLIN FILE            PATH                                             
+^ccc               206   -1 last   ${BOUNDARYFILE} /CALSIM/D408/FLOW-DELIVERY//1MON/${CALSIMSTUDY}/  
+ccc_deliv_oldr      80   -1 last   constant        250                                               
+ccc_deliv_rock_sl  206   -1 last   constant        250                                               
+northbay           273   -1 last   ${BOUNDARYFILE} /CALSIM/C402B/FLOW-CHANNEL//1MON/${CALSIMSTUDY}/  
+^vallejo           320   -1 last   ${BOUNDARYFILE} /CALSIM/D403A/FLOW-DELIVERY//1MON/${CALSIMSTUDY}/ 
+END
+
+
