@@ -1,0 +1,27 @@
+
+OPERATING_RULE
+NAME            ACTION                                                                                                 TRIGGER                                                                                  
+mscs_close_from "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO 0.0 RAMP 30MIN" "(mscs_velclose AND mscs_op_season AND mscs_ec_high)"                                     
+mscs_close_to   "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=to_node) TO 0.0 RAMP 30MIN" "(mscs_velclose AND mscs_op_season AND mscs_ec_high)"                                     
+mscs_open_from  "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=to_node) TO 1.0 RAMP 30MIN" "(mscs_dhopen AND mscs_op_season AND mscs_ec_high) OR NOT(mscs_op_season AND mscs_ec_high)" 
+mscs_open_to    "SET gate_op(gate=montezuma_salinity_control,device=radial_gates,direction=from_node) TO 1.0 RAMP 30MIN" "(mscs_dhopen AND mscs_op_season AND mscs_ec_high) OR NOT(mscs_op_season AND mscs_ec_high)" 
+END
+
+
+
+OPRULE_EXPRESSION
+NAME           DEFINITION                                                                  
+mscs_dhopen    "(chan_stage(channel=512,dist=length) - chan_stage(channel=513,dist=0)) > 0.3" 
+mscs_ec_high   ts(name=martinez_ec)>${MSCS_EC_THRESH}                                       
+mscs_op_season "SEASON > 01OCT OR SEASON < 01MAR"                                           
+mscs_velclose  "chan_flow(channel=513,dist=0) < 0.1"                                        
+END
+
+
+
+OPRULE_TIME_SERIES
+NAME        FILLIN FILE                PATH                                         
+martinez_ec linear ${QUALBOUNDARYFILE} /FILL+CHAN/RSAC054/EC//15MIN/${DSM2MODIFIER}/ 
+END
+
+

@@ -1,0 +1,12 @@
+
+NODE_CONCENTRATION
+NAME      NODE_NO VARIABLE FILLIN FILE                PATH                                                                
+calaveras      21 ec       last   constant            150                                                                  
+cosumnes      446 ec       last   constant            150                                                                  
+moke          447 ec       last   constant            150                                                                  
+sac           330 ec       last   constant            175                                                                  
+vernalis       17 ec       last   ${QUALBOUNDARYFILE} /CALSIM-${SJR_PROCESS}/VERNWQFINAL/SALINITY-EC//1DAY/${CALSIMSTUDY}/ 
+yolo          316 ec       last   constant            175                                                                  
+END
+
+
