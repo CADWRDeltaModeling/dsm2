@@ -2,10 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 
+
 [Setup]
 AppName=DSM2_v8
-AppVerName=version 8.0_a2_0998
-OutputBaseFilename=DSM2setup_8.0_a2_1013
+AppVerName=version 8_0
+OutputBaseFilename=DSM2setup_8_0_test
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
@@ -17,90 +18,204 @@ AllowNoIcons=yes
 Compression=lzma/fast
 CompressionThreads=auto
 SolidCompression=no
+ChangesEnvironment=yes
 UninstallDisplayName=DSM2_v8
 UninstallFilesDir={app}\bin\uninstall
-UninstallLogMode=overwrite
+UninstallLogMode=new
 InfoBeforeFile=".\infoFile.rtf"
 OutputDir="."
-AlwaysRestart = yes
-ChangesEnvironment=yes
+AlwaysRestart = no
+PrivilegesRequired = admin
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
-[UninstallRun]
-Filename: "{app}\bin\uninstall\cscript.exe"; parameters: "{app}\bin\uninstall\uninstall_path.vbs";  Flags: waituntilterminated runhidden skipifdoesntexist
-
-
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: modifypath ; Description: "&Add application directory to your path"; GroupDescription: "Other Tasks:"
 
 [Dirs]
-;Name: "{app}\timeseries"
-;Name: "{app}\tutorials"
-Name: "{app}\common_input"
+Name: "{app}\common_input"     ; BeforeInstall: MyBeforeInstall
+Name: "{app}\timeseries"
+Name: "{app}\vista"
+Name: "{app}\scripts"
 
 [Components]
+
 Name: "main"; Description: "Main Files"; Types: full compact custom;
 Name: "runtime_lib"; Description: "Runtime Libraries (Microsoft VC++2005 SP1 Redistributable)"; Types: full compact custom;
 Name: "timeseries"; Description: "DSS Time Series Data"; Types: full
 
 [Files]
-;files
-;Source: "..\tutorials\pdf\Quick Reference Guide.pdf"; DestDir: "{app}"; Flags: isreadme
-;Source: "..\tutorials\pdf\DSM2 tutorial.pdf";         Destdir: "{app}\tutorials";
 
 Source: "..\bin\*";                      DestDir: "{app}\bin\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\scripts\*";                  DestDir: "{app}\scripts\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\tutorials\*";                Destdir: "{app}\tutorials";        Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\studies\*";                  Destdir: "{app}\studies\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\ptm\*";                      DestDir: "{app}\ptm\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";      Flags: ignoreversion recursesubdirs createallsubdirs ; Components: timeseries
-Source: "..\vista\*";                    DestDir: "{app}\vista\";           Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\extras\*";                   DestDir: "{app}\extras\";          Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\runtime\*";                  DestDir: "{tmp}";                  Flags: ignoreversion recursesubdirs createallsubdirs ; Components: runtime_lib
-
-
-;SVN repository files would be done as follows. A bit cheesy to have to do them all by hand, but we need to learn to detect hidden files
-;Source: "..\studies\.svn\*"; Destdir: "{app}\studies\.svn"; Attribs: hidden;  Flags: recursesubdirs createallsubdirs
+;Source: "..\scripts\*";                  DestDir: "{app}\scripts\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\common_input\*";             DestDir: "{app}\common_input\";    Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\tutorials\*";                Destdir: "{app}\tutorials";        Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\studies\*";                  Destdir: "{app}\studies\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\ptm\*";                      DestDir: "{app}\ptm\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";      Flags: ignoreversion recursesubdirs createallsubdirs ; Components: timeseries
+;Source: "..\vista\*";                    DestDir: "{app}\vista\";           Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\extras\*";                   DestDir: "{app}\extras\";          Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+;Source: "..\runtime\*";                  DestDir: "{tmp}";                  Flags: ignoreversion recursesubdirs createallsubdirs deleteafterinstall ; Components: runtime_lib
 
 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\DSM2_v8"; Filename: "{app}\"
-Name: "{group}\Uninstall"; Filename: "{app}\bin\uninstall\uninstall_dsm2.vbs"
-; Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
+Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 Name: "{userdesktop}\DSM2_v8"; Filename: "{app}\"; Tasks: desktopicon
 
 [Registry]
 
 ;Set enviroment variables in Registry:
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "VISTA_HOME";   ValueData: "{app}\vista";              Flags: uninsdeletevalue;
-;Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "PTM_HOME";     ValueData: "{app}\ptm";                Flags: uninsdeletevalue;
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData: "{app}";                    Flags: uninsdeletevalue;
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "SCRIPTS_HOME"; ValueData: "{app}\scripts";            Flags: uninsdeletevalue;
+
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData:  "{app}";      Flags: uninsdeletevalue;
+
+;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "PYTHONPATH"; ValueData:  "%DSM2_HOME%\scripts;{olddata}";
+;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path";       ValueData:  "%DSM2_HOME%\vista\bin;{olddata}";
+;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path";       ValueData:  "%DSM2_HOME%\bin;{olddata}";
+
+
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;  ValueName: "Version";           ValueData: 80011084;                   Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Vista";             ValueData: "%DSM2_HOME%\vista\bin;";   Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "DSM2";              ValueData: "%DSM2_HOME%\bin;";         Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Script";            ValueData: "%DSM2_HOME%\scripts;";     Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Uninstallexepath";  ValueData: "{uninstallexe}";           Flags: uninsdeletevalue;
+;Root: HKLM; Subkey: "SOFTWARE\DSM2\v80\path"; ValueType: string; ValueName: "UninstallVBSpath";  ValueData: "{app}\vista\bin\uninstall\UninstallPath.vbs";  Flags: uninsdeletevalue;
 
 [Run]
+
 Filename: "{tmp}\vcredist_x86_2005sp1.exe"; Description: "Runtime Libraries"; Flags: skipifdoesntexist
+
+[UninstallRun]
+;Filename: "{app}\bin\uninstall\UninstallPath.vbs"; Flags: shellexec waituntilterminated
 
 
 [Code]
-function ModPathDir(): TArrayOfString;
-var
-	Dir:	TArrayOfString;
+
+function MyDirCheck(DirName: String): Boolean;
 begin
-	setArrayLength(Dir, 2)
-    // This is the order things will be prepended, so
-    // you should reverse the order you actually want to see
-	Dir[0] := ExpandConstant('{app}\vista\bin');
-	Dir[1] := ExpandConstant('{app}\bin');
-	Result := Dir;
+  Result := DirExists(DirName);
 end;
-#include "modpath.iss"
+
+
+
+procedure MyBeforeInstall();
+
+var
+  Uninstallexepath: String;
+  ResultCode: Integer;
+  OldPath: String;
+  OldPythonPath: String;
+  
+ begin
+
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\DSM2\v8\path',
+     'Uninstallexepath', Uninstallexepath) then
+
+        // Successfully read the value
+        begin
+        // Display a simple message box with an OK button
+        MsgBox('Uninstaller of previous DSM2_v8 will be launched', mbInformation, MB_OK);
+        if Exec(Uninstallexepath, '', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) then;
+        end;
+        
+        Sleep(3000);
+			
+			  /// write system environment
+        RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
+        RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+
+        StringChangeEx(OldPythonPath, '%DSM2_HOME%\scripts;',   '', True);
+        StringChangeEx(OldPythonPath, ';%DSM2_HOME%\scripts',   '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin', '', True);
+
+        OldPythonPath  := '%DSM2_HOME%\scripts;'    + OldPythonPath;
+        OldPath        := '%DSM2_HOME%\vista\bin;'  + OldPath;
+        OldPath        := '%DSM2_HOME%\bin;'        + OldPath;
+
+        
+        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
+        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+
+        /// clean system environment
+
+        RegDeleteValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PTM_HOME');
+        RegDeleteValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'VISTA_HOME');
+        
+
+        /// clean user environment
+        RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path',       OldPath);
+
+        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin', '', True);
+
+        RegWriteExpandStringValue(HKEY_CURRENT_USER, 'Environment', 'Path',       OldPath);
+
+        RegDeleteValue(HKEY_CURRENT_USER, 'Environment', 'DSM2_HOME');
+        RegDeleteValue(HKEY_CURRENT_USER, 'Environment', 'PTM_HOME');
+        RegDeleteValue(HKEY_CURRENT_USER, 'Environment', 'VISTA_HOME');
+           
+
+ end;
+
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+
+var
+  OldPath: String;
+  OldPythonPath: String;
+
+
+begin
+
+  RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
+  RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+
+  case CurUninstallStep of
+    usUninstall:
+      begin
+        StringChangeEx(OldPythonPath, '%DSM2_HOME%\scripts;',   '', True);
+        StringChangeEx(OldPythonPath, ';%DSM2_HOME%\scripts',   '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin', '', True);
+
+
+        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
+        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+        
+      end;
+{    usPostUninstall:
+      begin
+        StringChangeEx(OldPythonPath, '%DSM2_HOME%\scripts;',   '', True);
+        StringChangeEx(OldPythonPath, ';%DSM2_HOME%\scripts',   '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin', '', True);
+        
+        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
+        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+        
+      end; }
+  end;
+end;
+    
+    
+        
+
+
+
 
 
 
