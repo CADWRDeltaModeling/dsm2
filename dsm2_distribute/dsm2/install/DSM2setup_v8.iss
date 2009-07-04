@@ -5,8 +5,8 @@
 
 [Setup]
 AppName=DSM2_v8
-AppVerName=version 8_0_a3_1088
-OutputBaseFilename=DSM2setup_8_0_a3_1088
+AppVerName=version 8_0_a3_1090
+OutputBaseFilename=DSM2setup_8_0_a3_1090
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
@@ -61,25 +61,16 @@ Source: "..\extras\*";                   DestDir: "{app}\extras\";          Flag
 Source: "..\runtime\*";                  DestDir: "{tmp}";                  Flags: ignoreversion recursesubdirs createallsubdirs deleteafterinstall ; Components: runtime_lib
 
 
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-
 [Icons]
-Name: "{group}\DSM2_v8"; Filename: "{app}\"
+
+Name: "{group}\DSM2_v8_0_a3_1090"; Filename: "{app}\"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 Name: "{userdesktop}\DSM2_v8"; Filename: "{app}\"; Tasks: desktopicon
 
 [Registry]
 
-;Set enviroment variables in Registry:
-
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData:  "{app}";      Flags: uninsdeletevalue;
-
-;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "PYTHONPATH"; ValueData:  "%DSM2_HOME%\scripts;{olddata}";
-;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path";       ValueData:  "%DSM2_HOME%\vista\bin;{olddata}";
-;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path";       ValueData:  "%DSM2_HOME%\bin;{olddata}";
-
-
-Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;  ValueName: "Version";           ValueData: 80011084;                   Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;  ValueName: "Version";           ValueData: 80131090;                   Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Vista";             ValueData: "%DSM2_HOME%\vista\bin;";   Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "DSM2";              ValueData: "%DSM2_HOME%\bin;";         Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Script";            ValueData: "%DSM2_HOME%\scripts;";     Flags: uninsdeletevalue;
@@ -140,13 +131,13 @@ var
         RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
         RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
 
-        /// clean system environment
+        /// clean system environment written by previous version.
 
         RegDeleteValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PTM_HOME');
         RegDeleteValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'VISTA_HOME');
         
 
-        /// clean user environment
+        /// clean user environment written by previous version.
         RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path',       OldPath);
 
         StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);

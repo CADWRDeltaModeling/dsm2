@@ -1,0 +1,146 @@
+ENVVAR
+NAME                        VALUE
+DSM2INPUTDIR                ../../common_input
+CALSIMNAME                  2005A01ADV                              # Name of CALSIM file without ".dss" part
+DSM2MODIFIER                ocap_study_70                                          # Study name used for DSM2 and prepro 
+CALSIMSTUDY_ORIGINAL        2005A01A                                               # fpart straight out of calsim
+CALSIMSTUDY_MODIFIED        ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER}                # modified fpart after preprocessing
+CALSIMSTUDY                 ${CALSIMSTUDY_MODIFIED}                                # CALSIM study name used for DSM2
+CALSIMSTEP                  1MON
+DICU_VERSION                2005                                                   # Appears in F-PART of DICU data after DICU-DRN
+ASTRO_STAGE_VERSION         PLANNING-2-SL
+STAGE_VERSION               PLANNING-2-SL
+SJR_PROCESS                 MULTI_STEP                                            # SINGLE_STEP or MULTI_STEP
+
+START_DATE                  01JAN1991
+QUAL_START_DATE             02JAN1991
+PTM_START_DATE              ${QUAL_START_DATE}
+START_TIME                  0000
+END_DATE                    01FEB1991
+END_TIME                    0000
+
+TSINPUTDIR                  ../../timeseries                              # Where timeseries are stored.
+CALSIMDIR                   ./ #${TSINPUTDIR}                                          # For Condor or single prepro
+TEMPDIR                     z:/temp                                                # temporary directory. Please change
+TSINPUTLOCAL                ../../timeseries                                           # Local timeseries location
+BOUNDARYFILE                ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
+QUALBOUNDARYFILE            ${BOUNDARYFILE}
+DICUDIR                     ${TSINPUTDIR}
+DICUFLOWFILE                ${DICUDIR}/dicu-${DICU_VERSION}.dss                    # DICU file
+DICUFILE                    ${BOUNDARYFILE}                                        # DICU file
+CALSIMFILE                  ${CALSIMDIR}/${CALSIMNAME}.dss                         # Calsim output file
+CALSIM_SMOOTH               ${BOUNDARYFILE}                                        # Pre-processed boundary input (hydro/qual)
+CALSIM_VAMP                 ${BOUNDARYFILE}                                        # Pre-processed VAMP flows and exports
+
+DICUFILE_EC                 ${TSINPUTDIR}/dicu-wq-2020.dss                         # Base DICU file for EC--2005 are the same as 2020
+DICUFILE_ECE                ${BOUNDARYFILE}
+
+GATEFILE                    ${BOUNDARYFILE}
+CLIFTONCT_GATEFILE          ${TSINPUTDIR}/clifton_planning.dss                     # File containing Clifton Ct Priority Ops
+CLIFTONCT_GATEOP            PRIORITY3                                              # Version of Clifton Court Op to use
+STAGE_SOURCE_FILE     ${TSINPUTDIR}/planningtide.dss
+STAGEFILE             ${BOUNDARYFILE}
+
+# Output
+DSM2OUTPUTDIR               ./output                                    # output location.  Please change
+OUTPUTFILE                  ${DSM2MODIFIER}_out.dss
+# Hydro
+HYDROOUTDSSFILE             ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+HYDROOUTFILE                ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
+HYDROTIDEFILE               ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
+HYDRORSTFILE                ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
+GATEOUTPUTFILE              ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+# Qual
+QUALOUTDSSFILE              ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+QUALOUTFILE                 ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+FINE_OUT                    15MIN
+
+# Montezuma Slough operating threshold for EC
+MSCS_EC_THRESH              20000
+
+VAMP_START                  15APR                                                # start of vamp season, inclusive
+VAMP_END                    16MAY                                                # end of vamp season, time 00:00
+
+VERNALIS_CLEAN              ts(name=vernalis_ec)<600   
+                                                                                 # indicator that vernalis inflow is clean enough to refresh
+                                                                                 # the south delta. this will usually be:
+                                                                                 # vernalis_ec<600  based on boundary ec NO SPACES!!!!!!!
+                                                                                 # true/false       hardwire so that vernalis is considered
+                                                                                 # automatically clean enough/never clean enough
+
+END
+
+SCALAR
+NAME             VALUE
+title            DSM2 DELTA OCAP TEMP BARRIERS ${DSM2MODIFIER}
+run_start_date   ${START_DATE}
+run_end_date     ${END_DATE}
+run_start_time     ${START_TIME}
+run_end_time     ${END_TIME}
+temp_dir         z:/temp
+printlevel        1
+dss_direct        true
+END
+
+IO_FILE
+MODEL TYPE    IO  INTERVAL FILE               
+hydro hdf5    out    1hour ${DSM2MODIFIER}.h5  #Flow data to be passed to qual and ptm 
+hydro restart out     1mon ${DSM2MODIFIER}.hrf #Initial condition a restart is required
+hydro output  out     none ${DSM2MODIFIER}.out #Echoed run status                      
+hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp  #Echoed input                              
+END
+
+
+PARAMETER
+${DSM2INPUTDIR}/scalar_hydro_std.inp
+END
+
+GRID
+${DSM2INPUTDIR}/channel_std_delta_grid.inp
+${DSM2INPUTDIR}/gate_std_delta_grid.inp
+${DSM2INPUTDIR}/reservoir_std_delta_grid.inp
+${DSM2INPUTDIR}/gate_temp_barriers.inp
+END
+
+INITIAL_CONDITION
+${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
+${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
+END
+
+HYDRO_TIME_SERIES
+${DSM2INPUTDIR}/boundary_stage_adjust_astro_tide.inp
+${DSM2INPUTDIR}/boundary_flow_calsim_delta.inp
+${DSM2INPUTDIR}/source_flow_calsim_delta.inp
+${DSM2INPUTDIR}/source_flow_dicu.inp
+${DSM2INPUTDIR}/input_gate_planning_ccfb_dcc_timing.inp
+${DSM2INPUTDIR}/source_flow_ocap_diversions.inp
+END
+
+OPERATION
+${DSM2INPUTDIR}/oprule_montezuma_planning_gate_op.inp
+${DSM2INPUTDIR}/oprule_temp_barriers_planning_ops.inp
+${DSM2INPUTDIR}/oprule_ccc_dual_intake_ops.inp
+END
+
+GROUPS
+${DSM2INPUTDIR}/group_delta_accouting.inp
+END
+
+OUTPUT_TIME_SERIES
+${DSM2INPUTDIR}/output_channel_std_hydro_boundary.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_named.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_rki.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_sdip.inp
+${DSM2INPUTDIR}/output_channel_sdip_trigger.inp
+${DSM2INPUTDIR}/output_channel_old_river_head.inp
+${DSM2INPUTDIR}/output_gate_temporary_barriers.inp
+${DSM2INPUTDIR}/output_channel_ccc_split_flow.inp
+${DSM2INPUTDIR}/output_channel_ocap.inp
+END
+
+
+
+
+
+
+
