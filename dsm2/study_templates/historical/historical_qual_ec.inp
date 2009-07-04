@@ -1,0 +1,121 @@
+ENVVAR
+NAME              VALUE
+DSM2MODIFIER        historical            # Study name used for DSM2 output
+DSM2INPUTDIR        ../../common_input
+DSM2AGENCY          dwr
+VERSIONDATE         200705
+HISTFLOWVERSION     DWR-DMS-${VERSIONDATE}
+HISTSTAGEVERSION    ${HISTFLOWVERSION}
+HISTQUALVERSION     DWR-DMS-${VERSIONDATE}
+
+#runtime
+START_DATE          01JAN1998
+START_TIME          0000
+QUAL_START_DATE     02JAN1998
+PTM_START_DATE      ${QUAL_START_DATE}
+END_DATE            01MAR1998
+END_TIME            0000
+TEMPDIR             z:/temp          # Spacious directory for scratch files
+
+# Input envvars
+STUDYDIR        .
+TSINPUTDIR      ../../timeseries
+BNDRYINPUT      ${TSINPUTDIR}/hist_19902007.dss 
+GATEFILE        ${TSINPUTDIR}/gates_db.dss        
+DICUFILE        ${TSINPUTDIR}/dicu_${VERSIONDATE}.dss            
+QUALBNDINP          ${TSINPUTDIR}/hist_19902007.dss
+DICUFILE_ECS        ${TSINPUTDIR}/dicuwq_200611.dss        # seasonal DICU file for ec 
+DICUFILE_ECE        ${TSINPUTDIR}/dicuwq_200611_expand.dss  # expanded DICU file for ec 
+DICUFILE-ECS        ${TSINPUTDIR}/dicu.dss                # seasonal DICU file for ec 
+CLIMATE             ${TSINPUTDIR}/climate-5years.dss
+STOCKTON_FLOW_FILE   constant      # needed for DO runs, if not available use constant
+STOCKTON_EFF_FLOW    0.0           # needed for DO runs, if not available use 0.0
+# Output
+DSM2OUTPUTDIR       ${STUDYDIR}/output
+OUTPUTFILE          ${DSM2MODIFIER}.dss
+# hydro
+FLOWPATTERN         ./output/FLOWPATTERN.dss
+HYDROOUTDSSFILE     ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+HYDROOUTFILE          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
+HYDRORSTFILE        ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
+HYDROTIDEFILE          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
+GATEOUTPUTFILE      ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+# Qual
+QUALOUTDSSFILE      ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+QUALOUTFILE          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+QUALRSTFILE          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+FINE_OUT            15MIN
+FINE_OUT_DAY        1DAY
+# Jones Tract Levee Break 
+EVENTSINPUT             ${TSINPUTDIR}/events.dss
+END
+
+SCALAR
+NAME        VALUE
+checkdata        false
+cont_bad        false
+cont_missing        false
+cont_question        false
+cont_unchecked        true
+dispersion        true
+display_intvl        1day
+flush_output        8day
+init_conc        0
+printlevel        1
+qual_time_step        15min
+warn_missing        false
+warn_question        false
+warn_unchecked        false
+run_start_date      ${QUAL_START_DATE}
+run_end_date        ${END_DATE}
+run_start_time      ${START_TIME}
+run_end_time        ${END_TIME}
+temp_dir     ${TEMPDIR}
+END
+
+IO_FILE
+MODEL      TYPE     IO                 INTERVAL FILE
+qual       restart  out    1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
+qual       output   out    none     ${DSM2MODIFIER}_qual_ec.out #Echoed run status
+qual       echo     out    none     ${DSM2MODIFIER}_qual_ec_echo.out #Echoed input         
+END                
+
+TIDEFILE
+START_DATE    END_DATE     FILE
+runtime       length      ${DSM2MODIFIER}.h5
+END
+
+PARAMETER
+${DSM2INPUTDIR}/scalar_qual_std.inp
+END
+
+# GRID
+# ${DSM2INPUTDIR}/channel_std_delta_grid.inp
+# ${DSM2INPUTDIR}/gate_std_delta_grid.inp
+# ${DSM2INPUTDIR}/reservoir_std_delta_grid.inp
+# END
+
+INITIAL_CONDITION
+${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
+${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
+END
+
+GROUPS
+${DSM2INPUTDIR}/group_sourcetracking.inp
+END
+
+QUAL_TIME_SERIES
+${DSM2INPUTDIR}/node_concentration_delta_historical_qual.inp
+${DSM2INPUTDIR}/node_concentration_dicu_ec.inp
+${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp
+${DSM2INPUTDIR}/node_concentration_jones_qual.inp
+END
+
+OUTPUT_TIME_SERIES
+${DSM2INPUTDIR}/output_channel_std_qual_rki.inp
+${DSM2INPUTDIR}/output_channel_std_qual_named.inp
+${DSM2INPUTDIR}/output_channel_std_qual_named_correct.inp
+${DSM2INPUTDIR}/output_channel_source_track_fingerprint_ec_out.inp
+${DSM2INPUTDIR}/output_reservoir_source_track_fingerprint_ec_out.inp
+END
+
