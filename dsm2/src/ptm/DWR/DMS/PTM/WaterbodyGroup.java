@@ -42,6 +42,8 @@ public class WaterbodyGroup implements Group {
 	private int indexOfWaterBody(Waterbody wb) {
 		// if (wb == null) throw new NullPointerException("Null waterbody");
 		if (members == null) throw new IllegalStateException("Empty group");
+        if (members.length == 0 ) throw new IllegalStateException("Empty group");
+
         int ndx = -1;
         if ( wb != null ) {
             ndx= Arrays.binarySearch(members, new WaterbodyGroupMember(wb
