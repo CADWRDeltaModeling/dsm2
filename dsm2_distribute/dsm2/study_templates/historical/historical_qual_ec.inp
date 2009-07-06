@@ -1,67 +1,82 @@
+
 CONFIGURATION
 configuration_historical.inp
 END
 
+
+
 SCALAR
-NAME        VALUE
-checkdata        false
-cont_bad        false
-cont_missing        false
-cont_question        false
-cont_unchecked        true
-dispersion        true
-display_intvl        1day
-flush_output        8day
-init_conc        0
-printlevel        1
-qual_time_step        15min
-warn_missing        false
-warn_question        false
-warn_unchecked        false
-run_start_date      ${QUAL_START_DATE}
-run_end_date        ${END_DATE}
-run_start_time      ${START_TIME}
-run_end_time        ${END_TIME}
-temp_dir     ${TEMPDIR}
+NAME           VALUE             
+checkdata      false              
+cont_bad       false              
+cont_missing   false              
+cont_question  false              
+cont_unchecked true               
+dispersion     true               
+display_intvl  1day               
+flush_output   8day               
+init_conc      0                  
+printlevel     1                  
+qual_time_step 15min              
+warn_missing   false              
+warn_question  false              
+warn_unchecked false              
+run_start_date ${QUAL_START_DATE} 
+run_end_date   ${END_DATE}        
+run_start_time ${START_TIME}      
+run_end_time   ${END_TIME}        
+temp_dir       ${TEMPDIR}         
 END
+
+
 
 IO_FILE
-MODEL      TYPE     IO                 INTERVAL FILE
-qual       restart  out    1mon     ${QUALRSTFILE}     #Initial condition a restart is required
-qual       output   out    none     ${QUALOUTFILE}     #Echoed run status
-qual       echo     out    none     ${DSM2MODIFIER}_qual_ec_echo.out #Echoed input         
+MODEL      TYPE     IO               INTERVAL FILE                            
+qual       restart  out              1mon     ${QUALRSTFILE}                   #Initial condition a restart is required
+qual       output   out              none     ${QUALOUTFILE}                   #Echoed run status                      
+qual       echo     out              none     ${DSM2MODIFIER}_qual_ec_echo.out #Echoed input                           
 END                
-
-TIDEFILE
-START_DATE    END_DATE     FILE
-runtime       length      ${HYDROTIDEFILE}
+TIDEFILE           
+START_DATE END_DATE FILE                     
+runtime    length   ${HYDROTIDEFILE}         
 END
+
+
 
 PARAMETER
 ${DSM2INPUTDIR}/scalar_qual_std.inp
 END
 
+
+
 INITIAL_CONDITION
-${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
-${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
+${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp  
+${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp 
 END
+
+
 
 GROUPS
 ${DSM2INPUTDIR}/group_sourcetracking.inp
 END
 
+
+
 QUAL_TIME_SERIES
 ${DSM2INPUTDIR}/node_concentration_delta_historical_qual.inp
-${DSM2INPUTDIR}/node_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/node_concentration_jones_qual.inp
+${DSM2INPUTDIR}/node_concentration_dicu_ec.inp               
+${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp          
+${DSM2INPUTDIR}/node_concentration_jones_qual.inp            
 END
 
+
+
 OUTPUT_TIME_SERIES
-${DSM2INPUTDIR}/output_channel_std_qual_rki.inp
-${DSM2INPUTDIR}/output_channel_std_qual_named.inp
-${DSM2INPUTDIR}/output_channel_std_qual_named_correct.inp
-#${DSM2INPUTDIR}/output_channel_source_track_fingerprint_ec_out.inp
+${DSM2INPUTDIR}/output_channel_std_qual_rki.inp                      
+${DSM2INPUTDIR}/output_channel_std_qual_named.inp                     
+${DSM2INPUTDIR}/output_channel_std_qual_named_correct.inp             
+#${DSM2INPUTDIR}/output_channel_source_track_fingerprint_ec_out.inp  
 #${DSM2INPUTDIR}/output_reservoir_source_track_fingerprint_ec_out.inp
 END
+
 
