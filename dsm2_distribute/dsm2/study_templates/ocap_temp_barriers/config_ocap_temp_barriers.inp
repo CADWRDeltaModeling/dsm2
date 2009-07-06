@@ -53,6 +53,7 @@ GATEOUTPUTFILE              ${DSM2OUTPUTDIR}/${OUTPUTFILE}
 # Qual
 QUALOUTDSSFILE              ${DSM2OUTPUTDIR}/${OUTPUTFILE}
 QUALOUTFILE                 ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+QUALRSTFILE                ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
 FINE_OUT                    15MIN
 
 # Montezuma Slough operating threshold for EC
@@ -69,47 +70,3 @@ VERNALIS_CLEAN              ts(name=vernalis_ec)<600
                                                                                  # automatically clean enough/never clean enough
 
 END
-
-
-SCALAR
-NAME             VALUE
-title            DSM2 DELTA OCAP TEMP BARRIERS ${DSM2MODIFIER}
-run_start_date  ${QUAL_START_DATE}
-run_end_date    ${END_DATE}
-run_start_time  ${START_TIME}
-run_end_time    ${END_TIME}
-temp_dir        ${TEMPDIR}
-init_conc       20.0
-dss_direct        true
-END
-
-TIDEFILE
-START_DATE    END_DATE     FILE
-runtime       length      ${DSM2MODIFIER}.h5
-END
-
-IO_FILE
-MODEL      TYPE     IO                 INTERVAL FILE
-qual       restart  out    1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
-qual       output   out    none     ${DSM2MODIFIER}_qual_ec.out #Echoed run status
-qual       echo     out    none     ${DSM2MODIFIER}_qual_ec_echo.out #Echoed input         
-END  
-
-PARAMETER
-${DSM2INPUTDIR}/scalar_qual_std.inp
-END
-
-QUAL_TIME_SERIES
-${DSM2INPUTDIR}/node_concentration_calsim_delta_ec.inp
-${DSM2INPUTDIR}/node_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/node_concentration_mtz_planning_ec.inp
-END
-
-OUTPUT_TIME_SERIES
-${DSM2INPUTDIR}/output_channel_std_qual_named.inp
-${DSM2INPUTDIR}/output_channel_std_qual_rki.inp
-END
-
-
-
