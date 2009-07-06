@@ -48,6 +48,7 @@ Name: "timeseries"; Description: "DSS Time Series Data"; Types: full
 
 [Files]
 
+Source: "..\doc\*";                      DestDir: "{app}\documentation\";   Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\bin\*";                      DestDir: "{app}\bin\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\scripts\*";                  DestDir: "{app}\scripts\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\common_input\*";             DestDir: "{app}\common_input\";    Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
@@ -63,17 +64,19 @@ Source: "..\runtime\*";                  DestDir: "{tmp}";                  Flag
 
 [Icons]
 
+Name: "{group}\DSM2_documentation"; Filename: "{app}\documentation\html\toc.html"
 Name: "{group}\DSM2_v8_0_a3_1090"; Filename: "{app}\"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 Name: "{userdesktop}\DSM2_v8"; Filename: "{app}\"; Tasks: desktopicon
 
 [Registry]
 
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";    ValueData:  "{app}";      Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";   ValueData:  "{app}";        Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "VISTA_HOME";  ValueData:  "{app}\vista";  Flags: uninsdeletevalue;
+
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;  ValueName: "Version";           ValueData: 80131090;                   Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Vista";             ValueData: "%DSM2_HOME%\vista\bin;";   Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "DSM2";              ValueData: "%DSM2_HOME%\bin;";         Flags: uninsdeletevalue;
-Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Script";            ValueData: "%DSM2_HOME%\scripts;";     Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Uninstallexepath";  ValueData: "{uninstallexe}";           Flags: uninsdeletevalue;
 
 [Run]
@@ -100,7 +103,7 @@ var
   
  begin
 
-    if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\DSM2\v8\path',
+    {if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\DSM2\v8\path',
      'Uninstallexepath', Uninstallexepath) then
 
         // Successfully read the value
@@ -110,20 +113,28 @@ var
         if Exec(Uninstallexepath, '', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) then;
         end;
         
-        Sleep(3000);
+        Sleep(3000);}
 			
 			  /// write system environment
         RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
         RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
 
-        StringChangeEx(OldPythonPath, '%DSM2_HOME%\scripts;',   '', True);
-        StringChangeEx(OldPythonPath, ';%DSM2_HOME%\scripts',   '', True);
-        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
-        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
-        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
-        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin', '', True);
+        ///clean unused python path
+        StringChangeEx(OldPythonPath, '%SCRIPTS_HOME%;',   '', True);
+        StringChangeEx(OldPythonPath, ';%SCRIPTS_HOME%',   '', True);
+        
+        ///clean path written by previous version
+        StringChangeEx(OldPath,       '%VISTA_HOME%\bin;',       '', True);
+        StringChangeEx(OldPath,       ';%VISTA_HOME%\bin',       '', True);
+        StringChangeEx(OldPath,       '%PTM_HOME%\bin;',         '', True);
+        StringChangeEx(OldPath,       ';%PTM_HOME%\bin',         '', True);
 
-        OldPythonPath  := '%DSM2_HOME%\scripts;'    + OldPythonPath;
+        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',        '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',        '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;',  '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin',  '', True);
+
+        ///OldPythonPath  := '%DSM2_HOME%\scripts;'    + OldPythonPath;
         OldPath        := '%DSM2_HOME%\vista\bin;'  + OldPath;
         OldPath        := '%DSM2_HOME%\bin;'        + OldPath;
 
@@ -134,23 +145,35 @@ var
         /// clean system environment written by previous version.
 
         RegDeleteValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PTM_HOME');
-        RegDeleteValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'VISTA_HOME');
+        RegDeleteValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'SCRIPTS_HOME');
+        
         
 
         /// clean user environment written by previous version.
         RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'Path',       OldPath);
+        RegQueryStringValue(HKEY_CURRENT_USER, 'Environment', 'PYTHONPATH', OldPythonPath);
 
-        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
-        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
-        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
-        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin', '', True);
+        ///clean unused python path
+        StringChangeEx(OldPythonPath, '%SCRIPTS_HOME%;',   '', True);
+        StringChangeEx(OldPythonPath, ';%SCRIPTS_HOME%',   '', True);
+
+
+        StringChangeEx(OldPath,       '%PTM_HOME%\bin;',         '', True);
+        StringChangeEx(OldPath,       ';%PTM_HOME%\bin',         '', True);
+        StringChangeEx(OldPath,       '%VISTA_HOME%\bin;',       '', True);
+        StringChangeEx(OldPath,       ';%VISTA_HOME%\bin',       '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',        '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',        '', True);
+        StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;',  '', True);
+        StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin',  '', True);
 
         RegWriteExpandStringValue(HKEY_CURRENT_USER, 'Environment', 'Path',       OldPath);
+        RegWriteExpandStringValue(HKEY_CURRENT_USER, 'Environment', 'PYTHONPATH', OldPythonPath);
 
         RegDeleteValue(HKEY_CURRENT_USER, 'Environment', 'DSM2_HOME');
         RegDeleteValue(HKEY_CURRENT_USER, 'Environment', 'PTM_HOME');
         RegDeleteValue(HKEY_CURRENT_USER, 'Environment', 'VISTA_HOME');
-           
+        RegDeleteValue(HKEY_CURRENT_USER, 'Environment', 'SCRIPTS_HOME');
 
  end;
 
@@ -165,13 +188,12 @@ var
 begin
 
   RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
-  RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+
 
   case CurUninstallStep of
     usUninstall:
       begin
-        StringChangeEx(OldPythonPath, '%DSM2_HOME%\scripts;',   '', True);
-        StringChangeEx(OldPythonPath, ';%DSM2_HOME%\scripts',   '', True);
+
         StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
         StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
         StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
@@ -179,20 +201,19 @@ begin
 
 
         RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
-        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+
         
       end;
 {    usPostUninstall:
       begin
-        StringChangeEx(OldPythonPath, '%DSM2_HOME%\scripts;',   '', True);
-        StringChangeEx(OldPythonPath, ';%DSM2_HOME%\scripts',   '', True);
+
         StringChangeEx(OldPath,       '%DSM2_HOME%\bin;',       '', True);
         StringChangeEx(OldPath,       ';%DSM2_HOME%\bin',       '', True);
         StringChangeEx(OldPath,       '%DSM2_HOME%\vista\bin;', '', True);
         StringChangeEx(OldPath,       ';%DSM2_HOME%\vista\bin', '', True);
         
         RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'Path',       OldPath);
-        RegWriteExpandStringValue(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PYTHONPATH', OldPythonPath);
+
         
       end; }
   end;
