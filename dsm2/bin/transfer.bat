@@ -1,4 +1,4 @@
-
+@echo off
 ::Launches the script transfer.py
 ::This script allows you to copy time series from one DSS file to another
 ::Optionally, you can slice the time series in time

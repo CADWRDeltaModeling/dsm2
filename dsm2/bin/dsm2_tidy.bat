@@ -1,6 +1,10 @@
 ::Launches the script dsm2_tidy.py
 ::This script cleans up input files
-echo off
+@echo off
+
+if "%1" == "--help" goto usage
+
+
 if "%1" == "" goto do_dir
 
 call vscript.bat %%~dp0\..\scripts\dsm2_tidy.py %1 %1_tmp.inp
@@ -14,6 +18,11 @@ echo Processing %%i
 call vscript.bat %%~dp0\..\scripts\dsm2_tidy.py %%i %%i_tmp.inp
 move /y %%i_tmp.inp %%i
 )
+goto end
+
+:usage
+echo Usage: dsm2_tidy [file]
+echo If file is not given, all files in the directory will be tidied
 
 :end
 
