@@ -41,12 +41,6 @@ PARAMETER
 ${DSM2INPUTDIR}/scalar_qual_std.inp
 END
 
-# GRID
-# ${DSM2INPUTDIR}/channel_std_delta_grid.inp
-# ${DSM2INPUTDIR}/gate_std_delta_grid.inp
-# ${DSM2INPUTDIR}/reservoir_std_delta_grid.inp
-# END
-
 INITIAL_CONDITION
 ${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
 ${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
@@ -67,7 +61,7 @@ OUTPUT_TIME_SERIES
 ${DSM2INPUTDIR}/output_channel_std_qual_rki.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_named.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_named_correct.inp
-${DSM2INPUTDIR}/output_channel_source_track_fingerprint_ec_out.inp
-${DSM2INPUTDIR}/output_reservoir_source_track_fingerprint_ec_out.inp
+#${DSM2INPUTDIR}/output_channel_source_track_fingerprint_ec_out.inp
+#${DSM2INPUTDIR}/output_reservoir_source_track_fingerprint_ec_out.inp
 END
 
