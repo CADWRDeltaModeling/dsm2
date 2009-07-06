@@ -4,11 +4,17 @@ Switch hydro.inp, qual.inp, ptm.inp to configuration file. Once config file is i
 
 Documentation -- copy from /doc to /documentation
 
+Need a quick link to toc.html
+
 Source tracking should not be the default in historical.inp -- too costly.
 
-output_gate is completely unused.
+We need to make the ENVVAR for the IO_FILE sections actually be used.
+
+output_gate_tempbarriers is completely unused.
 
 PYTHONPATH is not needed.
+
+
 
 VISTA_HOME and DSM2_HOME must be defined.
 
