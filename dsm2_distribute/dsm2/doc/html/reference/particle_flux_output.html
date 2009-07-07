@@ -15,7 +15,7 @@
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>PARTICLE_FLUX_OUTPUT</h1>
+<h1>Particle Flux Output</h1>
 </div><!-- page_title-->
 <hr style="header_hr"/>
 
@@ -29,7 +29,7 @@ input that specifies how the PTM records the number of particles in a group of w
 <h2 id="tables">Tables:</h2>
 <ul class="table_list">
 <li><a class="table_link" href="#particle_flux_output">PARTICLE_FLUX_OUTPUT</a></li>
-
+</ul>
 
 <a name="particle_flux_output"></a>
 <h3 class="table_name">PARTICLE_FLUX_OUTPUT</h3>
@@ -45,22 +45,19 @@ that is the "to" destination in the flux.</dd>
 </dd><dt>FILENAME</dt><dd>The name of the output file.
 If the file extension is *.dss, output is in
 DSS format. If the file extension is *.txt a text file output is
-produced.&nbsp;</dd><dt></dt>
+produced.</dd>
 </dl>
 
 <h2 id="examples">Examples:</h2>
-<table class="text_input">
-<tbody>
-<tr><td>FLUX_OUTPUT</td><td></td><td></td><td></td><td></td></tr>
-<tr><td>NAME</td><td>FROM_WB</td><td>TO_WB</td><td>INTERVAL</td><td>FILENAME</td></tr>
-<tr><td>TWITCHELL</td><td>res:clifton_court</td><td>group:swp</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>EMMATON</td><td>chan:216</td><td>group:cvp</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>PAST_MTZ</td><td>chan:441</td><td>group:mtz</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>WEST</td><td>group:chipps_east</td><td>group:chipps_west</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>DIVERSION_AG</td><td>group:all</td><td>group:ag_div</td><td>15MIN</td><td>${PTMOUTPUTFILE}</td></tr>
-<tr><td>END</td><td></td><td></td><td></td><td></td></tr>
-</tbody>
-</table>
+<div class="fragment"><pre class="fragment">FLUX_OUTPUT
+NAME         FROM_WB           TO_WB             INTERVAL FILENAME
+TWITCHELL    res:clifton_court group:swp         15MIN    ${PTMOUTPUTFILE}
+EMMATON      chan:216          group:cvp         15MIN    ${PTMOUTPUTFILE}
+PAST_MTZ     chan:441          group:mtz         15MIN    ${PTMOUTPUTFILE}
+WEST         group:chipps_east group:chipps_west 15MIN    ${PTMOUTPUTFILE}
+DIVERSION_AG group:all         group:ag_div      15MIN    ${PTMOUTPUTFILE}
+END</pre>
+</div>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 <a name="usage"></a>
