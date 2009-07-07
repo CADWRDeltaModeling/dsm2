@@ -63,37 +63,37 @@ an echo file (replicate of input). All of the file names
 use text substitution -- the value would come from an environmental
 variable, ENVVARS section in the input file or ENVVARS section of a
 config file. </p>
-<div class="fragment">IO_FILES      
+<div class="fragment"><pre class="fragment">IO_FILES      
 MODEL  TYPE     IO    INTERVAL FILENAME  
 output none     none  none     ${HYDROOUTFILE}  
 hydro  restart  out   1day     ${QUALRSTFILE}  
 hydro  hdf5     out   1hour    ${HYDROHDF5FILE}  
 hydro  echo     out   none     ${DSM2MODIFIER}_hydro_echo.inp  
-END 
+END</pre>
 </div>
 <p><span style="font-weight: bold;">QUAL example:</span></p><p>This
 example includes a general qual runtime output file, a restart output file that
 is regenerated every model day (overwriting the previous day's file),
 a restart file that will be used to generate the initial condition for the run,
 and an hdf5 tidefile for passing information to QUAL and an echo file (exact replicate of input).</p>
-<div class="fragment">IO_FILES      
+<div class="fragment"><pre class="fragment">IO_FILES      
 MODEL  TYPE    IO   INTERVAL FILENAME  
 output none    none none     ${QUALOUTFILE}  
 qual   restart out  1day     ${QUALRESTART}  
 qual   restart in   none     qualinit_30SEP1999.qrf  
 qual   echo    out  none     ${DSM2MODIFIER}_qual_echo.inp  
-END 
+END</pre>
 </div>
 <p><span style="font-weight: bold;">PTM example:</span></p><p>This
 example includes a PTM trace file (which is required to produce flux
 DSS output) and an animation file (which is required for animated
 output).</p>
-<div class="fragment">IO_FILES      
+<div class="fragment"><pre class="fragment">IO_FILES      
 MODEL TYPE  IO  INTERVAL FILENAME  
 ptm   trace out none     ${DSM2OUTPUTDIR}/trace.out  
 ptm   anim  out 15min    ${DSM2OUTPUTDIR}/anim.out
 ptm   echo  out none     ${DSM2MODIFIER}_ptm_echo.inp  
-END 
+END</pre>
 </div>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>

@@ -15,7 +15,7 @@
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>PARTICLE_INSERTION</h1>
+<h1>Particle Insertion</h1>
 </div><!-- page_title-->
 <hr style="header_hr"/>
 
@@ -27,8 +27,9 @@ The PTM can insert multiple sets of particles.
 </p>
 
 <a name="reference"></a>
-<h2 class="section_name">Reference</h2>
-<h4 class="field_def_title">Keyword Descriptions</h4>
+<h2 class="section_name">Tables:</h2>
+<h3 class="table_name">PARTICLE_INSERTION</h3>
+<h4 class="field_def_title">Filed Descriptions</h4>
 <dl class="field_definitions">
 <dt>NODE</dt><dd>The node at which the insertion is made.</dd>
 <dt>NPARTS</dt><dd>Number of particles.</dd>
@@ -38,15 +39,12 @@ The PTM can insert multiple sets of particles.
 
 
 <h2 id="examples">Examples:</h2>
-<table class="text_input">
-<tbody>
-<tr><td colspan=3>PARTICLE_INSERTION</td><td></td><td></td></tr>
-<tr><td>NODE</td><td>NPARTS</td><td>DELAY</td><td>DURATION</td><td><td></tr>
-<tr><td>1</td><td>1000</td><td>0hour</td><td>1day</td><td></td></tr>
-<tr><td>13</td><td>1000</td><td>1day</td><td>0hour</td><td></td></tr>
-<tr><td>END</td><td></td><td></td><td></td><td></td></tr>
-</tbody>
-</table>
+<div class="fragment"><pre class="fragment">PARTICLE_INSERTION
+NODE  NPARTS   DELAY  DURATION    
+1     1000     0hour  1day    
+13    1000     1day   0hour    
+END</pre>
+</div>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 <a name="usage"></a>
