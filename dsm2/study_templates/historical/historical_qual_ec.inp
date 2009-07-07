@@ -28,14 +28,13 @@ run_end_time   ${END_TIME}
 temp_dir       ${TEMPDIR}         
 END
 
-
-
 IO_FILE
 MODEL      TYPE     IO               INTERVAL FILE                            
 qual       restart  out              1mon     ${QUALRSTFILE}                   #Initial condition a restart is required
 qual       output   out              none     ${QUALOUTFILE}                   #Echoed run status                      
 qual       echo     out              none     ${DSM2MODIFIER}_qual_ec_echo.out #Echoed input                           
-END                
+END
+                
 TIDEFILE           
 START_DATE END_DATE FILE                     
 runtime    length   ${HYDROTIDEFILE}         
