@@ -1,27 +1,27 @@
 
 
-Switch hydro.inp, qual.inp, ptm.inp to configuration file. Once config file is in place, we will look at it again.
+X Switch hydro.inp, qual.inp, ptm.inp to configuration file. Once config file is in place, we will look at it again.
 
-Documentation -- copy from /doc to /documentation
+X Documentation -- copy from /doc to /documentation
 
-Need a quick link to toc.html
+X Need a quick link to toc.html
 
-Source tracking should not be the default in historical.inp -- too costly.
+X Source tracking should not be the default in historical.inp -- too costly.
 
-We need to make the ENVVAR for the IO_FILE sections actually be used.
+X We need to make the ENVVAR for the IO_FILE sections actually be used.
 
-output_gate_tempbarriers is completely unused.
+X output_gate_tempbarriers is completely unused.
 
-PYTHONPATH is not needed.
+X PYTHONPATH is not needed.
 
 
 
-VISTA_HOME and DSM2_HOME must be defined.
+X VISTA_HOME and DSM2_HOME must be defined.
 
 Need to note java is a prerequisite.
 
-dsm2_tidy.py needs a batch file in /dsm2/bin
-transfer.py needs a batch file in /dsm2/bin
+X dsm2_tidy.py needs a batch file in /dsm2/bin
+X transfer.py needs a batch file in /dsm2/bin
 
 
 The installer is picking up some experimental stuff. Can we automate a way to make sure that /study_templates/hydro is clean (batch script) and contains /output
