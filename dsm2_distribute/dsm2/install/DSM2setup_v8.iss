@@ -1,7 +1,7 @@
 [Setup]
 AppName=DSM2_v8
-AppVerName=version 8_0_a4_1107
-OutputBaseFilename=DSM2setup_8_0_a4_1107
+AppVerName=version 8_0_a4_1123
+OutputBaseFilename=DSM2setup_8_0_a4_1123
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
@@ -9,8 +9,8 @@ AppUpdatesURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/d
 DefaultDirName=d:\delta\dsm2_v8
 DefaultGroupName=DSM2_v8
 AllowNoIcons=yes
-;Compression=lzma/ultra
-Compression=lzma/fast
+Compression=lzma/ultra
+;Compression=lzma/fast
 CompressionThreads=auto
 SolidCompression=no
 ChangesEnvironment=yes
@@ -73,7 +73,7 @@ Name: "{userdesktop}\DSM2_v8";      Filename: "{app}\"; Tasks: desktopicon
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";   ValueData:  "{app}";         Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "VISTA_HOME";  ValueData:  "{app}\vista";   Flags: uninsdeletevalue;
 
-Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;  ValueName: "Version";           ValueData: 80131107;                   Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;  ValueName: "Version";           ValueData: 80131123;                   Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Vista";             ValueData: "%DSM2_HOME%\vista\bin;";   Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "DSM2";              ValueData: "%DSM2_HOME%\bin;";         Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Uninstallexepath";  ValueData: "{uninstallexe}";           Flags: uninsdeletevalue;
