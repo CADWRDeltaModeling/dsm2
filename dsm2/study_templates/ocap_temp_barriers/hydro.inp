@@ -7,11 +7,13 @@ NAME             VALUE
 title            DSM2 DELTA OCAP TEMP BARRIERS ${DSM2MODIFIER}
 run_start_date   ${START_DATE}
 run_end_date     ${END_DATE}
-run_start_time     ${START_TIME}
+run_start_time   ${START_TIME}
 run_end_time     ${END_TIME}
 temp_dir         z:/temp
-printlevel        1
-dss_direct        true
+printlevel       1
+binary_output    false
+dss_direct       true
+flush_output     20day
 END
 
 IO_FILE

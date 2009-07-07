@@ -13,8 +13,7 @@ cont_missing   false
 cont_question  false              
 cont_unchecked true               
 dispersion     true               
-display_intvl  1day               
-flush_output   8day               
+display_intvl  1day                             
 printlevel     1                  
 qual_time_step 15min              
 warn_missing   false              
@@ -25,7 +24,10 @@ run_end_date   ${END_DATE}
 run_start_time ${START_TIME}      
 run_end_time   ${END_TIME}        
 temp_dir       ${TEMPDIR}         
-init_conc      20.0               
+init_conc      20.0
+binary_output  false
+dss_direct     true
+flush_output   20day              
 END
 
 
@@ -34,7 +36,7 @@ IO_FILE
 MODEL      TYPE     IO               INTERVAL FILE                            
 qual       restart  out              1mon     ${QUALRSTFILE}                   #Initial condition a restart is required
 qual       output   out              none     ${QUALOUTFILE}                   #Echoed run status                      
-qual       echo     out              none     ${DSM2MODIFIER}_qual_do_echo.out #Echoed input                           
+qual       echo     out              none     ${DSM2MODIFIER}_qual_do_echo.inp #Echoed input                           
 END                
 TIDEFILE           
 START_DATE END_DATE FILE                     

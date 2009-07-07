@@ -14,8 +14,7 @@ cont_missing    true
 cont_question   true                                  
 cont_unchecked  true                                  
 deltax          5000                                  
-display_intvl   1day                                  
-flush_output    15day                                 
+display_intvl   1day                                                                  
 gravity         32.2                                  
 hydro_time_step 15min                                 
 levee_slope     0.33                                  
@@ -31,7 +30,10 @@ run_start_date  ${START_DATE}
 run_end_date    ${END_DATE}                           
 run_start_time  ${START_TIME}                         
 run_end_time    ${END_TIME}                           
-temp_dir        c:/temp                               
+temp_dir        c:/temp
+binary_output   false
+dss_direct      true
+flush_output    20day                              
 END
 
 
