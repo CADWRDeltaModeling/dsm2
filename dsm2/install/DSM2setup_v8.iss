@@ -51,18 +51,18 @@ Name: "timeseries"; Description: "DSS Time Series Data"; Types: full
 
 [Files]
 
-;Source: "..\doc\*";                      DestDir: "{app}\documentation\";   Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\doc\*";                      DestDir: "{app}\documentation\";   Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\bin\*";                      DestDir: "{app}\bin\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\scripts\*";                  DestDir: "{app}\scripts\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\common_input\*";             DestDir: "{app}\common_input\";    Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\tutorials\*";                Destdir: "{app}\tutorials";        Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\studies\*";                  Destdir: "{app}\studies\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\ptm\*";                      DestDir: "{app}\ptm\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";      Flags: ignoreversion recursesubdirs createallsubdirs ; Components: timeseries
-;Source: "..\vista\*";                    DestDir: "{app}\vista\";           Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\extras\*";                   DestDir: "{app}\extras\";          Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\runtime\*";                  DestDir: "{tmp}";                  Flags: ignoreversion recursesubdirs createallsubdirs deleteafterinstall ; Components: runtime_lib
+Source: "..\scripts\*";                  DestDir: "{app}\scripts\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\common_input\*";             DestDir: "{app}\common_input\";    Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\tutorials\*";                Destdir: "{app}\tutorials";        Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\studies\*";                  Destdir: "{app}\studies\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\ptm\*";                      DestDir: "{app}\ptm\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";      Flags: ignoreversion recursesubdirs createallsubdirs ; Components: timeseries
+Source: "..\vista\*";                    DestDir: "{app}\vista\";           Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\extras\*";                   DestDir: "{app}\extras\";          Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\runtime\*";                  DestDir: "{tmp}";                  Flags: ignoreversion recursesubdirs createallsubdirs deleteafterinstall ; Components: runtime_lib
 
 
 [Icons]
