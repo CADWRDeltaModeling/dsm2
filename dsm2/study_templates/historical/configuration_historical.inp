@@ -46,7 +46,9 @@ QUALRSTFILE              ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
 FINE_OUT                 15MIN                                                                                    
 FINE_OUT_DAY             1DAY                                                                                     
 #Jones Tract Levee Break
-EVENTSINPUT              ${TSINPUTDIR}/events.dss                                                                 
+EVENTSINPUT              ${TSINPUTDIR}/events.dss
+#PTM
+PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout.dss
 END
 
 
