@@ -190,6 +190,8 @@ c-----.3)
  2350 FORMAT (1H ,38X,'PDC',7X,10F8.3)
 
 c-----module, name and version
+      dsm2_module =  qual
+      dsm2_name   = 'Qual'
       include 'version.inc'
 
       open (
