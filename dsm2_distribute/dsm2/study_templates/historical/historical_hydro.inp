@@ -29,7 +29,6 @@ warn_unchecked  false
 run_start_date  ${START_DATE}                         
 run_end_date    ${END_DATE}                           
 run_start_time  ${START_TIME}                         
-run_end_time    ${END_TIME}
 temp_dir        c:/temp
 binary_output   false
 dss_direct      true
