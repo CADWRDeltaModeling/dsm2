@@ -14,7 +14,7 @@ cont_question  false
 cont_unchecked true               
 dispersion     true               
 display_intvl  1day                             
-init_conc      0                  
+init_conc      0.0                  
 printlevel     1                  
 qual_time_step 15min              
 warn_missing   false              
