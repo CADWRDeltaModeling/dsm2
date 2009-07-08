@@ -1,0 +1,3 @@
+props.file1=dual/left_panel.props
+props.file2=dual/right_panel.props
+animation.delay=200
