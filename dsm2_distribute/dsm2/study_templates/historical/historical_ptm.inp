@@ -7,7 +7,7 @@ END
 
 SCALAR
 NAME             VALUE
-title            "HISTORICAL SIMULATION ${DSM2MODIFIER}"
+title            "PTM SIMULATION: ${DSM2MODIFIER}"
 checkdata        FALSE
 cont_bad         FALSE
 cont_missing     TRUE
