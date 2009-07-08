@@ -1,6 +1,6 @@
 ##!d:/vista/bin/vscript.bat 
 
-from jnios import os
+import os
 import sys,string,time
 
 from config import setConfigVars,getAttr
