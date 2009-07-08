@@ -1,4 +1,4 @@
-from jnios import os
+import os
 import expand_seasonal
 import planning_ec_mtz
 import planning_ec_vernalis

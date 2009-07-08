@@ -10,7 +10,10 @@ def transfer(infile,outfile,select,window,transform,interval,unique=0):
     f=opendss(infile)
     g=findpath(f,select)
     select=select.upper()
-    
+    print infile
+    print outfile
+    print select
+    print transform
     if not outfile:
         raise "Output file name is None"
     
