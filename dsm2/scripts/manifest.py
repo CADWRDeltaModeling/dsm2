@@ -1,3 +1,8 @@
+""" The manifest script takes a dsm2 echo file and produces a list of all the .inp and .dss files in the simulation
+    It can also optionally (by providing and empty or nonexistent directory name) copy all the files to the specified location
+"""
+
+
 from optparse import OptionParser
 import shutil
 import os
@@ -77,3 +82,4 @@ if (__name__ == "__main__"):
             if len(sys.argv) > 3: 
                 copydir = sys.argv[3]
             manifest(infile,outfile,copydir)
+            sys.exit()
