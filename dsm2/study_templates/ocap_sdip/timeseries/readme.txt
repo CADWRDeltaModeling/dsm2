@@ -1,0 +1,1 @@
+CalSim data are preprocessed into local input files which are placed here, usually one per scenario.
