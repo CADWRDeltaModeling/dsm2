@@ -15,8 +15,8 @@ def subEnv(val):
   """
   import string
   import re
-  import jnios.os
-  osenv=jnios.os.environ.copy()
+  import os
+  osenv=os.environ.copy()
   if osenv.has_key('PATH'): del osenv['PATH']
   
   if string.find(val,'$')>=0:
@@ -50,7 +50,7 @@ def setConfigVars(infile):
   """
 
   import re
-  from jnios import os
+  import os
   import string
   global config
   envfh = open(infile)
@@ -60,7 +60,7 @@ def setConfigVars(infile):
   for line in envfh.readlines():
       body = string.strip(string.split( line, '#')[0])
       if body:
-        if string.lower(body) == 'envvars':
+        if string.lower(body) == 'envvars' or string.lower(body) == "envvar":
           start = 1
         elif string.lower(body) == 'end':
           end = 1
@@ -78,7 +78,7 @@ def setConfigVars(infile):
           config[name]=val
           os.environ[name]=val       
   if not start or not end:
-    raise 'Keyword ENVVARS or END is missing in ENVVARS FILE'
+    raise ValueError('Keyword ENVVARS or END is missing in config file')
   return config
 
 
