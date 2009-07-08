@@ -36,7 +36,7 @@ IO_FILE
 MODEL      TYPE     IO               INTERVAL FILE                            
 qual       restart  out              1mon     ${QUALRSTFILE}                   #Initial condition a restart is required
 qual       output   out              none     ${QUALOUTFILE}                   #Echoed run status                      
-qual       echo     out              none     ${DSM2MODIFIER}_qual_do_echo.inp #Echoed input                           
+qual       echo     out              none     ${DSM2OUTPUTDIR}/Qual_DO_simulation_${DSM2MODIFIER}.inp #Echoed input                           
 END                
 TIDEFILE           
 START_DATE END_DATE FILE                     
