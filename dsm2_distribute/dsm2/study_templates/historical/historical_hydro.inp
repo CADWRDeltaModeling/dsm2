@@ -7,7 +7,7 @@ END
 
 SCALAR
 NAME            VALUE                                
-title           "Historical SIMULATION ${DSM2MODIFIER}" 
+title           "Hydro simulation: ${DSM2MODIFIER}" 
 checkdata       false                                 
 cont_bad        false                                 
 cont_missing    true                                  
@@ -29,7 +29,7 @@ warn_unchecked  false
 run_start_date  ${START_DATE}                         
 run_end_date    ${END_DATE}                           
 run_start_time  ${START_TIME}                         
-run_end_time    ${END_TIME}                           
+run_end_time    ${END_TIME}
 temp_dir        c:/temp
 binary_output   false
 dss_direct      true
@@ -43,7 +43,7 @@ MODEL TYPE    IO  INTERVAL FILE
 hydro hdf5    out    1hour ${HYDROTIDEFILE}               #Flow data to be passed to qual and ptm 
 hydro restart out     1mon ${HYDRORSTFILE}                #Initial condition a restart is required
 hydro output  out     none ${HYDROOUTFILE}                #Echoed run status                      
-hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp #Echoed input                           
+hydro echo    out     none ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_hydro_echo.inp #Echoed input                           
 END
 
 
