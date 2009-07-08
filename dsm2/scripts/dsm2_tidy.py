@@ -14,7 +14,7 @@ import sys
 
 # Some regular expressions we want to compile once
 block_txt =\
-r"""^([A-Z_]+[ \t]*\n)(.*?)(END$)(\n|(^#.*?\n)*)
+r"""^([A-Z_]+[ \t]*\n)(.*?)(END[ \t]+$)(\n|(^#.*?\n)*)
 """
 
 top_comment_re=re.compile(r"(\n|(^#.*\n))*",re.M)
@@ -31,8 +31,9 @@ def is_numberlike(inp):
 def tidy(infile,outfile):
     """ tidies up the input file and writes to outfile """
     f=open(infile,"r")
-    outfile=open(outfile,"w")
     txt=f.read()
+    f.close()
+  
     if not txt.endswith("\n"):
         txt += "\n"
     top_comment = top_comment_re.match(txt).group(0)
@@ -41,7 +42,11 @@ def tidy(infile,outfile):
     else:
         top_comment=""
     matches = block_re.findall(txt)
-    out=[top_comment]    
+    out=[top_comment]
+    if len(matches) == 0:
+        print top_comment
+        raise ValueError("No input blocks found. Make sure the last block has an END indicated")
+            
     for m in matches:
         key=m[0].strip()
         all_block=m[1].split("\n")
@@ -88,13 +93,21 @@ def tidy(infile,outfile):
         out.append("END\n")
         trail_comment=m[3]
         out.append(trail_comment)
+    outfile=open(outfile,"w")          
     outfile.write(string.join(out,"\n"))
 
 if __name__=="__main__":
-    if len(sys.argv) ==3:
+    if len(sys.argv) >= 2 and sys.argv[1] != "usage":
         inp = sys.argv[1]
-        out = sys.argv[2]
-        tidy(inp,out)
+        if len(sys.argv) == 3:
+            out = sys.argv[2]
+        else:
+            out = inp
+        try:
+            tidy(inp,out)
+        except ValueError,e:
+            print e
+            print "Error in dsm2_tidy"
     elif (len(sys.argv) == 2) and sys.argv[1] == "usage":
         print __doc__
     else:
