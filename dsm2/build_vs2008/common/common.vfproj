@@ -18,7 +18,7 @@
 				<Tool Name="VFLibrarianTool" OutputFile="common.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
-				<Tool Name="VFCustomBuildTool" AdditionalDependencies="D:\delta\models\dsm2\src\common\version.inc"/>
+				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool" CommandLine="python D:\delta\models\dsm2\src\common\version_generate.py" Description="generate version.inc in D:\delta\models\dsm2\src\common"/>
 				<Tool Name="VFPostBuildEventTool"/>
@@ -34,9 +34,9 @@
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Subversion">
-		<File RelativePath="..\..\src\common\version.inc"/></Filter>
-		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
-		<File RelativePath="..\ptm_fortran\license.txt"/></Filter>
+		<File RelativePath="..\..\src\common\version.inc"/>
+		<File RelativePath="..\..\src\common\version_generate.py"/></Filter>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\common\common_irreg_geom.f"/>
 		<File RelativePath="..\..\src\common\common_ptm.f"/>
