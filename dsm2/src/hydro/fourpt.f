@@ -160,7 +160,7 @@ c-----include '../input/time-varying/writedss.inc'
 c-----DSM2 module, name and version number
       dsm2_module =  hydro
       dsm2_name   = 'Hydro'
-      include 'version.inc'
+      include '../common/version.inc'
 
       open (
      &    unit_screen

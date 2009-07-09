@@ -67,7 +67,7 @@ c-----of Hydro, Qual and PTM
 
       character*48 model_name
       character*5 dsm2_name
-      character*7 dsm2_version
+      character*48 dsm2_version
      &     ,restart_version     ! the version of the program that produced the restart file
      &     ,tidefile_version    ! the version of the program that produced the tidefile
 
