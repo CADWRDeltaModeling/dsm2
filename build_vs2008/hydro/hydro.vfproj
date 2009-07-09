@@ -14,7 +14,7 @@
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.ilk;*.exe;$(TargetPath)">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)/../modules/Release" FixedFormLineLength="fixedLength132" LocalVariableStorage="localStorageSave" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)/../modules/Release" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" LocalVariableStorage="localStorageSave" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/"/>
 				<Tool Name="VFLinkerTool" OutputFile="$(OUTDIR)/hydro.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\lib" IgnoreDefaultLibraryNames="libc.lib,msvcrt.lib,libcd.lib,libcmtd.lib,msvcrtd.lib" SubSystem="subSystemConsole" AdditionalDependencies="hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib heclib_vs9.lib szlib.lib zlib.lib  oprule_vs9_mt.lib oprule_parser_vs9_mt.lib input_storage_vs9_mt.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" HeaderFileName="$(InputName).h" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
@@ -33,8 +33,7 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
-		<Filter Name="Header Files">
-		<File RelativePath="..\..\src\hydro\version.inc"/></Filter>
+		<Filter Name="Header Files"/>
 		<Filter Name="Source Files">
 		<File RelativePath="..\..\src\hydro\fourpt.f"/></Filter></Files>
 	<Globals/></VisualStudioProject>
