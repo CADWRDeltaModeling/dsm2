@@ -192,7 +192,7 @@ c-----.3)
 c-----module, name and version
       dsm2_module =  qual
       dsm2_name   = 'Qual'
-      include '../common/version.inc'
+
 
       open (
      &    unit_screen

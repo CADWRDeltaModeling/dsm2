@@ -65,12 +65,13 @@ c-----display time interval
 c-----Program name and version number, set in the main routine
 c-----of Hydro, Qual and PTM
 
-      character*48 model_name
-      character*5 dsm2_name
-      character*48 dsm2_version
+      character*48 :: model_name
+      character*5  :: dsm2_name
+      character*24
      &     ,restart_version     ! the version of the program that produced the restart file
      &     ,tidefile_version    ! the version of the program that produced the tidefile
-
+      
+      include '../common/version.inc'  ! version of hydro, qual, and ptm
 
 c-----runtime identification and run date/time, set in read_fixed
       integer*4
