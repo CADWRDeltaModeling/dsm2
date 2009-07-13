@@ -28,10 +28,10 @@ try:
 
     setupTemplateTxt = setupTemplate.read()
    
-    setupTemplateTxt = setupTemplateTxt.replace("@Version_Main@",        Version_Main)
-    setupTemplateTxt = setupTemplateTxt.replace("@Version_Distribute@", SVNVersion_Distribute)
-    setupTemplateTxt = setupTemplateTxt.replace("@Version_SourceCode@", SVNVersion_SourceCode)
-    setupTemplateTxt = setupTemplateTxt.replace("@Version_Status@",     Version_Status)
+    setupTemplateTxt = setupTemplateTxt.replace("@{Version_Main}",        Version_Main)
+    setupTemplateTxt = setupTemplateTxt.replace("@{Version_Distribute}", SVNVersion_Distribute)
+    setupTemplateTxt = setupTemplateTxt.replace("@{Version_SourceCode}", SVNVersion_SourceCode)
+    setupTemplateTxt = setupTemplateTxt.replace("@{Version_Status}",     Version_Status)
     
     setupfile.write(setupTemplateTxt)
     setupfile.close()
