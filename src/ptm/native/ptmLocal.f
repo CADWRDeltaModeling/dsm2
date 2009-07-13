@@ -1,20 +1,21 @@
 C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007 State of California,
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    DSM2 is free software: you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public !<license as published by
-C!    the Free Software Foundation, either version 3 of the !<license, or
+C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public License as published by
+C!    the Free Software Foundation, either version 3 of the License, or
 C!    (at your option) any later version.
 
 C!    DSM2 is distributed in the hope that it will be useful,
 C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
 C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public !<license for more details.
+C!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public !<license
-C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
+C!    You should have received a copy of the GNU General Public License
+C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
 
 c-----convert a character interval to minutes
@@ -149,7 +150,7 @@ c-----Check Hydro tidefile for size compatibility with PTM.
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine read_ptm(init_input_file)
 	use IO_Units
-	use dsm2_database
+c	use dsm2_database
       use iopath_data
 	use groups,only:ConvertGroupPatternsToMembers,PrintGroupMembers
       use common_ptm
@@ -367,40 +368,22 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----copyright notices
       write(unit_screen, 805)
  805  format(/
-     &     /'Copyright (C) 1996-2007 State of California, Department of Water'
-     &     /'Resources.  Licensed under the GNU Public License.'
+     &     /'Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,'
+     &     /'Department of Water Resources.'
+     &     /'This file is part of DSM2.'
      &     /
-     &     /'Delta Simulation Model 2 (DSM2): A River, Estuary, and Land'
-     &     /'numerical model.  No protection claimed in original FOURPT and'
-     &     /'Branched Lagrangian Transport Model (BLTM) code written by the'
-     &     /'United States Geological Survey.  Protection claimed in the'
-     &     /'routines and files listed in the accompanying file "Protect.txt".'
-     &     /'If you did not receive a copy of this file contact '
-     &     /'Tara Smith, below.'
+     &     /'DSM2 is free software: you can redistribute it and/or modify'
+     &     /'it under the terms of the GNU General Public License as published by'
+     &     /'the Free Software Foundation, either version 3 of the License, or'
+     &     /'(at your option) any later version.'
      &     /
-     &     /'This program is !<licensed to you under the terms of the GNU General'
-     &     /'Public !<license, version 2, as published by the Free Software'
-     &     /'Foundation.'
+     &     /'DSM2 is distributed in the hope that it will be useful,'
+     &     /'but WITHOUT ANY WARRANTY; without even the implied warranty of'
+     &     /'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the'
+     &     /'GNU General Public License for more details.'
      &     /
-     &     /'You should have received a copy of the GNU General Public !<license'
-     &     /'along with this program; if not, contact Tara Smith, below,'
-     &     /'or the Free Software Foundation, 675 Mass Ave, Cambridge, MA'
-     &     /'02139, USA.'
-     &     /
-     &     /'THIS SOFTWARE AND DOCUMENTATION ARE PROVIDED BY THE CALIFORNIA'
-     &     /'DEPARTMENT OF WATER RESOURCES AND CONTRIBUTORS "AS IS" AND ANY'
-     &     /'EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE'
-     &     /'IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR'
-     &     /'PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE CALIFORNIA'
-     &     /'DEPARTMENT OF WATER RESOURCES OR ITS CONTRIBUTORS BE LIABLE FOR'
-     &     /'ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR'
-     &     /'CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT'
-     &     /'OR SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA OR PROFITS; OR'
-     &     /'BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF'
-     &     /'LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT'
-     &     /'(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE'
-     &     /'USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH'
-     &     /'DAMAGE.'
+     &     /'You should have received a copy of the GNU General Public License'
+     &     /'along with DSM2.  If not, see <http://www.gnu.org/licenses>.'
      &     /
      &     )
 
