@@ -1,7 +1,7 @@
 [Setup]
 AppName=DSM2_v8
 AppVerName=version @{Version_Main}@{Version_Status}.@{Version_Distribute}
-OutputBaseFilename=DSM2setup_@Version_Main@@Version_Status@.@Version_Distribute@
+OutputBaseFilename=DSM2setup_@{Version_Main}@{Version_Status}.@{Version_Distribute}
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
 AppSupportURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
