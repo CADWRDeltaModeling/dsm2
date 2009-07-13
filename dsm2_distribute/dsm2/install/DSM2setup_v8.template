@@ -1,6 +1,6 @@
 [Setup]
 AppName=DSM2_v8
-AppVerName=version @Version_Main@@Version_Status@.@Version_Distribute@
+AppVerName=version @{Version_Main}@{Version_Status}.@{Version_Distribute}
 OutputBaseFilename=DSM2setup_@Version_Main@@Version_Status@.@Version_Distribute@
 AppPublisher=CA DWR
 AppPublisherURL=http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2/dsm2.cfm
@@ -75,9 +75,9 @@ Name: "{userdesktop}\DSM2_v8";      Filename: "{app}\"; Tasks: desktopicon
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "DSM2_HOME";   ValueData:  "{app}";         Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "VISTA_HOME";  ValueData:  "{app}\vista";   Flags: uninsdeletevalue;
 
-Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;   ValueName: "Version_Distribute";  ValueData: @Version_Distribute@;  Flags: uninsdeletevalue;
-Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;   ValueName: "Version_SourceCode";  ValueData: @Version_SourceCode@;  Flags: uninsdeletevalue;
-Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: string;  ValueName: "Version_Status";      ValueData: "@Version_Status@";    Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;   ValueName: "Version_Distribute";  ValueData: @{Version_Distribute};  Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: dword;   ValueName: "Version_SourceCode";  ValueData: @{Version_SourceCode};  Flags: uninsdeletevalue;
+Root: HKLM; Subkey: "SOFTWARE\DSM2\v8";      ValueType: string;  ValueName: "Version_Status";      ValueData: "@{Version_Status}";    Flags: uninsdeletevalue;
 
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Vista";             ValueData: "%DSM2_HOME%\vista\bin;";   Flags: uninsdeletevalue;
 Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "DSM2";              ValueData: "%DSM2_HOME%\bin;";         Flags: uninsdeletevalue;
