@@ -1,8 +1,9 @@
 @echo off
 :: Batch file directions: 
-:: usage:    batch_prepro config.inp [resume]
+:: usage:    batch_prepro scenariofile config.inp [resume]
 :: where  config.inp is a study specific condiguration file
 ::                   such as config_sdip.inp that is batch-ready.
+::              scenariofile is a list of DSM2MODIFIERS and file locations (comma-separated, one per line)
 ::        resume     is an optional tag to indicate that batch preprocessing
 ::                   should be run only over inputs that have not already
 ::                   been prepared. This is a good idea if there are a lot
@@ -11,12 +12,13 @@
 ::                   (usually the last one)
 
 set CONFIGFILE=%1%
+set SCENARIOFILE=%2%
 set RESUME=fresh
-if {%2%} == {resume} set RESUME=resume
+if {%3%} == {resume} set RESUME=resume
 
 :: This section iterates through the alternatives and calls 
 ::  the "item" procedure for each
-FOR /f %%u IN (scenarios.txt) DO call :item %%u %CONFIGFILE% %RESUME%
+FOR /f %%u IN (scenarios.txt) DO call :item %%u %%v %%w %CONFIGFILE% %RESUME%
 goto end
 
 :helpmsg
@@ -32,10 +34,12 @@ goto end
 :: This section preprocesses one item
 :item
 set alt=%1
-set config=%2
-set continue_old=%3
-set batch_dsm2modifier=if_%alt%
-set batch_calsimdir=./calsim/%alt%
+set batch_calsimdir=%2
+set batch_calsimname=%3
+set config=%4
+set continue_old=%5
+set batch_dsm2modifier=%alt%
+
 
 echo DSM2MODIFIER: %BATCH_DSM2MODIFIER%
 echo CALSIMDIR: %BATCH_CALSIMDIR%

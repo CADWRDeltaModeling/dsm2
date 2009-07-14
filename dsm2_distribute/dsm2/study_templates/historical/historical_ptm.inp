@@ -54,6 +54,7 @@ IO_FILE
 MODEL      TYPE      IO      INTERVAL    FILE
 ptm        trace     out     none        ${DSM2OUTPUTDIR}/trace.out    # Trace output file. This file is neccessary to calculate the number of particles.
 ptm        anim      out     15min       ${DSM2OUTPUTDIR}/anim_db.bin  # Animation file. If the animation is not necessary, comment out this line.The PTM runs faster without this line.
+ptm        echo      out     none        ${DSM2OUTPUTDIR}/ptm_echo_${DSM2MODIFIER}.inp #Echoed input       
 END
 
 
