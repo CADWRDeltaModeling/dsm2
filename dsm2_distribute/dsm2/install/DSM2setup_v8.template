@@ -78,7 +78,7 @@ Name: "{app}\DSM2_documentation";   Filename: "{app}\documentation\html\toc.html
 Name: "{group}\DSM2_documentation"; Filename: "{app}\documentation\html\toc.html"
 Name: "{group}\DSM2_v8";            Filename: "{app}\"
 Name: "{group}\Uninstall";          Filename: "{uninstallexe}"
-Name: "{userdesktop}\DSM2_v8";      Filename: "{app}\"; Tasks: desktopicon
+Name: "{userdesktop}\DSM2_v8";      Filename: "{app}\"; IconFilename: "{app}\bin\DSM2_v8.ico"; Tasks: desktopicon
 
 [Registry]
 
