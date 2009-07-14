@@ -90,6 +90,6 @@ OUTPUT_TIME_SERIES
 ${DSM2INPUTDIR}/output_channel_std_hydro_rki.inp     
 ${DSM2INPUTDIR}/output_channel_std_hydro_named.inp    
 ${DSM2INPUTDIR}/output_channel_std_hydro_boundary.inp 
+${DSM2INPUTDIR}/output_gate_temporary_barriers.inp 
 END
-
 
