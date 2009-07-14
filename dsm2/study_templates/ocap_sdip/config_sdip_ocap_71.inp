@@ -12,9 +12,11 @@ ENVVAR
 NAME                  VALUE
 DSM2INPUTDIR          ../../common_input
 
-CALSIMNAME            ocap_2005A01A_EWA2_71_novamp_DV                     # Name of CALSIM file without ".dss" part
+#CALSIMNAME            ocap_2005A01A_EWA2_71_novamp_DV                     # Name of CALSIM file without ".dss" part
+CALSIMNAME ${BATCHCALSIMNAME}
 
-DSM2MODIFIER          ocap_study_71                                # Study name used for DSM2 and prepro
+#DSM2MODIFIER          ocap_study_71                                # Study name used for DSM2 and prepro
+DSM2MODIFIER ${BATCHDSM2MODIFIER}
 CALSIMSTUDY_ORIGINAL  2005A01A                                     # fpart straight out of calsim
 
 CALSIMSTUDY_MODIFIED  ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER}      # modified fpart after preprocessing
@@ -34,7 +36,8 @@ END_TIME              0000
 
 
 TSINPUTDIR            ../../timeseries                             # Where timeseries are stored.
-CALSIMDIR             ${TSINPUTDIR}                                # For Condor or single prepro     
+#CALSIMDIR             ${TSINPUTDIR}                                # For Condor or single prepro     
+CALSIMDIR  ${BATCH_CALSIMDIR}
 TEMPDIR               z:/temp
 TSINPUTLOCAL          ../../timeseries                                 # Local timeseries location
 BOUNDARYFILE          ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
