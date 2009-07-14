@@ -1,4 +1,5 @@
-
+# Description:
+# Output for HYDRO at common named locations
 OUTPUT_CHANNEL
 NAME              CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE             
 14ml_sl               312    11385 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 

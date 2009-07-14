@@ -1,4 +1,5 @@
-
+# Description:
+# DSM2-HYDRO standard parameters for the delta
 SCALAR
 NAME            VALUE 
 checkdata       false  #check input data w/o simulation                    

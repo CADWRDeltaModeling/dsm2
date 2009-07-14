@@ -1,4 +1,5 @@
-
+# Description:
+# Gate output for SDIP permanent barriers
 OUTPUT_GATE
 NAME      GATE_NAME           DEVICE          VARIABLE     INTERVAL PERIOD_OP FILE             
 clfct     clifton_court       reservoir_gates op-from-node    15MIN inst      ${GATEOUTPUTFILE} 

@@ -1,4 +1,5 @@
-
+# Description:
+# Description of the new layer
 INPUT_CLIMATE
 NAME         VARIABLE     FILLIN FILE       PATH                                   
 atm_pressure atm_pressure linear ${CLIMATE} /CLIMATE-HIST/DELTA/ATMPR//1HOUR/NOAA/  

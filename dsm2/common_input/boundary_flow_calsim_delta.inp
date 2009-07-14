@@ -1,4 +1,5 @@
-
+# Description:
+# CALSIM delta flow, with generic pathnames to accommodate scripted studies
 BOUNDARY_FLOW
 NAME      NODE SIGN FILLIN FILE            PATH                                           
 calaveras   21    1 last   ${BOUNDARYFILE} /CALSIM/C508/FLOW-CHANNEL//1MON/${CALSIMSTUDY}/ 

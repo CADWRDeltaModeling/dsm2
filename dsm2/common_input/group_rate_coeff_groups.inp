@@ -1,4 +1,5 @@
-
+# Description:
+# Groupings of waterbodies for assigning non-conservative rate coefficients
 GROUP
 NAME                        
 chan_10_15                   

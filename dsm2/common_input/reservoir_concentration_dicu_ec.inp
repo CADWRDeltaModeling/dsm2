@@ -1,4 +1,5 @@
-
+# Description:
+# Delta island water quality sources/sinks
 RESERVOIR_CONCENTRATION
 NAME            RES_NAME      VARIABLE FILLIN FILE            PATH                                        
 dicu_drain_bbid clifton_court ec       last   ${DICUFILE_ECE} /DICU-HIST+RSVR/BBID/DRAIN-EC//1MON/DWR-BDO/ 

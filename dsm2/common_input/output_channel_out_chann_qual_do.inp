@@ -1,4 +1,5 @@
-
+# Description:
+# output of qual in channels
 OUTPUT_CHANNEL
 NAME          CHAN_NO DISTANCE VARIABLE  INTERVAL PERIOD_OP FILE             
 chan10_0           10        0 do           1hour inst      ${QUALOUTDSSFILE} 

@@ -1,4 +1,5 @@
-
+# Description:
+# Standard Delta Configuration
 CHANNEL_IC
 CHAN_NO DISTANCE STAGE   FLOW
 1              0   7.0 2600.0 

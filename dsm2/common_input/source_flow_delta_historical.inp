@@ -1,4 +1,5 @@
-
+# Description:
+# Historical boundary flows to Delta
 SOURCE_FLOW
 NAME     NODE SIGN FILLIN FILE                  PATH                                                        
 ccc       206   -1 last   ${BNDRYINPUT}         /FILL+CHAN/CHCCC006/FLOW-DIVERSION//1DAY/${HISTFLOWVERSION}/ 

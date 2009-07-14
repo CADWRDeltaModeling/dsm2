@@ -1,4 +1,5 @@
-
+# Description:
+# general fingerprint output
 OUTPUT_RESERVOIR_SOURCE_TRACK
 NAME          RES_NAME      VARIABLE SOURCE_GROUP INTERVAL        PERIOD_OP FILE             
 clifton_court clifton_court ec       all          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
