@@ -14,7 +14,7 @@ import sys
 
 # Some regular expressions we want to compile once
 block_txt =\
-r"""^([A-Z_]+[ \t]*\n)(.*?)(END[ \t]+$)(\n|(^#.*?\n)*)
+r"""^([A-Z_]+[ \t]*\n)(.*?)(END[ \t]*$)(\n|(^#.*?\n)*)
 """
 
 top_comment_re=re.compile(r"(\n|(^#.*\n))*",re.M)
@@ -44,8 +44,7 @@ def tidy(infile,outfile):
     matches = block_re.findall(txt)
     out=[top_comment]
     if len(matches) == 0:
-        print top_comment
-        raise ValueError("No input blocks found. Make sure the last block has an END indicated")
+        raise ValueError("No input blocks found in file %s. Make sure the last block has an END indicated" % infile)
             
     for m in matches:
         key=m[0].strip()
