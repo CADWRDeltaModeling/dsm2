@@ -211,7 +211,7 @@ def exclude_table(filename,tablename,data):
         return len(source_rows) == 0
     return False        
                              
-def convert_table(filename,tablename,layerid):
+def convert_table(filename,tablename,layerid,description=None):
         sql=SQL[tablename]
         data=cur.execute(sql,layerid).fetchall()
         
@@ -219,7 +219,15 @@ def convert_table(filename,tablename,layerid):
             return  
         if not data or (len(data) ==0): 
             return
+        
+        file_exists = os.path.exists(filename)   # This means we are appending to a file we already wrote once
+            
         fout=open(filename,"a")  # requires that the directory is initially empty or weird overwriting could result
+        
+        if not file_exists and description:
+            #write the description of the layer
+            fout.write("# Description:\n# %s\n\n" % description)
+        
         has_used_column = (sql.find("used") > 6 and sql.find("used") < sql.find("FROM"))
         header=COMPONENT_MEMBERS[tablename]
         fout.write(tablename.upper())
@@ -258,16 +266,16 @@ def convert_layer(db_name,cur,txt_name,dest_dir,suffix=None):
     """
     component_type=get_component_type(db_name,cur)
     txt_parent_list=INPUT_TYPE_TXT_PARENT_TABLES[component_type]
-    layeridSQL="SELECT layer_id FROM layer_definition WHERE name LIKE ?"    
-    layerid=cur.execute(layeridSQL,db_name).fetchone()[0]
-
+    layeridSQL="SELECT layer_id,description FROM layer_definition WHERE name LIKE ?"    
+    layerid,description=cur.execute(layeridSQL,db_name).fetchone()
+    
     for txt_parent in txt_parent_list:
         txt_child_list=[]
         if txt_parent in TXT_CHILD_TABLES.keys():
             txt_child_list=TXT_CHILD_TABLES[txt_parent]
         layer_filename=create_dest_filename(txt_parent,txt_name,suffix)
         fname=os.path.join(dest_dir,layer_filename)
-        convert_table(fname,txt_parent,layerid)
+        convert_table(fname,txt_parent,layerid,description)
         for txt_child in txt_child_list:
              convert_table(fname,txt_child,layerid)
 
@@ -294,6 +302,10 @@ def translate_layer_name(prefix,layer_name):
         if layer_name.lower().endswith("_stage"): return layer_name[0:-6]
         if prefix.startswith("output") and layer_name.lower().endswith("_output"):
             layer_name=layer_name[:-7]
+        if prefix.startswith("op") and layer_name.lower().endswith("_ops"):
+            layer_name=layer_name[:-4]
+        if prefix.startswith("op") and layer_name.lower().endswith("_op"):
+            layer_name=layer_name[:-3]
         layer_name=layer_name.replace("std_output_hydro","std_hydro")
         layer_name=layer_name.replace("std_output_qual","std_qual")
         layer_name=layer_name.replace("concentration","conc")
@@ -404,6 +416,9 @@ if __name__ == "__main__":
     # now create the top level input file
     cur.close()
     create_top_level_model_file(os.path.join(dest_dir,"model.inp"))    
-    tidy_files()
+
+    inp_files = [x for x in os.listdir(dest_dir) if x.endswith(".inp")]
+    if len(inp_files) != 0:
+        tidy_files()
     
 
