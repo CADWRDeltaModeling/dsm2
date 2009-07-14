@@ -1,4 +1,5 @@
-
+# Description:
+# channel outputs for ocap studies
 OUTPUT_CHANNEL
 NAME                CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
 cache_sl_ds_minor       398        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 

@@ -1,4 +1,5 @@
-
+# Description:
+# Standard Delta Configuration
 RESERVOIR_IC
 RES_NAME      STAGE
 bethel          2.0 

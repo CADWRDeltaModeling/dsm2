@@ -1,4 +1,5 @@
-
+# Description:
+# CALSIM delta flow, with generic pathnames to accommodate scripted studies
 SOURCE_FLOW
 NAME     NODE SIGN FILLIN FILE            PATH                                               
 ccc       206   -1 last   ${BOUNDARYFILE} /CALSIM/D408/FLOW-DELIVERY//1MON/${CALSIMSTUDY}/    

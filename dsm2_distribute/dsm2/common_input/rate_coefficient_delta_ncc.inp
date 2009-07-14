@@ -1,4 +1,5 @@
-
+# Description:
+# Non-conservative kinetic rate coefficient assignments
 RATE_COEFFICIENT
 GROUP_NAME                   CONSTITUENT VARIABLE VALUE
 chan_10_15                   algae       alg_die    0.2 

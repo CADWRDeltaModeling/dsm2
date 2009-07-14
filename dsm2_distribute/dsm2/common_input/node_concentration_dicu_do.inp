@@ -1,4 +1,5 @@
-
+# Description:
+# DICU layer for do constituents
 NODE_CONCENTRATION
 NAME           NODE_NO VARIABLE  FILLIN FILE     PATH
 dicu_drain_1         1 po4       last   constant  0.4 

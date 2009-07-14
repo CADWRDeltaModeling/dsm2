@@ -1,4 +1,5 @@
-
+# Description:
+# Cross-section modifications based on planning runs to prevent run instability. These are different from changes made for historical runs.
 CHANNEL
 CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE
 131       5640    0.03        0.3    109      110 

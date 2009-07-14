@@ -1,4 +1,5 @@
-
+# Description:
+# Modify cross-sections used in some channels in order to prevent instabilities. This change set was based on historical runs and is not consistent with similar changes for planning.
 CHANNEL
 CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE
 327      10941   0.022        0.3    251      252 

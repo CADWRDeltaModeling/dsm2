@@ -1,4 +1,5 @@
-
+# Description:
+# output for the ccc splited flow
 OUTPUT_CHANNEL
 NAME                  CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
 ccc_old_r_ds_intake        91        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 

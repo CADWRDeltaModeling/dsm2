@@ -1,4 +1,5 @@
-
+# Description:
+# SDIP trigger sites and South Delta Intensive Output
 OUTPUT_CHANNEL
 NAME              CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
 ccfb_exterior         232        0 flow     15min       inst      ${HYDROOUTDSSFILE} 

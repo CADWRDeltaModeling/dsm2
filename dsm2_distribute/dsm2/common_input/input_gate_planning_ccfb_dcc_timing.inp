@@ -1,4 +1,5 @@
-
+# Description:
+# Clifton Court and Delta Cross Channel timing for planning runs
 INPUT_GATE
 GATE_NAME           DEVICE              VARIABLE     FILLIN FILE        PATH                                                              
 clifton_court       reservoir_gates     op-from-node last   ${GATEFILE} /PLANNING+GATE/CHWST000/OP-FROM-NODE//IR-YEAR/${CLIFTONCT_GATEOP}/ 

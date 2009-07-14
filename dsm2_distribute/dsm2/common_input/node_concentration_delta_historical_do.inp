@@ -1,4 +1,5 @@
-
+# Description:
+# Description of the new layer
 NODE_CONCENTRATION
 NAME      NODE_NO VARIABLE  FILLIN FILE          PATH                                               
 calaveras      21 po4       linear constant      0.03                                                

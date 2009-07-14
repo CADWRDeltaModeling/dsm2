@@ -1,4 +1,5 @@
-
+# Description:
+# Delta island consumptive flows
 SOURCE_FLOW
 NAME           NODE SIGN FILLIN FILE        PATH                                            
 dicu_div_1        1   -1 last   ${DICUFILE} /DELTA/1/FLOW//1MON/DICU-IRR-${DICU_VERSION}/    

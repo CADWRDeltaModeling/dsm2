@@ -1,4 +1,5 @@
-
+# Description:
+# Delta Island Consumptive Use Estimated Historical Flow
 SOURCE_FLOW
 NAME           NODE SIGN FILLIN FILE        PATH                                         
 dicu_div_1        1   -1 last   ${DICUFILE} /DICU-HIST+NODE/1/DIV-FLOW//1MON/DWR-BDO/     

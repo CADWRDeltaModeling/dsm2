@@ -1,22 +1,23 @@
-
+# Description:
+# Standard Delta Configuration
 GATE
 NAME                        FROM_OBJ  FROM_IDENTIFIER TO_NODE
 delta_cross_channel         channel   365                 342 
 grant_line_barrier          channel   206                 172 
-montezuma_salinity_control  channel   512                 418 
-paradise_cut_weir           channel   195                   5 
-old_r@head_barrier          channel   54                    8 
-7_mile@3_mile               channel   308                 240 
-7_mile@sjr                  channel   307                  41 
-goodyear_sl                 channel   473                 367 
-morrow_c_line_outfall       channel   542                 365 
-morrow_sys_intake           channel   537                 384 
-morrow_m_line_outfall       channel   539                 378 
-old_r@tracy_barrier         channel   79                   69 
-roaring_river_slough_intake channel   529                 418 
-sandmound_sl                channel   261                 205 
-tom_paine_sl                channel   194                 149 
 middle_r_barrier            channel   134                 112 
+tom_paine_sl                channel   194                 149 
+sandmound_sl                channel   261                 205 
+roaring_river_slough_intake channel   529                 418 
+old_r@tracy_barrier         channel   79                   69 
+morrow_m_line_outfall       channel   539                 378 
+morrow_sys_intake           channel   537                 384 
+morrow_c_line_outfall       channel   542                 365 
+goodyear_sl                 channel   473                 367 
+7_mile@sjr                  channel   307                  41 
+7_mile@3_mile               channel   308                 240 
+old_r@head_barrier          channel   54                    8 
+paradise_cut_weir           channel   195                   5 
+montezuma_salinity_control  channel   512                 418 
 clifton_court               reservoir clifton_court        72 
 END
 
