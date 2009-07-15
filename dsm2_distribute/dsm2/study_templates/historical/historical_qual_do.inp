@@ -47,44 +47,39 @@ END
 
 
 PARAMETER
-${DSM2INPUTDIR}/scalar_qual_std.inp          
-${DSM2INPUTDIR}/scalar_qual_do_parameters.inp 
+${DSM2INPUTDIR}/scalar_qual_std.inp
+${DSM2INPUTDIR}/scalar_qual_do_parameters.inp
 END
 
-
+GRID
+${DSM2INPUTDIR}/channel_std_delta_grid.inp
+${DSM2INPUTDIR}/gate_std_delta_grid.inp
+${DSM2INPUTDIR}/reservoir_std_delta_grid.inp
+END
 
 INITIAL_CONDITION
-${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp  
-${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp 
+${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
+${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
 END
-
-
 
 GROUPS
 ${DSM2INPUTDIR}/group_rate_coeff_groups.inp
 END
 
-
-
 QUAL_TIME_SERIES
 ${DSM2INPUTDIR}/node_concentration_delta_historical_qual.inp
-${DSM2INPUTDIR}/node_concentration_dicu_ec.inp               
-${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp          
-${DSM2INPUTDIR}/node_concentration_delta_historical_do.inp   
-${DSM2INPUTDIR}/node_concentration_dicu_do.inp               
-${DSM2INPUTDIR}/input_climate_delta_historical_climate.inp   
+${DSM2INPUTDIR}/node_concentration_dicu_ec.inp
+${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp
+${DSM2INPUTDIR}/node_concentration_delta_historical_do.inp
+${DSM2INPUTDIR}/node_concentration_dicu_do.inp
+${DSM2INPUTDIR}/input_climate_delta_historical_climate.inp
 END
-
-
 
 QUAL_SPATIAL
 ${DSM2INPUTDIR}/rate_coefficient_delta_ncc.inp
 END
 
-
-
 OUTPUT_TIME_SERIES
 ${DSM2INPUTDIR}/output_channel_out_chann_qual_do.inp
 END
-
 
