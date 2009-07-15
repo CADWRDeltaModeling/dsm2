@@ -1,7 +1,7 @@
 import os
 
 
-VersionTemplate     = "      character*48 :: dsm2_version = '8.0a4  Subversion: @{Version_SVN}' " 
+VersionTemplate     = "      character*48 :: dsm2_version = '8.0a4.@{Version_SVN}' " 
 VersionFile_path    = "./version.inc"
 
 
