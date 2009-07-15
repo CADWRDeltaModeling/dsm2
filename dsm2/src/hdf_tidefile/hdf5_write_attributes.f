@@ -99,6 +99,8 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       integer,dimension(1) :: hdf5_dummy_integer
       integer(SIZE_T) :: hdf5_int_size
 
+      character*64 :: fdate_trim, svn_build_trim
+
       integer cdt2jmin
       EXTERNAL cdt2jmin
 
@@ -111,13 +113,19 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
 
       call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, error)
 
+      fdate_trim = trim(fdate())
       call h5ltset_attribute_string_f(hydro_id,".", 
-     &           "Tidefile created date",
-     &           fdate(), error)
+     &           "Created date",
+     &           fdate_trim(1:len_trim(fdate_trim)), error)  ! declared additional variable to prevent trailing symbols in hdf5
 
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Hydro Version",
-     &           'Hydro Version ' // trim(dsm2_version),error)
+     &           'Hydro Version ' // trim(dsm2_version), error)
+
+      svn_build_trim = trim(svn_build)
+      call h5ltset_attribute_string_f(hydro_id,".", 
+     &           "Subversion",
+     &           svn_build_trim(1:len_trim(svn_build_trim)), error)  ! declared additional variable to prevent trailing symbols in hdf5
 
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Start time string",
