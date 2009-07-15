@@ -50,9 +50,9 @@ ${DSM2INPUTDIR}/source_flow_ocap_diversions.inp
 END
 
 OPERATION
-${DSM2INPUTDIR}/oprule_montezuma_planning_gate_op.inp
-${DSM2INPUTDIR}/oprule_temp_barriers_planning_ops.inp
-${DSM2INPUTDIR}/oprule_ccc_dual_intake_ops.inp
+${DSM2INPUTDIR}/oprule_montezuma_planning_gate.inp
+${DSM2INPUTDIR}/oprule_temp_barriers_planning.inp
+${DSM2INPUTDIR}/oprule_ccc_dual_intake.inp
 END
 
 GROUPS
