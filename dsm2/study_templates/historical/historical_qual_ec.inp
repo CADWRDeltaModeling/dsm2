@@ -55,7 +55,7 @@ ${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
 END
 
 GROUPS
-${DSM2INPUTDIR}/group_sourcetracking.inp
+#${DSM2INPUTDIR}/group_sourcetracking.inp
 END
 
 QUAL_TIME_SERIES
@@ -69,6 +69,6 @@ OUTPUT_TIME_SERIES
 ${DSM2INPUTDIR}/output_channel_std_qual_rki.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_named.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_named_correct.inp
-${DSM2INPUTDIR}/output_channel_source_track_fingerprint_ec_out.inp
-${DSM2INPUTDIR}/output_reservoir_source_track_fingerprint_ec_out.inp
+#${DSM2INPUTDIR}/output_channel_source_track_ec.inp
+#${DSM2INPUTDIR}/output_reservoir_source_track_ec.inp
 END
