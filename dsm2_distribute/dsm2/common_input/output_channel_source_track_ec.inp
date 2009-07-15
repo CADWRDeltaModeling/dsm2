@@ -1,0 +1,13 @@
+# Description:
+# general fingerprint output
+OUTPUT_CHANNEL_SOURCE_TRACK
+NAME     CHAN_NO DISTANCE VARIABLE SOURCE_GROUP INTERVAL    PERIOD_OP FILE             
+slrck005     247        0 ec       all          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 ec       ag           ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 ec       east         ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 ec       mtz          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 ec       sac          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+slrck005     247        0 ec       sjr          ${FINE_OUT} ave       ${QUALOUTDSSFILE} 
+END
+
+
