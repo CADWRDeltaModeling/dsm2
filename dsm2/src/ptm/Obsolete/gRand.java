@@ -1,4 +1,4 @@
-//    Copyright (C) 1996 State of California, Department of Water
+//    Copyright (C) 1996, 2009 State of California, Department of Water
 //    Resources.
 //
 //    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
@@ -45,7 +45,7 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 
-//    Copyright (C) 1996 State of California, Department of Water
+//    Copyright (C) 1996, 2009 State of California, Department of Water
 //    Resources.
 //
 //    Delta Simulation Model 2 (DSM2): A River, Estuary, and Land
