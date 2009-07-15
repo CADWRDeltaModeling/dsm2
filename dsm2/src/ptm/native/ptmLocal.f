@@ -156,8 +156,8 @@ c	use dsm2_database
       use common_ptm
 	implicit none
       integer istat
-      character
-     &     init_input_file*130  ! initial input file on command line [optional]
+      character*(*)
+     &     init_input_file  ! initial input file on command line [optional]
 c-----get optional starting input file from command line,
 c-----then from environment variables,
 c-----then default
