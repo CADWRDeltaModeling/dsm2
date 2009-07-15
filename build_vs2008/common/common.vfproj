@@ -20,7 +20,7 @@
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool" CommandLine="python D:\delta\models\dsm2\src\common\version_generate.py" Description="generate version.inc in D:\delta\models\dsm2\src\common"/>
+				<Tool Name="VFPreBuildEventTool" CommandLine="python ..\..\src\common\version_generate.py" Description="generate version.inc in ..\..\src\common"/>
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="DLL|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
@@ -33,9 +33,6 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
-		<Filter Name="Subversion">
-		<File RelativePath="..\..\src\common\version.inc"/>
-		<File RelativePath="..\..\src\common\version_generate.py"/></Filter>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\common\common_irreg_geom.f"/>
@@ -54,5 +51,8 @@
 		<File RelativePath="..\..\src\common\physical_constants.f"/>
 		<File RelativePath="..\..\src\common\rate_coeff_assignment.f"/>
 		<File RelativePath="..\..\src\common\runtime_data.f"/>
-		<File RelativePath="..\..\src\common\type_defs.f"/></Filter></Files>
+		<File RelativePath="..\..\src\common\type_defs.f"/></Filter>
+		<Filter Name="Subversion">
+		<File RelativePath="..\..\src\common\version.inc"/>
+		<File RelativePath="..\..\src\common\version_generate.py"/></Filter></Files>
 	<Globals/></VisualStudioProject>
