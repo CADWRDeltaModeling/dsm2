@@ -48,6 +48,7 @@ FINE_OUT_DAY             1DAY
 #Jones Tract Levee Break
 EVENTSINPUT              ${TSINPUTDIR}/events.dss
 #PTM
+PTMOUTFILE               ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.pof
 PTMOUTPUTFILE            ${DSM2OUTPUTDIR}/ptmout.dss
 END
 
