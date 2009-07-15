@@ -62,7 +62,7 @@ GATEOUTPUTFILE                                       ${DSM2OUTPUTDIR}/${OUTPUTFI
 #Qual                                                                                
 QUALOUTDSSFILE                                       ${DSM2OUTPUTDIR}/${OUTPUTFILE}                                                                     
 QUALOUTFILE                                          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof                                                               
-#QUALTIDEFILE           ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qtf                        
+#QUALTIDEFILE                                                                                                          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qtf                        
 QUALRSTFILE                                          ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf                                                               
 FINE_OUT                                             15MIN                                                                                              
 #Montezuma Slough operating threshold for EC                                         
@@ -86,7 +86,7 @@ LO_ORH_PARTIAL_FLOW                                  800.                       
 HI_ORH_PARTIAL_FLOW                                  2500.                                   #high end of flow bracket where orh partial flow used (cfs)
 VERNALIS_CLEAN                                       ts(name=vernalis_ec)<600                #indicator that vernalis inflow is clean enough to refresh 
 #the south delta. this will usually be:                                              
-#vernalis_ec<600  based on boundary ec NO SPACES!!!!!!!                              
+#vernalis_ec<600  based on boundary ec NO SPACES!!                              
 #true/false       hardwire so that vernalis is considered                            
 #automatically clean enough/never clean enough                                       
 #CLOSE_THRESH             0.4                                                        
@@ -103,7 +103,7 @@ GLC_UNIDIR                                           false                      
 #glc_unidir...........seasonal,flow-based determination                              
 #true/false...........hard-wired to use/disable                                      
 GLC_OPEN_FLOW                                        ${SJR_HIGH_FLOW}                        #sjr flow at which glc is fixed open.                      
-#${SJR_HIGH_FLOW}.....only when sjr flooding and all gates open                      
+#${SJR_HIGH_FLOW}.                                                                                                                                                                                                   #....only when sjr flooding and all gates open                      
 #8000.................plan c                                                         
 GLC_STAGE_RELAX                                      glc_stage_relax                         #indicator stage is (no longer) critical, could be:        
 #glc_stage_relax.............by just glc acceptable                                  
