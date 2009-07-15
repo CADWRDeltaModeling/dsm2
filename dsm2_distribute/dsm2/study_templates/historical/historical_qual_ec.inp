@@ -48,11 +48,6 @@ PARAMETER
 ${DSM2INPUTDIR}/scalar_qual_std.inp
 END
 
-GRID
-${DSM2INPUTDIR}/channel_std_delta_grid.inp
-${DSM2INPUTDIR}/gate_std_delta_grid.inp
-${DSM2INPUTDIR}/reservoir_std_delta_grid.inp
-END
 
 INITIAL_CONDITION
 ${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
