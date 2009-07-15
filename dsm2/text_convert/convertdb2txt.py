@@ -337,19 +337,22 @@ def create_dest_filename(parent_table, layer_name,suffix=None):
     return prefix+"_"+layer_base_name+suffix+".inp"
     
 
+
 def get_layers_in_model(cursor, model_name):
     sql=\
 """
-SELECT lay.name
+SELECT lay.name,comp.component_type,model.computer_model
 FROM layer_definition lay,model_component comp,model_definition model
 WHERE lay.layer_id=comp.component_id
 AND model.model_id = comp.model_id
 AND model.name LIKE ?
 ORDER BY comp.component_type,comp.layer
 """
+    
     data=cur.execute(sql,model_name).fetchall()
-    data=[ str(mod[0]) for mod in data ]
+    data=[ str(mod[0]) for mod in data if not(mod[1]=="grid" and mod[2]=="qual")]
     return data
+
 
 def get_component_type(db_layer_name,cur):
     SQL="SELECT component_type FROM layer_definition WHERE name=?;"
