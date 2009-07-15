@@ -845,14 +845,19 @@ c-----local variables
       character*150 CLA         ! command line args
 
       call getarg(1,CLA)
-      if (lnblnk(CLA) .eq. 0 .or.
-     &     CLA(:2) .eq. "-v" .or.
-     &     CLA(:2) .eq. "-V" .or.
-     &     CLA(:2) .eq. "-h" .or.
-     &     CLA(:2) .eq. "-H") then ! print version, usage, quit
+      if (lnblnk(CLA) .eq. 0) then ! print version, usage, quit
          print *, 'DSM2-' // trim(dsm2_name) // ' ', dsm2_version
          print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
          call exit(1)
+
+      elseif ( CLA(:2) .eq. "-v" .or.
+     &         CLA(:2) .eq. "-V" .or.
+     &         CLA(:2) .eq. "-h" .or.
+     &         CLA(:2) .eq. "-H") then ! print version and subversion, usage, quit
+         print *, 'DSM2-' // trim(dsm2_name) // ' ', trim(dsm2_version) // '  Subversion: ', trim(svn_build)
+         print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
+         call exit(1)
+
       else                      ! command line arg
 c--------check arg(s) if valid filename, ModelID
          iarg=1
