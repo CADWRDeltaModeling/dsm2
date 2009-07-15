@@ -350,7 +350,8 @@ ORDER BY comp.component_type,comp.layer
 """
     
     data=cur.execute(sql,model_name).fetchall()
-    data=[ str(mod[0]) for mod in data if not(mod[1]=="grid" and mod[2]=="qual")]
+    data=[ str(mod[0]) for mod in data if not((mod[1]=="grid" and mod[2]=="qual")\
+                                           or (mod[1]=="group" and mod[2]=="hydro"))]
     return data
 
 
