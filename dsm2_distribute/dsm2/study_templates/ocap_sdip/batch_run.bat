@@ -1,6 +1,5 @@
 @echo off
 
-set CONFIGFILE=%1%
 if "CONFIGFILE"=="" do (
 echo .
 echo usage:  batch_prepro configfile scenariofile [resume]
@@ -13,7 +12,7 @@ echo                               should be run only over inputs that have not 
 echo                               been prepared (you may have to prune one half-finished file, usually the last one)
 )
 
-
+set CONFIGFILE=%1%
 set SCENARIOFILE=%2%
 set RESUME=fresh
 if {%3%} == {resume} set RESUME=resume
@@ -47,10 +46,9 @@ echo DSM2MODIFIER: %BATCH_DSM2MODIFIER%
 echo CALSIMDIR: %BATCH_CALSIMDIR%
 echo CALSIMNAME: %BATCH_CALSIMNAME%
 echo resume: %continue_old%
-if {%continue_old%}=={resume} if not exist .\timeseries\%BATCH_DSM2MODIFIER%.dss echo calling prepro %config% %continue_old%
-if {%continue_old%}=={resume} if not exist .\timeseries\%BATCH_DSM2MODIFIER%.dss call prepro %config% %continue_old%
-if {%continue_old%}=={fresh} echo calling prepro %config% %continue_old%
-if {%continue_old%}=={fresh} call prepro %config% %continue_old%
+
+hydro hydro.inp
+qual qual_ec.inp
 
 goto end
 
