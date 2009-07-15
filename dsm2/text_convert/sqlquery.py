@@ -89,7 +89,7 @@ ORDER BY  climate.name;
 
 inputtransferflowSQL=\
 """
-SELECT  inp.transfer, input_file,path,fill.name, used
+SELECT  inp.transfer,fill.name,input_file,path,used
 FROM input_time_series_transfer inp,fill_in_type_description fill
 WHERE layer_id=? AND inp.fillin = fill.fill_in_type_id
 ORDER BY  inp.transfer;
