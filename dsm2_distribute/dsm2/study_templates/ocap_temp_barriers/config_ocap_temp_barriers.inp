@@ -1,7 +1,7 @@
 ENVVAR
 NAME                        VALUE
 DSM2INPUTDIR                ../../common_input
-CALSIMNAME                  2005A01ADV                              # Name of CALSIM file without ".dss" part
+CALSIMNAME                  ocap_2005A01A_EWA2_71_novamp_DV                        # Name of CALSIM file without ".dss" part
 DSM2MODIFIER                ocap_study_70                                          # Study name used for DSM2 and prepro 
 CALSIMSTUDY_ORIGINAL        2005A01A                                               # fpart straight out of calsim
 CALSIMSTUDY_MODIFIED        ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER}                # modified fpart after preprocessing
@@ -16,11 +16,11 @@ START_DATE                  01JAN1991
 QUAL_START_DATE             02JAN1991
 PTM_START_DATE              ${QUAL_START_DATE}
 START_TIME                  0000
-END_DATE                    01FEB1991
+END_DATE                    01APR1991
 END_TIME                    0000
 
 TSINPUTDIR                  ../../timeseries                              # Where timeseries are stored.
-CALSIMDIR                   ./ #${TSINPUTDIR}                                          # For Condor or single prepro
+CALSIMDIR                   ${TSINPUTDIR}                                          # For Condor or single prepro
 TEMPDIR                     z:/temp                                                # temporary directory. Please change
 TSINPUTLOCAL                ../../timeseries                                           # Local timeseries location
 BOUNDARYFILE                ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
@@ -38,8 +38,8 @@ DICUFILE_ECE                ${BOUNDARYFILE}
 GATEFILE                    ${BOUNDARYFILE}
 CLIFTONCT_GATEFILE          ${TSINPUTDIR}/clifton_planning.dss                     # File containing Clifton Ct Priority Ops
 CLIFTONCT_GATEOP            PRIORITY3                                              # Version of Clifton Court Op to use
-STAGE_SOURCE_FILE     ${TSINPUTDIR}/planningtide.dss
-STAGEFILE             ${BOUNDARYFILE}
+STAGE_SOURCE_FILE           ${TSINPUTDIR}/planningtide.dss
+STAGEFILE                   ${BOUNDARYFILE}
 
 # Output
 DSM2OUTPUTDIR               ./output                                    # output location.  Please change

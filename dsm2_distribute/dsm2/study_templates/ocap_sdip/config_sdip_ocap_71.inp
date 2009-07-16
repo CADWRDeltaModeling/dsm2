@@ -10,9 +10,9 @@ ENVVAR
 NAME                                                 VALUE                                  
 DSM2INPUTDIR                                         ../../common_input                                                                                 
 CALSIMNAME                                           ocap_2005A01A_EWA2_71_novamp_DV                                                                    
-#CALSIMNAME                                                                                                           ${BATCHCALSIMNAME}  
+#CALSIMNAME                                          ${BATCHCALSIMNAME}  
 DSM2MODIFIER                                         ocap_study_71                                                                                      
-#DSM2MODIFIER                                                                                                       ${BATCHDSM2MODIFIER}
+#DSM2MODIFIER                                        ${BATCHDSM2MODIFIER}
 CALSIMSTUDY_ORIGINAL                                 2005A01A                                #fpart straight out of calsim                              
 CALSIMSTUDY_MODIFIED                                 ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER} #modified fpart after preprocessing                        
 CALSIMSTUDY                                          ${CALSIMSTUDY_MODIFIED}                 #CALSIM study name used for DSM2                           
@@ -25,26 +25,25 @@ START_DATE                                           01JAN1991
 QUAL_START_DATE                                      02JAN1991                                                                                          
 PTM_START_DATE                                       ${QUAL_START_DATE}                                                                                 
 START_TIME                                           0000                                                                                               
-END_DATE                                             01FEB1991                                                                                          
+END_DATE                                             01APR1991                                                                                          
 END_TIME                                             0000                                                                                               
 TSINPUTDIR                                           ../../timeseries                        #Where timeseries are stored.                              
 CALSIMDIR                                            ${TSINPUTDIR}                                                                                      
-#CALSIMDIR                                                                                                                ${BATCH_CALSIMDIR}  
+#CALSIMDIR                                           ${BATCH_CALSIMDIR}  
 TEMPDIR                                              z:/temp                                                                                            
 TSINPUTLOCAL                                         ../../timeseries                        #Local timeseries location                                 
 BOUNDARYFILE                                         ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss                                                                
 QUALBOUNDARYFILE                                     ${BOUNDARYFILE}                                                                                    
-DICUDIR                                              ${TSINPUTDIR}                                                                                      
-#DICUFILE                                                                                                                   ${DICUDIR}/dicu-2020.dss                                      
+DICUDIR                                              ${TSINPUTDIR}                                                                                                                           
 DICUFLOWFILE                                         ${DICUDIR}/dicu-${DICU_VERSION}.dss     #DICU file                                                 
 DICUFILE                                             ${BOUNDARYFILE}                         #DICU file                                                 
 CALSIMFILE                                           ${CALSIMDIR}/${CALSIMNAME}.dss          #Calsim output file                                        
 CALSIM_SMOOTH                                        ${BOUNDARYFILE}                         #Pre-processed boundary input (hydro/qual)                 
 CALSIM_VAMP                                          ${BOUNDARYFILE}                         #Pre-processed VAMP flows and exports                      
 DICUFILE_EC                                          ${TSINPUTDIR}/dicu-wq-2020.dss          #Base DICU file for EC                                     
-#DICUFILE_ECE                                                                                                          ${TSINPUTLOCAL}/dicu_ec.dss                                   
+#DICUFILE_ECE                                        ${TSINPUTLOCAL}/dicu_ec.dss                                   
 DICUFILE_ECE                                         ${BOUNDARYFILE}                                                                                    
-#GATEFILE                                                                                                                  ${TSINPUTLOCAL}/gates.dss                                     
+#GATEFILE                                            ${TSINPUTLOCAL}/gates.dss                                     
 GATEFILE                                             ${BOUNDARYFILE}                                                                                    
 CLIFTONCT_GATEFILE                                   ${TSINPUTDIR}/clifton_planning.dss      #File containing Clifton Ct Priority Ops                   
 CLIFTONCT_GATEOP                                     PRIORITY3                               #Version of Clifton Court Op to use                        
