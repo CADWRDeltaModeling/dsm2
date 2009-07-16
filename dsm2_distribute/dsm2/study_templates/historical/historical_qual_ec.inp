@@ -45,30 +45,25 @@ END
 
 
 PARAMETER
-${DSM2INPUTDIR}/scalar_qual_std.inp
-END
-
-
-INITIAL_CONDITION
-${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
-${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
+${DSM2INPUTDIR}/scalar_qual_std_20090715.inp
 END
 
 GROUPS
-#${DSM2INPUTDIR}/group_sourcetracking.inp
+${DSM2INPUTDIR}/group_sourcetracking_20090715.inp
 END
 
 QUAL_TIME_SERIES
-${DSM2INPUTDIR}/node_concentration_delta_historical_qual.inp
-${DSM2INPUTDIR}/node_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/node_concentration_jones_qual.inp
+${DSM2INPUTDIR}/node_concentration_delta_historical_qual_20090715.inp
+${DSM2INPUTDIR}/node_concentration_dicu_ec_20090715.inp
+${DSM2INPUTDIR}/reservoir_concentration_dicu_ec_20090715.inp
+${DSM2INPUTDIR}/node_concentration_jones_qual_20090715.inp
 END
 
 OUTPUT_TIME_SERIES
-${DSM2INPUTDIR}/output_channel_std_qual_rki.inp
-${DSM2INPUTDIR}/output_channel_std_qual_named.inp
-${DSM2INPUTDIR}/output_channel_std_qual_named_correct.inp
-#${DSM2INPUTDIR}/output_channel_source_track_ec.inp
-#${DSM2INPUTDIR}/output_reservoir_source_track_ec.inp
+${DSM2INPUTDIR}/output_channel_std_qual_rki_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_qual_named_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_qual_named_correct_20090715.inp
+${DSM2INPUTDIR}/output_channel_source_track_ec_20090715.inp
+${DSM2INPUTDIR}/output_reservoir_source_track_ec_20090715.inp
 END
+

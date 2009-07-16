@@ -25,52 +25,45 @@ hydro echo    out     none ${DSM2OUTPUTDIR}/hydro_echo_${DSM2MODIFIER}.inp  #Ech
 END
 
 PARAMETER
-${DSM2INPUTDIR}/scalar_hydro_std.inp
+${DSM2INPUTDIR}/scalar_hydro_std_20090715.inp
 END
 
 GRID
-${DSM2INPUTDIR}/channel_std_delta_grid.inp
-${DSM2INPUTDIR}/gate_std_delta_grid.inp
-${DSM2INPUTDIR}/reservoir_std_delta_grid.inp
-${DSM2INPUTDIR}/gate_temp_barriers.inp
+${DSM2INPUTDIR}/channel_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/reservoir_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/gate_temp_barriers_20090715.inp
 END
 
 INITIAL_CONDITION
-${DSM2INPUTDIR}/channel_ic_std_delta_grid.inp
-${DSM2INPUTDIR}/reservoir_ic_std_delta_grid.inp
+${DSM2INPUTDIR}/channel_ic_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/reservoir_ic_std_delta_grid_20090715.inp
 END
 
 HYDRO_TIME_SERIES
-${DSM2INPUTDIR}/boundary_stage_adjust_astro_tide.inp
-${DSM2INPUTDIR}/boundary_flow_calsim_delta.inp
-${DSM2INPUTDIR}/source_flow_calsim_delta.inp
-${DSM2INPUTDIR}/source_flow_dicu.inp
-${DSM2INPUTDIR}/input_gate_planning_ccfb_dcc_timing.inp
-${DSM2INPUTDIR}/source_flow_ocap_diversions.inp
+${DSM2INPUTDIR}/boundary_stage_adjust_astro_tide_20090715.inp
+${DSM2INPUTDIR}/boundary_flow_calsim_delta_20090715.inp
+${DSM2INPUTDIR}/source_flow_calsim_delta_20090715.inp
+${DSM2INPUTDIR}/source_flow_dicu_20090715.inp
+${DSM2INPUTDIR}/input_gate_planning_ccfb_dcc_timing_20090715.inp
+${DSM2INPUTDIR}/source_flow_ocap_diversions_20090715.inp
 END
 
 OPERATION
-${DSM2INPUTDIR}/oprule_montezuma_planning_gate.inp
-${DSM2INPUTDIR}/oprule_temp_barriers_planning.inp
-${DSM2INPUTDIR}/oprule_ccc_dual_intake.inp
+${DSM2INPUTDIR}/oprule_montezuma_planning_gate_20090715.inp
+${DSM2INPUTDIR}/oprule_temp_barriers_planning_20090715.inp
+${DSM2INPUTDIR}/oprule_ccc_dual_intake_20090715.inp
 END
-
 
 OUTPUT_TIME_SERIES
-${DSM2INPUTDIR}/output_channel_std_hydro_boundary.inp
-${DSM2INPUTDIR}/output_channel_std_hydro_named.inp
-${DSM2INPUTDIR}/output_channel_std_hydro_rki.inp
-${DSM2INPUTDIR}/output_channel_std_hydro_sdip.inp
-${DSM2INPUTDIR}/output_channel_sdip_trigger.inp
-${DSM2INPUTDIR}/output_channel_old_river_head.inp
-${DSM2INPUTDIR}/output_gate_temporary_barriers.inp
-${DSM2INPUTDIR}/output_channel_ccc_split_flow.inp
-${DSM2INPUTDIR}/output_channel_ocap.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_boundary_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_named_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_rki_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_sdip_20090715.inp
+${DSM2INPUTDIR}/output_channel_sdip_trigger_20090715.inp
+${DSM2INPUTDIR}/output_channel_old_river_head_20090715.inp
+${DSM2INPUTDIR}/output_gate_temporary_barriers_20090715.inp
+${DSM2INPUTDIR}/output_channel_ccc_split_flow_20090715.inp
+${DSM2INPUTDIR}/output_channel_ocap_20090715.inp
 END
-
-
-
-
-
-
 

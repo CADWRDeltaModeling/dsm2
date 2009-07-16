@@ -1,0 +1,14 @@
+# Description:
+# general fingerprint output
+OUTPUT_RESERVOIR_SOURCE_TRACK
+NAME          RES_NAME      VARIABLE SOURCE_GROUP INTERVAL        PERIOD_OP FILE             
+clifton_court clifton_court ec       all          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court ec       ag           ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court ec       east         ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court ec       jones        ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court ec       mtz          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court ec       sac          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+clifton_court clifton_court ec       sjr          ${FINE_OUT_DAY} ave       ${QUALOUTDSSFILE} 
+END
+
+

@@ -30,20 +30,21 @@ runtime       length      ${HYDROTIDEFILE}
 END 
 
 PARAMETER
-${DSM2INPUTDIR}/scalar_qual_std.inp
+${DSM2INPUTDIR}/scalar_qual_std_20090715.inp
 END
 
 QUAL_TIME_SERIES
-${DSM2INPUTDIR}/node_concentration_calsim_delta_ec.inp
-${DSM2INPUTDIR}/node_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/reservoir_concentration_dicu_ec.inp
-${DSM2INPUTDIR}/node_concentration_mtz_planning_ec.inp
+${DSM2INPUTDIR}/node_concentration_calsim_delta_ec_20090715.inp
+${DSM2INPUTDIR}/node_concentration_dicu_ec_20090715.inp
+${DSM2INPUTDIR}/reservoir_concentration_dicu_ec_20090715.inp
+${DSM2INPUTDIR}/node_concentration_mtz_planning_ec_20090715.inp
 END
 
 OUTPUT_TIME_SERIES
-${DSM2INPUTDIR}/output_channel_std_qual_named.inp
-${DSM2INPUTDIR}/output_channel_std_qual_rki.inp
+${DSM2INPUTDIR}/output_channel_std_qual_named_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_qual_rki_20090715.inp
 END
+
 
 
 
