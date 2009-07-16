@@ -47,7 +47,7 @@ Name: "{app}\tutorials"
 [Components]
 
 Name: "main"; Description: "Main Files"; Types: full compact custom;
-Name: "runtime_lib"; Description: "Runtime Libraries (Microsoft VC++2005 SP1 Redistributable)"; Types: full;
+Name: "runtime_lib"; Description: "Runtime Libraries (Microsoft VC++2005 SP1 Redistributable)"; Types: full custom;
 
 
 [Files]
@@ -61,6 +61,8 @@ Source: "..\tutorials\pdf\*";            Destdir: "{app}\tutorials\";           
 Source: "..\tutorials\data\*";           Destdir: "{app}\tutorials\data\";         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\tutorials\simple\*";         Destdir: "{app}\tutorials\simple\";       Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\tutorials\historical\*";     Destdir: "{app}\tutorials\historical\";   Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
+
+Source: "..\license\*";                  Destdir: "{app}\";                        Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 
 Source: "..\studies\*";                  Destdir: "{app}\studies\";                Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\study_templates\*";          Destdir: "{app}\study_templates\";        Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
