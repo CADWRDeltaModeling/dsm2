@@ -8,17 +8,9 @@ END
 SCALAR
 NAME             VALUE
 title            "PTM SIMULATION: ${DSM2MODIFIER}"
-checkdata        FALSE
-cont_bad         FALSE
-cont_missing     TRUE
-cont_question    TRUE
-cont_unchecked   TRUE
-warn_missing     TRUE
-warn_question    TRUE
-warn_unchecked   FALSE
 
 display_intvl    1day          # Frequency of console message
-flush_output     15day
+flush_output     15day         # Frequency of output flushing
 printlevel       1             # Message print level
 theta            0.6           # Theta to interpolate velocity
 
