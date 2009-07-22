@@ -200,9 +200,9 @@ def exclude_table(filename,tablename,data):
     if tablename == "output_channel":
         source_rows=[row for row in data if not row[4] in non_specified_source]
         return len(source_rows) != 0                             
-    # if tablename == "output_reservoir":
-        # source_rows=[row for row in data if not row[3] in non_specified_source]
-        # return len(source_rows) != 0
+    if tablename == "output_reservoir":
+        source_rows=[row for row in data if not row[4] in non_specified_source]
+        return len(source_rows) != 0
     if tablename == "output_channel_source_track":
         source_rows=[row for row in data if not row[4] in non_specified_source]
         return len(source_rows) == 0         
