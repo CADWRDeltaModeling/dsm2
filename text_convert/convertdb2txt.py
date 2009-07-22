@@ -160,7 +160,7 @@ def chan_output_no_source_converter(row):
 
 def res_output_no_source_converter(row):
     new_row=trivial_convert(row)
-    return new_row[:3] + new_row[4:]
+    return new_row[:4] + new_row[5:]
     
 def gate_converter(row):
     new_row=trivial_convert(row)    
@@ -200,9 +200,9 @@ def exclude_table(filename,tablename,data):
     if tablename == "output_channel":
         source_rows=[row for row in data if not row[4] in non_specified_source]
         return len(source_rows) != 0                             
-    if tablename == "output_reservoir":
-        source_rows=[row for row in data if not row[3] in non_specified_source]
-        return len(source_rows) != 0
+    # if tablename == "output_reservoir":
+        # source_rows=[row for row in data if not row[3] in non_specified_source]
+        # return len(source_rows) != 0
     if tablename == "output_channel_source_track":
         source_rows=[row for row in data if not row[4] in non_specified_source]
         return len(source_rows) == 0         
@@ -309,6 +309,10 @@ def translate_layer_name(prefix,layer_name):
         layer_name=layer_name.replace("std_output_hydro","std_hydro")
         layer_name=layer_name.replace("std_output_qual","std_qual")
         layer_name=layer_name.replace("concentration","conc")
+        layer_name=layer_name.replace("out_res_","")
+        layer_name=layer_name.replace("out_chann_","")
+       
+
         return layer_name
 
 PREFIX = {"operating_rule" : "oprule",
