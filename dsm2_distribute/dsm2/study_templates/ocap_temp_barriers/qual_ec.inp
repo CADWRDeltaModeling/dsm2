@@ -42,6 +42,7 @@ END
 
 OUTPUT_TIME_SERIES
 ${DSM2INPUTDIR}/output_channel_std_qual_named_20090715.inp
+${DSM2INPUTDIR}/output_reservoir_std_qual_named_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_rki_20090715.inp
 END
 
