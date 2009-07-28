@@ -23,8 +23,8 @@ print ' SVN version of ../../../dsm2:                 '+ SVNVersion_SourceCode
 print ' SVN version of ../../../dsm2_distribute/dsm2: '+ SVNVersion_Distribute
 
 try:
-    #test = int(SVNVersion_SourceCode)
-    #test = int(SVNVersion_Distribute)
+    test = int(SVNVersion_SourceCode)
+    test = int(SVNVersion_Distribute)
 
     setupTemplateTxt = setupTemplate.read()
    
