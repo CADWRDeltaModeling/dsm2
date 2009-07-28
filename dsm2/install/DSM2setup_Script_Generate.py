@@ -1,7 +1,7 @@
 import os
 
 Version_Main    = "8.0"  # First two number of 8.0b1
-Version_Status  = "b1"   # Beta 1
+Version_Status  = "b2"   # Beta 2
 
 setupfile = open("DSM2setup_v8.iss","w")
 setupTemplate = open("DSM2setup_v8.template",'r')
@@ -23,8 +23,8 @@ print ' SVN version of ../../../dsm2:                 '+ SVNVersion_SourceCode
 print ' SVN version of ../../../dsm2_distribute/dsm2: '+ SVNVersion_Distribute
 
 try:
-    test = int(SVNVersion_SourceCode)
-    test = int(SVNVersion_Distribute)
+    #test = int(SVNVersion_SourceCode)
+    #test = int(SVNVersion_Distribute)
 
     setupTemplateTxt = setupTemplate.read()
    
