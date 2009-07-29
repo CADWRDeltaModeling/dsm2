@@ -25,7 +25,7 @@ c      fixme: All of these "max" variables are redundant
       integer,parameter :: MaxChannels=800   ! max channels allowed,
                                              ! should be same as max_channels
 										     ! in common.f
-      integer,parameter :: MaxNres=30        ! max reservoirs allowed
+      integer,parameter :: MaxNres=100       ! max reservoirs allowed
                                              ! fixme: should be same as max_reservoirs
 											 ! in common.f
       integer, parameter :: MaxConnectingChannels=5  ! Max connections at a node
