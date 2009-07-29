@@ -55,7 +55,7 @@ C!</license>
      &     ,nreser              ! actual number of reservoirs
 
       parameter (
-     &     max_reservoirs=30
+     &     max_reservoirs=100
      &     )
 
       type(reservoir_t) res_geom(0:max_reservoirs)
