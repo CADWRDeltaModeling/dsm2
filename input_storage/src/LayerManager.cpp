@@ -70,13 +70,6 @@ void LayerManager::writeToStream(ostream & stream,
 
 void LayerManager::writeToHdf5(const hid_t & file_id, const string& group_name)
 {
-   const int NFIELDS=2;
-   const int NAMELEN=64;
-   typedef struct Layer
-   {
-   int    priority;
-   char name[NAMELEN];
-   } Layer;
 
    vector<Layer> data(layers.size());
    for (size_t i = 0; i<layers.size(); ++i)

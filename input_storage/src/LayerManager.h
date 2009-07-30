@@ -13,7 +13,6 @@ using namespace boost::algorithm;
 
 /** Manages an ordered list of layer names */
 class LayerManager {
-
 public:
   /** Return singleton instance */
   static LayerManager& instance() {
@@ -54,6 +53,16 @@ public:
   LayerManager(){}
   ~LayerManager(){}
   std::vector<std::string> layers;
+
+  	static const int NFIELDS=2;
+ 	static const int NAMELEN=64;
+ 	typedef struct Layer
+ 	{
+ 	int    priority;
+ 	char name[NAMELEN];
+ 	} Layer;
+
+
 };
 
 

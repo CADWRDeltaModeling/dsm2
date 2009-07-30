@@ -2,6 +2,7 @@
 #include "InputState.h"
 #include<iostream>
 #include<sstream>
+#include <stdexcept>
 #include "boost/algorithm/string/trim.hpp"
 
 
@@ -41,11 +42,11 @@ string InputState::substitute(const string& line) const
    {
      procline = reader.getTextSubstitution()(line);
    }
-   catch(runtime_error e)
+   catch(std::runtime_error e)
    {
        string message = string("In file ")+this->getFilename()
                         +string(":\n\n")+string(e.what());
-       throw runtime_error(message);
+       throw std::runtime_error(message);
    }
    return procline;
 }

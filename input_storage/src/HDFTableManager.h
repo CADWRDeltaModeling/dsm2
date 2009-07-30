@@ -47,8 +47,9 @@ public:
  */
  void swapLayerNumbers(int first, int second)
  {   
-     for (size_t item = 0; item < m_buffer.size(); ++ item)
+     for (size_t i = 0; i< m_buffer.size(); ++ i)
      {
+         T& item = m_buffer[i];
          int layer=item.layer;
          if (layer==first)item.layer=second;
          if (layer==second)item.layer=first;

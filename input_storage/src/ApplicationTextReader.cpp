@@ -96,11 +96,19 @@ void ApplicationTextReader::processInput(const string & filename)
   assert(! this->m_inputMap.empty());
   if (!verifyItemsInMap(m_initialContextItems))
   {
+	  // m_initialContextItems are the items we are trying to set valid
+	  // we just looked them up to see if they are keywords we know about and
+	  // they are not. This means somehow we probably didn't load the original
+	  // keywords (m_inputMap) correctly
       throw logic_error("An item being set valid for reading is not one of the ones known by the text parser");
   }
   if (!verifyItemsInMap(m_activeItems))
   {
-      throw logic_error("An item being set active for reading is not one of the ones known by the text parser");
+	  // m_activeItems are the items we are trying to set active
+	  // we just looked them up to see if they are keywords we know about and
+	  // they are not. This means somehow we probably didn't load the original
+	  // keywords (m_inputMap) correctly
+	  throw logic_error("An item being set active for reading is not one of the ones known by the text parser");
   }
 
   // to do: assumes all active items are valid in initial file context

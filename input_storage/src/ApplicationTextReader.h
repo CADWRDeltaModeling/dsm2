@@ -67,8 +67,15 @@ public:
 
 
  private:
+  // This is a map of keywords to readers (InputStates)
+  // The keys of m_inputMap represent all the keywords we know about
   InputStateMap m_inputMap;
+
+  // This is list of items that are active (will be read in the current pass)
   std::vector<std::string> m_activeItems;
+
+  // This is a list of items that are valid -- whether or not they are active
+  // for the current read, they are considered "OK"
   std::vector<std::string> m_initialContextItems;
   EnvSubstitution m_sub;
   
