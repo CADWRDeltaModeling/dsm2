@@ -135,10 +135,10 @@ public:
 
   
   @MEMBERS
-  /** layer (version number) of this entry */
-  int layer;
   /** indicator that the entry is used (true if not marked deleted by user)*/
   bool used;  
+  /** layer (version number) of this entry */
+  int layer;
 };
 
 typedef HDFTableManager<@TABLEOBJ> @TABLEOBJ_table;
