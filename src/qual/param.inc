@@ -22,7 +22,7 @@ C!</license>
       INTEGER NOBR,NOSC,NOPR
       PARAMETER (NOBR=800, NOSC=15, NOPR=24)
       INTEGER MAXNUMRES,MAXRESJUNC
-      PARAMETER (MAXNUMRES=100,MAXRESJUNC=15)
+      PARAMETER (MAXNUMRES=100,MAXRESJUNC=50)
       integer ihout, irhout
       parameter (ihout=50,irhout=51)
       integer idoout, irdoout
