@@ -17,6 +17,12 @@
 </div><!-- page_title-->
 <hr style="">
 
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p>The Delta Simulation Model II (DSM2) is a one-dimensional mathematical model for dynamic simulation of one-dimensional hydrodynamics, water quality and particle tracking in a network of riverine or estuarine channels. DSM2 can calculate stages, flows, velocities, mass transport processes for conservative and non-conservative constituents including salts, water temperature, dissolved oxygen, and trihalomethane formation potential, and transport of individual particles. DSM2 thus provides a powerful simulation package for analysis of complex hydrodynamic, water quality, and ecological conditions in riverine and estuarine systems.</p>
+
+<p>DSM2 currently consists of three modules: HYDRO, QUAL, and PTM. HYDRO simulates one-dimensional hydrodynamics including flows, velocities, depth, and water surface elevations.  HYDRO provides the flow input for QUAL and PTM.  QUAL simulates one-dimensional fate and transport of conservative and non-conservative water quality constituents given a flow field simulated by HYDRO.  PTM simulates pseudo 3-D transport of neutrally buoyant particles based on the flow field simulated by HYDRO.  PTM has multiple applications ranging from visualization of flow patterns to simulation of discrete organisms such as fish eggs and larvae.  A fourth module for sediment transport is currently being developed.</p>
+
 
 <ul id="toc">
 <li> <a href="#started">Getting Started</a> <br /></li>
@@ -80,14 +86,14 @@ Water Resources Delta Modeling Section. You can find the model at our
 <a href="http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/deltaevaluation.cfm">
 delta evaluation tools</a> web site. Currently we distribute Windows executables, tutorials and a data package 
 with templates for common studies. We expect to release a source code 
-distribution in August 2009.</p>
+distribution in Fall, 2009.</p>
 <a name="install"></a>
 <h3>Installing DSM2</h3>DSM2 comes with a binary installer, and you should be able
 to set it up easily with the default installation. There are two limitations:
 <ul>
 <li>DSM2 is tested only on Windows XP. It has a history of working on NT,
 and we would love to hear from you if you can confirm it works on 
-Windows Vista this year.</li>
+Windows Vista.</li>
 <li>You need administrative permission to install the package.</li>
 <li>You should not set it up in a location with spaces. We recommend: 
 D:\delta\dsm2 or C:\delta\dsm2...</li>
