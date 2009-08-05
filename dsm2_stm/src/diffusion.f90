@@ -46,6 +46,7 @@
 !     07/28/09        Fabian Bombardelli        Case 1 and final set up
 !     07/29/09        Fabian Bombardelli        Case 2 and final set up
 !     07/30/09        Fabian Bombardelli        Optimizing Case 2
+!     08/04/09        Kaveh Zamani              Kaveh found small bug in code
 !****************************************************************************
 
           IMPLICIT NONE
@@ -297,7 +298,7 @@
              C(1) = C(1) - Cal_D * Area_n_plus_one(1) * K_s_n_plus_one(1)
              D(1) = D(1) - 2.0d0 * dx_sed * Flux_s_upstream_n_plus_one * Cal_D * Area_n_plus_one(1) * K_s_n_plus_one(1)
              D(1) = D(1) - 2.0d0 * dx_sed * Flux_s_upstream_n * Cal_D_one * Area_n(1) * K_s_n(1)
-             D(1) = D(1) + Cal_D * Area_n(1) * K_s_n(1) * C_s_n(2) 
+             D(1) = D(1) + Cal_D_one * Area_n(1) * K_s_n(1) * C_s_n(2) 
            end if
            
            If(Boundary_condition_flag_downstream.eq.1)then
