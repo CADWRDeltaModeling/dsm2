@@ -1,0 +1,13 @@
+# Description:
+# Ouput of vol for comparing text and db
+OUTPUT_RESERVOIR_SOURCE_TRACK
+NAME          RES_NAME      VARIABLE SOURCE_GROUP INTERVAL    PERIOD_OP FILE             
+clifton_court clifton_court unit     ag           ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court unit     east         ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court unit     jones        ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court unit     mtz          ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court unit     sac          ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court unit     sjr          ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+END
+
+
