@@ -1,0 +1,30 @@
+# Description:
+# use temp_barriers instead permanent ones
+GATE
+NAME                FROM_OBJ FROM_IDENTIFIER TO_NODE
+grant_line_barrier  channel              206     172 
+middle_r_barrier    channel              134     112 
+old_r@tracy_barrier channel               79      69 
+old_r@head_barrier  channel               54       8 
+END
+
+
+
+GATE_DEVICE
+GATE_NAME           DEVICE               STRUCTURE NDUPLICATE WIDTH  ELEV HEIGHT CF_FROM_NODE CF_TO_NODE DEFAULT_OP       POSITION_CONTROL
+grant_line_barrier  barrier              weir               1 125.0   0.5 9999.0          0.8        0.8 gate_open        no_gate          
+grant_line_barrier  boat_ramp            weir               1 140.0 -13.1 9999.0          0.8        0.8 gate_open        no_gate          
+grant_line_barrier  pipes                pipe               6   2.0  -6.5 9999.0          0.6        0.6 unidir_from_node no_gate          
+middle_r_barrier    barrier              weir               1 140.0   1.0 9999.0          0.7        0.7 gate_open        no_gate          
+middle_r_barrier    pipes                pipe               6   2.0  -4.0 9999.0          0.6        0.6 unidir_to_node   no_gate          
+old_r@head_barrier  fall_barrier         weir               1 168.0  10.0 9999.0          0.7        0.7 gate_open        no_gate          
+old_r@head_barrier  fall_notch           weir               1  32.0   0.0 9999.0          0.7        0.7 gate_open        no_gate          
+old_r@head_barrier  pipes                pipe               6   2.0  -4.0 9999.0          0.6        0.6 gate_open        no_gate          
+old_r@head_barrier  spring_barrier       weir               1 200.0  10.0 9999.0          0.7        0.7 gate_open        no_gate          
+old_r@tracy_barrier barrier              weir               1  75.0   2.0 9999.0          0.8        0.8 gate_open        no_gate          
+old_r@tracy_barrier fall_notch           weir               1  20.0   0.0 9999.0          0.8        0.8 gate_open        no_gate          
+old_r@tracy_barrier fall_notched_barrier weir               1  55.0   2.0 9999.0          0.8        0.8 gate_open        no_gate          
+old_r@tracy_barrier pipes                pipe               9   2.0  -6.0 9999.0          0.6        0.6 unidir_from_node no_gate          
+END
+
+
