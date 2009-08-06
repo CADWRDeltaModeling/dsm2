@@ -188,12 +188,12 @@ begin
           RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\DSM2_v8_is1','UninstallString', Uninstallexepath2);
 
           /// show message box to uninstall previous v8
-          StringChangeEx(Uninstallexepath2, '"',   '', True);
+          /// StringChangeEx(Uninstallexepath2, '"',   '', True);
 
-          if UninstallerNotCalled(Uninstallexepath1,Uninstallexepath2) then
-            begin
-              Abort;
-            end;
+          /// if UninstallerNotCalled(Uninstallexepath1,Uninstallexepath2) then
+          ///  begin
+          ///    Abort;
+          ///  end;
 
        end;
 
