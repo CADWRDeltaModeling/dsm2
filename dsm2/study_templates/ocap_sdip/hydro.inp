@@ -29,11 +29,11 @@ END
 
 GRID
 ${DSM2INPUTDIR}/channel_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/gate_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20090806.inp
 ${DSM2INPUTDIR}/reservoir_std_delta_grid_20090715.inp
 ${DSM2INPUTDIR}/channel_planning_stability_revision_20090715.inp
 ${DSM2INPUTDIR}/channel_tapered_tracy_blvd_dredge_20090715.inp
-${DSM2INPUTDIR}/gate_permanent_barriers_20090715.inp
+${DSM2INPUTDIR}/gate_permanent_barriers_20090806.inp
 END
 
 INITIAL_CONDITION
