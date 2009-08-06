@@ -23,4 +23,4 @@ try:
 except:
     VersionFile.close()
     os.remove(VersionFile_path) 
-    print 'Abort.... possible error in file /delta/models/dsm2/src/common/verion_generate.py'    
+    print 'Abort.... possible error in file /dsm2/src/common/verion_generate.py'    
