@@ -50,7 +50,7 @@ def component_members():
       "reservoir":["name","area","bot_elev"],\
       "reservoir_connection":["res_name","node","coef_in","coef_out"],\
       "gate":["name","from_obj","from_identifier","to_node"],\
-      "gate_device":["gate_name","device","structure","nduplicate","width","elev","height","cf_to_node","cf_from_node","default_op","position_control"],\
+      "gate_device":["gate_name","device","structure","nduplicate","width","elev","height","cf_from_node","cf_to_node","default_op","position_control"],\
       "transfer":["name","from_obj","from_identifier","to_obj","to_identifier"],\
       "io_file":["model","type","io","interval","file"],\
       "tidefile":["start_date","end_date","file"],\
