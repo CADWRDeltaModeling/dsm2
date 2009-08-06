@@ -1,0 +1,8 @@
+# Description:
+# Description of the new layer
+RESERVOIR_CONCENTRATION
+NAME            RES_NAME      VARIABLE FILLIN FILE     PATH
+dicu_drain_bbid clifton_court unit     last   constant  100 
+END
+
+
