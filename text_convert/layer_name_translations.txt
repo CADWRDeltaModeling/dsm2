@@ -9,3 +9,5 @@ delta_accounting_groups,delta_accouting
 adjusted_astronomical_tide,adjust_astro_tide
 fingerprint_doc_out,doc
 fingerprint_ec_out,ec
+source_vol,source_volumetric
+output_vol_cdec,cdec_volumetric

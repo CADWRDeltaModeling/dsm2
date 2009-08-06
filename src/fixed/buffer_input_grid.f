@@ -201,8 +201,8 @@ c       are file-based
      &                              width,
      &                              elev,
      &                              height,
-     &                              cf_to_node,
      &                              cf_from_node,
+     &                              cf_to_node,
      &                              default_op,
      &                              position_control,
      &                              ierror)
@@ -215,8 +215,8 @@ c       are file-based
      &                              width,
      &                              elev,
      &                              height,
-     &                              cf_to_node,
      &                              cf_from_node,
+     &                              cf_to_node,
      &                              default_op,
      &                              position_control)
        end do
