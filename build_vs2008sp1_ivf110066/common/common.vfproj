@@ -10,8 +10,8 @@
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
 				<Tool Name="VFCustomBuildTool" AdditionalDependencies="D:\delta\models\dsm2\src\common\version.inc"/>
 				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool" CommandLine="python D:\delta\models\dsm2\src\common\version_generate.py" Description="generate version.inc in D:\delta\models\dsm2\src\common"/>
-				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFPreBuildEventTool" CommandLine="python ..\..\src\common\version_generate.py" Description="=== python ..\..\src\common\version_generate.py ==="/>
+				<Tool Name="VFPostBuildEventTool" CommandLine="del ..\..\src\common\version.inc" Description="delete ..\..\src\common\version.inc"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\Release" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
