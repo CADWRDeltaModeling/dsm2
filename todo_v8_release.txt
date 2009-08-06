@@ -26,4 +26,4 @@ X transfer.py needs a batch file in /dsm2/bin
 
 The installer is picking up some experimental stuff. Can we automate a way to make sure that /study_templates/hydro is clean (batch script) and contains /output
 
-CONFIG variables are not working as expected (eli)
+X CONFIG variables are not working as expected (eli)
