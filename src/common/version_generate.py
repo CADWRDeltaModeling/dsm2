@@ -1,11 +1,10 @@
 import os
 
+print __file__
 
 VersionTemplate     = "      character*16 :: dsm2_version = '8.0b2', svn_build = '@{Version_SVN}' " 
-VersionFile_path    = "./version.inc"
-
-
-
+VersionFile_path    = os.path.split( __file__)[0]
+VersionFile_path    = os.path.join(VersionFile_path,"version.inc")
 
 
 VersionFile = open(VersionFile_path, "w") 

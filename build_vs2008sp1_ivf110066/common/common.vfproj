@@ -20,7 +20,7 @@
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool" CommandLine="python ..\..\src\common\version_generate.py" Description="generate version.inc in ..\..\src\common"/>
+				<Tool Name="VFPreBuildEventTool" CommandLine="python ..\..\src\common\version_generate.py" Description="=== python ..\..\src\common\version_generate.py ==="/>
 				<Tool Name="VFPostBuildEventTool" CommandLine="del ..\..\src\common\version.inc" Description="delete ..\..\src\common\version.inc"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="DLL|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
