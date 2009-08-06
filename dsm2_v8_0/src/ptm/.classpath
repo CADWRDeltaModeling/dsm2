@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry including="behave/*.java|gui/*.java|native/*.java|tools/*.java" kind="src" path=""/>
+	<classpathentry kind="lib" path="lib/COM.jar"/>
+	<classpathentry kind="lib" path="lib/edu.jar"/>
+	<classpathentry kind="lib" path="lib/ptm.jar"/>
+	<classpathentry kind="lib" path="lib/xml.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

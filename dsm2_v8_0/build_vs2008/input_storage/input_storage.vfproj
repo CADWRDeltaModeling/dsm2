@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{05D1DBF4-B135-4E7A-A795-14DBAEFBAE7B}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Interfaces="true" FixedFormLineLength="fixedLength132" WarnInterfaces="true" ModulePath="$(ProjectDir)\..\modules\$(ConfigurationName)" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLibrarianTool" IgnoreDefaultLibraryNames="msvcrtd;msvcrt;libcmtd"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration>
+		<Configuration Name="Release|Win32" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\$(ConfigurationName)" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFLibrarianTool" IgnoreDefaultLibraryNames="msvcprt"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd">
+		<File RelativePath="..\..\src\input_storage\boundary_flow_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\boundary_stage_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\channel_ic_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\channel_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\envvar_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\gate_device_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\group_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\group_member_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_climate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_transfer_flow_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\io_file_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\node_concentration_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\operating_rule_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\oprule_expression_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\oprule_time_series_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_channel_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_channel_source_track_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_reservoir_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\output_reservoir_source_track_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\particle_flux_output_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\particle_group_output_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\particle_insertion_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\rate_coefficient_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_concentration_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_connection_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_ic_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\scalar_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\source_flow_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\source_flow_reservoir_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\tidefile_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\transfer_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\xsect_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\xsect_layer_input_storage.fi"/></Filter>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\src\input_storage\input_storage_fortran.f90"/></Filter></Files>
+	<Globals/></VisualStudioProject>

@@ -1,0 +1,50 @@
+C!<license>
+C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+C!    Department of Water Resources.
+C!    This file is part of DSM2.
+
+C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    you can redistribute it and/or modify
+C!    it under the terms of the GNU General Public License as published by
+C!    the Free Software Foundation, either version 3 of the License, or
+C!    (at your option) any later version.
+
+C!    DSM2 is distributed in the hope that it will be useful,
+C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+C!    GNU General Public License for more details.
+
+C!    You should have received a copy of the GNU General Public License
+C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+C!</license>
+
+*===== BOF chnluser.inc =================================================
+*   Version 93.01, January, 1993
+
+*   Note: This include, when used, must follow "Network.inc".
+
+      INTEGER NumUserLoc
+      INTEGER UpUserPointer(MaxChannels), DownUserPointer(MaxChannels)
+      REAL*8 UserWS(MaxLocations), UserQ(MaxLocations)
+      CHARACTER*16 UserLocationID(MaxLocations)
+      COMMON / ChannelLocations_i / NumUserLoc,
+     &     UpUserPointer, DownUserPointer
+	  COMMON / ChannelLocations_r / 
+     &     UserWS, UserQ
+
+      COMMON /CxIdentifiers/ UserLocationID
+
+      SAVE / ChannelLocations_i /, /ChannelLocations_r/, / CxIdentifiers /
+
+*   Definitions:
+*     MaxChannels - maximum number of channels.
+*     NumUserLoc - current total number of user locations.
+*     UpUserPointer(i) - pointer to upstream most user-supplied
+*                        location for channel "i".
+*     DownUserPointer(i) - pointer to downstream most user-supplied
+*                          location for channel "i".
+*     UserWS(i) - water surface elevation at user location "i".
+*     UserQ(i) - volumetric discharge at user location "i".
+*     UserLocationID(i) - 16-character string ID for user-suppllied
+*                         location i.
+*===== EOF chnluser.inc =================================================
