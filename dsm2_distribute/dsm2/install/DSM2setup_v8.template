@@ -1,4 +1,5 @@
 [Setup]
+
 AppName=DSM2_v8
 AppVerName=version @{Version_Main}@{Version_Status}.@{Version_Distribute}
 OutputBaseFilename=DSM2setup_@{Version_Main}@{Version_Status}.@{Version_Distribute}
@@ -25,15 +26,18 @@ LicenseFile="..\license\COPYRIGHT.txt"
 
 
 [Languages]
+
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 
 [Tasks]
+
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 
 [Dirs]
+
 Name: "{app}\common_input"
 Name: "{app}\timeseries"
 Name: "{app}\vista"
@@ -47,7 +51,6 @@ Name: "{app}\tutorials"
 [Components]
 
 Name: "main"; Description: "Main Files"; Types: full compact custom;
-;Name: "runtime_lib"; Description: "Runtime Libraries (Microsoft VC++2005 SP1 Redistributable)"; Types: full custom;
 
 
 [Files]
@@ -70,7 +73,6 @@ Source: "..\ptm\*";                      DestDir: "{app}\ptm\";                 
 Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\vista\*";                    DestDir: "{app}\vista\";                  Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\extras\*";                   DestDir: "{app}\extras\";                 Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\runtime\*";                  DestDir: "{tmp}";                         Flags: ignoreversion recursesubdirs createallsubdirs deleteafterinstall ; Components: runtime_lib
 
 
 [Icons]
@@ -96,7 +98,6 @@ Root: HKLM; Subkey: "SOFTWARE\DSM2\v8\path"; ValueType: string; ValueName: "Unin
 
 [Run]
 
-;Filename: "{tmp}\vcredist_x86_2005sp1.exe"; Description: "Runtime Libraries"; Flags: skipifdoesntexist
 Filename: "{app}\documentation\html\toc.html"; Description: "View DSM2 documentation"; Flags: postinstall shellexec
 
 
