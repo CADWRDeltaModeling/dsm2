@@ -30,8 +30,9 @@
 		<File RelativePath="..\..\src\input_storage\channel_ic_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\channel_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\envvar_input_storage.fi"/>
-		<File RelativePath="..\..\src\input_storage\gate_device_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\gate_pipe_device_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\gate_weir_device_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\group_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\group_member_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_climate_input_storage.fi"/>

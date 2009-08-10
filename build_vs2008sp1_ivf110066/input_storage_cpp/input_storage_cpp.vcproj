@@ -183,7 +183,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_gate_device.cpp"
+				RelativePath="..\..\src\input_storage\input_storage_gate_pipe_device.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_gate_weir_device.cpp"
 				>
 			</File>
 			<File
@@ -345,7 +349,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_gate_device.h"
+				RelativePath="..\..\src\input_storage\input_storage_gate_pipe_device.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_gate_weir_device.h"
 				>
 			</File>
 			<File

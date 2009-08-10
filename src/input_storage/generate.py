@@ -97,11 +97,27 @@ def generate_dsm2():
                            ["name"])
     component.layered=True                         # Component is part of the layering system
     prep_component(component,outdir)               # Group reads/writes/clears are based on the
-    
-    component = TableComponent("gate_device",
+ 
+    component = TableComponent("gate_pipe_device",
                            [CharField("gate_name",DSM2_NAME_LEN,16),
                             CharField("device",DSM2_NAME_LEN,16),                           
-                            CharField("structure",8,8),
+                            IntField("nduplicate"),
+                            DoubleField("radius",10,3),
+                            DoubleField("elev",10,3),
+                            DoubleField("height",10,3),
+                            DoubleField("cf_from_node",14,4),                            
+                            DoubleField("cf_to_node",14,4),
+                            CharField("default_op",16,18), 
+                            CharField("position_control",16,16)],
+                            ["gate_name","device"],
+                            parent="gate",                  # parent table. overrides will be based on the channel table
+                            parent_id=["gate_name"])             # field in the xsect that links to the parent identifier (in this case also chan_no)              
+    component.layered = False
+    prep_component(component,outdir)   
+ 
+    component = TableComponent("gate_weir_device",
+                           [CharField("gate_name",DSM2_NAME_LEN,16),
+                            CharField("device",DSM2_NAME_LEN,16),                           
                             IntField("nduplicate"),
                             DoubleField("width",10,3),
                             DoubleField("elev",10,3),
@@ -438,7 +454,8 @@ def generate_dsm2():
 
     envvar_keywords=["envvar"]
     scalar_keywords = ["scalar"]
-    grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"]
+    grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate",\
+                   "gate_weir_device","gate_pipe_device","transfer"]
     hydro_ic_keywords=["channel_ic","reservoir_ic"]
     oprule_keywords=["operating_rule","oprule_expression","oprule_time_series"]
     hydro_time_series_keywords = ["boundary_stage","boundary_flow","source_flow",\

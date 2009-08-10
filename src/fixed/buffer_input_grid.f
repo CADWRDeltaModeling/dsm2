@@ -191,12 +191,11 @@ c       are file-based
        end do
        print *,"Number of gates: ", nitem
 
-      nitem = gate_device_buffer_size()
+      nitem = gate_weir_device_buffer_size()
       do icount = 1,nitem
-         call gate_device_query_from_buffer(icount,
+         call gate_weir_device_query_from_buffer(icount,
      &                              gate_name,
      &                              device_name,
-     &                              struct_name,
      &                              nduplicate,
      &                              width,
      &                              elev,
@@ -207,6 +206,7 @@ c       are file-based
      &                              position_control,
      &                              ierror)
          
+      struct_name = "weir"
          call process_gate_device(
      &                              gate_name,
      &                              device_name,
@@ -220,9 +220,37 @@ c       are file-based
      &                              default_op,
      &                              position_control)
        end do
-       print *,"Number of gate devices: ", nitem
+       print *,"Number of gate weir devices: ", nitem
 
-
+      nitem = gate_pipe_device_buffer_size()
+      do icount = 1,nitem
+         call gate_pipe_device_query_from_buffer(icount,
+     &                              gate_name,
+     &                              device_name,
+     &                              nduplicate,
+     &                              width,
+     &                              elev,
+     &                              height,
+     &                              cf_from_node,
+     &                              cf_to_node,
+     &                              default_op,
+     &                              position_control,
+     &                              ierror)
+         struct_name = "pipe"
+         call process_gate_device(
+     &                              gate_name,
+     &                              device_name,
+     &                              struct_name,
+     &                              nduplicate,
+     &                              width,
+     &                              elev,
+     &                              height,
+     &                              cf_from_node,
+     &                              cf_to_node,
+     &                              default_op,
+     &                              position_control)
+       end do
+       print *,"Number of gate pipe devices: ", nitem
 
       nitem = transfer_buffer_size()
       do icount = 1,nitem
