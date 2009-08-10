@@ -72,7 +72,7 @@ def generate_dsm2():
 
     component = TableComponent("reservoir",
                            [CharField("name",DSM2_NAME_LEN,16),
-                           DoubleField("area",12,2),
+                           DoubleField("area",12,6),
                            DoubleField("bot_elev",12,2)],
                            ["name"])
     component.layered=True                         # Component is part of the layering system
@@ -104,7 +104,6 @@ def generate_dsm2():
                             IntField("nduplicate"),
                             DoubleField("radius",10,3),
                             DoubleField("elev",10,3),
-                            DoubleField("height",10,3),
                             DoubleField("cf_from_node",14,4),                            
                             DoubleField("cf_to_node",14,4),
                             CharField("default_op",16,18), 

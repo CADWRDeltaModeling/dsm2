@@ -230,13 +230,13 @@ c       are file-based
      &                              nduplicate,
      &                              width,
      &                              elev,
-     &                              height,
      &                              cf_from_node,
      &                              cf_to_node,
      &                              default_op,
      &                              position_control,
      &                              ierror)
          struct_name = "pipe"
+         height = 9999.D0
          call process_gate_device(
      &                              gate_name,
      &                              device_name,
