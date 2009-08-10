@@ -23,9 +23,9 @@ old_r@tracy_barrier fall_notched_barrier           1  55.0   2.0 9999.0         
 END
 
 GATE_PIPE_DEVICE
-GATE_NAME           DEVICE                NDUPLICATE RADIUS ELEV HEIGHT CF_FROM_NODE CF_TO_NODE DEFAULT_OP       POSITION_CONTROL
-grant_line_barrier  pipes                          6   2.0  -6.5 9999.0          0.6        0.6 unidir_from_node no_gate          
-middle_r_barrier    pipes                          6   2.0  -4.0 9999.0          0.6        0.6 unidir_to_node   no_gate          
-old_r@head_barrier  pipes                          6   2.0  -4.0 9999.0          0.6        0.6 gate_open        no_gate          
-old_r@tracy_barrier pipes                          9   2.0  -6.0 9999.0          0.6        0.6 unidir_from_node no_gate          
+GATE_NAME           DEVICE                NDUPLICATE RADIUS ELEV CF_FROM_NODE CF_TO_NODE DEFAULT_OP       POSITION_CONTROL
+grant_line_barrier  pipes                          6   2.0  -6.5          0.6        0.6 unidir_from_node no_gate          
+middle_r_barrier    pipes                          6   2.0  -4.0          0.6        0.6 unidir_to_node   no_gate          
+old_r@head_barrier  pipes                          6   2.0  -4.0          0.6        0.6 gate_open        no_gate          
+old_r@tracy_barrier pipes                          9   2.0  -6.0          0.6        0.6 unidir_from_node no_gate          
 END
