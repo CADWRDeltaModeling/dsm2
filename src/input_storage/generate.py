@@ -165,10 +165,10 @@ def generate_dsm2():
     
     component = TableComponent("channel_ic",
                               [IntField("chan_no",),
-                               CharField("dist",8,8),
+                               CharField("distance",8,8),
                                DoubleField("stage",8,2),
                                DoubleField("flow",12,1)],          
-                              ["chan_no","dist"])
+                              ["chan_no","distance"])
     component.layered=True
     prep_component(component,outdir)
 
@@ -368,7 +368,7 @@ def generate_dsm2():
     component = TableComponent("output_channel",
                              [CharField("name",DSM2_NAME_LEN,16),
                               IntField("chan_no"),\
-                              CharField("dist", 8,12),\
+                              CharField("distance", 8,12),\
                               CharField("variable",16,12),\
                               CharField("interval",INTERVAL_LEN,10),\
                               CharField("period_op",PERIOD_OP_LEN,10),\
@@ -395,7 +395,7 @@ def generate_dsm2():
     component = TableComponent("output_channel_source_track",
                              [CharField("name",DSM2_NAME_LEN,16),
                               IntField("chan_no"),\
-                              CharField("dist", 8,12),\
+                              CharField("distance", 8,12),\
                               CharField("variable",16,12),\
                               CharField("source_group",DSM2_NAME_LEN,12),\
                               CharField("interval",INTERVAL_LEN,10),\
