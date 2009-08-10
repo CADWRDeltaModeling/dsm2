@@ -22,7 +22,8 @@ orhrb_install_in          "SET gate_install(gate=old_r@head_barrier) TO 1.0"    
 orhrb_install_out         "SET gate_install(gate=old_r@head_barrier) TO 0.0"                                                                                    "ts(name=orhrb_install) <= 0.0"                
 orhrb_pipe_op             "SET gate_op(gate=old_r@head_barrier,device=pipes,direction=from_node) TO ts(name=orhrb_pipeop)"                                      TRUE                                           
 orhrb_pipe_op_to          "SET gate_op(gate=old_r@head_barrier,device=pipes,direction=to_node) TO ts(name=orhrb_pipeop)"                                        TRUE                                           
-orhrb_pipes_chg_2000      "SET gate_nduplicate(gate=old_r@head_barrier,device=pipes) TO 6"                                                                      "DATETIME == 15APR2000"                        
+orhrb_pipes_chg_2000      "SET gate_nduplicate(gate=old_r@head_barrier,device=pipes) TO 6"                                                                      "DATETIME >= 15APR2000" 
+orhrb_pipes_pre_2000      "SET gate_nduplicate(gate=old_r@head_barrier,device=pipes) TO 2"                                                                      "DATETIME < 15APR2000"                                               
 orhrb_pipes_chg_elev      "SET gate_elev(gate=old_r@head_barrier,device=pipes) TO ts(name = orhrb_pipeelev)"                                                    TRUE                                           
 orhrb_weir_op             "SET gate_op(gate=old_r@head_barrier,device=fish_barrier,direction=from_node) TO ts(name=orhrb_weirop)"                               TRUE                                           
 orhrb_weir_op_to          "SET gate_op(gate=old_r@head_barrier,device=fish_barrier,direction=to_node) TO ts(name=orhrb_weirop)"                                 TRUE                                           

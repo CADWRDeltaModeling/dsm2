@@ -43,7 +43,7 @@ morrow_m_line_outfall       pipes               pipe               3   2.0  -4.9
 morrow_sys_intake           pipes               pipe               3   2.0  -5.2 9999.0          0.5        0.5 unidir_from_node no_gate          
 old_r@head_barrier          fall_barrier        weir               1  32.0   0.0 9999.0          0.7        0.7 gate_open        no_gate          
 old_r@head_barrier          fish_barrier        weir               1 167.0  10.0 9999.0          0.7        0.7 gate_open        gated_top        
-old_r@head_barrier          pipes               pipe               2   2.0  -8.0 9999.0          0.6        0.6 gate_open        no_gate          
+old_r@head_barrier          pipes               pipe               6   2.0  -8.0 9999.0          0.6        0.6 gate_open        no_gate          
 old_r@tracy_barrier         barrier             weir               1  75.0   2.0 9999.0          0.8        0.8 gate_open        gated_top        
 old_r@tracy_barrier         pipes               pipe               9   2.0  -6.0 9999.0          0.6        0.6 unidir_from_node no_gate          
 paradise_cut_weir           weir                weir               1 237.0  12.5 9999.0         0.77       0.77 gate_open        no_gate          
