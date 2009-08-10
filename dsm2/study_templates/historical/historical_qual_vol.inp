@@ -51,11 +51,11 @@ ${DSM2INPUTDIR}/group_sourcetracking_20090715.inp
 END
 
 QUAL_TIME_SERIES
-${DSM2INPUTDIR}/node_concentration_source_vol_20090715.inp
-${DSM2INPUTDIR}/reservoir_concentration_source_vol_20090715.inp
+${DSM2INPUTDIR}/node_concentration_source_volumetric_20090715.inp
+${DSM2INPUTDIR}/reservoir_concentration_source_volumetric_20090715.inp
 END
 
 OUTPUT_TIME_SERIES
-${DSM2INPUTDIR}/output_channel_source_track_output_vol_cdec_20090715.inp
-${DSM2INPUTDIR}/output_reservoir_source_track_output_vol_cdec_20090715.inp
+${DSM2INPUTDIR}/output_channel_source_track_cdec_volumetric_20090715.inp
+${DSM2INPUTDIR}/output_reservoir_source_track_cdec_volumetric_20090715.inp
 END
