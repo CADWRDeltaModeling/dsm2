@@ -17,7 +17,7 @@ END
 # points to a file that contains the real data which
 # would normally come out of the CSDP or other tool.
 XSECT
-CHAN_NO DISTANCE  FILE
+CHAN_NO DIST     FILE
 1           0.5   1_0.50000.txt
 2           0.5   2_0.50000.txt
 END
