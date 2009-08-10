@@ -10,13 +10,13 @@ END
 
 
 
-GATE_DEVICE
-GATE_NAME           DEVICE      STRUCTURE NDUPLICATE WIDTH  ELEV HEIGHT CF_FROM_NODE CF_TO_NODE DEFAULT_OP POSITION_CONTROL
-grant_line_barrier  fabian_weir weir               1  99.2  -6.4 9999.0          0.8        0.8 gate_open  gated_bottom     
-grant_line_barrier  glc_weir    weir               1 123.3 -16.4 9999.0          0.8        0.8 gate_open  gated_bottom     
-middle_r_barrier    weir        weir               1 197.7  -6.3 9999.0          0.8        0.8 gate_open  gated_bottom     
-old_r@head_barrier  weir        weir               1 123.3  -6.3 9999.0          0.8        0.8 gate_open  gated_bottom     
-old_r@tracy_barrier weir        weir               1 181.3  -6.4 9999.0          0.8        0.8 gate_open  gated_bottom     
+GATE_WEIR_DEVICE
+GATE_NAME           DEVICE       NDUPLICATE WIDTH  ELEV HEIGHT CF_FROM_NODE CF_TO_NODE DEFAULT_OP POSITION_CONTROL
+grant_line_barrier  fabian_weir           1  99.2  -6.4 9999.0          0.8        0.8 gate_open  gated_bottom     
+grant_line_barrier  glc_weir              1 123.3 -16.4 9999.0          0.8        0.8 gate_open  gated_bottom     
+middle_r_barrier    weir                  1 197.7  -6.3 9999.0          0.8        0.8 gate_open  gated_bottom     
+old_r@head_barrier  weir                  1 123.3  -6.3 9999.0          0.8        0.8 gate_open  gated_bottom     
+old_r@tracy_barrier weir                  1 181.3  -6.4 9999.0          0.8        0.8 gate_open  gated_bottom     
 END
 
 
