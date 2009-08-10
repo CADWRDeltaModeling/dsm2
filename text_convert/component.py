@@ -10,7 +10,8 @@ def component_order():
       "reservoir",\
       "reservoir_connection",\
       "gate",\
-      "gate_device",\
+      "gate_pipe_device",\
+      "gate_weir_device",\
       "transfer",\
       "io_file",\
       "tidefile",\
@@ -50,7 +51,8 @@ def component_members():
       "reservoir":["name","area","bot_elev"],\
       "reservoir_connection":["res_name","node","coef_in","coef_out"],\
       "gate":["name","from_obj","from_identifier","to_node"],\
-      "gate_device":["gate_name","device","structure","nduplicate","width","elev","height","cf_from_node","cf_to_node","default_op","position_control"],\
+      "gate_pipe_device":["gate_name","device","nduplicate","radius","elev","cf_from_node","cf_to_node","default_op","position_control"],\
+      "gate_weir_device":["gate_name","device","nduplicate","width","elev","height","cf_from_node","cf_to_node","default_op","position_control"],\
       "transfer":["name","from_obj","from_identifier","to_obj","to_identifier"],\
       "io_file":["model","type","io","interval","file"],\
       "tidefile":["start_date","end_date","file"],\
@@ -90,6 +92,7 @@ def include_block():
     "scalar":"parameter",
     "boundary_stage":"hydro_time_series",
     "node_concentration":"qual_time_series",
+    "gate_pipe_device":"grid",
     "xsect_layer":"grid",
     "output_channel_source_track":"output_time_series",
     "group_member":"groups",
@@ -102,7 +105,6 @@ def include_block():
     "input_climate":"qual_time_series",
     "oprule_time_series":"operation",
     "particle_insertion":"particle",
-    "gate_device":"grid",
     "channel":"grid",
     "boundary_flow":"hydro_time_series",
     "input_gate":"hydro_time_series",
@@ -114,6 +116,7 @@ def include_block():
     "rate_coefficient":"qual_spatial",
     "reservoir_connection":"grid",
     "source_flow":"hydro_time_series",
+    "gate_weir_device":"grid",
     "source_flow_reservoir":"hydro_time_series",
     "channel_ic":"initial_condition",
     "envvar":"configuration",
