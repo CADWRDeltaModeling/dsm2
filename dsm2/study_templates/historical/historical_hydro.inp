@@ -68,7 +68,7 @@ ${DSM2INPUTDIR}/boundary_flow_delta_historical_20090715.inp
 ${DSM2INPUTDIR}/source_flow_delta_historical_20090715.inp
 ${DSM2INPUTDIR}/boundary_stage_delta_historical_20090715.inp
 ${DSM2INPUTDIR}/source_flow_dicu_historical_20090715.inp
-${DSM2INPUTDIR}/boundary_flow_jones_hydro_20090715.inp
+${DSM2INPUTDIR}/source_flow_jones_hydro_20090715.inp
 END
 
 OPERATION
