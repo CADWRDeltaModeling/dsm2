@@ -33,4 +33,5 @@ Immediately increment all text items to b3 in installer and DSM2 and commit
 Quick-test installer:
 Test on clean machine
 Run historical hydro, qual_ec and ptm
+Run simple_tutorial # 6 finished product
 
