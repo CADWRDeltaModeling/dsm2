@@ -167,7 +167,7 @@ END
 
 
 GATE_DEVICE
-GATE_NAME DEVICE STRUCTURE NDUPLICATE WIDTH ELEV HEIGHT CF_TO_NODE CF_FROM_NODE DEFAULT_OP POSITION_CONTROL
+GATE_NAME DEVICE STRUCTURE NDUPLICATE WIDTH ELEV HEIGHT CF_FROM_NODE CF_TO_NODE DEFAULT_OP POSITION_CONTROL
 gate_1    pipe   pipe               2  20.0  2.0 9999.0        0.8          0.8 gate_open  no_gate          
 gate_1    weir   weir               2  20.0  2.0 9999.0        0.8          0.8 gate_open  gated_top        
 END
