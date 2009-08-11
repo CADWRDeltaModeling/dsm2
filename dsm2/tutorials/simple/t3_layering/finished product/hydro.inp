@@ -49,7 +49,7 @@ END
 
 
 GRID
-grid_tutorial_base.inp    
+grid_tutorial_base.inp
 grid_tutorial_revision.inp 
 END
 

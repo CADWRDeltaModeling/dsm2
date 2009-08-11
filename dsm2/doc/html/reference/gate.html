@@ -35,7 +35,8 @@ gate.</p>
 <h2 id="tables">Tables:</h2>
 <ul class="table_list">
 <li><a href="#gate_table">Gates</a></li>
-<li><a href="#device_table">Gate Devices</a></li>
+<li><a href="#weir_device_table">Gate Weir Devices</a></li>
+<li><a href="#pipe_device_table">Gate Pipe Devices</a></li>
 </ul>
 
 <br>
@@ -61,10 +62,10 @@ attached.</dd>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
-<a name="device_table"></a>
-<h3 class="table_name">GATE_DEVICE</h3>
-<p>This table lists hydraulic structures that exist at the gate site to control flow. Currently pipes and weirs
-are supported. In this table, the user specifies physical properties of the device as well as
+<a name="weir_device_table"></a>
+<h3 class="table_name">GATE_WEIR_DEVICE</h3>
+<p>This table lists hydraulic structures that exist at the gate site to control flow 
+that resemble weirs or rectangular conduits. In this table, the user specifies physical properties of the device as well as
 default operations. Both employ the following formulas depending on whether the water surface is higher on the 
 water body or node side of the gate:</p>
 <math>
@@ -86,8 +87,7 @@ Please see <a href="#usage">usage notes</a> below</p>
 <dl class="field_definitions">
 <dt>NAME</dt><dd>Name of the device. This is the identifier refered to in other tables.</dd>
 <dt>GATE_NAME</dt><dd>Name of the gate this device in which the device is located.</dd>
-
-<dt>STRUCTURE</dt><dd>Type of hydraulic structure (pipe/weir) represented by the device.</dd>
+<dt>DEVICE</dt><dd>Name of the device.</dd>
 <dt>NDUPLICATE</dt><dd>Number of exact duplicates, such as a number of similar pipes in parallel.
 Parameters such as width apply to a single one of the duplicates.</dd>
 <dt>WIDTH</dt><dd>Maximum width of the device (radius of a pipe, width of a weir).</dd>
@@ -96,10 +96,10 @@ Parameters such as width apply to a single one of the duplicates.</dd>
 rectangular flashboards or of a radial gate. If the surface goes above this height, flow will be submerged.
 Use NA for an open top. If you click in an NA column, you
 will see that it is encoded using a large number, but you should only use 'NA' or a real height.</dd>
-<dt>CF_TO_NODE</dt><dd>Flow coefficient of the gate (0 < C<sub>to</sub> <= 1.0) describing the efficiency of the gate
-from water body to node. This parameter is the physical coefficient of flow. It should never be zero and 
+<dt>CF_FROM_NODE</dt><dd>Flow coefficient of the gate (0 < C<sub>to</sub> <= 1.0) describing the efficiency of the gate
+from node to water body. This parameter is the physical coefficient of flow. It should never be zero and 
 should not be used to describe a control structure or operation such as flap gates or gate openings.</dd>
-<dt>CF_FROM_NODE</dt><dd>Same as CF To Node, but for the direction from node to water body.
+<dt>CF_TO_NODE</dt><dd>Same as CF_FROM_NODE, but for the direction from water body to node.
 </dd>
 <dt>DEFAULT_OP</dt><dd>Default operation mode. The gate operation is a "magic" parameter
 between 0.0 and 1.0 that modulates gate flow. Operating coefficients can be used to represent flap gates, fractions of duplicates operating or
@@ -120,6 +120,46 @@ will affect the operating coefficient:
 which case position controls "elev").  This input is now deprecated -- it is now possible to control elev or height directly in the time series
 or operating rule.</dd>
 </dl>
+
+<a name="pipe_device_table"></a>
+<h3 class="table_name">GATE_PIPE_DEVICE</h3>
+<p>This table lists pipes at the gate site. In this table, the user specifies physical properties of the device as well as
+default operations.
+<h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions">
+<dt>NAME</dt><dd>Name of the device. This is the identifier refered to in other tables.</dd>
+<dt>GATE_NAME</dt><dd>Name of the gate this device in which the device is located.</dd>
+<dt>DEVICE</dt><dd>Name of the device.</dd>
+<dt>NDUPLICATE</dt><dd>Number of exact duplicates, such as a number of similar pipes in parallel.
+Parameters such as width apply to a single one of the duplicates.</dd>
+<dt>RADIUS</dt><dd>Maximum width of the device (radius of a pipe, width of a weir).</dd>
+<dt>ELEV</dt><dd>Invert elevation or weir crest. </dd>
+<dt>CF_FROM_NODE</dt><dd>Flow coefficient of the gate (0 < C<sub>to</sub> <= 1.0) describing the efficiency of the gate
+from node to water body. This parameter is the physical coefficient of flow. It should never be zero and 
+should not be used to describe a control structure or operation such as flap gates or gate openings.</dd>
+<dt>CF_TO_NODE</dt><dd>Same as CF_FROM_NODE, but for the direction from water body to node.
+</dd>
+<dt>DEFAULT_OP</dt><dd>Default operation mode. The gate operation is a "magic" parameter
+between 0.0 and 1.0 that modulates gate flow. Operating coefficients can be used to represent flap gates, fractions of duplicates operating or
+other physical controls. The default ops are simple on this table are like initial conditions -- if 
+you want more sophisticated control you will need to use a Gate Time Series or Operating Rule.
+Nevertheless, the defaults are enough to represent structures that
+are fully open or closed or operated unidirectionally. Here is how the default operation mode
+will affect the operating coefficient:
+<dl>
+<dt>gate_open</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=1.0;</dd>
+<dt>gate_close</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=0.0;</dd>
+<dt>unidir_to</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=0.0;</dd>
+<dt>unidir_from</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=1.0;</dd>
+</dd>
+<dt>POSITION_CONTROL</dt><dd>This variable specifies the type of gate control stucture and thus how the gate responds to the
+"position" variable in time series or operating rules.  Options included no gate, gated from top down
+(as in a typical radial gate, in which case position controls "height") or gated from bottom (as in the permanent gate design, in 
+which case position controls "elev").  This input is now deprecated -- it is now possible to control elev or height directly in the time series
+or operating rule.</dd>
+</dl>
+
+
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
