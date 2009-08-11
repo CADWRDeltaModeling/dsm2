@@ -2,7 +2,7 @@
 # Output of volumetric finger printing
 OUTPUT_CHANNEL_SOURCE_TRACK
 NAME        CHAN_NO DISTANCE VARIABLE SOURCE_GROUP INTERVAL    PERIOD_OP FILE             
-205_2485        205     2485 unit     a1l          ${FINE_OUT} inst      ${QUALOUTDSSFILE}
+205_2485        205     2485 unit     all          ${FINE_OUT} inst      ${QUALOUTDSSFILE}
 205_2485        205     2485 unit     ag           ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
 205_2485        205     2485 unit     east         ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
 205_2485        205     2485 unit     jones        ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
