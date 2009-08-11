@@ -14,8 +14,8 @@ END
 
 
 BOUNDARY_STAGE
-NAME             NODE_NO FILLIN FILE             PATH                                        
-downstream_stage       7 linear ${TUTORIALINPUT} /TUTORIAL/DOWNSTREAM/STAGE//15MIN/REALISTIC/ 
+NAME             NODE FILLIN FILE             PATH                    
+downstream_stage    7 linear ${TUTORIALINPUT} /TUTORIAL/DOWNSTREAM/STAGE//15MIN/REALISTIC/ 
 END
 
 
