@@ -1,0 +1,36 @@
+SVN Release Branch:    (do this for each second-digit revision 8.0, 8.1...
+Everyone commit, give all clear
+Create release branch
+      - unstable trunk method: http://producingoss.com/es/release-branches.html
+      - We tag the release in a later step
+Everyone switches working copy
+
+
+
+Executable checklist  (distributing b2 and incrementing to b3):
+Update and rebuild input_storage
+Update and rebuild oprule
+Update DSM2
+launch generate.py
+Make sure version text points to "b2" (don't increment)
+Autogenerate the exact build numbers that are included in DSM2
+Rebuild hydro, qual, ptm
+Send executables to Lianwu for testing
+Build PDF documents Make sure step #'s and step #'s are OK
+Copy component.py script and build Notepad++ utility.
+Ready executables for installer package, await OK from Lianwu or iterate.
+
+Test
+Rerun the test suite against July 1 (record the reference version number + build).
+Approve or fix distribution
+
+
+Installation package:
+Create b2 version installer
+Create the b2 tag on the release branch. This is the official b2 release.
+Immediately increment all text items to b3 in installer and DSM2 and commit
+
+Quick-test installer:
+Test on clean machine
+Run historical hydro, qual_ec and ptm
+
