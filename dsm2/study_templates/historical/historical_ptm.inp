@@ -10,6 +10,8 @@ NAME             VALUE
 title            "PTM SIMULATION: ${DSM2MODIFIER}"
 
 display_intvl    1day          # Frequency of console message
+binary_output    false
+dss_direct       true
 flush_output     15day         # Frequency of output flushing
 printlevel       1             # Message print level
 theta            0.6           # Theta to interpolate velocity
