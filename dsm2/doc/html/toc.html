@@ -21,14 +21,16 @@
 <h2>Overview:</h2>
 <p>The Delta Simulation Model II (DSM2) is a one-dimensional mathematical model for dynamic simulation of one-dimensional hydrodynamics, water quality and particle tracking in a network of riverine or estuarine channels. DSM2 can calculate stages, flows, velocities, mass transport processes for conservative and non-conservative constituents including salts, water temperature, dissolved oxygen, and trihalomethane formation potential, and transport of individual particles. DSM2 thus provides a powerful simulation package for analysis of complex hydrodynamic, water quality, and ecological conditions in riverine and estuarine systems.</p>
 
-<p>DSM2 currently consists of three modules: HYDRO, QUAL, and PTM. HYDRO simulates one-dimensional hydrodynamics including flows, velocities, depth, and water surface elevations.  HYDRO provides the flow input for QUAL and PTM.  QUAL simulates one-dimensional fate and transport of conservative and non-conservative water quality constituents given a flow field simulated by HYDRO.  PTM simulates pseudo 3-D transport of neutrally buoyant particles based on the flow field simulated by HYDRO.  PTM has multiple applications ranging from visualization of flow patterns to simulation of discrete organisms such as fish eggs and larvae.  A fourth module for sediment transport is currently being developed.</p>
+<p>DSM2 currently consists of three modules, all of which come with the current distribution: HYDRO, QUAL, and PTM. HYDRO simulates one-dimensional hydrodynamics including flows, velocities, depth, and water surface elevations.  HYDRO provides the flow input for QUAL and PTM.  QUAL simulates one-dimensional fate and transport of conservative and non-conservative water quality constituents given a flow field simulated by HYDRO.  PTM simulates pseudo 3-D transport of neutrally buoyant particles based on the flow field simulated by HYDRO.  PTM has multiple applications ranging from visualization of flow patterns to simulation of discrete organisms such as fish eggs and larvae.</p>
 
+<p>DSM2 Version 8 is currently in early release. Documentation will expand and be corrected for the class in September 2009 (date to be announced in Users Group). Please send comments to Min Yu minyu@water.ca.gov.</p>
 
+<h2>Contents</h2>
 <ul id="toc">
 <li> <a href="#started">Getting Started</a> <br /></li>
     <ul>
       <li><a href="#download">Download and installation</a></li>
-      <li><a href="#extras">Really great extras</a></li>
+      <li><a href="#thirdparty">Recommended third party extras</a></li>
       <li><a href="#testlaunch">Test Launching DSM2</a></li>    
       <!--li><a href="reference/notepadp">Notepad++ hints</a></li-->
       <!--li><a href="reference/notepadpp.html">Understanding path variables</a></li-->
@@ -100,13 +102,18 @@ D:\delta\dsm2 or C:\delta\dsm2...</li>
 <li>Set it up on a drive with a lot (gigabytes) of room. This will make it easier to 
 use in-place</li>
 </ul>
-<a name="extras"></a>
-<h3>Really Great Extras</h3>
+<a name="thirdparty"></a>
+<h3>Recommended Third Party Extras</h3>
 <p>DSM2 comes with a numerical model and scripting capabilities.
 It is easier to use the model if you also have a text editor with 
 syntax highlighting, a tool for differencing
 text files ("diff tool"), a dss viewer and an hdf5 viewer.</p>
 <ul>
+<li><a href="http://www.microsoft.com/windowsxp/Downloads/powertoys/Xppowertoys.mspx">
+Open Command Window Here</a> is a free "power tool" distributed by Microsoft (the download
+links are on the right hand side next to the description of the tool).
+It allows you to get a command window by right clicking a location in Windows
+file explorer. The tool is essential for working with DSM2 efficiently.</li>
 <li><a href="http://notepad-plus.sourceforge.net/uk/site.htm">Notepad++</a> is 
 a text editor that works well with DSM2 input data and integrates nicely
 into the Windows file explorer. We support the editor with 
@@ -123,11 +130,6 @@ We include it because of legacy scripts, but do not support it very actively
 HEC-DSSVUE</a> is distributed by HEC and is actively maintained. Most people use DSSVUE
 as their primary tool with Vista for specific tasks. An Excel add-in for DSS data
 is also available on the HEC web page.</li>
-<li><a href="http://www.microsoft.com/windowsxp/Downloads/powertoys/Xppowertoys.mspx">
-Open Command Window Here</a> is a free "power tool" distributed by Microsoft (the download
-links are on the right hand side next to the description of the tool).
-It allows you to get a command window by right clicking a location in Windows
-file explorer. The tool is essential for working with DSM2 efficiently.</li>
 <li><a href="http://www.hdfgroup.org/hdf-java-html/hdfview/">HDFView</a> and
 <a href="http://www.space-research.org/">HDF-Explorer</a> are two independent
 browsers for the HDF5 file format. This lets you look inside a tidefile, one of the
@@ -136,13 +138,7 @@ outputs of the model. You only need one of them.</li>
 <a name="testlaunch"></a>
 <h3>Test Launching DSM2</h3>
 <p>The first step is to see whether the installation was successful. To do this,
-get a DOS-style command prompt window either by going to the Windows Start->Run and typing cmd.exe
-in the text box, clicking on a command window shortcut on your start menu or desktop or by
-right clicking a directory in Windows file Explorer and choosing CMD Prompt Here (if
-you installed this tool)<p>
-
-<p>Once you have a prompt, type this line to see what
-version of hydro you are using:</p>
+get a DOS-style command prompt window and type from any location:</p>
 <div class="fragment">
 <pre class="fragment">
 C:\&gt;hydro -v
@@ -151,9 +147,7 @@ C:\&gt;hydro -v
 </pre>
 </div>
 <p>If you got a message like the one above, you are up and running!
-Your next stop should be tutorial #1. Please take time to
-do the simple tutorials -- they will do a lot to get you familiar with the
-installation.</p>
+Your next stop should be Tutorial #1 or Delta Tutorial #1. The "simple channel" tutorials (Tutorial 1-6) feature most of the nuances of the model using a very simple grid and are an excellent way to learn about the model -- including subtleties that are new or caused confusion in the past. The "Delta Tutorial" series are more applied -- tasks on the Delta. Doing Delta Tutorial #1 as a motivator and then tackling the simple ones is a quick way to get a sense of the model</p>
 
 If instead you get this:</p>
 <div class="fragment">
