@@ -44,7 +44,6 @@ Name: "{app}\timeseries"
 Name: "{app}\vista"
 Name: "{app}\scripts"
 Name: "{app}\bin"
-Name: "{app}\ptm"
 Name: "{app}\extras"
 Name: "{app}\tutorials"
 
@@ -70,7 +69,6 @@ Source: "..\license\*";                  Destdir: "{app}\";                     
 
 Source: "..\studies\*";                  Destdir: "{app}\studies\";                Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\study_templates\*";          Destdir: "{app}\study_templates\";        Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-;Source: "..\ptm\*";                      DestDir: "{app}\ptm\";                    Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\vista\*";                    DestDir: "{app}\vista\";                  Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\extras\*";                   DestDir: "{app}\extras\";                 Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
