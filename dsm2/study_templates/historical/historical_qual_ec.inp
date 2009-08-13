@@ -49,7 +49,7 @@ ${DSM2INPUTDIR}/scalar_qual_std_20090715.inp
 END
 
 GROUPS
-${DSM2INPUTDIR}/group_sourcetracking_20090715.inp
+#${DSM2INPUTDIR}/group_sourcetracking_20090715.inp
 END
 
 QUAL_TIME_SERIES
@@ -64,6 +64,6 @@ ${DSM2INPUTDIR}/output_channel_std_qual_rki_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_named_20090715.inp
 ${DSM2INPUTDIR}/output_reservoir_std_qual_named_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_named_correct_20090715.inp
-${DSM2INPUTDIR}/output_channel_source_track_ec_20090715.inp
-${DSM2INPUTDIR}/output_reservoir_source_track_ec_20090715.inp
+#${DSM2INPUTDIR}/output_channel_source_track_ec_20090715.inp
+#${DSM2INPUTDIR}/output_reservoir_source_track_ec_20090715.inp
 END
