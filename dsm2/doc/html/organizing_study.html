@@ -27,8 +27,8 @@
   /bin            # where the executable files are
   /common_input   # a repository of common input files
   /studies
-     [empty]
-  /study_templates
+     [empty]      # DO YOUR WORK HERE (if inside the distribution)
+  /study_templates    # ...and NOT here
      /historical
      /ocap_sdip
         config_ocap_sdip.inp
@@ -41,45 +41,26 @@
 </pre>
 </div>
 <h3>Explaining the directory structure</h3>
-<dl>
-<dt>Study</dt>
+<dl class="field_definitions">
+<dt>bin</dt>
+<dd>"Bin" stands for "binary" and refers to the executables. When you installed dsm2, your path variable got set to the new distribution.
+<dt>common_input</dt>
+<dd>The common input directory is a repository of files that are used in the standard
+templates. These files start with the name of the (parent) object, then the "layer" name then the version date. The templates refer to this directory often. You do not have to maintain these links, but please do not edit the files... the <a href="layers.html">Layering</a> system should help with this.</dd>
+<dt>study_templates</dt>
+<dd>This directory houses samples for historical and planning runs. They represent our latest setup as of the distribution. As the templates are updated they may point to newer files in <em>common_input</em>.
+</dd>
+<dt>studies</dt>
 <dd>A study is an associated group of simulations, which might involve
 any combination of DSM2 modules. Often the study compares several different alternatives.
 Many DSM2 modelers prefer to house different alternatives in different folders, but
 there are good reasons to house them in one study folder and just use different 
 configuration files. To get started you will typically copy one of the study_template
 sub-directories to the /study folder. Don't change the ones in study_templates!</dd>
-<dd>A study is an associated group of simulations, which might involve
-any combination of DSM2 modules</dd>
 
-<p>You can arrange things any way you want, but this section will give 
- some hints about how studies get organized.</p>
- 
- a simulation is a package of related model
- runs with compatible geometry and flow input. 
- A simulation always includes a DSM2-HYDRO model run 
- to establish a flow field. Optionally, it may also contain one or more
- water quality and particle tracking models. The models are not
- tightly coupled -- flow data is transfered from
- HYDRO to QUAL or PTM through a file called a <em>tidefile</em>.</p>
-
- <p>A <em>model</em> is one computer 
- model component of a simulation, the input for one DSM2-HYDRO, QUAL
- or PTM run.  If there is a simulation described as <em>planning</em> 
- there might models called <em>planning_hydro</em>, 
- <em>planning_qual_ec</em> and <em>planning_qual_do</em>
- that describe hydrodynamic and water quality models that would 
- be launched independently.</p>
-
-<p>Simulations and models are containers. The actual data 
- such as channels, gates or boundary conditions are grouped in sets called 
- <em>layers</span>. Layers are a means of grouping like components.
- The layering system is described in more detail in the 
- <a href="layers.html">Layers</a> documentation</p>
- 
-
-
- 
+<dt>timeseries</dt><dd>The <em>timeseries</em> directory contains the timeseries you will need in the regular course of working with DSM2. Since the data that are most reusable are historical and DICU, that is most of what you will find here. We don't recommend putting study-specific files (e.g. CALSIM output) in this directory.</dd>
+<dt>tutorials</dt><dd>The <em>tutorials</em> directory is a workspace for using the tutorials. It is a lot like /studies in the sense that you will copy templates here.</dd>
+ </ul>
 </div><!--End contents-->
 
 <div id="footer">
