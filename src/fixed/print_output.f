@@ -43,6 +43,7 @@ c-----Local variables
      &     istat                ! status of call (returned)
      &     ,i,j                 ! indices
      &     ,chan                ! channel numbers
+     &     ,objConnectedID_external_number  ! external number for either reservoir or channel
 
       character
      &     objtype*4,            ! string representing object type (reservoir, channel)
@@ -161,14 +162,16 @@ c-----------upstream node
       do i=1,ngate
 	   if (gateArray(i).objConnectedType.eq.obj_channel) then
 	      objtype='CHAN'
+            objConnectedID_external_number = chan_geom(gateArray(i).objConnectedID).chan_no
 	   else if (gateArray(i).objConnectedType. eq. obj_reservoir) then
 	      objtype='RES '
+            objConnectedID_external_number = gateArray(i).objConnectedID
 	   end if
 	    
 	   if (gateArray(i).inUse) then
 	      write(unit_output,1160)
      &           gateArray(i).name,objtype
-     &          ,gateArray(i).objConnectedID
+     &          ,objConnectedID_external_number
      &          ,node_geom(gateArray(i).node).node_id
      &          ,gateArray(i).nDevice
  1160 format(a19,1x,a4,2x,i7,4x,i5,2x,i5,2x,i5)
