@@ -101,7 +101,7 @@ c-----Right now this is for rectangular x-sects only.  Later will generalize.
       end type
 
 c      MaxResConnectChannel must be consistent with maxresnodes
-      integer, parameter ::  maxresnodes=15  ! Maximum reservoir connections to channels/nodes
+      integer, parameter ::  maxresnodes=50  ! Maximum reservoir connections to channels/nodes
 
       type reservoir_t
       sequence
