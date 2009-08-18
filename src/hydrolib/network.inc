@@ -34,7 +34,7 @@ c      fixme: All of these "max" variables are redundant
       
 	  integer,parameter :: MaxNodes=MaxChannels+10  ! max number of nodes (junctions)
 	  ! MaxResConnectChannel must be consistent with maxresnodes
-	  integer,parameter :: MaxResConnectChannel=15  ! Maximum reservoir connections to channels/nodes
+	  integer,parameter :: MaxResConnectChannel=50  ! Maximum reservoir connections to channels/nodes
 
       integer :: NumCh      ! actual number of channels
 	  integer :: Branch		! internal chan number of currently selected channel
