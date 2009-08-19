@@ -1,133 +1,112 @@
-% diffusion program
+%PROGRAM diffusion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+% Department of Water Resources.
+% This file is part of DSM2.
+
+% The Delta Simulation Model 2 (DSM2) is free software: 
+% you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+
+% DSM2 is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+
+% You should have received a copy of the GNU General Public License
+% along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+
+% Delta Modeling Section 
+% Modeling Support Branch
+% Bay-Delta Office
+% California Department of Water Resources
+% http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/index.cfm
+%
+% PURPOSE:
+%
+% It solves the dispersion of sediment in the longitudinal direction
+% Partial_(A C_s)/Partial_t = Partial/Partial_x [A K_s Partial_(C_s)/Partial_x]
+% 
+% These sub-routines are being developed by the Department of Civil and 
+% Environmental Engineering at the University of California, Davis and DWR
+% Coded by F.A. Bombardelli and K. Zamani
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Variables: data dictionary.  Define variables types, definitions and units
+
+% C_s_n_plus_one(i): concentration of sediment in suspension averaged in the volume i
+%      for time t + 1
+% C_S_n(i): concentration of sediment in suspension averaged in the volume
+%         for time t
+% K_s_n_plus_one(i): dispersion coefficient at the left face of volume i for time t + 1
+% K_s_n(i): dispersion coefficient at the left face of volume i for time t
+% Area_n_plus_one(i): Area of cross section evaluated at the left face of volume i at time
+%                     t + 1. This is an output coming from HYDRO
+% Area_n(i): Area of cross section evaluated at the left face of volume i at time
+%            t. This is an output coming from HYDRO
+% A(i): Values of the coefficients below diagonal in matrix
+% B(i): Values of the coefficients at the diagonal in matrix
+% C(i): Values of the coefficients above diagonal in matrix
+% D(i): Values of the independent term
+% N_volumes: Number of volumes (computational cross sections) whose
+%          sediment concentration will be computed
+% dt_sed: Time step for the computation of sediment transport (in seconds)
+% dx_sed: Spatial step for the computation of sediment transport (in feet for STM)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Basic setting
 clear all
 clc
-%define variables 
-dx= 1;
-T=20;
-dt=.1;
-L=100;
-theta= .0 ;% (between 0 and 1)
-Num_x=L/dx;
-Num_t=T/dt;
-coef=dt/(dx^2);
+close all
+format long
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-BC_type=1;   %( D_D=1,D_N=2,N_N=3,N_D=4)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%set the input parameters
+[dt_sed,dx_sed,i_case,Theta,N_volumes,N,Cal_D,Cal_D_one,N_times]=call_setting();
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BC_D_start=0
-BC_D_end=0
-BC_N_Start=1
-BC_N_end=1
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%i is a spase counter
-%j is a time counter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% get input from HYDRO
+[Area_n,Area_n_plus_one,K_s_n,K_s_n_plus_one]=call_hydro_A_KS(N);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%  A & Ks from HYDRO
-for i=1:(Num_x+1)
-    for j=1:Num_t+1
-    A(i,j)=1;
-    Ks(i,j)=.1;
-    end
-end 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%C(x,0) Initial condition of C(x,t)
+[C_s_n]=call_initial_c(i_case,N,dx_sed);
+result(:,1)=C_s_n;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for i=1:Num_x+1
-    for j=1:Num_t+1
-        AKs(i,j)=A(i,j)*Ks(i,j);
-    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% marching on time
+for j=1:N_times
+     Time = dt_sed * j ; 
+     % B.C: C(0,t) and C(L,t)
+[C_s_upstream,C_s_downstream, Flux_s_upstream_n,Flux_s_upstream_n_plus_one...
+    ,Boundary_condition_flag_upstream,Boundary_condition_flag_downstream]...
+    =load_b_c(i_case,Time,dt_sed);
+% BigK*C=U - where C is unkowns matrix of sediment concentration
+ [BigK,U]=make_bigk_u(N,Area_n_plus_one,Area_n,Cal_D,Cal_D_one,...
+     K_s_n_plus_one,K_s_n,C_s_n,Flux_s_upstream_n,dx_sed);
+ % apply BC to BigK and U    
+[U,BigK]=apply_b_c(Boundary_condition_flag_upstream,...
+    Boundary_condition_flag_downstream,BigK,U,Area_n,Area_n_plus_one,K_s_n,...
+    K_s_n_plus_one,C_s_downstream,C_s_upstream,Flux_s_upstream_n,...
+    Flux_s_upstream_n_plus_one,dx_sed,Cal_D,...
+    Cal_D_one,C_s_n,N);
+%solve
+C_s_n=inv(BigK)*U;
+%put in a file
+result(:,j+1)=C_s_n;
 end
+%end marching on time
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% solving for K*X=U
-% K dimention
-K= sparse(zeros(Num_x));
-%U and X  and result dimention
-U=sparse(zeros(Num_x,1));
-C_result=zeros(Num_x,Num_t);
-
-% initializing c(1,j)?????????????????????????????????????????????
-
-for i=1:Num_x/2+1
-        C(i,1)=(2/L)*(i-1)*dx;
-end
-
-for i=Num_x/2+1:Num_x
-    C(i,1)=2-(2/L)*(i-1)*dx;
-end
-
-
-
-for i=1:Num_x
-C_result(i,1)=C(i,1);
-end
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-for j=1: Num_t %% counter on time
-%making K
-for i=1:Num_x
-   K(i,i)= A(i,j+1)+A(i+1,j+1)/2 +coef*theta*(A(i+1,j+1)*Ks(i+1,j+1)+ A(i,j+1)*Ks(i,j+1));
-    for i=1:Num_x-1%this for can merege in future 
-    K(i,i+1)= coef*theta*A(i+1,j+1)*Ks(i+1,j+1);
-    K(i+1,i)=coef*theta*A(i,j+1)*Ks(i,j+1);
-    end
-end
-% End of making k
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% making u
-U=zeros(10,1)
-
-for i=2:Num_x-1 % First and last will be put by BC 
-    U(i)=(C(i,j)+C(i+1,j))*(A(i,j)+A(i+1,j))/4+(1-theta)*coef*(AKs(i+1,j)*C(i+1,j)-AKs(i+1,j)*C(i,j)-AKs(i,j)*C(i,j)+AKs(i,j)*C(i-1,j));
-     
-end
-% apply BC
-if BC_type ==1
-    % Begin
-    U(1)=BC_D_start;
-    K(1,2)=0;
-    K(1,1)=1;
-    % End
-    U(Num_x)=BC_D_end;
-    K(Num_x,Num_x)=1;
-    K(Num_x,Num_x-1)=0;
-    
-% else if  BC_type==2 
-%     % Begin
-%     U(1)=BC_D_start
-%     K(1,2)=0
-%     K(1,1)=1
-%     % End
-%     
-%     
-% else if BC_type==3
-%             % begin 
-%             
-%             
-%             
-%             
-%             % end
-%             
-%             
-%             
-%   else 
-%             %begin
-%             
-%             
-%             
-%             % end
-%             
-  end % if            
-
-% solving for result
-
-C_result(:,j+1)= (inv(K))*U;
-for i=1:Num_x
-        C(i,j+1)=C_result(i,j+1);
-end
-
-%puting in answer
-
- end %of j counter
-%j counter on time
-C_result
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+post_process(dx_sed,N,N_times,result,dt_sed)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
