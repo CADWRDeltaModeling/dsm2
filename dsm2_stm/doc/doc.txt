@@ -45,25 +45,18 @@ long as doxygen is on path. See below on \ref dox "The Doc Project".
 \section viz Visual Studio
 Hopefully we will just give you a complete project that has most of the settings right.
 To get this to compile you need to make sure you have:
--# Doxygen installed and on path
+-# Doxygen installed and on path. To get the doc project to generate, you need to have doxygen installed. Make sure 
+it is on path (test by typing doxygen at the command line).
+You can add to the path on your computer or set it up in 
+Visual Studio's Tools > Options > Projects and Solutions > VC++ Di drectories (for executables)
 -# Set up the dependencies (hopefully we will do this for you)
    - test_transport on transport and fruit
    - sandbox_application on transport (you can alter as desired)e
 -# Set the fortran "additional include directories" in sandbox_application and test_transport_driver
    to pick up the fruit and transport module files. Hopefully we will do this for you.
+-# The sandbox is like scratch paper -- it is an executable project to do whatever you want.
 
-\subsection dox The Doc Project
-To get the doc project to generate, you need to have doxygen installed. Make sure 
-it is on path (test by typing doxygen at the command line).
-You can add to the path on your computer or set it up in 
-Visual Studio's Tools > Options > Projects and Solutions > VC++ Di drectories (for executables)
-
-\subsection sandbox The Sandbox Application
-The sandbox is like scratch paper -- it is there to do whatever you want. 
-I created a couple sample programs that are there in the directory, but only one driver program
-at a time can be included in the sandbox project.
-
-\subsection driver Module Divisions: Library versus Application
+\section driver Module Divisions: Library versus Application
 You will notice that the main computational code is in a static library called /transport. In the future
 we may have other static library modules called /sediment /nonconservative and to deal with I/O.
 
@@ -90,15 +83,13 @@ with a choice between:
 - face-centered arrays whose mappings are non-obvious, ie: flux(hi_face(ncell)).
 - flux_hi(ncell), which is still perfectly well-defined still.
 
-\section percell Routines Granularity
-Avoid per-cell computations. These are generally not going to play to the strength of Fortran and they tend to be hard to follow. 
-I have a few demos setup to show where vectorization is easy and where it isn't in the sandbox. I'll show them to you sometime.
-
 Note the doc project has a custom build step (cd's to /doc and does documentation.bat) 
 output for the custom build step is /doc/html/index.html
 You can view /doc/html/index.html in Visual Studio by right clicking it and choosing "View in Browser"
 
 \section tests Tests
+I put the Fruit testing framework here directly as a static library to reduce complexity of the project files. We can move it later.
+
 The test_transport project is the first battery of tests. The tests in test_gradient.f90 are fairly complete for that module.
 You will find a test driver called test_transport_driver.f90 
 The driver program there is where you would add new tests. Try to have one for every medium sized routine.
@@ -111,16 +102,15 @@ I looked at reversals of sign in both directions and places where the limiter is
 
 This is usually a sobering experience.
 
-\section fruit Fruit
-I put the Fruit testing framework here directly as a member library to reduce complexity of the project files. Only the 
-framework is here. We can move it later.
-
 \section todo Todo Tags
 In the code you should use !todo: for any notes to yourself about things to do later. You will
 already see a few in there. Do not use any other format for this job.
 
 
 \section style Style Notes:
+Please try to adhere to these guidelines as well as trying to get a sense of the code
+already provided and matching its style. Although we encourage you to "not worry about it" when
+you turn in code every other week, it would be nice if you took 1-2 hours to go over this as a checklist.
  - Try to follow the subroutine style. The gradient module is probably the best example for 
    routines and state_variables module shows how to encapsulate variables and document them.
  - All routines are implicit none. Write this out, do not use compiler options.
@@ -139,6 +129,7 @@ already see a few in there. Do not use any other format for this job.
  - Use the typesafe scalar values for numbers that have them: x = two*y. This avoids having to keep track of the "d" for double precision
    and prevents real-double conversion.
  - Prefer subroutines to functions.
+ - Argument lists should not be long. Use continutation lines (&) when there is more than one line full. See the examples.
  - Section off the arguments to all routines. See gradient.f90 for examples
  - Section off routines from one another using //////. See gradient.f90
  - Declare the intent for every variable. 
