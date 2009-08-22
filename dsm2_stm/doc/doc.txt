@@ -7,7 +7,7 @@ sediment processes and reactions.
 
 \section order Recommended Work Plan
 -# Get doxygen working. The documentation is automatically built by the MSVC solution as
-long as doxygen is on path. See below on The doc Project.
+long as doxygen is on path. See below on \ref dox "The Doc Project".
 -# Code a function-test pair and add it to test_transport_driver. I suggest you either
     - adjust your diffusion code stylistically and write a matching unit test (see below on unit tests) or
     - complete the extrapolate() function in the advect module and write a test for that. See below for how
@@ -26,18 +26,18 @@ long as doxygen is on path. See below on The doc Project.
 -# Do not significantly change the granularity or form of these functions without
    a design meeting. It is recommended that you discuss the API (names and arguments) of routines and the basic
    flow as a skeleton before you code along with the tests. If you pass the tests and have a functional
-   form we can use, you have succeeded at the task by definition. In the meantime: 
-   FAILING TESTS IS GOOD, DELETING TESTS YOU CAN'T PASS IS BAD.
+   form we can use, you have succeeded at the task by definition. In the meantime:
 -# I recommend you work in this order, but you may rearrange the diffusion part as you wish:
    - code and test existing skeleton routines in the transport library
    - code test for uniform flow advection no source or diffusion
      - achieve comfort with convergence testing
    - code test for non-uniform flow advection (handle flow/area consistency issues)
-   - linear source
+   - add linear source and test convergence
    - code test for diffusion
      - explicit operator
      - implicit solver
        - convergence test
+   - code test for advective-diffusion
    - meet on channel network challenges
    - modify for sediment
    - complete channel network stuff
@@ -52,13 +52,18 @@ To get this to compile you need to make sure you have:
 -# Set the fortran "additional include directories" in sandbox_application and test_transport_driver
    to pick up the fruit and transport module files. Hopefully we will do this for you.
 
+\subsection dox The Doc Project
+To get the doc project to generate, you need to have doxygen installed. Make sure 
+it is on path (test by typing doxygen at the command line).
+You can add to the path on your computer or set it up in 
+Visual Studio's Tools > Options > Projects and Solutions > VC++ Di drectories (for executables)
 
-\section sandbox The Sandbox Application
+\subsection sandbox The Sandbox Application
 The sandbox is like scratch paper -- it is there to do whatever you want. 
 I created a couple sample programs that are there in the directory, but only one driver program
 at a time can be included in the sandbox project.
 
-\section driver Module Divisions: Library versus Application
+\subsection driver Module Divisions: Library versus Application
 You will notice that the main computational code is in a static library called /transport. In the future
 we may have other static library modules called /sediment /nonconservative and to deal with I/O.
 
@@ -85,14 +90,9 @@ with a choice between:
 - face-centered arrays whose mappings are non-obvious, ie: flux(hi_face(ncell)).
 - flux_hi(ncell), which is still perfectly well-defined still.
 
-\section Per-cell Routines:
-These are generally not going to play to the strength of Fortran and they tend to be hard to follow.
-
-\section dox The doc project
-To get the doc project to generate, you need to have doxygen installed. Make sure 
-it is on path (test by typing doxygen at the command line).
-You can add to the path on your computer or set it up in 
-Visual Studio's Tools > Options > Projects and Solutions > VC++ Di drectories (for executables)
+\section percell Routines Granularity
+Avoid per-cell computations. These are generally not going to play to the strength of Fortran and they tend to be hard to follow. 
+I have a few demos setup to show where vectorization is easy and where it isn't in the sandbox. I'll show them to you sometime.
 
 Note the doc project has a custom build step (cd's to /doc and does documentation.bat) 
 output for the custom build step is /doc/html/index.html
