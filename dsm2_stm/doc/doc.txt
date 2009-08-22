@@ -1,0 +1,114 @@
+/*! \mainpage STM Code Documentation and Work Plan
+
+
+\section intro_sec Introduction
+This module of DSM2 is a transport code modeling advection, diffusion, 
+sediment processes and reactions. 
+
+\section order Work Plan
+-# Get doxygen working. The documentation is automatically built by the MSVC solution as
+long as doxygen is on path. See below.
+-# Code a test. See below on writing them I suggest you either
+    - adjust your diffusion code stylistically and write a matching unit test or
+    - complete the extrapolate() function in the advect module and write a test for that
+-# After that, start looking at which functions in the advect module are not really 
+   implemented. Do NOT code a whole advection algorithm. I don't really care if you fill out routine X 
+   and then test routine X or vice versa (they often evolve together). However
+   it is important that the units of functionality be good and that they be complete and tested 
+   before you move on. 
+-# It is recommended that you discuss the API (names and arguments) of routines and the basic
+   flow as a skeleton before you code. The way the software industry works
+   is usually to try to get that fairly correct, then design tests and then ...well, if you pass the tests
+   you succeed. FAILING TESTS IS GOOD. Much better than silently deleting tests you can't pass.
+-# Try to avoid big surprises with the API. A small change in your code is at your discretion, but
+   changing the API is something we want to talk about. This will be especially important as we modify things for:
+   - networks
+   - your sediment source terms
+-# I recommend you work in this order, probably best to notify us if you want to rearrange:
+   - code and test existing skeleton routines in the transport library
+   - code test for uniform flow advection no source or diffusion
+     - achieve comfort with convergence testing
+   - code test for non-uniform flow advection (handle flow/area consistency issues)
+   - linear source
+   - code test for diffusion
+     - explicit operator
+     - implicit solver
+   - channel network
+   - modify for sediment
+   - consider reservoirs and transfers
+   
+
+\section viz Visual Studio
+Hopefully we will just give you a complete project that has most of the settings right.
+To get this to compile you need to make sure you have:
+-# doxygen installed
+-# Set up the dependencies (hopefully we will do this for you)
+   - test_transport on transport and fruit
+   - sandbox_application on transport (you can alter as desired)e
+-# Set the fortran "additional include directories" in sandbox_application and test_transport_driver
+   to pick up the fruit and transport module files. Hopefully we will do this for you.
+
+
+\section sandbox The Sandbox Application
+The sandbox is like scratch paper -- it is there to do whatever you want. 
+I created a couple sample programs that are there in the directory,
+but only one at a time can be included in the sandbox project.
+
+\section dox The doc project
+To get the doc project to generate, you need to have doxygen installed. Make sure 
+it is on path (test by typing doxygen at the command line).
+You can add to the path on your computer or set it up in 
+Visual Studio's Tools > Options > Projects and Solutions > VC++ Di drectories (for executables)
+
+Note the doc project has a custom build step (cd's to /doc and does documentation.bat) 
+output for the custom build step is /doc/html/index.html
+
+\section tests The tests
+The test_transport project is the first battery of tests. The tests in test_gradient.f90 are fairly complete for that module.
+You will find a test driver called test_transport_driver.f90 
+The driver program there is where you would add new tests. Try to have one for every medium sized routine.
+For algorithms, the best integration tests are either accuracy compared to a known solution or (better) convergence.
+
+Remember, tests are silent and are intended to catch "corner" cases. Notice
+how the flux limiter test looks at the two ends of the input array, reversals of sign
+and places where the limiter is in use due to big jumps on the hi and lo side. There is only 
+one assertion to check the "normal" case in the middle of the array in a gentle area
+where the limited flux is just the centered difference. 
+
+\section fruit Fruit
+I put the Fruit testing framework here directly as a member library to reduce complexity of the project files. Only the 
+framework is here. We can move it later.
+
+\section todo Todo
+In the code you should use !todo: before any notes to yourself about things to do later. You will
+already see a few in there
+
+\section style Style Notes:
+ - Try to follow the subroutine style. The gradient module is probably the best example for 
+   routines and state_variables module shows how to encapsulate variables and document them.
+ - All routines are implicit none. Write this, do not use compiler options.
+ - Do not pass data by "use" statements. Put EVERYTHING in the signature. USE statements are poison for testing.
+ - Routine names are lower_underscore. Try to name them with one well chosen word or two.
+ - Variables are also lower_underscore. Some constants associated with precision like
+   LARGEREAL and STM_REAL are all caps.
+ - OK, this is a bit consistent but check out stm_precision and notice that the most
+   popular scalar values (one, two, half, etc) have corresponding constants that have already
+   been declared properly -- ie, you don't have to remember to type 1.d0. Stylistically this is a bit
+   incongruous with STM_REAL, I just hated ONE.
+ - Section off the args following the method in gradient.f90
+ - Section off the routines following the method in gradient.f90
+ - Declare the intent for every variable. Use real(STM_REAL) for floating point.
+ - Do not add any unmaintainable hand-updated stuff like "last modified". Let version control do this.
+ - Put the licence at the top.
+ - Initialize variables to LARGEREAL or put LARGEREAL in slots that won't get touched. For instance,
+   if the derivative and value arrays are the same side and you do a "lo-side" difference, there
+   is nothing to put in the first index. Set that to LARGEREAL. The reason for this is that if it
+   gets initialized to something reasonable (the compiler often choses zero, at least in debug mode)
+   it can lead to bugs that look deceptively reasonable.
+ - In some cases you may see a_ prepended to an argument name. It means "argument". This was done
+   when a global or module variable with the same name exists.
+ - Indent only with spaces. 
+ - Try not to check in code with lots of commented out sections.
+
+
+*/
