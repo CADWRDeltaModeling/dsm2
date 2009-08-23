@@ -1,4 +1,4 @@
-/*! \mainpage STM Code Documentation and Work Plan
+/*! \mainpage STM Code Documentation and Recommended Work Plan
 
 
 \section intro_sec Introduction
@@ -6,8 +6,8 @@ This module of DSM2 is a transport code modeling advection, diffusion,
 sediment processes and reactions. 
 
 \section order Recommended Work Plan
--# Get doxygen working. The documentation is automatically built by the MSVC solution as
-long as doxygen is on path. See below on \ref dox "The Doc Project".
+-# Get doxygen working. The documentation is automatically built by the MS Visual Studio solution as
+long as doxygen is on path. See below on \ref dox The Doc Project.
 -# Code a function-test pair and add it to test_transport_driver. I suggest you either
     - adjust your diffusion code stylistically and write a matching unit test (see below on unit tests) or
     - complete the extrapolate() function in the advect module and write a test for that. See below for how
