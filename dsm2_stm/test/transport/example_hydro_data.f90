@@ -1,4 +1,5 @@
 !> Sample flow fields for tests
+!>@ingroup test
 module example_hydro_data
 
 contains

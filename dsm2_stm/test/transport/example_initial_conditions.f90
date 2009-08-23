@@ -1,4 +1,5 @@
-!> Sample initial conditions for tests
+!> Sample initial conditions for tests!>@ingroup test
+
 module example_initial_conditions
 
 contains

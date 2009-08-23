@@ -1,4 +1,5 @@
 !> Simple source term subroutines for testing
+!>@ingroup test
 module example_sources
 
 contains

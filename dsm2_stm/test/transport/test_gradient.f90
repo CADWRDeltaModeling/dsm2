@@ -1,11 +1,14 @@
+!> Test module for gradients and limiters
+!>@ingroup test
 module test_gradient
+
 use fruit
 use stm_precision
 use state_variables 
 
 contains
 
-
+!> Tesitng routine for undivided differences
 subroutine test_gradient_calc
   use gradient
   implicit none
@@ -58,7 +61,7 @@ subroutine test_gradient_calc
   return
 end subroutine
 
-
+!> Tesitng routine for van Leer limiter
 subroutine test_limiter
   use gradient
   implicit none

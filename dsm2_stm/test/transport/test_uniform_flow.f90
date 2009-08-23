@@ -1,5 +1,6 @@
 
 !> Test of transport in uniform flow
+!>@ingroup test
 module test_uniform_flow
 
 contains

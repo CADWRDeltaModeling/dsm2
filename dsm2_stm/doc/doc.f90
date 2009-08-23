@@ -1,6 +1,6 @@
       
       !> Interface for a function to fill in hydrodynamic data.
-      !>@ingroup driver
+      !>@ingroup transport
       interface hydro_data
        !> Fill in hydrodynamic data.
        !> This data might be calculated from a function or provided by another module

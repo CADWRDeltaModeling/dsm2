@@ -7,8 +7,8 @@ sediment processes and reactions.
 
 \section order Recommended Work Plan
 -# Get doxygen working. The documentation is automatically built by the MS Visual Studio solution as
-long as doxygen is on path. See below on \ref dox The Doc Project.
--# Code a function-test pair and add it to test_transport_driver. I suggest you either
+long as doxygen is on path. See below on \ref viz.
+-# Code a function-test pair and add it to test_transport_driver(). I suggest you either
     - adjust your diffusion code stylistically and write a matching unit test (see below on unit tests) or
     - complete the extrapolate() function in the advect module and write a test for that. See below for how
       to write good unit tests.
@@ -17,8 +17,8 @@ long as doxygen is on path. See below on \ref dox The Doc Project.
    Discuss the design with Nicky and Kevin and Eli.
 -# After that, start looking at which functions in the advection module are not really 
    implemented.  Work in function-test pairs (they often evolve together). As much as
-   you can, put "asserts" in your function that are needed regardless of whether you can pass them.
-   The tests, and in some ways the documentation, are our way of communicating 
+   you can, put "asserts" in your testing function that are needed regardless of whether you can pass them.
+   The \ref tests, and in some ways the documentation, are our way of communicating 
    expected behavior.
 -# You will be at the same point you are in Matlab when you code the uniform flow advection test. However,
    we will not want you to code this or turn it in until the other testing (extrapolate(), conservative update)
@@ -49,6 +49,9 @@ To get this to compile you need to make sure you have:
 it is on path (test by typing doxygen at the command line).
 You can add to the path on your computer or set it up in 
 Visual Studio's Tools > Options > Projects and Solutions > VC++ Di drectories (for executables)
+Note the doc project has a custom build step (cd's to /doc and does documentation.bat) 
+output for the custom build step is /doc/html/index.html
+You can view /doc/html/index.html in Visual Studio by right clicking it and choosing "View in Browser"
 -# Set up the dependencies (hopefully we will do this for you)
    - test_transport on transport and fruit
    - sandbox_application on transport (you can alter as desired)e
@@ -83,9 +86,6 @@ with a choice between:
 - face-centered arrays whose mappings are non-obvious, ie: flux(hi_face(ncell)).
 - flux_hi(ncell), which is still perfectly well-defined still.
 
-Note the doc project has a custom build step (cd's to /doc and does documentation.bat) 
-output for the custom build step is /doc/html/index.html
-You can view /doc/html/index.html in Visual Studio by right clicking it and choosing "View in Browser"
 
 \section tests Tests
 I put the Fruit testing framework here directly as a static library to reduce complexity of the project files. We can move it later.
@@ -149,5 +149,6 @@ you turn in code every other week, it would be nice if you took 1-2 hours to go 
 -  Avoid comments when clear code names will suffice. Comments should outline the intent of little blocks of code
    when that intent is not obvious.
 
-
+@defgroup test test_transport
+@defgroup transport transport
 */

@@ -1,5 +1,6 @@
 
 !> Testing of the extrapolate step.
+!>@ingroup test
 module test_extrapolate
 use fruit
 
