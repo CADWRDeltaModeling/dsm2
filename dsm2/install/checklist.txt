@@ -6,8 +6,14 @@ Create release branch
 Everyone switches working copy
 
 
+Need to add $(LIB) and $(INCLUDE) to both fortran and c++ and make sure these are set.
+
+
 
 Executable checklist  (distributing b2 and incrementing to b3):
+Remember: need jni on path need /lib and fortran libraries on visual c path.
+Also need ant
+
 Update and rebuild input_storage
 Update and rebuild oprule
 Update DSM2
