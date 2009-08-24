@@ -1,13 +1,13 @@
 function [dt,dx,n_vol,n_time,flux_limiter_type]=setting_advection()% read Q and A to calculate U for CFL
 T=200;
 L=100;
-n_vol=100;
+n_vol=50;
 n_time=100000;
 dt=T/n_time;
 dx=L/n_vol;
 
 %flux_limiter_types = van_Leer , none, Koren, HQUICK
-flux_limiter_type='van_Leer';
+flux_limiter_type='none';
 
 %Courant Number Check
 % Q./A.=U % dot is important here

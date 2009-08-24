@@ -82,36 +82,36 @@ format long
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [c_s]=initial_cond_c_s(c_s,n_vol);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[c_s]=boundary_cond_c_s(c_s,n_time);
-
+[c_s]=boundary_cond_c_s(n_time,c_s);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for j=1:n_time
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Part one c_bar_half and c_half
-    for i=2:n_vol
+    for i=1:n_vol
     dif_c_limited(i,j) = flux_limiter(flux_limiter_type,i,c_s,j,dx,n_vol);
     delta_c = dif_c_limited(i,j)*dx;
-    
-    c_bar_front=c_s(i,j)+ delta_c *(1- (dt/dx)*((big_q(i,j)+...
+ 
+    c_bar_front(i)=c_s(i,j)+ (delta_c/2)*(1- (dt/dx)*((big_q(i,j)+...
         big_q(i+1,j))/(a(i+1,j)+a(i,j))));
-    c_bar_back=c_s(i,j)+ delta_c*(-1-(dt/dx)*((big_q(i,j)+...
+    c_bar_back(i)=c_s(i,j)+ (delta_c/2)*(-1-(dt/dx)*((big_q(i,j)+...
         big_q(i+1,j))/(a(i+1,j)+a(i,j))));
     big_s = sink_source(i,j);% it must defined from other STM sub_modules
-    
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%we do not have c_s(i+1,j) at th ending point
-    
-    if i<n_vol
-    diffusion = a(i+1,j)*((ks(i+1)+ks(i))/2)*(c_s(i+1,j)-c_s(i,j))-... 
-               a(i,j)*((ks(i)+ks(i-1))/2)*(c_s(i,j)-c_s(i-1,j));
-    else
-    diffusion = a(i+1,j)*((ks(i)+ks(i))/2)*(c_s(i,j)-c_s(i,j))-... %%%%%%%%%%%%%%% repeated part ks(i+1)
-               a(i,j)*((ks(i)+ks(i-1))/2)*(c_s(i,j)-c_s(i-1,j));
     end
-           
-   diffusion= diffusion/dx/dx;
-       
-    c_half_front= c_bar_front + dt*(diffusion+big_s)/(2*a(i+1,j));
-    c_half_back= c_bar_back + dt*(diffusion+big_s)/(2*a(i,j));
+
+    for i=2:n_vol
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%we do not have c_s(i+1,j) at th ending point
+    %diffusion(i,j)=dif_function(ks,c_s,a,n_vol,n_time,dx,i,j); 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    if  (big_q(i,j)>=0)
+        c_hat_front = c_bar_front(i);
+        c_hat_back = c_bar_front(i-1);
+    else
+        c_hat_front = c_bar_back(i+1);%%%%%%%in flow comes reverse we should know the BC at the end!!!! and it does not work
+        c_hat_back = c_bar-back(i);
+    end
+    
+    c_half_front= c_hat_front; % + dt*(diffusion(i,j) + big_s)/(2*a(i+1,j));
+    c_half_back= c_hat_back; % + dt*(diffusion(i,j) + big_s)/(2*a(i,j));
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Part two new c_s from c_bar_half
@@ -125,8 +125,7 @@ for j=1:n_time
    c_s(i,j+1)=2*c_s(i,j+1)/(a(i+1,j+1)+a(i,j+1));
          
     end %i
-end% march on j
+ end% march on j
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
+postprocess(c_s,n_time,n_vol)
 
