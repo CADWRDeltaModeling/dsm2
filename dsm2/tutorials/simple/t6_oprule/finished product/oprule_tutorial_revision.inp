@@ -8,7 +8,7 @@ END
 
 OPRULE_TIME_SERIES
 NAME    FILLIN FILE             PATH                                     
-op_used   none ${TUTORIALINPUT} /TUTORIAL/GATE/FLAP_OP//IR-YEAR/CONSTANT/ 
+op_used   none ${TUTORIALINPUT} /TUTORIAL/GATE/FLAP_OP//IR-YEAR/TIMEVAR/ 
 END
 
 

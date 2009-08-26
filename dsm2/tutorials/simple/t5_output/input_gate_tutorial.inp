@@ -1,7 +1,7 @@
 
 INPUT_GATE
 GATE_NAME DEVICE VARIABLE     FILLIN FILE             PATH                                     
-gate_1    weir   op_from_node   none ${TUTORIALINPUT} /TUTORIAL/GATE/FLAP_OP//IR-YEAR/CONSTANT/ 
+gate_1    weir   op_from_node   none ${TUTORIALINPUT} /TUTORIAL/GATE/FLAP_OP//IR-YEAR/TIMEVAR/ 
 END
 
 
