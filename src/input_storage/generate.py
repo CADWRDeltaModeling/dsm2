@@ -181,8 +181,8 @@ def generate_dsm2():
     component = TableComponent("channel_ic",
                               [IntField("chan_no",),
                                CharField("distance",8,8),
-                               DoubleField("stage",8,2),
-                               DoubleField("flow",12,1)],          
+                               DoubleField("stage",8,3),
+                               DoubleField("flow",12,3)],          
                               ["chan_no","distance"])
     component.layered=True
     prep_component(component,outdir)
