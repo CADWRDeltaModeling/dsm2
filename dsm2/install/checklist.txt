@@ -32,6 +32,9 @@ Approve or fix distribution
 
 
 Installation package:
+
+Save previous installers
+
 Create b2 version installer
  1) open DSM2setup_Script_Generate.py to change version status.
  2) run DSM2setup_Script_Generate.py and the inno setup script DSM2setup_v8.iss will be generated.
