@@ -211,25 +211,24 @@ c--------------Flow can occur through the gate
  1400 format(/////25x,'RESERVOIRS'/
      &     28x,'----------'//
      &     '                         6'/
-     &     '                       x10        (ft.)     (ft.)                Adjusted '/
-     &     '                      (Sqft)     Initial   Bottom            Flow Coefficient'/
-     &     ' Name                  Area       Stage     Elev.    Node   To Res.    To Chan'/
-     &     '-------              ---------   --------   ------- -----   ------------------ ')
+     &     '                       x10        (ft.)                Adjusted '/
+     &     '                      (Sqft)     Bottom            Flow Coefficient'/
+     &     ' Name                  Area       Elev.    Node   To Res.    To Chan'/
+     &     '-------              ---------    ------- -----   ------------------ ')
 C-----Franks Tract              141.17864   5.02     -10.1     72     2000.       2000.
 C-----1234567890123456789012345678901234567890123456789012345678901234567890'
 
       do i=1,nreser
          write(unit_output,1420)res_geom(i).name,
      &        res_geom(i).area,
-     &        res_geom(i).stage,
      &        res_geom(i).botelv,
      &        res_geom(i).node_no(1),
      &        res_geom(i).coeff2res(1),res_geom(i).coeff2chan(1)
- 1420    format(/a19,1x,f10.5,1x,f8.2,1x,f9.1,2x,i4,2x,f8.0,4x,f8.0,5x)
+ 1420    format(/a19,1x,f10.5,1x,f9.2,2x,i4,2x,f8.0,4x,f8.0,5x)
          do j=2,res_geom(i).nnodes
             write(unit_output,1440)res_geom(i).node_no(j),
      &           res_geom(i).coeff2res(j),res_geom(i).coeff2chan(j)
- 1440       format(51x,i4,2x,f8.0,4x,f8.0,5x)
+ 1440       format(42x,i4,2x,f8.0,4x,f8.0,5x)
          enddo
       enddo
 
@@ -269,13 +268,14 @@ c         call check_area
       WRITE(unit_output,1600)
  1600 format(////,45x,'INPUT PATHS'/
      &     45x,'-----------'///
-     &     'NAME',29x,'VARIABLE',6x,'FILE NAME',70x,'DSS PATH',50x
-     &     '---------------------------------------------------------------------------------------',
-     &     '   ---------------------------------------')
+     &     'NAME',28x,'VARIABLE',6x,'FILE NAME',70x,'DSS PATH'/
+     &     '---------------------------------------------------------------------------------------')
 
       do i=1,ninpaths
-         write(unit_output,1620)pathinput(i).name,pathinput(i).variable
-     &        ,pathinput(i).filename,pathinput(i).path
+         write(unit_output,1620)trim(pathinput(i).name),
+     &                          trim(pathinput(i).variable),
+     &                          trim(pathinput(i).filename),
+     &                          trim(pathinput(i).path)
  1620    format(a30,1x,a16,1x,a80,1x,a50)
       enddo
 

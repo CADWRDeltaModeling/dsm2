@@ -686,6 +686,7 @@ c--------assign an input path (dss or constant valued)
                call datasource_from_path(obj2obj(i).datasource,pth,pathinput(pth))
 	         obj2obj(i).flow=fetch_data(obj2obj(i).datasource)
 	         ! todo: is below implemented right? Seems to be initialized as -901.
+	         ! making it irrelevant
 	         obj2obj(i).prev_flow=obj2obj(i).flow 
 	         exit
             end if

@@ -246,6 +246,10 @@ c-----calculate julian minute of end of each DSS interval
      &        ' Initialization of Reservoir flow failed...'
          call exit(1)
       end if
+      
+      ! Initialize time series with data from initial time
+      ! todo: make sure this behaves with reservoirs
+      OK = SetBoundaryValuesFromData()
 
       ! Oprules cannot be parsed until channel network is defined
       call process_text_oprule_input()
