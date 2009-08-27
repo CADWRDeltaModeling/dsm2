@@ -63,6 +63,11 @@ C!</license>
       real*8 ftmp
       real*8, external :: fetch_data
 
+      call locase(name)
+      call locase(rolename)
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)      
 
 
       ninpaths=ninpaths+1

@@ -65,7 +65,12 @@ C!</license>
       real*8  :: fetcheddata
       logical free
 
- 
+      call locase(locname)
+      call locase(subloc)
+
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)
 
             ninpaths=ninpaths+1
             if (ninpaths .gt. max_inputpaths) then

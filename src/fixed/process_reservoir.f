@@ -39,6 +39,7 @@ C!</license>
           call exit(-1)
           return
       endif
+      call locase(reser_name)
       res_geom(nreser).id=ID
       res_geom(nreser).inUse=.true.
       res_geom(nreser).name=trim(reser_name)
@@ -69,6 +70,7 @@ C!</license>
       integer, external :: ext2intnode, name_to_objno
       real*8 rescon_incoef      !todo: change to real*8
       real*8 rescon_outcoef
+      call locase(resname)
       resno = name_to_objno(obj_reservoir,resname)
       res_geom(resno).nnodes=res_geom(resno).nnodes+1
 	if (res_geom(resno).nnodes .gt. MaxResConnectChannel) then

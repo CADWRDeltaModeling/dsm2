@@ -28,6 +28,7 @@ C!</license>
       integer :: groupno
       integer :: membertype
       integer, external :: name_to_objno
+      call locase(name)
       groupno=name_to_objno(obj_group,name)
       if(groupno .eq. miss_val_i) then
          ngroup=ngroup+1
@@ -53,6 +54,7 @@ C!</license>
       integer, external :: name_to_objno
       integer :: groupNdx = miss_val_i
       integer :: npattern = miss_val_i
+      call locase(groupname)
       
       if (membertype .eq. obj_group) then ! member is another group
             write(unit_error, *)"Subgroups not supported"

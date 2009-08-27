@@ -45,6 +45,8 @@ c-----local variables
  620  format(/'Invalid value given in ',a,' field: ',a)
  
 c-----fill in structure
+      call locase(model)
+      
       if (model(1:5) .eq. 'hydro') then
          i1=hydro
       else if (model(1:4) .eq. 'qual') then

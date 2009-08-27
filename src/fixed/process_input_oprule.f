@@ -64,7 +64,9 @@ C!</license>
                return
             endif
 
-
+      call locase(name)
+      call locase(fillin)
+      call locase(inpath)
 
             pathinput(ninpaths).name=Name
             pathinput(ninpaths).useobj=.true.

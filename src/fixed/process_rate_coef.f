@@ -41,7 +41,8 @@ C!</license>
       real*8  :: coefficient_value
       integer,external :: rate_variable_code
       integer,external :: ncc_code
-      
+
+      call locase(group_name)      
       call locase(rate_variable)
       call locase(constituent)
       rate_variable_id = rate_variable_code(rate_variable)

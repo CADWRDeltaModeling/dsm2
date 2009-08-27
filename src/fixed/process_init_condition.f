@@ -40,6 +40,7 @@ C!</license>
       integer, external :: ext2int
       integer,save :: k = 0
 c--------use only the last version of the initial condition
+      call locase(dist)
       extchan = channel
       intchan=ext2int(extchan)
       if (intchan .le. 0) then ! non-existant channel
@@ -82,6 +83,7 @@ c--------use only the last version of the initial condition
       integer,save :: k = 0
       integer, external :: name_to_objno
 c--------use only the last version of the initial condition
+      call locase(resname)
       resno=name_to_objno(obj_reservoir, resname)
       if (resno .eq. miss_val_i) then ! reservoir doesn't exist for init val
           write(unit_error, '(a)') 'Reservoir '

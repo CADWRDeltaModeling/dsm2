@@ -57,6 +57,11 @@ C!</license>
       integer, external :: ext2int, ext2intnode
       integer, external :: loccarr ! locate string in char array function
 
+      call locase(name)
+      call locase(sourcegroup)      
+      call locase(param)
+      call locase(perop)
+      call locase(interval)
 
 
 

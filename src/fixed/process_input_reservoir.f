@@ -62,6 +62,12 @@ C!</license>
       real*8 ftmp
       real*8, external :: fetch_data
 
+      call locase(name)
+      call locase(locname)
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)      
+      
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
           write(unit_error,630)

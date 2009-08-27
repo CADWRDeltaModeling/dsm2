@@ -57,9 +57,11 @@ C!</license>
                call exit(-1)
                return
             endif
- 630        format(/a,i5)     
+ 630        format(/a,i5) 
       gateArray(ngate).ID = ID
       gateArray(ngate).inUse=.true.
+      call locase(name)
+      call locase(objConnectedID)
       gateArray(ngate).name=trim(name)
       gateArray(ngate).objConnectedType = ObjConnType
       gateArray(ngate).node=ext2intnode(NodeConn)
@@ -159,6 +161,11 @@ c-----local variables
       character*16 control_name
       character*16 default_op_name
       
+      call locase(name)
+      call locase(gatename)
+      call locase(structure_name)
+      call locase(control_name)
+      call locase(default_op_name)
       if (structure_name(1:4).eq. 'weir') then
           struct_type = WEIR
       elseif (structure_name(1:4) .eq. 'pipe') then

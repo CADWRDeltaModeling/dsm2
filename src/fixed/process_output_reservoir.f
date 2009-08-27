@@ -50,6 +50,13 @@ C!</license>
      &     ,itmp
      &     ,SubLoc
 
+      call locase(name)
+      call locase(locname) 
+      call locase(subloc)      
+      call locase(sourcegroup)      
+      call locase(param)
+      call locase(perop)
+      call locase(interval)
 
       integer, external :: name_to_objno
       integer, external :: ext2int, ext2intnode

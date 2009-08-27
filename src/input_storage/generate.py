@@ -189,7 +189,7 @@ def generate_dsm2():
 
     component = TableComponent("reservoir_ic",
                               [CharField("res_name",DSM2_NAME_LEN,16),
-                               DoubleField("stage",8,1)],          
+                               DoubleField("stage",10,3)],          
                               ["res_name"])
     component.layered=True
     prep_component(component,outdir)
