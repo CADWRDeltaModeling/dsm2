@@ -39,7 +39,7 @@ C!</license>
       character
      &     InPath*80
      &     ,FileName*128
-     &     ,Param*32
+     &     ,Param*16
      &     ,LocName*32
      &     ,RoleName*32
      &     ,Name*32

@@ -39,7 +39,7 @@ C!</license>
       character
      &     FileName*128
      &     ,Name*32
-     &     ,Param*32
+     &     ,Param*16
      &     ,Interval*32
      &     ,PerOp*8
      &     ,LocName*32
