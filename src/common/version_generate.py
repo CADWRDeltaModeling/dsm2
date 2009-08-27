@@ -10,11 +10,11 @@ VersionFile_path    = os.path.join(VersionFile_path,"version.inc")
 VersionFile = open(VersionFile_path, "w") 
 
 try:
-    (dummy, SVNVersion_SourceCode) = os.popen4("svnversion ../../../dsm2 ")
+    (dummy, SVNVersion_SourceCode) = os.popen4("svnversion ../.. ")
     SVNVersion_SourceCode = SVNVersion_SourceCode.readlines()[0]
     SVNVersion_SourceCode = SVNVersion_SourceCode.strip()
 
-    print ' SVN version of ../../../dsm2:        '+ SVNVersion_SourceCode
+    print ' SVN version of dsm2:        '+ SVNVersion_SourceCode
     VersionTxt = VersionTemplate.replace("@{Version_SVN}", SVNVersion_SourceCode)
     VersionFile.write(VersionTxt)
     VersionFile.close()

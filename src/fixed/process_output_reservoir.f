@@ -50,6 +50,11 @@ C!</license>
      &     ,itmp
      &     ,SubLoc
 
+
+      integer, external :: name_to_objno
+      integer, external :: ext2int, ext2intnode
+      integer, external :: loccarr       
+      integer, external :: get_objnumber      
       call locase(name)
       call locase(locname) 
       call locase(subloc)      
@@ -57,12 +62,7 @@ C!</license>
       call locase(param)
       call locase(perop)
       call locase(interval)
-
-      integer, external :: name_to_objno
-      integer, external :: ext2int, ext2intnode
-      integer, external :: loccarr       
-      integer, external :: get_objnumber      
-
+      
             noutpaths=noutpaths+1
             if (noutpaths .gt. max_outputpaths) then
                write(unit_error,630)

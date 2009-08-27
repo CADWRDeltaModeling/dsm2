@@ -61,7 +61,7 @@ C!</license>
       gateArray(ngate).ID = ID
       gateArray(ngate).inUse=.true.
       call locase(name)
-      call locase(objConnectedID)
+      call locase(objConnID)
       gateArray(ngate).name=trim(name)
       gateArray(ngate).objConnectedType = ObjConnType
       gateArray(ngate).node=ext2intnode(NodeConn)
