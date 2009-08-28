@@ -51,7 +51,7 @@ c--------use only the last version of the initial condition
       !end if
       
       k=k+1
-      call locase(distance)      
+     
       if (dist .eq. "length") then
           distance=chan_geom(intchan).length
       else 
