@@ -30,9 +30,9 @@ END
 
 GRID
 ${DSM2INPUTDIR}/channel_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/gate_std_delta_grid_20090806.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20090827.inp
 ${DSM2INPUTDIR}/reservoir_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/gate_temp_barriers_20090806.inp
+${DSM2INPUTDIR}/gate_temp_barriers_20090827.inp
 END
 
 INITIAL_CONDITION

@@ -22,7 +22,7 @@ END_TIME                    0000
 TSINPUTDIR                  ../../timeseries                              # Where timeseries are stored.
 CALSIMDIR                   ${TSINPUTDIR}                                          # For Condor or single prepro
 TEMPDIR                     z:/temp                                                # temporary directory. Please change
-TSINPUTLOCAL                ../../timeseries                                           # Local timeseries location
+TSINPUTLOCAL                ./timeseries                                           # Local timeseries location
 BOUNDARYFILE                ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
 QUALBOUNDARYFILE            ${BOUNDARYFILE}
 DICUDIR                     ${TSINPUTDIR}

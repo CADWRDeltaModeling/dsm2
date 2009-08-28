@@ -31,7 +31,7 @@ TSINPUTDIR                                           ../../timeseries           
 CALSIMDIR                                            ${TSINPUTDIR}                                                                                      
 #CALSIMDIR                                           ${BATCH_CALSIMDIR}  
 TEMPDIR                                              z:/temp                                                                                            
-TSINPUTLOCAL                                         ../../timeseries                        #Local timeseries location                                 
+TSINPUTLOCAL                                         ./timeseries                        #Local timeseries location                                 
 BOUNDARYFILE                                         ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss                                                                
 QUALBOUNDARYFILE                                     ${BOUNDARYFILE}                                                                                    
 DICUDIR                                              ${TSINPUTDIR}                                                                                                                           
