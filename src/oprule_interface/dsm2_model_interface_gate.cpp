@@ -53,25 +53,7 @@ bool DeviceOpInterface::operator==( const DeviceOpInterface& rhs){
 
 
 
-////////////////////
 
-void DevicePositionInterface::set(double val){ 
-   set_device_position(ndx,devndx,val); 
-}
-
-void DevicePositionInterface::setDataExpression(DoubleNodePtr express){
-   set_device_position_datasource( ndx, devndx, 
-       register_express_for_data_source(express),
-      express->eval(), express->isTimeDependent()); //todo: finish this up
-}
-
-double DevicePositionInterface::eval(){
-   return get_device_position(ndx,devndx);
-}
-
-bool DevicePositionInterface::operator==( const DevicePositionInterface& rhs){
-   return ndx == rhs.ndx && devndx == rhs.ndx;
-}
 
 //////////////////////
 void DeviceNDuplicateInterface::set(double val){ 

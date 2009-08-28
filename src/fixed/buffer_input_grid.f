@@ -50,7 +50,6 @@ c====================================================================
        character(len=32) :: gate_name
        character(len=32) :: device_name
        character(len=16) :: default_op
-       character(len=16) :: position_control
        character(len=8) :: struct_name
        integer :: nduplicate
        !real(8) :: width
@@ -203,7 +202,6 @@ c       are file-based
      &                              cf_from_node,
      &                              cf_to_node,
      &                              default_op,
-     &                              position_control,
      &                              ierror)
          
       struct_name = "weir"
@@ -217,8 +215,7 @@ c       are file-based
      &                              height,
      &                              cf_from_node,
      &                              cf_to_node,
-     &                              default_op,
-     &                              position_control)
+     &                              default_op)
        end do
        print *,"Number of gate weir devices: ", nitem
 
@@ -233,7 +230,6 @@ c       are file-based
      &                              cf_from_node,
      &                              cf_to_node,
      &                              default_op,
-     &                              position_control,
      &                              ierror)
          struct_name = "pipe"
          height = 9999.D0
@@ -247,8 +243,7 @@ c       are file-based
      &                              height,
      &                              cf_from_node,
      &                              cf_to_node,
-     &                              default_op,
-     &                              position_control)
+     &                              default_op)
        end do
        print *,"Number of gate pipe devices: ", nitem
 

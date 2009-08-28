@@ -106,8 +106,7 @@ def generate_dsm2():
                             DoubleField("elev",10,3),
                             DoubleField("cf_from_node",14,4),                            
                             DoubleField("cf_to_node",14,4),
-                            CharField("default_op",16,18), 
-                            CharField("position_control",16,16)],
+                            CharField("default_op",16,18)],
                             ["gate_name","device"],
                             parent="gate",                  # parent table. overrides will be based on the channel table
                             parent_id=["gate_name"])             # field in the xsect that links to the parent identifier (in this case also chan_no)              
@@ -123,8 +122,7 @@ def generate_dsm2():
                             DoubleField("height",10,3),
                             DoubleField("cf_from_node",14,4),                            
                             DoubleField("cf_to_node",14,4),
-                            CharField("default_op",16,18), 
-                            CharField("position_control",16,16)],
+                            CharField("default_op",16,18)],
                             ["gate_name","device"],
                             parent="gate",                  # parent table. overrides will be based on the channel table
                             parent_id=["gate_name"])             # field in the xsect that links to the parent identifier (in this case also chan_no)              

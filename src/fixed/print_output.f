@@ -184,19 +184,17 @@ c-----------upstream node
      &     8x,'------------'///
      &     8x,'(initial installations)    '//
      &     ,77x,                                       '#OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/
-     &     ' GATE',60x,                    'GATE        DUPLICATE  WIDTH OR   BASE               TO      FROM  '/
-     &     ' NAME(DEVICE)',40x, 'TYPE       CONTROL     DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/
-     &     '------------',41x,  '-----      -------     -----    ----------  -------  -------    ------  ---------')
+     &     ' GATE',60x,                    '        DUPLICATE  WIDTH OR   BASE               TO      FROM  '/
+     &     ' NAME(DEVICE)',40x, 'TYPE            DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/
+     &     '------------',41x,  '-----           -----    ----------  -------  -------    ------  ---------')
       do i=1, ngate	   
          do j=1,gateArray(i).nDevice
                call DeviceTypeString(scratch1,gateArray(i).Devices(j).structureType)
-               call ControlTypeString(scratch2,gateArray(i).Devices(j).controlType)
 c--------------Flow can occur through the gate
                write(unit_output,1220)
      &              gateArray(i).name,
      &                '(' //trim(gateArray(i).devices(j).name) // ')',
      &              trim(scratch1),
-     &              trim(scratch2),
      &              gateArray(i).Devices(j).nDuplicate,
      &              gateArray(i).Devices(j).maxWidth,
      &              gateArray(i).Devices(j).baseElev,

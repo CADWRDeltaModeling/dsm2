@@ -407,37 +407,6 @@ c     return the constant, so FORTRAN and C can share it
       return
  	end subroutine
 
-!fixme: these shouldn't be interms of height
-
-      real(8) function get_device_position(gndx, devndx)
-	use Gates, only: GateArray
-      implicit none
-	integer gndx, devndx
-      get_device_position=GateArray(gndx).Devices(devndx).position
-      return 
-      end function
-
-!fixme: these shouldn't be interms of height
-      subroutine set_device_position(gndx, devndx, val)
-	use Gates, only: GateArray
-      implicit none
-	integer gndx, devndx
-	real(8) val
-      GateArray(gndx).Devices(devndx).position=val
-      end subroutine
-
-      subroutine set_device_position_datasource(gndx, devndx, expr, val, timedep)
-	use Gates, only: GateArray
-      implicit none
-	integer gndx, devndx
-	integer expr
-	real*8 val
-	logical timedep
-	call set_datasource(
-     &    GateArray(gndx).Devices(devndx).pos_datasource,expr,val,timedep)
-      return
- 	end subroutine
-
       real(8) function get_device_height(gndx, devndx)
 	use Gates, only: GateArray
       implicit none

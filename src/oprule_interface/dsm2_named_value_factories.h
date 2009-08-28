@@ -38,7 +38,7 @@ EXPRESSION_FACTORY(ts_factory)
 ///////////Gate related
 INTERFACE_FACTORY(gate_install_factory);
 INTERFACE_FACTORY(device_op_factory);
-INTERFACE_FACTORY(device_position_factory);
+INTERFACE_FACTORY(device_height_factory);
 INTERFACE_FACTORY(device_nduplicate_factory);
 INTERFACE_FACTORY(device_elev_factory);
 INTERFACE_FACTORY(device_width_factory);

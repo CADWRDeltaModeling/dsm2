@@ -20,9 +20,7 @@
 #define set_device_op_coef SET_DEVICE_OP_COEF
 #define get_device_op_coef GET_DEVICE_OP_COEF
 #define set_device_op_datasource SET_DEVICE_OP_DATASOURCE
-#define set_device_position SET_DEVICE_POSITION
-#define get_device_position GET_DEVICE_POSITION
-#define set_device_position_datasource SET_DEVICE_POSITION_DATASOURCE
+
 #define set_device_height SET_DEVICE_HEIGHT
 #define get_device_height GET_DEVICE_HEIGHT
 #define set_device_height_datasource SET_DEVICE_HEIGHT_DATASOURCE
@@ -134,19 +132,6 @@ extern "C" void STDCALL set_device_op_coef(const int& ndx,
 extern "C" void STDCALL set_device_op_datasource(const int& ndx, 
                                            const int& devndx,
 										   const int& direct,
-                                           const int& expr,
-                                           const double& val,
-                                           const bool& timedep);
-
-
-extern "C" double STDCALL get_device_position(const int& ndx, 
-                                             const int& devndx);
-
-extern "C" void STDCALL set_device_position(const int& ndx, 
-                                           const int& devndx,
-                                           const double& val);
-extern "C" void STDCALL set_device_position_datasource(const int& ndx, 
-                                           const int& devndx,
                                            const int& expr,
                                            const double& val,
                                            const bool& timedep);

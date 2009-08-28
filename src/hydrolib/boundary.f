@@ -210,9 +210,6 @@ c-----gate controls
      &         currentGate.Devices(j).op_to_node_datasource)
 	      currentGate.Devices(j).opCoefFromNode=fetch_data(
      &         currentGate.Devices(j).op_from_node_datasource)
-            !fixme: either store this or interpret it better
-	      currentGate.Devices(j).position=fetch_data(
-     &         currentGate.Devices(j).pos_datasource)
 	      currentGate.Devices(j).baseElev=fetch_data(
      &         currentGate.Devices(j).elev_datasource)     
 	      currentGate.Devices(j).height=fetch_data(

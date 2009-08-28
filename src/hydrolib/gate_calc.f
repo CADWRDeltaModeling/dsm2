@@ -22,7 +22,7 @@ c     All variable definitions are in the Gates module
 *==   Public (CalculateGateFlow) ==================================
 
       LOGICAL FUNCTION CalculateGateFlow()
-      USE GATES, only: GateArray, Gate,Ngate,GateDevice,ApplyDevicePosition,
+      USE GATES, only: GateArray, Gate,Ngate,GateDevice,
      &     WEIR, PIPE
       use IO_Units
       use constants
@@ -195,7 +195,6 @@ c     the channel/resrvoir flow direction convention
 c---------------Calculate flow and derivatives for each device in this gate
             do dv = 1,currentGate.nDevice
 	         currentDevice=>currentGate.devices(dv)
-	         call ApplyDevicePosition(currentDevice)
 	         if (currentDevice.structureType .eq. PIPE) then
                  call calcPipeFlow(currentDevice,z1,z2,qCalc,dGateEqdZ1,dGateEqdZ2,CxA)
                else 

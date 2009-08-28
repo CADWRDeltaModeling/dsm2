@@ -119,12 +119,10 @@ c================================================================
      &                               height,
      &                               cffrom,
      &                               cfto,
-     &                               default_op_name,  
-     &                               control_name)
+     &                               default_op_name)
       use Gates, only: gateArray,maxNGate,
      &     PIPE,WEIR,MAX_DEV,GATE_OPEN,GATE_CLOSE,
-     &     UNIDIR_TO_NODE,UNIDIR_FROM_NODE, GATED_FROM_TOP,
-     &     GATED_FROM_BOTTOM, NO_GATE_CONTROL
+     &     UNIDIR_TO_NODE,UNIDIR_FROM_NODE
       use io_units
       use constants
       
@@ -158,13 +156,11 @@ c-----local variables
      &     name
      &     ,gatename
       character*8  structure_name
-      character*16 control_name
       character*16 default_op_name
       
       call locase(name)
       call locase(gatename)
       call locase(structure_name)
-      call locase(control_name)
       call locase(default_op_name)
       if (structure_name(1:4).eq. 'weir') then
           struct_type = WEIR
@@ -173,19 +169,6 @@ c-----local variables
       else
           write(unit_error, *) "Gate structure not recognized: " 
      &       // structure_name // ", Gate: "  // trim(gatename)
-     &       // " Device: " // trim(name)
-          call exit(-3)
-      end if
-      
-      if (control_name .eq. 'gated_bottom') then
-          control_type = GATED_FROM_BOTTOM
-      elseif (control_name .eq. 'gated_top') then
-          control_type = GATED_FROM_TOP
-      elseif (control_name .eq. 'no_gate') then
-          control_type = NO_GATE_CONTROL
-      else
-          write(unit_error, *) "Gate control not recognized: " 
-     &       // control_name // ", Gate: "  //trim(gatename)
      &       // " Device: " // trim(name)
           call exit(-3)
       end if
@@ -219,7 +202,6 @@ c-----local variables
       gateArray(gateNo).nDevice = devNo
       call locase(name)
       gateArray(gateNo).devices(devNo).name=trim(name)
-      gateArray(gateNo).devices(devNo).controlType=control_type
       gateArray(gateNo).devices(devNo).structureType=struct_type
       gateArray(gateNo).devices(devNo).flowCoefFromNode=CFfrom
       gateArray(gateNo).devices(devNo).flowCoefToNode=CFto
@@ -247,11 +229,6 @@ c-----local variables
 	gateArray(gateNo).devices(devNo).elev_datasource.source_type=const_data
 	gateArray(gateNo).devices(devNo).elev_datasource.indx_ptr=0    !fixme: is this OK?
 	gateArray(gateNo).devices(devNo).elev_datasource.value=base_elev
-
-	gateArray(gateNo).devices(devNo).pos_datasource.source_type=const_data
-	gateArray(gateNo).devices(devNo).pos_datasource.indx_ptr=0 !fixme: is this is OK?
-	gateArray(gateNo).devices(devNo).pos_datasource.value=miss_val_r
-
 
 
 

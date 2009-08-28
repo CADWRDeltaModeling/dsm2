@@ -199,10 +199,10 @@ _FACTORYNAME(const NamedValueLookup::ArgMap& argmap){ \
 
 
 //@todo: fix next
-GATE_DEV_FACTORY(device_position_factory, DevicePositionInterface);
 GATE_DEV_FACTORY(device_nduplicate_factory, DeviceNDuplicateInterface);
 GATE_DEV_FACTORY(device_width_factory, DeviceWidthInterface);
 GATE_DEV_FACTORY(device_elev_factory, DeviceElevInterface);
+GATE_DEV_FACTORY(device_height_factory, DeviceHeightInterface);
 
 oprule::expression::ExpressionNode<double>::NodePtr
 device_coef_factory(const NamedValueLookup::ArgMap& argmap){
