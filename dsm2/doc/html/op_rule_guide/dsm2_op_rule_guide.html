@@ -493,7 +493,8 @@ evaluates to FALSE.</dd>
 <i>expr1</i> OR <i>expr2</i><dd>Logical
 &#8216;or&#8217;</dd>
 </dl><h3>Special Functions</h3>
-<dl class="code_reference"><dt>ACCUMULATE(<i>expression</i>,
+<dl class="code_reference">
+<dt>ACCUMULATE(<i>expression</i>,
 <i>initval </i>[,<i>resetcond]</i>)</dt>
 <dd>Cumulative value function. Accumulates additively the value
 of <i>expression</i>
@@ -522,4 +523,23 @@ in lookup array that is <= <i>expression</i>, e.g.:
 <p>LOOKUP(2000.,[1000.,2000.,3000.], [1.,2.]) returns 2.</p>
 <p>LOOKUP(3000.,[1000.,2000.,3000.], [1.,2.]) is an error.</p>
 </dd>
+<dt>PID(
+PID(<i>expression,<i>target</i>,<i>low</i>,<i>high</i>,<i>K</i>,
+    <i>Ti</i>,<i>Td</i>,<i>Tt</i>,<i>b</i>)</dt>
+<dd>
+Use PID (Proportional, Integral, Derivative)
+control to try to guide expression towards target.
+The parameters are as follows 
+<p>low: lower bound on control representing the minimum value the control value can
+take (e.g. for gate height this might be zero).</p>
+<p>high: upper bound on control.</p>
+<p>K: The constant representing the Proportion component of the control. The constant 
+multiplies (expression-target) to change a control value, so choose a factor
+that is reasonable that takes the scaling of the expression to the scaling of the control.</p>
+<p>Ti: Integral time constant of control</p>
+<p>Td: Derivative time constant of control.</p> 
+<p>Tt: Time basis of "anti-windup"</p>
+<p>b:  Set-point weighting (use 1.0 if you are new to PID).</p>
+</dd>
+
 <p></p></dl></div></div></body></html>
