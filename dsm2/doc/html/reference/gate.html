@@ -59,6 +59,12 @@ attached.</dd>
 <dt>TO_NODE</dt>
 <dd>Node to which gate is attached.</dd>
 </dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>NAME</dd>
+<dt>Parent Table:</dt><dd>GATE</dd>
+<dt>Include Block:</dt><dd>GRID</dd>
+</dl>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
@@ -114,11 +120,13 @@ will affect the operating coefficient:
 <dt>unidir_to</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=0.0;</dd>
 <dt>unidir_from</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=1.0;</dd>
 </dd>
-<dt>POSITION_CONTROL</dt><dd>This variable specifies the type of gate control stucture and thus how the gate responds to the
-"position" variable in time series or operating rules.  Options included no gate, gated from top down
-(as in a typical radial gate, in which case position controls "height") or gated from bottom (as in the permanent gate design, in 
-which case position controls "elev").  This input is now deprecated -- it is now possible to control elev or height directly in the time series
-or operating rule.</dd>
+</dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>GATE_NAME, DEVICE</dd>
+<dt>Parent Table:</dt><dd>GATE</dd>
+<dt>Parent Identifier:</dt><dd>GATE_NAME</dd>
+<dt>Include Block:</dt><dd>GRID</dd>
 </dl>
 
 <a name="pipe_device_table"></a>
@@ -152,13 +160,14 @@ will affect the operating coefficient:
 <dt>unidir_to</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=0.0;</dd>
 <dt>unidir_from</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=1.0;</dd>
 </dd>
-<dt>POSITION_CONTROL</dt><dd>This variable specifies the type of gate control stucture and thus how the gate responds to the
-"position" variable in time series or operating rules.  Options included no gate, gated from top down
-(as in a typical radial gate, in which case position controls "height") or gated from bottom (as in the permanent gate design, in 
-which case position controls "elev").  This input is now deprecated -- it is now possible to control elev or height directly in the time series
-or operating rule.</dd>
 </dl>
-
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>GATE_NAME, DEVICE</dd>
+<dt>Parent Table:</dt><dd>GATE</dd>
+<dt>Parent Identifier:</dt><dd>GATE_NAME</dd>
+<dt>Include Block:</dt><dd>GRID</dd>
+</dl>
 
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
