@@ -96,7 +96,6 @@ c-----------find object number given object ID
             if (trim(Param) .eq. 'pos') then
 			   write(unit_error, *) 
      &         "Warning: 'pos' and 'position' output is deprecated. Substituting op_to_node in output: " // name
-                istat=-3
                 call exit(-3)
             else if (trim(Param) .eq. 'op-to-node' .or. 
      &	       trim(Param) .eq. 'op_to_node') then
