@@ -13,30 +13,39 @@ vchecker:
 This module contains the functions for checking data based on its value, rate of
 change, quality flag values etcetra.
 """
-def checkRange(ref, min, max, log = 'checkrange.log'):
+def flagData(ftype, ref, val1=None, val2=None, val3=None, log = 'flag.log'):
     """
-    checkRange(ref, min, max, log = 'checkrange.log'):
-    Checks the range of values to lie within min to max. For the values
-    outside this range, they are marked as reject. All values marked
-    as reject are cached in the log file. Flags added to timeseries
+    flagData(ftype, ref, val1, val2, val3, log = 'flag.log'):
+    Flags a datastream's values for bad data:
+    ftype='R': datavalue not within val1 to val2 marked as reject.
+         ='D': datavalue difference from previous value not within
+               val1 to val2 range.  If val3 given any value, use percentage
+               for val1 and val2.
+         ='M': datavalue equals or very close to val1, a Missing Value marker;
+               DSS flag set to missing.
+    All values marked are written to log file. Flags added to timeseries
     if needed.
     """
+    if ftype == 'R':
+        if val1==None or val2==None: raise 'Two values must be given for Range check.'
+    elif ftype == 'D':
+        if val1==None or val2==None: raise 'Two values must be given for Diff check; optional 3rd val=>use pct.'
+    elif ftype == 'M':
+        if val1==None: raise 'One value must be given for Missing check.'
+    else: raise 'First arg must be a single character R, D or M.'
     # a flag to check if any flag was changed
     changedFlag=0
     # get the filter for missing values
     filter = Constants.DEFAULT_FILTER
     # get the data
-    if hasattr(ref,'getPathname'):
-        ds = ref.getData()
-    else:
-        ds = ref
+    ds = ref.getData()
     # check if ref already has flags, if not, make them
     makeFlags=False
     if not ds[0].getFlag():
         # create copy of incoming ref but with flags
         makeFlags=True
         changedFlag = 1
-        DSSUtil.updateData(ref,1)
+        #DSSUtil.updateData(ref,1)
         xa=jarray.zeros(len(ds),'d')
         ya=jarray.zeros(len(ds),'d')
         flUnscreened=make_flag_value('UNSCREENED|null')
@@ -45,13 +54,15 @@ def checkRange(ref, min, max, log = 'checkrange.log'):
             xa[i]=ds[i].getX()
             ya[i]=ds[i].getY()
             #fa[i]=flUnscreened
-        ref=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
-        ds=ref
+        ds=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
+        #ds=ref
     # get the iterator on the data
     dsi = ds.getIterator()
     # get user id for setting flags
     uId = DSSUtil.getUserId();
-    # open log file
+    prevY=None
+    diff = 0.0
+# open log file
     logfile = open(log,'a')
     logfile.write('\n' + 'Name: ' + ds.getName())
     logfile.write('\n' + 'Acceptable range: ' + str(min) + ' - ' + str(max))
@@ -60,74 +71,33 @@ def checkRange(ref, min, max, log = 'checkrange.log'):
     while not dsi.atEnd():
         # get the data element at the current position
         e = dsi.getElement()
-        # if value is acceptable and exceeds range flag as reject
+        # if value not already marked check for bad value
         if filter.isAcceptable(e) :
-            if e.y < min or e.y > max :
-                FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
+            if ftype=='R':
+                if e.y < val1 or e.y > val2 : FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
                 changedFlag = 1
+            if ftype=='D':
+                if prev_y:
+                    diff=prev_y-e.y
+                    if val3: diff=diff/prev_y*100.
+                    if diff < val1 or diff > val2 : FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
+                    changedFlag = 1
+            if ftype=='M':
+                if val1*0.999 < e.y and val1*1.0001 > e.y : FlagUtils.setQualityFlag(e,FlagUtils.MISSING_FLAG,uId)
+                changedFlag = 1
+            if changedFlag:
                 dsi.putElement(e) # put the element back into the data set
                 logfile.write('\n' + " Rejected data @: " +
                               e.getXString() + " : " + e.getYString())
+            prev_y=e.y
         dsi.advance() # move to next value
     # end the while loop
     logfile.close()
     if changedFlag:
-        return ref
+        return ds
     else:
         return None
-#
-def checkDiff(ref, min, max, log = 'checkslope.log'):
-    """
-    checkDiff(ref, min, max, log = 'checkdiff.log'):
-    checks the range of 1st difference values to lie within min to max. For the values
-    outside this range, they are marked as reject. All values marked
-    as reject are cached in the log file
-    """
-    # get the filter for missing values
-    filter = Constants.DEFAULT_FILTER
-    # get the data
-    if hasattr(ref,'getPathname'):
-        ds = ref.getData()
-    else:
-        ds = ref
-    # get the iterator on the data
-    dsi = ds.getIterator()
-    # a flag to check if any flag was cleared
-    changedFlag=0
-    # get user id for setting flags
-    uId = DSSUtil.getUserId();
-    # open log file
-    logfile = open(log,'w')
-    # previous value
-    have_previous_value = 0
-    previous_value=0.0
-    diff = 0.0
-    # while not at the end of data do...
-    while not dsi.atEnd():
-        # get the data element at the current position
-        e = dsi.getElement()
-        # if value is acceptable and flagged as missing then clear its flags
-        if filter.isAcceptable(e) :
-            if have_previous_value:
-                diff = previous_value - e.y
-                if diff < min or diff > max :
-                    FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,'CheckDiff')
-                    changedFlag = 1
-                    dsi.putElement(e) # put the element so cleared into the data set
-                    logfile.write('\n' + " Rejected data @: " +
-                                  e.getXString() + " : " + e.getYString())
-            have_previous_value = 1
-            previous_value = e.y
-        else:
-            have_previous_value = 0
-        dsi.advance() # move to next value
-    # end the while loop
-    logfile.close()
-    if changedFlag:
-        return ref
-    else:
-        return None
-#
+    
 def display_missing(ds):
     """
     display_missing(ds)
