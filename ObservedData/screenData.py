@@ -27,26 +27,26 @@ def checkRange(ref, min, max, log = 'checkrange.log'):
     filter = Constants.DEFAULT_FILTER
     # get the data
     if hasattr(ref,'getPathname'):
-	ds = ref.getData()
+        ds = ref.getData()
     else:
-	ds = ref
+        ds = ref
     # check if ref already has flags, if not, make them
     makeFlags=False
     if not ds[0].getFlag():
-	# create copy of incoming ref but with flags
-	makeFlags=True
-	changedFlag = 1
-	DSSUtil.updateData(ref,1)
-	xa=jarray.zeros(len(ds),'d')
-	ya=jarray.zeros(len(ds),'d')
-	flUnscreened=make_flag_value('UNSCREENED|null')
-	fa = jarray.zeros(len(ds),'i')
-	for i in range(len(ds)):
-	    xa[i]=ds[i].getX()
-	    ya[i]=ds[i].getY()
-	    #fa[i]=flUnscreened
-	ref=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
-	ds=ref
+        # create copy of incoming ref but with flags
+        makeFlags=True
+        changedFlag = 1
+        DSSUtil.updateData(ref,1)
+        xa=jarray.zeros(len(ds),'d')
+        ya=jarray.zeros(len(ds),'d')
+        flUnscreened=make_flag_value('UNSCREENED|null')
+        fa = jarray.zeros(len(ds),'i')
+        for i in range(len(ds)):
+            xa[i]=ds[i].getX()
+            ya[i]=ds[i].getY()
+            #fa[i]=flUnscreened
+        ref=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
+        ds=ref
     # get the iterator on the data
     dsi = ds.getIterator()
     # get user id for setting flags
@@ -87,9 +87,9 @@ def checkDiff(ref, min, max, log = 'checkslope.log'):
     filter = Constants.DEFAULT_FILTER
     # get the data
     if hasattr(ref,'getPathname'):
-	ds = ref.getData()
+        ds = ref.getData()
     else:
-	ds = ref
+        ds = ref
     # get the iterator on the data
     dsi = ds.getIterator()
     # a flag to check if any flag was cleared
@@ -139,16 +139,16 @@ if __name__ == "__main__":
     except: pass
     for tsref in dss_handle.getAllDataReferences():
         inpath=tsref.getPathname()
-	if re.search('/EC',str(inpath)): minval=50.0; maxval=25000.0
-	if re.search('/STAGE',str(inpath)): minval=-15.0; maxval=50.0
-	if re.search('/TEMP',str(inpath)): minval=35.0; maxval=90.0
-	if re.search('/FLOW',str(inpath)): minval=-100000.0; maxval=300000.
-	if not re.search('IR-DAY',str(inpath)): continue
-	
-	outref=checkRange(tsref,minval,maxval,'CheckRange.log')
+        if re.search('/EC',str(inpath)): minval=50.0; maxval=25000.0
+        if re.search('/STAGE',str(inpath)): minval=-15.0; maxval=50.0
+        if re.search('/TEMP',str(inpath)): minval=35.0; maxval=90.0
+        if re.search('/FLOW',str(inpath)): minval=-100000.0; maxval=300000.
+        if not re.search('IR-DAY',str(inpath)): continue
+        
+        outref=checkRange(tsref,minval,maxval,'CheckRange.log')
         if outref:
-	    print outref
-	    writedss(outfile,str(inpath),outref)
-	    print 'Checked path', str(inpath)
+            print outref
+            writedss(outfile,str(inpath),outref)
+            print 'Checked path', str(inpath)
         else:
             print 'No bad values for',str(inpath)
