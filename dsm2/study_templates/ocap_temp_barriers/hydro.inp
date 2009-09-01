@@ -63,7 +63,7 @@ ${DSM2INPUTDIR}/output_channel_std_hydro_rki_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_hydro_sdip_20090715.inp
 ${DSM2INPUTDIR}/output_channel_sdip_trigger_20090715.inp
 ${DSM2INPUTDIR}/output_channel_old_river_head_20090715.inp
-${DSM2INPUTDIR}/output_gate_temporary_barriers_20090715.inp
+${DSM2INPUTDIR}/output_gate_temporary_barriers_20090827.inp
 ${DSM2INPUTDIR}/output_channel_ccc_split_flow_20090715.inp
 ${DSM2INPUTDIR}/output_channel_ocap_20090715.inp
 END
