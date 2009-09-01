@@ -13,28 +13,32 @@ vchecker:
 This module contains the functions for checking data based on its value, rate of
 change, quality flag values etcetra.
 """
-def flagData(ftype, ref, val1=None, val2=None, val3=None, log = 'flag.log'):
+def flagData(ftype, ref, valArray, log = 'flag.log'):
     """
-    flagData(ftype, ref, val1, val2, val3, log = 'flag.log'):
+    flagData(ftype, ref, valArray, log = 'flag.log'):
     Flags a datastream's values for bad data:
-    ftype='R': datavalue not within val1 to val2 marked as reject.
+    ftype='R': datavalue not within valArray[0] to valArray[1] marked as reject.
          ='D': datavalue difference from previous value not within
-               val1 to val2 range.  If val3 given any value, use percentage
-               for val1 and val2.
-         ='M': datavalue equals or very close to val1, a Missing Value marker;
+               valArray[0] to valArray[1] range marked as reject.
+         ='M': datavalue equals or very close to val[0], a Missing Value marker;
                DSS flag set to missing.
-    All values marked are written to log file. Flags added to timeseries
-    if needed.
+    All values marked are written to log file. Flags added to timeseries if needed.
     """
     if ftype == 'R':
-        if val1==None or val2==None: raise 'Two values must be given for Range check.'
+        if valArray[0]==None or valArray[1]==None: raise 'Two values must be given for Range check.'
+        rej_head='Check range ' + str(valArray[0]) + ' - ' + str(valArray[1])
+        rej_note='Range reject @ '
     elif ftype == 'D':
-        if val1==None or val2==None: raise 'Two values must be given for Diff check; optional 3rd val=>use pct.'
+        if valArray[0]==None or valArray[1]==None: raise 'Two values must be given for Diff check.'
+        rej_head='Check diff w/ prev value ' + str(valArray[0]) + ' - ' + str(valArray[1])
+        rej_note='Diff reject @ '
     elif ftype == 'M':
-        if val1==None: raise 'One value must be given for Missing check.'
+        if valArray[0]==None: raise 'One value must be given for Missing check.'
+        rej_head='Check Missing value marker ' + str(valArray[0])
+        rej_note='Missing @ '
     else: raise 'First arg must be a single character R, D or M.'
     # a flag to check if any flag was changed
-    changedFlag=0
+    changedFlag=None
     # get the filter for missing values
     filter = Constants.DEFAULT_FILTER
     # get the data
@@ -45,7 +49,6 @@ def flagData(ftype, ref, val1=None, val2=None, val3=None, log = 'flag.log'):
         # create copy of incoming ref but with flags
         makeFlags=True
         changedFlag = 1
-        #DSSUtil.updateData(ref,1)
         xa=jarray.zeros(len(ds),'d')
         ya=jarray.zeros(len(ds),'d')
         flUnscreened=make_flag_value('UNSCREENED|null')
@@ -54,47 +57,48 @@ def flagData(ftype, ref, val1=None, val2=None, val3=None, log = 'flag.log'):
             xa[i]=ds[i].getX()
             ya[i]=ds[i].getY()
             #fa[i]=flUnscreened
-        ds=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
-        #ds=ref
-    # get the iterator on the data
+        #ds=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
+        ds=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa)
     dsi = ds.getIterator()
     # get user id for setting flags
     uId = DSSUtil.getUserId();
-    prevY=None
+    prev_y=None
     diff = 0.0
 # open log file
     logfile = open(log,'a')
     logfile.write('\n' + 'Name: ' + ds.getName())
-    logfile.write('\n' + 'Acceptable range: ' + str(min) + ' - ' + str(max))
+    logfile.write('\n' + rej_head)
     # while not at the end of data do...
     dsi.resetIterator() 
     while not dsi.atEnd():
+        changedEl=None
         # get the data element at the current position
         e = dsi.getElement()
         # if value not already marked check for bad value
         if filter.isAcceptable(e) :
             if ftype=='R':
-                if e.y < val1 or e.y > val2 : FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
-                changedFlag = 1
-            if ftype=='D':
+                if e.y < valArray[0] or e.y > valArray[1] : 
+                    FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
+                    changedFlag = 1; changedEl=1
+            elif ftype=='D':
                 if prev_y:
                     diff=prev_y-e.y
-                    if val3: diff=diff/prev_y*100.
-                    if diff < val1 or diff > val2 : FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
-                    changedFlag = 1
-            if ftype=='M':
-                if val1*0.999 < e.y and val1*1.0001 > e.y : FlagUtils.setQualityFlag(e,FlagUtils.MISSING_FLAG,uId)
-                changedFlag = 1
-            if changedFlag:
+                    if diff < valArray[0] or diff > valArray[1] : 
+                        FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
+                        changedFlag = 1; changedEl=1
+            elif ftype=='M':
+                if valArray[0]*0.999 < e.y and valArray[0]*1.001 > e.y : 
+                    FlagUtils.setQualityFlag(e,FlagUtils.MISSING_FLAG,uId)
+                    changedFlag = 1; changedEl=1
+            if changedEl:
                 dsi.putElement(e) # put the element back into the data set
-                logfile.write('\n' + " Rejected data @: " +
-                              e.getXString() + " : " + e.getYString())
-            prev_y=e.y
+                logfile.write('\n' + rej_note + e.getXString() + " : " + e.getYString())
+        prev_y=e.y
         dsi.advance() # move to next value
     # end the while loop
     logfile.close()
     if changedFlag:
-        return ds
+        return ref
     else:
         return None
     
