@@ -93,7 +93,11 @@ c-----------find object number given object ID
             devNo=deviceIndex(gateArray(gateNo),subLoc)   
             pathoutput(noutpaths).gate_device=devNo
 	      device_required=.true.
-            if (trim(Param) .eq. 'pos') then
+            if (trim(Param) .eq. 'position') then
+			   write(unit_error, *) 
+     &         "Warning: 'pos' and 'position' output is deprecated. Substituting op_to_node in output: " // name
+                call exit(-3)
+            else if (trim(Param) .eq. 'pos') then
 			   write(unit_error, *) 
      &         "Warning: 'pos' and 'position' output is deprecated. Substituting op_to_node in output: " // name
                 call exit(-3)
