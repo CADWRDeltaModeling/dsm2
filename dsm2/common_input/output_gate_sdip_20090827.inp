@@ -14,7 +14,7 @@ oldr      old_r@tracy_barrier none            flow            15MIN inst      ${
 oldr      old_r@tracy_barrier weir            elev          15MIN inst      ${GATEOUTPUTFILE} 
 oldr_head old_r@head_barrier  none            flow            15MIN inst      ${GATEOUTPUTFILE} 
 oldr_head old_r@head_barrier  weir            op-from-node    15MIN inst      ${GATEOUTPUTFILE} 
-oldr_head old_r@tracy_barrier weir            op-to-node      15MIN inst      ${GATEOUTPUTFILE} 
+oldr_head old_r@head_barrier weir            op-to-node      15MIN inst      ${GATEOUTPUTFILE} 
 tompaine  tom_paine_sl        pipes           flow            15MIN inst      ${GATEOUTPUTFILE} 
 tompaine  tom_paine_sl        pipes           elev          15MIN inst      ${GATEOUTPUTFILE} 
 END
