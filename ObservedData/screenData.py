@@ -20,13 +20,14 @@ if __name__ == "__main__":
         yUnits=dataref.getData().getAttributes().getYUnits()
         inpath=dataref.getPathname()
         if not re.search('IR-DAY',str(inpath)): continue
+        if not re.search('/FAL/',str(inpath)): continue
 
-        valArray=[-99999.0]
+        valArray=[-99999.0, -999999.0]
         if re.search('/FLOW',str(inpath)): outds=flagData('M',dataset,valArray,'FlagData.log')
         if not outds: outds=dataset
 
         if re.search('/EC/',str(inpath)): 
-            if re.search('mil',yUnits): valArray=[0.05,25.0]    # millmhos/cm
+            if re.search('mil',yUnits) or re.search('ms',yUnits) : valArray=[0.05,25.0]    # millmhos/cm
             else: valArray=[50.0,25000.0]   # micromhos/cm
         if re.search('/CL/',str(inpath)): valArray=[5,3000.0]
         if re.search('/STAGE',str(inpath)): valArray=[-15.0,50.0]
@@ -40,13 +41,15 @@ if __name__ == "__main__":
         if re.search('/CL/',str(inpath)): valArray=[-80.0,80.0]
         if re.search('/STAGE',str(inpath)): valArray=[-1.0,1.0]
         if re.search('/TEMP',str(inpath)): valArray=[-3.0,3.0]
-        if re.search('/FLOW',str(inpath)): valArray=[-1000.0,1000.]
+        if re.search('/FLOW',str(inpath)): 
+            if re.search('/FAL/',str(inpath)): valArray=[-5000.0,5000.]
+            else: valArray=[-1500.0,1500.]
         if re.search('/EXPORT',str(inpath)): valArray=[-2000.0,2000.]
         outds=flagData('D',outds,valArray,'FlagData.log')
         
         if outds:
             writedss(outfile,str(inpath),outds)
-            print 'Checked path', str(inpath)
+            print 'Flagged path', str(inpath)
         else:
-            print 'No bad values for',str(inpath)
+            print 'No bad values found for',str(inpath)
     sys.exit()
