@@ -46,16 +46,18 @@ def flagData(ftype, dataset, valArray, log = 'flag.log'):
         ds = dataset
     else:       # create copy of incoming dataset but with flags
         changedFlag = 1
-        xa=jarray.zeros(len(dataset),'d')
-        ya=jarray.zeros(len(dataset),'d')
-        flUnscreened=make_flag_value('UNSCREENED|null')
         fa = jarray.zeros(len(dataset),'i')
-        for i in range(len(dataset)):
-            xa[i]=dataset[i].getX()
-            ya[i]=dataset[i].getY()
-            #fa[i]=flUnscreened
-        #ds=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
-        ds=IrregularTimeSeries(dataset.getName(),xa,ya,fa)
+        if dataset.getAttributes().getType() == DataType.REGULAR_TIME_SERIES:    #RTS
+            ds=RegularTimeSeries(dataset.getName(),str(dataset.getStartTime()),\
+                                 str(dataset.getTimeInterval()),dataset.getYArray(),\
+                                 fa, dataset.getAttributes())
+        else:   # ITS
+            xa=jarray.zeros(len(dataset),'d')
+            ya=jarray.zeros(len(dataset),'d')
+            for i in range(len(dataset)):
+                xa[i]=dataset[i].getX()
+                ya[i]=dataset[i].getY()
+            ds=IrregularTimeSeries(dataset.getName(),xa,ya,fa,dataset.getAttributes())
     dsi = ds.getIterator()
     # get user id for setting flags
     uId = DSSUtil.getUserId();
