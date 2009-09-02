@@ -1,4 +1,4 @@
-import string, re, os
+import string
 from vista.set import Constants,CompositeFilter,DataReference
 from vtimeseries import timewindow
 from vdss import findpath,opendss,writedss
@@ -13,9 +13,9 @@ vchecker:
 This module contains the functions for checking data based on its value, rate of
 change, quality flag values etcetra.
 """
-def flagData(ftype, ref, valArray, log = 'flag.log'):
+def flagData(ftype, dataset, valArray, log = 'flag.log'):
     """
-    flagData(ftype, ref, valArray, log = 'flag.log'):
+    flagData(ftype, dataset, valArray, log = 'flag.log'):
     Flags a datastream's values for bad data:
     ftype='R': datavalue not within valArray[0] to valArray[1] marked as reject.
          ='D': datavalue difference from previous value not within
@@ -41,24 +41,21 @@ def flagData(ftype, ref, valArray, log = 'flag.log'):
     changedFlag=None
     # get the filter for missing values
     filter = Constants.DEFAULT_FILTER
-    # get the data
-    ds = ref.getData()
-    # check if ref already has flags, if not, make them
-    makeFlags=False
-    if not ds[0].getFlag():
-        # create copy of incoming ref but with flags
-        makeFlags=True
+    # check if ds already has flags, if not, make them
+    if dataset.isFlagged():
+        ds = dataset
+    else:       # create copy of incoming dataset but with flags
         changedFlag = 1
-        xa=jarray.zeros(len(ds),'d')
-        ya=jarray.zeros(len(ds),'d')
+        xa=jarray.zeros(len(dataset),'d')
+        ya=jarray.zeros(len(dataset),'d')
         flUnscreened=make_flag_value('UNSCREENED|null')
-        fa = jarray.zeros(len(ds),'i')
-        for i in range(len(ds)):
-            xa[i]=ds[i].getX()
-            ya[i]=ds[i].getY()
+        fa = jarray.zeros(len(dataset),'i')
+        for i in range(len(dataset)):
+            xa[i]=dataset[i].getX()
+            ya[i]=dataset[i].getY()
             #fa[i]=flUnscreened
         #ds=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa,ds.getAttributes())
-        ds=IrregularTimeSeries(str(ref.getPathname()),xa,ya,fa)
+        ds=IrregularTimeSeries(dataset.getName(),xa,ya,fa)
     dsi = ds.getIterator()
     # get user id for setting flags
     uId = DSSUtil.getUserId();
@@ -87,18 +84,22 @@ def flagData(ftype, ref, valArray, log = 'flag.log'):
                         FlagUtils.setQualityFlag(e,FlagUtils.REJECT_FLAG,uId)
                         changedFlag = 1; changedEl=1
             elif ftype=='M':
-                if valArray[0]*0.999 < e.y and valArray[0]*1.001 > e.y : 
+                vA=valArray[0]
+                if (vA > 0 and vA*0.999 < e.y and vA*1.001 > e.y) \
+                or (vA <= 0 and vA*0.999 > e.y and vA*1.001 < e.y): 
                     FlagUtils.setQualityFlag(e,FlagUtils.MISSING_FLAG,uId)
                     changedFlag = 1; changedEl=1
             if changedEl:
                 dsi.putElement(e) # put the element back into the data set
                 logfile.write('\n' + rej_note + e.getXString() + " : " + e.getYString())
-        prev_y=e.y
+            prev_y=e.y
+        else:
+            prev_y=None # don't use bad data for previous data value
         dsi.advance() # move to next value
     # end the while loop
     logfile.close()
     if changedFlag:
-        return ref
+        return ds
     else:
         return None
     
