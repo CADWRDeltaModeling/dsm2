@@ -67,6 +67,7 @@ ag_div
 swp
 cvp
 mtz
+franks
 whole
 END
 
@@ -80,6 +81,7 @@ ag_div        qext            bbid.*
 swp           qext            swp
 cvp           qext            cvp
 mtz           stage           mtz.*
+franks        reservoir       franks_tract
 whole         channel         .*
 whole         reservoir       .*
 END
@@ -87,6 +89,7 @@ END
   
 PARTICLE_GROUP_OUTPUT
 NAME         GROUP_NAME         INTERVAL      FILE
+franks       franks             15min         ${PTMOUTPUTFILE}
 whole        whole              15min         ${PTMOUTPUTFILE}
 whole_15min  whole              1hour         ${PTMOUTPUTFILE}
 END
