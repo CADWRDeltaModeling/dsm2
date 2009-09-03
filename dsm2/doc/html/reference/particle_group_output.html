@@ -24,14 +24,13 @@
 <h2>Overview:</h2>
 <p><em>PARTICLE_GROUP_OUTPUT</em> is a section in the PTM input that specifies DSS output to record residence of particles in group of water bodies.
 </p>
-
 <a name="reference"></a>
 <h3 class="table_name">Reference</h3>
 <h4 class="field_def_title">Keyword Descriptions</h4>
 <dl class="field_definitions">
 <dt>NAME</dt><dd>This is the output name
 that will go in the B_PART of the output.</dd>
-<dt>GROUP_NAMME</dt><dd>Name of the group defined in <em>GROUP</em>.</dd>
+<dt>GROUP_NAME</dt><dd>Name of the group defined in <em>GROUP</em>.</dd>
 <dt>INTERVAL</dt><dd>Interval at which to record residence.&nbsp;</dd>
 <dt>FILENAME</dt><dd>The name of the output file.
 If the file extension is *.dss, output is in
@@ -41,7 +40,7 @@ produced.</dd>
 
 <h2 id="examples">Examples:</h2>
 <div class="fragment"><pre class="fragment">PARTICLE_GROUP_OUTPUT
-NAME       GROUP      INTERVAL   FILENAME
+NAME       GROUP_NAME INTERVAL   FILENAME
 TWITCHELL  twitchell  1HOUR      ${PTMOUTPUTFILE}
 EMMATON    emmaton    1HOUR      ${PTMOUTPUTFILE}
 END</pre>
