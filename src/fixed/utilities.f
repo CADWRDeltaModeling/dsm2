@@ -820,7 +820,7 @@ c-----use dot as delimiter
 
       end
 
-      subroutine get_command_args(init_input_file, SimName)
+      subroutine get_command_args(init_input_file, SimName,echo_only)
 c-----get optional starting input file from command line,
 c-----then from environment variables,
 c-----then default
@@ -829,7 +829,7 @@ c-----then default
 
 c-----arguments
       character SimName*(*)     ! ModelID in RDB
-
+      
       character
      &     init_input_file*(*)  ! initial input file on command line [optional]
 
@@ -837,15 +837,17 @@ c-----arguments
 c-----local variables
       logical
      &     exst                 ! true if file exists
-
+     &     ,echo_only
+     
       integer
      &     iarg                 ! argument index
-     &     ,lnblnk
 
       character*150 CLA         ! command line args
-
+      
+      echo_only = .false.
+      
       call getarg(1,CLA)
-      if (lnblnk(CLA) .eq. 0) then ! print version, usage, quit
+      if (len_trim(CLA) .eq. 0) then ! print version, usage, quit
          print *, 'DSM2-' // trim(dsm2_name) // ' ', dsm2_version
          print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
          call exit(1)
@@ -857,7 +859,6 @@ c-----local variables
          print *, 'DSM2-' // trim(dsm2_name) // ' ', trim(dsm2_version) // '  Subversion: ', trim(svn_build)
          print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
          call exit(1)
-
       else                      ! command line arg
 c--------check arg(s) if valid filename, ModelID
          iarg=1
@@ -866,8 +867,12 @@ c--------check arg(s) if valid filename, ModelID
             inquire (file=CLA, exist=exst)
             if (exst) then
                init_input_file=CLA
-            else                ! not a file, is it Model Name?
-               SimName=CLA
+            else              ! not a file, is it Model Name?
+               if(CLA(:2) .eq. "-e" .or. CLA(:2) .eq. "-E")then
+                   echo_only = .true.
+               else
+                   SimName=CLA
+               end if
             endif
             iarg=iarg+1
             call getarg(iarg,CLA)

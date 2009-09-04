@@ -139,6 +139,7 @@ C-----+ + + LOCAL VARIABLES + + +C
      &     JN,K,CONS_NO,M,
      &     NN,KK
       integer res_num_clfct
+      logical echo_only
 
       real*8    HR,SVOL,tTIME,VJ,VOL
       real*8    TOTFLO
@@ -208,7 +209,7 @@ c-----module, name and version
 
 c-----get optional starting input file from command line and
 c-----simulation name for Database read
-      call get_command_args(init_input_file, model_name)
+      call get_command_args(init_input_file, model_name,echo_only)
 
 c-----dsm2 initialization
       call dsm2_init
@@ -229,6 +230,8 @@ c------ process input that is in buffers
       call buffer_input_qual()          ! process qual specialty items
       
       call write_input_buffers()
+      if (echo_only) call exit(1)
+
 
 c------ end of input reading and echo, start checking data
 
@@ -698,7 +701,7 @@ c--------close all DSS output files
          enddo
       endif
 
-      WRITE(*,*) '   -----------------------------'
+900   WRITE(*,*) '   -----------------------------'
       WRITE(*,*) ' '
       WRITE(*,*) '   Normal program end.'
       WRITE(*,*) ' '

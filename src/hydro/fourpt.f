@@ -81,7 +81,7 @@ C!</license>
 c-----include '../input/time-varying/writedss.inc'
 
 *   Local variables:
-      LOGICAL   OK, isopen
+      LOGICAL   OK, isopen, echo_only
 
       integer*4
      &     incr_intvl           ! increment julian minute by interval function
@@ -179,7 +179,7 @@ c-----DSM2 module, name and version number
 c-----get optional starting input file from command line and
 c-----simulation name for Database read
 
-      call get_command_args(init_input_file, model_name)
+      call get_command_args(init_input_file, model_name,echo_only)
 
 c-----dsm2 initialization
       call dsm2_init
@@ -206,6 +206,7 @@ c------ process input that is in buffers
       call process_text_gate_input()
       call process_text_oprule_ts_input()      
       call write_input_buffers()
+      if (echo_only) call exit(1)
 
 c------ end of input reading and echo, start checking data
       
@@ -408,7 +409,7 @@ c--------close all DSS output files
 *-----Compute and report final volume and mass balances.
 c@@@         OK = ReportNetBalance()
 
-      WRITE(unit_screen,*) '   -----------------------------'
+900   WRITE(unit_screen,*) '   -----------------------------'
       WRITE(unit_screen,*) ' '
       WRITE(unit_screen,*) ' ',
      &     TotalNetworkIterations(),' total network iterations...'
