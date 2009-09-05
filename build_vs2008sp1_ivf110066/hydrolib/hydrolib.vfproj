@@ -33,6 +33,16 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
+		<Filter Name="Header Files">
+		<File RelativePath="..\..\src\hydrolib\chcnstrt.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chconnec.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chcxrec1.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chcxrec2.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chcxtbl.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chinitcd.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chnlcomp.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chnluser.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chstatus.inc"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\hydrolib\boundary.f"/>
 		<File RelativePath="..\..\src\hydrolib\channel_constraints.f"/>
