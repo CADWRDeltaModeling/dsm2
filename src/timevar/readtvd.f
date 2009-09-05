@@ -117,7 +117,10 @@ c-----local variables
      &     /' Cannot continue.')
  620  format(/'Error in reading time-varying data:'
      &     /'Current time is ',a,'; earliest data time for '/a
-     &     /'is ',a)
+     &     /'is ',a/'If this is an irregular series, note that HEC-DSS does not look back to '
+     &     /'previous DSS time blocks (the previous decade if the E Part is IR-DECADE). The workaround'
+     &     /'for this problem is to repeat the prior data point on the first step of the decade/year'
+     &     )
  625  format(/'Error in reading time-varying data:'
      &     /'Current time is ',a,'; all data times for '/a
      &     /' are before this time.')
