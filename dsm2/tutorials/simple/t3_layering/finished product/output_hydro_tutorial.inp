@@ -1,0 +1,15 @@
+OUTPUT_CHANNEL
+NAME         CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE              
+bnd_1              1        0 flow        15min inst      ${HYDROOUTDSSFILE} 
+bnd_1              1        0 stage       15min inst      ${HYDROOUTDSSFILE} 
+bnd_6              6   length flow        15min inst      ${HYDROOUTDSSFILE} 
+bnd_6              6   length stage       15min inst      ${HYDROOUTDSSFILE} 
+chan2_half         2     7500 flow        15min inst      ${HYDROOUTDSSFILE} 
+chan2_half         2     7500 stage       15min inst      ${HYDROOUTDSSFILE} 
+chan2_length       2   length flow        15min inst      ${HYDROOUTDSSFILE} 
+chan2_length       2   length stage       15min inst      ${HYDROOUTDSSFILE} 
+chan2004        2004        0 flow        15min inst      ${HYDROOUTDSSFILE} 
+chan2004        2004        0 stage       15min inst      ${HYDROOUTDSSFILE} 
+END
+
+
