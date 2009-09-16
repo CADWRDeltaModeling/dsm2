@@ -1,0 +1,193 @@
+<TABLE BORDER="0" BGCOLOR="white" CELLSPACING="0" CELLPADDING="0" WIDTH="100%"> 
+<tr><td><IMG alt="" border=0 height=10 src="/webimages/spacer.gif" width=10></td></tr>
+</table>
+<TABLE BORDER="0" BGCOLOR="white" CELLSPACING="0" CELLPADDING="0" WIDTH="100%"> 
+  <span class="blueSubTitle">&nbsp;Overview</span>
+    <TR> 
+    <td><IMG alt="" border=0 height=10 src="/webimages/spacer.gif" width=10></td>
+  </TR>
+  <TR>
+    <TD WIDTH="10" VALIGN="TOP">&nbsp;</TD>
+    <td width="713" colspan="2" class="content">The Delta Simulation Model II (DSM2) is a one-dimensional 
+      mathematical model for dynamic simulation of one-dimensional hydrodynamics, 
+      water quality and particle tracking in a network of riverine or estuarine 
+      channels. DSM2 can calculate stages, flows, velocities, mass transport processes 
+      for conservative and non-conservative constituents including salts, water 
+      temperature, dissolved oxygen, and trihalomethane formation potential, and 
+      transport of individual particles. DSM2 thus provides a powerful simulation 
+      package for analysis of complex hydrodynamic, water quality, and ecological 
+      conditions in riverine and estuarine systems.
+      <p>DSM2 currently consists of three modules, all of which come with the 
+        current distribution: HYDRO, QUAL, and PTM. HYDRO simulates one-dimensional 
+        hydrodynamics including flows, velocities, depth, and water surface elevations. 
+        HYDRO provides the flow input for QUAL and PTM. QUAL simulates one-dimensional 
+        fate and transport of conservative and non-conservative water quality 
+        constituents given a flow field simulated by HYDRO. PTM simulates pseudo 
+        3-D transport of neutrally buoyant particles based on the flow field simulated 
+        by HYDRO. PTM has multiple applications ranging from visualization of 
+        flow patterns to simulation of discrete organisms such as fish eggs and 
+        larvae.</p>
+      <p>DSM2 Version 8 is currently in early release. Documentation will expand 
+        and be corrected for the class in September 2009 (date to be announced 
+        in Users Group). Please send comments to Min Yu at <a href="mailto:minyu@water.ca.gov">minyu@water.ca.gov</a></a>.</p>
+      </td>
+  </tr>
+	  </table>
+	  <TABLE BORDER="0" BGCOLOR="white" CELLSPACING="0" CELLPADDING="0" WIDTH="100%"> 
+<tr><td><IMG alt="" border=0 height=10 src="/webimages/spacer.gif" width=10></td></tr>
+</table>
+
+	  <TABLE BORDER="0" BGCOLOR="white" CELLSPACING="0" CELLPADDING="0" WIDTH="100%"> 
+  <span class="blueSubTitle">&nbsp;Contents</span>
+    <TR> 
+    <td><IMG alt="" border=0 height=10 src="/webimages/spacer.gif" width=10></td>
+  </TR>
+  <TR>
+    <TD WIDTH="10" VALIGN="TOP">&nbsp;</TD>
+    <td width="713" colspan="2" class="content"><p> 
+      <ul><li><a href="#started">Getting Started</a><br/></li>
+    <ul>
+      <li><a href="#download">Download and installation</a></li>
+      <li><a href="#thirdparty">Recommended third party extras</a></li>
+      <li><a href="#testlaunch">Test Launching DSM2</a></li>    
+      <!--li><a href="reference/notepadp">Notepad++ hints</a></li-->
+      <!--li><a href="reference/notepadpp.html">Understanding path variables</a></li-->
+    </ul>
+<!--li><a href="study_organization.html">Study Organization</a></li-->
+    <!--li> <a href="reference/boundary_flow.html">Archiving and Version Control</a><br /></li-->
+<li> <a href="layers.html">Layers, Priority, Data Management</a><br /></li>
+<!--li> <a href="reference/boundary_flow.html">Archiving and Version Control</a><br /></li-->
+<li> <a href="op_rule_guide/dsm2_op_rule_guide.html">Operating Rules</a><br /></li>
+<li> Reference<br />
+    <ul>
+      <li><a href="reference/boundary_flow.html">Boundary Flow</a></li>    
+      <li><a href="reference/boundary_stage.html">Boundary Stage</a></li>
+      <li><a href="reference/channel.html">Channel</a></li>
+      <li><a href="reference/channel_ic.html">Channel Initial Condition</a></li> 
+      <li><a href="reference/envvar.html">Environment substitution (ENVVAR)</a></li>      
+      <li><a href="reference/gate.html">Gate</a></li>
+      <li><a href="reference/group.html">Group</a></li>
+      <li><a href="reference/input_climate.html">Input Climate</a></li>              
+      <li><a href="reference/input_gate.html">Input Gate</a></li> 
+      <li><a href="reference/input_transfer_flow.html">Input Transfer Flow</a></li>   
+      <li><a href="reference/io_file.html">IO Files Section (non-DSS)</a></li> 
+      <li><a href="reference/node_concentration.html">Node Concentration</a></li>       
+      <li><a href="reference/operating_rule.html">Operating Rule</a></li>      
+      <li><a href="reference/output_channel.html">Output: Channel (including source tracking)</a></li>
+      <li><a href="reference/output_gate.html">Output: Gate</a></li>      
+      <li><a href="reference/output_reservoir.html">Output: Reservoir (including source tracking)</a></li>
+      <li><a href="reference/particle_flux_output.html">Particle Flux Output</a></li>      
+      <li><a href="reference/particle_group_output.html">Particle Group Output</a></li>            
+      <li><a href="reference/particle_insertion.html">Particle Insertion</a></li> 
+      <li><a href="reference/rate_coefficient.html">Rate Coefficient</a></li>
+      <li><a href="reference/reservoir.html">Reservoir</a></li>
+      <li><a href="reference/reservoir_concentration.html">Reservoir Concentration</a></li>         
+      <li><a href="reference/reservoir_ic.html">Reservoir Initial Condition</a></li>      
+      <li><a href="reference/scalar.html">Scalar</a></li>
+      <li><a href="reference/source_flow.html">Source Flow (HYDRO at nodes)</a></li>
+      <li>Source Tracking (see Output: Reservoir and Channel)</li>      
+      <li><a href="reference/tidefile.html">Tidefile</a></li>   
+      <li><a href="reference/transfer.html">Transfer</a></li>   
+      </ul>
+  </li>
+</ul>
+
+      <a name="started"></a> <strong><em>Getting Started</em></strong> <br>
+      Welcome to DSM2. This section of the documentation is intended to help you 
+      acquire and install dsm2, test that it is working and understand the layout of 
+      the distribution. After you have taken these steps, you will probably want to
+tackle the tutorials in the /tutorials folder of the distribution or consult
+ the documentation or grid map in the /documentation folder -- a link has been
+ provided on the start menu to make the documentation easier to find.
+      <p> <a name="download"></a> <strong><em>Download and Installation</em></strong> 
+        <br>
+        DSM2 is distributed by the California Department of Water Resources Delta 
+        Modeling Section. Currently we distribute Windows executables, tutorials 
+        and a data package with templates for common studies plus a map of the 
+        standard Delta grid. We expect to release a source code distribution in 
+        late Fall, 2009. 
+      <p>The current version of DSM2 is <a href="DSM2_v8.0_beta3_release.exe"> 
+        DSM2 v8.0 beta 3</a> (119 Mb).
+      <p> 
+          DSM2 comes with a binary installer, and you should be able
+to set it up easily with the default installation. There are two limitations:
+<ul>
+<li>DSM2 is tested only on Windows XP. It has a history of working on NT,
+and we would love to hear from you if you can confirm it works on 
+Windows Vista.</li>
+<li>You need administrative permission to install the package.</li>
+<li>You should not set it up in a location with spaces. We recommend: 
+D:\delta\dsm2 or C:\delta\dsm2...</li>
+<li>Set it up on a drive with a lot (gigabytes) of room. This will make it easier to 
+use in-place</li>
+</ul>
+        
+      <a name="thirdparty"></a> <strong><em>Recommended Third Party Extras</em> 
+      </strong><br>
+        DSM2 comes with a numerical model and scripting capabilities.
+It is easier to use the model if you also have a text editor with 
+syntax highlighting, a tool for differencing
+text files ("diff tool"), a dss viewer and an hdf5 viewer.</p>
+<ul>
+<li><a href="http://www.microsoft.com/windowsxp/Downloads/powertoys/Xppowertoys.mspx">
+Open Command Window Here</a> is a free "power tool" distributed by Microsoft (the download
+links are on the right hand side next to the description of the tool).
+It allows you to get a command window by right clicking a location in Windows
+file explorer. The tool is essential for working with DSM2 efficiently.</li>
+        <li><a href="http://notepad-plus.sourceforge.net/uk/site.htm">Notepad++</a> 
+          is a text editor that works well with DSM2 input data and integrates 
+          nicely into the Windows file explorer. We support the editor with syntax 
+          highlighting. See the /extras folder.</li>
+<li><a href="http://www.sourcegear.com/diffmerge/">DiffMerge</a> is a good 
+free differencing tool for text files. 
+<a href "http://www.scootersoftware.com/">Beyond Compare</a>
+is an inexpensive commercial product that is intuitive and also compares Word files.</li>
+        <li>Vista, one of the first graphical tools for examining data in HEC-DSS format, 
+          comes with DSM2 in the /dsm2/vista/bin directory. We include it because 
+          of legacy scripts, but do not support it very actively.</li>
+<li><a href="http://www.hec.usace.army.mil/software/hec-dss/hecdss-dss.html">
+HEC-DSSVUE</a> is distributed by HEC and is actively maintained. Most people use DSSVUE
+as their primary tool with Vista for specific tasks. An Excel add-in for DSS data
+is also available on the HEC web page.</li>
+<li><a href="http://www.hdfgroup.org/hdf-java-html/hdfview/">HDFView</a> and
+<a href="http://www.space-research.org/">HDF-Explorer</a> are two independent
+browsers for the HDF5 file format. This lets you look inside a tidefile, one of the
+outputs of the model. You only need one of them.</li>
+</ul>
+        
+      <a name="testlaunch"></a> <strong><em>Test Launching DSM2</em> </strong><br>
+      The first step is to see whether the installation was successful. To do 
+      this, get a DOS-style command prompt window and type from any location:</p> 
+      <em>C:\&gt;hydro -v <br>
+      DSM2-Hydro 8.0b4<br>
+      Usage: Hydro input-file </em> 
+      <p>If you got a message like the one above, you are up and running! Your next 
+          stop should be Tutorial #1 or Delta Tutorial #1. 
+          Look in the /tutorials folder  of the distribution. The Basic 
+          Tutorials (Tutorial 1-6) feature most of the nuances of the model using 
+          a very simple grid and are an excellent way to learn about the model 
+          -- including subtleties that are new or caused confusion in the past. 
+          The Delta Tutorial series are more applied -- tasks on the Delta. 
+          </p>
+
+If instead you get this:</p> <em>C:\&gt;hydro -v<br>
+      'hydro' is not recognized as an internal or external command, operable program 
+      or batch file. </em> 
+      <p> ...you have a path problem and we need to straighten it out. 
+          <!--End contents-->
+        </p>
+   
+      &copy;2009 California Department of Water Resources. All Rights Reserved. 
+      <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+
+	  
+       </td>
+  </tr>
+
+	  
+        
+  <TR> 
+    <td><IMG alt="" border=0 height=10 src="/webimages/spacer.gif" width=10></td>
+  </TR>
+</TABLE>
