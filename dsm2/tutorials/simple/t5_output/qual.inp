@@ -54,12 +54,6 @@ END
 
 
 
-GROUPS
-group_tutorial.inp
-END
-
-
-
 OUTPUT_TIME_SERIES
 output_channel_ec_tutorial.inp
 output_qual_sourcetrack.inp    
