@@ -12,8 +12,8 @@ ASTRO_STAGE_VERSION         PLANNING-2-SL
 STAGE_VERSION               PLANNING-2-SL
 SJR_PROCESS                 MULTI_STEP                                            # SINGLE_STEP or MULTI_STEP
 
-START_DATE                  01JAN1991
-QUAL_START_DATE             02JAN1991
+START_DATE                  01JAN1974
+QUAL_START_DATE             02JAN1974
 PTM_START_DATE              ${QUAL_START_DATE}
 START_TIME                  0000
 END_DATE                    01APR1991
