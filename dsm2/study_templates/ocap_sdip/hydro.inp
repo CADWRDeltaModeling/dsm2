@@ -52,7 +52,7 @@ END
 
 OPERATION
 ${DSM2INPUTDIR}/oprule_montezuma_planning_gate_20090715.inp
-${DSM2INPUTDIR}/oprule_sdip_20090827.inp
+${DSM2INPUTDIR}/oprule_sdip_20090916.inp
 ${DSM2INPUTDIR}/oprule_ccc_dual_intake_20090715.inp
 END
 
