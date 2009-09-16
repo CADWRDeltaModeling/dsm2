@@ -1,8 +1,0 @@
-This file contains suggestions for the DSM2 tutorial by Jamie Anderson
-Created 6-29-09
-
-6-29-09
-
-In the tutorials folder, the installation currently creates four folders:
-doc, historical, pdf and simple.  As a new user, it is unclear how to proceed.  Consider having a single tutorial.pdf file and the historical and simple folders.
-
