@@ -41,6 +41,7 @@
 #define get_res_surf_elev GET_RES_SURF_ELEV
 #define ext2int EXT2INT
 #define reservoir_index RESNDX
+#define reservoir_connect_index RESCONNECTNDX
 #define ext2intnode EXT2INTNODE
 #define qext_index QEXT_INDEX
 #define transfer_index TRANSFER_INDEX
@@ -68,7 +69,7 @@ extern "C" int STDCALL ext2int(const int& extchan);
 extern "C" int STDCALL ext2intnode(const int& extres);
 extern "C" int STDCALL reservoir_index(const char* name, 
                                      unsigned int len);
-
+extern "C" int STDCALL reservoir_connect_index(const int& resndx, const int& internal_node);
 
 extern "C" void STDCALL chan_comp_point(const int& intchan, 
                                           const double& distance,

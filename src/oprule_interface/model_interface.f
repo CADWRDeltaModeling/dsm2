@@ -180,19 +180,36 @@ c            better for hydro to keep track of its own time
       integer function resNdx(name)
       use grid_data
 	implicit none
-
 	integer i
 	character*(*) name
 	resNdx=miss_val_i
 	call locase(name)
 	do i=1,nreser
-	   if (res_geom(i).name .eq. name)	then
+	   if (res_geom(i).name .eq. trim(name))	then
 	     resNdx = i
 	     exit
 	   end if
 	end do
 	return
 	end function
+
+      integer function resConnectNdx(res_ndx,internal_node_no)
+      use grid_data
+	implicit none
+	integer i
+	integer :: res_ndx
+	integer :: internal_node_no
+	resConnectNdx=miss_val_i
+	do i=1,res_geom(res_ndx).nnodes
+	   if (res_geom(res_ndx).node_no(i) .eq. internal_node_no)	then
+	     resConnectNdx = i
+	     exit
+	   end if
+	end do
+	return
+	end function
+
+
 
       integer function gateNdx(name)
 	use Gates, only: GateArray,nGate

@@ -97,7 +97,7 @@ c-----Local variables
 
 
       parameter(
-     &     max_nc=10
+     &     max_nc=11
      &     ,n_required_do=7
      &     ,n_required_algae=7
      &     )
@@ -126,6 +126,7 @@ c-----Local variables
      &     'stage ',
      &     'flow ',
      &     'flow-net ',
+     &     'flow-source ',     
      &     'pump ',
      &     'vel ',
      &     'cloud ',
@@ -438,9 +439,7 @@ c--------------check for valid reservoir name
                   pathoutput(i).obj_no=loc
                   if (pathoutput(i).res_node_no .gt. 0) then
 c--------------------check that if a node was given, flow was specified
-                     if (pathoutput(i).meas_type .ne. 'flow' .and.
-     &                    pathoutput(i).meas_type .ne. 'flow-net' .and.
-     &                    pathoutput(i).meas_type .ne. 'pump') then
+                     if (pathoutput(i).meas_type .ne. 'flow' ) then
                         write(unit_error, 620) trim(pathoutput(i).obj_name)
                         goto 900
                      endif
@@ -452,6 +451,15 @@ c--------------------check for valid node number
      &                       pathoutput(i).res_node_no
                         goto 900
                      endif
+c                  else
+c                     if( 
+c     &                   pathoutput(i).meas_type .ne. 'flow-net' .and.
+c     &                   pathoutput(i).meas_type .ne. 'flow-source' ) then
+c                         write(unit_error, *) 
+c     &                      "Only flow-net or flow-source output allowed with no node='none': ",
+c     &                      trim(pathoutput(i).obj_name)
+c                         goto 900
+c                     endif                           
                   endif
                endif
 
