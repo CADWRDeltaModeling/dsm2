@@ -21,8 +21,8 @@ DICU_VERSION                                         2005                       
 ASTRO_STAGE_VERSION                                  PLANNING-2-SL                                                                                      
 STAGE_VERSION                                        PLANNING-2-SL                                                                                      
 SJR_PROCESS                                          MULTI_STEP                              #SINGLE_STEP or MULTI_STEP                                 
-START_DATE                                           01JAN1974                                                                                          
-QUAL_START_DATE                                      02JAN1974                                                                                          
+START_DATE                                           01OCT1974                                                                                          
+QUAL_START_DATE                                      02OCT1974                                                                                          
 PTM_START_DATE                                       ${QUAL_START_DATE}                                                                                 
 START_TIME                                           0000                                                                                               
 END_DATE                                             01OCT1991                                                                                          
