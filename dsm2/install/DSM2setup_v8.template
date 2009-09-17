@@ -68,7 +68,7 @@ Source: "..\tutorials\historical\*";     Destdir: "{app}\tutorials\historical\";
 Source: "..\license\*";                  Destdir: "{app}\";                                    Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 
 Source: "..\studies\*";                  Destdir: "{app}\studies\";                            Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
-Source: "..\study_templates\*";          Destdir: "{app}\study_templates\"; Attribs: readonly; Flags: overwritereadonly ignoreversion recursesubdirs createallsubdirs ; Components: main
+Source: "..\study_templates\*";          Destdir: "{app}\study_templates\";                    Flags: overwritereadonly ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\timeseries\*";               DestDir: "{app}\timeseries\";                         Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\vista\*";                    DestDir: "{app}\vista\";                              Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
 Source: "..\extras\*";                   DestDir: "{app}\extras\";                             Flags: ignoreversion recursesubdirs createallsubdirs ; Components: main
