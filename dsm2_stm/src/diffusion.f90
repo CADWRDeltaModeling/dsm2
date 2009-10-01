@@ -1,374 +1,503 @@
-     PROGRAM diffusion
+program diffusion
 
-! Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-! Department of Water Resources.
-! This file is part of DSM2.
+! copyright (c) 1996, 1997, 1998, 2001, 2007, 2009 state of california,
+! department of water resources.
+! this file is part of dsm2.
 
-! The Delta Simulation Model 2 (DSM2) is free software: 
+! the delta simulation model 2 (dsm2) is free software: 
 ! you can redistribute it and/or modify
-! it under the terms of the GNU General Public License as published by
-! the Free Software Foundation, either version 3 of the License, or
+! it under the terms of the gnu general public license as published by
+! the free software foundation, either version 3 of the license, or
 ! (at your option) any later version.
 
-! DSM2 is distributed in the hope that it will be useful,
-! but WITHOUT ANY WARRANTY; without even the implied warranty of
-! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-! GNU General Public License for more details.
+! dsm2 is distributed in the hope that it will be useful,
+! but without any warranty; without even the implied warranty of
+! merchantability or fitness for a particular purpose.  see the
+! gnu general public license for more details.
 
-! You should have received a copy of the GNU General Public License
-! along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+! you should have received a copy of the gnu general public license
+! along with dsm2.  if not, see <http://www.gnu.org/licenses>.
 
-! Delta Modeling Section 
-! Modeling Support Branch
-! Bay-Delta Office
-! California Department of Water Resources
+! delta modeling section 
+! modeling support branch
+! bay-delta office
+! california department of water resources
 ! http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/index.cfm
 !
-! PURPOSE:
+! purpose:
 !
-! It solves the dispersion of sediment in the longitudinal direction
-! Partial_(A C_s)/Partial_t = Partial/Partial_x [A K_s Partial_(C_s)/Partial_x]
+! it solves the dispersion of sediment in the longitudinal direction
+! partial_(a c_s)/partial_t = partial/partial_x [a k_s partial_(c_s)/partial_x]
 ! 
-! These sub-routines are being developed by the Department of Civil and 
-! Environmental Engineering at the University of California, Davis and DWR
+! these sub-routines are being developed by the department of civil and 
+! environmental engineering at the university of california, davis and dwr
 !
-! Record of revisions:
-!       Date             Programmers                 Description of change
+! record of revisions:
+!       date             programmers                 description of change
 !       ====             ===========                 =====================
-!     07/21/09          Kaveh Zamani               Version 0 - Basic structure
-!                 and Fabian Bombardelli                of the code
-!
-!     07/22/09          Kaveh Zamani               More elements of the code
-!                 and Fabian Bombardelli
-!
-!     07/26/09        Fabian Bombardelli        Computation of values of matrix
-!     07/27/09        Fabian Bombardelli        Boundary conditions and solutions  
-!     07/28/09        Fabian Bombardelli        Case 1 and final set up
-!     07/29/09        Fabian Bombardelli        Case 2 and final set up
-!     07/30/09        Fabian Bombardelli        Optimizing Case 2
+!       09/17/09        kaveh zamani                  rewrite and clean up  
 !****************************************************************************
 
-          IMPLICIT NONE
+! variables: data dictionary.  define variables types, definitions and units
 
-! Variables: data dictionary.  Define variables types, definitions and units
-
-! C_s_n_plus_one(i): concentration of sediment in suspension averaged in the volume i
+! conc_plus_one(i): concentration of sediment in suspension averaged in the volume i
 !      for time t + 1
-! C_S_n(i): concentration of sediment in suspension averaged in the volume
+! conc(i): concentration of sediment in suspension averaged in the volume
 !         for time t
-! K_s_n_plus_one(i): dispersion coefficient at the left face of volume i for time t + 1
-! K_s_n(i): dispersion coefficient at the left face of volume i for time t
-! Area_n_plus_one(i): Area of cross section evaluated at the left face of volume i at time
-!                     t + 1. This is an output coming from HYDRO
-! Area_n(i): Area of cross section evaluated at the left face of volume i at time
-!            t. This is an output coming from HYDRO
-! A(i): Values of the coefficients below diagonal in matrix
-! B(i): Values of the coefficients at the diagonal in matrix
-! C(i): Values of the coefficients above diagonal in matrix
-! D(i): Values of the independent term
-! N_volumes: Number of volumes (computational cross sections) whose
+! k_s_plus_one(i): dispersion coefficient at the left face of volume i for time t + 1
+! k_s(i): dispersion coefficient at the left face of volume i for time t
+! area_plus_one(i): area of cross section evaluated at the left face of volume i at time
+!                     t + 1. this is an output coming from hydro
+! area(i): area of cross section evaluated at the left face of volume i at time
+!            t. this is an output coming from hydro
+! a(i): values of the coefficients below diagonal in matrix
+! b(i): values of the coefficients at the diagonal in matrix
+! c(i): values of the coefficients above diagonal in matrix
+! d(i): values of the independent term
+! ncell: number of volumes (computational cross sections) whose
 !          sediment concentration will be computed
-! dt_sed: Time step for the computation of sediment transport (in seconds)
-! dx_sed: Spatial step for the computation of sediment transport (in feet for STM)  
+! dt: time step for the computation of sediment transport (in seconds)
+! dx: spatial step for the computation of sediment transport (in feet for stm)  
 
-       INTEGER, PARAMETER :: N_volumes = 21
-       INTEGER :: N
-       INTEGER :: i, j, N_times, ak
-       INTEGER :: i_case
-       INTEGER :: Boundary_condition_flag_upstream
-       INTEGER :: Boundary_condition_flag_downstream
-       
-       REAL, DIMENSION(N_volumes+1) :: Area_n, Area_n_plus_one
-       REAL, DIMENSION(N_volumes+1) :: K_s_n, K_s_n_plus_one
-       REAL, DIMENSION(N_volumes) :: C_s_n, C_s_n_plus_one
-       REAL, DIMENSION(N_volumes) :: A, B, C, D, X
-       
-       REAL, PARAMETER :: Pi = 3.1415926535897932384626433832795
-       
-       REAL :: dt_sed
-       REAL :: dx_sed
-       REAL :: Theta
-       REAL :: Cal_D, Cal_D_one
-       
-       REAL :: Time
-       REAL :: C_s_upstream, C_s_downstream
-       
-       REAL :: ax
-       REAL :: Flux_s_upstream_n, Flux_s_upstream_n_plus_one
-                    
-!CCCCCCCCCCCCCC  Temporary statements while the code is not connected to Hydro CCC Beginning
-! We assume a value of N_volumes and other variables for the time being   
-         Theta = 0.5
-         dt_sed = 0.001
-!CCCCCCCCCCCCCC  Temporary statements while the code is not connected to Hydro CCC End
+implicit none
 
-! Place holder for input of data from HYDRO
-! get_Area_Hydro
-! get_Ks_Hydro
-! We need to discuss how to compute K_s from the output of HYDRO
+integer,parameter :: ncell = 26
+integer,parameter :: ntime = 5000
+integer,parameter:: stm_real=8
 
-!CCCC
-! BODY OF SUB-ROUTINE DIFFUSION
-          i_case = 2
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
 
-          if(i_case.eq.1)dx_sed = 0.05
-          if(i_case.eq.2)dx_sed = 0.045
+integer :: ivar, jvar, kvar, ivar2, jvar2 
+integer:: i_case
+integer :: bc_flag_up
+integer :: bc_flag_down
+
+real(stm_real), parameter :: pi = 3.14159265358979323846264338327950288
+
+real(stm_real) :: area(ncell+1,ntime), area_plus_one(ncell+1,ntime)! change the logic in area 
+real(stm_real) :: k_s(ncell+1,ntime), k_s_plus_one(ncell+1,ntime)
+real(stm_real) :: conc(ncell), conc_plus_one(ncell)
+real(stm_real) :: a(ncell), b(ncell), c(ncell), d(ncell), x(ncell)
+real(stm_real) :: dt
+real(stm_real) :: dx
+real(stm_real) :: theta
+real(stm_real) :: coef, coef_one
+real(stm_real) :: time
+real(stm_real) :: c_s_up, c_s_down
+real(stm_real) :: ax
+real(stm_real) :: flux_s_up_n, flux_s_up_n_plus_one, flux_s_down_n, flux_s_down_n_plus_one
+real(stm_real) :: conc_result(ncell, ntime)
+real(stm_real) :: conc_exact(ncell, ntime)
+real(stm_real) :: error(ncell, ntime)
+
+           
+theta = 0.5d0
+dt = 0.001d0/2.0d0
+i_case = 2
+
+if(i_case == 1)dx = 0.05d0
+if(i_case == 2)dx = 0.9d0/(ncell-1)                        !0.045d0
+if(i_case == 3) dx= 0.045d0
+if(i_case == 4) dx= 0.045d0
+
+coef = theta * dt / dx /dx
+coef_one = (1 - theta) * dt / dx / dx
+
+open(3,file='results.dat',status='unknown')
+
+
+call initial_c(conc, &
+                       i_case,ncell,dx)
+
+marchontime :do jvar=1,ntime
+
+      time = dt * jvar
+      write(3,*)jvar,dt,time
+      write(3,*)
+
+      call read_hydro_area_ks(area,area_plus_one,k_s,k_s_plus_one,&
+                                                                ncell,jvar,ntime)
+
+      call bigk(a, b, c, d, &
+                              ncell, coef, coef_one, area, area_plus_one, k_s, k_s_plus_one, conc,jvar,ntime)
+                              
+      call make_bc (c_s_up,c_s_down,flux_s_up_n,flux_s_up_n_plus_one,flux_s_down_n,flux_s_down_n_plus_one & 
+                              ,i_case,bc_flag_up,bc_flag_down,time,dt)
+
+      call impose_bc(a, b, c, d,&
+                              bc_flag_up, bc_flag_down, ncell, c_s_up, c_s_down, coef, coef_one, area, k_s, area_plus_one, &
+                              k_s_plus_one, flux_s_up_n, flux_s_up_n_plus_one, dx, conc,ntime,jvar)
+
+      call tridi_solver(x & 
+                        ,a, b, c, d, ncell)
+
+   storeresult:  do ivar=1, ncell
+             write(3,*)x(ivar)
+             conc(ivar)=x(ivar)
+             conc_result(ivar,jvar)=x(ivar)
+       end do storeresult
+
+end do marchontime
+
+call exact_sol(error,conc_exact &  
+                                    ,ntime,ncell,i_case,dx,dt,pi,conc_result)
+
+end program diffusion
+
+!*****************************************************************************************
+subroutine initial_c(conc, &
+                            i_case,ncell,dx)
+
+                               
+integer :: i_case
+integer :: ncell
+integer :: kvar
+
+integer,parameter :: stm_real=8
+
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
+
+real (stm_real) :: ax,dx
+real (stm_real) ::conc(ncell)
+
+real (stm_real),parameter :: pi=3.14159265358979323846264338327950288
+
+if(i_case == 1) then
+do kvar=1, (ncell - 1) / 2 + 1
+ conc(kvar) = two * (kvar - 1) * dx
+end do
+      
+kvar_march: do kvar=(ncell - 1) / 2 + 2, ncell
+ conc(kvar) = two - two * (kvar - 1) * dx
+end do kvar_march
+
+
+
+elseif(i_case == 2)then
+kvar_march2: do kvar=1, ncell
+ ax = (kvar - 1) * dx + 0.1d0
+ conc(kvar) = two * ax + two*two * cos(0.5d0 * pi * ax)
+
      
-          N = N_volumes
-          Cal_D = Theta * dt_sed / dx_sed /dx_sed
-          Cal_D_one = (1 - Theta) * dt_sed / dx_sed / dx_sed
+end do kvar_march2
 
-!CCCCCCCCCCCCCC  Temporary statements while the code is not connected to Hydro CCC Beginning
-        open(3,file='results.dat',status='unknown')
+elseif (i_case == 3)then
 
-        do i=1,N+1
-           Area_n(i) = 1.0d0
-           Area_n_plus_one(i) = 1.0d0
-           K_s_n(i) = 1.0d0
-           K_s_n_plus_one(i) = 1.0d0
-        end do
 
-! Initial condition
-     if(i_case.eq.1) then
-       do ak=1, (N - 1) / 2 + 1
-         C_s_n(ak) = 1.0d0/0.5d0 * (ak - 1) * dx_sed
-       end do
-              
-       do ak=(N - 1) / 2 + 2, N
-         C_s_n(ak) = 2.0d0 - 1.0d0/0.5d0 * (ak - 1) * dx_sed
-       end do
-       C_s_n(N)=0.0d0
-     end if
-     
-     if(i_case.eq.2)then
-       do ak=1, N
-         ax = (ak - 1) * dx_sed + 0.1
-         C_s_n(ak) = 2.0d0 * ax + 4.0d0 * cos(0.5d0 * Pi * ax)
-!         print *, C_s_n(ak)
-       end do
-     end if
 
-!     do ak=1, N
-!       print *, C_s_n(ak)
-!     end do
+elseif (i_case == 4) then
 
-! A time-advancing stage is started here to validate the code
+else
+print *, 'Error! please recheck the boundary condition flag'  
+end if
 
-        N_times = 500
+print *, 'Boundary condition was loaded'
 
-       do j=1,N_times
+return
+end
+!*************************************************************************************
 
-         Time = dt_sed * j
+subroutine read_hydro_area_ks(area,area_plus_one,k_s,k_s_plus_one,&
+                                                                    ncell,jvar,ntime)
+
+integer,parameter :: stm_real=8
+
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
+
+integer :: ncell,ntime
+integer :: ivar, jvar
+
+real(stm_real) :: area(ncell+1,ntime),area_plus_one(ncell+1,ntime),k_s(ncell+1,ntime),k_s_plus_one(ncell+1,ntime)
+
+do ivar=1,ncell+1
+   area(ivar,jvar) = one
+   area_plus_one(ivar,jvar) = one
+   k_s(ivar,jvar) = one
+   k_s_plus_one(ivar,jvar) = one
+end do
+
+return
+end
+
+!*****************************************************************************************
+subroutine bigk(a, b, c, d, &
+                                ncell, coef, coef_one, area, area_plus_one, k_s, k_s_plus_one, conc,jvar,ntime)
+
+integer,parameter:: stm_real=8
+  
+integer :: ncell,ntime 
+integer ::ivar, jvar, kvar
+  
+real(stm_real) :: a(ncell), b(ncell), c(ncell), d(ncell), x(ncell)
+real(stm_real) :: area(ncell+1,ntime), area_plus_one(ncell+1,ntime)
+real(stm_real) :: k_s(ncell+1,ntime), k_s_plus_one(ncell+1,ntime)
+real(stm_real) :: conc(ncell), conc_plus_one(ncell)
+real(stm_real) :: area_aux_n, area_aux_n_plus_one
+real(stm_real) :: coef, coef_one
+  
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
+  
+    
+   do ivar=1,ncell
+    area_aux_n_plus_one = (area_plus_one(ivar,jvar) + area_plus_one(ivar+1,jvar)) / two
+    area_aux_n = (area(ivar,jvar) + area(ivar+1,jvar)) / two
+    b(ivar)=area_aux_n_plus_one + coef * area_plus_one(ivar+1,jvar) * k_s_plus_one(ivar+1,jvar) 
+    b(ivar)=b(ivar) + coef * area_plus_one(ivar,jvar) * k_s_plus_one(ivar,jvar) 
+    a(ivar)= minus * coef * area_plus_one(ivar,jvar) * k_s_plus_one(ivar,jvar)
+    c(ivar)= minus * coef * area_plus_one(ivar+1,jvar) * k_s_plus_one(ivar+1,jvar)
+   
+!       if (ivar == ncell) then 
+!       concstar=conc(ivar)
+!       else
+!       concstar=conc(ivar+1) 
+!       end if  
+   
+    d(ivar)=area_aux_n * conc(ivar) + coef_one * conc(ivar+1) * area(ivar+1,jvar) * k_s(ivar+1,jvar)
+      d(ivar)= d(ivar) -  coef_one * conc(ivar) * area(ivar+1,jvar) * k_s(ivar+1,jvar)
+    d(ivar)= d(ivar) -  coef_one * conc(ivar) * area(ivar,jvar) * k_s(ivar,jvar)
+   
+!        if (ivar == 1) then 
+!        concstar2 =conc(ivar)
+!        else
+!        concstar2=conc(ivar-1)
+!        end if 
+   
+       d(ivar)= d(ivar) +  coef_one * conc(ivar-1) * area(ivar,jvar) * k_s(ivar,jvar)
+   end do
          
-         write(3,*)j,dt_sed,Time
-         write(3,*)
+return
+end
 
 
-!CCCCCCCCCCCCCC  Temporary statements while the code is not connected to Hydro CCC End
+!*****************************************************************************************   
 
-! Initialization of values of the matrix
-         do i=1,N
-           A(i)=0.0d0
-           B(i)=0.0d0
-           C(i)=0.0d0
-           D(i)=0.0d0
-           X(i)=0.0d0
-         end do
 
-! Computation of all elements of matrix 
-       call values(A, B, C, D, N, Cal_D, Cal_D_one, Area_n, Area_n_plus_one, K_s_n, K_s_n_plus_one, C_s_n)
+subroutine make_bc (c_s_up,c_s_down,flux_s_up_n,flux_s_up_n_plus_one,flux_s_down_n,flux_s_down_n_plus_one & 
+                                                                                                    ,i_case,bc_flag_up,bc_flag_down,time,dt)
 
-        do i=1,N
-          print *, i, A(i), B(i), C(i), D(i)
-        end do
-!          print *, Cal_D, Cal_D_one
+integer,parameter :: stm_real=8
 
-! Imposing the boundary conditions
+integer ::i_case,bc_flag_up,bc_flag_down
 
-       if(i_case.eq.1)then
-           Boundary_condition_flag_upstream = 1
-           Boundary_condition_flag_downstream = 1
-           C_s_upstream = 0.0d0
-           C_s_downstream = 0.0d0
-       end if
+real(stm_real),parameter :: pi=	3.14159265358979323846264338327950288
 
-       if(i_case.eq.2)then
-           Boundary_condition_flag_upstream = 0
-           Boundary_condition_flag_downstream = 1
-           Flux_s_upstream_n = 2.0d0 - 2.0d0 * Pi * sin(0.05d0 * Pi) * exp(-1.0d0 * Pi * Pi / 4.0d0 * (Time - dt_sed))
-           Flux_s_upstream_n_plus_one = 2.0d0 - 2.0d0 * Pi * sin(0.05d0 * Pi) * exp(-1.0d0 * Pi * Pi / 4.0d0 * Time)
-           
-           write(*,*)
-           print *, Time, Flux_s_upstream_n, Flux_s_upstream_n_plus_one
-           
-           C_s_downstream = 2.0d0
-       end if
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
 
-       call boundary_conditions(Boundary_condition_flag_upstream, Boundary_condition_flag_downstream, A, B, C, D, N, C_s_upstream, C_s_downstream, Cal_D, Cal_D_one, Area_n, K_s_n, Area_n_plus_one, K_s_n_plus_one, Flux_s_upstream_n, Flux_s_upstream_n_plus_one, dx_sed, C_s_n)
+real(stm_real)::c_s_up,c_s_down,flux_s_up_n,flux_s_up_n_plus_one,time,dt,flux_s_down_n,flux_s_down_n_plus_one
 
-        do i=1,N
-          print *, i, A(i), B(i), C(i), D(i)
-        end do
-          print *, Cal_D, Cal_D_one
+if(i_case == 1)then
+   bc_flag_up = one
+   bc_flag_down = one
+   c_s_up = zero
+   c_s_down = zero
+end if
 
-! Call for the tri-diagonal solver
-        call TRIDI_SOLVER(A, B, C, D, N, X)
-! Output the results
-        do i=1, N
-         write(3,*)X(i)
-         C_s_n(i)=X(i)
-        end do
-        write(3,*)
+if(i_case == 2)then
+   bc_flag_up = zero
+   bc_flag_down = one
+   flux_s_up_n = two - two * pi * sin(0.05d0 * pi) * exp(minus * pi * pi / 4.0d0 * (time - dt))
+   flux_s_up_n_plus_one = two - two * pi * sin(0.05d0 * pi) * exp(minus * pi * pi / 4.0d0 * time)
+   c_s_down = two
+end if
 
-        end do
+return
+end subroutine
+!***************************************************************************************** 
+subroutine impose_bc(a, b, c, d,&
+                                     bc_flag_up, bc_flag_down, ncell, c_s_up, c_s_down, coef, coef_one, area, k_s, area_plus_one, k_s_plus_one, flux_s_up_n, flux_s_up_n_plus_one, dx, conc,ntime,jvar)
 
-        end program diffusion
+integer,parameter:: stm_real=8
+  
+integer :: ncell,ntime
+integer ::jvar 
+integer :: bc_flag_up
+integer :: bc_flag_down
+  
+real(stm_real):: a(ncell), b(ncell), c(ncell), d(ncell), x(ncell)
+real(stm_real):: area(ncell+1,ntime), area_plus_one(ncell+1,ntime)
+real(stm_real):: k_s(ncell+1,ntime), k_s_plus_one(ncell+1,ntime)
+real(stm_real) :: c_s_up, c_s_down
+real(stm_real) :: flux_s_up_n, flux_s_up_n_plus_one
+real(stm_real) :: dx
+real(stm_real) :: coef, coef_one
+real(stm_real) :: conc(ncell), conc_plus_one(ncell)
+   
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
+   
+  
+   if(bc_flag_up == 1)then
+     b(1) = one
+     c(1) = zero
+     d(ncell) = c_s_up
+   end if
 
-!*****************************************************************************************
-        SUBROUTINE values(A, B, C, D, N, Cal_D, Cal_D_one, Area_n, Area_n_plus_one, K_s_n, K_s_n_plus_one, C_s_n)
+   if(bc_flag_up == 0)then
+     b(1) = b(1)
+     c(1) = c(1) - coef * area_plus_one(1,jvar) * k_s_plus_one(1,jvar)
+     d(1) = d(1) - two * dx * flux_s_up_n_plus_one * coef * area_plus_one(1,jvar) * k_s_plus_one(1,jvar)
+     d(1) = d(1) - two * dx * flux_s_up_n * coef_one * area(1,jvar) * k_s(1,jvar)
+     d(1) = d(1) + coef_one * area(1,jvar) * k_s(1,jvar) * conc(2) 
+   end if
+   
+   if(bc_flag_down == 1)then
+     b(ncell)= one
+     a(ncell)= zero
+     d(ncell) = c_s_down
+   end if
 
-! Variables: data dictionary.  Define variables types, definitions and units
-
-! Area_aux_n: Area evaluated at the center of the volume i at time t
-! Areas_aux_n_plus_one: Area evaluated at the center of the volume i at time t + 1
-! A(i): Values of the coefficients below diagonal in matrix
-! B(i): Values of the coefficients at the diagonal in matrix
-! C(i): Values of the coefficients above diagonal in matrix
-! D(i): Values of the independent term
-
-          INTEGER, PARAMETER :: N_volumes = 21
-          INTEGER N
-          INTEGER i, j, N_times, ak
-          REAL, DIMENSION(N_volumes) :: A, B, C, D, X
-          REAL, DIMENSION(N_volumes+1) :: Area_n, Area_n_plus_one
-          REAL, DIMENSION(N_volumes+1) :: K_s_n, K_s_n_plus_one
-          REAL, DIMENSION(N_volumes) :: C_s_n, C_s_n_plus_one
-          REAL :: Area_aux_n, Area_aux_n_plus_one
-          
-          do ak=1, N
-            print *, C_s_n(ak)
-          end do
-          
-           do i=1,N
-            Area_aux_n_plus_one = (Area_n_plus_one(i) + Area_n_plus_one(i+1)) / 2.0d0
-            Area_aux_n = (Area_n(i) + Area_n(i+1)) / 2.0d0
-            B(i)=Area_aux_n_plus_one + Cal_D * Area_n_plus_one(i+1) * K_s_n_plus_one(i+1) 
-            B(i)=B(i) + Cal_D * Area_n_plus_one(i) * K_s_n_plus_one(i) 
-            A(i)= - 1.0d0 * Cal_D * Area_n_plus_one(i) * K_s_n_plus_one(i)
-            C(i)= - 1.0d0 * Cal_D * Area_n_plus_one(i+1) * K_s_n_plus_one(i+1)
-            D(i)=Area_aux_n * C_s_n(i) + Cal_D_one * C_s_n(i+1) * Area_n(i+1) * K_s_n(i+1)
-            D(i)= D(i) -  Cal_D_one * C_s_n(i) * Area_n(i+1) * K_s_n(i+1)
-            D(i)= D(i) -  Cal_D_one * C_s_n(i) * Area_n(i) * K_s_n(i)
-            D(i)= D(i) +  Cal_D_one * C_s_n(i-1) * Area_n(i) * K_s_n(i)
-           end do
-                 
-        RETURN
-        END
+   if(bc_flag_down == 0)then
         
+   end if
+   
+
+return
+end
 
 !*****************************************************************************************    
-        SUBROUTINE boundary_conditions(Boundary_condition_flag_upstream, Boundary_condition_flag_downstream, A, B, C, D, N, C_s_upstream, C_s_downstream, Cal_D, Cal_D_one, Area_n, K_s_n, Area_n_plus_one, K_s_n_plus_one, Flux_s_upstream_n, Flux_s_upstream_n_plus_one, dx_sed, C_s_n)
-        
-           INTEGER, PARAMETER :: N_volumes = 21
-           INTEGER :: Boundary_condition_flag_upstream
-           INTEGER :: Boundary_condition_flag_downstream
-           REAL, DIMENSION(N_volumes) :: A, B, C, D, X
-           REAL, DIMENSION(N_volumes+1) :: Area_n, Area_n_plus_one
-           REAL, DIMENSION(N_volumes+1) :: K_s_n, K_s_n_plus_one
-           REAL :: C_s_upstream, C_s_downstream
-           REAL :: Flux_s_upstream_n, Flux_s_upstream_n_plus_one
-           REAL :: dx_sed
-           REAL :: Cal_D, Cal_D_one
-           REAL, DIMENSION(N_volumes) :: C_s_n, C_s_n_plus_one
-           
-           print *, Flux_s_upstream_n, Flux_s_upstream_n_plus_one, dx_sed
-           print *, Cal_D, Cal_D_one
-           print *, Area_n_plus_one(1), Area_n(1)
-           print *, C(1)
+subroutine tridi_solver(x & 
+                    ,a, b, c, d, ncell)
 
-           If(Boundary_condition_flag_upstream.eq.1)then
-             B(1) = 1.0d0
-             C(1) = 0.0d0
-             D(N) = C_s_upstream
-           end if
-        
-           If(Boundary_condition_flag_upstream.eq.0)then
-             B(1) = B(1)
-             C(1) = C(1) - Cal_D * Area_n_plus_one(1) * K_s_n_plus_one(1)
-             D(1) = D(1) - 2.0d0 * dx_sed * Flux_s_upstream_n_plus_one * Cal_D * Area_n_plus_one(1) * K_s_n_plus_one(1)
-             D(1) = D(1) - 2.0d0 * dx_sed * Flux_s_upstream_n * Cal_D_one * Area_n(1) * K_s_n(1)
-             D(1) = D(1) + Cal_D * Area_n(1) * K_s_n(1) * C_s_n(2) 
-           end if
-           
-           If(Boundary_condition_flag_downstream.eq.1)then
-             B(N)=1.0d0
-             A(N)= 0.0d0
-             D(N) = C_s_downstream
-           end if
-        
-           If(Boundary_condition_flag_downstream.eq.0)then
-                
-           end if
-           
 
-        RETURN
-        END
+integer,parameter:: stm_real=8
 
-!*****************************************************************************************    
-        SUBROUTINE TRIDI_SOLVER(A, B, C, D, N, X)
+
+integer :: ncell
+integer :: ivar
+
+real(stm_real) :: a(ncell), b(ncell), c(ncell), d(ncell), x(ncell)
+real(stm_real) :: gam(ncell)
+real(stm_real) :: bet
+
+if(b(1) == 0)then
+  print *, 'there is a problem here'
+  stop
+end if
+
+bet = b(1)
+x(1) = d(1) / bet
+
+do ivar=2, ncell
+  gam(ivar) = c(ivar - 1) / bet
+  bet = b(ivar) - a(ivar) * gam(ivar)
+  if(bet == 0)then
+    print *, 'tridiagonal solver failed'
+  end if
+  x(ivar) = (d(ivar) - a(ivar) * x(ivar - 1)) / bet 
+end do
+
+do ivar= ncell-1, 1, -1
+  x(ivar) = x(ivar) - gam(ivar + 1) * x(ivar + 1)
+end do
+
+return
+end 
+
+!*******************************************************************************************
+subroutine exact_sol(error,conc_exact &  
+                                    ,ntime,ncell,i_case,dx,dt,pi,conc_result)
+
+integer :: i_case
+integer :: ntime
+integer :: ncell
+integer :: ivar,jvar,kvar
+
+integer,parameter:: stm_real=8
+
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
+
+real(stm_real) :: conc_exact(ncell,ntime)
+real(stm_real) :: error(ncell,ntime)
+real(stm_real) :: conc_result(ncell,ntime)
+real(stm_real) ::pi,dx,dt
+
+
+if (i_case==2) then
+do ivar=1,ncell
+    do jvar=1,ntime
+        conc_exact(ivar,jvar)=two*((ivar-1)*dx+1.0d-1)+two*two*cos(half*pi*((ivar-1)*dx+1.0d-1))*exp(-(jvar)*dt*(pi**2.0d0)/4.0d0)
+    end do
+end do
+else 
+ print *, 'there is no exact solution for this case' 
+end if
+
+do ivar2=1,ncell
+ do jvar2=1,ntime
+    error(ivar2,jvar2)= abs(conc_exact(ivar2,jvar2)-conc_result(ivar2,jvar2))/conc_exact(ivar2,jvar2)
+ end do
+end do
+
+!open(4,file='error.dat',status='unknown')
+open (100,file= 'errorcomp.dat',status= 'unknown')
+    write (100,*) ' Number of volumes are    ' , ncell-1
+    write (100,*) '    X     -', '      error percentage    -   ' , '         abs (Uexact-Unum) error'
+do kvar=1,ntime
+!    write (4,*) 'step ',  kvar
+!    write (4,*) 
+!    write (4,*) error (:,kvar)
     
-!    Input (A,B,C,D,N,
-!    Output     X)
+    write (100,*) kvar,'time'
+    write (100,*) kvar*dt
+    do ivar2=1,ncell
+    write (100,*)  ((ivar2-1)*dx+1.0d-1), error (ivar2,kvar), error (ivar2,kvar)*conc_exact(ivar2,jvar2)
+   end do
+    
+end do
+
+return
+end
+!**************************************************************************************************
+!subroutine stm_precision(stm_real,minus,zero,one,two,half,fourth)
 !
-! PURPOSE:
-
-! Solves a tridiagonal system for X. This sub-routine was taken from the Numerical Recipes,
-! page 43 (Edition of 1992)
-! 
-!             [B1,C1,00,00,00]  
-! [X1,X2,...] [A2,B2,C2,00,00] = [D1,D2,....]
-!             [00,A3,B3,C3,00]  
-!             [00,00,A4,B4,C4]
-!             [00,00,00,A5,B5]    
-
-! Variables:
+!!> precision of real
+!integer, parameter :: stm_real=8
 !
-! A(i): Values of the coefficients below diagonal in matrix
-! B(i): Values of the coefficients at the diagonal in matrix
-! C(i): Values of the coefficients above diagonal in matrix
-! D(i): Values of the independent term 
-! X(i): Values of the computed solution
-
-        INTEGER :: N
-        REAL, DIMENSION(N) :: A, B, C, D, X
-        INTEGER :: K, KK
-        REAL, DIMENSION(N) :: gam
-        REAL :: bet
-        
-        if(B(1).eq.0)then
-          print *, 'There is a problem here'
-          stop
-        end if
-        
-        bet = B(1)
-        X(1) = D(1) / bet
-        
-        do K=2, N
-          gam(K) = C(K - 1) / bet
-          bet = B(K) - A(K) * gam(K)
-          if(bet.eq.0)then
-            print *, 'Tridiagonal solver failed'
-          end if
-          X(K) = (D(K) - A(K) * X(K - 1)) / bet 
-        end do
-      
-        do KK= N-1, 1, -1
-          X(KK) = X(KK) - gam(KK + 1) * X(KK + 1)
-        end do
-      
-       RETURN
-       END 
-!*****************************************************************************************
-    
-    
-
+!real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+!real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+!real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+!real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+!real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+!real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
+!
+!!> absurd high value, for initialization and for marking undefined
+!!> data in calculations. this makes bugs easier to spot.
+!real(stm_real) :: largereal = 1.23456789d8
+!
+!return
+!end 
+!***********************************************************************************************************
