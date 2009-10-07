@@ -493,7 +493,7 @@ c          No interpolation is necessary, since the computational points are mat
 *   Intrinsics:
       INTEGER   INT
       INTRINSIC INT
-
+*   Suspected not to be used at all.
 *   Programmed by: Lew DeLong
 *   Date:          Dec   1992
 *   Modified by:
@@ -1234,6 +1234,7 @@ c          No interpolation is necessary, since the computational points are mat
             QOld=InitialQ
             WS=InitialWS
             YResOld=YRes
+            CompLocation_lcl = InitialX
          ELSE
             WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
             WRITE(UNIT_ERROR,*) ' Reading of initial conditions failed...'
@@ -1282,6 +1283,8 @@ c          No interpolation is necessary, since the computational points are mat
  100     CONTINUE
       END IF
 
+
+
       do i=1,MaxLocations
          QOld(i)=Q(i)
       end do
@@ -1299,7 +1302,7 @@ c          No interpolation is necessary, since the computational points are mat
             DO  J=UpstreamPointer(),DownstreamPointer()
                H( J ) = WS( J ) - BtmElev( CompLocation_lcl( J ) )
             END DO
-
+            
 
 c-----------if (Restart_Read)
 c-----------&           OK = ApproxReadInitialConditions()               WHY??????!!!!!!
@@ -1367,7 +1370,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
          END IF
 
  200  CONTINUE
-
+      
       InitializeNetworkFlowValues = .TRUE.
 
       RETURN
