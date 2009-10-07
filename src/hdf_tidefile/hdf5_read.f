@@ -310,7 +310,7 @@ c-----call h5dget_space_f(res_dset_id, res_fspace_id, error)
       data_dims(1) = max_qext
       h_data_dims(1) = 1
 
-                                !! TODO Add nqext as an attribute
+      !! TODO Add nqext as an attribute and only read in that many
 
       call h5dopen_f(geom_id, "qext", qext_dset_id, error)
 
