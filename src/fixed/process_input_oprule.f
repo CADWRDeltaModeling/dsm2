@@ -21,7 +21,6 @@ C!</license>
       subroutine process_input_oprule(Name,
      &                                Filename,
      &                                InPath,
-     &                                Sign,
      &                                Fillin)
 
       use Gates
@@ -71,18 +70,18 @@ C!</license>
             pathinput(ninpaths).useobj=.true.
             pathinput(ninpaths).obj_type=obj_oprule
 
-               if (sign .eq. -1) then
-                  pathinput(ninpaths).sign = -1
-               elseif (sign .eq. 1) then
-                  pathinput(ninpaths).sign = 1
-               elseif (sign .eq. 0) then
-                  ! do nothing
-               else
-                  write(unit_error,"(a,1x,a,1x,a1,i,a1)")
-     &            "Incorrect sign for input time series",trim(name),
-     &            "(",sign,")"
-                  call exit(-3)
-               end if
+!               if (sign .eq. -1) then
+!                  pathinput(ninpaths).sign = -1
+!               elseif (sign .eq. 1) then
+!                  pathinput(ninpaths).sign = 1
+!               elseif (sign .eq. 0) then
+!                  pathinput(ninpaths).sign = 1
+!               else
+!                  write(unit_error,"(a,1x,a,1x,a1,i,a1)")
+!     &            "Incorrect sign for input time series",trim(name),
+!     &            "(",sign,")"
+!                  call exit(-3)
+!               end if
 
 c-----------find object number given external object number
             pathinput(ninpaths).obj_name=miss_val_c

@@ -93,7 +93,7 @@ c-----------clean up character variables, replace environment variables
       elseif (sign .eq. 1) then
           pathinput(ninpaths).sign = 1
       elseif (sign .eq. 0) then
-          pathinput(ninpaths).sign = 0
+          pathinput(ninpaths).sign = 1
       else
           write(unit_error,*)"Incorrect sign for node input time series:",
      &    pathinput(ninpaths).name, sign
@@ -107,7 +107,7 @@ c-----------find object number given external object number
       if (FileName(:8) .eq. 'constant' .or.
      &      FileName(:8) .eq. 'CONSTANT') then
           read(InPath, '(1f10.0)') ftmp
-          pathinput(ninpaths).constant_value=ftmp
+          pathinput(ninpaths).constant_value=ftmp*pathinput(ninpaths).sign  
           pathinput(ninpaths).variable=Param
           pathinput(ninpaths).fillin=fill_last
           pathinput(ninpaths).path=trim(InPath)

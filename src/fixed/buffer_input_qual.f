@@ -108,7 +108,6 @@ c======================== Input and output ======================
 
          call process_input_climate(name,
      &                              variable,
-     &                              sign,
      &                              fillin,
      &                              filename,
      &                              inpath)

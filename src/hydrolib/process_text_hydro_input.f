@@ -67,11 +67,10 @@
      &                                        inpath,
      &                                        ierror)
 
-          sign=0 ! currently hardwired
+
           call process_input_oprule(name,
      &                              filename,
      &                              inpath,
-     &                              sign,
      &                              fillin)
       end do
       print *,"Number of oprule time series processed: ", nitem

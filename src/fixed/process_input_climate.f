@@ -20,7 +20,6 @@ C!</license>
 
       subroutine process_input_climate(Name,
      &                                 Param,
-     &                                 Sign,
      &                                 Fillin,
      &                                 Filename,
      &                                 InPath) 
@@ -76,16 +75,16 @@ C!</license>
             pathinput(ninpaths).obj_name=LocName
             pathinput(ninpaths).obj_type=obj_climate
 
-               if (sign .eq. -1) then
-                  pathinput(ninpaths).sign = -1
-               elseif (sign .eq. 1) then
-                  pathinput(ninpaths).sign = 1
-               elseif (sign .eq. 0) then
-                  ! do nothing
-               else
-                  write(unit_error,'(a,i)')"Incorrect sign for input time series:"
-                  call exit(-3)
-               end if
+!               if (sign .eq. -1) then
+!                  pathinput(ninpaths).sign = -1
+!               elseif (sign .eq. 1) then
+!                  pathinput(ninpaths).sign = 1
+!               elseif (sign .eq. 0) then
+!                  pathinput(ninpaths).sign = 1
+!               else
+!                  write(unit_error,'(a,i)')"Incorrect sign for input time series:"
+!                  call exit(-3)
+!               end if
 
             pathinput(ninpaths).obj_name='global'
             pathinput(ninpaths).obj_no = miss_val_i  ! this could be an index into climate variables.
