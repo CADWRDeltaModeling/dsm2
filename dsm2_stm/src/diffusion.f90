@@ -40,15 +40,13 @@ program diffusion
 
 ! variables: data dictionary.  define variables types, definitions and units
 
-! conc_plus_one(i): concentration of sediment in suspension averaged in the volume i
-!      for time t + 1
 ! conc(i): concentration of sediment in suspension averaged in the volume
 !         for time t
-! k_s_plus_one(i): dispersion coefficient at the left face of volume i for time t + 1
-! k_s(i): dispersion coefficient at the left face of volume i for time t
-! area_plus_one(i): area of cross section evaluated at the left face of volume i at time
-!                     t + 1. this is an output coming from hydro
-! area(i): area of cross section evaluated at the left face of volume i at time
+! ks_lo(i): dispersion coefficient at the left face of volume i for time t 
+! ks_hi(i): dispersion coefficient at the right face of volume i for time t
+! area_lo(i): area of cross section low side evaluated at the left face of volume i at time
+!                     t. this is an output coming from hydro
+! area_hi(i): area of cross section evaluated at the right face of volume i at time
 !            t. this is an output coming from hydro
 ! a(i): values of the coefficients below diagonal in matrix
 ! b(i): values of the coefficients at the diagonal in matrix
@@ -61,8 +59,8 @@ program diffusion
 
 implicit none
 
-integer,parameter :: ncell = 26
-integer,parameter :: ntime = 5000
+integer,parameter :: ncell = 7169
+integer,parameter :: ntime = 3202
 integer,parameter:: stm_real=8
 
 real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
@@ -79,9 +77,11 @@ integer :: bc_flag_down
 
 real(stm_real), parameter :: pi = 3.14159265358979323846264338327950288
 
-real(stm_real) :: area(ncell+1,ntime), area_plus_one(ncell+1,ntime)! change the logic in area 
-real(stm_real) :: k_s(ncell+1,ntime), k_s_plus_one(ncell+1,ntime)
-real(stm_real) :: conc(ncell), conc_plus_one(ncell)
+real(stm_real) :: area_lo(ncell,ntime+1), area_hi(ncell,ntime+1)
+real(stm_real) :: ks_lo(ncell,ntime+1), ks_hi(ncell,ntime+1)
+
+
+real(stm_real) :: conc(ncell)
 real(stm_real) :: a(ncell), b(ncell), c(ncell), d(ncell), x(ncell)
 real(stm_real) :: dt
 real(stm_real) :: dx
@@ -90,62 +90,79 @@ real(stm_real) :: coef, coef_one
 real(stm_real) :: time
 real(stm_real) :: c_s_up, c_s_down
 real(stm_real) :: ax
-real(stm_real) :: flux_s_up_n, flux_s_up_n_plus_one, flux_s_down_n, flux_s_down_n_plus_one
+real(stm_real) :: flux_up_n, flux_up_n_plus_one, flux_down_n, flux_down_n_plus_one
 real(stm_real) :: conc_result(ncell, ntime)
 real(stm_real) :: conc_exact(ncell, ntime)
 real(stm_real) :: error(ncell, ntime)
+real(stm_real) :: L1,L2,L_infinity
 
            
-theta = 0.5d0
-dt = 0.001d0/2.0d0
-i_case = 2
+theta = 1.0d0
+dt = 0.001d0 
+i_case = 3   
 
 if(i_case == 1)dx = 0.05d0
-if(i_case == 2)dx = 0.9d0/(ncell-1)                        !0.045d0
-if(i_case == 3) dx= 0.045d0
+if(i_case == 2)dx = 0.9d0/(ncell-1)             
+if(i_case == 3) dx= 0.015625d0  !!!!!!!!!!!!!!! 100.0d0/(ncell-1)
 if(i_case == 4) dx= 0.045d0
+
+
+
 
 coef = theta * dt / dx /dx
 coef_one = (1 - theta) * dt / dx / dx
 
 open(3,file='results.dat',status='unknown')
-
+open(4,file='resultsevery100step.dat',status='unknown')
 
 call initial_c(conc, &
-                       i_case,ncell,dx)
+                       i_case,ncell,dx)  
 
-marchontime :do jvar=1,ntime
+do jvar=1,ntime
 
-      time = dt * jvar
-      write(3,*)jvar,dt,time
-      write(3,*)
+            time = dt * jvar
+            write (3,*) 
+            write(3,*)jvar,dt,time
+           
+            call read_hydro_area_ks(area_lo,area_hi,ks_lo,ks_hi,&
+                                                    ncell,jvar,ntime)
 
-      call read_hydro_area_ks(area,area_plus_one,k_s,k_s_plus_one,&
-                                                                ncell,jvar,ntime)
+            call bigk(a, b, c, d, &
+                          ncell, coef, coef_one, area_lo, area_hi, ks_lo, ks_hi, conc,jvar,ntime)                                                                        
+                                                       
 
-      call bigk(a, b, c, d, &
-                              ncell, coef, coef_one, area, area_plus_one, k_s, k_s_plus_one, conc,jvar,ntime)
-                              
-      call make_bc (c_s_up,c_s_down,flux_s_up_n,flux_s_up_n_plus_one,flux_s_down_n,flux_s_down_n_plus_one & 
-                              ,i_case,bc_flag_up,bc_flag_down,time,dt)
+            call make_bc (c_s_up,c_s_down,flux_up_n,flux_up_n_plus_one,flux_down_n,flux_down_n_plus_one & 
+                          ,i_case,bc_flag_up,bc_flag_down,time,dt)
 
-      call impose_bc(a, b, c, d,&
-                              bc_flag_up, bc_flag_down, ncell, c_s_up, c_s_down, coef, coef_one, area, k_s, area_plus_one, &
-                              k_s_plus_one, flux_s_up_n, flux_s_up_n_plus_one, dx, conc,ntime,jvar)
 
-      call tridi_solver(x & 
+            call impose_bc(a, b, c, d,&
+                          bc_flag_up, bc_flag_down, ncell, c_s_up, c_s_down, coef, coef_one, area_lo, ks_lo, area_hi, &
+                          ks_hi, flux_up_n, flux_up_n_plus_one, dx, conc,ntime,jvar)
+
+
+            call tridi_solver(x & 
                         ,a, b, c, d, ncell)
 
-   storeresult:  do ivar=1, ncell
-             write(3,*)x(ivar)
-             conc(ivar)=x(ivar)
-             conc_result(ivar,jvar)=x(ivar)
-       end do storeresult
+            do ivar=1, ncell
+                 write(3,*) jvar*dt,((1-ncell)/2+ivar-1)*dx,x(ivar)
+                 conc(ivar)=x(ivar)
+                conc_result(ivar,jvar)=x(ivar)
+                 
+                 if (mod(jvar,100) == 0) then
+                      if (abs(((1-ncell)/2+ivar-1)*dx)<= 7) then
+                        write (4,*) jvar*dt,((1-ncell)/2+ivar-1)*dx,x(ivar)
+                      end if
+                 end if
+                 
+            end do 
 
-end do marchontime
+end do 
 
-call exact_sol(error,conc_exact &  
-                                    ,ntime,ncell,i_case,dx,dt,pi,conc_result)
+!call exact_sol(error,conc_exact &  
+                        !          ,ntime,ncell,i_case,dx,dt,pi,conc_result)
+                                   
+!call norm_calculator ( L1, L2 ,L_infinity &
+                                           !,ntime ,ncell, error, conc_exact,conc_result,dx,dt,theta)
 
 end program diffusion
 
@@ -168,47 +185,54 @@ real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
 real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
 
 real (stm_real) :: ax,dx
-real (stm_real) ::conc(ncell)
+real (stm_real) :: conc(ncell)
 
 real (stm_real),parameter :: pi=3.14159265358979323846264338327950288
 
-if(i_case == 1) then
+if(i_case == 1) then  
 do kvar=1, (ncell - 1) / 2 + 1
  conc(kvar) = two * (kvar - 1) * dx
 end do
       
-kvar_march: do kvar=(ncell - 1) / 2 + 2, ncell
+ do kvar=(ncell - 1) / 2 + 2, ncell
  conc(kvar) = two - two * (kvar - 1) * dx
-end do kvar_march
+end do 
 
 
 
-elseif(i_case == 2)then
-kvar_march2: do kvar=1, ncell
+elseif(i_case == 2)then  
+ do kvar=1, ncell
  ax = (kvar - 1) * dx + 0.1d0
  conc(kvar) = two * ax + two*two * cos(0.5d0 * pi * ax)
 
      
-end do kvar_march2
+end do 
 
 elseif (i_case == 3)then
-
+do kvar =1 , ncell
+conc(kvar)= zero
+end do
+conc(kvar/2)=1.0d0/dx
 
 
 elseif (i_case == 4) then
 
+
 else
+
+
+
 print *, 'Error! please recheck the boundary condition flag'  
 end if
 
-print *, 'Boundary condition was loaded'
+!print *, 'Initial condition was loaded'
 
 return
 end
 !*************************************************************************************
 
-subroutine read_hydro_area_ks(area,area_plus_one,k_s,k_s_plus_one,&
-                                                                    ncell,jvar,ntime)
+ subroutine read_hydro_area_ks(area_lo,area_hi,ks_lo,ks_hi,&
+                                                               ncell,jvar,ntime)                                                                  
 
 integer,parameter :: stm_real=8
 
@@ -222,21 +246,40 @@ real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
 integer :: ncell,ntime
 integer :: ivar, jvar
 
-real(stm_real) :: area(ncell+1,ntime),area_plus_one(ncell+1,ntime),k_s(ncell+1,ntime),k_s_plus_one(ncell+1,ntime)
+real(stm_real) :: area_lo(ncell,ntime+1),area_hi(ncell,ntime+1)
+real(stm_real) :: ks_lo(ncell,ntime+1),ks_hi(ncell,ntime+1)
+
+
+do ivar=1,ncell 
+
+    area_lo(ivar,jvar) = one
+    area_hi(ivar,jvar) = one
+    
+    area_lo(ivar,jvar+1) = one
+    area_hi(ivar,jvar+1) = one
+   
+end do
 
 do ivar=1,ncell+1
-   area(ivar,jvar) = one
-   area_plus_one(ivar,jvar) = one
-   k_s(ivar,jvar) = one
-   k_s_plus_one(ivar,jvar) = one
+
+   ks_lo(ivar,jvar) = two
+   ks_hi(ivar,jvar) = two
+   
+   ks_lo(ivar,jvar+1) = two
+   ks_hi(ivar,jvar+1) = two
+  
 end do
+
+!print *, 'Area and KS were loaded from Hydro time step',jvar
 
 return
 end
 
 !*****************************************************************************************
-subroutine bigk(a, b, c, d, &
-                                ncell, coef, coef_one, area, area_plus_one, k_s, k_s_plus_one, conc,jvar,ntime)
+                              
+  subroutine  bigk(a, b, c, d, &
+                              ncell, coef, coef_one, area_lo, area_hi, ks_lo, ks_hi, conc,jvar,ntime)
+
 
 integer,parameter:: stm_real=8
   
@@ -244,10 +287,12 @@ integer :: ncell,ntime
 integer ::ivar, jvar, kvar
   
 real(stm_real) :: a(ncell), b(ncell), c(ncell), d(ncell), x(ncell)
-real(stm_real) :: area(ncell+1,ntime), area_plus_one(ncell+1,ntime)
-real(stm_real) :: k_s(ncell+1,ntime), k_s_plus_one(ncell+1,ntime)
-real(stm_real) :: conc(ncell), conc_plus_one(ncell)
-real(stm_real) :: area_aux_n, area_aux_n_plus_one
+real(stm_real) :: area_lo(ncell,ntime+1), area_hi(ncell,ntime+1)
+
+real(stm_real) :: ks_lo(ncell,ntime+1), ks_hi(ncell,ntime+1)
+real(stm_real) :: conc(ncell)
+real(stm_real) :: area_aux, area_aux_plus_one
+
 real(stm_real) :: coef, coef_one
   
 real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
@@ -258,31 +303,28 @@ real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
 real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
   
     
-   do ivar=1,ncell
-    area_aux_n_plus_one = (area_plus_one(ivar,jvar) + area_plus_one(ivar+1,jvar)) / two
-    area_aux_n = (area(ivar,jvar) + area(ivar+1,jvar)) / two
-    b(ivar)=area_aux_n_plus_one + coef * area_plus_one(ivar+1,jvar) * k_s_plus_one(ivar+1,jvar) 
-    b(ivar)=b(ivar) + coef * area_plus_one(ivar,jvar) * k_s_plus_one(ivar,jvar) 
-    a(ivar)= minus * coef * area_plus_one(ivar,jvar) * k_s_plus_one(ivar,jvar)
-    c(ivar)= minus * coef * area_plus_one(ivar+1,jvar) * k_s_plus_one(ivar+1,jvar)
-   
-!       if (ivar == ncell) then 
-!       concstar=conc(ivar)
-!       else
-!       concstar=conc(ivar+1) 
-!       end if  
-   
-    d(ivar)=area_aux_n * conc(ivar) + coef_one * conc(ivar+1) * area(ivar+1,jvar) * k_s(ivar+1,jvar)
-      d(ivar)= d(ivar) -  coef_one * conc(ivar) * area(ivar+1,jvar) * k_s(ivar+1,jvar)
-    d(ivar)= d(ivar) -  coef_one * conc(ivar) * area(ivar,jvar) * k_s(ivar,jvar)
-   
-!        if (ivar == 1) then 
-!        concstar2 =conc(ivar)
-!        else
-!        concstar2=conc(ivar-1)
-!        end if 
-   
-       d(ivar)= d(ivar) +  coef_one * conc(ivar-1) * area(ivar,jvar) * k_s(ivar,jvar)
+    do ivar = 2, ncell -1
+  
+        area_aux_plus_one = (area_lo(ivar,jvar+1) + area_hi(ivar,jvar+1)) / two
+        area_aux = (area_lo(ivar,jvar) + area_hi(ivar,jvar)) / two
+
+        b(ivar)=area_aux_plus_one + coef * area_hi(ivar,jvar+1) * ks_hi(ivar,jvar+1) 
+
+        b(ivar)=b(ivar) + coef * area_lo(ivar,jvar+1) * ks_lo(ivar,jvar+1) 
+
+        a(ivar)= minus * coef * area_lo(ivar,jvar+1) * ks_lo(ivar,jvar+1)
+
+        c(ivar)= minus * coef * area_hi(ivar,jvar+1) * ks_hi(ivar,jvar+1)    
+
+        d(ivar)=area_aux * conc(ivar) + coef_one * conc(ivar+1) * area_hi(ivar,jvar) * ks_hi(ivar,jvar) 
+
+        d(ivar)= d(ivar) -  coef_one * conc(ivar) * area_hi(ivar,jvar) * ks_hi(ivar,jvar)
+
+        d(ivar)= d(ivar) -  coef_one * conc(ivar) * area_lo(ivar,jvar) * ks_lo(ivar,jvar)
+
+        d(ivar)= d(ivar) +  coef_one * conc(ivar-1) * area_lo(ivar,jvar) * ks_lo(ivar,jvar)
+       
+    
    end do
          
 return
@@ -291,13 +333,12 @@ end
 
 !*****************************************************************************************   
 
-
-subroutine make_bc (c_s_up,c_s_down,flux_s_up_n,flux_s_up_n_plus_one,flux_s_down_n,flux_s_down_n_plus_one & 
+subroutine make_bc (c_s_up,c_s_down,flux_up_n,flux_up_n_plus_one,flux_down_n,flux_down_n_plus_one & 
                                                                                                     ,i_case,bc_flag_up,bc_flag_down,time,dt)
 
 integer,parameter :: stm_real=8
 
-integer ::i_case,bc_flag_up,bc_flag_down
+integer ::i_case ,bc_flag_up,bc_flag_down
 
 real(stm_real),parameter :: pi=	3.14159265358979323846264338327950288
 
@@ -308,28 +349,51 @@ real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
 real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
 real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
 
-real(stm_real)::c_s_up,c_s_down,flux_s_up_n,flux_s_up_n_plus_one,time,dt,flux_s_down_n,flux_s_down_n_plus_one
+real(stm_real)::c_s_up,c_s_down,flux_up_n,flux_up_n_plus_one,time,dt,flux_down_n,flux_down_n_plus_one
 
 if(i_case == 1)then
-   bc_flag_up = one
-   bc_flag_down = one
+   bc_flag_up = 1
+   bc_flag_down =1
    c_s_up = zero
    c_s_down = zero
+
+
+elseif(i_case == 2)then
+   bc_flag_up = 0
+   bc_flag_down = 1
+   flux_up_n = two - two * pi * sin(0.05d0 * pi) * exp(minus * pi * pi / 4.0d0 * (time - dt))
+   flux_up_n_plus_one = two - two * pi * sin(0.05d0 * pi) * exp(minus * pi * pi / 4.0d0 * time)
+   c_s_down = two
+elseif (i_case == 3)then
+
+bc_flag_up = 1 !!!!
+bc_flag_down = 1 !!!!
+
+c_s_up = zero
+c_s_down = zero
+ 
+ flux_up_n = zero
+ flux_up_n_plus_one = zero
+ flux_down_n = zero 
+ flux_down_n_plus_one = zero
+
+
+else
+
+print *, 'please check the test case flag'
+
 end if
 
-if(i_case == 2)then
-   bc_flag_up = zero
-   bc_flag_down = one
-   flux_s_up_n = two - two * pi * sin(0.05d0 * pi) * exp(minus * pi * pi / 4.0d0 * (time - dt))
-   flux_s_up_n_plus_one = two - two * pi * sin(0.05d0 * pi) * exp(minus * pi * pi / 4.0d0 * time)
-   c_s_down = two
-end if
+!print *,'BC was made in the time ', time
+
 
 return
 end subroutine
 !***************************************************************************************** 
 subroutine impose_bc(a, b, c, d,&
-                                     bc_flag_up, bc_flag_down, ncell, c_s_up, c_s_down, coef, coef_one, area, k_s, area_plus_one, k_s_plus_one, flux_s_up_n, flux_s_up_n_plus_one, dx, conc,ntime,jvar)
+                              bc_flag_up, bc_flag_down, ncell, c_s_up, c_s_down, coef, coef_one, area_lo, ks_lo, area_hi, &
+                              ks_hi, flux_up_n, flux_up_n_plus_one, dx, conc,ntime,jvar)
+               
 
 integer,parameter:: stm_real=8
   
@@ -339,13 +403,17 @@ integer :: bc_flag_up
 integer :: bc_flag_down
   
 real(stm_real):: a(ncell), b(ncell), c(ncell), d(ncell), x(ncell)
-real(stm_real):: area(ncell+1,ntime), area_plus_one(ncell+1,ntime)
-real(stm_real):: k_s(ncell+1,ntime), k_s_plus_one(ncell+1,ntime)
+
+real(stm_real):: area_lo(ncell,ntime), area_hi(ncell,ntime)
+
+
+real(stm_real) ::area_aux_plus_one,area_aux
+real(stm_real) :: ks_lo(ncell,ntime+1), ks_hi(ncell,ntime+1)
 real(stm_real) :: c_s_up, c_s_down
-real(stm_real) :: flux_s_up_n, flux_s_up_n_plus_one
+real(stm_real) :: flux_up_n, flux_up_n_plus_one
 real(stm_real) :: dx
 real(stm_real) :: coef, coef_one
-real(stm_real) :: conc(ncell), conc_plus_one(ncell)
+real(stm_real) :: conc(ncell)
    
 real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
 real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
@@ -362,23 +430,74 @@ real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
    end if
 
    if(bc_flag_up == 0)then
-     b(1) = b(1)
-     c(1) = c(1) - coef * area_plus_one(1,jvar) * k_s_plus_one(1,jvar)
-     d(1) = d(1) - two * dx * flux_s_up_n_plus_one * coef * area_plus_one(1,jvar) * k_s_plus_one(1,jvar)
-     d(1) = d(1) - two * dx * flux_s_up_n * coef_one * area(1,jvar) * k_s(1,jvar)
-     d(1) = d(1) + coef_one * area(1,jvar) * k_s(1,jvar) * conc(2) 
+   
+   
+        area_aux_plus_one = (area_lo(1,jvar+1) + area_hi(1,jvar+1)) / two
+        area_aux = (area_lo(1,jvar) + area_hi(1,jvar)) / two
+
+        b(1)=area_aux_plus_one + coef * area_hi(1,jvar+1) * ks_hi(1,jvar+1) 
+
+        b(1)=b(1) + coef * area_lo(1,jvar+1) * ks_lo(1,jvar+1) 
+
+        a(1)= minus * coef * area_lo(1,jvar+1) * ks_lo(1,jvar+1)
+
+        c(1)= minus * coef * area_hi(1,jvar+1) * ks_hi(1,jvar+1)    
+
+        d(1)=area_aux * conc(1) + coef_one * conc(2) * area_hi(1,jvar) * ks_hi(1,jvar) 
+
+        d(1)= d(1) -  coef_one * conc(1) * area_hi(1,jvar) * ks_hi(1,jvar)
+
+        d(1)= d(1) -  coef_one * conc(1) * area_lo(1,jvar) * ks_lo(1,jvar)
+
+        d(1)= d(1) +  coef_one * (conc(2)- two * dx * flux_up_n) * area_lo(1,jvar) * ks_lo(1,jvar)
+   
+        
+    c(1) = c(1) - coef * area_lo(1,jvar+1) * ks_lo(1,jvar+1)
+     
+    d(1) = d(1) - two * dx * flux_up_n_plus_one * coef * area_lo(1,jvar+1) * ks_lo(1,jvar+1)
+      
+   
    end if
    
    if(bc_flag_down == 1)then
-     b(ncell)= one
      a(ncell)= zero
+     b(ncell)= one
      d(ncell) = c_s_down
    end if
 
    if(bc_flag_down == 0)then
-        
+  
+  
+   area_aux_plus_one = (area_lo(ncell,jvar+1) + area_hi(ncell,jvar+1)) / two
+        area_aux = (area_lo(ncell,jvar) + area_hi(ncell,jvar)) / two
+
+        b(ncell)=area_aux_plus_one + coef * area_hi(ncell,jvar+1) * ks_hi(ncell,jvar+1) 
+
+        b(ncell)=b(ncell) + coef * area_lo(ncell,jvar+1) * ks_lo(ncell,jvar+1) 
+
+        a(ncell)= minus * coef * area_lo(ncell,jvar+1) * ks_lo(ncell,jvar+1)
+
+        c(ncell)= minus * coef * area_hi(ncell,jvar+1) * ks_hi(ncell,jvar+1)    
+
+        d(ncell)=area_aux * conc(ncell) + coef_one * (conc(ncell-1) + two* dx * flux_down_n) * area_hi(ncell,jvar) * ks_hi(ncell,jvar) !!!!!!!!!!!!!conc(ncell+1)
+
+        d(ncell)= d(ncell) -  coef_one * conc(ncell) * area_hi(ncell,jvar) * ks_hi(ncell,jvar)
+
+        d(ncell)= d(ncell) -  coef_one * conc(ncell) * area_lo(ncell,jvar) * ks_lo(ncell,jvar)
+
+        d(ncell)= d(ncell) +  coef_one * conc(ncell-1) * area_lo(ncell,jvar) * ks_lo(ncell,jvar)
+  
+  a(ncell)=a(ncell)+  minus * coef * area_hi(ncell,jvar+1) * ks_hi(ncell,jvar+1)
+  
+  d(ncell)=d(ncell) + two * dx * flux_down_n_plus_one * coef * area_hi(1,jvar+1) * ks_hi(1,jvar+1)
+  
+  
+  
+     
    end if
    
+!Print *, 'BC imposed on BIGK matrix'
+
 
 return
 end
@@ -386,7 +505,24 @@ end
 !*****************************************************************************************    
 subroutine tridi_solver(x & 
                     ,a, b, c, d, ncell)
+! PURPOSE:
 
+! Solves a tridiagonal system for X. This sub-routine was taken from the Numerical Recipes,
+! page 43 (Edition of 1992)
+! 
+!             [B1,C1,00,00,00]  
+! [X1,X2,...] [A2,B2,C2,00,00] = [D1,D2,....]
+!             [00,A3,B3,C3,00]  
+!             [00,00,A4,B4,C4]
+!             [00,00,00,A5,B5]    
+
+! Variables:
+!
+! A(i): Values of the coefficients below diagonal in matrix
+! B(i): Values of the coefficients at the diagonal in matrix
+! C(i): Values of the coefficients above diagonal in matrix
+! D(i): Values of the independent term 
+! X(i): Values of the computed solution
 
 integer,parameter:: stm_real=8
 
@@ -446,13 +582,22 @@ real(stm_real) :: conc_result(ncell,ntime)
 real(stm_real) ::pi,dx,dt
 
 
+
 if (i_case==2) then
 do ivar=1,ncell
     do jvar=1,ntime
         conc_exact(ivar,jvar)=two*((ivar-1)*dx+1.0d-1)+two*two*cos(half*pi*((ivar-1)*dx+1.0d-1))*exp(-(jvar)*dt*(pi**2.0d0)/4.0d0)
     end do
 end do
+
+elseif (i_case == 3) then
+     do ivar=1,ncell
+        do jvar=1,ntime
+        conc_exact(ivar,jvar)= (1.0d0/dx)*exp(minus*((((1-ncell)/2+ivar-1)*dx)**2))/sqrt(4*pi*jvar*dt)
+        end do
+     end do 
 else 
+
  print *, 'there is no exact solution for this case' 
 end if
 
@@ -462,15 +607,11 @@ do ivar2=1,ncell
  end do
 end do
 
-!open(4,file='error.dat',status='unknown')
+
 open (100,file= 'errorcomp.dat',status= 'unknown')
     write (100,*) ' Number of volumes are    ' , ncell-1
     write (100,*) '    X     -', '      error percentage    -   ' , '         abs (Uexact-Unum) error'
 do kvar=1,ntime
-!    write (4,*) 'step ',  kvar
-!    write (4,*) 
-!    write (4,*) error (:,kvar)
-    
     write (100,*) kvar,'time'
     write (100,*) kvar*dt
     do ivar2=1,ncell
@@ -482,6 +623,67 @@ end do
 return
 end
 !**************************************************************************************************
+subroutine norm_calculator ( L1, L2 ,L_infinity &
+                                           ,ntime ,ncell, error, conc_exact,conc_result,dx,dt,theta)
+
+integer :: ntime
+integer :: ncell
+integer :: ivar,jvar
+integer :: aa(2)
+
+integer,parameter:: stm_real=8
+
+real(stm_real) :: minus = -1.d0    !< real constant -1. properly typed
+real(stm_real) :: zero  =  0.d0    !< real constant  0. properly typed
+real(stm_real) :: one   =  1.d0    !< real constant  1. properly typed
+real(stm_real) :: two   =  2.d0    !< real constant  2. properly typed
+real(stm_real) :: half   =  5.d-1  !< real constant  0.5 properly typed
+real(stm_real) :: fourth =  2.5d-1 !< real constant  0.25 properly typed
+
+real(stm_real) :: error(ncell, ntime)
+real(stm_real) :: conc_exact(ncell,ntime)
+real(stm_real) :: conc_result (ncell,ntime)
+real(stm_real) :: L1,L2,L_infinity  
+real(stm_real) :: theta,dx,dt
+
+
+L1=zero
+L2=zero
+
+do ivar=1,ncell
+        do jvar=1,ntime
+            error(ivar,javr)= conc_result(ivar,jvar)-conc_exact(ivar,jvar)
+            L1= L1 + error(ivar,javr)
+            L2= L2 + error(ivar, jvar)**2
+            
+        end do
+end do
+
+L_infinity = maxval (error)
+aa= maxloc(error)
+L1= L1/ncell/ntime
+L2= sqrt(L2)/ncell/ntime
+
+
+open(7,file='Norms.dat',status='unknown')
+
+write (7,*) 'Short report of the run'
+Write (7,*) '======================='
+Write (7,*) 'Number of Volumes are :',ncell-1 
+Write (7,*) 'Number of time steps are :',ntime
+Write (7,*) 'Theta =',theta
+Write (7,*) 'dt/dx^2 = ', dt/(dx*dx) 
+Write (7,*) 'L-1 = ',L1
+Write (7,*) 'L_2 = ',L2
+Write (7,*) 'L_infinity = ' ,L_infinity 
+write (7,*) 
+Write (7,*) 'Location of Maximum error is volume' , aa(1)
+Write (7,*) 'Time of Maximum error is itration number' ,aa(2)
+                                         
+                                           
+return
+end subroutine                                            
+!*************************************************************************************************
 !subroutine stm_precision(stm_real,minus,zero,one,two,half,fourth)
 !
 !!> precision of real
@@ -500,4 +702,4 @@ end
 !
 !return
 !end 
-!***********************************************************************************************************
+!******************************************************************************************************
