@@ -1,8 +1,12 @@
-""" DSM2 input specifications. 
-This script defines the input blocks, fields, groupings and profiles for the DSM2 models.
-
+""" HDF5 IO for the tidefile
+This script is not meant to be regularly run. It has nothing
+to do with the text input system. It was created to 
+make hdf5 storage of complex attributes a little easier. If you need to
+reproduce this, what you can do is move this script to a parallel directory,
+then run the script, then selectively move only the item specific .h and .cpp and .fi
+files and prepend dsm2_tidefile_ to the names of the cpp and header files
+(admittedly the names are ridiculously long that way
 """
-DSM2_NAME_LEN=32
 
 import sys
 sys.path.append("d:/delta/models/test/input_storage/src")
