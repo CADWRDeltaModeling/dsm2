@@ -1,0 +1,113 @@
+       !>@ingroup fortran
+       !>@defgroup qext qext
+       !>@{
+        
+       !> Clear the buffer of all stored data of type qext 
+       subroutine qext_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_qext_clear_buffer_f' :: qext_clear_buffer_f
+         implicit none
+         call qext_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type qext
+       integer function qext_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_qext_buffer_size_f' :: qext_buffer_size_f
+          implicit none
+          integer, external :: qext_buffer_size_f
+          qext_buffer_size = qext_buffer_size_f()
+          return
+       end function
+       
+       !> write qext data to buffer
+       subroutine qext_append_to_buffer(name,source_type,source_index,source_value,attach_obj_name,attached_obj_type,attached_obj_no,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_qext_append_to_buffer_f' :: qext_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       integer, intent(in) :: source_type
+       integer, intent(in) :: source_index
+       real(8), intent(in) :: source_value
+       character(len=32), intent(in) :: attach_obj_name
+       integer, intent(in) :: attached_obj_type
+       integer, intent(in) :: attached_obj_no
+         call qext_append_to_buffer_f(name,source_type,source_index,source_value,attach_obj_name,attached_obj_type,attached_obj_no,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type qext
+       subroutine qext_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_qext_number_rows_hdf5_f' :: qext_number_rows_hdf5_f
+          use hdf5, only: HID_T
+          implicit none
+          integer :: nrecords
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call qext_number_rows_hdf5_f(file_id,nrecords,ierror)
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type qext
+       subroutine qext_query_from_buffer(row, name,source_type,source_index,source_value,attach_obj_name,attached_obj_type,attached_obj_no,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_qext_query_from_buffer_f' :: qext_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       integer, intent(out) :: source_type
+       integer, intent(out) :: source_index
+       real(8), intent(out) :: source_value
+       character(len=32), intent(out) :: attach_obj_name
+       integer, intent(out) :: attached_obj_type
+       integer, intent(out) :: attached_obj_no
+          integer row
+          integer, intent(out) :: ierror
+          call qext_query_from_buffer_f(row, &
+                    name,source_type,source_index,source_value,attach_obj_name,attached_obj_type,attached_obj_no,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine qext_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_qext_prioritize_buffer_f' :: qext_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call qext_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of qext data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine qext_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_qext_write_buffer_to_hdf5_f' :: qext_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call qext_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of qext data from hdf5 to buffer 
+       subroutine qext_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_qext_read_buffer_from_hdf5_f' :: qext_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call qext_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine qext_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_qext_write_buffer_to_text_f' :: qext_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call qext_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+
