@@ -825,6 +825,7 @@ c-----get optional starting input file from command line,
 c-----then from environment variables,
 c-----then default
       use runtime_data
+      use io_units
       implicit none
 
 c-----arguments
@@ -871,7 +872,8 @@ c--------check arg(s) if valid filename, ModelID
                if(CLA(:2) .eq. "-e" .or. CLA(:2) .eq. "-E")then
                    echo_only = .true.
                else
-                   SimName=CLA
+                   write(unit_error,*)"Launch file not found: ",trim(CLA)
+                   call exit(-3)
                end if
             endif
             iarg=iarg+1

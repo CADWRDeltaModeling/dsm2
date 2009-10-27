@@ -257,7 +257,7 @@ C--------Fixme: Line Below assumes rectangular prismatic channel
          XLENGTH=CHAN_GEOM(N).LENGTH
          XNO=CHAN_GEOM(N).XSECT(1)
 c         B(N)=XSECT_GEOM(XNO).WIDTH
-	   B(N)=0.5*(AChan(N,1)/YChan(N,1) + AChan(N,2)/YChan(N,2))
+	   B(N)=0.5*(AChan(1,N)/HChan(1,N) + AChan(2,N)/HChan(2,N))
 
  991     FORMAT(I5,2X,2I5)
 C--------Figure out the largest junction id#

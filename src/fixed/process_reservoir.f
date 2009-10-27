@@ -52,6 +52,29 @@ C!</license>
       return
       end subroutine
       
+      subroutine alloc_reservoir_connections(alloc)
+      use grid_data
+      use common_tide
+      implicit none
+      logical :: alloc
+      integer i,j,iconnect
+      iconnect = 0
+      do i=1,nreser
+         do j=1,res_geom(i).nnodes
+            iconnect = iconnect + 1
+         end do
+      end do
+      nres_connect = iconnect
+      if (alloc .and. .not. allocated(qresv))then
+         allocate(qresv(nres_connect))
+         qresv = 0.
+      end if
+      if (.not. alloc)then
+         deallocate(qresv)
+      end if
+      return
+      end subroutine
+      
       subroutine process_reservoir_connection(resname,
      &                                        con_node,
      &                                        rescon_incoef,
@@ -86,7 +109,8 @@ C!</license>
          ! todo fixme check that only gated or reservoir connection, not both
        res_geom(resno).node_no(nn)=ext2intnode(con_node)
        res_geom(resno).coeff2res(nn)=rescon_incoef
-       res_geom(resno).coeff2chan(nn)=rescon_outcoef     
+       res_geom(resno).coeff2chan(nn)=rescon_outcoef
+       nres_connect = nres_connect + 1     
        return
        end subroutine
       

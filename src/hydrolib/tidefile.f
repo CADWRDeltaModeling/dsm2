@@ -149,7 +149,7 @@ c-----didn't start on an even time boundary, this will be delayed
       INCLUDE 'netcntrl.inc'
 
 *   Local Variables:
-      INTEGER i,j,Up, Down
+      INTEGER i,j,Up, Down, iconnect
 
 *   Routines by module:
 
@@ -172,13 +172,15 @@ C--------Initialize
          next_hydro_interval=next_hydro_interval+TideFileWriteInterval
 
          DO Branch=1,NumberofChannels()
-            QChan(Branch,1)=0.  !QChan is period average, not inst. value
-            QChan(Branch,2)=0.
+            QChan(1,Branch)=0.  !QChan is period average, not inst. value
+            QChan(2,Branch)=0.
          ENDDO
 
+         iconnect = 0
          DO i=1,Nreser
             DO j=1,res_geom(i).nnodes
-               QResv(i,j)=0.
+               iconnect = iconnect + 1
+               QResv(iconnect)=0.
             ENDDO
          ENDDO
 
@@ -194,9 +196,9 @@ C--------Initialize
       DO Branch=1,NumberofChannels()
          Up=UpCompPointer(Branch)
          Down=DownCompPointer(Branch)
-         QChan(Branch,1)=QChan(Branch,1)+
+         QChan(1,Branch)=QChan(1,Branch)+
      &        (theta*Q(Up)+(1.-theta)*QOld(Up))
-         QChan(Branch,2)=QChan(Branch,2)+
+         QChan(2,Branch)=QChan(2,Branch)+
      &        (theta*Q(Down)+(1.-theta)*QOld(Down))
       ENDDO
 
@@ -205,10 +207,12 @@ C--------Initialize
      &        (1.-theta)*qext(i).prev_flow
       ENDDO
 
+      iconnect = 0
       DO i=1,Nreser
          DO j=1,res_geom(i).nnodes
-            QResv(i,j)=QResv(i,j)+ theta*Qres(i,j)+(1.-theta)*
-     &           QresOld(i,j)   !QResv is a time-ave version of QRes used in qual
+            iconnect = iconnect + 1
+            QResv(iconnect)=QResv(iconnect)+ theta*Qres(i,j)+(1.-theta)*
+     &           QresOld(i,j)   
          ENDDO
       ENDDO
 
@@ -221,18 +225,17 @@ C--------Initialize
          DO Branch=1,NumberofChannels()
             Up=UpCompPointer(Branch)
             Down=DownCompPointer(Branch)
-            QChan(Branch,1)=QChan(Branch,1)/dble(NSample)
-            QChan(Branch,2)=QChan(Branch,2)/dble(NSample)
+            QChan(1,Branch)=QChan(1,Branch)/dble(NSample)
+            QChan(2,Branch)=QChan(2,Branch)/dble(NSample)
          ENDDO
 
          DO i=1,nqext
             qext(i).avg=qext(i).avg/dble(NSample)
          ENDDO
 
-         DO i=1,Nreser
-            DO j=1,res_geom(i).nnodes
-               QResv(i,j)=QResv(i,j)/dble(NSample)
-            ENDDO
+         
+         DO iconnect=1,nres_connect
+               QResv(iconnect)=QResv(iconnect)/dble(NSample)
          ENDDO
 
          do i=1,nobj2obj
@@ -290,19 +293,19 @@ C--------Initialize
 
       InitHydroTidefile = .FALSE.
 
-      OK = Compute_ChArea()
-      OK = AverageFlow()
-
-                                ! Why do we have EResv????
-      DO i=1,NReser
-         EResv(i)=YRes(i)
-      End Do
-
 
       if (io_files(hydro,io_hdf5,io_write).use) then
          hdf5_hydrofile=io_files(hydro,io_hdf5,io_write).filename
          call InitHDF5File()        ! HDF5 - open space and create file
       endif
+
+      !Initialization of some values
+      OK = Compute_ChArea()
+      OK = AverageFlow()
+                                ! Why do we have EResv????
+      DO i=1,NReser
+         EResv(i)=YRes(i)
+      End Do
 
       InitHydroTidefile = .TRUE.
 
@@ -421,13 +424,16 @@ C--------Save only the values which have changed
       DO Branch=1,NumberofChannels()
          Up=UpCompPointer(Branch)
          Down=DownCompPointer(Branch)
-         YChan(Branch,1)=WS(Up)-chan_geom(Branch).bottomelev(1)
+         HChan(1,Branch)=WS(Up)-chan_geom(Branch).bottomelev(1)
+         ZChan(1,Branch)=WS(Up)
          nn= 2                  ! fixme: this is hardwired chan_geom(Branch).nxsect ! last X-Section (i.e. downstream)
-         YChan(Branch,2)=WS(Down)-chan_geom(Branch).bottomelev(nn)
+         HChan(2,Branch)=WS(Down)-chan_geom(Branch).bottomelev(nn)
+         ZChan(2,Branch)=WS(Down)
+
          AChan_Avg(Branch)=0.
 	   aavg = 0.D0
-         AChan(Branch,1)=CxArea(Dble(0.),Dble(YChan(Branch,1)))
-         AChan(Branch,2)=CxArea(dble(chan_geom(Branch).length),Dble(YChan(Branch,2)))
+         AChan(1,Branch)=CxArea(Dble(0.),Dble(HChan(1,Branch)))
+         AChan(2,Branch)=CxArea(dble(chan_geom(Branch).length),Dble(HChan(2,Branch)))
          delx=dble(chan_geom(Branch).length)/dble(Down-Up)
          DO j=Up, Down-1
             xx=(dble(j-Up)+0.5)*delx

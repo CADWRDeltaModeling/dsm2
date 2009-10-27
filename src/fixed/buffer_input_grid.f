@@ -173,6 +173,7 @@ c       are file-based
        end do
        print *,"Number of reservoir connections: ", nitem
 
+       
       nitem = gate_buffer_size()
       do icount = 1,nitem
          call gate_query_from_buffer(icount,
@@ -264,6 +265,8 @@ c       are file-based
      &                         to_identifier)
        end do
        print *,"Number of transfers: ", nitem      
+
+      
 
        return
        end subroutine

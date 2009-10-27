@@ -94,8 +94,8 @@ c-----statement function to interpolate value along channel
 	      nx=2 !  fixme: the whole chan_geom(..).nxsect and .bottomelev is bogus and
 	      ! should be removed
             get_output=val_x(
-     &           ychan(qualchan,1)+chan_geom(object_no).bottomelev(1),
-     &           ychan(qualchan,2)+chan_geom(object_no).bottomelev(nx),
+     &           zchan(1,qualchan),
+     &           zchan(2,qualchan),
      &           dble(pathoutput(ptr).chan_dist),
      &           dble(chan_geom(object_no).length))
          else if (object .eq. obj_reservoir) then ! reservoir output
@@ -104,7 +104,7 @@ c-----statement function to interpolate value along channel
          endif
       elseif (pathoutput(ptr).meas_type .eq. 'flow') then
          if (object .eq. obj_channel) then
-            get_output=val_x(qchan(qualchan,1),qchan(qualchan,2),
+            get_output=val_x(qchan(1,qualchan),qchan(2,qualchan),
      &           dble(pathoutput(ptr).chan_dist),
      &           dble(chan_geom(object_no).length))
          else if (object .eq. obj_reservoir) then

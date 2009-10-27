@@ -33,15 +33,25 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
 	<Files>
+		<Filter Name="Header Files">
+		<File RelativePath="..\..\src\hdf_tidefile\hydro_comp_point_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\node_flow_connections_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\qext_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\reservoir_flow_connections_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\reservoir_node_connect_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\stage_boundaries_input_storage.fi"/></Filter>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\hdf_tidefile\common_qual_bin.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_fortran.f90"/>
 		<File RelativePath="..\..\src\hdf_tidefile\get_tidefile_dates.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_diagnostic.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_init.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_modules.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_read.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_read_attributes.f"/>
-		<File RelativePath="..\..\src\hdf_tidefile\hdf5_write.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_write.f">
+			<FileConfiguration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" WarnTruncateSource="true" WarnInterfaces="true"/></FileConfiguration></File>
 		<File RelativePath="..\..\src\hdf_tidefile\hdf5_write_attributes.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\read_mult_tide.f"/>
 		<File RelativePath="..\..\src\hdf_tidefile\read_tide_flow.f"/>

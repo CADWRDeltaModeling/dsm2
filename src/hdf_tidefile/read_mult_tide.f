@@ -58,7 +58,7 @@ c-----local variables
 
 
       foundtime = .false.
-      do i=max(current_tidefile,1),nintides
+      do i=max(current_tidefile,1),nintides     
          if (julmin .ge. tide_files(i).start_julmin .and.
      &        julmin .le. tide_files(i).end_julmin) then
             new_tidefile=current_tidefile .ne. i
@@ -73,7 +73,6 @@ c-----local variables
 	      exit
          endif
       enddo
-
       if (.not. foundtime) then
 610     format(/'Unable to find a tidefile for current time: ',a)
         write(unit_error,610) current_date
@@ -97,11 +96,10 @@ c-----local variables
 	   ! time step that reads t0. Here, we are about to read/calculate
 	   ! t1. Need to reload the data from t0 as if it came from the new
 	   ! tidefile, and then reconcile any differences in ProcessTide.
-         call ReadDataFromHDF5(tide_files(current_tidefile).start_julmin)
+         call ReadDataFromHDF5(tide_files(current_tidefile).start_julmin) 
 	   call process_tide(new_tidefile,first_used_tidefile,current_tidefile)
          prev_read_tidetime = getCurrentTideTime() ! forces a second read based on julmin
-      endif
-
+      endif 
       new_tidefile = .false.
 c-----read tide flows
 	if (julmin .gt. prev_read_tidetime ) then
@@ -113,7 +111,7 @@ c-----read tide flows
 
 
 c	     call ReportOpenData()
-      
+
 	return
       end
 

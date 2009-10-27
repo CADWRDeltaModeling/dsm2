@@ -46,7 +46,7 @@ c-----local variables
      &     ,binarytf_fn         ! determine if tidefile is HDF5 or binary fortran
      &     ,file_exists		  ! TRUE if file exists
 
-      character*150 filenm      ! [INPUT]
+      character*128 filenm      ! [INPUT]
 
       integer objType           ! type of object, channel, reservoir,...
       integer getReservoirId, getStageId, getExternalId, getInternalId

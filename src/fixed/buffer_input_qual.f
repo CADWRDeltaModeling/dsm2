@@ -226,4 +226,8 @@ c======================== Input and output ======================
      &   "Output name: ", name,
      &   "Channel: ",channo, ", " , "Distance: " , distance
       call exit(-3)
+      return
       end subroutine
+      
+      
+      

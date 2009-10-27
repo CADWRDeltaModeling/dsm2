@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"
+				AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include;..\..\..\input_storage\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -108,7 +108,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"
+				AdditionalIncludeDirectories="..\..\..\input_storage\src;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				FloatingPointModel="2"
@@ -214,6 +214,30 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_hydro_comp_point.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_node_flow_connections.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_qext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_reservoir_flow_connections.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_reservoir_node_connect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_stage_boundaries.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\hdf_tidefile\hdf_attach_dimension_scales.cpp"
 				>
 			</File>
@@ -223,6 +247,30 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_hydro_comp_point.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_node_flow_connections.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_qext.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_reservoir_flow_connections.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_reservoir_node_connect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_stage_boundaries.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

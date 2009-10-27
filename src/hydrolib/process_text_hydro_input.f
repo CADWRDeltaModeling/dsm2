@@ -55,7 +55,6 @@
       character*(32) name
       character*80 inpath
       character*8  fillin
-      integer      sign
 
       integer :: ierror = 0
       nitem = oprule_time_series_buffer_size()

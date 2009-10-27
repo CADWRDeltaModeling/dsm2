@@ -293,13 +293,13 @@ c-----external flows
          integer :: attach_obj_type
          integer :: attach_obj_no
          !eli changed from real*4 next 5
-         real*4 :: flow            ! external flow value for this timestep
-         real*4 :: prev_flow       ! external flow value for previous timestep
-         real*4 :: avg             ! external flow value averaged over tideblock time interval
-         real*4 :: prev_avg        ! previous avg
-         real*4 :: mass_frac = 1.D0 ! fraction of mass this flow takes
-         integer :: changed_ndx = 0    ! index of nqext_ndx of changed flows
-         integer :: group_ndx = 0     ! index to group
+         real*4 :: flow = 0.D0            ! external flow value for this timestep
+         real*4 :: prev_flow = 0.D0       ! external flow value for previous timestep
+         real*4 :: avg = 0.D0             ! external flow value averaged over tideblock time interval
+         real*4 :: prev_avg = 0.D0        ! previous avg
+         real*4 :: mass_frac = 1.D0       ! fraction of mass this flow takes
+         integer :: changed_ndx = 0       ! index of nqext_ndx of changed flows
+         integer :: group_ndx = 0         ! index to group
          character*4 :: dummy  ! for alignment
       end type
 
