@@ -76,6 +76,7 @@ END
 
 OUTPUT_TIME_SERIES
 output_hydro_tutorial.inp
+output_oprule_tutorial.inp
 END
 
 

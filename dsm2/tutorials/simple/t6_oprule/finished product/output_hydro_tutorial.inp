@@ -15,9 +15,4 @@ END
 
 
 
-OUTPUT_GATE
-NAME          GATE_NAME DEVICE VARIABLE     INTERVAL PERIOD_OP FILE              
-gate_2_weirop gate_2    weir   op-from-node    15min inst      ${HYDROOUTDSSFILE} 
-END
-
 
