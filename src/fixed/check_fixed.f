@@ -95,6 +95,7 @@ c-----Local variables
      &     ,target_type
      &     ,target_id
 
+      integer :: inode
 
       parameter(
      &     max_nc=11
@@ -368,6 +369,15 @@ c-----reservoir name vectors to be able to use
       do i=1,max_reservoirs
          res_names(i)=res_geom(i).name
       enddo
+      
+      inode = 0
+      do i = 1, nreser
+         res_geom(i).first_connect_index = inode + 1
+         do j = 1,res_geom(i).nnodes
+             inode = inode +1
+         end do
+      end do
+      
 
       do i=1,noutpaths          ! output paths   
          if (pathoutput(i).use) then

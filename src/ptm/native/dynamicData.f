@@ -61,7 +61,7 @@ c----- update reservoir info
          do k=1, res_geom(i).nnodes
 c----------- flow outof reservoir is +ve, thus towards node thus +ve
       !todo: eli changed from qresv
-            wb(id).flowToNode(k) = Qres(i, k)
+            wb(id).flowToNode(k) = qresv(res_geom(i).first_connect_index + k -1)
          enddo
 c-------- update internal flows ( assumption of order important: fixedData.f)
          j=1

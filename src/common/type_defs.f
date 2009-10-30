@@ -111,6 +111,7 @@ c      MaxResConnectChannel must be consistent with maxresnodes
          real*8 :: stage = 0.D0          ! stage elevation
          real*8 :: coeff2res(maxresnodes) = 0.D0  ! to reservoir flow coefficient to node
          real*8 :: coeff2chan(maxresnodes) = 0.D0 ! to channel flow coefficient to node
+         real*4 :: dummy_for_alignment
          integer*4 :: id = miss_val_i             ! RDB ID number !todo: needed?
          logical*4 :: inUse = .false.             ! true to use this reservoir
          logical*4 :: isNodeGated(maxresnodes) = .false. ! flag that a node is gated
@@ -118,6 +119,8 @@ c      MaxResConnectChannel must be consistent with maxresnodes
          integer*4 :: nnodes = 0      ! total nodes connected to this reservoir, whether by
                                       ! reservoir connections or gates
          integer*4 :: node_no(maxresnodes) = 0    ! (internal) connecting node number
+         integer*4 :: first_connect_index  ! index of this reservoir, connection 1 
+                                           ! in list of all connections (starting from res 1, connect 1)
          integer*4 :: qinternal(max_qobj) = 0 ! index of internal flows at reservoir, miss_val_i will break code
          integer*4 :: qext(max_qobj) = 0 ! index of external flows at reservoir
       end type
