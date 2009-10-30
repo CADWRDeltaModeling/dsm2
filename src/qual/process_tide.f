@@ -81,9 +81,9 @@ c-----smoothing is needed if a new tidefile is read
          enddo
       endif
 
-      if (.true.) then
-c--------assign flows and concentrations to objects
-c--------reservoirs
+c--------assign flows to reservoirs. Couldn't do this before
+c        in ReadReservoirData because of anothe variable called qres
+c        fixme: this is incredibly confusing
          iconnect = 0
          do j=1, nreser
             do k=1, res_geom(j).nnodes
@@ -91,7 +91,6 @@ c--------reservoirs
                qres(j,k)=qresv(iconnect)
             enddo
          enddo
-      endif                     ! end new tide
 
       if (smoothing_needed) then
          IF(MASS_TRACKING)THEN

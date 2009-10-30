@@ -22,9 +22,6 @@ C!</license>
 
 c**********contains routines for writing data to an HDF5 file
 
-*   Programmed by: Tawnly Pranger
-*   Date:          October 2003
-*   Revised:       Eli Ateljevich, October 2005
 
 ***********************************************************************
 ***********************************************************************
@@ -41,7 +38,7 @@ c**********contains routines for writing data to an HDF5 file
       call ReadTransferFlowFromHDF5()
       
       return
-      end
+      end subroutine
 
 ***********************************************************************
 ***********************************************************************
@@ -58,9 +55,6 @@ c**********contains routines for writing data to an HDF5 file
 
 ***********************************************************************
 ***********************************************************************
-
-
-
 
       subroutine ReadChannelDataFromHDF5()
 
@@ -86,7 +80,8 @@ c**********contains routines for writing data to an HDF5 file
      &     error, chan_z_memspace, chan_z_fspace_id)
       
       do ichan=1,nchans
-         HChan(1:2,ichan)=ZChan(1:2,ichan)-chan_geom(ichan).bottomelev(1)
+         HChan(1,ichan)=ZChan(1,ichan)-chan_geom(ichan).bottomelev(1)
+         HChan(2,ichan)=ZChan(2,ichan)-chan_geom(ichan).bottomelev(2)
       end do
       call VerifyHDF5(error,"Channel stage read")
       call h5sclose_f (chan_z_fspace_id, error)  
@@ -150,7 +145,7 @@ c**********contains routines for writing data to an HDF5 file
       integer(HSIZE_T), dimension(3) :: h_offset
       integer        :: error   ! HDF5 Error flag
 
-      integer:: i,j
+      integer:: i,j,kk
       integer:: iconnect
 
            ! Creation of hyperslab
@@ -182,13 +177,18 @@ c-----call h5dget_space_f(res_dset_id, res_fspace_id, error)
           call VerifyHDF5(error,"Reservoir flow read")
           call h5sclose_f (res_q_fspace_id, error)  
           call VerifyHDF5(error,"Reservoir flow dataspace closed")
-          iconnect = 0
-          do i = 1,nreser
-             do j = 1,res_geom(i).nnodes
-                iconnect = iconnect + 1
-                qres(i,j) = qresv(iconnect)
-             end do
-          end do
+
+c--------assign flows and concentrations to objects
+c--------reservoirs
+         iconnect = 0
+         do j=1, nreser
+            do kk=1, res_geom(j).nnodes
+               iconnect = iconnect+1
+               qres(j,kk)=qresv(iconnect)
+            enddo
+         enddo
+         
+          
       end if    
       return
       end subroutine

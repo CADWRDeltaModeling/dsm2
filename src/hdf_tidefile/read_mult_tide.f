@@ -39,23 +39,21 @@ c-----local variables
 
       integer
      &     i                    ! loop indices
-     &     ,first_used_tidefile ! first tidefile number that is being used
-     &     ,prev_tidefile
-     &     ,prev_read_tidetime
+
+     
+      integer, save :: prev_read_tidetime = miss_val_i     
+      integer, save :: first_used_tidefile = miss_val_i
+      integer, save :: prev_tidefile = miss_val_i
 
       logical
      &     new_tidefile         ! true if new tidefile
      &     ,foundtime
 
+
       integer, external :: GetCurrentTideTime
       integer, external :: SetHDF5ToTime
 
       external jmin2cdt
-
-      save first_used_tidefile,prev_tidefile
-      data first_used_tidefile /miss_val_i/,
-     &     prev_tidefile /miss_val_i/
-
 
       foundtime = .false.
       do i=max(current_tidefile,1),nintides     
@@ -108,12 +106,10 @@ c-----read tide flows
 	   prev_read_tidetime = getCurrentTideTime()
          call process_tide(new_tidefile,first_used_tidefile,current_tidefile)
       end if
-
-
 c	     call ReportOpenData()
 
 	return
-      end
+      end subroutine
 
 
       

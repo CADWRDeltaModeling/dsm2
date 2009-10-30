@@ -243,15 +243,11 @@ c         call exit(2)
       call read_mult_tide
       CALL INTERPX
 
-
       DO 120 N=1,NBRCH
          NXSEC(N)=2
          IPPR(N)=8
 
 C--------Fixme: Line Below assumes rectangular prismatic channel
-
-
-
 
          NN=INT2EXT(N)
          XLENGTH=CHAN_GEOM(N).LENGTH

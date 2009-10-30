@@ -22,25 +22,25 @@ C!</license>
 *   Version 93.01, January, 1993
 
 *   Note: This include, when used, must appear after "Network.inc".
-      REAL*8, target :: Yres,QRes
-      REAL*8    Ares,Dres,TotalResFlow,ReservoirCoeff
-      REAL*8    YResOld,AverageResFlow,ReservoirFlow
-      REAL*8    QresOld,Filter,dQResdZres
+      REAL*8    Yres
+      REAL*8    QRes
+      REAL*8    Ares
+      REAL*8    Dres
+      REAL*8    ReservoirCoeff
+      REAL*8    YResOld
+      REAL*8    QresOld
       INTEGER ResConnectingChannels
-      INTEGER ReservoirGate     ! contains gate number if reservoir has operating gate
 	      COMMON /IntReservoirProperties/
-     &     ResConnectingChannels(MaxNres,MaxResConnectChannel),
-     &     ReservoirGate(MaxNres,MaxResConnectChannel)
+     &     ResConnectingChannels(MaxNres,MaxResConnectChannel)
        SAVE   /IntReservoirProperties/
 
 	   COMMON /RealReservoirProperties/
-     &     Ares(MaxNres),Yres(MaxNres),Filter,
-     &     Dres(MaxNres),TotalResFlow(MaxNres),
+     &     Ares(MaxNres),
+     &     Yres(MaxNres),
+     &     Dres(MaxNres),
      &     ReservoirCoeff(MaxNres,MaxResConnectChannel,2),
+     &     QRes(MaxNres,MaxResConnectChannel),     
      &     YResOld(MaxNres),
-     &     AverageResFlow(MaxNres,MaxResConnectChannel),
-     &     ReservoirFlow(MaxChannels,2),
-     &     QRes(MaxNres,MaxResConnectChannel),dQresdZres(MaxNres,MaxResConnectChannel),
      &     QResOld(MaxNres,MaxResConnectChannel)
 		SAVE /RealReservoirProperties/
  

@@ -40,13 +40,9 @@ c-----local variables
      &     ,i,j,n,p             ! loop indices
 
       logical check_headers     ! [INPUT]
-     &     ,version_fn          ! function to compare version numbers
-     &     ,pcunix
-     &     ,binarytf            ! true if tidefile is binary, false if HDF5
-     &     ,binarytf_fn         ! determine if tidefile is HDF5 or binary fortran
      &     ,file_exists		  ! TRUE if file exists
 
-      character*128 filenm      ! [INPUT]
+      character(LEN=*) :: filenm      ! [INPUT]
 
       integer objType           ! type of object, channel, reservoir,...
       integer getReservoirId, getStageId, getExternalId, getInternalId
@@ -74,27 +70,22 @@ c-----local variables
 
       tidefile_version=' '
       
-      binarytf=binarytf_fn(filenm)
+
 
 c-----open tidefile and check version
 
-
-      if (.not. binarytf) then
-         hdf5_hydrofile=filenm
-	   inquire (file=hdf5_hydrofile, exist=file_exists)
-	   if (.not. file_exists) goto 900
-         ! Opens the file and groups for DSM2
-	   call OpenHDF5()
-	   ! Initialize memory spaces for reading/writing
-         call hdf5_read_attributes()
-         if (chead(:5) .ne. 'Hydro') then
-            tidefile_version=' '
-         else
-            tidefile_version=chead(15:)
-         endif
+      hdf5_hydrofile=trim(filenm)
+      inquire (file=hdf5_hydrofile, exist=file_exists)
+      if (.not. file_exists) goto 900
+      ! Opens the file and groups for DSM2
+      call OpenHDF5()
+      ! Initialize memory spaces for reading/writing
+      call hdf5_read_attributes()
+      if (chead(:5) .ne. 'Hydro') then
+          tidefile_version=' '
+      else
+          tidefile_version=chead(15:)
       endif
-
-
 
 
       do i=1,nqext
