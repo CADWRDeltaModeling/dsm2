@@ -9,7 +9,12 @@ INTERVAL_LEN=16
 PERIOD_OP_LEN=16
 
 import sys
-sys.path.append("d:/delta/models/input_storage/src")
+import os
+
+
+sys.path.append(os.getenv("input_storage_home")+"\\src")
+
+
 from generate_input_storage import *
 LAST_FIELD=1
 
