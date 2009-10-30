@@ -12,7 +12,7 @@ import sys
 sys.path.append("d:/delta/models/test/input_storage/src")
 from generate_input_storage import *
 LAST_FIELD=1
-
+DSM2_NAME_LEN=32
 def generate_dsm2_processed_data():
     outdir = os.path.dirname(__file__)
     component = TableComponent("qext",         # name of the table

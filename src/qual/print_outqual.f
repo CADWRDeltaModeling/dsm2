@@ -133,9 +133,9 @@ c-----------upstream node
      &       '------   ---------       --------   -------------'/)
 
       do i=1,nreser
-         write(unit_output,1420)res_geom(i).name,res_geom(i).area,
+         write(unit_output,1420)trim(res_geom(i).name),res_geom(i).area,
      &        res_geom(i).botelv,(cres(i,l),l =1,neq)
- 1420 format(/a,2x,f11.5,2x,f10.1,5x,15f9.2)
+ 1420 format(/a32,2x,f11.5,2x,f10.1,5x,15f9.2)
       enddo
 
       WRITE(unit_output,1600)

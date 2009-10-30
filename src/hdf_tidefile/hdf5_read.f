@@ -327,9 +327,6 @@ c--------reservoirs
       do i = 1,nqext
         call qext_query_from_buffer(i,
      &                             name,
-     &                             qext(i).datasource.source_type,
-     &                             qext(i).datasource.indx_ptr,
-     &                             qext(i).datasource.value,
      &                             qext(i).attach_obj_name,
      &                             qext(i).attach_obj_type,
      &                             qext(i).attach_obj_no,

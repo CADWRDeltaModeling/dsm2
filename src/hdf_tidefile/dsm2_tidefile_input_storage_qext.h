@@ -38,9 +38,6 @@ public:
   typedef const tuple<const std::string>  identifier_type;
 
   qext() :
-    source_type(-901),
-    source_index(-901),
-    source_value(-901.0),
     attached_obj_type(-901),
     attached_obj_no(-901),
     used(true),
@@ -51,10 +48,7 @@ public:
   };
 
   /** Construct a qext with actual data values */
-  qext(const  char a_name[32],const int & a_source_type,const int & a_source_index,const double & a_source_value,const  char a_attach_obj_name[32],const int & a_attached_obj_type,const int & a_attached_obj_no, bool a_used=true, int a_layer = 0) :
-    source_type(a_source_type),
-    source_index(a_source_index),
-    source_value(a_source_value),
+  qext(const  char a_name[32],const  char a_attach_obj_name[32],const int & a_attached_obj_type,const int & a_attached_obj_no, bool a_used=true, int a_layer = 0) :
     attached_obj_type(a_attached_obj_type),
     attached_obj_no(a_attached_obj_no),
     used(a_used),
@@ -67,9 +61,6 @@ public:
   /**Copy constructor) 
    */
   qext (const qext & other) :
-    source_type(other.source_type),
-    source_index(other.source_index),
-    source_value(other.source_value),
     attached_obj_type(other.attached_obj_type),
     attached_obj_no(other.attached_obj_no),
     used(other.used),
@@ -137,9 +128,6 @@ public:
   qext& operator=(const qext& rhs)
   {
     strcpy(this->name,rhs.name);
-    this->source_type=rhs.source_type;
-    this->source_index=rhs.source_index;
-    this->source_value=rhs.source_value;
     strcpy(this->attach_obj_name,rhs.attach_obj_name);
     this->attached_obj_type=rhs.attached_obj_type;
     this->attached_obj_no=rhs.attached_obj_no;
@@ -156,9 +144,6 @@ public:
 
   
   char name[32];
-  int source_type;
-  int source_index;
-  double source_value;
   char attach_obj_name[32];
   int attached_obj_type;
   int attached_obj_no;
@@ -193,7 +178,7 @@ FCALL int qext_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void qext_append_to_buffer_f(const  char a_name[32],const int * a_source_type,const int * a_source_index,const double * a_source_value,const  char a_attach_obj_name[32],const int * a_attached_obj_type,const int * a_attached_obj_no, int * ierror, 
+FCALL void qext_append_to_buffer_f(const  char a_name[32],const  char a_attach_obj_name[32],const int * a_attached_obj_type,const int * a_attached_obj_no, int * ierror, 
               const int name_len,const int attach_obj_name_len);
   
 /** both makes the table and writes the contents of the buffer to it */
@@ -209,7 +194,7 @@ FCALL void qext_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nrecords, int*
 
 /** get one row worth of information from the buffer */
 FCALL void qext_query_from_buffer_f(size_t* row, 
-                         char a_name[32],int * a_source_type,int * a_source_index,double * a_source_value, char a_attach_obj_name[32],int * a_attached_obj_type,int * a_attached_obj_no, int * ierror, 
+                         char a_name[32], char a_attach_obj_name[32],int * a_attached_obj_type,int * a_attached_obj_no, int * ierror, 
               int name_len,int attach_obj_name_len);
 /**
   prioritize buffer by layers, delete unused items and sort

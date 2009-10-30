@@ -287,9 +287,6 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       call qext_clear_buffer()
       do i = 1,nqext
         call qext_append_to_buffer(qext(i).name,
-     &                             qext(i).datasource.source_type,
-     &                             qext(i).datasource.indx_ptr,
-     &                             qext(i).datasource.value,
      &                             qext(i).attach_obj_name,
      &                             qext(i).attach_obj_type,
      &                             qext(i).attach_obj_no,error)
