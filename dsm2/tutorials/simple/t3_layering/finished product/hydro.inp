@@ -53,7 +53,7 @@ END
 
 INITIAL_CONDITION
 ic_tutorial.inp
-channel_ic_tutorial.inp
+channel_ic_revision.inp
 END
 
 HYDRO_TIME_SERIES
