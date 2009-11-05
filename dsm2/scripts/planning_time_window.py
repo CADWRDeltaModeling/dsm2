@@ -39,7 +39,7 @@ def prepro_window(prepro_window_option = None):
     elif prepro_window_option.lower() == "16yr":
         return timewindow("01OCT1974 0000 - 01OCT1991 0000")
     elif prepro_window_option.lower() == "82yr":
-        return timewindow("01OCT1974 0000 - 01OCT1991 0000")
+        return timewindow("01OCT1921 0000 - 01OCT2003 0000")
     else:
         raise "Prepro time window option not understood: %s" % prepro_window_option
 
