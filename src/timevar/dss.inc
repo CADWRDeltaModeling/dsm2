@@ -43,7 +43,7 @@ C!</license>
       parameter (
      &     max_inp_min = 20     ! maximum input paths for 15minute intervals
      &     ,max_inp_hour = 20   ! maximum input paths for hour intervals
-     &     ,max_inp_day = 50    ! maximum input paths for day intervals
+     &     ,max_inp_day = 150    ! maximum input paths for day intervals
      &     ,max_inp_week = 5    ! maximum input paths for week intervals
      &     ,max_inp_month = 1000 ! maximum input paths for month intervals
      &     ,max_inp_year = 3200 ! maximum input paths for year intervals !@todo was 10, changed because of constant
