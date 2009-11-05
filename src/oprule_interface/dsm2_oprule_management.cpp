@@ -47,21 +47,21 @@ extern "C"{
         init_model_time_factory(new  DSM2HydroTimeNodeFactory());
     }
 
-    bool step_oprule_expressions(double* dt_sec){
+    void step_oprule_expressions(double* dt_sec){
         //cout << "Advancing expressions " << *dt_sec << endl;
         dsm2_op_manager.stepExpressions(*dt_sec);
-        return true;
+        //return 0.0;
     }
 
-    bool advance_oprule_actions(double* dt_sec){
+    void advance_oprule_actions(double* dt_sec){
         //cout << "Advancing actions " << *dt_sec << endl;
         dsm2_op_manager.advanceActions(*dt_sec);
-        return true;
+        //return true;
     }
 
-    bool test_rule_activation(){
+    void test_rule_activation(){
         dsm2_op_manager.manageActivation();
-        return true;
+        //return true;
     }
 
     bool parse_rule(char* text, int len){

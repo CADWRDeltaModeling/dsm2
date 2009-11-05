@@ -91,16 +91,16 @@ extern "C" int STDCALL direct_to_from_node();
 // Model variable interfaces
 
 extern "C" double STDCALL get_external_flow(const int& ndx);
-extern "C" double STDCALL set_external_flow(const int& ndx, 
+extern "C" void STDCALL set_external_flow(const int& ndx, 
                                               const double& val);
-extern "C" double STDCALL set_external_flow_datasource(const int& ndx, 
+extern "C" void STDCALL set_external_flow_datasource(const int& ndx, 
                                               const int& expr,
                                               const double& val,
                                               const bool& timedep);
 extern "C" double STDCALL get_transfer_flow(const int& ndx);
-extern "C" double STDCALL set_transfer_flow(const int& ndx, 
+extern "C" void STDCALL set_transfer_flow(const int& ndx, 
                                               const double& val);
-extern "C" double STDCALL set_transfer_flow_datasource(const int& ndx, 
+extern "C" void STDCALL set_transfer_flow_datasource(const int& ndx, 
                                               const int& expr,
                                               const double& val,
                                               const bool& timedep);
@@ -110,7 +110,7 @@ extern "C" double STDCALL set_transfer_flow_datasource(const int& ndx,
 
 extern "C" double STDCALL is_gate_install(const int& ndx);
 
-extern "C" double STDCALL set_gate_install(const int& ndx, 
+extern "C" void STDCALL set_gate_install(const int& ndx, 
                                              const double& install);
 extern "C" void STDCALL set_gate_install_datasource(const int& ndx, 
                                                       const int& expr,

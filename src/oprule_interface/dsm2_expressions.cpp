@@ -17,9 +17,9 @@ int register_express_for_data_source(
    data_expr_iter it=std::find(expr_used_as_data.begin(),
                           expr_used_as_data.end(),expr);
    if ( it != expr_used_as_data.end()){
-      return it - expr_used_as_data.begin(); //@todo: is this safe?
+      return (int)(it - expr_used_as_data.begin()); //@todo: is this safe?
    }else{
       expr_used_as_data.push_back(expr);
-      return expr_used_as_data.size()-1;     //@todo: is this safe?
+      return ((int)expr_used_as_data.size())-1;     //@todo: is this safe?
    }
 }
