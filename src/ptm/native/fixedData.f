@@ -1380,7 +1380,6 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
          array(i) = ptm_type_code(
      &     groupArray(groupOut(index).groupNdx).members(i).obj_type
      &   )
-	   
       enddo
       return
       end

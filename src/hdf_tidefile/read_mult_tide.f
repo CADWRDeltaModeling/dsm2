@@ -97,6 +97,7 @@ c-----local variables
          call ReadDataFromHDF5(tide_files(current_tidefile).start_julmin) 
 	   call process_tide(new_tidefile,first_used_tidefile,current_tidefile)
          prev_read_tidetime = getCurrentTideTime() ! forces a second read based on julmin
+         
       endif 
       new_tidefile = .false.
 c-----read tide flows
@@ -106,7 +107,8 @@ c-----read tide flows
 	   prev_read_tidetime = getCurrentTideTime()
          call process_tide(new_tidefile,first_used_tidefile,current_tidefile)
       end if
-c	     call ReportOpenData()
+
+      call DumpHdf5Data
 
 	return
       end subroutine

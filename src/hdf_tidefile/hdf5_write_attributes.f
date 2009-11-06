@@ -41,7 +41,6 @@ c**********contains routines for writing data to an HDF5 file
 
       implicit none
 
-      integer(HID_T) :: attr_id ! Attribute identifier
       integer(HID_T) :: aspace_id ! Attribute Dataspace identifier
       integer(HID_T) :: atype_id ! Attribute Dataspace identifier
       integer(HSIZE_T), dimension(1) :: adims = (/1/) ! Attribute dimension
@@ -49,43 +48,18 @@ c**********contains routines for writing data to an HDF5 file
       integer     :: error      ! HDF5 Error flag
       integer(HSIZE_T), dimension(1) :: a_data_dims
       real(kind=4), dimension(MaxChannels) :: bottom_el1,bottom_el2
-      real(kind=4), dimension(max_nodes) :: inodeidx,enodeidx
-      real(kind=4), dimension(max_reservoirs) :: iresidx,eresidx
-      integer :: i,j
+      integer :: i
       integer calcHDF5NumberOfTimeIntervals
 
       integer(HID_T) :: in_dspace_id ! Dataspace identifier
       integer     ::    in_rank = 1 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: in_data_dims
-c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
 
       integer(HID_T) :: cg_dspace_id ! Dataspace identifier
       integer     ::    cg_rank = 2 ! Dataset rank
       integer(HSIZE_T), dimension(7) :: cg_data_dims
 
-      integer(HID_T) :: ng_dspace_id ! Dataspace identifier
-      integer     ::    ng_rank = 2 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: ng_data_dims
-      integer, dimension(max_nodes) :: node_obj
-
-      integer(HID_T) :: rg_dspace_id ! Dataspace identifier
-      integer     ::    rg_rank = 2 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: rg_data_dims
-      integer, dimension(max_reservoirs) :: res_obj
-
-      integer(HID_T) :: bname_dspace_id ! Dataspace identifier
-      integer(HID_T) :: bnode_dspace_id ! Dataspace identifier
-      integer     ::    boundary_rank = 1 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: bname_data_dims
-      integer(HSIZE_T), dimension(7) :: bnode_data_dims
-      character*32, dimension(max_stgbnd) :: bname_obj
-      integer, dimension(max_stgbnd) :: bnode_obj
-      integer(SIZE_T) :: typesize
-      integer(HID_T) :: dtc32_id ! Memory datatype identifier
-
       integer(HID_T) :: cparms  !dataset creatation property identifier
       integer(HSIZE_T), dimension(2) :: h_offset
-      integer(HID_T) :: filespace ! Dataspace identifier
       integer(HID_T) :: memspace ! memspace identifier
 
       integer, parameter :: label_len = 12
@@ -94,21 +68,15 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
      &                                    = (/"upstream","downstream"/)
       character(LEN=name_len),dimension(:), allocatable :: names
 
-
-      integer :: tempstart,tempend,nlen
-
       integer,dimension(1) :: hdf5_dummy_integer
       integer(SIZE_T) :: hdf5_int_size
 
       integer cdt2jmin
       EXTERNAL cdt2jmin
-      character(LEN=8) connect_type       
-      integer :: icount,inode,iflow
- 
+
       a_data_dims(1) = 1
       hdf5_int_size = 1
- 
-      
+
                                 ! Creating attributes for HDF5
       call h5screate_simple_f(arank, adims, aspace_id, error)
 
@@ -172,9 +140,9 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
      &           "Number of intervals",
      &           hdf5_dummy_integer, hdf5_int_size, error)
 
+
                  ! Write out channel geometry
       call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-
 
       in_dims(1) = nchans
       ! Write out external channel numbers int2ext
@@ -254,13 +222,14 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       call h5dwrite_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el2, cg_data_dims,
      &     error, mem_space_id=memspace, file_space_id=cg_dspace_id)
 
+
       call WriteReservoirFlowConnectionsHDF5
       call WriteNodeFlowConnectionsHDF5
       call WriteQExt()
       call WriteStageBoundariesHDF5
       call WriteReservoirNodeConnectionsHDF5
       call WriteComputationPointsHDF5
-
+ 7856 continue
       return
       end subroutine
 
@@ -341,8 +310,7 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       INCLUDE '../hydrolib/network.inc'
       INCLUDE '../hydrolib/chnlcomp.inc'
       integer ::   error        ! Error flag
-      integer :: NumberOfChannels
-      integer:: i, ichan, icomp
+      integer:: ichan, icomp
       integer :: up,down
       call hydro_comp_point_clear_buffer()
       do ichan = 1,nchans

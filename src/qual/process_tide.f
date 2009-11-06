@@ -88,7 +88,7 @@ c        fixme: this is incredibly confusing
          do j=1, nreser
             do k=1, res_geom(j).nnodes
                iconnect = iconnect+1
-               qres(j,k)=qresv(iconnect)
+               qres(j,k)=dble(qresv(iconnect))
             enddo
          enddo
 

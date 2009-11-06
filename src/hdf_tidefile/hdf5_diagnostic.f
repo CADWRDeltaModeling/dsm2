@@ -66,3 +66,42 @@ C!</license>
 	end subroutine
 
 
+
+      subroutine DumpHdf5Data
+      use common_tide
+      use runtime_data
+      implicit none
+      include '../qual/param.inc'
+      include '../hydrolib/network.inc'
+      include '../qual/bltm1.inc'
+      logical :: firstTime = .true.
+      integer :: i,j
+      if (firstTime)then
+         open(unit=1919,file = "dump.txt",status = 'unknown')
+      end if
+      
+      write(1919,*)"Time step: ", julmin
+      write(1919,*)"Channel: "
+      do i = 1,nchans
+          write(1919, '(i,7f24.16)')i,HChan(1,i),HChan(2,i),AChan(1,i),AChan(2,i),QChan(1,i),QChan(2,i),AChan_avg(i)
+      end do
+      
+      
+      write(1919,*)"Qext data"
+      do i = 1,nqext
+          write(1919, *)Qext(i).avg
+      end do
+      write (1919,*)"Reservoir data"
+      do i = 1, nreser
+         do j = 1,res_geom(i).nnodes
+            write(1919,'(2i,f24.16)'),i,j, qres(i,j)
+          end do
+      end do
+      firstTime = .false.
+      return
+      end subroutine
+      
+      
+      
+      
+

@@ -36,12 +36,16 @@ c----- functions
       
       integer get_maximum_number_of_channels
      &     , get_maximum_number_of_reservoirs
+     &     , get_number_of_reservoirs     
      &     , get_maximum_number_of_stage_boundaries
      &     , get_maximum_number_of_boundary_waterbodies
      &     , get_maximum_number_of_conveyors
+      
       real get_flow_balance_at_node,fb
 	real*8 :: FLOW_BALANCE_TOL = 2.
 c----- locals
+      integer iconnect
+      integer :: icall = 0
       integer i,j,k,id, dsmNumber, qId
 	integer ext2int
 c----- begin
@@ -55,13 +59,15 @@ c-------- channel flow +ve from up node to down node
          wb(id).flowToNode(2) = Qchan(2,i) !downnode flow
       enddo
 c----- update reservoir info
-      do i=1, get_maximum_number_of_reservoirs()
-	!todo: should be number of reservoirs
+      iconnect = 0
+      do i=1, get_number_of_reservoirs()
+	! MUST be number of reservoirs
          id = get_unique_id_for_reservoir(i)
          do k=1, res_geom(i).nnodes
 c----------- flow outof reservoir is +ve, thus towards node thus +ve
       !todo: eli changed from qresv
-            wb(id).flowToNode(k) = qresv(res_geom(i).first_connect_index + k -1)
+            iconnect = iconnect + 1
+            wb(id).flowToNode(k) = qresv(iconnect)
          enddo
 c-------- update internal flows ( assumption of order important: fixedData.f)
          j=1

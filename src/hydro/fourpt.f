@@ -139,11 +139,11 @@ c-----include '../input/time-varying/writedss.inc'
 
       EXTERNAL WriteHydroToTidefile, Calculate_Chan_Net_Flow
       EXTERNAL InitializeChannelNetwork, InitializeSolver,InitOpRules
-      LOGICAL CloseHDF5
-      EXTERNAL CloseHDF5
+      !LOGICAL CloseHDF5
+      !EXTERNAL CloseHDF5
       
       logical, external :: order_nodes
-
+      logical :: updated
 *   Programmed by: Lew DeLong
 *   Date:          February 1991
 *   Modified by:   Lew DeLong
@@ -316,7 +316,8 @@ c--------calculate julian minute of end of each DSS interval
 c-----------just check input data for bogus values; no simulation
             OK = SetBoundaryValuesFromData()
          else                   ! full simulation
-            IF (UpdateNetwork()) THEN
+            updated = UpdateNetwork()
+            IF (Updated) THEN
                OK = UpdateNetBalance()
             else
                write (unit_error,*)
@@ -384,7 +385,7 @@ c-----------------interruptions to the model
 
 c--------close HDF5
       if (io_files(hydro,io_hdf5,io_write).use) then
-         OK = CloseHDF5()
+         call CloseHDF5()
       endif
 
 c-----close all DSS input files
@@ -437,7 +438,7 @@ c@@@         OK = ReportNetBalance()
       inquire(unit_output,opened=isopen)
       if(isopen)close(unit_output, err=1222)
       inquire(unit_screen,opened=isopen)
-      if(isopen)close(unit_output, err=1222)
+      if(isopen)close(unit_screen, err=1222)
 
 1222  call exit(0)
 

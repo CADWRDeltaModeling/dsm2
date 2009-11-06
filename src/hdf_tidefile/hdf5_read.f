@@ -30,7 +30,9 @@ c**********contains routines for writing data to an HDF5 file
       subroutine ReadDataFromHDF5(tidetime)
       implicit none
 	integer tidetime
-	call SetHDF5ToTime(tidetime)
+	integer index
+	integer SetHDF5ToTime
+	index = SetHDF5ToTime(tidetime)
 	call LagStageVariables
       call ReadChannelDataFromHDF5()
       call ReadReservoirDataFromHDF5()
@@ -76,12 +78,16 @@ c**********contains routines for writing data to an HDF5 file
       call h5dget_space_f (chan_z_dset_id, chan_z_fspace_id, error)
       call h5sselect_hyperslab_f(chan_z_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, chan_z_fsubset_dims, error) 
-      call h5dread_f(chan_z_dset_id,H5T_NATIVE_REAL, ZChan(:,1:nchans), chan_z_mdata_dims, 
+      call h5dread_f(chan_z_dset_id,H5T_NATIVE_REAL, HChan(:,1:nchans), chan_z_mdata_dims, 
      &     error, chan_z_memspace, chan_z_fspace_id)
       
+      !do ichan=1,nchans
+      !   HChan(1,ichan)=ZChan(1,ichan)-chan_geom(ichan).bottomelev(1)
+      !   HChan(2,ichan)=ZChan(2,ichan)-chan_geom(ichan).bottomelev(2)
+      !end do
       do ichan=1,nchans
-         HChan(1,ichan)=ZChan(1,ichan)-chan_geom(ichan).bottomelev(1)
-         HChan(2,ichan)=ZChan(2,ichan)-chan_geom(ichan).bottomelev(2)
+         ZChan(1,ichan)=HChan(1,ichan)+chan_geom(ichan).bottomelev(1)
+         ZChan(2,ichan)=HChan(2,ichan)+chan_geom(ichan).bottomelev(2)
       end do
       call VerifyHDF5(error,"Channel stage read")
       call h5sclose_f (chan_z_fspace_id, error)  
@@ -184,7 +190,7 @@ c--------reservoirs
          do j=1, nreser
             do kk=1, res_geom(j).nnodes
                iconnect = iconnect+1
-               qres(j,kk)=qresv(iconnect)
+               qres(j,kk)=dble(qresv(iconnect))
             enddo
          enddo
          

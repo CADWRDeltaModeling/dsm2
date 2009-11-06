@@ -129,8 +129,9 @@ c-----Constants
       ntotal=norig+nnew
       if (nnew .eq. 0) return
 	allocate(newmembers(ntotal),STAT=alloc_stat)
-	newmembers(1:norig)=groupArray(grp).members(1:norig)
-
+	if(norig .gt. 0)then
+	    newmembers(1:norig)=groupArray(grp).members(1:norig)
+	end if
       do i=1, nnew
 	  newmembers(norig+i)=addmembers(ndx_new(i))
 	end do
@@ -293,7 +294,6 @@ c     matching the pattern string.
 	character*32 cstring
 	Type(GroupMember),allocatable :: newmembers(:) 
 	do i=1,ngroup
-	  
 	  do j=1,groupArray(i).nMemberPatterns
            cstring=groupArray(i).memberPatterns(j).pattern
 	     objtype=groupArray(i).memberPatterns(j).obj_type

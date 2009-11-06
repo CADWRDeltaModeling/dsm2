@@ -193,7 +193,7 @@ c-----------upstream node
 c--------------Flow can occur through the gate
                write(unit_output,1220)
      &              gateArray(i).name,
-     &                '(' //trim(gateArray(i).devices(j).name) // ')',
+     &              trim(gateArray(i).devices(j).name),
      &              trim(scratch1),
      &              gateArray(i).Devices(j).nDuplicate,
      &              gateArray(i).Devices(j).maxWidth,
@@ -201,7 +201,7 @@ c--------------Flow can occur through the gate
      &              gateArray(i).Devices(j).height,
      &              gateArray(i).Devices(j).flowCoefToNode,
      &              gateArray(i).Devices(j).flowCoefFromNode
- 1220          format(a32,1x,a16,a8,2x,a16,1x,i4,2x,f13.2,1x,f9.2,1x,2f9.2,2f9.2)
+ 1220          format(a32,1x,'(',a16,')',2x,a16,1x,i4,2x,f13.2,1x,f9.2,1x,f9.3,2f9.3)
          end do
       enddo
 

@@ -889,38 +889,6 @@ c--------check arg(s) if valid filename, ModelID
 
       end
 
-      logical function binarytf_fn(filename)
-
-c-----Determine if FILENAME is a Fortran binary tidefile,
-c-----an HDF5 tidefile, or unknown (fatal error)
-
-      Use IO_Units
-      
-      implicit none
-
-      character*(*)
-     &     filename             ! filename string to test [INPUT]
-      integer index             ! intrinsic function
-
-      if (index(filename,'.hdf') .gt. 0 .or.
-     &     index(filename,'.HDF') .gt. 0 .or.
-     &     index(filename,'.H5') .gt. 0 .or.
-     &     index(filename,'.h5') .gt. 0 ) then
-         binarytf_fn=.false.       ! not a Fortran binary file
-         return
-      else if (index(filename,'.htf') .gt. 0 .or.
-     &        index(filename,'.HTF') .gt. 0 .or.
-     &        index(filename,'.bin') .gt. 0 .or.
-     &        index(filename,'.BIN') .gt. 0 ) then
-         binarytf_fn=.true.        ! is a Fortran binary file
-         return
-      else                      ! cannot determine filetype
-         write(unit_error,610) filename
- 610     format(/'Fatal error: cannot determine tidefile type: ',a)
-      endif
-      end function
-
-
 
       integer function fillin_code(fillin)
       use constants

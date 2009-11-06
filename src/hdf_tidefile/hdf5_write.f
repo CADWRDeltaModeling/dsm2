@@ -88,7 +88,7 @@ C!</license>
       call h5dget_space_f (chan_z_dset_id, chan_z_fspace_id, error)
       call h5sselect_hyperslab_f(chan_z_fspace_id, H5S_SELECT_SET_F,
      &     h_offset, chan_z_fsubset_dims, error)
-      call h5dwrite_f(chan_z_dset_id,H5T_NATIVE_REAL, ZChan(:,1:nchans), chan_z_mdata_dims,
+      call h5dwrite_f(chan_z_dset_id,H5T_NATIVE_REAL, HChan(:,1:nchans), chan_z_mdata_dims,
      &     error, chan_z_memspace, chan_z_fspace_id)
 	call VerifyHDF5(error,"Channel stage write")
       call h5sclose_f (chan_z_fspace_id, error)
