@@ -35,12 +35,19 @@ Installation package:
 
 Save previous installers
 
-Create b2 version installer
- 1) open DSM2setup_Script_Generate.py to change version status.
- 2) run DSM2setup_Script_Generate.py and the inno setup script DSM2setup_v8.iss will be generated.
- 3) run DSM2setup_v8.iss
+Create 8.0.1 version installer
+
+(0) Download and install “Inno Setup Compiler” v5.2.3
+(1) Goto branch\dsm2_distribute\dsm2\install
+(2) Run doc2pdf.vbs to generate PDFs from tutorial word documents (Delete the old PDFs before run this vbs script)
+(3) Run copy_hydro_qual_ptmDLL_notepad_style.bat to copy compiled binaries to bin folder
+(4) Run DSM2setup_Script_Generate.py to generate iss script
+(5) Open the generated script DSM2setup_v8.iss
+      Change compression ratio to ultra (Compression=lzma/ultra)
+      Run DSM2setup_v8.iss
+
  
-Create the b2 tag on the release branch. This is the official b2 release.
+Create the 8.0.1 tag on the release branch. This is the official 8.0.1 release.
 Immediately increment all text items to b3 in installer and DSM2 and commit
 
 Quick-test installer:
