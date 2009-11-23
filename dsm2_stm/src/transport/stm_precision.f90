@@ -10,8 +10,13 @@ real(STM_REAL) :: minus =-1.D0     !< Real constant -1. properly typed
 real(STM_REAL) :: zero  =  0.D0    !< Real constant  0. properly typed
 real(STM_REAL) :: one   =  1.D0    !< Real constant  1. properly typed
 real(STM_REAL) :: two   =  2.D0    !< Real constant  2. properly typed
-real(STM_REAL) :: half   =  5.D-1  !< Real constant  0.5 properly typed
-real(STM_REAL) :: fourth =  2.5D-1 !< Real constant  0.25 properly typed
+real(STM_REAL) :: four  =  4.D0    !< Real constant  4. properly typed
+real(STM_REAL) :: eight =  8.D0    !< Real constant  8. properly typed
+real(STM_REAL) :: sixteen  =  1.6D1  !< Real constant  16. properly typed
+real(STM_REAL) :: half     =  5.D-1  !< Real constant  0.5 properly typed
+real(STM_REAL) :: fourth   =  2.5D-1 !< Real constant  0.25 properly typed
+
+
 
 !> Absurd high value, for initialization and for marking undefined
 !> data in calculations. This makes bugs easier to spot.

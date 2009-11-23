@@ -76,25 +76,7 @@ deallocate(flow_lo, flow_hi)
 return
 end subroutine
 
-!> Convert conservative variables (ie mass) to primitive (concentration)
-subroutine cons2prim(conc,mass,area)
-implicit none
-real(STM_REAL),intent(out) :: conc(*)
-real(STM_REAL),intent(in) :: mass(*)
-real(STM_REAL),intent(in) :: area(*)
-conc = mass/area
-return
-end subroutine
 
-!> Convert  primitive (concentration) to conservative variables (ie mass)
-subroutine prim2cons(mass,conc,area)
-implicit none
-real(STM_REAL),intent(out) :: mass(*)
-real(STM_REAL),intent(in) :: conc(*)
-real(STM_REAL),intent(in) :: area(*)
-mass = conc*area
-return
-end subroutine
 
 
 

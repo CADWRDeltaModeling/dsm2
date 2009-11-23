@@ -31,6 +31,7 @@
 		<File RelativePath="..\..\..\src\transport\diffusion.f90"/>
 		<File RelativePath="..\..\..\src\transport\gradient.f90"/>
 		<File RelativePath="..\..\..\src\transport\hydro_data_if.f90"/>
+		<File RelativePath="..\..\..\src\transport\primitive_variable_conversion.f90"/>
 		<File RelativePath="..\..\..\src\transport\source_if.f90"/>
 		<File RelativePath="..\..\..\src\transport\state_variables.f90"/>
 		<File RelativePath="..\..\..\src\transport\stm_precision.f90"/></Filter>

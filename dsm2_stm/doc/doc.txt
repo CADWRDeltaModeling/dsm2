@@ -19,7 +19,7 @@ long as doxygen is on path. See below on \ref viz.
    implemented.  Work in function-test pairs (they often evolve together). As much as
    you can, put "asserts" in your testing function that are needed regardless of whether you can pass them.
    The \ref tests, and in some ways the documentation, are our way of communicating 
-   expected behavior.
+   expected behavior
 -# You will be at the same point you are in Matlab when you code the uniform flow advection test. However,
    we will not want you to code this or turn it in until the other testing (extrapolate(), conservative update)
    are well tested.
@@ -66,10 +66,10 @@ we may have other static library modules called /sediment /nonconservative and t
 By and large, the drivers (test code and application) know about the libraries and not vice versa.
 The drivers do the setup and request the transport library to solve individual time steps.
 There are a couple nuanced points about this:
- - The state_variables module properly allocates and houses state variables. It is like a utility for 
+- The state_variables module properly allocates and houses state variables. It is like a utility for 
    drivers tests and applications. You should use the state_variables module and then pass
    the variables into the solver as arguments.
- - The advection.advect() function takes a callback for a source term that must be provided by the driver/application. The reason I did 
+- The advection.advect() function takes a callback for a source term that must be provided by the driver/application. The reason I did 
    this is that we want to be able to stipulate different source terms for different tests. We will probably want to implement
    advection.replace_boundary_flux() the same way.
 -  When you use callbacks, you should do so at the level of the whole grid. In other words compute_source is 
