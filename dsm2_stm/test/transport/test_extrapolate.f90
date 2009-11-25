@@ -11,7 +11,6 @@ contains
 !> There are three cells and two constituents to test symmetry in space across constituents
 subroutine test_extrapolation
 use stm_precision
-use gradient
 use advection
 implicit none
   integer,parameter :: nx = 3       !interior and two ends
@@ -80,14 +79,94 @@ implicit none
   call assertEquals(conc_hi(2,1),conc_lo(2,2),"extrapolate, hi-lo(2,2)")
   call assertEquals(conc_hi(3,1),conc_lo(1,2),"extrapolate, hi-lo(1,2)")
 
-!print*,":::"
-!do ic = 1,2
-!do ix = 1,3
-!print*,ix,ic,conc_lo(ix,ic),conc_hi(ix,ic)
-!end do
-!end do
 return
 end subroutine
+
+
+
+!///////////////////////////////////////
+
+!> Test the extrapolation part of the predictor step of the advection algorithm
+!> There are three cells and two constituents to test symmetry in space across constituents
+subroutine test_flux_calculation
+use stm_precision
+use advection
+implicit none
+  integer,parameter :: nx = 3       !interior and two ends
+  integer,parameter :: nconst = 2
+ 
+  real(STM_REAL) :: flow_lo(nx)
+  real(STM_REAL) :: flow_hi(nx)  
+  real(STM_REAL) :: conc(nx,nconst)
+  real(STM_REAL) :: conc_hi(nx,nconst)
+  real(STM_REAL) :: conc_lo(nx,nconst)
+  real(STM_REAL) :: flux_lo(nx,nconst)
+  real(STM_REAL) :: flux_hi(nx,nconst)
+  real(STM_REAL) :: flow(nx)
+  real(STM_REAL) :: area(nx)  
+  real(STM_REAL) :: dx
+  real(STM_REAL) :: dt
+  real(STM_REAL) :: time
+  integer        :: ix,ic
+  
+  conc_lo(1,1)=62.D0
+  conc_lo(2,1)=64.D0
+  conc_lo(3,1)=65.D0
+  conc_lo(1,2)=65.D0
+  conc_lo(2,2)=64.D0
+  conc_lo(3,2)=62.D0
+  
+  conc_hi(1,1)=64.D0
+  conc_hi(2,1)=66.D0
+  conc_hi(3,1)=68.D0
+  conc_hi(1,2)=61.D0
+  conc_hi(2,2)=60.D0
+  conc_hi(3,2)=66.D0
+    
+  flow_lo(1) = 1.D0
+  flow_lo(2) = 2.D0
+  flow_lo(3) = -1.D0
+  flow_hi(1) = 2.0D0
+  flow_hi(2) = -1.D0
+  flow_hi(3) = -4.D0
+  
+
+ ! Compute upwind value of fluxes. This is a naive guess based on the extrapolated states
+ ! It doesn't include any node-based sources or reservoirs or the like.
+ call compute_flux(flux_lo,  &
+                   flux_hi,  &
+                   conc_lo,  &
+                   conc_hi,  &                       
+                   flow_lo,  &
+                   flow_hi,  &
+                   nx,       &
+                   nconst    &
+                   )
+
+  call assertEquals(flux_lo(1,1),LARGEREAL,"flux computation, lo(1,1)")
+  call assertEquals(flux_lo(2,1),1.28D2,"flux computation, lo(2,1)")
+  call assertEquals(flux_hi(3,1),LARGEREAL,"flux computation, hi(3,1)")
+  call assertEquals(flux_lo(3,1),-6.2D1,"flux computation, hi(3,1)")
+
+  flow_lo(1) = -1.D0
+  flow_hi(3) =  4.D0
+  call compute_flux(flux_lo,  &
+                   flux_hi,  &
+                   conc_lo,  &
+                   conc_hi,  &                       
+                   flow_lo,  &
+                   flow_hi,  &
+                   nx,       &
+                   nconst    &
+                   )
+  call assertEquals(flux_lo(1,1),-6.2D1,"flux computation, outflow, lo(1,1)")
+  call assertEquals(flux_hi(3,1),2.72D2,"flux computation, outflow, hi(3,1)")
+
+return
+end subroutine
+
+
+
 
 end module
 
