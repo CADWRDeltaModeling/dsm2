@@ -62,14 +62,15 @@ integer        :: ivar, icell             ! counting variables
 !----------------------
 
 do ivar = 1,nvar
-    ! todo: Kaveh -- make sure you understand fortran ordering/strategy
     do icell = 1,ncell
-        sign = one
         delta_limit(icell,ivar) = two*min(abs(grad_lo(icell,ivar)), &
                                           abs(grad_hi(icell,ivar))  &
                                           )
-        sign = one
-        if (grad_center(icell,ivar) < zero) sign = minus
+        if (grad_center(icell,ivar) < zero)then
+            sign = minus
+        else
+            sign = one
+        end if
         grad_lim(icell,ivar) = min(abs(grad_center(icell,ivar)), &
                                  abs(delta_limit(icell,ivar)))*sign
     end do

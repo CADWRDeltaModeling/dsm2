@@ -19,7 +19,7 @@ implicit none
 !--- Problem variables
 
 integer, parameter  :: nstep = 40
-integer, parameter  :: nx = 512
+integer, parameter  :: nx = 128
 integer, parameter  :: nconc = 2
 
 real(STM_REAL), parameter :: origin = zero   ! meters
@@ -87,7 +87,7 @@ do itime = 1,nstep
   ! assertions (tests)
   ! store latest time step
 end do
-!call printout(conc(:,2),ncell)
+call printout(conc(:,2),ncell)
 
 call deallocate_state
 return

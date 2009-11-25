@@ -84,15 +84,14 @@ call cons2prim(conc,mass_prev,area,ncell,nvar)
 
 ! Calculate the (undivided) differences of concentrations
 call difference(grad_lo,grad_hi,grad_center,conc,ncell,nvar)
+!call printout(grad_center(:,1),ncell)
 call limiter(grad_lim,grad_lo,grad_hi,grad_center,ncell,nvar)
 
 ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
 ! or other differencing is required
-! todo: commented
+! todo: needs to be implemented
 call adjust_differences(grad,grad_lim,grad_lo,grad_hi,ncell,nvar)
-!if (time > 160. .and. time < 161.D0) then
-call printout(grad(:,2),ncell)
-!end if
+
 ! todo: commented
 !call compute_source(source,conc,ncell,nvar)
 !todo: source hardwired
@@ -189,8 +188,8 @@ dtbydx = dt/dx
 
 do ivar = 1,nvar
     ! todo make sure source is in terms of primitive variables
-    conc_lo(:,ivar) = conc(:,ivar) - half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*flow/area+half*dt*source(:,ivar)
-    conc_hi(:,ivar) = conc(:,ivar) + half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*flow/area+half*dt*source(:,ivar)
+    conc_lo(:,ivar) = conc(:,ivar) !- half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*flow/area+half*dt*source(:,ivar)
+    conc_hi(:,ivar) = conc(:,ivar) !+ half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*flow/area+half*dt*source(:,ivar)
 end do
 return
 end subroutine
