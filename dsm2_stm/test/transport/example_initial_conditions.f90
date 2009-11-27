@@ -35,12 +35,13 @@ real(STM_REAL) :: xlo
 real(STM_REAL) :: xhi
 integer        :: iloc
 !-----------
-do iloc = 1,nloc
+do iloc = 1,nloc   
    xlo = origin + dble(iloc - 1)*dx
    xhi = origin + dble(iloc)*dx
   ! need to populate using cell averages
-   vals(iloc) =  gaussian_cdf(xhi,mean,sd) & 
-                -gaussian_cdf(xlo,mean,sd)
+   vals(iloc) =  (gaussian_cdf(xhi,mean,sd) & 
+                -gaussian_cdf(xlo,mean,sd))
+   vals(iloc)=vals(iloc)*sqrt(two*acos(-one)*sd*sd)/dx   !todo: move out of loop and make pi a constant instead of acos(zero)
 end do
 return
 end subroutine
@@ -73,7 +74,7 @@ do iloc = 1,nloc
    fraction_lo = min(fraction_lo,one)        
    fraction_hi = one - fraction_lo      
   ! need to populate using cell averages
-   vals(iloc) =  fraction_lo*value_lo + fraction_hi*value_hi
+   vals(iloc) =  (fraction_lo*value_lo + fraction_hi*value_hi)
 end do
 
 return
@@ -98,18 +99,23 @@ real(STM_REAL) :: cell_calc61
 character(LEN=32) :: message
 integer :: icell
 
+
 ! Check symmetry and two constituents
 call fill_gaussian(vals(:,1),nloc,origin,dx,center1,sd)
+
 call fill_gaussian(vals(:,2),nloc,origin,dx,center2,sd)
+
 
 ! test the center cell for each plume. 
 ! The cell edges lo/hi are half a dx = 1/8 of sd from center
 ! so use tabulated values of the cdf at the mean +/- 1/8*sigma
 offline_calc = 0.09947645
-cell_calc41 = vals(41,1)
+cell_calc41 = vals(41,1)*sqrt(two*acos(-one)*sd*sd)  !todo: make pi a constant
 call assertEquals(cell_calc41,offline_calc,epsilon,"Integral gaussian in cell 41")
 cell_calc61 = vals(61,2)
 call assertEquals(cell_calc41,cell_calc61,"Symmetry of integral gaussian in cells 41, 61")
+
+call fill_gaussian(vals(:,1),nloc,origin,dx/two,center1,sd)
 
 call fill_discontinuity(vals(:,1),nloc,origin,dx,center1,zero,one)
 call fill_discontinuity(vals(:,2),nloc,origin,dx,center2,zero,one)

@@ -27,13 +27,14 @@
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\..\test\transport\error_metric.f90"/>
 		<File RelativePath="..\..\..\test\transport\example_hydro_data.f90"/>
 		<File RelativePath="..\..\..\test\transport\example_initial_conditions.f90"/>
 		<File RelativePath="..\..\..\test\transport\example_sources.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_diffusion.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_extrapolate.f90"/>
-		<File RelativePath="..\..\..\test\transport\test_prim_cons_conversion.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_gradient.f90"/>
+		<File RelativePath="..\..\..\test\transport\test_prim_cons_conversion.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_transport_driver.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_uniform_flow.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

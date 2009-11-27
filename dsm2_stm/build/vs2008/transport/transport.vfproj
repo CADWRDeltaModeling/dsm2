@@ -28,6 +28,7 @@
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\..\src\transport\advection.f90"/>
+		<File RelativePath="..\..\..\test\transport\error_metric.f90"/>
 		<File RelativePath="..\..\..\src\transport\diffusion.f90"/>
 		<File RelativePath="..\..\..\src\transport\gradient.f90"/>
 		<File RelativePath="..\..\..\src\transport\hydro_data_if.f90"/>

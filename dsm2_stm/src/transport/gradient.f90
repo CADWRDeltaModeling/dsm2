@@ -79,10 +79,19 @@ where (grad_lo*grad_hi < zero)
     grad_lim = zero
 end where
 
+! Boundary values are not defined
 do ivar = 1,nvar
   grad_lim(1,ivar)    = LARGEREAL   !todo: is this really what we want? 
   grad_lim(ncell,ivar)= LARGEREAL   !todo: is this really what we want? 
 end do
+
+if (ncell > 20)then
+open(13,file = 'd:\temp\grad.txt')
+do icell = 1,ncell
+   write(13,'(4f16.12)')grad_lo(icell,2),grad_hi(icell,2),grad_lim(icell,2),grad_center(icell,2)
+end do
+close(13)
+end if
 
 return
 end subroutine

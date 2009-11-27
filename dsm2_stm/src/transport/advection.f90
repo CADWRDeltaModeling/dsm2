@@ -89,7 +89,7 @@ call limiter(grad_lim,grad_lo,grad_hi,grad_center,ncell,nvar)
 
 ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
 ! or other differencing is required
-! todo: needs to be implemented
+! todo: for debugging
 call adjust_differences(grad,grad_lim,grad_lo,grad_hi,ncell,nvar)
 
 ! todo: commented
@@ -139,7 +139,7 @@ call update_conservative(mass,mass_prev,div_flux,source,area,ncell,nvar,dt,dx)
 return
 end subroutine
 
-
+!///////////////////////////////////////////////////////////////////////
 !///////////////////////////////////////////////////////////////////////
 
 !> Extrapolate primitive data from cell center at the old time
@@ -188,9 +188,12 @@ dtbydx = dt/dx
 
 do ivar = 1,nvar
     ! todo make sure source is in terms of primitive variables
-    conc_lo(:,ivar) = conc(:,ivar) !- half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*flow/area+half*dt*source(:,ivar)
-    conc_hi(:,ivar) = conc(:,ivar) !+ half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*flow/area+half*dt*source(:,ivar)
+    ! todo: this only works if I disable extrapolation (first order Godunov)
+    conc_lo(:,ivar) = conc(:,ivar) - half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*vel +half*dt*source(:,ivar)
+    conc_hi(:,ivar) = conc(:,ivar) + half*grad(:,ivar) - half*dtbydx*grad(:,ivar)*vel +half*dt*source(:,ivar)
+    
 end do
+ivar =2
 return
 end subroutine
 
@@ -252,7 +255,8 @@ end subroutine
 
 !//////////////////////////////////////////////////////////////////////
 
-!> compute the divergence of fluxes
+!> Compute the divergence of fluxes.
+!> At present, this is undivided...which may be not what we want.
 subroutine compute_divergence(div_flux, flux_lo, flux_hi, ncell, nvar)
 implicit none
 
@@ -314,34 +318,6 @@ end subroutine
 
 !///////////////////////////////////////////////////////////////////////
 
-!> Given flows and concentrations on either side of a cell
-!> calculate the upwind mass flux
-subroutine upwind(flux_lo,flux_hi,conc_lo,conc_hi,flow_lo,flow_hi,ncell,nvar)
-use stm_precision
-implicit none
-!--- args
-integer,intent(in)  :: ncell  !< Number of cells
-integer,intent(in)  :: nvar   !< Number of variables
-
-real(STM_REAL),intent(out) :: flux_lo(ncell,nvar) !< flux on lo side of cells centered in time
-real(STM_REAL),intent(out) :: flux_hi(ncell,nvar) !< flux on hi side of cells centered in time
-real(STM_REAL),intent(in) :: conc_lo(ncell,nvar)  !< conc on lo side of cells centered in time
-real(STM_REAL),intent(in) :: conc_hi(ncell,nvar)  !< conc on hi side of cells centered in time
-real(STM_REAL),intent(in) :: flow_lo(ncell,nvar)  !< flow on lo side of cells centered in time
-real(STM_REAL),intent(in) :: flow_hi(ncell,nvar)  !< flow on hi side of cells centered in time
-
-
-!--------
-
-flux_lo = LARGEREAL
-flux_hi = LARGEREAL
-
-return
-end subroutine
-
-
-!///////////////////////////////////////////////////////////////////////
-
 !> Update the conservative variables using divergence of fluxes and integrate the
 !> source term using Huen's method
 subroutine update_conservative(mass,       &
@@ -380,7 +356,7 @@ dtbydx = dt/dx
 
 ! obtain a guess at the new state (predictor part of huen) using the flux divergence and source evaluated at the
 ! old time step
-mass = mass_prev - div_flux + dt*source_prev
+mass = mass_prev - dtbydx*div_flux + dt*source_prev
 
 ! compute the source at the new time from the predictor
 call cons2prim(conc,mass,area,ncell,nvar)
@@ -391,16 +367,18 @@ source = zero
 
 ! now recalculate the update using a source half from the old state and half from the new state guess 
 mass =   mass_prev &
-       - div_flux &
-       + dt*half*source_prev &
+       - dtbydx*div_flux &
+       + dtbydx*half*source_prev &
        + dt*half*source
 
 return
 end subroutine
 
 end module
-!//////////////////////////////
 
+!//////////////////////////////
+!> Adjust differences to account for special cases (boundaries, structures, junctions, flow reversals)
+!> Currently implementation only accounts for two boundaries at ends of channel
 subroutine adjust_differences(grad,grad_lim,grad_lo,grad_hi,ncell,nvar)
 use stm_precision
 implicit none
@@ -413,25 +391,10 @@ real(STM_REAL) :: grad_hi(ncell,nvar) !< gradient based on hi side difference
 real(STM_REAL) :: grad_lim(ncell,nvar) !< limited cell centered difference
 real(STM_REAL) :: grad(ncell,nvar)     !< cell centered difference adusted for boundaries and hydraulic devices
 !---------
-grad          = grad_lim  !todo: not complete, but correct for simple channel
+grad          = grad_lim
 grad(1,:)     = grad_hi(1,:)
 grad(ncell,:) = grad_lo(ncell,:)
 return
-end subroutine
-
-
-subroutine printout(arr,lenarr)
-use stm_precision
-implicit none
-integer, intent(in) :: lenarr
-real(STM_REAL),intent(in) :: arr(lenarr)
-integer icell
-print*,"printing"
-open(unit = 11, file = 'd:\temp\out.txt')
-do icell = 1,lenarr
-  write(11,*)arr(icell)
-end do
-close(11)
 end subroutine
 
 
