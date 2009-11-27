@@ -1,0 +1,31 @@
+
+Modules
+simulation_data
+contains, dx, dt
+
+
+Use test_uniform_flow as a starting point. Need to add:
+
+initialize()                reads in parameters from a file, initializes values, initializes time series reader, allocates state 
+cfl_restriction(flow,area)  computes the cfl restriction step by step. We will want a parameter called max_cfl
+hydro_data_impl             interface for reading (and possibly interpolating source
+source
+replace_boundary_flux       reads and implements boundary conditions
+adjust_differences          think the default will work
+output_state                think about this
+finalize                    deallocate state, close readers and files
+
+Steps:
+initialize()
+dt = dt_initial
+if (adaptive_time) adjust dt
+do while time <= max time
+  pre_step(time)            ! if needed .... do reading or whatever... don't use this unless motivated
+  hydro_data(time,flow,...) ! sets hydrodynamics 
+  advect                    ! uses replace_boundary_flux
+  output_state
+end do
+finalize()
+
+
+

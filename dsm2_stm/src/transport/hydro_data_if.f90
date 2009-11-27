@@ -7,7 +7,7 @@ module hydro_data_if
        !> This data might be calculated from a function or provided by another module
        !> Note that continuity must be satisfied between time steps. The implementation
        !> must be provided by the driver or application 
-        subroutine hydro_data8(flow,flow_lo,flow_hi,area,area_lo,area_hi,ncell,time,dt)
+        subroutine hydro_data_impl(flow,flow_lo,flow_hi,area,area_lo,area_hi,ncell,time,dt)
         use stm_precision
         implicit none
         integer, intent(in) :: ncell                   !< number of cells
