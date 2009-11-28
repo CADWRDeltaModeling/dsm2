@@ -2,11 +2,15 @@
 
 program callback_example
 implicit none
+include 'callback.fi'
 integer :: intarg = 1
 external callback1
 external callback2
-call sub1(intarg,callback1)
-call sub1(intarg,callback2)
+procedure(callback),pointer :: callback_ptr1 
+callback_ptr1 => callback1
+call sub1(intarg,callback_ptr1)
+callback_ptr1 => callback2
+call sub1(intarg,callback_ptr1)
 end program
 
 subroutine callback1(intarg)

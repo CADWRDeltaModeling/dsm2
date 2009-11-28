@@ -146,7 +146,7 @@ end subroutine
 !> to cell edges at the half time. The extrapolation is done by 
 !> a Taylor series in time and space in which an explicit discretization
 !> of the PDE is used to represent the time part.
-subroutine extrapolate(conc_lo,  &
+pure subroutine extrapolate(conc_lo,  &
                        conc_hi,  &
                        conc,     &
                        grad,     &
@@ -201,7 +201,7 @@ end subroutine
 
 !> Compute the upwinded fluxes 
 !> The calculation here does not include tributaries, boundaries or special objects
-subroutine compute_flux(flux_lo,  &
+pure subroutine compute_flux(flux_lo,  &
                         flux_hi,  &
                         conc_lo,  &
                         conc_hi,  &                       
