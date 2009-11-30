@@ -241,74 +241,91 @@ c todo: gate_free, fetching data from expression
       include 'chconnec.inc'
 
       integer intchan,i,obj_type,node
-	real(8) value
+      integer updown
+      integer code !debug
+	real(8) bvalue
 
 c-----object-to-object flows that involve nodes
 c-----(reservoir obj2obj flows are handled in the reservoir calcs)
       do i=1,nobj2obj
 c--------from a node
          if (obj2obj(i).from_obj.obj_type .eq. obj_node) then
-            intchan=abs(obj2obj(i).from_obj.hydrochan) ! neg channel number -> downstream end            
+            intchan=obj2obj(i).from_obj.hydrochan ! neg channel number -> downstream end
+            intchan=node_geom(obj2obj(i).from_obj.obj_no).sumQchan
+            updown = sign(1,intchan)
+            intchan = abs(intchan)
+            bvalue = obj2obj(i).flow            
 c-----------note sign: from flow is subtracted
-            if (obj2obj(i).from_obj.hydrochan .gt. 0) then 
+            if (updown .gt. 0) then 
               ! upstream end of channel connected to node
                StreamBndValue(intchan*2-1) =
-     &              StreamBndValue(intchan*2-1) - obj2obj(i).flow
+     &              StreamBndValue(intchan*2-1) - bvalue
             else
+			   if (DownBoundaryCode(intchan) .eq. 2) then ! external node
+                   ! flow is at exterior node, and at downstream end,
+                   ! invert sign of flow for 4pt convention
+                   bvalue=-bvalue  ! todo: this is not very helpful, and doesn't match dsm2
+               endif            
               ! downstream end of channel connected to node
                StreamBndValue(intchan*2) =
-     &              StreamBndValue(intchan*2) - obj2obj(i).flow
+     &              StreamBndValue(intchan*2) - bvalue
             endif
          endif
 
 c--------to a node
          if (obj2obj(i).to_obj.obj_type .eq. obj_node) then
-            intchan=abs(obj2obj(i).to_obj.hydrochan) ! - channel number denotes downstream end connected
-            !todo: eli,experiment  intchan .gt. 0 is probably wrong
+            intchan = obj2obj(i).to_obj.hydrochan ! - channel number denotes downstream end connected
             intchan=node_geom(obj2obj(i).to_obj.obj_no).sumQchan
-            if (intchan .gt. 0) then ! upstream end of channel connected to node
+            updown  = sign(1,intchan)
+            intchan = abs(intchan)
+            bvalue = obj2obj(i).flow
+            if (updown .gt. 0) then ! upstream end of channel connected to node
                StreamBndValue(intchan*2-1) =
-     &              StreamBndValue(intchan*2-1) + obj2obj(i).flow
+     &              StreamBndValue(intchan*2-1) + bvalue
             else                ! downstream end of channel connected to node
-               intchan = -intchan
+			   if (DownBoundaryCode(intchan) .eq. 2) then ! external node
+                   ! flow is at exterior node, and at downstream end,
+                   ! invert sign of flow for 4pt convention
+                   bvalue=-bvalue  ! todo: this is not very helpful, and doesn't match dsm2
+               endif
                StreamBndValue(intchan*2) =
-     &              StreamBndValue(intchan*2) + obj2obj(i).flow
+     &              StreamBndValue(intchan*2) + bvalue
             endif
          endif
       enddo
 
       do i=1,nqext
 	   obj_type=qext(i).attach_obj_type
-	   value=qext(i).flow
+	   bvalue=qext(i).flow
          if (obj_type.eq. obj_node) then
             intchan=node_geom(qext(i).attach_obj_no).sumQChan
 	      if (intchan .gt. 0) then
 		      ! neg channel number denotes downstream end
                 StreamBndValue(intchan*2-1) = 
-     &            StreamBndValue(intchan*2-1) + value
+     &            StreamBndValue(intchan*2-1) + bvalue
             ! source/sink or stage boundary for channel
             else                ! downstream end of channel connected to node
                intchan=-intchan
 			 if (DownBoundaryCode(intchan) .eq. 2) then ! external node
                    ! flow is at exterior node, and at downstream end,
                    ! invert sign of flow for 4pt convention
-                   value=-value                !fixme: is qext correct?
+                   bvalue=-bvalue                !fixme: is qext correct?
                endif
-               StreamBndValue(intchan*2) = StreamBndValue(intchan*2) + value
+               StreamBndValue(intchan*2) = StreamBndValue(intchan*2) + bvalue
             endif
          endif
 	end do
 
       do i=1,nstgbnd
-	   value=stgbnd(i).value
+	   bvalue=stgbnd(i).value
 	      node=stgbnd(i).node
 	      if (node_geom(node).nup .gt. 0) then
 	          !upstream node is attached
 	          intchan=node_geom(node).upstream(1)
-                StreamBndValue(intchan*2-1) = value
+                StreamBndValue(intchan*2-1) = bvalue
             else
 	          intchan=node_geom(node).downstream(1)
-	          StreamBndValue(intchan*2) = value
+	          StreamBndValue(intchan*2) = bvalue
             endif
 	end do
       
