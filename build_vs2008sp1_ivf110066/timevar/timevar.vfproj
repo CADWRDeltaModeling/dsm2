@@ -14,7 +14,7 @@
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" BoundsCheck="true" UninitializedVariablesCheck="true" DescriptorDataTypeCheck="true" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
 				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/timevar.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
