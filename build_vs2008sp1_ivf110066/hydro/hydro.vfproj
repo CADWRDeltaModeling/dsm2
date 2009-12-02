@@ -14,7 +14,7 @@
 				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.ilk;*.exe;$(TargetPath)">
-				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check /QxW" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release;$(DSM2_INCLUDE)" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release;$(DSM2_INCLUDE)" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/"/>
 				<Tool Name="VFLinkerTool" OutputFile="$(OUTDIR)/hydro.exe" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib" IgnoreDefaultLibraryNames="libc.lib,msvcrt.lib,libcd.lib,libcmtd.lib,msvcrtd.lib" SubSystem="subSystemConsole" AdditionalDependencies="hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib heclib_vs9.lib szlib.lib zlib.lib  oprule_vs9_mt.lib oprule_parser_vs9_mt.lib input_storage_vs9_mt.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" HeaderFileName="$(InputName).h" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
