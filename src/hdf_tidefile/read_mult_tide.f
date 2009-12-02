@@ -108,7 +108,7 @@ c-----read tide flows
          call process_tide(new_tidefile,first_used_tidefile,current_tidefile)
       end if
 
-      call DumpHdf5Data
+     ! call DumpHdf5Data
 
 	return
       end subroutine
