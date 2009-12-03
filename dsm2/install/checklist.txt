@@ -48,7 +48,7 @@ Create 8.0.1 version installer
 
  
 Create the 8.0.1 tag on the release branch. This is the official 8.0.1 release.
-Immediately increment all text items to b3 in installer and DSM2 and commit
+Immediately increment all text items to 8.0.2 in installer and DSM2 and commit
 
 Quick-test installer:
 Test on clean machine
