@@ -95,7 +95,7 @@ c-----Local variables
      &     ,target_type
      &     ,target_id
 
-      integer :: inode
+      integer :: inode, ibound
 
       parameter(
      &     max_nc=11
@@ -644,6 +644,12 @@ c-----------end datetime
          enddo
 c----- load header information from the first hydro tidefile
          call read_tide_head(tide_files(1).filename, .false.)
+
+         ! Loop through number of stage boudnaries and set node_geom
+         do ibound = 1,nstgbnd
+            node_geom(stgbnd(ibound).node).boundary_type=stage_boundary
+         end do
+         
          nintides = n_tidefiles_used
 	   if (nintides .gt. 1) then 
            do i=2,nintides

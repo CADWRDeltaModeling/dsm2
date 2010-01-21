@@ -54,10 +54,10 @@ C-----GPDC(L,K,N)    increase of L in parcel N,K due to reaction LR(L)
 C-----GPDF(L,K,N)    increase of L in parcel N,K due to dispersion
 C-----GPH(N,K)     time in hours since parcel K entered branch N
 C-----GPT(L,K,N)     concentration of constituent L in parcel N,K
-C-----GPTD(L,N)    flux of L at ds end of branch N
+C-----GPTD(L,N)    flux of L at ds end of branch N (seems to just be concentration)
 C-----GPTI(L,K,N)    conc. of L as parcel K entered branch N
 C-----GPTR(L,K,N)    increase of L in parcel N,K due to tribs.
-C-----GPTU(L,N)    flux of L at us end of branch N
+C-----GPTU(L,N)    flux of L at us end of branch N (seems to just be concentration)
 C-----GPV(N,K)     volume of parcel K in branch N
 C-----GTRIB(L,I,N)   conc. of L in trib. at grid I of branch N
 C-----(tribs can not occur at first or last grid of branch)
@@ -282,7 +282,7 @@ c------ end of input reading and echo, start checking data
 
  650  format(i2,a)
 
-      IF(MASS_TRACKING)THEN
+      IF(MASS_TRACKING) THEN
          call read_input_data_for_masstracking
                                 ! the region is hard coded, it could be altered.
                                 ! it will count only the last region.
@@ -410,21 +410,47 @@ C--------Read the Hydro tidefile
          DO 360 N=1,NBRCH
             JN=JNCU(N)
 c-----------calculate total flow and mass into this node for each constituent
-            call node_rate(jn,TO_OBJ,0,objflow,massrate)
-            IF ( (.not. node_geom(JN).qual_int) .AND. ! external node
-     &           objflow .gt. 0.) THEN ! source at node
+            if ( .not. node_geom(JN).qual_int) then ! external boundary node
+                if (node_geom(JN).boundary_type .NE. stage_boundary) then
+                    call node_rate(jn,TO_OBJ,0,objflow,massrate) ! todo: inefficient
+                    IF ( objflow .gt. 0.) THEN ! source at node
 c--------------fixme: what if qext source at mtz (stage boundary)?
-               QNODE(jn)=objflow
-               DO CONS_NO=1,NEQ
-                  GTRIB(CONS_NO,1,N)=massrate(CONS_NO)/objflow
-               ENDDO
-            ENDIF
+                        QNODE(jn)=objflow
+                        DO CONS_NO=1,NEQ
+                            GTRIB(CONS_NO,1,N)=massrate(CONS_NO)/objflow
+                        ENDDO
+                    ENDIF
+                endif
+            endif    
+            ! Now do JN=JNCD(N) and put it in GTRIB(CONS_NO,NXSEC(N),N)
+            
+            JN=JNCD(N)
+            if ( .not. node_geom(JN).qual_int) then ! external boundary node
+                if (node_geom(JN).boundary_type .NE. stage_boundary) then
+                    call node_rate(jn,TO_OBJ,0,objflow,massrate) ! todo: inefficient
+                    IF ( objflow .gt. 0.) THEN ! source at node
+c--------------fixme: what if qext source at mtz (stage boundary)?
+                        QNODE(jn)=objflow
+                        DO CONS_NO=1,NEQ
+                            GTRIB(CONS_NO,NXSEC(N),N)=massrate(CONS_NO)/objflow
+                        ENDDO
+                    ENDIF
+                endif
+            endif 
 
+            
+            
             DO CONS_NO=1,NEQ
                GPTU(CONS_NO,N)=GTRIB(CONS_NO,1,N)
                GPTD(CONS_NO,N)=GTRIB(CONS_NO,NXSEC(N),N)
             ENDDO
+                        
+            
  360     CONTINUE
+
+
+
+
 
 C--------Initialize reservoir stuff
          DO I=1,nreser
@@ -470,6 +496,7 @@ C--------compute inflow flux at known junction
          AllJunctionsMixed=.false.
          do while (.not.AllJunctionsMixed)
             DO 640 JN=1,NNODES
+
                if (node_geom(jn).qual_int) then
 
                   TOTFLO=0.
@@ -479,7 +506,7 @@ C--------compute inflow flux at known junction
                      N=LISTUP(JN,KK)
                      TOTFLO=TOTFLO-FLOW(N,1,1)
                      IF (FLOW(N,1,1).LT.0.0) THEN
-                        IF(abs(dvu(n)) .gt. 1.0 .AND.
+                        IF (abs(dvu(n)) .gt. 1.0 .AND.
      &                       node_geom(JNCD(N)).qual_int) THEN
                            !print*,"upstream unknown flow gt 0"
                            !print*,"Channel: Internal: ",N," Ext: ", chan_geom(N).chan_no
@@ -511,7 +538,7 @@ C--------compute inflow flux at known junction
 
 C-----------------Now add the effects of external and internal flows, and reservoirs
                   call node_rate(JN,TO_OBJ,0,objflow,massrate)
-	          
+
                   VJ=VJ+objflow*DTT
                   TOTFLO=TOTFLO+objflow
 
@@ -736,7 +763,7 @@ c-----common blocks
       do chan=1,nobr
          do grid=1,nosc
             do constituent_no=1,max_constituent
-               gtrib(constituent_no,grid,chan)=0.0
+                 gtrib(constituent_no,grid,chan)=0.0
             enddo
          enddo
       enddo
@@ -819,17 +846,27 @@ c--------meteorological values
 c-----------water quality constituent
             if (pathinput(ptr).obj_type .eq. obj_node) then
                intnode=pathinput(ptr).obj_no
-c--------------only the stage type boundary EC is used later from this section;
-c--------------flow ECs are handled in node_rate and res_rate
+c--------------only the stage type boundary concentration is used later from this section;
+c--------------flow BCs are handled in node_rate and res_rate
                do i=1,nstgbnd
                   if (intnode .eq. stgbnd(i).node) then
-                                ! Downstream salinity boundary (may be Martinez)
-                     intchan=node_geom(intnode).downstream(1)
-                     do ic=1,pathinput(ptr).n_consts
-                        constituent_no = pathinput(ptr).const_ndx(ic)
-                        gtrib(constituent_no,nxsec(intchan),intchan)=
+                     !downstream stage boundary node
+                     if ((node_geom(intnode).Nup .eq. 0) .and. (node_geom(intnode).Ndown .eq. 1)) then
+                         intchan=node_geom(intnode).downstream(1)                     
+                         do ic=1,pathinput(ptr).n_consts
+                             constituent_no = pathinput(ptr).const_ndx(ic)
+                             gtrib(constituent_no,nxsec(intchan),intchan)=
      &                       pathinput(ptr).value
-                     enddo
+                         enddo
+                     !upstream stage boundary node
+                     elseif ((node_geom(intnode).Nup .eq. 1) .and. (node_geom(intnode).Ndown .eq. 0)) then
+                         intchan=node_geom(intnode).upstream(1)
+                         do ic=1,pathinput(ptr).n_consts
+                             constituent_no = pathinput(ptr).const_ndx(ic)
+                             gtrib(constituent_no,1,intchan)=
+     &                       pathinput(ptr).value
+                         enddo
+                     endif                     
                   endif
                enddo
             endif
