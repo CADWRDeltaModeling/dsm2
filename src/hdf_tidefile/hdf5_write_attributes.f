@@ -282,7 +282,7 @@ c**********contains routines for writing data to an HDF5 file
 
       integer ::   error        ! Error flag
       integer::i
-      if (nqext .eq. 0) then
+      if (nstgbnd .eq. 0) then
          return
       endif
       call stage_boundaries_clear_buffer()
