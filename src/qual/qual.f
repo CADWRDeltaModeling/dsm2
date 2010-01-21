@@ -408,13 +408,13 @@ C--------Read the Hydro tidefile
          CALL INTERPX
 
          DO 360 N=1,NBRCH
+            !upstream
             JN=JNCU(N)
 c-----------calculate total flow and mass into this node for each constituent
             if ( .not. node_geom(JN).qual_int) then ! external boundary node
                 if (node_geom(JN).boundary_type .NE. stage_boundary) then
-                    call node_rate(jn,TO_OBJ,0,objflow,massrate) ! todo: inefficient
+                    call node_rate(jn,TO_OBJ,0,objflow,massrate) 
                     IF ( objflow .gt. 0.) THEN ! source at node
-c--------------fixme: what if qext source at mtz (stage boundary)?
                         QNODE(jn)=objflow
                         DO CONS_NO=1,NEQ
                             GTRIB(CONS_NO,1,N)=massrate(CONS_NO)/objflow
@@ -422,14 +422,13 @@ c--------------fixme: what if qext source at mtz (stage boundary)?
                     ENDIF
                 endif
             endif    
-            ! Now do JN=JNCD(N) and put it in GTRIB(CONS_NO,NXSEC(N),N)
-            
+           
+            !downstream 
             JN=JNCD(N)
             if ( .not. node_geom(JN).qual_int) then ! external boundary node
                 if (node_geom(JN).boundary_type .NE. stage_boundary) then
-                    call node_rate(jn,TO_OBJ,0,objflow,massrate) ! todo: inefficient
+                    call node_rate(jn,TO_OBJ,0,objflow,massrate) 
                     IF ( objflow .gt. 0.) THEN ! source at node
-c--------------fixme: what if qext source at mtz (stage boundary)?
                         QNODE(jn)=objflow
                         DO CONS_NO=1,NEQ
                             GTRIB(CONS_NO,NXSEC(N),N)=massrate(CONS_NO)/objflow
