@@ -505,6 +505,7 @@ C--------compute inflow flux at known junction
                   
                   
                   ! find JN of transfer upstream node and check if it's mixed
+                  ! if not mixed then wait
                   i_node_flow =1
                   do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
                       qndx = node_geom(JN).qinternal(i_node_flow)
@@ -517,9 +518,11 @@ C--------compute inflow flux at known junction
                       endif 
                                                
                       if (from_obj_type .eq. obj_node) then
-                          if ( (from_obj_no .ne. -901) .and. (from_obj_no .ne. JN) ) then 
+                      
+                          ! if upstream transfer node is not itself
+                          if  (from_obj_no .ne. JN)  then 
                               if (JCD(from_obj_no) .ne. mixed) then
-                                  goto 640
+                                  goto 640  !wait for next loop
                               endif
                           endif 
                       endif       
