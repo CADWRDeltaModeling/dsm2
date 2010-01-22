@@ -167,7 +167,7 @@ C-----+ + + LOCAL VARIABLES + + +C
       include '../timevar/readdss.inc'
       include '../timevar/writedss.inc'
 
-	integer MIXED, NOT_MIXED
+	integer MIXED, NOT_MIXED, QNDX, i_node_flow, from_obj_type, from_obj_no
 	parameter (MIXED=0,NOT_MIXED=2)
 
       data init_input_file /' '/
@@ -482,6 +482,8 @@ C--------Initialize reservoir stuff
 C--------update junction concentrations and codes
 C--------compute inflow flux at known junction
 
+
+
          DO JN=1,NNODES
             if (node_geom(jn).qual_int) then
                DO CONS_NO=1,NEQ
@@ -493,13 +495,38 @@ C--------compute inflow flux at known junction
 
  400     CONTINUE
          AllJunctionsMixed=.false.
-         do while (.not.AllJunctionsMixed)
-            DO 640 JN=1,NNODES
+         do while (.not.AllJunctionsMixed)   ! line 627
+            DO 640 JN=1,NNODES     ! line 611
 
                if (node_geom(jn).qual_int) then
 
                   TOTFLO=0.
                   IF (JCD(JN) .EQ. MIXED) GOTO 640
+                  
+                  
+                  ! find JN of transfer upstream node and check if it's mixed
+                  i_node_flow =1
+                  do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
+                      qndx = node_geom(JN).qinternal(i_node_flow)
+                      if ( obj2obj(qndx).flow_avg >= 0 ) then 
+                          from_obj_type = obj2obj(qndx).from_obj.obj_type
+                          from_obj_no   = obj2obj(qndx).from_obj.obj_no
+                      else
+                          from_obj_type = obj2obj(qndx).to_obj.obj_type
+                          from_obj_no   = obj2obj(qndx).to_obj.obj_no                     
+                      endif 
+                                               
+                      if (from_obj_type .eq. obj_node) then
+                          if ( (from_obj_no .ne. -901) .and. (from_obj_no .ne. JN) ) then 
+                              if (JCD(from_obj_no) .ne. mixed) then
+                                  goto 640
+                              endif
+                          endif 
+                      endif       
+                  i_node_flow = i_node_flow + 1
+                  end do
+                  ! finished checking transfer upstream node mixing
+                  
                   VJ=0.0
                   DO KK=1,NUMUP(JN)
                      N=LISTUP(JN,KK)
@@ -602,7 +629,7 @@ c                        ENDDO
                      DVU(N)=0.0
                   ENDDO
                endif
- 640     ENDDO
+ 640     ENDDO !line 502    DO 640 JN=1,NNODES
             
          AllJunctionsMixed=.true.
          DO JN=1,NNODES
@@ -616,7 +643,12 @@ C--------------------This JUNCTION NOT MIXED YET. Have to go back
                ENDIF
             endif
          ENDDO
-      ENDDO
+         
+         
+      ENDDO !line 501      do while (.not.AllJunctionsMixed)
+      
+      
+      
 
 C--------Now all junctions have been mixed
          if(mass_tracking) then
