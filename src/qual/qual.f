@@ -495,8 +495,8 @@ C--------compute inflow flux at known junction
 
  400     CONTINUE
          AllJunctionsMixed=.false.
-         do while (.not.AllJunctionsMixed)   ! line 627
-            DO 640 JN=1,NNODES     ! line 611
+         do while (.not.AllJunctionsMixed)  
+            DO 640 JN=1,NNODES     
 
                if (node_geom(jn).qual_int) then
 
@@ -632,7 +632,7 @@ c                        ENDDO
                      DVU(N)=0.0
                   ENDDO
                endif
- 640     ENDDO !line 502    DO 640 JN=1,NNODES
+ 640     ENDDO !  DO 640 JN=1,NNODES
             
          AllJunctionsMixed=.true.
          DO JN=1,NNODES
@@ -648,7 +648,7 @@ C--------------------This JUNCTION NOT MIXED YET. Have to go back
          ENDDO
          
          
-      ENDDO !line 501      do while (.not.AllJunctionsMixed)
+      ENDDO ! do while (.not.AllJunctionsMixed)
       
       
       
