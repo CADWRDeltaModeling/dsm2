@@ -388,29 +388,31 @@ C-----start time loop
             call heat
          end if
 
-C--------set boundary and junction values
-         DO 320 N=1,NBRCH
+C--------set boundary and junction values to zero
+         DO N=1,NBRCH
             DVU(N)=0.0
             DVD(N)=0.0
-            DO 310 CONS_NO=1,NEQ
+            DO CONS_NO=1,NEQ
                GPTU(CONS_NO,N)=0.0
                GPTD(CONS_NO,N)=0.0
- 310        CONTINUE
- 320     CONTINUE
-         DO 330 N=1,NNODES
+            ENDDO
+         ENDDO
+
+C--------set boundary and junction nodes to NOT_MIXED        
+         DO N=1,NNODES
             if (node_geom(n).qual_int) JCD(N)=NOT_MIXED
- 330     CONTINUE
+         ENDDO
 
          call read_boundary_values
 
 C--------Read the Hydro tidefile
          call read_mult_tide
          CALL INTERPX
-
+         
+c--------calculate total flow and mass into boundary nodes         
          DO 360 N=1,NBRCH
             !upstream
             JN=JNCU(N)
-c-----------calculate total flow and mass into this node for each constituent
             if ( .not. node_geom(JN).qual_int) then ! external boundary node
                 if (node_geom(JN).boundary_type .NE. stage_boundary) then
                     call node_rate(jn,TO_OBJ,0,objflow,massrate) 
@@ -436,20 +438,13 @@ c-----------calculate total flow and mass into this node for each constituent
                     ENDIF
                 endif
             endif 
-
-            
             
             DO CONS_NO=1,NEQ
                GPTU(CONS_NO,N)=GTRIB(CONS_NO,1,N)
                GPTD(CONS_NO,N)=GTRIB(CONS_NO,NXSEC(N),N)
             ENDDO
-                        
-            
- 360     CONTINUE
-
-
-
-
+                                   
+ 360     ENDDO
 
 C--------Initialize reservoir stuff
          DO I=1,nreser
@@ -479,11 +474,7 @@ C--------Initialize reservoir stuff
 
          CALL ROUTE
 
-C--------update junction concentrations and codes
-C--------compute inflow flux at known junction
-
-
-
+         ! set cj(cons_no,jn) to zero
          DO JN=1,NNODES
             if (node_geom(jn).qual_int) then
                DO CONS_NO=1,NEQ
@@ -493,7 +484,8 @@ C--------compute inflow flux at known junction
             endif
          ENDDO
 
- 400     CONTINUE
+C--------update junction concentrations and codes
+C--------compute inflow flux at known junction        
          AllJunctionsMixed=.false.
          do while (.not.AllJunctionsMixed)  
             DO 640 JN=1,NNODES     
@@ -501,8 +493,7 @@ C--------compute inflow flux at known junction
                if (node_geom(jn).qual_int) then
 
                   TOTFLO=0.
-                  IF (JCD(JN) .EQ. MIXED) GOTO 640
-                  
+                  IF (JCD(JN) .EQ. MIXED) GOTO 640                 
                   
                   ! find JN of transfer upstream node and check if it's mixed
                   ! if not mixed then wait
@@ -585,6 +576,7 @@ C-----------------Now add the effects of external and internal flows, and reserv
                   ENDIF
 
                   JCD(JN)=MIXED
+                  
 C-----------------At this point all the flows entering the junction have
 c-----------------been mixed.
 C-----------------update GPTU,GPTD,DVU,DVD,PT,PTI,PTR
@@ -647,11 +639,8 @@ C--------------------This JUNCTION NOT MIXED YET. Have to go back
             endif
          ENDDO
          
-         
       ENDDO ! do while (.not.AllJunctionsMixed)
-      
-      
-      
+  
 
 C--------Now all junctions have been mixed
          if(mass_tracking) then
