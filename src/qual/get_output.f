@@ -223,8 +223,10 @@ c-----common blocks
       if (node_geom(intnode).qual_int) then   ! internal node (and already mixed)
          node_qual=cj(const_no,intnode)
       else                      ! external node
+         ! todo: is this the same as node_geom(intnode).nup? Not seem so
          if (numup(intnode) .eq. 1) then ! upstream boundary node
             node_qual=gpt(const_no,1,listup(intnode,1))
+         ! todo: is this the same as node_geom(intnode).ndown? Not seem so   
          else if (numdown(intnode) .eq. 1) then ! downstream boundary node
             node_qual=gpt(const_no,ns(listdown(intnode,1)), listdown(intnode,1))
          else
