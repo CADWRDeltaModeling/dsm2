@@ -629,50 +629,41 @@ c                        ENDDO
                   ! finished checking internal transfer upstream node mixing               
 
                
-C----------------external non-boundary node update
-            
+C----------------external non-stage-boundary node update            
               ! upstream boundary node
-              if ((node_geom(JN).nup .eq. 1).and.(node_geom(JN).ndown .eq. 0)) then
-            
+              if ((node_geom(JN).nup .eq. 1).and.(node_geom(JN).ndown .eq. 0)) then           
 
                     call node_rate(JN,TO_OBJ,0,objflow,massrate) 
                     IF ( objflow .gt. 0.) THEN ! source at node
                         QNODE(JN)=objflow
                         ibranch = node_geom(JN).upstream(1)                        
                         DO CONS_NO=1,NEQ
-                            !GTRIB(CONS_NO,1,ibranch) = massrate(CONS_NO)/objflow
                             GPTU(CONS_NO,ibranch)    = massrate(CONS_NO)/objflow
-                            GPT(CONS_NO,1,ibranch)   = massrate(CONS_NO)/objflow
-                            CJ(CONS_NO,JN)           = massrate(CONS_NO)/objflow
-                            CJ_prev(CONS_NO,JN)      = massrate(CONS_NO)/objflow
-
+                            GPT(CONS_NO,1,ibranch)   = GPTU(CONS_NO,ibranch)
+                            CJ(CONS_NO,JN)           = GPTU(CONS_NO,ibranch)
+                            CJ_prev(CONS_NO,JN)      = GPTU(CONS_NO,ibranch)
                         ENDDO
                     ENDIF
-                    JCD(JN)=MIXED  ! set this node to be mixed
-              endif  
-  
+                    JCD(JN)=MIXED  ! set this node to be mixed  
            
-            !downstream 
-              if ((node_geom(JN).nup .eq. 0).and.(node_geom(JN).ndown .eq. 1)) then
+              ! downstream boundary node
+              else if ((node_geom(JN).nup .eq. 0).and.(node_geom(JN).ndown .eq. 1)) then
 
                     call node_rate(JN,TO_OBJ,0,objflow,massrate) 
                     IF ( objflow .gt. 0.) THEN ! source at node
                         QNODE(JN)=objflow
                         ibranch = node_geom(JN).downstream(1) 
                         DO CONS_NO=1,NEQ
-                            !GTRIB(CONS_NO,NXSEC(ibranch),ibranch)=massrate(CONS_NO)/objflow
                             GPTD(CONS_NO,ibranch)           = massrate(CONS_NO)/objflow
-                            GPT(CONS_NO,NS(ibranch),ibranch)= massrate(CONS_NO)/objflow
-                            CJ(CONS_NO,JN)                  = massrate(CONS_NO)/objflow
-                            CJ_prev(CONS_NO,JN)             = massrate(CONS_NO)/objflow
-
+                            GPT(CONS_NO,NS(ibranch),ibranch)= GPTD(CONS_NO,ibranch)
+                            CJ(CONS_NO,JN)                  = GPTD(CONS_NO,ibranch)
+                            CJ_prev(CONS_NO,JN)             = GPTD(CONS_NO,ibranch)
                         ENDDO
                     ENDIF
                     JCD(JN)=MIXED  ! set this node to be mixed
               endif
 
-           endif ! if (internal node) elseif (non-stage-boundary external node)
-               
+           endif ! if (internal node) elseif (non-stage-boundary external node)              
                
  640     ENDDO !  DO 640 JN=1,NNODES
             
