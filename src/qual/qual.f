@@ -155,6 +155,9 @@ C-----+ + + LOCAL VARIABLES + + +C
 
       integer
      &     istat                ! status of fixed input
+     &     ,iStageBoundary      ! stage boundary index
+     &     ,iNode               ! node index
+     &     ,iBranch             ! branch index          
 
       character
      &     init_input_file*130  ! initial input file on command line [optional]
@@ -167,8 +170,8 @@ C-----+ + + LOCAL VARIABLES + + +C
       include '../timevar/readdss.inc'
       include '../timevar/writedss.inc'
 
-	integer MIXED, NOT_MIXED, QNDX, i_node_flow, from_obj_type, from_obj_no
-	parameter (MIXED=0,NOT_MIXED=2)
+      integer MIXED, NOT_MIXED, QNDX, i_node_flow, from_obj_type, from_obj_no
+      parameter (MIXED=0,NOT_MIXED=2)
 
       data init_input_file /' '/
 
@@ -398,53 +401,24 @@ C--------set boundary and junction values to zero
             ENDDO
          ENDDO
 
-C--------set boundary and junction nodes to NOT_MIXED        
+C--------set internal nodes and non-stage-boundary nodes to NOT_MIXED          
          DO N=1,NNODES
-            if (node_geom(n).qual_int) JCD(N)=NOT_MIXED
-         ENDDO
-
+C--------set internal nodes to NOT_MIXED  
+            if (node_geom(n).qual_int) then
+                JCD(N)=NOT_MIXED
+                
+C--------set external nodes except stage boundaries to NOT_MIXED
+            ! todo: how to deal with stage boundaries?        
+            else if (node_geom(N).boundary_type .ne. stage_boundary) then 
+                JCD(N)=NOT_MIXED             
+            end if                
+         ENDDO         
+         
          call read_boundary_values
 
 C--------Read the Hydro tidefile
          call read_mult_tide
          CALL INTERPX
-         
-c--------calculate total flow and mass into boundary nodes         
-         DO 360 N=1,NBRCH
-            !upstream
-            JN=JNCU(N)
-            if ( .not. node_geom(JN).qual_int) then ! external boundary node
-                if (node_geom(JN).boundary_type .NE. stage_boundary) then
-                    call node_rate(jn,TO_OBJ,0,objflow,massrate) 
-                    IF ( objflow .gt. 0.) THEN ! source at node
-                        QNODE(jn)=objflow
-                        DO CONS_NO=1,NEQ
-                            GTRIB(CONS_NO,1,N)=massrate(CONS_NO)/objflow
-                        ENDDO
-                    ENDIF
-                endif
-            endif    
-           
-            !downstream 
-            JN=JNCD(N)
-            if ( .not. node_geom(JN).qual_int) then ! external boundary node
-                if (node_geom(JN).boundary_type .NE. stage_boundary) then
-                    call node_rate(jn,TO_OBJ,0,objflow,massrate) 
-                    IF ( objflow .gt. 0.) THEN ! source at node
-                        QNODE(jn)=objflow
-                        DO CONS_NO=1,NEQ
-                            GTRIB(CONS_NO,NXSEC(N),N)=massrate(CONS_NO)/objflow
-                        ENDDO
-                    ENDIF
-                endif
-            endif 
-            
-            DO CONS_NO=1,NEQ
-               GPTU(CONS_NO,N)=GTRIB(CONS_NO,1,N)
-               GPTD(CONS_NO,N)=GTRIB(CONS_NO,NXSEC(N),N)
-            ENDDO
-                                   
- 360     ENDDO
 
 C--------Initialize reservoir stuff
          DO I=1,nreser
@@ -487,15 +461,14 @@ C--------Initialize reservoir stuff
 C--------update junction concentrations and codes
 C--------compute inflow flux at known junction        
          AllJunctionsMixed=.false.
-         do while (.not.AllJunctionsMixed)  
+         do while (.not. AllJunctionsMixed)  
             DO 640 JN=1,NNODES     
 
                if (node_geom(jn).qual_int) then
-
                   TOTFLO=0.
                   IF (JCD(JN) .EQ. MIXED) GOTO 640                 
                   
-                  ! find JN of transfer upstream node and check if it's mixed
+                  ! find JN of transfer internal upstream node and check if it's mixed
                   ! if not mixed then wait
                   i_node_flow =1
                   do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
@@ -519,7 +492,7 @@ C--------compute inflow flux at known junction
                       endif       
                   i_node_flow = i_node_flow + 1
                   end do
-                  ! finished checking transfer upstream node mixing
+                  ! finished checking internal transfer upstream node mixing                           
                   
                   VJ=0.0
                   DO KK=1,NUMUP(JN)
@@ -623,12 +596,89 @@ c                        ENDDO
                      END IF
                      DVU(N)=0.0
                   ENDDO
-               endif
+               
+               ! external non-stage boundary nodes
+               else if (node_geom(JN).boundary_type .NE. stage_boundary) then
+          
+                  IF (JCD(JN) .EQ. MIXED) GOTO 640                 
+                  
+                  ! find JN of internal transfer upstream node and check if it's mixed
+                  ! if not mixed then wait
+                  i_node_flow =1
+                  do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
+                      qndx = node_geom(JN).qinternal(i_node_flow)
+                      if ( obj2obj(qndx).flow_avg >= 0 ) then 
+                          from_obj_type = obj2obj(qndx).from_obj.obj_type
+                          from_obj_no   = obj2obj(qndx).from_obj.obj_no
+                      else
+                          from_obj_type = obj2obj(qndx).to_obj.obj_type
+                          from_obj_no   = obj2obj(qndx).to_obj.obj_no                     
+                      endif 
+                                               
+                      if (from_obj_type .eq. obj_node) then
+                      
+                          ! if upstream transfer node is not itself
+                          if  (from_obj_no .ne. JN)  then 
+                              if (JCD(from_obj_no) .ne. mixed) then
+                                  goto 640  !wait for next loop
+                              endif
+                          endif 
+                      endif       
+                  i_node_flow = i_node_flow + 1
+                  end do
+                  ! finished checking internal transfer upstream node mixing               
+
+               
+C----------------external non-boundary node update
+            
+              ! upstream boundary node
+              if ((node_geom(JN).nup .eq. 1).and.(node_geom(JN).ndown .eq. 0)) then
+            
+
+                    call node_rate(JN,TO_OBJ,0,objflow,massrate) 
+                    IF ( objflow .gt. 0.) THEN ! source at node
+                        QNODE(JN)=objflow
+                        ibranch = node_geom(JN).upstream(1)                        
+                        DO CONS_NO=1,NEQ
+                            !GTRIB(CONS_NO,1,ibranch) = massrate(CONS_NO)/objflow
+                            GPTU(CONS_NO,ibranch)    = massrate(CONS_NO)/objflow
+                            GPT(CONS_NO,1,ibranch)   = massrate(CONS_NO)/objflow
+                            CJ(CONS_NO,JN)           = massrate(CONS_NO)/objflow
+                            CJ_prev(CONS_NO,JN)      = massrate(CONS_NO)/objflow
+
+                        ENDDO
+                    ENDIF
+                    JCD(JN)=MIXED  ! set this node to be mixed
+              endif  
+  
+           
+            !downstream 
+              if ((node_geom(JN).nup .eq. 0).and.(node_geom(JN).ndown .eq. 1)) then
+
+                    call node_rate(JN,TO_OBJ,0,objflow,massrate) 
+                    IF ( objflow .gt. 0.) THEN ! source at node
+                        QNODE(JN)=objflow
+                        ibranch = node_geom(JN).downstream(1) 
+                        DO CONS_NO=1,NEQ
+                            !GTRIB(CONS_NO,NXSEC(ibranch),ibranch)=massrate(CONS_NO)/objflow
+                            GPTD(CONS_NO,ibranch)           = massrate(CONS_NO)/objflow
+                            GPT(CONS_NO,NS(ibranch),ibranch)= massrate(CONS_NO)/objflow
+                            CJ(CONS_NO,JN)                  = massrate(CONS_NO)/objflow
+                            CJ_prev(CONS_NO,JN)             = massrate(CONS_NO)/objflow
+
+                        ENDDO
+                    ENDIF
+                    JCD(JN)=MIXED  ! set this node to be mixed
+              endif
+
+           endif ! if (internal node) elseif (non-stage-boundary external node)
+               
+               
  640     ENDDO !  DO 640 JN=1,NNODES
             
          AllJunctionsMixed=.true.
          DO JN=1,NNODES
-           if (node_geom(jn).qual_int) then
+           if ((node_geom(JN).qual_int) .or. (node_geom(JN).boundary_type .ne. stage_boundary)) then
                IF(JCD(JN) .NE. MIXED) THEN
 C--------------------This JUNCTION NOT MIXED YET. Have to go back
                   AllJunctionsMixed=.false.
@@ -639,7 +689,7 @@ C--------------------This JUNCTION NOT MIXED YET. Have to go back
             endif
          ENDDO
          
-      ENDDO ! do while (.not.AllJunctionsMixed)
+         ENDDO ! do while (.not.AllJunctionsMixed)
   
 
 C--------Now all junctions have been mixed
@@ -688,8 +738,8 @@ c--------******************************************************************
                SVOL=SVOL+GPV(N,K)
                IF (K.LT.NKAI(N,I+1)) GO TO 710
  720        CONTINUE
-            IF(JPO.EQ.0)GO TO 730
-            IF(MOD(JTIME,JPO).NE.0)GO TO 730
+            IF(JPO.EQ.0) GO TO 730
+            IF(MOD(JTIME,JPO).NE.0) GO TO 730
  730     CONTINUE
 
          if (julmin .ge. next_output_flush) then

@@ -22,7 +22,7 @@ C!</license>
 
 c-----Get the desired output variable from the particular DSM module
       Use io_units
-	Use groups, Only: groupArray
+      Use groups, Only: groupArray
       use common_tide
       use grid_data
       use iopath_data
@@ -212,7 +212,8 @@ c-----arguments
      &     intnode              ! internal node number
       integer
      &     const_no             ! constituent number
-
+      integer
+     &     Nbranch              ! internal branch number 
 c-----common blocks
 
       include 'param.inc'
@@ -223,12 +224,18 @@ c-----common blocks
       if (node_geom(intnode).qual_int) then   ! internal node (and already mixed)
          node_qual=cj(const_no,intnode)
       else                      ! external node
-         ! todo: is this the same as node_geom(intnode).nup? Not seem so
-         if (numup(intnode) .eq. 1) then ! upstream boundary node
-            node_qual=gpt(const_no,1,listup(intnode,1))
-         ! todo: is this the same as node_geom(intnode).ndown? Not seem so   
-         else if (numdown(intnode) .eq. 1) then ! downstream boundary node
-            node_qual=gpt(const_no,ns(listdown(intnode,1)), listdown(intnode,1))
+
+         ! if (numup(intnode) .eq. 1) then ! upstream boundary node
+         if ((node_geom(intnode).nup .eq. 1).and.(node_geom(intnode).ndown .eq. 0)) then
+            ! node_qual=gpt(const_no,1,listup(intnode,1))
+            Nbranch = node_geom(intnode).upstream(1)
+            node_qual=gpt(const_no,1,Nbranch)
+  
+         ! else if (numdown(intnode) .eq. 1) then ! downstream boundary node
+         else if ((node_geom(intnode).nup .eq. 0).and.(node_geom(intnode).ndown .eq. 1)) then
+            ! node_qual=gpt(const_no,ns(listdown(intnode,1)), listdown(intnode,1))
+            Nbranch = node_geom(intnode).downstream(1) 
+            node_qual=gpt(const_no,NS(Nbranch),Nbranch)
          else
             write(unit_error, 610) node_geom(intnode).node_ID
  610        format(/'Error in node_qual, DSM2 node number ',i3)
