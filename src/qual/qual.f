@@ -464,7 +464,7 @@ C--------compute inflow flux at known junction
                   TOTFLO=0.
                   IF (JCD(JN) .EQ. MIXED) GOTO 640                 
                   
-                  ! find JN of transfer internal upstream node and check if it's mixed
+                  ! find JN of transfer upstream node and check if it's mixed
                   ! if not mixed then wait
                   i_node_flow =1
                   do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
@@ -476,7 +476,7 @@ C--------compute inflow flux at known junction
                           from_obj_type = obj2obj(qndx).to_obj.obj_type
                           from_obj_no   = obj2obj(qndx).to_obj.obj_no
                       else  ! obj2obj(qndx).flow_avg == 0 
-                          exit ! exit do while. don't wait                   
+                          goto 747 ! next node_flow. don't wait if flow_avg is 0                   
                       endif 
                                                
                       if (from_obj_type .eq. obj_node) then
@@ -488,7 +488,7 @@ C--------compute inflow flux at known junction
                               endif
                           endif 
                       endif       
-                  i_node_flow = i_node_flow + 1
+ 747                  i_node_flow = i_node_flow + 1
                   end do
                   ! finished checking internal transfer upstream node mixing                           
                   
