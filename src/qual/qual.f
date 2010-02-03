@@ -473,12 +473,14 @@ C--------compute inflow flux at known junction
                   i_node_flow =1
                   do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
                       qndx = node_geom(JN).qinternal(i_node_flow)
-                      if ( obj2obj(qndx).flow_avg >= 0 ) then 
+                      if ( obj2obj(qndx).flow_avg > 0 ) then 
                           from_obj_type = obj2obj(qndx).from_obj.obj_type
                           from_obj_no   = obj2obj(qndx).from_obj.obj_no
-                      else
+                      else if ( obj2obj(qndx).flow_avg < 0 ) then 
                           from_obj_type = obj2obj(qndx).to_obj.obj_type
-                          from_obj_no   = obj2obj(qndx).to_obj.obj_no                     
+                          from_obj_no   = obj2obj(qndx).to_obj.obj_no
+                      else  ! obj2obj(qndx).flow_avg == 0 
+                          exit ! exit do while. don't wait                   
                       endif 
                                                
                       if (from_obj_type .eq. obj_node) then
