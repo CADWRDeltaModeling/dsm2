@@ -10,7 +10,7 @@ Need to add $(LIB) and $(INCLUDE) to both fortran and c++ and make sure these ar
 
 
 
-Executable checklist  (example: distributing v8.0.1 and incrementing to v8.0.2):
+Executable checklist  (example: distributing v8.0.2 and incrementing to v8.0.3):
 Remember: need jni on path need /lib and fortran libraries on visual c path.
 Also need ant
 
@@ -18,7 +18,7 @@ Update and rebuild input_storage
 Update and rebuild oprule
 Update DSM2
 launch generate.py
-Make sure version text points to "8.0.1" (don't increment)
+Make sure version text points to "8.0.2" (don't increment)
 Autogenerate the exact build numbers that are included in DSM2
 Rebuild hydro, qual, ptm
 Send executables for testing
@@ -35,7 +35,7 @@ Installation package:
 
 Save previous installers
 
-Create 8.0.1 version installer
+Create 8.0.2 version installer
 
 (0) Download and install “Inno Setup Compiler” v5.2.3
 (1) Goto branch\dsm2_distribute\dsm2\install
@@ -47,8 +47,8 @@ Create 8.0.1 version installer
       Run DSM2setup_v8.iss
 
  
-Create the v8_0_1_release tag on the release branch. This is the official 8.0.1 release.
-Immediately increment text references to to 8.0.2 in the installer and DSM2 code and commit
+Create the v8_0_2_release tag on the release branch. This is the official 8.0.2 release.
+Immediately increment text references to to 8.0.3 in the installer and DSM2 code and commit
 
 Quick-test installer:
 Test on clean machine
