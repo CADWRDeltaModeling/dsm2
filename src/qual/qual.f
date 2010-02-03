@@ -401,15 +401,11 @@ C--------set boundary and junction values to zero
             ENDDO
          ENDDO
 
-C--------set internal nodes and non-stage-boundary nodes to NOT_MIXED          
+C--------set internal nodes and non-stage-boundary nodes to NOT_MIXED
+         ! todo: how to deal with stage boundaries?         
          DO N=1,NNODES
-C--------set internal nodes to NOT_MIXED  
-            if (node_geom(n).qual_int) then
-                JCD(N)=NOT_MIXED
-                
-C--------set external nodes except stage boundaries to NOT_MIXED
-            ! todo: how to deal with stage boundaries?        
-            else if (node_geom(N).boundary_type .ne. stage_boundary) then 
+                   
+            if (node_geom(N).boundary_type .ne. stage_boundary) then 
                 JCD(N)=NOT_MIXED             
             end if                
          ENDDO         
@@ -448,9 +444,9 @@ C--------Initialize reservoir stuff
 
          CALL ROUTE
 
-         ! set cj(cons_no,jn) to zero
+         ! set cj(cons_no,jn) to zero for internal nodes and non-stage-boundary nodes
          DO JN=1,NNODES
-            if (node_geom(jn).qual_int) then
+            if (node_geom(JN).boundary_type .NE. stage_boundary) then
                DO CONS_NO=1,NEQ
                   cj_prev(CONS_NO,JN)=cj(CONS_NO,JN)
                   cj(cons_no,jn)=0.0 ! for masstracking
@@ -464,7 +460,7 @@ C--------compute inflow flux at known junction
          do while (.not. AllJunctionsMixed)  
             DO 640 JN=1,NNODES     
 
-               if ((node_geom(jn).qual_int) .or. (node_geom(JN).boundary_type .NE. stage_boundary)) then
+               if (node_geom(JN).boundary_type .NE. stage_boundary) then
                   TOTFLO=0.
                   IF (JCD(JN) .EQ. MIXED) GOTO 640                 
                   
@@ -597,13 +593,13 @@ c                        ENDDO
                      DVU(N)=0.0
                   ENDDO
 
-           endif ! if (internal node) or (non-stage-boundary external node)              
+           endif ! if not stage-boundary node              
                
  640     ENDDO !  DO 640 JN=1,NNODES
             
          AllJunctionsMixed=.true.
          DO JN=1,NNODES
-           if ((node_geom(JN).qual_int) .or. (node_geom(JN).boundary_type .ne. stage_boundary)) then
+           if (node_geom(JN).boundary_type .ne. stage_boundary) then
                IF(JCD(JN) .NE. MIXED) THEN
 C--------------------This JUNCTION NOT MIXED YET. Have to go back
                   AllJunctionsMixed=.false.
