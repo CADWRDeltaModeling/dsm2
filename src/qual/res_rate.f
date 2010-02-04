@@ -196,13 +196,13 @@ c--------positive qres means flow from reservoir to node
                objflow=objflow - qres(res,i)
                intnode=res_geom(res).node_no(i)
                do j=1,neq
-                  if (node_geom(intnode).qual_int) then
-c--------------------internal node connected to a reservoir
+                  if (node_geom(intnode).boundary_type .NE. stage_boundary) then
+c--------------------internal node or external non-stage-BC nodes connected to a reservoir
                      conc=node_qual(intnode,j)
                      massrate(j)=massrate(j)
      &                    - qres(res,i) * conc
                   else
-c--------------------external node connected to a reservoir
+c--------------------external node (stage BC) connected to a reservoir
                      if (listup(intnode,1).gt.0) then
 c-----------------------reservoir connected at the upstream boundary
                         ich=listup(intnode,1)

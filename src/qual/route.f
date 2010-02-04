@@ -271,7 +271,7 @@ C-----------Or if it is, there are no reservoirs connected
          ELSEIF( (.not. node_geom(JN).qual_int) .AND. NCONRES(JN).GE.1)THEN
 C-----------Upstream junction is a boundary node
 C-----------and a reservoir is connected
-
+            !todo: ext_node node_rate is wrong time (b4 node mixing loop)
             call node_rate(jn,TO_OBJ,0,objflow,massrate)
             DO L=1,NEQ
                IF(objflow .NE. 0.)THEN
