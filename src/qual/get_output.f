@@ -202,6 +202,7 @@ c--------pick the last parcel concentration
       real*8 function node_qual(intnode,const_no)
       Use IO_Units
       use grid_data
+      use constants
 c-----Return the mixed quality at a node
 
       implicit none
@@ -209,7 +210,7 @@ c-----Return the mixed quality at a node
 c-----arguments
 
       integer
-     &     intnode              ! internal node number
+     &     intnode              ! node number including external nodes
       integer
      &     const_no             ! constituent number
       integer
@@ -221,19 +222,14 @@ c-----common blocks
       include 'bltm2.inc'
       include 'bltm3.inc'
 
-      if (node_geom(intnode).qual_int) then   ! internal node (and already mixed)
-         node_qual=cj(const_no,intnode)
-      else                      ! external node
-
-         ! if (numup(intnode) .eq. 1) then ! upstream boundary node
+      if (node_geom(intnode).boundary_type .NE. stage_boundary) then  ! all nodes except stage BC nodes
+          node_qual=cj(const_no,intnode)
+      else    ! external node that has stage BC
          if ((node_geom(intnode).nup .eq. 1).and.(node_geom(intnode).ndown .eq. 0)) then
-            ! node_qual=gpt(const_no,1,listup(intnode,1))
             Nbranch = node_geom(intnode).upstream(1)
             node_qual=gpt(const_no,1,Nbranch)
   
-         ! else if (numdown(intnode) .eq. 1) then ! downstream boundary node
          else if ((node_geom(intnode).nup .eq. 0).and.(node_geom(intnode).ndown .eq. 1)) then
-            ! node_qual=gpt(const_no,ns(listdown(intnode,1)), listdown(intnode,1))
             Nbranch = node_geom(intnode).downstream(1) 
             node_qual=gpt(const_no,NS(Nbranch),Nbranch)
          else
