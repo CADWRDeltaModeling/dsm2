@@ -416,42 +416,13 @@ C--------Read the Hydro tidefile
          call read_mult_tide
          CALL INTERPX
 
-!c--------calculate total flow and mass into boundary nodes. This prepares GPTU and GPTD for ROUTE.     
-!         DO 360 N=1,NBRCH
-!            !upstream
-!            JN=JNCU(N)
-!            if ( .not. node_geom(JN).qual_int) then ! external boundary node
-!                if (node_geom(JN).boundary_type .NE. stage_boundary) then
-!                    call node_rate(jn,TO_OBJ,0,objflow,massrate) 
-!                    IF ( objflow .gt. 0.) THEN ! source at node
-!                        QNODE(jn)=objflow
-!                        DO CONS_NO=1,NEQ
-!                            GTRIB(CONS_NO,1,N)=massrate(CONS_NO)/objflow
-!                        ENDDO
-!                    ENDIF
-!                endif
-!            endif    
-!           
-!            !downstream 
-!            JN=JNCD(N)
-!            if ( .not. node_geom(JN).qual_int) then ! external boundary node
-!                if (node_geom(JN).boundary_type .NE. stage_boundary) then
-!                    call node_rate(jn,TO_OBJ,0,objflow,massrate) 
-!                    IF ( objflow .gt. 0.) THEN ! source at node
-!                        QNODE(jn)=objflow
-!                        DO CONS_NO=1,NEQ
-!                            GTRIB(CONS_NO,NXSEC(N),N)=massrate(CONS_NO)/objflow
-!                        ENDDO
-!                    ENDIF
-!                endif
-!            endif 
-!            
-!            DO CONS_NO=1,NEQ   ! includes stage boudnary GTRIB from store_values
-!               GPTU(CONS_NO,N)=GTRIB(CONS_NO,1,N)
-!               GPTD(CONS_NO,N)=GTRIB(CONS_NO,NXSEC(N),N)
-!            ENDDO
-!                                   
-! 360     ENDDO
+c--------calculate total flow and mass into boundary nodes. This prepares GPTU and GPTD for ROUTE.     
+         DO 360 N=1,NBRCH
+            DO CONS_NO=1,NEQ   ! includes stage boudnary GTRIB from store_values
+               GPTU(CONS_NO,N)=GTRIB(CONS_NO,1,N)
+               GPTD(CONS_NO,N)=GTRIB(CONS_NO,NXSEC(N),N)
+            ENDDO                                   
+ 360     ENDDO
 
 C--------Initialize reservoir stuff
          DO I=1,nreser
