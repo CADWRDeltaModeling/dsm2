@@ -1,0 +1,65 @@
+
+ENVVAR
+NAME           VALUE     
+DSM2MODIFIER   BC_CASE${BC_CASE_NUMBER}
+DSM2OUTPUTDIR           ./${OUTPUTDIR}
+OUTPUTFILE              ${DSM2MODIFIER}_out.dss
+QUALOUTDSSFILE         ${DSM2OUTPUTDIR}/${OUTPUTFILE}    
+END
+
+
+
+SCALAR
+NAME           VALUE                              
+checkdata      false                               
+cont_bad       false                               
+cont_missing   false                               
+cont_question  false                               
+cont_unchecked true                                
+dispersion     false                                
+display_intvl  1day                                
+flush_output   8day                                
+init_conc      35                                 
+printlevel     1                                   
+qual_time_step 15min                               
+warn_missing   false                               
+warn_question  false                               
+warn_unchecked false
+run_start_date   02JAN1992
+run_end_date     18JAN1992
+run_start_time   0000
+run_end_time     0000
+temp_dir         z:/temp 
+dss_direct       True                                           
+END
+
+
+
+IO_FILE
+MODEL      TYPE     IO                 INTERVAL FILE
+#qual       restart  out    1mon     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf      #Initial condition a restart is required
+#qual       output   out    none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_qual.out #Echoed run status
+#qual       echo     out    none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_qual_echo.out #Echoed input         
+END                
+
+TIDEFILE           
+START_DATE END_DATE FILE                       
+runtime    length   ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5         
+END
+
+NODE_CONCENTRATION
+NAME             NODE_NO VARIABLE FILLIN FILE       PATH
+${QUAL_BC_NODE}  ${QUAL_BC_NODE_NUMBER}       ec       last   constant   350. 
+END
+
+OUTPUT_CHANNEL
+NAME         CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE             
+chan2             2        0 ec          15min inst      ${QUALOUTDSSFILE}  
+chan2_mid         2     5000 ec          15min inst      ${QUALOUTDSSFILE} 
+chan3             3        0 ec          15min inst      ${QUALOUTDSSFILE} 
+chan4             4        0 ec          15min inst      ${QUALOUTDSSFILE}
+chan5             5        0 ec          15min inst      ${QUALOUTDSSFILE}
+chan5_mid         5     5000 ec          15min inst      ${QUALOUTDSSFILE}
+chan5_len         5   length ec          15min inst      ${QUALOUTDSSFILE}
+END
+
