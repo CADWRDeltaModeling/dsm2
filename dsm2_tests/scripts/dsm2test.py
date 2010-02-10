@@ -64,6 +64,8 @@ def cleanup(dir='.'):
     """
     patterns = ['*.ds?', '*.h5', '*.out', '*.?rf', '*_echo.inp']
     print 'Cleaning up directory %s'%dir
+    if not os.path.exists(dir):
+        os.makedirs(dir)
     for pattern in patterns:
         for file in glob.glob(dir + '/' + pattern):
             print 'Removing %s'%file

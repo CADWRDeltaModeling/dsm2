@@ -77,6 +77,8 @@ chan3       3    0         flow    15min    inst    ${HYDROOUTDSSFILE}
 chan3       3    0         stage   15min    inst    ${HYDROOUTDSSFILE}
 chan4       4    0         flow    15min    inst    ${HYDROOUTDSSFILE}
 chan4       4    0         stage   15min    inst    ${HYDROOUTDSSFILE}
+chan4_len   4    length    flow    15min    inst    ${HYDROOUTDSSFILE}
+chan4_len   4    length    stage   15min    inst    ${HYDROOUTDSSFILE}
 chan5       5    0         flow    15min    inst    ${HYDROOUTDSSFILE}
 chan5       5    0         stage   15min    inst    ${HYDROOUTDSSFILE}
 chan5_len   5    length    flow    15min    inst    ${HYDROOUTDSSFILE}
