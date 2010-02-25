@@ -43,6 +43,7 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\qual\balanceflo.f"/>
 		<File RelativePath="..\..\src\qual\bltminit.f"/>
+		<File RelativePath="..\..\src\qual\boundary.f"/>
 		<File RelativePath="..\..\src\qual\calscsk.f"/>
 		<File RelativePath="..\..\src\qual\checkerror.f"/>
 		<File RelativePath="..\..\src\qual\get_output.f"/>
@@ -56,5 +57,6 @@
 		<File RelativePath="..\..\src\qual\qual.f"/>
 		<File RelativePath="..\..\src\qual\rate_chanres.f"/>
 		<File RelativePath="..\..\src\qual\res_rate.f"/>
+		<File RelativePath="..\..\src\qual\restart_file.f"/>
 		<File RelativePath="..\..\src\qual\route.f"/></Filter></Files>
 	<Globals/></VisualStudioProject>
