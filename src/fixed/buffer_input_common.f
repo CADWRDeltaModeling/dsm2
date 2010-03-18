@@ -194,12 +194,13 @@ C!</license>
 
       return  ! normal return
       
-118   write(unit_error,*)"Failed to convert reservoir node from text to integer" /
+118   write(unit_error,'(a,//,a)')"Failed to convert reservoir node from text to integer",
      &   "Valid entries are an integer or 'none' (case sensitive)"
       call exit(-3)
 
-120   write(unit_error,*)"Failed to convert channel length from text to integer. " /
-     &   "Valid entries are an integer or 'length' (case sensitive)" /
+120   write(unit_error,'(a,//,a,//,a,a,//,a,i5,//,a,a)')
+     &   "Failed to convert channel length from text to integer. ",
+     &   "Valid entries are an integer or 'length' (case sensitive)",
      &   "Output name: ", name,
      &   "Channel: ",channo, ", " , "Distance: " , distance
 
