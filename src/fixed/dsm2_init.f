@@ -149,6 +149,7 @@ c-----set non-conservative constituent names for DSS C part
 C-----Qual default values
 
       mass_tracking=.false.
+      ! todo: is this a good idea?
       init_conc=0.0
       dispersion=.true.
 

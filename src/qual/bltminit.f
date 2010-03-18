@@ -232,7 +232,7 @@ c         call exit(2)
 	            ! do not intialize pseuedo constituents
 	            cres(i,l)=init_conc
 	         else
-	            cres(i,l)=0.
+	            cres(i,l)=0.d0
 	         end if
                !CRES(I,L)=INIT_CONC
             ENDDO

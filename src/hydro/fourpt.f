@@ -81,7 +81,7 @@ C!</license>
 c-----include '../input/time-varying/writedss.inc'
 
 *   Local variables:
-      LOGICAL   OK, isopen, echo_only
+      LOGICAL   OK, isopen, echo_only,file_exists
 
       integer*4
      &     incr_intvl           ! increment julian minute by interval function
@@ -194,6 +194,11 @@ c---- begin data reading
 
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. ' ') then
+         inquire(file=init_input_file, exist=file_exists)
+         if (.not. file_exists)then
+             write(unit_error,*)"Input file does not exist: ",init_input_file
+             call exit(1)     
+         end if
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
          call buffer_input_grid()    ! processes grid
