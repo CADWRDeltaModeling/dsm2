@@ -458,6 +458,9 @@ def generate_dsm2():
     scalar_keywords = ["scalar"]
     grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate",\
                    "gate_weir_device","gate_pipe_device","transfer"]
+    #todo: the following additions are not really desired, and should be eliminated in 8.1
+    grid_keywords += ["source_flow_reservoir","input_gate","input_transfer_flow"]
+    
     hydro_ic_keywords=["channel_ic","reservoir_ic"]
     oprule_keywords=["operating_rule","oprule_expression","oprule_time_series"]
     hydro_time_series_keywords = ["boundary_stage","boundary_flow","source_flow",\
