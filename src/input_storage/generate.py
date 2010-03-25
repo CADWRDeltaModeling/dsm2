@@ -459,7 +459,7 @@ def generate_dsm2():
     grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate",\
                    "gate_weir_device","gate_pipe_device","transfer"]
     #todo: the following additions are not really desired, and should be eliminated in 8.1
-    grid_keywords += ["source_flow_reservoir","input_gate","input_transfer_flow"]
+    grid_keywords_additions = ["source_flow_reservoir","input_gate","input_transfer_flow"]
     
     hydro_ic_keywords=["channel_ic","reservoir_ic"]
     oprule_keywords=["operating_rule","oprule_expression","oprule_time_series"]
@@ -481,7 +481,7 @@ def generate_dsm2():
     define_text_sub("envvar",outdir)
     define_include_block("configuration", envvar_keywords)
     define_include_block("parameter",  scalar_keywords)    
-    define_include_block("grid", grid_keywords)
+    define_include_block("grid", grid_keywords+grid_keywords_additions)
     define_include_block("initial_condition", hydro_ic_keywords)
     define_include_block("hydro_time_series",hydro_time_series_keywords )
     define_include_block("operation",oprule_keywords)
@@ -512,7 +512,7 @@ def generate_dsm2():
     define_profile("Hydro",envvar_keywords+scalar_keywords+io_file_keywords+grid_keywords \
                           +hydro_ic_keywords+hydro_time_series_keywords+oprule_keywords+water_body_output_keywords\
                           +gate_output_keywords+hydro_includes)
-    define_profile("Grid",grid_keywords+grid_includes) 
+    define_profile("Grid",grid_keywords+grid_keywords_additions+grid_includes) 
     define_profile("Qual",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+qual_time_series_keywords\
                          +groups_keywords+qual_spatial_keywords+water_body_output_keywords\
                          +source_group_output_keywords+qual_includes)
