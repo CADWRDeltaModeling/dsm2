@@ -95,13 +95,13 @@ c--------(priority 2 or higher)
 c--------meteorological values
          if (pathinput(ptr).variable .eq. 'cloud') then
             cloud=pathinput(ptr).value
-         else if (pathinput(ptr).variable .eq. 'dryblb') then
+         else if (pathinput(ptr).variable .eq. 'dry_bulb') then
             dryblb=pathinput(ptr).value
-         else if (pathinput(ptr).variable .eq. 'wetblb') then
+         else if (pathinput(ptr).variable .eq. 'wet_bulb') then
             wetblb=pathinput(ptr).value
          else if (pathinput(ptr).variable .eq. 'wind') then
             wind=pathinput(ptr).value
-         else if (pathinput(ptr).variable .eq. 'atmpr') then
+         else if (pathinput(ptr).variable .eq. 'atm_pressure') then
             atmpr=pathinput(ptr).value
          else
 c-----------water quality constituent
