@@ -514,7 +514,7 @@ def generate_dsm2():
     # "ENVVAR" you would set the envvar profile active.
     define_profile("envvar",envvar_keywords+envvar_includes) # envvar profile: envvar + corresponding include file
     define_profile("Hydro",envvar_keywords+scalar_keywords+io_file_keywords+grid_keywords \
-                          +hydro_ic_keywords+hydro_time_series_keywords+hydro_time_series_keywords_additions+oprule_keywords+water_body_output_keywords\
+                          +hydro_ic_keywords+hydro_time_series_keywords+oprule_keywords+water_body_output_keywords\
                           +gate_output_keywords+hydro_includes)
     define_profile("Grid",grid_keywords+grid_keywords_additions+grid_includes) 
     define_profile("Qual",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+qual_time_series_keywords\
