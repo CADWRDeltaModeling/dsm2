@@ -465,6 +465,10 @@ def generate_dsm2():
     oprule_keywords=["operating_rule","oprule_expression","oprule_time_series"]
     hydro_time_series_keywords = ["boundary_stage","boundary_flow","source_flow",\
                          "source_flow_reservoir","input_gate","input_transfer_flow"]  # ,"oprule_time_series"
+    
+    hydro_time_series_keywords_additions = ["reservoir","reservoir_connection",\
+                                            "gate","gate_weir_device","gate_pipe_device","transfer"]
+    
     qual_time_series_keywords = ["node_concentration",\
                          "reservoir_concentration",\
                          "input_climate"]
@@ -483,7 +487,7 @@ def generate_dsm2():
     define_include_block("parameter",  scalar_keywords)    
     define_include_block("grid", grid_keywords+grid_keywords_additions)
     define_include_block("initial_condition", hydro_ic_keywords)
-    define_include_block("hydro_time_series",hydro_time_series_keywords )
+    define_include_block("hydro_time_series",hydro_time_series_keywords+hydro_time_series_keywords_additions )
     define_include_block("operation",oprule_keywords)
     define_include_block("groups",groups_keywords)
     define_include_block("qual_time_series", qual_time_series_keywords)
@@ -510,7 +514,7 @@ def generate_dsm2():
     # "ENVVAR" you would set the envvar profile active.
     define_profile("envvar",envvar_keywords+envvar_includes) # envvar profile: envvar + corresponding include file
     define_profile("Hydro",envvar_keywords+scalar_keywords+io_file_keywords+grid_keywords \
-                          +hydro_ic_keywords+hydro_time_series_keywords+oprule_keywords+water_body_output_keywords\
+                          +hydro_ic_keywords+hydro_time_series_keywords+hydro_time_series_keywords_additions+oprule_keywords+water_body_output_keywords\
                           +gate_output_keywords+hydro_includes)
     define_profile("Grid",grid_keywords+grid_keywords_additions+grid_includes) 
     define_profile("Qual",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+qual_time_series_keywords\
