@@ -13,7 +13,7 @@ import os
 
 
 #sys.path.append(os.getenv("input_storage_home")+"\\src")
-sys.path.append("../../../input_storage_v1_0/src")
+sys.path.append("../../../input_storage/src")
 
 from generate_input_storage import *
 LAST_FIELD=1
