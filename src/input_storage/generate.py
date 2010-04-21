@@ -13,7 +13,7 @@ import os
 
 
 #sys.path.append(os.getenv("input_storage_home")+"\\src")
-sys.path.append("../../../input_storage/src")
+sys.path.append("../../../input_storage_v1_0/src")
 
 from generate_input_storage import *
 LAST_FIELD=1
@@ -237,7 +237,7 @@ def generate_dsm2():
                               IntField("nparts"),\
                               CharField("delay", 8,12),\
                               CharField("duration",16,12)],
-                             ["node"])   # identifier
+                             ["node", "delay"])   # identifier
     component.layered=True
     prep_component(component,outdir)
 
