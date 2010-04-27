@@ -1,4 +1,4 @@
-set version=v8_0_4
+set version=v8_0_5
 
 echo version "%version%" 
 
