@@ -34,23 +34,22 @@ C!</license>
 c-----local variables---------------------------
 
       real*8 c1(max_constituent),scsk1(max_constituent)
-      real*8 rirdt, idtm,  nsmalldtt
+      real*8 rirdt, idtm
+      integer :: nsmalldtt = 0
 
       integer i,ii
       real*8 dt_rem, dt_react
 
-c	if (julmin .eq. 50916600)startprint = .true.
-
-
       firsttime = .true.
-      if (irc. eq. 1) then
-c--------fixme This setup is temporary. It will be changing
+      !if (irc. eq. 1) then
+c--------fixme This setup is temporary. It will be changing 
+      ! todo: this is very poorly understood -- eli
 
          del_c=10
          del_c=del_c/100.
          tol_c=5
          tol_c=tol_c/100.
-      end if
+      !end if
 
       irc = 0
       nrepeat=0
@@ -94,8 +93,7 @@ c-----more than once for the same time step
          delta_c=0.5*(scsk(i)+scsk1(i))*dt_react
          c(i) = c1(i)+delta_c
 
-        if(c1(i).lt.0.000001) c1(i)=0.000001
-
+        if(c1(i).lt. 1.d-6) c1(i)= 1.d-6
           if(abs(delta_c)/c1(i) .gt. del_c)then
 c-----------tolerance not met
             converged=.false.

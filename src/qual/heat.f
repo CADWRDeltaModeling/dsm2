@@ -73,32 +73,32 @@ c-----declare variables for diagnostics
 
 c!    Compute and/or define required constants.
 
-      if (first_call) then
-         first_call=.false.
-         CON2=PI/180.0*LAT
-         deltsl=(LONGITUDE-LONG_STD_MERID)/15.0
-         ELEXP=EXP(-ELEV/2532.0)
-      endif
 
-      ACS = TANA*TANB
+      first_call=.false.
+      CON2=PI/180.0*LAT
+      deltsl=(LONGITUDE-LONG_STD_MERID)/15.0
+      ELEXP=EXP(-ELEV/2532.0)
+
+
+      ! todo: eli removed because not initialized
+      !ACS = TANA*TANB
       REARTH=1.0+0.017*COS(CON1*(186-DAYOF_YEAR))
       DECLIN=CON4*COS(CON1*(172-DAYOF_YEAR))
       RR=REARTH**2
       EQTIME=0.000121-0.12319*SIN(CON1*(DAYOF_YEAR-1)-0.07014)
      &     -0.16549*SIN(2.0*CON1*(DAYOF_YEAR-1)+0.3088)
       DECLON=ABS(DECLIN)
-c-----Replace TAN function with SIN/COS.
-      TANA = SIN(CON2)/COS(CON2)
-      TANB = SIN(DECLON)/COS(DECLON)
+      TANA = TAN(CON2)
+      TANB = TAN(DECLON)
 	ACS = TANA*TANB
-      IF (ACS.EQ.0.0) GO TO 8
-      XX=SQRT(1.0-ACS*ACS)
-      XX=XX/ACS
-      ACS=ATAN(XX)
-      IF (DECLIN.GT.0.0) ACS=PI-ACS
-      GO TO 9
-    8 ACS=PI/2.0
-    9 CONTINUE
+      IF (ACS.EQ.0.0) then
+          ACS=PI/2.0
+      ELSE
+          XX=SQRT(1.0-ACS*ACS)
+          XX=XX/ACS
+          ACS=ATAN(XX)
+          IF (DECLIN.GT.0.0) ACS=PI-ACS
+      END IF
 
 c!    Calculate the standard time of
 c!    sunrise (STR) and sunset (STS).
@@ -174,7 +174,8 @@ c!    Compute absorption and scattering due to atmospheric conditions.
       A2=EXP(-(0.465+0.0408*PWC)*(0.179+0.421*EXP(-0.721*OAM))*OAM)
 
 c!    Compute reflectivity coefficient (RS).
-
+      AR = 1.d0
+      BR = 1.d0
       GO TO (30,31,31,31,31,31,32,32,32,32,33), NL
  30   AR=1.18
       BR=-0.77

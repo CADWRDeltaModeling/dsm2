@@ -611,8 +611,8 @@ c-----the following write statements are for diagnostics purposes only
       include 'param.inc'
       include 'bltm3.inc'
       real*8 temp
-	real*8 tmp,frac,templastused,dtemp
-      
+	real*8 tmp,frac,dtemp
+      real*8,save :: templastused = -901.d0
 	integer i,it,itemp
 
 	dtemp=temp

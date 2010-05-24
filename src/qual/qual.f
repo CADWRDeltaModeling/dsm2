@@ -363,6 +363,8 @@ C-----start time loop
       prev_julmin=julmin
       julmin=julmin+time_step
       current_date=jmin2cdt(julmin)
+      
+      call read_boundary_values
 
       do while (julmin .le. end_julmin)
          call update_intervals
