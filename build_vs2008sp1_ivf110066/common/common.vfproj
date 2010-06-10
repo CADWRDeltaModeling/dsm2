@@ -20,8 +20,8 @@
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool" Description="=== python ..\..\src\common\version_generate.py ==="/>
-				<Tool Name="VFPostBuildEventTool" Description="delete ..\..\src\common\version.inc"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="DLL|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\DLL" ObjectFile="$(INTDIR)/" RuntimeLibrary="rtMultiThreadedDLL" DisableDefaultLibSearch="true"/>
@@ -62,6 +62,10 @@
 			<FileConfiguration Name="Release|Win32">
 				<Tool Name="VFCustomBuildTool" CommandLine="" Outputs="" AdditionalDependencies=""/></FileConfiguration></File>
 		<File RelativePath="..\..\src\common\version_generate.py">
+			<FileConfiguration Name="Debug|Win32">
+				<Tool Name="VFCustomBuildTool" CommandLine="python $(InputPath)" Description="Generating version.fi" Outputs="$(InputDir)\version.fi"/></FileConfiguration>
+			<FileConfiguration Name="DLL|Win32">
+				<Tool Name="VFCustomBuildTool" CommandLine="python $(InputPath)" Description="Generating version.fi" Outputs="$(InputDir)\version.fi"/></FileConfiguration>
 			<FileConfiguration Name="Release|Win32">
-				<Tool Name="VFCustomBuildTool" CommandLine="python $(InputPath)" Description="Generating version.fi" Outputs="version.fi"/></FileConfiguration></File></Filter></Files>
+				<Tool Name="VFCustomBuildTool" CommandLine="python $(InputPath)" Description="Generating version.fi" Outputs="$(InputDir)\version.fi"/></FileConfiguration></File></Filter></Files>
 	<Globals/></VisualStudioProject>

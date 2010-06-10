@@ -41,26 +41,25 @@ c-----local variables---------------------------
       real*8 dt_rem, dt_react
 
       firsttime = .true.
+
       !if (irc. eq. 1) then
 c--------fixme This setup is temporary. It will be changing 
-      ! todo: this is very poorly understood -- eli
-
-         del_c=10
-         del_c=del_c/100.
-         tol_c=5
-         tol_c=tol_c/100.
+      ! todo: this comment is a decade old and 
+      ! I don't think anyone understands it -- eli
+      del_c=10
+      del_c=del_c/100.
+      tol_c=5
+      tol_c=tol_c/100.
       !end if
 
       irc = 0
       nrepeat=0
- 40      continue
+ 40   continue
 
       if (chan_res. eq. 1) then
          if (firsttime) dt_rem = dtsub
          dt_react = dt_rem
-
          if (dt_react. lt. 0.05) go to 900
-
          call calscsk(c)
 c-----reservoir kinetics
 
@@ -81,9 +80,7 @@ c-----update constituent concentrations
 
 c-----iskip is used to avoid calling heat and reading met data
 c-----more than once for the same time step
-
       iskip = iskip+1
-
       call calscsk (cp)
 
       converged=.true.

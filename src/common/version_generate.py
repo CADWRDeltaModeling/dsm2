@@ -2,12 +2,11 @@ import os
 
 print __file__
 
-VersionTemplate     = "      character*16 :: dsm2_version = '8.0.5', svn_build = '@{Version_SVN}' " 
+VersionTemplate     = "      character*16 :: dsm2_version = '8.0.5intense', svn_build = '@{Version_SVN}' " 
 VersionFile_path    = os.path.split( __file__)[0]
-VersionFile_path    = os.path.join(VersionFile_path,"version.inc")
+VersionFile_path    = os.path.join(VersionFile_path,"version.fi")
 
-
-VersionFile = open(VersionFile_path, "w") 
+VersionFile = open(VersionFile_path, "w")
 
 try:
     (dummy, SVNVersion_SourceCode) = os.popen4("svnversion ../.. ")
@@ -23,4 +22,4 @@ try:
 except:
     VersionFile.close()
     os.remove(VersionFile_path) 
-    print 'Abort.... possible error in file /dsm2/src/common/verion_generate.py'    
+    print 'Abort.... possible error in file /dsm2/src/common/version_generate.py'    

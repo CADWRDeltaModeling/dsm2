@@ -35,7 +35,6 @@ c-----exchanged through the air-water interface
       include 'param.inc'
       include 'bltm3.inc'
 
-      logical first_call        ! true if first call to subroutine
 
       integer istat             ! return status
      &     ,iyr,imon            ! year, month
@@ -65,7 +64,6 @@ c-----declare variables for diagnostics
      &     SOLCON=438.0
      &     )
 
-      data first_call /.true./
 
       timeof_day=mod(julmin,60*24)
       call datymd(current_date(:9),iyr,imon,iday,istat)
@@ -73,8 +71,6 @@ c-----declare variables for diagnostics
 
 c!    Compute and/or define required constants.
 
-
-      first_call=.false.
       CON2=PI/180.0*LAT
       deltsl=(LONGITUDE-LONG_STD_MERID)/15.0
       ELEXP=EXP(-ELEV/2532.0)
@@ -147,8 +143,8 @@ c!    and altitude of the sun (ALPHA).
       SOLAR=SOLCON/RR*(SIN(CON2)*SIN(DECLIN)*(TE-TB)+CON6*COS(CON2)*
      &     COS(DECLIN)*(SIN(CON5*TE)-SIN(CON5*TB)))
 
-C       A SIGNIFICANT CHANGE OF ORIGINAL CODE, TO GET A AVERGED FLUX OVER TIME STEP, JON	
-	SOLAR=SOLAR/(dble(time_step)/60.)
+C       A SIGNIFICANT CHANGE OF ORIGINAL CODE, TO GET A AVERGED FLUX OVER TIME STEP, JON
+ 	SOLAR=SOLAR/(dble(time_step)/60.) ! v8  (v6 is this commented out)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
@@ -198,7 +194,8 @@ c!    Compute atmospheric transmission term (ATC).
       ATC=(A2+0.5*(1.0-A1-DUST_ATTCOEFF))/(1.0-0.5*RS*(1.0-A1+DUST_ATTCOEFF))
 
 c!    Compute net solar radiation for the time interval delta t
-
+c!    Note: the Qual2e documentation suggests that both SOLAR and TSOLHR
+c!          are rates (units BTU/(sq ft-hour))
 
       TSOLHR=SOLAR*ATC*CS*(1.0-RS)
       GO TO 36

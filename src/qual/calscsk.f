@@ -406,7 +406,7 @@ c      use IO_Units,only: unit_output
 
       real*8  inten
       real*8  xk, set,fnnn
-      logical,save :: startprint = .false.
+
       cmalg=dble(c(malg))
 
 c-----calculate growth
@@ -569,15 +569,15 @@ C-----Compute net heat flux from all sources
 
 C      A SIGNIFICANT CHANGE OF ORIGINAL CODE, FOR TSOLHR HAS ALRADEY CHANGED TO FLUX NOW IN HEAT.F
 C      NEED TO BE CONFIRMED JON
-C      hsnet = tsolhr+ (ha + hc - hb - he)*dble(time_step)/60.
-       hsnet = tsolhr+ (ha + hc - hb - he)
+c       hsnet = tsolhr+ (ha + hc - hb - he)*dble(time_step)/60.       !v6
+        hsnet = tsolhr+ (ha + hc - hb - he)                            !v8
 
 
 C-----Contribution to SCSK is net radiation/(depth*density*heat cap)
 
 C      ALSO A SIGNIFICANT CHANGE HERE
-C     scsk(mtemp) = (hsnet/(depth*62.4*(dble(time_step)/60.)))/1.8
-      scsk(mtemp) = (hsnet/(depth*62.4))/1.8
+c       scsk(mtemp) = (hsnet/(depth*62.4*(dble(time_step)/60.)))/1.8   !v6
+       scsk(mtemp) = (hsnet/(depth*62.4))/1.8                         ! v8
 
 
 
@@ -626,10 +626,10 @@ c--------Create the lookup table
                thettbl(i,it)=thet(i)**(tmp)
             enddo
          enddo
-      elseif(abs(dtemp-templastused).le.0.1)then
+      !elseif(abs(dtemp-templastused).le.0.1)then
 c--------temperature has changed by less than 0.1,
 c--------no need to update the values
-         return
+      !   return
       elseif(dtemp.ge. 5.D-01 .and. dtemp.le. 40.)then
 c--------temperature in the right range,
 c--------it's ok to use the table

@@ -99,7 +99,7 @@ C     + + + LOCAL VARIABLES + + +
 
       INTEGER JN,NSN,NXSECN
       LOGICAL NEWPARCEL(NOPR)
-	logical,save :: startprint = .false.
+
 
       real*8 objflow,massrate(max_constituent) ! object flow and massrates
 
@@ -354,9 +354,8 @@ C-----------parcel passed grid
             END DO
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
-
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -384,7 +383,7 @@ C-----------did not pass grid
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -421,7 +420,7 @@ C-----------parcel passed grid
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -450,7 +449,7 @@ C-----------did not pass grid
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -473,8 +472,6 @@ C--------complete decay step
             END DO
             dtsub = prdt(k)
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0) then
-c		if (julmin .eq. 50916600)startprint = .true.
-
                call rate_chanres(n)
                call kinetic(c)
             end if
