@@ -11,7 +11,7 @@
 				<Tool Name="VFCustomBuildTool" AdditionalDependencies="D:\delta\models\dsm2\src\common\version.inc"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool" CommandLine="python ..\..\src\common\version_generate.py" Description="=== python ..\..\src\common\version_generate.py ==="/>
-				<Tool Name="VFPostBuildEventTool" CommandLine="del ..\..\src\common\version.inc" Description="delete ..\..\src\common\version.inc"/>
+				<Tool Name="VFPostBuildEventTool" Description="delete ..\..\src\common\version.inc"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\Release" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
@@ -20,8 +20,8 @@
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool" CommandLine="python ..\..\src\common\version_generate.py" Description="=== python ..\..\src\common\version_generate.py ==="/>
-				<Tool Name="VFPostBuildEventTool" CommandLine="del ..\..\src\common\version.inc" Description="delete ..\..\src\common\version.inc"/>
+				<Tool Name="VFPreBuildEventTool" Description="=== python ..\..\src\common\version_generate.py ==="/>
+				<Tool Name="VFPostBuildEventTool" Description="delete ..\..\src\common\version.inc"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="DLL|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
 				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\DLL" ObjectFile="$(INTDIR)/" RuntimeLibrary="rtMultiThreadedDLL" DisableDefaultLibSearch="true"/>
@@ -31,7 +31,8 @@
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
@@ -53,6 +54,14 @@
 		<File RelativePath="..\..\src\common\runtime_data.f"/>
 		<File RelativePath="..\..\src\common\type_defs.f"/></Filter>
 		<Filter Name="Subversion">
-		<File RelativePath="..\..\src\common\version.inc"/>
-		<File RelativePath="..\..\src\common\version_generate.py"/></Filter></Files>
+		<File RelativePath="..\..\src\common\version.fi">
+			<FileConfiguration Name="Debug|Win32">
+				<Tool Name="VFCustomBuildTool" CommandLine="python ..\..\src\common\version_generate.py" Outputs="..\..\src\common\version.inc" AdditionalDependencies="..\..\src\common\version_generate.py"/></FileConfiguration>
+			<FileConfiguration Name="DLL|Win32">
+				<Tool Name="VFCustomBuildTool" CommandLine="python ..\..\src\common\version_generate.py" Outputs="..\..\src\common\version.inc" AdditionalDependencies="..\..\src\common\version_generate.py"/></FileConfiguration>
+			<FileConfiguration Name="Release|Win32">
+				<Tool Name="VFCustomBuildTool" CommandLine="" Outputs="" AdditionalDependencies=""/></FileConfiguration></File>
+		<File RelativePath="..\..\src\common\version_generate.py">
+			<FileConfiguration Name="Release|Win32">
+				<Tool Name="VFCustomBuildTool" CommandLine="python $(InputPath)" Description="Generating version.fi" Outputs="version.fi"/></FileConfiguration></File></Filter></Files>
 	<Globals/></VisualStudioProject>
