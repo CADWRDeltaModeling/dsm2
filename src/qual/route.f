@@ -92,7 +92,7 @@ C     + + + LOCAL VARIABLES + + +
 
       real*8  RQ,CONCMIX,DTSEC,RNDMAX
       real*8  DIFFGPT(NOPR+1)
-      !real*8  QPARCEL  Average of cross-section upstream and downstream of parcel
+      real*8  QPARCEL !Average of cross-section upstream and downstream of parcel
                       ! Hasn't been thought out for flow fields
                       ! with more than the NXSEC=2 assumption in DSM2
       integer KR, NN, NDD(NOPR+1)
@@ -159,10 +159,12 @@ C--------No dispersion if only 1 parcel is left
             IF(GPV(N,K-1).GT.VI.AND.GPV(N,K).GT.VI)THEN
                MX=NIPX(N,K)
                !todo: this change to an average eliminates one-sidedness
-               !(different answers depending on channel orientation
-               !QPARCEL=(Q(MX)+Q(MX+1))/2.D0
-               !DQ(K)=ABS(DQQ(N)*QPARCEL)
-               DQ(K)=ABS(DQQ(N)*Q(MX))
+               ! one-sidedness causes different answers depending on channel orientation
+               ! and causes problems with dead ends. 
+               QPARCEL=(Q(MX)+Q(MX+1))/2.D0
+               DQ(K)=ABS(DQQ(N)*QPARCEL)
+               !DQ(K)=ABS(DQQ(N)*Q(MX))
+               
                DQMIN=DQV*A(MX)*0.5
                IF(DQ(K).LT.DQMIN)DQ(K)=DQMIN
 C--------------Changed from flow rate to volume

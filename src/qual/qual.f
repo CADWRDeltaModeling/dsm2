@@ -118,7 +118,7 @@ c-----variables for mass tracking
 C-----+ + + LOCAL VARIABLES + + +C
 
       integer I,INX,
-     &     JN,K,CONS_NO,M,
+     &     JN,K,CONS_NO,
      &     NN,KK
       integer res_num_clfct
       logical echo_only, file_exists
@@ -133,13 +133,10 @@ C-----+ + + LOCAL VARIABLES + + +C
      &     ,next_output_flush   ! next time to flush output
      &     ,next_display        ! next time to display model time
      &     ,next_restart_output ! next time to write restart file
-     &     ,next_binary_output  ! next time to write binary file
+
 
       integer
-     &     istat                ! status of fixed input
-     &     ,iStageBoundary      ! stage boundary index
-     &     ,iNode               ! node index
-     &     ,iBranch             ! branch index          
+     &     istat                ! status of fixed input        
 
       character
      &     init_input_file*130  ! initial input file on command line [optional]
