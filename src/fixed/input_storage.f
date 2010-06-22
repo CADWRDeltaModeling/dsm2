@@ -104,7 +104,8 @@ c============================================================
 
 c-----Write all buffers to hdf5
       call h5gcreate_f (loc_id, group_name, group_id, ierror)
-      call write_buffer_profile_to_hdf5(dsm2_name,group_id,ierror)  ! Do the actual write
+      call verify_error(ierror,"Error creating echoed input group in hdf5 file")
+      call write_buffer_profile_to_hdf5(trim(dsm2_name),group_id,ierror)  ! Do the actual write
       call verify_error(ierror,"Error writing echoed input to hdf5")
       call h5gclose_f (group_id, ierror)
       return
