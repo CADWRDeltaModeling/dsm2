@@ -103,7 +103,6 @@ c**********contains routines for writing data to an HDF5 file
 	use inclvars
 	use IO_Units
 	use logging
-	use common_tide
 	use runtime_data
 
 	implicit none
