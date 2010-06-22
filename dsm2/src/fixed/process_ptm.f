@@ -38,6 +38,10 @@ c-----process a character line into data arrays for particle group output
       integer, external :: loccarr       
       integer, external :: name_to_objno
       integer, external :: obj_type_code
+      call locase(name)
+      call locase(from_wb)      
+      call locase(to_wb)      
+      call locase(interval)      
 
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
@@ -143,7 +147,10 @@ c-----process a character line into data arrays for particle group output
       integer itmp
       integer, external :: loccarr       
       integer, external :: name_to_objno
-
+      
+      call locase(groupname)      
+      call locase(name)    
+      call locase(interval)  
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,"(a,i)")

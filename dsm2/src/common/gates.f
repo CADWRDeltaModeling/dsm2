@@ -35,10 +35,7 @@ c-----Module: Gates
 c---- Constants for structureType
       integer, parameter :: WEIR =1
 	integer, parameter :: PIPE =2
-c---- Constants for controlType
-	integer, parameter :: NO_GATE_CONTROL = 512
-	integer, parameter :: GATED_FROM_TOP = 1028
-	integer, parameter :: GATED_FROM_BOTTOM = 2056
+
 
 c-----gate operations/states      
       integer, parameter :: GATE_OPEN =1  ! device fully open to flow
@@ -67,12 +64,8 @@ c-----constants for flow coeff direction
       real*8 :: flowCoefFromNode ! flow coeff from node to water body
       real*8 :: opCoefToNode   = 1. ! time varying coefficient between [0,1] fixme: default?
       real*8 :: opCoefFromNode = 1. !  0 = closed, 1 = fully open
-      logical*4 :: dummy         ! filler to maintain an even number of
-                                 ! *4 byte variables to maintain alignment
 	integer*4 :: structureType ! type of gate structure (pipe, weir). 
 	                           ! See structureType constants above for acceptable values
-	integer*4 :: controlType   ! type of flow control (e.g. gated from top)
-	                            ! See controlType constants above for acceptable values
       integer*4 :: nDuplicate = 0 ! number of identical structures treated as one device
       integer*4 :: gate         ! index of gate in which device appears (fixme: why?)
 	integer*4 :: calcRow      ! Row (equation) in which gate device equation is expressed
@@ -80,8 +73,6 @@ c-----constants for flow coeff direction
       type(datasource_t) height_datasource  ! datasource that controls
       type(datasource_t) width_datasource  ! datasource that controls
       type(datasource_t) elev_datasource  ! datasource that controls                    
-      type(datasource_t) pos_datasource  ! datasource that controls 
-	                       ! (via time series) the position of the gate control
 	type(datasource_t) op_to_node_datasource   ! datasource that controls op
 	type(datasource_t) op_from_node_datasource ! in the direction indicated
 
@@ -216,13 +207,7 @@ c     is returned. Element-by-element search, so this routine is expensive.
 	implicit none
 	character*32, intent(out) :: TypeString	
       integer, intent(in) :: controlType
-	if (controlType .eq. GATED_FROM_TOP) then
-	   typeString = "gated from top"
-	else if (controlType .eq. NO_GATE_CONTROL) then
-	   typeString = "no control"
-	else if (controlType .eq. GATED_FROM_BOTTOM) then
-	   typeString = "gated from bottom"
-	else if (controlType .eq. UNIDIR_TO_NODE) then
+	if (controlType .eq. UNIDIR_TO_NODE) then
 	   typeString = "unidir to node"
 	else if (controlType .eq. UNIDIR_FROM_NODE) then
 	   typeString = "unidir from node"
@@ -233,34 +218,5 @@ c     is returned. Element-by-element search, so this routine is expensive.
       end if
 	return
 	end subroutine
-
-c===== interprets the "position" variable and applies it to the correct
-c      gate parameter      
-	subroutine ApplyDevicePosition(device)
-	use io_units
-      implicit none
-	type(GateDevice) device
-      if (device.position .eq. miss_val_r) then
-	   ! fixme: cheap way out, no  warning
-	   return
-	end if
-      if (device.structureType .eq. PIPE .or. device.controlType 
-     &      .eq. NO_GATE_CONTROL) then
-         return ! no gate control yet for pipes	   
-      else if (device.structureType .eq. WEIR) then
-         if (device.controlType .eq. GATED_FROM_TOP) then
-	      device.height = device.position
-         else if(device.controlType .eq. GATED_FROM_BOTTOM) then
-	      device.baseElev = device.position
-         end if
-      else 
-	  write(unit_error,'(a)')"Gate device type not recognized "//
-     &     "(in function ApplyDevicePosition)"
-        call exit(3)
-      end if
-	return
-	end subroutine
-
-
 
       End Module Gates

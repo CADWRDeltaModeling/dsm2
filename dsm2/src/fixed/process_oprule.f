@@ -29,7 +29,9 @@ C!</license>
       character*512 :: trigger
       character*1024 :: ruletext = " "
       logical :: parse_rule
-	ruletext=" "
+	  ruletext=" "
+      call locase(name)
+      
       write(ruletext,"(a,1x,':=',1x,a,1x,'WHEN',1x,a,';')")
      &     trim(name),trim(action),trim(trigger)
 	if(print_level .ge. 3) then
@@ -53,8 +55,8 @@ C!</license>
       character*32 :: name
       character*512 :: definition, definition_text=" "
       logical :: parse_rule
-
-	definition_text=" "
+      call locase(name)
+	  definition_text=" "
 
       write(definition_text,"(a,1x,':=',1x,a,';')")
      &     trim(name),trim(definition)

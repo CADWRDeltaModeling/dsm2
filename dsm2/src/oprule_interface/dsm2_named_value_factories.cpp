@@ -104,18 +104,19 @@ void convert_reservoir_identifiers(
 
    string name=iter->second;
    resno=(int)reservoir_index(name.c_str(),name.length());
-   iter = argmap.find("connect");
+   iter = argmap.find("node");
    if (iter == argmap.end() ){
 	   if (conn_requested){
  	     throw oprule::parser::MissingIdentifier(
-			 "Reservoir (res=name) identifier not provided");
+			 "Reservoir connection (node=number) part of identifier not provided");
 	   }else{
 	     connect=-901;
 	   }
    }else{ 
 	   std::string resarg=iter->second;
        int node=atoi(resarg.c_str());
-	   connect=ext2intnode(node);
+	   node=ext2intnode(node);
+       connect=reservoir_connect_index(resno,node);
 	   if (connect == -901 && conn_requested)
 		   throw oprule::parser::InvalidIdentifier("Requested reservoir connection (node number) not found: " + resarg);
    }
@@ -199,10 +200,10 @@ _FACTORYNAME(const NamedValueLookup::ArgMap& argmap){ \
 
 
 //@todo: fix next
-GATE_DEV_FACTORY(device_position_factory, DevicePositionInterface);
 GATE_DEV_FACTORY(device_nduplicate_factory, DeviceNDuplicateInterface);
 GATE_DEV_FACTORY(device_width_factory, DeviceWidthInterface);
 GATE_DEV_FACTORY(device_elev_factory, DeviceElevInterface);
+GATE_DEV_FACTORY(device_height_factory, DeviceHeightInterface);
 
 oprule::expression::ExpressionNode<double>::NodePtr
 device_coef_factory(const NamedValueLookup::ArgMap& argmap){

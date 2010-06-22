@@ -39,7 +39,7 @@ C!</license>
       character
      &     FileName*128
      &     ,Name*32
-     &     ,Param*32
+     &     ,Param*16
      &     ,Interval*32
      &     ,PerOp*8
      &     ,LocName*32
@@ -57,6 +57,11 @@ C!</license>
       integer, external :: ext2int, ext2intnode
       integer, external :: loccarr ! locate string in char array function
 
+      call locase(name)
+      call locase(sourcegroup)      
+      call locase(param)
+      call locase(perop)
+      call locase(interval)
 
 
 

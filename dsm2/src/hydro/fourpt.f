@@ -81,7 +81,7 @@ C!</license>
 c-----include '../input/time-varying/writedss.inc'
 
 *   Local variables:
-      LOGICAL   OK, isopen
+      LOGICAL   OK, isopen, echo_only,file_exists
 
       integer*4
      &     incr_intvl           ! increment julian minute by interval function
@@ -139,11 +139,11 @@ c-----include '../input/time-varying/writedss.inc'
 
       EXTERNAL WriteHydroToTidefile, Calculate_Chan_Net_Flow
       EXTERNAL InitializeChannelNetwork, InitializeSolver,InitOpRules
-      LOGICAL CloseHDF5
-      EXTERNAL CloseHDF5
+      !LOGICAL CloseHDF5
+      !EXTERNAL CloseHDF5
       
       logical, external :: order_nodes
-
+      logical :: updated
 *   Programmed by: Lew DeLong
 *   Date:          February 1991
 *   Modified by:   Lew DeLong
@@ -179,7 +179,7 @@ c-----DSM2 module, name and version number
 c-----get optional starting input file from command line and
 c-----simulation name for Database read
 
-      call get_command_args(init_input_file, model_name)
+      call get_command_args(init_input_file, model_name,echo_only)
 
 c-----dsm2 initialization
       call dsm2_init
@@ -194,6 +194,11 @@ c---- begin data reading
 
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. ' ') then
+         inquire(file=init_input_file, exist=file_exists)
+         if (.not. file_exists)then
+             write(unit_error,*)"Input file does not exist: ",init_input_file
+             call exit(1)     
+         end if
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
          call buffer_input_grid()    ! processes grid
@@ -206,6 +211,7 @@ c------ process input that is in buffers
       call process_text_gate_input()
       call process_text_oprule_ts_input()      
       call write_input_buffers()
+      if (echo_only) call exit(1)
 
 c------ end of input reading and echo, start checking data
       
@@ -246,6 +252,10 @@ c-----calculate julian minute of end of each DSS interval
      &        ' Initialization of Reservoir flow failed...'
          call exit(1)
       end if
+      
+      ! Initialize time series with data from initial time
+      ! todo: make sure this behaves with reservoirs
+      OK = SetBoundaryValuesFromData()
 
       ! Oprules cannot be parsed until channel network is defined
       call process_text_oprule_input()
@@ -311,7 +321,8 @@ c--------calculate julian minute of end of each DSS interval
 c-----------just check input data for bogus values; no simulation
             OK = SetBoundaryValuesFromData()
          else                   ! full simulation
-            IF (UpdateNetwork()) THEN
+            updated = UpdateNetwork()
+            IF (Updated) THEN
                OK = UpdateNetBalance()
             else
                write (unit_error,*)
@@ -379,7 +390,7 @@ c-----------------interruptions to the model
 
 c--------close HDF5
       if (io_files(hydro,io_hdf5,io_write).use) then
-         OK = CloseHDF5()
+         call CloseHDF5()
       endif
 
 c-----close all DSS input files
@@ -404,7 +415,7 @@ c--------close all DSS output files
 *-----Compute and report final volume and mass balances.
 c@@@         OK = ReportNetBalance()
 
-      WRITE(unit_screen,*) '   -----------------------------'
+900   WRITE(unit_screen,*) '   -----------------------------'
       WRITE(unit_screen,*) ' '
       WRITE(unit_screen,*) ' ',
      &     TotalNetworkIterations(),' total network iterations...'
@@ -432,7 +443,7 @@ c@@@         OK = ReportNetBalance()
       inquire(unit_output,opened=isopen)
       if(isopen)close(unit_output, err=1222)
       inquire(unit_screen,opened=isopen)
-      if(isopen)close(unit_output, err=1222)
+      if(isopen)close(unit_screen, err=1222)
 
 1222  call exit(0)
 

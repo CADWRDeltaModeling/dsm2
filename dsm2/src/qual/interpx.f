@@ -41,12 +41,12 @@ C-----LOCAL VARIABLES
 
       DO N=1,NBRCH
          I1=NXSEC(N)
-         QLAND=QCHAN(N,1)
-         QSEA =QCHAN(N,2)
-C--------YLAND=YCHAN(N,1)
-C--------YSEA =YCHAN(N,2)
-         ALAND=ACHAN(N,1)
-         ASEA =ACHAN(N,2)
+         QLAND=QCHAN(1,N)
+         QSEA =QCHAN(2,N)
+C--------YLAND=YCHAN(1,N)
+C--------YSEA =YCHAN(2,N)
+         ALAND=ACHAN(1,N)
+         ASEA =ACHAN(2,N)
 
          DO I=1,I1
             DXFACTOR=dble(I-1)/dble(I1-1)

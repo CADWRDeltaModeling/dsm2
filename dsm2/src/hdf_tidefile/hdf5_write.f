@@ -88,7 +88,7 @@ C!</license>
       call h5dget_space_f (chan_z_dset_id, chan_z_fspace_id, error)
       call h5sselect_hyperslab_f(chan_z_fspace_id, H5S_SELECT_SET_F,
      &     h_offset, chan_z_fsubset_dims, error)
-      call h5dwrite_f(chan_z_dset_id,H5T_NATIVE_REAL, YChan, chan_z_mdata_dims,
+      call h5dwrite_f(chan_z_dset_id,H5T_NATIVE_REAL, HChan(:,1:nchans), chan_z_mdata_dims,
      &     error, chan_z_memspace, chan_z_fspace_id)
 	call VerifyHDF5(error,"Channel stage write")
       call h5sclose_f (chan_z_fspace_id, error)
@@ -98,7 +98,7 @@ C!</license>
       call h5dget_space_f (chan_a_dset_id, chan_a_fspace_id, error)
       call h5sselect_hyperslab_f(chan_a_fspace_id, H5S_SELECT_SET_F,
      &     h_offset, chan_a_fsubset_dims, error)
-      call h5dwrite_f(chan_a_dset_id,H5T_NATIVE_REAL, AChan, chan_a_mdata_dims,
+      call h5dwrite_f(chan_a_dset_id,H5T_NATIVE_REAL, AChan(:,1:nchans), chan_a_mdata_dims,
      &     error, chan_a_memspace, chan_a_fspace_id)
 	call VerifyHDF5(error,"Channel area write")
       call h5sclose_f (chan_a_fspace_id, error)
@@ -111,7 +111,7 @@ C!</license>
       call h5dget_space_f (chan_aa_dset_id, chan_aa_fspace_id, error)
       call h5sselect_hyperslab_f(chan_aa_fspace_id, H5S_SELECT_SET_F,
      &     h_offset, chan_aa_fsubset_dims, error)
-      call h5dwrite_f(chan_aa_dset_id,H5T_NATIVE_REAL, AChan_Avg, chan_aa_mdata_dims,
+      call h5dwrite_f(chan_aa_dset_id,H5T_NATIVE_REAL, AChan_Avg(1:nchans), chan_aa_mdata_dims,
      &     error, chan_aa_memspace, chan_aa_fspace_id)
 	call VerifyHDF5(error,"Channel avg area write")
       call h5sclose_f (chan_aa_fspace_id, error)   
@@ -143,7 +143,7 @@ C!</license>
       call h5dget_space_f (chan_q_dset_id, chan_q_fspace_id, error)
       call h5sselect_hyperslab_f(chan_q_fspace_id, H5S_SELECT_SET_F,
      &     h_offset, chan_q_fsubset_dims, error)
-      call h5dwrite_f(chan_q_dset_id,H5T_NATIVE_REAL, QChan, chan_q_mdata_dims,
+      call h5dwrite_f(chan_q_dset_id,H5T_NATIVE_REAL, QChan(:,1:nchans), chan_q_mdata_dims,
      &     error, chan_q_memspace, chan_q_fspace_id)
 	call VerifyHDF5(error,"Channel flow write")
       call h5sclose_f (chan_q_fspace_id, error)
@@ -167,12 +167,11 @@ C!</license>
 
       integer        :: error   ! HDF5 Error flag
       integer :: i
-
+      if (nres_connect .eq. 0) return
 
 
       h_offset(1) = 0
-      h_offset(2) = 0
-      h_offset(3) = hdf5point
+      h_offset(2) = hdf5point
 
       call h5dget_space_f (res_q_dset_id, res_q_fspace_id, error)
       call h5sselect_hyperslab_f(res_q_fspace_id, H5S_SELECT_SET_F, 
@@ -185,7 +184,7 @@ C!</license>
       call h5sclose_f (res_q_fspace_id, error)      
 
       return
-      end
+      end subroutine
 
 ***********************************************************************
 ***********************************************************************
@@ -216,7 +215,7 @@ C!</license>
 
 
       return
-      end
+      end subroutine
 
 ***********************************************************************
 ***********************************************************************
@@ -252,7 +251,7 @@ C!</license>
       call h5sclose_f (transfer_fspace_id, error)
 
       return
-      end
+      end subroutine
 
 ***********************************************************************
 ***********************************************************************
@@ -300,164 +299,9 @@ c-----Preprocess the values to changes
       call h5sclose_f (qext_fspace_id, error)
 
       return
-      end
+      end subroutine
 
 ***********************************************************************
 ***********************************************************************
 
-      subroutine WriteObj2ObjAttribute()
 
-      use HDF5
-      use hdfvars
-      use objvars
-      use inclvars
-      use grid_data
-
-      implicit none
-
-      integer ::   error        ! Error flag
-      integer(HSIZE_T), dimension(1) :: data_dims 
-      integer(HSIZE_T), dimension(1) :: h_data_dims 
-      integer(HSIZE_T), dimension(1) :: h_offset
-      integer(HID_T) :: filespace ! Dataspace identifier 
-      integer(HID_T) :: memspace ! memspace identifier 
-      integer     ::    rank = 1 ! Dataset rank
-
-      integer::i
-
-      data_dims(1) = max_obj2obj
-      h_data_dims(1) = 1
-
-      do i = 1,max_obj2obj
-
-         h_offset(1) = i - 1
-         call h5dget_space_f(obj2obj_dset_id, filespace, error)
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &        h_offset, h_data_dims, error) 
-         call h5screate_simple_f(rank, h_data_dims, memspace, error)
-         call h5dwrite_f(obj2obj_dset_id, o_name_tid, obj2obj(i).name, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_id_tid, obj2obj(i).from_obj.obj_type, data_dims, error,
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_name_tid, obj2obj(i).from_obj.obj_name, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_num_tid, obj2obj(i).from_obj.obj_no, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_hychan_tid, obj2obj(i).from_obj.hydrochan, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_massfrac_tid, obj2obj(i).from_obj.mass_frac, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, fo_coeff_tid, obj2obj(i).from_obj.coeff, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_id_tid, obj2obj(i).to_obj.obj_type, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_name_tid, obj2obj(i).to_obj.obj_name, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_num_tid, obj2obj(i).to_obj.obj_no, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_hychan_tid, obj2obj(i).to_obj.hydrochan, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_massfrac_tid, obj2obj(i).to_obj.mass_frac, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, to_coeff_tid, obj2obj(i).to_obj.coeff, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, constval_tid, obj2obj(i).constant_value, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, datasrc_type_tid,obj2obj(i).datasource.source_type, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, datasrc_idx_tid, obj2obj(i).datasource.indx_ptr, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)   
-c         call h5dwrite_f(obj2obj_dset_id, datasrc_val_tid, obj2obj(i).datasource.value, data_dims, error, 
-c     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, curQ_tid, obj2obj(i).flow, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, prevQ_tid, obj2obj(i).prev_flow, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, avgQ_tid, obj2obj(i).flow_avg, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(obj2obj_dset_id, conc_tid, obj2obj(i).constituent_conc, data_dims, error, 
-     &        xfer_prp = obj_plist_id, mem_space_id=memspace, file_space_id=filespace)
-      end do
-
-      return
-      end
-
-***********************************************************************
-***********************************************************************
-
-      subroutine WriteQExt()
-
-      use HDF5
-      use hdfvars
-      use qextvars
-      use inclvars
-      use grid_data
-
-      implicit none
-
-      integer ::   error        ! Error flag
-      integer(HSIZE_T), dimension(7) :: data_dims
-      integer(HSIZE_T), dimension(7) :: h_data_dims
-      integer(HSIZE_T), dimension(1) :: h_offset
-      integer(HID_T) :: filespace ! Dataspace identifier
-      integer(HID_T) :: memspace ! memspace identifier
-      integer     ::    rank = 1 ! Dataset rank
-
-      integer::i
-
-      data_dims(1) = max_qext
-      h_data_dims(1) = 1
-
-      if (rank .eq. 1) then
-!         return
-      endif
-
-                                !! TODO Add nqext as an attribute  !! done in init??
-
-      do i = 1,max_qext
-
-         h_offset(1) = i - 1
-         call h5dget_space_f(qext_dset_id, filespace, error)
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
-     &        h_offset, h_data_dims, error)
-         call h5screate_simple_f(rank, h_data_dims, memspace, error)
-
-                                ! Select Hyperslab
-         call h5dwrite_f(qext_dset_id, q_name_tid, qext(i).name, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_flow_tid, qext(i).flow, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_prev_flow_tid, qext(i).prev_flow, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_avg_tid, qext(i).avg, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_prev_flow_tid, qext(i).prev_avg, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_dsrc_type_tid, qext(i).datasource.source_type, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_dsrc_idx_tid, qext(i).datasource.indx_ptr, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-c        todo: URGENT breaks compatibility with hdf5 1.8.3     
-c         call h5dwrite_f(qext_dset_id, q_dsrc_val_tid, qext(i).datasource.value, data_dims, error,
-c     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_chng_idx_tid, qext(i).changed_ndx, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_obj_name_tid, qext(i).obj_name, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_attach_id_tid, qext(i).attach_obj_type, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_attach_name_tid, qext(i).attach_obj_name, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_attach_num_tid, qext(i).attach_obj_no, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_grp_idx_tid, qext(i).group_ndx, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-         call h5dwrite_f(qext_dset_id, q_mass_frac_tid, qext(i).mass_frac, data_dims, error,
-     &        xfer_prp = qext_plist_id, mem_space_id=memspace, file_space_id=filespace)
-      end do
-
-      return
-      end
-
-***********************************************************************
-***********************************************************************

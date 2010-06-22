@@ -39,15 +39,19 @@ c-----multiple tidefiles for Qual, PTM
       type(tidefile_t) :: tide_files(0:max_tide_files)
 
       real*4
-     &      Ychan(Max_Channels,2)      ! Depth at both ends of a channel
-     &     ,Achan(Max_Channels,2)     ! Flow Area at both ends of a channel
-     &     ,YchanPrev(Max_Channels,2) ! Depth at both ends of a channel
-     &     ,AchanPrev(Max_Channels,2) ! Flow Area at both ends of a channel
+     &      Zchan(2,Max_Channels)      ! Stage at both ends of a channel      
+     &     ,Hchan(2,Max_Channels)      ! Depth at both ends of a channel
+     &     ,Achan(2,Max_Channels)     ! Flow Area at both ends of a channel
+     &     ,HchanPrev(2,Max_Channels) ! Depth at both ends of a channel
+     &     ,AchanPrev(2,Max_Channels) ! Flow Area at both ends of a channel
      &     ,Achan_Avg(Max_Channels)   ! Average Flow Area in a channel (Used for volume calculations)
-     &     ,Qchan(Max_Channels,2)     ! Average flow at both ends of a channel
-     &     ,Qresv(Max_Reservoirs,Maxresnodes) ! Flows in and out of all the junctions in reservoirs
+     &     ,Qchan(2,Max_Channels)     ! Average flow at both ends of a channel
      &     ,Eresv(Max_Reservoirs)     ! Stage in all the reservoirs
      &     ,TempQExtAv(1000)    ! HDF5 Temporary holder
+
+! Flows in and out of all the reservoir-node connections.
+! Dimension will be one per reservoir connection
+      real*4,allocatable :: Qresv(:) 
 
       integer*4 TideTime        ! julian minute timestamp from tidefile
       integer*4 next_hydro_interval

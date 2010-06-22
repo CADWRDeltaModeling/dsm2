@@ -36,12 +36,16 @@ c----- functions
       
       integer get_maximum_number_of_channels
      &     , get_maximum_number_of_reservoirs
+     &     , get_number_of_reservoirs     
      &     , get_maximum_number_of_stage_boundaries
      &     , get_maximum_number_of_boundary_waterbodies
      &     , get_maximum_number_of_conveyors
+      
       real get_flow_balance_at_node,fb
 	real*8 :: FLOW_BALANCE_TOL = 2.
 c----- locals
+      integer iconnect
+      integer :: icall = 0
       integer i,j,k,id, dsmNumber, qId
 	integer ext2int
 c----- begin
@@ -51,16 +55,19 @@ c----- update channel info
          id = get_unique_id_for_channel(i)
 c-------- flow into node +ve and flow out of node -ve
 c-------- channel flow +ve from up node to down node
-         wb(id).flowToNode(1) = -Qchan(i,1) !upnode flow
-         wb(id).flowToNode(2) = Qchan(i,2) !downnode flow
+         wb(id).flowToNode(1) = -Qchan(1,i) !upnode flow
+         wb(id).flowToNode(2) = Qchan(2,i) !downnode flow
       enddo
 c----- update reservoir info
-      do i=1, get_maximum_number_of_reservoirs()
-	!todo: should be number of reservoirs
+      iconnect = 0
+      do i=1, get_number_of_reservoirs()
+	! MUST be number of reservoirs
          id = get_unique_id_for_reservoir(i)
          do k=1, res_geom(i).nnodes
 c----------- flow outof reservoir is +ve, thus towards node thus +ve
-            wb(id).flowToNode(k) = Qresv(i, k)
+      !todo: eli changed from qresv
+            iconnect = iconnect + 1
+            wb(id).flowToNode(k) = qresv(iconnect)
          enddo
 c-------- update internal flows ( assumption of order important: fixedData.f)
          j=1
@@ -176,7 +183,7 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
       real get_up_node_depth
       integer number
-      get_up_node_depth= Ychan(number,1)*theta + YchanPrev(number,1)*(1-theta)
+      get_up_node_depth= Hchan(1,number)*theta + HchanPrev(1,number)*(1-theta)
       return
       end
 
@@ -188,7 +195,7 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
       real get_down_node_depth
       integer number
-      get_down_node_depth= Ychan(number,2)*theta + YchanPrev(number,2)*(1-theta)
+      get_down_node_depth= Hchan(2,number)*theta + HchanPrev(2,number)*(1-theta)
       return
       end
 
@@ -200,8 +207,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
       real get_up_node_stage
       integer number
-      get_up_node_stage= (Ychan(number,1)+chan_geom(number).bottomelev(1))*theta
-     &	+  (YchanPrev(number,1)+chan_geom(number).bottomelev(1))*(1.-theta)
+      get_up_node_stage= (Hchan(1,number)+chan_geom(number).bottomelev(1))*theta
+     &	+  (HchanPrev(1,number)+chan_geom(number).bottomelev(1))*(1.-theta)
       return
       end
 
@@ -212,8 +219,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
       real get_down_node_stage
       integer number
-      get_down_node_stage= (Ychan(number,2)+chan_geom(number).bottomelev(2))*theta
-     &     + (YchanPrev(number,2)+chan_geom(number).bottomelev(2))*(1.-theta)
+      get_down_node_stage= (Hchan(2,number)+chan_geom(number).bottomelev(2))*theta
+     &     + (HchanPrev(2,number)+chan_geom(number).bottomelev(2))*(1.-theta)
       return
       end
 
@@ -224,7 +231,7 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
       real get_up_node_flow
       integer number
-      get_up_node_flow= Qchan(number,1)
+      get_up_node_flow= Qchan(1,number)
       return
       end
 
@@ -235,7 +242,7 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
       real get_down_node_flow
       integer number
-      get_down_node_flow= Qchan(number,2)
+      get_down_node_flow= Qchan(2,number)
       return
       end
 
@@ -248,7 +255,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       include "../../hydrolib/netcntrl.inc"
       real get_up_node_area
       integer number
-      get_up_node_area= Achan(number,1)*theta + AchanPrev(number,1)*(1.-theta)
+      get_up_node_area= Achan(1,number)*theta 
+     &                + AchanPrev(1,number)*(1.-theta)
       return
       end
 
@@ -261,7 +269,8 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       include "../../hydrolib/netcntrl.inc"
       real get_down_node_area
       integer number
-      get_down_node_area= Achan(number,2)*theta + AchanPrev(number,2)*(1.-theta)
+      get_down_node_area= Achan(2,number)*theta 
+     &                  + AchanPrev(2,number)*(1.-theta)
       return
       end
 

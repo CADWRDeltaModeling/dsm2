@@ -20,9 +20,7 @@
 #define set_device_op_coef SET_DEVICE_OP_COEF
 #define get_device_op_coef GET_DEVICE_OP_COEF
 #define set_device_op_datasource SET_DEVICE_OP_DATASOURCE
-#define set_device_position SET_DEVICE_POSITION
-#define get_device_position GET_DEVICE_POSITION
-#define set_device_position_datasource SET_DEVICE_POSITION_DATASOURCE
+
 #define set_device_height SET_DEVICE_HEIGHT
 #define get_device_height GET_DEVICE_HEIGHT
 #define set_device_height_datasource SET_DEVICE_HEIGHT_DATASOURCE
@@ -43,6 +41,7 @@
 #define get_res_surf_elev GET_RES_SURF_ELEV
 #define ext2int EXT2INT
 #define reservoir_index RESNDX
+#define reservoir_connect_index RESCONNECTNDX
 #define ext2intnode EXT2INTNODE
 #define qext_index QEXT_INDEX
 #define transfer_index TRANSFER_INDEX
@@ -70,7 +69,7 @@ extern "C" int STDCALL ext2int(const int& extchan);
 extern "C" int STDCALL ext2intnode(const int& extres);
 extern "C" int STDCALL reservoir_index(const char* name, 
                                      unsigned int len);
-
+extern "C" int STDCALL reservoir_connect_index(const int& resndx, const int& internal_node);
 
 extern "C" void STDCALL chan_comp_point(const int& intchan, 
                                           const double& distance,
@@ -92,16 +91,16 @@ extern "C" int STDCALL direct_to_from_node();
 // Model variable interfaces
 
 extern "C" double STDCALL get_external_flow(const int& ndx);
-extern "C" double STDCALL set_external_flow(const int& ndx, 
+extern "C" void STDCALL set_external_flow(const int& ndx, 
                                               const double& val);
-extern "C" double STDCALL set_external_flow_datasource(const int& ndx, 
+extern "C" void STDCALL set_external_flow_datasource(const int& ndx, 
                                               const int& expr,
                                               const double& val,
                                               const bool& timedep);
 extern "C" double STDCALL get_transfer_flow(const int& ndx);
-extern "C" double STDCALL set_transfer_flow(const int& ndx, 
+extern "C" void STDCALL set_transfer_flow(const int& ndx, 
                                               const double& val);
-extern "C" double STDCALL set_transfer_flow_datasource(const int& ndx, 
+extern "C" void STDCALL set_transfer_flow_datasource(const int& ndx, 
                                               const int& expr,
                                               const double& val,
                                               const bool& timedep);
@@ -111,7 +110,7 @@ extern "C" double STDCALL set_transfer_flow_datasource(const int& ndx,
 
 extern "C" double STDCALL is_gate_install(const int& ndx);
 
-extern "C" double STDCALL set_gate_install(const int& ndx, 
+extern "C" void STDCALL set_gate_install(const int& ndx, 
                                              const double& install);
 extern "C" void STDCALL set_gate_install_datasource(const int& ndx, 
                                                       const int& expr,
@@ -134,19 +133,6 @@ extern "C" void STDCALL set_device_op_coef(const int& ndx,
 extern "C" void STDCALL set_device_op_datasource(const int& ndx, 
                                            const int& devndx,
 										   const int& direct,
-                                           const int& expr,
-                                           const double& val,
-                                           const bool& timedep);
-
-
-extern "C" double STDCALL get_device_position(const int& ndx, 
-                                             const int& devndx);
-
-extern "C" void STDCALL set_device_position(const int& ndx, 
-                                           const int& devndx,
-                                           const double& val);
-extern "C" void STDCALL set_device_position_datasource(const int& ndx, 
-                                           const int& devndx,
                                            const int& expr,
                                            const double& val,
                                            const bool& timedep);

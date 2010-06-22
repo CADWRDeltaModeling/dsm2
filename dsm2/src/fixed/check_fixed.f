@@ -95,9 +95,10 @@ c-----Local variables
      &     ,target_type
      &     ,target_id
 
+      integer :: inode, ibound
 
       parameter(
-     &     max_nc=10
+     &     max_nc=11
      &     ,n_required_do=7
      &     ,n_required_algae=7
      &     )
@@ -126,6 +127,7 @@ c-----Local variables
      &     'stage ',
      &     'flow ',
      &     'flow-net ',
+     &     'flow-source ',     
      &     'pump ',
      &     'vel ',
      &     'cloud ',
@@ -367,6 +369,15 @@ c-----reservoir name vectors to be able to use
       do i=1,max_reservoirs
          res_names(i)=res_geom(i).name
       enddo
+      
+      inode = 0
+      do i = 1, nreser
+         res_geom(i).first_connect_index = inode + 1
+         do j = 1,res_geom(i).nnodes
+             inode = inode +1
+         end do
+      end do
+      
 
       do i=1,noutpaths          ! output paths   
          if (pathoutput(i).use) then
@@ -438,9 +449,7 @@ c--------------check for valid reservoir name
                   pathoutput(i).obj_no=loc
                   if (pathoutput(i).res_node_no .gt. 0) then
 c--------------------check that if a node was given, flow was specified
-                     if (pathoutput(i).meas_type .ne. 'flow' .and.
-     &                    pathoutput(i).meas_type .ne. 'flow-net' .and.
-     &                    pathoutput(i).meas_type .ne. 'pump') then
+                     if (pathoutput(i).meas_type .ne. 'flow' ) then
                         write(unit_error, 620) trim(pathoutput(i).obj_name)
                         goto 900
                      endif
@@ -452,6 +461,15 @@ c--------------------check for valid node number
      &                       pathoutput(i).res_node_no
                         goto 900
                      endif
+c                  else
+c                     if( 
+c     &                   pathoutput(i).meas_type .ne. 'flow-net' .and.
+c     &                   pathoutput(i).meas_type .ne. 'flow-source' ) then
+c                         write(unit_error, *) 
+c     &                      "Only flow-net or flow-source output allowed with no node='none': ",
+c     &                      trim(pathoutput(i).obj_name)
+c                         goto 900
+c                     endif                           
                   endif
                endif
 
@@ -626,6 +644,12 @@ c-----------end datetime
          enddo
 c----- load header information from the first hydro tidefile
          call read_tide_head(tide_files(1).filename, .false.)
+
+         ! Loop through number of stage boudnaries and set node_geom
+         do ibound = 1,nstgbnd
+            node_geom(stgbnd(ibound).node).boundary_type=stage_boundary
+         end do
+         
          nintides = n_tidefiles_used
 	   if (nintides .gt. 1) then 
            do i=2,nintides
@@ -647,10 +671,7 @@ c     &                tide_files(nintides).end_date
       endif
 
 
-c---- convert group members from patterns to actual objects&indexes
-c     This must come after tidefile is loaded
-	
-      call ConvertGroupPatternsToMembers
+
 
 
 

@@ -21,7 +21,6 @@ C!</license>
       subroutine process_input_oprule(Name,
      &                                Filename,
      &                                InPath,
-     &                                Sign,
      &                                Fillin)
 
       use Gates
@@ -36,14 +35,14 @@ C!</license>
       character
      &     InPath*80
      &     ,FileName*128
-     &     ,LocName*32
-     &     ,Name*64
+     &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
      &     ,ctmp*200
+     &     ,fillin*8 
 
 
       integer*4
-     &     Fillin              ! code for fill in type (last, none, linear)
+     &     fillin_code          ! code for fill in type (last, none, linear)
      &     ,Sign                ! sign restriction on input
      &     ,npath,na,nb,nc,nd,ne,nf
      &     ,itmp
@@ -64,27 +63,28 @@ C!</license>
                return
             endif
 
-
+      call locase(name)
+      call locase(inpath)
 
             pathinput(ninpaths).name=Name
             pathinput(ninpaths).useobj=.true.
             pathinput(ninpaths).obj_type=obj_oprule
 
-               if (sign .eq. -1) then
-                  pathinput(ninpaths).sign = -1
-               elseif (sign .eq. 1) then
-                  pathinput(ninpaths).sign = 1
-               elseif (sign .eq. 0) then
-                  ! do nothing
-               else
-                  write(unit_error,"(a,1x,a,1x,a1,i,a1)")
-     &            "Incorrect sign for input time series",trim(name),
-     &            "(",sign,")"
-                  call exit(-3)
-               end if
+!               if (sign .eq. -1) then
+!                  pathinput(ninpaths).sign = -1
+!               elseif (sign .eq. 1) then
+!                  pathinput(ninpaths).sign = 1
+!               elseif (sign .eq. 0) then
+!                  pathinput(ninpaths).sign = 1
+!               else
+!                  write(unit_error,"(a,1x,a,1x,a1,i,a1)")
+!     &            "Incorrect sign for input time series",trim(name),
+!     &            "(",sign,")"
+!                  call exit(-3)
+!               end if
 
 c-----------find object number given external object number
-            pathinput(ninpaths).obj_name=LocName
+            pathinput(ninpaths).obj_name=miss_val_c
             pathinput(ninpaths).obj_no = miss_val_i
 
             if (FileName(:8) .eq. 'constant' .or.
@@ -92,6 +92,8 @@ c-----------find object number given external object number
                read(InPath,'(1f10.0)') ftmp
                pathinput(ninpaths).constant_value=ftmp
                pathinput(ninpaths).fillin=fill_last
+               pathinput(ninpaths).path=trim(InPath)
+               pathinput(ninpaths).filename=trim(FileName)               
             else
 c--------------Break up the input pathname
                ! todo: this can be consolidated
@@ -135,7 +137,7 @@ c--------------accumulate unique dss input filenames
                else
                   pathinput(ninpaths).ndx_file=itmp
                endif
-               pathinput(ninpaths).fillin=Fillin
+               pathinput(ninpaths).fillin=fillin_code(fillin)
             endif
             !fixme: the next line should probably be based on RoleName
 c-----------set data type fixme:groups is this right

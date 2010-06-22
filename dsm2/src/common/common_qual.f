@@ -26,8 +26,8 @@ C-----Qual Parameters
 
       logical mass_tracking
       logical dispersion
-      integer nres_conc         ! Number of reservoirs for which initial conc. specified
-      real*8 init_conc            ! initial concentration
+      integer nres_conc             ! Number of reservoirs for which initial conc. specified
+      real*8 :: init_conc = miss_val_r ! initial concentration
 
       integer
      &     no_of_constituent    ! total number of conserv+nonconserv constituents

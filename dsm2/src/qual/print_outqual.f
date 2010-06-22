@@ -49,7 +49,7 @@ c-----copyright notices
       write(unit_screen, 805)
  805  format(/
      &     /'Delta Simulation Model 2: A river and estuary simulation model'
-     &     /'Copyright (C) 1996-2007 State of California,'
+     &     /'Copyright (C) 1996-2009 State of California,'
      &     /'Department of Water Resources.'
      &     /'Licensed under the GNU Public License.'     
      &     ) 
@@ -133,9 +133,9 @@ c-----------upstream node
      &       '------   ---------       --------   -------------'/)
 
       do i=1,nreser
-         write(unit_output,1420)res_geom(i).name,res_geom(i).area,
+         write(unit_output,1420)trim(res_geom(i).name),res_geom(i).area,
      &        res_geom(i).botelv,(cres(i,l),l =1,neq)
- 1420 format(/a,2x,f11.5,2x,f10.1,5x,15f9.2)
+ 1420 format(a32,2x,f11.5,2x,f10.1,5x,15f9.3)
       enddo
 
       WRITE(unit_output,1600)

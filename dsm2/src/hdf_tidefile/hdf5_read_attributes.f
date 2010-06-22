@@ -37,7 +37,9 @@ c**********contains routines for writing data to an HDF5 file
       use hdfvars
       use inclvars
       use common_tide
-
+      use io_units
+      use dsm2_tidefile_input_storage_fortran
+      
       implicit none
 
       integer(HID_T) :: attr_id ! Attribute identifier 
@@ -85,6 +87,14 @@ c**********contains routines for writing data to an HDF5 file
       integer, dimension(max_stgbnd) :: bnode_obj
       integer(SIZE_T) :: typesize
       integer(HID_T) :: dtc32_id ! Memory datatype identifier 
+      
+      integer :: nconnect, iconn,dummy
+      integer :: connection_index, int_node_no,ext_node_no,node_flow_index,flow_index,res_index,res_flow_index
+      character*32 :: flow_name, resv_name
+      character*8 ::  flow_type
+
+      integer,dimension(1) :: hdf_dummy_integer
+      integer :: scalar
       character*14,external :: jmin2cdt
       print*, "Reading HDF5 Header Information"
 
@@ -97,7 +107,6 @@ c**********contains routines for writing data to an HDF5 file
 !      call h5aopen_name_f(hydro_id,"Hydro Version",attr_id,error)
 !      call h5aread_f(attr_id, atype_id, chead, a_data_dims, error)
 !      call h5aclose_f(attr_id, error)
-
 
       call h5ltget_attribute_string_f(hydro_id, ".", "Hydro Version", 
      &           chead, error)
@@ -129,7 +138,7 @@ c      call h5aclose_f(attr_id, error)
       call h5aopen_name_f(hydro_id,"Number of intervals",attr_id,error)
       call h5aread_f(attr_id, atype_id, hdf5length, a_data_dims, error)
 c     call h5aclose_f(attr_id, error)
-      in_data_dims(1) = MaxChannels 
+      in_data_dims(1) = n_chan_tf
       
       
       ! Read map of external channel numbers int2ext
@@ -141,7 +150,7 @@ c     call h5aclose_f(attr_id, error)
 
 
                                 ! Read bottom_el
-      call h5dopen_f(geom_id,"channel geometry",cg_dset_id,error)
+      call h5dopen_f(geom_id,"channel_bottom",cg_dset_id,error)
 
       call h5dget_space_f(cg_dset_id, filespace, error)
 c      call h5sclose_f(filespace,error)
@@ -149,7 +158,7 @@ c	call h5dclose_f(cg_dset_id)
 
 
 
-      cg_data_dims(1) = MaxChannels 
+      cg_data_dims(1) = n_chan_tf
       cg_data_dims(2) = 1
       h_offset(1) = 0
       h_offset(2) = bottom_elIdx
@@ -168,126 +177,76 @@ c	call h5dclose_f(cg_dset_id)
       call h5dread_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el2, cg_data_dims, 
      &     error, memspace, filespace)
 
-      Do i = 1,MaxChannels            
+      Do i = 1,n_chan_tf            
          chan_geom(i).bottomelev(1) = bottom_el1(i)
          chan_geom(i).bottomelev(2) = bottom_el2(i)
       end do
 
-
-
-                                ! Read node geometry
-
-      ng_dims(1) = max_nodes 
-      ng_dims(2) = max_qobj * 2 
+      call reservoir_flow_connections_clear_buffer()
+      call node_flow_connections_clear_buffer()
       
-      call h5dopen_f(geom_id, "node geometry", ng_dset_id, error)
-
-      ng_data_dims(1) = ng_dims(1)   
-      ng_data_dims(2) = 1 
-
-                                ! Creation of hyperslab
-      call h5dget_space_f(ng_dset_id, filespace, error)
-      h_offset(1) = 0
-
-                                ! Read node_geom.qint
-      do i = 1,max_qobj
-         h_offset(2) = i - 1
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &        h_offset, ng_data_dims, error) 
-         call h5screate_simple_f(ng_rank, ng_data_dims, memspace, error)
-         call h5dread_f(ng_dset_id,H5T_NATIVE_INTEGER, node_obj, ng_data_dims, 
-     &        error, memspace, filespace)
-         do j = 1,max_nodes
-            node_geom(j).qinternal(i) = node_obj(j)
-         end do
-      end do
-                                ! Write out node_geom.qext
-      do i = 1,max_qobj
-         h_offset(2) = max_qobj + i - 1
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &        h_offset, ng_data_dims, error) 
-         call h5screate_simple_f(ng_rank, ng_data_dims, memspace, error)
-         call h5dread_f(ng_dset_id,H5T_NATIVE_INTEGER, node_obj, ng_data_dims, 
-     &        error, memspace, filespace)
-         do j = 1,max_nodes
-            node_geom(j).qext(i) = node_obj(j)
-         end do
-      end do
-
-
-                                ! Read reservoir geometry
-
-      rg_dims(1) = max_reservoirs
-      rg_dims(2) = max_qobj * 2 
+      call h5ltget_attribute_int_f(hydro_id,".", 
+     &           "Number of node flow connects",
+     &           hdf_dummy_integer, error)
+      nconnect = hdf_dummy_integer(1)
       
-      call h5dopen_f(geom_id, "reservoir geometry", rg_dset_id, error)
-
-      rg_data_dims(1) = rg_dims(1)   
-      rg_data_dims(2) = 1 
-
-                                ! Creation of hyperslab
-      call h5dget_space_f(rg_dset_id, filespace, error)
-      h_offset(1) = 0
-
-                                ! Read res_geom.qint
-      do i = 1,max_qobj
-         h_offset(2) = i - 1
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &        h_offset, rg_data_dims, error) 
-         call h5screate_simple_f(rg_rank, rg_data_dims, memspace, error)
-         call h5dread_f(rg_dset_id,H5T_NATIVE_INTEGER, res_obj, rg_data_dims, 
-     &        error, memspace, filespace)
-         do j = 1,max_reservoirs
-            res_geom(j).qinternal(i) = res_obj(j)
-         end do
-      end do
-
-
-
-                                ! Read res_geom.qext
-      do i = 1,max_qobj
-         h_offset(2) = max_qobj + i - 1
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &        h_offset, rg_data_dims, error) 
-         call h5screate_simple_f(rg_rank, rg_data_dims, memspace, error)
-         call h5dread_f(rg_dset_id,H5T_NATIVE_INTEGER, res_obj, rg_data_dims, 
-     &        error, memspace, filespace)
-         do j = 1,max_reservoirs
-            res_geom(j).qext(i) = res_obj(j)
-         end do
-      end do
-
-
-                                ! Read Stage Boundaries
-
-      bname_dims(1) = max_stgbnd
-      bnode_dims(1) = max_stgbnd
-
-      call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc32_id, error)
-      typesize = 32
-      call h5tset_size_f(dtc32_id, typesize, error)
       
-      call h5dopen_f(geom_id, "stage boundary names", bname_dset_id, error)
-      call h5dopen_f(geom_id, "stage boundary nodes", bnode_dset_id, error)
+      if (nconnect .gt. 0)then
+         call node_flow_connections_read_buffer_from_hdf5(geom_id, error)     
+         nconnect = node_flow_connections_buffer_size()
+         do iconn = 1, nconnect
+             call node_flow_connections_query_from_buffer(iconn, connection_index,int_node_no,ext_node_no,
+     &                                                    node_flow_index,flow_index,flow_name,flow_type,error)  
+             if (flow_type(1:4) .eq. "qext")then
+                 node_geom(int_node_no).qext(node_flow_index) = flow_index
+             else if (flow_type(1:8) .eq. "transfer")then
+                 node_geom(int_node_no).qinternal(node_flow_index) = flow_index
+             else
+                 write(unit_error,*) "Error querying nod flow connections" 
+             end if
+         end do
+         call node_flow_connections_clear_buffer()
+      end if
 
-      bname_data_dims(1) = bname_dims(1)   
-      bnode_data_dims(1) = bnode_dims(1)   
+      call h5ltget_attribute_int_f(hydro_id,".", 
+     &           "Number of reservoir flow connects",
+     &           hdf_dummy_integer, error)
+      nconnect = hdf_dummy_integer(1)
+      if (nconnect .gt. 0)then
+         call reservoir_flow_connections_read_buffer_from_hdf5(geom_id, error)     
+         do iconn = 1, nconnect
+             call reservoir_flow_connections_query_from_buffer(iconn, connection_index,resv_name,res_index,
+     &                                                         res_flow_index,flow_index,flow_name,flow_type,error)
 
-      call h5dread_f(bname_dset_id,dtc32_id, bname_obj, bname_data_dims, error)
-      call h5dread_f(bnode_dset_id,H5T_NATIVE_INTEGER, bnode_obj, bnode_data_dims, error)
+             if (flow_type(1:4) .eq. "qext")then
+                 res_geom(res_index).qext(res_flow_index) = flow_index
+             else if (flow_type(1:8) .eq. "transfer")then
+                 res_geom(res_index).qinternal(res_flow_index) = flow_index
+             else
+                 write(unit_error,*) "Error querying nod flow connections" 
+             end if
+         end do
+         call reservoir_flow_connections_clear_buffer()
+      end if
 
-      do i = 1,max_stgbnd
-         stgbnd(i).name = bname_obj(i)
-         stgbnd(i).node = bnode_obj(i)
-      end do
+
+      ! Read Stage Boundaries
+      
+      if (nstgbnd .gt. 0)then
+          call stage_boundaries_clear_buffer()
+          call stage_boundaries_read_buffer_from_hdf5(geom_id,error)
+          do iconn = 1,nstgbnd
+              call stage_boundaries_query_from_buffer(iconn,stgbnd(iconn).name,stgbnd(iconn).node,dummy,error)
+          end do
+      call stage_boundaries_clear_buffer()
+      end if
+
+
 
       call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
       call h5aopen_name_f(hydro_id,"Number of QExt",attr_id,error)
       call h5aread_f(attr_id, atype_id, nqext, a_data_dims, error)
-
-      call InitQExtType2()
       call ReadQExtHDF5()
-
       return
       end subroutine
 

@@ -111,6 +111,8 @@ c     &     -val_down)*(chan_dist/chan_len)
             do i=1,res_geom(hydrores).nnodes
                get_output=get_output-qres(hydrores,i)
             enddo
+         else if (pathoutput(ptr).meas_type .eq. 'flow-source') then ! net source in/out of reservoir
+            get_output=reservoir_source_sink(pathoutput(ptr).obj_no, QEXT_FLOWS)            
          else if (pathoutput(ptr).meas_type .eq. 'pump') then ! net pumping out of reservoir
             get_output=reservoir_source_sink(pathoutput(ptr).obj_no, ALL_FLOWS)
          endif

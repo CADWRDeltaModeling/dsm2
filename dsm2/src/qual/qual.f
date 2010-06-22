@@ -1,24 +1,6 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
-
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
-
-      program watqual
+      program dsm2qual
       Use IO_Units
       use common_qual
       use common_tide
@@ -54,10 +36,10 @@ C-----GPDC(L,K,N)    increase of L in parcel N,K due to reaction LR(L)
 C-----GPDF(L,K,N)    increase of L in parcel N,K due to dispersion
 C-----GPH(N,K)     time in hours since parcel K entered branch N
 C-----GPT(L,K,N)     concentration of constituent L in parcel N,K
-C-----GPTD(L,N)    flux of L at ds end of branch N
+C-----GPTD(L,N)    flux of L at ds end of branch N (seems to just be concentration)
 C-----GPTI(L,K,N)    conc. of L as parcel K entered branch N
 C-----GPTR(L,K,N)    increase of L in parcel N,K due to tribs.
-C-----GPTU(L,N)    flux of L at us end of branch N
+C-----GPTU(L,N)    flux of L at us end of branch N (seems to just be concentration)
 C-----GPV(N,K)     volume of parcel K in branch N
 C-----GTRIB(L,I,N)   conc. of L in trib. at grid I of branch N
 C-----(tribs can not occur at first or last grid of branch)
@@ -121,6 +103,7 @@ C-----NOSC     Maximum number of cross sections (grids) allowed in
 c-----branch
 C-----NOPR     Maximum number of parcels allowed in branch
 C-----(NOPR should be at least 20 + 2 times NOSC)
+      !use qual_hdf_file
       IMPLICIT NONE
       INCLUDE 'param.inc'
       INCLUDE '../hydrolib/network.inc'
@@ -136,9 +119,10 @@ c-----variables for mass tracking
 C-----+ + + LOCAL VARIABLES + + +C
 
       integer I,INX,
-     &     JN,K,CONS_NO,M,
+     &     JN,K,CONS_NO,
      &     NN,KK
       integer res_num_clfct
+      logical echo_only, file_exists
 
       real*8    HR,SVOL,tTIME,VJ,VOL
       real*8    TOTFLO
@@ -150,14 +134,16 @@ C-----+ + + LOCAL VARIABLES + + +C
      &     ,next_output_flush   ! next time to flush output
      &     ,next_display        ! next time to display model time
      &     ,next_restart_output ! next time to write restart file
-     &     ,next_binary_output  ! next time to write binary file
+
 
       integer
-     &     istat                ! status of fixed input
+     &     istat                ! status of fixed input        
 
       character
-     &     init_input_file*130  ! initial input file on command line [optional]
+     &     init_input_file*128  ! initial input file on command line [optional]
      &     ,jmin2cdt*14         ! convert from julian minute to char date/time
+
+      !character*128 :: qual_hdf_filename = "qual_out.h5"
 
       integer iprnt_mass
       common /mass_tracking_1/ iprnt_mass
@@ -166,8 +152,8 @@ C-----+ + + LOCAL VARIABLES + + +C
       include '../timevar/readdss.inc'
       include '../timevar/writedss.inc'
 
-	integer MIXED, NOT_MIXED
-	parameter (MIXED=0,NOT_MIXED=2)
+      integer MIXED, NOT_MIXED, QNDX, i_node_flow, from_obj_type, from_obj_no
+      parameter (MIXED=0,NOT_MIXED=2)
 
       data init_input_file /' '/
 
@@ -208,7 +194,7 @@ c-----module, name and version
 
 c-----get optional starting input file from command line and
 c-----simulation name for Database read
-      call get_command_args(init_input_file, model_name)
+      call get_command_args(init_input_file, model_name,echo_only)
 
 c-----dsm2 initialization
       call dsm2_init
@@ -217,6 +203,11 @@ c---- begin data reading
 
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
+         inquire(file=init_input_file, exist=file_exists)      
+         if (.not. file_exists)then
+             write(unit_error,*)"Input file does not exist: ",init_input_file
+             call exit(1)     
+         end if
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! reads scalar and envvars from buffer and processes
          call buffer_input_tidefile()      ! todo: remove from buffer_input_common
@@ -229,6 +220,9 @@ c------ process input that is in buffers
       call buffer_input_qual()          ! process qual specialty items
       
       call write_input_buffers()
+      if (echo_only) call exit(1)
+
+      !call init_qual_hdf(qual_hdf,qual_hdf_filename)
 
 c------ end of input reading and echo, start checking data
 
@@ -279,7 +273,7 @@ c------ end of input reading and echo, start checking data
 
  650  format(i2,a)
 
-      IF(MASS_TRACKING)THEN
+      IF(MASS_TRACKING) THEN
          call read_input_data_for_masstracking
                                 ! the region is hard coded, it could be altered.
                                 ! it will count only the last region.
@@ -370,7 +364,10 @@ C-----start time loop
       prev_julmin=julmin
       julmin=julmin+time_step
       current_date=jmin2cdt(julmin)
+      
+      call read_boundary_values
 
+      
       do while (julmin .le. end_julmin)
          call update_intervals
          if (julmin .ge. next_display) then
@@ -385,50 +382,45 @@ C-----start time loop
             call heat
          end if
 
-C--------set boundary and junction values
-         DO 320 N=1,NBRCH
+C--------set boundary and junction values to zero
+         DO N=1,NBRCH
             DVU(N)=0.0
             DVD(N)=0.0
-            DO 310 CONS_NO=1,NEQ
+            DO CONS_NO=1,NEQ
                GPTU(CONS_NO,N)=0.0
                GPTD(CONS_NO,N)=0.0
- 310        CONTINUE
- 320     CONTINUE
-         DO 330 N=1,NNODES
-            if (node_geom(n).qual_int) JCD(N)=NOT_MIXED
- 330     CONTINUE
+            ENDDO
+         ENDDO
 
+C--------set internal nodes and non-stage-boundary nodes to NOT_MIXED
+         ! todo: how to deal with stage boundaries?         
+         DO N=1,NNODES
+                   
+            if (node_geom(N).boundary_type .ne. stage_boundary) then 
+                JCD(N)=NOT_MIXED             
+            end if                
+         ENDDO         
+         
          call read_boundary_values
 
 C--------Read the Hydro tidefile
          call read_mult_tide
          CALL INTERPX
 
+c--------calculate total flow and mass into boundary nodes. This prepares GPTU and GPTD for ROUTE.     
          DO 360 N=1,NBRCH
-            JN=JNCU(N)
-c-----------calculate total flow and mass into this node for each constituent
-            call node_rate(jn,TO_OBJ,0,objflow,massrate)
-            IF ( (.not. node_geom(JN).qual_int) .AND. ! external node
-     &           objflow .gt. 0.) THEN ! source at node
-c--------------fixme: what if qext source at mtz (stage boundary)?
-               QNODE(jn)=objflow
-               DO CONS_NO=1,NEQ
-                  GTRIB(CONS_NO,1,N)=massrate(CONS_NO)/objflow
-               ENDDO
-            ENDIF
-
-            DO CONS_NO=1,NEQ
+            DO CONS_NO=1,NEQ   ! includes stage boudnary GTRIB from store_values
                GPTU(CONS_NO,N)=GTRIB(CONS_NO,1,N)
                GPTD(CONS_NO,N)=GTRIB(CONS_NO,NXSEC(N),N)
-            ENDDO
- 360     CONTINUE
+            ENDDO                                   
+ 360     ENDDO
 
 C--------Initialize reservoir stuff
          DO I=1,nreser
             resDepth = ResVol(I)/ARes(I)
             IRev = I
             reschgvol(i)=0.0    ! for masstracking
-            do cons_no=1,NEQ
+            do cons_no=1,NEQ   ! copy to temp
                C(cons_no) = CRES(i,cons_no)
                reschgconc(i,cons_no)=0.0 ! for masstracking
             end do
@@ -451,11 +443,9 @@ C--------Initialize reservoir stuff
 
          CALL ROUTE
 
-C--------update junction concentrations and codes
-C--------compute inflow flux at known junction
-
+         ! set cj(cons_no,jn) to zero for internal nodes and non-stage-boundary nodes
          DO JN=1,NNODES
-            if (node_geom(jn).qual_int) then
+            if (node_geom(JN).boundary_type .NE. stage_boundary) then
                DO CONS_NO=1,NEQ
                   cj_prev(CONS_NO,JN)=cj(CONS_NO,JN)
                   cj(cons_no,jn)=0.0 ! for masstracking
@@ -463,21 +453,50 @@ C--------compute inflow flux at known junction
             endif
          ENDDO
 
- 400     CONTINUE
+C--------update junction concentrations and codes
+C--------compute inflow flux at known junction        
          AllJunctionsMixed=.false.
-         do while (.not.AllJunctionsMixed)
-            DO 640 JN=1,NNODES
-               if (node_geom(jn).qual_int) then
+         do while (.not. AllJunctionsMixed)  
+            DO 640 JN=1,NNODES     
 
+               if (node_geom(JN).boundary_type .NE. stage_boundary) then
                   TOTFLO=0.
-                  IF (JCD(JN) .EQ. MIXED) GOTO 640
+                  IF (JCD(JN) .EQ. MIXED) GOTO 640                 
+                  
+                  ! find JN of transfer upstream node and check if it's mixed
+                  ! if not mixed then wait
+                  i_node_flow =1
+                  do while (node_geom(JN).qinternal(i_node_flow) .ne. 0)                
+                      qndx = node_geom(JN).qinternal(i_node_flow)
+                      if ( obj2obj(qndx).flow_avg > 0 ) then 
+                          from_obj_type = obj2obj(qndx).from_obj.obj_type
+                          from_obj_no   = obj2obj(qndx).from_obj.obj_no
+                      else if ( obj2obj(qndx).flow_avg < 0 ) then 
+                          from_obj_type = obj2obj(qndx).to_obj.obj_type
+                          from_obj_no   = obj2obj(qndx).to_obj.obj_no
+                      else  ! obj2obj(qndx).flow_avg == 0 
+                          goto 747 ! next node_flow. don't wait if flow_avg is 0                   
+                      endif 
+                                               
+                      if (from_obj_type .eq. obj_node) then
+                      
+                          ! if upstream transfer node is not itself
+                          if  (from_obj_no .ne. JN)  then 
+                              if (JCD(from_obj_no) .ne. mixed) then
+                                  goto 640  !wait for next loop
+                              endif
+                          endif 
+                      endif       
+ 747                  i_node_flow = i_node_flow + 1
+                  end do
+                  ! finished checking internal transfer upstream node mixing                           
+                  
                   VJ=0.0
                   DO KK=1,NUMUP(JN)
                      N=LISTUP(JN,KK)
                      TOTFLO=TOTFLO-FLOW(N,1,1)
                      IF (FLOW(N,1,1).LT.0.0) THEN
-                        IF(abs(dvu(n)) .gt. 1.0 .AND.
-     &                       node_geom(JNCD(N)).qual_int) THEN
+                        IF (abs(dvu(n)) .gt. 1.0 ) THEN
                            !print*,"upstream unknown flow gt 0"
                            !print*,"Channel: Internal: ",N," Ext: ", chan_geom(N).chan_no
                            !print*,"D Node: Internal: ",JNCD(N)," Ext: ", node_geom(JNCD(N)).node_id
@@ -495,8 +514,7 @@ C--------compute inflow flux at known junction
                      N=LISTDOWN(JN,KK)
                      TOTFLO=TOTFLO+FLOW(N,1,NXSEC(N))
                      IF (FLOW(N,1,NXSEC(N)).GT.0.0) THEN
-                        IF (abs(dvd(n)).gt. 1.0 .AND.
-     &                       node_geom(JNCU(N)).qual_int)  THEN
+                        IF (abs(dvd(n)).gt. 1.0 )  THEN
                            GOTO 640
                         END IF
                         VJ=VJ+FLOW(N,1,NXSEC(N))*DTT
@@ -508,7 +526,7 @@ C--------compute inflow flux at known junction
 
 C-----------------Now add the effects of external and internal flows, and reservoirs
                   call node_rate(JN,TO_OBJ,0,objflow,massrate)
-	          
+
                   VJ=VJ+objflow*DTT
                   TOTFLO=TOTFLO+objflow
 
@@ -526,6 +544,7 @@ C-----------------Now add the effects of external and internal flows, and reserv
                   ENDIF
 
                   JCD(JN)=MIXED
+                  
 C-----------------At this point all the flows entering the junction have
 c-----------------been mixed.
 C-----------------update GPTU,GPTD,DVU,DVD,PT,PTI,PTR
@@ -572,12 +591,14 @@ c                        ENDDO
                      END IF
                      DVU(N)=0.0
                   ENDDO
-               endif
- 640     ENDDO
+
+           endif ! if not stage-boundary node              
+               
+ 640     ENDDO !  DO 640 JN=1,NNODES
             
          AllJunctionsMixed=.true.
          DO JN=1,NNODES
-           if (node_geom(jn).qual_int) then
+           if (node_geom(JN).boundary_type .ne. stage_boundary) then
                IF(JCD(JN) .NE. MIXED) THEN
 C--------------------This JUNCTION NOT MIXED YET. Have to go back
                   AllJunctionsMixed=.false.
@@ -587,7 +608,9 @@ C--------------------This JUNCTION NOT MIXED YET. Have to go back
                ENDIF
             endif
          ENDDO
-      ENDDO
+         
+         ENDDO ! do while (.not.AllJunctionsMixed)
+  
 
 C--------Now all junctions have been mixed
          if(mass_tracking) then
@@ -635,8 +658,8 @@ c--------******************************************************************
                SVOL=SVOL+GPV(N,K)
                IF (K.LT.NKAI(N,I+1)) GO TO 710
  720        CONTINUE
-            IF(JPO.EQ.0)GO TO 730
-            IF(MOD(JTIME,JPO).NE.0)GO TO 730
+            IF(JPO.EQ.0) GO TO 730
+            IF(MOD(JTIME,JPO).NE.0) GO TO 730
  730     CONTINUE
 
          if (julmin .ge. next_output_flush) then
@@ -697,8 +720,9 @@ c--------close all DSS output files
             i=i+1
          enddo
       endif
+      !call close_qual_hdf(qual_hdf)
 
-      WRITE(*,*) '   -----------------------------'
+900   WRITE(*,*) '   -----------------------------'
       WRITE(*,*) ' '
       WRITE(*,*) '   Normal program end.'
       WRITE(*,*) ' '
@@ -707,277 +731,3 @@ c--------close all DSS output files
       call exit(0)
       END
 c==================================================
-
-      subroutine read_boundary_values
-      use iopath_data
-      use grid_data
-      implicit none
-
-c-----read time-varying data arrays for Qual
-
-c-----subroutine arguments
-
-c-----common blocks
-
-      include 'param.inc'
-      include 'bltm1.inc'
-      include 'bltm2.inc'
-
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-      include '../timevar/writedss.inc'
-
-      integer
-     &     chan,grid,constituent_no ! array indices
-
-      do chan=1,nobr
-         do grid=1,nosc
-            do constituent_no=1,max_constituent
-               gtrib(constituent_no,grid,chan)=0.0
-            enddo
-         enddo
-      enddo
-
-      if (npthsin_min15 .gt. 0) then
-         call readtvd(max_inp_min,mins15,npthsin_min15,ptin_min15,
-     &        datain_15min)
-      endif
-
-      if (npthsin_hour1 .gt. 0) then
-         call readtvd(max_inp_hour,hrs,npthsin_hour1, ptin_hour1,
-     &        datain_1hour)
-      endif
-
-      if (npthsin_day1 .gt. 0) then
-         call readtvd(max_inp_day,dys,npthsin_day1,ptin_day1,
-     &        datain_1day)
-      endif
-
-      if (npthsin_month1 .gt. 0) then
-         call readtvd(max_inp_month,mths,npthsin_month1,ptin_month1,
-     &        datain_1month)
-      endif
-
-      if (npthsin_year1 .gt. 0) then
-         call readtvd(max_inp_year,yrs,npthsin_year1,ptin_year1,
-     &        datain_1year)
-      endif
-
-      if (npthsin_irr .gt. 0) then
-         call readtvd(max_inp_irr,irrs,npthsin_irr,ptin_irr,
-     &        datain_irr)
-      endif
-
-      call store_values
-
-      return
-      end
-
-      subroutine store_values
-      use common_qual
-      use iopath_data
-      implicit none
-c-----Fill time-varying data arrays for Qual
-
-c-----common blocks
-
-      include 'param.inc'
-      include 'bltm1.inc'
-      include 'bltm2.inc'
-      include 'bltm3.inc'
-
-c-----local variables
-
-      integer
-     &     ptr,i,ic             ! array indices
-     &     ,intchan             ! internal channel numbering
-     &     ,intnode             !  node numbering
-     &     ,constituent_no      ! constituent number
-
-      do ptr=1,ninpaths
-
-c--------don't use input paths which are only for replacement
-c--------(priority 2 or higher)
-
-         call get_inp_data(ptr) ! get input data from buffers
-
-c--------meteorological values
-         if (pathinput(ptr).variable .eq. 'cloud') then
-            cloud=pathinput(ptr).value
-         else if (pathinput(ptr).variable .eq. 'dryblb') then
-            dryblb=pathinput(ptr).value
-         else if (pathinput(ptr).variable .eq. 'wetblb') then
-            wetblb=pathinput(ptr).value
-         else if (pathinput(ptr).variable .eq. 'wind') then
-            wind=pathinput(ptr).value
-         else if (pathinput(ptr).variable .eq. 'atmpr') then
-            atmpr=pathinput(ptr).value
-         else
-c-----------water quality constituent
-            if (pathinput(ptr).obj_type .eq. obj_node) then
-               intnode=pathinput(ptr).obj_no
-c--------------only the stage type boundary EC is used later from this section;
-c--------------flow ECs are handled in node_rate and res_rate
-               do i=1,nstgbnd
-                  if (intnode .eq. stgbnd(i).node) then
-                                ! Downstream salinity boundary (may be Martinez)
-                     intchan=node_geom(intnode).downstream(1)
-                     do ic=1,pathinput(ptr).n_consts
-                        constituent_no = pathinput(ptr).const_ndx(ic)
-                        gtrib(constituent_no,nxsec(intchan),intchan)=
-     &                       pathinput(ptr).value
-                     enddo
-                  endif
-               enddo
-            endif
-         endif
- 100     continue
-      enddo
-
-      return
-      end
-
-      subroutine restart_file(action)
-
-c-----read or write a restart file for qual
-      use common_qual
-      use runtime_data
-      use iopath_data
-      Use IO_Units
-      implicit none
-
-c-----include files
-
-      include 'param.inc'
-      include 'bltm1.inc'
-
-c-----arguments and local variables
-
-      integer
-     &     action               ! whether to read or write the restart file
-     &     ,i,k,l,n             ! loop indices
-     &     ,unit_restart        ! output unit
-     &     ,n_all               ! number of incoming chemical constituents
-     &     ,ext2int
-
-      external ext2int
-
-      real
-     &     salavg(max_constituent)
-     &     ,vol
-
-      character
-     &     header*150           ! header line
-     &     ,cchem*20(max_constituent) ! incoming chemical constituent names
-     &     ,get_substring*200   ! get substring function
-
-      if (action .eq. io_write) then
-c--------write restart file
-         unit_restart=io_files(qual,io_restart,io_write).unit
-         open(unit=unit_restart,file=io_files(qual,io_restart
-     &        ,io_write).filename,status='unknown',err=901)
-
-         write(unit_restart,900) dsm2_version, current_date
- 900     format('Qual Version ',a
-     &        /'The following data corresponds to   ',a14//)
-         write(unit_restart,970)
-     &        (trim(constituents(all_source_ptr(l)).name),
-     &        l=1,no_all_source)
- 970     format('Initial Channel Concentration'/'Channel',11(1x,a11))
-
-c--------figure out the average concentration in each channel
-c--------only do calcs for constituents from all sources
-         do n=1,nbrch
-            do l=1,no_all_source
-               salavg(all_source_ptr(l))=0
-            enddo
-            vol=0
-            do k=1,ns(n)
-               vol=vol+gpv(n,k)
-               do l=1,no_all_source
-                  salavg(all_source_ptr(l))=salavg(all_source_ptr(l)) +
-     &                 gpv(n,k)*gpt(all_source_ptr(l),k,n)
-               enddo
-            enddo
-            do l=1,no_all_source
-               salavg(all_source_ptr(l))=salavg(all_source_ptr(l))/vol
-            enddo
-            write(unit_restart,971) int2ext(n),
-     &           (salavg(all_source_ptr(l)),l=1,no_all_source)
- 971        format(i7,1p,11(1x,g11.3))
-         enddo
-         write(unit_restart,975) (trim(constituents(all_source_ptr(l)).name),
-     &        l=1,no_all_source)
- 975     format('Initial Reservoir Salinity'/
-     &        'Reservoir',11(1x,a11))
-
-         do i=1,nreser
-            write(unit_restart,976) i,
-     &           (cres(i,all_source_ptr(l)),l=1,no_all_source)
- 976        format(i9,1p,11(1x,g11.3))
-         enddo
-         close(unit_restart)
-      else
-c--------read restart file
-         unit_restart=io_files(qual,io_restart,io_read).unit
-         open(file=io_files(qual,io_restart,io_read).filename,
-     &        unit=unit_restart,status='old',err=901)
-c--------read header, then test to see if it's really the header (old restart file)
-c--------or the restart file version (new file)
-         restart_version=' '
-         read(unit_restart,'(a)') header
-         if (header(:12) .eq. 'Qual Version') then
-            restart_version=header(13:)
-            read(unit_restart,'(a)') header
-         endif
-c--------get chemical names
-         read(unit_restart,910) header
- 910     format(///a)
-         i=1
-         cchem(1)=get_substring(header,' ') ! first field is 'Channel', discard
-         do while (header .ne. ' ' .and. i .le. max_constituent)
-            cchem(i)=get_substring(header,' ')
-            call locase(cchem(i))
-            i=i+1
-         enddo
-         n_all=i-1
-c--------for each different chemical read in, copy to possibly multiple
-c--------constituent locations
-         do n=1,nbrch
-            read(unit_restart,*) k, (salavg(i), i=1,n_all)
-            do l=1,neq
-               cstart(ext2int(k),l)=0.0
-               do i=1,n_all
-                  if (constituents(l).name .eq. cchem(i)) then
-                     cstart(ext2int(k),l)=salavg(i)
-                  endif
-               enddo
-            enddo
-         enddo
-c--------skip reservoir headers, assume chemical names are in same order
-c--------as for channels
-         read(unit_restart,911) header
- 911     format(/a)
-         do n=1,nreser
-            read(unit_restart,*) k, (salavg(i), i=1,n_all)
-            do l=1,neq
-               cres(k,l)=0.0
-               do i=1,n_all
-                  if (constituents(l).name .eq. cchem(i)) then
-                     cres(k,l)=salavg(i)
-                  endif
-               enddo
-            enddo
-         enddo
-         close(unit_restart)
-      endif
-
-      return
-
- 901  continue                  ! open error on restart file
-      write(unit_error,605) io_files(qual,io_restart,action).filename
- 605  format(/'Error opening restart file:',a)
-      call exit(2)
-
-      end subroutine
-

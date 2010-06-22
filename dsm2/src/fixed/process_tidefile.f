@@ -36,8 +36,6 @@ c-----tide file info.
 
 c-----local variables
 
-      logical
-     &     binarytf_fn          ! determine if tidefile is HDF5 or binary fortran
       integer
      &     i                    ! index
 

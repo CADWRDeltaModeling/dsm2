@@ -18,143 +18,147 @@ C!    You should have received a copy of the GNU General Public License
 C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
 
+      ! Controls the integration of source terms
+      ! Uses the Runge-Kutta(2,3) method of Bogacki and Shampine
+      ! The method adapts in time based on an error estimate that comes from the
+      ! difference of the 2nd and 3rd order result.
+      ! There is an attempt at some extra protection against negative concentration
       subroutine kinetic(c)
       use common_qual
+      use io_units
       implicit none
       include 'param.inc'
       include 'bltm3.inc'
       include 'kinetic1.inc'
-      
-      integer   nhigh(max_constituent)
-      integer nrepeat
-      real*8 c(max_constituent)
-      real*8 cp(max_constituent),del_c,tol_c,delta_c
-      logical converged, firsttime
-      logical,save :: startprint = .false.
+
+c-----arguments---------------------------      
+      real*8 :: c(max_constituent)
+
 c-----local variables---------------------------
 
-      real*8 c1(max_constituent),scsk1(max_constituent)
-      real*8 rirdt, idtm,  nsmalldtt
+      real*8 :: cnew(max_constituent)
+      real*8 :: scsk1(max_constituent)
+      real*8 :: scsk2(max_constituent)
+      real*8 :: scsk3(max_constituent)      
+      real*8 :: scsk4(max_constituent)      
+      real*8, parameter :: rtol = 1.d-3  ! relative tolerance for error
+      real*8, parameter :: atol = 1.d-6  ! absolute tolerance for error
+      real*8, parameter :: threshold = atol/rtol
+      real*8, parameter :: minstepeps = 1.6d-8  ! epsilon for step going to zero, should be d-15 
+                                                ! but want to see if this ever gets tripped
+      real*8, parameter :: nonneg_tstep = 0.02d0  ! smallest step to try to enforce nonnegativity with time refinement
+      real*8, parameter :: smallc = 1.d-12      ! very small non-negative concentration      
+      real*8 :: dt_rem   ! time left to react during this invocation
+      real*8 :: dt_react ! total time to react this invocation (from dsm2 qual)
+      real*8 :: tstep    ! time step for this reaction subcycle
+      real*8 :: timept   ! relative time progress between zero and dt_react
+      real*8 :: minstep  ! minimum stepsize... lower than this is failure
+      real*8 :: maxstep  ! maximum stepsize... in practice, always the full dsm2 step
+      real*8 :: newstep  ! calculated version of new time step, not including positivity hack
+      real*8 :: errvec(max_constituent) ! vector of error estimates from the BG23 scheme
+      real*8 :: err      ! max relative error
+      real*8 :: trialerr ! local for calculating err
+      integer i,ii           
+      logical all_nonnegative,ignore_nonnegative
 
-      integer i,ii
-      real*8 dt_rem, dt_react
-
-c	if (julmin .eq. 50916600)startprint = .true.
-
-
-      firsttime = .true.
-      if (irc. eq. 1) then
-c--------fixme This setup is temporary. It will be changing
-
-         del_c=10
-         del_c=del_c/100.
-         tol_c=5
-         tol_c=tol_c/100.
-      end if
-
-      irc = 0
-      nrepeat=0
- 40      continue
-
+!     Establish the amount of time to integrate. 
       if (chan_res. eq. 1) then
-         if (firsttime) dt_rem = dtsub
-         dt_react = dt_rem
-
-         if (dt_react. lt. 0.05) go to 900
-
-         call calscsk(c)
-c-----reservoir kinetics
-
+         dt_react = dtsub  ! channels do a dsm2-qual sub-timestep based on advection/mixing
       elseif (chan_res. eq. 2) then
-         dt_react = dt
-         call calscsk(c)
+         dt_react = dt     ! reservoirs do whole time step
       endif
+      timept = 0.d0
+      dt_rem = dt_react - timept
 
+      maxstep = dt_react
+      call calscsk(c)      
+      scsk1 = scsk
+      iskip = iskip+1   !todo: don't think this is really hooked up      
+      
+!     Try to do the whole thing
+      tstep=dt_react
+      ignore_nonnegative = .false.
+      
+      do while(dt_rem > 0)
+          
+          !! Determine time to integrate
+          minstep = dt_rem*minstepeps
+          tstep = min(tstep, maxstep)
+          tstep = max(tstep, minstep)
+          ! Stretch the step if getting close to end
+          if (1.1d0*abs(tstep) >= dt_rem)then
+              tstep = dt_rem
+          end if
 
-c-----update constituent concentrations
-      do  ii = 1, no_of_nonconserve_constituent
-         i = nonconserve_ptr(ii)
-         c1(i) = c(i)
-         cp(i) = c(i) + scsk(i)*dt_react
-         scsk1(i) = scsk(i)
-      enddo
+          !! Integrate in four stages (we are on stage 2, stage 1 is 
+          !! done during integration or last subcycle
+	    ! time = t0 + tstep/2.d0
+	    cnew = c + tstep*0.5d0*scsk1
+    	
+	    call calscsk(cnew)
+	    scsk2 = scsk
+	    ! time = t0 + 0.75d0*tstep
+	    cnew = c + 0.75d0*tstep*scsk2
+	    call calscsk(cnew)
+	    scsk3 = scsk
+    	
+	    ! tnew = t0 + tstep
+	    cnew = c + tstep*(2.d0*scsk1 + 3.d0*scsk2 + 4.d0*scsk3)/9.d0
+	    call calscsk(cnew)
+	    scsk4 = scsk
+    	
+    	    !! Error estimate
+	    errvec = tstep*(-5.d0*scsk1 + 6.d0*scsk2 + 8.d0*scsk3 - 9.d0*scsk4)/72.d0
+	    err = 0.d0
+	    do  ii = 1, no_of_nonconserve_constituent
+		      i = nonconserve_ptr(ii)
+		      trialerr = errvec(i)/max(abs(cnew(i)),abs(c(i)),threshold) 
+		      if (trialerr > err) err = trialerr
+	    end do
+	    err = err+tiny(err)
 
+          ! Check for positivity
+   	    all_nonnegative = (minval(cnew) >= 0.d0)	
 
-c-----iskip is used to avoid calling heat and reading met data
-c-----more than once for the same time step
+          !! Time step adaptation
+	    newstep = tstep*min(5.d0, 0.8d0*(rtol/err)**0.33d0)
+	    if (all_nonnegative)then     
+		      tstep = newstep
+	    else
+		      tstep = min(newstep, tstep/2.d0)
+		      if (err <= rtol .and. tstep < nonneg_tstep)then
+			       ! time step is small and only because of negative value
+			       ! so...floor it and move on
+			      ignore_nonnegative = .true.
+			      do  ii = 1, no_of_nonconserve_constituent
+				      i = nonconserve_ptr(ii)
+                      ! zero concentrations will be exactly zero and we don't want to
+                      ! mess with those. Negative ones will have "crossed over"
+				      if (cnew(i) .lt. 0.d0) cnew(i) = smallc
+			      end do
+			      tstep = newstep
+		      end if
+	    end if
 
-      iskip = iskip+1
+          !! Advancement check
+	    if (err <= rtol .and. (all_nonnegative .or. ignore_nonnegative))then
+		      timept = timept + tstep
+		      dt_rem = dt_react - timept
+		      c = cnew
+		      scsk1 = scsk4
+		      ignore_nonnegative = .false.
+	    end if
+     
 
-      call calscsk (cp)
+	    if (abs(tstep) <= minstep)then
+		      write(unit_error,*) "Nonconservative reaction failed (adaptive time step too small)"
+		      call exit(2)
+	    end if
+      
+      end do
+      
 
-      converged=.true.
-      do  ii = 1, no_of_nonconserve_constituent
-         i = nonconserve_ptr(ii)
-
-         delta_c=0.5*(scsk(i)+scsk1(i))*dt_react
-         c(i) = c1(i)+delta_c
-
-        if(c1(i).lt.0.000001) c1(i)=0.000001
-
-          if(abs(delta_c)/c1(i) .gt. del_c)then
-c-----------tolerance not met
-            converged=.false.
-          endif
-
-         if (abs((scsk1(i))).ge.0.0001) then
-            if(abs((scsk(i)-scsk1(i))/scsk1(i)). gt. 20.)then
-               nhigh(i) = nhigh(i) + 1
-            end if
-         endif
-      enddo
-      if(converged) goto 78
- 65   continue
-      do  ii = 1, no_of_nonconserve_constituent
-         i = nonconserve_ptr(ii)
-         cp(i) = c(i)
-      enddo
-      call calscsk (cp)
-
-c-----the next (write) line is only temporarily commented out; do not remove;
-c-----needed for diagnosis related to accuracy checks
-c-----write(iscr, *)'          call to SCSK repeats'
-
-      converged=.true.
-c-----nrepeat counts repetitions of 2nd call to calscsk
-      nrepeat = nrepeat + 1
-      if(nrepeat.gt.2) go to 77
-      do  ii = 1, no_of_nonconserve_constituent
-         i = nonconserve_ptr(ii)
-         c(i) = c1(i)+0.5*(scsk(i)+scsk1(i))*dt_react
-
-         if(cp(i).lt.0.000001) cp(i)=0.000001
-
-          delta_c=abs((c(i)-cp(i))/cp(i))
- 
-c--------test to see if more repetitions needed (within tolerance)
-
-         if(delta_c.gt.tol_c)then
-            converged=.false.
-         endif
-      enddo
-      if(.not.converged) goto 65 
-
-      if (chan_res. eq. 2) go to 200 ! reservoir kinetics
-      go to 78
- 77   continue
-c-----the next (write) line is only temporarily commented out; do not remove
-c-----needed for diagnosis related to accuracy checks
-c-----write(iscr,*)'tol. not met',' with 2 repeat',' reduce step'
- 78   if (chan_res. eq. 2) go to 200 ! reservoir kinetics
-      rirdt=int(dt_rem*100.0+0.5)
-      idtm=int(dt_react*100.0+0.5)
-      if (idtm.eq.rirdt) go to 100
-      dt_rem = dt_rem - dt_react
-      firsttime = .false.
-      go to 40
- 900  nsmalldtt = nsmalldtt + 1
- 200  if (chan_res. eq. 2) iskip = 0
-
+      if (chan_res. eq. 2) iskip = 0
  100  return
-      end
+      end subroutine
 

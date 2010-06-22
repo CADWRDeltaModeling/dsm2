@@ -92,14 +92,14 @@ C     + + + LOCAL VARIABLES + + +
 
       real*8  RQ,CONCMIX,DTSEC,RNDMAX
       real*8  DIFFGPT(NOPR+1)
-      !real*8  QPARCEL  Average of cross-section upstream and downstream of parcel
+      real*8  QPARCEL !Average of cross-section upstream and downstream of parcel
                       ! Hasn't been thought out for flow fields
                       ! with more than the NXSEC=2 assumption in DSM2
       integer KR, NN, NDD(NOPR+1)
 
       INTEGER JN,NSN,NXSECN
       LOGICAL NEWPARCEL(NOPR)
-	logical,save :: startprint = .false.
+
 
       real*8 objflow,massrate(max_constituent) ! object flow and massrates
 
@@ -159,10 +159,12 @@ C--------No dispersion if only 1 parcel is left
             IF(GPV(N,K-1).GT.VI.AND.GPV(N,K).GT.VI)THEN
                MX=NIPX(N,K)
                !todo: this change to an average eliminates one-sidedness
-               !(different answers depending on channel orientation
-               !QPARCEL=(Q(MX)+Q(MX+1))/2.D0
-               !DQ(K)=ABS(DQQ(N)*QPARCEL)
-               DQ(K)=ABS(DQQ(N)*Q(MX))
+               ! one-sidedness causes different answers depending on channel orientation
+               ! and causes problems with dead ends. 
+               QPARCEL=(Q(MX)+Q(MX+1))/2.D0
+               DQ(K)=ABS(DQQ(N)*QPARCEL)
+               !DQ(K)=ABS(DQQ(N)*Q(MX))
+               
                DQMIN=DQV*A(MX)*0.5
                IF(DQ(K).LT.DQMIN)DQ(K)=DQMIN
 C--------------Changed from flow rate to volume
@@ -262,26 +264,33 @@ C--------FLOW IN UPSTREAM BOUNDARY
          GVU(N,1)=0.0
          NKAI(N,1)=1
          PRDT(1)=0.0
-         IF(node_geom(JN).qual_int .OR. NCONRES(JN).EQ.0)THEN
+!         IF(node_geom(JN).qual_int .OR. NCONRES(JN).EQ.0)THEN
 C-----------Upstream junction is not at the boundary
 C-----------Or if it is, there are no reservoirs connected
+            !todo: GPTU seems to always be zero here
             DO L=1,NEQ
+               ! todo: analyze if this is really ever non-zero or necessary.
+               !       same for downstream case. If you are reading this in
+               !       2011 please go ahead and delete this assertion
+               if(GPTU(L,N) .ne. 0.d0) then
+                   print*,"GPTU != 0, please report to DSM2 maintanence team"
+               end if
                GPT(L,1,N)=GPTU(L,N)
             ENDDO
-         ELSEIF( (.not. node_geom(JN).qual_int) .AND. NCONRES(JN).GE.1)THEN
-C-----------Upstream junction is a boundary node
-C-----------and a reservoir is connected
-
-            call node_rate(jn,TO_OBJ,0,objflow,massrate)
-            DO L=1,NEQ
-               IF(objflow .NE. 0.)THEN
-                  CONCMIX=massrate(l) / objflow
-               ELSE
-                  CONCMIX=0.
-               ENDIF
-               GPT(L,1,N)=CONCMIX
-            ENDDO
-         ENDIF
+!         ELSEIF( (.not. node_geom(JN).qual_int) .AND. NCONRES(JN).GE.1)THEN
+!C-----------Upstream junction is a boundary node
+!C-----------and a reservoir is connected
+!            !todo: ext_node node_rate is wrong time (b4 node mixing loop)
+!            call node_rate(jn,TO_OBJ,0,objflow,massrate)
+!            DO L=1,NEQ
+!               IF(objflow .NE. 0.)THEN
+!                  CONCMIX=massrate(l) / objflow
+!               ELSE
+!                  CONCMIX=0.
+!               ENDIF
+!               GPT(L,1,N)=CONCMIX
+!            ENDDO
+!         ENDIF
          GO TO 250
 C--------flow at upstream boundary is 0 or negative
  240     CONTINUE
@@ -298,6 +307,9 @@ C--------flow into downstream boundary
          PRDT(NSN)=0.0
          GVU(N,NXSECN)=GPV(N,NSN)
          DO 260 L=1,NEQ
+            if(GPTU(L,N) .ne. 0.d0) then
+               print*,"GPTD != 0, please report to DSM2 maintanence team"
+            end if
             GPT(L,NSN,N)=GPTD(L,N)
  260     CONTINUE
          GO TO 280
@@ -344,9 +356,8 @@ C-----------parcel passed grid
             END DO
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
-
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -374,7 +385,7 @@ C-----------did not pass grid
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -411,7 +422,7 @@ C-----------parcel passed grid
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -440,7 +451,7 @@ C-----------did not pass grid
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0
      &           .and. .not.newparcel(k)) then
                call rate_chanres(n)
-	       call kinetic(c)
+	           call kinetic(c)
             end if
             IF(MASS_TRACKING)THEN
                DO L = 1, NEQ
@@ -463,8 +474,6 @@ C--------complete decay step
             END DO
             dtsub = prdt(k)
             IF (DTSUB.GT.0 .AND. no_of_nonconserve_constituent. gt. 0) then
-c		if (julmin .eq. 50916600)startprint = .true.
-
                call rate_chanres(n)
                call kinetic(c)
             end if

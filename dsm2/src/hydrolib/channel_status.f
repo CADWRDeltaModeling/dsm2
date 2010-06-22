@@ -352,57 +352,48 @@ c-----or the restart file version (new file)
 
          READ(fUnit,*) extchan  ! external channel number
          intchan=i
+         if (chan_geom(i).chan_no .ne. extchan)then
+             write(unit_error)"Channel numbers in restart do not correspond with the ones in this simulation"
+             write(unit_error)"Restart channel number: ",extchan
+             call exit(-2)
+         end if
 
-         IF( ChannelNumber(I) .LE. NumberOfChannels()
-     &        .AND.
-     &        ChannelNumber(I) .GT. 0 ) THEN
+         read(fUnit,*) nLoc            ! Number of comp. points in channel, according to restart file
+         if (nLoc .ne. NumberofCompLocations(intchan)) then
+            write(unit_error,610) extchan, nLoc,
+     &           NumberofCompLocations(i)
 
-            READ(fUnit,*) nLoc            ! Number of comp. points in channel, according to restart file
-            if (nLoc .ne. NumberofCompLocations(intchan)) then
-               write(unit_error,610) extchan, nLoc,
-     &              NumberofCompLocations(i)
+ 610        format(/'####Error(ReadNetworkInitialConditions)'
+     &           'For channel ',i3,
+     &           /'Number of restart file computational locations (',
+     &           i2, ')'
+     &           /'not equal to number of locations in run (',
+     &           i2, ').'
+     &           /'Probably caused by different DELTAX value in SCALAR input section.'/)
+            return
+         endif
 
- 610           format(/'####Error(ReadNetworkInitialConditions)'
-     &              'For channel ',i3,
-     &              /'Number of restart file computational locations (',
-     &              i2, ')'
-     &              /'not equal to number of locations in run (',
-     &              i2, ').'
-     &              /'Probably caused by different DELTAX value in SCALAR input section.'/)
-               return
-            endif
+         Locations(I) = nLoc
+         IF( ( K + nLoc ) .LE. MaxLocations ) THEN
 
-            IF( ( K + Locations(I) ) .LE. MaxLocations ) THEN
+            FirstLocation(I) = K + 1
+            DO 100 J=1,nLoc
 
-               FirstLocation(I) = K + 1
-               DO 100 J=1,Locations(I)
+               K = K + 1
+               READ(fUnit,*)
+     &              InitialX(K), InitialWS(K), InitialQ(K)
 
-                  K = K + 1
-                  READ(fUnit,*)
-     &                 InitialX(K), InitialWS(K), InitialQ(K)
-
- 100           CONTINUE
-
-            ELSE
-               WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
-               WRITE(UNIT_ERROR,*) ' Reading initial conditions for channel...',
-     &              extchan
-               WRITE(UNIT_ERROR,*) ' Maximum number of loactions exceeded.'
-               WRITE(UNIT_ERROR,*) ' Attempted...', K + Locations(I)
-               WRITE(UNIT_ERROR,*) ' Allowed.....', MaxLocations
-               RETURN
-            END IF
-
+ 100        CONTINUE
          ELSE
             WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
-            WRITE(UNIT_ERROR,*) ' Read channel number ... ', extchan
-            WRITE(UNIT_ERROR,*) '  must fall on or between 1 and ',
-     &           NumberOfChannels()
+            WRITE(UNIT_ERROR,*) ' Reading initial conditions for channel...',
+     &           extchan
+            WRITE(UNIT_ERROR,*) ' Maximum number of loactions exceeded.'
+            WRITE(UNIT_ERROR,*) ' Attempted...', K + Locations(I)
+            WRITE(UNIT_ERROR,*) ' Allowed.....', MaxLocations
             RETURN
          END IF
-
          InitialConditionIndex( intchan ) = I
-
  200  CONTINUE
 
       READ(funit,*)NresStart_File
@@ -502,7 +493,7 @@ c          No interpolation is necessary, since the computational points are mat
 *   Intrinsics:
       INTEGER   INT
       INTRINSIC INT
-
+*   Suspected not to be used at all.
 *   Programmed by: Lew DeLong
 *   Date:          Dec   1992
 *   Modified by:
@@ -1243,6 +1234,7 @@ c          No interpolation is necessary, since the computational points are mat
             QOld=InitialQ
             WS=InitialWS
             YResOld=YRes
+            CompLocation_lcl = InitialX
          ELSE
             WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
             WRITE(UNIT_ERROR,*) ' Reading of initial conditions failed...'
@@ -1291,6 +1283,8 @@ c          No interpolation is necessary, since the computational points are mat
  100     CONTINUE
       END IF
 
+
+
       do i=1,MaxLocations
          QOld(i)=Q(i)
       end do
@@ -1308,7 +1302,7 @@ c          No interpolation is necessary, since the computational points are mat
             DO  J=UpstreamPointer(),DownstreamPointer()
                H( J ) = WS( J ) - BtmElev( CompLocation_lcl( J ) )
             END DO
-
+            
 
 c-----------if (Restart_Read)
 c-----------&           OK = ApproxReadInitialConditions()               WHY??????!!!!!!
@@ -1376,7 +1370,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
          END IF
 
  200  CONTINUE
-
+      
       InitializeNetworkFlowValues = .TRUE.
 
       RETURN

@@ -65,7 +65,12 @@ C!</license>
       real*8  :: fetcheddata
       logical free
 
- 
+      call locase(locname)
+      call locase(subloc)
+
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)
 
             ninpaths=ninpaths+1
             if (ninpaths .gt. max_inputpaths) then
@@ -101,6 +106,8 @@ C!</license>
                pathinput(ninpaths).constant_value=ftmp
                pathinput(ninpaths).variable=Param
                pathinput(ninpaths).fillin=fill_last
+               pathinput(ninpaths).path=trim(InPath)
+               pathinput(ninpaths).filename=trim(FileName)               
             else
 c--------------Break up the input pathname
 
@@ -193,42 +200,14 @@ c-----------set data type fixme:groups is this right
                         istat=-3
                         return
                      end if
-                     if (param(1:8) .eq. 'position') then
-c                        write(unit_error,*)
-c     &                  "Time series variable 'position' has been deprecated. " //
-c     &                  "Please use 'height','elev' or 'width' to manipulate the" //
-c     &                  "position directly. Use 'height' for a radial " //
-c     &                  "gate and elev for a bottom-operated gate. "//
-c     &                  "The last version of HYDRO that accepts position "//
-c     &                  "without a warning was 7.8."   
-                     
-                        devType=gateArray(gateNo).Devices(devNo).structureType
-                        if( devType .eq. miss_val_i .or.
-     &                     devType .eq. NO_GATE_CONTROL) then
-                           write(unit_error,*)  
-     &                          "Time series for device position in a device " //
-     &                          "with no flow control. Gate: "
-     &                          // trim(LocName) //
-     &                          ", Device: "// trim(subloc) // ", Parameter: " // 
-     &                          param
-                           istat=-3
-                           return
-                        end if
-                        pathinput(ninpaths).gate_param = gate_position
-                        pathinput(ninpaths).locnum=devNo
-                        
-                        call datasource_from_path(
-     &                       gateArray(gateNo).Devices(
-     &                       devNo).pos_datasource,
-     &                       ninpaths,pathinput(ninpaths))
-                        gateArray(pathinput(ninpaths).obj_no).Devices(
-     &                       devNo).position=gateArray(gateNo).Devices(
-     &                       devNo).pos_datasource.value
-                        if(pathinput(ninpaths).constant_value .ne. miss_val_r) then
-                           gateArray(gateNo).Devices(devNo).position
-     &                          =pathinput(ninpaths).constant_value
-                        end if
-                     else if (param(1:2) .eq. 'op') then
+                     if (param(1:8) .eq. 'position' .and. len_trim(Param) .eq. 8) then
+                        write(unit_error,*)
+     &                    "Time series variable 'position' has been deprecated. "
+                        istat=-3
+                        return
+                     end if
+
+                     if (param(1:2) .eq. 'op') then
                         if (param(4:5) .eq. 'to' .and. 
      &                       param(7:10) .eq. 'node') then
                            pathinput(ninpaths).gate_param = gate_op_to_node

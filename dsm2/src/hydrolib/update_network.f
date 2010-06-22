@@ -29,6 +29,7 @@
       INTEGER ChannelNumber
       LOGICAL OK
      &     ,ClosedIteration     ! indicator that iteration has been closed
+      real*8 increment
 *   Routines by module:
 
 ***** Channel schematic:
@@ -61,11 +62,11 @@
       LOGICAL  CalculateGateFlow
       EXTERNAL CalculateGateFlow
 
-      LOGICAL StepOpRuleExpressions,AdvanceOpRuleActions
-      EXTERNAL StepOpRuleExpressions,AdvanceOpRuleActions
+      !LOGICAL StepOpRuleExpressions,AdvanceOpRuleActions
+      !EXTERNAL StepOpRuleExpressions,AdvanceOpRuleActions
 
-      LOGICAL TestOpRuleActivation
-      EXTERNAL TestOpRuleActivation
+      !LOGICAL TestOpRuleActivation
+      !EXTERNAL TestOpRuleActivation
 
 
 
@@ -86,12 +87,13 @@
 *-----Implementation -----------------------------------------------------
 
       UpdateNetwork = .FALSE.
-
+      increment = dble(NetworkTimeIncrement())
 c-----Load data from time series to boundary objects
       OK = SetBoundaryValuesFromData()
 
 c-----Advance gate operating rules, which may alter boundary values
-      OK = AdvanceOpRuleActions(dfloat(NetworkTimeIncrement()))
+      call AdvanceOpRuleActions(increment)
+
 c-----Boundary values are final, apply to mdel    
       OK = ApplyBoundaryValues()
 
@@ -102,6 +104,7 @@ c-----elapsed iterations
       Iteration=0
       Rescale=1.D0
       XOld=0.0
+
       do 100 while (.not. ClosedIteration)
 
 *--------Begin iteration loop and clear matrix
@@ -155,8 +158,8 @@ c-----------Calculate Reservoir flows
       OK = CloseNetworkIteration()
 
 *-----Test operating rules for activation/finalization
-      OK = StepOpRuleExpressions(dfloat(NetworkTimeIncrement()))
-      OK = TestOpRuleActivation(dfloat(NetworkTimeIncrement()))
+       call StepOpRuleExpressions(increment)
+       call TestOpRuleActivation(increment)
 
       UpdateNetwork = .TRUE.
 

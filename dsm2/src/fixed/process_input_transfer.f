@@ -58,7 +58,11 @@ C!</license>
       real*8 ftmp
       real*8, external :: fetch_data
 
-
+      call locase(name)      
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)
+      
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
           write(unit_error,630)
@@ -89,6 +93,8 @@ c-----------find object number given external object number
           pathinput(ninpaths).constant_value=ftmp
           pathinput(ninpaths).variable=Param
           pathinput(ninpaths).fillin=fill_last
+          pathinput(ninpaths).path=trim(InPath)
+          pathinput(ninpaths).filename=trim(FileName)          
       else
 c--------------Break up the input pathname
 

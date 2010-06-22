@@ -180,19 +180,36 @@ c            better for hydro to keep track of its own time
       integer function resNdx(name)
       use grid_data
 	implicit none
-
 	integer i
 	character*(*) name
 	resNdx=miss_val_i
 	call locase(name)
 	do i=1,nreser
-	   if (res_geom(i).name .eq. name)	then
+	   if (res_geom(i).name .eq. trim(name))	then
 	     resNdx = i
 	     exit
 	   end if
 	end do
 	return
 	end function
+
+      integer function resConnectNdx(res_ndx,internal_node_no)
+      use grid_data
+	implicit none
+	integer i
+	integer :: res_ndx
+	integer :: internal_node_no
+	resConnectNdx=miss_val_i
+	do i=1,res_geom(res_ndx).nnodes
+	   if (res_geom(res_ndx).node_no(i) .eq. internal_node_no)	then
+	     resConnectNdx = i
+	     exit
+	   end if
+	end do
+	return
+	end function
+
+
 
       integer function gateNdx(name)
 	use Gates, only: GateArray,nGate
@@ -404,37 +421,6 @@ c     return the constant, so FORTRAN and C can share it
 	 call set_datasource(
      &    GateArray(gndx).Devices(devndx).op_to_node_datasource,expr,val,timedep)      
       end if
-      return
- 	end subroutine
-
-!fixme: these shouldn't be interms of height
-
-      real(8) function get_device_position(gndx, devndx)
-	use Gates, only: GateArray
-      implicit none
-	integer gndx, devndx
-      get_device_position=GateArray(gndx).Devices(devndx).position
-      return 
-      end function
-
-!fixme: these shouldn't be interms of height
-      subroutine set_device_position(gndx, devndx, val)
-	use Gates, only: GateArray
-      implicit none
-	integer gndx, devndx
-	real(8) val
-      GateArray(gndx).Devices(devndx).position=val
-      end subroutine
-
-      subroutine set_device_position_datasource(gndx, devndx, expr, val, timedep)
-	use Gates, only: GateArray
-      implicit none
-	integer gndx, devndx
-	integer expr
-	real*8 val
-	logical timedep
-	call set_datasource(
-     &    GateArray(gndx).Devices(devndx).pos_datasource,expr,val,timedep)
       return
  	end subroutine
 

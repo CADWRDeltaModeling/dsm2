@@ -28,16 +28,12 @@ c     Manages groups of DSM2 objects such as boundary flows, channels,...
       Implicit None
 
       include '../hydrolib/network.inc'
-                                ! Maximums for pre-dimensioned arrays
-      integer, parameter :: MAX_GROUPS=50 ! Max no. of group definitions
-      integer, parameter :: MAX_MEMBERS=2000 ! Max no. of members in one group,
-                                ! not including members that are groups
+      ! Maximums for pre-dimensioned arrays
+      integer, parameter :: MAX_GROUPS=200 ! Max no. of group definitions
 	integer, parameter :: MAX_MEMBER_PATTERNS=100
 	integer, parameter :: GROUP_ALL=0               ! group that contains everything
 	integer, parameter :: GROUP_ANY_TYPE=-9999        ! wildcard for group contents: matches any object type
 	integer, parameter :: GROUP_ANY_INDEX=-9998       ! wildcard for group contents: matches any object internal index number (no check it exists)
-      integer, parameter :: MAX_GROUP_PATTERNS=1000 ! Max no. of members of a group that are
-                                !groups themselves.  
       integer, save :: nGroup   ! Actual number of groups calc'd at run time
 
       type GroupMemberPattern
@@ -129,8 +125,9 @@ c-----Constants
       ntotal=norig+nnew
       if (nnew .eq. 0) return
 	allocate(newmembers(ntotal),STAT=alloc_stat)
-	newmembers(1:norig)=groupArray(grp).members(1:norig)
-
+	if(norig .gt. 0)then
+	    newmembers(1:norig)=groupArray(grp).members(1:norig)
+	end if
       do i=1, nnew
 	  newmembers(norig+i)=addmembers(ndx_new(i))
 	end do
@@ -293,7 +290,6 @@ c     matching the pattern string.
 	character*32 cstring
 	Type(GroupMember),allocatable :: newmembers(:) 
 	do i=1,ngroup
-	  
 	  do j=1,groupArray(i).nMemberPatterns
            cstring=groupArray(i).memberPatterns(j).pattern
 	     objtype=groupArray(i).memberPatterns(j).obj_type

@@ -42,7 +42,7 @@ C!</license>
       
       type nodeData
       sequence
-         integer type              ! type ( internal / external for now )
+         integer type         ! type ( internal / external for now )
          integer id           ! global index (unique)
          integer nwbs         ! number of waterbodies 
          integer wbs(max_wbs_per_node) ! waterbody indices ( unique mapping )

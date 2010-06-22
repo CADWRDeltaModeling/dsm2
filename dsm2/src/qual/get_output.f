@@ -22,7 +22,7 @@ C!</license>
 
 c-----Get the desired output variable from the particular DSM module
       Use io_units
-	Use groups, Only: groupArray
+      Use groups, Only: groupArray
       use common_tide
       use grid_data
       use iopath_data
@@ -94,8 +94,8 @@ c-----statement function to interpolate value along channel
 	      nx=2 !  fixme: the whole chan_geom(..).nxsect and .bottomelev is bogus and
 	      ! should be removed
             get_output=val_x(
-     &           ychan(qualchan,1)+chan_geom(object_no).bottomelev(1),
-     &           ychan(qualchan,2)+chan_geom(object_no).bottomelev(nx),
+     &           zchan(1,qualchan),
+     &           zchan(2,qualchan),
      &           dble(pathoutput(ptr).chan_dist),
      &           dble(chan_geom(object_no).length))
          else if (object .eq. obj_reservoir) then ! reservoir output
@@ -104,7 +104,7 @@ c-----statement function to interpolate value along channel
          endif
       elseif (pathoutput(ptr).meas_type .eq. 'flow') then
          if (object .eq. obj_channel) then
-            get_output=val_x(qchan(qualchan,1),qchan(qualchan,2),
+            get_output=val_x(qchan(1,qualchan),qchan(2,qualchan),
      &           dble(pathoutput(ptr).chan_dist),
      &           dble(chan_geom(object_no).length))
          else if (object .eq. obj_reservoir) then
@@ -202,6 +202,7 @@ c--------pick the last parcel concentration
       real*8 function node_qual(intnode,const_no)
       Use IO_Units
       use grid_data
+      use constants
 c-----Return the mixed quality at a node
 
       implicit none
@@ -209,10 +210,11 @@ c-----Return the mixed quality at a node
 c-----arguments
 
       integer
-     &     intnode              ! internal node number
+     &     intnode              ! node number including external nodes
       integer
      &     const_no             ! constituent number
-
+      integer
+     &     Nbranch              ! internal branch number 
 c-----common blocks
 
       include 'param.inc'
@@ -220,13 +222,16 @@ c-----common blocks
       include 'bltm2.inc'
       include 'bltm3.inc'
 
-      if (node_geom(intnode).qual_int) then   ! internal node (and already mixed)
-         node_qual=cj(const_no,intnode)
-      else                      ! external node
-         if (numup(intnode) .eq. 1) then ! upstream boundary node
-            node_qual=gpt(const_no,1,listup(intnode,1))
-         else if (numdown(intnode) .eq. 1) then ! downstream boundary node
-            node_qual=gpt(const_no,ns(listdown(intnode,1)), listdown(intnode,1))
+      if (node_geom(intnode).boundary_type .NE. stage_boundary) then  ! all nodes except stage BC nodes
+          node_qual=cj(const_no,intnode)
+      else    ! external node that has stage BC
+         if ((node_geom(intnode).nup .eq. 1).and.(node_geom(intnode).ndown .eq. 0)) then
+            Nbranch = node_geom(intnode).upstream(1)
+            node_qual=gpt(const_no,1,Nbranch)
+  
+         else if ((node_geom(intnode).nup .eq. 0).and.(node_geom(intnode).ndown .eq. 1)) then
+            Nbranch = node_geom(intnode).downstream(1) 
+            node_qual=gpt(const_no,NS(Nbranch),Nbranch)
          else
             write(unit_error, 610) node_geom(intnode).node_ID
  610        format(/'Error in node_qual, DSM2 node number ',i3)

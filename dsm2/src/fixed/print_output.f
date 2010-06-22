@@ -43,6 +43,7 @@ c-----Local variables
      &     istat                ! status of call (returned)
      &     ,i,j                 ! indices
      &     ,chan                ! channel numbers
+     &     ,objConnectedID_external_number  ! external number for either reservoir or channel
 
       character
      &     objtype*4,            ! string representing object type (reservoir, channel)
@@ -59,8 +60,8 @@ c-----copyright notices
       write(unit_screen, 805)
  805  format(/
      &     /'Delta Simulation Model 2: A river and estuary simulation model'
-     &     /'Copyright (C) 1996-2007 State of California,'
-     &     /'Department of Water Resources. '
+     &     /'Copyright (C) 1996-2009 State of California,'
+     &     /'Department of Water Resources.'
      &     /'Licensed under the GNU Public License.'
      &     )
 
@@ -161,14 +162,16 @@ c-----------upstream node
       do i=1,ngate
 	   if (gateArray(i).objConnectedType.eq.obj_channel) then
 	      objtype='CHAN'
+            objConnectedID_external_number = chan_geom(gateArray(i).objConnectedID).chan_no
 	   else if (gateArray(i).objConnectedType. eq. obj_reservoir) then
 	      objtype='RES '
+            objConnectedID_external_number = gateArray(i).objConnectedID
 	   end if
 	    
 	   if (gateArray(i).inUse) then
 	      write(unit_output,1160)
      &           gateArray(i).name,objtype
-     &          ,gateArray(i).objConnectedID
+     &          ,objConnectedID_external_number
      &          ,node_geom(gateArray(i).node).node_id
      &          ,gateArray(i).nDevice
  1160 format(a19,1x,a4,2x,i7,4x,i5,2x,i5,2x,i5)
@@ -181,26 +184,24 @@ c-----------upstream node
      &     8x,'------------'///
      &     8x,'(initial installations)    '//
      &     ,77x,                                       '#OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/
-     &     ' GATE',60x,                    'GATE        DUPLICATE  WIDTH OR   BASE               TO      FROM  '/
-     &     ' NAME(DEVICE)',40x, 'TYPE       CONTROL     DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/
-     &     '------------',41x,  '-----      -------     -----    ----------  -------  -------    ------  ---------')
+     &     ' GATE',60x,                    '        DUPLICATE  WIDTH OR   BASE               TO      FROM  '/
+     &     ' NAME(DEVICE)',40x, 'TYPE            DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/
+     &     '------------',41x,  '-----           -----    ----------  -------  -------    ------  ---------')
       do i=1, ngate	   
          do j=1,gateArray(i).nDevice
                call DeviceTypeString(scratch1,gateArray(i).Devices(j).structureType)
-               call ControlTypeString(scratch2,gateArray(i).Devices(j).controlType)
 c--------------Flow can occur through the gate
                write(unit_output,1220)
      &              gateArray(i).name,
-     &                '(' //trim(gateArray(i).devices(j).name) // ')',
+     &              trim(gateArray(i).devices(j).name),
      &              trim(scratch1),
-     &              trim(scratch2),
      &              gateArray(i).Devices(j).nDuplicate,
      &              gateArray(i).Devices(j).maxWidth,
      &              gateArray(i).Devices(j).baseElev,
      &              gateArray(i).Devices(j).height,
      &              gateArray(i).Devices(j).flowCoefToNode,
      &              gateArray(i).Devices(j).flowCoefFromNode
- 1220          format(a32,1x,a16,a8,2x,a16,1x,i4,2x,f13.2,1x,f9.2,1x,2f9.2,2f9.2)
+ 1220          format(a32,1x,'(',a16,')',2x,a16,1x,i4,2x,f13.2,1x,f9.2,1x,f9.3,2f9.3)
          end do
       enddo
 
@@ -208,25 +209,24 @@ c--------------Flow can occur through the gate
  1400 format(/////25x,'RESERVOIRS'/
      &     28x,'----------'//
      &     '                         6'/
-     &     '                       x10        (ft.)     (ft.)                Adjusted '/
-     &     '                      (Sqft)     Initial   Bottom            Flow Coefficient'/
-     &     ' Name                  Area       Stage     Elev.    Node   To Res.    To Chan'/
-     &     '-------              ---------   --------   ------- -----   ------------------ ')
+     &     '                       x10        (ft.)                Adjusted '/
+     &     '                      (Sqft)     Bottom            Flow Coefficient'/
+     &     ' Name                  Area       Elev.    Node   To Res.    To Chan'/
+     &     '-------              ---------    ------- -----   ------------------ ')
 C-----Franks Tract              141.17864   5.02     -10.1     72     2000.       2000.
 C-----1234567890123456789012345678901234567890123456789012345678901234567890'
 
       do i=1,nreser
          write(unit_output,1420)res_geom(i).name,
      &        res_geom(i).area,
-     &        res_geom(i).stage,
      &        res_geom(i).botelv,
      &        res_geom(i).node_no(1),
      &        res_geom(i).coeff2res(1),res_geom(i).coeff2chan(1)
- 1420    format(/a19,1x,f10.5,1x,f8.2,1x,f9.1,2x,i4,2x,f8.0,4x,f8.0,5x)
+ 1420    format(/a19,1x,f10.5,1x,f9.2,2x,i4,2x,f8.0,4x,f8.0,5x)
          do j=2,res_geom(i).nnodes
             write(unit_output,1440)res_geom(i).node_no(j),
      &           res_geom(i).coeff2res(j),res_geom(i).coeff2chan(j)
- 1440       format(51x,i4,2x,f8.0,4x,f8.0,5x)
+ 1440       format(42x,i4,2x,f8.0,4x,f8.0,5x)
          enddo
       enddo
 
@@ -266,13 +266,14 @@ c         call check_area
       WRITE(unit_output,1600)
  1600 format(////,45x,'INPUT PATHS'/
      &     45x,'-----------'///
-     &     'NAME',29x,'VARIABLE',6x,'FILE NAME',70x,'DSS PATH',50x
-     &     '---------------------------------------------------------------------------------------',
-     &     '   ---------------------------------------')
+     &     'NAME',28x,'VARIABLE',6x,'FILE NAME',70x,'DSS PATH'/
+     &     '---------------------------------------------------------------------------------------')
 
       do i=1,ninpaths
-         write(unit_output,1620)pathinput(i).name,pathinput(i).variable
-     &        ,pathinput(i).filename,pathinput(i).path
+         write(unit_output,1620)trim(pathinput(i).name),
+     &                          trim(pathinput(i).variable),
+     &                          trim(pathinput(i).filename),
+     &                          trim(pathinput(i).path)
  1620    format(a30,1x,a16,1x,a80,1x,a50)
       enddo
 

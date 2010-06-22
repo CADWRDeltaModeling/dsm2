@@ -55,14 +55,20 @@ C!</license>
       integer, external :: ext2int, ext2intnode
       integer, external :: loccarr       
       integer, external :: get_objnumber      
-
-            noutpaths=noutpaths+1
-            if (noutpaths .gt. max_outputpaths) then
+      call locase(name)
+      call locase(locname)    
+      call locase(sourcegroup)      
+      call locase(param)
+      call locase(perop)
+      call locase(interval)
+      
+      noutpaths=noutpaths+1
+      if (noutpaths .gt. max_outputpaths) then
                write(unit_error,630)
      &              'Too many pathoutput paths specified; max allowed is:'
      &              ,max_outputpaths
                call exit(-1)
-            endif
+      endif
 
             pathoutput(noutpaths).use=.true.
             pathoutput(noutpaths).name=Name

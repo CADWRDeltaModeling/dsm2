@@ -39,6 +39,7 @@ C!</license>
           call exit(-1)
           return
       endif
+      call locase(reser_name)
       res_geom(nreser).id=ID
       res_geom(nreser).inUse=.true.
       res_geom(nreser).name=trim(reser_name)
@@ -48,6 +49,29 @@ C!</license>
      &    write(unit_screen,'(i5,1x,a)')
      &         nreser,trim(res_geom(nreser).name)   
  630   format(/a,i5)
+      return
+      end subroutine
+      
+      subroutine alloc_reservoir_connections(alloc)
+      use grid_data
+      use common_tide
+      implicit none
+      logical :: alloc
+      integer i,j,iconnect
+      iconnect = 0
+      do i=1,nreser
+         do j=1,res_geom(i).nnodes
+            iconnect = iconnect + 1
+         end do
+      end do
+      nres_connect = iconnect
+      if (alloc .and. .not. allocated(qresv))then
+         allocate(qresv(nres_connect))
+         qresv = 0.
+      end if
+      if (.not. alloc)then
+         deallocate(qresv)
+      end if
       return
       end subroutine
       
@@ -69,6 +93,7 @@ C!</license>
       integer, external :: ext2intnode, name_to_objno
       real*8 rescon_incoef      !todo: change to real*8
       real*8 rescon_outcoef
+      call locase(resname)
       resno = name_to_objno(obj_reservoir,resname)
       res_geom(resno).nnodes=res_geom(resno).nnodes+1
 	if (res_geom(resno).nnodes .gt. MaxResConnectChannel) then
@@ -84,7 +109,8 @@ C!</license>
          ! todo fixme check that only gated or reservoir connection, not both
        res_geom(resno).node_no(nn)=ext2intnode(con_node)
        res_geom(resno).coeff2res(nn)=rescon_incoef
-       res_geom(resno).coeff2chan(nn)=rescon_outcoef     
+       res_geom(resno).coeff2chan(nn)=rescon_outcoef
+       nres_connect = nres_connect + 1     
        return
        end subroutine
       

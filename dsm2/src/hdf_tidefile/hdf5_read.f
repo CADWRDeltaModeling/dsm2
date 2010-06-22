@@ -22,9 +22,6 @@ C!</license>
 
 c**********contains routines for writing data to an HDF5 file
 
-*   Programmed by: Tawnly Pranger
-*   Date:          October 2003
-*   Revised:       Eli Ateljevich, October 2005
 
 ***********************************************************************
 ***********************************************************************
@@ -33,7 +30,9 @@ c**********contains routines for writing data to an HDF5 file
       subroutine ReadDataFromHDF5(tidetime)
       implicit none
 	integer tidetime
-	call SetHDF5ToTime(tidetime)
+	integer index
+	integer SetHDF5ToTime
+	index = SetHDF5ToTime(tidetime)
 	call LagStageVariables
       call ReadChannelDataFromHDF5()
       call ReadReservoirDataFromHDF5()
@@ -41,7 +40,7 @@ c**********contains routines for writing data to an HDF5 file
       call ReadTransferFlowFromHDF5()
       
       return
-      end
+      end subroutine
 
 ***********************************************************************
 ***********************************************************************
@@ -52,15 +51,12 @@ c**********contains routines for writing data to an HDF5 file
       use common_tide
       implicit none
       AChanPrev=Achan
-	YChanPrev=YChan
+	HChanPrev=HChan
       return
       end subroutine
 
 ***********************************************************************
 ***********************************************************************
-
-
-
 
       subroutine ReadChannelDataFromHDF5()
 
@@ -73,18 +69,26 @@ c**********contains routines for writing data to an HDF5 file
 
       integer(HSIZE_T), dimension(3) :: h_offset
       integer        :: error   ! HDF5 Error flag
-
+      integer :: ichan
       h_offset(1) = 0
       h_offset(2) = 0
       h_offset(3) = hdf5point
-
 
            ! Read channel z area
       call h5dget_space_f (chan_z_dset_id, chan_z_fspace_id, error)
       call h5sselect_hyperslab_f(chan_z_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, chan_z_fsubset_dims, error) 
-      call h5dread_f(chan_z_dset_id,H5T_NATIVE_REAL, YChan, chan_z_mdata_dims, 
+      call h5dread_f(chan_z_dset_id,H5T_NATIVE_REAL, HChan(:,1:nchans), chan_z_mdata_dims, 
      &     error, chan_z_memspace, chan_z_fspace_id)
+      
+      !do ichan=1,nchans
+      !   HChan(1,ichan)=ZChan(1,ichan)-chan_geom(ichan).bottomelev(1)
+      !   HChan(2,ichan)=ZChan(2,ichan)-chan_geom(ichan).bottomelev(2)
+      !end do
+      do ichan=1,nchans
+         ZChan(1,ichan)=HChan(1,ichan)+chan_geom(ichan).bottomelev(1)
+         ZChan(2,ichan)=HChan(2,ichan)+chan_geom(ichan).bottomelev(2)
+      end do
       call VerifyHDF5(error,"Channel stage read")
       call h5sclose_f (chan_z_fspace_id, error)  
       call VerifyHDF5(error,"Channel stage dataspace closed")
@@ -94,7 +98,7 @@ c**********contains routines for writing data to an HDF5 file
       call h5dget_space_f (chan_q_dset_id, chan_q_fspace_id, error)
       call h5sselect_hyperslab_f(chan_q_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, chan_q_fsubset_dims, error) 
-      call h5dread_f(chan_q_dset_id,H5T_NATIVE_REAL, QChan, chan_q_mdata_dims, 
+      call h5dread_f(chan_q_dset_id,H5T_NATIVE_REAL, QChan(:,1:nchans), chan_q_mdata_dims, 
      &     error, chan_q_memspace, chan_q_fspace_id)
       call VerifyHDF5(error,"Channel flow read")
       call h5sclose_f (chan_q_fspace_id, error)  
@@ -105,7 +109,7 @@ c**********contains routines for writing data to an HDF5 file
       call h5dget_space_f (chan_a_dset_id, chan_a_fspace_id, error)
       call h5sselect_hyperslab_f(chan_a_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, chan_a_fsubset_dims, error) 
-      call h5dread_f(chan_a_dset_id,H5T_NATIVE_REAL, AChan, chan_a_mdata_dims, 
+      call h5dread_f(chan_a_dset_id,H5T_NATIVE_REAL, AChan(:,1:nchans), chan_a_mdata_dims, 
      &     error, chan_a_memspace, chan_a_fspace_id)
       call VerifyHDF5(error,"Channel area read")
       call h5sclose_f (chan_a_fspace_id, error)
@@ -121,7 +125,7 @@ c**********contains routines for writing data to an HDF5 file
       call h5dget_space_f (chan_aa_dset_id, chan_aa_fspace_id, error)
       call h5sselect_hyperslab_f(chan_aa_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, chan_aa_fsubset_dims, error) 
-      call h5dread_f(chan_aa_dset_id,H5T_NATIVE_REAL, AChan_Avg, chan_aa_mdata_dims, 
+      call h5dread_f(chan_aa_dset_id,H5T_NATIVE_REAL, AChan_Avg(1:nchans), chan_aa_mdata_dims, 
      &     error, chan_aa_memspace, chan_aa_fspace_id)
       call VerifyHDF5(error,"Channel avg area read")
       call h5sclose_f (chan_aa_fspace_id, error)  
@@ -140,49 +144,60 @@ c**********contains routines for writing data to an HDF5 file
       use HDF5                  ! HDF5 This module contains all necessary modules 
       use hdfvars
       use inclvars
+      use grid_data
       use common_tide
       implicit none
 
       integer(HSIZE_T), dimension(3) :: h_offset
       integer        :: error   ! HDF5 Error flag
 
-      integer::i
+      integer:: i,j,kk
+      integer:: iconnect
 
            ! Creation of hyperslab
 c-----call h5dget_space_f(res_dset_id, res_fspace_id, error)
-      h_offset(1) = 0
-      h_offset(2) = hdf5point
-      h_offset(3) = 0
+      if (nreser .ne. 0)then
+          h_offset(1) = 0
+          h_offset(2) = hdf5point
+          h_offset(3) = 0
 
            ! Read Reservoir Height
-      call h5dget_space_f (res_h_dset_id, res_h_fspace_id, error)
-      call h5sselect_hyperslab_f(res_h_fspace_id, H5S_SELECT_SET_F, 
+          call h5dget_space_f (res_h_dset_id, res_h_fspace_id, error)
+          call h5sselect_hyperslab_f(res_h_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, res_h_fsubset_dims, error) 
-      call h5dread_f(res_h_dset_id,H5T_NATIVE_REAL, EResv, res_h_mdata_dims, 
+          call h5dread_f(res_h_dset_id,H5T_NATIVE_REAL, EResv, res_h_mdata_dims, 
      &     error, res_h_memspace, res_h_fspace_id)
-      call VerifyHDF5(error,"Reservoir height read")
-      call h5sclose_f (res_h_fspace_id, error)  
-      call VerifyHDF5(error,"Reservoir height dataspace closed")
+          call VerifyHDF5(error,"Reservoir height read")
+          call h5sclose_f (res_h_fspace_id, error)  
+          call VerifyHDF5(error,"Reservoir height dataspace closed")
 
-
-
-      h_offset(1) = 0
-      h_offset(2) = 0
-      h_offset(3) = hdf5point
+          h_offset(1) = 0
+          h_offset(2) = hdf5point
 
            ! Read Reservoir Flow
-      call h5dget_space_f (res_q_dset_id, res_q_fspace_id, error)
-      call h5sselect_hyperslab_f(res_q_fspace_id, H5S_SELECT_SET_F, 
+          call h5dget_space_f (res_q_dset_id, res_q_fspace_id, error)
+          call h5sselect_hyperslab_f(res_q_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, res_q_fsubset_dims, error)
-      call h5dread_f(res_q_dset_id,H5T_NATIVE_REAL, QResv, res_q_mdata_dims, 
+          call h5dread_f(res_q_dset_id,H5T_NATIVE_REAL, QResv, res_q_mdata_dims, 
      &     error, res_q_memspace, res_q_fspace_id)
-      call VerifyHDF5(error,"Reservoir flow read")
-      call h5sclose_f (res_q_fspace_id, error)  
-      call VerifyHDF5(error,"Reservoir flow dataspace closed")
+          call VerifyHDF5(error,"Reservoir flow read")
+          call h5sclose_f (res_q_fspace_id, error)  
+          call VerifyHDF5(error,"Reservoir flow dataspace closed")
 
-
+c--------assign flows and concentrations to objects
+c--------reservoirs
+         iconnect = 0
+         do j=1, nreser
+            do kk=1, res_geom(j).nnodes
+               iconnect = iconnect+1
+               qres(j,kk)=dble(qresv(iconnect))
+            enddo
+         enddo
+         
+          
+      end if    
       return
-      end
+      end subroutine
 
 ***********************************************************************
 ***********************************************************************
@@ -295,95 +310,38 @@ c-----call h5dget_space_f(res_dset_id, res_fspace_id, error)
       use qextvars
       use inclvars
       use grid_data
+      use common_tide
+      use dsm2_tidefile_input_storage_fortran
       implicit none
-
       integer ::   error        ! Error flag
-      integer(HSIZE_T), dimension(7) :: data_dims 
-      integer(HSIZE_T), dimension(7) :: h_data_dims 
-      integer(HSIZE_T), dimension(1) :: h_offset
-      integer(HID_T) :: filespace ! Dataspace identifier 
-      integer(HID_T) :: memspace ! memspace identifier 
-      integer     ::    rank = 1 ! Dataset rank
-
       integer::i
+      character*32 :: name
+      if (nqext .eq. 0) then
+         ! don't try to read
+         return
+      endif
+                                !! TODO Add nqext as an attribute  !! done in init??
+      call qext_clear_buffer()
+      call qext_read_buffer_from_hdf5(geom_id,error)
+      call VerifyHDF5(error,"Read qext attributes from buffer")
+      !nqext=qext_buffer_size() 
+      !todo This causes a weird memory bug
+      call qext_number_rows_hdf5(geom_id, nqext,error)
+      call VerifyHDF5(error,"Query size of qext in hdf5")
 
-      data_dims(1) = max_qext
-      h_data_dims(1) = 1
+      call qext_read_buffer_from_hdf5(geom_id,error)
+      do i = 1,nqext
+        call qext_query_from_buffer(i,
+     &                             name,
+     &                             qext(i).attach_obj_name,
+     &                             qext(i).attach_obj_type,
+     &                             qext(i).attach_obj_no,
+     &                             error)
+      
+        qext(i).name = trim(name)
 
-                                !! TODO Add nqext as an attribute
-
-      call h5dopen_f(geom_id, "qext", qext_dset_id, error)
-
-      do i = 1,max_qext
-
-         h_offset(1) = i - 1
-         call h5dget_space_f(qext_dset_id, filespace, error)
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, 
-     &        h_offset, h_data_dims, error) 
-         call h5screate_simple_f(rank, h_data_dims, memspace, error)
-
-                                ! Select Hyperslab 
-         call h5dread_f(qext_dset_id, q_name_tid, qext(i).name, 
-     &                data_dims, error,xfer_prp = qext_plist_id, 
-     &                mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_flow_tid, 
-     &                  qext(i).flow, data_dims, error, 
-     &                  xfer_prp = qext_plist_id, 
-     &                  mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_prev_flow_tid, 
-     &                  qext(i).prev_flow, data_dims, error, 
-     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
-     &                  file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_avg_tid, qext(i).avg, 
-     &                  data_dims, error, xfer_prp = qext_plist_id, 
-     &                  mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_prev_flow_tid, 
-     &                  qext(i).prev_avg, data_dims, error, 
-     &                  xfer_prp = qext_plist_id, 
-     &                  mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_dsrc_type_tid, 
-     &                  qext(i).datasource.source_type, data_dims, error, 
-     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
-     &                  file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_dsrc_idx_tid, 
-     &                  qext(i).datasource.indx_ptr, data_dims, error, 
-     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
-     &                  file_space_id=filespace)
-
-c         todo: URGENT this line breaks hdf5 1.8.3
-c         call h5dread_f(qext_dset_id, q_dsrc_val_tid, 
-c     &                  qext(i).datasource.value, 
-c     &                  data_dims, error, xfer_prp = qext_plist_id, 
-c     &                   mem_space_id=memspace,file_space_id=filespace)
-     
-         call h5dread_f(qext_dset_id, q_chng_idx_tid, qext(i).changed_ndx, 
-     &                  data_dims, error, xfer_prp = qext_plist_id, 
-     &                  mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_obj_name_tid, qext(i).obj_name, 
-     &                  data_dims, error,xfer_prp = qext_plist_id,  
-     &                  mem_space_id=memspace, file_space_id=filespace)
-
-         call h5dread_f(qext_dset_id, q_attach_id_tid, qext(i).attach_obj_type, 
-     &                  data_dims, error, xfer_prp = qext_plist_id, 
-     &                  mem_space_id=memspace, file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_name_tid,
-     &                  qext(i).attach_obj_name, data_dims, error, 
-     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
-     &                  file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_attach_num_tid, qext(i).attach_obj_no,
-     &                  data_dims, error, 
-     &                  xfer_prp = qext_plist_id, mem_space_id=memspace,
-     &                  file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_grp_idx_tid, qext(i).group_ndx, 
-     &                  data_dims, error, 
-     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
-     &                  file_space_id=filespace)
-         call h5dread_f(qext_dset_id, q_mass_frac_tid, 
-     &                  qext(i).mass_frac, data_dims, error,
-     &                  xfer_prp = qext_plist_id, mem_space_id=memspace, 
-     &                  file_space_id=filespace)
       end do
-
+      call qext_clear_buffer()
 
       return
       END

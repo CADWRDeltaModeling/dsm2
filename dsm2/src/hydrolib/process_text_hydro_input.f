@@ -55,7 +55,6 @@
       character*(32) name
       character*80 inpath
       character*8  fillin
-      integer      sign
 
       integer :: ierror = 0
       nitem = oprule_time_series_buffer_size()
@@ -67,11 +66,10 @@
      &                                        inpath,
      &                                        ierror)
 
-          sign=0 ! currently hardwired
+
           call process_input_oprule(name,
      &                              filename,
      &                              inpath,
-     &                              sign,
      &                              fillin)
       end do
       print *,"Number of oprule time series processed: ", nitem

@@ -25,133 +25,12 @@ c      utility functions Jon 4/12/06
       module rate_coeff_assignment
       use common_qual
       implicit none
-
-	integer, parameter :: MAX_RATE_ASSIGNS_SIZE = 400 ! int for th size of assigment struct array
-      integer,save:: struct_index !iterating index for assignment struct arrary
       logical,dimension(max_constituent,ncoef_type),save:: rate_var_require_flag 
-
-      type rate_coeff
-	  integer group_index
-	  integer rate_variable_index
-	  integer ncc_index
-	  real*8  rate_value
-      end type
-      type(rate_coeff), allocatable,save::rate_assign(:)
-
 
       contains
 
-	subroutine allocate_assign_s(isat)
-     	integer,intent(inout)::isat
-	isat=0
-	if (not(allocated(rate_assign))) then
-           allocate(rate_assign(MAX_RATE_ASSIGNS_SIZE),STAT=isat)
-	     struct_index=1
-	end if
-      end subroutine
-
-
-      subroutine deallocate_assign_s(isat)
-      use constants
-      implicit none
-      
-     	integer,intent(inout)::isat
-     	isat=0
-      if (allocated(rate_assign)) then
-           deallocate(rate_assign,STAT=isat)
-	     struct_index=miss_val_i
-	end if
-	end subroutine
-
-           
-      subroutine assign_rate_to_group(groupid,rate_var_id,ncc_id,rate_value,isat,errm)
-
-      integer,intent(inout)::isat !error code
-	integer,intent(in)::groupid,rate_var_id,ncc_id
-	real*8,intent(in)::rate_value
-	character*(*),intent(out)::errm !error message
-
-      
-	isat=0
-	errm=""
-      if (not(allocated(rate_assign))) then
-     	 call allocate_assign_s(isat)
-	 if (isat.ne.0) then
-	    errm="error in allocate memory for  rate coefficent assignment struct arrary!"
-	    return
-	 end if 
- 	end if
-	
-	if (allocated(rate_assign).and.(struct_index.gt.0)) then
-	    if (struct_index.gt.MAX_RATE_ASSIGNS_SIZE) then
-             isat=MAX_RATE_ASSIGNS_SIZE
-	       errm="rate coefficent assignment struct arrary is too small, increase MAX_RATE_ASSIGNS_SIZE!"
-             return
-	    end if
-          rate_assign(struct_index).group_index=groupid
-	    rate_assign(struct_index).rate_variable_index=rate_var_id
-	    rate_assign(struct_index).ncc_index=ncc_id
-	    rate_assign(struct_index).rate_value=rate_value
-          struct_index=struct_index+1
-	end if
-	  
-
-
-	end subroutine
-
-c     this sub will give the value saved in tempory assign arrary to formarry
-c      rcoef_chan,rcoef_res if corresponding channel and reservoir are contained in
-c     groups, if assignment finished ok, the struct will be deleted
-
-	subroutine rate_coeffs_to_waterbodies(isat,errm)
-      use IO_Units
-      use Groups, only: groupArray, groupContains
-      use constants
-      integer,intent(inout)::isat !error code
-	character*(*),intent(out)::errm !error message
-
-c     local variables
-      integer i,j,groupno,rate_var_id,ncc_id
-	real*8 rate_value
-      character*(16) ncc_name_constituent, ncc_name_variable
-      
-	isat=0
-	errm=""
-	do 100 i=1,struct_index-1
-        groupno=rate_assign(i).group_index
-    	  rate_var_id=rate_assign(i).rate_variable_index
-	  ncc_id=rate_assign(i).ncc_index
-	  rate_value=rate_assign(i).rate_value
-	  do 200 j=1,nchans 
-		  if (groupContains(groupno,obj_channel,j)) then
-                if ( rcoef_chan(ncc_id,rate_var_id,j) .eq. miss_val_r) then 
-			        rcoef_chan(ncc_id,rate_var_id,j)=rate_value
-                else
-                    call ncc_code_to_name(ncc_id, ncc_name_constituent)
-                    call rate_variable_code_to_name(rate_var_id, ncc_name_variable)
-                    write(unit_error,*) "rate coefficient of: ",  trim(ncc_name_variable), 
-     &                                  " for constituent: ",      trim(ncc_name_constituent),                              
-     &                                  " is assigned more than once to Channel #", chan_geom(j).chan_no, 
-     &                                  " in group: ", trim(groupArray(groupno).name)
-                    call exit(-1)
-                end if
-		  end if
-200      end do
-            
-	do 300 j = 1, nreser
-            if(GroupContains(groupno,obj_reservoir,j)) then
-                  rcoef_res(ncc_id,rate_var_id,j)=rate_value
-		   end if
-300   end do
-100	end do
-      call deallocate_assign_s(isat)
-      if (isat.ne.0) then
-	    errm="error in deallocate memory for rate coefficent assignment struct arrary!"
-	end if 
-	end subroutine
-
  
-c     output the rate coefficents values to a file ,if there are missiong value
+c     output the rate coefficents values to a file ,if there are missing values
 c     at certain location, error message will be print out also
 
       subroutine output_rate_to_file(funit)
@@ -182,7 +61,7 @@ c      output reservoirs first
      	      do 902 i=1,max_constituent
               if (rate_var_require_flag (i,j)) then
                if(rcoef_res(i,j,k).eq.miss_val_r) then
-	            write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" "
+	            write(funit,4000) trim(name)//" missing ",trim(constituent_name(i))//" "
      &            ,trim(rate_name(j))//" coefficient value "           
 	         else
                   write(funit,3000) trim(name), trim(constituent_name(i)),trim(rate_name(j)),rcoef_res(i,j,k)*HOUR_TO_DAY
@@ -244,7 +123,8 @@ c      check reservoirs first
                if(rcoef_res(i,j,k).eq.miss_val_r) then
                   call objno_to_name(obj_reservoir,k,name)
 	            write(funit,*) "fatal error:"
-	            write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" "
+	            write(funit,4000) trim(name)//" missing ",
+     &            trim(constituent_name(i))//" "
      &            ,trim(rate_name(j))//" coefficient value "
 	            check_rate_for_waterbody=.false.
 	            return           

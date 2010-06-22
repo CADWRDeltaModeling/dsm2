@@ -45,7 +45,7 @@ c-----arguments
       integer
      &     first_used_tidefile  ! first used tidefile number (INPUT)
      &     ,tidefile_ndx    ! current tidefile number (INPUT)
-
+      integer :: iconnect
 
 c-----local variables
       integer
@@ -81,15 +81,16 @@ c-----smoothing is needed if a new tidefile is read
          enddo
       endif
 
-      if (.true.) then
-c--------assign flows and concentrations to objects
-c--------reservoirs
-         do k=1, maxresnodes
-            do j=1, max_reservoirs
-               qres(j,k)=qresv(j,k)
+c--------assign flows to reservoirs. Couldn't do this before
+c        in ReadReservoirData because of anothe variable called qres
+c        fixme: this is incredibly confusing
+         iconnect = 0
+         do j=1, nreser
+            do k=1, res_geom(j).nnodes
+               iconnect = iconnect+1
+               qres(j,k)=dble(qresv(iconnect))
             enddo
          enddo
-      endif                     ! end new tide
 
       if (smoothing_needed) then
          IF(MASS_TRACKING)THEN

@@ -32,7 +32,7 @@ gatedeviceSQL=\
 """
 SELECT gate.name, gate_device.name, gate_structure_description.name, 
 nduplicate, max_width, base_elev, height, 
-flow_coef_to_node, flow_coef_from_node, 
+flow_coef_from_node, flow_coef_to_node, 
 gate_default_op_description.name, gate_control_type_description.name
 FROM gate_device, gate, gate_structure_description, gate_control_type_description, gate_default_op_description 
 WHERE gate.gate_id=gate_device.gate_id 

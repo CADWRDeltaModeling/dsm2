@@ -101,7 +101,7 @@ c-----Right now this is for rectangular x-sects only.  Later will generalize.
       end type
 
 c      MaxResConnectChannel must be consistent with maxresnodes
-      integer, parameter ::  maxresnodes=15  ! Maximum reservoir connections to channels/nodes
+      integer, parameter ::  maxresnodes=50  ! Maximum reservoir connections to channels/nodes
 
       type reservoir_t
       sequence
@@ -111,6 +111,7 @@ c      MaxResConnectChannel must be consistent with maxresnodes
          real*8 :: stage = 0.D0          ! stage elevation
          real*8 :: coeff2res(maxresnodes) = 0.D0  ! to reservoir flow coefficient to node
          real*8 :: coeff2chan(maxresnodes) = 0.D0 ! to channel flow coefficient to node
+         real*4 :: dummy_for_alignment
          integer*4 :: id = miss_val_i             ! RDB ID number !todo: needed?
          logical*4 :: inUse = .false.             ! true to use this reservoir
          logical*4 :: isNodeGated(maxresnodes) = .false. ! flag that a node is gated
@@ -118,6 +119,8 @@ c      MaxResConnectChannel must be consistent with maxresnodes
          integer*4 :: nnodes = 0      ! total nodes connected to this reservoir, whether by
                                       ! reservoir connections or gates
          integer*4 :: node_no(maxresnodes) = 0    ! (internal) connecting node number
+         integer*4 :: first_connect_index  ! index of this reservoir, connection 1 
+                                           ! in list of all connections (starting from res 1, connect 1)
          integer*4 :: qinternal(max_qobj) = 0 ! index of internal flows at reservoir, miss_val_i will break code
          integer*4 :: qext(max_qobj) = 0 ! index of external flows at reservoir
       end type
@@ -293,13 +296,13 @@ c-----external flows
          integer :: attach_obj_type
          integer :: attach_obj_no
          !eli changed from real*4 next 5
-         real*4 :: flow            ! external flow value for this timestep
-         real*4 :: prev_flow       ! external flow value for previous timestep
-         real*4 :: avg             ! external flow value averaged over tideblock time interval
-         real*4 :: prev_avg        ! previous avg
-         real*4 :: mass_frac = 1.D0 ! fraction of mass this flow takes
-         integer :: changed_ndx = 0    ! index of nqext_ndx of changed flows
-         integer :: group_ndx = 0     ! index to group
+         real*4 :: flow = 0.D0            ! external flow value for this timestep
+         real*4 :: prev_flow = 0.D0       ! external flow value for previous timestep
+         real*4 :: avg = 0.D0             ! external flow value averaged over tideblock time interval
+         real*4 :: prev_avg = 0.D0        ! previous avg
+         real*4 :: mass_frac = 1.D0       ! fraction of mass this flow takes
+         integer :: changed_ndx = 0       ! index of nqext_ndx of changed flows
+         integer :: group_ndx = 0         ! index to group
          character*4 :: dummy  ! for alignment
       end type
 

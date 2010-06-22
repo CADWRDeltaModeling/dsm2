@@ -108,7 +108,6 @@ c======================== Input and output ======================
 
          call process_input_climate(name,
      &                              variable,
-     &                              sign,
      &                              fillin,
      &                              filename,
      &                              inpath)
@@ -227,4 +226,8 @@ c======================== Input and output ======================
      &   "Output name: ", name,
      &   "Channel: ",channo, ", " , "Distance: " , distance
       call exit(-3)
+      return
       end subroutine
+      
+      
+      

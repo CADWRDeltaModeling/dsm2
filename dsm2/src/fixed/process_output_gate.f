@@ -38,7 +38,7 @@ C!</license>
      &     FileName*128
      &     ,Name*32
      &     ,Param*16
-     &     ,Interval*32
+     &     ,Interval*16
      &     ,PerOp*8
      &     ,LocName*32
      &     ,SubLoc*32           ! Object-dependent sublocation (gate device, reservoir node connect..)
@@ -58,6 +58,15 @@ C!</license>
 
 
 !========================================================     
+
+      call locase(name)
+      call locase(locname)      
+      call locase(subloc)      
+      call locase(param)
+      call locase(perop)
+      call locase(interval)
+
+
             noutpaths=noutpaths+1
             if (noutpaths .gt. max_outputpaths) then
                write(unit_error,630)
@@ -84,12 +93,14 @@ c-----------find object number given object ID
             devNo=deviceIndex(gateArray(gateNo),subLoc)   
             pathoutput(noutpaths).gate_device=devNo
 	      device_required=.true.
-            if (trim(Param) .eq. 'pos') then
+            if (trim(Param) .eq. 'position') then
 			   write(unit_error, *) 
-     &         "Warning: 'pos' output is deprecated. Substituting op_to_node in output: " // name
-	          Param='op-to-node'
-            else if (trim(Param) .eq. 'position') then
-	         Param='position'
+     &         "Warning: 'pos' and 'position' output is deprecated. Substituting op_to_node in output: " // name
+                call exit(-3)
+            else if (trim(Param) .eq. 'pos') then
+			   write(unit_error, *) 
+     &         "Warning: 'pos' and 'position' output is deprecated. Substituting op_to_node in output: " // name
+                call exit(-3)
             else if (trim(Param) .eq. 'op-to-node' .or. 
      &	       trim(Param) .eq. 'op_to_node') then
 	         Param='op-to-node'

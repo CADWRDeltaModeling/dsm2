@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{2E1DD6A8-84AD-4E6C-9E58-9BA6FF9940A6}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Debug;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" SourceFileFormat="fileFormatFixed" FixedFormLineLength="fixedLength132" WarnUnusedVariables="true" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/hydrolib.lib" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
+		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/hydrolib.lib" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
+		<Configuration Name="DLL|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)/../modules/DLL" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" RuntimeLibrary="rtMultiThreadedDLL" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/hydrolib.lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files">
+		<File RelativePath="..\..\src\hydrolib\chcnstrt.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chconnec.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chcxrec1.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chcxrec2.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chcxtbl.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chinitcd.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chnlcomp.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chnluser.inc"/>
+		<File RelativePath="..\..\src\hydrolib\chstatus.inc"/></Filter>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\src\hydrolib\boundary.f"/>
+		<File RelativePath="..\..\src\hydrolib\channel_constraints.f"/>
+		<File RelativePath="..\..\src\hydrolib\channel_schematic.f"/>
+		<File RelativePath="..\..\src\hydrolib\channel_status.f"/>
+		<File RelativePath="..\..\src\hydrolib\channel_xsect_tbl.f"/>
+		<File RelativePath="..\..\src\hydrolib\fileutil.f"/>
+		<File RelativePath="..\..\src\hydrolib\floweq1d.f"/>
+		<File RelativePath="..\..\src\hydrolib\gate_calc.f"/>
+		<File RelativePath="..\..\src\hydrolib\get_output.f"/>
+		<File RelativePath="..\..\src\hydrolib\linear.f"/>
+		<File RelativePath="..\..\src\hydrolib\netblnce.f"/>
+		<File RelativePath="..\..\src\hydrolib\netcntr1.f"/>
+		<File RelativePath="..\..\src\hydrolib\netdense.f"/>
+		<File RelativePath="..\..\src\hydrolib\process_text_hydro_input.f"/>
+		<File RelativePath="..\..\src\hydrolib\process_tide.f"/>
+		<File RelativePath="..\..\src\hydrolib\reservoirs.f"/>
+		<File RelativePath="..\..\src\hydrolib\solvealloc.f"/>
+		<File RelativePath="..\..\src\hydrolib\solver_diagnostics.f"/>
+		<File RelativePath="..\..\src\hydrolib\solvesparse.f"/>
+		<File RelativePath="..\..\src\hydrolib\solveutil.f"/>
+		<File RelativePath="..\..\src\hydrolib\tidefile.f"/>
+		<File RelativePath="..\..\src\hydrolib\update_network.f"/>
+		<File RelativePath="..\..\src\hydrolib\virtual_xsect.f"/></Filter></Files>
+	<Globals/></VisualStudioProject>

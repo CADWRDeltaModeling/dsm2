@@ -102,15 +102,15 @@
 	integer(HID_T) :: res_h_memspace  = 0 ! memspace identifier for height
 	integer(HID_T) :: res_q_memspace  = 0 ! memspace identifier for flow
 	integer,parameter :: res_h_fdata_rank = 2 ! time by nres
-	integer,parameter :: res_q_fdata_rank = 3 ! time by nres by nconnect
+	integer,parameter :: res_q_fdata_rank = 2 ! time by nres_connect
 	integer,parameter :: res_h_mdata_rank = 1  ! values for one time step for just height
-	integer,parameter :: res_q_mdata_rank = 2  ! values for one time step for flow (qres(i,j))
+	integer,parameter :: res_q_mdata_rank = 1  ! values for one time step for flow (qres(i,j))
 	integer(HSIZE_T), dimension(res_h_fdata_rank) :: res_h_fdata_dims = (/0,0/) !fixme
-	integer(HSIZE_T), dimension(res_q_fdata_rank) :: res_q_fdata_dims = (/0,0,0/) !fixme
+	integer(HSIZE_T), dimension(res_q_fdata_rank) :: res_q_fdata_dims = (/0,0/) !fixme
 	integer(HSIZE_T), dimension(res_h_fdata_rank) :: res_h_fsubset_dims = (/0,0/) !fixme
-	integer(HSIZE_T), dimension(res_q_fdata_rank) :: res_q_fsubset_dims = (/0,0,0/) !fixme
+	integer(HSIZE_T), dimension(res_q_fdata_rank) :: res_q_fsubset_dims = (/0,0/) !fixme
 	integer(HSIZE_T), dimension(res_h_mdata_rank) :: res_h_mdata_dims = (/0/)
-	integer(HSIZE_T), dimension(res_q_mdata_rank) :: res_q_mdata_dims = (/0,0/)
+	integer(HSIZE_T), dimension(res_q_mdata_rank) :: res_q_mdata_dims = (/0/)
 
 
 	integer(HID_T) :: qext_change_dset_id ! QExt change Dataset identifier 

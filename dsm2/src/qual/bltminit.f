@@ -210,7 +210,8 @@ C     read common input
       JGO=400
       JPO=48
       IENG=1
-      DQV=0.
+       
+      DQV=1.d-3
 
       DT=dble(TIME_STEP)/60.
 
@@ -232,7 +233,7 @@ c         call exit(2)
 	            ! do not intialize pseuedo constituents
 	            cres(i,l)=init_conc
 	         else
-	            cres(i,l)=0.
+	            cres(i,l)=0.d0
 	         end if
                !CRES(I,L)=INIT_CONC
             ENDDO
@@ -243,21 +244,17 @@ c         call exit(2)
       call read_mult_tide
       CALL INTERPX
 
-
       DO 120 N=1,NBRCH
          NXSEC(N)=2
          IPPR(N)=8
 
 C--------Fixme: Line Below assumes rectangular prismatic channel
 
-
-
-
          NN=INT2EXT(N)
          XLENGTH=CHAN_GEOM(N).LENGTH
          XNO=CHAN_GEOM(N).XSECT(1)
 c         B(N)=XSECT_GEOM(XNO).WIDTH
-	   B(N)=0.5*(AChan(N,1)/YChan(N,1) + AChan(N,2)/YChan(N,2))
+	   B(N)=0.5*(AChan(1,N)/HChan(1,N) + AChan(2,N)/HChan(2,N))
 
  991     FORMAT(I5,2X,2I5)
 C--------Figure out the largest junction id#

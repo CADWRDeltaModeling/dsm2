@@ -53,6 +53,7 @@ C!</license>
       integer
      &     max_reservoirs       ! maximum number of reservoirs
      &     ,nreser              ! actual number of reservoirs
+     &     ,nres_connect        ! total number of reservoir connections across all reservoirs
 
       parameter (
      &     max_reservoirs=100

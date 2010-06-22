@@ -37,10 +37,10 @@ c**********contains routines for writing data to an HDF5 file
       use grid_data
       use common_tide
       use IFPORT
+      use dsm2_tidefile_input_storage_fortran
 
       implicit none
 
-      integer(HID_T) :: attr_id ! Attribute identifier
       integer(HID_T) :: aspace_id ! Attribute Dataspace identifier
       integer(HID_T) :: atype_id ! Attribute Dataspace identifier
       integer(HSIZE_T), dimension(1) :: adims = (/1/) ! Attribute dimension
@@ -48,43 +48,18 @@ c**********contains routines for writing data to an HDF5 file
       integer     :: error      ! HDF5 Error flag
       integer(HSIZE_T), dimension(1) :: a_data_dims
       real(kind=4), dimension(MaxChannels) :: bottom_el1,bottom_el2
-      real(kind=4), dimension(max_nodes) :: inodeidx,enodeidx
-      real(kind=4), dimension(max_reservoirs) :: iresidx,eresidx
-      integer :: i,j
+      integer :: i
       integer calcHDF5NumberOfTimeIntervals
 
       integer(HID_T) :: in_dspace_id ! Dataspace identifier
       integer     ::    in_rank = 1 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: in_data_dims
-c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
 
       integer(HID_T) :: cg_dspace_id ! Dataspace identifier
       integer     ::    cg_rank = 2 ! Dataset rank
       integer(HSIZE_T), dimension(7) :: cg_data_dims
 
-      integer(HID_T) :: ng_dspace_id ! Dataspace identifier
-      integer     ::    ng_rank = 2 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: ng_data_dims
-      integer, dimension(max_nodes) :: node_obj
-
-      integer(HID_T) :: rg_dspace_id ! Dataspace identifier
-      integer     ::    rg_rank = 2 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: rg_data_dims
-      integer, dimension(max_reservoirs) :: res_obj
-
-      integer(HID_T) :: bname_dspace_id ! Dataspace identifier
-      integer(HID_T) :: bnode_dspace_id ! Dataspace identifier
-      integer     ::    boundary_rank = 1 ! Dataset rank
-      integer(HSIZE_T), dimension(7) :: bname_data_dims
-      integer(HSIZE_T), dimension(7) :: bnode_data_dims
-      character*32, dimension(max_stgbnd) :: bname_obj
-      integer, dimension(max_stgbnd) :: bnode_obj
-      integer(SIZE_T) :: typesize
-      integer(HID_T) :: dtc32_id ! Memory datatype identifier
-
       integer(HID_T) :: cparms  !dataset creatation property identifier
       integer(HSIZE_T), dimension(2) :: h_offset
-      integer(HID_T) :: filespace ! Dataspace identifier
       integer(HID_T) :: memspace ! memspace identifier
 
       integer, parameter :: label_len = 12
@@ -93,13 +68,8 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
      &                                    = (/"upstream","downstream"/)
       character(LEN=name_len),dimension(:), allocatable :: names
 
-
-      integer :: tempstart,tempend,nlen
-
       integer,dimension(1) :: hdf5_dummy_integer
       integer(SIZE_T) :: hdf5_int_size
-
-      character*64 :: fdate_trim, svn_build_trim
 
       integer cdt2jmin
       EXTERNAL cdt2jmin
@@ -107,25 +77,22 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       a_data_dims(1) = 1
       hdf5_int_size = 1
 
-      
                                 ! Creating attributes for HDF5
       call h5screate_simple_f(arank, adims, aspace_id, error)
 
       call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, error)
 
-      fdate_trim = trim(fdate())
       call h5ltset_attribute_string_f(hydro_id,".", 
-     &           "Created date",
-     &           fdate_trim(1:len_trim(fdate_trim)), error)  ! declared additional variable to prevent trailing symbols in hdf5
+     &           "Creation date",
+     &           trim(fdate())//char(0), error)
 
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Hydro Version",
-     &           'Hydro Version ' // trim(dsm2_version), error)
+     &           trim(dsm2_version)//char(0), error)
 
-      svn_build_trim = trim(svn_build)
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Subversion",
-     &           svn_build_trim(1:len_trim(svn_build_trim)), error)  ! declared additional variable to prevent trailing symbols in hdf5
+     &           trim(svn_build)//char(0), error)
 
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Start time string",
@@ -141,12 +108,6 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       call h5ltset_attribute_int_f(hydro_id,".", 
      &           "Maximum number of channels",
      &           hdf5_dummy_integer, hdf5_int_size, error)
-
-
-!      call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
-!      call h5acreate_f(hydro_id, "Maximum number of reservoirs",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, MaxNres, a_data_dims, error)
 
 
       hdf5_dummy_integer =  Nreser
@@ -180,67 +141,10 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
      &           hdf5_dummy_integer, hdf5_int_size, error)
 
 
-
-
-
-
-!      nlen = len('Hydro Version ' // trim(dsm2_version))
-!      call h5tset_size_f(atype_id, nlen, error)
-!      call h5acreate_f(hydro_id, "Hydro Version",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, 'Hydro Version ' // trim(dsm2_version),
-!     &     a_data_dims, error)
-
-!      nlen = len(tf_start_date)
-!      call h5tset_size_f(atype_id, nlen, error)
-!      call h5acreate_f(hydro_id, "Start time string",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, tf_start_date, a_data_dims, error)
-!	call h5tclose_f(atype_id,error)
-
-!      call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
-!      call h5acreate_f(hydro_id, "Maximum number of reservoirs",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, MaxNres, a_data_dims, error)
-
-!      call h5acreate_f(hydro_id, "Maximum number of channels",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, MaxChannels, a_data_dims, error)
-!
-!      call h5acreate_f(hydro_id, "Number of reservoirs",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, Nreser, a_data_dims, error)
-!
-!      call h5acreate_f(hydro_id, "Number of channels",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, nchans, a_data_dims, error)
-!
-!      call h5acreate_f(hydro_id, "Number of stage boundaries",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, nstgbnd, a_data_dims, error)
-!
-!      call h5acreate_f(hydro_id, "Start time",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, tf_start_julmin, a_data_dims, error)
-!
-!      call h5acreate_f(hydro_id, "Time interval",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, TideFileWriteInterval,
-!     &                a_data_dims, error)
-!
-!      call h5acreate_f(hydro_id, "Number of intervals",
-!     &     atype_id, aspace_id, attr_id, error)
-!      call h5awrite_f(attr_id, atype_id, calcHDF5NumberOfTimeIntervals(), 
-!     &                a_data_dims, error)
-
-
-      !call h5tclose_f(atype_id,error)
-
                  ! Write out channel geometry
       call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
 
-
-      in_dims(1) = MaxChannels
+      in_dims(1) = nchans
       ! Write out external channel numbers int2ext
       call h5screate_simple_f(in_rank, in_dims, in_dspace_id, error)
       call h5dcreate_f(geom_id, "channel_number", H5T_NATIVE_INTEGER,
@@ -256,51 +160,51 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
      &                        chan_location,label_len,2)
       
 	! Write reservoir names
-	in_dims(1)=max_reservoirs
-      allocate(names(max_reservoirs))
+	in_dims(1)=max(1,nreser)
+      allocate(names(max(1,nreser)))
 	names=' '
-	do i=1,max_reservoirs
+	do i=1,max(1,nreser)
 	   names(i)=res_geom(i).name 
       end do
 	call Write1DStringArray(geom_id,"reservoir_names",names,
-     &                      name_len,max_reservoirs)
+     &                      name_len,max(1,nreser))
       deallocate(names)     
 
 
 	! Write transfer names
-	in_dims(1)=max_obj2obj
-      allocate(names(max_obj2obj))
+	in_dims(1)=max(1,nobj2obj)
+      allocate(names(max(1,nobj2obj)))
 	names=' '
-	do i=1,max_obj2obj
+	do i=1,max(1,nobj2obj)
 	   names(i)=obj2obj(i).name 
       end do
 	call Write1DStringArray(geom_id,"transfer_names",names,
-     &                      name_len,max_obj2obj)
+     &                      name_len,max(1,nobj2obj))
       deallocate(names) 
 
 
       ! Write external flow names
-	in_dims(1)=max_qext
-      allocate(names(max_qext))
+	in_dims(1)=max(1,nqext)
+      allocate(names(max(1,nqext)))
 	names=' '
-	do i=1,max_qext
+	do i=1,max(1,nqext)
 	   names(i)=qext(i).name 
       end do
 	call Write1DStringArray(geom_id,"external_flow_names",names,
-     &                      name_len,max_qext)
+     &                      name_len,max(1,nqext))
       deallocate(names) 
 
 
 
       ! Write out bottom_el
-      cg_dims(1) = MaxChannels
+      cg_dims(1) = nchans
       cg_dims(2) = 2            ! bottom_el:2
       cg_data_dims(1) = cg_dims(1)
       cg_data_dims(2) =  1
       call h5screate_simple_f(cg_rank, cg_dims, cg_dspace_id, error)
-      call h5dcreate_f(geom_id, "channel geometry", H5T_NATIVE_REAL,
+      call h5dcreate_f(geom_id, "channel_bottom", H5T_NATIVE_REAL,
      &     cg_dspace_id, cg_dset_id, error, cparms)
-      Do i = 1,MaxChannels
+      Do i = 1,nchans
          bottom_el1(i) = chan_geom(i).bottomelev(1)
          bottom_el2(i) = chan_geom(i).bottomelev(2)
       end do
@@ -318,137 +222,295 @@ c      integer(HSIZE_T), dimension(1) :: in_dims = (/0/) ! Dataset dimensions
       call h5dwrite_f(cg_dset_id,H5T_NATIVE_REAL, bottom_el2, cg_data_dims,
      &     error, mem_space_id=memspace, file_space_id=cg_dspace_id)
 
-                                ! Write out node geometry
-      call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
 
-      ng_dims(1) = max_nodes
-      ng_dims(2) = max_qobj * 2
-
-      call h5screate_simple_f(ng_rank, ng_dims, ng_dspace_id, error)
-      call h5dcreate_f(geom_id, "node geometry", H5T_NATIVE_INTEGER,
-     &     ng_dspace_id, ng_dset_id, error, cparms)
-
-      ng_data_dims(1) = ng_dims(1)
-      ng_data_dims(2) = 1
-
-                                ! Creation of hyperslab
-
-      h_offset(1) = 0
-
-                                ! Write out node_geom.qint
-      do i = 1,max_qobj
-         do j = 1,max_nodes
-            node_obj(j) = node_geom(j).qinternal(i)
-         end do
-         h_offset(2) = i - 1
-         call h5dget_space_f(ng_dset_id, filespace, error)
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
-     &        h_offset, ng_data_dims, error)
-         call h5screate_simple_f(ng_rank, ng_data_dims, memspace, error)
-         call h5dwrite_f(ng_dset_id,H5T_NATIVE_INTEGER, node_obj, ng_data_dims,
-     &        error, mem_space_id=memspace, file_space_id=filespace)
-         call h5sclose_f (filespace, error)
-      end do
-                                ! Write out node_geom.qext
-      do i = 1,max_qobj
-         do j = 1,max_nodes
-            node_obj(j) = node_geom(j).qext(i)
-         end do
-         h_offset(2) = max_qobj + i - 1
-         call h5dget_space_f(ng_dset_id, filespace, error)
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
-     &        h_offset, ng_data_dims, error)
-         call h5screate_simple_f(ng_rank, ng_data_dims, memspace, error)
-         call h5dwrite_f(ng_dset_id,H5T_NATIVE_INTEGER, node_obj, ng_data_dims,
-     &        error, mem_space_id=memspace, file_space_id=filespace)
-         call h5sclose_f (filespace, error)
-      end do
-
-                                ! Write out reservoir geometry
-      call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
-
-      rg_dims(1) = max_reservoirs
-      rg_dims(2) = max_qobj * 2
-
-      call h5screate_simple_f(rg_rank, rg_dims, rg_dspace_id, error)
-      call h5dcreate_f(geom_id, "reservoir geometry", H5T_NATIVE_INTEGER,
-     &     rg_dspace_id, rg_dset_id, error, cparms)
-
-      rg_data_dims(1) = rg_dims(1)
-      rg_data_dims(2) = 1
-
-                                ! Creation of hyperslab
-      call h5dget_space_f(rg_dset_id, filespace, error)
-      h_offset(1) = 0
-
-                                ! Write out res_geom.qint
-      do i = 1,max_qobj
-         do j = 1,max_reservoirs
-            res_obj(j) = res_geom(j).qinternal(i)
-         end do
-         call h5dget_space_f(rg_dset_id, filespace, error)
-         h_offset(2) = i - 1
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
-     &        h_offset, rg_data_dims, error)
-         call h5screate_simple_f(rg_rank, rg_data_dims, memspace, error)
-         call h5dwrite_f(rg_dset_id,H5T_NATIVE_INTEGER, res_obj, rg_data_dims,
-     &        error, mem_space_id=memspace, file_space_id=filespace)
-         call h5sclose_f (filespace, error)
-      end do
-                                ! Write out res_geom.qext
-      do i = 1,max_qobj
-         do j = 1,max_reservoirs
-            res_obj(j) = res_geom(j).qext(i)
-         end do
-         call h5dget_space_f(rg_dset_id, filespace, error)
-         h_offset(2) = max_qobj + i - 1
-         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F,
-     &        h_offset, rg_data_dims, error)
-         call h5screate_simple_f(rg_rank, rg_data_dims, memspace, error)
-         call h5dwrite_f(rg_dset_id,H5T_NATIVE_INTEGER, res_obj, rg_data_dims,
-     &        error, mem_space_id=memspace, file_space_id=filespace)
-         call h5sclose_f (filespace, error)
-      end do
-
-      call InitObj2ObjType()
-      if (nobj2obj .gt. 0) then
-         call WriteObj2ObjAttribute()
-      endif
-
-      call InitQExtType()
+      call WriteReservoirFlowConnectionsHDF5
+      call WriteNodeFlowConnectionsHDF5
       call WriteQExt()
+      call WriteStageBoundariesHDF5
+      call WriteReservoirNodeConnectionsHDF5
+      call WriteComputationPointsHDF5
+ 7856 continue
+      return
+      end subroutine
 
-                                ! Write out Stage Boundaries
-      call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
 
-      bname_dims(1) = max_stgbnd
-      bnode_dims(1) = max_stgbnd
 
-      call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc32_id, error)
-      typesize = 32
-      call h5tset_size_f(dtc32_id, typesize, error)
+***********************************************************************
+***********************************************************************
 
-      call h5screate_simple_f(boundary_rank, bname_dims, bname_dspace_id, error)
-      call h5dcreate_f(geom_id, "stage boundary names", dtc32_id,
-     &     bname_dspace_id, bname_dset_id, error, cparms)
-      call h5screate_simple_f(boundary_rank, bnode_dims, bnode_dspace_id, error)
-      call h5dcreate_f(geom_id, "stage boundary nodes", H5T_NATIVE_INTEGER,
-     &     bnode_dspace_id, bnode_dset_id, error, cparms)
+      subroutine WriteQExt()
+      use dsm2_tidefile_input_storage_fortran
+      use HDF5
+      use hdfvars
+      use qextvars
+      use inclvars
+      use grid_data
 
-      bname_data_dims(1) = bname_dims(1)
-      bnode_data_dims(1) = bnode_dims(1)
+      implicit none
 
-      do i = 1,max_stgbnd
-         bname_obj(i) = stgbnd(i).name
-         bnode_obj(i) = stgbnd(i).node
+      integer ::   error        ! Error flag
+      integer::i
+      if (nqext .eq. 0) then
+         return
+      endif
+      call qext_clear_buffer()
+      do i = 1,nqext
+        call qext_append_to_buffer(qext(i).name,
+     &                             qext(i).attach_obj_name,
+     &                             qext(i).attach_obj_type,
+     &                             qext(i).attach_obj_no,error)
       end do
+      call qext_write_buffer_to_hdf5(geom_id,error)
+      call qext_clear_buffer()
+      return
+      end subroutine
 
-      call h5screate_simple_f(boundary_rank, bname_data_dims, memspace, error)
-      call h5dwrite_f(bname_dset_id,dtc32_id, bname_obj, bname_data_dims, error)
-      call h5screate_simple_f(boundary_rank, bnode_data_dims, memspace, error)
-      call h5dwrite_f(bnode_dset_id,H5T_NATIVE_INTEGER, bnode_obj, bnode_data_dims, error)
+
+
+***********************************************************************
+***********************************************************************
+
+      subroutine WriteStageBoundariesHDF5()
+      use dsm2_tidefile_input_storage_fortran
+      use HDF5
+      use hdfvars
+      use qextvars
+      use inclvars
+      use grid_data
+
+      implicit none
+
+      integer ::   error        ! Error flag
+      integer::i
+      if (nstgbnd .eq. 0) then
+         return
+      endif
+      call stage_boundaries_clear_buffer()
+      do i = 1,nstgbnd
+        call stage_boundaries_append_to_buffer(stgbnd(i).name,
+     &                                         stgbnd(i).node,
+     &                                         node_geom(stgbnd(i).node).node_id,
+     &                                         error)
+      end do
+      if(nstgbnd .gt. 0)call stage_boundaries_write_buffer_to_hdf5(geom_id,error)
+      call stage_boundaries_clear_buffer()
+      return
+      end subroutine
+
+
+
+***********************************************************************
+***********************************************************************
+
+      subroutine WriteComputationPointsHDF5
+      use dsm2_tidefile_input_storage_fortran
+      use hdfvars
+      use grid_data
+      implicit none
+      INCLUDE '../hydrolib/network.inc'
+      INCLUDE '../hydrolib/chnlcomp.inc'
+      integer ::   error        ! Error flag
+      integer:: ichan, icomp
+      integer :: up,down
+      call hydro_comp_point_clear_buffer()
+      do ichan = 1,nchans
+         up=UpCompPointer(ichan)
+         down=DownCompPointer(ichan)
+         do icomp = up,down
+            call hydro_comp_point_append_to_buffer(
+     &          icomp,ichan,CompLocation(icomp),error)
+         end do
+      end do
+      call hydro_comp_point_write_buffer_to_hdf5(geom_id,error)
+      call VerifyHDF5(error,"Computation point write")
+      call hydro_comp_point_clear_buffer()
+      return
+      end subroutine
+
+
+
+
+***********************************************************************
+***********************************************************************
+
+      subroutine WriteReservoirNodeConnectionsHDF5
+      use dsm2_tidefile_input_storage_fortran
+      use hdfvars
+      use h5lt
+      use hdf5
+      use grid_data
+      implicit none
+      INCLUDE '../hydrolib/network.inc'
+      INCLUDE '../hydrolib/chnlcomp.inc'
+      integer ::   error = 0       ! Error flag
+      integer:: ires, inode
+      integer :: icount
+      integer:: scalar = 1
+      character*8 :: node_type = " "
+      character*32 :: resname = " "
+      integer,dimension(1) :: hdf_dummy_integer
+
+
+      call reservoir_node_connect_clear_buffer()
+      icount = 0
+      do ires = 1,nreser
+         do inode = 1,res_geom(ires).nnodes
+             if(res_geom(ires).isNodeGated(inode))then
+                 node_type = " "
+                 node_type = "gate"
+             else
+                 node_type = " "
+                 node_type = "node"
+             end if
+             icount = icount + 1
+             resname = " "
+             resname = res_geom(ires).name
+             
+             call reservoir_node_connect_append_to_buffer(
+     &          icount,
+     &          resname,
+     &          ires,
+     &          inode,
+     &          res_geom(ires).node_no(inode),
+     &          node_geom(res_geom(ires).node_no(inode)).node_id,
+     &          node_type,
+     &          error)
+         end do
+      end do
+      hdf_dummy_integer = icount
+      call h5ltset_attribute_int_f(hydro_id,".", 
+     &           "Number of reservoir node connects",
+     &           hdf_dummy_integer, scalar, error)
+
+
+      if (icount .gt. 0) call reservoir_node_connect_write_buffer_to_hdf5(geom_id,error)
+      call VerifyHDF5(error,"Reservoir node connections write")
+      call reservoir_node_connect_clear_buffer()
+      return
+      end subroutine
+
+
+***********************************************************************
+***********************************************************************
+
+
+
+      subroutine WriteNodeFlowConnectionsHDF5
+      use dsm2_tidefile_input_storage_fortran
+      use hdfvars
+      use h5lt
+      use hdf5
+      use grid_data
+      implicit none
+      character(len=8) connect_type       
+      integer :: icount,inode,iflow
+      integer :: error
+      integer:: scalar = 1
+      integer,dimension(1) :: hdf_dummy_integer
+
+
+      connect_type="qext"
+      icount = 0
+      do inode = 1,nnodes
+          iflow=1
+          do while(node_geom(inode).qext(iflow) .gt. 0)
+              icount = icount + 1
+              call node_flow_connections_append_to_buffer(icount,
+     &                                                    inode,
+     &                                                    node_geom(inode).node_id,iflow,
+     &                                                    node_geom(inode).qext(iflow),
+     &                                                    qext(node_geom(inode).qext(iflow)).name,     
+     &                                                    connect_type,
+     &                                                    error)
+              iflow = iflow + 1
+          end do
+      end do
+      connect_type = "transfer"
+      do inode = 1,nnodes
+          iflow=1
+          do while(node_geom(inode).qinternal(iflow) .gt. 0)
+              icount = icount + 1
+              call node_flow_connections_append_to_buffer(icount,
+     &                                                    inode,
+     &                                                    node_geom(inode).node_id,iflow,
+     &                                                    node_geom(inode).qinternal(iflow),
+     &                                                    obj2obj(node_geom(inode).qinternal(iflow)).name,
+     &                                                    connect_type,
+     &                                                    error)
+          iflow = iflow + 1
+          end do
+      end do
+      if (icount .gt. 0) call node_flow_connections_write_buffer_to_hdf5(geom_id, error)          
+      hdf_dummy_integer = icount
+      call h5ltset_attribute_int_f(hydro_id,".", 
+     &           "Number of node flow connects",
+     &           hdf_dummy_integer, scalar, error)
 
       return
-      end
+      end subroutine
+
+***********************************************************************
+***********************************************************************
+
+
+      subroutine WriteReservoirFlowConnectionsHDF5
+      use dsm2_tidefile_input_storage_fortran
+      use hdfvars
+      use h5lt
+      use grid_data
+      implicit none
+      character(len=8) connect_type       
+      integer :: icount,inode,iflow
+      integer :: error
+      integer:: scalar = 1
+      integer,dimension(1) :: hdf_dummy_integer
+
+      connect_type="qext"
+      icount = 0
+      do inode = 1,nreser
+          iflow=1
+          do while(res_geom(inode).qext(iflow) .gt. 0)
+              icount = icount + 1
+              call reservoir_flow_connections_append_to_buffer(icount,
+     &                                                    res_geom(inode).name,
+     &                                                    inode,
+     &                                                    iflow,
+     &                                                    res_geom(inode).qext(iflow),
+     &                                                    qext(res_geom(inode).qext(iflow)).name,     
+     &                                                    connect_type,
+     &                                                    error)
+              iflow = iflow + 1
+          end do
+      end do
+      connect_type = "transfer"
+      do inode = 1,nreser
+          iflow=1
+          do while(res_geom(inode).qinternal(iflow) .gt. 0)
+              icount = icount + 1
+              call reservoir_flow_connections_append_to_buffer(icount,     
+     &                                                    res_geom(inode).name,
+     &                                                    inode,iflow,     
+     &                                                    res_geom(inode).qinternal(iflow),
+     &                                                    obj2obj(res_geom(inode).qinternal(iflow)).name,
+     &                                                    connect_type,
+     &                                                    error)
+          iflow = iflow + 1
+          end do
+      end do
+      if (icount .gt. 0) call reservoir_flow_connections_write_buffer_to_hdf5(geom_id, error)          
+      hdf_dummy_integer = icount
+      call h5ltset_attribute_int_f(hydro_id,".", 
+     &           "Number of reservoir flow connects",
+     &           hdf_dummy_integer, scalar, error)
+
+      return 
+      end subroutine
+      
+      
+
+
+
+
+
 
 

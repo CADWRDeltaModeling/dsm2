@@ -83,7 +83,7 @@ c**********contains routines for writing data to an HDF5 file
 	call h5dopen_f(data_id, "reservoir flow", res_q_dset_id, error)
 	call VerifyHDF5(error,"Reservoir flow dataset open")
 
-	call h5dopen_f(data_id, "qext changed", qext_change_dset_id, error)
+	call h5dopen_f(data_id, "qext flow", qext_change_dset_id, error)
 	call VerifyHDF5(error,"Qext dataset open")
 
 	call h5dopen_f(data_id, "transfer flow", transfer_dset_id, error)
@@ -103,7 +103,6 @@ c**********contains routines for writing data to an HDF5 file
 	use inclvars
 	use IO_Units
 	use logging
-	use common_tide
 	use runtime_data
 
 	implicit none
@@ -163,13 +162,12 @@ c**********contains routines for writing data to an HDF5 file
 
 				! initialize attributes and datasets
 	call hdf5_write_attributes()
-	call InitHDF5MemoryDims()
-	call InitChannelsHDF5()
-	call InitReservoirsHDF5()
-	call InitTransferHDF5()
-	call InitQExtChangeHDF5()
+	call InitHDF5MemoryDims
+	call InitChannelsHDF5
+	call InitReservoirsHDF5
+	call InitTransferHDF5
+	call InitQExtChangeHDF5
       call attach_hydro_dimscales(file_id);
-
       ! Calculate starting index for reading/writing
 	h5_time_start = tf_start_julmin
 	hdf5point = getHDF5IndexForTideTime(tf_start_julmin)
@@ -283,56 +281,57 @@ c-------involved in reading/writing time-varying model data
 	use hdfvars
 	use inclvars
 	use grid_data
+	use common_tide  ! todo: this is only to allocate qresv
 	implicit none
 	integer error
 	integer getHDF5NumberOfTimeIntervals
       
-
+       call alloc_reservoir_connections(.true.)
       !@todo: This is done everytime read_tide_head is called:
 	!       1. This is twice (which is bad) and 2. No need to do this more than once
 	!       Prefer we fix this with better program structure, not "if (firsttime)"
 
 c-------Channel stage(io for channels is one variable at at time)
-	chan_z_fdata_dims(1) = MaxChannels
-	chan_z_fdata_dims(2) = 2	! QChan:2,YChan:2,AChan:2,AChan_Avg:1
+	chan_z_fdata_dims(1) = 2
+	chan_z_fdata_dims(2) = nchans	! QChan:2,YChan:2,AChan:2,AChan_Avg:1
 	chan_z_fdata_dims(3) = getHDF5NumberOfTimeIntervals()
 
 	chan_z_fsubset_dims(1) = chan_z_fdata_dims(1) ! Number of channels
-	chan_z_fsubset_dims(2) = 2
+	chan_z_fsubset_dims(2) = chan_z_fdata_dims(2)
 	chan_z_fsubset_dims(3) = 1 ! One step
 
-	chan_z_mdata_dims(1) = MaxChannels
-	chan_z_mdata_dims(2) = 2
+	chan_z_mdata_dims(1) = 2
+	chan_z_mdata_dims(2) = nchans
 
 	call H5Screate_simple_f(chan_z_mdata_rank,
      &                        chan_z_mdata_dims,chan_z_memspace,error)
 
 c-------Channel flow (io for channels is one variable at at time)
-	chan_q_fdata_dims(1) = MaxChannels 
-	chan_q_fdata_dims(2) = 2	! QChan:2,YChan:2,AChan:2,AChan_Avg:1
+	chan_q_fdata_dims(1) = 2
+	chan_q_fdata_dims(2) = nchans	! QChan:2,YChan:2,AChan:2,AChan_Avg:1
 	chan_q_fdata_dims(3) = getHDF5NumberOfTimeIntervals()
 
 	chan_q_fsubset_dims(1) = chan_q_fdata_dims(1) ! Number of channels
-	chan_q_fsubset_dims(2) = 2 ! one variable
+	chan_q_fsubset_dims(2) = chan_q_fdata_dims(2) ! one variable
 	chan_q_fsubset_dims(3) = 1 ! One step
 
-	chan_q_mdata_dims(1) = MaxChannels
-	chan_q_mdata_dims(2) = 2
+	chan_q_mdata_dims(1) = 2
+	chan_q_mdata_dims(2) = nchans
 
 	call H5Screate_simple_f(chan_q_mdata_rank,
      &                        chan_q_mdata_dims,chan_q_memspace,error)
 
 c-------Channel area
-	chan_a_fdata_dims(1) = MaxChannels
-	chan_a_fdata_dims(2) = 2
+	chan_a_fdata_dims(1) = 2
+	chan_a_fdata_dims(2) = nchans
 	chan_a_fdata_dims(3) = getHDF5NumberOfTimeIntervals()
 
 	chan_a_fsubset_dims(1) = chan_a_fdata_dims(1) ! Number of channels
-	chan_a_fsubset_dims(2) = 2
+	chan_a_fsubset_dims(2) = chan_a_fdata_dims(2)
 	chan_a_fsubset_dims(3) = 1 ! One step
 
-	chan_a_mdata_dims(1) = MaxChannels
-	chan_a_mdata_dims(2) = 2
+	chan_a_mdata_dims(1) = chan_a_fdata_dims(1)
+	chan_a_mdata_dims(2) = chan_a_fdata_dims(2)
 
 	call H5Screate_simple_f(chan_a_mdata_rank,
      &                        chan_a_mdata_dims,chan_a_memspace,error)
@@ -340,13 +339,13 @@ c-------Channel area
 
 
 c-------Channel avg area(io for channels is one variable at at time)
-	chan_aa_fdata_dims(1) = MaxChannels
+	chan_aa_fdata_dims(1) = nchans
 	chan_aa_fdata_dims(2) = getHDF5NumberOfTimeIntervals() 
 
 	chan_aa_fsubset_dims(1) = chan_aa_fdata_dims(1) ! Number of channels
 	chan_aa_fsubset_dims(2) = 1 ! One step
 
-	chan_aa_mdata_dims(1) = MaxChannels
+	chan_aa_mdata_dims(1) = nchans
 	call H5Screate_simple_f(chan_aa_mdata_rank,
      &                        chan_aa_mdata_dims,chan_aa_memspace,error); 
 
@@ -356,41 +355,38 @@ c-------Channel avg area(io for channels is one variable at at time)
 
 c-------Reservoir
 
-	res_h_fdata_dims(1) = MaxNRes
+	res_h_fdata_dims(1) = max(1,nreser)
 	res_h_fdata_dims(2) = getHDF5NumberOfTimeIntervals()
 
+      ! todo: gotta be a better place to do this
+	res_q_fdata_dims(1) = max(1,nres_connect)
+	res_q_fdata_dims(2) = getHDF5NumberOfTimeIntervals()
+	
+	res_h_fsubset_dims(1) = res_h_fdata_dims(1)
+	res_h_fsubset_dims(2) = 1
 
-	res_q_fdata_dims(1) = MaxNRes
-	res_q_fdata_dims(2) = Maxresnodes ! Variabless EResv:1,QResv:Maxresnodes
-	res_q_fdata_dims(3) = getHDF5NumberOfTimeIntervals()
-
-	res_h_fsubset_dims(1) = MaxNRes
-	res_h_fsubset_dims(2) = 1 ! Variabless EResv:1,QResv:Maxresnodes
-
-	res_q_fsubset_dims(1) = MaxNRes ! Variables EResv:1,QResv:Maxresnodes
-	res_q_fsubset_dims(2) = MaxResNodes
-	res_q_fsubset_dims(3) = 1
+	res_q_fsubset_dims(1) = res_q_fdata_dims(1)
+	res_q_fsubset_dims(2) = 1
 
 
-	res_h_mdata_dims(1) = MaxNRes
+	res_h_mdata_dims(1) = max(1,NReser)
 	call H5Screate_simple_f(res_h_mdata_rank,
      &                        res_h_mdata_dims,res_h_memspace,error);   
 
-	res_q_mdata_dims(1) = MaxNRes
-	res_q_mdata_dims(2) = maxresnodes
+	res_q_mdata_dims(1) = max(1,nres_connect)
 	call H5Screate_simple_f(res_q_mdata_rank,res_q_mdata_dims,res_q_memspace,error);   
 
 c-------Qext
 
-	qext_fdata_dims(1) = max(1,nqext) !nqext
+	qext_fdata_dims(1) = max(1,nqext)
 	qext_fdata_dims(2) = getHDF5NumberOfTimeIntervals() 
-	qext_fsubset_dims(1) = max(1,nqext) !nqext
+	qext_fsubset_dims(1) = qext_fdata_dims(1)
 	qext_fsubset_dims(2) = 1
 	
 
-	qext_mdata_dims(1) = max(1,nqext)
+	qext_mdata_dims(1) = qext_fdata_dims(1)
 	call H5Screate_simple_f(qext_mdata_rank,qext_mdata_dims,qext_memspace,error); 
-
+      call VerifyHDF5(error,"qext dataspace")
 c-------Transfer (obj2obj)
 	transfer_fdata_dims(1) = max(1,nobj2obj) !nqext
 	transfer_fdata_dims(2) = getHDF5NumberOfTimeIntervals()
@@ -398,10 +394,10 @@ c-------Transfer (obj2obj)
 	transfer_fsubset_dims(1) = transfer_fdata_dims(1)
 	transfer_fsubset_dims(2) = 1
 
-	transfer_mdata_dims(1) = max(1,nobj2obj)
+	transfer_mdata_dims(1) = transfer_fdata_dims(1)
 	call H5Screate_simple_f(transfer_mdata_rank,
      &                        transfer_mdata_dims,transfer_memspace,error);
-
+      call VerifyHDF5(error,"transfer dataspace")
 	return
 	end subroutine
 
@@ -416,7 +412,7 @@ c-------involved in reading/writing time-varying model data
 	use hdfvars
 	implicit none
 	integer error
-
+      call alloc_reservoir_connections(.false.)
 	call H5Sclose_f(chan_z_memspace, error)
 	call H5Sclose_f(chan_q_memspace, error)
 	call H5Sclose_f(chan_aa_memspace, error)
@@ -425,7 +421,7 @@ c-------involved in reading/writing time-varying model data
 	call H5Sclose_f(res_q_memspace, error)
 	call H5Sclose_f(qext_memspace, error)
 	call H5Sclose_f(transfer_memspace, error)
-
+      call alloc_reservoir_connections(.false.)
 	return
 	end subroutine
 
@@ -458,7 +454,7 @@ c-------involved in reading/writing time-varying model data
       character*19,external ::  jmin2iso  ! format function
 
       call h5screate_simple_f(arank, a_dims, aspace_id, error)
-
+      call VerifyHDF5(error,"time series attributes dataspace")
       call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, error)
 	buffer = 'TIMESERIES'
 	nlen = len_trim(buffer)
@@ -527,8 +523,6 @@ c-------involved in reading/writing time-varying model data
 
 	implicit none
 
-	integer(HID_T) :: cf_dspace_id ! Dataspace identifier
-	integer     ::    cf_rank = 3 ! Dataset rank
 	integer(HSIZE_T), dimension(3) :: chan_z_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(3) :: chan_q_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(3) :: chan_a_chunk_dims = 0 ! Dataset dimensions
@@ -654,7 +648,6 @@ c-------involved in reading/writing time-varying model data
 
 	implicit none
 
-	integer(HID_T) :: res_dspace_id ! Dataspace identifier
 	integer(HID_T) :: cparms !dataset creation property identifier 
 	integer        :: error	! HDF5 Error flag
 	integer(HSIZE_T), dimension(res_q_fdata_rank) :: 
@@ -685,8 +678,7 @@ c-------Create the datasets
 
 
 	res_q_chunk_dims(1) = res_q_fdata_dims(1) 
-	res_q_chunk_dims(2) = res_q_fdata_dims(2)
-	res_q_chunk_dims(3) = min(TIME_CHUNK,res_q_fdata_dims(3))
+	res_q_chunk_dims(2) = min(TIME_CHUNK,res_q_fdata_dims(2))
 
 
 				! Add chunking and compression
@@ -747,6 +739,7 @@ c-------Create the datasets
 	
 	call h5screate_simple_f(transfer_fdata_rank, transfer_fdata_dims, 
      &       transfer_fspace_id, error)
+      call VerifyHDF5(error,"transfer dataspace")
 	call h5dcreate_f(data_id, "transfer flow", H5T_NATIVE_REAL,
      &       transfer_fspace_id, transfer_dset_id, error, cparms)
 	call VerifyHDF5(error,"Flow transfer dataset creation")
@@ -805,7 +798,7 @@ c-------Create the datasets
 
 
 	call h5screate_simple_f(qext_fdata_rank, qext_fdata_dims, qext_fspace_id, error)
-	call h5dcreate_f(data_id, "qext changed", H5T_NATIVE_REAL,
+	call h5dcreate_f(data_id, "qext flow", H5T_NATIVE_REAL,
 	1    qext_fspace_id, qext_change_dset_id, error, cparms)
       call AddTimeSeriesAttributes(qext_change_dset_id)
 
@@ -822,408 +815,6 @@ c-------Create the datasets
 
 	return
 	end subroutine
-
-***********************************************************************
-***********************************************************************
-
-	subroutine InitObj2ObjType()
-
-	use HDF5
-	use hdfvars
-	use objvars
-	use inclvars
-	use grid_data
-
-	implicit none
-
-	integer(HID_T) :: dspace_id ! Dataspace identifier
-	integer(HID_T) :: dtc10_id ! Memory datatype identifier 
-	integer(HID_T) :: dtc32_id ! Memory datatype identifier 
-
-	integer(HSIZE_T), dimension(1) :: dims ! Dataset dimensions
-	integer ::   rank = 1	! Dataset rank
-	integer ::   error	! Error flag
-	integer(SIZE_T) :: typesize
-	integer(SIZE_T)     ::   oset ! Member's offset
-
-				! Create Object Type
-
-				!dims(1) = nobj2obj
-	dims(1) = max_obj2obj
-
-	call h5pcreate_f(H5P_DATASET_XFER_F, obj_plist_id, error)
-	call h5pset_preserve_f(obj_plist_id, .true., error)
-
-	call h5screate_simple_f(rank, dims, dspace_id, error)
-	
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc10_id, error)
-	typesize = 10
-	call h5tset_size_f(dtc10_id, typesize, error)
-	call h5tget_size_f(dtc10_id, type_sizec10, error)
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc32_id, error)
-	typesize = 32
-	call h5tset_size_f(dtc32_id, typesize, error)
-	call h5tget_size_f(dtc32_id, type_sizec32, error)
-	call h5tget_size_f(H5T_NATIVE_INTEGER, type_sizei, error)
-	call h5tget_size_f(H5T_NATIVE_REAL, type_sizer, error)
-	type_size = loc(obj2obj(2)) - loc(obj2obj(1))
-c-------print*,"Obj2Obj type size (1): ", type_size
-	type_size = (2 * type_sizec10) + (4 * type_sizec32) + (10 * type_sizei) + ((9 + max_constituent) * type_sizer)
-	call h5tcreate_f(H5T_COMPOUND_F, type_size, obj2obj_type_id, error)
-c-------print*,"Obj2Obj type size: (2)", type_size
-	oset = 0
-	call h5tinsert_f(obj2obj_type_id, "name",           oset, dtc32_id, error)
-	oset = oset + type_sizec32 
-	call h5tinsert_f(obj2obj_type_id, "from_id",        oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "from_name",      oset, dtc32_id, error)
-	oset = oset + type_sizec32
-	call h5tinsert_f(obj2obj_type_id, "from_number",    oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "from_hydrochan", oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "from_acctname",  oset, dtc10_id, error)
-	oset = oset + type_sizec10
-	call h5tinsert_f(obj2obj_type_id, "from_acctidx",   oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "from_massfract", oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "from_coeff",     oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "to_id",          oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "to_name",        oset, dtc32_id, error)
-	oset = oset + type_sizec32
-	call h5tinsert_f(obj2obj_type_id, "to_number",      oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "to_hydrochan",   oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "to_acctname",    oset, dtc10_id, error)
-	oset = oset + type_sizec10
-	call h5tinsert_f(obj2obj_type_id, "to_acctidx",     oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "to_massfract",   oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "to_coeff",       oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "constantval",    oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "datasrc_type",   oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "datasrc_index",  oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(obj2obj_type_id, "datasrc_value",  oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "current_flow",   oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "previous_flow",  oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "average_flow",   oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(obj2obj_type_id, "concentrations", oset, H5T_NATIVE_REAL, error)
-				! Concentrations needs to be extended as an array !!TODO
-	
-	call h5dcreate_f(geom_id, "obj2obj", obj2obj_type_id, dspace_id, obj2obj_dset_id, error)
-
-	call InitObj2ObjType2()
-
-	return
-	end subroutine
-
-***********************************************************************
-***********************************************************************
-
-	subroutine InitObj2ObjType2()
-
-	use HDF5
-	use hdfvars
-	use objvars
-	use inclvars
-	use grid_data
-
-	implicit none
-
-	integer(HID_T) :: dspace_id ! Dataspace identifier
-	integer(HID_T) :: dtc10_id ! Memory datatype identifier 
-	integer(HID_T) :: dtc32_id ! Memory datatype identifier 
-
-	integer(HSIZE_T), dimension(1) :: dims ! Dataset dimensions
-	integer ::   rank = 1	! Dataset rank
-	integer ::   error	! Error flag
-	integer(SIZE_T) :: typesize
-	integer(SIZE_T)     ::   oset ! Member's offset
-
-				! Create Object Type
-
-				!dims(1) = nobj2obj
-	dims(1) = max_obj2obj
-	
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc10_id, error)
-	typesize = 10
-	call h5tset_size_f(dtc10_id, typesize, error)
-	call h5tget_size_f(dtc10_id, type_sizec10, error)
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc32_id, error)
-	typesize = 32
-	call h5tset_size_f(dtc32_id, typesize, error)
-	call h5tget_size_f(dtc32_id, type_sizec32, error)
-	call h5tget_size_f(H5T_NATIVE_INTEGER, type_sizei, error)
-	call h5tget_size_f(H5T_NATIVE_REAL, type_sizer, error)
-	type_size = (2 * type_sizec10) + (4 * type_sizec32) + (10 * type_sizei) + ((9 + max_constituent) * type_sizer)
-	call h5tcreate_f(H5T_COMPOUND_F, type_size, obj2obj_type_id, error)
-
-				!! TODO : Add nobj2obj as an attribute
-
-	oset = 0
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec32,     o_name_tid, error)
-	call h5tinsert_f(o_name_tid,      "name",           oset, dtc32_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       fo_id_tid, error)
-	call h5tinsert_f(fo_id_tid,       "from_id",        oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec32,     fo_name_tid, error)
-	call h5tinsert_f(fo_name_tid,     "from_name",      oset, dtc32_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       fo_num_tid, error)
-	call h5tinsert_f(fo_num_tid,      "from_number",    oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       fo_hychan_tid, error)
-	call h5tinsert_f(fo_hychan_tid,   "from_hydrochan", oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec10,     fo_accname_tid, error)
-	call h5tinsert_f(fo_accname_tid,  "from_acctname",  oset, dtc10_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       fo_accidx_tid, error)
-	call h5tinsert_f(fo_accidx_tid,   "from_acctidx",   oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       fo_massfrac_tid, error)
-	call h5tinsert_f(fo_massfrac_tid, "from_massfract", oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       fo_coeff_tid, error)
-	call h5tinsert_f(fo_coeff_tid,    "from_coeff",     oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       to_id_tid, error)
-	call h5tinsert_f(to_id_tid,       "to_id",          oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec32,     to_name_tid, error)
-	call h5tinsert_f(to_name_tid,     "to_name",        oset, dtc32_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       to_num_tid, error)
-	call h5tinsert_f(to_num_tid,      "to_number",      oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       to_hychan_tid, error)
-	call h5tinsert_f(to_hychan_tid,   "to_hydrochan",   oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec10,     to_accname_tid, error)
-	call h5tinsert_f(to_accname_tid,  "to_acctname",    oset, dtc10_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       to_accidx_tid, error)
-	call h5tinsert_f(to_accidx_tid,   "to_acctidx",     oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       to_massfrac_tid, error)
-	call h5tinsert_f(to_massfrac_tid, "to_massfract",   oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       to_coeff_tid, error)
-	call h5tinsert_f(to_coeff_tid,    "to_coeff",       oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       constval_tid, error)
-	call h5tinsert_f(constval_tid,    "constantval",    oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       datasrc_type_tid, error)
-	call h5tinsert_f(datasrc_type_tid,"datasrc_type",   oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,       datasrc_idx_tid, error)
-	call h5tinsert_f(datasrc_idx_tid, "datasrc_index",  oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       datasrc_val_tid, error)
-	call h5tinsert_f(datasrc_val_tid, "datasrc_value",  oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       curQ_tid, error)
-	call h5tinsert_f(curQ_tid,        "current_flow",   oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       prevQ_tid, error)
-	call h5tinsert_f(prevQ_tid,       "previous_flow",  oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       avgQ_tid, error)
-	call h5tinsert_f(avgQ_tid,        "average_flow",   oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,       conc_tid, error)
-	call h5tinsert_f(conc_tid,        "concentrations", oset, H5T_NATIVE_REAL, error)
-
-				! Create Obj2Obj Type (uses Object Type)
-
-	return
-	end subroutine
-
-***********************************************************************
-***********************************************************************
-
-	subroutine InitQExtType()
-
-	use HDF5
-	use hdfvars
-	use qextvars
-	use inclvars
-	use grid_data
-
-	implicit none
-
-	integer(HID_T) :: dspace_id ! Dataspace identifier
-	integer(HID_T) :: dtc10_id ! Memory datatype identifier 
-	integer(HID_T) :: dtc32_id ! Memory datatype identifier 
-
-	integer(HSIZE_T), dimension(1) :: dims ! Dataset dimensions
-	integer ::   rank = 1	! Dataset rank
-	integer ::   error	! Error flag
-	integer(SIZE_T) :: typesize
-	integer(SIZE_T)     ::   oset ! Member's offset
-
-	dims(1) = max_qext
-
-	call h5pcreate_f(H5P_DATASET_XFER_F, qext_plist_id, error)
-	call h5pset_preserve_f(qext_plist_id, .true., error)
-
-	call h5screate_simple_f(rank, dims, dspace_id, error)
-	
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc10_id, error)
-	typesize = 10
-	call h5tset_size_f(dtc10_id, typesize, error)
-	call h5tget_size_f(dtc10_id, type_sizec10, error)
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc32_id, error)
-	typesize = 32
-	call h5tset_size_f(dtc32_id, typesize, error)
-	call h5tget_size_f(dtc32_id, type_sizec32, error)
-	call h5tget_size_f(H5T_NATIVE_INTEGER, type_sizei, error)
-	call h5tget_size_f(H5T_NATIVE_REAL, type_sizer, error)
-	type_size = (0 * type_sizec10) + (3 * type_sizec32) + (6 * type_sizei) + (6 * type_sizer)
-
-	call h5tcreate_f(H5T_COMPOUND_F, type_size, qext_type_id, error)
-
-	oset = 0
-	call h5tinsert_f(qext_type_id, "name",          oset, dtc32_id, error)
-	oset = oset + type_sizec32 
-	call h5tinsert_f(qext_type_id, "flow",          oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(qext_type_id, "prev_flow",     oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(qext_type_id, "average",       oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(qext_type_id, "prev_average",  oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(qext_type_id, "datasrc_type",  oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(qext_type_id, "datasrc_index", oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(qext_type_id, "datasrc_value", oset, H5T_NATIVE_REAL, error)
-	oset = oset + type_sizer
-	call h5tinsert_f(qext_type_id, "changed_idx",   oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(qext_type_id, "object_name",   oset, dtc32_id, error)
-	oset = oset + type_sizec32
-	call h5tinsert_f(qext_type_id, "attach_id",     oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(qext_type_id, "attach_name",   oset, dtc32_id, error)
-	oset = oset + type_sizec32
-	call h5tinsert_f(qext_type_id, "attach_number", oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(qext_type_id, "group_idx",     oset, H5T_NATIVE_INTEGER, error)
-	oset = oset + type_sizei
-	call h5tinsert_f(qext_type_id, "mass_fraction", oset, H5T_NATIVE_REAL, error)
-	
-	
-	call h5dcreate_f(geom_id, "qext", qext_type_id, dspace_id, qext_dset_id, error)
-
-	call InitQExtType2()
-
-	return
-	end subroutine
-
-***********************************************************************
-***********************************************************************
-
-	subroutine InitQExtType2()
-
-	use HDF5
-	use hdfvars
-	use qextvars
-	use inclvars
-	use grid_data
-
-	implicit none
-
-	integer(HID_T) :: dspace_id ! Dataspace identifier
-	integer(HID_T) :: dtc10_id ! Memory datatype identifier 
-	integer(HID_T) :: dtc32_id ! Memory datatype identifier 
-
-	integer(HSIZE_T), dimension(1) :: dims ! Dataset dimensions
-	integer ::   rank = 1	! Dataset rank
-	integer ::   error	! Error flag
-	integer(SIZE_T) :: typesize
-	integer(SIZE_T)     ::   oset ! Member's offset
-
-	dims(1) = max_qext
-
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc10_id, error)
-	typesize = 10
-	call h5tset_size_f(dtc10_id, typesize, error)
-	call h5tget_size_f(dtc10_id, type_sizec10, error)
-	call h5tcopy_f(H5T_NATIVE_CHARACTER, dtc32_id, error)
-	typesize = 32
-	call h5tset_size_f(dtc32_id, typesize, error)
-	call h5tget_size_f(dtc32_id, type_sizec32, error)
-	call h5tget_size_f(H5T_NATIVE_INTEGER, type_sizei, error)
-	call h5tget_size_f(H5T_NATIVE_REAL, type_sizer, error)
-
-	oset = 0
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec32,   q_name_tid, error)
-	call h5tinsert_f(q_name_tid,       "name",           oset, dtc32_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,     q_flow_tid, error)
-	call h5tinsert_f(q_flow_tid,        "flow",          oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,     q_prev_flow_tid, error)
-	call h5tinsert_f(q_prev_flow_tid,   "prev_flow",     oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,     q_avg_tid, error)
-	call h5tinsert_f(q_avg_tid,         "average",       oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,     q_prev_avg_tid, error)
-	call h5tinsert_f(q_prev_avg_tid,    "prev_avg",      oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,     q_dsrc_type_tid, error)
-	call h5tinsert_f(q_dsrc_type_tid,   "datasrc_type",  oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,     q_dsrc_idx_tid, error)
-	call h5tinsert_f(q_dsrc_idx_tid,    "datasrc_index", oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,     q_dsrc_val_tid, error)
-	call h5tinsert_f(q_dsrc_val_tid,    "datasrc_value", oset, H5T_NATIVE_REAL, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,     q_chng_idx_tid, error)
-	call h5tinsert_f(q_chng_idx_tid,    "changed_idx",   oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec32,   q_obj_name_tid, error)
-	call h5tinsert_f(q_obj_name_tid,    "object_name",   oset, dtc32_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,     q_attach_id_tid, error)
-	call h5tinsert_f(q_attach_id_tid,   "attach_id",     oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizec32,   q_attach_name_tid, error)
-	call h5tinsert_f(q_attach_name_tid, "attach_name",   oset, dtc32_id, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,     q_attach_num_tid, error)
-	call h5tinsert_f(q_attach_num_tid,  "attach_number", oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizei,     q_grp_idx_tid, error)
-	call h5tinsert_f(q_grp_idx_tid,     "group_idx",     oset, H5T_NATIVE_INTEGER, error)
-
-	call h5tcreate_f(H5T_COMPOUND_F,  type_sizer,     q_mass_frac_tid, error)
-	call h5tinsert_f(q_mass_frac_tid,   "mass_fraction", oset, H5T_NATIVE_REAL, error)
-
-	return
-	end subroutine
-
-
-
 
 ***********************************************************************
 ***********************************************************************

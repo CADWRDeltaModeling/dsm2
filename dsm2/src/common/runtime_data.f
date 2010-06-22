@@ -20,6 +20,8 @@ C!</license>
 
       module runtime_data
       use type_defs
+      include '../common/version.fi'  ! version of hydro, qual, and ptm      
+      
 c-----dates, timestep
 c-----Note: julian minutes are minutes from 01jan1900 0000 (31dec1899 2400)
       integer
@@ -72,7 +74,7 @@ c-----of Hydro, Qual and PTM
      &     ,restart_version     ! the version of the program that produced the restart file
      &     ,tidefile_version    ! the version of the program that produced the tidefile
       
-      include '../common/version.inc'  ! version of hydro, qual, and ptm
+
 
 c-----runtime identification and run date/time, set in read_fixed
       integer*4

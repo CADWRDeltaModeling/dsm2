@@ -39,7 +39,7 @@ C!</license>
       character
      &     InPath*80
      &     ,FileName*128
-     &     ,Param*32
+     &     ,Param*16
      &     ,LocName*32
      &     ,RoleName*32
      &     ,Name*32
@@ -63,6 +63,11 @@ C!</license>
       real*8 ftmp
       real*8, external :: fetch_data
 
+      call locase(name)
+      call locase(rolename)
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)      
 
 
       ninpaths=ninpaths+1
@@ -88,7 +93,7 @@ c-----------clean up character variables, replace environment variables
       elseif (sign .eq. 1) then
           pathinput(ninpaths).sign = 1
       elseif (sign .eq. 0) then
-          pathinput(ninpaths).sign = 0
+          pathinput(ninpaths).sign = 1
       else
           write(unit_error,*)"Incorrect sign for node input time series:",
      &    pathinput(ninpaths).name, sign
@@ -102,9 +107,11 @@ c-----------find object number given external object number
       if (FileName(:8) .eq. 'constant' .or.
      &      FileName(:8) .eq. 'CONSTANT') then
           read(InPath, '(1f10.0)') ftmp
-          pathinput(ninpaths).constant_value=ftmp
+          pathinput(ninpaths).constant_value=ftmp*pathinput(ninpaths).sign  
           pathinput(ninpaths).variable=Param
           pathinput(ninpaths).fillin=fill_last
+          pathinput(ninpaths).path=trim(InPath)
+          pathinput(ninpaths).filename=trim(FileName)          
       else
 c--------------Break up the input pathname
 

@@ -9,7 +9,12 @@ INTERVAL_LEN=16
 PERIOD_OP_LEN=16
 
 import sys
-sys.path.append("d:/delta/models/input_storage/src")
+import os
+
+
+#sys.path.append(os.getenv("input_storage_home")+"\\src")
+sys.path.append("../../../input_storage/src")
+
 from generate_input_storage import *
 LAST_FIELD=1
 
@@ -72,7 +77,7 @@ def generate_dsm2():
 
     component = TableComponent("reservoir",
                            [CharField("name",DSM2_NAME_LEN,16),
-                           DoubleField("area",12,2),
+                           DoubleField("area",12,6),
                            DoubleField("bot_elev",12,2)],
                            ["name"])
     component.layered=True                         # Component is part of the layering system
@@ -97,19 +102,32 @@ def generate_dsm2():
                            ["name"])
     component.layered=True                         # Component is part of the layering system
     prep_component(component,outdir)               # Group reads/writes/clears are based on the
-    
-    component = TableComponent("gate_device",
+ 
+    component = TableComponent("gate_pipe_device",
                            [CharField("gate_name",DSM2_NAME_LEN,16),
                             CharField("device",DSM2_NAME_LEN,16),                           
-                            CharField("structure",8,8),
+                            IntField("nduplicate"),
+                            DoubleField("radius",10,3),
+                            DoubleField("elev",10,3),
+                            DoubleField("cf_from_node",14,4),                            
+                            DoubleField("cf_to_node",14,4),
+                            CharField("default_op",16,18)],
+                            ["gate_name","device"],
+                            parent="gate",                  # parent table. overrides will be based on the channel table
+                            parent_id=["gate_name"])             # field in the xsect that links to the parent identifier (in this case also chan_no)              
+    component.layered = False
+    prep_component(component,outdir)   
+ 
+    component = TableComponent("gate_weir_device",
+                           [CharField("gate_name",DSM2_NAME_LEN,16),
+                            CharField("device",DSM2_NAME_LEN,16),                           
                             IntField("nduplicate"),
                             DoubleField("width",10,3),
                             DoubleField("elev",10,3),
                             DoubleField("height",10,3),
+                            DoubleField("cf_from_node",14,4),                            
                             DoubleField("cf_to_node",14,4),
-                            DoubleField("cf_from_node",14,4),
-                            CharField("default_op",16,18), 
-                            CharField("position_control",16,16)],
+                            CharField("default_op",16,18)],
                             ["gate_name","device"],
                             parent="gate",                  # parent table. overrides will be based on the channel table
                             parent_id=["gate_name"])             # field in the xsect that links to the parent identifier (in this case also chan_no)              
@@ -166,15 +184,15 @@ def generate_dsm2():
     component = TableComponent("channel_ic",
                               [IntField("chan_no",),
                                CharField("distance",8,8),
-                               DoubleField("stage",8,2),
-                               DoubleField("flow",12,1)],          
+                               DoubleField("stage",10,4),
+                               DoubleField("flow",12,4)],          
                               ["chan_no","distance"])
     component.layered=True
     prep_component(component,outdir)
 
     component = TableComponent("reservoir_ic",
                               [CharField("res_name",DSM2_NAME_LEN,16),
-                               DoubleField("stage",8,1)],          
+                               DoubleField("stage",10,3)],          
                               ["res_name"])
     component.layered=True
     prep_component(component,outdir)
@@ -219,7 +237,7 @@ def generate_dsm2():
                               IntField("nparts"),\
                               CharField("delay", 8,12),\
                               CharField("duration",16,12)],
-                             ["node"])   # identifier
+                             ["node", "delay"])   # identifier
     component.layered=True
     prep_component(component,outdir)
 
@@ -438,11 +456,19 @@ def generate_dsm2():
 
     envvar_keywords=["envvar"]
     scalar_keywords = ["scalar"]
-    grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate","gate_device","transfer"]
+    grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate",\
+                   "gate_weir_device","gate_pipe_device","transfer"]
+    #todo: the following additions are not really desired, and should be eliminated in 8.1
+    grid_keywords_additions = ["source_flow_reservoir","input_gate","input_transfer_flow"]
+    
     hydro_ic_keywords=["channel_ic","reservoir_ic"]
     oprule_keywords=["operating_rule","oprule_expression","oprule_time_series"]
     hydro_time_series_keywords = ["boundary_stage","boundary_flow","source_flow",\
                          "source_flow_reservoir","input_gate","input_transfer_flow"]  # ,"oprule_time_series"
+    
+    hydro_time_series_keywords_additions = ["reservoir","reservoir_connection",\
+                                            "gate","gate_weir_device","gate_pipe_device","transfer"]
+    
     qual_time_series_keywords = ["node_concentration",\
                          "reservoir_concentration",\
                          "input_climate"]
@@ -459,9 +485,9 @@ def generate_dsm2():
     define_text_sub("envvar",outdir)
     define_include_block("configuration", envvar_keywords)
     define_include_block("parameter",  scalar_keywords)    
-    define_include_block("grid", grid_keywords)
+    define_include_block("grid", grid_keywords+grid_keywords_additions)
     define_include_block("initial_condition", hydro_ic_keywords)
-    define_include_block("hydro_time_series",hydro_time_series_keywords )
+    define_include_block("hydro_time_series",hydro_time_series_keywords+hydro_time_series_keywords_additions )
     define_include_block("operation",oprule_keywords)
     define_include_block("groups",groups_keywords)
     define_include_block("qual_time_series", qual_time_series_keywords)
@@ -490,7 +516,7 @@ def generate_dsm2():
     define_profile("Hydro",envvar_keywords+scalar_keywords+io_file_keywords+grid_keywords \
                           +hydro_ic_keywords+hydro_time_series_keywords+oprule_keywords+water_body_output_keywords\
                           +gate_output_keywords+hydro_includes)
-    define_profile("Grid",grid_keywords+grid_includes) 
+    define_profile("Grid",grid_keywords+grid_keywords_additions+grid_includes) 
     define_profile("Qual",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+qual_time_series_keywords\
                          +groups_keywords+qual_spatial_keywords+water_body_output_keywords\
                          +source_group_output_keywords+qual_includes)

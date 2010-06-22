@@ -29,14 +29,13 @@ c=======================================================================
       character*(*) filename
       call clear_all_buffers(ierror)
 
-
-      call init_file_reader(ierror)
+      call init_file_reader(ierror)        ! Prepare for a read of everything
       call set_initial_context_profile(dsm2_name)
 
 
 c-----Do a first pass reading the input, activating only ENVVARS for use in later text substitution
-      call init_file_reader(ierror)                   ! Prepare for a read of everything
-      call set_substitution_enabled(.false.,ierror)   ! don't try to substitute now      
+      call set_user_substitution_enabled(.false.,ierror)   ! don't try to substitute now      
+      call set_substitution_not_found_is_error(.false.,ierror)
       call set_active_profile("envvar",ierror)        ! read only ENVVAR blocks
       call verify_error(ierror,"Error setting active profile")
       call read_buffer_from_text(filename,ierror)            ! read starting from this file
@@ -45,7 +44,8 @@ c-----Do a first pass reading the input, activating only ENVVARS for use in late
       ! process the results
       !
       call process_text_substitution(ierror)
-      call set_substitution_enabled(.true.,ierror)    ! substitute now
+      call set_user_substitution_enabled(.true.,ierror)    ! substitute now
+      call set_substitution_not_found_is_error(.true.,ierror)
       ! clear the buffer so that envvars are not loaded redundantly 
 
       call clear_all_buffers(ierror)          ! Clear the envvar buffer
@@ -104,7 +104,8 @@ c============================================================
 
 c-----Write all buffers to hdf5
       call h5gcreate_f (loc_id, group_name, group_id, ierror)
-      call write_buffer_profile_to_hdf5(dsm2_name,group_id,ierror)  ! Do the actual write
+      call verify_error(ierror,"Error creating echoed input group in hdf5 file")
+      call write_buffer_profile_to_hdf5(trim(dsm2_name),group_id,ierror)  ! Do the actual write
       call verify_error(ierror,"Error writing echoed input to hdf5")
       call h5gclose_f (group_id, ierror)
       return

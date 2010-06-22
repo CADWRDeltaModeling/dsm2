@@ -62,6 +62,12 @@ C!</license>
       real*8 ftmp
       real*8, external :: fetch_data
 
+      call locase(name)
+      call locase(locname)
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)      
+      
       ninpaths=ninpaths+1
       if (ninpaths .gt. max_inputpaths) then
           write(unit_error,630)
@@ -80,7 +86,7 @@ C!</license>
       elseif (sign .eq. 1) then
           pathinput(ninpaths).sign = 1
       elseif (sign .eq. 0) then
-          ! do nothing
+          pathinput(ninpaths).sign = 1
       else
           write(unit_error,*)
      &    "Incorrect sign for reservoir input time series: ",
@@ -102,9 +108,11 @@ c-----------find object number given external object number
       if (FileName(:8) .eq. 'constant' .or.
      &       FileName(:8) .eq. 'CONSTANT') then
           read(InPath,'(1f10.0)') ftmp
-          pathinput(ninpaths).constant_value=ftmp
+          pathinput(ninpaths).constant_value=ftmp*pathinput(ninpaths).sign
           pathinput(ninpaths).variable=Param
           pathinput(ninpaths).fillin=fill_last
+          pathinput(ninpaths).path=trim(InPath)
+          pathinput(ninpaths).filename=trim(FileName)          
       else
 c--------------Break up the input pathname     
           pathinput(ninpaths).path=trim(InPath)

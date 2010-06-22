@@ -20,7 +20,6 @@ C!</license>
 
       subroutine process_input_climate(Name,
      &                                 Param,
-     &                                 Sign,
      &                                 Fillin,
      &                                 Filename,
      &                                 InPath) 
@@ -57,8 +56,13 @@ C!</license>
 
       real*8 ftmp
       real*8, external :: fetch_data
+      call locase(name)
+      call locase(param)
+      call locase(fillin)
+      call locase(inpath)
+      
 
-            ninpaths=ninpaths+1
+      ninpaths=ninpaths+1
             if (ninpaths .gt. max_inputpaths) then
                write(unit_error,630)
      &              'Too many input paths specified; max allowed is:'
@@ -71,16 +75,16 @@ C!</license>
             pathinput(ninpaths).obj_name=LocName
             pathinput(ninpaths).obj_type=obj_climate
 
-               if (sign .eq. -1) then
-                  pathinput(ninpaths).sign = -1
-               elseif (sign .eq. 1) then
-                  pathinput(ninpaths).sign = 1
-               elseif (sign .eq. 0) then
-                  ! do nothing
-               else
-                  write(unit_error,'(a,i)')"Incorrect sign for input time series:"
-                  call exit(-3)
-               end if
+!               if (sign .eq. -1) then
+!                  pathinput(ninpaths).sign = -1
+!               elseif (sign .eq. 1) then
+!                  pathinput(ninpaths).sign = 1
+!               elseif (sign .eq. 0) then
+!                  pathinput(ninpaths).sign = 1
+!               else
+!                  write(unit_error,'(a,i)')"Incorrect sign for input time series:"
+!                  call exit(-3)
+!               end if
 
             pathinput(ninpaths).obj_name='global'
             pathinput(ninpaths).obj_no = miss_val_i  ! this could be an index into climate variables.
@@ -90,6 +94,8 @@ C!</license>
                pathinput(ninpaths).constant_value=ftmp
                pathinput(ninpaths).variable=Param
                pathinput(ninpaths).fillin=fill_last
+               pathinput(ninpaths).path=trim(InPath)
+               pathinput(ninpaths).filename=trim(FileName)
             else
 c--------------Break up the input pathname
 

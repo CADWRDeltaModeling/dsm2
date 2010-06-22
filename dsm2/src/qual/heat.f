@@ -35,7 +35,6 @@ c-----exchanged through the air-water interface
       include 'param.inc'
       include 'bltm3.inc'
 
-      logical first_call        ! true if first call to subroutine
 
       integer istat             ! return status
      &     ,iyr,imon            ! year, month
@@ -65,7 +64,6 @@ c-----declare variables for diagnostics
      &     SOLCON=438.0
      &     )
 
-      data first_call /.true./
 
       timeof_day=mod(julmin,60*24)
       call datymd(current_date(:9),iyr,imon,iday,istat)
@@ -73,32 +71,30 @@ c-----declare variables for diagnostics
 
 c!    Compute and/or define required constants.
 
-      if (first_call) then
-         first_call=.false.
-         CON2=PI/180.0*LAT
-         deltsl=(LONGITUDE-LONG_STD_MERID)/15.0
-         ELEXP=EXP(-ELEV/2532.0)
-      endif
+      CON2=PI/180.0*LAT
+      deltsl=(LONGITUDE-LONG_STD_MERID)/15.0
+      ELEXP=EXP(-ELEV/2532.0)
 
-      ACS = TANA*TANB
+
+      ! todo: eli removed because not initialized
+      !ACS = TANA*TANB
       REARTH=1.0+0.017*COS(CON1*(186-DAYOF_YEAR))
       DECLIN=CON4*COS(CON1*(172-DAYOF_YEAR))
       RR=REARTH**2
       EQTIME=0.000121-0.12319*SIN(CON1*(DAYOF_YEAR-1)-0.07014)
      &     -0.16549*SIN(2.0*CON1*(DAYOF_YEAR-1)+0.3088)
       DECLON=ABS(DECLIN)
-c-----Replace TAN function with SIN/COS.
-      TANA = SIN(CON2)/COS(CON2)
-      TANB = SIN(DECLON)/COS(DECLON)
+      TANA = TAN(CON2)
+      TANB = TAN(DECLON)
 	ACS = TANA*TANB
-      IF (ACS.EQ.0.0) GO TO 8
-      XX=SQRT(1.0-ACS*ACS)
-      XX=XX/ACS
-      ACS=ATAN(XX)
-      IF (DECLIN.GT.0.0) ACS=PI-ACS
-      GO TO 9
-    8 ACS=PI/2.0
-    9 CONTINUE
+      IF (ACS.EQ.0.0) then
+          ACS=PI/2.0
+      ELSE
+          XX=SQRT(1.0-ACS*ACS)
+          XX=XX/ACS
+          ACS=ATAN(XX)
+          IF (DECLIN.GT.0.0) ACS=PI-ACS
+      END IF
 
 c!    Calculate the standard time of
 c!    sunrise (STR) and sunset (STS).
@@ -147,8 +143,8 @@ c!    and altitude of the sun (ALPHA).
       SOLAR=SOLCON/RR*(SIN(CON2)*SIN(DECLIN)*(TE-TB)+CON6*COS(CON2)*
      &     COS(DECLIN)*(SIN(CON5*TE)-SIN(CON5*TB)))
 
-C       A SIGNIFICANT CHANGE OF ORIGINAL CODE, TO GET A AVERGED FLUX OVER TIME STEP, JON	
-	SOLAR=SOLAR/(dble(time_step)/60.)
+C       A SIGNIFICANT CHANGE OF ORIGINAL CODE, TO GET A AVERGED FLUX OVER TIME STEP, JON
+ 	SOLAR=SOLAR/(dble(time_step)/60.) ! v8  (v6 is this commented out)
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
 
@@ -174,7 +170,8 @@ c!    Compute absorption and scattering due to atmospheric conditions.
       A2=EXP(-(0.465+0.0408*PWC)*(0.179+0.421*EXP(-0.721*OAM))*OAM)
 
 c!    Compute reflectivity coefficient (RS).
-
+      AR = 1.d0
+      BR = 1.d0
       GO TO (30,31,31,31,31,31,32,32,32,32,33), NL
  30   AR=1.18
       BR=-0.77
@@ -197,7 +194,8 @@ c!    Compute atmospheric transmission term (ATC).
       ATC=(A2+0.5*(1.0-A1-DUST_ATTCOEFF))/(1.0-0.5*RS*(1.0-A1+DUST_ATTCOEFF))
 
 c!    Compute net solar radiation for the time interval delta t
-
+c!    Note: the Qual2e documentation suggests that both SOLAR and TSOLHR
+c!          are rates (units BTU/(sq ft-hour))
 
       TSOLHR=SOLAR*ATC*CS*(1.0-RS)
       GO TO 36

@@ -719,7 +719,8 @@ c     Endif
                else
                   NodeContinuityRow=DownConstraintEq(-ResChannel)
                end if
-               ChannelCol = StreamEndNode(ResChannel)*DF ! "Z" entry 
+               !todo: This iabs call was for downstream external nodes
+               ChannelCol = iabs(StreamEndNode(ResChannel))*DF ! "Z" entry 
                ! contribution to reservoir mass
                K=K+1
                ResEqPointer(K) = sfGetElement(matrix,ResRow,ResRow+jj)

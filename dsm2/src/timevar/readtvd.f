@@ -117,7 +117,10 @@ c-----local variables
      &     /' Cannot continue.')
  620  format(/'Error in reading time-varying data:'
      &     /'Current time is ',a,'; earliest data time for '/a
-     &     /'is ',a)
+     &     /'is ',a/'If this is an irregular series, note that HEC-DSS does not look back to '
+     &     /'previous DSS time blocks (the previous decade if the E Part is IR-DECADE). The workaround'
+     &     /'for this problem is to repeat the prior data point on the first step of the decade/year'
+     &     )
  625  format(/'Error in reading time-varying data:'
      &     /'Current time is ',a,'; all data times for '/a
      &     /' are before this time.')
@@ -161,7 +164,7 @@ c-----Check if new data needs to be read from DSS to arrays
 c-----force initial calculation of buffer indices
       bufndx_next_sync=-1
       bufndx_next_nosync=-1
-
+      ndx_next = -1
       do i=1,npaths
          ptr=inpath_ptr(i)
          if (pathinput(ptr).constant_value .ne. miss_val_r) then ! use constant value
@@ -203,7 +206,7 @@ c--------ndx_next is index in dss buffer for data forward of current
 c--------time step; depends on whether data is to be synced or not
 c--------calculate this once each for synchronized and non-synchronized
 c--------paths, for regular data; for irregular, calc for every path
-
+        
         if (bufndx_next_nosync .eq. -1 .or.
      &           pathinput(ptr).interval(:3) .eq. 'ir-') then
                ndx_next=bufndx_nosync(indata, julmin+pathinput(ptr).

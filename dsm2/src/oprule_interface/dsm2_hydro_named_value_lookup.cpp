@@ -79,7 +79,7 @@ DSM2HydroNamedValueLookup::DSM2HydroNamedValueLookup(){
   ADD_EXPRESS_1ARG(info,transfer_flow,READWRITE,&transfer_flow_factory,transfer);
   ADD_EXPRESS_1ARG(info,gate_install,READWRITE,&gate_install_factory,gate);
   ADD_EXPRESS_2ARG(info,gate_op,READWRITE,&device_op_factory,gate,device);
-  ADD_EXPRESS_2ARG(info,gate_position,READWRITE,&device_position_factory,gate,device);
+  ADD_EXPRESS_2ARG(info,gate_height,READWRITE,&device_height_factory,gate,device);
   ADD_EXPRESS_2ARG(info,gate_nduplicate,READWRITE,&device_nduplicate_factory,gate,device);
   ADD_EXPRESS_2ARG(info,gate_elev,READWRITE,&device_elev_factory,gate,device);
   ADD_EXPRESS_2ARG(info,gate_width,READWRITE,&device_width_factory,gate,device);
