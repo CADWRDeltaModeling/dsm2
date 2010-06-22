@@ -671,10 +671,7 @@ c     &                tide_files(nintides).end_date
       endif
 
 
-c---- convert group members from patterns to actual objects&indexes
-c     This must come after tidefile is loaded
-	
-      call ConvertGroupPatternsToMembers
+
 
 
 
