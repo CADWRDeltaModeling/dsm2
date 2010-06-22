@@ -29,7 +29,7 @@ c-----from nodes to channel numbers, and from external channel numbers
 c-----to internal.  Write to Qual arrays.
       use IO_Units
 
-	use rate_coeff_assignment,only:rate_coeffs_to_waterbodies,check_rate_for_waterbody
+	use rate_coeff_assignment,only:check_rate_for_waterbody
       implicit none
 
       include '../qual/param.inc'
@@ -130,20 +130,9 @@ C-----------this reservoir, which one is this (J)
       enddo
 
 
-c     here all the rate coefficient values are transferred from the assignment stuctures
-c     based on groups to the waterbody-based arrays
-      call rate_coeffs_to_waterbodies(istat,errm)
-
-	if (istat.ne.0) then
-
-	   write(unit_error,'(a)') errm
-
-         return
-
-	end if
 
 	if (.not.(check_rate_for_waterbody(unit_error))) then
-         write(unit_screen,*) "fatal error in checking nonconservative constitutes rate for waterbody"
+         write(unit_screen,*) "fatal error checking nonconservative constituent rates"
 	   call exit(2)
 	end if
 
