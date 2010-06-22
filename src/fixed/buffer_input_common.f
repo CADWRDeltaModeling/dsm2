@@ -22,6 +22,7 @@ C!</license>
       use input_storage_fortran
       use constants
       use io_units
+      use groups, only:convertgrouppatternstomembers
       
       implicit none
       integer :: nitem
@@ -96,8 +97,12 @@ C!</license>
      &                              obj_type,
      &                              pattern)
       end do
-      print *,"Number of group members processed: ", nitem
 
+      print *,"Number of group members processed: ", nitem
+c---- convert group members from patterns to actual objects&indexes
+c     This must come after tidefile is loaded
+	
+      call ConvertGroupPatternsToMembers
 
 
 
