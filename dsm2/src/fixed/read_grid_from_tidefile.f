@@ -18,6 +18,8 @@ C!    You should have received a copy of the GNU General Public License
 C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
 
+c --- reads in the grid information from a hydro tidefile
+c --- h5open_f must already have been called 
       subroutine read_grid_from_tidefile()
       use hdf5
       use common_tide
@@ -39,7 +41,6 @@ C!</license>
           call exit(-2)
       end if
       
-      call h5open_f (ierror)
       call h5fopen_f(trim(tide_files(1).filename), H5F_ACC_RDONLY_F, file_id, ierror)
       call VerifyHDF5(ierror,"HDF5 opened to read grid")
       call h5gopen_f (file_id, "hydro",    group_id,   ierror)  ! open group instead of create

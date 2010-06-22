@@ -22,7 +22,7 @@ C!</license>
 *== Public  (FourPt) =================================================
 
       PROGRAM FourPt
-
+      use hdf5, only : h5open_f
 	use groups, only: extractrange
       use io_units
       use type_defs
@@ -183,6 +183,9 @@ c-----simulation name for Database read
 
 c-----dsm2 initialization
       call dsm2_init
+
+c---- hdf5 api on
+      call h5open_f(istat)
 
       if(.Not. InitOpRules() ) Then
          write(unit_error,*)

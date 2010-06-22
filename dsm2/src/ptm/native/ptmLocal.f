@@ -173,6 +173,9 @@ c-----then default
       endif
 c-----initialize all arrays and logical variables.
       call dsm2_init()
+c---- hdf5 api on
+      call h5open_f      
+      
       !todo: think this initialization is already done in modules,
       ! that is why it is commented
       !call init_ptm()

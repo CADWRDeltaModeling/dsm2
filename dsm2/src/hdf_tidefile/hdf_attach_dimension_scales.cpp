@@ -5,6 +5,7 @@
 
 #define STDCALL 
 #define attach_hydro_scales STDCALL ATTACH_HYDRO_DIMSCALES
+#define attach_qual_scales STDCALL ATTACH_QUAL_DIMSCALES
 #define iso_time STDCALL ISO_TIME
 
 #ifdef __cplusplus
@@ -40,7 +41,7 @@ void attach_dim(hid_t * fid, char*setname,
 //There is nothing wrong with dimension scales in hdf5
 //and it should be all ready to go, but PyTables doesn't
 //support it yet and we are disabling it until then
-#define BROKEN_PYTABLE_VAR_LEN_STRING
+//#define BROKEN_PYTABLE_VAR_LEN_STRING
 
 
 void attach_hydro_scales(hid_t * fid){
@@ -103,7 +104,7 @@ void attach_hydro_scales(hid_t * fid){
              0,"time",2);
 
 
- setname = "hydro/data/qext changed";
+ setname = "hydro/data/qext flow";
  attach_dim( fid, setname,
             "hydro/geometry/external_flow_names",
 			"name",0);
@@ -116,6 +117,52 @@ setname = "hydro/data/transfer flow";
 			"name",0);
  attach_dim( fid, setname,
              0,"time",1);
+
+#endif
+
+}
+
+
+void attach_qual_scales(hid_t * fid){
+#ifndef BROKEN_PYTABLE_VAR_LEN_STRING 
+ char*setname = "output/channel concentration";
+
+ attach_dim(fid, setname,
+            "output/channel_location",
+			"channel_location",0);
+
+ attach_dim( fid, setname,
+            "output/channel_number",
+			"channel_number",1);
+
+ attach_dim( fid, setname,
+            "output/constituent_names",
+			"constituent",2);
+
+ attach_dim( fid, setname,
+             0,"time",3);
+
+ setname = "output/channel avg concentration";
+
+ attach_dim( fid, setname,
+            "output/channel_number",
+			"channel_number",0);
+ attach_dim(fid, setname,
+            "output/constituent_names",
+			"constituent",1);
+ attach_dim( fid, setname,
+             0,"time",2);
+
+ setname = "output/reservoir concentration";
+ 
+ attach_dim( fid, setname,
+            "output/reservoir_names",
+			"reservoir",0);
+ attach_dim(fid, setname,
+            "output/constituent_names",
+			"constituent",1);
+ attach_dim( fid, setname,
+             0,"time",2);
 
 #endif
 

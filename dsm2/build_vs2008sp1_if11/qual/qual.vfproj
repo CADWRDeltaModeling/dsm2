@@ -56,7 +56,7 @@
 		<File RelativePath="..\..\src\qual\print_outqual.f"/>
 		<File RelativePath="..\..\src\qual\process_tide.f"/>
 		<File RelativePath="..\..\src\qual\qual.f"/>
-		<File RelativePath="..\..\src\qual\qual_tidefile.f"/>
+		<File RelativePath="..\..\src\qual\qual_hdf_output.f"/>
 		<File RelativePath="..\..\src\qual\rate_chanres.f"/>
 		<File RelativePath="..\..\src\qual\res_rate.f"/>
 		<File RelativePath="..\..\src\qual\restart_file.f"/>

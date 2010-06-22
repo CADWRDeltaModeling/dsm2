@@ -77,7 +77,7 @@ c**********contains routines for writing data to an HDF5 file
       a_data_dims(1) = 1
       hdf5_int_size = 1
 
-                                ! Creating attributes for HDF5
+      ! Creating attributes for HDF5
       call h5screate_simple_f(arank, adims, aspace_id, error)
 
       call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, error)

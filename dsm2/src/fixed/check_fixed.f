@@ -38,6 +38,7 @@ c-----to internal.
       use common_xsect
       use common_tide
       use envvar
+      use qual_hdf_file
       implicit none
 
 
@@ -568,8 +569,6 @@ c-----create DSS input pathnames, check for sign change for each path
       !replace_status=replace_envvars('$(DSM2AGENCY)', dsm2_agency)
       
 
-
-
       n_tidefiles_used = 0
       if (dsm2_module .eq. qual .or. dsm2_module .eq. ptm) then
 c--------Convert tidefile dates and times to julian minute.
@@ -676,6 +675,7 @@ c     &                tide_files(nintides).end_date
 
 
       if (dsm2_module .eq. qual) then
+        
 c--------Conservative and nonconservative constituents.
 c--------For conservative constituents (CCs), note that a 'constituent' is
 c--------really each unique combination of constituent and source group, while for
@@ -807,6 +807,7 @@ c--------DO first
          endif
 
 
+
 c--------update const_names if any constituent/s were asked for simulation
 c--------which already fall within the group required for DO simulation
          do i=1,max_constituent
@@ -920,6 +921,9 @@ c-----do tracked constituents have inputs?
 
          endif
       enddo
+
+      
+
 
 c-----create DSS output pathnames, check for sign change for each path
 c-----change channel distances to marker if == channel length
@@ -1340,8 +1344,9 @@ c-----------found same combination, not unique
 
 c-----didn't find same combination
       uniq_constituent=.true.
-      return
 
+      
+      return
       end
 
 

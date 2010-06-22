@@ -19,6 +19,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
 
       subroutine get_tidefile_dates(itide)
+      use hdf5
 	use hdfvars
 	use io_units
       use common_tide
@@ -26,36 +27,33 @@ c-----Get the start julian datetime from tidefile number itide
 
       implicit none
 
-c-----included common blocks
-
-      integer,external :: getHDF5NumberOfTimeIntervals
-      integer,external :: getHDF5StartTime
-      integer,external :: getHDF5EndTime
-      integer,external :: getHDF5TimeInterval
-
 c-----arguments
 
       integer itide             ! tidefile number
-     &     ,tide_block_no       ! tide block number
 
-
+      integer(HID_T) :: tfile_id
+      integer        :: ierror
+      logical        :: hdf_file_exists
       hdf5_hydrofile=trim(tide_files(itide).filename)
-	inquire (file=hdf5_hydrofile, exist=h5_file_exists)
-	if (.not. h5_file_exists) then
+	inquire (file=tide_files(itide).filename, exist=hdf_file_exists)
+	if (.not. hdf_file_exists) then
           write (unit_error,*) "HDF5 file does not exist: " //
      &         tide_files(itide).filename
 	    call exit(2)
 	end if
-      ! Opens the file and groups for DSM2
-	call OpenHDF5()
-c-----local variables
-      if (.not. tide_files(itide).binarytf) then
-         tide_files(itide).start_julmin_file = getHDF5StartTime()
-         tide_files(itide).end_julmin_file = getHDF5EndTime()
-         tide_files(itide).ntideblocks = getHDF5NumberOfTimeIntervals()
-	   tide_files(itide).interval = getHDF5TimeInterval()
-      endif
-      call CloseHDF5()
+	
+      ! Opens the file and groups for DSM2      
+      call h5fopen_f(trim(tide_files(itide).filename), 
+     &               H5F_ACC_RDONLY_F, 
+     &               tfile_id, 
+     &               ierror)
+      call verify_error(ierror, "Opening tidefile to check dates")
+      call getTimeAttributes(tfile_id,
+     &                       tide_files(itide).start_julmin_file, 
+     &                       tide_files(itide).end_julmin_file,
+     &                       tide_files(itide).interval,
+     &                       tide_files(itide).ntideblocks)
 
+      call h5fclose_f(tfile_id, ierror)
       return
-      end
+      end subroutine

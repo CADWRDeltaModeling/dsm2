@@ -43,11 +43,8 @@ c**********contains routines for writing data to an HDF5 file
 	integer(SIZE_T) :: rddc_nbytes
 	integer  nelmts
 	real rdcc_w0
-
-
 	integer        :: error	! HDF5 Error flag
 
-	call h5open_f (error)
 	inquire (file=hdf5_hydrofile, exist=h5_file_exists)
 
       call h5pcreate_f(H5P_FILE_ACCESS_F,fapl,error)
@@ -89,13 +86,13 @@ c**********contains routines for writing data to an HDF5 file
 	call h5dopen_f(data_id, "transfer flow", transfer_dset_id, error)
 	call VerifyHDF5(error,"Transfer flow dataset open")	
 
-
 	return
 	end subroutine
 
 ***********************************************************************
 ***********************************************************************
-
+      !> Create a hydro tidefile. 
+      !> h5open must have been called by this point.
 	subroutine InitHDF5File()
 
 	use HDF5		! HDF5 This module contains all necessary modules
@@ -120,10 +117,8 @@ c**********contains routines for writing data to an HDF5 file
 
 	integer        :: error	! HDF5 Error flag
 
-				! initialize HDF5 library
-	call h5open_f (error)
-
-				! check to see if file exists
+     
+      ! check to see if file exists
 	inquire (file=hdf5_hydrofile, exist=h5_file_exists)
 
 	if (h5_file_exists) then ! file already exists
@@ -430,7 +425,7 @@ c-------involved in reading/writing time-varying model data
 ***********************************************************************
 ***********************************************************************
 
-	subroutine AddTimeSeriesAttributes(dset_id)
+	subroutine AddTimeSeriesAttributes(dset_id, ts_start, ts_interval)
 
 	use HDF5
 	use hdfvars
@@ -438,6 +433,9 @@ c-------involved in reading/writing time-varying model data
 	use runtime_data
 	use iopath_data
       implicit none
+      integer :: ts_start
+      integer :: ts_interval
+      character*16 :: cinterval
 	integer(HID_T) :: dset_id ! Attribute identifier 
 	integer(HID_T) :: aspace_id ! Attribute Dataspace identifier 
 	integer(HID_T) :: atype_id
@@ -453,6 +451,10 @@ c-------involved in reading/writing time-varying model data
 	character(LEN=ISO_LEN) :: iso_datetime
       character*19,external ::  jmin2iso  ! format function
 
+
+      write(cinterval,"(i,'min')")ts_interval
+      cinterval=adjustl(cinterval)
+
       call h5screate_simple_f(arank, a_dims, aspace_id, error)
       call VerifyHDF5(error,"time series attributes dataspace")
       call h5tcopy_f(H5T_NATIVE_CHARACTER, atype_id, error)
@@ -465,7 +467,7 @@ c-------involved in reading/writing time-varying model data
      &                a_dims, error)
 	call h5aclose_f(attr_id,error)
 
-	iso_datetime=jmin2iso(tf_start_julmin)
+	iso_datetime=jmin2iso(ts_start)
       call h5tset_size_f(atype_id, ISO_LEN, error)
 	call h5acreate_f(dset_id, "start_time", 
      &    atype_id, aspace_id, attr_id, error)
@@ -478,7 +480,7 @@ c-------involved in reading/writing time-varying model data
 	call h5acreate_f(dset_id, "interval", 
      &    atype_id, aspace_id, attr_id, error)
 	call h5awrite_f(attr_id, atype_id, 
-     &    trim(io_files(hydro,io_hdf5,io_write).interval),
+     &    cinterval,
      &    a_dims, error)
 	call h5aclose_f(attr_id,error)
 
@@ -573,7 +575,7 @@ c-------involved in reading/writing time-varying model data
 	call h5dcreate_f(data_id, "channel stage", H5T_NATIVE_REAL,
 	1    chan_z_fspace_id, chan_z_dset_id, error, cparms)
 	call VerifyHDF5(error,"Channel stage dataset creation")
-      call AddTimeSeriesAttributes(chan_z_dset_id)
+      call AddTimeSeriesAttributes(chan_z_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 		! Create channel flow data set
 	chan_q_chunk_dims(1) = chan_q_fdata_dims(1)
@@ -592,7 +594,7 @@ c-------involved in reading/writing time-varying model data
 	call h5dcreate_f(data_id, "channel flow", H5T_NATIVE_REAL,
      &    chan_q_fspace_id, chan_q_dset_id, error, cparms)
 	call VerifyHDF5(error,"Channel flow dataset creation")
-      call AddTimeSeriesAttributes(chan_q_dset_id)
+      call AddTimeSeriesAttributes(chan_q_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 
 		! Create channel area data set
@@ -614,7 +616,7 @@ c-------involved in reading/writing time-varying model data
 	call h5dcreate_f(data_id, "channel area", H5T_NATIVE_REAL,
      &    chan_a_fspace_id, chan_a_dset_id, error, cparms)
 	call VerifyHDF5(error,"Channel area dataset creation")
-      call AddTimeSeriesAttributes(chan_a_dset_id)
+      call AddTimeSeriesAttributes(chan_a_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 
 		! Create channel avg area data set
@@ -635,7 +637,7 @@ c-------involved in reading/writing time-varying model data
 	call h5dcreate_f(data_id, "channel avg area", H5T_NATIVE_REAL,
      &	    chan_aa_fspace_id, chan_aa_dset_id, error, cparms)
 	call VerifyHDF5(error,"Channel avg area dataset creation")
-      call AddTimeSeriesAttributes(chan_aa_dset_id)
+      call AddTimeSeriesAttributes(chan_aa_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 	return
 	end subroutine
@@ -645,7 +647,8 @@ c-------involved in reading/writing time-varying model data
 	use HDF5		! HDF5 This module contains all necessary modules 
 	use hdfvars
 	use inclvars
-
+      use runtime_data
+      use common_tide
 	implicit none
 
 	integer(HID_T) :: cparms !dataset creation property identifier 
@@ -673,7 +676,7 @@ c-------Create the datasets
 	call h5screate_simple_f(res_h_fdata_rank, res_h_fdata_dims, res_h_fspace_id, error)
 	call h5dcreate_f(data_id, "reservoir height", H5T_NATIVE_REAL,
      &    res_h_fspace_id, res_h_dset_id, error, cparms)
-      call AddTimeSeriesAttributes(res_h_dset_id)
+      call AddTimeSeriesAttributes(res_h_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 
 
@@ -693,7 +696,7 @@ c-------Create the datasets
 	call h5screate_simple_f(res_q_fdata_rank, res_q_fdata_dims, res_q_fspace_id, error)
 	call h5dcreate_f(data_id, "reservoir flow", H5T_NATIVE_REAL,
      &	    res_q_fspace_id, res_q_dset_id, error, cparms)
-      call AddTimeSeriesAttributes(res_q_dset_id)
+      call AddTimeSeriesAttributes(res_q_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 	return
 	end subroutine
@@ -707,7 +710,9 @@ c-------Create the datasets
 	use hdfvars
 	use inclvars
 	use grid_data
-
+      use runtime_data
+      use common_tide
+      
 	implicit none
 
 	integer        :: error	! HDF5 Error flag
@@ -743,7 +748,7 @@ c-------Create the datasets
 	call h5dcreate_f(data_id, "transfer flow", H5T_NATIVE_REAL,
      &       transfer_fspace_id, transfer_dset_id, error, cparms)
 	call VerifyHDF5(error,"Flow transfer dataset creation")
-      call AddTimeSeriesAttributes(transfer_dset_id)
+      call AddTimeSeriesAttributes(transfer_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 	call h5screate_simple_f(arank, adims, aspace_id, error)
 	call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
@@ -767,7 +772,8 @@ c-------Create the datasets
 	use hdfvars
 	use inclvars
 	use grid_data
-
+      use runtime_data
+      use common_tide
 	implicit none
 
 	integer(HID_T) :: cparms !dataset creatation property identifier 
@@ -800,7 +806,7 @@ c-------Create the datasets
 	call h5screate_simple_f(qext_fdata_rank, qext_fdata_dims, qext_fspace_id, error)
 	call h5dcreate_f(data_id, "qext flow", H5T_NATIVE_REAL,
 	1    qext_fspace_id, qext_change_dset_id, error, cparms)
-      call AddTimeSeriesAttributes(qext_change_dset_id)
+      call AddTimeSeriesAttributes(qext_change_dset_id,tf_start_julmin,TideFileWriteInterval)
 
 	call h5screate_simple_f(arank, adims, aspace_id, error)
 	call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)

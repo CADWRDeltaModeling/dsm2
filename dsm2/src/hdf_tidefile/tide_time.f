@@ -124,6 +124,41 @@
 
 
 
+**********************************************************************
+**********************************************************************
+      subroutine getTimeAttributes(file_id,
+     &                             hdf_start_julmin, 
+     &                             hdf_end_julmin,
+     &                             hdf_interval,
+     &                             hdf_ntime)
+      use hdf5
+      use h5lt
+      implicit none
+      integer(HID_T) :: file_id
+      integer :: hdf_start_julmin
+      integer :: hdf_end_julmin
+      integer :: hdf_interval
+      integer :: hdf_ntime
+      integer, dimension(1) :: hdf5_read_buffer      
+      integer        :: error   ! HDF5 Error flag
+
+      call h5ltget_attribute_int_f(file_id,"hydro", 
+     &           "Start time",
+     &           hdf5_read_buffer, error)
+      call verify_error(error, "Reading start time from hdf5 file")
+      hdf_start_julmin = hdf5_read_buffer(1)
+      call h5ltget_attribute_int_f(file_id,"hydro", 
+     &           "Time interval", 
+     &           hdf5_read_buffer, error)
+      hdf_interval = hdf5_read_buffer(1)
+      call h5ltget_attribute_int_f(file_id,"hydro", 
+     &           "Number of intervals", 
+     &           hdf5_read_buffer, error)
+      hdf_ntime = hdf5_read_buffer(1)
+      hdf_end_julmin=hdf_start_julmin+(hdf_ntime-1)*hdf_interval
+      return
+      end subroutine
+
 ***********************************************************************
 ***********************************************************************
 
@@ -143,9 +178,6 @@
       integer(HSIZE_T), dimension(7) :: a_data_dims
       
       integer, save :: temptime
-      character*14 jmin2cdt
-      external jmin2cdt
-
       integer getHDF5TimeInterval
 
       integer,save :: prev_tidefile = 0

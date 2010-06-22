@@ -6,7 +6,8 @@
       use common_tide
       use runtime_data
       use iopath_data
-
+      use qual_hdf_file
+      use hdf5, only: h5open_f, h5close_f
 C-----************ MULTIPLE BRANCH ESTUARY TRANSPORT MODEL
 c-----******************
 
@@ -103,7 +104,7 @@ C-----NOSC     Maximum number of cross sections (grids) allowed in
 c-----branch
 C-----NOPR     Maximum number of parcels allowed in branch
 C-----(NOPR should be at least 20 + 2 times NOSC)
-      !use qual_hdf_file
+
       IMPLICIT NONE
       INCLUDE 'param.inc'
       INCLUDE '../hydrolib/network.inc'
@@ -123,7 +124,8 @@ C-----+ + + LOCAL VARIABLES + + +C
      &     NN,KK
       integer res_num_clfct
       logical echo_only, file_exists
-
+      
+      
       real*8    HR,SVOL,tTIME,VJ,VOL
       real*8    TOTFLO
       real*8    C(MAX_CONSTITUENT)
@@ -138,12 +140,11 @@ C-----+ + + LOCAL VARIABLES + + +C
 
       integer
      &     istat                ! status of fixed input        
-
+      integer ierror
       character
      &     init_input_file*128  ! initial input file on command line [optional]
      &     ,jmin2cdt*14         ! convert from julian minute to char date/time
 
-      !character*128 :: qual_hdf_filename = "qual_out.h5"
 
       integer iprnt_mass
       common /mass_tracking_1/ iprnt_mass
@@ -199,7 +200,9 @@ c-----simulation name for Database read
 c-----dsm2 initialization
       call dsm2_init
 
-c---- begin data reading
+c---- hdf5 api on
+      call h5open_f(ierror)
+      call verify_error(ierror,"Program error -- opening hdf5 API")
 
 c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
@@ -222,8 +225,7 @@ c------ process input that is in buffers
       call write_input_buffers()
       if (echo_only) call exit(1)
 
-      !call init_qual_hdf(qual_hdf,qual_hdf_filename)
-
+ 
 c------ end of input reading and echo, start checking data
 
       call check_fixed(istat)
@@ -240,11 +242,18 @@ c------ end of input reading and echo, start checking data
          call exit(1)
       endif
 
-      if (istat .ne. 0) then
-         write(unit_error, *)
-     &        'Error in checking fixed data; run stopped.'
-         call exit(1)
-      endif
+
+      if (io_files(qual,io_hdf5,io_write).use) then
+         call InitQualHdf(qual_hdf,
+     &                    io_files(qual,io_hdf5,io_write).filename(1:128),
+     &                    nchans,
+     &                    nreser,
+     &                    no_of_constituent,
+     &                    start_julmin,
+     &                    end_julmin,
+     &                    io_files(qual,io_hdf5,io_write).interval)
+      endif 
+
 
       prev_julmin=0
       julmin=start_julmin
@@ -272,6 +281,7 @@ c------ end of input reading and echo, start checking data
      &     ' non-conservative constituents simulated.'
 
  650  format(i2,a)
+
 
       IF(MASS_TRACKING) THEN
          call read_input_data_for_masstracking
@@ -367,7 +377,9 @@ C-----start time loop
       
       call read_boundary_values
 
-      
+      ! Write initial state if it is a write interval
+      if(using_qual_hdf)call WriteQualHDF(julmin)
+            
       do while (julmin .le. end_julmin)
          call update_intervals
          if (julmin .ge. next_display) then
@@ -670,6 +682,9 @@ c--------******************************************************************
             call store_outpaths(.false.)
          endif
 
+         if(using_qual_hdf)call WriteQualHDF(julmin)
+
+
  735     tTIME=dble(JTIME+JTS)*DT
          IDAY=INT(tTIME/24.D0)+1
          HR=tTIME-dble(IDAY-1)*24.0
@@ -720,14 +735,14 @@ c--------close all DSS output files
             i=i+1
          enddo
       endif
-      !call close_qual_hdf(qual_hdf)
-
+      
+      call close_qual_hdf(qual_hdf)
+      !call h5close_f(istat)
 900   WRITE(*,*) '   -----------------------------'
       WRITE(*,*) ' '
       WRITE(*,*) '   Normal program end.'
       WRITE(*,*) ' '
       WRITE(*,*) '   -----------------------------'
-
       call exit(0)
       END
 c==================================================
