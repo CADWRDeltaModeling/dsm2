@@ -21,9 +21,9 @@ C!</license>
       subroutine process_rate_coef(group_name,
      &                             constituent,
      &                             rate_variable,
-     &                             coefficient_value)            
+     &                             rate_value)            
 	use Groups, only: groupContains,IsAllChannelReservoir,groupArray
-	use rate_coeff_assignment,only:assign_rate_to_group,rate_var_require_flag
+	use rate_coeff_assignment
 	use common_qual
 	use constants
 	use io_units
@@ -33,26 +33,28 @@ C!</license>
       
       character*32 group_name
       character errm*128 !todo: this is not good style      
-      integer :: rate_variable_id
-      integer :: constituent_id
+      integer :: rate_var_id
+      integer :: ncc_id
+
       integer :: groupno
       integer :: istat
       integer, external :: name_to_objno
-      real*8  :: coefficient_value
+      real*8  :: rate_value
       integer,external :: rate_variable_code
       integer,external :: ncc_code
+      integer :: ichan,ires
 
       call locase(group_name)      
       call locase(rate_variable)
       call locase(constituent)
-      rate_variable_id = rate_variable_code(rate_variable)
-      if (rate_variable_id .eq. miss_val_i)then
+      rate_var_id = rate_variable_code(rate_variable)
+      if (rate_var_id .eq. miss_val_i)then
           write (unit_error,'(a,1x,a)')"Rate variable not recognized:",
      &    trim(rate_variable)
           call exit(-3)
       end if
-      constituent_id = ncc_code(constituent)
-      if (constituent_id .eq. miss_val_i)then
+      ncc_id = ncc_code(constituent)
+      if (ncc_id .eq. miss_val_i)then
           write(unit_error,'(a,1x,a)')"Constituent in rate coefficient assignment "//
      &    "not recognized:",constituent
           call exit(-3)
@@ -69,14 +71,29 @@ C!</license>
      &                " are not all channel or reservior"
          call exit(-3)
       end if
-      coefficient_value=coefficient_value/24. ! convert per day to per hour
-      call assign_rate_to_group(groupno,rate_variable_id,constituent_id,
-     &                          coefficient_value,istat,errm)
-      ! todo -- this is pretty strange style
-	if (istat.lt.0) then
-         write(unit_error, '(a)') errm
-         call exit(-3)
-      end if
-      rate_var_require_flag(constituent_id,rate_variable_id)=.true.
+      rate_value=rate_value/24. ! convert per day to per hour
+	do 200 ichan=1,nchans 
+	  if (groupContains(groupno,obj_channel,ichan)) then
+          if ( rcoef_chan(ncc_id,rate_var_id,ichan) .eq. miss_val_r) then 
+		      rcoef_chan(ncc_id,rate_var_id,ichan)=rate_value
+          else
+              call ncc_code_to_name(ncc_id, constituent)
+              call rate_variable_code_to_name(rate_var_id, constituent)
+                    write(unit_error,*) "rate coefficient of: ",  trim(rate_variable), 
+     &                                  " for constituent: ",      trim(constituent),                              
+     &                                  " is assigned more than once to Channel #", chan_geom(ichan).chan_no, 
+     &                                  " in group: ", trim(groupArray(groupno).name)
+              call exit(-1)
+          end if
+	  end if
+200   end do
+            
+	do 300 ires = 1, nreser
+        if(GroupContains(groupno,obj_reservoir,ires)) then
+          rcoef_res(ncc_id,rate_var_id,ires)=rate_value
+        end if
+300   end do
+      rate_var_require_flag(ncc_id,rate_var_id)=.true.
       return
       end subroutine
+      
