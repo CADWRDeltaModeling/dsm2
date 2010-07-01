@@ -154,6 +154,7 @@ c	use dsm2_database
       use iopath_data
 	use groups,only:ConvertGroupPatternsToMembers,PrintGroupMembers
       use common_ptm
+      use common_tide
 	implicit none
       integer istat,ibound
       character*(*)
