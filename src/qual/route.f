@@ -267,14 +267,7 @@ C--------FLOW IN UPSTREAM BOUNDARY
 !         IF(node_geom(JN).qual_int .OR. NCONRES(JN).EQ.0)THEN
 C-----------Upstream junction is not at the boundary
 C-----------Or if it is, there are no reservoirs connected
-            !todo: GPTU seems to always be zero here
             DO L=1,NEQ
-               ! todo: analyze if this is really ever non-zero or necessary.
-               !       same for downstream case. If you are reading this in
-               !       2011 please go ahead and delete this assertion
-               if(GPTU(L,N) .ne. 0.d0) then
-                   print*,"GPTU != 0, please report to DSM2 maintanence team"
-               end if
                GPT(L,1,N)=GPTU(L,N)
             ENDDO
 !         ELSEIF( (.not. node_geom(JN).qual_int) .AND. NCONRES(JN).GE.1)THEN
@@ -307,9 +300,6 @@ C--------flow into downstream boundary
          PRDT(NSN)=0.0
          GVU(N,NXSECN)=GPV(N,NSN)
          DO 260 L=1,NEQ
-            if(GPTU(L,N) .ne. 0.d0) then
-               print*,"GPTD != 0, please report to DSM2 maintanence team"
-            end if
             GPT(L,NSN,N)=GPTD(L,N)
  260     CONTINUE
          GO TO 280

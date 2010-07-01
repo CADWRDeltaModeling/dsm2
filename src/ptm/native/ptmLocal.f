@@ -155,7 +155,7 @@ c	use dsm2_database
 	use groups,only:ConvertGroupPatternsToMembers,PrintGroupMembers
       use common_ptm
 	implicit none
-      integer istat
+      integer istat,ibound
       character*(*)
      &     init_input_file  ! initial input file on command line [optional]
 c-----get optional starting input file from command line,
@@ -184,33 +184,18 @@ c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! reads scalar and envvars from buffer and processes
-         call buffer_input_tidefile()      ! todo: remove from buffer_input_common
+         call buffer_input_tidefile()      ! 
          call read_grid_from_tidefile()    ! todo
          call buffer_input_grid()    ! processes grid
       end if
 
-c---- possibly read from db, though it is hobbled now
-!      if ( database_name .ne. miss_val_c .and.
-!     &      model_name .ne. miss_val_c
-!     &      .and. model_name .ne. 'none') then
-!         write(unit_screen,*) "Database name given: ",trim(database_name),","
-!         write(unit_screen,*) "Model name given: ",trim(model_name),","
-!         write(unit_screen,*) "Reading from database. If not desired,"
-!         write(unit_screen,*) "set model_name to 'none' in SCALARS or remove it"
-!         write(unit_screen,*) "to read only from text"
-!         
-!         istat = 0
-!         call init_database(istat)
-!         if (istat .ne. 0) then
-!            write(unit_error, *) 'Error initializing database; run stopped.'
-!            call exit(1)
-!         endif
-!         call read_sql(istat)
-!         if (istat .ne. 0) then
-!            write(unit_error, *) 'Error in loading fixed data from RDMS; run stopped.'
-!            call exit(1)
-!         endif
-!      endif
+c----- load header information from the first hydro tidefile
+c      this assures that names of qext and stage boundaries are available
+      call read_tide_head(tide_files(1).filename, .false.)
+      ! Loop through number of stage boudnaries and set node_geom
+      do ibound = 1,nstgbnd
+          node_geom(stgbnd(ibound).node).boundary_type=stage_boundary
+      end do   
       
 c------ process input that is in buffers
       call buffer_input_common()        ! process common items

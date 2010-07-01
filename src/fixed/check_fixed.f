@@ -319,6 +319,16 @@ c-----------correct tf start date for odd minutes (not multiple of tidefile inte
       endif
       tf_start_date = jmin2cdt(start_julmin)
 
+c-----make sure run dates are spanned
+      if (dsm2_module .eq. qual .or. dsm2_module .eq. ptm) then
+	  if (  tide_files(1).start_julmin .gt. start_julmin 
+     &   .or. tide_files(nintides).end_julmin .lt. end_julmin) then
+	    write(unit_error,*)"Specified dates for tidefiles do not cover period of simulation"
+	    call exit(-3)
+	  end if
+	end if  
+
+
 c-----warning fix, until scalar variables fixed
       cont_missing=cont_missing .and. cont_bad
 
@@ -562,115 +572,9 @@ c-----create DSS input pathnames, check for sign change for each path
          call upcase(pathinput(p).path) ! convert to upper case
       end do
 
-      ! Todo: ???
       dsm2_agency = ' '
       replace_status=0
       !replace_status=replace_envvars('$(DSM2AGENCY)', dsm2_agency)
-      
-
-
-
-      n_tidefiles_used = 0
-      if (dsm2_module .eq. qual .or. dsm2_module .eq. ptm) then
-c--------Convert tidefile dates and times to julian minute.
-c--------If no start/end date specified in input, use start/end timestamp
-c--------in tidefile.
-
-         nintides=nintides-1
-         if (nintides .le. 0) then
-            write(unit_error, '(a)') 'No input tides given, run stopped.'
-            goto 900
-         endif
-         do i=1,nintides
-	      n_tidefiles_used = n_tidefiles_used + 1
-            call get_tidefile_dates(i)
-
-
-c-----------start datetime
-            tide_files(i).start_julmin=miss_val_i
-            if (tide_files(i).start_date .eq. ' ') then ! 'runtime': use timestamp in tidefile
-               tide_files(i).start_julmin=tide_files(i).start_julmin_file
-            endif
-
-            if (tide_files(i).start_date .eq. 'last' 
-     &           .and. i .gt. 1) then ! start this after end of previous
-               tide_files(i).start_julmin=tide_files(i-1).end_julmin
-            endif
-
-            if (tide_files(i).start_julmin .eq. miss_val_i) then 
-               ! use specified start datetime if not repeating
-               tide_files(i).start_julmin=cdt2jmin(tide_files(i).start_date)
-            endif
-
-	      tide_files(i).start_julmin = max(tide_files(i).start_julmin,start_julmin)
-
-            if (tide_files(i).start_julmin .eq. miss_val_i) then
-               write(unit_error,606) 'starting',tide_files(i).start_date,
-     &              trim(tide_files(i).filename)
-               goto 900
-            endif
-
-c-----------end datetime
-            if (index(tide_files(i).end_date,'length') .eq. 0) then 
-               ! use given end datetime
-               tide_files(i).end_julmin=cdt2jmin(tide_files(i).end_date)
-               if (tide_files(i).end_julmin .ne. miss_val_i) then 
-                  ! valid datetime string input
-                  tide_files(i).end_julmin=
-     &               min(cdt2jmin(tide_files(i).end_date), end_julmin)
-               else          ! invalid datetime string, maybe it's a time length
-                  jmin=incr_intvl(tide_files(i).start_julmin,
-     &                 tide_files(i).end_date, TO_BOUNDARY)
-                  if (jmin .eq. miss_val_i) then
-                     write(unit_error,606) 'ending',tide_files(i).end_date,
-     &                    trim(tide_files(i).filename)
-                     goto 900
-                  endif
-                  tide_files(i).end_julmin=min(jmin,end_julmin)
-               endif
-            else             ! use through length of tidefile
-               tide_files(i).end_julmin=tide_files(i).end_julmin_file
-            endif
-            if (tide_files(i).start_julmin .lt. tide_files(i).start_julmin_file 
-     &          .or.
-     &          tide_files(i).end_julmin .gt. tide_files(i).end_julmin_file) then
-	         write(unit_error,*)"Tidefile contents do not span " //
-     &             "assigned start and end dates: ", tide_files(i).filename
-	         goto 900
-	      end if
-
-	      ! This exit statement allows nonexistent tidefiles to be listed
-	      if (tide_files(i).end_julmin .ge. end_julmin) exit  
-         enddo
-c----- load header information from the first hydro tidefile
-         call read_tide_head(tide_files(1).filename, .false.)
-
-         ! Loop through number of stage boudnaries and set node_geom
-         do ibound = 1,nstgbnd
-            node_geom(stgbnd(ibound).node).boundary_type=stage_boundary
-         end do
-         
-         nintides = n_tidefiles_used
-	   if (nintides .gt. 1) then 
-           do i=2,nintides
-              if (tide_files(i).start_julmin .ne. tide_files(i-1).end_julmin) then
-	           write(unit_error,*) "Tidefile dates must be ordered in time, " 
-     &                 // "with no gaps or overlap in start/end dates"
-	           goto 900
-	        end if
-	     end do
-	   end if
-	   if (  tide_files(1).start_julmin .gt. start_julmin 
-     &      .or. tide_files(nintides).end_julmin .lt. end_julmin) then
-	       write(unit_error,*)"Specified dates for tidefiles do not cover period of simulation"
-c	       write(unit_error,*)"Tidefile coverage: " // 
-c     &		       tide_files(1).start_date // " to " //
-c     &                tide_files(nintides).end_date
-	       goto 900
-	    end if
-      endif
-
-
 
 
 
@@ -1240,13 +1144,6 @@ c     binary search
       if (ext2intnode .lt. 0) ext2intnode = miss_val_i
       return
       end function
-
-
-
-
-
-
-
 
 
 
