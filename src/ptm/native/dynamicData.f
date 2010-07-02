@@ -36,7 +36,8 @@ c----- functions
       
       integer get_maximum_number_of_channels
      &     , get_maximum_number_of_reservoirs
-     &     , get_number_of_reservoirs     
+     &     , get_number_of_reservoirs
+     &     , get_number_of_channels          
      &     , get_maximum_number_of_stage_boundaries
      &     , get_maximum_number_of_boundary_waterbodies
      &     , get_maximum_number_of_conveyors
@@ -50,7 +51,7 @@ c----- locals
 	integer ext2int
 c----- begin
 c----- update channel info
-      do i=1, get_maximum_number_of_channels() 
+      do i=1, get_number_of_channels() 
 	   !todo: loop should be number of channels
          id = get_unique_id_for_channel(i)
 c-------- flow into node +ve and flow out of node -ve

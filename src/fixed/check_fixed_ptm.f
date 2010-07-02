@@ -259,9 +259,9 @@ c-----check that quality tide file includes full runtime
          endif
       endif
       
-c      open(unit=911,file='group_member.out',status='unknown',err=890)
-c      call WriteGroupMembers2File(911)
-c      close(unit=911)
+      !open(unit=911,file='group_member.out',status='unknown',err=890)
+      !call WriteGroupMembers2File(911)
+      !close(unit=911)
 
 
  890  return

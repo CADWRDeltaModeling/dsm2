@@ -201,6 +201,7 @@ c---- read all text into buffers and process envvironmental variables
          end if
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! process scalar and envvars
+         call initialize_runtimes()
          call buffer_input_grid()    ! processes grid
       end if
       

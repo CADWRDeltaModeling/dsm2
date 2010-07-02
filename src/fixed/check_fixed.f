@@ -142,7 +142,6 @@ c-----Local variables
 
  602  format(/'Error opening/reading restart input file: ',a)
 
- 605  format(/a,' date incorrect: ',a)
 
  603  format('Using ',a,' file date to start run: ',a)
 
@@ -228,105 +227,6 @@ c-----open output file(s)
 
 c-----adjust totals
       nprints=nprints-1
-
-c-----generic date in julian minutes
-! eli      jul_generic_date=cdt2jmin(generic_date)
-
-c-----run start date and time can be a DSS date (e.g. 01jan1994 0100),
-c-----or 'restart' (use date from restart file), or
-c-----'tide' (use date from tidefile), or derived from all_run dates
-
-      if (run_start_date(1:7) .eq. 'restart' .or.
-     &     run_start_date(11:14) .eq. 'rest') then
-c--------get run_start_date from restart file
-         if (io_files(dsm2_module,io_restart,io_read).filename
-     &        .eq. ' ') then    ! no restart file specified
-            write(unit_error, *)
-     &           'Error-No restart filename given, but restart run start time requested.'
-            goto 900
-         endif
-         open (
-     &        unit=io_files(dsm2_module,io_restart,io_read).unit
-     &        ,file=io_files(dsm2_module,io_restart,io_read).filename
-     &        ,err=905
-     &        )
-         read(io_files(dsm2_module,io_restart,io_read).unit,
-     &        '(36x,a14)',err=905) run_start_date
-c--------check for old or new restart version
-         if (run_start_date .eq. ' ') then ! new version
-            read(io_files(dsm2_module,io_restart,io_read).unit,
-     &           '(36x,a14)',err=905) run_start_date
-         endif
-         close(io_files(dsm2_module,io_restart,io_read).unit)
-         write(unit_screen,603) 'restart', run_start_date
-      else if (run_start_date(1:3) .eq. 'tid' .or.
-     &        run_start_date(11:13) .eq. 'tid') then
-         write(unit_error,*)"Start date based on tide not supported"
-      else                      ! assume DSS style start date/time
-      endif
-
-c-----correct start date for odd minutes (not multiple of 15 minutes)
-      start_julmin=cdt2jmin(run_start_date)
-	if( start_julmin .ne. (start_julmin/15)*15) then
-         write(unit_error,*)"Start time must be aligned with " //
-     &     "15MIN interval(0000,0015...)"
-	end if
-c      start_julmin=(start_julmin/15)*15
-
-c-----calculate ending time if run length, rather than
-c-----start/end times are given
-      if (run_length .ne. ' ') then
-c--------run length should be in form: '20hour' or '5day'
-         run_end_date=diff2dates(run_start_date,run_length)
-      endif                     ! start/end char dates given
-      end_julmin=cdt2jmin(run_end_date)
-
-      if (len_trim(run_start_date) .eq. 0)then
-         write(unit_error,*)'Start date missing'
-         goto 900
-      endif
-      if (len_trim(run_end_date) .eq. 0)then
-         write(unit_error,*)'End date missing'
-         goto 900
-      endif
-
-c-----check validity of start and end julian minutes
-      if (start_julmin .ge. end_julmin) then
-         write(unit_error,"('Starting date: ',a9,
-     &        ' equal to or after ending date: ',a9,'or one/both may be missing')")
-     &        run_start_date,run_end_date
-         goto 900
-      endif
-      if (start_julmin .eq. miss_val_i) then
-         write(unit_error,605) 'Starting',run_start_date
-         goto 900
-      endif
-      if (end_julmin .eq. miss_val_i) then
-         write(unit_error,605) 'Ending',run_end_date
-         goto 900
-      endif
-
-c-----Tidefile date to when to start writing tidefile (hydro)
-      if (dsm2_module .eq. hydro) then
-         if (tf_start_date .eq. ' ') then
-            tf_start_julmin=start_julmin
-         else
-c-----------correct tf start date for odd minutes (not multiple of tidefile interval)
-            tf_start_julmin=cdt2jmin(tf_start_date)
-            tf_start_julmin=(tf_start_julmin/15)*15
-            tf_start_julmin=max(start_julmin,tf_start_julmin) ! correct for too-soon tf start
-         endif
-      endif
-      tf_start_date = jmin2cdt(start_julmin)
-
-c-----make sure run dates are spanned
-      if (dsm2_module .eq. qual .or. dsm2_module .eq. ptm) then
-	  if (  tide_files(1).start_julmin .gt. start_julmin 
-     &   .or. tide_files(nintides).end_julmin .lt. end_julmin) then
-	    write(unit_error,*)"Specified dates for tidefiles do not cover period of simulation"
-	    call exit(-3)
-	  end if
-	end if  
 
 
 c-----warning fix, until scalar variables fixed

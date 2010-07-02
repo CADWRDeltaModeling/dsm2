@@ -211,7 +211,7 @@ C     read common input
       JPO=48
       IENG=1
        
-      DQV=1.d-3
+      DQV=0.d0
 
       DT=dble(TIME_STEP)/60.
 

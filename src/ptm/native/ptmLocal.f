@@ -155,6 +155,7 @@ c	use dsm2_database
 	use groups,only:ConvertGroupPatternsToMembers,PrintGroupMembers
       use common_ptm
       use common_tide
+      use runtime_data
 	implicit none
       integer istat,ibound
       character*(*)
@@ -185,8 +186,9 @@ c---- read all text into buffers and process envvironmental variables
       if (init_input_file .ne. miss_val_c) then
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! reads scalar and envvars from buffer and processes
+         call initialize_runtimes
          call buffer_input_tidefile()      ! 
-         call read_grid_from_tidefile()    ! todo
+         call read_grid_from_tidefile()    !
          call buffer_input_grid()    ! processes grid
       end if
 
@@ -200,7 +202,7 @@ c      this assures that names of qext and stage boundaries are available
       
 c------ process input that is in buffers
       call buffer_input_common()        ! process common items
-      call buffer_input_ptm()          ! process qual specialty items
+      call buffer_input_ptm()          ! process ptm specialty items
       
       call write_input_buffers()
 

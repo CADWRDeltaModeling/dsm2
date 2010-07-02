@@ -67,6 +67,16 @@ C!</license>
 	     end if
 	  end do
 	end if
-    
+
+c-----make sure run dates are spanned
+      if (dsm2_module .eq. qual .or. dsm2_module .eq. ptm) then
+	  if (  tide_files(1).start_julmin .gt. start_julmin 
+     &   .or. tide_files(nintides).end_julmin .lt. end_julmin) then
+	    write(unit_error,*)"Specified dates for tidefiles do not cover period of simulation"
+	    call exit(-3)
+	  end if
+	end if
+	! todo: eli
+	tide_files(1).start_julmin = start_julmin    
       return
       end subroutine
