@@ -161,10 +161,9 @@ C--------No dispersion if only 1 parcel is left
                !todo: this change to an average eliminates one-sidedness
                ! one-sidedness causes different answers depending on channel orientation
                ! and causes problems with dead ends. 
-               QPARCEL=(Q(MX)+Q(MX+1))/2.D0
-               DQ(K)=ABS(DQQ(N)*QPARCEL)
-               !DQ(K)=ABS(DQQ(N)*Q(MX))
-               
+               !QPARCEL=(Q(MX)+Q(MX+1))/2.D0
+               !DQ(K)=ABS(DQQ(N)*QPARCEL)
+               DQ(K)=ABS(DQQ(N)*Q(MX))
                DQMIN=DQV*A(MX)*0.5
                IF(DQ(K).LT.DQMIN)DQ(K)=DQMIN
 C--------------Changed from flow rate to volume

@@ -195,7 +195,7 @@ c-----simulation name for Database read
 
 c-----dsm2 initialization
       call dsm2_init
-
+      dqv = 0.d0 ! todo: this is a quick and dirty way of getting this early enough
 c---- begin data reading
 
 c---- read all text into buffers and process envvironmental variables

@@ -34,6 +34,8 @@ C!</license>
 
       include '../hydrolib/network.inc'
       include '../hydrolib/netcntrl.inc'
+      include '../qual/param.inc'      
+      include '../qual/bltm1.inc'      
       !include '../hydrolib/chconnec.inc'
 
       integer                  :: itmp
@@ -227,6 +229,8 @@ c--------------heat and temperature related parameters
          endif
       elseif (Param .eq. 'gravity') then
          read(Val, '(f10.0)', err=810) gravity
+      elseif (Param .eq. 'min_disperse_vel') then
+         read(Val, '(f10.0)', err=810) dqv
       elseif (Param .eq. 'toleranceq') then
          read(Val, '(f10.0)', err=810) toleranceq
       elseif (Param .eq. 'tolerancez') then
