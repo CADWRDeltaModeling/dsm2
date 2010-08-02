@@ -1,0 +1,31 @@
+# Description:
+# Standard Delta Configuration
+RESERVOIR
+NAME              AREA BOT_ELEV
+bethel         15.5031     -8.1 
+clifton_court   91.868    -10.1 
+discovery_bay   19.632    -16.0 
+franks_tract  141.7864    -10.1 
+mildred        42.2996    -14.1 
+END
+
+
+
+RESERVOIR_CONNECTION
+RES_NAME      NODE COEF_IN COEF_OUT
+bethel         220  1500.0   1500.0 
+discovery_bay  197  1125.0      0.0 
+discovery_bay  198  1125.0   1125.0 
+franks_tract   103  2250.0   2250.0 
+franks_tract   216  1500.0   1500.0 
+franks_tract   219  1500.0   1500.0 
+franks_tract   224  2250.0   2250.0 
+franks_tract   225  1500.0   1500.0 
+franks_tract   232  2250.0   2250.0 
+mildred        127  1500.0   1500.0 
+mildred        129  1500.0   1500.0 
+mildred        130  1500.0   1500.0 
+mildred        136  1500.0   1500.0 
+END
+
+

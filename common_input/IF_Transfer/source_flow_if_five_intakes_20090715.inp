@@ -1,0 +1,20 @@
+# Description:
+# CALSIM delta flow, with generic pathnames to accommodate scripted studies
+SOURCE_FLOW
+NAME         NODE SIGN FILLIN FILE          PATH                                               
+cvp          181   -1 last   ${CALSIMFILE} /CALSIM/D418_TD/FLOW-DELIVERY//1MON/${CALSIMSTUDY}/ 
+northbay_sol 273   -1 last   ${CALSIMFILE} /CALSIM/D403C/FLOW-DELIVERY//1MON/${CALSIMSTUDY}/   
+END
+
+
+
+SOURCE_FLOW_RESERVOIR
+NAME             RES_NAME      SIGN FILLIN FILE            PATH                                                   
+^dicu_div_bbid   clifton_court   -1 last   ${DICUFILE}     /DELTA/BBID/FLOW//1MON/DICU-IRR-${DICU_VERSION}/        
+^dicu_drain_bbid clifton_court    1 last   ${DICUFILE}     /DELTA/BBID/FLOW//1MON/DICU-DRN-${DICU_VERSION}/        
+^dicu_seep_bbid  clifton_court   -1 last   ${DICUFILE}     /DELTA/BBID/FLOW//1MON/DICU-SEEP-${DICU_VERSION}/       
+exp_if           clifton_court   -1 last   ${CALSIMFILE}   /CALSIM/ExportActualIF/EXPORT-PRJ//1MON/${CALSIMSTUDY}/ 
+swp              clifton_court   -1 last   ${CALSIMFILE}   /CALSIM/D419_TD/FLOW-DELIVERY//1MON/${CALSIMSTUDY}/     
+END
+
+

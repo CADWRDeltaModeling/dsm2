@@ -1,0 +1,20 @@
+# Description:
+# DSM2 Mini Calibration including Liberty Island
+RESERVOIR
+NAME       AREA BOT_ELEV
+liberty 226.904    -10.1 
+END
+
+RESERVOIR_CONNECTION
+RES_NAME NODE COEF_IN COEF_OUT
+liberty   322  7500.0   5625.0 
+END
+
+# Description:
+# DSM2 Mini Calibration including Liberty Island
+RESERVOIR_IC
+RES_NAME STAGE
+liberty    4.5 
+END
+
+

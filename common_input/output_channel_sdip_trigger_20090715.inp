@@ -1,0 +1,19 @@
+# Description:
+# SDIP trigger sites and South Delta Intensive Output
+OUTPUT_CHANNEL
+NAME              CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
+ccfb_exterior         232        0 flow     15min       inst      ${HYDROOUTDSSFILE} 
+ccfb_exterior         232        0 stage    15min       inst      ${HYDROOUTDSSFILE} 
+glc_flood_ds          213        0 stage    15min       inst      ${HYDROOUTDSSFILE} 
+glc_flood_us          212   length stage    15min       inst      ${HYDROOUTDSSFILE} 
+glc_tracy             207       36 stage    15min       inst      ${HYDROOUTDSSFILE} 
+midr_union            126     3951 stage    15min       inst      ${HYDROOUTDSSFILE} 
+oldr_head_chan_56      56        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_tracy             71     3116 stage    15min       inst      ${HYDROOUTDSSFILE} 
+tompaine              187        0 flow     15min       inst      ${HYDROOUTDSSFILE} 
+tompaine              187        0 stage    15min       inst      ${HYDROOUTDSSFILE} 
+tompaine@old          183   length flow     15min       inst      ${HYDROOUTDSSFILE} 
+tompaine@old          183   length stage    15min       inst      ${HYDROOUTDSSFILE} 
+END
+
+

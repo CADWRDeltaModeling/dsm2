@@ -1,0 +1,13 @@
+# Description:
+# Five Intakes for Isolated Facility
+TRANSFER
+NAME               FROM_OBJ FROM_IDENTIFIER TO_OBJ    TO_IDENTIFIER
+if_334             Node                 334 Reservoir clifton_court 
+if_335             Node                 335 Reservoir clifton_court 
+if_337             Node                 337 Reservoir clifton_court 
+if_338             Node                 338 Reservoir clifton_court 
+if_341             Node                 341 Reservoir clifton_court 
+^isolated_facility Node                 337 Reservoir clifton_court 
+END
+
+

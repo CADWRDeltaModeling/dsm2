@@ -1,0 +1,10 @@
+# Description:
+# Description of the new layer
+BOUNDARY_FLOW
+NAME          NODE SIGN FILLIN FILE           PATH                                              
+jones_in       118   -1 last   ${EVENTSINPUT} /HIST+CHAN/JONES-IN/FLOW-DIVERSION//15MIN/DWR-DMS/ 
+jones_out      118    1 last   ${EVENTSINPUT} /HIST+CHAN/JONES-OUT/FLOW//15MIN/DWR-DMS/          
+jones_pumpout  121    1 last   ${EVENTSINPUT} /HIST+CHAN/JONES-PUMPOUT/FLOW//15MIN/DWR-DMS/      
+END
+
+

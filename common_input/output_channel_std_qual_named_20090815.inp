@@ -1,0 +1,91 @@
+# Description:
+# Output for QUAL at common named locations
+OUTPUT_CHANNEL
+NAME              CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE             
+#idr_sjr              161        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+#mtzma_sl_us_scg_      512     6038 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+14ml_sl               312   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Fourteenmile at SJR
+3mile_sl_sac          309   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #TMS Threemile Slough at Sac
+3mile_sl_sjr          310        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #TSL Threemile Slough at SJR
+bark_sl               406        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #BKS North Bay Aqueduct/Barker Slough
+bnd_calr              560        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Boundary Condition: Calaveras River
+bnd_east              334        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Boundary Condition: Eastside Streams (Mokelumne+Cosumnes)
+bnd_mtz               441   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #MRZ Boundary Condition: Martinez (Downstream Sacramento River)
+bnd_sacr              410        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #FPT Boundary Condition: Sacramento River
+bnd_tracy             216        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #TRP Boundary Condition: Tracy Pumping
+bnd_yolo              398        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Boundary Condition: Yolo Bypass
+chipps_n_437          437   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Chipps Island North
+chipps_s_442          442   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Chipps Island South
+clfctfor              232   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Clifton Ct Forebay Entrance.
+dcc_us                365        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #DLC Delta Cross Channel upstream of the gates
+dispt_sl              314   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Disappointment Slough at SJR
+dmc_tracy             216        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #DMC DMC at Tracy PP
+dutch_sl              274   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #DSJ Dutch Slough
+emptract_si            37        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Empire Tract (Proposed Stockton Intake)
+false_r               279   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #FAL False River
+fish_cut              280   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Fishermans Cut
+georg_sl              366        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #GSS Georgianna Slough (head)
+glc_e_ds_bar          207        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #GCT Grant Line Canal at Tracy Br downstream of temporary barrier
+glc_e_us_bar          206   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #GCT Grant Line Canal at Tracy Br upstream temporary of barrier
+glc_w_ds_bar          213        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #GLC Grant Line Canal West downstream of the permanent barrier
+lt_pto_sl_sjr         319   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Little Potato Slough at SJR
+lt_pto_sl_term        324     1500 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #LPS Little Potato Slough at Terminous
+midr_bac              144        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Middle River at Bacon Island
+midr_mand             117        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #HLL Middle River at Mandeville Island
+midr_midr             143   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #MDM Middle River at Middle River
+midr_mowery           126     3951 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Middle River at Mowery Bridge
+midr_oldr             125        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #UNI Middle River at Old River (Union Island)
+midr_quimby           117        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #HOL Middle River at Quimby Island
+midr_sjr              161   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Middle River at SJR
+midr_tracy            133     2000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #MTB Middle River at Tracy Blvd Bridge
+midr_vic              135        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #VIC Middle River at Victoria Canal
+moke_sjr              349     5000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Mokelumne River at San Joaquin River
+moke_stn              344   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #STI Mokelumne River at Staten Island
+mtz_sl_ds_scg         513        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Montezuma Slough downstream of MSSCG
+mtz_sl_ns             513    15000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #NSL Montezuma Slough at National Steel
+oldr_bac              106   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"BAC, OBI" Old River at Bacon Island 
+oldr_ccf               82   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #ORI Old River at Clifton Court Ferry
+oldr_ccwd_lvi          90   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #IDB Old River at CCWD Los Vaqueros intake
+oldr_frankstr         124     5000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #OSJ Old River at Franks Tract near Terminous
+oldr_hwy4              90   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"ORB,OH4" Old River at Hwy 4
+oldr_midr              59        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Old River at Middle River
+oldr_mouth            124   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Old River at SJR (downstream end)
+oldr_quimby           119     5000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #ORQ Old River at Quimby Island
+oldr_tracy             71   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"OLD, OLR" Old River at Tracy Road Bridge
+oldrh_ds_bar           54        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #OH1 Old River at head -- Downstream of Barrier
+oldrt_ds_bar           80        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #ODM Old River at DMC (Tracy) downstream of the barrier 
+pto_sl                328   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Potato Slough at SJR
+rock_sl_pp1           247        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #RSL CCWD Pumping Plant 1 (Western end Rock Slough)
+ror                   512   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #ROR Roaring River at Montezuma Slough
+sacr_chi              438    10000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #PCT Sacramento River at Port Chicago
+sacr_dcc_ds           423        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # Sacramento River Downstream of DCC
+sacr_dcc_us           421     6500 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #SDC Sacramento River Upstream of DCC
+sacr_emtn             433   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #EMM Sacramento River at Emmaton
+sacr_frpt             414   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #FPT Sacramento River at Freeport
+sacr_greens           418     4814 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #GLN Sacramento River at Greens Landing
+sacr_pitt             288     6000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #PTS Sacramento River at Pittsburg
+sacr_riov             430   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"RIV, RVB, RVS, SRV" Sacramento River at Rio Vista
+sacr_coll             436   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"CLL, CSE" Sacramento River at Collinsville
+sacr_mal_sl           437    10000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #MAL Sacramento R. at Mallard Slough
+sjr_ant                52      366 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"ANC, ANH" San Joaquin River at Antioch
+sjr_brnt               10   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #BDT San Joaquin River at Brandt Bridge
+sjr_jpt                83   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"JER, SJJ" San Joaquin River at Jersey Point
+sjr_maze               17        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #MRB San Joaquin River at Maze Road Bridge
+sjr_mossdale            6     3000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #MSD San Joaquin River at Mossdale Bridge
+sjr_prisonpt           42     4000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"PPT, PRI" San Joaquin River at Prisoner's Point
+sjr_rindge             24        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # San Joaquin River at Rindge Pump
+sjr_rri                20     2000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #RRI San Joaquin River at Rough & Ready Island
+sjr_san_andreas        45     5000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #SAL San Joaquin River at San Andreas Landing
+sjr_stcktn             14        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #SJG San Joaquin River at Stockton
+sjr_trn_clmb           31        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} # SJR between Turner and Columbia Cut
+sjr_venice            319     9000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"VNE,VNI" San Joaquin River at Venice Island
+sjr_vern               17   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"SJR, VER, VNS" San Joaquin River at Vernalis
+steamboat_sl          383     9000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #SSS Steamboat Slough btw Sac R & Sutter Sl
+sutter_sl             379   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #SUT Sutter Slough (head)
+tompn_sl_i            194     1000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #"TPI, TPS" Tom Paine Slough Upstream of Intake Structure
+tompn_sl_m            185   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #TPP Tom Paine Slough near Pescadero (Mouth)
+trnr_cut              172        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #TRN Turner Cut
+vic_cnl_ai            229     1000 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #VCU Victoria Canal near Byron (Proposed CCWD Alternative Intake)
+west_cnl              232        0 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #WCI West Canal at Clifton Court Intake
+yolo_by               392   length ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} #LIS Yolo Bypass at Lisbon
+END

@@ -1,0 +1,175 @@
+# Description:
+# Standard output for HYDRO at common-named locations. Do not create common names redundant with stations with prescribed RKIs.
+OUTPUT_CHANNEL
+NAME              CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
+14ml_sl               312   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Fourteenmile at SJR
+14ml_sl               312   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Fourteenmile at SJR
+3mile_sl_sac          309   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TMS Threemile Slough at Sac
+3mile_sl_sac          309   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TMS Threemile Slough at Sac
+3mile_sl_sjr          310        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TSL Threemile Slough at SJR
+3mile_sl_sjr          310        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TSL Threemile Slough at SJR
+bark_sl               406        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #BKS North Bay Aqueduct/Barker Slough
+bark_sl               406        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #BKS North Bay Aqueduct/Barker Slough
+bnd_calr              560        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Boundary Condition: Calaveras River
+bnd_calr              560        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Boundary Condition: Calaveras River
+bnd_east              334        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Boundary Condition: Eastside Streams (Mokelumne+Cosumnes)
+bnd_east              334        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Boundary Condition: Eastside Streams (Mokelumne+Cosumnes)
+bnd_mtz               441   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MRZ Boundary Condition: Martinez (Downstream Sacramento River)
+bnd_mtz               441   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MRZ Boundary Condition: Martinez (Downstream Sacramento River)
+bnd_sacr              410        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #FPT Boundary Condition: Sacramento River
+bnd_sacr              410        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #FPT Boundary Condition: Sacramento River
+bnd_tracy             216        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TRP Boundary Condition: Tracy Pumping
+bnd_tracy             216        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TRP Boundary Condition: Tracy Pumping
+bnd_yolo              398        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Boundary Condition: Yolo Bypass
+bnd_yolo              398        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Boundary Condition: Yolo Bypass
+cache_sl              398     7500 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #RYI Cache Slough at Ryer Island
+chipps_n_437          437   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Chipps Island North
+chipps_n_437          437   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Chipps Island North
+chipps_s_442          442   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Chipps Island South
+chipps_s_442          442   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Chipps Island South
+clfctfor              232   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Clifton Ct Forebay Entrance.
+clfctfor              232   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Clifton Ct Forebay Entrance.
+dcc_us                365        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #DLC Delta Cross Channel upstream of the gates
+dcc_us                365        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #DLC Delta Cross Channel upstream of the gates
+dispt_sl              314   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Disappointment Slough at SJR
+dispt_sl              314   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Disappointment Slough at SJR
+dmc_tracy             216        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #DMC DMC at Tracy PP
+dmc_tracy             216        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #DMC DMC at Tracy PP
+dutch_sl              274   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #DSJ Dutch Slough
+dutch_sl              274   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #DSJ Dutch Slough
+emptract_sl            37        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Empire Tract (Proposed Stockton Intake)
+emptract_sl            37        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Empire Tract (Proposed Stockton Intake)
+false_r               279   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #FAL False River
+false_r               279   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #FAL False River
+fish_cut              280   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Fishermans Cut
+fish_cut              280   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Fishermans Cut
+georg_sl              366        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GSS Georgianna Slough (head)
+georg_sl              366        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GSS Georgianna Slough (head)
+glc_e_ds_bar          207        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GCT Grant Line Canal at Tracy Br downstream of temporary barrier
+glc_e_ds_bar          207        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GCT Grant Line Canal at Tracy Br downstream of temporary barrier
+glc_e_us_bar          206   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GCT Grant Line Canal at Tracy Br upstream temporary of barrier
+glc_e_us_bar          206   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GCT Grant Line Canal at Tracy Br upstream temporary of barrier
+glc_w_ds_bar          213        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GLC Grant Line Canal West downstream of the permanent barrier
+glc_w_ds_bar          213        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GLC Grant Line Canal West downstream of the permanent barrier
+glc_w_us_bar          212   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GLC Grant Line Canal West upstream of the permanent barrier
+glc_w_us_bar          212   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GLC Grant Line Canal West upstream of the permanent barrier
+librty_is             319        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"LIR, LIY" Liberty Island Road 2068
+lt_pto_sl_sjr         319   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Little Potato Slough at SJR
+lt_pto_sl_sjr         319   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Little Potato Slough at SJR
+lt_pto_sl_term        324     1500 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #LPS Little Potato Slough at Terminous
+lt_pto_sl_term        324     1500 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #LPS Little Potato Slough at Terminous
+midr_bac              144        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Middle River at Bacon Island
+midr_bac              144        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Middle River at Bacon Island
+midr_ds_bar           134        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Middle River at Tracy Bridge downstream of barrier
+midr_howard           129     1000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MHR Middle River at Howard Road Bridge
+midr_oldr             125        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #UNI Middle River at Old River (Union Island)
+midr_oldr             125        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #UNI Middle River at Old River (Union Island)
+midr_sjr              161   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Middle River at SJR
+midr_sjr              161   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Middle River at SJR
+midr_tracy            133     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MTB Middle River at Tracy Blvd Bridge
+midr_tracy            133     2000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MTB Middle River at Tracy Blvd Bridge
+midr_vic              135        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #VIC Middle River at Victoria Canal
+midr_vic              135        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #VIC Middle River at Victoria Canal
+moke_sjr              349     5000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Mokelumne River at San Joaquin River
+moke_sjr              349     5000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Mokelumne River at San Joaquin River
+moke_stn              344   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #STI Mokelumne River at Staten Island
+moke_stn              344   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #STI Mokelumne River at Staten Island
+mtzma_sl_ds_scg       513        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Montezuma Slough downstream of MSSCG
+mtzma_sl_ds_scg       513        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Montezuma Slough downstream of MSSCG
+mtzma_sl_ns           513    15000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #NSL Montezuma Slough at National Steel
+mtzma_sl_ns           513    15000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #NSL Montezuma Slough at National Steel
+mtzma_sl_us_scg       512   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Montezuma Slough upstream of MSSCG
+mtzma_sl_us_scg       512   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Montezuma Slough upstream of MSSCG
+oldr_bac              106   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"BAC, OBI" Old River at Bacon Island 
+oldr_bac              106   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"BAC, OBI" Old River at Bacon Island 
+oldr_ccwd_lvi          90   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #IDB Old River at CCWD Los Vaqueros intake
+oldr_ccwd_lvi          90   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #IDB Old River at CCWD Los Vaqueros intake
+oldr_frankstr         124     5000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #OSJ Old River at Franks Tract near Terminous
+oldr_frankstr         124     5000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #OSJ Old River at Franks Tract near Terminous
+oldr_hwy4              90   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"ORB,OH4" Old River at Hwy 4
+oldr_hwy4              90   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"ORB,OH4" Old River at Hwy 4
+oldr_midr              59        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Old River at Middle River
+oldr_midr              59        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Old River at Middle River
+oldr_mouth            124   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Old River at SJR (downstream end)
+oldr_mouth            124   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Old River at SJR (downstream end)
+oldr_quimby           119     5000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #ORQ Old River at Quimby Island
+oldr_quimby           119     5000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #ORQ Old River at Quimby Island
+oldr_tracy             71   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"OLD, OLR" Old River at Tracy Road Bridge
+oldr_tracy             71   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"OLD, OLR" Old River at Tracy Road Bridge
+oldrh_ds_bar           54        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #OH1 Old River at head  Downstream of Barrier
+oldrh_ds_bar           54        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #OH1 Old River at head  Downstream of Barrier
+oldrt_ds_bar           80        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #ODM Old River at DMC (Tracy) downstream of the barrier 
+oldrt_ds_bar           80        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #ODM Old River at DMC (Tracy) downstream of the barrier 
+oldrt_us_bar           79   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #ODM Old River at DMC (Tracy) upstream of the barrier 
+pto_sl                328   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Potato Slough at SJR
+pto_sl                328   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Potato Slough at SJR
+rock_sl_pp1           247        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #RSL CCWD Pumping Plant 1 (Western end Rock Slough)
+rock_sl_pp1           247        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #RSL CCWD Pumping Plant 1 (Western end Rock Slough)
+ror                   512   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #ROR Roaring River at Montezuma Slough
+ror                   512   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #ROR Roaring River at Montezuma Slough
+sacr_chi               438    10000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #PCT Sacramento River at Port Chicago
+sacr_chi               438    10000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #PCT Sacramento River at Port Chicago
+sacr_dcc_ds            423        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Sacramento River Downstream of DCC
+sacr_dcc_ds            423        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Sacramento River Downstream of DCC
+sacr_dcc_us            421     6500 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SDC Sacramento River Upstream of DCC
+sacr_dcc_us            421     6500 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SDC Sacramento River Upstream of DCC
+sacr_emmaton           433    12134 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+sacr_emmaton           433    12134 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+sacr_emtn              433   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #EMM Sacramento River at Emmaton
+sacr_emtn              433   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #EMM Sacramento River at Emmaton
+sacr_frpt              414   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #FPT Sacramento River at Freeport
+sacr_frpt              414   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #FPT Sacramento River at Freeport
+sacr_greens            418     4814 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GLN Sacramento River at Greens Landing
+sacr_greens            418     4814 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GLN Sacramento River at Greens Landing
+sacr_gsl_ds            423        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #GES Sacramento River Downstream of Georgiana Slough
+sacr_gsl_us            422   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # Sacramento River Upstream of Georgiana Slough
+sacr_pitt              288     6000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #PTS Sacramento River at Pittsburg
+sacr_pitt              288     6000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #PTS Sacramento River at Pittsburg
+sacr_riov              430   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"RIV, RVB, RVS, SRV" Sacramento River at Rio Vista
+sacr_riov              430   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"RIV, RVB, RVS, SRV" Sacramento River at Rio Vista
+sacr_coll             436   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"CLL, CSE" Sacramento River at Collinsville
+sacr_coll             436   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"CLL, CSE" Sacramento River at Collinsville
+sacr_mal_sl           437    10000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MAL Sacramento R. at Mallard Slough
+sacr_mal_sl           437    10000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MAL Sacramento R. at Mallard Slough
+sjr_brnt               10   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #BDT San Joaquin River at Brandt Bridge
+sjr_brnt               10   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #BDT San Joaquin River at Brandt Bridge
+sjr_gwd                14   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SJG San Joaquin River at Garwood Bridge
+sjr_jpt                83   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"JER, SJJ" San Joaquin River at Jersey Point
+sjr_jpt                83   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"JER, SJJ" San Joaquin River at Jersey Point
+sjr_maze               17        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MRB San Joaquin River at Maze Road Bridge
+sjr_maze               17        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MRB San Joaquin River at Maze Road Bridge
+sjr_mossdale            6     3000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MSD San Joaquin River at Mossdale Bridge
+sjr_mossdale            6     3000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #MSD San Joaquin River at Mossdale Bridge
+sjr_oldr_ds             8        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SJL San Joaquin River downstream of Old River
+sjr_rindge             24        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # San Joaquin River at Rindge Pump
+sjr_rindge             24        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # San Joaquin River at Rindge Pump
+sjr_rri                20     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #RRI San Joaquin River at Rough & Ready Island
+sjr_rri                20     2000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #RRI San Joaquin River at Rough & Ready Island
+sjr_san_andreas        45     5000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SAL San Joaquin River at San Andreas Landing
+sjr_san_andreas        45     5000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SAL San Joaquin River at San Andreas Landing
+sjr_stcktn             14        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SJG San Joaquin River at Stockton
+sjr_stcktn             14        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SJG San Joaquin River at Stockton
+sjr_trn_clmb           31        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # SJR between Turner and Columbia Cut
+sjr_trn_clmb           31        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # SJR between Turner and Columbia Cut
+sjr_venice            319     9000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"VNE,VNI" San Joaquin River at Venice Island
+sjr_venice            319     9000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"VNE,VNI" San Joaquin River at Venice Island
+sjr_vern               17   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"SJR, VER, VNS" San Joaquin River at Vernalis
+sjr_vern               17   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"SJR, VER, VNS" San Joaquin River at Vernalis
+sjr_oldr_us             7   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} # San Joaquin River Upstream of Old River
+steamboat_sl          383     9000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SSS Steamboat Slough btw Sac R & Sutter Sl
+steamboat_sl          383     9000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SSS Steamboat Slough btw Sac R & Sutter Sl
+sutter_sl             379   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SUT Sutter Slough (head)
+sutter_sl             379   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #SUT Sutter Slough (head)
+tompn_sl_i            194     1000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"TPI, TPS" Tom Paine Slough Upstream of Intake Structure
+tompn_sl_i            194     1000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #"TPI, TPS" Tom Paine Slough Upstream of Intake Structure
+tompn_sl_m            185   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TPP Tom Paine Slough near Pescadero (Mouth)
+tompn_sl_m            185   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TPP Tom Paine Slough near Pescadero (Mouth)
+trnr_cut              172        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TRN Turner Cut
+trnr_cut              172        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #TRN Turner Cut
+vic_cnl_ai            229     1000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #VCU Victoria Canal near Byron (Proposed CCWD Alternative Intake)
+vic_cnl_ai            229     1000 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #VCU Victoria Canal near Byron (Proposed CCWD Alternative Intake)
+west_cnl              232        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #WCI West Canal at Clifton Court Intake
+west_cnl              232        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #WCI West Canal at Clifton Court Intake
+yolo_by               392   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #LIS Yolo Bypass at Lisbon
+yolo_by               392   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} #LIS Yolo Bypass at Lisbon
+END

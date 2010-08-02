@@ -1,0 +1,13 @@
+# Description:
+# Flow Transfer through Isolated Facility (IF)
+INPUT_TRANSFER_FLOW
+TRANSFER_NAME      FILLIN FILE          PATH                                                           
+if_334             last   ${CALSIM_NDD} /CALSIM-DOWNSCALED/NDD_334/FLOW-DELIVERY//15MIN/${CALSIMSTUDY}/ 
+if_335             last   ${CALSIM_NDD} /CALSIM-DOWNSCALED/NDD_335/FLOW-DELIVERY//15MIN/${CALSIMSTUDY}/ 
+if_337             last   ${CALSIM_NDD} /CALSIM-DOWNSCALED/NDD_337/FLOW-DELIVERY//15MIN/${CALSIMSTUDY}/ 
+if_338             last   ${CALSIM_NDD} /CALSIM-DOWNSCALED/NDD_338/FLOW-DELIVERY//15MIN/${CALSIMSTUDY}/ 
+if_341             last   ${CALSIM_NDD} /CALSIM-DOWNSCALED/NDD_341/FLOW-DELIVERY//15MIN/${CALSIMSTUDY}/ 
+^isolated_facility last   ${IF_FILE}    ${IF_PATH}                                                      
+END
+
+

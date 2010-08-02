@@ -1,0 +1,46 @@
+# Description:
+# Nonconservative (DO) run parameters
+SCALAR
+NAME            VALUE  
+mass_tracking   f       #qual mass tracking                          
+alg_bod         1.00    #algal mortality contribution to bod         
+alg_chl_ratio   10.00   #chlorophyll to biomass ratio                
+algaefract_n    0.09    #fraction of algae as nitrogen               
+algaefract_p    0.012   #fraction of algae as phosphorus             
+dust_attcoeff   0.04    #dust attenuation coefficient                
+elev            0.      #basin elevation, ft                         
+evapcoeff_a     0.00068 #evaporation coefficient, a                  
+evapcoeff_b     0.0002  #evaporation coefficient, b                  
+klight_half     0.085   #mm half-saturation constant for light       
+knit_half       0.05    #mm half-saturation constant for nitrogen    
+kpho_half       0.01    #mm half-saturation const. for phosphorus    
+lambda0         0.26    #non algal light extinction coefficient      
+lambda1         0.003   #linear algal self shading coefficient       
+lambda2         0.0165  #nonlinear algal self shading coefficient    
+lat             38.00   #latitude, degrees                           
+long            121.5   #longitude,degrees                           
+long_std_merid  120.00  #longitude of stand. meridian,degrees        
+oxy_nh3         3.0     #oxygen used in oxidiation of nh3 to no2     
+oxy_no2         1.14    #oxygen used in oxidiation of no2 to no3     
+oxy_photo       1.6     #oxygen produced per unit of algal growth    
+oxy_resp        2.0     #o2 uptake per unit of algal respiration     
+pref_factor     0.5     #algal pref. factor for nh3                  
+temp_alg_die    1.047   #temperature coeff. for algal mortality      
+temp_alg_grow   1.07    #temperature coeff. for algal growth         
+temp_alg_resp   1.047   #temperature coeff. for algal resp.          
+temp_alg_set    1.024   #temperature coeff. for algal settling       
+temp_bod_decay  1.047   #temperature coeff. for bod decay            
+temp_bod_set    1.024   #temperature coeff. for bod settling         
+temp_do_ben     1.06    #temperature coeff. for benthic oxygen demand
+temp_nh3_ben    1.074   #temperature coeff. for nh3-n benthic source 
+temp_nh3_decay  1.083   #temperature coeff. for nh3-n decay          
+temp_no2_decay  1.047   #temperature coeff. for no2-n decay          
+temp_orgn_decay 1.047   #temperature coeff. for organic n decay      
+temp_orgn_set   1.024   #temperature coeff. for organic n settling   
+temp_orgp_decay 1.047   #temperature coeff. for organic p decay      
+temp_orgp_set   1.024   #temperature coeff. for organic p settling   
+temp_po4_ben    1.074   #temperature coeff. for po4-p benthic source 
+temp_reaer      1.024   #temperature coeff. for reaeration           
+END
+
+

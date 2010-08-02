@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Operating Rules</title><!-- Changed by: , 07-Sep-2007 -->
+<link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
+<body>
+<div id="wrap" >
+
+<ul id="page_navbar" >
+<li><a href="../toc.html">TOC</a></li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#tables">Tables</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul><!--end navbar-->
+
+<hr style="header_hr"/>
+<div id="page_title" class="dwr_logo">
+<h1>Operating Rule</h1>
+</div><!-- page_title-->
+<hr style="header_hr"/>
+
+<div id="contents">
+
+<a name="overview"></a><h2>Overview:</h2>
+<p>Operating rules are user-written rules that manipulate model
+inputs such as gate operations, boundary flows based on observations of
+the current state of the running model. Operating rules are documented
+in detail in the <a href="../op_rule_guide/dsm2_op_rule_guide.html">DSM2 Op Rule Guide</a>. The Operating Rules table lists the time
+series, expressions and rule definitions.
+</p>
+
+<a name="tables"></a>
+<h2 id="tables">Tables:</h2>
+<ul class="table_list">
+<li><a href="#operating_rule_table">OPERATING RULE</a></li>
+<li><a href="#operation_time_series_table">OPRULE_TIME_SERIES</a></li>
+<li><a href="#expressions_table">OPRULE_EXPRESSION</a></li>
+</ul>
+
+<a name="operating_rule_table"></a>
+<h3 class="table_name">OPERATING_RULE</h3>
+<p>Defines the name, action and trigger of the operating rule.</p>
+<h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions">
+<dt>NAME</dt>
+<dd>Name of the operating rule. This is the identifier of the rule.
+</dd><dt>ACTION</dt>
+<dd>Definition of the action to be taken when the trigger transitions from FALSE to TRUE.</dd>
+<dt>TRIGGER</dt>
+<dd>Trigger that activates the rule when it transitions from FALSE to
+TRUE. If the trigger is NULL it will become the trivial TRUE trigger,
+which is assumed to make a transition from FALSE to TRUE at startup (it is not "always" active).</dd><dt>Use</dt>
+</dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>NAME</dd>
+<dt>Parent Table:</dt><dd>Table is parent</dd>
+<dt>Include Block:</dt><dd>OPERATIONS</dd>
+</dl>
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="operation_time_series_table"></a>
+<h3 class="table_name">OPRULE_TIME_SERIES</h3>
+<p>This table lists time series that are used in forming action and
+trigger definitions. The table is not a child table -- it is a
+top-level layered table.</p>
+<h4 class="field_def_title">Field Descriptions</h4>
+<dl class="field_definitions">
+<dt>NAME</dt><dd>Name assigned to the time series. This is the identifier of the series. It
+is also the name used to refer to the series in expressions.</dd>
+<dt>FILLIN</dt><dd>Method
+used to interpolate when the model time step is finer than the time
+series time step. Use "last" to use the last time stamp in the period
+(a HEC-DSS convention) and "linear" to interpolate linearly</dd>
+<dt>FILE</dt><dd>Input &nbsp;file (HEC-DSS or text file in HEC-DSS format) storing the time series or the word&nbsp;<span style="font-style: italic;">constant</span> if the series is assigned a fixed value.</dd>
+<dt>PATH</dt><dd>HEC-DSS path of the data within the Input File or the value 
+(e.g. <span style="font-style: italic;">2.0</span>) if the series is assigned a fixed value.</dd>
+</dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>NAME</dd>
+<dt>Parent Table:</dt><dd>Table is parent</dd>
+<dt>Include Block:</dt><dd>OPERATIONS</dd>
+</dl>
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="expressions_table"></a>
+<h3 class="table_name">OPRULE_EXPRESSION</h3>
+<p>This table allows the user to list expressions that can be reused
+later in operating rule actions and triggers. Expressions cannot depend
+on other expressions. Expressions are not a child table -- the table is
+a top-level layered table.</p>
+<h4 class="field_def_title">Field Descriptions</h4>
+<dt>NAME</dt><dd>Name
+of the expression. This is the identifier of the expression. It is also
+the name used to refer to the expression in expressions.&nbsp;</dd>
+<dt>DEFINITION</dt><dd>Definition of the expression -- this will be a forumula involving model variables, seasons and time series. 
+The time series can be from the above time series table or elsewhere in the Input Time Series section. Please see the
+Operating Rules Guide for more details.</dd>
+</dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>NAME</dd>
+<dt>Parent Table:</dt><dd>Table is parent</dd>
+<dt>Include Block:</dt><dd>OPERATIONS</dd>
+</dl>
+
+<hr class="table_sep" width="200" style="margin:24px"></hr>
+
+<a name="usage"></a>
+<h2>Usage Notes:</h2>
+<ul>
+<li>Numerous usage comments in the Operating Rules Guide.<br></li>
+<li>Time series referenced in the operating rules may be defined in an OPRULE_TIME_SERIES 
+table or they may be time series defined elsewhere, such as the name of a boundary flow.<br></li>
+<li>Neither the OPRULE_EXPRESSION or OPRULE_TIME_SERIES table is a child table of OPERATING_RULE.
+However, it is common to put related items in the same file.</li>
+
+</ul>
+
+</div><!--End contents-->
+
+<div id="footer">
+<copyright>© 2007, 2009 California
+Department of Water Resources. All Rights Reserved</copyright>
+<p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
+Public License</a></p>
+</div><!--End footer--> 
+</div> <!--End wrap-->
+</body></html>
