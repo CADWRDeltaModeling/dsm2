@@ -439,13 +439,14 @@ c@@@         OK = ReportNetBalance()
 
       
 
+      print *, 'Before CloseSolver'
       OK = CloseSolver()
-
+      print *, 'After CloseSolver'
       inquire(unit_output,opened=isopen)
       if(isopen)close(unit_output, err=1222)
       inquire(unit_screen,opened=isopen)
       if(isopen)close(unit_screen, err=1222)
-
+      print *, 'After inquires'
 1222  call exit(0)
 
       END
