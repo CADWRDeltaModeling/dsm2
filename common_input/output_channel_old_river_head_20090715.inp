@@ -1,8 +1,0 @@
-# Description:
-# old river head flow
-OUTPUT_CHANNEL
-NAME      CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
-oldr_head      56        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
-END
-
-

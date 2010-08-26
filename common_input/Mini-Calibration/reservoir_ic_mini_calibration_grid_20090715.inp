@@ -1,8 +1,0 @@
-# Description:
-# DSM2 Mini Calibration including Liberty Island
-RESERVOIR_IC
-RES_NAME STAGE
-liberty    4.5 
-END
-
-

@@ -1,8 +1,0 @@
-# Description:
-# Historical stage at Martinez
-BOUNDARY_STAGE
-NAME NODE FILLIN FILE          PATH                                                
-mtz   361 linear ${BNDRYINPUT} /FILL+CHAN/RSAC054/STAGE//15MIN/${HISTSTAGEVERSION}/ 
-END
-
-

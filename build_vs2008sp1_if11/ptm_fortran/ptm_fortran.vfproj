@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{103A80C2-8A15-439B-9EC6-A146474E2EB5}">
 	<Platforms>
-		<Platform Name="Win32"/>
-		<Platform Name="x64"/></Platforms>
+		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32" ConfigurationType="typeStaticLibrary">
 				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check /QxW" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" Interfaces="true" FixedFormLineLength="fixedLength132" SV_Includes="true" WarnInterfaces="true" ModulePath="$(ProjectDir)\..\modules\$(ConfigurationName)" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
@@ -29,35 +28,6 @@
 				<Tool Name="VFLibrarianTool"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
-				<Tool Name="VFCustomBuildTool"/>
-				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/></Configuration>
-		<Configuration Name="Debug|x64" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check /QxW" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" Interfaces="true" FixedFormLineLength="fixedLength132" SV_Includes="true" WarnInterfaces="true" ModulePath="$(ProjectDir)\..\modules\$(ConfigurationName)" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
-				<Tool Name="VFLibrarianTool" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
-				<Tool Name="VFResourceCompilerTool"/>
-				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
-				<Tool Name="VFCustomBuildTool"/>
-				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/>
-				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
-		<Configuration Name="Release|x64" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\Release"/>
-				<Tool Name="VFLibrarianTool" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
-				<Tool Name="VFResourceCompilerTool"/>
-				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
-				<Tool Name="VFCustomBuildTool"/>
-				<Tool Name="VFPreLinkEventTool"/>
-				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/>
-				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
-		<Configuration Name="DLL|x64" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\DLL" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\DLL" RuntimeLibrary="rtMultiThreadedDLL"/>
-				<Tool Name="VFLibrarianTool"/>
-				<Tool Name="VFResourceCompilerTool"/>
-				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TargetEnvironment="midlTargetAMD64"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
