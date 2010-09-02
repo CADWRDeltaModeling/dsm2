@@ -141,6 +141,7 @@ C-----+ + + LOCAL VARIABLES + + +C
       integer
      &     istat                ! status of fixed input        
       integer ierror
+     &     ,ibound
       character
      &     init_input_file*128  ! initial input file on command line [optional]
      &     ,jmin2cdt*14         ! convert from julian minute to char date/time
@@ -199,7 +200,7 @@ c-----simulation name for Database read
 
 c-----dsm2 initialization
       call dsm2_init
-
+      dqv = 0.d0 ! todo: this is a quick and dirty way of getting this early enough
 c---- hdf5 api on
       call h5open_f(ierror)
       call verify_error(ierror,"Program error -- opening hdf5 API")
@@ -213,10 +214,19 @@ c---- read all text into buffers and process envvironmental variables
          end if
          call input_text(init_input_file)  ! reads and echoes text
          call process_initial_text()       ! reads scalar and envvars from buffer and processes
-         call buffer_input_tidefile()      ! todo: remove from buffer_input_common
-         call read_grid_from_tidefile()    ! todo
+         call initialize_runtimes
+         call buffer_input_tidefile()      ! process tidefile name(s)
+         call read_grid_from_tidefile()
          call buffer_input_grid()    ! processes grid
       end if
+c----- load header information from the first hydro tidefile
+c      this assures that names of qext and stage boundaries are available
+      call read_tide_head(tide_files(1).filename, .false.)
+      ! Loop through number of stage boudnaries and set node_geom
+      do ibound = 1,nstgbnd
+          node_geom(stgbnd(ibound).node).boundary_type=stage_boundary
+      end do      
+      
       
 c------ process input that is in buffers
       call buffer_input_common()        ! process common items

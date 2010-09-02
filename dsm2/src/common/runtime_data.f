@@ -100,6 +100,76 @@ c-----titles
 
       character*80
      &     title(max_titles)
+
+
+      contains
+      
+      
+      
+      
+      subroutine initialize_runtimes
+      use io_units
+      use constants
+      implicit none
+      integer cdt2jmin
+      
+      character
+     &     diff2dates*14       ! return DSS date given start and diff
+     &     ,jmin2cdt*14         ! julian minute to char function
+c-----correct start date for odd minutes (not multiple of 15 minutes)
+      start_julmin=cdt2jmin(run_start_date)
+	if( start_julmin .ne. (start_julmin/15)*15) then
+         write(unit_error,*)"Start time must be aligned with " //
+     &     "15MIN interval(0000,0015...)"
+	end if
+ 605  format(/a,' date incorrect: ',a)
+c-----calculate ending time if run length, rather than
+c-----start/end times are given
+      if (run_length .ne. ' ') then
+c--------run length should be in form: '20hour' or '5day'
+         run_end_date=diff2dates(run_start_date,run_length)
+      endif                     ! start/end char dates given
+      end_julmin=cdt2jmin(run_end_date)
+
+      if (len_trim(run_start_date) .eq. 0)then
+         write(unit_error,*)'Start date missing'
+         call exit(-3)
+      endif
+      if (len_trim(run_end_date) .eq. 0)then
+         write(unit_error,*)'End date missing'
+         call exit(-3)
+      endif
+
+c-----check validity of start and end julian minutes
+      if (start_julmin .ge. end_julmin) then
+         write(unit_error,"('Starting date: ',a9,
+     &        ' equal to or after ending date: ',a9,'or one/both may be missing')")
+     &        run_start_date,run_end_date
+         call exit(-3)
+      endif
+      if (start_julmin .eq. miss_val_i) then
+         write(unit_error,605) 'Starting',run_start_date
+         call exit(-3)
+      endif
+      if (end_julmin .eq. miss_val_i) then
+         write(unit_error,605) 'Ending',run_end_date
+         call exit(-3)
+      endif
+
+c-----Tidefile date to when to start writing tidefile (hydro)
+      if (dsm2_module .eq. hydro) then
+         if (tf_start_date .eq. ' ') then
+            tf_start_julmin=start_julmin
+         else
+c-----------correct tf start date for odd minutes (not multiple of tidefile interval)
+            tf_start_julmin=cdt2jmin(tf_start_date)
+            tf_start_julmin=(tf_start_julmin/15)*15
+            tf_start_julmin=max(start_julmin,tf_start_julmin) ! correct for too-soon tf start
+         endif
+      endif
+      tf_start_date = jmin2cdt(start_julmin)
+      
+      end subroutine 
       
       end module
 

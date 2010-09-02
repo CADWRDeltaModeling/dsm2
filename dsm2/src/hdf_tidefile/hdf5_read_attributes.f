@@ -24,7 +24,7 @@ c**********contains routines for writing data to an HDF5 file
 
 *   Programmed by: Tawnly Pranger
 *   Date:          October 2003
-*   Revised:       Eli Ateljevich, October 2005
+
 
 
 ***********************************************************************

@@ -50,19 +50,19 @@ C!</license>
           units='umhos/cm'
       else if (Param .eq. 'do') then
           units='mg/l'
-      else if (Param .eq. 'nh3-n') then
+      else if (Param .eq. 'nh3') then
           units='mg/l'
-      else if (Param .eq. 'org-n') then
+      else if (Param .eq. 'organic_n') then
           units='mg/l'
-      else if (Param .eq. 'no2-n') then
+      else if (Param .eq. 'no2') then
           units='mg/l'
-      else if (Param .eq. 'no3-n') then
+      else if (Param .eq. 'no3') then
           units='mg/l'
       else if (Param .eq. 'bod') then
           units='mg/l'
-      else if (Param .eq. 'org-p') then
+      else if (Param .eq. 'organic_p') then
           units='mg/l'
-      else if (Param .eq. 'po4-p') then
+      else if (Param .eq. 'po4') then
           units='mg/l'
       else if (Param .eq. 'algae') then
           units='mg/l'

@@ -22,7 +22,8 @@ C!</license>
       use input_storage_fortran
       use constants
       use io_units
-      
+      use runtime_data
+      use common_tide
       implicit none
       integer :: nitem
       integer :: icount
@@ -31,13 +32,51 @@ C!</license>
 
       character*(16) :: sdate,edate
       integer*4, external :: obj_type_code
-
+      integer :: i
+      integer :: n_tidefiles_used
 
       nitem = tidefile_buffer_size()
+      if (nitem .eq. 0)then
+          write(unit_error,*)"No input tidefiles listed."
+          call exit(-3)
+      end if
       do icount = 1,nitem
          call tidefile_query_from_buffer(icount,sdate,edate,iofile,ierror)
          call process_tidefile(sdate,edate,iofile)
       end do
       print *,"Number of tidefiles: ", nitem
 
+      ! Check the numbering and order of tidefiles
+      n_tidefiles_used = 0
+      if (nintides .le. 0) then
+         write(unit_error, '(a)') 'No input tides given, run stopped.'
+         call exit(-3)
+      endif
+      do i=1,nintides
+	   n_tidefiles_used = n_tidefiles_used + 1
+	   ! This exit statement allows nonexistent tidefiles to be listed
+	   if (tide_files(i).end_julmin .ge. end_julmin) exit  
+      enddo
+      nintides = n_tidefiles_used
+	if (nintides .gt. 1) then 
+        do i=2,nintides
+           if (tide_files(i).start_julmin .ne. tide_files(i-1).end_julmin) then
+	        write(unit_error,*) "Tidefile dates must be ordered in time, " 
+     &              // "with no gaps or overlap in start/end dates"
+	        call exit(-3)
+	     end if
+	  end do
+	end if
+
+c-----make sure run dates are spanned
+      if (dsm2_module .eq. qual .or. dsm2_module .eq. ptm) then
+	  if (  tide_files(1).start_julmin .gt. start_julmin 
+     &   .or. tide_files(nintides).end_julmin .lt. end_julmin) then
+	    write(unit_error,*)"Specified dates for tidefiles do not cover period of simulation"
+	    call exit(-3)
+	  end if
+	end if
+	! todo: eli
+	tide_files(1).start_julmin = start_julmin    
+      return
       end subroutine
