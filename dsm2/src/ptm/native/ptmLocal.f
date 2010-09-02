@@ -149,6 +149,7 @@ c-----Check Hydro tidefile for size compatibility with PTM.
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine read_ptm(init_input_file)
+	use hdf5, only : h5open_f
 	use IO_Units
 c	use dsm2_database
       use iopath_data
@@ -176,7 +177,7 @@ c-----then default
 c-----initialize all arrays and logical variables.
       call dsm2_init()
 c---- hdf5 api on
-      call h5open_f      
+      call h5open_f(istat)      
       
       !todo: think this initialization is already done in modules,
       ! that is why it is commented
