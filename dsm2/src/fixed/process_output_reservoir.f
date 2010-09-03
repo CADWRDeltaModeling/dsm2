@@ -46,8 +46,7 @@ C!</license>
      &     ,SourceGroup*32
 
       integer*4
-     &     ID                   ! transfer ID
-     &     ,itmp
+     &     itmp
      &     ,SubLoc
 
 
@@ -152,7 +151,7 @@ c-----------accumulate unique dss output filenames
      &           pathoutput(noutpaths).per_type=per_type_per_max
 
             if (print_level .ge. 3)
-     &           write(unit_screen, '(i5,i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths, ID,
+     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths,
      &           trim(Name),trim(LocName),trim(Param),trim(Interval),
      &           trim(FileName)
      

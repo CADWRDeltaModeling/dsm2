@@ -105,7 +105,7 @@ c-----------------search for similar xsect distance
       irreg_geom(nirg).dist_ratio=chan_fdist
       xsectno = nirg
       if (print_level .ge. 3)
-     &    write(unit_screen,'(a,i10,i10,i10,i10,i10)')
+     &    write(unit_screen,'(a,i10,i10,i10,f10.8)')
      &      'Add xsect ',nirg, xsectid, channo, chan_fdist
       
       return
