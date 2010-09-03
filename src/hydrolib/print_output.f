@@ -51,9 +51,6 @@ c-----Local variables
      &     from_obj_identifier*32,to_obj_identifier*32
       
       character(LEN=32) :: scratch1 
-      character(LEN=32) :: scratch2            
-      character(LEN=32) :: scratch3
-      character(LEN=32) :: scratch4
 
 c-----copyright notices
       write(unit_output, 805)
@@ -253,14 +250,14 @@ C-----1234567890123456789012345678901234567890123456789012345678901234567890'
  1520    format(/a20,1x,a12,1x,a20,1x,a12,1x,a20)
       enddo
 
-      if (print_level .ge. 5) then
+      if (print_level .ge. 5) then        
          call geom_output
 c-----todo: commented these out because they refer to hydro 
 c           and the compiler for qual complains. We should really have a general
 c           print_output that resides in /common, a print_outhydro here 
 c           and a print_outqual (the latter exists)
-c         call virt_output
-c         call check_area
+          call virt_output
+          call check_area
       endif
 
       WRITE(unit_output,1600)

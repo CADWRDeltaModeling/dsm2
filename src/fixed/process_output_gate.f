@@ -45,8 +45,7 @@ C!</license>
      &     ,ctmp*200
 
       integer*4
-     &     ID                   ! transfer ID
-     &     ,itmp
+     &     itmp
      &     ,gateNo,devNo     
      
       integer, external :: name_to_objno
@@ -187,7 +186,7 @@ c-----------if (SourceLocLen .gt. 0)
 c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 
             if (print_level .ge. 3)
-     &           write(unit_screen, '(i5,i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths, ID,
+     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths, 
      &           trim(Name),trim(LocName),trim(Param),trim(Interval),
      &           trim(FileName)
 

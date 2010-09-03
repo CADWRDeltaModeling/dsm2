@@ -998,9 +998,9 @@ c-----statement function to calculate index of minimum elevation array
             do vsecno=1,num_virt_sec(channo)
                write(unit_output,*) 'Channel ',channo, ',Virtual Section ',vsecno
                write(unit_output,*)
-     &              ' Height        Width          Area         Wet_p    Z Centroid      min_elev'
+     &              ' Height             Width            Area       Wet_perim      Min_elev'
                write(unit_output,*)
-     &              '---------------------------------------------------------------------------'
+     &              '-----------------------------------------------------------------------'
                mi = mindex(channo,vsecno)
                do virtelev=1,num_layers(channo)
                   di = dindex(channo,vsecno,virtelev)
@@ -1010,14 +1010,12 @@ c-----statement function to calculate index of minimum elevation array
      &                 ,virt_width(di)
      &                 ,virt_area(di)
      &                 ,virt_wet_p(di)
-     &                 ,virt_z_centroid(di)
      &                 ,virt_min_elev(mi)
                enddo
             enddo
          endif
       enddo
- 20   format(f6.2,4x,5(f10.2,4x))
-
+ 20   format(f8.2,4x,f14.4,2x,f14.4,2x,f14.4,2x,f12.4)
       return
       end
 
