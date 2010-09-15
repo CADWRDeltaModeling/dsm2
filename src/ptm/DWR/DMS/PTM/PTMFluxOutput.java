@@ -123,8 +123,8 @@ public class PTMFluxOutput extends PTMOutput{
   protected native void closeFluxOutput();
   protected native void setFlux(int fluxId, float fluxValue);
   protected native void setGroup(int groupId, float groupValue);
-  protected final int MAX_FLUX_OUTPUT=10;
-  protected final int MAX_GROUP_OUTPUT=25;
+  protected final int MAX_FLUX_OUTPUT=50;
+  protected final int MAX_GROUP_OUTPUT=50;
   protected boolean groupPercent;
   protected boolean fluxPercent;
   protected int nFlux;
