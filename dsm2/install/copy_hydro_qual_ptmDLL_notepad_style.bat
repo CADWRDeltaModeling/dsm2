@@ -1,14 +1,14 @@
-set version=v8_0_5
+set version=v8_0_6
 
 echo version "%version%" 
 
-copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_ivf11\all\Release\qual.exe   ..\..\..\..\models\dsm2_distribute\dsm2\bin\* 
-copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_ivf11\all\Release\hydro.exe ..\..\..\..\models\dsm2_distribute\dsm2\bin\*
-copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_ivf11\all\DLL\ptm.dll         ..\..\..\..\models\dsm2_distribute\dsm2\bin\* 
+copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_if11\all\Release\qual.exe   ..\..\..\..\models\dsm2_distribute\dsm2\bin\* 
+copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_if11\all\Release\hydro.exe ..\..\..\..\models\dsm2_distribute\dsm2\bin\*
+copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_if11\all\DLL\ptm.dll         ..\..\..\..\models\dsm2_distribute\dsm2\bin\* 
 
-copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_ivf11\all\Release\qual.exe   ..\..\..\..\models\dsm2_distribute\dsm2\bin\qual_%version%.exe
-copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_ivf11\all\Release\hydro.exe ..\..\..\..\models\dsm2_distribute\dsm2\bin\hydro_%version%.exe
-copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_ivf11\all\DLL\ptm.dll         ..\..\..\..\models\dsm2_distribute\dsm2\bin\ptm_%version%.dll 
+copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_if11\all\Release\qual.exe   ..\..\..\..\models\dsm2_distribute\dsm2\bin\qual_%version%.exe
+copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_if11\all\Release\hydro.exe ..\..\..\..\models\dsm2_distribute\dsm2\bin\hydro_%version%.exe
+copy ..\..\..\..\models\dsm2_v8_0\build_vs2008sp1_if11\all\DLL\ptm.dll         ..\..\..\..\models\dsm2_distribute\dsm2\bin\ptm_%version%.dll 
 copy ..\..\..\..\models\dsm2_distribute\dsm2\bin\ptm.jar             ..\..\..\..\models\dsm2_distribute\dsm2\bin\ptm_%version%.jar
 
 

@@ -1,6 +1,6 @@
 import os
 
-Version_Main    = "8.0.5"  
+Version_Main    = "8.0.6"  
 Version_Status  = "release"   
 
 setupfile = open("DSM2setup_v8.iss","w")
