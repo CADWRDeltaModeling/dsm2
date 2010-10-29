@@ -2,7 +2,11 @@ This file contains Notepad++ language support for DSM2.
 
 The file should either be installed in your application data folder, e.g.:
 
+Windows XP
 C:\Documents and Settings\myusername\Application Data\Notepad++
+
+Windows 7
+C:\Users\Win 7\AppData\Roaming
 
 or, if you told Notepad not to use this folder when you installed it, in:
 
