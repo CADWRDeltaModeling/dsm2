@@ -5,7 +5,7 @@ ds_gate       2        0 stage       15min inst      ${HYDROOUTDSSFILE}
 us_gate       1   length stage       15min inst      ${HYDROOUTDSSFILE} 
 ds_gate       2        0 flow        15min inst      ${HYDROOUTDSSFILE} 
 ds_res        4        0 flow        15min inst      ${HYDROOUTDSSFILE} 
-bnd_1         1        1 flow        15min inst      ${HYDROOUTDSSFILE} 
+bnd_1         1        0 flow        15min inst      ${HYDROOUTDSSFILE} 
 END
 
 
