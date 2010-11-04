@@ -175,7 +175,7 @@ END
 
 GATE_PIPE_DEVICE
 GATE_NAME DEVICE NDUPLICATE RADIUS ELEV  CF_FROM_NODE CF_TO_NODE DEFAULT_OP
-gate_1    pipe            2   20.0  2.0           0.8        0.8 gate_open
+gate_1    pipe            2   2.0  2.0           0.8        0.8 gate_open
 END
 
 
