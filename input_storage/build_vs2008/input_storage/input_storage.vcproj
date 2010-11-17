@@ -157,6 +157,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\EndOfFileState.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\EnvSubstitution.cpp"
 				>
 			</File>
@@ -173,11 +177,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\InputState.cpp"
+				RelativePath="..\..\src\IncludeFileState.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\InsertFileState.cpp"
+				RelativePath="..\..\src\InputState.cpp"
 				>
 			</File>
 			<File
@@ -223,11 +227,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\InputState.h"
+				RelativePath="..\..\src\IncludeFileState.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\InsertFileState.h"
+				RelativePath="..\..\src\InputState.h"
 				>
 			</File>
 			<File

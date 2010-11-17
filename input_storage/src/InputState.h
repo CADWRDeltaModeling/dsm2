@@ -32,8 +32,8 @@ typedef map<string, InputStatePtr > InputStateMap;
 typedef vector<string> StringVec;
 
 /** Construct the InputState
-    @arg  a_inputStateMap A map of block headers to corresponding reader InputState 
-          subclasses
+    @arg  a_inputStateMap A map of block headers to 
+	      corresponding reader InputState subclasses
     @arg a_contextItems A list of input blocks that are legal "below" this context. This list is
           used to determine which items this reader will allow itself to transition to...for instance
           a file input state would have as its context items a list of item states.
@@ -51,10 +51,27 @@ InputState(const vector<string> & a_contextItems)
 InputState() : m_active(true){}
 
 
-  /** Set the list of items valid in this context (e.g., allowed in the file */
+  /** Set the list of items valid in this context
+       (e.g., allowed in the file or include block */
 void setContextItems(const vector<string> & a_contextItems)
 {
   m_contextItems = a_contextItems;
+}
+
+  /** Inform new state of the items that were legal at the last state.
+      This is used at transitions. The default is to pass on the context
+	  items using setContextItems
+   */
+virtual void setIncomingContextItems(const vector<string> & a_contextItems)
+{
+  setContextItems(a_contextItems);
+}
+
+
+/** Get the list of items valid in this context (e.g., allowed in the file */
+const vector<string>& getContextItems()
+{
+  return m_contextItems;
 }
 
 
@@ -119,8 +136,9 @@ string InputState::substitute(const string& line) const;
 
 /** Determine if an item is active 
    The list of active items is set by the calling program. And
-   forwarded to the next state upon transition. Active is not the same as "legal".
-    An item that is not active must still be a legal input,
+   forwarded to the next state upon transition. 
+   Active is not the same as "recognized".
+   An item that is not active must still be a legal input,
    it just isn't active in the current round of parsing.
    See isItemAllowed
 */
@@ -133,7 +151,7 @@ bool isItemActive(const string & item) const;
 // certain types of input. An item that fails this test
 // represents bad input.
 */
-bool isItemAllowed(const string & item) const;
+virtual bool isItemAllowed(const string & item) const;
 
 /**
 // Unified way of handling fatal error

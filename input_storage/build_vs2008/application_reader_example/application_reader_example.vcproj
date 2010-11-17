@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src"
+				AdditionalIncludeDirectories="..\..\src;..\..\..\third_party\boost_1_39;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -106,7 +106,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\src"
+				AdditionalIncludeDirectories="..\..\src;..\..\..\third_party\boost_1_39;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -212,7 +212,18 @@
 				>
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="python.exe $(InputPath)&#x0D;&#x0A;"
+					Description="Generating code with generate.py"
+					CommandLine="python.exe $(InputPath)"
+					Outputs=".\input_storage.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Generating code"
+					CommandLine="python.exe $(InputPath)"
 					Outputs=".\input_storage.h"
 				/>
 			</FileConfiguration>

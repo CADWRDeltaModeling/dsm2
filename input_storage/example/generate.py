@@ -24,7 +24,7 @@ def do_example():
     prep_component(component,outdir)               # Group reads/writes/clears are based on the
                                                    # the order in which they are "prepped" 
 
-    # Create the child object called a channel. It is linked to a parent channel by the field
+    # Create the child object called a xsect. It is linked to a parent channel by the field
     # chan_no
     component = TableComponent("xsect",
                            [IntField("chan_no"), 

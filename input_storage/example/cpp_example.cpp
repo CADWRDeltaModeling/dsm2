@@ -11,7 +11,7 @@
 #include "InputState.h"
 #include "FileInputState.h"
 #include "ItemInputState.h"
-#include "InsertFileState.h"
+#include "IncludeFileState.h"
 #include "input_storage.h"
 #include "EnvSubstitution.h"
 #include "ApplicationTextReader.h"
@@ -77,7 +77,7 @@ void test_input_reader()
   InputStatePtr gatePtr(new ItemInputState<channel>());
   InputStatePtr resPtr(new ItemInputState<channel>());
   InputStatePtr envPtr(new ItemInputState<envvar>());
-  InputStatePtr includePtr(new InsertFileState(contextItems));
+  InputStatePtr includePtr(new IncludeFileState(contextItems));
 
   inputMap["CHANNEL"] = channelPtr;
   inputMap["XSECT"]   = xsectPtr;
@@ -97,7 +97,7 @@ void test_input_reader()
 
 
   reader.setInputStateMap(inputMap);
-  reader.getTextSubstitution().setEnabled(false);
+  reader.getTextSubstitution().setEnabledUser(false);
   string filename("example.txt");
   boost::filesystem::path p(filename);
   BOOST_CHECK(boost::filesystem::exists(p));
@@ -114,10 +114,10 @@ void test_input_reader()
       sub.add(envvars[i].name, envvars[i].value);
     }
 
-  sub.setEnabled(true);
+  sub.setEnabledUser(true);
   reader.setTextSubstitution(sub);
 
-  reader.getTextSubstitution().setEnabled(true);
+  reader.getTextSubstitution().setEnabledUser(true);
   reader.setActiveItems(active);
   reader.processInput(filename);
 

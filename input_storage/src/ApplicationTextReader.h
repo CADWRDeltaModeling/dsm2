@@ -50,8 +50,12 @@ public:
   /** Set the list of items (keywords) that will be read */
   void setActiveItems(const std::vector<std::string> & a_activeItems);
 
-  /** Get a copy of all items in reader, including include categories*/
+  /** Get a copy of all item names in reader, 
+      including 'include' categories*/
   const std::vector<std::string> allKeywords();
+
+  /** Find out if a name is a recognized keyword */
+  bool isKeyword(const std::string & name) const;
 
   /** Get a reference to the list of active items */
   std::vector<std::string> & getActiveItems();
@@ -59,7 +63,7 @@ public:
   /** Set the list of items (keywords) that will be read */
   void setInitialContextItems(const std::vector<std::string> & a_activeItems);
 
-  /** Get a reference to the list of active items */
+  /** Get a reference to the list of context-legal items */
   std::vector<std::string> & getInitialContextItems();
 
   /** Read text starting from the given file */

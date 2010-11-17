@@ -109,7 +109,7 @@ public:
   /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
   bool operator< (const @TABLEOBJ & other) const
   {
-     return @COMPARETABLEITEM;
+     @COMPARETABLEITEM
   }
 
   /** Less-than operator based on the identifier plus (for parent objects) layer number*/  

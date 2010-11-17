@@ -16,7 +16,7 @@ call init_file_reader(ierror)
 
 ! Read, collect and process the "ENVVAR" section used for 
 ! text substitution
-call set_substitution_enabled(.false.,ierror)    ! don't try to substitute now
+call set_user_substitution_enabled(.false.,ierror)    ! don't try to substitute now
 
 print*, "Setting active profile to envvar"
 call set_active_profile("envvar",ierror)         ! read only ENVVAR blocks
@@ -33,7 +33,7 @@ call process_text_substitution(ierror)
 call verify_error(ierror)
 
 print*,"Enable text substitution"
-call set_substitution_enabled(.true.,ierror)  ! substitute now
+call set_user_substitution_enabled(.true.,ierror)  ! substitute now
 ! clear the buffer so that envvars are not loaded redundantly 
 call envvar_clear_buffer()
 

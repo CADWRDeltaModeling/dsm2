@@ -85,13 +85,27 @@ module input_storage_fortran
             call set_initial_context_profile_f(trim(profilename),ierror)
        end subroutine
        
-       subroutine set_substitution_enabled(enabled,ierror)
-          !DEC$ ATTRIBUTES ALIAS:'_set_substitution_enabled_f' :: set_substitution_enabled_f
+       subroutine set_user_substitution_enabled(enabled,ierror)
+          !DEC$ ATTRIBUTES ALIAS:'_set_user_substitution_enabled_f' :: set_user_substitution_enabled_f
           logical enabled
           integer :: ierror
-          call set_substitution_enabled_f(enabled,ierror)
+          call set_user_substitution_enabled_f(enabled,ierror)
        end subroutine   
 
+       subroutine set_os_env_substitution_enabled(enabled,ierror)
+          !DEC$ ATTRIBUTES ALIAS:'_set_os_env_substitution_enabled_f' :: set_os_env_substitution_enabled_f
+          logical enabled
+          integer :: ierror
+          call set_os_env_substitution_enabled_f(enabled,ierror)
+       end subroutine         
+
+       subroutine set_substitution_not_found_is_error(is_error,ierror)
+          !DEC$ ATTRIBUTES ALIAS:'_set_substitution_not_found_is_error_f' :: set_substitution_not_found_is_error_f
+          logical is_error
+          integer :: ierror
+          call set_substitution_not_found_is_error_f(is_error,ierror)
+       end subroutine
+       
        subroutine process_text_substitution(ierror)
           !DEC$ ATTRIBUTES ALIAS:'_process_text_substitution_f' :: process_text_substitution_f
           integer :: ierror

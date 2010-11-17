@@ -17,7 +17,9 @@ InsertFileState(const vector<string> & a_contextItems)
 {}
 
 
-InsertFileState(InputStatePtr state,string & filename, const int & lineNo = 0) :
+InsertFileState(InputStatePtr state,
+				string & filename, 
+				const int & lineNo = 0) :
   InputState(*state)
   {
     m_filename=filename;

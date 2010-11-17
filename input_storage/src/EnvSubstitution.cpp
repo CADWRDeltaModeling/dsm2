@@ -8,6 +8,11 @@ using namespace boost::algorithm;
 using namespace boost;
 using namespace std;
 
+EnvSubstitution::~EnvSubstitution()
+{
+    m_subMap.clear();
+}
+
 void EnvSubstitution::add(string name, string value)
 {
   if (m_subMap.find(name) != m_subMap.end())
@@ -23,16 +28,23 @@ void EnvSubstitution::remove(string name)
 {
 }
 
-void EnvSubstitution::setEnabled(const bool& enabled)
+void EnvSubstitution::setEnabledUser(const bool& enabled)
 {
-    m_enabled=enabled;
+    m_enabledUser=enabled;
 }
 
+void EnvSubstitution::setEnabledEnvironment(const bool& enabled)
+{
+    m_enabledEnvironment=enabled;
+}
 
+void EnvSubstitution::setNotFoundIsError(const bool & isError)
+{   
+	m_notFoundIsError=isError;
+}
 
 string EnvSubstitution::operator()(const std::string & arg)
 {   
-    if (! m_enabled) return arg;
     std::string str(arg);
 
     //if(arg.find_first_of("${") == string::npos) return arg;
@@ -52,14 +64,8 @@ string EnvSubstitution::operator()(const std::string & arg)
     {
         string toReplace=subList[isub];
         bool found = false;
-        if(m_subMap.find(toReplace) != m_subMap.end())
-        {
-            std::string replacement = m_subMap[toReplace];
-            boost::algorithm::replace_all(str, "${"+toReplace+"}", replacement);
-            found = true;
-        }
-        else
-        { 
+		if (m_enabledEnvironment)
+		{
             const char* envvar = getenv(toReplace.c_str());
             if (envvar != NULL)
             {   
@@ -67,15 +73,24 @@ string EnvSubstitution::operator()(const std::string & arg)
                 replace_all(str,envWithBrace,string(envvar));
                 found = true;
             }
+		}
+        if (m_enabledUser)
+        { 
+            if(m_subMap.find(toReplace) != m_subMap.end())
+            {
+                std::string replacement = m_subMap[toReplace];
+                boost::algorithm::replace_all(str, "${"+toReplace+"}", replacement);
+                found = true;
+            }
         }
-        if (!found)
-        {
-            string message("Fatal error in text substitution. Envvar not found:\n");
-            message=message+toReplace;
-            throw runtime_error(message); // todo unify fatal error handling
+        if (!found && m_notFoundIsError)
+		{
+			    string message("Fatal error in text substitution. Envvar not found:\n");
+                message=message+toReplace;
+                throw runtime_error(message); // todo unify fatal error handling
         }
     }
-    if(str.find_first_of("$") != string::npos)
+    if (m_notFoundIsError && str.find_first_of("$") != string::npos )
     {
         string message("Text substitution error in line.\n");
         message += string("The error is most likely a syntax error, not a missing ENVVAR.\n");

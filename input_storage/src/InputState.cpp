@@ -14,11 +14,6 @@ bool InputState::isBlockEnd(string & line)
 
 string InputState::strip(const string& line) const
 {
-  if (line.find_first_of("\t") != string::npos)
-  {
-      string message("Line has tabs: please remove and set your text editor to replace tabs with spaces\n");
-      handleFatalError(message,line,m_filename,m_lineNo);
-  }
   string trimmed =  boost::algorithm::trim_copy(line);
   size_t commentCol = trimmed.find_first_of(COMMENT);
 
@@ -64,10 +59,8 @@ bool InputState::isItemActive(const string& item) const
 
 bool InputState::isItemAllowed(const string & item) const
 {
-  // general category or in a 
-  // file starting with the item name
-  // todo: should be file return( m_category == "" || m_file.startsWith(item));
-  return true;
+    // We have no policy in general
+	return true;
 }
 
 void InputState::handleFatalError(const string& message, 

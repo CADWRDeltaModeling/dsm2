@@ -15,7 +15,7 @@ call init_file_reader(error)
 
 ! Read, collect and process the "ENVVAR" section used for 
 ! text substitution
-call set_substitution_enabled(.false.,error)    ! don't try to substitute now
+call set_user_substitution_enabled(.false.,error)    ! don't try to substitute now
 call set_active_profile("ENVVAR",error)        ! read only ENVVAR blocks
 call read_buffer_from_text("example.txt",error) ! read starting from this file
 
@@ -24,7 +24,7 @@ call process_text_substitution(error)
 call envvar_clear_buffer()
 
 call set_active_profile("all",error)
-call set_substitution_enabled(.true.,error)    ! substitute now
+call set_user_substitution_enabled(.true.,error)    ! substitute now
 call read_buffer_from_text("test.txt",error)
 
 call channel_prioritize_buffer(error)

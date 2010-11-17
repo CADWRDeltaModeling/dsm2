@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src"
+				AdditionalIncludeDirectories="..\..\src;..\..\..\third_party\boost_1_39;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,6 +64,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="szlib.lib zlib.lib hdf5.lib hdf5_hl.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"
 				IgnoreDefaultLibraryNames="libc.lib;libcmt.lib;msvcrt.lib;libcd.lib;msvcrtd.lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -118,7 +119,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\src"
+				AdditionalIncludeDirectories="..\..\src;..\..\..\third_party\boost_1_39;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -139,6 +140,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="szlib.lib zlib.lib hdf5.lib hdf5_hl.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"
 				IgnoreDefaultLibraryNames="libc.lib;msvcrt.lib;libcd.lib;libcmtd.lib;msvcrtd.lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -196,6 +198,28 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath="..\..\test\generate.py"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="python.exe $(InputPath)"
+					Outputs=".\input_storage.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="python.exe $(InputPath)"
+					Outputs=".\input_storage.h"
+				/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

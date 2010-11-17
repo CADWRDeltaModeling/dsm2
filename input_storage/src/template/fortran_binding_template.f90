@@ -32,12 +32,14 @@
        !> Query the number of records in hdf5 of type @TABLEOBJ
        subroutine @TABLEOBJ_number_rows_hdf5(file_id, nrecords,ierror)
          !DEC$ ATTRIBUTES ALIAS:'_@TABLEOBJ_number_rows_hdf5_f' :: @TABLEOBJ_number_rows_hdf5_f
-          use hdf5, only: HID_T
+          use hdf5, only: HID_T,HSIZE_T
           implicit none
           integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
           integer(HID_T),intent(in)::file_id
           integer, intent(out) :: ierror
-          call @TABLEOBJ_number_rows_hdf5_f(file_id,nrecords,ierror)
+          call @TABLEOBJ_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
           return
        end subroutine
 

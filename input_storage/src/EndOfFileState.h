@@ -11,16 +11,14 @@ class EndOfFileState : public InputState
 {
 public:
 
-  EndOfFileState(const string & filename) :
+/** Constructor based on filename */
+EndOfFileState(const string & filename) :
     m_filename(filename)
-  {}
+{}
 
 /** Attempting to process with End of File causes fatal error */
-InputStatePtr process(istream& in)
-{ 
-  throw std::logic_error("End of file reached. Processing not allowed");
-  return InputStatePtr();
-}
+InputStatePtr process(istream& in);
+
 
 /** Override of method to indicate end of file. Returns true. */
 bool isEndOfFile()

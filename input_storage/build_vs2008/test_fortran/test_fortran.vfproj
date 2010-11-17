@@ -4,29 +4,30 @@
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" Interfaces="true" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
-				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="msvcrt" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="szlib.lib zlib.lib hdf5.lib hdf5_hl.lib hdf5_fortran.lib"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include; ..\..\..\third_party\szip21_vs6_enc\include" Interfaces="true" WarnInterfaces="true" Traceback="true" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\third_party\szip21_vs6_enc\lib; ..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib; ..\..\..\third_party\zlib123_vs6\lib; ..\..\..\third_party\boost_1_39\lib" IgnoreDefaultLibraryNames="msvcrt,libc" GenerateDebugInformation="true" SubSystem="subSystemConsole" AdditionalDependencies="szlib.lib zlib.lib hdf5.lib hdf5_hl.lib hdf5_fortran.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/></Configuration>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true"/>
-				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" IgnoreDefaultLibraryNames="msvcrt" SubSystem="subSystemConsole" AdditionalDependencies="szlib.lib zlib.lib hdf5.lib hdf5_hl.lib hdf5_fortran.lib"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include; ..\..\..\third_party\szip21_vs6_enc\include"/>
+				<Tool Name="VFLinkerTool" LinkIncremental="linkIncrementalNo" SuppressStartupBanner="true" AdditionalLibraryDirectories="..\..\..\third_party\szip21_vs6_enc\lib; ..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib; ..\..\..\third_party\zlib123_vs6\lib; ..\..\..\third_party\boost_1_39\lib" IgnoreDefaultLibraryNames="msvcrt, libc" SubSystem="subSystemConsole" AdditionalDependencies="szlib.lib zlib.lib hdf5.lib hdf5_hl.lib hdf5_fortran.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
 				<Tool Name="VFCustomBuildTool"/>
 				<Tool Name="VFPreLinkEventTool"/>
 				<Tool Name="VFPreBuildEventTool"/>
-				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration></Configurations>
 	<Files>
 		<Filter Name="Header Files" Filter="fi;fd">
 		<File RelativePath="..\..\..\test\channel_input_storage.fi"/>
 		<File RelativePath="..\..\..\test\envvar_input_storage.fi"/>
 		<File RelativePath="..\..\..\test\xsect_input_storage.fi"/></Filter>
-		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\test\input_storage_fortran.f90"/>
 		<File RelativePath="..\..\test\test_parser.f90"/></Filter></Files>

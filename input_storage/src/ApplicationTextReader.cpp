@@ -38,7 +38,7 @@ EnvSubstitution & ApplicationTextReader::getTextSubstitution()
 ///////////////////
 void ApplicationTextReader::setTextSubstitution(const EnvSubstitution & a_sub)
 {
-    m_sub=a_sub;   //todo: what about appying it?
+    m_sub=a_sub;   //todo: what about applying it?
     for(InputState::InputStateMap::iterator it = m_inputMap.begin();
       it != m_inputMap.end() ; ++it)
     {
@@ -60,7 +60,7 @@ vector<string> & ApplicationTextReader::getActiveItems()
 
 /////////////////////
 void ApplicationTextReader::setInitialContextItems(const vector<string> & a_contextItems)
-{ 
+{  
   m_initialContextItems = a_contextItems;
 }
 
@@ -80,6 +80,11 @@ bool ApplicationTextReader::verifyItemsInMap(std::vector<std::string> items)
         verify &= (m_inputMap.find(items[i]) != m_inputMap.end());
     }
     return verify;
+}
+
+bool ApplicationTextReader::isKeyword(const std::string & name) const
+{   
+	 return m_inputMap.find(name) != m_inputMap.end();
 }
 
 /////////////////////

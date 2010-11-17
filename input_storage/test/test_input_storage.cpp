@@ -2,7 +2,7 @@
 #include "InputState.h"
 #include "FileInputState.h"
 #include "ItemInputState.h"
-#include "InsertFileState.h"
+#include "IncludeFileState.h"
 #include "EnvSubstitution.h"
 #include "ApplicationTextReader.h"
 #include <stdlib.h>
@@ -334,10 +334,10 @@ void test_input_reader()
   inputMap["CHANNEL"] = InputStatePtr(new ItemInputState<channel>());
   inputMap["XSECT"]   = InputStatePtr(new ItemInputState<xsect>());
   inputMap["ENVVAR"]  = InputStatePtr(new ItemInputState<envvar>());
-  inputMap["INCLUDE"] = InputStatePtr(new InsertFileState(contextItems));
+  inputMap["INCLUDE"] = InputStatePtr(new IncludeFileState(contextItems));
   ApplicationTextReader& reader = ApplicationTextReader::instance();
   reader.setInputStateMap(inputMap);
-  reader.getTextSubstitution().setEnabled(false); // don't do text substitution while gathering envvars
+  reader.getTextSubstitution().setEnabledUser(false); // don't do text substitution while gathering envvars
 
 
   vector<string> envvarActive;
@@ -363,7 +363,7 @@ void test_input_reader()
     {
       sub.add(envvars[i].name, envvars[i].value);
     }
-  sub.setEnabled(true);
+  sub.setEnabledUser(true);
   reader.setTextSubstitution(sub);
   reader.setActiveItems(active);
   reader.processInput(filename);
@@ -417,7 +417,7 @@ void test_input_reader_duplicate()
   active.push_back("XSECT");
   reader.setActiveItems(active);
   string filename("test_duplicates.txt");
-  reader.getTextSubstitution().setEnabled(true); // this test has nothing fancy
+  reader.getTextSubstitution().setEnabledUser(true); // this test has nothing fancy
   reader.processInput(filename);
 
   vector<envvar> & envvars =  HDFTableManager<envvar>::instance().buffer();

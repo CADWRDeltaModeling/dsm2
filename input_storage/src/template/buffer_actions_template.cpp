@@ -7,7 +7,7 @@
 #include "ApplicationTextReader.h"
 #include "InputState.h"
 #include "ItemInputState.h"
-#include "InsertFileState.h"
+#include "IncludeFileState.h"
 #include <string>
 #include "LayerManager.h"
 #define FCALL extern "C"

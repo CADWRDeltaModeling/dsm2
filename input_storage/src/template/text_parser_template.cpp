@@ -3,7 +3,7 @@
 #include "exception_trapping.h"
 #include "ApplicationTextReader.h"
 #include "ItemInputState.h"
-#include "InsertFileState.h"
+#include "IncludeFileState.h"
 #define FCALL extern "C"
 
 
@@ -50,11 +50,31 @@ _TRAP_EXCEPT(*ierror,
 }
 /////////////////
 
-FCALL void set_substitution_enabled_f(const bool * enabled, int* ierror)
+FCALL void set_user_substitution_enabled_f(const bool * enabled, int* ierror)
 {
 _TRAP_EXCEPT(*ierror,
     ApplicationTextReader & reader = ApplicationTextReader::instance();   
-    reader.getTextSubstitution().setEnabled(*enabled);
+    reader.getTextSubstitution().setEnabledUser(*enabled);
+) // end exception trap    
+}
+
+/////////////////
+
+FCALL void set_os_env_substitution_enabled_f(const bool * enabled, int* ierror)
+{
+_TRAP_EXCEPT(*ierror,
+    ApplicationTextReader & reader = ApplicationTextReader::instance();   
+    reader.getTextSubstitution().setEnabledEnvironment(*enabled);
+) // end exception trap    
+}
+
+/////////////////
+
+FCALL void set_substitution_not_found_is_error_f(const bool * is_error, int* ierror)
+{
+_TRAP_EXCEPT(*ierror,
+    ApplicationTextReader & reader = ApplicationTextReader::instance();   
+    reader.getTextSubstitution().setNotFoundIsError(*is_error);
 ) // end exception trap    
 }
 
@@ -80,7 +100,8 @@ _TRAP_EXCEPT(*ierror,
   //ApplicationTextReader::InputStateMap states = input_state_map();
   ApplicationTextReader & reader = ApplicationTextReader::instance();
   reader.setInputStateMap(input_state_map());
-  reader.getTextSubstitution().setEnabled(true);
+  reader.getTextSubstitution().setEnabledEnvironment(true);
+  reader.getTextSubstitution().setEnabledUser(true);
   reader.setInitialContextItems(reader.allKeywords());
 ) // end exception trap
 }

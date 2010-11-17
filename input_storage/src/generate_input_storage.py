@@ -41,9 +41,19 @@ def fortran_declaration(field, intent):
 # todo: this may be wrong for child tables? need to delete the unused one first?
 def compare_items(component):
     if  component.layered:
-        compareitems = "(this->identifier() < other.identifier()) || (this->identifier() == other.identifier() && this->layer > other.layer)"
+        compareitems = \
+"""
+     if(this->identifier() != other.identifier())
+	 {
+		 return this->identifier() < other.identifier();
+	 }
+	 // todo: make this a policy
+	 bool layerOutranks = (this->layer == 0 && other.layer != 0) ||
+		                  (this->layer > other.layer && other.layer != 0);
+     return layerOutranks;
+"""
     else:
-        compareitems="(this->identifier() < other.identifier())"
+        compareitems=" return (this->identifier() < other.identifier());"
     return compareitems
 
 def prioritize(component):
@@ -57,7 +67,7 @@ def prioritize(component):
     vector<@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
     if ( dupl != buffer().end())
     {   
-        string message = "Duplicate identifiers in the same input layer:";
+        string message = "Duplicate identifiers in the same input layer (or the same file has been included more than once):";
         stringstream messagestrm;
         messagestrm << message << endl << *dupl << " (" << (*dupl).objectName() <<")" << endl;
         messagestrm << "Layer: " << LayerManager::instance().layerName((*dupl).layer);
@@ -325,7 +335,7 @@ def process_include_defs():
         include_code += "    vector<string> %s;\n" % (contextName)
         for item in block[1]:
             include_code += "    %s.push_back(\"%s\");\n" % (contextName,item.upper());
-        include_code += "    InputStatePtr %sPtr(new InsertFileState(%s));\n" % (blockName, contextName)
+        include_code += "    InputStatePtr %sPtr(new IncludeFileState(%s));\n" % (blockName, contextName)
         include_code += "    inputMap[\"%s\"] = %sPtr;\n" % (blockName.upper(), blockName)
     return include_code
     

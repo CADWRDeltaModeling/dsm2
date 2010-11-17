@@ -142,7 +142,7 @@ class CharField(Field):
         if (style == "arg" or style == "copy"):
             if style == "arg": val = "a_" + self.name
             if style == "copy": val = "other." + self.name
-            return "strcpy(%s,%s);" % (self.name,val)
+            return "memcpy(%s,%s,%s);" % (self.name,val,self.size)
         if style == "default":
             blank = "fill_n(%s,%s,\'\\0\');" % (self.name,self.size)
             return blank  #+ "\n" + copy
