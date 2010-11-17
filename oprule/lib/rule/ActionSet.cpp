@@ -33,6 +33,14 @@ void ActionSet::advance(double dt){
 	}
 }
 
+void ActionSet::step(double dt){
+	for(ActionList::iterator it=subactions.begin() ;
+	   it != subactions.end() ; it++){
+	   (*it)->step(dt);
+	}
+}
+
+
 
 void ActionSet::setActive(bool active){
 	for (ActionList::iterator it=subactions.begin() ;

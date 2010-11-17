@@ -39,12 +39,12 @@
 %token <pbnode> BOOLNAMEDVAL
 %token <intval> LT LE GT GE EQ NE
 %token <intval> MAX2 MIN2 MAX3 MIN3
-%token <intval> PID
+%token <intval> PID IPID
 %token <intval> LOOKUP
 %token <intval> IFELSE
 %token <intval> ACCUMULATE
 %token <intval> PREDICT LINEAR QUAD
-%token <intval> SQRT LOG LN EXP
+%token <intval> SQRT LOG LN EXP ABS
 %token <intval> SET TO WHEN WHILE THEN RAMP STEP
 %token <intval> YEAR MONTH DAY HOUR MINDAY MIN DT
 %token <intval> SEASON
@@ -267,6 +267,8 @@ array:
 unary:
    SQRT '(' expression ')' {  
             $$=_SETD(UnaryOpNode<sqrt_func>::create(_GETD($3)));}
+ | ABS '(' expression ')'  {
+           $$=_SETD(UnaryOpNode<abs_func>::create(_GETD($3)));}
  | LOG '(' expression ')'  {
            $$=_SETD(UnaryOpNode<log10_func>::create(_GETD($3)));}
  | LN '(' expression ')'   {
@@ -312,9 +314,15 @@ expression:
         $$=_SETD(Min3Node<double>::create( _GETD($3),_GETD($5),_GETD($7)));}
  |  MAX3 '(' expression ',' expression ',' expression ')' {
         $$=_SETD(Max3Node<double>::create( _GETD($3),_GETD($5),_GETD($7)));}
- |  PID '(' expression ',' expression ',' NUMBER ',' NUMBER ',' NUMBER ',' NUMBER ',' NUMBER ')'
-        {  //yset,yobs,k,ti,td,tt,b
-        $$=_SETD(PIDNode::create( _GETD($3),_GETD($5),$7,$9,$11,$13,$15));
+ |  PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+        {  
+        $$=_SETD(PIDNode::create( _GETD($3),_GETD($5),_GETD($7)->eval(),_GETD($9)->eval(),_GETD($11)->eval(),_GETD($13)->eval(),
+                                  _GETD($15)->eval(),_GETD($17)->eval(),_GETD($19)->eval()));
+        }
+ |  IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+        {  
+        $$=_SETD(IncrementalPIDNode::create( _GETD($3),_GETD($5),_GETD($7),_GETD($9)->eval(),_GETD($11)->eval(),_GETD($13)->eval(),
+                                  _GETD($15)->eval(),_GETD($17)->eval(),_GETD($19)->eval() ));
         }
  
 

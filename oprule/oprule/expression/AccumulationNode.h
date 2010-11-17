@@ -67,6 +67,7 @@ public:
             _accum=_initializer->eval();
         }
         _accum+=_express->eval(); //todo: urgent decide this
+		
     }
 
     /** Get lagged value (maximum lag)*/

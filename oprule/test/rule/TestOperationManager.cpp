@@ -17,6 +17,7 @@ public:
    TrivialOperationAction(int i) : m_int(i), _active(false){}
    virtual ~TrivialOperationAction(){}
    virtual void advance(double dt){};
+   virtual void step(double dt){};
    virtual void setActive(bool active){ _active=active;}
    virtual bool isActive() { return _active; }
    virtual void onCompletion(){ }

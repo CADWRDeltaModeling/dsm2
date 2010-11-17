@@ -64,11 +64,13 @@ public:
 
     virtual bool isTimeDependent() const{return _timeDependent;}
     virtual void init(){
+		_pIf->init();
         _pLeft->init();
         _pRight->init();
     }
 
     virtual void step(double dt){
+		_pIf->step(dt);
         _pLeft->step(dt); 
         _pRight->step(dt);
     }

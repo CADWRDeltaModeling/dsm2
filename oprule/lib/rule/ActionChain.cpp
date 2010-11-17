@@ -39,6 +39,15 @@ void ActionChain::advance(double dt){
    getCurrentAction()->advance(dt);
 }
 
+void ActionChain::step(double dt){
+	for(ActionSequence::iterator it=actionSequence.begin() ;
+	   it != actionSequence.end() ; it++){
+	   (*it)->step(dt);
+	}
+}
+
+
+
 void ActionChain::setActive(bool active){
    if(active){
      actionIterator=actionSequence.begin();

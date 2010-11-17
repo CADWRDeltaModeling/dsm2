@@ -36,7 +36,7 @@ public:
    virtual void setActive(bool active) = 0;
 
 
-   virtual void step(double dt){};
+   virtual void step(double dt)=0;
 
    /** Test if the action is active.
    * @return true if the action is in progress.

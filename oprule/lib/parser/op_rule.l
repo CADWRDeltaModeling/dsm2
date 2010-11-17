@@ -78,6 +78,7 @@ mon JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC|jan|feb|mar|apr|may|jun|jul|
 "<"     {return LT;  }
 ">"     {return GT;}
 
+abs {return ABS;}
 sqrt {return SQRT;}
 exp {return EXP;}
 log {return LOG;}
@@ -89,7 +90,7 @@ min3 {return MIN3;}
 lookup|LOOKUP {return LOOKUP;}
 
 false|FALSE {return FALSE;}
-true|TRUE { return TRUE;}
+true|TRUE|startup|STARTUP { return TRUE;}
 
 ifelse|IFELSE {return IFELSE;}
 or|OR    {return OR;}   
@@ -108,7 +109,7 @@ PREDICT|predict|Predict {return PREDICT;}
 LINEAR|linear|Linear    {return LINEAR; }
 QUAD|quad|Quad          {return QUAD;   }
 PID|pid                 {return PID;   }
-
+IPID|ipid               {return IPID; }
 
 ":="    {return ASSIGN;}
 "="     {return DEFINE; } 
@@ -135,6 +136,7 @@ day|DAY     {yylval.stringval=add_to_string_list(yytext); return DAY;}
 hour|HOUR   {yylval.stringval=add_to_string_list(yytext); return HOUR;}
 min|MIN     {yylval.stringval=add_to_string_list(yytext); return MIN;}
 dt|DT       {yylval.stringval=add_to_string_list(yytext); return DT;} 
+
 
 (([0-9]+)|([0-9]*\.[0-9]*)([eE][-+]?[0-9]+)?)  { 
              /* number, possibly with exponent*/

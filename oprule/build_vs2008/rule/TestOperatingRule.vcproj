@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".\..\.."
+				AdditionalIncludeDirectories=".\..\..;..\..\..\third_party\boost_1_39"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -72,11 +72,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libboost_unit_test_framework-vc90-mt-s-1_36.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="libboost_unit_test_framework-vc90-mt-s-1_39.lib odbc32.lib odbccp32.lib"
 				OutputFile=".\Release/TestOperatingRule.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories=""
+				AdditionalLibraryDirectories="..\..\..\lib,..\..\lib;..\..\..\third_party\boost_1_39\lib"
 				ProgramDatabaseFile=".\Release/TestOperatingRule.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
@@ -137,7 +137,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\..\..\"
+				AdditionalIncludeDirectories=".\..\..;..\..\..\third_party\boost_1_39"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -164,11 +164,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libboost_unit_test_framework-vc90-mt-sgd-1_36.lib"
+				AdditionalDependencies="libboost_unit_test_framework-vc90-mt-sgd-1_39.lib"
 				OutputFile=".\Debug/TestOperatingRule.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\lib,..\..\lib"
+				AdditionalLibraryDirectories="..\..\..\lib,..\..\lib;..\..\..\third_party\boost_1_39\lib"
 				IgnoreDefaultLibraryNames="LIBCPD.LIB"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/TestOperatingRule.pdb"

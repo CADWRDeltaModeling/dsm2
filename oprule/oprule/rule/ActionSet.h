@@ -25,6 +25,8 @@ public:
     */
     void addAction(OperationActionPtr operationAction);
     void advance(double dt);
+    void step(double dt);
+
     void setActive(bool active);
     bool isActive();
     virtual bool hasSubActions(){ return true; }

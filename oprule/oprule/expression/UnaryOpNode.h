@@ -64,6 +64,20 @@ private:
 };
 
 
+/** functor for absolute value*/
+struct abs_func : public std::unary_function<double,double>
+{  
+   /**evaluate function 
+    @param arg argument to function 
+    @return result of function
+   */
+   double operator()(double arg)
+   {
+      return abs(arg);
+   }
+};
+
+
 
 
 /** functor for square roots*/

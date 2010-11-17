@@ -47,6 +47,9 @@ public:
     */
    void advance(double dt);
 
+   void step(double dt);
+
+
    /** Query if action is active
     * @return true if the action is in progress
     */
