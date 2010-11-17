@@ -1,20 +1,21 @@
 <!-- Copyright California Department of Water Resources
      Aaron Miller, March 2001
+	 Revised: Yu Zhou, October 2010
      This build file is for use with Ant, a highly portable build tool
      for info, see http://jakarta.apache.org/ant/index.html
 -->
 
-<project name="ptm" default="compile" basedir=".">
+<project name="ptm" default="all" basedir=".">
 
     <target name="init">
-        <property name="webstart" value="D:/Java/j2sdk1.4.2/jre/javaws/javawspl.jar" />
+<!--    <property name="webstart" value="D:\jdk1.6.0_21/jre/javaws/javawspl.jar" />-->
         <property name="sourceDir" value="./DWR/DMS/PTM" />
-        <property name="dist" value="dist" />
+<!--    <property name="dist" value="dist" />-->
         <property name="build" value="classes" />
         <property name="native" value="native" />
         <property name="ptmdocDir" value="docs" />
         <property name="debug" value="off" />
-        <property name="ftpDir" value="ftp"/>
+<!--    <property name="ftpDir" value="ftp"/>-->
         <!-- Users can override the above properties by creating-->
         <!-- in a seperate file in the same directory as this one-->
         <!-- called ant.properties-->
@@ -22,15 +23,15 @@
 
     <target name="clean" depends="init">
         <delete dir="${build}/" />
-        <delete dir="${dist}/" />
+<!--    <delete dir="${dist}/" />-->
     </target>
 
-    <target name="prepare" depends="init">
+    <target name="prepare" depends="clean">
         <tstamp/>
         <mkdir dir="${build}" />
     </target>
 
-    <target name="compile" depends="init,prepare">
+    <target name="compile" depends="prepare">
         <javac 
             srcdir="${sourceDir}"
 
@@ -41,29 +42,32 @@
                 tools/image/*.java"
 
             includes= "*.java,
-               behave/*.java"
+                behave/*.java"
 		     
-	    excludes="rArray.java,
-	              gRand.java,
-		      gRand48.java,
-		      pump.java,
-		      pumpFixedData.java,
-		      diversionFixedData.java,
-		      diversion.java"
-		      
+    	    excludes="rArray.java,
+    	              gRand.java,
+    		          gRand48.java,
+    		          pump.java,
+    		          pumpFixedData.java,
+    		          diversionFixedData.java,
+    		          diversion.java"
+               
             destdir="${build}"
             debug="${debug}"
             target="1.6"
             source="1.6"
         />
-<!--            includes= "*.java,
-               behave/*.java,
-	       gui/*.java,
-	       tools/image/*.java"
-               -->
+		    <!--
+		    includes= "*.java,
+                       behave/*.java,
+	                   gui/*.java,
+	                   tools/image/*.java"
+            -->
     </target>
 
-    <target name="jni" depends="init,compile">
+	
+	<!--
+    <target name="jni" depends="compile">
         <javah
             class="DWR.DMS.PTM.Globals,
                    DWR.DMS.PTM.PTMFixedData,
@@ -73,9 +77,10 @@
             classpath="${build}"
         />
     </target>
+	-->
 
 
-
+	<!--
     <target name="installer" depends="init">
         <delete dir="${dist}/bin/" />
         <mkdir dir="${dist}/bin/"/>
@@ -98,24 +103,27 @@
                        installer/install.sh"
              basedir= "."
         />
-	<!-- <copy file="{$dist}/ptm-bin.zip
+	 <copy file="{$dist}/ptm-bin.zip
               todir=${ftpDir}"
-        /> -->
+        /> 
     </target>
+	-->
 
-    <target name="jar" depends="init,clean,prepare,compile">
+    <target name="jar" depends="compile">
         <delete file="lib/ptm.jar" />
         <jar jarfile="lib/ptm.jar">
              <fileset dir="${build}" 
              includes="**/*.class"
              /> 
         </jar>
-        <!--<jar jarfile="lib/ptmgui.jar">
+        <!--
+		<jar jarfile="lib/ptmgui.jar">
             <fileset dir="${build}" includes="DWR/DMS/PTM/gui/*.class"/>
         </jar>
         <jar jarfile="lib/ptmbehave.jar">
             <fileset dir="${build}" includes="DWR/DMS/PTM/behave/*.class"/>
-        </jar> -->
+        </jar> 
+		-->
     </target>
 
     <target name="ptmdoc" depends="compile">
@@ -129,7 +137,7 @@
         />
     </target>
 
-    <target name="all" depends="init,clean,compile,jar,installer,ptmdoc">
+    <target name="all" depends="jar,ptmdoc">
     </target>
 </project>
 

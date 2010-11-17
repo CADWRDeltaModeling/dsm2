@@ -4,7 +4,7 @@
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check /QxW" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Debug;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" SourceFileFormat="fileFormatFixed" FixedFormLineLength="fixedLength132" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check /QxW" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Debug;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" SourceFileFormat="fileFormatFixed" FixedFormLineLength="fixedLength132" WarnUnusedVariables="true" ModulePath="$(INTDIR)/" ObjectFile="$(INTDIR)/" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
 				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/fixed.lib" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
@@ -53,7 +53,6 @@
 		<File RelativePath="..\..\src\fixed\name_to_objno.f"/>
 		<File RelativePath="..\..\src\fixed\nonconservative_codes.f"/>
 		<File RelativePath="..\..\src\fixed\prep_irreg.f"/>
-		<File RelativePath="..\..\src\fixed\print_output.f"/>
 		<File RelativePath="..\..\src\fixed\process_channel.f"/>
 		<File RelativePath="..\..\src\fixed\process_fixed.f"/>
 		<File RelativePath="..\..\src\fixed\process_gate.f"/>
