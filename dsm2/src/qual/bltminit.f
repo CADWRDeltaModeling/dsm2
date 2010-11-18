@@ -137,6 +137,7 @@ C     + + + LOCAL VARIABLES + + +C
       INTEGER LOB
       INTEGER XNO
       REAL*8 XLENGTH
+      
       if (print_level .ge. 3) then
          open (ihout,file='heat.out')
          open (irhout,file='resheat.out')
@@ -211,7 +212,8 @@ C     read common input
       JPO=48
       IENG=1
        
-      !DQV=0.d0
+      !DQV=1.d-3
+      DQV=0
 
       DT=dble(TIME_STEP)/60.
 
@@ -277,10 +279,13 @@ C--------XLENGTH=dble(INT(XLENGTH/XFACT*1000.+0.5))/1000.
 
 C--------Modify number of parcels
 
-         LOB=XLENGTH*XFACT/B(N)
-
+!         LOB=XLENGTH*XFACT/B(N)
+         LOB=XLENGTH*XFACT/DX0       
          IF(LOB.GT.(NOPR-2))LOB=NOPR-2
          IF(LOB.LT.8)LOB=8
+         DQQ(N)=DQQ(N)*1500.D0
+         
+         
          IPPR(N)=LOB/(I1-1)
 
          DO I=1,I1

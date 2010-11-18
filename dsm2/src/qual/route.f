@@ -78,7 +78,7 @@ C     QI     minimum flow of interest (flows<QI are considered zero).
 C     QT(I)      tributary inflow at grid I (cu m/s), enter just u/s of grid
 C     TRIB(L,I)    concentration of constituent L in trib at grid I
 C     (tribs can not occur at first or last grid)
-C     VI   smallest volume of interest (VI=QI*DT)
+C     VI   smallest volume of interest (VI=QI*DT)!!changed to 1/10 of the average parcel
 C     VU(I)      volume of parcel upstream of grid I
 C     W(I)       average top width in subreach I (m)
 
@@ -102,6 +102,9 @@ C     + + + LOCAL VARIABLES + + +
 
 
       real*8 objflow,massrate(max_constituent) ! object flow and massrates
+      
+      real*8    VOL,VOL0,DX(NOPR)
+      INTEGER J
 
 C     + + + LOCAL VARIABLE DEFINITIONS + + +`
 C     DF(K)  change in conc. of any constituent in parcel K due to dispersion
@@ -124,13 +127,14 @@ C     X(I)       dist of grid I from u/s boundary (m), input as river mile
 
       DTSEC=DT*3600.
       DQTINY=0.00001*DTSEC
-      VI=QI*DTSEC
+!      VI=QI*DTSEC
       chan_res=1                ! pointer to channel for kinetic computations
+
       DO 490 N=1,NBRCH
 C--------ROUTE BRANCHES
          I1=NXSEC(N)
          NXSECN=I1
-         NSN=NS(N)
+         NSN=NS(N)           
          DO K=1,NSN+2
             NEWPARCEL(K)=.FALSE.
          ENDDO
@@ -141,6 +145,19 @@ C--------ROUTE BRANCHES
             W(I)=FLOW(N,3,I)
             QT(I)=FLOW(N,4,I)
  410     CONTINUE
+
+C-   estimate parcel size
+         VOL=0
+         DO K=1,NSN
+            VOL=VOL+GPV(N,K)
+            DX(K)=GPV(N,K)/(0.5*(A(1)+A(2)))
+         enddo
+
+          VOL0=DX0*0.5*(A(1)+A(2))
+          if(VOL/VOL0.GT.(NOPR-2))VOL0=VOL/(NOPR-2)
+          if(VOL/VOL0.LT.8)VOL0=VOL/8.
+          VOL0=VOL0*0.9 
+          VI=VOL0*0.1                 
 
 C--------compute hydraulics statements
 
@@ -161,9 +178,11 @@ C--------No dispersion if only 1 parcel is left
                !todo: this change to an average eliminates one-sidedness
                ! one-sidedness causes different answers depending on channel orientation
                ! and causes problems with dead ends. 
-               !QPARCEL=(Q(MX)+Q(MX+1))/2.D0
-               !DQ(K)=ABS(DQQ(N)*QPARCEL)
-               DQ(K)=ABS(DQQ(N)*Q(MX))
+               QPARCEL=(Q(MX)+Q(MX+1))/2.D0
+!               DQ(K)=ABS(DQQ(N)*QPARCEL)
+               DQ(K)=ABS(DQQ(N)*QPARCEL)/(0.5*(DX(K-1)+DX(K)))
+               !DQ(K)=ABS(DQQ(N)*Q(MX))
+               
                DQMIN=DQV*A(MX)*0.5
                IF(DQ(K).LT.DQMIN)DQ(K)=DQMIN
 C--------------Changed from flow rate to volume
@@ -233,10 +252,11 @@ C--------compute new mass fluxes if needed and update all concentrations
             DO  K=1,NSN
                GPT(L,K,N)=GPT(L,K,N)+DF(K)
             ENDDO
+            
+            
  120     CONTINUE
 
 C--------FINISHED DISPERSION
-
 C--------set inflow boundary values statements
 
  150     IF (Q(1).LE.0.0) GO TO 240
@@ -267,6 +287,12 @@ C--------FLOW IN UPSTREAM BOUNDARY
 C-----------Upstream junction is not at the boundary
 C-----------Or if it is, there are no reservoirs connected
             DO L=1,NEQ
+               ! todo: analyze if this is really ever non-zero or necessary.
+               !       same for downstream case. If you are reading this in
+               !       2011 please go ahead and delete this assertion
+!               if(GPTU(L,N) .ne. 0.d0) then
+!                   print*,"GPTU != 0, please report to DSM2 maintanence team"
+!               end if
                GPT(L,1,N)=GPTU(L,N)
             ENDDO
 !         ELSEIF( (.not. node_geom(JN).qual_int) .AND. NCONRES(JN).GE.1)THEN
@@ -299,6 +325,9 @@ C--------flow into downstream boundary
          PRDT(NSN)=0.0
          GVU(N,NXSECN)=GPV(N,NSN)
          DO 260 L=1,NEQ
+!            if(GPTD(L,N) .ne. 0.d0) then
+!               print*,"GPTD != 0, please report to DSM2 maintanence team"
+!            end if
             GPT(L,NSN,N)=GPTD(L,N)
  260     CONTINUE
          GO TO 280
@@ -521,8 +550,10 @@ C--------compute outflow flux statements
 
 C--------renumber parcels and combine statements
 
+         
          NS(N)=ILP-IFP+1
-         NSN=NS(N)
+         NSN=NS(N)       
+         
          IF (NSN.EQ.1) THEN
             IF(Q(NXSECN).GE.0.) DVU(N)=0.0
             IF(Q(1).LE.0.) DVD(N)=0.0
@@ -551,23 +582,28 @@ C--------combine parcel statements
  600     CONTINUE
 
 C--------Determine the smallest parcel
-         KSML=1
-         DO K=1,NSN
-            IF (GPV(N,K).LE.GPV(N,KSML)) KSML=K
-         ENDDO
+!             KSML=1
+!             DO K=1,NSN
+!                IF (GPV(N,K).LE.GPV(N,KSML)) KSML=K
+!             ENDDO
 
-         IF (NSN.LE.3.OR.GPV(N,KSML).GE.VI)THEN
-            DO KR=2,NSN
-               RATIO=GPV(N,KR)/GPV(N,KR-1)
-               IF(RATIO.GE.25.0.OR.RATIO.LE.0.04)THEN
-                  KSML=KR
-                  IF(RATIO.GT.1.0)KSML=KR-1
-                  GO TO 610
-               ENDIF
-            ENDDO
-            IF (NSN.LT.MAXPARCEL(N)) GO TO 700
-         ENDIF
- 610     CONTINUE
+         J=1
+         KSML=1
+800      CONTINUE
+
+!         IF (NSN.LE.3.OR.GPV(N,KSML).GE.VI)THEN
+!            DO KR=2,NSN
+!               RATIO=GPV(N,KR)/GPV(N,KR-1)
+!               IF(RATIO.GE.25.0.OR.RATIO.LE.0.04)THEN
+!                  KSML=KR
+!                  IF(RATIO.GT.1.0)KSML=KR-1
+!                  GO TO 610
+!               ENDIF
+!            ENDDO
+!           IF (NSN.LT.MAXPARCEL(N)) GO TO 700
+!         ENDIF
+! 610     CONTINUE
+
          IF(MASS_TRACKING.AND.KSML.GT.NSN)THEN
             WRITE(UNIT_ERROR,*) ' PROBLEM KSML CHANNEL:',N,' KS=',KS,' KSML=',KSML
          ENDIF
@@ -580,6 +616,10 @@ C--------Determine the smallest parcel
             IF (GPV(N,KS).GT.GPV(N,KS+2)) KS=KSML
          ENDIF
          KL=KS+1
+C-------Liu 
+         if(J.NE.3) then               
+           if(GPV(N,KS).GT.VOL0.or.GPV(N,KL).GT.VOL0) go to 700
+         endif
          I1=NIPX(N,KS)+1
          DO 650 I=I1,NXSECN
             IF (NIPX(N,KL).LT.I) THEN
@@ -587,6 +627,7 @@ C--------Determine the smallest parcel
                IF (NKAI(N,I).EQ.KS) GVU(N,I)=GVU(N,I)+GPV(N,KS)
             ENDIF
  650     CONTINUE
+
          PVT=GPV(N,KS)+GPV(N,KL)
          IF (PVT.LE.0.0) PVT=VI
          COF=GPV(N,KS)/PVT
@@ -605,9 +646,25 @@ C--------renumber remaining parcels
                GPT(L,K,N)=GPT(L,K+1,N)
  670        CONTINUE
  680     CONTINUE
-         IF (NSN.GE.MAXPARCEL(N)) GO TO 600
+
  700     CONTINUE
-         iskip = 0
+
+         if(J.eq.1) then
+            J=2
+            KSML=NSN
+            go to 800
+         endif
+         
+         IF (NSN.GT.MAXPARCEL(N))then
+             J=3 
+             KSML=2
+             DO K=2,NSN-1
+                IF (GPV(N,K).LE.GPV(N,KSML)) KSML=K
+             ENDDO
+             GO TO 800
+         endif
+
+         iskip = 0     
 
  490  CONTINUE
       RETURN

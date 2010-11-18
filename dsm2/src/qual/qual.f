@@ -480,7 +480,6 @@ C--------compute inflow flux at known junction
          AllJunctionsMixed=.false.
          do while (.not. AllJunctionsMixed)  
             DO 640 JN=1,NNODES     
-
                if (node_geom(JN).boundary_type .NE. stage_boundary) then
                   TOTFLO=0.
                   IF (JCD(JN) .EQ. MIXED) GOTO 640                 
@@ -579,6 +578,15 @@ C-----------------update GPTU,GPTD,DVU,DVD,PT,PTI,PTR
                            GPTU(CONS_NO,N)=CJ(CONS_NO,JN)*DTT*FLOW(N,1,1)
                            GPT(CONS_NO,1,N)=(CJ(CONS_NO,JN)*FLOW(N,1,1)*DTT+
      &                          GPT(CONS_NO,1,N)*VOL)/VOL
+                           if (NS(N).GT.1) then
+                              if (GPV(N,1).LT.(0.1*GPV(N,2))) then
+                                !mix this small parcel with the next parcel
+                                !this treatment eliminates unrealistic spikes caused by DICU inflow
+                                GPT(CONS_NO,1,N)=(GPT(CONS_NO,1,N)*GPV(N,1)
+     &                           +GPT(CONS_NO,2,N)*GPV(N,2))/(GPV(N,1)+GPV(N,2))
+                                GPT(CONS_NO,2,N)=GPT(CONS_NO,1,N)
+                              endif
+                           endif
                            GPTD(CONS_NO,N)=GPTD(CONS_NO,N)+CJ(CONS_NO,JN)*DVD(N)
                         ENDDO
                      END IF
@@ -588,7 +596,6 @@ C-----------------update GPTU,GPTD,DVU,DVD,PT,PTI,PTR
                   DO KK=1,NUMDOWN(JN)
                      N=LISTDOWN(JN,KK)
                      IF (FLOW(N,1,NXSEC(N)).LT.0.0) THEN
-
 C                  ! @todo: NS(N) should never be zero. This condition was encountered by Jon.                        
 	                  IF (NS(N).GT.0) THEN  
                           VOL=GPV(N,NS(N))+DVU(N)
@@ -596,6 +603,14 @@ C                  ! @todo: NS(N) should never be zero. This condition was encou
                              GPTD(CONS_NO,N)=CJ(CONS_NO,JN)*DTT*FLOW(N,1,NXSEC(N))
                              GPT(CONS_NO,NS(N),N)=(-CJ(CONS_NO,JN)*FLOW(N,1,NXSEC(N))*DTT+
      &                            GPT(CONS_NO,NS(N),N)*VOL)/VOL
+                             if (NS(N).GT.1)then
+                                if (GPV(N,NS(N)).LT.(0.1*GPV(N,NS(N)-1))) then
+                                !mix this small parcel with the next parcel
+                                GPT(CONS_NO,NS(N),N)=(GPT(CONS_NO,NS(N),N)*GPV(N,NS(N))
+     &                           +GPT(CONS_NO,NS(N)-1,N)*GPV(N,NS(N)-1))/(GPV(N,NS(N))+GPV(N,NS(N)-1))
+                                GPT(CONS_NO,NS(N)-1,N)=GPT(CONS_NO,NS(N),N)
+                                endif
+                             endif
                              GPTU(CONS_NO,N)=GPTU(CONS_NO,N)+CJ(CONS_NO,JN)*DVU(N)
                           ENDDO
 	                  ELSE

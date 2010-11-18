@@ -20,7 +20,7 @@ C!</license>
 
 
       INTEGER NOBR,NOSC,NOPR
-      PARAMETER (NOBR=800, NOSC=15, NOPR=24)
+      PARAMETER (NOBR=800, NOSC=15, NOPR=82)
       INTEGER MAXNUMRES,MAXRESJUNC
       PARAMETER (MAXNUMRES=100,MAXRESJUNC=50)
       integer ihout, irhout
@@ -29,3 +29,6 @@ C!</license>
       parameter (idoout=52,irdoout=53)
       integer ialgout, iralgout
       parameter (ialgout=54,iralgout=55)
+      REAL*8 DX0
+      PARAMETER (DX0=500.D0)
+      
