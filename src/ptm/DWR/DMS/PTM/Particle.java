@@ -22,24 +22,16 @@ import edu.cornell.RngPack.*;
 /**
   * 
   *  This class is the core definition of a Particle and its movement in
-  *  a Waterbody. Most of the movement functions are seprated to make this
+  *  a Waterbody. Most of the movement functions are separated to make this
   *  a modular class. The only public function needed to use this class is
-  *  the updateXYZposition function.
+  *  the updatePosition function.
   *  <p>
-*Particle's junction decision is based on flow ratios.<br>
- * 
- *  A Particle's swimming in the Reservoir is not simulated instead it is assumed
- *  that a Particle entering a Reservoir is fully mixed and therefore it is possible
- *  that a Particle entering a Reservoir could exit the Reservoir from some other
- *  Node in the next time step giving it almost the speed of light !!! One solution
- *  may be to keep track of a Particle's postion for the first few time steps in the
- *  Reservoir or some other method. Any other solutions can be mailed to use folks.<p>
- * 
- * 
+  *
  *  CODING NOTES<p>
  * 
+ * 
  *  CODING NOTES: POSITION DETERMINATION<br>
- *  A Particle is modelled as a non interacting object.<br>
+ *  A Particle is modeled as a non interacting object.<br>
  * 
  *  Position in any direction is calculated by adding those components of various
  *  displacements over the time step.<p>
@@ -47,18 +39,23 @@ import edu.cornell.RngPack.*;
  *  For example
  * <p>
  *  DX = DX_External_Deterministic + DX_External_Random +
+ *       DX_Internal_Deterministic + DX_Internal_Random
  * 
- *  DX_Internal_Deterministic + DX_Internal_Random
- * 
- *  This leads to a more modular approach and helps one to seperate out the
+ *  This leads to a more modular approach and helps one to separate out the
  *  effect of different components of movement
  * <p>
+ * 
+ * 
+ *  CODING NOTES: JUNCTION DECISION
+ *  Particle's junction decision is based on flow ratios.<br>
+ * 
+ * 
  *  CODING NOTES: BOUNDARY REFLECTIONS
  *  A Particle during its movement may step out of the boundaries of a Waterbody. This
  *  effect is minimized by choosing a sub time step small enough to limit this jump to
  * <p>
- *  However when the Particle does step out of bounds it is bounced back the extraeous
- *  distance is travelled in a manner similar to a ball bouncing off the floor.
+ *  However when the Particle does step out of bounds it is bounced back the extraneous
+ *  distance is traveled in a manner similar to a ball bouncing off the floor.
  * <p>
  * 
  * 
@@ -67,6 +64,17 @@ import edu.cornell.RngPack.*;
  *  Flow volume out of Node i = Vi
  *  Then the probability that a Particle will leave the Reservoir through a
  *  certain Node is proportional to the ratio of Vi:Vtotal.
+ *  
+ *  
+ *  CODING NOTES: RESERVOIRS PROBLEMS<br>
+ *  A Particle's swimming in the Reservoir is not simulated instead it is assumed
+ *  that a Particle entering a Reservoir is fully mixed and therefore it is possible
+ *  that a Particle entering a Reservoir could exit the Reservoir from some other
+ *  Node in the next time step giving it almost the speed of light !!! One solution
+ *  may be to keep track of a Particle's position for the first few time steps in the
+ *  Reservoir or some other method. Any other solutions can be mailed to use folks.<p>
+ *  
+ *  
  * @author Nicky Sandhu
  * @version $Id: Particle.java,v 1.6.6.1 2006/04/04 18:16:25 eli2 Exp $
  * 
@@ -217,14 +225,14 @@ public class Particle{
     w = wb;
     if (inserted) {
       if (wb.getPTMType() == Waterbody.CHANNEL) {
-	px[0] = x;
-	py[0] = y;
-	pz[0] = z;
+        px[0] = x;
+        py[0] = y;
+        pz[0] = z;
       }
       else {
-	px[0] = -1;
-	py[0] = -1;
-	pz[0] = -1;
+        px[0] = -1;
+        py[0] = -1;
+        pz[0] = -1;
       }
       return (w);
     }
@@ -267,10 +275,10 @@ public class Particle{
       if(! isDead) checkHealth();
       //      if (Id == 1) System.out.println(Id+" "+age+" "+getFallVel());
       
-    }    
+    }
     else if (!inserted && Globals.currentModelTime >= insertionTime) {
       if ( (Globals.currentModelTime - insertionTime)/60.0 > delT )
-	warning("Particle insertion time specification may be incorrect");
+        warning("Particle insertion time specification may be incorrect");
       insert();
       recursionCounter=0;
       //if (DEBUG) 
@@ -287,8 +295,8 @@ public class Particle{
     this.insertionTime = particleInsertionTime;
     setLocation(injectionNode);
   }
-  
-  
+
+
   /**
     *  get recent Node
     */
@@ -392,7 +400,7 @@ public class Particle{
   protected ParticleObserver observer;
   
   /**
-    *  updates the Particle postion for the given time step
+    *  updates the Particle position for the given time step
     *  The Particle is moved for the time step given
     *  The new position of the Particle is available as
     *  Particle.x, Particle.y and Particle.z
@@ -403,41 +411,39 @@ public class Particle{
       //get minimum time step
       int numOfSubTimeSteps = getSubTimeSteps(delT);
       float tmstep = delT/numOfSubTimeSteps;
-    
       tmLeft=delT;
-
       if(Macro.APPROX_EQ( y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {
-	setYZLocationInChannel();
+        setYZLocationInChannel();
       }
-    
       while( tmLeft >= tmstep && isDead == false){
-	age+=tmstep;
-
-	updateAllParameters(tmstep);
-	if (particleWait == false){
-	// gets the x,y, and z position of the Particle after time step
-	x=calcXPosition(tmstep);
-	if ( wb.getPTMType() != Waterbody.CHANNEL ) return;
-	// after recursion this may be true.
-	if ( tmLeft >= tmstep && isDead == false ) {
-	  y=calcYPosition(tmstep);
-	  z=calcZPosition(tmstep);
-	}
-	}
-      
-	// update number of time steps taken
-	tmLeft -= tmstep;
+        age+=tmstep;
+        updateAllParameters(tmstep);
+        if (particleWait == false){
+          // gets the x,y, and z position of the Particle after time step
+          x=calcXPosition(tmstep);
+          if ( wb.getPTMType() != Waterbody.CHANNEL ) return;
+          // after recursion this may be true.
+          if ( tmLeft >= tmstep && isDead == false ) {
+            y=calcYPosition(tmstep);
+            z=calcZPosition(tmstep);
+          }
+        }
+      // update number of time steps taken
+      tmLeft -= tmstep;
       }// end while
-    } //  if(wb.getPTMType() ==  CHANNEL) 
+    } //  if(wb.getPTMType() ==  CHANNEL)
+    
     else if (wb.getPTMType() ==  Waterbody.RESERVOIR){
       if (DEBUG) System.out.println("Particle " + this + " in reservoir " + wb.getEnvIndex() );
       tryCrossReservoir(delT); 
     }//  else if (wb.getPTMType() ==  Waterbody.RESERVOIR)
+    
     else if ( wb.getPTMType() == Waterbody.CONVEYOR){
       if (DEBUG) System.out.println("Particle " + this + " in conveyor " + wb.getEnvIndex() );
       // zero time delay
       moveInConveyor(delT);
     }
+    
     else if(wb.getPTMType() ==  Waterbody.BOUNDARY) {
       if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
       isDead=true;
@@ -446,8 +452,8 @@ public class Particle{
   
   
   /**
-    *  This is called after Particle returns from a Reservoir and
-    *  needs a random y and z positioning and x corresponding to
+    *  This is called after Particle returns from a Reservoir or Conveyor
+    *  and needs a random y and z positioning and x corresponding to
     *  upnode or downnode.
     */
   protected final void setXYZLocationInChannel(){
@@ -469,7 +475,6 @@ public class Particle{
   protected final void setYZLocationInChannel(){
       y = ((Channel)wb).getWidth(x)*(wb.getRandomNumber()-0.5f);
       z = ((Channel)wb).getDepth(x)*wb.getRandomNumber();
-      //    }
   }
   
   
@@ -484,28 +489,28 @@ public class Particle{
                         + calcXDisplacementIntDeterministic(timeStep)
                         + calcXDisplacementIntRandom(timeStep);
   
-//nodeReached updates the Node to new Node
- if ( isNodeReached(xPos) == true ) { 
-   float timeToReachNode = calcTimeToNode(xPos);
-   //calculate time to reach Node
-   tmLeft-=timeToReachNode;
-   age = age - timeStep + timeToReachNode;
+    //nodeReached updates the Node to new Node
+    if ( isNodeReached(xPos) == true ) {
+      float timeToReachNode = calcTimeToNode(xPos);
+      //calculate time to reach Node
+      tmLeft-=timeToReachNode;
+      age = age - timeStep + timeToReachNode;
    
-   //updates pParticlelocation in wb
-   makeNodeDecision(); 
+      //updates pParticlelocation in wb
+      makeNodeDecision(); 
     
-   //   if (recursionCounter++ > 5) error("Too many recursions in calcXPosition(float)");
-   if (recursionCounter++ > 5) {
-     if (repositionFactor < MAX_R_F){
-   	 repositionFactor += RFIncrement;
-	   System.out.println("Reposition Factor set to "+repositionFactor+" for particle "+getId()+" at node "+((Channel)wb).getUpNodeId());
+     //   if (recursionCounter++ > 5) error("Too many recursions in calcXPosition(float)");
+     if (recursionCounter++ > 5) {
+       if (repositionFactor < MAX_R_F){
+   	     repositionFactor += RFIncrement;
+   	     System.out.println("Reposition Factor set to "+repositionFactor+" for particle "+getId()+" at node "+((Channel)wb).getUpNodeId());
+       }
+       recursionCounter = 0;
      }
-     recursionCounter = 0;
-   }
-   if ( tmLeft > 1.0e-3f )  updateXYZPosition(tmLeft);
-   return x;
- }//     if ( nodeReached() == true )
- return xPos;
+     if ( tmLeft > 1.0e-3f )  updateXYZPosition(tmLeft);
+       return x;
+    }//     if ( nodeReached() == true )
+    return xPos;
   }
   
   
@@ -550,19 +555,18 @@ public class Particle{
                 + calcZDisplacementIntDeterministic(timeStep)
                 + calcZDisplacementIntRandom(timeStep);
   
-// reflections from bottom of Channel and water surface
- int k=0;
- int MAX_BOUNCING = 100;
- while ((zPos < 0.0 || zPos > channelDepth) && (k<=MAX_BOUNCING)){
-   if (zPos < 0.0) zPos=-zPos;
-   else if (zPos > channelDepth) zPos = channelDepth - (zPos - channelDepth);
-   k++;
- }
-  
- if (k > MAX_BOUNCING) {
-   error("Too many iterations in calcZPosition()");
- }
- return (zPos);
+    // reflections from bottom of Channel and water surface
+    int k=0;
+    int MAX_BOUNCING = 100;
+    while ((zPos < 0.0 || zPos > channelDepth) && (k<=MAX_BOUNCING)){
+      if (zPos < 0.0) zPos=-zPos;
+      else if (zPos > channelDepth) zPos = channelDepth - (zPos - channelDepth);
+      k++;
+    }
+    if (k > MAX_BOUNCING) {
+      error("Too many iterations in calcZPosition()");
+    }
+    return (zPos);
   }
   
   
@@ -604,10 +608,8 @@ public class Particle{
     *  Externally induced Random
     */
   protected float calcYDisplacementExtRandom(float timeStep){
-
     // get a gaussian distributed random number for y mixing
     float dypos = (float) (randomNumberGenerator.gaussian()*Etdt);
-
     // if transverse mixing allowed return the random y movement
     if (transMove) return(dypos);
     else return 0.0f;
@@ -639,7 +641,6 @@ public class Particle{
     *  Externally induced Random
     */
   protected float calcZDisplacementExtRandom(float timeStep){
-  
     // get the random mixing component
     float dz = (float) (randomNumberGenerator.gaussian()*Evdt);
     
@@ -664,9 +665,7 @@ public class Particle{
     *  Externally induced Deterministic
     */
   protected  float calcXVelocityExtDeterministic(){
-  
-    return( ( (Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth));
-  
+      return( ( (Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth));
   }
   
   
@@ -842,7 +841,7 @@ public class Particle{
   private static final int MISSING = -99999;
   
   private final void insert(){
-  if (observer != null) 
+    if (observer != null) 
       observer.observeChange(ParticleObserver.INSERT,this);
     inserted=true;
     makeNodeDecision();
@@ -858,7 +857,6 @@ public class Particle{
   
   private final void updateChannelParameters(){
     ((Channel)wb).updateChannelParameters(x,cL,cW,cD,cV,cA);
-
     channelLength = cL[0];
     channelWidth  = cW[0];
     channelDepth  = cD[0];
@@ -869,7 +867,6 @@ public class Particle{
       previousChannelWidth=channelWidth;
       first=false;
     }
-  
   }
   
   protected void updateOtherParameters(float delT){
@@ -905,8 +902,7 @@ public class Particle{
     }
     else return false;
 	// if the pParticlehas been asked to wait then return false
-	if(particleWait)
-		return false;
+	if(particleWait)return false;
     return true;
   }
   
@@ -952,7 +948,7 @@ public class Particle{
       return numOfSubTimeSteps;
   
   }
-  
+
   private final float getMinTimeStep(){
   
     //    float terminalVelocity=Math.max(getFallVel(),1.0e-10f); //fallvel -. input behaviour
@@ -965,8 +961,8 @@ public class Particle{
     float dtz=Math.min(dzmax/terminalVelocity,dzmax*dzmax/Ev);
     float dty = (dymax*dymax)/(CtCv*CtCv*Ev);
   
-//  	System.out.println("dzmax="+dzmax+"; dymax="+dymax+"; Ev="+Ev+"; CtCv="+CtCv+
-//  					   "; dtz="+dtz+"; dty="+dty);
+    //  	System.out.println("dzmax="+dzmax+"; dymax="+dymax+"; Ev="+Ev+"; CtCv="+CtCv+
+    //  					   "; dtz="+dtz+"; dty="+dty);
 
     float minTimeStep = 0.0f;
   
@@ -1022,9 +1018,9 @@ public class Particle{
     float newXPosition=0.0f;
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (((Channel)wb).getUpNodeId() == nd.getEnvIndex())
-	newXPosition=0;
+      newXPosition=0;
       if (((Channel)wb).getDownNodeId() == nd.getEnvIndex())
-	newXPosition= ((Channel)wb).getLength();
+      newXPosition= ((Channel)wb).getLength();
     }
     return newXPosition;
   }
@@ -1036,12 +1032,11 @@ public class Particle{
   private float getPerturbedXLocation(){
     float newXPosition=0.0f;    
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
-
       if (((Channel)wb).getUpNodeId() == nd.getEnvIndex())
-	newXPosition = channelLength * repositionFactor;
+      newXPosition = channelLength * repositionFactor;
 
       if (((Channel)wb).getDownNodeId() == nd.getEnvIndex())
-	newXPosition= ((Channel)wb).getLength() - (channelLength * repositionFactor);
+      newXPosition= ((Channel)wb).getLength() - (channelLength * repositionFactor);
     }
     return newXPosition;
   }
@@ -1061,8 +1056,8 @@ public class Particle{
     }
     else{
       rep += -1.0f + " " 
-	+ -1.0f + " "
-	+ -1.0f + " ";
+           + -1.0f + " "
+           + -1.0f + " ";
     }
     rep += this.insertionTime + " ";
     if (this.nd != null)
@@ -1080,12 +1075,12 @@ public class Particle{
       token = sToken.nextToken();
       int wbNum = (new Integer(token)).intValue();
       if (wbNum !=  -1){
-	this.wb = Globals.Environment.getWaterbody(wbNum);
-	this.inserted = true;
+        this.wb = Globals.Environment.getWaterbody(wbNum);
+        this.inserted = true;
       }
       else{
-	this.wb = null;
-	this.inserted = false;
+        this.wb = null;
+        this.inserted = false;
       }
       token = sToken.nextToken();
       x = (new Float(token)).floatValue();
