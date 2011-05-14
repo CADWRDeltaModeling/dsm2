@@ -61,50 +61,50 @@ public class PTMHydroInput{
   /**
    * debuggin'
    */
-private final static boolean DEBUG = false;
+  private final static boolean DEBUG = false;
   /**
    *  the next chunk of data till the next time step
    */
-public final void getNextChunk(int currentModelTime) {
-  readMultTide(currentModelTime);
-}
+  public final void getNextChunk(int currentModelTime) {
+    readMultTide(currentModelTime);
+  }
 
   /**
    *  the information in the Waterbody array in PTMEnv
    */
-public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,
-					     LimitsFixedData lFD){
-  //update Channel depths, flows and area of flow
-  float[] depthArray = new float[2];
-  float[] flowArray = new float[2];
-  float[] stageArray = new float[2];
-  float[] areaArray = new float[2];
-  int numConst = PTMFixedData.getQualConstituentNames().length;  
-  float[][] qualityArray = new float[2][numConst];
+  public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,
+                                               LimitsFixedData lFD){
+    //update Channel depths, flows and area of flow
+    float[] depthArray = new float[2];
+    float[] flowArray = new float[2];
+    float[] stageArray = new float[2];
+    float[] areaArray = new float[2];
+    int numConst = PTMFixedData.getQualConstituentNames().length;  
+    float[][] qualityArray = new float[2][numConst];
+    
+    //@todo: external/internal numbers?
+    for(int channelNumber=1; 
+        channelNumber <= PTMFixedData.getMaximumNumberOfChannels(); 
+        channelNumber++){
+    	
+      if(wbArray[channelNumber] !=null){
+        depthArray[Channel.UPNODE]   = getUpNodeDepth(channelNumber);
+        depthArray[Channel.DOWNNODE] = getDownNodeDepth(channelNumber);
   
-  //@todo: external/internal numbers?
-  for(int channelNumber=1; 
-      channelNumber <= PTMFixedData.getMaximumNumberOfChannels(); 
-      channelNumber++){
-  	
-    if(wbArray[channelNumber] !=null){
-      depthArray[Channel.UPNODE]   = getUpNodeDepth(channelNumber);
-      depthArray[Channel.DOWNNODE] = getDownNodeDepth(channelNumber);
-
-      stageArray[Channel.UPNODE]   = getUpNodeStage(channelNumber);
-      stageArray[Channel.DOWNNODE] = getDownNodeStage(channelNumber);
-      
-      flowArray[Channel.UPNODE]   = getUpNodeFlow(channelNumber);
-      flowArray[Channel.DOWNNODE] = getDownNodeFlow(channelNumber);
-
-      areaArray[Channel.UPNODE]   = getUpNodeArea(channelNumber);
-      areaArray[Channel.DOWNNODE] = getDownNodeArea(channelNumber);
-
-      for (int indx = 0; indx < qualityArray[0].length; indx++){
-      	//fixme: got rid of quality temporarily
-	qualityArray[Channel.UPNODE][0] = 0.f; //getUpNodeQuality(channelNumber,indx+1);
-	qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
-      }
+        stageArray[Channel.UPNODE]   = getUpNodeStage(channelNumber);
+        stageArray[Channel.DOWNNODE] = getDownNodeStage(channelNumber);
+        
+        flowArray[Channel.UPNODE]   = getUpNodeFlow(channelNumber);
+        flowArray[Channel.DOWNNODE] = getDownNodeFlow(channelNumber);
+  
+        areaArray[Channel.UPNODE]   = getUpNodeArea(channelNumber);
+        areaArray[Channel.DOWNNODE] = getDownNodeArea(channelNumber);
+  
+        for (int indx = 0; indx < qualityArray[0].length; indx++){
+        	//fixme: got rid of quality temporarily
+          qualityArray[Channel.UPNODE][0] = 0.f; //getUpNodeQuality(channelNumber,indx+1);
+          qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
+        }
 
       //      if(channelNumber == 54 || dsmNumber == 54)
       //	System.out.println("Channel:"+dsmNumber+"upnode:"+qualityArray[0][0]);
@@ -112,134 +112,134 @@ public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,
       //	System.out.println("Channel:"+dsmNumber+"flow:"+flowArray[1]);
       //      if(dsmNumber == 8 || dsmNumber == 54)
       //	System.out.println("Channel:"+channelNumber+"flow:"+flowArray[0]);
-      ((Channel) wbArray[channelNumber]).setDepth(depthArray);
-      ((Channel) wbArray[channelNumber]).setStage(stageArray);
-      ((Channel) wbArray[channelNumber]).setFlow(flowArray);
-      ((Channel) wbArray[channelNumber]).setArea(areaArray);
-      //todo: disabled quality here
-      //((Channel) wbArray[dsmNumber]).setQuality(qualityArray);
-    }
-  }
-  // update Reservoir dynamic information
-  flowArray = new float[PTMFixedData.getMaximumNumberOfReservoirNodes()+1];
-  depthArray = new float[1];
-  for(int reservoirNumber=1; 
-      reservoirNumber <= PTMFixedData.getMaximumNumberOfReservoirs(); 
-      reservoirNumber++){
-    int envIndex = PTMFixedData.getUniqueIdForReservoir(reservoirNumber);
-
-    if(wbArray[envIndex] != null){
-      float volume = getReservoirVolume(reservoirNumber);
-      ((Reservoir )wbArray[envIndex]).setVolume(volume);
-      if (DEBUG) System.out.println(wbArray[envIndex]);
-      //update Reservoir flows except for pumping flow which is set later
-      for(int connection=1; 
-	  connection <= wbArray[envIndex].getNumberOfNodes();
-	  connection++){
-	int nodeNumber = getNodeNumberForConnection(reservoirNumber, connection);
-	if (DEBUG) System.out.println("Node Number is " + nodeNumber
-				      + " for reservoir number "+ reservoirNumber
-				      + " for connecton number "+ connection);
-	int nodeLocalIndex = 0;
-	nodeLocalIndex = 
-	  wbArray[envIndex].getNodeLocalIndex(nodeNumber);
-	if (nodeLocalIndex == -1){
-	  System.out.println("PTMHydroInput.java: Node " 
-			     + nodeNumber 
-			     + " not found in waterbody "
-			     + envIndex);
-	}
-	flowArray[nodeLocalIndex] = 
-	  getReservoirFlowForConnection(reservoirNumber, connection);
-	if (DEBUG){
-	  System.out.println("Resrvoir # " + reservoirNumber
-			     + " Connection #: " + connection + " flow= "
-			     + getReservoirFlowForConnection(reservoirNumber, connection));
-	}
+        ((Channel) wbArray[channelNumber]).setDepth(depthArray);
+        ((Channel) wbArray[channelNumber]).setStage(stageArray);
+        ((Channel) wbArray[channelNumber]).setFlow(flowArray);
+        ((Channel) wbArray[channelNumber]).setArea(areaArray);
+        //todo: disabled quality here
+        //((Channel) wbArray[dsmNumber]).setQuality(qualityArray);
       }
+    }
+    // update Reservoir dynamic information
+    flowArray = new float[PTMFixedData.getMaximumNumberOfReservoirNodes()+1];
+    depthArray = new float[1];
+    for(int reservoirNumber=1; 
+        reservoirNumber <= PTMFixedData.getMaximumNumberOfReservoirs(); 
+        reservoirNumber++){
+      int envIndex = PTMFixedData.getUniqueIdForReservoir(reservoirNumber);
+  
+      if(wbArray[envIndex] != null){
+        float volume = getReservoirVolume(reservoirNumber);
+        ((Reservoir )wbArray[envIndex]).setVolume(volume);
+        if (DEBUG) System.out.println(wbArray[envIndex]);
+        //update Reservoir flows except for pumping flow which is set later
+        for(int connection=1; 
+  	  connection <= wbArray[envIndex].getNumberOfNodes();
+  	  connection++){
+  	int nodeNumber = getNodeNumberForConnection(reservoirNumber, connection);
+  	if (DEBUG) System.out.println("Node Number is " + nodeNumber
+  				      + " for reservoir number "+ reservoirNumber
+  				      + " for connecton number "+ connection);
+  	int nodeLocalIndex = 0;
+  	nodeLocalIndex = 
+  	  wbArray[envIndex].getNodeLocalIndex(nodeNumber);
+  	if (nodeLocalIndex == -1){
+  	  System.out.println("PTMHydroInput.java: Node " 
+  			     + nodeNumber 
+  			     + " not found in waterbody "
+  			     + envIndex);
+  	}
+  	flowArray[nodeLocalIndex] = 
+  	  getReservoirFlowForConnection(reservoirNumber, connection);
+  	if (DEBUG){
+  	  System.out.println("Resrvoir # " + reservoirNumber
+  			     + " Connection #: " + connection + " flow= "
+  			     + getReservoirFlowForConnection(reservoirNumber, connection));
+  	}
+        }
+        if (DEBUG){
+  	System.out.print("Wb EnvIndex: " + envIndex 
+  			 + "Reservoir local index: " + reservoirNumber);
+  	for(int j=0; j < wbArray[envIndex].getNumberOfNodes(); j++)
+  	  System.out.println(", flow = " + flowArray[j]);
+        }
+        wbArray[envIndex].setFlow(flowArray);
+        //      
+        depthArray[0] = getReservoirDepth(reservoirNumber);
+        ((Reservoir )wbArray[envIndex]).setDepth(depthArray);
+      }
+    }
+    // update stage boundary flows
+    flowArray = new float[1];
+    for( int stgId = 0; stgId < PTMFixedData.getMaximumNumberOfStageBoundaries();
+         stgId++){
+      int envIndex = PTMFixedData.getUniqueIdForStageBoundary(stgId);
+      if ( wbArray[envIndex] != null ){
+        flowArray[0] = getStageBoundaryFlow(stgId);
+        wbArray[envIndex].setFlow(flowArray);
+      }
+    }
+    // update boundary flows
+    if (DEBUG) System.out.println("Updating external flows");
+    flowArray = new float[1];
+    for( int extId = 0 ; 
+         extId < PTMFixedData.getMaximumNumberOfBoundaryWaterbodies(); 
+         extId ++){
+      flowArray[0] = getBoundaryFlow(extId);
+      int envIndex = PTMFixedData.getUniqueIdForBoundary(extId);
       if (DEBUG){
-	System.out.print("Wb EnvIndex: " + envIndex 
-			 + "Reservoir local index: " + reservoirNumber);
-	for(int j=0; j < wbArray[envIndex].getNumberOfNodes(); j++)
-	  System.out.println(", flow = " + flowArray[j]);
+        System.out.println("Wb EnvIndex: " + envIndex 
+  			 +"extId: " + extId + ", flow = " + flowArray[0]);
       }
-      wbArray[envIndex].setFlow(flowArray);
-      //      
-      depthArray[0] = getReservoirDepth(reservoirNumber);
-      ((Reservoir )wbArray[envIndex]).setDepth(depthArray);
+      if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
     }
-  }
-  // update stage boundary flows
-  flowArray = new float[1];
-  for( int stgId = 0; stgId < PTMFixedData.getMaximumNumberOfStageBoundaries();
-       stgId++){
-    int envIndex = PTMFixedData.getUniqueIdForStageBoundary(stgId);
-    if ( wbArray[envIndex] != null ){
-      flowArray[0] = getStageBoundaryFlow(stgId);
-      wbArray[envIndex].setFlow(flowArray);
+    // update internal or conveyor flows
+    if (DEBUG) System.out.println("Updating internal flows");
+    flowArray = new float[2];
+    for( int intId = 0 ; intId < PTMFixedData.getMaximumNumberOfConveyors(); intId ++){
+      flowArray[0] = getConveyorFlow(intId);
+      flowArray[1] = -getConveyorFlow(intId);
+      int envIndex = PTMFixedData.getUniqueIdForConveyor(intId);
+      if (DEBUG){
+        System.out.println("Wb EnvIndex: " + envIndex 
+  			 + "Id: " + intId + ", flow = " 
+  			 + flowArray[0] + ", " + flowArray[1]);
+      }
+      if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
     }
+    // update stage boundary flows ?
+    //
+    if (DEBUG) System.out.println("Updated all flows");
   }
-  // update boundary flows
-  if (DEBUG) System.out.println("Updating external flows");
-  flowArray = new float[1];
-  for( int extId = 0 ; 
-       extId < PTMFixedData.getMaximumNumberOfBoundaryWaterbodies(); 
-       extId ++){
-    flowArray[0] = getBoundaryFlow(extId);
-    int envIndex = PTMFixedData.getUniqueIdForBoundary(extId);
-    if (DEBUG){
-      System.out.println("Wb EnvIndex: " + envIndex 
-			 +"extId: " + extId + ", flow = " + flowArray[0]);
-    }
-    if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
+
+  private native void  readMultTide(int currentModelTime);
+    //
+  private native int   getExtFromInt(int channelNumber);
+  private native float getUpNodeDepth(int channelNumber);
+  private native float getDownNodeDepth(int channelNumber);
+  private native float getUpNodeStage(int channelNumber);
+  private native float getDownNodeStage(int channelNumber);
+  private native float getUpNodeFlow(int channelNumber);
+  private native float getDownNodeFlow(int channelNumber);
+  private native float getUpNodeArea(int channelNumber);
+  private native float getDownNodeArea(int channelNumber);
+    //
+  private native float getFlowForWaterbodyNode(int wbId, int nodeId);
+  
+  private native float getReservoirVolume(int reservoirNumber);
+  private native int   getNodeNumberForConnection(int reservoirNumber, 
+  						  int connection);
+  private native float getReservoirDepth(int reservoirNumber);
+  private native float getReservoirFlowForConnection(int reservoirNumber, 
+  						     int connection);
+  private native float getDiversionAtNode(int nodeNumber);
+  private native float getReservoirPumping(int reservoirNumber);
+  
+  private native float getBoundaryFlow(int bId);
+  private native float getStageBoundaryFlow(int bId);
+  private native float getConveyorFlow(int cId);
+  
+  private native float getUpNodeQuality(int channelNumber, int constituent);
+  private native float getDownNodeQuality(int channelNumber, int constituent);
+  
   }
-  // update internal or conveyor flows
-  if (DEBUG) System.out.println("Updating internal flows");
-  flowArray = new float[2];
-  for( int intId = 0 ; intId < PTMFixedData.getMaximumNumberOfConveyors(); intId ++){
-    flowArray[0] = getConveyorFlow(intId);
-    flowArray[1] = -getConveyorFlow(intId);
-    int envIndex = PTMFixedData.getUniqueIdForConveyor(intId);
-    if (DEBUG){
-      System.out.println("Wb EnvIndex: " + envIndex 
-			 + "Id: " + intId + ", flow = " 
-			 + flowArray[0] + ", " + flowArray[1]);
-    }
-    if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
-  }
-  // update stage boundary flows ?
-  //
-  if (DEBUG) System.out.println("Updated all flows");
-}
-
-private native void  readMultTide(int currentModelTime);
-  //
-private native int   getExtFromInt(int channelNumber);
-private native float getUpNodeDepth(int channelNumber);
-private native float getDownNodeDepth(int channelNumber);
-private native float getUpNodeStage(int channelNumber);
-private native float getDownNodeStage(int channelNumber);
-private native float getUpNodeFlow(int channelNumber);
-private native float getDownNodeFlow(int channelNumber);
-private native float getUpNodeArea(int channelNumber);
-private native float getDownNodeArea(int channelNumber);
-  //
-private native float getFlowForWaterbodyNode(int wbId, int nodeId);
-
-private native float getReservoirVolume(int reservoirNumber);
-private native int   getNodeNumberForConnection(int reservoirNumber, 
-						  int connection);
-private native float getReservoirDepth(int reservoirNumber);
-private native float getReservoirFlowForConnection(int reservoirNumber, 
-						     int connection);
-private native float getDiversionAtNode(int nodeNumber);
-private native float getReservoirPumping(int reservoirNumber);
-
-private native float getBoundaryFlow(int bId);
-private native float getStageBoundaryFlow(int bId);
-private native float getConveyorFlow(int cId);
-
-private native float getUpNodeQuality(int channelNumber, int constituent);
-private native float getDownNodeQuality(int channelNumber, int constituent);
-
-}

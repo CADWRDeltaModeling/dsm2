@@ -134,7 +134,7 @@ public class Particle{
     if(Id == 1) Particle.setFixedInfo(pFI);
     if (DEBUG) System.out.println("Initializing static info for particle ");
     first=true;
-    inserted=false;
+    inserted=false;//particle not in the system yet
     Particle.dfac=0.1f;
     age=0;
 	wb = null;
@@ -230,7 +230,7 @@ public class Particle{
         pz[0] = z;
       }
       else {
-        px[0] = -1;
+        px[0] = -1;//-1 for output use
         py[0] = -1;
         pz[0] = -1;
       }
@@ -265,20 +265,21 @@ public class Particle{
     *  updates position of Particle.
     */
   public final void updatePosition(float delT){
-  	particleWait = false;  //set or reset pariticle wait variable
+  	particleWait = false;  //set or reset particle wait variable
     if (DEBUG) System.out.println("In update position for particle " + this);
-    if(inserted){
+    
+    if(inserted){//after the 1st time insertion
       recursionCounter=0;
       updateXYZPosition(delT);
       updateOtherParameters(delT);
       //      System.out.println("update "+Id);
       if(! isDead) checkHealth();
       //      if (Id == 1) System.out.println(Id+" "+age+" "+getFallVel());
-      
     }
-    else if (!inserted && Globals.currentModelTime >= insertionTime) {
-      if ( (Globals.currentModelTime - insertionTime)/60.0 > delT )
-        warning("Particle insertion time specification may be incorrect");
+    else if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
+      if ( (Globals.currentModelTime - insertionTime)/60.0 > delT )//insertion time may set as way before PTM start time 
+        warning("Particle insertion time specification may be incorrect");//may include particles 1 time step before the 1st insertion
+      // particle initially inserted in the system 
       insert();
       recursionCounter=0;
       //if (DEBUG) 
@@ -341,6 +342,9 @@ public class Particle{
   
   /**
     *  Limiting factor for the movement during one time step due to mixing.
+    *  used for sub-time step calculation
+    *  prevent excessive bouncing of particles at boundaries
+    *  usually keep particle movement less than 10% channel width or depth in 1 sub-time step
     */
   protected static float dfac;
   
@@ -406,22 +410,24 @@ public class Particle{
     *  Particle.x, Particle.y and Particle.z
     */
   protected final void updateXYZPosition(float delT){
+	
     if( wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex() );
       //get minimum time step
       int numOfSubTimeSteps = getSubTimeSteps(delT);
       float tmstep = delT/numOfSubTimeSteps;
       tmLeft=delT;
-      if(Macro.APPROX_EQ( y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {
+      if(Macro.APPROX_EQ( y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {//y & z set up required for particles just out of reservoir and conveyor
         setYZLocationInChannel();
       }
+      
       while( tmLeft >= tmstep && isDead == false){
         age+=tmstep;
         updateAllParameters(tmstep);
         if (particleWait == false){
           // gets the x,y, and z position of the Particle after time step
           x=calcXPosition(tmstep);
-          if ( wb.getPTMType() != Waterbody.CHANNEL ) return;
+          if ( wb.getPTMType() != Waterbody.CHANNEL ) return;//if particle into reservoir/conveyor, out of current loop
           // after recursion this may be true.
           if ( tmLeft >= tmstep && isDead == false ) {
             y=calcYPosition(tmstep);
@@ -436,7 +442,7 @@ public class Particle{
     else if (wb.getPTMType() ==  Waterbody.RESERVOIR){
       if (DEBUG) System.out.println("Particle " + this + " in reservoir " + wb.getEnvIndex() );
       tryCrossReservoir(delT); 
-    }//  else if (wb.getPTMType() ==  Waterbody.RESERVOIR)
+    }
     
     else if ( wb.getPTMType() == Waterbody.CONVEYOR){
       if (DEBUG) System.out.println("Particle " + this + " in conveyor " + wb.getEnvIndex() );
@@ -488,7 +494,7 @@ public class Particle{
                         + calcXDisplacementExtRandom(timeStep)
                         + calcXDisplacementIntDeterministic(timeStep)
                         + calcXDisplacementIntRandom(timeStep);
-  
+
     //nodeReached updates the Node to new Node
     if ( isNodeReached(xPos) == true ) {
       float timeToReachNode = calcTimeToNode(xPos);
@@ -502,7 +508,7 @@ public class Particle{
      //   if (recursionCounter++ > 5) error("Too many recursions in calcXPosition(float)");
      if (recursionCounter++ > 5) {
        if (repositionFactor < MAX_R_F){
-   	     repositionFactor += RFIncrement;
+   	     repositionFactor += RFIncrement;//increase timestep
    	     System.out.println("Reposition Factor set to "+repositionFactor+" for particle "+getId()+" at node "+((Channel)wb).getUpNodeId());
        }
        recursionCounter = 0;
@@ -554,7 +560,7 @@ public class Particle{
                 + calcZDisplacementExtRandom(timeStep)
                 + calcZDisplacementIntDeterministic(timeStep)
                 + calcZDisplacementIntRandom(timeStep);
-  
+
     // reflections from bottom of Channel and water surface
     int k=0;
     int MAX_BOUNCING = 100;
@@ -574,9 +580,8 @@ public class Particle{
     *  Externally induced Deterministic
     */
   protected float calcXDisplacementExtDeterministic(float timeStep){
-    float xVel = calcXVelocityExtDeterministic( );
+    float xVel = calcXVelocityExtDeterministic();
     return (xVel*timeStep);
-  
   }
   
   
@@ -839,7 +844,7 @@ public class Particle{
   
   private static final int MAX_NUM_OF_SUB_TIME_STEPS=10000;
   private static final int MISSING = -99999;
-  
+  // insert particle in the system
   private final void insert(){
     if (observer != null) 
       observer.observeChange(ParticleObserver.INSERT,this);
@@ -863,6 +868,7 @@ public class Particle{
     channelVave   = cV[0];
     channelArea   = cA[0];
     if (first) {
+      //previous=current, if transfer from reservoir/conveyor to channel
       previousChannelDepth=channelDepth;
       previousChannelWidth=channelWidth;
       first=false;
@@ -873,6 +879,7 @@ public class Particle{
   }    
   
   private final void updateParticleParameters(float timeStep){
+	//map y & z in new xsection over the node
     z = z*channelDepth/previousChannelDepth; // adjust for changing depth
     y = y*channelWidth/previousChannelWidth; // adjust for changing width
     //set previouses to the news..
@@ -946,7 +953,6 @@ public class Particle{
     }
     else 
       return numOfSubTimeSteps;
-  
   }
 
   private final float getMinTimeStep(){
@@ -983,6 +989,8 @@ public class Particle{
   
   /**
     *  Counts number of recursions done to calculate X position
+    *  avoid too much small time-step recursion at dead-end channel
+    *  or it may crash the computer
     */
   private static int recursionCounter;
   

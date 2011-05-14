@@ -59,9 +59,9 @@ public class Channel extends Waterbody{
    *  sets fixed information for Channel
    */
   public Channel(int nId, int gnId,
-		 int[] xSIds, float len,
-		 int[] nodeIds, float[] xSectDist) {
-    
+                 int[] xSIds, float len,
+                 int[] nodeIds, float[] xSectDist){
+
     super(Waterbody.CHANNEL, nId, nodeIds);
     length = len;
     //set #of xSections and the idArray
@@ -126,7 +126,7 @@ public class Channel extends Waterbody{
    *  depth has been pre-calculated.
    */
   public final float getVelocity(float xPos, float yPos, float zPos,
-				 float averageVelocity, float width, float depth){
+                                 float averageVelocity, float width, float depth){
     float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, depth);
     if(useTransProfile) tp = calcTransProfile(yPos, width);
@@ -141,7 +141,6 @@ public class Channel extends Waterbody{
     
     flow=alfx*flowAt[DOWNNODE] + (1-alfx)*flowAt[UPNODE];
     return flow;
-    
   }
   /**
    *  Gets the type from particle's point of view
@@ -239,10 +238,10 @@ public class Channel extends Waterbody{
       xSArray[i] = xSPtrArray[i];
       //fill up regular XSection with additional information
       if (xSArray[i].isIrregular() == false){
-	xSArray[i].setDistance(xSectionDistance[i]);
-	xSArray[i].setChannelNumber(getEnvIndex());
-      }
-    }
+        xSArray[i].setDistance(xSectionDistance[i]);
+        xSArray[i].setChannelNumber(getEnvIndex());
+      }//end if
+    }//end for
     // sort by ascending order of distance...
     sortXSections();
   }
@@ -303,11 +302,11 @@ public class Channel extends Waterbody{
    *  length, width, depth, average velocity and area all at once.
    */
   public final void updateChannelParameters(float xPos, 
-					    float [] channelLength,
-					    float [] channelWidth,
-					    float [] channelDepth,
-					    float [] channelVave,
-					    float [] channelArea){
+                                            float [] channelLength,
+                                            float [] channelWidth,
+                                            float [] channelDepth,
+                                            float [] channelVave,
+                                            float [] channelArea){
     channelLength[0] = this.length;
     
     float alfx = xPos/this.length;
@@ -381,52 +380,55 @@ public class Channel extends Waterbody{
     //check distance vs x till distance of XSection > xPos
     //that XSection mark it as downX and the previous one as upX
     boolean notFound = true;
-    int sectionNumber=-1;
+    int sectionNumber = -1;
+    
     while( (sectionNumber < nXsects) && notFound){
       sectionNumber++;
       if (Macro.APPROX_EQ(xPos,0.0f)){
-	sectionNumber = 1;
-	notFound = false;
+        sectionNumber = 1;
+        notFound = false;
       }
       if (Macro.APPROX_EQ(xPos,length)){
-	sectionNumber = nXsects-1;
-	notFound = false;
+        sectionNumber = nXsects-1;
+        notFound = false;
       }
       if (xPos < xSArray[sectionNumber].getDistance()){
-	notFound = false;
+        notFound = false;
       }
-    }
+    }//end while
     return (sectionNumber);
   }
   
   private final void sortXSections(){
     int i,j;
     float currentSection;
-    XSection  xSPtr;
+    XSection xSPtr;
     boolean Inserted = false;
+    
     for(j=1; j<nXsects; j++){
       currentSection=xSArray[j].getDistance();
       xSPtr=xSArray[j];
       i=j-1;
       Inserted = false;
+      
       while(i>=0 && !Inserted){
-	if(xSArray[i].getDistance() <= currentSection) {
-	  Inserted = true;
-	  xSArray[i+1].setDistance(currentSection);
-	  xSArray[i+1]=xSPtr;
-	}
-	else {
-	  xSArray[i+1].setDistance(xSArray[i].getDistance());
-	  xSArray[i+1]=xSArray[i];
-	}
-	i--;
-      }
+        if(xSArray[i].getDistance() <= currentSection) {
+          Inserted = true;
+          xSArray[i+1].setDistance(currentSection);
+          xSArray[i+1]=xSPtr;
+        }//end if
+        else {
+          xSArray[i+1].setDistance(xSArray[i].getDistance());
+          xSArray[i+1]=xSArray[i];
+        }//end else
+        i--;
+      }//end while
       if (!Inserted) {
-	xSArray[0].setDistance(currentSection);
-	xSArray[0]=xSPtr;
+        xSArray[0].setDistance(currentSection);
+        xSArray[0]=xSPtr;
       }
-    }
+    }//end for
   }
-  
+
 }
 

@@ -220,7 +220,7 @@ public final boolean moveLaterally(){
 
 
   /**
-   *  OK to use transvers profile
+   *  OK to use transverse profile
    */
 public final boolean doTransverseProfile(){
   return useTransverseProfile;
