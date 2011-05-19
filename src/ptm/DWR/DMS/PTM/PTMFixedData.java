@@ -69,7 +69,7 @@ public LimitsFixedData getLimitsFixedData(){
 //  int maxConveyors = getMaximumNumberOfConveyors();
   int maxNodes = getMaximumNumberOfNodes();               
   int maxXSections = getMaximumNumberOfXSections();            
-  return new LimitsFixedData( maxChannels,
+  return new LimitsFixedData(maxChannels,
 			      maxReservoirs, 
 			      maxDiversions, 
 			      maxPumps, 

@@ -16,14 +16,9 @@ C!    GNU General Public !<license for more details.
 C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
-
 package DWR.DMS.PTM;
 import edu.cornell.RngPack.*;
-
 /**
- * 
- *  Node
- * 
  *  Node is defined as the connection between two or more waterbodies.
  *  Node handles connection information as well as constructing outflow
  *  from or to kind of information
@@ -32,219 +27,211 @@ import edu.cornell.RngPack.*;
  *  FUTURE DIRECTIONS
  *  <p>
  */
-
 public class Node{
-private RandomElement randomNumberGenerator;
-private static int INITIAL_SEED = 10000;
+  private RandomElement randomNumberGenerator;
+  private static int INITIAL_SEED = 10000;
+  
   /**
    *  Node constructor
    */
-public Node(int nId, int[] wbIdArray, String bdType){
-  EnvIndex = nId;
-  //set the number of waterbodies & number upstream / downstream channels
-  //? This is number of channels only.. add ag. drains, pumps, reservoirs
-  //? later as that would information would have to be extracted from 
-  //? reservoirs, pumps, and ag. drains.
-  numberOfWaterbodies = wbIdArray.length;
-  // create arrays to store index of array of waterbodies in PTMEnv
-  //? This will later be converted to pointer information.. ie. an
-  //? array of pointers to waterbodies..
-  wbIndexArray = new int[numberOfWaterbodies];
-  wbArray = new Waterbody[numberOfWaterbodies];
-  for (int i=0 ; i<numberOfWaterbodies; i++){
-    wbIndexArray[i] = wbIdArray[i];
+  public Node(int nId, int[] wbIdArray, String bdType){
+    EnvIndex = nId;
+    //set the number of waterbodies & number upstream / downstream channels
+    //? This is number of channels only.. add ag. drains, pumps, reservoirs
+    //? later as that would information would have to be extracted from 
+    //? reservoirs, pumps, and ag. drains.
+    numberOfWaterbodies = wbIdArray.length;
+    // create arrays to store index of array of waterbodies in PTMEnv
+    //? This will later be converted to pointer information.. ie. an
+    //? array of pointers to waterbodies..
+    wbIndexArray = new int[numberOfWaterbodies];
+    wbArray = new Waterbody[numberOfWaterbodies];
+    for (int i=0 ; i<numberOfWaterbodies; i++){
+      wbIndexArray[i] = wbIdArray[i];
+    }
+    boundaryType = bdType;
+    randomNumberGenerator = new Ranecu(INITIAL_SEED);
   }
-  boundaryType = bdType;
-  randomNumberGenerator = new Ranecu(INITIAL_SEED);
-} 
   
   /**
-   *  simpler Node initializer
+   *  Simpler Node initializer
    */
-public Node(int nId){
-  EnvIndex = nId;
-  numberOfWaterbodies=0;
-  LABoundaryType = -1;
-}
-  
+  public Node(int nId){
+    EnvIndex = nId;
+    numberOfWaterbodies=0;
+    LABoundaryType = -1;
+  }
   
   /**
    *  Clean up only if initialized
    */
   
-  
   /**
-   *  Returns the next random number using drand48
+   *  Return the next random number using drand48
    */
-public final float getRandomNumber(){
-  return (float) randomNumberGenerator.uniform(0,1);
-}
-  
-  
-  /**
-   *  Returns number of waterbodies
-   */
-public final int getNumberOfWaterbodies(){
-  return (numberOfWaterbodies);
-}
-  
-  
-  /**
-   *  Returns an integer pointing to the number Id of the Waterbody
-   */
-public final int getWaterbodyId(int id){
-  return(wbArray[id].getEnvIndex());
-}
-  
-  
-  /**
-   *  Returns a pointer to desired Waterbody
-   */
-public final Waterbody getWaterbody(int id){
-  return(wbArray[id]);
-}
-  
-  
-  /**
-   *  Checks to see if junction is a dead end.
-   */
-public final boolean isJunctionDeadEnd(){
-  return(false);
-}
-  
-  
-  /**
-   *  Get total positive outflow from Node.. add up all flows leaving the Node
-   */
-public final float getTotalOutflow(boolean addSeep){
-  float outflow=0.0f;
-  //  System.out.println(this.toString());
-  // for each Waterbody connected to junction add the outflows
-  for (int id=0; id < numberOfWaterbodies; id++) {
-	  if(!addSeep){  //@todo: hobbled seep feature
-		  //if(getWaterbody(id).getAccountingType() != flowTypes.evap){
-             outflow += getOutflow(id);
-		  //}
-	  }
-	  else{
-		  outflow += getOutflow(id);
-	  }
+  public final float getRandomNumber(){
+    return (float) randomNumberGenerator.uniform(0,1);
   }
-  return (outflow);
-}
-  
   
   /**
-   *  Gets the positive outflow to a particular Waterbody from this Node.
+   *  Return number of waterbodies connecting to the node
+   */
+  public final int getNumberOfWaterbodies(){
+    return (numberOfWaterbodies);
+  }
+  
+  /**
+   *  Return an integer pointing to the number Id of the Waterbody
+   */
+  public final int getWaterbodyId(int id){
+    return(wbArray[id].getEnvIndex());
+  }
+  
+  /**
+   *  Return a pointer to desired Waterbody
+   */
+  public final Waterbody getWaterbody(int id){
+    return(wbArray[id]);
+  }
+  
+  /**
+   *  Check to see if junction is a dead end.
+   */
+  public final boolean isJunctionDeadEnd(){
+    return(false);
+  }
+  
+  /**
+   *  Get total positive outflow from Node
+   *  Add up all flows leaving the Node
+   *  for particle decision making at junction
+   */
+  public final float getTotalOutflow(boolean addSeep){
+    float outflow=0.0f;
+    //  System.out.println(this.toString());
+    // for each Waterbody connected to junction add the outflows
+    for (int id=0; id < numberOfWaterbodies; id++) {
+  	  if(!addSeep){  //@todo: hobbled seep feature
+  		  //if(getWaterbody(id).getAccountingType() != flowTypes.evap){
+        outflow += getOutflow(id);
+  		  //}
+  	  }
+  	  else{
+  		outflow += getOutflow(id);
+  	  }
+    }
+    return (outflow);
+  }
+  
+  /**
+   *  Get the positive outflow to a particular Waterbody from this Node
    *  It returns a zero for negative outflow or inflow
    */
-public final float getOutflow(int id)  {
-  // get out flow from junction, returns 0 if negative
-  return Math.max(0.0f,getSignedOutflow(id));
-}
-  
-  
-public final float getSignedOutflow(int id) {
-  int junctionIdInWaterbody= 0;
-  //  System.out.println("In signed outflow: index: " + id 
-  //		     + " wb[i]= "   + wbArray[id]);
-  junctionIdInWaterbody = wbArray[id].getNodeLocalIndex(EnvIndex);
-  if (junctionIdInWaterbody == -1)
-    System.out.println("Exception thrown in node " + this.toString());
-  return wbArray[id].getFlowInto(junctionIdInWaterbody);
-}
-  
-  
-  /**
-   *  Returns the index to the Node array in PTMEnv
-   */
-public final int getEnvIndex(){
-  return(EnvIndex);
-}
-  
-  
-  /**
-   *  Returns the index of Waterbody in PTMEnv array using local index
-   */
-public final int getWaterbodyEnvIndex(int localIndex){
-  return(wbIndexArray[localIndex]);
-}
-  
-  
-  /**
-   *  Fills the wbArray with pointer information and cleans up the index array
-   */
-public final void setWbArray(Waterbody[] wbPtrArray){
-  for(int i=0; i< numberOfWaterbodies; i++){
-    wbArray[i] = wbPtrArray[i];
+  public final float getOutflow(int id){
+    return Math.max(0.0f,getSignedOutflow(id));
   }
-  cleanUp();
-}
-  
   
   /**
-   *  Adds Waterbody of given PTMEnv index to Node wbIndexArray.
+   *  Return signed flow to a particular Waterbody from this Node
+   */
+  public final float getSignedOutflow(int id){
+    int junctionIdInWaterbody= 0;
+    //  System.out.println("In signed outflow: index: " + id 
+    //		     + " wb[i]= "   + wbArray[id]);
+    junctionIdInWaterbody = wbArray[id].getNodeLocalIndex(EnvIndex);
+    if (junctionIdInWaterbody == -1)
+      System.out.println("Exception thrown in node " + this.toString());
+    return wbArray[id].getFlowInto(junctionIdInWaterbody);
+  }
+  
+  /**
+   *  Return the node index
+   */
+  public final int getEnvIndex(){
+    return(EnvIndex);
+  }
+  
+  /**
+   *  Return the index of Waterbody in PTMEnv array using local index
+   */
+  public final int getWaterbodyEnvIndex(int localIndex){
+    return(wbIndexArray[localIndex]);
+  }
+  
+  /**
+   *  Fill the wbArray in one node, and cleans up the index array
+   */
+  public final void setWbArray(Waterbody[] wbPtrArray){
+    for(int i=0; i< numberOfWaterbodies; i++){
+      wbArray[i] = wbPtrArray[i];
+    }
+    cleanUp();
+  }
+  
+  /**
+   *  Add Waterbody of given PTMEnv index to Node wbIndexArray.
    *  These operations should be done prior to calling setWbArray
    */
-public final void addWaterbodyId(int envIndex){
+  public final void addWaterbodyId(int envIndex){
+    
+    if(numberOfWaterbodies > 0) {
+      // store Waterbody indices and types in temporary arrays...
+      int[] indexArray = new int[numberOfWaterbodies+1];
+      for(int i=0; i< numberOfWaterbodies; i++) {
+        indexArray[i] = wbIndexArray[i];
+      }
+      
+      // delete the memory for these arrays
+      wbIndexArray = null;
+      wbArray = null;
+      // increment the number of waterbodies
+      numberOfWaterbodies++;
+      
+      // reallocate bigger chunks of memory
+      wbIndexArray = new int[numberOfWaterbodies];
+      wbArray = new Waterbody[numberOfWaterbodies];
+      
+      // fill them up again..
+      for(int i=0; i< numberOfWaterbodies-1; i++){
+        wbIndexArray[i] = indexArray[i];
+      }
+      wbIndexArray[numberOfWaterbodies-1] = envIndex;
+      indexArray = null;
+    }
+    else{
+      numberOfWaterbodies=1;
+      wbIndexArray = new int[numberOfWaterbodies];
+      wbArray = new Waterbody[numberOfWaterbodies];
+      wbIndexArray[numberOfWaterbodies-1] = envIndex;
+    }
+  }
   
-  if(numberOfWaterbodies > 0) {
-    // store Waterbody indices and types in temporary arrays...
-    int[] indexArray = new int[numberOfWaterbodies+1];
-    for(int i=0; i< numberOfWaterbodies; i++) {
-      indexArray[i] = wbIndexArray[i];
-    }
-    
-    // delete the memory for these arrays
-    wbIndexArray = null;
-    wbArray = null;
-    // increment the number of waterbodies
-    numberOfWaterbodies++;
-    
-    // reallocate bigger chunks of memory
-    wbIndexArray = new int[numberOfWaterbodies];
-    wbArray = new Waterbody[numberOfWaterbodies];
-    
-    // fill them up again..
-    for(int i=0; i< numberOfWaterbodies-1; i++){
-      wbIndexArray[i] = indexArray[i];
-    }
-    wbIndexArray[numberOfWaterbodies-1] = envIndex;
-    indexArray = null;
-  }
-  else{
-    numberOfWaterbodies=1;
-    wbIndexArray = new int[numberOfWaterbodies];
-    wbArray = new Waterbody[numberOfWaterbodies];
-    wbIndexArray[numberOfWaterbodies-1] = envIndex;
-  }
-}
   /**
    * String representation
    */
-public String toString(){
-  String rep = null;
-  if (this != null) {
-    rep =  " Node # " + this.EnvIndex + "\n" 
-      + " Number of Waterbodies = " + this.numberOfWaterbodies + "\n";
-    for(int i=0 ; i< getNumberOfWaterbodies(); i++)
-      rep += " Waterbody # " + i + " EnvIndex is " + wbIndexArray[i];
+  public String toString(){
+    String rep = null;
+    if (this != null) {
+      rep =  " Node # " + this.EnvIndex + "\n" 
+           + " Number of Waterbodies = " + this.numberOfWaterbodies + "\n";
+      for(int i=0 ; i< getNumberOfWaterbodies(); i++)
+        rep += " Waterbody # " + i + " EnvIndex is " + wbIndexArray[i];
+    }
+    return rep; 
   }
-  return rep; 
-}
   
   /**
-   *  Index to array in PTMEnv
+   *  Node global index
    */
   private int EnvIndex;
   
   /**
-   *  Number of waterbodies
+   *  Number of waterbodies connecting to the node
    */
   private int numberOfWaterbodies;
   
   /**
-   *  An array of pointers to waterbodies
+   *  Array of waterbodies connecting to this node 
    */
   private Waterbody[] wbArray;
   
@@ -267,13 +254,9 @@ public String toString(){
   private int LABoundaryType;
   
   /**
-   *  deletes wbIndexArray and anything else to save space.
+   *  Delete wbIndexArray and anything else to save space.
    */
-private final void cleanUp(){
-  //  wbIndexArray = null;
+  private final void cleanUp(){
+    //  wbIndexArray = null;
+  }
 }
-
-};
-
-
-

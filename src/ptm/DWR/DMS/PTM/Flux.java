@@ -20,78 +20,81 @@
 package DWR.DMS.PTM;
 /**
  *  This is a base class for calculation of Flux as specified from
- *  fixed input.
+ *  fixed input: NodeFlux, TypeFlux, GroupFlux
  * @author Nicky Sandhu
  * @version $Id: Flux.java,v 1.2 2000/08/07 17:00:31 miller Exp $
  */
 public class Flux{
   /**
-   *
+   * Constructor
    */
-public Flux(){initialized=false;}
+  public Flux(){initialized=false;}
   /**
-   * returns the type of Flux: node Flux or type Flux
+   * Get the type of Flux: node Flux or type Flux
    */
-public int getFluxType(){ return fluxType;}
+  public int getFluxType(){return fluxType;}
+  
   /**
-   * this is subtyped by subtypes to calculate Flux
+   * This is subtyped by subtypes to calculate Flux
    */
-public void calculateFlux(ParticleTrace [] traceArray, int numberOfTraceParticles,
-			  int sTime, int eTime, int tStep, int nParticles){
-  startTime = sTime;
-  endTime = eTime;
-  timeStep = tStep;
-  numberOfTimeSteps = (endTime-startTime)/timeStep;
-  numberOfParticles =  numberOfTraceParticles;
-  totalNumberOfParticles = nParticles;
-  flux = new int [numberOfTimeSteps];
-  for(int i=0; i< numberOfTimeSteps; i++) flux[i]=0;
-  initialized = true;
-}
+  public void calculateFlux(ParticleTrace [] traceArray, int numberOfTraceParticles,
+                            int sTime, int eTime, int tStep, int nParticles){
+    startTime = sTime;
+    endTime = eTime;
+    timeStep = tStep;
+    numberOfTimeSteps = (endTime-startTime)/timeStep;
+    numberOfParticles =  numberOfTraceParticles;
+    totalNumberOfParticles = nParticles;
+    flux = new int [numberOfTimeSteps];
+    for(int i=0; i< numberOfTimeSteps; i++) flux[i]=0;
+    initialized = true;
+  }
+  
   /**
-   * gets the Flux at the given time
+   * Gets the Flux at the given time
    */
-public int getFlux(int currentTime){
-  int currentIndex = (currentTime-startTime)/timeStep;
-  return flux[currentIndex];
-}
+  public int getFlux(int currentTime){
+    int currentIndex = (currentTime-startTime)/timeStep;
+    return flux[currentIndex];
+  }
+  
   /**
-   * gets the start time for Flux calculations
+   * Gets the start time for Flux calculations
    */
-public int getStartTime(){
-  return startTime;
-}
+  public int getStartTime(){
+    return startTime;
+  }
 
   /**
-   * gets the end time for Flux calculations
+   * Gets the end time for Flux calculations
    */
-public  int getEndTime(){
-  return endTime;
-}
+  public int getEndTime(){
+    return endTime;
+  }
 
   /**
-   * gets the particle model time step 
+   * Gets the particle model time step 
    */
-public  int getPTMTimeStep(){
-  return timeStep;
-}
+  public int getPTMTimeStep(){
+    return timeStep;
+  }
 
   /**
-   * gets the number of particles used in Flux calculations
+   * Gets the number of particles used in Flux calculations
    */
-public  int getNumberOfParticles(){
-  return totalNumberOfParticles;
-}
-
-public final int NODE_FLUX=1;
-public final int TYPE_FLUX=2;
-
-protected int fluxType;
-protected int startTime, endTime, timeStep;
-protected int numberOfParticles;
-protected int totalNumberOfParticles;
-protected int numberOfTimeSteps;
-protected int [] flux;
-protected boolean initialized;
+  public int getNumberOfParticles(){
+    return totalNumberOfParticles;
+  }
+  
+  public final int NODE_FLUX=1;
+  public final int TYPE_FLUX=2;
+  
+  protected int fluxType;
+  protected int startTime, endTime, timeStep;
+  protected int numberOfParticles;
+  protected int totalNumberOfParticles;
+  protected int numberOfTimeSteps;
+  protected int [] flux;
+  protected boolean initialized;
 }
 

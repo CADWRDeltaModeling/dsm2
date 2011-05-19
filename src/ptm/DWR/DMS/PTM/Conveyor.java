@@ -45,8 +45,8 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
-/*
- * This Waterbody conveys flow from one node to another in zero time.
+/**
+ * Conveyor is a Waterbody conveying flow from one node to another in zero time.
  * In other words it works like a channel of length zero or a zero timedelay
  * connection.
  * @author Nicky Sandhu
@@ -54,25 +54,23 @@ package DWR.DMS.PTM;
  */
 class Conveyor extends Waterbody {
   /**
-   * sets fixed information for conveyors
+   *  Set fixed information for conveyors
    */
-public Conveyor(int nId, int[] ndArray){
+  public Conveyor(int nId, int[] ndArray){
     super(Waterbody.CONVEYOR, nId, ndArray);
-}
-  /***
-   * gets direction of flow 
-   * Returns flow type ie.
-   * inflow if node is upstream node
-   * outflow if downstream node
-   */
-public int flowType(int nodeId){return INFLOW;}
+  }
   /**
-   * Gets the type from particle's point of view
+   *  Return flow direction sign
+   *  always opposite from H5 flow sign
    */
-@Override
-public int getPTMType(){ return Waterbody.CONVEYOR;}
+  public int flowType(int nodeId){return INFLOW;}
+  /**
+   *  Get the type from particle's point of view
+   */
+  @Override
+  public int getPTMType(){return Waterbody.CONVEYOR;}
   /**   
-   *  Returns the hydrodynamic type of Conveyor
+   *  Return the hydrodynamic type of Conveyor
    */
-public int getHydroType(){ return FlowTypes.rim;}
+  public int getHydroType(){return FlowTypes.rim;}
 }

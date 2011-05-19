@@ -16,10 +16,8 @@ C!    GNU General Public !<license for more details.
 C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
-
-
 package DWR.DMS.PTM;
-/**
+/*
  *  This class is contained in PTMEnv class. The main purpose of this class
  *  is reading fixed input.
  *  <p>
@@ -235,8 +233,8 @@ public class PTMFixedInput{
       float botelv=_fixedData.getReservoirBottomElevation(lId);
       int[] nodeArray = _fixedData.getNodeArrayForWaterbody(nId);
       wb = new Reservoir(nId, lId,
-  		       name, area, botelv, 
-  		       nodeArray);
+                         name, area, botelv, 
+                         nodeArray);
     }
     return wb;
   }

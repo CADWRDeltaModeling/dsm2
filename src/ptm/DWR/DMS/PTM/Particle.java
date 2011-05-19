@@ -20,14 +20,14 @@ package DWR.DMS.PTM;
 import java.util.*;
 import edu.cornell.RngPack.*;
 /**
-  * 
-  *  This class is the core definition of a Particle and its movement in
-  *  a Waterbody. Most of the movement functions are separated to make this
-  *  a modular class. The only public function needed to use this class is
-  *  the updatePosition function.
-  *  <p>
-  *
- *  CODING NOTES<p>
+ * 
+ *  This class is the core definition of a Particle and its movement in
+ *  a Waterbody. Most of the movement functions are separated to make this
+ *  a modular class. The only public function needed to use this class is
+ *  the updatePosition function.
+ *  <p>
+ *
+ *  CODING NOTES<br>
  * 
  * 
  *  CODING NOTES: POSITION DETERMINATION<br>
@@ -40,19 +40,19 @@ import edu.cornell.RngPack.*;
  * <p>
  *  DX = DX_External_Deterministic + DX_External_Random +
  *       DX_Internal_Deterministic + DX_Internal_Random
- * 
+ * <p>
  *  This leads to a more modular approach and helps one to separate out the
- *  effect of different components of movement
+ *  effect of different components of movement.
  * <p>
  * 
  * 
- *  CODING NOTES: JUNCTION DECISION
+ *  CODING NOTES: JUNCTION DECISION<br>
  *  Particle's junction decision is based on flow ratios.<br>
+ * <p>
  * 
- * 
- *  CODING NOTES: BOUNDARY REFLECTIONS
+ *  CODING NOTES: BOUNDARY REFLECTIONS<br>
  *  A Particle during its movement may step out of the boundaries of a Waterbody. This
- *  effect is minimized by choosing a sub time step small enough to limit this jump to
+ *  effect is minimized by choosing a sub time step small enough to limit this jump to.
  * <p>
  *  However when the Particle does step out of bounds it is bounced back the extraneous
  *  distance is traveled in a manner similar to a ball bouncing off the floor.
@@ -60,11 +60,11 @@ import edu.cornell.RngPack.*;
  * 
  * 
  *  CODING NOTES: CROSSING RESERVOIRS<br>
- *  The total volume of the Reservoir = Vtotal
- *  Flow volume out of Node i = Vi
+ *  The total volume of the Reservoir = Vtotal<br>
+ *  Flow volume out of Node i = Vi<br>
  *  Then the probability that a Particle will leave the Reservoir through a
  *  certain Node is proportional to the ratio of Vi:Vtotal.
- *  
+ *  <p>
  *  
  *  CODING NOTES: RESERVOIRS PROBLEMS<br>
  *  A Particle's swimming in the Reservoir is not simulated instead it is assumed
@@ -72,47 +72,42 @@ import edu.cornell.RngPack.*;
  *  that a Particle entering a Reservoir could exit the Reservoir from some other
  *  Node in the next time step giving it almost the speed of light !!! One solution
  *  may be to keep track of a Particle's position for the first few time steps in the
- *  Reservoir or some other method. Any other solutions can be mailed to use folks.<p>
- *  
+ *  Reservoir or some other method. Any other solutions can be mailed to use folks.
+ *  <p>
  *  
  * @author Nicky Sandhu
  * @version $Id: Particle.java,v 1.6.6.1 2006/04/04 18:16:25 eli2 Exp $
  * 
  */
 public class Particle{
+	
   /**
     *  unique Particle identity
     */
   public int Id;
-  
   /**
-    *  x position is the distance along the length of the Channel.
+    *  x position is the distance along the length of the Channel.<br>
     *  direction being from upnode to downnode direction
     */
   public float x;
-  
   /**
-    *  y position is the distance from the center line.
+    *  y position is the distance from the center line.<br>
     *  direction being to the right side if one is facing the +ve x direction.
     */
   public float y;
-  
   /**
-    *  z position is the distance from the bottom of the Channel.
+    *  z position is the distance from the bottom of the Channel.<br>
     *  direction being the direction from the bottom to the top.
     */
   public float z;
-  
   /**
     *  age of Particle in minutes since insertion
     */
   public float age;
-  
   /**
     *  keeps track of if Particle alive or dead
     */
   public boolean isDead;
-  
   /**
     *  inserted or not inserted
     */
@@ -123,15 +118,15 @@ public class Particle{
   public static boolean DEBUG = false;
   
   /**
-    *  creates a default Particle
-    *  The random number generator is initialized to random_seed
+    *  Creates a default Particle<br>
+    *  The random number generator is initialized to random_seed<br>
     *  The vertical/transverse profiles are set to true
     */
   public Particle(ParticleFixedInfo pFI){
     totalNumberOfParticles++; 
     Id = totalNumberOfParticles;
     if (DEBUG) System.out.println("Initializing particle " + Id);
-    if(Id == 1) Particle.setFixedInfo(pFI);
+    if (Id == 1) Particle.setFixedInfo(pFI);
     if (DEBUG) System.out.println("Initializing static info for particle ");
     first=true;
     inserted=false;//particle not in the system yet
@@ -147,9 +142,8 @@ public class Particle{
     //    behaviorData = pFI.getBehavior();
   }
   
-  
   /**
-    *  sets the location of Particle by identifying the Waterbody
+    *  Sets the location of Particle by identifying the Waterbody<br>
     *  it is in and the co-ordinate position w.r.t the Waterbody
     */
   public final void setLocation(Waterbody w, float xPos, float yPos, float zPos){
@@ -157,11 +151,10 @@ public class Particle{
     x = xPos;
     y = yPos;
     z = zPos;
-  
   }
   
   /**
-    *  sets the location of Particle by Node Id # and random positioning
+    *  Sets the location of Particle by Node Id # and random positioning
     *  of Particle within the Waterbody it enters thereupon.
     */
   public final void setLocation(Node n){
@@ -170,9 +163,10 @@ public class Particle{
   
   
   /**
-    *  sets fixed info for Particle
+    *  Sets fixed info for Particle
     */
   public final static void setFixedInfo(ParticleFixedInfo pFI){
+	  
     if (DEBUG) System.out.println("in setfixedinfo for particle");
     Particle.verticalConstant = pFI.getVerticalConstant();
     if (DEBUG) System.out.println("vertical constant = "+verticalConstant);
@@ -191,13 +185,13 @@ public class Particle{
     Channel.constructProfile();
     Channel.constructProfile();
     //  if (DEBUG) System.out.println("set random seed");
-    if( randomNumberGenerator == null)
+    if(randomNumberGenerator == null)
       randomNumberGenerator = new Ranecu(pFI.getRandomSeed());
   }
   
   
   /**
-    *  installs observer.
+    *  Installs observer.<br>
     *  This observer observes events such as change from
     *  one Waterbody to another and sends a message to other
     *  objects from there.
@@ -290,7 +284,7 @@ public class Particle{
   
   
   /**
-    *  insertion time and insertion Node
+    *  Insertion time and insertion Node
     */
   public final void setInsertionInfo(int particleInsertionTime, Node injectionNode){
     this.insertionTime = particleInsertionTime;
@@ -299,13 +293,13 @@ public class Particle{
 
 
   /**
-    *  get recent Node
+    *  Get recent Node
     */
   public final Node getRecentNode(){ return nd; }
   
   
   /**
-    *  get current Waterbody
+    *  Get current Waterbody
     */
   public final Waterbody getCurrentWaterbody(){ return wb;}
   

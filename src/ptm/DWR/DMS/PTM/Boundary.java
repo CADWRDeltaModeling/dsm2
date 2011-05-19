@@ -45,33 +45,31 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
-/*
- * This Waterbody defines a Waterbody which is at the Boundary of the system
- * A Boundary is connected to exactly one node and particles entering this
- * Waterbody are taken out of the system.
+/**
+ * Boundary is a Waterbody at the Boundary of the system
+ * A Boundary is connected to exactly one node
+ * Particles entering this Waterbody are taken out of the system.
  * In other words a Boundary is like a source/sink
  */
 class Boundary extends Waterbody {
   /**
-   * sets fixed information for boundarys or pumps or Boundary waterbodies
+   *  Set fixed information for boundaries or pumps or Boundary Waterbodies
    */
-public Boundary(int nId, int[] ndArray){
+  public Boundary(int nId, int[] ndArray){
     super(Waterbody.BOUNDARY, nId, ndArray);
-}
-  /***
-   * gets direction of flow 
-   * Returns flow type ie.
-   * inflow if node is upstream node
-   * outflow if downstream node
-   */
-public int flowType(int nodeId){return INFLOW;}
+  }
   /**
-   * Gets the type from particle's point of view
+   *  Return flow direction sign
+   *  always opposite from H5 flow sign
    */
-@Override
-public int getPTMType(){ return Waterbody.BOUNDARY;}
+  public int flowType(int nodeId){return INFLOW;}
+  /**
+   *  Get the type from particle's point of view
+   */
+  @Override
+  public int getPTMType(){return Waterbody.BOUNDARY;}
   /**   
-   *  Returns the hydrodynamic type of Boundary
+   *  Return the hydrodynamic type of Boundary
    */
-public int getHydroType(){ return FlowTypes.rim;}
+  public int getHydroType(){return FlowTypes.rim;}
 }

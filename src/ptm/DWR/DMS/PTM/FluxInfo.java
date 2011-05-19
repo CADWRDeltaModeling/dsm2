@@ -46,10 +46,6 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
 /**
- *  CLASS
- * 
- *  FluxInfo
- * 
  *  This class contains the information necessary to initialize nodeFlux
  *  and typeFlux objects. The initialization is handled by fluxMonitor class
  *  which then constructs the appropriate type of object.
@@ -58,20 +54,20 @@ package DWR.DMS.PTM;
 
 class FluxInfo{
   /**
-   *  constructor
+   *  Constructor
    */
-public FluxInfo(FluxFixedData[] fFD, ParticleFixedData pFD){
-  info = fFD;
-  pInfo = pFD;
-}
+  public FluxInfo(FluxFixedData[] fFD, ParticleFixedData pFD){
+    info = fFD;
+    pInfo = pFD;
+  }
 
-public int getNumberOfFluxes(){
-  return info.length;
-}
+  public int getNumberOfFluxes(){
+    return info.length;
+  }
   /**
    *  information structure for flux definition
    */
-public FluxFixedData[] info;
+  public FluxFixedData[] info;
 
   /**
     *  returns true for flux output as a percentage
@@ -89,5 +85,5 @@ public FluxFixedData[] info;
   /**
    *  information structure for boolean output options
    */
-public ParticleFixedData pInfo;
+  public ParticleFixedData pInfo;
 }

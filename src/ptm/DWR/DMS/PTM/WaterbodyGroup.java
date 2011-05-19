@@ -78,7 +78,7 @@ public class WaterbodyGroup implements Group {
 		int contains=indexOfWaterBody(wb);
                 return contains >= 0;
 	}
-        boolean done=false;
+    boolean done=false;
 	private int indexOfWaterBody(Waterbody wb) {
 		// if (wb == null) throw new NullPointerException("Null waterbody");
 		if (members == null) throw new IllegalStateException("Empty group");

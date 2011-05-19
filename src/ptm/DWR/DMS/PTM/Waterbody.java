@@ -21,7 +21,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 package DWR.DMS.PTM;
 import edu.cornell.RngPack.*;
 /**
- * A Waterbody is an abstract entity which is connected to other
+ * Waterbody is an abstract entity which is connected to other
  * waterbodies via nodes. Each Waterbody is identified by its unique
  * id #. Each Waterbody has a type that is specified by the subtype
  * that creates it.
@@ -32,7 +32,7 @@ import edu.cornell.RngPack.*;
 public abstract class Waterbody{
 
   /**
-   *  reservoir type id
+   *
    */
   public static final int RESERVOIR = 101;
   /**
@@ -63,7 +63,9 @@ public abstract class Waterbody{
    *
    */
   public static final int INFLOW = 1;
-
+  /**
+  *
+  */
   public static final int NULL = -10001;
   /**
    *
@@ -76,13 +78,13 @@ public abstract class Waterbody{
     this(CHANNEL, 0, null);
   }
   /**
-   * Constructs a Waterbody with the given type, with a given number
-   * of nodes
+   * Construct a Waterbody with the given type and
+   * a given number of nodes
    */
   public Waterbody(int wtype, int nId, int[] nodeIds) {
     type = wtype;
     EnvIndex = nId;
-    numberId = nId;
+    //numberId = nId;
     // set # of nodes and odeArray
 	if (nodeIds != null){
       nNodes = nodeIds.length;
@@ -97,30 +99,35 @@ public abstract class Waterbody{
       randomNumberGenerator = new Ranecu(INITIAL_SEED);
   }
   /**
-   *  Gets the flow into a particular Node
+   *  Get the signed flow into a particular Node
+   *  from the view of current Waterbody
+   *  used for particle node decision
    *  Node is identified by its local index
-   *  sign convention is that all inflows into Node are positive
-   *  all outflows from Node are negative
+   *  Sign convention:
+   *  Inflows into Node - positive (no sign change)
+   *  Outflows from Node - negative (sign change)
    */
   public final float getFlowInto(int nodeId){
-    float flow=0.0f;
+    //float flow=0.0f;
     if (flowType(nodeId) == OUTFLOW) 
       return (flowAt[nodeId]);
     else
       return (-flowAt[nodeId]);
   }
   /**
-   * gets direction of flow : OUTFLOW or INFLOW
+   *  Get flow direction sign
+   *  OUTFLOW & INFLOW do not represent their physical meanings 
+   *  i.e. intermediate var for particle decision making at junction node
    */
-  public abstract int flowType( int nodeId );
+  public abstract int flowType(int nodeId);
   /**
-   *  Gets the type from particle's point of view
+   *  Get the type from particle's point of view
    */
   public int getPTMType(){
     return getType();
   }
   /**
-   *  Returns actual type of Waterbody
+   *  Return actual type of Waterbody
    */
   public int getType(){
     return type;
@@ -130,22 +137,22 @@ public abstract class Waterbody{
    */
   public abstract int getHydroType();
   /**
-   * gets this Waterbody's unique id
+   * Get this Waterbody's unique id
    */
   public final int getEnvIndex(){
     return(EnvIndex);
   }
   /**
-   *  Sets pointer information in Node pointer array
+   *  Set pointer information in Node pointer array
    */
   final void setNodeArray(Node[] nodePtrArray){
     for(int i=0; i<nNodes; i++)
       nodeArray[i] = nodePtrArray[i];
   }
   /**
-   * gets the local index of a Node (ie. within the
-   * indexing system of this Waterbody) from the nodes
-   * globalindex
+   * Get the local index of a Node (ie. within the
+   * indexing system of this Waterbody, from 0 to nNodes-1) 
+   * from the its global index
    */
   public final int getNodeLocalIndex(int nodeIdGlobal){
     int nodeIdLocal = -1;
@@ -153,8 +160,8 @@ public abstract class Waterbody{
     int id=0;
     while (id < nNodes && notFound) {
       if (nodeIdArray[id] == nodeIdGlobal) {
-	nodeIdLocal = id;
-	notFound = false;
+        nodeIdLocal = id;
+        notFound = false;
       }
       id++;
     }
@@ -163,38 +170,38 @@ public abstract class Waterbody{
     return nodeIdLocal;
   }
   /**
-   *  Gets the EnvIndex of the Node indexed by local Node index
+   *  Get the Node's global index by its local index
    */
-  public final int getNodeId(int nodeId){
-    return(nodeIdArray[nodeId]);
-  }
+//  public final int getNodeId(int nodeId){
+//    return(nodeIdArray[nodeId]);
+//  }
   /**
-   *  the the Node's EnvIndex
+   *  the Node's EnvIndex by its local index
    */
   public final int getNodeEnvIndex(int localIndex){
     return(nodeIdArray[localIndex]);
   }
   /**
-   *  Generates a sequence of random numbers on subsquent calls
+   *  Generates a random number on subsequent calls
    *  which are gaussian distributed.
    */
-  public final float getGRandomNumber(){
-    return((float)randomNumberGenerator.gaussian());
-  }
+//  public final float getGRandomNumber(){
+//    return((float)randomNumberGenerator.gaussian());
+//  }//no use
   /**
-   *  Generate next in series of uniformly distributed random numbers
+   *  Generate a real number in series of uniformly distributed random numbers
    */
   public final float getRandomNumber(){
-    return( (float) randomNumberGenerator.uniform(0,1));
+    return((float) randomNumberGenerator.uniform(0,1));
   }
   /**
-   *  the number of nodes
+   * Get the number of nodes connecting to this Waterbody
    */
   public final int getNumberOfNodes(){
-    return( nNodes );
+    return(nNodes);
   }
   /**
-   * gets a Node given its local index within this Waterbody.
+   * Get a Node, given its local index within this Waterbody.
    * To get a nodes local index use getNodeLocalIndex(int i)
    * @return the Node object
    */
@@ -271,40 +278,40 @@ public abstract class Waterbody{
       if(this.type == BOUNDARY_WATERBODY) typeRep = "BOUNDARY_WATERBODY";
       if(this.type == CONVEYOR) typeRep = "CONVEYOR";
       rep = " Waterbody # " + this.EnvIndex + "\n" 
-	+ " Number of Nodes = " + this.nNodes + "\n"
-	+ " Waterbody Type is " + typeRep + "\n";
+          + " Number of Nodes = " + this.nNodes + "\n"
+          + " Waterbody Type is " + typeRep + "\n";
       for(int i=0; i<nNodes; i++){
-	if(nodeArray[i] != null) 
-	  rep += "Node["+i+"] = " +nodeArray[i].getEnvIndex();
-	else 
-	  rep += "Node["+i+"] = null";
+        if(nodeArray[i] != null) 
+          rep += "Node["+i+"] = " +nodeArray[i].getEnvIndex();
+        else 
+          rep += "Node["+i+"] = null";
       }
     }
     return rep;
   }
 
   /**
-   *  index in PTMEnv Waterbody array
+   *  Index in PTMEnv Waterbody array
    */
   private int EnvIndex;
   /**
    *  Id of array in the DSM2 hydro grid
    */
-  private int numberId;
+  //private int numberId;
   /**
-   *  type of Waterbody channel/reservoir/boundary/conveyor
+   *  Type of Waterbody channel/reservoir/boundary/conveyor
    */
   private int type;
   /**
-   *  number of nodes connecting to this Waterbody
+   *  Number of nodes connecting to this Waterbody
    */
   private int nNodes;
   /**
-   *  Array of Node indices to which Waterbody is connected
+   *  Indices array of Nodes connecting to this Waterbody
    */
   private int[] nodeIdArray;
   /**
-   *  pointers to Node objects to which Waterbody is connected
+   *  Node array connecting to this Waterbody
    */
   private Node[] nodeArray;
   
@@ -317,7 +324,7 @@ public abstract class Waterbody{
    */
   protected float[][] qualityAt;
   /**
-   *  gaussian random number generator
+   *  Gaussian random number generator
    */
   private RandomElement randomNumberGenerator;
 

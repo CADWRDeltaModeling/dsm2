@@ -53,7 +53,7 @@ package DWR.DMS.PTM;
  *  ParticleFixedData
  * 
  *  This class encapsulates the fixed input information for the
- *  particle object.
+ *  particle object, for PTMFixedData calls.
  *  <p>
  */
 class ParticleFixedData{
@@ -114,10 +114,10 @@ public final void setVariables(int random_seed,
    *  sets the insertion variable values
    */
 public final void setVariables(int nInjections, 
-			       int[] nNode, 
-			       int[] nInjected, 
-			       int[] startJulmin, 
-			       int[] lengthJulmin){
+                               int[] nNode, 
+                               int[] nInjected, 
+                               int[] startJulmin, 
+                               int[] lengthJulmin){
   
   numberOfInjections = nInjections;
   particleInjectionNode = nNode;

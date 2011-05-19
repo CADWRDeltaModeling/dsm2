@@ -37,12 +37,9 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
  * @author Nicky Sandhu
  * @version $Id: MainPTM.java,v 1.5.6.4 2006/04/04 18:16:23 eli2 Exp $
  */
-
 package DWR.DMS.PTM;
 import java.io.IOException;
-
-
-/**
+/*
  * main function of PTM
  */
 public class MainPTM {
@@ -206,7 +203,6 @@ public class MainPTM {
     
             // clean up after run is over
             observer = null;
-    
             particleArray = null;
     
             // output flux calculations in dss format
@@ -217,9 +213,7 @@ public class MainPTM {
                                                          Environment.getFileType(traceFileName),
                                                          fluxFixedInfo,
                                                          groupFixedInfo);
-    
             fluxCalculator.calculateFlux();
-    
             fluxCalculator.writeOutput();
 
             System.out.println("");

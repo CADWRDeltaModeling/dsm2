@@ -16,10 +16,9 @@ C!    GNU General Public !<license for more details.
 C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
-
 package DWR.DMS.PTM;
 /**
- * A Channel is a Waterbody which has two nodes and a direction of
+ * Channel is a Waterbody which has two nodes and a direction of
  * flow between those nodes. In addition it has a length and other
  * properties such as cross-sections.
  *
@@ -28,19 +27,19 @@ package DWR.DMS.PTM;
  */
 public class Channel extends Waterbody{
   /**
-   * a constant for vertical velocity profiling.
+   *  a constant for vertical velocity profiling.
    */
   public final static float VONKARMAN = 0.4f;
   /**
-   * local index of up stream node
+   *  local index of up stream node
    */
   public final static int UPNODE = 0;
   /**
-   * local index of down stream node
+   *  local index of down stream node
    */
   public final static int DOWNNODE = 1;
   /**
-   * a constant defining the resolution of velocity profile
+   *  a constant defining the resolution of velocity profile
    */
   public final static int MAX_PROFILE = 1000;
   /**
@@ -152,20 +151,20 @@ public class Channel extends Waterbody{
   /**
    *  Returns the hydrodynamic type of Channel
    */
-  public  int getHydroType(){
+  public int getHydroType(){
     return FlowTypes.channell;
   }
   /**
    *  Gets the EnvIndex of the upstream node
    */
   public final int getUpNodeId(){
-    return( getNodeId(UPNODE));
+    return(getNodeEnvIndex(UPNODE));
   }
   /**
    *  Gets the EnvIndex of the down node
    */
   public final int getDownNodeId(){
-    return( getNodeId(DOWNNODE));
+    return(getNodeEnvIndex(DOWNNODE));
   }
   /**
    *  Gets the Transverse velocity A coefficient
@@ -186,9 +185,9 @@ public class Channel extends Waterbody{
      return Globals.Environment.pInfo.getTransverseCCoef();
    }
   /**
-   *  Returns flow type ie.
-   *  inflow if node is upstream node
-   *  outflow if downstream node
+   *  Return flow direction sign
+   *  OUTFLOW->Positive (no sign change) if node is upstream node
+   *  INFLOW->Negative (sign change) if downstream node
    */
   public int flowType( int nodeId ){
     if (nodeId == UPNODE) 
@@ -429,6 +428,5 @@ public class Channel extends Waterbody{
       }
     }//end for
   }
-
 }
 
