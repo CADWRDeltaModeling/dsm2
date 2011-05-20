@@ -16,9 +16,7 @@ C!    GNU General Public !<license for more details.
 C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
-
 package DWR.DMS.PTM;
-
 /**
  *  groupMonitor
  *  This class controls the various classes for Flux output. It is responsible
@@ -28,12 +26,14 @@ package DWR.DMS.PTM;
  */
 
 public class FluxMonitor{
+
   public static final boolean DEBUG = false;
   
   /**
    *  Constructor
    */
   public FluxMonitor(String fileName, int iType, FluxInfo fInfo, GroupInfo gInfo){
+	  
     inputType = iType;
     traceFileName = fileName;
     fluxInfoPtr = fInfo;
@@ -58,8 +58,6 @@ public class FluxMonitor{
     traceArray = null;
   }
 
-
-
   /**
    *  Calculate Flux
    */
@@ -74,24 +72,24 @@ public class FluxMonitor{
     traceArray = null;
     
     for (startId = 1; endId < totalNumberOfParticles[0]; startId += MAX_PARTICLES) {
-       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
-       int nParticles = endId - startId + 1;
-       createTraceArray(startId, endId, startTime, endTime, timeStep, totalNumberOfParticles);
-       
-       for (int i = 0; i < fluxInfoPtr.getNumberOfFluxes(); i++) {
-         fluxAtNode[i].calculateFlux(traceArray, nParticles,
-       	                             startTime[0], endTime[0], timeStep[0],
-       	                             totalNumberOfParticles[0]);
-       }
-       
-       for (int i = 0; i < groupInfoPtr.getNumberOfGroups(); i++) {
-         if (DEBUG) System.out.println("group " + i + "\n");
-         if (DEBUG) System.out.println(fluxOfGroup[i]);
-         fluxOfGroup[i].calculateFlux(traceArray, nParticles,
-                                      startTime[0], endTime[0], timeStep[0],
-                                      totalNumberOfParticles[0]);
-         if (DEBUG) System.out.println("group done " + i);
-       }
+      endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
+      int nParticles = endId - startId + 1;
+      createTraceArray(startId, endId, startTime, endTime, timeStep, totalNumberOfParticles);
+      
+      for (int i = 0; i < fluxInfoPtr.getNumberOfFluxes(); i++) {
+        fluxAtNode[i].calculateFlux(traceArray, nParticles,
+      	                             startTime[0], endTime[0], timeStep[0],
+      	                             totalNumberOfParticles[0]);
+      }
+      
+      for (int i = 0; i < groupInfoPtr.getNumberOfGroups(); i++) {
+        if (DEBUG) System.out.println("group " + i + "\n");
+        if (DEBUG) System.out.println(fluxOfGroup[i]);
+        fluxOfGroup[i].calculateFlux(traceArray, nParticles,
+                                     startTime[0], endTime[0], timeStep[0],
+                                     totalNumberOfParticles[0]);
+        if (DEBUG) System.out.println("group done " + i);
+      }
     }
   }
   
@@ -164,9 +162,9 @@ public class FluxMonitor{
     try{
       PTMTraceInput traceInput;
       traceInput = new PTMTraceInput(traceFileName,inputType,
-  				   startTime, endTime, timeStep,
-  				   totalNumberOfParticles);
-      int nParticles = eId-sId+1;
+                                     startTime, endTime, timeStep,
+                                     totalNumberOfParticles);
+      int nParticles = eId - sId + 1;
       int[] tm=new int[1], pNum=new int[1], nd=new int[1], wb=new int[1];
 
       if(traceArray != null) {
@@ -182,7 +180,7 @@ public class FluxMonitor{
       while( tm[0] != -1 ){
         traceInput.input(tm, pNum, nd, wb);
         if (tm[0] != -1 && (pNum[0] >= sId && pNum[0] <= eId)) 
-      traceArray[pNum[0]-sId].insert(wb[0], nd[0], tm[0]);
+          traceArray[pNum[0] - sId].insert(wb[0], nd[0], tm[0]);
       }
       
     }catch(java.io.FileNotFoundException e){
@@ -191,5 +189,6 @@ public class FluxMonitor{
       System.out.println("Error reading trace from file " + traceFileName);
     }//end try-catch
   }
+  
 }
 

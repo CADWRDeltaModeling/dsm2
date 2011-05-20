@@ -46,24 +46,19 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
 /**
- *  CLASS
- * 
- *  GroupInfo
- * 
  *  This class contains the information necessary to initialize groupFlux
  *  objects. The initialization is handled by fluxMonitor class
  *  which then constructs the object.
  * 
  */
-
 class GroupInfo{
   /**
    *  constructor
    */
-public GroupInfo(ParticleFixedData pFD,Group[] groups){
-  info = pFD;
-  this.groups = groups;
-}
+  public GroupInfo(ParticleFixedData pFD,Group[] groups){
+    info = pFD;
+    this.groups = groups;
+  }
 
   /**
     *  returns true for Group output
@@ -78,7 +73,10 @@ public GroupInfo(ParticleFixedData pFD,Group[] groups){
   public int getNumberOfGroups() {
     return info.getNumberOfGroups();
   }
-
+  
+  /**
+   * 
+   */
   public Group[] getOutputGroups(){
   	return groups;
   }

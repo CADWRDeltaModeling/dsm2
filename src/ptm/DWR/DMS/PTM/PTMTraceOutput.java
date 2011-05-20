@@ -50,119 +50,112 @@ package DWR.DMS.PTM;
 import java.io.*;
 import java.lang.*;
 /**
- *  CLASS
- * 
- *  PTMTraceOutput
- * 
  *  Outputs trace information to a file in binary or ascii mode.
  *  <p>
  */
 public class PTMTraceOutput extends PTMOutput{
-  /**
-   *  constructor
-   */
-public PTMTraceOutput(String filename, int type, 
-		      int startTime, int endTime, int PTMTimeStep, 
-		      int nParticles) throws IOException{
-  super(filename, type);
-  if (getOutputType() == Globals.ASCII) 
-    writeHeaderAscii(startTime, endTime, PTMTimeStep, nParticles);
-  else if (getOutputType() == Globals.BINARY) 
-    writeHeaderBinary(startTime, endTime, PTMTimeStep, nParticles);
-}
 
+  /**
+   *  Constructor
+   */
+  public PTMTraceOutput(String filename, int type, 
+                        int startTime, int endTime, int PTMTimeStep, 
+                        int nParticles) throws IOException{
+    super(filename, type);
+    if (getOutputType() == Globals.ASCII) 
+      writeHeaderAscii(startTime, endTime, PTMTimeStep, nParticles);
+    else if (getOutputType() == Globals.BINARY) 
+      writeHeaderBinary(startTime, endTime, PTMTimeStep, nParticles);
+  }
 
   /**
    *  output function
    */
-public void output(int tmStamp, int particleNum, int nodeNum, int wbNum){
-  if (getOutputType() == Globals.ASCII) 
-    writeOutputAscii(tmStamp, particleNum, nodeNum, wbNum);
-  else if (getOutputType() == Globals.BINARY) 
-    writeOutputBinary(tmStamp, particleNum, nodeNum, wbNum);
-}
+  public void output(int tmStamp, int particleNum, int nodeNum, int wbNum){
+    if (getOutputType() == Globals.ASCII) 
+      writeOutputAscii(tmStamp, particleNum, nodeNum, wbNum);
+    else if (getOutputType() == Globals.BINARY) 
+      writeOutputBinary(tmStamp, particleNum, nodeNum, wbNum);
+  }
 
   /**
    *  write output in ascii format
    */
-protected final void writeOutputAscii(int tmStamp, 
-				      int particleNum, 
-				      int nodeNum, 
-				      int wbNum){
-  try{
-    String line = tmStamp 
-      + " " +  particleNum 
-    + " " +  nodeNum
-      + " " +  wbNum;
-    
-    outputWriter.write(line,0,line.length());
-    outputWriter.newLine();
-    outputWriter.flush();
+  protected final void writeOutputAscii(int tmStamp, 
+                                        int particleNum, 
+                                        int nodeNum, 
+                                        int wbNum){
+    try{
+      String line = tmStamp 
+                  + " " +  particleNum 
+                  + " " +  nodeNum
+                  + " " +  wbNum;
+      
+      outputWriter.write(line,0,line.length());
+      outputWriter.newLine();
+      outputWriter.flush();
+    }
+    catch ( IOException ioe){
+      System.out.println("Exception occurred in PTMTraceOutput.writeOutputAscii");
+      System.out.println("IOException : " + ioe);
+    }
   }
-  catch ( IOException ioe){
-    System.out.println("Exception occurred in PTMTraceOutput.writeOutputAscii");
-    System.out.println("IOException : " + ioe);
-  }
-}
-
 
   /**
    *  write output in binary format
    */
-protected final void writeOutputBinary(int tmStamp, 
-				       int particleNum, 
-				       int nodeNum, 
-				       int wbNum){
-  try{
-    outputStream.writeInt(tmStamp); 
-    outputStream.writeInt(particleNum);
-    outputStream.writeShort(nodeNum);
-    outputStream.writeShort(wbNum);
-    outputStream.flush();
+  protected final void writeOutputBinary(int tmStamp, 
+                                         int particleNum, 
+                                         int nodeNum, 
+                                         int wbNum){
+    try{
+      outputStream.writeInt(tmStamp); 
+      outputStream.writeInt(particleNum);
+      outputStream.writeShort(nodeNum);
+      outputStream.writeShort(wbNum);
+      outputStream.flush();
+    }
+    catch (IOException ioe){
+      System.out.println("Exception occurred in PTMTraceOutput.writeOutputBinary");
+      System.out.println("IOException : " + ioe);
+    }
   }
-  catch ( IOException ioe){
-    System.out.println("Exception occurred in PTMTraceOutput.writeOutputBinary");
-    System.out.println("IOException : " + ioe);
-  }
-}
-
 
   /**
    *  write header in ascii format
    */
-protected final void writeHeaderAscii(int startTime, int endTime, int PTMTimeStep, 
-				      int nParticles){
-  try{
-
-    String line = startTime 
-      + " " +  endTime  
-      + " " +   PTMTimeStep  
-      + " " +  nParticles;
-
-    outputWriter.write(line, 0, line.length());
-    outputWriter.newLine();
-    outputWriter.flush();
-  }catch(IOException ioe){
-    System.out.println("Exception occurred in PTMTraceOutput.writeOutputAscii");
-    System.out.println("IOException : " + ioe);
+  protected final void writeHeaderAscii(int startTime, int endTime, int PTMTimeStep, 
+                                        int nParticles){
+    try{
+      String line = startTime 
+                  + " " +  endTime  
+                  + " " +   PTMTimeStep  
+                  + " " +  nParticles;
+  
+      outputWriter.write(line, 0, line.length());
+      outputWriter.newLine();
+      outputWriter.flush();
+    }catch(IOException ioe){
+      System.out.println("Exception occurred in PTMTraceOutput.writeOutputAscii");
+      System.out.println("IOException : " + ioe);
+    }
   }
-}
 
   /**
    *  write header in binary format
    */
-protected final void writeHeaderBinary(int startTime, int endTime, int PTMTimeStep, 
-				       int nParticles){
-  try { 
-    outputStream.writeInt(startTime);
-    outputStream.writeInt(endTime);
-    outputStream.writeInt(PTMTimeStep);
-    outputStream.writeInt(nParticles);
-  } catch ( IOException ioe){
-    System.out.println("Exception occurred in PTMTraceOutput.writeHeaderBinary");
-    System.out.println("IOException : " + ioe);
+  protected final void writeHeaderBinary(int startTime, int endTime, int PTMTimeStep, 
+                                         int nParticles){
+    try { 
+      outputStream.writeInt(startTime);
+      outputStream.writeInt(endTime);
+      outputStream.writeInt(PTMTimeStep);
+      outputStream.writeInt(nParticles);
+    } catch (IOException ioe){
+      System.out.println("Exception occurred in PTMTraceOutput.writeHeaderBinary");
+      System.out.println("IOException : " + ioe);
+    }
   }
-}
 
 }
 

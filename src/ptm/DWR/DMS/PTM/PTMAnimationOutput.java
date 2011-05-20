@@ -44,7 +44,6 @@
 //    tara@water.ca.gov
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
-
 package DWR.DMS.PTM;
 import java.io.*;
 /**
@@ -65,187 +64,189 @@ public class PTMAnimationOutput extends PTMOutput{
    * @param numberOfParticles The number of particles for animation output
    * @param particleArray The array of particles 
    */
-public PTMAnimationOutput(String filename,
-			  int type,
-			  int interval, 
-			  int numberOfParticles, 
-			  int requestedNumberOfParticles,
-			  Particle [] particleArray) throws IOException{
-  super(filename, type);
-  outputInterval = interval;
-  setOutputParameters(numberOfParticles, requestedNumberOfParticles, particleArray);
-}
+  public PTMAnimationOutput(String filename,
+                            int type,
+                            int interval, 
+                            int numberOfParticles, 
+                            int requestedNumberOfParticles,
+                            Particle [] particleArray) throws IOException{
+    super(filename, type);
+    outputInterval = interval;
+    setOutputParameters(numberOfParticles, requestedNumberOfParticles, particleArray);
+  }
+  
   /**
    *  Particle array and size
    */
-private final void setOutputParameters(int numParts, 
-				       int requestedNumParts,
-				      Particle [] pArray){
-  if (requestedNumParts <= MAX_NUMBER_OF_PARTICLES && requestedNumParts <= numParts)
-    numberOfParticles = requestedNumParts;
-  else if (numParts <= MAX_NUMBER_OF_PARTICLES)
-    numberOfParticles = numParts;
-  else
-    numberOfParticles = MAX_NUMBER_OF_PARTICLES;
-  particlePtrArray = new Particle[numberOfParticles];
-  System.arraycopy(pArray,0,particlePtrArray,0,particlePtrArray.length);
-  previousOutputTime = Globals.currentModelTime - outputInterval;
-}
+  private final void setOutputParameters(int numParts, 
+                                         int requestedNumParts,
+                                         Particle [] pArray){
+    if (requestedNumParts <= MAX_NUMBER_OF_PARTICLES && requestedNumParts <= numParts)
+      numberOfParticles = requestedNumParts;
+    else if (numParts <= MAX_NUMBER_OF_PARTICLES)
+      numberOfParticles = numParts;
+    else
+      numberOfParticles = MAX_NUMBER_OF_PARTICLES;
+
+    particlePtrArray = new Particle[numberOfParticles];
+    System.arraycopy(pArray,0,particlePtrArray,0,particlePtrArray.length);
+    previousOutputTime = Globals.currentModelTime - outputInterval;
+  }
 
   /**
    *  output function
    */
-public void output() throws IOException{
-  InstantaneousOutput [] outputData = new InstantaneousOutput[MAX_NUMBER_OF_PARTICLES];
-  int julianMin = Globals.currentModelTime;
-  if(Globals.currentModelTime >= previousOutputTime+outputInterval){
-    previousOutputTime = Globals.currentModelTime;
-    updateOutputStructure(outputData);
-    int outputType = getOutputType();
-    if (outputType == Globals.ASCII) {
-      // write out into ascii file
-      writeOutputAscii(outputData);
-    }
-    else if (outputType == Globals.BINARY) {
-      // write out into binary file
-      writeBinary(outputData);
+  public void output() throws IOException{
+    InstantaneousOutput [] outputData = new InstantaneousOutput[MAX_NUMBER_OF_PARTICLES];
+    int julianMin = Globals.currentModelTime;
+    if(Globals.currentModelTime >= previousOutputTime+outputInterval){
+      previousOutputTime = Globals.currentModelTime;
+      updateOutputStructure(outputData);
+      int outputType = getOutputType();
+      if (outputType == Globals.ASCII) {
+        // write out into ascii file
+        writeOutputAscii(outputData);
+      }
+      else if (outputType == Globals.BINARY) {
+        // write out into binary file
+        writeBinary(outputData);
+      }
     }
   }
-}
 
-public void writeBinary(InstantaneousOutput [] outputData) throws IOException{
- int julianMin = Globals.currentModelTime;
-  String modelDate, modelTime;
-  modelDate = Globals.getModelDate(julianMin);
-  modelTime = Globals.getModelTime(julianMin);
-  String line = modelDate; 
-  outputStream.writeUTF(line);
-  outputStream.writeShort(new Short(modelTime).shortValue());
-  outputStream.writeShort(numberOfParticles);
-  for (int i=0; i< numberOfParticles; i++){
-    outputStream.writeShort(outputData[i].particleNumber);
-    outputStream.writeShort(outputData[i].channelNumber);
-    outputStream.writeShort(outputData[i].normXDistance);
-    outputStream.writeShort(outputData[i].normYDistance);
-    outputStream.writeShort(outputData[i].normZDistance);
-    outputStream.writeShort(outputData[i].value);
+  public void writeBinary(InstantaneousOutput [] outputData) throws IOException{
+   int julianMin = Globals.currentModelTime;
+    String modelDate, modelTime;
+    modelDate = Globals.getModelDate(julianMin);
+    modelTime = Globals.getModelTime(julianMin);
+    String line = modelDate; 
+    outputStream.writeUTF(line);
+    outputStream.writeShort(new Short(modelTime).shortValue());
+    outputStream.writeShort(numberOfParticles);
+    for (int i=0; i< numberOfParticles; i++){
+      outputStream.writeShort(outputData[i].particleNumber);
+      outputStream.writeShort(outputData[i].channelNumber);
+      outputStream.writeShort(outputData[i].normXDistance);
+      outputStream.writeShort(outputData[i].normYDistance);
+      outputStream.writeShort(outputData[i].normZDistance);
+      outputStream.writeShort(outputData[i].value);
+    }
   }
-}
   
   /**
    *  output ascii
    */
-private final void writeOutputAscii( InstantaneousOutput [] outputData ) throws IOException{
-  int julianMin = Globals.currentModelTime;
-  String modelDate, modelTime;
-  modelDate = Globals.getModelDate(julianMin);
-  modelTime = Globals.getModelTime(julianMin);
-
-  String line = modelDate + " " + modelTime;
-  outputWriter.write(line, 0, line.length());
-  outputWriter.newLine();
-  line = numberOfParticles + " ";
-  outputWriter.write(line, 0, line.length());
-  outputWriter.newLine();
-
-  for (int i=0; i< numberOfParticles; i++){
-    line = "  " + outputData[i].particleNumber 
-      + "  " + outputData[i].channelNumber
-      + "  " + outputData[i].normXDistance
-      + "  " + outputData[i].normYDistance
-      + "  " + outputData[i].normZDistance
-      + "  " + outputData[i].value;
+  private final void writeOutputAscii( InstantaneousOutput [] outputData ) throws IOException{
+    int julianMin = Globals.currentModelTime;
+    String modelDate, modelTime;
+    modelDate = Globals.getModelDate(julianMin);
+    modelTime = Globals.getModelTime(julianMin);
+  
+    String line = modelDate + " " + modelTime;
     outputWriter.write(line, 0, line.length());
     outputWriter.newLine();
+    line = numberOfParticles + " ";
+    outputWriter.write(line, 0, line.length());
+    outputWriter.newLine();
+  
+    for (int i=0; i< numberOfParticles; i++){
+      line = "  " + outputData[i].particleNumber 
+           + "  " + outputData[i].channelNumber
+           + "  " + outputData[i].normXDistance
+           + "  " + outputData[i].normYDistance
+           + "  " + outputData[i].normZDistance
+           + "  " + outputData[i].value;
+      outputWriter.write(line, 0, line.length());
+      outputWriter.newLine();
+    }
   }
-}
 
   /**
    *  fill up output data structure with current information
    */
-private final void updateOutputStructure(InstantaneousOutput [] outputData){
-  Waterbody wb=null;
-  float []  x = new float [1],y = new float [1],z = new float [1];
-  for(int i=0; i<numberOfParticles; i++) {
-
-    outputData[i] = new InstantaneousOutput();
-    outputData[i].particleNumber = (short) particlePtrArray[i].getId();
+  private final void updateOutputStructure(InstantaneousOutput [] outputData){
+    Waterbody wb=null;
+    float []  x = new float [1],y = new float [1],z = new float [1];
     
-    wb = particlePtrArray[i].getLocation(x, y, z);
-    if ( wb != null ) {
-      if( wb.getPTMType() ==  Waterbody.CHANNEL) {
-	outputData[i].channelNumber = (short) wb.getEnvIndex();
-	outputData[i].normXDistance = 
-	  (short) ((1.0f-x[0]/((Channel )wb).getLength())*100);
-	outputData[i].normYDistance = 
-	  (short) (y[0]/((Channel )wb).getWidth(x[0])*100);
-	outputData[i].normZDistance = 
-	  (short) (z[0]/((Channel )wb).getDepth(x[0])*100);
-	outputData[i].value = (short) (1);
+    for(int i=0; i<numberOfParticles; i++) {
+      outputData[i] = new InstantaneousOutput();
+      outputData[i].particleNumber = (short) particlePtrArray[i].getId();
+      
+      wb = particlePtrArray[i].getLocation(x, y, z);
+      if ( wb != null ) {
+        if( wb.getPTMType() ==  Waterbody.CHANNEL) {
+          outputData[i].channelNumber = (short) wb.getEnvIndex();
+          outputData[i].normXDistance = 
+            (short) ((1.0f-x[0]/((Channel )wb).getLength())*100);
+          outputData[i].normYDistance = 
+            (short) (y[0]/((Channel )wb).getWidth(x[0])*100);
+          outputData[i].normZDistance = 
+            (short) (z[0]/((Channel )wb).getDepth(x[0])*100);
+          outputData[i].value = (short) (1);
+        }
+        else {
+          outputData[i].channelNumber = (short) -1;
+          outputData[i].normXDistance = (short)-1;
+          outputData[i].normYDistance = (short)-1;
+          outputData[i].normZDistance = (short)-1;
+          outputData[i].value = (short)0;
+        }// end if-else (wb.getPTMType)
       }
       else {
-	outputData[i].channelNumber = (short) -1;
-	outputData[i].normXDistance = (short)-1;
-	outputData[i].normYDistance = (short)-1;
-	outputData[i].normZDistance = (short)-1;
-	outputData[i].value = (short)0;
-      }
-    }
-    else {
-      outputData[i].channelNumber = (short) -1;
-      outputData[i].normXDistance = (short)-1;
-      outputData[i].normYDistance = (short)-1;
-      outputData[i].normZDistance = (short)-1;
-      outputData[i].value = (short)0; 
-    }
-  } 
-}
+        outputData[i].channelNumber = (short) -1;
+        outputData[i].normXDistance = (short)-1;
+        outputData[i].normYDistance = (short)-1;
+        outputData[i].normZDistance = (short)-1;
+        outputData[i].value = (short)0; 
+      }// end if-else (wb)
+    } 
+  }
 
   public void FlushAndClose() {
 
     int outputType = getOutputType();
     try {
       if (outputType == Globals.ASCII) {
-	outputWriter.write(endOfFile, 0, endOfFile.length());
-	outputWriter.newLine();
-	outputWriter.flush();
-	outputWriter.close();
+        outputWriter.write(endOfFile, 0, endOfFile.length());
+        outputWriter.newLine();
+        outputWriter.flush();
+        outputWriter.close();
       }
       else if (outputType == Globals.BINARY) {
-	outputStream.writeUTF(endOfFile);
-	outputStream.flush();
-	outputStream.close();
+        outputStream.writeUTF(endOfFile);
+        outputStream.flush();
+        outputStream.close();
       }
     } catch(IOException e){System.out.println(e); }
   }
   
-private final int DEFAULT_OUTPUT_INTERVAL = 15;
-
-private final int MAX_NUMBER_OF_PARTICLES=20000;
+  private final int DEFAULT_OUTPUT_INTERVAL = 15;
+  
+  private final int MAX_NUMBER_OF_PARTICLES=20000;
 
   /**
    *  number of outputs for instantaneous
    */
-private int numberOfParticles;
+  private int numberOfParticles;
 
   /**
    *  Particle pointer array
    */
-private Particle [] particlePtrArray;
+  private Particle [] particlePtrArray;
 
   /**
    *  keeps track of last output time
    */
-private int previousOutputTime;
+  private int previousOutputTime;
 
   /**
    *  output interval
    */
-private int outputInterval;
+  private int outputInterval;
 
   /**
     *  End of File tag
     */
-private String endOfFile = "EOF";
+  private String endOfFile = "EOF";
 
 }

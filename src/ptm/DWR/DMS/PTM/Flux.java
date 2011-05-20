@@ -88,7 +88,9 @@ public class Flux{
   
   public final int NODE_FLUX=1;
   public final int TYPE_FLUX=2;
-  
+  /**
+   * NodeFlux, TypeFlux, GroupFlux
+   */
   protected int fluxType;
   protected int startTime, endTime, timeStep;
   protected int numberOfParticles;

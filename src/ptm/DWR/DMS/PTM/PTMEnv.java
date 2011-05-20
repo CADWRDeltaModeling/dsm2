@@ -523,7 +523,7 @@ public class PTMEnv{
   /**
    *  returns type of file ASCII/BINARY
    */
-  public final int getFileType(String  fileName){
+  public final int getFileType(String fileName){
     if (fileName.endsWith(".bin"))
       return Globals.BINARY;
     else

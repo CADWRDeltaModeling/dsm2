@@ -70,6 +70,7 @@ class FluxFixedData {
     buf.append(" Out Group: "+outGroup.toString()+" Node Id: " + nodeId);
     return buf.toString();
   }
+  
   public int nodeId;
   private Group inGroup;
   private Group outGroup;

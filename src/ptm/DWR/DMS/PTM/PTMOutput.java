@@ -50,9 +50,6 @@ package DWR.DMS.PTM;
 import java.lang.*;
 import java.io.*;
 /**
- *  CLASS
- *  PTMOutput
- * 
  *  This class is responsible for output from the PTM model.<br>
  *  The types of output needed maybe<br>
  *  1. In ascii form for a certain # of particles @ certain time intervals<br>
@@ -61,51 +58,51 @@ import java.io.*;
  *  as residence time, pass node information, circling particles etceta.<br>
  *  <p>
  */
-
 public class PTMOutput{
-public PTMOutput() {
-}
-  /**
-   *  constructor
-   *  set filename for output in instanteous location form
-   */
-public PTMOutput(String filename, int type) throws IOException{
-  initialize(filename, type);
-}
+  public PTMOutput() {
+  }
+   /**
+    *  constructor
+    *  set filename for output in instanteous location form
+    */
+  public PTMOutput(String filename, int type) throws IOException{
+    initialize(filename, type);
+  }
 
   /**
-   *
+   *  
    */
-public void initialize(String filename, int type) throws IOException{
-  outputFilename = filename;
- if (type == Globals.ASCII)
-    outputWriter = new BufferedWriter(new FileWriter(outputFilename));
-  else if (type == Globals.BINARY)
-    outputStream = new DataOutputStream((new FileOutputStream(outputFilename)));
-}
-  /*
+  public void initialize(String filename, int type) throws IOException{
+    outputFilename = filename;
+   if (type == Globals.ASCII)
+      outputWriter = new BufferedWriter(new FileWriter(outputFilename));
+    else if (type == Globals.BINARY)
+      outputStream = new DataOutputStream((new FileOutputStream(outputFilename)));
+  }
+  
+  /**
    * returns type of output
    */
-public int getOutputType(){
-  if(outputWriter == null) 
-    return Globals.BINARY;
-  else 
-    return Globals.ASCII;
-}
+  public int getOutputType(){
+    if(outputWriter == null) 
+      return Globals.BINARY;
+    else 
+      return Globals.ASCII;
+  }
 
   /**
    *  filename for output
    */
-protected String outputFilename;
+  protected String outputFilename;
 
   /**
    *  stream for ASCII output
    */
-protected BufferedWriter outputWriter;
+  protected BufferedWriter outputWriter;
 
   /**
    *  stream for BINARY output
    */
-protected DataOutputStream outputStream;
+  protected DataOutputStream outputStream;
 }
 

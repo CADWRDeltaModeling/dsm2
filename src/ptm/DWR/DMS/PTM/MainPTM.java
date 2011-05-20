@@ -96,8 +96,8 @@ public class MainPTM {
             } catch(IOException ioe) {}
 
             // total number of particles
-            numberOfParticles = numberOfRestartParticles +
-                Environment.getNumberOfParticlesInjected();
+            numberOfParticles = numberOfRestartParticles
+                              + Environment.getNumberOfParticlesInjected();
             if(DEBUG) System.out.println("total number of particles injected are " + numberOfParticles);
     
             particleArray = new Particle[numberOfParticles];
@@ -217,6 +217,7 @@ public class MainPTM {
             fluxCalculator.writeOutput();
 
             System.out.println("");
+            
         }catch(Exception e){
             e.printStackTrace();
             System.out.println("Exception " + e + " occurred");
@@ -226,6 +227,7 @@ public class MainPTM {
 
     public static boolean DEBUG = false;  
     protected static int previousDisplayTime = 0;
+    
     //public native static void display(int displayInterval);
     public static void display(int displayInterval) {
         if(previousDisplayTime == 0){ 

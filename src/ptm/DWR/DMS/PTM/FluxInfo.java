@@ -51,7 +51,6 @@ package DWR.DMS.PTM;
  *  which then constructs the appropriate type of object.
  * 
  */
-
 class FluxInfo{
   /**
    *  Constructor
@@ -60,10 +59,14 @@ class FluxInfo{
     info = fFD;
     pInfo = pFD;
   }
-
+  
+  /**
+   *  get number of fluxes
+   */
   public int getNumberOfFluxes(){
     return info.length;
   }
+  
   /**
    *  information structure for flux definition
    */
@@ -82,6 +85,7 @@ class FluxInfo{
   public boolean doFluxCumulative(){
     return pInfo.doFluxCumulative();
   }
+  
   /**
    *  information structure for boolean output options
    */
