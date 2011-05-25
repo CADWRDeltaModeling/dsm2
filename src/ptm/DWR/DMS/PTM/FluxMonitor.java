@@ -18,7 +18,6 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 /**
- *  groupMonitor
  *  This class controls the various classes for Flux output. It is responsible
  *  for reading in the trace of particles from the trace file and creating the
  *  Flux calculators as defined in the fixed input system. Finally it is responsible
@@ -39,7 +38,7 @@ public class FluxMonitor{
     fluxInfoPtr = fInfo;
     groupInfoPtr = gInfo;
     fluxAtNode = new Flux[fluxInfoPtr.getNumberOfFluxes()];
-    
+    //NodeFlux,TypeFlux
     for(int i=0; i < fluxInfoPtr.getNumberOfFluxes(); i++){
       if(fluxInfoPtr.info[i].nodeId != -1){
         fluxAtNode[i] = new NodeFlux(fluxInfoPtr.info[i], fluxInfoPtr.pInfo.doFluxCumulative());
@@ -48,8 +47,8 @@ public class FluxMonitor{
         fluxAtNode[i] = new TypeFlux(fluxInfoPtr.info[i]);
       }
     }
-    
-    int ngrp=groupInfoPtr.getNumberOfGroups();
+    //GroupFlux
+    int ngrp = groupInfoPtr.getNumberOfGroups();
     fluxOfGroup = new Flux[ngrp];
     
     for(int i=0; i < ngrp; i++){
@@ -72,14 +71,15 @@ public class FluxMonitor{
     traceArray = null;
     
     for (startId = 1; endId < totalNumberOfParticles[0]; startId += MAX_PARTICLES) {
+    	
       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
       int nParticles = endId - startId + 1;
       createTraceArray(startId, endId, startTime, endTime, timeStep, totalNumberOfParticles);
       
       for (int i = 0; i < fluxInfoPtr.getNumberOfFluxes(); i++) {
         fluxAtNode[i].calculateFlux(traceArray, nParticles,
-      	                             startTime[0], endTime[0], timeStep[0],
-      	                             totalNumberOfParticles[0]);
+      	                            startTime[0], endTime[0], timeStep[0],
+      	                            totalNumberOfParticles[0]);
       }
       
       for (int i = 0; i < groupInfoPtr.getNumberOfGroups(); i++) {
@@ -142,6 +142,7 @@ public class FluxMonitor{
 
   protected PTMFluxOutput fluxOut;
   protected final int MAX_PARTICLES = 10000;
+  //protected final int MAX_PARTICLES = 1000;
   protected ParticleTrace [] traceArray;
   protected String traceFileName;
   protected int inputType;
@@ -151,7 +152,7 @@ public class FluxMonitor{
   protected Flux [] fluxOfGroup;
   
   /**
-   *  
+   *  Create trace array for
    */
   protected void createTraceArray(int sId, int eId,
                                   int [] startTime, int [] endTime,
@@ -177,10 +178,10 @@ public class FluxMonitor{
   	      traceArray[i] = new ParticleTrace();
       }
 
-      while( tm[0] != -1 ){
+      while(tm[0] != -1){
         traceInput.input(tm, pNum, nd, wb);
         if (tm[0] != -1 && (pNum[0] >= sId && pNum[0] <= eId)) 
-          traceArray[pNum[0] - sId].insert(wb[0], nd[0], tm[0]);
+          traceArray[pNum[0]-sId].insert(wb[0], nd[0], tm[0]);
       }
       
     }catch(java.io.FileNotFoundException e){

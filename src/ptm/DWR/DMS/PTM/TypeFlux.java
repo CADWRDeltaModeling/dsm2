@@ -36,9 +36,10 @@ public class TypeFlux extends Flux {
   /**
    *  Calculates total Flux and fills up array of Flux over time as well
    */
-  public void calculateFlux(ParticleTrace[] traceArray,
-                            int numberOfTraceParticles, int sTime, int eTime, int tStep,
-                            int nParticles) {
+  public void calculateFlux(ParticleTrace[] traceArray, 
+                            int numberOfTraceParticles, 
+                            int sTime, int eTime, int tStep, 
+                            int nParticles){
     if (initialized == false) {
       super.calculateFlux(traceArray, numberOfTraceParticles, sTime,
                           eTime, tStep, nParticles);

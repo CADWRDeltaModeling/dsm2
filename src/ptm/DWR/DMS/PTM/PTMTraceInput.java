@@ -88,7 +88,7 @@ public class PTMTraceInput extends PTMInput{
   }
 
   /**
-   *  reads one trace at a time.
+   *  reads one trace at a time (1 particle, 1 event).
    */
   public final void input(int [] tmStamp, 
                           int [] particleNum, 
@@ -125,8 +125,8 @@ public class PTMTraceInput extends PTMInput{
         trace.waterbodyNumber = -1;
         return;
       }
-      StringTokenizer sToken = new StringTokenizer(line);
       
+      StringTokenizer sToken = new StringTokenizer(line);
       trace.timeStamp = (new Integer(sToken.nextToken())).intValue();
       trace.particleNumber = (new Integer(sToken.nextToken())).intValue();
       trace.nodeNumber = (new Integer(sToken.nextToken())).intValue();
@@ -171,10 +171,10 @@ public class PTMTraceInput extends PTMInput{
      endTime[0] =  new Integer(sToken.nextToken()).intValue();
      PTMTimeStep[0] =  new Integer(sToken.nextToken()).intValue();
      nParticles[0] =  new Integer(sToken.nextToken()).intValue();
-    }
-    catch (IOException e){
-      System.out.println("PTMTraceInput: readHeaderAscii:" + 
-                         " Incorrect format or corrupted trace file");
+   }
+   catch (IOException e){
+     System.out.println("PTMTraceInput: readHeaderAscii:" + 
+                        " Incorrect format or corrupted trace file");
     }
   }
 

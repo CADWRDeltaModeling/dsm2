@@ -48,10 +48,6 @@
 //$Id: ParticleFixedData.java,v 1.6.6.1 2006/04/04 18:16:25 eli2 Exp $
 package DWR.DMS.PTM;
 /**
- *  CLASS
- * 
- *  ParticleFixedData
- * 
  *  This class encapsulates the fixed input information for the
  *  particle object, for PTMFixedData calls.
  *  <p>

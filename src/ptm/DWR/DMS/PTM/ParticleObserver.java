@@ -19,6 +19,9 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 package DWR.DMS.PTM;
 import java.io.*;
 /**
+ *  Records particles critical events, e.g. insertion, change of waterbody, 
+ *  change of node, time interval change, death
+ *  ??only the first 2 & the last 1 are implemented
  *  
  */
 class ParticleObserver{
@@ -26,7 +29,7 @@ class ParticleObserver{
   public final static int INSERT=5, WATERBODY_CHANGE=1, NODE_CHANGE=2, TIME_INTERVAL=3, DEATH=4; 
   
   /**
-   *  constructor
+   *  Constructor
    */
   public ParticleObserver(String traceFileName, int outputType,
                           int startTime, int endTime, int PTMTimeStep, 
@@ -45,21 +48,20 @@ class ParticleObserver{
 
   /**
    *  destructor
-public  ~ParticleObserver(){
-  delete output;
-}
+  public  ~ParticleObserver(){
+    delete output;
+  }
    */
 
-
   /**
-   *  itself upto the Particle
+   *  Set observer to designated Particle
    */
   public final void setObserverForParticle(Particle observed){
     observed.installObserver(this);
   }
 
   /**
-   *  changes go through this function
+   *  Particle change events judgment
    */
   public final void observeChange(int change, Particle observed) {
     switch(change) {
@@ -81,19 +83,18 @@ public  ~ParticleObserver(){
     default:
       return;
     }				  
-  };
+  }
 
   /**
-   *  observes the fact that the Particle has entered a Waterbody
-   *  after encountering a node
+   *  observes the fact that the Particle has been inserted in a node
    */
   public void observeInsert(Particle observed){
     if (traceOn) {
       int time = observed.getCurrentParticleTime();
       int pId = (int) observed.getId();
       short nodeId = -1;
-  	short wbId = 0;
-      output.output(time,pId,nodeId,0);
+      short wbId = 0;
+      output.output(time,pId,nodeId,wbId);
     }
   }
 

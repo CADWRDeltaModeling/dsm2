@@ -17,7 +17,7 @@ C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
-/*
+/**
  *  This class is contained in PTMEnv class. The main purpose of this class
  *  is reading fixed input.
  *  <p>
@@ -199,6 +199,7 @@ public class PTMFixedInput{
     }
     return wbArray;
   }
+  
   /**
    *  Create a Channel Waterbody
    */
@@ -221,6 +222,7 @@ public class PTMFixedInput{
     }
     return wb;
   }
+  
   /**
    *  Create a Reservoir Waterbody
    */
@@ -238,6 +240,7 @@ public class PTMFixedInput{
     }
     return wb;
   }
+  
   /**
    *  create a rim Waterbody
    */
@@ -253,6 +256,7 @@ public class PTMFixedInput{
       wb = new Boundary(nId, nodeArray);
     return wb;
   }
+  
   /**
    *  create a Conveyor Waterbody
    */
@@ -291,6 +295,7 @@ public class PTMFixedInput{
     }
     return nodeArray;
   }
+  
   /**
    *  Creates the cross secton array with fixed information from
    *  common block
@@ -327,6 +332,7 @@ public class PTMFixedInput{
     } 
     return xSArray;
   }
+  
   /**
    *  updates the class ParticleFixedInfo with fixed information
    *  from common block
@@ -373,36 +379,42 @@ public class PTMFixedInput{
     info.setVariables(ngroups,qBinary,qNames);
   
   }
+  
   /**
    *  Gets the start run time in julian minutes
    */
   public final int getStartTime(){
     return _fixedData.getModelStartTime();
   }
+  
   /**
    *  Gets the end run time in julian minutes
    */
   public final int getEndTime(){
     return _fixedData.getModelEndTime();
   }
+  
   /**
    *  Gets the run length in julian minutes
    */
   public final int getRunLength(){
     return getEndTime()-getStartTime();
   }
+  
   /**
    *  Gets the time step in minutes
    */
   public final int getPTMTimeStep(){
     return _fixedData.getPTMTimeStep();
   }
+  
   /**
    *  Gets the output display interval in minutes
    */
   public final int getDisplayInterval(){
     return _fixedData.getDisplayInterval();
   }
+  
   /**
    *  Creates FluxInfo
    */

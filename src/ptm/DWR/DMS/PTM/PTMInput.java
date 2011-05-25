@@ -82,6 +82,7 @@ public class PTMInput{
     else 
       return Globals.ASCII;
   }
+  
   /**
    *  filename for input
    */

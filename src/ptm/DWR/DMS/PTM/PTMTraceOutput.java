@@ -56,7 +56,7 @@ import java.lang.*;
 public class PTMTraceOutput extends PTMOutput{
 
   /**
-   *  Constructor
+   *  Constructor for ascii or binary
    */
   public PTMTraceOutput(String filename, int type, 
                         int startTime, int endTime, int PTMTimeStep, 

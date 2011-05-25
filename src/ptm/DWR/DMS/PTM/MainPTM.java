@@ -130,7 +130,6 @@ public class MainPTM {
                                             startTime, endTime, PTMTimeStep,
                                             numberOfParticles);
             if(DEBUG) System.out.println("Set observer");
-
             for(int i=0; i<numberOfParticles; i++) {
                 if ( observer != null) observer.setObserverForParticle(particleArray[i]);
             }
@@ -172,7 +171,7 @@ public class MainPTM {
             //main loop for running Particle model
             for(Globals.currentModelTime = startTime; 
                 Globals.currentModelTime <=endTime; 
-                Globals.currentModelTime+=PTMTimeStep){
+                Globals.currentModelTime +=PTMTimeStep){
       
                 // output runtime information to screen
                 MainPTM.display(displayInterval);
@@ -183,7 +182,6 @@ public class MainPTM {
                 Environment.getHydroInfo(Globals.currentModelTime);
                 if (DEBUG) System.out.println("Updated flows");
                 // update Particle positions
-      
                 for(int i=0;i<numberOfParticles;i++){
                     particleArray[i].updatePosition(timeStep);
                 }
@@ -191,7 +189,6 @@ public class MainPTM {
       
                 // animation output
                 if ( animationOutput != null ) animationOutput.output();
-      
                 // write out restart file information
                 if ( outRestart != null ) outRestart.output();
       

@@ -63,14 +63,14 @@ public class PTMOutput{
   }
    /**
     *  constructor
-    *  set filename for output in instanteous location form
+    *  set filename and type
     */
   public PTMOutput(String filename, int type) throws IOException{
     initialize(filename, type);
   }
 
   /**
-   *  
+   *  for ascii or binary
    */
   public void initialize(String filename, int type) throws IOException{
     outputFilename = filename;

@@ -128,16 +128,16 @@ public class Particle{
     if (DEBUG) System.out.println("Initializing particle " + Id);
     if (Id == 1) Particle.setFixedInfo(pFI);
     if (DEBUG) System.out.println("Initializing static info for particle ");
-    first=true;
-    inserted=false;//particle not in the system yet
-    Particle.dfac=0.1f;
-    age=0;
+    first = true;
+    inserted = false;//particle not in the system yet
+    Particle.dfac = 0.1f;
+    age = 0;
 	wb = null;
     //todo: eli did this work?
 	//wb = NullWaterbody.getInstance();
     nd = null;
     isDead = false;
-    if (DEBUG) System.out.println("Fall velocity");
+    //if (DEBUG) System.out.println("Fall velocity");
     //    fallvel = pFI.getFallVelocity();
     //    behaviorData = pFI.getBehavior();
   }
@@ -160,7 +160,6 @@ public class Particle{
   public final void setLocation(Node n){
     nd = n;
   }
-  
   
   /**
     *  Sets fixed info for Particle
@@ -189,7 +188,6 @@ public class Particle{
       randomNumberGenerator = new Ranecu(pFI.getRandomSeed());
   }
   
-  
   /**
     *  Installs observer.<br>
     *  This observer observes events such as change from
@@ -200,7 +198,6 @@ public class Particle{
     observer = ob;
   }
   
-  
   /**
     *  uninstalls observer, ie. sets it to null. This may save some
     *  runtime, however no flux information can be gleaned from the run.
@@ -208,7 +205,6 @@ public class Particle{
   public final void uninstallObserver(){
     observer = null;
   }
-  
   
   /**
     * gets the location of Particle by returning a pointer to the Waterbody the
@@ -238,7 +234,6 @@ public class Particle{
     }
   }
   
-  
   /**
     *  returns the unique id of Particle
     */
@@ -246,14 +241,12 @@ public class Particle{
     return Id;
   }
   
-  
   /**
     *  returns the current model time
     */
   public final int getCurrentParticleTime(){
     return (Globals.currentModelTime);
   }
-  
   
   /**
     *  updates position of Particle.
@@ -282,7 +275,6 @@ public class Particle{
     }
   }
   
-  
   /**
     *  Insertion time and insertion Node
     */
@@ -291,12 +283,10 @@ public class Particle{
     setLocation(injectionNode);
   }
 
-
   /**
-    *  Get recent Node
+    *  Get the recent Node which particle just passed or was inserted in 
     */
   public final Node getRecentNode(){ return nd; }
-  
   
   /**
     *  Get current Waterbody
@@ -353,12 +343,12 @@ public class Particle{
   protected boolean first;
   
   /**
-    *  A pointer to the Waterbody
+    *  the Waterbody which the particle currently stay in
     */
   protected Waterbody wb;
   
   /**
-    *  A pointer to the Node.
+    *  the Node which the particle was inserted or just passed
     */
   protected Node nd;
   
@@ -371,13 +361,11 @@ public class Particle{
     *  Mixing co-efficients
     */
   protected float Ev,Evdt,Etdt;
-
   
   /**
     *  Falling velocity of Particle through water
     */
   protected float fallvel;
-
 
   /**
 	 *  A Particle may be asked to wait instead of move with the velocity
@@ -450,7 +438,6 @@ public class Particle{
     }
   }
   
-  
   /**
     *  This is called after Particle returns from a Reservoir or Conveyor
     *  and needs a random y and z positioning and x corresponding to
@@ -468,7 +455,6 @@ public class Particle{
   
   }
   
-  
   /**
     *  Generates random numbers for y and z positioning
     */
@@ -476,7 +462,6 @@ public class Particle{
       y = ((Channel)wb).getWidth(x)*(wb.getRandomNumber()-0.5f);
       z = ((Channel)wb).getDepth(x)*wb.getRandomNumber();
   }
-  
   
   /**
     *  X Position calculation for time step given
@@ -512,7 +497,6 @@ public class Particle{
     }//     if ( nodeReached() == true )
     return xPos;
   }
-  
   
   /**
     *  Y Position calculation for time step given
@@ -569,7 +553,6 @@ public class Particle{
     return (zPos);
   }
   
-  
   /**
     *  Externally induced Deterministic
     */
@@ -578,26 +561,22 @@ public class Particle{
     return (xVel*timeStep);
   }
   
-  
   /**
     *  Externally induced Random
     */
   protected  float calcXDisplacementExtRandom(float timeStep){return 0.0f;}
-  
   
   /**
     *  Internally induced Deterministic
     */
   protected  float calcXDisplacementIntDeterministic(float timeStep){return 0.0f;}
   
-  
   /**
     *  Internally induced Random
     */
   protected  float calcXDisplacementIntRandom(float timeStep){return 0.0f;}
   
-  
-  /**
+   /**
     *  Externally induced Deterministic
     */
   protected float calcYDisplacementExtDeterministic(float timeStep){return 0.0f;}
@@ -614,18 +593,15 @@ public class Particle{
     else return 0.0f;
   }
   
-  
   /**
     *  Internally induced Deterministic
     */
   protected  float calcYDisplacementIntDeterministic(float timeStep){return 0.0f;}
   
-  
   /**
     *  Internally induced Random
     */
   protected float calcYDisplacementIntRandom(float timeStep){return 0.0f;}
-  
   
   /**
     *  Externally induced Deterministic
@@ -634,7 +610,6 @@ public class Particle{
     //    return(-getFallVel()*timeStep);
     return 0.0f;
   }
-  
   
   /**
     *  Externally induced Random
@@ -647,18 +622,15 @@ public class Particle{
     else return 0.0f;
   }
   
-  
   /**
     *  Internally induced Deterministic
     */
   protected  float calcZDisplacementIntDeterministic(float timeStep){return 0.0f;}
   
-  
   /**
     *  Internally induced Random
     */
   protected  float calcZDisplacementIntRandom(float timeStep){return 0.0f;}
-  
   
   /**
     *  Externally induced Deterministic
@@ -667,24 +639,20 @@ public class Particle{
       return( ( (Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth));
   }
   
-  
   /**
     *  Externally induced Random
     */
   protected  float calcXVelocityExtRandom() { return 0.0f;}
-  
   
   /**
     *  Internally induced Deterministic
     */
   protected  float calcXVelocityIntDeterministic(){ return 0.0f; }
   
-  
   /**
     *  Internally induced Random
     */
   protected  float calcXVelocityIntRandom() { return 0.0f;}
-  
   
   /**
     *  Makes Node decision on which Waterbody to enter into next...
@@ -741,9 +709,8 @@ public class Particle{
     x=getXLocationInChannel();
   }
   
-  
   /**
-    *  updates pParticleposition after calling makeReservoirDecision
+    *  updates pParticle position after calling makeReservoirDecision
     */
   protected final void tryCrossReservoir(float timeStep){
   
@@ -763,6 +730,7 @@ public class Particle{
       setXYZLocationInChannel();
     }
   }
+  
   /**
     * moves to the Node with inflow and decides where to go from there...
     */
@@ -809,7 +777,6 @@ public class Particle{
     else return null;
   }
   
-  
   /**
     *  generates error
     */
@@ -819,14 +786,12 @@ public class Particle{
     System.exit(-1);
   }
   
-  
   /**
     *  generates warning
     */
   protected final void warning(String msg){
     System.out.println( "WARNING: " + msg + " !" );
   }
-  
   
   /**
     *  inputs state of pParticle    */

@@ -65,8 +65,9 @@ public class ParticleTrace{
     String rep = " " + getNumberOfTraces();
     for(int i=1; i<getNumberOfTraces(); i++){
       rep += "@Time " + getTime(i) 
-        + " @Node " + getNodeId(i)
-        + " @Channel " + getWaterbodyId(i)+"\n";
+           + " @Node " + getNodeId(i)
+           + " @Channel " + getWaterbodyId(i)
+           + "\n";
     }
     return rep;
   }
@@ -102,7 +103,7 @@ public class ParticleTrace{
   }
 
   /**
-   *  intial guess at number of traces
+   *  initial guess at number of traces
    */
   protected static int INITIAL_SIZE  = 300;
 
@@ -112,7 +113,7 @@ public class ParticleTrace{
   protected static int RESIZE_STEP = 10;
 
   /**
-   *  an dynamically extensible array containg waterbody numbers
+   *  an dynamically extensible array containing waterbody numbers
    */
   protected Vector channelNumber;
 
