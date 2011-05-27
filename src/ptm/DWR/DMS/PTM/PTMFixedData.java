@@ -60,6 +60,9 @@ public class PTMFixedData {
     initialize(filename);
   }
   
+  /**
+   * 
+   */
   public LimitsFixedData getLimitsFixedData(){
     int maxChannels = getMaximumNumberOfChannels();            
     int maxReservoirs = getMaximumNumberOfReservoirs();           
@@ -113,7 +116,9 @@ public class PTMFixedData {
     return pFD;
   }
   
-  
+  /**
+   * 
+   */
   public FluxFixedData[] getFluxFixedData(){
     int numberOfFluxes = getNumberOfFluxes();
     FluxFixedData [] fFD = new FluxFixedData[numberOfFluxes];
@@ -137,6 +142,9 @@ public class PTMFixedData {
     return fFD;
   }
   
+  /**
+   * 
+   */
   public Group[] getOutputGroups(){
   	int numberOfGroups = getNumberOfGroupOutputs();
   	Group [] groups = new Group[numberOfGroups];
@@ -192,16 +200,16 @@ public class PTMFixedData {
   static native int getMaximumNumberOfNodes();
   static native int getMaximumNumberOfXSections();
   static native int getMaximumNumberOfReservoirNodes();
-   //
+  //
   static native int getUniqueIdForChannel(int i);
   static native int getUniqueIdForReservoir(int i);
   static native int getUniqueIdForBoundary(int i);
   static native int getUniqueIdForStageBoundary(int i);
   static native int getUniqueIdForConveyor(int i);
-   //
+  //
   static native int doesQualBinaryExist();
   static native String[] getQualConstituentNames();
-   //
+  //
   native int getNumberOfWaterbodiesForNode(int i);
   native int[] getWaterbodyIdArrayForNode(int i);
   native int getWaterbodyObjectType(int wbId);
@@ -210,27 +218,27 @@ public class PTMFixedData {
   native int getLocalIdForWaterbody(int i);
   native int [] getNodeArrayForWaterbody(int i);
   native String getBoundaryTypeForNode(int i);
-   //
+  //
   native int getChannelLength(int i);
   native int[] getChannelNodeArray(int i);
   native int[] getChannelXSectionIds(int i);
   native float[] getChannelXSectionDistances(int i);
-   //
+  //
   native float getReservoirArea(int i);
   native float getReservoirBottomElevation(int i);
   native String getReservoirName(int i);
   native int[] getReservoirNodeArray(int i);
-   //
+  //
   native int[] getDiversionNodeArray(int i);
   native int[] getPumpNodeArray(int i);
   native int[] getBoundaryWaterbodyNodeArray(int i);
   native int[] getConveyorNodeArray(int i);
-   //
+  //
   native float[] getXSectionWidths(int i);
   native float[] getXSectionElevations(int i);
   native float[] getXSectionAreas(int i);
   native float getXSectionMinimumElevation(int i);
-   //
+  //
   native int [] getParticleBooleanInputs();
   native float[] getParticleFloatInputs(); 
   native int getParticleNumberOfInjections();
@@ -238,7 +246,7 @@ public class PTMFixedData {
   native int [] getParticleNumberOfParticlesInjected();
   native int [] getParticleInjectionStartJulmin();
   native int [] getParticleInjectionLengthJulmin();
-   //
+  //
   native int getNumberOfFluxes();
   native int [] getFluxIncoming(int i);
   native int [] getFluxOutgoing(int i);
@@ -248,12 +256,12 @@ public class PTMFixedData {
   native int getNumberOfGroupOutputs();
   native int [] getGroupMemberType(int i);
   native int [] getGroupMemberIndex(int i);
-   //
+  //
   native int getModelStartTime();
   native int getModelEndTime();
   native int getPTMTimeStep();
   native int getDisplayInterval();
-   //
+  //
   native String getAnimationFileName();
   native int getAnimationOutputInterval();
   native String getBehaviorFileName();

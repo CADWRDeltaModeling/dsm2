@@ -141,8 +141,8 @@ public class FluxMonitor{
   }
 
   protected PTMFluxOutput fluxOut;
-  protected final int MAX_PARTICLES = 10000;
-  //protected final int MAX_PARTICLES = 1000;
+  //protected final int MAX_PARTICLES = 10000;
+  protected final int MAX_PARTICLES = 4;
   protected ParticleTrace [] traceArray;
   protected String traceFileName;
   protected int inputType;

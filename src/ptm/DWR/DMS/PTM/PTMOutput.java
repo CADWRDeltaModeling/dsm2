@@ -74,7 +74,7 @@ public class PTMOutput{
    */
   public void initialize(String filename, int type) throws IOException{
     outputFilename = filename;
-   if (type == Globals.ASCII)
+    if (type == Globals.ASCII)
       outputWriter = new BufferedWriter(new FileWriter(outputFilename));
     else if (type == Globals.BINARY)
       outputStream = new DataOutputStream((new FileOutputStream(outputFilename)));

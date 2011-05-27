@@ -103,8 +103,8 @@ public class PTMFluxOutput extends PTMOutput{
       return;
     if (genericFlux[0] == null)
       return;
-    float fluxOut;
     
+    float fluxOut;
     //
     for (int cTime = genericFlux[0].getStartTime(); cTime < genericFlux[0]
       	 .getEndTime(); cTime += genericFlux[0].getPTMTimeStep()) {

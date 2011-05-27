@@ -45,10 +45,11 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
-
 import java.util.Arrays;
 import java.util.Comparator;
-
+/**
+ *  
+ */
 public class WaterbodyGroup implements Group {
 
   private String name;
@@ -63,7 +64,7 @@ public class WaterbodyGroup implements Group {
     if (indexes.length != types.length)
       throw new IllegalArgumentException(
         "type and index arguments do not match in size"
-    );
+      );
     
     int nmember=types.length;		
     members = new WaterbodyGroupMember[nmember];
@@ -74,14 +75,22 @@ public class WaterbodyGroup implements Group {
     Arrays.sort(members);
   }
   
+  /**
+   * 
+   */
   public boolean containsWaterbody(Waterbody wb) {
   	//@todo: this isn't necessarily right -- what about "any" Group?
   	// if (wb == null) return false;
   	//if (wb == null) throw new NullPointerException("Null Waterbody");
-  	int contains=indexOfWaterBody(wb);
-              return contains >= 0;
+  	int contains = indexOfWaterBody(wb);
+    return contains >= 0;
   }
-  boolean done=false;
+  
+  //boolean done=false;
+  
+  /**
+   * 
+   */
   private int indexOfWaterBody(Waterbody wb) {
   	// if (wb == null) throw new NullPointerException("Null waterbody");
   	if (members == null) throw new IllegalStateException("Empty group");
@@ -89,28 +98,34 @@ public class WaterbodyGroup implements Group {
   
       int ndx = -1;
       if ( wb != null ) {
-          ndx= Arrays.binarySearch(members, new WaterbodyGroupMember(wb
+        ndx = Arrays.binarySearch(members, new WaterbodyGroupMember(wb
   			.getType(), wb.getEnvIndex()));
       }
       else {
-         if ( members[0].getMemberIndex() == -9998 ) {
+        if ( members[0].getMemberIndex() == -9998 ) {
           ndx = 0;
-          }
+        }
       }
   	//if (ndx >= 0)System.out.println("Found wb. Index in Group="+ndx);
   	return ndx;
   }
   
+  /**
+   *  get the name of this waterbody group
+   */
   public String getName() {
   	return this.name;
   }
   
+  /**
+   *  String representation
+   */
   public String toString() {
   	return getName();
   }
 
   /**
-   * 
+   * sub-class of waterbody group member
    */
   public class WaterbodyGroupMember implements Comparable {
   
@@ -120,7 +135,7 @@ public class WaterbodyGroup implements Group {
     private int memberNdx;
     
     /**
-     * Constructor
+     *  sub-class Constructor
      */   
     public WaterbodyGroupMember(int type, int localNdx) {
     	memberType = type;
@@ -164,5 +179,6 @@ public class WaterbodyGroup implements Group {
       	  return compareWithWildcard(memberNdx, otherMember.memberNdx, ANY_INDEX);
       }
     }
-  }
-}
+    
+  }//end of class WaterbodyGroupMember
+}//end of class WaterbodyGroup

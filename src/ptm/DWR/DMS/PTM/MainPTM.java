@@ -51,8 +51,6 @@ public class MainPTM {
             Globals.initialize();
             if (DEBUG) System.out.println("initialized globals");
     
-    
-    
             // Initialize environment
             if (DEBUG) System.out.println("Initializing environment");
             String fixedInputFilename = "dsm2.inp";
@@ -69,10 +67,9 @@ public class MainPTM {
             int endTime = startTime + runTime;
             int PTMTimeStep = Environment.getPTMTimeStep();
             if(DEBUG) System.out.println("Initialized model run times");
+            
             // set array of particles and initialize them
-
             Particle [] particleArray = null;
-    
             int numberOfParticles=0;
             int numberOfRestartParticles = 0;
             boolean isRestart = Environment.isRestartRun();
@@ -101,12 +98,12 @@ public class MainPTM {
             if(DEBUG) System.out.println("total number of particles injected are " + numberOfParticles);
     
             particleArray = new Particle[numberOfParticles];
-            if(DEBUG) System.out.println("restart aprticles " + numberOfRestartParticles);
+            if(DEBUG) System.out.println("restart particles " + numberOfRestartParticles);
 
             if(behavior) {
                 for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
                     particleArray[pNum] = new BehavedParticle(Environment.getParticleFixedInfo());
-                System.out.println("BehavedParticle");
+                System.out.println("Behaved Particle");
             }
             else {
                 for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
@@ -212,7 +209,6 @@ public class MainPTM {
                                                          groupFixedInfo);
             fluxCalculator.calculateFlux();
             fluxCalculator.writeOutput();
-
             System.out.println("");
             
         }catch(Exception e){

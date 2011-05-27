@@ -62,8 +62,8 @@ public class TypeFlux extends Flux {
                             .getWaterbody(traceArray[pNum]
                             .getWaterbodyId(traceNum - 1));
             Waterbody wbOut = Globals.Environment
-                            .getWaterbody(traceArray[pNum]
-                            .getWaterbodyId(traceNum));
+                             .getWaterbody(traceArray[pNum]
+                             .getWaterbodyId(traceNum));
                                                 
     		//System.out.println("Out WB type" + wbOut.getType());
     		/* if (wbOut.getType() !=100){
@@ -96,6 +96,7 @@ public class TypeFlux extends Flux {
     	  flux[index] += particleFlux;
     	    //System.out.println("particleFlux["+index+"]="+Flux[index]);
     	}// end for(index)
+        
       } catch (java.lang.ArrayIndexOutOfBoundsException e) {
     	e.printStackTrace();
       } // end try
