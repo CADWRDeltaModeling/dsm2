@@ -54,6 +54,7 @@ public class Channel extends Waterbody{
    *  use transverse profile
    */
   public static boolean useTransProfile;
+  
   /**
    *  sets fixed information for Channel
    */
@@ -75,12 +76,14 @@ public class Channel extends Waterbody{
     stageAt = new float[getNumberOfNodes()];
     
   }
+  
   /**
    *  Gets the length of Channel
    */
   public final float getLength(){
     return(length);
   }
+  
   /**
    *  Gets the width of the Channel at that particular x position
    */
@@ -88,6 +91,7 @@ public class Channel extends Waterbody{
     float alfx = xPos/length;
     return(alfx*widthAt[1] + (1-alfx)*widthAt[0]);
   }
+  
   /**
    *  Gets the depth of the Channel at that particular x position
    */
@@ -98,6 +102,7 @@ public class Channel extends Waterbody{
     depth=alfx*depthAt[DOWNNODE] + (1-alfx)*depthAt[UPNODE];
     return depth;
   }
+  
   /**
    *  Gets the depth of the Channel at that particular x position
    */
@@ -105,9 +110,10 @@ public class Channel extends Waterbody{
     float stage = 0.0f;
     float alfx = xPos/length;
     
-    stage=alfx*stageAt[DOWNNODE] + (1-alfx)*stageAt[UPNODE];
+    stage = alfx*stageAt[DOWNNODE] + (1-alfx)*stageAt[UPNODE];
     return stage;
   }
+  
   /**
    *  Gets the velocity of water in Channel at that particular x,y,z position
    */
@@ -120,6 +126,7 @@ public class Channel extends Waterbody{
     if(useTransProfile) tp = calcTransProfile(yPos, getWidth(xPos));
     return (v*vp*tp);
   }
+  
   /**
    *  A more efficient calculation of velocity if average velocity, width and
    *  depth has been pre-calculated.
@@ -131,6 +138,7 @@ public class Channel extends Waterbody{
     if(useTransProfile) tp = calcTransProfile(yPos, width);
     return (averageVelocity*vp*tp);
   }
+  
   /**
    *  the flow at that particular x position
    */
@@ -138,9 +146,10 @@ public class Channel extends Waterbody{
     float flow = 0.0f;
     float alfx = xPos/length;
     
-    flow=alfx*flowAt[DOWNNODE] + (1-alfx)*flowAt[UPNODE];
+    flow = alfx*flowAt[DOWNNODE] + (1-alfx)*flowAt[UPNODE];
     return flow;
   }
+  
   /**
    *  Gets the type from particle's point of view
    */
@@ -148,42 +157,49 @@ public class Channel extends Waterbody{
   public int getPTMType(){
     return Waterbody.CHANNEL;
   }
+  
   /**
    *  Returns the hydrodynamic type of Channel
    */
   public int getHydroType(){
     return FlowTypes.channell;
   }
+  
   /**
    *  Gets the EnvIndex of the upstream node
    */
   public final int getUpNodeId(){
     return(getNodeEnvIndex(UPNODE));
   }
+  
   /**
    *  Gets the EnvIndex of the down node
    */
   public final int getDownNodeId(){
     return(getNodeEnvIndex(DOWNNODE));
   }
+  
   /**
    *  Gets the Transverse velocity A coefficient
    */
    public float getTransverseACoef(){
      return Globals.Environment.pInfo.getTransverseACoef();
    }
+   
   /**
    *  Gets the Transverse velocity B coefficient
    */
    public float getTransverseBCoef(){
      return Globals.Environment.pInfo.getTransverseBCoef();
    }
+   
   /**
    *  Gets the Transverse velocity A coefficient
    */
    public float getTransverseCCoef(){
      return Globals.Environment.pInfo.getTransverseCCoef();
    }
+   
   /**
    *  Return flow direction sign
    *  OUTFLOW->Positive (no sign change) if node is upstream node
@@ -198,6 +214,7 @@ public class Channel extends Waterbody{
       throw new IllegalArgumentException();
     }
   }
+  
   /**
    *  vertical profile multiplier
    */
@@ -205,23 +222,26 @@ public class Channel extends Waterbody{
     float zfrac = z/depth*(MAX_PROFILE-1);
     return Math.max(0.0f, vertProfile[(int)zfrac]);
   }
+  
   /**
-   *  transvers profile multiplier
+   *  transverse profile multiplier
    */
   private final float calcTransProfile(float y, float width){
     float yfrac = 2.0f*y/width;
-    float yfrac2=yfrac*yfrac;
+    float yfrac2 = yfrac*yfrac;
     float a = getTransverseACoef();
     float b = getTransverseBCoef();
     float c = getTransverseCCoef();
     return a+b*yfrac2+c*yfrac2*yfrac2; // quartic profile across Channel width
   }
+  
   /**
    *  returns the number of cross sections
    */
   public final int getNumberOfXSections(){
     return(nXsects);
   }
+  
   /**
    *  Gets the EnvIndex of cross sections given the local index of the
    *  cross section
@@ -229,6 +249,7 @@ public class Channel extends Waterbody{
   public final int getXSectionEnvIndex(int localIndex){
     return(xSectionIds[localIndex]);
   }
+  
   /**
    *  Sets pointer information for XSection pointer array
    */
@@ -244,12 +265,14 @@ public class Channel extends Waterbody{
     // sort by ascending order of distance...
     sortXSections();
   }
+  
   /**
    *  Returns a pointer to specified XSection
    */
   public final XSection getXSection(int localIndex){
     return(xSArray[localIndex]);
   }
+  
   /**
    *  Set depth information
    */
@@ -257,6 +280,7 @@ public class Channel extends Waterbody{
     depthAt[UPNODE] = depthArray[0];
     depthAt[DOWNNODE] = depthArray[1];
   }
+  
   /**
    *  Set depth information
    */
@@ -264,6 +288,7 @@ public class Channel extends Waterbody{
     stageAt[UPNODE] = stageArray[0];
     stageAt[DOWNNODE] = stageArray[1];
   }
+  
   /**
    *  Set area information
    */
@@ -273,11 +298,12 @@ public class Channel extends Waterbody{
     areaAt[DOWNNODE] = areaArray[1];
     widthAt[DOWNNODE] = areaAt[DOWNNODE]/depthAt[DOWNNODE];
   }
+  
   /**
    *  Get average velocity
    */
   public final float getAverageVelocity(float xPos){
-    int upX=0, downX=1;
+    int upX = 0, downX = 1;
     downX = getDownSectionId(xPos);
     upX = downX-1;
     float v;
@@ -285,17 +311,19 @@ public class Channel extends Waterbody{
     // 0 for upX and 1 for downNode
     velocityAt[upX] = calcVelocity(flowAt[upX], 0);
     velocityAt[downX] = calcVelocity(flowAt[downX], length);
-    v=alfx*velocityAt[downX] + (1-alfx)*velocityAt[upX];
+    v = alfx*velocityAt[downX] + (1-alfx)*velocityAt[upX];
     //? what if velocity is negative due to negative flows??
     if (v!=0) return v/Math.abs(v)*Math.max(0.001f,Math.abs(v));
     else return 0.001f;
   }
+  
   /**
-   *  Gets the flow area
+   *  Get the flow area
    */
   public final float getFlowArea(float xpos){
     return getDepth(xpos)*getWidth(xpos);
   }
+  
   /**
    *  An efficient way of calculating all Channel parameters i.e.
    *  length, width, depth, average velocity and area all at once.
@@ -311,26 +339,25 @@ public class Channel extends Waterbody{
     float alfx = xPos/this.length;
     float nalfx = 1.0f - alfx;
     
-    channelDepth[0]=alfx*depthAt[DOWNNODE] + nalfx*depthAt[UPNODE];
-    
-    channelWidth[0]=alfx*widthAt[DOWNNODE] + nalfx*widthAt[UPNODE];
-    
+    channelDepth[0] = alfx*depthAt[DOWNNODE] + nalfx*depthAt[UPNODE];
+    channelWidth[0] = alfx*widthAt[DOWNNODE] + nalfx*widthAt[UPNODE];
     channelArea[0] = channelDepth[0]*channelWidth[0];
-    float Vave= (alfx*flowAt[DOWNNODE]+nalfx*flowAt[UPNODE])/channelArea[0];
     
+    float Vave = (alfx*flowAt[DOWNNODE] + nalfx*flowAt[UPNODE])/channelArea[0];
     if (Vave < 0.001f && Vave > -0.001f)
       Vave = Vave/Math.abs(Vave)*0.001f;
-    
     channelVave[0] = Vave;
   }
+  
   /**
    *  calculate profile
    */
   public final static void constructProfile(){
-    vertProfile[0] = (float) (1.0f+0.1f*(1.0f+Math.log((0.01f)/MAX_PROFILE)/VONKARMAN));
-    for(int i=1; i< MAX_PROFILE; i++)
-      vertProfile[i] = (float) (1.0f+(0.1f/VONKARMAN)*(1.0f+Math.log(((float)i)/MAX_PROFILE)));
+    vertProfile[0] = (float) (1.0f + 0.1f*(1.0f + Math.log((0.01f)/MAX_PROFILE))/VONKARMAN);
+    for(int i=1; i<MAX_PROFILE; i++)
+      vertProfile[i] = (float) (1.0f + (0.1f/VONKARMAN)*(1.0f + Math.log(((float)i)/MAX_PROFILE)));
   }
+  
   /**
    *  Number of cross sections
    */
@@ -359,11 +386,8 @@ public class Channel extends Waterbody{
    *  Flow, depth, velocity, width and area information read from tide file
    */
   private float[] areaAt;
-  
   private float[] depthAt;
-  
   private float[] stageAt;
-  
   
   /**
    *  Bottom elevation of Channel or reservoir
@@ -375,6 +399,9 @@ public class Channel extends Waterbody{
     return flow/getFlowArea(xpos);
   }
   
+  /**
+   *  
+   */
   private final int getDownSectionId(float xPos){
     //check distance vs x till distance of XSection > xPos
     //that XSection mark it as downX and the previous one as upX

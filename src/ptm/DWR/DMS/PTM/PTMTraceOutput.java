@@ -129,7 +129,7 @@ public class PTMTraceOutput extends PTMOutput{
     try{
       String line = startTime 
                   + " " +  endTime  
-                  + " " +   PTMTimeStep  
+                  + " " +  PTMTimeStep  
                   + " " +  nParticles;
   
       outputWriter.write(line, 0, line.length());

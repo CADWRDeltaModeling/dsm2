@@ -38,7 +38,8 @@ public class FluxMonitor{
     fluxInfoPtr = fInfo;
     groupInfoPtr = gInfo;
     fluxAtNode = new Flux[fluxInfoPtr.getNumberOfFluxes()];
-    //NodeFlux,TypeFlux
+    
+    //NodeFlux, TypeFlux (? only TypeFlux is currently used)
     for(int i=0; i < fluxInfoPtr.getNumberOfFluxes(); i++){
       if(fluxInfoPtr.info[i].nodeId != -1){
         fluxAtNode[i] = new NodeFlux(fluxInfoPtr.info[i], fluxInfoPtr.pInfo.doFluxCumulative());
@@ -47,6 +48,7 @@ public class FluxMonitor{
         fluxAtNode[i] = new TypeFlux(fluxInfoPtr.info[i]);
       }
     }
+    
     //GroupFlux
     int ngrp = groupInfoPtr.getNumberOfGroups();
     fluxOfGroup = new Flux[ngrp];
@@ -70,8 +72,9 @@ public class FluxMonitor{
     totalNumberOfParticles[0] = getNumberOfParticlesFromTrace();
     traceArray = null;
     
+    //calculate traceArray with MAX_PARTICLES as size limit
     for (startId = 1; endId < totalNumberOfParticles[0]; startId += MAX_PARTICLES) {
-    	
+
       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
       int nParticles = endId - startId + 1;
       createTraceArray(startId, endId, startTime, endTime, timeStep, totalNumberOfParticles);
@@ -107,7 +110,7 @@ public class FluxMonitor{
   }
 
   /**
-   *  Get number of particles from trace
+   *  Get total particles number from trace
    */
   public final int getNumberOfParticlesFromTrace(){
     int [] startTime = new int[1],endTime = new int[1],timeStep = new int[1];
@@ -141,8 +144,12 @@ public class FluxMonitor{
   }
 
   protected PTMFluxOutput fluxOut;
-  //protected final int MAX_PARTICLES = 10000;
-  protected final int MAX_PARTICLES = 4;
+  /**
+   *  traceArray size limit
+   *  prevent crash due to potential huge memory size usage
+   */
+  protected final int MAX_PARTICLES = 10000;   //default
+  //protected final int MAX_PARTICLES = 4;   //for test usage
   protected ParticleTrace [] traceArray;
   protected String traceFileName;
   protected int inputType;
@@ -152,7 +159,9 @@ public class FluxMonitor{
   protected Flux [] fluxOfGroup;
   
   /**
-   *  Create trace array for
+   *  Create trace array for each particle
+   *  This array contains part of the total particles
+   *  i.e. nParticles out of totalNumberOfParticles
    */
   protected void createTraceArray(int sId, int eId,
                                   int [] startTime, int [] endTime,
@@ -167,7 +176,8 @@ public class FluxMonitor{
                                      totalNumberOfParticles);
       int nParticles = eId - sId + 1;
       int[] tm=new int[1], pNum=new int[1], nd=new int[1], wb=new int[1];
-
+      
+      //renew traceArray
       if(traceArray != null) {
         for(int i=0; i< nParticles; i++)
   	      traceArray[i].resetAll();
@@ -177,7 +187,8 @@ public class FluxMonitor{
         for(int i=0; i< nParticles; i++)
   	      traceArray[i] = new ParticleTrace();
       }
-
+      
+      //vars transfer from trace to traceArray
       while(tm[0] != -1){
         traceInput.input(tm, pNum, nd, wb);
         if (tm[0] != -1 && (pNum[0] >= sId && pNum[0] <= eId)) 

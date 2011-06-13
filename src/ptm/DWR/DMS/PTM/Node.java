@@ -67,7 +67,7 @@ public class Node{
    */
   
   /**
-   *  Return the next random number using drand48
+   *  Return a uniformly random number between 0-1 using drand48
    */
   public final float getRandomNumber(){
     return (float) randomNumberGenerator.uniform(0,1);
@@ -102,7 +102,7 @@ public class Node{
   }
   
   /**
-   *  Get total positive outflow from Node
+   *  Get total positive outflow from Node<br>
    *  Add up all flows leaving the Node
    *  for particle decision making at junction
    */

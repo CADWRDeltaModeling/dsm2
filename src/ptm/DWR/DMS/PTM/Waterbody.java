@@ -114,6 +114,7 @@ public abstract class Waterbody{
     else
       return (-flowAt[nodeId]);
   }
+  
   /**
    *  Get flow direction sign
    *  OUTFLOW & INFLOW do not represent their physical meanings 
@@ -126,22 +127,26 @@ public abstract class Waterbody{
   public int getPTMType(){
     return getType();
   }
+  
   /**
    *  Return actual type of Waterbody
    */
   public int getType(){
     return type;
   }
+  
   /**
    * The type of Waterbody from a hydrodynamic point of view
    */
   public abstract int getHydroType();
+  
   /**
    * Get this Waterbody's unique id
    */
   public final int getEnvIndex(){
     return(EnvIndex);
   }
+  
   /**
    *  Set pointer information in Node pointer array
    */
@@ -149,6 +154,7 @@ public abstract class Waterbody{
     for(int i=0; i<nNodes; i++)
       nodeArray[i] = nodePtrArray[i];
   }
+  
   /**
    * Get the local index of a Node (ie. within the
    * indexing system of this Waterbody, from 0 to nNodes-1) 
@@ -169,6 +175,7 @@ public abstract class Waterbody{
     // throw new nodeNotFoundException(" Exception in " + this.toString());
     return nodeIdLocal;
   }
+  
   /**
    *  Get the Node's global index by its local index
    */
@@ -181,25 +188,29 @@ public abstract class Waterbody{
   public final int getNodeEnvIndex(int localIndex){
     return(nodeIdArray[localIndex]);
   }
+  
   /**
    *  Generates a random number on subsequent calls
    *  which are gaussian distributed.
    */
-//  public final float getGRandomNumber(){
-//    return((float)randomNumberGenerator.gaussian());
-//  }//no use
+    public final float getGRandomNumber(){
+      return((float)randomNumberGenerator.gaussian());
+    }//no use
+    
   /**
-   *  Generate a real number in series of uniformly distributed random numbers
+   *  Generate a uniform random real number in (0,1)
    */
   public final float getRandomNumber(){
     return((float) randomNumberGenerator.uniform(0,1));
   }
+  
   /**
    * Get the number of nodes connecting to this Waterbody
    */
   public final int getNumberOfNodes(){
     return(nNodes);
   }
+  
   /**
    * Get a Node, given its local index within this Waterbody.
    * To get a nodes local index use getNodeLocalIndex(int i)
