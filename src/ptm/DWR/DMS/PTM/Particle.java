@@ -760,9 +760,9 @@ public class Particle{
     makeNodeDecision();
     if (DEBUG) System.out.println("Current wb: " + wb);
     if (DEBUG) System.out.println(" wb type: " + wb.getPTMType() 
-                                  + ", waterbody.CHANNEL=" 
-                                  + Waterbody.CHANNEL);
-    if ( wb.getPTMType() == Waterbody.CHANNEL) {
+                                + ", waterbody.CHANNEL=" 
+                                + Waterbody.CHANNEL);
+    if (wb.getPTMType() == Waterbody.CHANNEL) {
       first=true;
       setXYZLocationInChannel();
     }
@@ -851,8 +851,8 @@ public class Particle{
     channelArea   = cA[0];
     if (first) {
       //previous=current, if transfer from reservoir/conveyor to channel
-      previousChannelDepth=channelDepth;
-      previousChannelWidth=channelWidth;
+      previousChannelDepth = channelDepth;
+      previousChannelWidth = channelWidth;
       first=false;
     }
   }
@@ -868,8 +868,8 @@ public class Particle{
     */ 
   private final void updateParticleParameters(float timeStep){
 	//map y & z in new xsection over the node
-    z = z*channelDepth/previousChannelDepth; // adjust for changing depth
-    y = y*channelWidth/previousChannelWidth; // adjust for changing width
+    z = z*channelDepth/previousChannelDepth;
+    y = y*channelWidth/previousChannelWidth;
     
     //set previouses to the news..
     previousChannelDepth = channelDepth;
@@ -1008,6 +1008,7 @@ public class Particle{
 
   /**
     *  Location state variables
+    *  to map y,z from previous xsec to new
     */
   private float previousChannelDepth, previousChannelWidth;
   

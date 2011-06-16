@@ -81,7 +81,7 @@ public class Channel extends Waterbody{
    *  Gets the length of Channel
    */
   public final float getLength(){
-    return(length);
+    return (length);
   }
   
   /**
@@ -89,7 +89,7 @@ public class Channel extends Waterbody{
    */
   public final float getWidth(float xPos){
     float alfx = xPos/length;
-    return(alfx*widthAt[1] + (1-alfx)*widthAt[0]);
+    return (alfx*widthAt[1] + (1-alfx)*widthAt[0]);
   }
   
   /**
@@ -279,6 +279,10 @@ public class Channel extends Waterbody{
   public final void setDepth(float[] depthArray){
     depthAt[UPNODE] = depthArray[0];
     depthAt[DOWNNODE] = depthArray[1];
+    if (Globals.currentModelTime == Globals.Environment.getStartTime()){
+      depthAt[UPNODE] = depthAt[UPNODE]/0.5f;
+      depthAt[DOWNNODE] = depthAt[DOWNNODE]/0.5f;
+    }
   }
   
   /**
@@ -287,6 +291,10 @@ public class Channel extends Waterbody{
   public final void setStage(float[] stageArray){
     stageAt[UPNODE] = stageArray[0];
     stageAt[DOWNNODE] = stageArray[1];
+    if (Globals.currentModelTime == Globals.Environment.getStartTime()){
+      stageAt[UPNODE] = stageAt[UPNODE]/0.5f;
+      stageAt[DOWNNODE] = stageAt[DOWNNODE]/0.5f;
+    }
   }
   
   /**
@@ -294,8 +302,12 @@ public class Channel extends Waterbody{
    */
   public final void setArea(float[] areaArray){
     areaAt[UPNODE] = areaArray[0];
-    widthAt[UPNODE] = areaAt[UPNODE]/depthAt[UPNODE];
     areaAt[DOWNNODE] = areaArray[1];
+    if (Globals.currentModelTime == Globals.Environment.getStartTime()){
+      areaAt[UPNODE] = areaAt[UPNODE]/0.6f;
+      areaAt[DOWNNODE] = areaAt[DOWNNODE]/0.6f;
+    }
+    widthAt[UPNODE] = areaAt[UPNODE]/depthAt[UPNODE];
     widthAt[DOWNNODE] = areaAt[DOWNNODE]/depthAt[DOWNNODE];
   }
   
