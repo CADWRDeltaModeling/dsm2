@@ -73,7 +73,7 @@ C!</license>
       end type
       
 c-----External flows
-      real, parameter :: theta = 0.5
+      real, parameter :: theta = 0.6
       real qNodeDiversion(max_nodes), qReservoirPumping(max_reservoirs)
       real reservoirVolume(max_reservoirs)
 
