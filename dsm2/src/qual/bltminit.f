@@ -283,7 +283,7 @@ C--------Modify number of parcels
          LOB=XLENGTH*XFACT/DX0       
          IF(LOB.GT.(NOPR-2))LOB=NOPR-2
          IF(LOB.LT.8)LOB=8
-         DQQ(N)=DQQ(N)*1500.D0
+C---         DQQ(N)=DQQ(N)*1500.D0
          
          
          IPPR(N)=LOB/(I1-1)

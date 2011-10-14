@@ -82,7 +82,7 @@ c-----and for writing to the tidefile
 
       y=globalStreamSurfaceElevation(closest_node)
       h=y-BtmElev(xx)
-      Area=CxArea(xx,h)
+      Area=CxArea(xx,y)
       Q=globalStreamFlow(closest_node)
       ChannelVelocity=Q/Area
       OK = CloseChannel()
@@ -399,10 +399,10 @@ C--------Save only the values which have changed
       INCLUDE 'chconnec.inc'
       INCLUDE 'chnlcomp.inc'
       INCLUDE 'chstatus.inc'
-      INCLUDE 'chcxtbl.inc'
+!      INCLUDE 'chcxtbl.inc'  !not necessary, disabled to avoid potential conflict 9/23/2011
 *   Local Variables:
-      INTEGER Up, Down, nn, j
-      real*8 xx,zz
+      INTEGER Up, Down, j, I
+      real*8 XX, ZZ
 
 *   Routines by module:
 
@@ -412,11 +412,18 @@ C--------Save only the values which have changed
 
       REAL*8     CxArea, ChannelWidth, BtmElev
       EXTERNAL CxArea, ChannelWidth, BtmElev
-
+      
+      INTEGER  NetworkQuadPts
+      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+      
       real*8 delx,aavg
+      real*8 Area1, Area2, X1, X2, Z1, Z2, Wt1, Wt2, N1,N2
+      INTEGER QuadPts
+      real*8 QuadWt, QuadPt
 
 *   Programmed by: Parviz Nader
 *   Date:          December 97
+*   Modified 9/23/2011 L. Liu to use general quadpts, and frustum formula 
 
 *-----Implementation -------------------------------------------------
 
@@ -426,24 +433,89 @@ C--------Save only the values which have changed
          Down=DownCompPointer(Branch)
          HChan(1,Branch)=WS(Up)-chan_geom(Branch).bottomelev(1)
          ZChan(1,Branch)=WS(Up)
-         nn= 2                  ! fixme: this is hardwired chan_geom(Branch).nxsect ! last X-Section (i.e. downstream)
-         HChan(2,Branch)=WS(Down)-chan_geom(Branch).bottomelev(nn)
+         HChan(2,Branch)=WS(Down)-chan_geom(Branch).bottomelev(2) !hardwired
          ZChan(2,Branch)=WS(Down)
 
          AChan_Avg(Branch)=0.
 	   aavg = 0.D0
-         AChan(1,Branch)=CxArea(Dble(0.),Dble(HChan(1,Branch)))
-         AChan(2,Branch)=CxArea(dble(chan_geom(Branch).length),Dble(HChan(2,Branch)))
+         AChan(1,Branch)=CxArea(Dble(0.),Dble(ZChan(1,Branch)))
+         AChan(2,Branch)=CxArea(dble(chan_geom(Branch).length),Dble(ZChan(2,Branch)))
          delx=dble(chan_geom(Branch).length)/dble(Down-Up)
          DO j=Up, Down-1
-            xx=(dble(j-Up)+0.5)*delx
+c            xx=(dble(j-Up)+0.5)*delx
 
            ! old version of this routine (never used, but may be better)
 c-----------zavg=(ws(j)+ws(j+1))/2.
 c-----------zz=zavg-BtmElev(xx)
 c-----------AChan_Avg(Branch)=AChan_Avg(Branch)+CxArea(xx,zz)
-            zz=(H(j)+H(j+1))/2.
-            aavg=aavg+CxArea(xx,zz)
+c            zz=(H(j)+H(j+1))/2.
+c            aavg=aavg+CxArea(xx,zz)
+C----it is bad (using average depth),change to average area, Lianwu Liu 8/15/2011
+!            xx=(dble(j-Up))*delx
+!            zz=ws(j)
+!            aavg=aavg+0.5*CxArea(xx,zz)
+!            xx=(dble(j-Up)+1.D0)*delx
+!            zz=ws(j+1)
+!            aavg=aavg+0.5*CxArea(xx,zz)
+C----use frustum formula            
+!            xx=(dble(j-Up))*delx
+!            zz=ws(j)
+!            area1=CxArea(xx,zz)
+!            xx=(dble(j-Up)+1.D0)*delx
+!            zz=ws(j+1)
+!            area2=CxArea(xx,zz)
+!            aavg=aavg+(area1+area2+sqrt(area1*area2))/3.0
+
+C----generalize with QuadPts            
+            X1 = (dble(j-Up))*delx
+            Z1 = ws(j)
+            X2 = (dble(j-Up)+1.D0)*delx
+            Z2 = ws(j+1)
+            
+            QuadPts = NetworkQuadPts()
+
+            DO 200 I=1,QuadPts
+
+*--------Estimate quadrature-point values.
+
+               CALL NetworkQuadPtWt( I, QuadPt, QuadWt )
+
+*--------Interpolation functions. To avoid potential problems, N(1),N(2) are replaced with local variable N1,N2
+               N1 = 1.0 - QuadPt
+               N2 = QuadPt
+
+*--------Location of quadrature point.
+               XX = N1 * X1 + N2 * X2
+
+*--------Dependent variables.
+               ZZ = N1 * Z1 + N2 * Z2
+
+*--------do not use Frustum Formula                   
+               Area1 = CxArea( XX, ZZ )
+               Wt1 = QuadWt               
+               aavg = aavg + Area1 * Wt1
+               
+*--------if use Frustum formula
+!               if (I.eq.1) then
+!                  Area1 = CxArea( XX, ZZ )
+!                  Wt1 = QuadWt
+!                  
+!                  if(QuadPts.eq.1) then
+!                  aavg = aavg + Area1
+!                  endif
+!                  
+!               else if (I.eq.QuadPts) then
+!                  Area2 = CxArea( XX, ZZ )
+!                  Wt2 = QuadWt
+!                  aavg=aavg+(Area1+Area2+ sqrt(Area1*Area2))/3.0 * (Wt1+Wt2)
+!               else
+!                  Area2 = CxArea( XX, ZZ )
+!                  Wt2 = QuadWt/2.D0
+!                  aavg=aavg+(Area1+Area2+ sqrt(Area1*Area2))/3.0 * (Wt1+Wt2)
+!                  Wt1 = Wt2
+!                  Area1 = Area2
+!               endif
+ 200        CONTINUE               
          ENDDO
          AChan_Avg(Branch)=(aavg/dble(Down-Up))
       ENDDO

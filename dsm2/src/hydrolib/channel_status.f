@@ -1311,20 +1311,20 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
             K = 1
             J = UpstreamPointer()
-            Velocity = Q(J) / CxArea( CompLocation_lcl(J), H(J) )
+            Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
             delX = CompLocation_lcl(J+1) - CompLocation_lcl(J)
             WSSlope = ( WS(J+1) - WS(J) ) / delX
 
             FrNo = Velocity / SQRT( G * H(J) )
             CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / delX
-            Width = ChannelWidth( CompLocation_lcl(J), H(J) )
+            Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
 
 *-----------Intervening cross sections.
 
             IF( (DownstreamPointer() - UpstreamPointer()) .GT. 2) THEN
                DO 150 J=UpstreamPointer()+1,DownstreamPointer()-1
                   K = K + 1
-                  Velocity = Q(J) / CxArea( CompLocation_lcl(J), H(J) )
+                  Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
                   delX = ( CompLocation_lcl(J+1) - CompLocation_lcl(J-1) )
                   WSSlope = ( WS(J+1) - WS(J-1) ) / delX
                   CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / ( 0.5 * delX )
@@ -1341,9 +1341,9 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
      &                 / ( CompLocation_lcl(J+1) - CompLocation_lcl(J) )
      &                 - ( WS(J) - WS(J-1) )
      &                 / ( CompLocation_lcl(J) - CompLocation_lcl(J-1) )
-                  Width = ChannelWidth( CompLocation_lcl(J), H(J) )
-                  WidthRatio = ChannelWidth( CompLocation_lcl(J+1), H(J+1) )
-     &                 / ChannelWidth( CompLocation_lcl(J-1), H(J-1) )
+                  Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
+                  WidthRatio = ChannelWidth( CompLocation_lcl(J+1), WS(J+1) )
+     &                 / ChannelWidth( CompLocation_lcl(J-1), WS( J-1) )
  150           CONTINUE
             END IF
 
@@ -1351,12 +1351,12 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
             K = K + 1
             J = DownstreamPointer()
-            Velocity = Q(J) / CxArea( CompLocation_lcl(J), H(J) )
+            Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
             dX = CompLocation_lcl(J) - CompLocation_lcl(J-1)
             FrNo = Velocity / SQRT( G * H(J) )
             CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / delX
             WSSlope = ( WS(J) - WS(J-1) ) / delX
-            Width = ChannelWidth( CompLocation_lcl(J), H(J) )
+            Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
 
 *-----------Check friction / WS slope / dX relation.
 
@@ -1853,7 +1853,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
       Depth = Z - BtmElev( X )
       IF( Depth .GT. 0.0 ) THEN
-         Velocity = Q / CxArea( X, Depth )
+         Velocity = Q / CxArea( X, Z )
          StreamEnergy = Z + Velocity**2 / (2.D0 * gravity)
       ELSE
          StreamEnergy = 0.0
@@ -1903,10 +1903,10 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
       Depth = Z - BtmElev( X )
       IF( Depth .GT. 0.0 ) THEN
-         A = CxArea( X, Depth )
+         A = CxArea( X, Z )
          Velocity = Q / A
          dStreamEnergydZ = 1.0
-     &        - ChannelWidth( X,Depth ) * Velocity**2 /(A*gravity)
+     &        - ChannelWidth( X, Z ) * Velocity**2 /(A*gravity)
       ELSE
          dStreamEnergydZ = 0.0
       END IF
@@ -1940,7 +1940,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
       INTEGER K, QuadPts
       real*8 N( MaxQuadPts )
       real*8 Hd, Hu
-      real*8 H, X, QuadWt, QuadPt, fric
+      real*8 H, X, QuadWt, QuadPt, fric, Z
 
 *   Routines by module:
 
@@ -1984,9 +1984,10 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
 *--------Dependent variables.
          H = N(1) * Hu + N(2) * Hd
+         Z = N(1) * Zu + N(2) * Zd
 
          IF( H .GT. 0.0 ) THEN
-            fric = fric + QuadWt / ( Conveyance(X,H) ** 2 )
+            fric = fric + QuadWt / ( Conveyance(X,Z) ** 2 )
          END IF
 
  100  CONTINUE
@@ -2023,7 +2024,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
       INTEGER K, QuadPts
       real*8 N( MaxQuadPts )
       real*8 Hd, Hu
-      real*8 H, X, QuadWt, QuadPt, fric
+      real*8 H, X, QuadWt, QuadPt, fric, Z
 
 *   Routines by module:
 
@@ -2067,12 +2068,13 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
 *--------Dependent variables.
          H = N(1) * Hu + N(2) * Hd
+         Z = N(1) * Zu + N(2) * Zd
 
 *--------Integrate friction term.
 
          IF( H .GT. 0.0 ) THEN
-            fric = fric - QuadWt * N(1) *  2.0 * dConveyance(X,H)
-     &           / ( Conveyance(X,H) ** 3 )
+            fric = fric - QuadWt * N(1) *  2.0 * dConveyance(X,Z)
+     &           / ( Conveyance(X,Z) ** 3 )
          END IF
 
  100  CONTINUE
@@ -2206,7 +2208,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
       H = Z - BtmElev( X )
       IF( H .GT. 0.0 ) THEN
-         StreamMoFlux = Beta(X,H) * Q ** 2 / CxArea(X,H)
+         StreamMoFlux = Beta(X,Z) * Q ** 2 / CxArea(X,Z)
       ELSE
          StreamMoFlux = 0.0
       END IF
@@ -2254,10 +2256,10 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
       H = Z - BtmElev( X )
       IF( H .GT. 0.0 ) THEN
-         A = CxArea( X, H )
+         A = CxArea( X, Z )
          dStreamMoFluxdZ = Q**2 / A * (
-     &        - ChannelWidth( X,H ) * Beta(X,H) / A
-     &        + dBeta(X,H)
+     &        - ChannelWidth( X,Z ) * Beta(X,Z) / A
+     &        + dBeta(X,Z)
      &        )
       ELSE
          dStreamMoFluxdZ = 0.0
@@ -2292,7 +2294,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
       integer K, QuadPts
       real*8 N( MaxQuadPts )
       real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, fric
+      real*8 H, X, QuadWt, QuadPt, fric,Z
 
 *   Routines by module:
 
@@ -2339,9 +2341,10 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
 *--------Dependent variables.
          H = N(1) * Hu + N(2) * Hd
+         Z = N(1) * Zu + N(2) * Zd
 
          IF( H .GT. 0.0 ) THEN
-            fric = fric + QuadWt * CxArea(X,H) / ( Conveyance(X,H) ** 2 )
+            fric = fric + QuadWt * CxArea(X,Z) / ( Conveyance(X,Z) ** 2 )
          END IF
 
  100  CONTINUE
@@ -2378,7 +2381,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
       integer K, QuadPts
       real*8 N( MaxQuadPts )
       real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, fric
+      real*8 H, X, QuadWt, QuadPt, fric, Z
       real*8 Conv
 
 *   Routines by module:
@@ -2430,14 +2433,15 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
 *--------Dependent variables.
          H = N(1) * Hu + N(2) * Hd
+         Z = N(1) * Zu + N(2) * Zd
 
 *--------Integrate friction term.
 
          IF( H .GT. 0.0 ) THEN
-            Conv = Conveyance(X,H)
+            Conv = Conveyance(X,Z)
             fric = fric + QuadWt * N(1) *  (
-     &           - 2.0 * dConveyance(X,H) * CxArea(X,H) / Conv
-     &           + ChannelWidth(X,H)
+     &           - 2.0 * dConveyance(X,Z) * CxArea(X,Z) / Conv
+     &           + ChannelWidth(X,Z)
      &           )
      &           / ( Conv ** 2 )
 
@@ -2476,7 +2480,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
       real*8 N( MaxQuadPts )
       real*8 dNdX( MaxQuadPts )
       real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, Slope, A
+      real*8 H, X, QuadWt, QuadPt, Slope, A, Z
 
 *   Routines by module:
 
@@ -2526,13 +2530,14 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
 *--------Dependent variables.
          H = N(1) * Hu + N(2) * Hd
+         Z = N(1) * Zu + N(2) * Zd
 
 *--------WS Slope.
 
          Slope = dNdX(1) * Zu + dNdX(2) * Zd
 
          IF( H .GT. 0.0 ) THEN
-            A = A + QuadWt * CxArea(X,H) * Slope
+            A = A + QuadWt * CxArea(X,Z) * Slope
          END IF
 
  100  CONTINUE
@@ -2569,7 +2574,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
       real*8 N( MaxQuadPts )
       real*8 dNdX( MaxQuadPts )
       real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, A, Slope
+      real*8 H, X, QuadWt, QuadPt, A, Slope, Z
 
 *   Routines by module:
 
@@ -2621,6 +2626,7 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
 *--------Dependent variables.
          H = N(1) * Hu + N(2) * Hd
+         Z = N(1) * Zu + N(2) * Zd
 
 *--------WS Slope.
 
@@ -2630,8 +2636,8 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 
          IF( H .GT. 0.0 ) THEN
             A = A + QuadWt * (
-     &           N(1) * ChannelWidth(X,H) * Slope
-     &           + dNdX(1) * CxArea(X,H)
+     &           N(1) * ChannelWidth(X,Z) * Slope
+     &           + dNdX(1) * CxArea(X,Z)
      &           )
 
          END IF

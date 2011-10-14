@@ -442,7 +442,7 @@ c@@@         OK = ReportNetBalance()
 
       
 
-      OK = CloseSolver()
+C      OK = CloseSolver()
 
       inquire(unit_output,opened=isopen)
       if(isopen)close(unit_output, err=1222)

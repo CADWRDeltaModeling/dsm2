@@ -103,7 +103,8 @@ C     + + + LOCAL VARIABLES + + +
 
       real*8 objflow,massrate(max_constituent) ! object flow and massrates
       
-      real*8    VOL,VOL0,DX(NOPR)
+      real*8 VOL,VOL0,DX(NOPR)
+      real*8 XLENGTH,XAREA
       INTEGER J
 
 C     + + + LOCAL VARIABLE DEFINITIONS + + +`
@@ -150,13 +151,18 @@ C-   estimate parcel size
          VOL=0
          DO K=1,NSN
             VOL=VOL+GPV(N,K)
-            DX(K)=GPV(N,K)/(0.5*(A(1)+A(2)))
+         enddo
+         XLENGTH=dble(chan_geom(N).length)
+         XAREA=VOL/XLENGTH
+         DO K=1,NSN
+            DX(K)=GPV(N,K)/XAREA
          enddo
 
-          VOL0=DX0*0.5*(A(1)+A(2))
+C          VOL0=DX0*0.5*(A(1)+A(2))
+          VOL0=DX0*XAREA
           if(VOL/VOL0.GT.(NOPR-2))VOL0=VOL/(NOPR-2)
           if(VOL/VOL0.LT.8)VOL0=VOL/8.
-          VOL0=VOL0*0.9 
+
           VI=VOL0*0.1                 
 
 C--------compute hydraulics statements

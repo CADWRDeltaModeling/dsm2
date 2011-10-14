@@ -133,7 +133,7 @@ c-----------upstream node
      &           chan_geom(chan).manning,chan_geom(chan).disp,
      &           node_geom(chan_geom(chan).downnode).node_id,
      &           node_geom(chan_geom(chan).upnode).node_id
- 1080       format(i5,1x,i4,1x,i8,5x,f8.4,3x,f8.4,5x,i4,1x,i4)
+ 1080       format(i5,1x,i4,1x,i8,5x,f8.4,3x,f10.4,5x,i4,1x,i4)
       enddo
 
 

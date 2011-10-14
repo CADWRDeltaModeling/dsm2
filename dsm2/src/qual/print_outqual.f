@@ -106,7 +106,7 @@ c-----------upstream node
      &           node_geom(chan_geom(chan).downnode).node_id,
      &           node_geom(chan_geom(chan).upnode).node_id,
      &           (cstart(chan,l),l=1,neq)
- 1080       format(i4,1x,i4,2x,i8,5x,f8.4,3x,f8.4,5x,i4,1x,i4,6x,11(1x,f8.2))
+ 1080       format(i4,1x,i4,2x,i8,5x,f8.4,3x,f10.4,5x,i4,1x,i4,6x,11(1x,f8.2))
       enddo
 
       write(unit_output,1120)

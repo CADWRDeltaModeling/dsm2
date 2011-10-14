@@ -157,7 +157,7 @@ c-----check constants
       end if
 
  
-      nquadpts=nquadpts-1
+c----  nquadpts=nquadpts-1
 
       if (time_step_intvl_hydro .ne. ' ') then
 c--------time_step_intvl_hydro should be in form: '5min' or '1hour'
@@ -207,10 +207,22 @@ c-----don't use boundary equations
 
 c-----Quadrature Weighting
 c-----supply default values if necessary
-      if (nquadpts .eq. 0) then
-         nquadpts=1
+      if (nquadpts .eq. 1) then
+c         nquadpts=1
          quadpt(1)=0.5
          quadwt(1)=1.0
+      else if (nquadpts .eq. 2) then
+         quadpt(1)=0.
+         quadpt(2)=1.0
+         quadwt(1)=0.5        
+         quadwt(2)=0.5
+      else if (nquadpts .eq. 3) then
+         quadpt(1)=0.
+         quadpt(2)=0.5
+         quadpt(3)=1.0
+         quadwt(1)=0.25        
+         quadwt(2)=0.5
+         quadwt(3)=0.25     
       endif
 c-----check that weights total 1.0
       totalweight = 0.0

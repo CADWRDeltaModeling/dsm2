@@ -1848,7 +1848,7 @@ c-----
 
       subroutine find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -1856,7 +1856,7 @@ c-----
      &     )
       use IO_Units
       use common_xsect
-      use runtime_data
+      use runtime_data      
       implicit none
 
 
@@ -1868,7 +1868,7 @@ c-----
      &     ,previous_elev_index(max_virt_xsects) ! used to store elevation index
       real*8
      &     X                    ! distance along channel (from FourPt)
-     &    ,H                   ! distance above channel bottom (from FourPt)
+     &    ,Z                   ! distance above channel bottom (from FourPt)
 
       save previous_elev_index
 
@@ -1879,24 +1879,26 @@ c-----find the index of elevation of layer that is below H, and the
 c-----virtual xsect number
 
 c-----Check for negative depth
+      vsecno = nint(X / virt_deltax(Branch))+1
 
-      if (H.le.0.) then
-         write(unit_error,910) chan_geom(Branch).chan_no,current_date,H
- 910     format(' Error...channel', i4,' dried up at time ',a,'; H=',f10.3)
+
+      if (Z.le.virt_min_elev(minelev_index(Branch)+vsecno-1)) then
+         write(unit_error,910) chan_geom(Branch).chan_no,current_date,Z
+ 910     format(' Error...channel', i4,' dried up at time ',a,'; WS Elevation Z=',f10.3)
          call exit(13)
       endif
 
-      vsecno = nint(X / virt_deltax(Branch))+1
+
       virtelev=previous_elev_index(minelev_index(Branch)+vsecno-1)
 
 c-----if upper level is below or at same elevation as H, move up
       do while (virtelev .lt. num_layers(Branch) .and.
-     &     virt_elevation(elev_index(Branch)+virtelev) .le. H)
+     &     virt_elevation(elev_index(Branch)+virtelev) .le. Z)
          virtelev=virtelev+1
       enddo
 c-----if lower level is above H, move down
       do while (virtelev .gt. 1 .and.
-     &     virt_elevation(elev_index(Branch)+virtelev-1) .gt. H)
+     &     virt_elevation(elev_index(Branch)+virtelev-1) .gt. Z)
          virtelev=virtelev-1
       enddo
 
@@ -1904,13 +1906,15 @@ c-----if lower level is above H, move down
 
       previous_elev_index(minelev_index(Branch)+vsecno-1) = virtelev
       veindex=elev_index(Branch)+virtelev-1
-      if (h .gt. virt_elevation(elev_index(Branch)+num_layers(Branch)-1)) then
+      if (Z .gt. virt_elevation(elev_index(Branch)+num_layers(Branch)-1)) then
          write(unit_error,*) 'Error in find_layer_index'
          write(unit_error,610) chan_geom(Branch).chan_no,
-     &        virt_elevation(elev_index(Branch)+num_layers(Branch)-1),h
- 610     format('Top elevation in cross-section is too low.'
-     &        /'Change variable ''max_layer_height'' in common_irreg_geom.f.'
-     &        /'Chan no. ',i3,' Chan top elev=',f6.2,' H=',f6.2)
+     &        virt_elevation(elev_index(Branch)+num_layers(Branch)-1),Z
+ 610     format('Top elevation in cross-section is too low or a runtime '
+     &        /'instability developed (which may have to do with other inputs.'
+     &        /'If this is really a problem with the maximum xsect elevation,'
+     &        /'change variable ''max_layer_height'' in common_irreg_geom.f.'
+     &        /'Chan no. ',i3,' Chan top elev=',f6.2,' Z=',f6.2)
          call exit(2)
       endif
 
@@ -1922,7 +1926,7 @@ c-----if lower level is above H, move down
 *   Public: ChannelWidth
 *=======================================================================
 
-      REAL*8 FUNCTION ChannelWidth(X,H)
+      REAL*8 FUNCTION ChannelWidth(X,Z)
       use IO_Units
       use common_xsect
       IMPLICIT NONE
@@ -1932,7 +1936,7 @@ c-----if lower level is above H, move down
 *     at H distance above the lowest point in the cross section.
 
 *   Arguments:
-      REAL*8    X,H
+      REAL*8    X,Z
 
 *   Argument definitions:
 *     X      - downstream distance in current channel.
@@ -1974,11 +1978,11 @@ c-----statement function to calculate indices of virtual data arrays
       dindex(Branch,vsecno,virtelev)
      &     =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 c-----statement function to interpolate wrt two points
-      interp(x1,x2,y1,y2,H) =-((y2-y1)/(x2-x1))*(x2-H) + y2 
+      interp(x1,x2,y1,y2,Z) =-((y2-y1)/(x2-x1))*(x2-Z) + y2 
 
       call find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -1991,7 +1995,7 @@ c-----statement function to interpolate wrt two points
       x2=virt_elevation(veindex+1)
       y1=virt_width(di)
       y2=virt_width(di+1)
-      ChannelWidth = interp(x1,x2,y1,y2,H)
+      ChannelWidth = interp(x1,x2,y1,y2,Z)
       if (x1.eq.x2) then
          write(unit_error,*) 'ChannelWidth division by zero'
       endif
@@ -2006,7 +2010,7 @@ c-----statement function to interpolate wrt two points
 *   Public: CxArea
 *=======================================================================
 
-      REAL*8 FUNCTION CxArea(X, H)
+      REAL*8 FUNCTION CxArea(X, Z)
       use common_xsect
       IMPLICIT NONE
 
@@ -2016,7 +2020,7 @@ c-----statement function to interpolate wrt two points
 *     distance H above the lowest point.
 
 *   Arguments:
-      REAL*8    X, H              ! h-height of trapezoid
+      REAL*8    X, Z              ! h-height of trapezoid
 
 *   Argument definitions:
 *     X - downstream distance.
@@ -2064,7 +2068,7 @@ c-----statement function to calculate indices of virtual data arrays
 
       call find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -2073,10 +2077,10 @@ c-----statement function to calculate indices of virtual data arrays
 
          di=dindex(branch,vsecno,virtelev)
          x1=virt_elevation(veindex)
-         x2=H
+         x2=Z
          a1=virt_area(di)
          b1=virt_width(di)
-         b2=ChannelWidth(X,H)
+         b2=ChannelWidth(X,Z)
          CxArea = a1+(0.5*(b1+b2))*(x2-x1)
 
       RETURN

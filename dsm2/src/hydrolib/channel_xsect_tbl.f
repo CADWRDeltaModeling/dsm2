@@ -95,7 +95,7 @@ C!</license>
 *   Public: ChannelWidth
 *=======================================================================
 
-      REAL*8 FUNCTION ChannelWidth(X,H)
+      REAL*8 FUNCTION ChannelWidth(X,Z)
       use IO_Units
       use common_xsect
       IMPLICIT NONE
@@ -105,13 +105,11 @@ C!</license>
 *     at H distance above the lowest point in the cross section.
 
 *   Arguments:
-      REAL*8    X,H
+      REAL*8    X,Z
 
 *   Argument definitions:
 *     X      - downstream distance in current channel.
-*     H      - distance, above lowest point in channel, at which the
-*              channel width is to be computed.
-
+*     Z      - changed to Elevation based!
 *   Module data:
       INCLUDE 'network.inc'
       INCLUDE 'chcxtbl.inc'
@@ -147,12 +145,12 @@ c-----statement function to calculate indices of virtual data arrays
       dindex(Branch,vsecno,virtelev)
      &     =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 c-----statement function to interpolate wrt two points
-      interp(x1,x2,y1,y2,H) =-((y2-y1)/(x2-x1))*(x2-H) + y2 
+      interp(x1,x2,y1,y2,Z) =-((y2-y1)/(x2-x1))*(x2-Z) + y2 
 
 
       call find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -165,7 +163,7 @@ c-----statement function to interpolate wrt two points
       x2=virt_elevation(veindex+1)
       y1=virt_width(di)
       y2=virt_width(di+1)
-      ChannelWidth = interp(x1,x2,y1,y2,H)
+      ChannelWidth = interp(x1,x2,y1,y2,Z)
       if (x1.eq.x2) then
          write(unit_error,*) 'ChannelWidth division by zero'
       endif
@@ -178,7 +176,7 @@ c-----statement function to interpolate wrt two points
 *   Public: CxArea
 *=======================================================================
 
-      REAL*8 FUNCTION CxArea(X, H)
+      REAL*8 FUNCTION CxArea(X, Z)
       use common_xsect
       IMPLICIT NONE
 
@@ -188,11 +186,11 @@ c-----statement function to interpolate wrt two points
 *     distance H above the lowest point.
 
 *   Arguments:
-      REAL*8    X, H              ! h-height of trapezoid
+      REAL*8    X, Z              ! h-height of trapezoid
 
 *   Argument definitions:
 *     X - downstream distance.
-*     H - distance above lowest point in cross section.
+*     Z - changed to Elevation based!
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -235,7 +233,7 @@ c-----statement function to calculate indices of virtual data arrays
 
       call find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -244,10 +242,10 @@ c-----statement function to calculate indices of virtual data arrays
 
          di=dindex(branch,vsecno,virtelev)
          x1=virt_elevation(veindex)
-         x2=H
+         x2=Z
          a1=virt_area(di)
          b1=virt_width(di)
-         b2=ChannelWidth(X,H)
+         b2=ChannelWidth(X,Z)
          CxArea = a1+(0.5*(b1+b2))*(x2-x1)
 
 
@@ -471,7 +469,7 @@ c@@@      ENDIF
 *   Public: Conveyance
 *=======================================================================
 
-      REAL*8 FUNCTION Conveyance(X, H)
+      REAL*8 FUNCTION Conveyance(X, Z)
 
       IMPLICIT NONE
 
@@ -481,7 +479,7 @@ c@@@      ENDIF
 *     and a distance H above the lowest point.
 
 *   Arguments:
-      REAL*8    X, H
+      REAL*8    X, Z
 
 *   Argument definitions:
 *     X - downstream distance.
@@ -513,10 +511,10 @@ c@@@      ENDIF
 
 *-----Implementation -----------------------------------------------------
 
-      IF (WetPerimeter(X,H).GT.Small) THEN
+      IF (WetPerimeter(X,Z).GT.Small) THEN
 
-            Conveyance = 1.486*(CxArea(X,H))**R53 *
-     &           (EffectiveN(X,H)/(WetPerimeter(X,H))**R23)
+            Conveyance = 1.486*(CxArea(X,Z))**R53 *
+     &           (EffectiveN(X,Z)/(WetPerimeter(X,Z))**R23)
 
       ELSE
          Conveyance = 0.0
@@ -529,7 +527,7 @@ c@@@      ENDIF
 *   Public: dConveyance
 *=======================================================================
 
-      REAL*8 FUNCTION dConveyance(X, H)
+      REAL*8 FUNCTION dConveyance(X, Z)
       use IO_Units
       use common_xsect
       IMPLICIT NONE
@@ -540,7 +538,7 @@ c@@@      ENDIF
 *     and a distance H above the lowest point.
 
 *   Arguments:
-      REAL*8    X, H
+      REAL*8    X, Z
      &     ,EN,Ar,Per
 
 *   Argument definitions:
@@ -582,20 +580,20 @@ c@@@      ENDIF
 
 *-----Implementation -----------------------------------------------------
 
-      if (wetperimeter(x,h).gt.small) then
+      if (wetperimeter(x,Z).gt.small) then
 
-         EN=EffectiveN(X,H)
-         Ar=CxArea(X,H)
-         Per=WetPerimeter(X,H)
+         EN=EffectiveN(X,Z)
+         Ar=CxArea(X,Z)
+         Per=WetPerimeter(X,Z)
 
          dConveyance = 1.486 * (
-     &        R53 * ChannelWidth(X,H) * EN
+     &        R53 * ChannelWidth(X,Z) * EN
      &        * ( Ar / Per )**R23
      &
-     &        - R23 * dWetPerimeter(X,H) * EN
+     &        - R23 * dWetPerimeter(X,Z) * EN
      &        * ( Ar  / Per )**R53
      &
-     &        + dEffectiveN(X,H) * Ar**R53
+     &        + dEffectiveN(X,Z) * Ar**R53
      &        /  Per**R23
      &        )
 
@@ -605,20 +603,20 @@ c@@@      ENDIF
       ENDIF
 
       IF( dConveyance .LT. 0.0 ) THEN
-         IF( H .GT. 0.5 ) THEN
-            dConveyance = Conveyance(X,H+.5) - Conveyance(X,H-.5)
-         ELSE
-            dConveyance = Conveyance(X,H+1.) - Conveyance(X,H)
-         END IF
+!         IF( H .GT. 0.5 ) THEN
+!            dConveyance = Conveyance(X,H+.5) - Conveyance(X,H-.5)
+!         ELSE
+            dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)
+!         END IF
          IF( dConveyance .LT. 0.0 ) THEN
-            WRITE(unit_error,610) chan_geom(Branch).chan_no,X,H,
-     &           ChannelWidth(X,H),CxArea(X,H),Conveyance(X,H),
-     &           EffectiveN(X,H),dEffectiveN(X,H),
-     &           WetPerimeter(X,H), dWetPerimeter(X,H)
+            WRITE(unit_error,610) chan_geom(Branch).chan_no,X,Z,
+     &           ChannelWidth(X,Z),CxArea(X,Z),Conveyance(X,Z),
+     &           EffectiveN(X,Z),dEffectiveN(X,Z),
+     &           WetPerimeter(X,Z), dWetPerimeter(X,Z)
  610        format(/'Warning in dConveyance; negative gradient with depth,'
      &           /' consider reworking adjacent cross section(s).'
      &           /' Channel...',i3
-     &           /' X, H...',2f10.2,1p
+     &           /' X, Z...',2f10.2,1p
      &           /' Width, Area, Conveyance...',3g10.3,
      &           /' one over effective n, 1/(dn/dZ)...',2g10.3
      &           /' P, dP/dZ...',2g10.3)
@@ -739,7 +737,7 @@ c@@@      dEffectiveN = dEffectiveN/dH
 *   Public: WetPerimeter
 *=======================================================================
 
-      REAL*8 FUNCTION WetPerimeter(X, H)
+      REAL*8 FUNCTION WetPerimeter(X, Z)
       use IO_Units
       use common_xsect
       IMPLICIT NONE
@@ -750,7 +748,7 @@ c@@@      dEffectiveN = dEffectiveN/dH
 *     and a distance H above the lowest point.
 
 *   Arguments:
-      REAL*8    X, H
+      REAL*8    X, Z
 
 *   Argument definitions:
 *     X - downstream distance.
@@ -795,11 +793,11 @@ c-----statement function to calculate indices of virtual data arrays
       dindex(Branch,vsecno,virtelev)
      &     =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
 c-----statement function to interpolate wrt two points
-      interp(x1,x2,y1,y2,H) =-((y2-y1)/(x2-x1))*(x2-H) + y2 
+      interp(x1,x2,y1,y2,Z) =-((y2-y1)/(x2-x1))*(x2-Z) + y2 
 
       call find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -811,7 +809,7 @@ c-----statement function to interpolate wrt two points
       x2=virt_elevation(veindex+1)
       y1=virt_wet_p(di)
       y2=virt_wet_p(di+1)
-      WetPerimeter = interp(x1,x2,y1,y2,H)
+      WetPerimeter = interp(x1,x2,y1,y2,Z)
 
       if (x1-x2.eq. 0.0) then
          write(unit_error,*) 'wetperimeter division by zero'
@@ -824,7 +822,7 @@ c-----statement function to interpolate wrt two points
 *   Public: dWetPerimeter
 *=======================================================================
 
-      REAL*8 FUNCTION dWetPerimeter(X, H)
+      REAL*8 FUNCTION dWetPerimeter(X, Z)
       use IO_Units
       use common_xsect
       IMPLICIT NONE
@@ -835,7 +833,7 @@ c-----statement function to interpolate wrt two points
 *     and a distance H above the lowest point.
 
 *   Arguments:
-      REAL*8    X, H
+      REAL*8    X, Z
 
 *   Argument definitions:
 *     X - downstream distance.
@@ -879,7 +877,7 @@ c-----statement function to calculate indices of virtual data arrays
 
       call find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -2320,7 +2318,7 @@ C     + + + END SPECIFICATIONS + + +
 
       subroutine find_layer_index(
      &     X
-     &     ,H
+     &     ,Z
      &     ,Branch
      &     ,vsecno
      &     ,virtelev
@@ -2340,7 +2338,7 @@ C     + + + END SPECIFICATIONS + + +
      &     ,previous_elev_index(max_virt_xsects) ! used to store elevation index
       real*8
      &     X                    ! distance along channel (from FourPt)
-     &    ,H                   ! distance above channel bottom (from FourPt)
+     &    ,Z                   ! changed to Elevation based
 
       save previous_elev_index
 
@@ -2351,26 +2349,26 @@ c-----find the index of elevation of layer that is below H, and the
 c-----virtual xsect number
 
 c-----Check for negative depth
+      vsecno = nint(X / virt_deltax(Branch))+1
 
 
-
-      if (H.le.0.) then
-         write(unit_error,910) chan_geom(Branch).chan_no,current_date,H
- 910     format(' Error...channel', i4,' dried up at time ',a,'; H=',f10.3)
+      if (Z.le.virt_min_elev(minelev_index(Branch)+vsecno-1)) then
+         write(unit_error,910) chan_geom(Branch).chan_no,current_date,Z
+ 910     format(' Error...channel', i4,' dried up at time ',a,'; WS Elevation Z=',f10.3)
          call exit(13)
       endif
 
-      vsecno = nint(X / virt_deltax(Branch))+1
+
       virtelev=previous_elev_index(minelev_index(Branch)+vsecno-1)
 
 c-----if upper level is below or at same elevation as H, move up
       do while (virtelev .lt. num_layers(Branch) .and.
-     &     virt_elevation(elev_index(Branch)+virtelev) .le. H)
+     &     virt_elevation(elev_index(Branch)+virtelev) .le. Z)
          virtelev=virtelev+1
       enddo
 c-----if lower level is above H, move down
       do while (virtelev .gt. 1 .and.
-     &     virt_elevation(elev_index(Branch)+virtelev-1) .gt. H)
+     &     virt_elevation(elev_index(Branch)+virtelev-1) .gt. Z)
          virtelev=virtelev-1
       enddo
 
@@ -2378,15 +2376,15 @@ c-----if lower level is above H, move down
 
       previous_elev_index(minelev_index(Branch)+vsecno-1) = virtelev
       veindex=elev_index(Branch)+virtelev-1
-      if (h .gt. virt_elevation(elev_index(Branch)+num_layers(Branch)-1)) then
+      if (Z .gt. virt_elevation(elev_index(Branch)+num_layers(Branch)-1)) then
          write(unit_error,*) 'Error in find_layer_index'
          write(unit_error,610) chan_geom(Branch).chan_no,
-     &        virt_elevation(elev_index(Branch)+num_layers(Branch)-1),h
+     &        virt_elevation(elev_index(Branch)+num_layers(Branch)-1),Z
  610     format('Top elevation in cross-section is too low or a runtime '
      &        /'instability developed (which may have to do with other inputs.'
      &        /'If this is really a problem with the maximum xsect elevation,'
      &        /'change variable ''max_layer_height'' in common_irreg_geom.f.'
-     &        /'Chan no. ',i3,' Chan top elev=',f6.2,' H=',f6.2)
+     &        /'Chan no. ',i3,' Chan top elev=',f6.2,' Z=',f6.2)
          call exit(2)
       endif
 

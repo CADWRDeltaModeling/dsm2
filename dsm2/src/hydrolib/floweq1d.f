@@ -148,17 +148,17 @@ C!</license>
 
 *          upstream face
       X1 = StreamDistance(Up)
-      Width1 = ChannelWidth(X1,H1)
-      Area1 = CxArea(X1,H1)
+      Width1 = ChannelWidth(X1,Z1)
+      Area1 = CxArea(X1,Z1)
       Velocity1 = Q1 / Area1
-      BetaVelocity1 = Beta(X1,H1) * Velocity1
+      BetaVelocity1 = Beta(X1,Z1) * Velocity1
 
 *          downstream face
       X2 = StreamDistance(Down)
-      Width2 = ChannelWidth(X2,H2)
-      Area2 = CxArea(X2,H2)
+      Width2 = ChannelWidth(X2,Z2)
+      Area2 = CxArea(X2,Z2)
       Velocity2 = Q2 / Area2
-      BetaVelocity2 = Beta(X2,H2) * Velocity2
+      BetaVelocity2 = Beta(X2,Z2) * Velocity2
 
 *-----Time increment and weighting.
       DT = DFLOAT( NetworkTimeIncrement() )
@@ -249,13 +249,13 @@ C!</license>
          Z = N(1) * Z1 + N(2) * Z2
 
 *--------Channel variables.
-         Width = ChannelWidth( Xdist, H )
-         Area = CxArea( Xdist, H )
+         Width = ChannelWidth( Xdist, Z )
+         Area = CxArea( Xdist, Z )
 
 *--------Friction-slope terms.
-         Conv = Conveyance(Xdist,H)
+         Conv = Conveyance(Xdist,Z)
          ConvSq = Conv * Conv
-         DConvDZ = dConveyance(Xdist,H)
+         DConvDZ = dConveyance(Xdist,Z)
 
          AbsQxQbyConvSq =    ABS(Q) / ConvSq
          AbsQxAreaByConvSq = AbsQxQbyConvSq * Area
@@ -495,17 +495,17 @@ C!</license>
 
 *          upstream face
       X1 = StreamDistance(Up)
-      Width1 = ChannelWidth(X1,H1)
-      Area1 = CxArea(X1,H1)
+      Width1 = ChannelWidth(X1,Z1)
+      Area1 = CxArea(X1,Z1)
       Velocity1 = Q1 / Area1
-      BetaVelocity1 = Beta(X1,H1) * Velocity1
+      BetaVelocity1 = Beta(X1,Z1) * Velocity1
 
 *          downstream face
       X2 = StreamDistance(Down)
-      Width2 = ChannelWidth(X2,H2)
-      Area2 = CxArea(X2,H2)
+      Width2 = ChannelWidth(X2,Z2)
+      Area2 = CxArea(X2,Z2)
       Velocity2 = Q2 / Area2
-      BetaVelocity2 = Beta(X2,H2) * Velocity2
+      BetaVelocity2 = Beta(X2,Z2) * Velocity2
 
 *-----Time increment and weighting.
       DT = DFLOAT( NetworkTimeIncrement() )
@@ -596,31 +596,31 @@ C!</license>
          Z = N(1) * Z1 + N(2) * Z2
 
 *--------Channel geometry variables.
-         Width = ChannelWidth( Xdist, H )
-         Area = CxArea( Xdist, H )
+         Width = ChannelWidth( Xdist, Z )
+         Area = CxArea( Xdist, Z )
 
 *--------Density and density gradient.
          NewRho = N(1) * NewRho1 + N(2) * NewRho2
          NewdRhodX = DNDX(1) * NewRho1 + DNDX(2) * NewRho2
 
 *--------Distance from centroid to water surface.
-         ZBar = CxCentroid(Xdist,H)
-         dZBardX = dCxCentroid(Xdist,H)
+         ZBar = CxCentroid(Xdist,Z)
+         dZBardX = dCxCentroid(Xdist,Z)
 
 *--------Friction-slope terms.
-         Conv = Conveyance(Xdist,H)
+         Conv = Conveyance(Xdist,Z)
          ConvSq = Conv * Conv
-         DConvDZ = dConveyance(Xdist,H)
+         DConvDZ = dConveyance(Xdist,Z)
 
          AbsQxQbyConvSq =    ABS(Q) / ConvSq
          AbsQxAreaByConvSq = AbsQxQbyConvSq * Area
          AbsQxQbyConvSq =    AbsQxQbyConvSq * Q
 
 *--------Sinuosity.
-         Ma = AreaWtSinuosity(Xdist,H)
-         dMadH = dAreaWtSinuosity(Xdist,H)
-         Mq = QWtSinuosity(Xdist,H)
-         dMqdH = dQWtSinuosity(Xdist,H)
+         Ma = AreaWtSinuosity(Xdist,Z)
+         dMadH = dAreaWtSinuosity(Xdist,Z)
+         Mq = QWtSinuosity(Xdist,Z)
+         dMqdH = dQWtSinuosity(Xdist,Z)
 
 *--------Product of space and time increments.
          DXxDT = DX * DT

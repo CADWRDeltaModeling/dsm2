@@ -179,6 +179,10 @@ c-----combine all elev (for all real xsect in the chan) including duplicates
          secno=xsect_assg(channo).sec_index(i)
          do j=1,irreg_geom(secno).num_elev
             temp_all_elev(k)=irreg_geom(secno).elevation(j)
+            if (temp_all_elev(k).eq. 0.0)then
+            !this is added to avoid 0 problem
+               temp_all_elev(k)=0.001
+            endif
             k=k+1
          enddo
       enddo
@@ -199,48 +203,60 @@ c-----add top height
       endif
 
 c-----add elevations at MSL to compare areas at MSL to rectangular area @ MSL
-      do i=1,xsect_assg(channo).num_sec_assg
-         secno=xsect_assg(channo).sec_index(i)
-c--------don't add elev if the bottom elev is above MSL
-         if (irreg_geom(secno).min_elev .le. 0) then
-            temp_all_elev(numvirtelev+1)=-irreg_geom(secno).min_elev
-            numvirtelev = numvirtelev+1
-         endif
-      enddo
-      if (xsect_assg(channo).num_sec_assg .ge. 1) then
-         if (xsect_assg(channo).dist(1) .gt. 0.0) then
-            xs=chan_geom(channo).xsect(1)
-            if (xsect_geom(xs).botelv .le. 0) then
-               temp_all_elev(numvirtelev+1)=-xsect_geom(xs).botelv
-               numvirtelev = numvirtelev+1
-            endif
-         endif
-         if (xsect_assg(channo).dist(xsect_assg(channo).
-     &        num_sec_assg) .lt. chan_geom(channo).length) then
-            xs=chan_geom(channo).xsect(2)
-            if (xsect_geom(xs).botelv .le. 0) then
-               temp_all_elev(numvirtelev+1)=-xsect_geom(xs).botelv
-               numvirtelev = numvirtelev+1
-            endif
-         endif
-      elseif (xsect_assg(channo).num_sec_assg .eq. 0) then
-         xs=chan_geom(channo).xsect(1)
-         if (xsect_geom(xs).botelv .le. 0) then
-            temp_all_elev(numvirtelev+1)=-xsect_geom(xs).botelv
-            numvirtelev = numvirtelev+1
-         endif
-         if (xsect_geom(xs+1).botelv .le. 0) then
-            temp_all_elev(numvirtelev+1)=-xsect_geom(xs+1).botelv
-            numvirtelev = numvirtelev+1
-         endif
-      endif
+!      do i=1,xsect_assg(channo).num_sec_assg
+!         secno=xsect_assg(channo).sec_index(i)
+!c--------don't add elev if the bottom elev is above MSL
+!         if (irreg_geom(secno).min_elev .le. 0) then
+!!            temp_all_elev(numvirtelev+1)=-irreg_geom(secno).min_elev
+!C----------change to use-elevation            
+!            temp_all_elev(numvirtelev+1)=0.0
+!            numvirtelev = numvirtelev+1
+!         endif
+!      enddo
+!      if (xsect_assg(channo).num_sec_assg .ge. 1) then
+!         if (xsect_assg(channo).dist(1) .gt. 0.0) then
+!            xs=chan_geom(channo).xsect(1)
+!            if (xsect_geom(xs).botelv .le. 0) then
+!!               temp_all_elev(numvirtelev+1)=-xsect_geom(xs).botelv
+!C----------change to use-elevation               
+!               temp_all_elev(numvirtelev+1)=0.0
+!               numvirtelev = numvirtelev+1
+!            endif
+!         endif
+!         if (xsect_assg(channo).dist(xsect_assg(channo).
+!     &        num_sec_assg) .lt. chan_geom(channo).length) then
+!            xs=chan_geom(channo).xsect(2)
+!            if (xsect_geom(xs).botelv .le. 0) then
+!!               temp_all_elev(numvirtelev+1)=-xsect_geom(xs).botelv
+!C----------change to use-elevation               
+!               temp_all_elev(numvirtelev+1)=0.0             
+!               numvirtelev = numvirtelev+1
+!            endif
+!         endif
+!      elseif (xsect_assg(channo).num_sec_assg .eq. 0) then
+!         xs=chan_geom(channo).xsect(1)
+!         if (xsect_geom(xs).botelv .le. 0) then
+!!            temp_all_elev(numvirtelev+1)=-xsect_geom(xs).botelv
+!C----------change to use-elevation               
+!            temp_all_elev(numvirtelev+1)=0.0           
+!            numvirtelev = numvirtelev+1
+!         endif
+!         if (xsect_geom(xs+1).botelv .le. 0) then
+!!            temp_all_elev(numvirtelev+1)=-xsect_geom(xs+1).botelv
+!C----------change to use-elevation               
+!            temp_all_elev(numvirtelev+1)=0.0             
+!            numvirtelev = numvirtelev+1
+!         endif
+!      endif
 
 c-----sort list of elevations in the channel:
 c-----ascending order with zeros at end (see function compar)
       call qsort(temp_all_elev,max_elevations,REAL_PRECISION,compar)
 
 c-----copy unique values onto virt_elevation()
-      virt_elevation(elev_index(channo))=0.0
+!      virt_elevation(elev_index(channo))=0.0
+c---    use-elevation
+      virt_elevation(elev_index(channo))=temp_all_elev(1)
       j=0
       do i=1,numvirtelev
          if ( temp_all_elev(i) .ne.
@@ -249,7 +265,9 @@ c-----copy unique values onto virt_elevation()
             j=j+1
          endif
       enddo
-      num_layers(channo)=j
+!      num_layers(channo)=j
+c--     use-elevation
+      num_layers(channo)=j+1      
 
       return
       end
@@ -306,16 +324,27 @@ c-----------if the elevation matches, copy data, don't interpolate
                temparea(i,virtelev)=irreg_geom(secno).area(assgindex)
                tempwet_p(i,virtelev)=irreg_geom(secno).wet_p(assgindex)
                tempwidth(i,virtelev)=irreg_geom(secno).width(assgindex)
-               if (virt_elevation(ei).eq.0) then
-                  tempz_centroid(i,virtelev)=0
+!               if (virt_elevation(ei).eq.0) then
+               if (virt_elevation(ei).eq.irreg_geom(secno).elevation(1)) then               
+                  tempz_centroid(i,virtelev)=virt_elevation(ei)
                else
                   tempz_centroid(i,virtelev)=
      &                 irreg_geom(secno).z_centroid(assgindex)
+c---z_centroid(assgindex) was not real calculated,so use interp_z_centroid to calculate
+     
                endif
                assgindex=assgindex+1
-c--------------if the elevation doesn't match, interpolate or extrapolate
-            elseif ( virt_elevation(ei) .ne.
-     &              irreg_geom(secno).elevation(assgindex) ) then
+c--------------if the virt_elevation lower than bottom of original x-section 
+            elseif ( virt_elevation(ei) .lt.
+     &              irreg_geom(secno).elevation(1) ) then
+               temparea(i,virtelev)=0
+               tempwet_p(i,virtelev)=0
+               tempwidth(i,virtelev)=0
+               tempz_centroid(i,virtelev)=0
+c--------------if the elevation doesn't match, interpolate or extrapolate     
+!            elseif ( virt_elevation(ei) .ne.
+!     &              irreg_geom(secno).elevation(assgindex) ) then
+            else
                call interp_width(
      &              secno
      &              ,channo
@@ -335,14 +364,15 @@ c--------------if the elevation doesn't match, interpolate or extrapolate
      &              ,virtelev
      &              ,tempwet_p(i,virtelev))
                rsecno=i
-                if (virt_elevation(ei).eq.0) then
-                   write(unit_error,*) 'Software error 1 in virtual_xsect.f'
-                   write(unit_error,*) 'channel, secno, virtelev=',
-     &                  channo,secno, virtelev
-                   write(unit_error,*) 
-     &                  'There may be too many layers in this channel'
-                 call exit(2)
-                else
+c----use-elevation change, the following disabled               
+!                if (virt_elevation(ei).eq.0) then
+!                   write(unit_error,*) 'Software error 1 in virtual_xsect.f'
+!                   write(unit_error,*) 'channel, secno, virtelev=',
+!     &                  channo,secno, virtelev
+!                   write(unit_error,*) 
+!     &                  'There may be too many layers in this channel'
+!                 call exit(2)
+!                else
                   call interp_z_centroid(
      &                 rsecno
      &                 ,secno
@@ -351,7 +381,7 @@ c--------------if the elevation doesn't match, interpolate or extrapolate
      &                 ,virtelev
      &                 ,tempz_centroid(i,virtelev))
                   assgindex=assgindex+1
-                endif
+!                endif
             endif
          enddo
       enddo

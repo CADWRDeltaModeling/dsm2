@@ -84,7 +84,7 @@ c-----stage boundary object
 
 
 c-----quad points
-      integer :: nquadpts = 1             ! number of quadrature points
+      integer :: nquadpts = 3             ! number of quadrature points
 
 c-----used by virtual_xsect
       real*8 deltax_requested   ! delta x to use in spatial discretization

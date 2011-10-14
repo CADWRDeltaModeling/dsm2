@@ -51,17 +51,20 @@ c--------convert distance
 c--------subtract minimum elevation to convert elevation from datum
 c--------to height above channel bottom
 c-----fixme: this is very strange. Why do it?
-      do h=1,nirg
-         do m=1,irreg_geom(h).num_elev
-            irreg_geom(h).elevation(m)=
-     &           irreg_geom(h).elevation(m)-
-     &           irreg_geom(h).min_elev
-            irreg_geom(h).z_centroid(m)=
-     &           irreg_geom(h).z_centroid(m)
-     &           -irreg_geom(h).min_elev
-         enddo
-         irreg_geom(h).z_centroid(1)=0.0
-      enddo
+
+c--  major change to use-elevation-instead-of-height, so skip the following conversion
+!      do h=1,nirg  
+!         do m=1,irreg_geom(h).num_elev
+!            irreg_geom(h).elevation(m)=
+!     &           irreg_geom(h).elevation(m)-
+!     &           irreg_geom(h).min_elev
+!            irreg_geom(h).z_centroid(m)=
+!     &           irreg_geom(h).z_centroid(m)
+!     &           -irreg_geom(h).min_elev
+!         enddo  
+!
+!         irreg_geom(h).z_centroid(1)=0.0
+!      enddo
 
       if (print_level .ge. 4) then
          write(unit_screen,*)

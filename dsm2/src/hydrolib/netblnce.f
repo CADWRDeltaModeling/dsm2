@@ -62,7 +62,7 @@ C!</license>
       REAL*8    dT, OneMinusTheta
       REAL*8    Pt, Wt
       REAL*8    X1, X2, X, dX
-      REAL*8    H1, H2, H
+      REAL*8    Z1, Z2, Z
       LOGICAL OK
 
 *   Routines by module:
@@ -91,8 +91,10 @@ C!</license>
 ***** Channel status:
       REAL*8     StreamFlow
       EXTERNAL StreamFlow
-      REAL*8     StreamDepth, EstOldStreamDensity, OldStreamDensity
-      EXTERNAL StreamDepth, EstOldStreamDensity, OldStreamDensity
+      REAL*8     EstOldStreamDensity, OldStreamDensity
+      EXTERNAL EstOldStreamDensity, OldStreamDensity
+      real*8     StreamSurfaceElevation
+      EXTERNAL StreamSurfaceElevation
 
 ***** Local:
 
@@ -132,12 +134,14 @@ C!</license>
      &           )
 
             X1 = StreamDistance(1)
-            H1 = StreamDepth(1)
+!            H1 = StreamDepth(1)
+            Z1 = StreamSurfaceElevation(1)
 
             DO 300 J=1,Locations-1
 
                X2 = StreamDistance(J+1)
-               H2 = StreamDepth(J+1)
+!               H2 = StreamDepth(J+1)
+               Z2 = StreamSurfaceElevation(J+1)
 
                dX = X2 - X1
 
@@ -146,11 +150,11 @@ C!</license>
                   CALL NetworkQuadPtWt( K, Pt, Wt )
                   X = (1.0-Pt)*X1 + Pt*X2
 
-*-----------------Assume H varies linearly with channel length.
-                  H = (1.0-Pt)*H1 + Pt*H2
+*-----------------Assume Z varies linearly with channel length.
+                  Z = (1.0-Pt)*Z1 + Pt*Z2
 
                   InitialVolume(I) = InitialVolume(I)
-     &                 + CxArea( X, H ) * dX * Wt
+     &                 + CxArea( X, Z ) * dX * Wt
 
                   InitialMass(I) = InitialMass(I)
      &                 + EstOldStreamDensity( X ) * dX * Wt
@@ -158,7 +162,7 @@ C!</license>
  200           CONTINUE
 
                X1 = X2
-               H1 = H2
+               Z1 = Z2
 
  300        CONTINUE
 
@@ -181,12 +185,14 @@ C!</license>
      &           )
 
             X1 = StreamDistance(1)
-            H1 = StreamDepth(1)
+!            H1 = StreamDepth(1)
+            Z1 = StreamSurfaceElevation(1)            
 		
             DO 700 J=1,NumberOfStreamLocations()-1
 
                X2 = StreamDistance(J+1)
-               H2 = StreamDepth(J+1)
+!               H2 = StreamDepth(J+1)
+               Z2 = StreamSurfaceElevation(J+1)
 
                dX = X2 - X1
 
@@ -195,16 +201,16 @@ C!</license>
                   CALL NetworkQuadPtWt( K, Pt, Wt )
                   X = (1.0-Pt)*X1 + Pt*X2
 
-*-----------------Assume H varies linearly with channel length.
-                  H = (1.0-Pt)*H1 + Pt*H2
+*-----------------Assume Z varies linearly with channel length.
+                  Z = (1.0-Pt)*Z1 + Pt*Z2
 
                   InitialVolume(I) = InitialVolume(I)
-     &                 + CxArea( X, H ) * dX * Wt
+     &                 + CxArea( X, Z ) * dX * Wt
 
  600           CONTINUE
 
                X1 = X2
-               H1 = H2
+               Z1 = Z2
 
  700        CONTINUE
 
@@ -345,7 +351,7 @@ C!</license>
       REAL*8    OneMinusTheta, dT
       REAL*8    Pt, Wt
       REAL*8    X1, X2, X, dX
-      REAL*8    H1, H2, H
+      REAL*8    Z1, Z2, Z
       REAL*8    Difference, TotalInitialVolume, TotalVolume
       REAL*8    TotalJnctVolFlow, TotalLateralVolFlow
       REAL*8    TotalInitialMass, TotalMass
@@ -379,8 +385,10 @@ C!</license>
 ***** Channel status:
       REAL*8     StreamFlow
       EXTERNAL StreamFlow
-      REAL*8     StreamDepth, EstNewStreamDensity, NewStreamDensity
-      EXTERNAL StreamDepth, EstNewStreamDensity, NewStreamDensity
+      REAL*8     EstNewStreamDensity, NewStreamDensity
+      EXTERNAL EstNewStreamDensity, NewStreamDensity
+      real*8     StreamSurfaceElevation
+      EXTERNAL StreamSurfaceElevation
 
 ***** Local:
 
@@ -423,12 +431,14 @@ C!</license>
      &           - StreamFlow( Locations ) * NewStreamDensity(Locations)
      &           )
             X1 = StreamDistance(1)
-            H1 = StreamDepth(1)
+!            H1 = StreamDepth(1)
+            Z1 = StreamSurfaceElevation(1)
 
             DO 300 J=1,Locations-1
 
                X2 = StreamDistance(J+1)
-               H2 = StreamDepth(J+1)
+!               H2 = StreamDepth(J+1)
+               Z2 = StreamSurfaceElevation(J+1)
 
                dX = X2 - X1
 
@@ -437,11 +447,11 @@ C!</license>
                   CALL NetworkQuadPtWt( K, Pt, Wt )
                   X = (1.0-Pt)*X1 + Pt*X2
 
-*-----------------Assume H varies linearly with channel length.
-                  H = (1.0-Pt)*H1 + Pt*H2
+*-----------------Assume Z varies linearly with channel length.
+                  Z = (1.0-Pt)*Z1 + Pt*Z2
 
                   Volume(I) = Volume(I)
-     &                 + CxArea( X, H ) * dX * Wt
+     &                 + CxArea( X, Z ) * dX * Wt
 
                   Mass(I) = Mass(I)
      &                 + EstNewStreamDensity( X ) * dX * Wt
@@ -449,7 +459,7 @@ C!</license>
  200           CONTINUE
 
                X1 = X2
-               H1 = H2
+               Z1 = Z2
 
  300        CONTINUE
 
@@ -474,12 +484,14 @@ C!</license>
      &           )
 
             X1 = StreamDistance(1)
-            H1 = StreamDepth(1)
+!            H1 = StreamDepth(1)
+            Z1 = StreamSurfaceElevation(1)
 
             DO 700 J=1,NumberOfStreamLocations()-1
 
                X2 = StreamDistance(J+1)
-               H2 = StreamDepth(J+1)
+!               H2 = StreamDepth(J+1)
+               Z2 = StreamSurfaceElevation(J+1)
 
                dX = X2 - X1
 
@@ -488,16 +500,16 @@ C!</license>
                   CALL NetworkQuadPtWt( K, Pt, Wt )
                   X = (1.0-Pt)*X1 + Pt*X2
 
-*-----------------Assume H varies linearly with channel length.
-                  H = (1.0-Pt)*H1 + Pt*H2
+*-----------------Assume Z varies linearly with channel length.
+                  Z = (1.0-Pt)*Z1 + Pt*Z2
 
                   Volume(I) = Volume(I)
-     &                 + CxArea( X, H ) * dX * Wt
+     &                 + CxArea( X, Z ) * dX * Wt
 
  600           CONTINUE
 
                X1 = X2
-               H1 = H2
+               Z1 = Z2
 
  700        CONTINUE
 
