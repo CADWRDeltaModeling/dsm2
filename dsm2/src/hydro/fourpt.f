@@ -277,6 +277,11 @@ c-----calculate julian minute of end of each DSS interval
       if ( io_files(hydro,io_hdf5,io_write).use ) then ! hydro binary file output
          call DetermineFirstTidefileInterval()
          call InitHydroTidefile
+C--special treatment to avoid averaging in the begining         
+         julmin = julmin - time_step
+         OK = AverageFlow()
+         julmin = julmin + time_step
+         
 	   OK = WriteHydroToTidefile()
       endif
 
@@ -344,6 +349,7 @@ c-----------just check input data for bogus values; no simulation
             endif
 
             if ( io_files(hydro,io_hdf5,io_write).use ) then
+               OK=AverageFlow()
                OK=WriteHydroToTidefile()
             endif
 

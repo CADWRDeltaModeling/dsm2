@@ -275,10 +275,7 @@ C--------Initialize
 *   Routines by module:
 
 ***** Channel flow status:
-      INTEGER  NumberofChannels
-      EXTERNAL NumberofChannels
 
-      logical ok,Compute_ChArea,AverageFlow
 
 *   Programmed by: Parviz Nader
 *   Date:          October 1994
@@ -299,13 +296,6 @@ C--------Initialize
          call InitHDF5File()        ! HDF5 - open space and create file
       endif
 
-      !Initialization of some values
-      OK = Compute_ChArea()
-      OK = AverageFlow()
-                                ! Why do we have EResv????
-      DO i=1,NReser
-         EResv(i)=YRes(i)
-      End Do
 
       InitHydroTidefile = .TRUE.
 
@@ -336,12 +326,10 @@ C--------Initialize
 *   Local Variables:
       INTEGER i
 
-      logical ok, Compute_ChArea, AverageFlow
+      logical ok, Compute_ChArea
 *   Routines by module:
 
 ***** Channel flow status:
-      INTEGER  NumberofChannels
-      EXTERNAL NumberofChannels
 
 *   Programmed by: Parviz Nader
 *   Date:          October 1994
@@ -357,7 +345,6 @@ C--------Initialize
       WriteHydroToTidefile = .FALSE.
 
       OK=Compute_ChArea()
-      OK=AverageFlow()
 
                                 ! Why do we have EResv????
       DO i=1,NReser
