@@ -26,7 +26,7 @@ c-----and for writing to the tidefile
 
 *== Public (ChannelVelocity) ===================================
 
-      REAL*8 FUNCTION ChannelVelocity(ChannNum,x)
+      REAL*8 FUNCTION ChannelVelocity(ChannNum,XX)
       use grid_data
       IMPLICIT NONE
 
@@ -34,12 +34,12 @@ c-----and for writing to the tidefile
 
 *   Arguments:
       INTEGER ChannNum
+      REAL*8  XX
 
 *   Argument definitions:
 *     ChannNum  - ChannelNumber
-*     Extremity - index indicating
-*                   [+1] upstream end of current channel.
-*                   [-1] downstream end of current channel.
+*     XX - distance in the channel
+
 
 *   Module data:
       INCLUDE 'network.inc'
@@ -48,42 +48,73 @@ c-----and for writing to the tidefile
 
 
 *   Local Variables:
-      REAL*8    y,x,xx,h,Area,Q
+      REAL*8  Area,ZZ,Q
       LOGICAL OK
+
+      integer
+     &      intchan             ! internal channel numbers
+     &     ,nodeup,nodedown     ! Hydro upstream and downstream 'node' number
+     &     ,StreamEndNode       ! function to return node numbers
 
 *   Routines by module:
 
-      INTEGER  NumberOfStreamLocations
-      REAL*8     BtmElev,CxArea
+      REAL*8     CxArea
       LOGICAL  OpenChannel,CloseChannel
       REAL*8     GlobalStreamSurfaceElevation,GlobalStreamFlow
-      INTEGER  StreamEndNode,nodeup,nodedown,closest_node
 
-      EXTERNAL NumberOfStreamLocations
-      EXTERNAL BtmElev,CxArea
+      EXTERNAL CxArea
       EXTERNAL OpenChannel,CloseChannel
-      EXTERNAL GlobalStreamSurfaceElevation,GlobalStreamFlow,StreamEndNode
+      
+      EXTERNAL GlobalStreamSurfaceElevation,GlobalStreamFlow
+      EXTERNAL StreamEndNode
+      
+      integer node1, node2    !up and down global comp. node
+      real*8
+     &     val_x               ! interpolated value statement function
+     &     ,val_up,val_down     ! value at upstream and downstream end of chan
+     &     ,reach_dist           ! distance in a reach (not channel)
+     &     ,reach_len            ! reach length
+
+c-----statement function to interpolate value along channel
+      val_x(val_up,val_down,reach_dist,reach_len)=val_up-(val_up
+     &     -val_down)*(reach_dist/reach_len)
+
 
 *   Programmed by: Parviz Nader
 *   Date:          March  1993
-*   Modified by:
-*   Last modified:
+*   Modified by: Lianwu Liu
+*   Last modified: October 2011
 
 *-----Implementation -----------------------------------------------------
 
       OK = OpenChannel(ChannNum)
-      nodedown=-StreamEndNode(-ChannNum)
-      nodeup=StreamEndNode(ChannNum)
-      closest_node=int(dble(nodeup)+x/dble(chan_geom(ChannNum).length)*
-     &     (dble(nodedown)-dble(nodeup))+0.5)
+               
+         intchan = ChannNum
+         nodedown=-StreamEndNode(-intchan)
+         nodeup=StreamEndNode(intchan)
 
-      xx=dble(closest_node-nodeup)/dble(nodedown-nodeup)*
-     &     dble(chan_geom(ChannNum).length)
+         node1=int(dfloat(nodeup)+ XX/
+     &        dfloat(chan_geom(intchan).length)*(dfloat(nodedown)-
+     &        dfloat(nodeup)))
+         if(node1.eq.nodedown) node1 = node1 - 1
+         node2 = node1 + 1
+         reach_len = dfloat(chan_geom(intchan).length)/(dfloat(nodedown)-
+     &        dfloat(nodeup))
+         reach_dist = XX - reach_len*(node1-nodeup)
+                    
+         ZZ=val_x(
+     &           globalStreamSurfaceElevation(node1),
+     &           globalStreamSurfaceElevation(node2),
+     &           reach_dist,
+     &           reach_len)
+         Q=val_x(
+     &           globalStreamFlow(node1),
+     &           globalStreamFlow(node2),
+     &           reach_dist,
+     &           reach_len)
 
-      y=globalStreamSurfaceElevation(closest_node)
-      h=y-BtmElev(xx)
-      Area=CxArea(xx,y)
-      Q=globalStreamFlow(closest_node)
+      Area=CxArea(XX,ZZ)
+
       ChannelVelocity=Q/Area
       OK = CloseChannel()
 
@@ -270,7 +301,6 @@ C--------Initialize
       include '../timevar/dss.inc'
 
 *   Local Variables:
-      INTEGER i
 
 *   Routines by module:
 
@@ -404,13 +434,14 @@ C--------Save only the values which have changed
       EXTERNAL NetworkQuadPts, NetworkQuadPtWt
       
       real*8 delx,aavg
-      real*8 Area1, Area2, X1, X2, Z1, Z2, Wt1, Wt2, N1,N2
+      real*8 Area1, X1, X2, Z1, Z2, Wt1, N1,N2
       INTEGER QuadPts
       real*8 QuadWt, QuadPt
 
 *   Programmed by: Parviz Nader
 *   Date:          December 97
-*   Modified 9/23/2011 L. Liu to use general quadpts, and frustum formula 
+*   Modified:      Lianwu Liu
+*   Date:          October 2011 to use general quadpts 
 
 *-----Implementation -------------------------------------------------
 
@@ -428,30 +459,8 @@ C--------Save only the values which have changed
          AChan(1,Branch)=CxArea(Dble(0.),Dble(ZChan(1,Branch)))
          AChan(2,Branch)=CxArea(dble(chan_geom(Branch).length),Dble(ZChan(2,Branch)))
          delx=dble(chan_geom(Branch).length)/dble(Down-Up)
+         
          DO j=Up, Down-1
-c            xx=(dble(j-Up)+0.5)*delx
-
-           ! old version of this routine (never used, but may be better)
-c-----------zavg=(ws(j)+ws(j+1))/2.
-c-----------zz=zavg-BtmElev(xx)
-c-----------AChan_Avg(Branch)=AChan_Avg(Branch)+CxArea(xx,zz)
-c            zz=(H(j)+H(j+1))/2.
-c            aavg=aavg+CxArea(xx,zz)
-C----it is bad (using average depth),change to average area, Lianwu Liu 8/15/2011
-!            xx=(dble(j-Up))*delx
-!            zz=ws(j)
-!            aavg=aavg+0.5*CxArea(xx,zz)
-!            xx=(dble(j-Up)+1.D0)*delx
-!            zz=ws(j+1)
-!            aavg=aavg+0.5*CxArea(xx,zz)
-C----use frustum formula            
-!            xx=(dble(j-Up))*delx
-!            zz=ws(j)
-!            area1=CxArea(xx,zz)
-!            xx=(dble(j-Up)+1.D0)*delx
-!            zz=ws(j+1)
-!            area2=CxArea(xx,zz)
-!            aavg=aavg+(area1+area2+sqrt(area1*area2))/3.0
 
 C----generalize with QuadPts            
             X1 = (dble(j-Up))*delx
@@ -477,31 +486,11 @@ C----generalize with QuadPts
 *--------Dependent variables.
                ZZ = N1 * Z1 + N2 * Z2
 
-*--------do not use Frustum Formula                   
+*--------not use Frustum Formula                   
                Area1 = CxArea( XX, ZZ )
                Wt1 = QuadWt               
                aavg = aavg + Area1 * Wt1
                
-*--------if use Frustum formula
-!               if (I.eq.1) then
-!                  Area1 = CxArea( XX, ZZ )
-!                  Wt1 = QuadWt
-!                  
-!                  if(QuadPts.eq.1) then
-!                  aavg = aavg + Area1
-!                  endif
-!                  
-!               else if (I.eq.QuadPts) then
-!                  Area2 = CxArea( XX, ZZ )
-!                  Wt2 = QuadWt
-!                  aavg=aavg+(Area1+Area2+ sqrt(Area1*Area2))/3.0 * (Wt1+Wt2)
-!               else
-!                  Area2 = CxArea( XX, ZZ )
-!                  Wt2 = QuadWt/2.D0
-!                  aavg=aavg+(Area1+Area2+ sqrt(Area1*Area2))/3.0 * (Wt1+Wt2)
-!                  Wt1 = Wt2
-!                  Area1 = Area2
-!               endif
  200        CONTINUE               
          ENDDO
          AChan_Avg(Branch)=(aavg/dble(Down-Up))

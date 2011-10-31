@@ -46,7 +46,6 @@ c-----local variables
      &     ,hydrores            ! Hydro reservoir number
      &     ,StreamEndNode       ! function to return node numbers
      &     ,ngpoints
-     &     ,closest_node
      &     ,i                   ! loop index
 
       REAL*8
@@ -56,10 +55,18 @@ c-----local variables
 
       REAL*8 reservoir_source_sink
       external reservoir_source_sink
-
+      
+      integer node1, node2    !up and down global comp. node
+      real*8
+     &     val_x               ! interpolated value statement function
+     &     ,val_up,val_down     ! value at upstream and downstream end of chan
+     &     ,reach_dist           ! distance in a reach (not channel)
+     &     ,reach_len            ! reach length
+     &     ,Q_interp            !interpolated discharge
+     &     ,Z_interp            !interpolated stage
 c-----statement function to interpolate value along channel
-c      val_x(val_up,val_down,chan_dist,chan_len)=val_up-(val_up
-c     &     -val_down)*(chan_dist/chan_len)
+      val_x(val_up,val_down,reach_dist,reach_len)=val_up-(val_up
+     &     -val_down)*(reach_dist/reach_len)
 
       if (pathoutput(ptr).obj_type .eq. obj_channel) then ! output is from channel
 
@@ -73,10 +80,19 @@ c     &     -val_down)*(chan_dist/chan_len)
      &             ' Number of grid points=',i6)
             call exit(2)
          endif
-         closest_node=int(dfloat(nodeup)+dfloat(pathoutput(ptr).chan_dist)/
+!         closest_node=int(dfloat(nodeup)+dfloat(pathoutput(ptr).chan_dist)/
+!     &        dfloat(chan_geom(intchan).length)*(dfloat(nodedown)-
+!     &        dfloat(nodeup))+0.5)
+         node1=int(dfloat(nodeup)+dfloat(pathoutput(ptr).chan_dist)/
      &        dfloat(chan_geom(intchan).length)*(dfloat(nodedown)-
-     &        dfloat(nodeup))+0.5)
-         if (closest_node.lt.nodeup .or. closest_node.gt.nodedown) then
+     &        dfloat(nodeup)))
+         if(node1.eq.nodedown) node1 = node1 - 1
+         node2 = node1 + 1
+         reach_len = dfloat(chan_geom(intchan).length)/(dfloat(nodedown)-
+     &        dfloat(nodeup))
+         reach_dist = dfloat(pathoutput(ptr).chan_dist)-reach_len*(node1-nodeup)
+         
+         if (node1.lt.nodeup .or. node2.gt.nodedown) then
             write(unit_error,902)chan_geom(intchan).chan_no,
      &           pathoutput(ptr).chan_dist,
      &           chan_geom(intchan).length
@@ -86,11 +102,19 @@ c     &     -val_down)*(chan_dist/chan_len)
             call exit(2)
          endif
          if (pathoutput(ptr).meas_type .eq. 'stage') then
-            get_output=globalStreamSurfaceElevation(closest_node)
+            get_output=val_x(
+     &           globalStreamSurfaceElevation(node1),
+     &           globalStreamSurfaceElevation(node2),
+     &           reach_dist,
+     &           reach_len)
          else if (pathoutput(ptr).meas_type(1:3) .eq. 'vel') then
             get_output=ChannelVelocity(intchan,dfloat(pathoutput(ptr).chan_dist))
          else if (pathoutput(ptr).meas_type .eq. 'flow') then
-            get_output=globalStreamFlow(closest_node)
+            get_output=val_x(
+     &           globalStreamFlow(node1),
+     &           globalStreamFlow(node2),
+     &           reach_dist,
+     &           reach_len)
          endif
       !else if (pathoutput(ptr).obj_type .eq. obj_qext) then 
       !   get_output=qext(pathoutput(ptr).obj_no)
