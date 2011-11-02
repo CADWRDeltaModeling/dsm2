@@ -92,7 +92,8 @@ c-----statement function to interpolate value along channel
      &        dfloat(nodeup))
          reach_dist = dfloat(pathoutput(ptr).chan_dist)-reach_len*(node1-nodeup)
          
-         if (node1.lt.nodeup .or. node2.gt.nodedown) then
+         if (node1.lt.nodeup .or. node2.gt.nodedown .or. 
+     &       pathoutput(ptr).chan_dist .gt. chan_geom(intchan).length ) then
             write(unit_error,902)chan_geom(intchan).chan_no,
      &           pathoutput(ptr).chan_dist,
      &           chan_geom(intchan).length
