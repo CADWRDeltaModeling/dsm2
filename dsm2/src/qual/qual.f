@@ -124,6 +124,7 @@ C-----+ + + LOCAL VARIABLES + + +C
      &     NN,KK
       integer res_num_clfct
       logical echo_only, file_exists
+      integer NotMixed,NotMixed_prev
       
       
       real*8    HR,SVOL,tTIME,VJ,VOL
@@ -478,6 +479,7 @@ C--------Initialize reservoir stuff
 C--------update junction concentrations and codes
 C--------compute inflow flux at known junction        
          AllJunctionsMixed=.false.
+         NotMixed_prev = -1
          do while (.not. AllJunctionsMixed)  
             DO 640 JN=1,NNODES     
                if (node_geom(JN).boundary_type .NE. stage_boundary) then
@@ -634,18 +636,36 @@ c                        ENDDO
  640     ENDDO !  DO 640 JN=1,NNODES
             
          AllJunctionsMixed=.true.
+         NotMixed=0
          DO JN=1,NNODES
            if (node_geom(JN).boundary_type .ne. stage_boundary) then
                IF(JCD(JN) .NE. MIXED) THEN
 C--------------------This JUNCTION NOT MIXED YET. Have to go back
                   AllJunctionsMixed=.false.
+                  NotMixed = NotMixed + 1
                   DO CONS_NO=1,NEQ
                     CJ(CONS_NO,JN)=0.0
                   ENDDO
                ENDIF
             endif
          ENDDO
-         
+
+         if( NotMixed .eq. NotMixed_prev) then
+             write(unit_error,*)'Error...'
+             DO JN=1,NNODES
+                IF(JCD(JN) .NE. MIXED) THEN
+                   write(unit_error,*)'Node',node_geom(JN).node_id,'is not mixed'
+                endif
+             ENDDO
+             write(unit_error,910) NotMixed
+ 910         format(I5,' nodes cannot be mixed;',/
+     &              'This may happen as a result of unrealistic flows',/
+     &              'in three connected channels forming a triangular loop!' )
+             call exit(13)
+         endif
+        
+         NotMixed_prev = NotMixed
+                  
          ENDDO ! do while (.not.AllJunctionsMixed)
   
 
