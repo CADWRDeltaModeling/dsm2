@@ -40,11 +40,22 @@ public:
   void writeInserting(const Particle& particle);
   void writeExiting(const Particle& particle);
   void writeParticles(const std::vector<Particle*>& particles);
-  static hid_t getH5FileHandle() { return fileId_; }
+  static hid_t getH5FileHandle()
+  {
+    return fileId_;
+  }
 
 private:
-  template<typename T>
-  void writeData(std::string& name, hid_t hid, const int rank, const hsize_t* dims,const T* data);
+  void writeIntData(const std::string& name,
+                    hid_t hid,
+                    const int rank,
+                    const hsize_t* dims,
+                    const int* data);
+  void writeFloatData(const std::string& name,
+                      hid_t hid,
+                      const int rank,
+                      const hsize_t* dims,
+                      const float* data);
 };
 
 }
