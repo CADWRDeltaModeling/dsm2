@@ -227,7 +227,7 @@ void PTM2PostprocessorInput::processFluxOutput(const std::string& wb,
     else {
       PTM2Group* groupPtr = postprocessorParameters_.findGroup(objName);
       if (groupPtr == NULL) {
-        std::runtime_error(
+        throw std::runtime_error(
             "PTM2PostprocessorInput::processFluxOutput: Cannot find the given group name.");
       }
       for (int i = 0; i < groupPtr->nWaterbodies(); ++i) {
@@ -242,7 +242,7 @@ void PTM2PostprocessorInput::processFluxOutput(const std::string& wb,
       waterbodyTypes.push_back(Waterbody::CHANNEL);
       const Channel* chanPtr = grid_.findChannelByName(objName);
       if (chanPtr == NULL) {
-        std::runtime_error(
+        throw std::runtime_error(
             "PTM2PostprocessorInput::processFluxOutput: Cannot find the given channel name.");
       }
       const int chanId = chanPtr->getId();
@@ -252,7 +252,7 @@ void PTM2PostprocessorInput::processFluxOutput(const std::string& wb,
       waterbodyTypes.push_back(Waterbody::RESERVOIR);
       const Reservoir* resPtr = grid_.findReservoirByName(objName);
       if (resPtr == NULL) {
-        std::runtime_error(
+        throw std::runtime_error(
             "PTM2PostprocessorInput::processFluxOutput: Cannot find the given reservoir name.");
       }
       const int resId = resPtr->getId();
@@ -262,7 +262,7 @@ void PTM2PostprocessorInput::processFluxOutput(const std::string& wb,
       waterbodyTypes.push_back(Waterbody::SOURCEFLOW);
       const SourceFlow* wbPtr = grid_.findSourceFlowByName(objName);
       if (wbPtr == NULL) {
-        std::runtime_error(
+        throw std::runtime_error(
             "PTM2PostprocessorInput::processFluxOutput: Cannot find the given qext name.");
       }
       const int id = wbPtr->getId();
@@ -272,7 +272,7 @@ void PTM2PostprocessorInput::processFluxOutput(const std::string& wb,
       waterbodyTypes.push_back(Waterbody::STAGE);
       const Stage* wbPtr = grid_.findStageByName(objName);
       if (wbPtr == NULL) {
-        std::runtime_error(
+        throw std::runtime_error(
             "PTM2PostprocessorInput::processFluxOutput: Cannot find the given stgaes name.");
       }
       const int id = wbPtr->getId();
