@@ -31,6 +31,29 @@ void DSM2PTM2Input::readInputFile(const std::string& fname)
   registerGrid();
 }
 
+void DSM2PTM2Input::registerScalars()
+{
+  DSM2Input::registerScalars();
+
+  scalar_table& a_scalar_table = scalar_table::instance();
+  const unsigned int n_items = a_scalar_table.buffer().size();
+  for (unsigned int i = 0; i < n_items; ++i) {
+    const scalar& a_scalar = a_scalar_table.buffer()[i];
+    std::string name(a_scalar.name);
+    boost::to_lower(name);
+    std::string value(a_scalar.value);
+    boost::to_lower(value);
+    if (name.compare("hdf5_pos_output") == 0) {
+      const int pos_output = boost::lexical_cast<int>(value);
+      ptm2Parameters_.setH5positionOutputs(pos_output);
+    }
+    else if (name.compare("ptm_trans_constant") == 0) {
+      const Real val = boost::lexical_cast<Real>(value);
+      ptm2Parameters_.setTransverseDispersionCoeff(val);
+    }
+  }
+}
+
 void DSM2PTM2Input::registerInsertions()
 {
   // Process particle insertion output

@@ -11,19 +11,23 @@
 namespace PTM2
 {
 
-class DSM2PTM2Input : public DSM2Input
+class DSM2PTM2Input: public DSM2Input
 {
   // Properties
 public:
   Model& model_;
+  PTM2Parameters& ptm2Parameters_;
 
   // Methods
 public:
-  DSM2PTM2Input(Model& model)
-    : DSM2Input(model.getGrid(), model.getParameters()), model_(model) {}
+  DSM2PTM2Input(Model& model) :
+      DSM2Input(model.getGrid(), model.getParameters()), model_(model), ptm2Parameters_(model.getParameters())
+  {
+  }
   void readInputFile(const std::string& fname);
 
 private:
+  void registerScalars();
   void registerInsertions();
   void registerTidefiles();
 };
