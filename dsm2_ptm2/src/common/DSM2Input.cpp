@@ -19,6 +19,12 @@
 namespace PTM2
 {
 
+DSM2Input::~DSM2Input()
+{
+  vector<envvar> &envvars = HDFTableManager < envvar > ::instance().buffer();
+  envvars.clear();
+}
+
 bool DSM2Input::prepareReading(const std::string& fname)
 {
   if (!checkIfFileExist(fname)) {

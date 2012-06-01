@@ -27,6 +27,8 @@ public:
    */
   DSM2Input(Grid& grid, Parameters& parameters)
     : grid_(grid), parameters_(parameters) {}
+  ~DSM2Input();
+
 //
 protected:
   bool prepareReading(const std::string& fname);
