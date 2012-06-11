@@ -229,20 +229,22 @@ c--------if so, zero out the injected particles
          part_injection(m).length_julmin=
      &        part_injection(m).end_julmin-part_injection(m).start_julmin
 c--------convert injection nodes to internal and check if injection node exists
-         part_injection(m).node = ext2intnode(part_injection(m).node)
          nodeexist = .false.
-	   do nodeindex=1,nchans
+c----  do nodeindex=1,nchans
 		!  fixme: could just use node_geom
-	      if ((part_injection(m).node .eq. chan_geom(nodeindex).upnode) .or.
-     &           (part_injection(m).node .eq. chan_geom(nodeindex).downnode)) then
+c----     if ((part_injection(m).node .eq. chan_geom(nodeindex).upnode) .or.
+c----&           (part_injection(m).node .eq. chan_geom(nodeindex).downnode)) then
+	     do nodeindex=1,nnodes
+            if (part_injection(m).node .eq. node_geom(nodeindex).node_id) then
                nodeexist = .true.
                exit
-	       end if
-	   end do
+	        end if
+	     end do
          if (.not. nodeexist) then
             write (unit_error, 643) node_geom(part_injection(m).node).node_id
             goto 900
          endif
+         part_injection(m).node = ext2intnode(part_injection(m).node)
       enddo
 
 c-----check that quality tide file includes full runtime
