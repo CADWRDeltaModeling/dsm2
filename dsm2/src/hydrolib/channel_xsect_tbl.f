@@ -88,9 +88,166 @@ C!</license>
 
       RETURN
       END
+      
+      REAL*8 FUNCTION BtmElevAtLocationNumber(LocationNumber)
+      use common_xsect
+      IMPLICIT NONE
+
+*   Arguments:
+      INTEGER    LocationNumber
+
+*   Module data:
+      INCLUDE 'network.inc'
+      INCLUDE 'chcxtbl.inc'
+
+      BtmElevAtLocationNumber = virt_min_elev(minelev_index(Branch)+LocationNumber-1)
+
+      RETURN
+      END
+*======= CUBIC ROOT FAST CALCULATIONS
+        DOUBLE PRECISION FUNCTION CBRTC(X)
+        DOUBLE PRECISION X
+        INTERFACE
+        DOUBLE PRECISION FUNCTION CBRT(Y)
+        DOUBLE PRECISION Y
+        !DEC$ ATTRIBUTES C, ALIAS:'_cbrt' :: CBRT
+        END FUNCTION CBRT
+        END INTERFACE
+        CBRTC = CBRT(%VAL(X))
+        END
+*======================================================================
+*     Calculate width, area, wetted perimeter etc in one call
+*======================================================================
+      subroutine calculateChannelGeometryAspects(X,Z,ChannelWidth, CxArea, Conv, dConveyance)
+      use IO_Units
+      use common_xsect
+      implicit none
+*   Arguments:
+      REAL*8    X,Z,ChannelWidth, CxArea, WetPerimeter, Conv, dConveyance
+*   Argument definitions:
+*     X      - downstream distance in current channel.
+*     Z      - changed to Elevation based!
+*   Module data:
+      INCLUDE 'network.inc'
+      INCLUDE 'chcxtbl.inc'
+      INCLUDE 'chnlcomp.inc'
+
+*   Functions:
+      LOGICAL  CxShapeFunction
+      EXTERNAL CxShapeFunction
+      REAL*8   Conveyance
+      EXTERNAL Conveyance
+c-----local variables
+      REAL*8 
+     &     x1                   ! interpolation variables
+     &     ,x2
+     &     ,y1
+     &     ,y2
+     &     ,interp              ! interpolation function
+      integer
+     &     vsecno               ! number of virtual section (within channel)
+     &     ,virtelev            ! number of virtual elevation (within channel)
+     &     ,veindex             ! index of virtual elevation array
+     &     ,dindex              ! function to calculate xsect prop. array index
+     &     ,di                  ! stores value of dindex
+      REAL*8 
+     &     a1                   ! area of lower layer
+     &     ,b1                  ! width of lower layer (base of trapezoid)
+     &     ,b2                  ! interpolated width (trapezoid top width)
+     &     ,CBRTCAREAWP
+     
+      REAL*8 effectiven,dwetperimeter,deffectiven
+      REAL*8 CBRTC,POW2O3C,AOWP
+*   Local Variables:
+      REAL*8 R53,R23
+      PARAMETER (R53 = 5.0/3.0, R23 = 2.0/3.0)
+      REAL*8 Small
+      PARAMETER (Small = 1.00E-6)
+      REAL*8 slope,dx,dwp
+c-----statement function to interpolate wrt two points
+      !interp(x1,x2,y1,y2,Z) =-((y2-y1)/(x2-x1))*(x2-Z) + y2 
+      call find_layer_index(
+     &     X
+     &     ,Z
+     &     ,Branch
+     &     ,vsecno
+     &     ,virtelev
+     &     ,veindex
+     &     )
 
 
+      di=chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
+      x1=virt_elevation(veindex)
+      x2=virt_elevation(veindex+1)
+      dx=x2-x1
+      if ( abs(dx) .le. Small) then
+         write(unit_error,*) 'Channel width, wet perimeter, dwetperimeter division by zero'
+      endif
+      
+      slope=(Z-x2)/dx
+      y1=virt_width(di)
+      y2=virt_width(di+1)
+      ChannelWidth = (y2-y1)*slope+y2 !interp(x1,x2,y1,y2,Z)
+      
+      a1=virt_area(di)
+      b1=virt_width(di)
+      b2=ChannelWidth
+      CxArea = a1+(0.5*(b1+b2))*(Z-x1)
+      AreaChannelComp(Branch,vsecno)=CxArea
 
+      EffectiveN = OneOverManning(Branch)
+
+      y1=virt_wet_p(di)
+      y2=virt_wet_p(di+1)
+      dwp=y2-y1
+      WetPerimeter = dwp*slope+y2
+
+
+      IF (WetPerimeter .GT. Small) THEN
+            AOWP=CxArea/WetPerimeter
+            CBRTCAREAWP = CBRTC(AOWP*AOWP)
+            Conv = 1.486*CxArea * EffectiveN * CBRTCAREAWP
+            dWetPerimeter = dwp/dx
+          dEffectiveN = 0.
+          dConveyance = 1.486 * (
+     &        R53 * ChannelWidth * EffectiveN
+     &        * CBRTCAREAWP
+     &
+     &        - R23 * dWetPerimeter * EffectiveN
+     &        * AOWP*CBRTCAREAWP
+     &
+     &        + dEffectiveN * CxArea * CBRTCAREAWP
+     &        )
+
+
+      ELSE
+         Conv=0.0
+         dConveyance = 0.0
+      ENDIF
+
+      IF( dConveyance .LT. 0.0 ) THEN
+!         IF( H .GT. 0.5 ) THEN
+!            dConveyance = Conveyance(X,H+.5) - Conveyance(X,H-.5)
+!         ELSE
+            dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)!-- couldn't fix it right away Nicky Sandhu -> FIXME: 
+!         END IF
+         IF( dConveyance .LT. 0.0 ) THEN
+            WRITE(unit_error,610) chan_geom(Branch).chan_no,X,Z,
+     &           ChannelWidth,CxArea,Conv,
+     &           EffectiveN,dEffectiveN,
+     &           WetPerimeter, dWetPerimeter
+ 610        format(/'Warning in dConveyance; negative gradient with depth,'
+     &           /' consider reworking adjacent cross section(s).'
+     &           /' Channel...',i3
+     &           /' X, Z...',2f10.2,1p
+     &           /' Width, Area, Conveyance...',3g10.3,
+     &           /' one over effective n, 1/(dn/dZ)...',2g10.3
+     &           /' P, dP/dZ...',2g10.3)
+c            call exit(2)
+         END IF
+      END IF
+     
+      END
 *=======================================================================
 *   Public: ChannelWidth
 *=======================================================================
@@ -177,6 +334,7 @@ c-----statement function to interpolate wrt two points
 *=======================================================================
 
       REAL*8 FUNCTION CxArea(X, Z)
+      use io_units
       use common_xsect
       IMPLICIT NONE
 
@@ -195,12 +353,10 @@ c-----statement function to interpolate wrt two points
 *   Module data:
       INCLUDE 'network.inc'
       INCLUDE 'chcxtbl.inc'
-
 *   Routines by module:
 
 ***** Local:
       REAL*8   ChannelWidth
-      EXTERNAL ChannelWidth
       REAL*8 
      &     x1                   ! interpolation variables
      &     ,x2
@@ -216,6 +372,9 @@ c-----statement function to interpolate wrt two points
      &     ,b1                  ! width of lower layer (base of trapezoid)
      &     ,b2                  ! interpolated width (trapezoid top width)
 
+      REAL*8 Small
+      PARAMETER (Small = 1.00E-6)
+      REAL*8 slope,dx,dwp,y1,y2
 *   Intrinsics:
 
 *   Programmed by: Lew DeLong
@@ -227,11 +386,7 @@ c-----statement function to interpolate wrt two points
 *-----Implementation -----------------------------------------------------
 
 c-----statement function to calculate indices of virtual data arrays
-      dindex(Branch,vsecno,virtelev)
-     &     =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
-
-
-      call find_layer_index(
+       call find_layer_index(
      &     X
      &     ,Z
      &     ,Branch
@@ -240,14 +395,24 @@ c-----statement function to calculate indices of virtual data arrays
      &     ,veindex
      &     )
 
-         di=dindex(branch,vsecno,virtelev)
-         x1=virt_elevation(veindex)
-         x2=Z
-         a1=virt_area(di)
-         b1=virt_width(di)
-         b2=ChannelWidth(X,Z)
-         CxArea = a1+(0.5*(b1+b2))*(x2-x1)
 
+      di=chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
+      x1=virt_elevation(veindex)
+      x2=virt_elevation(veindex+1)
+      dx=x2-x1
+      if ( abs(dx) .le. Small) then
+         write(unit_error,*) 'Channel width, wet perimeter, dwetperimeter division by zero'
+      endif
+      
+      slope=(Z-x2)/dx
+      y1=virt_width(di)
+      y2=virt_width(di+1)
+      ChannelWidth = (y2-y1)*slope+y2 !interp(x1,x2,y1,y2,Z)
+      
+      a1=virt_area(di)
+      b1=virt_width(di)
+      b2=ChannelWidth
+      CxArea = a1+(0.5*(b1+b2))*(Z-x1)
 
       RETURN
       END

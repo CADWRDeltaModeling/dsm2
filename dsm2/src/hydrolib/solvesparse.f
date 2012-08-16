@@ -340,8 +340,9 @@ c-----INTEGER N
       INTEGER NetworkIteration,NetworkTimeStep,MaxNetworkIterations
       EXTERNAL NetworkIteration,NetworkTimeStep,MaxNetworkIterations
 
-      INTEGER sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector
-      EXTERNAL sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector
+      INTEGER sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector,sfPrint
+      EXTERNAL sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector, sfPrint
+      
 
 *   Argument definitions:
 *     Location  - a pointer to the desired location in the
@@ -354,7 +355,7 @@ c-----INTEGER N
 *-----Implementation -----------------------------------------------------
 
       SolveFourPt = .FALSE.
-
+      
 *-----Create RHS vector of proper size and precision
       If ( FirstTime .OR. (Mod(IterSinceOrder,2000) .le. 1)) then
          Scaled = .True.
@@ -392,7 +393,7 @@ c@@@       do i=1,Equations
 c@@@    write(59,"(i5,': ',f18.5,',',f18.5,',',f18.5)")i,xadj(i),xold(i),xx(i)
 c@@@  end do
 
-c@@@       call sfFileMatrix( Matrix, 0, 1, 1 )
+c@@@      call sfFileMatrix( Matrix, 0, 1, 1 )
 c@@@   	  Pause
 c@@@     end if
       

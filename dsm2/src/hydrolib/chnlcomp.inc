@@ -30,13 +30,15 @@ C!</license>
       REAL*8    CompLocation(MaxLocations)
       REAL*8    DummyArray(MaxLocations), DummyArray2(MaxLocations)
       CHARACTER*16 DummyCharArray(MaxLocations)
+      REAL*8  AreaChannelComp(MaxChannels, 30) ! Assume max of 10 compute points in any channel
       COMMON /ChCompLocations_i/
      &     TotalCompLocations,
      &     NumberOfCompLocations,
      &     UpCompPointer, DownCompPointer
       COMMON /ChCompLocations_r/
      &     CompLocation,
-     &     DummyArray, DummyArray2
+     &     DummyArray, DummyArray2,
+     &     AreaChannelComp
       COMMON / DummyChar / DummyCharArray
       SAVE / ChCompLocations_i /, / ChCompLocations_r /, / DummyChar / 
 

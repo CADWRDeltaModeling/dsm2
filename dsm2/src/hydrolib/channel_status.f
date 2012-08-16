@@ -691,18 +691,18 @@ c          No interpolation is necessary, since the computational points are mat
 *-----Implementation -----------------------------------------------------
 
       J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+c      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
          StreamFlow = Q( J )
 
-      ELSE
+c      ELSE
 
-         WRITE(UNIT_ERROR,*) ' Range error...(StreamFlow)'
-         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
+c         WRITE(UNIT_ERROR,*) ' Range error...(StreamFlow)'
+c         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+c         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+c         CALL EXIT(1)
 
-      END IF
+c      END IF
 
       RETURN
       END
@@ -788,17 +788,17 @@ c          No interpolation is necessary, since the computational points are mat
 *-----Implementation -----------------------------------------------------
 
       J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+c     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
          Q(J) = Value
          SetStreamFlow = .TRUE.
 
-      ELSE
+c    ELSE
 
-         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamFlow)'
-         SetStreamFlow = .False.
+c         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamFlow)'
+c         SetStreamFlow = .False.
 
-      END IF
+c      END IF
 
       RETURN
       END
@@ -845,17 +845,17 @@ c          No interpolation is necessary, since the computational points are mat
 *-----Implementation -----------------------------------------------------
 
       J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+!     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
          StreamDepth = H( J )
 
-      ELSE
+!      ELSE
 
-         WRITE(UNIT_ERROR,*) ' Range error...(StreamDepth)'
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
+!        WRITE(UNIT_ERROR,*) ' Range error...(StreamDepth)'
+!         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+!         CALL EXIT(1)
 
-      END IF
+!      END IF
 
       RETURN
       END
@@ -943,16 +943,16 @@ c          No interpolation is necessary, since the computational points are mat
 *-----Implementation -----------------------------------------------------
 
       J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+!      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
          H( J ) = Value
 
          SetStreamDepth = .TRUE.
 
-      ELSE
-         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamDepth)'
-         SetStreamDepth = .FALSE.
-      END IF
+!      ELSE
+!         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamDepth)'
+!         SetStreamDepth = .FALSE.
+!      END IF
 
       RETURN
       END
@@ -1000,15 +1000,15 @@ c          No interpolation is necessary, since the computational points are mat
 
       J = UpstreamPointer() + LocationNumber - 1
 
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+ !     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
          StreamSurfaceElevation = WS( J )
 
-      ELSE
-         WRITE(UNIT_ERROR,*) ' Range error...(StreamSurfaceElevation)'
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
-      END IF
+ !     ELSE
+ !        WRITE(UNIT_ERROR,*) ' Range error...(StreamSurfaceElevation)'
+ !        WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+ !        CALL EXIT(1)
+ !     END IF
 
       RETURN
       END
@@ -1081,8 +1081,8 @@ c          No interpolation is necessary, since the computational points are mat
 *   Routines by module:
 
 ***** Channel properties:
-      real*8     BtmElev
-      EXTERNAL BtmElev
+      real*8     BtmElev, BtmElevAtLocationNumber
+      EXTERNAL BtmElev, BtmElevAtLocationNumber
 
 ***** Channel schematic:
       INTEGER  UpstreamPointer
@@ -1103,17 +1103,17 @@ c          No interpolation is necessary, since the computational points are mat
 *-----Implementation -----------------------------------------------------
 
       J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+!      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
          WS( J ) = Value
-         H( J ) = Value - BtmElev( StreamDistance( LocationNumber ) )
+         H( J ) = Value - BtmElevAtLocationNumber(LocationNumber)
 
          SetStreamSurfaceElevation = .TRUE.
 
-      ELSE
-         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamSurfaceElevation)'
-         SetStreamSurfaceElevation = .FALSE.
-      END IF
+!      ELSE
+!         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamSurfaceElevation)'
+!         SetStreamSurfaceElevation = .FALSE.
+!      END IF
 
       RETURN
       END
@@ -1598,18 +1598,18 @@ c-----------&           OK = ApproxReadInitialConditions()               WHY????
 *-----Implementation -----------------------------------------------------
 
       J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+!     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
          Rho2( J ) = Value
 
-      ELSE
+!     ELSE
 
-         WRITE(UNIT_ERROR,*) ' Range error...(SetNewStreamDensity)'
-         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
+!        WRITE(UNIT_ERROR,*) ' Range error...(SetNewStreamDensity)'
+!        WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+!        WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+!        CALL EXIT(1)
 
-      END IF
+!      END IF
 
       SetNewStreamDensity = .TRUE.
 

@@ -282,7 +282,7 @@ C--special treatment to avoid averaging in the begining
          OK = AverageFlow()
          julmin = julmin + time_step
          
-	   OK = WriteHydroToTidefile()
+	   OK = WriteHydroToTidefile(.TRUE.)
       endif
 
  605  format('Starting DSM2-Hydro at time: ',a)
@@ -350,7 +350,7 @@ c-----------just check input data for bogus values; no simulation
 
             if ( io_files(hydro,io_hdf5,io_write).use ) then
                OK=AverageFlow()
-               OK=WriteHydroToTidefile()
+               OK=WriteHydroToTidefile(.FALSE.)
             endif
 
             if (io_files(hydro,io_restart,io_write).use) then

@@ -64,6 +64,7 @@ C!</license>
       real*8 N(Nodes), DNDX(Nodes)
       real*8 QuadWt, QuadPt
       real*8 X1, X2, Q1, Q2, Z1, Z2, H1, H2
+      real*8 Conv1, Conv2, DConvDZ1, DConvDZ2
       real*8 Width1, Width2, Area1, Area2
       real*8 Velocity1, Velocity2
       real*8 BetaVelocity1, BetaVelocity2
@@ -145,20 +146,22 @@ C!</license>
       H2 = StreamDepth(Down)
 
 *-----Current channel properties.
-
+ 
 *          upstream face
       X1 = StreamDistance(Up)
-      Width1 = ChannelWidth(X1,Z1)
-      Area1 = CxArea(X1,Z1)
+      call calculateChannelGeometryAspects(X1,Z1, Width1, Area1, Conv1, DConvDZ1)
+c     Width1 = ChannelWidth(X1,Z1)
+c     Area1 = CxArea(X1,Z1)
       Velocity1 = Q1 / Area1
-      BetaVelocity1 = Beta(X1,Z1) * Velocity1
-
+      BetaVelocity1 = 1.0 * Velocity1
+      
 *          downstream face
       X2 = StreamDistance(Down)
-      Width2 = ChannelWidth(X2,Z2)
-      Area2 = CxArea(X2,Z2)
+      call calculateChannelGeometryAspects(X2,Z2, Width2, Area2, Conv2, DConvDZ2)
+c        Width2 = ChannelWidth(X2,Z2)
+c        Area2 = CxArea(X2,Z2)
       Velocity2 = Q2 / Area2
-      BetaVelocity2 = Beta(X2,Z2) * Velocity2
+      BetaVelocity2 = 1.0 * Velocity2
 
 *-----Time increment and weighting.
       DT = DFLOAT( NetworkTimeIncrement() )
@@ -248,15 +251,29 @@ C!</license>
          H = N(1) * H1 + N(2) * H2
          Z = N(1) * Z1 + N(2) * Z2
 
+*-------if Xdist is X1 then use Width1,Area1,Conv1 and DConvZ1
+        if ( abs(Xdist-X1) < 1e-06) then
+            Width=Width1
+            Area=Area1
+            Conv=Conv1
+            DConvDZ=DConvDZ1
+        else if ( abs(Xdist-X2) < 1e-06) then
+            Width=Width2
+            Area=Area2
+            Conv=Conv2
+            DConvDZ=DConvDZ2
+        else
+              call calculateChannelGeometryAspects(Xdist,Z, Width, Area, Conv, DConvDZ)
+        endif
+        ConvSq = Conv*Conv
 *--------Channel variables.
-         Width = ChannelWidth( Xdist, Z )
-         Area = CxArea( Xdist, Z )
+c         Width = ChannelWidth( Xdist, Z )
+c         Area = CxArea( Xdist, Z )
 
 *--------Friction-slope terms.
-         Conv = Conveyance(Xdist,Z)
-         ConvSq = Conv * Conv
-         DConvDZ = dConveyance(Xdist,Z)
-
+c         Conv = Conveyance(Xdist,Z)
+c         ConvSq = Conv * Conv
+c         DConvDZ = dConveyance(Xdist,Z)
          AbsQxQbyConvSq =    ABS(Q) / ConvSq
          AbsQxAreaByConvSq = AbsQxQbyConvSq * Area
          AbsQxQbyConvSq =    AbsQxQbyConvSq * Q

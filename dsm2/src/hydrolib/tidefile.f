@@ -334,7 +334,7 @@ C--------Initialize
 
 *== Public (WriteHydroFile) ===================================
 
-      LOGICAL FUNCTION WriteHydroToTidefile()
+      LOGICAL FUNCTION WriteHydroToTidefile(InitialCall)
 
       use HDFVARS
       use io_units, only : unit_hydro
@@ -357,6 +357,7 @@ C--------Initialize
       INTEGER i
 
       logical ok, Compute_ChArea
+      logical InitialCall
 *   Routines by module:
 
 ***** Channel flow status:
@@ -374,7 +375,7 @@ C--------Initialize
 
       WriteHydroToTidefile = .FALSE.
 
-      OK=Compute_ChArea()
+      OK=Compute_ChArea(InitialCall)
 
                                 ! Why do we have EResv????
       DO i=1,NReser
@@ -405,7 +406,7 @@ C--------Save only the values which have changed
 
 *== Public (Compute_ChArea) ===================================
 
-      LOGICAL FUNCTION Compute_ChArea()
+      LOGICAL FUNCTION Compute_ChArea(InitialCall)
       use common_tide
       IMPLICIT NONE
 
@@ -420,7 +421,7 @@ C--------Save only the values which have changed
 *   Local Variables:
       INTEGER Up, Down, j, I
       real*8 XX, ZZ
-
+      logical InitialCall
 *   Routines by module:
 
 *****-Channel flow status:
@@ -456,10 +457,17 @@ C--------Save only the values which have changed
 
          AChan_Avg(Branch)=0.
 	   aavg = 0.D0
-         AChan(1,Branch)=CxArea(Dble(0.),Dble(ZChan(1,Branch)))
-         AChan(2,Branch)=CxArea(dble(chan_geom(Branch).length),Dble(ZChan(2,Branch)))
+         QuadPts = NetworkQuadPts()
+
+	   IF (InitialCall) THEN
+               AChan(1,Branch)=CxArea(Dble(0.),Dble(ZChan(1,Branch)))
+               AChan(2,Branch)=CxArea(dble(chan_geom(Branch).length),Dble(ZChan(2,Branch)))
+         ELSE
+             AChan(1,Branch) = AreaChannelComp(Branch,1)
+             AChan(2,Branch) = AreaChannelComp(Branch, (QuadPts-1)*(Down-Up)+1)
+         ENDIF
          delx=dble(chan_geom(Branch).length)/dble(Down-Up)
-         
+
          DO j=Up, Down-1
 
 C----generalize with QuadPts            
@@ -468,7 +476,6 @@ C----generalize with QuadPts
             X2 = (dble(j-Up)+1.D0)*delx
             Z2 = ws(j+1)
             
-            QuadPts = NetworkQuadPts()
 
             DO 200 I=1,QuadPts
 
@@ -486,8 +493,12 @@ C----generalize with QuadPts
 *--------Dependent variables.
                ZZ = N1 * Z1 + N2 * Z2
 
-*--------not use Frustum Formula                   
-               Area1 = CxArea( XX, ZZ )
+*--------not use Frustum Formula
+               IF (InitialCall) THEN                  
+                Area1 = CxArea( XX, ZZ )
+               ELSE
+                Area1 = AreaChannelComp(Branch, (j-Up)*(QuadPts-1)+i)
+               ENDIF
                Wt1 = QuadWt               
                aavg = aavg + Area1 * Wt1
                
