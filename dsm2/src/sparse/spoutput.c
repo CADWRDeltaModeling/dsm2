@@ -431,8 +431,8 @@ FILE  *pMatrixFile, *fopen();
             (   pMatrixFile,
                 "Warning : The following matrix is factored in to LU form.\n"
             );
-        }
         if (Err < 0) return 0;
+        }
         if (fprintf(pMatrixFile, "%s\n", Label) < 0) return 0;
         Err = fprintf( pMatrixFile, "%d\t%s\n", Size,
                                     (Matrix->Complex ? "complex" : "real"));
