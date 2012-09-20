@@ -50,6 +50,7 @@ C!
       use IO_Units
       use grid_data
       use constants
+      use klu
       implicit none
 
 *     Purpose:  To reserve elements in the sparse matrix and create pointers
@@ -127,10 +128,9 @@ C!
       integer,external :: StreamEndNode,TotalStreamLocations,CurrentChannel
 
       logical,external :: OpenChannel, CloseChannel
-
+      integer :: nmasseq, ndynmeq, ncptrs, nreseq, ngateeq
+      integer, external :: set_position_in_matrix
 ****** Solver
-      integer,external :: sfGetElement
-
 *-----Boundary-condition code          Use...
 *     
 *     water surface
@@ -188,10 +188,10 @@ C!
 *--------------First mass equation
                I=I+1
                J=J+1
-               MASSEQ(1,J) = sfGetElement(matrix,I,I)
-               MASSEQ(2,J) = sfGetElement(matrix,I,I+1)
-               MASSEQ(3,J) = sfGetElement(matrix,I,I+2)
-               MASSEQ(4,J) = sfGetElement(matrix,I,I+3)
+               MASSEQ(1,J) = set_position_in_matrix(I,I)
+               MASSEQ(2,J) = set_position_in_matrix(I,I+1)
+               MASSEQ(3,J) = set_position_in_matrix(I,I+2)
+               MASSEQ(4,J) = set_position_in_matrix(I,I+3)
                MASSEQROW(J)=I
                RowScale(I) = MassScaleFactor
 
@@ -217,10 +217,10 @@ C!
                J=J+1
                MASSEQROW(J)=I
 
-               MASSEQ(1,J) = sfGetElement(matrix,I,I-1)
-               MASSEQ(2,J) = sfGetElement(matrix,I,I)
-               MASSEQ(3,J) = sfGetElement(matrix,I,I+1)
-               MASSEQ(4,J) = sfGetElement(matrix,I,I+2)
+               MASSEQ(1,J) = set_position_in_matrix(I,I-1)
+               MASSEQ(2,J) = set_position_in_matrix(I,I)
+               MASSEQ(3,J) = set_position_in_matrix(I,I+1)
+               MASSEQ(4,J) = set_position_in_matrix(I,I+2)
                RowScale(I) = MassScaleFactor
 
             end if
@@ -234,10 +234,10 @@ C!
 
 *-----------------dynamic equation
                   I=I+1
-                  DYNMEQ(1,J) = sfGetElement(matrix,I,I-2)
-                  DYNMEQ(2,J) = sfGetElement(matrix,I,I-1)
-                  DYNMEQ(3,J) = sfGetElement(matrix,I,I)
-                  DYNMEQ(4,J) = sfGetElement(matrix,I,I+1)
+                  DYNMEQ(1,J) = set_position_in_matrix(I,I-2)
+                  DYNMEQ(2,J) = set_position_in_matrix(I,I-1)
+                  DYNMEQ(3,J) = set_position_in_matrix(I,I)
+                  DYNMEQ(4,J) = set_position_in_matrix(I,I+1)
                   DYNMEQROW(J)= I
                   RowScale(i) = DynScaleFactor
 
@@ -246,10 +246,10 @@ C!
 
 *-----------------mass equation.
                   I = I+1
-                  MASSEQ(1,J) = sfGetElement(matrix,I,I-1)
-                  MASSEQ(2,J) = sfGetElement(matrix,I,I)
-                  MASSEQ(3,J) = sfGetElement(matrix,I,I+1)
-                  MASSEQ(4,J) = sfGetElement(matrix,I,I+2)
+                  MASSEQ(1,J) = set_position_in_matrix(I,I-1)
+                  MASSEQ(2,J) = set_position_in_matrix(I,I)
+                  MASSEQ(3,J) = set_position_in_matrix(I,I+1)
+                  MASSEQ(4,J) = set_position_in_matrix(I,I+2)
                   MASSEQROW(J)=I
                   RowScale(I) = MassScaleFactor
 
@@ -276,10 +276,10 @@ C!
 
 *--------------Last Dynamic Eq
                I=I+1
-               DYNMEQ(1,J) = sfGetElement(matrix,I,I-3)
-               DYNMEQ(2,J) = sfGetElement(matrix,I,I-2)
-               DYNMEQ(3,J) = sfGetElement(matrix,I,I-1)
-               DYNMEQ(4,J) = sfGetElement(matrix,I,I)
+               DYNMEQ(1,J) = set_position_in_matrix(I,I-3)
+               DYNMEQ(2,J) = set_position_in_matrix(I,I-2)
+               DYNMEQ(3,J) = set_position_in_matrix(I,I-1)
+               DYNMEQ(4,J) = set_position_in_matrix(I,I)
                DYNMEQROW(J)=I
                RowScale(i) = DynScaleFactor
 
@@ -287,10 +287,10 @@ C!
 *     Eli: Check
 *--------------Downstream stage-type boundary
                I=I+1
-               DYNMEQ(1,J) = sfGetElement(matrix,I,I-2)
-               DYNMEQ(2,J) = sfGetElement(matrix,I,I-1)
-               DYNMEQ(3,J) = sfGetElement(matrix,I,I)
-               DYNMEQ(4,J) = sfGetElement(matrix,I,I+1)
+               DYNMEQ(1,J) = set_position_in_matrix(I,I-2)
+               DYNMEQ(2,J) = set_position_in_matrix(I,I-1)
+               DYNMEQ(3,J) = set_position_in_matrix(I,I)
+               DYNMEQ(4,J) = set_position_in_matrix(I,I+1)
                DYNMEQROW(J)=I
                RowScale(i) = DynScaleFactor
                I = I+1
@@ -318,14 +318,13 @@ c     Endif
 *-----------and connections
 
 *-----------Upstream end of channel.
-
             if (UpConstraintRow.NE.0) then
                if (codeup .eq. 1) then
 *-----------------Known water surface
 *-----------------Single constraint at (i,i)
                   K=K+1
                   UpConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,UpConstraintRow,UpConstraintRow)
+                  ConstraintPointers(K)=set_position_in_matrix(UpConstraintRow,UpConstraintRow)
 
                elseif (codeup .eq. 2) then
 *-----------------Known flow
@@ -334,7 +333,7 @@ c     Endif
 
                   K=K+1
                   UpConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,UpConstraintRow,UpConstraintRow)
+                  ConstraintPointers(K)=set_position_in_matrix(UpConstraintRow,UpConstraintRow)
 
                elseif (codeup .eq. 4) then
 *-----------------Self Starting(downstream only)
@@ -346,7 +345,7 @@ c     Endif
 *-----------------must be identified
                   K=K+1
                   UpConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,UpConstraintRow,UpConstraintRow)
+                  ConstraintPointers(K)=set_position_in_matrix(UpConstraintRow,UpConstraintRow)
 
 
                   ConstraintNode = UpstreamPointer()
@@ -369,7 +368,7 @@ c     Endif
 *-----------------------No channel ... not actually attached
                      end if
                      K=K+1
-                     ConstraintPointers(K)=sfGetElement(matrix,UpConstraintRow,DF*Node)
+                     ConstraintPointers(K)=set_position_in_matrix(UpConstraintRow,DF*Node)
                   end if
 
                elseif (codeup .eq. 12) then
@@ -378,7 +377,7 @@ c     Endif
 *-----------------added later
                   K=K+1
                   UpConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,UpConstraintRow,UpConstraintRow)
+                  ConstraintPointers(K)=set_position_in_matrix(UpConstraintRow,UpConstraintRow)
                   ConnectingNodes = UpstreamConnections()
                   ConstraintNode = UpstreamPointer()
                   if (ConnectingNodes.gt.0) then
@@ -386,7 +385,7 @@ c     Endif
                         Node = StreamEndNode(UpstreamConnect(L))
                         ConnectCol = 2 * IABS(Node) - 1
                         K=K+1
-                        ConstraintPointers(K)=sfGetElement(matrix,UpConstraintRow,ConnectCol)
+                        ConstraintPointers(K)=set_position_in_matrix(UpConstraintRow,ConnectCol)
  130                 Continue
                   end if
 
@@ -406,19 +405,19 @@ c     Endif
 *-----------------Flow at constraint node
                   FlowOffset = 0
                   if (CodeUp .EQ. 31) FlowOffset = MinusOne
-                  ConstraintPointers(K)= sfGetElement(matrix,
+                  ConstraintPointers(K)= set_position_in_matrix(
      &                 UpConstraintRow,UpConstraintRow+FlowOffset)
 
 *-----------------Stage at constraint node
                   StageOffset=0
                   if (CodeUp .EQ. 32) StageOffset = PlusOne
                   K=K+1
-                  ConstraintPointers(K) = sfGetElement(Matrix,
+                  ConstraintPointers(K) = set_position_in_matrix(
      &                 UpConstraintRow,UpConstraintRow+StageOffset)
 
 *-----------------Stage at connecting node
                   K=K+1
-                  ConstraintPointers(K) = sfGetElement(Matrix,
+                  ConstraintPointers(K) = set_position_in_matrix(
      &                 UpConstraintRow,ConnectCol)
 
                elseif (codeup .eq. 51 .or.
@@ -439,11 +438,11 @@ c     Endif
                   K=K+1
                   UpConstraintIndex(M)=K
                   
-                  ConstraintPointers(K)= sfGetElement(matrix,
+                  ConstraintPointers(K)= set_position_in_matrix(
      &                 UpConstraintRow,DF*ConstraintNode-1)
 *-----------------Stage at Constraint
                   K=K+1
-                  ConstraintPointers(K)= sfGetElement(matrix,
+                  ConstraintPointers(K)= set_position_in_matrix(
      &                 UpConstraintRow,DF*ConstraintNode)
 *-----------------Now Flow and Stage at each connecting node
 
@@ -454,10 +453,10 @@ c     Endif
                         ConnectCol = iabs(Node)*DF 
                         K=K+1
                         FlowOffset=-1
-                        ConstraintPointers(K)=sfGetElement(matrix,
+                        ConstraintPointers(K)=set_position_in_matrix(
      &                       UpConstraintRow,ConnectCol+FlowOffset)
                         K=K+1
-                        ConstraintPointers(K)=sfGetElement(matrix,
+                        ConstraintPointers(K)=set_position_in_matrix(
      &                       UpConstraintRow,ConnectCol)
  160                 Continue
                   end if
@@ -484,7 +483,7 @@ c     Endif
 *-----------------Single constraint at (i,i)
                   K=K+1
                   DownConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,DownConstraintRow,DownConstraintRow)
+                  ConstraintPointers(K)=set_position_in_matrix(DownConstraintRow,DownConstraintRow)
 
                elseif (codedown .eq. 2) then
 *-----------------Known flow
@@ -493,7 +492,7 @@ c     Endif
 
                   K=K+1
                   DownConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,DownConstraintRow,DownConstraintRow)
+                  ConstraintPointers(K)=set_position_in_matrix(DownConstraintRow,DownConstraintRow)
 
                elseif (codedown .eq. 4) then
 *-----------------Self Starting(downstream only)
@@ -505,7 +504,7 @@ c     Endif
 *-----------------must be identified
                   K=K+1
                   DownConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,
+                  ConstraintPointers(K)=set_position_in_matrix(
      &               DownConstraintRow,DownConstraintRow)
 
                   ConstraintNode = DownstreamPointer()
@@ -530,7 +529,7 @@ c     Endif
                      end if
 
                      K=K+1
-                     ConstraintPointers(K)=sfGetElement(matrix,
+                     ConstraintPointers(K)=set_position_in_matrix(
      &                   DownConstraintRow,DF*Node)
                   end if
 
@@ -540,7 +539,7 @@ c     Endif
 *-----------------Also Flow at each connecting node
                   K=K+1
                   DownConstraintIndex(M)=K
-                  ConstraintPointers(K)=sfGetElement(matrix,
+                  ConstraintPointers(K)=set_position_in_matrix(
      &                  DownConstraintRow,DownConstraintRow)
 
                   ConnectingNodes = DownstreamConnections()
@@ -563,7 +562,7 @@ c     Endif
                         Node = StreamEndNode(DownstreamConnect(L))
                         ConnectCol = DF*IABS(Node) - 1
                         K=K+1
-                        ConstraintPointers(K)=sfGetElement(matrix,
+                        ConstraintPointers(K)=set_position_in_matrix(
      &                      DownConstraintRow,ConnectCol)
  220                 Continue
                   end if
@@ -586,7 +585,7 @@ c     Endif
                   if (CodeDown .EQ. 31) then
                      FlowOffset = MinusOne
                   end if
-                  ConstraintPointers(K)= sfGetElement(matrix,
+                  ConstraintPointers(K)= set_position_in_matrix(
      &               DownConstraintRow,DownConstraintRow+FlowOffset)
 
 *-----------------Stage at constraint
@@ -595,12 +594,12 @@ c     Endif
                      StageOffset = PlusOne
                   end if
                   K=K+1
-                  ConstraintPointers(K) = sfGetElement(Matrix,
+                  ConstraintPointers(K) = set_position_in_matrix(
      &                DownConstraintRow,DownConstraintRow+StageOffset)
 
 *-----------------Stage at connecting node
                   K=K+1
-                  ConstraintPointers(K) = sfGetElement(Matrix,
+                  ConstraintPointers(K) = set_position_in_matrix(
      &                DownConstraintRow,ConnectCol)
 
                elseif (codedown .eq. 51 .or.
@@ -620,12 +619,12 @@ c     Endif
 *-----------------Flow at Constraint
                   K=K+1
                   DownConstraintIndex(M)=K
-                  ConstraintPointers(K)= sfGetElement(matrix,
+                  ConstraintPointers(K)= set_position_in_matrix(
      &                   DownConstraintRow, DF*ConstraintNode-1)
 
 *-----------------Stage at Constraint
                   K=K+1
-                  ConstraintPointers(K)= sfGetElement(matrix,
+                  ConstraintPointers(K)= set_position_in_matrix(
      &                   DownConstraintRow,DF*ConstraintNode)
 
 *-----------------Now Flow and Stage at each connecting node
@@ -635,10 +634,10 @@ c     Endif
                      Node = StreamEndNode(DownstreamConnect(L))
                      ConnectCol=abs(Node)*DF ! This is the "stage" column
                      K=K+1
-                     ConstraintPointers(K)=sfGetElement(matrix,
+                     ConstraintPointers(K)=set_position_in_matrix(
      &                  DownConstraintRow,ConnectCol-1)
                      K=K+1
-                     ConstraintPointers(K)=sfGetElement(matrix, 
+                     ConstraintPointers(K)=set_position_in_matrix( 
      &                  DownConstraintRow,ConnectCol)
  250              Continue
                else
@@ -682,6 +681,9 @@ c     Endif
 *------- Allocate elements for reservoir mass balance and 
 *        connection equations. Gates involving reservoirs will
 *        be allocated later.
+      nmasseq=j
+      ndynmeq=j
+      ncptrs=k
 
       if(Nreser.GT.0) then
 *--------K: index of current matrix entry
@@ -702,7 +704,7 @@ c     Endif
 *-----------water surface height
             K=K+1
             ResEqIndex(II) = K
-            ResEqPointer(K) = sfGetElement(matrix,ResRow,ResRow)
+            ResEqPointer(K) = set_position_in_matrix(ResRow,ResRow)
 
 *-----Reserve stage elements for connecting channels
 *     Entries will occur in the row corresponding
@@ -723,19 +725,19 @@ c     Endif
                ChannelCol = iabs(StreamEndNode(ResChannel))*DF ! "Z" entry 
                ! contribution to reservoir mass
                K=K+1
-               ResEqPointer(K) = sfGetElement(matrix,ResRow,ResRow+jj)
+               ResEqPointer(K) = set_position_in_matrix(ResRow,ResRow+jj)
                ! reservoir equation at connection
 	         ! ZRes
                K=K+1
-               ResEqPointer(K) = sfGetElement(matrix,ResRow+jj,ResRow) 
+               ResEqPointer(K) = set_position_in_matrix(ResRow+jj,ResRow) 
                ! QRes
 			 K=K+1
-               ResEqPointer(K) = sfGetElement(matrix,ResRow+jj,ResRow+jj) 
+               ResEqPointer(K) = set_position_in_matrix(ResRow+jj,ResRow+jj) 
                ! ZChan
 			 K=K+1
-               ResEqPointer(K) = sfGetElement(matrix,ResRow+jj,ChannelCol) 
+               ResEqPointer(K) = set_position_in_matrix(ResRow+jj,ChannelCol) 
                K=K+1            ! contribution to node mass
-               ResEqPointer(K) = sfGetElement(matrix,NodeContinuityRow,ResRow+jj)
+               ResEqPointer(K) = set_position_in_matrix(NodeContinuityRow,ResRow+jj)
             enddo
             ResRow=ResRow+res_geom(ii).nnodes
          enddo
@@ -744,6 +746,8 @@ c     Endif
 c     Allocate elements for the gates. Gates are implemented as the sum of a number
 c     of flows from devices; the summation equation and the individual gate 
 c     device equations each has its own row.
+      nreseq=k ! number of reservoir equations
+      
       devRow=TotalChanResRows ! starting row for device equations minus 1
       K=0
       if(NGate.GT.0) then
@@ -808,17 +812,17 @@ c           column is used and in case (2) the Zobj and Znode columns are used
                K=K+1
                I=I+1
                GateEqIndex(II)=K
-               GateEqPointer(K) = sfGetElement(matrix,GateEqRow(ii), QobjCol)
+               GateEqPointer(K) = set_position_in_matrix(GateEqRow(ii), QobjCol)
                K=K+1              
-               GateEqPointer(K) = sfGetElement(matrix,GateEqRow(ii), ZobjCol)
+               GateEqPointer(K) = set_position_in_matrix(GateEqRow(ii), ZobjCol)
                K=K+1                 
-               GateEqPointer(K) = sfGetElement(matrix,GateEqRow(ii), ZnodeCol)  
+               GateEqPointer(K) = set_position_in_matrix(GateEqRow(ii), ZnodeCol)  
                ! gate flow contribution to node continuity
 			 K=K+1
-               GateEqPointer(K) = sfGetElement(matrix,NodeContinuityRow,QobjCol)
+               GateEqPointer(K) = set_position_in_matrix(NodeContinuityRow,QobjCol)
                ! gate flow contribution to reservoir mass
                K=K+1         
-               GateEqPointer(K) = sfGetElement(matrix,ResRow, QobjCol)
+               GateEqPointer(K) = set_position_in_matrix(ResRow, QobjCol)
             end if
 c           Allocate matrix elements for the equations representing individual devices
 
@@ -830,19 +834,19 @@ c           Allocate matrix elements for the equations representing individual d
 	         currentGate.Devices(jj).calcRow=devrow
 	         ! Contribution of device total gate flow 
 	         K=K+1
-	         GateEqPointer(K)=sfGetElement(matrix,gateEqRow(ii),QdevCol)
+	         GateEqPointer(K)=set_position_in_matrix(gateEqRow(ii),QdevCol)
                K=K+1
-               GateEqPointer(K)=sfGetElement(matrix, devrow, QdevCol) 
+               GateEqPointer(K)=set_position_in_matrix( devrow, QdevCol) 
                K=K+1
-               GateEqPointer(K)=sfGetElement(matrix,devrow,ZobjCol)
+               GateEqPointer(K)=set_position_in_matrix(devrow,ZobjCol)
                K=K+1
-               GateEqPointer(K)=sfGetElement(matrix,devrow,ZnodeCol)
+               GateEqPointer(K)=set_position_in_matrix(devrow,ZnodeCol)
                RowScale(devrow)=1./(128.)
             end do
 
          end do
       end if
-
+      ngateeq = k
       if (k .gt. MaxGatePtr) then
 	   write(UNIT_ERROR,*)"Maximum number of matrix elements allocated for gates"
 	   write(UNIT_ERROR,*)" exceeded. Reallocate MaxGatePtr"
@@ -851,7 +855,15 @@ c           Allocate matrix elements for the equations representing individual d
 
 *-----End of allocation. Check for error and exit.
       if( I.EQ. Equations ) then
-
+         if (use_klu) then
+         call done_adding_to_coo()
+         call coo2csc(Equations)
+         call update_pointers_dim4(masseq,nmasseq)
+         call update_pointers_dim4(dynmeq,ndynmeq)
+         call update_pointers(ConstraintPointers, ncptrs)
+         call update_pointers(ResEqPointer, nreseq)
+         call update_pointers(GateEqPointer, ngateeq)
+         end if         
          ReserveMatrix = .TRUE.
 
       else
@@ -865,6 +877,30 @@ c           Allocate matrix elements for the equations representing individual d
 
       return
       end
+!-    function forwarding call to sfGetElement but after adding non-zero to coo
+      function set_position_in_matrix(row,column)
+      use klu
+      include 'network.inc'
+      include 'solver.inc' ! has equations value defined
+      integer row, column, val
+      integer set_position_in_matrix
+      integer,external :: sfGetElement
+
+      if (equations .gt. 44000) then ! size max sqrt of 2 billion
+        print *, "Maximum solve size exceeded. Need an upgrade to 64 bit integers"
+        !exit(1022);
+      endif
+
+      
+      val = (row-1)*equations+(column-1) ! unique value encoded for each i,j
+      call add_nonzero_to_coo(row, column, val)
+      if (use_klu) then 
+            set_position_in_matrix=val
+      else 
+            set_position_in_matrix=sfGetElement(matrix,row,column)
+      end if
+      
+      end function
 
 *==== EOF solvefpt.f =========================================
 

@@ -65,5 +65,4 @@ RealNumber *Value5;
 	*((RealNumber *)Template[4]) += *Value5;
 }
 
-
 #endif /* FORTRAN */

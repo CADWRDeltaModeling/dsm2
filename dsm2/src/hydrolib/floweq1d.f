@@ -24,7 +24,7 @@ C!</license>
 
       LOGICAL FUNCTION DynamicWaveEq(Up, Down)
       Use PhysicalConstants,only: gravity
-
+      use klu
       IMPLICIT NONE
 
 *   Purpose:  Compute and store coefficients of an integral form
@@ -57,7 +57,7 @@ C!</license>
 
 *   Local Variables:
 
-      INTEGER J, J2, K
+      INTEGER J, J2, K, ii
       INTEGER Nodes, Iteration,QuadPts
       PARAMETER (Nodes = 2)
       real*8 G
@@ -74,7 +74,7 @@ C!</license>
       real*8 CoefDynmKnown, CoefDynmAdjust
       real*8 Xdist, Q, H, Z, DZDX
       real*8 Width, Area, Conv, ConvSq
-      real*8 DXxDT, AbsQxAreaByConvSq, AbsQxQbyConvSq, DConvDZ
+      real*8 DXxDT, AbsQxAreaByConvSq, AbsQxQbyConvSq, DConvDZ, ThetaDT
       LOGICAL OK, Forward
 
 *   Routines by module:
@@ -191,14 +191,15 @@ c        Area2 = CxArea(X2,Z2)
 *--------mass-equation coefficients for change in Q1, Z1, Q2, & Z2.
          Coef(1) = - Theta * DT
          Coef(2) =   0.0
-         Coef(3) =   Theta * DT
+         Coef(3) =   - Coef(1)
          Coef(4) =   0.0
 
 *--------dynamic equation coefficients for change in Q1, Z1, Q2, & Z2.
-         Coef(5) = - Theta * 2.0                * BetaVelocity1 * DT
-         Coef(6) =   Theta * Velocity1 * Width1 * BetaVelocity1 * DT
-         Coef(7) =   Theta * 2.0                * BetaVelocity2 * DT
-         Coef(8) = - Theta * Velocity2 * Width2 * BetaVelocity2 * DT
+         ThetaDT = Theta * DT
+         Coef(5) = - ThetaDT * 2.0 * BetaVelocity1
+         Coef(6) =   ThetaDT * Velocity1 * Width1 * BetaVelocity1
+         Coef(7) =   ThetaDT * 2.0                * BetaVelocity2
+         Coef(8) = - ThetaDT * Velocity2 * Width2 * BetaVelocity2
 
       END IF
 
@@ -214,12 +215,12 @@ c        Area2 = CxArea(X2,Z2)
 
       END IF
 
-      CoefMassAdjust = Theta * ( Q1 - Q2 ) * DT
+      CoefMassAdjust = ThetaDT * ( Q1 - Q2 )
 
-      CoefDynmAdjust = Theta * (
+      CoefDynmAdjust = ThetaDT * (
      &     Q1 * BetaVelocity1
      &     - Q2 * BetaVelocity2
-     &     ) * DT
+     &     )
 
 
 
@@ -320,8 +321,7 @@ c         DConvDZ = dConveyance(Xdist,Z)
  100        CONTINUE
          END IF
 
-         IF( Iteration .NE. 1 ) THEN
-         ELSE
+         IF( Iteration .EQ. 1 ) THEN
 
             CoefMassKnown = CoefMassKnown + QuadWt * Area * DX
 
@@ -348,8 +348,17 @@ c         DConvDZ = dConveyance(Xdist,Z)
 *-----Store computed coefficients.
 
       IF( Forward ) THEN
-         Call sfAdd4Equation( MASSEQ(1,Up + EqPointer(Branch) - 1), Coef(1) )
-         Call sfAdd4Equation( DYNMEQ(1,Up + EqPointer(Branch) - 1), Coef(5) )
+         if (use_klu) then
+             do ii=1,4
+                call add_to_matrix(masseq(ii,Up + EqPointer(Branch) - 1),Coef(ii))
+             end do
+             do ii=1,4
+                call add_to_matrix(dynmeq(ii,Up + EqPointer(Branch) - 1),Coef(ii+4))
+             end do
+         else
+             Call sfAdd4Equation( MASSEQ(1,Up + EqPointer(Branch) - 1), Coef(1) )
+             Call sfAdd4Equation( DYNMEQ(1,Up + EqPointer(Branch) - 1), Coef(5) )
+         end if
       END IF
 
       OK = StoreMassAdjust( Up, CoefMassAdjust )
@@ -373,6 +382,7 @@ c         DConvDZ = dConveyance(Xdist,Z)
 
       LOGICAL FUNCTION DynamicWaveEqDS(Up, Down)
       Use PhysicalConstants,only: gravity
+      use klu
       IMPLICIT NONE
 
 *   Purpose:  Compute and store coefficients of an integral form
@@ -407,7 +417,7 @@ c         DConvDZ = dConveyance(Xdist,Z)
 
 *   Local Variables:
 
-      INTEGER J, J2, K
+      INTEGER J, J2, K, II
       INTEGER Nodes, Iteration, QuadPts
       PARAMETER (Nodes = 2)
       real*8 G
@@ -730,8 +740,17 @@ c         DConvDZ = dConveyance(Xdist,Z)
 *-----Store computed coefficients.
 
       IF( Forward ) THEN
-         Call sfAdd4Equation( MASSEQ(1,Up + EqPointer(Branch) - 1), Coef(1) )
-         Call sfAdd4Equation( DYNMEQ(1,Up + EqPointer(Branch) - 1), Coef(5) )
+        if (use_klu) then
+             do ii=1,4
+                call add_to_matrix(masseq(ii,Up + EqPointer(Branch) - 1),Coef(ii))
+             end do
+             do ii=1,4
+                call add_to_matrix(dynmeq(ii,Up + EqPointer(Branch) - 1),Coef(ii+4))
+             end do
+         else 
+             Call sfAdd4Equation( MASSEQ(1,Up + EqPointer(Branch) - 1), Coef(1) )
+             Call sfAdd4Equation( DYNMEQ(1,Up + EqPointer(Branch) - 1), Coef(5) )
+         end if
       END IF
 
       OK = StoreMassAdjust( Up, CoefMassAdjust )

@@ -48,6 +48,7 @@ c
       use IO_Units
       use grid_data
       use constants
+      use klu
       implicit none
 
 *   Purpose:  Compute flow between reservoirs and channels
@@ -163,8 +164,15 @@ c
 *           Next are the Zres Q and Zchan part of the reservoir equation. 
 *           Finally, the flow term to the node continuity equation is 1.
             If (ForwardElim()) then
-               call sfAdd5Reservoir(ResEqPointer(ResIndex),theta,
-     &            dResEqdZres,dResEqdQ,-dResEqdZres,1.D0)
+               if (use_klu) then
+                   call add_to_matrix(ResEqPointer(ResIndex),theta)
+                   call add_to_matrix(ResEqPointer(ResIndex+1),dResEqdZres)
+                   call add_to_matrix(ResEqPointer(ResIndex+2),dResEqdQ)
+                   call add_to_matrix(ResEqPointer(ResIndex+3),-dResEqdZres)
+                   call add_to_matrix(ResEqPointer(ResIndex+4),1.D0)
+               else 
+                   call sfAdd5Reservoir(ResEqPointer(ResIndex),theta,dResEqdZres,dResEqdQ,-dResEqdZres,1.D0)
+               end if
             End If
             ResIndex = ResIndex+5
 *-----------Add this res flow to rhs on the row representing the node continuity condition

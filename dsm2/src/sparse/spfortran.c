@@ -433,7 +433,7 @@ long *Matrix;
 int  *Row, *Col;
 {
 /* Begin `sfGetElement'. */
-
+//	printf("sfGetElement(*,%5d,%5d)\n",*Row, *Col);
 	return (long)spGetElement((char *)*Matrix, *Row, *Col);
 
 }

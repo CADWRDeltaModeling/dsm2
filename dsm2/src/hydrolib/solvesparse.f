@@ -44,6 +44,7 @@ C!
       use IO_Units
       use Gates, only: NGate,GateArray
       use grid_data
+      use klu
       implicit none
 
 *   Purpose: Initialize the solution matrix
@@ -86,7 +87,11 @@ C!
       end do
 
       Equations = TotalChanResRows + rowcounter
-      Matrix = sfCreate(Equations,Zero,Error)
+      if (use_klu) then
+            k_common=klu_fortran_init()
+      else
+            Matrix = sfCreate(Equations,Zero,Error)
+      endif
       RowScale=1.D0
 
 *-----Initialize Matrix Scale Factors
@@ -108,14 +113,13 @@ C!
 *-----Initialize 'first iteration' index.
 
       InitializeSolver = .TRUE.
-
       return
       end
 
 *== Public (CloseSolver) ==========================================
 
       LOGICAL FUNCTION CloseSolver()
-
+      use klu
       IMPLICIT NONE
 
 *   Purpose: Close and deallocate
@@ -138,7 +142,11 @@ C!
 *-----Implementation -----------------------------------------------------
 
       CloseSolver = .FALSE.
-      Call sfDestroy(Matrix)
+      if (use_klu) then
+        call close_solver()
+      else
+        Call sfDestroy(Matrix)
+      end if
       CloseSolver = .TRUE.
 
       RETURN
@@ -147,7 +155,7 @@ C!
 *== Public (InitializeMatrix) ==========================================
 
       LOGICAL FUNCTION InitializeMatrix()
-
+      use klu
       IMPLICIT NONE
 
 *   Purpose:  Fourpoint allows for two levels of solution.. In the first,
@@ -163,7 +171,6 @@ C!
       INCLUDE 'solver.inc'
 
 *   Local Variables:
-c-----INTEGER I
 
 *   Routines by module:
 
@@ -171,18 +178,22 @@ c-----INTEGER I
       LOGICAL  ForwardElim
       EXTERNAL ForwardElim
 
-*   Programmed by: Lew DeLong
-*   Date:          January 1991
-*   Modified by:   Lew DeLong
-*   Last modified: April 1992
-*   Version 93.01, January, 1993
+!    Programmed by: Lew DeLong
+!    Date:          January 1991
+!    Modified by:   Lew DeLong
+!    Last modified: April 1992
+!    Version 93.01, January, 1993
 
 *-----Implementation -----------------------------------------------------
 
       InitializeMatrix = .FALSE.
 
       IF( ForwardElim() ) THEN
-         call sfClear(Matrix)
+        if (use_klu) then
+              call clear_matrix()
+        else
+              call sfClear(Matrix)
+        end if
  100     CONTINUE
       END IF
 
@@ -195,8 +206,8 @@ c-----INTEGER I
 
       LOGICAL FUNCTION StoreAtLocation(Location, Val)
 
+      use klu
       IMPLICIT NONE
-
 *   Purpose:  Store a value in the coeficient matrix at a location
 *             corresponding to an integer pointer (Location)
 
@@ -224,26 +235,26 @@ c-----INTEGER I
       INCLUDE 'solver.inc'
 
 *   Local Variables:
-c-----INTEGER N
 
 *   Routines by module:
 
       LOGICAL  ForwardElim
       EXTERNAL ForwardElim
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Eli Ateljevich
-*   Last modified: July 1998
-*   Version 98.01, July, 1998
+!     Programmed by: Lew DeLong
+!     Date:          February 1991
+!     Modified by:   Eli Ateljevich
 
-*-----Implementation -----------------------------------------------------
+!     -----Implementation -----------------------------------------------------
 
       Value=0
       IF( ForwardElim() ) THEN
          Value=Val
-
-         Call sfAdd1Real(Location,Value)
+         if (use_klu) then
+               call add_to_matrix(Location,Val)
+         else
+            Call sfAdd1Real(Location,Value)
+         end if
       END IF
 
       StoreAtLocation = .TRUE.
@@ -254,9 +265,8 @@ c-----INTEGER N
 *== Public (AddAtLocation) ============================================
 
       LOGICAL FUNCTION AddAtLocation(Location, Val)
-
+      use klu
       IMPLICIT NONE
-
 *   Purpose:  Add a value to the coeficient matrix at a location
 *             corresponding to Row and Offset from the diagonal in
 *             the virtual matrix.
@@ -284,19 +294,21 @@ c-----INTEGER N
 
 *   Routines by module:
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Eli Ateljevich
-*   Last modified: July, 1998
-*   Version 93.01, January, 1993
+*      Programmed by: Lew DeLong
+*      Date:          February 1991
+*      Modified by:   Eli Ateljevich
+!      Last modified: July, 1998
+!      Version 93.01, January, 1993
 
 *-----Implementation -----------------------------------------------------
 
       If (ForwardElim()) then
          Value = Val
-
-         Call sfAdd1Real(Location,Value)
-
+         if (use_klu) then 
+               call add_to_matrix(Location,Val)
+         else
+               Call sfAdd1Real(Location,Value)
+         end if
       End If
       AddAtLocation = .TRUE.
 
@@ -307,7 +319,8 @@ c-----INTEGER N
 
       LOGICAL FUNCTION SolveFourPt()
       Use IO_Units
-
+      USE runtime_data
+      use klu
       IMPLICIT NONE
 
       INCLUDE 'network.inc'
@@ -315,7 +328,7 @@ c-----INTEGER N
 
       INCLUDE 'chstatus.inc'
 
-*   Purpose:  Interface to SPARSE solver for solution
+*   Purpose:  Interface to SPARSE or KLU solver for solution
 *             of incremental change in flow/stage
 
 *   Arguments:
@@ -326,12 +339,15 @@ c-----INTEGER N
       Integer MaxNormLoc
       real*8,save :: prevBackLInfNorm
 
+
+c      character*14, save:: last_date
+c      integer, save:: last_max_iteration
       SAVE IterSinceOrder
       LOGICAL Scaled
       real*8, parameter :: CLOSE_L2=1.D0
       real*8, parameter :: MIN_RESCALE=(1.D0/16.D0)
 *   Local Variables
-      logical lasttime
+      logical lasttime, OK
       INTEGER Error
 
       LOGICAL ForwardElim
@@ -343,80 +359,75 @@ c-----INTEGER N
       INTEGER sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector,sfPrint
       EXTERNAL sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector, sfPrint
       
+      INTEGER netIteration
+      
 
-*   Argument definitions:
-*     Location  - a pointer to the desired location in the
-*-----coef matrix
+*      Argument definitions:
+*      Location  - a pointer to the desired location in the
+*      coef matrix
 
-*   Programmed by: Eli Ateljevich
-*   Last modified: July, 1998
-*   Version 93.01, January, 1993
+*      Programmed by: Eli Ateljevich, Nicky Sandhu (added KLU solver)
 
 *-----Implementation -----------------------------------------------------
 
       SolveFourPt = .FALSE.
       
 *-----Create RHS vector of proper size and precision
-      If ( FirstTime .OR. (Mod(IterSinceOrder,2000) .le. 1)) then
+      If ( FirstTime ) then ! .OR. (Mod(IterSinceOrder,2000) .le. 1)) then
+          if (use_klu) then
+              !-- done only once as non-zeros pattern do not change after this point
+              k_symbolic = klu_fortran_analyze(matrix_size, ica, jca, k_common)
+          end if
          Scaled = .True.
          FirstTime = .False.
       Else
          Scaled = .true.
-c@@@        If ( ForwardElim() )Scaled = .False.
       End If
 
-      If (NetworkIteration().eq.1) then
+      netIteration=NetworkIteration()
+      
+      If (netIteration.eq.1) then
+         if (use_klu .and. IterSinceOrder .lt. 100) then !refactorize for new pattern
+             call klu_fortran_free_numeric(k_numeric, k_common)
+             k_numeric = klu_fortran_factor(ica, jca, coo, k_symbolic, k_common)      
+         end if
+         !if (use_klu) then
+         !   print *, "First Iteration Condition number (estimated) :",klu_fortran_condest(ica, coo, k_symbolic, k_numeric, k_common)
+         !end if
          firstbacktrack=.true.
          lastbacktrack=.false.
          LastLInfNorm=Huge(1.D0)
          LastL2Norm=Huge(1.D0)
          Rescale=1.
       End If
-
-      Do  100 I=1,Equations
-         XX(I) = XOld(I) + XAdj(I)
-         If(Scaled)XX(I) = XX(I)*RowScale(i)
- 100  Continue
-
+      XX(1:equations)=(XOld(1:equations)+XAdj(1:equations))*RowScale(1:equations)
+      if (use_klu) then
+         b(1:equations)=xx(1:equations)
+      end if
       L2Norm=DOT_PRODUCT(XX,XX)
       maxNormLoc=maxloc(abs(XX),1)
       LInfNorm=abs(XX(maxNormLoc))
-
-c@@@     write(unit_screen,"('Iteration: ',i5,1x'Max resid:',f17.6,
-c@@@    &   ' at row ',i8,/,'L2: ',f17.6,2x,'Last L2',f17.6,2x,'Row Scale',f16.8)") 
-c@@@    &   NetworkIteration(),LInfNorm,maxNormLoc,L2Norm,
-c@@@    &   Min(LastL2Norm,9999999.99),RowScale(maxNormLoc)
-      
       NormClose=(L2Norm .LT. CLOSE_L2) ! .and. LInfNorm .lt. 5.D-1)
-c@@@     if (NetworkIteration() .eq. 19) then
-c@@@       do i=1,Equations
-c@@@    write(59,"(i5,': ',f18.5,',',f18.5,',',f18.5)")i,xadj(i),xold(i),xx(i)
-c@@@  end do
+      lasttime=(netIteration .eq. MaxNetworkIterations())
 
-c@@@      call sfFileMatrix( Matrix, 0, 1, 1 )
-c@@@   	  Pause
-c@@@     end if
-      
-
-      lasttime=(NetworkIteration() .eq. MaxNetworkIterations())
-c@@@     if (lasttime) then
-c@@@ print*,'*****************Maxiter********************',
-c@@@    &      ' ',current_date,' *********'
-c@@@      call solver_diagnostics(maxNormLoc)
-c@@@      print*,"L2 norm: ",L2Norm, "LInf norm", LInfNorm	 
-c@@@     end if
-
-      If ( (L2Norm .lt. LastL2Norm .or. L2Norm .lt. CLOSE_L2) !.and.
-                                !  &   (LInfNorm .lt. 5.D-1 .or. LInfNorm .lt. LastLInfNorm)  
-     &     .or. Rescale .le. MIN_RESCALE  .or. lasttime !)
+      If ( (L2Norm .lt. LastL2Norm .or. L2Norm .lt. CLOSE_L2) 
+     &     .or. Rescale .le. MIN_RESCALE  .or. lasttime 
      &     ) then
 
       If( ForwardElim() ) Then
          If( Scaled ) Then
+            if (use_klu) then
+            call scale_coo(RowScale, ColumnScale)
+            call klu_fortran_refactor(ica, jca, coo, k_symbolic, k_numeric, k_common)
+            error=0
+            else
             Call sfScale(Matrix,RowScale,ColumnScale)
             Error=sfOrderAndFactor(Matrix,XX,1.D-7,0.D0,1)
+            end if
          Else
-            Error=sfFactor(Matrix)
+            if (use_klu) then
+                  Error=sfFactor(Matrix)
+            end if
          End If
          if(error .ne. 0) then
             write(unit_error,
@@ -425,9 +436,13 @@ c@@@     end if
             call exit(3)
          end if
       End If
-      Call sfSolve(Matrix,XX,X)
+      if (use_klu) then
+            call klu_fortran_solve(k_symbolic, k_numeric, matrix_size, 1, b, k_common)
+            x(1:equations)=b(1:equations)
+      else
+        Call sfSolve(Matrix,XX,X)
+      end if
 
-c@@@   print*,"Outer iteration, rescale=",rescale
       X=X*Rescale
       Rescale=min(1.,Rescale*2)
       if (lasttime) rescale=1.
@@ -435,11 +450,9 @@ c@@@   print*,"Outer iteration, rescale=",rescale
 
 *-----Need to unscale result
       If(Scaled) then
-*--------Need to unscale result
-         Do I=1,Equations
-            X(I) = X(I) * ColumnScale(I)
-         End Do
+         X(1:equations)=X(1:equations)*ColumnScale(1:equations)
       End If
+
       FirstBacktrack=.true.
       LastLInfNorm=LInfNorm
       PrevBackLInfNorm=LInfNorm
@@ -447,7 +460,6 @@ c@@@   print*,"Outer iteration, rescale=",rescale
       lastbacktrack=.false.
       Else
          
-c@@@   print*,"Backtrack, rescale= ",Rescale
          lastbacktrack=.true.
          Rescale=0.5*Rescale
          X=0.5*X
@@ -457,7 +469,6 @@ c@@@   print*,"Backtrack, rescale= ",Rescale
          end if
          PrevBackLInfNorm=LInfNorm
       End If
-
       SolveFourPt=.True.
       RETURN
       END

@@ -316,7 +316,7 @@ C--special treatment to avoid averaging in the begining
 
          OK=IncrementNetworkTimeStep()
 c--------calculate julian minute of end of each DSS interval
-         call update_intervals
+         !call update_intervals
 
          if (julmin .ge. next_display) then
  610        format('Starting Hydro computations for time: ',a)

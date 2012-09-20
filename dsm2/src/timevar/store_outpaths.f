@@ -23,12 +23,16 @@ C!</license>
 c-----Write output data periodically to temporary files.
 c-----Initialize the temporary files first with init_store_outpaths.
       use runtime_data
+      use constants
       implicit none
 
 
       include 'dss.inc'
       include 'intervals.inc'
       include 'writedss.inc'
+
+      integer*4
+     &     incr_intvl          ! increment julian minute by interval function
 
       logical
      &     lflush               ! true to force data flush to scratch files
@@ -57,6 +61,8 @@ c-----the storage index pointer for each block of data
       lupdate=.not. (julmin .eq. last_update)
 
       if (npthsout_min15 .gt. 0) then
+            jmin_15min=incr_intvl(julmin,'15MIN',NEAREST_BOUNDARY)
+            jmin_15min_prev=incr_intvl(julmin,'-15MIN',NEAREST_BOUNDARY)
          call store_outpaths_gen(max_out_min,
      &        mins15,npthsout_min15,ptout_min15,
      &        julstout_minutes15,ndx_minutes15,
@@ -66,6 +72,8 @@ c-----the storage index pointer for each block of data
       endif
 
       if (npthsout_hour1 .gt. 0) then
+          jmin_1hour=incr_intvl(julmin,'1HOUR',NEAREST_BOUNDARY)
+          jmin_1hour_prev=incr_intvl(julmin,'-1HOUR',NEAREST_BOUNDARY)
          call store_outpaths_gen(max_out_hour,
      &        hrs,npthsout_hour1,ptout_hour1,
      &        julstout_hours1,ndx_hours1,
@@ -75,6 +83,8 @@ c-----the storage index pointer for each block of data
       endif
 
       if (npthsout_day1 .gt. 0) then
+      jmin_1day=incr_intvl(julmin,'1DAY',NEAREST_BOUNDARY)
+      jmin_1day_prev=incr_intvl(julmin,'-1DAY',NEAREST_BOUNDARY)
          call store_outpaths_gen(max_out_day,
      &        dys,npthsout_day1,ptout_day1,
      &        julstout_days1,ndx_days1,
@@ -84,6 +94,8 @@ c-----the storage index pointer for each block of data
       endif
 
       if (npthsout_week1 .gt. 0) then
+      jmin_1week=incr_intvl(julmin,'1WEEK',NEAREST_BOUNDARY)
+      jmin_1week_prev=incr_intvl(julmin,'-1WEEK',NEAREST_BOUNDARY)
          call store_outpaths_gen(max_out_week,
      &        wks,npthsout_week1,ptout_week1,
      &        julstout_weeks1,ndx_weeks1,
@@ -93,6 +105,8 @@ c-----the storage index pointer for each block of data
       endif
 
       if (npthsout_month1 .gt. 0) then
+      jmin_1month=incr_intvl(julmin,'1MON',NEAREST_BOUNDARY)
+      jmin_1month_prev=incr_intvl(julmin,'-1MON',NEAREST_BOUNDARY)
          call store_outpaths_gen(max_out_month,
      &        mths,npthsout_month1,ptout_month1,
      &        julstout_months1,ndx_months1,
@@ -102,6 +116,8 @@ c-----the storage index pointer for each block of data
       endif
 
       if (npthsout_year1 .gt. 0) then
+      jmin_1year=incr_intvl(julmin,'1YEAR',NEAREST_BOUNDARY)
+      jmin_1year_prev=incr_intvl(julmin,'-1YEAR',NEAREST_BOUNDARY)
          call store_outpaths_gen(max_out_year,
      &        yrs,npthsout_year1,ptout_year1,
      &        julstout_years1,ndx_years1,

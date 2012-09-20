@@ -153,7 +153,7 @@ c-----------Calculate Reservoir flows
 *--------Update dependent variables and check for closure.
          closediteration=NetworkClosure()
  100  end do
-
+      
 *-----End iteration loop.
       OK = CloseNetworkIteration()
 
