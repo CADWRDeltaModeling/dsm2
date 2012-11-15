@@ -46,9 +46,15 @@
 #define getBoundaryFlow GET_BOUNDARY_FLOW
 #define getStageBoundaryFlow GET_STAGE_BOUNDARY_FLOW
 #define getConveyorFlow GET_CONVEYOR_FLOW
+#define updateOpsOfFilters UPDATE_OPS_OF_FILTERS
+#define getOpOfFilter GET_OP_OF_FILTER
 #define getUpNodeQuality GET_UP_NODE_QUALITY
 #define getDownNodeQuality GET_DOWN_NODE_QUALITY
 #endif
+
+
+#define LEN5 2000
+
 
 //
 #ifdef __cplusplus
@@ -81,6 +87,8 @@ int STDCALL getReservoirPumping( int * number);
 float STDCALL getBoundaryFlow( int * number);
 float STDCALL getStageBoundaryFlow( int * number);
 float STDCALL getConveyorFlow(  int * number);
+void STDCALL updateOpsOfFilters();
+float STDCALL getOpOfFilter(int * number);
 float STDCALL getUpNodeQuality( int * number, int * constituent);
 float STDCALL getDownNodeQuality( int * number, int * constituent);
 #ifdef __cplusplus

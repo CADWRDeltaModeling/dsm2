@@ -407,7 +407,90 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
       return
       end
 
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine update_ops_of_filters()
+c     UpdateTimeVaryingData and get all filter ops for the specified timestamp
+      use type_defs
+      use iopath_data
+      use runtime_data
+      use common_ptm
+      use IO_Units
+      implicit none
+      
+*   Module data:
+      include '../../timevar/dss.inc'
+      include '../../timevar/readdss.inc'
+      
+      integer i
+      
+ 662  format(/"Invalid filter's operation: ",a," filter's operation",f8.3 " is limited to range 0~1")
+ 
+      if (nfilter .gt. 1000) 
+     &     write(*,*) 'Extend LEN1 in dynamicData.h to ', nfilter 
 
+      if (npthsin_min15 .gt. 0) then
+         call readtvd(max_inp_min,mins15,npthsin_min15,ptin_min15,
+     &        datain_15min)
+      endif
+
+      if (npthsin_hour1 .gt. 0) then
+         call readtvd(max_inp_hour,hrs,npthsin_hour1, ptin_hour1,
+     &        datain_1hour)
+      endif
+
+      if (npthsin_day1 .gt. 0) then
+         call readtvd(max_inp_day,dys,npthsin_day1,ptin_day1,
+     &        datain_1day)
+      endif
+
+      if (npthsin_month1 .gt. 0) then
+         call readtvd(max_inp_month,mths,npthsin_month1,ptin_month1,
+     &        datain_1month)
+      endif
+
+      if (npthsin_year1 .gt. 0) then
+         call readtvd(max_inp_year,yrs,npthsin_year1,ptin_year1,
+     &        datain_1year)
+      endif
+
+      if (npthsin_irr .gt. 0) then
+         call readtvd(max_inp_irr,irrs,npthsin_irr,ptin_irr,
+     &        datain_irr)
+      endif
+      
+      do i=1,ninpaths
+         call get_inp_data(i) ! get input data from buffers
+      end do
+      
+c     check operation value
+      do i=1,nfilter
+         if (pathinput(i).value .le. 1 .and. 
+     &       pathinput(i).value .ge. 0) then
+            part_filter(i).op = pathinput(i).value
+         else
+            write (unit_error,662) trim(pathinput(i).name), 
+     &             pathinput(i).value
+            call exit(-1)
+         end if
+      enddo
+      
+      !prev_julmin = julmin
+      
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_op_of_filter(number)
+c     get the filter op for the specified filter at current timestamp
+      use common_ptm
+      implicit none
+      integer number
+      real get_op_of_filter
+
+      number = number+1
+      get_op_of_filter = part_filter(number).op
+      
+      return
+      end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_quality(number, constituent)
       use ptm_local

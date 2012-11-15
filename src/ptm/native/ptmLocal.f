@@ -339,7 +339,7 @@ c-----global variables
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine close_flux_output()
-	implicit none
+      implicit none
       call store_outpaths(.true.)
       call wrt_outpaths
       return
@@ -347,12 +347,12 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine echoversion()
-	use io_units
-	use runtime_data
-	use groups, only:WriteGroupMembers2File
-	use common_ptm
-	implicit none
-	integer i
+      use io_units
+      use runtime_data
+      use groups, only:WriteGroupMembers2File
+      use common_ptm
+      implicit none
+      integer i
 c-----copyright notices
       write(unit_screen, 805)
  805  format(/
@@ -407,6 +407,34 @@ c-----copyright notices
 
  1020    format(i6,1x,i6,1x,a30,1x,a30)
 
+c-----particle filter information
+         if (nfilter .gt. 0) then
+            write(unit_output,1200) nfilter
+ 1200       format(//,1x,'Number of particle filters',i6)
+            write(unit_output,1210) 'Name', 'Node'
+     &           , 'at Waterbody', 'Pass Efficiency'
+ 1210       format(//1x,'Particle Filters'/
+     &           '----------------------'///
+     &           a30,1x,a6,1x,a30,1x,a12/
+     &           '------ ------ ------------------------------ ',
+     &           '------------------------------')
+            do i=1,nfilter
+               if (part_filter(i).node .ne. miss_val_i) then
+                   write(unit_output,1220) part_filter(i).name
+     &              , part_filter(i).node
+     &              , part_filter(i).at_wb
+     &              , part_filter(i).op
+               elseif (part_filter(i).node .eq. miss_val_i) then
+                   write(unit_output,1221) part_filter(i).name
+     &              , part_filter(i).resname
+     &              , part_filter(i).at_wb
+     &              , part_filter(i).op
+               endif
+            enddo
+ 1220       format(a30,1x,i6,1x,a30,1x,f12.2)
+ 1221       format(a30,1x,a30,1x,a30,1x,f12.2)
+         endif
+
 c--------output scalar parameters
  1100    format(/a/)
  1110    format(/a,f10.5/)
@@ -428,7 +456,7 @@ c--------output scalar parameters
      &        , ptm_trans_c_coef
 
 c     an output of imported group memebers Jon 4/5/06
-	call WriteGroupMembers2File(unit_output)
+      call WriteGroupMembers2File(unit_output)
 
          write(unit_screen, 9000)
          write(unit_output, 9000)

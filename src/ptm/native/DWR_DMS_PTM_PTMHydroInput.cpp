@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "DWR_DMS_PTM_PTMHydroInput.h"
 #include "dynamicData.h"
+#include "fixedData.h"
 /*
  * Class:     DWR_DMS_PTM_PTMHydroInput
  * Method:    readMultTide
@@ -211,6 +212,26 @@ JNIEXPORT jfloat JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getConveyorFlow
   return (jfloat) getConveyorFlow(&number);
 }
 
+/*
+ * Class:     DWR_DMS_PTM_PTMHydroInput
+ * Method:    updateOpsOfFilters
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_DWR_DMS_PTM_PTMHydroInput_updateOpsOfFilters
+(JNIEnv *env,  jobject thisOne){
+  updateOpsOfFilters();
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMHydroInput
+ * Method:    getOpOfFilter
+ * Signature: (I)F
+ */
+JNIEXPORT jfloat JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getOpOfFilter
+(JNIEnv *env, jobject thisObject, jint i){
+  int number = (int) i;
+  return (jfloat) getOpOfFilter(&number);
+}
 /*
  * Class:     DWR_DMS_PTM_PTMHydroInput
  * Method:    getUpNodeQuality

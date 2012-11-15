@@ -7,14 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef DWR_DMS_PTM_PTMFixedData_CHANNEL_TYPE
-#define DWR_DMS_PTM_PTMFixedData_CHANNEL_TYPE 100L
-#undef DWR_DMS_PTM_PTMFixedData_RESERVOIR_TYPE
-#define DWR_DMS_PTM_PTMFixedData_RESERVOIR_TYPE 101L
-#undef DWR_DMS_PTM_PTMFixedData_BOUNDARY_TYPE
-#define DWR_DMS_PTM_PTMFixedData_BOUNDARY_TYPE 102L
-#undef DWR_DMS_PTM_PTMFixedData_CONVEYOR_TYPE
-#define DWR_DMS_PTM_PTMFixedData_CONVEYOR_TYPE 103L
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    initialize
@@ -534,6 +526,54 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxIncomingType
  */
 JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxOutgoingType
   (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getNumberOfFilters
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNumberOfFilters
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getIndicesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getIndicesOfFilters
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getNamesOfFilters
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNamesOfFilters
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getNodesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNodesOfFilters
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getWaterbodiesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodiesOfFilters
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getWaterbodyTypesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodyTypesOfFilters
+  (JNIEnv *, jobject);
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData

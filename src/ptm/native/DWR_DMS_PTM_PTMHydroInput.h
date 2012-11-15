@@ -171,6 +171,22 @@ JNIEXPORT jfloat JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getConveyorFlow
 
 /*
  * Class:     DWR_DMS_PTM_PTMHydroInput
+ * Method:    updateOpsOfFilters
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_DWR_DMS_PTM_PTMHydroInput_updateOpsOfFilters
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMHydroInput
+ * Method:    getOpOfFilter
+ * Signature: (I)F
+ */
+JNIEXPORT jfloat JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getOpOfFilter
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMHydroInput
  * Method:    getUpNodeQuality
  * Signature: (II)F
  */

@@ -44,7 +44,12 @@ C!</license>
       character*128 filename
       
       character*40 group_name
-
+      
+      character*32 resname
+      character*32 at_wb
+      character*8 fillin
+      character*80 inpath
+      
       integer*4, external :: obj_type_code
       
 
@@ -98,5 +103,43 @@ C!</license>
       end do
       print *,"Number of particle group outputs processed: ", nitem
 
+      nitem = particle_filter_buffer_size()
+      do icount = 1,nitem
+         call particle_filter_query_from_buffer (icount,
+     &                                           name,
+     &                                           node,   
+     &                                           at_wb,
+     &                                           fillin,
+     &                                           filename,
+     &                                           inpath,
+     &                                           ierror)
+         call process_particle_filter(name,
+     &                                node,
+     &                                at_wb,
+     &                                fillin,
+     &                                filename,
+     &                                inpath)
+      end do
+      print *,"Number of particle filters processed: ", nitem
+
+      nitem = particle_res_filter_buffer_size()
+      do icount = 1,nitem
+         call particle_res_filter_query_from_buffer (icount,
+     &                                               name,
+     &                                               resname,   
+     &                                               at_wb,
+     &                                               fillin,
+     &                                               filename,
+     &                                               inpath,
+     &                                               ierror)
+         call process_particle_res_filter(name,
+     &                                    resname,
+     &                                    at_wb,
+     &                                    fillin,
+     &                                    filename,
+     &                                    inpath)
+      end do
+      print *,"Number of particle reservoir filters processed: ", nitem
+      
       end subroutine
 

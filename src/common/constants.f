@@ -478,6 +478,7 @@ c-----object type codes
      &     ,obj_boundary_flow
      &     ,obj_source_sink
      &     ,obj_climate
+     &     ,obj_filter          ! particle filter without interrupting flows
 
 
       parameter (
@@ -495,6 +496,7 @@ c-----object type codes
      &     ,obj_group=22
      &     ,obj_climate=30
      &     ,obj_oprule=111
+     &     ,obj_filter=120
      &     )
 
 c-----data types

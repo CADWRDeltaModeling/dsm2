@@ -883,6 +883,112 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxOutgoingType
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getNumberOfFilters
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNumberOfFilters
+(JNIEnv *env,  jobject thisOne){
+  jint nfilters = (jint) getNumberOfFilters();
+  return nfilters;
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getIndicesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getIndicesOfFilters
+(JNIEnv *env,  jobject thisOne){
+  int array[LEN5];
+  int arrayLen = getNumberOfFilters();
+  jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
+  getIndicesOfFilters(array);
+  env->SetIntArrayRegion(arrayJava, 
+			 (jsize) 0, (jsize) arrayLen, 
+			 (jint*) array);
+  return arrayJava; 
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getNamesOfFilters
+ * Signature: ()[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNamesOfFilters
+(JNIEnv *env,  jobject thisOne){
+  static char name[32];
+  int strlen=32;
+  int i;
+  jstring tmpstr;
+
+  int arrayLen = getNumberOfFilters();
+  jclass clazz = env->FindClass("java/lang/String");
+  jobjectArray arrayJava = env->NewObjectArray((jsize) arrayLen, clazz, NULL);
+
+  for(i=0;i<arrayLen;i++) {
+      getNameOfFilter(&i,name,strlen);
+	  //const char* exactName = name;
+      //tmpstr = env->NewStringUTF(exactName);
+      tmpstr = env->NewStringUTF(name);
+	  env->SetObjectArrayElement(arrayJava, i, tmpstr);
+	  env->DeleteLocalRef(tmpstr);
+  }
+  return arrayJava; 
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getNodesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNodesOfFilters
+(JNIEnv *env,  jobject thisOne){
+  int array[LEN5];
+  int arrayLen = getNumberOfFilters();
+  jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
+  getNodesOfFilters(array);
+  env->SetIntArrayRegion(arrayJava, 
+			 (jsize) 0, (jsize) arrayLen, 
+			 (jint*) array);
+  return arrayJava; 
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getWaterbodiesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodiesOfFilters
+(JNIEnv *env,  jobject thisOne){
+  int array[LEN5];
+  int arrayLen = getNumberOfFilters();
+  jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
+  getWaterbodiesOfFilters(array);
+  env->SetIntArrayRegion(arrayJava, 
+			 (jsize) 0, (jsize) arrayLen, 
+			 (jint*) array);
+  return arrayJava; 
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getWaterbodyTypesOfFilters
+ * Signature: ()[I
+ */
+JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodyTypesOfFilters
+(JNIEnv *env,  jobject thisOne){
+  int array[LEN5];
+  int arrayLen = getNumberOfFilters();
+  jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
+  getWaterbodyTypesOfFilters(array);
+  env->SetIntArrayRegion(arrayJava, 
+			 (jsize) 0, (jsize) arrayLen, 
+			 (jint*) array);
+  return arrayJava; 
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getNumberOfGroupOutputs
  * Signature: ()I
  */

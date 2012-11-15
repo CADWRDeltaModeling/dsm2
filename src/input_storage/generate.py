@@ -241,6 +241,30 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)
 
+    component = TableComponent("particle_filter",
+                             [CharField("name", DSM2_NAME_LEN,16),\
+                              IntField("node"),\
+                              CharField("at_wb",DSM2_NAME_LEN,24),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
+                             ],
+                             ["name"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)
+
+    component = TableComponent("particle_res_filter",
+                             [CharField("name", DSM2_NAME_LEN,16),\
+                              CharField("res_name",32,16),\
+                              CharField("at_wb",DSM2_NAME_LEN,24),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
+                             ],
+                             ["name"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)
+
     component = TableComponent("particle_flux_output",
                              [CharField("name",DSM2_NAME_LEN,16),
                               CharField("from_wb",DSM2_NAME_LEN+8,24),\
@@ -479,7 +503,7 @@ def generate_dsm2():
     groups_keywords   = ["group","group_member"]
     io_file_keywords  = ["io_file"]
     tidefile_keywords = ["tidefile"]
-    particle_keywords = ["particle_insertion","particle_group_output","particle_flux_output"]
+    particle_keywords = ["particle_insertion","particle_filter","particle_res_filter","particle_group_output","particle_flux_output"]
     
     
     define_text_sub("envvar",outdir)

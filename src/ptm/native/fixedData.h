@@ -189,6 +189,12 @@
 #define getFluxOutgoingType GET_FLUX_OUTGOING_TYPE
 #define getFluxIncomingAccountType GET_FLUX_INCOMING_ACCOUNT_TYPE
 #define getFluxOutgoingAccountType GET_FLUX_OUTGOING_ACCOUNT_TYPE
+#define getNumberOfFilters GET_NUMBER_OF_FILTERS
+#define getIndicesOfFilters GET_INDICES_OF_FILTERS
+#define getNameOfFilter GET_NAME_OF_FILTER
+#define getNodesOfFilters GET_NODES_OF_FILTERS
+#define getWaterbodiesOfFilters GET_WATERBODIES_OF_FILTERS
+#define getWaterbodyTypesOfFilters GET_WATERBODYTYPES_OF_FILTERS
 #define getNumberOfGroupOutputs GET_NUMBER_OF_GROUP_OUTPUTS
 #define getNumberOfGroupMembers GET_NUMBER_OF_GROUP_MEMBERS
 #define getGroupMemberType GET_GROUP_MEMBER_TYPE
@@ -230,7 +236,7 @@
 #define LEN2 80
 #define LEN3 180
 #define LEN4 20
-
+#define LEN5 2000
 
 
 
@@ -331,6 +337,13 @@ extern "C" {
   void STDCALL getFluxOutgoing(int* index,int *array, int* nmember);
   void STDCALL getFluxIncomingType(int* index,int *array, int* nmember);
   void STDCALL getFluxOutgoingType(int* index,int *array, int* nmember);
+  
+  int STDCALL getNumberOfFilters();
+  void STDCALL getIndicesOfFilters(int* array);
+  void STDCALL getNameOfFilter(int *index,char* array,STRLEN_TYPE arrayLength);
+  void STDCALL getNodesOfFilters(int *array);
+  void STDCALL getWaterbodiesOfFilters(int *array);
+  void STDCALL getWaterbodyTypesOfFilters(int *array);
   
   int STDCALL getNumberOfGroupOutputs();
   int STDCALL getNumberOfGroupMembers(int* index);
