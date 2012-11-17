@@ -73,7 +73,7 @@ public final void getNextChunk(int currentModelTime) {
    *  the information in the Waterbody array in PTMEnv
    */
 public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,
-					     LimitsFixedData lFD){
+                                             LimitsFixedData lFD){
   //update Channel depths, flows and area of flow
   float[] depthArray = new float[2];
   float[] flowArray = new float[2];
@@ -102,8 +102,8 @@ public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,
 
       for (int indx = 0; indx < qualityArray[0].length; indx++){
       	//fixme: got rid of quality temporarily
-	qualityArray[Channel.UPNODE][0] = 0.f; //getUpNodeQuality(channelNumber,indx+1);
-	qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
+        qualityArray[Channel.UPNODE][0] = 0.f; //getUpNodeQuality(channelNumber,indx+1);
+        qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
       }
 
       //      if(channelNumber == 54 || dsmNumber == 54)
@@ -237,10 +237,10 @@ public float[] getFiltersOps(){
 
 private native void  readMultTide(int currentModelTime);
   //
-private native int   getExtFromInt(int channelNumber);
-//private native int   getIntFromExtChan(int extChanNo);//TODO
-//private native int   getExtFromIntNode(int intNodeNo);//TODO
-//private native int   getIntFromExtNode(int extNodeNo);//TODO
+private native int   getExtFromIntChan(int intChanNo);
+private native int   getIntFromExtChan(int extChanNo);
+private native int   getExtFromIntNode(int intNodeNo);
+private native int   getIntFromExtNode(int extNodeNo);
 private native float getUpNodeDepth(int channelNumber);
 private native float getDownNodeDepth(int channelNumber);
 private native float getUpNodeStage(int channelNumber);
@@ -254,10 +254,10 @@ private native float getFlowForWaterbodyNode(int wbId, int nodeId);
 
 private native float getReservoirVolume(int reservoirNumber);
 private native int   getNodeNumberForConnection(int reservoirNumber, 
-						  int connection);
+                                                int connection);
 private native float getReservoirDepth(int reservoirNumber);
 private native float getReservoirFlowForConnection(int reservoirNumber, 
-						     int connection);
+                                                   int connection);
 private native float getDiversionAtNode(int nodeNumber);
 private native float getReservoirPumping(int reservoirNumber);
 

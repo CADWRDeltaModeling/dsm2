@@ -43,12 +43,12 @@ c----- functions
      &     , get_maximum_number_of_conveyors
       
       real get_flow_balance_at_node,fb
-	real*8 :: FLOW_BALANCE_TOL = 2.
+      real*8 :: FLOW_BALANCE_TOL = 2.
 c----- locals
       integer iconnect
       integer :: icall = 0
       integer i,j,k,id, dsmNumber, qId
-	integer ext2int
+      integer ext2int
 c----- begin
 c----- update channel info
       do i=1, get_number_of_channels() 
@@ -168,15 +168,83 @@ c      call read_quality_bin()
       return 
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
-      function get_ext_from_int(internal)
+      function get_ext_from_int_chan(int_chan)
       use grid_data
+      use IO_Units
+      
       implicit none
-      integer get_ext_from_int
-      integer internal
-      get_ext_from_int= int2ext(internal)
+      integer get_ext_from_int_chan
+      integer int_chan
+      
+ 633  format(/"No such internal channel id: ",i4)
+ 
+      get_ext_from_int_chan= int2ext(int_chan)
+      if (get_ext_from_int_chan .le. 0) then
+         write (unit_error,633) int_chan
+         call exit(-1)
+      endif
+      
       return
       end
+c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_int_from_ext_chan(ext_chan)
+      use grid_data
+      use IO_Units
+      
+      implicit none
+      integer get_int_from_ext_chan
+      integer, external :: ext2int
+      integer ext_chan
+      
+ 634  format(/"No such internal channel id: ",i4)
+      
+      get_int_from_ext_chan = ext2int(ext_chan)
+      if (get_int_from_ext_chan .le. 0) then
+         write (unit_error,634) ext_chan
+         call exit(-1)
+      endif
+      
+      return
+      end
+c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_ext_from_int_node(int_node)
+      use grid_data
+      use IO_Units
+      
+      implicit none
+      integer get_ext_from_int_node
+      integer int_node
+      
+ 623  format(/"No such internal node id: ",i4)
 
+      get_ext_from_int_node = nodelist(int_node)
+      if (get_ext_from_int_node .le. 0) then
+         write (unit_error,623) int_node
+         call exit(-1)
+      endif
+      
+      return
+      end
+c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_int_from_ext_node(ext_node)
+      use grid_data
+      use IO_Units
+      
+      implicit none
+      integer get_int_from_ext_node
+      integer, external :: ext2intnode
+      integer ext_node
+      
+ 624  format(/"No such external node id: ",i4)
+ 
+      get_int_from_ext_node = ext2intnode(ext_node)
+      if (get_int_from_ext_node .le. 0) then
+         write (unit_error,624) ext_node
+         call exit(-1)
+      endif
+      
+      return
+      end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_depth(number)
       use ptm_local

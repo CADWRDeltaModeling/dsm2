@@ -19,10 +19,34 @@ JNIEXPORT void JNICALL Java_DWR_DMS_PTM_PTMHydroInput_readMultTide
 
 /*
  * Class:     DWR_DMS_PTM_PTMHydroInput
- * Method:    getExtFromInt
+ * Method:    getExtFromIntChan
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getExtFromInt
+JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getExtFromIntChan
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMHydroInput
+ * Method:    getIntFromExtChan
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getIntFromExtChan
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMHydroInput
+ * Method:    getExtFromIntNode
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getExtFromIntNode
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMHydroInput
+ * Method:    getIntFromExtNode
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMHydroInput_getIntFromExtNode
   (JNIEnv *, jobject, jint);
 
 /*
