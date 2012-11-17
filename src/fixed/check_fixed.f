@@ -1038,10 +1038,13 @@ c     binary search
       integer extnode
       ext2intnode=bsearchqq(loc(extnode),loc(nodelist(1)),
      &                      nintnodes,SRT$INTEGER4)
-      if (ext2intnode .gt. 0)return
+      if (ext2intnode .gt. 0) return
       ext2intnode=bsearchqq(loc(extnode),loc(nodelist(nintnodes+1)),
-     &     (nnodes-nintnodes),SRT$INTEGER4)+nintnodes
-      if (ext2intnode .lt. 0) ext2intnode = miss_val_i
+     &                     (nnodes-nintnodes),SRT$INTEGER4)
+      if (ext2intnode .gt. 0) then
+        ext2intnode=ext2intnode+nintnodes
+      endif
+      
       return
       end function
 
