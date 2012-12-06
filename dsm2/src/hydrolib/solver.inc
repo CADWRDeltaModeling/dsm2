@@ -56,11 +56,11 @@ c-------Don't change the size of these variables!!!!
         real*8 XOld(MAX_EQUATION)
 		real*8 XAdj(MAX_EQUATION)
         real*8 ColumnScale(MAX_EQUATION),RowScale(MAX_EQUATION)
-        real*8, parameter :: ZscaleFactor= 1.D0!/(1024.D0)
-		real*8, parameter :: MassScaleFactor= 1.D0/(1024.D0*1024.D0)
-		real*8, parameter :: DynScaleFactor=1.D0/(128.D0*1024.D0*1024.D0)
-		real*8, parameter :: ResScaleFactor=128.D0
-		real*8, parameter :: ResConnectScaleFactor=32.D0
+        real*8, parameter :: ZscaleFactor=1.D0      ! 1.D0/(1024.D0)
+		real*8, parameter :: MassScaleFactor=1.D0/(32.D0*1024.D0)
+		real*8, parameter :: DynScaleFactor=1.D0/(1024.D0)
+		real*8, parameter :: ResScaleFactor=1.D0
+		real*8, parameter :: ResConnectScaleFactor=128.D0
         real*8  Rescale
         COMMON /NClose/ NormClose
 		COMMON /LInfNorm/ LInfNorm,LastLInfNorm,L2Norm,LastL2Norm
