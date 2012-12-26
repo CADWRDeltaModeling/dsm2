@@ -45,78 +45,101 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
-
+/**
+ *
+ */
 public class PTMFluxOutput extends PTMOutput{
+	
+  /**
+   *  constructor
+   */
   public PTMFluxOutput(int startTime){
     super();
     initializeFluxOutput(startTime);
   }
-
+  
+  /**
+   * 
+   */
   public void GroupOutput(Flux [] groupAt, boolean percent){
     groupPercent = percent;
+
     if (groupAt.length < MAX_GROUP_OUTPUT){
       nGroup = groupAt.length;
-      
     }else {
       System.out.println("Too many group values required");
       nGroup = MAX_GROUP_OUTPUT;
     }
+    
     groupAtNode = groupAt;
   }
 
+  /**
+   * 
+   */
   public void FluxOutput(Flux [] fluxAt, boolean percent){
     fluxPercent = percent;
+    
     if (fluxAt.length < MAX_FLUX_OUTPUT)
       nFlux = fluxAt.length;
     else {
       System.out.println("Too many flux values required");
       nFlux = MAX_FLUX_OUTPUT;
     }
+    
     fluxAtNode = fluxAt;
   }
   
+  /**
+   * 
+   */
   public void output() {
   	   
-		if (fluxAtNode != null)
-			genericFlux = fluxAtNode;
-		else if (groupAtNode != null)
-			genericFlux = groupAtNode;
-		else
-			return;
-		if (genericFlux[0] == null)
-			return;
-		float fluxOut;
-		for (int cTime = genericFlux[0].getStartTime(); cTime < genericFlux[0]
-				.getEndTime(); cTime += genericFlux[0].getPTMTimeStep()) {
-			for (int i = 0; i < nFlux; i++) {
-				if (fluxPercent) {
-					fluxOut = (fluxAtNode[i].getFlux(cTime) * 100.0f)
-							/ fluxAtNode[i].getNumberOfParticles();
-				} else {
-					fluxOut = (fluxAtNode[i].getFlux(cTime));
-				}
-				setFlux(i + 1, fluxOut);
-			}
-
-			for (int i = 0; i < nGroup; i++) {
-				if (groupPercent) {
-					fluxOut = (groupAtNode[i].getFlux(cTime) * 100.0f)
-							/ groupAtNode[i].getNumberOfParticles();
-				} else {
-					fluxOut = (groupAtNode[i].getFlux(cTime));
-				}
-				setGroup(i + 1, fluxOut);
-
-			}
-			writeFluxOutput();
-
-		}
-	}
-
+    if (fluxAtNode != null)
+      genericFlux = fluxAtNode;
+    else if (groupAtNode != null)
+      genericFlux = groupAtNode;
+    else
+      return;
+    if (genericFlux[0] == null)
+      return;
+    
+    float fluxOut;
+    //
+    for (int cTime = genericFlux[0].getStartTime(); cTime < genericFlux[0]
+      	 .getEndTime(); cTime += genericFlux[0].getPTMTimeStep()) {
+         
+      //Node
+      for (int i = 0; i < nFlux; i++) {
+        if (fluxPercent) {
+      	  fluxOut = (fluxAtNode[i].getFlux(cTime) * 100.0f)
+                   / fluxAtNode[i].getNumberOfParticles();
+      	} else {
+          fluxOut = (fluxAtNode[i].getFlux(cTime));
+      	}
+      	setFlux(i + 1, fluxOut);
+      }
+      //Group
+      for (int i = 0; i < nGroup; i++) {
+      	if (groupPercent) {
+          fluxOut = (groupAtNode[i].getFlux(cTime) * 100.0f)
+                  / groupAtNode[i].getNumberOfParticles();
+      	} else {
+          fluxOut = (groupAtNode[i].getFlux(cTime));
+      	}
+      	setGroup(i + 1, fluxOut);
+      }
+      
+      writeFluxOutput();
+    }// end for(cTime)
+  }
+  
+  /**
+   * 
+   */
   public void closeFile(){
     closeFluxOutput();
   }
-
 
   protected native void initializeFluxOutput(int startTime);
   protected native void writeFluxOutput();

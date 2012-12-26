@@ -53,96 +53,102 @@ package DWR.DMS.PTM;
  * @author Nicky Sandhu
  * @version $Id: NodeFlux.java,v 1.3.6.3 2007/07/31 18:30:40 eli2 Exp $
  */
-
 public class NodeFlux extends Flux{
   /**
-   * constructor
+   * Constructor
    */
-public NodeFlux(FluxFixedData info, boolean cumulative){
-  
-  cumulativeFlux = cumulative;
-  if (info.nodeId != -1){
-    fluxType = NODE_FLUX;
-    this.info = info;
-  }
-  else{
-    System.out.println("Incorrect info initialization parameters");
-  }
-}
-
-  /**
-   *  calculates total Flux and fills up array of Flux over time as well
-   */
-public void calculateFlux(ParticleTrace [] traceArray, int numberOfTraceParticles
-			  ,int sTime, int eTime, int tStep, int nParticles){
-  if( initialized == false){
-    super.calculateFlux(traceArray, numberOfTraceParticles, 
-			sTime, eTime, tStep, nParticles);
-    numberOfParticleCircleFlux=0;
-    circleFlux = new int [numberOfTimeSteps];
-    for(int i=0; i< numberOfTimeSteps; i++) circleFlux[i]=0;
-  }
-
-  numberOfParticles = numberOfTraceParticles;
-
-  int particleFlux = 0;
-  //int previousIndex;  @todo remove?
-  boolean contributedToFlux = false;
-  int index;
-  // do for each particle...
-  for(int pNum=0; pNum < numberOfParticles; pNum++){
-    contributedToFlux = false;
-    particleFlux = 0;
-    //previousIndex = 0;
-    int traceNum=1;
-    int maxTraces = traceArray[pNum].getNumberOfTraces();
-    //    System.out.println(pNum+" maxTraces = "+maxTraces);
-    //    System.out.println("number of timesteps = "+numberOfTimeSteps+" @ "+timeStep);
-    try {
-      for(index=0; index < numberOfTimeSteps; index++ ){
-	if(! doFluxCumulative()) particleFlux = 0; // instantaneous values
-	while ( traceNum <= maxTraces && 
-		traceArray[pNum].getTime(traceNum) == index*timeStep + startTime){
-	    if ( traceArray[pNum].getNodeId(traceNum) == info.getNodeId() ) {
-	    Waterbody wbIn =
-	      Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum-1));
-	    Waterbody wbOut =
-	      Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum));
-	    if ( isIncoming(wbIn) && isOutgoing(wbOut)){
-	      particleFlux ++;
-	      contributedToFlux = true;
-	      //	      System.out.println("Particle #: " + pNum + " Flux = " + particleFlux);
-	    }
-	    else if ( isOutgoing(wbIn) && isIncoming(wbOut)){
-	      particleFlux --;
-	      contributedToFlux = true;
-	      //	      System.out.println("Particle #: " + pNum + " Flux = " + particleFlux);
-	    }
-	  }
-	  traceNum++;
-	}//if (traceArray[pNum].getTime(traceNum) == index*
-	//	System.out.println("Flux["+index+"]= "+ Flux[index]);
-	//	Flux[index] += particleFlux;
-	flux[index] += particleFlux;
-	//	System.out.println("Flux["+index+"] = "+Flux[index]);
-	if(particleFlux > 0 ) circleFlux[index] += particleFlux - 1;
-	else if (particleFlux < 0) circleFlux[index] += particleFlux + 1;
-	else if (particleFlux == 0) circleFlux[index]+=0;
-      }//for(index
-    }catch( java.lang.ArrayIndexOutOfBoundsException e){
-      // continue; //@todo Eli: why Do they really happen?
-      System.out.println("Node flux out of bounds: " + traceArray[pNum]);
-      e.printStackTrace();
+  public NodeFlux(FluxFixedData info, boolean cumulative){
+    
+    cumulativeFlux = cumulative;
+    if (info.nodeId != -1){
+      fluxType = NODE_FLUX;
+      this.info = info;
     }
-  }//for(pNum
-}
+    else{
+      System.out.println("Incorrect info initialization parameters");
+    }
+  }
 
   /**
-   *  returns node Env Index
+   *  Calculates total Flux and fills up array of Flux over time as well
    */
-public final int getNodeEnvIndex(){
-  return info.nodeId;
-}
+  public void calculateFlux(ParticleTrace [] traceArray, 
+                            int numberOfTraceParticles,
+                            int sTime, int eTime, int tStep, 
+                            int nParticles){
+    if(initialized == false){
+      super.calculateFlux(traceArray, numberOfTraceParticles, 
+                          sTime, eTime, tStep, nParticles);
+      numberOfParticleCircleFlux=0;
+      circleFlux = new int [numberOfTimeSteps];
+      for(int i=0; i< numberOfTimeSteps; i++) circleFlux[i]=0;
+    }
+  
+    numberOfParticles = numberOfTraceParticles;
+  
+    int particleFlux = 0;
+    //int previousIndex;  @todo remove?
+    boolean contributedToFlux = false;
+    int index;
+    // do for each particle...
+    for(int pNum=0; pNum < numberOfParticles; pNum++){
+      contributedToFlux = false;
+      particleFlux = 0;
+      //previousIndex = 0;
+      int traceNum=1;
+      int maxTraces = traceArray[pNum].getNumberOfTraces();
+      //System.out.println(pNum+" maxTraces = "+maxTraces);
+      //System.out.println("number of timesteps = "+numberOfTimeSteps+" @ "+timeStep);
+      try {
+        for(index=0; index < numberOfTimeSteps; index++){
+          if(! doFluxCumulative()) particleFlux = 0; // instantaneous values
+          
+          while (traceNum <= maxTraces && 
+                 traceArray[pNum].getTime(traceNum) == index*timeStep + startTime){
+            if (traceArray[pNum].getNodeId(traceNum) == info.getNodeId()){
+              Waterbody wbIn =
+                Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum-1));
+              Waterbody wbOut =
+                Globals.Environment.getWaterbody(traceArray[pNum].getWaterbodyId(traceNum));
+              
+              if (isIncoming(wbIn) && isOutgoing(wbOut)){
+                particleFlux ++;
+                contributedToFlux = true;
+                //System.out.println("Particle #: " + pNum + " Flux = " + particleFlux);
+              }
+              else if (isOutgoing(wbIn) && isIncoming(wbOut)){
+                particleFlux --;
+                contributedToFlux = true;
+                //System.out.println("Particle #: " + pNum + " Flux = " + particleFlux);
+              }
+            }//end if (traceArray)
+            traceNum++;
+          }//end while
+          
+          //if (traceArray[pNum].getTime(traceNum) == index*
+          //  System.out.println("Flux["+index+"]= "+ Flux[index]);
+          //  Flux[index] += particleFlux;
+          flux[index] += particleFlux;
+          //System.out.println("Flux["+index+"] = "+Flux[index]);
+          if(particleFlux > 0 ) circleFlux[index] += particleFlux - 1;
+          else if (particleFlux < 0) circleFlux[index] += particleFlux + 1;
+          else if (particleFlux == 0) circleFlux[index]+=0;
+        }//end for(index)
+        
+      } catch(java.lang.ArrayIndexOutOfBoundsException e){
+        // continue; //@todo Eli: why Do they really happen?
+        System.out.println("Node flux out of bounds: " + traceArray[pNum]);
+        e.printStackTrace();
+      } // end try
+    }//end for(pNum)
+  }
+
+  /**
+   *  Returns node Env Index
+   */
+  public final int getNodeEnvIndex(){
+    return info.nodeId;
+  }
 
 
   /**
@@ -177,65 +183,67 @@ public final int getOutgoing(int index){
 } */
 
   /**
-   *  returns true for cumulative Flux output
+   *  Returns true for cumulative Flux output
    */
-public final boolean doFluxCumulative(){
-  //  return info.doFluxCumulative();
-  return cumulativeFlux;
-}
-
-
-protected boolean cumulativeFlux;
-
+  public final boolean doFluxCumulative(){
+    //return info.doFluxCumulative();
+    return cumulativeFlux;
+  }
+  /**
+   *  
+   */
+  protected boolean cumulativeFlux;
   /**
    *  Flux information is contained in info
    */
-protected FluxFixedData info;
+  protected FluxFixedData info;
   /**
    *  An array of Flux over time indexed from starttime to endtime
    *  using timestep which counts only repeated contributions to Flux
    *  from the same particle.
    */
-protected int [] circleFlux;
+  protected int [] circleFlux;
 
   /**
    *  # of particles contributing to circle Flux and storage
    */
-protected int numberOfParticleCircleFlux;
+  protected int numberOfParticleCircleFlux;
 
   /**
-   *  checks to see if the Waterbody Id matches any of the specified
+   *  Checks to see if the Waterbody Id matches any of the specified
    *  incoming groups.
    */
-protected final boolean isIncoming(Waterbody wb){
+  protected final boolean isIncoming(Waterbody wb){
     System.out.println("Testing outgoing: "+wb);
     return info.getInGroup().containsWaterbody(wb);
-}
-
+  }
 
   /**
-   *  checks to see if the Waterbody Id matches any of the specified
+   *  Checks to see if the Waterbody Id matches any of the specified
    *  outgoing groups.
    */
-protected final boolean isOutgoing(Waterbody wb){
+  protected final boolean isOutgoing(Waterbody wb){
     System.out.println("Testing outgoing: "+wb);
-  return info.getOutGroup().containsWaterbody(wb);
-}
-
-public String toString(){
-  StringBuffer rep = new StringBuffer("");
-  rep.append( "Node Flux : " ).append( " Node Number: " ).append( getNodeEnvIndex() ).append( "\n");
-  rep.append( "Start Time: " ).append( getStartTime() ).append( "\n");
-  rep.append( "End Time: " ).append( getEndTime() ).append( "\n");
-  rep.append( "Time Step: " ).append( getPTMTimeStep() ).append( "\n");
-
-  for(int cTime=getStartTime();
-      cTime< getEndTime();
-      cTime += 24*60){
-    rep.append( "Time: " ).append( cTime ).append( " ");
-    rep.append( "Flux: " ).append( getFlux(cTime) ).append( "\n");
+    return info.getOutGroup().containsWaterbody(wb);
   }
-  return rep.toString();
-}
+  
+  /**
+   * String representation
+   */
+  public String toString(){
+    StringBuffer rep = new StringBuffer("");
+    rep.append( "Node Flux : " ).append( " Node Number: " ).append( getNodeEnvIndex() ).append( "\n");
+    rep.append( "Start Time: " ).append( getStartTime() ).append( "\n");
+    rep.append( "End Time: " ).append( getEndTime() ).append( "\n");
+    rep.append( "Time Step: " ).append( getPTMTimeStep() ).append( "\n");
+  
+    for(int cTime=getStartTime();
+        cTime< getEndTime();
+        cTime += 24*60){
+      rep.append( "Time: " ).append( cTime ).append( " ");
+      rep.append( "Flux: " ).append( getFlux(cTime) ).append( "\n");
+    }
+    return rep.toString();
+  }
 }
 

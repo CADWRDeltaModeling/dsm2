@@ -37,9 +37,9 @@ public class ParticleTrace{
    */
 public ParticleTrace(){
   traceNumber = 0;
-  channelNumber = new Vector(INITIAL_SIZE, RESIZE_STEP);
-  nodeNumber = new Vector(INITIAL_SIZE, RESIZE_STEP);
-  entryTime = new Vector(INITIAL_SIZE, RESIZE_STEP);
+  channelNumber = new Vector<Integer>(INITIAL_SIZE, RESIZE_STEP);
+  nodeNumber = new Vector<Integer>(INITIAL_SIZE, RESIZE_STEP);
+  entryTime = new Vector<Integer>(INITIAL_SIZE, RESIZE_STEP);
   channelNumber.insertElementAt(new Integer(0), traceNumber);
   nodeNumber.insertElementAt(new Integer(0), traceNumber);
   entryTime.insertElementAt(new Integer(0), traceNumber);
@@ -124,17 +124,17 @@ protected static int RESIZE_STEP = 10;
   /**
    *  an dynamically extensible array containg waterbody numbers
    */
-protected Vector channelNumber;
+protected Vector<Integer> channelNumber;
 
   /**
    *  an array containg node numbers
    */
-protected Vector nodeNumber;
+protected Vector<Integer> nodeNumber;
 
   /**
    *  an array of time stamps
    */
-protected Vector entryTime;
+protected Vector<Integer> entryTime;
 
   /**
    *  an index to the current trace number

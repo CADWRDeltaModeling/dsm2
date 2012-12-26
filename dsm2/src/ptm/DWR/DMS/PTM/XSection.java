@@ -51,8 +51,6 @@ package DWR.DMS.PTM;
 import java.lang.*;
 
 /**
- *  CLASS
- * 
  *  XSection
  * 
  *  This class encapsulates the data for cross Section information
@@ -68,8 +66,8 @@ class XSection{
    *  Constructor
    */
 public XSection(int nId, int numElvs, float dist,
-		float[] w, float[] a, float[] elv, float minElv,
-		boolean irreg){
+                float[] w, float[] a, float[] elv, float minElv,
+                boolean irreg){
   EnvIndex = nId;
   channelNumber = -1;
   irregular = irreg;

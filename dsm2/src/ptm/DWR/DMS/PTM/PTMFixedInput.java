@@ -24,9 +24,9 @@ package DWR.DMS.PTM;
  *  is reading fixed input.
  *  <p>
  *  The Waterbody and Node relationship is defined by a network structure.
- * Each Waterbody has a unique id and maybe queried as to which nodes it is
- * connected to. Each Node also has a unique id and can be queried as to which
- * waterbodies it is connected to.
+ *  Each Waterbody has a unique id and maybe queried as to which nodes it is
+ *  connected to. Each Node also has a unique id and can be queried as to which
+ *  waterbodies it is connected to.
  *  <p>
  *  Calls are made to fortran functions for reading fixed input files. These
  *  fortran functions read the data into common blocks. The information is then
@@ -49,6 +49,7 @@ public PTMFixedInput(String inputFilename){
   lFD = _fixedData.getLimitsFixedData();
   pFD = _fixedData.getParticleFixedData();
   fFD = _fixedData.getFluxFixedData();
+  fD = _fixedData.getFiltersFixedData();
 }
   /**
    *  Gets the number of Channels
@@ -119,43 +120,43 @@ public final int getNumberOfXSections(){
    *  Gets the maximum number of waterbodies
    */
 public final int getMaximumNumberOfWaterbodies(){
- return _fixedData.getMaximumNumberOfWaterbodies();
+ return PTMFixedData.getMaximumNumberOfWaterbodies();
 }
   /**
    *  Gets the maximum number of nodes
    */
 public final int getMaximumNumberOfChannels(){
-  return _fixedData.getMaximumNumberOfChannels();
+  return PTMFixedData.getMaximumNumberOfChannels();
 }
   /**
    *  Gets the maximum number of nodes
    */
 public final int getMaximumNumberOfDiversions(){
-  return _fixedData.getMaximumNumberOfDiversions();
+  return PTMFixedData.getMaximumNumberOfDiversions();
 }
   /**
    *  Gets the maximum number of nodes
    */
 public final int getMaximumNumberOfNodes(){
-  return _fixedData.getMaximumNumberOfNodes();
+  return PTMFixedData.getMaximumNumberOfNodes();
 }
   /**
    *  Gets the maximum number of nodes
    */
 public final int getMaximumNumberOfReservoirs(){
-  return _fixedData.getMaximumNumberOfReservoirs();
+  return PTMFixedData.getMaximumNumberOfReservoirs();
 }
   /**
    *  Gets the maximum number of nodes
    */
 public final int getMaximumNumberOfPumps(){
-  return _fixedData.getMaximumNumberOfPumps();
+  return PTMFixedData.getMaximumNumberOfPumps();
 }
   /**
    *  Gets the maximum number of nodes
    */
 public final int getMaximumNumberOfBoundaryWaterbodies(){
-  return _fixedData.getMaximumNumberOfBoundaryWaterbodies();
+  return PTMFixedData.getMaximumNumberOfBoundaryWaterbodies();
 }
   /**
    *  Gets the maximum number of nodes
@@ -167,7 +168,7 @@ public final int getMaximumNumberOfConveyors(){
    *  Gets the maximum number of cross sections
    */
 public final int getMaximumNumberOfXSections(){
-  return _fixedData.getMaximumNumberOfXSections();
+  return PTMFixedData.getMaximumNumberOfXSections();
 }
 
   /**
@@ -177,7 +178,7 @@ public final int getMaximumNumberOfXSections(){
    *  conveyors
    */
 public final Waterbody [] createWaterbodyFixedInfo(){
-  Waterbody [] wbArray = new Waterbody[_fixedData.getMaximumNumberOfWaterbodies()+1];
+  Waterbody [] wbArray = new Waterbody[PTMFixedData.getMaximumNumberOfWaterbodies()+1];
   for(int i=1; i < wbArray.length; i++){
     Waterbody wb = null;
     switch (_fixedData.getWaterbodyType(i)){
@@ -241,7 +242,7 @@ private final Reservoir createReservoir(int nId){
   return wb;
 }
   /**
-   *  create a rim Waterbody
+   *  create a rim Waterbody (boundary)
    */
 private final Boundary createBoundary(int nId){
   Boundary wb = null;
@@ -279,22 +280,23 @@ private final Conveyor createConveyor(int nId){
    *  update the Node object with this information.
    */
 public final Node[] createNodeFixedInfo(){
-  Node [] nodeArray = new Node[_fixedData.getMaximumNumberOfNodes() + 1];
+  Node [] nodeArray = new Node[PTMFixedData.getMaximumNumberOfNodes() + 1];
   for( int i=1; i <= nodeArray.length; i++ ){
     int nodeId = i;
-    //create arrays to store Waterbody id's and type's
+    // create arrays to store Waterbody id's and type's
     int[] waterbodyIdArray = _fixedData.getWaterbodyIdArrayForNode(nodeId);
     if (waterbodyIdArray.length == 0) continue;
      //TODO this used to cause an error (below) for high Node numbers. never figured out
     // howe the code would ever work right.
     String type = _fixedData.getBoundaryTypeForNode(nodeId);
-    nodeArray[i] = new Node(nodeId, waterbodyIdArray, type);
+    // create node array
+	nodeArray[i] = new Node(nodeId, waterbodyIdArray, type);
     if (DEBUG) System.out.println("Created node: " + nodeArray[i]);
   }
   return nodeArray;
 }
   /**
-   *  Creates the cross secton array with fixed information from
+   *  Creates the cross section array with fixed information from
    *  common block
    */
 public final XSection [] createXSectionFixedInfo(){
@@ -310,7 +312,7 @@ public final XSection [] createXSectionFixedInfo(){
   // float dist = com_s_irr_geom_.irreg_geom[nId].dist;
   int i,j;
 
-  for (i=1; i<= _fixedData.getMaximumNumberOfXSections(); i++) {
+  for (i=1; i<= PTMFixedData.getMaximumNumberOfXSections(); i++) {
     xSArray[i] = null;
     width = _fixedData.getXSectionWidths(i); // xFD[i-1].width[0];
     if (width[0] > 0){
@@ -368,6 +370,7 @@ public final void getPTMFixedInfo(ParticleFixedInfo info) {
 
   info.setVariables(nInjections, nNode, nInjected, startJulmin, lengthJulmin);
 
+  // number of groups and Qual binary file info
   boolean qBinary = pFD.getBinaryExistance();
   int ngroups = pFD.getNumberOfGroups();
   String[] qNames = pFD.getQualityNames();
@@ -477,6 +480,12 @@ public LimitsFixedData getLimitsFixedData(){
   return lFD;
 }
   /**
+   * get filters fixed data
+   */
+public FiltersFixedData getFiltersFixedData(){
+	return fD;
+}
+  /**
    * Fixed data object
    */
 private PTMFixedData _fixedData;
@@ -485,13 +494,17 @@ private PTMFixedData _fixedData;
    */
 private ParticleFixedData pFD;
   /**
-   *
+   * limits fixed data
    */
 private LimitsFixedData lFD;
   /**
    * flux fixed data
    */
 private FluxFixedData[] fFD;
+  /**
+   * filters fixed data
+   */
+private FiltersFixedData fD;
   /**
    *
    */

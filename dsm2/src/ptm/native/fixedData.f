@@ -163,7 +163,7 @@ c-----
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine updateWBInfo
-	use IO_Units
+      use IO_Units
       use grid_data
       use constants
       use ptm_local
@@ -208,9 +208,9 @@ c----- update reservoir info
          wb(id).numberOfNodes = res_geom(i).nnodes
          wb(id).group = 0
          do j=1, res_geom(i).nnodes
-	      
             wb(id).node(j) = res_geom(i).node_no(j)
          enddo
+
          j=1
          do while(res_geom(i).qinternal(j) .ne. 0)
             wb(id).numberOfNodes = wb(id).numberOfNodes + 1
@@ -221,6 +221,7 @@ c----- update reservoir info
      &           get_internal_node_id_for_unique_ids( id, objId )
             j = j + 1
          enddo
+         
          j=1
          do while(res_geom(i).qext(j) .ne. 0)
             wb(id).numberOfNodes = wb(id).numberOfNodes + 1
@@ -231,7 +232,9 @@ c----- update reservoir info
      &           get_internal_node_id_for_unique_ids( id, objId )
             j = j + 1
          enddo
+         
       enddo
+      
 c----- update stage boundary info 
       do i=1, get_maximum_number_of_stage_boundaries()
          id = get_unique_id_for_stage_boundary(i)
@@ -242,8 +245,6 @@ c----- update stage boundary info
          wb(id).group = 0
          wb(id).node(1) = stageBoundary(i).attach_obj_no
       enddo
-
-
 
 c----- update boundary info
       do i=1, get_maximum_number_of_boundary_waterbodies()
@@ -256,6 +257,8 @@ c         wb(id).acctType = qext(i).group_ndx
          wb(id).globalIndex = id
          wb(id).numberOfNodes = 1
          wb(id).group = 0
+         
+        
          if ( qext(i).attach_obj_type .eq. obj_node ) then
             wb(id).node(1) = qext(i).attach_obj_no
          else if ( qext(i).attach_obj_type .eq. obj_reservoir ) then
@@ -269,6 +272,7 @@ c-----------write(*,*) ' External types connection to type: ' ,
 c-----------&           qext(i).obj_type, ' not handled '
          endif
       enddo
+      
 c----- update conveyor info
       do i=1, get_maximum_number_of_conveyors()
          id = get_unique_id_for_conveyor(i)
@@ -1392,23 +1396,23 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer get_number_incoming
 
       integer index
-	get_number_incoming = 1
-	if (flux(index).inType .eq. obj_group)then
+      get_number_incoming = 1
+      if (flux(index).inType .eq. obj_group)then
         get_number_incoming = groupArray(flux(index).inIndex).nMember
-	end if
+      end if
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_outgoing(index)
-	use groups,only : groupArray
+      use groups,only : groupArray
       use ptm_local
       use constants
       implicit none
       integer get_number_outgoing
 
       integer index
-	get_number_outgoing = 1
-	if (flux(index).outType .eq. obj_group)then
+      get_number_outgoing = 1
+      if (flux(index).outType .eq. obj_group)then
         get_number_outgoing = groupArray(flux(index).outIndex).nMember
       end if
 	return
@@ -1417,18 +1421,18 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_flux_incoming(index, array, nmember)
       use ptm_local
       use constants
-	use groups,only: groupArray,GROUP_ANY_INDEX,GROUP_ANY_TYPE
+      use groups,only: groupArray,GROUP_ANY_INDEX,GROUP_ANY_TYPE
       implicit none
 
-	integer index              ! index of flux in global flux array
-	integer,intent(in) :: nmember  ! number of members (dimension of array)
+      integer index              ! index of flux in global flux array
+      integer,intent(in) :: nmember  ! number of members (dimension of array)
       integer :: array(nmember)  ! array to be filled with members
       integer :: i               ! local counter
-	integer :: objtype
-	integer :: objndx
+      integer :: objtype
+      integer :: objndx
       integer :: getWaterbodyUniqueId
 
-	if (flux(index).inType .eq. obj_group)then
+      if (flux(index).inType .eq. obj_group)then
          do i=1,nmember
 	      objtype=groupArray(flux(index).inIndex).members(i).obj_type
 	      objndx=groupArray(flux(index).inIndex).members(i).obj_no
@@ -1440,7 +1444,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
          enddo
       else 
 	   array(1) = getWaterbodyUniqueId(flux(index).intype,flux(index).inIndex)
-	end if
+      end if
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1529,6 +1533,122 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 	   array(1) =  ptm_type_code(
      &   	     flux(index).outType )
 	end if
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_number_of_filters()
+      use common_ptm
+      implicit none
+      integer get_number_of_filters
+      get_number_of_filters = nfilter
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_indices_of_filters(array)
+      use common_ptm
+      implicit none
+      integer array(1000)
+      integer i
+      
+      if (nfilter .gt. 1000) 
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', nfilter
+     
+      do i=1,nfilter
+         array(i) = part_filter(i).ndx
+      enddo
+      
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_name_of_filter(i,array)
+      use common_ptm
+      implicit none
+      character(LEN=32):: array
+      integer i,j
+      integer lnblnk
+      
+      j=i+1
+      if (nfilter .gt. 1000) 
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', nfilter
+     
+      array(1:32) = part_filter(j).name
+      array = array(1:lnblnk(array)) // char(0)
+      
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_nodes_of_filters(array)
+      use common_ptm
+      use ptm_local
+      use constants
+      use IO_Units
+      
+      implicit none
+      integer array(1000)
+      integer i,j,k                  ! loop index
+      integer resno,wb_id,res_nd_id
+      integer get_unique_id_for_reservoir
+      integer, external :: name_to_objno
+      
+      if (nfilter .gt. 1000) 
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', nfilter
+
+      do i=1,nfilter
+         ! deal with filters residing at reservoir directly connecting to source flow
+         ! have to put it here, since res' pseudo nodes are generated not in initialize step
+         if (part_filter(i).node .eq. miss_val_i) then
+            resno = name_to_objno(obj_reservoir,part_filter(i).resname)
+            wb_id = get_unique_id_for_reservoir(resno)
+            
+            j=0
+            do while ((part_filter(i).node .eq. miss_val_i)
+     &           .and.(j<wb(wb_id).numberOfNodes))
+               j=j+1
+               res_nd_id = wb(wb_id).node(j)
+               do k=1,nodes(res_nd_id).nwbs
+                  if (nodes(res_nd_id).wbs(k) .eq. part_filter(i).at_wb_id) then
+                      part_filter(i).node = nodes(res_nd_id).id
+                      exit
+                  endif
+               enddo
+            enddo
+         endif
+         ! filter + res_filter
+         array(i) = part_filter(i).node
+      enddo
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_waterbodies_of_filters(array)
+      use common_ptm
+      implicit none
+      integer array(1000)
+      integer i
+      
+      if (nfilter .gt. 1000) 
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', nfilter
+     
+      do i=1,nfilter
+         array(i) = part_filter(i).at_wb_id
+      enddo
+      
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_waterbodytypes_of_filters(array)
+      use common_ptm
+      implicit none
+      integer array(1000)
+      integer i
+      integer :: ptm_type_code
+	
+      if (nfilter .gt. 1000) 
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', nfilter 
+     
+      do i=1,nfilter
+         array(i) = ptm_type_code(part_filter(i).at_wb_type)
+      enddo
+      
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1663,9 +1783,9 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       integer function ptm_type_code(dsm_type)
       use constants
-	implicit none
+      implicit none
 
-	integer dsm_type
+      integer dsm_type
       if ( dsm_type .eq. obj_channel ) then
          ptm_type_code = 100
       else if ( dsm_type .eq. obj_reservoir ) then
@@ -1675,12 +1795,12 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       else if ( dsm_type .eq. obj_obj2obj ) then
          ptm_type_code = 106
       else if ( dsm_type .eq. obj_stage) then
-	   ptm_type_code = 105
+         ptm_type_code = 105
       else
          ptm_type_code = -1
       endif
-	return
-	end function
+      return
+      end function
 
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer function get_waterbody_type( id )
@@ -1689,7 +1809,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       integer id, wbtype, ptm_type_code
       wbtype = wb(id).type
-	get_waterbody_type=ptm_type_code(wbtype)
+      get_waterbody_type=ptm_type_code(wbtype)
       return
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -49,11 +49,17 @@ c-----Local variables
 
       logical
      &     nodeexist            ! true if node exists in network
+     &     ,filterexist         ! true if filter exists in network
 
       integer
      &     istat                ! status of call (returned)
-     &     ,m                   ! indices
+     &     ,m, n                ! indices !TODO
      &     ,nodeindex           ! node index used for iterating through nodes
+     &     ,chanindex           ! chan index used for iterating through channels
+     &     ,resindex            ! res index used for iterating through reservoirs
+     &     ,qextindex           ! qext index used for iterating through source flow
+     &     ,stgbndindex         ! stgbnd index used for iterating through stage boundary
+     &     ,obj2objindex        ! obj2obj index used for iterating through obj2obj transfer
      &     ,ext2intnode
 
       integer*4
@@ -64,6 +70,7 @@ c-----Local variables
      &     diff2dates*14        ! return DSS date given start and diff
      &     ,jmin2cdt*14         ! julian minute to character date/time function
      &     ,tmpdate*14          ! temporary date for comparison
+     &     ,tmpstr*32           ! temporary string for name comparison
 
  605  format(/a,' date incorrect: ',a)
 
@@ -84,7 +91,7 @@ c-----Local variables
 
  642  format(/a,i4,' does not have a name or channel number.')
 
- 643  format(/'Invalide insertion at node ',i3,': node does not exist.') 
+ 643  format(/'Invalid insertion at node ',i3,': node does not exist.') 
 
  644  format(/'Path name ',a,' does not have a translation.')
 
@@ -92,6 +99,8 @@ c-----Local variables
 
  646  format(/a,a)
 
+ 661  format(/'Invalide filter: ',a,': node or waterbody does not exist, or not connected.')
+ 
  647  format(/'Qaul binary starts on ',a,' it does not contain the date :',a)
 ! 647  format(/'Warning - Value for ',a,' not supplied - set to ',a)
 ! 648  format(/'Warning - Value for ',a,' not supplied - set to ',a)
@@ -229,20 +238,120 @@ c--------if so, zero out the injected particles
          part_injection(m).length_julmin=
      &        part_injection(m).end_julmin-part_injection(m).start_julmin
 c--------convert injection nodes to internal and check if injection node exists
-         part_injection(m).node = ext2intnode(part_injection(m).node)
          nodeexist = .false.
-	   do nodeindex=1,nchans
+c----    do nodeindex=1,nchans
+	     do nodeindex=1,nnodes
+	  !    print *,"node_geom: ",node_geom(nodeindex).node_id
 		!  fixme: could just use node_geom
-	      if ((part_injection(m).node .eq. chan_geom(nodeindex).upnode) .or.
-     &           (part_injection(m).node .eq. chan_geom(nodeindex).downnode)) then
+c----       if ((part_injection(m).node .eq. chan_geom(nodeindex).upnode) .or.
+c----&           (part_injection(m).node .eq. chan_geom(nodeindex).downnode)) then
+            if (part_injection(m).node .eq. node_geom(nodeindex).node_id) then
+        !  fixme: to delete after check
+               write (unit_screen,'(a,i3)') 'check inject node ',part_injection(m).node
                nodeexist = .true.
                exit
-	       end if
-	   end do
+	        end if
+	     end do
          if (.not. nodeexist) then
             write (unit_error, 643) node_geom(part_injection(m).node).node_id
             goto 900
          endif
+         part_injection(m).node = ext2intnode(part_injection(m).node)
+         !print *,"inject nd: ",part_injection(m).node
+      enddo
+
+c-----Check particle filters existence
+      do m=1,nfilter
+         filterexist = .false.
+         ! on channel
+         if (part_filter(m).at_wb_type .eq. obj_channel) then
+            do chanindex=1,nchans
+               if ((part_filter(m).at_wb_id .eq. chanindex) .and.
+     &             ((part_filter(m).node .eq. chan_geom(chanindex).upnode) .or.
+     &              (part_filter(m).node .eq. chan_geom(chanindex).downnode))) then
+                  write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
+     &                  ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+                  filterexist = .true.
+                  exit
+               endif
+            enddo
+            if (.not. filterexist) then
+               write (unit_error, 661) part_filter(m).name
+               goto 900
+            endif
+
+         ! on reservoir
+         else if (part_filter(m).at_wb_type .eq. obj_reservoir) then
+            if (part_filter(m).at_wb_ndx .le. nreser) then
+               if (part_filter(m).at_wb .eq. res_geom(resindex).name) then
+                  do n=1,res_geom(resindex).nnodes
+                     if (part_filter(m).node .eq. res_geom(resindex).node_no(n)) then
+                        write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
+     &                        ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+                        filterexist = .true.
+                        exit
+                     endif
+                  enddo
+               endif
+            endif
+            if (.not. filterexist) then
+               write (unit_error, 661) part_filter(m).name
+               goto 900
+            endif
+
+         ! on diversion & boundary stage, 2 conditions: div-nd, div-res
+         else if (part_filter(m).at_wb_type .eq. obj_qext) then
+            if (part_filter(m).at_wb_ndx .le. nqext) then
+               qextindex = part_filter(m).at_wb_ndx
+               if ((qext(qextindex).attach_obj_type .eq. obj_node) .and.
+     &             (part_filter(m).node .eq. qext(qextindex).attach_obj_no)) then  !ext node no
+                   write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
+     &                   ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+                   filterexist = .true.
+                   cycle
+               else if ((qext(qextindex).attach_obj_type .eq. obj_reservoir) .and.
+     &                  (part_filter(m).resname .eq. qext(qextindex).attach_obj_name)) then
+                        write (unit_screen,'(a,a,a,a,a,a)') 'check filter ',trim(part_filter(m).name),
+     &                        ', at res ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
+                   filterexist = .true.
+                   exit
+               endif
+            endif
+            if (.not. filterexist) then
+               write (unit_error, 661) part_filter(m).name
+               goto 900
+            endif
+            
+         ! on stage boundary
+         else if (part_filter(m).at_wb_type .eq. obj_stage) then
+            if (part_filter(m).at_wb_ndx .le. nstgbnd) then
+               stgbndindex = part_filter(m).at_wb_ndx
+               if ((part_filter(m).at_wb .eq. stgbnd(stgbndindex).name) .and.
+     &             (part_filter(m).node .eq. stgbnd(stgbndindex).node)) then
+                  write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
+     &                  ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+                  filterexist = .true.
+                  cycle
+               endif
+            endif
+            if (.not. filterexist) then
+               write (unit_error, 661) part_filter(m).name
+               goto 900
+            endif
+            
+         ! on obj2obj
+         else if (part_filter(m).at_wb_type .eq. obj_obj2obj) then
+            do obj2objindex=1,nobj2obj
+            enddo
+            print *,'obj2obj type'
+
+         ! on other obj
+         else
+            write (unit_error, 661) part_filter(m).name
+            print *,'wrong obj for filter setting'
+            goto 900
+         end if
+         
       enddo
 
 c-----check that quality tide file includes full runtime
@@ -262,6 +371,100 @@ c-----check that quality tide file includes full runtime
       !open(unit=911,file='group_member.out',status='unknown',err=890)
       !call WriteGroupMembers2File(911)
       !close(unit=911)
+
+
+
+
+!c-----create DSS input pathnames, check for sign change for each path
+!
+!      npthsin_min15=0
+!      npthsin_hour1=0
+!      npthsin_day1=0
+!      npthsin_week1=0
+!      npthsin_month1=0
+!      npthsin_year1=0
+!      npthsin_irr=0
+!
+!      do p=1,ninpaths
+!         if (pathinput(p).no_intervals .eq. 1 .and.
+!     &        pathinput(p).interval .eq. '15min') then ! eli
+!            npthsin_min15=npthsin_min15+1
+!            if (npthsin_min15 .gt. max_inp_min) then
+!               write(unit_error, 651) '15MIN',max_inp_min
+!               goto 900
+!            endif
+!            pathinput(p).intvl_path=npthsin_min15
+!            ptin_min15(npthsin_min15)=p
+!         else if (pathinput(p).no_intervals .eq. 1 .and.
+!     &           pathinput(p).interval(:5) .eq. '1hour') then !eli could be 1hour
+!            npthsin_hour1=npthsin_hour1+1
+!            if (npthsin_hour1 .gt. max_inp_hour) then
+!               write(unit_error, 651) '1HOUR',max_inp_hour
+!               goto 900
+!            endif
+!            pathinput(p).intvl_path=npthsin_hour1
+!            ptin_hour1(npthsin_hour1)=p
+!         else if (pathinput(p).no_intervals .eq. 1 .and.
+!     &           pathinput(p).interval(:4) .eq. '1day') then
+!            npthsin_day1=npthsin_day1+1
+!            if (npthsin_day1 .gt. max_inp_day) then
+!               write(unit_error, 651) '1DAY',max_inp_day
+!               goto 900
+!            endif
+!            pathinput(p).intvl_path=npthsin_day1
+!            ptin_day1(npthsin_day1)=p
+!         else if (pathinput(p).no_intervals .eq. 1 .and.
+!     &           pathinput(p).interval(:5) .eq. '1week') then
+!            npthsin_week1=npthsin_week1+1
+!            if (npthsin_week1 .gt. max_inp_week) then
+!               write(unit_error, 651) '1WEEK',max_inp_week
+!               goto 900
+!            endif
+!            pathinput(p).intvl_path=npthsin_week1
+!            ptin_week1(npthsin_week1)=p
+!         else if (pathinput(p).no_intervals .eq. 1 .and.
+!     &           pathinput(p).interval(:4) .eq. '1mon') then
+!            npthsin_month1=npthsin_month1+1
+!            if (npthsin_month1 .gt. max_inp_month) then
+!               write(unit_error, 651) '1MON',max_inp_month
+!               goto 900
+!            endif
+!            pathinput(p).intvl_path=npthsin_month1
+!            ptin_month1(npthsin_month1)=p
+!         else if ((pathinput(p).no_intervals .eq. 1 .and.
+!     &           pathinput(p).interval(:5) .eq. '1year') .or.
+!     &           pathinput(p).constant_value .ne. miss_val_r ! constant value: use 1year
+!     &           ) then
+!            pathinput(p).no_intervals=1
+!            pathinput(p).interval='year'
+!            npthsin_year1=npthsin_year1+1
+!            if (npthsin_year1 .gt. max_inp_year) then
+!               write(unit_error, 651) '1YEAR',max_inp_year
+!               goto 900
+!            endif
+!            pathinput(p).intvl_path=npthsin_year1
+!            ptin_year1(npthsin_year1)=p
+!         else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
+!            npthsin_irr=npthsin_irr+1
+!            if (npthsin_irr .gt. max_inp_irr) then
+!               write(unit_error, 651) 'IR-',max_inp_irr
+!               goto 900
+!            endif
+!            pathinput(p).intvl_path=npthsin_irr
+!            ptin_irr(npthsin_irr)=p
+!         else                   ! unrecognized interval
+!            write(unit_error,650) 'input', pathinput(p).no_intervals,
+!     &           trim(pathinput(p).interval)
+!            goto 900
+!         endif
+!         call upcase(pathinput(p).path) ! convert to upper case
+!      end do
+
+
+
+
+
+
 
 
  890  return

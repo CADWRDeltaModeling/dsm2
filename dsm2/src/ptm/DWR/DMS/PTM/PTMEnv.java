@@ -19,11 +19,12 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 
 package DWR.DMS.PTM;
 import java.io.*;
+import java.util.HashMap;
 /**
  *  PTM is an acronym for "Particle Tracking Model". This is version 2 of PTM
  *  which utilizes information from DSM2 to track particles moving according
  *  to hydrodynamics and quality information.<p>
-  * 
+ * 
  * This class defines the parameters and information about the environment
  * a Particle moves in. This information is either fixed or dynamic. Fixed information
  * is information that is relatively fixed during a run of the model such
@@ -66,12 +67,14 @@ public PTMEnv(String fixedInputFilename){
   if(DEBUG) System.out.println("# of cross-sections: " + numberOfXSections);  
   //
   numberOfGroups = fixedInput.getNumberOfChannelGroups();
+  
+  // creating....
   // fill in waterbodies, nodes, xSections with information
   if(DEBUG) System.out.println("Creating waterbodies ");
   wbArray = fixedInput.createWaterbodyFixedInfo();
   
   //todo: eli is this working?
-//  wbArray[0]=NullWaterbody.getInstance();
+  // wbArray[0]=NullWaterbody.getInstance();
   
   //
   if(DEBUG) System.out.println("Creating nodes ");
@@ -80,13 +83,18 @@ public PTMEnv(String fixedInputFilename){
   if(DEBUG) System.out.println("Creating xSections ");
   xSectionArray = fixedInput.createXSectionFixedInfo();
   //
-  if(DEBUG) System.out.println("Waterbodies, nodes, xsections created");
-  // provide waterbodies with XSection* array and nodes
-  // with Waterbody* array
+  if(DEBUG) System.out.println("Creating filters ");
+  filterArr = new HashMap<String,Filter>();
+  //
+  if(DEBUG) System.out.println("Waterbodies, nodes, xsections, filters created");
+  // provide waterbodies with XSection* array 
+  // and nodes with Waterbody* array
   if(DEBUG) System.out.println("Setting waterbody info");
   setWaterbodyInfo();
   if(DEBUG) System.out.println("Setting node info");
   setNodeInfo();
+  if(DEBUG) System.out.println("Setting filter info");
+  setNodeFilters();
   if(DEBUG) System.out.println("Network initialized");
   if (DEBUG){
     for(int i=0; i< wbArray.length; i++){
@@ -108,23 +116,22 @@ private final void setWaterbodyInfo(){
   // updates waterbodies to give them a pointer array of xSections
   for(int i=1; i<= fixedInput.getNumberOfChannels(); i++) {
     if (wbArray[i] != null) {
-      //if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
+      // if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
       XSection[] xSPtrArray;
       xSPtrArray = new XSection[((Channel) wbArray[i]).getNumberOfXSections()];
       
       for(int j=0; j< ((Channel)wbArray[i]).getNumberOfXSections(); j++) {
-	xSPtrArray[j] = xSectionArray[((Channel) wbArray[i]).getXSectionEnvIndex(j)];
-     }
+        xSPtrArray[j] = xSectionArray[((Channel) wbArray[i]).getXSectionEnvIndex(j)];
+      }
       
       ((Channel)wbArray[i]).setXSectionArray(xSPtrArray);
-      
     }
   }
   if (DEBUG) System.out.println("Done with initialzing xSections");
-  //updates waterbodies to give them an array of pointers to connected nodes
+  // updates waterbodies to give them an array of pointers to connected nodes
   for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
     if(wbArray[i] != null) {
-      //if (DEBUG) System.out.println("Doing nodes for Waterbody # " + i);
+      // if (DEBUG) System.out.println("Doing nodes for Waterbody # " + i);
       Node[] nodePtrArray;
       int nNodes = wbArray[i].getNumberOfNodes();
       nodePtrArray = new Node[nNodes];
@@ -386,10 +393,10 @@ void setParticleInsertionInfo(Particle [] particlePtrArray,
     long injectionLength = pInfo.getInjectionLengthJulmin(injNum);
     long numberOfInjectedParticles = pInfo.getNumberOfParticlesInjected(injNum);
     for(long injection=0; 
-	injection < numberOfInjectedParticles; 
-	injection++){
+        injection < numberOfInjectedParticles; 
+        injection++){
       int insertionTime = pInfo.getInjectionStartJulmin(injNum) + (int)
-	((injectionLength*injection)/numberOfInjectedParticles);
+                          ((injectionLength*injection)/numberOfInjectedParticles);
       Node nd = getNode(injectionNode);
       particlePtrArray[pNum].setInsertionInfo(insertionTime, nd);
       pNum++;
@@ -449,7 +456,33 @@ private void setNodeInfo(){
   if (DEBUG) System.out.println("Done with setNodeInfo");
 }
 
+/**
+ *  Fills in Node filter info. 
+ */
+private void setNodeFilters(){
+  if (DEBUG) System.out.println("Initializing nodes with filter arrays");
+  //
+  for(int i=0; i < fixedInput.getFiltersFixedData().getNumberOfFilters(); i++){
+    int filterIndex = fixedInput.getFiltersFixedData().getFilterIndex(i);
+    String filterName = fixedInput.getFiltersFixedData().getFilterName(i);
+    int nodeIndex = fixedInput.getFiltersFixedData().getFilterNode(i);
+    int wbIndex = fixedInput.getFiltersFixedData().getFilterWb(i);
+    int wbType = fixedInput.getFiltersFixedData().getFilterWbType(i);
+		  
+    Filter filter = new Filter(filterIndex, filterName, nodeIndex, wbIndex, wbType);
+    String key = ""+nodeIndex+","+""+wbIndex;
+    nodeArray[nodeIndex].setFilterArr(key,filter);
+    filterArr.put(key, filter);
+  }
+  if (DEBUG) System.out.println("Done with setNodeFilter");
+}
 
+/**
+ *  gets filter operations for current timestamp
+ */
+public float[] getFilterOps(){
+  return filterOps;
+}
 
   /**
    *  gets the next chunk of data for time step given
@@ -461,12 +494,17 @@ public final void getHydroInfo(int currentTime){
 
   hydroInput.updateWaterbodiesHydroInfo(wbArray, fixedInput.getLimitsFixedData());
   
+  hydroInput.updateFilterOps();
+  filterOps = hydroInput.getFiltersOps();
+
+//  System.out.println("test");
+  
   //  updateBoundaryWaterbodiesHydroInfo();
 }
   /**
    *  animation file name
    */
-public final String  getAnimationFileName(){
+public final String getAnimationFileName(){
   return fixedInput.getAnimationFileName();
 }
   /**
@@ -568,7 +606,17 @@ private int numberOfAnimatedParticles;
   /**
    *  fixed info for particles
    */
-  ParticleFixedInfo pInfo;
+ParticleFixedInfo pInfo;
+
+/**
+ *  collection of filters
+ */
+private HashMap<String,Filter> filterArr;
+/**
+ *  filters' operation for the current timestamp
+ */
+private float [] filterOps;   //1-pass;0-block.
+
 private int  maxNumberOfWaterbodies;
 private int  maxNumberOfNodes;
 private int  maxNumberOfXSections;

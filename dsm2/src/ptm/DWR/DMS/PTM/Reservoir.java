@@ -19,7 +19,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 
 package DWR.DMS.PTM;
 import java.lang.*;
-/**
+/*
  * Reservoir is a Waterbody with a large volume. A Reservoir
  * is modeled as storage for water with no velocity fields within it.
  *
@@ -28,67 +28,62 @@ import java.lang.*;
  */
 public class Reservoir extends Waterbody{
   /**
-   *  sets fixed information for Reservoir
+   *  Set fixed information for Reservoir
    */
-public Reservoir(int nId, int hId, String wbName,
-		 float resArea, float botelv, 
-		 int[] nodeArray){
-  super(Waterbody.RESERVOIR, nId, nodeArray);
-  name = wbName;
-  this.area = resArea;
-  bottomElevation = botelv;
-}
+  public Reservoir(int nId, int hId, String wbName,
+                   float resArea, float botelv, 
+                   int[] nodeArray){
+    super(Waterbody.RESERVOIR, nId, nodeArray);
+    name = wbName;
+    this.area = resArea;
+    bottomElevation = botelv;
+  }
   /**
-   *  gets direction of flow
+   *  Return flow direction sign
+   *  always opposite from H5 flow sign
    */
-public  int flowType( int nodeId ){
-  return INFLOW;
-}
+  public int flowType(int nodeId){return INFLOW;}
   /**
-   *  Returns the hydrodynamic type of Reservoir
+   *  Return the hydrodynamic type of Reservoir
    */
-public  int getHydroType(){
-  return FlowTypes.reservoirr;
-}
+  public int getHydroType(){return FlowTypes.reservoirr;}
   /**
-   *  Gets the total volume of water in Reservoir else returns 0.
+   *  Get the total volume of water in Reservoir else returns 0.
    */
-public final float getTotalVolume(float timeStep){
-  return ( volume );
-}
+  public final float getTotalVolume(float timeStep){return volume;}
   /**
-   *  Gets the total volume outflow to local nodeId in a certain time step
+   *  Get the total volume outflow to local nodeId in a certain time step
    */
-public final float getVolumeOutflow(int nodeId, float timeStep){
-    return ( flowAt[nodeId]*timeStep );
-}
+  public final float getVolumeOutflow(int nodeId, float timeStep){
+      return (flowAt[nodeId]*timeStep);
+  }
   /**
-   *  Set Reservoir volume
+   *  Set current Reservoir volume from HYDRO input
    */
-public final void setVolume(float currentVolume){
-  volume = currentVolume;
-}
+  public final void setVolume(float currentVolume){
+    volume = currentVolume;
+  }
   /**
-   *  Set depth information
+   *  Set current depth information from HYDRO input
    */
-public final void setDepth(float[] depthArray){
-  depthAt[0] = depthArray[0];
-}
+  public final void setDepth(float[] depthArray){
+    depthAt[0] = depthArray[0];
+  }
   /**
-   *  string containing the name
+   *  String containing the name
    */
-private String name;
+  private String name;
   /**
    *  Area of channel/Reservoir
    */
-private float area;
+  private float area;
   /**
    *  Volume of Reservoir
    */
-private float volume;
+  private float volume;
   /**
    *  Bottom elevation of channel or Reservoir
    */
-private float bottomElevation;
+  private float bottomElevation;
 }
 

@@ -37,12 +37,9 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
  * @author Nicky Sandhu
  * @version $Id: MainPTM.java,v 1.5.6.4 2006/04/04 18:16:23 eli2 Exp $
  */
-
 package DWR.DMS.PTM;
 import java.io.IOException;
-
-
-/**
+/*
  * main function of PTM
  */
 public class MainPTM {
@@ -53,8 +50,6 @@ public class MainPTM {
             if (DEBUG) System.out.println("initializing globals");
             Globals.initialize();
             if (DEBUG) System.out.println("initialized globals");
-    
-    
     
             // Initialize environment
             if (DEBUG) System.out.println("Initializing environment");
@@ -72,10 +67,9 @@ public class MainPTM {
             int endTime = startTime + runTime;
             int PTMTimeStep = Environment.getPTMTimeStep();
             if(DEBUG) System.out.println("Initialized model run times");
+            
             // set array of particles and initialize them
-
             Particle [] particleArray = null;
-    
             int numberOfParticles=0;
             int numberOfRestartParticles = 0;
             boolean isRestart = Environment.isRestartRun();
@@ -99,17 +93,17 @@ public class MainPTM {
             } catch(IOException ioe) {}
 
             // total number of particles
-            numberOfParticles = numberOfRestartParticles +
-                Environment.getNumberOfParticlesInjected();
+            numberOfParticles = numberOfRestartParticles
+                              + Environment.getNumberOfParticlesInjected();
             if(DEBUG) System.out.println("total number of particles injected are " + numberOfParticles);
     
             particleArray = new Particle[numberOfParticles];
-            if(DEBUG) System.out.println("restart aprticles " + numberOfRestartParticles);
+            if(DEBUG) System.out.println("restart particles " + numberOfRestartParticles);
 
             if(behavior) {
                 for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
                     particleArray[pNum] = new BehavedParticle(Environment.getParticleFixedInfo());
-                System.out.println("BehavedParticle");
+                System.out.println("Behaved Particle");
             }
             else {
                 for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
@@ -133,7 +127,6 @@ public class MainPTM {
                                             startTime, endTime, PTMTimeStep,
                                             numberOfParticles);
             if(DEBUG) System.out.println("Set observer");
-
             for(int i=0; i<numberOfParticles; i++) {
                 if ( observer != null) observer.setObserverForParticle(particleArray[i]);
             }
@@ -169,13 +162,14 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-    
+            
+            //Environment.getHydroInfo(startTime-PTMTimeStep*4);//@todo: warning if < hydro start time 
             // initialize current model time
             //   Globals.currentModelTime = startTime;
             //main loop for running Particle model
-            for(Globals.currentModelTime = startTime; 
-                Globals.currentModelTime <=endTime; 
-                Globals.currentModelTime+=PTMTimeStep){
+            for(Globals.currentModelTime  = startTime; 
+                Globals.currentModelTime <= endTime; 
+                Globals.currentModelTime += PTMTimeStep){
       
                 // output runtime information to screen
                 MainPTM.display(displayInterval);
@@ -186,15 +180,13 @@ public class MainPTM {
                 Environment.getHydroInfo(Globals.currentModelTime);
                 if (DEBUG) System.out.println("Updated flows");
                 // update Particle positions
-      
-                for(int i=0;i<numberOfParticles;i++){
+                for (int i=0; i<numberOfParticles; i++){
                     particleArray[i].updatePosition(timeStep);
                 }
                 if (DEBUG) System.out.println("Updated particle positions");
       
                 // animation output
                 if ( animationOutput != null ) animationOutput.output();
-      
                 // write out restart file information
                 if ( outRestart != null ) outRestart.output();
       
@@ -206,7 +198,6 @@ public class MainPTM {
     
             // clean up after run is over
             observer = null;
-    
             particleArray = null;
     
             // output flux calculations in dss format
@@ -217,12 +208,10 @@ public class MainPTM {
                                                          Environment.getFileType(traceFileName),
                                                          fluxFixedInfo,
                                                          groupFixedInfo);
-    
             fluxCalculator.calculateFlux();
-    
             fluxCalculator.writeOutput();
-
             System.out.println("");
+            
         }catch(Exception e){
             e.printStackTrace();
             System.out.println("Exception " + e + " occurred");
@@ -232,6 +221,7 @@ public class MainPTM {
 
     public static boolean DEBUG = false;  
     protected static int previousDisplayTime = 0;
+    
     //public native static void display(int displayInterval);
     public static void display(int displayInterval) {
         if(previousDisplayTime == 0){ 

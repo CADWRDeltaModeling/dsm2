@@ -44,15 +44,8 @@
 //    tara@water.ca.gov
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
-
 package DWR.DMS.PTM;
-
-
 /**
- *  CLASS
- * 
- *  ParticleFluxData
- * 
  *  This class contains the information necessary to initialize nodeFlux
  *  and typeFlux objects. The initialization is handled by fluxMonitor class
  *  which then constructs the appropriate type of object.
@@ -63,38 +56,38 @@ class ParticleFluxData{
   /**
    *  constructor
    */
-public ParticleFluxData(int numberOfFluxes){
-}
+  public ParticleFluxData(int numberOfFluxes){
+  }
 
   /**
    *  total number of flux outputs wanted
    */
-public final void setNumberOfFluxes(int nFlux){
-  numberOfFluxOutputs = nFlux;
-  info = new FluxFixedData[numberOfFluxOutputs];
-  numberAdded=0;
-}
+  public final void setNumberOfFluxes(int nFlux){
+    numberOfFluxOutputs = nFlux;
+    info = new FluxFixedData[numberOfFluxOutputs];
+    numberAdded=0;
+  }
 
 
   /**
    *  add information for flux definition
    */
-    public final void add(int[] inArray, int[] inTypeArray, int[] outArray, int[] outTypeArray){
-	info[numberAdded] = new FluxFixedData(new WaterbodyGroup("",inArray, inTypeArray),
-                                              new WaterbodyGroup("",outArray, outTypeArray));
-  numberAdded ++;
-}
+  public final void add(int[] inArray, int[] inTypeArray, int[] outArray, int[] outTypeArray){
+    info[numberAdded] = new FluxFixedData(new WaterbodyGroup("",inArray, inTypeArray),
+                                          new WaterbodyGroup("",outArray, outTypeArray));
+    numberAdded ++;
+  }
 
 
   /**
    *  information structure for flux definition
    */
-public FluxFixedData[] info;
+  public FluxFixedData[] info;
 
   /**
    *  total number of flux outputs required
    */
-public int numberOfFluxOutputs;
-private int numberAdded;
+  public int numberOfFluxOutputs;
+  private int numberAdded;
 }
 

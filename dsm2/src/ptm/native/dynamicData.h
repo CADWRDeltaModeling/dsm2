@@ -28,7 +28,10 @@
 #define STRLEN_TYPE int
 #define readMultTide READ_MULT_TIDE
 #define setTideFileTime SET_TIDE_FILE_TIME
-#define getExtFromInt GET_EXT_FROM_INT
+#define getExtFromIntChan GET_EXT_FROM_INT_CHAN
+#define getIntFromExtChan GET_INT_FROM_EXT_CHAN
+#define getExtFromIntNode GET_EXT_FROM_INT_NODE
+#define getIntFromExtNode GET_INT_FROM_EXT_NODE
 #define getUpNodeDepth GET_UP_NODE_DEPTH
 #define getDownNodeDepth GET_DOWN_NODE_DEPTH
 #define getUpNodeStage GET_UP_NODE_STAGE
@@ -46,9 +49,15 @@
 #define getBoundaryFlow GET_BOUNDARY_FLOW
 #define getStageBoundaryFlow GET_STAGE_BOUNDARY_FLOW
 #define getConveyorFlow GET_CONVEYOR_FLOW
+#define updateOpsOfFilters UPDATE_OPS_OF_FILTERS
+#define getOpOfFilter GET_OP_OF_FILTER
 #define getUpNodeQuality GET_UP_NODE_QUALITY
 #define getDownNodeQuality GET_DOWN_NODE_QUALITY
 #endif
+
+
+#define LEN5 2000
+
 
 //
 #ifdef __cplusplus
@@ -63,7 +72,10 @@ void STDCALL readMultTide();
 //blocks before reading tide file information
 void STDCALL setTideFileTime(int* modelTime);
 
-int STDCALL getExtFromInt(int * internal);
+int STDCALL getExtFromIntChan(int * internal);
+int STDCALL getIntFromExtChan(int * ext_chan);
+int STDCALL getExtFromIntNode(int * int_node);
+int STDCALL getIntFromExtNode(int * ext_node);
 float STDCALL getUpNodeDepth( int * number);
 float STDCALL getDownNodeDepth( int * number);
 float STDCALL getUpNodeStage( int * number);
@@ -81,6 +93,8 @@ int STDCALL getReservoirPumping( int * number);
 float STDCALL getBoundaryFlow( int * number);
 float STDCALL getStageBoundaryFlow( int * number);
 float STDCALL getConveyorFlow(  int * number);
+void STDCALL updateOpsOfFilters();
+float STDCALL getOpOfFilter(int * number);
 float STDCALL getUpNodeQuality( int * number, int * constituent);
 float STDCALL getDownNodeQuality( int * number, int * constituent);
 #ifdef __cplusplus

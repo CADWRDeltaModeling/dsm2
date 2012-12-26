@@ -93,6 +93,26 @@ c-----Values that indicate whether a scalar was specified in the input
       ! todo: this can be inferred, yes?
       integer, parameter :: max_chanres =600 ! Maximum number of channels and Reservoirs
       integer :: nchanres                 ! Actual number of channels and Reservoirs
+
+
+c-----Particle filters info, with filter input table for DSM2 PTM
+      integer :: nfilter = 0      ! Actual No of Filters
+      integer,parameter :: max_filter = 1000 ! Maximum Filter No
+      type part_filter_t
+         character*16  type_f     ! filter type (for future possible expansions)
+         character*32  name       ! filter name
+         integer       ndx        ! filter index
+         integer       node       ! node at which filter resides (internal node id)(general filter)
+         character*32  resname    ! reservoir at which filter resides (special filter for source flows connecting to res, e.g. clifton)
+         character*32  at_wb      ! waterbody at which filter resides
+         integer       at_wb_type ! type of waterbody at which filter resides
+         integer       at_wb_ndx  ! index of waterbody at which filter resides (internal id in the specified wb type)
+         integer       at_wb_id   ! index of waterbody at which filter resides (internal id of all wbs)
+         real*8        op         ! efficiency of particle passing this filter (specified timestamp): 1-open; 0-block
+         character*8   fillin     ! how to fill in between data (first, last, interp, data)
+         character*128 filename   ! DSS filename
+         character*80  path       ! DSS pathname
+      end type
+      type(part_filter_t) :: part_filter(max_filter)
+
       end module
-
-

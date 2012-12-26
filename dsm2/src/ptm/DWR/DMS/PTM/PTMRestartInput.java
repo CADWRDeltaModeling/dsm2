@@ -47,10 +47,6 @@
 
 //$Id: PTMRestartInput.java,v 1.2 2000/08/07 17:00:29 miller Exp $
 /**
- *  CLASS
- * 
- *  PTMRestartInput
- * 
  *  This class handles output from PTM for animation purposes. It records at a
  *  given instant of time the Particle Id and the normalized x,y and z location
  *  of the Particle.<br>
@@ -62,70 +58,69 @@ import java.io.*;
 import java.util.StringTokenizer;
 
 public class PTMRestartInput extends PTMInput{
+
   /**
-   * 
+   * Constructor
    */
-public PTMRestartInput(String filename, 
-			     int type, Particle [] particles) throws IOException{
-  super(filename, type);
-  this.particles = particles;
-}
+  public PTMRestartInput(String filename, 
+                         int type, Particle [] particles) throws IOException{
+    super(filename, type);
+    this.particles = particles;
+  }
 
   /**
    *  input function
    */
-public void input() throws IOException{
-  if(getInputType() == Globals.BINARY)
-    inputBinary();
-  else if (getInputType() == Globals.ASCII) 
-    inputAscii();
-}
+  public void input() throws IOException{
+    if(getInputType() == Globals.BINARY)
+      inputBinary();
+    else if (getInputType() == Globals.ASCII) 
+      inputAscii();
+  }
 
   /**
    *  input ascii
    */
-protected void inputAscii() throws IOException{
-  boolean insertUninserted = false;
-  String line = null;
-  line = inputReader.readLine();
-  StringTokenizer sToken = new StringTokenizer(line);
-  String modelDate = sToken.nextToken();
-  String modelTime = sToken.nextToken();
-
-  int julianTime = Globals.getTimeInJulianMins(modelDate, modelTime);
-  if( julianTime != Globals.currentModelTime)
-    insertUninserted = true;
-
-  line = inputReader.readLine();
-  int numberOfParticles = (new Integer(line)).intValue();
-  particles = new Particle[numberOfParticles];
-
-  for(int pNum = 0; pNum < particles.length; pNum++){
-    //? This should really be fixed. This information should be in the restart file.
-    particles[pNum] = new Particle(Globals.Environment.getParticleFixedInfo());
+  protected void inputAscii() throws IOException{
+    boolean insertUninserted = false;
+    String line = null;
     line = inputReader.readLine();
-    particles[pNum].fromString(line);
-    if (insertUninserted == true){
-      if (particles[pNum].inserted == false){
-	Node nd = particles[pNum].getRecentNode();
-	particles[pNum].setInsertionInfo(Globals.currentModelTime, nd);
+    StringTokenizer sToken = new StringTokenizer(line);
+    String modelDate = sToken.nextToken();
+    String modelTime = sToken.nextToken();
+    
+    int julianTime = Globals.getTimeInJulianMins(modelDate, modelTime);
+    if(julianTime != Globals.currentModelTime)
+      insertUninserted = true;
+    
+    line = inputReader.readLine();
+    int numberOfParticles = (new Integer(line)).intValue();
+    particles = new Particle[numberOfParticles];
+    
+    for(int pNum = 0; pNum < particles.length; pNum++){
+      //? This should really be fixed. This information should be in the restart file.
+      particles[pNum] = new Particle(Globals.Environment.getParticleFixedInfo());
+      line = inputReader.readLine();
+      particles[pNum].fromString(line);
+      if (insertUninserted == true){
+        if (particles[pNum].inserted == false){
+          Node nd = particles[pNum].getRecentNode();
+          particles[pNum].setInsertionInfo(Globals.currentModelTime, nd);
+        }
       }
-    }
+    }//end for
   }
-}
-
 
   /**
    *  input binary
    */
-protected final void inputBinary() throws IOException{
-}
+  protected final void inputBinary() throws IOException{
+  }
 
   /**
    *  Particle pointer array
    */
-protected Particle [] particles;
-
+  protected Particle [] particles;
 }
 
 

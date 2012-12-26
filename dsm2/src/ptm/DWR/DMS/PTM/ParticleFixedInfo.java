@@ -48,8 +48,6 @@
 //$Id: ParticleFixedInfo.java,v 1.7.6.1 2006/04/04 18:16:25 eli2 Exp $
 package DWR.DMS.PTM;
 /**
- *  CLASS
- * 
  *  ParticleFixedInfo
  * 
  *  This class encapsulates the fixed input information for the
@@ -111,10 +109,10 @@ public final void setVariables(int random_seed,
    *  sets the insertion variable values
    */
 public final void setVariables(int nInjections, 
-			       int[] nNode, 
-			       int[] nInjected, 
-			       int[] startJulmin, 
-			       int[] lengthJulmin){
+                               int[] nNode, 
+                               int[] nInjected, 
+                               int[] startJulmin, 
+                               int[] lengthJulmin){
   
   numberOfInjections = nInjections;
 
@@ -220,7 +218,7 @@ public final boolean moveLaterally(){
 
 
   /**
-   *  OK to use transvers profile
+   *  OK to use transverse profile
    */
 public final boolean doTransverseProfile(){
   return useTransverseProfile;
@@ -299,7 +297,7 @@ public final int getNumberOfParticlesInjected(int injectionId){
 
 
   /**
-   *  return the node EnvIndex for the specified injection id
+   *  Return the node EnvIndex for the specified injection id
    */
 public final int getLocationOfParticlesInjected(int injectionId){
   return particleInjectionNode[injectionId-1];

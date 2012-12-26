@@ -46,7 +46,7 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
 class FlowTypes {
-public static final int diversion=1, 
+  public static final int diversion=1, 
   pump=2, rim=3, 
   seepage=4, 
   drain=5,

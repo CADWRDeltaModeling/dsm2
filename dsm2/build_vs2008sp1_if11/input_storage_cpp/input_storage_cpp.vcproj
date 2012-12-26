@@ -251,6 +251,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_filter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_filter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_particle_flux_output.cpp"
 				>
 			</File>
@@ -260,6 +268,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_particle_insertion.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_res_filter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_particle_res_filter.h"
 				>
 			</File>
 			<File

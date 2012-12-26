@@ -52,41 +52,41 @@ c-----process a character line into data arrays for particle group output
       endif
       pathoutput(noutpaths).obj_type=obj_flux
       ! process from object
-	objtmp=from_wb(1:(index(from_wb,":")-1))
-	pathoutput(noutpaths).flux_from_type
+      objtmp=from_wb(1:(index(from_wb,":")-1))
+      pathoutput(noutpaths).flux_from_type
      &              =obj_type_code(objtmp)
       objtmp=' '
-	objtmp=from_wb((index(from_wb,":")+1):len_trim(from_wb))
+      objtmp=from_wb((index(from_wb,":")+1):len_trim(from_wb))
       if(trim(objtmp) .eq. 'all' .and. 
      &     pathoutput(noutpaths).flux_from_type .ne. obj_group) then
 	     pathoutput(noutpaths).flux_from_ndx=GROUP_ANY_INDEX
       else    
 		   pathoutput(noutpaths).flux_from_ndx=name_to_objno(
      &              pathoutput(noutpaths).flux_from_type,objtmp)
-	end if
+      end if
       if( pathoutput(noutpaths).flux_from_ndx .eq. miss_val_i) then
 	    write(unit_error, 650)trim(from_wb)
  650         format(/'Unrecognized object name: ',a)
              call exit(-1)
-	end if
+      end if
 	! process to object
-	objtmp=to_wb(1:(index(to_wb,":")-1))
-	pathoutput(noutpaths).flux_to_type
+      objtmp=to_wb(1:(index(to_wb,":")-1))
+      pathoutput(noutpaths).flux_to_type
      &              =obj_type_code(objtmp)
       objtmp=' '
-	objtmp=to_wb((index(to_wb,":")+1):len_trim(to_wb))
+      objtmp=to_wb((index(to_wb,":")+1):len_trim(to_wb))
       if(trim(objtmp) .eq. 'all' .and. 
      &     pathoutput(noutpaths).flux_to_type .ne. obj_group) then
 	     pathoutput(noutpaths).flux_to_ndx=GROUP_ANY_INDEX
       else    
 		   pathoutput(noutpaths).flux_to_ndx=name_to_objno(
      &              pathoutput(noutpaths).flux_to_type,objtmp)
-	end if
+      end if
       if( pathoutput(noutpaths).flux_to_ndx .eq. miss_val_i) then
-	    write(unit_error, 652)trim(to_wb)
+          write(unit_error, 652)trim(to_wb)
  652         format(/'Unrecognized object name: ',a)
              call exit(-1)
-	end if
+      end if
 
       ! generic output stuff
       pathoutput(noutpaths).a_part=' '
@@ -249,3 +249,332 @@ c     part_injection(npartno).type
       end subroutine
 
 
+      subroutine process_particle_filter(name,node,at_wb,fillin,filename,inpath)
+c-----process a character line into data arrays for particle filter (on nodes connecting to channel, boudnary)
+      use IO_Units
+      use common_ptm
+      use constants
+      use iopath_data
+      use logging
+      implicit none
+      
+      character
+     &     name*32
+     &     ,resname*32
+     &     ,at_wb*32
+     &     ,fillin*8
+     &     ,filename*128
+     &     ,inpath*80
+      integer node
+      
+      character*32  objtmp
+      integer, external :: obj_type_code
+      integer, external :: name_to_objno
+      integer getWaterbodyUniqueId
+      
+      character
+     &     LocName*32
+     &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
+     &     ,ctmp*200
+     
+      integer*4
+     &     npath,na,nb,nc,nd,ne,nf
+     &     ,itmp
+     &     ,istat
+     
+      integer, external :: ext2intnode
+      integer, external :: loccarr
+      integer, external :: fillin_code
+      real*8 ftmp
+      
+      call locase(name)
+      call locase(at_wb)
+      call locase(fillin)
+      call locase(inpath)
+
+      nfilter = nfilter+1
+      if (nfilter .gt. max_filter) then
+         write(unit_error,"(a,i)")
+     &        'Too many input paths specified; max allowed is:'
+     &        ,max_filter
+         call exit(-1)
+      endif
+         
+      part_filter(nfilter).ndx = nfilter-1
+      part_filter(nfilter).name = trim(name)
+      part_filter(nfilter).node = ext2intnode(node)
+      part_filter(nfilter).resname = miss_val_c
+      part_filter(nfilter).at_wb = at_wb
+      
+      ! process filter at_wb object
+      objtmp=at_wb(1:(index(at_wb,":")-1))
+      part_filter(nfilter).at_wb_type
+     &              =obj_type_code(objtmp)
+      objtmp=' '
+      objtmp=at_wb((index(at_wb,":")+1):len_trim(at_wb))
+      part_filter(nfilter).at_wb_ndx=name_to_objno(
+     &              part_filter(nfilter).at_wb_type,objtmp)
+      
+      if (part_filter(nfilter).at_wb_ndx .eq. miss_val_i) then
+         write(unit_error, 650)trim(at_wb)
+ 650         format(/'Unrecognized object name: ',a)
+         call exit(-1)
+      end if
+      
+      part_filter(nfilter).at_wb_id = getWaterbodyUniqueId
+     &          (part_filter(nfilter).at_wb_type,part_filter(nfilter).at_wb_ndx)
+
+c--------------dss timeseries input
+      part_filter(nfilter).fillin = fillin
+      part_filter(nfilter).filename = filename
+      part_filter(nfilter).path = trim(inpath)
+      
+      !TODO
+      ninpaths=ninpaths+1
+      if (ninpaths .gt. max_inputpaths) then
+          write(unit_error,630)
+     &        'Too many input paths specified; max allowed is:'
+     &        ,max_inputpaths
+           call exit(-1)
+      endif
+      
+      
+      pathinput(ninpaths).name=name
+      pathinput(ninpaths).useobj=.true.
+      write(LocName, '(i)') node
+      pathinput(ninpaths).obj_name=LocName
+      pathinput(ninpaths).obj_type=obj_node
+      pathinput(ninpaths).obj_no=ext2intnode(node)  !part_filter(nfilter).node
+      pathinput(ninpaths).variable="part_filter"
+      pathinput(ninpaths).sign = 0
+      
+      if (FileName(:8) .eq. 'constant' .or.
+     &      FileName(:8) .eq. 'CONSTANT') then
+          read(InPath, '(1f10.0)') ftmp
+          pathinput(ninpaths).constant_value=ftmp
+          pathinput(ninpaths).fillin=fill_last
+          pathinput(ninpaths).path=trim(InPath)
+          pathinput(ninpaths).filename=trim(FileName)
+      else
+c--------------Break up the input pathname
+
+          pathinput(ninpaths).path=trim(InPath)
+          call chrlnb(InPath, npath)
+          call zufpn(ca, na, cb, nb, cc, nc, cd, nd, ce, ne,
+     &              cf, nf, InPath, npath, istat)
+          if (istat .lt. 0) then
+              write(unit_error, '(/a/a)')
+     &                 'Input TS: Illegal pathname', InPath
+              call exit(-1)
+          end if
+     
+          call split_epart(ce,itmp,ctmp)
+          if (itmp .ne. miss_val_i) then ! valid interval, parse it
+              pathinput(ninpaths).no_intervals=itmp
+              pathinput(ninpaths).interval=ctmp
+          else
+              write(unit_error,610)
+     &                 'Input TS: Unknown input E part or interval: ' // ce
+              write(unit_error, '(a)') 'Path: ' // trim(InPath)
+              call exit(-1)
+          endif
+          pathinput(ninpaths).filename=FileName
+c--------------accumulate unique dss input filenames
+          itmp=loccarr(pathinput(ninpaths).filename,infilenames,
+     &              max_dssinfiles, EXACT_MATCH)
+          if (itmp .lt. 0) then
+              if (abs(itmp) .le. max_dssinfiles) then
+                  infilenames(abs(itmp))=pathinput(ninpaths).filename
+                  pathinput(ninpaths).ndx_file=abs(itmp)
+              else
+                  write(unit_error,610)
+     &                    'Maximum number of unique DSS input files exceeded'
+                  call exit(-3)
+               endif
+          else
+              pathinput(ninpaths).ndx_file=itmp
+          endif
+          pathinput(ninpaths).fillin=fillin_code(fillin)
+      endif
+      
+      pathinput(ninpaths).data_type = obj_filter
+      
+
+      if (print_level .ge. 3) then
+          write(unit_screen, '(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
+     &       trim(InPath(:24)),
+     &       trim(FileName(:24))
+      end if
+
+ 610  format(/a)
+ 620  format(/a/a)
+ 630  format(/a,i5)
+      
+      return
+      end subroutine
+
+
+      subroutine process_particle_res_filter(name,resname,at_wb,fillin,filename,inpath)
+c-----process a character line into data arrays for particle filter (on source flow directly to reservoir)
+      use IO_Units
+      use common_ptm
+      use constants
+      use iopath_data
+      use logging
+      implicit none
+      
+      character
+     &     name*32
+     &     ,resname*32
+     &     ,at_wb*32
+     &     ,fillin*8
+     &     ,filename*128
+     &     ,inpath*80
+      integer node
+
+      character*32  objtmp
+      integer, external :: obj_type_code
+      integer, external :: name_to_objno
+      integer getWaterbodyUniqueId
+      
+      character
+     &     LocName*32
+     &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32
+     &     ,ctmp*200
+     
+      integer*4
+     &     npath,na,nb,nc,nd,ne,nf
+     &     ,itmp
+     &     ,istat
+     
+      integer, external :: ext2intnode
+      integer, external :: loccarr
+      integer, external :: fillin_code
+      real*8 ftmp
+      
+      call locase(name)
+      call locase(at_wb)
+      call locase(fillin)
+      call locase(inpath)
+      
+      nfilter = nfilter+1
+      if (nfilter .gt. max_filter) then
+         write(unit_error,"(a,i)")
+     &        'Too many input paths specified; max allowed is:'
+     &        ,max_filter
+         call exit(-1)
+      endif
+      
+      part_filter(nfilter).ndx = nfilter-1
+      part_filter(nfilter).name = name
+      part_filter(nfilter).node = miss_val_i
+      part_filter(nfilter).resname = resname
+      part_filter(nfilter).at_wb = at_wb
+
+c--------------process filter at_wb object to internal wb id
+      objtmp=at_wb(1:(index(at_wb,":")-1))
+      part_filter(nfilter).at_wb_type
+     &    =obj_type_code(objtmp)
+      objtmp=' '
+      objtmp=at_wb((index(at_wb,":")+1):len_trim(at_wb))
+
+      part_filter(nfilter).at_wb_ndx=name_to_objno(
+     &    part_filter(nfilter).at_wb_type,objtmp)
+      if (part_filter(nfilter).at_wb_ndx .eq. miss_val_i) then
+         write(unit_error, 650)trim(at_wb)
+ 650         format(/'Unrecognized object name: ',a)
+         call exit(-1)
+      end if
+            
+      part_filter(nfilter).at_wb_id = getWaterbodyUniqueId
+     &    (part_filter(nfilter).at_wb_type,part_filter(nfilter).at_wb_ndx)
+
+c--------------dss timeseries input
+      part_filter(nfilter).fillin = fillin
+      part_filter(nfilter).filename = filename
+      part_filter(nfilter).path = inpath
+      
+      !TODO
+      ninpaths=ninpaths+1
+      if (ninpaths .gt. max_inputpaths) then
+          write(unit_error,630)
+     &        'Too many input paths specified; max allowed is:'
+     &        ,max_inputpaths
+           call exit(-1)
+      endif
+      
+      
+      pathinput(ninpaths).name=name
+      pathinput(ninpaths).useobj=.true.
+      write(LocName, '(a32)') resname
+      pathinput(ninpaths).obj_name=LocName
+      pathinput(ninpaths).obj_type=obj_node
+      pathinput(ninpaths).variable="part_filter"
+      pathinput(ninpaths).sign = 0
+      
+      if (FileName(:8) .eq. 'constant' .or.
+     &      FileName(:8) .eq. 'CONSTANT') then
+          read(InPath, '(1f10.0)') ftmp
+          pathinput(ninpaths).constant_value=ftmp
+          pathinput(ninpaths).fillin=fill_last
+          pathinput(ninpaths).path=trim(InPath)
+          pathinput(ninpaths).filename=trim(FileName)
+      else
+c--------------Break up the input pathname
+
+          pathinput(ninpaths).path=trim(InPath)
+          call chrlnb(InPath, npath)
+          call zufpn(ca, na, cb, nb, cc, nc, cd, nd, ce, ne,
+     &              cf, nf, InPath, npath, istat)
+          if (istat .lt. 0) then
+              write(unit_error, '(/a/a)')
+     &                 'Input TS: Illegal pathname', InPath
+              call exit(-1)
+          end if
+     
+          call split_epart(ce,itmp,ctmp)
+          if (itmp .ne. miss_val_i) then ! valid interval, parse it
+              pathinput(ninpaths).no_intervals=itmp
+              pathinput(ninpaths).interval=ctmp
+          else
+              write(unit_error,610)
+     &                 'Input TS: Unknown input E part or interval: ' // ce
+              write(unit_error, '(a)') 'Path: ' // trim(InPath)
+              call exit(-1)
+          endif
+          pathinput(ninpaths).filename=FileName
+          !pathinput(ninpaths).filename=trim(FileName)
+c--------------accumulate unique dss input filenames
+          itmp=loccarr(pathinput(ninpaths).filename,infilenames,
+     &              max_dssinfiles, EXACT_MATCH)
+          if (itmp .lt. 0) then
+              if (abs(itmp) .le. max_dssinfiles) then
+                  infilenames(abs(itmp))=pathinput(ninpaths).filename
+                  pathinput(ninpaths).ndx_file=abs(itmp)
+              else
+                  write(unit_error,610)
+     &                    'Maximum number of unique DSS input files exceeded'
+                  call exit(-3)
+               endif
+          else
+              pathinput(ninpaths).ndx_file=itmp
+          endif
+          pathinput(ninpaths).fillin=fillin_code(fillin)
+      endif
+      
+      pathinput(ninpaths).data_type = obj_filter
+      
+
+      if (print_level .ge. 3) then
+          write(unit_screen, '(i4,1x,a32,1x,a24,a24)') ninpaths, Name,
+     &       trim(InPath(:24)),
+     &       trim(FileName(:24))
+      end if
+
+ 610  format(/a)
+ 620  format(/a/a)
+ 630  format(/a,i5)
+      
+      
+      return
+      end subroutine

@@ -1,4 +1,3 @@
-
 //    Copyright (C) 1996, 2009 State of California, Department of Water
 //    Resources.
 //
@@ -47,11 +46,10 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/package DWR.DMS.PTM;
 package DWR.DMS.PTM;
 public class TraceData {
-public TraceData(){
-}
-public int timeStamp;
-public int particleNumber;
-public int nodeNumber;
-public int waterbodyNumber;
-
+  public TraceData(){
+  }
+  public int timeStamp;
+  public int particleNumber;
+  public int nodeNumber;
+  public int waterbodyNumber;
 }

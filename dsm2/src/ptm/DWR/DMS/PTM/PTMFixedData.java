@@ -47,6 +47,7 @@
 package DWR.DMS.PTM;
 /**
  * Encapsulates the fixed information for this model
+ * Contains native functions calls to C++ src codes, finally to Fortran
  *
  * @author Nicky Sandhu
  * @version $Id: PTMFixedData.java,v 1.6.6.5 2007/07/31 18:30:39 eli2 Exp $
@@ -69,14 +70,33 @@ public LimitsFixedData getLimitsFixedData(){
 //  int maxConveyors = getMaximumNumberOfConveyors();
   int maxNodes = getMaximumNumberOfNodes();               
   int maxXSections = getMaximumNumberOfXSections();            
-  return new LimitsFixedData( maxChannels,
-			      maxReservoirs, 
-			      maxDiversions, 
-			      maxPumps, 
-			      maxBoundaryWaterbodies, 
-			      maxNodes, 
-			      maxXSections);
+  return new LimitsFixedData(maxChannels,
+                             maxReservoirs, 
+                             maxDiversions, 
+                             maxPumps, 
+                             maxBoundaryWaterbodies, 
+                             maxNodes, 
+                             maxXSections);
 }
+
+public FiltersFixedData getFiltersFixedData(){
+  int nFilters = getNumberOfFilters();
+  int[] filterIndices = getIndicesOfFilters();
+  String [] filterNames = getNamesOfFilters();
+  int[] filterNodes = getNodesOfFilters();
+  int[] filterWbs = getWaterbodiesOfFilters();
+  int[] filterWbTypes = getWaterbodyTypesOfFilters();
+  
+  FiltersFixedData pF = new FiltersFixedData(nFilters,
+                                             filterIndices,
+                                             filterNames,
+                                             filterNodes, 
+                                             filterWbs,
+                                             filterWbTypes);
+  return pF;
+}
+
+
   /**
    *
    */
@@ -85,15 +105,17 @@ public ParticleFixedData getParticleFixedData(){
 
   boolean[] booleanInputs = createParticleBooleanInputs();
   float[] floatInputs = getParticleFloatInputs();
+  // particle injection info
   int nInjections = getParticleNumberOfInjections();
   int[] nNode = getParticleInjectionNodes();
   int[] nInjected = getParticleNumberOfParticlesInjected();
   int[] startJulmin = getParticleInjectionStartJulmin();
   int[] lengthJulmin = getParticleInjectionLengthJulmin();
+  // groups and Qual binary file info
   boolean qBinary = qualBinaryBooleanInput();
   int ngroups = getNumberOfChannelGroups();
   String[] qNames = getQualConstituentNames();
-
+  
   pFD.setVariables(booleanInputs[0],booleanInputs[1],
 		   booleanInputs[2],booleanInputs[3],
 		   booleanInputs[4],booleanInputs[5],
@@ -133,6 +155,7 @@ public FluxFixedData[] getFluxFixedData(){
   }
   return fFD;
 }
+
 
 public Group[] getOutputGroups(){
 	  int numberOfGroups = getNumberOfGroupOutputs();
@@ -227,7 +250,7 @@ public native int getNumberOfXSections();
  native float[] getXSectionElevations(int i);
  native float[] getXSectionAreas(int i);
  native float getXSectionMinimumElevation(int i);
-  //
+  // Particle Injection native
  native int [] getParticleBooleanInputs();
  native float[] getParticleFloatInputs(); 
  native int getParticleNumberOfInjections();
@@ -235,17 +258,24 @@ public native int getNumberOfXSections();
  native int [] getParticleNumberOfParticlesInjected();
  native int [] getParticleInjectionStartJulmin();
  native int [] getParticleInjectionLengthJulmin();
-  //
+  // Particle Flux native
  native int getNumberOfFluxes();
  native int [] getFluxIncoming(int i);
  native int [] getFluxOutgoing(int i);
  native int [] getFluxIncomingType(int i);
  native int [] getFluxOutgoingType(int i);
- //
+  // Particle Filter native
+ static native int getNumberOfFilters();
+ native int [] getIndicesOfFilters();
+ native String [] getNamesOfFilters();
+ native int [] getNodesOfFilters();	
+ native int [] getWaterbodiesOfFilters();
+ native int [] getWaterbodyTypesOfFilters();
+  // Group native
  native int getNumberOfGroupOutputs();
  native int [] getGroupMemberType(int i);
  native int [] getGroupMemberIndex(int i);
-  //
+  // Model Running Time native
  native int getModelStartTime();
  native int getModelEndTime();
  native int getPTMTimeStep();

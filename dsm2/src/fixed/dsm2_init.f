@@ -131,6 +131,21 @@ c-----default HDF5 output intervals
          part_injection(i).type=' '
       enddo
 
+      do i=1,max_filter
+         part_filter(i).type_f=miss_val_c
+         part_filter(i).name=miss_val_c
+         part_filter(i).ndx=miss_val_i
+         part_filter(i).node=miss_val_i
+         part_filter(i).resname=miss_val_c         
+         part_filter(i).at_wb=miss_val_c
+         part_filter(i).at_wb_type=miss_val_i         
+         part_filter(i).at_wb_ndx=miss_val_i
+         part_filter(i).at_wb_id=miss_val_i
+         part_filter(i).op=0.0
+         part_filter(i).fillin=miss_val_c
+         part_filter(i).filename=miss_val_c
+         part_filter(i).path=miss_val_c
+      enddo
 
 c-----set non-conservative constituent names for DSS C part
       nonconserve_list(ncc_do)='do'

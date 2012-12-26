@@ -43,12 +43,12 @@ c----- functions
      &     , get_maximum_number_of_conveyors
       
       real get_flow_balance_at_node,fb
-	real*8 :: FLOW_BALANCE_TOL = 2.
+      real*8 :: FLOW_BALANCE_TOL = 2.
 c----- locals
       integer iconnect
       integer :: icall = 0
       integer i,j,k,id, dsmNumber, qId
-	integer ext2int
+      integer ext2int
 c----- begin
 c----- update channel info
       do i=1, get_number_of_channels() 
@@ -168,15 +168,83 @@ c      call read_quality_bin()
       return 
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
-      function get_ext_from_int(internal)
+      function get_ext_from_int_chan(int_chan)
       use grid_data
+      use IO_Units
+      
       implicit none
-      integer get_ext_from_int
-      integer internal
-      get_ext_from_int= int2ext(internal)
+      integer get_ext_from_int_chan
+      integer int_chan
+      
+ 633  format(/"No such internal channel id: ",i4)
+ 
+      get_ext_from_int_chan= int2ext(int_chan)
+      if (get_ext_from_int_chan .le. 0) then
+         write (unit_error,633) int_chan
+         call exit(-1)
+      endif
+      
       return
       end
+c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_int_from_ext_chan(ext_chan)
+      use grid_data
+      use IO_Units
+      
+      implicit none
+      integer get_int_from_ext_chan
+      integer, external :: ext2int
+      integer ext_chan
+      
+ 634  format(/"No such internal channel id: ",i4)
+      
+      get_int_from_ext_chan = ext2int(ext_chan)
+      if (get_int_from_ext_chan .le. 0) then
+         write (unit_error,634) ext_chan
+         call exit(-1)
+      endif
+      
+      return
+      end
+c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_ext_from_int_node(int_node)
+      use grid_data
+      use IO_Units
+      
+      implicit none
+      integer get_ext_from_int_node
+      integer int_node
+      
+ 623  format(/"No such internal node id: ",i4)
 
+      get_ext_from_int_node = nodelist(int_node)
+      if (get_ext_from_int_node .le. 0) then
+         write (unit_error,623) int_node
+         call exit(-1)
+      endif
+      
+      return
+      end
+c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_int_from_ext_node(ext_node)
+      use grid_data
+      use IO_Units
+      
+      implicit none
+      integer get_int_from_ext_node
+      integer, external :: ext2intnode
+      integer ext_node
+      
+ 624  format(/"No such external node id: ",i4)
+ 
+      get_int_from_ext_node = ext2intnode(ext_node)
+      if (get_int_from_ext_node .le. 0) then
+         write (unit_error,624) ext_node
+         call exit(-1)
+      endif
+      
+      return
+      end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_depth(number)
       use ptm_local
@@ -407,7 +475,90 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
       return
       end
 
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine update_ops_of_filters()
+c     UpdateTimeVaryingData and get all filter ops for the specified timestamp
+      use type_defs
+      use iopath_data
+      use runtime_data
+      use common_ptm
+      use IO_Units
+      implicit none
+      
+*   Module data:
+      include '../../timevar/dss.inc'
+      include '../../timevar/readdss.inc'
+      
+      integer i
+      
+ 662  format(/"Invalid filter's operation: ",a," filter's operation",f8.3 " is limited to range 0~1")
+ 
+      if (nfilter .gt. 1000) 
+     &     write(*,*) 'Extend LEN1 in dynamicData.h to ', nfilter 
 
+      if (npthsin_min15 .gt. 0) then
+         call readtvd(max_inp_min,mins15,npthsin_min15,ptin_min15,
+     &        datain_15min)
+      endif
+
+      if (npthsin_hour1 .gt. 0) then
+         call readtvd(max_inp_hour,hrs,npthsin_hour1, ptin_hour1,
+     &        datain_1hour)
+      endif
+
+      if (npthsin_day1 .gt. 0) then
+         call readtvd(max_inp_day,dys,npthsin_day1,ptin_day1,
+     &        datain_1day)
+      endif
+
+      if (npthsin_month1 .gt. 0) then
+         call readtvd(max_inp_month,mths,npthsin_month1,ptin_month1,
+     &        datain_1month)
+      endif
+
+      if (npthsin_year1 .gt. 0) then
+         call readtvd(max_inp_year,yrs,npthsin_year1,ptin_year1,
+     &        datain_1year)
+      endif
+
+      if (npthsin_irr .gt. 0) then
+         call readtvd(max_inp_irr,irrs,npthsin_irr,ptin_irr,
+     &        datain_irr)
+      endif
+      
+      do i=1,ninpaths
+         call get_inp_data(i) ! get input data from buffers
+      end do
+      
+c     check operation value
+      do i=1,nfilter
+         if (pathinput(i).value .le. 1 .and. 
+     &       pathinput(i).value .ge. 0) then
+            part_filter(i).op = pathinput(i).value
+         else
+            write (unit_error,662) trim(pathinput(i).name), 
+     &             pathinput(i).value
+            call exit(-1)
+         end if
+      enddo
+      
+      !prev_julmin = julmin
+      
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++
+      function get_op_of_filter(number)
+c     get the filter op for the specified filter at current timestamp
+      use common_ptm
+      implicit none
+      integer number
+      real get_op_of_filter
+
+      number = number+1
+      get_op_of_filter = part_filter(number).op
+      
+      return
+      end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_quality(number, constituent)
       use ptm_local
