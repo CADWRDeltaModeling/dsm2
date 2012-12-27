@@ -81,11 +81,11 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       use common_tide
       use ptm_local
+      use network
 C-----Processes tide file input
       implicit none
 C-----This subroutine is called from read_mult_tide after reading in the tide
 C-----information
-      include '../../hydrolib/network.inc'
 
 c-----argumnents
       logical

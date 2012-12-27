@@ -30,7 +30,27 @@ C!</license>
       use runtime_data
       use iopath_data
       use grid_data
-      
+
+      use network
+      use solver
+      use chnlcomp
+      use chconnec
+      use chstatus
+      use virt_xsect
+      use netblnce
+      use gate_calc, only: AssignGateCompPoints
+      use netcntrl, only: TotalNetworkIterations,
+     &  IncrementNetworkTimeStep,Restart_Write
+      use solveutil
+      use solvealloc
+      use netbnd, only: SetBoundaryValuesFromData
+      use oprule_management
+      use tidefile
+      use reservoirs
+      use channel_schematic
+      use dss
+      use mod_readdss
+      use update_network, only: UpdateNetwork
       IMPLICIT NONE
 
 *   Purpose:  Compute 1-dimensional streamflow in a network of open
@@ -69,15 +89,6 @@ C!</license>
 *                      Other persons involved in the coding or
 *                      modification of code used by FourPt include
 *                      Barry Wicktom, Jenifer Johnson, Victoria Israel.
-
-      include '../hydrolib/network.inc'
-      include '../hydrolib/solver.inc'
-      include '../hydrolib/netcntrl.inc'
-      include '../hydrolib/chnlcomp.inc'
-      include '../hydrolib/chconnec.inc'
-      include '../hydrolib/chstatus.inc'
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
 c-----include '../input/time-varying/writedss.inc'
 
 *   Local variables:
@@ -97,52 +108,6 @@ c-----include '../input/time-varying/writedss.inc'
      &     init_input_file*130  ! initial input file on command line [optional]
      &     ,jmin2cdt*14         ! convert from julian minute to char date/time
 
-*   Routines by module:
-
-***** Network control:
-      INTEGER  NetworkTimeSteps, TotalNetworkIterations
-      EXTERNAL NetworkTimeSteps, TotalNetworkIterations
-
-      LOGICAL  InitializeNetworkControl
-      EXTERNAL InitializeNetworkControl
-
-      LOGICAL  IncrementNetworkTimeStep
-      EXTERNAL IncrementNetworkTimeStep
-
-      LOGICAL  SetBoundaryValuesFromData
-      EXTERNAL SetBoundaryValuesFromData
-
-***** Local:
-      LOGICAL  DefineNetwork, UpdateNetwork,CloseSolver
-      EXTERNAL DefineNetwork, UpdateNetwork,CloseSolver
-
-***** Network volume and mass balance:
-
-      LOGICAL  AverageFlow, WriteNetworkRestartFile
-      EXTERNAL AverageFlow, WriteNetworkRestartFile
-
-      LOGICAL  InitNetBalance, UpdateNetBalance, InitReservoirFlow
-      EXTERNAL InitNetBalance, UpdateNetBalance, InitReservoirFlow
-      LOGICAL  ReportNetBalance
-      EXTERNAL ReportNetBalance
-
-***** Channel status:
-
-      INTEGER  NumberOfChannels,TotalStreamLocations
-      EXTERNAL NumberOfChannels,TotalStreamLocations
-
-      LOGICAL  WriteHydroToTidefile, Calculate_Chan_Net_Flow
-      LOGICAL  InitializeChannelNetwork, InitializeSolver,InitOpRules
-
-      LOGICAL Compute_ChArea
-      EXTERNAL Compute_ChArea
-
-      EXTERNAL WriteHydroToTidefile, Calculate_Chan_Net_Flow
-      EXTERNAL InitializeChannelNetwork, InitializeSolver,InitOpRules
-      !LOGICAL CloseHDF5
-      !EXTERNAL CloseHDF5
-      
-      logical, external :: order_nodes
       logical :: updated
 *   Programmed by: Lew DeLong
 *   Date:          February 1991
@@ -276,7 +241,7 @@ c-----calculate julian minute of end of each DSS interval
 
       if ( io_files(hydro,io_hdf5,io_write).use ) then ! hydro binary file output
          call DetermineFirstTidefileInterval()
-         call InitHydroTidefile
+         OK = InitHydroTidefile()
 C--special treatment to avoid averaging in the begining         
          julmin = julmin - time_step
          OK = AverageFlow()

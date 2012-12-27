@@ -14,7 +14,7 @@
 #define get_model_minute GETMODELMINUTE
 #define get_model_ticks GETMODELTICKS
 #define cdate_to_jul_min CDT2JMIN
-#define time_step_seconds NETWORKTIMEINCREMENT
+#define time_step_seconds NETCNTRL_mp_NETWORKTIMEINCREMENT
 
 #define STDCALL 
 
@@ -31,6 +31,6 @@ extern "C" {
    int STDCALL get_model_hour();
    int STDCALL cdate_to_jul_min(const char* name, 
                                     unsigned int len);
-   int STDCALL time_step_seconds();
+   int time_step_seconds();
 }
 #endif //include guard

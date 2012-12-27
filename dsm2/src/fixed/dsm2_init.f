@@ -31,16 +31,15 @@ C!</license>
       use grid_data
       use common_qual
       use common_ptm
-
+      
       use common_tide
+      use network
+      use dss
+      use mod_readdss
+      use mod_writedss
 c-----initialize variables for DSM2
 
       implicit none
-      include '../timevar/dss.inc'
-      include '../timevar/writedss.inc'
-      include '../timevar/readdss.inc'
-      include '../hydrolib/network.inc'
-      
 c-----local variables
 
       character ctemp1*20,ctemp2*20,ctmpl*250 ! temporary

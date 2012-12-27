@@ -2,6 +2,10 @@
       subroutine read_boundary_values
       use iopath_data
       use grid_data
+      use dss
+      use mod_readdss
+      use mod_writedss
+      use tvd
       implicit none
 
 c-----read time-varying data arrays for Qual
@@ -13,10 +17,6 @@ c-----common blocks
       include 'param.inc'
       include 'bltm1.inc'
       include 'bltm2.inc'
-
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-      include '../timevar/writedss.inc'
 
       integer
      &     chan,grid,constituent_no ! array indices
@@ -67,6 +67,7 @@ c-----common blocks
       subroutine store_values
       use common_qual
       use iopath_data
+      use tvd
       implicit none
 c-----Fill time-varying data arrays for Qual
 

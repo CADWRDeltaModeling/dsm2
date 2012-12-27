@@ -1,624 +1,580 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
 
-*===== BOF netblnce ====================================================
+!===== BOF netblnce.inc ================================================
+!   Version 93.01, January, 1993
 
-*   Module data:
+!   Note: 'network.inc' must appear before this file.
+module netblnce
+    use network
+    use channel_schematic, only: OpenChannel, CloseChannel, &
+        NumberOfChannels, StreamDistance, &
+        NumberOfStreamLocations
+    use netcntrl, only: NetworkTimeIncrement, NetworkTheta, &
+        VariableStreamDensity, &
+        NetworkQuadPts, NetworkQuadPtWt
+    use channel_xsect_tbl, only: CxArea
+    use chstatus, only: StreamFlow, &
+        NewStreamDensity, OldStreamDensity, &
+        EstNewStreamDensity, EstOldStreamDensity, &
+        StreamSurfaceElevation
+    implicit none
 
-*    'network.inc'
-*     MaxChannels - maximum number of channels.
-*     NumCh - current number of channels.
-*     Branch - current selected or active channel.
-*     MaxLocations - maximum number of computational or user locations.
+    real*8, save:: InitialVolume(MaxChannels), InitialMass(MaxChannels)
+    real*8, save:: Volume(MaxChannels), Mass(MaxChannels)
+    real*8, save:: JnctVolFlow(MaxChannels), JnctMassFlow(MaxChannels)
+    real*8, save:: LateralVolFlow(MaxChannels), LateralMassFlow(MaxChannels)
 
-*    'netblnce.inc'
-*     InitialVolume(i) - initial volume of fluid in channel i.
-*     InitialMass(i) - initial mass of fluid in channel i.
-*     Volume(i) - current volume of fluid in channel i.
-*     Mass(i) - current mass of fluid in channel i.
-*     JnctVolFlow(i) - net change of volume through ends of channel i.
-*     JnctMassFlow(i) - net change of mass through ends of channel i.
-*     LateralVolFlow(i) - net change of volume resulting from flows
-*                         distributed along reaches of channel i.
-*     LateralVolMass(i) - net change of mass resulting from flows
-*                         distributed along reaches of channel i.
+!   Definitions:
+!     InitialVolume(i) - initial volume of fluid in channel i.
+!     InitialMass(i) - initial mass of fluid in channel i.
+!     Volume(i) - current volume of fluid in channel i.
+!     Mass(i) - current mass of fluid in channel i.
+!     JnctVolFlow(i) - net change of volume through ends of channel i.
+!     JnctMassFlow(i) - net change of mass through ends of channel i.
+!     LateralVolFlow(i) - net change of volume resulting from flows
+!                         distributed along reaches of channel i.
+!     LateralMassFlow(i) - net change of mass resulting from flows
+!                         distributed along reaches of channel i.
 
-*== Public (InitNetBalance) ============================================
+!===== EOF netblnce.inc ================================================
+contains
+    !===== BOF netblnce ====================================================
 
-      LOGICAL FUNCTION InitNetBalance()
+    !   Module data:
 
-      IMPLICIT NONE
+    !    'network.inc'
+    !     MaxChannels - maximum number of channels.
+    !     NumCh - current number of channels.
+    !     Branch - current selected or active channel.
+    !     MaxLocations - maximum number of computational or user locations.
 
-*   Purpose: Initialize  volume (and mass balance if variable density)
-*            module for a network of open channels.
+    !    'netblnce.inc'
+    !     InitialVolume(i) - initial volume of fluid in channel i.
+    !     InitialMass(i) - initial mass of fluid in channel i.
+    !     Volume(i) - current volume of fluid in channel i.
+    !     Mass(i) - current mass of fluid in channel i.
+    !     JnctVolFlow(i) - net change of volume through ends of channel i.
+    !     JnctMassFlow(i) - net change of mass through ends of channel i.
+    !     LateralVolFlow(i) - net change of volume resulting from flows
+    !                         distributed along reaches of channel i.
+    !     LateralVolMass(i) - net change of mass resulting from flows
+    !                         distributed along reaches of channel i.
 
-*   Arguments:
+    !== Public (InitNetBalance) ============================================
 
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netblnce.inc'
-
-*   Local Variables:
-      INTEGER I, J, K, QuadPts, Locations
-      REAL*8    dT, OneMinusTheta
-      REAL*8    Pt, Wt
-      REAL*8    X1, X2, X, dX
-      REAL*8    Z1, Z2, Z
-      LOGICAL OK
-
-*   Routines by module:
-
-***** Channel schematic data;
-      INTEGER  NumberOfChannels, NumberOfStreamLocations
-      REAL*8     StreamDistance
-      LOGICAL  OpenChannel, CloseChannel
-      EXTERNAL OpenChannel, CloseChannel
-      EXTERNAL NumberOfChannels, StreamDistance
-      EXTERNAL NumberOfStreamLocations
-
-***** Network control:
-      INTEGER  NetworkTimeIncrement
-      REAL*8     NetworkTheta
-      EXTERNAL NetworkTimeIncrement, NetworkTheta
-      LOGICAL  VariableStreamDensity
-      EXTERNAL VariableStreamDensity
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
-
-***** Channel properties:
-      REAL*8     CxArea
-      EXTERNAL CxArea
-
-***** Channel status:
-      REAL*8     StreamFlow
-      EXTERNAL StreamFlow
-      REAL*8     EstOldStreamDensity, OldStreamDensity
-      EXTERNAL EstOldStreamDensity, OldStreamDensity
-      real*8     StreamSurfaceElevation
-      EXTERNAL StreamSurfaceElevation
-
-***** Local:
+    logical function InitNetBalance()
+        implicit none
 
 
-*   Programmed by: Lew DeLong
-*   Date:          May   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Purpose: Initialize  volume (and mass balance if variable density)
+        !            module for a network of open channels.
 
-*-----Implementation -----------------------------------------------------
+        !   Arguments:
 
-*-----Get number of quadrature points for numerical integration.
+        !   Argument definitions:
 
-      QuadPts = NetworkQuadPts()
-      dT = DFLOAT(NetworkTimeIncrement())
-      OneMinusTheta = 1.0 - NetworkTheta()
+        !   Local Variables:
+        integer I, J, K, QuadPts, Locations
+        real*8    dT, OneMinusTheta
+        real*8    Pt, Wt
+        real*8    X1, X2, X, dX
+        real*8    Z1, Z2, Z
+        logical OK
 
-      IF( VariableStreamDensity() ) THEN
+        !   Routines by module:
 
-*--------Density is variable.
 
-         DO 400 I=1,NumberOfChannels()
+        !**** Local:
 
-            OK = OpenChannel(I)
-            Locations = NumberOfStreamLocations()
 
-            InitialVolume(I) = 0.0
-            InitialMass(I)   = 0.0
-            JnctVolFlow(I)   = OneMinusTheta * dT * (
-     &           StreamFlow(1) - StreamFlow( Locations )
-     &           )
+        !   Programmed by: Lew DeLong
+        !   Date:          May   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-            JnctMassFlow(I)  = OneMinusTheta * dT * (
-     &           StreamFlow(1) * OldStreamDensity(1)
-     &           - StreamFlow( Locations ) * OldStreamDensity(Locations)
-     &           )
+        !-----Implementation -----------------------------------------------------
 
-            X1 = StreamDistance(1)
-!            H1 = StreamDepth(1)
-            Z1 = StreamSurfaceElevation(1)
+        !-----Get number of quadrature points for numerical integration.
 
-            DO 300 J=1,Locations-1
+        QuadPts = NetworkQuadPts()
+        dT = DFLOAT(NetworkTimeIncrement())
+        OneMinusTheta = 1.0 - NetworkTheta()
 
-               X2 = StreamDistance(J+1)
-!               H2 = StreamDepth(J+1)
-               Z2 = StreamSurfaceElevation(J+1)
+        if( VariableStreamDensity() ) then
 
-               dX = X2 - X1
+            !--------Density is variable.
 
-               DO 200 K=1,QuadPts
+            do 400 I=1,NumberOfChannels()
 
-                  CALL NetworkQuadPtWt( K, Pt, Wt )
-                  X = (1.0-Pt)*X1 + Pt*X2
+                OK = OpenChannel(I)
+                Locations = NumberOfStreamLocations()
 
-*-----------------Assume Z varies linearly with channel length.
-                  Z = (1.0-Pt)*Z1 + Pt*Z2
+                InitialVolume(I) = 0.0
+                InitialMass(I)   = 0.0
+                JnctVolFlow(I)   = OneMinusTheta * dT * ( &
+                    StreamFlow(1) - StreamFlow( Locations ) &
+                    )
 
-                  InitialVolume(I) = InitialVolume(I)
-     &                 + CxArea( X, Z ) * dX * Wt
+                JnctMassFlow(I)  = OneMinusTheta * dT * ( &
+                    StreamFlow(1) * OldStreamDensity(1) &
+                    - StreamFlow( Locations ) * OldStreamDensity(Locations) &
+                    )
 
-                  InitialMass(I) = InitialMass(I)
-     &                 + EstOldStreamDensity( X ) * dX * Wt
+                X1 = StreamDistance(1)
+                !            H1 = StreamDepth(1)
+                Z1 = StreamSurfaceElevation(1)
 
- 200           CONTINUE
+                do 300 J=1,Locations-1
 
-               X1 = X2
-               Z1 = Z2
+                    X2 = StreamDistance(J+1)
+                    !               H2 = StreamDepth(J+1)
+                    Z2 = StreamSurfaceElevation(J+1)
 
- 300        CONTINUE
+                    dX = X2 - X1
 
-            OK = CloseChannel()
+                    do 200 K=1,QuadPts
 
- 400     CONTINUE
+                        call NetworkQuadPtWt( K, Pt, Wt )
+                        X = (1.0-Pt)*X1 + Pt*X2
 
-      ELSE
+                        !-----------------Assume Z varies linearly with channel length.
+                        Z = (1.0-Pt)*Z1 + Pt*Z2
 
-*--------Density is constant.
+                        InitialVolume(I) = InitialVolume(I) &
+                            + CxArea( X, Z ) * dX * Wt
 
-         DO 800 I=1,NumberOfChannels()
+                        InitialMass(I) = InitialMass(I) &
+                            + EstOldStreamDensity( X ) * dX * Wt
 
-            OK = OpenChannel(I)
-            Locations = NumberOfStreamLocations()
+200                 continue
 
-            InitialVolume(I) = 0.0
-            JnctVolFlow(I)   = OneMinusTheta * dT * (
-     &           StreamFlow(1) - StreamFlow( Locations )
-     &           )
+                    X1 = X2
+                    Z1 = Z2
 
-            X1 = StreamDistance(1)
-!            H1 = StreamDepth(1)
-            Z1 = StreamSurfaceElevation(1)            
+300             continue
+
+                OK = CloseChannel()
+
+400         continue
+
+        else
+
+            !--------Density is constant.
+
+            do 800 I=1,NumberOfChannels()
+
+                OK = OpenChannel(I)
+                Locations = NumberOfStreamLocations()
+
+                InitialVolume(I) = 0.0
+                JnctVolFlow(I)   = OneMinusTheta * dT * ( &
+                    StreamFlow(1) - StreamFlow( Locations ) &
+                    )
+
+                X1 = StreamDistance(1)
+                !            H1 = StreamDepth(1)
+                Z1 = StreamSurfaceElevation(1)
 		
-            DO 700 J=1,NumberOfStreamLocations()-1
+                do 700 J=1,NumberOfStreamLocations()-1
 
-               X2 = StreamDistance(J+1)
-!               H2 = StreamDepth(J+1)
-               Z2 = StreamSurfaceElevation(J+1)
+                    X2 = StreamDistance(J+1)
+                    !               H2 = StreamDepth(J+1)
+                    Z2 = StreamSurfaceElevation(J+1)
 
-               dX = X2 - X1
+                    dX = X2 - X1
 
-               DO 600 K=1,QuadPts
+                    do 600 K=1,QuadPts
 
-                  CALL NetworkQuadPtWt( K, Pt, Wt )
-                  X = (1.0-Pt)*X1 + Pt*X2
+                        call NetworkQuadPtWt( K, Pt, Wt )
+                        X = (1.0-Pt)*X1 + Pt*X2
 
-*-----------------Assume Z varies linearly with channel length.
-                  Z = (1.0-Pt)*Z1 + Pt*Z2
+                        !-----------------Assume Z varies linearly with channel length.
+                        Z = (1.0-Pt)*Z1 + Pt*Z2
 
-                  InitialVolume(I) = InitialVolume(I)
-     &                 + CxArea( X, Z ) * dX * Wt
+                        InitialVolume(I) = InitialVolume(I) &
+                            + CxArea( X, Z ) * dX * Wt
 
- 600           CONTINUE
+600                 continue
 
-               X1 = X2
-               Z1 = Z2
+                    X1 = X2
+                    Z1 = Z2
 
- 700        CONTINUE
+700             continue
 
-            OK = CloseChannel()
+                OK = CloseChannel()
 
- 800     CONTINUE
+800         continue
 
-      END IF
+        end if
 
-      InitNetBalance = .TRUE.
+        InitNetBalance = .true.
 
-      RETURN
-      END
+        return
+    end function
 
-*== Public (UpdateNetBalance) ================================================
+    !== Public (UpdateNetBalance) ================================================
 
-      LOGICAL FUNCTION UpdateNetBalance()
+    logical function UpdateNetBalance()
 
-      IMPLICIT NONE
+        implicit none
 
-*   Purpose:  Compute net inflow to a network of open channels.
+        !   Purpose:  Compute net inflow to a network of open channels.
 
-*   Arguments:
+        !   Arguments:
 
-*   Argument definitions:
+        !   Argument definitions:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netblnce.inc'
+        !   Local Variables:
+        integer I, Locations
+        real*8    dT
+        logical OK
 
-*   Local Variables:
-      INTEGER I, Locations
-      REAL*8    dT
-      LOGICAL OK
 
-*   Routines by module:
 
-***** Channel schematic data;
-      INTEGER  NumberOfChannels, NumberOfStreamLocations
-      LOGICAL  OpenChannel, CloseChannel
-      EXTERNAL OpenChannel, CloseChannel
-      EXTERNAL NumberOfChannels
-      EXTERNAL NumberOfStreamLocations
+        !**** Local:
 
-***** Network control:
-      INTEGER  NetworkTimeIncrement
-      LOGICAL  VariableStreamDensity
-      EXTERNAL VariableStreamDensity, NetworkTimeIncrement
 
-***** Channel status:
-      REAL*8     StreamFlow, NewStreamDensity, OldStreamDensity
-      EXTERNAL StreamFlow, NewStreamDensity, OldStreamDensity
+        !   Programmed by: Lew DeLong
+        !   Date:          May   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-***** Local:
+        !-----Implementation -----------------------------------------------------
 
+        UpdateNetBalance = .true.
 
-*   Programmed by: Lew DeLong
-*   Date:          May   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        dT = DFLOAT(NetworkTimeIncrement())
 
-*-----Implementation -----------------------------------------------------
+        if( VariableStreamDensity() ) then
 
-      UpdateNetBalance = .TRUE.
+            do 100 I=1,NumberOfChannels()
 
-      dT = DFLOAT(NetworkTimeIncrement())
+                OK = OpenChannel(I)
 
-      IF( VariableStreamDensity() ) THEN
+                Locations = NumberOfStreamLocations()
 
-         DO 100 I=1,NumberOfChannels()
+                JnctMassFlow(I) = JnctMassFlow(I) &
+                    + ( &
+                    StreamFlow(1) * NewStreamDensity(1) &
+                    - StreamFlow(Locations) * NewStreamDensity(Locations) &
+                    ) * dT
 
-            OK = OpenChannel(I)
+                JnctVolFlow(I) = JnctVolFlow(I) &
+                    + ( &
+                    StreamFlow(1) &
+                    - StreamFlow( Locations ) &
+                    ) * dT
 
-            Locations = NumberOfStreamLocations()
+                OK = CloseChannel()
 
-            JnctMassFlow(I) = JnctMassFlow(I)
-     &           + (
-     &           StreamFlow(1) * NewStreamDensity(1)
-     &           - StreamFlow(Locations) * NewStreamDensity(Locations)
-     &           ) * dT
+100         continue
 
-            JnctVolFlow(I) = JnctVolFlow(I)
-     &           + (
-     &           StreamFlow(1)
-     &           - StreamFlow( Locations )
-     &           ) * dT
+        else
 
-            OK = CloseChannel()
+            do 300 I=1,NumberOfChannels()
 
- 100     CONTINUE
+                OK = OpenChannel(I)
 
-      ELSE
+                Locations = NumberOfStreamLocations()
 
-         DO 300 I=1,NumberOfChannels()
+                JnctVolFlow(I) = JnctVolFlow(I) &
+                    + ( &
+                    StreamFlow(1) &
+                    - StreamFlow( Locations ) &
+                    ) * dT
 
-            OK = OpenChannel(I)
+                OK = CloseChannel()
 
-            Locations = NumberOfStreamLocations()
+300         continue
 
-            JnctVolFlow(I) = JnctVolFlow(I)
-     &           + (
-     &           StreamFlow(1)
-     &           - StreamFlow( Locations )
-     &           ) * dT
+        end if
 
-            OK = CloseChannel()
+        return
+    end function
 
- 300     CONTINUE
+    !== Public (ReportNetBalance) ================================================
 
-      END IF
+    logical function ReportNetBalance()
+        use IO_Units
+        implicit none
 
-      RETURN
-      END
+        !   Purpose: Compute and report volume (and mass balance if variable density)
+        !            for a network of open channels.
 
-*== Public (ReportNetBalance) ================================================
+        !   Purpose: Initialize  volume (and mass balance if variable density)
+        !            module for a network of open channels.
 
-      LOGICAL FUNCTION ReportNetBalance()
-      use IO_Units
-      IMPLICIT NONE
+        !   Arguments:
 
-*   Purpose: Compute and report volume (and mass balance if variable density)
-*            for a network of open channels.
+        !   Argument definitions:
 
-*   Purpose: Initialize  volume (and mass balance if variable density)
-*            module for a network of open channels.
 
-*   Arguments:
+        !   Local Variables:
+        integer I, J, K, QuadPts, Locations, U
+        real*8    OneMinusTheta, dT
+        real*8    Pt, Wt
+        real*8    X1, X2, X, dX
+        real*8    Z1, Z2, Z
+        real*8    Difference, TotalInitialVolume, TotalVolume
+        real*8    TotalJnctVolFlow, TotalLateralVolFlow
+        real*8    TotalInitialMass, TotalMass
+        real*8    TotalJnctMassFlow, TotalLateralMassFlow
+        real*8    TotalDifference
+        logical OK
 
-*   Argument definitions:
+        !   Routines by module:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netblnce.inc'
+        
 
-*   Local Variables:
-      INTEGER I, J, K, QuadPts, Locations, U
-      REAL*8    OneMinusTheta, dT
-      REAL*8    Pt, Wt
-      REAL*8    X1, X2, X, dX
-      REAL*8    Z1, Z2, Z
-      REAL*8    Difference, TotalInitialVolume, TotalVolume
-      REAL*8    TotalJnctVolFlow, TotalLateralVolFlow
-      REAL*8    TotalInitialMass, TotalMass
-      REAL*8    TotalJnctMassFlow, TotalLateralMassFlow
-      REAL*8    TotalDifference
-      LOGICAL OK
+        !**** Local:
 
-*   Routines by module:
 
-***** Channel schematic data;
-      INTEGER  NumberOfChannels, NumberOfStreamLocations
-      REAL*8     StreamDistance
-      LOGICAL  OpenChannel, CloseChannel
-      EXTERNAL OpenChannel, CloseChannel
-      EXTERNAL NumberOfChannels, StreamDistance
-      EXTERNAL NumberOfStreamLocations
+        !   Programmed by: Lew DeLong
+        !   Date:          May   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-***** Network control:
-      INTEGER  NetworkTimeIncrement
-      REAL*8     NetworkTheta
-      EXTERNAL NetworkTimeIncrement, NetworkTheta
-      LOGICAL  VariableStreamDensity
-      EXTERNAL VariableStreamDensity
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+        !-----Implementation -----------------------------------------------------
 
-***** Channel properties:
-      REAL*8     CxArea
-      EXTERNAL CxArea
+        U = unit_output
 
-***** Channel status:
-      REAL*8     StreamFlow
-      EXTERNAL StreamFlow
-      REAL*8     EstNewStreamDensity, NewStreamDensity
-      EXTERNAL EstNewStreamDensity, NewStreamDensity
-      real*8     StreamSurfaceElevation
-      EXTERNAL StreamSurfaceElevation
+        !-----Get number of quadrature points for numerical integration.
 
-***** Local:
+        QuadPts = NetworkQuadPts()
+        OneMinusTheta = 1.0 - NetworkTheta()
+        dT =  DFLOAT(NetworkTimeIncrement())
 
+        if( VariableStreamDensity() ) then
 
-*   Programmed by: Lew DeLong
-*   Date:          May   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+            !--------Density is variable.
 
-*-----Implementation -----------------------------------------------------
+            do 400 I=1,NumberOfChannels()
 
-      U = unit_output
+                Volume(I) = 0.0
+                Mass(I)   = 0.0
 
-*-----Get number of quadrature points for numerical integration.
+                OK = OpenChannel(I)
+                Locations = NumberOfStreamLocations()
 
-      QuadPts = NetworkQuadPts()
-      OneMinusTheta = 1.0 - NetworkTheta()
-      dT =  DFLOAT(NetworkTimeIncrement())
+                JnctVolFlow(I)   = JnctVolFlow(I) &
+                    - OneMinusTheta * dT * ( &
+                    StreamFlow(1) - StreamFlow( Locations ) &
+                    )
 
-      IF( VariableStreamDensity() ) THEN
+                JnctMassFlow(I)  = OneMinusTheta * dT * ( &
+                    StreamFlow(1) * NewStreamDensity(1) &
+                    - StreamFlow( Locations ) * NewStreamDensity(Locations) &
+                    )
+                X1 = StreamDistance(1)
+                !            H1 = StreamDepth(1)
+                Z1 = StreamSurfaceElevation(1)
 
-*--------Density is variable.
+                do 300 J=1,Locations-1
 
-         DO 400 I=1,NumberOfChannels()
+                    X2 = StreamDistance(J+1)
+                    !               H2 = StreamDepth(J+1)
+                    Z2 = StreamSurfaceElevation(J+1)
 
-            Volume(I) = 0.0
-            Mass(I)   = 0.0
+                    dX = X2 - X1
 
-            OK = OpenChannel(I)
-            Locations = NumberOfStreamLocations()
+                    do 200 K=1,QuadPts
 
-            JnctVolFlow(I)   = JnctVolFlow(I)
-     &           - OneMinusTheta * dT * (
-     &           StreamFlow(1) - StreamFlow( Locations )
-     &           )
+                        call NetworkQuadPtWt( K, Pt, Wt )
+                        X = (1.0-Pt)*X1 + Pt*X2
 
-            JnctMassFlow(I)  = OneMinusTheta * dT * (
-     &           StreamFlow(1) * NewStreamDensity(1)
-     &           - StreamFlow( Locations ) * NewStreamDensity(Locations)
-     &           )
-            X1 = StreamDistance(1)
-!            H1 = StreamDepth(1)
-            Z1 = StreamSurfaceElevation(1)
+                        !-----------------Assume Z varies linearly with channel length.
+                        Z = (1.0-Pt)*Z1 + Pt*Z2
 
-            DO 300 J=1,Locations-1
+                        Volume(I) = Volume(I) &
+                            + CxArea( X, Z ) * dX * Wt
 
-               X2 = StreamDistance(J+1)
-!               H2 = StreamDepth(J+1)
-               Z2 = StreamSurfaceElevation(J+1)
+                        Mass(I) = Mass(I) &
+                            + EstNewStreamDensity( X ) * dX * Wt
 
-               dX = X2 - X1
+200                 continue
 
-               DO 200 K=1,QuadPts
+                    X1 = X2
+                    Z1 = Z2
 
-                  CALL NetworkQuadPtWt( K, Pt, Wt )
-                  X = (1.0-Pt)*X1 + Pt*X2
+300             continue
 
-*-----------------Assume Z varies linearly with channel length.
-                  Z = (1.0-Pt)*Z1 + Pt*Z2
+                OK = CloseChannel()
 
-                  Volume(I) = Volume(I)
-     &                 + CxArea( X, Z ) * dX * Wt
+400         continue
 
-                  Mass(I) = Mass(I)
-     &                 + EstNewStreamDensity( X ) * dX * Wt
+        else
 
- 200           CONTINUE
+            !--------Density is constant.
 
-               X1 = X2
-               Z1 = Z2
+            do 800 I=1,NumberOfChannels()
 
- 300        CONTINUE
+                Volume(I) = 0.0
 
-            OK = CloseChannel()
+                OK = OpenChannel(I)
+                Locations = NumberOfStreamLocations()
 
- 400     CONTINUE
+                JnctVolFlow(I)   = JnctVolFlow(I) &
+                    - OneMinusTheta * dT * ( &
+                    StreamFlow(1) - StreamFlow( Locations ) &
+                    )
 
-      ELSE
+                X1 = StreamDistance(1)
+                !            H1 = StreamDepth(1)
+                Z1 = StreamSurfaceElevation(1)
 
-*--------Density is constant.
+                do 700 J=1,NumberOfStreamLocations()-1
 
-         DO 800 I=1,NumberOfChannels()
+                    X2 = StreamDistance(J+1)
+                    !               H2 = StreamDepth(J+1)
+                    Z2 = StreamSurfaceElevation(J+1)
 
-            Volume(I) = 0.0
+                    dX = X2 - X1
 
-            OK = OpenChannel(I)
-            Locations = NumberOfStreamLocations()
+                    do 600 K=1,QuadPts
 
-            JnctVolFlow(I)   = JnctVolFlow(I)
-     &           - OneMinusTheta * dT * (
-     &           StreamFlow(1) - StreamFlow( Locations )
-     &           )
+                        call NetworkQuadPtWt( K, Pt, Wt )
+                        X = (1.0-Pt)*X1 + Pt*X2
 
-            X1 = StreamDistance(1)
-!            H1 = StreamDepth(1)
-            Z1 = StreamSurfaceElevation(1)
+                        !-----------------Assume Z varies linearly with channel length.
+                        Z = (1.0-Pt)*Z1 + Pt*Z2
 
-            DO 700 J=1,NumberOfStreamLocations()-1
+                        Volume(I) = Volume(I) &
+                            + CxArea( X, Z ) * dX * Wt
 
-               X2 = StreamDistance(J+1)
-!               H2 = StreamDepth(J+1)
-               Z2 = StreamSurfaceElevation(J+1)
+600                 continue
 
-               dX = X2 - X1
+                    X1 = X2
+                    Z1 = Z2
 
-               DO 600 K=1,QuadPts
+700             continue
 
-                  CALL NetworkQuadPtWt( K, Pt, Wt )
-                  X = (1.0-Pt)*X1 + Pt*X2
+                OK = CloseChannel()
 
-*-----------------Assume Z varies linearly with channel length.
-                  Z = (1.0-Pt)*Z1 + Pt*Z2
+800         continue
 
-                  Volume(I) = Volume(I)
-     &                 + CxArea( X, Z ) * dX * Wt
+        end if
 
- 600           CONTINUE
+        !-----Write results to screen and print file.
 
-               X1 = X2
-               Z1 = Z2
+        if(VariableStreamDensity() ) then
 
- 700        CONTINUE
+            write(U,*) ' '
+            write(U,*) ' '
+            write(U,*) '                                 ___Mass Balance___'
+            write(U,*) ' '
+            write(U,*) &
+                ' Channel   Initial mass.   Final mass.    Junction', &
+                '       Lateral    Difference'
+            write(U,*) ' '
 
-            OK = CloseChannel()
+            TotalDifference      = 0.0
+            TotalInitialMass     = 0.0
+            TotalMass            = 0.0
+            TotalJnctMassFlow    = 0.0
+            TotalLateralMassFlow = 0.0
 
- 800     CONTINUE
+            do 900 I=1,NumberOfChannels()
 
-      END IF
+                Difference = Mass(I) - InitialMass(I) - JnctMassFlow(I) &
+                    - LateralMassFlow(I)
 
-*-----Write results to screen and print file.
+                TotalDifference = TotalDifference + Difference
+                TotalInitialMass = TotalInitialMass + InitialMass(I)
+                TotalMass = TotalMass + Mass(I)
+                TotalJnctMassFlow = TotalJnctMassFlow + JnctMassFlow(I)
+                TotalLateralMassFlow = TotalLateralMassFlow &
+                    + LateralMassFlow(I)
 
-      IF(VariableStreamDensity() ) THEN
+                if( NumberOfChannels() > 1 ) then
+                    write(U,'(1X,I7,5F14.2)')  I, &
+                        InitialMass(I), Mass(I), JnctMassFlow(I), &
+                        LateralMassFlow(I),  Difference
+                end if
 
-         WRITE(U,*) ' '
-         WRITE(U,*) ' '
-         WRITE(U,*) '                                 ___Mass Balance___'
-         WRITE(U,*) ' '
-         WRITE(U,*)
-     &        ' Channel   Initial mass.   Final mass.    Junction',
-     &        '       Lateral    Difference'
-         WRITE(U,*) ' '
+900         continue
 
-         TotalDifference      = 0.0
-         TotalInitialMass     = 0.0
-         TotalMass            = 0.0
-         TotalJnctMassFlow    = 0.0
-         TotalLateralMassFlow = 0.0
+            if( NumberOfChannels() > 1 ) then
+                write(U,*) &
+                    ' -------------------------------------------------------------' &
+                    ,'--------------------'
+            end if
 
-         DO 900 I=1,NumberOfChannels()
+            write(U,'(8X,5F14.2)') &
+                TotalInitialMass, TotalMass, TotalJnctMassFlow, &
+                TotalLateralMassFlow, TotalDifference
 
-            Difference = Mass(I) - InitialMass(I) - JnctMassFlow(I)
-     &           - LateralMassFlow(I)
+        end if
+
+        write(U,*) ' '
+        write(U,*) ' '
+        write(U,*) '                               ___Volume Balance___'
+        write(U,*) ' '
+        write(U,*) &
+            ' Channel   Initial vol.    Final vol.     Junction', &
+            '       Lateral    Difference'
+        write(U,*) ' '
+
+        TotalDifference     = 0.0
+        TotalInitialVolume  = 0.0
+        TotalVolume         = 0.0
+        TotalJnctVolFlow    = 0.0
+        TotalLateralVolFlow = 0.0
+
+        do 1000 I=1,NumberOfChannels()
+
+            Difference = Volume(I) - InitialVolume(I) - JnctVolFlow(I) &
+                - LateralVolFlow(I)
 
             TotalDifference = TotalDifference + Difference
-            TotalInitialMass = TotalInitialMass + InitialMass(I)
-            TotalMass = TotalMass + Mass(I)
-            TotalJnctMassFlow = TotalJnctMassFlow + JnctMassFlow(I)
-            TotalLateralMassFlow = TotalLateralMassFlow
-     &           + LateralMassFlow(I)
+            TotalInitialVolume = TotalInitialVolume + InitialVolume(I)
+            TotalVolume = TotalVolume + Volume(I)
+            TotalJnctVolFlow = TotalJnctVolFlow + JnctVolFlow(I)
+            TotalLateralVolFlow = TotalLateralVolFlow &
+                + LateralVolFlow(I)
 
-            IF( NumberOfChannels() .GT. 1 ) THEN
-               WRITE(U,'(1X,I7,5F14.2)')  I,
-     &              InitialMass(I), Mass(I), JnctMassFlow(I),
-     &              LateralMassFlow(I),  Difference
-            END IF
+            if( NumberOfChannels() > 1 ) then
+                write(U,'(1X,I7,5F14.2)') I, &
+                    InitialVolume(I), Volume(I), JnctVolFlow(I), &
+                    LateralVolFlow(I),  Difference
+            end if
 
- 900     CONTINUE
+1000    continue
 
-         IF( NumberOfChannels() .GT. 1 ) THEN
-            WRITE(U,*)
-     &           ' -------------------------------------------------------------'
-     &           ,'--------------------'
-         END IF
+        if( NumberOfChannels() > 1 ) then
+            write(U,*) &
+                ' -------------------------------------------------------------' &
+                ,'--------------------'
+        end if
 
-         WRITE(U,'(8X,5F14.2)')
-     &        TotalInitialMass, TotalMass, TotalJnctMassFlow,
-     &        TotalLateralMassFlow, TotalDifference
+        write(U,'(8X,5F14.2)') &
+            TotalInitialVolume, TotalVolume, TotalJnctVolFlow, &
+            TotalLateralVolFlow, TotalDifference
+        write(U,*) ' '
 
-      END IF
+        ReportNetBalance = .true.
 
-      WRITE(U,*) ' '
-      WRITE(U,*) ' '
-      WRITE(U,*) '                               ___Volume Balance___'
-      WRITE(U,*) ' '
-      WRITE(U,*)
-     &     ' Channel   Initial vol.    Final vol.     Junction',
-     &     '       Lateral    Difference'
-      WRITE(U,*) ' '
-
-      TotalDifference     = 0.0
-      TotalInitialVolume  = 0.0
-      TotalVolume         = 0.0
-      TotalJnctVolFlow    = 0.0
-      TotalLateralVolFlow = 0.0
-
-      DO 1000 I=1,NumberOfChannels()
-
-         Difference = Volume(I) - InitialVolume(I) - JnctVolFlow(I)
-     &        - LateralVolFlow(I)
-
-         TotalDifference = TotalDifference + Difference
-         TotalInitialVolume = TotalInitialVolume + InitialVolume(I)
-         TotalVolume = TotalVolume + Volume(I)
-         TotalJnctVolFlow = TotalJnctVolFlow + JnctVolFlow(I)
-         TotalLateralVolFlow = TotalLateralVolFlow
-     &        + LateralVolFlow(I)
-
-         IF( NumberOfChannels() .GT. 1 ) THEN
-            WRITE(U,'(1X,I7,5F14.2)') I,
-     &           InitialVolume(I), Volume(I), JnctVolFlow(I),
-     &           LateralVolFlow(I),  Difference
-         END IF
-
- 1000 CONTINUE
-
-      IF( NumberOfChannels() .GT. 1 ) THEN
-         WRITE(U,*)
-     &        ' -------------------------------------------------------------'
-     &        ,'--------------------'
-      END IF
-
-      WRITE(U,'(8X,5F14.2)')
-     &     TotalInitialVolume, TotalVolume, TotalJnctVolFlow,
-     &     TotalLateralVolFlow, TotalDifference
-      WRITE(U,*) ' '
-
-      ReportNetBalance = .TRUE.
-
-      RETURN
-      END
-
-*===== EOF netblnce ====================================================
+        return
+    end function
+end module
+!===== EOF netblnce ====================================================

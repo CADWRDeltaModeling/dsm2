@@ -1,926 +1,775 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
-
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
-
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
-
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
-C!
-*****-SPARSE COPYRIGHT *************
-*  Revision and copyright information.
-*
-*  Copyright (c) 1985,86,87,88
-*  by Kenneth S. Kundert and the University of California.
-*
-*  Permission to use, copy, modify, and distribute this software and
-*  its documentation for any purpose and without fee is hereby granted,
-*  provided that the copyright notices appear in all copies and
-*  supporting documentation and that the authors and the University of
-*  California are properly credited.  The authors and the University of
-*  California make no representations as to the suitability of this
-*  software for any purpose.  It is provided `as is', without express
-*  or implied warranty.
-
-************************************************************************
-*
-*
-*
-************************************************************************
-
-*==== BOF chcnstrt =====================================================
-
-*     Routines for calculating external boundary conditions and internal
-*     compatibility equations for channels in the network, including putting
-*     corresponding equations in the computational matrix.
-*     
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
+
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
+
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
+
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
+!!
+
+!     Routines for calculating external boundary conditions and internal
+!     compatibility equations for channels in the network, including putting
+!     corresponding equations in the computational matrix.
+!
+
+!== Public (ForceStreamSurface) ========================================
+module channel_constraints
+    implicit none
+contains
+    logical function ForceStreamSurface( Extremity )
+        use solver
+        use chconnec
+        use chstatus
+        use channel_schematic
+        use netcntrl
+        use solveutil
+        use netbnd, only: upstreamboundaryvalue, downstreamboundaryvalue
+      
+        implicit none
+
+        !   Purpose:  Compute and store constraint-equation coefficients
+        !             forcing a known stream surface elevation.
+
+        !   Arguments:
+        integer Extremity
+
+        !   Argument definitions:
+        !     Extremity - index indicating
+        !                   [+1] upstream end of current channel.
+        !                   [-1] downstream end of current channel.
+
+        !   Module data:
+
+        !   Local Variables:
+        integer Row, ConstraintNode
+        integer Channel, ConstraintIndex,ConstraintPointer
+
+        real*8 One, DesiredElevation
+        parameter ( One = 1.0 )
+        logical OK
+
+        !   Routines by module:
+
+
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+        Channel=CurrentChannel()
+
+        if( Extremity == +1 ) then
+            !--------Upstream constraint.
+            ConstraintNode = 1
+            Row = UpstreamConstraintRow()
+
+            ConstraintIndex = UpConstraintIndex(Channel)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
+
+            OK = StoreAtLocation( ConstraintPointer, One )
+            DesiredElevation = UpstreamBoundaryValue()
+
+        else if( Extremity == -1 ) then
+
+            !--------Downstream constraint.
+            ConstraintNode = NumberOfStreamLocations()
+            Row = DownstreamConstraintRow()
+            ConstraintIndex = DownConstraintIndex(Channel)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
+
+            OK = StoreAtLocation(ConstraintPointer, One )
+            DesiredElevation = DownstreamBoundaryValue()
+
+        end if
+
+        OK = StoreAtRow( Row, &
+            DesiredElevation - StreamSurfaceElevation( ConstraintNode ) &
+            )
+
+        ForceStreamSurface = .true.
+
+        return
+    end function ForceStreamSurface
+
+    !== Public (ForceStreamFlow) ===========================================
+
+    logical function ForceStreamFlow( Extremity )
+        use chconnec
+        use solver
+        use chstatus
+        use netcntrl
+        use channel_schematic
+        use solveutil
+        use netbnd, only: upstreamboundaryvalue,downstreamboundaryvalue
+        implicit none
+
+        !   Purpose:  Compute and store constraint-equation coefficients
+        !             forcing a known streamflow.
+
+        !   Arguments:
+        integer Extremity
+
+        !   Argument definitions:
+        !     Extremity - index indicating
+        !                   [+1] upstream end of current channel.
+        !                   [-1] downstream end of current channel.
+
+
+        !   Local Variables:
+        integer Row, ConstraintNode, Channel
+        integer ConstraintIndex,ConstraintPointer
+        real*8    One, MinusOne, DesiredFlow
+        parameter ( One = 1.0, MinusOne = -1.0 )
+        logical OK
+
+        !   Routines by module:
+
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        !-----Note: flow conservation is written from the point of
+        !      view of the node receiving the flow.
+
+        Channel=CurrentChannel()
+
+        if( Extremity == +1 ) then
+            !--------Note: flow conservation is written from the point of
+            !      view of the node receiving the flow.
+            !--------Upstream constraint.
+            ConstraintNode = 1
+            Row = UpstreamConstraintRow()
+            ConstraintIndex = UpConstraintIndex(Channel)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
+            DesiredFlow = - UpstreamBoundaryValue() + StreamFlow( ConstraintNode )
+            OK = StoreAtLocation( ConstraintPointer, MinusOne )
+        else if( Extremity == -1 ) then
+            !--------Downstream constraint.
+            ConstraintNode = NumberOfStreamLocations()
+            Row = DownstreamConstraintRow()
+            ConstraintIndex = DownConstraintIndex(Channel)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
+            DesiredFlow = DownStreamBoundaryValue() - StreamFlow( ConstraintNode )
+            OK = StoreAtLocation( ConstraintPointer,One)
+        end if
+
+        OK = StoreAtRow(Row, DesiredFlow)
+
+        ForceStreamFlow = .true.
+
+        return
+    end function ForceStreamFlow
+
+    !== Public (ForceSumStreamFlow) ========================================
+
+    logical function ForceSumStreamFlow( Extremity )
+        use IO_Units
+        use chconnec
+        use solver
+        use solveutil
+        use channel_schematic
+        use chstatus, only: downstreampointer, globalstreamflow
+        use netbnd, only: upstreamboundaryvalue, downstreamboundaryvalue
+        implicit none
+
+        !   Purpose:  Compute and store constraint-equation coefficients
+        !             forcing the sum of stream flows at a location to zero.
+
+        !   Arguments:
+        integer Extremity
+
+        !   Argument definitions:
+        !     Extremity - index indicating
+        !                   [+1] upstream end of current channel.
+        !                   [-1] downstream end of current channel.
+
+
+        !   Local Variables:
+        integer MaxConnections
+        integer Channel,ConstraintIndex,ConstraintPointer
+        parameter ( MaxConnections = MaxConnectingChannels )
+        integer I, ConnectingNodes, Node(MaxConnections)
+        integer ConstraintNode, DF
+        integer Row, AbsNode
+        real*8   One, MinusOne, Residual, Sign
+        parameter ( MinusOne=-1.0, One = 1.0, DF = 2 )
+        logical OK
+
+        !   Routines by module:
+
+
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Lew DeLong
+        !   Last modified: August   1992
+        !   Modified by:   Parviz Nader
+        !   Last modified: December 1992
+        !   Modified by:   Eli Ateljevich
+        !   Last modified: July 1998
+        !   Version 93.01, January, 1993
+
+        !   Intrinsics:
+        integer   IABS
+        intrinsic IABS, DFLOAT
+
+        !-----Implementation -----------------------------------------------------
+
+        ForceSumStreamFlow = .false.
+
+        !-----Note, by convention, any flow into a junction is positive.
+        !     Constraint equation is written from the perspective of
+        !     the junction.
+        Channel=CurrentChannel()
+        if( Extremity == +1 ) then
+
+            !--------Upstream constraint.
+            ConstraintNode = UpstreamPointer()
+            Row = UpstreamConstraintRow()
+            ConstraintIndex = UpConstraintIndex(Channel)
+
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
+
+            OK = StoreAtLocation( ConstraintPointer, MinusOne )
+            OK = AddAtRow( Row, - UpstreamBoundaryValue() )
+
+            ConnectingNodes = UpstreamConnections()
+            if( ConnectingNodes <= MaxConnections ) then
+            else
+                write(UNIT_ERROR,*) ' ####error(ForceSumStreamFlow)'
+                write(UNIT_ERROR,*) ' Upstream end Channel...', CurrentChannel()
+                write(UNIT_ERROR,*) ' Number of connections (',ConnectingNodes,')'
+                write(UNIT_ERROR,*) ' exceeds maximum (',MaxConnections,').'
+                write(UNIT_ERROR,*) ' Abnormal program end.'
+                call EXIT(1)
+            end if
+
+            if( ConnectingNodes > 0 ) then
+                do  I=1,ConnectingNodes
+                    Node(I) = StreamEndNode( UpstreamConnect(I) )
+                end do
+            else
+            end if
+
+        else if( Extremity == -1 ) then
+
+            !--------Downstream constraint.
+
+            ConstraintNode = DownstreamPointer()
+            Row = DownstreamConstraintRow()
+            ConstraintIndex = DownConstraintIndex(Channel)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
+
+            OK = StoreAtLocation( ConstraintPointer, One )
+
+            OK = AddAtRow( Row, -DownstreamBoundaryValue() )
+
+            ConnectingNodes = DownstreamConnections()
+            if( ConnectingNodes <= MaxConnections ) then
+            else
+                write(UNIT_ERROR,*) ' ####error(ForceSumStreamFlow)'
+                write(UNIT_ERROR,*) ' Downstream end Channel...', CurrentChannel()
+                write(UNIT_ERROR,*) ' Number of connections (',ConnectingNodes,')'
+                write(UNIT_ERROR,*) ' exceeds maximum (',MaxConnections,').'
+                write(UNIT_ERROR,*) ' Abnormal program end.'
+                call EXIT(1)
+            end if
+            if( ConnectingNodes > 0 ) then
+                do I=1,ConnectingNodes
+                    Node(I) = StreamEndNode( DownstreamConnect(I) )
+                end do
+            end if
+
+        else
+            write(UNIT_ERROR,*) ' *** Error (ForceSumStreamFlow)'
+            write(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
+            return
+        end if
+
+        Residual = 0.0
+
+        !-----Connecting Nodes
+        if( ConnectingNodes > 0 ) then
+
+            do  I=1,ConnectingNodes
+
+                AbsNode = IABS(Node(I))
+                if (Node(i)>0) then
+                    Sign = -1.0
+                else
+                    Sign = 1.0
+                end if
+                ConstraintIndex = ConstraintIndex + 1
+                ConstraintPointer = ConstraintPointers(ConstraintIndex)
+
+                OK = StoreAtLocation( ConstraintPointer,  Sign )
+
+                Residual = Residual &
+                    + Sign * GlobalStreamFlow( AbsNode )
+
+            end do
+
+        end if
+
+        if( Extremity == +1 ) then
+
+            OK = AddAtRow( &
+                Row, + GlobalStreamFlow( ConstraintNode ) - Residual )
+        else
+            OK = AddAtRow( &
+                Row, - GlobalStreamFlow( ConstraintNode ) - Residual )
+        end if
+
+        ForceSumStreamFlow = .true.
+
+        return
+    end function ForceSumStreamFlow
+
+
+    !== Public (ForceEqualStreamSurface) ===================================
+
+    logical function ForceEqualStreamSurface( Extremity )
+        use IO_Units
+        use chconnec
+        use solver
+        use solveutil &
+            , only:  UpstreamConstraintRow, DownstreamConstraintRow &
+            , StoreAtLocation, StoreAtRow
+        use chstatus &
+            , only: GlobalStreamSurfaceElevation
+        use channel_schematic &
+            , only: UpstreamPointer, DownstreamPointer,CurrentChannel &
+            ,UpstreamConnect, UpstreamConnections &
+            ,DownstreamConnect, DownstreamConnections &
+            ,StreamEndNode
+        use netcntrl
+        use netbnd &
+            , only: UpstreamBoundaryValue, DownstreamBoundaryValue
+        implicit none
 
-*== Public (ForceStreamSurface) ========================================
+        !   Purpose:  Compute and store constraint-equation coefficients forcing
+        !             equal stream-surface elevations at two cross sections.
 
-      LOGICAL FUNCTION ForceStreamSurface( Extremity )
+        !   Arguments:
+        integer Extremity
 
-      IMPLICIT NONE
+        !   Argument definitions:
+        !     Extremity - index indicating
+        !                   [+1] upstream end of current channel.
+        !                   [-1] downstream end of current channel.
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
-      INCLUDE 'chconnec.inc'
 
-*   Purpose:  Compute and store constraint-equation coefficients
-*             forcing a known stream surface elevation.
+        !   Local Variables:
+        integer First
+        parameter (First = 1)
+        integer ConnectingNodes
+        integer ConstraintNode, DF
+        integer Zero, Row, Node
+        integer ConnectingChannel
+        integer Channel,ConstraintIndex,ConstraintPointer
 
-*   Arguments:
-      INTEGER Extremity
+        real*8   One, MinusOne, Fall
+        parameter ( Zero = 0, One = 1.0, MinusOne = -1.0, DF = 2 )
+        logical OK
 
-*   Argument definitions:
-*     Extremity - index indicating
-*                   [+1] upstream end of current channel.
-*                   [-1] downstream end of current channel.
-
-*   Module data:
-
-*   Local Variables:
-      INTEGER Row, ConstraintNode
-      INTEGER Channel, ConstraintIndex,ConstraintPointer
+        !   Routines by module:
 
-      REAL*8 One, DesiredElevation
-      PARAMETER ( One = 1.0 )
-      LOGICAL OK
 
-*   Routines by module:
-
-***** Channel flow status:
-      REAL*8     StreamSurfaceElevation
-      EXTERNAL StreamSurfaceElevation
 
-***** Channel schematic:
-      INTEGER  NumberOfStreamLocations,CurrentChannel
-      EXTERNAL NumberOfStreamLocations,CurrentChannel
 
-***** Network control:
-      REAL*8     UpstreamBoundaryValue, DownstreamBoundaryValue
-      EXTERNAL UpstreamBoundaryValue, DownstreamBoundaryValue
 
-***** Solver:
-      INTEGER  UpstreamConstraintRow, DownstreamConstraintRow
-      EXTERNAL UpstreamConstraintRow, DownstreamConstraintRow
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Lew DeLong
+        !   Last modified: August   1992
+        !   Modified by:   Eli Ateljevich
+        !   Last modified: July  1998
+        !   Version 93.01, January, 1993
 
-      LOGICAL  StoreAtLocation, StoreAtRow
-      EXTERNAL StoreAtLocation, StoreAtRow
+        !   Intrinsics:
+        integer   IABS
+        intrinsic IABS
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !-----Implementation -----------------------------------------------------
+        Channel = CurrentChannel()
+        ForceEqualStreamSurface = .false.
 
-*-----Implementation -----------------------------------------------------
-      Channel=CurrentChannel()
+        if( Extremity == +1 ) then
 
-      IF( Extremity .EQ. +1 ) THEN
-*--------Upstream constraint.
-         ConstraintNode = 1
-         Row = UpstreamConstraintRow()
+            !--------Upstream constraint.
 
-         ConstraintIndex = UpConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
+            ConstraintNode = UpstreamPointer()
+            Row = UpstreamConstraintRow()
+            ConstraintIndex = UpConstraintIndex(Channel)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
 
-         OK = StoreAtLocation( ConstraintPointer, One )
-         DesiredElevation = UpstreamBoundaryValue()
+            OK = StoreAtLocation( ConstraintPointer, One )
+            Fall = UpstreamBoundaryValue()
+            ConnectingNodes = UpstreamConnections()
+            ConnectingChannel = UpstreamConnect(First)
 
-      ELSE IF( Extremity .EQ. -1 ) THEN
+        else if( Extremity == -1 ) then
 
-*--------Downstream constraint.
-         ConstraintNode = NumberOfStreamLocations()
-         Row = DownstreamConstraintRow()
-         ConstraintIndex = DownConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
+            !--------Downstream constraint.
 
-         OK = StoreAtLocation(ConstraintPointer, One )
-         DesiredElevation = DownstreamBoundaryValue()
 
-      END IF
+            ConstraintNode = DownstreamPointer()
+            Row = DownstreamConstraintRow()
+            ConstraintIndex =DownConstraintIndex(Channel)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
 
-      OK = StoreAtRow( Row,
-     &     DesiredElevation - StreamSurfaceElevation( ConstraintNode )
-     &     )
+            OK = StoreAtLocation( ConstraintPointer, One )
+            Fall = DownstreamBoundaryValue()
+            ConnectingNodes = DownstreamConnections()
+            ConnectingChannel = DownstreamConnect(First)
 
-      ForceStreamSurface = .TRUE.
+        else
+            write(UNIT_ERROR,*) ' *** Error (ForceEqualStreamSurface)'
+            write(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
+            return
+        end if
 
-      RETURN
-      END
+        !-----Determine node number of attached channel.
 
-*== Public (ForceStreamFlow) ===========================================
+        if( ConnectingChannel /= 0 ) then
 
-      LOGICAL FUNCTION ForceStreamFlow( Extremity )
+            Node = IABS( StreamEndNode( ConnectingChannel ) )
 
-      IMPLICIT NONE
+        else
 
-*   Purpose:  Compute and store constraint-equation coefficients
-*             forcing a known streamflow.
+            !--------No channel number ... not actually attached.
 
-*   Arguments:
-      INTEGER Extremity
+            OK = StoreAtRow( &
+                Row, Fall - GlobalStreamSurfaceElevation( ConstraintNode ) &
+                )
 
-*   Argument definitions:
-*     Extremity - index indicating
-*                   [+1] upstream end of current channel.
-*                   [-1] downstream end of current channel.
+        end if
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
-      INCLUDE 'solver.inc'
 
-*   Local Variables:
-      INTEGER Row, ConstraintNode, Channel
-      INTEGER ConstraintIndex,ConstraintPointer
-      REAL*8    One, MinusOne, DesiredFlow
-      PARAMETER ( One = 1.0, MinusOne = -1.0 )
-      LOGICAL OK
-
-*   Routines by module:
-
-***** Channel flow status:
-      REAL*8     StreamFlow
-      EXTERNAL StreamFlow
-
-***** Channel schematic:
-      INTEGER  NumberOfStreamLocations
-      EXTERNAL NumberOfStreamLocations
-
-      INTEGER CurrentChannel
-      EXTERNAL CurrentChannel
-
-***** Network control:
-      REAL*8     UpstreamBoundaryValue, DownstreamBoundaryValue,StreamSurfaceElevation
-      EXTERNAL UpstreamBoundaryValue, DownstreamBoundaryValue,StreamSurfaceElevation
-
-***** Solver:
-      INTEGER  UpstreamConstraintRow, DownstreamConstraintRow
-      EXTERNAL UpstreamConstraintRow, DownstreamConstraintRow
-
-      LOGICAL  StoreAtLocation, StoreAtRow
-      EXTERNAL StoreAtLocation, StoreAtRow
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-*-----Note: flow conservation is written from the point of
-*      view of the node receiving the flow.
-
-      Channel=CurrentChannel()
-
-      IF( Extremity .EQ. +1 ) THEN
-
-*--------Note: flow conservation is written from the point of
-*      view of the node receiving the flow.
-
-*--------Upstream constraint.
-
-         ConstraintNode = 1
-         Row = UpstreamConstraintRow()
-         ConstraintIndex = UpConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
-         DesiredFlow = - UpstreamBoundaryValue() + StreamFlow( ConstraintNode )
-         OK = StoreAtLocation( ConstraintPointer, MinusOne )
-
-      ELSE IF( Extremity .EQ. -1 ) THEN
-*--------Downstream constraint.
-
-         ConstraintNode = NumberOfStreamLocations()
-         Row = DownstreamConstraintRow()
-         ConstraintIndex = DownConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
-         DesiredFlow = DownStreamBoundaryValue() - StreamFlow( ConstraintNode )
-         OK = StoreAtLocation( ConstraintPointer,One)
-      END IF
-
-      OK = StoreAtRow(Row, DesiredFlow)
-
-      ForceStreamFlow = .TRUE.
-
-      RETURN
-      END
-
-*== Public (ForceSumStreamFlow) ========================================
-
-      LOGICAL FUNCTION ForceSumStreamFlow( Extremity )
-      Use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Compute and store constraint-equation coefficients
-*             forcing the sum of stream flows at a location to zero.
-
-*   Arguments:
-      INTEGER Extremity
-
-*   Argument definitions:
-*     Extremity - index indicating
-*                   [+1] upstream end of current channel.
-*                   [-1] downstream end of current channel.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
-      INCLUDE 'chconnec.inc'
-
-*   Local Variables:
-      INTEGER MaxConnections
-      INTEGER Channel,ConstraintIndex,ConstraintPointer
-      PARAMETER ( MaxConnections = MaxConnectingChannels )
-      INTEGER I, ConnectingNodes, Node(MaxConnections)
-      INTEGER ConstraintNode, DF
-      INTEGER Row, AbsNode
-      REAL*8   One, MinusOne, Residual, Sign
-      PARAMETER ( MinusOne=-1.0, One = 1.0, DF = 2 )
-      LOGICAL OK
-
-*   Routines by module:
-
-      INTEGER  NetworkTimeStep, NetworkTimeIncrement, NetworkIteration
-      EXTERNAL NetworkTimeStep, NetworkTimeIncrement, NetworkIteration
-
-***** Channel flow status:
-      REAL*8     GlobalStreamFlow
-      EXTERNAL GlobalStreamFlow
-
-***** Channel schematic:
-      INTEGER  CurrentChannel
-      EXTERNAL CurrentChannel
-
-      INTEGER  UpstreamPointer, DownstreamPointer
-      EXTERNAL UpstreamPointer, DownstreamPointer
-
-      INTEGER  UpstreamConnect, UpstreamConnections
-      EXTERNAL UpstreamConnect, UpstreamConnections
-
-      INTEGER  DownstreamConnect, DownstreamConnections
-      EXTERNAL DownstreamConnect, DownstreamConnections
-
-      INTEGER  StreamEndNode
-      EXTERNAL StreamEndNode
-
-***** Network control:
-      REAL*8     UpstreamBoundaryValue, DownstreamBoundaryValue
-      EXTERNAL UpstreamBoundaryValue, DownstreamBoundaryValue
-
-      REAL*8     GlobalStreamSurfaceElevation
-      EXTERNAL GlobalStreamSurfaceElevation
-
-***** Solver:
-      INTEGER  UpstreamConstraintRow, DownstreamConstraintRow
-      EXTERNAL UpstreamConstraintRow, DownstreamConstraintRow
-
-      LOGICAL  StoreAtLocation, StoreAtRow, AddAtRow
-      EXTERNAL StoreAtLocation, StoreAtRow, AddAtRow
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Lew DeLong
-*   Last modified: August   1992
-*   Modified by:   Parviz Nader
-*   Last modified: December 1992
-*   Modified by:   Eli Ateljevich
-*   Last modified: July 1998
-*   Version 93.01, January, 1993
-
-*   Intrinsics:
-      INTEGER   IABS
-      INTRINSIC IABS, DFLOAT
-
-*-----Implementation -----------------------------------------------------
-
-      ForceSumStreamFlow = .FALSE.
-
-*-----Note, by convention, any flow into a junction is positive.
-*     Constraint equation is written from the perspective of
-*     the junction.
-      Channel=CurrentChannel()
-      IF( Extremity .EQ. +1 ) THEN
-
-*--------Upstream constraint.
-         ConstraintNode = UpstreamPointer()
-         Row = UpstreamConstraintRow()
-         ConstraintIndex = UpConstraintIndex(Channel)
-
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
-
-         OK = StoreAtLocation( ConstraintPointer, MinusOne )
-         OK = AddAtRow( Row, - UpstreamBoundaryValue() )
-
-         ConnectingNodes = UpstreamConnections()
-         IF( ConnectingNodes .LE. MaxConnections ) THEN
-         ELSE
-            WRITE(UNIT_ERROR,*) ' ####error(ForceSumStreamFlow)'
-            WRITE(UNIT_ERROR,*) ' Upstream end Channel...', CurrentChannel()
-            WRITE(UNIT_ERROR,*) ' Number of connections (',ConnectingNodes,')'
-            WRITE(UNIT_ERROR,*) ' exceeds maximum (',MaxConnections,').'
-            WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-            CALL EXIT(1)
-         END IF
-
-         IF( ConnectingNodes .GT. 0 ) THEN
-            DO 100 I=1,ConnectingNodes
-               Node(I) = StreamEndNode( UpstreamConnect(I) )
- 100        CONTINUE
-         ELSE
-         END IF
-
-      ELSE IF( Extremity .EQ. -1 ) THEN
-
-*--------Downstream constraint.
-
-         ConstraintNode = DownstreamPointer()
-         Row = DownstreamConstraintRow()
-         ConstraintIndex = DownConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
-
-         OK = StoreAtLocation( ConstraintPointer, One )
-
-         OK = AddAtRow( Row, -DownstreamBoundaryValue() )
-
-         ConnectingNodes = DownstreamConnections()
-         IF( ConnectingNodes .LE. MaxConnections ) THEN
-         ELSE
-            WRITE(UNIT_ERROR,*) ' ####error(ForceSumStreamFlow)'
-            WRITE(UNIT_ERROR,*) ' Downstream end Channel...', CurrentChannel()
-            WRITE(UNIT_ERROR,*) ' Number of connections (',ConnectingNodes,')'
-            WRITE(UNIT_ERROR,*) ' exceeds maximum (',MaxConnections,').'
-            WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-            CALL EXIT(1)
-         END IF
-         IF( ConnectingNodes .GT. 0 ) THEN
-            DO 200 I=1,ConnectingNodes
-               Node(I) = StreamEndNode( DownstreamConnect(I) )
- 200        CONTINUE
-         END IF
-
-      ELSE
-         WRITE(UNIT_ERROR,*) ' *** Error (ForceSumStreamFlow)'
-         WRITE(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
-         RETURN
-      END IF
-
-      Residual = 0.0
-
-*-----Connecting Nodes
-      IF( ConnectingNodes .GT. 0 ) THEN
-
-         DO 300 I=1,ConnectingNodes
-
-            AbsNode = IABS(Node(I))
-            If (Node(i).gt.0) Then
-               Sign = -1.0
-            Else
-               Sign = 1.0
-            End If
+        if( ConnectingNodes > 0 ) then
             ConstraintIndex = ConstraintIndex + 1
-	    ConstraintPointer = ConstraintPointers(ConstraintIndex)
+            ConstraintPointer = ConstraintPointers(ConstraintIndex)
 
-            OK = StoreAtLocation( ConstraintPointer,  Sign )
+            OK = StoreAtLocation( ConstraintPointer, MinusOne )
 
-            Residual = Residual
-     &           + Sign * GlobalStreamFlow( AbsNode )
+            OK = StoreAtRow( &
+                Row, &
+                Fall &
+                + GlobalStreamSurfaceElevation( Node ) &
+                - GlobalStreamSurfaceElevation( ConstraintNode ) &
+                )
 
- 300     CONTINUE
+        else
 
-      END IF
+            write(UNIT_ERROR,*) ' *** Error (ForceEqualStreamSurface)'
+            write(UNIT_ERROR,*) ' Connections = ', ConnectingNodes
 
-      IF( Extremity .EQ. +1 ) THEN
+        end if
 
-         OK = AddAtRow(
-     &        Row, + GlobalStreamFlow( ConstraintNode ) - Residual )
-      ELSE
-         OK = AddAtRow(
-     &        Row, - GlobalStreamFlow( ConstraintNode ) - Residual )
-      END IF
+        ForceEqualStreamSurface = .true.
 
-      ForceSumStreamFlow = .TRUE.
+        return
+    end function ForceEqualStreamSurface
 
-      RETURN
-      END
+    !== Private (SetStreamConstraintVariables) =============================
 
+    logical function SetStreamConstraintVariables( Extremity )
+        use IO_Units
+        use strmcnst
+        use channel_schematic &
+            , only: UpstreamPointer, DownstreamPointer,CurrentChannel &
+            ,UpstreamConnect, UpstreamConnections &
+            ,DownstreamConnect, DownstreamConnections &
+            ,StreamEndNode, UpstreamCode, DownstreamCode
+        use chstatus &
+            ,only: GlobalStreamSurfaceElevation, GlobalStreamFlow
+        implicit none
 
-*== Public (ForceEqualStreamSurface) ===================================
+        !   Purpose:  Set value of variables that may be used by
+        !             user-programmed constraints.
 
-      LOGICAL FUNCTION ForceEqualStreamSurface( Extremity )
-      use IO_Units
-      IMPLICIT NONE
+        !   Arguments:
+        integer Extremity
 
-*   Purpose:  Compute and store constraint-equation coefficients forcing
-*             equal stream-surface elevations at two cross sections.
+        !   Argument definitions:
+        !     Extremity - index indicating
+        !                   [+1] upstream end of current channel.
+        !                   [-1] downstream end of current channel.
 
-*   Arguments:
-      INTEGER Extremity
+        !   Local Variables:
+        integer I
+        integer ConnectingNodes
+        integer ConstraintNode
+        integer ConnectingNode
+        integer ConnectingChannel
 
-*   Argument definitions:
-*     Extremity - index indicating
-*                   [+1] upstream end of current channel.
-*                   [-1] downstream end of current channel.
+        !   Routines by module:
 
-*   Module data:
+        !   Intrinsics:
+        integer   IABS
+        intrinsic IABS
 
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
-      INCLUDE 'solver.inc'
+        !   Programmed by: Lew DeLong
+        !   Date:          Oct   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Local Variables:
-      INTEGER First
-      PARAMETER (First = 1)
-      INTEGER ConnectingNodes
-      INTEGER ConstraintNode, DF
-      INTEGER Zero, Row, Node
-      INTEGER ConnectingChannel
-      INTEGER Channel,ConstraintIndex,ConstraintPointer
+        !-----Implementation -----------------------------------------------------
 
-      REAL*8   One, MinusOne, Fall
-      PARAMETER ( Zero = 0, One = 1.0, MinusOne = -1.0, DF = 2 )
-      LOGICAL OK
+        SetStreamConstraintVariables = .false.
 
-*   Routines by module:
+        ConnectingExtremity(1) = Extremity
 
-***** Channel flow status:
-      REAL*8     GlobalStreamSurfaceElevation
-      EXTERNAL GlobalStreamSurfaceElevation
+        if( Extremity == +1 ) then
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, DownstreamPointer,CurrentChannel
-      EXTERNAL UpstreamPointer, DownstreamPointer,CurrentChannel
+            !--------Upstream constraint.
 
-      INTEGER  UpstreamConnect, UpstreamConnections
-      EXTERNAL UpstreamConnect, UpstreamConnections
+            ConstraintNode = UpstreamPointer()
+            ConnectingNodes = UpstreamConnections()
+            ConditionCode = UpstreamCode()
 
-      INTEGER  DownstreamConnect, DownstreamConnections
-      EXTERNAL DownstreamConnect, DownstreamConnections
+        else if( Extremity == -1 ) then
 
-      INTEGER  StreamEndNode
-      EXTERNAL StreamEndNode
+            !--------Downstream constraint.
 
-***** Network control:
-      REAL*8     UpstreamBoundaryValue, DownstreamBoundaryValue
-      EXTERNAL UpstreamBoundaryValue, DownstreamBoundaryValue
+            ConstraintNode = DownstreamPointer()
+            ConnectingNodes = DownstreamConnections()
+            ConditionCode = DownstreamCode()
 
-***** Solver:
-      INTEGER  UpstreamConstraintRow, DownstreamConstraintRow
-      EXTERNAL UpstreamConstraintRow, DownstreamConstraintRow
+        else
+            write(UNIT_ERROR,*) ' *** Error(SetStreamConstraintVariables)'
+            write(UNIT_ERROR,*) ' Channel...',CurrentChannel()
+            write(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
+            return
+        end if
 
-      LOGICAL  StoreAtLocation, StoreAtRow
-      EXTERNAL StoreAtLocation, StoreAtRow
+        ConnectingChannels = ConnectingNodes
+        Discharge(1) = GlobalStreamFlow( ConstraintNode )
+        WSElev(1) = GlobalStreamSurfaceElevation( ConstraintNode )
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Lew DeLong
-*   Last modified: August   1992
-*   Modified by:   Eli Ateljevich
-*   Last modified: July  1998
-*   Version 93.01, January, 1993
+        if( ConnectingNodes > 0 ) then
+            if( ConnectingNodes <= MaxConnectingChannels ) then
 
-*   Intrinsics:
-      integer   IABS
-      intrinsic IABS
+                if( Extremity == +1 ) then
 
-*-----Implementation -----------------------------------------------------
-      Channel = CurrentChannel()
-      ForceEqualStreamSurface = .FALSE.
+                    do  I=1,ConnectingNodes
 
-      if( Extremity .EQ. +1 ) then
+                        ConnectingChannel = UpstreamConnect(I)
 
-*--------Upstream constraint.
+                        ConnectingNode = &
+                            IABS( StreamEndNode( ConnectingChannel ) )
 
-         ConstraintNode = UpstreamPointer()
-         Row = UpstreamConstraintRow()
-         ConstraintIndex = UpConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
+                        Discharge(I+1) = GlobalStreamFlow( ConnectingNode )
 
-         OK = StoreAtLocation( ConstraintPointer, One )
-         Fall = UpstreamBoundaryValue()
-         ConnectingNodes = UpstreamConnections()
-         ConnectingChannel = UpstreamConnect(First)
+                        WSElev(I+1) = &
+                            GlobalStreamSurfaceElevation( ConnectingNode )
 
-      else if( Extremity .EQ. -1 ) then
+                        ConnectingExtremity(I+1) = &
+                            ConnectingChannel / IABS( ConnectingChannel )
 
-*--------Downstream constraint.
+                    end do
 
+                else
 
-         ConstraintNode = DownstreamPointer()
-         Row = DownstreamConstraintRow()
-         ConstraintIndex =DownConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
+                    do  I=1,ConnectingNodes
 
-         OK = StoreAtLocation( ConstraintPointer, One )
-         Fall = DownstreamBoundaryValue()
-         ConnectingNodes = DownstreamConnections()
-         ConnectingChannel = DownstreamConnect(First)
+                        ConnectingChannel = DownstreamConnect(I)
 
-      else
-         write(UNIT_ERROR,*) ' *** Error (ForceEqualStreamSurface)'
-         write(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
-         return
-      end if
+                        ConnectingNode = &
+                            IABS( StreamEndNode( ConnectingChannel ) )
 
-*-----Determine node number of attached channel.
+                        Discharge(I+1) = GlobalStreamFlow( ConnectingNode )
 
-      IF( ConnectingChannel .NE. 0 ) THEN
+                        WSElev(I+1) = &
+                            GlobalStreamSurfaceElevation( ConnectingNode )
 
-         Node = IABS( StreamEndNode( ConnectingChannel ) )
+                        ConnectingExtremity(I+1) = &
+                            ConnectingChannel / IABS( ConnectingChannel )
 
-      ELSE
+                    end do
 
-*--------No channel number ... not actually attached.
+                end if
 
-         OK = StoreAtRow(
-     &        Row, Fall - GlobalStreamSurfaceElevation( ConstraintNode )
-     &        )
+            else
+                write(UNIT_ERROR,*) ' ####Error(SetStreamConstraintVariables)'
+                write(UNIT_ERROR,*) ' Channel...',CurrentChannel()
+                write(UNIT_ERROR,*) ' Number of connections must be fewer than...', &
+                    MaxConnectingChannels
+                write(UNIT_ERROR,*) ' Currently, connections = ', ConnectingNodes
+                return
+            end if
 
-      END IF
+        end if
 
+        !-----Initialize global solution coefficients.
 
-      IF( ConnectingNodes .GT. 0 ) THEN
-         ConstraintIndex = ConstraintIndex + 1
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
+        ConstraintRightSide = 0.0
 
-         OK = StoreAtLocation( ConstraintPointer, MinusOne )
+        do  I=1,2+2*MaxConnectingChannels
 
-         OK = StoreAtRow(
-     &        Row,
-     &        Fall
-     &        + GlobalStreamSurfaceElevation( Node )
-     &        - GlobalStreamSurfaceElevation( ConstraintNode )
-     &        )
+            ConstraintCoef(I) = 0.0
 
-      ELSE
+        end do
 
-         WRITE(UNIT_ERROR,*) ' *** Error (ForceEqualStreamSurface)'
-         WRITE(UNIT_ERROR,*) ' Connections = ', ConnectingNodes
+        SetStreamConstraintVariables = .true.
 
-      END IF
+        return
+    end function SetStreamConstraintVariables
 
-      ForceEqualStreamSurface = .TRUE.
+    !== Private (SetUserStreamConstraintCoef) ===============================
 
-      RETURN
-      END
+    logical function SetUserStreamConstraintCoef()
+        use IO_Units
+        use chconnec
+        use solver
+        use solveutil
+        use strmcnst
+        use channel_schematic
+        implicit none
 
-*== Private (SetStreamConstraintVariables) =============================
+        !   Purpose:  Place coefficients computed by specific user-programmed
+        !             constraints in global solution matrix.
 
-      LOGICAL FUNCTION SetStreamConstraintVariables( Extremity )
-      use IO_Units
-      IMPLICIT NONE
+        !   Arguments:
 
-*   Purpose:  Set value of variables that may be used by
-*             user-programmed constraints.
+        !   Argument definitions:
 
-*   Arguments:
-      INTEGER Extremity
+        !   Local Variables:
+        integer Extremity, Offset, Row
+        integer Channel,ConstraintIndex,ConstraintPointer
+        integer I, ConnectingNodes, Node(MaxConnectingChannels)
+        integer ConstraintNode
+        logical OK
 
-*   Argument definitions:
-*     Extremity - index indicating
-*                   [+1] upstream end of current channel.
-*                   [-1] downstream end of current channel.
+        !   Routines by module:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'strmcnst.inc'
+        !**** Local:
 
+        !   Intrinsics:
+        integer   IABS, MOD
+        intrinsic IABS, MOD
 
-*   Local Variables:
-      INTEGER I
-      INTEGER ConnectingNodes
-      INTEGER ConstraintNode
-      INTEGER ConnectingNode
-      INTEGER ConnectingChannel
+        !   Programmed by: Lew DeLong
+        !   Date:          Oct   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Routines by module:
+        !-----Implementation -----------------------------------------------------
+        SetUserStreamConstraintCoef = .false.
 
-***** Channel flow status:
-      REAL*8     GlobalStreamSurfaceElevation
-      REAL*8     GlobalStreamFlow
-      EXTERNAL GlobalStreamSurfaceElevation, GlobalStreamFlow
+        Channel=CurrentChannel()
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, DownstreamPointer
-      EXTERNAL UpstreamPointer, DownstreamPointer
+        Extremity = ConnectingExtremity(1)
 
-      INTEGER  UpstreamConnect, UpstreamConnections
-      EXTERNAL UpstreamConnect, UpstreamConnections
+        if( Extremity == +1 ) then
 
-      INTEGER  DownstreamConnect, DownstreamConnections
-      EXTERNAL DownstreamConnect, DownstreamConnections
+            !--------Upstream constraint.
 
-      INTEGER  StreamEndNode, CurrentChannel, DownstreamCode
-      EXTERNAL StreamEndNode, CurrentChannel, DownstreamCode
+            ConstraintNode = UpstreamPointer()
+            Row = UpstreamConstraintRow()
 
-      INTEGER  UpstreamCode
-      EXTERNAL UpstreamCode
+75      continue
+        ConstraintIndex = UpConstraintIndex(Channel)
 
-*   Intrinsics:
-      INTEGER   IABS
-      INTRINSIC IABS
+        ConstraintPointer = ConstraintPointers(ConstraintIndex)
 
-*   Programmed by: Lew DeLong
-*   Date:          Oct   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        ConnectingNodes = UpstreamConnections()
+        if( ConnectingNodes > 0 ) then
+            do I=1,ConnectingNodes
+                Node(I) = IABS(StreamEndNode( UpstreamConnect(I) ))
+            end do
+        else
+        end if
 
-*-----Implementation -----------------------------------------------------
+    else if( Extremity == -1 ) then
 
-      SetStreamConstraintVariables = .FALSE.
+        !--------Downstream constraint.
 
-      ConnectingExtremity(1) = Extremity
+        ConstraintNode = DownstreamPointer()
+        Row = DownstreamConstraintRow()
+        ConstraintIndex = DownConstraintIndex(Channel)
+        ConstraintPointer = ConstraintPointers(ConstraintIndex)
 
-      IF( Extremity .EQ. +1 ) THEN
+        ConnectingNodes = DownstreamConnections()
+        if( ConnectingNodes > 0 ) then
+            do  I=1,ConnectingNodes
+                Node(I) = IABS(StreamEndNode( DownstreamConnect(I) ))
+            end do
+        else
+        end if
 
-*--------Upstream constraint.
+    else
+        write(UNIT_ERROR,*) ' *** Error(SetUserStreamConstraintCoef)'
+        write(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
+        write(UNIT_ERROR,*) ' Channel...', CurrentChannel()
+        return
+    end if
 
-         ConstraintNode = UpstreamPointer()
-         ConnectingNodes = UpstreamConnections()
-         ConditionCode = UpstreamCode()
+    !-----Determine if flow or water-surface constraint, set offset.
 
-      ELSE IF( Extremity .EQ. -1 ) THEN
+    if( MOD( ConditionCode, 10 ) == 2 ) then
+        Offset = 0
+    else
+        Offset = -1
+    end if
 
-*--------Downstream constraint.
+    !-----Set coefficients for constraint node.
 
-         ConstraintNode = DownstreamPointer()
-         ConnectingNodes = DownstreamConnections()
-         ConditionCode = DownstreamCode()
+    !-----Constraint-node coefficients for
 
-      ELSE
-         WRITE(UNIT_ERROR,*) ' *** Error(SetStreamConstraintVariables)'
-         WRITE(UNIT_ERROR,*) ' Channel...',CurrentChannel()
-         WRITE(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
-         RETURN
-      END IF
+    !          discharge, and
+    OK = StoreAtLocation( ConstraintPointer, ConstraintCoef(1) )
 
-      ConnectingChannels = ConnectingNodes
-      Discharge(1) = GlobalStreamFlow( ConstraintNode )
-      WSElev(1) = GlobalStreamSurfaceElevation( ConstraintNode )
+    !          water surface.
+    ConstraintIndex = ConstraintIndex+1
+    ConstraintPointer = ConstraintPointers(ConstraintIndex)
+    OK = StoreAtLocation( ConstraintPointer, ConstraintCoef(2) )
 
-      IF( ConnectingNodes .GT. 0 ) THEN
-         IF( ConnectingNodes .LE. MaxConnectingChannels ) THEN
+    !-----Right-hand side.
 
-            IF( Extremity .EQ. +1 ) THEN
+    OK = StoreAtRow( Row, ConstraintRightSide )
 
-               DO 100 I=1,ConnectingNodes
+    if( ConnectingNodes > 0 ) then
 
-                  ConnectingChannel = UpstreamConnect(I)
+        do  I=1,ConnectingNodes
 
-                  ConnectingNode =
-     &                 IABS( StreamEndNode( ConnectingChannel ) )
-
-                  Discharge(I+1) = GlobalStreamFlow( ConnectingNode )
-
-                  WSElev(I+1) =
-     &                 GlobalStreamSurfaceElevation( ConnectingNode )
-
-                  ConnectingExtremity(I+1) =
-     &                 ConnectingChannel / IABS( ConnectingChannel )
-
- 100           CONTINUE
-
-            ELSE
-
-               DO 200 I=1,ConnectingNodes
-
-                  ConnectingChannel = DownstreamConnect(I)
-
-                  ConnectingNode =
-     &                 IABS( StreamEndNode( ConnectingChannel ) )
-
-                  Discharge(I+1) = GlobalStreamFlow( ConnectingNode )
-
-                  WSElev(I+1) =
-     &                 GlobalStreamSurfaceElevation( ConnectingNode )
-
-                  ConnectingExtremity(I+1) =
-     &                 ConnectingChannel / IABS( ConnectingChannel )
-
- 200           CONTINUE
-
-            END IF
-
-         ELSE
-            WRITE(UNIT_ERROR,*) ' ####Error(SetStreamConstraintVariables)'
-            WRITE(UNIT_ERROR,*) ' Channel...',CurrentChannel()
-            WRITE(UNIT_ERROR,*) ' Number of connections must be fewer than...',
-     &           MaxConnectingChannels
-            WRITE(UNIT_ERROR,*) ' Currently, connections = ', ConnectingNodes
-            RETURN
-         END IF
-
-      END IF
-
-*-----Initialize global solution coefficients.
-
-      ConstraintRightSide = 0.0
-
-      DO 300 I=1,2+2*MaxConnectingChannels
-
-         ConstraintCoef(I) = 0.0
-
- 300  CONTINUE
-
-      SetStreamConstraintVariables = .TRUE.
-
-      RETURN
-      END
-
-*== Private (SetUserStreamConstraintCoef) ===============================
-
-      LOGICAL FUNCTION SetUserStreamConstraintCoef()
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Place coefficients computed by specific user-programmed
-*             constraints in global solution matrix.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'strmcnst.inc'
-      INCLUDE 'chconnec.inc'
-      INCLUDE 'solver.inc'
-
-
-*   Local Variables:
-      INTEGER Extremity, Offset, Row
-      INTEGER Channel,ConstraintIndex,ConstraintPointer
-      INTEGER I, ConnectingNodes, Node(MaxConnectingChannels)
-      INTEGER ConstraintNode
-      LOGICAL OK
-
-*   Routines by module:
-
-***** Local:
-
-***** Channel schematic:
-      INTEGER  CurrentChannel
-      EXTERNAL CurrentChannel
-
-      INTEGER  UpstreamPointer, DownstreamPointer
-      EXTERNAL UpstreamPointer, DownstreamPointer
-
-      INTEGER  UpstreamConnect, UpstreamConnections
-      EXTERNAL UpstreamConnect, UpstreamConnections
-
-      INTEGER  DownstreamConnect, DownstreamConnections
-      EXTERNAL DownstreamConnect, DownstreamConnections
-
-      INTEGER  StreamEndNode
-      EXTERNAL StreamEndNode
-
-***** Solver:
-      INTEGER  UpstreamConstraintRow, DownstreamConstraintRow
-      EXTERNAL UpstreamConstraintRow, DownstreamConstraintRow
-
-      LOGICAL  StoreAtLocation, StoreAtRow
-      EXTERNAL StoreAtLocation, StoreAtRow
-
-*   Intrinsics:
-      INTEGER   IABS, MOD
-      INTRINSIC IABS, MOD
-
-*   Programmed by: Lew DeLong
-*   Date:          Oct   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-      SetUserStreamConstraintCoef = .FALSE.
-
-      Channel=CurrentChannel()
-
-      Extremity = ConnectingExtremity(1)
-
-      IF( Extremity .EQ. +1 ) THEN
-
-*--------Upstream constraint.
-
-         ConstraintNode = UpstreamPointer()
-         Row = UpstreamConstraintRow()
-
- 75      Continue
-         ConstraintIndex = UpConstraintIndex(Channel)
-
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
-
-         ConnectingNodes = UpstreamConnections()
-         IF( ConnectingNodes .GT. 0 ) THEN
-            DO 100 I=1,ConnectingNodes
-               Node(I) = IABS(StreamEndNode( UpstreamConnect(I) ))
- 100        CONTINUE
-         ELSE
-         END IF
-
-      ELSE IF( Extremity .EQ. -1 ) THEN
-
-*--------Downstream constraint.
-
-         ConstraintNode = DownstreamPointer()
-         Row = DownstreamConstraintRow()
-         ConstraintIndex = DownConstraintIndex(Channel)
-         ConstraintPointer = ConstraintPointers(ConstraintIndex)
-
-         ConnectingNodes = DownstreamConnections()
-         IF( ConnectingNodes .GT. 0 ) THEN
-            DO 200 I=1,ConnectingNodes
-               Node(I) = IABS(StreamEndNode( DownstreamConnect(I) ))
- 200        CONTINUE
-         ELSE
-         END IF
-
-      ELSE
-         WRITE(UNIT_ERROR,*) ' *** Error(SetUserStreamConstraintCoef)'
-         WRITE(UNIT_ERROR,*) ' Extremity not equal +1 or -1 ...'
-         WRITE(UNIT_ERROR,*) ' Channel...', CurrentChannel()
-         RETURN
-      END IF
-
-*-----Determine if flow or water-surface constraint, set offset.
-
-      IF( MOD( ConditionCode, 10 ) .EQ. 2 ) THEN
-         Offset = 0
-      ELSE
-         Offset = -1
-      END IF
-
-*-----Set coefficients for constraint node.
-
-*-----Constraint-node coefficients for
-
-*          discharge, and
-      OK = StoreAtLocation( ConstraintPointer, ConstraintCoef(1) )
-
-*          water surface.
-      ConstraintIndex = ConstraintIndex+1
-      ConstraintPointer = ConstraintPointers(ConstraintIndex)
-      OK = StoreAtLocation( ConstraintPointer, ConstraintCoef(2) )
-
-*-----Right-hand side.
-
-      OK = StoreAtRow( Row, ConstraintRightSide )
-
-      IF( ConnectingNodes .GT. 0 ) THEN
-
-         DO 300 I=1,ConnectingNodes
-
-*-----------discharge coefficient.
+            !-----------discharge coefficient.
             ConstraintIndex = ConstraintIndex+1
             ConstraintPointer = ConstraintPointers(ConstraintIndex)
-            OK = StoreAtLocation( ConstraintPointer,
-     &           ConstraintCoef(I+2) )
+            OK = StoreAtLocation( ConstraintPointer, &
+                ConstraintCoef(I+2) )
 
-*-----------water-surface coeeficient.
+            !-----------water-surface coeeficient.
             ConstraintIndex = ConstraintIndex+1
             ConstraintPointer = ConstraintPointers(ConstraintIndex)
-            OK = StoreAtLocation(
-     &           ConstraintPointer, ConstraintCoef(I+3) )
+            OK = StoreAtLocation( &
+                ConstraintPointer, ConstraintCoef(I+3) )
 
- 300     CONTINUE
+        end do
 
-      END IF
-      SetUserStreamConstraintCoef = .TRUE.
+    end if
+    SetUserStreamConstraintCoef = .true.
 
-      RETURN
-      END
+    return
+end function SetUserStreamConstraintCoef
 
+end module

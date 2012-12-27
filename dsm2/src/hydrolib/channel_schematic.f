@@ -1,1210 +1,1042 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
 
-*==== BOF chschmt ======================================================
+!==== BOF chschmt ======================================================
 
-*****************************************************************************
-*
-*     This file is a FORTRAN module containing schematic data associated with
-*     networks of 1-D channels.
-*
-*
-*
-*
-*
-*****************************************************************
+!****************************************************************************
+!
+!     This file is a FORTRAN module containing schematic data associated with
+!     networks of 1-D channels.
+!
+!
+!
+!
+!
+!****************************************************************
+module channel_schematic
+    use network
+    implicit none
+contains
+    !== Public (NumberOfChannels) ==========================================
 
-*== Public (NumberOfChannels) ==========================================
+    integer function NumberOfChannels()
+        use IO_Units
+        implicit none
 
-      INTEGER FUNCTION NumberOfChannels()
-      use IO_Units
-      IMPLICIT NONE
+        !   Purpose:  Return number of channels in current channel network.
 
-*   Purpose:  Return number of channels in current channel network.
+        !   Arguments:
 
-*   Arguments:
+        !   Argument definitions:
 
-*   Argument definitions:
+        !   Local Variables:
 
-*   Module data:
-      INCLUDE 'network.inc'
+        !   Routines by modules:
 
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Local Variables:
+        !-----Implementation ---------------------------------------------------
 
-*   Routines by modules:
+        if( NumCh > 0 ) then
+            NumberOfChannels = NumCh
+        else
+            write(UNIT_ERROR,*) ' Network not initialized (NumberOfChannels)...'
+            call EXIT(1)
+        end if
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        return
+    end function
 
-*-----Implementation ---------------------------------------------------
+    !== Public (CurrentChannel) ============================================
 
-      IF( NumCh .GT. 0 ) THEN
-         NumberOfChannels = NumCh
-      ELSE
-         WRITE(UNIT_ERROR,*) ' Network not initialized (NumberOfChannels)...'
-         CALL EXIT(1)
-      END IF
+    integer function CurrentChannel()
+        use IO_Units
+        use grid_data
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Return current channel number.
 
-*== Public (CurrentChannel) ============================================
+        !   Arguments:
 
-      INTEGER FUNCTION CurrentChannel()
-      use IO_Units
-      use grid_data
-      IMPLICIT NONE
+        !   Argument definitions:
 
-*   Purpose:  Return current channel number.
 
-*   Arguments:
 
-*   Argument definitions:
+        !   Local Variables:
 
-*   Module data:
-      INCLUDE 'network.inc'
+        !   Routines by module:
 
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Local Variables:
+        !-----Implementation ---------------------------------------------------
 
-*   Routines by module:
+        if( Branch > 0 ) then
+            CurrentChannel = Branch
+        else
+            write(UNIT_ERROR,*) ' CurrentChannel not set (CurrentChannel)...'
+            call EXIT(1)
+        end if
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        return
+    end function
 
-*-----Implementation ---------------------------------------------------
+    !== Public (OpenChannel) ===============================================
 
-      IF( Branch .GT. 0 ) THEN
-         CurrentChannel = Branch
-      ELSE
-         WRITE(UNIT_ERROR,*) ' CurrentChannel not set (CurrentChannel)...'
-         CALL EXIT(1)
-      END IF
+    logical function OpenChannel(ChannelNumber)
+        use IO_Units
+        use grid_data
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Set current channel number.
 
-*== Public (OpenChannel) ===============================================
+        !   Arguments:
+        integer :: ChannelNumber
 
-      LOGICAL FUNCTION OpenChannel(ChannelNumber)
-      use IO_Units
-      use grid_data
-      IMPLICIT NONE
+        !   Argument definitions:
+        !      ChannelNumber - channel sequence number.
 
-*   Purpose:  Set current channel number.
 
-*   Arguments:
-      INTEGER ChannelNumber
 
-*   Argument definitions:
-*      ChannelNumber - channel sequence number.
+        !   Local Variables:
 
-*   Module data:
-      INCLUDE 'network.inc'
+        !   Routines by module:
 
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Local Variables:
+        !-----Implementation ---------------------------------------------------
 
-*   Routines by module:
+        if( Branch == 0 ) then
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+            if( ChannelNumber <= NumCh .and. ChannelNumber > 0 ) then
+                OpenChannel = .true.
+                Branch = ChannelNumber
+            else
+                OpenChannel = .false.
+                write(UNIT_ERROR,*) ' Can not open channel', chan_geom(ChannelNumber)%chan_no
+                write(UNIT_ERROR,*) ' NumberOfChannels = ', NumCh
+            end if
 
-*-----Implementation ---------------------------------------------------
+        else
+            write(UNIT_ERROR,*) ' *** Error (OpenChannel)'
+            write(UNIT_ERROR,*) ' Channel ', Branch, ' still open ???'
+            OpenChannel = .false.
+        end if
 
-      IF( Branch .EQ. 0 ) THEN
+        return
+    end function
 
-         IF( ChannelNumber .LE. NumCh .AND. ChannelNumber .GT. 0 ) THEN
-            OpenChannel = .TRUE.
-            Branch = ChannelNumber
-         ELSE
-            OpenChannel = .FALSE.
-            WRITE(UNIT_ERROR,*) ' Can not open channel', chan_geom(ChannelNumber).chan_no
-            WRITE(UNIT_ERROR,*) ' NumberOfChannels = ', NumCh
-         END IF
+    !== Public (CloseChannel) ==============================================
 
-      ELSE
-         WRITE(UNIT_ERROR,*) ' *** Error (OpenChannel)'
-         WRITE(UNIT_ERROR,*) ' Channel ', Branch, ' still open ???'
-         OpenChannel = .FALSE.
-      END IF
+    logical function CloseChannel()
+        use network
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Close current channel, set CurrentChannel = 0.
 
-*== Public (CloseChannel) ==============================================
+        !   Arguments:
 
-      LOGICAL FUNCTION CloseChannel()
+        !   Argument definitions:
 
-      IMPLICIT NONE
 
-*   Purpose:  Close current channel, set CurrentChannel = 0.
+        !   Local Variables:
 
-*   Arguments:
+        !   Routines by module:
 
-*   Argument definitions:
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Module data:
-      INCLUDE 'network.inc'
+        !-----Implementation ---------------------------------------------------
 
-*   Local Variables:
+        if( Branch > 0 ) then
+            CloseChannel = .true.
+            Branch = 0
+        else
+            CloseChannel = .false.
+            Branch = 0
+        end if
 
-*   Routines by module:
+        return
+    end function
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
 
-*-----Implementation ---------------------------------------------------
+    !== Public (SetCompLocations) ==========================================
 
-      IF( Branch .GT. 0 ) THEN
-         CloseChannel = .TRUE.
-         Branch = 0
-      ELSE
-         CloseChannel = .FALSE.
-         Branch = 0
-      END IF
+    logical function SetCompLocations()
+        use IO_Units
+        use grid_data
+        use chnluser
+        use chnlcomp
+        use chconnec
+        use netcntrl ,only: NetworkPrintLevel
+        use linear, only: xinsrt
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:
 
+        !   Arguments:
 
+        !   Argument definitions:
+        !   Local Variables:
+        integer :: I
+        integer :: ChNum
+        integer :: MaxCx
+        integer :: ModelIndex
+        logical :: OK
+        logical :: Out
 
-*== Public (InitializeChannelNetwork) ==================================
+        !**** Local:
+        real*8 :: XEnd(2)
 
-      LOGICAL FUNCTION InitializeChannelNetwork()
-      use IO_Units
-      IMPLICIT NONE
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Purpose:  Initialize a network of channels.
+        !-----Implementation -----------------------------------------------------
 
-*   Arguments:
+        SetCompLocations = .false.
+        if( NetworkPrintLevel() > 3) then
+            write(*,*) ' Setting computational locations...'
+        end if
 
-*   Argument definitions:
+        !-----Set output index.
 
-*   Module data:
+        if( NetworkPrintLevel() >= 3 ) then
+            Out = .true.
+        else
+            Out = .false.
+        end if
 
+        ModelIndex = 1
+        MaxCx = MaxLocations
+        TotalCompLocations = 0
 
-*   Local Variables:
-      LOGICAL OK
+        !-----Begin channel loop.
+        do I = 1, NumCh
+            ChNum = I
 
-*   Routines by module:
+            if( OpenChannel( ChNum ) ) then
 
-***** Network control:
-      LOGICAL  VariableStreamDensity, VariableStreamSinuosity
-      EXTERNAL VariableStreamDensity, VariableStreamSinuosity
 
-***** Channel flow status:
-      LOGICAL  InitializeNetworkFlowValues, InitializeNetworkDensity
-      LOGICAL  SetConstantStreamDensity
-      EXTERNAL InitializeNetworkFlowValues, InitializeNetworkDensity
-      EXTERNAL SetConstantStreamDensity
+                !-----------Insert computational locations if needed.
+                if( ChNum > 1 ) then
+                    UpCompPointer(ChNum) = DownCompPointer(ChNum-1) + 1
+                else
+                    UpCompPointer(ChNum) = 1
+                end if
+                XEnd(1)=0.
+                XEnd(2)=chan_geom(branch)%length
+                if( XInsrt( &
+                    MaxCx, &
+                    2,XEnd, & !(user points are ignored for generating comp. points)
+                    dX(ChNum), .false., ModelIndex, &
+                    NumberOfCompLocations(ChNum), &
+                    CompLocation( UpCompPointer(ChNum) ) &
+                    )  )  then
 
-***** Channel properties:
-      LOGICAL  InitializeChannelProperties
-      EXTERNAL InitializeChannelProperties
-      LOGICAL  WriteInterveningProperties
-      EXTERNAL WriteInterveningProperties
+                    if( Out ) then
+                        write(*,*) '  Channel number ',chan_geom(ChNum)%chan_no,' # points:', &
+                            NumberOfCompLocations(ChNum)
+                    end if
 
-***** Locals:
-      LOGICAL  SetCompLocations
-      EXTERNAL  SetCompLocations
+                    TotalCompLocations = TotalCompLocations &
+                        + NumberOfCompLocations(ChNum)
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+                else
+                    write(UNIT_ERROR,*) ' ####error(SetCompLocations)'
+                    write(UNIT_ERROR,*) ' Maximum number of computational ', &
+                        'locations exceeded...'
+                    write(UNIT_ERROR,*) ' Insertion of computational locations failed...'
+                    write(UNIT_ERROR,*) ' Attempting channel...',chan_geom(ChNum)%chan_no
+                    return
+                end if
 
-*-----Implementation -----------------------------------------------------
+                DownCompPointer(ChNum) = UpCompPointer(ChNum) &
+                    + NumberOfCompLocations(ChNum) - 1
 
-      InitializeChannelNetwork = .FALSE.
+                !-----------Reduce maximum number of remaining locations.
+                MaxCx = MaxCx - NumberOfCompLocations(ChNum)
+                if( MaxCx < 0 ) then
+                    write(UNIT_ERROR,*) ' Max number of computational locations', &
+                        ' exceeded...(SetCompLocations)'
+                    write(UNIT_ERROR,*) ' Channel number...',chan_geom(ChNum)%chan_no
+                end if
 
-*-----Read network schematic data.
-c      IF( .not. InitializeNetworkSchematic() ) THEN
-c         WRITE(UNIT_ERROR,*) ' Attempt to initialize network schematic failed...'
-c         RETURN
-c      END IF
+                OK = CloseChannel()
 
-*-----Determine computational locations and set channel pointers.
-      IF( .not. SetCompLocations() ) THEN
-         WRITE(UNIT_ERROR,*)
-     &        ' Attempt to set computational locations failed...'
-         RETURN
-      ENDIF
+            else
 
-*-----Set initial channel flow values.
-      IF( .not. InitializeNetworkFlowValues() ) THEN
-         WRITE(UNIT_ERROR,*) ' Attempt to set initial flow channel',
-     &        ' values failed...'
-         RETURN
-      END IF
+                write(UNIT_ERROR,*) ' Attempt to open channel',chan_geom(ChNum)%chan_no,' failed...'
+                write(UNIT_ERROR,*) ' (SetCompLocations)'
+                return
 
-*-----Set initial water density.
+            end if
 
-      IF( VariableStreamDensity() ) THEN
-      ELSE IF(VariableStreamSinuosity() ) THEN
-         OK = SetConstantStreamDensity()
-      END IF
+        end do
 
-      InitializeChannelNetwork = .TRUE.
+        !-----Determine global, computational-cross-section number
+        !       of locations at which output of time-series results
+        !       is required.
+        !      OK = SetNetworkTimeSeriesLocations()
 
-      RETURN
-      END
+        SetCompLocations = .true.
 
+        return
+    end function
 
+    !== Public (NumberOfStreamLocations) ===================================
 
+    integer function NumberOfStreamLocations()
+        use chnlcomp
+        implicit none
 
+        !   Purpose:  Return the number of computational locations in the
+        !             current channel.
 
+        !   Arguments:
 
-*== Public (SetCompLocations) ==========================================
+        !   Argument definitions:
 
-      LOGICAL FUNCTION SetCompLocations()
-      use IO_Units
-      use grid_data
-      IMPLICIT NONE
 
-*   Purpose:
+        !   Local Variables:
 
-*   Arguments:
+        !   Routines by module:
 
-*   Argument definitions:
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnluser.inc'
-      INCLUDE 'chnlcomp.inc'
-      INCLUDE 'chconnec.inc'
+        !-----Implementation -----------------------------------------------------
 
+        NumberOfStreamLocations = NumberOfCompLocations(Branch)
 
-*   Local Variables:
-      INTEGER I, ChNum, MaxCx, ModelIndex
-      LOGICAL OK, Out
+        return
+    end function
 
-*   Routines by module:
+    !== Public (TotalStreamLocations) ======================================
 
-***** Channel properties:
+    integer function TotalStreamLocations()
+        use chnlcomp
+        implicit none
 
+        !   Purpose:  Return total number of computational locations in network.
 
-***** Linear interpolation utilities:
-      LOGICAL  XINSRT
-      EXTERNAL XINSRT
+        !   Arguments:
 
-***** Network control:
-      LOGICAL  SetNetworkTimeSeriesLocations
-      EXTERNAL SetNetworkTimeSeriesLocations
+        !   Argument definitions:
 
-      INTEGER  NetworkPrintLevel
-      EXTERNAL NetworkPrintLevel
 
-***** Local:
-	real*8 XEnd(2)
-	
-      LOGICAL  OpenChannel, CloseChannel
-      EXTERNAL OpenChannel, CloseChannel
+        !   Local Variables:
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Routines by module:
 
-*-----Implementation -----------------------------------------------------
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-      SetCompLocations = .FALSE.
-      IF( NetworkPrintLevel() .GT. 3) THEN
-         WRITE(*,*) ' Setting computational locations...'
-      END IF
+        !-----Implementation -----------------------------------------------------
 
-*-----Set output index.
+        TotalStreamLocations = TotalCompLocations
 
-      IF( NetworkPrintLevel() .GE. 3 ) THEN
-         Out = .TRUE.
-      ELSE
-         Out = .FALSE.
-      END IF
+        return
+    end function
 
-      ModelIndex = 1
-      MaxCx = MaxLocations
-      TotalCompLocations = 0
+    !== Public (StreamEndNode) =============================================
 
-*-----Begin channel loop.
-      DO 100 I = 1, NumCh
-         ChNum = I
+    integer function StreamEndNode( ChannelNumber )
+        use chnlcomp
+        implicit none
 
-         IF( OpenChannel( ChNum ) ) THEN
+        !   Purpose:  Return a global location number delimiting the channel,
+        !             ChannelNumber.  The location number will be for the
+        !             upstream end of the channel if ChannelNumber is
+        !             positive and downstream if negative.  The returned
+        !             location number will carry the same sign as ChannelNumber.
 
+        !   Arguments:
+        integer :: ChannelNumber
 
-*-----------Insert computational locations if needed.
-            IF( ChNum .GT. 1 ) THEN
-               UpCompPointer(ChNum) = DownCompPointer(ChNum-1) + 1
-            ELSE
-               UpCompPointer(ChNum) = 1
-            END IF
-            XEnd(1)=0.
-		  XEnd(2)=chan_geom(branch).length
-            IF( XInsrt(
-     &           MaxCx, 
-     &           2,XEnd, !(user points are ignored for generating comp. points)
-     &           dX(ChNum), .false., ModelIndex,
-     &           NumberOfCompLocations(ChNum),
-     &           CompLocation( UpCompPointer(ChNum) )
-     &           )  )  THEN
+        !   Argument definitions:
+        !      ChannelNumber - channel sequence number.
 
-               IF( Out ) THEN
-                  WRITE(*,*) '  Channel number ',chan_geom(ChNum).chan_no,' # points:',
-     &                 NumberOfCompLocations(ChNum)
-               END IF
+        !   Local Variables:
 
-               TotalCompLocations = TotalCompLocations
-     &              + NumberOfCompLocations(ChNum)
+        !   Routines by module:
 
-            ELSE
-               WRITE(UNIT_ERROR,*) ' ####error(SetCompLocations)'
-               WRITE(UNIT_ERROR,*) ' Maximum number of computational ',
-     &              'locations exceeded...'
-               WRITE(UNIT_ERROR,*) ' Insertion of computational locations failed...'
-               WRITE(UNIT_ERROR,*) ' Attempting channel...',chan_geom(ChNum).chan_no
-               RETURN
-            END IF
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-            DownCompPointer(ChNum) = UpCompPointer(ChNum)
-     &           + NumberOfCompLocations(ChNum) - 1
+        !-----Implementation -----------------------------------------------------
 
-*-----------Reduce maximum number of remaining locations.
-            MaxCx = MaxCx - NumberOfCompLocations(ChNum)
-            IF( MaxCx .LT. 0 ) THEN
-               WRITE(UNIT_ERROR,*) ' Max number of computational locations',
-     &              ' exceeded...(SetCompLocations)'
-               WRITE(UNIT_ERROR,*) ' Channel number...',chan_geom(ChNum).chan_no
-            END IF
+        if( ChannelNumber > 0 ) then
 
-            OK = CloseChannel()
+            !--------Upstream end of channel.
 
-         ELSE
+            StreamEndNode = UpCompPointer( ChannelNumber )
 
-            WRITE(UNIT_ERROR,*) ' Attempt to open channel',chan_geom(ChNum).chan_no,' failed...'
-            WRITE(UNIT_ERROR,*) ' (SetCompLocations)'
-            RETURN
+        else if( ChannelNumber < 0 ) then
 
-         END IF
+            !--------Downstream end of channel.
 
- 100  CONTINUE
+            StreamEndNode = - DownCompPointer(  - ChannelNumber )
 
-*-----Determine global, computational-cross-section number
-*       of locations at which output of time-series results
-*       is required.
-c      OK = SetNetworkTimeSeriesLocations()
+        else
 
-      SetCompLocations = .TRUE.
+            !--------No channel number.
 
-      RETURN
-      END
+            StreamEndNode = 0
 
-*== Public (NumberOfStreamLocations) ===================================
+        end if
 
-      INTEGER FUNCTION NumberOfStreamLocations()
+        return
+    end function
 
-      IMPLICIT NONE
+    !== Public (UpstreamPointer) ===========================================
 
-*   Purpose:  Return the number of computational locations in the
-*             current channel.
+    integer function UpstreamPointer()
+        use chnlcomp
+        implicit none
 
-*   Arguments:
+        !   Purpose:  Return pointer to upstream computational location number
+        !             for current channel.
 
-*   Argument definitions:
+        !   Arguments:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
+        !   Argument definitions:
 
-*   Local Variables:
 
-*   Routines by module:
+        !   Local Variables:
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Routines by module:
 
-*-----Implementation -----------------------------------------------------
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-      NumberOfStreamLocations = NumberOfCompLocations(Branch)
+        !-----Implementation -----------------------------------------------------
 
-      RETURN
-      END
+        UpstreamPointer = UpCompPointer(Branch)
 
-*== Public (TotalStreamLocations) ======================================
+        return
+    end function
 
-      INTEGER FUNCTION TotalStreamLocations()
+    !== Public (DownstreamPointer) =========================================
 
-      IMPLICIT NONE
+    integer function DownstreamPointer()
+        use chnlcomp
+        implicit none
 
-*   Purpose:  Return total number of computational locations in network.
+        !   Purpose:  Return pointer to downstream computational location number
+        !             for current channel.
 
-*   Arguments:
+        !   Arguments:
 
-*   Argument definitions:
+        !   Argument definitions:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
 
-*   Local Variables:
+        !   Local Variables:
 
-*   Routines by module:
+        !   Routines by module:
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*-----Implementation -----------------------------------------------------
+        !-----Implementation -----------------------------------------------------
 
-      TotalStreamLocations = TotalCompLocations
+        DownstreamPointer = DownCompPointer(Branch)
 
-      RETURN
-      END
+        return
+    end function
 
-*== Public (StreamEndNode) =============================================
+    !== Public (StreamDistance) ============================================
 
-      INTEGER FUNCTION StreamEndNode( ChannelNumber )
+    real*8 function StreamDistance(LocationNumber)
+        use IO_Units
+        use chnlcomp
+        implicit none
 
-      IMPLICIT NONE
+        !   Purpose:  Return downstream distance to the computational
+        !             LocationNumber, within the current channel.
 
-*   Purpose:  Return a global location number delimiting the channel,
-*             ChannelNumber.  The location number will be for the
-*             upstream end of the channel if ChannelNumber is
-*             positive and downstream if negative.  The returned
-*             location number will carry the same sign as ChannelNumber.
+        !   Arguments:
+        integer :: LocationNumber
 
-*   Arguments:
-      INTEGER ChannelNumber
+        !   Argument definitions:
+        !     LocationNumber - computational location number, begining with 1
+        !                       at upstream end of current channel.
 
-*   Argument definitions:
-*      ChannelNumber - channel sequence number.
+        !   Local Variables:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
+        !   Routines by module:
 
-*   Local Variables:
 
-*   Routines by module:
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !-----Implementation -----------------------------------------------------
 
-*-----Implementation -----------------------------------------------------
+        if( CheckChannelCompLocationRange(LocationNumber) ) then
 
-      IF( ChannelNumber .GT. 0 ) THEN
+            StreamDistance = CompLocation( &
+                UpCompPointer(Branch) + LocationNumber - 1 &
+                )
 
-*--------Upstream end of channel.
+        else
 
-         StreamEndNode = UpCompPointer( ChannelNumber )
+            write(UNIT_ERROR,*) ' Failed to determine correct stream distance...'
+            write(UNIT_ERROR,*) ' Incorrectly returned last location in channel...'
+            write(UNIT_ERROR,*) ' (StreamDistance)'
+            StreamDistance = CompLocation( &
+                DownCompPointer(Branch) &
+                )
 
-      ELSE IF( ChannelNumber .LT. 0 ) THEN
+        end if
 
-*--------Downstream end of channel.
+        return
+    end function
 
-         StreamEndNode = - DownCompPointer(  - ChannelNumber )
+    !== Public (GlobalStreamDistance) ======================================
 
-      ELSE
+    real*8 function GlobalStreamDistance(GlobalLocationNumber)
+        use IO_Units
+        use chnlcomp
+        implicit none
 
-*--------No channel number.
+        !   Purpose:  Return downstream distance to the GlobalLocationNumber.
 
-         StreamEndNode = 0
+        !   Arguments:
+        integer :: GlobalLocationNumber
 
-      END IF
+        !   Argument definitions:
+        !     GlobalLocationNumber - global location number, sequential
+        !                             with out regard to channel number.
 
-      RETURN
-      END
 
-*== Public (UpstreamPointer) ===========================================
+        !   Local Variables:
 
-      INTEGER FUNCTION UpstreamPointer()
+        !   Routines by module:
 
-      IMPLICIT NONE
+        !   Programmed by: Lew DeLong
+        !   Date:          March 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Purpose:  Return pointer to upstream computational location number
-*             for current channel.
+        !-----Implementation -----------------------------------------------------
 
-*   Arguments:
+        if( GlobalLocationNumber > 0 &
+            .and. &
+            GlobalLocationNumber <= MaxLocations ) then
+            GlobalStreamDistance = CompLocation( GlobalLocationNumber )
+        else
+            write(UNIT_ERROR,*) ' ####error( GlobalStreamDistance )'
+            write(UNIT_ERROR,*) ' Global location number out of range...'
+            GlobalStreamDistance = 0.0
+        end if
+        return
+    end function
 
-*   Argument definitions:
+    !== Private (CheckChannelCompLocationRange) ============================
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
+    logical function CheckChannelCompLocationRange(LocationNumber)
+        use IO_Units
+        use chnlcomp
+        implicit none
 
-*   Local Variables:
+        !   Purpose:  Check to see if LocationNumber is in the range of
+        !             location numbers available to the current channel.
 
-*   Routines by module:
+        !   Arguments:
+        integer :: LocationNumber
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Argument definitions:
+        !     LocationNumber - computational-location number (index) within
+        !                      current channel.
 
-*-----Implementation -----------------------------------------------------
+        !   Local Variables:
 
-      UpstreamPointer = UpCompPointer(Branch)
+        !   Routines by module:
 
-      RETURN
-      END
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*== Public (DownstreamPointer) =========================================
+        !-----Implementation -----------------------------------------------------
 
-      INTEGER FUNCTION DownstreamPointer()
+        if( LocationNumber <= NumberOfCompLocations(Branch) &
+            .and. &
+            LocationNumber > 0 ) then
 
-      IMPLICIT NONE
+            CheckChannelCompLocationRange = .true.
 
-*   Purpose:  Return pointer to downstream computational location number
-*             for current channel.
+        else
 
-*   Arguments:
+            write(UNIT_ERROR,*) ' Location number out of range...'
+            write(UNIT_ERROR,*) ' Branch...',Branch
+            write(UNIT_ERROR,*) ' Requested location number = ',LocationNumber
+            write(UNIT_ERROR,*) ' Available range = 1', &
+                ' to',NumberOfCompLocations(Branch)
+            CheckChannelCompLocationRange = .false.
 
-*   Argument definitions:
+        end if
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
+        return
+    end function
 
-*   Local Variables:
 
-*   Routines by module:
+    !== Public (GetUserStreamLocationIDs) ==================================
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+    subroutine GetUserStreamLocationIDs( &
+        Num, &
+        CurrentIDs &
+        )
+        use chnluser
+        implicit none
 
-*-----Implementation -----------------------------------------------------
+        !   Purpose:  Return an array of current  user stream-location
+        !             identifiers for the current channel.  Dimension of
+        !             returned identifier array must be large enough and is
+        !             not checked by this routine.
 
-      DownstreamPointer = DownCompPointer(Branch)
+        !   Arguments:
+        integer :: Num
+        character*16 :: CurrentIDs(Num)
 
-      RETURN
-      END
+        !   Argument definitions:
+        !     Num - dimension of identifier array.
+        !     CurrentIDs(i) - array of identifiers.
 
-*== Public (StreamDistance) ============================================
+        !   Local Variables:
+        integer :: I
+        integer :: J
 
-      REAL*8 FUNCTION StreamDistance(LocationNumber)
-      use IO_Units
-      IMPLICIT NONE
+        !   Routines by module:
 
-*   Purpose:  Return downstream distance to the computational
-*             LocationNumber, within the current channel.
+        !   Programmed by: Lew DeLong
+        !   Date:          January 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Arguments:
-      INTEGER LocationNumber
+        !-----Implementation -----------------------------------------------------
 
-*   Argument definitions:
-*     LocationNumber - computational location number, begining with 1
-*                       at upstream end of current channel.
+        J = 0
+        do I=UpUserPointer(Branch),DownUserPointer(Branch)
+            J = J + 1
+            CurrentIDs(J) = UserLocationID(I)
+        end do
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
+        return
+    end subroutine
 
+    !== Public (GetUserStreamFlow) =========================================
 
-*   Local Variables:
+    subroutine GetUserStreamFlow( &
+        Num, &
+        Streamflow &
+        )
+        use chnluser
+        implicit none
 
-*   Routines by module:
+        !   Purpose:  Return an array of initial streamflow values at user
+        !             locations within the current channel.  Dimension of
+        !             returned array must be large enough and is not
+        !             checked by this routine.
 
-***** Locals:
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
+        !   Arguments:
+        integer :: Num
+        real*8 :: Streamflow(Num)
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Argument definitions:
+        !     Num - dimension of identifier array.
+        !     Streamflow(i) - array of streamflow values.
 
-*-----Implementation -----------------------------------------------------
 
-      IF( CheckChannelCompLocationRange(LocationNumber) ) THEN
+        !   Local Variables:
+        integer :: I
+        integer :: J
 
-         StreamDistance = CompLocation(
-     &        UpCompPointer(Branch) + LocationNumber - 1
-     &        )
+        !   Routines by module:
 
-      ELSE
+        !   Programmed by: Lew DeLong
+        !   Date:          January 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-         WRITE(UNIT_ERROR,*) ' Failed to determine correct stream distance...'
-         WRITE(UNIT_ERROR,*) ' Incorrectly returned last location in channel...'
-         WRITE(UNIT_ERROR,*) ' (StreamDistance)'
-         StreamDistance = CompLocation(
-     &        DownCompPointer(Branch)
-     &        )
+        !-----Implementation -----------------------------------------------------
 
-      END IF
+        J = 0
+        do  I=UpUserPointer(Branch),DownUserPointer(Branch)
+            J = J + 1
+            Streamflow(J) = UserQ(I)
+        end do
 
-      RETURN
-      END
+        return
+    end subroutine
 
-*== Public (GlobalStreamDistance) ======================================
+    !== Public (GetUserStreamSurfaceElevation) =============================
 
-      REAL*8 FUNCTION GlobalStreamDistance(GlobalLocationNumber)
-      use IO_Units
-      IMPLICIT NONE
+    subroutine GetUserStreamSurfaceElevation( &
+        Num, &
+        StreamElevation &
+        )
+        use chnluser
+        implicit none
 
-*   Purpose:  Return downstream distance to the GlobalLocationNumber.
+        !   Purpose:  Return an array of initial water surface elevations at
+        !             user locations within the current channel.  Dimension of
+        !             returned array must be large enough and is not
+        !             checked by this routine.
 
-*   Arguments:
-      INTEGER GlobalLocationNumber
+        !   Arguments:
+        integer :: Num
+        real*8 :: StreamElevation(Num)
 
-*   Argument definitions:
-*     GlobalLocationNumber - global location number, sequential
-*                             with out regard to channel number.
+        !   Argument definitions:
+        !     Num - dimension of identifier array.
+        !     StreamElevation(i) - array of stream-surface-elevation values.
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
 
-*   Local Variables:
+        !   Local Variables:
+        integer :: I
+        integer :: J
 
-*   Routines by module:
+        !   Routines by module:
 
-*   Programmed by: Lew DeLong
-*   Date:          March 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Programmed by: Lew DeLong
+        !   Date:          January 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*-----Implementation -----------------------------------------------------
+        !-----Implementation -----------------------------------------------------
 
-      IF( GlobalLocationNumber .GT. 0
-     &     .AND.
-     &     GlobalLocationNumber .LE. MaxLocations ) THEN
-         GlobalStreamDistance = CompLocation( GlobalLocationNumber )
-      ELSE
-         WRITE(UNIT_ERROR,*) ' ####error( GlobalStreamDistance )'
-         WRITE(UNIT_ERROR,*) ' Global location number out of range...'
-         GlobalStreamDistance = 0.0
-      END IF
-      RETURN
-      END
+        J = 0
+        do I=UpUserPointer(Branch),DownUserPointer(Branch)
+            J = J + 1
+            StreamElevation(J) = UserWS(I)
+        end do
 
-*== Private (CheckChannelCompLocationRange) ============================
+        return
+    end subroutine
 
-      LOGICAL FUNCTION CheckChannelCompLocationRange(LocationNumber)
-      use IO_Units
-      IMPLICIT NONE
+    !== Public (UpstreamCode) ==============================================
 
-*   Purpose:  Check to see if LocationNumber is in the range of
-*             location numbers available to the current channel.
+    integer function UpstreamCode()
+        use chconnec
+        implicit none
 
-*   Arguments:
-      INTEGER LocationNumber
+        !   Purpose:  Return upstream boundary condition code for the current channel.
 
-*   Argument definitions:
-*     LocationNumber - computational-location number (index) within
-*                      current channel.
+        !   Arguments:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnlcomp.inc'
+        !   Argument definitions:
 
-*   Local Variables:
 
-*   Routines by module:
+        !   Local Variables:
 
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Routines by module:
 
-*-----Implementation -----------------------------------------------------
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-      IF( LocationNumber .LE. NumberOfCompLocations(Branch)
-     &     .AND.
-     &     LocationNumber .GT. 0 ) THEN
+        !-----Implementation -----------------------------------------------------
 
-         CheckChannelCompLocationRange = .TRUE.
+        UpstreamCode = UpBoundaryCode(Branch)
 
-      ELSE
+        return
+    end function
 
-         WRITE(UNIT_ERROR,*) ' Location number out of range...'
-         WRITE(UNIT_ERROR,*) ' Branch...',Branch
-         WRITE(UNIT_ERROR,*) ' Requested location number = ',LocationNumber
-         WRITE(UNIT_ERROR,*) ' Available range = 1',
-     &        ' to',NumberOfCompLocations(Branch)
-         CheckChannelCompLocationRange = .FALSE.
+    !== Public (UpstreamConnections) =======================================
 
-      END IF
+    integer function UpstreamConnections()
+        use chconnec
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Return number of connections to upstream end
+        !             of current channel.
 
+        !   Arguments:
 
-*== Public (GetUserStreamLocationIDs) ==================================
+        !   Argument definitions:
 
-      SUBROUTINE GetUserStreamLocationIDs(
-     &     Num,
-     &     CurrentIDs
-     &     )
 
-      IMPLICIT NONE
+        !   Local Variables:
 
-*   Purpose:  Return an array of current  user stream-location
-*             identifiers for the current channel.  Dimension of
-*             returned identifier array must be large enough and is
-*             not checked by this routine.
+        !   Routines by module:
 
-*   Arguments:
-      INTEGER Num
-      CHARACTER*16 CurrentIDs(Num)
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Argument definitions:
-*     Num - dimension of identifier array.
-*     CurrentIDs(i) - array of identifiers.
+        !-----Implementation -----------------------------------------------------
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnluser.inc'
+        UpstreamConnections = UpNumberOfConnections(Branch)
 
-*   Local Variables:
-      INTEGER I, J
+        return
+    end function
 
-*   Routines by module:
+    !== Public (DownstreamCode) ============================================
 
-*   Programmed by: Lew DeLong
-*   Date:          January 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+    integer function DownstreamCode()
+        use chconnec
+        implicit none
 
-*-----Implementation -----------------------------------------------------
+        !   Purpose:  Return downstream boundary condition code
+        !             for the current channel.
 
-      J = 0
-      DO 100 I=UpUserPointer(Branch),DownUserPointer(Branch)
-         J = J + 1
-         CurrentIDs(J) = UserLocationID(I)
- 100  CONTINUE
+        !   Arguments:
 
-      RETURN
-      END
+        !   Argument definitions:
 
-*== Public (GetUserStreamFlow) =========================================
 
-      SUBROUTINE GetUserStreamFlow(
-     &     Num,
-     &     Streamflow
-     &     )
+        !   Local Variables:
 
-      IMPLICIT NONE
+        !   Routines by module:
 
-*   Purpose:  Return an array of initial streamflow values at user
-*             locations within the current channel.  Dimension of
-*             returned array must be large enough and is not
-*             checked by this routine.
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Arguments:
-      INTEGER Num
-      REAL*8    Streamflow(Num)
+        !-----Implementation -----------------------------------------------------
 
-*   Argument definitions:
-*     Num - dimension of identifier array.
-*     Streamflow(i) - array of streamflow values.
+        DownstreamCode = DownBoundaryCode(Branch)
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnluser.inc'
+        return
+    end function
 
-*   Local Variables:
-      INTEGER I, J
+    !== Public (DownstreamConnections) =====================================
 
-*   Routines by module:
+    integer function DownstreamConnections()
+        use chconnec
+        implicit none
 
-*   Programmed by: Lew DeLong
-*   Date:          January 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Purpose:  Return number of connections to downstream end
+        !             of current channel.
 
-*-----Implementation -----------------------------------------------------
+        !   Arguments:
 
-      J = 0
-      DO 100 I=UpUserPointer(Branch),DownUserPointer(Branch)
-         J = J + 1
-         Streamflow(J) = UserQ(I)
- 100  CONTINUE
+        !   Argument definitions:
 
-      RETURN
-      END
+        !   Local Variables:
 
-*== Public (GetUserStreamSurfaceElevation) =============================
+        !   Routines by module:
 
-      SUBROUTINE GetUserStreamSurfaceElevation(
-     &     Num,
-     &     StreamElevation
-     &     )
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-      IMPLICIT NONE
+        !-----Implementation -----------------------------------------------------
 
-*   Purpose:  Return an array of initial water surface elevations at
-*             user locations within the current channel.  Dimension of
-*             returned array must be large enough and is not
-*             checked by this routine.
+        DownstreamConnections = DownNumberOfConnections(Branch)
 
-*   Arguments:
-      INTEGER Num
-      REAL*8    StreamElevation(Num)
+        return
+    end function
 
-*   Argument definitions:
-*     Num - dimension of identifier array.
-*     StreamElevation(i) - array of stream-surface-elevation values.
+    !== Public (UpstreamConnect) ==========================================
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chnluser.inc'
+    integer function UpstreamConnect(I)
+        use chconnec
+        implicit none
 
-*   Local Variables:
-      INTEGER I, J
+        !   Purpose:  Return channel number of the Ith upstream connection to the
+        !             current channel.  The number is positive if is the downstream
+        !             end of the connecting channel that is connected, negative if
+        !             it is the upstream end.
 
-*   Routines by module:
+        !   Arguments:
+        integer :: I
 
-*   Programmed by: Lew DeLong
-*   Date:          January 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Argument definitions:
+        !     I - sequential number of connection.
 
-*-----Implementation -----------------------------------------------------
+        !   Local Variables:
 
-      J = 0
-      DO 100 I=UpUserPointer(Branch),DownUserPointer(Branch)
-         J = J + 1
-         StreamElevation(J) = UserWS(I)
- 100  CONTINUE
+        !   Routines by module:
 
-      RETURN
-      END
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Lew DeLong
+        !   Last modified: August   1992
+        !   Version 93.01, January, 1993
 
-*== Public (UpstreamCode) ==============================================
+        !-----Implementation -----------------------------------------------------
 
-      INTEGER FUNCTION UpstreamCode()
+        UpstreamConnect = UpConnection( &
+            (Branch-1) * MaxConnectingChannels + I &
+            )
 
-      IMPLICIT NONE
+        return
+    end function
 
-*   Purpose:  Return upstream boundary condition code for the current channel.
+    !== Public (DownstreamConnect) ========================================
 
-*   Arguments:
+    integer function DownstreamConnect(I)
+        use chconnec
+        implicit none
 
-*   Argument definitions:
+        !   Purpose:  Return channel number of the Ith downstream connection to the
+        !             current channel.  The number is positive if is the downstream
+        !             end of the connecting channel that is connected, negative if
+        !             it is the upstream end.
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
+        !   Arguments:
+        integer :: I
 
-*   Local Variables:
+        !   Argument definitions:
+        !     I - sequential number of connection.
 
-*   Routines by module:
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Local Variables:
 
-*-----Implementation -----------------------------------------------------
+        !   Routines by module:
 
-      UpstreamCode = UpBoundaryCode(Branch)
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Lew DeLong
+        !   Last modified: August   1992
+        !   Version 93.01, January, 1993
 
-      RETURN
-      END
+        !-----Implementation -----------------------------------------------------
 
-*== Public (UpstreamConnections) =======================================
+        DownstreamConnect = DownConnection( &
+            (Branch-1) * MaxConnectingChannels + I &
+            )
 
-      INTEGER FUNCTION UpstreamConnections()
+        return
+    end function
 
-      IMPLICIT NONE
 
-*   Purpose:  Return number of connections to upstream end
-*             of current channel.
+    !== Public (CompPointAt) ========================================
 
-*   Arguments:
+    subroutine CompPointAtDist(intchan, distance,iup,idown,wt_up,wt_down)
 
-*   Argument definitions:
+        !-----Purpose: Locate the global computation points bracketing a given
+        !     channel distance
+        use grid_data
+        use chnlcomp
+        implicit none
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
+        !   Arguments:
+        integer:: intchan  ! Channel where comp point is being requested
+        real*8:: distance     ! Downstream distance along intchan
+        integer:: iup      ! (Global) index of point at or immediately upst of dist
+        integer:: idown    ! (Global) index of point at or immediately downst of dist
+        real*8:: wt_down  ! fractional distance between iup and idown of dist
+        real*8:: wt_up
 
-*   Local Variables:
+        !   Locals
+        real*8:: xup
+        real*8::xdown
+        integer:: mid     ! index for bisection
 
-*   Routines by module:
+        iup=UpCompPointer(intchan)
+        idown=DownCompPointer(intchan)
+        !----- ends of channel are very likely special cases
+        if (abs(distance)< 1.D-5) then
+            idown=iup
+            wt_down=0.D0
+            wt_up=1.D0
+            return
+        else if (abs(distance - chan_geom(intchan)%length) < 1.D-5) then
+            iup=idown
+            wt_down=1.D0
+            wt_up=0.D0
+            return
+        end if
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
 
-*-----Implementation -----------------------------------------------------
+        !---- variation on binary search to bracket requested distanceance by bisection
+        !-----note that for most
+        do while ((idown - iup) > 1)
+            mid = (iup+idown)/2;            ! integer divide, rounds down
+            if (distance < CompLocation(mid)) then
+                if (distance == CompLocation(iup)) then
+                    idown=iup
+                    exit
+                else
+                    idown=mid
+                end if
+            else if (distance > CompLocation(mid)) then
+                if (distance == CompLocation(idown)) then
+                    iup=idown
+                    exit
+                else
+                    iup = mid
+                end if
+            else            !(distance .eq. CompLocation(mid))
+                iup=mid
+                idown=mid
+                exit
+            end if
+        end do
+        xup=CompLocation(iup)
+        xdown=CompLocation(idown)
+        wt_down=(distance-xup)/(xdown-xup)
+        wt_up=1.D0-wt_down
+        return
+    end subroutine
 
-      UpstreamConnections = UpNumberOfConnections(Branch)
 
-      RETURN
-      END
-
-*== Public (DownstreamCode) ============================================
-
-      INTEGER FUNCTION DownstreamCode()
-
-      IMPLICIT NONE
-
-*   Purpose:  Return downstream boundary condition code
-*             for the current channel.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      DownstreamCode = DownBoundaryCode(Branch)
-
-      RETURN
-      END
-
-*== Public (DownstreamConnections) =====================================
-
-      INTEGER FUNCTION DownstreamConnections()
-
-      IMPLICIT NONE
-
-*   Purpose:  Return number of connections to downstream end
-*             of current channel.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      DownstreamConnections = DownNumberOfConnections(Branch)
-
-      RETURN
-      END
-
-*== Public (UpstreamConnect) ==========================================
-
-      INTEGER FUNCTION UpstreamConnect(I)
-
-      IMPLICIT NONE
-
-*   Purpose:  Return channel number of the Ith upstream connection to the
-*             current channel.  The number is positive if is the downstream
-*             end of the connecting channel that is connected, negative if
-*             it is the upstream end.
-
-*   Arguments:
-      INTEGER I
-
-*   Argument definitions:
-*     I - sequential number of connection.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Lew DeLong
-*   Last modified: August   1992
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      UpstreamConnect = UpConnection(
-     &     (Branch-1) * MaxConnectingChannels + I
-     &     )
-
-      RETURN
-      END
-
-*== Public (DownstreamConnect) ========================================
-
-      INTEGER FUNCTION DownstreamConnect(I)
-
-      IMPLICIT NONE
-
-*   Purpose:  Return channel number of the Ith downstream connection to the
-*             current channel.  The number is positive if is the downstream
-*             end of the connecting channel that is connected, negative if
-*             it is the upstream end.
-
-*   Arguments:
-      INTEGER I
-
-*   Argument definitions:
-*     I - sequential number of connection.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chconnec.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Lew DeLong
-*   Last modified: August   1992
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      DownstreamConnect = DownConnection(
-     &     (Branch-1) * MaxConnectingChannels + I
-     &     )
-
-      RETURN
-      END
-
-
-*== Public (CompPointAt) ========================================
-
-      subroutine CompPointAtDist(intchan, distance,iup,idown,wt_up,wt_down)
-
-*-----Purpose: Locate the global computation points bracketing a given
-*     channel distance 
-      use grid_data
-      implicit none
-	include 'network.inc'
-      include 'chnlcomp.inc'
-
-*   Arguments:
-      integer :: intchan  ! Channel where comp point is being requested
-	real*8  :: distance     ! Downstream distance along intchan
-	integer :: iup      ! (Global) index of point at or immediately upst of dist
-	integer :: idown    ! (Global) index of point at or immediately downst of dist
-	real*8  :: wt_down  ! fractional distance between iup and idown of dist
-      real*8  :: wt_up
-
-*   Locals
-      real*8 :: xup,xdown
-	integer :: mid     ! index for bisection
-
-	iup=UpCompPointer(intchan)
-      idown=DownCompPointer(intchan)
-c----- ends of channel are very likely special cases
-	if (abs(distance).lt. 1.D-5) then
-	   idown=iup
-	   wt_down=0.D0
-	   wt_up=1.D0
-	   return
-	else if (abs(distance - chan_geom(intchan).length) .lt. 1.D-5) then
-         iup=idown
-         wt_down=1.D0
-	   wt_up=0.D0
-	   return
-	end if
-	
-
-c---- variation on binary search to bracket requested distanceance by bisection
-c-----note that for most 
-      do while ((idown - iup) .gt. 1)
-         mid = (iup+idown)/2;	! integer divide, rounds down
-         if (distance .lt. CompLocation(mid)) then
-	      if (distance .eq. CompLocation(iup)) then
-	          idown=iup
-	          exit
-	      else 
-		      idown=mid
-	      end if
-         else if (distance .gt. CompLocation(mid)) then
-	       if (distance .eq. CompLocation(idown)) then
-		      iup=idown
-	          exit
-	       else
-		      iup = mid
-	       end if
-	   else            !(distance .eq. CompLocation(mid))
-	      iup=mid
-	      idown=mid
-	      exit
-	   end if
-      end do
-      xup=CompLocation(iup)
-      xdown=CompLocation(idown)
-	wt_down=(distance-xup)/(xdown-xup)
-	wt_up=1.D0-wt_down
-      return
-	end
-
-
-
-*==== EOF chschmt =========================================================
+end module
+!==== EOF chschmt =========================================================

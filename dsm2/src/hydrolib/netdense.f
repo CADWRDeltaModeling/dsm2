@@ -1,310 +1,300 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
 
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
 
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
 
-*===== BOF netdense =====================================================
+module netdense
+    use network
+    implicit none
+    integer, save:: FortranUnit
+    integer, save:: StartSeconds, dT
+    integer, save:: OldTime, NewTime, CurrentTime
+    real*8, save:: Old(2*MaxChannels), New(2*MaxChannels)
+    real*8, save:: Current(2*MaxChannels),StreamBndValue(2*MaxChannels)
+    logical, save:: ReadBoundaryValues
+!   Definitions:
+!     FortranUnit - Fortran unit number for density data.
+!     StartSeconds - starting elapse time, in seconds.
+!     dT - boundary-value time-series time increment.
+!     OldTime - currently the time corresponding to oldest set of
+!               boundary values in memory.
+!     NewTime - currently the time corresponding to newest set of
+!               boundary values in memory.
+!     CurrentTime - current Network time, in seconds.
+!     Old(i) - boundary values at OldTime.
+!     New(i) - boundary values at NewTime.
+!     Current(i) - boundary values at CurrentTime.
+!     ReadBoundaryValues - indicator,
+!                          [.TRUE.] read values.
+!                          [.FALSE.] don't read values.
+!
+contains
+    logical function ReadNetworkDensity()
+        use IO_Units
+        use network
+        implicit none
 
-*== Private (ReadNetworkDensity) ===================================
+        !   Purpose:  Read density values at channel ends.
 
-      LOGICAL FUNCTION ReadNetworkDensity()
-      use IO_Units
-      IMPLICIT NONE
+        !   Arguments:
 
-*   Purpose:  Read density values at channel ends.
+        !   Argument definitions:
 
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netdense.inc'
-
-*   Local Variables:
-      INTEGER      I
-
-*   Routines by module:
-
-***** Network schmatic:
-      INTEGER  NumberOfChannels
-      EXTERNAL NumberOfChannels
-
-*   Intrinsics:
-
-*   Programmed by: Lew DeLong
-*   Date:          October  1991
-*   Modified by:   Barry Wicktom (use of master file names added)
-*   Last modified: 1/8/92
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      ReadNetworkDensity = .FALSE.
-
-      OldTime = NewTime
-      NewTime = NewTime + dT
-      DO 100 I=1,2*NumberOfChannels()
-         Old(I) = New(I)
- 100  CONTINUE
-
-C-----WRITE(*,*) ' '
-C-----WRITE(*,*) ' Reading density...'
-C-----WRITE(*,*) ' OldTime....', OldTime
-C-----WRITE(*,*) ' NewTime....', NewTime
-C-----WRITE(*,*) ' Old values.', (Old(I),I=1,2*NumberOfChannels())
-
-      READ(FortranUnit,*,END=200) (New(I),I=1,2*NumberOfChannels())
-C-----WRITE(*,*) ' New values.',  (New(I),I=1,2*NumberOfChannels())
-
-      GO TO 202
- 200  CONTINUE
-      WRITE(UNIT_ERROR,*) ' ####error(ReadNetworkDensity)'
-      WRITE(UNIT_ERROR,*) ' New values.',  (New(I),I=1,2*NumberOfChannels())
-      WRITE(UNIT_ERROR,*) ' Unexpected end of file.'
-      WRITE(UNIT_ERROR,*) ' Possibly channel...',(I+1)/2
-      WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-      CALL EXIT(1)
- 202  CONTINUE
-
-      ReadNetworkDensity = .TRUE.
-
-      RETURN
-      END
-
-*== Public (SetNewNetworkDensity) ================================================
-
-      LOGICAL FUNCTION SetNewNetworkDensity()
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Set water density in a network of open channels.
-*             Density is assumed to vary linearly with time
-*             (over a density time increment) and with space
-*             (from one end of a channel to the other).
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netdense.inc'
+        !   Module data:
+ 
 
 
-*   Local Variables:
-      INTEGER I, Channel
-      REAL*8 UpstreamDensity, DownstreamDensity
-      REAL*8 Shape1, Shape2
-      LOGICAL OK
+        !   Local Variables:
+        integer      I
 
-*   Routines by module:
+        !   Routines by module:
 
-***** Local:
-      LOGICAL  ReadNetworkDensity
-      EXTERNAL ReadNetworkDensity
-      LOGICAL  SetNewLinearStreamDensity
-      EXTERNAL SetNewLinearStreamDensity
+        !**** Network schmatic:
+        integer  NumberOfChannels
+        external NumberOfChannels
 
-***** Channel schematic:
-      LOGICAL  OpenChannel, CloseChannel
-      INTEGER  NumberOfChannels
-      EXTERNAL NumberOfChannels, OpenChannel, CloseChannel
+        !   Intrinsics:
 
-***** Channel control:
-      INTEGER  NetworkSeconds
-      EXTERNAL NetworkSeconds
+        !   Programmed by: Lew DeLong
+        !   Date:          October  1991
+        !   Modified by:   Barry Wicktom (use of master file names added)
+        !   Last modified: 1/8/92
+        !   Version 93.01, January, 1993
 
-*   Intrinsics:
+        !-----Implementation -----------------------------------------------------
 
-*   Programmed by: Lew DeLong
-*   Date:          October  1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        ReadNetworkDensity = .false.
 
-*-----Implementation -----------------------------------------------------
+        OldTime = NewTime
+        NewTime = NewTime + dT
+        do 100 I=1,2*NumberOfChannels()
+            Old(I) = New(I)
+100     continue
+        read(FortranUnit,*,end=200) (New(I),I=1,2*NumberOfChannels())
+        go to 202
+200 continue
+    write(UNIT_ERROR,*) ' ####error(ReadNetworkDensity)'
+    write(UNIT_ERROR,*) ' New values.',  (New(I),I=1,2*NumberOfChannels())
+    write(UNIT_ERROR,*) ' Unexpected end of file.'
+    write(UNIT_ERROR,*) ' Possibly channel...',(I+1)/2
+    write(UNIT_ERROR,*) ' Abnormal program end.'
+    call EXIT(1)
+202 continue
 
-      SetNewNetworkDensity = .FALSE.
+    ReadNetworkDensity = .true.
 
-      CurrentTime = NetworkSeconds()
+    return
+end function
 
- 100  CONTINUE
+!== Public (SetNewNetworkDensity) ================================================
 
-*-----Compute current density values at channel ends.
+logical function SetNewNetworkDensity()
+    use IO_Units
+    use network
+    implicit none
 
-C     WRITE(*,*) ' '
-C     WRITE(*,*) ' SetNewNetworkDensity...'
-C     WRITE(*,*) ' OldTime.......',OldTime
-C     WRITE(*,*) ' CurrentTime...',CurrentTime
-C     WRITE(*,*) ' NewTime.......',NewTime
-      IF( CurrentTime .GT. OldTime ) THEN
-         IF( CurrentTime .LT. NewTime ) THEN
+    !   Purpose:  Set water density in a network of open channels.
+    !             Density is assumed to vary linearly with time
+    !             (over a density time increment) and with space
+    !             (from one end of a channel to the other).
 
-*-----------Interpolate current values.
+    !   Arguments:
 
-            Shape1 = FLOAT(NewTime - CurrentTime)/
-     &           FLOAT(NewTime - OldTime)
+    !   Argument definitions:
+
+    !   Local Variables:
+    integer I, Channel
+    real*8 UpstreamDensity, DownstreamDensity
+    real*8 Shape1, Shape2
+    logical OK
+
+    !   Routines by module:
+
+    !**** Local:
+    logical  ReadNetworkDensity
+    external ReadNetworkDensity
+    logical  SetNewLinearStreamDensity
+    external SetNewLinearStreamDensity
+
+    !**** Channel schematic:
+    logical  OpenChannel, CloseChannel
+    integer  NumberOfChannels
+    external NumberOfChannels, OpenChannel, CloseChannel
+
+    !**** Channel control:
+    integer  NetworkSeconds
+    external NetworkSeconds
+
+    !   Intrinsics:
+
+    !   Programmed by: Lew DeLong
+    !   Date:          October  1991
+    !   Modified by:
+    !   Last modified:
+    !   Version 93.01, January, 1993
+
+    !-----Implementation -----------------------------------------------------
+
+    SetNewNetworkDensity = .false.
+
+    CurrentTime = NetworkSeconds()
+
+100 continue
+
+    !-----Compute current density values at channel ends.
+
+    if( CurrentTime > OldTime ) then
+        if( CurrentTime < NewTime ) then
+
+            !-----------Interpolate current values.
+
+            Shape1 = FLOAT(NewTime - CurrentTime)/ &
+                FLOAT(NewTime - OldTime)
             Shape2 = 1.0 - Shape1
 
-            DO 200 I=1,2*NumberOfChannels()
-               Current(I) = Shape1*Old(I) + Shape2*New(I)
-C--------------WRITE(*,*) I,Current(I)
- 200        CONTINUE
+            do 200 I=1,2*NumberOfChannels()
+                Current(I) = Shape1*Old(I) + Shape2*New(I)
+            !--------------WRITE(*,*) I,Current(I)
+200         continue
 
-         ELSE IF( CurrentTime .EQ. NewTime ) THEN
+        else if( CurrentTime == NewTime ) then
 
-*-----------Assign current values.
+            !-----------Assign current values.
 
-            DO 300 I=1,2*NumberOfChannels()
-               Current(I) = New(I)
-C--------------WRITE(*,*) I,Current(I)
- 300        CONTINUE
+            do 300 I=1,2*NumberOfChannels()
+                Current(I) = New(I)
+            !--------------WRITE(*,*) I,Current(I)
+300         continue
 
-         ELSE
+        else
 
-*-----------Read new values.
+            !-----------Read new values.
 
             OK = ReadNetworkDensity()
 
-            GO TO 100
+            go to 100
 
-         END IF
-      ELSE IF(CurrentTime .EQ. OldTime ) THEN
+        end if
+    else if(CurrentTime == OldTime ) then
 
-*--------Read new values.
+        !--------Read new values.
 
-         OK = ReadNetworkDensity()
+        OK = ReadNetworkDensity()
 
-         GO TO 100
+        go to 100
 
-      ELSE
+    else
 
-*--------Shouldn't ever get here!
+        !--------Shouldn't ever get here!
 
-         WRITE(UNIT_ERROR,*) ' ####error(SetNewNetDensity)'
-         WRITE(UNIT_ERROR,*) ' Current time < available from boundary values.'
-         WRITE(UNIT_ERROR,*) ' CurrentTime...',CurrentTime
-         WRITE(UNIT_ERROR,*) ' OldTime.......',OldTime
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
-      END IF
+        write(UNIT_ERROR,*) ' ####error(SetNewNetDensity)'
+        write(UNIT_ERROR,*) ' Current time < available from boundary values.'
+        write(UNIT_ERROR,*) ' CurrentTime...',CurrentTime
+        write(UNIT_ERROR,*) ' OldTime.......',OldTime
+        write(UNIT_ERROR,*) ' Abnormal program end.'
+        call EXIT(1)
+    end if
 
-      DO 400 I=1,NumberOfChannels()
+    do 400 I=1,NumberOfChannels()
 
-         Channel = I
-         OK = OpenChannel(Channel)
+        Channel = I
+        OK = OpenChannel(Channel)
 
-         UpstreamDensity = Current(2*I-1)
-         DownstreamDensity = Current(2*I)
+        UpstreamDensity = Current(2*I-1)
+        DownstreamDensity = Current(2*I)
 
-         IF( SetNewLinearStreamDensity(
-     &        UpstreamDensity, DownstreamDensity)
-     &        ) THEN
-         ELSE
+        if( SetNewLinearStreamDensity( &
+            UpstreamDensity, DownstreamDensity) &
+            ) then
+        else
 
-            WRITE(UNIT_ERROR,*) ' ####Error(SetNetworkDensity)'
-            WRITE(UNIT_ERROR,*) ' Water density not set, channel...',Channel
-            RETURN
+            write(UNIT_ERROR,*) ' ####Error(SetNetworkDensity)'
+            write(UNIT_ERROR,*) ' Water density not set, channel...',Channel
+            return
 
-         END IF
+        end if
 
-         OK = CloseChannel()
+        OK = CloseChannel()
 
- 400  CONTINUE
+400 continue
 
-      SetNewNetworkDensity = .TRUE.
+    SetNewNetworkDensity = .true.
 
-      RETURN
-      END
+    return
+end function
 
-*== Private (SetNewLinearStreamDensity) ====================================
+!== Private (SetNewLinearStreamDensity) ====================================
 
-      LOGICAL FUNCTION SetNewLinearStreamDensity(
-     &     UpstreamDensity, DownstreamDensity
-     &     )
+logical function SetNewLinearStreamDensity( &
+    UpstreamDensity, DownstreamDensity &
+    )
+    use network
+    use channel_schematic, only: UpstreamPointer, DownstreamPointer, &
+        NumberOfStreamLocations, StreamDistance
+    use chstatus, only: NewStreamDensity, SetOldStreamDensity, SetNewStreamDensity
+    implicit none
 
-      IMPLICIT NONE
+    !   Purpose:  Set stream density to values linearly interpolated from
+    !              values supplied at extremities of current channel, at
+    !              the end of the current time step.
 
-*   Purpose:  Set stream density to values linearly interpolated from
-*              values supplied at extremities of current channel, at
-*              the end of the current time step.
+    !   Arguments:
+    real*8 UpstreamDensity, DownstreamDensity
 
-*   Arguments:
-      REAL*8 UpstreamDensity, DownstreamDensity
+    !   Argument definitions:
+    !     UpstreamDensity - density at the upstream end of current channel.
+    !     DownstreamDensity - density at downstream end of current channel.
 
-*   Argument definitions:
-*     UpstreamDensity - density at the upstream end of current channel.
-*     DownstreamDensity - density at downstream end of current channel.
+    !   Local Variables:
+    integer I, N
+    real*8    XUp, dX, Shape, Rho
+    logical OK
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netdense.inc'
+    !   Routines by module:
+    !   Intrinsics:
 
-*   Local Variables:
-      INTEGER I, N
-      REAL*8    XUp, dX, Shape, Rho
-      LOGICAL OK
+    !   Programmed by: Lew DeLong
+    !   Date:          October  1991
+    !   Modified by:
+    !   Last modified:
+    !   Version 93.01, January, 1993
 
-*   Routines by module:
+    !-----Implementation -----------------------------------------------------
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, DownstreamPointer
-      INTEGER  NumberOfStreamLocations
-      REAL*8     StreamDistance
-      EXTERNAL UpstreamPointer, DownstreamPointer
-      EXTERNAL NumberOfStreamLocations
-      EXTERNAL StreamDistance
+    XUp = StreamDistance(1)
+    dX = StreamDistance( NumberOfStreamLocations() ) - XUp
 
-***** Channel status:
-      REAL*8     NewStreamDensity
-      LOGICAL  SetOldStreamDensity, SetNewStreamDensity
-      EXTERNAL NewStreamDensity
-      EXTERNAL SetOldStreamDensity, SetNewStreamDensity
-*   Intrinsics:
+    N = 0
+    do 100 I=UpstreamPointer(),DownstreamPointer()
+        N = N + 1
 
-*   Programmed by: Lew DeLong
-*   Date:          October  1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        OK = SetOldStreamDensity( N, NewStreamDensity(N) )
 
-*-----Implementation -----------------------------------------------------
+        Shape = ( StreamDistance(N) - XUp ) / dX
+        Rho = (1.0 - Shape) * UpstreamDensity &
+            + Shape * DownstreamDensity
+        OK = SetNewStreamDensity( N, Rho )
 
-      XUp = StreamDistance(1)
-      dX = StreamDistance( NumberOfStreamLocations() ) - XUp
+100 continue
 
-      N = 0
-      DO 100 I=UpstreamPointer(),DownstreamPointer()
-         N = N + 1
+    SetNewLinearStreamDensity = .true.
 
-         OK = SetOldStreamDensity( N, NewStreamDensity(N) )
-
-         Shape = ( StreamDistance(N) - XUp ) / dX
-         Rho = (1.0 - Shape) * UpstreamDensity
-     &        + Shape * DownstreamDensity
-         OK = SetNewStreamDensity( N, Rho )
-
- 100  CONTINUE
-
-      SetNewLinearStreamDensity = .TRUE.
-
-      RETURN
-      END
-
-*===== EOF netdense =====================================================
+    return
+end function
+end module
+!===== EOF netdense =====================================================

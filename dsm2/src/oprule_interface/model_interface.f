@@ -165,6 +165,7 @@ c            better for hydro to keep track of its own time
 *     the arguments are pass-by-reference (mainly for calls from C)
 !fixme: probably could change the interface of CompPointAtDist and
 ! do away with this wrapper
+      use channel_schematic, only: CompPointAtDist
       implicit none
 
 *   Arguments:

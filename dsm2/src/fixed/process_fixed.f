@@ -432,14 +432,13 @@ c-----quadrature integration info
       use io_units
       use constants
       use grid_data
+      use netcntrl_common
       implicit none
 
       logical
      &     ldefault             ! true if values are for defaults
       common /read_fix_l/ ldefault
 
-      include '../hydrolib/network.inc'
-      include '../hydrolib/netcntrl.inc'
 
 c-----local variables
 
@@ -604,14 +603,12 @@ c-----name required for each line; empty value indicates erase it
       use common_ptm
       use envvar   
       use grid_data
+      use netcntrl_common
+      use chconnec
 
 !c-----process a character line into data arrays for scalar info
 
       implicit none
-
-      include '../hydrolib/network.inc'
-      include '../hydrolib/netcntrl.inc'
-      include '../hydrolib/chconnec.inc'
 
       logical
      &     ldefault             ! true if values are for defaults
@@ -641,16 +638,7 @@ c-----name required for each line; empty value indicates erase it
 
 
 
-!c-----defaults
 
-      data
-     &     variabledensity /.false./
-     &     ,variablesinuosity /.false./
-     &     ,theta /0.6D0/
-     &     ,maxiterations /50/
-     &     ,luinc /1/
-     &     ,toleranceq /0.0005/
-     &     ,tolerancez /0.0005/
 
 
 	if (nfields .ne. 2) return  ! must have two fields

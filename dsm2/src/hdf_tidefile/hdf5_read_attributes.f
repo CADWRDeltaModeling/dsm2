@@ -39,7 +39,7 @@ c**********contains routines for writing data to an HDF5 file
       use common_tide
       use io_units
       use dsm2_tidefile_input_storage_fortran
-      
+      use network
       implicit none
 
       integer(HID_T) :: attr_id ! Attribute identifier 

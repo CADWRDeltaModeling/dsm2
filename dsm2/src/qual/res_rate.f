@@ -30,11 +30,11 @@ c-----labels).
       use constants
       use type_defs
       use iopath_data
-      use grid_data      
+      use grid_data
+      use network
       implicit none
 
       include 'param.inc'
-      include '../hydrolib/network.inc'
 
 
       include 'bltm1.inc'

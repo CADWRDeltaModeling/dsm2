@@ -27,9 +27,9 @@ C!</license>
       use logging
       use grid_data
       use envvar
+      use network
+      use chinitcd
       implicit none
-      include '../hydrolib/network.inc'
-      include '../hydrolib/chinitcd.inc'
 
       character*8 dist
       integer :: channel 
@@ -73,9 +73,11 @@ c--------use only the last version of the initial condition
       use grid_data
       use envvar
       use constants
+      use network
+      use chconnec
+
       implicit none
-      include '../hydrolib/network.inc'
-      include '../hydrolib/chconnec.inc'      
+
       character*32 resname
       real*8   :: stage
       integer :: resno

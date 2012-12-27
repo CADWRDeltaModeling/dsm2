@@ -4,7 +4,7 @@
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" SourceFileFormat="fileFormatFixed" FixedFormLineLength="fixedLength132" WarnUnusedVariables="true" ModulePath="$(ProjectDir)\..\modules\Debug" ObjectFile="$(INTDIR)/" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\hydrolib;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" SourceFileFormat="fileFormatFree" FixedFormLineLength="fixedLength132" WarnUnusedVariables="true" ModulePath="$(ProjectDir)\..\modules\Debug" ObjectFile="$(INTDIR)/" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
 				<Tool Name="VFLibrarianTool" OutputFile="common.lib" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
@@ -14,7 +14,7 @@
 				<Tool Name="VFPostBuildEventTool" Description="delete ..\..\src\common\version.inc"/>
 				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
 		<Configuration Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\Release" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" Optimization="optimizeFull" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" OpenMPConditionalCompilation="false" SourceFileFormat="fileFormatFree" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)\..\modules\Release" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
 				<Tool Name="VFLibrarianTool" OutputFile="common.lib" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
@@ -36,7 +36,12 @@
 	<Files>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-		<File RelativePath="..\..\src\common\common_irreg_geom.f"/>
+		<File RelativePath="..\..\src\common\chconnec.f"/>
+		<File RelativePath="..\..\src\common\chinitcd.f"/>
+		<File RelativePath="..\..\src\common\chnlcomp.f"/>
+		<File RelativePath="..\..\src\common\common_irreg_geom.f">
+			<FileConfiguration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" SourceFileFormat="fileFormatFree"/></FileConfiguration></File>
 		<File RelativePath="..\..\src\common\common_ptm.f"/>
 		<File RelativePath="..\..\src\common\common_qual.f"/>
 		<File RelativePath="..\..\src\common\common_tide.f"/>
@@ -49,6 +54,8 @@
 		<File RelativePath="..\..\src\common\io_units.f"/>
 		<File RelativePath="..\..\src\common\iopath_data.f"/>
 		<File RelativePath="..\..\src\common\logging.f"/>
+		<File RelativePath="..\..\src\common\netcntrl_common.f"/>
+		<File RelativePath="..\..\src\common\network.f"/>
 		<File RelativePath="..\..\src\common\physical_constants.f"/>
 		<File RelativePath="..\..\src\common\rate_coeff_assignment.f"/>
 		<File RelativePath="..\..\src\common\runtime_data.f"/>

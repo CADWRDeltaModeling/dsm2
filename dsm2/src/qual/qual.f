@@ -4,6 +4,10 @@
       Use IO_Units
       use common_qual
       use common_tide
+      use network
+      use dss
+      use mod_readdss
+      use mod_writedss
       use runtime_data
       use iopath_data
       use qual_hdf_file
@@ -107,7 +111,6 @@ C-----(NOPR should be at least 20 + 2 times NOSC)
 
       IMPLICIT NONE
       INCLUDE 'param.inc'
-      INCLUDE '../hydrolib/network.inc'
 
       INCLUDE 'bltm1.inc'
       INCLUDE 'bltm3.inc'
@@ -151,9 +154,6 @@ C-----+ + + LOCAL VARIABLES + + +C
       integer iprnt_mass
       common /mass_tracking_1/ iprnt_mass
 
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-      include '../timevar/writedss.inc'
 
       integer MIXED, NOT_MIXED, QNDX, i_node_flow, from_obj_type, from_obj_no
       parameter (MIXED=0,NOT_MIXED=2)

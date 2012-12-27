@@ -23,6 +23,7 @@ c====================================================================
       use io_units
       !use constants
       use hdf5, only: hid_t
+      use gates, only: process_gate, process_gate_device
       implicit none
       
       integer :: node  

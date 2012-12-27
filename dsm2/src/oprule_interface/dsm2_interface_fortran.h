@@ -35,10 +35,10 @@
 #define set_device_flow_coef SET_DEVICE_FLOW_COEF
 #define get_device_flow_coef GET_DEVICE_FLOW_COEF
 
-#define get_surf_elev GLOBALSTREAMSURFACEELEVATION
-#define get_flow GLOBALSTREAMFLOW
-#define get_res_flow GET_RES_FLOW
-#define get_res_surf_elev GET_RES_SURF_ELEV
+#define get_surf_elev CHSTATUS_mp_GLOBALSTREAMSURFACEELEVATION
+#define get_flow CHSTATUS_mp_GLOBALSTREAMFLOW
+#define get_res_flow RESERVOIRS_mp_GET_RES_FLOW
+#define get_res_surf_elev RESERVOIRS_mp_GET_RES_SURF_ELEV
 #define ext2int EXT2INT
 #define reservoir_index RESNDX
 #define reservoir_connect_index RESCONNECTNDX
@@ -49,7 +49,7 @@
 #define gate_index GATENDX
 #define device_index DEVICENDX
 #define ts_index TS_INDEX
-#define get_chan_velocity CHANNELVELOCITY
+#define get_chan_velocity TIDEFILE_mp_CHANNELVELOCITY
 #define direct_to_node DIRECT_TO_NODE
 #define direct_from_node DIRECT_FROM_NODE
 #define direct_to_from_node DIRECT_TO_FROM_NODE
@@ -117,11 +117,11 @@ extern "C" void STDCALL set_gate_install_datasource(const int& ndx,
                                                       const int& val,
                                                       const bool& timedep);
 
-extern "C" double STDCALL get_surf_elev(const int& comp_pt);
-extern "C" double STDCALL get_flow(const int& comp_pt);
-extern "C" double STDCALL get_res_flow(const int& resndx, 
+extern "C" double get_surf_elev(const int& comp_pt);
+extern "C" double get_flow(const int& comp_pt);
+extern "C" double get_res_flow(const int& resndx, 
                                          const int& conn);
-extern "C" double STDCALL get_res_surf_elev(const int& resndx);
+extern "C" double get_res_surf_elev(const int& resndx);
 extern "C" double STDCALL get_device_op_coef(const int& ndx, 
                                              const int& devndx,
 											 const int& direct);

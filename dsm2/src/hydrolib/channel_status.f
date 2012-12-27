@@ -1,2655 +1,2444 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
-
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
-
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
-
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
-
-
-*==== BOF chstatus ======================================================
-
-************************************************************************
-*
-*    This file is a FORTRAN module containing 1-D channel flow values,
-*    including density, for networks of open channels.
-*
-*
-*     Module note: Only functions or subroutines marked "public" should be
-*                   used outside of this module as those marked "private"
-*                   may not be supported by future revisions of this module
-*                   or replacement modules.  Likewise, no data or common
-*                   blocks contained within this module should be accessed
-*                   by routines outside of this module accept through the
-*                   use of "public" functions or subroutines contained
-*                   within this module.
-*
-*     Non-standard usage: Symbolic names in this module may be represented by
-*                         as many as 31 characters in order to provide better
-*                         definition directly in the code.  Standard FORTRAN
-*                         allows only 6 characters, but this restriction is
-*                         generally extended to 32 characters by most compilers.
-*
-*
-*   Public functions:
-*
-*     REAL FUNCTION StreamFlow(LocationNumber)
-*            - returns volumetric discharge.
-*
-*     LOGICAL FUNCTION SetStreamFlow(LocationNumber, Value)
-*            - store volumetric discharge.
-*
-*     REAL FUNCTION StreamDepth(LocationNumber)
-*            - return depth of flow.
-*
-*     LOGICAL FUNCTION SetStreamDepth(LocationNumber, Value)
-*            - store depth of flow.
-*
-*     REAL FUNCTION StreamSurfaceElevation(LocationNumber)
-*            - return watersurface elevation.
-*
-*     LOGICAL FUNCTION SetStreamSurfaceElevation(LocationNumber, Value)
-*            - store watersurface elevation.
-*
-*      REAL FUNCTION OldStreamDensity(LocationNumber)
-*             - returns water density at LocationNumber,
-*               at the beginning of the current time step.
-*
-*      REAL FUNCTION NewStreamDensity(LocationNumber)
-*             - returns water density at LocationNumber,
-*               at the end of the current time step.
-*
-*      REAL FUNCTION EstOldStreamDensity(DownStreamDistance)
-*             - returns interpolated density at DownStreamDistance,
-*               at the begining of the current time step.
-*
-*      REAL FUNCTION EstOldStreamDensity(DownStreamDistance)
-*             - returns interpolated density at DownStreamDistance,
-*               at the begining of the current time step.
-*
-*      LOGICAL FUNCTION SetNewLinearStreamDensity(
-*                         UpstreamDensity, DownstreamDensity
-*                                             )
-*             - sets density at computational locations, at the
-*               end of the current time step.
-*
-*      LOGICAL FUNCTION SetConstantStreamDensity()
-*             - sets stream density to 1.0.
-*
-*      LOGICAL FUNCTION SetNewLinearStreamDensity(
-*                         UpstreamDensity, DownstreamDensity
-*                                             )
-*             - sets density at computational locations, at the
-*               end of the current time step.
-*
-*
-*   Arguments:
-*     LocationNumber - computational location index, begining with
-*                      1 in the current channel.
-*     Value          - value of the specific variable to be stored.
-*     UpstreamDensity - density at the upstream end of current channel.
-*     DownstreamDensity - density at downstream end of current channel.
-*     DownstreamDistance - distance from upstream end of current channel.
-*     LocationNumber - computational cross-section sequence number,
-*                       begining with 1 at upstream end of current
-*                       channel.
-*
-*
-*   Module data:
-*
-*    'network.inc'
-*     MaxChannels - maximum number of channels.
-*     NumCh - current number of channels.
-*     Branch - current selected or active channel.
-*     MaxLocations - maximum number of locations (computational or user).
-*
-*    'chstatus.inc'
-*   Definitions:
-*     WS(i) - water surface elevation at computational location "i".
-*     Q(i) - volumetric discharge at computational location "i".
-*     H(i) - depth of flow at computational location "i".
-*     Rho(i) - density at computational location "i".
-*
-*
-************************************************************************
-
-*== Public (WriteNetworkRestartFile) ===================================
-
-      LOGICAL FUNCTION WriteNetworkRestartFile()
-      use IO_Units
-      use runtime_data
-      use iopath_data
-      use grid_data
-      IMPLICIT NONE
-
-*   Purpose:  Write current values of dependent and independent
-*             variables to a file that may be used as initial
-*             conditions to restart the model.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-      INCLUDE 'chconnec.inc'
-
-
-*   Local Variables:
-      INTEGER      fUnit, I, J
-      CHARACTER*130 FileName
-      LOGICAL      OK
-      real*8 reservoir_source_sink
-      external reservoir_source_sink
-
-*   Routines by module:
-
-      INTEGER  NetworkTimeIncrement
-      EXTERNAL NetworkTimeIncrement
-
-***** Network control:
-      LOGICAL  NetworkRestart
-      EXTERNAL NetworkRestart
-
-***** File utilities:
-      LOGICAL    OpenNewText
-      EXTERNAL   OpenNewText
-
-***** Channel schematic:
-      INTEGER  NumberOfStreamLocations
-      EXTERNAL NumberOfStreamLocations
-
-      real*8     StreamDistance
-      EXTERNAL StreamDistance
-
-      real*8     StreamSurfaceElevation, StreamFlow
-      EXTERNAL StreamSurfaceElevation, StreamFlow
-
-      INTEGER  NumberOfChannels
-      EXTERNAL NumberOfChannels
-
-      LOGICAL  OpenChannel, CloseChannel
-      EXTERNAL OpenChannel, CloseChannel
-
-*   Intrinsics:
-
-*   Programmed by: Lew DeLong
-*   Date:          Dec   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      WriteNetworkRestartFile = .FALSE.
-
-*-----Open restart file.
-
-      fUnit = io_files(hydro,io_restart,io_write).unit
-      FileName = io_files(hydro,io_restart,io_write).filename
-      IF (.NOT. OpenNewText( fUnit, FileName ))  THEN
-         WRITE(UNIT_ERROR,*) ' ####Error(WriteNetworkRestartFile)'
-         WRITE(UNIT_ERROR,*) ' Failed to open restart file: ',FileName
-         call exit(2)
-      END IF
-
-      WRITE(funit,900)dsm2_version,current_date
- 900  FORMAT('Hydro Version ',a,
-     &     /'The following data corresponds to   ',a14//)
-      WRITE(fUnit,*) NumberOfChannels(),'/Channels'
-
-*-----Loop on channels.
-
-      DO 200 I=1,NumberOfChannels()
-
-         IF( OpenChannel(I) ) THEN
-
-            WRITE(fUnit,*) chan_geom(I).chan_no, '/Channel' ! write external number
-            WRITE(fUnit,*) NumberOfStreamLocations(),'/Locations'
-
-            DO 100 J=1,NumberOfStreamLocations()
-
-c--------------WRITE(fUnit,'(3(F16.3,1X),A20)')
-               WRITE(fUnit,'(F16.3,1X,F16.7,1X,F16.3,1X,A20)')
-     &              StreamDistance(J), StreamSurfaceElevation(J), StreamFlow(J),
-     &              '/Distance, WSElev, Q'
-
- 100        CONTINUE
-
-            OK = CloseChannel()
-
-         ELSE
-            WRITE(UNIT_ERROR,*) ' ####Error(WriteNetworkRestartFile)'
-            WRITE(UNIT_ERROR,*) ' Could not open channel ',I
-            RETURN
-         END IF
-
- 200  CONTINUE
-
-      WRITE(funit,901)Nreser
- 901  FORMAT(/i5,' /Number of Reservoir')
-      DO I=1,Nreser
-C--------Reservoir Stage, nodal flows
-         WRITE(funit,902)i,res_geom(i).nnodes,Yres(i)
- 902     FORMAT(I5,' /Reservoir Number'
-     &        /I5,' /Connections'
-     &        /5X,1P,E15.7,' /Yres')
-         WRITE(funit,903)(J,QRes(I,J),J=1, res_geom(i).nnodes)
- 903     FORMAT(I5,1P,E15.7,' /Connection, Qres')
-      ENDDO
-
-      CLOSE( fUnit )
-
-      WriteNetworkRestartFile = .TRUE.
-
-      RETURN
-      END
-
-*== Private (ReadNetworkInitialConditions) ==============================
-
-      LOGICAL FUNCTION ReadNetworkInitialConditions()
-      use IO_Units
-      use runtime_data
-      use grid_data
-      use iopath_data
-      IMPLICIT NONE
-
-*   Purpose:  Read initial values of dependent variables.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chinitcd.inc'
-      INCLUDE 'chconnec.inc'
-      INCLUDE 'chnlcomp.inc'
-
-
-*   Local Variables:
-      INTEGER      Channels,extchan,intchan
-      INTEGER      fUnit, I, K, J, IRes, NConnect, IConnect, nLoc
-      CHARACTER*130 FileName
-
-*   Routines by module:
-
-***** Local:
-      INTEGER  NresStart_File
-      CHARACTER*80 Header
-
-***** File utilities:
-      LOGICAL    OpenOldText
-      EXTERNAL   OpenOldText
-
-***** Channel schematic:
-      INTEGER  NumberOfChannels, NumberOfStreamLocations
-      EXTERNAL NumberOfChannels, NumberOfStreamLocations
-
-*   Intrinsics:
-
-*   Programmed by: Lew DeLong
-*   Date:          Dec   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      ReadNetworkInitialConditions = .FALSE.
-
-*-----Initialize channel-number cross-reference numbers.
-
-      DO 50 I=1,MaxChannels
-         InitialConditionIndex(I) = 0
- 50   CONTINUE
-
-*-----Open initial-condition file.
-
-      fUnit = io_files(hydro,io_restart,io_read).unit
-      FileName = io_files(hydro,io_restart,io_read).filename
-      IF( OpenOldText( fUnit, FileName ) ) THEN
-      ELSE
-         WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
-         WRITE(UNIT_ERROR,*) ' Could not open file...',FileName
-         RETURN
-      END IF
-
-*-----Begin reading of data.
-
-c-----read header, then test to see if it's really the header (old restart file)
-c-----or the restart file version (new file)
-      restart_version=' '
-      READ(funit,'(a)') header
-      IF (header(:14) .eq. 'Hydro Version') then
-         restart_version=header(15:)
-         READ(funit,'(a)') header
-      ENDIF
-      READ(fUnit,*) Channels
-      IF( Channels .NE. NumberOfChannels() ) THEN
-         WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
-         WRITE(UNIT_ERROR,*) ' Number of channels in restart file'
-         WRITE(UNIT_ERROR,*) ' not the same as number of configured channels...'
-         WRITE(UNIT_ERROR,*) ' ', Channels,' <> ', NumberOfChannels()
-         RETURN
-      END IF
-
-      K = 0
-      DO 200 I=1,Channels
-
-         READ(fUnit,*) extchan  ! external channel number
-         intchan=i
-         if (chan_geom(i).chan_no .ne. extchan)then
-             write(unit_error)"Channel numbers in restart do not correspond with the ones in this simulation"
-             write(unit_error)"Restart channel number: ",extchan
-             call exit(-2)
-         end if
-
-         read(fUnit,*) nLoc            ! Number of comp. points in channel, according to restart file
-         if (nLoc .ne. NumberofCompLocations(intchan)) then
-            write(unit_error,610) extchan, nLoc,
-     &           NumberofCompLocations(i)
-
- 610        format(/'####Error(ReadNetworkInitialConditions)'
-     &           'For channel ',i3,
-     &           /'Number of restart file computational locations (',
-     &           i2, ')'
-     &           /'not equal to number of locations in run (',
-     &           i2, ').'
-     &           /'Probably caused by different DELTAX value in SCALAR input section.'/)
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
+
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
+
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
+
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
+
+!===== BOF chstatus.inc ==================================================
+!   Version 93.01, January, 1993
+
+module chstatus
+    use network
+    use linear, only: Linear1D
+    implicit none
+    double precision,target,save :: WS(MaxLocations)
+    double precision,target,save :: Q(MaxLocations)
+    double precision,target,save :: H(MaxLocations)
+    double precision, save:: Rho1(MaxLocations), Rho2(MaxLocations)
+    double precision, save:: QOld(MaxLocations)
+    logical, save:: ConvergedSteady(MaxChannels)
+
+contains
+
+    !***********************************************************************
+    !
+    !    This file is a FORTRAN module containing 1-D channel flow values,
+    !    including density, for networks of open channels.
+    !
+    !
+    !     Module note: Only functions or subroutines marked "public" should be
+    !                   used outside of this module as those marked "private"
+    !                   may not be supported by future revisions of this module
+    !                   or replacement modules.  Likewise, no data or common
+    !                   blocks contained within this module should be accessed
+    !                   by routines outside of this module accept through the
+    !                   use of "public" functions or subroutines contained
+    !                   within this module.
+    !
+    !     Non-standard usage: Symbolic names in this module may be represented by
+    !                         as many as 31 characters in order to provide better
+    !                         definition directly in the code.  Standard FORTRAN
+    !                         allows only 6 characters, but this restriction is
+    !                         generally extended to 32 characters by most compilers.
+    !
+    !
+    !   Public functions:
+    !
+    !     REAL FUNCTION StreamFlow(LocationNumber)
+    !            - returns volumetric discharge.
+    !
+    !     LOGICAL FUNCTION SetStreamFlow(LocationNumber, Value)
+    !            - store volumetric discharge.
+    !
+    !     REAL FUNCTION StreamDepth(LocationNumber)
+    !            - return depth of flow.
+    !
+    !     LOGICAL FUNCTION SetStreamDepth(LocationNumber, Value)
+    !            - store depth of flow.
+    !
+    !     REAL FUNCTION StreamSurfaceElevation(LocationNumber)
+    !            - return watersurface elevation.
+    !
+    !     LOGICAL FUNCTION SetStreamSurfaceElevation(LocationNumber, Value)
+    !            - store watersurface elevation.
+    !
+    !      REAL FUNCTION OldStreamDensity(LocationNumber)
+    !             - returns water density at LocationNumber,
+    !               at the beginning of the current time step.
+    !
+    !      REAL FUNCTION NewStreamDensity(LocationNumber)
+    !             - returns water density at LocationNumber,
+    !               at the end of the current time step.
+    !
+    !      REAL FUNCTION EstOldStreamDensity(DownStreamDistance)
+    !             - returns interpolated density at DownStreamDistance,
+    !               at the begining of the current time step.
+    !
+    !      REAL FUNCTION EstOldStreamDensity(DownStreamDistance)
+    !             - returns interpolated density at DownStreamDistance,
+    !               at the begining of the current time step.
+    !
+    !      LOGICAL FUNCTION SetNewLinearStreamDensity(
+    !                         UpstreamDensity, DownstreamDensity
+    !                                             )
+    !             - sets density at computational locations, at the
+    !               end of the current time step.
+    !
+    !      LOGICAL FUNCTION SetConstantStreamDensity()
+    !             - sets stream density to 1.0.
+    !
+    !      LOGICAL FUNCTION SetNewLinearStreamDensity(
+    !                         UpstreamDensity, DownstreamDensity
+    !                                             )
+    !             - sets density at computational locations, at the
+    !               end of the current time step.
+    !
+    !
+    !   Arguments:
+    !     LocationNumber - computational location index, begining with
+    !                      1 in the current channel.
+    !     Value          - value of the specific variable to be stored.
+    !     UpstreamDensity - density at the upstream end of current channel.
+    !     DownstreamDensity - density at downstream end of current channel.
+    !     DownstreamDistance - distance from upstream end of current channel.
+    !     LocationNumber - computational cross-section sequence number,
+    !                       begining with 1 at upstream end of current
+    !                       channel.
+    !
+    !
+    !   Module data:
+    !
+    !    'network.inc'
+    !     MaxChannels - maximum number of channels.
+    !     NumCh - current number of channels.
+    !     Branch - current selected or active channel.
+    !     MaxLocations - maximum number of locations (computational or user).
+    !
+    !    'chstatus.inc'
+    !   Definitions:
+    !     WS(i) - water surface elevation at computational location "i".
+    !     Q(i) - volumetric discharge at computational location "i".
+    !     H(i) - depth of flow at computational location "i".
+    !     Rho(i) - density at computational location "i".
+    !
+    !
+    !***********************************************************************
+
+    !== Public (WriteNetworkRestartFile) ===================================
+
+    logical function WriteNetworkRestartFile()
+        use IO_Units
+        use runtime_data
+        use iopath_data
+        use grid_data
+        use channel_schematic
+        use chconnec
+        use netcntrl
+        use netbnd, only: reservoir_source_sink
+        use fileutil, only: OpenNewText
+        implicit none
+
+        !   Purpose:  Write current values of dependent and independent
+        !             variables to a file that may be used as initial
+        !             conditions to restart the model.
+
+        !   Arguments:
+
+        !   Argument definitions:
+
+
+        !   Local Variables:
+        integer      fUnit, I, J
+        character*130 FileName
+        logical      OK
+
+
+        !   Intrinsics:
+
+        !   Programmed by: Lew DeLong
+        !   Date:          Dec   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        WriteNetworkRestartFile = .false.
+
+        !-----Open restart file.
+
+        fUnit = io_files(hydro,io_restart,io_write)%unit
+        FileName = io_files(hydro,io_restart,io_write)%filename
+        if (.not. OpenNewText( fUnit, FileName ))  then
+            write(UNIT_ERROR,*) ' ####Error(WriteNetworkRestartFile)'
+            write(UNIT_ERROR,*) ' Failed to open restart file: ',FileName
+            call exit(2)
+        end if
+
+        write(funit,900)dsm2_version,current_date
+900     format('Hydro Version ',a, &
+            /'The following data corresponds to   ',a14//)
+        write(fUnit,*) NumberOfChannels(),'/Channels'
+
+        !-----Loop on channels.
+
+        do 200 I=1,NumberOfChannels()
+
+            if( OpenChannel(I) ) then
+
+                write(fUnit,*) chan_geom(I)%chan_no, '/Channel' ! write external number
+                write(fUnit,*) NumberOfStreamLocations(),'/Locations'
+
+                do 100 J=1,NumberOfStreamLocations()
+
+                    !--------------WRITE(fUnit,'(3(F16.3,1X),A20)')
+                    write(fUnit,'(F16.3,1X,F16.7,1X,F16.3,1X,A20)') &
+                        StreamDistance(J), StreamSurfaceElevation(J), StreamFlow(J), &
+                        '/Distance, WSElev, Q'
+
+100             continue
+
+                OK = CloseChannel()
+
+            else
+                write(UNIT_ERROR,*) ' ####Error(WriteNetworkRestartFile)'
+                write(UNIT_ERROR,*) ' Could not open channel ',I
+                return
+            end if
+
+200     continue
+
+        write(funit,901)Nreser
+901     format(/i5,' /Number of Reservoir')
+        do I=1,Nreser
+            !--------Reservoir Stage, nodal flows
+            write(funit,902)i,res_geom(i)%nnodes,Yres(i)
+902         format(I5,' /Reservoir Number' &
+                /I5,' /Connections' &
+                /5X,1P,E15.7,' /Yres')
+            write(funit,903)(J,QRes(I,J),J=1, res_geom(i)%nnodes)
+903         format(I5,1P,E15.7,' /Connection, Qres')
+        enddo
+
+        close( fUnit )
+
+        WriteNetworkRestartFile = .true.
+
+        return
+    end function
+
+    !== Private (ReadNetworkInitialConditions) ==============================
+
+    logical function ReadNetworkInitialConditions()
+        use IO_Units
+        use runtime_data
+        use grid_data
+        use iopath_data
+        use network
+        use chconnec
+        use chnlcomp
+        use chinitcd
+        use channel_schematic
+        use fileutil, only: OpenOldText
+        implicit none
+
+        !   Purpose:  Read initial values of dependent variables.
+
+        !   Arguments:
+
+        !   Argument definitions:
+
+        !   Module data:
+
+
+        !   Local Variables:
+        integer      Channels,extchan,intchan
+        integer      fUnit, I, K, J, IRes, NConnect, IConnect, nLoc
+        character*130 FileName
+
+        !   Routines by module:
+
+        !**** Local:
+        integer  NresStart_File
+        character*80 Header
+
+
+
+        !   Intrinsics:
+
+        !   Programmed by: Lew DeLong
+        !   Date:          Dec   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        ReadNetworkInitialConditions = .false.
+
+        !-----Initialize channel-number cross-reference numbers.
+
+        do 50 I=1,MaxChannels
+            InitialConditionIndex(I) = 0
+50      continue
+
+        !-----Open initial-condition file.
+
+        fUnit = io_files(hydro,io_restart,io_read)%unit
+        FileName = io_files(hydro,io_restart,io_read)%filename
+        if( OpenOldText( fUnit, FileName ) ) then
+        else
+            write(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
+            write(UNIT_ERROR,*) ' Could not open file...',FileName
             return
-         endif
-
-         Locations(I) = nLoc
-         IF( ( K + nLoc ) .LE. MaxLocations ) THEN
-
-            FirstLocation(I) = K + 1
-            DO 100 J=1,nLoc
-
-               K = K + 1
-               READ(fUnit,*)
-     &              InitialX(K), InitialWS(K), InitialQ(K)
-
- 100        CONTINUE
-         ELSE
-            WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
-            WRITE(UNIT_ERROR,*) ' Reading initial conditions for channel...',
-     &           extchan
-            WRITE(UNIT_ERROR,*) ' Maximum number of loactions exceeded.'
-            WRITE(UNIT_ERROR,*) ' Attempted...', K + Locations(I)
-            WRITE(UNIT_ERROR,*) ' Allowed.....', MaxLocations
-            RETURN
-         END IF
-         InitialConditionIndex( intchan ) = I
- 200  CONTINUE
-
-      READ(funit,*)NresStart_File
-      IF(NresStart_File.EQ.Nreser) then
-         IF (restart_version .ne. ' ') then
-c-----------restart file version supports reservoir connection flows
-c-- fixme: this is a bad idea. Should include just the model state (Yres)
-c          and then calculate derived variables.
-            do I=1,Nreser
-               read(funit,*)IRes ! reservoir number
-               read(funit,*)NConnect   ! number of connections
-               read(funit,*)Yres(IRes) ! reservoir stage
-               if (NConnect .eq. res_geom(ires).nnodes) THEN
-                  do K=1, res_geom(ires).nnodes
-                     read(funit,*)IConnect,QRes(IRes,IConnect)
-                  enddo
-               else
-                  write(UNIT_ERROR,901) IRes
- 901              format('Error(ReadNetworkInitialConditions)'
-     &                 /'Number of Reservoir Connections does not match with the Restart File:'
-     &                 /'Reservoir ',I5)
-                  return
-               endif
-            end do
-         else                   ! no reservoir connection flows
-            do I=1,Nreser
-               read(funit,*)IRes,Yres(IRes)
-            end do
-         end if
-      else
-         write(UNIT_ERROR,902)
- 902     format('Error(ReadNetworkInitialConditions)'/
-     &        'Number of Reservoirs does not match with the Restart File'/)
-         return
-      endif
-
-c          No interpolation is necessary, since the computational points are matched exactly	      
-
-      ReadNetworkInitialConditions = .TRUE.
-
-      RETURN
-      END
-
-*== Private (ApproxReadInitialConditions) ==============================
-
-      LOGICAL FUNCTION ApproxReadInitialConditions()
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Approximate initial values of dependent variables
-*             for current channel from values read from an
-*             initial-condition file.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netcntrl.inc'
-      INCLUDE 'chinitcd.inc'
-      INCLUDE 'chstatus.inc'
-
-
-*   Local Variables:
-      INTEGER I, J, K
-      real*8    CompLocation_lcl(MaxLocations)
-      LOGICAL UpstreamFlag, DownstreamFlag
-
-*   Routines by module:
-
-***** Local:
-      LOGICAL  ReadNetworkInitialConditions
-      EXTERNAL ReadNetworkInitialConditions
-
-***** Channel schematic:
-      INTEGER  NumberOfStreamLocations
-      EXTERNAL NumberOfStreamLocations
+        end if
+
+        !-----Begin reading of data.
+
+        !-----read header, then test to see if it's really the header (old restart file)
+        !-----or the restart file version (new file)
+        restart_version=' '
+        read(funit,'(a)') header
+        if (header(:14) == 'Hydro Version') then
+            restart_version=header(15:)
+            read(funit,'(a)') header
+        endif
+        read(fUnit,*) Channels
+        if( Channels /= NumberOfChannels() ) then
+            write(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
+            write(UNIT_ERROR,*) ' Number of channels in restart file'
+            write(UNIT_ERROR,*) ' not the same as number of configured channels...'
+            write(UNIT_ERROR,*) ' ', Channels,' <> ', NumberOfChannels()
+            return
+        end if
+
+        K = 0
+        do 200 I=1,Channels
+
+            read(fUnit,*) extchan  ! external channel number
+            intchan=i
+            if (chan_geom(i)%chan_no /= extchan)then
+                write(unit_error)"Channel numbers in restart do not correspond with the ones in this simulation"
+                write(unit_error)"Restart channel number: ",extchan
+                call exit(-2)
+            end if
+
+            read(fUnit,*) nLoc            ! Number of comp. points in channel, according to restart file
+            if (nLoc /= NumberofCompLocations(intchan)) then
+                write(unit_error,610) extchan, nLoc, &
+                    NumberofCompLocations(i)
+
+610             format(/'####Error(ReadNetworkInitialConditions)' &
+                    'For channel ',i3, &
+                    /'Number of restart file computational locations (', &
+                    i2, ')' &
+                    /'not equal to number of locations in run (', &
+                    i2, ').' &
+                    /'Probably caused by different DELTAX value in SCALAR input section.'/)
+                return
+            endif
+
+            Locations(I) = nLoc
+            if( ( K + nLoc ) <= MaxLocations ) then
+
+                FirstLocation(I) = K + 1
+                do 100 J=1,nLoc
+
+                    K = K + 1
+                    read(fUnit,*) &
+                        InitialX(K), InitialWS(K), InitialQ(K)
+
+100             continue
+            else
+                write(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
+                write(UNIT_ERROR,*) ' Reading initial conditions for channel...', &
+                    extchan
+                write(UNIT_ERROR,*) ' Maximum number of loactions exceeded.'
+                write(UNIT_ERROR,*) ' Attempted...', K + Locations(I)
+                write(UNIT_ERROR,*) ' Allowed.....', MaxLocations
+                return
+            end if
+            InitialConditionIndex( intchan ) = I
+200     continue
+
+        read(funit,*)NresStart_File
+        if(NresStart_File==Nreser) then
+            if (restart_version /= ' ') then
+                !-----------restart file version supports reservoir connection flows
+                !-- fixme: this is a bad idea. Should include just the model state (Yres)
+                !          and then calculate derived variables.
+                do I=1,Nreser
+                    read(funit,*)IRes ! reservoir number
+                    read(funit,*)NConnect   ! number of connections
+                    read(funit,*)Yres(IRes) ! reservoir stage
+                    if (NConnect == res_geom(ires)%nnodes) then
+                        do K=1, res_geom(ires)%nnodes
+                            read(funit,*)IConnect,QRes(IRes,IConnect)
+                        enddo
+                    else
+                        write(UNIT_ERROR,901) IRes
+901                     format('Error(ReadNetworkInitialConditions)' &
+                            /'Number of Reservoir Connections does not match with the Restart File:' &
+                            /'Reservoir ',I5)
+                        return
+                    endif
+                end do
+            else                   ! no reservoir connection flows
+                do I=1,Nreser
+                    read(funit,*)IRes,Yres(IRes)
+                end do
+            end if
+        else
+            write(UNIT_ERROR,902)
+902         format('Error(ReadNetworkInitialConditions)'/ &
+                'Number of Reservoirs does not match with the Restart File'/)
+            return
+        endif
 
-      real*8     StreamDistance
-      EXTERNAL StreamDistance
+        !          No interpolation is necessary, since the computational points are matched exactly
 
-      INTEGER  UpstreamPointer, DownstreamPointer
-      EXTERNAL UpstreamPointer, DownstreamPointer
+        ReadNetworkInitialConditions = .true.
 
-***** Network control:
-      INTEGER  CurrentChannel
-      EXTERNAL CurrentChannel
+        return
+    end function
 
-***** Channel properties:
-      real*8     BtmElev
-      EXTERNAL BtmElev
+    !== Private (ApproxReadInitialConditions) ==============================
 
-***** Linear interpolation utilities:
-      EXTERNAL Linear1D
+    logical function ApproxReadInitialConditions()
+        use IO_Units
+        use network
+        use netcntrl
+        use channel_schematic &
+            ,only: DownstreamPointer, UpstreamPointer, NumberOfStreamLocations, &
+            CurrentChannel, StreamDistance
+        use chinitcd
+        use channel_xsect_tbl, only: btmelev
+        implicit none
 
-*   Intrinsics:
-      INTEGER   INT
-      INTRINSIC INT
-*   Suspected not to be used at all.
-*   Programmed by: Lew DeLong
-*   Date:          Dec   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Purpose:  Approximate initial values of dependent variables
+        !             for current channel from values read from an
+        !             initial-condition file.
 
-*-----Implementation -----------------------------------------------------
+        !   Arguments:
 
-      ApproxReadInitialConditions = .FALSE.
+        !   Argument definitions:
 
-*-----Set sequence number for initial conditions, check validity.
 
-      I = InitialConditionIndex( CurrentChannel() )
+        !   Local Variables:
+        integer I, J, K
+        real*8    CompLocation_lcl(MaxLocations)
+        logical UpstreamFlag, DownstreamFlag
 
-      IF( I .GT. 0 ) THEN
-      ELSE
-         WRITE(UNIT_ERROR,*) ' ####Error(ApproxReadInitialConditions)'
-         WRITE(UNIT_ERROR,*) ' Initial conditions not available for channel',
-     &        CurrentChannel()
-         RETURN
-      END IF
 
-*-----Check that initial conditions exist for first and last
-*     cross section of channel.
 
-      IF( INT( 100.0 * StreamDistance(1) )
-     &     .EQ.
-     &     INT( 100.0 * InitialX( FirstLocation(I) ) ) )  THEN
+        !   Intrinsics:
+        integer   INT
+        intrinsic INT
+        !   Suspected not to be used at all.
+        !   Programmed by: Lew DeLong
+        !   Date:          Dec   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-         UpstreamFlag = .TRUE.
+        !-----Implementation -----------------------------------------------------
 
-      ELSE
-         UpstreamFlag = .FALSE.
-      END IF
+        ApproxReadInitialConditions = .false.
 
-      IF( INT( 100.0 * StreamDistance(NumberOfStreamLocations() ) )
-     &     .EQ.
-     &     INT( 100.0 * InitialX( FirstLocation(I)+Locations(I)-1) ) )
-     &     THEN
+        !-----Set sequence number for initial conditions, check validity.
 
-         DownstreamFlag = .TRUE.
+        I = InitialConditionIndex( CurrentChannel() )
 
-      ELSE
-         DownstreamFlag = .FALSE.
-      END IF
+        if( I > 0 ) then
+        else
+            write(UNIT_ERROR,*) ' ####Error(ApproxReadInitialConditions)'
+            write(UNIT_ERROR,*) ' Initial conditions not available for channel', &
+                CurrentChannel()
+            return
+        end if
 
-*-----If bad match, report errors and RETURN.
+        !-----Check that initial conditions exist for first and last
+        !     cross section of channel.
 
-      IF( .NOT. UpstreamFlag .OR. .NOT. DownstreamFlag ) THEN
+        if( INT( 100.0 * StreamDistance(1) ) &
+            == &
+            INT( 100.0 * InitialX( FirstLocation(I) ) ) )  then
 
-         WRITE(UNIT_ERROR,*) ' ####Error(ApproxReadInitialConditions)'
-         WRITE(UNIT_ERROR,*) ' Location of channel extremities do not match.'
-         WRITE(UNIT_ERROR,*) ' Channel...', CurrentChannel()
+            UpstreamFlag = .true.
 
-         IF( .NOT. UpstreamFlag ) THEN
-            WRITE(UNIT_ERROR,*) ' Upstream, expected...........',
-     &           StreamDistance(1)
-            WRITE(UNIT_ERROR,*) ' Initial-condition location...',
-     &           InitialX( FirstLocation(I) )
-         END IF
+        else
+            UpstreamFlag = .false.
+        end if
 
-         IF( .NOT. DownstreamFlag ) THEN
-            WRITE(UNIT_ERROR,*) ' Downstream, expected.........',
-     &           StreamDistance(NumberOfStreamLocations())
-            WRITE(UNIT_ERROR,*) ' Initial-condition location...',
-     &           InitialX( FirstLocation(I)+Locations(I)-1 )
-         END IF
+        if( INT( 100.0 * StreamDistance(NumberOfStreamLocations() ) ) &
+            == &
+            INT( 100.0 * InitialX( FirstLocation(I)+Locations(I)-1) ) ) &
+            then
 
-         RETURN
+            DownstreamFlag = .true.
 
-      END IF
+        else
+            DownstreamFlag = .false.
+        end if
 
-*-----Get computational stream locations.
+        !-----If bad match, report errors and RETURN.
 
-      K = 0
-      DO 50 J=UpstreamPointer(),DownstreamPointer()
-         K = K + 1
-         CompLocation_lcl(J) = StreamDistance(K)
- 50   CONTINUE
+        if( .not. UpstreamFlag .or. .not. DownstreamFlag ) then
 
-*-----Approximate streamflow.
+            write(UNIT_ERROR,*) ' ####Error(ApproxReadInitialConditions)'
+            write(UNIT_ERROR,*) ' Location of channel extremities do not match.'
+            write(UNIT_ERROR,*) ' Channel...', CurrentChannel()
 
-      CALL Linear1D(
-     &     NumberOfStreamLocations(),
-     &     CompLocation_lcl(UpstreamPointer()),
-     &     Locations(I), InitialX( FirstLocation(I) ),
-     &     InitialQ( FirstLocation(I) ),
-     &     Q(UpstreamPointer())
-     &     )
+            if( .not. UpstreamFlag ) then
+                write(UNIT_ERROR,*) ' Upstream, expected...........', &
+                    StreamDistance(1)
+                write(UNIT_ERROR,*) ' Initial-condition location...', &
+                    InitialX( FirstLocation(I) )
+            end if
 
-*-----Approximate watersurface elevation.
+            if( .not. DownstreamFlag ) then
+                write(UNIT_ERROR,*) ' Downstream, expected.........', &
+                    StreamDistance(NumberOfStreamLocations())
+                write(UNIT_ERROR,*) ' Initial-condition location...', &
+                    InitialX( FirstLocation(I)+Locations(I)-1 )
+            end if
 
-      CALL Linear1D(
-     &     NumberOfStreamLocations(),
-     &     CompLocation_lcl(UpstreamPointer()),
-     &     Locations(I), InitialX( FirstLocation(I) ),
-     &     InitialWS( FirstLocation(I) ),
-     &     WS(UpstreamPointer())
-     &     )
+            return
 
-*-----Approximate depth of flow.
+        end if
 
-      DO 100 J=UpstreamPointer(),DownstreamPointer()
+        !-----Get computational stream locations.
 
-         H( J ) = WS( J ) - BtmElev( CompLocation_lcl( J ) )
-
- 100  CONTINUE
-
-      ApproxReadInitialConditions = .TRUE.
-
-      RETURN
-      END
-
-*== Private (SetNetworkInitCndRead) ================================================
-
-      LOGICAL FUNCTION SetNetworkInitCndRead( State )
-
-      IMPLICIT NONE
-
-*   Purpose:  Set state of network initial-condition reading.
-*             [.TRUE. ] if read, or
-*             [.FALSE.] if not read.
-
-*   Arguments:
-      LOGICAL State
-
-*   Argument definitions:
-*     State - .TRUE. if read, .FALSE. otherwise.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chinitcd.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-***** Local:
-
-*   Intrinsics:
-
-*   Programmed by: Lew DeLong
-*   Date:          Dec   1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      InitCndInitialized = State
-      SetNetworkInitCndRead = .TRUE.
-
-      RETURN
-      END
-
-*== Public (StreamFlow) ================================================
-
-      real*8 FUNCTION StreamFlow(LocationNumber)
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Return current value of stream flow in the current channel
-*             at a location corresponding to the index LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-
-*   Argument definitions:
-*     LocationNumber - computational-location sequence number within
-*                      current channel.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-
-*   Local Variables:
-      INTEGER J
-
-*   Routines by module:
-
-***** Channel schematic:
-      INTEGER  UpstreamPointer, CurrentChannel
-      EXTERNAL UpstreamPointer, CurrentChannel
-
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      J = UpstreamPointer() + LocationNumber - 1
-c      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
-
-         StreamFlow = Q( J )
-
-c      ELSE
-
-c         WRITE(UNIT_ERROR,*) ' Range error...(StreamFlow)'
-c         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-c         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-c         CALL EXIT(1)
-
-c      END IF
-
-      RETURN
-      END
-
-*== Public (GlobalStreamFlow) ==========================================
-
-      real*8 FUNCTION GlobalStreamFlow(LocationNumber)
-
-      IMPLICIT NONE
-
-*   Purpose:  Return current value of stream flow
-*             at a location corresponding to the
-*             index LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-
-*   Argument definitions:
-*     LocationNumber - computational-location sequence number within
-*                      current channel.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      GlobalStreamFlow = Q( LocationNumber )
-
-      RETURN
-      END
-
-*== Public (SetStreamFlow) =============================================
-
-      LOGICAL FUNCTION SetStreamFlow(LocationNumber, Value)
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Set current value of stream flow in the current channel
-*             at a location corresponding to the index LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-      real*8    Value
-
-*   Argument definitions:
-*     LocationNumber - computational-location sequence number within
-*                      current channel.
-*     Value  - value to be stored.
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-
-*   Local Variables:
-      INTEGER J
-
-*   Routines by module:
-
-***** Channel schematic:
-      INTEGER  UpstreamPointer
-      EXTERNAL UpstreamPointer
-
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      J = UpstreamPointer() + LocationNumber - 1
-c     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
-
-         Q(J) = Value
-         SetStreamFlow = .TRUE.
-
-c    ELSE
-
-c         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamFlow)'
-c         SetStreamFlow = .False.
-
-c      END IF
-
-      RETURN
-      END
-
-*== Public (StreamDepth) ===============================================
-
-      real*8 FUNCTION StreamDepth(LocationNumber)
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Return current value of depth of flow in the current
-*             channel at a location corresponding to the index
-*             LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-
-*   Argument definitions:
-*     LocationNumber - computational-location number (index) within
-*                      current channel.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-*   Local Variables:
-      INTEGER J
-
-*   Routines by module:
-
-***** Channel schematic:
-      INTEGER  UpstreamPointer
-      EXTERNAL UpstreamPointer
-
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      J = UpstreamPointer() + LocationNumber - 1
-!     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
-
-         StreamDepth = H( J )
-
-!      ELSE
-
-!        WRITE(UNIT_ERROR,*) ' Range error...(StreamDepth)'
-!         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-!         CALL EXIT(1)
-
-!      END IF
-
-      RETURN
-      END
-
-*== Public (GlobalStreamDepth) =========================================
-
-      real*8 FUNCTION GlobalStreamDepth(LocationNumber)
-
-      IMPLICIT NONE
-
-*   Purpose:  Return current value of depth of flow
-*             at a location corresponding to the index
-*             LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-
-*   Argument definitions:
-*     LocationNumber - computational-location number (index) within
-*                      current channel.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      GlobalStreamDepth = H( LocationNumber )
-
-      RETURN
-      END
-
-*== Public (SetStreamDepth) ============================================
-
-      LOGICAL FUNCTION SetStreamDepth(LocationNumber, Value)
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Set current value of depth of flow in the current
-*             channel at a location corresponding to the index
-*             LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-      real*8    Value
-
-*   Argument definitions:
-*     LocationNumber - computational-location number (index) within
-*                      current channel.
-*     Value - current value to be set.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-
-*   Local Variables:
-      INTEGER J
-
-*   Routines by module:
-
-***** Channel schematic:
-      INTEGER  UpstreamPointer
-      EXTERNAL UpstreamPointer
-
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      J = UpstreamPointer() + LocationNumber - 1
-!      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
-
-         H( J ) = Value
-
-         SetStreamDepth = .TRUE.
-
-!      ELSE
-!         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamDepth)'
-!         SetStreamDepth = .FALSE.
-!      END IF
-
-      RETURN
-      END
-
-*== Public (StreamSurfaceElevation) ====================================
-
-      real*8 FUNCTION StreamSurfaceElevation(LocationNumber)
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Return current value of water-surface elevation in the
-*             current channel at a location corresponding to the index
-*             LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-
-*   Argument definitions:
-*     LocationNumber - computational-location number (index) within
-*                      current channel.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-*   Local Variables:
-      INTEGER J
-
-*   Routines by module:
-
-***** Channel schematic:
-      INTEGER  UpstreamPointer
-      EXTERNAL UpstreamPointer
-
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      J = UpstreamPointer() + LocationNumber - 1
-
- !     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
-
-         StreamSurfaceElevation = WS( J )
-
- !     ELSE
- !        WRITE(UNIT_ERROR,*) ' Range error...(StreamSurfaceElevation)'
- !        WRITE(UNIT_ERROR,*) ' Abnormal program end.'
- !        CALL EXIT(1)
- !     END IF
-
-      RETURN
-      END
-
-*== Public (GlobalStreamSurfaceElevation) ==============================
-
-      real*8 FUNCTION GlobalStreamSurfaceElevation(LocationNumber)
-
-      IMPLICIT NONE
-
-*   Purpose:  Return current value of water-surface elevation
-*             at a location corresponding to the index
-*             LocationNumber.
-
-*   Arguments:
-      INTEGER LocationNumber
-
-*   Argument definitions:
-*     LocationNumber - computational-location number (index).
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      GlobalStreamSurfaceElevation = WS( LocationNumber )
-
-      RETURN
-      END
-
-*== Public (SetStreamSurfaceElevation) =================================
-
-      LOGICAL FUNCTION SetStreamSurfaceElevation
-     &     (LocationNumber, Value)
-      use IO_Units
-      IMPLICIT NONE
-
-*   Purpose:  Set current value of water-surface elevation in the
-*             current channel at a location corresponding to the index
-*             LocationNumber.  Also, set corresponding depth of flow.
-
-*   Arguments:
-      INTEGER LocationNumber
-      real*8    Value
-
-*   Argument definitions:
-*     LocationNumber - computational-location number (index) within
-*                      current channel.
-*     Value  - value to be stored.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
-
-
-*   Local Variables:
-      INTEGER J
-
-*   Routines by module:
-
-***** Channel properties:
-      real*8     BtmElev, BtmElevAtLocationNumber
-      EXTERNAL BtmElev, BtmElevAtLocationNumber
-
-***** Channel schematic:
-      INTEGER  UpstreamPointer
-      EXTERNAL UpstreamPointer
-
-      real*8     StreamDistance
-      EXTERNAL StreamDistance
-
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
-
-*   Programmed by: Lew DeLong
-*   Date:          November 1990
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      J = UpstreamPointer() + LocationNumber - 1
-!      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
-
-         WS( J ) = Value
-         H( J ) = Value - BtmElevAtLocationNumber(LocationNumber)
-
-         SetStreamSurfaceElevation = .TRUE.
-
-!      ELSE
-!         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamSurfaceElevation)'
-!         SetStreamSurfaceElevation = .FALSE.
-!      END IF
-
-      RETURN
-      END
-
-*== Public (InitializeNetworkFlowValues) ===============================
-
-      LOGICAL FUNCTION InitializeNetworkFlowValues()
-      Use PhysicalConstants, only: gravity
-      use IO_Units
-      use grid_data
-      IMPLICIT NONE
-
-*   Purpose:  Set initial values of water-surface elevation and flow
-*             in a network of channels.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'netcntrl.inc'
-      INCLUDE 'chstatus.inc'
-      INCLUDE 'chinitcd.inc'
-      INCLUDE 'chnluser.inc'
-      INCLUDE 'chconnec.inc'
-
-
-*   Local Variables:
-      INTEGER I, J, K
-      INTEGER Channelnumber_L, UserLocations
-      real*8    Velocity, delx, CrNo, dtr, G, FrNo
-      real*8    CompLocation_lcl(MaxLocations)
-      real*8    WidthRatio, Width, WSSlope, WSSlopeRatio, WSSlopeChange
-      LOGICAL OK
-
-*     CompLocation_lcl(j) - local downstream distance coordinate.
-*     DummyArray(j) - a REAL value dependent upon context.
-*     DummyArray2(j) - a REAL value dependent upon context.
-*     DummyCharArray(j) - a CHARACTER value dependent upon context.
-
-*   Routines by module:
-
-***** Local:
-      integer FirstLoc
-
-      real*8     Norm, GlobalStreamSurfaceSlope
-      EXTERNAL Norm, GlobalStreamSurfaceSlope
-
-      LOGICAL  SetNetworkInitCndRead
-      EXTERNAL SetNetworkInitCndRead
-
-      LOGICAL  ApproxReadInitialConditions
-      EXTERNAL ApproxReadInitialConditions
-
-      LOGICAL  Bernie, SpForce
-      EXTERNAL Bernie, SpForce
-
-      LOGICAL  ReadNetworkInitialConditions
-      EXTERNAL ReadNetworkInitialConditions
-
-***** Channel properties:
-      real*8   BtmElev, CxArea, ChannelWidth
-      EXTERNAL BtmElev, CxArea, ChannelWidth
-
-      real*8   Conveyance, dConveyance
-      EXTERNAL Conveyance, dConveyance
-
-***** Channel schematic:
-      INTEGER  NumberOfUserStreamLocations, NumberOfStreamLocations
-      INTEGER  UpstreamPointer, DownstreamPointer
-      real*8     StreamDistance
-      EXTERNAL NumberOfUserStreamLocations, NumberOfStreamLocations
-      EXTERNAL UpstreamPointer, DownstreamPointer
-      EXTERNAL StreamDistance
-
-      INTEGER  NumberOfChannels, ChApprox
-      EXTERNAL NumberOfChannels, ChApprox
-
-      LOGICAL  OpenChannel, CloseChannel
-      EXTERNAL OpenChannel, CloseChannel
-
-      EXTERNAL GetUserStreamflow, GetUserStreamSurfaceElevation
-
-***** Linear interpolation utilities:
-      EXTERNAL Linear1D
-
-***** Network control:
-      INTEGER  NetworkPrintLevel, NetworkTimeIncrement
-      EXTERNAL NetworKPrintLevel, NetworkTimeIncrement
-
-*   Intrinsics:
-      real*8      SQRT, ABS
-      INTRINSIC SQRT, ABS
-
-*   Programmed by: Lew DeLong
-*   Date:          Nov   1990
-*   Modified by:   Lew DeLong
-*   Last modified: August   1993
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      InitializeNetworkFlowValues = .FALSE.
-
-      dtr = DFLOAT( NetworkTimeIncrement() )
-      G = gravity
-
-*-----Set initial-condition read flag to "not initialized".
-
-      OK = .FALSE.
-      OK = SetNetworkInitCndRead( OK )
-
-      IF (Restart_Read) THEN    ! Read initial conditions from restart file
-         IF( ReadNetworkInitialConditions() ) THEN
-            InitCndInitialized = .TRUE.
-            Q=InitialQ
-            QOld=InitialQ
-            WS=InitialWS
-            YResOld=YRes
-            CompLocation_lcl = InitialX
-         ELSE
-            WRITE(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
-            WRITE(UNIT_ERROR,*) ' Reading of initial conditions failed...'
-            RETURN
-         END IF
-      ELSE                      ! Interpolate user points
-         DO 100 I = 1, NumberOfChannels()
-            Channelnumber_L = I
-            IF( OpenChannel( Channelnumber_L )  ) THEN
-
-*--------------Get computational stream locations.
-               K = 0
-               DO J=UpstreamPointer(),DownstreamPointer()
-                  K = K + 1
-                  CompLocation_lcl(J) = StreamDistance(K)
-               END DO
-
-*--------------Initial conditions approximated from user input.
-
-               UserLocations = NUserInitLocations(branch)
-               FirstLoc=FirstLocation(branch)
-
-               if (FirstLoc .eq. 0) then ! no initial conditions at all
-                  write(unit_error,*)'No default initial conditions or restart file'
-                  return
-               end if
-
-*--------------Approximate streamflow and ws linearly from user input.
-
-               CALL Linear1D(
-     &              NumberOfStreamLocations(),
-     &              CompLocation_lcl(UpstreamPointer()),
-     &              UserLocations, InitialX(FirstLoc), InitialQ(FirstLoc),
-     &              Q(UpstreamPointer())
-     &              )
-
-               CALL Linear1D(
-     &              NumberOfStreamLocations(),
-     &              CompLocation_lcl(UpstreamPointer()),
-     &              UserLocations, InitialX(FirstLoc), InitialWS(FirstLoc),
-     &              WS(UpstreamPointer())
-     &              )
-               OK = CloseChannel()
-            END IF
-
- 100     CONTINUE
-      END IF
-
-
-
-      do i=1,MaxLocations
-         QOld(i)=Q(i)
-      end do
-      do i=1,NReser
-         YResOld(i)=YRes(i)
-      end do
-
-      DO 200 I = 1, NumberOfChannels()
-
-         Channelnumber_L = I
-         
-         IF( OpenChannel( Channelnumber_L )  ) THEN
-*-----------Approximate depth of flow.
-
-            DO  J=UpstreamPointer(),DownstreamPointer()
-               H( J ) = WS( J ) - BtmElev( CompLocation_lcl( J ) )
-            END DO
-            
-
-c-----------if (Restart_Read)
-c-----------&           OK = ApproxReadInitialConditions()               WHY??????!!!!!!
-
-*-----------Upstream end of channel.     WHY???????/
-
-            K = 1
-            J = UpstreamPointer()
-            Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
-            delX = CompLocation_lcl(J+1) - CompLocation_lcl(J)
-            WSSlope = ( WS(J+1) - WS(J) ) / delX
-
-            FrNo = Velocity / SQRT( G * H(J) )
-            CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / delX
-            Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
-
-*-----------Intervening cross sections.
-
-            IF( (DownstreamPointer() - UpstreamPointer()) .GT. 2) THEN
-               DO 150 J=UpstreamPointer()+1,DownstreamPointer()-1
-                  K = K + 1
-                  Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
-                  delX = ( CompLocation_lcl(J+1) - CompLocation_lcl(J-1) )
-                  WSSlope = ( WS(J+1) - WS(J-1) ) / delX
-                  CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / ( 0.5 * delX )
-                  FrNo = Velocity / SQRT( G * H(J) )
-                  delX   = CompLocation_lcl(J+1) - CompLocation_lcl(J)
-                  IF( ABS( ( WS(J) - WS(J-1) ) ) .GT. 1.0E-10 ) THEN
-                     WSSlopeRatio = ( WS(J+1) - WS(J) ) / ( WS(J) - WS(J-1) )
-     &                    * ( CompLocation_lcl(J) - CompLocation_lcl(J-1) )
-     &                    / ( CompLocation_lcl(J+1) - CompLocation_lcl(J) )
-                  ELSE
-                     WSSlopeRatio = 0.0
-                  END IF
-                  WSSlopeChange = ( WS(J+1) - WS(J) )
-     &                 / ( CompLocation_lcl(J+1) - CompLocation_lcl(J) )
-     &                 - ( WS(J) - WS(J-1) )
-     &                 / ( CompLocation_lcl(J) - CompLocation_lcl(J-1) )
-                  Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
-                  WidthRatio = ChannelWidth( CompLocation_lcl(J+1), WS(J+1) )
-     &                 / ChannelWidth( CompLocation_lcl(J-1), WS( J-1) )
- 150           CONTINUE
-            END IF
-
-*-----------Downstream end of channel.
-
+        K = 0
+        do 50 J=UpstreamPointer(),DownstreamPointer()
             K = K + 1
-            J = DownstreamPointer()
-            Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
-            dX = CompLocation_lcl(J) - CompLocation_lcl(J-1)
-            FrNo = Velocity / SQRT( G * H(J) )
-            CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / delX
-            WSSlope = ( WS(J) - WS(J-1) ) / delX
-            Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
+            CompLocation_lcl(J) = StreamDistance(K)
+50      continue
 
-*-----------Check friction / WS slope / dX relation.
+        !-----Approximate streamflow.
 
-            OK = CloseChannel()
+        call Linear1D( &
+            NumberOfStreamLocations(), &
+            CompLocation_lcl(UpstreamPointer()), &
+            Locations(I), InitialX( FirstLocation(I) ), &
+            InitialQ( FirstLocation(I) ), &
+            Q(UpstreamPointer()) &
+            )
 
-         ELSE
-            WRITE(UNIT_ERROR,*) ' Could not open channel...',
-     &           chan_geom(Channelnumber_L).chan_no
-            WRITE(UNIT_ERROR,*) ' (InitializeNetworkFlowValues)'
-            RETURN
-         END IF
+        !-----Approximate watersurface elevation.
 
- 200  CONTINUE
+        call Linear1D( &
+            NumberOfStreamLocations(), &
+            CompLocation_lcl(UpstreamPointer()), &
+            Locations(I), InitialX( FirstLocation(I) ), &
+            InitialWS( FirstLocation(I) ), &
+            WS(UpstreamPointer()) &
+            )
+
+        !-----Approximate depth of flow.
+
+        do 100 J=UpstreamPointer(),DownstreamPointer()
+
+            H( J ) = WS( J ) - BtmElev( CompLocation_lcl( J ) )
+
+100     continue
+
+        ApproxReadInitialConditions = .true.
+
+        return
+    end function
+
+    !== Private (SetNetworkInitCndRead) ================================================
+
+    logical function SetNetworkInitCndRead( State )
+
+        use chinitcd
+        implicit none
+
+        !   Purpose:  Set state of network initial-condition reading.
+        !             [.TRUE. ] if read, or
+        !             [.FALSE.] if not read.
+
+        !   Arguments:
+        logical State
+
+        !   Argument definitions:
+        !     State - .TRUE. if read, .FALSE. otherwise.
+        !   Local Variables:
+
+        !   Routines by module:
+
+        !**** Local:
+
+        !   Intrinsics:
+
+        !   Programmed by: Lew DeLong
+        !   Date:          Dec   1992
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        InitCndInitialized = State
+        SetNetworkInitCndRead = .true.
+
+        return
+    end function
+
+    !== Public (StreamFlow) ================================================
+
+    real*8 function StreamFlow(LocationNumber)
+        use IO_Units
+        use channel_schematic &
+            ,only: UpstreamPointer, CurrentChannel, CheckChannelCompLocationRange
+        implicit none
+
+        !   Purpose:  Return current value of stream flow in the current channel
+        !             at a location corresponding to the index LocationNumber.
+
+        !   Arguments:
+        integer LocationNumber
+
+        !   Argument definitions:
+        !     LocationNumber - computational-location sequence number within
+        !                      current channel.
+
+        !   Module data:
+
+        !   Local Variables:
+        integer J
+
+        !   Routines by module:
+
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        J = UpstreamPointer() + LocationNumber - 1
+        !      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+
+        StreamFlow = Q( J )
+
+        !      ELSE
+
+        !         WRITE(UNIT_ERROR,*) ' Range error...(StreamFlow)'
+        !         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+        !         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+        !         CALL EXIT(1)
+
+        !      END IF
+
+        return
+    end function
+
+    !== Public (GlobalStreamFlow) ==========================================
+
+    real*8 function GlobalStreamFlow(LocationNumber)
+
       
-      InitializeNetworkFlowValues = .TRUE.
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Return current value of stream flow
+        !             at a location corresponding to the
+        !             index LocationNumber.
 
-*== Public (OldStreamDensity) ================================================
+        !   Arguments:
+        integer LocationNumber
 
-      real*8 FUNCTION OldStreamDensity(LocationNumber)
-      use IO_Units
-      IMPLICIT NONE
+        !   Argument definitions:
+        !     LocationNumber - computational-location sequence number within
+        !                      current channel.
 
-*   Purpose:  Return current value of stream density in the current
-*             channel at a location corresponding to the index
-*             LocationNumber, at the begining of the current time step.
 
-*   Arguments:
-      INTEGER LocationNumber
+        !   Local Variables:
 
-*   Argument definitions:
-*     LocationNumber - computational-location sequence number within
-*                      current channel.
+        !   Routines by module:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
+        !-----Implementation -----------------------------------------------------
 
-*   Local Variables:
-      INTEGER J
+        GlobalStreamFlow = Q( LocationNumber )
 
-*   Routines by module:
+        return
+    end function
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, CurrentChannel
-      EXTERNAL UpstreamPointer, CurrentChannel
+    !== Public (SetStreamFlow) =============================================
 
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
+    logical function SetStreamFlow(LocationNumber, Value)
+        use IO_Units
+        use channel_schematic &
+            ,only: UpstreamPointer, CheckChannelCompLocationRange
+        implicit none
 
-*   Programmed by: Lew DeLong
-*   Date:          October 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Purpose:  Set current value of stream flow in the current channel
+        !             at a location corresponding to the index LocationNumber.
 
-*-----Implementation -----------------------------------------------------
+        !   Arguments:
+        integer LocationNumber
+        real*8    Value
 
-      J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+        !   Argument definitions:
+        !     LocationNumber - computational-location sequence number within
+        !                      current channel.
+        !     Value  - value to be stored.
 
-         OldStreamDensity = Rho1( J )
 
-      ELSE
 
-         WRITE(UNIT_ERROR,*) ' Range error...(OldStreamDensity)'
-         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
+        !   Local Variables:
+        integer J
 
-      END IF
+        !   Routines by module:
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-      RETURN
-      END
+        !-----Implementation -----------------------------------------------------
 
-*== Public (NewStreamDensity) ================================================
+        J = UpstreamPointer() + LocationNumber - 1
+        !     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
-      real*8 FUNCTION NewStreamDensity(LocationNumber)
-      use IO_Units
-      IMPLICIT NONE
+        Q(J) = Value
+        SetStreamFlow = .true.
 
-*   Purpose:  Return current value of stream density in the current
-*             channel at a location corresponding to the index
-*             LocationNumber, at the end of the current time step.
+        !    ELSE
 
-*   Arguments:
-      INTEGER LocationNumber
+        !         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamFlow)'
+        !         SetStreamFlow = .False.
 
-*   Argument definitions:
-*     LocationNumber - computational-location sequence number within
-*                      current channel.
+        !      END IF
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+        return
+    end function
 
-*   Local Variables:
-      INTEGER J
+    !== Public (StreamDepth) ===============================================
 
-*   Routines by module:
+    real*8 function StreamDepth(LocationNumber)
+        use IO_Units
+        use channel_schematic &
+            ,only: UpstreamPointer, CheckChannelCompLocationRange
+        implicit none
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, CurrentChannel
-      EXTERNAL UpstreamPointer, CurrentChannel
+        !   Purpose:  Return current value of depth of flow in the current
+        !             channel at a location corresponding to the index
+        !             LocationNumber.
 
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
+        !   Arguments:
+        integer LocationNumber
 
-*   Programmed by: Lew DeLong
-*   Date:          October 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Argument definitions:
+        !     LocationNumber - computational-location number (index) within
+        !                      current channel.
 
-*-----Implementation -----------------------------------------------------
+        !   Local Variables:
+        integer J
 
-      J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-         NewStreamDensity = Rho2( J )
+        !-----Implementation -----------------------------------------------------
 
-      ELSE
+        J = UpstreamPointer() + LocationNumber - 1
+        !     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
-         WRITE(UNIT_ERROR,*) ' Range error...(NewStreamDensity)'
-         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
+        StreamDepth = H( J )
 
-      END IF
+        !      ELSE
 
-      RETURN
-      END
+        !        WRITE(UNIT_ERROR,*) ' Range error...(StreamDepth)'
+        !         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+        !         CALL EXIT(1)
 
-*== Public (SetOldStreamDensity) ================================================
+        !      END IF
 
-      LOGICAL FUNCTION SetOldStreamDensity(LocationNumber, Value)
-      use IO_Units
-      IMPLICIT NONE
+        return
+    end function
 
-*   Purpose:  Set current value of stream density in the current
-*             channel at a location corresponding to the index
-*             LocationNumber, at the begining of the current time step.
+    !== Public (GlobalStreamDepth) =========================================
 
-*   Arguments:
-      INTEGER LocationNumber
-      real*8    Value
+    real*8 function GlobalStreamDepth(LocationNumber)
+      
+        implicit none
 
-*   Argument definitions:
-*     LocationNumber - computational-location sequence number within
-*                      current channel.
+        !   Purpose:  Return current value of depth of flow
+        !             at a location corresponding to the index
+        !             LocationNumber.
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+        !   Arguments:
+        integer LocationNumber
 
-*   Local Variables:
-      INTEGER J
+        !   Argument definitions:
+        !     LocationNumber - computational-location number (index) within
+        !                      current channel.
 
-*   Routines by module:
+        !   Local Variables:
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, CurrentChannel
-      EXTERNAL UpstreamPointer, CurrentChannel
+        !   Routines by module:
 
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Programmed by: Lew DeLong
-*   Date:          October 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !-----Implementation -----------------------------------------------------
 
-*-----Implementation -----------------------------------------------------
+        GlobalStreamDepth = H( LocationNumber )
 
-      J = UpstreamPointer() + LocationNumber - 1
-      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+        return
+    end function
 
-         Rho1( J ) = Value
+    !== Public (SetStreamDepth) ============================================
 
-      ELSE
+    logical function SetStreamDepth(LocationNumber, Value)
+        use IO_Units
+        use channel_schematic &
+            ,only: UpstreamPointer, CheckChannelCompLocationRange
+        implicit none
 
-         WRITE(UNIT_ERROR,*) ' Range error...(SetOldStreamDensity)'
-         WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-         WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-         CALL EXIT(1)
+        !   Purpose:  Set current value of depth of flow in the current
+        !             channel at a location corresponding to the index
+        !             LocationNumber.
 
-      END IF
+        !   Arguments:
+        integer LocationNumber
+        real*8    Value
 
-      SetOldStreamDensity = .TRUE.
+        !   Argument definitions:
+        !     LocationNumber - computational-location number (index) within
+        !                      current channel.
+        !     Value - current value to be set.
 
-      RETURN
-      END
 
-*== Public (SetNewStreamDensity) ================================================
+        !   Local Variables:
+        integer J
 
-      LOGICAL FUNCTION SetNewStreamDensity(LocationNumber, Value)
-      use IO_Units
-      IMPLICIT NONE
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Purpose:  Set current value of stream density in the current
-*             channel at a location corresponding to the index
-*             LocationNumber, at the end of the current time step.
+        !-----Implementation -----------------------------------------------------
 
-*   Arguments:
-      INTEGER LocationNumber
-      real*8    Value
+        J = UpstreamPointer() + LocationNumber - 1
+        !      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
-*   Argument definitions:
-*     LocationNumber - computational-location sequence number within
-*                      current channel.
-*     Value - value to be set.
+        H( J ) = Value
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+        SetStreamDepth = .true.
 
-*   Local Variables:
-      INTEGER J
+        !      ELSE
+        !         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamDepth)'
+        !         SetStreamDepth = .FALSE.
+        !      END IF
 
-*   Routines by module:
+        return
+    end function
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, CurrentChannel
-      EXTERNAL UpstreamPointer, CurrentChannel
+    !== Public (StreamSurfaceElevation) ====================================
 
-      LOGICAL  CheckChannelCompLocationRange
-      EXTERNAL CheckChannelCompLocationRange
+    real*8 function StreamSurfaceElevation(LocationNumber)
+        use IO_Units
+        use channel_schematic &
+            ,only: UpstreamPointer, CurrentChannel, CheckChannelCompLocationRange
+        implicit none
 
-*   Programmed by: Lew DeLong
-*   Date:          October 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Purpose:  Return current value of water-surface elevation in the
+        !             current channel at a location corresponding to the index
+        !             LocationNumber.
 
-*-----Implementation -----------------------------------------------------
+        !   Arguments:
+        integer LocationNumber
 
-      J = UpstreamPointer() + LocationNumber - 1
-!     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+        !   Argument definitions:
+        !     LocationNumber - computational-location number (index) within
+        !                      current channel.
 
-         Rho2( J ) = Value
+        !   Local Variables:
+        integer J
 
-!     ELSE
+        !   Routines by module:
 
-!        WRITE(UNIT_ERROR,*) ' Range error...(SetNewStreamDensity)'
-!        WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-!        WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-!        CALL EXIT(1)
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-!      END IF
+        !-----Implementation -----------------------------------------------------
 
-      SetNewStreamDensity = .TRUE.
+        J = UpstreamPointer() + LocationNumber - 1
 
-      RETURN
-      END
+        !     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
-*== Public (EstOldStreamDensity) ================================================
+        StreamSurfaceElevation = WS( J )
 
-      real*8 FUNCTION EstOldStreamDensity(DownstreamDistance)
-      use IO_Units
-      IMPLICIT NONE
+        !     ELSE
+        !        WRITE(UNIT_ERROR,*) ' Range error...(StreamSurfaceElevation)'
+        !        WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+        !        CALL EXIT(1)
+        !     END IF
 
-*   Purpose:  Return current value of stream density in the current
-*             channel at a  downstream distance of
-*             DownStreamDistance, at the begining of the current
-*             time step.
+        return
+    end function
 
-*   Arguments:
-      real*8 DownstreamDistance
+    !== Public (GlobalStreamSurfaceElevation) ==============================
 
-*   Argument definitions:
-*     DownstreamDistance - downstream distance to location within
-*                           current channel.
+    real*8 function GlobalStreamSurfaceElevation(LocationNumber)
+      
+        implicit none
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+        !   Purpose:  Return current value of water-surface elevation
+        !             at a location corresponding to the index
+        !             LocationNumber.
 
-*   Local Variables:
-      INTEGER I, N
-      real*8    XUp, dX, Shape
+        !   Arguments:
+        integer LocationNumber
 
-*   Routines by module:
+        !   Argument definitions:
+        !     LocationNumber - computational-location number (index).
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, DownstreamPointer, CurrentChannel
-      real*8     StreamDistance
-      EXTERNAL UpstreamPointer, DownstreamPointer, CurrentChannel
-      EXTERNAL StreamDistance
+        !   Local Variables:
 
-*   Programmed by: Lew DeLong
-*   Date:          October 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Routines by module:
 
-*-----Implementation -----------------------------------------------------
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-      N = 0
-      DO 100 I=UpstreamPointer(),DownstreamPointer()
-         N = N + 1
-         IF(StreamDistance(N) .LE. DownstreamDistance ) THEN
-         ELSE
-            GO TO 102
-         END IF
- 100  CONTINUE
-      WRITE(UNIT_ERROR,*) ' Range error...(EstOldStreamDensity)'
-      WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-      WRITE(UNIT_ERROR,*) ' Downstream distance ...', DownstreamDistance
- 102  CONTINUE
+        !-----Implementation -----------------------------------------------------
 
-      XUp = StreamDistance(N-1)
-      dX = StreamDistance(N) - XUp
-      Shape = (DownstreamDistance - XUp) / dX
-      EstOldStreamDensity = Rho1(N) * Shape + Rho1(N-1) * (1.0 - Shape)
+        GlobalStreamSurfaceElevation = WS( LocationNumber )
 
-      RETURN
-      END
+        return
+    end function
 
-*== Public (EstNewStreamDensity) ================================================
+    !== Public (SetStreamSurfaceElevation) =================================
 
-      real*8 FUNCTION EstNewStreamDensity(DownstreamDistance)
-      use IO_Units
-      IMPLICIT NONE
+    logical function SetStreamSurfaceElevation &
+        (LocationNumber, Value)
+        use IO_Units
+        use channel_schematic &
+            ,only: UpstreamPointer, StreamDistance, CheckChannelCompLocationRange
+        use channel_xsect_tbl &
+            , only: BtmElev, BtmElevAtLocationNumber
+        implicit none
 
-*   Purpose:  Return current value of stream density in the current
-*             channel at a location at a downstream distance of
-*             DownStreamDistance, at the end of the current
-*             time step.
+        !   Purpose:  Set current value of water-surface elevation in the
+        !             current channel at a location corresponding to the index
+        !             LocationNumber.  Also, set corresponding depth of flow.
 
-*   Arguments:
-      real*8 DownstreamDistance
+        !   Arguments:
+        integer LocationNumber
+        real*8    Value
 
-*   Argument definitions:
-*     DownstreamDistance - downstream distance to location within
-*                           current channel.
+        !   Argument definitions:
+        !     LocationNumber - computational-location number (index) within
+        !                      current channel.
+        !     Value  - value to be stored.
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+        !   Local Variables:
+        integer J
 
+        !   Routines by module:
 
-*   Local Variables:
-      INTEGER I, N
-      real*8    XUp, dX, Shape
 
-*   Routines by module:
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, DownstreamPointer, CurrentChannel
-      real*8     StreamDistance
-      EXTERNAL UpstreamPointer, DownstreamPointer, CurrentChannel
-      EXTERNAL StreamDistance
+        !-----Implementation -----------------------------------------------------
 
-*   Programmed by: Lew DeLong
-*   Date:          October 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        J = UpstreamPointer() + LocationNumber - 1
+        !      IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
 
-*-----Implementation -----------------------------------------------------
+        WS( J ) = Value
+        H( J ) = Value - BtmElevAtLocationNumber(LocationNumber)
 
-      N = 0
-      DO 100 I=UpstreamPointer(),DownstreamPointer()
-         N = N + 1
-         IF(StreamDistance(N) .LE. DownstreamDistance ) THEN
-         ELSE
-            GO TO 102
-         END IF
- 100  CONTINUE
-      WRITE(UNIT_ERROR,*) ' Range error...(EstNewStreamDensity)'
-      WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
-      WRITE(UNIT_ERROR,*) ' Downstream distance ...', DownstreamDistance
- 102  CONTINUE
+        SetStreamSurfaceElevation = .true.
 
-      XUp = StreamDistance(N-1)
-      dX = StreamDistance(N) - XUp
-      Shape = (DownstreamDistance - XUp) / dX
-      EstNewStreamDensity = Rho2(N) * Shape + Rho2(N-1) * (1.0 - Shape)
+        !      ELSE
+        !         WRITE(UNIT_ERROR,*) ' Range error...(SetStreamSurfaceElevation)'
+        !         SetStreamSurfaceElevation = .FALSE.
+        !      END IF
 
-      RETURN
-      END
+        return
+    end function
 
-*== Public (SetConstantStreamDensity) ====================================
+    !== Public (InitializeNetworkFlowValues) ===============================
 
-      LOGICAL FUNCTION SetConstantStreamDensity()
-      use IO_Units
-      IMPLICIT NONE
+    logical function InitializeNetworkFlowValues()
+        use PhysicalConstants, only: gravity
+        use IO_Units
+        use grid_data
+        use netcntrl
+      
+        use chinitcd
+        use chnluser
+        use chconnec
+      
+        use channel_schematic &
+            ,only :  NumberOfStreamLocations, &
+            UpstreamPointer, DownstreamPointer, &
+            StreamDistance, &
+            NumberOfChannels, &
+            OpenChannel, CloseChannel, &
+            GetUserStreamflow, GetUserStreamSurfaceElevation
+       
+        use channel_xsect_tbl &
+            ,only: BtmElev, CxArea, ChannelWidth, &
+            Conveyance, dConveyance
+        implicit none
 
-*   Purpose:  Set stream density to 1.0 for all channels.
+        !   Purpose:  Set initial values of water-surface elevation and flow
+        !             in a network of channels.
 
-*   Arguments:
+        !   Arguments:
 
-*   Argument definitions:
+        !   Argument definitions:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+        !   Local Variables:
+        integer I, J, K
+        integer Channelnumber_L, UserLocations
+        real*8    Velocity, delx, CrNo, dtr, G, FrNo
+        real*8    CompLocation_lcl(MaxLocations)
+        real*8    WidthRatio, Width, WSSlope, WSSlopeRatio, WSSlopeChange
+        logical OK
 
-*   Local Variables:
-      INTEGER I, M, Channel
-      LOGICAL  OK
+        !     CompLocation_lcl(j) - local downstream distance coordinate.
+        !     DummyArray(j) - a REAL value dependent upon context.
+        !     DummyArray2(j) - a REAL value dependent upon context.
+        !     DummyCharArray(j) - a CHARACTER value dependent upon context.
 
-*   Routines by module:
+        !   Routines by module:
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, DownstreamPointer
-      EXTERNAL UpstreamPointer, DownstreamPointer
-      INTEGER  NumberOfChannels
-      EXTERNAL NumberOfChannels
-      LOGICAL  OpenChannel, CloseChannel
-      EXTERNAL OpenChannel, CloseChannel
+        !**** Local:
+        integer FirstLoc
 
-*   Intrinsics:
+        !   Intrinsics:
+        real*8      SQRT, ABS
+        intrinsic SQRT, ABS
 
-*   Programmed by: Lew DeLong
-*   Date:          October  1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Programmed by: Lew DeLong
+        !   Date:          Nov   1990
+        !   Modified by:   Lew DeLong
+        !   Last modified: August   1993
+        !   Version 93.01, January, 1993
 
-*-----Implementation -----------------------------------------------------
+        !-----Implementation -----------------------------------------------------
 
-      DO 200 M=1,NumberOfChannels()
+        InitializeNetworkFlowValues = .false.
 
-         Channel = M
-         IF( OpenChannel( Channel ) ) THEN
-            DO 100 I=UpstreamPointer(),DownstreamPointer()
-               Rho1(I) = 1.0
-               Rho2(I) = 1.0
- 100        CONTINUE
-         ELSE
-            WRITE(UNIT_ERROR,*) ' ####error(SetConstantStreamDensity)'
-            WRITE(UNIT_ERROR,*) ' could not open channel...',Channel
-            WRITE(UNIT_ERROR,*) ' Abnormal program end.'
-            CALL EXIT(1)
-         END IF
+        dtr = DFLOAT( NetworkTimeIncrement() )
+        G = gravity
 
-         OK = CloseChannel()
+        !-----Set initial-condition read flag to "not initialized".
 
- 200  CONTINUE
+        OK = .false.
+        OK = SetNetworkInitCndRead( OK )
 
-      SetConstantStreamDensity = .TRUE.
+        if (Restart_Read) then    ! Read initial conditions from restart file
+            if( ReadNetworkInitialConditions() ) then
+                InitCndInitialized = .true.
+                Q=InitialQ
+                QOld=InitialQ
+                WS=InitialWS
+                YResOld=YRes
+                CompLocation_lcl = InitialX
+            else
+                write(UNIT_ERROR,*) ' ####Error(ReadNetworkInitialConditions)'
+                write(UNIT_ERROR,*) ' Reading of initial conditions failed...'
+                return
+            end if
+        else                      ! Interpolate user points
+            do 100 I = 1, NumberOfChannels()
+                Channelnumber_L = I
+                if( OpenChannel( Channelnumber_L )  ) then
 
-      RETURN
-      END
+                    !--------------Get computational stream locations.
+                    K = 0
+                    do J=UpstreamPointer(),DownstreamPointer()
+                        K = K + 1
+                        CompLocation_lcl(J) = StreamDistance(K)
+                    end do
 
+                    !--------------Initial conditions approximated from user input.
 
+                    UserLocations = NUserInitLocations(branch)
+                    FirstLoc=FirstLocation(branch)
 
-*== Public (StreamEnergy) ================================================
+                    if (FirstLoc == 0) then ! no initial conditions at all
+                        write(unit_error,*)'No default initial conditions or restart file'
+                        return
+                    end if
 
-      real*8 FUNCTION StreamEnergy( X, Q, Z )
-      Use PhysicalConstants,only: gravity
-      IMPLICIT NONE
+                    !--------------Approximate streamflow and ws linearly from user input.
 
-*   Purpose:  Approximate specific energy in the current channel at X,
-*             given flow (Q) and water-surface elevation (Z).
+                    call Linear1D( &
+                        NumberOfStreamLocations(), &
+                        CompLocation_lcl(UpstreamPointer()), &
+                        UserLocations, InitialX(FirstLoc), InitialQ(FirstLoc), &
+                        Q(UpstreamPointer()) &
+                        )
 
-*   Arguments:
-      real*8 X, Q, Z
+                    call Linear1D( &
+                        NumberOfStreamLocations(), &
+                        CompLocation_lcl(UpstreamPointer()), &
+                        UserLocations, InitialX(FirstLoc), InitialWS(FirstLoc), &
+                        WS(UpstreamPointer()) &
+                        )
+                    OK = CloseChannel()
+                end if
 
-*   Argument definitions:
-*     X - downstream distance in current channel.
-*     Q - discharge.
-*     Z - water-surface elevation.
+100         continue
+        end if
 
-*   Module data:
 
-*   Local Variables:
-      real*8 Depth, Velocity
 
-*   Routines by module:
+        do i=1,MaxLocations
+            QOld(i)=Q(i)
+        end do
+        do i=1,NReser
+            YResOld(i)=YRes(i)
+        end do
 
-***** Local:
+        do 200 I = 1, NumberOfChannels()
 
-***** Network control:
+            Channelnumber_L = I
 
+            if( OpenChannel( Channelnumber_L )  ) then
+                !-----------Approximate depth of flow.
 
-***** Channel properties:
-      real*8     CxArea, BtmElev
-      EXTERNAL CxArea, BtmElev
+                do  J=UpstreamPointer(),DownstreamPointer()
+                    H( J ) = WS( J ) - BtmElev( CompLocation_lcl( J ) )
+                end do
 
-*   Intrinsics:
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+                !-----------if (Restart_Read)
+                !-----------&           OK = ApproxReadInitialConditions()               WHY??????!!!!!!
 
-*-----Implementation -----------------------------------------------------
+                !-----------Upstream end of channel.     WHY???????/
 
-      Depth = Z - BtmElev( X )
-      IF( Depth .GT. 0.0 ) THEN
-         Velocity = Q / CxArea( X, Z )
-         StreamEnergy = Z + Velocity**2 / (2.D0 * gravity)
-      ELSE
-         StreamEnergy = 0.0
-      END IF
+                K = 1
+                J = UpstreamPointer()
+                Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
+                delX = CompLocation_lcl(J+1) - CompLocation_lcl(J)
+                WSSlope = ( WS(J+1) - WS(J) ) / delX
 
-      RETURN
-      END
+                FrNo = Velocity / SQRT( G * H(J) )
+                CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / delX
+                Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
 
-*== Public (dStreamEnergydZ) ================================================
+                !-----------Intervening cross sections.
 
-      real*8 function dStreamEnergydZ( X, Q, Z )
-      use PhysicalConstants,only: gravity
-      implicit none
-*   Purpose:  Approximate the gradient of specific energy
-*             with depth of flow.
+                if( (DownstreamPointer() - UpstreamPointer()) > 2) then
+                    do 150 J=UpstreamPointer()+1,DownstreamPointer()-1
+                        K = K + 1
+                        Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
+                        delX = ( CompLocation_lcl(J+1) - CompLocation_lcl(J-1) )
+                        WSSlope = ( WS(J+1) - WS(J-1) ) / delX
+                        CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / ( 0.5 * delX )
+                        FrNo = Velocity / SQRT( G * H(J) )
+                        delX   = CompLocation_lcl(J+1) - CompLocation_lcl(J)
+                        if( ABS( ( WS(J) - WS(J-1) ) ) > 1.0e-10 ) then
+                            WSSlopeRatio = ( WS(J+1) - WS(J) ) / ( WS(J) - WS(J-1) ) &
+                                * ( CompLocation_lcl(J) - CompLocation_lcl(J-1) ) &
+                                / ( CompLocation_lcl(J+1) - CompLocation_lcl(J) )
+                        else
+                            WSSlopeRatio = 0.0
+                        end if
+                        WSSlopeChange = ( WS(J+1) - WS(J) ) &
+                            / ( CompLocation_lcl(J+1) - CompLocation_lcl(J) ) &
+                            - ( WS(J) - WS(J-1) ) &
+                            / ( CompLocation_lcl(J) - CompLocation_lcl(J-1) )
+                        Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
+                        WidthRatio = ChannelWidth( CompLocation_lcl(J+1), WS(J+1) ) &
+                            / ChannelWidth( CompLocation_lcl(J-1), WS( J-1) )
+150                 continue
+                end if
 
-      real*8 X, Q, Z
+                !-----------Downstream end of channel.
 
-*   Argument definitions:
-*     X - downstream distance in current channel.
-*     Q - discharge.
-*     Z - water-surface elevation.
+                K = K + 1
+                J = DownstreamPointer()
+                Velocity = Q(J) / CxArea( CompLocation_lcl(J), WS( J ) )
+                dX = CompLocation_lcl(J) - CompLocation_lcl(J-1)
+                FrNo = Velocity / SQRT( G * H(J) )
+                CrNo = dtr * ( Velocity + SQRT( G * H(J) ) ) / delX
+                WSSlope = ( WS(J) - WS(J-1) ) / delX
+                Width = ChannelWidth( CompLocation_lcl(J), WS( J ) )
 
-*   Module data:
+                !-----------Check friction / WS slope / dX relation.
 
-*   Local Variables:
-      real*8 A, Depth, Velocity
+                OK = CloseChannel()
 
-*   Routines by module:
+            else
+                write(UNIT_ERROR,*) ' Could not open channel...', &
+                    chan_geom(Channelnumber_L)%chan_no
+                write(UNIT_ERROR,*) ' (InitializeNetworkFlowValues)'
+                return
+            end if
 
-***** Local:
+200     continue
 
-***** Network control:
+        InitializeNetworkFlowValues = .true.
 
-***** Channel properties:
-      real*8     CxArea, ChannelWidth, BtmElev
-      EXTERNAL CxArea, ChannelWidth, BtmElev
+        return
+    end function
 
-*   Intrinsics:
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+    !== Public (InitializeChannelNetwork) ==================================
 
-*-----Implementation -----------------------------------------------------
+    logical function InitializeChannelNetwork()
+        use IO_Units
+        use netcntrl
+        use channel_schematic, only: SetCompLocations
+        implicit none
 
-      Depth = Z - BtmElev( X )
-      IF( Depth .GT. 0.0 ) THEN
-         A = CxArea( X, Z )
-         Velocity = Q / A
-         dStreamEnergydZ = 1.0
-     &        - ChannelWidth( X, Z ) * Velocity**2 /(A*gravity)
-      ELSE
-         dStreamEnergydZ = 0.0
-      END IF
+        !   Purpose:  Initialize a network of channels.
 
-      RETURN
-      END
+        !   Arguments:
 
-*== Public (StreamResistance) ================================================
+        !   Argument definitions:
 
-      real*8 FUNCTION StreamResistance( Xu, Xd, Zu, Zd, Q )
+        !   Module data:
 
-      IMPLICIT NONE
 
-*   Purpose:  Approximate head loss due to flow resistance between
-*             an upstream and downstream cross section.
+        !   Local Variables:
+        logical :: OK
 
-*   Arguments:
-      real*8 Xu, Xd, Zu, Zd, Q
 
-*   Argument definitions:
-*     Xu - down stream distance to upstream cross section.
-*     Xd - down stream distance to downstream cross section.
-*     Zu - upstream water-surface elevation.
-*     Zd - downstream water-surface elevation.
-*     Q  - discharge.
+        !   Programmed by: Lew DeLong
+        !   Date:          November 1990
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Module data:
-      INCLUDE 'network.inc'
+        !-----Implementation -----------------------------------------------------
 
-*   Local Variables:
-      INTEGER K, QuadPts
-      real*8 N( MaxQuadPts )
-      real*8 Hd, Hu
-      real*8 H, X, QuadWt, QuadPt, fric, Z
+        InitializeChannelNetwork = .false.
 
-*   Routines by module:
+        !-----Read network schematic data.
+        !      IF( .not. InitializeNetworkSchematic() ) THEN
+        !         WRITE(UNIT_ERROR,*) ' Attempt to initialize network schematic failed...'
+        !         RETURN
+        !      END IF
 
-***** Local:
+        !-----Determine computational locations and set channel pointers.
+        if( .not. SetCompLocations() ) then
+            write(UNIT_ERROR,*) &
+                ' Attempt to set computational locations failed...'
+            return
+        endif
 
-***** Channel properties:
-      real*8     BtmElev, Conveyance
-      EXTERNAL BtmElev, Conveyance
+        !-----Set initial channel flow values.
+        if( .not. InitializeNetworkFlowValues() ) then
+            write(UNIT_ERROR,*) ' Attempt to set initial flow channel', &
+                ' values failed...'
+            return
+        end if
 
-***** Network control:
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+        !-----Set initial water density.
 
-*   Intrinsics:
+        if( VariableStreamDensity() ) then
+        else if(VariableStreamSinuosity() ) then
+            OK = SetConstantStreamDensity()
+        end if
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+        InitializeChannelNetwork = .true.
 
-*-----Implementation -----------------------------------------------------
+        return
+    end function
 
-      Hu = Zu - BtmElev( Xu )
-      Hd = Zd - BtmElev( Xd )
+    !== Public (OldStreamDensity) ================================================
 
-      fric = 0.0
-      QuadPts = NetworkQuadPts()
+    real*8 function OldStreamDensity(LocationNumber)
+        use IO_Units
+        use channel_schematic, only: UpstreamPointer, &
+            CurrentChannel, CheckChannelCompLocationRange
 
-      DO 100 K=1,QuadPts
 
-*--------Estimate quadrature-point values.
+        implicit none
 
-         CALL NetworkQuadPtWt( K, QuadPt, QuadWt )
+        !   Purpose:  Return current value of stream density in the current
+        !             channel at a location corresponding to the index
+        !             LocationNumber, at the begining of the current time step.
 
-*--------Interpolation functions.
-         N(1) = 1.0 - QuadPt
-         N(2) = QuadPt
+        !   Arguments:
+        integer LocationNumber
 
-*--------Location of quadrature point.
-         X = N(1) * Xu + N(2) * Xd
+        !   Argument definitions:
+        !     LocationNumber - computational-location sequence number within
+        !                      current channel.
 
-*--------Dependent variables.
-         H = N(1) * Hu + N(2) * Hd
-         Z = N(1) * Zu + N(2) * Zd
+        !   Local Variables:
+        integer J
 
-         IF( H .GT. 0.0 ) THEN
+        !   Routines by module:
+
+        !**** Channel schematic:
+        !   Programmed by: Lew DeLong
+        !   Date:          October 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        J = UpstreamPointer() + LocationNumber - 1
+        if( CheckChannelCompLocationRange( LocationNumber ) ) then
+
+            OldStreamDensity = Rho1( J )
+
+        else
+
+            write(UNIT_ERROR,*) ' Range error...(OldStreamDensity)'
+            write(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+            write(UNIT_ERROR,*) ' Abnormal program end.'
+            call EXIT(1)
+
+        end if
+
+        return
+    end function
+
+    !== Public (NewStreamDensity) ================================================
+
+    real*8 function NewStreamDensity(LocationNumber)
+        use IO_Units
+        use channel_schematic, only: UpstreamPointer, CurrentChannel, &
+            CheckChannelCompLocationRange
+        implicit none
+
+        !   Purpose:  Return current value of stream density in the current
+        !             channel at a location corresponding to the index
+        !             LocationNumber, at the end of the current time step.
+
+        !   Arguments:
+        integer LocationNumber
+
+        !   Argument definitions:
+        !     LocationNumber - computational-location sequence number within
+        !                      current channel.
+
+        !   Local Variables:
+        integer J
+
+        !   Routines by module:
+
+        !   Programmed by: Lew DeLong
+        !   Date:          October 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        J = UpstreamPointer() + LocationNumber - 1
+        if( CheckChannelCompLocationRange( LocationNumber ) ) then
+
+            NewStreamDensity = Rho2( J )
+
+        else
+
+            write(UNIT_ERROR,*) ' Range error...(NewStreamDensity)'
+            write(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+            write(UNIT_ERROR,*) ' Abnormal program end.'
+            call EXIT(1)
+
+        end if
+
+        return
+    end function
+
+    !== Public (SetOldStreamDensity) ================================================
+
+    logical function SetOldStreamDensity(LocationNumber, Value)
+        use IO_Units
+        use channel_schematic, only: UpstreamPointer, CurrentChannel, &
+            CheckChannelCompLocationRange
+      
+        implicit none
+
+        !   Purpose:  Set current value of stream density in the current
+        !             channel at a location corresponding to the index
+        !             LocationNumber, at the begining of the current time step.
+
+        !   Arguments:
+        integer LocationNumber
+        real*8    Value
+
+        !   Argument definitions:
+        !     LocationNumber - computational-location sequence number within
+        !                      current channel.
+
+        !   Local Variables:
+        integer J
+
+        !   Programmed by: Lew DeLong
+        !   Date:          October 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        J = UpstreamPointer() + LocationNumber - 1
+        if( CheckChannelCompLocationRange( LocationNumber ) ) then
+
+            Rho1( J ) = Value
+
+        else
+
+            write(UNIT_ERROR,*) ' Range error...(SetOldStreamDensity)'
+            write(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+            write(UNIT_ERROR,*) ' Abnormal program end.'
+            call EXIT(1)
+
+        end if
+
+        SetOldStreamDensity = .true.
+
+        return
+    end function
+
+    !== Public (SetNewStreamDensity) ================================================
+
+    logical function SetNewStreamDensity(LocationNumber, Value)
+        use IO_Units
+        use channel_schematic, only: UpstreamPointer, CurrentChannel, &
+            CheckChannelCompLocationRange
+ 
+        implicit none
+
+        !   Purpose:  Set current value of stream density in the current
+        !             channel at a location corresponding to the index
+        !             LocationNumber, at the end of the current time step.
+
+        !   Arguments:
+        integer LocationNumber
+        real*8    Value
+
+        !   Argument definitions:
+        !     LocationNumber - computational-location sequence number within
+        !                      current channel.
+        !     Value - value to be set.
+
+        !   Local Variables:
+        integer J
+
+
+        !   Programmed by: Lew DeLong
+        !   Date:          October 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        J = UpstreamPointer() + LocationNumber - 1
+        !     IF( CheckChannelCompLocationRange( LocationNumber ) ) THEN
+
+        Rho2( J ) = Value
+
+        !     ELSE
+
+        !        WRITE(UNIT_ERROR,*) ' Range error...(SetNewStreamDensity)'
+        !        WRITE(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+        !        WRITE(UNIT_ERROR,*) ' Abnormal program end.'
+        !        CALL EXIT(1)
+
+        !      END IF
+
+        SetNewStreamDensity = .true.
+
+        return
+    end function
+
+    !== Public (EstOldStreamDensity) ================================================
+
+    real*8 function EstOldStreamDensity(DownstreamDistance)
+        use IO_Units
+        use channel_schematic, only: UpstreamPointer, DownstreamPointer, &
+            StreamDistance, CurrentChannel
+        implicit none
+
+        !   Purpose:  Return current value of stream density in the current
+        !             channel at a  downstream distance of
+        !             DownStreamDistance, at the begining of the current
+        !             time step.
+
+        !   Arguments:
+        real*8 DownstreamDistance
+
+        !   Argument definitions:
+        !     DownstreamDistance - downstream distance to location within
+        !                           current channel.
+
+        !   Local Variables:
+        integer I, N
+        real*8    XUp, dX, Shape
+
+        !   Routines by module:
+
+        !   Programmed by: Lew DeLong
+        !   Date:          October 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        N = 0
+        do 100 I=UpstreamPointer(),DownstreamPointer()
+            N = N + 1
+            if(StreamDistance(N) <= DownstreamDistance ) then
+            else
+                go to 102
+            end if
+100     continue
+        write(UNIT_ERROR,*) ' Range error...(EstOldStreamDensity)'
+        write(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+        write(UNIT_ERROR,*) ' Downstream distance ...', DownstreamDistance
+102 continue
+
+    XUp = StreamDistance(N-1)
+    dX = StreamDistance(N) - XUp
+    Shape = (DownstreamDistance - XUp) / dX
+    EstOldStreamDensity = Rho1(N) * Shape + Rho1(N-1) * (1.0 - Shape)
+
+    return
+end function
+
+!== Public (EstNewStreamDensity) ================================================
+
+real*8 function EstNewStreamDensity(DownstreamDistance)
+    use IO_Units
+    use channel_schematic, only: UpstreamPointer, DownstreamPointer, &
+        CurrentChannel, StreamDistance
+
+    implicit none
+
+    !   Purpose:  Return current value of stream density in the current
+    !             channel at a location at a downstream distance of
+    !             DownStreamDistance, at the end of the current
+    !             time step.
+
+    !   Arguments:
+    real*8 DownstreamDistance
+
+    !   Argument definitions:
+    !     DownstreamDistance - downstream distance to location within
+    !                           current channel.
+
+    !   Local Variables:
+    integer I, N
+    real*8    XUp, dX, Shape
+
+    !   Routines by module:
+
+
+    !   Programmed by: Lew DeLong
+    !   Date:          October 1991
+    !   Modified by:
+    !   Last modified:
+    !   Version 93.01, January, 1993
+
+    !-----Implementation -----------------------------------------------------
+
+    N = 0
+    do 100 I=UpstreamPointer(),DownstreamPointer()
+        N = N + 1
+        if(StreamDistance(N) <= DownstreamDistance ) then
+        else
+            go to 102
+        end if
+100 continue
+    write(UNIT_ERROR,*) ' Range error...(EstNewStreamDensity)'
+    write(UNIT_ERROR,*) ' Channel ',CurrentChannel(),'...'
+    write(UNIT_ERROR,*) ' Downstream distance ...', DownstreamDistance
+102 continue
+
+    XUp = StreamDistance(N-1)
+    dX = StreamDistance(N) - XUp
+    Shape = (DownstreamDistance - XUp) / dX
+    EstNewStreamDensity = Rho2(N) * Shape + Rho2(N-1) * (1.0 - Shape)
+
+    return
+end function
+
+!== Public (SetConstantStreamDensity) ====================================
+
+logical function SetConstantStreamDensity()
+    use IO_Units
+    use channel_schematic, only: UpstreamPointer, DownstreamPointer, NumberOfChannels &
+        , OpenChannel, CloseChannel
+      
+    implicit none
+
+    !   Purpose:  Set stream density to 1.0 for all channels.
+
+    !   Arguments:
+
+    !   Argument definitions:
+    !   Local Variables:
+    integer I, M, Channel
+    logical  OK
+
+    !   Routines by module:
+
+    !   Intrinsics:
+
+    !   Programmed by: Lew DeLong
+    !   Date:          October  1991
+    !   Modified by:
+    !   Last modified:
+    !   Version 93.01, January, 1993
+
+    !-----Implementation -----------------------------------------------------
+
+    do 200 M=1,NumberOfChannels()
+
+        Channel = M
+        if( OpenChannel( Channel ) ) then
+            do 100 I=UpstreamPointer(),DownstreamPointer()
+                Rho1(I) = 1.0
+                Rho2(I) = 1.0
+100         continue
+        else
+            write(UNIT_ERROR,*) ' ####error(SetConstantStreamDensity)'
+            write(UNIT_ERROR,*) ' could not open channel...',Channel
+            write(UNIT_ERROR,*) ' Abnormal program end.'
+            call EXIT(1)
+        end if
+
+        OK = CloseChannel()
+
+200 continue
+
+    SetConstantStreamDensity = .true.
+
+    return
+end function
+
+
+
+!== Public (StreamEnergy) ================================================
+
+real*8 function StreamEnergy( X, Q, Z )
+    use PhysicalConstants,only: gravity
+    use channel_xsect_tbl, only: CxArea, BtmElev
+
+    implicit none
+
+    !   Purpose:  Approximate specific energy in the current channel at X,
+    !             given flow (Q) and water-surface elevation (Z).
+
+    !   Arguments:
+    real*8 X, Q, Z
+
+    !   Argument definitions:
+    !     X - downstream distance in current channel.
+    !     Q - discharge.
+    !     Z - water-surface elevation.
+
+    !   Module data:
+
+    !   Local Variables:
+    real*8 Depth, Velocity
+
+    !   Routines by module:
+
+    !**** Local:
+
+
+    !   Intrinsics:
+
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
+
+    !-----Implementation -----------------------------------------------------
+
+    Depth = Z - BtmElev( X )
+    if( Depth > 0.0 ) then
+        Velocity = Q / CxArea( X, Z )
+        StreamEnergy = Z + Velocity**2 / (2.D0 * gravity)
+    else
+        StreamEnergy = 0.0
+    end if
+
+    return
+end function
+
+!== Public (dStreamEnergydZ) ================================================
+
+real*8 function dStreamEnergydZ( X, Q, Z )
+    use PhysicalConstants,only: gravity
+    use channel_xsect_tbl, only: CxArea, ChannelWidth, BtmElev
+    implicit none
+    !   Purpose:  Approximate the gradient of specific energy
+    !             with depth of flow.
+
+    real*8 X, Q, Z
+
+    !   Argument definitions:
+    !     X - downstream distance in current channel.
+    !     Q - discharge.
+    !     Z - water-surface elevation.
+
+    !   Module data:
+
+    !   Local Variables:
+    real*8 A, Depth, Velocity
+
+    !   Routines by module:
+
+    !**** Local:
+
+    !**** Network control:
+
+
+    !   Intrinsics:
+
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
+
+    !-----Implementation -----------------------------------------------------
+
+    Depth = Z - BtmElev( X )
+    if( Depth > 0.0 ) then
+        A = CxArea( X, Z )
+        Velocity = Q / A
+        dStreamEnergydZ = 1.0 &
+            - ChannelWidth( X, Z ) * Velocity**2 /(A*gravity)
+    else
+        dStreamEnergydZ = 0.0
+    end if
+
+    return
+end function
+
+!== Public (StreamResistance) ================================================
+
+real*8 function StreamResistance( Xu, Xd, Zu, Zd, Q )
+    use network
+    use channel_xsect_tbl, only: BtmElev, Conveyance
+    use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
+    implicit none
+
+    !   Purpose:  Approximate head loss due to flow resistance between
+    !             an upstream and downstream cross section.
+
+    !   Arguments:
+    real*8 Xu, Xd, Zu, Zd, Q
+
+    !   Argument definitions:
+    !     Xu - down stream distance to upstream cross section.
+    !     Xd - down stream distance to downstream cross section.
+    !     Zu - upstream water-surface elevation.
+    !     Zd - downstream water-surface elevation.
+    !     Q  - discharge.
+
+
+    !   Local Variables:
+    integer K, QuadPts
+    real*8 N( MaxQuadPts )
+    real*8 Hd, Hu
+    real*8 H, X, QuadWt, QuadPt, fric, Z
+
+    !   Routines by module:
+
+    !**** Local:
+
+
+    !   Intrinsics:
+
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
+
+    !-----Implementation -----------------------------------------------------
+
+    Hu = Zu - BtmElev( Xu )
+    Hd = Zd - BtmElev( Xd )
+
+    fric = 0.0
+    QuadPts = NetworkQuadPts()
+
+    do 100 K=1,QuadPts
+
+        !--------Estimate quadrature-point values.
+
+        call NetworkQuadPtWt( K, QuadPt, QuadWt )
+
+        !--------Interpolation functions.
+        N(1) = 1.0 - QuadPt
+        N(2) = QuadPt
+
+        !--------Location of quadrature point.
+        X = N(1) * Xu + N(2) * Xd
+
+        !--------Dependent variables.
+        H = N(1) * Hu + N(2) * Hd
+        Z = N(1) * Zu + N(2) * Zd
+
+        if( H > 0.0 ) then
             fric = fric + QuadWt / ( Conveyance(X,Z) ** 2 )
-         END IF
+        end if
 
- 100  CONTINUE
+100 continue
 
-      StreamResistance = Q * ABS( Q ) * fric * ( Xd - Xu )
+    StreamResistance = Q * ABS( Q ) * fric * ( Xd - Xu )
 
-      RETURN
-      END
+    return
+end function
 
-*== Public (dStreamResistancedZu) ================================================
+!== Public (dStreamResistancedZu) ================================================
 
-      real*8 FUNCTION dStreamResistancedZu( Xu, Xd, Zu, Zd, Q )
+real*8 function dStreamResistancedZu( Xu, Xd, Zu, Zd, Q )
+    use network
+    use channel_xsect_tbl, only: BtmElev, Conveyance, dConveyance
+    use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
+    implicit none
 
-      IMPLICIT NONE
+    !   Purpose:  Approximate gradient, with respect to a change in upstream
+    !             water-surface elevation, of head loss due to flow
+    !             resistance between an upstream and downstream cross section.
 
-*   Purpose:  Approximate gradient, with respect to a change in upstream
-*             water-surface elevation, of head loss due to flow
-*             resistance between an upstream and downstream cross section.
+    !   Arguments:
+    real*8 Xu, Xd, Zu, Zd, Q
 
-*   Arguments:
-      real*8 Xu, Xd, Zu, Zd, Q
+    !   Argument definitions:
+    !     Xu - down stream distance to upstream cross section.
+    !     Xd - down stream distance to downstream cross section.
+    !     Zu - upstream water-surface elevation.
+    !     Zd - downstream water-surface elevation.
+    !     Q  - discharge.
+    !   Local Variables:
+    integer K, QuadPts
+    real*8 N( MaxQuadPts )
+    real*8 Hd, Hu
+    real*8 H, X, QuadWt, QuadPt, fric, Z
 
-*   Argument definitions:
-*     Xu - down stream distance to upstream cross section.
-*     Xd - down stream distance to downstream cross section.
-*     Zu - upstream water-surface elevation.
-*     Zd - downstream water-surface elevation.
-*     Q  - discharge.
+    !   Routines by module:
 
-*   Module data:
-      INCLUDE 'network.inc'
+    !**** Local:
 
-*   Local Variables:
-      INTEGER K, QuadPts
-      real*8 N( MaxQuadPts )
-      real*8 Hd, Hu
-      real*8 H, X, QuadWt, QuadPt, fric, Z
 
-*   Routines by module:
+    !   Intrinsics:
 
-***** Local:
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
 
-***** Channel properties:
-      real*8     BtmElev, Conveyance, dConveyance
-      EXTERNAL BtmElev, Conveyance, dConveyance
+    !-----Implementation -----------------------------------------------------
 
-***** Network control:
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+    Hu = Zu - BtmElev( Xu )
+    Hd = Zd - BtmElev( Xd )
 
-*   Intrinsics:
+    fric = 0.0
+    QuadPts = NetworkQuadPts()
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+    do 100 K=1,QuadPts
 
-*-----Implementation -----------------------------------------------------
+        !--------Estimate quadrature-point values.
 
-      Hu = Zu - BtmElev( Xu )
-      Hd = Zd - BtmElev( Xd )
+        call NetworkQuadPtWt( K, QuadPt, QuadWt )
 
-      fric = 0.0
-      QuadPts = NetworkQuadPts()
+        !--------Interpolation functions.
+        N(1) = 1.0 - QuadPt
+        N(2) = QuadPt
 
-      DO 100 K=1,QuadPts
+        !--------Location of quadrature point.
+        X = N(1) * Xu + N(2) * Xd
 
-*--------Estimate quadrature-point values.
+        !--------Dependent variables.
+        H = N(1) * Hu + N(2) * Hd
+        Z = N(1) * Zu + N(2) * Zd
 
-         CALL NetworkQuadPtWt( K, QuadPt, QuadWt )
+        !--------Integrate friction term.
 
-*--------Interpolation functions.
-         N(1) = 1.0 - QuadPt
-         N(2) = QuadPt
+        if( H > 0.0 ) then
+            fric = fric - QuadWt * N(1) *  2.0 * dConveyance(X,Z) &
+                / ( Conveyance(X,Z) ** 3 )
+        end if
 
-*--------Location of quadrature point.
-         X = N(1) * Xu + N(2) * Xd
+100 continue
 
-*--------Dependent variables.
-         H = N(1) * Hu + N(2) * Hd
-         Z = N(1) * Zu + N(2) * Zd
+    dStreamResistancedZu = Q * ABS( Q ) * fric * ( Xd - Xu )
 
-*--------Integrate friction term.
+    return
+end function
 
-         IF( H .GT. 0.0 ) THEN
-            fric = fric - QuadWt * N(1) *  2.0 * dConveyance(X,Z)
-     &           / ( Conveyance(X,Z) ** 3 )
-         END IF
+!== Public (GlobalStreamSurfaceSlope) ====================================
 
- 100  CONTINUE
+real*8 function GlobalStreamSurfaceSlope(LocationNumber)
+    use channel_schematic, only: UpstreamPointer, DownstreamPointer, GlobalStreamDistance
 
-      dStreamResistancedZu = Q * ABS( Q ) * fric * ( Xd - Xu )
+    implicit none
 
-      RETURN
-      END
+    !   Purpose:  Return current value of water-surface slope
+    !             at global location corresponding to LocationNumbe.
 
-*== Public (GlobalStreamSurfaceSlope) ====================================
+    !   Arguments:
+    integer LocationNumber
 
-      real*8 FUNCTION GlobalStreamSurfaceSlope(LocationNumber)
+    !   Argument definitions:
+    !     LocationNumber - global computational-location number.
 
-      IMPLICIT NONE
 
-*   Purpose:  Return current value of water-surface slope
-*             at global location corresponding to LocationNumbe.
+    !   Local Variables:
 
-*   Arguments:
-      INTEGER LocationNumber
+    !   Routines by module:
 
-*   Argument definitions:
-*     LocationNumber - global computational-location number.
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'chstatus.inc'
+    !   Programmed by: Lew DeLong
+    !   Date:          September 1993
+    !   Modified by:
+    !   Last modified:
+    !   Version 93.01, January, 1993
 
-*   Local Variables:
+    !-----Implementation -----------------------------------------------------
 
-*   Routines by module:
+    if( LocationNumber == UpstreamPointer() ) then
 
-***** Local:
-      real*8     GlobalStreamDistance
-      EXTERNAL GlobalStreamDistance
+        !--------Upstream end of channel.
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer, DownstreamPointer
-      EXTERNAL UpstreamPointer, DownstreamPointer
+        GlobalStreamSurfaceSlope = &
+            ( WS( LocationNumber + 1 )  - WS( LocationNumber ) ) &
+            / &
+            ( &
+            GlobalStreamDistance( LocationNumber + 1 ) &
+            - GlobalStreamDistance( LocationNumber     ) &
+            )
 
-*   Programmed by: Lew DeLong
-*   Date:          September 1993
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+    else if( LocationNumber ==  DownstreamPointer() ) then
 
-*-----Implementation -----------------------------------------------------
+        !--------Downstream end of channel.
 
-      IF( LocationNumber .EQ. UpstreamPointer() ) THEN
+        GlobalStreamSurfaceSlope = &
+            ( &
+            WS( LocationNumber     ) &
+            - WS( LocationNumber - 1 ) &
+            )  /  ( &
+            GlobalStreamDistance( LocationNumber     ) &
+            - GlobalStreamDistance( LocationNumber - 1 ) &
+            )
 
-*--------Upstream end of channel.
+    else
 
-         GlobalStreamSurfaceSlope =
-     &        ( WS( LocationNumber + 1 )  - WS( LocationNumber ) )
-     &        /
-     &        (
-     &        GlobalStreamDistance( LocationNumber + 1 )
-     &        - GlobalStreamDistance( LocationNumber     )
-     &        )
+        !--------Intervening reaches of channel.
 
-      ELSE IF( LocationNumber .EQ.  DownstreamPointer() ) THEN
+        GlobalStreamSurfaceSlope = &
+            ( &
+            WS( LocationNumber + 1 ) &
+            - WS( LocationNumber - 1 ) &
+            )  /  ( &
+            GlobalStreamDistance( LocationNumber + 1 ) &
+            - GlobalStreamDistance( LocationNumber - 1 ) &
+            )
 
-*--------Downstream end of channel.
+    end if
 
-         GlobalStreamSurfaceSlope =
-     &        (
-     &        WS( LocationNumber     )
-     &        - WS( LocationNumber - 1 )
-     &        )  /  (
-     &        GlobalStreamDistance( LocationNumber     )
-     &        - GlobalStreamDistance( LocationNumber - 1 )
-     &        )
+    return
+end function
 
-      ELSE
 
-*--------Intervening reaches of channel.
+!== Public (StreamMoFlux) ================================================
 
-         GlobalStreamSurfaceSlope =
-     &        (
-     &        WS( LocationNumber + 1 )
-     &        - WS( LocationNumber - 1 )
-     &        )  /  (
-     &        GlobalStreamDistance( LocationNumber + 1 )
-     &        - GlobalStreamDistance( LocationNumber - 1 )
-     &        )
+real*8 function StreamMoFlux( X, Q, Z )
+    use channel_xsect_tbl, only: CxArea, BtmElev, Beta
 
-      END IF
+    implicit none
 
-      RETURN
-      END
+    !   Purpose:  Approximate momentum flux in the current channel at X,
+    !             given flow (Q) and water-surface elevation (Z).
 
+    !   Arguments:
+    real*8 X, Q, Z
 
-*== Public (StreamMoFlux) ================================================
+    !   Argument definitions:
+    !     X - downstream distance in current channel.
+    !     Q - discharge.
+    !     Z - water-surface elevation.
 
-      real*8 FUNCTION StreamMoFlux( X, Q, Z )
+    !   Module data:
 
-      IMPLICIT NONE
+    !   Local Variables:
+    real*8 H
 
-*   Purpose:  Approximate momentum flux in the current channel at X,
-*             given flow (Q) and water-surface elevation (Z).
+    !   Routines by module:
 
-*   Arguments:
-      real*8 X, Q, Z
+    !**** Local:
 
-*   Argument definitions:
-*     X - downstream distance in current channel.
-*     Q - discharge.
-*     Z - water-surface elevation.
+    !   Intrinsics:
 
-*   Module data:
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
 
-*   Local Variables:
-      real*8 H
+    !-----Implementation -----------------------------------------------------
 
-*   Routines by module:
+    H = Z - BtmElev( X )
+    if( H > 0.0 ) then
+        StreamMoFlux = Beta(X,Z) * Q ** 2 / CxArea(X,Z)
+    else
+        StreamMoFlux = 0.0
+    end if
 
-***** Local:
+    return
+end function
 
-***** Channel properties:
-      real*8     CxArea, BtmElev, Beta
-      EXTERNAL CxArea, BtmElev, Beta
+!== Public (dStreamMoFluxdZ) ================================================
 
-*   Intrinsics:
+real*8 function dStreamMoFluxdZ( X, Q, Z )
+    use channel_xsect_tbl, only: CxArea, ChannelWidth, BtmElev, Beta, dBeta
+    implicit none
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+    !   Purpose:  Approximate the gradient of momentum flux
+    !             with depth of flow.
 
-*-----Implementation -----------------------------------------------------
+    real*8 X, Q, Z
 
-      H = Z - BtmElev( X )
-      IF( H .GT. 0.0 ) THEN
-         StreamMoFlux = Beta(X,Z) * Q ** 2 / CxArea(X,Z)
-      ELSE
-         StreamMoFlux = 0.0
-      END IF
+    !   Argument definitions:
+    !     X - downstream distance in current channel.
+    !     Q - discharge.
+    !     Z - water-surface elevation.
 
-      RETURN
-      END
+    !   Module data:
 
-*== Public (dStreamMoFluxdZ) ================================================
+    !   Local Variables:
+    real*8 A, H
 
-      real*8 FUNCTION dStreamMoFluxdZ( X, Q, Z )
+    !   Routines by module:
 
-      IMPLICIT NONE
+    !**** Local:
 
-*   Purpose:  Approximate the gradient of momentum flux
-*             with depth of flow.
 
-      real*8 X, Q, Z
+    !   Intrinsics:
 
-*   Argument definitions:
-*     X - downstream distance in current channel.
-*     Q - discharge.
-*     Z - water-surface elevation.
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
 
-*   Module data:
+    !-----Implementation -----------------------------------------------------
 
-*   Local Variables:
-      real*8 A, H
+    H = Z - BtmElev( X )
+    if( H > 0.0 ) then
+        A = CxArea( X, Z )
+        dStreamMoFluxdZ = Q**2 / A * ( &
+            - ChannelWidth( X,Z ) * Beta(X,Z) / A &
+            + dBeta(X,Z) &
+            )
+    else
+        dStreamMoFluxdZ = 0.0
+    end if
 
-*   Routines by module:
+    return
+end function
 
-***** Local:
+!== Public (gASf) ================================================
 
-***** Channel properties:
-      real*8     CxArea, ChannelWidth, BtmElev, Beta, dBeta
-      EXTERNAL CxArea, ChannelWidth, BtmElev, Beta, dBeta
+real*8 function gASf( Xu, Xd, Zu, Zd, Q )
+    use PhysicalConstants, only: gravity
+    use network
+    use channel_xsect_tbl, only: BtmElev, Conveyance, CxArea
+    use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
 
-*   Intrinsics:
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+    implicit none
 
-*-----Implementation -----------------------------------------------------
+    !   Purpose:  Approximate momentum loss due to flow resistance between
+    !             an upstream and downstream cross section.
 
-      H = Z - BtmElev( X )
-      IF( H .GT. 0.0 ) THEN
-         A = CxArea( X, Z )
-         dStreamMoFluxdZ = Q**2 / A * (
-     &        - ChannelWidth( X,Z ) * Beta(X,Z) / A
-     &        + dBeta(X,Z)
-     &        )
-      ELSE
-         dStreamMoFluxdZ = 0.0
-      END IF
+    !   Arguments:
+    real*8 Xu, Xd, Zu, Zd, Q
 
-      RETURN
-      END
+    !   Argument definitions:
+    !     Xu - down stream distance to upstream cross section.
+    !     Xd - down stream distance to downstream cross section.
+    !     Zu - upstream water-surface elevation.
+    !     Zd - downstream water-surface elevation.
+    !     Q  - discharge.
 
-*== Public (gASf) ================================================
+    !   Local Variables:
+    integer K, QuadPts
+    real*8 N( MaxQuadPts )
+    real*8 Hd, Hu, G
+    real*8 H, X, QuadWt, QuadPt, fric,Z
 
-      real*8 function gASf( Xu, Xd, Zu, Zd, Q )
-      use PhysicalConstants, only: gravity
-      implicit none
+    !   Routines by module:
 
-*   Purpose:  Approximate momentum loss due to flow resistance between
-*             an upstream and downstream cross section.
+    !**** Local:
 
-*   Arguments:
-      real*8 Xu, Xd, Zu, Zd, Q
+    !   Intrinsics:
 
-*   Argument definitions:
-*     Xu - down stream distance to upstream cross section.
-*     Xd - down stream distance to downstream cross section.
-*     Zu - upstream water-surface elevation.
-*     Zd - downstream water-surface elevation.
-*     Q  - discharge.
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
 
-*   Module data:
-      include 'network.inc'
+    !-----Implementation -----------------------------------------------------
 
-*   Local Variables:
-      integer K, QuadPts
-      real*8 N( MaxQuadPts )
-      real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, fric,Z
+    Hu = Zu - BtmElev( Xu )
+    Hd = Zd - BtmElev( Xd )
 
-*   Routines by module:
+    G = gravity
 
-***** Local:
+    fric = 0.0
+    QuadPts = NetworkQuadPts()
 
-***** Channel properties:
-      real*8     BtmElev, Conveyance, CxArea
-      EXTERNAL BtmElev, Conveyance, CxArea
+    do 100 K=1,QuadPts
 
-***** Network control:
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+        !--------Estimate quadrature-point values.
 
+        call NetworkQuadPtWt( K, QuadPt, QuadWt )
 
-*   Intrinsics:
+        !--------Interpolation functions.
+        N(1) = 1.0 - QuadPt
+        N(2) = QuadPt
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+        !--------Location of quadrature point.
+        X = N(1) * Xu + N(2) * Xd
 
-*-----Implementation -----------------------------------------------------
+        !--------Dependent variables.
+        H = N(1) * Hu + N(2) * Hd
+        Z = N(1) * Zu + N(2) * Zd
 
-      Hu = Zu - BtmElev( Xu )
-      Hd = Zd - BtmElev( Xd )
-
-      G = gravity
-
-      fric = 0.0
-      QuadPts = NetworkQuadPts()
-
-      DO 100 K=1,QuadPts
-
-*--------Estimate quadrature-point values.
-
-         CALL NetworkQuadPtWt( K, QuadPt, QuadWt )
-
-*--------Interpolation functions.
-         N(1) = 1.0 - QuadPt
-         N(2) = QuadPt
-
-*--------Location of quadrature point.
-         X = N(1) * Xu + N(2) * Xd
-
-*--------Dependent variables.
-         H = N(1) * Hu + N(2) * Hd
-         Z = N(1) * Zu + N(2) * Zd
-
-         IF( H .GT. 0.0 ) THEN
+        if( H > 0.0 ) then
             fric = fric + QuadWt * CxArea(X,Z) / ( Conveyance(X,Z) ** 2 )
-         END IF
+        end if
 
- 100  CONTINUE
+100 continue
 
-      gASf = G * Q * ABS( Q ) * fric * ( Xd - Xu )
+    gASf = G * Q * ABS( Q ) * fric * ( Xd - Xu )
 
-      RETURN
-      END
+    return
+end function
 
-*== Public (dgASfdZu) ================================================
+!== Public (dgASfdZu) ================================================
 
-      real*8 function dgASfdZu( Xu, Xd, Zu, Zd, Q )
-      use PhysicalConstants,only: gravity
-      implicit none
+real*8 function dgASfdZu( Xu, Xd, Zu, Zd, Q )
+    use PhysicalConstants,only: gravity
+    use network
+    use channel_xsect_tbl, only: BtmElev, Conveyance, dConveyance, &
+        CxArea, ChannelWidth
+    use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
+    implicit none
 
-*   Purpose:  Approximate gradient, with respect to a change in upstream
-*             water-surface elevation, of momentum loss due to flow
-*             resistance between an upstream and downstream cross section.
+    !   Purpose:  Approximate gradient, with respect to a change in upstream
+    !             water-surface elevation, of momentum loss due to flow
+    !             resistance between an upstream and downstream cross section.
 
-*   Arguments:
-      real*8 Xu, Xd, Zu, Zd, Q
+    !   Arguments:
+    real*8 Xu, Xd, Zu, Zd, Q
 
-*   Argument definitions:
-*     Xu - down stream distance to upstream cross section.
-*     Xd - down stream distance to downstream cross section.
-*     Zu - upstream water-surface elevation.
-*     Zd - downstream water-surface elevation.
-*     Q  - discharge.
+    !   Argument definitions:
+    !     Xu - down stream distance to upstream cross section.
+    !     Xd - down stream distance to downstream cross section.
+    !     Zu - upstream water-surface elevation.
+    !     Zd - downstream water-surface elevation.
+    !     Q  - discharge.
 
-*   Module data:
-      include 'network.inc'
+    !   Local Variables:
+    integer K, QuadPts
+    real*8 N( MaxQuadPts )
+    real*8 Hd, Hu, G
+    real*8 H, X, QuadWt, QuadPt, fric, Z
+    real*8 Conv
 
-*   Local Variables:
-      integer K, QuadPts
-      real*8 N( MaxQuadPts )
-      real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, fric, Z
-      real*8 Conv
+    !   Routines by module:
 
-*   Routines by module:
+    !**** Local:
 
-***** Local:
+    !   Intrinsics:
 
-***** Channel properties:
-      real*8     BtmElev, Conveyance, dConveyance
-      EXTERNAL BtmElev, Conveyance, dConveyance
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
 
-      real*8     CxArea, ChannelWidth
-      EXTERNAL CxArea, ChannelWidth
+    !-----Implementation -----------------------------------------------------
 
-***** Network control:
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+    Hu = Zu - BtmElev( Xu )
+    Hd = Zd - BtmElev( Xd )
 
+    G = gravity
 
+    fric = 0.0
+    QuadPts = NetworkQuadPts()
 
-*   Intrinsics:
+    do 100 K=1,QuadPts
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+        !--------Estimate quadrature-point values.
 
-*-----Implementation -----------------------------------------------------
+        call NetworkQuadPtWt( K, QuadPt, QuadWt )
 
-      Hu = Zu - BtmElev( Xu )
-      Hd = Zd - BtmElev( Xd )
+        !--------Interpolation functions.
+        N(1) = 1.0 - QuadPt
+        N(2) = QuadPt
 
-      G = gravity
+        !--------Location of quadrature point.
+        X = N(1) * Xu + N(2) * Xd
 
-      fric = 0.0
-      QuadPts = NetworkQuadPts()
+        !--------Dependent variables.
+        H = N(1) * Hu + N(2) * Hd
+        Z = N(1) * Zu + N(2) * Zd
 
-      DO 100 K=1,QuadPts
+        !--------Integrate friction term.
 
-*--------Estimate quadrature-point values.
-
-         CALL NetworkQuadPtWt( K, QuadPt, QuadWt )
-
-*--------Interpolation functions.
-         N(1) = 1.0 - QuadPt
-         N(2) = QuadPt
-
-*--------Location of quadrature point.
-         X = N(1) * Xu + N(2) * Xd
-
-*--------Dependent variables.
-         H = N(1) * Hu + N(2) * Hd
-         Z = N(1) * Zu + N(2) * Zd
-
-*--------Integrate friction term.
-
-         IF( H .GT. 0.0 ) THEN
+        if( H > 0.0 ) then
             Conv = Conveyance(X,Z)
-            fric = fric + QuadWt * N(1) *  (
-     &           - 2.0 * dConveyance(X,Z) * CxArea(X,Z) / Conv
-     &           + ChannelWidth(X,Z)
-     &           )
-     &           / ( Conv ** 2 )
+            fric = fric + QuadWt * N(1) *  ( &
+                - 2.0 * dConveyance(X,Z) * CxArea(X,Z) / Conv &
+                + ChannelWidth(X,Z) &
+                ) &
+                / ( Conv ** 2 )
 
-         END IF
+        end if
 
- 100  CONTINUE
+100 continue
 
-      dgASfdZu = G * Q * ABS( Q ) * fric * ( Xd - Xu )
+    dgASfdZu = G * Q * ABS( Q ) * fric * ( Xd - Xu )
 
-      RETURN
-      END
+    return
+end function
 
-*== Public (gAdZdX) ================================================
+!== Public (gAdZdX) ================================================
 
-      real*8 FUNCTION gAdZdX( Xu, Xd, Zu, Zd )
-      Use PhysicalConstants,only: gravity
-      IMPLICIT NONE
+real*8 function gAdZdX( Xu, Xd, Zu, Zd )
+    use PhysicalConstants,only: gravity
+    use network
+    use channel_xsect_tbl, only: BtmElev, CxArea
+    use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
 
-*   Purpose:  Approximate momentum gain due to WS slope between
-*             an upstream and downstream cross section.
+    implicit none
 
-*   Arguments:
-      real*8 Xu, Xd, Zu, Zd
+    !   Purpose:  Approximate momentum gain due to WS slope between
+    !             an upstream and downstream cross section.
 
-*   Argument definitions:
-*     Xu - down stream distance to upstream cross section.
-*     Xd - down stream distance to downstream cross section.
-*     Zu - upstream water-surface elevation.
-*     Zd - downstream water-surface elevation.
+    !   Arguments:
+    real*8 Xu, Xd, Zu, Zd
 
-*   Module data:
-      INCLUDE 'network.inc'
+    !   Argument definitions:
+    !     Xu - down stream distance to upstream cross section.
+    !     Xd - down stream distance to downstream cross section.
+    !     Zu - upstream water-surface elevation.
+    !     Zd - downstream water-surface elevation.
 
-*   Local Variables:
-      INTEGER K, QuadPts
-      real*8 N( MaxQuadPts )
-      real*8 dNdX( MaxQuadPts )
-      real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, Slope, A, Z
+    !   Local Variables:
+    integer K, QuadPts
+    real*8 N( MaxQuadPts )
+    real*8 dNdX( MaxQuadPts )
+    real*8 Hd, Hu, G
+    real*8 H, X, QuadWt, QuadPt, Slope, A, Z
 
-*   Routines by module:
+    !   Routines by module:
 
-***** Local:
-
-***** Channel properties:
-      real*8     BtmElev, CxArea
-      EXTERNAL BtmElev, CxArea
-
-***** Network control:
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+    !**** Local:
 
 
 
-*   Intrinsics:
+    !   Intrinsics:
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
 
-*-----Implementation -----------------------------------------------------
+    !-----Implementation -----------------------------------------------------
 
-      Hu = Zu - BtmElev( Xu )
-      Hd = Zd - BtmElev( Xd )
+    Hu = Zu - BtmElev( Xu )
+    Hd = Zd - BtmElev( Xd )
 
-      G = gravity
+    G = gravity
 
-      A = 0.0
-      QuadPts = NetworkQuadPts()
+    A = 0.0
+    QuadPts = NetworkQuadPts()
 
-      DO 100 K=1,QuadPts
+    do 100 K=1,QuadPts
 
-*--------Estimate quadrature-point values.
+        !--------Estimate quadrature-point values.
 
-         CALL NetworkQuadPtWt( K, QuadPt, QuadWt )
+        call NetworkQuadPtWt( K, QuadPt, QuadWt )
 
-*--------Interpolation functions.
-         N(1) = 1.0 - QuadPt
-         N(2) = QuadPt
-         dNdX(1) = -1.0 / (Xu - Xd)
-         dNdX(2) = - dNdX(1)
+        !--------Interpolation functions.
+        N(1) = 1.0 - QuadPt
+        N(2) = QuadPt
+        dNdX(1) = -1.0 / (Xu - Xd)
+        dNdX(2) = - dNdX(1)
 
-*--------Location of quadrature point.
-         X = N(1) * Xu + N(2) * Xd
+        !--------Location of quadrature point.
+        X = N(1) * Xu + N(2) * Xd
 
-*--------Dependent variables.
-         H = N(1) * Hu + N(2) * Hd
-         Z = N(1) * Zu + N(2) * Zd
+        !--------Dependent variables.
+        H = N(1) * Hu + N(2) * Hd
+        Z = N(1) * Zu + N(2) * Zd
 
-*--------WS Slope.
+        !--------WS Slope.
 
-         Slope = dNdX(1) * Zu + dNdX(2) * Zd
+        Slope = dNdX(1) * Zu + dNdX(2) * Zd
 
-         IF( H .GT. 0.0 ) THEN
+        if( H > 0.0 ) then
             A = A + QuadWt * CxArea(X,Z) * Slope
-         END IF
+        end if
 
- 100  CONTINUE
+100 continue
 
-      gAdZdX = G * A * (Xd - Xu)
+    gAdZdX = G * A * (Xd - Xu)
 
-      RETURN
-      END
+    return
+end function
 
-*== Public (dgAdZdXdZu) ================================================
+!== Public (dgAdZdXdZu) ================================================
 
-      real*8 FUNCTION dgAdZdXdZu( Xu, Xd, Zu, Zd )
-      Use PhysicalConstants,only: gravity
-      IMPLICIT NONE
-
-*   Purpose:  Approximate gradient, with respect to a change in upstream
-*             water-surface elevation, of momentum gain due to WS
-*             slope between an upstream and downstream cross section.
-
-*   Arguments:
-      real*8 Xu, Xd, Zu, Zd
-
-*   Argument definitions:
-*     Xu - down stream distance to upstream cross section.
-*     Xd - down stream distance to downstream cross section.
-*     Zu - upstream water-surface elevation.
-*     Zd - downstream water-surface elevation.
-
-*   Module data:
-      INCLUDE 'network.inc'
-
-*   Local Variables:
-      INTEGER K, QuadPts
-      real*8 N( MaxQuadPts )
-      real*8 dNdX( MaxQuadPts )
-      real*8 Hd, Hu, G
-      real*8 H, X, QuadWt, QuadPt, A, Slope, Z
-
-*   Routines by module:
-
-***** Local:
-
-***** Channel properties:
-      real*8     BtmElev
-      EXTERNAL BtmElev
-
-      real*8     CxArea, ChannelWidth
-      EXTERNAL CxArea, ChannelWidth
-
-***** Network control:
-      INTEGER  NetworkQuadPts
-      EXTERNAL NetworkQuadPts, NetworkQuadPtWt
+real*8 function dgAdZdXdZu( Xu, Xd, Zu, Zd )
+    use PhysicalConstants,only: gravity
+    use network
+    use channel_xsect_tbl, only: BtmElev, CxArea, ChannelWidth
+    use netcntrl, only: NetworkQuadPts, NetworkQuadPtWt
 
 
-*   Intrinsics:
+    implicit none
 
-*   Programmed by: Lew DeLong
-*   Date:          Sept  1993
-*   Modified by:
-*   Last modified:
+    !   Purpose:  Approximate gradient, with respect to a change in upstream
+    !             water-surface elevation, of momentum gain due to WS
+    !             slope between an upstream and downstream cross section.
 
-*-----Implementation -----------------------------------------------------
+    !   Arguments:
+    real*8 Xu, Xd, Zu, Zd
 
-      Hu = Zu - BtmElev( Xu )
-      Hd = Zd - BtmElev( Xd )
+    !   Argument definitions:
+    !     Xu - down stream distance to upstream cross section.
+    !     Xd - down stream distance to downstream cross section.
+    !     Zu - upstream water-surface elevation.
+    !     Zd - downstream water-surface elevation.
 
-      G = gravity
 
-      QuadPts = NetworkQuadPts()
+    !   Local Variables:
+    integer K, QuadPts
+    real*8 N( MaxQuadPts )
+    real*8 dNdX( MaxQuadPts )
+    real*8 Hd, Hu, G
+    real*8 H, X, QuadWt, QuadPt, A, Slope, Z
 
-      A = 0.0
-      DO 100 K=1,QuadPts
+    !   Routines by module:
 
-*--------Estimate quadrature-point values.
+    !**** Local:
 
-         CALL NetworkQuadPtWt( K, QuadPt, QuadWt )
+    !   Intrinsics:
 
-*--------Interpolation functions.
-         N(1) = 1.0 - QuadPt
-         N(2) = QuadPt
-         dNdX(1) = -1.0 / (Xd - Xu)
-         dNdX(2) = - dNdX(1)
+    !   Programmed by: Lew DeLong
+    !   Date:          Sept  1993
+    !   Modified by:
+    !   Last modified:
 
-*--------Location of quadrature point.
-         X = N(1) * Xu + N(2) * Xd
+    !-----Implementation -----------------------------------------------------
 
-*--------Dependent variables.
-         H = N(1) * Hu + N(2) * Hd
-         Z = N(1) * Zu + N(2) * Zd
+    Hu = Zu - BtmElev( Xu )
+    Hd = Zd - BtmElev( Xd )
 
-*--------WS Slope.
+    G = gravity
 
-         Slope = dNdX(1) * Zu + dNdX(2) * Zd
+    QuadPts = NetworkQuadPts()
 
-*--------Integrate friction term.
+    A = 0.0
+    do 100 K=1,QuadPts
 
-         IF( H .GT. 0.0 ) THEN
-            A = A + QuadWt * (
-     &           N(1) * ChannelWidth(X,Z) * Slope
-     &           + dNdX(1) * CxArea(X,Z)
-     &           )
+        !--------Estimate quadrature-point values.
 
-         END IF
+        call NetworkQuadPtWt( K, QuadPt, QuadWt )
 
- 100  CONTINUE
+        !--------Interpolation functions.
+        N(1) = 1.0 - QuadPt
+        N(2) = QuadPt
+        dNdX(1) = -1.0 / (Xd - Xu)
+        dNdX(2) = - dNdX(1)
 
-      dgAdZdXdZu = G * A * (Xd - Xu)
+        !--------Location of quadrature point.
+        X = N(1) * Xu + N(2) * Xd
 
-      RETURN
-      END
+        !--------Dependent variables.
+        H = N(1) * Hu + N(2) * Hd
+        Z = N(1) * Zu + N(2) * Zd
+
+        !--------WS Slope.
+
+        Slope = dNdX(1) * Zu + dNdX(2) * Zd
+
+        !--------Integrate friction term.
+
+        if( H > 0.0 ) then
+            A = A + QuadWt * ( &
+                N(1) * ChannelWidth(X,Z) * Slope &
+                + dNdX(1) * CxArea(X,Z) &
+                )
+
+        end if
+
+100 continue
+
+    dgAdZdXdZu = G * A * (Xd - Xu)
+
+    return
+end function
 
 
 
 
-*==== EOF chstatus ======================================================
+!==== EOF chstatus ======================================================
+
+end module
+!   Definitions:
+!     WS(i) - water surface elevation at computational location "i".
+!     Q(i) - volumetric discharge at computational location "i".
+!     H(i) - depth of flow at computational location "i".
+!     Rho1(i) - density at computational location "i", at the
+!               begining of the current time increment.
+!     Rho1(i) - density at computational location "i", at the
+!               the end of the current time increment.
+!     ConvergedSteady(m) - .TRUE. if steady solution converged,
+!                           otherwise .FALSE.
+
+!===== EOF chstatus.inc ==================================================

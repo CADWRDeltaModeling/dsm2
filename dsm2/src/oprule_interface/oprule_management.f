@@ -17,7 +17,8 @@ C!    GNU General Public License for more details.
 C!    You should have received a copy of the GNU General Public License
 C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
-
+      module oprule_management
+      contains
       logical function InitOpRules()
 	implicit none
 c	character*801 line
@@ -37,3 +38,4 @@ c      end do
       return
 	end function
 
+      end module

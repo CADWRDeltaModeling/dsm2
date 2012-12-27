@@ -1,13 +1,13 @@
 	module inclvars
 	  use type_defs
 	  ! Module that loads include variables from DSM2
-        include '../hydrolib/network.inc'
-        include '../hydrolib/chconnec.inc'
-        include '../hydrolib/chnlcomp.inc'
-        include '../hydrolib/chstatus.inc'
-        include '../hydrolib/chcxtbl.inc'
-        include '../timevar/dss.inc'
-        include '../timevar/readdss.inc'
+        !use network
+        !use chconnec
+        !use chnlcomp
+        !use chstatus
+        !use channel_xsect_tbl
+        !use dss
+        !use mod_readdss
 	end module inclvars
 
 ***********************************************************************

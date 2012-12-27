@@ -319,9 +319,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_area( number)
       use common_tide
       use grid_data
+      use network
+      use netcntrl_common
       implicit none
-      include '../../hydrolib/network.inc'
-      include "../../hydrolib/netcntrl.inc"
       real get_up_node_area
       integer number
       get_up_node_area= Achan(1,number)*theta 
@@ -333,9 +333,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_area( number)
       use grid_data   
       use common_tide
+      use network
+      use netcntrl_common
       implicit none
-      include '../../hydrolib/network.inc'
-      include "../../hydrolib/netcntrl.inc"
       real get_down_node_area
       integer number
       get_down_node_area= Achan(2,number)*theta 
@@ -478,17 +478,18 @@ c-----get_reservoir_pumping= qReservoirPumping(number)
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine update_ops_of_filters()
 c     UpdateTimeVaryingData and get all filter ops for the specified timestamp
+      use grid_data
       use type_defs
       use iopath_data
       use runtime_data
       use common_ptm
       use IO_Units
+      use dss
+      use mod_readdss
+      use mod_writedss
+      use tvd
       implicit none
-      
-*   Module data:
-      include '../../timevar/dss.inc'
-      include '../../timevar/readdss.inc'
-      
+     
       integer i
       
  662  format(/"Invalid filter's operation: ",a," filter's operation",f8.3 " is limited to range 0~1")

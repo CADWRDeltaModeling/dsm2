@@ -1,623 +1,609 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
-
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
-
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
-
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
-
-*==== BOF fileutil ============================================================
-*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-*
-*     This file contains utility functions for manipulating FORTRAN files.
-*
-*
-*     Function Name                 Description
-*     -------------                 -----------
-*
-*     (OpenNewText) - Open a new text file for output and delete the old file
-*                       if one exists.
-*     (OpenOldText) - Open an old text file for input.
-*     (OpenAppBin)  - Open an existing sequential binary file for output, place
-*                       new output at the end of the file.
-*     (DeleteFile)  - Delete an existing file.
-*     (FileExist)   - Does the file name exist?
-*
-*     Input:
-*     ------
-*
-*     The open functions expect the following arguments:
-*
-*       UnitNumber  - an INTEGER FORTRAN unit number, and
-*       FileName    - a variable dimension character string containing the
-*                       name of the file to be manipulated.
-*
-*     In addition, the direct access file opening function expects:
-*
-*       RecordLength - an INTEGER logical record length, and
-*       Formatted    - a LOGICAL variable indicating whether the file is
-*                      to be FORMATTED (.TRUE.) or UNFORMATTED (.FALSE.;
-*                      binary).
-*
-*     DeleteFile and FileExist expect only one argument:
-*
-*        FileName - a variable dimension character string containing the
-*                   name of the file to be deleted or tested for existence.
-*
-*
-*     Output:
-*     -------
-*
-*     Each function returns .TRUE. if the operation was successful and
-*       .FALSE. if unsuccessful.
-*
-*
-
-*
-*     Notes:
-*     ------
-*
-*     These utilities have not been tested on the Prime mini as of
-*       Fri 11-16-1990.  Therefore, there may be undetermined bugs to be
-*       corrected for successful operations on the Prime.  In addition, it is
-*       not clear that these routines will function on platforms other than
-*       PCompatibles using MickeySoft FORTRAN.  Tests will be required.
-*
-*   Programmed by: Dave Thompson
-*   Date:          Mon  12-17-1990
-*   Modified by:   Dave Thompson
-*   Last modified: Tue  05-21-1991
-*   Version 93.01, January, 1993
-*
-*   History:
-*   --------
-*
-*   Tue  05-21-1991  -- Added IMPLICIT NONE to all subprograms in this unit.
-*
-*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-C==---Public (OpenNewText) ======================================================
-
-      LOGICAL   FUNCTION OpenNewText (
-     &     UnitNumber, FileName
-     &     )
-      use IO_Units
-      IMPLICIT NONE
-
-C-----Purpose:  Open a new text file, deleting any existing file with the
-C-----same name.
-
-C-----Arguments:
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
+
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
+
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
+
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
+
+!==== BOF fileutil ============================================================
+!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+!
+!     This file contains utility functions for manipulating FORTRAN files.
+!
+!
+!     Function Name                 Description
+!     -------------                 -----------
+!
+!     (OpenNewText) - Open a new text file for output and delete the old file
+!                       if one exists.
+!     (OpenOldText) - Open an old text file for input.
+!     (OpenAppBin)  - Open an existing sequential binary file for output, place
+!                       new output at the end of the file.
+!     (DeleteFile)  - Delete an existing file.
+!     (FileExist)   - Does the file name exist?
+!
+!     Input:
+!     ------
+!
+!     The open functions expect the following arguments:
+!
+!       UnitNumber  - an INTEGER FORTRAN unit number, and
+!       FileName    - a variable dimension character string containing the
+!                       name of the file to be manipulated.
+!
+!     In addition, the direct access file opening function expects:
+!
+!       RecordLength - an INTEGER logical record length, and
+!       Formatted    - a LOGICAL variable indicating whether the file is
+!                      to be FORMATTED (.TRUE.) or UNFORMATTED (.FALSE.;
+!                      binary).
+!
+!     DeleteFile and FileExist expect only one argument:
+!
+!        FileName - a variable dimension character string containing the
+!                   name of the file to be deleted or tested for existence.
+!
+!
+!     Output:
+!     -------
+!
+!     Each function returns .TRUE. if the operation was successful and
+!       .FALSE. if unsuccessful.
+!
+!
+
+!
+!     Notes:
+!     ------
+!
+!     These utilities have not been tested on the Prime mini as of
+!       Fri 11-16-1990.  Therefore, there may be undetermined bugs to be
+!       corrected for successful operations on the Prime.  In addition, it is
+!       not clear that these routines will function on platforms other than
+!       PCompatibles using MickeySoft FORTRAN.  Tests will be required.
+!
+!   Programmed by: Dave Thompson
+!   Date:          Mon  12-17-1990
+!   Modified by:   Dave Thompson
+!   Last modified: Tue  05-21-1991
+!   Version 93.01, January, 1993
+!
+!   History:
+!   --------
+!
+!   Tue  05-21-1991  -- Added IMPLICIT NONE to all subprograms in this unit.
+!
+!^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+module fileutil
+    implicit none
+
+    integer,parameter::   MaxFiles   = 26, NameLength = 12
+    character*12,save::  DefaultName(MaxFiles)
+    character*12,save::  UserName(MaxFiles)
+    logical,save::       FileUsed(MaxFiles)
+    character*12,save::  MasterFileName
+    integer,save::       DefaultUnit(MaxFiles)
+    integer,save::       UserUnit(MaxFiles)
+    integer,save::       MasterUnit
+    logical,save::      MasterInit
+contains
+    !==---Public (OpenNewText) ======================================================
 
-      INTEGER       UnitNumber
-      CHARACTER*(*) FileName
-C-----Argument Definitions:
-C-----UnitNumber  - an INTEGER FORTRAN unit number, and
-C-----FileName    - a variable dimension character string containing the
-C-----name of the file to be manipulated.
+    logical   function OpenNewText ( &
+        UnitNumber, FileName &
+        )
+        use IO_Units
+        implicit none
 
-C-----Local Variables:
+        !-----Purpose:  Open a new text file, deleting any existing file with the
+        !-----same name.
 
-      INTEGER   IOStatus
+        !-----Arguments:
 
-C-----Functions:
+        integer       UnitNumber
+        character*(*) FileName
+        !-----Argument Definitions:
+        !-----UnitNumber  - an INTEGER FORTRAN unit number, and
+        !-----FileName    - a variable dimension character string containing the
+        !-----name of the file to be manipulated.
 
-      LOGICAL   DeleteFile
-      EXTERNAL  DeleteFile
+        !-----Local Variables:
 
-C-----Programmed by: Dave Thompson
-C-----Date:          September 1989
-C-----Modified by:   Dave Thompson
-C-----Last modified: Wed  12-12-1990
-*   Version 93.01, January, 1993
+        integer   IOStatus
 
-C-----Implementation ------------------------------------------------------------
 
-C-----Debugging information
+        !-----Programmed by: Dave Thompson
+        !-----Date:          September 1989
+        !-----Modified by:   Dave Thompson
+        !-----Last modified: Wed  12-12-1990
+        !   Version 93.01, January, 1993
 
-C     WRITE(*,*) ' In routine OpenNewText'
-C     WRITE(*,*) ' Incoming file = ', FileName
-C     WRITE(*,*) ' Unit number = ', UnitNumber
+        !-----Implementation ------------------------------------------------------------
 
-C-----Try to delete the file (assuming it exists).
+        !-----Debugging information
 
-      IF (DeleteFile(FileName)) THEN
+        !     WRITE(*,*) ' In routine OpenNewText'
+        !     WRITE(*,*) ' Incoming file = ', FileName
+        !     WRITE(*,*) ' Unit number = ', UnitNumber
 
-C--------WRITE(*,*) ' IOStatus = ',IOS
+        !-----Try to delete the file (assuming it exists).
 
-         OPEN (
-     &        UNIT   = UnitNumber,
-     &        FILE   = FileName,
-     &        ACCESS = 'SEQUENTIAL',
-     &        FORM   = 'FORMATTED',
-     &        IOSTAT = IOStatus
-     &        )
-         IF     (IOStatus .EQ. 0) THEN
+        if (DeleteFile(FileName)) then
 
-            OpenNewText = .TRUE.
+            !--------WRITE(*,*) ' IOStatus = ',IOS
 
-         ELSEIF (IOStatus .NE. 0) THEN
+            open ( &
+                unit   = UnitNumber, &
+                file   = FileName, &
+                access = 'SEQUENTIAL', &
+                form   = 'FORMATTED', &
+                iostat = IOStatus &
+                )
+            if     (IOStatus == 0) then
 
-            OpenNewText = .FALSE.
+                OpenNewText = .true.
 
-         ENDIF
+            elseif (IOStatus /= 0) then
 
-      ELSE
+                OpenNewText = .false.
 
-         WRITE(UNIT_ERROR,*) ' File not deleted (probably doesn''t exist)'
-C--------WRITE(*,*) ' IOStatus = ',IOS
+            endif
 
-         OpenNewText = .FALSE.
+        else
 
-      ENDIF
+            write(UNIT_ERROR,*) ' File not deleted (probably doesn''t exist)'
+            !--------WRITE(*,*) ' IOStatus = ',IOS
 
-      RETURN
-      END
+            OpenNewText = .false.
 
+        endif
 
+        return
+    end function
 
-C==---Public (OpenOldText) ======================================================
 
-      LOGICAL   FUNCTION OpenOldText (
-     &     UnitNumber, FileName
-     &     )
 
-      IMPLICIT NONE
+    !==---Public (OpenOldText) ======================================================
 
-C-----Purpose:  Open an existing flat file for input.
+    logical   function OpenOldText ( &
+        UnitNumber, FileName &
+        )
 
-C-----Arguments:
+        implicit none
 
-      INTEGER       UnitNumber
-      CHARACTER*(*) FileName
+        !-----Purpose:  Open an existing flat file for input.
 
-C-----Argument Definitions:
-C-----UnitNumber  - an INTEGER FORTRAN unit number, and
-C-----FileName    - a variable dimension character string containing the
-C-----name of the file to be manipulated.
+        !-----Arguments:
 
-C-----Local Variables:
+        integer       UnitNumber
+        character*(*) FileName
 
-      INTEGER   IOStatus
+        !-----Argument Definitions:
+        !-----UnitNumber  - an INTEGER FORTRAN unit number, and
+        !-----FileName    - a variable dimension character string containing the
+        !-----name of the file to be manipulated.
 
-C-----Programmed by: Dave Thompson
-C-----Date:          September 1989
-C-----Modified by:   Dave Thompson
-C-----Last modified: Wed  12-12-1990
-*   Version 93.01, January, 1993
+        !-----Local Variables:
 
-C-----Implementation ------------------------------------------------------------
+        integer   IOStatus
 
-C-----Debugging information
+        !-----Programmed by: Dave Thompson
+        !-----Date:          September 1989
+        !-----Modified by:   Dave Thompson
+        !-----Last modified: Wed  12-12-1990
+        !   Version 93.01, January, 1993
 
-C     WRITE(*,*) ' In routine OpenOldText'
-C     WRITE(*,*) ' Incoming file = ', FileName
-C     WRITE(*,*) ' Unit number   = ', UnitNumber
+        !-----Implementation ------------------------------------------------------------
 
-C-----Open the existing file.
+        !-----Debugging information
 
-      OPEN (
-     &     UNIT   = UnitNumber,
-     &     FILE   = FileName,
-     &     STATUS = 'OLD',
-     &     ACCESS = 'SEQUENTIAL',
-     &     FORM   = 'FORMATTED',
-     &     IOSTAT = IOStatus
-     &     )
+        !     WRITE(*,*) ' In routine OpenOldText'
+        !     WRITE(*,*) ' Incoming file = ', FileName
+        !     WRITE(*,*) ' Unit number   = ', UnitNumber
 
-      IF     (IOStatus .EQ. 0) THEN
+        !-----Open the existing file.
 
-         OpenOldText = .TRUE.
+        open ( &
+            unit   = UnitNumber, &
+            file   = FileName, &
+            status = 'OLD', &
+            access = 'SEQUENTIAL', &
+            form   = 'FORMATTED', &
+            iostat = IOStatus &
+            )
 
-      ELSEIF (IOStatus .NE. 0) THEN
+        if     (IOStatus == 0) then
 
-         OpenOldText = .FALSE.
+            OpenOldText = .true.
 
-      ENDIF
+        elseif (IOStatus /= 0) then
 
-      RETURN
-      END
+            OpenOldText = .false.
 
+        endif
 
+        return
+    end function
 
-C==---Public (DeleteFile) =======================================================
 
-      LOGICAL   FUNCTION DeleteFile (
-     &     FileName
-     &     )
 
-      IMPLICIT NONE
+    !==---Public (DeleteFile) =======================================================
 
-C-----Purpose:  Delete an existing file.  This routine contains system
-C-----specific calls.
+    logical   function DeleteFile ( &
+        FileName &
+        )
 
-C-----Arguments:
+        implicit none
 
-      CHARACTER*(*) FileName
+        !-----Purpose:  Delete an existing file.  This routine contains system
+        !-----specific calls.
 
-C-----Argument Definitions:
-C-----FileName    - a variable dimension character string containing the
-C-----name of the file to be manipulated.
+        !-----Arguments:
 
-C-----Local Variables:
+        character*(*) FileName
 
-      INTEGER      DefaultUnit
-      LOGICAL      PC, Prime
+        !-----Argument Definitions:
+        !-----FileName    - a variable dimension character string containing the
+        !-----name of the file to be manipulated.
 
-* NOTE: when running in UNIX, DefaultUnit must be no bigger than 2 digits.
+        !-----Local Variables:
 
-      PARAMETER   (
-     &     DefaultUnit = 99,
-     &     PC          = .TRUE.,
-     &     Prime       = .FALSE.
-C-----*             PC          = .FALSE.,
-C-----*             Prime       = .TRUE.
-     &     )
+        integer      DefaultUnit
+        logical      PC, Prime
 
-      INTEGER      IOStatus
-      LOGICAL      Exists
+        ! NOTE: when running in UNIX, DefaultUnit must be no bigger than 2 digits.
 
-      LOGICAL      FileExist
-      EXTERNAL     FileExist
+        parameter   ( &
+            DefaultUnit = 99, &
+            PC          = .true., &
+            Prime       = .false. &
+            !-----*             PC          = .FALSE.,
+            !-----*             Prime       = .TRUE. &
+            )
 
-***** Uncomment the following for Prime applications only!!!!!
+        integer      IOStatus
+        logical      Exists
+        !**** Uncomment the following for Prime applications only!!!!!
 
-C     INTEGER       Code
-C     INCLUDE      'SYSCOM>A$KEYS.INS.FTN'
-C     EXTERNAL      FIL$DL
+        !     INTEGER       Code
+        !     INCLUDE      'SYSCOM>A$KEYS.INS.FTN'
+        !     EXTERNAL      FIL$DL
 
-***** End of Prime specific code.
+        !**** End of Prime specific code.
 
-C-----Programmed by: Dave Thompson
-C-----Date:          September 1989
-C-----Modified by:   Dave Thompson
-C-----Last modified: Wed  12-12-1990
-*   Version 93.01, January, 1993
+        !-----Programmed by: Dave Thompson
+        !-----Date:          September 1989
+        !-----Modified by:   Dave Thompson
+        !-----Last modified: Wed  12-12-1990
+        !   Version 93.01, January, 1993
 
-C-----Implementation ------------------------------------------------------------
+        !-----Implementation ------------------------------------------------------------
 
-C-----Debugging information
+        !-----Debugging information
 
-C-----Check for file existence.
+        !-----Check for file existence.
 
-      Exists = FileExist(FileName)
+        Exists = FileExist(FileName)
 
-C-----If it doesn't exist, no need to continue.
+        !-----If it doesn't exist, no need to continue.
 
-      IF     (.NOT. Exists) THEN
+        if     (.not. Exists) then
 
-         DeleteFile = .TRUE.
+            DeleteFile = .true.
 
-C--------Otherwise, test for the type of file and take appropriate action.
+        !--------Otherwise, test for the type of file and take appropriate action.
 
-      ELSEIF (Exists .AND. PC) THEN
+        elseif (Exists .and. PC) then
 
-         OPEN  (
-     &        UNIT   = DefaultUnit,
-     &        FILE   = FileName,
-     &        STATUS = 'OLD'
-     &        )
+            open  ( &
+                unit   = DefaultUnit, &
+                file   = FileName, &
+                status = 'OLD' &
+                )
 
-         CLOSE (
-     &        UNIT   = DefaultUnit,
-     &        STATUS = 'DELETE',
-     &        IOSTAT = IOStatus
-     &        )
+            close ( &
+                unit   = DefaultUnit, &
+                status = 'DELETE', &
+                iostat = IOStatus &
+                )
 
-C--------Was the file deleted?
+            !--------Was the file deleted?
 
-         IF     (IOStatus .EQ. 0) THEN
+            if     (IOStatus == 0) then
 
-            DeleteFile = .TRUE.
+                DeleteFile = .true.
 
-         ELSEIF (IOStatus .NE. 0) THEN
+            elseif (IOStatus /= 0) then
 
-            DeleteFile = .FALSE.
+                DeleteFile = .false.
 
-         ENDIF
+            endif
 
-      ELSEIF (Exists .AND. Prime) THEN
+        elseif (Exists .and. Prime) then
 
-*****----Uncomment the following for Prime applications only!!!!!
-*
-*       CALL FIL$DL (
-*    I               FileName,
-*    O               Code
-*    *              )
-*
-*       IF (Code .NE. 0) THEN
-*
-*         DeleteFile = .FALSE.
-*
-*       ELSE
-*
-*         DeleteFile = .TRUE.
-*
-*       ENDIF
-*
-*****----End of Prime specific code.
+        !****----Uncomment the following for Prime applications only!!!!!
+        !
+        !       CALL FIL$DL (
+        !    I               FileName,
+        !    O               Code
+        !    *              )
+        !
+        !       IF (Code .NE. 0) THEN
+        !
+        !         DeleteFile = .FALSE.
+        !
+        !       ELSE
+        !
+        !         DeleteFile = .TRUE.
+        !
+        !       ENDIF
+        !
+        !****----End of Prime specific code.
 
-      ENDIF
+        endif
 
-      RETURN
-      END
+        return
+    end function
 
-C==---Public (FileExist) =======================================================
+    !==---Public (FileExist) =======================================================
 
-      LOGICAL   FUNCTION FileExist (
-     &     FileName
-     &     )
+    logical   function FileExist ( &
+        FileName &
+        )
 
-      IMPLICIT NONE
+        implicit none
 
-C-----Purpose:  Determine if file exists.  This routine contains system
-C-----specific calls.
+        !-----Purpose:  Determine if file exists.  This routine contains system
+        !-----specific calls.
 
-C-----Arguments:
+        !-----Arguments:
 
-      CHARACTER*(*)  FileName
+        character*(*)  FileName
 
-C-----Argument Definitions:
-C-----FileName    - a variable dimension character string containing the
-C-----name of the file to be manipulated.
+        !-----Argument Definitions:
+        !-----FileName    - a variable dimension character string containing the
+        !-----name of the file to be manipulated.
 
-C-----Local Variables:
+        !-----Local Variables:
 
-      INTEGER    UnitNumber
-      INTEGER    IOStatus
-      LOGICAL    PC, Prime
+        integer    UnitNumber
+        integer    IOStatus
+        logical    PC, Prime
 
-* NOTE: when running in UNIX, UnitNumber must be no bigger than 2 digits.
+        ! NOTE: when running in UNIX, UnitNumber must be no bigger than 2 digits.
 
-      PARAMETER (
-     &     UnitNumber = 99,
-     &     PC         = .TRUE.,
-     &     Prime      = .FALSE.
-C-----*           PC         = .FALSE.,
-C-----*           Prime      = .TRUE.
-     &     )
+        parameter ( &
+            UnitNumber = 99, &
+            PC         = .true., &
+            Prime      = .false. &
+            !-----*           PC         = .FALSE.,
+            !-----*           Prime      = .TRUE. &
+            )
 
-***** Uncomment the following for Prime applications only!!!!!
+        !**** Uncomment the following for Prime applications only!!!!!
 
-C     INTEGER       FUnit, Code
-C     INCLUDE      'SYSCOM>A$KEYS.INS.FTN'
-C     EXTERNAL      SRCH$$
+        !     INTEGER       FUnit, Code
+        !     INCLUDE      'SYSCOM>A$KEYS.INS.FTN'
+        !     EXTERNAL      SRCH$$
 
-***** End of Prime specific code.
+        !**** End of Prime specific code.
 
-C-----Programmed by: Dave Thompson
-C-----Date:          June 1990
-C-----Modified by:   Dave Thompson
-C-----Last modified: Wed  12-12-1990
-*   Version 93.01, January, 1993
+        !-----Programmed by: Dave Thompson
+        !-----Date:          June 1990
+        !-----Modified by:   Dave Thompson
+        !-----Last modified: Wed  12-12-1990
+        !   Version 93.01, January, 1993
 
-C-----Implementation ------------------------------------------------------------
+        !-----Implementation ------------------------------------------------------------
 
-C-----Debugging information
+        !-----Debugging information
 
-C     WRITE (*,*) ' FileExist Target = ', FileName
+        !     WRITE (*,*) ' FileExist Target = ', FileName
 
-      IF (PC) THEN
+        if (PC) then
 
-C--------Try to open the file.  If it exists, report success.
-C--------Otherwise, the file doesn't exist, so report failure.
+            !--------Try to open the file.  If it exists, report success.
+            !--------Otherwise, the file doesn't exist, so report failure.
 
-         OPEN (
-     &        UNIT   = UnitNumber,
-     &        FILE   = FileName,
-     &        IOSTAT = IOStatus
-     &        )
+            open ( &
+                unit   = UnitNumber, &
+                file   = FileName, &
+                iostat = IOStatus &
+                )
 
-         IF     (IOStatus .EQ. 0) THEN
+            if     (IOStatus == 0) then
 
-            FileExist = .TRUE.
+                FileExist = .true.
 
-         ELSEIF (IOStatus .NE. 0) THEN
+            elseif (IOStatus /= 0) then
 
-            FileExist = .FALSE.
+                FileExist = .false.
 
-         ENDIF
+            endif
 
-         CLOSE (UnitNumber)
+            close (UnitNumber)
 
-      ELSEIF (Prime) THEN
+        elseif (Prime) then
 
-*****----Uncomment the following for Prime applications only!!!!!
+        !****----Uncomment the following for Prime applications only!!!!!
 
-c@@@       CALL SRCH$$ (
-c@@@    I               K$EXST, FileName, 12, 0,
-c@@@    O               Type,   Code
-c@@@    *              )
-c@@@
-c@@@       IF (Code .EQ. E$FNTF) THEN
-c@@@
-c@@@         FileExist = .FALSE.
-c@@@
-c@@@       ELSE
-c@@@
-c@@@         FileExist = .TRUE.
-c@@@
-c@@@       ENDIF
+        !@@@       CALL SRCH$$ (
+        !@@@    I               K$EXST, FileName, 12, 0,
+        !@@@    O               Type,   Code
+        !@@@    *              )
+        !@@@
+        !@@@       IF (Code .EQ. E$FNTF) THEN
+        !@@@
+        !@@@         FileExist = .FALSE.
+        !@@@
+        !@@@       ELSE
+        !@@@
+        !@@@         FileExist = .TRUE.
+        !@@@
+        !@@@       ENDIF
 
-*****----End of Prime specific code.
+        !****----End of Prime specific code.
 
-      ENDIF
+        endif
 
-      RETURN
-      END
+        return
+    end function
 
-*==== EOF fileutil ============================================================
+    !==== EOF fileutil ============================================================
 
 
-C==---Public (GetFileUnit) ======================================================
+    !==---Public (GetFileUnit) ======================================================
 
-      INTEGER   FUNCTION GetFileUnit (
-     &     Class
-     &     )
+    integer   function GetFileUnit ( &
+        Class &
+        )
 
-C-----Purpose:  This routine takes a target file name and searches the list of
-C-----available class names.  If the name is found, it returns the
-C-----unit number of the target and marks the file as used.  Otherwise,
-C-----it returns a 0 to indicate failure.
+        !-----Purpose:  This routine takes a target file name and searches the list of
+        !-----available class names.  If the name is found, it returns the
+        !-----unit number of the target and marks the file as used.  Otherwise,
+        !-----it returns a 0 to indicate failure.
 
-      IMPLICIT NONE
+        implicit none
 
-C-----Arguments:
+        !-----Arguments:
 
-      CHARACTER*12   Class
+        character*12   Class
 
-C-----Argument definitions:
-C     Class - target file name.
+        !-----Argument definitions:
+        !     Class - target file name.
 
-C-----Module data:
+        !-----Local variables:
 
-      INCLUDE         'master.inc'
+        integer         FileNumber
 
-C-----Local variables:
 
-      INTEGER         FileNumber
+        !-----Data Initializations:
 
-C-----Functions:
+        !-----Programmed by:  Dave Thompson
+        !-----Date:           Wed  12-12-1990
+        !-----Modified by:
+        !-----Last modified:
+        !   Version 93.01, January, 1993
 
-      INTEGER         SearchForFile
-      EXTERNAL        SearchForFile
+        !-----Implementation ------------------------------------------------------------
 
-C-----Data Initializations:
+        FileNumber = SearchForFile(Class)
 
-C-----Programmed by:  Dave Thompson
-C-----Date:           Wed  12-12-1990
-C-----Modified by:
-C-----Last modified:
-*   Version 93.01, January, 1993
+        if (FileNumber == 0) then
+            GetFileUnit = 0
+        else
+            GetFileUnit          = UserUnit(FileNumber)
+            FileUsed(FileNumber) = .true.
+        endif
 
-C-----Implementation ------------------------------------------------------------
+        return
+    end function
 
-      FileNumber = SearchForFile(Class)
+    !==---Public (GetFileName) ======================================================
 
-      IF (FileNumber .EQ. 0) THEN
-         GetFileUnit = 0
-      ELSE
-         GetFileUnit          = UserUnit(FileNumber)
-         FileUsed(FileNumber) = .TRUE.
-      ENDIF
+    character*12 function GetFileName ( &
+        Class &
+        )
 
-      RETURN
-      END
+        !-----Purpose:  Search module data for the file Class and return its value
+        !-----to the client prorgram.
 
-C==---Public (GetFileName) ======================================================
+        implicit none
 
-      CHARACTER*12 FUNCTION GetFileName (
-     &     Class
-     &     )
+        !-----Arguments:
 
-C-----Purpose:  Search module data for the file Class and return its value
-C-----to the client prorgram.
+        character*12 Class
 
-      IMPLICIT NONE
+        !-----Argument definitions:
+        !     Class - target file name.
 
-C-----Arguments:
+        !-----Local variables:
 
-      CHARACTER*12 Class
+        integer       FileNumber
 
-C-----Argument definitions:
-C     Class - target file name.
 
-C-----Module data:
+        !-----Data Initializations:
 
-      INCLUDE       'master.inc'
+        !-----Programmed by:  Dave Thompson
+        !-----Date:           Wed  12-12-1990
+        !-----Modified by:
+        !-----Last modified:
+        !   Version 93.01, January, 1993
 
-C-----Local variables:
+        !-----Implementation ------------------------------------------------------------
 
-      INTEGER       FileNumber
+        FileNumber = SearchForFile(Class)
 
-C-----Functions:
+        if (FileNumber == 0) then
+            GetFileName = ' '
+        else
+            GetFileName          = UserName(FileNumber)
+            FileUsed(FileNumber) = .true.
+        endif
 
-      INTEGER       SearchForFile
-      EXTERNAL      SearchForFile
+        return
+    end function
 
-C-----Data Initializations:
 
-C-----Programmed by:  Dave Thompson
-C-----Date:           Wed  12-12-1990
-C-----Modified by:
-C-----Last modified:
-*   Version 93.01, January, 1993
 
-C-----Implementation ------------------------------------------------------------
+    !==---Private (SearchForFile) ===================================================
 
-      FileNumber = SearchForFile(Class)
+    integer   function SearchForFile ( &
+        TargetName &
+        )
 
-      IF (FileNumber .EQ. 0) THEN
-         GetFileName = ' '
-      ELSE
-         GetFileName          = UserName(FileNumber)
-         FileUsed(FileNumber) = .TRUE.
-      ENDIF
+        !-----Purpose:  Search the default (standard) file names (module data) for the
+        !-----occurrence of TargetName.
 
-      RETURN
-      END
+        implicit none
 
+        !-----Arguments:
 
+        character*12 TargetName
 
-C==---Private (SearchForFile) ===================================================
 
-      INTEGER   FUNCTION SearchForFile (
-     &     TargetName
-     &     )
+        !-----Local variables:
 
-C-----Purpose:  Search the default (standard) file names (module data) for the
-C-----occurrence of TargetName.
+        integer     FileNumber
+        logical     Done
 
-      IMPLICIT NONE
+        !-----Programmed by: Dave Thompson
+        !-----Date:          Tue  12-11-1990
+        !-----Modified by:
+        !-----Last modified:
+        !   Version 93.01, January, 1993
 
-C-----Arguments:
+        !-----Implementation ------------------------------------------------------------
 
-      CHARACTER*12 TargetName
+        FileNumber    = 0
+        Done          = .false.
+        SearchForFile = 0
 
-C-----Module data:
+10      FileNumber = FileNumber + 1
 
-      INCLUDE       'master.inc'
+        if (TargetName == DefaultName(FileNumber)) then
+            SearchForFile = FileNumber
+            Done = .true.
+        endif
 
-C-----Local variables:
+        if (FileNumber < MaxFiles .and. .not. Done) goto 10
 
-      INTEGER     FileNumber
-      LOGICAL     Done
+        return
+    end function
 
-C-----Programmed by: Dave Thompson
-C-----Date:          Tue  12-11-1990
-C-----Modified by:
-C-----Last modified:
-*   Version 93.01, January, 1993
 
-C-----Implementation ------------------------------------------------------------
 
-      FileNumber    = 0
-      Done          = .FALSE.
-      SearchForFile = 0
-
- 10   FileNumber = FileNumber + 1
-
-      IF (TargetName .EQ. DefaultName(FileNumber)) THEN
-         SearchForFile = FileNumber
-         Done = .TRUE.
-      ENDIF
-
-      IF (FileNumber .LT. MaxFiles .AND. .NOT. Done) GOTO 10
-
-      RETURN
-      END
-
-
-
+end module

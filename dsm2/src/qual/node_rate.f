@@ -28,12 +28,11 @@ c-----for given group index (if none given ignore group).
       Use Groups,only: groupArray
       use common_tide
       use iopath_data
-      use grid_data      
+      use grid_data
+      use network 
       implicit none
 
       include 'param.inc'
-      include '../hydrolib/network.inc'
-
       include 'bltm1.inc'
       include 'bltm3.inc'
       include 'bltm2.inc'

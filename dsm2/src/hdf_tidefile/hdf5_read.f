@@ -146,6 +146,7 @@ c**********contains routines for writing data to an HDF5 file
       use inclvars
       use grid_data
       use common_tide
+      use chconnec, only: QRes
       implicit none
 
       integer(HSIZE_T), dimension(3) :: h_offset

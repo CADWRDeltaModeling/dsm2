@@ -26,15 +26,16 @@ C!</license>
 c-----print the output
       use groups, only:WriteGroupMembers2File
 	use rate_coeff_assignment,only:output_rate_to_file
+      use dss
+      use mod_readdss
+      use mod_writedss
       implicit none
 
       include '../qual/param.inc'
       include '../qual/bltm1.inc'
       include '../qual/bltm3.inc'
       include '../qual/bltm2.inc'
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-      include '../timevar/writedss.inc'
+ 
 
 c-----Local variables
 

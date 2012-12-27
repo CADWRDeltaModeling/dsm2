@@ -30,10 +30,11 @@ c-----Process Hydro tidefile data into arrays needed by Qual.
       use logging
       use runtime_data
       use grid_data      
+      use network
       implicit none
 
       include 'param.inc'
-      include '../hydrolib/network.inc'
+
 
       include 'bltm1.inc'
       include 'bltm3.inc'

@@ -29,14 +29,12 @@ C!</license>
       use common_qual
       use common_ptm
       use envvar 
-
+      use network
+      use netcntrl_common
       implicit none
 
-      include '../hydrolib/network.inc'
-      include '../hydrolib/netcntrl.inc'
       include '../qual/param.inc'      
-      include '../qual/bltm1.inc'      
-      !include '../hydrolib/chconnec.inc'
+      include '../qual/bltm1.inc'    
 
       integer                  :: itmp
       character(LEN=32), intent(in)    :: Val   ! parameter Val

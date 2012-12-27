@@ -38,15 +38,15 @@ c-----to internal.
       use common_xsect
       use common_tide
       use envvar
-      use qual_hdf_file
+
+      use network
+      use chconnec
+      use dss
+      use mod_readdss
+      use mod_writedss
       implicit none
 
 
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-      include '../timevar/writedss.inc'
-      include '../hydrolib/network.inc'
-      include '../hydrolib/chconnec.inc'
 c-----Local variables
 
       logical

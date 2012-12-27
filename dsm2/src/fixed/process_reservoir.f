@@ -83,8 +83,9 @@ C!</license>
       use grid_data
       use logging
       use io_units
+      use network
       implicit none
-      include '../hydrolib/network.inc'      
+            
       
       character*32 resname
       integer :: con_node

@@ -70,9 +70,9 @@ C!</license>
       subroutine DumpHdf5Data
       use common_tide
       use runtime_data
+      use network
       implicit none
       include '../qual/param.inc'
-      include '../hydrolib/network.inc'
       include '../qual/bltm1.inc'
       logical :: firstTime = .true.
       integer :: i,j

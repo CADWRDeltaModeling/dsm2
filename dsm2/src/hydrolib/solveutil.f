@@ -1,524 +1,437 @@
-C!<license>
-C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
-C!    Department of Water Resources.
-C!    This file is part of DSM2.
-
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
-C!    you can redistribute it and/or modify
-C!    it under the terms of the GNU General Public License as published by
-C!    the Free Software Foundation, either version 3 of the License, or
-C!    (at your option) any later version.
-
-C!    DSM2 is distributed in the hope that it will be useful,
-C!    but WITHOUT ANY WARRANTY; without even the implied warranty of
-C!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-C!    GNU General Public License for more details.
-
-C!    You should have received a copy of the GNU General Public License
-C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-C!</license>
-C!
-C!    For information about the solver routines, contact: 
-C!    Eli Ateljevich
-C!
-*****-SPARSE COPYRIGHT *************
-*  Revision and copyright information.
-*
-*  Copyright (c) 1985,86,87,88
-*  by Kenneth S. Kundert and the University of California.
-*
-*  Permission to use, copy, modify, and distribute this software and
-*  its documentation for any purpose and without fee is hereby granted,
-*  provided that the copyright notices appear in all copies and
-*  supporting documentation and that the authors and the University of
-*  California are properly credited.  The authors and the University of
-*  California make no representations as to the suitability of this
-*  software for any purpose.  It is provided `as is', without express
-*  or implied warranty.
-*
-************************************************************************
-
-
-*== Public (StoreMassKnown) ============================================
-
-      LOGICAL FUNCTION StoreMassKnown(EqNum, Value)
-
-      IMPLICIT NONE
-
-*   Purpose:  Store known part of load vector, unchanging over
-*             iteration, contributed by mass equation.
-
-*   Arguments:
-      INTEGER EqNum
-      REAL*8    Value
-
-*   Argument definitions:
-*     EqNum - mass-equation sequence number, beginning in the network
-*              adjacent to the lowest cross-section number and
-*              progressing in the direction of increasing cross-section
-*              numbers.
-*              This number is local to the current channel and the sequence
-*              does not include boundary equations.
-*     Value - value to be stored.
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
-
-*   Local Variables:
-      INTEGER K
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      K = MASSEQROW(EqPointer(Branch) + EqNum - 1)
-      XOld(K) = Value
-      StoreMassKnown = .TRUE.
+!!<license>
+!!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!!    Department of Water Resources.
+!!    This file is part of DSM2.
+
+!!    The Delta Simulation Model 2 (DSM2) is free software:
+!!    you can redistribute it and/or modify
+!!    it under the terms of the GNU General Public License as published by
+!!    the Free Software Foundation, either version 3 of the License, or
+!!    (at your option) any later version.
+
+!!    DSM2 is distributed in the hope that it will be useful,
+!!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!!    GNU General Public License for more details.
+
+!!    You should have received a copy of the GNU General Public License
+!!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!!</license>
+!!
+!!    For information about the solver routines, contact:
+!!    Eli Ateljevich
+!!
+!****-SPARSE COPYRIGHT *************
+!  Revision and copyright information.
+!
+!  Copyright (c) 1985,86,87,88
+!  by Kenneth S. Kundert and the University of California.
+!
+!  Permission to use, copy, modify, and distribute this software and
+!  its documentation for any purpose and without fee is hereby granted,
+!  provided that the copyright notices appear in all copies and
+!  supporting documentation and that the authors and the University of
+!  California are properly credited.  The authors and the University of
+!  California make no representations as to the suitability of this
+!  software for any purpose.  It is provided `as is', without express
+!  or implied warranty.
+!
+!***********************************************************************
+
+
+!== Public (StoreMassKnown) ============================================
+module solveutil
+    use solver
+    implicit none
+contains
+    logical function StoreMassKnown(EqNum, Value)
+
+        use network
+        implicit none
+
+        !   Purpose:  Store known part of load vector, unchanging over
+        !             iteration, contributed by mass equation.
+
+        !   Arguments:
+        integer EqNum
+        real*8    Value
+
+        !   Argument definitions:
+        !     EqNum - mass-equation sequence number, beginning in the network
+        !              adjacent to the lowest cross-section number and
+        !              progressing in the direction of increasing cross-section
+        !              numbers.
+        !              This number is local to the current channel and the sequence
+        !              does not include boundary equations.
+        !     Value - value to be stored.
+
+        !   Module data:
+        !   Local Variables:
+        integer K
+
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
+
+        !-----Implementation -----------------------------------------------------
+
+        K = MASSEQROW(EqPointer(Branch) + EqNum - 1)
+        XOld(K) = Value
+        StoreMassKnown = .true.
+
+        return
+    end function
+
+    !== Public (StoreMassAdjust) ===========================================
+
+    logical function StoreMassAdjust(EqNum, Value)
+
+        use network
+        implicit none
+
+        !   Purpose:  Store adjustment part of load vector, changing over
+        !             iteration, contributed by mass equation.
+
+        !   Arguments:
+        integer EqNum
+        real*8    Value
 
-      RETURN
-      END
+        !   Argument definitions:
+        !     EqNum - mass-equation sequence number, beginning in the network
+        !             adjacent to the lowest cross-section number and
+        !             progressing in the direction of increasing cross-section
+        !             numbers.
+        !              This number is local to the current channel and the sequence
+        !              does not include boundary equations.
+        !     Value - value to be stored.
 
-*== Public (StoreMassAdjust) ===========================================
+        !   Module data:
 
-      LOGICAL FUNCTION StoreMassAdjust(EqNum, Value)
+        !   Local Variables:
+        integer K
 
-      IMPLICIT NONE
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Eli Ateljevich
+        !   Last modified: July, 1998
+        !   Version 98.01, January, 1998
 
-*   Purpose:  Store adjustment part of load vector, changing over
-*             iteration, contributed by mass equation.
-
-*   Arguments:
-      INTEGER EqNum
-      REAL*8    Value
-
-*   Argument definitions:
-*     EqNum - mass-equation sequence number, beginning in the network
-*             adjacent to the lowest cross-section number and
-*             progressing in the direction of increasing cross-section
-*             numbers.
-*              This number is local to the current channel and the sequence
-*              does not include boundary equations.
-*     Value - value to be stored.
+        !-----Implementation -----------------------------------------------------
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
+        K = MASSEQROW(EqPointer(Branch) + EqNum - 1)
+        XAdj(K) = Value
+        StoreMassAdjust = .true.
 
-*   Local Variables:
-      INTEGER K
+        return
+    end function
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Eli Ateljevich
-*   Last modified: July, 1998
-*   Version 98.01, January, 1998
+    !== Public (StoreDynmKnown) ============================================
 
-*-----Implementation -----------------------------------------------------
+    logical function StoreDynmKnown(EqNum, Value)
 
-      K = MASSEQROW(EqPointer(Branch) + EqNum - 1)
-      XAdj(K) = Value
-      StoreMassAdjust = .TRUE.
+        use network
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Store known part of load vector, unchanging over
+        !             iteration, contributed by dynamic equation.
 
-*== Public (StoreDynmKnown) ============================================
+        !   Arguments:
+        integer EqNum
+        real*8    Value
 
-      LOGICAL FUNCTION StoreDynmKnown(EqNum, Value)
+        !   Argument definitions:
+        !     EqNum - dynamic-equation sequence number, beginning in the network
+        !              adjacent to the lowest cross-section number and
+        !              progressing in the direction of increasing cross-section
+        !              numbers.
+        !     Value - value to be stored.
 
-      IMPLICIT NONE
 
-*   Purpose:  Store known part of load vector, unchanging over
-*             iteration, contributed by dynamic equation.
+        !   Local Variables:
+        integer K
 
-*   Arguments:
-      INTEGER EqNum
-      REAL*8    Value
+        !   Routines by module:
 
-*   Argument definitions:
-*     EqNum - dynamic-equation sequence number, beginning in the network
-*              adjacent to the lowest cross-section number and
-*              progressing in the direction of increasing cross-section
-*              numbers.
-*     Value - value to be stored.
+        !**** Local:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Eli Ateljevich
+        !   Last modified: July, 1998
+        !   Version 98.01, July, 1998
 
-*   Local Variables:
-      INTEGER K
+        !-----Implementation -----------------------------------------------------
 
-*   Routines by module:
+        K = DYNMEQROW(EqPointer(Branch) + EqNum - 1)
+        XOld(K) = Value
+        StoreDynmKnown = .true.
 
-***** Local:
+        return
+    end function
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Eli Ateljevich
-*   Last modified: July, 1998
-*   Version 98.01, July, 1998
+    !== Public (StoreDynmAdjust) ===========================================
 
-*-----Implementation -----------------------------------------------------
+    logical function StoreDynmAdjust(EqNum, Value)
 
-      K = DYNMEQROW(EqPointer(Branch) + EqNum - 1)
-      XOld(K) = Value
-      StoreDynmKnown = .TRUE.
+        use network
 
-      RETURN
-      END
+        implicit none
 
-*== Public (StoreDynmAdjust) ===========================================
+        !   Purpose:  Store adjustment part of load vector, changing over
+        !             iteration, contributed by dynamic equation.
 
-      LOGICAL FUNCTION StoreDynmAdjust(EqNum, Value)
+        !   Arguments:
+        integer EqNum
+        real*8    Value
 
-      IMPLICIT NONE
+        !   Argument definitions:
+        !     EqNum - dynamic-equation sequence number, beginning in the network
+        !             adjacent to the lowest cross-section number and
+        !             progressing in the direction of increasing cross-section
+        !             numbers.
+        !     Value - value to be stored.
 
-*   Purpose:  Store adjustment part of load vector, changing over
-*             iteration, contributed by dynamic equation.
 
-*   Arguments:
-      INTEGER EqNum
-      REAL*8    Value
+        !   Local Variables:
+        integer K
 
-*   Argument definitions:
-*     EqNum - dynamic-equation sequence number, beginning in the network
-*             adjacent to the lowest cross-section number and
-*             progressing in the direction of increasing cross-section
-*             numbers.
-*     Value - value to be stored.
+        !   Routines by module:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:   Eli Ateljevich
+        !   Last modified: July, 1998
+        !   Version 98.01, July, 1998
 
-*   Local Variables:
-      INTEGER K
+        !-----Implementation -----------------------------------------------------
 
-*   Routines by module:
+        K = DYNMEQROW(EqPointer(Branch) + EqNum - 1)
+        XAdj(K) = Value
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:   Eli Ateljevich
-*   Last modified: July, 1998
-*   Version 98.01, July, 1998
+        StoreDynmAdjust = .true.
 
-*-----Implementation -----------------------------------------------------
+        return
+    end function
 
-      K = DYNMEQROW(EqPointer(Branch) + EqNum - 1)
-      XAdj(K) = Value
+    !== Public (IncrementalQ) ==============================================
 
-      StoreDynmAdjust = .TRUE.
+    real*8 function IncrementalQ(LocationNumber)
 
-      RETURN
-      END
+        use network
+        use channel_schematic, only: UpstreamPointer
+        implicit none
 
-*== Public (IncrementalQ) ==============================================
+        !   Purpose:  Return the incremental change in flow over the last
+        !             iteration.
 
-      REAL*8 FUNCTION IncrementalQ(LocationNumber)
+        !   Arguments:
+        integer LocationNumber
 
-      IMPLICIT NONE
+        !   Argument definitions:
+        !     LocationNumber - sequential location number within the current
+        !                       channel.
 
-*   Purpose:  Return the incremental change in flow over the last
-*             iteration.
+        !   Local Variables:
+        integer J
 
-*   Arguments:
-      INTEGER LocationNumber
 
-*   Argument definitions:
-*     LocationNumber - sequential location number within the current
-*                       channel.
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Local Variables:
-      INTEGER J
+        !-----Implementation -----------------------------------------------------
 
-*   Routines by module:
+        J = UpstreamPointer() + LocationNumber - 1
+        IncrementalQ = X( 2 * J - 1 )
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer
-      EXTERNAL UpstreamPointer
+        return
+    end function
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+    !== Public (IncrementalZ) ==============================================
 
-*-----Implementation -----------------------------------------------------
+    real*8 function IncrementalZ(LocationNumber)
 
-      J = UpstreamPointer() + LocationNumber - 1
-      IncrementalQ = X( 2 * J - 1 )
+        use network
+        use channel_schematic, only: UpstreamPointer
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Return the incremental change in stream-surface elevation
+        !             over the last iteration.
 
-*== Public (IncrementalZ) ==============================================
+        !   Arguments:
+        integer LocationNumber
 
-      REAL*8 FUNCTION IncrementalZ(LocationNumber)
+        !   Argument definitions:
+        !     LocationNumber - sequential location number within the current
+        !                      channel.
 
-      IMPLICIT NONE
+        !   Local Variables:
+        integer J
 
-*   Purpose:  Return the incremental change in stream-surface elevation
-*             over the last iteration.
 
-*   Arguments:
-      INTEGER LocationNumber
 
-*   Argument definitions:
-*     LocationNumber - sequential location number within the current
-*                      channel.
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
+        !-----Implementation -----------------------------------------------------
 
-*   Local Variables:
-      INTEGER J
+        J = UpstreamPointer() + LocationNumber - 1
+        IncrementalZ = X( 2 * J )
 
-*   Routines by module:
+        return
+    end function
 
-***** Channel schematic:
-      INTEGER  UpstreamPointer
-      EXTERNAL UpstreamPointer
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+    !== Public (StoreAtRow) ================================================
 
-*-----Implementation -----------------------------------------------------
+    logical function StoreAtRow(Row, Value)
 
-      J = UpstreamPointer() + LocationNumber - 1
-      IncrementalZ = X( 2 * J )
+        use network
+        implicit none
 
-      RETURN
-      END
+        !   Purpose:  Store a value in the load vector at a location
+        !             corresponding to Row.
 
+        !   Arguments:
+        integer Row
+        real*8    Value
 
-*== Public (ForwardElim) ================================================
+        !   Argument definitions:
+        !     Row   - row number in the load vector.
+        !     Value - value to be stored.
 
-      LOGICAL FUNCTION ForwardElim()
 
-      IMPLICIT NONE
+        integer CURRENTCHANNEL
+        external CURRENTCHANNEL
+        !   Local Variables:
 
-*   Purpose:  Return .TRUE. if changes will be
-*             performed on the coefficient matrix in the curren iteration,
-*             otherwise .FALSE..
+        !   Routines by module:
 
-*   Arguments:
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Argument definitions:
+        !-----Implementation -----------------------------------------------------
 
-*   Module data:
-      INCLUDE 'network.inc'
+        XAdj(Row) = Value
+        XOld(Row) = 0.0
 
-*   Local Variables:
-      INTEGER Iteration, IterBack
+        StoreAtRow = .true.
 
-*   Routines by module:
+        return
+    end function
 
-***** Network control:
-      INTEGER  NetworkIteration
-      INTEGER  ForwardElimInt
-      EXTERNAL NetworkIteration
-      EXTERNAL ForwardElimInt
+    !== Public (AddAtRow) ==================================================
 
-***** Local:
+    logical function AddAtRow(Row, Value)
 
-*   Intrinsics:
-      INTEGER   MOD
-      INTRINSIC MOD
+        use network
+        use solver
+        implicit none
 
-*   Programmed by: Lew DeLong
-*   Date:          April 1992
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Purpose:  Add a value to the load vector at a location
+        !             corresponding to Row.
 
-*-----Implementation -----------------------------------------------------
+        !   Arguments:
+        integer Row
+        real*8    Value
 
-      IterBack = ForwardElimInt()
+        !   Argument definitions:
+        !     Row   - row number in the load vector.
+        !     Value - value to be stored.
 
-      IF( IterBack .GT. 1  ) THEN
 
-         Iteration = NetworkIteration()
+        !   Local Variables:
 
-         IF( Iteration .GT. 1) THEN
+        !   Routines by module:
 
-            IF( MOD(Iteration-1,IterBack) .EQ. 0 ) THEN
-               ForwardElim = .TRUE.
-            ELSE
-               ForwardElim = .FALSE.
-            END IF
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-         ELSE
-            ForwardElim = .TRUE.
-         END IF
+        !-----Implementation -----------------------------------------------------
 
-      ELSE
-         ForwardElim = .TRUE.
-      END IF
+        XAdj(Row) = XAdj(Row) + Value
 
-      RETURN
-      END
+        AddAtRow = .true.
 
-*== Public (StoreAtRow) ================================================
+        return
+    end function
 
-      LOGICAL FUNCTION StoreAtRow(Row, Value)
+    !== Public (UpstreamConstraintRow) =====================================
 
-      IMPLICIT NONE
+    integer function UpstreamConstraintRow()
 
-*   Purpose:  Store a value in the load vector at a location
-*             corresponding to Row.
+        use network
+        use solver
+        implicit none
 
-*   Arguments:
-      INTEGER Row
-      REAL*8    Value
+        !   Purpose:  Return row number for the upstream constraint equation
+        !             for the current channel.
 
-*   Argument definitions:
-*     Row   - row number in the load vector.
-*     Value - value to be stored.
+        !   Arguments:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
+        !   Argument definitions:
 
-      INTEGER CURRENTCHANNEL
-      EXTERNAL CURRENTCHANNEL
-*   Local Variables:
 
-*   Routines by module:
+        !   Local Variables:
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !   Routines by module:
 
-*-----Implementation -----------------------------------------------------
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-      XAdj(Row) = Value
-      XOld(Row) = 0.0
+        !-----Implementation -----------------------------------------------------
 
-      StoreAtRow = .TRUE.
+        UpstreamConstraintRow = UpConstraintEq(Branch)
 
-      RETURN
-      END
+        return
+    end function
 
-*== Public (AddAtRow) ==================================================
+    !== Public (DownstreamConstraintRow) ===================================
 
-      LOGICAL FUNCTION AddAtRow(Row, Value)
+    integer function DownstreamConstraintRow()
 
-      IMPLICIT NONE
+        use network
+        use solver
+        implicit none
 
-*   Purpose:  Add a value to the load vector at a location
-*             corresponding to Row.
+        !   Purpose:  Return row number for the downstream constraint equation
+        !             for the current channel.
 
-*   Arguments:
-      INTEGER Row
-      REAL*8    Value
+        !   Arguments:
 
-*   Argument definitions:
-*     Row   - row number in the load vector.
-*     Value - value to be stored.
+        !   Argument definitions:
 
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
+        !   Local Variables:
 
-*   Local Variables:
+        !   Routines by module:
 
-*   Routines by module:
+        !   Programmed by: Lew DeLong
+        !   Date:          February 1991
+        !   Modified by:
+        !   Last modified:
+        !   Version 93.01, January, 1993
 
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
+        !-----Implementation -----------------------------------------------------
 
-*-----Implementation -----------------------------------------------------
+        DownstreamConstraintRow = DownConstraintEq(Branch)
 
-      XAdj(Row) = XAdj(Row) + Value
-
-      AddAtRow = .TRUE.
-
-      RETURN
-      END
-
-*== Public (UpstreamConstraintRow) =====================================
-
-      INTEGER FUNCTION UpstreamConstraintRow()
-
-      IMPLICIT NONE
-
-*   Purpose:  Return row number for the upstream constraint equation
-*             for the current channel.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      UpstreamConstraintRow = UpConstraintEq(Branch)
-
-      RETURN
-      END
-
-*== Public (DownstreamConstraintRow) ===================================
-
-      INTEGER FUNCTION DownstreamConstraintRow()
-
-      IMPLICIT NONE
-
-*   Purpose:  Return row number for the downstream constraint equation
-*             for the current channel.
-
-*   Arguments:
-
-*   Argument definitions:
-
-*   Module data:
-      INCLUDE 'network.inc'
-      INCLUDE 'solver.inc'
-
-*   Local Variables:
-
-*   Routines by module:
-
-*   Programmed by: Lew DeLong
-*   Date:          February 1991
-*   Modified by:
-*   Last modified:
-*   Version 93.01, January, 1993
-
-*-----Implementation -----------------------------------------------------
-
-      DownstreamConstraintRow = DownConstraintEq(Branch)
-
-      RETURN
-      END
+        return
+    end function
+end module

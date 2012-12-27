@@ -32,18 +32,9 @@ c-----the model run.  Supply default values where possible.
       use common_ptm
       use common_qual_bin
       use groups, only: WriteGroupMembers2File
+      use network
+      use netcntrl_common
       implicit none
-
-      
-      include '../hydrolib/network.inc'
-      include '../hydrolib/netcntrl.inc'
-      include '../hydrolib/chconnec.inc'
-      include '../hydrolib/chnluser.inc'
-      include '../hydrolib/chcxrec1.inc'
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-      include '../timevar/writedss.inc'
-
 
 c-----Local variables
 

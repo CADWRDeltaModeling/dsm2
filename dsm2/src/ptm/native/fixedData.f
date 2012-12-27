@@ -2049,6 +2049,7 @@ c-----if lower level is above H, move down
       REAL*8 FUNCTION ChannelWidth(X,Z)
       use IO_Units
       use common_xsect
+      use network
       IMPLICIT NONE
 
 *   Purpose:
@@ -2062,15 +2063,6 @@ c-----if lower level is above H, move down
 *     X      - downstream distance in current channel.
 *     H      - distance, above lowest point in channel, at which the
 *              channel width is to be computed.
-
-*   Module data:
-      INCLUDE '../../hydrolib/network.inc'
-      INCLUDE '../../hydrolib/chcxtbl.inc'
-
-
-*   Functions:
-      LOGICAL  CxShapeFunction
-      EXTERNAL CxShapeFunction
 
 *   Subroutines:
 
@@ -2132,6 +2124,7 @@ c-----statement function to interpolate wrt two points
 
       REAL*8 FUNCTION CxArea(X, Z)
       use common_xsect
+      use network
       IMPLICIT NONE
 
 *   Purpose:
@@ -2147,15 +2140,8 @@ c-----statement function to interpolate wrt two points
 *     H - distance above lowest point in cross section.
 
 
-*   Module data:
-      INCLUDE '../../hydrolib/network.inc'
-      INCLUDE '../../hydrolib/chcxtbl.inc'
-
 *   Routines by module:
 
-***** Local:
-      REAL*8   ChannelWidth
-      EXTERNAL ChannelWidth
       REAL*8 
      &     x1                   ! interpolation variables
      &     ,x2
@@ -2172,7 +2158,7 @@ c-----statement function to interpolate wrt two points
      &     ,b2                  ! interpolated width (trapezoid top width)
 
 *   Intrinsics:
-
+      REAL*8 ChannelWidth
 *   Programmed by: Lew DeLong
 *   Date:          July  1991
 *   Modified by:   Brad Tom

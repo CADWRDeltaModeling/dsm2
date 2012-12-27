@@ -26,10 +26,9 @@ c-----tide file info.
       use constants
       use common_tide
       use runtime_data
+      use network
+      
       implicit none
-
-
-      include '../hydrolib/network.inc'
 
       logical
      &     ldefault             ! true if values are for defaults

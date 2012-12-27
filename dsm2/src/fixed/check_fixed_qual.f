@@ -37,10 +37,6 @@ c-----to internal.  Write to Qual arrays.
       include '../qual/bltm3.inc'
       include '../qual/bltm2.inc'
 
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-      include '../timevar/writedss.inc'
-
 c-----Local variables
 
       logical

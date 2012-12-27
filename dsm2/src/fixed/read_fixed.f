@@ -27,14 +27,8 @@ c-----Read the fixed (non-time-varying) input data for DSM2 modules.
       use runtime_data
       use constants_ptm
       use envvar
+      use network
       implicit none
-      
-      include '../hydrolib/network.inc'
-
-      include '../timevar/dss.inc'
-      include '../timevar/readdss.inc'
-
-
 c-----local variable declaration
 
       character*(*) init_input_file ! initial input file (provided) [optional]

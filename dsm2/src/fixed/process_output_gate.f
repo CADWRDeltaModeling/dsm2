@@ -27,9 +27,9 @@ C!</license>
 
       use Gates, only: gateArray,gateIndex,deviceIndex,WEIR,PIPE
       use Groups, only: GROUP_ALL
+      use iopath_data
       use io_units
       use logging
-      use iopath_data
       use grid_data
       use envvar
       implicit none

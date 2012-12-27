@@ -38,7 +38,7 @@ c**********contains routines for writing data to an HDF5 file
       use common_tide
       use IFPORT
       use dsm2_tidefile_input_storage_fortran
-
+      use network
       implicit none
 
       integer(HID_T) :: aspace_id ! Attribute Dataspace identifier
@@ -306,9 +306,9 @@ c**********contains routines for writing data to an HDF5 file
       use dsm2_tidefile_input_storage_fortran
       use hdfvars
       use grid_data
+      use network
+      use chnlcomp
       implicit none
-      INCLUDE '../hydrolib/network.inc'
-      INCLUDE '../hydrolib/chnlcomp.inc'
       integer ::   error        ! Error flag
       integer:: ichan, icomp
       integer :: up,down
@@ -339,9 +339,9 @@ c**********contains routines for writing data to an HDF5 file
       use h5lt
       use hdf5
       use grid_data
+      use network
+      use chnlcomp
       implicit none
-      INCLUDE '../hydrolib/network.inc'
-      INCLUDE '../hydrolib/chnlcomp.inc'
       integer ::   error = 0       ! Error flag
       integer:: ires, inode
       integer :: icount
