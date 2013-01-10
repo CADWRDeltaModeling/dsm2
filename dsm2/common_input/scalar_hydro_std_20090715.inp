@@ -14,8 +14,7 @@ gravity         32.2   #acceleration due to gravity.
 hydro_time_step 15min  #time step, in minutes                              
 levee_slope     0.33   #used for cross-section top width extrapolation     
 maxiter         20     #maximum number of iterations per time step.        
-printlevel      1      #amount of printing, 0 to 9, increasing with number.
-repeating_tide  f      #t = repeating tide run                             
+printlevel      1      #amount of printing, 0 to 9, increasing with number.                            
 theta           0.6    #time-weighting factor (0.5 - 1.0)                  
 toleranceq      0.001  #tolerance for closure on discharge.                
 tolerancez      0.0008 #tolerance for closure on water-surface elevation.  

@@ -29,11 +29,11 @@ END
 
 GRID
 ${DSM2INPUTDIR}/channel_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/gate_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20100330.inp
 ${DSM2INPUTDIR}/reservoir_std_delta_grid_20090715.inp
 ${DSM2INPUTDIR}/channel_planning_stability_revision_20090715.inp
 ${DSM2INPUTDIR}/channel_tapered_tracy_blvd_dredge_20090715.inp
-${DSM2INPUTDIR}/gate_permanent_barriers_20090715.inp
+${DSM2INPUTDIR}/gate_permanent_barriers_20090827.inp
 END
 
 INITIAL_CONDITION
@@ -52,7 +52,7 @@ END
 
 OPERATION
 ${DSM2INPUTDIR}/oprule_montezuma_planning_gate_20090715.inp
-${DSM2INPUTDIR}/oprule_sdip_20090715.inp
+${DSM2INPUTDIR}/oprule_sdip_20090917.inp
 ${DSM2INPUTDIR}/oprule_ccc_dual_intake_20090715.inp
 END
 
@@ -62,7 +62,7 @@ ${DSM2INPUTDIR}/output_channel_std_hydro_named_20090715.inp
 ${DSM2INPUTDIR}/output_reservoir_std_hydro_named_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_hydro_rki_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_hydro_sdip_20090715.inp
-${DSM2INPUTDIR}/output_gate_sdip_20090715.inp
+${DSM2INPUTDIR}/output_gate_sdip_20090916.inp
 ${DSM2INPUTDIR}/output_channel_sdip_trigger_20090715.inp
 ${DSM2INPUTDIR}/output_channel_ocap_20090715.inp
 END

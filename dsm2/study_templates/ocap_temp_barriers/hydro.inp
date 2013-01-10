@@ -30,9 +30,9 @@ END
 
 GRID
 ${DSM2INPUTDIR}/channel_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/gate_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20100330.inp
 ${DSM2INPUTDIR}/reservoir_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/gate_temp_barriers_20090715.inp
+${DSM2INPUTDIR}/gate_temp_barriers_20090827.inp
 END
 
 INITIAL_CONDITION
@@ -63,7 +63,7 @@ ${DSM2INPUTDIR}/output_channel_std_hydro_rki_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_hydro_sdip_20090715.inp
 ${DSM2INPUTDIR}/output_channel_sdip_trigger_20090715.inp
 ${DSM2INPUTDIR}/output_channel_old_river_head_20090715.inp
-${DSM2INPUTDIR}/output_gate_temporary_barriers_20090715.inp
+${DSM2INPUTDIR}/output_gate_temporary_barriers_20090827.inp
 ${DSM2INPUTDIR}/output_channel_ccc_split_flow_20090715.inp
 ${DSM2INPUTDIR}/output_channel_ocap_20090715.inp
 END

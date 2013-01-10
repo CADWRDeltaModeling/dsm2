@@ -10,7 +10,8 @@ import shlex   # for quote-aware split()
 import re
 import string
 import sys
-
+import zipfile
+import os.path
 
 # Some regular expressions we want to compile once
 block_txt =\
@@ -33,6 +34,13 @@ def tidy(infile,outfile):
     f=open(infile,"r")
     txt=f.read()
     f.close()
+    zipname = r"dsm2_tidy_backup.zip"
+    if os.path.exists( zipname ):
+        bak = zipfile.ZipFile(zipname,"a")
+    else:
+        bak = zipfile.ZipFile(zipname,"w")
+    bak.write(infile)
+    bak.close()
   
     if not txt.endswith("\n"):
         txt += "\n"

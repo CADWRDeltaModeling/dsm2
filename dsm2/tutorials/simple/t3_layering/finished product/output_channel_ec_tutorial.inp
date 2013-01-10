@@ -8,3 +8,4 @@ chan2_length       2   length ec          15min inst      ${QUALOUTDSSFILE}
 chan2004        2004        0 ec          15min inst      ${QUALOUTDSSFILE} 
 END
 
+

@@ -53,6 +53,13 @@ for qual restart file, <span style="font-style: italic;">*.h5</span>
 for hdf5 tidefile or <span style="font-style: italic;">*.out</span>
 for echoed output.</dd>
 </dl>
+
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>none: no layering</dd>
+<dt>Include Block:</dt><dd>none: launch file only</dd>
+</dl>
+
 <br>
 <h2 id="examples">Examples:</h2>
 <p style="font-weight: bold;">HYDRO example:</p><p>This
@@ -81,6 +88,7 @@ MODEL  TYPE    IO   INTERVAL FILENAME
 output none    none none     ${QUALOUTFILE}  
 qual   restart out  1day     ${QUALRESTART}  
 qual   restart in   none     qualinit_30SEP1999.qrf  
+qual   hdf5    out  1hour    ${QUALHDF5FILE} 
 qual   echo    out  none     ${DSM2MODIFIER}_qual_echo.inp  
 END</pre>
 </div>
@@ -96,6 +104,8 @@ ptm   echo  out none     ${DSM2MODIFIER}_ptm_echo.inp
 END</pre>
 </div>
 
+
+
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
 <a name="usage"></a>
@@ -106,7 +116,7 @@ END</pre>
 </div><!--End contents-->
 
 <div id="footer">
-<copyright>© 2007 California
+<copyright>© 2007, 2009 California
 Department of Water Resources. All Rights Reserved</copyright>
 <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>

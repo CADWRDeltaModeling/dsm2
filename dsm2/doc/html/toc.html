@@ -8,6 +8,8 @@
 <div id="wrap">
 <ul id="page_navbar">
 <li><a href="#toc">TOC</a></li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#download">Download</a></li>
 </ul><!--end navbar-->
 
 
@@ -17,16 +19,9 @@
 </div><!-- page_title-->
 <hr style="">
 
-<a name="overview"></a>
-<h2>Overview:</h2>
-<p>The Delta Simulation Model II (DSM2) is a one-dimensional mathematical model for dynamic simulation of one-dimensional hydrodynamics, water quality and particle tracking in a network of riverine or estuarine channels. DSM2 can calculate stages, flows, velocities, mass transport processes for conservative and non-conservative constituents including salts, water temperature, dissolved oxygen, and trihalomethane formation potential, and transport of individual particles. DSM2 thus provides a powerful simulation package for analysis of complex hydrodynamic, water quality, and ecological conditions in riverine and estuarine systems.</p>
-
-<p>DSM2 currently consists of three modules, all of which come with the current distribution: HYDRO, QUAL, and PTM. HYDRO simulates one-dimensional hydrodynamics including flows, velocities, depth, and water surface elevations.  HYDRO provides the flow input for QUAL and PTM.  QUAL simulates one-dimensional fate and transport of conservative and non-conservative water quality constituents given a flow field simulated by HYDRO.  PTM simulates pseudo 3-D transport of neutrally buoyant particles based on the flow field simulated by HYDRO.  PTM has multiple applications ranging from visualization of flow patterns to simulation of discrete organisms such as fish eggs and larvae.</p>
-
-<p>DSM2 Version 8 is currently in early release. Documentation will expand and be corrected for the class in September 2009 (date to be announced in Users Group). Please send comments to Min Yu minyu@water.ca.gov.</p>
-
 <h2>Contents</h2>
 <ul id="toc">
+<li> <a href="#overview">Overview</a> <br /></li>
 <li> <a href="#started">Getting Started</a> <br /></li>
     <ul>
       <li><a href="#download">Download and installation</a></li>
@@ -67,6 +62,7 @@
       <li><a href="reference/reservoir_ic.html">Reservoir Initial Condition</a></li>      
       <li><a href="reference/scalar.html">Scalar</a></li>
       <li><a href="reference/source_flow.html">Source Flow (HYDRO at nodes)</a></li>          
+      <li>Source Tracking (see Output: Reservoir and Channel)</li>          
       <li><a href="reference/tidefile.html">Tidefile</a></li>   
       <li><a href="reference/transfer.html">Transfer</a></li>   
       </ul>
@@ -75,17 +71,25 @@
 
 <div id="contents">
 
+<a name="overview"></a>
+<h2>Overview:</h2>
+<p>The Delta Simulation Model II (DSM2) is a one-dimensional mathematical model for dynamic simulation of one-dimensional hydrodynamics, water quality and particle tracking in a network of riverine or estuarine channels. DSM2 can calculate stages, flows, velocities, mass transport processes for conservative and non-conservative constituents including salts, water temperature, dissolved oxygen, and trihalomethane formation potential, and transport of individual particles. DSM2 thus provides a powerful simulation package for analysis of complex hydrodynamic, water quality, and ecological conditions in riverine and estuarine systems.</p>
+
+<p>DSM2 currently consists of three modules, all of which come with the current distribution: HYDRO, QUAL, and PTM. HYDRO simulates one-dimensional hydrodynamics including flows, velocities, depth, and water surface elevations.  HYDRO provides the flow input for QUAL and PTM.  QUAL simulates one-dimensional fate and transport of conservative and non-conservative water quality constituents given a flow field simulated by HYDRO.  PTM simulates pseudo 3-D transport of neutrally buoyant particles based on the flow field simulated by HYDRO.  PTM has multiple applications ranging from visualization of flow patterns to simulation of discrete organisms such as fish eggs and larvae.</p>
+
+<p>DSM2 Version 8 is currently in early release. Documentation will expand and be corrected for the class in September 2009 (date to be announced in Users Group). Please send comments to Min Yu minyu@water.ca.gov.</p>
+
 <a name="started"></a>
 <h2>Getting Started</h2>
 <p>Welcome to DSM2. This section of the documentation is intended to help you
 acquire and install dsm2, test that it is working and understand the layout of
 the distribution. After you have taken these steps, you will probably want to
-tackle the tutorials.</p>
+tackle the tutorials in the /tutorials folder of the distribution or consult the documentation or grid map in the /documentation folder -- a link has been provided on the start menu to make the documentation easier to find..</p>
 <a name="download"></a>
 <h3>Getting DSM2</h3> 
 <p>DSM2 is distributed by the California Department of 
 Water Resources Delta Modeling Section. You can find the model at our
-<a href="http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/deltaevaluation.cfm">
+<a href="http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2v8/dsm2.cfm#download">
 delta evaluation tools</a> web site. Currently we distribute Windows executables, tutorials and a data package 
 with templates for common studies. We expect to release a source code 
 distribution in Fall, 2009.</p>
@@ -147,7 +151,7 @@ C:\&gt;hydro -v
 </pre>
 </div>
 <p>If you got a message like the one above, you are up and running!
-Your next stop should be Tutorial #1 or Delta Tutorial #1. The "simple channel" tutorials (Tutorial 1-6) feature most of the nuances of the model using a very simple grid and are an excellent way to learn about the model -- including subtleties that are new or caused confusion in the past. The "Delta Tutorial" series are more applied -- tasks on the Delta. Doing Delta Tutorial #1 as a motivator and then tackling the simple ones is a quick way to get a sense of the model</p>
+Your next stop should be Tutorial #1 or Delta Tutorial #1. Look in the /tutorials folder of the distribution. The Basic Tutorials (Tutorial 1-6) feature most of the nuances of the model using a very simple grid and are an excellent way to learn about the model -- including subtleties that are new or caused confusion in the past. The Delta Tutorial series are more applied -- tasks on the Delta. Doing some of Delta Tutorial #1 as a motivator and then tackling the simple ones is a quick way to get a sense of the model.</p>
 
 If instead you get this:</p>
 <div class="fragment">
@@ -164,7 +168,7 @@ operable program or batch file.
 </div><!--End contents-->
 
 <div id="footer">
-<copyright>© 2007 California
+<copyright>© 2007, 2009 California
 Department of Water Resources. All Rights Reserved</copyright>
 <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>

@@ -2,8 +2,7 @@
 OUTPUT_CHANNEL_SOURCE_TRACK
 NAME    CHAN_NO DISTANCE VARIABLE SOURCE_GROUP INTERVAL PERIOD_OP FILE             
 ch5           5     5000 ec       all             15min inst      ${QUALOUTDSSFILE} 
-ch5_bnd       5     5000 ec       boundary        15min inst      ${QUALOUTDSSFILE} 
-ch5_src       3     5000 ec       sources         15min inst      ${QUALOUTDSSFILE} 
+ch5           5     5000 ec       boundary        15min inst      ${QUALOUTDSSFILE} 
+ch5           5     5000 ec       sources         15min inst      ${QUALOUTDSSFILE} 
 END
-
 

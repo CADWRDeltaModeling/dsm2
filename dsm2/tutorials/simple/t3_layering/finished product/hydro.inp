@@ -2,7 +2,7 @@
 ENVVAR
 NAME            VALUE     
 HYDROOUTDSSFILE output.dss 
-DSM2MODIFIER    layers     
+DSM2MODIFIER    layers_input_blocks    
 END
 
 
@@ -43,32 +43,31 @@ MODEL TYPE    IO  INTERVAL FILE
 hydro hdf5    out    1hour ${DSM2MODIFIER}.h5  #Flow data to be passed to qual and ptm 
 hydro restart out     1mon ${DSM2MODIFIER}.hrf #Initial condition a restart is required
 hydro output  out     none ${DSM2MODIFIER}.out #Echoed run status                      
-hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp  #Echoed input                    
+hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp  #Echoed input                        
 END
-
-
 
 GRID
 grid_tutorial_base.inp
-grid_tutorial_revision.inp 
+grid_tutorial_revision.inp
 END
-
-
 
 INITIAL_CONDITION
 ic_tutorial.inp
+channel_ic_revision.inp
 END
-
-
 
 HYDRO_TIME_SERIES
 input_boundary_hydro_tutorial.inp
-input_transfer_flow_tutorial.inp  
+input_transfer_flow_tutorial.inp
 END
-
-
 
 OUTPUT_TIME_SERIES
 output_hydro_tutorial.inp
 END
+
+
+
+
+
+
 

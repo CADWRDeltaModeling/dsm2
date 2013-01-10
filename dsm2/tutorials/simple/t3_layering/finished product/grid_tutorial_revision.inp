@@ -1,37 +1,29 @@
-
 CHANNEL
 CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE
-^2004    15000   0.035        0.3      4        5 
-4        15000   0.035        0.3      4        5 
+4     15000   0.035        0.3      4        5 
+^2004     15000   0.035        0.3      4        5 
 END
-
-
 
 XSECT_LAYER
 CHAN_NO DIST  ELEV   AREA WIDTH WET_PERIM
-2004     0.5 -24.0    0.0  40.0      40.0 
-2004     0.5   0.0  960.0  80.0     91.22 
-2004     0.5  20.0 2640.0 160.0     133.6 
-4        0.5 -24.0    0.0  40.0      40.0 
-4        0.5   0.0  960.0  80.0     91.22 
-4        0.5  20.0 2640.0 160.0     133.6 
+4     0.5 -24.0    0  40.0      40.0 
+4     0.5   0.0  960  80.0     102.5 
+4     0.5  20.0 2640 160.0     192.0 
+2004     0.5 -24.0    0  40.0      40.0 
+2004     0.5   0.0  960  80.0     102.5 
+2004     0.5  20.0 2640 160.0     192.0 
 END
-
-
 
 RESERVOIR
-NAME       AREA BOT_ELEV
-^dummy_res 60.0    -30.0 
-res_1      50.0    -24.0 
+NAME  AREA BOT_ELEV 
+res_1 50.0    -24.0 
+^dummy_res 60.0    -30.0
 END
-
-
 
 RESERVOIR_CONNECTION
-RES_NAME  NODE COEF_IN COEF_OUT
-dummy_res    5   220.0    220.0 
-dummy_res    6   220.0    220.0 
-res_1        3   200.0    200.0 
-res_1        4   200.0    200.0 
+RES_NAME NODE COEF_IN COEF_OUT
+res_1       3   200.0    200.0 
+res_1       4   200.0    200.0
+dummy_res       5   220.0    220.0 
+dummy_res       6   220.0    220.0 
 END
-

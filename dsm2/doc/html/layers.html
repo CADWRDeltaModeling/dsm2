@@ -30,7 +30,7 @@ added to an existing simulation.</li>
 </ul>
 <p>
 For example, consider the two layers of channels in the figure below.
-The first layer defines seven channels and would have seven entries in the GUI. 
+The first layer defines seven channels and would have seven entries in the CHANNEL table. 
 This might represent a "base" grid. The second layer changes the properties of Channel 2, 
 adds a Channel 8 and removes Channel 7. The second layer will have only three entries, 
 shown in red. These entries represent the changes relative to Layer 1, 
@@ -68,6 +68,7 @@ CHAN_NO   DISTANCE    FILE
 2         0.500       2_0_500.txt
 ...
 7         0.900       7_0_900.txt
+END
 &lt;eof channel_base.inp&gt;</pre>
 </div>
 
@@ -76,26 +77,20 @@ CHAN_NO   DISTANCE    FILE
 <pre class="fragment">&lt;file <a class="code" href="channel_base.html">channel_base.inp</a>&gt;
 CHANNEL
 CHAN_NO LENGTH MANNING DISPERSION UP_NODE DOWN_NODE
-2         8000   0.030       0.80       2         3  # Reduced Manning's coef
-#3        9000   0.000       0.00      19        20  # Never read at all
-                                                     # Base Channel 3 is unaffected
-^7       14000   0.040       0.80       6         7  # Carat sign ^ means "delete"
-                                                     # the entire lower-layer version
-                                                     # of Channel 7
-8        16000   0.040       0.80       8         3
+2         8000   0.030       0.80       2         3 # Masks + Alters
+#3        9000   0.000       0.00      19        20 # Has no effect
+^7       14000   0.040       0.80       6         7 # Masks + Deletes
+...
+8        16000   0.040       0.80       8         3 # Adds
 END
 
 XSECT
 CHAN_NO DISTANCE  FILE
-2          0.100  2_0_500.txt # Different cross-section detail in this layer
-2          0.700  2_0_500.txt # Note the "0.5" distance xsect 
-                              # in the base layer won't be read
-7          0.900  7_0_900.txt # Does nothing, because deleted in parent table
-                              # but including the child data can
-                              # make it easy to toggle the deletion on/off
-8          0.500  8_0_500.txt # Required, since this is a new channel
+2          0.100  2_0_500.txt  # Masks lower level x-sects 
+2          0.700  2_0_500.txt  #
+7          0.900  7_0_900.txt  # Will be ignored
+8          0.500  8_0_500.txt  # 
 END
-                              
 &lt;eof channel_base.inp&gt;</pre>
 </div>
 
@@ -186,7 +181,7 @@ not affect any data with the same identifier on a lower level.
 </div><!--End contents-->
 
 <div id="footer">
-<copyright>© 2007 California
+<copyright>© 2007, 2009, 2009, 2009 California
 Department of Water Resources. All Rights Reserved</copyright>
 <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>

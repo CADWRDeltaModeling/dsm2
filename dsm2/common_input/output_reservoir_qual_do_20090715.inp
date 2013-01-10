@@ -2,10 +2,10 @@
 # Description of the new layer
 OUTPUT_RESERVOIR
 NAME          RES_NAME      NODE VARIABLE INTERVAL PERIOD_OP FILE             
-clifton_court clifton_court none ALGAE       15MIN inst      ${QUALOUTDSSFILE} 
-clifton_court clifton_court none DO          15MIN inst      ${QUALOUTDSSFILE} 
-clifton_court clifton_court none EC          15MIN inst      ${QUALOUTDSSFILE} 
-clifton_court clifton_court none TEMP        15MIN inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court none algae       15MIN inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court none do          15MIN inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court none ec          15MIN inst      ${QUALOUTDSSFILE} 
+clifton_court clifton_court none temp        15MIN inst      ${QUALOUTDSSFILE} 
 END
 
 

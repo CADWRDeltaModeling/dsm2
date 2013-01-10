@@ -2,7 +2,7 @@
 ENVVAR
 NAME           VALUE     
 QUALOUTDSSFILE output.dss 
-DSM2MODIFIER   layers  
+DSM2MODIFIER   layers   
 END
 
 
@@ -37,8 +37,9 @@ IO_FILE
 MODEL TYPE    IO   INTERVAL FILE                    
 qual  restart out      1mon ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
 qual  output  none     none ${DSM2MODIFIER}_qual.out #Echoed processed input, run status     
-qual  echo    out      none ${DSM2MODIFIER}_qual_echo.inp  #Echoed input                                 
+qual  echo    out      none ${DSM2MODIFIER}_qual_echo.inp  #Echoed input                    
 END
+
 
 
 TIDEFILE
@@ -57,4 +58,5 @@ END
 OUTPUT_TIME_SERIES
 output_channel_ec_tutorial.inp
 END
+
 

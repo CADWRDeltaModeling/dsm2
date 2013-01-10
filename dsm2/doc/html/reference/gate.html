@@ -27,7 +27,7 @@ each of which may be operated independently to control flow.</p>
 
 <p>The Gates View is primarily for specifying the physical properties of the gate and
 some simple operating modes. Gates that are operated simply can be completely specified in this
-view of the GUI. Much more elaborate controls are possible using Gate Time Series and Operating Rules, 
+table. Much more elaborate controls are possible using Gate Time Series and Operating Rules, 
 and in addition to manipulating the hydraulic devices you can completely uninstall the
 gate.</p>
 
@@ -59,6 +59,12 @@ attached.</dd>
 <dt>TO_NODE</dt>
 <dd>Node to which gate is attached.</dd>
 </dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>NAME</dd>
+<dt>Parent Table:</dt><dd>GATE</dd>
+<dt>Include Block:</dt><dd>GRID</dd>
+</dl>
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
@@ -85,7 +91,6 @@ representing the hydraulic efficiency of the gate</li>
 Please see <a href="#usage">usage notes</a> below</p>
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>NAME</dt><dd>Name of the device. This is the identifier refered to in other tables.</dd>
 <dt>GATE_NAME</dt><dd>Name of the gate this device in which the device is located.</dd>
 <dt>DEVICE</dt><dd>Name of the device.</dd>
 <dt>NDUPLICATE</dt><dd>Number of exact duplicates, such as a number of similar pipes in parallel.
@@ -114,11 +119,13 @@ will affect the operating coefficient:
 <dt>unidir_to</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=0.0;</dd>
 <dt>unidir_from</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=1.0;</dd>
 </dd>
-<dt>POSITION_CONTROL</dt><dd>This variable specifies the type of gate control stucture and thus how the gate responds to the
-"position" variable in time series or operating rules.  Options included no gate, gated from top down
-(as in a typical radial gate, in which case position controls "height") or gated from bottom (as in the permanent gate design, in 
-which case position controls "elev").  This input is now deprecated -- it is now possible to control elev or height directly in the time series
-or operating rule.</dd>
+</dl>
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>GATE_NAME, DEVICE</dd>
+<dt>Parent Table:</dt><dd>GATE</dd>
+<dt>Parent Identifier:</dt><dd>GATE_NAME</dd>
+<dt>Include Block:</dt><dd>GRID</dd>
 </dl>
 
 <a name="pipe_device_table"></a>
@@ -127,7 +134,6 @@ or operating rule.</dd>
 default operations.
 <h4 class="field_def_title">Field Descriptions</h4>
 <dl class="field_definitions">
-<dt>NAME</dt><dd>Name of the device. This is the identifier refered to in other tables.</dd>
 <dt>GATE_NAME</dt><dd>Name of the gate this device in which the device is located.</dd>
 <dt>DEVICE</dt><dd>Name of the device.</dd>
 <dt>NDUPLICATE</dt><dd>Number of exact duplicates, such as a number of similar pipes in parallel.
@@ -152,13 +158,14 @@ will affect the operating coefficient:
 <dt>unidir_to</dt><dd>C<sub>op_to</sub>=1.0; C<sub>op_from</sub>=0.0;</dd>
 <dt>unidir_from</dt><dd>C<sub>op_to</sub>=0.0; C<sub>op_from</sub>=1.0;</dd>
 </dd>
-<dt>POSITION_CONTROL</dt><dd>This variable specifies the type of gate control stucture and thus how the gate responds to the
-"position" variable in time series or operating rules.  Options included no gate, gated from top down
-(as in a typical radial gate, in which case position controls "height") or gated from bottom (as in the permanent gate design, in 
-which case position controls "elev").  This input is now deprecated -- it is now possible to control elev or height directly in the time series
-or operating rule.</dd>
 </dl>
-
+<h4 class="table_section_title">Table Info</h4>
+<dl class="field_definitions">
+<dt>Identifier:</dt><dd>GATE_NAME, DEVICE</dd>
+<dt>Parent Table:</dt><dd>GATE</dd>
+<dt>Parent Identifier:</dt><dd>GATE_NAME</dd>
+<dt>Include Block:</dt><dd>GRID</dd>
+</dl>
 
 
 <hr class="table_sep" width="200" style="margin:24px"></hr>
@@ -198,7 +205,7 @@ setting of the gate device. This is now deprecated in favor of more direct manip
 
 </div><!--End contents-->
 
-<div id="footer"><copyright>© 2007 California
+<div id="footer"><copyright>© 2007, 2009 California
 Department of Water Resources. All Rights Reserved</copyright>
 <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>

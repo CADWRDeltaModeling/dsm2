@@ -1,0 +1,45 @@
+CONFIGURATION
+${CONFIGFILE}
+END
+
+SCALAR
+NAME            VALUE
+run_start_date  ${QUAL_START_DATE}
+run_end_date    01OCT1976
+run_start_time  ${START_TIME}
+run_end_time    ${END_TIME}
+temp_dir        ${TEMPDIR}
+init_conc       0.0
+binary_output   false
+dss_direct      true
+flush_output    20day
+END
+
+IO_FILE
+MODEL      TYPE     IO               INTERVAL FILE                            
+qual       restart  out              1mon     ${QUALRSTFILE}                   #Initial condition a restart is required
+qual       output   out              none     ${QUALOUTFILE}                   #Echoed run status                      
+qual       echo     out              none     ${DSM2OUTPUTDIR}/qual_ec_echo_${DSM2MODIFIER}.inp #Echoed input                           
+END
+                
+TIDEFILE           
+START_DATE END_DATE FILE                     
+runtime    length   ${HYDROTIDEFILE}         
+END
+
+PARAMETER
+${DSM2INPUTDIR}/scalar_qual_std_20090715.inp
+END
+
+QUAL_TIME_SERIES
+${DSM2INPUTDIR}/node_concentration_calsim_delta_ec_20090715.inp
+${DSM2INPUTDIR}/node_concentration_dicu_ec_20090715.inp
+${DSM2INPUTDIR}/reservoir_concentration_dicu_ec_20090715.inp
+${DSM2INPUTDIR}/node_concentration_mtz_planning_ec_20090715.inp
+END
+
+OUTPUT_TIME_SERIES
+${DSM2INPUTDIR}/output_channel_std_qual_named_20090715.inp
+${DSM2INPUTDIR}/output_reservoir_std_qual_named_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_qual_rki_20090715.inp
+END

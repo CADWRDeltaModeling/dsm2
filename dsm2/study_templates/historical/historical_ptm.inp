@@ -10,6 +10,8 @@ NAME             VALUE
 title            "PTM SIMULATION: ${DSM2MODIFIER}"
 
 display_intvl    1day          # Frequency of console message
+binary_output    false
+dss_direct       true
 flush_output     15day         # Frequency of output flushing
 printlevel       1             # Message print level
 theta            0.6           # Theta to interpolate velocity
@@ -65,6 +67,7 @@ ag_div
 swp
 cvp
 mtz
+franks
 whole
 END
 
@@ -78,6 +81,7 @@ ag_div        qext            bbid.*
 swp           qext            swp
 cvp           qext            cvp
 mtz           stage           mtz.*
+franks        reservoir       franks_tract
 whole         channel         .*
 whole         reservoir       .*
 END
@@ -85,6 +89,7 @@ END
   
 PARTICLE_GROUP_OUTPUT
 NAME         GROUP_NAME         INTERVAL      FILE
+franks       franks             15min         ${PTMOUTPUTFILE}
 whole        whole              15min         ${PTMOUTPUTFILE}
 whole_15min  whole              1hour         ${PTMOUTPUTFILE}
 END
