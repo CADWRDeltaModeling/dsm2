@@ -1,0 +1,25 @@
+# Description:
+# Allocation of flow between the Old River and Rock Slough intakes
+OPERATING_RULE
+NAME                        ACTION                                                   TRIGGER
+ccc_oldr_intake_flow        "SET ext_flow(name=ccc_deliv_oldr) TO ccc_oldr_flow"     TRUE    
+ccc_rock_slough_intake_flow "SET ext_flow(name=ccc_deliv_rock_sl) TO ccc_rock_sl_flow" TRUE    
+END
+
+
+
+OPRULE_EXPRESSION
+NAME              DEFINITION                                            
+ccc_delivery_flow ts(name=ccc_flow)                                      
+ccc_oldr_flow     "MIN2(ts(name=ccc_flow), 250)*(-1)"                    
+ccc_rock_sl_flow  "(ts(name=ccc_flow) - MIN2(ts(name=ccc_flow),250))*(-1)" 
+END
+
+
+
+OPRULE_TIME_SERIES
+NAME     FILLIN FILE            PATH                                            
+ccc_flow last   ${BOUNDARYFILE} /CALSIM/D408/FLOW-DELIVERY//1MON/${CALSIMSTUDY}/ 
+END
+
+

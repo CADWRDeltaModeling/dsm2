@@ -1,0 +1,254 @@
+ul#todc {list-style:none;width:380px;}
+#todc li {background:url(image/dot.gif) repeat-x 0 0.85em;}
+#todc li a {float:right;background:#ebf4ec;padding: 0 4px 0 0;}
+#todc li span {float:left;background:#ebf4ec; padding 0 0 0 4px;}
+#toc li a {text-decoration:none; color:navy}
+#toc li {text-decoration:bold ;color:navy}
+#todc li br {clear:both;}
+
+body {
+  font-family:"Arial",sans-serif;
+  background: #ebf4ec none repeat scroll 0% 50%;
+  margin:4px 10px auto 2px;
+}
+
+h1,h2,h3,p { 
+color:black;
+}
+
+h2 {
+  padding-top:20px;
+}
+
+a{
+color:navy;
+line-height:140%;
+text-decoration:none;
+}
+
+#wrap{padding:10px 10px;
+           max-width:560px;
+           width:560px
+           }
+
+#page_navbar ul{ 
+   margin: 0;
+   padding: 0.;
+   list-style:square;
+   list-style-type:square
+}
+#page_navbar li{
+   display:inline;
+   width:auto;
+}
+
+#page_navbar li a{
+   font-weight: bold;
+   padding: 0 8px;
+   text-decoration:none;
+}
+
+#page_navbar li a:link,a:visited{
+   text-decoration:none;
+}
+
+#page_navbar li a:hover,a:active{
+   text-decoration:underline;
+}
+ 
+ #page_title{
+  position:relative;
+  margin:0;
+  padding: 0;
+}
+
+.dwr_logo{
+   height:120px;
+   background: url("image/dwrsmall.gif") no-repeat left center;
+ }
+ 
+.dictionary_icon{
+    height:100px;
+    background: url("Dictionary-48x48.png") no-repeat left center;
+ }
+ 
+ 
+ #page_title h1{
+  font-style:bold;
+  font-size:28px;
+  padding-left:140px;
+  padding-top:30px;
+}
+ 
+ #header_hr{
+            width: 100%; 
+            height: 4px;
+ }
+ 
+#footer {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-top: 24px;
+  border-top: thin dotted;
+  font-style: italic
+}
+ 
+h3.table_name{
+ text-decoration:underline;
+ padding-left:36px;
+ background-image:url("image/table_icon.jpg");
+ background-repeat:no-repeat;
+ background-attachment:left;
+ background-position:left;
+}
+
+.text_input{
+   font-family:"Courier",courier;
+}
+
+table.text_input td{ 
+   padding: 0 4px; 
+}
+
+table.text_input{
+  text-align: left;
+  width:100%;
+  border-collapse: collapse;
+}
+
+
+
+.table_list a {
+  font-size:12pt;
+  line-height:140%;
+  color:navy;
+  text-decoration:none;
+  font-style:bold
+ }
+
+hr.table_sep{
+   width:200px;
+   height:4px;
+   margin-top: 10px;
+   margin-bottom:10px;
+}
+ 
+h4.field_def_title  {
+   margin: 16px 0 6px 0;
+   font-style:italic;
+}
+ 
+h4.table_section_title  {
+   margin: 28px 10px 8px 20px;
+   font-style:italic;
+}
+
+
+ 
+ dl.field_definitions
+{
+margin:2px 0;
+}
+
+
+.field_definitions dt
+{
+margin: 10px 0 0 0;
+font-weight: bold;
+}
+
+.field_definitions dd
+{
+margin: 2px 0 0 10px;
+padding: 0;
+}
+
+
+.code_definition dt
+{
+float:left;
+margin: 0 0 0 0;
+padding: 10px;
+border-top: 1px solid #999;
+font-weight: bold;
+}
+
+.code_definition dd
+{
+margin: 0 0 0 0;
+padding: 10px;
+}
+
+#dictionary_icon{
+  float: left;
+  margin-top: 10px;
+  margin-right:40px;  
+}
+
+#term_definitions{
+  margin-top:20px;
+}
+
+.code_reference dt
+{
+font-family:"Courier",courier;
+margin: 10px 0 0 10px;
+
+}
+
+.code_reference dd
+{
+margin: 12px 0 0 30px;
+padding: 0;
+}
+
+.code_reference dt p{
+margin: 0px;
+padding: 0px;
+text-indent: 40px;
+}
+
+.table_field_descriptions {
+  width: 60%;
+  position: relative;
+  margin-top: 50pt;
+}
+.data_table {
+  position:relative;
+  margin-top: 20pt;
+  margin-bottom: 20pt;
+}
+.table_header {
+  font-family: Arial,Helvetica,sans-serif;
+  font-weight: bold;
+  text-align: center;
+}
+.powerpoint_image{ 
+  background-color:navy
+ }
+caption {
+  color: black;
+}
+
+
+.fragment {
+	font-family: monospace, fixed;
+}
+
+pre.fragment {
+	font-size: 80%;
+	border: 1px solid #CCCCCC;
+	background-color: #f5f5f5;
+	padding: 5px 5px 5px 5px;
+	margin: 5px 5px 5px 5px;
+	white-space: pre-wrap;
+	white-space: -moz-pre-wrap;
+	word-wrap: break-word;
+	_white-space: pre;
+}
+
+
+
+
+
+

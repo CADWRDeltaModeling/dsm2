@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+<map version="1.0">
+ <mapID target="dwrlogo" url="vista-help/DWR_Logo-1.0in.gif" />
+ <mapID target="top" url="vista-help/intro.html" />
+ <mapID target="homepage" url="http://wwwdelmod.water.ca.gov/simulations/dsm2/vista/vista.html" />
+ <mapID target="vista.intro" url="vista-help/vista/intro.html" />
+ <mapID target="vplotter.intro" url="vista-help/vplotter/intro.html" />
+ <mapID target="vscript.intro" url="vista-help/vscript/intro.html" />
+ <mapID target="vserver.intro" url="vista-help/vserver/intro.html" />
+ <mapID target="dss.intro" url="vista-help/dssintro.html" />
+ <mapID target="tut" url="tutorials.html" />
+ <mapID target="tut.beginner" url="vista-help/vista/tutorial/tutorial.html" />
+ <mapID target="tut.beginner.1" url="vista-help/vista/tutorial/tutorial1.html"/>
+ <mapID target="tut.beginner.2" url="vista-help/vista/tutorial/tutorial2.html"/>
+ <mapID target="tut.beginner.3" url="vista-help/vista/tutorial/tutorial3.html" />
+ <mapID target="vp.tut" url="vista-help/vplotter/tutorial/tutorial.html" />
+ <mapID target="vp.tut.intro" url="vista-help/vplotter/tutorial/tutorial.html" />
+ <mapID target="vp.tut.advanced" url="vista-help/vplotter/tutorial/advanced.html" />
+ <mapID target="vp.tut.class2" url="vista-help/vplotter/class2.html" />
+ <mapID target="vs.class" url="vista-help/vscript/class/class.html" />
+ <mapID target="vs.class.1" url="vista-help/vscript/class/class1.html" />
+ <mapID target="vs.class.2" url="vista-help/vscript/class/class2.html" />
+ <mapID target="vs.class.3" url="vista-help/vscript/class/class3.html" />
+</map>

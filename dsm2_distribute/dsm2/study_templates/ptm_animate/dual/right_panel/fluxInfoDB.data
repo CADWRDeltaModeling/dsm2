@@ -1,0 +1,31 @@
+5
+./dual/right_panel/ptmout.txt
+/PTM8.0A4/EXPORT_SWP/FLUX//15MIN/HISTORICAL/
+SWP Pumping
+556
+0 50
+./dual/right_panel/ptmout.txt
+/PTM8.0A4/EXPORT_CVP/FLUX//15MIN/HISTORICAL/
+CVP Pumping
+555
+0 50
+./dual/right_panel/ptmout.txt
+/PTM8.0A4/PAST_MTZ/FLUX//15MIN/HISTORICAL/
+Martinez
+503
+0 50
+./dual/right_panel/ptmout.txt
+/PTM8.0A4/PAST_CHIPPS/FLUX//15MIN/HISTORICAL/
+Chipps Island
+507
+0 50
+./dual/right_panel/ptmout.txt
+/PTM8.0A4/DIVERSION_AG/FLUX//15MIN/HISTORICAL/
+Ag Diversions
+501
+0 50
+
+
+
+
+

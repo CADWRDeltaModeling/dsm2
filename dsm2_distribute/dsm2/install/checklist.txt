@@ -1,0 +1,57 @@
+SVN Release Branch:    (do this for each second-digit revision 8.0, 8.1...
+Everyone commit, give all clear
+Create release branch
+      - unstable trunk method: http://producingoss.com/es/release-branches.html
+      - We tag the release in a later step
+Everyone switches working copy
+
+
+Need to add $(LIB) and $(INCLUDE) to both fortran and c++ and make sure these are set.
+
+
+
+Executable checklist  (example: distributing v8.0.2 and incrementing to v8.0.3):
+Remember: need jni on path need /lib and fortran libraries on visual c path.
+Also need ant
+
+Update and rebuild input_storage
+Update and rebuild oprule
+Update DSM2
+launch generate.py
+Make sure version text points to "8.0.2" (don't increment)
+Autogenerate the exact build numbers that are included in DSM2
+Rebuild hydro, qual, ptm
+Send executables for testing
+Build PDF documents Make sure step #'s and step #'s are OK
+Copy component.py script and build Notepad++ utility.
+Ready executables for installer package, await OK from Lianwu or iterate.
+
+Test
+Rerun the test suite against July 1 (record the reference version number + build).
+Approve or fix distribution
+
+
+Installation package:
+
+Save previous installers
+
+Create 8.0.2 version installer
+
+(0) Download and install “Inno Setup Compiler” v5.2.3
+(1) Goto branch\dsm2_distribute\dsm2\install
+(2) Run doc2pdf.vbs to generate PDFs from tutorial word documents (Delete the old PDFs before run this vbs script)
+(3) Run copy_hydro_qual_ptmDLL_notepad_style.bat to copy compiled binaries to bin folder
+(4) Run DSM2setup_Script_Generate.py to generate iss script
+(5) Open the generated script DSM2setup_v8.iss
+      Change compression ratio to ultra (Compression=lzma/ultra)
+      Run DSM2setup_v8.iss
+
+ 
+Create the v8_0_2_release tag on the release branch. This is the official 8.0.2 release.
+Immediately increment text references to to 8.0.3 in the installer and DSM2 code and commit
+
+Quick-test installer:
+Test on clean machine
+Run historical hydro, qual_ec and ptm
+Run simple_tutorial # 6 finished product
+

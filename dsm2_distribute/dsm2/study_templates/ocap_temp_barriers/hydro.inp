@@ -1,0 +1,70 @@
+CONFIGURATION
+config_ocap_temp_barriers.inp
+END
+
+SCALAR
+NAME             VALUE
+title            DSM2 DELTA OCAP TEMP BARRIERS ${DSM2MODIFIER}
+run_start_date   ${START_DATE}
+run_end_date     ${END_DATE}
+run_start_time   ${START_TIME}
+run_end_time     ${END_TIME}
+temp_dir         z:/temp
+printlevel       1
+binary_output    false
+dss_direct       true
+flush_output     20day
+END
+
+IO_FILE
+MODEL TYPE    IO  INTERVAL FILE               
+hydro hdf5    out    1hour ${HYDROTIDEFILE}  #Flow data to be passed to qual and ptm 
+hydro restart out     1mon ${HYDRORSTFILE}   #Initial condition a restart is required
+hydro output  out     none ${HYDROOUTFILE}   #Echoed run status                      
+hydro echo    out     none ${DSM2OUTPUTDIR}/hydro_echo_${DSM2MODIFIER}.inp  #Echoed input                              
+END
+
+PARAMETER
+${DSM2INPUTDIR}/scalar_hydro_std_20090715.inp
+END
+
+GRID
+${DSM2INPUTDIR}/channel_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20100330.inp
+${DSM2INPUTDIR}/reservoir_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/gate_temp_barriers_20090827.inp
+END
+
+INITIAL_CONDITION
+${DSM2INPUTDIR}/channel_ic_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/reservoir_ic_std_delta_grid_20090715.inp
+END
+
+HYDRO_TIME_SERIES
+${DSM2INPUTDIR}/boundary_stage_adjust_astro_tide_20090715.inp
+${DSM2INPUTDIR}/boundary_flow_calsim_delta_20090715.inp
+${DSM2INPUTDIR}/source_flow_calsim_delta_20090715.inp
+${DSM2INPUTDIR}/source_flow_dicu_20090715.inp
+${DSM2INPUTDIR}/input_gate_planning_ccfb_dcc_timing_20090715.inp
+${DSM2INPUTDIR}/source_flow_ocap_diversions_20090715.inp
+END
+
+OPERATION
+${DSM2INPUTDIR}/oprule_montezuma_planning_gate_20090715.inp
+${DSM2INPUTDIR}/oprule_temp_barriers_planning_20090715.inp
+${DSM2INPUTDIR}/oprule_ccc_dual_intake_20090715.inp
+END
+
+OUTPUT_TIME_SERIES
+${DSM2INPUTDIR}/output_channel_std_hydro_boundary_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_named_20090715.inp
+${DSM2INPUTDIR}/output_reservoir_std_hydro_named_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_rki_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_hydro_sdip_20090715.inp
+${DSM2INPUTDIR}/output_channel_sdip_trigger_20090715.inp
+${DSM2INPUTDIR}/output_channel_old_river_head_20090715.inp
+${DSM2INPUTDIR}/output_gate_temporary_barriers_20090827.inp
+${DSM2INPUTDIR}/output_channel_ccc_split_flow_20090715.inp
+${DSM2INPUTDIR}/output_channel_ocap_20090715.inp
+END
+

@@ -1,0 +1,6 @@
+NODE_CONCENTRATION
+NAME       NODE_NO    VARIABLE   FILLIN FILE             PATH
+source1                5 ec       last   ${TUTORIALINPUT} /TUTORIAL/SOURCE/EC//15MIN/CONSTANT/      
+downstream_stage       7 ec       last   ${TUTORIALINPUT} /TUTORIAL/DOWNSTREAM/EC//15MIN/REALISTIC/ 
+END
+

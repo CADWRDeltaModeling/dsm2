@@ -1,0 +1,8 @@
+# Description:
+# Description of the new layer
+OUTPUT_CHANNEL
+NAME    CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE             
+rsac092     433    12134 ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+END
+
+

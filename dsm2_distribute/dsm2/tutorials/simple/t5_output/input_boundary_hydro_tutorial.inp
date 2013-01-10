@@ -1,0 +1,11 @@
+BOUNDARY_FLOW
+NAME          NODE SIGN FILLIN FILE     PATH
+upstream_flow    1    1   last constant 200. 
+END
+
+BOUNDARY_STAGE
+NAME             NODE FILLIN FILE     PATH
+downstream_stage    7 last   constant   0. 
+END
+
+

@@ -1,0 +1,195 @@
+
+ENVVAR
+NAME            VALUE     
+HYDROOUTDSSFILE output.dss 
+DSM2MODIFIER    layers     
+END
+
+
+
+SCALAR
+NAME            VALUE                              
+run_start_date  01JAN1992                           
+run_end_date    01MAR1992                           
+run_start_time  0000                                
+run_end_time    0000                                
+temp_dir        c:/temp                             
+title           "TUTORIAL SIMULATION ${DSM2MODIFIER}" 
+checkdata       false                               
+cont_bad        false                               
+cont_missing    true                                
+cont_question   true                                
+cont_unchecked  true                                
+deltax          5000                                
+display_intvl   1day                                
+flush_output    15day                               
+gravity         32.2                                
+hydro_time_step 15min                               
+levee_slope     0.33                                
+maxiter         20                                  
+printlevel      1                                   
+theta           0.6                                 
+toleranceq      0.001                               
+tolerancez      0.0008                              
+warn_missing    true                                
+warn_question   true                                
+warn_unchecked  false                               
+END
+
+
+
+IO_FILE
+MODEL TYPE    IO  INTERVAL FILE               
+hydro hdf5    out    1hour ${DSM2MODIFIER}.h5  #Flow data to be passed to qual and ptm 
+hydro restart out     1mon ${DSM2MODIFIER}.hrf #Initial condition a restart is required
+hydro output  out     none ${DSM2MODIFIER}.out #Echoed run status                      
+hydro echo    out     none ${DSM2MODIFIER}_hydro_echo.inp  #Echoed input                        
+END
+
+
+
+CHANNEL
+CHAN_NO LENGTH MANNING DISPERSION UPNODE DOWNNODE
+1        15000   0.035        0.3      1        2 
+2        15000   0.035        0.3      2        3 
+3        15000   0.035        0.3      3        4 
+2004     15000   0.035        0.3      4        5 
+5        18000   0.035        0.3      5        6 
+6        12000   0.035        0.3      6        7 
+END
+
+
+
+XSECT_LAYER
+CHAN_NO DIST  ELEV   AREA WIDTH WET_PERIM
+1        0.5 -24.0    0  40.0      40.0 
+1        0.5   0.0  960  80.0     102.5 
+1        0.5  20.0 2640 160.0     192.0 
+2        0.5 -24.0    0  40.0      40.0 
+2        0.5   0.0  960  80.0     102.5 
+2        0.5  20.0 2640 160.0     192.0 
+3        0.5 -24.0    0  40.0      40.0 
+3        0.5   0.0  960  80.0     102.5 
+3        0.5  20.0 2640 160.0     192.0 
+2004     0.5 -24.0    0  40.0      40.0 
+2004     0.5   0.0  960  80.0     102.5 
+2004     0.5  20.0 2640 160.0     192.0 
+5        0.2 -24.0    0  40.0      40.0 
+5        0.2   0.0  960  80.0     102.5 
+5        0.2  20.0 2640 160.0     192.0 
+5        0.8 -20.0    0  60.0      60.0 
+5        0.8  -4.0 1120  80.0     97.74 
+5        0.8   2.0 1660 100.0    121.06 
+5        0.8  10.0 2700 160.0    183.16 
+6        0.8 -20.0    0  60.0      60.0 
+6        0.8  -4.0 1120  80.0     97.74 
+6        0.8   2.0 1660 100.0    121.06 
+6        0.8  10.0 2700 160.0    183.16 
+END
+
+
+
+BOUNDARY_STAGE
+NAME             NODE FILLIN FILE     PATH
+downstream_stage    7 last   constant   0. 
+END
+
+
+
+BOUNDARY_FLOW
+NAME          NODE SIGN FILLIN FILE     PATH
+upstream_flow    1    1 last   constant 200. 
+END
+
+
+
+CHANNEL_IC
+CHAN_NO DISTANCE STAGE FLOW
+1              0   0.0  0.0 
+1         length   0.0  0.0 
+2              0   0.0  0.0 
+2         length   0.0  0.0 
+3              0   0.0  0.0 
+3         length   0.0  0.0 
+2004           0   0.0  0.0 
+2004      length   0.0  0.0 
+5              0   0.0  0.0 
+5         length   0.0  0.0 
+6              0   0.0  0.0 
+6         length   0.0  0.0 
+END
+
+
+
+OUTPUT_CHANNEL
+NAME         CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE              
+bnd_1              1        0 flow        15min inst      ${HYDROOUTDSSFILE} 
+bnd_1              1        0 stage       15min inst      ${HYDROOUTDSSFILE} 
+bnd_6              6   length flow        15min inst      ${HYDROOUTDSSFILE} 
+bnd_6              6   length stage       15min inst      ${HYDROOUTDSSFILE} 
+chan2_half         2     7500 flow        15min inst      ${HYDROOUTDSSFILE} 
+chan2_half         2     7500 stage       15min inst      ${HYDROOUTDSSFILE} 
+chan2_length       2   length flow        15min inst      ${HYDROOUTDSSFILE} 
+chan2_length       2   length stage       15min inst      ${HYDROOUTDSSFILE} 
+chan2004        2004        0 flow        15min inst      ${HYDROOUTDSSFILE} 
+chan2004        2004        0 stage       15min inst      ${HYDROOUTDSSFILE} 
+END
+
+
+
+RESERVOIR
+NAME  AREA BOT_ELEV
+res_1 40.0    -24.0 
+END
+
+
+
+RESERVOIR_CONNECTION
+RES_NAME NODE COEF_IN COEF_OUT
+res_1       3   200.0    200.0 
+res_1       4   200.0    200.0 
+END
+
+
+
+RESERVOIR_IC
+RES_NAME STAGE
+res_1      0.0 
+END
+
+
+
+GATE
+NAME   FROM_OBJ FROM_IDENTIFIER TO_NODE
+gate_1 channel                2       2 
+END
+
+
+
+GATE_WEIR_DEVICE
+GATE_NAME DEVICE NDUPLICATE WIDTH ELEV HEIGHT CF_FROM_NODE CF_TO_NODE DEFAULT_OP
+gate_1    weir            2  20.0  2.0 9999.0          0.8        0.8 gate_open     
+END
+
+
+
+GATE_PIPE_DEVICE
+GATE_NAME DEVICE NDUPLICATE RADIUS ELEV  CF_FROM_NODE CF_TO_NODE DEFAULT_OP
+gate_1    pipe            2   2.0  2.0           0.8        0.8 gate_open
+END
+
+
+
+TRANSFER
+NAME       FROM_OBJ  FROM_IDENTIFIER TO_OBJ TO_IDENTIFIER
+transfer_1 reservoir res_1           node               6 
+END
+
+
+
+INPUT_TRANSFER_FLOW
+TRANSFER_NAME FILLIN FILE     PATH
+transfer_1    last   constant   40 
+END
+
+

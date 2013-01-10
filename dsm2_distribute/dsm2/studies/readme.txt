@@ -1,0 +1,1 @@
+This empty directory is for user studies. It is suggested that you copy a template out of the study_templates directory and paste it here for editing.

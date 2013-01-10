@@ -1,0 +1,43 @@
+
+ENVVAR
+NAME           VALUE     
+QUALOUTDSSFILE output.dss 
+DSM2MODIFIER   channel    
+END
+
+
+SCALAR
+NAME           VALUE                              
+title          "TUTORIAL SIMULATION ${DSM2MODIFIER}" 
+checkdata      false                               
+cont_bad       false                               
+cont_missing   false                               
+cont_question  false                               
+cont_unchecked true                                
+dispersion     true                                
+display_intvl  1day                                
+flush_output   8day                                
+init_conc      500                                 
+printlevel     1                                   
+qual_time_step 15min                               
+warn_missing   false                               
+warn_question  false                               
+warn_unchecked false                                            
+END
+
+
+IO_FILE
+MODEL      TYPE     IO     INTERVAL FILE
+qual       restart  out    1mon     ${DSM2MODIFIER}.qrf      #Initial condition a restart is required
+qual       output   out    none     ${DSM2MODIFIER}_qual.out #Echoed run status
+qual       echo     out    none     ${DSM2MODIFIER}_qual_echo.out #Echoed input           
+END                
+
+
+TIDEFILE           
+START_DATE END_DATE FILE                       
+runtime    length   ${DSM2MODIFIER}.h5         
+END
+
+
+

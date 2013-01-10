@@ -1,0 +1,43 @@
+#Python Registry
+
+#This is how I set my path on my Windows development machine
+#python.path=.;c:\\Python-1.5.1\\Lib
+python.path=.
+# Set the directory to use for caches (currently just package information)
+# This directory should be writable by the user
+# If this is an absolute path it is used as given
+# Otherwise it is interpreted relative to sys.prefix
+# (typically the directory of this file)
+python.cachedir = cachedir
+
+# Properties to check for initializing and updating the package cache
+# Hopefully you won't have any need to change these
+python.packages.paths = java.class.path, sun.boot.class.path
+python.packages.directories = java.ext.dirs
+
+# To force JIT compilation of JPython code -- should be unnecessary
+# Setting this to true will cause jdk1.2rc1 to core dump on Windows
+python.options.compileClass = false
+
+# Set verbosity to error, warning, message, comment, or debug
+# for varying levels of informative messages from JPython
+python.verbose = message
+
+# Setting this to true will support old 1.0 style keyword+"_" names
+# This isn't needed any more due to improvements in the parser
+python.deprecated.keywordMangling = false
+
+# Setting this to true will cause the console to poll standard in
+# This might be helpful on systems without system-level threads
+python.console.poll = false
+
+# Setting this can either add new modules to builtins or override package names
+# A good example would be to use a jni version of os for more functionality
+# Form is name:package -- if package is ommitted, org.python.modules is assumed
+# python.modules.builtin = os:com.foo.jni, binascii
+python.modules.builtin = os:jnios.os
+# This specifies the command used by jpythonc to compile Java source
+# code, along with the complete classpath to use.
+# python.jpythonc.compiler = /depot/java/plat/bin/jikes
+# python.jpythonc.classpath = /usr/java1.2/jre/lib/rt.jar:/jpython/dist:.
+# python.jpythonc.compileropts = +E +D -g
