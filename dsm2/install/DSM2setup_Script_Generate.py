@@ -1,6 +1,6 @@
 import os
 
-Version_Main    = "8.0.7"  
+Version_Main    = "8.1.1"  
 Version_Status  = "release"   
 
 setupfile = open("DSM2setup_v8.iss","w")
@@ -9,7 +9,7 @@ setupTemplate = open("DSM2setup_v8.template",'r')
 
 
 
-(dummy, SVNVersion_SourceCode) = os.popen4("svnversion ../../../dsm2_v8_0 ")
+(dummy, SVNVersion_SourceCode) = os.popen4("svnversion ../../../dsm2 ")
 (dummy, SVNVersion_Distribute) = os.popen4("svnversion ../../../dsm2_distribute/dsm2 ")
 
 SVNVersion_SourceCode = SVNVersion_SourceCode.readlines()[0]

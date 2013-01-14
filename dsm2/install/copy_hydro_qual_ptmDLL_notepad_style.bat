@@ -1,8 +1,8 @@
-set version=v8.0.7
+set version=v8.1.1
 
 echo version "%version%" 
-set dsm2_build_dir=..\..\..\..\models\dsm2_v8_0
-set dsm2_distribute_dir=..\..\..\..\models\dsm2_distribute
+set dsm2_build_dir=..\..\..\dsm2
+set dsm2_distribute_dir=..\..\..\dsm2_distribute
 
 copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\qual.exe   %dsm2_distribute_dir%\dsm2\bin\* 
 copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\hydro.exe  %dsm2_distribute_dir%\dsm2\bin\*
