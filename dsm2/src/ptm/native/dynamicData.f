@@ -76,8 +76,11 @@ c-------- update internal flows ( assumption of order important: fixedData.f)
          do while(res_geom(i).qinternal(j) .ne. 0)
             k=k+1
             qId = res_geom(i).qinternal(j)
-            wb(id).flowToNode(k) = 
-     &           -obj2obj(qId).flow_avg
+            if (trim(res_geom(i).name) == trim(obj2obj(qId).from_obj.obj_name)) then
+               wb(id).flowToNode(k) = obj2obj(qId).flow_avg
+            elseif (trim(res_geom(i).name) == trim(obj2obj(qId).to_obj.obj_name)) then
+               wb(id).flowToNode(k) = -obj2obj(qId).flow_avg
+            endif
             j = j + 1
          enddo
 c-------- update external flows ( assumption of order important: fixedData.f)
@@ -112,6 +115,7 @@ c----- update stage boundary info ( do this last )
          endif
       enddo
 c----- end
+
 c----- check node balance
       do i=1,maxNodesPTM
          if (nodes(i).nwbs .gt. 0 ) then
