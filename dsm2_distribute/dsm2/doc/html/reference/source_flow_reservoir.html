@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Boundary
-Stage</title><!-- Changed by: , 07-Sep-2007 -->
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"><title>Source Flow
+Reservoir</title><!-- Changed by Yu Zhou: , 07-Jan-2013 -->
 <link type="text/css" href="../dsm2.css" rel="stylesheet"></head>
 <body>
 <div id="wrap">
@@ -15,7 +15,7 @@ Stage</title><!-- Changed by: , 07-Sep-2007 -->
 
 <hr style="header_hr"/>
 <div id="page_title" class="dwr_logo">
-<h1>Source Flow</h1>
+<h1>Source Flow Reservoir</h1>
 </div><!-- page_title-->
 
 <hr style="header_hr"/>
@@ -31,11 +31,10 @@ assigns a time series of in/outflows to it.
 <a name="tables"></a>
 <h2 id="tables">Tables:</h2>
 <ul class="table_list">
-<li><a class="table_link" href="#source_table">SOURCE_FLOW</a></li>
 
 <a name="source_table"></a>
-<h3 class="table_name">SOURCE_FLOW</h3>
-<p>The reservoir SOURCE_FLOW table defines sources and sinks by giving
+<h3 class="table_name">SOURCE_FLOW_RESERVOIR</h3>
+<p>The SOURCE_FLOW_RESERVOIR table defines sources and sinks by giving
 them names and associating them to a reservoir. 
 The table also assigns a time series to the source.</p>
 <h4 class="field_def_title">Field Descriptions</h4>
@@ -61,12 +60,6 @@ entered in the next column).</dd>
 If you used the <em>constant</em> keyword in the Input File
 column, enter the value (e.g. <em>4.22</em>) here.</dd>
 </dl>
-
-<h4 class="table_section_title">Table Info</h4>
-<dl class="field_definitions">
-<dt>Identifier:</dt><dd>NAME</dd>
-<dt>Include Block:</dt><dd>HYDRO_TIME_SERIES</dd>
-</dl>
 <hr class="table_sep" width="200" style="margin:24px"></hr>
 
 <a name="usage"></a>
@@ -78,7 +71,7 @@ in order to assign different concentrations to them. </li>
 
 </div><!--End contents-->
 
-<div id="footer"><copyright>© 2007, 2009 California
+<div id="footer"><copyright>© 2007 California
 Department of Water Resources. All Rights Reserved</copyright>
 <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>
