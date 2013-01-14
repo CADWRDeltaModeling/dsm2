@@ -22,19 +22,19 @@
 module grid_data
     use type_defs
     integer :: &
-        max_channels              ! actual number of cross sections
-    integer :: max_xsects_tot              ! actual number of cross sections
-    integer :: max_nodes              ! actual number of cross sections
-    integer :: max_obj2obj              ! actual number of cross sections
-    integer :: max_stgbnd              ! actual number of cross sections
-    integer :: nstgbnd              ! actual number of cross sections
-    integer :: nobj2obj              ! actual number of cross sections
-    integer :: nchans              ! actual number of cross sections
-    integer :: nintnodes              ! actual number of cross sections
-    integer :: nnodes              ! actual number of cross sections
-    integer :: nxsects              ! actual number of cross sections
+        max_channels                 ! maximum number of channels
+    integer :: max_xsects_tot        ! maximum number of cross sections total
+    integer :: max_nodes             ! maximum number of nodes
+    integer :: max_obj2obj           ! maximum number of object to object connections
+    integer :: max_stgbnd            ! maximum number of stage boundaries
+    integer :: nstgbnd               ! actual number of stage boundaries
+    integer :: nobj2obj              ! actual number of object to object connections
+    integer :: nchans                ! actual number of channels
+    integer :: nintnodes             ! actual number of interior nodes (non-boundary nodes)
+    integer :: nnodes                ! actual number of total nodes (interior + boundary)
+    integer :: nxsects               ! actual number of cross sections
     parameter ( &
-        max_channels=800 &     ! MaxChannels should equal this
+        max_channels=800 &           ! MaxChannels should equal this
         ,max_xsects_tot=5*max_channels &
         ,max_nodes=max_channels+10 &
         ,max_obj2obj=50 &
@@ -46,14 +46,14 @@ module grid_data
     type(xsect_t) :: xsect_geom(0:max_xsects_tot)
       
     real*8 :: &
-        area_tolerance         ! slope of levees for xsect width extrapolation
-    real*8 :: levee_slope         ! slope of levees for xsect width extrapolation
+        area_tolerance               ! max allowable ratio of virt_area(MSL) @ chan ends
+    real*8 :: levee_slope            ! slope of levees for xsect width extrapolation
      
           
     integer :: &
-        max_reservoirs         ! total number of reservoir connections across all reservoirs
-    integer :: nreser         ! total number of reservoir connections across all reservoirs
-    integer :: nres_connect         ! total number of reservoir connections across all reservoirs
+        max_reservoirs               ! maximum number of reservoirs
+    integer :: nreser                ! actual number of reservoirs
+    integer :: nres_connect          ! total number of reservoir connections across all reservoirs
 
     parameter ( &
         max_reservoirs=100 &
@@ -67,7 +67,7 @@ module grid_data
     common /node_i_dentification/ node_id
 
     integer :: &
-        nchan_list           ! actual number of channel sequences
+        nchan_list                   ! actual number of channel sequences
 
     integer :: &
         int2ext(0:max_channels)
@@ -84,17 +84,17 @@ module grid_data
 
 
     !-----quad points
-    integer:: nquadpts = 3             ! number of quadrature points
+    integer:: nquadpts = 3           ! number of quadrature points
 
     !-----used by virtual_xsect
-    real*8 :: deltax_requested   ! delta x to use in spatial discretization
+    real*8 :: deltax_requested       ! delta x to use in spatial discretization
 
     !-----accounting and object names, value codes, period type names
     integer,parameter :: max_group_memberships=20 ! max number of group memberships
 
     integer :: &
-        max_qext               ! number of actual external flows
-    integer :: nqext               ! number of actual external flows
+        max_qext                     ! maximum number of external flows
+    integer :: nqext                 ! number of actual external flows
 
     parameter ( &
         max_qext=1000 &
@@ -102,7 +102,7 @@ module grid_data
 
     type(qext_t) :: qext(max_qext)
     integer :: const_qext(max_qext,max_conqext)
-    integer :: n_conqext(max_qext) ! number of constituents at external flow
+    integer :: n_conqext(max_qext)   ! number of constituents at external flow
     common /com_conqext/ const_qext, n_conqext
            
 end module
