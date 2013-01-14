@@ -32,9 +32,18 @@ c-----the model run.  Supply default values where possible.
       use common_ptm
       use common_qual_bin
       use groups, only: WriteGroupMembers2File
-      use network
-      use netcntrl_common
       implicit none
+
+      
+      include '../hydrolib/network.inc'
+      include '../hydrolib/netcntrl.inc'
+      include '../hydrolib/chconnec.inc'
+      include '../hydrolib/chnluser.inc'
+      include '../hydrolib/chcxrec1.inc'
+      include '../timevar/dss.inc'
+      include '../timevar/readdss.inc'
+      include '../timevar/writedss.inc'
+
 
 c-----Local variables
 
@@ -274,7 +283,8 @@ c-----Check particle filters existence
          ! on reservoir
          else if (part_filter(m).at_wb_type .eq. obj_reservoir) then
             if (part_filter(m).at_wb_ndx .le. nreser) then
-               if (part_filter(m).at_wb .eq. res_geom(resindex).name) then
+               resindex = part_filter(m).at_wb_ndx
+               if (trim(part_filter(m).at_wb(5:)) .eq. trim(res_geom(resindex).name)) then
                   do n=1,res_geom(resindex).nnodes
                      if (part_filter(m).node .eq. res_geom(resindex).node_no(n)) then
                         write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
@@ -303,9 +313,9 @@ c-----Check particle filters existence
                else if ((qext(qextindex).attach_obj_type .eq. obj_reservoir) .and.
      &                  (part_filter(m).resname .eq. qext(qextindex).attach_obj_name)) then
                         write (unit_screen,'(a,a,a,a,a,a)') 'check filter ',trim(part_filter(m).name),
-     &                        ', at res ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
+     &                        ', at reservoir ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
                    filterexist = .true.
-                   exit
+                   cycle
                endif
             endif
             if (.not. filterexist) then
@@ -317,7 +327,7 @@ c-----Check particle filters existence
          else if (part_filter(m).at_wb_type .eq. obj_stage) then
             if (part_filter(m).at_wb_ndx .le. nstgbnd) then
                stgbndindex = part_filter(m).at_wb_ndx
-               if ((part_filter(m).at_wb .eq. stgbnd(stgbndindex).name) .and.
+               if ((trim(part_filter(m).at_wb(7:)) .eq. trim(stgbnd(stgbndindex).name)) .and.
      &             (part_filter(m).node .eq. stgbnd(stgbndindex).node)) then
                   write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
      &                  ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
@@ -332,11 +342,35 @@ c-----Check particle filters existence
             
          ! on obj2obj
          else if (part_filter(m).at_wb_type .eq. obj_obj2obj) then
-            do obj2objindex=1,nobj2obj
-            enddo
-            print *,'obj2obj type'
+            if (part_filter(m).at_wb_ndx .le. nobj2obj) then
+               obj2objindex = part_filter(m).at_wb_ndx
+               
+               if (((obj2obj(obj2objindex).from_obj.obj_type .eq. obj_node) .and.
+     &              (obj2obj(obj2objindex).from_obj.obj_no .eq. part_filter(m).node)) .or.
+     &             ((obj2obj(obj2objindex).to_obj.obj_type .eq. obj_node) .and.
+     &              (obj2obj(obj2objindex).to_obj.obj_no .eq. part_filter(m).node))) then
+                   write (unit_screen,'(a,a,a,i3,a,a)') 'check filter ',trim(part_filter(m).name),
+     &                   ', at node ',nodelist(part_filter(m).node),', at wb ',part_filter(m).at_wb
+                   filterexist = .true.
+                   cycle
+               else if (((obj2obj(obj2objindex).from_obj.obj_type .eq. obj_reservoir) .and.
+     &                   (obj2obj(obj2objindex).from_obj.obj_name .eq. part_filter(m).resname)) .or.
+     &                  ((obj2obj(obj2objindex).to_obj.obj_type .eq. obj_reservoir) .and.
+     &                  (obj2obj(obj2objindex).to_obj.obj_name .eq. part_filter(m).resname))) then
+                   write (unit_screen,'(a,a,a,a,a,a)') 'check filter ',trim(part_filter(m).name),
+     &                   ', at reservoir ',trim(part_filter(m).resname),', at wb ',part_filter(m).at_wb
+                   filterexist = .true.
+                   cycle
+               endif
 
-         ! on other obj
+            endif
+            
+            if (.not. filterexist) then
+               write (unit_error, 661) part_filter(m).name
+               goto 900
+            endif
+
+         ! others err
          else
             write (unit_error, 661) part_filter(m).name
             print *,'wrong obj for filter setting'
@@ -362,98 +396,6 @@ c-----check that quality tide file includes full runtime
       !open(unit=911,file='group_member.out',status='unknown',err=890)
       !call WriteGroupMembers2File(911)
       !close(unit=911)
-
-
-
-
-!c-----create DSS input pathnames, check for sign change for each path
-!
-!      npthsin_min15=0
-!      npthsin_hour1=0
-!      npthsin_day1=0
-!      npthsin_week1=0
-!      npthsin_month1=0
-!      npthsin_year1=0
-!      npthsin_irr=0
-!
-!      do p=1,ninpaths
-!         if (pathinput(p).no_intervals .eq. 1 .and.
-!     &        pathinput(p).interval .eq. '15min') then ! eli
-!            npthsin_min15=npthsin_min15+1
-!            if (npthsin_min15 .gt. max_inp_min) then
-!               write(unit_error, 651) '15MIN',max_inp_min
-!               goto 900
-!            endif
-!            pathinput(p).intvl_path=npthsin_min15
-!            ptin_min15(npthsin_min15)=p
-!         else if (pathinput(p).no_intervals .eq. 1 .and.
-!     &           pathinput(p).interval(:5) .eq. '1hour') then !eli could be 1hour
-!            npthsin_hour1=npthsin_hour1+1
-!            if (npthsin_hour1 .gt. max_inp_hour) then
-!               write(unit_error, 651) '1HOUR',max_inp_hour
-!               goto 900
-!            endif
-!            pathinput(p).intvl_path=npthsin_hour1
-!            ptin_hour1(npthsin_hour1)=p
-!         else if (pathinput(p).no_intervals .eq. 1 .and.
-!     &           pathinput(p).interval(:4) .eq. '1day') then
-!            npthsin_day1=npthsin_day1+1
-!            if (npthsin_day1 .gt. max_inp_day) then
-!               write(unit_error, 651) '1DAY',max_inp_day
-!               goto 900
-!            endif
-!            pathinput(p).intvl_path=npthsin_day1
-!            ptin_day1(npthsin_day1)=p
-!         else if (pathinput(p).no_intervals .eq. 1 .and.
-!     &           pathinput(p).interval(:5) .eq. '1week') then
-!            npthsin_week1=npthsin_week1+1
-!            if (npthsin_week1 .gt. max_inp_week) then
-!               write(unit_error, 651) '1WEEK',max_inp_week
-!               goto 900
-!            endif
-!            pathinput(p).intvl_path=npthsin_week1
-!            ptin_week1(npthsin_week1)=p
-!         else if (pathinput(p).no_intervals .eq. 1 .and.
-!     &           pathinput(p).interval(:4) .eq. '1mon') then
-!            npthsin_month1=npthsin_month1+1
-!            if (npthsin_month1 .gt. max_inp_month) then
-!               write(unit_error, 651) '1MON',max_inp_month
-!               goto 900
-!            endif
-!            pathinput(p).intvl_path=npthsin_month1
-!            ptin_month1(npthsin_month1)=p
-!         else if ((pathinput(p).no_intervals .eq. 1 .and.
-!     &           pathinput(p).interval(:5) .eq. '1year') .or.
-!     &           pathinput(p).constant_value .ne. miss_val_r ! constant value: use 1year
-!     &           ) then
-!            pathinput(p).no_intervals=1
-!            pathinput(p).interval='year'
-!            npthsin_year1=npthsin_year1+1
-!            if (npthsin_year1 .gt. max_inp_year) then
-!               write(unit_error, 651) '1YEAR',max_inp_year
-!               goto 900
-!            endif
-!            pathinput(p).intvl_path=npthsin_year1
-!            ptin_year1(npthsin_year1)=p
-!         else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
-!            npthsin_irr=npthsin_irr+1
-!            if (npthsin_irr .gt. max_inp_irr) then
-!               write(unit_error, 651) 'IR-',max_inp_irr
-!               goto 900
-!            endif
-!            pathinput(p).intvl_path=npthsin_irr
-!            ptin_irr(npthsin_irr)=p
-!         else                   ! unrecognized interval
-!            write(unit_error,650) 'input', pathinput(p).no_intervals,
-!     &           trim(pathinput(p).interval)
-!            goto 900
-!         endif
-!         call upcase(pathinput(p).path) ! convert to upper case
-!      end do
-
-
-
-
 
 
 
