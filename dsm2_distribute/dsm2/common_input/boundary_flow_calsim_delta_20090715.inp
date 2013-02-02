@@ -1,0 +1,13 @@
+# Description:
+# CALSIM delta flow, with generic pathnames to accommodate scripted studies
+BOUNDARY_FLOW
+NAME      NODE SIGN FILLIN FILE            PATH                                           
+calaveras   21    1 last   ${BOUNDARYFILE} /CALSIM/C508/FLOW-CHANNEL//1MON/${CALSIMSTUDY}/ 
+cosumnes   446    1 last   ${BOUNDARYFILE} /CALSIM/C501/FLOW-CHANNEL//1MON/${CALSIMSTUDY}/ 
+moke       447    1 last   ${BOUNDARYFILE} /CALSIM/I504/FLOW-INFLOW//1MON/${CALSIMSTUDY}/  
+sac        330    1 linear ${BOUNDARYFILE} /CALSIM-SMOOTH/C169/FLOW//1DAY/${CALSIMSTUDY}/  
+vernalis    17    1 linear ${BOUNDARYFILE} /CALSIM-VAMP/C639/FLOW//1DAY/${CALSIMSTUDY}/    
+yolo       316    1 last   ${BOUNDARYFILE} /CALSIM/C157/FLOW-CHANNEL//1MON/${CALSIMSTUDY}/ 
+END
+
+
