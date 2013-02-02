@@ -1,0 +1,25 @@
+# Description:
+# Standard output locations for QUAL at stations with RKI labels.
+OUTPUT_CHANNEL
+NAME     CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE             
+chdmc006    216    0        ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}
+CHSWP003     82    length   ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}
+rmid005     156    140      ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}
+rmid023     135    719      ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+rold014     117    0        ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}   
+rsac054     441    length   ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}
+rsac064     452    190      ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+rsac075     437    11108    ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}
+rsac077     437    1870     ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}  
+rsac092     433    12134    ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+rsac139     418    4814     ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+rsan032     349    9672     ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+rsan087       6    3930     ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+sldut009    273    4026     ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}
+slmzu011    517    0        ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}  
+SLPPR003    269    8333     ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
+sltrm004    310    540      ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE}   
+END
+
+
+ 

@@ -1,0 +1,13 @@
+# Description:
+# Standard Delta Configuration
+RESERVOIR_IC
+RES_NAME  STAGE  
+bethel              5.000     
+clifton_court       5.000     
+discovery_bay       5.000     
+franks_tract        5.000     
+liberty             7.000     
+mildred             5.000     
+END
+
+
