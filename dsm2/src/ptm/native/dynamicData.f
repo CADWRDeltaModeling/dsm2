@@ -251,8 +251,10 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_depth(number)
-      use ptm_local
       use common_tide
+      use grid_data
+      use network
+      use netcntrl_common
       implicit none
       real get_up_node_depth
       integer number
@@ -262,8 +264,10 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_depth( number)
-      use ptm_local
       use common_tide
+      use grid_data
+      use network
+      use netcntrl_common
       implicit none
 
       real get_down_node_depth
@@ -275,7 +279,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_up_node_stage(number)
       use common_tide
-      use ptm_local
+      use grid_data
+      use network
+      use netcntrl_common
       implicit none
 
       real get_up_node_stage
@@ -288,7 +294,9 @@ c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_down_node_stage( number)
       use common_tide
-      use ptm_local
+      use grid_data
+      use network
+      use netcntrl_common
       implicit none
       real get_down_node_stage
       integer number
