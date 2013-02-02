@@ -1,8 +1,0 @@
-# Description:
-# Output for HYDRO at common named locations
-OUTPUT_RESERVOIR
-NAME          RES_NAME      NODE VARIABLE INTERVAL    PERIOD_OP FILE             
-clifton_court clifton_court none ec       ${FINE_OUT} inst      ${QUALOUTDSSFILE} 
-END
-
-
