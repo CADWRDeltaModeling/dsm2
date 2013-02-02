@@ -1,0 +1,14 @@
+# Description:
+# Historical boundary and source water qualities
+NODE_CONCENTRATION
+NAME      NODE_NO VARIABLE FILLIN FILE          PATH                                            
+calaveras      21 ec       last   constant      125                                              
+cosumnes      446 ec       last   constant      125                                              
+moke          447 ec       last   constant      125                                              
+mtz           361 ec       last   ${QUALBNDINP} /FILL+CHAN/RSAC054/EC//1HOUR/${HISTQUALVERSION}_CORRECTED/ 
+sac           330 ec       last   ${QUALBNDINP} /FILL+CHAN/RSAC139/EC//1DAY/${HISTQUALVERSION}/  
+vernalis       17 ec       last   ${QUALBNDINP} /FILL+CHAN/RSAN112/EC//1DAY/${HISTQUALVERSION}/  
+yolo          317 ec       last   ${QUALBNDINP} /FILL+CHAN/RSAC139/EC//1DAY/${HISTQUALVERSION}/  
+END
+
+

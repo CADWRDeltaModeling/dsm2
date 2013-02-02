@@ -1,0 +1,8 @@
+# Description:
+# Adjusted astronomical tide
+BOUNDARY_STAGE
+NAME NODE FILLIN FILE         PATH                                             
+mtz   361 linear ${STAGEFILE} /FILL+CHAN/RSAC054/STAGE//15MIN/${STAGE_VERSION}_NAVD/ 
+END
+
+

@@ -1,0 +1,55 @@
+# Description:
+# Standard Delta Configuration
+GATE
+NAME  FROM_OBJ  FROM_IDENTIFIER  TO_NODE  
+7_mile@3_mile       channel             308                 240      
+7_mile@sjr          channel             307                 41       
+clifton_court       reservoir           clifton_court       72       
+delta_cross_channel    channel          365                 342      
+goodyear_sl         channel             473                 367      
+grant_line_barrier    channel           206                 172      
+middle_r_barrier    channel             134                 112      
+montezuma_salinity_control    channel   512                 418      
+morrow_c_line_outfall    channel        542                 365      
+morrow_m_line_outfall    channel        539                 378      
+morrow_sys_intake    channel            537                 384      
+old_r@head_barrier    channel            54                  8        
+old_r@tracy_barrier    channel           79                  69       
+paradise_cut_weir    channel            195                 5        
+roaring_river_slough_intake    channel  529                 418      
+sandmound_sl        channel             261                 205      
+tom_paine_sl        channel             194                 149      
+END
+
+GATE_WEIR_DEVICE
+GATE_NAME  DEVICE  NDUPLICATE  WIDTH  ELEV  HEIGHT  CF_FROM_NODE  CF_TO_NODE  DEFAULT_OP  
+clifton_court       reservoir_gates           5           20.000    -7.748    9999.000  1.0000        1.0000        unidir_from_node       
+delta_cross_channel    cross_channel_gates    2           60.000    -11.218   9999.000  2.0000        2.0000        gate_open             
+grant_line_barrier    barrier                 1           180.000   3.313     9999.000  0.8000        0.8000        gate_open             
+middle_r_barrier    barrier                   1           140.000   3.267     9999.000  0.7000        0.7000        gate_open             
+montezuma_salinity_control    boat_lock       1           20.000    -7.510    9999.000  0.8000        0.8000        gate_close            
+montezuma_salinity_control    flashboards     1           66.000    -17.01    9999.000  1.0000        1.0000        gate_close            
+montezuma_salinity_control    modified_flashboard    1    40.000    -8.510    1.000     0.6000        0.6000        gate_close            
+montezuma_salinity_control    radial_gates    3           36.000    -22.510   9999.000  1.0000        1.0000        gate_open             
+old_r@head_barrier    fall_barrier            1           32.000    2.326     9999.000  0.7000        0.7000        gate_open             
+old_r@head_barrier    fish_barrier            1           167.000   12.326    9999.000  0.7000        0.7000        gate_open             
+old_r@tracy_barrier    barrier                1           75.000    4.359     9999.000  0.8000        0.8000        gate_open             
+paradise_cut_weir    weir                     1           237.000   14.856    9999.000  0.7700        0.7700        gate_open             
+END
+
+GATE_PIPE_DEVICE
+GATE_NAME  DEVICE  NDUPLICATE  RADIUS  ELEV  CF_FROM_NODE  CF_TO_NODE  DEFAULT_OP  
+7_mile@3_mile       pipes               2           2.000     -4.595    0.5000        0.5000        gate_open             
+7_mile@sjr          pipes               1           2.000     -4.628    0.0000        0.0000        gate_close            
+goodyear_sl         pipes               4           2.000     -0.408    0.4000        0.4000        unidir_to_node        
+grant_line_barrier    pipes             6           2.000     -4.187    0.6000        0.6000        unidir_from_node         
+middle_r_barrier    pipes               6           2.000     -1.733    0.6000        0.6000        unidir_to_node        
+morrow_c_line_outfall    pipes          2           1.500      0.059    0.5000        0.5000        unidir_to_node        
+morrow_m_line_outfall    pipes          3           2.000     -2.321    0.5000        0.5000        unidir_to_node        
+morrow_sys_intake    pipes              3           2.000     -2.598    0.5000        0.5000        unidir_from_node         
+old_r@head_barrier    pipes             6           2.000     -5.674    0.6000        0.6000        gate_open             
+old_r@tracy_barrier    pipes            9           2.000     -3.641    0.6000        0.6000        unidir_from_node         
+roaring_river_slough_intake    pipes    8           2.500     -2.510    0.5000        0.5000        unidir_from_node         
+sandmound_sl        pipes               2           2.750     -0.661    0.5000        0.5000        unidir_from_node         
+tom_paine_sl        pipes               6           1.880     -1.161    0.6000        0.6000        unidir_from_node         
+END
