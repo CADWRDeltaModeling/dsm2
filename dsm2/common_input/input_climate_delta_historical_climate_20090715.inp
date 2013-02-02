@@ -1,0 +1,12 @@
+# Description:
+# Description of the new layer
+INPUT_CLIMATE
+NAME         VARIABLE     FILLIN FILE       PATH                                   
+atm_pressure atm_pressure linear ${CLIMATE} /CLIMATE-HIST/DELTA/ATMPR//1HOUR/NOAA/  
+cloud        cloud        linear ${CLIMATE} /CLIMATE-HIST/DELTA/CLOUD//1HOUR/NOAA/  
+dry_bulb     dry_bulb     linear ${CLIMATE} /CLIMATE-HIST/DELTA/DRYBLB//1HOUR/NOAA/ 
+wet_bulb     wet_bulb     linear ${CLIMATE} /CLIMATE-HIST/DELTA/WETBLB//1HOUR/NOAA/ 
+wind         wind         linear ${CLIMATE} /CLIMATE-HIST/DELTA/WIND//1HOUR/NOAA/   
+END
+
+
