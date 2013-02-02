@@ -1,0 +1,26 @@
+# Description:
+# DSM2-HYDRO standard parameters for the delta
+SCALAR
+NAME            VALUE 
+checkdata       false  #check input data w/o simulation                    
+cont_bad        false  #continue on bad data (use previous value)          
+cont_missing    true   #continue on missing data (use previous value)      
+cont_question   true   #continue on questionable data (use data value)     
+cont_unchecked  true   #continue on unchecked data (use data value)        
+deltax          5000   #spatial discretization                             
+display_intvl   1day   #how often to display model time progress           
+flush_output    15day  #interval to flush output                           
+gravity         32.2   #acceleration due to gravity.                       
+hydro_time_step 15min  #time step, in minutes                              
+levee_slope     0.33   #used for cross-section top width extrapolation     
+maxiter         20     #maximum number of iterations per time step.        
+printlevel      1      #amount of printing, 0 to 9, increasing with number.                            
+theta           0.6    #time-weighting factor (0.5 - 1.0)                  
+toleranceq      0.001  #tolerance for closure on discharge.                
+tolerancez      0.0008 #tolerance for closure on water-surface elevation.  
+warn_missing    true   #warn about missing data                            
+warn_question   true   #warn about questionable data                       
+warn_unchecked  false  #warn about unchecked data                          
+END
+
+
