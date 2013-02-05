@@ -451,13 +451,13 @@ public class Particle{
         if (particleWait == false){
           x = calcXPosition(tmToAdv);
           // particle into reservoir/conveyor, out of the whole function
-          if (wb.getPTMType() != Waterbody.CHANNEL) return;
+//          if (wb.getPTMType() != Waterbody.CHANNEL) return;
           if (isDead == false) {// save time if particle's dead
             y = calcYPosition(tmToAdv);
             z = calcZPosition(tmToAdv);
           }
         }//end if(particleWait)
-      tmLeft -= tmToAdv;
+        tmLeft -= tmToAdv;
       }// end while
   
     }// end if(CHANNEL)
@@ -522,7 +522,7 @@ public class Particle{
 
       // block particle before it enters a node, with filter operation 0
       if (nd.inFilter(wb)) {
-        tmLeft=0;
+//        tmLeft=0;//TODO delete?
         age = age - timeToReachNode + timeStep;// Kijin: should this be 2*timeStep
         if (xPos <= 0.0f){// upstream
           xPos = 0;
@@ -532,9 +532,9 @@ public class Particle{
       }
       else {
       // make decision on what wb to be entered
-        makeNodeDecision();
         y = calcYPosition(timeToReachNode);//TODO:bug4
         z = calcZPosition(timeToReachNode);//TODO:bug4
+        makeNodeDecision();
       }
          
       // if (recursionCounter++ > 5) error("Too many recursions in calcXPosition(float)");
