@@ -5,10 +5,10 @@ set dsm2_build_dir=..\..\..\dsm2
 set dsm2_distribute_dir=..\..\..\dsm2_distribute
 
 rem Do this manually as we want the exes to be tagged in subversion
-copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\qual.exe   %dsm2_distribute_dir%\dsm2\bin\* 
-copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\hydro.exe  %dsm2_distribute_dir%\dsm2\bin\*
-copy %dsm2_build_dir%\build_vs2008sp1_if11\all\DLL\ptm.dll        %dsm2_distribute_dir%\dsm2\bin\* 
-copy %dsm2_build_dir%\src\ptm\lib\ptm.jar                         %dsm2_distribute_dir%\dsm2\bin\* 
+rem copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\qual.exe   %dsm2_distribute_dir%\dsm2\bin\* 
+rem copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\hydro.exe  %dsm2_distribute_dir%\dsm2\bin\*
+rem copy %dsm2_build_dir%\build_vs2008sp1_if11\all\DLL\ptm.dll        %dsm2_distribute_dir%\dsm2\bin\* 
+rem copy %dsm2_build_dir%\src\ptm\lib\ptm.jar                         %dsm2_distribute_dir%\dsm2\bin\* 
 
 rem copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\qual.exe   %dsm2_distribute_dir%\dsm2\bin\qual_%version%.exe
 rem copy %dsm2_build_dir%\build_vs2008sp1_if11\all\Release\hydro.exe  %dsm2_distribute_dir%\dsm2\bin\hydro_%version%.exe
