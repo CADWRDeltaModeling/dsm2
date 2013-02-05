@@ -1,0 +1,49 @@
+			  Scripting in VISTA
+			( Nicky S. 07/29/1998)
+
+Q. What is scripting?
+A.
+	Scripting is a way of expressing a task in simple
+constructs. Scripting itself relies on modules already available and
+scripting is like a glue which passes information from one module to
+another. In other words scripting is excellent for plugging together
+various components to get a task done.
+
+Q. Why do we need scripting?
+A.
+	A GUI is good to get started or to do investigative
+studies. However once a pattern for doing a task is established the
+GUI gets in the way of getting work done efficiently. 
+
+Q. How is VISTA going to support scripting?
+A.
+	A scripting language in Vista would have basic control
+constructs such as if,while,for. morevover, the scripting language
+would be VISTA specific. In addition support for primitive variables
+would be available.As much as possible would be assumed from the
+context of the use.  
+
+	A set of custom commands would be available for use in
+VISTA. These custom commands would do simple things like retrieving
+the data, displaying the data etcetra. I will start with setting up
+simple commands in VISTA and would add more commands as time goes on.
+
+Q. How is scripting going to be implemented in VISTA?
+A.
+	I will build a parser using JavaCC. The parser would parse the
+script and try to report most syntactical errors. Then the compiler
+would write out Java code corresponding to the script which would then
+be compiled by javac and executed.
+	Of course I will attempt to shield the script user as much as
+possible from the workings of the script and in an ideal situation all
+errors would be reported in the context of the script itself.
+
+Q. When is scripting going to be available in VISTA?
+A.
+	Scripting seems to be the next most important thing to
+do. So other than fixing bugs in VISTA, this implementation would be
+what I will primarily be working on for the next few weeks. 
+
+	Scripting is a relatively new concept for me to implement. I
+would tentatively estimate about 4 weeks for rudimentary scripting to
+be available for use. That sets the date for end of August. 

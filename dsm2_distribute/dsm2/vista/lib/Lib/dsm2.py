@@ -683,7 +683,7 @@ class IrregGeom:
       plots.append(ip2.getPlot())
     #
     from vista.graph import Graph, MultiPlot, AxisAttr
-    from vista.app import DataGraph
+    from vista.app import DataGraphFrame
     graph = Graph()
     mp = MultiPlot(len(plots),1)
     lx = plots[0].getAxis(AxisAttr.LEFT)
@@ -710,7 +710,7 @@ class IrregGeom:
       graph.setTitle("Irreg XSects for " + channel)
     else:
       graph.setTitle("Regular XSects for " + channel)
-    dg = DataGraph(graph,channel,0)
+    dg = DataGraphFrame(graph,channel,0)
     dg.setLocation(100,100)
     dg.setVisible(1)
     #dg.setSize(600,400)
@@ -726,14 +726,14 @@ class DSM2GeomViewer:
     chan_list =['441','6','100']
     for chan in chan_list:
       ig.plot(chan)
-  def _test2():
+  def _test2(self):
     ip = IrregPlot('../dsm2-input-files/irregular_xsects/6_0.62089.txt')
     pl = ip.getPlot()
     from vista.graph import Graph, MultiPlot, AxisAttr
-    from vista.app import DataGraph
+    from vista.app import DataGraphFrame
     graph = Graph()
     graph.add(pl)
-    dg = DataGraph(graph,'',1)
+    dg = DataGraphFrame(graph,'',1)
   def gui(self):
     file_field = JTextField(self.dsm2file,15)
     load_btn = JButton('Load input   ')

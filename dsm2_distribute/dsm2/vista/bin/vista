@@ -1,0 +1,8 @@
+#! /bin/csh -f 
+( setenv JAVA_COMPILER NONE; \
+setenv JAVA_HOME /site/java/jdk; \
+setenv VISTA_HOME /delta/models/java/vista;\
+setenv LD_LIBRARY_PATH /home/aqua/nsandhu/java/vista/db/dss:/opt/SUNWspro/SC/lib:$OPENWINHOME/lib:/usr/ucblib:/site/lib:$JAVA_HOME/lib:$VISTA_HOME/lib;\
+$JAVA_HOME/bin/java -mx44m -Dvista.home=$VISTA_HOME -classpath $JAVA_HOME/lib/classes.zip:$VISTA_HOME/../:$VISTA_HOME/lib/jpy.jar:$VISTA_HOME/lib/pd.jar:$VISTA_HOME/lib/misc.jar:$VISTA_HOME/lib/swingall.jar vista.app.MainGUI $*; \
+)
+
