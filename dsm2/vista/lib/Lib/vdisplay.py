@@ -1,15 +1,11 @@
-from vista.app import DataGraph, DataTable, MultiDataTable, GroupFrame, \
-     SessionFrame, DefaultGraphBuilder
-from vista.graph import GraphAttr, Plot, PlotAttr, \
-     Axis, AxisAttr, GELineLayout, \
-     GEAttr, GEContainer, FontResizeInteractor, \
-     Legend, LegendAttr, LegendItem, \
-     LegendItemAttr, MultiPlot, CurveAttr
-from vista.graph import Graph, GECanvas, GraphUtils, SymbolFactory \
-
+from vista.app import DataTableFrame, \
+     DefaultGraphBuilder, CurveFactory, DataGraphFrame
+from vista.graph import SymbolFactory, \
+     Graph, Plot, AxisAttr,\
+     Legend, LegendItem
 from vista.set import ProxyFactory, DefaultDataSet
 from java.awt import Color
-from vdss import gen_ref
+from vdss import wrap_data
 #
 cmap = {"red":Color.red,
         "green":Color.green,
@@ -40,14 +36,14 @@ def tabulate(*ref) :
     separated by commas
     """
     if ( ref == None ) : print 'Empty reference list'; return;
-    ref=map(gen_ref,ref)
+    ref=map(wrap_data,ref)
     if len(ref) == 1:
 	if hasattr(ref[0],'__len__'):
 	    MultiDataTable(ref[0])
 	else: 
-	    DataTable(ref[0])
+	    DataTableFrame(ref[0])
     else:
-	MultiDataTable(ref)
+	MultiDataTableFrame(ref)
 # define function to graph a given set of data references.
 def plot(*reflist) :
     """
@@ -56,7 +52,7 @@ def plot(*reflist) :
     separated by commas
     """
     if ( reflist == None ) : print 'Empty reference list'; return;
-    reflist=map(gen_ref,reflist)
+    reflist=map(wrap_data,reflist)
     gb = DefaultGraphBuilder()
     for ref in reflist:
 	if hasattr(ref,'__len__'):
@@ -65,7 +61,7 @@ def plot(*reflist) :
 	else:
 	    gb.addData(ref)
     graphs=gb.createGraphs()
-    for graph in graphs: DataGraph(graph,"Graph")
+    for graph in graphs: DataGraphFrame(graph,"Graph")
 #
 #
 # define function to graph a given set of data references.
@@ -74,12 +70,12 @@ def scatterplot(refx, refy) :
     scatterplot(refx,refy):
     creates a scatter plot with refx along the x axis and refy along the y axis
     """
-    refx = gen_ref(refx)
-    refy = gen_ref(refy)
+    refx = wrap_data(refx)
+    refy = wrap_data(refy)
     refxy = ProxyFactory.createPairedTimeSeriesProxy(refx,refy)
     gb = DefaultGraphBuilder(); gb.addData(refxy);
     graphs = gb.createGraphs();
-    DataGraph(graphs[0],'Scatter Plot')
+    DataGraphFrame(graphs[0],'Scatter Plot')
 #
 def xyplot(x,y,
            xlabel="x axis", ylabel="y axis", title = "title",
@@ -133,7 +129,7 @@ def simple_plot(x,y,
     graph = Graph()
     graph.add(pl)
     graph.setTitle("")
-    dg = DataGraph(graph,'',0)
+    dg = DataGraphFrame(graph,'',0)
     dg.setLocation(100,100)
     dg.setVisible(1)
     dg.setSize(600,400)

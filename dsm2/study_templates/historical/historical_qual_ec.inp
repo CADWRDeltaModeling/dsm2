@@ -31,10 +31,10 @@ flush_output   20day
 END
 
 IO_FILE
-MODEL  TYPE     IO   INTERVAL FILE                            
-qual   restart  out  1mon     ${QUALRSTFILE}                   #Initial condition a restart is required
-qual   output   out  none     ${QUALOUTFILE}                   #Echoed run status                      
-qual   echo     out  none     ${DSM2OUTPUTDIR}/qual_ec_echo_${DSM2MODIFIER}.inp #Echoed input                           
+MODEL      TYPE     IO               INTERVAL FILE                            
+qual       restart  out              1mon     ${QUALRSTFILE}                   #Initial condition a restart is required
+qual       output   out              none     ${QUALOUTFILE}                   #Echoed run status                      
+qual       echo     out              none     ${DSM2OUTPUTDIR}/qual_ec_echo_${DSM2MODIFIER}.inp #Echoed input                           
 END
                 
 TIDEFILE           
@@ -42,18 +42,12 @@ START_DATE END_DATE FILE
 runtime    length   ${HYDROTIDEFILE}         
 END
 
-
-
-PARAMETER
-${DSM2INPUTDIR}/scalar_qual_std_20090715.inp
-END
-
 GROUPS
-#${DSM2INPUTDIR}/group_sourcetracking_20090715.inp
+${DSM2INPUTDIR}/group_sourcetracking_20090715.inp
 END
 
 QUAL_TIME_SERIES
-${DSM2INPUTDIR}/node_concentration_delta_historical_qual_20090715.inp
+${DSM2INPUTDIR}/node_concentration_delta_historical_qual_20121214.inp
 ${DSM2INPUTDIR}/node_concentration_dicu_ec_20090715.inp
 ${DSM2INPUTDIR}/reservoir_concentration_dicu_ec_20090715.inp
 ${DSM2INPUTDIR}/node_concentration_jones_qual_20090715.inp
@@ -62,8 +56,7 @@ END
 OUTPUT_TIME_SERIES
 ${DSM2INPUTDIR}/output_channel_std_qual_rki_20090715.inp
 ${DSM2INPUTDIR}/output_channel_std_qual_named_20090715.inp
+${DSM2INPUTDIR}/output_channel_std_qual_rki_addmore_20121214.inp
 ${DSM2INPUTDIR}/output_reservoir_std_qual_named_20090715.inp
-${DSM2INPUTDIR}/output_channel_std_qual_named_correct_20090715.inp
-#${DSM2INPUTDIR}/output_channel_source_track_ec_20090715.inp
-#${DSM2INPUTDIR}/output_reservoir_source_track_ec_20090715.inp
 END
+

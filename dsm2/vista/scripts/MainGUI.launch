@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/vista/src/vista/app/MainGUI.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="Path" value="C:\WINDOWS;C:\WINDOWS\system32;${project_loc:vista}/lib;C:\Program Files\Intel\Compiler\11.1\035\bin\ia32"/>
+</mapAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="vista.app.MainGUI"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="vista"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+UseParallelGC"/>
+</launchConfiguration>

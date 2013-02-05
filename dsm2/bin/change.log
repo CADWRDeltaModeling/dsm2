@@ -1,0 +1,6 @@
+DSM2_v8.0 beta 1 changes (from 8.0 alpha):
+
+1.  Fixed the corrupt file name in the PTM echo file.
+2.  Removed the absolute value conversion for boundary flow input. After this change, 
+    if sign = 1 means the boundary flow is multiplied by 1, and if sign = -1
+    means the boundary flow is multiplied by -1.

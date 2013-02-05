@@ -1,0 +1,6 @@
+FILE1, PATH1, FILE2, PATH2, FILE3, PATH3, L1, L2, L3,YAXIS, TITLE,TW
+../testdata/qual-1ex.dss, //001_0/EC////,../testdata/qual-2b.dss, //001_0/EC////,../testdata/qual-2b.dss,//001_0/EC////,Study 1 EX,Study 2B,Study 2B,EC in uMhos,San Joaquin EC Comparisions between 1ex & 2b,01AUG1989 0100 - 31AUG1989 2400,
+../testdata/qual-1ex.dss, //106_3800/EC////,../testdata/qual-2b.dss, //106_3800/EC////,../testdata/qual-2b.dss,//106_3800/EC////,Study 1 EX,Study 2B,Study 2B,EC in uMhos,Rock Slough EC Comparisions between 1ex & 2b,01AUG1989 0100 - 31AUG1989 2400,
+../testdata/qual-1ex.dss, //CLFCT/EC////,../testdata/qual-2b.dss, //CLFCT/EC////,../testdata/qual-2b.dss,//CLFCT/EC////,Study 1 EX,Study 2B,Study 2B,EC in uMhos,Clifton Court EC Comparisions between 1ex & 2b,01AUG1989 0100 - 31AUG1989 2400,
+../testdata/qual-1ex.dss, //049_3000/EC////,../testdata/qual-2b.dss, //049_3000/EC////,../testdata/qual-2b.dss,//049_3000/EC////,Study 1 EX,Study 2B,Study 2B,EC in uMhos,Jersey Point EC Comparisions between 1ex & 2b,01AUG1989 0100 - 31AUG1989 2400,
+

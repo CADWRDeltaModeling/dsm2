@@ -1,6 +1,8 @@
 import string
 # XML library
-from com.sun.xml.tree import XmlDocument, TreeWalker
+from org.w3c.dom import Document
+from org.w3c.dom.traversal import TreeWalker
+#from com.sun.xml.tree import XmlDocument, TreeWalker
 from org.w3c.dom import Element
 # gui stuff
 import javax.swing

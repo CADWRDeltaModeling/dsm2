@@ -1,0 +1,335 @@
+1. Introduction to the vista.time package:
+
+>>> print TimeFactory
+>>> TimeFactory.createRoundedTimeWindow(timewindow('01jan1990 0133 - 03jan1993 0543'),timeinterval('1hour'))
+01JAN1990 0100 - 03JAN1993 0600
+>>> TimeFactory.createRoundedTimeWindow(timewindow('01jan1990 0133 - 03jan1993 0543'),timeinterval('1day'))
+31DEC1989 2400 - 03JAN1993 2400
+>>> TimeFactory.createRoundedTimeWindow(timewindow('01jan1990 0133 - 03jan1993 0543'),timeinterval('1mon'))
+31DEC1989 2400 - 31JAN1993 2400
+>>> TimeFactory.createRoundedTimeWindow(timewindow('01jan1990 0133 - 03jan1993 0543'),timeinterval('1year'))
+31DEC1989 2400 - 31DEC1993 2400
+>>> tw1 = timewindow('10jan1924 0155 - 15sep1939 0355')
+>>> tw2 = timewindow('10jan1929 0155 - 15sep1959 0355')
+>>> print tw1.intersection(tw2)
+10JAN1929 0155 - 15SEP1939 0355
+>>> print tw1.contains(tw2)
+0
+>>> print tw2.contains(tw1)
+0
+>>> print tw2.intersects(tw1)
+1
+>>> print tw2.getStartTime(), tw2.getEndTime()
+10JAN1929 0155 15SEP1959 0355
+>>> tm1 = time('10jan1990 0133')
+>>> print tm1.getTimeInMinutes()
+47350173L
+>>> print tm1.floor(timeinterval('1day'))
+09JAN1990 2400
+>>> print tm1.ceiling(timeinterval('1day'))
+10JAN1990 2400
+>>> tm2 = time('01feb1964 0737')
+>>> print tm2
+01FEB1964 0737
+>>> tm2.getNumberOfMinutesTo(tm1)
+13643636L
+>>> print tm1.getNumberOfMinutesTo(tm2)
+-13643636L
+>>> print tm2-tm1
+-13643636MIN
+>>> x = tm2.getNumberOfMinutesTo(tm1)
+>>> print x
+13643636L
+>>> ti = tm2 - tm1
+>>> print ti
+-13643636MIN
+>>> print ti.__class__
+<jclass vista.time.DefaultTimeInterval at 494612371>
+>>> print x.__class__
+<jclass org.python.core.PyLong at 494599735>
+>>> 
+
+2.  Concepts of a Group, DataReference, Pathname and DataSet
+--------------------------------------------------------------
+
+CONCEPTUAL FAQ
+
+Q.I-1. What kind of data are we talking about? 
+Q.I-2. How is this data stored?
+Q.I-3  What is a DataSet? 
+Q.I-3a. What is a RegularTimeSeries , IrregularTimeSeries or
+DefaultDataSet? 
+Q.I-4. What is Pathname?
+Q.I-5. What is a DataReference?
+Q.I-6. What is a Group?
+
+A.I-1.
+	We are primarily talking about time-series data and paired
+data. In generality a (x,y) pair is one element of this data where x
+is usually time and y the value.
+	The corresponding class for this concept is the DataSetElement
+class. It has methods for accessing the x, y and flag values for the
+given element. So in other words its a collection of a x and a y and a
+flag value.
+
+A.I-2. 
+	This data is stored in a database developed by HEC called
+HEC-DSS. It is NOT a relational database and is specifically tuned for
+fast storage and retrieval of time-series data sets. For more
+information visit HEC at http://wrc-hec.usace.army.mil/. 
+	HEC-DSS has a method of naming each data set ( usually time
+series) with a pathname.
+
+A.I-3
+	A data set is a collection of values. Each of these values may
+further consist of a x value, a y value and a flag value.
+	The corresponding classes are vista.set.DataSet which then
+further contains vista.set.DataSetElement.
+
+A.I-3a.
+	A regular time series is a time series that is sampled at
+regular intervals and as such has the associated time window and time
+interval. The corresponding class is vista.set.RegularTimeSeries
+	An irregular time series is a time series that is sampled at
+irregular intervals and as such has only a time window associated with
+it. The corresponding class is vista.set.IrregularTimeSeries
+	A paired data set is just a collection of x and y points which
+are associated by some relation such as a common time stamp. The
+corresponding class is vista.set.DefaultDataSet. 
+
+A.I-4. 
+	HEC-DSS stores data sets referenced by pathnames. Each unique
+pathname within a file refers to a unique data set. A pathname
+consists of A through F parts. A and F part are descriptive parameters
+for the data set, B is the location name of the data, C is the type of
+data, D is the time window and E is the time interval.
+	The corresponding class for this concept is the
+vista.set.Pathname class.
+
+A.I-5.
+	A data reference is a reference to a data set. It contains
+information such as the filename, the pathname, the timewindow (if
+any), the time interval (if any). A data reference can be either
+actual data on the disk or could refer to virtual data ( data that has
+resulted from a series of operations ).
+	In short a data reference consists of a filename, a pathname
+and a data set and optionally a server name ( if remote data ). 
+	The corresponding class for this concept is the
+vista.set.DataReference class.
+
+A.I-6. 
+	A Group is a group of data references. A DSS file may be
+thought of as a default group that contains all the pathnames in that
+DSS file.
+	The corresponding class for this concept is the
+vista.set.Group class.
+
+lets recapitulate all the above concepts with this diagram
+
+	Group --> [ DataReference0, DataReference1, ....]
+	DataReference -- > [ Filename , Pathname , DataSet , Server ]
+	Pathname --> [ A, B, C, D, E, F ]
+	DataSet --> [ DataSetElement0, DataSetElement1, ...]
+	DataSetElement --> [ x , y, flag ]
+
+The different specialization of the above types are:
+
+
+				DataReference
+				     |
+	-----------------------------=---------------------------
+	|			     |				|
+DSSDataReference	   DefaultDataReference	   MathOperationReference
+
+
+				    DataSet	
+					|
+	--------------------------------+-----------------------
+	|				|			|
+IrregularTimeSeries		RegularTimeSeries	DefaultDataSet
+
+
+
+				DataSetElement
+					|
+	--------------------------------+------------------------
+	|		|	        	|		|
+TimeElement	   TimeTuple		DefaultDataSet	      Tuple
+
+
+Group:
+
+Generating a group:
+
+	- from DSS file
+		g = opendss('file1.dss')
+		g = opendss('file1.dss','my.server')
+
+	- from a array of data references
+		g= Group.createGroup('my group',array)
+
+Generating a data reference:
+	
+	- from an existing group
+		ref = g[0]
+		ref = g.getDataReference(5)
+
+	- from an existing data reference and time window
+		tw = timewindow('01jan1990 0100 - 01jan1991 0100')
+		ref2 = DataReference.create(ref1,tw)
+
+	- from display contents of a data reference
+		print ref.getFilename()
+		print ref.getPathname()
+		print ref.getData()
+		print ref.getServername()
+
+	- from an existing data set
+
+	ref = DSSUtil.createDataReference('local','my.dss','/MY DATA/NON/FlOW///DELTA/',rts)
+	DSSUtil.updateData(ref)
+
+	- from an exact filename and pathname specification
+
+	path = Pathname.createPathname('/MY DATA/NON/FlOW/01jan1990/1hour/DELTA/')
+	ref2 = DSSUtil.createDataReference('local',my.dss',path)
+	rts2 = ref2.getData()
+
+Generating a pathname:
+
+	- from an existing reference
+		path = ref.getPathname()
+
+	- from an existing path
+		path2 = Pathname.createPathname(path1)
+
+	- from an array of string of length six
+		pp = ['A','B','C','D','E','F']
+		path = Pathname.createPathname(pp)
+
+	- accessing and changing contents
+		
+		path.getPart(Pathname.C_PART)
+		path.setPart(Pathname.F_PART, "my f part")
+
+Generating a data set
+
+	- from an existing reference
+		ds = ref.getData()
+	
+	- a regular time series
+	y = [ 25, 33.4, 21.6, 44.6, 55.9, 33.7 ] 
+	name = '/MYDATA/NON/FLOW//1year/delta/'
+	rts = RegularTimeSeries(name, '01jan1990 0100','1hour',y)
+
+	- an irregular time series
+		y = [ 25, 33.4, 21.6, 44.6, 55.9, 33.7 ] 
+		x = range(len(y))
+		name = '/MYDATA/NON/FLOW///calsim/'
+		its = IrregularTimeSeries(name,x,y)
+	OR
+		x = [time('01jan1991 0500'), time('03jan1991 0700'), time('09jan1992 0300')]
+		y = [ 1.6, 3.3, 8.2]
+		its = IrregularTimeSeries(name,x,y)
+
+	- accessing and changing contents
+
+	for e in rts:
+		print e
+	
+	for e in rts:
+		print "x value = ", e.x, " y value = ", e.y
+		print "flag value = ", e.flag
+
+	for i in range(len(rts)):
+		print rts[i]
+
+	print rts[0]
+	print rts['01jan1990 0100']
+
+	rts[0] = 4.5
+	print rts[0]
+
+	rts['01jan1990 0100'] = 3.3
+	print rts['01jan1990 0100']
+
+	print rts[0:3] ---> returns an array of data set elements
+	print rts['01jan1990 0100':'01jan1990 0300'] -- > returns a
+	time series with given time window 
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+3. Using Java packages...
+
+>>> sys.add_package('java.net')
+<java package java.net at 494945528>
+>>> from java.net import URL
+>>> my_url = URL("http://www.yahoo.com")
+>>> dir(my_url.__class__)
+['__doc__', '__init__', '__module__', 'content', 'file', 'getContent',
+'getFile', 'getHost', 'getPort', 'getProtocol', 'getRef', 'host',
+'openConnection', 'openStream', 'port', 'protocol', 'ref', 'sameFile',
+'setURLStreamHandlerFactory', 'toExternalForm'] 
+>>> my_url.getFile()
+'/'
+>>> my_url.getHost()
+'www.yahoo.com'
+>>> my_url.getPort()
+-1
+>>> my_url.toExternalForm()
+'http://www.yahoo.com/'
+>>> inp_str = my_url.openStream()
+>>> sys.add_package('java.io')
+<java package java.io at 494945548>
+>>> from java.io import LineNumberInputStream
+>>> lis = LineNumberInputStream(inp_str)
+>>> dir(lis)
+[]
+>>> dir(lis.__class__)
+['__doc__', '__init__', '__module__', 'getLineNumber', 'lineNumber',
+'read', 'setLineNumber'] 
+>>> lis.getLineNumber()
+0
+>>> lis.setLineNumber(5)
+>>> lis.read()
+60
+>>> from java.io import LineNumberReader
+>>> from java.io import InputStreamReader
+>>> lnr = LineNumberReader(InputStreamReader(inp_str))
+>>> lnr.readLine()
+'html><head><title>Yahoo!</title><base
+href=http://www.yahoo.com/></head><body><center><form
+action=http://search.yahoo.com/bin/search><map name=m><area
+coords="72,0,130,58" href=r/wn><area coords="131,0,189,58"
+href=http://mail.yahoo.com><area coords="414,0,472,58" href=r/i1><area
+coords="473,0,531,58" href=r/hw></map><a href=/bin/top33><img
+width=600 height=59 border=0 usemap="#m" ismap
+				     #src=http://us.yimg.com/i/main33.gif alt=Yahoo></a><br><table border=0 cellspacing=0 cellpadding=4 width=600><tr><td align=center width=160>'
+>>> lnr.close()
+
+4. Using 3rd party package ( pretend here, as this package will become
+standard in Java 1.2)
+
+>>> sys.add_package('javax.swing')
+>>> from javax.swing import JFrame
+>>> fr = JFrame()
+>>> fr.setSize(400,400)
+>>> fr.setLocation(100,100)
+>>> fr.show()
+>>> fr.setTitle("my frame")
+>>> from javax.swing import JButton
+>>> fr.getContentPane().add(JButton("my button"))
+>>> fr.show()
+>>> from java.awt.event import ActionListener
+>>> class myl(ActionListener):
+...  def actionPerformed(self,evt):
+...   print "my other button pressed"
+>>>
+>>> my_btn = JButton("my other button")
+>>> cp = fr.getContentPane()
+>>> cp.removeAll()
+>>> cp.add(my_btn)
+>>> my_btn.addActionListener(myl())
+>>> fr.show()
+my other button pressed
+

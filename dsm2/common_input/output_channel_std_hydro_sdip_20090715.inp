@@ -1,0 +1,29 @@
+# Description:
+# Output for HYDRO at SDIP-related locations
+OUTPUT_CHANNEL
+NAME                      CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
+glc_ds_barrier                213        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+glc_ds_barrier                213        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+glc_ds_temp_barrier           207        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+glc_ds_temp_barrier           207        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+glc_us_barrier                212   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+glc_us_barrier                212   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+glc_us_temp_barrier           206   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+glc_us_temp_barrier           206   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+midr_ds_barrier               134        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+midr_ds_barrier               134        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+midr_us_barrier               133   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+midr_us_barrier               133   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_ds_barrier                80        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_ds_barrier                80        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_head_ds_oldr_barrier      54        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_head_ds_oldr_barrier      54        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_head_ds_sjr_barrier        8        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_head_ds_sjr_barrier        8        0 stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_head_us_barrier            7   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_head_us_barrier            7   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_us_barrier                79   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+oldr_us_barrier                79   length stage    ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+END
+
+
