@@ -25,6 +25,7 @@
 module solver
     use network
     implicit none
+    logical, save:: resetSolver=.true.
     integer,parameter :: MaxGatePtr=MaxNGate*5*4+ MaxNGate*5*4+MaxNgate*5
     integer, parameter :: MAX_EQUATION=(2*MaxLocations+MaxNRes*(1+MaxResConnectChannel))
     real*8, parameter :: ZscaleFactor=1.D0
@@ -276,14 +277,13 @@ logical function SolveFourPt()
     logical,save :: LastBackTrack
     integer MaxNormLoc
     real*8,save :: prevBackLInfNorm
-
-
     !      character*14, save:: last_date
     !      integer, save:: last_max_iteration
     save IterSinceOrder
     logical Scaled
     real*8, parameter :: CLOSE_L2=1.D0
     real*8, parameter :: MIN_RESCALE=(1.D0/16.D0)
+    
     !   Local Variables
     logical lasttime
     integer Error
@@ -292,7 +292,6 @@ logical function SolveFourPt()
     external sfOrderAndFactor,sfFactor,sfFileMatrix,sfFileVector, sfPrint
       
     integer netIteration
-      
 
     !      Argument definitions:
     !      Location  - a pointer to the desired location in the
@@ -307,7 +306,7 @@ logical function SolveFourPt()
     !-----Create RHS vector of proper size and precision
     if ( FirstTime ) then ! .OR. (Mod(IterSinceOrder,2000) .le. 1)) then
         if (use_klu) then
-            !-- done only once as non-zeros pattern do not change after this point
+           !-- done only once as non-zeros pattern do not change after this point
             k_symbolic = klu_fortran_analyze(matrix_size, ica, jca, k_common)
         end if
         Scaled = .true.
@@ -319,13 +318,6 @@ logical function SolveFourPt()
     netIteration=NetworkIteration()
       
     if (netIteration==1) then
-        if (use_klu .and. IterSinceOrder < 100) then !refactorize for new pattern
-            call klu_fortran_free_numeric(k_numeric, k_common)
-            k_numeric = klu_fortran_factor(ica, jca, coo, k_symbolic, k_common)
-        end if
-        !if (use_klu) then
-        !   print *, "First Iteration Condition number (estimated) :",klu_fortran_condest(ica, coo, k_symbolic, k_numeric, k_common)
-        !end if
         firstbacktrack=.true.
         lastbacktrack=.false.
         LastLInfNorm=Huge(1.D0)
@@ -341,7 +333,6 @@ logical function SolveFourPt()
     LInfNorm=abs(XX(maxNormLoc))
     NormClose=(L2Norm < CLOSE_L2) ! .and. LInfNorm .lt. 5.D-1)
     lasttime=(netIteration == MaxNetworkIterations())
-
     if ( (L2Norm < LastL2Norm .or. L2Norm < CLOSE_L2)  &
         .or. Rescale <= MIN_RESCALE  .or. lasttime  &
         ) then
@@ -350,7 +341,13 @@ logical function SolveFourPt()
             if( Scaled ) then
                 if (use_klu) then
                     call scale_coo(RowScale, ColumnScale)
-                    call klu_fortran_refactor(ica, jca, coo, k_symbolic, k_numeric, k_common)
+                    if ( resetSolver ) then !refactorize for new pattern
+                        call klu_fortran_free_numeric(k_numeric, k_common)
+                        k_numeric = klu_fortran_factor(ica, jca, coo, k_symbolic, k_common)
+                        resetSolver=.false.
+                    else
+                        call klu_fortran_refactor(ica, jca, coo, k_symbolic, k_numeric, k_common)
+                    end if
                     error=0
                 else
                     call sfScale(Matrix,RowScale,ColumnScale)
@@ -379,12 +376,10 @@ logical function SolveFourPt()
         Rescale=min(1.,Rescale*2)
         if (lasttime) rescale=1.
         IterSinceOrder = IterSinceOrder+1
-
         !-----Need to unscale result
         if(Scaled) then
             X(1:equations)=X(1:equations)*ColumnScale(1:equations)
         end if
-
         FirstBacktrack=.true.
         LastLInfNorm=LInfNorm
         PrevBackLInfNorm=LInfNorm
@@ -404,6 +399,7 @@ logical function SolveFourPt()
     SolveFourPt=.true.
     return
 end function
+
 !== Public (ForwardElim) ================================================
 
 logical function ForwardElim()

@@ -10,6 +10,8 @@
 #define klu_fortran_refactor         STDCALL KLU_FORTRAN_REFACTOR
 #define klu_fortran_solve            STDCALL KLU_FORTRAN_SOLVE
 #define klu_fortran_condest          STDCALL KLU_FORTRAN_CONDEST
+#define klu_fortran_rgrowth          STDCALL KLU_FORTRAN_RGROWTH
+#define klu_fortran_rcond			 STDCALL KLU_FORTRAN_RCOND
 #define klu_fortran_free_numeric     STDCALL KLU_FORTRAN_FREE_NUMERIC
 #define klu_fortran_free             STDCALL KLU_FORTRAN_FREE
 #endif
@@ -68,12 +70,29 @@ void klu_fortran_solve(long *symbolic, long *numeric, int* n, int* nrhs, double 
 	klu_solve (Symbolic, Numeric, *n, *nrhs, b, Common) ;
 }
 
+//accurate condition number estimation, high condition number is ill-conditioned
 double klu_fortran_condest(int *Ap, double *Ax, long *symbolic, long *numeric, long *common){
 	klu_common *Common = (klu_common*) *common;
 	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
 	klu_numeric *Numeric = (klu_numeric*) *numeric;
 	klu_condest(Ap,Ax,Symbolic,Numeric,Common);
 	return Common->condest;
+}
+//cheap reciprocal condition number estimation, low reciprocal is ill-conditioned
+double klu_fortran_rcond(long *symbolic, long *numeric, long *common){
+	klu_common *Common = (klu_common*) *common;
+	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
+	klu_numeric *Numeric = (klu_numeric*) *numeric;
+	klu_rcond(Symbolic,Numeric,Common);
+	return Common->rcond;
+}
+//Computes the reciprocal pivot growth, small rgrowth implies inaccurate factorization
+double klu_fortran_rgrowth(int *Ap, int *Ai, double *Ax, long *symbolic, long *numeric, long *common){
+	klu_common *Common = (klu_common*) *common;
+	klu_symbolic *Symbolic = (klu_symbolic*) *symbolic;
+	klu_numeric *Numeric = (klu_numeric*) *numeric;
+	klu_rgrowth(Ap,Ai,Ax,Symbolic,Numeric,Common);
+	return Common->rgrowth;
 }
 /**
 * free numeric memory

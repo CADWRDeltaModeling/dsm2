@@ -2293,7 +2293,7 @@ subroutine find_layer_index( &
 
     if (Z<virt_min_elev(minelev_index(Branch)+vsecno-1)) then
         write(unit_error,910) chan_geom(Branch)%chan_no,current_date,Z
-910     format(' Error...channel', i4,' dried up at time ',a,'; WS Elevation Z=',f10.3)
+910     format(' Error...channel', i4,' dried up at time or runtime instability developed',a,'; WS Elevation Z=',f10.3)
         call exit(13)
     endif
 

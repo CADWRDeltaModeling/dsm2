@@ -91,7 +91,6 @@ contains
         real*8  QDevice
         real*8,parameter  :: SINGULAR_FLOW=1.D-1
 
-
         integer Gt, Dv            ! Iterators for gates and devices
         integer ResRow,gatendx,devndx,extremity,resno
         logical OK
@@ -99,6 +98,9 @@ contains
 
         type(Gate), pointer ::  currentGate
         type(GateDevice),pointer    ::  currentDevice
+
+        ! save previous gate state
+        real*8, dimension(maxNGate), save :: PrevGateState
 
         !     Routines by module:
 
@@ -116,7 +118,6 @@ contains
             s=currentGate%flowDirection
             extremity = Int4(-s)
             gatendx = GateEqIndex(gt)
-
             !--------Get required data concerning gate.
             if (currentGate%objConnectedType == obj_channel) then
                 z1 = GlobalStreamSurfaceElevation(currentGate%objCompPoint)
@@ -130,6 +131,12 @@ contains
 
             z2 = GlobalStreamSurfaceElevation(currentGate%nodeCompPoint)
             gateArray(Gt)%flow=0.D0
+            ! check for gate state to be changed
+            if (PrevGateState(Gt) .ne. currentGate%free) then
+                resetSolver=.true.
+            end if
+            PrevGateState(Gt)=currentGate%free
+            !
             if (currentGate%free) then
                 gateArray(Gt)%flow=miss_val_r
                 !-----------Gate is not operation, flow is free
