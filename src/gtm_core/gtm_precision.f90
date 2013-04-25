@@ -47,6 +47,11 @@ module gtm_precision
    
    integer, parameter :: LARGEINT = -123456789
    
+   !> Missing values maker
+   integer :: miss_val_i = -901
+   real(gtm_real) :: miss_val_r = -901.
+   character(len=1), parameter :: miss_val_c = char(1)
+
    !> Absurd high value, for initialization and for marking undefined
    !> data in calculations. This makes bugs easier to spot.
    real(gtm_real), parameter :: LARGEREAL = 1.23456789d8

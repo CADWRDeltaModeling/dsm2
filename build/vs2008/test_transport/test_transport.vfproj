@@ -27,8 +27,8 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\..\test\transport\hydro_uniform_flow.f90"/>
 		<File RelativePath="..\..\..\test\transport\initial_boundary_condition_gaussian.f90"/>
-		<File RelativePath="..\..\..\test\transport\initial_boundary_condition_guassian.f90"/>
 		<File RelativePath="..\..\..\test\transport\single_channel_boundary.f90"/>
+		<File RelativePath="..\..\..\test\transport\test_converge_advation_reaction_hdf5.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_converge_advection_dispersion_mms.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_converge_advection_dispersion_time_dependent.f90"/>
 		<File RelativePath="..\..\..\test\transport\test_converge_advection_dispersion_zoppou.f90"/>

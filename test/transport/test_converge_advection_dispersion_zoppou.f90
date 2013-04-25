@@ -76,10 +76,14 @@ real(gtm_real) :: test_domain_length                      !< Domain length
 real(gtm_real) :: total_time                              !< Total time of testing  
 real(gtm_real) :: cfl_number                              !< Courant number
 real(gtm_real) :: point_value                             !< Point value of the analytical solution or solution on boundary
+real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
+
 procedure(hydro_data_if),               pointer :: zoppou_hydro   => null() !< The pointer points to the test's flow data
 procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< Pointer for boundary advective flux to be filled by driver
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
 procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< Pointer for boundary diffusin matrix to be filled by driver
+
+acceptance_ratio = [four, four, four]
  
 ! this flow generator is mass conservative
 ! todo: use test_convergence_transport_uniform as a model. You will be using dirichlet
@@ -137,7 +141,8 @@ call test_convergence(label,                  &
                       nx_base,                &
                       nconc,                  &
                       verbose,                &
-                      detail_printout=.true.)
+                      .true.,                 &
+                      acceptance_ratio)
                       
 return                      
 end subroutine
@@ -388,6 +393,7 @@ real(gtm_real) :: test_domain_length                      !< Domain length
 real(gtm_real) :: total_time                              !< Total time of testing  
 real(gtm_real) :: cfl_number                              !< Courant number
 real(gtm_real) :: point_value                             !< Point value of the analytical solution or solution on boundary
+real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
 procedure(hydro_data_if),               pointer :: time_hydro   => null() !< The pointer points to the test's flow data
 procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< Pointer for boundary advective flux to be filled by driver
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
@@ -403,6 +409,8 @@ procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< P
 time_hydro => time_flow 
 compute_source => no_source
 dispersion_coef => time_disp_coef
+
+acceptance_ratio = [four, four, four]
 
 label = 'advection_dispersion_time_variable' 
 test_domain_length = x_r_time -  x_l_time
@@ -449,7 +457,8 @@ call test_convergence(label,                    &
                       nx_base,                  &
                       nconc,                    &
                       verbose,                  &
-                      detail_printout=.true.)
+                      .true.,                   &
+                      acceptance_ratio)
                       
 return                      
 end subroutine

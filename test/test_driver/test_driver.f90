@@ -31,34 +31,38 @@ program test_driver
     !----- modules used in project test_common ----- 
     use ut_hydro_data_tide
     use ut_hydro_data_interp
+    use ut_time_util
+    use ut_buffer_input
+    use ut_gtm_network
     
     !----- modules used in project test_transport -----  todo::this block is copied from previous STM code, activate later
     !                                                    I made a test run and it worked fine. 
-    !use test_extrapolate
-    !use test_prim_cons_conversion
-    !use test_uniform_flow
-    !use test_matrix_solver
-    !use test_boundary_diffusion
-    !use test_diffusive_flux
-    !use test_explicit_diffusion_operator
-    !use test_interior_coef_matrix
-    !use test_construct_r_h_s
-    !use source_sink
-    !use test_hydro
-    !use test_advection_reaction_tidal
-    !use test_coarsening
-    !use test_uniform_flow
-    !use test_prim_increment_to_cons
-    !use test_gradient
-    !use test_diffusion_fletcher
-    !use test_diffusion_nonlinear_decay
+    use test_extrapolate
+    use test_prim_cons_conversion
+    use test_uniform_flow
+    use test_matrix_solver
+    use test_boundary_diffusion
+    use test_diffusive_flux
+    use test_explicit_diffusion_operator
+    use test_interior_coef_matrix
+    use test_construct_r_h_s
+    use source_sink
+    use test_hydro
+    use test_advection_reaction_tidal
+    use test_advection_reaction_hdf5      
+    use test_coarsening
+    use test_uniform_flow
+    use test_prim_increment_to_cons
+    use test_gradient
+    use test_diffusion_fletcher
+    use test_diffusion_nonlinear_decay
 
     !&&&&&&&&&&&&&&&&&&&
-    !use test_convergence_transport_uniform
+    use test_convergence_transport_uniform
     !&&&&&&&&&&&&&&&&&&
-    !use test_zoppou_advection_dispersion
-    !use test_time_dependent_advection_dispersion
-    !use test_mms_advection_dispersion
+    use test_zoppou_advection_dispersion
+    use test_time_dependent_advection_dispersion
+    use test_mms_advection_dispersion
     
     implicit none
     logical :: verbose = .true.
@@ -68,9 +72,12 @@ program test_driver
    
     !----- function calls to test units in project common -----
     
+    call test_buffer_input("gtm.inp")
+    call test_time_util()                ! test time_util()
     call test_hdf_util()                 ! test hdf_util()
     call test_resample()                 ! test resample coarse grid from finer grid (for testing comparison only)
     call test_interpolation()            ! test interpolation schemes
+    call test_gtm_network()              ! test creating GTM network
     
     !----- function calls to test units in project transport -----  todo::this block is copied from previous STM code, activate later
 
@@ -113,7 +120,8 @@ program test_driver
     ! todo: need to set an automatic check for hitting the boundary with coarse meshes
     !       this frequently causes problems that are undetected without scrutiny
     !call test_tidal_advection_reaction(verbose)
-
+    call test_hydro_advection_reaction(verbose)
+    
     !/////Advection-Diffusion tests
     !call test_zoppou_flow()    ! unit test that goes with convergence test
     !call test_advection_diffusion_zoppou(verbose)

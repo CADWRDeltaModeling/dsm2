@@ -42,7 +42,8 @@ subroutine test_convergence(label,                &
                             nx_base,              &
                             nconc,                &
                             verbose,              &
-                            detail_printout)
+                            detail_printout,      &
+                            acceptance_ratio)
 use error_handling                             
 use hydro_data
 use boundary_advection
@@ -80,9 +81,10 @@ real(gtm_real), intent(in) :: total_time                        !< Total time of
 real(gtm_real), intent(in) :: start_time                        !< Start time of simulation
 real(gtm_real), intent(in) :: domain_length                     !< Length of domain
 logical, intent(in),optional :: detail_printout                 !< Whether to produce detailed printouts
+real(gtm_real), intent(in) :: acceptance_ratio(3)               !< Acceptance ratio for test convergence
 
 !---local
-logical :: detailed_printout= .true.                            !< Printout Falg
+logical :: detailed_printout= .true.                            !< Printout Flag
 integer, parameter :: nrefine = 3                               !< Number of refinements 
 integer, parameter :: coarsen_factor = 2                        !< Coarsening factor used for convergence test
 integer :: itime                                                !< Counter (time)
@@ -104,7 +106,7 @@ real(gtm_real), allocatable :: disp_coef_hi(:)      !< High side constituent dis
 real(gtm_real), allocatable :: disp_coef_lo_prev(:) !< Low side constituent dispersion coef. at old time
 real(gtm_real) ,allocatable :: disp_coef_hi_prev(:) !< High side constituent dispersion coef. at old time
 real(gtm_real) :: theta = half                      !< Crank-Nicolson implicitness coeficient
-real(gtm_real) :: ratio                             !< Norms ration
+real(gtm_real) :: ratio                             !< Norms ratio
 real(gtm_real) :: max_velocity                      !< Maximum Velocity
 real(gtm_real) :: min_conc                          !< Minimum concentration   
 real(gtm_real) :: fine_initial_mass(nx_base,nconc)  !< initial condition at finest resolution
@@ -349,24 +351,23 @@ do icoarse = 1,nrefine
 end do
 ratio = norm_error(1,2)/norm_error(1,1)
 call create_converge_message(converge_message,"L-1   (fine)   ",trim(label),ratio)
-call assert_true(ratio > four,trim(converge_message))
+call assert_true(ratio > acceptance_ratio(1),trim(converge_message))
 ratio = norm_error(2,2)/norm_error(2,1)
 call create_converge_message(converge_message,"L-2   (fine)   ",trim(label),ratio)
-call assert_true(ratio > four,trim(converge_message))
+call assert_true(ratio > acceptance_ratio(2),trim(converge_message))
 ratio = norm_error(3,2)/norm_error(3,1)
 call create_converge_message(converge_message,"L-inf (fine)   ",trim(label),ratio)
-call assert_true(ratio > four,trim(converge_message))
+call assert_true(ratio > acceptance_ratio(3),trim(converge_message))
 
 ratio = norm_error(1,3)/norm_error(1,2)
 call create_converge_message(converge_message,"L-1   (coarse) ",trim(label),ratio)
-call assert_true(ratio > four,trim(converge_message))
+call assert_true(ratio > acceptance_ratio(1),trim(converge_message))
 ratio = norm_error(2,3)/norm_error(2,2)
 call create_converge_message(converge_message,"L-2   (coarse) ",trim(label),ratio)
-call assert_true(ratio > four,trim(converge_message))
+call assert_true(ratio > acceptance_ratio(2),trim(converge_message))
 ratio = norm_error(3,3)/norm_error(3,2)
 call create_converge_message(converge_message,"L-inf (coarse) ",trim(label),ratio)
-call assert_true(ratio > four,trim(converge_message))
-
+call assert_true(ratio > acceptance_ratio(3),trim(converge_message))
 
 
 if (verbose == .true.) then

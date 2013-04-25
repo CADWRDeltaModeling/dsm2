@@ -28,7 +28,7 @@ module hydro_data_tidefile
     use common_variables
     use common_xsect       
     use hdf_util   
-    
+ 
     contains   
    
    !> This subroutine is used to read DSM2 hydro tidefile,  
@@ -44,10 +44,10 @@ module hydro_data_tidefile
         call read_xsect_tbl() 
         call assign_segment()           
         call allocate_hydro_ts()
-        call get_ts_from_hdf5("flow", hydro_flow)
-        !call get_ts_from_hdf5("area", hydro_area)        ! todo::if we decide to go with elevation, this can be removed.
-        call get_ts_from_hdf5("water surface", hydro_ws)
-        call get_ts_from_hdf5("avg area", hydro_avga)    ! todo::if we decide to go with elevation, this can be removed.
+        call get_ts_from_hdf5(hydro_flow, "flow")
+        !call get_ts_from_hdf5(hydro_area, "area")        ! todo::if we decide to go with elevation, this can be removed.
+        call get_ts_from_hdf5(hydro_ws, "water surface")
+        call get_ts_from_hdf5(hydro_avga, "avg area")    ! todo::if we decide to go with elevation, this can be removed.
         call hdf5_close()
         return  
     end subroutine      

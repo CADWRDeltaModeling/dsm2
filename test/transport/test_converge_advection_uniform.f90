@@ -61,8 +61,11 @@ real(gtm_real) :: solution_gaussian_sd = ic_gaussian_sd                !< Soluti
 real(gtm_real) :: solution_center = ic_center                          !< Solution's center of mass
 real(gtm_real) :: fine_initial_condition(nx_base,nconc)                !< Initial condition at finest resolution
 real(gtm_real) :: fine_solution(nx_base,nconc)                         !< Reference solution at finest resolution
+real(gtm_real) :: acceptance_ratio(3)                                  !< Acceptance ratio
 
 character(LEN=*),parameter :: label = "advection_bidirectional_uniform_dirichlet"
+
+acceptance_ratio = [four, four, four]
 
 call set_uniform_flow_area(constant_flow,constant_area,reverse_time)
 ! todo: force these to be set so they aren't just left over from last test
@@ -102,7 +105,8 @@ call test_convergence(label,                  &
                       nx_base,                &
                       nconc,                  &
                       verbose,                &
-                      detail_printout =.true.)
+                      .true.,                 &
+                      acceptance_ratio)
 
 end subroutine
 

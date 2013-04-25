@@ -92,12 +92,12 @@ module common_xsect
     end subroutine
     
     !> Calculate area of channel cross section based on given X, Z and channel number
-    subroutine CxArea(X,Z,branch,Area)
+    subroutine CxArea(area, X, Z, branch)
         implicit none
         real(gtm_real), intent(in) :: Z               !< water surface elevation
         real(gtm_real), intent(in) :: X               !< distance from upstream
         integer, intent(in) :: branch                 !< channel no
-        real(gtm_real), intent(out) :: Area           !< CxArea
+        real(gtm_real), intent(out) :: area           !< CxArea
         real(gtm_real) :: virt_deltax
         integer :: vsecno_forX
         integer :: i, si, di, ei, OK
@@ -135,7 +135,7 @@ module common_xsect
         a1 = virt_xsect(si)%area(ei)
         b1 = virt_xsect(si)%width(ei)
         b2 = localChannelWidth
-        Area = a1 + half * ( b1 + b2 )* (Z - z1) 
+        area = a1 + half * ( b1 + b2 )* (Z - z1) 
         return
     end subroutine
          

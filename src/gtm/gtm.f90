@@ -33,7 +33,7 @@ program gtm
     implicit none
     character(len=*), parameter :: hdf5file = "historical.h5"   !< HDF5 file name
     integer, parameter :: nt = 4
-    integer, parameter :: nx = 5
+    integer, parameter :: nx = 5 !5
     real(gtm_real), dimension(nt, nx) :: flow_mesh, area_mesh
     real(gtm_real), dimension(nt-1, nx-1) ::  flow_volume_change, area_volume_change
     real(gtm_real) :: dt, dx
@@ -46,29 +46,29 @@ program gtm
     
     call dsm2_hdf_data(hdf5file)
     
-    write(debug_unit,'(2a8,5a20)') "t","chan_no","segm_length","flow_vol_change","area_vol_change","avga_vol_change","% difference"
-    do t = 2, n_time
+    do t = 2, 20 !n_time
+        write(*,*) t
         do i = 1, n_segm
            dt = orig_time_interval/(nt-1.)
            dx = segm(i)%length/(nx-1.)
            up_comp = segm(i)%up_comppt
            down_comp = segm(i)%down_comppt
            avga_volume_change = (hydro_avga(up_comp,t)-hydro_avga(up_comp,t-1)) * segm(i)%length
-           call interp_flow_area(segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, nx,                                                 &
+           call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,                                         &
+                                 segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, nx,                                                 &
                                  hydro_flow(up_comp,t-1), hydro_flow(down_comp,t-1), hydro_flow(up_comp,t), hydro_flow(down_comp,t),   &
-                                 hydro_ws(up_comp,t-1), hydro_ws(down_comp,t-1), hydro_ws(up_comp,t), hydro_ws(down_comp,t),   &
-                                 flow_mesh, area_mesh,                  &
-                                 flow_volume_change, area_volume_change)
-           call calc_total_volume_change(nt-1, nx-1, flow_volume_change, total_flow_volume_change)
-           call calc_total_volume_change(nt-1, nx-1, area_volume_change, total_area_volume_change)
+                                 hydro_ws(up_comp,t-1), hydro_ws(down_comp,t-1), hydro_ws(up_comp,t), hydro_ws(down_comp,t))        
+           call calc_total_volume_change(total_flow_volume_change, nt-1, nx-1, flow_volume_change)
+           call calc_total_volume_change(total_area_volume_change, nt-1, nx-1, area_volume_change)
            diff = (total_flow_volume_change-avga_volume_change)/avga_volume_change * 100
            if (diff.gt.ten*two)then   !todo::I tried to figure out when and why there are huge inconsistency of volume change from interpolation and average area
+               write(debug_unit,'(2a8,5a20)') "t","chan_no","segm_length","flow_vol_change","area_vol_change","avga_vol_change","% difference"           
                write(debug_unit,'(2i8,5f20.5)') t, segm(i)%chan_no, segm(i)%length, total_flow_volume_change,total_area_volume_change, avga_volume_change, diff
+               write(debug_unit,'(a10)') "flow mesh"
                call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change) 
+               write(debug_unit,'(a10)') "area mesh"
                call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)
-               call interp_flow_linear(dt, nt, nx, hydro_flow(up_comp,t-1), hydro_flow(down_comp,t-1), hydro_flow(up_comp,t), hydro_flow(down_comp,t),    &
-                                flow_mesh, flow_volume_change) 
-               call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change) 
+               write(debug_unit,*) ""
            end if
         end do
     end do    

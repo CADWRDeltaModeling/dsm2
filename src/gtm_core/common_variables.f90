@@ -29,15 +29,37 @@ module common_variables
     integer :: n_chan = LARGEINT                                !< number of channels
     integer :: n_segm = LARGEINT                                !< number of segments
     integer :: n_xsect = LARGEINT                               !< number of entries in virt xsect table
-    integer :: orig_start_julmin                                !< original start time in hydro run
-    integer :: orig_end_julmin                                  !< original end time in hydro run
-    integer :: orig_time_interval                               !< original time interval in hydro run
-    integer :: orig_ntideblocks                                 !< original time blocks in hydro run
+    integer :: npartition_x = LARGEINT                          !< number of cells within a segment
+    integer :: npartition_t = LARGEINT                          !< number of gtm time intervals partition from hydro time interval
+    integer :: ncell = LARGEINT                                 !< number of cells in the entire network
+    integer :: orig_start_julmin = LARGEINT                     !< original start time in hydro run
+    integer :: orig_end_julmin = LARGEINT                       !< original end time in hydro run
+    integer :: orig_time_interval = LARGEINT                    !< original time interval in hydro run
+    integer :: orig_ntideblocks = LARGEINT                      !< original time blocks in hydro run
+    integer :: start_julmin = LARGEINT                          !< gtm start time
+    integer :: end_julmin = LARGEINT                            !< gtm end time
+    integer :: time_interval = LARGEINT                         !< gtm simulation time interval
+    integer :: ntideblocks = LARGEINT                           !< gtm time blocks
+    
     real(gtm_real), allocatable :: hydro_flow(:,:)              !< flow from DSM2 hydro
     real(gtm_real), allocatable :: hydro_area(:,:)              !< area from DSM2 hydro
     real(gtm_real), allocatable :: hydro_ws(:,:)                !< water surface from DSM2 hydro
     real(gtm_real), allocatable :: hydro_avga(:,:)              !< average area from DSM2 hydro
     
+    !> Define scalar and envvar in input file
+    type scalar_t
+        character(len=:), allocatable :: gtmoutdssfile
+        character(len=:), allocatable :: dsm2modifier
+        character(len=:), allocatable :: title
+        character(len=:), allocatable :: run_time_step
+        character(len=9), allocatable :: run_start_date
+        character(len=9), allocatable :: run_end_date
+        character(len=4), allocatable :: run_start_time
+        character(len=4), allocatable :: run_end_time
+        character(len=:), allocatable :: temp_dir
+    end type
+    type(scalar_t) :: scalar
+   
     !> Define channel type to store channel related arrays
     type channel_t                                              !< channel between hydro nodes
          integer :: channel_num                                 !< actual channel number in DSM2 grid
@@ -64,7 +86,7 @@ module common_variables
          integer :: down_comppt                                !< downstream computational point
          real(gtm_real) :: up_distance                         !< up_comppt distance from upstream node
          real(gtm_real) :: down_distance                       !< down_comppt distance from upstream node
-         real(gtm_real) :: length                         !< segment length in feet
+         real(gtm_real) :: length                              !< segment length in feet
     end type
     type(segment_t), allocatable :: segm(:)
     

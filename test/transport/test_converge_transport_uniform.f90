@@ -132,6 +132,7 @@ real(gtm_real), intent(in) :: test_decay         !< Flag for testing decay proce
 character(LEN=*),intent(in) :: label             !< Test's name  
 logical, intent(in), optional :: detail_result   !< Switch for detailed print of the results
 logical, intent(in), optional :: boundary_remote !< Switch for active boundary value testing vs zero (remote BC)
+real(gtm_real) :: acceptance_ratio(3)            !< Acceptance ratio
 
 integer, parameter  :: nx_base_standard = 256
 integer :: nx_base = nx_base_standard
@@ -158,6 +159,8 @@ procedure(diffusion_coef_if),           pointer :: diff_coef       => null()!< D
 
 logical :: details = .false.                                                !< Flag switch todo: ?
 logical :: remote  = .false.                                                !< Flag Switch todo: ?
+
+acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
 
 if (present(detail_result))then
     details = detail_result
@@ -258,7 +261,8 @@ call test_convergence(label,                                     &
                       nx_base,                                   &
                       nconc,                                     &
                       verbose,                                   &
-                      details)
+                      details,                                   &
+                      acceptance_ratio)
                       
 deallocate(fine_initial_conc,fine_solution)
 return

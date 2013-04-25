@@ -91,8 +91,11 @@ integer :: which_cell(nrefine)
 ! the cell in which the worst error occures
 real(gtm_real),allocatable :: reference(:)
 real(gtm_real) :: norm_error(3,nrefine)
+real(gtm_real) :: acceptance_ratio(3)                        !< Acceptance ratio
 
 character(LEN=64):: label = 'test_diffusion_fletcher_dirichlet'
+
+acceptance_ratio = [four, four, four]
 
 call set_uniform_flow_area(zero,constant_area)
 uniform_hydro => uniform_flow_area
@@ -129,8 +132,9 @@ call test_convergence(label,                            &
                       fine_solution,                    &            
                       nstep_base,                       &
                       nx_base,                          &
-                      nconc,                            &
-                      verbose,.true.)
+                      nconc,                            &          
+                      verbose,.true.,                   &
+                      acceptance_ratio)
 
 
 !=====Neumann 
@@ -162,7 +166,8 @@ call test_convergence(label,                      &
                       nstep_base,                 &
                       nx_base,                    &
                       nconc,                      &
-                      verbose,.true.)
+                      verbose,.true.,             &
+                      acceptance_ratio)
 
 return
 end subroutine

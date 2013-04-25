@@ -173,7 +173,7 @@ character(LEN=*),intent(in)  :: norm_name        !< Name of norm (something like
 character(LEN=*),intent(in)  :: label            !< Label identifying problem
 real(gtm_real),intent(in)    :: ratio            !< Error ratio
 
-write(converge_message,"(a,' 2nd order on ',a, ' (error=', f7.4,')')")norm_name,label,ratio
+write(converge_message,"(a,' 2nd order on ',a, ' (coarser-finer error ratio =', f7.4,', 4.0 indicates O(2) accuracy)')")norm_name,label,ratio
 return
 end subroutine
  

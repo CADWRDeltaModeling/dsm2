@@ -30,19 +30,31 @@ module hdf_util
    use hdf5
    integer(HID_T) :: file_id            !< HDF5 File identifier
    integer(HID_T) :: hydro_id           !< hydro group identifier      
-   
+   integer(HID_T) :: access_plist       !< HDF5 property identifier
    contains
          
    !> Open HDF5 interface and hydro tidefile 
    subroutine hdf5_init(hdf5_file_name)
        implicit none
        character(len=*), intent(in) :: hdf5_file_name     !< HDF5 file name
+	   integer(SIZE_T) :: rddc_nelmts
+       integer(SIZE_T) :: rddc_nbytes
+	   integer :: nelmts
+	   real :: rdcc_w0
        integer :: error                                   ! error flag
        logical :: file_exists
-       inquire(file=hdf5_file_name, exist=file_exists)
+       inquire(file = hdf5_file_name, exist=file_exists)
        if (file_exists) then
            call h5open_f(error)
            call verify_error(error, "opening hdf interface")
+           	! set up stdio to allow for buffered read/write          	
+	       call h5pcreate_f(H5P_FILE_ACCESS_F, access_plist, error)      
+	       call h5pget_cache_f(access_plist, nelmts,               &
+                               rddc_nelmts, rddc_nbytes, rdcc_w0, error)
+	       rddc_nbytes = 8000000
+	       call h5pset_cache_f(access_plist, nelmts, rddc_nelmts,  &
+                               rddc_nbytes, rdcc_w0,error)
+	       call verify_error(error,"Cache set")
            call h5fopen_f (hdf5_file_name, H5F_ACC_RDONLY_F, file_id, error)
            call verify_error(error, "opening tidefile")
            call h5gopen_f(file_id, "hydro", hydro_id, error)
@@ -56,35 +68,34 @@ module hdf_util
        implicit none
        integer :: error                                 ! error flag
        call h5gclose_f(hydro_id, error)
-       call h5fclose_f(file_id, error)                    
+       call h5fclose_f(file_id, error)
+       call h5pclose_f(access_plist, error)                     
        call h5close_f(error)     
    end subroutine
    
    !> Read number of channels from hydro tidefile
    subroutine get_hydro_attr()
        implicit none        
-       call get_int_attribute_from_hdf5("Number of channels",n_chan)
-       call get_int_attribute_from_hdf5("Number of virt xsects",n_xsect)
-       call get_int_attribute_from_hdf5("Number of comp pts",n_comp)
-       call get_int_attribute_from_hdf5("Number of intervals",n_time)
-       call get_int_attribute_from_hdf5("Start time",orig_start_julmin)
-       call get_int_attribute_from_hdf5("Time interval",orig_time_interval)
-       call get_int_attribute_from_hdf5("Number of intervals",orig_ntideblocks)
+       call get_int_attribute_from_hdf5(n_chan, "Number of channels")
+       call get_int_attribute_from_hdf5(n_xsect, "Number of virt xsects")
+       call get_int_attribute_from_hdf5(n_comp, "Number of comp pts")
+       call get_int_attribute_from_hdf5(n_time, "Number of intervals")
+       call get_int_attribute_from_hdf5(orig_start_julmin, "Start time")
+       call get_int_attribute_from_hdf5(orig_time_interval, "Time interval")
+       call get_int_attribute_from_hdf5(orig_ntideblocks, "Number of intervals")
        orig_end_julmin = orig_start_julmin + (orig_ntideblocks-1)*orig_time_interval    
        return
    end subroutine    
-   
-   
+      
    !> Read time series dataset from hydro tidefile        
-   subroutine get_ts_from_hdf5(dset_name, dset_data)
+   subroutine get_ts_from_hdf5(dset_data, dset_name)
        implicit none     
        character(len=*), intent(in) :: dset_name                           !< dataset name
        real(gtm_real), dimension(n_comp,n_time), intent(out) :: dset_data  !< return data arrays   
        integer(HID_T) :: data_id                                           ! local group identifier
        integer(HID_T) :: dset_id                                           ! local dataset identifier
        integer(HSIZE_T), dimension(2) :: data_dims                         ! local datasets dimensions
-       integer :: error                                                    ! error flag
-           
+       integer :: error                                                    ! error flag          
        data_dims(1) = n_comp
        data_dims(2) = n_time     
        call h5gopen_f(hydro_id, "data", data_id, error)
@@ -297,7 +308,7 @@ module hdf_util
    end subroutine  
      
    !> Read integer attributes from hydro tidefile     
-   subroutine get_int_attribute_from_hdf5(attr_name, attr_value)        
+   subroutine get_int_attribute_from_hdf5(attr_value, attr_name)        
        use h5lt
        implicit none
        character(len=*), intent(in) :: attr_name
@@ -368,7 +379,8 @@ module hdf_util
            else
                previous_chan_no = comp_pt(i)%chan_no
            end if
-       end do            
+       end do        
+       return    
    end subroutine    
       
 end module   

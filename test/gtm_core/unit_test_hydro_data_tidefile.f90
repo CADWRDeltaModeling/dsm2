@@ -46,7 +46,10 @@ module ut_hydro_data_tide
         call assertEquals (dble(n_xsect), dble(1114), weakest_eps, "problem in reading number of virtual xsects")
         call assertEquals (dble(n_comp), dble(26), weakest_eps, "problem in reading number of computational points")      
         call assertEquals (dble(n_time), dble(8641), weakest_eps, "problem in reading number of time entries")
-       
+        call assertEquals (orig_start_julmin, 51546240, "problem in reading starting time in tidefile")
+        call assertEquals (orig_end_julmin, 51675840, "problem in reading end time in tidefile")
+        call assertEquals (orig_time_interval, 15, "problem in reading time interval in tidefile")
+        
         ! test reading channel table
         call read_channel_tbl()        
         call assertEquals (dble(chan_geom(2)%chan_no), dble(2), weakest_eps, "problem in reading channel index number")
@@ -70,18 +73,27 @@ module ut_hydro_data_tide
         call assertEquals (dble(virt_xsect(23)%area(7)), dble(307.13649), weakest_eps, "problem in reading area for virt_xsect")
         call assertEquals (dble(virt_xsect(23)%wet_p(7)), dble(298.1), weakest_eps, "problem in reading wet_p for virt_xsect")      
         call assertEquals (dble(virt_xsect(23)%width(7)), dble(298.0), weakest_eps, "problem in reading width for virt_xsect")
+
+        ! test assign segment
+        call assign_segment()
+        call assertEquals (dble(n_segm), dble(19), weakest_eps, "problem in assigning segment for n_segm")        
+        call assertEquals (dble(segm(4)%segm_no), dble(4), weakest_eps, "problem in assigning segment for segm_no")    
+        call assertEquals (dble(segm(4)%chan_no), dble(2), weakest_eps, "problem in assigning segment for chan_no")    
+        call assertEquals (dble(segm(4)%up_comppt), dble(5), weakest_eps, "problem in assigning segment for up_comppt")  
+        call assertEquals (dble(segm(4)%down_comppt), dble(6), weakest_eps, "problem in assigning segment for down_comppt")  
+        call assertEquals (dble(segm(4)%length), dble(5000), weakest_eps, "problem in assigning segment for length")  
        
         ! test reading time series data
         call allocate_hydro_ts()
-        call get_ts_from_hdf5("flow", hydro_flow)
-        call get_ts_from_hdf5("area", hydro_area)
-        call get_ts_from_hdf5("water surface", hydro_ws)
+        call get_ts_from_hdf5(hydro_flow, "flow")
+        call get_ts_from_hdf5(hydro_area, "area")
+        call get_ts_from_hdf5(hydro_ws, "water surface")
         call assertEquals (dble(hydro_flow(7,1485)), dble(25696.057), weakest_eps, "problem in reading flow")
         call assertEquals (dble(hydro_area(7,1485)), dble(6796.175), weakest_eps, "problem in reading area")
         call assertEquals (dble(hydro_ws(7,1485)), dble(2.1272986), weakest_eps, "problem in reading water surface")
        
         ! test CxArea calculation
-        call CxArea(dble(10000),hydro_ws(7,1485),2, area_from_CxArea)                   
+        call CxArea(area_from_CxArea, dble(10000),hydro_ws(7,1485),2)                   
         call assertEquals (area_from_CxArea, dble(hydro_area(7,1485)), weakest_eps, "problem in calculating CxArea")
         call deallocate_hydro_ts() 
        
@@ -89,7 +101,6 @@ module ut_hydro_data_tide
         call hdf5_close()
         return
     end subroutine
- 
  
    !> test to resample coarse grid from a finer hydro run (for testing comparison only)
    !> This is hard-coded for testing only and it is an example to resampling 
@@ -142,7 +153,7 @@ module ut_hydro_data_tide
         do i = 1, 4
             do j = 1, 5
                 X = 5000.0 + (j-1)*dx
-                call CxArea(X, block_ws(i,j),2,cx(i,j))
+                call CxArea(cx(i,j), X, block_ws(i,j),2)
             end do
         end do        
         do i = 1, 4-1

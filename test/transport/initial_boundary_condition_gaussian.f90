@@ -49,7 +49,7 @@ subroutine fill_gaussian(vals,nloc,origin,dx,mean,sd,scale)
     use gtm_precision
     implicit none
     integer, intent(in) :: nloc                   !< Number of cells (size of array) 
-    real(gtm_real), intent(out) :: vals(nloc)     !< Values to be filled
+    real(gtm_real), intent(out) :: vals(100) !nloc)     !< Values to be filled
     real(gtm_real), intent(in)  :: origin         !< Origin (lo side of channel)
     real(gtm_real), intent(in)  :: dx             !< dx
     real(gtm_real), intent(in)  :: mean           !< Center of the gaussian shape
@@ -71,7 +71,7 @@ subroutine fill_gaussian(vals,nloc,origin,dx,mean,sd,scale)
        xlo = origin + dble(iloc - 1)*dx
        xhi = origin + dble(iloc)*dx
       ! todo: need to populate using cell averages
-       vals(iloc) =  (gaussian_cdf(xhi,mean,sd) & 
+       vals(iloc) = (gaussian_cdf(xhi,mean,sd) & 
                     - gaussian_cdf(xlo,mean,sd))
     end do
     vals = vals*(actual_scale/dx)

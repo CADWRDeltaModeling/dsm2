@@ -79,6 +79,9 @@ real(gtm_real) :: solution_center = ic_center             !< Center of final sol
 real(gtm_real) :: solution_gaussian_sd = ic_gaussian_sd   !< Standard deviation of final values
 real(gtm_real) :: tidal_ar_decay_rate                     !< Tidal decay rate
 character(LEN=64) :: label                                !< Test name label
+real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
+ 
+acceptance_ratio = [2.9, 2.9, 2.9]
  
 tidal_hydro=> tidal_flow_modified ! this flow generator is mass conservative
 ! do not remove it 
@@ -126,7 +129,8 @@ call test_convergence(label,                  &
                       nx_base,                &
                       nconc,                  &
                       verbose,                &
-                      detail_printout=.true.)
+                      .true.,                 &
+                      acceptance_ratio)
                       
 label = "advection_tidal_sinusoidal" 
 ! load the initial values and reference final values to feed the test routine
@@ -157,7 +161,8 @@ call test_convergence(label,                  &
                       nx_base,                &
                       nconc,                  &
                       verbose,                &
-                      detail_printout=.true.)
+                      .true.,                 &
+                      acceptance_ratio)
 
 !!!!!!!!!!!!!!!!!!!!!!
 tidal_ar_decay_rate = const_tidal_decay_rate
@@ -197,7 +202,8 @@ call test_convergence(label,                  &
                       nx_base,                &
                       nconc,                  &
                       verbose,                &
-                      detail_printout=.true.)
+                      .true.,                 &
+                      acceptance_ratio)
                       
 label = "advection_reaction_tidal_sinusoidal" 
 ! load the initial values and reference final values to feed the test routine
@@ -228,7 +234,8 @@ call test_convergence(label,                  &
                       nx_base,                &
                       nconc,                  &
                       verbose,                &
-                      detail_printout=.true.)
+                      .true.,                 &
+                      acceptance_ratio)
 
 end subroutine
 !-------------------------------------------

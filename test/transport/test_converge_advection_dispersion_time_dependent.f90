@@ -26,7 +26,7 @@ use gtm_precision
 
 ! the problem here was with CFL larger than one 
 integer, parameter  :: nconc = 2                      !< Number of constituents
-integer, parameter  :: nstep_base = 256               !< Number of time steps in finer discritization
+integer, parameter  :: nstep_base = 512               !< Number of time steps in finer discritization
 integer, parameter  :: nx_base    = 128               !< Number of spatial discritization in finer mesh 
 real(gtm_real),parameter :: origin = zero             !< Origin
 real(gtm_real),parameter :: x0 = 1.0d0                !< Location of the initial condition discontinuity
@@ -68,10 +68,13 @@ real(gtm_real) :: total_time                                  !< Total time of t
 character(LEN=64) :: label                                    !< Test's name label
 real(gtm_real) :: cfl_number                                  !< Courant number
 real(gtm_real) :: point_value                                 !< Point value of the analytical solution or solution on boundary
+real(gtm_real) :: acceptance_ratio(3)                         !< Acceptance ratio
 
 procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< Pointer for boundary advective flux to be filled by driver
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
 procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< Pointer for boundary diffusin matrix to be filled by driver
+
+acceptance_ratio = [ four, four, four ]
  
 ! this flow generator is mass conservative
 ! todo: use test_convergence_transport_uniform as a model. You will be using dirichlet
@@ -129,7 +132,8 @@ call test_convergence(label,                  &
                       nx_base,                &
                       nconc,                  &
                       verbose,                &
-                      detail_printout=.true.)
+                      .true.,                 &
+                      acceptance_ratio)
                       
 return                      
 end subroutine
