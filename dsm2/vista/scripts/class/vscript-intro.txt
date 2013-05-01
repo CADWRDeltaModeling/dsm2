@@ -1,4 +1,0 @@
-Vscript ( Class II )
-
-
-An introduction to vscript:
