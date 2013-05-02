@@ -29,11 +29,11 @@ c**********contains routines for writing data to an HDF5 file
 
       subroutine ReadDataFromHDF5(tidetime)
       implicit none
-	integer tidetime
-	integer index
-	integer SetHDF5ToTime
-	index = SetHDF5ToTime(tidetime)
-	call LagStageVariables
+      integer tidetime
+      integer index
+      integer SetHDF5ToTime
+      index = SetHDF5ToTime(tidetime)
+      call LagStageVariables
       call ReadChannelDataFromHDF5()
       call ReadReservoirDataFromHDF5()
       call ReadQExtDataFromHDF5()
@@ -51,7 +51,7 @@ c**********contains routines for writing data to an HDF5 file
       use common_tide
       implicit none
       AChanPrev=Achan
-	HChanPrev=HChan
+      HChanPrev=HChan
       return
       end subroutine
 
@@ -258,46 +258,46 @@ c--------reservoirs
       real*4, dimension(max_qext) :: qextavg
 
       integer::i
-	integer::ipoint
-	integer,save :: startpoint = miss_val_i
-	integer,save :: last_loaded_tidefile=miss_val_i
+      integer::ipoint
+      integer,save :: startpoint = miss_val_i
+      integer,save :: last_loaded_tidefile=miss_val_i
 
       ! startpoint will be zero at the start of the simulation
 	
       if (current_tidefile .ne. last_loaded_tidefile) then 
-	  startpoint =0
-	  last_loaded_tidefile = current_tidefile
-	else
-	  startpoint = hdf5point
-	end if
+        startpoint =0
+        last_loaded_tidefile = current_tidefile
+      else
+        startpoint = hdf5point
+      end if
 
       h_offset(1) = 0 
       
 	!do ipoint=startpoint,hdf5point
       ipoint=hdf5point ! added
-        h_offset(2) = ipoint
-        call h5dget_space_f (qext_change_dset_id, qext_fspace_id, error)
-        call h5sselect_hyperslab_f(qext_fspace_id, H5S_SELECT_SET_F, 
+      h_offset(2) = ipoint
+      call h5dget_space_f (qext_change_dset_id, qext_fspace_id, error)
+      call h5sselect_hyperslab_f(qext_fspace_id, H5S_SELECT_SET_F, 
      &     h_offset, qext_fsubset_dims, error) 
-        call h5dread_f(qext_change_dset_id,H5T_NATIVE_REAL, qextavg, qext_mdata_dims, 
+      call h5dread_f(qext_change_dset_id,H5T_NATIVE_REAL, qextavg, qext_mdata_dims, 
      &     error, qext_memspace, qext_fspace_id)
-        call VerifyHDF5(error,"Qext flow read")
-        call h5sclose_f (qext_fspace_id, error)  
+      call VerifyHDF5(error,"Qext flow read")
+      call h5sclose_f (qext_fspace_id, error)  
 
-        !if (ipoint .eq. 0) then
-        !   do i=1,nqext
-        !      qext(i).avg = qextavg(i)
-        !   end do
-        !else
-           do i=1,nqext
-              qext(i).avg = qextavg(i) !qext(i).prev_avg + qextavg(i)
-           end do
-        !endif
-        do i=1,nqext
-           qext(i).prev_avg = qext(i).avg
-        end do
+      !if (ipoint .eq. 0) then
+      !   do i=1,nqext
+      !      qext(i).avg = qextavg(i)
+      !   end do
+      !else
+      do i=1,nqext
+         qext(i).avg = qextavg(i) !qext(i).prev_avg + qextavg(i)
+      end do
+      !endif
+      do i=1,nqext
+         qext(i).prev_avg = qext(i).avg
+      end do
       !end do
-	startpoint=hdf5point
+      startpoint=hdf5point
       return
       end
 

@@ -451,7 +451,7 @@ public class Particle{
         if (particleWait == false){
           x = calcXPosition(tmToAdv);
           // particle into reservoir/conveyor, out of the whole function
-//          if (wb.getPTMType() != Waterbody.CHANNEL) return;
+          if (wb.getPTMType() != Waterbody.CHANNEL) return;
           if (isDead == false) {// save time if particle's dead
             y = calcYPosition(tmToAdv);
             z = calcZPosition(tmToAdv);
@@ -459,7 +459,6 @@ public class Particle{
         }//end if(particleWait)
         tmLeft -= tmToAdv;
       }// end while
-  
     }// end if(CHANNEL)
     //TODO:bug1
     else if (wb.getPTMType() ==  Waterbody.RESERVOIR){
