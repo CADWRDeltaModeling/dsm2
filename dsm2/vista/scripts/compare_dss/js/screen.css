@@ -1,0 +1,66 @@
+.plot{
+	border:2px black solid;
+	margin: 1em 1em 1em 1em;
+}
+
+#note{
+	color: blue;
+}
+#note1{
+    color: #660000;
+    font-style: italic;
+}
+#assumptions{
+	color: olive;
+	font-style: italic;
+}
+table.alt-highlight  {
+	border: 1px inset #8B8378;
+	font-size:10pt;
+	width: 100%
+}
+table.alt-highlight  td {
+	/*border: 1px solid black;*/
+	padding: 0.2em 2ex 0.2em 2ex;
+	color: black;
+}
+
+table.alt-highlight caption{
+	background-color: lightGray;
+	font-size: x-large;
+}
+
+table.alt-highlight  tr.d0 td {
+	background-color: #F0F8FF;
+}
+
+table.alt-highlight  tr.d1 td {
+	background-color: #EEFFFF;
+}
+
+table.alt-highlight tr td.large-diff{
+	color: red;
+	background-color:black;
+	font-weight: bold;
+}
+
+table.alt-highlight td.timewindow{
+	text-align: center;
+	color: green;
+	font-size:small;
+	font-weight: bold;
+	border: 2px green solid;
+}
+
+table.alt-highlight colgroup col.bordered{
+	border-left: 2px black solid;
+	border-right: 2px black solid;
+}
+table.list td{
+   font-size: 11px;
+}
+n {
+  font-weight:700;
+  color: red;
+  font-style: italic;
+}

@@ -1,0 +1,10 @@
+# A configuration input file for calculating volume from a tidefile and channel ids specified
+[default]
+# Input tidefile to use
+tidefile=D:\models\DSM2v8\Studies\Mini-Calibration\historical_MiniCalib\output\hist_mini_calib_H15_Q3L.h5
+# Channel ranges define the channels that make up the control volume
+channel_ranges=[(54,82),(84,105),(183,203),(125,145),(204,214),(216,231),(233,235),(252,259)]
+# output dss file and path
+output_dss_file=d:/temp/output.dss
+output_dss_path=/CALC/SOUTH-DELTA/VOLUME//60MIN/CALC/
+

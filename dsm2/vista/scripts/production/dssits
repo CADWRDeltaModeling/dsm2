@@ -1,0 +1,24 @@
+#!/site/bin/env ../../vscript
+import vutils,sys
+from java.lang import System
+usage_msg = '''
+Usage: dssits [-f] file1 file2 ...
+Arguments
+-f : optional argument to indicate that flags are present
+file1, file2,...: multiple files from which to read
+'''
+if len(sys.argv) <= 1:
+    print usage_msg
+    System.exit(1)
+file_index = 1
+if sys.argv[1] == '-f':
+    file_index = 2
+    if len(sys.argv) <= 2:
+	print usage_msg
+	System.exit(1)
+for arg in sys.argv[file_index:]: 
+    read_dssits(arg,file_index-1)
+System.exit(0)
+#
+
+

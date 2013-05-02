@@ -17,7 +17,7 @@ END
 
 IO_FILE
 MODEL TYPE    IO  INTERVAL FILE                          
-hydro hdf5    out    1hour ${HYDROTIDEFILE}               #Flow data to be passed to qual and ptm 
+hydro hdf5    out    30min ${HYDROTIDEFILE}               #Flow data to be passed to qual and ptm 
 hydro restart out     1mon ${HYDRORSTFILE}                #Initial condition a restart is required
 hydro output  out     none ${HYDROOUTFILE}                #Echoed run status                      
 hydro echo    out     none ${DSM2OUTPUTDIR}/hydro_echo_${DSM2MODIFIER}.inp #Echoed input                           
@@ -28,21 +28,20 @@ ${DSM2INPUTDIR}/scalar_hydro_std_20090715.inp
 END
 
 GRID
-${DSM2INPUTDIR}/channel_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/gate_std_delta_grid_20100330.inp
-${DSM2INPUTDIR}/reservoir_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/channel_planning_stability_revision_20090715.inp
-${DSM2INPUTDIR}/channel_tapered_tracy_blvd_dredge_20090715.inp
-${DSM2INPUTDIR}/gate_permanent_barriers_20090827.inp
+${DSM2INPUTDIR}/channel_std_delta_grid_NAVD_20121214.inp
+${DSM2INPUTDIR}/reservoir_std_delta_grid_NAVD_20121214.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20110418_NAVD.inp
+# ${DSM2INPUTDIR}/channel_tapered_tracy_blvd_dredge_20090715_NAVD.inp
+${DSM2INPUTDIR}/gate_permanent_barriers_20090827_NAVD.inp
 END
 
 INITIAL_CONDITION
-${DSM2INPUTDIR}/channel_ic_std_delta_grid_20090715.inp
-${DSM2INPUTDIR}/reservoir_ic_std_delta_grid_20090715.inp
+${DSM2INPUTDIR}/channel_ic_std_delta_grid_NAVD_20121214.inp
+${DSM2INPUTDIR}/reservoir_ic_std_delta_grid_NAVD_20121214.inp
 END
 
 HYDRO_TIME_SERIES
-${DSM2INPUTDIR}/boundary_stage_adjust_astro_tide_20090715.inp
+${DSM2INPUTDIR}/boundary_stage_adjust_astro_tide_20090715_NAVD.inp
 ${DSM2INPUTDIR}/boundary_flow_calsim_delta_20090715.inp
 ${DSM2INPUTDIR}/source_flow_calsim_delta_20090715.inp
 ${DSM2INPUTDIR}/source_flow_dicu_20090715.inp
@@ -52,7 +51,7 @@ END
 
 OPERATION
 ${DSM2INPUTDIR}/oprule_montezuma_planning_gate_20090715.inp
-${DSM2INPUTDIR}/oprule_sdip_20090917.inp
+${DSM2INPUTDIR}/oprule_sdip_20090917_NAVD.inp
 ${DSM2INPUTDIR}/oprule_ccc_dual_intake_20090715.inp
 END
 

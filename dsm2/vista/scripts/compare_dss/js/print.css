@@ -1,0 +1,6 @@
+div#control-panel{
+	display: none;
+}
+.plot{
+	page-break-after: always;
+}

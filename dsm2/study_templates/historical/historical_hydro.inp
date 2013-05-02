@@ -48,7 +48,7 @@ END
 GRID
 ${DSM2INPUTDIR}/channel_std_delta_grid_NAVD_20121214.inp
 ${DSM2INPUTDIR}/reservoir_std_delta_grid_NAVD_20121214.inp
-${DSM2INPUTDIR}/gate_std_delta_grid_NAVD_20121214.inp
+${DSM2INPUTDIR}/gate_std_delta_grid_20110418_NAVD.inp
 END
 
 INITIAL_CONDITION
@@ -59,14 +59,14 @@ END
 HYDRO_TIME_SERIES
 ${DSM2INPUTDIR}/boundary_flow_delta_historical_20090715.inp
 ${DSM2INPUTDIR}/source_flow_delta_historical_20121214.inp    ##CCWP intake starting from 08/01/2010 - Lan
-${DSM2INPUTDIR}/boundary_stage_delta_historical_NAVD_20121214.inp
+${DSM2INPUTDIR}/boundary_stage_delta_historical_20090715_NAVD.inp
 ${DSM2INPUTDIR}/source_flow_dicu_historical_20090715.inp
 ${DSM2INPUTDIR}/source_flow_jones_hydro_20090806.inp
 END
 
 OPERATION
-${DSM2INPUTDIR}/oprule_historical_gate_NAVD_20121214.inp    
-${DSM2INPUTDIR}/oprule_hist_temp_barriers_NAVD_20121214.inp
+${DSM2INPUTDIR}/oprule_historical_gate_20110418_NAVD.inp    
+${DSM2INPUTDIR}/oprule_hist_temp_barriers_20110418_NAVD.inp
 END
 
 OUTPUT_TIME_SERIES

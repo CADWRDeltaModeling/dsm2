@@ -1,0 +1,683 @@
+	An interactive introduction to an interactive language
+How do i start it?
+	Vscript starts python with vista modules pre-loaded. So the
+easiest way of starting python is by typing vscript on the command
+line 
+	vscript
+	Once it starts up you should see
+>>>
+	The rest of this lesson is interactive. The '>>>' stands for
+the prompt similar to what you see when you type the commands. It will
+be useful if you type these commands and some variations of these to
+get familiar with the language. Also when you make an error try to
+glean information from the message of the error
+
+	Let's start then with a really simple question. 
+
+	How do I do 2+2?
+
+>>> print 2+2
+4
+	Lets move on to store values in variables a and b
+>>> a=2
+>>> b=3
+>>> print a+b, a*b, a-b, a/b, a**b
+5 6 -1 0 8
+	
+	Lets try real numbers instead of the above integers
+
+>>> a,b=2.5,5.5
+>>> print a,b
+2.5 5.5
+>>> print a+b, a*b, a-b, a/b, a**b
+8.0 13.75 -3.0 0.45454545454545453 154.40808887540913
+
+
+	Let me a define a really simple function. Note that we don't
+declare types as those are inferred from the context in which they
+occur. This can be powerful and dangerous at the same time.
+
+>>> def sum(a,b): return a+b
+... 
+>>> print 'sum of ', a, ' & ' ,b ,' is ', sum(a,b)
+sum of  2.5  &  5.5  is  8.0
+
+	Lets try complex numbers now
+
+>>> a=1.5j+3.5
+>>> b=3.4+2.3j
+>>> print a+b, a*b, a-b, a/b, a**b
+(6.9+3.8j) (8.450000000000001+13.149999999999999j)
+(0.10000000000000009-0.7999999999999998j)
+(0.910979228486647-0.1750741839762611j)
+(-9.56643645070443-35.89092116190835j) 
+>>> print 'sum of ', a, ' & ' ,b ,' is ', sum(a,b)
+sum of  (3.5+1.5j)  &  (3.4+2.3j)  is  (6.9+3.8j)
+>>> print "real = ",a.real, " imaginary = ", a.imag
+real =  3.5  imaginary =  1.5
+
+	Did you notice that in the example above the sum function
+worked just fine?!
+
+	Lets see how strings are handled
+
+	This is a string...
+>>> 'xyz'
+'xyz'
+	
+	So is this...
+>>> "xyz"
+'xyz'
+
+	Here are variables holding a string
+>>> str1 = "xyz"
+>>> str2 = 'abc'
+>>> print str1
+'xyz'
+	
+	Strings are like arrays. The only difference is that these
+arrays are like 'C' arrays. The first element is array[0] and the last
+element is array[len(array)-1], ie. one less than the length of the
+array 
+	The first character of the string str1 is 
+
+>>> print 'First element of str1 is ', str1[0]
+First element of str1 is  x
+>>> print 'Last element of str1 is ', str1[-1]
+Last element of str1 is  z
+
+	Addition on string is same as concatenation of those strings
+
+
+>>> print str1+str2
+xyzabc
+
+	Multiplication is like repeated addition
+
+>>> print str1*3
+xyzxyzxyz
+>>> print 'Second to last element of str1 is ', str1[1:]
+Second to last element of str1 is  yz
+>>> print 'First to one but last element of str1 is ', str1[:-1]
+First to one but last element of str1 is  xy
+
+
+	lets look at another type of container: a list. A list is like
+an array except that it can contain anything. 
+	Here is how we define lists...
+
+>>> x=[1,2,3,4,5]
+>>> print x
+[1, 2, 3, 4, 5]
+>>> print x[0]
+1
+>>> print x[1]
+2
+>>> print x[-1]
+5
+>>> print x[-2]
+4
+>>> print x[:]
+[1, 2, 3, 4, 5]
+
+
+	Here is how we get the number of items in the list. Note: this
+works for getting the number of characters in a string as well.
+
+>>> print len(x)
+5
+
+	A simple loop...
+
+>>> for y in x: print y
+... 
+1
+2
+3
+4
+5
+
+	A function to generate a list of numbers: 
+	range(n): generates a list of numbers from 0...n-1
+
+
+>>> print range(len(x))
+[0, 1, 2, 3, 4]
+>>> for i in range(len(x)): print x[i]
+... 
+1
+2
+3
+4
+5
+
+	Here's how we define if statements with else if and else. Note
+how the end of the block is marked by the indentation level. There is
+no begin and end like other languages and the indent level is used to
+mark the end of the block. This is useful and confusing at the same
+time. Once you understand this you will realize its use in a scripting
+language.
+
+>>> for i in range(len(x)):
+...  if x[i] == 0 :
+...   print 'Element ', i, ' is zero'
+...  elif x[i] == 1:
+...   print 'Element ', i, ' is one'
+...  else:
+...   pass
+... 
+ Element  0  is one
+
+	I can also assign to the fourth element of this list
+
+>>> x[3]=1
+>>> print x
+[1, 2, 3, 1, 5]
+
+	Range can also be started from a beginning integer to an
+ending integer. Note that the ending integer is not in the list
+
+
+>>> x=range(11,20)
+>>> print x
+[11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+	Range can also have a step to generate the numbers
+
+>>> x=range(11,20,3)
+>>> print x
+[11, 14, 17]
+
+	Here's a slightly more complicated recursive function to
+calculate factoricals...
+
+>>> def fac(n):
+...  if n == 1: return 1
+...  return n*fac(n-1)
+... 
+>>> x=3
+>>> print x, fac(x)
+3 6
+>>> print fac(10)
+3628800
+
+	Lets try a big number
+
+>>> print fac(15)
+Traceback (innermost last):
+  File "<stdin>", line 1, in ?
+  File "<stdin>", line 3, in fac
+  File "<stdin>", line 3, in fac
+  File "<stdin>", line 3, in fac
+OverflowError: integer multiplication
+
+	Look how cleanly python tells you the problem to be overflow,
+ie. the integer number was too big to be stored in integer format. You
+get the same with calculators. 
+	Lets modify it to return real numbers
+
+>>> def fac(n):
+...  if n == 1: return 1.0
+...  return n*fac(n-1)*1.0
+... 
+>>> print fac(11)
+3.99168E7
+>>> print fac(44)
+2.6582715747884485E54
+
+
+	Lets play with lists some more
+
+>>> x=range(5)
+>>> print x
+[0, 1, 2, 3, 4]
+>>> x[3]=99
+>>> print x
+[0, 1, 2, 99, 4]
+>>> x.append(53)
+>>> print x
+[0, 1, 2, 99, 4, 53]
+>>> x.sort()
+>>> print x
+[0, 1, 2, 4, 53, 99]
+>>> x.reverse()
+>>> print x
+[99, 53, 4, 2, 1, 0]
+
+	To find out how many times a particular value occurs in the
+list 
+
+>>> print x.count(1)
+1
+>>> print x.count(3)
+0
+
+	Lets try another kind of container different from arrays. This
+one is like a dictionary and associates with the first item ( the key)
+a second item ( the value). Here is how we make one such dictionary...
+
+>>> address = { 'nicky': '653-7552', 'ralph': '653-8268', 'francis': '653-5601'}
+>>> print address
+{'nicky': '653-7552', 'ralph': '653-8268', 'francis': '653-5601'}
+>>> print address['francis']
+653-5601
+
+	Lets see an important set of functions available in python. to
+access these functions we import a module. The dir() function can look
+inside the library to tell us what functions are available.
+
+
+>>> import string
+>>> dir(string)
+['__doc__', '__file__', '__name__', 'atof', 'atoi', 'atol',
+'capitalize', 'capwords', 'center', 'count', 'digits', 'expandtabs',
+'find', 'hexdigits', 'index', 'initModule', 'join', 'joinfields',
+'letters', 'ljust', 'lower', 'lowercase', 'lstrip', 'maketrans',
+'octdigits', 'replace', 'rfind', 'rindex', 'rjust', 'rstrip', 'split',
+'splitfields', 'strip', 'swapcase', 'translate', 'upper', 'uppercase',
+'whitespace', 'zfill']
+
+	Here is how we can split a string at whitespaces. This is
+similar to how excel parses when you import a file. Note how the split
+function is accessed by the name of the module followed by the
+function. this split function returns a list of the splitees and is
+similar to the lists we saw before.
+
+>>> line = '1 xyz 2.3'
+>>> print string.split(line)
+['1', 'xyz', '2.3']
+>>> columns = string.split(line)
+>>> print columns[0]
+1
+>>> print columns[2]
+2.3
+>>> print columns[1]
+xyz
+
+	How about if the line had items separated by commas, similar
+to the csv files produced from excel.
+
+>>> line = '1,xyz,2.55'
+>>> columns = string.split(line)
+>>> print len(columns)
+1
+>>> print columns
+['1,xyz,2.55']
+>>> columns = string.split(line,',')
+>>> print len(columns), columns
+3 ['1', 'xyz', '2.55']
+
+	Uppercase, lowercase, find etcetra are some of the other
+functions available from this module
+
+>>> print string.upper(str1)
+XYZ
+>>> print string.find('x',str1)
+-1
+>>> print string.find(str1,'x')
+0
+>>> print string.find(str1,'ye')
+-1
+>>> print string.find(str1,'y')
+1
+>>> print string.find(str1,'z')
+2
+>>> str1[2]
+'z'
+>>> print string.find(str1,'yz')
+1
+>>> str1[1]
+'y'
+
+
+	One last thing. Note how we are always using string.function
+to access the function. Well if we imported all these functions into
+our current global space we could use their names directly. Here is
+how we do that...
+
+>>> from string import *
+>>> line = '1,xyz,2.55'
+>>> split(line,',')
+['1', 'xyz', '2.55']
+
+
+	Let me familiarize you with the most common error. Forgetting
+to assign to a variable before using it. We get a name error. Study
+the error carefully...
+
+>>> ljd
+Traceback (innermost last):
+  File "<stdin>", line 1, in ?
+NameError: ljd
+
+	Here's one for accessing outside the bounds of the list....
+
+
+>>> print x
+[99, 53, 4, 2, 1, 0]
+>>> print x[24]
+Traceback (innermost last):
+  File "<stdin>", line 1, in ?
+IndexError: index out of range: 24
+>>> print x[-33]
+Traceback (innermost last):
+  File "<stdin>", line 1, in ?
+IndexError: index out of range: -33
+
+
+	Lets look at those loops again.
+
+>>> for y in x: print y
+... 
+99
+53
+4
+2
+1
+0
+	
+	How about the usual fortranish loop
+
+>>> for i in range(len(x)): print i, x[i]
+... 
+0 99
+1 53
+2 4
+3 2
+4 1
+5 0
+
+	How about a loop with a conditional print
+
+>>> for y in x:
+...  if y < 50:
+...   print y
+... 
+4
+2
+1
+0
+
+	What happens if we add two lists...
+
+>>> x = range(5,10)
+>>> y = range(10,15)
+>>> print x
+[5, 6, 7, 8, 9]
+>>> print y
+[10, 11, 12, 13, 14]
+>>> print x+y
+[5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+
+	Oops I don't think this is what we intended but this is what a
+list does. This is because the list can store just about any
+combination of items. But some times we just want arrays to add and
+subtract. Lets look at how we do that. We have to import a module
+called Numeric.
+
+
+>>> import Numeric
+>>> dir(Numeric)
+['ArrayPrinter', 'ArrayType', 'Base', 'Complex', 'Complex128',
+'Complex64', 'Float', 'Float32', 'Float64', 'Int', 'Int16', 'Int32',
+'Int64', 'Int8', 'LittleEndian', 'NewAxis', 'PyMultiarray',
+'PythonMultiarray', '__all__', '__file__', '__name__', '__path__',
+'__version__', 'add', 'alltrue', 'arange', 'arccos', 'arccosh',
+'arcsin', 'arcsinh', 'arctan', 'arctanh', 'argmax', 'argmax_',
+'argmin', 'argmin_', 'argsort', 'array', 'array2string', 'array_repr',
+'array_str', 'arrayrange', 'asarray', 'bitwise_and', 'bitwise_not',
+'bitwise_or', 'bitwise_xor', 'choose', 'clip', 'compress',
+'concatenate', 'conjugate', 'convolve', 'cos', 'cosh', 'cumproduct',
+'cumsum', 'diagonal', 'divide', 'dot', 'e', 'equal', 'exp',
+'fromfunction', 'fromstring', 'greater', 'greater_equal', 'identity',
+'imaginary', 'indices', 'initModule', 'innerproduct', 'less',
+'less_equal', 'log', 'log10', 'logical_and', 'logical_not',
+'logical_or', 'logical_xor', 'maximum', 'minimum', 'multiply',
+'nonzero', 'not_equal', 'ones', 'os', 'pi', 'power', 'product',
+'ravel', 'real', 'remainder', 'repeat', 'reshape', 'resize',
+'searchsorted', 'shape', 'sin', 'sinh', 'sometrue', 'sort', 'sqrt',
+'subtract', 'sum', 'sys', 'take', 'tan', 'tanh', 'trace', 'transpose',
+'umath', 'where', 'zeros'] 
+
+	Lets import the array function from this module
+
+>>> from Numeric import array
+
+	Now we can use the array function directly
+
+>>> x = array(range(5,10),'d')
+>>> y = array(range(10,15),'d')
+>>> print x
+[ 5.  6.  7.  8.  9.]
+>>> print y
+[ 10.  11.  12.  13.  14.]
+>>> print x+y
+[ 15.  17.  19.  21.  23.]
+>>> print x*y
+[  50.   66.   84.  104.  126.]
+>>> print x-y
+[-5. -5. -5. -5. -5.]
+>>> print x**y
+[ 9.76562500e+006  3.62797056e+008  1.38412872e+010  5.49755814e+011
+       2.28767925e+013]
+
+	Thats a lot but there is much more that I will leave to you to
+find out.
+
+	Lets look at another kind of loop... the while loop
+
+>>> x = range(5,10,1)
+>>> print x
+[5, 6, 7, 8, 9]
+>>> i = 0
+>>> while i < 5:
+...  print x[i]
+...  i= i+1
+... 
+5
+6
+7
+8
+9
+>>> i = 0
+>>> while i < 5:
+...  print i
+...  i = i+1
+... 
+0
+1
+2
+3
+4
+
+	heres the same loop but with a different way to exit it. This
+loop uses the break function to break out of the loop if a condition
+is hit. Note how the condition for the loop says while 1. 1 is true
+always and 0 is false always
+
+
+>>> i=0
+>>> while 1:
+...  if i == 5: break
+...  i = i+1
+... 
+>>> i=0
+>>> while 1:
+...  if i == 5: break
+...  print i
+...  i=i+1
+... 
+0
+1
+2
+3
+4
+
+	Every object (oops!) has a string representation that you can
+get to by using the repr() function. Usually you don't notice this as
+its done by default for you by the print functionality
+
+>>> print x
+[5, 6, 7, 8, 9]
+>>> print repr(x)
+[5, 6, 7, 8, 9]
+
+	For fancier formatting....
+
+>>> y=2
+>>> print string.rjust(`y`,2)
+ 2
+>>> print string.rjust(`y*y`,2)
+ 4
+>>> print string.rjust(`y*y`,10)
+         4
+
+	Another new thing here. The seemingly `y` is enclosed in back
+quotes and not the traditional quotes used for strings. This is short
+hand way of saying that you want the expression within the backquotes
+evaluated...
+
+>>> for y in x:
+...  print string.rjust(`y`,2),string.rjust(`y*y`,2),string.rjust(`y*y*y`,2)
+... 
+ 5 25 125
+ 6 36 216
+ 7 49 343
+ 8 64 512
+ 9 81 729
+>>> print string.rjust(`y`,4),string.rjust(`y*y`,4),string.rjust(`y*y*y`,4)
+   9   81  729
+>>> for y in x:
+...  print string.rjust(`y`,4),string.rjust(`y*y`,4),string.rjust(`y*y*y`,4)
+... 
+   5   25  125
+   6   36  216
+   7   49  343
+   8   64  512
+   9   81  729
+
+	Here's another way of doing the above but with the typical
+fortranish or cish way of doing so...
+
+>>> print 'Value=%2d,Square=%4d,Cube=%8d' % (y,y*y,y*y*y)
+Value= 9,Square=  81,Cube=     729
+>>> print 'Value=%04d, Square=%04d, Cube=%04d' % (y,y*y,y*y*y)
+Value=0009, Square=0081, Cube=0729
+
+
+	Lets move on file input and output now. Files can be opened by
+using the open() function. The first string to this function is the
+filename and the second is a string with r for read and w for write
+and + for appending while writing...
+
+>>> f=open('junk.txt','rw')
+Traceback (innermost last):
+  File "<stdin>", line 1, in ?
+IOError: junk.txt
+
+	The above error is because the file 'junk.txt' does not exist
+and thus cannot be opened in the read mode just yet. Lets open it in
+just the write mode, write a string and close it
+
+>>> f=open('junk.txt','w')
+>>> f.write('hi there')
+>>> f.close()
+
+	Now lets open it again in the read,write and append mode
+
+>>> f=open('junk.txt','rw+')
+>>> f.readlines()
+['hi there']
+>>> f.write('hi there 2')
+>>> f.write('hi there 3')
+>>> f.close()
+
+
+	Lets open it again ( this is getting tiring)
+
+
+>>> f=open('junk.txt','rw+')
+>>> lines = f.readlines()
+>>> lines
+['hi therehi there 2hi there 3']
+>>> print lines
+['hi therehi there 2hi there 3']
+
+	We did not but an end of line in the string so we are still
+getting a single line in the file. But if we do this
+
+>>> f.write('\nA new line')
+>>> f.write('\nAnother new line')
+>>> f.close()
+
+	we will get 3 lines in this file. Try it out!
+
+	There is another functionality which is much more
+powerful. Remember the address item. Well we want to store that in a
+file. One quick way of storing any object is to write it into a file
+as follows
+
+>>> f = open('address.book','w+')
+>>> import pickle
+>>> dir(pickle)
+['APPEND', 'APPENDS', 'ArrayType', 'BINGET', 'BININT', 'BININT1',
+'BININT2', 'BINPERSID', 'BINPUT', 'BINSTRING', 'BUILD',
+'BuiltinFunctionType', 'BuiltinMethodType', 'C', 'ClassType',
+'CodeType', 'ComplexType', 'DICT', 'DUP', 'DictType',
+'DictionaryType', 'EMPTY_DICT', 'EMPTY_LIST', 'EMPTY_TUPLE',
+'EllipsisType', 'FLOAT', 'FileType', 'FloatType', 'FrameType',
+'FunctionType', 'GET', 'GLOBAL', 'INST', 'INT', 'InstanceType',
+'IntType', 'LIST', 'LONG', 'LONG_BINGET', 'LONG_BINPUT', 'LambdaType',
+'ListType', 'LongType', 'MARK', 'MethodType', 'ModuleType', 'NONE',
+'NoneType', 'OBJ', 'PERSID', 'POP', 'POP_MARK', 'PUT', 'Pickler',
+'PicklingError', 'PyStringMap', 'REDUCE', 'SETITEM', 'SETITEMS',
+'SHORT_BINSTRING', 'STOP', 'STRING', 'SliceType', 'StringIO',
+'StringType', 'TUPLE', 'TracebackType', 'TupleType', 'TypeType',
+'UnboundMethodType', 'Unpickler', 'UnpicklingError', 'XRangeType',
+'_EmptyClass', '__doc__', '__file__', '__name__', '__version__',
+'_keep_alive', 'classmap', 'compatible_formats', 'dispatch_table',
+'dump', 'dumps', 'format_version', 'initModule', 'load', 'loads',
+'marshal', 'mdumps', 'mloads', 'safe_constructors', 'string', 'sys',
+'test', 'whichmodule'] 
+>>> pickle.dump(address,f)
+>>> f.close()
+
+	Lets open the dumped object file and read it into a new variable
+
+
+>>> f=open('address.book','rw+')
+>>> new_address = pickle.load(f)
+>>> print new_address
+{'nicky': '653-7552', 'ralph': '653-8268', 'francis': '653-5601'}
+
+
+	I want to add armin's number but I have forgotten how to do
+that. So here's a handy way of reminding me...
+
+>>> dir(new_address.__class__)
+['__cmp__', '__delitem__', '__doc__', '__finditem__', '__init__',
+'__len__', '__module__', '__nonzero__', '__repr__', '__setitem__',
+'clear', 'copy', 'get', 'has_key', 'items', 'keys', 'update',
+'values'] 
+>>> new_address.values()
+['653-7552', '653-8268', '653-5601']
+>>> new_address.keys()
+['nicky', 'ralph', 'francis']
+>>> new_address.update()
+Traceback (innermost last):
+  File "<stdin>", line 1, in ?
+TypeError: update(): expected 1 args; got 0
+>>> new_address.update({'armin':'653-8727'})
+>>> new_address.keys()
+['nicky', 'ralph', 'armin', 'francis']
+>>> new_address.values()
+['653-7552', '653-8268', '653-8727', '653-5601']
+>>> print new_address['armin']
+653-8727
+
+
+	Well its being a long class. Lets leave something like objects
+etcetra for another class... And oh here's how we exit...
+
+>>> exit()
+

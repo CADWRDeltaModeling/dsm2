@@ -1,0 +1,12 @@
+#! /bin/csh -f 
+#setenv JAVA_COMPILER sunwjit
+setenv JAVA_COMPILER NONE
+setenv JAVA_HOME /site/java/jdk
+setenv VISTA_HOME /delta/models/java/vista
+setenv LD_LIBRARY_PATH $VISTA_HOME/lib/:/opt/SUNWspro/SC/lib:$OPENWINHOME/lib:/usr/ucblib:/site/lib:$JAVA_HOME/lib
+if ( $#argv == 0 ) then 
+$JAVA_HOME/bin/java -mx44m -Dvista.home=$VISTA_HOME -Dpython.path=.:$VISTA_HOME/lib -Dinstall.root=$VISTA_HOME/lib/ -classpath {$CLASSPATH}:$JAVA_HOME/lib/classes.zip:$VISTA_HOME/../:$VISTA_HOME/lib/jpy.jar:$VISTA_HOME/lib/pd.jar:$VISTA_HOME/lib/misc.jar:$VISTA_HOME/lib/swingall.jar:$VISTA_HOME/lib/jnios.jar:$VISTA_HOME/lib/jhall.jar:$VISTA_HOME/help org.python.util.jpython -i $VISTA_HOME/lib/__init__.py $*;
+else
+#$JAVA_HOME/bin/java -ss1m -mx44m -Dvista.home=$VISTA_HOME -Dinstall.root=$VISTA_HOME/lib/ -classpath {$CLASSPATH}:$JAVA_HOME/lib/classes.zip:$VISTA_HOME/../:$VISTA_HOME/lib/jpy.jar:$VISTA_HOME/lib/pd.jar:$VISTA_HOME/lib/misc.jar:$VISTA_HOME/lib/swingall.jar:$VISTA_HOME/lib/jnios.jar:$VISTA_HOME/lib/jhall.jar:$VISTA_HOME/help vista.app.VScript  -i $VISTA_HOME/lib/__init__.py -c $*;
+$JAVA_HOME/bin/java -ss1m -mx44m -Dvista.home=$VISTA_HOME -Dinstall.root=$VISTA_HOME/lib/ -classpath {$CLASSPATH}:$JAVA_HOME/lib/classes.zip:$VISTA_HOME/../:$VISTA_HOME/lib/jpy.jar:$VISTA_HOME/lib/pd.jar:$VISTA_HOME/lib/misc.jar:$VISTA_HOME/lib/swingall.jar:$VISTA_HOME/lib/jnios.jar:$VISTA_HOME/lib/jhall.jar:$VISTA_HOME/help org.python.util.jpython $*;
+endif
