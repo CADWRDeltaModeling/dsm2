@@ -1,0 +1,46 @@
+DSM2 V8.1 beta release is a recalibration based on 2009 BDCP calibration grid.
+Main differences:
+    1.  Converted to NAVD88.
+    2.  Qual formulation change, a new dispersion coefficient was introduced.
+    3.  Hydro geometry calculation modification.
+    4.  Martinez boundary EC correction
+        --It was found CDEC hourly EC are instant samples, 
+        need to be converted to hourly averaged values.
+        Data before 10/1/2002 were from IEP, They were indeed hourly averaged.  
+    5.  Channel corrections 141, 144. 
+        Minor cross section changes for negative dConveyance. 
+    6.  Martinez stage was checked and corrected by Lan Liang
+    7.  Clifton Court gate operation was checked and corrected by Lan Liang.
+    8.  Oprule files for gate and temp barriers are using the latest historic
+        run setup from Lan Liang.
+    9.  Hydro runs 3X faster.
+   10.  Qual tidefile output
+   11.  Time steps for Hydro/Tidefile/Qual are 15/30/15min for calibration.
+   12.  PTM adopt a new feature called 'filter', which can block/direct particles
+        w/o interrupting hydro environment
+
+Notes for converting existing 8.0.6 setups to 8.1:
+    1.  In the study templates, when there is no change to a file from 8.0.6, 
+        we kept the same name, so it is easy to tell which files had been 
+        changed. 
+    2.  In summary, for Hydro, all the files with elevation need to be 
+        converted to NAVD88: 
+            The grid files including channel, reservoir, gates;
+            Initial condition files for channel and reservoir;
+            Stage boundary file for Martinez. To avoid confusion, we added 
+            '_NAVD' to the end of the F part of the path;
+            Oprule files when stage is in the expressions.
+    3.  The source flow file has been corrected for stockton effluent flow,
+        the sign corrected to positive.	
+    4.  Martinez EC time series correction after 10/1/2002. We added
+        '_Corrected' to the end of the F part for clarity.
+
+Special notes for planning study setup:
+    1.  No preprocessing scripts had been changed from 8.0.6. 
+    2.  After prepro had been done, Martinez stage need to be converted
+        manually to NAVD88 by adding 2.68ft and add '_NAVD' to the end of
+        the path. 
+    3.  The Martinez boundary EC time series was using 15min instant value
+        in Version 8.0.6. Although we recommended using PER-AVER data, the
+        differences in simulated EC are less than 1.0% when using 15min data, 
+        this setup still uses inst-val/linear.		

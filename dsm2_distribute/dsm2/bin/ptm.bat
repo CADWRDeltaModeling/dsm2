@@ -19,7 +19,7 @@ echo DSM2_HOME is not defined.  Check the installation of DSM2.
 goto :end
 
 :valid
-java -ss1m -mx512m -oss1m -classpath "%dsm2_home%/bin/ptm.jar;%dsm2_home%/bin/COM.jar;%dsm2_home%/bin/edu.jar;%dsm2_home%/bin/xml.jar" DWR.DMS.PTM.MainPTM %1
+"%~dp0/../vista/jre6/bin/javaw" -ss1m -mx512m -oss1m -classpath "%dsm2_home%/bin/ptm.jar;%dsm2_home%/bin/COM.jar;%dsm2_home%/bin/edu.jar;%dsm2_home%/bin/xml.jar" DWR.DMS.PTM.MainPTM %1
 goto :end
 
 :end

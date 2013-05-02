@@ -1,0 +1,94 @@
+h2 {
+font-family: Antiqua, Georgia, 'Times New Roman';
+color: #2F2F4F;
+}
+table.summary {
+border-collapse: collapse;border-width: 1px; 
+border-style: solid; border-color:#007FDE;
+color:#26466D;
+font-family: Antiqua, Georgia, 'Times New Roman';
+font-size: 80%;
+}
+table.summary  th {
+    font-size : 85%;
+    font-family: Antiqua, Georgia, 'Times New Roman';
+	border-width: 1px;
+	padding: 4px;
+	color:  #2F2F4F;
+	border-style: solid;
+	border-color: gray;
+	background-color: #B4CDCD;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.summary  td.header {
+     color: black;
+	 font-weight: bold;
+	 background-color: #E0DFDB;  
+}
+table.summary td {
+border-collapse: collapse;border-width: 1px; border-style: solid;
+font-family:Courier New;border-color: #26466D;
+}
+table.summary td.red {
+   color: #FF6600;
+   font-weight:bold;
+   border-color: #26466D;
+}
+table.sample {
+border-collapse: collapse;border-width: 1px; 
+border-style: solid; border-color:#007FDE;
+color:#26466D;
+font-family: Arial, Verdana;
+font-size: 70%;
+}
+table.sample th {
+    font-size : 100%;
+    font-family: Antiqua, Georgia, 'Times New Roman';
+	border-width: 1px;
+	padding: 4px;
+	color: #2F2F4F;
+	border-style: solid;
+	border-color: gray;
+	background-color: #B4CDCD;
+	-moz-border-radius: 0px 0px 0px 0px;
+}
+table.sample td.header {
+     color: #2F2F4F;
+	 font-weight: bold;
+	 font-family: Antiqua, Georgia, 'Times New Roman';
+	 background-color: #E0DFDB;  
+}
+table.sample td.header2 {
+     color: #2F2F4F;
+	 font-weight: bold;
+	 font-family: Antiqua, Georgia, 'Times New Roman';
+	 background-color: #E0DFDB;  
+}
+table.sample td.add1{
+	 background-color: #F6CCDA; 
+}
+table.sample td.add2{
+	 background-color: #DAF4F0; 
+}
+table.sample td {
+border-collapse: collapse;border-width: 1px; border-style: solid;
+font-family:Courier New;
+}
+table.sample tr.diff1{
+    background-color: #FFFACD; 
+}
+table.sample tr.diff0{
+    background-color: #F7F7F7; 
+}
+r {
+    color: red;
+	background-color: yellow;
+}
+span{
+    font-size : 80%;
+    font-family:Courier New;
+}
+k{
+  //color:  #000080; 
+  //background-color:#00B2EE; 
+}
