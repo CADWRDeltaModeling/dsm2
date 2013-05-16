@@ -34,6 +34,7 @@ module gtm_network
     real(gtm_real), allocatable :: area_tmp(:,:)
     real(gtm_real), allocatable :: area_lo_tmp(:,:)
     real(gtm_real), allocatable :: area_hi_tmp(:,:)
+    real(gtm_real), allocatable :: prev_flow_tmp(:,:)
     
     contains      
     
@@ -43,7 +44,7 @@ module gtm_network
         integer :: istat = 0
         character(len=128) :: message
         if (npartition_x .eq. LARGEINT) then
-            call gtm_fatal('Number of partition within a cell inspace needed to be assigned')
+            call gtm_fatal('Number of partition within a cell in space needed to be assigned')
         end if
         ncell = n_segm * npartition_x
         allocate(flow_tmp(ncell,npartition_t+1), stat = istat)
@@ -52,9 +53,17 @@ module gtm_network
         allocate(area_tmp(ncell,npartition_t+1), stat = istat)
         allocate(area_lo_tmp(ncell,npartition_t+1), stat = istat)
         allocate(area_hi_tmp(ncell,npartition_t+1), stat = istat)
+        allocate(prev_flow_tmp(n_segm, npartition_x*2+1), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
+        flow_tmp = LARGEREAL
+        flow_lo_tmp = LARGEREAL
+        flow_hi_tmp = LARGEREAL
+        area_tmp = LARGEREAL
+        area_lo_tmp = LARGEREAL
+        area_hi_tmp = LARGEREAL
+        prev_flow_Tmp = LARGEREAL
         return
     end subroutine
  
@@ -63,6 +72,27 @@ module gtm_network
         implicit none
         deallocate(flow_tmp, flow_lo_tmp, flow_hi_tmp)
         deallocate(area_tmp, area_lo_tmp, area_hi_tmp)
+        deallocate(prev_flow_tmp)
+        return
+    end subroutine
+    
+    !> Return dx_arr(1:ncell) for entire network
+    subroutine define_cell()
+        implicit none
+        real(gtm_real) :: dx, up_comp, down_comp
+        integer :: icell, i, j, nx
+       ! integer, intent(in) :: npart_x                    !< number of partitions within a cell in space
+        nx = npartition_x*2 + 1
+        call allocate_cell_property()
+         do i = 1, n_segm
+            dx = segm(i)%length/(nx-1.)
+            up_comp = segm(i)%up_comppt
+            down_comp = segm(i)%down_comppt                
+            do j = 1, npartition_x
+                icell = npartition_x*(i-1)+j
+                cell(icell)%dx = dx
+            end do
+        end do      
         return
     end subroutine
         
@@ -89,15 +119,22 @@ module gtm_network
             dx = segm(i)%length/(nx-1.)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
+            if (prev_flow_tmp(i,1)==LARGEREAL) then
+               do j = 1, npart_x*2+1
+                   prev_flow_tmp(i,j) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
+                                        -hydro_flow(up_comp,t_index-1))*(j-1)/(npart_x*2)
+               end do
+            end if   
             call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,                     &
                                   segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, nx,                             &
                                   hydro_flow(up_comp,t_index-1), hydro_flow(down_comp,t_index-1), &
                                   hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),     &
                                   hydro_ws(up_comp,t_index-1), hydro_ws(down_comp,t_index-1),     &
-                                  hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index))        
-            do t = 1, nt
-                do j = 1, npart_x
-                    icell = npart_x*(i-1)+j
+                                  hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),         &
+                                  prev_flow_tmp(i,:))        
+            do j = 1, npart_x
+                icell = npart_x*(i-1)+j
+                do t = 1, nt
                     flow_tmp(icell,t) = flow_mesh(t,j*2)
                     flow_lo_tmp(icell,t) = flow_mesh(t,j*2+1)
                     flow_hi_tmp(icell,t) = flow_mesh(t,j*2-1)
@@ -106,6 +143,7 @@ module gtm_network
                     area_hi_tmp(icell,t) = area_mesh(t,j*2-1)                
                 end do
             end do
+            prev_flow_tmp(i,:) = flow_mesh(nt,:)
         end do
         return
     end subroutine

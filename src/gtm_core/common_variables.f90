@@ -90,6 +90,18 @@ module common_variables
     end type
     type(segment_t), allocatable :: segm(:)
     
+    !> Define cell type to store cell related arrays
+    type cell_t
+         integer :: cell_no                                    !< cell serial no
+         integer :: chan_no                                    !< channel no
+         integer :: n_up_cell                                  !< number of upstream cells
+         integer :: n_down_cell                                !< number of downstream cells
+         integer, allocatable :: up_cell(:)                    !< upstream cell no
+         integer, allocatable :: down_cell(:)                  !< downstream cell no
+         real(gtm_real) :: dx                                  !< length of cell
+    end type
+    type(cell_t), allocatable :: cell(:)
+    
     contains
     
     !> Allocate channel_t array    
@@ -132,6 +144,20 @@ module common_variables
         return
     end subroutine
     
+    !> Allocate cell_t array
+    subroutine allocate_cell_property()
+        use error_handling
+        implicit none
+        integer :: istat = 0
+        character(len=128) :: message
+        ncell = n_segm * npartition_x
+        allocate(cell(ncell), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if        
+        return
+    end subroutine
+    
     !> Allocate hydro time series array
     subroutine allocate_hydro_ts()
         use error_handling
@@ -168,6 +194,13 @@ module common_variables
     subroutine deallocate_segment()
         implicit none
         deallocate(segm)
+        return
+    end subroutine
+    
+    ! Deallocate cell property
+    subroutine deallocate_cell()
+        implicit none
+        deallocate(cell)
         return
     end subroutine
            

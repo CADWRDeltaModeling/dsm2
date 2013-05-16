@@ -33,17 +33,18 @@ module interpolation
    
    !! interpolation mesh grid with four given points
    !! For example, space divided into four and time divided into three (*: given, nx=5, nt=4)
+   !! Tii stands for volume change for each cell.
    !!    1      2      3      4      nx
-   !! 1  a*----c12----c13----c14-----b*  t-1
-   !!    |      |      |      |      |
-   !!    |      |      |      |      |
-   !! 2 c21----c22----c23----c24----c25  t-2t/3
-   !!    |      |      |      |      | 
-   !!    |      |      |      |      |
-   !! 3 c31----c32----c33----c34----c35  t-1t/3
-   !!    |      |      |      |      |
-   !!    |      |      |      |      |
-   !! nt c*----c42----c43----c44-----d*  t
+   !! 1  a*----c12----c13----c14-----b*  t-1       -----------------------------
+   !!    |      |      |      |      |             |      |      |      |      |
+   !!    |      |      |      |      |             |  T11 |  T12 |  T13 |  T14 |
+   !! 2 c21----c22----c23----c24----c25  t-2t/3    -----------------------------
+   !!    |      |      |      |      |             |      |      |      |      |
+   !!    |      |      |      |      |             |  T21 |  T22 |  T23 |  T24 |
+   !! 3 c31----c32----c33----c34----c35  t-1t/3    -----------------------------
+   !!    |      |      |      |      |             |      |      |      |      |
+   !!    |      |      |      |      |             |  T31 |  T32 |  T33 |  T34 | 
+   !! nt c*----c42----c43----c44-----d*  t         -----------------------------          
    !! <-- upstream               downstream -->
    
    !> Linear flow interpolation with four given points
@@ -235,7 +236,7 @@ module interpolation
         do i = 1, nt-1
             sub_flow_vol = sub_flow_vol + mass_balance_from_flow(i,1)
         end do
-        if ((sub_flow_vol.ne.0.0).and.((b-a)*(d-c).gt.zero)) then
+        if ((sub_flow_vol.ne.zero).and.((b-a)*(d-c).gt.zero)) then
             do i = 1, nt-1
                 ratio(i) = zero
                 do j = 1, i
@@ -277,16 +278,19 @@ module interpolation
     end subroutine    
     
    !> Flow interpolation based on area interpolation from CxArea() while theta average is used for calculation
-    subroutine interp_flow_from_area_theta(mesh, volume_change,         &
-                                           dt, nt, nx,                  &
-                                           a, b, c, d,                  &
-                                           mass_balance_target)
+   !> This pushes mass balance inconsistency to T24 and T31.
+    subroutine interp_flow_from_area_theta_m1(mesh, volume_change,         &
+                                              dt, nt, nx,                  &
+                                              a, b, c, d,                  &
+                                              mass_balance_target,         & 
+                                              prev_flow_cell)
         implicit none
         real(gtm_real), intent(in) :: dt                                        !< finer time step (in minutes)
         integer, intent(in) :: nt                                               !< nt: number of points in time
         integer, intent(in) :: nx                                               !< nx: number of points in space
         real(gtm_real), intent(in) :: a, b, c, d                                !< input four corner points
         real(gtm_real), dimension(nt-1,nx-1), intent(in) :: mass_balance_target !< mass balance from flow interpolation
+        real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell             !< previous time step interpolated flow cells
         real(gtm_real), dimension(nt,nx), intent(out) :: mesh                   !< interpolated mesh
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
         real(gtm_real) :: total_volume_change, factor                           ! local variables
@@ -297,10 +301,9 @@ module interpolation
         mesh(1,nx) = b
         mesh(nt,1) = c
         mesh(nt,nx) = d
-        ! interpolate boundary row/column linearly
+        ! assigne initial row and interpolate boundary column linearly       
         do j = 2, nx-1
-            factor = (j-one)/(nx-one)
-            mesh(1,j) = mesh(1,1) + factor*(mesh(1,nx)-mesh(1,1))
+            mesh(1,j) = prev_flow_cell(j)
         end do
         do i = 2, nt-1
             factor = (i-one)/(nt-one)
@@ -322,6 +325,81 @@ module interpolation
         ! adjust the other one of last cell c44 to make sure mass balanced at the end
         mesh(nt,nx-1) = ((one-hydro_theta)*mesh(nt-1,nx) + hydro_theta*mesh(nt,nx) - (one-hydro_theta)*mesh(nt-1,nx-1) + &
                         mass_balance_target(nt-1,nx-1)/dt/sixty)/hydro_theta
+        
+        ! calculate volume change for mesh cells
+        do i = 1, nt-1
+            do j = 1, nx-1
+                volume_change(i,j) = ((one-hydro_theta)*mesh(i,j)+hydro_theta*mesh(i+1,j)- &
+                                     (one-hydro_theta)*mesh(i,j+1)-hydro_theta*mesh(i+1,j+1))*dt*sixty ! theta average
+            end do
+        end do                           
+        return
+    end subroutine
+
+   !> Flow interpolation based on area interpolation from CxArea() while theta average is used for calculation
+   !> This pushes mass inconsistency to T21, T31 and T14.
+    subroutine interp_flow_from_area_theta_m2(mesh, volume_change,         &
+                                              dt, nt, nx,                  &
+                                              a, b, c, d,                  &
+                                              mass_balance_target,         &
+                                              prev_flow_cell)
+        implicit none
+        real(gtm_real), intent(in) :: dt                                        !< finer time step (in minutes)
+        integer, intent(in) :: nt                                               !< nt: number of points in time
+        integer, intent(in) :: nx                                               !< nx: number of points in space
+        real(gtm_real), intent(in) :: a, b, c, d                                !< input four corner points
+        real(gtm_real), dimension(nt-1,nx-1), intent(in) :: mass_balance_target !< mass balance from flow interpolation
+        real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell             !< previous time step interpolated flow cells
+        real(gtm_real), dimension(nt,nx), intent(out) :: mesh                   !< interpolated flow mesh
+        real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
+        real(gtm_real) :: total_volume_change, factor, vol_change_tmp           ! local variables
+        integer :: i, j                                                         ! local variables     
+        mesh = LARGEREAL
+        volume_change = LARGEREAL
+        mesh(1,1) = a
+        mesh(1,nx) = b
+        mesh(nt,1) = c
+        mesh(nt,nx) = d
+        ! assigne initial row and interpolate boundary column linearly       
+        do j = 2, nx-1
+            mesh(1,j) = prev_flow_cell(j)
+        end do
+        do i = 2, nt-1
+            factor = (i-one)/(nt-one)
+            mesh(i,1) = mesh(1,1) + factor*(mesh(nt,1)-mesh(1,1))
+        end do
+        
+        ! interpolate all cells initially (mass balance error will accumulate at the end)
+        do i = 2, nt
+            do j = 2, nx
+            mesh(i,j) = mesh(i,j-1) - (mass_balance_target(i-1,j-1)/dt/sixty  &
+                       - (one-hydro_theta)*mesh(i-1,j-1)                      &
+                       + (one-hydro_theta)*mesh(i-1,j))/hydro_theta
+            end do
+        end do   
+        mesh(nt,nx) = d
+        ! adjust cell c31-c34
+        do j = nx-1, 1, -1
+            mesh(nt-1,j) = (mass_balance_target(nt-1,j)/dt/sixty                &
+                           - hydro_theta*mesh(nt,j) + hydro_theta*mesh(nt,j+1)     &
+                           + (one-hydro_theta)*mesh(nt-1,j+1))/(one-hydro_theta)
+        end do
+        ! adjust cell c25
+        mesh(nt-2,nx) = (hydro_theta*mesh(nt-1,nx-1) - hydro_theta*mesh(nt-1,nx)    &
+                        + (one-hydro_theta)*mesh(nt-2,nx-1)                         &
+                        - mass_balance_target(nt-2,nx-1)/dt/sixty)/(one-hydro_theta)
+
+        ! adjust c31 to make sure total mass balance
+        vol_change_tmp = ((one-hydro_theta)*mesh(nt-3,nx-1)+hydro_theta*mesh(nt-2,nx-1)-           &
+                         (one-hydro_theta)*mesh(nt-3,nx)-hydro_theta*mesh(nt-2,nx))*dt*sixty
+        mesh(nt-1,1) = (mass_balance_target(nt-1,1)                    &
+                       + mass_balance_target(nt-2,1)                   &
+                       + mass_balance_target(nt-3,nx-1)                &
+                       - vol_change_tmp)/dt/sixty                      &
+                       + mesh(nt-1,2) - (one-hydro_theta)*mesh(nt-2,1) & 
+                       + (one-hydro_theta)*mesh(nt-2,2)                &
+                       - hydro_theta*mesh(nt,1)                        &
+                       + hydro_theta*mesh(nt,2)
         
         ! calculate volume change for mesh cells
         do i = 1, nt-1
@@ -398,13 +476,15 @@ module interpolation
         end do           
         return
     end subroutine 
-        
+                                           
+
    !> Interpolated flow and area mesh based on given four points of flows and water surface elevations
     subroutine interp_flow_area(flow_mesh, area_mesh,                   &
                                 flow_volume_change, area_volume_change, &
                                 branch, up_x, dx, dt, nt, nx,           &
                                 flow_a, flow_b, flow_c, flow_d,         &
-                                ws_a, ws_b, ws_c, ws_d)
+                                ws_a, ws_b, ws_c, ws_d,                 &
+                                prev_flow_cell)
         implicit none
         integer, intent(in) :: branch                                               !< hydro channel number (required by CxArea())
         real(gtm_real), intent (in) :: up_x                                         !< upstream point distance (required for CxArea())
@@ -413,7 +493,8 @@ module interpolation
         integer, intent(in) :: nt                                                   !< nt: number of points in time
         integer, intent(in) :: nx                                                   !< nx: number of points in space
         real(gtm_real), intent(in) :: flow_a, flow_b, flow_c, flow_d                !< input four corner flow points
-        real(gtm_real), intent(in) :: ws_a, ws_b, ws_c, ws_d                        !< input four corner water surface points
+        real(gtm_real), intent(in) :: ws_a, ws_b, ws_c, ws_d                        !< input four corner water surface points 
+        real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell                 !< last row of flow cells from previous interpolation
         real(gtm_real), dimension(nt,nx), intent(out) :: flow_mesh                  !< interpolated flow mesh
         real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh                  !< interpolated area mesh
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: flow_volume_change     !< volume change from flow interpolation for each cell 
@@ -425,10 +506,12 @@ module interpolation
                                 dt, nt, nx, flow_a, flow_b, flow_c, flow_d) 
         call interp_area_byCxArea(area_mesh, area_volume_change, branch, up_x, dx, nt, nx,   &
                                   ws_a, ws_b, ws_c, ws_d, flow_volume_change_tmp)
-        call interp_flow_from_area_theta(flow_mesh, flow_volume_change, dt, nt, nx,          &  
-                                         flow_a, flow_b, flow_c, flow_d, area_volume_change)                                      
+        call interp_flow_from_area_theta_m1(flow_mesh, flow_volume_change, dt, nt, nx,          &  
+                                            flow_a, flow_b, flow_c, flow_d,                     &
+                                            area_volume_change, prev_flow_cell)
         return
-    end subroutine                                    
+    end subroutine            
+
     
    !>  Calculate total volume change
     subroutine calc_total_volume_change(total_volume_change, nt_1, nx_1, volume_change)
