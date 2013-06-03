@@ -27,10 +27,10 @@ module time_util
     contains
     
     !> Convert from character date/time to julian minute
-    subroutine cdt2jmin(cdatx, julmin)
+    subroutine cdt2jmin(julmin, cdatx)
         implicit none
-        character(len=*), intent(in) :: cdatx     !> character date/time (e.g. 05JUN1983 0510) (input)
-        integer, intent(out) :: julmin            !> julian minute
+        character(len=*), intent(in) :: cdatx     !< character date/time (e.g. 05JUN1983 0510) (input)
+        integer, intent(out) :: julmin            !< julian minute
         integer*4 :: julday  &                    ! days since 31dec1899
                     ,minute  &                    ! minutes past midnight
                     ,ihm2m                        ! DSS function
@@ -47,14 +47,14 @@ module time_util
         endif
         julmin = julday*24*60 + minute
         return
- 900    continue
+900     continue
     end subroutine
    
     !> Convert from Julian minute to character date/time
-    subroutine jmin2cdt(julmin, cdt)
+    subroutine jmin2cdt(cdt, julmin)
         implicit none
-        integer*4, intent(in) ::  julmin           !> minutes since 31dec1899 2400
-        character(len=14), intent(out) :: cdt      !> character date/time
+        integer*4, intent(in) ::  julmin           !< minutes since 31dec1899 2400
+        character(len=14), intent(out) :: cdt      !< character date/time
         integer*4 ::  julday    &                  ! days since 31dec1899
                      ,minute    &                  ! minutes past midnight
                      ,ndate     &                  ! number of characters in date
@@ -73,4 +73,65 @@ module time_util
         return
       end subroutine
 
+      !> Routine to determine offset and buffer length to read HDF file
+      subroutine check_runtime(offset, num_buffers, memlen,          &
+                               time_buffer,                          &                               
+                               gtm_start_cdt, gtm_end_cdt,           &
+                               hdf_start_jmin, hdf_end_jmin,         &
+                               hdf_time_interval)              
+          implicit none
+          integer, intent(out) :: offset                  !< time offset to read hydro tidefile
+          integer, intent(out) :: num_buffers             !< number of total buffer blocks
+          integer, allocatable, intent(out) :: memlen(:)  !< length of memory for each buffer
+          integer, intent(in) :: time_buffer              !< time buffer length
+          integer, intent(in) :: hdf_start_jmin           !< hydro tidefile start julian minutes
+          integer, intent(in) :: hdf_end_jmin             !< hydro tidefile end Julian minutes
+          integer, intent(in) :: hdf_time_interval        
+          character(len=14), intent(in) :: gtm_start_cdt  !< GTM start character date/time
+          character(len=14), intent(in) :: gtm_end_cdt    !< GTM end character date/time
+          integer :: gtm_start_jmin                       !< GTM starting Julian miniutes
+          integer :: gtm_end_jmin                         !< GTM ending Julian miniutes
+          integer :: remainder, i                         ! local variables
+          integer :: istat = 0                            ! error handling for allocation
+          offset = LARGEINT
+          num_buffers = LARGEINT
+          remainder = LARGEINT
+          call cdt2jmin(gtm_start_jmin, gtm_start_cdt)
+          call cdt2jmin(gtm_end_jmin, gtm_end_cdt)
+          if (gtm_start_jmin < hdf_start_jmin) then
+              call gtm_fatal("GTM starting time should be within HDF file time range.")
+          else if (gtm_end_jmin > hdf_end_jmin) then
+              call gtm_fatal(" GTM ending time should be within HDF file time range.")
+          else 
+              offset = (gtm_start_jmin - hdf_start_jmin)/hdf_time_interval
+              num_buffers = int((gtm_end_jmin-gtm_start_jmin)/hdf_time_interval/time_buffer) + 1
+              remainder = mod((gtm_end_jmin-gtm_start_jmin)/hdf_time_interval, time_buffer)
+              allocate(memlen(num_buffers), stat = istat)
+              if (num_buffers>1) then
+                  do i = 1, num_buffers - 1
+                      memlen(i) = time_buffer
+                  end do
+              end if
+              memlen(num_buffers) = remainder              
+          end if
+          return  
+      end subroutine
+      
+      !> Routine to get number of partition in time
+      subroutine get_npartition_t(npart_t, orig_time_interv, gtm_time_interv)
+          implicit none
+          integer, intent(out) :: npart_t
+          integer, intent(in) :: orig_time_interv
+          integer, intent(in) :: gtm_time_interv
+          if (orig_time_interv < gtm_time_interv) then
+              call gtm_fatal("GTM runtime interval should be smaller or equal than DSM2 hydro output time interval.")
+          else
+              npart_t = orig_time_interv/gtm_time_interv
+              if((int(npart_t)-npart_t).ne.zero)then
+                  call gtm_fatal("HDF time interval/GTM runtime interval does not yield an integer.")
+              end if
+          end if
+          return
+      end subroutine
+      
 end module

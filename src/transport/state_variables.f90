@@ -23,9 +23,8 @@
 !>@ingroup transport
 module state_variables
     use gtm_precision
-    integer :: ncell  !< number of computation cells
-    integer :: nvar   !< number of variables
-    
+    use common_variables
+
     !> Mass of constituent in the current/new time step,
     !> dimensions (ncell, nvar)
     real(gtm_real),save,allocatable :: mass(:,:)

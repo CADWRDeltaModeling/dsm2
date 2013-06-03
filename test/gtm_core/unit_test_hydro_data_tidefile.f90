@@ -36,7 +36,8 @@ module ut_hydro_data_tide
         implicit none
         character(len=*), parameter :: h5_file_name = 'test_hydro.h5'   !< hydro tidefile for testing
         real(gtm_real) :: area_from_CxArea
-       
+        integer :: time_offset, time_buffer
+        
         ! test loading hdf5 file
         call hdf5_init(h5_file_name)   
        
@@ -85,20 +86,25 @@ module ut_hydro_data_tide
        
         ! test reading time series data
         call allocate_hydro_ts()
-        call get_ts_from_hdf5(hydro_flow, "flow")
-        call get_ts_from_hdf5(hydro_area, "area")
-        call get_ts_from_hdf5(hydro_ws, "water surface")
-        call assertEquals (dble(hydro_flow(7,1485)), dble(25696.057), weakest_eps, "problem in reading flow")
-        call assertEquals (dble(hydro_area(7,1485)), dble(6796.175), weakest_eps, "problem in reading area")
-        call assertEquals (dble(hydro_ws(7,1485)), dble(2.1272986), weakest_eps, "problem in reading water surface")
+        time_offset = 3
+        time_buffer = 10
+        call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
+        call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)
+        call assertEquals (dble(hydro_flow(6,1)), dble(225612.1), weakest_eps, "problem in reading flow")
+        call assertEquals (dble(hydro_ws(6,1)), dble(20.848833), weakest_eps, "problem in reading water surface")
+        time_offset = 10
+        time_buffer = 3
+        call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
+        call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)
+        call assertEquals (dble(hydro_flow(6,1)), dble(27650.672), weakest_eps, "problem in reading flow")
+        call assertEquals (dble(hydro_ws(6,1)), dble(1.9490309), weakest_eps, "problem in reading water surface")
        
         ! test CxArea calculation
-        call CxArea(area_from_CxArea, dble(10000),hydro_ws(7,1485),2)                   
-        call assertEquals (area_from_CxArea, dble(hydro_area(7,1485)), weakest_eps, "problem in calculating CxArea")
+        call CxArea(area_from_CxArea, dble(5000),hydro_ws(6,1),2)                   
+        call assertEquals (area_from_CxArea, dble(7524.127), weakest_eps, "problem in calculating CxArea")
+        
         call deallocate_hydro_ts() 
-       
-        ! test closing hdf5 file and interface
-        call hdf5_close()
+        call hdf5_close()         
         return
     end subroutine
  

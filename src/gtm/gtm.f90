@@ -25,65 +25,140 @@ program gtm
     use gtm_precision
     use error_handling
     use logging
+    use time_util
     use common_variables
     use common_xsect   
     use hydro_data_tidefile
     use interpolation
-    
+    use gtm_network 
+    use hydro_data
+    use state_variables
     implicit none
     character(len=*), parameter :: hdf5file = "historical.h5"   !< HDF5 file name
     integer, parameter :: nt = 4
-    integer, parameter :: nx = 5 
+    integer, parameter :: nx = 5
+    integer :: nconc = 1
     real(gtm_real), dimension(nt, nx) :: flow_mesh, area_mesh
     real(gtm_real), dimension(nt-1, nx-1) ::  flow_volume_change, area_volume_change
-    real(gtm_real), dimension(693,nx) :: prev_flow_cell
+    real(gtm_real), dimension(2000,nx) :: prev_flow_cell !todo::allocate with real number
+    real(gtm_real), allocatable :: prev_up_comp_flow(:), prev_down_comp_flow(:)
+    real(gtm_real), allocatable :: prev_up_comp_ws(:), prev_down_comp_ws(:)
     real(gtm_real) :: dt, dx
     integer :: up_comp, down_comp
     real(gtm_real) :: total_flow_volume_change, total_area_volume_change
     real(gtm_real) :: avga_volume_change, diff
-    integer :: i, j, t
+    integer :: time_offset
+    integer :: i, j, t, ibuffer, start_buffer
+    real(gtm_real) :: time
+    integer :: current_time
+    character(len=14) :: gtm_start_time = "02JAN1998 2400"
+    character(len=14) :: gtm_end_time = "03JAN1998 0600"
+    integer :: offset, num_buffers, jday
+    integer, allocatable :: memlen(:)
+    procedure(hydro_data_if), pointer :: hydro => null()  !< Hydrodynamic pointer to be filled by the driver
     
+    hydro => gtm_flow_area
+    gtm_time_interval = 5
+    npartition_x = 4
     open(debug_unit, file = "gtm_debug_unit.txt")                   !< output text file
+    call hdf5_init(hdf5file)
+    write(*,*) "Process DSM2 geometry info...."
+    call dsm2_hdf_geom()
+    allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
+    allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
     
-    call dsm2_hdf_data(hdf5file)
+    do i=1,n_segm
+        write(debug_unit,*) segm(i)%segm_no, segm(i)%chan_no, segm(i)%length
+    end do
     
-   
-    do t = 2, 20 !n_time
-        write(*,*) t
-        do i = 1, n_segm
-           dt = orig_time_interval/(nt-1.)
-           dx = segm(i)%length/(nx-1.)
-           up_comp = segm(i)%up_comppt
-           down_comp = segm(i)%down_comppt
-           avga_volume_change = (hydro_avga(up_comp,t)-hydro_avga(up_comp,t-1)) * segm(i)%length
-           if (t==2) then
-               do j = 1, nx
-                   prev_flow_cell(i,j) = hydro_flow(up_comp,t-1) + (hydro_flow(down_comp,t-1)-hydro_flow(up_comp,t-1))*(j-1)/(nx-1)
-               end do    
-           end if
-           call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,   &
-                                 segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, nx,           &
-                                 hydro_flow(up_comp,t-1), hydro_flow(down_comp,t-1),             &
-                                 hydro_flow(up_comp,t), hydro_flow(down_comp,t),                 &
-                                 hydro_ws(up_comp,t-1), hydro_ws(down_comp,t-1),                 &
-                                 hydro_ws(up_comp,t), hydro_ws(down_comp,t),                     &
-                                 prev_flow_cell(i,:))
-           call calc_total_volume_change(total_flow_volume_change, nt-1, nx-1, flow_volume_change)
-           call calc_total_volume_change(total_area_volume_change, nt-1, nx-1, area_volume_change)
-           diff = (total_flow_volume_change-avga_volume_change)/avga_volume_change * 100
-           prev_flow_cell(i,:) = flow_mesh(nt,:)
-           if (diff.gt.ten*two)then   !todo::I tried to figure out when and why there are huge inconsistency of volume change from interpolation and average area
-               write(debug_unit,'(2a8,5a20)') "t","chan_no","segm_length","flow_vol_change","area_vol_change","avga_vol_change","% difference"           
-               write(debug_unit,'(2i8,5f20.5)') t, segm(i)%chan_no, segm(i)%length, total_flow_volume_change,total_area_volume_change, avga_volume_change, diff
-               write(debug_unit,'(a10)') "flow mesh"
-               call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change) 
-               write(debug_unit,'(a10)') "area mesh"
-               call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)
-               !write(debug_unit,*) prev_flow_cell(1),prev_flow_cell(2),prev_flow_cell(3),prev_flow_cell(4),prev_flow_cell(5)               
-               write(debug_unit,*) ""
-           end if
+    call check_runtime(offset, num_buffers, memlen,                              &
+                       memory_buffer, gtm_start_time, gtm_end_time,              &
+                       orig_start_julmin, orig_end_julmin, orig_time_interval) 
+                       
+    call get_npartition_t(npartition_t, orig_time_interval, gtm_time_interval)
+    
+    call allocate_hydro_ts()
+    call allocate_network_tmp()
+    call allocate_cell_property()
+    call allocate_state(ncell, nconc)
+    
+    write(*,*) "Process time series...."
+    dt = orig_time_interval/(nt-1.)   
+    do ibuffer = 1, num_buffers
+        write(*,*) ibuffer
+        time_offset = offset+memory_buffer*(ibuffer-1)
+        call dsm2_hdf_ts(time_offset, memlen(ibuffer))
+        if (ibuffer == 1) then   ! skip the first row of data and use it to calculate prev_flow_cell
+            start_buffer = 2
+        else
+            start_buffer = 1
+        end if        
+        do t = start_buffer, memlen(ibuffer)
+            current_time = time_offset + t
+            do i = 1, n_segm
+               dx = segm(i)%length/(nx-1.)
+               up_comp = segm(i)%up_comppt
+               down_comp = segm(i)%down_comppt
+               !avga_volume_change = (hydro_avga(up_comp,t)-hydro_avga(up_comp,t-1)) * segm(i)%length
+               
+               if ((ibuffer==1).and.(t==2)) then
+                   do j = 1, nx
+                       prev_flow_cell(i,j) = hydro_flow(up_comp,t-1) + (hydro_flow(down_comp,t-1)-hydro_flow(up_comp,t-1))*(j-1)/(nx-1)
+                   end do    
+                   prev_up_comp_flow(up_comp) = hydro_flow(up_comp,1)
+                   prev_down_comp_flow(down_comp) = hydro_flow(down_comp,1)
+                   prev_up_comp_ws(up_comp) = hydro_ws(up_comp,1)
+                   prev_down_comp_ws(down_comp) = hydro_ws(down_comp,1) 
+               end if   
+               call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,   &
+                                     segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, nx,           &
+                                     prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),     &
+                                     hydro_flow(up_comp,t), hydro_flow(down_comp,t),                 &
+                                     prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
+                                     hydro_ws(up_comp,t), hydro_ws(down_comp,t), prev_flow_cell(i,:))
+               call fill_network(i, flow_mesh, area_mesh)                      
+               !write(debug_unit,'(3i8,7f15.4)')  segm(i)%chan_no,up_comp,down_comp,hydro_flow(up_comp,t), hydro_flow(down_comp,t), prev_flow_cell(i,1), prev_flow_cell(i,2), prev_flow_cell(i,3), prev_flow_cell(i,4), prev_flow_cell(i,5)
+               !call calc_total_volume_change(total_flow_volume_change, nt-1, nx-1, flow_volume_change)
+               !call calc_total_volume_change(total_area_volume_change, nt-1, nx-1, area_volume_change)
+               !diff = (total_flow_volume_change-avga_volume_change)/avga_volume_change * 100
+               write(debug_unit,'(3i6,4f10.4)') segm(i)%chan_no,up_comp, down_comp, prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),hydro_ws(up_comp,t), hydro_ws(down_comp,t)
+
+               prev_flow_cell(i,:) = flow_mesh(nt,:)
+               prev_up_comp_flow(up_comp) = hydro_flow(up_comp,t)
+               prev_down_comp_flow(down_comp) = hydro_flow(down_comp,t)
+               prev_up_comp_ws(up_comp) = hydro_ws(up_comp,t)
+               prev_down_comp_ws(down_comp) = hydro_ws(down_comp,t)              
+               
+               !if (diff.gt.ten*two)then   !todo::I tried to figure out when and why there are huge inconsistency of volume change from interpolation and average area
+               !    write(debug_unit,'(2a8,5a20)') "t","chan_no","segm_length","flow_vol_change","area_vol_change","avga_vol_change","% difference"           
+               !    write(debug_unit,'(2i8,5f20.5)') t, segm(i)%chan_no, segm(i)%length, total_flow_volume_change,total_area_volume_change, avga_volume_change, diff
+               !    write(debug_unit,'(a10)') "flow mesh"
+               !    call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change) 
+               !    write(debug_unit,'(a10)') "area mesh"
+               !    call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)
+               !    !write(debug_unit,*) prev_flow_cell(1),prev_flow_cell(2),prev_flow_cell(3),prev_flow_cell(4),prev_flow_cell(5)               
+               !    write(debug_unit,*) ""
+               !end if
+            end do   !end for segment loop
+            do time = 1, nt
+                call hydro(flow,    &
+                           flow_lo, &
+                           flow_hi, &
+                           area,    &
+                           area_lo, &
+                           area_hi, &
+                           ncell,   &
+                           time,    &
+                           dx,      &                  
+                           dt)
+                           
+               
+            end do                           
         end do
     end do    
+    call deallocate_network_tmp()
     call deallocate_hydro_ts()
+    call hdf5_close()
     close(debug_unit)
 end program
+

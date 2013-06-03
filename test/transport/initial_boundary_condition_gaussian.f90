@@ -49,7 +49,7 @@ subroutine fill_gaussian(vals,nloc,origin,dx,mean,sd,scale)
     use gtm_precision
     implicit none
     integer, intent(in) :: nloc                   !< Number of cells (size of array) 
-    real(gtm_real), intent(out) :: vals(100) !nloc)     !< Values to be filled
+    real(gtm_real), intent(out) :: vals(nloc) !nloc)     !< Values to be filled
     real(gtm_real), intent(in)  :: origin         !< Origin (lo side of channel)
     real(gtm_real), intent(in)  :: dx             !< dx
     real(gtm_real), intent(in)  :: mean           !< Center of the gaussian shape

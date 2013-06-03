@@ -29,26 +29,29 @@ module hydro_data_tidefile
     use common_xsect       
     use hdf_util   
  
-    contains   
+    contains  
    
    !> This subroutine is used to read DSM2 hydro tidefile,  
-   !> including attributes, geometry and time series. 
-    subroutine dsm2_hdf_data(hdf5file)
-        implicit none              
-        character(len=*), intent(in) :: hdf5file        !< DSM2 hydro tidefile name
-        !procedure(hydro_data_if), pointer :: hdf_flow     
-        call hdf5_init(hdf5file)
+   !> including attributes and geometry. 
+    subroutine dsm2_hdf_geom()
+        implicit none                      
         call get_hydro_attr()
         call read_channel_tbl()
         call read_comp_tbl()
-        call read_xsect_tbl() 
-        call assign_segment()           
-        call allocate_hydro_ts()
-        call get_ts_from_hdf5(hydro_flow, "flow")
-        !call get_ts_from_hdf5(hydro_area, "area")        ! todo::if we decide to go with elevation, this can be removed.
-        call get_ts_from_hdf5(hydro_ws, "water surface")
-        call get_ts_from_hdf5(hydro_avga, "avg area")    ! todo::if we decide to go with elevation, this can be removed.
-        call hdf5_close()
+        call read_xsect_tbl()   !todo: this consume lots of stack memory. Try to reduce.
+        call assign_segment()            
+    end subroutine     
+    
+    !> This subroutine is used to read DSM2 hydro tidefile,
+    !> mainly time series.
+    subroutine dsm2_hdf_ts(time_offset, time_buffer)
+        implicit none              
+        integer, intent(in) :: time_offset
+        integer, intent(in) :: time_buffer
+        call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
+        call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)
+        !call get_ts_from_hdf5(hydro_area, "area", time_offset)        ! todo::if we decide to go with elevation, this can be removed.
+        !call get_ts_from_hdf5(hydro_avga, "avg area", time_offset)    ! todo::if we decide to go with elevation, this can be removed. 
         return  
     end subroutine      
     

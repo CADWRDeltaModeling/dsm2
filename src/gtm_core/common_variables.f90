@@ -24,6 +24,7 @@
 module common_variables
 
     use gtm_precision
+    integer :: memory_buffer = 10                               !< time buffer use to store hdf5 time series
     integer :: n_time = LARGEINT                                !< number of time steps
     integer :: n_comp = LARGEINT                                !< number of computational points
     integer :: n_chan = LARGEINT                                !< number of channels
@@ -32,13 +33,14 @@ module common_variables
     integer :: npartition_x = LARGEINT                          !< number of cells within a segment
     integer :: npartition_t = LARGEINT                          !< number of gtm time intervals partition from hydro time interval
     integer :: ncell = LARGEINT                                 !< number of cells in the entire network
+    integer :: nvar = LARGEINT                                  !< number of variables
     integer :: orig_start_julmin = LARGEINT                     !< original start time in hydro run
     integer :: orig_end_julmin = LARGEINT                       !< original end time in hydro run
     integer :: orig_time_interval = LARGEINT                    !< original time interval in hydro run
     integer :: orig_ntideblocks = LARGEINT                      !< original time blocks in hydro run
-    integer :: start_julmin = LARGEINT                          !< gtm start time
-    integer :: end_julmin = LARGEINT                            !< gtm end time
-    integer :: time_interval = LARGEINT                         !< gtm simulation time interval
+    integer :: gtm_start_julmin = LARGEINT                      !< gtm start time
+    integer :: gtm_end_julmin = LARGEINT                        !< gtm end time
+    integer :: gtm_time_interval = LARGEINT                     !< gtm simulation time interval
     integer :: ntideblocks = LARGEINT                           !< gtm time blocks
     
     real(gtm_real), allocatable :: hydro_flow(:,:)              !< flow from DSM2 hydro
@@ -88,19 +90,7 @@ module common_variables
          real(gtm_real) :: down_distance                       !< down_comppt distance from upstream node
          real(gtm_real) :: length                              !< segment length in feet
     end type
-    type(segment_t), allocatable :: segm(:)
-    
-    !> Define cell type to store cell related arrays
-    type cell_t
-         integer :: cell_no                                    !< cell serial no
-         integer :: chan_no                                    !< channel no
-         integer :: n_up_cell                                  !< number of upstream cells
-         integer :: n_down_cell                                !< number of downstream cells
-         integer, allocatable :: up_cell(:)                    !< upstream cell no
-         integer, allocatable :: down_cell(:)                  !< downstream cell no
-         real(gtm_real) :: dx                                  !< length of cell
-    end type
-    type(cell_t), allocatable :: cell(:)
+    type(segment_t), allocatable :: segm(:)    
     
     contains
     
@@ -135,9 +125,10 @@ module common_variables
         use error_handling
         implicit none
         integer :: istat = 0
-        character(len=128) :: message
-        n_segm = n_comp - n_chan
-        allocate(segm(n_segm), stat = istat)
+        integer :: n_segm_tmp               ! temporary number of segments
+        character(len=128) :: message       ! error message
+        n_segm_tmp = n_comp                 ! this should allow more space than n_comp-n_chan, finla n_segm will be updated at assign_segment()
+        allocate(segm(n_segm_tmp), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
@@ -151,7 +142,6 @@ module common_variables
         integer :: istat = 0
         character(len=128) :: message
         ncell = n_segm * npartition_x
-        allocate(cell(ncell), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if        
@@ -164,8 +154,8 @@ module common_variables
         implicit none
         integer :: istat = 0
         character(len=128) :: message
-        allocate(hydro_flow(n_comp,n_time),hydro_area(n_comp,n_time), &
-                 hydro_ws(n_comp,n_time),hydro_avga(n_comp,n_time), stat = istat)
+        allocate(hydro_flow(n_comp,memory_buffer),hydro_area(n_comp,memory_buffer), &
+                 hydro_ws(n_comp,memory_buffer),hydro_avga(n_comp,memory_buffer), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
@@ -194,13 +184,6 @@ module common_variables
     subroutine deallocate_segment()
         implicit none
         deallocate(segm)
-        return
-    end subroutine
-    
-    ! Deallocate cell property
-    subroutine deallocate_cell()
-        implicit none
-        deallocate(cell)
         return
     end subroutine
            

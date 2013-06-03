@@ -86,25 +86,45 @@ module hdf_util
        orig_end_julmin = orig_start_julmin + (orig_ntideblocks-1)*orig_time_interval    
        return
    end subroutine    
-      
+
    !> Read time series dataset from hydro tidefile        
-   subroutine get_ts_from_hdf5(dset_data, dset_name)
+   subroutine get_ts_from_hdf5(dset_data, dset_name, time_offset, buffer_size)
        implicit none     
-       character(len=*), intent(in) :: dset_name                           !< dataset name
-       real(gtm_real), dimension(n_comp,n_time), intent(out) :: dset_data  !< return data arrays   
-       integer(HID_T) :: data_id                                           ! local group identifier
-       integer(HID_T) :: dset_id                                           ! local dataset identifier
-       integer(HSIZE_T), dimension(2) :: data_dims                         ! local datasets dimensions
-       integer :: error                                                    ! error flag          
-       data_dims(1) = n_comp
-       data_dims(2) = n_time     
+       character(len=*), intent(in) :: dset_name                                !< dataset name   
+       integer, intent(in) :: time_offset                                       !< time offset                                 
+       integer, intent(in) :: buffer_size                                       !< time buffer size
+       real(gtm_real), dimension(n_comp, buffer_size), intent(out) :: dset_data !< output array
+       integer(HID_T) :: data_id                                                ! local group identifier
+       integer(HID_T) :: dset_id                                                ! local dataset identifier
+       integer(HID_T) :: dataspace                                              ! Dataspace identifier
+       integer(HID_T) :: memspace                                               ! memspace identifier
+       integer(HSIZE_T), dimension(2) :: count                                  ! local variable
+       integer(HSIZE_T), dimension(2) :: offset                                 ! local variable
+       integer(HSIZE_T), dimension(2) :: offset_out                             ! local variable      
+       integer(HSIZE_T), dimension(2) :: data_dims                              ! local datasets dimensions
+       integer(HSIZE_T), dimension(2) :: dimsm                                  ! local variable
+       integer :: memrank = 2                                                   ! memory rank
+       integer :: error                                                         ! error flag              
        call h5gopen_f(hydro_id, "data", data_id, error)
        call h5dopen_f(data_id, dset_name, dset_id, error) 
-       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dset_data, data_dims, error)
+       call h5dget_space_f(dset_id, dataspace, error)
+       dimsm = (/n_comp, buffer_size/)
+       offset = (/0,time_offset/)
+       count = (/n_comp, buffer_size/) 
+       offset_out = (/0,0/)
+       call h5sselect_hyperslab_f(dataspace, H5S_SELECT_SET_F, offset, count, error)
+       call h5screate_simple_f(memrank, dimsm, memspace, error)
+       call h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, offset_out, count, error)
+       data_dims(1) = n_comp
+       data_dims(2) =  buffer_size
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dset_data, data_dims, error, memspace, dataspace)
+       
+       call h5sclose_f(dataspace, error)
+       call h5sclose_f(memspace, error)
        call h5dclose_f(dset_id, error)
        call h5gclose_f(data_id, error)
        return     
-   end subroutine   
+   end subroutine  
    
    !> Read virtual cross section table from hydro tidefile
    subroutine read_xsect_tbl()
@@ -379,8 +399,9 @@ module hdf_util
            else
                previous_chan_no = comp_pt(i)%chan_no
            end if
-       end do        
+       end do
+       n_segm = j
        return    
    end subroutine    
-      
+    
 end module   

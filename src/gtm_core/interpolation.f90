@@ -223,7 +223,8 @@ module interpolation
         real(gtm_real), dimension(nt) :: subtotal_volume_change                    ! local variable to check mass balance (sub total in time)
         real(gtm_real) :: total_volume_change, factor, sub_flow_vol                ! local variable
         real(gtm_real), dimension(nt-1) :: ratio                                   ! local variable
-        integer :: i, j                                                            ! local variable  
+        integer :: i, j, OK                                                        ! local variable  
+        OK = 0             ! use linear ratio, not distribute by flow
         mesh = LARGEREAL                                                        
         ws = LARGEREAL
         volume_change = LARGEREAL
@@ -242,12 +243,18 @@ module interpolation
                 do j = 1, i
                     ratio(i) = ratio(i) + mass_balance_from_flow(j,1)/sub_flow_vol
                 end do    
+                if ((abs(ratio(i))>one).or.(ratio(i)<zero)) OK = 1
             end do
-        else  ! if no mass change or flow in transition status, interpolate linearly.
+        else
+            OK = 1 
+        end if 
+        ! if no mass change or flow in transition status, interpolate linearly.
+        if (OK == 1) then
             do i = 1, nt-1
                 ratio(i) = i/(nt-one)
             end do
         end if  
+        
         ! apply flow mass balance as ratio to interpolate water surface in time
         do i = 2, nt-1
             ws(i,1) = a + ratio(i-1)*(c-a)
@@ -501,7 +508,7 @@ module interpolation
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: area_volume_change     !< volume change from area interpolation for each cell 
         real(gtm_real), dimension(nt,nx) :: flow_mesh_tmp                           !< local variable     
         real(gtm_real), dimension(nt-1,nx-1) :: flow_volume_change_tmp              !< local variable
-        
+     
         call interp_flow_linear(flow_mesh_tmp, flow_volume_change_tmp,                       &
                                 dt, nt, nx, flow_a, flow_b, flow_c, flow_d) 
         call interp_area_byCxArea(area_mesh, area_volume_change, branch, up_x, dx, nt, nx,   &

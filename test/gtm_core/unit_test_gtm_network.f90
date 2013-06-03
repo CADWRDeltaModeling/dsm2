@@ -45,30 +45,29 @@ module ut_gtm_network
         npartition_x = 4
         npartition_t = 3
 
-        call define_cell()
-        call allocate_network_tmp()
-        hydro_time_index = 10        
-        call interp_network(npartition_x, npartition_t, hydro_time_index)
-        do t = 1, npartition_t+1
-            do icell = 1, npartition_x
-                write(debug_unit,'(6f15.6)') flow_hi_tmp(icell,t),flow_tmp(icell,t),flow_lo_tmp(icell,t),  &
-                                    area_hi_tmp(icell,t), area_tmp(icell,t), area_lo_tmp(icell,t)
-            end do        
-            write(debug_unit,*) ""
-        end do
-        do i = 1, n_segm
-            write(debug_unit,'(4i5,f15.4)') segm(i)%segm_no, segm(i)%chan_no, segm(i)%up_comppt, segm(i)%down_comppt, segm(i)%length
-        end do
-        hydro_time_index = 11
-        call interp_network(npartition_x, npartition_t, hydro_time_index)
-        do t = 1, npartition_t+1
-            do icell = 1, npartition_x
-                write(debug_unit,'(6f15.6)') flow_hi_tmp(icell,t),flow_tmp(icell,t),flow_lo_tmp(icell,t),  &
-                                    area_hi_tmp(icell,t), area_tmp(icell,t), area_lo_tmp(icell,t)
-            end do      
-            write(debug_unit,*) ""
-        end do
-        call deallocate_network_tmp()
+        !call allocate_network_tmp()
+        !hydro_time_index = 10        
+        !call interp_network(npartition_x, npartition_t, hydro_time_index)
+        !do t = 1, npartition_t+1
+        !    do icell = 1, npartition_x
+        !        write(debug_unit,'(6f15.6)') flow_hi_tmp(icell,t),flow_tmp(icell,t),flow_lo_tmp(icell,t),  &
+        !                            area_hi_tmp(icell,t), area_tmp(icell,t), area_lo_tmp(icell,t)
+        !    end do        
+        !    write(debug_unit,*) ""
+        !end do
+        !do i = 1, n_segm
+        !    write(debug_unit,'(4i5,f15.4)') segm(i)%segm_no, segm(i)%chan_no, segm(i)%up_comppt, segm(i)%down_comppt, segm(i)%length
+        !end do
+        !hydro_time_index = 11
+        !call interp_network(npartition_x, npartition_t, hydro_time_index)
+        !do t = 1, npartition_t+1
+        !    do icell = 1, npartition_x
+        !        write(debug_unit,'(6f15.6)') flow_hi_tmp(icell,t),flow_tmp(icell,t),flow_lo_tmp(icell,t),  &
+        !                            area_hi_tmp(icell,t), area_tmp(icell,t), area_lo_tmp(icell,t)
+        !    end do      
+        !    write(debug_unit,*) ""
+        !end do
+        !call deallocate_network_tmp()
         close(debug_unit)        
         return
     end subroutine

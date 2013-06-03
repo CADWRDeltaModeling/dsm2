@@ -53,7 +53,7 @@ module gtm_network
         allocate(area_tmp(ncell,npartition_t+1), stat = istat)
         allocate(area_lo_tmp(ncell,npartition_t+1), stat = istat)
         allocate(area_hi_tmp(ncell,npartition_t+1), stat = istat)
-        allocate(prev_flow_tmp(n_segm, npartition_x*2+1), stat = istat)
+        allocate(prev_flow_tmp(n_segm, npartition_x+1), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
@@ -79,23 +79,44 @@ module gtm_network
     !> Return dx_arr(1:ncell) for entire network
     subroutine define_cell()
         implicit none
-        real(gtm_real) :: dx, up_comp, down_comp
+        real(gtm_real) :: dx(ncell), up_comp, down_comp
         integer :: icell, i, j, nx
        ! integer, intent(in) :: npart_x                    !< number of partitions within a cell in space
-        nx = npartition_x*2 + 1
+        nx = npartition_x + 1
         call allocate_cell_property()
          do i = 1, n_segm
-            dx = segm(i)%length/(nx-1.)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt                
             do j = 1, npartition_x
                 icell = npartition_x*(i-1)+j
-                cell(icell)%dx = dx
+                dx(icell) = segm(i)%length/(nx-1.)
             end do
         end do      
         return
+    end subroutine       
+   
+    !> Fill flow_tmp(1:ncell,1:nt) and area_tmp(1:ncell,1:nt) for the entire network
+    subroutine fill_network(i_segm, flow_mesh, area_mesh)
+        use common_variables
+        implicit none
+        integer, intent(in) :: i_segm
+        real(gtm_real), dimension(npartition_t+1,npartition_x+1), intent(in) :: flow_mesh
+        real(gtm_real), dimension(npartition_t+1,npartition_x+1), intent(in) :: area_mesh
+        integer :: j, icell, t
+        do j = 1, npartition_x
+            icell = npartition_x*(i_segm-1)+j
+            do t = 1, npartition_t+1
+                flow_lo_tmp(icell,t) = flow_mesh(t,j+1)     ! lo: downstream
+                flow_hi_tmp(icell,t) = flow_mesh(t,j)       ! hi: upstream
+                flow_tmp(icell,t) = half*(flow_lo_tmp(icell,t)+flow_hi_tmp(icell,t))
+                area_lo_tmp(icell,t) = area_mesh(t,j+1)
+                area_hi_tmp(icell,t) = area_mesh(t,j)                
+                area_tmp(icell,t) = half*(area_lo_tmp(icell,t)+area_hi_tmp(icell,t))
+            end do
+        end do        
+        return
     end subroutine
-        
+    
     !> Return flow_tmp(1:ncell) and area_tmp(1:ncell) for the entire network 
     !> at the specified hydro time index
     subroutine interp_network(npart_x, npart_t, hydro_time_index)
@@ -104,14 +125,14 @@ module gtm_network
         integer, intent(in) :: npart_x                    !< number of partitions within a cell in space
         integer, intent(in) :: npart_t                    !< number of partitions in time
         integer, intent(in) :: hydro_time_index           !< starting time step index in DSM2 hydro 
-        real(gtm_real), dimension(npart_t+1, npart_x*2+1) :: flow_mesh, area_mesh                 ! local variables
-        real(gtm_real), dimension(npart_t, npart_x*2) ::  flow_volume_change, area_volume_change  ! local variables
+        real(gtm_real), dimension(npart_t+1, npart_x+1) :: flow_mesh, area_mesh                 ! local variables
+        real(gtm_real), dimension(npart_t, npart_x) :: flow_volume_change, area_volume_change  ! local variables
         real(gtm_real) :: dt, dx                                                                  ! local variables
         integer :: nx, nt                                                                         ! local variables
         integer :: up_comp, down_comp                                                             ! local variables
         integer :: i, j, t, icell, t_index                                                        ! local variables
                 
-        nx = npart_x*2 + 1
+        nx = npart_x + 1
         nt = npart_t + 1
         t_index = hydro_time_index 
         do i = 1, n_segm
@@ -120,9 +141,9 @@ module gtm_network
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
             if (prev_flow_tmp(i,1)==LARGEREAL) then
-               do j = 1, npart_x*2+1
+               do j = 1, npart_x+1
                    prev_flow_tmp(i,j) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
-                                        -hydro_flow(up_comp,t_index-1))*(j-1)/(npart_x*2)
+                                       -hydro_flow(up_comp,t_index-1))*(j-1)/(npart_x)
                end do
             end if   
             call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,                     &
@@ -135,12 +156,12 @@ module gtm_network
             do j = 1, npart_x
                 icell = npart_x*(i-1)+j
                 do t = 1, nt
-                    flow_tmp(icell,t) = flow_mesh(t,j*2)
-                    flow_lo_tmp(icell,t) = flow_mesh(t,j*2+1)
-                    flow_hi_tmp(icell,t) = flow_mesh(t,j*2-1)
-                    area_tmp(icell,t) = area_mesh(t,j*2)
-                    area_lo_tmp(icell,t) = area_mesh(t,j*2+1)
-                    area_hi_tmp(icell,t) = area_mesh(t,j*2-1)                
+                    flow_lo_tmp(icell,t) = flow_mesh(t,j+1)
+                    flow_hi_tmp(icell,t) = flow_mesh(t,j-1)
+                    flow_tmp(icell,t) = half*(flow_lo_tmp(icell,t)+flow_hi_tmp(icell,t))
+                    area_lo_tmp(icell,t) = area_mesh(t,j+1)
+                    area_hi_tmp(icell,t) = area_mesh(t,j-1)                
+                    area_tmp(icell,t) = half*(area_lo_tmp(icell,t)+area_hi_tmp(icell,t))
                 end do
             end do
             prev_flow_tmp(i,:) = flow_mesh(nt,:)
