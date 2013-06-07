@@ -39,5 +39,6 @@
 		<File RelativePath="..\..\..\src\transport\primitive_variable_conversion.f90"/>
 		<File RelativePath="..\..\..\src\transport\reaction.f90"/>
 		<File RelativePath="..\..\..\src\transport\source.f90"/>
-		<File RelativePath="..\..\..\src\transport\state_variables.f90"/></Filter></Files>
+		<File RelativePath="..\..\..\src\transport\state_variables.f90"/>
+		<File RelativePath="..\..\..\src\transport\transport.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

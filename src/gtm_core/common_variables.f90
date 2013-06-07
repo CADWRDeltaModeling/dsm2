@@ -34,13 +34,13 @@ module common_variables
     integer :: npartition_t = LARGEINT                          !< number of gtm time intervals partition from hydro time interval
     integer :: ncell = LARGEINT                                 !< number of cells in the entire network
     integer :: nvar = LARGEINT                                  !< number of variables
-    integer :: orig_start_julmin = LARGEINT                     !< original start time in hydro run
-    integer :: orig_end_julmin = LARGEINT                       !< original end time in hydro run
-    integer :: orig_time_interval = LARGEINT                    !< original time interval in hydro run
-    integer :: orig_ntideblocks = LARGEINT                      !< original time blocks in hydro run
+    integer :: hydro_start_julmin = LARGEINT                    !< hydro start time in hydro run
+    integer :: hydro_end_julmin = LARGEINT                      !< hydro end time in hydro run
+    integer :: hydro_time_interval = LARGEINT                   !< hydro time interval in hydro run
+    integer :: hydro_ntideblocks = LARGEINT                     !< hydro time blocks in hydro run
     integer :: gtm_start_julmin = LARGEINT                      !< gtm start time
     integer :: gtm_end_julmin = LARGEINT                        !< gtm end time
-    integer :: gtm_time_interval = LARGEINT                     !< gtm simulation time interval
+    real(gtm_real) :: gtm_time_interval = LARGEINT                     !< gtm simulation time interval
     integer :: ntideblocks = LARGEINT                           !< gtm time blocks
     
     real(gtm_real), allocatable :: hydro_flow(:,:)              !< flow from DSM2 hydro

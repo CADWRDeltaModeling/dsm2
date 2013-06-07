@@ -76,7 +76,7 @@ module time_util
       !> Routine to determine offset and buffer length to read HDF file
       subroutine check_runtime(offset, num_buffers, memlen,          &
                                time_buffer,                          &                               
-                               gtm_start_cdt, gtm_end_cdt,           &
+                               gtm_start_jmin, gtm_end_jmin,           &
                                hdf_start_jmin, hdf_end_jmin,         &
                                hdf_time_interval)              
           implicit none
@@ -86,18 +86,14 @@ module time_util
           integer, intent(in) :: time_buffer              !< time buffer length
           integer, intent(in) :: hdf_start_jmin           !< hydro tidefile start julian minutes
           integer, intent(in) :: hdf_end_jmin             !< hydro tidefile end Julian minutes
-          integer, intent(in) :: hdf_time_interval        
-          character(len=14), intent(in) :: gtm_start_cdt  !< GTM start character date/time
-          character(len=14), intent(in) :: gtm_end_cdt    !< GTM end character date/time
-          integer :: gtm_start_jmin                       !< GTM starting Julian miniutes
-          integer :: gtm_end_jmin                         !< GTM ending Julian miniutes
+          integer, intent(in) :: hdf_time_interval        !< hydro tidefile time interval
+          integer, intent(in) :: gtm_start_jmin           !< GTM start Julian miniutes
+          integer, intent(in) :: gtm_end_jmin             !< GTM end Julian miniutes
           integer :: remainder, i                         ! local variables
           integer :: istat = 0                            ! error handling for allocation
           offset = LARGEINT
           num_buffers = LARGEINT
           remainder = LARGEINT
-          call cdt2jmin(gtm_start_jmin, gtm_start_cdt)
-          call cdt2jmin(gtm_end_jmin, gtm_end_cdt)
           if (gtm_start_jmin < hdf_start_jmin) then
               call gtm_fatal("GTM starting time should be within HDF file time range.")
           else if (gtm_end_jmin > hdf_end_jmin) then
@@ -122,7 +118,7 @@ module time_util
           implicit none
           integer, intent(out) :: npart_t
           integer, intent(in) :: orig_time_interv
-          integer, intent(in) :: gtm_time_interv
+          real(gtm_real), intent(in) :: gtm_time_interv
           if (orig_time_interv < gtm_time_interv) then
               call gtm_fatal("GTM runtime interval should be smaller or equal than DSM2 hydro output time interval.")
           else

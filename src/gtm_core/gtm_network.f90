@@ -35,6 +35,7 @@ module gtm_network
     real(gtm_real), allocatable :: area_lo_tmp(:,:)
     real(gtm_real), allocatable :: area_hi_tmp(:,:)
     real(gtm_real), allocatable :: prev_flow_tmp(:,:)
+    real(gtm_real), allocatable :: dx(:)
     
     contains      
     
@@ -84,9 +85,7 @@ module gtm_network
        ! integer, intent(in) :: npart_x                    !< number of partitions within a cell in space
         nx = npartition_x + 1
         call allocate_cell_property()
-         do i = 1, n_segm
-            up_comp = segm(i)%up_comppt
-            down_comp = segm(i)%down_comppt                
+         do i = 1, n_segm               
             do j = 1, npartition_x
                 icell = npartition_x*(i-1)+j
                 dx(icell) = segm(i)%length/(nx-1.)
@@ -136,7 +135,7 @@ module gtm_network
         nt = npart_t + 1
         t_index = hydro_time_index 
         do i = 1, n_segm
-            dt = orig_time_interval/npart_t
+            dt = hydro_time_interval/npart_t
             dx = segm(i)%length/(nx-1.)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
@@ -183,8 +182,8 @@ module gtm_network
         implicit none
         integer, intent(in) :: ncell                   !< Number of cells
         real(gtm_real), intent(in) :: time             !< Time of request
-        real(gtm_real), intent(in) :: dx               !< Spatial step
         real(gtm_real), intent(in) :: dt               !< Time step 
+        real(gtm_real), intent(in) :: dx(ncell)        !< Spatial step
         real(gtm_real), intent(out) :: flow(ncell)     !< Cell and time centered flow
         real(gtm_real), intent(out) :: flow_lo(ncell)  !< Low face flow, time centered
         real(gtm_real), intent(out) :: flow_hi(ncell)  !< High face flow, time centered
@@ -201,5 +200,26 @@ module gtm_network
         area_hi = area_hi_tmp(:,time_in_mesh)
         return
     end subroutine    
+    
+    
+    !> Routine to sort an array with dimension n
+    subroutine sort_arr(sorted_arr, n, arr)
+        implicit none
+        integer, intent(in) :: n                           !< array dimension
+        integer, dimension(n), intent(in) :: arr           !< input array
+        integer, dimension(n), intent(out) :: sorted_arr   !< output sorted array
+        integer :: a, i, j
+        sorted_arr = arr
+        do j = 2, n
+            a = sorted_arr(j)
+            do i = j-1, 1, -1
+                if (sorted_arr(i)<=a) goto 10
+                sorted_arr(i+1) = sorted_arr(i)
+            end do
+	        i = 0
+10          sorted_arr(i+1) = a
+        end do
+        return
+    end subroutine
     
 end module
