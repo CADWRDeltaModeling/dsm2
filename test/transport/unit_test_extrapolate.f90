@@ -46,7 +46,7 @@ real(gtm_real) :: source(nx,nconst)   !< Source value (decay or increase)
 
 real(gtm_real) :: flow(nx)            !< Flow 
 real(gtm_real) :: area(nx)            !< Area
-real(gtm_real) :: dx                  !< Spacial step size
+real(gtm_real) :: dx(nx)              !< Spacial step size
 real(gtm_real) :: dt                  !< Time step 
 real(gtm_real) :: time                !< Currrent time
   

@@ -40,9 +40,10 @@ module common_variables
     integer :: hydro_ntideblocks = LARGEINT                     !< hydro time blocks in hydro run
     integer :: gtm_start_julmin = LARGEINT                      !< gtm start time
     integer :: gtm_end_julmin = LARGEINT                        !< gtm end time
-    real(gtm_real) :: gtm_time_interval = LARGEINT                     !< gtm simulation time interval
+    real(gtm_real) :: gtm_time_interval = LARGEINT              !< gtm simulation time interval
     integer :: ntideblocks = LARGEINT                           !< gtm time blocks
     
+    real(gtm_real), allocatable :: dx_arr(:)
     real(gtm_real), allocatable :: hydro_flow(:,:)              !< flow from DSM2 hydro
     real(gtm_real), allocatable :: hydro_area(:,:)              !< area from DSM2 hydro
     real(gtm_real), allocatable :: hydro_ws(:,:)                !< water surface from DSM2 hydro
@@ -135,16 +136,24 @@ module common_variables
         return
     end subroutine
     
-    !> Allocate cell_t array
+    !> Calculate n_cell and allocate dx array
     subroutine allocate_cell_property()
         use error_handling
         implicit none
         integer :: istat = 0
+        integer :: i, j, icell
         character(len=128) :: message
         ncell = n_segm * npartition_x
+        allocate(dx_arr(ncell), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if        
+        do i = 1, n_segm               
+            do j = 1, npartition_x
+                icell = npartition_x*(i-1)+j
+                dx_arr(icell) = segm(i)%length/npartition_x
+            end do
+        end do          
         return
     end subroutine
     

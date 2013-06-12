@@ -255,7 +255,7 @@ subroutine zoppou_flow(flow,    &
 implicit none
 integer, intent(in) :: ncell                  !< Number of cells
 real(gtm_real), intent(in) :: time            !< Time of request
-real(gtm_real), intent(in) :: dx              !< Spatial step 
+real(gtm_real), intent(in) :: dx(ncell)       !< Spatial step 
 real(gtm_real), intent(in) :: dt              !< Time step 
 real(gtm_real), intent(out):: flow(ncell)     !< Cell centered flow
 real(gtm_real), intent(out):: flow_lo(ncell)  !< Low face flow
@@ -271,10 +271,10 @@ real(gtm_real) :: xpos
 integer :: icell
 
 do icell = 1,ncell  
-  xpos_lo = x_left + dble(icell-1)*dx
-  xpos_hi = x_left + dble(icell)*dx
-  xpos    = x_left +(dble(icell)-half)*dx
-  area(icell)    = (a0/dx)*(dlog(xpos_hi)-dlog(xpos_lo)) 
+  xpos_lo = x_left + sum(dx(1:icell-1)) 
+  xpos_hi = x_left + sum(dx(1:icell))  
+  xpos = half * (xpos_lo + xpos_hi)     
+  area(icell)    = (a0/dx(icell))*(dlog(xpos_hi)-dlog(xpos_lo)) 
   area_lo(icell) = a0/xpos_lo
   area_hi(icell) = a0/xpos_hi
 end do
@@ -300,30 +300,30 @@ subroutine zoppou_disp_coef(disp_coef_lo,         &
      use gtm_precision
          
      implicit none
-      !--- args          
-    real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef
-    real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef      
-    integer,intent(in)  :: ncell                         !< Number of cells
-    integer,intent(in)  :: nvar                          !< Number of variables   
-    real(gtm_real),intent(in) :: time                    !< Current time
-    real(gtm_real),intent(in) :: dx                      !< Spatial step  
-    real(gtm_real),intent(in) :: dt                      !< Time step 
-    real(gtm_real),intent(in) :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
-    real(gtm_real),intent(in) :: flow_hi(ncell)          !< Flow on hi side of cells centered in time       
-    real(gtm_real),intent(in) :: flow(ncell)             !< Flow on center of cells 
-    !--
-    integer :: ivar
-    integer :: icell
-    real(gtm_real) :: xpos
-    real(gtm_real) :: xpos_lo
-    real(gtm_real) :: xpos_hi
+     !--- args          
+     real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef
+     real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef      
+     integer,intent(in)  :: ncell                         !< Number of cells
+     integer,intent(in)  :: nvar                          !< Number of variables   
+     real(gtm_real),intent(in) :: time                    !< Current time
+     real(gtm_real),intent(in) :: dx(ncell)               !< Spatial step  
+     real(gtm_real),intent(in) :: dt                      !< Time step 
+     real(gtm_real),intent(in) :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
+     real(gtm_real),intent(in) :: flow_hi(ncell)          !< Flow on hi side of cells centered in time       
+     real(gtm_real),intent(in) :: flow(ncell)             !< Flow on center of cells 
+     !--
+     integer :: ivar
+     integer :: icell
+     real(gtm_real) :: xpos
+     real(gtm_real) :: xpos_lo
+     real(gtm_real) :: xpos_hi
         
-    do icell = 1,ncell
-      xpos_lo = x_left + dble(icell-1)*dx
-      xpos_hi = x_left + dble(icell  )*dx
-      disp_coef_lo(icell) = d0*xpos_lo**two 
-      disp_coef_hi(icell) = d0*xpos_hi**two 
-    end do
+     do icell = 1,ncell
+         xpos_lo = x_left + dble(icell-1)*dx(icell)
+         xpos_hi = x_left + dble(icell  )*dx(icell)
+         disp_coef_lo(icell) = d0*xpos_lo**two 
+         disp_coef_hi(icell) = d0*xpos_hi**two 
+     end do
                 
      return
  end subroutine
@@ -348,7 +348,7 @@ real(gtm_real),intent(out):: bc_value_zoppou(nconc)     !< Dirichlet initial con
 real(gtm_real),intent(in) :: xloc                       !< Location where data is requested
 real(gtm_real),intent(in) :: time                       !< Time
 real(gtm_real),intent(in) :: dt                         !< Time step
-real(gtm_real),intent(in) :: dx                         !< Spacial mesh size
+real(gtm_real),intent(in) :: dx(nx_base)                !< Spacial mesh size
 real(gtm_real),intent(in) :: conc(nx_base,nconc)        !< Concentration 
 real(gtm_real),intent(in) :: origin                     !< Space origin
 
@@ -571,34 +571,32 @@ subroutine time_flow(flow,    &
                      dx,      &
                      dt)
                       
-implicit none
-integer, intent(in) :: ncell                  !< Number of cells
-real(gtm_real), intent(in) :: time            !< Time of request
-real(gtm_real), intent(in) :: dx              !< Spatial step 
-real(gtm_real), intent(in) :: dt              !< Time step 
-real(gtm_real), intent(out):: flow(ncell)     !< Cell centered flow
-real(gtm_real), intent(out):: flow_lo(ncell)  !< Low face flow
-real(gtm_real), intent(out):: flow_hi(ncell)  !< High face flow
-real(gtm_real), intent(out):: area(ncell)     !< Cell center area
-real(gtm_real), intent(out):: area_lo(ncell)  !< Area low face
-real(gtm_real), intent(out):: area_hi(ncell)  !< Area high face
+    implicit none
+    integer, intent(in) :: ncell                  !< Number of cells
+    real(gtm_real), intent(in) :: time            !< Time of request
+    real(gtm_real), intent(in) :: dx(ncell)       !< Spatial step 
+    real(gtm_real), intent(in) :: dt              !< Time step 
+    real(gtm_real), intent(out):: flow(ncell)     !< Cell centered flow
+    real(gtm_real), intent(out):: flow_lo(ncell)  !< Low face flow
+    real(gtm_real), intent(out):: flow_hi(ncell)  !< High face flow
+    real(gtm_real), intent(out):: area(ncell)     !< Cell center area
+    real(gtm_real), intent(out):: area_lo(ncell)  !< Area low face
+    real(gtm_real), intent(out):: area_hi(ncell)  !< Area high face
 
-!--- local
+    !--- local
+    integer :: icell
 
-integer :: icell
+    do icell = 1,ncell   
+        area(icell)    = a0_t 
+        area_lo(icell) = a0_t
+        area_hi(icell) = a0_t
+    end do
 
-do icell = 1,ncell  
+    flow(:)    = u0_t*(two+dcos(omega*time))*a0_t   
+    flow_lo(:) = u0_t*(two+dcos(omega*time))*a0_t  
+    flow_hi(:) = u0_t*(two+dcos(omega*time))*a0_t 
   
-  area(icell)    = a0_t 
-  area_lo(icell) = a0_t
-  area_hi(icell) = a0_t
-end do
- 
-  flow(:)    = u0_t*(two+dcos(omega*time))*a0_t   
-  flow_lo(:) = u0_t*(two+dcos(omega*time))*a0_t  
-  flow_hi(:) = u0_t*(two+dcos(omega*time))*a0_t 
-  
-return
+    return
 end subroutine
 
 subroutine time_disp_coef(disp_coef_lo,         &
@@ -621,58 +619,55 @@ subroutine time_disp_coef(disp_coef_lo,         &
     integer,intent(in)  :: ncell                         !< Number of cells
     integer,intent(in)  :: nvar                          !< Number of variables   
     real(gtm_real),intent(in) :: time                    !< Current time
-    real(gtm_real),intent(in) :: dx                      !< Spatial step  
+    real(gtm_real),intent(in) :: dx(ncell)               !< Spatial step  
     real(gtm_real),intent(in) :: dt                      !< Time step 
     real(gtm_real),intent(in) :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
     real(gtm_real),intent(in) :: flow_hi(ncell)          !< Flow on hi side of cells centered in time       
     real(gtm_real),intent(in) :: flow(ncell)             !< Flow on center of cells 
     !--local
- 
     integer :: icell
      
     do icell = 1,ncell
-      disp_coef_lo(icell) = d0_t*(two+dcos(omega*time)) 
-      disp_coef_hi(icell) = d0_t*(two+dcos(omega*time)) 
+        disp_coef_lo(icell) = d0_t*(two+dcos(omega*time)) 
+        disp_coef_hi(icell) = d0_t*(two+dcos(omega*time)) 
     end do
                 
-     return
+    return
  end subroutine
 
 
-subroutine bc_data_time(bc_value_time,&
-                        xloc,         &
-                        conc,         &
-                        nx_base,      &
-                        nconc,        &
-                        origin,       &
-                        time,         &
-                        dx,           &
-                        dt)                
+  subroutine bc_data_time(bc_value_time,&
+                          xloc,         &
+                          conc,         &
+                          nx_base,      &
+                          nconc,        &
+                          origin,       &
+                          time,         &
+                          dx,           &
+                          dt)                
                                    
-use gtm_precision                                       
-implicit none
+    use gtm_precision                                       
+    implicit none
 
-integer,intent(in) :: nconc 
-integer,intent(in) :: nx_base 
-real(gtm_real),intent(out):: bc_value_time(nconc)       !< Dirichlet initial condition at left side of channel
-real(gtm_real),intent(in) :: xloc                       !< Location where data is requested
-real(gtm_real),intent(in) :: time                       !< Time
-real(gtm_real),intent(in) :: dt                         !< Time step
-real(gtm_real),intent(in) :: dx                         !< Spacial mesh size
-real(gtm_real),intent(in) :: conc(nx_base,nconc)        !< Concentration 
-real(gtm_real),intent(in) :: origin                     !< Space origin
+    integer,intent(in) :: nconc 
+    integer,intent(in) :: nx_base 
+    real(gtm_real),intent(out):: bc_value_time(nconc)       !< Dirichlet initial condition at left side of channel
+    real(gtm_real),intent(in) :: xloc                       !< Location where data is requested
+    real(gtm_real),intent(in) :: time                       !< Time
+    real(gtm_real),intent(in) :: dt                         !< Time step
+    real(gtm_real),intent(in) :: dx(nx_base)                !< Spacial mesh size
+    real(gtm_real),intent(in) :: conc(nx_base,nconc)        !< Concentration 
+    real(gtm_real),intent(in) :: origin                     !< Space origin
+    !----local
+    real(gtm_real):: xpos
+    real(gtm_real):: point_value
 
-!----local
+    xpos = xloc + x_l_time  ! value comes in relative to zero origin right now
 
-real(gtm_real):: xpos
-real(gtm_real):: point_value
+    call time_solution (point_value,xpos,time)
+    bc_value_time(:) = point_value
 
-xpos = xloc + x_l_time  ! value comes in relative to zero origin right now
-
-call time_solution (point_value,xpos,time)
-bc_value_time(:) = point_value
-
-return
-end subroutine
+    return
+  end subroutine
 
 end module

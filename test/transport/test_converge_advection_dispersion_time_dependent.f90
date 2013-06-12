@@ -230,43 +230,44 @@ end do
 
 return
 end subroutine
-!///////////////////////////////////
-!> time dependent flow and area in the finite volume form
-subroutine time_dependent_flow (flow,    &
-                                flow_lo, &
-                                flow_hi, &
-                                area,    &
-                                area_lo, &
-                                area_hi, &
-                                ncell,   &
-                                time,    &
-                                dx,      &
-                                dt)
+
+  !///////////////////////////////////
+  !> time dependent flow and area in the finite volume form
+  subroutine time_dependent_flow (flow,    &
+                                  flow_lo, &
+                                  flow_hi, &
+                                  area,    &
+                                  area_lo, &
+                                  area_hi, &
+                                  ncell,   &
+                                  time,    &
+                                  dx,      &
+                                  dt)
                       
-implicit none
-integer, intent(in) :: ncell                  !< Number of cells
-real(gtm_real), intent(in) :: time            !< Time of request
-real(gtm_real), intent(in) :: dx              !< Spatial step 
-real(gtm_real), intent(in) :: dt              !< Time step 
-real(gtm_real), intent(out):: flow(ncell)     !< Cell centered flow
-real(gtm_real), intent(out):: flow_lo(ncell)  !< Low face flow
-real(gtm_real), intent(out):: flow_hi(ncell)  !< High face flow
-real(gtm_real), intent(out):: area(ncell)     !< Cell center area
-real(gtm_real), intent(out):: area_lo(ncell)  !< Area low face
-real(gtm_real), intent(out):: area_hi(ncell)  !< Area high face
+     implicit none
+     integer, intent(in) :: ncell                  !< Number of cells
+     real(gtm_real), intent(in) :: time            !< Time of request
+     real(gtm_real), intent(in) :: dx(ncell)       !< Spatial step 
+     real(gtm_real), intent(in) :: dt              !< Time step 
+     real(gtm_real), intent(out):: flow(ncell)     !< Cell centered flow
+     real(gtm_real), intent(out):: flow_lo(ncell)  !< Low face flow
+     real(gtm_real), intent(out):: flow_hi(ncell)  !< High face flow
+     real(gtm_real), intent(out):: area(ncell)     !< Cell center area
+     real(gtm_real), intent(out):: area_lo(ncell)  !< Area low face
+     real(gtm_real), intent(out):: area_hi(ncell)  !< Area high face
 
-  area(:)    = a0
-  area_lo(:) = a0
-  area_hi(:) = a0
-
-  flow(:)    = u0*(two+dcos(pi*time/two))*a0   
-  flow_lo(:) = u0*(two+dcos(pi*time/two))*a0  
-  flow_hi(:) = u0*(two+dcos(pi*time/two))*a0  
+     area(:)    = a0
+     area_lo(:) = a0
+     area_hi(:) = a0
+ 
+     flow(:)    = u0*(two+dcos(pi*time/two))*a0   
+     flow_lo(:) = u0*(two+dcos(pi*time/two))*a0  
+     flow_hi(:) = u0*(two+dcos(pi*time/two))*a0  
   
-return
-end subroutine
+     return
+  end subroutine
 
-subroutine time_dependent_disp_coef(disp_coef_lo,         &
+  subroutine time_dependent_disp_coef(disp_coef_lo,         &
                                     disp_coef_hi,         &
                                     flow,                 &
                                     flow_lo,              &
@@ -281,25 +282,24 @@ subroutine time_dependent_disp_coef(disp_coef_lo,         &
          
      implicit none
       !--- args          
-    real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef
-    real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef      
-    integer,intent(in)  :: ncell                         !< Number of cells
-    integer,intent(in)  :: nvar                          !< Number of variables   
-    real(gtm_real),intent(in) :: time                    !< Current time
-    real(gtm_real),intent(in) :: dx                      !< Spatial step  
-    real(gtm_real),intent(in) :: dt                      !< Time step 
-    real(gtm_real),intent(in) :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
-    real(gtm_real),intent(in) :: flow_hi(ncell)          !< Flow on hi side of cells centered in time       
-    real(gtm_real),intent(in) :: flow(ncell)             !< Flow on center of cells 
-    !--
-       
-      disp_coef_lo(:) = d0*(two+dcos(pi*time/two))
-      disp_coef_hi(:) = d0*(two+dcos(pi*time/two))
+     real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef
+     real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef      
+     integer,intent(in)  :: ncell                         !< Number of cells
+     integer,intent(in)  :: nvar                          !< Number of variables   
+     real(gtm_real),intent(in) :: time                    !< Current time
+     real(gtm_real),intent(in) :: dx(ncell)               !< Spatial step  
+     real(gtm_real),intent(in) :: dt                      !< Time step 
+     real(gtm_real),intent(in) :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
+     real(gtm_real),intent(in) :: flow_hi(ncell)          !< Flow on hi side of cells centered in time       
+     real(gtm_real),intent(in) :: flow(ncell)             !< Flow on center of cells 
+         
+     disp_coef_lo(:) = d0*(two+dcos(pi*time/two))
+     disp_coef_hi(:) = d0*(two+dcos(pi*time/two))
                 
      return
- end subroutine
+  end subroutine
 
-subroutine bc_data_time_dependent(bc_value_t_dependent,&
+  subroutine bc_data_time_dependent(bc_value_t_dependent,&
                                   xloc,                &
                                   conc,                &
                                   nx_base,             &
@@ -309,31 +309,31 @@ subroutine bc_data_time_dependent(bc_value_t_dependent,&
                                   dx,                  &
                                   dt)                
                                     
-use gtm_precision                                       
-implicit none
+    use gtm_precision                                       
+    implicit none
 
-integer,intent(in) :: nconc 
-integer,intent(in) :: nx_base 
-real(gtm_real),intent(out):: bc_value_t_dependent(nconc)!< Dirichlet initial condition at left side of channel
-real(gtm_real),intent(in) :: xloc                       !< Location where data is requested
-real(gtm_real),intent(in) :: time                       !< Time
-real(gtm_real),intent(in) :: dt                         !< Time step
-real(gtm_real),intent(in) :: dx                         !< Spacial mesh size
-real(gtm_real),intent(in) :: conc(nx_base,nconc)        !< Concentration 
-real(gtm_real),intent(in) :: origin                     !< Space origin
+    integer,intent(in) :: nconc 
+    integer,intent(in) :: nx_base 
+    real(gtm_real),intent(out):: bc_value_t_dependent(nconc)!< Dirichlet initial condition at left side of channel
+    real(gtm_real),intent(in) :: xloc                       !< Location where data is requested
+    real(gtm_real),intent(in) :: time                       !< Time
+    real(gtm_real),intent(in) :: dt                         !< Time step
+    real(gtm_real),intent(in) :: dx(nx_base)                !< Spacial mesh size
+    real(gtm_real),intent(in) :: conc(nx_base,nconc)        !< Concentration 
+    real(gtm_real),intent(in) :: origin                     !< Space origin
 
-!----local
-real(gtm_real):: c_term1
-real(gtm_real):: c_term2
-real(gtm_real):: xpos
-real(gtm_real):: point_value
+    !----local
+    real(gtm_real):: c_term1
+    real(gtm_real):: c_term2
+    real(gtm_real):: xpos
+    real(gtm_real):: point_value
 
-xpos = xloc + x_left  ! value comes in relative to zero origin right now
+    xpos = xloc + x_left  ! value comes in relative to zero origin right now
 
-call time_dependent_solution(point_value,xpos,time)
-bc_value_t_dependent(:) = point_value
+    call time_dependent_solution(point_value,xpos,time)
+    bc_value_t_dependent(:) = point_value
 
-return
-end subroutine
+    return
+  end subroutine
 
 end module

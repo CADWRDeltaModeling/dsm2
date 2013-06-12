@@ -27,20 +27,20 @@ use boundary_advection
 
 !> Advective fluxes on lo and hi side of single channel.
 !> Each is expected to operate on only one end
-procedure(boundary_advective_flux_if),  pointer :: advective_flux_lo  => null()
-procedure(boundary_advective_flux_if),  pointer :: advective_flux_hi  => null()
+procedure(boundary_advective_flux_if), pointer :: advective_flux_lo  => null()
+procedure(boundary_advective_flux_if), pointer :: advective_flux_hi  => null()
 
 
 !> Diffusive fluxes on lo and hi side of single channel.
 !> Each is expected to operate on only one end
-procedure(boundary_diffusive_flux_if),  pointer :: diffusion_flux_lo  => null()
-procedure(boundary_diffusive_flux_if),  pointer :: diffusion_flux_hi  => null()
+procedure(boundary_diffusive_flux_if), pointer :: diffusion_flux_lo  => null()
+procedure(boundary_diffusive_flux_if), pointer :: diffusion_flux_hi  => null()
 
 
 !> Diffusive matrix on lo and hi side of single channel.
 !> Each is expected to operate on only one end
-procedure(boundary_diffusive_matrix_if),pointer :: diffusion_matrix_lo  => null()
-procedure(boundary_diffusive_matrix_if),pointer :: diffusion_matrix_hi  => null()
+procedure(boundary_diffusive_matrix_if), pointer :: diffusion_matrix_lo  => null()
+procedure(boundary_diffusive_matrix_if), pointer :: diffusion_matrix_hi  => null()
  
 !> Provide data for boundary
 abstract interface
@@ -65,7 +65,7 @@ subroutine boundary_data_if(bc_data,           &
     real(gtm_real), intent (in)   :: origin                          !< Space origin
     real(gtm_real), intent (in)   :: conc(ncell,nvar)                !< Concentration 
     real(gtm_real), intent (in)   :: dt                              !< Time step    
-    real(gtm_real), intent (in)   :: dx                              !< Spatial step
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Spatial step
     
     end subroutine 
  end interface
@@ -151,7 +151,7 @@ subroutine single_channel_boundary_advective_flux(flux_lo,    &
  real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< concentration extrapolated to lo face
  real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< concentration extrapolated to hi face
  real(gtm_real),intent(in)    :: time                    !< Current time
- real(gtm_real),intent(in)    :: dx                      !< Spatial step  
+ real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step  
  real(gtm_real),intent(in)    :: dt                      !< Time step     
 
  call advective_flux_lo(flux_lo,    &
@@ -205,12 +205,12 @@ subroutine single_channel_boundary_diffusive_flux(diffusive_flux_lo, &
     real(gtm_real), intent (inout):: diffusive_flux_hi(ncell,nvar)   !< Face flux, hi side
     real(gtm_real), intent (in)   :: area_lo(ncell)                  !< Low side area centered at time
     real(gtm_real), intent (in)   :: area_hi(ncell)                  !< High side area centered at time
-    real(gtm_real), intent (in)   ::  time                           !< Time
-    real(gtm_real), intent (in)   ::  conc(ncell,nvar)               !< Concentration 
+    real(gtm_real), intent (in)   :: time                            !< Time
+    real(gtm_real), intent (in)   :: conc(ncell,nvar)                !< Concentration 
     real(gtm_real), intent (in)   :: disp_coef_lo(ncell)             !< Low side constituent dispersion coef.
     real(gtm_real), intent (in)   :: disp_coef_hi(ncell)             !< High side constituent dispersion coef.
     real(gtm_real), intent (in)   :: dt                              !< Spatial step
-    real(gtm_real), intent (in)   :: dx                              !< Time step   
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Time step   
    
     call diffusion_flux_lo(diffusive_flux_lo, &
                            diffusive_flux_hi, &
@@ -279,7 +279,7 @@ subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_hi (ncell)                        !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
  real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
- real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+ real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step     
 
  call diffusion_matrix_lo(center_diag ,           &
@@ -347,7 +347,7 @@ subroutine dirichlet_advective_flux_lo(flux_lo,    &
      real(gtm_real), intent(in)   :: conc_lo(ncell,nvar)     !< concentration extrapolated to lo face
      real(gtm_real), intent(in)   :: conc_hi(ncell,nvar)     !< concentration extrapolated to hi face
      real(gtm_real), intent(in)   :: time                    !< Current time
-     real(gtm_real), intent(in)   :: dx                      !< Spatial step  
+     real(gtm_real), intent(in)   :: dx(ncell)               !< Spatial step  
      real(gtm_real), intent(in)   :: dt                      !< Time step     
     !---local
     real(gtm_real) :: bc_data(nvar)
@@ -365,9 +365,9 @@ subroutine dirichlet_advective_flux_lo(flux_lo,    &
                            dx,                &
                            dt)
    if (flow_lo(1) .ge. zero)then
-     multiplier = one
-     if(allocated(linear_decay))multiplier=exp(linear_decay*half*dt)
-     flux_lo(1,:)=bc_data*flow_lo(1)*multiplier
+        multiplier = one
+        if(allocated(linear_decay)) multiplier = exp(linear_decay*half*dt)
+       flux_lo(1,:)=bc_data*flow_lo(1)*multiplier
    end if
    return
  end subroutine
@@ -397,14 +397,14 @@ subroutine dirichlet_advective_flux_hi(flux_lo,    &
      real(gtm_real), intent(in)   :: conc_lo(ncell,nvar)     !< concentration extrapolated to lo face
      real(gtm_real), intent(in)   :: conc_hi(ncell,nvar)     !< concentration extrapolated to hi face
      real(gtm_real), intent(in)   :: time                    !< Current time
-     real(gtm_real), intent(in)   :: dx                      !< Spatial step  
+     real(gtm_real), intent(in)   :: dx(ncell)               !< Spatial step  
      real(gtm_real), intent(in)   :: dt                      !< Time step     
     !---local
     real(gtm_real) :: bc_data(nvar)
     real(gtm_real) :: xloc
     real(gtm_real) :: origin = zero !todo: HARDWIRE
 
-    xloc = origin + dble(ncell)*dx
+    xloc = origin + sum(dx)
     call advection_data_hi(bc_data,           &
                            xloc,              &
                            conc_hi,           &
@@ -415,7 +415,7 @@ subroutine dirichlet_advective_flux_hi(flux_lo,    &
                            dx,                &
                            dt)
     if (flow_hi(ncell) .le. zero) then
-       flux_hi(ncell,:)=bc_data*flow_hi(ncell)
+        flux_hi(ncell,:) = bc_data*flow_hi(ncell)
     end if
     return
  end subroutine
@@ -442,14 +442,14 @@ subroutine dirichlet_diffusive_flux_lo(diffusive_flux_lo, &
     integer, intent(in)  :: nvar                                     !< Number of variables
     real(gtm_real), intent (inout):: diffusive_flux_lo(ncell,nvar)   !< Face flux, lo side
     real(gtm_real), intent (inout):: diffusive_flux_hi(ncell,nvar)   !< Face flux, hi side
-    real(gtm_real), intent (in)   :: area_lo         (ncell)         !< Low side area centered at time
-    real(gtm_real), intent (in)   :: area_hi         (ncell)         !< High side area centered at time
-    real(gtm_real), intent (in)   ::  time                           !< Time
-    real(gtm_real), intent (in)   ::  conc(ncell,nvar)               !< Concentration 
+    real(gtm_real), intent (in)   :: area_lo(ncell)                  !< Low side area centered at time
+    real(gtm_real), intent (in)   :: area_hi(ncell)                  !< High side area centered at time
+    real(gtm_real), intent (in)   :: time                            !< Time
+    real(gtm_real), intent (in)   :: conc(ncell,nvar)                !< Concentration 
     real(gtm_real), intent (in)   :: disp_coef_lo (ncell)            !< Low side constituent dispersion coef.
     real(gtm_real), intent (in)   :: disp_coef_hi (ncell)            !< High side constituent dispersion coef.
-    real(gtm_real), intent (in)   :: dt                              !< Spatial step
-    real(gtm_real), intent (in)   :: dx                              !< Time step   
+    real(gtm_real), intent (in)   :: dt                              !< Time step
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Spatial step   
     !---local
     real(gtm_real) :: bc_data(nvar)
     real(gtm_real) :: xloc
@@ -467,7 +467,6 @@ subroutine dirichlet_diffusive_flux_lo(diffusive_flux_lo, &
                            dt)
     
    diffusive_flux_lo(1,:)=-two*area_lo(1)*disp_coef_lo(1)*(conc(1,:)-bc_data(:))/dx
-   
    
 return
 end subroutine
@@ -493,20 +492,20 @@ subroutine dirichlet_diffusive_flux_hi(diffusive_flux_lo, &
     integer, intent(in)  :: nvar                                     !< Number of variables
     real(gtm_real), intent (inout):: diffusive_flux_lo(ncell,nvar)   !< Face flux, lo side
     real(gtm_real), intent (inout):: diffusive_flux_hi(ncell,nvar)   !< Face flux, hi side
-    real(gtm_real), intent (in)   :: area_lo         (ncell)         !< Low side area
-    real(gtm_real), intent (in)   :: area_hi         (ncell)         !< High side area
+    real(gtm_real), intent (in)   :: area_lo(ncell)                  !< Low side area
+    real(gtm_real), intent (in)   :: area_hi(ncell)                  !< High side area
     real(gtm_real), intent (in)   :: time                            !< Time
     real(gtm_real), intent (in)   :: conc(ncell,nvar)                !< Concentration 
-    real(gtm_real), intent (in)   :: disp_coef_lo (ncell)            !< Low side constituent dispersion coef.
-    real(gtm_real), intent (in)   :: disp_coef_hi (ncell)            !< High side constituent dispersion coef.
-    real(gtm_real), intent (in)   :: dt                              !< Spatial step
-    real(gtm_real), intent (in)   :: dx                              !< Time step   
+    real(gtm_real), intent (in)   :: disp_coef_lo(ncell)             !< Low side constituent dispersion coef.
+    real(gtm_real), intent (in)   :: disp_coef_hi(ncell)             !< High side constituent dispersion coef.
+    real(gtm_real), intent (in)   :: dt                              !< Time step
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Spatial step   
     ! ---local
     real(gtm_real) :: bc_data(nvar)                                  !< The value of the constituent on the Boundary
     real(gtm_real) :: xloc                                
     real(gtm_real) :: origin = zero !todo: HARDWIRE
 
-    xloc = origin + dx*dble(ncell)
+    xloc = origin + sum(dx)
     call diffusion_data_hi(bc_data,           &
                            xloc,              &
                            conc,              &
@@ -518,7 +517,6 @@ subroutine dirichlet_diffusive_flux_hi(diffusive_flux_lo, &
                            dt)
     
    diffusive_flux_hi(ncell,:)=-two*area_hi(ncell)*disp_coef_hi(ncell)*(bc_data(:)-conc(ncell,:))/dx
-
 
 return
 end subroutine
@@ -563,10 +561,10 @@ subroutine dirichlet_diffusive_matrix_lo(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
  real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
- real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+ real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step    
   !---local
- real(gtm_real) :: dt_by_dxsq
+ real(gtm_real) :: dt_by_dxsq(ncell)
  real(gtm_real) :: xloc
  real(gtm_real) :: bc_data(nvar)
  real(gtm_real) :: origin = zero !todo: HARDWIRE
@@ -586,9 +584,9 @@ subroutine dirichlet_diffusive_matrix_lo(center_diag ,           &
  dt_by_dxsq = dt/(dx*dx)
 ! todo: one part of center diag is based on old time and other part new time
 !       is this really true?
- center_diag(1,:)= center_diag(1,:)+theta_stm*dt_by_dxsq*(area_lo(1)*disp_coef_lo(1))                  
+ center_diag(1,:)= center_diag(1,:)+theta_stm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))                  
  right_hand_side(1,:) = right_hand_side(1,:)&
-             + two*theta_stm*dt_by_dxsq*(area_lo(1)*disp_coef_lo(1))*bc_data
+             + two*theta_stm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))*bc_data
 
 
 
@@ -633,16 +631,16 @@ subroutine dirichlet_diffusive_matrix_hi(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
  real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
- real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+ real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step    
   !---local
- real(gtm_real) :: dt_by_dxsq
+ real(gtm_real) :: dt_by_dxsq(ncell)
  real(gtm_real) :: xloc
  real(gtm_real) :: bc_data(nvar)
  real(gtm_real) :: origin = zero !todo: HARDWIRE
 
  dt_by_dxsq = dt/(dx*dx)
- xloc = origin + dx*dble(ncell)
+ xloc = origin + sum(dx)
  call diffusion_data_hi(bc_data,           &
                         xloc,              &
                         conc,              &
@@ -656,9 +654,9 @@ subroutine dirichlet_diffusive_matrix_hi(center_diag ,           &
  ! todo: one part of center diag is based on old time and other part new time?
  ! todo: is this really true?
  center_diag(ncell,:)= center_diag(ncell,:)&
-                    +  theta_stm*dt_by_dxsq*(area_hi(ncell)*disp_coef_hi(ncell))
+                    +  theta_stm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))
  right_hand_side(ncell,:) = right_hand_side(ncell,:)&
-                    + two*theta_stm*dt_by_dxsq*(area_hi(ncell)*disp_coef_hi(ncell))*bc_data
+                    + two*theta_stm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))*bc_data
 
 return
 end subroutine
@@ -690,7 +688,7 @@ end subroutine
    real(gtm_real), intent(in)   :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
    real(gtm_real), intent(in)   :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
    real(gtm_real), intent (in)  :: time                    !< Current time
-   real(gtm_real), intent (in)  :: dx                      !< Spatial step  
+   real(gtm_real), intent (in)  :: dx(ncell)               !< Spatial step  
    real(gtm_real), intent (in)  :: dt                      !< Time step     
    call gtm_fatal("Single channel advection neumann boundary not implemented")
    
@@ -724,7 +722,7 @@ end subroutine
    real(gtm_real), intent(in)   :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
    real(gtm_real), intent(in)   :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
    real(gtm_real), intent (in)  :: time                    !< Current time
-   real(gtm_real), intent (in)  :: dx                      !< Spatial step  
+   real(gtm_real), intent (in)  :: dx(ncell)               !< Spatial step  
    real(gtm_real), intent (in)  :: dt                      !< Time step     
 
    call gtm_fatal("Single channel advection neumann boundary not implemented")
@@ -761,9 +759,9 @@ subroutine neumann_diffusive_flux_lo(diffusive_flux_lo, &
     real(gtm_real), intent (in)   :: disp_coef_lo (ncell)            !< Low side constituent dispersion coef.
     real(gtm_real), intent (in)   :: disp_coef_hi (ncell)            !< High side constituent dispersion coef.
     real(gtm_real), intent (in)   :: dt                              !< Spatial step           
-    real(gtm_real), intent (in)   :: dx                              !< Time step     
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Time step     
     !---local
-    real(gtm_real) :: dt_by_dxsq
+    real(gtm_real) :: dt_by_dxsq(ncell)
     real(gtm_real) :: xloc
     real(gtm_real) :: bc_data(nvar)
     real(gtm_real) :: origin = zero !todo: HARDWIRE
@@ -813,31 +811,30 @@ subroutine neumann_diffusive_flux_hi(diffusive_flux_lo, &
     real(gtm_real), intent (in)   :: disp_coef_lo (ncell)            !< Low side constituent dispersion coef.
     real(gtm_real), intent (in)   :: disp_coef_hi (ncell)            !< High side constituent dispersion coef.
     real(gtm_real), intent (in)   :: dt                              !< Spatial step  
-    real(gtm_real), intent (in)   :: dx                              !< Time step     
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Time step     
 
-  !---local
- real(gtm_real) :: dt_by_dxsq
- real(gtm_real) :: xloc
- real(gtm_real) :: bc_data(nvar)
- real(gtm_real) :: origin = zero !todo: HARDWIRE
+    !---local
+    real(gtm_real) :: dt_by_dxsq(ncell)
+    real(gtm_real) :: xloc
+    real(gtm_real) :: bc_data(nvar)
+    real(gtm_real) :: origin = zero !todo: HARDWIRE
 
- dt_by_dxsq = dt/(dx*dx)
- xloc = origin + dx*dble(ncell)
+    dt_by_dxsq = dt/(dx*dx)
+    xloc = origin + sum(dx)
  
- call diffusion_data_hi(bc_data,           &
-                        xloc,              &
-                        conc,              &
-                        ncell,             &
-                        nvar,              &
-                        origin,            &
-                        time,              &
-                        dx,                &
-                        dt)
+    call diffusion_data_hi(bc_data,           &
+                           xloc,              &
+                           conc,              &
+                           ncell,             &
+                           nvar,              &
+                           origin,            &
+                           time,              &
+                           dx,                &
+                           dt)
     
-  diffusive_flux_hi(ncell,:) = -area_hi(ncell)*disp_coef_hi(ncell)*bc_data
+     diffusive_flux_hi(ncell,:) = -area_hi(ncell)*disp_coef_hi(ncell)*bc_data
 
-
-return
+     return
 end subroutine
 
 
@@ -879,11 +876,11 @@ subroutine neumann_diffusive_matrix_lo(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
  real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
- real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+ real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step      
 
   !---local
- real(gtm_real) :: dt_by_dxsq
+ real(gtm_real) :: dt_by_dxsq(ncell)
  real(gtm_real) :: xloc
  real(gtm_real) :: bc_data(nvar)
  real(gtm_real) :: origin = zero !todo: HARDWIRE
@@ -899,17 +896,14 @@ subroutine neumann_diffusive_matrix_lo(center_diag ,           &
                         time,              &
                         dx,                &
                         dt)
- 
- 
-     ! todo: there may be an issue of area vs area previous    
+   ! todo: there may be an issue of area vs area previous    
     
     flux(:) = -area_lo(1)*disp_coef_lo(1)*bc_data
     
-    center_diag(1,:)= area(1)+ theta_stm*dt_by_dxsq* area_hi(1)*disp_coef_hi(1)  
+    center_diag(1,:)= area(1)+ theta_stm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)  
     right_hand_side(1,:) = right_hand_side(1,:)+ theta_stm*(dt/dx)*flux(:)
      
-
-return
+    return
 end subroutine
 
 
@@ -951,17 +945,17 @@ subroutine neumann_diffusive_matrix_hi(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
  real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
- real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+ real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step    
 
   !---local
- real(gtm_real) :: dt_by_dxsq
+ real(gtm_real) :: dt_by_dxsq(ncell)
  real(gtm_real) :: xloc
  real(gtm_real) :: bc_data(nvar)
  real(gtm_real) :: origin = zero !todo: HARDWIRE
  real(gtm_real) :: flux(nvar)
  dt_by_dxsq = dt/(dx*dx) 
- xloc = origin + dx*dble(ncell)
+ xloc = origin + sum(dx)
  call diffusion_data_hi(bc_data,           &
                         xloc,              &
                         conc,              &
@@ -972,15 +966,13 @@ subroutine neumann_diffusive_matrix_hi(center_diag ,           &
                         dx,                &
                         dt)
  
- 
      ! todo: there may be an issue of area vs area previous    
     flux(:) = -area_hi(ncell)*disp_coef_hi(ncell)*bc_data
-    
-    
-    center_diag(ncell,:)= area(ncell)+ theta_stm*dt_by_dxsq* area_lo(ncell)*disp_coef_lo(1)
+       
+    center_diag(ncell,:)= area(ncell)+ theta_stm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(1)
     right_hand_side(ncell,:)= right_hand_side(ncell,:) - theta_stm*(dt/dx)*flux(:)
 
-return
+    return
 end subroutine
 
 end module

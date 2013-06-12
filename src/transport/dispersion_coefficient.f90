@@ -24,10 +24,10 @@
 ! get U and depth from HYDRO and based on the well known formula by Fischer et al. (1979); it must be computed and fed here
 
 module dispersion_coefficient
-use gtm_precision, only: gtm_real
+  use gtm_precision, only: gtm_real
 
-interface
-    ! todo: comment 
+  interface
+    !> Dispersion coefficient interface to be fulfilled by driver or application
     subroutine diffusion_coef_if(disp_coef_lo,         &
                                  disp_coef_hi,         &
                                  flow,                 &
@@ -39,76 +39,75 @@ interface
                                  ncell,                &
                                  nvar)      
                                   
-    use gtm_precision    
-    implicit none
+        use gtm_precision    
+        implicit none
     
-    real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef
-    real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef
-    integer,intent(in)  :: ncell                         !< Number of cells
-    integer,intent(in)  :: nvar                          !< Number of variables   
-    real(gtm_real),intent(in) :: time                    !< Current time
-    real(gtm_real),intent(in) :: dx                      !< Spatial step  
-    real(gtm_real),intent(in) :: dt                      !< Time step 
-    real(gtm_real),intent(in) :: flow_lo(ncell)          !< flow on lo side of cells centered in time
-    real(gtm_real),intent(in) :: flow_hi(ncell)          !< flow on hi side of cells centered in time       
-    real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells            
+        real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef
+        real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef
+        integer,intent(in)  :: ncell                         !< Number of cells
+        integer,intent(in)  :: nvar                          !< Number of variables   
+        real(gtm_real),intent(in) :: time                    !< Current time
+        real(gtm_real),intent(in) :: dx(ncell)               !< Spatial step  
+        real(gtm_real),intent(in) :: dt                      !< Time step 
+        real(gtm_real),intent(in) :: flow_lo(ncell)          !< flow on lo side of cells centered in time
+        real(gtm_real),intent(in) :: flow_hi(ncell)          !< flow on hi side of cells centered in time       
+        real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells            
     end subroutine 
-end interface
+  end interface
 
-!> This pointer should be set by the driver or client code to specify the 
-!> treatment at the dispersion coefficients
-procedure(diffusion_coef_if),pointer :: dispersion_coef  => null()
+  !> This pointer should be set by the driver or client code to specify the 
+  !> treatment at the dispersion coefficients
+  procedure(diffusion_coef_if),pointer :: dispersion_coef  => null()
 
-real(gtm_real),save :: const_dispersion
+  real(gtm_real),save :: const_dispersion
 
-contains
+  contains
 
-!> Set dispersion coefficient interface to an implementation that is constant in space and time
-!> This routine sets the value of the constant dispersion coefficient as well.
-subroutine set_constant_dispersion(coefficient)
-use gtm_precision
-use error_handling
-implicit none
-real(gtm_real),intent(in) :: coefficient      !< Constant value of dispersion coef. 
-const_dispersion = coefficient
-dispersion_coef => constant_dispersion_coef
-return
-end subroutine
+  !> Set dispersion coefficient interface to an implementation that is constant in space and time
+  !> This routine sets the value of the constant dispersion coefficient as well.
+  subroutine set_constant_dispersion(coefficient)
+      use gtm_precision
+      use error_handling
+      implicit none
+      real(gtm_real),intent(in) :: coefficient      !< Constant value of dispersion coef. 
+      const_dispersion = coefficient
+      dispersion_coef => constant_dispersion_coef
+      return
+  end subroutine
 
-!> Implementation of diffusion_coef_if that sets dipsersion to a constant over space and time
-subroutine constant_dispersion_coef(disp_coef_lo,         &
-                                    disp_coef_hi,         &
-                                    flow,                 &
-                                    flow_lo,              &
-                                    flow_hi,              &
-                                    time,                 &
-                                    dx,                   &
-                                    dt,                   &
-                                    ncell,                &
-                                    nvar)  
+  !> Implementation of diffusion_coef_if that sets dipsersion to a constant over space and time
+  subroutine constant_dispersion_coef(disp_coef_lo,         &
+                                      disp_coef_hi,         &
+                                      flow,                 &
+                                      flow_lo,              &
+                                      flow_hi,              &
+                                      time,                 &
+                                      dx,                   &
+                                      dt,                   &
+                                      ncell,                &
+                                      nvar)  
+      use gtm_precision
+      use error_handling
      
-    use gtm_precision
-    use error_handling
-     
-    implicit none
-!--- args          
-    integer,intent(in)  :: ncell                         !< Number of cells
-    integer,intent(in)  :: nvar                          !< Number of variables   
-    real(gtm_real),intent(in) :: time                    !< Current time
-    real(gtm_real),intent(in) :: dx                      !< Spatial step  
-    real(gtm_real),intent(in) :: dt                      !< Time step 
-    real(gtm_real),intent(in) :: flow_lo(ncell)          !< flow on lo side of cells centered in time
-    real(gtm_real),intent(in) :: flow_hi(ncell)          !< flow on hi side of cells centered in time       
-    real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells 
-    real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef.
-    real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef. 
-!--
-    integer :: ivar
+      implicit none
+      !--- args          
+      integer,intent(in)  :: ncell                         !< Number of cells
+      integer,intent(in)  :: nvar                          !< Number of variables   
+      real(gtm_real),intent(in) :: time                    !< Current time
+      real(gtm_real),intent(in) :: dx(ncell)               !< Spatial step  
+      real(gtm_real),intent(in) :: dt                      !< Time step 
+      real(gtm_real),intent(in) :: flow_lo(ncell)          !< flow on lo side of cells centered in time
+      real(gtm_real),intent(in) :: flow_hi(ncell)          !< flow on hi side of cells centered in time       
+      real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells 
+      real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef.
+      real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef. 
+      !-- local
+      integer :: ivar
    
-    disp_coef_hi = const_dispersion
-    disp_coef_lo = const_dispersion
+      disp_coef_hi = const_dispersion
+      disp_coef_lo = const_dispersion
         
-    return
+      return
  end subroutine
 
 end module

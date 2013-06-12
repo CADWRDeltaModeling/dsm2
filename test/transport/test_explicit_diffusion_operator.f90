@@ -42,7 +42,7 @@ real(gtm_real) :: area_hi_prev (ncell)                        !< High side area 
 real(gtm_real) :: disp_coef_lo_prev (ncell,nvar)              !< Low side constituent dispersion coef. at old time
 real(gtm_real) :: disp_coef_hi_prev (ncell,nvar)              !< High side constituent dispersion coef. at old time
 real(gtm_real) :: time                                        !< Current time
-real(gtm_real) :: dx                                          !< Spacial step  
+real(gtm_real) :: dx(ncell)                                   !< Spacial step  
 real(gtm_real) :: dt                                          !< Time step  
 
 !-- set the values and the known answer

@@ -445,7 +445,7 @@ subroutine tidal_flow_modified(flow,    &
 implicit none
 integer, intent(in) :: ncell                   !< number of cells
 real(gtm_real), intent(in)  :: time            !< time of request
-real(gtm_real), intent(in)  :: dx              !< spatial step 
+real(gtm_real), intent(in)  :: dx(ncell)       !< spatial step 
 real(gtm_real), intent(in)  :: dt              !< time step 
 real(gtm_real), intent(out) :: flow(ncell)     !< cell centered flow
 real(gtm_real), intent(out) :: flow_lo(ncell)  !< lo face flow
@@ -479,11 +479,11 @@ big_a = amplitude* dsqrt(gravity*depth)/(depth*dcos(big_b*domain_length))
 do icell = 1,ncell  
   
   ! this is L-x
-  xpos_lo = domain_length- dble(icell-1)*dx
-  xpos_hi = domain_length- dble(icell)*dx
-  xpos    = domain_length-(dble(icell)-half)*dx
+  xpos_lo = domain_length- dble(icell-1)*dx(icell)
+  xpos_hi = domain_length- dble(icell)*dx(icell)
+  xpos    = domain_length-(dble(icell)-half)*dx(icell)
   
-   area(icell) = (big_a/(freq*dx))*(depth*dcos(freq*time)*(dsin(big_b*xpos_hi)-dsin(big_b*xpos_lo))+&
+   area(icell) = (big_a/(freq*dx(icell)))*(depth*dcos(freq*time)*(dsin(big_b*xpos_hi)-dsin(big_b*xpos_lo))+&
                                   amplitude*dcos(two*freq*time)*(dsin(two*big_b*xpos_hi)-dsin(two*big_b*xpos_lo))/(eight*dcos(big_b*domain_length)))
  ! todo: is it a correction factor for constant in integeration?
  ! check this
@@ -505,9 +505,8 @@ do icell = 1,ncell
    
    area_hi(icell) = depth + area_hi(icell)
                          
-    
-   flow(icell)    = big_a*depth*dsin(freq*time)*(dcos(big_b*xpos_hi)-dcos(big_b*xpos_lo))/(dx*big_b) &
-                   + big_a*amplitude*dsin(two*freq*time)*(one/(four*dx*big_b*dcos(big_b*domain_length))) * &
+   flow(icell)    = big_a*depth*dsin(freq*time)*(dcos(big_b*xpos_hi)-dcos(big_b*xpos_lo))/(dx(icell)*big_b) &
+                   + big_a*amplitude*dsin(two*freq*time)*(one/(four*dx(icell)*big_b*dcos(big_b*domain_length))) * &
                    (dcos(big_b*xpos_hi)**two - dcos(big_b*xpos_lo)**two)
   
    flow_term1 = - big_a*depth*dsin(big_b*xpos_lo)*(dcos(freq*time)-dcos(freq*old_time))/(dt*freq)
@@ -515,45 +514,41 @@ do icell = 1,ncell
                    /(four*freq*dcos(big_b*domain_length)*dt)
    flow_lo(icell) = flow_term1+flow_term2
           
-
    flow_term1 = - big_a*depth*dsin(big_b*xpos_hi)*(dcos(freq*time)-dcos(freq*old_time))/(dt*freq)
    flow_term2 = - big_a*amplitude*dsin(two*big_b*xpos_hi)*(dcos(freq*time)**two-dcos(freq*old_time)**two)&
                    /(four*freq*dcos(big_b*domain_length)*dt)
    flow_hi(icell) = flow_term1+flow_term2
    
-   
 end do  
 
 return
 end subroutine 
-!> Subroutine provides source term (constant decay) to the tidal test
-subroutine tidal_reaction_source(source,             & 
+ !> Subroutine provides source term (constant decay) to the tidal test
+ subroutine tidal_reaction_source(source,             & 
                                  conc,               &
                                  area,               &
                                  flow,               &
                                  ncell,              &
                                  nvar,               &
                                  time)
-                               
-                                     
-
- use  primitive_variable_conversion
- implicit none
- 
- !--- args
-integer,intent(in)  :: ncell                      !< Number of cells
-integer,intent(in)  :: nvar                       !< Number of variables
-real(gtm_real),intent(inout):: source(ncell,nvar) !< cell centered source 
-real(gtm_real),intent(in)   :: conc(ncell,nvar)   !< Concentration
-real(gtm_real),intent(in)   :: area(ncell)        !< area at source     
-real(gtm_real),intent(in)   :: flow(ncell)        !< flow at source location
-real(gtm_real),intent(in)   :: time               !< time 
-
-! source must be in primitive variable 
-source = -const_tidal_decay_rate*conc
   
-return
-end subroutine 
+    use  primitive_variable_conversion
+    implicit none
+ 
+    !--- args
+    integer,intent(in)  :: ncell                      !< Number of cells
+    integer,intent(in)  :: nvar                       !< Number of variables
+    real(gtm_real),intent(inout):: source(ncell,nvar) !< cell centered source 
+    real(gtm_real),intent(in)   :: conc(ncell,nvar)   !< Concentration
+    real(gtm_real),intent(in)   :: area(ncell)        !< area at source     
+    real(gtm_real),intent(in)   :: flow(ncell)        !< flow at source location
+    real(gtm_real),intent(in)   :: time               !< time 
+
+    ! source must be in primitive variable 
+    source = -const_tidal_decay_rate*conc
+  
+    return
+ end subroutine 
 
 end module
 

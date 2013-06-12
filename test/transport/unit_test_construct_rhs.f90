@@ -47,7 +47,7 @@ real(gtm_real)  :: disp_coef_lo_prev (ncell,nvar)              !< Low side const
 real(gtm_real)  :: disp_coef_hi_prev (ncell,nvar)              !< High side constituent dispersion coef. at old time
 real(gtm_real)  :: time                                        !< Current time
 real(gtm_real)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-real(gtm_real)  :: dx                                          !< Spatial step  
+real(gtm_real)  :: dx(ncell)                                   !< Spatial step  
 real(gtm_real)  :: dt                                          !< Time step                                   
 real(gtm_real)  :: diffusive_flux_boundary_lo (nvar)           !< Diffusive flux operator at low side 
 real(gtm_real)  :: diffusive_flux_boundary_hi (nvar)           !< Diffusive flux operator at high side 

@@ -96,7 +96,7 @@ real(gtm_real), intent(out) :: norm_inf          !< L-inf error norm
 
 real(gtm_real), intent(in) :: vals(ncell)        !< Calculated values
 real(gtm_real), intent(in) :: reference(ncell)   !< Reference or 'other' values
-real(gtm_real), optional   :: dx                 !< Spatial step
+real(gtm_real), optional   :: dx(ncell)          !< Spatial step
 !todo: do we use this?
 
 !------ locals                                    

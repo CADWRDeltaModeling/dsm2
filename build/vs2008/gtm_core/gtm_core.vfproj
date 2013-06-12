@@ -35,9 +35,9 @@
 		<File RelativePath="..\..\..\src\gtm_core\hdf_util_qual.f90">
 			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\..\..\src\gtm_core\hydro_data.f90"/>
-		<File RelativePath="..\..\..\src\gtm_core\hydro_data_dx.f90"/>
 		<File RelativePath="..\..\..\src\gtm_core\hydro_data_tidefile.f90"/>
 		<File RelativePath="..\..\..\src\gtm_core\interpolation.f90"/>
 		<File RelativePath="..\..\..\src\gtm_core\logging.f90"/>
+		<File RelativePath="..\..\..\src\gtm_core\resample.f90"/>
 		<File RelativePath="..\..\..\src\gtm_core\time_util.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

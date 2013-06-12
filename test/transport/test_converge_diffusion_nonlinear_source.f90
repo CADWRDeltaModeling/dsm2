@@ -263,11 +263,11 @@ real(gtm_real), intent (in)  :: disp_coef_lo(ncell)                         !< L
 real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
 real(gtm_real), intent (in)  :: time                                        !< Current time
 real(gtm_real), intent (in)  :: theta                                       !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
 real(gtm_real), intent (in)  :: dt                                          !< Time step     
 
 !---local
-real(gtm_real) :: dt_by_dxsq
+real(gtm_real) :: dt_by_dxsq(ncell)
 real(gtm_real) :: xstart
 real(gtm_real) :: xend  
 real(gtm_real) :: conc_start(nvar)
@@ -287,14 +287,14 @@ conc_end = dsqrt(two*disp_coef/lambda)/(one+three*disp_coef*time)
 conc_start = zero
 ! todo: one part of center diag is based on old time and other part new time
 center_diag(1,:)=  center_diag(1,:) &
-                      + theta*dt_by_dxsq*(area_lo(1)*disp_coef_lo(1))                  
+                      + theta*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))                  
 right_hand_side(1,:) = right_hand_side(1,:)&
-            + two * theta*dt_by_dxsq*(area_lo(1)*disp_coef_lo(1))*conc_start
+            + two * theta*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))*conc_start
   
 center_diag(ncell,:)= center_diag(ncell,:)&
-                       +  theta*dt_by_dxsq*(area_hi(ncell)*disp_coef_hi(ncell))
+                       +  theta*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))
 right_hand_side(ncell,:) = right_hand_side(ncell,:)&
-           + two * theta*dt_by_dxsq*(area_hi(ncell)*disp_coef_hi(ncell))*conc_end
+           + two * theta*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))*conc_end
 
 
    return
@@ -314,46 +314,44 @@ subroutine dirichlet_diffusive_nonlinear_flux(diffusive_flux_lo, &
                                               time,              &
                                               dx,                &
                                               dt)
-use gtm_precision
-implicit none
-!--- args
-integer, intent(in)  :: ncell                                   !< Number of cells
-integer, intent(in)  :: nvar                                    !< Number of variables
-real(gtm_real), intent (inout):: diffusive_flux_lo(ncell,nvar)  !< Face flux, lo side
-real(gtm_real), intent (inout):: diffusive_flux_hi(ncell,nvar)  !< Face flux, hi side
-real(gtm_real), intent (in)   :: area_lo(ncell)                 !< Low side area centered at time
-real(gtm_real), intent (in)   :: area_hi(ncell)                 !< High side area centered at time
-real(gtm_real), intent (in)   :: time                           !< Time
-real(gtm_real), intent (in)   :: conc(ncell,nvar)               !< Concentration 
-real(gtm_real), intent (in)   :: disp_coef_lo (ncell)           !< Low side constituent dispersion coef.
-real(gtm_real), intent (in)   :: disp_coef_hi (ncell)           !< High side constituent dispersion coef.
-real(gtm_real), intent (in)   :: dt                             !< Time step  
-real(gtm_real), intent (in)   :: dx                             !< Spatial step
-!--local
+    use gtm_precision
+    implicit none
+    !--- args
+    integer, intent(in)  :: ncell                                   !< Number of cells
+    integer, intent(in)  :: nvar                                    !< Number of variables
+    real(gtm_real), intent (inout):: diffusive_flux_lo(ncell,nvar)  !< Face flux, lo side
+    real(gtm_real), intent (inout):: diffusive_flux_hi(ncell,nvar)  !< Face flux, hi side
+    real(gtm_real), intent (in)   :: area_lo(ncell)                 !< Low side area centered at time
+    real(gtm_real), intent (in)   :: area_hi(ncell)                 !< High side area centered at time
+    real(gtm_real), intent (in)   :: time                           !< Time
+    real(gtm_real), intent (in)   :: conc(ncell,nvar)               !< Concentration 
+    real(gtm_real), intent (in)   :: disp_coef_lo (ncell)           !< Low side constituent dispersion coef.
+    real(gtm_real), intent (in)   :: disp_coef_hi (ncell)           !< High side constituent dispersion coef.
+    real(gtm_real), intent (in)   :: dt                             !< Time step  
+    real(gtm_real), intent (in)   :: dx(ncell)                      !< Spatial step
+    !--local
+    real(gtm_real) :: conc_start(nvar)
+    real(gtm_real) :: conc_end(nvar) 
+    real(gtm_real) :: xstart = zero
+    real(gtm_real) :: disp_coef
 
-real(gtm_real) :: conc_start(nvar)
-real(gtm_real) :: conc_end(nvar) 
-real(gtm_real) :: xstart = zero
-real(gtm_real) :: disp_coef
+    !! **** Note: Lambda is hardwiered in diffusion_cubic_decay_source  subroutine
+    real(gtm_real), parameter :: lambda = three/ten/ten    !< Constant coefficient of cubic decay
 
-!! **** Note: Lambda is hardwiered in diffusion_cubic_decay_source  subroutine
-real(gtm_real), parameter :: lambda = three/ten/ten    !< Constant coefficient of cubic decay
+    !NOTE: disp coef and Lambda are hardwiered here
 
-!NOTE: disp coef and Lambda are hardwiered here
+    disp_coef = half*(disp_coef_lo(ncell)+disp_coef_hi(ncell))
 
-disp_coef = half*(disp_coef_lo(ncell)+disp_coef_hi(ncell))
+    conc_end = dsqrt(two*disp_coef/lambda)/(one+three*disp_coef*time)
+    conc_start = zero
 
-conc_end = dsqrt(two*disp_coef/lambda)/(one+three*disp_coef*time)
-conc_start = zero
-
-! todo: check convergence for second order boundary fitting 
-! todo: this area also must be area_prev  
-diffusive_flux_lo(1,:)=-two*area_lo(1)*disp_coef_lo(1)*(conc(1,:)-conc_start(:))/dx
+    ! todo: check convergence for second order boundary fitting 
+    ! todo: this area also must be area_prev  
+    diffusive_flux_lo(1,:)=-two*area_lo(1)*disp_coef_lo(1)*(conc(1,:)-conc_start(:))/dx
  
-diffusive_flux_hi(ncell,:)=-two*area_hi(ncell)*disp_coef_hi(ncell)*(conc_end(:)-conc(ncell,:))/dx
+    diffusive_flux_hi(ncell,:)=-two*area_hi(ncell)*disp_coef_hi(ncell)*(conc_end(:)-conc(ncell,:))/dx
         
-   return
+    return
  end subroutine
-
 
 end module

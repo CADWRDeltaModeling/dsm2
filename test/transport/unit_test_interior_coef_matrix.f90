@@ -45,7 +45,7 @@ real(gtm_real)  :: disp_coef_lo (ncell,nvar)                   !< Low side const
 real(gtm_real)  :: disp_coef_hi (ncell,nvar)                   !< High side constituent dispersion coef. at new time
 real(gtm_real)  :: time                                        !< Current time
 real(gtm_real)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-real(gtm_real)  :: dx                                          !< Spatial step  
+real(gtm_real)  :: dx(ncell)                                   !< Spatial step  
 real(gtm_real)  :: dt                                          !< Time step                                   
                
 area (:) = 1d0

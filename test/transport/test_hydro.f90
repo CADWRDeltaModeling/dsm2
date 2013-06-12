@@ -72,7 +72,7 @@ real(gtm_real):: l1_mass_diff(nstep)     !< L1 norm for mass error
 real(gtm_real):: l2_mass_diff(nstep)     !< L2 norm for mass error 
 real(gtm_real):: all_zero(ncell)         !< All zero vector
 real(gtm_real):: dt                      !< Time step size
-real(gtm_real):: dx                      !< Spacial step size  
+real(gtm_real):: dx(ncell)               !< Spacial step size  
 
 time = start_time
 dt = total_time/dble(nstep)

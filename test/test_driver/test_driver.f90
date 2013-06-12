@@ -39,6 +39,8 @@ program test_driver
     !                                                    I made a test run and it worked fine. 
     use test_extrapolate
     use test_prim_cons_conversion
+    use test_prim_increment_to_cons
+    use test_gradient    
     use test_uniform_flow
     use test_matrix_solver
     use test_boundary_diffusion
@@ -52,8 +54,6 @@ program test_driver
     use test_advection_reaction_hdf5      
     use test_coarsening
     use test_uniform_flow
-    use test_prim_increment_to_cons
-    use test_gradient
     use test_diffusion_fletcher
     use test_diffusion_nonlinear_decay
 
@@ -89,8 +89,8 @@ program test_driver
     call test_limiter
     call test_prim_cons_convert
     call test_prim_increment2cons
-    call test_extrapolation
-    call test_tidal_hydro
+    !call test_extrapolation
+    !call test_tidal_hydro
 
     !/// Advection-diffusion-reaction convergence in uniform flow,
     !    operators are layered in successively
@@ -129,7 +129,7 @@ program test_driver
     call test_advection_diffusion_time_dependent(verbose)
 
     !/// Advection-diffusion-reaction
-    call test_advection_diffusion_mms(verbose)
+    !call test_advection_diffusion_mms(verbose)
     
     !----- function calls to test units in project sediment -----
 

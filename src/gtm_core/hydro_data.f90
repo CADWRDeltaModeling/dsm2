@@ -41,7 +41,7 @@ module hydro_data
             implicit none
             integer, intent(in) :: ncell                   !< Number of cells
             real(gtm_real), intent(in)  :: time            !< Time of request
-            real(gtm_real), intent(in)  :: dx              !< Spatial step 
+            real(gtm_real), intent(in)  :: dx(ncell)       !< Spatial step 
             real(gtm_real), intent(in)  :: dt              !< Time step 
             real(gtm_real), intent(out) :: flow(ncell)     !< Cell and time centered flow
             real(gtm_real), intent(out) :: flow_lo(ncell)  !< Lo face flow, time centered

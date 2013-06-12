@@ -225,12 +225,12 @@ subroutine n_d_test_diffusion_matrix(center_diag ,       &
      real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
      real(gtm_real), intent (in)  :: time                                        !< Current time
      real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-     real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+     real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
      real(gtm_real), intent (in)  :: dt                                          !< Time step     
       
         !---local
  
-     real(gtm_real) :: dt_by_dxsq
+     real(gtm_real) :: dt_by_dxsq(ncell)
      real(gtm_real) :: xstart
      real(gtm_real) :: xend  
      real(gtm_real) :: flux_start(nvar)
@@ -245,12 +245,12 @@ subroutine n_d_test_diffusion_matrix(center_diag ,       &
     flux_start(:) = - area_lo(1)*disp_coef_lo(1)*(two-two*pi*dsin(pi*xstart/two)*dexp(-disp_coef_lo(1)*pi*pi*time/four)) 
     flux_end(:) = - area_hi(ncell)*disp_coef_hi(ncell)*(two-two*pi*dsin(pi*xend/two)*dexp(-disp_coef_hi(ncell)*pi*pi*time/four))
          
-    center_diag(1,:)= area(1)+ theta_stm*dt_by_dxsq* area_hi(1)*disp_coef_hi(1)  
+    center_diag(1,:)= area(1)+ theta_stm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)  
     right_hand_side(1,:) = right_hand_side(1,:) &
-                                + theta_stm*(dt/dx)*flux_start(:)
-    center_diag(ncell,:)= area(ncell)+ theta_stm*dt_by_dxsq* area_lo(ncell)*disp_coef_lo(1)
+                                + theta_stm*(dt/dx(1))*flux_start(:)
+    center_diag(ncell,:)= area(ncell)+ theta_stm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(ncell) !todo: was disp_coef_lo(1), may be a typo
     right_hand_side(ncell,:)= right_hand_side(ncell,:) &
-                                   - theta_stm*(dt/dx)*flux_end(:)
+                                   - theta_stm*(dt/dx(ncell))*flux_end(:)
       
     return
 end subroutine
@@ -293,11 +293,11 @@ subroutine dirichlet_test_diffusion_matrix(center_diag ,       &
    real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
    real(gtm_real), intent (in)  :: time                                        !< Current time
    real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-   real(gtm_real), intent (in)  :: dx                                          !< Spatial step  
+   real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
    real(gtm_real), intent (in)  :: dt                                          !< Time step     
    
    !---local
-   real(gtm_real) :: dt_by_dxsq
+   real(gtm_real) :: dt_by_dxsq(ncell)
    real(gtm_real) :: xstart
    real(gtm_real) :: xend  
    real(gtm_real) :: conc_start(nvar)
@@ -311,16 +311,15 @@ subroutine dirichlet_test_diffusion_matrix(center_diag ,       &
    conc_start = two*xstart + four*dcos(pi*xstart/two)*dexp(-disp_coef_lo(1)*time*pi*pi/four)
    ! todo: one part of center diag is based on old time and other part new time
    center_diag(1,:)=  center_diag(1,:) &
-                         + theta_stm*dt_by_dxsq*(area_lo(1)*disp_coef_lo(1))                  
+                         + theta_stm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))                  
    right_hand_side(1,:) = right_hand_side(1,:)&
-               + two * theta_stm*dt_by_dxsq*(area_lo(1)*disp_coef_lo(1))*conc_start
+               + two * theta_stm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))*conc_start
      
    center_diag(ncell,:)= center_diag(ncell,:)&
-                          +  theta_stm*dt_by_dxsq*(area_hi(ncell)*disp_coef_hi(ncell))
+                          +  theta_stm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))
    right_hand_side(ncell,:) = right_hand_side(ncell,:)&
-              + two * theta_stm*dt_by_dxsq*(area_hi(ncell)*disp_coef_hi(ncell))*conc_end
+              + two * theta_stm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))*conc_end
 
-   
    return
  end subroutine
 !> Example diffusive flux that imposes Neumann boundary at one end and Dirichlet boundary at
@@ -351,7 +350,7 @@ subroutine n_d_test_diffusive_flux(diffusive_flux_lo, &
     real(gtm_real), intent (in)   :: disp_coef_lo(ncell)            !< Low side constituent dispersion coef.
     real(gtm_real), intent (in)   :: disp_coef_hi(ncell)            !< High side constituent dispersion coef.
     real(gtm_real), intent (in)   :: dt                             !< Spatial step
-    real(gtm_real), intent (in)   :: dx                             !< Time step   
+    real(gtm_real), intent (in)   :: dx(ncell)                      !< Time step   
     !--local
     real(gtm_real) :: xstart = 0.1d0
     real(gtm_real) :: xend = one
@@ -390,9 +389,8 @@ subroutine dirichlet_test_diffusive_flux(diffusive_flux_lo, &
     real(gtm_real), intent (in)   :: disp_coef_lo (ncell)           !< Low side constituent dispersion coef.
     real(gtm_real), intent (in)   :: disp_coef_hi (ncell)           !< High side constituent dispersion coef.
     real(gtm_real), intent (in)   :: dt                             !< Time step  
-    real(gtm_real), intent (in)   :: dx                             !< Spatial step
+    real(gtm_real), intent (in)   :: dx(ncell)                      !< Spatial step
     !--local
-    
     real(gtm_real) :: conc_start(nvar)
     real(gtm_real) :: conc_end(nvar) 
     real(gtm_real) :: xstart = 0.1d0
@@ -400,13 +398,13 @@ subroutine dirichlet_test_diffusive_flux(diffusive_flux_lo, &
     conc_end(:) = two
     conc_start(:) = two*xstart + four*dcos(pi*xstart/two)*dexp(-disp_coef_lo(1)*pi*pi*time/four)
    
-   ! todo: check convergence for second order boundary fitting 
-   ! todo: this area also must be area_prev  
-   diffusive_flux_lo(1,:)=-two*area_lo(1)*disp_coef_lo(1)*(conc(1,:)-conc_start(:))/dx
+    ! todo: check convergence for second order boundary fitting 
+    ! todo: this area also must be area_prev  
+    diffusive_flux_lo(1,:)=-two*area_lo(1)*disp_coef_lo(1)*(conc(1,:)-conc_start(:))/dx
     
-   diffusive_flux_hi(ncell,:)=-two*area_hi(ncell)*disp_coef_hi(ncell)*(conc_end(:)-conc(ncell,:))/dx
+    diffusive_flux_hi(ncell,:)=-two*area_hi(ncell)*disp_coef_hi(ncell)*(conc_end(:)-conc(ncell,:))/dx
         
-   return
+    return
  end subroutine
 
 
@@ -438,7 +436,7 @@ subroutine dirichlet_test_diffusive_flux(diffusive_flux_lo, &
     real(gtm_real), intent (in)   :: disp_coef_lo(ncell)            !< Low side constituent dispersion coef.
     real(gtm_real), intent (in)   :: disp_coef_hi(ncell)            !< High side constituent dispersion coef.
     real(gtm_real), intent (in)   :: dt                             !< Time step  
-    real(gtm_real), intent (in)   :: dx                             !< Spatial step
+    real(gtm_real), intent (in)   :: dx(ncell)                      !< Spatial step
     real(gtm_real) :: xend  
     xend = 51200d0/two
     diffusive_flux_lo(1,:) = -area_lo(1)*disp_coef_lo(1)*(1/dsqrt(four*pi*disp_coef_lo(1)))* &

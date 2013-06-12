@@ -31,7 +31,7 @@ program gtm
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
-    use hydro_data_dx
+    use hydro_data
     use state_variables
     use primitive_variable_conversion
     use advection
@@ -62,13 +62,13 @@ program gtm
     real(gtm_real) :: current_julmin
     integer :: offset, num_buffers, jday
     integer, allocatable :: memlen(:)
-    procedure(hydro_data_dx_if), pointer :: hydro => null()       !< Hydrodynamic pointer to be filled by the driver
+    procedure(hydro_data_if), pointer :: hydro => null()       !< Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .false.         !< Flag to switch on/off slope limiter  
     real(gtm_real), allocatable :: init_conc(:,:)
     real(gtm_real),parameter :: constant_decay = 1.552749d-5
     hydro => gtm_flow_area
-    !compute_source => no_source
-    compute_source => linear_decay_source
+    compute_source => no_source
+    !compute_source => linear_decay_source
     advection_boundary_flux => zero_advective_flux
     gtm_time_interval = 5
     npartition_x = 4
@@ -95,7 +95,6 @@ program gtm
     
     call allocate_hydro_ts()
     call allocate_network_tmp()
-    call define_cell()
     call allocate_cell_property()
     call allocate_state(ncell, nconc)
 
@@ -163,15 +162,15 @@ program gtm
             end do   !end for segment loop
             do time = 1, nt
                write(debug_unit,*) current_time, time
-                call hydro(flow,    &
-                           flow_lo, &
-                           flow_hi, &
-                           area,    &
-                           area_lo, &
-                           area_hi, &
-                           ncell,   &
-                           time,    &
-                           dx,      &
+                call hydro(flow,     &
+                           flow_lo,  &
+                           flow_hi,  &
+                           area,     &
+                           area_lo,  &
+                           area_hi,  &
+                           ncell,    &
+                           time,     &
+                           dx_arr,   &
                            dt)            
                 if ((ibuffer==1).and.(t==2).and.(time==1)) then
                     call prim2cons(mass_prev, init_conc, area, ncell, nvar)
@@ -180,20 +179,20 @@ program gtm
                 current_julmin = current_time * hydro_time_interval + (time-1)*gtm_time_interval
                 ! call advection and source
 
-                call advect(mass,     &
-                            mass_prev,&  
-                            flow,     &
-                            flow_lo,  &
-                            flow_hi,  &
-                            area,     &
-                            area_prev,&
-                            area_lo,  &
-                            area_hi,  &
-                            ncell,    &
-                            nvar,    &
-                            current_julmin,     &
-                            gtm_time_interval,       &
-                            dx,       &
+                call advect(mass,              &
+                            mass_prev,         &  
+                            flow,              &
+                            flow_lo,           &
+                            flow_hi,           &
+                            area,              &
+                            area_prev,         &
+                            area_lo,           &
+                            area_hi,           &
+                            ncell,             &
+                            nvar,              &
+                            current_julmin,    &
+                            gtm_time_interval, &
+                            dx_arr,            &
                             limit_slope)     
                 call cons2prim(conc, mass, area, ncell, nvar)
                 write(debug_unit,'(1000f10.5)') (conc(icell,1),icell=1,ncell)

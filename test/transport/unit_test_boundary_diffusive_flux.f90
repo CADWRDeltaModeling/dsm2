@@ -47,13 +47,14 @@ real(gtm_real) :: disp_coef_lo (ncell,nvar)            !< Low side constituent d
 real(gtm_real) :: disp_coef_hi (ncell,nvar)            !< High side constituent dispersion coef.
 real(gtm_real) :: dt = 0.25d0                          !< dt
 real(gtm_real) :: time = zero                          !< Time 
-real(gtm_real) :: dx = zero                            !< dx
+real(gtm_real) :: dx(ncell)                            !< dx
 !---local
 integer        :: istep                                !< Counter on time
 integer, parameter :: nstep  = 10                      !< Number of time increment
 real(gtm_real) :: reference_lo                         !< Reference value to compare with at low side of a cell
 real(gtm_real) :: reference_hi                         !< Reference value to compare with at low side of a cell
 
+dx = zero
   
 boundary_diffusion_flux => neumann_zero_diffusive_flux
 

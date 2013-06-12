@@ -44,7 +44,7 @@ real(gtm_real) :: area_hi_prev (ncell)               !< High side area at old ti
 real(gtm_real) :: disp_coef_lo_prev (ncell,nvar)     !< Low side constituent dispersion coef. at old time
 real(gtm_real) :: disp_coef_hi_prev (ncell,nvar)     !< High side constituent dispersion coef. at old time
 real(gtm_real) :: time                               !< Current time
-real(gtm_real) :: dx                                 !< Spatial step   
+real(gtm_real) :: dx(ncell)                          !< Spatial step   
 real(gtm_real) :: dt
 
 conc_prev(:,1)  = [300d0,305d0,320d0,330d0,340d0,350d0]

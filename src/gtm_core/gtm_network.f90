@@ -35,8 +35,7 @@ module gtm_network
     real(gtm_real), allocatable :: area_lo_tmp(:,:)
     real(gtm_real), allocatable :: area_hi_tmp(:,:)
     real(gtm_real), allocatable :: prev_flow_tmp(:,:)
-    real(gtm_real), allocatable :: dx(:)
-    
+
     contains      
     
     !> Allocate network temporary array
@@ -76,23 +75,6 @@ module gtm_network
         deallocate(prev_flow_tmp)
         return
     end subroutine
-    
-    !> Return dx_arr(1:ncell) for entire network
-    subroutine define_cell()
-        implicit none
-        real(gtm_real) :: dx(ncell), up_comp, down_comp
-        integer :: icell, i, j, nx
-       ! integer, intent(in) :: npart_x                    !< number of partitions within a cell in space
-        nx = npartition_x + 1
-        call allocate_cell_property()
-         do i = 1, n_segm               
-            do j = 1, npartition_x
-                icell = npartition_x*(i-1)+j
-                dx(icell) = segm(i)%length/(nx-1.)
-            end do
-        end do      
-        return
-    end subroutine       
    
     !> Fill flow_tmp(1:ncell,1:nt) and area_tmp(1:ncell,1:nt) for the entire network
     subroutine fill_network(i_segm, flow_mesh, area_mesh)

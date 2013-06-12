@@ -112,7 +112,7 @@ real(gtm_real) :: min_conc                          !< Minimum concentration
 real(gtm_real) :: fine_initial_mass(nx_base,nconc)  !< initial condition at finest resolution
 real(gtm_real) :: fine_solution_mass(nx_base,nconc) !< reference solution at finest resolution
 real(gtm_real) :: dt                                !< Time step in seconds
-real(gtm_real) :: dx                                !< Spacial step in meters
+real(gtm_real), allocatable :: dx(:)                !< Spatial step in meters
 real(gtm_real) :: time                              !< Current time
 real(gtm_real) :: norm_error(3,nrefine)             !< Norm of error
 
@@ -148,17 +148,18 @@ do icoarse = 1,nrefine
     allocate(reference(nx,nconc))
     allocate(solution_mass(nx,nconc))
     allocate(velocity (nx))
+    allocate(dx(nx))
 
     allocate(disp_coef_lo(nx),      &
              disp_coef_hi(nx),      &
              disp_coef_lo_prev(nx), &
              disp_coef_hi_prev(nx))
-    
-    dx = domain_length/dble(nx)  
+             
+    dx = domain_length/dble(nx)
     dt = total_time/dble(nstep)
 
     do icell = 1,nx
-        x_center(icell) = (dble(icell)-half)*dx
+        x_center(icell) = (dble(icell)-half)*dx(icell)
     end do
 
     time = start_time
@@ -343,10 +344,11 @@ do icoarse = 1,nrefine
     deallocate(reference)
     deallocate(x_center)
     deallocate(velocity)
+    deallocate(dx)
     deallocate(disp_coef_lo,      &
                disp_coef_hi,      &
                disp_coef_lo_prev, &
-               disp_coef_hi_prev)    
+               disp_coef_hi_prev)   
     call deallocate_state
 end do
 ratio = norm_error(1,2)/norm_error(1,1)
@@ -371,19 +373,19 @@ call assert_true(ratio > acceptance_ratio(3),trim(converge_message))
 
 
 if (verbose == .true.) then
-   call log_convergence_results(norm_error ,                   &
-                                nrefine,                       &
-                                dx,                            &
-                                dt,                            &
-                                max_velocity= max_velocity,    &
-                                dispersion = const_dispersion, &
-                                label = label,                 &
-                                which_cell=which_cell,         &
-                                ncell_base = nx_base,          &
-                                ntime_base = nstep_base,       &
-                                scheme_order = two,            &
-                                length_scale = dx,             &
-                                limiter_switch = limit_slope)
+   !call log_convergence_results(norm_error ,                   &
+   !                             nrefine,                       &
+   !                             dx,                            &
+   !                             dt,                            &
+   !                             max_velocity= max_velocity,    &
+   !                             dispersion = const_dispersion, &
+   !                             label = label,                 &
+   !                             which_cell=which_cell,         &
+   !                             ncell_base = nx_base,          &
+   !                             ntime_base = nstep_base,       &
+   !                             scheme_order = two,            &
+   !                             length_scale = dx,             &
+   !                             limiter_switch = limit_slope)
                                  
 end if
 

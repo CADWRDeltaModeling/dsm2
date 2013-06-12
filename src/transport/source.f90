@@ -23,7 +23,9 @@
 !> to a subroutine that meets the compute_source interface.
 !>@ingroup transport
 module source_sink
+ 
  use gtm_precision, only: gtm_real
+ 
  real(gtm_real), allocatable :: linear_decay(:) !< linear decay rates for when linear source is used, should be nonpositive
  
  !> Calculate source
@@ -43,16 +45,16 @@ module source_sink
                         ncell,  &
                         nvar,   &
                         time)
-     use gtm_precision
-     implicit none
-     !--- args
-     integer,intent(in)  :: ncell                       !< Number of cells
-     integer,intent(in)  :: nvar                        !< Number of variables
-     real(gtm_real),intent(inout) :: source(ncell,nvar) !< cell centered source 
-     real(gtm_real),intent(in)  :: conc(ncell,nvar)     !< Concentration 
-     real(gtm_real),intent(in)  :: area(ncell)          !< Cell centered area at source     
-     real(gtm_real),intent(in)  :: flow(ncell)          !< flow at source location
-     real(gtm_real),intent(in)  :: time                 !< time
+       use gtm_precision
+       implicit none
+       !--- args
+       integer,intent(in)  :: ncell                       !< Number of cells
+       integer,intent(in)  :: nvar                        !< Number of variables
+       real(gtm_real),intent(inout) :: source(ncell,nvar) !< cell centered source 
+       real(gtm_real),intent(in)  :: conc(ncell,nvar)     !< Concentration 
+       real(gtm_real),intent(in)  :: area(ncell)          !< Cell centered area at source     
+       real(gtm_real),intent(in)  :: flow(ncell)          !< flow at source location
+       real(gtm_real),intent(in)  :: time                 !< time
    end subroutine 
  end interface
  
@@ -65,12 +67,11 @@ module source_sink
  contains
  
  subroutine set_source(source_term)
- implicit none
- procedure(source_if), pointer :: source_term => null()
- compute_source => source_term
- return
+     implicit none
+     procedure(source_if), pointer :: source_term => null()
+     compute_source => source_term
+     return
  end subroutine
- 
  
  !> Zero source implementation.
  !> This source term adds nothing (e.g., for conservative constituents)
@@ -85,7 +86,7 @@ module source_sink
      use gtm_precision 
      use error_handling
                
-         implicit none
+     implicit none
      !--- args
      integer,intent(in)  :: ncell                        !< Number of cells
      integer,intent(in)  :: nvar                         !< Number of variables
@@ -94,66 +95,60 @@ module source_sink
      real(gtm_real),intent(in)    :: area(ncell)         !< area at source     
      real(gtm_real),intent(in)    :: flow(ncell)         !< flow at source location
      real(gtm_real),intent(in)    :: time                !< time
-    source = zero
+     source = zero
      
      return
  end subroutine 
 
  !> Sets the decay rate and sets the source term to linear decay
-subroutine set_linear_decay(rates,nvar)
+ subroutine set_linear_decay(rates,nvar)
 
-   use gtm_precision
-   use error_handling
-   implicit none
-   integer:: nvar 
-   real(gtm_real), dimension(nvar) :: rates
-   if (allocated(linear_decay)) then
-     deallocate(linear_decay)
-   end if
-   allocate(linear_decay(nvar))
-   if (minval(rates) .lt. zero) then
-       call gtm_fatal("Decay rates for linear decay should be nonnegative")
-   end if
-   linear_decay = rates
-   compute_source => linear_decay_source
-   return
-end subroutine
-
+    use gtm_precision
+    use error_handling
+    implicit none
+    integer:: nvar 
+    real(gtm_real), dimension(nvar) :: rates
+    if (allocated(linear_decay)) then
+        deallocate(linear_decay)
+    end if
+    allocate(linear_decay(nvar))
+    if (minval(rates) .lt. zero) then
+        call gtm_fatal("Decay rates for linear decay should be nonnegative")
+    end if
+    linear_decay = rates
+    compute_source => linear_decay_source
+    return
+ end subroutine
 
  !> Linear decay source.
  !> This source term multiplies each constituent by a decay rate
-subroutine linear_decay_source(source, & 
-                               conc,   &
-                               area,   &
-                               flow,   &
-                               ncell,  &
-                               nvar,   &
-                               time)
-                                     
+ subroutine linear_decay_source(source, & 
+                                conc,   &
+                                area,   &
+                                flow,   &
+                                ncell,  &
+                                nvar,   &
+                                time)
+     use gtm_precision
+     implicit none 
+     !--- args
+     integer,intent(in)  :: ncell                      !< Number of cells
+     integer,intent(in)  :: nvar                       !< Number of variables
+     !---local
+     integer :: ivar                                   !< Counter on constituents
+     real(gtm_real),intent(inout) :: source(ncell,nvar)!< cell centered source 
+     real(gtm_real),intent(in)  :: conc(ncell,nvar)    !< Concentration
+     real(gtm_real),intent(in)  :: area(ncell)         !< area at source     
+     real(gtm_real),intent(in)  :: flow(ncell)         !< flow at source location
+     real(gtm_real),intent(in)  :: time                !< time 
 
- use gtm_precision
- implicit none
- 
- !--- args
-integer,intent(in)  :: ncell                      !< Number of cells
-integer,intent(in)  :: nvar                       !< Number of variables
-!---local
-integer :: ivar                                   !< Counter on constituents
-real(gtm_real),intent(inout) :: source(ncell,nvar)!< cell centered source 
-real(gtm_real),intent(in)  :: conc(ncell,nvar)    !< Concentration
-real(gtm_real),intent(in)  :: area(ncell)         !< area at source     
-real(gtm_real),intent(in)  :: flow(ncell)         !< flow at source location
-real(gtm_real),intent(in)  :: time                !< time 
+     ! source must be in primitive variable 
 
-! source must be in primitive variable 
-
-do ivar = 1,nvar
-  source(:,ivar) = -linear_decay(ivar)*conc(:,ivar)
-end do
- 
-return
-end subroutine 
-
+     do ivar = 1,nvar
+         source(:,ivar) = -linear_decay(ivar)*conc(:,ivar)
+     end do
+     return
+ end subroutine 
  
 end module
  

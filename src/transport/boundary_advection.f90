@@ -36,101 +36,97 @@ module boundary_advection
                                           time,       &
                                           dt,         &
                                           dx)
-     use gtm_precision
-      
-     implicit none
-      !--- args          
-     integer,intent(in)  :: ncell                            !< Number of cells
-     integer,intent(in)  :: nvar                             !< Number of variables
-     real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
-     real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
-     real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
-     real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
-     real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
-     real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
-     real(gtm_real),intent(in)    :: time                    !< Current time
-     real(gtm_real),intent(in)    :: dx                      !< Spatial step  
-     real(gtm_real),intent(in)    :: dt                      !< Time step
+        use gtm_precision
+        implicit none
+        !--- args          
+        integer,intent(in)  :: ncell                            !< Number of cells
+        integer,intent(in)  :: nvar                             !< Number of variables
+        real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
+        real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+        real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
+        real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
+        real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
+        real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
+        real(gtm_real),intent(in)    :: time                    !< Current time
+        real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step  
+        real(gtm_real),intent(in)    :: dt                      !< Time step
      
     end subroutine boundary_advective_flux_if
- end interface
+  end interface
 
- !> This pointer should be set by the driver or client code to specify the 
- !> treatment at the advection boundary condition 
- ! todo: check here
- procedure(boundary_advective_flux_if),pointer :: advection_boundary_flux  => null()
+  !> This pointer should be set by the driver or client code to specify the 
+  !> treatment at the advection boundary condition 
+  ! todo: check here
+  procedure(boundary_advective_flux_if),pointer :: advection_boundary_flux  => null()
 
-
- contains
- !> Example advective flux that imposes Neumann boundaries with zero flux at
- !> both ends of the channel.
- subroutine zero_advective_flux(flux_lo,    &
-                                flux_hi,    &
-                                conc_lo,    &
-                                conc_hi,    &
-                                flow_lo,    &
-                                flow_hi,    &
-                                ncell,      &
-                                nvar,       &
-                                time,       &
-                                dt,         &
-                                dx)
-     
-     use gtm_precision
-     use error_handling
-     implicit none
-      !--- args          
-     integer,intent(in)  :: ncell                            !< Number of cells
-     integer,intent(in)  :: nvar                             !< Number of variables
-     real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
-     real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
-     real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
-     real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
-     real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
-     real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
-     real(gtm_real),intent(in)    :: time                    !< Current time
-     real(gtm_real),intent(in)    :: dx                      !< Spatial step  
-     real(gtm_real),intent(in)    :: dt                      !< Time step    
-     
-     flux_lo(1,:) = zero
-     flux_hi(ncell,:) = zero
-     return
- end subroutine
+  contains
  
+  !> Example advective flux that imposes Neumann boundaries with zero flux at
+  !> both ends of the channel.
+  subroutine zero_advective_flux(flux_lo,    &
+                                 flux_hi,    &
+                                 conc_lo,    &
+                                 conc_hi,    &
+                                 flow_lo,    &
+                                 flow_hi,    &
+                                 ncell,      &
+                                 nvar,       &
+                                 time,       &
+                                 dt,         &
+                                 dx)
+     
+       use gtm_precision
+       use error_handling
+       implicit none
+       !--- args          
+       integer,intent(in)  :: ncell                            !< Number of cells
+       integer,intent(in)  :: nvar                             !< Number of variables
+       real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
+       real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+       real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
+       real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
+       real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
+       real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
+       real(gtm_real),intent(in)    :: time                    !< Current time
+       real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step  
+       real(gtm_real),intent(in)    :: dt                      !< Time step    
+     
+       flux_lo(1,:) = zero
+       flux_hi(ncell,:) = zero
+       return
+  end subroutine
  
- !> Example uninitialize that prints an error and bails
- subroutine uninitialized_advection_bc(flux_lo,     &
-                                        flux_hi,    &
-                                        conc_lo,    &
-                                        conc_hi,    &
-                                        flow_lo,    &
-                                        flow_hi,    &
-                                        ncell,      &
-                                        nvar,       &
-                                        time,       &
-                                        dt,         &
-                                        dx)
-                                         
-     use gtm_precision 
-     use error_handling
+  !> Example uninitialize that prints an error and bails
+   subroutine uninitialized_advection_bc(flux_lo,     &
+                                         flux_hi,     &
+                                         conc_lo,     &
+                                         conc_hi,     &
+                                         flow_lo,     &
+                                         flow_hi,     &
+                                         ncell,       &
+                                         nvar,        &
+                                         time,        &
+                                         dt,          &
+                                         dx)                                         
+       use gtm_precision 
+       use error_handling
+       implicit none
+       !--- args          
+       integer,intent(in)  :: ncell                            !< Number of cells
+       integer,intent(in)  :: nvar                             !< Number of variables
+       real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
+       real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+       real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
+       real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
+       real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
+       real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
+       real(gtm_real),intent(in)    :: time                    !< Current time
+       real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step  
+       real(gtm_real),intent(in)    :: dt                      !< Time step        
      
-        implicit none
-         !--- args          
-     integer,intent(in)  :: ncell                            !< Number of cells
-     integer,intent(in)  :: nvar                             !< Number of variables
-     real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
-     real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
-     real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
-     real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
-     real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
-     real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
-     real(gtm_real),intent(in)    :: time                    !< Current time
-     real(gtm_real),intent(in)    :: dx                      !< Spatial step  
-     real(gtm_real),intent(in)    :: dt                      !< Time step        
+       call gtm_fatal("Boundary not implemented in advection!")
      
-     call gtm_fatal("Boundary not implemented in advection!")
-     
-     return
- end subroutine 
+       return
+   end subroutine 
   
 end module

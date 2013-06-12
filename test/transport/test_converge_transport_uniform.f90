@@ -346,7 +346,7 @@ subroutine gaussian_data(bc_data,           &
     real(gtm_real), intent (in)   :: origin                          !< Space origin
     real(gtm_real), intent (in)   :: conc(ncell,nvar)                !< Concentration 
     real(gtm_real), intent (in)   :: dt                              !< Time step
-    real(gtm_real), intent (in)   :: dx                              !< Spacial step
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Spacial step
     
     !--- local
     real(gtm_real) :: val
@@ -361,7 +361,7 @@ subroutine gaussian_data(bc_data,           &
     end if
     call gaussian(val,xloc,current_center,dsqrt(two*const_disp_coef*diffuse_time), &
                                           ic_peak*dsqrt(diffuse_start_time/diffuse_time))
-    bc_data=val
+    bc_data = val
 return
 end subroutine
 
@@ -387,14 +387,13 @@ subroutine gaussian_gradient_data(bc_data,           &
     real(gtm_real), intent (in)   :: origin                          !< Space origin
     real(gtm_real), intent (in)   :: conc(ncell,nvar)                !< Concentration 
     real(gtm_real), intent (in)   :: dt                              !< Time step
-    real(gtm_real), intent (in)   :: dx                              !< Spacial step
+    real(gtm_real), intent (in)   :: dx(ncell)                       !< Spacial step
     
     !--- local
     real(gtm_real) :: val
     real(gtm_real) :: current_center
     real(gtm_real) :: diffuse_time
 
-    
     current_center = ic_center + const_velocity*time
     if (use_diffusion())then
         diffuse_time = diffuse_start_time + time
@@ -404,42 +403,41 @@ subroutine gaussian_gradient_data(bc_data,           &
   
     call derivative_gaussian(val,xloc,current_center,dsqrt(two*const_disp_coef*diffuse_time), &
                                           ic_peak*dsqrt(diffuse_start_time/diffuse_time))
-    bc_data=val
+    bc_data = val
 return
 end subroutine
 
-subroutine extrapolate_hi_boundary_data(bc_data,           &
-                                        xloc,              &
-                                        conc,              &
-                                        ncell,             &
-                                        nvar,              &
-                                        origin,            &
-                                        time,              &
-                                        dx,                &
-                                        dt)
-    use gtm_precision
-    use gaussian_init_boundary_condition
-    use diffusion
-    implicit none
-    !--- args
-    integer, intent(in)  :: ncell                                    !< Number of cells
-    integer, intent(in)  :: nvar                                     !< Number of variables
-    real(gtm_real), intent(out) :: bc_data(nvar)                     !< concentration or gradient data
-    real(gtm_real), intent(in)  :: xloc                              !< location where data is requested
-    real(gtm_real), intent(in)  :: time                              !< Time
-    real(gtm_real), intent(in)  :: origin                            !< Space origin
-    real(gtm_real), intent(in)  :: conc(ncell,nvar)                  !< Concentration 
-    real(gtm_real), intent(in)  :: dt                                !< Time step
-    real(gtm_real), intent(in)  :: dx                                !< Spacial step
+  subroutine extrapolate_hi_boundary_data(bc_data,           &
+                                          xloc,              &
+                                          conc,              &
+                                          ncell,             &
+                                          nvar,              &
+                                          origin,            &
+                                          time,              &
+                                          dx,                &
+                                          dt)
+      use gtm_precision
+      use gaussian_init_boundary_condition
+      use diffusion
+      implicit none
+      !--- args
+      integer, intent(in)  :: ncell                                    !< Number of cells
+      integer, intent(in)  :: nvar                                     !< Number of variables
+      real(gtm_real), intent(out) :: bc_data(nvar)                     !< concentration or gradient data
+      real(gtm_real), intent(in)  :: xloc                              !< location where data is requested
+      real(gtm_real), intent(in)  :: time                              !< Time
+      real(gtm_real), intent(in)  :: origin                            !< Space origin
+      real(gtm_real), intent(in)  :: conc(ncell,nvar)                  !< Concentration 
+      real(gtm_real), intent(in)  :: dt                                !< Time step
+      real(gtm_real), intent(in)  :: dx(ncell)                         !< Spacial step
     
-    ! zero order approximation
-     bc_data = conc(ncell,:)
-    ! first order approximation
-     bc_data = conc(ncell,:) + (conc(ncell,:) - conc(ncell-1,:))/two
+      ! zero order approximation
+       bc_data = conc(ncell,:)
+      ! first order approximation
+       bc_data = conc(ncell,:) + (conc(ncell,:) - conc(ncell-1,:))/two
     
-return
-end subroutine
-
+    return
+  end subroutine
 
 end module
 
