@@ -131,6 +131,9 @@ public final void setVariables(int nInjections,
     qualityBinary = qBinary;
     qualityNames = qNames;
   }
+  public final void setVariables(String particleType){
+	  _particleType = particleType;
+  }
 
   /**
    *  return random seed
@@ -318,7 +321,9 @@ public final int getInjectionStartJulmin(int injectionId){
 public final int getInjectionLengthJulmin(int injectionId){
   return particleInjectionLengthJulmin[injectionId-1];
 }
-
+public final String getParticleType(){
+	return _particleType;
+}
 public String toString(){
   String rep = "Particle Fixed Information "+ "\n" 
     + "useVerticalProfile "+ useVerticalProfile+ "\n" 
@@ -460,6 +465,7 @@ protected boolean qualityBinary;
    *  array of quality constituent names
    */
 protected String[] qualityNames;
+private String _particleType;
 
 }
 

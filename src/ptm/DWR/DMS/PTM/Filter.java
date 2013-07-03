@@ -89,11 +89,14 @@ public int getFilterWbType(){
 /**
  * gets the Filter Operation at the specified timestamp
  */
+//TODO Xiao commented out to deal with it later
+/*
 public float getFilterOp(){
   float[] filterOps = Globals.Environment.getFilterOps();
   filterOp = filterOps[filterIndex];
   return filterOp;
 }
+*/
 
 private int filterIndex;
 private String filterName;

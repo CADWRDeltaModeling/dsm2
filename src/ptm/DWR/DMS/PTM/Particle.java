@@ -206,6 +206,39 @@ public class Particle{
     observer = null;
   }
   
+  public final void installRouteHelper(RouteHelper routeHelper){
+	    _routeHelper = routeHelper;
+	  }
+	  
+  /**
+    *  uninstalls RouteHelper
+    */
+  public final void uninstallRouteHelper(){
+    _routeHelper = null;
+  }
+  
+  public final void installSwimHelper(SwimHelper swimHelper){
+	    _swimHelper = swimHelper;
+	  }
+	  
+/**
+  *  uninstalls SwimHelper
+  */
+public final void uninstallSwimHelper(){
+  _swimHelper = null;
+}
+
+public final void installSurvivalHelper(SurvivalHelper survivalHelper){
+    _survivalHelper = survivalHelper;
+  }
+  
+/**
+*  uninstalls SurvivalHelper
+*/
+public final void uninstallSurvivalHelper(){
+_survivalHelper = null;
+}
+  
   /**
     * gets the location of Particle by returning a pointer to the Waterbody
     * recursionCounter=0;<br>
@@ -372,7 +405,7 @@ public class Particle{
     *  has been turned off. The Particle is asked to remain at its current
     *  position.
     */
-  private boolean particleWait;
+  protected boolean particleWait;
 
   /**
     *  Gaussian random number generator for y and z dispersive movements
@@ -385,6 +418,14 @@ public class Particle{
   protected ParticleObserver observer;
   
   /**
+   *  Particle Helpers
+   */
+ private RouteHelper _routeHelper;
+ // SwimHelper will be used later
+ private SwimHelper _swimHelper;
+ private SurvivalHelper _survivalHelper;
+  
+  /**
     *  updates the Particle position for the given time step;
     *  input time step is usually divided into small sub-time step to complete the calculation; 
     *  The Particle is moved for the time step given; 
@@ -392,38 +433,7 @@ public class Particle{
     *  Particle.x, Particle.y and Particle.z
     */
   protected final void updateXYZPosition(float delT){
-    //TODO:bug1
-//    if( wb.getPTMType() ==  Waterbody.CHANNEL) {
-//      if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex() );
-//      //get minimum time step
-//      int numOfSubTimeSteps = getSubTimeSteps(delT);
-//      float tmstep = delT/numOfSubTimeSteps;
-//    
-//      tmLeft=delT;
-//
-//      if(Macro.APPROX_EQ( y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {
-//    	  setYZLocationInChannel();
-//      }
-//    
-//      while( tmLeft >= tmstep && isDead == false){
-//    	  age+=tmstep;
-//    	  
-//    	  updateAllParameters(tmstep);
-//    	  if (particleWait == false){
-//    		  // gets the x,y, and z position of the Particle after time step
-//    		  x=calcXPosition(tmstep);
-//    		  if ( wb.getPTMType() != Waterbody.CHANNEL ) return;
-//    		  // after recursion this may be true.
-//    		  if ( tmLeft >= tmstep && isDead == false ) {
-//    			  y=calcYPosition(tmstep);
-//    			  z=calcZPosition(tmstep);
-//    		  }
-//    	   }
-//	       // update number of time steps taken
-//	       tmLeft -= tmstep;
-//      }// end while
-//    } // end if(wb.getPTMType() ==  CHANNEL)
-    //TODO:bug1
+
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
       tmLeft = delT;
@@ -457,10 +467,11 @@ public class Particle{
             z = calcZPosition(tmToAdv);
           }
         }//end if(particleWait)
-        tmLeft -= tmToAdv;
+      tmLeft -= tmToAdv;
       }// end while
+      
     }// end if(CHANNEL)
-    //TODO:bug1
+    
     else if (wb.getPTMType() ==  Waterbody.RESERVOIR){
       if (DEBUG) System.out.println("Particle " + this + " in reservoir " + wb.getEnvIndex() );
       tryCrossReservoir(delT); 
@@ -476,6 +487,7 @@ public class Particle{
       if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
       isDead=true;
     }
+    
   }
   
   /**
@@ -515,27 +527,15 @@ public class Particle{
 
     // when particle crossing the coming node, into next wb
     if (isNodeReached(xPos) == true) {
+    	// isNodeReached changes nd if a node is reached and this.nd is the node just reached
+    	// wb has not been changed yet
       float timeToReachNode = calcTimeToNode(xPos);
       tmLeft -= timeToReachNode;
       age = age - timeStep + timeToReachNode;
-
-      // block particle before it enters a node, with filter operation 0
-      if (nd.inFilter(wb)) {
-//        tmLeft=0;//TODO delete?
-        age = age - timeToReachNode + timeStep;// Kijin: should this be 2*timeStep
-        if (xPos <= 0.0f){// upstream
-          xPos = 0;
-        } else if (xPos >= channelLength){// downstream
-          xPos = channelLength;
-        }
-      }
-      else {
-      // make decision on what wb to be entered
-        y = calcYPosition(timeToReachNode);//TODO:bug4
-        z = calcZPosition(timeToReachNode);//TODO:bug4
-        makeNodeDecision();
-      }
-         
+   
+      makeNodeDecision();
+      
+      // for dead-end, or not flow-conflict node (not effective outflows)
       // if (recursionCounter++ > 5) error("Too many recursions in calcXPosition(float)");
       if (recursionCounter++ > 5) {
         if (repositionFactor < MAX_R_F){
@@ -715,59 +715,31 @@ public class Particle{
     *  update nd, wb, x
     */
   protected void makeNodeDecision(){
-  
-    // Node is the current Node in which particle entered
-    // get total outflow from Node and multiply it by random number
-    // send message to observer about change 
-    if (observer != null) 
-      observer.observeChange(ParticleObserver.NODE_CHANGE,this);
-    float outflow = nd.getTotalEffectiveOutflow(false);
-
-    // if the Node is at a Node with zero flow, for example at the
-    // end of a slough, then move the pParticle into the Channel a
-    // small amount.
-    if (outflow == 0.0f && nd.getNumberOfWaterbodies() == 1) {
-      x = getPerturbedXLocation();
-      return;
-    }
-    //float out2 = outflow;
-    
-    float rand = nd.getRandomNumber();
-    outflow = rand*outflow;
-  
-    float flow = 0.0f;
-  
-    if (outflow == 0.0){
-      particleWait = true;
-      return;
-    }
-    
-    // loop determines which wb is for particle to enter
-    int waterbodyId = -1;
-	do {
-	  waterbodyId ++;
-	  // this conditional statement added to exclude seepage
-	  // this should be read in as an argument
-	  //@todo: disabled this feature
-      //if(nd.getWaterbody(waterbodyId).getAccountingType() != flowTypes.evap){
-      flow += nd.getFilterOp(waterbodyId) * nd.getOutflow(waterbodyId);
-      //}
-    }while (flow < outflow && 
-	        waterbodyId < nd.getNumberOfWaterbodies());
-  
-    // get a pointer to the waterbody in which pParticle entered.
-    wb = nd.getWaterbody(waterbodyId);
-    // send message to observer about change 
-    if (observer != null) 
-      observer.observeChange(ParticleObserver.WATERBODY_CHANGE,this);
-    // set x as beginning of Channel...
-    x = getXLocationInChannel();
-    // @todo: redesign the coding structure of this feature
+	/*
+	 * isNodeReached() replaces current nd with the node just reached
+	 * now node is the current Node in which Particle entered
+	 * send message to observer about change 
+	*/
+	if (observer != null) 
+	  observer.observeChange(ParticleObserver.NODE_CHANGE,this); 
+	
+	// decide which water body to go and reset it
+	if(_routeHelper ==  null){
+		System.out.println("routeHelper not initialized, exit from Particle.java line 727.");
+		System.exit(-1);
+	}
+	_routeHelper.helpSelectRoute(this);
+	  
+	if (observer != null) 
+		observer.observeChange(ParticleObserver.WATERBODY_CHANGE,this);
+	    // set x as beginning of Channel...
+		x = getXLocationInChannel();
+   
   }
-  
   /**
     *  updates pParticle position after calling makeReservoirDecision
     */
+    
   protected final void tryCrossReservoir(float timeStep){
   
     // adjust time and age
@@ -786,6 +758,7 @@ public class Particle{
       setXYZLocationInChannel();
     }
   }
+  
   /**
     * moves to the Node with inflow and decides where to go from there...
     */
@@ -793,8 +766,7 @@ public class Particle{
     Conveyor c = (Conveyor)wb;
     if (DEBUG) System.out.println("Particle in conveyor: " + c );
     float flow = c.getFlowInto(0);
-    //TODO
-    if ((flow > 0) && !(c.getNode(1).inFilter(wb)))// if no filter
+    if (flow > 0) 
       setLocation( c.getNode(1) );
     else
       setLocation( c.getNode(0) );
@@ -826,8 +798,6 @@ public class Particle{
     //while outflow volume over last i nodes is less than random value
     do {
       nodeId++;
-      nd = wb.getNode(nodeId);
-      if(nd.inFilter(wb)){continue;} //skip the node if it has a res->nd filter
       flowvol += Math.max(0.0f,((Reservoir)wb).getVolumeOutflow(nodeId, timeStep));
     }
     while( flowvol < totvol && nodeId < wb.getNumberOfNodes()-1);
@@ -878,9 +848,7 @@ public class Particle{
     *  
     */ 
   private final void updateAllParameters(float tmstep){
-    //updates length,width,depth, previousdepth, previouswidth
     updateChannelParameters();
-    //updates particles: depth, width, Ev, Evdt, Etdt
     updateParticleParameters(tmstep); 
   }
 
@@ -1016,11 +984,9 @@ public class Particle{
     //                     "; dtz="+dtz+"; dty="+dty);
 
     float minTimeStep = 0.0f;
-
     if ((vertMove==true) && (transMove==true)) minTimeStep = Math.min(dty,dtz);
     else if ((vertMove==true) && (transMove!=true)) minTimeStep = dtz;
     else if ((vertMove!=true) && (transMove==true)) minTimeStep = dty;
-
     return minTimeStep;
   }
 
@@ -1042,7 +1008,7 @@ public class Particle{
   /**
     *  Factor used in repositioning when a no outflow condition is encountered
     */
-  private float repositionFactor = 0.00001f;
+  protected float repositionFactor = 0.00001f;
 
   /**
     *  Reposition Factor increment
@@ -1061,7 +1027,7 @@ public class Particle{
   private float previousChannelDepth, previousChannelWidth;
   
   /**
-    *  Insertion time for particle
+    *  Insertion time for pParticle
     */
   private int insertionTime;
   
@@ -1073,9 +1039,9 @@ public class Particle{
     float newXPosition = 0.0f;
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (((Channel)wb).getUpNodeId() == nd.getEnvIndex())
-        newXPosition = 0;
+      newXPosition = 0;
       if (((Channel)wb).getDownNodeId() == nd.getEnvIndex())
-        newXPosition = ((Channel)wb).getLength();
+      newXPosition = ((Channel)wb).getLength();
     }
     return newXPosition;
   }
@@ -1083,23 +1049,26 @@ public class Particle{
   /**
     *  moves x location in Channel by a repositioning factor
     *  from the closest Node.
+    *  this should be in BasicJunctionDispatcher Xiao
     */
+  /* 
+   * move to SalmonBasicBahavior.java
   private float getPerturbedXLocation(){
     float newXPosition = 0.0f;
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (((Channel)wb).getUpNodeId() == nd.getEnvIndex())
-        newXPosition = channelLength * repositionFactor;
+      newXPosition = channelLength * repositionFactor;
 
       if (((Channel)wb).getDownNodeId() == nd.getEnvIndex())
-        newXPosition= ((Channel)wb).getLength() - (channelLength * repositionFactor);
+      newXPosition= ((Channel)wb).getLength() - (channelLength * repositionFactor);
     }
     return newXPosition;
   }
-  
+  */
   protected void checkHealth(){
     // used for behavior
   }
-
+  
   /**
     *  String representation
     */

@@ -45,6 +45,7 @@ public class Channel extends Waterbody{
   /**
    *  an array of coefficients for profile
    */
+  
   public static float[] vertProfile = new float[Channel.MAX_PROFILE];
   /**
    *  use vertical profile
@@ -279,10 +280,9 @@ public class Channel extends Waterbody{
   public final void setDepth(float[] depthArray){
     depthAt[UPNODE] = depthArray[0];
     depthAt[DOWNNODE] = depthArray[1];
-    //TODO:bug2
     if (Globals.currentModelTime == Globals.Environment.getStartTime()){
-      depthAt[UPNODE] = depthAt[UPNODE]/0.6f;
-      depthAt[DOWNNODE] = depthAt[DOWNNODE]/0.6f;
+      depthAt[UPNODE] = depthAt[UPNODE]/0.5f;
+      depthAt[DOWNNODE] = depthAt[DOWNNODE]/0.5f;
     }
   }
   
@@ -292,10 +292,9 @@ public class Channel extends Waterbody{
   public final void setStage(float[] stageArray){
     stageAt[UPNODE] = stageArray[0];
     stageAt[DOWNNODE] = stageArray[1];
-    //TODO:bug2
     if (Globals.currentModelTime == Globals.Environment.getStartTime()){
-      stageAt[UPNODE] = stageAt[UPNODE]/0.6f;
-      stageAt[DOWNNODE] = stageAt[DOWNNODE]/0.6f;
+      stageAt[UPNODE] = stageAt[UPNODE]/0.5f;
+      stageAt[DOWNNODE] = stageAt[DOWNNODE]/0.5f;
     }
   }
   
@@ -305,7 +304,6 @@ public class Channel extends Waterbody{
   public final void setArea(float[] areaArray){
     areaAt[UPNODE] = areaArray[0];
     areaAt[DOWNNODE] = areaArray[1];
-    //TODO:bug2
     if (Globals.currentModelTime == Globals.Environment.getStartTime()){
       areaAt[UPNODE] = areaAt[UPNODE]/0.6f;
       areaAt[DOWNNODE] = areaAt[DOWNNODE]/0.6f;
@@ -373,6 +371,51 @@ public class Channel extends Waterbody{
       vertProfile[i] = (float) (1.0f + (0.1f/VONKARMAN)*(1.0f + Math.log(((float)i)/MAX_PROFILE)));
   }
   
+  //non-physical barriers related
+  
+  /**
+   *  install a non-physical barrier
+   */
+  public final void installBarrierAtUpNode(){
+	  _upBarrierInstalled = true;
+  }
+  public final void installBarrierAtDownNode(){
+	  _downBarrierInstalled = true;
+  }
+  
+  /**
+   *  get non-physical barrier op info
+   */
+  public final boolean isBarrierAtUpNodeInstalled(){
+	  return _upBarrierInstalled;
+  }
+  public final boolean isBarrierAtDownNodeInstalled(){
+	  return _downBarrierInstalled;
+  }
+  
+  /**
+   *  get non-physical barrier op info
+   */
+  public final int getBarrierAtUpNodeOp(){
+	  return _upBarrierOp;
+  }
+  public final int getBarrierAtDownNodeOp(){
+	  return _downBarrierOp;
+  }
+  
+  /**
+   *  set non-physical barrier op value
+   */
+  public final void setBarrierAtUpNodeOp(int barrierOp){
+	  _upBarrierOp = barrierOp;
+  }
+  
+  public final void setBarrierAtDownNodeOp(int barrierOp){
+	  _downBarrierOp = barrierOp;
+  }
+  
+ // end non-physical barriers
+  
   /**
    *  Number of cross sections
    */
@@ -403,6 +446,11 @@ public class Channel extends Waterbody{
   private float[] areaAt;
   private float[] depthAt;
   private float[] stageAt;
+  //xiao
+  private int _upBarrierOp = 0;
+  private int _downBarrierOp = 0;
+  private boolean _upBarrierInstalled = false;
+  private boolean _downBarrierInstalled = false;
   
   /**
    *  Bottom elevation of Channel or reservoir

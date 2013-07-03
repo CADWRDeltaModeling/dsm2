@@ -39,6 +39,8 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
  */
 package DWR.DMS.PTM;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 /*
  * main function of PTM
  */
@@ -74,6 +76,14 @@ public class MainPTM {
             int numberOfRestartParticles = 0;
             boolean isRestart = Environment.isRestartRun();
 
+            /*
+             * This part is coded very wrong, disable it now and rewrite it later
+             */
+            if(isRestart){
+            	System.out.println("restart functionality is disabled! exit.");
+            	System.exit(-1);
+            }
+            /*
             if(DEBUG) System.out.println("Checking for restart run");
             // if restart then inject those particles
             if(isRestart){
@@ -85,6 +95,7 @@ public class MainPTM {
                 restartInput.input();
                 numberOfRestartParticles = particleArray.length;
             }
+            */
             boolean behavior = false;
             try {
                 // set behavior file and return status
@@ -118,7 +129,7 @@ public class MainPTM {
             String traceFileName = Environment.getTraceFileName();
             if ( traceFileName == null || traceFileName.length() == 0 ) {
                 System.err.println("Trace file needs to be specified");
-                System.err.println("Exiting");
+                System.err.println("Exit from MainPTM line 132.");
                 System.exit(-1);
             }
             ParticleObserver observer = null;
@@ -126,11 +137,50 @@ public class MainPTM {
                                             Environment.getFileType(traceFileName),
                                             startTime, endTime, PTMTimeStep,
                                             numberOfParticles);
-            if(DEBUG) System.out.println("Set observer");
+            /**
+             * add helpers
+             */
+            RouteHelper _routeHelper = null;
+            SwimHelper _swimHelper = null;
+            SurvivalHelper _survivalHelper = null;
+            String pType = Environment.getParticleType().toUpperCase();          
+            if ((pType == null) || (!pType.equals("SALMON") && !pType.equals("SMELT"))) {
+            	 System.err.println("Particle Type is not defined or defined incorrect!");
+                 System.err.println("Exit from MainPTM line 149.");
+                 System.exit(-1);
+            }
+            // String switch only works for Java 1.7  make a map for now
+            Map<String, Integer> map = new HashMap<String, Integer>();
+            map.put("SALMON",1);
+            map.put("SMELT", 2);
+            switch (map.get(pType)){
+				case 1: //"SALMON":
+					_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
+					_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior());
+					_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior());
+		            int specialNodeId = Environment.lookUpNodeId("GS");
+		            ((SalmonRouteHelper)_routeHelper).addSpecialBehavior(specialNodeId, new SalmonGSJRouteBehavior(specialNodeId));
+					break;
+				case 2: //"SMELT":
+					// will be implemented later
+					//_routeHelper = new SmeltRouteHelper(new SalmonBasicRouteBehavior());
+					//_swimHelper = new SmeltSwimHelper(new SalmonBasicSwimBehavior());
+					//_survivalHelper = new SmeltSurvivalHelper(new SalmonBasicSurvivalBehavior());
+					break;
+            }
+            
+            /* 
+             * end adding helpers
+             */
+            
+            if(DEBUG) System.out.println("Set observer, helpers");
             for(int i=0; i<numberOfParticles; i++) {
                 if ( observer != null) observer.setObserverForParticle(particleArray[i]);
+                if (_routeHelper != null) _routeHelper.setRouteHelperForParticle(particleArray[i]);
+                if (_swimHelper != null) _swimHelper.setSwimHelperForParticle(particleArray[i]);
+                if (_survivalHelper != null) _survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
             }
-    
+            
             // initialize output restart file
             String outRestartFilename = Environment.getOutputRestartFileName();
             PTMRestartOutput outRestart = null;
@@ -192,7 +242,7 @@ public class MainPTM {
       
             }
             if ( animationOutput != null ) animationOutput.FlushAndClose();
-            System.out.println(" ");
+            //System.out.println(" ");
             // write out restart file information
             if ( outRestart != null ) outRestart.output();
     
@@ -210,7 +260,7 @@ public class MainPTM {
                                                          groupFixedInfo);
             fluxCalculator.calculateFlux();
             fluxCalculator.writeOutput();
-            System.out.println("");
+            //System.out.println("");
             
         }catch(Exception e){
             e.printStackTrace();
