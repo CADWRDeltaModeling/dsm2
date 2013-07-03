@@ -52,17 +52,18 @@ module ut_hydro_data_tide
         call assertEquals (hydro_time_interval, 15, "problem in reading time interval in tidefile")
         
         ! test reading channel table
-        call read_channel_tbl()        
+        call read_channel_tbl()    
         call assertEquals (dble(chan_geom(2)%chan_no), dble(2), weakest_eps, "problem in reading channel index number")
         call assertEquals (dble(chan_geom(2)%channel_num), dble(387), weakest_eps, "problem in reading real channel number")
         call assertEquals (dble(chan_geom(2)%channel_length), dble(10000), weakest_eps, "problem in reading channel length")
-       
+
         ! test reading computational info
         call read_comp_tbl()           
         call assertEquals (dble(comp_pt(15)%comp_index), dble(15), weakest_eps, "problem in reading comp_index")
         call assertEquals (dble(comp_pt(15)%chan_no), dble(4), weakest_eps, "problem in reading channel_no for computational pt")
         call assertEquals (dble(comp_pt(15)%distance), dble(10000), weakest_eps, "problem in reading distance for computational pt")
-       
+        call assign_chan_comppt()
+        
         ! test reading xsect table and construct its type
         call read_xsect_tbl()          
         call assertEquals (dble(virt_xsect(23)%chan_no), dble(4), weakest_eps, "problem in reading chan_no for virt_xsect")

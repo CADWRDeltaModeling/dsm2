@@ -38,8 +38,10 @@ module hydro_data_tidefile
         call get_hydro_attr()
         call read_channel_tbl()
         call read_comp_tbl()
-        call read_xsect_tbl()   !todo: this consume lots of stack memory. Try to reduce.
-        call assign_segment()            
+        call read_xsect_tbl()   !todo: this consumes lots of stack memory. Try to reduce.
+        call assign_segment()   
+        call assign_chan_comppt() 
+        call get_dsm2_node_info()        
     end subroutine     
     
     !> This subroutine is used to read DSM2 hydro tidefile,

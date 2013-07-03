@@ -181,27 +181,6 @@ module gtm_network
         area_lo = area_lo_tmp(:,time_in_mesh)
         area_hi = area_hi_tmp(:,time_in_mesh)
         return
-    end subroutine    
-    
-    
-    !> Routine to sort an array with dimension n
-    subroutine sort_arr(sorted_arr, n, arr)
-        implicit none
-        integer, intent(in) :: n                           !< array dimension
-        integer, dimension(n), intent(in) :: arr           !< input array
-        integer, dimension(n), intent(out) :: sorted_arr   !< output sorted array
-        integer :: a, i, j
-        sorted_arr = arr
-        do j = 2, n
-            a = sorted_arr(j)
-            do i = j-1, 1, -1
-                if (sorted_arr(i)<=a) goto 10
-                sorted_arr(i+1) = sorted_arr(i)
-            end do
-	        i = 0
-10          sorted_arr(i+1) = a
-        end do
-        return
-    end subroutine
-    
+    end subroutine       
+
 end module

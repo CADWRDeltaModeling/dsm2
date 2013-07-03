@@ -241,6 +241,7 @@ module hdf_util
        integer(HID_T) :: dset_id                    ! Dataset identifier
        integer(HID_T) :: dt_id                      ! Memory datatype identifier
        integer(HID_T) :: dt1_id, dt2_id             ! Memory datatype identifier
+       integer(HID_T) :: dt3_id, dt4_id             ! Memory datatype identifier
        integer(SIZE_T):: offset                     ! Member's offset
        integer(HSIZE_T), dimension(1) :: data_dims  ! Datasets dimensions
        integer(SIZE_T) :: typesize                  ! Size of the datatype
@@ -269,10 +270,20 @@ module hdf_util
        call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
        call h5tinsert_f(dt2_id, "length", offset, H5T_NATIVE_INTEGER, error)    
        call h5dread_f(dset_id, dt2_id, chan_geom%channel_length, data_dims, error)
-       
+
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
+       call h5tinsert_f(dt3_id, "upnode", offset, H5T_NATIVE_INTEGER, error)    
+       call h5dread_f(dset_id, dt3_id, chan_geom%up_node, data_dims, error)
+
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
+       call h5tinsert_f(dt4_id, "downnode", offset, H5T_NATIVE_INTEGER, error)    
+       call h5dread_f(dset_id, dt4_id, chan_geom%down_node, data_dims, error)
+                     
        call h5tclose_f(dt_id, error)
        call h5tclose_f(dt1_id, error)
-       call h5tclose_f(dt2_id, error)      
+       call h5tclose_f(dt2_id, error)  
+       call h5tclose_f(dt3_id, error)
+       call h5tclose_f(dt4_id, error)             
        call h5dclose_f(dset_id, error)  
        call h5gclose_f(input_id, error)              
        return        
@@ -371,37 +382,4 @@ module hdf_util
        end do
    end subroutine     
 
-   !> Assign numbers to segment array
-   subroutine assign_segment()
-       use common_variables
-       implicit none
-       integer :: i, j, previous_chan_no
-       call allocate_segment_property()
-       segm(1)%segm_no = 1
-       segm(1)%chan_no = 1
-       segm(1)%up_comppt = 1
-       segm(1)%down_comppt = 2
-       segm(1)%up_distance = 0
-       segm(1)%down_distance = comp_pt(2)%distance
-       segm(1)%length = segm(1)%down_distance - segm(1)%up_distance
-       previous_chan_no = 1
-       j = 1
-       do i = 3, n_comp
-           if (comp_pt(i)%chan_no .eq. previous_chan_no) then
-               j = j + 1
-               segm(j)%segm_no = j
-               segm(j)%chan_no = comp_pt(i)%chan_no
-               segm(j)%up_comppt = comp_pt(i-1)%comp_index
-               segm(j)%down_comppt = comp_pt(i)%comp_index
-               segm(j)%up_distance = comp_pt(i-1)%distance
-               segm(j)%down_distance = comp_pt(i)%distance
-               segm(j)%length = comp_pt(i)%distance - comp_pt(i-1)%distance
-           else
-               previous_chan_no = comp_pt(i)%chan_no
-           end if
-       end do
-       n_segm = j
-       return    
-   end subroutine    
-    
 end module   

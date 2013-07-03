@@ -86,6 +86,11 @@ program gtm
     do i=1,n_segm
         write(debug_unit,*) segm(i)%segm_no, segm(i)%chan_no, segm(i)%length
     end do
+
+    write(debug_unit,*) " "
+    do i=1,n_conn
+        write(debug_unit,*) conn(i)%conn_no, conn(i)%chan_no, conn(i)%cell_no, conn(i)%conn_up_down
+    end do
     
     call check_runtime(offset, num_buffers, memlen,                              &
                        memory_buffer, gtm_start_jmin, gtm_end_jmin,              &
