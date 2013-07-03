@@ -39,9 +39,9 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 			else if (!Globals.Environment.getParticleType().equalsIgnoreCase("SALMON"))
 				throw new ClassCastException("particle is not SALMON!");
 			else if (p.nd.getEnvIndex() != _gsj.getNode().getEnvIndex())
-				throw new ClassCastException("particle is in wrong junction!");
+				throw new ClassCastException("particle is in a wrong junction!");
 			else if (p.nd.getNumberOfChannels() != 3){
-				throw new ClassCastException("particle is in wrong junction! channels != 3");
+				throw new ClassCastException("particle is in wrong a junction! channels != 3");
 			}
 			else
 				_p = p;
@@ -57,7 +57,7 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 		float qUpSac = _gsj.getUpSacRiverFlow()/1000.0f;
 		float qDownSac = _gsj.getDownSacRiverFlow()/1000.0f;
 		float qGs = _gsj.getGSFlow()/1000.0f;
-		// assume unidirectional flow and less than 8000cfs
+		// assume unidirectional flow and less than 50000cfs
 		if (_p.x>0 && qUpSac > 0 && qGs > 0 && qDownSac > 0 && qUpSac < 50 ){ 
 			// day d=1 night d=0
 		    int d = 1;
@@ -85,7 +85,7 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 		}
 		else{
 			super.makeRouteDecision(p);
-			System.out.println("called super");
+			//System.out.println("called super");
 		}
 	}
 
