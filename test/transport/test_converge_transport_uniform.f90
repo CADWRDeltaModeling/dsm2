@@ -119,7 +119,7 @@ use hydro_data
 use source_sink
 use test_utility
 use state_variables
-use logging
+use gtm_logging
 use hydro_uniform_flow
 use dispersion_coefficient
 

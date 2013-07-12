@@ -32,7 +32,7 @@ module ut_gtm_network
     subroutine test_gtm_network()
         use gtm_precision
         use error_handling
-        use logging
+        use gtm_logging
         use common_variables
         use hydro_data
         use gtm_network

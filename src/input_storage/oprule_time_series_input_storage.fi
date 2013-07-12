@@ -1,0 +1,109 @@
+       !>@ingroup fortran
+       !>@defgroup oprule_time_series oprule_time_series
+       !>@{
+        
+       !> Clear the buffer of all stored data of type oprule_time_series 
+       subroutine oprule_time_series_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_clear_buffer_f' :: oprule_time_series_clear_buffer_f
+         implicit none
+         call oprule_time_series_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type oprule_time_series
+       integer function oprule_time_series_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_buffer_size_f' :: oprule_time_series_buffer_size_f
+          implicit none
+          integer, external :: oprule_time_series_buffer_size_f
+          oprule_time_series_buffer_size = oprule_time_series_buffer_size_f()
+          return
+       end function
+       
+       !> write oprule_time_series data to buffer
+       subroutine oprule_time_series_append_to_buffer(name,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_append_to_buffer_f' :: oprule_time_series_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       character(len=8), intent(in) :: fillin
+       character(len=128), intent(in) :: file
+       character(len=80), intent(in) :: path
+         call oprule_time_series_append_to_buffer_f(name,fillin,file,path,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type oprule_time_series
+       subroutine oprule_time_series_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_number_rows_hdf5_f' :: oprule_time_series_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call oprule_time_series_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type oprule_time_series
+       subroutine oprule_time_series_query_from_buffer(row, name,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_query_from_buffer_f' :: oprule_time_series_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       character(len=8), intent(out) :: fillin
+       character(len=128), intent(out) :: file
+       character(len=80), intent(out) :: path
+          integer row
+          integer, intent(out) :: ierror
+          call oprule_time_series_query_from_buffer_f(row, &
+                    name,fillin,file,path,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine oprule_time_series_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_prioritize_buffer_f' :: oprule_time_series_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call oprule_time_series_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of oprule_time_series data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine oprule_time_series_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_write_buffer_to_hdf5_f' :: oprule_time_series_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call oprule_time_series_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of oprule_time_series data from hdf5 to buffer 
+       subroutine oprule_time_series_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_read_buffer_from_hdf5_f' :: oprule_time_series_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call oprule_time_series_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine oprule_time_series_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_oprule_time_series_write_buffer_to_text_f' :: oprule_time_series_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call oprule_time_series_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

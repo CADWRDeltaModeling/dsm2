@@ -1,0 +1,113 @@
+       !>@ingroup fortran
+       !>@defgroup reservoir_concentration reservoir_concentration
+       !>@{
+        
+       !> Clear the buffer of all stored data of type reservoir_concentration 
+       subroutine reservoir_concentration_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_clear_buffer_f' :: reservoir_concentration_clear_buffer_f
+         implicit none
+         call reservoir_concentration_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type reservoir_concentration
+       integer function reservoir_concentration_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_buffer_size_f' :: reservoir_concentration_buffer_size_f
+          implicit none
+          integer, external :: reservoir_concentration_buffer_size_f
+          reservoir_concentration_buffer_size = reservoir_concentration_buffer_size_f()
+          return
+       end function
+       
+       !> write reservoir_concentration data to buffer
+       subroutine reservoir_concentration_append_to_buffer(name,res_name,variable,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_append_to_buffer_f' :: reservoir_concentration_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       character(len=32), intent(in) :: res_name
+       character(len=16), intent(in) :: variable
+       character(len=8), intent(in) :: fillin
+       character(len=128), intent(in) :: file
+       character(len=80), intent(in) :: path
+         call reservoir_concentration_append_to_buffer_f(name,res_name,variable,fillin,file,path,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type reservoir_concentration
+       subroutine reservoir_concentration_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_number_rows_hdf5_f' :: reservoir_concentration_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call reservoir_concentration_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type reservoir_concentration
+       subroutine reservoir_concentration_query_from_buffer(row, name,res_name,variable,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_query_from_buffer_f' :: reservoir_concentration_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       character(len=32), intent(out) :: res_name
+       character(len=16), intent(out) :: variable
+       character(len=8), intent(out) :: fillin
+       character(len=128), intent(out) :: file
+       character(len=80), intent(out) :: path
+          integer row
+          integer, intent(out) :: ierror
+          call reservoir_concentration_query_from_buffer_f(row, &
+                    name,res_name,variable,fillin,file,path,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine reservoir_concentration_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_prioritize_buffer_f' :: reservoir_concentration_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call reservoir_concentration_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of reservoir_concentration data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine reservoir_concentration_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_write_buffer_to_hdf5_f' :: reservoir_concentration_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call reservoir_concentration_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of reservoir_concentration data from hdf5 to buffer 
+       subroutine reservoir_concentration_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_read_buffer_from_hdf5_f' :: reservoir_concentration_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call reservoir_concentration_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine reservoir_concentration_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_concentration_write_buffer_to_text_f' :: reservoir_concentration_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call reservoir_concentration_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

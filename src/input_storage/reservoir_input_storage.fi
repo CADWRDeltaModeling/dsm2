@@ -1,0 +1,107 @@
+       !>@ingroup fortran
+       !>@defgroup reservoir reservoir
+       !>@{
+        
+       !> Clear the buffer of all stored data of type reservoir 
+       subroutine reservoir_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_clear_buffer_f' :: reservoir_clear_buffer_f
+         implicit none
+         call reservoir_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type reservoir
+       integer function reservoir_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_buffer_size_f' :: reservoir_buffer_size_f
+          implicit none
+          integer, external :: reservoir_buffer_size_f
+          reservoir_buffer_size = reservoir_buffer_size_f()
+          return
+       end function
+       
+       !> write reservoir data to buffer
+       subroutine reservoir_append_to_buffer(name,area,bot_elev,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_append_to_buffer_f' :: reservoir_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       real(8), intent(in) :: area
+       real(8), intent(in) :: bot_elev
+         call reservoir_append_to_buffer_f(name,area,bot_elev,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type reservoir
+       subroutine reservoir_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_number_rows_hdf5_f' :: reservoir_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call reservoir_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type reservoir
+       subroutine reservoir_query_from_buffer(row, name,area,bot_elev,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_query_from_buffer_f' :: reservoir_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       real(8), intent(out) :: area
+       real(8), intent(out) :: bot_elev
+          integer row
+          integer, intent(out) :: ierror
+          call reservoir_query_from_buffer_f(row, &
+                    name,area,bot_elev,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine reservoir_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_prioritize_buffer_f' :: reservoir_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call reservoir_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of reservoir data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine reservoir_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_write_buffer_to_hdf5_f' :: reservoir_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call reservoir_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of reservoir data from hdf5 to buffer 
+       subroutine reservoir_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_read_buffer_from_hdf5_f' :: reservoir_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call reservoir_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine reservoir_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_reservoir_write_buffer_to_text_f' :: reservoir_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call reservoir_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

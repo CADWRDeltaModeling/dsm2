@@ -24,7 +24,7 @@ module gtm_network
 
     use gtm_precision
     use error_handling
-    use logging
+    use gtm_logging
     use common_variables
     use common_xsect
   

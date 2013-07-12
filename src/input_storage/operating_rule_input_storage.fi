@@ -1,0 +1,107 @@
+       !>@ingroup fortran
+       !>@defgroup operating_rule operating_rule
+       !>@{
+        
+       !> Clear the buffer of all stored data of type operating_rule 
+       subroutine operating_rule_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_clear_buffer_f' :: operating_rule_clear_buffer_f
+         implicit none
+         call operating_rule_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type operating_rule
+       integer function operating_rule_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_buffer_size_f' :: operating_rule_buffer_size_f
+          implicit none
+          integer, external :: operating_rule_buffer_size_f
+          operating_rule_buffer_size = operating_rule_buffer_size_f()
+          return
+       end function
+       
+       !> write operating_rule data to buffer
+       subroutine operating_rule_append_to_buffer(name,action,trigger,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_append_to_buffer_f' :: operating_rule_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       character(len=512), intent(in) :: action
+       character(len=512), intent(in) :: trigger
+         call operating_rule_append_to_buffer_f(name,action,trigger,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type operating_rule
+       subroutine operating_rule_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_number_rows_hdf5_f' :: operating_rule_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call operating_rule_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type operating_rule
+       subroutine operating_rule_query_from_buffer(row, name,action,trigger,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_query_from_buffer_f' :: operating_rule_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       character(len=512), intent(out) :: action
+       character(len=512), intent(out) :: trigger
+          integer row
+          integer, intent(out) :: ierror
+          call operating_rule_query_from_buffer_f(row, &
+                    name,action,trigger,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine operating_rule_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_prioritize_buffer_f' :: operating_rule_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call operating_rule_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of operating_rule data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine operating_rule_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_write_buffer_to_hdf5_f' :: operating_rule_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call operating_rule_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of operating_rule data from hdf5 to buffer 
+       subroutine operating_rule_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_read_buffer_from_hdf5_f' :: operating_rule_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call operating_rule_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine operating_rule_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_operating_rule_write_buffer_to_text_f' :: operating_rule_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call operating_rule_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

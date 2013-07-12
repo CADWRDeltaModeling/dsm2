@@ -43,7 +43,7 @@ use source_sink
 use test_utility
 use error_handling
 use fruit
-use logging
+use gtm_logging
 
 implicit none
 

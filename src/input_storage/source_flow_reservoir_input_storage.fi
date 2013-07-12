@@ -1,0 +1,113 @@
+       !>@ingroup fortran
+       !>@defgroup source_flow_reservoir source_flow_reservoir
+       !>@{
+        
+       !> Clear the buffer of all stored data of type source_flow_reservoir 
+       subroutine source_flow_reservoir_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_clear_buffer_f' :: source_flow_reservoir_clear_buffer_f
+         implicit none
+         call source_flow_reservoir_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type source_flow_reservoir
+       integer function source_flow_reservoir_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_buffer_size_f' :: source_flow_reservoir_buffer_size_f
+          implicit none
+          integer, external :: source_flow_reservoir_buffer_size_f
+          source_flow_reservoir_buffer_size = source_flow_reservoir_buffer_size_f()
+          return
+       end function
+       
+       !> write source_flow_reservoir data to buffer
+       subroutine source_flow_reservoir_append_to_buffer(name,res_name,sign,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_append_to_buffer_f' :: source_flow_reservoir_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       character(len=32), intent(in) :: res_name
+       integer, intent(in) :: sign
+       character(len=8), intent(in) :: fillin
+       character(len=128), intent(in) :: file
+       character(len=80), intent(in) :: path
+         call source_flow_reservoir_append_to_buffer_f(name,res_name,sign,fillin,file,path,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type source_flow_reservoir
+       subroutine source_flow_reservoir_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_number_rows_hdf5_f' :: source_flow_reservoir_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call source_flow_reservoir_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type source_flow_reservoir
+       subroutine source_flow_reservoir_query_from_buffer(row, name,res_name,sign,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_query_from_buffer_f' :: source_flow_reservoir_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       character(len=32), intent(out) :: res_name
+       integer, intent(out) :: sign
+       character(len=8), intent(out) :: fillin
+       character(len=128), intent(out) :: file
+       character(len=80), intent(out) :: path
+          integer row
+          integer, intent(out) :: ierror
+          call source_flow_reservoir_query_from_buffer_f(row, &
+                    name,res_name,sign,fillin,file,path,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine source_flow_reservoir_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_prioritize_buffer_f' :: source_flow_reservoir_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call source_flow_reservoir_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of source_flow_reservoir data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine source_flow_reservoir_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_write_buffer_to_hdf5_f' :: source_flow_reservoir_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call source_flow_reservoir_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of source_flow_reservoir data from hdf5 to buffer 
+       subroutine source_flow_reservoir_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_read_buffer_from_hdf5_f' :: source_flow_reservoir_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call source_flow_reservoir_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine source_flow_reservoir_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_source_flow_reservoir_write_buffer_to_text_f' :: source_flow_reservoir_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call source_flow_reservoir_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

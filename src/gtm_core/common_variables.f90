@@ -51,7 +51,7 @@ module common_variables
     real(gtm_real), allocatable :: hydro_area(:,:)              !< area from DSM2 hydro
     real(gtm_real), allocatable :: hydro_ws(:,:)                !< water surface from DSM2 hydro
     real(gtm_real), allocatable :: hydro_avga(:,:)              !< average area from DSM2 hydro
-    
+   
     !> Define scalar and envvar in input file
     type scalar_t
         character(len=:), allocatable :: gtmoutdssfile

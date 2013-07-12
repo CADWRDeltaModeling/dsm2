@@ -55,7 +55,7 @@ use diffusion
 use boundary_diffusion
 use gaussian_init_boundary_condition
 use fruit
-use logging
+use gtm_logging
 use test_utility
 use source_sink
 use dispersion_coefficient

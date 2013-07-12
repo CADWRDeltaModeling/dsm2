@@ -24,10 +24,11 @@ program gtm
 
     use gtm_precision
     use error_handling
-    use logging
+    use gtm_logging
     use time_util
     use common_variables
     use common_xsect   
+   ! use process_input
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
@@ -73,6 +74,8 @@ program gtm
     gtm_time_interval = 5
     npartition_x = 4
     
+    
+    !call read_input_text("gtm.inp") 
     call cdt2jmin(gtm_start_jmin, gtm_start_time)
     call cdt2jmin(gtm_end_jmin, gtm_end_time)
     

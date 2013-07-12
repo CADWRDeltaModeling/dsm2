@@ -26,7 +26,7 @@ module error_handling
         
     !> Logs the input message as an error and stops execution with error code
     subroutine gtm_fatal(message)
-        use logging, only: gtm_log, ERROR
+        use gtm_logging, only: gtm_log, ERROR
         implicit none
         character(LEN=*), intent(in):: message      !< error message
         call gtm_log(ERROR, message)
