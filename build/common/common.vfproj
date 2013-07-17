@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{31830BB9-A9F7-4795-A522-00418E0E7BAD}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLibrarianTool" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib" AdditionalDependencies="heclib_vs9_debug.lib szlib.lib zlib.lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration>
+		<Configuration Name="Release|Win32" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFLibrarianTool"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files" Filter="fi;fd"/>
+		<Filter Name="Subversion">
+		<File RelativePath="..\..\src\common\version.fi"/></Filter>
+		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\src\common\constants.f90"/>
+		<File RelativePath="..\..\src\common\envvar.f90"/>
+		<File RelativePath="..\..\src\common\io_units.f90"/>
+		<File RelativePath="..\..\src\common\iopath_data.f90"/>
+		<File RelativePath="..\..\src\common\runtime_data.f90"/>
+		<File RelativePath="..\..\src\common\type_defs.f90"/></Filter></Files>
+	<Globals/></VisualStudioProject>

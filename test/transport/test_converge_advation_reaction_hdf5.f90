@@ -65,7 +65,6 @@ use source_sink
 use test_convergence_transport
 use diffusion
 use dispersion_coefficient
-  
 implicit none
 procedure(hydro_data_if), pointer :: gtm_hydro            !< The pointer points to DSM2 hydro flow data
 logical :: verbose                                        !< Falg for showing the detail on the screen
@@ -79,7 +78,7 @@ character(LEN=64) :: label                                !< Test name label
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
 integer :: ncell 
 acceptance_ratio = [four, four, four]
- 
+
 call allocate_network_tmp()
 call interp_network(nx_base, nstep_base, 2) 
 ncell = nx_base*n_segm
@@ -176,7 +175,6 @@ label = 'advection_reaction_gtm_gaussian'
 !                      verbose,                &
 !                      .true.,                 &
 !                      acceptance_ratio)
-
 end subroutine
 
 !> Generates a fine initial and final solution of constant

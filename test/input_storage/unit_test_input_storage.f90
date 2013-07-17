@@ -4,6 +4,8 @@
 !>@ingroup test_input_storage
 module ut_input_storage
     
+    use error_handling
+    
     contains
     
     subroutine test_input_storage
@@ -13,95 +15,126 @@ module ut_input_storage
         implicit none
         integer :: nnode_conc
         integer :: error
-        character(len=18), PARAMETER :: filename="fortran_example.h5" ! File name
+        character(len=21), PARAMETER :: filename="test_input_storage.h5" ! File name
         integer(HID_T) :: file_id                            ! File identifier
         logical :: ext
         integer :: ierror = 0
 
         call clear_all_buffers(ierror)
         call init_file_reader(ierror)
+        call set_initial_context_profile("GTM")
 
         ! Read, collect and process the "ENVVAR" section used for 
         ! text substitution
         call set_user_substitution_enabled(.false.,ierror)    ! don't try to substitute now
-
-        print*, "Setting active profile to envvar"
+        call set_substitution_not_found_is_error(.false.,ierror)
         call set_active_profile("envvar",ierror)         ! read only ENVVAR blocks
-        call verify_error(ierror)
-
-        print*, "Reading from text, envvar only"
+        call verify_error(ierror, "Error setting active profile")
         call read_buffer_from_text("gtm.inp",ierror) ! read starting from this file
-        call verify_error(ierror)
+        call verify_error(ierror, "Error reading from text (envvar pass)")
         !
         ! process the results
         !
-        print*,"Processing text substitution"
         call process_text_substitution(ierror)
-        call verify_error(ierror)
+        call set_user_substitution_enabled(.true.,ierror)  ! enable text substitution and substitute now
+        call set_substitution_not_found_is_error(.true.,ierror)
+        call verify_error(ierror,"Error substitution")
 
-        print*,"Enable text substitution"
-        call set_user_substitution_enabled(.true.,ierror)  ! substitute now
-        ! clear the buffer so that envvars are not loaded redundantly 
-        call envvar_clear_buffer()
+      !  ! clear the buffer so that envvars are not loaded redundantly 
+      !  call envvar_clear_buffer()
+      !  
+      !  !
+      !  ! set the active profile to "all". Now all items will be read.
+      !  !
+      !  print*,"Reading all items"
+      !  call set_active_profile("all", ierror)
+      !  call read_buffer_from_text("gtm.inp",ierror)
+      !  call verify_error(ierror,"Error reading from text (all items)")
+      !  !
+      !  ! check for redundancies and prioritize according to source file
+      !  !
+      !  print*,"Prioritize buffer"
+      !  call node_concentration_prioritize_buffer(ierror)
+      !  call verify_error(ierror,"")
+
+      !  !
+      !  ! do something with the data...
+      !  !
+      !  nnode_conc = node_concentration_buffer_size()
+      !  print *,"Number of Node Concentrations: ", nnode_conc
+
+      !  ! Now write it out to hdf5
+      !  call h5open_f (error)
+      !  call h5fcreate_f(filename, H5F_ACC_TRUNC_F, file_id, error)
+      !  if (error .ne. 0) then
+      !      print*,"Could not open file, hdf error: ", error
+      !      print*,"Check if it already exists and delete if so -- failure to replace seems to be an HDF5 bug"
+      !      call exit(2)
+      !  end if
+      !  print*,"invert"
+
+      !  ! Write buffer to HDF5
+      !  call envvar_write_buffer_to_hdf5(file_id,ierror)
+      !  call scalar_write_buffer_to_hdf5(file_id,ierror)
+      !  call io_file_write_buffer_to_hdf5(file_id,ierror)
+      !  call tidefile_write_buffer_to_hdf5(file_id,ierror)
+      !  call node_concentration_write_buffer_to_hdf5(file_id,ierror)
         
-        !
-        ! set the active profile to "all". Now all items will be read.
-        !
-        print*,"Reading all items"
-        call set_active_profile("all", ierror)
-        call read_buffer_from_text("gtm.inp",ierror)
-        call verify_error(ierror)
-        !
-        ! check for redundancies and prioritize according to source file
-        !
-        print*,"Prioritize buffer"
-        call node_concentration_prioritize_buffer(ierror)
-        call verify_error(ierror)
+      !  ! Write buffer to echo text file
+      !  call envvar_write_buffer_to_text("echo_gtm_out.txt",.false.,ierror)
+      !  call scalar_write_buffer_to_text("echo_gtm_out.txt",.true.,ierror)
+      !  call io_file_write_buffer_to_text("echo_gtm_out.txt",.true.,ierror)
+      !  call tidefile_write_buffer_to_text("echo_gtm_out.txt",.true.,ierror)
+      !  call node_concentration_write_buffer_to_text("echo_gtm_out.txt",.true.,ierror)
 
-        !
-        ! do something with the data...
-        !
-        nnode_conc = node_concentration_buffer_size()
-        print *,"Number of Node Concentrations: ", nnode_conc
+      !  ! Close file and  FORTRAN interface.
+      !  call h5fclose_f(file_id, error)
+      !  print *, "file close status: ", error
+      !  call h5close_f(error)
+      !  print*, "hdf5 shutdown status: ", error
+      !  return
+        
+      call clear_all_buffers(ierror)          ! Clear the envvar buffer
+      print*,"Read and processed text substitution (ENVVARS), reading all data from text"
 
-        ! inquire(file=filename, exist=ext)   ! this was for cygwin
-        ! if (ext)then
-        ! call unlink(filename,error)
-        ! end if
+      !Do a second pass on all the input, making use of the text substitution we just prepped
+      call set_active_profile("GTM",ierror)          ! activate all keywords for the model
+      call read_buffer_from_text("gtm.inp",ierror)        ! Perform the read into buffers
+      call verify_error(ierror,"Error reading from text (full pass)")
+      print*,"Read text into buffers"
+      call prioritize_all_buffers(ierror)                ! Enforce the "layering"
+      call verify_error(ierror,"Error prioritizing buffers, sorting layers")
+      print*,"Prioritized buffer"
 
-        ! Now write it out to hdf5
-        call h5open_f (error)
-        call h5fcreate_f(filename, H5F_ACC_TRUNC_F, file_id, error)
-        if (error .ne. 0) then
-            print*,"Could not open file, hdf error: ", error
-            print*,"Check if it already exists and delete if so -- failure to replace seems to be an HDF5 bug"
-            call exit(2)
-        end if
-        print*,"invert"
-
-        call envvar_write_buffer_to_hdf5(file_id,ierror)
-        call node_concentration_write_buffer_to_hdf5(file_id,ierror)
-        call envvar_write_buffer_to_text("echo_gtm_out.txt",.true.,ierror)
-        call node_concentration_write_buffer_to_text("echo_gtm_out.txt",.true.,ierror)
-
-        !
-        !    Close file and  FORTRAN interface.
-        !
-        call h5fclose_f(file_id, error)
-        print *, "file close status: ", error
-        call h5close_f(error)
-        print*, "hdf5 shutdown status: ", error
-        return
-    end subroutine
-    
-    !> Routine to verify error
-    subroutine verify_error(error)
-        implicit none
-        integer :: error
-        if (error .ne. 0)then
-            write(*,*)"Input storage error"
-            call exit(error)
-        end if
+      call write_buffer_profile_to_text("GTM","echo_gtm.inp",.false.,ierror)
+      
+      
+      return
+        
+        
     end subroutine
 
+
+    !> Writes in all text starting from input filename
+    !subroutine write_input_buffers()
+    !    use input_storage_fortran
+    !    use iopath_data
+    !    use runtime_data
+    !    use envvar
+    !    implicit none
+    !    integer :: ierror = 0
+    !    logical :: append_text=.false.
+    !    ! Write all buffers to text in the order they were defined
+    !    if (io_files(dsm2_module,io_echo,io_write).use)then
+    !        append_text=.false.
+    !        call write_buffer_profile_to_text(trim(dsm2_name),          &
+    !                                          io_files(dsm2_module,        &
+    !                                          io_echo,             &
+    !                                          io_write).filename,  &
+    !                                          append_text,ierror)
+    !        call verify_error(ierror,"Error writing echoed text")
+    !    end if
+    !    return
+    !end subroutine
+   
 end module

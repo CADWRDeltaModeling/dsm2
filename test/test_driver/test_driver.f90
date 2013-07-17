@@ -76,14 +76,14 @@ program test_driver
     !----- function calls to test units in project common -----
     
     !call test_buffer_input("gtm.inp")
-    call test_time_util()                ! test time_util()
-    call test_hdf_util()                 ! test hdf_util()
-    !call test_resample()                 ! test resample coarse grid from finer grid (for testing comparison only)
-    call test_interpolation()            ! test interpolation schemes
-    call test_gtm_network()              ! test creating GTM network
+    call test_time_util                ! test time_util()
+    call test_hdf_util                 ! test hdf_util()
+    !call test_resample                 ! test resample coarse grid from finer grid (for testing comparison only)
+    call test_interpolation            ! test interpolation schemes
+    call test_gtm_network              ! test creating GTM network
     
     !----- function calls to test units in project input_storage API
-    call test_input_storage()        !problem with included lib, complier complaints about unresolved functions in input_storage_fortran
+    call test_input_storage        !problem with included lib, complier complaints about unresolved functions in input_storage_fortran
      
     !----- function calls to test units in project transport -----  todo::this block is copied from previous STM code, activate later
 
@@ -126,7 +126,7 @@ program test_driver
     ! todo: need to set an automatic check for hitting the boundary with coarse meshes
     !       this frequently causes problems that are undetected without scrutiny
     call test_tidal_advection_reaction(verbose)
-    call test_hydro_advection_reaction(verbose)
+    call test_hydro_advection_reaction(verbose) 
     
     !/////Advection-Diffusion tests
     call test_zoppou_flow()    ! unit test that goes with convergence test

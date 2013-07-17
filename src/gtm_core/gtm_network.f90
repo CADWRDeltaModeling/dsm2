@@ -137,11 +137,11 @@ module gtm_network
             do j = 1, npart_x
                 icell = npart_x*(i-1)+j
                 do t = 1, nt
-                    flow_lo_tmp(icell,t) = flow_mesh(t,j+1)
-                    flow_hi_tmp(icell,t) = flow_mesh(t,j-1)
+                    flow_lo_tmp(icell,t) = flow_mesh(t,j)
+                    flow_hi_tmp(icell,t) = flow_mesh(t,j+1)
                     flow_tmp(icell,t) = half*(flow_lo_tmp(icell,t)+flow_hi_tmp(icell,t))
-                    area_lo_tmp(icell,t) = area_mesh(t,j+1)
-                    area_hi_tmp(icell,t) = area_mesh(t,j-1)                
+                    area_lo_tmp(icell,t) = area_mesh(t,j)
+                    area_hi_tmp(icell,t) = area_mesh(t,j+1)                
                     area_tmp(icell,t) = half*(area_lo_tmp(icell,t)+area_hi_tmp(icell,t))
                 end do
             end do

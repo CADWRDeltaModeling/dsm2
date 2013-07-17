@@ -103,7 +103,7 @@ module ut_hydro_data_tide
         ! test CxArea calculation
         call CxArea(area_from_CxArea, dble(5000),hydro_ws(6,1),2)                   
         call assertEquals (area_from_CxArea, dble(7524.127), weakest_eps, "problem in calculating CxArea")
-        
+                    
         call deallocate_hydro_ts() 
         call hdf5_close()         
         return
