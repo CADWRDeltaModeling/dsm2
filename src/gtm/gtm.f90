@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!    Copyright (C) 2013 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2.
 !
@@ -17,7 +17,27 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
-
+!
+!    PTM is an acronym for "Particle Tracking Model". This is version 2 of PTM
+!    which utilizes information from DSM2 to track particles moving according
+!    to hydrodynamics and quality information.<p>
+!  
+!    This class defines the parameters and information about the environment
+!    a Particle moves in. This information is either fixed or dynamic. Fixed information
+!    is information that is relatively fixed during a run of the model such
+!    as the output filenames, the flow network etcetra. Dynamic information
+!    is information that most likely changes every time step such as the
+!    flow, velocity, volume, etcetra.<p>
+! 
+!    The network consists of nodes and waterbodies. Waterbody is an entity
+!    containing water such as a channel, reservoir, etcetra. Node is a connection
+!    between waterbodies. Each waterbody is given a unique id and also contains
+!    information about which nodes it is connected to. Each node also has a unique
+!    id and the information about which waterbodies it is connected to.
+! 
+!    @author Nicky Sandhu
+!    @version $Id: MainPTM.java,v 1.5.6.4 2006/04/04 18:16:23 eli2 Exp $
+! 
 !> Main program for General Transport Model
 !>@ingroup driver
 program gtm

@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!    Copyright (C) 2013 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2.
 !

@@ -25,7 +25,6 @@
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-		<File RelativePath="..\..\src\gtm_core\buffer_input.f90"/>
 		<File RelativePath="..\..\src\gtm_core\common_variables.f90"/>
 		<File RelativePath="..\..\src\gtm_core\common_xsect.f90"/>
 		<File RelativePath="..\..\src\gtm_core\error_handling.f90"/>
@@ -38,7 +37,6 @@
 		<File RelativePath="..\..\src\gtm_core\hydro_data.f90"/>
 		<File RelativePath="..\..\src\gtm_core\hydro_data_tidefile.f90"/>
 		<File RelativePath="..\..\src\gtm_core\interpolation.f90"/>
-		<File RelativePath="..\..\src\gtm_core\process_input.f90"/>
 		<File RelativePath="..\..\src\gtm_core\resample.f90"/>
 		<File RelativePath="..\..\src\gtm_core\time_util.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

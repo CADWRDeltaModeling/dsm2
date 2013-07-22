@@ -6,60 +6,61 @@ module ut_input_storage
     
     use error_handling
     
+    
     contains
     
     subroutine test_input_storage
-    
-        use hdf5
-        use input_storage_fortran
+    use common_dsm2_vars
+        use process_gtm_input
+        !use hdf5
+        !use input_storage_fortran
         implicit none
-        integer :: nnode_conc
-        integer :: error
-        character(len=21), PARAMETER :: filename="test_input_storage.h5" ! File name
-        integer(HID_T) :: file_id                            ! File identifier
-        logical :: ext
-        integer :: ierror = 0
-
-        call clear_all_buffers(ierror)
-        call init_file_reader(ierror)
-        call set_initial_context_profile("GTM")
+        !integer :: nnode_conc
+        !integer :: error
+        !character(len=21), PARAMETER :: filename="test_input_storage.h5" ! File name
+        !integer(HID_T) :: file_id                                        ! File identifier
+        !logical :: ext
+        !logical :: append_text=.false.
+        !integer :: ierror = 0
+       
+        dsm2_module = gtm
+        dsm2_name = "GTM"
+        call read_input_text("gtm.inp")
+        !call clear_all_buffers(ierror)
+        !call init_file_reader(ierror)
+        !call set_initial_context_profile(dsm2_name)
 
         ! Read, collect and process the "ENVVAR" section used for 
         ! text substitution
-        call set_user_substitution_enabled(.false.,ierror)    ! don't try to substitute now
-        call set_substitution_not_found_is_error(.false.,ierror)
-        call set_active_profile("envvar",ierror)         ! read only ENVVAR blocks
-        call verify_error(ierror, "Error setting active profile")
-        call read_buffer_from_text("gtm.inp",ierror) ! read starting from this file
-        call verify_error(ierror, "Error reading from text (envvar pass)")
-        !
-        ! process the results
-        !
-        call process_text_substitution(ierror)
-        call set_user_substitution_enabled(.true.,ierror)  ! enable text substitution and substitute now
-        call set_substitution_not_found_is_error(.true.,ierror)
-        call verify_error(ierror,"Error substitution")
+        !call set_user_substitution_enabled(.false.,ierror)          ! don't try to substitute now
+        !call set_substitution_not_found_is_error(.false.,ierror)
+        !call set_active_profile("envvar",ierror)                    ! read only ENVVAR blocks
+        !call verify_error(ierror, "Error setting active profile")
+        !call read_buffer_from_text("gtm.inp",ierror)                ! read starting from this file
+        !call verify_error(ierror, "Error reading from text (envvar pass)")
+        
+        ! Process the results
+        !call process_text_substitution(ierror)
+        !call set_user_substitution_enabled(.true.,ierror)           ! enable text substitution and substitute now
+        !call set_substitution_not_found_is_error(.true.,ierror)
+        !call verify_error(ierror,"Error substitution")
+        
+        !call clear_all_buffers(ierror)                              ! clear the envvar buffer
 
-      !  ! clear the buffer so that envvars are not loaded redundantly 
-      !  call envvar_clear_buffer()
-      !  
-      !  !
-      !  ! set the active profile to "all". Now all items will be read.
-      !  !
-      !  print*,"Reading all items"
-      !  call set_active_profile("all", ierror)
-      !  call read_buffer_from_text("gtm.inp",ierror)
-      !  call verify_error(ierror,"Error reading from text (all items)")
-      !  !
-      !  ! check for redundancies and prioritize according to source file
-      !  !
-      !  print*,"Prioritize buffer"
-      !  call node_concentration_prioritize_buffer(ierror)
-      !  call verify_error(ierror,"")
+        ! Do a second pass on all the input, making use of the text
+        ! substitution we just prepped
+        !call set_active_profile(dsm2_name,ierror)                   ! activate all keywords for the model
+        !call read_buffer_from_text("gtm.inp",ierror)                ! Perform the read into buffers
+        !call verify_error(ierror,"Error reading from text (full pass)")
+        !call prioritize_all_buffers(ierror)                         ! prioritzied buffer
+        !call verify_error(ierror,"Error prioritizing buffers, sorting layers")
 
-      !  !
-      !  ! do something with the data...
-      !  !
+        !call write_buffer_profile_to_text(dsm2_name,"echo_gtm.inp",.false.,ierror)
+        !call verify_error(ierror,"Error writing echoed text")
+        !========
+
+
+     !  !
       !  nnode_conc = node_concentration_buffer_size()
       !  print *,"Number of Node Concentrations: ", nnode_conc
 
@@ -93,25 +94,9 @@ module ut_input_storage
       !  call h5close_f(error)
       !  print*, "hdf5 shutdown status: ", error
       !  return
-        
-      call clear_all_buffers(ierror)          ! Clear the envvar buffer
-      print*,"Read and processed text substitution (ENVVARS), reading all data from text"
-
-      !Do a second pass on all the input, making use of the text substitution we just prepped
-      call set_active_profile("GTM",ierror)          ! activate all keywords for the model
-      call read_buffer_from_text("gtm.inp",ierror)        ! Perform the read into buffers
-      call verify_error(ierror,"Error reading from text (full pass)")
-      print*,"Read text into buffers"
-      call prioritize_all_buffers(ierror)                ! Enforce the "layering"
-      call verify_error(ierror,"Error prioritizing buffers, sorting layers")
-      print*,"Prioritized buffer"
-
-      call write_buffer_profile_to_text("GTM","echo_gtm.inp",.false.,ierror)
       
       
-      return
-        
-        
+      return          
     end subroutine
 
 
