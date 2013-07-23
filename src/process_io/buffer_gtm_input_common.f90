@@ -25,23 +25,23 @@ module buffer_gtm_input_common
     !> 
     subroutine buffer_input_common()      
       use input_storage_fortran
-      !use constants
-      !use io_units
       !use groups, only:convertgrouppatternstomembers
+      use common_dsm2_vars
+      use process_gtm_scalar
       use process_gtm_io_file
       
       implicit none
       integer :: nitem
+      character*(32) name
+      character*(64) value     
+      character*(32) envname
+      character*(128) envval
       character*(128) filename
       integer :: icount
-      character*(32) name
       character*8,model,filetype,io
       character*16 interval
       character*128 iofile
       integer :: ierror = 0
-      ! input_node
-
-      character*32 :: rolename 
 
       character*32 groupname
       character*16 member_type
@@ -49,6 +49,34 @@ module buffer_gtm_input_common
       integer*4 obj_type
       integer*4, external :: obj_type_code
 
+      ! process envvar block
+      nitem = envvar_buffer_size()
+      do icount = 1,nitem
+           call envvar_query_from_buffer(icount, envname, envval, ierror)
+           call add_envvar(envname,envval)
+      end do
+      print *,"Number of envvar: ", nitem
+      
+      ! process scalar block
+      nitem = scalar_buffer_size()
+      do icount = 1,nitem
+           call scalar_query_from_buffer(icount,name,value,ierror)
+           call process_scalar(name,value)
+      end do
+      print *,"Number of scalars: ", nitem
+      
+      ! process io_file block
+      nitem = io_file_buffer_size()
+      do icount = 1,nitem
+         call io_file_query_from_buffer(icount, model, filetype, io, interval, iofile, ierror)
+         call process_io_file(model, filetype, io, interval, iofile)
+      end do
+      print *,"Number of iofiles: ", nitem
+
+      ! process tidefile
+      ! todo: do we want to work with multi tidefiles?
+
+      ! process group block
       !nitem = group_buffer_size()
       !do icount = 1,nitem
       !   call group_query_from_buffer(icount, name, ierror)
@@ -56,6 +84,7 @@ module buffer_gtm_input_common
       !end do
       !print *,"Number of groups processed: ", nitem
 
+      ! process group_member block
       !nitem = group_member_buffer_size()
       !do icount = 1,nitem
       !   call group_member_query_from_buffer(icount,         &
@@ -68,22 +97,12 @@ module buffer_gtm_input_common
       !                              obj_type,                &
       !                              pattern)
       !end do
-
       !print *,"Number of group members processed: ", nitem
       !! convert group members from patterns to actual objects&indexes
       !! This must come after tidefile is loaded
-	
       !call ConvertGroupPatternsToMembers
 
-      nitem = io_file_buffer_size()
-      do icount = 1,nitem
-         call io_file_query_from_buffer(icount, model, filetype, io, interval, iofile, ierror)
-         call process_io_file(model, filetype, io, interval, iofile)
-      end do
-      print *,"Number of iofiles: ", nitem
-
-      return  ! normal return
-     
+      return
     end subroutine
       
 end module      

@@ -62,7 +62,6 @@ module common_variables
         character(len=9) :: run_end_date
         character(len=4) :: run_start_time
         character(len=4) :: run_end_time
-        character(len=:), allocatable :: temp_dir
     end type
     type(scalar_t) :: scalar
    
@@ -276,7 +275,6 @@ module common_variables
         call allocate_segment_property()
         call allocate_conn_property()
         segm(1)%segm_no = 1
-        
         segm(1)%chan_no = 1
         segm(1)%up_comppt = 1
         segm(1)%down_comppt = 2

@@ -1,5 +1,5 @@
 
-
+!>@ingroup process_io
 module process_gtm_input
 
     use gtm_precision

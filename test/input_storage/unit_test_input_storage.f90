@@ -6,7 +6,6 @@ module ut_input_storage
     
     use error_handling
     
-    
     contains
     
     subroutine test_input_storage
