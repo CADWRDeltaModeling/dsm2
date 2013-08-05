@@ -28,18 +28,16 @@ program test_driver
     use fruit
     use gtm_logging
 
-    !----- modules used in project test_common ----- 
+    !----- modules used in project test_common ------
     use ut_hydro_data_tide
     use ut_hydro_data_interp
-    use ut_time_util
-    !use ut_buffer_input
     use ut_gtm_network
     
     !----- modules used in project test_input_storage -----
     use ut_input_storage
+    !use ut_time_utilities
     
-    !----- modules used in project test_transport -----  todo::this block is copied from previous STM code, activate later
-    !                                                    I made a test run and it worked fine. 
+    !----- modules used in project test_transport -----  
     use test_extrapolate
     use test_prim_cons_conversion
     use test_prim_increment_to_cons
@@ -60,33 +58,32 @@ program test_driver
     use test_diffusion_fletcher
     use test_diffusion_nonlinear_decay
 
-    !&&&&&&&&&&&&&&&&&&&
     use test_convergence_transport_uniform
-    !&&&&&&&&&&&&&&&&&&
     use test_zoppou_advection_dispersion
     use test_time_dependent_advection_dispersion
     use test_mms_advection_dispersion
     
     implicit none
     logical :: verbose = .true.
-    
+    character(len=255) :: parent_dir
+   
     call init_fruit
-    open(debug_unit, file = "debug_unit.txt")                   !< output text file
+    call get_parent_working_dir(parent_dir) 
    
     !----- function calls to test units in project common -----
-    
-    !call test_buffer_input("gtm.inp")
-    call test_time_util                ! test time_util()
-    call test_hdf_util                 ! test hdf_util()
-    !call test_resample                 ! test resample coarse grid from finer grid (for testing comparison only)
-    call test_interpolation            ! test interpolation schemes
-    call test_gtm_network              ! test creating GTM network
-    
-    !----- function calls to test units in project input_storage API
-    call test_input_storage        !problem with included lib, complier complaints about unresolved functions in input_storage_fortran
+    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    open(debug_unit, file = "debug_unit.txt")            !< output text file
+    call test_hdf_util                                   ! test hdf_util()
+    !call test_resample                                  ! test resample coarse grid from finer grid (for testing comparison only)
+    call test_interpolation                              ! test interpolation schemes
+    call test_gtm_network                                ! test creating GTM network
      
-    !----- function calls to test units in project transport -----  todo::this block is copied from previous STM code, activate later
-
+    !----- function calls to test units in project input_storage API ---
+    call change_working_dir(parent_dir, "/historical_gtm_do")
+    call test_input_storage
+     
+    !----- function calls to test units in project transport ----- 
+    call change_working_dir(parent_dir, "/transport_unit_test_out")
     ! todo: we have 6 pointers, [2 diff + 1 adv + 1 source + 1 hydro + 1 disp_coef]
     ! can we right nullify(the six pointer) after each test?  
     
@@ -142,6 +139,26 @@ program test_driver
     
     call fruit_summary
     close(debug_unit)
-    pause
-    
+    pause    
 end program test_driver
+
+!> Get parent working directory
+subroutine get_parent_working_dir(parent_dir)
+    implicit none
+    integer :: getcwd, status
+    character(len=255), intent(out) :: parent_dir
+    status = getcwd(parent_dir)
+    if (status .ne. 0) stop 'getcwd: error'
+    return
+end subroutine    
+
+!> Change working directory
+subroutine change_working_dir(parent_dir, subfolder)
+    implicit none
+    integer :: getcwd, chdir, status
+    character(len=255) :: parent_dir
+    character*(*) :: subfolder
+    status = chdir(trim(parent_dir)//trim(subfolder))
+    if (status .ne. 0) stop 'chdir: error'
+    return
+end subroutine

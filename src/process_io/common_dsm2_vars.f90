@@ -1,10 +1,30 @@
-
+!<license>
+!    Copyright (C) 2013 State of California,
+!    Department of Water Resources.
+!    This file is part of DSM2-GTM.
+!
+!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
+!    is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    (at your option) any later version.
+!
+!    DSM2 is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!</license>
 
 !> Collection of common variables required from DSM2
 !> Those are variables from runtime_data.f, constants.f, 
 !> io_units.f and iopath_data.f.
 !>@ingroup process_io
 module common_dsm2_vars
+
+      use common_variables
 
     !> From DSM2/common/runtime_data.f
        character(len=:), allocatable :: dsm2_name
@@ -52,8 +72,8 @@ module common_dsm2_vars
        integer, parameter ::  max_titles = 30   ! actual number of titles
        integer :: ntitles                       ! actual number of titles
        character*80 ::  title(max_titles)
-     
-    !> From DSM2/common/constants.f
+ 
+     !> From DSM2/common/constants.f
        !-----model
        integer :: dsm2_module
        integer, parameter :: hydro = 1
@@ -83,7 +103,6 @@ module common_dsm2_vars
        integer, parameter :: per_type_inst_cum = 6
        integer, parameter :: per_type_null = 7
 
-       integer, parameter :: miss_val_i = -901            ! integer for initializing variables
        integer, parameter :: prev_julmin_i = -902         ! integer for initializing variables
        integer, parameter :: start_file_i = -903          ! integer for initializing variables
        integer, parameter :: end_file_i = -904            ! integer for initializing variables
@@ -94,10 +113,88 @@ module common_dsm2_vars
        integer, parameter :: init_small_i = 0             ! integer for initializing variables
        integer, parameter :: init_big_i = 9998888         ! integer for initializing variables
 
-       real*8, parameter :: miss_val_r = -901.            ! for initializing irreg_geom structures
+       !-----object type codes
+       integer, parameter :: obj_channel = 1
+       integer, parameter :: obj_node = 2
+       integer, parameter :: obj_reservoir = 3
+       integer, parameter :: obj_gate = 4
+       integer, parameter :: obj_qext = 5
+       integer, parameter :: obj_obj2obj = 6
+       integer, parameter :: obj_flux = 7
+       integer, parameter :: obj_stage = 8
+       integer, parameter :: obj_null = 9
+       integer, parameter :: obj_group = 22
+       integer, parameter :: obj_oprule = 111
+       integer, parameter :: obj_boundary_flow = 15
+       integer, parameter :: obj_source_sink = 16
+       integer, parameter :: obj_climate = 30
+       integer, parameter :: obj_filter = 120
+
+       !> Missing values maker
+       integer, parameter :: miss_val_i = -901
+       real*8, parameter :: miss_val_r = -901.
+       character(len=1), parameter :: miss_val_c = char(1)
        real*8, parameter :: init_small_r = -99999.0       ! for initializing irreg_geom structures
        real*8, parameter :: init_big_r = 99999.0          ! for initializing irreg_geom structures   
-                
+       
+       !-----misc magic characters and numbers
+       logical, parameter :: EXACT_MATCH = .true.
+       
+       integer, parameter :: TO_BOUNDARY = 1
+       integer, parameter :: NEAREST_BOUNDARY = 2
+       integer, parameter :: IGNORE_BOUNDARY = 3
+           
+    !> From DSM2/common/type_def.f
+       !-----path input (time-varying data)
+       integer, parameter :: max_path_const = 10     ! maximum number of constituents associated with path
+    
+       !-----data value, quality flags, and timestamp object
+       type dataqual_t
+           sequence
+           real*8 data
+           integer*4 flag
+           integer*4 julmin
+       end type
+
+       type pathinput_t
+           sequence
+           character*32 :: name = ' '   ! name of the data stream needed to match
+                                        ! flow and concentration paths between hydro and qual)
+           character*128 :: filename = ' ' ! DSS filename
+           character*32 :: variable = ' '    ! DSS C part
+           character*16 :: interval = ' '  ! e.g. MIN, DAY !eli was 15, changed for alignment
+           character*32 :: obj_name  = ' ' !todo needed?
+           character*80 path               ! DSS pathname
+ 
+           real*8 :: constant_value  = miss_val_r  ! constant value (instead of reading from DSS filename)
+           real*8 :: value = miss_val_r            ! value for this timestep
+           real*8 :: mass_frac =1.D0               ! fraction of mass this flow takes. needed?
+           real*8 :: value_in = miss_val_r         ! incoming value to check
+           real*8 :: value_out = miss_val_r        ! outgoing value to change to
+           integer :: value_flag                   ! data quality flag for this timestep
+           integer :: fillin  = miss_val_i        ! how to fill in between data (first, last, interp, data)
+           integer :: locid = miss_val_i          ! location id where the input path applies (for checking duplicates)
+           integer :: obj_type = miss_val_i         ! object type this data goes to: channel, reservoir, node, gate?
+           integer :: obj_no = miss_val_i      ! number of object
+           integer data_type      ! data type: flow, stage, gate position..
+           !--------'type' section
+           integer group_ndx      ! group index
+           integer gate_param     ! time-varying gate parameter
+           integer ndx_file       ! pointer to infilename vector
+           integer*4 diff_julmin  ! path start time difference from run_start_date in minutes
+           integer locnum         ! internal chan or gate device this input assigned to (+ upstream end, - downstream end)
+           integer const_ndx(max_path_const) ! constituent number index
+           integer n_consts       ! number of constituents
+           integer no_intervals   ! e.g. 1, 15
+           integer intvl_path     ! path number for this interval
+           integer per_type       ! period type: per-average, instantaneous, etc.
+           integer :: sign = 0    ! forced sign convention for the series
+           logical :: useobj = .false.! true to use this input path
+           character*14 :: start_date  = ' '! path start date and time
+           character*2 dummy3     ! make up for character*14 in data alignment
+           logical :: replace = .false.
+       end type     
+                    
     !> From DSM2/common/envvar.f   
        integer, parameter:: ENVVAR_NAME_LEN = 32
        integer, parameter:: ENVVAR_VALUE_LEN = 128
@@ -112,15 +209,6 @@ module common_dsm2_vars
        integer,parameter :: max_envvars = 128
        type(envvar_t)::  envvars(max_envvars)
        integer::  nenvvars    ! actual number of envvars used
-       
-       
-    !> From DSM2/common/io_units.f
-       integer, parameter :: unit_error=0     ! error messages
-       integer, parameter :: unit_input=11    ! input unit
-       integer, parameter :: unit_screen=6    ! output unit to screen (MUST be 6)
-       integer, parameter :: unit_output=14   ! output file
-       integer, parameter :: unit_text=13     ! temporary (scratch) text file output
-       integer, save :: unit_hydro
 
     !> From DSM2/common/iopath_data.f
        !-----input/output file names
@@ -140,7 +228,16 @@ module common_dsm2_vars
        character(len=130) :: output_filename              ! output filename
        character(len=20) :: temp_dir= ' '                 ! directory for temporary files
        character(len=8) :: per_type_names(per_type_null)  ! data type names (e.g. 'PER-AVER')    
-       
+
+       ! max number of unique dss input files
+       integer, parameter :: max_dssinfiles = 20
+       character(len=130), dimension(max_dssinfiles)::infilenames= ' ' ! unique dss input file names
+       integer:: ifltab_in(600,max_dssinfiles)           ! DSS table for each input file
+
+       !-----path input (time-varying data)
+       integer:: ninpaths = 0
+       integer, parameter :: max_inputpaths = 4200
+       type(pathinput_t):: pathinput(0:max_inputpaths)
        logical :: dss_direct = .false.
        logical :: binary_output = .false.    
        logical :: check_input_data          ! true to warn about bad data
@@ -160,27 +257,6 @@ module common_dsm2_vars
        integer, parameter :: LOG_INFO = 2
        integer, parameter :: LOG_DEBUG = 2
        integer :: print_level   ! diagnostic printout level
-     
-     !> From DSM2/common/common_tide.f
-       integer, parameter :: max_tide_files = 12
-       integer :: nintides
-       integer :: current_tidefile
-
-       type tidefile_t
-           character*16 start_date ! when to start using this tidefile (date and time)
-           character*16 end_date  ! when to quit using this tidefile (date and time, or time length (e.g. 5day_3hour))
-           logical binarytf       ! true for binary tidefile (not HDF5)
-           integer*4 start_julmin_file ! file timestamp start
-           integer*4 end_julmin_file ! file timestamp end
-           integer*4 start_julmin ! when to start using this tidefile (wrt tidefile date)
-           integer*4 end_julmin   ! when to quit using this tidefile (wrt tidefile date)
-           integer ntideblocks    ! number of tideblocks
-           integer interval       ! minutes between tideblocks
-           character*128 filename ! tidefile name
-       end type
-       type(tidefile_t):: tide_files(0:max_tide_files)       
-
-       integer, parameter :: TO_BOUNDARY = 1          ! only obj2obj (internal) flows
     
      contains
        

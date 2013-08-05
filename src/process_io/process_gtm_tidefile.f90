@@ -1,107 +1,73 @@
+!<license>
+!    Copyright (C) 2013 State of California,
+!    Department of Water Resources.
+!    This file is part of DSM2-GTM.
+!
+!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
+!    is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    (at your option) any later version.
+!
+!    DSM2 is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!</license>
+
 !>@ingroup process_io
 module process_gtm_tidefile
 
     contains
     
-    !> process a character line into data arrays for
-    !> tide file info.    
-    subroutine process_tidefile(start_date, end_date, filename)
-
-      use common_dsm2_vars
-      
-      implicit none
-
-      logical :: ldefault             ! true if values are for defaults
-      common /read_fix_l/ ldefault
-
-      !local variables
-      integer :: i                    ! index
-      integer*4 :: incr_intvl,  &     ! increment julian minute by interval function
-                   jmin,        &
-                   cdt2jmin           ! character date/time to julian minute
-      character*16  :: start_date
-      character*16  :: end_date
-      character*128 :: filename
-      character*80  :: cstring
-
-      ! The optional starting and ending datetimes specify when to use
-      ! each tidefile; they override the timestamp in the tidefile
-      ! itself.  If not given, the timestamp in the tidefile
-      ! will be used for the start datetime, and it will be used to
-      ! the end of the tidefile or model run. 
-
-      ! Keywords used for the starting and ending datetimes can be used to
-      ! simplify chaining together tidefiles.
-
-      ! Start datetime keyword explanation:
-      ! runtime: start time in tidefiles; if not succesful
-      !      	exit with error (same as if no start time given)
-      ! previous:	use this tidefile right when the previous tidefile ends
-      ! none:	field placeholder (doesn't do anything; same as if field
-      !    		not given)
-
-      ! End datetime keywords:
-      ! length:	use all of tidefile, to its end
-      ! none:	see above
-      nintides = nintides + 1
-      if (nintides .gt. max_tide_files) then
-         write(unit_error,630)                                 &
-              'Too many tidefiles specified; max allowed is:'  &
-              ,max_tide_files
- 630     format(/a,i5)
-         call exit(-1)
-      endif
-      tide_files(nintides).start_date=start_date
-      tide_files(nintides).end_date=end_date
-      tide_files(nintides).filename=filename
-      call get_tidefile_dates(nintides)
-      if (index(start_date,'runtime') .gt. 0) then
-         tide_files(nintides).start_date=' '
-         tide_files(nintides).start_julmin=tide_files(nintides).start_julmin_file
-      elseif ( index(start_date,'prev') .gt. 0) then
-         if (nintides .ne. 1) then
-             tide_files(nintides).start_date='last'
-             tide_files(nintides).start_julmin=tide_files(nintides-1).end_julmin
-         else             ! can't have 'last' for first tide file
-              write(unit_error, '(a)')                             &
-               'Cannot use "last" or "prev" keyword for first tidefile.'
-              call exit(-1)
-         endif
-      else
-         tide_files(nintides).start_date(1:9)=start_date(1:9)
-         tide_files(nintides).start_julmin=cdt2jmin(tide_files(nintides).start_date)
-         write(unit_error,*)                                       &
-              "Tidefile specification has invalid start_date field"
-      endif
-
-      if (index(tide_files(nintides).end_date,'len') .gt. 0) then
-         tide_files(nintides).end_julmin=tide_files(nintides).end_julmin_file
-      else  ! is a time
-         tide_files(nintides).end_date=end_date
-         tide_files(nintides).end_julmin=cdt2jmin(end_date)
-         if (tide_files(nintides).end_julmin .ne. miss_val_i) then 
-            ! valid datetime string input
-            tide_files(nintides).end_julmin=                      &
-                min(cdt2jmin(tide_files(nintides).end_date), end_julmin)
-         else
-            jmin=incr_intvl(tide_files(nintides).start_julmin,    &
-                  tide_files(nintides).end_date, TO_BOUNDARY)
-            if (jmin .eq. miss_val_i) then
-                write(unit_error,606) 'ending',tide_files(nintides).end_date, &
-                          trim(tide_files(nintides).filename)
- 606            format(/'Invalid ',a,' date of ',a,' in tidefile:'/a)
-                call exit(-3)     
-             endif
-             tide_files(nintides).end_julmin=min(jmin,end_julmin)
-         end if                        
-      endif
-      if (tide_files(nintides).start_julmin .lt. tide_files(nintides).start_julmin_file     &
-                .or.                                                                        &
-          tide_files(nintides).end_julmin .gt. tide_files(nintides).end_julmin_file) then
-	    write(unit_error,*)"Tidefile contents do not span " //                              &
-                "assigned start and end dates: ", tide_files(nintides).filename
-          call exit(-3)
-	  end if
+    !> Process a character line into data arrays for tide file info.
+    !> This has been significantly modified for single tidefile case. 
+    !> Multi-tide concept from DSM2-Qual is not necessary. 
+    subroutine process_tidefile(tide_filename)
+        use hdf5   
+        use h5lt
+        use common_variables
+        use error_handling
+        use time_utilities
+        implicit none
+        character(len=128), intent(in) :: tide_filename   !< DSM2-Hydro tidefile
+        integer(HID_T) :: tfile_id
+        integer        :: ierror
+        logical        :: hdf_file_exists
+        integer, dimension(1) :: hdf5_read_buffer
+  	    inquire (file = trim(tide_filename), exist = hdf_file_exists)
+	    if (.not. hdf_file_exists) then
+             write (unit_error,*) "HDF5 file does not exist: " // &
+                                  tide_filename
+	         call exit(2)
+	    end if
+	    hydro_hdf5 = tide_filename
+	    
+        ! Opens the file and groups for DSM2      
+        call h5fopen_f(trim(tide_filename),  & 
+                       H5F_ACC_RDONLY_F,     &
+                       tfile_id,             &
+                       ierror)
+   
+        call verify_error(ierror, "Opening tidefile to check dates")             
+        call h5ltget_attribute_int_f(tfile_id, "hydro", "Start time", hdf5_read_buffer, ierror) 
+        call verify_error(ierror, "Reading attribute Start time string from hdf5 file")      
+        hydro_start_jmin = hdf5_read_buffer(1)
+ 
+        call h5ltget_attribute_int_f(tfile_id, "hydro", "Time interval", hdf5_read_buffer, ierror) 
+        call verify_error(ierror, "Reading attribute Time interval from hdf5 file")      
+        hydro_time_interval = hdf5_read_buffer(1) 
+        
+        call h5ltget_attribute_int_f(tfile_id, "hydro", "Number of intervals", hdf5_read_buffer, ierror) 
+        call verify_error(ierror, "Reading attribute Number of intervals from hdf5 file")      
+        hydro_ntideblocks = hdf5_read_buffer(1)       
+        
+        hydro_end_jmin = hydro_start_jmin + (hydro_ntideblocks-1)*hydro_time_interval   
+        call h5fclose_f(tfile_id, ierror)
+        return
       return
     end subroutine
 

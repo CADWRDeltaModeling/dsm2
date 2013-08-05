@@ -37,6 +37,5 @@
 		<File RelativePath="..\..\src\gtm_core\hydro_data.f90"/>
 		<File RelativePath="..\..\src\gtm_core\hydro_data_tidefile.f90"/>
 		<File RelativePath="..\..\src\gtm_core\interpolation.f90"/>
-		<File RelativePath="..\..\src\gtm_core\resample.f90"/>
-		<File RelativePath="..\..\src\gtm_core\time_util.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\gtm_core\resample.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

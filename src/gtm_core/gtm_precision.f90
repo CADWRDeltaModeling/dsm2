@@ -39,6 +39,7 @@ module gtm_precision
    real(gtm_real), parameter :: ten   =  1.d1          !< Real constant  10.  properly typed
    real(gtm_real), parameter :: sixteen  =  1.6d1      !< Real constant  16.  properly typed
    real(gtm_real), parameter :: sixty = 6.d1           !< Real constant  60.  properly typed
+   real(gtm_real), parameter :: twentyfour = 2.4d1     !< Real constant  24.  properly typed
    real(gtm_real), parameter :: half     =  5.d-1      !< Real constant  0.5  properly typed
    real(gtm_real), parameter :: third = one/three      !< Real constant  1/3  properly typed
    real(gtm_real), parameter :: fourth   =  2.5d-1     !< Real constant  0.25 properly typed
@@ -47,11 +48,6 @@ module gtm_precision
    
    integer, parameter :: LARGEINT = -123456789
    
-   !> Missing values maker
-   integer :: miss_val_i = -901
-   real(gtm_real) :: miss_val_r = -901.
-   character(len=1), parameter :: miss_val_c = char(1)
-
    !> Absurd high value, for initialization and for marking undefined
    !> data in calculations. This makes bugs easier to spot.
    real(gtm_real), parameter :: LARGEREAL = 1.23456789d8

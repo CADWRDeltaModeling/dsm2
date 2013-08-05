@@ -4,8 +4,8 @@
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
-				<Tool Name="VFLibrarianTool" IgnoreDefaultLibraryNames="libc.lib,msvcrt.lib,libcmt.lib,msvcrtd.lib"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFLibrarianTool" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib" IgnoreDefaultLibraryNames="libc.lib,msvcrt.lib,libcmt.lib,msvcrtd.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
 				<Tool Name="VFCustomBuildTool"/>
@@ -26,11 +26,22 @@
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\process_io\buffer_gtm_input_common.f90"/>
+		<File RelativePath="..\..\src\process_io\buffer_gtm_input_qual.f90"/>
+		<File RelativePath="..\..\src\process_io\common_dsm2_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_qual.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_vars.f90"/>
-		<File RelativePath="..\..\src\process_io\input_storage.f90"/>
+		<File RelativePath="..\..\src\process_io\gtm_dss.f90"/>
+		<File RelativePath="..\..\src\process_io\gtm_dss_read.f90"/>
+		<File RelativePath="..\..\src\process_io\gtm_rate_coeff_assignment.f90"/>
+		<File RelativePath="..\..\src\process_io\io_utilities.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_input.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_input_climate.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_io_file.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_node_conc.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_rate_coef.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_reservoir_conc.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_scalar.f90"/>
-		<File RelativePath="..\..\src\process_io\process_gtm_tidefile.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\process_io\process_gtm_tidefile.f90"/>
+		<File RelativePath="..\..\src\process_io\time_utilities.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

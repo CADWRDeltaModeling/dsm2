@@ -1,14 +1,34 @@
+!<license>
+!    Copyright (C) 2013 State of California,
+!    Department of Water Resources.
+!    This file is part of DSM2-GTM.
+!
+!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
+!    is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    (at your option) any later version.
+!
+!    DSM2 is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!</license>
 
-
+!> Process scalars in input textfile and save them to common_variables module
 !>@ingroup process_io
-
 module process_gtm_scalar
 
     contains
     
     subroutine process_scalar(Param, Val)
+      use common_variables
       use common_dsm2_vars
       use common_dsm2_qual
+      use time_utilities
       implicit none
       character(len=32), intent(in)    :: Val    ! parameter Val
       character(len=32), intent(in)    :: Param  ! parameter
@@ -24,16 +44,21 @@ module process_gtm_scalar
       !-----'tide' (use date from tidefile)
       if (Param .eq. 'run_start_date') then
          run_start_date(1:9)=Val(1:9)
+         if (run_start_date(11:14).ne.'    ') gtm_start_jmin = cdt2jmin(run_start_date)
       elseif (Param .eq. 'run_start_time') then
          run_start_date(11:14)=Val(1:4)
+         if (run_start_date(1:9).ne.'         ') gtm_start_jmin = cdt2jmin(run_start_date)
       elseif (Param .eq. 'run_end_date') then
          run_end_date(1:9)=Val(1:9)
+         if (run_end_date(11:14).ne.'    ')     gtm_end_jmin = cdt2jmin(run_end_date)
       elseif (Param .eq. 'run_end_time') then
          run_end_date(11:14)=Val(1:4)
+         if (run_end_date(1:9).ne.'         ') gtm_end_jmin = cdt2jmin(run_end_date)
       elseif (Param .eq. 'run_length') then
          run_length=Val
-      elseif (Param .eq. 'npartition') then
+      elseif (Param .eq. 'npartition_x') then
          npartition=Val
+         read(npartition,'(i)') npartition_x
       elseif (Param .eq. 'title') then
          ntitles=1
          title(ntitles)=' '
@@ -56,6 +81,7 @@ module process_gtm_scalar
          time_step_intvl_qual=Val
       elseif (Param .eq. 'gtm_time_step') then
          time_step_intvl_gtm=Val
+         call get_time_intvl_min(gtm_time_interval, trim(time_step_intvl_gtm))
       elseif (Param .eq. 'mass_tracking') then
          read(Val, '(l2)', err=810) mass_tracking
       elseif (Param .eq. 'init_conc') then

@@ -1,10 +1,10 @@
 !<license>
 !    Copyright (C) 2013 State of California,
 !    Department of Water Resources.
-!    This file is part of DSM2.
+!    This file is part of DSM2-GTM.
 !
-!    The Delta Simulation Model 2 (DSM2) is free software: 
-!    you can redistribute it and/or modify
+!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
+!    is free software: you can redistribute it and/or modify
 !    it under the terms of the GNU General Public License as published by
 !    the Free Software Foundation, either version 3 of the License, or
 !    (at your option) any later version.
@@ -17,26 +17,6 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
-!
-!    PTM is an acronym for "Particle Tracking Model". This is version 2 of PTM
-!    which utilizes information from DSM2 to track particles moving according
-!    to hydrodynamics and quality information.<p>
-!  
-!    This class defines the parameters and information about the environment
-!    a Particle moves in. This information is either fixed or dynamic. Fixed information
-!    is information that is relatively fixed during a run of the model such
-!    as the output filenames, the flow network etcetra. Dynamic information
-!    is information that most likely changes every time step such as the
-!    flow, velocity, volume, etcetra.<p>
-! 
-!    The network consists of nodes and waterbodies. Waterbody is an entity
-!    containing water such as a channel, reservoir, etcetra. Node is a connection
-!    between waterbodies. Each waterbody is given a unique id and also contains
-!    information about which nodes it is connected to. Each node also has a unique
-!    id and the information about which waterbodies it is connected to.
-! 
-!    @author Nicky Sandhu
-!    @version $Id: MainPTM.java,v 1.5.6.4 2006/04/04 18:16:23 eli2 Exp $
 ! 
 !> Main program for General Transport Model
 !>@ingroup driver
@@ -45,10 +25,11 @@ program gtm
     use gtm_precision
     use error_handling
     use gtm_logging
-    use time_util
     use common_variables
     use common_xsect   
-   ! use process_input
+    use common_dsm2_vars
+    use process_gtm_input
+    use time_utilities
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
@@ -60,7 +41,6 @@ program gtm
     use boundary_advection
     
     implicit none
-    character(len=*), parameter :: hdf5file = "historical.h5"   !< HDF5 file name
     integer, parameter :: nt = 4
     integer, parameter :: nx = 5
     integer :: nconc = 1
@@ -77,30 +57,25 @@ program gtm
     integer :: i, j, t, ibuffer, start_buffer, icell
     real(gtm_real) :: time
     integer :: current_time
-    character(len=14) :: gtm_start_time = "02JAN1998 2400"
-    character(len=14) :: gtm_end_time = "03JAN1998 0600"
-    integer :: gtm_start_jmin, gtm_end_jmin
     real(gtm_real) :: current_julmin
     integer :: offset, num_buffers, jday
     integer, allocatable :: memlen(:)
-    procedure(hydro_data_if), pointer :: hydro => null()       !< Hydrodynamic pointer to be filled by the driver
+    procedure(hydro_data_if), pointer :: fill_hydro => null()   !< Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .false.         !< Flag to switch on/off slope limiter  
     real(gtm_real), allocatable :: init_conc(:,:)
     real(gtm_real),parameter :: constant_decay = 1.552749d-5
-    hydro => gtm_flow_area
+    fill_hydro => gtm_flow_area
     compute_source => no_source
     !compute_source => linear_decay_source
     advection_boundary_flux => zero_advective_flux
-    gtm_time_interval = 5
-    npartition_x = 4
+       
     
-    
-    !call read_input_text("gtm.inp") 
-    call cdt2jmin(gtm_start_jmin, gtm_start_time)
-    call cdt2jmin(gtm_end_jmin, gtm_end_time)
+    !---- Read input specification from *.inp text file ----
+    call read_input_text("gtm.inp")    
+
     
     open(debug_unit, file = "gtm_debug_unit.txt")                   !< output text file
-    call hdf5_init(hdf5file)
+    call hdf5_init(hydro_hdf5)
     write(*,*) "Process DSM2 geometry info...."
     call dsm2_hdf_geom()
     allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
@@ -117,7 +92,7 @@ program gtm
     
     call check_runtime(offset, num_buffers, memlen,                              &
                        memory_buffer, gtm_start_jmin, gtm_end_jmin,              &
-                       hydro_start_julmin, hydro_end_julmin, hydro_time_interval) 
+                       hydro_start_jmin, hydro_end_jmin, hydro_time_interval) 
                        
     call get_npartition_t(npartition_t, hydro_time_interval, gtm_time_interval)
     
@@ -190,16 +165,16 @@ program gtm
             end do   !end for segment loop
             do time = 1, nt
                write(debug_unit,*) current_time, time
-                call hydro(flow,     &
-                           flow_lo,  &
-                           flow_hi,  &
-                           area,     &
-                           area_lo,  &
-                           area_hi,  &
-                           ncell,    &
-                           time,     &
-                           dx_arr,   &
-                           dt)            
+                call fill_hydro(flow,     &
+                                flow_lo,  &
+                                flow_hi,  &
+                                area,     &
+                                area_lo,  &
+                                area_hi,  &
+                                ncell,    &
+                                time,     &
+                                dx_arr,   &
+                                dt)            
                 if ((ibuffer==1).and.(t==2).and.(time==1)) then
                     call prim2cons(mass_prev, init_conc, area, ncell, nvar)
                     area_prev = area

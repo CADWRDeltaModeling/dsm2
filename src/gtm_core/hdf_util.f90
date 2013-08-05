@@ -73,17 +73,13 @@ module hdf_util
        call h5close_f(error)     
    end subroutine
    
-   !> Read number of channels from hydro tidefile
+   !> Read number of objects from hydro tidefile
    subroutine get_hydro_attr()
        implicit none        
        call get_int_attribute_from_hdf5(n_chan, "Number of channels")
        call get_int_attribute_from_hdf5(n_xsect, "Number of virt xsects")
        call get_int_attribute_from_hdf5(n_comp, "Number of comp pts")
        call get_int_attribute_from_hdf5(n_time, "Number of intervals")
-       call get_int_attribute_from_hdf5(hydro_start_julmin, "Start time")
-       call get_int_attribute_from_hdf5(hydro_time_interval, "Time interval")
-       call get_int_attribute_from_hdf5(hydro_ntideblocks, "Number of intervals")
-       hydro_end_julmin = hydro_start_julmin + (hydro_ntideblocks-1)*hydro_time_interval    
        return
    end subroutine    
 
