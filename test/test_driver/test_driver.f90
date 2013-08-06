@@ -70,6 +70,10 @@ program test_driver
     call init_fruit
     call get_parent_working_dir(parent_dir) 
    
+    !----- function calls to test units in project input_storage API ---
+    call change_working_dir(parent_dir, "/historical_gtm_do")
+    call test_input_storage   
+   
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     open(debug_unit, file = "debug_unit.txt")            !< output text file
@@ -77,11 +81,7 @@ program test_driver
     !call test_resample                                  ! test resample coarse grid from finer grid (for testing comparison only)
     call test_interpolation                              ! test interpolation schemes
     call test_gtm_network                                ! test creating GTM network
-     
-    !----- function calls to test units in project input_storage API ---
-    call change_working_dir(parent_dir, "/historical_gtm_do")
-    call test_input_storage
-     
+        
     !----- function calls to test units in project transport ----- 
     call change_working_dir(parent_dir, "/transport_unit_test_out")
     ! todo: we have 6 pointers, [2 diff + 1 adv + 1 source + 1 hydro + 1 disp_coef]

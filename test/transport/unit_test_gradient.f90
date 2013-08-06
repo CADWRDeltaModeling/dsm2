@@ -39,6 +39,7 @@ subroutine test_gradient_calc
   real(gtm_real) :: grad_hi(nx,nconst)   !< Gradient on the right side of the cell   
   real(gtm_real) :: grad_c(nx,nconst)    !< Centeral value gradient of the cell 
   integer        :: ix                   !< Counter on the
+  real(gtm_real) :: dx(nx) = one
   
   call allocate_state(nx,nconst)
   conc(1,1)=0.d0
@@ -58,7 +59,7 @@ subroutine test_gradient_calc
   conc(7,2)=13.0
   conc(8,2)=13.5d0
   
-  call difference(grad_lo,grad_hi,grad_c,conc,nx,nconst)
+  call difference(grad_lo,grad_hi,grad_c,conc,dx,nx,nconst)
   call assertEquals(grad_lo(1,1),LARGEREAL,"Gradient (1,1)")
   call assertEquals(grad_lo(2,1),two,"Gradient (2,1)")
   call assertEquals(grad_lo(8,1),minus*half,"3: ")
@@ -94,6 +95,7 @@ subroutine test_limiter
   real(gtm_real) :: grad_c(nx,nconst)    !< Centeral value gradient of the cell 
   real(gtm_real) :: grad_lim(nx,nconst)  !< Counter on the
   integer        :: ic
+  real(gtm_real) :: dx(nx) = one
   
   call allocate_state(nx,nconst)
   conc(1,1)=0.d0
@@ -113,7 +115,7 @@ subroutine test_limiter
   conc(7,2)=13.d0
   conc(8,2)=13.5d0
   
-  call difference(grad_lo,grad_hi,grad_c,conc,nx,nconst)
+  call difference(grad_lo,grad_hi,grad_c,conc,dx,nx,nconst)
   call limiter(grad_lim,grad_lo,grad_hi,grad_c,nx,nconst)
 
   ! Special cases due to end of array

@@ -27,10 +27,12 @@ module buffer_gtm_input_common
     subroutine buffer_input_common()      
       use input_storage_fortran
       !use groups, only:convertgrouppatternstomembers
+      use common_variables
       use common_dsm2_vars
       use process_gtm_scalar
       use process_gtm_io_file
       use process_gtm_tidefile
+      use time_utilities
       
       implicit none
       integer :: nitem
@@ -112,6 +114,8 @@ module buffer_gtm_input_common
       !! convert group members from patterns to actual objects&indexes
       !! This must come after tidefile is loaded
       !call ConvertGroupPatternsToMembers
+
+      call get_npartition_t(npartition_t, hydro_time_interval, gtm_time_interval)
 
       return
     end subroutine

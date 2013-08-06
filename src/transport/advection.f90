@@ -126,6 +126,7 @@ module advection
                     grad_hi,    &
                     grad_center,&
                     conc_prev,  &
+                    dx,         &
                     ncell,      &
                     nvar)
 

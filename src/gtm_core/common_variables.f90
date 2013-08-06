@@ -25,110 +25,110 @@ module common_variables
 
      use gtm_precision
      
-     integer :: memory_buffer = 20                         !< time buffer use to store hdf5 time series
-     integer :: n_time = LARGEINT                          !< number of time steps
-     integer :: n_comp = LARGEINT                          !< number of computational points
-     integer :: n_chan = LARGEINT                          !< number of channels
-     integer :: n_segm = LARGEINT                          !< number of segments
-     integer :: n_conn = LARGEINT                          !< number of connected cells
-     integer :: n_junc = LARGEINT                          !< number of junctions
-     integer :: n_boun = LARGEINT                          !< number of boundaries
-     integer :: n_xsect = LARGEINT                         !< number of entries in virt xsect table
-     integer :: n_resv = LARGEINT                          !< number of reservoirs
-     integer :: ncell = LARGEINT                           !< number of cells in the entire network
-     integer :: nvar = LARGEINT                            !< number of variables
+     integer :: memory_buffer = 20                  !< time buffer use to store hdf5 time series
+     integer :: n_time = LARGEINT                   !< number of time steps
+     integer :: n_comp = LARGEINT                   !< number of computational points
+     integer :: n_chan = LARGEINT                   !< number of channels
+     integer :: n_segm = LARGEINT                   !< number of segments
+     integer :: n_conn = LARGEINT                   !< number of connected cells
+     integer :: n_junc = LARGEINT                   !< number of junctions
+     integer :: n_boun = LARGEINT                   !< number of boundaries
+     integer :: n_xsect = LARGEINT                  !< number of entries in virt xsect table
+     integer :: n_resv = LARGEINT                   !< number of reservoirs
+     integer :: ncell = LARGEINT                    !< number of cells in the entire network
+     integer :: nvar = LARGEINT                     !< number of variables
     
      real(gtm_real), allocatable :: dx_arr(:)
-     real(gtm_real), allocatable :: hydro_flow(:,:)        !< flow from DSM2 hydro
-     real(gtm_real), allocatable :: hydro_area(:,:)        !< area from DSM2 hydro
-     real(gtm_real), allocatable :: hydro_ws(:,:)          !< water surface from DSM2 hydro
-     real(gtm_real), allocatable :: hydro_avga(:,:)        !< average area from DSM2 hydro
+     real(gtm_real), allocatable :: hydro_flow(:,:) !< flow from DSM2 hydro
+     real(gtm_real), allocatable :: hydro_area(:,:) !< area from DSM2 hydro
+     real(gtm_real), allocatable :: hydro_ws(:,:)   !< water surface from DSM2 hydro
+     real(gtm_real), allocatable :: hydro_avga(:,:) !< average area from DSM2 hydro
    
      !> Define scalar and envvar in input file
-     integer :: npartition_x = LARGEINT                    !< number of cells within a segment
-     integer :: npartition_t = LARGEINT                    !< number of gtm time intervals partition from hydro time interval
-     character(len=128) :: hydro_hdf5                           !< hydro tide filename
-     integer :: hydro_start_jmin = LARGEINT                !< hydro start time in hydro tidefile
-     integer :: hydro_end_jmin = LARGEINT                  !< hydro end time in hydro tidefile
-     integer :: hydro_time_interval = LARGEINT             !< hydro time interval in hydro tidefile
-     integer :: hydro_ntideblocks = LARGEINT               !< hydro time blocks in hydro tidefile
-     integer :: gtm_start_jmin = LARGEINT                  !< gtm start time
-     integer :: gtm_end_jmin = LARGEINT                    !< gtm end time
-     integer :: gtm_ntideblocks = LARGEINT                 !< gtm time blocks
-     real(gtm_real) :: gtm_time_interval = LARGEINT        !< gtm simulation time interval
+     integer :: npartition_x = LARGEINT             !< number of cells within a segment
+     integer :: npartition_t = LARGEINT             !< number of gtm time intervals partition from hydro time interval
+     character(len=128) :: hydro_hdf5               !< hydro tide filename
+     integer :: hydro_start_jmin = LARGEINT         !< hydro start time in hydro tidefile
+     integer :: hydro_end_jmin = LARGEINT           !< hydro end time in hydro tidefile
+     integer :: hydro_time_interval = LARGEINT      !< hydro time interval in hydro tidefile
+     integer :: hydro_ntideblocks = LARGEINT        !< hydro time blocks in hydro tidefile
+     integer :: gtm_start_jmin = LARGEINT           !< gtm start time
+     integer :: gtm_end_jmin = LARGEINT             !< gtm end time
+     integer :: gtm_ntideblocks = LARGEINT          !< gtm time blocks
+     real(gtm_real) :: gtm_time_interval = LARGEINT !< gtm simulation time interval
      
      type gtm_io_files_t
-          character(len=130) :: filename                   !< filename
-          character(len=16) :: interval                    !< I/O time interval
+          character(len=130) :: filename            !< filename
+          character(len=16) :: interval             !< I/O time interval
      end type
-     type(gtm_io_files_t) :: gtm_io(3,2)                   !< (col#1) 1:restart, 2:echo, 3:hdf, 4:output
-                                                           !< (col#2) 1:in, 2:out 
+     type(gtm_io_files_t) :: gtm_io(3,2)            !< (col#1) 1:restart, 2:echo, 3:hdf, 4:output
+                                                    !< (col#2) 1:in, 2:out 
      !> IO_units
-     integer, parameter :: unit_error = 0                  !< error messages
-     integer, parameter :: unit_input = 11                 !< input unit
-     integer, parameter :: unit_screen = 6                 !< output unit to screen (MUST be 6)
-     integer, parameter :: unit_output = 14                !< output file
-     integer, parameter :: unit_text = 13                  !< temporary (scratch) text file output
+     integer, parameter :: unit_error = 0           !< error messages
+     integer, parameter :: unit_input = 11          !< input unit
+     integer, parameter :: unit_screen = 6          !< output unit to screen (MUST be 6)
+     integer, parameter :: unit_output = 14         !< output file
+     integer, parameter :: unit_text = 13           !< temporary (scratch) text file output
        
      !> Define channel type to store channel related arrays
-     type channel_t                                        !< channel between hydro nodes
-          integer :: channel_num                           !< actual channel number in DSM2 grid
-          integer :: chan_no                               !< index channel number
-          integer :: channel_length                        !< channel length
-          integer :: up_node                               !< upstream DSM2 node
-          integer :: down_node                             !< downstream DSM2 node
-          integer :: up_comp                               !< upstream computational point
-          integer :: down_comp                             !< downstream computational point
+     type channel_t                                 !< channel between hydro nodes
+          integer :: channel_num                    !< actual channel number in DSM2 grid
+          integer :: chan_no                        !< index channel number
+          integer :: channel_length                 !< channel length
+          integer :: up_node                        !< upstream DSM2 node
+          integer :: down_node                      !< downstream DSM2 node
+          integer :: up_comp                        !< upstream computational point
+          integer :: down_comp                      !< downstream computational point
      end type
      type(channel_t), allocatable :: chan_geom(:)
      
      !> Define computational point type to store computational point related arrays   
-     type comp_pt_t                                        !< computational points
-          integer :: comp_index                            !< computational point index
-          integer :: chan_no                               !< channel number
-          !integer :: dsm2_node_no                         !< DSM2 node number if it is at two ends of a channel
-          real(gtm_real) :: distance                       !< distance from upstream node
+     type comp_pt_t                                 !< computational points
+          integer :: comp_index                     !< computational point index
+          integer :: chan_no                        !< channel number
+          !integer :: dsm2_node_no                  !< DSM2 node number if it is at two ends of a channel
+          real(gtm_real) :: distance                !< distance from upstream node
      end type
      type(comp_pt_t), allocatable :: comp_pt(:)
     
      !> Define segment type to store segment related arrays
-     type segment_t                                       !< segment between computational points
-          integer :: segm_no                              !< segment serial no
-          integer :: chan_no                              !< channel no
-          integer :: up_comppt                            !< upstream computational point (used as index to search time series data)        
-          integer :: down_comppt                          !< downstream computational point
-          real(gtm_real) :: up_distance                   !< up_comppt distance from upstream node
-          real(gtm_real) :: down_distance                 !< down_comppt distance from upstream node
-          real(gtm_real) :: length                        !< segment length in feet
+     type segment_t                                !< segment between computational points
+          integer :: segm_no                       !< segment serial no
+          integer :: chan_no                       !< channel no
+          integer :: up_comppt                     !< upstream computational point (used as index to search time series data)        
+          integer :: down_comppt                   !< downstream computational point
+          real(gtm_real) :: up_distance            !< up_comppt distance from upstream node
+          real(gtm_real) :: down_distance          !< down_comppt distance from upstream node
+          real(gtm_real) :: length                 !< segment length in feet
      end type
      type(segment_t), allocatable :: segm(:)    
     
      !> Define connected cells 
      type conn_t
-          integer :: conn_no                              !< serial number for cell connected to DSM2 nodes
-          integer :: segm_no                              !< segment serial number
-          integer :: cell_no                              !< cell serial number
-          integer :: comp_pt                              !< connected computational point
-          integer :: chan_no                              !< channel number
-          integer :: dsm2_node_no                         !< connected DSM2 node number
-          integer :: conn_up_down                         !< the connected node is upstream (1) or downstream (0)
+          integer :: conn_no                       !< serial number for cell connected to DSM2 nodes
+          integer :: segm_no                       !< segment serial number
+          integer :: cell_no                       !< cell serial number
+          integer :: comp_pt                       !< connected computational point
+          integer :: chan_no                       !< channel number
+          integer :: dsm2_node_no                  !< connected DSM2 node number
+          integer :: conn_up_down                  !< the connected node is upstream (1) or downstream (0)
      end type
      type(conn_t), allocatable :: conn(:)
     
      !> Define junctions
      type junction_t
-          integer :: dsm2_node_no                         !< junction DSM2 node number
-          integer :: n_conn_cells                         !< total number of cells connected to this junction
-          integer, allocatable :: cell_no(:)              !< cell no connected to this junction
-          integer, allocatable :: up_down(:)              !< flow toward junction (0) or away from junction (1) from DSM2 base grid definition
+          integer :: dsm2_node_no                  !< junction DSM2 node number
+          integer :: n_conn_cells                  !< total number of cells connected to this junction
+          integer, allocatable :: cell_no(:)       !< cell no connected to this junction
+          integer, allocatable :: up_down(:)       !< flow toward junction (0) or away from junction (1) from DSM2 base grid definition
      end type
      type(junction_t), allocatable :: junc(:)
     
      !> Define boundaries
      type boundary_t
-          integer :: dsm2_node_no                         !< boundary DSM2 node number
-          integer :: cell_no                              !< connected cell no
-          integer :: up_down                              !< flow toward boundary (0) or away from boundary (1) from DSM2 base grid definition
+          integer :: dsm2_node_no                  !< boundary DSM2 node number
+          integer :: cell_no                       !< connected cell no
+          integer :: up_down                       !< flow toward boundary (0) or away from boundary (1) from DSM2 base grid definition
      end type
      type(boundary_t), allocatable :: bound(:)
      
@@ -357,7 +357,7 @@ module common_variables
      end subroutine
    
      !> Obtain info for DSM2 nodes 
-     !> This will count occurence of nodes in channel table. If count>3, a junction; if count==1, a boundary.
+     !> This will count occurence of nodes in channel table. If count>2, a junction; if count==1, a boundary.
      !> This updates common variables: n_junc, n_boun, junc, and bound.
      subroutine get_dsm2_node_info()
          implicit none
@@ -377,14 +377,14 @@ module common_variables
          n_junc = 0
          n_boun = 0
          do i = 1, num_nodes
-             if (occurrence(i)>3) n_junc = n_junc + 1
+             if (occurrence(i)>2) n_junc = n_junc + 1
              if (occurrence(i)==1) n_boun = n_boun + 1
          end do
          call allocate_junc_bound_property()
          nj = 0
          nb = 0
          do i = 1, num_nodes
-             if (occurrence(i)>3) then
+             if (occurrence(i)>2) then
                  nj = nj + 1
                  junc(nj)%dsm2_node_no = unique_num(i)
                  junc(nj)%n_conn_cells = occurrence(i)                

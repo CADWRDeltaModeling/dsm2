@@ -24,18 +24,19 @@ module gradient
     contains
 
     !> Calculate the undivided lo, hi, and centered differences
-    subroutine difference(grad_lo,grad_hi,grad_center,vals,ncell,nvar)
+    subroutine difference(grad_lo,grad_hi,grad_center,vals,dx,ncell,nvar)
 
         use gtm_precision
         implicit none
 
         !---- args
-        integer,intent(in)  :: ncell                          !< Number of cells
-        integer,intent(in)  :: nvar                           !< Number of variables
-        real(gtm_real),intent(in)  :: vals(ncell,nvar)        !< Data to be differenced
-        real(gtm_real),intent(out) :: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
-        real(gtm_real),intent(out) :: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
-        real(gtm_real),intent(out) :: grad_center(ncell,nvar) !< Dentered diff, LARGEREAL for undefined boundary cells
+        integer, intent(in) :: ncell                          !< Number of cells
+        integer, intent(in) :: nvar                           !< Number of variables
+        real(gtm_real), intent(in) :: vals(ncell,nvar)        !< Data to be differenced
+        real(gtm_real), intent(in) :: dx(ncell)               !< dx
+        real(gtm_real), intent(out):: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
+        real(gtm_real), intent(out):: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
+        real(gtm_real), intent(out):: grad_center(ncell,nvar) !< Dentered diff, LARGEREAL for undefined boundary cells
         
         !----local
         integer :: ivar
@@ -43,11 +44,11 @@ module gradient
         do ivar = 1, nvar
             grad_center(2:(ncell-1),ivar) = (vals(3:ncell,ivar) - vals(1:(ncell-2),ivar))/two
             grad_center(1,ivar)=LARGEREAL
-            grad_center(ncell,ivar)=LARGEREAL
+            grad_center(ncell,ivar)=LARGEREAL            
             grad_hi(1:(ncell-1),ivar) = (vals(2:ncell,ivar) - vals(1:(ncell-1),ivar))
             grad_hi(ncell,ivar)=LARGEREAL
             grad_lo(2:ncell,ivar)=grad_hi(1:(ncell-1),ivar)
-            grad_lo(1,ivar)=LARGEREAL
+            grad_lo(1,ivar)=LARGEREAL     
         end do
 
         return

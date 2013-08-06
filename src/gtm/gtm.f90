@@ -39,20 +39,20 @@ program gtm
     use advection
     use source_sink
     use boundary_advection
+    use gtm_subs
     
     implicit none
-    integer, parameter :: nt = 4
-    integer, parameter :: nx = 5
-    integer :: nconc = 1
-    real(gtm_real), dimension(nt, nx) :: flow_mesh, area_mesh
-    real(gtm_real), dimension(nt-1, nx-1) ::  flow_volume_change, area_volume_change
-    real(gtm_real), dimension(2000,nx) :: prev_flow_cell !todo::allocate with real number
+    integer :: nt
+    integer :: nx
+    integer :: nconc = 1  
+    real(gtm_real), allocatable :: flow_mesh(:,:), area_mesh(:,:)
+    real(gtm_real), allocatable :: flow_volume_change(:,:), area_volume_change(:,:)
+    real(gtm_real), allocatable :: prev_flow_cell(:,:)
     real(gtm_real), allocatable :: prev_up_comp_flow(:), prev_down_comp_flow(:)
     real(gtm_real), allocatable :: prev_up_comp_ws(:), prev_down_comp_ws(:)
-    real(gtm_real) :: dt
-    integer :: up_comp, down_comp
     real(gtm_real) :: total_flow_volume_change, total_area_volume_change
     real(gtm_real) :: avga_volume_change, diff
+    integer :: up_comp, down_comp    
     integer :: time_offset
     integer :: i, j, t, ibuffer, start_buffer, icell
     real(gtm_real) :: time
@@ -63,51 +63,53 @@ program gtm
     procedure(hydro_data_if), pointer :: fill_hydro => null()   !< Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .false.         !< Flag to switch on/off slope limiter  
     real(gtm_real), allocatable :: init_conc(:,:)
-    real(gtm_real),parameter :: constant_decay = 1.552749d-5
-    fill_hydro => gtm_flow_area
-    compute_source => no_source
-    !compute_source => linear_decay_source
-    advection_boundary_flux => zero_advective_flux
-       
+    real(gtm_real), parameter :: constant_decay = 1.552749d-5
     
-    !---- Read input specification from *.inp text file ----
-    call read_input_text("gtm.inp")    
-
+    !
+    !----- Read input specification from *.inp text file -----
+    !
+    call read_input_text("gtm.inp")                        ! read input specification text
+    open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
-    open(debug_unit, file = "gtm_debug_unit.txt")                   !< output text file
-    call hdf5_init(hydro_hdf5)
-    write(*,*) "Process DSM2 geometry info...."
-    call dsm2_hdf_geom()
-    allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
-    allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
+    write(*,*) "Process DSM2 geometry info...."    
+    call hdf5_init(hydro_hdf5)                         
+    call dsm2_hdf_geom() 
+    call write_geom_to_text()
 
-    do i=1,n_segm
-        write(debug_unit,*) segm(i)%segm_no, segm(i)%chan_no, segm(i)%length
-    end do
-
-    write(debug_unit,*) " "
-    do i=1,n_conn
-        write(debug_unit,*) conn(i)%conn_no, conn(i)%chan_no, conn(i)%cell_no, conn(i)%conn_up_down
-    end do
-    
     call check_runtime(offset, num_buffers, memlen,                              &
                        memory_buffer, gtm_start_jmin, gtm_end_jmin,              &
                        hydro_start_jmin, hydro_end_jmin, hydro_time_interval) 
                        
-    call get_npartition_t(npartition_t, hydro_time_interval, gtm_time_interval)
+    !
+    !----- point to interface -----
+    !
+    fill_hydro => gtm_flow_area
+    compute_source => no_source
+    !compute_source => linear_decay_source
+    advection_boundary_flux => zero_advective_flux
     
+    !
+    !----- allocate array -----     
+    !
+    nx = npartition_x + 1
+    nt = npartition_t + 1
+    !---- allocate array for interpolation ----
+    allocate(flow_mesh(nt, nx), area_mesh(nt, nx))
+    allocate(flow_volume_change(nt-1, nx-1), area_volume_change(nt-1, nx-1))
+    allocate(prev_flow_cell(2000, nx))
+    allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
+    allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
+
     call allocate_hydro_ts()
     call allocate_network_tmp()
     call allocate_cell_property()
     call allocate_state(ncell, nconc)
-
     allocate(init_conc(ncell,nvar))
     init_conc = one
     allocate(linear_decay(nvar))
     linear_decay = constant_decay
        
     write(*,*) "Process time series...."
-    dt = hydro_time_interval/(nt-1.)   
     do ibuffer = 1, num_buffers
         write(*,*) ibuffer
         time_offset = offset+memory_buffer*(ibuffer-1)
@@ -126,7 +128,9 @@ program gtm
                
                if ((ibuffer==1).and.(t==2)) then
                    do j = 1, nx
-                       prev_flow_cell(i,j) = hydro_flow(up_comp,t-1) + (hydro_flow(down_comp,t-1)-hydro_flow(up_comp,t-1))*(j-1)/(nx-1)
+                       prev_flow_cell(i,j) = hydro_flow(up_comp,t-1) +   &
+                                             (hydro_flow(down_comp,t-1)- &
+                                             hydro_flow(up_comp,t-1))*(j-1)/(nx-1)
                    end do    
                    prev_up_comp_flow(up_comp) = hydro_flow(up_comp,1)
                    prev_down_comp_flow(down_comp) = hydro_flow(down_comp,1)
@@ -134,7 +138,8 @@ program gtm
                    prev_down_comp_ws(down_comp) = hydro_ws(down_comp,1) 
                end if   
                call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,   &
-                                     segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), dt, nt, nx,           &
+                                     segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.),   &
+                                     gtm_time_interval, nt, nx,                                      &
                                      prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),     &
                                      hydro_flow(up_comp,t), hydro_flow(down_comp,t),                 &
                                      prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
@@ -174,7 +179,7 @@ program gtm
                                 ncell,    &
                                 time,     &
                                 dx_arr,   &
-                                dt)            
+                                gtm_time_interval)            
                 if ((ibuffer==1).and.(t==2).and.(time==1)) then
                     call prim2cons(mass_prev, init_conc, area, ncell, nvar)
                     area_prev = area
