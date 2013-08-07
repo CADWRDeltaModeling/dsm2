@@ -367,9 +367,14 @@ C--------move parcels passing donwstream or stationary
             IF (DTSUB.GE.RDT) GO TO 310
 C-----------parcel passed grid
             IF(K.EQ.1)THEN
-               WRITE(UNIT_ERROR,*) ' ERROR... CHANNEL: ',
-     &              chan_geom(N).chan_no,' DRIED UP!'
                WRITE(UNIT_ERROR,*) '          TIME: ',current_date
+               WRITE(UNIT_ERROR,*) ' ERROR... 0 PARCEL in CHANNEL: ',
+     &              chan_geom(N).chan_no
+               WRITE(UNIT_ERROR,*) ' This may be caused by mass balance error in Hydro. '
+               WRITE(UNIT_ERROR,*) ' It happened when a gate open and close everyday, causing fluctuation.'
+               WRITE(UNIT_ERROR,*) ' Change checkdata to True and Run Qual again, '
+               WRITE(UNIT_ERROR,*) ' the water volume error in each channel will be listed in output file(qof).'
+
                call exit(2)
             ENDIF
             RDT=RDT-DTSUB
@@ -437,6 +442,16 @@ C--------move parcels going upstream
             IF(DTSUB.LT.0.0)DTSUB=0.0
             IF (DTSUB.GE.RDT) GO TO 340
 C-----------parcel passed grid
+            IF(K.EQ.NSN)THEN
+               WRITE(UNIT_ERROR,*) '          TIME: ',current_date
+               WRITE(UNIT_ERROR,*) ' ERROR... 0 PARCEL in CHANNEL: ',
+     &              chan_geom(N).chan_no
+               WRITE(UNIT_ERROR,*) ' This may be caused by mass balance error in Hydro. '
+               WRITE(UNIT_ERROR,*) ' It happened when a gate open and close everyday, causing fluctuation.'
+               WRITE(UNIT_ERROR,*) ' Change checkdata to True and Run Qual again, '
+               WRITE(UNIT_ERROR,*) ' the water volume error in each channel will be listed in output file(qof).'
+               call exit(2)
+            ENDIF
             RDT=RDT-DTSUB
             IF(RQ.GT.0.0)DTSUB=DTSUB*Q(I)/QT(I)
             IF (PRDT(K).LT.DTSUB) DTSUB=PRDT(K)

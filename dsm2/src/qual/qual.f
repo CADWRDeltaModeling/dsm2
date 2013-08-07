@@ -12,6 +12,7 @@
       use iopath_data
       use qual_hdf_file
       use hdf5, only: h5open_f, h5close_f
+      use hdfvars
 C-----************ MULTIPLE BRANCH ESTUARY TRANSPORT MODEL
 c-----******************
 
@@ -128,7 +129,10 @@ C-----+ + + LOCAL VARIABLES + + +C
       integer res_num_clfct
       logical echo_only, file_exists
       integer NotMixed,NotMixed_prev
-      
+c-------Mass balance check      
+      real*8    Achan_AvgP(NOBR),Diff(NOBR),PercentDiff(NOBR)
+      real*8    VolHydro,VolQual,VolDiff,PDiffMax
+      INTEGER    NSN,channelMax
       
       real*8    HR,SVOL,tTIME,VJ,VOL
       real*8    TOTFLO
@@ -340,6 +344,12 @@ c------ end of input reading and echo, start checking data
 
 c-----###################################################################
 
+c-----for mass balance check
+         DO N=1,NBRCH
+               Achan_AvgP(N)=Achan_Avg(N)
+         End do
+
+
       if (check_input_data) then
 c--------just check input data for bogus values; no simulation
 
@@ -351,6 +361,9 @@ C--------start time loop for checking boundary data
          prev_julmin=julmin
          julmin=julmin+time_step
          current_date=jmin2cdt(julmin)
+         
+
+
 
          do while (julmin .le. end_julmin)
 
@@ -365,10 +378,42 @@ C--------start time loop for checking boundary data
 C-----------Read the Hydro tidefile
             call read_mult_tide
 
+C--------- mass balance check
+            DO N=1,NBRCH              
+               Achan_AvgP(N) = Achan_AvgP(N)+(QCHAN(1,N)-QCHAN(2,N))*time_step*60/CHAN_GEOM(N).LENGTH
+            End do
+  
             prev_julmin=julmin
             julmin=julmin+time_step
             current_date=jmin2cdt(julmin)
          enddo
+
+C--------- mass balance check
+         PDiffMax=0 
+         channelMax=0            
+         DO N=1,NBRCH
+              Diff(N)=Achan_AvgP(N)- Achan_Avg(N)
+              PercentDiff(N)=Diff(N)/Achan_Avg(N)*100.
+              NN=chan_geom(N).chan_no
+              write(unit_output,'(I4,3f10.1,E14.2)')NN,Achan_Avg(N),Achan_AvgP(N),Diff(N),PercentDiff(N)
+              if(abs(PercentDiff(N)).gt.PDiffMax) then
+                PDiffMax = abs(PercentDiff(N))
+                channelMax=NN
+              endif
+         End do     
+         if (PDiffMax.gt.1.0) then
+             write(unit_screen,*)''
+             write(unit_screen,*)'Warning: Hydro mass balance in tidefile is bad!' 
+             write(unit_screen,*)'Check output file(.qof) for details.'
+             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_screen,*)'Suggest improve Hydro simulation!'
+         else
+             write(unit_screen,*)''
+             write(unit_screen,*)'Hydro mass balance in tidefile is fine,'
+             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+         endif
+
+         
          go to 790
       endif
 
@@ -429,6 +474,11 @@ C--------set internal nodes and non-stage-boundary nodes to NOT_MIXED
 C--------Read the Hydro tidefile
          call read_mult_tide
          CALL INTERPX
+
+C--------- mass balance check
+         DO N=1,NBRCH              
+            Achan_AvgP(N) = Achan_AvgP(N)+(QCHAN(1,N)-QCHAN(2,N))*time_step*60/CHAN_GEOM(N).LENGTH
+         End do
 
 c--------calculate total flow and mass into boundary nodes. This prepares GPTU and GPTD for ROUTE.     
          DO 360 N=1,NBRCH
@@ -744,10 +794,60 @@ c--------******************************************************************
  750     CONTINUE
 
  760     continue
+
+C..correct volume in each channel with Achan_Avg in tide file
+
+         if(mod(julmin - start_julmin,h5_time_interval).eq.0) then
+                  
+         DO N=1,NBRCH
+            VolQual = 0
+            VolHydro = dble(chan_geom(N).length)*Achan_Avg(N)
+            NSN = NS(N)
+            DO K=1,NSN
+                VolQual = VolQual + GPV(N,K)
+            enddo
+            VolDiff = VolHydro - VolQual
+            K=NSN/2+1   !add the difference to the parcel in the middle 
+            DO CONS_NO=1,NEQ 
+                GPT(CONS_NO,K,N)=GPT(CONS_NO,K,N)*GPV(N,K)/(GPV(N,K)+VolDiff)
+            enddo
+            GPV(N,K)=GPV(N,K)+ VolDiff
+                     
+         enddo
+         endif
+ 
          prev_julmin=julmin
          julmin=julmin+time_step
          current_date=jmin2cdt(julmin)
       enddo                     ! do while julmin time loop
+
+C--------- Hydro mass balance check
+         write(unit_output,*)'Hydro mass balance in tidefile check'
+         write(unit_output,*)'Channel Achan_Avg Calculated Difference  PercentDiff' 
+         PDiffMax=0 
+         channelMax=0            
+         DO N=1,NBRCH
+              Diff(N)=Achan_AvgP(N)- Achan_Avg(N)
+              PercentDiff(N)=Diff(N)/Achan_Avg(N)*100.
+              NN=chan_geom(N).chan_no
+              write(unit_output,'(I4,3f10.1,E14.2)')NN,Achan_Avg(N),Achan_AvgP(N),Diff(N),PercentDiff(N)
+              if(abs(PercentDiff(N)).gt.PDiffMax) then
+                PDiffMax = abs(PercentDiff(N))
+                channelMax=NN
+              endif
+         End do     
+         if (PDiffMax.gt.1.0) then
+             write(unit_screen,*)''
+             write(unit_screen,*)'Warning: Hydro mass balance in tidefile is bad!' 
+             write(unit_screen,*)'Check output file(.qof) for details.'
+             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_screen,*)'Suggest improve Hydro simulation!'
+         else
+             write(unit_screen,*)''
+             write(unit_screen,*)'Hydro mass balance in tidefile is fine,'
+             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+         endif
+
 
       if (julmin .gt. end_julmin) then
          julmin=prev_julmin
