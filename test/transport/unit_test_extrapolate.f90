@@ -86,16 +86,16 @@ real(gtm_real) :: time                !< Currrent time
                    dt,       &
                    dx)
 
-  call assertEquals(conc_lo(1,1),60.25d0,"extrapolate, lo(1,1)")
-  call assertEquals(conc_lo(2,1),63.25d0,"extrapolate, lo(2,1)")
-  call assertEquals(conc_lo(3,1),64.875d0,"extrapolate, lo(3,1)")
+  call assertEquals(conc_lo(1,1),6.d0,"extrapolate, lo(1,1)")
+  call assertEquals(conc_lo(2,1),40.d0,"extrapolate, lo(2,1)")
+  call assertEquals(conc_lo(3,1),61.d0,"extrapolate, lo(3,1)")
   call assertEquals(conc_lo(1,1),conc_hi(3,2),"extrapolate, lo-hi(1,1)")
   call assertEquals(conc_lo(2,1),conc_hi(2,2),"extrapolate, lo-hi(2,1)")
   call assertEquals(conc_lo(3,1),conc_hi(1,2),"extrapolate, lo-hi(3,1)")
 
-  call assertEquals(conc_hi(1,1),62.25d0,"extrapolate, hi(1,1)")
-  call assertEquals(conc_hi(2,1),64.75d0,"extrapolate, hi(2,1)")
-  call assertEquals(conc_hi(3,1),65.875d0,"extrapolate, hi(3,1)")
+  call assertEquals(conc_hi(1,1),70.d0,"extrapolate, hi(1,1)")
+  call assertEquals(conc_hi(2,1),88.d0,"extrapolate, hi(2,1)")
+  call assertEquals(conc_hi(3,1),93.d0,"extrapolate, hi(3,1)")
   call assertEquals(conc_hi(1,1),conc_lo(3,2),"extrapolate, hi-lo(3,2)")
   call assertEquals(conc_hi(2,1),conc_lo(2,2),"extrapolate, hi-lo(2,2)")
   call assertEquals(conc_hi(3,1),conc_lo(1,2),"extrapolate, hi-lo(1,2)")

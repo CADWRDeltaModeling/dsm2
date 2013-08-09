@@ -80,6 +80,7 @@ module common_dsm2_vars
        integer, parameter :: qual = 2
        integer, parameter :: ptm = 3
        integer, parameter :: gtm = 4
+       character*16 :: dsm2_version = '8.1.1', svn_build = '2151:2203' 
 
        !-----type
        integer, parameter :: io_restart = 1

@@ -29,6 +29,7 @@ program gtm
     use common_xsect   
     use common_dsm2_vars
     use process_gtm_input
+    use io_utilities
     use time_utilities
     use hydro_data_tidefile
     use interpolation
@@ -44,7 +45,6 @@ program gtm
     implicit none
     integer :: nt
     integer :: nx
-    integer :: nconc = 1  
     real(gtm_real), allocatable :: flow_mesh(:,:), area_mesh(:,:)
     real(gtm_real), allocatable :: flow_volume_change(:,:), area_volume_change(:,:)
     real(gtm_real), allocatable :: prev_flow_cell(:,:)
@@ -60,15 +60,17 @@ program gtm
     real(gtm_real) :: current_julmin
     integer :: offset, num_buffers, jday
     integer, allocatable :: memlen(:)
-    procedure(hydro_data_if), pointer :: fill_hydro => null()   !< Hydrodynamic pointer to be filled by the driver
-    logical, parameter :: limit_slope = .false.         !< Flag to switch on/off slope limiter  
+    procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
+    logical, parameter :: limit_slope = .false.                 ! Flag to switch on/off slope limiter  
     real(gtm_real), allocatable :: init_conc(:,:)
     real(gtm_real), parameter :: constant_decay = 1.552749d-5
+    character(len=130) :: init_input_file                       ! initial input file on command line [optional]
     
     !
     !----- Read input specification from *.inp text file -----
     !
-    call read_input_text("gtm.inp")                        ! read input specification text
+    call get_command_args(init_input_file)
+    call read_input_text(init_input_file)                        ! read input specification text
     open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
     write(*,*) "Process DSM2 geometry info...."    
@@ -79,7 +81,9 @@ program gtm
     call check_runtime(offset, num_buffers, memlen,                              &
                        memory_buffer, gtm_start_jmin, gtm_end_jmin,              &
                        hydro_start_jmin, hydro_end_jmin, hydro_time_interval) 
-                       
+
+    n_var = 1
+                           
     !
     !----- point to interface -----
     !
@@ -103,10 +107,10 @@ program gtm
     call allocate_hydro_ts()
     call allocate_network_tmp()
     call allocate_cell_property()
-    call allocate_state(ncell, nconc)
-    allocate(init_conc(ncell,nvar))
+    call allocate_state(n_cell, n_var)
+    allocate(init_conc(n_cell,n_var))
     init_conc = one
-    allocate(linear_decay(nvar))
+    allocate(linear_decay(n_var))
     linear_decay = constant_decay
        
     write(*,*) "Process time series...."
@@ -176,12 +180,12 @@ program gtm
                                 area,     &
                                 area_lo,  &
                                 area_hi,  &
-                                ncell,    &
+                                n_cell,    &
                                 time,     &
                                 dx_arr,   &
                                 gtm_time_interval)            
                 if ((ibuffer==1).and.(t==2).and.(time==1)) then
-                    call prim2cons(mass_prev, init_conc, area, ncell, nvar)
+                    call prim2cons(mass_prev, init_conc, area, n_cell, n_var)
                     area_prev = area
                 end if
                 current_julmin = current_time * hydro_time_interval + (time-1)*gtm_time_interval
@@ -196,14 +200,14 @@ program gtm
                             area_prev,         &
                             area_lo,           &
                             area_hi,           &
-                            ncell,             &
-                            nvar,              &
+                            n_cell,             &
+                            n_var,              &
                             current_julmin,    &
                             gtm_time_interval, &
                             dx_arr,            &
                             limit_slope)     
-                call cons2prim(conc, mass, area, ncell, nvar)
-                write(debug_unit,'(1000f10.5)') (conc(icell,1),icell=1,ncell)
+                call cons2prim(conc, mass, area, n_cell, n_var)
+                write(debug_unit,'(1000f10.5)') (conc(icell,1),icell=1,n_cell)
                 mass_prev = mass
                 area_prev = area         
             end do                           

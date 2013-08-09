@@ -1,10 +1,10 @@
 !<license>
-!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!    Copyright (C) 2013 State of California,
 !    Department of Water Resources.
-!    This file is part of DSM2.
+!    This file is part of DSM2-GTM.
 !
-!    The Delta Simulation Model 2 (DSM2) is free software: 
-!    you can redistribute it and/or modify
+!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
+!    is free software: you can redistribute it and/or modify
 !    it under the terms of the GNU General Public License as published by
 !    the Free Software Foundation, either version 3 of the License, or
 !    (at your option) any later version.
@@ -35,8 +35,8 @@ module common_variables
      integer :: n_boun = LARGEINT                   !< number of boundaries
      integer :: n_xsect = LARGEINT                  !< number of entries in virt xsect table
      integer :: n_resv = LARGEINT                   !< number of reservoirs
-     integer :: ncell = LARGEINT                    !< number of cells in the entire network
-     integer :: nvar = LARGEINT                     !< number of variables
+     integer :: n_cell = LARGEINT                   !< number of cells in the entire network
+     integer :: n_var = LARGEINT                    !< number of variables
     
      real(gtm_real), allocatable :: dx_arr(:)
      real(gtm_real), allocatable :: hydro_flow(:,:) !< flow from DSM2 hydro
@@ -111,7 +111,8 @@ module common_variables
           integer :: comp_pt                       !< connected computational point
           integer :: chan_no                       !< channel number
           integer :: dsm2_node_no                  !< connected DSM2 node number
-          integer :: conn_up_down                  !< the connected node is upstream (1) or downstream (0)
+          integer :: conn_up_down                  !< the connected node is upstream (1) or downstream (0),
+                                                   !< or think of (1): away from conn, (0): to conn
      end type
      type(conn_t), allocatable :: conn(:)
     
@@ -198,8 +199,8 @@ module common_variables
          integer :: istat = 0
          integer :: i, j, icell
          character(len=128) :: message
-         ncell = n_segm * npartition_x
-         allocate(dx_arr(ncell), stat = istat)
+         n_cell = n_segm * npartition_x
+         allocate(dx_arr(n_cell), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if        
@@ -262,6 +263,17 @@ module common_variables
      subroutine deallocate_segment()
          implicit none
          deallocate(segm)
+         return
+     end subroutine
+
+
+     !> Deallocate junctions and boudaries
+     subroutine deallocate_junc_bound_property()
+         implicit none
+         n_boun = LARGEINT
+         n_junc = LARGEINT
+         deallocate(junc)
+         deallocate(bound)    
          return
      end subroutine
            
@@ -411,6 +423,23 @@ module common_variables
          end do
          return
      end subroutine
+
+     !> Define common variables for single channel case
+     subroutine set_up_single_channel(bound_val, ncell, nvar)
+         implicit none
+         integer, intent(in) :: ncell
+         integer, intent(in) :: nvar
+         real(gtm_real), intent(out) :: bound_val(2,nvar)
+          n_boun = 2
+          n_junc = 0
+          call allocate_junc_bound_property()
+          bound(1)%cell_no = 1
+          bound(2)%cell_no = ncell
+          bound(1)%up_down = 1
+          bound(2)%up_down = 0
+          bound_val = LARGEREAL
+        return
+     end subroutine    
 
      !> Routine to obtain unique number of an array
      subroutine unique_num_count(unique_num, occurrence, num_nodes, in_arr, n)

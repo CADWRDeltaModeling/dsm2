@@ -46,13 +46,13 @@ module gtm_network
         if (npartition_x .eq. LARGEINT) then
             call gtm_fatal('Number of partition within a cell in space needed to be assigned')
         end if
-        ncell = n_segm * npartition_x
-        allocate(flow_tmp(ncell,npartition_t+1), stat = istat)
-        allocate(flow_lo_tmp(ncell,npartition_t+1), stat = istat)
-        allocate(flow_hi_tmp(ncell,npartition_t+1), stat = istat)
-        allocate(area_tmp(ncell,npartition_t+1), stat = istat)
-        allocate(area_lo_tmp(ncell,npartition_t+1), stat = istat)
-        allocate(area_hi_tmp(ncell,npartition_t+1), stat = istat)
+        n_cell = n_segm * npartition_x
+        allocate(flow_tmp(n_cell,npartition_t+1), stat = istat)
+        allocate(flow_lo_tmp(n_cell,npartition_t+1), stat = istat)
+        allocate(flow_hi_tmp(n_cell,npartition_t+1), stat = istat)
+        allocate(area_tmp(n_cell,npartition_t+1), stat = istat)
+        allocate(area_lo_tmp(n_cell,npartition_t+1), stat = istat)
+        allocate(area_hi_tmp(n_cell,npartition_t+1), stat = istat)
         allocate(prev_flow_tmp(n_segm, npartition_x+1), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)

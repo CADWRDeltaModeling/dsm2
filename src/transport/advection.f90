@@ -61,7 +61,8 @@ module advection
     use gradient
     use source_sink
     use boundary_advection
-
+    use common_variables
+    
     implicit none
 
     !--- args
@@ -88,6 +89,8 @@ module advection
     real(gtm_real),intent(in)  :: dt                    !< current time step from old time to new time
     real(gtm_real),intent(in)  :: dx(ncell)             !< spatial step
     logical,intent(in),optional :: use_limiter          !< whether to use slope limiter
+    
+    real(gtm_real) :: bound_val(n_boun,nvar)
 
     !-----locals
     real(gtm_real) :: source_prev(ncell,nvar) !< cell centered source at old time
@@ -130,26 +133,20 @@ module advection
                     ncell,      &
                     nvar)
 
-    if (limit_slope)then
-    ! Applies flux-limeter on high resolution gradient 
-        call limiter(grad_lim,   &
-                     grad_lo,    &
-                     grad_hi,    &
-                     grad_center,&
-                     ncell,      &
-                     nvar)
-    else
-        grad_lim = grad_center
-    end if
+    ! Adjust differences to account for places (boundaries, junctions, etc) where one-sided
+    ! Also, applied flux-limiter on high resolution gradient
+    call adjust_differences(grad,        &
+                            grad_lo,     &
+                            grad_hi,     &
+                            grad_center, &
+                            conc_prev,   &
+                            dx,          &
+                            bound_val,   &
+                            ncell,       &
+                            nvar,        &
+                            use_limiter)
 
-    ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
-    ! or other differencing is required
-    call adjust_differences(grad,    &
-                            grad_lim,&
-                            grad_lo, &
-                            grad_hi, &
-                            ncell,   &
-                            nvar)
+
     ! Compute sources and sinks for each constituent
     call compute_source(source_prev, & 
                         conc_prev,   &
@@ -262,6 +259,53 @@ module advection
         !----- locals
         integer        :: ivar
         real(gtm_real) :: vel(ncell)                     !< cell-centered flow at old time - todo: velocity or flow?
+        !--------------------
+        vel = flow/area
+
+        do ivar = 1,nvar
+            ! todo: make sure source is in terms of primitive variables
+            ! todo: this only works if I disable extrapolation (first order Godunov)
+            conc_lo(:,ivar) = conc(:,ivar) + half*(-grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar))
+            conc_hi(:,ivar) = conc(:,ivar) + half*( grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar))
+        end do
+
+        return
+    end subroutine
+    
+    !> Extrapolate primitive data from cell center at the old time
+    !> to cell edges at the half time. The extrapolation is done by 
+    !> a Taylor series in time and space in which an explicit discretization
+    !> of the PDE is used to represent the time part.
+    pure subroutine extrapolate_old(conc_lo,  &   !todo:should be removed after testing
+                                conc_hi,  &
+                                conc,     &
+                                grad,     &
+                                source,   &                       
+                                flow,     &  
+                                area,     &
+                                ncell,    &
+                                nvar,     &
+                                time,     &
+                                dt,       &
+                                dx)
+        use gtm_precision
+        implicit none
+        !--- args
+        integer,intent(in)  :: ncell                     !< Number of cells
+        integer,intent(in)  :: nvar                      !< Number of variables
+        real(gtm_real),intent(out):: conc_lo(ncell,nvar) !< estimate from this cell extrapolated to lo face at half time
+        real(gtm_real),intent(out):: conc_hi(ncell,nvar) !< estimate from this cell extrapolated to hi face at half time
+        real(gtm_real),intent(in) :: conc(ncell,nvar)    !< cell centered conc at old time
+        real(gtm_real),intent(in) :: grad(ncell,nvar)    !< cell centered difference of conc at old time, currently assuming these are undivided differences
+        real(gtm_real),intent(in) :: area(ncell)         !< cell-centered area at old time
+        real(gtm_real),intent(in) :: flow(ncell)         !< cell-centered flow at old time
+        real(gtm_real),intent(in) :: source(ncell,nvar)  !< source terms at old time
+        real(gtm_real),intent(in) :: time                !< time
+        real(gtm_real),intent(in) :: dt                  !< length of current time step being advanced
+        real(gtm_real),intent(in) :: dx(ncell)           !< spatial step
+        !----- locals
+        integer        :: ivar
+        real(gtm_real) :: vel(ncell)                     !< cell-centered flow at old time - todo: velocity or flow?
         real(gtm_real) :: dtbydx(ncell)
         !--------------------
         vel = flow/area
@@ -278,7 +322,6 @@ module advection
 
         return
     end subroutine
-
     !> Compute the upwinded fluxes 
     !> The calculation here does not include tributaries, boundaries or special objects
     pure subroutine compute_flux(flux_lo,  &

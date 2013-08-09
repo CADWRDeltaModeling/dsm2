@@ -117,12 +117,6 @@ subroutine test_limiter
   
   call difference(grad_lo,grad_hi,grad_c,conc,dx,nx,nconst)
   call limiter(grad_lim,grad_lo,grad_hi,grad_c,nx,nconst)
-
-  ! Special cases due to end of array
-  call assertEquals(grad_lim(1,1),LARGEREAL,"Variable 1 lo end")
-  call assertEquals(grad_lim(1,2),LARGEREAL,"Variable 2 lo end")
-  call assertEquals(grad_lim(8,1),LARGEREAL,"Variable 1 hi end")
-  call assertEquals(grad_lim(8,2),LARGEREAL,"Variable 2 hi end")
    
   ! Typical case where centered diff is used
   call assertEquals(grad_lim(4,2),grad_c(4,2),"typical centered diff")

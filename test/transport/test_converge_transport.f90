@@ -154,7 +154,7 @@ do icoarse = 1,nrefine
              disp_coef_hi(nx),      &
              disp_coef_lo_prev(nx), &
              disp_coef_hi_prev(nx))
-             
+      
     dx = domain_length/dble(nx)
     dt = total_time/dble(nstep)
 
@@ -188,8 +188,8 @@ do icoarse = 1,nrefine
                            time,                 &
                            dx,                   &
                            dt,                   &
-                           ncell,                &
-                           nvar) 
+                           nx,                   &
+                           nconc) 
     else
       disp_coef_lo = LARGEREAL
       disp_coef_hi = LARGEREAL            
@@ -263,8 +263,8 @@ do icoarse = 1,nrefine
                              time,                 &
                              dx,                   &
                              dt,                   &
-                             ncell,                &
-                             nvar) 
+                             nx,                   &
+                             nconc)  
                                   
         call diffuse(conc,              &
                      conc_prev,         &
@@ -320,10 +320,10 @@ do icoarse = 1,nrefine
     ! be done by converting it to mass, coarsening, then converting back to
     ! a reference concentration
     if (icoarse == 1) then
-        call prim2cons(fine_solution_mass,fine_solution,area,nx,nvar)
+        call prim2cons(fine_solution_mass,fine_solution,area,nx,nconc)
     end if
 
-    call coarsen(solution_mass,fine_solution_mass,nx_base,nx, nvar)
+    call coarsen(solution_mass,fine_solution_mass,nx_base,nx, nconc)
     call cons2prim(reference,solution_mass,area,nx,nconc)
     
     if (detailed_printout)then
@@ -350,6 +350,11 @@ do icoarse = 1,nrefine
                disp_coef_lo_prev, &
                disp_coef_hi_prev)   
     call deallocate_state
+    
+    if (n_boun.ne.LARGEINT) then
+        call deallocate_junc_bound_property
+    end if    
+    
 end do
 ratio = norm_error(1,2)/norm_error(1,1)
 call create_converge_message(converge_message,"L-1   (fine)   ",trim(label),ratio)

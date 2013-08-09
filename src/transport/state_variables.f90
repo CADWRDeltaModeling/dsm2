@@ -91,6 +91,7 @@ module state_variables
         integer :: istat = 0
         integer, intent(in) :: a_ncell !< Number of requested cells
         integer, intent(in) :: a_nvar  !< Number of constituents
+        integer :: ncell, nvar
         ncell = a_ncell
         nvar  = a_nvar
         write(message,*)"Could not allocate state variable. " //&
@@ -136,8 +137,8 @@ module state_variables
     !> and reset ncell and nvar to zero.
     subroutine deallocate_state
         implicit none
-        ncell = 0
-        nvar  = 0
+        n_cell = 0
+        n_var  = 0
         deallocate(conc, conc_prev, mass, mass_prev)
         deallocate(area)
         deallocate(area_prev)
