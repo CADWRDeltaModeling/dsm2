@@ -79,7 +79,10 @@ module hdf_util
        call get_int_attribute_from_hdf5(n_chan, "Number of channels")
        call get_int_attribute_from_hdf5(n_xsect, "Number of virt xsects")
        call get_int_attribute_from_hdf5(n_comp, "Number of comp pts")
-       call get_int_attribute_from_hdf5(n_time, "Number of intervals")
+       call get_int_attribute_from_hdf5(hydro_ntideblocks, "Number of intervals")
+       call get_int_attribute_from_hdf5(hydro_start_jmin, "Start time")
+       call get_int_attribute_from_hdf5(hydro_time_interval, "Time interval")
+       hydro_end_jmin = hydro_start_jmin + (hydro_ntideblocks-1)*hydro_time_interval
        return
    end subroutine    
 

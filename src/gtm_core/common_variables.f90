@@ -26,7 +26,6 @@ module common_variables
      use gtm_precision
      
      integer :: memory_buffer = 20                  !< time buffer use to store hdf5 time series
-     integer :: n_time = LARGEINT                   !< number of time steps
      integer :: n_comp = LARGEINT                   !< number of computational points
      integer :: n_chan = LARGEINT                   !< number of channels
      integer :: n_segm = LARGEINT                   !< number of segments

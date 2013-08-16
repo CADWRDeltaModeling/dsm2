@@ -93,11 +93,10 @@ program gtm
     advection_boundary_flux => zero_advective_flux
     
     !
-    !----- allocate array -----     
+    !----- allocate array for interpolation -----     
     !
     nx = npartition_x + 1
     nt = npartition_t + 1
-    !---- allocate array for interpolation ----
     allocate(flow_mesh(nt, nx), area_mesh(nt, nx))
     allocate(flow_volume_change(nt-1, nx-1), area_volume_change(nt-1, nx-1))
     allocate(prev_flow_cell(2000, nx))
@@ -114,6 +113,7 @@ program gtm
     linear_decay = constant_decay
        
     write(*,*) "Process time series...."
+    write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
     do ibuffer = 1, num_buffers
         write(*,*) ibuffer
         time_offset = offset+memory_buffer*(ibuffer-1)
@@ -173,7 +173,6 @@ program gtm
                !end if
             end do   !end for segment loop
             do time = 1, nt
-               write(debug_unit,*) current_time, time
                 call fill_hydro(flow,     &
                                 flow_lo,  &
                                 flow_hi,  &
@@ -207,7 +206,7 @@ program gtm
                             dx_arr,            &
                             limit_slope)     
                 call cons2prim(conc, mass, area, n_cell, n_var)
-                write(debug_unit,'(1000f10.5)') (conc(icell,1),icell=1,n_cell)
+                write(debug_unit,'(i8,f8.0, 3000f8.5)') current_time, time, (conc(icell,1),icell=1,n_cell)
                 mass_prev = mass
                 area_prev = area         
             end do                           

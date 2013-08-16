@@ -46,7 +46,6 @@ module ut_hydro_data_tide
         call assertEquals (dble(n_chan), dble(7), weakest_eps, "problem in reading number of channels")
         call assertEquals (dble(n_xsect), dble(1114), weakest_eps, "problem in reading number of virtual xsects")
         call assertEquals (dble(n_comp), dble(26), weakest_eps, "problem in reading number of computational points")      
-        call assertEquals (dble(n_time), dble(8641), weakest_eps, "problem in reading number of time entries")
         call assertEquals (hydro_start_jmin, 51546240, "problem in reading starting time in tidefile")
         call assertEquals (hydro_end_jmin, 51675840, "problem in reading end time in tidefile")
         call assertEquals (hydro_time_interval, 15, "problem in reading time interval in tidefile")

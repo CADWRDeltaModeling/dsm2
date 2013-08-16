@@ -1,10 +1,10 @@
 !<license>
-!    Copyright (C) 2013 State of California,
+!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 !    Department of Water Resources.
-!    This file is part of DSM2-GTM.
+!    This file is part of DSM2.
 !
-!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
-!    is free software: you can redistribute it and/or modify
+!    The Delta Simulation Model 2 (DSM2) is free software: 
+!    you can redistribute it and/or modify
 !    it under the terms of the GNU General Public License as published by
 !    the Free Software Foundation, either version 3 of the License, or
 !    (at your option) any later version.
@@ -17,12 +17,10 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
-! 
 
 !> Module containing routines for calculating differences and limiters
 !>@ingroup transport
 module gradient
-
     contains
 
     !> Calculate the undivided lo, hi, and centered differences
@@ -61,7 +59,6 @@ module gradient
 
         return
     end subroutine
-
 
     !> Apply a flux limiter (van Leer) given one-sided and centered differences
     subroutine limiter(grad_lim,    &
@@ -107,8 +104,6 @@ module gradient
         return
     end subroutine
 
-
-
     !> Adjust differences to account for special cases (boundaries, structures, junctions, flow reversals)
     subroutine adjust_differences(grad,         &
                                   grad_lo,      &  
@@ -125,16 +120,16 @@ module gradient
         implicit none
         !--- args
         real(gtm_real), intent(out) :: grad(ncell,nvar)       !< Cell centered difference adjusted for boundaries and hydraulic devices
-        integer,intent(in)  :: ncell                          !< Number of cells
-        integer,intent(in)  :: nvar                           !< Number of variables
+        real(gtm_real), intent(inout) :: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
+        real(gtm_real), intent(inout) :: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
+        real(gtm_real), intent(inout) :: grad_center(ncell,nvar) !< Dentered diff, LARGEREAL for undefined boundary cells
         real(gtm_real), intent(in) :: vals(ncell,nvar)        !< Data to be differenced        
         real(gtm_real), intent(in) :: bound_val(n_boun,nvar)  !< Boundary conc values  
         real(gtm_real), intent(in) :: dx(ncell)               !< Cell length
+        integer,intent(in)  :: ncell                          !< Number of cells
+        integer,intent(in)  :: nvar                           !< Number of variables
         logical,intent(in),optional :: use_limiter            !< whether to use slope limiter
         !--- local variabls
-        real(gtm_real) :: grad_lo(ncell,nvar)                 !< Difference on lo side, LARGEREAL in first index
-        real(gtm_real) :: grad_hi(ncell,nvar)                 !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
-        real(gtm_real) :: grad_center(ncell,nvar)             !< Dentered diff, LARGEREAL for undefined boundary cells
         real(gtm_real) :: upval(nvar), downval(nvar)          ! sum of connected up/down-stream vals
         real(gtm_real) :: up_length, down_length              ! sum of connected up/down-stream length
         real(gtm_real) :: up_split_ratio, down_split_ratio    ! ratio to apply splitting to up/down-stream        
@@ -147,6 +142,14 @@ module gradient
             limit_slope = .true.
         end if        
          
+        if (limit_slope)then    ! Applies flux-limeter on high resolution gradient 
+            call limiter(grad, grad_lo, grad_hi ,grad_center, ncell, nvar)
+        else    
+            grad = grad_center
+        end if    
+        grad(1,:)     = grad_hi(1,:)             ! in case cell_no=1 does not locate at actual boundary, w/t this line will cause error. 
+        grad(ncell,:) = grad_lo(ncell,:)         ! in case cell_no=ncell does not locate at actual boundary, w/t this line will cause error.          
+         
         !------ adjust boundaries ------
         !                  ---------------------------------------
         !    up_bound_val  |   vals(icell)   |   vals(icell+1)   |
@@ -155,17 +158,9 @@ module gradient
         !                  ---------------------------------------
         !  down_bound_val  |   vals(icell)   |   vals(icell-1)   |
         !                  ---------------------------------------
-        
         if ((n_boun.eq.LARGEINT).or.(n_boun.eq.2)) then ! For single channel problem
-            if (limit_slope)then    ! Applies flux-limeter on high resolution gradient 
-                call limiter(grad, grad_lo, grad_hi ,grad_center, ncell, nvar)
-            else    
-                grad = grad_center
-            end if    
-            grad(1,:)     = grad_hi(1,:)
-            grad(ncell,:) = grad_lo(ncell,:)            
             return
-        else
+        else       
             do i = 1, n_boun
                 icell = bound(i)%cell_no
                 if (bound(i)%up_down .eq. 1) then  ! upstream boundary
@@ -206,7 +201,7 @@ module gradient
                         down_length = down_length + dx(junc(i)%cell_no(j))
                     end if
                 end do
-            
+           
                 up_split_ratio   = 1 / n_up_cell
                 down_split_ratio = 1 / n_down_cell
                 up_length   = up_length / n_up_cell
@@ -221,6 +216,7 @@ module gradient
                                                (half*up_split_ratio*down_length + half*dx(icell))
                         grad_lo(icell,:)     = (vals(icell,:) - vals(icell-1,:))/                 &
                                                (half*dx(icell) + half*dx(icell-1))
+                        grad(icell,:) = min(grad_center(icell,:), grad_hi(icell,:), grad_lo(icell,:))
                     else ! downstream cells
                         grad_center(icell,:) = (vals(icell+1,:) - down_split_ratio*upval(:))/     &
                                                (half*dx(icell+1) + dx(icell) + half*down_split_ratio*up_length)
@@ -228,40 +224,33 @@ module gradient
                                                (half*dx(icell+1) + half*dx(icell))
                         grad_lo(icell,:)     = (vals(icell,:) - down_split_ratio*upval(:))/     &
                                                (half*dx(icell) + half*down_split_ratio*up_length)                       
+                        grad(icell,:) = min(grad_center(icell,:), grad_hi(icell,:), grad_lo(icell,:))
                     end if
                 end do
-            end do
+            end do  
         end if
-        
-        if (limit_slope)then    ! Applies flux-limeter on high resolution gradient 
-            call limiter(grad, grad_lo, grad_hi ,grad_center, ncell, nvar)
-        else 
-            grad = grad_center
-        end if    
-        
+
         return
     end subroutine
 
 
-    !> Calculate the undivided lo, hi, and centered differences     !todo:should be removed after testing
-    subroutine difference_old(grad_lo,     &  
-                              grad_hi,     &
-                              grad_center, &
-                              vals,        &
-                              dx,          &
-                              ncell,       &
-                              nvar)
+!==============================================================================
+!======================todo:: BELOW CAN BE DELETED AFTER TESTING===============
+!==============================================================================
+    
+    !> Calculate the undivided lo, hi, and centered differences
+    subroutine difference_single_channel(grad_lo,grad_hi,grad_center,vals,ncell,nvar)
+
         use gtm_precision
         implicit none
 
         !---- args
-        integer, intent(in) :: ncell                          !< Number of cells
-        integer, intent(in) :: nvar                           !< Number of variables
-        real(gtm_real), intent(in) :: vals(ncell,nvar)        !< Data to be differenced
-        real(gtm_real), intent(in) :: dx(ncell)               !< Cell length
-        real(gtm_real), intent(out):: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
-        real(gtm_real), intent(out):: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
-        real(gtm_real), intent(out):: grad_center(ncell,nvar) !< Dentered diff, LARGEREAL for undefined boundary cells
+        integer,intent(in)  :: ncell                          !< Number of cells
+        integer,intent(in)  :: nvar                           !< Number of variables
+        real(gtm_real),intent(in)  :: vals(ncell,nvar)        !< Data to be differenced
+        real(gtm_real),intent(out) :: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
+        real(gtm_real),intent(out) :: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
+        real(gtm_real),intent(out) :: grad_center(ncell,nvar) !< Dentered diff, LARGEREAL for undefined boundary cells
         
         !----local
         integer :: ivar
@@ -269,24 +258,70 @@ module gradient
         do ivar = 1, nvar
             grad_center(2:(ncell-1),ivar) = (vals(3:ncell,ivar) - vals(1:(ncell-2),ivar))/two
             grad_center(1,ivar)=LARGEREAL
-            grad_center(ncell,ivar)=LARGEREAL            
+            grad_center(ncell,ivar)=LARGEREAL
             grad_hi(1:(ncell-1),ivar) = (vals(2:ncell,ivar) - vals(1:(ncell-1),ivar))
             grad_hi(ncell,ivar)=LARGEREAL
             grad_lo(2:ncell,ivar)=grad_hi(1:(ncell-1),ivar)
-            grad_lo(1,ivar)=LARGEREAL     
+            grad_lo(1,ivar)=LARGEREAL
         end do
+
         return
     end subroutine
-    
-    
-    !> Adjust differences to account for special cases (boundaries, structures, junctions, flow reversals)   !todo:should be removed after testing
+
+
+    !> Apply a flux limiter (van Leer) given one-sided and centered differences
+    subroutine limiter_single_channel(grad_lim,grad_lo,grad_hi,grad_center,ncell,nvar)
+
+        use gtm_precision
+        implicit none
+
+        !--- args
+        integer,intent(in)  :: ncell                         !< Number of cells
+        integer,intent(in)  :: nvar                          !< Number of variables
+        real(gtm_real),intent(in) :: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
+        real(gtm_real),intent(in) :: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
+        real(gtm_real),intent(in) :: grad_center(ncell,nvar) !< Centered difference, LARGEREAL for undefined boundary cells 
+        real(gtm_real),intent(out) :: grad_lim(ncell,nvar)   !< Limited difference
+
+        !---locals
+        real(gtm_real) :: delta_limit(ncell,nvar) ! Intermediate quantity
+        real(gtm_real) :: sign                           
+        integer        :: ivar, icell             ! Counting variables
+
+        do ivar = 1,nvar
+            do icell = 1,ncell
+                delta_limit(icell,ivar) = two*min(abs(grad_lo(icell,ivar)), &
+                                                  abs(grad_hi(icell,ivar)) )                              
+                if (grad_center(icell,ivar) < zero)then
+                    sign = minus
+                else
+                    sign = one
+                end if
+                grad_lim(icell,ivar) = min(abs(grad_center(icell,ivar)), &
+                                           abs(delta_limit(icell,ivar)))*sign
+            end do
+        end do
+        where (grad_lo*grad_hi < zero)
+            grad_lim = zero
+        end where
+
+        ! Boundary values are not defined
+        do ivar = 1,nvar
+            grad_lim(1,ivar)    = LARGEREAL   !todo: is this really what we want? 
+            grad_lim(ncell,ivar)= LARGEREAL   !todo: is this really what we want? 
+        end do
+        
+        return
+    end subroutine
+
+    !> Adjust differences to account for special cases (boundaries, structures, junctions, flow reversals)
     !> Currently implementation only accounts for two boundaries at ends of channel
-    subroutine adjust_differences_old(grad,     &
-                                      grad_lim, &
-                                      grad_lo,  &
-                                      grad_hi,  &
-                                      ncell,    &
-                                      nvar)
+    subroutine adjust_differences_single_channel(grad,     &
+                                  grad_lim, &
+                                  grad_lo,  &
+                                  grad_hi,  &
+                                  ncell,    &
+                                  nvar)
         use gtm_precision
         implicit none
         !--- args
@@ -297,10 +332,13 @@ module gradient
         real(gtm_real),intent(in)  :: grad_hi(ncell,nvar)  !< Difference based on hi side difference
         real(gtm_real),intent(in)  :: grad_lim(ncell,nvar) !< Limited cell centered difference
         real(gtm_real),intent(out) :: grad(ncell,nvar)     !< Cell centered difference adjusted for boundaries and hydraulic devices
+        !---------
         grad          = grad_lim
         grad(1,:)     = grad_hi(1,:)
         grad(ncell,:) = grad_lo(ncell,:)
         return
-    end subroutine    
+    end subroutine
+    
 end module
+
 
