@@ -276,7 +276,7 @@ C--special treatment to avoid averaging in the begining
             YResOld(i)=YRes(i)
             if (YResOld(i).lt. res_geom(i).botelv) then
                WRITE(UNIT_ERROR,923)res_geom(i).name,YResOld(i)
- 923           FORMAT(' ERROR ... RESERVOIR: ',a,'HAS NEGATIVE DEPTH',/
+ 923           FORMAT(' ERROR ... RESERVOIR: ',a,'HAS NEGATIVE DEPTH',/,
      &           ' Water Surface Elevation =', 1PE12.5)
                call exit(2)
             endif
