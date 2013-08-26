@@ -24,45 +24,36 @@ module process_gtm_input_climate
 
     contains
 
-    subroutine process_input_climate(Name,                      &
-                                     Param,                     &
-                                     Fillin,                    &
-                                     Filename,                  &
+    subroutine process_input_climate(Name,                        &
+                                     Param,                       &
+                                     Fillin,                      &
+                                     Filename,                    &
                                      InPath) 
-       use common_dsm2_vars
-       use io_utilities
-       implicit none
-       character :: InPath*80,                                  &
-                    FileName*128,                               &
-                    Param*16,                                   &
-                    LocName*32,                                 &
-                    Name*32,                                    &
-                    ca*32, cb*32, cc*32, cd*32, ce*32, cf*32,   &
-                    ctmp*200,                                   &
-                    fillin*8
+         use common_dsm2_vars
+         use io_utilities
+         implicit none
+         character :: InPath*80,                                  &
+                      FileName*128,                               &
+                      Param*16,                                   &
+                      LocName*32,                                 &
+                      Name*32,                                    &
+                      ca*32, cb*32, cc*32, cd*32, ce*32, cf*32,   &
+                      ctmp*200,                                   &
+                      fillin*8
 
-       integer*4 :: Sign,                                       &  ! sign restriction on input
-                    npath,na,nb,nc,nd,ne,nf,                    &
-                    itmp,                                       &
-                    istat
-       !integer, external :: data_types
-       !integer, external :: loccarr
-       !integer, external :: fillin_code
-
-       real*8 :: ftmp
-       real*8, external :: fetch_data
-       call locase(name)
-       call locase(param)
-       call locase(fillin)
-       call locase(inpath)
+         integer*4 :: Sign,                                       &  ! sign restriction on input
+                      npath,na,nb,nc,nd,ne,nf,                    &
+                      itmp,                                       &
+                      istat
+ 
+         real*8 :: ftmp
+         real*8, external :: fetch_data
+         call locase(name)
+         call locase(param)
+         call locase(fillin)
+         call locase(inpath)
       
-       ninpaths=ninpaths+1
-            if (ninpaths .gt. max_inputpaths) then
-               write(unit_error,630)                                  &
-                    'Too many input paths specified; max allowed is:' &
-                    ,max_inputpaths
-               call exit(-1)
-            endif
+         ninpaths=ninpaths+1
             pathinput(ninpaths).name=Name
             pathinput(ninpaths).useobj=.true.
             pathinput(ninpaths).obj_name=LocName
@@ -110,6 +101,7 @@ module process_gtm_input_climate
                   if (abs(itmp) .le. max_dssinfiles) then
                      infilenames(abs(itmp))=pathinput(ninpaths).filename
                      pathinput(ninpaths).ndx_file=abs(itmp)
+                     n_dssfiles = n_dssfiles + 1                      
                   else
                      write(unit_error,610)                              &
                           'Maximum number of unique DSS input files exceeded'
@@ -129,9 +121,9 @@ module process_gtm_input_climate
                     trim(InPath(:24)),                                       &
                     trim(FileName(:24))
             end if
- 610  format(/a)
- 620  format(/a/a)
- 630  format(/a,i5)
+ 610    format(/a)
+ 620    format(/a/a)
+ 630    format(/a,i5)
 
     end subroutine
 

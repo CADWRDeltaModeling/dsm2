@@ -18,7 +18,7 @@ module ut_time_utilities
         jday = cdt2jmin('01SEP2001 2400')
         call assertEquals (jday, 53474400, "problem in cdt2jmin function")
         cdt = jmin2cdt(53474400)
-        call assertEquals (cdt, '01SEP2001 2400', "problem in jmin2cdt function")     
+        call assertEquals (cdt, '01SEP2001 2400', "problem in jmin2cdt function")  
         !call check_runtime(offset, num_buffers, memlen,               &  
         !                   1500,'30NOV1974 2400', '30DEC1974 2400',   &     ! gtm starting and ending time
         !                   39314880, 39840480, 15)                          !01OCT1974 0000-01OCT1975 0000

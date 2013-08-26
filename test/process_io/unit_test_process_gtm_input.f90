@@ -32,11 +32,11 @@ module ut_process_gtm_input
         use common_dsm2_vars
         use process_gtm_input
         implicit none       
-        call read_input_text("gtm_do.inp")
+        call read_input_text("gtm.inp")
         ! todo: way to test is to check if the echo file and tidefile are successfully generated. 
         !       any better way to verify this?
-        call assertEquals (flush_intvl, "8day", "problem in reading flush_intvl from read_input_text")
         call assertEquals (npartition_x, 4, "problem in reading npartition_x from read_input_text")
+        deallocate(pathinput)
       return          
     end subroutine
    

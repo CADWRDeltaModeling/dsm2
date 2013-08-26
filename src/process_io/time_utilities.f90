@@ -24,11 +24,11 @@ module time_utilities
 
     use gtm_precision
     use error_handling
-    use common_dsm2_vars
     contains
     
     !> Convert from character date/time to julian minute
     integer*4 function cdt2jmin(cdatx)
+        use common_dsm2_vars, only: miss_val_i
         implicit none
         character*(*) :: cdatx        ! character date/time (e.g. 05JUN1983 0510) (input)
         integer*4 :: julday,   &      ! days since 31dec1899
@@ -53,6 +53,7 @@ module time_utilities
    
     !> Convert from Julian minute to character date/time
     character*14 function jmin2cdt(julmin)
+        use common_dsm2_vars, only: miss_val_c
         implicit none
         integer*4 :: julmin             ! minutes since 31dec1899 2400
         integer*4 :: julday,      &     ! days since 31dec1899
@@ -68,7 +69,7 @@ module time_utilities
         call juldat(julday, 104, jmin2cdt(1:9), ndate)
         itime = m2ihm(minute,jmin2cdt(11:14))
         if (itime .eq. -1) then
-           jmin2cdt(1:1)=miss_val_c
+           jmin2cdt(1:1) = miss_val_c
         endif
         return
     end function
@@ -99,7 +100,11 @@ module time_utilities
     !> then jmins will be returned for a positive interval; the previous
     !> boundary will be returned for a negative interval.   
     integer*4 function incr_intvl(jmins, e_part, boundary)
+    
+      use common_dsm2_vars, only: miss_val_i, IGNORE_BOUNDARY, NEAREST_BOUNDARY
+    
       implicit none
+      
       logical :: on_boundary,     & ! true if already on interval boundary
                  keepit             ! statement function
       character :: e_part*(*),    & ! DSS style interval [INPUT]
@@ -142,7 +147,7 @@ module time_utilities
       !--each individually
 
       !---use spaces, tabs, and underscore as delimiters
-      e_part_tmp=e_part
+      e_part_tmp = e_part
 
       call setdlm(3,' ',1,0,itbl) ! don't use string delimiters
       call setdlm(2, '	 _',1,3,itbl) ! space, tab, and underscore
@@ -152,8 +157,8 @@ module time_utilities
 
       call locase(e_part_tmp)
 
-      jule=jmins/(24*60)        ! julian days
-      ietime=mod(jmins,24*60)   ! minutes past midnight
+      jule = jmins/(24*60)        ! julian days
+      ietime = mod(jmins,24*60)   ! minutes past midnight
 
       do i=1,nfields
       
@@ -168,7 +173,7 @@ module time_utilities
          call split_epart(e_part_tmp(ibegf(i):ibegf(i)+ilenf(i)),number,   &
               interval)
          number_sign=sign(1,number)
-         if (boundary .eq. NEAREST_BOUNDARY) number=number_sign
+         if (boundary .eq. NEAREST_BOUNDARY) number = number_sign
          on_boundary=.false.
 
          istat=1                ! get nominal number of minutes given e part
@@ -357,63 +362,64 @@ module time_utilities
     !> six 1HOUR intervals, not a single interval of 6HOUR).
     !> However 15MIN means a single 15MIN interval.      
     subroutine split_epart(e_part,number,interval)
-      implicit none
-      character :: e_part*(*),      &  ! DSS E part [INPUT]
-                   interval*(*),    &  ! DSS interval [RETURN]
-                   e_part_tmp*80,   &  ! temporary e part
-                   char_list*12        ! list of chars to scan
+        use common_dsm2_vars, only: miss_val_i
+        implicit none
+        character :: e_part*(*),      &  ! DSS E part [INPUT]
+                     interval*(*),    &  ! DSS interval [RETURN]
+                     e_part_tmp*80,   &  ! temporary e part
+                     char_list*12        ! list of chars to scan
 
-      integer :: number,            &  ! number of intervals [RETURN]
-                 ielen,             &  ! length of e_part
-                 ipos2,             &  ! which char found in iscan
-                 ilast,             &  ! position of last digit in e_part
-                 iscan                 ! DSS char scan function
+        integer :: number,            &  ! number of intervals [RETURN]
+                   ielen,             &  ! length of e_part
+                   ipos2,             &  ! which char found in iscan
+                   ilast,             &  ! position of last digit in e_part
+                   iscan                 ! DSS char scan function
 
-      data char_list /'0123456789+-'/
+        data char_list /'0123456789+-'/
 
-      e_part_tmp=e_part
-      call locase(e_part_tmp)
+        e_part_tmp = e_part
+        call locase(e_part_tmp)
 
-      if (e_part_tmp(:3) .eq. 'ir-') then ! irregular interval
-         number=1
-         interval=e_part_tmp
-         return
-      else
-         ielen=len(e_part_tmp)
-         ilast=iscan(e_part_tmp, ielen, -ielen, char_list, 1, 10, ipos2)
-         !---handle e.g. 'hour' (w/o number) correctly
-         if (ilast .eq. 0) then
-            number=1
-         else
-            read(e_part_tmp(:ilast),'(i5)', err=600) number
-         endif
-      endif
-      interval=e_part_tmp(ilast+1:)
-      !-----check for valid interval
-      if (                                     &
-          index(interval,'min') .gt. 0 .or.    &
-          index(interval,'hour') .gt. 0 .or.   &
-          index(interval,'day') .gt. 0 .or.    &
-          index(interval,'week') .gt. 0 .or.   &
-          index(interval,'mon') .gt. 0 .or.    &
-          index(interval,'year') .gt. 0 .or.   &
-          index(interval,'dec') .gt. 0         &
-          ) then
-     !----for minutes, treat 15MIN intervals as unit
-         if (mod(number,15) .eq. 0 .and. interval(:3) .eq. 'min') then
-            number=number/15
-            interval='15min'
-         else
-            interval='1'//interval
-         endif
-
-         return
-      endif
- 600  continue                  ! here for error getting number of intervals
-      number=miss_val_i
-      interval=' '
-      return
+        if (e_part_tmp(:3) .eq. 'ir-') then ! irregular interval
+           number = 1
+           interval = e_part_tmp
+           return
+        else
+           ielen = len(e_part_tmp)
+           ilast = iscan(e_part_tmp, ielen, -ielen, char_list, 1, 10, ipos2)
+           !---handle e.g. 'hour' (w/o number) correctly
+           if (ilast .eq. 0) then
+              number = 1
+           else
+              read(e_part_tmp(:ilast),'(i5)', err=600) number
+           endif
+        endif
+        interval = e_part_tmp(ilast+1:)
+        !-----check for valid interval
+        if (                                     &
+            index(interval,'min') .gt. 0 .or.    &
+            index(interval,'hour') .gt. 0 .or.   &
+            index(interval,'day') .gt. 0 .or.    &
+            index(interval,'week') .gt. 0 .or.   &
+            index(interval,'mon') .gt. 0 .or.    &
+            index(interval,'year') .gt. 0 .or.   &
+            index(interval,'dec') .gt. 0         &
+            ) then
+       !----for minutes, treat 15MIN intervals as unit
+           if (mod(number,15) .eq. 0 .and. interval(:3) .eq. 'min') then
+              number = number/15
+              interval = '15min'
+           else
+              interval = '1'//interval
+           endif
+           return
+        endif
+ 600    continue                  ! here for error getting number of intervals
+        number = miss_val_i
+        interval = ' '
+        return
     end subroutine
+      
       
     !> Parse time interval string into real number in unit of minutes
     subroutine get_time_intvl_min(time_intvl, time_intvl_str)
@@ -449,6 +455,42 @@ module time_utilities
 610     write(*,*) "Error in parsing time interval string", time_intvl_str     
         return         
     end subroutine  
+
+
+    !> Given a character date/time string (e.g. 05JAN1996 0530), and a
+    !> DSS E part interval (e.g. 1HOUR, 1MONTH), return the
+    !> corresponding portion from the date.      
+    subroutine get_intvl(cdatx, e_part, cdate_intvl)
+ 
+      use common_dsm2_vars, only: miss_val_c
+      implicit none
+
+      character*(*), intent(in) :: cdatx        ! date/time string [IN]
+      character*(*), intent(in) :: e_part       ! DSS E part interval [IN]
+      character*(*), intent(out) :: cdate_intvl ! date/time portion corresponding to interval [OUT]
+
+      integer :: number                        ! number prefix of E part
+
+      character*15 :: interval                 ! E part minus number prefix
+
+      call split_epart(e_part, number, interval)
+
+      if (interval .eq. '15MIN' .or. interval .eq. '15min') then
+         cdate_intvl=cdatx(13:14)
+      else if (interval .eq. '1HOUR' .or. interval .eq. '1hour') then
+         cdate_intvl=cdatx(11:12)
+      else if (interval .eq. '1DAY' .or. interval .eq. '1day') then
+         cdate_intvl=cdatx(1:2)
+      else if (interval .eq. '1MON' .or. interval .eq. '1mon') then
+         cdate_intvl=cdatx(3:5)
+      else if (interval .eq. '1YEAR' .or. interval .eq. '1year') then
+         cdate_intvl=cdatx(6:9)
+      else                      ! couldn't find specified interval
+         cdate_intvl=miss_val_c
+      endif
+
+      return
+    end subroutine
       
     !> Routine to get number of partition in time
     subroutine get_npartition_t(npart_t, orig_time_interv, gtm_time_interv)

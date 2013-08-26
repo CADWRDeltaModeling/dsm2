@@ -33,13 +33,6 @@ module process_gtm_reservoir_conc
       call locase(inpath)      
       
       ninpaths=ninpaths+1
-      if (ninpaths .gt. max_inputpaths) then
-          write(unit_error,630)                                    &
-                'Too many input paths specified; max allowed is:'  &
-                ,max_inputpaths
-          call exit(-1)
-      endif
-
       pathinput(ninpaths).name=Name
       pathinput(ninpaths).useobj=.true.
       pathinput(ninpaths).obj_name=LocName
@@ -106,7 +99,8 @@ module process_gtm_reservoir_conc
            if (itmp .lt. 0) then
                if (abs(itmp) .le. max_dssinfiles) then
                    infilenames(abs(itmp))=pathinput(ninpaths).filename
-                     pathinput(ninpaths).ndx_file=abs(itmp)
+                   pathinput(ninpaths).ndx_file=abs(itmp)
+                   n_dssfiles = n_dssfiles + 1                      
                else
                    write(unit_error,610)                          &
                          'Maximum number of unique DSS input files exceeded'

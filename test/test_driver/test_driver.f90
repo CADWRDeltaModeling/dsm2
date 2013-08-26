@@ -35,7 +35,9 @@ program test_driver
     
     !----- modules used in project test_input_storage -----
     use ut_process_gtm_input
-    !use ut_time_utilities
+    use ut_time_utilities
+    use ut_gtm_dss_readdss
+    use ut_gtm_dss_readtvd
     
     !----- modules used in project test_transport -----  
     use test_extrapolate
@@ -71,8 +73,12 @@ program test_driver
     call get_parent_working_dir(parent_dir) 
    
     !----- function calls to test units in project input_storage API ---
-    call change_working_dir(parent_dir, "/historical_gtm_do")
-    call test_input_storage   
+    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    call test_time_util
+    call test_input_storage  
+    call test_readdss  
+    call test_readtvd
            
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")

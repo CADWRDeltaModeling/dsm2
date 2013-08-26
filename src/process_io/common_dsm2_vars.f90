@@ -231,14 +231,16 @@ module common_dsm2_vars
        character(len=8) :: per_type_names(per_type_null)  ! data type names (e.g. 'PER-AVER')    
 
        ! max number of unique dss input files
-       integer, parameter :: max_dssinfiles = 20
-       character(len=130), dimension(max_dssinfiles)::infilenames= ' ' ! unique dss input file names
-       integer:: ifltab_in(600,max_dssinfiles)           ! DSS table for each input file
-
+       integer :: n_dssfiles = 0                          ! total number of unique dss files
+       character(len=130), allocatable :: indssfiles(:)   ! unique dss input file names
+       integer, allocatable :: ifltab_in(:,:)             ! DSS table for each input file       
+       integer, parameter :: max_dssinfiles = 20          ! temporary dss file size, will be replaced by n_dssfiles
+       character(len=130), dimension(max_dssinfiles)::infilenames= ' ' ! temporary unique dss input file names
+       
        !-----path input (time-varying data)
-       integer:: ninpaths = 0
-       integer, parameter :: max_inputpaths = 4200
-       type(pathinput_t):: pathinput(0:max_inputpaths)
+       integer :: ninpaths = 0
+       integer :: n_inputpaths = 0          ! total number of input paths (constant + DSS)
+       type(pathinput_t), allocatable :: pathinput(:)
        logical :: dss_direct = .false.
        logical :: binary_output = .false.    
        logical :: check_input_data          ! true to warn about bad data
@@ -251,6 +253,19 @@ module common_dsm2_vars
        logical :: warn_question             ! true to warn about bad data
        logical :: warn_bad                  ! true to warn about bad data
        logical :: output_comp_pt            ! true to output results at computational points
+       
+       character(len=14), parameter :: generic_date = '01JAN3001 0000' ! generic date/time start
+       integer, parameter :: screened_data  = 100
+       integer, parameter :: good_data = 101
+       integer, parameter :: missing_data = 102
+       integer, parameter :: question_data = 103
+       integer, parameter :: reject_data = 104
+       integer, parameter :: miss_or_rej_data = 110                     
+       integer, parameter :: screened_bit = 0
+       integer, parameter :: good_bit = 1
+       integer, parameter :: missing_bit = 2
+       integer, parameter :: question_bit = 3                   
+       integer, parameter :: reject_bit = 4
     
      !> From DSM2/common/logging.f
        integer, parameter :: LOG_ERROR = 0

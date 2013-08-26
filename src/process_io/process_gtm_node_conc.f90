@@ -51,12 +51,6 @@ module process_gtm_node_conc
       call locase(inpath)      
 
       ninpaths = ninpaths+1
-      if (ninpaths .gt. max_inputpaths) then
-          write(unit_error,630)                                    &
-             'Too many input paths specified; max allowed is:'     &
-             ,max_inputpaths
-          call exit(-1)
-      endif
 
       !----clean up character variables, replace environment variables
       write(LocName, '(i)') LocNum
@@ -106,6 +100,7 @@ module process_gtm_node_conc
               if (abs(itmp) .le. max_dssinfiles) then
                   infilenames(abs(itmp))=pathinput(ninpaths).filename
                   pathinput(ninpaths).ndx_file=abs(itmp)
+                  n_dssfiles = n_dssfiles + 1 
               else
                   write(unit_error,610)                          &
                          'Maximum number of unique DSS input files exceeded'
@@ -114,7 +109,7 @@ module process_gtm_node_conc
           else
               pathinput(ninpaths).ndx_file=itmp
           endif
-               pathinput(ninpaths).fillin=fillin_code(fillin)
+          pathinput(ninpaths).fillin=fillin_code(fillin)
       endif
 
       if (print_level .ge. 3) then
