@@ -18,7 +18,7 @@ module ut_gtm_dss_readtvd
         use gtm_dss_readtvd 
         use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t, &
                                     julmin, prev_julmin, start_julmin, end_julmin, &
-                                    per_type_inst_val
+                                    per_type_inst_val, n_inputpaths
         use time_utilities
         
         implicit none
@@ -39,8 +39,9 @@ module ut_gtm_dss_readtvd
 
         start_julmin = 48389400
         end_julmin =   48390000
-
-        allocate(pathinput(5))
+        
+        n_inputpaths = 5
+        allocate(pathinput(n_inputpaths))
         
         pathinput(1)%filename = "tutorial.dss"
         pathinput(1)%path = "/TUTORIAL/DOWNSTREAM/STAGE//15MIN/REALISTIC/"
@@ -96,54 +97,55 @@ module ut_gtm_dss_readtvd
         !---- test for 15 min data ----
         jmin = 48422520       ! 24JAN1992 1800
         prev_jmin = jmin - 15
-        call readtvd(indata_15min, jmin, prev_jmin, ninpath_15min, mins15, ninpath_15min, inpath_ptr_15min)
+        call readtvd(indata_15min, jmin, prev_jmin, ninpath_15min, mins15, n_inputpaths, inpath_ptr_15min)
         call assertEquals (indata_15min(1,1)%data, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
         call assertEquals (pathinput(1)%value, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
         
         !---- test for irregular data ----
-        call readtvd(indata_irr, jmin, prev_jmin,ninpath_irr, irrs, ninpath_irr, inpath_ptr_irr)
+        call readtvd(indata_irr, jmin, prev_jmin,ninpath_irr, irrs, n_inputpaths, inpath_ptr_irr)
         call assertEquals (pathinput(2)%value, dble(0.0000), weakest_eps, "problem in readtvd reading irr data")
        
         jmin = 48422640       ! 24JAN1992 2000
-        prev_jmin = jmin - 15   
-        call readtvd(indata_irr, jmin, prev_jmin,ninpath_irr, irrs, ninpath_irr, inpath_ptr_irr)
+        prev_jmin = jmin - 15       
+        call readtvd(indata_irr, jmin, prev_jmin,ninpath_irr, irrs, n_inputpaths, inpath_ptr_irr)
         call assertEquals (pathinput(2)%value, dble(1.0000), weakest_eps, "problem in readtvd reading irr data at 24JAN1992 2000")       
   
         jmin = 48422655       ! 24JAN1992 2015
         prev_jmin = jmin - 15   
-        call readtvd(indata_irr, jmin, prev_jmin, ninpath_irr, irrs, ninpath_irr, inpath_ptr_irr)
+        call readtvd(indata_irr, jmin, prev_jmin, ninpath_irr, irrs, n_inputpaths, inpath_ptr_irr)
         call assertEquals (pathinput(2)%value, dble(0.8333), weakest_eps, "problem in readtvd reading irr data at 24JAN1992 2015")      
 
         jmin = 48422670       ! 24JAN1992 2030
         prev_jmin = jmin - 15   
-        call readtvd(indata_irr, jmin, prev_jmin, ninpath_irr, irrs, ninpath_irr, inpath_ptr_irr)
+        call readtvd(indata_irr, jmin, prev_jmin, ninpath_irr, irrs, n_inputpaths, inpath_ptr_irr)
         call assertEquals (pathinput(2)%value, dble(0.5833), weakest_eps, "problem in readtvd reading irr data at 24JAN1992 2030")      
   
         jmin = 48422685       ! 24JAN1992 2045
         prev_jmin = jmin - 15   
-        call readtvd(indata_irr, jmin, prev_jmin, ninpath_irr, irrs, ninpath_irr, inpath_ptr_irr)
+        call readtvd(indata_irr, jmin, prev_jmin, ninpath_irr, irrs, n_inputpaths, inpath_ptr_irr)
         call assertEquals (pathinput(2)%value, dble(0.3333), weakest_eps, "problem in readtvd reading irr data at 24JAN1992 2045")                   
      
         !---- test for hourly data ----
         jmin = 48422685       ! 24JAN1992 2045 (hr data: -1.4699 at 20:00, -1.6051 at 21:00)
         prev_jmin = jmin - 15   
-        call readtvd(indata_1hr, jmin, prev_jmin, ninpath_1hr, hrs, ninpath_1hr, inpath_ptr_1hr)
+        call readtvd(indata_1hr, jmin, prev_jmin, ninpath_1hr, hrs, n_inputpaths, inpath_ptr_1hr)
         call assertEquals (pathinput(3)%value, dble(-1.4699), weakest_eps, "problem in readtvd reading hour data at 24JAN1992 2045")   
 
         !---- test for daily data ----
         jmin = 48422685       ! 24JAN1992 2045 (daily data: 0.8438 at 23JAN1992 2400, 0.8400 at 24JAN1992 2400)
         prev_jmin = jmin - 15   
-        call readtvd(indata_1day, jmin, prev_jmin, ninpath_1day, dys, ninpath_1day, inpath_ptr_1day)
+        call readtvd(indata_1day, jmin, prev_jmin, ninpath_1day, dys, n_inputpaths, inpath_ptr_1day)
         call assertEquals (pathinput(4)%value, dble(0.8400), weakest_eps, "problem in readtvd reading daily data at 24JAN1992 2045")   
 
         !---- test for monthly data ----
         jmin = 48422685       ! 24JAN1992 2045 (monthly data: 1.81 at 31JAN1992 2400)
         prev_jmin = jmin - 15   
-        call readtvd(indata_1mon, jmin, prev_jmin, ninpath_1mon, mths, ninpath_1mon, inpath_ptr_1mon)
+        call readtvd(indata_1mon, jmin, prev_jmin, ninpath_1mon, mths, n_inputpaths, inpath_ptr_1mon)
         call assertEquals (pathinput(5)%value, dble(1.81), weakest_eps, "problem in readtvd reading monthly data at 24JAN1992 2045") 
                 
         call zclose(ifltab_in)
         deallocate(pathinput)
+        n_inputpaths = 0
         return
     end subroutine
         

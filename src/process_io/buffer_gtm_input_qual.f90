@@ -229,63 +229,80 @@ module buffer_gtm_input_qual
     !> Create DSS input pathnames, check for sign change for each path
     subroutine get_dss_each_npath()
     
-        use gtm_dss
-        use common_dsm2_vars, only: pathinput, n_inputpaths, miss_val_r
-        use common_variables, only: unit_error
+         use gtm_dss
+         use common_dsm2_vars, only: pathinput, n_inputpaths, miss_val_r
+         use common_variables, only: unit_error
         
-        implicit none
+         implicit none
 
-        integer :: p
+         integer :: p
         
-        npthsin_min15 = 0
-        npthsin_hour1 = 0
-        npthsin_day1 = 0
-        npthsin_week1 = 0
-        npthsin_month1 = 0
-        npthsin_year1 = 0
-        npthsin_irr = 0
+         npthsin_min15 = 0
+         npthsin_hour1 = 0
+         npthsin_day1 = 0
+         npthsin_week1 = 0
+         npthsin_month1 = 0
+         npthsin_year1 = 0
+         npthsin_irr = 0
 
-        do p = 1,n_inputpaths
-         if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval .eq. '15min') then 
-            npthsin_min15 = npthsin_min15 + 1
-            pathinput(p).intvl_path = npthsin_min15
-            ptin_min15(npthsin_min15) = p
-         else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1hour') then
-            npthsin_hour1=npthsin_hour1+1
-            pathinput(p).intvl_path=npthsin_hour1
-            ptin_hour1(npthsin_hour1)=p
-         else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1day') then
-            npthsin_day1=npthsin_day1+1
-            pathinput(p).intvl_path=npthsin_day1
-            ptin_day1(npthsin_day1)=p
-         else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1week') then
-            npthsin_week1=npthsin_week1+1
-            pathinput(p).intvl_path=npthsin_week1
-            ptin_week1(npthsin_week1)=p
-         else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1mon') then
-            npthsin_month1=npthsin_month1+1
-            pathinput(p).intvl_path=npthsin_month1
-            ptin_month1(npthsin_month1)=p
-         else if ((pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1year') .or. &
-                   pathinput(p).constant_value .ne. miss_val_r) then
-            pathinput(p).no_intervals = 1
-            pathinput(p).interval = 'year'
-            npthsin_year1 = npthsin_year1 + 1
-            pathinput(p).intvl_path = npthsin_year1
-            ptin_year1(npthsin_year1) = p
-         else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
-            npthsin_irr = npthsin_irr + 1
-            pathinput(p).intvl_path = npthsin_irr
-            ptin_irr(npthsin_irr) = p
-         else                   ! unrecognized interval
-            write(unit_error,650) 'input', pathinput(p).no_intervals, trim(pathinput(p).interval)
-            write(*,*) "Error in get_dss_each_npath()"
-         endif
-         call upcase(pathinput(p).path) ! convert to upper case
-      end do
- 650  format(/'Unrecognized ',a,' data interval: ',i4,1x,a)
+         do p = 1,n_inputpaths
+            if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval .eq. '15min') then 
+               npthsin_min15 = npthsin_min15 + 1
+               pathinput(p).intvl_path = npthsin_min15
+            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1hour') then
+               npthsin_hour1=npthsin_hour1+1
+               pathinput(p).intvl_path=npthsin_hour1 
+            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1day') then
+               npthsin_day1=npthsin_day1+1
+               pathinput(p).intvl_path=npthsin_day1
+            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1week') then
+               npthsin_week1=npthsin_week1+1
+               pathinput(p).intvl_path=npthsin_week1
+            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1mon') then
+               npthsin_month1=npthsin_month1+1
+               pathinput(p).intvl_path=npthsin_month1
+            else if ((pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1year') .or. &
+                    pathinput(p).constant_value .ne. miss_val_r) then
+               pathinput(p).no_intervals = 1
+               pathinput(p).interval = 'year'
+               npthsin_year1 = npthsin_year1 + 1
+               pathinput(p).intvl_path = npthsin_year1
+            else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
+               npthsin_irr = npthsin_irr + 1
+               pathinput(p).intvl_path = npthsin_irr
+            else                   ! unrecognized interval
+               write(unit_error,650) 'input', pathinput(p).no_intervals, trim(pathinput(p).interval)
+               write(*,*) "Error in get_dss_each_npath()"
+            endif
+            call upcase(pathinput(p).path) ! convert to upper case
+         end do
+      
+         call allocate_datain()
+       
+         do p = 1,n_inputpaths
+             if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval .eq. '15min') then 
+                ptin_min15(npthsin_min15) = p
+             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1hour') then
+                ptin_hour1(npthsin_hour1)=p
+             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1day') then
+                ptin_day1(npthsin_day1)=p
+             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1week') then
+                ptin_week1(npthsin_week1)=p
+             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1mon') then
+                ptin_month1(npthsin_month1)=p
+             else if ((pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1year') .or. &
+                     pathinput(p).constant_value .ne. miss_val_r) then
+                ptin_year1(npthsin_year1) = p
+             else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
+                ptin_irr(npthsin_irr) = p
+             else                   ! unrecognized interval
+                write(*,*) "Error in get_dss_each_npath()"
+             endif
+         end do
+      
+ 650    format(/'Unrecognized ',a,' data interval: ',i4,1x,a)
  
-      return
+        return
     end subroutine  
       
       

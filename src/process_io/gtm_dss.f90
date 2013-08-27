@@ -4,6 +4,7 @@ module gtm_dss
 
     use common_dsm2_vars, only: dataqual_t
     
+    !----number of input paths for each time interval
     integer :: npthsin_min15
     integer :: npthsin_hour1
     integer :: npthsin_day1
@@ -11,22 +12,9 @@ module gtm_dss
     integer :: npthsin_month1
     integer :: npthsin_year1
     integer :: npthsin_irr
-      
-    integer, parameter :: max_inp_min = 100    ! maximum input paths for 15minute intervals
-    integer, parameter :: max_inp_hour = 100   ! maximum input paths for hour intervals
-    integer, parameter :: max_inp_day = 150    ! maximum input paths for day intervals
-    integer, parameter :: max_inp_week = 5     ! maximum input paths for week intervals
-    integer, parameter :: max_inp_month = 1000 ! maximum input paths for month intervals
-    integer, parameter :: max_inp_year = 3200 ! maximum input paths for year intervals !@todo was 10, changed because of constant
-    integer, parameter :: max_inp_irr = 250    ! maximum input paths for irregular intervals 
-    integer, parameter :: max_out_min = 1000   ! maximum output paths for 15minute intervals 
-    integer, parameter :: max_out_hour = 200   ! maximum output paths for hour intervals 
-    integer, parameter :: max_out_day = 1000   ! maximum output paths for day intervals 
-    integer, parameter :: max_out_week = 10    ! maximum output paths for week intervals 
-    integer, parameter :: max_out_month = 200  ! maximum output paths for month intervals 
-    integer, parameter :: max_out_year = 10    ! maximum output paths for year intervals      
     
-    !-----each of the following should be 2 or greater 
+    
+    !----each of the following should be 2 or greater 
     integer, parameter :: mins15 = 4*24*30     ! number of values in a 15MIN interval (30 days worth) 
     integer, parameter :: hrs = 24*30          ! 30 days of hourly values 
     integer, parameter :: dys = 35             ! NOTE: if you change these so that mins15 is no longer 
@@ -43,9 +31,9 @@ module gtm_dss
     type(dataqual_t), allocatable :: datain_month1(:,:)   ! monthly data 
     type(dataqual_t), allocatable :: datain_year1(:,:)    ! yearly data 
     type(dataqual_t), allocatable :: datain_irr(:,:)      ! irregular data block
-
     
-    !--pointer back to location in global pathinput structure
+    
+    !----pointer back to location in global pathinput structure
     integer, allocatable :: ptin_min15(:)
     integer, allocatable :: ptin_hour1(:)
     integer, allocatable :: ptin_day1(:)
@@ -53,9 +41,37 @@ module gtm_dss
     integer, allocatable :: ptin_month1(:)
     integer, allocatable :: ptin_year1(:)
     integer, allocatable :: ptin_irr(:)
+    
+    
+    !----runtime variables for dss_readtvd() subroutine
+    type(dataqual_t), allocatable :: last_value(:)
+    integer, allocatable :: last_ndx_next(:)
+
 
     contains
+ 
+ 
+    !> Allocate last_value array for the usage in gtm_dss_readtvd module
+    subroutine allocate_last_value(npaths)
+        implicit none
+        integer, intent(in) :: npaths     !< number of input paths 
+        allocate( last_value(npaths) )
+        allocate( last_ndx_next(npaths) )
+        last_ndx_next = 1
+        return
+    end subroutine    
     
+    
+    !> Deallocate last_value array for the usage in gtm_dss_readtvd module
+    subroutine deallocate_last_value()
+        implicit none
+        deallocate( last_value )
+        deallocate( last_ndx_next )
+        return
+    end subroutine    
+    
+    
+    !> Allocate datain arrays for the usage in gtm_dss_main module
     subroutine allocate_datain()
         implicit none
         allocate( datain_min15(mins15, npthsin_min15) )
@@ -64,8 +80,7 @@ module gtm_dss
         allocate( datain_week1(wks, npthsin_week1) )
         allocate( datain_month1(mths, npthsin_month1) )
         allocate( datain_year1(yrs, npthsin_year1) )
-        allocate( datain_irr(irrs, npthsin_irr) )
-        
+        allocate( datain_irr(irrs, npthsin_irr) )        
         allocate( ptin_min15(npthsin_min15))
         allocate( ptin_hour1(npthsin_hour1))
         allocate( ptin_day1(npthsin_day1))
@@ -75,5 +90,27 @@ module gtm_dss
         allocate( ptin_irr(npthsin_irr))        
         return 
     end subroutine
-        
+
+
+    !> Deallocate datain arrays for the usage in gtm_dss_main module
+    subroutine deallocate_datain()
+        implicit none
+        deallocate( datain_min15 )
+        deallocate( datain_hour1 )
+        deallocate( datain_day1 )
+        deallocate( datain_week1 )
+        deallocate( datain_month1 )
+        deallocate( datain_year1 )
+        deallocate( datain_irr )
+        deallocate( ptin_min15 )
+        deallocate( ptin_hour1 )
+        deallocate( ptin_day1 )
+        deallocate( ptin_week1 )
+        deallocate( ptin_month1 )
+        deallocate( ptin_year1 )
+        deallocate( ptin_irr )         
+        return
+    end subroutine
+            
+            
 end module

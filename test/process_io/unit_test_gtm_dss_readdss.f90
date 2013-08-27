@@ -11,7 +11,7 @@ module ut_gtm_dss_readdss
 
     use fruit
     use gtm_precision
-    use gtm_dss, only: mins15, irrs, max_inp_min, max_inp_irr
+    use gtm_dss, only: mins15, irrs
     use gtm_dss_open
     use gtm_dss_read
     
@@ -27,10 +27,12 @@ module ut_gtm_dss_readdss
         integer :: inpaths_dim
         integer :: block_dim
         integer :: num_dssfiles
+        integer, parameter :: ninpath_15min = 1
+        integer, parameter :: ninpath_irr = 1
         character(len=130) :: indssfilenames(1)
         character*8 :: per_type
-        type(dataqual_t) :: indata_15min(max_inp_min, mins15)
-        type(dataqual_t) :: indata_irr(max_inp_irr, irrs)
+        type(dataqual_t) :: indata_15min(ninpath_15min, mins15)
+        type(dataqual_t) :: indata_irr(ninpath_irr, irrs)
 
         allocate(pathinput(2))
         
@@ -55,18 +57,16 @@ module ut_gtm_dss_readdss
         pathnumber = 1       
         call readdss (pathnumber,    & 
                       jmin,          &
-                      max_inp_min,   &
+                      ninpath_15min, &
                       mins15,        &
                       indata_15min,  &
                       per_type)    
-        call assertEquals (indata_15min(2,1)%data, dble(1.8628), weakest_eps, "problem in readdss indata_15min(2,1)")
-        call assertEquals (indata_15min(100,1)%data, dble(1.9398), weakest_eps, "problem in readdss indata_15min(100,1)")
-        call assertEquals (indata_15min(1,2)%data, dble(1.8795), weakest_eps, "problem in readdss indata_15min(1,2)")
+        call assertEquals (indata_15min(1,2)%data, dble(1.8628), weakest_eps, "problem in readdss indata_15min(2,1)")
         
         pathnumber = 2
         call readdss (pathnumber,    & 
                       jmin,          &
-                      max_inp_irr,   &
+                      ninpath_irr,   &
                       irrs,          &
                       indata_irr,    &
                       per_type)          

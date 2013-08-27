@@ -241,6 +241,7 @@ module common_dsm2_vars
        integer :: ninpaths = 0
        integer :: n_inputpaths = 0          ! total number of input paths (constant + DSS)
        type(pathinput_t), allocatable :: pathinput(:)
+       
        logical :: dss_direct = .false.
        logical :: binary_output = .false.    
        logical :: check_input_data          ! true to warn about bad data
