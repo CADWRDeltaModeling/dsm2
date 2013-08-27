@@ -5,14 +5,13 @@ module ut_gtm_dss_main
 
     use fruit
  
-    
     contains
     
     subroutine test_dss_main
         use gtm_dss
         use gtm_dss_open
         use gtm_dss_main   
-        use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t, &
+        use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t,              &
                                     julmin, prev_julmin, start_julmin, end_julmin, &
                                     per_type_inst_val, n_inputpaths
         implicit none
@@ -76,14 +75,14 @@ module ut_gtm_dss_main
         npthsin_month1 = 1
         npthsin_irr = 1
         !npthsin_year1 = 1        
-    
+       
+        call allocate_datain
+        
         ptin_min15(1) = 1        
         ptin_irr(1) = 2        
         ptin_hour1(1) = 3
         ptin_day1(1) = 4
         ptin_month1(1) = 5
-        
-        call setup_indata_arr
          
         call opendss(ifltab_in, num_dssfiles, indssfilenames)       
         
@@ -91,6 +90,7 @@ module ut_gtm_dss_main
         prev_jmin = jmin - 15
         call get_inp_value(jmin, prev_jmin)
         
+        call deallocate_datain 
         return
     end subroutine
     

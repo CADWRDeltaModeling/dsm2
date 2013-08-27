@@ -277,7 +277,7 @@ module buffer_gtm_input_qual
             call upcase(pathinput(p).path) ! convert to upper case
          end do
       
-         call allocate_datain()
+         call allocate_datain
        
          do p = 1,n_inputpaths
              if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval .eq. '15min') then 
