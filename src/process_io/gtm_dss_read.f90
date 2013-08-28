@@ -3,6 +3,10 @@
 !> Define arrays to be used as buffers for data values, data
 !> quality flags from DSS, and julian minute timestamp.
 !> Use one array for each kind of data interval for DSS.
+!> This module is borrowed from DSM2/time_var project with 
+!> slight modification. This module was originally developed
+!> by Ralph Finch in 1996.
+!>@ingroup process_io
 module gtm_dss_read
 
     use gtm_dss
@@ -55,13 +59,12 @@ module gtm_dss_read
        real*4 :: values(maxinpsize)        & ! data values 
                  ,headu                      ! data headers
 
-       character &
-           csdt*14 &             ! date/time for start of data 
-           ,csdate*9 &           ! starting date of data block 
-           ,cstime*4 &           ! starting time of data block 
-           ,cedt*14 &            ! nominal ending datetime of data block 
-           ,cunits*8 &
-           ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 !
+       character :: csdt*14,     &           ! date/time for start of data 
+                    csdate*9,    &           ! starting date of data block 
+                    cstime*4,    &           ! starting time of data block 
+                    cedt*14,     &           ! nominal ending datetime of data block 
+                    cunits*8,    &
+                    ca*32, cb*32, cc*32, cd*32, ce*32, cf*32 !
 
        data lflags /.true./ &     ! get data flags 
            ,kheadu /0/ &         ! don't get data headers 

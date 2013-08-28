@@ -1,11 +1,11 @@
 
 
-
-!> Retrieve time-varying data from dSS, if necessary, process
+!> Retrieve time-varying data from DSS, if necessary, process
 !> further (interpolate, fillin missing, ...)
 !> This module is borrowed from DSM2/time_var project with 
 !> slight modification. This module was originally developed
-!> by Ralph Finch and last modified in September 1996.
+!> by Ralph Finch in 1996.
+!>@ingroup process_io
 module gtm_dss_readtvd
 
     contains
@@ -626,7 +626,7 @@ module gtm_dss_readtvd
            endif
            if (.not. cont_unchecked) then
               write(unit_error,*) 'Fatal error.'
-              call exit(2)
+              !call exit(2)        !todo:: temporarily comment out by ehsu. Why it gets here? need to ask Ralph.
            else if (warn_unchecked) then
               write(unit_error,*) 'Using current value.'
            endif

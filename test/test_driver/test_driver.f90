@@ -77,11 +77,11 @@ program test_driver
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     call test_time_util
-    call test_input_storage  
     call test_readdss  
     call test_readtvd
-    !call test_dss_main
-           
+    call test_dss_main
+    call test_input_storage             
+    
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     open(debug_unit, file = "debug_unit.txt")            !< output text file

@@ -1,5 +1,7 @@
 
-
+!> This module contains dss related variables and functions
+!> to allocate/deallocate arrays.
+!>@ingroup process_io
 module gtm_dss
 
     use common_dsm2_vars, only: dataqual_t
@@ -47,10 +49,8 @@ module gtm_dss
     type(dataqual_t), allocatable :: last_value(:)
     integer, allocatable :: last_ndx_next(:)
 
-
     contains
- 
- 
+  
     !> Allocate last_value array for the usage in gtm_dss_readtvd module
     subroutine allocate_last_value(npaths)
         implicit none
@@ -111,6 +111,5 @@ module gtm_dss
         deallocate( ptin_irr )         
         return
     end subroutine
-            
-            
+                       
 end module

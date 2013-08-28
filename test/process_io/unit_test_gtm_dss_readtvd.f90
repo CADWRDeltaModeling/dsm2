@@ -1,6 +1,7 @@
 
-!> This module contains unit test for readtvd() function, which is used
-!> to retrieve time-varing data from DSS file.
+!> This module contains unit test for readtvd() 
+!> function, which is used to retrieve time-varing
+!> data from DSS file.
 !>@ingroup test_process_io
 module ut_gtm_dss_readtvd
 
@@ -92,6 +93,7 @@ module ut_gtm_dss_readtvd
         inpath_ptr_1day(1) = 4
         inpath_ptr_1mon(1) = 5
         
+        allocate(ifltab_in(600, num_dssfiles ))    
         call opendss(ifltab_in, num_dssfiles, indssfilenames)
 
         !---- test for 15 min data ----
@@ -145,6 +147,7 @@ module ut_gtm_dss_readtvd
                 
         call zclose(ifltab_in)
         deallocate(pathinput)
+        deallocate(ifltab_in) 
         n_inputpaths = 0
         return
     end subroutine

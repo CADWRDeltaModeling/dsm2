@@ -1,6 +1,7 @@
 
 
 
+!>@ingroup process_io
 module gtm_rate_coeff_assignment
 
     use common_variables

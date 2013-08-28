@@ -211,10 +211,10 @@ module buffer_gtm_input_qual
          !end do
          !print *,"Number of reservoir concentration (source track) output requests: ", nitem
       
-         call get_dss_each_npath
          allocate(indssfiles(n_dssfiles))
          indssfiles = infilenames
          allocate(ifltab_in(600, n_dssfiles))
+         call get_dss_each_npath         
          return
 
 !120   write(unit_error,*)"Failed to convert channel length from text to integer:" /   &

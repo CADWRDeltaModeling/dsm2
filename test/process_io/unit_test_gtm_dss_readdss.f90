@@ -49,7 +49,8 @@ module ut_gtm_dss_readdss
         
         num_dssfiles = 1
         indssfilenames(1) = pathinput(1)%filename
-        
+
+        allocate(ifltab_in(600,num_dssfiles ))                
         call opendss(ifltab_in, num_dssfiles, indssfilenames)       
         
         jmin = 48422520       ! 24JAN1992 1800
@@ -74,7 +75,7 @@ module ut_gtm_dss_readdss
          
         call zclose(ifltab_in)
         deallocate(pathinput)
-        
+        deallocate(ifltab_in) 
         return
     end subroutine
 

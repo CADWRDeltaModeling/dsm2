@@ -1,6 +1,6 @@
 
 !> Test routines of time functionalities
-!>@ingroup test_gtm_core
+!>@ingroup test_process_io
 module ut_time_utilities
 
     use fruit

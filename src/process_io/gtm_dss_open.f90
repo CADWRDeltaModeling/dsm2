@@ -1,6 +1,6 @@
 
-
-
+!> This module is used to open DSS file.
+!>@ingroup process_io
 module gtm_dss_open
 
     contains
@@ -9,6 +9,7 @@ module gtm_dss_open
     subroutine opendss(ifltab,        & ! ifltab_in
                        num_dssfiles,  & ! number of dss files
                        dssfilenames)    ! dss filenames
+                       
         use common_variables, only : unit_error
         implicit none
         integer, intent(in):: num_dssfiles

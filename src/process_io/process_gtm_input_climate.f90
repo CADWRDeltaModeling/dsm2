@@ -17,8 +17,6 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
-
-
 !>@ingroup process_io
 module process_gtm_input_climate
 
