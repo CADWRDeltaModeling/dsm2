@@ -27,6 +27,8 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\process_io\buffer_gtm_input_common.f90"/>
 		<File RelativePath="..\..\src\process_io\buffer_gtm_input_qual.f90"/>
+		<File RelativePath="..\..\src\process_io\codes_conv_objno.f90">
+			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\..\src\process_io\common_dsm2_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_qual.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_vars.f90"/>
@@ -37,12 +39,14 @@
 		<File RelativePath="..\..\src\process_io\gtm_dss_readtvd.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_rate_coeff_assignment.f90"/>
 		<File RelativePath="..\..\src\process_io\io_utilities.f90"/>
+		<File RelativePath="..\..\src\process_io\codes_conv_nonconservative.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_input.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_input_climate.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_io_file.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_node_conc.f90"/>
-		<File RelativePath="..\..\src\process_io\process_gtm_rate_coef.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_rate_coef.f90">
+			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\..\src\process_io\process_gtm_reservoir_conc.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_scalar.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_tidefile.f90"/>

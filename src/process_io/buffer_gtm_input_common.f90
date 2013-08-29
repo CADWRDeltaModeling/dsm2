@@ -32,6 +32,7 @@ module buffer_gtm_input_common
       use process_gtm_scalar
       use process_gtm_io_file
       use process_gtm_tidefile
+      use process_gtm_groups
       use time_utilities
       
       implicit none

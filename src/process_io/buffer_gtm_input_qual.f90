@@ -23,15 +23,20 @@ module buffer_gtm_input_qual
 
     contains
     
+    !> Buffer input for temporal data (climate data, node concentration, 
+    !> reservoir concentration) and spatial data (rate coefficient)
     subroutine buffer_input_qual()
         use input_storage_fortran
         use process_gtm_input_climate 
         use process_gtm_node_conc
+        !use process_gtm_rate_coef
         use common_dsm2_vars, only: pathinput, n_inputpaths,infilenames, &
                                     n_dssfiles, indssfiles, ifltab_in
+        use gtm_dss, only: get_dss_each_npath
       
         implicit none
         integer :: nitem_climate, nitem_node_conc, nitem_resv_conc
+        integer :: nitem_rate_coeff
         character*(128) :: filename
         integer :: icount
         character*(32) :: name
@@ -69,26 +74,23 @@ module buffer_gtm_input_qual
         integer :: sign
         integer :: node      
       
-        ! output_gate
-        character*32 :: gate, device
         character*(16) :: sdate,edate  
 
-        !======================== Input and output ======================
-        !nitem = rate_coefficient_buffer_size()
-        !do icount = 1,nitem
-        !   call rate_coefficient_query_from_buffer(icount,      &
-        !                                          group_name,   &
-        !                                          constituent,  &
-        !                                          variable,     &
-        !                                          value,        &
-        !                                          ierror) 
-        !   sign = 1
+        nitem_rate_coeff = rate_coefficient_buffer_size()
+        do icount = 1,nitem_rate_coeff
+           call rate_coefficient_query_from_buffer(icount,      &
+                                                  group_name,   &
+                                                  constituent,  &
+                                                  variable,     &
+                                                  value,        &
+                                                  ierror) 
+           sign = 1
         !   call process_rate_coef(group_name,     &
         !                          constituent,    &
         !                          variable,       &
         !                          value) 
-        !end do
-        !print *,"Number of rate coefficients processed: ", nitem
+        end do
+        print *,"Number of rate coefficients processed: ", nitem_rate_coeff
 
 
         nitem_climate = input_climate_buffer_size()
@@ -146,164 +148,22 @@ module buffer_gtm_input_qual
                                                            inpath,    &
                                                            ierror)
             sign=0
-         !   call process_input_reservoir(name,       &
-         !                                resname,    &
-         !                                variable,   & 
-         !                                sign,       &
-         !                                fillin,     &
-         !                                filename,   &
-         !                                inpath)
+         !  call process_input_reservoir(name,       &
+         !                               resname,    &
+         !                               variable,   & 
+         !                               sign,       &
+         !                               fillin,     &
+         !                               filename,   &
+         !                               inpath)
          end do
          print *,"Number of reservoir concentration inputs processed: ", nitem_resv_conc
 
-         !nitem = output_channel_source_track_buffer_size()
-         !do icount = 1,nitem
-         !   call output_channel_source_track_query_from_buffer(icount,       &
-         !                                                      name,         &
-         !                                                      channo,       &
-         !                                                      distance,     &
-         !                                                      variable,     &
-         !                                                      sourcegroup,  &  
-         !                                                      interval,     &
-         !                                                      perop,        &
-         !                                                      filename,     &
-         !                                                      ierror)
-         !   call locase(sourcegroup)
-         !   if (sourcegroup .eq. "none")sourcegroup = ""
-         !   call locase(distance)
-         !   if (distance(:6) .eq. "length") then 
-         !      idistance = chan_length
-         !   else 
-         !      read(distance,'(i)',err=120)idistance
-         !   end if
-         !   call process_output_channel(name,           &
-         !                               channo,         &
-         !                               idistance,      &
-         !                               variable,       &
-         !                               interval,       &
-         !                               perop,          &
-         !                               sourcegroup,    &
-         !                               filename)
-         !end do
-         !print *,"Number of concentration (source track) channel output requests: ", nitem
-
-
-         !nitem = output_reservoir_source_track_buffer_size()
-         !do icount = 1,nitem
-         !   call output_reservoir_source_track_query_from_buffer(icount,       &
-         !                                                        name,         &
-         !                                                        reservoir,    &
-         !                                                        variable,     &
-         !                                                        sourcegroup,  &      
-         !                                                        interval,     &
-         !                                                        perOp,        &
-         !                                                        filename,     &
-         !                                                        ierror) 
-         !if (sourcegroup .eq. "none")sourcegroup = ""
-         !     call process_output_reservoir(name,          &
-         !                                   reservoir,     &
-         !                                   miss_val_i,    &
-         !                                   variable,      &
-         !                                   interval,      &
-         !                                   perOp,         &
-         !                                   sourceGroup,   &
-         !                                   filename) 
-         !end do
-         !print *,"Number of reservoir concentration (source track) output requests: ", nitem
-      
          allocate(indssfiles(n_dssfiles))
          indssfiles = infilenames
          allocate(ifltab_in(600, n_dssfiles))
          call get_dss_each_npath         
          return
 
-!120   write(unit_error,*)"Failed to convert channel length from text to integer:" /   &
-!         "Valid entries are an integer or 'length' (case sensitive)" /                &
-!         "Output name: ", name,                                                       &
-!         "Channel: ",channo, ", " , "Distance: " , distance
-!      call exit(-3)
-!      return
-    end subroutine
-        
-
-    !> Create DSS input pathnames, check for sign change for each path
-    subroutine get_dss_each_npath()
-    
-         use gtm_dss
-         use common_dsm2_vars, only: pathinput, n_inputpaths, miss_val_r
-         use common_variables, only: unit_error
-        
-         implicit none
-
-         integer :: p
-        
-         npthsin_min15 = 0
-         npthsin_hour1 = 0
-         npthsin_day1 = 0
-         npthsin_week1 = 0
-         npthsin_month1 = 0
-         npthsin_year1 = 0
-         npthsin_irr = 0
-
-         do p = 1,n_inputpaths
-            if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval .eq. '15min') then 
-               npthsin_min15 = npthsin_min15 + 1
-               pathinput(p).intvl_path = npthsin_min15
-            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1hour') then
-               npthsin_hour1=npthsin_hour1+1
-               pathinput(p).intvl_path=npthsin_hour1 
-            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1day') then
-               npthsin_day1=npthsin_day1+1
-               pathinput(p).intvl_path=npthsin_day1
-            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1week') then
-               npthsin_week1=npthsin_week1+1
-               pathinput(p).intvl_path=npthsin_week1
-            else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1mon') then
-               npthsin_month1=npthsin_month1+1
-               pathinput(p).intvl_path=npthsin_month1
-            else if ((pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1year') .or. &
-                    pathinput(p).constant_value .ne. miss_val_r) then
-               pathinput(p).no_intervals = 1
-               pathinput(p).interval = 'year'
-               npthsin_year1 = npthsin_year1 + 1
-               pathinput(p).intvl_path = npthsin_year1
-            else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
-               npthsin_irr = npthsin_irr + 1
-               pathinput(p).intvl_path = npthsin_irr
-            else                   ! unrecognized interval
-               write(unit_error,650) 'input', pathinput(p).no_intervals, trim(pathinput(p).interval)
-               write(*,*) "Error in get_dss_each_npath()"
-            endif
-            call upcase(pathinput(p).path) ! convert to upper case
-         end do
-      
-         call allocate_datain
-       
-         do p = 1,n_inputpaths
-             if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval .eq. '15min') then 
-                ptin_min15(npthsin_min15) = p
-             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1hour') then
-                ptin_hour1(npthsin_hour1)=p
-             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1day') then
-                ptin_day1(npthsin_day1)=p
-             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1week') then
-                ptin_week1(npthsin_week1)=p
-             else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1mon') then
-                ptin_month1(npthsin_month1)=p
-             else if ((pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1year') .or. &
-                     pathinput(p).constant_value .ne. miss_val_r) then
-                ptin_year1(npthsin_year1) = p
-             else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
-                ptin_irr(npthsin_irr) = p
-             else                   ! unrecognized interval
-                write(*,*) "Error in get_dss_each_npath()"
-             endif
-         end do
-      
- 650    format(/'Unrecognized ',a,' data interval: ',i4,1x,a)
- 
-        return
-    end subroutine  
-      
+    end subroutine      
       
 end module      

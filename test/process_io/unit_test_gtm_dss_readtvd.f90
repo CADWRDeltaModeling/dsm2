@@ -149,6 +149,7 @@ module ut_gtm_dss_readtvd
         deallocate(pathinput)
         deallocate(ifltab_in) 
         n_inputpaths = 0
+        
         return
     end subroutine
         

@@ -177,24 +177,6 @@ module process_gtm_scalar
             read(Val, '(i5)', err=810) print_level
       elseif (Param .eq. 'temp_dir') then
          temp_dir=Val
-      elseif (Param .eq. 'checkdata') then
-         read(Val, '(l2)', err=810) check_input_data
-      elseif (Param .eq. 'cont_missing') then
-         read(Val, '(l2)', err=810) cont_missing
-      elseif (Param .eq. 'cont_unchecked') then
-         read(Val, '(l2)', err=810) cont_unchecked
-      elseif (Param .eq. 'cont_question') then
-         read(Val, '(l2)', err=810) cont_question
-      elseif (Param .eq. 'cont_bad') then
-         read(Val, '(l2)', err=810) cont_bad
-      elseif (Param .eq. 'warn_missing') then
-         read(Val, '(l2)', err=810) warn_missing
-      elseif (Param .eq. 'warn_unchecked') then
-         read(Val, '(l2)', err=810) warn_unchecked
-      elseif (Param .eq. 'warn_question') then
-         read(Val, '(l2)', err=810) warn_question
-      elseif (Param .eq. 'warn_bad') then
-         read(Val, '(l2)', err=810) warn_bad
       elseif (Param .eq. 'repeating_tide') then
          write(unit_error,610)"repeating_tide is deprecated"         
       elseif (Param .eq. 'warmup_run') then

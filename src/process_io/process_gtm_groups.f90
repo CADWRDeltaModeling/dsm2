@@ -57,7 +57,7 @@ module process_gtm_groups
       character*32 :: groupname
       integer :: membertype
       character*32 :: pattern
-      integer, external :: name_to_objno
+      !integer, external :: name_to_objno
       integer :: groupNdx = miss_val_i
       integer :: npattern = miss_val_i
       call locase(groupname)
@@ -66,7 +66,7 @@ module process_gtm_groups
             write(unit_error, *)"Subgroups not supported"
 	      call exit(-2)
       end if
-      groupNdx = name_to_objno(obj_group,groupname)
+      !groupNdx = name_to_objno(obj_group,groupname)
       npattern = groupArray(GroupNdx).nMemberPatterns + 1
       if (npattern .gt. MAX_MEMBER_PATTERNS) then
 	   write(unit_error,*)"Maximum number of member patterns exceeded for group"

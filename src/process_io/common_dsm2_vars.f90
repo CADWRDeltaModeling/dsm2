@@ -244,30 +244,10 @@ module common_dsm2_vars
        
        logical :: dss_direct = .false.
        logical :: binary_output = .false.    
-       logical :: check_input_data          ! true to warn about bad data
-       logical :: cont_missing              ! true to warn about bad data
-       logical :: cont_unchecked            ! true to warn about bad data
-       logical :: cont_question             ! true to warn about bad data
-       logical :: cont_bad                  ! true to warn about bad data
-       logical :: warn_missing              ! true to warn about bad data
-       logical :: warn_unchecked            ! true to warn about bad data
-       logical :: warn_question             ! true to warn about bad data
-       logical :: warn_bad                  ! true to warn about bad data
        logical :: output_comp_pt            ! true to output results at computational points
        
        character(len=14), parameter :: generic_date = '01JAN3001 0000' ! generic date/time start
-       integer, parameter :: screened_data  = 100
-       integer, parameter :: good_data = 101
-       integer, parameter :: missing_data = 102
-       integer, parameter :: question_data = 103
-       integer, parameter :: reject_data = 104
-       integer, parameter :: miss_or_rej_data = 110                     
-       integer, parameter :: screened_bit = 0
-       integer, parameter :: good_bit = 1
-       integer, parameter :: missing_bit = 2
-       integer, parameter :: question_bit = 3                   
-       integer, parameter :: reject_bit = 4
-    
+
      !> From DSM2/common/logging.f
        integer, parameter :: LOG_ERROR = 0
        integer, parameter :: LOG_WARNING = 1

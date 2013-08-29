@@ -29,10 +29,13 @@ module process_gtm_rate_coef
                                  constituent,    &
                                  rate_variable,  &
                                  rate_value)            
+                                 
 	  use common_dsm2_groups, only: groupContains, IsAllChannelReservoir, groupArray
 	  use gtm_rate_coeff_assignment
       use common_dsm2_vars
       use common_dsm2_qual
+      use codes_conv_nonconservative
+      
       implicit none
       character*16 :: rate_variable,constituent 
       character*32 :: group_name
@@ -44,8 +47,8 @@ module process_gtm_rate_coef
       integer :: istat
       integer, external :: name_to_objno
       real*8  :: rate_value
-      integer,external :: rate_variable_code
-      integer,external :: ncc_code
+      !integer,external :: rate_variable_code
+      !integer,external :: ncc_code
       integer :: ichan,ires
 
       call locase(group_name)      
@@ -93,7 +96,6 @@ module process_gtm_rate_coef
 	     end if
 200   end do
             
-   	  !do 300 ires = 1, nreser
    	  do 300 ires = 1, n_resv
           if(GroupContains(groupno,obj_reservoir,ires)) then
               rcoef_res(ncc_id,rate_var_id,ires)=rate_value

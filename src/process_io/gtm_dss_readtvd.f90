@@ -83,17 +83,6 @@ module gtm_dss_readtvd
        
         call allocate_last_value(n_inputpaths)
 
- 610    format(/a,' data in path:'/a &
-              /' At data time: ',a,' model time: ',a &
-              /' Using replacement value of ',1p g10.3,' from ',a, &
-              /' or a lower priority path')
- 615    format(/'Missing or rejected data for interpolation in path:'/a &
-              /' At data time: ',a,' model time: ',a &
-              /' Using replacement value of ',1p g10.3,' from ',a)
- 611    format(/'Missing or rejected data in path:' &
-              /' ',a &
-              /' at data time: ',a,' model time: ',a &
-              /' Cannot continue.')
  613    format(/'Software error in readtvd: Bad ndx_prev_curr for path:' &
               /' ',a &
               /' at data time: ',a,' model time: ',a &
@@ -107,23 +96,20 @@ module gtm_dss_readtvd
  625    format(/'Error in reading time-varying data:' &
               /'Current time is ',a,'; all data times for '/a &
               /' are before this time.')
- 626    format(/'Error in reading time-varying data:' &
-              /'Current time is ',a,'; data synchronization request for '/a &
-              /' could not be satisfied.')
  630    format(/'Unrecognized data period type: ',a &
               /' for path: ',a)
 
         !-----Check if new data needs to be read from DSS to arrays
         do i = 1,inpaths_dim
-            ptr=inpath_ptr(i)
-            pathinput(ptr)%replace=.false.
+            ptr = inpath_ptr(i)
+            pathinput(ptr)%replace = .false.
             if (pathinput(ptr)%constant_value == miss_val_r) then ! get value from dss file
                if ( (jmin+pathinput(ptr)%diff_julmin >= &
                    indata(block_dim,i)%julmin ) .or. &
                    prev_jmin == start_julmin) then
-                   js_data=jmin+pathinput(ptr)%diff_julmin
-                   call readdss(ptr,js_data,inpaths_dim,block_dim,indata, &
-                        per_type)
+                   js_data = jmin+pathinput(ptr)%diff_julmin
+                   call readdss(ptr, js_data, inpaths_dim, block_dim, & 
+                                indata, per_type)
                    if (per_type == ' ') then ! none, assume instantaneous
                       pathinput(ptr)%per_type=per_type_inst_val
                    else if (per_type == per_type_names(per_type_inst_val)) then
@@ -153,19 +139,10 @@ module gtm_dss_readtvd
                pathinput(ptr)%value=pathinput(ptr)%constant_value
                tmpval%data=pathinput(ptr)%value
                tmpval%flag=pathinput(ptr)%value_flag
-               call set_dataqual(tmpval,good_data)
                pathinput(ptr)%value_flag=tmpval%flag
                goto 100
             endif
 
-            !----use value from DSS file
-            !----should this path's value be interpolated?
-            !----don't interpolate if not requested or gate values
-            !         if (
-            !     &        pathinput(ptr)%fillin .eq. fill_interp
-            !     &        .and. pathinput(ptr)%per_type .ne. per_type_inst_val) then
-            !         print*,pathinput(ptr)%name, " is weird"
-            !         end if
             interpolate_value=(pathinput(ptr)%fillin == fill_interp .or. &
                (pathinput(ptr)%fillin == fill_bydata .and. &
                (pathinput(ptr)%per_type == per_type_inst_val .or. &
@@ -212,8 +189,7 @@ module gtm_dss_readtvd
             !----data), turn off interpolation and try to replace this value
             !----later
             if (interpolate_value .and. &
-               (check_dataqual(indata(ndx_next,i),miss_or_rej_data) .and. &
-                pathinput(ptr)%start_date /= generic_date)) then
+                (pathinput(ptr)%start_date /= generic_date)) then
                 interpolate_value = .false.
                 pathinput(ptr)%replace = .true.
             endif
@@ -244,107 +220,32 @@ module gtm_dss_readtvd
             ndx = getndx(jmin, jul_next, jul_prev_curr, ndx_next, &
                   ndx_prev_curr, pathinput(ptr)%per_type, interpolate_value)
 
-            indata_tmp=indata(ndx,i) ! in case indata missing value is replaced later
+            indata_tmp = indata(ndx,i) ! in case indata missing value is replaced later
 
             !----initialize last_value to use for missing data
             if (prev_jmin == start_julmin) then
-                last_value(ptr)%data=miss_val_r
-                call set_dataqual(last_value(ptr),reject_data)
+                last_value(ptr)%data = miss_val_r
             endif
 
             !----for interpolated value, need second value
             if (interpolate_value) then
                if (ndx == ndx_next) then
-                   ndx2=ndx_prev_curr
+                   ndx2 = ndx_prev_curr
                else
-                   ndx2=ndx_next
+                   ndx2 = ndx_next
                endif
-               jul=indata(ndx,i)%julmin
-               jul2=indata(ndx2,i)%julmin
-               timediff_dat=jul2-jul
-               timediff_val=jmin - (jul-pathinput(ptr)%diff_julmin)
-               tmpval=indata(ndx2,i)
-               val1=indata(ndx,i)%data
-               val2=indata(ndx2,i)%data
+               jul = indata(ndx,i)%julmin
+               jul2 = indata(ndx2,i)%julmin
+               timediff_dat = jul2-jul
+               timediff_val = jmin - (jul-pathinput(ptr)%diff_julmin)
+               tmpval = indata(ndx2,i)
+               val1 = indata(ndx,i)%data
+               val2 = indata(ndx2,i)%data
             endif
-            jul_next=indata(ndx_next,i)%julmin
-            jul_prev_curr=indata(ndx_prev_curr,i)%julmin
+            jul_next = indata(ndx_next,i)%julmin
+            jul_prev_curr = indata(ndx_prev_curr,i)%julmin
 
-            !----check for questionable, missing, or rejected data
-            if (check_dataqual(indata(ndx,i),question_data) .or. &
-                check_dataqual(indata(ndx,i),miss_or_rej_data)) then ! bad data...
-                datetime1=jmin2cdt(jul_prev_curr)
-               !-----continue if user requests it and good data is available
-               !-----to fill in; or continue if the path is part of a priority list
-               !-----(a last check will be made for bogus data just before use)
-               if ( (cont_question .or. cont_missing) .and. &
-                   (.not. check_dataqual(last_value(ptr),question_data) .and. &
-                   .not. check_dataqual(last_value(ptr),miss_or_rej_data))  &
-                   ) then
-                  if (warn_question .and. &
-                      check_dataqual(indata(ndx,i),question_data) .and. &
-                      .not. check_dataqual(last_value(ptr),miss_or_rej_data)) then
-                      datetime2=jmin2cdt(last_value(ptr)%julmin)
-                      write(unit_screen, 610) &
-                         'Questionable', &
-                         trim(pathinput(ptr)%path), &
-                         datetime1,current_date,last_value(ptr)%data, &
-                         datetime2
-                  endif
-                  if ( warn_missing .and. &
-                      check_dataqual(indata(ndx,i),miss_or_rej_data) .and. &
-                      .not. check_dataqual(last_value(ptr),miss_or_rej_data)) then
-                      datetime2=jmin2cdt(last_value(ptr)%julmin)
-                      write(unit_screen, 610) &
-                          'Missing or rejected', &
-                         trim(pathinput(ptr)%path), &
-                         datetime1,current_date,last_value(ptr)%data, &
-                         datetime2
-                  endif
-                  pathinput(ptr)%replace=.true. ! later try to replace this
-                  indata(ndx,i)=last_value(ptr)
-                  if (interpolate_value) then
-                     val1=indata(ndx,i)%data
-                  endif
-               else                ! don't continue on quest/miss/rej data, and no replacement data available
-                     write(unit_error, 611) &
-                         trim(pathinput(ptr)%path), &
-                        datetime1,current_date
-                     call exit(2)
-               endif
-            endif
-
-            !----check for missing data of other index
-            if (interpolate_value .and. check_dataqual(tmpval,miss_or_rej_data)) then
-            !-----if generic date, missing value means recycle to first value
-            !-----assume that the full range of data can fit into a data block
-               if (pathinput(ptr)%start_date == generic_date) then
-                  val2=indata(1,i)%data
-               else                ! not generic
-                  datetime1=jmin2cdt(jul2)
-                  !------continue if user requests it and good data is available
-                  !------to fill in, or the path is for replacement only
-                  if ( (cont_missing .and. &
-                      .not. check_dataqual(last_value(ptr),miss_or_rej_data))  &
-                     ) then
-                     pathinput(ptr)%replace=.true. ! later try to replace this
-                     val2=last_value(ptr)%data
-                     if (warn_missing) then
-                        datetime2=jmin2cdt(last_value(ptr)%julmin)
-                        write(unit_screen, 615) &
-                            trim(pathinput(ptr)%path), &
-                            datetime1,current_date,last_value(ptr)%data, &
-                            datetime2
-                     endif
-                  else
-                     write(unit_error, 611) &
-                         trim(pathinput(ptr)%path), &
-                         datetime1,current_date
-                     call exit(2)
-                  endif
-               endif
-            endif
-            last_value(ptr)=indata(ndx,i) ! in case we wish to replace missing data
+            last_value(ptr) = indata(ndx,i) ! in case we wish to replace missing data
  
             if (interpolate_value) then
                !---interpolate to end of time step
@@ -370,9 +271,9 @@ module gtm_dss_readtvd
             endif
             !---change value if desired
             if (pathinput(ptr)%value_in == pathinput(ptr)%value) &
-                pathinput(ptr)%value=pathinput(ptr)%value_out
+                pathinput(ptr)%value = pathinput(ptr)%value_out
   
-            last_ndx_next(ptr)=ndx_next
+            last_ndx_next(ptr) = ndx_next
   
          enddo
 
@@ -507,148 +408,20 @@ module gtm_dss_readtvd
     end function
 
 
-    !> Find first missing value in data vector for path
-    integer function find_miss(indata, path, max_v, max_paths)
-        use common_dsm2_vars
-        implicit none 
-        integer :: max_v                            ! path index
-        integer :: max_paths                        ! path index
-        integer :: path                             ! path index
-
-        type(dataqual_t) :: indata(max_v,max_paths) ! input data structure array
-
-        do find_miss = 1, max_v
-           if (check_dataqual(indata(find_miss,path),miss_or_rej_data)) return
-        enddo
-
-        find_miss = max_v
-
-        return
-    end function
-    
-    
-    !> Check the quality of data.
-    logical function check_dataqual(value, qualflag)
-        use common_dsm2_vars
-        implicit none
-        type(dataqual_t) :: value          ! data value to be tested [INPUT]
-        integer :: qualflag                ! type of quality flag to check [INPUT]
-        logical :: btest                   ! external bit checking function
-
-        if (qualflag == screened_data) then
-           check_dataqual=btest(value%flag,screened_bit) .or. &
-               value%data == -901. .or. &  ! missing data is considered as screened &
-               value%data == -902.
-        else if (qualflag == good_data) then
-           check_dataqual=btest(value%flag,good_bit)
-        else if (qualflag == missing_data) then
-           check_dataqual=value%data == -901. .or. &
-               value%data == -902. .or. &
-               btest(value%flag,missing_bit)
-        else if (qualflag == question_data) then
-           check_dataqual=btest(value%flag,question_bit)
-        else if (qualflag == reject_data) then
-           check_dataqual=btest(value%flag,reject_bit)
-        else if (qualflag == miss_or_rej_data) then
-           check_dataqual=value%data == -901. .or. &
-               value%data == -902. .or. &
-               btest(value%flag,missing_bit) .or. &
-               btest(value%flag,reject_bit)
-        else                                ! unknown incoming flag
-           write(unit_error,*) 'Software error in check_dataqual; ', &
-               'unknown qualflag value: ', qualflag
-        endif
-        return
-    end function
-
-
-    !> Set the quality data flags.
-    subroutine set_dataqual(value, qualflag)
-        use common_dsm2_vars
-        implicit none
-  
-        type(dataqual_t):: value     ! data value to be set [INPUT, OUTPUT]
-        integer :: qualflag          ! type of quality flag to check [INPUT]
-
-        value%flag = and(value%flag,0)
-        value%flag = ibset(value%flag,screened_bit)
-        if (qualflag == good_data) then
-           value%flag = ibset(value%flag,good_bit)
-        else if (qualflag == missing_data) then
-           value%data=miss_val_r
-           value%flag = ibset(value%flag,missing_bit)
-        else if (qualflag == question_data) then
-           value%flag = ibset(value%flag,question_bit)
-        else if (qualflag == reject_data) then
-           value%flag = ibset(value%flag,reject_bit)
-        else                        ! unknown incoming flag
-           write(unit_error,*) 'Software error in set_dataqual; ', &
-               'unknown qualflag value: ', qualflag
-        endif
-      return
-    end subroutine
-
-
     !> Get input data from buffers for computations
     subroutine get_inp_data(ptr)
         use common_dsm2_vars
         implicit none  
-        integer :: ptr                  ! pathname array index
+        integer, intent(in) :: ptr          !< pathname array index
         type(dataqual_t) :: dataqual
-
- 610    format(/'No replacement path given for ' &
-               /a &
-               /' however bad value encountered at model time ',a)
- 612    format(/'Error in get_inp_data: Missing data in path/file:' &
-               /' ',a &
-               /' ',a &
-               /' at model time: ',a &
-               /' Cannot continue.')
- 613    format(/a/a/'at model time: ',a)
 
         !----last check for missing data
         dataqual%data=pathinput(ptr)%value
         dataqual%flag=pathinput(ptr)%value_flag
-        if (check_dataqual(dataqual,miss_or_rej_data)) then
-           write(unit_error, 612) &
-               trim(pathinput(ptr)%path),trim(pathinput(ptr)%filename), &
-               current_date
-           call exit(2)
-        endif
-
-        !----warning msgs about questionable or unscreened data;
-        !----check to continue run
-        if (.not. check_dataqual(dataqual,screened_data)) then
-           if (warn_unchecked .or. .not. cont_unchecked) then
-              write(unit_error,613) 'Warning: unchecked data: ', &
-                  trim(pathinput(ptr)%path), &
-                  current_date
-           endif
-           if (.not. cont_unchecked) then
-              write(unit_error,*) 'Fatal error.'
-              !call exit(2)        !todo:: temporarily comment out by ehsu. Why it gets here? need to ask Ralph.
-           else if (warn_unchecked) then
-              write(unit_error,*) 'Using current value.'
-           endif
-        endif
-
-        if (check_dataqual(dataqual,question_data)) then
-           if (warn_question .or. .not. cont_question) then
-              write(unit_error,613) 'Warning: questionable data: ', &
-                  trim(pathinput(ptr)%path), &
-                  current_date
-           endif
-           if (.not. cont_question) then
-              write(unit_error,*) 'Fatal error.'
-              call exit(2)
-           else if (warn_question) then
-              write(unit_error,*) 'Using current value.'
-           endif
-        endif
 
         !----use this value for all time steps?
         if (pathinput(ptr)%fillin == fill_first) then
-            pathinput(ptr)%constant_value=pathinput(ptr)%value
+            pathinput(ptr)%constant_value = pathinput(ptr)%value
         endif
       
         return
