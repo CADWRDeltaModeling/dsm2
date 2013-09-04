@@ -27,10 +27,8 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\transport\advection.f90"/>
 		<File RelativePath="..\..\src\transport\boundary_advection.f90"/>
-		<File RelativePath="..\..\src\transport\boundary_data_if.f90"/>
 		<File RelativePath="..\..\src\transport\boundary_diffusion.f90"/>
 		<File RelativePath="..\..\src\transport\boundary_diffusion_matrix.f90"/>
-		<File RelativePath="..\..\src\transport\boundary_source.f90"/>
 		<File RelativePath="..\..\src\transport\diffusion.f90"/>
 		<File RelativePath="..\..\src\transport\dispersion_coefficient.f90"/>
 		<File RelativePath="..\..\src\transport\gradient.f90"/>

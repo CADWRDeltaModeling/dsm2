@@ -39,6 +39,7 @@ program test_driver
     use ut_gtm_dss_readdss
     use ut_gtm_dss_readtvd
     use ut_gtm_dss_main
+    use ut_gtm_hdf_write
     
     !----- modules used in project test_transport -----  
     use test_extrapolate
@@ -80,7 +81,8 @@ program test_driver
     call test_readdss  
     call test_readtvd
     call test_dss_main
-    call test_input_storage             
+    call test_input_storage 
+    call test_gtm_hdf_write
     
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")

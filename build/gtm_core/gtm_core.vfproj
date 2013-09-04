@@ -28,8 +28,6 @@
 		<File RelativePath="..\..\src\gtm_core\common_variables.f90"/>
 		<File RelativePath="..\..\src\gtm_core\common_xsect.f90"/>
 		<File RelativePath="..\..\src\gtm_core\error_handling.f90"/>
-		<File RelativePath="..\..\src\gtm_core\gtm_hdf_output.f90">
-			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\..\src\gtm_core\gtm_logging.f90"/>
 		<File RelativePath="..\..\src\gtm_core\gtm_network.f90"/>
 		<File RelativePath="..\..\src\gtm_core\gtm_precision.f90"/>

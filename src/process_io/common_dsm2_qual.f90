@@ -86,11 +86,11 @@ module common_dsm2_qual
     integer :: nres_conc                     ! Number of reservoirs for which initial conc. specified
     real*8:: init_conc = miss_val_r          ! initial concentration
 
-    integer :: no_of_constituent             ! number of constituents tracked from all sources
+    !integer :: no_of_constituent             ! number of constituents tracked from all sources
     integer :: no_of_nonconserve_constituent       ! number of constituents tracked from all sources
     integer :: no_all_source                 ! number of constituents tracked from all sources
 
-    type(constituent_t) :: constituents(max_constituent)
+    !type(constituent_t) :: constituents(max_constituent)
     !-----parameter max_constituent is defined in defs.f=60, Jon 4/12/06
 
     integer :: nonconserve_ptr(max_constituent) ! pointer to correctly transfer rate coefficients

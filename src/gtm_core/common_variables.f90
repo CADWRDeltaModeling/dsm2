@@ -131,6 +131,31 @@ module common_variables
           integer :: up_down                       !< flow toward boundary (0) or away from boundary (1) from DSM2 base grid definition
      end type
      type(boundary_t), allocatable :: bound(:)
+
+     !> Define reservoirs
+     type reservoir_t
+        character*32 :: name = ' '      ! reservoir name
+        real*8 :: area = 0.D0           ! average top area
+        real*8 :: botelv = 0.D0         ! bottom elevation wrt datum
+        real*8 :: stage = 0.D0          ! stage elevation
+        !real*8 :: coeff2res(maxresnodes) = 0.D0  ! to reservoir flow coefficient to node
+        !real*8 :: coeff2chan(maxresnodes) = 0.D0 ! to channel flow coefficient to node
+        logical*4 :: inUse = .false.             ! true to use this reservoir
+        !logical*4 :: isNodeGated(maxresnodes) = .false. ! flag that a node is gated
+        integer*4 :: nConnect = 0                ! number of nodes connected using reservoir connections
+        integer*4 :: nnodes = 0      ! total nodes connected to this reservoir
+        !integer*4 :: node_no(maxresnodes) = 0    ! (internal) connecting node number
+        !integer*4 :: first_connect_index  ! index of this reservoir, connection 1
+     end type
+     type(reservoir_t), allocatable :: res_geom(:)
+     
+     !> Define constituent
+     type constituent_t
+        integer :: conc_id                   ! constituent id
+        character*16 :: name = ' '           ! constituent name
+        logical :: conservative = .true.   ! true if conservative, false if nonconservative
+    end type     
+    type(constituent_t), allocatable :: constituents(:)
      
      contains
     

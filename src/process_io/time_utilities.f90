@@ -314,6 +314,29 @@ module time_utilities
     end function
 
 
+    !> Convert from julian minute to character date/time
+    !> in ISO compliant format yyyy-mmm-dd hh:mm::ss
+    !> with no military time conversion (and 00:00 is 
+    !> always used instead of 2400)
+    character*19 function jmin2iso(julmin)
+      implicit none
+      integer*4 :: julmin   !< minutes since 31dec1899 2400
+	  integer*4 :: julday
+	  integer*4 :: minute
+	  integer*4 :: y,m,d,ihr,imin
+      character*14 :: jmin2cdt
+
+      julday = julmin/(24*60)       ! julday
+      minute = mod(julmin,24*60)    ! minutes past midnight
+
+	  call jliymd(julday,y,m,d)
+      ihr = minute/60
+	  imin = mod(minute,60)
+	  write(jmin2iso,231)y,m,d,ihr,imin
+ 231  format (i4,'-',i2.2,'-',i2.2,' ',i2.2,':',i2.2,':00')
+      return
+    end function
+
     !> Routine to determine offset and buffer length to read HDF file
     subroutine check_runtime(offset, num_buffers, memlen,          &
                              time_buffer,                          &                               
