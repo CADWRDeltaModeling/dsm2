@@ -18,10 +18,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import java.io.*;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.*;
 /**
  *  PTM is an acronym for "Particle Tracking Model". This is version 2 of PTM
  *  which utilizes information from DSM2 to track particles moving according
@@ -45,15 +42,17 @@ import java.util.Iterator;
  * @author Nicky Sandhu
  * @version $Id: PTMEnv.java,v 1.5.6.4 2006/04/04 18:16:23 eli2 Exp $
  */
+// this is the rally point for PTMFixedInput/PTMFixedData, PTMHydroInput, and PTMBehaviorInputs
 public class PTMEnv{
   private static boolean DEBUG = false;
   //TODO need to be read from input file, temporary treatment
-  private Map<String, Integer> _node_location_lookup_table;
-  private Map<String, Integer> _channel_location_lookup_table;
+  //private Map<String, Integer> _node_location_lookup_table;
+  //private Map<String, Integer> _channel_location_lookup_table;
   // put name and external node number pair to the map
   //TODO these should be read in from input file
   // Node and Channel ids are external, but in lookup functions 
   // they will be convert to internal
+  /*
   public void initializeLookup(){
 	  _node_location_lookup_table = new HashMap<String, Integer>();
 	  _channel_location_lookup_table = new HashMap<String, Integer>();
@@ -81,6 +80,7 @@ public class PTMEnv{
 		  systemExit("cannot find channel id for node name:" + name + "!");
 	  return hydroInput.getIntFromExt(id);
   }
+  */
   //
   /**
    * Construct the network of nodes and waterbodies
@@ -90,12 +90,9 @@ public class PTMEnv{
 	
     //Input files
     fixedInput = new PTMFixedInput(fixedInputFilename);
+    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName());
     hydroInput = new PTMHydroInput();
-    //xiao
-    hydroInput.initializeNonphysicalBarrierOp();
-    _barriers = hydroInput.getBarriers();
-    initializeLookup();
-    //xiao
+    _particleType = _behaviorInputs.getFishType();
     
     //no and max no of waterbodies, nodes, xsections
     numberOfWaterbodies = fixedInput.getNumberOfWaterbodies();
@@ -115,7 +112,7 @@ public class PTMEnv{
     // fill in waterbodies, nodes, xSections with information
     if(DEBUG) System.out.println("Creating waterbodies ");
     wbArray = fixedInput.createWaterbodyFixedInfo();
-    //todo: eli is this working?
+    //TODO: eli is this working?
     //  wbArray[0]=NullWaterbody.getInstance();
     if(DEBUG) System.out.println("Creating nodes ");
     nodeArray = fixedInput.createNodeFixedInfo();
@@ -143,29 +140,64 @@ public class PTMEnv{
     fixedInput.getPTMFixedInfo(pInfo);
     if(DEBUG) System.out.println(pInfo);
     numberOfAnimatedParticles = pInfo.getAnimatedParticles();
-    _particleType = pInfo.getParticleType();
+    /**
+     * add helpers
+     */         
+    if ((_particleType == null) || (!_particleType.equalsIgnoreCase("SALMON") && !_particleType.equalsIgnoreCase("SMELT"))) 
+    	 PTMUtil.systemExit("Particle Type is not defined or defined incorrect! Exit from line 147 PTMEnv.");
+    // String switch only works for Java 1.7  make a map for now
+    Map<String, Integer> map = new HashMap<String, Integer>();
+    map.put("SALMON",1);
+    map.put("SMELT", 2);
+    switch (map.get(_particleType.toUpperCase())){
+		case 1: //"SALMON":
+			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
+			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior());
+			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior());
+			_behaviorInputs.getRouteInputs().addSpecialBehaviors(_routeHelper, "SALMON");
+			_behaviorInputs.getSwimInputs().addSpecialBehaviors(_swimHelper, "SALMON");
+			_behaviorInputs.getSurvivalInputs().addSpecialBehaviors(_survivalHelper, "SALMON");
+			break;
+		case 2: //"SMELT":
+			// will be implemented later
+			//_routeHelper = new SmeltRouteHelper(new SalmonBasicRouteBehavior());
+			//_swimHelper = new SmeltSwimHelper(new SalmonBasicSwimBehavior());
+			//_survivalHelper = new SmeltSurvivalHelper(new SalmonBasicSurvivalBehavior());
+			break;
+    }
+    
+    /* 
+     * end adding helpers
+     */
   }
 
   /**
    *  Fill in the Waterbody information and Node/XSection array pointers
    */
   private final void setWaterbodyInfo(){
-	//TODO clean up lines xiao added following line
-	//ArrayList<Integer> barrierChannelIds = fixedInput.getBarrierChannelIds();		  
-    // updates channels to give them a pointer array of xSections
-	//TODO !!! Here the code assumes the water body between 1 - fixedInput.getNumberOfChannels() in wbArray[i] are channels?!!! dangerous!!!
-	//!!! need to be checked to make sure the water body type!!!  the code has to be changed! xiao
-	// how wbArray are set?  may be set a way that all channels are filled first
-    for(int i=1; i<= fixedInput.getNumberOfChannels(); i++) {
-      if (wbArray[i] != null) {
-        if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
-        XSection[] xSPtrArray;
-        xSPtrArray = new XSection[((Channel) wbArray[i]).getNumberOfXSections()];
-        Channel aChan = (Channel) wbArray[i];
-        for(int j=0; j< aChan.getNumberOfXSections(); j++) {
-          xSPtrArray[j] = xSectionArray[aChan.getXSectionEnvIndex(j)];
-        }
-        aChan.setXSectionArray(xSPtrArray);
+	  HashMap<String, NonPhysicalBarrier> _barriers = _behaviorInputs.getRouteInputs().getBarriers();
+	  // when wbArray is setup, the channels are filled in first. 
+	  for(int i=1; i<= fixedInput.getNumberOfChannels(); i++) {
+		  if (wbArray[i] != null) {
+			  if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
+			  XSection[] xSPtrArray;
+			  xSPtrArray = new XSection[((Channel) wbArray[i]).getNumberOfXSections()];
+			  Channel aChan = (Channel) wbArray[i];
+			  for(int j=0; j< aChan.getNumberOfXSections(); j++) {
+				  xSPtrArray[j] = xSectionArray[aChan.getXSectionEnvIndex(j)];
+			  }
+			  aChan.setXSectionArray(xSPtrArray);
+			  int nodeNum = aChan.getNumberOfNodes();
+			  for(int j=0; j< nodeNum; j++){
+				  int nodeId = aChan.getNodeEnvIndex(j);				  
+				  if (_barriers != null && _barriers.get(Integer.toString(nodeId)+"_"+Integer.toString(i)) != null){
+					  if (nodeId == aChan.getUpNodeId())
+						  aChan.installBarrierAtUpNode();
+					  if (nodeId == aChan.getDownNodeId())
+						  aChan.installBarrierAtDownNode();  
+				  }
+			  }
+		/* commented out 9/3/2013
         //TODO need to revisit how the barriers are set
     	if	(_barriers != null){
     		Iterator<NonPhysicalBarrier> it = _barriers.iterator();
@@ -176,35 +208,58 @@ public class PTMEnv{
         				aChan.installBarrierAtUpNode();
         			else if (aChan.getDownNodeId() == b.getNodeId())
         				aChan.installBarrierAtDownNode();
-        			else{
-        				System.err.println("the NonPhysicalBarrier Node ID or WaterBody ID is Wrong!");
-        				System.err.println("exit from PTMEnv line 185.");
-        				System.exit(-1);
-        			}     	
+        			else
+        				PTMUtil.systemExit("the NonPhysicalBarrier Node ID or WaterBody ID is Wrong! exit from PTMEnv line 185.");
         		}
         		// I didn't set break because a channel could have two barriers 
         	} 
-        } 
-      }  
-    }
+        }
+        */
+    	 //TODO new function added by Joey, need to be tested!!! Xiao 7/19/13
+			  //TODO add for survival behavior
+			  if (_sacChannels.contains((Integer) PTMHydroInput.getExtFromIntChan(i)))
+				  aChan.setChanGroup(1);
+			  else if (_interiorChannels.contains((Integer) PTMHydroInput.getExtFromIntChan(i)))
+				  aChan.setChanGroup(2);
+			  else if (_sjrChannels.contains((Integer) PTMHydroInput.getExtFromIntChan(i)))
+				  aChan.setChanGroup(3);
+			  else 
+				  aChan.setChanGroup(8);
+			  //
+		  }  
+	  }
     
-    if (DEBUG) System.out.println("Done with initialzing xSections");
-    //updates waterbodies to give them an array of pointers to connected nodes
-    for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
-      if(wbArray[i] != null) {
-        //if (DEBUG) System.out.println("Doing nodes for Waterbody # " + i);
-        Node[] nodePtrArray;
-        int nNodes = wbArray[i].getNumberOfNodes();
-        nodePtrArray = new Node[nNodes];
-        for(int j=0; j< nNodes; j++){
-          nodePtrArray[j] = nodeArray[wbArray[i].getNodeEnvIndex(j)];
-        }//end for xsect
-        wbArray[i].setNodeArray(nodePtrArray);
-      }//end if
-    }//end for wb
-    if (DEBUG) System.out.println("Done with initialzing nodes");
-  }
-
+	  if (DEBUG) System.out.println("Done with initialzing xSections");
+	  //set nodes for wb (not only channels)
+	  for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
+		  if(wbArray[i] != null) {
+			  //if (DEBUG) System.out.println("Doing nodes for Waterbody # " + i);
+			  Node[] nodePtrArray;
+			  int nNodes = wbArray[i].getNumberOfNodes();
+			  nodePtrArray = new Node[nNodes];
+			  for(int j=0; j< nNodes; j++){
+				  // the node id array has already been created in PTMFixedInput line 208, here to create a node array
+				  nodePtrArray[j] = nodeArray[wbArray[i].getNodeEnvIndex(j)];
+			  }//end for xsect
+			  wbArray[i].setNodeArray(nodePtrArray);
+		  }//end if
+	  }//end for wb
+	  if (DEBUG) System.out.println("Done with initialzing nodes");
+  	}
+  //TODO need to put real values
+  private static final Set<Integer> _sacChannels = new HashSet<Integer>(Arrays.asList(new Integer[]{
+		  //TODO all the sac channels
+		  
+  }));
+  private static final Set<Integer> _interiorChannels = new HashSet<Integer>(Arrays.asList(new Integer[]{
+		  //TODO all the interior channels
+		  
+  }));
+  private static final Set<Integer> _sjrChannels = new HashSet<Integer>(Arrays.asList(new Integer[]{
+		  //TODO all the sjr channels
+		  
+  }));
+		  
   /**
    * Return the current PTMFixedInput object
    */
@@ -518,6 +573,7 @@ public class PTMEnv{
    *  are unaware that they are connected to one.
    */
   private void setNodeInfo(){
+	HashMap<String, NonPhysicalBarrier> _barriers = _behaviorInputs.getRouteInputs().getBarriers();
     if (DEBUG) System.out.println("Initializing nodes with wb arrays");
     if (DEBUG) System.out.println(nodeArray[361]);
     //TODO clean up xiao add following line
@@ -528,10 +584,15 @@ public class PTMEnv{
       // waterbodies connecting to the node
       Waterbody [] wbs = new Waterbody[nodeArray[i].getNumberOfWaterbodies()];
       for(int j=0; j < wbs.length; j++){
-        wbs[j] = wbArray[nodeArray[i].getWaterbodyEnvIndex(j)];
+    	  int wbId = nodeArray[i].getWaterbodyEnvIndex(j);
+    	  wbs[j] = wbArray[wbId];
+    	  if (_barriers != null && _barriers.get(Integer.toString(i)+"_"+Integer.toString(wbId)) != null){
+    		  nodeArray[i].installBarrier();
+    	  }
       }
       nodeArray[i].setWbArray(wbs);
-      // xiao added 
+      //TODO xiao added 
+      /* commented out 9/4/2013
       if (_barriers != null){
     	  Iterator<NonPhysicalBarrier> it = _barriers.iterator();
     	  while (it.hasNext()){
@@ -544,6 +605,7 @@ public class PTMEnv{
     		  }
     	  }
       }
+      */
     }
     // Now initialize each Node object with an array of waterbodies it connects to
     if (DEBUG) System.out.println("Done with setNodeInfo");
@@ -555,7 +617,7 @@ public class PTMEnv{
    */
   public final void getHydroInfo(int currentTime){
     hydroInput.getNextChunk(currentTime);
-    hydroInput.updateWaterbodiesHydroInfo(wbArray, fixedInput.getLimitsFixedData());
+    hydroInput.updateWaterbodiesHydroInfo(wbArray, _behaviorInputs.getRouteInputs().getBarriers(), fixedInput.getLimitsFixedData());
     //  updateBoundaryWaterbodiesHydroInfo();
   }
   
@@ -575,6 +637,7 @@ public class PTMEnv{
    *  behavior file name
    */
   public final String getBehaviorFileName(){
+	  System.out.println(fixedInput.getBehaviorFileName());
     return fixedInput.getBehaviorFileName();
   }
   /**
@@ -621,7 +684,10 @@ public class PTMEnv{
     return behaviorIn;
   }
   
-  private ArrayList<NonPhysicalBarrier> _barriers;
+  public PTMBehaviorInputs getBehaviorInputs(){ return _behaviorInputs;}
+  public RouteHelper getRouteHelper(){return _routeHelper;}
+  public SurvivalHelper getSurvivalHelper(){return _survivalHelper;}
+  public SwimHelper getSwimHelper(){return _swimHelper;}
 
   /**
    *  Particle behavior input
@@ -672,5 +738,9 @@ public class PTMEnv{
   private int maxNumberOfXSections;
   private int numberOfGroups;
   private String _particleType;
+  private PTMBehaviorInputs _behaviorInputs;
+  private RouteHelper _routeHelper = null;
+  private SwimHelper _swimHelper = null;
+  private SurvivalHelper _survivalHelper = null;
 }
 

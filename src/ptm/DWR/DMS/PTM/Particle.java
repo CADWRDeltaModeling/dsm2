@@ -281,21 +281,30 @@ _survivalHelper = null;
   public final int getCurrentParticleTime(){
     return (Globals.currentModelTime);
   }
-  
+ 
+  private final boolean checkSurvival(){
+    // check survival if not survived isDead is set to true	
+    _survivalHelper.helpSurvival(this);
+    if(isDead == true) {
+    	observer.observeDeath(this);
+    	return false;
+    }  
+    return true;
+  }
   /**
     *  updates the position and parameters of Particle.
     */
-  public final void updatePosition(float delT){
+  public final void updatePosition(float delT){ //delT in seconds
+	if (observer == null)
+		PTMUtil.systemExit("Please install observer in particle, exit from line 290 Particle.java");
   	particleWait = false;  //set or reset particle wait variable
     if (DEBUG) System.out.println("In updating position for particle " + this);
     
-    if (inserted){//after initial insertion
+    if (inserted){//after initial insertion  
       recursionCounter=0;
       updateXYZPosition(delT);
       updateOtherParameters(delT);
-      //      System.out.println("update "+Id);
-      if(! isDead) checkHealth();
-      //      if (Id == 1) System.out.println(Id+" "+age+" "+getFallVel());
+      if(! isDead) checkHealth(); //TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
     }
     else if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
       if ((Globals.currentModelTime - insertionTime)/60.0 > delT)//insertion time may set as way before PTM start time 
@@ -314,7 +323,10 @@ _survivalHelper = null;
     this.insertionTime = particleInsertionTime;
     setLocation(injectionNode);
   }
-
+  // return particle age in minutes
+  public float getParticleAge(){
+	  return age;
+  }
   /**
     *  Get the recent Node which particle just passed or was inserted in 
     */
@@ -433,7 +445,6 @@ _survivalHelper = null;
     *  Particle.x, Particle.y and Particle.z
     */
   protected final void updateXYZPosition(float delT){
-
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
       tmLeft = delT;
@@ -456,7 +467,11 @@ _survivalHelper = null;
         	tmToAdv = tmLeft;
         }
         
+        // age in seconds
         age += tmToAdv;
+        // check survival, if not survived, isDead is set to true and call observer.observeDeath()
+        //TODO something wrong here.
+        if (!checkSurvival()) return;
         updateAllParameters(tmToAdv);
         if (particleWait == false){
           x = calcXPosition(tmToAdv);
@@ -724,10 +739,8 @@ _survivalHelper = null;
 	  observer.observeChange(ParticleObserver.NODE_CHANGE,this); 
 	
 	// decide which water body to go and reset it
-	if(_routeHelper ==  null){
-		System.out.println("routeHelper not initialized, exit from Particle.java line 727.");
-		System.exit(-1);
-	}
+	if(_routeHelper ==  null)
+		PTMUtil.systemExit("routeHelper not initialized, exit from Particle.java line 727.");
 	_routeHelper.helpSelectRoute(this);
 	  
 	if (observer != null) 
@@ -956,6 +969,7 @@ _survivalHelper = null;
     //System.out.println("timeStep="+timeStep+" minTimeStep="+minTimeStep);
     if (numOfSubTimeSteps > MAX_NUM_OF_SUB_TIME_STEPS){
       warning("Number Of Sub Time Steps exceeds a maximum of "+MAX_NUM_OF_SUB_TIME_STEPS);
+      //TODO why need this MAX_NUM_OF_SUB_TIME_STEPS?
       return MAX_NUM_OF_SUB_TIME_STEPS;
     }
     else 

@@ -10,5 +10,4 @@ package DWR.DMS.PTM;
 public interface RouteHelper {
 	public void helpSelectRoute(Particle p);
 	public void setRouteHelperForParticle(Particle p);
-
 }

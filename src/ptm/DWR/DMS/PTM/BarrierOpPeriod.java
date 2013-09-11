@@ -12,10 +12,8 @@ public class BarrierOpPeriod {
 	}
 	
 	public boolean contains(Calendar time){
-		if (_startTime.equals(time) || _startTime.before(time)){
-			if (_endTime.after(time)) // gate operation at endTime goes to the next time interval value 
+		if ((time.equals(_startTime)||time.after(_startTime)) && (time.before(_endTime))) 
 				return true;
-		}
 		return false;
 	}
 	

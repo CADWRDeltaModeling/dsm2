@@ -52,6 +52,7 @@ package DWR.DMS.PTM;
  * @author Nicky Sandhu
  * @version $Id: PTMFixedData.java,v 1.6.6.5 2007/07/31 18:30:39 eli2 Exp $
  */
+// this class is mainly used for read fixed data from fortran
 public class PTMFixedData {
 
   /**
@@ -113,7 +114,7 @@ public class PTMFixedData {
                      nNode, nInjected,
                      startJulmin, lengthJulmin);
     pFD.setVariables(ngroups,qBinary,qNames);
-    pFD.setVariables(getParticleType());
+    //pFD.setVariables(getParticleType());
   
     return pFD;
   }
@@ -276,12 +277,13 @@ public class PTMFixedData {
   native int [] getParticleNumberOfParticlesInjected();
   native int [] getParticleInjectionStartJulmin();
   native int [] getParticleInjectionLengthJulmin();
-  //TODO to be implemented later
-  //native String getParticleType();
+  //TODO cleanup
   //temporary method
+  /*
   public String getParticleType(){
 	  return "SALMON";
   }
+  */
   native int getNumberOfFluxes();
   native int [] getFluxIncoming(int i);
   native int [] getFluxOutgoing(int i);
@@ -299,15 +301,13 @@ public class PTMFixedData {
   //
   native String getAnimationFileName();
   native int getAnimationOutputInterval();
+  //TODO this method need to be removed
   native String getBehaviorFileName();
+  native String getBehaviorInfileName();
   native String getTraceFileName();
   native int getTraceOutputInterval(); 
   native String getRestartOutputFileName(); 
   native int getRestartOutputInterval();
   native String getRestartInputFileName(); 
-  
-  //xiao
-  //native int [] getBarrierChannelIds();
-  //native int [] getBarrierNodeIds();
-  //xiao
+
 }

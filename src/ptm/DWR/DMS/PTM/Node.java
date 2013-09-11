@@ -67,6 +67,11 @@ public class Node{
    *  Clean up only if initialized
    */
   
+  public boolean equals(Node n){
+	  if (n.getEnvIndex() == this.getEnvIndex())
+		  return true;
+	  return false;		  
+  }
   /**
    *  Return a uniformly random number between 0-1 using drand48
    */

@@ -181,6 +181,7 @@ public class PTMFixedInput{
       Waterbody wb = null;
       switch (_fixedData.getWaterbodyType(i)){
       case Waterbody.CHANNEL:
+    	  //System.out.println("Channel #:" + i);
         wb = createChannel(i);
         break;
       case Waterbody.RESERVOIR:
@@ -463,10 +464,17 @@ public class PTMFixedInput{
     return _fixedData.getAnimationOutputInterval();
   }
   /**
-   *  Gets behavior file name
+   *  Gets behavior file name 
    */
+  //TODO need to be removed
   public final String getBehaviorFileName(){
     return _fixedData.getBehaviorFileName();
+  }
+  /**
+   *  Gets behavior file name this one need to keep
+   */
+  public final String getBehaviorInfileName(){
+    return _fixedData.getBehaviorInfileName();
   }
   /**
    *  Gets trace file name

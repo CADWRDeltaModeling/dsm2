@@ -77,6 +77,7 @@ public class FluxMonitor{
 
       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
       int nParticles = endId - startId + 1;
+      //totalNumberOfParticles will be reset in createTraceArray
       createTraceArray(startId, endId, startTime, endTime, timeStep, totalNumberOfParticles);
       
       for (int i = 0; i < fluxInfoPtr.getNumberOfFluxes(); i++) {
@@ -117,6 +118,7 @@ public class FluxMonitor{
     int [] totalNumberOfParticles = new int[1];
     
     try{
+      // the constructor PTMTraceInput(...)	only reads the trace file header
       PTMTraceInput traceInput = new PTMTraceInput(traceFileName,inputType,
                                                    startTime, endTime, timeStep,
                                                    totalNumberOfParticles);
@@ -167,14 +169,15 @@ public class FluxMonitor{
                                   int [] startTime, int [] endTime,
                                   int [] timeStep, int [] totalNumberOfParticles){
   
-    // should check to see if start time , end time , time step and number of
+    //TODO should check to see if start time , end time , time step and number of
     // particles match that from PTMEnv.
     try{
       PTMTraceInput traceInput;
       traceInput = new PTMTraceInput(traceFileName,inputType,
                                      startTime, endTime, timeStep,
                                      totalNumberOfParticles);
-      int nParticles = eId - sId + 1;
+      int nParticles = eId - sId + 1; 
+      // PTMTraceInput only takes arrays, so here defines one element arrays
       int[] tm=new int[1], pNum=new int[1], nd=new int[1], wb=new int[1];
       
       //renew traceArray
@@ -189,6 +192,7 @@ public class FluxMonitor{
       }
       
       //vars transfer from trace to traceArray
+      //tm, pNum, nd, wb are set in the input method (input read data from the trace files)
       while(tm[0] != -1){
         traceInput.input(tm, pNum, nd, wb);
         if (tm[0] != -1 && (pNum[0] >= sId && pNum[0] <= eId)) 

@@ -30,13 +30,7 @@ public abstract class Helper<K,B> {
 		_specialBehaviors = new HashMap<K, B>();
 	}
 	public B lookUp(K key){
-		B sp;
-		if (_specialBehaviors != null){
-			sp = _specialBehaviors.get(key);
-			if (sp != null)
-					return sp;
-		}
-		return _basic;
+		return _specialBehaviors.get(key);
 	}
 	public void setSpeicalBehaviors(Map<K, B> specialBehaviors){
 		_specialBehaviors = specialBehaviors;
@@ -68,8 +62,9 @@ public abstract class Helper<K,B> {
 	*/
 	public B getBehavior(Particle p){
 		B specialB = lookUp(getKey(p));
-		if (specialB != null)
+		if (specialB != null){
 			return specialB;
+		}
 		else if (_basic != null)
 			return _basic;
 		else{

@@ -39,8 +39,8 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
  */
 package DWR.DMS.PTM;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+//import java.util.HashMap;
+//import java.util.Map;
 /*
  * main function of PTM
  */
@@ -79,10 +79,8 @@ public class MainPTM {
             /*
              * This part is coded very wrong, disable it now and rewrite it later
              */
-            if(isRestart){
-            	System.out.println("restart functionality is disabled! exit.");
-            	System.exit(-1);
-            }
+            if(isRestart)
+            	PTMUtil.systemExit("restart functionality is disabled! exit.");
             /*
             if(DEBUG) System.out.println("Checking for restart run");
             // if restart then inject those particles
@@ -99,7 +97,10 @@ public class MainPTM {
             boolean behavior = false;
             try {
                 // set behavior file and return status
-                behavior = Environment.setParticleBehavior();
+            	//TODO This behavior module needs to be revisited, only works for delta smelt
+            	//getBehaviorFileName() somehow return the sameName as getBehaviorInfileName()
+            	if (Environment.getParticleType().equalsIgnoreCase("SMELT"))
+                	behavior = Environment.setParticleBehavior();
                 //      behavior = true;
             } catch(IOException ioe) {}
 
@@ -110,7 +111,8 @@ public class MainPTM {
     
             particleArray = new Particle[numberOfParticles];
             if(DEBUG) System.out.println("restart particles " + numberOfRestartParticles);
-
+            
+            //TODO need to be rewrite 
             if(behavior) {
                 for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
                     particleArray[pNum] = new BehavedParticle(Environment.getParticleFixedInfo());
@@ -127,28 +129,19 @@ public class MainPTM {
             if(DEBUG) System.out.println("Set insertion info");
             // set observer on each Particle
             String traceFileName = Environment.getTraceFileName();
-            if ( traceFileName == null || traceFileName.length() == 0 ) {
-                System.err.println("Trace file needs to be specified");
-                System.err.println("Exit from MainPTM line 132.");
-                System.exit(-1);
-            }
+            if ( traceFileName == null || traceFileName.length() == 0 ) 
+                PTMUtil.systemExit("Trace file needs to be specified, Exit from MainPTM line 132.");
             ParticleObserver observer = null;
             observer = new ParticleObserver(traceFileName,
                                             Environment.getFileType(traceFileName),
                                             startTime, endTime, PTMTimeStep,
                                             numberOfParticles);
+            //TODO clean up
             /**
              * add helpers
-             */
-            RouteHelper _routeHelper = null;
-            SwimHelper _swimHelper = null;
-            SurvivalHelper _survivalHelper = null;
-            String pType = Environment.getParticleType().toUpperCase();          
-            if ((pType == null) || (!pType.equals("SALMON") && !pType.equals("SMELT"))) {
-            	 System.err.println("Particle Type is not defined or defined incorrect!");
-                 System.err.println("Exit from MainPTM line 149.");
-                 System.exit(-1);
-            }
+            String pType = Environment.getParticleType();          
+            if ((pType == null) || (!pType.equalsIgnoreCase("SALMON") && !pType.equalsIgnoreCase("SMELT"))) 
+            	 PTMUtil.systemExit("Particle Type is not defined or defined incorrect! Exit from MainPTM line 149.");
             // String switch only works for Java 1.7  make a map for now
             Map<String, Integer> map = new HashMap<String, Integer>();
             map.put("SALMON",1);
@@ -158,8 +151,10 @@ public class MainPTM {
 					_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
 					_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior());
 					_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior());
-		            int specialNodeId = Environment.lookUpNodeId("GS");
-		            ((SalmonRouteHelper)_routeHelper).addSpecialBehavior(specialNodeId, new SalmonGSJRouteBehavior(specialNodeId));
+					
+		            //int specialNodeId = Environment.lookUpNodeId("GS");
+		            //((SalmonRouteHelper)_routeHelper).addSpecialBehavior(specialNodeId, new SalmonGSJRouteBehavior(specialNodeId));
+		            
 					break;
 				case 2: //"SMELT":
 					// will be implemented later
@@ -167,12 +162,12 @@ public class MainPTM {
 					//_swimHelper = new SmeltSwimHelper(new SalmonBasicSwimBehavior());
 					//_survivalHelper = new SmeltSurvivalHelper(new SalmonBasicSurvivalBehavior());
 					break;
-            }
-            
-            /* 
+            }                                   
              * end adding helpers
              */
-            
+            RouteHelper _routeHelper = Environment.getRouteHelper();
+            SwimHelper _swimHelper = Environment.getSwimHelper();
+            SurvivalHelper _survivalHelper = Environment.getSurvivalHelper();
             if(DEBUG) System.out.println("Set observer, helpers");
             for(int i=0; i<numberOfParticles; i++) {
                 if ( observer != null) observer.setObserverForParticle(particleArray[i]);
@@ -217,10 +212,10 @@ public class MainPTM {
             // initialize current model time
             //   Globals.currentModelTime = startTime;
             //main loop for running Particle model
+            // unit of time is second
             for(Globals.currentModelTime  = startTime; 
                 Globals.currentModelTime <= endTime; 
                 Globals.currentModelTime += PTMTimeStep){
-      
                 // output runtime information to screen
                 MainPTM.display(displayInterval);
 
@@ -231,7 +226,9 @@ public class MainPTM {
                 if (DEBUG) System.out.println("Updated flows");
                 // update Particle positions
                 for (int i=0; i<numberOfParticles; i++){
-                    particleArray[i].updatePosition(timeStep);
+                	// another survival check is done in updateXYZPosition in particle class
+                	if (!particleArray[i].isDead)
+                		particleArray[i].updatePosition(timeStep);
                 }
                 if (DEBUG) System.out.println("Updated particle positions");
       

@@ -77,6 +77,11 @@ public class Channel extends Waterbody{
     stageAt = new float[getNumberOfNodes()];
     
   }
+  public boolean equals(Channel chan){
+	  if (chan.getEnvIndex() == this.getEnvIndex())
+		  return true;
+	  return false;
+  }
   
   /**
    *  Gets the length of Channel
@@ -172,14 +177,18 @@ public class Channel extends Waterbody{
   public final int getUpNodeId(){
     return(getNodeEnvIndex(UPNODE));
   }
-  
+  public final Node getUpNode(){
+	  return getNode(UPNODE);
+  }
   /**
    *  Gets the EnvIndex of the down node
    */
   public final int getDownNodeId(){
     return(getNodeEnvIndex(DOWNNODE));
   }
-  
+  public final Node getDownNode(){
+	  return getNode(DOWNNODE);
+  }
   /**
    *  Gets the Transverse velocity A coefficient
    */
@@ -451,6 +460,7 @@ public class Channel extends Waterbody{
   private int _downBarrierOp = 0;
   private boolean _upBarrierInstalled = false;
   private boolean _downBarrierInstalled = false;
+  private int _chanGroupID = -1;
   
   /**
    *  Bottom elevation of Channel or reservoir
@@ -518,5 +528,9 @@ public class Channel extends Waterbody{
       }
     }//end for
   }
+  public void setChanGroup(int groupID){ // 1: sac 2: interior 3: sjr
+	  _chanGroupID = groupID;
+  }
+  public int getChanGroup(){ return _chanGroupID;}
 }
 

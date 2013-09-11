@@ -3,12 +3,13 @@
  */
 package DWR.DMS.PTM;
 
-import java.util.Calendar;
+//import java.util.Calendar;
 
 /**
  * @author xwang
  *
  */
+/* this class is not used anymore
 public class GSJunction{
 	private Node _node;
 	private NonPhysicalBarrier _barrier;
@@ -16,7 +17,7 @@ public class GSJunction{
 	private Channel _sacUp;
 	private Channel _sacDown;
 
-	private void setUp(int nodeEnvId){
+	private void setUp(int nodeEnvId, int gsWbId){
 		try{
 			_node = Globals.Environment.getNode(nodeEnvId);
 			if (_node ==null)
@@ -24,9 +25,9 @@ public class GSJunction{
 			if (_node.getNumberOfChannels() != 3)
 				throw new ClassCastException("Georgianna Slough node id is wrong! channel number != 3");
 			// look up methods converted all external ids to internal env ids
+			_gs = (Channel) _node.getChannel(gsWbId);
 			_sacUp = (Channel) _node.getChannel(Globals.Environment.lookUpChannelId("sac_gs_up"));
 			_sacDown = (Channel) _node.getChannel(Globals.Environment.lookUpChannelId("sac_gs_down"));
-			_gs = (Channel) _node.getChannel(Globals.Environment.lookUpChannelId("sac_gs_gs"));
 			if (_sacUp == null || _sacDown == null || _gs == null)
 				throw new ClassCastException("Sac River or GS channel Id at the junction is wrong!");
 		}catch(ClassCastException cce){
@@ -35,15 +36,16 @@ public class GSJunction{
 			System.exit(-1);
 		} 
 	}
-	
-	public GSJunction(int nodeEnvId){
+	*/
+	//public GSJunction(int nodeEnvId, int gsWbId){
 		/**
 		 * nodeId is internal envid
 		 * 
 		 */
-		setUp(nodeEnvId);
+		//setUp(nodeEnvId, gsWbId);
 		  
-	}
+	//}
+/*
 	
 	public GSJunction(){
 		// nodeId here is internal EnvId
@@ -71,6 +73,7 @@ public class GSJunction{
 		return _sacDown;
 	}
 	
+	//TODO _barriers not initialized method never been used.
 	public int getCurrentBarrierOp(Calendar currentModelTime){
 		return _barrier.getBarrierOp(currentModelTime);
 	}
@@ -84,5 +87,5 @@ public class GSJunction{
 	public float getGSFlow(){
 		return _gs.getFlow(0.0f);
 	}
-
 }
+*/

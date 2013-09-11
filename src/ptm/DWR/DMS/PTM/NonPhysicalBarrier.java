@@ -42,19 +42,21 @@ public class NonPhysicalBarrier {
         boolean found = false;
         do{
             key = (BarrierOpPeriod) it.next();
-            //System.out.println(key.getStartTime().getTime()+"--"+key.getEndTime().getTime());
         }while (!(found = key.contains(currentTime))&&it.hasNext());
-        if (found)
+        if (found){
         	return _barrierOpTs.get(key);
+        }
         else{
         	System.err.println("model time:"+currentTime.getTime()
         			+", cannot find a match in the barrier operation timeseries.");
-         	return -1;
+        	return -1;
         }
 	}
 	protected Map<BarrierOpPeriod, Integer> getBarrierOpTs(){
 		return _barrierOpTs;
 	}
+	//TODO clean up
+	/* no need to have these method
 	protected boolean setCurrentOperation(Calendar currentTime){
 		_currentOp = getBarrierOp(currentTime);
 		//System.out.println("currentOp:"+_currentOp);
@@ -66,6 +68,7 @@ public class NonPhysicalBarrier {
 	protected int getCurrentOperation(){
 		return _currentOp;
 	}
+	*/
 	protected void InstallBarrier(){
 		_installed = true;
 	}
@@ -76,6 +79,6 @@ public class NonPhysicalBarrier {
 	private int _waterbodyId;
 	private Map<BarrierOpPeriod, Integer> _barrierOpTs;
 	private boolean _installed = false;
-	private int _currentOp = 0;
+	//private int _currentOp = 0;
 	//private int _barrierOn = 0;
 }

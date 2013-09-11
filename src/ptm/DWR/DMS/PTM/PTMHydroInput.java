@@ -45,18 +45,20 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
-
+import java.util.HashMap;
+//import java.util.ArrayList;
+//import java.util.Iterator;
+//import java.util.Calendar;
+/*
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Calendar;
 import java.util.regex.*;
-import java.util.Iterator;
+*/
 
 /**
  * This class handles the reading of the hydro tide file using
@@ -70,15 +72,15 @@ import java.util.Iterator;
  * @author Nicky Sandhu
  * @version $Id: PTMHydroInput.java,v 1.3.6.1 2006/04/04 18:16:24 eli2 Exp $
  */
+// this class is mainly used to read hydro info from fortran for each time step and set up wbarray 
 public class PTMHydroInput{
 
   private final static boolean DEBUG = false;
-  
-  //TODO need to be revisited xiao
-  // in the file node and channel numbers are external id (in map) 
-  // converted to internal Envindex numbers DSM2 used when barriers are created
-  
-  public void initializeNonphysicalBarrierOp(){
+  public void initializeNonphysicalBarrierOp(PTMBehaviorInputs bInputs){
+	 
+  }
+  /*
+	  //TODO need to be cleaned up
 	  try{
 		  FileInputStream fstream;
 		  try{
@@ -153,33 +155,30 @@ public class PTMHydroInput{
 			  PTMFixedData.setBarrierNodeIds(_barrierNodeIds);
 			  PTMFixedData.setBarrierChannelIds(_barrierChannelIds);
 		  }
-		  */
+		 
 	  }
 	  catch (Exception e){
 		  System.err.println("Error: " + e.getMessage());
 	  }
 	}
+	
   ArrayList<NonPhysicalBarrier> getBarriers(){
 	  return _barrierSet;
   }
+  */
   //xiao
   /**
    *  the next chunk of data till the next time step
    */
   public final void getNextChunk(int currentModelTime) {
     readMultTide(currentModelTime);
-    //xiao
-    if (_barrierSet != null)
-    	setCurrentBarrierOp(currentModelTime);
-    //xiao
-    // will be cleaned later, uncomment
-    //readNonPhysicalBarrierOp(currentModelTime);
+    _currentModelTime = currentModelTime;
   }
 
   /**
    *  the information in the Waterbody array in PTMEnv
    */
-  public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,
+  public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,HashMap<String, NonPhysicalBarrier> barriers,
                                                LimitsFixedData lFD){
     //update Channel depths, flows and area of flow
     float[] depthArray = new float[2];
@@ -188,160 +187,160 @@ public class PTMHydroInput{
     float[] areaArray = new float[2];
     int numConst = PTMFixedData.getQualConstituentNames().length;  
     float[][] qualityArray = new float[2][numConst];
+    HashMap<String, NonPhysicalBarrier> bars = barriers;
     
     //@todo: external/internal numbers?
     for(int channelNumber=1; 
         channelNumber <= PTMFixedData.getMaximumNumberOfChannels(); 
         channelNumber++){
 
-      if (wbArray[channelNumber] !=null){
-        depthArray[Channel.UPNODE]   = getUpNodeDepth(channelNumber);
-        depthArray[Channel.DOWNNODE] = getDownNodeDepth(channelNumber);
+    	if (wbArray[channelNumber] !=null){
+    		depthArray[Channel.UPNODE]   = getUpNodeDepth(channelNumber);
+    		depthArray[Channel.DOWNNODE] = getDownNodeDepth(channelNumber);
   
-        stageArray[Channel.UPNODE]   = getUpNodeStage(channelNumber);
-        stageArray[Channel.DOWNNODE] = getDownNodeStage(channelNumber);
+    		stageArray[Channel.UPNODE]   = getUpNodeStage(channelNumber);
+    		stageArray[Channel.DOWNNODE] = getDownNodeStage(channelNumber);
         
-        flowArray[Channel.UPNODE]   = getUpNodeFlow(channelNumber);
-        flowArray[Channel.DOWNNODE] = getDownNodeFlow(channelNumber);
+    		flowArray[Channel.UPNODE]   = getUpNodeFlow(channelNumber);
+    		flowArray[Channel.DOWNNODE] = getDownNodeFlow(channelNumber);
   
-        areaArray[Channel.UPNODE]   = getUpNodeArea(channelNumber);
-        areaArray[Channel.DOWNNODE] = getDownNodeArea(channelNumber);
-        // no use of quality currently
-        for (int indx = 0; indx < qualityArray[0].length; indx++){
-        	//fixme: got rid of quality temporarily
-          qualityArray[Channel.UPNODE][0] = 0.f; //getUpNodeQuality(channelNumber,indx+1);
-          qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
-        }
+    		areaArray[Channel.UPNODE]   = getUpNodeArea(channelNumber);
+    		areaArray[Channel.DOWNNODE] = getDownNodeArea(channelNumber);
+    		// no use of quality currently
+    		for (int indx = 0; indx < qualityArray[0].length; indx++){
+    			//fixme: got rid of quality temporarily
+    				qualityArray[Channel.UPNODE][0] = 0.f; //getUpNodeQuality(channelNumber,indx+1);
+    				qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
+    		}
 
-      //      if(channelNumber == 54 || dsmNumber == 54)
-      //	System.out.println("Channel:"+dsmNumber+"upnode:"+qualityArray[0][0]);
-      //      if(channelNumber == 7)
-      //	System.out.println("Channel:"+dsmNumber+"flow:"+flowArray[1]);
-      //      if(dsmNumber == 8 || dsmNumber == 54)
-      //	System.out.println("Channel:"+channelNumber+"flow:"+flowArray[0]);
-        Channel chan = ((Channel) wbArray[channelNumber]);
-        chan.setDepth(depthArray);
-        chan.setStage(stageArray);
-        chan.setFlow(flowArray);
-        chan.setArea(areaArray);
-        int chanEnvId = chan.getEnvIndex();
-        //TODO need to be revisited xiao
-        if (chan.isBarrierAtUpNodeInstalled())
-        	//int exChan = getExtFromInt(channelNumber);
-        	chan.setBarrierAtUpNodeOp(getCurrentBarrierOp(chanEnvId,chan.getUpNodeId()));
-        else if (chan.isBarrierAtUpNodeInstalled())
-        	chan.setBarrierAtDownNodeOp(getCurrentBarrierOp(chanEnvId,chan.getDownNodeId()));
-        //end xiao lines
-        //todo: disabled quality here
-        //((Channel) wbArray[dsmNumber]).setQuality(qualityArray);
-      }//end if (wbArray)
-    }//end for (channelNumber)
+    		//      if(channelNumber == 54 || dsmNumber == 54)
+    		//	System.out.println("Channel:"+dsmNumber+"upnode:"+qualityArray[0][0]);
+    		//      if(channelNumber == 7)
+    		//	System.out.println("Channel:"+dsmNumber+"flow:"+flowArray[1]);
+    		//      if(dsmNumber == 8 || dsmNumber == 54)
+    		//	System.out.println("Channel:"+channelNumber+"flow:"+flowArray[0]);
+    		Channel chan = ((Channel) wbArray[channelNumber]);
+    		chan.setDepth(depthArray);
+    		chan.setStage(stageArray);
+    		chan.setFlow(flowArray);
+    		chan.setArea(areaArray);
+    		int chanEnvId = chan.getEnvIndex();
+    		//TODO need to be revisited xiao
+    		if (chan.isBarrierAtUpNodeInstalled())
+    			chan.setBarrierAtUpNodeOp(getBarrier(bars, chan.getUpNodeId(), 
+    					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(_currentModelTime)));
+    		else if (chan.isBarrierAtDownNodeInstalled())
+    			chan.setBarrierAtDownNodeOp(getBarrier(bars, chan.getDownNodeId(), 
+    					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(_currentModelTime)));
+    		//TODO: disabled quality here
+    		//((Channel) wbArray[dsmNumber]).setQuality(qualityArray);
+    		}//end if (wbArray)
+    	}//end for (channelNumber)
 
 
-    // update Reservoir dynamic information
-    flowArray = new float[PTMFixedData.getMaximumNumberOfReservoirNodes()+1];
-    depthArray = new float[1];
-    for(int reservoirNumber=1; 
-        reservoirNumber <= PTMFixedData.getMaximumNumberOfReservoirs(); 
-        reservoirNumber++){
-      int envIndex = PTMFixedData.getUniqueIdForReservoir(reservoirNumber);
+    	// update Reservoir dynamic information
+    	flowArray = new float[PTMFixedData.getMaximumNumberOfReservoirNodes()+1];
+    	depthArray = new float[1];
+    	for(int reservoirNumber=1; 
+    			reservoirNumber <= PTMFixedData.getMaximumNumberOfReservoirs(); 
+    			reservoirNumber++){
+    		int envIndex = PTMFixedData.getUniqueIdForReservoir(reservoirNumber);
 
-      if(wbArray[envIndex] != null){
-        float volume = getReservoirVolume(reservoirNumber);
-        ((Reservoir )wbArray[envIndex]).setVolume(volume);
-        if (DEBUG) System.out.println(wbArray[envIndex]);
+    		if(wbArray[envIndex] != null){
+    			float volume = getReservoirVolume(reservoirNumber);
+    			((Reservoir )wbArray[envIndex]).setVolume(volume);
+    			if (DEBUG) System.out.println(wbArray[envIndex]);
         
-        //update Reservoir flows except for pumping flow which is set later
-        for(int connection=1; 
-            connection <= wbArray[envIndex].getNumberOfNodes();
-            connection++){
-          int nodeNumber = getNodeNumberForConnection(reservoirNumber, connection);
-          if (DEBUG) System.out.println("Node Number is " + nodeNumber
+    			//update Reservoir flows except for pumping flow which is set later
+    			for(int connection=1; 
+    					connection <= wbArray[envIndex].getNumberOfNodes();
+    					connection++){
+    				int nodeNumber = getNodeNumberForConnection(reservoirNumber, connection);
+    				if (DEBUG) System.out.println("Node Number is " + nodeNumber
                                       + " for reservoir number " + reservoirNumber
                                       + " for connecton number " + connection);
-          int nodeLocalIndex = 0;
-          nodeLocalIndex = wbArray[envIndex].getNodeLocalIndex(nodeNumber);
-          if (nodeLocalIndex == -1){
-            System.out.println("PTMHydroInput.java: Node " + nodeNumber 
+    				int nodeLocalIndex = 0;
+    				nodeLocalIndex = wbArray[envIndex].getNodeLocalIndex(nodeNumber);
+    				if (nodeLocalIndex == -1){
+    					System.out.println("PTMHydroInput.java: Node " + nodeNumber 
                              + " not found in waterbody " + envIndex);
-          }
-          flowArray[nodeLocalIndex] = 
-            getReservoirFlowForConnection(reservoirNumber, connection);
-          if (DEBUG){
-            System.out.println("Resrvoir # " + reservoirNumber
+    				}
+    				flowArray[nodeLocalIndex] = 
+    						getReservoirFlowForConnection(reservoirNumber, connection);
+    				if (DEBUG){
+    					System.out.println("Resrvoir # " + reservoirNumber
                              + " Connection #: " + connection + " flow= "
                              + getReservoirFlowForConnection(reservoirNumber, connection));
-           }
-        }//end for (connection)
+    				}
+    			}//end for (connection)
         
-        if (DEBUG){
-          System.out.print("Wb EnvIndex: " + envIndex 
+    			if (DEBUG){
+    				System.out.print("Wb EnvIndex: " + envIndex 
                          + "Reservoir local index: " + reservoirNumber);
-        for(int j=0; j < wbArray[envIndex].getNumberOfNodes(); j++)
-          System.out.println(", flow = " + flowArray[j]);
-        }
-        wbArray[envIndex].setFlow(flowArray);
-        depthArray[0] = getReservoirDepth(reservoirNumber);
-        ((Reservoir )wbArray[envIndex]).setDepth(depthArray);
-      }
-    }
+    				for(int j=0; j < wbArray[envIndex].getNumberOfNodes(); j++)
+    					System.out.println(", flow = " + flowArray[j]);
+    			}
+    			wbArray[envIndex].setFlow(flowArray);
+    			depthArray[0] = getReservoirDepth(reservoirNumber);
+    			((Reservoir )wbArray[envIndex]).setDepth(depthArray);
+    		}
+    	}
 
     
-    // update stage boundary flows
-    flowArray = new float[1];
-    for (int stgId = 0;
-         stgId < PTMFixedData.getMaximumNumberOfStageBoundaries();
-         stgId++){
-      int envIndex = PTMFixedData.getUniqueIdForStageBoundary(stgId);
-      if (wbArray[envIndex] != null ){
-        flowArray[0] = getStageBoundaryFlow(stgId);
-        wbArray[envIndex].setFlow(flowArray);
-      }
-    }
+    	// update stage boundary flows
+    	flowArray = new float[1];
+    	for (int stgId = 0;
+    			stgId < PTMFixedData.getMaximumNumberOfStageBoundaries();
+    			stgId++){
+    		int envIndex = PTMFixedData.getUniqueIdForStageBoundary(stgId);
+    		if (wbArray[envIndex] != null ){
+    			flowArray[0] = getStageBoundaryFlow(stgId);
+    			wbArray[envIndex].setFlow(flowArray);
+    		}
+    	}
 
 
-    // update boundary flows
-    if (DEBUG) System.out.println("Updating external flows");
-    flowArray = new float[1];
-    for (int extId = 0 ; 
-         extId < PTMFixedData.getMaximumNumberOfBoundaryWaterbodies(); 
-         extId ++){
-      flowArray[0] = getBoundaryFlow(extId);
-      int envIndex = PTMFixedData.getUniqueIdForBoundary(extId);
-      if (DEBUG){
-        System.out.println("Wb EnvIndex: " + envIndex 
+    	// update boundary flows
+    	if (DEBUG) System.out.println("Updating external flows");
+    	flowArray = new float[1];
+    	for (int extId = 0 ; 
+    			extId < PTMFixedData.getMaximumNumberOfBoundaryWaterbodies(); 
+    			extId ++){
+    		flowArray[0] = getBoundaryFlow(extId);
+    		int envIndex = PTMFixedData.getUniqueIdForBoundary(extId);
+    		if (DEBUG){
+    			System.out.println("Wb EnvIndex: " + envIndex 
                          + "extId: " + extId + ", flow = " + flowArray[0]);
-      }
-      if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
-    }
+    		}
+    		if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
+    	}
 
 
-    // update internal or conveyor flows
-    if (DEBUG) System.out.println("Updating internal flows");
-    flowArray = new float[2];
-    for (int intId = 0 ; intId < PTMFixedData.getMaximumNumberOfConveyors(); intId ++){
-      flowArray[0] = getConveyorFlow(intId);
-      flowArray[1] = -getConveyorFlow(intId);
-      int envIndex = PTMFixedData.getUniqueIdForConveyor(intId);
-      if (DEBUG){
-        System.out.println("Wb EnvIndex: " + envIndex 
+    	// update internal or conveyor flows
+    	if (DEBUG) System.out.println("Updating internal flows");
+    	flowArray = new float[2];
+    	for (int intId = 0 ; intId < PTMFixedData.getMaximumNumberOfConveyors(); intId ++){
+    		flowArray[0] = getConveyorFlow(intId);
+    		flowArray[1] = -getConveyorFlow(intId);
+    		int envIndex = PTMFixedData.getUniqueIdForConveyor(intId);
+    		if (DEBUG){
+    			System.out.println("Wb EnvIndex: " + envIndex 
                          + "Id: " + intId + ", flow = " 
                          + flowArray[0] + ", " + flowArray[1]);
-      }
-      if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
-    }
+    		}
+    		if (wbArray[envIndex] != null) wbArray[envIndex].setFlow(flowArray);
+    	}
     
-    // update stage boundary flows ?
-    if (DEBUG) System.out.println("Updated all flows");
-  }
+    	// update stage boundary flows ?
+    	if (DEBUG) System.out.println("Updated all flows");
+  	}
 
-  private native void  readMultTide(int currentModelTime);
-  //TODO need to be revisited xiao
-  // will be cleaned later, uncomment
-  //private native void readNonPhysicalBarrierOp(int currentModelTime);
-  //private native int getNonPhysicalBarrierOp(int channelNumber);
-  private int getCurrentBarrierOp(int chanEnvIndex, int nodeEnvIndex) {
-	  Iterator<NonPhysicalBarrier> it = _barrierSet.iterator();
+  	private native void  readMultTide(int currentModelTime);
+  	
+	  //TODO cleanup
+	  /* commented out 9/4/2013
+  	private int getCurrentBarrierOp(int chanEnvIndex, int nodeEnvIndex) {
+  	  Iterator<NonPhysicalBarrier> it = _barrierSet.iterator();
 	  while(it.hasNext()){
 		  NonPhysicalBarrier b = it.next();
 		  if ((b.getWaterbodyId() == chanEnvIndex) && b.getNodeId() == nodeEnvIndex)
@@ -352,13 +351,16 @@ public class PTMHydroInput{
 	  System.exit(-1);
 	  return -1;				  	
 	  //return _currentBarrierOp.get(channelNumber);
+	   
   }
-  
-  private void setCurrentBarrierOp(int currentModelTime){
-	  if (_barrierSet == null) // don't do anything if there is no barrier
+  */
+  /*
+  	private void setCurrentBarrierOp(int currentModelTime){
+	  if (_barriers == null) // don't do anything if there is no barrier
 		  return;
 	  // convert currentModelTime to Calendar time
-	  Calendar curr = convertHecTime(currentModelTime);
+	  Calendar curr = PTMUtil.convertHecTime(currentModelTime);
+	  
 	  
 	  Iterator<NonPhysicalBarrier> it = _barrierSet.iterator();
 	  while(it.hasNext()){
@@ -375,7 +377,7 @@ public class PTMHydroInput{
 			  }
 				  	
 	  }
-	  /*
+	  
 	  
 	  Iterator<Integer> it = _barrierChannelIds.iterator();
 	  while(it.hasNext()){
@@ -404,55 +406,56 @@ public class PTMHydroInput{
 			  System.exit(-1);
 		  }
 	  }
+	  
+  }
+  */
+
+	  //private Map<Integer, NonPhysicalBarrier> _barrierSet = null;
+	  //private Map<Integer, Integer> _currentBarrierOp = null;
+	  //private ArrayList<Integer> _barrierNodeIds = null;
+	  //private ArrayList<Integer> _barrierChannelIds = null;
+	  //TODO this method changed by Joey, may need to be checked and tested
+	  //public native static int   getExtFromInt(int channelNumber);
+	
+	  //TODO these methods needed to be added in fortran
+	  //public native int getIntFromExt(int externalChan);
+	  //public native int getNodeExtFromInt (int internalNode);
+	  //public native int getNodeIntFromExt(int externalNode);
+	  //TODO temporary methods needs to be rewrite
+	  /*
+	  public static int getIntFromExt(int channelNumber){
+		  switch(channelNumber){
+			  case 422:
+				  return 403;
+			  case 423:
+				  return 404;
+			  case 366:
+				  return 347;
+			  default:
+				  System.out.println("don't know how to deal with the channel, exit");
+				  System.exit(-1);
+				  return -99;
+		  }	 
+	  }
+	  //TODO temporary methods need to be rewrite
+	  public static int getNodeIntFromExt(int nodelNumber){
+		  switch(nodelNumber){
+			  case 343:
+				  return 307;
+			  default:
+				  System.out.println("don't know how to deal with the channel, exit");
+				  System.exit(-1);
+				  return -99;
+		  }	 
+	  }
 	  */
-  }
-  private Calendar convertHecTime(int currentTime){
-	  Calendar cur = Calendar.getInstance();
-	  cur.clear();
-	  Calendar hecTime0 = Calendar.getInstance();
-	  hecTime0.clear();
-	  hecTime0.set(1900,0,0,0,0);
-	  cur.setTimeInMillis((long)currentTime*60000+hecTime0.getTimeInMillis());
-	  return cur;
-  }
-  private ArrayList<NonPhysicalBarrier> _barrierSet = null;
-  //private Map<Integer, NonPhysicalBarrier> _barrierSet = null;
-  //private Map<Integer, Integer> _currentBarrierOp = null;
-  //private ArrayList<Integer> _barrierNodeIds = null;
-  //private ArrayList<Integer> _barrierChannelIds = null;
-  public native int   getExtFromInt(int channelNumber);
-  //TODO these methods needed to be added in fortran
-  //public native int getIntFromExt(int externalChan);
-  //public native int getNodeExtFromInt (int internalNode);
-  //public native int getNodeIntFromExt(int externalNode);
-  // temporary methods
-  public int getIntFromExt(int channelNumber){
-	  switch(channelNumber){
-		  case 422:
-			  return 403;
-		  case 423:
-			  return 404;
-		  case 366:
-			  return 347;
-		  default:
-			  System.out.println("don't know how to deal with the channel, exit");
-			  System.exit(-1);
-			  return -99;
-	  }	 
-  }
-  public int getNodeIntFromExt(int nodelNumber){
-	  switch(nodelNumber){
-		  case 343:
-			  return 307;
-		  default:
-			  System.out.println("don't know how to deal with the channel, exit");
-			  System.exit(-1);
-			  return -99;
-	  }	 
-  }
-  //xiao
+	  //xiao
 
   //private native int   getExtFromInt(int channelNumber);
+  public native static int getExtFromIntChan(int inchannelNumber);
+  public native static int getExtFromIntNode(int innodeNumber);
+  public native static int getIntFromExtChan(int exchannelNumber);
+  public native static int getIntFromExtNode(int exnodeNumber);
   private native float getUpNodeDepth(int channelNumber);
   private native float getDownNodeDepth(int channelNumber);
   private native float getUpNodeStage(int channelNumber);
@@ -479,5 +482,12 @@ public class PTMHydroInput{
   
   private native float getUpNodeQuality(int channelNumber, int constituent);
   private native float getDownNodeQuality(int channelNumber, int constituent);
+  private NonPhysicalBarrier getBarrier(HashMap<String, NonPhysicalBarrier> bars, int nodeId, int chanId){
+	NonPhysicalBarrier npb = bars.get(PTMUtil.concatNodeWbIds(nodeId, chanId));
+	if (npb == null)
+		PTMUtil.systemExit("Barrier is not setup, exit from PTMHydroInput line 232.");
+	return npb;
+  }
+  private int _currentModelTime;
   
 }
