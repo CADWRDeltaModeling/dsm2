@@ -215,11 +215,11 @@ module common_dsm2_vars
        !-----input/output file names
        type io_file_t
            sequence
-           logical use            ! .true. if restart/tide to be read/written
-           integer unit           ! restart/tide read/write unit
-           character*16 interval  ! interval for restart/tide writing (e.g. 1HOUR)
-           character*130 filename ! restart/tide read/write filename
-           character*6 dummy      ! alignment to multiple of 8
+           logical use               ! .true. if restart/tide to be read/written
+           integer unit              ! restart/tide read/write unit
+           character*16 :: interval  ! interval for restart/tide writing (e.g. 1HOUR)
+           character*130 :: filename ! restart/tide read/write filename
+           character*6 dummy         ! alignment to multiple of 8
        end type
     
        integer, parameter :: max_file_types = 7     ! number of types of files (restart, tide, animation,...)

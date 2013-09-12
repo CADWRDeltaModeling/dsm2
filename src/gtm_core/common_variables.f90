@@ -33,7 +33,7 @@ module common_variables
      integer :: n_junc = LARGEINT                   !< number of junctions
      integer :: n_boun = LARGEINT                   !< number of boundaries
      integer :: n_xsect = LARGEINT                  !< number of entries in virt xsect table
-     integer :: n_resv = LARGEINT                   !< number of reservoirs
+     integer :: n_resv = 0                          !< number of reservoirs
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
     
@@ -156,8 +156,8 @@ module common_variables
         logical :: conservative = .true.   ! true if conservative, false if nonconservative
     end type     
     type(constituent_t), allocatable :: constituents(:)
-     
-     contains
+    
+    contains
     
      !> Allocate channel_t array    
      subroutine allocate_channel_property()

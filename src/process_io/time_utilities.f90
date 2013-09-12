@@ -339,18 +339,24 @@ module time_utilities
 
     !> Routine to determine offset and buffer length to read HDF file
     subroutine check_runtime(offset, num_buffers, memlen,          &
-                             time_buffer,                          &                               
+                             runtime_hydro_start,                  &
+                             runtime_hydro_end,                    &
+                             beginning_skip,                       & 
+                             time_buffer,                          & 
                              run_start_jmin, run_end_jmin,         &
                              hdf_start_jmin, hdf_end_jmin,         &
-                             hdf_time_interval)              
-          implicit none
-          integer, intent(out) :: offset                  !< time offset to read hydro tidefile
+                             hdf_time_interval, run_time_interval)              
+          integer, intent(out) :: offset                  !< time offset to read hydro tidefile (from runtime_hydro_prev on)
           integer, intent(out) :: num_buffers             !< number of total buffer blocks
           integer, allocatable, intent(out) :: memlen(:)  !< length of memory for each buffer
+          integer, intent(out) :: runtime_hydro_start     !< starting hydro julmin (corresponding hydro time window for GTM runtime)
+          integer, intent(out) :: runtime_hydro_end       !< ending hydro julmin (corresponding hydro time window for GTM runtime)
+          integer, intent(out) :: beginning_skip          !< skip gtm time step in the beginning of simulation (to get time_index right)
           integer, intent(in) :: time_buffer              !< time buffer length
           integer, intent(in) :: hdf_start_jmin           !< hydro tidefile start julian minutes
           integer, intent(in) :: hdf_end_jmin             !< hydro tidefile end Julian minutes
           integer, intent(in) :: hdf_time_interval        !< hydro tidefile time interval
+          real(gtm_real), intent(in) :: run_time_interval !< gtm runtime time interval
           integer, intent(in) :: run_start_jmin           !< GTM start Julian miniutes
           integer, intent(in) :: run_end_jmin             !< GTM end Julian miniutes
           integer :: remainder, i                         ! local variables
@@ -358,16 +364,33 @@ module time_utilities
           offset = LARGEINT
           num_buffers = LARGEINT
           remainder = LARGEINT
-          if (run_start_jmin < hdf_start_jmin) then
+          runtime_hydro_start = LARGEINT
+          runtime_hydro_end  = LARGEINT          
+          if (run_start_jmin < hdf_start_jmin+hdf_time_interval) then
               write(*,*) "HDF file time range:",jmin2cdt(hdf_start_jmin),"-",jmin2cdt(hdf_end_jmin)          
               call gtm_fatal("GTM starting time should be within HDF file time range.")
           else if (run_end_jmin > hdf_end_jmin) then
               write(*,*) "HDF file time range:",jmin2cdt(hdf_start_jmin),"-",jmin2cdt(hdf_end_jmin)          
               call gtm_fatal(" GTM ending time should be within HDF file time range.")
           else 
-              offset = (run_start_jmin - hdf_start_jmin)/hdf_time_interval
-              num_buffers = int((run_end_jmin-run_start_jmin)/hdf_time_interval/time_buffer) + 1
-              remainder = mod((run_end_jmin-run_start_jmin)/hdf_time_interval, time_buffer)
+              do i = hdf_start_jmin, hdf_end_jmin, hdf_time_interval
+                  if (run_start_jmin .le. i) then
+                      runtime_hydro_start = i - hdf_time_interval
+                      goto 233
+                  end if                  
+              enddo     
+233           do i = hdf_end_jmin, hdf_start_jmin, -hdf_time_interval
+                  if (run_end_jmin .gt. i) then
+                      runtime_hydro_end = i + hdf_time_interval
+                      goto 234
+                  elseif (run_end_jmin .eq. i) then
+                      runtime_hydro_end = i
+                      goto 234
+                  end if                  
+              enddo                              
+234           offset = (runtime_hydro_start - hdf_start_jmin)/hdf_time_interval
+              num_buffers = int((runtime_hydro_end - runtime_hydro_start)/hdf_time_interval/time_buffer) + 1
+              remainder = mod((runtime_hydro_end - runtime_hydro_start)/hdf_time_interval, time_buffer)
               allocate(memlen(num_buffers), stat = istat)
               if (num_buffers>1) then
                   do i = 1, num_buffers - 1
@@ -375,9 +398,48 @@ module time_utilities
                   end do
               end if
               memlen(num_buffers) = remainder              
+              beginning_skip = (run_start_jmin-runtime_hydro_start)/run_time_interval + hdf_time_interval/run_time_interval
           end if
           return  
     end subroutine
+    
+    
+    !> Subroutine to return current block number and slice in the block
+    subroutine get_loc_in_hydro_buffer(iblock,            &
+                                       slice_in_block,    &
+                                       time_index,        &
+                                       current_time,      &
+                                       start_hydro_block, & 
+                                       memory_buffer,     &
+                                       beginning_skip,    &
+                                       hdf_time_interval, &
+                                       gtm_time_interval)
+        implicit none
+        integer, intent(in) :: current_time             !< current julian time
+        integer, intent(in) :: start_hydro_block        !< offset to start reading hydro tidefile
+        integer, intent(in) :: memory_buffer            !< memory buffer
+        integer, intent(in) :: beginning_skip           !< skip gtm time step in the beginning of simulation (to get time_index right)       
+        integer, intent(in) :: hdf_time_interval        !< hydro tidefile time interval
+        real(gtm_real), intent(in) :: gtm_time_interval !< gtm time interval
+        integer, intent(out) :: iblock                  !< block index
+        integer, intent(out) :: slice_in_block          !< slice in block
+        real(gtm_real), intent(out) :: time_index              !< time index within hydro time step
+        real(gtm_real) :: tmp                           ! local variable
+        tmp = (dble(current_time) - dble(start_hydro_block) + dble(hdf_time_interval)) &
+              /dble(hdf_time_interval)/dble(memory_buffer)
+        iblock = ceiling(tmp)
+        tmp = (dble(current_time) - dble((iblock-1)*memory_buffer*hdf_time_interval) - &
+               dble(start_hydro_block-hdf_time_interval))/dble(hdf_time_interval)
+        slice_in_block = ceiling(tmp)
+        if (iblock==1) then
+            tmp = (current_time - ((iblock-1)*memory_buffer+(slice_in_block-2))*hdf_time_interval - start_hydro_block)/gtm_time_interval
+        else
+            tmp = (current_time - ((iblock-1)*memory_buffer+slice_in_block)*hdf_time_interval - start_hydro_block)/gtm_time_interval + beginning_skip
+        end if    
+        time_index = dble(tmp)+one
+        return
+    end subroutine        
+    
     
     !> Split a DSS E part into its interval (e.g. HOUR, DECADE)
     !> and number of intervals (e.g. 1, 5).
@@ -445,7 +507,8 @@ module time_utilities
       
       
     !> Parse time interval string into real number in unit of minutes
-    subroutine get_time_intvl_min(time_intvl, time_intvl_str)
+    subroutine get_time_intvl_min(time_intvl,      &
+                                  time_intvl_str)
         implicit none
         character*(*), intent(in) :: time_intvl_str   !< time interval string read from input specification file
         real(gtm_real), intent(out) :: time_intvl     !< converted time interval in minutes
@@ -516,11 +579,13 @@ module time_utilities
     end subroutine
       
     !> Routine to get number of partition in time
-    subroutine get_npartition_t(npart_t, orig_time_interv, gtm_time_interv)
+    subroutine get_npartition_t(npart_t,            &
+                                orig_time_interv,   &
+                                gtm_time_interv)
           implicit none
-          integer, intent(out) :: npart_t
-          integer, intent(in) :: orig_time_interv
-          real(gtm_real), intent(in) :: gtm_time_interv
+          integer, intent(out) :: npart_t                 !< number of time steps between two hydro time steps
+          integer, intent(in) :: orig_time_interv         !< Hydrotidefile time interval
+          real(gtm_real), intent(in) :: gtm_time_interv   !< GTM runtime interval
           if (orig_time_interv < gtm_time_interv) then
               call gtm_fatal("GTM runtime interval should be smaller or equal than DSM2 hydro output time interval.")
           else

@@ -22,61 +22,70 @@
 !> as well as functions to allocate them
 !>@ingroup transport
 module state_variables
+
     use gtm_precision
     use common_variables
 
     !> Mass of constituent in the current/new time step,
     !> dimensions (ncell, nvar)
-    real(gtm_real),save,allocatable :: mass(:,:)
+    real(gtm_real), save, allocatable :: mass(:,:)
     
     !> Mass of constituent in the previous time step,
     !> dimensions (ncell, nvar)
-    real(gtm_real),save,allocatable :: mass_prev(:,:)
+    real(gtm_real), save, allocatable :: mass_prev(:,:)
     
     
     !> Concentration in the current/new time step,
     !> dimensions (ncell, nvar)
-    real(gtm_real),save,allocatable :: conc(:,:)
+    real(gtm_real), save, allocatable :: conc(:,:)
     
     !> Concentration in the previous time step,
     !> dimensions (ncell, nvar)
-    real(gtm_real),save,allocatable :: conc_prev(:,:)
+    real(gtm_real), save, allocatable :: conc_prev(:,:)
+
+    !> Concentration in the current/new time step for reservoir, 
+    !> dimensions (nresv, nvar)
+    real(gtm_real), save, allocatable :: conc_resv(:,:)
+    
+    !> Concentration in the previous time step,
+    !> dimensions (nresv, nvar)
+    real(gtm_real), save, allocatable :: conc_resv_prev(:,:)
 
     !> Cell-centered area
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: area(:)
+    real(gtm_real), save, allocatable :: area(:)
     
     !> Cell-centered area at old time step
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: area_prev(:)
+    real(gtm_real), save, allocatable :: area_prev(:)
     
     !> Face area on lo side of cell (so this is cell-indexed),
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: area_lo(:)
+    real(gtm_real), save, allocatable :: area_lo(:)
     
     !> Face-centered area on hi side of cell (so this is cell-indexed),
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: area_hi(:)
+    real(gtm_real), save, allocatable :: area_hi(:)
 
     !> Face area on lo side of cell (so this is cell-indexed),
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: area_lo_prev(:)
+    real(gtm_real), save, allocatable :: area_lo_prev(:)
     
     !> Face-centered area on hi side of cell (so this is cell-indexed),
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: area_hi_prev(:)
+    real(gtm_real), save, allocatable :: area_hi_prev(:)
     
     !> face-centered flow on lo side of cell  (so this is cell-indexed),
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: flow(:)
+    real(gtm_real), save, allocatable :: flow(:)
     
     !> face-centered flow on lo side of cell  (so this is cell-indexed),
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: flow_lo(:)
+    real(gtm_real), save, allocatable :: flow_lo(:)
     
     !> face-centered flow on hi side of cell  (so this is cell-indexed),
     !> dimensions (ncell)
-    real(gtm_real),save,allocatable :: flow_hi(:)
+    real(gtm_real), save, allocatable :: flow_hi(:)
     
     
     contains
@@ -132,6 +141,31 @@ module state_variables
         return
     end subroutine
     
+        
+    !> Allocate reservoir state variables
+    subroutine allocate_state_resv(a_nresv, a_nvar) 
+        use error_handling
+        implicit none
+        character(LEN=150) :: message
+        integer :: istat = 0
+        integer, intent(in) :: a_nresv !< Number of requested reservoirs
+        integer, intent(in) :: a_nvar  !< Number of constituents
+        integer :: nresv, nvar
+        nresv = a_nresv
+        nvar  = a_nvar
+        write(message,*)"Could not allocate state variable for reservoir. " // & 
+            "This could be due to allocating several times in "             // &
+            "a row without deallocating (memory leak)"
+        allocate(conc_resv(nresv,nvar), conc_resv_prev(nresv,nvar), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        conc_resv      = LARGEREAL  ! absurd value helps expose bugs  
+        conc_resv_prev = LARGEREAL
+        return
+    end subroutine
+    
+    
     !> Deallocate the state variables
     !> including concentration and hydrodynamics
     !> and reset ncell and nvar to zero.
@@ -147,6 +181,16 @@ module state_variables
         deallocate(flow, flow_lo, flow_hi)
         return
     end subroutine
+    
+    !> Deallocate the state variables for reservoir
+    !> including concentration and hydrodynamics
+    !> and reset nresv to zero.
+    subroutine deallocate_state_resv
+        implicit none
+        n_resv = 0
+        deallocate(conc_resv, conc_resv_prev)
+        return
+    end subroutine    
 
 end module
 
