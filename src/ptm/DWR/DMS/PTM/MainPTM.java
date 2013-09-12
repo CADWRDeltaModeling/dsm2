@@ -39,8 +39,6 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
  */
 package DWR.DMS.PTM;
 import java.io.IOException;
-//import java.util.HashMap;
-//import java.util.Map;
 /*
  * main function of PTM
  */
@@ -210,7 +208,6 @@ public class MainPTM {
       
             }
             if ( animationOutput != null ) animationOutput.FlushAndClose();
-            //System.out.println(" ");
             // write out restart file information
             if ( outRestart != null ) outRestart.output();
     
@@ -228,7 +225,6 @@ public class MainPTM {
                                                          groupFixedInfo);
             fluxCalculator.calculateFlux();
             fluxCalculator.writeOutput();
-            //System.out.println("");
             
         }catch(Exception e){
             e.printStackTrace();

@@ -86,7 +86,7 @@ public class Node{
     return (numberOfWaterbodies);
   }
   
-  //xiao
+  //xiao added
   public final int getNumberOfChannels(){
 	  int chan = 0;
 	  for (int i = 0; i<wbArray.length; i++){
@@ -178,8 +178,6 @@ public class Node{
    */
   public final float getSignedOutflow(int id){
     int junctionIdInWaterbody= 0;
-    //  System.out.println("In signed outflow: index: " + id 
-    //		     + " wb[i]= "   + wbArray[id]);
     junctionIdInWaterbody = wbArray[id].getNodeLocalIndex(EnvIndex);
     if (junctionIdInWaterbody == -1)
       System.out.println("Exception thrown in node " + this.toString());

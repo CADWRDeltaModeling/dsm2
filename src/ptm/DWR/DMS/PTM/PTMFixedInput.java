@@ -181,7 +181,6 @@ public class PTMFixedInput{
       Waterbody wb = null;
       switch (_fixedData.getWaterbodyType(i)){
       case Waterbody.CHANNEL:
-    	  //System.out.println("Channel #:" + i);
         wb = createChannel(i);
         break;
       case Waterbody.RESERVOIR:
@@ -292,7 +291,7 @@ public class PTMFixedInput{
        //TODO this used to cause an error (below) for high Node numbers. never figured out
       // howe the code would ever work right.
       // Xiao added: the reason is because a node for very high node number may not exist and there is no 
-      // check here for a null or anything.  The code needs to be rewritten. should get rid of all native methods?
+      // check here for a null or anything.  The code needs to be rewritten. 
       String type = _fixedData.getBoundaryTypeForNode(nodeId);
       nodeArray[i] = new Node(nodeId, waterbodyIdArray, type);
       if (DEBUG) System.out.println("Created node: " + nodeArray[i]);
@@ -321,8 +320,8 @@ public class PTMFixedInput{
       xSArray[i] = null;
       width = _fixedData.getXSectionWidths(i); // xFD[i-1].width[0];
       if (width[0] > 0){
-        //? set distance to non zero. PTMEnv will set the dist = length of Channel
-        //? later.
+        //TODO set distance to non zero. PTMEnv will set the dist = length of Channel
+        //TODO later.
         float dist = -1;
         //
         elevation = _fixedData.getXSectionElevations(i);
@@ -336,22 +335,6 @@ public class PTMFixedInput{
     } 
     return xSArray;
   }
-  //TODO clean up xiao
-  /**
-   *  Gets non physical barrier node ids
-   */
-  /*
-  public final ArrayList<Integer> getBarrierNodeIds(){
-    return _fixedData.getBarrierNodeIds();
-  }
-  
-   //  Gets non physical barrier channel ids
-   
-  public final ArrayList<Integer> getBarrierChannelIds(){
-    return _fixedData.getBarrierChannelIds();
-  }
-  */
-  //xiao
   /**
    *  updates the class ParticleFixedInfo with fixed information
    *  from common block

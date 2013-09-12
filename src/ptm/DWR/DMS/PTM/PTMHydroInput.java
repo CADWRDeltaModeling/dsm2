@@ -45,7 +45,6 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
-import java.util.HashMap;
 /**
  * This class handles the reading of the hydro tide file using
  * the appropriate fortran functions and using a common block
@@ -68,15 +67,11 @@ public class PTMHydroInput{
    */
   public final void getNextChunk(int currentModelTime) {
     readMultTide(currentModelTime);
-    //TODO cleanup
-    //_currentModelTime = currentModelTime;
-    
   }
 
   /**
    *  the information in the Waterbody array in PTMEnv
    */
-  //TODO clean up //HashMap<String,NonPhysicalBarrier> barriers,
   public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray, LimitsFixedData lFD){
     //update Channel depths, flows and area of flow
     float[] depthArray = new float[2];
@@ -85,10 +80,7 @@ public class PTMHydroInput{
     float[] areaArray = new float[2];
     int numConst = PTMFixedData.getQualConstituentNames().length;  
     float[][] qualityArray = new float[2][numConst];
-    //TODO cleanup
-    //HashMap<String, NonPhysicalBarrier> bars = barriers;
-    
-    //@todo: external/internal numbers?
+
     for(int channelNumber=1; 
         channelNumber <= PTMFixedData.getMaximumNumberOfChannels(); 
         channelNumber++){
@@ -117,18 +109,6 @@ public class PTMHydroInput{
     		chan.setStage(stageArray);
     		chan.setFlow(flowArray);
     		chan.setArea(areaArray);
-    		int chanEnvId = chan.getEnvIndex();
-    		//TODO need to be revisited xiao
-    		/*
-    		if (chan.isBarrierAtUpNodeInstalled())
-    			chan.setBarrierAtUpNodeOp(getBarrier(bars, chan.getUpNodeId(), 
-    					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(_currentModelTime)));
-    		else if (chan.isBarrierAtDownNodeInstalled())
-    			chan.setBarrierAtDownNodeOp(getBarrier(bars, chan.getDownNodeId(), 
-    					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(_currentModelTime)));
-    		*/
-    		//TODO: disabled quality here
-    		//((Channel) wbArray[dsmNumber]).setQuality(qualityArray);
     		}//end if (wbArray)
     	}//end for (channelNumber)
 
@@ -231,120 +211,6 @@ public class PTMHydroInput{
   	}
 
   	private native void  readMultTide(int currentModelTime);
-  	
-	  //TODO cleanup
-	  /* commented out 9/4/2013
-  	private int getCurrentBarrierOp(int chanEnvIndex, int nodeEnvIndex) {
-  	  Iterator<NonPhysicalBarrier> it = _barrierSet.iterator();
-	  while(it.hasNext()){
-		  NonPhysicalBarrier b = it.next();
-		  if ((b.getWaterbodyId() == chanEnvIndex) && b.getNodeId() == nodeEnvIndex)
-			  return b.getCurrentOperation();
-	  }
-	  System.out.println("Barrier is not installed at node:"+ " " +nodeEnvIndex+"and channel:"+chanEnvIndex);
-	  System.out.println("exit from PTMHydroInput line 351.");
-	  System.exit(-1);
-	  return -1;				  	
-	  //return _currentBarrierOp.get(channelNumber);
-	   
-  }
-  */
-  /*
-  	private void setCurrentBarrierOp(int currentModelTime){
-	  if (_barriers == null) // don't do anything if there is no barrier
-		  return;
-	  // convert currentModelTime to Calendar time
-	  Calendar curr = PTMUtil.convertHecTime(currentModelTime);
-	  
-	  
-	  Iterator<NonPhysicalBarrier> it = _barrierSet.iterator();
-	  while(it.hasNext()){
-		  NonPhysicalBarrier b = it.next();
-		  boolean sucess = b.setCurrentOperation(curr);
-			  if (!sucess){
-				  System.out.println("Warning! no time or date matches the model time " +
-				  		"in the non-physical barrier operation list, model time:");
-				  System.out.println(curr.getTime());
-				  System.out.println("Barrier node id:"+ " " +b.getNodeId());
-				  System.out.println("Barrier channel id:"+ " " +b.getWaterbodyId());
-				  System.out.println("exit from PTMHydroInput line 374.");
-				  System.exit(-1);
-			  }
-				  	
-	  }
-	  
-	  
-	  Iterator<Integer> it = _barrierChannelIds.iterator();
-	  while(it.hasNext()){
-		  int chan = it.next();
-		  if (_barrierSet != null){
-			  NonPhysicalBarrier b = _barrierSet.get(chan);
-			  if (b == null){
-				  System.out.println("Warning! no match channel found in the barrier channel list.");
-				  System.exit(-1);
-			  }
-			  int op = b.getBarrierOp(curr);
-			  if (op<0){
-				  System.out.println("Warning! no time or date matches the model time " +
-				  		"in the non-physical barrier operation list, model time:");
-				  System.out.println(curr.getTime());
-				  System.out.println("Barrier node id:"+ " " +b.getNodeId());
-				  System.out.println("Barrier channel id:"+ " " +b.getWaterbodyId());
-				  System.out.println("exit.");
-				  System.exit(-1);
-			  }
-				  	
-			  _currentBarrierOp.put(chan, op);
-		  }
-		  else{
-			  System.out.println("Warning! no non-physical barrier data set, exit.");
-			  System.exit(-1);
-		  }
-	  }
-	  
-  }
-  */
-
-	  //private Map<Integer, NonPhysicalBarrier> _barrierSet = null;
-	  //private Map<Integer, Integer> _currentBarrierOp = null;
-	  //private ArrayList<Integer> _barrierNodeIds = null;
-	  //private ArrayList<Integer> _barrierChannelIds = null;
-	  //TODO this method changed by Joey, may need to be checked and tested
-	  //public native static int   getExtFromInt(int channelNumber);
-	
-	  //TODO these methods needed to be added in fortran
-	  //public native int getIntFromExt(int externalChan);
-	  //public native int getNodeExtFromInt (int internalNode);
-	  //public native int getNodeIntFromExt(int externalNode);
-	  //TODO temporary methods needs to be rewrite
-	  /*
-	  public static int getIntFromExt(int channelNumber){
-		  switch(channelNumber){
-			  case 422:
-				  return 403;
-			  case 423:
-				  return 404;
-			  case 366:
-				  return 347;
-			  default:
-				  System.out.println("don't know how to deal with the channel, exit");
-				  System.exit(-1);
-				  return -99;
-		  }	 
-	  }
-	  //TODO temporary methods need to be rewrite
-	  public static int getNodeIntFromExt(int nodelNumber){
-		  switch(nodelNumber){
-			  case 343:
-				  return 307;
-			  default:
-				  System.out.println("don't know how to deal with the channel, exit");
-				  System.exit(-1);
-				  return -99;
-		  }	 
-	  }
-	  */
-	  //xiao
 
   //private native int   getExtFromInt(int channelNumber);
   public native static int getExtFromIntChan(int inchannelNumber);
@@ -377,15 +243,5 @@ public class PTMHydroInput{
   
   private native float getUpNodeQuality(int channelNumber, int constituent);
   private native float getDownNodeQuality(int channelNumber, int constituent);
-  //TODO Cleanup
-  /*
-  private NonPhysicalBarrier getBarrier(HashMap<String, NonPhysicalBarrier> bars, int nodeId, int chanId){
-	NonPhysicalBarrier npb = bars.get(PTMUtil.concatNodeWbIds(nodeId, chanId));
-	if (npb == null)
-		PTMUtil.systemExit("Barrier is not setup, exit from PTMHydroInput line 232.");
-	return npb;
-  }
-  private int _currentModelTime;
-  */
   
 }

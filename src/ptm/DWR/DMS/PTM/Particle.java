@@ -470,7 +470,7 @@ _survivalHelper = null;
         // age in seconds
         age += tmToAdv;
         // check survival, if not survived, isDead is set to true and call observer.observeDeath()
-        //TODO something wrong here.
+        //TODO need more work.
         if (!checkSurvival()) return;
         updateAllParameters(tmToAdv);
         if (particleWait == false){

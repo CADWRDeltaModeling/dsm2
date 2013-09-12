@@ -125,7 +125,6 @@ public class PTMFixedData {
   public FluxFixedData[] getFluxFixedData(){
     int numberOfFluxes = getNumberOfFluxes();
     FluxFixedData [] fFD = new FluxFixedData[numberOfFluxes];
-    //System.out.println("Number of fluxes: " + numberOfFluxes);
     
     for(int i=1; i<= fFD.length; i++){
       int[] inArray = getFluxIncoming(i);
@@ -136,7 +135,6 @@ public class PTMFixedData {
       // String name = getFluxOutgoingname(i);
       String nameIn="TODO:FLUX";  //@todo: get names for printing error/info messages
       String nameOut="TODO:FLUX";
-      //for (int j=0; j< outTypeArray.length; j++)System.out.println("flux: " + i+ " member: "+j+":"+outTypeArray[j]+" id: "+outArray[j]);
       fFD[i-1] = new FluxFixedData(
   	    new WaterbodyGroup(nameIn,inTypeArray, inArray),
         new WaterbodyGroup(nameOut,outTypeArray, outArray)
@@ -178,34 +176,6 @@ public class PTMFixedData {
     }
     return barray;
   }
-  //xiao
-  /*
-  void setBarrier(ArrayList<NonPhysicalBarrier> barriers){
-	  _barriers = barriers;
-  }
-  private ArrayList<NonPhysicalBarrier> _barriers = null;
-  
-  public ArrayList<NonPhysicalBarrier> getBarriers(){
-	  return _barriers;
-  }
-  */
-  /*
-  void setBarrierNodeIds(ArrayList<Integer> nodeIds){
-	  _barrierNodeIds = nodeIds;
-  }
-  void setBarrierChannelIds(ArrayList<Integer> channelIds){
-	  _barrierChannelIds = channelIds;
-  }
-  private ArrayList<Integer> _barrierNodeIds = null;
-  private ArrayList<Integer> _barrierChannelIds = null;
-  
-  public ArrayList<Integer> getBarrierChannelIds(){
-	  return _barrierChannelIds;
-  }
-  public ArrayList<Integer> getBarrierNodeIds(){
-	  return _barrierNodeIds;
-  }
-  */
   
   native void initialize(String filename);
   // 
@@ -277,13 +247,6 @@ public class PTMFixedData {
   native int [] getParticleNumberOfParticlesInjected();
   native int [] getParticleInjectionStartJulmin();
   native int [] getParticleInjectionLengthJulmin();
-  //TODO cleanup
-  //temporary method
-  /*
-  public String getParticleType(){
-	  return "SALMON";
-  }
-  */
   native int getNumberOfFluxes();
   native int [] getFluxIncoming(int i);
   native int [] getFluxOutgoing(int i);
