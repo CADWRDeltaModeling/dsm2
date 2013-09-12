@@ -39,6 +39,22 @@ public class PTMBehaviorInputs {
 		_routeInputs = new RouteInputs(routeInputText);
 		PTMUtil.closeBuffer(inputText);
 	}
+	public void setChannelInfo(Waterbody[] allChans, int chanNum){
+		_routeInputs.setChannelInfo(allChans, chanNum);
+		_survivalInputs.setChannelInfo(allChans, chanNum);
+		_swimInputs.setChannelInfo(allChans, chanNum);
+		
+	}
+	public void setNodeInfo(Node[] allNodes, int nodeNum){
+		_routeInputs.setNodeInfo(allNodes, nodeNum);
+		_survivalInputs.setNodeInfo(allNodes, nodeNum);
+		_swimInputs.setNodeInfo(allNodes, nodeNum);
+	}
+	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
+		_routeInputs.updateCurrentInfo(allNodes, nodeNum, allChans, chanNum,currentTime);
+		_survivalInputs.updateCurrentInfo(allNodes, nodeNum, allChans, chanNum,currentTime);
+		_swimInputs.updateCurrentInfo(allNodes, nodeNum, allChans, chanNum,currentTime);
+	}
 	public String getFishType(){return _fishType;}
 	public SwimInputs getSwimInputs(){ return _swimInputs;}
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}

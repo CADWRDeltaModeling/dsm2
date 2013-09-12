@@ -46,20 +46,6 @@
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
 import java.util.HashMap;
-//import java.util.ArrayList;
-//import java.util.Iterator;
-//import java.util.Calendar;
-/*
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.regex.*;
-*/
-
 /**
  * This class handles the reading of the hydro tide file using
  * the appropriate fortran functions and using a common block
@@ -75,111 +61,23 @@ import java.util.regex.*;
 // this class is mainly used to read hydro info from fortran for each time step and set up wbarray 
 public class PTMHydroInput{
 
-  private final static boolean DEBUG = false;
-  public void initializeNonphysicalBarrierOp(PTMBehaviorInputs bInputs){
-	 
-  }
-  /*
-	  //TODO need to be cleaned up
-	  try{
-		  FileInputStream fstream;
-		  try{
-			  fstream = new FileInputStream("non_physical_barrier_op.txt");
-		  }
-		  catch(FileNotFoundException fe){
-			  return; // don't do anything if no non physical barriers
-		  }
-		  // xiao put if statement here to decide if the file is exist.
-		  DataInputStream in = new DataInputStream(fstream);
-		  BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		  String strLine;
-		  String p_title = "([a-zA-Z\\:]+)([,\\s]+)(\\d+)([,\\s]+)([a-zA-Z\\:]+)([,\\s]+)(\\d+)";
-		  String p_data = "([0-9/\\-]+)([,\\s]+)([0-9:]+)([,\\s]+)(\\d)";
-		  Pattern r_title = Pattern.compile(p_title);
-		  Pattern r_data = Pattern.compile(p_data);
-		  // to do may not need the flowing maps and lists
-		  _barrierSet = new ArrayList<NonPhysicalBarrier>();
-		  //_barrierNodeIds = new ArrayList<Integer>();
-		  //_barrierChannelIds = new ArrayList<Integer>();
-		  NonPhysicalBarrier npb;
-		  Map<BarrierOpPeriod, Integer> npbOp = null;
-		  Calendar s_time = null, e_time = null;
-		  int op = -1;	
-		  
-		  while ((strLine = br.readLine()) != null){
-			  Matcher m_title = r_title.matcher(strLine);				
-			  Matcher m_data = r_data.matcher(strLine);
-			  if(m_title.find( )) {
-				  npbOp = new HashMap<BarrierOpPeriod, Integer>();
-				  int chan = Integer.parseInt(m_title.group(7));
-				  int nd = Integer.parseInt(m_title.group(3));
-				  npb = new NonPhysicalBarrier(getNodeIntFromExt(nd), getIntFromExt(chan), npbOp);
-				  _barrierSet.add(npb);
-				  //_barrierNodeIds.add(nd);
-				  //_barrierChannelIds.add(chan);
-			  }
-			  else if(m_data.find( )){
-				  String p_date = "([0-9]+)([\\/]+)([0-9]+)([\\/]+)([0-9]+)";
-				  Pattern r_pdate = Pattern.compile(p_date);
-				  Matcher m_pdate = r_pdate.matcher(m_data.group(1));
-				  String p_time = "([0-9]+)([\\:]+)([0-9]+)";
-				  Pattern r_ptime = Pattern.compile(p_time);
-				  Matcher m_ptime = r_ptime.matcher(m_data.group(3));
-				  if(m_pdate.find()&& m_ptime.find()){
-					  e_time = Calendar.getInstance();
-					  e_time.clear();
-					  e_time.set(Integer.parseInt(m_pdate.group(5)), Integer.parseInt(m_pdate.group(1))-1, Integer.parseInt(m_pdate.group(3)),
-							  Integer.parseInt(m_ptime.group(1)), Integer.parseInt(m_ptime.group(3)));
-					  if (npbOp == null){
-						  System.out.println("file read error: couldn't find node and wb ids line!");
-						  System.exit(-1);
-					  }
-					  if ((op != -1) && s_time != null){
-						  npbOp.put(new BarrierOpPeriod(s_time, e_time), op);
-						  //System.out.println(s_time.getTime()+" "+e_time.getTime() + " " + op);
-					  }
-					  op = Integer.parseInt(m_data.group(5));
-					  s_time = e_time;
-				  }
-				  else{
-					  System.out.println("operation data NO MATCH");
-				  }
-			  }
-			  else {
-   					System.out.println("NO MATCH in the file");
-			  }
-		  }
-		  in.close();
-		  /*
-		  if (_barrierNodeIds != null && _barrierChannelIds != null){
-			  PTMFixedData.setBarrierNodeIds(_barrierNodeIds);
-			  PTMFixedData.setBarrierChannelIds(_barrierChannelIds);
-		  }
-		 
-	  }
-	  catch (Exception e){
-		  System.err.println("Error: " + e.getMessage());
-	  }
-	}
-	
-  ArrayList<NonPhysicalBarrier> getBarriers(){
-	  return _barrierSet;
-  }
-  */
-  //xiao
+  private final static boolean DEBUG = false; 
+
   /**
    *  the next chunk of data till the next time step
    */
   public final void getNextChunk(int currentModelTime) {
     readMultTide(currentModelTime);
-    _currentModelTime = currentModelTime;
+    //TODO cleanup
+    //_currentModelTime = currentModelTime;
+    
   }
 
   /**
    *  the information in the Waterbody array in PTMEnv
    */
-  public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray,HashMap<String, NonPhysicalBarrier> barriers,
-                                               LimitsFixedData lFD){
+  //TODO clean up //HashMap<String,NonPhysicalBarrier> barriers,
+  public final void updateWaterbodiesHydroInfo(Waterbody [] wbArray, LimitsFixedData lFD){
     //update Channel depths, flows and area of flow
     float[] depthArray = new float[2];
     float[] flowArray = new float[2];
@@ -187,7 +85,8 @@ public class PTMHydroInput{
     float[] areaArray = new float[2];
     int numConst = PTMFixedData.getQualConstituentNames().length;  
     float[][] qualityArray = new float[2][numConst];
-    HashMap<String, NonPhysicalBarrier> bars = barriers;
+    //TODO cleanup
+    //HashMap<String, NonPhysicalBarrier> bars = barriers;
     
     //@todo: external/internal numbers?
     for(int channelNumber=1; 
@@ -213,12 +112,6 @@ public class PTMHydroInput{
     				qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
     		}
 
-    		//      if(channelNumber == 54 || dsmNumber == 54)
-    		//	System.out.println("Channel:"+dsmNumber+"upnode:"+qualityArray[0][0]);
-    		//      if(channelNumber == 7)
-    		//	System.out.println("Channel:"+dsmNumber+"flow:"+flowArray[1]);
-    		//      if(dsmNumber == 8 || dsmNumber == 54)
-    		//	System.out.println("Channel:"+channelNumber+"flow:"+flowArray[0]);
     		Channel chan = ((Channel) wbArray[channelNumber]);
     		chan.setDepth(depthArray);
     		chan.setStage(stageArray);
@@ -226,12 +119,14 @@ public class PTMHydroInput{
     		chan.setArea(areaArray);
     		int chanEnvId = chan.getEnvIndex();
     		//TODO need to be revisited xiao
+    		/*
     		if (chan.isBarrierAtUpNodeInstalled())
     			chan.setBarrierAtUpNodeOp(getBarrier(bars, chan.getUpNodeId(), 
     					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(_currentModelTime)));
     		else if (chan.isBarrierAtDownNodeInstalled())
     			chan.setBarrierAtDownNodeOp(getBarrier(bars, chan.getDownNodeId(), 
     					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(_currentModelTime)));
+    		*/
     		//TODO: disabled quality here
     		//((Channel) wbArray[dsmNumber]).setQuality(qualityArray);
     		}//end if (wbArray)
@@ -482,6 +377,8 @@ public class PTMHydroInput{
   
   private native float getUpNodeQuality(int channelNumber, int constituent);
   private native float getDownNodeQuality(int channelNumber, int constituent);
+  //TODO Cleanup
+  /*
   private NonPhysicalBarrier getBarrier(HashMap<String, NonPhysicalBarrier> bars, int nodeId, int chanId){
 	NonPhysicalBarrier npb = bars.get(PTMUtil.concatNodeWbIds(nodeId, chanId));
 	if (npb == null)
@@ -489,5 +386,6 @@ public class PTMHydroInput{
 	return npb;
   }
   private int _currentModelTime;
+  */
   
 }

@@ -136,35 +136,6 @@ public class MainPTM {
                                             Environment.getFileType(traceFileName),
                                             startTime, endTime, PTMTimeStep,
                                             numberOfParticles);
-            //TODO clean up
-            /**
-             * add helpers
-            String pType = Environment.getParticleType();          
-            if ((pType == null) || (!pType.equalsIgnoreCase("SALMON") && !pType.equalsIgnoreCase("SMELT"))) 
-            	 PTMUtil.systemExit("Particle Type is not defined or defined incorrect! Exit from MainPTM line 149.");
-            // String switch only works for Java 1.7  make a map for now
-            Map<String, Integer> map = new HashMap<String, Integer>();
-            map.put("SALMON",1);
-            map.put("SMELT", 2);
-            switch (map.get(pType)){
-				case 1: //"SALMON":
-					_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
-					_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior());
-					_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior());
-					
-		            //int specialNodeId = Environment.lookUpNodeId("GS");
-		            //((SalmonRouteHelper)_routeHelper).addSpecialBehavior(specialNodeId, new SalmonGSJRouteBehavior(specialNodeId));
-		            
-					break;
-				case 2: //"SMELT":
-					// will be implemented later
-					//_routeHelper = new SmeltRouteHelper(new SalmonBasicRouteBehavior());
-					//_swimHelper = new SmeltSwimHelper(new SalmonBasicSwimBehavior());
-					//_survivalHelper = new SmeltSurvivalHelper(new SalmonBasicSurvivalBehavior());
-					break;
-            }                                   
-             * end adding helpers
-             */
             RouteHelper _routeHelper = Environment.getRouteHelper();
             SwimHelper _swimHelper = Environment.getSwimHelper();
             SurvivalHelper _survivalHelper = Environment.getSurvivalHelper();

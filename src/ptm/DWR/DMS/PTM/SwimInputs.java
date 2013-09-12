@@ -20,5 +20,10 @@ public class SwimInputs {
 		// TODO Auto-generated constructor stub
 	}
 	public void addSpecialBehaviors(SwimHelper sh, String particleType){}
+	public void setChannelInfo(Waterbody[] allChans, int chanNum){}
+	public void setNodeInfo(Node[] allNodes, int nodeNum){}
+	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
+		
+	}
 
 }

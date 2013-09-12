@@ -45,49 +45,11 @@ import java.util.*;
 // this is the rally point for PTMFixedInput/PTMFixedData, PTMHydroInput, and PTMBehaviorInputs
 public class PTMEnv{
   private static boolean DEBUG = false;
-  //TODO need to be read from input file, temporary treatment
-  //private Map<String, Integer> _node_location_lookup_table;
-  //private Map<String, Integer> _channel_location_lookup_table;
-  // put name and external node number pair to the map
-  //TODO these should be read in from input file
-  // Node and Channel ids are external, but in lookup functions 
-  // they will be convert to internal
-  /*
-  public void initializeLookup(){
-	  _node_location_lookup_table = new HashMap<String, Integer>();
-	  _channel_location_lookup_table = new HashMap<String, Integer>();
-	  _node_location_lookup_table.put("GS", 343);
-	  _channel_location_lookup_table.put("sac_gs_up", 422);
-	  _channel_location_lookup_table.put("sac_gs_down", 423);
-	  _channel_location_lookup_table.put("sac_gs_gs", 366);
-	  
-  }
-  // return an internal node number
-  private void systemExit(String message){
-	  System.err.println(message);
-	  System.err.println("exit from PTMEnv line 69");
-	  System.exit(-1);
-  }
-  public int lookUpNodeId(String name){
-	  Integer id = _node_location_lookup_table.get(name);
-	  if (id == null)
-		  systemExit("cannot find node id for node name:" + name + "!");
-	  return hydroInput.getNodeIntFromExt(id);
-  }
-  public int lookUpChannelId(String name){
-	  Integer id = _channel_location_lookup_table.get(name);
-	  if (id == null)
-		  systemExit("cannot find channel id for node name:" + name + "!");
-	  return hydroInput.getIntFromExt(id);
-  }
-  */
-  //
   /**
    * Construct the network of nodes and waterbodies
    * @param fixedInputFilename File containing fixed input information
    */
   public PTMEnv(String fixedInputFilename){
-	
     //Input files
     fixedInput = new PTMFixedInput(fixedInputFilename);
     _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName());
@@ -175,65 +137,25 @@ public class PTMEnv{
    *  Fill in the Waterbody information and Node/XSection array pointers
    */
   private final void setWaterbodyInfo(){
-	  HashMap<String, NonPhysicalBarrier> _barriers = _behaviorInputs.getRouteInputs().getBarriers();
-	  // when wbArray is setup, the channels are filled in first. 
+	  // when wbArray is setup, the channels are filled in first.
+	  //wbArray starts from 1. see PTMFixedInput.java line 180
 	  for(int i=1; i<= fixedInput.getNumberOfChannels(); i++) {
 		  if (wbArray[i] != null) {
 			  if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
 			  XSection[] xSPtrArray;
 			  xSPtrArray = new XSection[((Channel) wbArray[i]).getNumberOfXSections()];
 			  Channel aChan = (Channel) wbArray[i];
-			  for(int j=0; j< aChan.getNumberOfXSections(); j++) {
+			  for(int j=0; j< aChan.getNumberOfXSections(); j++) 
 				  xSPtrArray[j] = xSectionArray[aChan.getXSectionEnvIndex(j)];
-			  }
 			  aChan.setXSectionArray(xSPtrArray);
-			  int nodeNum = aChan.getNumberOfNodes();
-			  for(int j=0; j< nodeNum; j++){
-				  int nodeId = aChan.getNodeEnvIndex(j);				  
-				  if (_barriers != null && _barriers.get(Integer.toString(nodeId)+"_"+Integer.toString(i)) != null){
-					  if (nodeId == aChan.getUpNodeId())
-						  aChan.installBarrierAtUpNode();
-					  if (nodeId == aChan.getDownNodeId())
-						  aChan.installBarrierAtDownNode();  
-				  }
-			  }
-		/* commented out 9/3/2013
-        //TODO need to revisit how the barriers are set
-    	if	(_barriers != null){
-    		Iterator<NonPhysicalBarrier> it = _barriers.iterator();
-        	while (it.hasNext()){
-        		NonPhysicalBarrier b = it.next();
-        		if (i == b.getWaterbodyId()){
-        			if (aChan.getUpNodeId() == b.getNodeId())
-        				aChan.installBarrierAtUpNode();
-        			else if (aChan.getDownNodeId() == b.getNodeId())
-        				aChan.installBarrierAtDownNode();
-        			else
-        				PTMUtil.systemExit("the NonPhysicalBarrier Node ID or WaterBody ID is Wrong! exit from PTMEnv line 185.");
-        		}
-        		// I didn't set break because a channel could have two barriers 
-        	} 
-        }
-        */
-    	 //TODO new function added by Joey, need to be tested!!! Xiao 7/19/13
-			  //TODO add for survival behavior
-			  if (_sacChannels.contains((Integer) PTMHydroInput.getExtFromIntChan(i)))
-				  aChan.setChanGroup(1);
-			  else if (_interiorChannels.contains((Integer) PTMHydroInput.getExtFromIntChan(i)))
-				  aChan.setChanGroup(2);
-			  else if (_sjrChannels.contains((Integer) PTMHydroInput.getExtFromIntChan(i)))
-				  aChan.setChanGroup(3);
-			  else 
-				  aChan.setChanGroup(8);
-			  //
 		  }  
 	  }
-    
+	  _behaviorInputs.setChannelInfo(wbArray, fixedInput.getNumberOfChannels());
 	  if (DEBUG) System.out.println("Done with initialzing xSections");
 	  //set nodes for wb (not only channels)
 	  for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
 		  if(wbArray[i] != null) {
-			  //if (DEBUG) System.out.println("Doing nodes for Waterbody # " + i);
+			  if (DEBUG) System.out.println("Doing nodes for Waterbody # " + i);
 			  Node[] nodePtrArray;
 			  int nNodes = wbArray[i].getNumberOfNodes();
 			  nodePtrArray = new Node[nNodes];
@@ -246,19 +168,6 @@ public class PTMEnv{
 	  }//end for wb
 	  if (DEBUG) System.out.println("Done with initialzing nodes");
   	}
-  //TODO need to put real values
-  private static final Set<Integer> _sacChannels = new HashSet<Integer>(Arrays.asList(new Integer[]{
-		  //TODO all the sac channels
-		  
-  }));
-  private static final Set<Integer> _interiorChannels = new HashSet<Integer>(Arrays.asList(new Integer[]{
-		  //TODO all the interior channels
-		  
-  }));
-  private static final Set<Integer> _sjrChannels = new HashSet<Integer>(Arrays.asList(new Integer[]{
-		  //TODO all the sjr channels
-		  
-  }));
 		  
   /**
    * Return the current PTMFixedInput object
@@ -573,40 +482,20 @@ public class PTMEnv{
    *  are unaware that they are connected to one.
    */
   private void setNodeInfo(){
-	HashMap<String, NonPhysicalBarrier> _barriers = _behaviorInputs.getRouteInputs().getBarriers();
     if (DEBUG) System.out.println("Initializing nodes with wb arrays");
     if (DEBUG) System.out.println(nodeArray[361]);
-    //TODO clean up xiao add following line
-    //ArrayList<Integer> barrierNodeIds = fixedInput.getBarrierNodeIds();
-    // nodes
-    for(int i=0; i < fixedInput.getMaximumNumberOfNodes()+1; i++){
+    //nodeArray starts from 1. see PTMFixedInput.java line 287
+    for(int i=1; i < fixedInput.getMaximumNumberOfNodes()+1; i++){
       if ( nodeArray[i] == null ) continue;
       // waterbodies connecting to the node
       Waterbody [] wbs = new Waterbody[nodeArray[i].getNumberOfWaterbodies()];
       for(int j=0; j < wbs.length; j++){
     	  int wbId = nodeArray[i].getWaterbodyEnvIndex(j);
     	  wbs[j] = wbArray[wbId];
-    	  if (_barriers != null && _barriers.get(Integer.toString(i)+"_"+Integer.toString(wbId)) != null){
-    		  nodeArray[i].installBarrier();
-    	  }
       }
       nodeArray[i].setWbArray(wbs);
-      //TODO xiao added 
-      /* commented out 9/4/2013
-      if (_barriers != null){
-    	  Iterator<NonPhysicalBarrier> it = _barriers.iterator();
-    	  while (it.hasNext()){
-    		  NonPhysicalBarrier b = it.next();
-    		  //if (nodeArray[i].getEnvIndex() == (Integer) it.next())
-    		  //System.out.println("in setNodeInfo");
-    		  if (i == b.getNodeId()){ 
-    			  nodeArray[i].installBarrier();
-    			  //System.out.println("installed node:" + i);
-    		  }
-    	  }
-      }
-      */
     }
+    _behaviorInputs.setNodeInfo(nodeArray, fixedInput.getMaximumNumberOfNodes());
     // Now initialize each Node object with an array of waterbodies it connects to
     if (DEBUG) System.out.println("Done with setNodeInfo");
   }
@@ -617,8 +506,11 @@ public class PTMEnv{
    */
   public final void getHydroInfo(int currentTime){
     hydroInput.getNextChunk(currentTime);
-    hydroInput.updateWaterbodiesHydroInfo(wbArray, _behaviorInputs.getRouteInputs().getBarriers(), fixedInput.getLimitsFixedData());
+    hydroInput.updateWaterbodiesHydroInfo(wbArray, fixedInput.getLimitsFixedData());
     //  updateBoundaryWaterbodiesHydroInfo();
+    _behaviorInputs.updateCurrentInfo(nodeArray, fixedInput.getMaximumNumberOfNodes(),
+    								  wbArray, fixedInput.getNumberOfChannels(),
+    									currentTime);
   }
   
   /**

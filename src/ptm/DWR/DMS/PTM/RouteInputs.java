@@ -49,8 +49,62 @@ public class RouteInputs {
 		// here you can add more special behaviors for different species.
 		
 	}
+	public void setNodeInfo(Node[] allNodes, int nodeNum){
+	    // like wbArray, nodeArray starts from 1 PTMFixedInput.java line 287
+		for(int i=1; i < nodeNum+1; i++){
+	        if ( allNodes[i] == null ){
+	        	System.err.println("Node,"+ i + "is null!");
+	        	continue;
+	        }
+	        for(int j=0; j < allNodes[i].getNumberOfWaterbodies(); j++){
+	      	  int wbId = allNodes[i].getWaterbodyEnvIndex(j);
+	      	  if (_barriers != null && _barriers.get(Integer.toString(i)+"_"+Integer.toString(wbId)) != null)
+	      		allNodes[i].installBarrier();
+	        }
+		}
+	}
+	public void setChannelInfo(Waterbody[] allChans, int chanNum){
+		//wbArray start from 1 see PTMFixedInput.java line 180
+		//Channels are first filled in wbArray
+		for (int i = 1; i<=chanNum; i++){
+		  Channel aChan = (Channel) allChans[i];
+		  if ( aChan == null ){
+	        	System.err.println("Channel,"+ i + "is null!");
+	        	continue;
+	      }
+		  int nodeNum = aChan.getNumberOfNodes();
+		  for(int j=0; j< nodeNum; j++){
+			  int nodeId = aChan.getNodeEnvIndex(j);				  
+			  if (_barriers != null && _barriers.get(Integer.toString(nodeId)+"_"+Integer.toString(i)) != null){
+				  if (nodeId == aChan.getUpNodeId())
+					  aChan.installBarrierAtUpNode();
+				  if (nodeId == aChan.getDownNodeId())
+					  aChan.installBarrierAtDownNode();  
+			  }
+		  }
+		}
+	}
+	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
+		//update barrier op info
+		for(int channelNumber=1; channelNumber <= chanNum; channelNumber++){
+			Channel chan = ((Channel) allChans[channelNumber]);
+			int chanEnvId = chan.getEnvIndex();
+    		if (chan.isBarrierAtUpNodeInstalled())
+    			chan.setBarrierAtUpNodeOp(getBarrier(chan.getUpNodeId(), 
+    					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(currentTime)));
+    		else if (chan.isBarrierAtDownNodeInstalled())
+    			chan.setBarrierAtDownNodeOp(getBarrier(chan.getDownNodeId(), 
+    					chanEnvId).getBarrierOp(PTMUtil.convertHecTime(currentTime)));
+		}
+	}
 	public HashMap<String, NonPhysicalBarrier> getBarriers(){ return _barriers;}
 	public HashMap<String, Integer> getNameNodeLookup() { return _nameNodeLookup; }
+	private NonPhysicalBarrier getBarrier(int nodeId, int chanId){
+		NonPhysicalBarrier npb = _barriers.get(PTMUtil.concatNodeWbIds(nodeId, chanId));
+		if (npb == null)
+			PTMUtil.systemExit("Barrier is not setup, exit from PTMHydroInput line 232.");
+		return npb;
+	  }
 	private void setBarriers(ArrayList<String> inText){
 		// first line of inText is number_of_barriers: number
 		int numberOfBarriers = getNumberOfBarriers(inText.get(0).trim());
