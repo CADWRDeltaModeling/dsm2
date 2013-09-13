@@ -28,12 +28,12 @@ module hdf_util
    use gtm_precision  
    use error_handling
    use hdf5
-   integer(HID_T) :: file_id            !< HDF5 File identifier
-   integer(HID_T) :: hydro_id           !< hydro group identifier      
-   integer(HID_T) :: access_plist       !< HDF5 property identifier
+   integer(HID_T) :: hydro_file_id        !< HDF5 File identifier
+   integer(HID_T) :: hydro_id             !< hydro group identifier      
+   integer(HID_T) :: hydro_access_plist   !< HDF5 property identifier
    contains
          
-   !> Open HDF5 interface and hydro tidefile 
+   !> Open HDF5 interface and hydro tidefile, assume HDF5 interface is open
    subroutine hdf5_init(hdf5_file_name)
        implicit none
        character(len=*), intent(in) :: hdf5_file_name     !< HDF5 file name
@@ -45,19 +45,17 @@ module hdf_util
        logical :: file_exists
        inquire(file = hdf5_file_name, exist=file_exists)
        if (file_exists) then
-           call h5open_f(error)
-           call verify_error(error, "opening hdf interface")
            	! set up stdio to allow for buffered read/write          	
-	       call h5pcreate_f(H5P_FILE_ACCESS_F, access_plist, error)      
-	       call h5pget_cache_f(access_plist, nelmts,               &
+	       call h5pcreate_f(H5P_FILE_ACCESS_F, hydro_access_plist, error)      
+	       call h5pget_cache_f(hydro_access_plist, nelmts,               &
                                rddc_nelmts, rddc_nbytes, rdcc_w0, error)
 	       rddc_nbytes = 8000000
-	       call h5pset_cache_f(access_plist, nelmts, rddc_nelmts,  &
+	       call h5pset_cache_f(hydro_access_plist, nelmts, rddc_nelmts,  &
                                rddc_nbytes, rdcc_w0,error)
 	       call verify_error(error,"Cache set")
-           call h5fopen_f (hdf5_file_name, H5F_ACC_RDONLY_F, file_id, error)
+           call h5fopen_f (hdf5_file_name, H5F_ACC_RDONLY_F, hydro_file_id, error)
            call verify_error(error, "opening tidefile")
-           call h5gopen_f(file_id, "hydro", hydro_id, error)
+           call h5gopen_f(hydro_file_id, "hydro", hydro_id, error)
        else
            call gtm_fatal(hdf5_file_name//" is not a valid tidefile under working directory!")  
        end if    
@@ -68,9 +66,8 @@ module hdf_util
        implicit none
        integer :: error                                 ! error flag
        call h5gclose_f(hydro_id, error)
-       call h5fclose_f(file_id, error)
-       call h5pclose_f(access_plist, error)                     
-       call h5close_f(error)     
+       call h5fclose_f(hydro_file_id, error)
+       call h5pclose_f(hydro_access_plist, error)                       
    end subroutine
    
    !> Read number of objects from hydro tidefile
@@ -257,7 +254,6 @@ module hdf_util
        typesize = 4
        call h5tset_size_f(dt_id, typesize, error)
        call h5tget_size_f(dt_id, type_size, error)
-      
        do i = 1,n_chan
            chan_geom(i)%chan_no = i
        end do    
@@ -345,7 +341,7 @@ module hdf_util
        integer, intent(out) ::attr_value
        integer, dimension(1) :: hdf5_read_buffer      
        integer  :: error                             ! HDF5 Error flag
-       call h5ltget_attribute_int_f(file_id,"hydro",    &
+       call h5ltget_attribute_int_f(hydro_file_id,"hydro",    &
                attr_name, hdf5_read_buffer, error)
        call verify_error(error, "Reading attribute from hdf5 file")
        attr_value = hdf5_read_buffer(1)

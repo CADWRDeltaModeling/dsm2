@@ -30,6 +30,7 @@ module ut_hydro_data_tide
    
    !> test to read hydro hdf5 flie by spot checking data in test_hydro.h5
     subroutine test_hdf_util()
+        use hdf5
         use hdf_util
         use common_variables
         use common_xsect
@@ -37,12 +38,15 @@ module ut_hydro_data_tide
         character(len=*), parameter :: h5_file_name = 'test_hydro.h5'   !< hydro tidefile for testing
         real(gtm_real) :: area_from_CxArea
         integer :: time_offset, time_buffer
+        integer :: error
+        
+        call h5open_f(error)
         
         ! test loading hdf5 file
         call hdf5_init(h5_file_name)   
        
         ! test reading attributes from tidefile
-        call get_hydro_attr()          
+        call get_hydro_attr          
         call assertEquals (dble(n_chan), dble(7), weakest_eps, "problem in reading number of channels")
         call assertEquals (dble(n_xsect), dble(1114), weakest_eps, "problem in reading number of virtual xsects")
         call assertEquals (dble(n_comp), dble(26), weakest_eps, "problem in reading number of computational points")      
@@ -51,20 +55,20 @@ module ut_hydro_data_tide
         call assertEquals (hydro_time_interval, 15, "problem in reading time interval in tidefile")
         
         ! test reading channel table
-        call read_channel_tbl()    
+        call read_channel_tbl
         call assertEquals (dble(chan_geom(2)%chan_no), dble(2), weakest_eps, "problem in reading channel index number")
         call assertEquals (dble(chan_geom(2)%channel_num), dble(387), weakest_eps, "problem in reading real channel number")
         call assertEquals (dble(chan_geom(2)%channel_length), dble(10000), weakest_eps, "problem in reading channel length")
 
         ! test reading computational info
-        call read_comp_tbl()           
+        call read_comp_tbl        
         call assertEquals (dble(comp_pt(15)%comp_index), dble(15), weakest_eps, "problem in reading comp_index")
         call assertEquals (dble(comp_pt(15)%chan_no), dble(4), weakest_eps, "problem in reading channel_no for computational pt")
         call assertEquals (dble(comp_pt(15)%distance), dble(10000), weakest_eps, "problem in reading distance for computational pt")
-        call assign_chan_comppt()
+        call assign_chan_comppt
         
         ! test reading xsect table and construct its type
-        call read_xsect_tbl()          
+        call read_xsect_tbl          
         call assertEquals (dble(virt_xsect(23)%chan_no), dble(4), weakest_eps, "problem in reading chan_no for virt_xsect")
         call assertEquals (dble(virt_xsect(23)%num_virt_sec), dble(5), weakest_eps, "problem in reading num_virt_sec for virt_xsect")
         call assertEquals (dble(virt_xsect(23)%vsecno), dble(2), weakest_eps, "problem in reading vsecno for virt_xsect")
@@ -76,7 +80,7 @@ module ut_hydro_data_tide
         call assertEquals (dble(virt_xsect(23)%width(7)), dble(298.0), weakest_eps, "problem in reading width for virt_xsect")
 
         ! test assign segment
-        call assign_segment()
+        call assign_segment
         call assertEquals (dble(n_segm), dble(19), weakest_eps, "problem in assigning segment for n_segm")        
         call assertEquals (dble(segm(4)%segm_no), dble(4), weakest_eps, "problem in assigning segment for segm_no")    
         call assertEquals (dble(segm(4)%chan_no), dble(2), weakest_eps, "problem in assigning segment for chan_no")    
@@ -85,7 +89,7 @@ module ut_hydro_data_tide
         call assertEquals (dble(segm(4)%length), dble(5000), weakest_eps, "problem in assigning segment for length")  
        
         ! test reading time series data
-        call allocate_hydro_ts()
+        call allocate_hydro_ts
         time_offset = 3
         time_buffer = 10
         call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
@@ -103,8 +107,8 @@ module ut_hydro_data_tide
         call CxArea(area_from_CxArea, dble(5000),hydro_ws(6,1),2)                   
         call assertEquals (area_from_CxArea, dble(7524.127), weakest_eps, "problem in calculating CxArea")
                     
-        call deallocate_hydro_ts() 
-        call hdf5_close()         
+        call deallocate_hydro_ts 
+        call hdf5_close  
         return
     end subroutine
                

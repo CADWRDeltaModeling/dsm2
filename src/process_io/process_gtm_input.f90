@@ -51,14 +51,12 @@ module process_gtm_input
             if (io_files(gtm,io_echo,io_write).use) then
                 call write_input_to_echofile(io_files(gtm,io_echo,io_write).filename)            
             end if
-            if (io_files(gtm,io_hdf5,io_write).use) then
-                call write_input_to_hdf5(io_files(gtm,io_hdf5,io_write).filename)
-            end if
             !call read_grid_from_tidefile()
             !call buffer_input_grid()    ! processes grid
         end if
         return
     end subroutine
+
 
     !> Process input text file into buffer and write them to echo textfile and HDF5 file
     subroutine process_input_text(init_input_file)
@@ -97,6 +95,7 @@ module process_gtm_input
         return
     end subroutine
 
+
     !> Write buffer to echo file
     subroutine write_input_to_echofile(out_echo_filename)
         implicit none
@@ -111,41 +110,34 @@ module process_gtm_input
         return
     end subroutine
 
+
     !> Write buffer in HDF5 file (GTM tidefile)
-    subroutine write_input_to_hdf5(out_tidefile)
+    subroutine write_input_to_hdf5(file_id)
         use hdf5
         implicit none
-        character*(*), intent(in) :: out_tidefile
-        integer(HID_T) :: file_id
+        integer(HID_T), intent(in) :: file_id
+        integer(HID_T) :: group_id
         integer :: ierror = 0
-          
-        ! Now write it out to hdf5
-        call h5open_f(ierror)
-        call h5fcreate_f(out_tidefile, H5F_ACC_TRUNC_F, file_id, ierror)
-        if (ierror .ne. 0) then
-            print*,"Could not open file, hdf error: ", ierror
-            print*,"Check if it already exists and delete if so -- failure to replace seems to be an HDF5 bug"
-            call exit(2)
-        end if       
+
+        call h5gcreate_f(file_id, "input", group_id, ierror)
 
         ! Write buffer to HDF5
         !call write_buffer_profile_to_hdf5(dsm2_name,file_id,ierror)  !todo: this should be turned on once we finalize the desired input blocks        
-        call envvar_write_buffer_to_hdf5(file_id, ierror)
-        call scalar_write_buffer_to_hdf5(file_id, ierror)
-        call io_file_write_buffer_to_hdf5(file_id, ierror)
-        call tidefile_write_buffer_to_hdf5(file_id, ierror)
-        call node_concentration_write_buffer_to_hdf5(file_id, ierror)
-        call reservoir_concentration_write_buffer_to_hdf5(file_id, ierror)
-        call group_write_buffer_to_hdf5(file_id, ierror)
-        call group_member_write_buffer_to_hdf5(file_id, ierror)
-        call rate_coefficient_write_buffer_to_hdf5(file_id, ierror)
+        call envvar_write_buffer_to_hdf5(group_id, ierror)
+        call scalar_write_buffer_to_hdf5(group_id, ierror)
+        call io_file_write_buffer_to_hdf5(group_id, ierror)
+        call tidefile_write_buffer_to_hdf5(group_id, ierror)
+        call node_concentration_write_buffer_to_hdf5(group_id, ierror)
+        call reservoir_concentration_write_buffer_to_hdf5(group_id, ierror)
+        call group_write_buffer_to_hdf5(group_id, ierror)
+        call group_member_write_buffer_to_hdf5(group_id, ierror)
+        call rate_coefficient_write_buffer_to_hdf5(group_id, ierror)
         
         ! Close file and  FORTRAN interface.
-        call h5fclose_f(file_id, ierror)
-        call verify_error(ierror, "error in closing hdf5 file")
-        call h5close_f(ierror)
-        call verify_error(ierror, "error in hdf5 shutdown")
+        call h5gclose_f(group_id, ierror)
+        call verify_error(ierror, "error in closing input group in hdf5 file")
         return
     end subroutine
+
 
 end module

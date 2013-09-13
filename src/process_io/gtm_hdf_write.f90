@@ -36,7 +36,7 @@ module gtm_hdf_write
 
     contains
       
-    !< Initialize the qual output file
+    !< Initialize the qual output file, assume HDF5 interface is opne
     subroutine init_qual_hdf(hdf_file,          &
                              hdf_name,          &
                              ncell,             &
@@ -83,8 +83,6 @@ module gtm_hdf_write
 	         write(unit_error,920) trim(hdf_name)
  920         format(' File already exists... deleting existing file :: ', a )
 	    endif
-
-        call h5open_f(error)
 
         hdf_file%file_name = hdf_name
 	    ! set up stdio to allow for buffered read/write
@@ -503,12 +501,6 @@ module gtm_hdf_write
 	       write(unit_error,*)"HDF5 error closing hdf file: ",error
         end if
 
-        if (print_level .gt.2) write(unit_screen,*)"Closing HDF5"
-        call h5close_f(error)
-	    if (error .ne. 0) then
-	        write(unit_error,*)"HDF5 error closing hdf5: ",error
-        end if
-        if (print_level .gt.2) write(unit_screen,*)"Closed HDF5"      
 	    return
     end subroutine
       
@@ -614,5 +606,6 @@ module gtm_hdf_write
 
         return
 	end subroutine
+    
     
 end module        

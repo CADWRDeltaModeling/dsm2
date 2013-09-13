@@ -12,10 +12,14 @@ module ut_gtm_hdf_write
     
     !> Main routines to call all unit tests for writing data into HDF file
     subroutine test_gtm_hdf_write()
+        use hdf5
         implicit none
+        integer :: error = 0
+        call h5open_f(error)        
         call test_init_qual_hdf
         call test_write_ts_qual_hdf
         call test_write_ts_qual_hdf_large
+        call h5close_f(error)   
         return
     end subroutine    
     
@@ -33,6 +37,7 @@ module ut_gtm_hdf_write
         integer :: nres
         integer :: nconc        
         integer :: error = 0
+       
         hdf_name = "gtm_out_hdf_test_init.h5"
         ncell = 3
         nres = 1
@@ -51,7 +56,7 @@ module ut_gtm_hdf_write
         constituents(2)%name = "conc_2"
         call init_qual_hdf(qual_hdf,          &
                            hdf_name,          &
-                           ncell,            &
+                           ncell,             &
                            nres,              &
                            nconc,             &
                            sim_start,         &
@@ -80,7 +85,7 @@ module ut_gtm_hdf_write
         integer :: nconc        
         integer :: julmin
         integer :: time_index
-         real(gtm_real), allocatable :: conc(:,:), conc_res(:,:) 
+        real(gtm_real), allocatable :: conc(:,:), conc_res(:,:) 
                
         !---variables for reading tidefile
         integer(HID_T) :: file_id, output_id, dset_id, dataspace              
@@ -95,7 +100,7 @@ module ut_gtm_hdf_write
         INTEGER(HID_T) :: memspace                  ! memspace identifier         
         integer :: error = 0        
         integer :: i, j
-
+        
         hdf_name = "gtm_out_hdf_test_ts.h5"
         ncell = 5
         nres = 1
@@ -197,8 +202,7 @@ module ut_gtm_hdf_write
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dataspace, error)
         call h5gclose_f(output_id, error)
-        call h5fclose_f(file_id,error)
-        call h5close_f(error)      
+        call h5fclose_f(file_id,error)   
                      
         return
     end subroutine
@@ -343,8 +347,7 @@ module ut_gtm_hdf_write
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dataspace, error)
         call h5gclose_f(output_id, error)
-        call h5fclose_f(file_id,error)
-        call h5close_f(error)      
+        call h5fclose_f(file_id,error)   
                      
         return
     end subroutine

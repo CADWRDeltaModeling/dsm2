@@ -21,7 +21,7 @@
 !> Main program for General Transport Model
 !>@ingroup driver
 program gtm
-
+    
     use gtm_precision
     use error_handling
     use gtm_logging
@@ -72,6 +72,12 @@ program gtm
     integer :: current_slice = 0
     integer :: time_index
     real(gtm_real) :: t_index
+    integer :: ierror
+    
+    n_var = 1
+    
+    call h5open_f(ierror)
+    call verify_error(ierror, "opening hdf interface")   
     
     !
     !----- Read input specification from *.inp text file -----
@@ -85,20 +91,11 @@ program gtm
     call dsm2_hdf_geom() 
     call write_geom_to_text()
 
-    call check_runtime(offset, num_buffers, memlen,                            &
-                       runtime_hydro_start, runtime_hydro_end, skip,           &
-                       memory_buffer, gtm_start_jmin, gtm_end_jmin,            &
-                       hydro_start_jmin, hydro_end_jmin, hydro_time_interval, gtm_time_interval) 
-    n_var = 1
-                           
-    !
-    !----- point to interface -----
-    !
-    fill_hydro => gtm_flow_area
-    compute_source => no_source
-    !compute_source => linear_decay_source
-    advection_boundary_flux => zero_advective_flux
-    
+    call check_runtime(offset, num_buffers, memlen,                    &
+                       runtime_hydro_start, runtime_hydro_end, skip,   &
+                       memory_buffer, gtm_start_jmin, gtm_end_jmin,    &
+                       hydro_start_jmin, hydro_end_jmin,               &
+                       hydro_time_interval, gtm_time_interval) 
     !
     !----- allocate array for interpolation -----     
     !
@@ -121,6 +118,7 @@ program gtm
     linear_decay = constant_decay
    
     constituents(1)%name = "EC"
+    
     call init_qual_hdf(qual_hdf,          &
                        gtm_io(3,2)%filename,          &
                        n_cell,            &
@@ -129,6 +127,19 @@ program gtm
                        gtm_start_jmin,    &
                        gtm_end_jmin,      &
                        gtm_io(3,2)%interval)
+    
+    if (trim(gtm_io(3,2)%filename) .ne. "") then
+       call write_input_to_hdf5(qual_hdf%file_id)
+    end if
+                       
+    !
+    !----- point to interface -----
+    !
+    fill_hydro => gtm_flow_area
+    compute_source => no_source
+    !compute_source => linear_decay_source
+    advection_boundary_flux => zero_advective_flux
+    
        
     write(*,*) "Process time series...."
     write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
