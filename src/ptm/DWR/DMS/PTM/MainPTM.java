@@ -195,8 +195,9 @@ public class MainPTM {
                 if (DEBUG) System.out.println("Updated flows");
                 // update Particle positions
                 for (int i=0; i<numberOfParticles; i++){
-                	// another survival check is done in updateXYZPosition in particle class
-                	if (!particleArray[i].isDead)
+                	//TODO survival check was checked in updateXYZPosition in particle class but commented out
+                	// because with subtime step too many random numbers are sampled
+                	if (!particleArray[i].isDead) 
                 		particleArray[i].updatePosition(timeStep);
                 }
                 if (DEBUG) System.out.println("Updated particle positions");

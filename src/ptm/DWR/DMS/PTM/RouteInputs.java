@@ -11,6 +11,7 @@ import java.util.Iterator;
  *
  */
 public class RouteInputs {
+	private boolean DEBUG = false;
 
 	/**
 	 * 
@@ -53,7 +54,7 @@ public class RouteInputs {
 	    // like wbArray, nodeArray starts from 1 PTMFixedInput.java line 287
 		for(int i=1; i < nodeNum+1; i++){
 	        if ( allNodes[i] == null ){
-	        	System.err.println("Node,"+ i + "is null!");
+	        	//System.err.println("Node,"+ i + "is null!");
 	        	continue;
 	        }
 	        for(int j=0; j < allNodes[i].getNumberOfWaterbodies(); j++){
@@ -157,7 +158,7 @@ public class RouteInputs {
 		  for (int i = 3; i<barrierBlock.size();i++){
 			  String inLine = barrierBlock.get(i).trim();
 			  String[] items = inLine.split("[,\\s\\t]+");
-			  String[] dateStr = items[0].trim().split("/"), timeStr = items[1].trim().split(":");
+			  String[] dateStr = items[0].trim().split("[-/]+"), timeStr = items[1].trim().split("[:]+");
 			  int optemp = -99, year = -99, month = -99, day = -99, hour = -99, minute = -99;
 			  try{
 				  if (items.length<3 || dateStr.length<3 || timeStr.length<2)
@@ -169,6 +170,7 @@ public class RouteInputs {
 				  day = Integer.parseInt(dateStr[1]);
 				  hour = Integer.parseInt(timeStr[0]);
 				  minute = Integer.parseInt(timeStr[1]);
+				  if(DEBUG) System.out.println("year:"+year+" month:"+month+" day:"+day+" hour:"+hour+" minute:"+minute+" op:"+optemp);
 			  }catch (NumberFormatException e){
 					e.printStackTrace();
 					PTMUtil.systemExit("operation schecule line has wrong format: "+inLine);	

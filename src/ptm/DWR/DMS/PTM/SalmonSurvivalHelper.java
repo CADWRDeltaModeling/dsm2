@@ -34,11 +34,16 @@ public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior
 	 */
 	@Override
 	public Integer getKey(Particle p) {
-		return p.wb.getEnvIndex();
+		if (p != null && p.wb != null)
+			return p.wb.getEnvIndex();
+		else
+			return null;
 	}
 	//public void help(Particle p){}
 	public void helpSurvival(Particle p){
-		super.getBehavior(p).isSurvived(p);
+		SalmonSurvivalBehavior b = super.getBehavior(p);
+		if (b != null)
+			b.isSurvived(p);
 	};
 	public void setSurvivalHelperForParticle(Particle p){
 		p.installSurvivalHelper(this);

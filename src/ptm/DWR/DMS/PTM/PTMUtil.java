@@ -65,10 +65,12 @@ public class PTMUtil {
         try{
             String line;
             do{
-                line = it.next().trim();
-            } while(line != null && !line.toUpperCase().startsWith(start));
+                if(!it.hasNext())
+                	break;
+            	line = it.next();
+            } while(line != null && !line.trim().toUpperCase().startsWith(start));
             
-            while(line != null && !(line= it.next().trim()).toUpperCase().startsWith(end)){
+            while(it.hasNext() && ((line= it.next()) != null) && !(line.trim()).toUpperCase().startsWith(end)){
                 block.add(line);
             }
         }

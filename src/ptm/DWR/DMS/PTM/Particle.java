@@ -282,7 +282,7 @@ _survivalHelper = null;
     return (Globals.currentModelTime);
   }
  
-  private final boolean checkSurvival(){
+  public final boolean checkSurvival(){
     // check survival if not survived isDead is set to true	
     _survivalHelper.helpSurvival(this);
     if(isDead == true) {
@@ -470,8 +470,10 @@ _survivalHelper = null;
         // age in seconds
         age += tmToAdv;
         // check survival, if not survived, isDead is set to true and call observer.observeDeath()
-        //TODO need more work.
-        if (!checkSurvival()) return;
+        //TODO commented out for now.  When survival is checked here,  the small sub-time step makes survival checks be performed too many times
+        // and eventually the random number be greater than the survival possibility and isDead is set to true.
+        // the survival check is now placed in makeNodeDecision.  Only when node, reservoir, etc. is encountered, the survival is checked.
+        //if (!checkSurvival()) return;
         updateAllParameters(tmToAdv);
         if (particleWait == false){
           x = calcXPosition(tmToAdv);
@@ -735,6 +737,7 @@ _survivalHelper = null;
 	 * now node is the current Node in which Particle entered
 	 * send message to observer about change 
 	*/
+	if (!checkSurvival()) return;
 	if (observer != null) 
 	  observer.observeChange(ParticleObserver.NODE_CHANGE,this); 
 	
@@ -799,7 +802,6 @@ _survivalHelper = null;
     *  returns Node to which pParticle transitions or null
     */
   protected Node makeReservoirDecision(float timeStep){
-  
     //Get total volume of Reservoir and multiply by random number
     float totvol = ((Reservoir)wb).getTotalVolume(timeStep);
     float rand = wb.getRandomNumber();

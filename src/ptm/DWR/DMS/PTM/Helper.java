@@ -61,17 +61,22 @@ public abstract class Helper<K,B> {
 	}
 	*/
 	public B getBehavior(Particle p){
-		B specialB = lookUp(getKey(p));
-		if (specialB != null){
-			return specialB;
+		K key = getKey(p);
+		if (key != null){
+			B specialB = lookUp(key);
+			if (specialB != null){
+				return specialB;
+			}
+			else if (_basic != null)
+				return _basic;
+			else{
+				System.out.println("need to initilize Helper!");
+				System.exit(-1);
+				return null;
+			}
 		}
-		else if (_basic != null)
-			return _basic;
-		else{
-			System.out.println("need to initilize Helper!");
-			System.exit(-1);
+		else
 			return null;
-		}
 
 	}
 	public abstract K getKey(Particle p);
