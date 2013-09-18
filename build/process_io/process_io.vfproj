@@ -38,8 +38,9 @@
 		<File RelativePath="..\..\src\process_io\gtm_dss_open.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_read.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_readtvd.f90"/>
-		<File RelativePath="..\..\src\process_io\gtm_rate_coeff_assignment.f90"/>
+		<File RelativePath="..\..\src\process_io\gtm_hdf_ts_write.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_hdf_write.f90"/>
+		<File RelativePath="..\..\src\process_io\gtm_rate_coeff_assignment.f90"/>
 		<File RelativePath="..\..\src\process_io\io_utilities.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_input.f90"/>

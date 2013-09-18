@@ -32,6 +32,7 @@ program gtm
     use io_utilities
     use time_utilities
     use gtm_hdf_write    
+    use gtm_hdf_ts_write     
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
@@ -130,6 +131,7 @@ program gtm
     
     if (trim(gtm_io(3,2)%filename) .ne. "") then
        call write_input_to_hdf5(qual_hdf%file_id)
+       call write_segm_info(qual_hdf%file_id, n_segm, segm)
     end if
                        
     !
@@ -220,41 +222,46 @@ program gtm
                         t_index,  &
                         dx_arr,   &
                         gtm_time_interval)            
-                if (current_time == gtm_start_jmin) then
-                    call prim2cons(mass_prev, init_conc, area, n_cell, n_var)
-                    area_prev = area
-                end if
-                ! call advection and source
-
-                call advect(mass,              &
-                            mass_prev,         &  
-                            flow,              &
-                            flow_lo,           &
-                            flow_hi,           &
-                            area,              &
-                            area_prev,         &
-                            area_lo,           &
-                            area_hi,           &
+        if (current_time == gtm_start_jmin) then
+            call prim2cons(mass_prev, init_conc, area, n_cell, n_var)
+            area_prev = area
+        end if
+        
+        !
+        !----- call advection and source -----
+        !
+        call advect(mass,              &
+                    mass_prev,         &  
+                    flow,              &
+                    flow_lo,           &
+                    flow_hi,           &
+                    area,              &
+                    area_prev,         &
+                    area_lo,           &
+                    area_hi,           &
+                    n_cell,            &
+                    n_var,             &
+                    dble(current_time),      &
+                    gtm_time_interval, &
+                    dx_arr,            &
+                    limit_slope)     
+        call cons2prim(conc, mass, area, n_cell, n_var)
+        write(debug_unit,'(i8, 3000f8.5)') current_time, (conc(icell,1),icell=1,n_cell)
+        
+        !
+        !----- print output to hdf5 file -----
+        !              
+        time_index = (current_time-gtm_start_jmin)/gtm_time_interval
+        call write_qual_hdf(qual_hdf,         &
+                            conc,             &
+                            conc_resv,         &
                             n_cell,            &
-                            n_var,             &
-                            dble(current_time),      &
-                            gtm_time_interval, &
-                            dx_arr,            &
-                            limit_slope)     
-                call cons2prim(conc, mass, area, n_cell, n_var)
-                write(debug_unit,'(i8, 3000f8.5)') current_time, (conc(icell,1),icell=1,n_cell)
-              
-                time_index = (current_time-gtm_start_jmin)/gtm_time_interval
-                call write_qual_hdf(qual_hdf,         &
-                                    conc,             &
-                                    conc_resv,         &
-                                    n_cell,            &
-                                    n_resv,             &
-                                    n_var,            &
-                                    time_index)                      
+                            n_resv,             &
+                            n_var,            &
+                            time_index)                      
 
-                mass_prev = mass
-                area_prev = area                 
+        mass_prev = mass
+        area_prev = area                 
     end do
     deallocate(constituents)
     call deallocate_state
