@@ -15,7 +15,7 @@ public class PTMBehaviorInputs {
 	private RouteInputs _routeInputs;
 	
 	private void extractFishType(ArrayList<String> fishTypeText){
-		if (fishTypeText==null) 
+		if (fishTypeText==null || fishTypeText.size()==0) 
 				PTMUtil.systemExit("No Fish Type found, exit from PTMBehaviorInput line 61");
 		_fishType = fishTypeText.get(0).trim();		 	
 	}

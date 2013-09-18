@@ -47,11 +47,12 @@ public class PTMUtil {
         try{
             String line;
             do{
-                line = inputBuffer.readLine().trim();
-            } while(line != null && !line.toUpperCase().startsWith(start));
+                line = inputBuffer.readLine();
+            } while(line != null && !line.trim().toUpperCase().startsWith(start));
             
-            while(line != null && !(line= inputBuffer.readLine().trim()).toUpperCase().startsWith(end)){
-                blockList.add(line);
+            while((line=inputBuffer.readLine()) != null && !(line = line.trim().toUpperCase()).startsWith(end)){
+            	if (!line.startsWith("#"))
+            		blockList.add(line);
             }
         }
         catch(IOException e){
@@ -61,14 +62,15 @@ public class PTMUtil {
     }
 	public static ArrayList<String> getInputBlock(ArrayList<String> inputBlocks, String start, String end){
         ArrayList<String> block = new ArrayList<String>();
-        Iterator<String> it = inputBlocks.iterator();
+        Iterator<String> it;
         try{
-            String line;
+            if (inputBlocks == null || (it = inputBlocks.iterator())==null || !it.hasNext())
+            	return null;
+            String line = null;
             do{
-                if(!it.hasNext())
-                	break;
-            	line = it.next();
-            } while(line != null && !line.trim().toUpperCase().startsWith(start));
+                line = it.next();
+                
+            } while(it.hasNext() && line != null && !line.trim().toUpperCase().startsWith(start));
             
             while(it.hasNext() && ((line= it.next()) != null) && !(line.trim()).toUpperCase().startsWith(end)){
                 block.add(line);
@@ -109,4 +111,21 @@ public class PTMUtil {
 		}
 		return ints;
 	}
+	//TODO cleanup
+	/*
+	public static ArrayList<String> cleanUp(ArrayList<String> inList){
+		Iterator<String> it = null;
+		ArrayList<String> cleanList = new ArrayList<String>();
+		String line = null;
+		if (inList == null || (it = inList.iterator()) == null)
+			return null;
+		else{
+			while (it.hasNext()){
+				if (!(line = it.next().trim().toUpperCase()).startsWith("#"))
+					cleanList.add(line);
+			}
+		}
+		return cleanList;
+	}
+	*/
 }

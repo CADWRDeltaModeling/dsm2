@@ -40,6 +40,8 @@ public class NonPhysicalBarrier {
 		BarrierOpPeriod key;
         Iterator<BarrierOpPeriod> it = _barrierOpTs.keySet().iterator();
         boolean found = false;
+        if (it == null || !it.hasNext())
+        	PTMUtil.systemExit("the barrier node Id:"+_nodeId+", water body Id:"+_waterbodyId+" has no operation schedule found, exit.");
         do{
             key = (BarrierOpPeriod) it.next();
         }while (!(found = key.contains(currentTime))&&it.hasNext());
@@ -55,20 +57,6 @@ public class NonPhysicalBarrier {
 	protected Map<BarrierOpPeriod, Integer> getBarrierOpTs(){
 		return _barrierOpTs;
 	}
-	//TODO clean up
-	/* no need to have these method
-	protected boolean setCurrentOperation(Calendar currentTime){
-		_currentOp = getBarrierOp(currentTime);
-		//System.out.println("currentOp:"+_currentOp);
-		if (_currentOp == -1)
-				return false;
-		else
-			return true;
-	}
-	protected int getCurrentOperation(){
-		return _currentOp;
-	}
-	*/
 	protected void InstallBarrier(){
 		_installed = true;
 	}
@@ -79,6 +67,4 @@ public class NonPhysicalBarrier {
 	private int _waterbodyId;
 	private Map<BarrierOpPeriod, Integer> _barrierOpTs;
 	private boolean _installed = false;
-	//private int _currentOp = 0;
-	//private int _barrierOn = 0;
 }

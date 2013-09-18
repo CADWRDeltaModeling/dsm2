@@ -27,6 +27,8 @@ public class SurvivalInputs {
 		  _interiorChannels = addChannelGroup(PTMUtil.getInputBlock(chanGroups, "INTERIOR", "END_INTERIOR"));
 	  }
 	  private Set<Integer> addChannelGroup(ArrayList<String> inText){
+		  if (inText == null)
+			  return null;
 		  Set<Integer> chanGroup = new HashSet<Integer>();
 		  for (int i = 0; i<inText.size();i++){
 			  String[] items = inText.get(i).trim().split("[,\\s\\t]+");
@@ -58,11 +60,11 @@ public class SurvivalInputs {
 		        	System.err.println("Channel,"+ i + "is null!");
 		        	continue;
 		      }
-			  if (_sacChannels.contains(i))
+			  if (_sacChannels!=null && _sacChannels.contains(i))
 				  aChan.setChanGroup(1);
-			  else if (_interiorChannels.contains(i))
+			  else if (_interiorChannels!=null &&_interiorChannels.contains(i))
 				  aChan.setChanGroup(2);
-			  else if (_sjrChannels.contains(i))
+			  else if (_sjrChannels!=null && _sjrChannels.contains(i))
 				  aChan.setChanGroup(3);
 			  else 
 				  aChan.setChanGroup(8);

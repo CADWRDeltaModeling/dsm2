@@ -26,7 +26,17 @@ public class RouteInputs {
 		// because nodeId WbId pair is unique and has a uique name
 		_nameNodeLookup = new HashMap<String, Integer>();
 		_nameWbLookup = new HashMap<String, Integer>();
-		setBarriers(PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS"));
+		_fishScreenMap = new HashMap<String, Integer>();
+		ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
+		ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
+		if( barriersInText == null || barriersInText.size() < 6)
+			System.err.println("WARNING: no non-physical-barrier info found in behavior inputs.");
+		else
+			setBarriers(barriersInText);
+		if( screensInText == null || screensInText.size() < 5)
+			System.err.println("WARNING: no fish screen info found in behavior inputs.");
+		else
+			setFishScreens(screensInText);
 
 	}
 	public void addSpecialBehaviors(RouteHelper rh, String particleType){
@@ -38,7 +48,7 @@ public class RouteInputs {
 			while (it.hasNext()){
 				String key = it.next();
 				// do switch according to key.  for now only one behavior for GSJunction involved
-				if (key.equalsIgnoreCase("GSJUNCTION")){
+				if (key.equalsIgnoreCase("GSBARRIER")){
 					int nId = _nameNodeLookup.get(key);
 					((SalmonRouteHelper)rh).addSpecialBehavior(nId, new SalmonGSJRouteBehavior(nId,_nameWbLookup.get(key)));
 					containGSJ = true; 
@@ -100,6 +110,7 @@ public class RouteInputs {
 	}
 	public HashMap<String, NonPhysicalBarrier> getBarriers(){ return _barriers;}
 	public HashMap<String, Integer> getNameNodeLookup() { return _nameNodeLookup; }
+	public HashMap<String, Integer> getFishScreenMap() { return _fishScreenMap; }
 	private NonPhysicalBarrier getBarrier(int nodeId, int chanId){
 		NonPhysicalBarrier npb = _barriers.get(PTMUtil.concatNodeWbIds(nodeId, chanId));
 		if (npb == null)
@@ -108,12 +119,12 @@ public class RouteInputs {
 	  }
 	private void setBarriers(ArrayList<String> inText){
 		// first line of inText is number_of_barriers: number
-		int numberOfBarriers = getNumberOfBarriers(inText.get(0).trim());
+		int numberOfBarriers = getNumber(inText.get(0));
 		for (int i = 1; i<numberOfBarriers+1; i++){
 			setBarrier(PTMUtil.getInputBlock(inText, "BARRIER"+i, "END_BARRIER"+i));
 		}	
 	}
-	private int getNumberOfBarriers(String numberLine){
+	private int getNumber(String numberLine){
 		int number = 0;
 		try{
 			String[] items = numberLine.split("[,:\\s\\t]+");
@@ -127,25 +138,12 @@ public class RouteInputs {
 	private void setBarrier(ArrayList<String> barrierText){
 		String[] items = barrierText.get(0).trim().split("[,\\s\\t]+");
 		// first line has to be name nodeID, wbID
-		if (!items[0].trim().equalsIgnoreCase("NAME")&&!items[1].trim().equalsIgnoreCase("NODEID")&&items[2].trim().equalsIgnoreCase("CHANNELID")){
-			PTMUtil.systemExit("behavior route input block has wrong format:"+items[0]+" "+items[1]+" "+items[2]+" should be Name NodeID ChannelID");
-		}
+		checkHeadline(items);
 		items = barrierText.get(1).trim().split("[,\\s\\t]+");
-		int nodeId=-99, wbId=-99;		
-		try{
-			if (items.length<3)
-				throw new NumberFormatException("Barrier Name, Node ID and WaterBady Id have wrong format!");
-			
-			// convert from external node channel number to internal node channel numbers
-			nodeId = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[1]));
-			wbId = PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[2]));
-		}catch(NumberFormatException e){
-			e.printStackTrace();
-			PTMUtil.systemExit("behavior route input block has wrong node and water body id numbers: " + barrierText.get(1));
-		}
-		_nameNodeLookup.put(items[0], nodeId);
-		_nameWbLookup.put(items[0], wbId);
-		addBarrier(barrierText, nodeId, wbId);
+		int[] ids = getIds(items);
+		_nameNodeLookup.put(items[0], ids[0]);
+		_nameWbLookup.put(items[0], ids[1]);
+		addBarrier(barrierText, ids[0], ids[1]);
 	}
 	private void addBarrier(ArrayList<String> barrierBlock, int nodeId, int wbId){
 		  HashMap<BarrierOpPeriod, Integer> bOpTS = new HashMap<BarrierOpPeriod, Integer>();
@@ -202,9 +200,41 @@ public class RouteInputs {
 		  }
 		  _barriers.put(Integer.toString(nodeId)+"_"+Integer.toString(wbId), new NonPhysicalBarrier(nodeId, wbId, bOpTS));			  
 	}
+	private void setFishScreens(ArrayList<String> inText){
+		// first line of inText is number_of fish screens: number
+		int numberOfScreens = getNumber(inText.get(0).trim());
+		for (int i = 1; i<numberOfScreens+1; i++){
+			ArrayList<String> screenData = PTMUtil.getInputBlock(inText, "FISH_SCREEN"+i, "END_SCREEN"+i);
+			checkHeadline(screenData.get(0).trim().split("[,\\s\\t]+"));
+			int[] ids = getIds(screenData.get(1).trim().split("[,\\s\\t]+"));
+			_fishScreenMap.put(PTMUtil.concatNodeWbIds(ids[0], ids[1]), ids[1]);
+		}
+	}
+	
+	private void checkHeadline(String[] items){
+		if (!items[0].trim().equalsIgnoreCase("NAME")&&!items[1].trim().equalsIgnoreCase("NODEID")&&items[2].trim().equalsIgnoreCase("CHANNELID")){
+			PTMUtil.systemExit("behavior route input block has wrong format:"+items[0]+" "+items[1]+" "+items[2]+" should be Name NodeID ChannelID");
+		}
+	}
+	private int[] getIds(String[] items){
+		int nodeId=-99, wbId=-99;		
+		try{
+			if (items.length<3)
+				throw new NumberFormatException("Barrier Name, Node ID and WaterBady Id have wrong format!");
+			
+			// convert from external node channel numbers to internal node channel numbers
+			nodeId = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[1]));
+			wbId = PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[2]));
+		}catch(NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("behavior route input block has wrong node and water body id numbers");
+		}
+		return new int[] {nodeId, wbId};
+	}
 	// map key is name
 	private HashMap<String, NonPhysicalBarrier> _barriers;
 	private HashMap<String, Integer> _nameNodeLookup;
 	private HashMap<String, Integer> _nameWbLookup;
+	private HashMap<String, Integer> _fishScreenMap;
 
 }
