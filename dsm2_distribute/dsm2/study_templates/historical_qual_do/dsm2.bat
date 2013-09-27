@@ -1,2 +1,2 @@
-REM hydro historical_hydro.inp
-qual historical_qual_do.inp
+hydro historical_hydro.inp
+REM qual historical_qual_do.inp

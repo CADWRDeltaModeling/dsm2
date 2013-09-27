@@ -1,0 +1,26 @@
+# Description:
+# fingerprint source tracking
+# sac and yolo are split for BST Scenario March 15, 2010
+GROUP
+NAME 
+ag    
+east  
+mtz   
+sac   
+sjr   
+yolo
+END
+
+
+
+GROUP_MEMBER
+GROUP_NAME MEMBER_TYPE   PATTERN                  
+ag         source_sink   dicu_.*                   
+east       flow_boundary (moke|calaveras|cosumnes) 
+mtz        stage         mtz                       
+sac        flow_boundary sac                
+sjr        flow_boundary vernalis                  
+yolo       flow_boundary yolo
+END
+
+

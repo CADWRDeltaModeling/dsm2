@@ -1,2 +1,0 @@
-Comparing to the old results, the biggest difference is seen at RSAC101.
-Maybe due to RSAC101 EC calibration is also too high.

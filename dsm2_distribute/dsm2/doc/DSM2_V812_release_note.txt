@@ -1,0 +1,58 @@
+DSM2 V8.1.2 release is a recalibration based on 2009 BDCP calibration grid.
+Main differences:
+    1.  Converted to NAVD88 datum.
+    2.  Qual formulation change, a new dispersion coefficient was introduced.
+    3.  Dispersion is calculated based on average velocity of both ends of a channel.
+        V8.0.6 used only velocity at upstream end. This change improved dispersion
+        in dead end channels or channels with closed gates. 
+        The difference is significant at Delta Cross Channel when the gate is closed.
+    4.  Hydro geometry calculation modification.
+    5.  Martinez boundary EC correction:
+        --It was found CDEC hourly EC are instantaneous samples, 
+        need to be converted to hourly averaged values.
+        Data before 10/1/2002 were from IEP, They were indeed hourly averaged.  
+    6.  Channel corrections 141, 144. Modifications at a few other channels.
+        Minor cross section changes for negative dConveyance. 
+    7.  Martinez stage was checked and corrected by Lan Liang.
+    8.  Clifton Court gate operation was checked and corrected by Lan Liang.
+    9.  Oprule files for gate and temp barriers are using the latest historic
+        run setup from Lan Liang.
+   10.  Hydro runs 2X faster.
+   11.  Qual tidefile output.
+   12.  Time steps for Hydro/Tidefile/Qual are 15/30/15min for calibration.
+   13.  When there is a water mass balance error in Hydro, the error may accumulate in Qual.
+        A water mass(channel volume) balance check was added in Qual,
+        and a correction procedure was added to ensure Qual running properly. 
+        At the end of a Qual run, the accumulated water mass balance error will be reported.
+		Detailed info for each channel are listed in the end of the output file (*.qof). 
+        By making ‘checkdata’ to ‘True’, Qual will check the channel volume 
+        balance without making the full run.
+        If the error is significant, user should try to resolve the problem in Hydro. 		
+   14.  PTM adopt a new feature called 'filter', which can block/direct particles
+        w/o interrupting hydro environment.
+
+Notes for converting existing 8.0.6 setups to 8.1:
+    1.  In the study templates, when there is no change to a file from 8.0.6, 
+        we kept the same name, so it is easy to tell which files had been 
+        changed. 
+    2.  In summary, for Hydro, all the files with elevation need to be 
+        converted to NAVD88: 
+            The grid files including channel, reservoir, gates;
+            Initial condition files for channel and reservoir;
+            Stage boundary file for Martinez. To avoid confusion, we added 
+            '_NAVD' to the end of the F part of the path;
+            Oprule files when stage is in the expressions.
+    3.  The source flow file has been corrected for stockton effluent flow,
+        the sign corrected to positive.	
+    4.  Martinez EC time series correction after 10/1/2002. We added
+        '_Corrected' to the end of the F part for clarity.
+
+Special notes for planning study setup:
+    1.  No preprocessing scripts had been changed from 8.0.6. 
+    2.  After prepro had been done, Martinez stage need to be converted
+        manually to NAVD88 by adding 2.68ft and add '_NAVD' to the end of
+        the path. 
+    3.  The Martinez boundary EC time series was using 15min instant value
+        in Version 8.0.6. Although we recommended using PER-AVER data, the
+        differences in simulated EC are less than 1.0% when using 15min data, 
+        this setup still uses inst-val/linear.		

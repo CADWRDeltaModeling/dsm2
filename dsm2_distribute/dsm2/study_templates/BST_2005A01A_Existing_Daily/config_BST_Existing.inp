@@ -1,0 +1,93 @@
+ENVVAR
+NAME                        VALUE
+DSM2INPUTDIR                ../../common_input
+CALSIMNAME                  2005A01ADV                                             # Name of CALSIM file without ".dss" part
+DSM2MODIFIER                BST_Existing                                           # Study name used for DSM2 and prepro 
+CALSIMSTUDY_ORIGINAL        2005A01A                                               # fpart straight out of calsim
+CALSIMSTUDY_MODIFIED        ${CALSIMSTUDY_ORIGINAL}_${DSM2MODIFIER}                # modified fpart after preprocessing
+CALSIMSTUDY                 ${CALSIMSTUDY_MODIFIED}                                # CALSIM study name used for DSM2
+CALSIMSTEP                  1MON
+DICU_VERSION                2005                                                   # Appears in F-PART of DICU data after DICU-DRN
+ASTRO_STAGE_VERSION         ASTRO-PLANNING-2
+STAGE_VERSION               PLANNING-2-SL
+SJR_PROCESS                 MULTI_STEP                                             # SINGLE_STEP or MULTI_STEP
+
+START_DATE                  01OCT1974 #01JAN1921 #1FEB1921 #
+QUAL_START_DATE             02OCT1974 #02JAN1921 #02FEB1921 #
+PTM_START_DATE              ${QUAL_START_DATE}
+START_TIME                  0000
+END_DATE                    01OCT1991 #01OCT2003 #31OCT1974 #  
+END_TIME                    0000 
+
+TSINPUTDIR                  ../../timeseries                                       # Where timeseries are stored.
+TEMPDIR                     z:/temp                                                # temporary directory. Please change
+TSINPUTLOCAL                ./timeseries                                           # Local timeseries location
+CALSIMDIR                   ${TSINPUTLOCAL}/CALSIM    #${TSINPUTDIR}                                                # For Condor or single prepro
+BOUNDARYFILE                ${TSINPUTLOCAL}/${DSM2MODIFIER}.dss
+QUALBOUNDARYFILE            ${BOUNDARYFILE}
+DICUDIR                     ${TSINPUTDIR}
+DICUFLOWFILE                ${DICUDIR}/dicu-${DICU_VERSION}.dss #dicu_BDCP_2020.dss              # DICU file
+DICUFILE                    ${BOUNDARYFILE}                                        # DICU file
+CALSIMFILE                  ${CALSIMDIR}/${CALSIMNAME}.dss                         # Calsim output file
+CALSIM_SMOOTH               ${BOUNDARYFILE}                                        # Pre-processed boundary input (hydro/qual)
+CALSIM_VAMP                 ${BOUNDARYFILE}                                        # Pre-processed VAMP flows and exports
+
+DICUFILE_EC                 ${TSINPUTDIR}/dicu-wq-2020.dss                         # Base DICU file for EC--2005 are the same as 2020
+DICUFILE_ECE                ${BOUNDARYFILE}
+
+TSFILE_DOC                  ${TSINPUTLOCAL}/DOC/DOC_boundary_2002.dss
+DICUFILE_DOC                ${TSINPUTLOCAL}/DOC/dicuwq_3vals.dss                        # Base DICU file for EC--2005 are the same as 2020
+DICUFILE_DOCE               ${BOUNDARYFILE}
+
+GATEFILE                    ${BOUNDARYFILE}
+CLIFTONCT_GATEFILE          ${TSINPUTDIR}/clifton_planning_82years.dss     #${TSINPUTDIR}/clifton_planning.dss                     # File containing Clifton Ct Priority Ops
+CLIFTONCT_GATEOP            PRIORITY3                                              # Version of Clifton Court Op to use
+STAGE_SOURCE_FILE           ${TSINPUTDIR}/Planning_Tide_82years.dss        #${TSINPUTDIR}/planningtide.dss
+STAGEFILE                   ${BOUNDARYFILE}
+
+# CALSIM II DailyMapped Boundary Timeseries Files
+DAYFLOW_FILE                ${TSINPUTLOCAL}/Other/DayFlowAdj.dss
+SJR_NOPATTERN_FILE          ${TSINPUTLOCAL}/Other/SJR_nopattern_flow.dss
+CALSIM_DAILY_FILE           ${TSINPUTLOCAL}/${DSM2MODIFIER}_daily.dss
+CALSIM_QA_FILE              ${TSINPUTLOCAL}/${DSM2MODIFIER}_daily_QA.dss
+
+# Output
+DSM2OUTPUTDIR               ./output                                               # output location.  Please change
+OUTPUTFILE                  ${DSM2MODIFIER}_out.dss
+# Hydro
+HYDROOUTDSSFILE             ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+HYDROOUTFILE                ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hof
+HYDROTIDEFILE               ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5
+HYDRORSTFILE                ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf
+GATEOUTPUTFILE              ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+HYDROOUTDSSFILE_FLOW        ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_flow.dss
+HYDROOUTDSSFILE_STAGE       ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_stage.dss
+HYDROOUTDSSFILE_VEL         ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_vel.dss
+HYDROOUTDSSFILE_Geomorph    ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_geomorph.dss
+HYDROOUTDSSFILE_Breach      ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_breach.dss
+# Qual
+QUALOUTDSSFILE              ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+QUALOUTDSSFILE_EC           ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_ec.dss
+QUALOUTFILE                 ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qof
+QUALRSTFILE                 ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.qrf
+FINE_OUT                    15MIN
+QUALOUTDSSFILE_DOC             ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_doc.dss
+QUAL_OUTDSS_VOL_FP              ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_vol_fp.dss
+QUAL_OUTDSS_EC_FP              ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_ec_fp.dss
+QUAL_OUTDSS_200nodes_FP     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_fp_200nodes.dss
+QUAL_OUTDSS_200nodes_EC     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_ec_200nodes.dss
+QUALOUTDSSFILE_ECX2         ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_out_ec_x2.dss
+# Montezuma Slough operating threshold for EC
+MSCS_EC_THRESH              20000
+
+VAMP_START                  15APR                                                # start of vamp season, inclusive
+VAMP_END                    16MAY                                                # end of vamp season, time 00:00
+
+VERNALIS_CLEAN              ts(name=vernalis_ec)<600   
+                                                                                 # indicator that vernalis inflow is clean enough to refresh
+                                                                                 # the south delta. this will usually be:
+                                                                                 # vernalis_ec<600  based on boundary ec NO SPACES!!!!!!!
+                                                                                 # true/false       hardwire so that vernalis is considered
+                                                                                 # automatically clean enough/never clean enough
+
+END
