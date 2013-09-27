@@ -1,0 +1,14 @@
+# Description:
+# CALSIM delta DOC for BST Scenario March 15, 2010.
+NODE_CONCENTRATION
+NAME      NODE_NO VARIABLE FILLIN FILE                PATH                                   
+calaveras      21 doc      last   ${QUALBOUNDARYFILE} /ESTIMATED/EASTSIDE/DOC//1DAY/BST_EXISTING/                                                          
+cosumnes      446 doc      last   ${QUALBOUNDARYFILE} /ESTIMATED/EASTSIDE/DOC//1DAY/BST_EXISTING/   #Eastside needs to be broken into Consumnes and Mokelumne
+moke          447 doc      last   ${QUALBOUNDARYFILE} /ESTIMATED/EASTSIDE/DOC//1DAY/BST_EXISTING/   #Eastside needs to be broken into Consumnes and Mokelumne
+sac           330 doc      last   ${QUALBOUNDARYFILE} /ESTIMATED/RSAC139/DOC//1DAY/BST_EXISTING/                                                            
+vernalis       17 doc      last   ${QUALBOUNDARYFILE} /ESTIMATED/RSAN112/DOC//1DAY/BST_EXISTING/                                                           
+yolo          316 doc      last   ${QUALBOUNDARYFILE} /ESTIMATED/RSAC139/DOC//1DAY/BST_EXISTING/                                                           
+mtz           361 doc      last   constant            2.                                                                                               
+END
+
+

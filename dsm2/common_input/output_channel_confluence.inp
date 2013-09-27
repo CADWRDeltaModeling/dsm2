@@ -1,0 +1,33 @@
+# Description:
+# output for the ccc splited flow
+OUTPUT_CHANNEL
+NAME                  CHAN_NO DISTANCE VARIABLE INTERVAL    PERIOD_OP FILE              
+ch281_0          281        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+ch299_90          299     4500 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+ch283_90          283     3600 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch295_l          295     length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+ch286_75          286     4000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch288_m          288     5000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE} 
+ch289_m          289     4000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch435_m          435     5000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch511_l          511     length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch291          291     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch292          292     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch293          293     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch294          294     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch53            53     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch339          339     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch553          553     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch334          334     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch337          337     length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch241old          241     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch351d          351        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch353d          353        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch355d          355        0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch557d          557     2000 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch237old          237     0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch327           327   0 flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+ch357           357   length flow     ${FINE_OUT} inst      ${HYDROOUTDSSFILE}
+END
+
+

@@ -1,0 +1,15 @@
+# Description:
+# DSM2 Modified Grid Initialization
+# Sacramento River grid updated upstream of Walnut Grove to align nodes with the proposed intakes. Calibration was verified for this change and found to cause minor changes local to the grid modifications.
+# The intake locations used are from the BDCP Steering Committee Meeting on January 29, 2010. As part of this update two new nodes and two new channels were added to the mini-calibration grid.
+# This is the same file as "channel_ic_mini_calibration_grid_update_20100216.inp" used in the calibration verification run with different filename.
+
+CHANNEL_IC
+CHAN_NO DISTANCE STAGE FLOW
+704            0   5.0  0.0 
+704       length   5.0  0.0 
+705            0   5.0  0.0 
+705       length   5.0  0.0 
+END
+
+

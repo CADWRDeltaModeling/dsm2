@@ -1,0 +1,8 @@
+OUTPUT_GATE
+NAME               GATE_NAME           DEVICE               VARIABLE     INTERVAL PERIOD_OP FILE             
+clifton_court_gates    clifton_court   reservoir_gates      op_from_node    15MIN inst      ${GATEOUTPUTFILE}
+mtzmsl_rad_gate			montezuma_salinity_control  radial_gates	op_from_node    15MIN inst      ${GATEOUTPUTFILE}
+mtzmsl_rad_gate			montezuma_salinity_control  radial_gates	op_to_node      15MIN inst      ${GATEOUTPUTFILE}
+mtzmsl_rad_gate			montezuma_salinity_control  radial_gates	elev            15MIN inst      ${GATEOUTPUTFILE}
+mtzmsl_rad_gate			montezuma_salinity_control  radial_gates	width           15MIN inst      ${GATEOUTPUTFILE}
+END

@@ -1,2 +1,0 @@
-alt1,../data/calsim/alt1,2005a01edv
-alt2,../data/calsim/alt2,2005a01edv

@@ -1,0 +1,20 @@
+# Description:
+# Output of volumetric finger printing BST Scenario March 15, 2010
+OUTPUT_RESERVOIR_SOURCE_TRACK
+NAME          RES_NAME      VARIABLE SOURCE_GROUP INTERVAL    PERIOD_OP FILE                 
+clifton_court clifton_court ec       all          1DAY        AVE       ${QUAL_OUTDSS_EC_FP}  
+clifton_court clifton_court ec       ag           1DAY        AVE       ${QUAL_OUTDSS_EC_FP}  
+clifton_court clifton_court ec       east         1DAY        AVE       ${QUAL_OUTDSS_EC_FP}  
+clifton_court clifton_court ec       mtz          1DAY        AVE       ${QUAL_OUTDSS_EC_FP}  
+clifton_court clifton_court ec       sac          1DAY        AVE       ${QUAL_OUTDSS_EC_FP}  
+clifton_court clifton_court ec       sjr          1DAY        AVE       ${QUAL_OUTDSS_EC_FP}  
+Franks_Tract  Franks_Tract  ec       all          ${FINE_OUT} inst      ${QUAL_OUTDSS_VOL_FP} 
+Franks_Tract  Franks_Tract  ec       ag           ${FINE_OUT} inst      ${QUAL_OUTDSS_VOL_FP} 
+Franks_Tract  Franks_Tract  ec       east         ${FINE_OUT} inst      ${QUAL_OUTDSS_VOL_FP} 
+Franks_Tract  Franks_Tract  ec       mtz          ${FINE_OUT} inst      ${QUAL_OUTDSS_VOL_FP} 
+Franks_Tract  Franks_Tract  ec       sac          ${FINE_OUT} inst      ${QUAL_OUTDSS_VOL_FP} 
+Franks_Tract  Franks_Tract  ec       sjr          ${FINE_OUT} inst      ${QUAL_OUTDSS_VOL_FP} 
+Franks_Tract  Franks_Tract  ec       yolo         ${FINE_OUT} inst      ${QUAL_OUTDSS_VOL_FP} 
+END
+
+

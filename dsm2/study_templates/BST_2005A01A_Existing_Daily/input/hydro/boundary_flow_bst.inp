@@ -1,0 +1,13 @@
+# Description:
+# CALSIM delta flow for BST Scenario March 15, 2010
+BOUNDARY_FLOW
+NAME      NODE SIGN FILLIN FILE                                     PATH                                                               
+calaveras   21    1 last   ./timeseries/${DSM2MODIFIER}_daily.dss   /CALSIM-DAILY/C508_R514/FLOW-CHANNEL//1DAY/${CALSIMSTUDY_MODIFIED}/       
+cosumnes   446    1 last   ./timeseries/${DSM2MODIFIER}_daily.dss   /CALSIM-DAILY/C501/FLOW-CHANNEL//1DAY/${CALSIMSTUDY_MODIFIED}/                     
+moke       447    1 last   ./timeseries/${DSM2MODIFIER}_daily.dss   /CALSIM-DAILY/I504/FLOW-INFLOW//1DAY/${CALSIMSTUDY_MODIFIED}/                      
+sac        330    1 linear ./timeseries/${DSM2MODIFIER}_daily.dss   /CALSIM-DAILY/C169_D168B_D168C/FLOW//1DAY/${CALSIMSTUDY_MODIFIED}/ 
+vernalis    17    1 linear ./timeseries/${DSM2MODIFIER}_daily.dss   /CALSIM-DAILY/C639_R644/FLOW//1DAY/${CALSIMSTUDY_MODIFIED}/        
+yolo       316    1 last   ./timeseries/${DSM2MODIFIER}_daily.dss   /CALSIM-DAILY/C157/FLOW-CHANNEL//1DAY/${CALSIMSTUDY_MODIFIED}/                     
+END
+
+
