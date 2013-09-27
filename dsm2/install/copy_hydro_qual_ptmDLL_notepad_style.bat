@@ -1,4 +1,4 @@
-set version=v8.1.1
+set version=v8.1.2
 
 echo version "%version%" 
 set dsm2_build_dir=..\..\..\dsm2
