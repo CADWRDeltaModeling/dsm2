@@ -33,7 +33,7 @@ module interpolation
    
    !! interpolation mesh grid with four given points
    !! For example, space divided into four and time divided into three (*: given, nx=5, nt=4)
-   !! Tii stands for volume change for each cell.
+   !! Tij stands for volume change for each cell.
    !!    1      2      3      4      nx
    !! 1  a*----c12----c13----c14-----b*  t-1       -----------------------------
    !!    |      |      |      |      |             |      |      |      |      |
@@ -283,6 +283,66 @@ module interpolation
         end do     
         return   
     end subroutine    
+
+
+   !> Flow interpolation based on area interpolation from CxArea() while theta average is used for calculation
+   !> This pushes mass balance inconsistency to T24 and T31.
+    subroutine interp_flow_from_area_theta_m0(mesh, volume_change,         &
+                                              dt, nt, nx,                  &
+                                              a, b, c, d,                  &
+                                              mass_balance_target,         & 
+                                              prev_flow_cell)
+        implicit none
+        real(gtm_real), intent(in) :: dt                                        !< finer time step (in minutes)
+        integer, intent(in) :: nt                                               !< nt: number of points in time
+        integer, intent(in) :: nx                                               !< nx: number of points in space
+        real(gtm_real), intent(in) :: a, b, c, d                                !< input four corner points
+        real(gtm_real), dimension(nt-1,nx-1), intent(in) :: mass_balance_target !< mass balance from flow interpolation
+        real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell             !< previous time step interpolated flow cells
+        real(gtm_real), dimension(nt,nx), intent(out) :: mesh                   !< interpolated mesh
+        real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
+        real(gtm_real) :: total_volume_change, factor                           ! local variables
+        integer :: i, j                                                         ! local variables     
+        mesh = LARGEREAL
+        volume_change = LARGEREAL
+        mesh(1,1) = a
+        mesh(1,nx) = b
+        mesh(nt,1) = c
+        mesh(nt,nx) = d
+        ! assigne initial row and interpolate boundary column linearly       
+        do j = 2, nx-1
+            mesh(1,j) = prev_flow_cell(j)
+        end do
+        do i = 2, nt-1
+            factor = (i-one)/(nt-one)
+            mesh(i,1) = mesh(1,1) + factor*(mesh(nt,1)-mesh(1,1))
+        end do
+        
+        ! interpolate all cells initially (mass balance error will accumulate at the end)
+        do i = 2, nt
+            do j = 2, nx
+            mesh(i,j) = ((one-hydro_theta)*mesh(i-1,j-1) + hydro_theta*mesh(i,j-1) -  & 
+                        (one-hydro_theta)*mesh(i-1,j) - mass_balance_target(i-1,j-1)/dt/sixty)/hydro_theta
+            end do
+        end do   
+        mesh(nt,nx) = d
+        ! adjust one of last cell c35 to have total mass balanced
+        mesh(nt-1,nx) = mesh(nt-1,nx-1) + (one-hydro_theta)*mesh(nt-2,nx-1) + hydro_theta*mesh(nt,nx-1) - &
+                        (one-hydro_theta)*mesh(nt-2,nx) - hydro_theta*mesh(nt,nx) - (mass_balance_target(nt-2,nx-1)+ &
+                        mass_balance_target(nt-1,nx-1))/dt/sixty
+        ! adjust the other one of last cell c44 to make sure mass balanced at the end
+        mesh(nt,nx-1) = ((one-hydro_theta)*mesh(nt-1,nx) + hydro_theta*mesh(nt,nx) - (one-hydro_theta)*mesh(nt-1,nx-1) + &
+                        mass_balance_target(nt-1,nx-1)/dt/sixty)/hydro_theta
+        
+        ! calculate volume change for mesh cells
+        do i = 1, nt-1
+            do j = 1, nx-1
+                volume_change(i,j) = ((one-hydro_theta)*mesh(i,j)+hydro_theta*mesh(i+1,j)- &
+                                     (one-hydro_theta)*mesh(i,j+1)-hydro_theta*mesh(i+1,j+1))*dt*sixty ! theta average
+            end do
+        end do                           
+        return
+    end subroutine
     
    !> Flow interpolation based on area interpolation from CxArea() while theta average is used for calculation
    !> This pushes mass balance inconsistency to T24 and T31.

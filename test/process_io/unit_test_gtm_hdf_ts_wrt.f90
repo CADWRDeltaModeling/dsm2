@@ -1,29 +1,28 @@
 
-
-!> This module contains unit tests for gtm_hdf_write module, 
+!> This module contains unit tests for gtm_hdf_ts_write module, 
 !> which mainly is used to print out time series output into 
 !> HDF file.
 !>@ingroup test_process_io
-module ut_gtm_hdf_ts_write
+module ut_gtm_hdf_ts_wrt
 
     use fruit
  
     contains
     
+    
     !> Main routines to call all unit tests for writing data into HDF file
-    subroutine test_gtm_hdf_ts_write()
+    subroutine test_hdf_ts_wrt()
         use hdf5   
         implicit none
         integer :: error = 0
         call h5open_f(error)        
         call test_init_qual_hdf
         call test_write_ts_qual_hdf
-        call test_write_ts_qual_hdf_large
+        call test_write_ts_qual_hdf_lg
         call h5close_f(error)   
         return
     end subroutine    
-    
-    !> Test for writing geometry info into qual tidefile
+
 
     !> Test for initializing qual tidefile
     subroutine test_init_qual_hdf()
@@ -74,7 +73,7 @@ module ut_gtm_hdf_ts_write
     !> Test for writing time series data to qual tidefile as well as geometry data
     subroutine test_write_ts_qual_hdf()
         use hdf5
-        use common_variables, only: chan_geom, res_geom, constituents, segment_t
+        use common_variables, only: chan_geom, res_geom, constituents
         use gtm_hdf_write
         use gtm_hdf_ts_write
         implicit none
@@ -87,7 +86,6 @@ module ut_gtm_hdf_ts_write
         integer :: nconc        
         integer :: julmin
         integer :: time_index
-        type(segment_t) :: segment(3)
         real(gtm_real), allocatable :: conc(:,:), conc_res(:,:) 
                
         !---variables for reading tidefile
@@ -202,17 +200,6 @@ module ut_gtm_hdf_ts_write
         call assertEquals(rdata(1,1,1), dble(1101), weakest_eps, "problem in test_write_ts_qual_hdf rdata(1,1,1)")
         call assertEquals(rdata(2,1,2), dble(2201), weakest_eps, "problem in test_write_ts_qual_hdf rdata(2,1,2)")
     
-        do i = 1, 3    
-            segment(i)%segm_no = i
-            segment(i)%chan_no = 1
-            segment(i)%up_comppt = i
-            segment(i)%down_comppt = i+1
-            segment(i)%up_distance = dble(i)*100
-            segment(i)%down_distance = dble(i)*200
-            segment(i)%length = dble(i)*1000
-        end do
-        call write_segm_info(file_id, 3, segment)
-        
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dataspace, error)
         call h5gclose_f(output_id, error)
@@ -223,7 +210,7 @@ module ut_gtm_hdf_ts_write
 
 
     !> Test for writing large time series data to qual tidefile
-    subroutine test_write_ts_qual_hdf_large()
+    subroutine test_write_ts_qual_hdf_lg()
         use hdf5    
         use common_variables, only: chan_geom, res_geom, constituents
         use gtm_hdf_ts_write

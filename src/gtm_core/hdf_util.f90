@@ -31,7 +31,9 @@ module hdf_util
    integer(HID_T) :: hydro_file_id        !< HDF5 File identifier
    integer(HID_T) :: hydro_id             !< hydro group identifier      
    integer(HID_T) :: hydro_access_plist   !< HDF5 property identifier
+
    contains
+
          
    !> Open HDF5 interface and hydro tidefile, assume HDF5 interface is open
    subroutine hdf5_init(hdf5_file_name)
@@ -83,6 +85,7 @@ module hdf_util
        return
    end subroutine    
 
+
    !> Read time series dataset from hydro tidefile        
    subroutine get_ts_from_hdf5(dset_data, dset_name, time_offset, buffer_size)
        implicit none     
@@ -121,6 +124,7 @@ module hdf_util
        call h5gclose_f(data_id, error)
        return     
    end subroutine  
+ 
    
    !> Read virtual cross section table from hydro tidefile
    subroutine read_xsect_tbl()
@@ -228,6 +232,7 @@ module hdf_util
        call h5gclose_f(geom_id, error)               
        return        
    end subroutine
+ 
     
    !> Read input/channel table from hydro tidefile
    subroutine read_channel_tbl()
@@ -284,6 +289,7 @@ module hdf_util
        return        
    end subroutine  
  
+ 
    !> Read geometry/hydro_comp_point table from hydro tidefile
    subroutine read_comp_tbl()
        use common_variables
@@ -332,6 +338,7 @@ module hdf_util
        call h5gclose_f(geom_id, error)
        return        
    end subroutine  
+   
      
    !> Read integer attributes from hydro tidefile     
    subroutine get_int_attribute_from_hdf5(attr_value, attr_name)        
@@ -347,6 +354,7 @@ module hdf_util
        attr_value = hdf5_read_buffer(1)
        return
    end subroutine   
+   
    
    !> Calculate max dimension for irreg_geom array
    !> Updated variables are n_irreg, chan_index, num_xsect_chan and num_elev_chan.

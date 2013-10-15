@@ -162,22 +162,38 @@ module gtm_dss
          end do
       
          call allocate_datain
-       
+
+         ! this looks repeating, but this is hard to avoid to allocate ptin_* array.
+         npthsin_min15 = 0
+         npthsin_hour1 = 0
+         npthsin_day1 = 0
+         npthsin_week1 = 0
+         npthsin_month1 = 0
+         npthsin_year1 = 0
+         npthsin_irr = 0
+                
          do p = 1,n_inputpaths
              if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval .eq. '15min') then 
+                npthsin_min15 = npthsin_min15 + 1
                 ptin_min15(npthsin_min15) = p
              else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1hour') then
-                ptin_hour1(npthsin_hour1)=p
+                npthsin_hour1 = npthsin_hour1 + 1
+                ptin_hour1(npthsin_hour1) = p
              else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1day') then
-                ptin_day1(npthsin_day1)=p
+                npthsin_day1 = npthsin_day1 + 1
+                ptin_day1(npthsin_day1) = p
              else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1week') then
-                ptin_week1(npthsin_week1)=p
+                npthsin_week1 = npthsin_week1 + 1
+                ptin_week1(npthsin_week1) = p
              else if (pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:4) .eq. '1mon') then
-                ptin_month1(npthsin_month1)=p
+                npthsin_month1 = npthsin_month1 + 1
+                ptin_month1(npthsin_month1) = p
              else if ((pathinput(p).no_intervals .eq. 1 .and. pathinput(p).interval(:5) .eq. '1year') .or. &
                      pathinput(p).constant_value .ne. miss_val_r) then
+                npthsin_year1 = npthsin_year1 + 1     
                 ptin_year1(npthsin_year1) = p
              else if (pathinput(p).interval(:3) .eq. 'ir-') then ! irregular interval
+                npthsin_irr = npthsin_irr + 1
                 ptin_irr(npthsin_irr) = p
              else                   ! unrecognized interval
                 write(*,*) "Error in get_dss_each_npath() ptin_*"

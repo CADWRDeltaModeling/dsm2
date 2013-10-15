@@ -29,10 +29,12 @@ program gtm
     use common_xsect   
     use common_dsm2_vars
     use process_gtm_input
-    use io_utilities
+    use io_utilities  
     use time_utilities
     use gtm_hdf_write    
-    use gtm_hdf_ts_write     
+    use gtm_hdf_ts_write    
+    use gtm_dss_open
+    use gtm_dss_main      
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
@@ -52,6 +54,7 @@ program gtm
     real(gtm_real), allocatable :: prev_flow_cell(:,:)
     real(gtm_real), allocatable :: prev_up_comp_flow(:), prev_down_comp_flow(:)
     real(gtm_real), allocatable :: prev_up_comp_ws(:), prev_down_comp_ws(:)
+    real(gtm_real), allocatable :: prev_avga(:)
     real(gtm_real) :: total_flow_volume_change, total_area_volume_change
     real(gtm_real) :: avga_volume_change, diff
     integer :: up_comp, down_comp    
@@ -67,6 +70,8 @@ program gtm
     real(gtm_real), allocatable :: init_conc(:,:)
     real(gtm_real), parameter :: constant_decay = 1.552749d-5
     character(len=130) :: init_input_file                       ! initial input file on command line [optional]
+    character(len=14) :: cdt
+    character(len=9) :: prev_day
     integer :: runtime_hydro_start, runtime_hydro_end
     integer :: iblock, slice_in_block, skip
     integer :: current_block = 0
@@ -74,7 +79,8 @@ program gtm
     integer :: time_index
     real(gtm_real) :: t_index
     integer :: ierror
-    
+    logical :: debug_interp = .false.
+
     n_var = 1
     
     call h5open_f(ierror)
@@ -84,13 +90,14 @@ program gtm
     !----- Read input specification from *.inp text file -----
     !
     call get_command_args(init_input_file)
-    call read_input_text(init_input_file)                        ! read input specification text
+    call read_input_text(init_input_file)                  ! read input specification text
+    call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all dss files
     open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
     write(*,*) "Process DSM2 geometry info...."    
     call hdf5_init(hydro_hdf5)                         
-    call dsm2_hdf_geom() 
-    call write_geom_to_text()
+    call dsm2_hdf_geom
+    call write_geom_to_text
 
     call check_runtime(offset, num_buffers, memlen,                    &
                        runtime_hydro_start, runtime_hydro_end, skip,   &
@@ -107,6 +114,7 @@ program gtm
     allocate(prev_flow_cell(2000, nx))
     allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
     allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
+    allocate(prev_avga(n_comp))
     allocate(constituents(n_var))
     call allocate_hydro_ts()
     call allocate_network_tmp()
@@ -130,8 +138,8 @@ program gtm
                        gtm_io(3,2)%interval)
     
     if (trim(gtm_io(3,2)%filename) .ne. "") then
-       call write_input_to_hdf5(qual_hdf%file_id)
-       call write_segm_info(qual_hdf%file_id, n_segm, segm)
+        call write_input_to_hdf5(qual_hdf%file_id)
+        call write_grid_to_tidefile(qual_hdf%file_id)
     end if
                        
     !
@@ -142,15 +150,29 @@ program gtm
     !compute_source => linear_decay_source
     advection_boundary_flux => zero_advective_flux
     
-       
     write(*,*) "Process time series...."
     write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
  
+    cdt = jmin2cdt(current_time)
+    prev_day =  "01JAN1000"
+
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
-    
+        
+        !---print out processing date on screen
+        cdt = jmin2cdt(current_time)
+        if (cdt(1:9) .ne. prev_day) then 
+            write(*,*) cdt(1:9)
+            prev_day =  cdt(1:9)
+        end if
+        
+        call get_inp_value(int(current_time),int(current_time)-15)
+        
+        !write(*,*) (pathinput(i)%value,i=1,7) obj_type, obj_no
+
+
         !---read hydro data from hydro tidefile
         call get_loc_in_hydro_buffer(iblock, t, t_index, current_time, runtime_hydro_start, &
-                                      memory_buffer, skip, hydro_time_interval, gtm_time_interval)
+                                     memory_buffer, skip, hydro_time_interval, gtm_time_interval)
 
         write(debug_unit,*) runtime_hydro_start, current_time, jmin2cdt(current_time),iblock, t, t_index
         if (iblock .gt. current_block) then  ! check if need to read new buffer
@@ -176,7 +198,9 @@ program gtm
                     prev_down_comp_flow(down_comp) = hydro_flow(down_comp,1)
                     prev_up_comp_ws(up_comp) = hydro_ws(up_comp,1)
                     prev_down_comp_ws(down_comp) = hydro_ws(down_comp,1) 
+                    prev_avga(up_comp) = hydro_avga(up_comp,1)
                 end if   
+                avga_volume_change = (hydro_avga(up_comp,t)-prev_avga(up_comp)) * segm(i)%length
                 call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,   &
                                       segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.),   &
                                       gtm_time_interval, nt, nx,                                      &
@@ -185,28 +209,30 @@ program gtm
                                       prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
                                       hydro_ws(up_comp,t), hydro_ws(down_comp,t), prev_flow_cell(i,:))
                 call fill_network(i, flow_mesh, area_mesh)                      
-                !write(debug_unit,'(3i8,7f15.4)')  segm(i)%chan_no,up_comp,down_comp,hydro_flow(up_comp,t), hydro_flow(down_comp,t), prev_flow_cell(i,1), prev_flow_cell(i,2), prev_flow_cell(i,3), prev_flow_cell(i,4), prev_flow_cell(i,5)
-                !call calc_total_volume_change(total_flow_volume_change, nt-1, nx-1, flow_volume_change)
-                !call calc_total_volume_change(total_area_volume_change, nt-1, nx-1, area_volume_change)
-                !diff = (total_flow_volume_change-avga_volume_change)/avga_volume_change * 100
-                !write(debug_unit,'(3i6,4f10.4)') segm(i)%chan_no,up_comp, down_comp, prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),hydro_ws(up_comp,t), hydro_ws(down_comp,t)
 
                 prev_flow_cell(i,:) = flow_mesh(nt,:)
                 prev_up_comp_flow(up_comp) = hydro_flow(up_comp,t)
                 prev_down_comp_flow(down_comp) = hydro_flow(down_comp,t)
                 prev_up_comp_ws(up_comp) = hydro_ws(up_comp,t)
                 prev_down_comp_ws(down_comp) = hydro_ws(down_comp,t)              
-               
-                !if (diff.gt.ten*two)then   !todo::I tried to figure out when and why there are huge inconsistency of volume change from interpolation and average area
-                !    write(debug_unit,'(2a8,5a20)') "t","chan_no","segm_length","flow_vol_change","area_vol_change","avga_vol_change","% difference"           
-                !    write(debug_unit,'(2i8,5f20.5)') t, segm(i)%chan_no, segm(i)%length, total_flow_volume_change,total_area_volume_change, avga_volume_change, diff
-                !    write(debug_unit,'(a10)') "flow mesh"
-                !    call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change) 
-                !    write(debug_unit,'(a10)') "area mesh"
-                !    call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)
-                !    !write(debug_unit,*) prev_flow_cell(1),prev_flow_cell(2),prev_flow_cell(3),prev_flow_cell(4),prev_flow_cell(5)               
-                !    write(debug_unit,*) ""
-                !end if
+                prev_avga(up_comp) = hydro_avga(down_comp,t) 
+                
+                if (debug_interp) then
+                    write(debug_unit,'(3i8,7f15.4)')  segm(i)%chan_no,up_comp,down_comp,hydro_flow(up_comp,t), hydro_flow(down_comp,t), prev_flow_cell(i,1), prev_flow_cell(i,2), prev_flow_cell(i,3), prev_flow_cell(i,4), prev_flow_cell(i,5)
+                    call calc_total_volume_change(total_flow_volume_change, nt-1, nx-1, flow_volume_change)
+                    call calc_total_volume_change(total_area_volume_change, nt-1, nx-1, area_volume_change)
+                    diff = (total_flow_volume_change-avga_volume_change)/avga_volume_change * 100
+                    write(debug_unit,'(3i6,4f10.4)') segm(i)%chan_no,up_comp, down_comp, prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),hydro_ws(up_comp,t), hydro_ws(down_comp,t)              
+                    if (diff.gt.ten*two)then   !todo::I tried to figure out when and why there are huge inconsistency of volume change from interpolation and average area
+                        write(debug_unit,'(2a8,5a20)') "t","chan_no","segm_length","flow_vol_change","area_vol_change","avga_vol_change","% difference"           
+                        write(debug_unit,'(2i8,5f20.5)') t, segm(i)%chan_no, segm(i)%length, total_flow_volume_change,total_area_volume_change, avga_volume_change, diff
+                        write(debug_unit,'(a10)') "flow mesh"
+                        call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change) 
+                        write(debug_unit,'(a10)') "area mesh"
+                        call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)             
+                        write(debug_unit,*) ""
+                    end if
+                end if
             end do   !end for segment loop
             current_slice = t
         end if
@@ -223,6 +249,9 @@ program gtm
                         dx_arr,   &
                         gtm_time_interval)            
         if (current_time == gtm_start_jmin) then
+           !!ADD SOMETHING
+           !!init_conc(,1) = pathinput(i)%value
+           !! PENDING PENDING 
             call prim2cons(mass_prev, init_conc, area, n_cell, n_var)
             area_prev = area
         end if
@@ -263,7 +292,12 @@ program gtm
         mass_prev = mass
         area_prev = area                 
     end do
+    call zclose(ifltab_in)
+    deallocate(pathinput)        
+    deallocate(ifltab_in) 
+    call deallocate_datain             
     deallocate(constituents)
+    call deallocate_geometry
     call deallocate_state
     call deallocate_state_resv
     call deallocate_network_tmp

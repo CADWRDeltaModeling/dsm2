@@ -156,8 +156,10 @@ module common_variables
         logical :: conservative = .true.   ! true if conservative, false if nonconservative
     end type     
     type(constituent_t), allocatable :: constituents(:)
+
     
     contains
+
     
      !> Allocate channel_t array    
      subroutine allocate_channel_property()
@@ -172,6 +174,7 @@ module common_variables
          return
      end subroutine
 
+
      !> Allocate comp_pt_t array
      subroutine allocate_comp_pt_property()
          use error_handling
@@ -185,6 +188,7 @@ module common_variables
          !comp_pt%dsm2_node_no = LARGEINT
          return
      end subroutine
+
     
      !> Allocate segment_t array
      subroutine allocate_segment_property()
@@ -201,6 +205,7 @@ module common_variables
          return
      end subroutine
 
+
      !> Allocate conn_t array
      subroutine allocate_conn_property()
          use error_handling
@@ -215,6 +220,7 @@ module common_variables
          end if
          return
      end subroutine
+
         
      !> Calculate n_cell and allocate dx array
      subroutine allocate_cell_property()
@@ -236,6 +242,7 @@ module common_variables
          end do          
          return
      end subroutine
+
     
      !> Allocate junctions and boudaries
      subroutine allocate_junc_bound_property()
@@ -250,6 +257,7 @@ module common_variables
          end if             
          return
      end subroutine
+
     
      !> Allocate hydro time series array
      subroutine allocate_hydro_ts()
@@ -269,23 +277,40 @@ module common_variables
          return
      end subroutine    
 
+
+     !> Deallocate geometry property
+     subroutine deallocate_geometry()
+         implicit none
+         call deallocate_channel
+         call deallocate_comp_pt
+         call deallocate_segment
+         call deallocate_junc_bound_property
+         return
+     end subroutine
+
+
      !> Deallocate channel property
      subroutine deallocate_channel()
          implicit none
+         n_chan = LARGEINT
          deallocate(chan_geom)
          return
      end subroutine
+
  
      !> Deallocate computational point property
      subroutine deallocate_comp_pt()
          implicit none
+         n_comp = LARGEINT
          deallocate(comp_pt)
          return
      end subroutine
 
+
      !> Deallocate segment property
      subroutine deallocate_segment()
          implicit none
+         n_segm = LARGEINT
          deallocate(segm)
          return
      end subroutine
@@ -298,8 +323,10 @@ module common_variables
          n_junc = LARGEINT
          deallocate(junc)
          deallocate(bound)    
+         deallocate(conn)
          return
      end subroutine
+
            
      !> Deallocate hydro time series array
      subroutine deallocate_hydro_ts()
@@ -307,6 +334,7 @@ module common_variables
          deallocate(hydro_flow, hydro_area, hydro_ws, hydro_avga)
          return
      end subroutine
+
 
      !> Assign numbers to segment array and connected cell array
      !> This updates common variables: n_segm, n_conn, segm, and conn.
@@ -374,6 +402,7 @@ module common_variables
          return    
      end subroutine    
 
+
      !> Assign up_comp_pt and down_comp_pt to channel_t
      subroutine assign_chan_comppt()
          implicit none
@@ -391,6 +420,7 @@ module common_variables
          chan_geom(j)%down_comp = n_comp 
          return
      end subroutine
+
    
      !> Obtain info for DSM2 nodes 
      !> This will count occurence of nodes in channel table. If count>2, a junction; if count==1, a boundary.
@@ -448,6 +478,7 @@ module common_variables
          return
      end subroutine
 
+
      !> Define common variables for single channel case
      subroutine set_up_single_channel(bound_val, ncell, nvar)
          implicit none
@@ -464,6 +495,7 @@ module common_variables
           bound_val = LARGEREAL
         return
      end subroutine    
+
 
      !> Routine to obtain unique number of an array
      subroutine unique_num_count(unique_num, occurrence, num_nodes, in_arr, n)
@@ -499,6 +531,7 @@ module common_variables
          occurrence = occurrence_tmp(1:num_nodes)
          return
      end subroutine
+
         
      !> Routine to sort an array with dimension n
      subroutine sort_arr(sorted_arr, arr, n)

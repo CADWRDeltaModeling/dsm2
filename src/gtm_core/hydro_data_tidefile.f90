@@ -35,13 +35,13 @@ module hydro_data_tidefile
    !> including attributes and geometry. 
     subroutine dsm2_hdf_geom()
         implicit none                      
-        call get_hydro_attr()
-        call read_channel_tbl()
-        call read_comp_tbl()
-        call read_xsect_tbl()   !todo: this consumes lots of stack memory. Try to reduce.
-        call assign_segment()   
-        call assign_chan_comppt() 
-        call get_dsm2_node_info()        
+        call get_hydro_attr
+        call read_channel_tbl
+        call read_comp_tbl
+        call read_xsect_tbl   !todo: this consumes lots of stack memory. Try to reduce.
+        call assign_segment   
+        call assign_chan_comppt
+        call get_dsm2_node_info        
     end subroutine     
     
     !> This subroutine is used to read DSM2 hydro tidefile,
@@ -52,8 +52,7 @@ module hydro_data_tidefile
         integer, intent(in) :: time_buffer
         call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
         call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)
-        !call get_ts_from_hdf5(hydro_area, "area", time_offset)        ! todo::if we decide to go with elevation, this can be removed.
-        !call get_ts_from_hdf5(hydro_avga, "avg area", time_offset)    ! todo::if we decide to go with elevation, this can be removed. 
+        call get_ts_from_hdf5(hydro_avga, "avg area", time_offset, time_buffer)    ! todo::if we decide to go with elevation, this can be removed. 
         return  
     end subroutine      
     

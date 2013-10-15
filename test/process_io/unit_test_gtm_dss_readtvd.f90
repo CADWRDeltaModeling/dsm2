@@ -93,7 +93,7 @@ module ut_gtm_dss_readtvd
         inpath_ptr_1day(1) = 4
         inpath_ptr_1mon(1) = 5
         
-        allocate(ifltab_in(600, num_dssfiles ))    
+        allocate(ifltab_in(600, num_dssfiles))    
         call opendss(ifltab_in, num_dssfiles, indssfilenames)
 
         !---- test for 15 min data ----
@@ -144,6 +144,13 @@ module ut_gtm_dss_readtvd
         prev_jmin = jmin - 15   
         call readtvd(indata_1mon, jmin, prev_jmin, ninpath_1mon, mths, n_inputpaths, inpath_ptr_1mon)
         call assertEquals (pathinput(5)%value, dble(1.81), weakest_eps, "problem in readtvd reading monthly data at 24JAN1992 2045") 
+ 
+        !---- test for 15 min data when runtime interval is 5 min ----
+        jmin = 48422520       ! 24JAN1992 1800
+        prev_jmin = jmin - 5               
+        call readtvd(indata_15min, jmin, prev_jmin, ninpath_15min, mins15, n_inputpaths, inpath_ptr_15min)
+        call assertEquals (indata_15min(1,1)%data, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
+        call assertEquals (pathinput(1)%value, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
                 
         call zclose(ifltab_in)
         deallocate(pathinput)

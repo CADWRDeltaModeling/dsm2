@@ -3,6 +3,12 @@ module gtm_subs
 
     contains
     
+    !subroutine boundary(bound_conc, bound, obj_type, obj_no, val)
+    !    implicit none
+    !    
+    !    
+    !    return
+    !end subroutine     
     
     !> Serve debug purpose: write geom info to text file
     subroutine write_geom_to_text()
@@ -26,6 +32,26 @@ module gtm_subs
         do i = 1, n_boun
             write(debug_unit,'(3i10)') bound(i)%dsm2_node_no, bound(i)%cell_no, bound(i)%up_down
         end do     
+        return
+    end subroutine
+    
+    
+    !> Write GTM grid info into GTM tidefile
+    subroutine write_grid_to_tidefile(file_id)
+        use hdf5
+        use gtm_hdf_write
+        use common_variables
+        implicit none
+        integer(HID_T), intent(in) :: file_id
+        integer(HID_T) :: geom_id
+        integer :: error
+        call create_geometry_group(geom_id, file_id)
+        call write_segment_info(geom_id, n_segm, segm)
+        call write_channel_info(geom_id, n_chan, chan_geom)
+        call write_junction_info(geom_id, n_junc, junc)
+        call write_boundary_info(geom_id, n_boun, bound)
+        call write_connection_info(geom_id, n_conn, conn)
+        call h5gclose_f(geom_id, error) 
         return
     end subroutine    
     
