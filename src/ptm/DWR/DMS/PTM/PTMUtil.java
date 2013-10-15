@@ -9,8 +9,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Calendar;
+import java.util.Set;
 
 /**
  * @author xwang
@@ -110,6 +112,44 @@ public class PTMUtil {
 			e.printStackTrace();
 		}
 		return ints;
+	}
+	public static Set<Integer> readSet(ArrayList<String> inText){
+		  if (inText == null)
+			  return null;
+		  Set<Integer> list = new HashSet<Integer>();
+		  for (int i = 0; i<inText.size();i++){
+			  String[] items = inText.get(i).trim().split("[,\\s\\t]+");
+			  for (int j= 0; j<items.length;j++){
+				  try{
+					  list.add(PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[j])));
+				  }catch(NumberFormatException e){
+					  PTMUtil.systemExit("Channel numbers in Survival inputs has wrong format: "+items[j]);
+				  }
+			  }
+		  }
+		  return list;
+	  }
+	public static int getInt(String numberLine){
+		int number = -999999;
+		try{
+			String[] items = numberLine.split("[,:\\s\\t]+");
+			number = Integer.parseInt(items[1]);
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be an integer.");	
+		}
+		return number;
+	}
+	public static double getDouble(String numberLine){
+		double number = -999999.0;
+		try{
+			String[] items = numberLine.split("[,:\\s\\t]+");
+			number = Double.parseDouble(items[1]);
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be a double");	
+		}
+		return number;
 	}
 	//TODO cleanup
 	/*

@@ -178,7 +178,7 @@ public class PTMFixedData {
   }
   
   native void initialize(String filename);
-  // 
+  //
   public native int getNumberOfWaterbodies();
   public native int getNumberOfChannels();
   public native int getNumberOfChannelGroups();
@@ -211,6 +211,7 @@ public class PTMFixedData {
   static native int doesQualBinaryExist();
   static native String[] getQualConstituentNames();
   //
+  native String getWaterBodyName(int i);
   native int getNumberOfWaterbodiesForNode(int i);
   native int[] getWaterbodyIdArrayForNode(int i);
   native int getWaterbodyObjectType(int wbId);

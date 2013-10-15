@@ -19,13 +19,15 @@ public class SurvivalInputs {
 	  //private static final Set<Integer> _sjrChannels = new HashSet<Integer>(Arrays.asList(new Integer[]{}));
 	  private void setChannelGroups(ArrayList<String> chanGroups){
 		  if (chanGroups == null){
-			  System.err.println("No channel group defined!");
+			  System.err.println("WARNING: No channel group defined!");
 			  return;
 		  }
-		  _sacChannels = addChannelGroup(PTMUtil.getInputBlock(chanGroups, "SACRAMENTO_RIVER", "END_SACRAMENTO_RIVER"));
-		  _sjrChannels = addChannelGroup(PTMUtil.getInputBlock(chanGroups, "SAN_JOAQUIN_RIVER", "END_SAN_JOAQUIN_RIVER"));
-		  _interiorChannels = addChannelGroup(PTMUtil.getInputBlock(chanGroups, "INTERIOR", "END_INTERIOR"));
+		  _sacChannels = PTMUtil.readSet(PTMUtil.getInputBlock(chanGroups, "SACRAMENTO_RIVER", "END_SACRAMENTO_RIVER"));
+		  _sjrChannels = PTMUtil.readSet(PTMUtil.getInputBlock(chanGroups, "SAN_JOAQUIN_RIVER", "END_SAN_JOAQUIN_RIVER"));
+		  _interiorChannels = PTMUtil.readSet(PTMUtil.getInputBlock(chanGroups, "INTERIOR", "END_INTERIOR"));
 	  }
+	  //TODO cleanup
+	  /*
 	  private Set<Integer> addChannelGroup(ArrayList<String> inText){
 		  if (inText == null)
 			  return null;
@@ -42,6 +44,7 @@ public class SurvivalInputs {
 		  }
 		  return chanGroup;
 	  }
+	  */
 
 	/**
 	 * 

@@ -254,7 +254,7 @@ public class PTMFixedInput{
       }
     }
     if ( nodeArray != null )
-      wb = new Boundary(nId, nodeArray);
+      wb = new Boundary(nId, nodeArray, _fixedData.getWaterBodyName(nId));
     return wb;
   }
   

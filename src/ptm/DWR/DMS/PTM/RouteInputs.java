@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 /**
  * @author xwang
  *
@@ -27,16 +29,25 @@ public class RouteInputs {
 		_nameNodeLookup = new HashMap<String, Integer>();
 		_nameWbLookup = new HashMap<String, Integer>();
 		_fishScreenMap = new HashMap<String, Integer>();
+		_dicuNodeSet = new HashSet<Integer>();
 		ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
 		ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
+		ArrayList<String> dicuInText = PTMUtil.getInputBlock(inText, "DICU_FILTER", "END_DICU_FILTER");
 		if( barriersInText == null || barriersInText.size() < 6)
-			System.err.println("WARNING: no non-physical-barrier info found in behavior inputs.");
+			System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
 		else
 			setBarriers(barriersInText);
 		if( screensInText == null || screensInText.size() < 5)
-			System.err.println("WARNING: no fish screen info found in behavior inputs.");
+			System.err.println("WARNING: no fish screen info found or the info is not properly definedin behavior inputs.");
 		else
 			setFishScreens(screensInText);
+		//TODO do dicu later.
+		/*
+		if( dicuInText == null || dicuInText.size() < 4)
+			System.err.println("WARNING: no dicu node info found or the info is not properly defined in behavior inputs.");
+		else
+			setDICUInfo(dicuInText);
+			*/
 
 	}
 	public void addSpecialBehaviors(RouteHelper rh, String particleType){
@@ -111,6 +122,8 @@ public class RouteInputs {
 	public HashMap<String, NonPhysicalBarrier> getBarriers(){ return _barriers;}
 	public HashMap<String, Integer> getNameNodeLookup() { return _nameNodeLookup; }
 	public HashMap<String, Integer> getFishScreenMap() { return _fishScreenMap; }
+	public Set<Integer> getDicuNodeSet(){return _dicuNodeSet;}
+	public double getDicuFilterEfficiency(){return _dicuFilterEfficiency;}
 	private NonPhysicalBarrier getBarrier(int nodeId, int chanId){
 		NonPhysicalBarrier npb = _barriers.get(PTMUtil.concatNodeWbIds(nodeId, chanId));
 		if (npb == null)
@@ -119,22 +132,12 @@ public class RouteInputs {
 	  }
 	private void setBarriers(ArrayList<String> inText){
 		// first line of inText is number_of_barriers: number
-		int numberOfBarriers = getNumber(inText.get(0));
+		int numberOfBarriers = PTMUtil.getInt(inText.get(0));
 		for (int i = 1; i<numberOfBarriers+1; i++){
 			setBarrier(PTMUtil.getInputBlock(inText, "BARRIER"+i, "END_BARRIER"+i));
 		}	
 	}
-	private int getNumber(String numberLine){
-		int number = 0;
-		try{
-			String[] items = numberLine.split("[,:\\s\\t]+");
-			number = Integer.parseInt(items[1]);
-		}catch (NumberFormatException e){
-			e.printStackTrace();
-			PTMUtil.systemExit("Couldn't find number of barriers in the behavior input file!");	
-		}
-		return number;
-	}
+
 	private void setBarrier(ArrayList<String> barrierText){
 		String[] items = barrierText.get(0).trim().split("[,\\s\\t]+");
 		// first line has to be name nodeID, wbID
@@ -202,7 +205,7 @@ public class RouteInputs {
 	}
 	private void setFishScreens(ArrayList<String> inText){
 		// first line of inText is number_of fish screens: number
-		int numberOfScreens = getNumber(inText.get(0).trim());
+		int numberOfScreens = PTMUtil.getInt(inText.get(0).trim());
 		for (int i = 1; i<numberOfScreens+1; i++){
 			ArrayList<String> screenData = PTMUtil.getInputBlock(inText, "FISH_SCREEN"+i, "END_SCREEN"+i);
 			checkHeadline(screenData.get(0).trim().split("[,\\s\\t]+"));
@@ -231,10 +234,21 @@ public class RouteInputs {
 		}
 		return new int[] {nodeId, wbId};
 	}
+	//TODO
+	/* should get it from fortran lib
+	private void setDICUInfo(ArrayList<String> inText){
+		// first line will be the filter's efficiency
+		_dicuFilterEfficiency = PTMUtil.getDouble(inText.get(0).trim());
+		_dicuNodeSet = PTMUtil.readSet(PTMUtil.getInputBlock(inText, "NODES_LIST", "END_NODES_LIST"));
+		
+	}
+	*/
 	// map key is name
 	private HashMap<String, NonPhysicalBarrier> _barriers;
 	private HashMap<String, Integer> _nameNodeLookup;
 	private HashMap<String, Integer> _nameWbLookup;
 	private HashMap<String, Integer> _fishScreenMap;
+	private Set<Integer> _dicuNodeSet;
+	private double _dicuFilterEfficiency;
 
 }
