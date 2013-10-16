@@ -826,6 +826,12 @@ C..correct volume in each channel with Achan_Avg in tide file
 C....add check here for positive parcel volume and concentration
          DO N=1,NBRCH
             NSN = NS(N)
+            if (NSN.le.0) then
+                  WRITE(UNIT_ERROR,*) ' ERROR... 0 PARCEL in CHANNEL: ',
+     &              chan_geom(N).chan_no
+                  call exit(2)
+            endif
+            
             DO K=1,NSN
                if (GPV(N,K).le.0) then
                   WRITE(UNIT_ERROR,*) ' ERROR... PARCEL HAVING NEGATIVE VOLUME in CHANNEL: ',
