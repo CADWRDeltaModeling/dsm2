@@ -513,7 +513,6 @@ C--------Initialize reservoir stuff
                CRes(I,cons_no) = C(cons_no)
             ENDDO
          ENDDO
-
          CALL ROUTE
 
          ! set cj(cons_no,jn) to zero for internal nodes and non-stage-boundary nodes
@@ -807,14 +806,42 @@ C..correct volume in each channel with Achan_Avg in tide file
                 VolQual = VolQual + GPV(N,K)
             enddo
             VolDiff = VolHydro - VolQual
-            K=NSN/2+1   !add the difference to the parcel in the middle 
-            DO CONS_NO=1,NEQ 
-                GPT(CONS_NO,K,N)=GPT(CONS_NO,K,N)*GPV(N,K)/(GPV(N,K)+VolDiff)
-            enddo
-            GPV(N,K)=GPV(N,K)+ VolDiff
-                     
+            K=NSN/2+1   !add the difference to the parcel in the middle
+            if ((GPV(N,K) + VolDiff).gt.0) then
+               GPV(N,K)=GPV(N,K)+ VolDiff
+!...........the following concentration correction was disabled.              
+!              DO CONS_NO=1,NEQ 
+!                 GPT(CONS_NO,K,N)=GPT(CONS_NO,K,N)*GPV(N,K)/(GPV(N,K)+VolDiff)
+!              enddo
+            else
+               if (K.GT.1) K=K-1
+               if ((GPV(N,K) + VolDiff).gt.0) then
+                  GPV(N,K)=GPV(N,K)+ VolDiff
+               endif
+            endif
+       
          enddo
          endif
+
+C....add check here for positive parcel volume and concentration
+         DO N=1,NBRCH
+            NSN = NS(N)
+            DO K=1,NSN
+               if (GPV(N,K).le.0) then
+                  WRITE(UNIT_ERROR,*) ' ERROR... PARCEL HAVING NEGATIVE VOLUME in CHANNEL: ',
+     &              chan_geom(N).chan_no
+                  call exit(2)
+               endif
+           
+               DO CONS_NO=1,NEQ 
+                  if (GPT(CONS_NO,K,N).lt.0) then
+                     WRITE(UNIT_ERROR,*) ' ERROR... PARCEL HAVING NEGATIVE CONSTITUENT in CHANNEL: ',
+     &               chan_geom(N).chan_no
+                     call exit(2)
+                  endif
+               enddo
+            enddo
+         enddo
  
          prev_julmin=julmin
          julmin=julmin+time_step
@@ -842,12 +869,21 @@ C--------- Hydro mass balance check
              write(unit_screen,*)'Check output file(.qof) for details.'
              write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
              write(unit_screen,*)'Suggest improve Hydro simulation!'
+             
+             write(unit_output,*)''
+             write(unit_output,*)'Warning: Hydro mass balance in tidefile is bad!' 
+             write(unit_output,*)'Check output file(.qof) for details.'
+             write(unit_output,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_output,*)'Suggest improve Hydro simulation!'
          else
              write(unit_screen,*)''
              write(unit_screen,*)'Hydro mass balance in tidefile is fine,'
              write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             
+             write(unit_output,*)''
+             write(unit_output,*)'Hydro mass balance in tidefile is fine,'
+             write(unit_output,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax             
          endif
-
 
       if (julmin .gt. end_julmin) then
          julmin=prev_julmin
