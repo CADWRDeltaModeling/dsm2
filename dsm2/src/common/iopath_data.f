@@ -58,7 +58,7 @@ module iopath_data
 
     type(pathoutput_t):: pathoutput(max_outputpaths)
     integer:: max_dssoutfiles   ! max number of unique dss output files
-    parameter (max_dssoutfiles=10)
+    parameter (max_dssoutfiles=15)
     character(len=130), dimension(max_dssoutfiles)::outfilenames= ' '
     integer:: ifltab_out(600,max_dssoutfiles) ! DSS table for each output file
 
