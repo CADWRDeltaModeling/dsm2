@@ -160,7 +160,7 @@ module gradient
         !                  ---------------------------------------
         if ((n_boun.eq.LARGEINT).or.(n_boun.eq.2)) then ! For single channel problem
             return
-        else       
+        else                                            ! For multiple boundaries
             do i = 1, n_boun
                 icell = bound(i)%cell_no
                 if (bound(i)%up_down .eq. 1) then  ! upstream boundary

@@ -33,7 +33,7 @@ program test_driver
     use ut_hydro_data_interp
     use ut_gtm_network
     
-    !----- modules used in project test_input_storage -----
+    !----- modules used in project test_process_io -----
     use ut_process_gtm_input
     use ut_time_utilities
     use ut_gtm_dss_readdss
@@ -41,6 +41,7 @@ program test_driver
     use ut_gtm_dss_main
     use ut_gtm_hdf_ts_wrt
     use ut_gtm_hdf_write
+    use ut_boundary
     
     !----- modules used in project test_transport -----  
     use test_extrapolate
@@ -75,7 +76,7 @@ program test_driver
     call init_fruit
     call get_parent_working_dir(parent_dir) 
    
-    !----- function calls to test units in project input_storage API ---
+    !----- function calls to test units in project process_io API ---
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     call test_time_util
@@ -85,6 +86,7 @@ program test_driver
     call test_input_storage 
     call test_hdf_ts_wrt
     call test_gtm_hdf_write
+    call test_find_bound_index
     
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")

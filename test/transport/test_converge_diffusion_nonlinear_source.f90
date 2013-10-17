@@ -91,10 +91,15 @@ integer :: which_cell(nrefine)
 real(gtm_real),allocatable :: reference(:)
 real(gtm_real) :: norm_error(3,nrefine)
 real(gtm_real) :: acceptance_ratio(3)                        !< Acceptance ratio
+
+integer, parameter :: n_bound = 2
+real(gtm_real) :: bound_val(n_bound)
  
 character(LEN=64):: label = 'test_diffusion_cubic_decay'
 
 acceptance_ratio = [three, three, three]      ! relax the standard for diffusion cubic decay
+
+bound_val = one
 
 call set_uniform_flow_area(zero,constant_area)
 uniform_hydro => uniform_flow_area
@@ -133,6 +138,8 @@ call test_convergence(label,                            &
                       nstep_base,                       &
                       nx_base,                          &
                       nconc,                            &
+                      n_bound,                          &
+                      bound_val,                        &
                       verbose,.true.,                   &
                       acceptance_ratio)
 

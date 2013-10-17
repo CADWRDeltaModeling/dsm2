@@ -31,6 +31,7 @@ program gtm
     use process_gtm_input
     use io_utilities  
     use time_utilities
+    use boundary
     use gtm_hdf_write    
     use gtm_hdf_ts_write    
     use gtm_dss_open
@@ -81,6 +82,10 @@ program gtm
     integer :: ierror
     logical :: debug_interp = .false.
 
+    integer :: n_bound_ts
+    integer, allocatable :: bound_index(:), path_index(:)
+    real(gtm_real), allocatable :: bound_val(:,:)
+
     n_var = 1
     
     call h5open_f(ierror)
@@ -122,7 +127,7 @@ program gtm
     call allocate_state(n_cell, n_var)
     call allocate_state_resv(n_resv, n_var)
     allocate(init_conc(n_cell,n_var))
-    init_conc = one
+    init_conc = 125.d0
     allocate(linear_decay(n_var))
     linear_decay = constant_decay
    
@@ -154,7 +159,14 @@ program gtm
     write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
  
     cdt = jmin2cdt(current_time)
-    prev_day =  "01JAN1000"
+    prev_day =  "01JAN1000"       ! to initialize for screen printing only
+    
+    conc = init_conc
+
+    call find_boundary_index(n_bound_ts, bound_index, path_index, & 
+                             n_boun, bound,                       &
+                             n_inputpaths, pathinput)
+    allocate(bound_val(n_boun, n_var))
 
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
@@ -165,11 +177,15 @@ program gtm
             prev_day =  cdt(1:9)
         end if
         
-        call get_inp_value(int(current_time),int(current_time)-15)
+        call get_inp_value(int(current_time),int(current_time)-15)   ! this will update pathinput(:)%value
+        do i=1, n_boun
+            bound_val(i,1) = conc(bound(i)%cell_no,1)
+        end do
+        do i=1,n_bound_ts
+            bound_val(bound_index(i),1) = pathinput(path_index(i))%value
+        end do
         
-        !write(*,*) (pathinput(i)%value,i=1,7) obj_type, obj_no
-
-
+        
         !---read hydro data from hydro tidefile
         call get_loc_in_hydro_buffer(iblock, t, t_index, current_time, runtime_hydro_start, &
                                      memory_buffer, skip, hydro_time_interval, gtm_time_interval)
@@ -259,20 +275,21 @@ program gtm
         !
         !----- call advection and source -----
         !
-        call advect(mass,              &
-                    mass_prev,         &  
-                    flow,              &
-                    flow_lo,           &
-                    flow_hi,           &
-                    area,              &
-                    area_prev,         &
-                    area_lo,           &
-                    area_hi,           &
-                    n_cell,            &
-                    n_var,             &
-                    dble(current_time),      &
-                    gtm_time_interval, &
-                    dx_arr,            &
+        call advect(mass,               &
+                    mass_prev,          &  
+                    flow,               &
+                    flow_lo,            &
+                    flow_hi,            &
+                    area,               &
+                    area_prev,          &
+                    area_lo,            &
+                    area_hi,            &
+                    n_cell,             &
+                    n_var,              &
+                    dble(current_time), &
+                    gtm_time_interval,  &
+                    dx_arr,             &
+                    bound_val,          &
                     limit_slope)     
         call cons2prim(conc, mass, area, n_cell, n_var)
         write(debug_unit,'(i8, 3000f8.5)') current_time, (conc(icell,1),icell=1,n_cell)
@@ -281,8 +298,8 @@ program gtm
         !----- print output to hdf5 file -----
         !              
         time_index = (current_time-gtm_start_jmin)/gtm_time_interval
-        call write_qual_hdf(qual_hdf,         &
-                            conc,             &
+        call write_qual_hdf(qual_hdf,          &
+                            conc,              &
                             conc_resv,         &
                             n_cell,            &
                             n_resv,             &

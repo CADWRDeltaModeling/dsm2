@@ -160,6 +160,11 @@ procedure(diffusion_coef_if),           pointer :: diff_coef       => null()!< D
 logical :: details = .false.                                                !< Flag switch todo: ?
 logical :: remote  = .false.                                                !< Flag Switch todo: ?
 
+integer, parameter :: n_bound = 2
+real(gtm_real) :: bound_val(n_bound)
+
+bound_val = one
+
 acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
 
 if (present(detail_result))then
@@ -260,6 +265,8 @@ call test_convergence(label,                                     &
                       nstep_base,                                &
                       nx_base,                                   &
                       nconc,                                     &
+                      n_bound,                                   &
+                      bound_val,                                 &
                       verbose,                                   &
                       details,                                   &
                       acceptance_ratio)

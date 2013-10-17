@@ -65,6 +65,11 @@ real(gtm_real) :: acceptance_ratio(3)                                  !< Accept
 
 character(LEN=*),parameter :: label = "advection_bidirectional_uniform_dirichlet"
 
+integer, parameter :: n_bound = 2
+real(gtm_real) :: bound_val(n_bound)
+
+bound_val = one
+
 acceptance_ratio = [four, four, four]
 
 call set_uniform_flow_area(constant_flow,constant_area,reverse_time)
@@ -104,6 +109,8 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      n_bound,                &
+                      bound_val,              &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)

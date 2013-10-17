@@ -41,6 +41,8 @@ subroutine test_convergence(label,                &
                             nstep_base,           &
                             nx_base,              &
                             nconc,                &
+                            n_bound,              &
+                            bound_val,            &
                             verbose,              &
                             detail_printout,      &
                             acceptance_ratio)
@@ -75,11 +77,13 @@ logical,intent(in) :: verbose                                   !< Whether to ou
 integer, intent(in) :: nconc                                    !< Number of constituents
 integer, intent(in) :: nstep_base                               !< Number of steps at finest resolution
 integer, intent(in) :: nx_base                                  !< Number of cells at finest resolution
+integer, intent(in) :: n_bound                                  !< Number of boundaries
 real(gtm_real), intent(in) :: fine_initial_conc(nx_base,nconc)  !< Initial condition at finest resolution
 real(gtm_real), intent(in) :: fine_solution(nx_base,nconc)      !< Reference solution at finest resolution
 real(gtm_real), intent(in) :: total_time                        !< Total time of simulation
 real(gtm_real), intent(in) :: start_time                        !< Start time of simulation
 real(gtm_real), intent(in) :: domain_length                     !< Length of domain
+real(gtm_real), intent(in) :: bound_val(n_bound, nconc)         !< boundary condition
 logical, intent(in),optional :: detail_printout                 !< Whether to produce detailed printouts
 real(gtm_real), intent(in) :: acceptance_ratio(3)               !< Acceptance ratio for test convergence
 
@@ -235,20 +239,21 @@ do icoarse = 1,nrefine
       end if
        
       ! call advection and source
-      call advect(mass,     &
-                  mass_prev,&  
-                  flow,     &
-                  flow_lo,  &
-                  flow_hi,  &
-                  area,     &
-                  area_prev,&
-                  area_lo,  &
-                  area_hi,  &
-                  nx,       &
-                  nconc,    &
-                  time,     &
-                  dt,       &
-                  dx,       &
+      call advect(mass,       &
+                  mass_prev,  &  
+                  flow,       &
+                  flow_lo,    &
+                  flow_hi,    &
+                  area,       &
+                  area_prev,  &
+                  area_lo,    &
+                  area_hi,    &
+                  nx,         &
+                  nconc,      &
+                  time,       &
+                  dt,         &
+                  dx,         &
+                  bound_val,  &
                   limit_slope)
 
       call cons2prim(conc,mass,area,nx,nconc) 

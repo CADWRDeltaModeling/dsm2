@@ -80,6 +80,11 @@ real(gtm_real) :: solution_gaussian_sd = ic_gaussian_sd   !< Standard deviation 
 real(gtm_real) :: tidal_ar_decay_rate                     !< Tidal decay rate
 character(LEN=64) :: label                                !< Test name label
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
+
+integer, parameter :: n_bound = 2
+real(gtm_real) :: bound_val(n_bound)
+
+bound_val = one 
  
 acceptance_ratio = [2.9, 2.9, 2.9]
  
@@ -128,6 +133,8 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      n_bound,                &
+                      bound_val,              &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)
@@ -160,6 +167,8 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      n_bound,                &
+                      bound_val,              &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)
@@ -201,6 +210,8 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      n_bound,                &
+                      bound_val,              &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)
@@ -233,6 +244,8 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      n_bound,                &
+                      bound_val,              &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)

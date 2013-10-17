@@ -3,13 +3,7 @@ module gtm_subs
 
     contains
     
-    !subroutine boundary(bound_conc, bound, obj_type, obj_no, val)
-    !    implicit none
-    !    
-    !    
-    !    return
-    !end subroutine     
-    
+
     !> Serve debug purpose: write geom info to text file
     subroutine write_geom_to_text()
         use gtm_logging

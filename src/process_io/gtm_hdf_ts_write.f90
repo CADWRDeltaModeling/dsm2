@@ -21,6 +21,7 @@ module gtm_hdf_ts_write
         integer(HID_T) :: data_id
         integer(HID_T) :: cell_conc_id
         integer(HID_T) :: resv_conc_id
+        integer(HID_T) :: flow_id       !todo::temporarily for debugging purpose
         integer(HSIZE_T) :: conc_dim
         integer(HSIZE_T) :: cell_dim
         integer(HSIZE_T) :: resv_dim
@@ -287,7 +288,7 @@ module gtm_hdf_ts_write
                          fspace_id,                     &
                          hdf_file%cell_conc_id,         &    
                          error,                         &     
-                         cparms) 
+                         cparms)                      
 	    call verify_error(error,"Cell dataset creation")
         call add_timeseries_attributes(hdf_file%cell_conc_id,   &  
                                        hdf_file%start_julmin,   &

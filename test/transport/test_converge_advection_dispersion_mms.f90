@@ -73,6 +73,11 @@ procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< P
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
 procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< Pointer for boundary diffusin matrix to be filled by driver
 
+integer, parameter :: n_bound = 2
+real(gtm_real) :: bound_val(n_bound)
+
+bound_val = one
+
 acceptance_ratio = [ four, four, four ]
  
 ! this flow generator is mass conservative
@@ -129,6 +134,8 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      n_bound,                &
+                      bound_val,              &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)

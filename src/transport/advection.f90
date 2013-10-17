@@ -40,20 +40,21 @@ module advection
     !>   - Compute conservative divergence
     !>   - Apply divergence in conservative_update along with Heun's method for sources.
     !>   Note that all these steps are operations on entire arrays of values -- this keeps things efficient
-    subroutine advect(mass,     &
-                      mass_prev,&
-                      flow_prev,&      
-                      flow_lo,  &
-                      flow_hi,  &
-                      area,     &
-                      area_prev,&
-                      area_lo,  &
-                      area_hi,  &
-                      ncell,    &
-                      nvar,     &
-                      time,     &
-                      dt,       &
-                      dx,       &
+    subroutine advect(mass,       &
+                      mass_prev,  &
+                      flow_prev,  &      
+                      flow_lo,    &
+                      flow_hi,    &
+                      area,       &
+                      area_prev,  &
+                      area_lo,    &
+                      area_hi,    &
+                      ncell,      &
+                      nvar,       &
+                      time,       &
+                      dt,         &
+                      dx,         &
+                      bound_val,  &
                       use_limiter)  
    
         use gtm_precision
@@ -76,8 +77,7 @@ module advection
         real(gtm_real),intent(in)  :: flow_hi(ncell)        !< flow on hi side of cells centered in time
         real(gtm_real),intent(in)  :: area_prev(ncell)      !< cell-centered area at old time. not used in algorithm?
         real(gtm_real),intent(in)  :: area(ncell)           !< cell-centered area at new time. not used in algorithm?
-    
-        real(gtm_real) :: bound_val(n_boun,nvar)
+        real(gtm_real),intent(in)  :: bound_val(n_boun,nvar)!< boundary concentrations
 
         ! todo: area_lo is time centered here? I think currently it is correct for advection only.
         !       however, area_lo is also needed for diffusion at old time and new time.

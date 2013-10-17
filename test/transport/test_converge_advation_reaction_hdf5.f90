@@ -77,6 +77,11 @@ real(gtm_real) :: tidal_ar_decay_rate                     !< Tidal decay rate
 character(LEN=64) :: label                                !< Test name label
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
 integer :: ncell 
+integer, parameter :: n_bound = 2
+real(gtm_real) :: bound_val(n_bound)
+
+bound_val = one
+
 acceptance_ratio = [four, four, four]
 
 call allocate_network_tmp()
@@ -132,6 +137,8 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       ncell,                  & !nx_base,                &
                       nconc,                  &
+                      n_bound,                &
+                      bound_val,              &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)
