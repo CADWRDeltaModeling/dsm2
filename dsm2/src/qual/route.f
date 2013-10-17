@@ -364,7 +364,7 @@ C--------move parcels passing donwstream or stationary
             IF(DTSUB.LT.0.0)DTSUB=0.0
             K=NKAI(N,I)
             MX=I-1
-            IF (DTSUB.GE.RDT) GO TO 310
+            IF (DTSUB.GT.RDT) GO TO 310
 C-----------parcel passed grid
             IF(K.EQ.1)THEN
                WRITE(UNIT_ERROR,*) '          TIME: ',current_date
@@ -440,7 +440,7 @@ C--------move parcels going upstream
             RQ=Q(I)-QT(I)
             DTSUB=(GVU(N,I)-GPV(N,K))/(Q(I)*3600.0)
             IF(DTSUB.LT.0.0)DTSUB=0.0
-            IF (DTSUB.GE.RDT) GO TO 340
+            IF (DTSUB.GT.RDT) GO TO 340
 C-----------parcel passed grid
             IF(K.EQ.NSN)THEN
                WRITE(UNIT_ERROR,*) '          TIME: ',current_date
