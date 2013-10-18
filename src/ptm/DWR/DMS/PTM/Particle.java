@@ -484,7 +484,7 @@ _survivalHelper = null;
             z = calcZPosition(tmToAdv);
           }
         }//end if(particleWait)
-      tmLeft -= tmToAdv;
+        tmLeft -= tmToAdv;
       }// end while
       
     }// end if(CHANNEL)
@@ -499,7 +499,7 @@ _survivalHelper = null;
       // zero time delay
       moveInConveyor(delT);
     }
-    
+
     else if (wb.getPTMType() ==  Waterbody.BOUNDARY) {
       if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
       isDead=true;

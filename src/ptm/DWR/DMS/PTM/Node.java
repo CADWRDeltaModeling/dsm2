@@ -139,6 +139,12 @@ public class Node{
   public final boolean isJunctionDeadEnd(){
     return(false);
   }
+  private boolean isAgSeep(int internalId){
+	  if (getWaterbody(internalId).getType() == 105)
+		  if (((Boundary)getWaterbody(internalId)).getBoundaryType().equals("AG_SEEP"))
+			  return true;
+	  return false;
+  }
   
   /**
    *  Get total positive outflow from Node<br>
@@ -149,14 +155,11 @@ public class Node{
     float outflow=0.0f;
     // for each Waterbody connected to junction add the outflows
     for (int id=0; id < numberOfWaterbodies; id++) {
-  	  if(!addSeepDicu){  
-  	      //TODO there is only one boundary type (no seep or ag dicu type in DSM2. addSeep is passed in false)
-  	      // how about this: if this is a boundary type but not included in the open boundary nodes list (only a short list),
-  	      // 				 this flow will not be counted because boundary flows are open boundary flow + seep + dicu 
-  		  // 				 but how to get rid of seep + dicu in a open boundary	--Xiao
-  		  
-        outflow += getOutflow(id);
-  		  
+  	  if(!addSeepDicu){
+  		float thisFlow = getOutflow(id);
+        if (thisFlow != 0 && !isAgSeep(id)
+        		&& !(Globals.Environment.getBehaviorInputs().getRouteInputs().getFishScreenMap().containsKey(PTMUtil.concatNodeWbIds(EnvIndex, wbArray[id].getEnvIndex()))))
+            outflow += thisFlow; 		  
   	  }
   	  else{
   		outflow += getOutflow(id);

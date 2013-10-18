@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.HashSet;
 /**
  * @author xwang
  *
@@ -29,7 +27,6 @@ public class RouteInputs {
 		_nameNodeLookup = new HashMap<String, Integer>();
 		_nameWbLookup = new HashMap<String, Integer>();
 		_fishScreenMap = new HashMap<String, Integer>();
-		_dicuNodeSet = new HashSet<Integer>();
 		ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
 		ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
 		ArrayList<String> dicuInText = PTMUtil.getInputBlock(inText, "DICU_FILTER", "END_DICU_FILTER");
@@ -41,14 +38,10 @@ public class RouteInputs {
 			System.err.println("WARNING: no fish screen info found or the info is not properly definedin behavior inputs.");
 		else
 			setFishScreens(screensInText);
-		//TODO do dicu later.
-		/*
-		if( dicuInText == null || dicuInText.size() < 4)
-			System.err.println("WARNING: no dicu node info found or the info is not properly defined in behavior inputs.");
+		if( dicuInText == null)
+			System.err.println("WARNING: no dicu info found or the info is not properly defined in behavior inputs.");
 		else
-			setDICUInfo(dicuInText);
-			*/
-
+			_dicuFilterEfficiency = PTMUtil.getDouble(dicuInText.get(0).trim());
 	}
 	public void addSpecialBehaviors(RouteHelper rh, String particleType){
 		boolean containGSJ = false;
@@ -122,7 +115,6 @@ public class RouteInputs {
 	public HashMap<String, NonPhysicalBarrier> getBarriers(){ return _barriers;}
 	public HashMap<String, Integer> getNameNodeLookup() { return _nameNodeLookup; }
 	public HashMap<String, Integer> getFishScreenMap() { return _fishScreenMap; }
-	public Set<Integer> getDicuNodeSet(){return _dicuNodeSet;}
 	public double getDicuFilterEfficiency(){return _dicuFilterEfficiency;}
 	private NonPhysicalBarrier getBarrier(int nodeId, int chanId){
 		NonPhysicalBarrier npb = _barriers.get(PTMUtil.concatNodeWbIds(nodeId, chanId));
@@ -209,6 +201,7 @@ public class RouteInputs {
 		for (int i = 1; i<numberOfScreens+1; i++){
 			ArrayList<String> screenData = PTMUtil.getInputBlock(inText, "FISH_SCREEN"+i, "END_SCREEN"+i);
 			checkHeadline(screenData.get(0).trim().split("[,\\s\\t]+"));
+			// ids are converted to internal node and water body ids in getIds(...)
 			int[] ids = getIds(screenData.get(1).trim().split("[,\\s\\t]+"));
 			_fishScreenMap.put(PTMUtil.concatNodeWbIds(ids[0], ids[1]), ids[1]);
 		}
@@ -234,7 +227,7 @@ public class RouteInputs {
 		}
 		return new int[] {nodeId, wbId};
 	}
-	//TODO
+	//TODO clean up
 	/* should get it from fortran lib
 	private void setDICUInfo(ArrayList<String> inText){
 		// first line will be the filter's efficiency
@@ -248,7 +241,6 @@ public class RouteInputs {
 	private HashMap<String, Integer> _nameNodeLookup;
 	private HashMap<String, Integer> _nameWbLookup;
 	private HashMap<String, Integer> _fishScreenMap;
-	private Set<Integer> _dicuNodeSet;
 	private double _dicuFilterEfficiency;
 
 }

@@ -70,8 +70,7 @@ public abstract class Helper<K,B> {
 			else if (_basic != null)
 				return _basic;
 			else{
-				System.out.println("need to initilize Helper!");
-				System.exit(-1);
+				PTMUtil.systemExit("need to initilize Helper!");
 				return null;
 			}
 		}

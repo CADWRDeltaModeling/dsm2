@@ -8,7 +8,6 @@ package DWR.DMS.PTM;
  *
  */
 
-//TODO fix particles go with ag flow
 //TODO Should make this class universal? but how to make sure type safe?
 public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	// is that good to have so many private variables?
@@ -24,7 +23,7 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	 * 
 	 */
 	public SalmonBasicRouteBehavior() {
-		// TODO Auto-generated constructor stub
+		// TODO do nothing for now
 	}
 	
 	private final float getPerturbedXLocation(){
@@ -77,7 +76,7 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 			System.out.println("Particle doesn't know the node! exit.");
 			System.exit(-1);
 		}
-		// false means that seepage flows are excluded
+		// false means that seepage flows are excluded.  the total out flow does not include ag seepage flow
 	    _outflow = _nd.getTotalOutflow(false);
 	    _rand = _nd.getRandomNumber();
 	}
@@ -88,10 +87,8 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	 * that node.  
 	 */
 	public void makeRouteDecision(Particle p) {
-		if (p == null){
-			System.out.println("the particle passed in SalmonBasicRouteBehavior is null");
-			System.exit(-1);
-		}
+		if (p == null)
+			PTMUtil.systemExit("the particle passed in SalmonBasicRouteBehavior is null");
 	    _p = p;
 		assignVariables();
 		// after prescreen() call, _outflow = _rand*_outflow
@@ -99,19 +96,31 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	    	return;
 	    
 	    int waterbodyId = -1;
+	    Waterbody thisWb = null;
 	    float flow = 0.0f;
 	    do {
 	    	waterbodyId ++;
-	    	// this conditional statement added to exclude seepage
-	    	// this should be read in as an argument
-	    	//@todo: disabled this feature
-	    	//if(nd.getWaterbody(waterbodyId).getAccountingType() != flowTypes.evap){
-	    	flow += _nd.getOutflow(waterbodyId);
-	    	//}
+	    	thisWb = _nd.getWaterbody(waterbodyId);
+	    	float thisFlow = _nd.getOutflow(waterbodyId);
+		    float modFlow = 0.0f;
+		    float agDivFlowLeft = 0.0f;
+		    float totalFlowWOAg = 0.0f;
+	    	if (thisWb.getType() == Waterbody.BOUNDARY && ((Boundary) thisWb).getBoundaryType().equals("AG_DIV")){
+    			modFlow = ((float) (thisFlow*Globals.Environment.getBehaviorInputs().getRouteInputs().getDicuFilterEfficiency())); 
+    			agDivFlowLeft = thisFlow - modFlow;
+    			totalFlowWOAg = _outflow - thisFlow;
+	    	}
+	    	else if (agDivFlowLeft > 0.0f && totalFlowWOAg > 0.0f)
+	    		modFlow = thisFlow + agDivFlowLeft*thisFlow/totalFlowWOAg;
+	    	else if (Globals.Environment.getBehaviorInputs().getRouteInputs().getFishScreenMap().containsKey(PTMUtil.concatNodeWbIds(_nd.getEnvIndex(), thisWb.getEnvIndex())))
+	    		modFlow = 0;	
+	    	else
+	    		modFlow = thisFlow;
+	    	flow += modFlow;	    	
 	    	// _outflow here is total _outflow * _rand
 	    }while (flow < _outflow && waterbodyId < _nd.getNumberOfWaterbodies());
 	    // get a pointer to the waterbody in which pParticle entered.
-	    p.wb = _nd.getWaterbody(waterbodyId);
+	    p.wb = thisWb;
 	    // send message to observer about change 
 	    
 	    if (p.observer != null) 
