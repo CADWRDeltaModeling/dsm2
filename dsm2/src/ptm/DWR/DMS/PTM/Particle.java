@@ -392,38 +392,7 @@ public class Particle{
     *  Particle.x, Particle.y and Particle.z
     */
   protected final void updateXYZPosition(float delT){
-    //TODO:bug1
-//    if( wb.getPTMType() ==  Waterbody.CHANNEL) {
-//      if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex() );
-//      //get minimum time step
-//      int numOfSubTimeSteps = getSubTimeSteps(delT);
-//      float tmstep = delT/numOfSubTimeSteps;
-//    
-//      tmLeft=delT;
-//
-//      if(Macro.APPROX_EQ( y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {
-//    	  setYZLocationInChannel();
-//      }
-//    
-//      while( tmLeft >= tmstep && isDead == false){
-//    	  age+=tmstep;
-//    	  
-//    	  updateAllParameters(tmstep);
-//    	  if (particleWait == false){
-//    		  // gets the x,y, and z position of the Particle after time step
-//    		  x=calcXPosition(tmstep);
-//    		  if ( wb.getPTMType() != Waterbody.CHANNEL ) return;
-//    		  // after recursion this may be true.
-//    		  if ( tmLeft >= tmstep && isDead == false ) {
-//    			  y=calcYPosition(tmstep);
-//    			  z=calcZPosition(tmstep);
-//    		  }
-//    	   }
-//	       // update number of time steps taken
-//	       tmLeft -= tmstep;
-//      }// end while
-//    } // end if(wb.getPTMType() ==  CHANNEL)
-    //TODO:bug1
+
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
       tmLeft = delT;
@@ -460,7 +429,7 @@ public class Particle{
         tmLeft -= tmToAdv;
       }// end while
     }// end if(CHANNEL)
-    //TODO:bug1
+
     else if (wb.getPTMType() ==  Waterbody.RESERVOIR){
       if (DEBUG) System.out.println("Particle " + this + " in reservoir " + wb.getEnvIndex() );
       tryCrossReservoir(delT); 
@@ -521,7 +490,7 @@ public class Particle{
 
       // block particle before it enters a node, with filter operation 0
       if (nd.inFilter(wb)) {
-//        tmLeft=0;//TODO delete?
+        tmLeft=0;
         age = age - timeToReachNode + timeStep;// Kijin: should this be 2*timeStep
         if (xPos <= 0.0f){// upstream
           xPos = 0;
@@ -531,8 +500,8 @@ public class Particle{
       }
       else {
       // make decision on what wb to be entered
-        y = calcYPosition(timeToReachNode);//TODO:bug4
-        z = calcZPosition(timeToReachNode);//TODO:bug4
+        y = calcYPosition(timeToReachNode);
+        z = calcZPosition(timeToReachNode);
         makeNodeDecision();
       }
          
