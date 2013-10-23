@@ -11,7 +11,7 @@ goto :end
 
 set path=%dsm2_home%/bin;%path%
 
-java -ss1m -mx128m -oss1m -classpath "%dsm2_home%/bin/ptm.jar;%dsm2_home%/bin/COM.jar;%dsm2_home%/bin/edu.jar;%dsm2_home%/bin/xml.jar" DWR.DMS.PTM.MainPTM %1
+"%vista_home%/jre6/bin/java" -ss1m -mx1024m -oss1m -classpath "%dsm2_home%/bin/ptm.jar;%dsm2_home%/bin/COM.jar;%dsm2_home%/bin/edu.jar;%dsm2_home%/bin/xml.jar" DWR.DMS.PTM.MainPTM %1
 
 :end
 
