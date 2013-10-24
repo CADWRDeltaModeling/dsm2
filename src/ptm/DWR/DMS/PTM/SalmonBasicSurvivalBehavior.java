@@ -67,7 +67,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			survivalProbability = 1;
 		if (survivalProbability<(new SecureRandom()).nextDouble()){
 			p.isDead = true;	
-			//if(DEBUG) 
+			if(DEBUG) 
 				System.out.println("channel:"+PTMHydroInput.getExtFromIntChan(((Channel) aWB).getEnvIndex())
 				+"  id:" + p.Id + "  age:"+age*24*60*60+"  survival probability:"+ survivalProbability+"  p.isDead:"+p.isDead);	
 		}

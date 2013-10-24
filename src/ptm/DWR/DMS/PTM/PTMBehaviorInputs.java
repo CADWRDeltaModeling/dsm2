@@ -25,7 +25,7 @@ public class PTMBehaviorInputs {
 	 * 
 	 */
 	public PTMBehaviorInputs() {
-		// TODO Auto-generated constructor stub
+		PTMUtil.systemExit("no input behavior file found, system exit.");
 	}
 	public PTMBehaviorInputs(String inputFileName) {
 		BufferedReader inputText = PTMUtil.getInputBuffer(inputFileName);

@@ -126,8 +126,9 @@ public class Particle{
     totalNumberOfParticles++; 
     Id = totalNumberOfParticles;
     if (DEBUG) System.out.println("Initializing particle " + Id);
-    if (Id == 1) Particle.setFixedInfo(pFI);
+    if (Id == 1) setFixedInfo(pFI);
     if (DEBUG) System.out.println("Initializing static info for particle ");
+    // first means the particle never be in any water body
     first = true;
     inserted = false;//particle not in the system yet
     Particle.dfac = 0.1f;
@@ -300,11 +301,29 @@ _survivalHelper = null;
   	particleWait = false;  //set or reset particle wait variable
     if (DEBUG) System.out.println("In updating position for particle " + this);
     
+    if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
+        if ((Globals.currentModelTime - insertionTime)/60.0 > delT)//insertion time may set as way before PTM start time 
+          warning("Particle insertion time specification may be incorrect");//may include particles 1 time step before the 1st insertion
+        insert();
+    }
+    
+    if (inserted){//after initial insertion  
+        recursionCounter=0;
+        updateXYZPosition(delT);
+        updateOtherParameters(delT);
+        ////TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
+        //if(! isDead) checkHealth(); 
+    }
+    
+    
+//TODO original code, please clean up
+    /*    
     if (inserted){//after initial insertion  
       recursionCounter=0;
       updateXYZPosition(delT);
       updateOtherParameters(delT);
-      if(! isDead) checkHealth(); //TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
+      ////TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
+      //if(! isDead) checkHealth(); 
     }
     else if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
       if ((Globals.currentModelTime - insertionTime)/60.0 > delT)//insertion time may set as way before PTM start time 
@@ -314,6 +333,7 @@ _survivalHelper = null;
       updateXYZPosition(delT);
 	  updateOtherParameters(delT);
     }
+    */
   }
   
   /**
@@ -596,7 +616,7 @@ _survivalHelper = null;
     }
     
     if (k > MAX_BOUNCING)     
-      error("Too many iterations in calcYPosition()");
+      PTMUtil.systemExit("Too many iterations in calcYPosition()");
 
     return (yPos);
   }
@@ -622,7 +642,7 @@ _survivalHelper = null;
       k++;
     }
     if (k > MAX_BOUNCING) {
-      error("Too many iterations in calcZPosition()");
+    	PTMUtil.systemExit("Too many iterations in calcZPosition()");
     }
     return (zPos);
   }
@@ -708,6 +728,7 @@ _survivalHelper = null;
   /**
     *  Externally induced Deterministic x
     */
+  //TODO can be separated from particle using particle.move()
   protected float calcXVelocityExtDeterministic(){
       return( ((Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth) );
   }
@@ -824,11 +845,7 @@ _survivalHelper = null;
   /**
     *  generates error
     */
-  protected final void error(String msg){
-    System.out.println( "An error occurred in particle.cc: " );
-    System.out.println( "ERROR: " + msg );
-    System.exit(-1);
-  }
+
   
   /**
     *  generates warning
@@ -871,6 +888,7 @@ _survivalHelper = null;
     *  updates channel length, width, depth, average velocity, area
     *  and previous depth, width
     */ 
+  //TODO can be separated from particle
   private final void updateChannelParameters(){
     ((Channel)wb).updateChannelParameters(x,cL,cW,cD,cV,cA);
     channelLength = cL[0];
@@ -895,6 +913,7 @@ _survivalHelper = null;
   /**
     *  updates particle y, z position, Ev, Evdt, Etdt
     */ 
+  //TODO can be separated from particle
   private final void updateParticleParameters(float timeStep){
 	//map y & z in new xsection over the node
     z = z*channelDepth/previousChannelDepth;
@@ -1081,9 +1100,12 @@ _survivalHelper = null;
     return newXPosition;
   }
   */
+  //TODO need to clean up
+  // this function is overridden in the BehavedParticle class  
   protected void checkHealth(){
     // used for behavior
   }
+  
   
   /**
     *  String representation

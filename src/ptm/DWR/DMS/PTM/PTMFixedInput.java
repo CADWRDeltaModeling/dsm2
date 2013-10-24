@@ -449,7 +449,7 @@ public class PTMFixedInput{
   /**
    *  Gets behavior file name 
    */
-  //TODO need to be removed
+  //TODO need to be removed uses getBehaviorInfileName instead
   public final String getBehaviorFileName(){
     return _fixedData.getBehaviorFileName();
   }

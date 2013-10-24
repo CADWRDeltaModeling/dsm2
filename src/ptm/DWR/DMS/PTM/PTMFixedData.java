@@ -265,7 +265,7 @@ public class PTMFixedData {
   //
   native String getAnimationFileName();
   native int getAnimationOutputInterval();
-  //TODO this method need to be removed
+  //TODO this method need to be removed, use getBehaviorInFileName instead
   native String getBehaviorFileName();
   native String getBehaviorInfileName();
   native String getTraceFileName();
