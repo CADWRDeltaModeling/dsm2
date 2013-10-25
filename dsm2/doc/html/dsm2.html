@@ -27,9 +27,7 @@
         by HYDRO. PTM has multiple applications ranging from visualization of 
         flow patterns to simulation of discrete organisms such as fish eggs and 
         larvae.</p>
-      <p>DSM2 Version 8 is currently in early release. Documentation will expand 
-        and be corrected for the class in September 2009 (date to be announced 
-        in Users Group). Please send comments to Min Yu at <a href="mailto:minyu@water.ca.gov">minyu@water.ca.gov</a></a>.</p>
+      <p>DSM2 Version 8 is currently in version 8.1.2. Please send comments to Min Yu at <a href="mailto:minyu@water.ca.gov">minyu@water.ca.gov</a></a>.</p>
       </td>
   </tr>
 	  </table>
@@ -79,6 +77,8 @@
       <li><a href="reference/particle_flux_output.html">Particle Flux Output</a></li>      
       <li><a href="reference/particle_group_output.html">Particle Group Output</a></li>            
       <li><a href="reference/particle_insertion.html">Particle Insertion</a></li> 
+      <li><a href="reference/particle_filter.html">Particle Filter</a></li> 
+      <li><a href="reference/particle_res_filter.html">Particle_Res_filter</a></li> 
       <li><a href="reference/rate_coefficient.html">Rate Coefficient</a></li>
       <li><a href="reference/reservoir.html">Reservoir</a></li>
       <li><a href="reference/reservoir_concentration.html">Reservoir Concentration</a></li>         
@@ -104,10 +104,9 @@ tackle the tutorials in the /tutorials folder of the distribution or consult
         DSM2 is distributed by the California Department of Water Resources Delta 
         Modeling Section. Currently we distribute Windows executables, tutorials 
         and a data package with templates for common studies plus a map of the 
-        standard Delta grid. We expect to release a source code distribution in 
-        late Fall, 2009. 
+        standard Delta grid. 
       <p>The current version of DSM2 is <a href="DSM2_v8.0_beta3_release.exe"> 
-        DSM2 v8.0 beta 3</a> (119 Mb).
+        DSM2 v8.1.2</a> (370 Mb).
       <p> 
           DSM2 comes with a binary installer, and you should be able
 to set it up easily with the default installation. There are two limitations:
@@ -143,8 +142,7 @@ free differencing tool for text files.
 <a href "http://www.scootersoftware.com/">Beyond Compare</a>
 is an inexpensive commercial product that is intuitive and also compares Word files.</li>
         <li>Vista, one of the first graphical tools for examining data in HEC-DSS format, 
-          comes with DSM2 in the /dsm2/vista/bin directory. We include it because 
-          of legacy scripts, but do not support it very actively.</li>
+          comes with DSM2 in the /dsm2/vista/bin directory. </li>
 <li><a href="http://www.hec.usace.army.mil/software/hec-dss/hecdss-dss.html">
 HEC-DSSVUE</a> is distributed by HEC and is actively maintained. Most people use DSSVUE
 as their primary tool with Vista for specific tasks. An Excel add-in for DSS data
@@ -159,7 +157,7 @@ outputs of the model. You only need one of them.</li>
       The first step is to see whether the installation was successful. To do 
       this, get a DOS-style command prompt window and type from any location:</p> 
       <em>C:\&gt;hydro -v <br>
-      DSM2-Hydro 8.0b4<br>
+      DSM2-Hydro 8.1.2<br>
       Usage: Hydro input-file </em> 
       <p>If you got a message like the one above, you are up and running! Your next 
           stop should be Tutorial #1 or Delta Tutorial #1. 
@@ -177,7 +175,7 @@ If instead you get this:</p> <em>C:\&gt;hydro -v<br>
           <!--End contents-->
         </p>
    
-      &copy;2009 California Department of Water Resources. All Rights Reserved. 
+      &copy;2013 California Department of Water Resources. All Rights Reserved. 
       <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>
 
