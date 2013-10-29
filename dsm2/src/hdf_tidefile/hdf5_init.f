@@ -475,7 +475,7 @@ c-------involved in reading/writing time-varying model data
      &     a_dims, error)
 	call h5aclose_f(attr_id,error)
 
-      nlen=len_trim(io_files(hydro,io_hdf5,io_write).interval)
+      nlen=len_trim(cinterval)
       call h5tset_size_f(atype_id, nlen, error)
 	call h5acreate_f(dset_id, "interval", 
      &    atype_id, aspace_id, attr_id, error)
