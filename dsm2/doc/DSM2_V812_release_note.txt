@@ -29,7 +29,8 @@ Main differences:
         balance without making the full run.
         If the error is significant, user should try to resolve the problem in Hydro. 		
    14.  PTM adopt a new feature called 'filter', which can block/direct particles
-        w/o interrupting hydro environment.
+        w/o interrupting hydro environment. It works for channel, reservoir, water transfer,
+        agricultural diversion, seepage, etc.
 
 Notes for converting existing 8.0.6 setups to 8.1:
     1.  In the study templates, when there is no change to a file from 8.0.6, 
@@ -56,3 +57,6 @@ Special notes for planning study setup:
         in Version 8.0.6. Although we recommended using PER-AVER data, the
         differences in simulated EC are less than 1.0% when using 15min data, 
         this setup still uses inst-val/linear.		
+
+Known issues:
+    PTM animator is currently being fixed. Please contact DWR-BDO if need this function.
