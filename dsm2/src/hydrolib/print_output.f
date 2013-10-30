@@ -122,15 +122,15 @@ subroutine print_output(istat)
         20x,'----------------------------'// &
         '                                                  NODE'/ &
         ' CHANNEL NO     (ft)                  DISP.    CONNECTIVITY'/ &
-        ' INT  EXT       LENGTH     MANNING    COEFF.      DOWN   UP  '/ &
+        ' INT  EXT       LENGTH     MANNING    COEFF.        UP  DOWN  '/ &
         '---------     ----------   --------   --------   ------------ ')
 
     do chan=1,nchans
         !-----------upstream node
         write(unit_output,1080)chan,chan_geom(chan)%chan_no,chan_geom(chan)%length, &
             chan_geom(chan)%manning,chan_geom(chan)%disp, &
-            node_geom(chan_geom(chan)%downnode)%node_id, &
-            node_geom(chan_geom(chan)%upnode)%node_id
+            node_geom(chan_geom(chan)%upnode)%node_id, &
+            node_geom(chan_geom(chan)%downnode)%node_id
 1080    format(i5,1x,i4,1x,i8,5x,f8.4,3x,f10.4,5x,i4,1x,i4)
     enddo
 
@@ -178,9 +178,9 @@ subroutine print_output(istat)
 1200 format(///,8x,'GATE DEVICES'/ &
         8x,'------------'/// &
         8x,'(initial installations)    '// &
-        ,77x,                                       '#OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/ &
-        ' GATE',60x,                    '        DUPLICATE  WIDTH OR   BASE               TO      FROM  '/ &
-        ' NAME(DEVICE)',40x, 'TYPE            DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/ &
+        ,73x,                                       '#OF        (ft.)     (ft.)    (ft.)       FLOW COEFF.  '/ &
+        ' GATE',60x,                    '        DUPLICATE  WIDTH OR   BASE               FROM    TO  '/ &
+        ' NAME(DEVICE)',44x, 'TYPE            DEVICES    RADIUS     ELEV    HEIGHT     NODE    NODE  '/ &
         '------------',41x,  '-----           -----    ----------  -------  -------    ------  ---------')
     do i=1, ngate
         do j=1,gateArray(i)%nDevice
@@ -194,8 +194,8 @@ subroutine print_output(istat)
                 gateArray(i)%Devices(j)%maxWidth, &
                 gateArray(i)%Devices(j)%baseElev, &
                 gateArray(i)%Devices(j)%height, &
-                gateArray(i)%Devices(j)%flowCoefToNode, &
-                gateArray(i)%Devices(j)%flowCoefFromNode
+                gateArray(i)%Devices(j)%flowCoefFromNode, &
+                gateArray(i)%Devices(j)%flowCoefToNode
 1220        format(a32,1x,'(',a16,')',2x,a16,1x,i4,2x,f13.2,1x,f9.2,1x,f9.3,2f9.3)
         end do
     enddo

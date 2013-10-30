@@ -34,6 +34,9 @@ C!</license>
       integer*4, external :: obj_type_code
       integer :: i
       integer :: n_tidefiles_used
+      
+      character
+     &     jmin2cdt*14         ! julian minute to character date/time function
 
       nitem = tidefile_buffer_size()
       if (nitem .eq. 0)then
@@ -72,7 +75,16 @@ c-----make sure run dates are spanned
       if (dsm2_module .eq. qual .or. dsm2_module .eq. ptm) then
 	  if (  tide_files(1).start_julmin .gt. start_julmin 
      &   .or. tide_files(nintides).end_julmin .lt. end_julmin) then
-	    write(unit_error,*)"Specified dates for tidefiles do not cover period of simulation"
+	    write(unit_error,*)"Error...dates for tidefiles do not cover period of simulation:"
+	    Write(unit_error,921) run_start_date,run_end_date
+ 921      format(' Model run:',
+     &        '    start date: ',a14,
+     &        '    end date: ',a14)
+          Write(unit_error,931) jmin2cdt(tide_files(1).start_julmin),
+     &       jmin2cdt(tide_files(nintides).end_julmin)
+ 931      format(' Tidefiles:',
+     &        '    start date: ',a14,
+     &        '    end date: ',a14)
 	    call exit(-3)
 	  end if
 	end if
