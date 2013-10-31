@@ -56,6 +56,8 @@
       <li><a href="reference/particle_flux_output.html">Particle Flux Output</a></li>      
       <li><a href="reference/particle_group_output.html">Particle Group Output</a></li>            
       <li><a href="reference/particle_insertion.html">Particle Insertion</a></li> 
+      <li><a href="reference/particle_filter.html">Particle Filter</a></li> 
+      <li><a href="reference/particle_res_filter.html">Particle Res filter</a></li> 
       <li><a href="reference/rate_coefficient.html">Rate Coefficient</a></li>
       <li><a href="reference/reservoir.html">Reservoir</a></li>
       <li><a href="reference/reservoir_concentration.html">Reservoir Concentration</a></li>         
@@ -77,7 +79,7 @@
 
 <p>DSM2 currently consists of three modules, all of which come with the current distribution: HYDRO, QUAL, and PTM. HYDRO simulates one-dimensional hydrodynamics including flows, velocities, depth, and water surface elevations.  HYDRO provides the flow input for QUAL and PTM.  QUAL simulates one-dimensional fate and transport of conservative and non-conservative water quality constituents given a flow field simulated by HYDRO.  PTM simulates pseudo 3-D transport of neutrally buoyant particles based on the flow field simulated by HYDRO.  PTM has multiple applications ranging from visualization of flow patterns to simulation of discrete organisms such as fish eggs and larvae.</p>
 
-<p>DSM2 Version 8 is currently in early release. Documentation will expand and be corrected for the class in September 2009 (date to be announced in Users Group). Please send comments to Min Yu minyu@water.ca.gov.</p>
+<p>DSM2 is currently in version 8.1.2. Please send comments to Min Yu minyu@water.ca.gov.</p>
 
 <a name="started"></a>
 <h2>Getting Started</h2>
@@ -90,16 +92,15 @@ tackle the tutorials in the /tutorials folder of the distribution or consult the
 <p>DSM2 is distributed by the California Department of 
 Water Resources Delta Modeling Section. You can find the model at our
 <a href="http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/models/dsm2v8/dsm2.cfm#download">
-delta evaluation tools</a> web site. Currently we distribute Windows executables, tutorials and a data package 
-with templates for common studies. We expect to release a source code 
-distribution in Fall, 2009.</p>
+delta evaluation tools</a> web site. Currently we distribute Windows executables, tutorials, source code, 
+and a data package with templates for common studies.</p>
 <a name="install"></a>
 <h3>Installing DSM2</h3>DSM2 comes with a binary installer, and you should be able
 to set it up easily with the default installation. There are two limitations:
 <ul>
-<li>DSM2 is tested only on Windows XP. It has a history of working on NT,
+<li>DSM2 is tested on Windows XP, Windows 7. It has a history of working on NT,
 and we would love to hear from you if you can confirm it works on 
-Windows Vista.</li>
+other operating system.</li>
 <li>You need administrative permission to install the package.</li>
 <li>You should not set it up in a location with spaces. We recommend: 
 D:\delta\dsm2 or C:\delta\dsm2...</li>
@@ -127,9 +128,7 @@ free differencing tool for text files.
 <a href "http://www.scootersoftware.com/">Beyond Compare</a>
 is an inexpensive commercial product that is intuitive and also compares Word files.</li>
 <li>Vista, one of the first graphical tools for examining 
-data in HEC-DSS format, comes with DSM2 in the /dsm2/vista/bin directory. 
-We include it because of legacy scripts, but do not support it very actively
-(DWR uses other python scripting tools internally).</li>
+data in HEC-DSS format, comes with DSM2 in the /dsm2/vista/bin directory.</li>
 <li><a href="http://www.hec.usace.army.mil/software/hec-dss/hecdss-dss.html">
 HEC-DSSVUE</a> is distributed by HEC and is actively maintained. Most people use DSSVUE
 as their primary tool with Vista for specific tasks. An Excel add-in for DSS data
@@ -146,7 +145,7 @@ get a DOS-style command prompt window and type from any location:</p>
 <div class="fragment">
 <pre class="fragment">
 C:\&gt;hydro -v
- DSM2-Hydro 8.0a2
+ DSM2-Hydro 8.1.2
  Usage: Hydro input-file
 </pre>
 </div>
@@ -168,7 +167,7 @@ operable program or batch file.
 </div><!--End contents-->
 
 <div id="footer">
-<copyright>© 2007, 2009 California
+<copyright>© 2007, 2009, 2013 California
 Department of Water Resources. All Rights Reserved</copyright>
 <p id="license_info">DSM2 and its documentation are distributed under the <a href="http://www.gnu.org/licenses/gpl.txt">GNU General
 Public License</a></p>
