@@ -125,12 +125,22 @@ module buffer_gtm_input_common
     subroutine fill_gtm_io_type()
         use common_dsm2_vars
         use common_variables
+        use error_handling
         implicit none
+        logical :: file_exists
         !(1) 1:restart, 2:echo, 3:hdf (2) 1:in, 2:out
+        gtm_io(1,1)%filename = io_files(4,1,1)%filename
         gtm_io(1,2)%filename = io_files(4,1,2)%filename 
         gtm_io(2,2)%filename = io_files(4,2,2)%filename
         gtm_io(3,2)%filename = io_files(4,7,2)%filename
         gtm_io(3,2)%interval = io_files(4,7,2)%interval
+        
+        if (len_trim(gtm_io(1,1)%filename)==0) then
+            inquire(file=gtm_io(1,1)%filename, exist=file_exists)
+            if (file_exists==.false.) then 
+                call gtm_fatal(trim(gtm_io(1,1)%filename)//" does not exist!!")
+            endif             
+        end if    
         return
     end subroutine    
       

@@ -108,7 +108,8 @@ module advection
         logical        :: limit_slope             !< whether slope limiter is used
         real(gtm_real) :: old_time                !< previous time
         real(gtm_real) :: half_time               !< half time
-
+        integer :: i, icell
+        
         old_time = time - dt
         half_time = time - half*dt
     
@@ -180,12 +181,19 @@ module advection
                           nvar)
 
         ! Replace fluxes for special cases having to do with boundaries, network and structures
-        ! todo: Keeps the dirty stuff in one place. For now this is an empty call
-
-        !!!!!
-        !todo: boundary flux half_time?
-        !!!!!
         ! Imposes the advection boundary flux
+        if (n_boun .ne. LARGEINT) then 
+            do i = 1, n_boun
+                icell = bound(i)%cell_no
+                if (bound(i)%up_down .eq. 1) then      ! upstream boundary
+                    conc_lo(icell,:) = bound_val(i,:)
+                else
+                    conc_hi(icell,:) = bound_val(i,:)
+                end if
+            end do            
+            advection_boundary_flux => bc_advection_flux
+        end if
+        
         call advection_boundary_flux(flux_lo,     &
                                      flux_hi,     &
                                      conc_lo,     &

@@ -34,6 +34,7 @@
 		<File RelativePath="..\..\src\process_io\common_dsm2_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_qual.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_vars.f90"/>
+		<File RelativePath="..\..\src\process_io\dsm2_time_utils.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_main.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_open.f90"/>
@@ -53,5 +54,5 @@
 		<File RelativePath="..\..\src\process_io\process_gtm_reservoir_conc.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_scalar.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_tidefile.f90"/>
-		<File RelativePath="..\..\src\process_io\time_utilities.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\process_io\read_init.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

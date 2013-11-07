@@ -22,6 +22,7 @@ module gtm_dss_read
                         per_type)
        use common_dsm2_vars
        use time_utilities
+       use dsm2_time_utils
        implicit none
        !-----arguments
        integer, intent(in) :: pathnumber      ! global pathnumber [INPUT] 

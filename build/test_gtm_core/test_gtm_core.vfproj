@@ -27,5 +27,6 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\test\gtm_core\unit_test_gtm_network.f90"/>
 		<File RelativePath="..\..\test\gtm_core\unit_test_hydro_data_interp.f90"/>
-		<File RelativePath="..\..\test\gtm_core\unit_test_hydro_data_tidefile.f90"/></Filter></Files>
+		<File RelativePath="..\..\test\gtm_core\unit_test_hydro_data_tidefile.f90"/>
+		<File RelativePath="..\..\test\gtm_core\unit_test_time_utilities.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

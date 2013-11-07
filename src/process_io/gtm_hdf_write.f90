@@ -13,7 +13,6 @@ module gtm_hdf_write
     
     contains
 
-
     !> Create geometry group
     subroutine create_geometry_group(geom_id, file_id)
         use hdf5
@@ -25,7 +24,43 @@ module gtm_hdf_write
         return
     end subroutine    
 
-
+    !> Write out attributes into GTM tidefile
+    subroutine write_attributes_gtm(geom_id)
+        use hdf5
+        use h5lt
+        use common_variables
+        use time_utilities
+        implicit none
+        integer(HID_T), intent(in) :: geom_id        !< hdf5 geom dataset identifier
+        integer :: error
+        integer :: scalar = 1
+        integer,dimension(1) :: hdf_dummy_integer
+        call h5ltset_attribute_string_f(geom_id,".","gtm_start_date", &
+                                        trim(jmin2cdt(gtm_start_jmin))//char(0), error)
+        hdf_dummy_integer = gtm_start_jmin
+        call h5ltset_attribute_int_f(geom_id,".","gtm_start_jmin", &
+                                     hdf_dummy_integer, scalar, error)   
+        hdf_dummy_integer = gtm_time_interval
+        call h5ltset_attribute_int_f(geom_id,".","gtm_time_interval", &
+                                     hdf_dummy_integer, scalar, error)   
+        hdf_dummy_integer = n_comp
+        call h5ltset_attribute_int_f(geom_id,".","n_comp", &
+                                     hdf_dummy_integer, scalar, error) 
+        hdf_dummy_integer = n_chan
+        call h5ltset_attribute_int_f(geom_id,".","n_chan", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_cell
+        call h5ltset_attribute_int_f(geom_id,".","n_cell", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_var
+        call h5ltset_attribute_int_f(geom_id,".","n_var", &
+                                     hdf_dummy_integer, scalar, error) 
+        hdf_dummy_integer = npartition_x
+        call h5ltset_attribute_int_f(geom_id,".","npartition_x", &
+                                     hdf_dummy_integer, scalar, error)                                           
+        return
+    end subroutine
+            
     !> Write out channel info into GTM tidefile
     subroutine write_channel_info(geom_id, num_channel, channel)
         use hdf5

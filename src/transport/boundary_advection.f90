@@ -129,4 +129,40 @@ module boundary_advection
        return
    end subroutine 
   
+  
+  !> Example advective flux that imposes boundary concentration based on the values read from input file
+  subroutine bc_advection_flux(flux_lo,    &
+                               flux_hi,    &
+                               conc_lo,    &
+                               conc_hi,    &
+                               flow_lo,    &
+                               flow_hi,    &
+                               ncell,      &
+                               nvar,       &
+                               time,       &
+                               dt,         &
+                               dx)
+     
+       use gtm_precision
+       use error_handling
+       implicit none
+       !--- args          
+       integer,intent(in)  :: ncell                            !< Number of cells
+       integer,intent(in)  :: nvar                             !< Number of variables
+       real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
+       real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+       real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
+       real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
+       real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
+       real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
+       real(gtm_real),intent(in)    :: time                    !< Current time
+       real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step  
+       real(gtm_real),intent(in)    :: dt                      !< Time step    
+     
+       flux_lo(1,:) = conc_lo(1,:)*flow_lo(1)
+       flux_hi(ncell,:) = conc_hi(ncell,:)*flow_hi(ncell)
+       return
+  end subroutine  
+  
+  
 end module

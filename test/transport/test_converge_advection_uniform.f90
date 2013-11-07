@@ -26,8 +26,8 @@ module test_uniform_flow
 use gtm_precision
 
 integer, parameter  :: nstep_base = 256                  !< Number of time steps at finest gird
-integer, parameter  :: nx_base = 256                     !< Number of cells in finest grid
-real(gtm_real), parameter :: total_time = 25600.d0       !< Total time of test 
+integer, parameter  :: nx_base = 256*two                 !< Number of cells in finest grid
+real(gtm_real), parameter :: total_time = 38400.d0       !< Total time of test 
 real(gtm_real), parameter :: start_time = zero           !< Starts at zero
 
 contains
@@ -48,7 +48,7 @@ implicit none
 procedure(hydro_data_if),pointer :: uniform_hydro                      !< Hydrodynamic pointer to be filled by the driver
 integer, parameter  :: nconc = 2                                       !< Number of constituents
 logical  :: verbose                                                    !< Flag for detail printout    
-real(gtm_real), parameter :: domain_length = 25600.d0                  !< Domain length
+real(gtm_real), parameter :: domain_length = 25600.d0*two              !< Domain length
 real(gtm_real), parameter :: origin = zero                             !< Domain origin X0
 real(gtm_real), parameter :: constant_flow = 600.d0                    !< Constant flow
 real(gtm_real), parameter :: constant_area = 1000.d0                   !< Constant Area 

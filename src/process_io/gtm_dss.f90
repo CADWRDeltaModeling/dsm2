@@ -115,8 +115,8 @@ module gtm_dss
     !> Create DSS input pathnames, check for sign change for each path
     subroutine get_dss_each_npath()
     
-         use common_dsm2_vars, only: pathinput, n_inputpaths, miss_val_r
-         use common_variables, only: unit_error
+         use common_dsm2_vars, only: pathinput, n_inputpaths
+         use common_variables, only: unit_error, miss_val_r
         
          implicit none
          integer :: p

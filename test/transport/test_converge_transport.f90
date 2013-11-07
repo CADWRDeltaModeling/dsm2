@@ -232,7 +232,10 @@ do icoarse = 1,nrefine
                   time,    &
                   dx,      &                  
                   dt)
-                  
+
+       if (label=="advection_tidal_sinusoidal") then
+           write(141,'(512f8.3)') (flow(icell),icell=1,nx)                  
+       endif
       
       if (maxval(abs(flow)/area) >=  max_velocity) then
           max_velocity = maxval(abs(flow)/area)

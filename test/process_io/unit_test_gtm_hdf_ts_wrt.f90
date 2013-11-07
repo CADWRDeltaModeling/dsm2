@@ -142,12 +142,15 @@ module ut_gtm_hdf_ts_wrt
         end do               
         call write_qual_hdf(qual_hdf,         &
                             conc,             &
-                            conc_res,         &
                             ncell,            &
-                            nres,             &
                             nconc,            &
                             time_index)   
-                               
+        call write_qual_hdf_resv(qual_hdf,    &
+                                 conc_res,    &
+                                 nres,        &
+                                 nconc,       &
+                                 time_index)   
+                                                           
         !---write values into time_index=4                                
         julmin = 44145     
         time_index = (julmin-qual_hdf%start_julmin)/qual_hdf%write_interval               
@@ -161,11 +164,14 @@ module ut_gtm_hdf_ts_wrt
         end do               
         call write_qual_hdf(qual_hdf,         &
                             conc,             &
-                            conc_res,         &
                             ncell,            &
-                            nres,             &
                             nconc,            &
-                            time_index)                                                                            
+                            time_index)   
+        call write_qual_hdf_resv(qual_hdf,    &
+                                 conc_res,    &
+                                 nres,        &
+                                 nconc,       &
+                                 time_index)                                                                              
         call close_qual_hdf(qual_hdf)          
         deallocate(chan_geom)        
         deallocate(res_geom) 
@@ -285,11 +291,14 @@ module ut_gtm_hdf_ts_wrt
         end do               
         call write_qual_hdf(qual_hdf,         &
                             conc,             &
-                            conc_res,         &
                             ncell,            &
-                            nres,             &
                             nconc,            &
-                            time_index)      
+                            time_index)   
+        call write_qual_hdf_resv(qual_hdf,    &
+                                 conc_res,    &
+                                 nres,        &
+                                 nconc,       &
+                                 time_index)  
                             
         !---write values into time_index=4
         julmin = 44145     
@@ -304,11 +313,14 @@ module ut_gtm_hdf_ts_wrt
         end do               
         call write_qual_hdf(qual_hdf,         &
                             conc,             &
-                            conc_res,         &
                             ncell,            &
-                            nres,             &
                             nconc,            &
-                            time_index)        
+                            time_index)   
+        call write_qual_hdf_resv(qual_hdf,    &
+                                 conc_res,    &
+                                 nres,        &
+                                 nconc,       &
+                                 time_index)      
                                                                                                                           
         call close_qual_hdf(qual_hdf)          
                   

@@ -115,7 +115,7 @@ call initial_fine_solution_tidal_gaussian(fine_initial_condition, &
                                           ic_center,              &
                                           solution_center,        &        
                                           tidal_ar_decay_rate)
-
+open(141,file="temp.txt")
 ! The general subroutine which gets the fine initial and reference values from the privious subroutine and 
 ! compute the norms, after each step coarsen the values and repeat computation.
 ! at the end  calculates the ratio of the norms and prints a log 
@@ -138,6 +138,7 @@ call test_convergence(label,                  &
                       verbose,                &
                       .true.,                 &
                       acceptance_ratio)
+close(141)
                       
 label = "advection_tidal_sinusoidal" 
 ! load the initial values and reference final values to feed the test routine

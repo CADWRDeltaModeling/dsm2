@@ -30,7 +30,7 @@ module boundary
         bound_index_tmp = LARGEINT
         path_index_tmp = LARGEINT
         
-        if ((num_boundary .lt. 1).or.(num_inputpaths .lt. 1)) then
+        if ((num_boundary .eq. LARGEINT).or.(num_inputpaths .eq. LARGEINT)) then
             call gtm_fatal("Call this function after determining n_boun and n_inputpaths")
         else
             do i = 1, num_boundary

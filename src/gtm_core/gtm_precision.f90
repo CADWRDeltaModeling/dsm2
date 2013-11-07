@@ -67,4 +67,11 @@ module gtm_precision
    ! todo: add G = 9.80 
    ! todo: add kapa = 0.41 here or in sed variables
 
+   !> Missing values maker from DSM2
+   integer, parameter :: miss_val_i = -901
+   real*8, parameter :: miss_val_r = -901.
+   character(len=1), parameter :: miss_val_c = char(1)
+   real*8, parameter :: init_small_r = -99999.0       ! for initializing irreg_geom structures
+   real*8, parameter :: init_big_r = 99999.0          ! for initializing irreg_geom structures   
+       
 end module

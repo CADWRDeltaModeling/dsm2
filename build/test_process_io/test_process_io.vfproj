@@ -32,5 +32,5 @@
 		<File RelativePath="..\..\test\process_io\unit_test_gtm_hdf_ts_wrt.f90"/>
 		<File RelativePath="..\..\test\process_io\unit_test_gtm_hdf_write.f90"/>
 		<File RelativePath="..\..\test\process_io\unit_test_process_gtm_input.f90"/>
-		<File RelativePath="..\..\test\process_io\unit_test_time_utilities.f90"/></Filter></Files>
+		<File RelativePath="..\..\test\process_io\unit_test_read_init_file.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

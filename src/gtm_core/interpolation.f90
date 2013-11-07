@@ -543,8 +543,82 @@ module interpolation
         end do           
         return
     end subroutine 
-                                           
 
+   !> Interpolated flow and area mesh based on given four points of flows and water surface elevations
+    subroutine interp_in_space_only(flow_mesh, area_mesh,                   &
+                                    branch, up_x, dx, dt, nt, nx,           &
+                                    flow_a, flow_b, flow_c, flow_d,         &
+                                    ws_a, ws_b, ws_c, ws_d,                 &
+                                    prev_flow_cell)
+        use common_xsect  
+        implicit none
+        integer, intent(in) :: branch                                               !< hydro channel number (required by CxArea())
+        real(gtm_real), intent (in) :: up_x                                         !< upstream point distance (required for CxArea())
+        real(gtm_real), intent(in) :: dx                                            !< finer cell size (in feet) 
+        real(gtm_real), intent(in) :: dt                                            !< finer time step (in minutes)
+        integer, intent(in) :: nt                                                   !< nt: number of points in time
+        integer, intent(in) :: nx                                                   !< nx: number of points in space
+        real(gtm_real), intent(in) :: flow_a, flow_b, flow_c, flow_d                !< input four corner flow points
+        real(gtm_real), intent(in) :: ws_a, ws_b, ws_c, ws_d                        !< input four corner water surface points 
+        real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell                 !< last row of flow cells from previous interpolation
+        real(gtm_real), dimension(nt,nx), intent(out) :: flow_mesh                  !< interpolated flow mesh
+        real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh                  !< interpolated area mesh
+        integer :: i, j
+        real(gtm_real) :: ws
+        area_mesh(1,1) = ws_a
+        area_mesh(1,nx) = ws_b
+        area_mesh(nt,1) = ws_c
+        area_mesh(nt,nx) = ws_d
+        flow_mesh(1,1) = flow_a
+        flow_mesh(1,nx) = flow_b
+        flow_mesh(nt,1) = flow_c
+        flow_mesh(nt,nx) = flow_d        
+        do i = 2, nx-1
+            ws = ws_a + (i-1)/(nx-1)*(ws_b-ws_a)
+            call CxArea(area_mesh(1,i), up_x, ws, branch)
+            ws = ws_c + (i-1)/(nx-1)*(ws_d-ws_c)
+            call CxArea(area_mesh(2,i), up_x, ws, branch)            
+            flow_mesh(1,i) = (i-1)/(nx-1)*(flow_b-flow_a)
+        end do    
+        !do i = 2, nx 
+        !    area_vol_change(i-1) = half*(area_mesh(2,i)+area_mesh(2,i-1)-area_mesh(1,i)-area_mesh(1,i-1))*dx
+        !enddo
+!!!!!!todo:: NOT COMPLET YET !!!!!!!!!!!!!!!!!!!!!
+        return
+    end subroutine            
+    
+   !> Interpolated flow and area mesh based on given four points of flows and water surface elevations
+    subroutine no_need_to_interp(flow_mesh, area_mesh,                   &
+                                 branch, up_x, dx, dt, nt, nx,           &
+                                 flow_a, flow_b, flow_c, flow_d,         &
+                                 ws_a, ws_b, ws_c, ws_d,                 &
+                                 prev_flow_cell)
+        use common_xsect  
+        implicit none
+        integer, intent(in) :: branch                                               !< hydro channel number (required by CxArea())
+        real(gtm_real), intent (in) :: up_x                                         !< upstream point distance (required for CxArea())
+        real(gtm_real), intent(in) :: dx                                            !< finer cell size (in feet) 
+        real(gtm_real), intent(in) :: dt                                            !< finer time step (in minutes)
+        integer, intent(in) :: nt                                                   !< nt: number of points in time
+        integer, intent(in) :: nx                                                   !< nx: number of points in space
+        real(gtm_real), intent(in) :: flow_a, flow_b, flow_c, flow_d                !< input four corner flow points
+        real(gtm_real), intent(in) :: ws_a, ws_b, ws_c, ws_d                        !< input four corner water surface points 
+        real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell                 !< last row of flow cells from previous interpolation
+        real(gtm_real), dimension(nt,nx), intent(out) :: flow_mesh                  !< interpolated flow mesh
+        real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh                  !< interpolated area mesh
+        integer :: i, j, ws  
+        flow_mesh(1,1) = flow_a
+        flow_mesh(1,2) = flow_b
+        flow_mesh(2,1) = flow_c
+        flow_mesh(2,2) = flow_d
+        call CxArea(area_mesh(1,1), up_x, ws_a, branch)
+        call CxArea(area_mesh(1,2), up_x, ws_b, branch)
+        call CxArea(area_mesh(2,1), up_x, ws_c, branch)
+        call CxArea(area_mesh(2,2), up_x, ws_d, branch)
+        return
+    end subroutine      
+    
+    
    !> Interpolated flow and area mesh based on given four points of flows and water surface elevations
     subroutine interp_flow_area(flow_mesh, area_mesh,                   &
                                 flow_volume_change, area_volume_change, &

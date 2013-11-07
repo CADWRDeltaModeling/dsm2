@@ -40,6 +40,7 @@ module gtm_subs
         integer(HID_T) :: geom_id
         integer :: error
         call create_geometry_group(geom_id, file_id)
+        call write_attributes_gtm(geom_id)
         call write_segment_info(geom_id, n_segm, segm)
         call write_channel_info(geom_id, n_chan, chan_geom)
         call write_junction_info(geom_id, n_junc, junc)

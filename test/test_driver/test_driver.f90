@@ -42,6 +42,8 @@ program test_driver
     use ut_gtm_hdf_ts_wrt
     use ut_gtm_hdf_write
     use ut_boundary
+    use ut_create_restart
+    use ut_read_init_file
     
     !----- modules used in project test_transport -----  
     use test_extrapolate
@@ -87,6 +89,8 @@ program test_driver
     call test_hdf_ts_wrt
     call test_gtm_hdf_write
     call test_find_bound_index
+    call test_create_restart
+    call test_read_init_file
     
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")

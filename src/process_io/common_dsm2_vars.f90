@@ -131,16 +131,9 @@ module common_dsm2_vars
        integer, parameter :: obj_climate = 30
        integer, parameter :: obj_filter = 120
 
-       !> Missing values maker
-       integer, parameter :: miss_val_i = -901
-       real*8, parameter :: miss_val_r = -901.
-       character(len=1), parameter :: miss_val_c = char(1)
-       real*8, parameter :: init_small_r = -99999.0       ! for initializing irreg_geom structures
-       real*8, parameter :: init_big_r = 99999.0          ! for initializing irreg_geom structures   
        
        !-----misc magic characters and numbers
        logical, parameter :: EXACT_MATCH = .true.
-       
        integer, parameter :: TO_BOUNDARY = 1
        integer, parameter :: NEAREST_BOUNDARY = 2
        integer, parameter :: IGNORE_BOUNDARY = 3
@@ -173,11 +166,11 @@ module common_dsm2_vars
            real*8 :: value_in = miss_val_r         ! incoming value to check
            real*8 :: value_out = miss_val_r        ! outgoing value to change to
            integer :: value_flag                   ! data quality flag for this timestep
-           integer :: fillin  = miss_val_i        ! how to fill in between data (first, last, interp, data)
-           integer :: locid = miss_val_i          ! location id where the input path applies (for checking duplicates)
-           integer :: obj_type = miss_val_i         ! object type this data goes to: channel, reservoir, node, gate?
-           integer :: obj_no = miss_val_i      ! number of object
-           integer data_type      ! data type: flow, stage, gate position..
+           integer :: fillin  = miss_val_i         ! how to fill in between data (first, last, interp, data)
+           integer :: locid = miss_val_i           ! location id where the input path applies (for checking duplicates)
+           integer :: obj_type = miss_val_i        ! object type this data goes to: channel, reservoir, node, gate?
+           integer :: obj_no = miss_val_i          ! number of object
+           integer data_type                       ! data type: flow, stage, gate position..
            !--------'type' section
            integer group_ndx      ! group index
            integer gate_param     ! time-varying gate parameter

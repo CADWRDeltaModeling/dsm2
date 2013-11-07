@@ -185,15 +185,6 @@ module gtm_dss_readtvd
             endif
             jul_next=indata(ndx_next,i)%julmin
 
-            !----if interpolation wanted, but next value is bad (and not generic
-            !----data), turn off interpolation and try to replace this value
-            !----later
-            if (interpolate_value .and. &
-                (pathinput(ptr)%start_date /= generic_date)) then
-                interpolate_value = .false.
-                pathinput(ptr)%replace = .true.
-            endif
-
             !----fixme: check this if statement
             if (ndx_next == 1 .and. &
                 pathinput(ptr)%interval(:3) == 'ir-') then
@@ -320,6 +311,7 @@ module gtm_dss_readtvd
           last_ndx, max_v, max_paths)
           
         use common_dsm2_vars, only: dataqual_t
+        use dsm2_time_utils
         use time_utilities
       
         implicit none
