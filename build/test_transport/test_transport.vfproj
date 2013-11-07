@@ -33,7 +33,7 @@
 		<File RelativePath="..\..\test\transport\test_converge_advection_dispersion_time_dependent.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_advection_dispersion_zoppou.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_advection_reaction_tidal.f90"/>
-		<File RelativePath="..\..\test\transport\test_converge_advection_uniform.f90"/>
+		<File RelativePath="..\..\test\transport\test_converge_bidirectional_uniform.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_diffusion_fletcher.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_diffusion_nonlinear_source.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_transport.f90"/>

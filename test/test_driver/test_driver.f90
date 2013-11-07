@@ -50,7 +50,7 @@ program test_driver
     use test_prim_cons_conversion
     use test_prim_increment_to_cons
     use test_gradient    
-    use test_uniform_flow
+    use test_converge_bidirectional_uniform
     use test_matrix_solver
     use test_boundary_diffusion
     use test_diffusive_flux
@@ -62,7 +62,7 @@ program test_driver
     use test_advection_reaction_tidal
     use test_advection_reaction_hdf5      
     use test_coarsening
-    use test_uniform_flow
+    use test_converge_bidirectional_uniform
     use test_diffusion_fletcher
     use test_diffusion_nonlinear_decay
 
@@ -116,9 +116,7 @@ program test_driver
     !/// Advection-diffusion-reaction convergence in uniform flow,
     !    operators are layered in successively
     call test_converge_transport_uniform(verbose)
-
-    !///////// Advection convergence
-    call test_bidirectional_advection_convergence(verbose)
+    call test_converge_uniform_bidirectional(verbose)
 
     !/////// Diffusion unit tests
     call test_tridi_solver
@@ -153,7 +151,6 @@ program test_driver
     call test_advection_diffusion_mms(verbose)
     
     !----- function calls to test units in project sediment -----
-
     
     call fruit_summary
     close(debug_unit)
