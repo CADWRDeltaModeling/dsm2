@@ -33,7 +33,7 @@ module dsm2_time_utils
     !> But if NEAREST_BOUNDARY is requested, and jmins is on a boundary,
     !> then jmins will be returned for a positive interval; the previous
     !> boundary will be returned for a negative interval.   
-    integer*4 function incr_intvl(jmins, e_part, boundary)
+    real(gtm_real) function incr_intvl(jmins, e_part, boundary)
     
       use common_dsm2_vars, only: miss_val_i, IGNORE_BOUNDARY, NEAREST_BOUNDARY
     
@@ -44,13 +44,15 @@ module dsm2_time_utils
       character :: e_part*(*),    & ! DSS style interval [INPUT]
                    e_part_tmp*80, & ! temporary e_part
                    interval*80      ! DSS interval (e.g. HOUR)
-      integer*4 :: jmins,         & ! starting julian minute [INPUT]
-                   iymdjl,        & ! DSS function
+      real(gtm_real) :: jmins       ! starting julian minute [INPUT]
+      integer*4 :: iymdjl,        & ! DSS function
                    nom_mins         ! nominal number of minutes in an interval
+      real(gtm_real) :: number      ! number (e.g. 1, 15)                  
+      real(gtm_real) :: number_sign ! sign of number of units (+ or -)
+      real(gtm_real) :: ietime      ! starting and ending minutes past midnight
       integer :: boundary,        & ! how to handle boundary [INPUT]
-                 number,          & ! number (e.g. 1, 15)
                  juls,jule,       & ! starting and ending julian day
-                 istime,ietime,   & ! starting and ending minutes past midnight
+                 istime,          & ! starting and ending minutes past midnight
                  jliymd,          & ! convert julian day to year,month,day DSS function
                  inctim,          & ! DSS function to increment time
                  idaywk,          & ! DSS function to return day of week
@@ -65,8 +67,7 @@ module dsm2_time_utils
                  itbl(128),       & ! needed by findlm routine
                  nfields,         & ! number of fields found
                  len,             & ! returns declared length of string
-                 lens,            & ! length of string
-                 number_sign,     & ! sign of number of units (+ or -)
+                 lens,            & ! length of string                 
                  sign,            & ! intrinsic
                  nvals              ! number of values in DSS data block
 
@@ -92,7 +93,7 @@ module dsm2_time_utils
       call locase(e_part_tmp)
 
       jule = jmins/(24*60)        ! julian days
-      ietime = mod(jmins,24*60)   ! minutes past midnight
+      ietime = mod(jmins,dble(24*60))   ! minutes past midnight
 
       do i=1,nfields
       
@@ -106,7 +107,7 @@ module dsm2_time_utils
 
          call split_epart(e_part_tmp(ibegf(i):ibegf(i)+ilenf(i)),number,   &
               interval)
-         number_sign=sign(1,number)
+         number_sign=sign(one,number)
          if (boundary .eq. NEAREST_BOUNDARY) number = number_sign
          on_boundary=.false.
 
@@ -225,7 +226,7 @@ module dsm2_time_utils
                endif
             else if (index(interval,'min') .ne. 0) then
                if (mod(imin,15) .eq. 0) on_boundary=.true. ! jmins on 15min boundary
-               if (interval(:5) .eq. '15min') imin=(imin/15)*15
+               !if (interval(:5) .eq. '15min') imin=(imin/15)*15
                !----now back to same or previous 15min boundary
                if (keepit(boundary,number_sign,on_boundary)) then
                   jule=juls
@@ -236,6 +237,10 @@ module dsm2_time_utils
                   istat=inctim(nom_mins, 0, number, juls, istime, jule,   &
                        ietime)
                endif
+               if ((mod(number,one).ne.zero).or. (jule<0) ) then   ! to take care of non-integer time interval
+                  jule = 0
+                  ietime = number
+               end if     
             else
                incr_intvl=miss_val_i
                return
@@ -261,14 +266,14 @@ module dsm2_time_utils
                      e_part_tmp*80,   &  ! temporary e part
                      char_list*13        ! list of chars to scan
 
-        integer :: number,            &  ! number of intervals [RETURN]
-                   ielen,             &  ! length of e_part
+        real(gtm_real) :: number         ! number of intervals [RETURN]
+        integer :: ielen,             &  ! length of e_part
                    ipos2,             &  ! which char found in iscan
                    ilast,             &  ! position of last digit in e_part
                    iscan                 ! DSS char scan function
-
-        data char_list /'0123456789+-.'/
-
+        data char_list /'0123456789+-.'/        
+        integer :: ilast2, number_tmp          
+        
         e_part_tmp = e_part
         call locase(e_part_tmp)
 
@@ -279,11 +284,17 @@ module dsm2_time_utils
         else
            ielen = len(e_part_tmp)
            ilast = iscan(e_part_tmp, ielen, -ielen, char_list, 1, 10, ipos2)
+           ilast2 = scan(e_part_tmp, '.')
            !---handle e.g. 'hour' (w/o number) correctly
            if (ilast .eq. 0) then
               number = 1
            else
-              read(e_part_tmp(:ilast),'(i5)', err=600) number
+              if (ilast2==0) then
+                  read(e_part_tmp(:ilast),'(i)', err=600) number_tmp
+                  number = dble(number_tmp)
+              else
+                  read(e_part_tmp(:ilast),'(f)', err=600) number
+              end if    
            endif
         endif
         interval = e_part_tmp(ilast+1:)
@@ -298,12 +309,12 @@ module dsm2_time_utils
             index(interval,'dec') .gt. 0         &
             ) then
        !----for minutes, treat 15MIN intervals as unit
-           if (mod(number,15) .eq. 0 .and. interval(:3) .eq. 'min') then
-              number = number/15
-              interval = '15min'
-           else
+           !if (mod(number,fifteen) .eq. 0 .and. interval(:3) .eq. 'min') then
+           !   number = number/fifteen
+           !   interval = '15min'
+           !else
               interval = '1'//interval
-           endif
+           !endif
            return
         endif
  600    continue                  ! here for error getting number of intervals
@@ -324,10 +335,8 @@ module dsm2_time_utils
       character*(*), intent(in) :: cdatx        ! date/time string [IN]
       character*(*), intent(in) :: e_part       ! DSS E part interval [IN]
       character*(*), intent(out) :: cdate_intvl ! date/time portion corresponding to interval [OUT]
-
-      integer :: number                        ! number prefix of E part
-
-      character*15 :: interval                 ! E part minus number prefix
+      real(gtm_real) :: number                  ! number prefix of E part
+      character*15 :: interval                  ! E part minus number prefix
 
       call split_epart(e_part, number, interval)
 

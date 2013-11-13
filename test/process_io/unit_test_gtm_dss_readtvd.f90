@@ -131,7 +131,7 @@ module ut_gtm_dss_readtvd
         jmin = 48422685       ! 24JAN1992 2045 (hr data: -1.4699 at 20:00, -1.6051 at 21:00)
         prev_jmin = jmin - 15   
         call readtvd(indata_1hr, jmin, prev_jmin, ninpath_1hr, hrs, n_inputpaths, inpath_ptr_1hr)
-        call assertEquals (pathinput(3)%value, dble(-1.4699), weakest_eps, "problem in readtvd reading hour data at 24JAN1992 2045")   
+        call assertEquals (pathinput(3)%value, dble(-1.6051), weakest_eps, "problem in readtvd reading hour data at 24JAN1992 2045")   
 
         !---- test for daily data ----
         jmin = 48422685       ! 24JAN1992 2045 (daily data: 0.8438 at 23JAN1992 2400, 0.8400 at 24JAN1992 2400)

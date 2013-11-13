@@ -53,7 +53,8 @@ module create_restart
         logical :: file_exists
         integer,dimension(1) :: hdf_dummy_integer        
         integer :: error, i, j
-        integer :: gtm_time_interval, gtm_start_jmin
+        real(gtm_real) :: gtm_time_interval, gtm_start_jmin
+        real(gtm_real),dimension(1) :: hdf_dummy_real
         integer :: ncell, nvar
         integer :: time_offset, buffer_size               
         real(gtm_real), allocatable :: init(:,:,:)        ! output array
@@ -65,12 +66,12 @@ module create_restart
             call h5fopen_f (gtm_tidefile, H5F_ACC_RDONLY_F, gtm_file_id, error)
             call verify_error(error, "opening tidefile")
             call h5gopen_f(gtm_file_id, "geometry", geom_id, error)       
-            call h5ltget_attribute_int_f(geom_id, ".",    &
-                    "gtm_time_interval", hdf_dummy_integer, error)
-            gtm_time_interval = hdf_dummy_integer(1)
-            call h5ltget_attribute_int_f(geom_id, ".",    &
-                    "gtm_start_jmin", hdf_dummy_integer, error)
-            gtm_start_jmin = hdf_dummy_integer(1)
+            call h5ltget_attribute_double_f(geom_id, ".",    &
+                    "gtm_time_interval", hdf_dummy_real, error)
+            gtm_time_interval = hdf_dummy_real(1)
+            call h5ltget_attribute_double_f(geom_id, ".",    &
+                    "gtm_start_jmin", hdf_dummy_real, error)
+            gtm_start_jmin = hdf_dummy_real(1)
             call h5ltget_attribute_int_f(geom_id, ".",    &
                     "n_cell", hdf_dummy_integer, error)
             ncell = hdf_dummy_integer(1)            
@@ -98,7 +99,7 @@ module create_restart
             data_dims(1) = nvar
             data_dims(2) = ncell
             data_dims(3) = buffer_size
-            call h5dread_f(dset_id, H5T_NATIVE_INTEGER, init, data_dims, error, memspace, dataspace) !todo::not sure why INTEGER works while DOUBLE not.
+            call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, init, data_dims, error, memspace, dataspace) !todo::not sure why INTEGER works while DOUBLE not.
             
             call h5sclose_f(dataspace, error)
             call h5sclose_f(memspace, error)

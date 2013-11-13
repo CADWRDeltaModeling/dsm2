@@ -43,18 +43,18 @@ module common_variables
      real(gtm_real), allocatable :: hydro_ws(:,:)   !< water surface from DSM2 hydro
      real(gtm_real), allocatable :: hydro_avga(:,:) !< average area from DSM2 hydro
    
-     !> Define scalar and envvar in input file
-     integer :: npartition_x = LARGEINT             !< number of cells within a segment
-     integer :: npartition_t = LARGEINT             !< number of gtm time intervals partition from hydro time interval
-     character(len=128) :: hydro_hdf5               !< hydro tide filename
-     integer :: hydro_start_jmin = LARGEINT         !< hydro start time in hydro tidefile
-     integer :: hydro_end_jmin = LARGEINT           !< hydro end time in hydro tidefile
-     integer :: hydro_time_interval = LARGEINT      !< hydro time interval in hydro tidefile
-     integer :: hydro_ntideblocks = LARGEINT        !< hydro time blocks in hydro tidefile
-     integer :: gtm_start_jmin = LARGEINT           !< gtm start time
-     integer :: gtm_end_jmin = LARGEINT             !< gtm end time
-     integer :: gtm_ntideblocks = LARGEINT          !< gtm time blocks
-     real(gtm_real) :: gtm_time_interval = LARGEINT !< gtm simulation time interval
+     !> Define scalar and envvar in input file 
+     integer :: npartition_x = LARGEINT                !< number of cells within a segment
+     integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
+     character(len=128) :: hydro_hdf5                  !< hydro tide filename
+     integer :: hydro_start_jmin = LARGEINT            !< hydro start time in hydro tidefile
+     integer :: hydro_end_jmin = LARGEINT              !< hydro end time in hydro tidefile
+     integer :: hydro_time_interval = LARGEINT         !< hydro time interval in hydro tidefile
+     integer :: hydro_ntideblocks = LARGEINT           !< hydro time blocks in hydro tidefile
+     real(gtm_real) :: gtm_start_jmin = LARGEREAL      !< gtm start time
+     real(gtm_real) :: gtm_end_jmin = LARGEREAL        !< gtm end time
+     integer :: gtm_ntideblocks = LARGEINT             !< gtm time blocks
+     real(gtm_real) :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
      
      type gtm_io_files_t
           character(len=130) :: filename            !< filename

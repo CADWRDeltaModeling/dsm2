@@ -13,9 +13,9 @@ module gtm_hdf_ts_write
     
     type qual_hdf_t 
         character*128 file_name
-        integer        :: write_interval
-        integer        :: start_julmin
-        integer        :: time_index  
+        real(gtm_real) :: write_interval
+        real(gtm_real) :: start_julmin
+        real(gtm_real) :: time_index  
         integer(HID_T) :: file_id
         integer(HID_T) :: qual_id
         integer(HID_T) :: data_id
@@ -53,21 +53,21 @@ module gtm_hdf_ts_write
         use dsm2_time_utils, only: incr_intvl
         use common_dsm2_vars, only: NEAREST_BOUNDARY, TO_BOUNDARY, print_level
   	    implicit none
-        type(qual_hdf_t), intent(inout) :: hdf_file !< persistent info about file and datasets
-        character*128, intent(in) :: hdf_name       !< name of qual hdf5 file
-        integer :: ncell                            !< number of cells
-        integer :: nresv                            !< number of reservoirs
-        integer :: nconc                            !< number of constituents
-        integer :: sim_start                        !< first write time
-        integer :: sim_end                          !< last write time
-        character*16 :: hdf_interval_char           !< interval
+        type(qual_hdf_t), intent(inout) :: hdf_file   !< persistent info about file and datasets
+        character*128, intent(in) :: hdf_name         !< name of qual hdf5 file
+        integer, intent(in) :: ncell                  !< number of cells
+        integer, intent(in) :: nresv                  !< number of reservoirs
+        integer, intent(in) :: nconc                  !< number of constituents
+        real(gtm_real), intent(in) :: sim_start       !< first write time
+        real(gtm_real), intent(in) :: sim_end         !< last write time
+        character*16 :: hdf_interval_char             !< interval
             
         !----- locals      
-        integer :: hdf_start
-        integer :: hdf_end
-        integer :: hdf_interval
+        real(gtm_real) :: hdf_start
+        real(gtm_real) :: hdf_end
+        real(gtm_real) :: hdf_interval
         integer :: ntime                            ! number of time points in hdf5 file
-        integer :: time_step                        ! gtm simulation time step
+        real(gtm_real) :: time_step                 ! gtm simulation time step
   	    integer(HID_T) :: access_plist              ! Dataset trasfer property
 	    integer(SIZE_T) :: rddc_nelmts
 	    integer(SIZE_T) :: rddc_nbytes
@@ -110,7 +110,7 @@ module gtm_hdf_ts_write
         ! create group for output
 	    call h5gcreate_f(hdf_file%file_id, "output", hdf_file%data_id, error)
 	
-	    hdf_interval = incr_intvl(0,hdf_interval_char,TO_BOUNDARY)
+	    hdf_interval = incr_intvl(zero,hdf_interval_char,TO_BOUNDARY)
 	    qual_hdf%write_interval = hdf_interval
 	    if (hdf_interval < time_step) then
 	        write(unit_error,*) "HDF write interval is finer than the simulation time step"
@@ -685,7 +685,7 @@ module gtm_hdf_ts_write
     !> Query if it is time to write Qual state to HDF5      
     logical function is_qual_hdf_write_interval(julmin)
         implicit none
-        integer, intent(in) :: julmin
+        real(gtm_real), intent(in) :: julmin
         is_qual_hdf_write_interval = ( julmin .ge. qual_hdf.start_julmin .and.     &
                                      mod(julmin, qual_hdf.write_interval) .eq. 0)
         return
@@ -731,9 +731,9 @@ module gtm_hdf_ts_write
 	    use hdf5
         use time_utilities, only: jmin2iso
         implicit none
-        integer :: ts_start
-        integer :: ts_interval
-        character*16 :: cinterval
+        real(gtm_real) :: ts_start
+        real(gtm_real) :: ts_interval
+        character*30 :: cinterval
    	    integer(HID_T) :: dset_id ! Attribute identifier 
         integer(HID_T) :: aspace_id ! Attribute Dataspace identifier 
 	    integer(HID_T) :: atype_id
@@ -747,7 +747,7 @@ module gtm_hdf_ts_write
 	    integer*4, parameter :: ISO_LEN = 19  ! includes null termination
         character(LEN=ISO_LEN) :: iso_datetime
 
-        write(cinterval,"(i,'min')") ts_interval
+        write(cinterval,"(f,'min')") ts_interval
         cinterval=adjustl(cinterval)
 
         call h5screate_simple_f(arank, a_dims, aspace_id, error)
@@ -762,7 +762,7 @@ module gtm_hdf_ts_write
                         a_dims, error)
 	    call h5aclose_f(attr_id,error)
 
-	    iso_datetime=jmin2iso(ts_start)
+	    iso_datetime=jmin2iso(int(ts_start))
         call h5tset_size_f(atype_id, ISO_LEN, error)
 	    call h5acreate_f(dset_id, "start_time",                 &
                          atype_id, aspace_id, attr_id, error)

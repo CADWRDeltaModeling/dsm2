@@ -57,7 +57,7 @@ module gtm_dss_readtvd
         integer*4 :: jul_prev_curr                      ! increment time interval function
         integer*4 :: jul                                ! increment time interval function
         integer*4 :: jul2                               ! increment time interval function
-        integer*4 :: js_data                            ! increment time interval function
+        real(gtm_real) :: js_data                       ! increment time interval function
         integer*4 :: jm_next                            ! increment time interval function
         integer*4 :: timediff_dat                       ! increment time interval function
         integer*4 :: timediff_val                       ! increment time interval function

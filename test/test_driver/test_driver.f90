@@ -113,6 +113,8 @@ program test_driver
     call test_extrapolation
     call test_tidal_hydro
 
+    open(141,file="temp1.txt")
+    open(142,file="temp2.txt")
     !/// Advection-diffusion-reaction convergence in uniform flow,
     !    operators are layered in successively
     call test_converge_transport_uniform(verbose)
@@ -154,6 +156,8 @@ program test_driver
     
     call fruit_summary
     close(debug_unit)
+    close(141)
+    close(142)
     pause    
 end program test_driver
 

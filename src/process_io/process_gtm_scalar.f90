@@ -44,16 +44,16 @@ module process_gtm_scalar
       !-----'tide' (use date from tidefile)
       if (Param .eq. 'run_start_date') then
          run_start_date(1:9)=Val(1:9)
-         if (run_start_date(11:14).ne.'    ') gtm_start_jmin = cdt2jmin(run_start_date)
+         if (run_start_date(11:14).ne.'    ') gtm_start_jmin = dble(cdt2jmin(run_start_date))
       elseif (Param .eq. 'run_start_time') then
          run_start_date(11:14)=Val(1:4)
-         if (run_start_date(1:9).ne.'         ') gtm_start_jmin = cdt2jmin(run_start_date)
+         if (run_start_date(1:9).ne.'         ') gtm_start_jmin = dble(cdt2jmin(run_start_date))
       elseif (Param .eq. 'run_end_date') then
          run_end_date(1:9)=Val(1:9)
-         if (run_end_date(11:14).ne.'    ')     gtm_end_jmin = cdt2jmin(run_end_date)
+         if (run_end_date(11:14).ne.'    ')     gtm_end_jmin = dble(cdt2jmin(run_end_date))
       elseif (Param .eq. 'run_end_time') then
          run_end_date(11:14)=Val(1:4)
-         if (run_end_date(1:9).ne.'         ') gtm_end_jmin = cdt2jmin(run_end_date)
+         if (run_end_date(1:9).ne.'         ') gtm_end_jmin = dble(cdt2jmin(run_end_date))
       elseif (Param .eq. 'run_length') then
          run_length=Val
       elseif (Param .eq. 'npartition_x') then

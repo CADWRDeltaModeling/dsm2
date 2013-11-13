@@ -37,6 +37,7 @@ module gtm_precision
    real(gtm_real), parameter :: eight =  8.d0          !< Real constant  8.   properly typed
    real(gtm_real), parameter :: nine  =  9.d0          !< Real constant  9.   properly typed
    real(gtm_real), parameter :: ten   =  1.d1          !< Real constant  10.  properly typed
+   real(gtm_real), parameter :: fifteen = 1.5d1        !< Reak constant  15.  properly typed
    real(gtm_real), parameter :: sixteen  =  1.6d1      !< Real constant  16.  properly typed
    real(gtm_real), parameter :: sixty = 6.d1           !< Real constant  60.  properly typed
    real(gtm_real), parameter :: twentyfour = 2.4d1     !< Real constant  24.  properly typed

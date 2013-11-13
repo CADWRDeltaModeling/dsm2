@@ -120,15 +120,15 @@ module time_utilities
           integer, intent(in) :: hdf_end_jmin             !< hydro tidefile end Julian minutes
           integer, intent(in) :: hdf_time_interval        !< hydro tidefile time interval
           real(gtm_real), intent(in) :: run_time_interval !< gtm runtime time interval
-          integer, intent(in) :: run_start_jmin           !< GTM start Julian miniutes
-          integer, intent(in) :: run_end_jmin             !< GTM end Julian miniutes
+          real(gtm_real), intent(in) :: run_start_jmin    !< GTM start Julian miniutes
+          real(gtm_real), intent(in) :: run_end_jmin      !< GTM end Julian miniutes
           integer :: remainder, i                         ! local variables
           integer :: istat = 0                            ! error handling for allocation
           offset = LARGEINT
           num_buffers = LARGEINT
           remainder = LARGEINT
-          runtime_hydro_start = LARGEINT
-          runtime_hydro_end  = LARGEINT          
+          runtime_hydro_start = LARGEREAL
+          runtime_hydro_end  = LARGEREAL        
           if (run_start_jmin < hdf_start_jmin+hdf_time_interval) then
               write(*,*) "HDF file time range:",jmin2cdt(hdf_start_jmin),"-",jmin2cdt(hdf_end_jmin)          
               call gtm_fatal("GTM starting time should be within HDF file time range.")
@@ -214,22 +214,22 @@ module time_utilities
         character*(*), intent(in) :: time_intvl_str   !< time interval string read from input specification file
         real(gtm_real), intent(out) :: time_intvl     !< converted time interval in minutes
         character(len=20) :: time_intvl_tmp
-        character :: char_list*12                     ! list of chars to scan
-        integer :: number,                         &  ! number of intervals [RETURN]
-                   ielen,                          &  ! length of e_part
+        character :: char_list*13                     ! list of chars to scan
+        real(gtm_real) :: number                      ! number of intervals [RETURN]
+        real(gtm_real) :: out_tmp 
+        integer :: ielen,                          &  ! length of e_part
                    ipos2,                          &  ! which char found in iscan
                    ilast,                          &  ! position of last digit in e_part
-                   iscan,                          &  ! DSS char scan function
-                   out_tmp
+                   iscan                              ! DSS char scan function
 
-        data char_list /'0123456789+-'/
+        data char_list /'0123456789+-.'/
       
         time_intvl = LARGEINT
         call locase(time_intvl_str)
         ielen = len(time_intvl_str)
         ilast = iscan(time_intvl_str, ielen, -ielen, char_list, 1, 10, ipos2)
         time_intvl_tmp = time_intvl_str(1:ilast)
-        read(time_intvl_tmp,'(i)', err=610) out_tmp
+        read(time_intvl_tmp,'(f)', err=610) out_tmp
         time_intvl = real(out_tmp)
   
         if (index(time_intvl_str,'min') .gt. 0) time_intvl = time_intvl

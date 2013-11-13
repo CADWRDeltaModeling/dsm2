@@ -230,9 +230,10 @@ module test_convergence_transport
                            dx,      &                  
                            dt)
 
-               !if (label=="advection_tidal_sinusoidal") then       ! to print out synthetic flow
-               !    write(141,'(512f8.3)') (flow(icell),icell=1,nx)                  
-               !endif
+               if (label=="advection_tidal_sinusoidal") then       ! to print out synthetic flow
+                   write(141,'(512f8.3)') (flow(icell),icell=1,nx)        
+                   write(142,'(512f8.3)') (area(icell),icell=1,nx)              
+               endif
       
                if (maxval(abs(flow)/area) >=  max_velocity) then
                    max_velocity = maxval(abs(flow)/area)

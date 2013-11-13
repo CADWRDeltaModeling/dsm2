@@ -28,7 +28,7 @@ module gtm_dss_read
        integer, intent(in) :: pathnumber      ! global pathnumber [INPUT] 
        integer, intent(in) :: inpaths_dim     ! input paths array dimension [INPUT]
        integer, intent(in) :: block_dim       ! data block array dimension [INPUT]
-       integer*4 :: jmin                      ! date/time for start of data [INPUT] 
+       real(gtm_real) :: jmin                 ! date/time for start of data [INPUT] 
 
        type(dataqual_t), intent(out) :: indata(block_dim, inpaths_dim) ! data, flags, and julmin structure array [OUTPUT]
 
@@ -54,8 +54,8 @@ module gtm_dss_read
        integer*4 :: jul_jbdate,            & ! jbdate in julian minutes 
                     ihm2m,inctim,          & ! DSS functions 
                     nmins,                 & ! number of minutes in this data interval 
-                    flags(maxinpsize),     & ! 32-bit data flags 
-                    jmin2                    ! test used for jmin
+                    flags(maxinpsize)        ! 32-bit data flags 
+       real(gtm_real):: jmin2                ! test used for jmin
 
        real*4 :: values(maxinpsize)        & ! data values 
                  ,headu                      ! data headers
@@ -93,7 +93,7 @@ module gtm_dss_read
           endif
        endif
 
-       csdt=jmin2cdt(jmin)
+       csdt=jmin2cdt(int(jmin))
        csdate=csdt(1:9)
        cstime=csdt(11:14)
        !-----julian day/minute for start of data time

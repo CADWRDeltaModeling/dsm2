@@ -26,24 +26,25 @@ module ut_gtm_hdf_ts_wrt
 
     !> Test for initializing qual tidefile
     subroutine test_init_qual_hdf()
-        use common_variables, only: chan_geom, res_geom, constituents
+        use common_variables, only: chan_geom, res_geom, constituents, gtm_time_interval
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name                   ! name of qual hdf5 file
-        integer :: sim_start                        ! first write time
-        integer :: sim_end                          ! last write time
+        real(gtm_real) :: sim_start                 ! first write time
+        real(gtm_real) :: sim_end                   ! last write time
         character*16 :: hdf_interval_char           ! interval
         integer :: ncell
         integer :: nres
         integer :: nconc        
         integer :: error = 0
        
+        gtm_time_interval = 5
         hdf_name = "gtm_out_hdf_test_init.h5"
         ncell = 3
         nres = 1
         nconc = 2
-        sim_start = 44100
-        sim_end = 44400
+        sim_start = 44100.d0
+        sim_end = 44400.d0
         hdf_interval_char = "15min"        
         allocate(chan_geom(ncell))
         allocate(res_geom(nres))
@@ -78,8 +79,8 @@ module ut_gtm_hdf_ts_wrt
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name                  ! name of qual hdf5 file
-        integer :: sim_start                       ! first write time
-        integer :: sim_end                         ! last write time
+        real(gtm_real) :: sim_start                ! first write time
+        real(gtm_real) :: sim_end                  ! last write time
         character*16 :: hdf_interval_char          ! interval
         integer :: ncell
         integer :: nres
@@ -106,8 +107,8 @@ module ut_gtm_hdf_ts_wrt
         ncell = 5
         nres = 1
         nconc = 3
-        sim_start = 44100
-        sim_end = 44250
+        sim_start = 44100.d0
+        sim_end = 44250.d0
         hdf_interval_char = "15min"        
 
         allocate(chan_geom(ncell))
@@ -152,7 +153,7 @@ module ut_gtm_hdf_ts_wrt
                                  time_index)   
                                                            
         !---write values into time_index=4                                
-        julmin = 44145     
+        julmin = 44145.d0     
         time_index = (julmin-qual_hdf%start_julmin)/qual_hdf%write_interval               
         do i = 1, nconc
             do j = 1, ncell
@@ -222,8 +223,8 @@ module ut_gtm_hdf_ts_wrt
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name                   ! name of qual hdf5 file
-        integer :: sim_start                        ! first write time
-        integer :: sim_end                          ! last write time
+        real(gtm_real) :: sim_start                 ! first write time
+        real(gtm_real) :: sim_end                   ! last write time
         character*16 :: hdf_interval_char           ! interval
         integer :: ncell
         integer :: nres
@@ -252,8 +253,8 @@ module ut_gtm_hdf_ts_wrt
         ncell = 15000
         nres = 0
         nconc = 3
-        sim_start = 44100
-        sim_end = 194100
+        sim_start = 44100.d0
+        sim_end = 194100.d0
         hdf_interval_char = "15min"        
 
         allocate(chan_geom(ncell))

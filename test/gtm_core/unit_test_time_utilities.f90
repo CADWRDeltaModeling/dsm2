@@ -30,7 +30,7 @@ module ut_time_utilities
         ! test check_runtime for 15min tidefile data
         call check_runtime(offset, num_buffers, memlen,                           &  
                            runtime_hydro_start, runtime_hydro_end, skip,          &
-                           1500, 39402720, 39445920,                              &  ! '30NOV1974 2400':39402720, '30DEC1974 2400':39445920
+                           1500, 39402720.d0, 39445920.d0,                        &  ! '30NOV1974 2400':39402720, '30DEC1974 2400':39445920
                            39314880, 39840480, 15, five)                             ! 01OCT1974 0000-01OCT1975 0000
         call assertEquals (offset, 5855, "Porblem in check_runtime offset")
         call assertEquals (num_buffers, 2, "Porblem in check_runtime num_buffers")
@@ -41,7 +41,7 @@ module ut_time_utilities
         ! test check_runtime for 1hour tidefile data
         call check_runtime(offset, num_buffers, memlen,                           &  
                            runtime_hydro_start, runtime_hydro_end, skip,          &
-                           1500, 39402720, 39445935,                              &  ! '30NOV1974 2400':39402720, '30DEC1974 2400':39445920
+                           1500, 39402720.d0, 39445935.d0,                        &  ! '30NOV1974 2400':39402720, '30DEC1974 2400':39445920
                            39314880, 39840480, 60, five)                             ! 01OCT1974 0000-01OCT1975 0000
         call assertEquals (offset, 1463, "Porblem in check_runtime offset")
         call assertEquals (num_buffers, 1, "Porblem in check_runtime num_buffers")

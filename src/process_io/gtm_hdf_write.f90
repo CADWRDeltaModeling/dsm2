@@ -35,14 +35,16 @@ module gtm_hdf_write
         integer :: error
         integer :: scalar = 1
         integer,dimension(1) :: hdf_dummy_integer
+        real(gtm_real), dimension(1) :: hdf_dummy_real
+        
         call h5ltset_attribute_string_f(geom_id,".","gtm_start_date", &
-                                        trim(jmin2cdt(gtm_start_jmin))//char(0), error)
-        hdf_dummy_integer = gtm_start_jmin
-        call h5ltset_attribute_int_f(geom_id,".","gtm_start_jmin", &
-                                     hdf_dummy_integer, scalar, error)   
-        hdf_dummy_integer = gtm_time_interval
-        call h5ltset_attribute_int_f(geom_id,".","gtm_time_interval", &
-                                     hdf_dummy_integer, scalar, error)   
+                                        trim(jmin2cdt(int(gtm_start_jmin)))//char(0), error)
+        hdf_dummy_real = gtm_start_jmin
+        call h5ltset_attribute_double_f(geom_id,".","gtm_start_jmin", &
+                                     hdf_dummy_real, scalar, error)   
+        hdf_dummy_real = gtm_time_interval
+        call h5ltset_attribute_double_f(geom_id,".","gtm_time_interval", &
+                                     hdf_dummy_real, scalar, error)   
         hdf_dummy_integer = n_comp
         call h5ltset_attribute_int_f(geom_id,".","n_comp", &
                                      hdf_dummy_integer, scalar, error) 
