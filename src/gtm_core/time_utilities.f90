@@ -221,17 +221,21 @@ module time_utilities
                    ipos2,                          &  ! which char found in iscan
                    ilast,                          &  ! position of last digit in e_part
                    iscan                              ! DSS char scan function
-
         data char_list /'0123456789+-.'/
+        integer :: idot, readint
       
         time_intvl = LARGEINT
         call locase(time_intvl_str)
         ielen = len(time_intvl_str)
         ilast = iscan(time_intvl_str, ielen, -ielen, char_list, 1, 10, ipos2)
         time_intvl_tmp = time_intvl_str(1:ilast)
-        read(time_intvl_tmp,'(f)', err=610) out_tmp
-        time_intvl = real(out_tmp)
-  
+        idot = scan(time_intvl_tmp,".")
+        if (idot==0) then
+            read(time_intvl_tmp,'(i)', err=610) readint
+            time_intvl = real(readint)
+        else
+            read(time_intvl_tmp,'(f)', err=610) time_intvl 
+        endif
         if (index(time_intvl_str,'min') .gt. 0) time_intvl = time_intvl
         if (index(time_intvl_str,'hour') .gt. 0) time_intvl = time_intvl*sixty
         if (index(time_intvl_str,'day') .gt. 0) time_intvl = time_intvl*sixty*twentyfour
