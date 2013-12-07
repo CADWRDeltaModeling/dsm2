@@ -67,13 +67,13 @@ module interpolation
         mesh(nt,1) = c
         mesh(nt,nx) = d
         do i = 2, nt-1
-            factor = (i-one)/(nt-one)
+            factor = (dble(i)-one)/(dble(nt)-one)
             mesh(i,1) = a + factor*(c-a)
             mesh(i,nx) = b + factor*(d-b)
         end do
         do i = 1, nt
             do j = 2, nx-1
-                factor = (j-one)/(nx-one)
+                factor = (dble(j)-one)/(dble(nx)-one)
                 mesh(i,j) = mesh(i,1) + factor*(mesh(i,nx)-mesh(i,1))
             end do
         end do        
@@ -113,19 +113,19 @@ module interpolation
         total_volume_change = subtotal_volume_change(nt)
         ! interpolate in time first. It is easier to get mass balance right.
         do i = 1, nt-3
-            mesh(nt-i,1) = half*(a+b+(c-a)*(nt-1-i)/(nt-1)+(d-b)*(nt-1-i)/(nt-1)+mass_balance_target/(nt-1)/dt/sixty)
-            mesh(nt-i,nx) = half*(a+b+(c-a)*(nt-1-i)/(nt-1)+(d-b)*(nt-1-i)/(nt-1)-mass_balance_target/(nt-1)/dt/sixty)
+            mesh(nt-i,1) = half*(a+b+(c-a)*(dble(nt)-one-dble(i))/(dble(nt)-one)+(d-b)*(dble(nt)-one-dble(i))/(dble(nt)-one)+mass_balance_target/(dble(nt)-one)/dt/sixty)
+            mesh(nt-i,nx) = half*(a+b+(c-a)*(dble(nt)-one-dble(i))/(dble(nt)-one)+(d-b)*(dble(nt)-one-dble(i))/(dble(nt)-one)-mass_balance_target/(dble(nt)-one)/dt/sixty)
             subtotal_volume_change(nt-i) = (mesh(nt-i,1)-mesh(nt-i,nx))*dt*sixty
             total_volume_change = total_volume_change + subtotal_volume_change(nt-i)
         end do   
-        mesh(nt-2,1) = half*(a+b+(c-a)*(nt-1-i)/(nt-1)+(d-b)*(nt-1-i)/(nt-1)+ &
+        mesh(nt-2,1) = half*(a+b+(c-a)*(dble(nt)-one-dble(i))/(dble(nt)-one)+(d-b)*(dble(nt)-one-dble(i))/(dble(nt)-one)+ &
                       (mass_balance_target-total_volume_change)/dt/sixty)
-        mesh(nt-2,nx) = half*(a+b+(c-a)*(nt-1-i)/(nt-1)+(d-b)*(nt-1-i)/(nt-1)- &
+        mesh(nt-2,nx) = half*(a+b+(c-a)*(dble(nt)-one-dble(i))/(dble(nt)-one)+(d-b)*(dble(nt)-one-dble(i))/(dble(nt)-one)- &
                         (mass_balance_target-total_volume_change)/dt/sixty)
         ! fill space mesh by linear interpolation
         do i = 1, nt
             do j = 2, nx-1
-                factor = (j-one)/(nx-one)
+                factor = (dble(j)-one)/(dble(nx)-one)
                 mesh(i,j) = mesh(i,1) + factor*(mesh(i,nx)-mesh(i,1))
             end do
         end do
@@ -174,10 +174,10 @@ module interpolation
         ! initialize mesh boundary by linear interpolation. 
         ! todo:: shall be taken from adjacent segement and previous time steps
         do i = 2, nx-1
-             area_mesh(1,i) = a + (i-one)/(nx-one)*(b-a)
+             area_mesh(1,i) = a + (dble(i)-one)/(dble(nx)-one)*(b-a)
         end do
         do i = 2, nt-1    
-             area_mesh(i,1) = a + (i-one)/(nt-one)*(c-a)
+             area_mesh(i,1) = a + (dble(i)-one)/(dble(nt)-one)*(c-a)
         end do
         ! fill the mesh to satisfy mass balance for each cell
         do i = 2, nt
@@ -251,7 +251,7 @@ module interpolation
         ! if no mass change or flow in transition status, interpolate linearly.
         if (OK == 1) then
             do i = 1, nt-1
-                ratio(i) = i/(nt-one)
+                ratio(i) = dble(i)/(dble(nt)-one)
             end do
         end if  
         
@@ -263,7 +263,7 @@ module interpolation
         ! linear interpolating water surface in space  
         do i = 1, nt 
             do j = 2, nx-1
-                factor = (j-one)/(nx-one)
+                factor = (dble(j)-one)/(dble(nx)-one)
                 ws(i,j) = ws(i,1) + factor*(ws(i,nx)-ws(i,1))
             end do
         end do   
@@ -273,11 +273,11 @@ module interpolation
             call CxArea(mesh(j,1), up_x, ws(j,1), branch)
         end do       
         do i = 1, nx
-            call CxArea(mesh(1,i), up_x+dx*(i-1.), ws(1,i), branch)
+            call CxArea(mesh(1,i), up_x+dx*(dble(i)-one), ws(1,i), branch)
         end do
         do i = 2, nx
             do j  = 2, nt
-                call CxArea(mesh(j,i), up_x+dx*(i-1.), ws(j,i), branch)
+                call CxArea(mesh(j,i), up_x+dx*(dble(i)-one), ws(j,i), branch)
                 volume_change(j-1,i-1) = half*(mesh(j,i)+mesh(j,i-1)-mesh(j-1,i)-mesh(j-1,i-1))*dx
             end do     
         end do     
@@ -314,7 +314,7 @@ module interpolation
             mesh(1,j) = prev_flow_cell(j)
         end do
         do i = 2, nt-1
-            factor = (i-one)/(nt-one)
+            factor = (dble(i)-one)/(dble(nt)-one)
             mesh(i,1) = mesh(1,1) + factor*(mesh(nt,1)-mesh(1,1))
         end do
         
@@ -373,7 +373,7 @@ module interpolation
             mesh(1,j) = prev_flow_cell(j)
         end do
         do i = 2, nt-1
-            factor = (i-one)/(nt-one)
+            factor = (dble(i)-one)/(dble(nt)-one)
             mesh(i,1) = mesh(1,1) + factor*(mesh(nt,1)-mesh(1,1))
         end do
         
@@ -432,7 +432,7 @@ module interpolation
             mesh(1,j) = prev_flow_cell(j)
         end do
         do i = 2, nt-1
-            factor = (i-one)/(nt-one)
+            factor = (dble(i)-one)/(dble(nt)-one)
             mesh(i,1) = mesh(1,1) + factor*(mesh(nt,1)-mesh(1,1))
         end do
         
@@ -501,11 +501,11 @@ module interpolation
         mesh(nt,nx) = d
         ! interpolate boundary row/column linearly
         do j = 2, nx-1
-            factor = (j-one)/(nx-one)
+            factor = (dble(j)-one)/(dble(nx)-one)
             mesh(1,j) = mesh(1,1) + factor*(mesh(1,nx)-mesh(1,1))
         end do
         do i = 2, nt-1
-            factor = (i-one)/(nt-one)
+            factor = (dble(i)-one)/(dble(nt)-one)
             mesh(i,1) = mesh(1,1) + factor*(mesh(nt,1)-mesh(1,1))
         end do
         
@@ -524,11 +524,11 @@ module interpolation
         mesh(nt,nx-2) = (mass_balance_target(nt-1,nx-2)+mass_balance_target(nt-1,nx-1))/dt/sixty + mesh(nt,nx)
         mesh(nt,nx-1) = mesh(nt,nx-2) - mass_balance_target(nt-1,nx-2)/dt/sixty
         ! figure out the total difference to meet mass balance (this comes from the last row)
-        diff = 0 
+        diff = zero 
         do j = 1, nx-1
             diff = diff + mass_balance_target(nt-1,j) - (mesh(nt,j)-mesh(nt,j+1))*dt*sixty
         end do
-        diff = diff / (nt-two)
+        diff = diff / (dble(nt)-two)
         ! push difference to other cells (c23, c33)
         do i = 2, nt-1
             mesh(i,nx-2) = mesh(i,nx-3) - (mass_balance_target(i-1,nx-3)+diff)/dt/sixty
@@ -563,27 +563,32 @@ module interpolation
         real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell                 !< last row of flow cells from previous interpolation
         real(gtm_real), dimension(nt,nx), intent(out) :: flow_mesh                  !< interpolated flow mesh
         real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh                  !< interpolated area mesh
+        real(gtm_real), dimension(nx-1) :: area_vol_change                          !< volume change from area interpolation for each cell 
         integer :: i, j
         real(gtm_real) :: ws
-        area_mesh(1,1) = ws_a
-        area_mesh(1,nx) = ws_b
-        area_mesh(nt,1) = ws_c
-        area_mesh(nt,nx) = ws_d
+        call CxArea(area_mesh(1,1), up_x, ws_a, branch)
+        call CxArea(area_mesh(1,nx), up_x+(dble(nx)-one)*dx, ws_b, branch)
+        call CxArea(area_mesh(nt,1), up_x, ws_c, branch)
+        call CxArea(area_mesh(nt,nx), up_x+(dble(nx)-one)*dx, ws_d, branch)
         flow_mesh(1,1) = flow_a
         flow_mesh(1,nx) = flow_b
         flow_mesh(nt,1) = flow_c
         flow_mesh(nt,nx) = flow_d        
         do i = 2, nx-1
-            ws = ws_a + (i-1)/(nx-1)*(ws_b-ws_a)
-            call CxArea(area_mesh(1,i), up_x, ws, branch)
-            ws = ws_c + (i-1)/(nx-1)*(ws_d-ws_c)
-            call CxArea(area_mesh(2,i), up_x, ws, branch)            
-            flow_mesh(1,i) = (i-1)/(nx-1)*(flow_b-flow_a)
+            ws = ws_a + (dble(i)-one)/(dble(nx)-one)*(ws_b-ws_a)
+            call CxArea(area_mesh(1,i), up_x+(dble(i)-one)*dx, ws, branch)
+            ws = ws_c + (dble(i)-one)/(dble(nx)-one)*(ws_d-ws_c)
+            call CxArea(area_mesh(2,i), up_x+(dble(i)-one)*dx, ws, branch)            
+            !flow_mesh(1,i) = flow_a + (i-one)/(nx-one)*(flow_b-flow_a)
+            !flow_mesh(2,i) = flow_c + (i-one)/(nx-one)*(flow_d-flow_c)
         end do    
-        !do i = 2, nx 
-        !    area_vol_change(i-1) = half*(area_mesh(2,i)+area_mesh(2,i-1)-area_mesh(1,i)-area_mesh(1,i-1))*dx
-        !enddo
-!!!!!!todo:: NOT COMPLET YET !!!!!!!!!!!!!!!!!!!!!
+        do i = 2, nx 
+            area_vol_change(i-1) = half*(area_mesh(2,i)+area_mesh(2,i-1)-area_mesh(1,i)-area_mesh(1,i-1))*dx
+        enddo
+        do i = 2, nx-1
+            flow_mesh(1,i) = -area_vol_change(i-1)/dt/sixty+flow_mesh(1,i-1)
+            flow_mesh(2,i) = -area_vol_change(i-1)/dt/sixty+flow_mesh(2,i-1)
+        end do
         return
     end subroutine            
     
@@ -662,7 +667,7 @@ module interpolation
         real(gtm_real), dimension(nt_1,nx_1), intent(in) :: volume_change  !< volume change for each cell
         real(gtm_real), intent(out) :: total_volume_change                 !< total volume change
         integer :: i, j                                                    ! local variables
-        total_volume_change = dble(0.0)
+        total_volume_change = zero
         do i = 1, nt_1
             do j = 1, nx_1
                 total_volume_change = total_volume_change + volume_change(i,j)

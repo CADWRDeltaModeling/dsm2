@@ -26,8 +26,8 @@ module gtm_dss_readtvd
         use time_utilities
        
         implicit none
-        integer, intent(in) :: jmin                     !< current julmin  
-        integer, intent(in) :: prev_jmin                !< previous time step julmin
+        integer, intent(in) :: jmin              !< current julmin  
+        integer, intent(in) :: prev_jmin         !< previous time step julmin
         integer, intent(in) :: inpaths_dim              !< data block array dimension
         integer, intent(in) :: block_dim                !< data block array dimension
         integer, intent(in) :: npaths                   !< number of total input paths, including all time intervals
@@ -290,7 +290,7 @@ module gtm_dss_readtvd
 
         type(dataqual_t) :: indata(max_v,max_paths) ! input data structure array
 
-        integer*4 :: jm                     ! current julian minute
+        integer*4 :: jm                ! current julian minute
 
         do i=1, max_v
            if (indata(i,path)%julmin > jm) then
@@ -358,7 +358,6 @@ module gtm_dss_readtvd
     !> use for correct data for this timestep.
     integer function getndx(jmin, jul_next, jul_prev_curr, &
             ndx_next, ndx_prev_curr, per_type, interpolated)
- 
         use common_dsm2_vars
         use time_utilities
         implicit none

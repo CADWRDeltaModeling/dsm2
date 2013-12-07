@@ -35,122 +35,171 @@ subroutine test_flow_continuity(ncell,        &
                                 domain_length,&
                                 hydrodynamics,&
                                 label)
-use test_utility
-use gtm_precision
-use hydro_data
-use fruit
+    use test_utility
+    use gtm_precision
+    use hydro_data
+    use fruit
 
-implicit none
+    implicit none
 
-!> todo: this must be coordinated with test_advection_tidal, better if it were automatic
-integer,intent(in) :: ncell                                    !< Number of cells
-integer,intent(in) :: nstep                                    !< Number of time 
-real(gtm_real),intent(in):: total_time                         !< Total time
-real(gtm_real),intent(in):: start_time                         !< Start time
-real(gtm_real),intent(in):: domain_length                      !< Domain_length
-character(LEN=*),intent(in) :: label                           !< Label for test
-procedure(hydro_data_if), pointer, intent(in) :: hydrodynamics !< Hydrodynamics interface to be tested
-!--- local
-integer :: itime                         !< Time counter
-integer :: icell                         !< Cell counter 
-integer :: which_cell                    !< Cell number with worst error
-real(gtm_real):: time                    !< Time of request
-real(gtm_real):: flow(ncell)             !< Cell centered flow
-real(gtm_real):: flow_lo(ncell)          !< Low face flow
-real(gtm_real):: flow_hi(ncell)          !< High face flow
-real(gtm_real):: area(ncell)             !< Cell center area
-real(gtm_real):: area_lo(ncell)          !< Area lo face
-real(gtm_real):: area_hi(ncell)          !< Area hi face
-real(gtm_real):: flow_new(ncell)         !< Cell centered flow at time n+1
-real(gtm_real):: flow_hi_half(ncell)     !< High side flow at time n+1/2
-real(gtm_real):: flow_lo_half(ncell)     !< Low side flow at time n+1/2
-real(gtm_real):: area_new(ncell)         !< Cell centered area at time n+1
-real(gtm_real):: area_old(ncell)         !< Cell centered area at time n
-real(gtm_real):: mass_difference(ncell)  !< Mass diffrence between results and analytical solution
-real(gtm_real):: max_mass_diff(nstep)    !< Maximum of mass difference
-real(gtm_real):: l1_mass_diff(nstep)     !< L1 norm for mass error
-real(gtm_real):: l2_mass_diff(nstep)     !< L2 norm for mass error 
-real(gtm_real):: all_zero(ncell)         !< All zero vector
-real(gtm_real):: dt                      !< Time step size
-real(gtm_real):: dx(ncell)               !< Spacial step size  
+    !> todo: this must be coordinated with test_advection_tidal, better if it were automatic
+    integer,intent(in) :: ncell                                    !< Number of cells
+    integer,intent(in) :: nstep                                    !< Number of time 
+    real(gtm_real),intent(in):: total_time                         !< Total time
+    real(gtm_real),intent(in):: start_time                         !< Start time
+    real(gtm_real),intent(in):: domain_length                      !< Domain_length
+    character(LEN=*),intent(in) :: label                           !< Label for test
+    procedure(hydro_data_if), pointer, intent(in) :: hydrodynamics !< Hydrodynamics interface to be tested
+    !--- local
+    integer :: itime                         !< Time counter
+    integer :: icell                         !< Cell counter 
+    integer :: which_cell                    !< Cell number with worst error
+    real(gtm_real):: time                    !< Time of request
+    real(gtm_real):: flow(ncell)             !< Cell centered flow
+    real(gtm_real):: flow_lo(ncell)          !< Low face flow
+    real(gtm_real):: flow_hi(ncell)          !< High face flow
+    real(gtm_real):: area(ncell)             !< Cell center area
+    real(gtm_real):: area_lo(ncell)          !< Area lo face
+    real(gtm_real):: area_hi(ncell)          !< Area hi face
+    real(gtm_real):: flow_new(ncell)         !< Cell centered flow at time n+1
+    real(gtm_real):: flow_hi_half(ncell)     !< High side flow at time n+1/2
+    real(gtm_real):: flow_lo_half(ncell)     !< Low side flow at time n+1/2
+    real(gtm_real):: area_new(ncell)         !< Cell centered area at time n+1
+    real(gtm_real):: area_old(ncell)         !< Cell centered area at time n
+    real(gtm_real):: mass_difference(ncell)  !< Mass diffrence between results and analytical solution
+    real(gtm_real):: max_mass_diff(nstep)    !< Maximum of mass difference
+    real(gtm_real):: l1_mass_diff(nstep)     !< L1 norm for mass error
+    real(gtm_real):: l2_mass_diff(nstep)     !< L2 norm for mass error 
+    real(gtm_real):: all_zero(ncell)         !< All zero vector
+    real(gtm_real):: dt                      !< Time step size
+    real(gtm_real):: dx(ncell)               !< Spacial step size  
 
-time = start_time
-dt = total_time/dble(nstep)
-dx = domain_length/dble(ncell)
+    time = start_time
+    dt = total_time/dble(nstep)
+    dx = domain_length/dble(ncell)
 
-all_zero = zero
+    all_zero = zero
 
-call hydrodynamics(flow_new,     &
-                   flow_lo_half, &
-                   flow_hi_half, &
-                   area_old,     &
-                   area_lo,      &
-                   area_hi,      &
-                   ncell,        &
-                   time,         &
-                   dx,           &                  
-                   dt)
+    call hydrodynamics(flow_new,     &
+                       flow_lo_half, &
+                       flow_hi_half, &
+                       area_old,     &
+                       area_lo,      &
+                       area_hi,      &
+                       ncell,        &
+                       time,         &
+                       dx,           &                  
+                       dt)
 
-do itime=1,nstep
-  time = time + dt        
-  call hydrodynamics(flow_new,      &
-                     flow_lo_half,  &
-                     flow_hi_half,  &
-                     area_new,      &
-                     area_lo,       &
-                     area_hi,       &
-                     ncell,         &
-                     time,          &
-                     dx,            &
-                     dt)
-   mass_difference = (flow_hi_half-flow_lo_half)*dt  +  &
-                          (area_new-area_old)*dx
+    do itime=1,nstep
+        time = time + dt        
+        call hydrodynamics(flow_new,      &
+                           flow_lo_half,  &
+                           flow_hi_half,  &
+                           area_new,      &
+                           area_lo,       &
+                           area_hi,       &
+                           ncell,         &
+                           time,          &
+                           dx,            &
+                           dt)
+         mass_difference = (flow_hi_half-flow_lo_half)*dt  +  &
+                           (area_new-area_old)*dx
   
-   call error_norm(l1_mass_diff(itime),   &
-                   l2_mass_diff(itime),   &
-                   max_mass_diff(itime),  &
-                   which_cell,            &
-                   mass_difference,       &
-                   all_zero,              &
-                   ncell,                 &
-                   dx)  
+         call error_norm(l1_mass_diff(itime),   &
+                         l2_mass_diff(itime),   &
+                         max_mass_diff(itime),  &
+                         which_cell,            &
+                         mass_difference,       &
+                         all_zero,              &
+                         ncell,                 &
+                         dx)  
   
-   area_old = area_new
-end do
+        area_old = area_new
+    end do
 
-call assert_true (maxval(max_mass_diff) < weak_eps ,'Water mass balance error in flow generator'//label)
+    call assert_true (maxval(max_mass_diff) < weak_eps ,'Water mass balance error in flow generator'//label)
 
-return
+    return
 end subroutine
+
 
 !> Test the continuity of mass for water for tidal example flow
 !>todo: coordinate this with test_advection_tidal
 !>todo: a lot of this is redundant with the general continuity test. 
 subroutine test_tidal_hydro
-use gtm_precision
-use hydro_data
-use test_advection_reaction_tidal   
+    use gtm_precision
+    use hydro_data
+    use test_advection_reaction_tidal   
 
-implicit none
-integer :: ncell = 32                             !< Number of cells
-integer :: nstep = 64                             !< Number of time steps
-procedure(hydro_data_if),pointer :: tidal_hydro   !< The pointer points to tidal flow data
-character (LEN=64) :: hydro_label                 !< Name of the hydrodynamic data generator
+    implicit none
+    integer :: ncell = 32                             !< Number of cells
+    integer :: nstep = 64                             !< Number of time steps
+    procedure(hydro_data_if),pointer :: tidal_hydro   !< The pointer points to tidal flow data
+    character (LEN=64) :: hydro_label                 !< Name of the hydrodynamic data generator
 
-hydro_label = 'tidal_flow'
-tidal_hydro=> tidal_flow_modified
+    hydro_label = 'tidal_flow'
+    tidal_hydro=> tidal_flow_modified
 
-call test_flow_continuity(ncell,              &
-                          nstep,              &
-                          start_time,         &
-                          total_time,         &
-                          domain_length,      &
-                          tidal_hydro,        &
-                          hydro_label)
-
-
-return
+    call test_flow_continuity(ncell,              &
+                              nstep,              &
+                              start_time,         &
+                              total_time,         &
+                              domain_length,      &
+                              tidal_hydro,        &
+                              hydro_label)
+    return
 end subroutine
+
+!> print out tidal hydro time series to a file for testing
+subroutine print_out_tidal_hydro
+
+    use gtm_precision
+    use hydro_data
+    use test_advection_reaction_tidal   
+  
+    implicit none
+    integer, parameter :: nx = 65
+    integer, parameter :: nt = 12*24*90+1        
+    real(gtm_real) :: dx(nx)
+    real(gtm_real) :: dt
+    real(gtm_real) :: time
+    real(gtm_real) :: flow(nx), flow_lo(nx), flow_hi(nx)
+    real(gtm_real) :: area(nx), area_lo(nx), area_hi(nx)
+    integer :: itime, j
+    real(gtm_real), parameter :: m2ft = 3.28084
+    real(gtm_real), parameter :: total_domain_length = 20000/m2ft
+    real(gtm_real), parameter :: channel_bottom = -18.762
+    integer, parameter :: total_test_time  = 5*60*nt    
+    procedure(hydro_data_if),pointer :: tidal_hydro           !< The pointer points to tidal flow data
+   
+    tidal_hydro=> tidal_flow_modified ! this flow generator is mass conservative
+
+    dx = total_domain_length/dble(nx)
+    dt = total_test_time/dble(nt)                                           
+    
+    time =  start_time                                          
+    do itime = 1, nt
+        time = time + dt
+       
+        ! Get cell centered data for t(n+1)
+        ! and face data for t(n+1/2)
+        call tidal_hydro(flow,    &
+                   flow_lo, &
+                   flow_hi, &
+                   area,    &
+                   area_lo, &
+                   area_hi, &
+                   nx,      &
+                   time,    &
+                   dx,      &                  
+                   dt)
+       write(143,'(200f15.6)') (flow(j)*m2ft**3,j=1,nx)
+       write(144,'(200f15.6)') (area(j)*m2ft+channel_bottom,j=1,nx)     !this will be water surface elevation
+    end do
+    return
+end subroutine                   
+                   
 
 !> Tests mass continuity of fluid flow for the Zoppou test
 subroutine test_zoppou_flow()

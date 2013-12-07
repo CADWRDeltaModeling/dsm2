@@ -87,11 +87,11 @@ module gtm_network
         do j = 1, npartition_x
             icell = npartition_x*(i_segm-1)+j
             do t = 1, npartition_t+1
-                flow_lo_tmp(icell,t) = flow_mesh(t,j+1)     ! lo: downstream
-                flow_hi_tmp(icell,t) = flow_mesh(t,j)       ! hi: upstream
+                flow_lo_tmp(icell,t) = flow_mesh(t,j)         ! lo: upstream
+                flow_hi_tmp(icell,t) = flow_mesh(t,j+1)       ! hi: downstream
                 flow_tmp(icell,t) = half*(flow_lo_tmp(icell,t)+flow_hi_tmp(icell,t))
-                area_lo_tmp(icell,t) = area_mesh(t,j+1)
-                area_hi_tmp(icell,t) = area_mesh(t,j)                
+                area_lo_tmp(icell,t) = area_mesh(t,j)
+                area_hi_tmp(icell,t) = area_mesh(t,j+1)                
                 area_tmp(icell,t) = half*(area_lo_tmp(icell,t)+area_hi_tmp(icell,t))
             end do
         end do        
@@ -118,7 +118,7 @@ module gtm_network
         t_index = hydro_time_index 
         do i = 1, n_segm
             dt = hydro_time_interval/npart_t
-            dx = segm(i)%length/(nx-1.)
+            dx = segm(i)%length/(dble(nx)-one)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
             if (prev_flow_tmp(i,1)==LARGEREAL) then

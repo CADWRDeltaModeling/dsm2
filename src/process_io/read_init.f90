@@ -20,7 +20,7 @@ module read_init
         logical :: file_exists
         
         init = LARGEREAL
-        file_unit = 141
+        file_unit = 151
         inquire(file=restart_file_name, exist=file_exists)
         if (file_exists) then
             open(file_unit, file=restart_file_name)

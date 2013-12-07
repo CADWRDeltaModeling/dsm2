@@ -74,6 +74,11 @@ program test_driver
     implicit none
     logical :: verbose = .true.
     character(len=255) :: parent_dir
+
+    open(141,file="temp1.txt")
+    open(142,file="temp2.txt")
+    open(143,file="temp3.txt")
+    open(144,file="temp4.txt")
     
     call init_fruit
     call get_parent_working_dir(parent_dir) 
@@ -112,9 +117,8 @@ program test_driver
     call test_prim_increment2cons
     call test_extrapolation
     call test_tidal_hydro
+    call print_out_tidal_hydro
 
-    open(141,file="temp1.txt")
-    open(142,file="temp2.txt")
     !/// Advection-diffusion-reaction convergence in uniform flow,
     !    operators are layered in successively
     call test_converge_transport_uniform(verbose)
@@ -158,6 +162,8 @@ program test_driver
     close(debug_unit)
     close(141)
     close(142)
+    close(143)
+    close(144)
     pause    
 end program test_driver
 

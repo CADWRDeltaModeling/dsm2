@@ -6,8 +6,6 @@
 !> by Ralph Finch and last modified in September 1996.
 !>@ingroup process_io
 module gtm_dss_main
-    
-    use gtm_dss
 
     contains
     

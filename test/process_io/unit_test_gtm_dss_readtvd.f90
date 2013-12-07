@@ -97,7 +97,7 @@ module ut_gtm_dss_readtvd
         call opendss(ifltab_in, num_dssfiles, indssfilenames)
 
         !---- test for 15 min data ----
-        jmin = 48422520       ! 24JAN1992 1800
+        jmin = 484225200       ! 24JAN1992 1800
         prev_jmin = jmin - 15
         call readtvd(indata_15min, jmin, prev_jmin, ninpath_15min, mins15, n_inputpaths, inpath_ptr_15min)
         call assertEquals (indata_15min(1,1)%data, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
@@ -146,11 +146,11 @@ module ut_gtm_dss_readtvd
         call assertEquals (pathinput(5)%value, dble(1.81), weakest_eps, "problem in readtvd reading monthly data at 24JAN1992 2045") 
  
         !---- test for 15 min data when runtime interval is 5 min ----
-        jmin = 48422520       ! 24JAN1992 1800
-        prev_jmin = jmin - 5               
-        call readtvd(indata_15min, jmin, prev_jmin, ninpath_15min, mins15, n_inputpaths, inpath_ptr_15min)
-        call assertEquals (indata_15min(1,1)%data, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
-        call assertEquals (pathinput(1)%value, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
+        !jmin = 48422520       ! 24JAN1992 1800
+        !prev_jmin = jmin - 5               
+        !call readtvd(indata_15min, jmin, prev_jmin, ninpath_15min, mins15, n_inputpaths, inpath_ptr_15min)
+        !call assertEquals (indata_15min(1,1)%data, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
+        !call assertEquals (pathinput(1)%value, dble(1.9993), weakest_eps, "problem in readtvd reading 15min data")
                 
         call zclose(ifltab_in)
         deallocate(pathinput)

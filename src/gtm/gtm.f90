@@ -36,6 +36,7 @@ program gtm
     use read_init
     use gtm_hdf_write    
     use gtm_hdf_ts_write    
+    use gtm_dss
     use gtm_dss_open
     use gtm_dss_main      
     use hydro_data_tidefile
@@ -162,7 +163,6 @@ program gtm
     write(*,*) "Process time series...."
     write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
  
-    cdt = jmin2cdt(current_time)
     prev_day =  "01JAN1000"       ! to initialize for screen printing only
 
     restart_file_name = trim(gtm_io(1,1)%filename)   
@@ -187,7 +187,7 @@ program gtm
             prev_day =  cdt(1:9)
         end if
         
-        call get_inp_value(int(current_time),int(current_time)-15)   ! this will update pathinput(:)%value
+        call get_inp_value(int(current_time),int(current_time-gtm_time_interval))   ! this will update pathinput(:)%value
         do i=1, n_boun
             bound_val(i,:) = conc(bound(i)%cell_no,:)
         end do
@@ -218,7 +218,7 @@ program gtm
                     do j = 1, nx
                         prev_flow_cell(i,j) = hydro_flow(up_comp,t-1) +   &
                                               (hydro_flow(down_comp,t-1)- &
-                                              hydro_flow(up_comp,t-1))*(j-1)/(nx-1)
+                                              hydro_flow(up_comp,t-1))*(dble(j)-one)/(dble(nx)-one)
                     end do    
                     prev_up_comp_flow(up_comp) = hydro_flow(up_comp,1)
                     prev_down_comp_flow(down_comp) = hydro_flow(down_comp,1)
@@ -233,7 +233,14 @@ program gtm
                                            segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,           &
                                            prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),hydro_flow(up_comp,t), hydro_flow(down_comp,t),     &
                                             prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp), hydro_ws(up_comp,t), hydro_ws(down_comp,t),    &
-                                            prev_flow_cell)                
+                                            prev_flow_cell)           
+                elseif ((nt==2).and.(nx>2)) then
+                    call interp_in_space_only(flow_mesh, area_mesh,                   &
+                                              segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,           &
+                                              prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),     &
+                                              hydro_flow(up_comp,t), hydro_flow(down_comp,t),                 &
+                                              prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
+                                              hydro_ws(up_comp,t), hydro_ws(down_comp,t), prev_flow_cell(i,:))
                 else
                     call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,   &
                                           segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.),   &
@@ -293,21 +300,21 @@ program gtm
         !
         !----- call advection and source -----
         !
-        call advect(mass,                  &
-                    mass_prev,             &  
-                    flow,                  &
-                    flow_lo,               &
-                    flow_hi,               &
-                    area,                  &
-                    area_prev,             &
-                    area_lo,               &
-                    area_hi,               &
-                    n_cell,                &
-                    n_var,                 &
-                    dble(current_time)*60, &
-                    gtm_time_interval*60,  &
-                    dx_arr,                &
-                    bound_val,             &
+        call advect(mass,                     &
+                    mass_prev,                &  
+                    flow,                     &
+                    flow_lo,                  &
+                    flow_hi,                  &
+                    area,                     &
+                    area_prev,                & 
+                    area_lo,                  &
+                    area_hi,                  &
+                    n_cell,                   &
+                    n_var,                    &
+                    dble(current_time)*sixty, &
+                    gtm_time_interval*sixty,  &
+                    dx_arr,                   &
+                    bound_val,                &
                     limit_slope)     
         call cons2prim(conc, mass, area, n_cell, n_var)
         
