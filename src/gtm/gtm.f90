@@ -65,8 +65,7 @@ program gtm
     integer :: time_offset
     integer :: i, j, t, ibuffer, start_buffer, icell
     real(gtm_real) :: time
-    integer :: current_time
-    real(gtm_real) :: current_julmin
+    real(gtm_real) :: current_time
     integer :: offset, num_buffers, jday
     integer, allocatable :: memlen(:)
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
@@ -181,13 +180,13 @@ program gtm
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
         !---print out processing date on screen
-        cdt = jmin2cdt(current_time)
+        cdt = jmin2cdt(int(current_time))   ! this function only for screen status printout. Rough integer is fine.
         if (cdt(1:9) .ne. prev_day) then 
             write(*,*) cdt(1:9)
             prev_day =  cdt(1:9)
         end if
         
-        call get_inp_value(int(current_time),int(current_time-gtm_time_interval))   ! this will update pathinput(:)%value
+        call get_inp_value(int(current_time),int(current_time-gtm_time_interval))   ! this will update pathinput(:)%value; rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
         do i=1, n_boun
             bound_val(i,:) = conc(bound(i)%cell_no,:)
         end do
@@ -197,7 +196,7 @@ program gtm
         write(debug_unit,'(3f10.0)')  current_time,bound_val(1,1), bound_val(2,1)
         
         !---read hydro data from hydro tidefile
-        call get_loc_in_hydro_buffer(iblock, t, t_index, current_time, runtime_hydro_start, &
+        call get_loc_in_hydro_buffer(iblock, t, t_index, int(current_time), runtime_hydro_start, &
                                      memory_buffer, skip, hydro_time_interval, gtm_time_interval)
 
         !write(debug_unit,*) runtime_hydro_start, current_time, jmin2cdt(current_time),iblock, t, t_index
