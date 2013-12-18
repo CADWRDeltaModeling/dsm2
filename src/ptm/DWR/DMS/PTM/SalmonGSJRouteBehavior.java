@@ -15,7 +15,7 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 	/**
 	 * 
 	 */
-	public SalmonGSJRouteBehavior(int nodeId, int gsWbId) {
+	public SalmonGSJRouteBehavior(Integer nodeId, Integer gsWbId) {
 		_nodeId = nodeId;
 		_gsWbId = gsWbId;
 	}
@@ -24,17 +24,19 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 	}
 	
 	private Channel[] getChannels(Particle p){
-		if (p.nd.getEnvIndex()!=_nodeId)
+		Node curNode = p.nd;
+		if (curNode == null)
+			PTMUtil.systemExit("p.nd is null, exit");
+		if (curNode.getEnvIndex()!=_nodeId)
 			PTMUtil.systemExit("in Georgiana Slough Junction, node id in input file is different from node id the particle encountered, exit.");
-		ArrayList<Channel> chans = p.nd.getChannels();
+		ArrayList<Channel> chans = curNode.getChannels();
 		if (chans == null || chans.size() != 3)
 			PTMUtil.systemExit("in Georgiana Slough Junction, channel number is not 3, exit.");
 		
 		Channel sacUp = null, sacDown = null;
-		Channel gs = (Channel) p.nd.getChannel(_gsWbId);
+		Channel gs = (Channel) curNode.getChannel(_gsWbId);
 		if (gs == null)
 			PTMUtil.systemExit("could not found Georgiana Slough channel at Georgiana Slough Junction, exit.");
-		Node curNode = p.nd;
 		for (int i = 0; i< 3; i++){
 			Channel ch = chans.get(i);
 			if (ch.getDownNode().equals(curNode))
@@ -84,7 +86,7 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 		    float w = sacUp.getWidth(sacUp.getLength())*0.3048f;
 		    float s = (qGs/(qGs+qDownSac) - 37.5f/144.8f)*w;
 		    float pos = (p.y*0.3048f+0.241022f*w);  // pos y starts from center
-		    float multi_v = -2.104f-0.531f*d-1.7f*(gs.getBarrierAtUpNodeOp())
+		    float multi_v = -2.104f-0.531f*d-1.7f*(gs.getCurrentBarrierOp(p.nd.getEnvIndex()))
 		    			+0.082f*s+0.068f*qUpSac+0.045f*pos-0.006f*qUpSac*pos;
 		    double possibility = Math.exp(multi_v)/(1+Math.exp(multi_v));
 		    //TODO clean up

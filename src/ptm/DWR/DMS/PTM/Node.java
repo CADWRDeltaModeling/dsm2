@@ -139,9 +139,9 @@ public class Node{
   public final boolean isJunctionDeadEnd(){
     return(false);
   }
-  private boolean isAgSeep(int internalId){
-	  if (getWaterbody(internalId).getType() == 105)
-		  if (((Boundary)getWaterbody(internalId)).getBoundaryType().equals("AG_SEEP"))
+  private boolean isAgSeep(int internalWbId){
+	  if ((getWaterbody(internalWbId).getType() == Waterbody.BOUNDARY) &&
+		  (((Boundary)getWaterbody(internalWbId)).getBoundaryName().equals("AG_SEEP")))
 			  return true;
 	  return false;
   }
@@ -155,15 +155,15 @@ public class Node{
     float outflow=0.0f;
     // for each Waterbody connected to junction add the outflows
     for (int id=0; id < numberOfWaterbodies; id++) {
-  	  if(!addSeepDicu){
+    	if(!addSeepDicu){
   		float thisFlow = getOutflow(id);
         if (thisFlow != 0 && !isAgSeep(id)
-        		&& !(Globals.Environment.getBehaviorInputs().getRouteInputs().getFishScreenMap().containsKey(PTMUtil.concatNodeWbIds(EnvIndex, wbArray[id].getEnvIndex()))))
-            outflow += thisFlow; 		  
-  	  }
-  	  else{
-  		outflow += getOutflow(id);
-  	  }
+        		&& !(this._fishScreenInstalled && wbArray[id].isFishScreenInstalled()))
+        	outflow += thisFlow; 		  
+  	  	}
+  	  	else{
+  	  		outflow += getOutflow(id);
+  	  	}
     }
     return (outflow);
   }
@@ -267,15 +267,21 @@ public class Node{
   /**
    *  install a non-physical barrier
    */
-  public final void installBarrier(){
-	  barrierInstalled = true;
+  public void installBarrier(){
+	  _barrierInstalled = true;
+  }
+  public void installFishScreen(){
+	  _fishScreenInstalled = true;
   }
   
   /**
    *  get non-physical barrier op info
    */
-  public final boolean isBarrierInstalled(){
-	  return barrierInstalled;
+  public boolean isBarrierInstalled(){
+	  return _barrierInstalled;
+  }
+  public boolean isFishScreenInstalled(){
+	  return _fishScreenInstalled;
   }
   
   /**
@@ -311,7 +317,8 @@ public class Node{
    */
   private int LABoundaryType;
   
-  private boolean barrierInstalled = false;
+  private boolean _barrierInstalled = false;
+  private boolean _fishScreenInstalled = false;
   
   /**
    *  Delete wbIndexArray and anything else to save space.

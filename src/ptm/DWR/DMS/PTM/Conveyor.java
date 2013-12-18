@@ -56,8 +56,9 @@ class Conveyor extends Waterbody {
   /**
    *  Set fixed information for conveyors
    */
-  public Conveyor(int nId, int[] ndArray){
+  public Conveyor(int nId, String name, int[] ndArray){
     super(Waterbody.CONVEYOR, nId, ndArray);
+	_name = name;
   }
   /**
    *  Return flow direction sign
@@ -73,4 +74,6 @@ class Conveyor extends Waterbody {
    *  Return the hydrodynamic type of Conveyor
    */
   public int getHydroType(){return FlowTypes.rim;}
+  public String getName(){return _name;}
+  private String _name = null;
 }

@@ -52,9 +52,9 @@ public class PTMUtil {
                 line = inputBuffer.readLine();
             } while(line != null && !line.trim().toUpperCase().startsWith(start));
             
-            while((line=inputBuffer.readLine()) != null && !(line = line.trim().toUpperCase()).startsWith(end)){
+            while((line=inputBuffer.readLine()) != null && !(line.trim().toUpperCase()).startsWith(end)){//(line = line.trim().toUpperCase()).startsWith(end)){
             	if (!line.startsWith("#"))
-            		blockList.add(line);
+            		blockList.add(line.trim());
             }
         }
         catch(IOException e){
@@ -63,17 +63,17 @@ public class PTMUtil {
         return blockList;
     }
 	public static ArrayList<String> getInputBlock(ArrayList<String> inputBlocks, String start, String end){
-        ArrayList<String> block = new ArrayList<String>();
+        ArrayList<String> block = null;
         Iterator<String> it;
         try{
             if (inputBlocks == null || (it = inputBlocks.iterator())==null || !it.hasNext())
             	return null;
             String line = null;
             do{
-                line = it.next();
-                
+                line = it.next();   
             } while(it.hasNext() && line != null && !line.trim().toUpperCase().startsWith(start));
             
+            block = new ArrayList<String>();
             while(it.hasNext() && ((line= it.next()) != null) && !(line.trim()).toUpperCase().startsWith(end)){
                 block.add(line);
             }

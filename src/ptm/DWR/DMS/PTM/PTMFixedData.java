@@ -235,6 +235,7 @@ public class PTMFixedData {
   native int[] getPumpNodeArray(int i);
   native int[] getBoundaryWaterbodyNodeArray(int i);
   native int[] getConveyorNodeArray(int i);
+  native String getConveyorName(int i);
   //
   native float[] getXSectionWidths(int i);
   native float[] getXSectionElevations(int i);

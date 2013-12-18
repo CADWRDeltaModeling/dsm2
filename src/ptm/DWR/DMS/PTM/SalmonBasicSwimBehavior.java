@@ -21,5 +21,6 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 		// TODO Auto-generated method stub
 		
 	}
+	public void updatePosition(Particle p){}
 
 }

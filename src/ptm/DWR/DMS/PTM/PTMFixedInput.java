@@ -263,9 +263,11 @@ public class PTMFixedInput{
    */
   private final Conveyor createConveyor(int nId){
     Conveyor wb = null;
+    int lId = _fixedData.getLocalIdForWaterbody(nId);
+    String name = _fixedData.getConveyorName(lId);
     int [] nodeArray = _fixedData.getNodeArrayForWaterbody( nId );
     if (nodeArray != null)
-      wb = new Conveyor(nId, nodeArray);
+      wb = new Conveyor(nId, name, nodeArray);
     return wb;
   }
 

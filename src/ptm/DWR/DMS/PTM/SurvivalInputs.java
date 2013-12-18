@@ -52,7 +52,9 @@ public class SurvivalInputs {
 	public SurvivalInputs() {
 		// TODO Auto-generated constructor stub
 	}
-	public SurvivalInputs(ArrayList<String> inList) {
+	public SurvivalInputs(ArrayList<String> inList, String fishType) {
+		_fishType = fishType;
+		setHelper();
 		setChannelGroups(PTMUtil.getInputBlock(inList, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS"));
 	}
 	public void addSpecialBehaviors(SurvivalHelper sh, String particleType){}
@@ -77,5 +79,16 @@ public class SurvivalInputs {
 	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
 		
 	}
+	public SurvivalHelper getSurvivalHelper(){ return _survivalHelper;}
+	private void setHelper(){
+		if(_fishType.equalsIgnoreCase("SALMON"))
+			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior());
+		else if (_fishType.equalsIgnoreCase("SMELT"))
+			PTMUtil.systemExit("the special help for smelt has been defined yet");
+		else
+			PTMUtil.systemExit("the special help for smelt has been defined yet");
+	}
+	private String _fishType = null;
+	private SurvivalHelper _survivalHelper = null;
 }
 

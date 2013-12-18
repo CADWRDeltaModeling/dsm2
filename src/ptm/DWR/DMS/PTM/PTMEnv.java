@@ -52,9 +52,7 @@ public class PTMEnv{
   public PTMEnv(String fixedInputFilename){
     //Input files
     fixedInput = new PTMFixedInput(fixedInputFilename);
-    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName());
     hydroInput = new PTMHydroInput();
-    _particleType = _behaviorInputs.getFishType();
     
     //no and max no of waterbodies, nodes, xsections
     numberOfWaterbodies = fixedInput.getNumberOfWaterbodies();
@@ -102,9 +100,20 @@ public class PTMEnv{
     fixedInput.getPTMFixedInfo(pInfo);
     if(DEBUG) System.out.println(pInfo);
     numberOfAnimatedParticles = pInfo.getAnimatedParticles();
-    /**
+    
+    /*
+     * add behaviors
+     */
+    // behaviors (basic and special) are added when instantiating PTMBehaviorInputs
+    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName());
+    _behaviorInputs.setWaterbodyInfo(wbArray);
+    _behaviorInputs.setNodeInfo(nodeArray);
+    _particleType = _behaviorInputs.getFishType();
+    //TODO Clean up
+    
+    /*
      * add helpers
-     */         
+             
     if ((_particleType == null) || (!_particleType.equalsIgnoreCase("SALMON") && !_particleType.equalsIgnoreCase("SMELT"))) 
     	 PTMUtil.systemExit("Particle Type is not defined or defined incorrect! Exit from line 147 PTMEnv.");
     // String switch only works for Java 1.7  make a map for now
@@ -128,7 +137,6 @@ public class PTMEnv{
 			break;
     }
     
-    /* 
      * end adding helpers
      */
   }
@@ -139,6 +147,7 @@ public class PTMEnv{
   private final void setWaterbodyInfo(){
 	  // when wbArray is setup, the channels are filled in first.
 	  //wbArray starts from 1. see PTMFixedInput.java line 180
+	  _reservoirObj2objNameID = new HashMap<String, Integer>();
 	  for(int i=1; i<= fixedInput.getNumberOfChannels(); i++) {
 		  if (wbArray[i] != null) {
 			  if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
@@ -150,7 +159,8 @@ public class PTMEnv{
 			  aChan.setXSectionArray(xSPtrArray);
 		  }  
 	  }
-	  _behaviorInputs.setChannelInfo(wbArray, fixedInput.getNumberOfChannels());
+	  //TODO Clean up
+	  //_behaviorInputs.setChannelInfo(wbArray, fixedInput.getNumberOfChannels());
 	  if (DEBUG) System.out.println("Done with initialzing xSections");
 	  //set nodes for wb (not only channels)
 	  for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
@@ -164,6 +174,11 @@ public class PTMEnv{
 				  nodePtrArray[j] = nodeArray[wbArray[i].getNodeEnvIndex(j)];
 			  }//end for xsect
 			  wbArray[i].setNodeArray(nodePtrArray);
+			  int wbType = wbArray[i].getType();
+			  if (wbType == Waterbody.RESERVOIR)
+				  _reservoirObj2objNameID.put(((Reservoir)wbArray[i]).getName(), i);
+			  else if (wbType == Waterbody.CONVEYOR)
+				  _reservoirObj2objNameID.put(((Conveyor)wbArray[i]).getName(), i);
 		  }//end if
 	  }//end for wb
 	  if (DEBUG) System.out.println("Done with initialzing nodes");
@@ -186,6 +201,7 @@ public class PTMEnv{
   /**
    * Set the current Particle behavior object
    */
+  //TODO this is Aaron's original code and needed to be changed
   public final boolean setParticleBehavior() throws IOException {
     // initialize behavior file
     boolean fileExists = false;
@@ -441,6 +457,7 @@ public class PTMEnv{
     } // end while
     if (DEBUG) System.out.println("Finished injection");
   }
+  
   public String getParticleType(){
 	  return _particleType;
   }
@@ -495,7 +512,8 @@ public class PTMEnv{
       }
       nodeArray[i].setWbArray(wbs);
     }
-    _behaviorInputs.setNodeInfo(nodeArray, fixedInput.getMaximumNumberOfNodes());
+    //TODO clean up
+    //_behaviorInputs.setNodeInfo(nodeArray, fixedInput.getMaximumNumberOfNodes());
     // Now initialize each Node object with an array of waterbodies it connects to
     if (DEBUG) System.out.println("Done with setNodeInfo");
   }
@@ -508,9 +526,7 @@ public class PTMEnv{
     hydroInput.getNextChunk(currentTime);
     hydroInput.updateWaterbodiesHydroInfo(wbArray, fixedInput.getLimitsFixedData());
     //  updateBoundaryWaterbodiesHydroInfo();
-    _behaviorInputs.updateCurrentInfo(nodeArray, fixedInput.getMaximumNumberOfNodes(),
-    								  wbArray, fixedInput.getNumberOfChannels(),
-    									currentTime);
+    _behaviorInputs.updateCurrentInfo(nodeArray, wbArray, currentTime);
   }
   
   /**
@@ -577,9 +593,14 @@ public class PTMEnv{
   }
   
   public PTMBehaviorInputs getBehaviorInputs(){ return _behaviorInputs;}
-  public RouteHelper getRouteHelper(){return _routeHelper;}
-  public SurvivalHelper getSurvivalHelper(){return _survivalHelper;}
-  public SwimHelper getSwimHelper(){return _swimHelper;}
+  public RouteHelper getRouteHelper(){return _behaviorInputs.getRouteInputs().getRouteHelper();}
+  public SurvivalHelper getSurvivalHelper(){return _behaviorInputs.getSurvivalInputs().getSurvivalHelper();}
+  public SwimHelper getSwimHelper(){return _behaviorInputs.getSwimInputs().getSwimHelper();}
+  public static Integer getReservoirObj2ObjEnvId(String name){
+	  if (_reservoirObj2objNameID == null || _reservoirObj2objNameID.isEmpty())
+			  PTMUtil.systemExit("the map for reservoir/Object to Object name vs waterbody ID is empty!");
+	  return _reservoirObj2objNameID.get(name);
+  }
 
   /**
    *  Particle behavior input
@@ -631,8 +652,9 @@ public class PTMEnv{
   private int numberOfGroups;
   private String _particleType;
   private PTMBehaviorInputs _behaviorInputs;
-  private RouteHelper _routeHelper = null;
-  private SwimHelper _swimHelper = null;
-  private SurvivalHelper _survivalHelper = null;
+  //private RouteHelper _routeHelper = null;
+  //private SwimHelper _swimHelper = null;
+  //private SurvivalHelper _survivalHelper = null;
+  private static Map<String, Integer> _reservoirObj2objNameID = null; 
 }
 

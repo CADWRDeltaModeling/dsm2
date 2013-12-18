@@ -20,6 +20,10 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 //$Id: Waterbody.java,v 1.3.6.2 2006/01/27 19:52:24 eli2 Exp $
 package DWR.DMS.PTM;
 import edu.cornell.RngPack.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 /**
  * Waterbody is an abstract entity which is connected to other
  * waterbodies via nodes. Each Waterbody is identified by its unique
@@ -84,11 +88,16 @@ public abstract class Waterbody{
   public Waterbody(int wtype, int nId, int[] nodeIds) {
     type = wtype;
     EnvIndex = nId;
+    _barrierOpMap = new HashMap<Integer, Integer>();
+    _barrierNodeIdList = new ArrayList<Integer>();
+    _nodeIdArray = new ArrayList<Integer>();
+    _fishScreenNodeIdList = new ArrayList<Integer>();
     //numberId = nId;
     // set # of nodes and nodeArray
 	if (nodeIds != null){
       nNodes = nodeIds.length;
-      nodeIdArray = nodeIds;
+      for (int id: nodeIds)
+    	  _nodeIdArray.add(new Integer(id));
       nodeArray = new Node[nNodes];
       depthAt = new float[nNodes];
       flowAt = new float[nNodes];
@@ -161,19 +170,7 @@ public abstract class Waterbody{
    * from the its global index
    */
   public final int getNodeLocalIndex(int nodeIdGlobal){
-    int nodeIdLocal = -1;
-    boolean notFound=true;
-    int id=0;
-    while (id < nNodes && notFound) {
-      if (nodeIdArray[id] == nodeIdGlobal) {
-        nodeIdLocal = id;
-        notFound = false;
-      }
-      id++;
-    }
-    //  if (notFound) 
-    // throw new nodeNotFoundException(" Exception in " + this.toString());
-    return nodeIdLocal;
+	  return _nodeIdArray.indexOf(new Integer(nodeIdGlobal));
   }
   
   /**
@@ -186,7 +183,7 @@ public abstract class Waterbody{
    *  the Node's EnvIndex from its local index
    */
   public final int getNodeEnvIndex(int localIndex){
-    return(nodeIdArray[localIndex]);
+    return(_nodeIdArray.get(localIndex));
   }
   
   /**
@@ -300,6 +297,28 @@ public abstract class Waterbody{
     }
     return rep;
   }
+  public void installBarrier(int envNodeId){
+	  if (!_nodeIdArray.contains(new Integer(envNodeId)))
+		  PTMUtil.systemExit("SYTEM EXIT: defined a wrong barrier node in the route inputs");
+	  else{
+		  _isBarrierInstalled = true;
+		  _barrierNodeIdList.add(new Integer(envNodeId));
+	  }
+  }
+  public void installFishScreen(int envNodeId){
+	  if (!_nodeIdArray.contains(new Integer(envNodeId)))
+		  PTMUtil.systemExit("SYTEM EXIT: defined a wrong fish screen node in the route inputs");
+	  else{
+		  _fishScreenInstalled = true;
+		  _fishScreenNodeIdList.add(new Integer(envNodeId));
+	  }
+  }
+  public boolean isBarrierInstalled(){return _isBarrierInstalled;}
+  public boolean isFishScreenInstalled(){
+	  return _fishScreenInstalled;
+  }
+  public void setCurrentBarrierOp (int nodeId, int barrierOp){ _barrierOpMap.put(nodeId, barrierOp);}
+  public int getCurrentBarrierOp (int nodeId) {return _barrierOpMap.get(nodeId);}
   /**
    *  Index in PTMEnv Waterbody array
    */
@@ -319,7 +338,7 @@ public abstract class Waterbody{
   /**
    *  Indices array of Nodes connecting to this Waterbody
    */
-  private int[] nodeIdArray;
+  private List<Integer> _nodeIdArray;
   /**
    *  Node array connecting to this Waterbody
    */
@@ -346,5 +365,12 @@ public abstract class Waterbody{
    * The group number
    */
   private int _group;
+  private boolean _isBarrierInstalled = false;
+  private ArrayList<Integer> _barrierNodeIdList = null;
+  private ArrayList<Integer> _fishScreenNodeIdList = null;
+  // nodeId as key and operation (0,1) as value
+  private HashMap<Integer, Integer> _barrierOpMap = null;
+  private boolean _fishScreenInstalled = false;
+  
 }
 

@@ -95,7 +95,7 @@ public class MainPTM {
             boolean behavior = false;
             try {
                 // set behavior file and return status
-            	//TODO This behavior module needs to be revisited, only works for delta smelt
+            	//TODO This behavior module is Aaron's original one and needs to be revisited, only works for delta smelt
             	//getBehaviorFileName() somehow return the sameName as getBehaviorInfileName()
             	if (Environment.getParticleType().equalsIgnoreCase("SMELT"))
                 	behavior = Environment.setParticleBehavior();
@@ -134,15 +134,15 @@ public class MainPTM {
                                             Environment.getFileType(traceFileName),
                                             startTime, endTime, PTMTimeStep,
                                             numberOfParticles);
-            RouteHelper _routeHelper = Environment.getRouteHelper();
-            SwimHelper _swimHelper = Environment.getSwimHelper();
-            SurvivalHelper _survivalHelper = Environment.getSurvivalHelper();
+            RouteHelper routeHelper = Environment.getRouteHelper();
+            SwimHelper swimHelper = Environment.getSwimHelper();
+            SurvivalHelper survivalHelper = Environment.getSurvivalHelper();
             if(DEBUG) System.out.println("Set observer, helpers");
             for(int i=0; i<numberOfParticles; i++) {
                 if ( observer != null) observer.setObserverForParticle(particleArray[i]);
-                if (_routeHelper != null) _routeHelper.setRouteHelperForParticle(particleArray[i]);
-                if (_swimHelper != null) _swimHelper.setSwimHelperForParticle(particleArray[i]);
-                if (_survivalHelper != null) _survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
+                if (routeHelper != null) routeHelper.setRouteHelperForParticle(particleArray[i]);
+                if (swimHelper != null) swimHelper.setSwimHelperForParticle(particleArray[i]);
+                if (survivalHelper != null) survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
             }
             
             // initialize output restart file

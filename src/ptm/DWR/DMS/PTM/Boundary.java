@@ -59,12 +59,12 @@ class Boundary extends Waterbody {
     super(Waterbody.BOUNDARY, nId, ndArray);
     String upName = boundaryName.toUpperCase();
     if (upName.contains("DICU")){
-    	if(upName.contains("SEEP")){_boundaryType = "AG_SEEP";}
-    	else if (upName.contains("DIV")){_boundaryType = "AG_DIV";}
-    	else if  (upName.contains("DRAIN")){_boundaryType = "AG_DRAIN";}
+    	if(upName.contains("SEEP")){_boundaryName = "AG_SEEP";}
+    	else if (upName.contains("DIV")){_boundaryName = "AG_DIV";}
+    	else if  (upName.contains("DRAIN")){_boundaryName = "AG_DRAIN";}
     	else {PTMUtil.systemExit("Wrong DICU Type encountered: "+boundaryName);}
     }
-    else{ _boundaryType = boundaryName;}
+    else{ _boundaryName = boundaryName;}
   }
   /**
    *  Return flow direction sign
@@ -81,6 +81,6 @@ class Boundary extends Waterbody {
    */
   public int getHydroType(){return FlowTypes.rim;}
   
-  public String getBoundaryType(){return _boundaryType;}
-  private String _boundaryType;
+  public String getBoundaryName(){return _boundaryName;}
+  private String _boundaryName;
 }

@@ -385,36 +385,44 @@ public class Channel extends Waterbody{
   /**
    *  install a non-physical barrier
    */
+  //TODO clean up
+  /*
   public final void installBarrierAtUpNode(){
 	  _upBarrierInstalled = true;
   }
   public final void installBarrierAtDownNode(){
 	  _downBarrierInstalled = true;
   }
+  *
   
   /**
    *  get non-physical barrier op info
    */
+  /*
   public final boolean isBarrierAtUpNodeInstalled(){
 	  return _upBarrierInstalled;
   }
   public final boolean isBarrierAtDownNodeInstalled(){
 	  return _downBarrierInstalled;
   }
+  */
   
   /**
    *  get non-physical barrier op info
    */
+  /*
   public final int getBarrierAtUpNodeOp(){
 	  return _upBarrierOp;
   }
   public final int getBarrierAtDownNodeOp(){
 	  return _downBarrierOp;
   }
+  */
   
   /**
    *  set non-physical barrier op value
    */
+  /*
   public final void setBarrierAtUpNodeOp(int barrierOp){
 	  _upBarrierOp = barrierOp;
   }
@@ -422,6 +430,7 @@ public class Channel extends Waterbody{
   public final void setBarrierAtDownNodeOp(int barrierOp){
 	  _downBarrierOp = barrierOp;
   }
+  */
   
  // end non-physical barriers
   
@@ -448,24 +457,28 @@ public class Channel extends Waterbody{
   /**
    *  Area of Channel/reservoir
    */
-  private float area;
+
   /**
    *  Flow, depth, velocity, width and area information read from tide file
    */
   private float[] areaAt;
   private float[] depthAt;
   private float[] stageAt;
-  //xiao
+  //TODO Clean up
+  /*
+  private float area;
+  private float bottomElevation;
   private int _upBarrierOp = 0;
   private int _downBarrierOp = 0;
   private boolean _upBarrierInstalled = false;
   private boolean _downBarrierInstalled = false;
+  */
   private int _chanGroupID = -1;
   
   /**
    *  Bottom elevation of Channel or reservoir
    */
-  private float bottomElevation;
+
   //  private static final float a=1.62f,b=-2.22f,c=0.60f;
   
   private final float calcVelocity(float flow, float xpos){

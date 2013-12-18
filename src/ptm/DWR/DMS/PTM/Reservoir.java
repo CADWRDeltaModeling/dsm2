@@ -69,6 +69,7 @@ public class Reservoir extends Waterbody{
   public final void setDepth(float[] depthArray){
     depthAt[0] = depthArray[0];
   }
+  public final String getName(){return name;}
   /**
    *  String containing the name
    */

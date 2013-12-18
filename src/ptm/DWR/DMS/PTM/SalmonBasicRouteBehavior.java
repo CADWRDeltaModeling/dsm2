@@ -105,14 +105,15 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 		    float modFlow = 0.0f;
 		    float agDivFlowLeft = 0.0f;
 		    float totalFlowWOAg = 0.0f;
-	    	if (thisWb.getType() == Waterbody.BOUNDARY && ((Boundary) thisWb).getBoundaryType().equals("AG_DIV")){
+		    //TODO check for conveyor and reservoir types
+	    	if (thisWb.getType() == Waterbody.BOUNDARY && ((Boundary) thisWb).getBoundaryName().equals("AG_DIV")){
     			modFlow = ((float) (thisFlow*Globals.Environment.getBehaviorInputs().getRouteInputs().getDicuFilterEfficiency())); 
     			agDivFlowLeft = thisFlow - modFlow;
     			totalFlowWOAg = _outflow - thisFlow;
 	    	}
 	    	else if (agDivFlowLeft > 0.0f && totalFlowWOAg > 0.0f)
 	    		modFlow = thisFlow + agDivFlowLeft*thisFlow/totalFlowWOAg;
-	    	else if (Globals.Environment.getBehaviorInputs().getRouteInputs().getFishScreenMap().containsKey(PTMUtil.concatNodeWbIds(_nd.getEnvIndex(), thisWb.getEnvIndex())))
+	    	else if (_nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled())
 	    		modFlow = 0;	
 	    	else
 	    		modFlow = thisFlow;
