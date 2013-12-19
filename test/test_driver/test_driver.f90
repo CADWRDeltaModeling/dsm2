@@ -145,7 +145,7 @@ program test_driver
     ! todo: need to set an automatic check for hitting the boundary with coarse meshes
     !       this frequently causes problems that are undetected without scrutiny
     call test_tidal_advection_reaction(verbose)
-    call test_hydro_advection_reaction(verbose) 
+    !call test_hydro_advection_reaction(verbose) 
     
     !/////Advection-Diffusion tests
     call test_zoppou_flow()    ! unit test that goes with convergence test

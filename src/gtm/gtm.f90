@@ -120,7 +120,7 @@ program gtm
     nt = npartition_t + 1
     allocate(flow_mesh(nt, nx), area_mesh(nt, nx))
     allocate(flow_volume_change(nt-1, nx-1), area_volume_change(nt-1, nx-1))
-    allocate(prev_flow_cell(2000, nx))
+    allocate(prev_flow_cell(n_comp*nx, nx))
     allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
     allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
     allocate(prev_avga(n_comp))
@@ -193,13 +193,13 @@ program gtm
         do i=1,n_bound_ts
             bound_val(bound_index(i),:) = pathinput(path_index(i))%value
         end do
-        write(debug_unit,'(3f10.0)')  current_time,bound_val(1,1), bound_val(2,1)
+        !write(debug_unit,'(3f10.0)')  current_time,bound_val(1,1), bound_val(2,1)
         
         !---read hydro data from hydro tidefile
-        call get_loc_in_hydro_buffer(iblock, t, t_index, int(current_time), runtime_hydro_start, &
+        call get_loc_in_hydro_buffer(iblock, t, t_index, current_time, runtime_hydro_start, &
                                      memory_buffer, skip, hydro_time_interval, gtm_time_interval)
 
-        !write(debug_unit,*) runtime_hydro_start, current_time, jmin2cdt(current_time),iblock, t, t_index
+        !write(debug_unit,*) current_time,iblock, t, t_index, current_slice
         if (iblock .gt. current_block) then  ! check if need to read new buffer
             current_block = iblock
             time_offset = offset + memory_buffer*(iblock-1)
@@ -256,7 +256,8 @@ program gtm
                 prev_up_comp_flow(up_comp) = hydro_flow(up_comp,t)
                 prev_down_comp_flow(down_comp) = hydro_flow(down_comp,t)
                 prev_up_comp_ws(up_comp) = hydro_ws(up_comp,t)
-                prev_down_comp_ws(down_comp) = hydro_ws(down_comp,t)              
+                prev_down_comp_ws(down_comp) = hydro_ws(down_comp,t)         
+                
                 !prev_avga(up_comp) = hydro_avga(down_comp,t) 
                 
                 !if (debug_interp) then
@@ -290,7 +291,7 @@ program gtm
                         t_index,  &
                         dx_arr,   &
                         gtm_time_interval)         
-                         
+                           
         if (current_time == gtm_start_jmin) then
             call prim2cons(mass_prev, conc, area, n_cell, n_var)
             area_prev = area

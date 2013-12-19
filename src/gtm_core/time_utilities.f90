@@ -161,7 +161,7 @@ module time_utilities
                   end do
               end if
               memlen(num_buffers) = remainder              
-              beginning_skip = (run_start_jmin-runtime_hydro_start)/run_time_interval + hdf_time_interval/run_time_interval
+              beginning_skip = (run_start_jmin-runtime_hydro_start)/run_time_interval !+ hdf_time_interval/run_time_interval
           end if
           return  
     end subroutine
@@ -177,36 +177,35 @@ module time_utilities
                                        beginning_skip,    &
                                        hdf_time_interval, &
                                        gtm_time_interval)
+        use gtm_logging, only:debug_unit
         implicit none
-        integer, intent(in) :: current_time             !< current julian time
         integer, intent(in) :: start_hydro_block        !< offset to start reading hydro tidefile
         integer, intent(in) :: memory_buffer            !< memory buffer
         integer, intent(in) :: beginning_skip           !< skip gtm time step in the beginning of simulation (to get time_index right)       
         integer, intent(in) :: hdf_time_interval        !< hydro tidefile time interval
+        real(gtm_real), intent(in) :: current_time      !< current julian time        
         real(gtm_real), intent(in) :: gtm_time_interval !< gtm time interval
         integer, intent(out) :: iblock                  !< block index
         integer, intent(out) :: slice_in_block          !< slice in block
-        real(gtm_real), intent(out) :: time_index              !< time index within hydro time step
-        real(gtm_real) :: tmp                           ! local variable
-        tmp = (dble(current_time) - dble(start_hydro_block) + dble(hdf_time_interval)) &
+        real(gtm_real), intent(out) :: time_index       !< time index within hydro time step
+        real(gtm_real) :: tmp1, tmp2, tmp3              ! local variable
+        tmp1 = (current_time - dble(start_hydro_block) + dble(hdf_time_interval)) &
               /dble(hdf_time_interval)/dble(memory_buffer)
-        iblock = ceiling(tmp)
-        tmp = (dble(current_time) - dble((iblock-1)*memory_buffer*hdf_time_interval) - &
+        iblock = ceiling(tmp1)
+        tmp2 = (current_time - dble((iblock-1)*memory_buffer*hdf_time_interval) - &
                dble(start_hydro_block-hdf_time_interval))/dble(hdf_time_interval)
-        slice_in_block = ceiling(tmp)
+        slice_in_block = ceiling(tmp2)
         if (iblock==1) then
-            tmp = (current_time - ((iblock-1)*memory_buffer+(slice_in_block-2))*hdf_time_interval - start_hydro_block)/gtm_time_interval
+            tmp3 = (current_time - ((dble(iblock)-one)*dble(memory_buffer)+(dble(slice_in_block)-two))*dble(hdf_time_interval) - dble(start_hydro_block))/gtm_time_interval
         else
-            tmp = (current_time - ((iblock-1)*memory_buffer+slice_in_block)*hdf_time_interval - start_hydro_block)/gtm_time_interval + beginning_skip
+            tmp3 = (current_time - ((dble(iblock)-one)*dble(memory_buffer)+(dble(slice_in_block)-one))*dble(hdf_time_interval) - dble(start_hydro_block))/gtm_time_interval + dble(beginning_skip)
         end if    
-        time_index = dble(tmp)+one
+        time_index = tmp3 + one
+        write(debug_unit,*) slice_in_block,time_index, current_time, start_hydro_block
         return
     end subroutine        
     
-    
-
-      
-      
+ 
     !> Parse time interval string into real number in unit of minutes
     subroutine get_time_intvl_min(time_intvl,      &
                                   time_intvl_str)

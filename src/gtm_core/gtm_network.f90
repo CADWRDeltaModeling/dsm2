@@ -172,14 +172,20 @@ module gtm_network
         real(gtm_real), intent(out) :: area(ncell)     !< Cell center area, old time
         real(gtm_real), intent(out) :: area_lo(ncell)  !< Area lo face, time centered
         real(gtm_real), intent(out) :: area_hi(ncell)  !< Area hi face, time centered
-        integer :: time_in_mesh                        ! local variable
-        time_in_mesh = mod(int(time),npartition_t)+1
+        integer :: time_in_mesh, i                     ! local variable
+        !if (mod(int(time),npartition_t)==0) then
+        !    time_in_mesh = npartition_t+1       
+        !else
+        !    time_in_mesh = mod(int(time),npartition_t)+1
+        !end if    
+        time_in_mesh = int(time)
         flow    = flow_tmp(:,time_in_mesh)
         flow_lo = flow_lo_tmp(:,time_in_mesh)
         flow_hi = flow_hi_tmp(:,time_in_mesh)
         area    = area_tmp(:,time_in_mesh)
         area_lo = area_lo_tmp(:,time_in_mesh)
         area_hi = area_hi_tmp(:,time_in_mesh)
+        write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
         return
     end subroutine       
 
