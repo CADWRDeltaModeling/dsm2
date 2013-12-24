@@ -59,14 +59,16 @@ program gtm
     real(gtm_real), allocatable :: prev_up_comp_flow(:), prev_down_comp_flow(:)
     real(gtm_real), allocatable :: prev_up_comp_ws(:), prev_down_comp_ws(:)
     real(gtm_real), allocatable :: prev_avga(:)
+    real(gtm_real), allocatable :: flow_arr(:), ws_arr(:)
     real(gtm_real) :: total_flow_volume_change, total_area_volume_change
     real(gtm_real) :: avga_volume_change, diff
     integer :: up_comp, down_comp    
     integer :: time_offset
-    integer :: i, j, t, ibuffer, start_buffer, icell
+    integer :: i, j, ibuffer, start_buffer, icell
+    integer :: iblock, slice_in_block, t_index
     real(gtm_real) :: time
     real(gtm_real) :: current_time
-    integer :: offset, num_buffers, jday
+    integer :: offset, num_blocks, jday
     integer, allocatable :: memlen(:)
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .false.                 ! Flag to switch on/off slope limiter  
@@ -78,11 +80,9 @@ program gtm
     character(len=14) :: cdt
     character(len=9) :: prev_day
     integer :: runtime_hydro_start, runtime_hydro_end
-    integer :: iblock, slice_in_block, skip
     integer :: current_block = 0
     integer :: current_slice = 0
-    integer :: time_index
-    real(gtm_real) :: t_index
+    integer :: time_index_in_gtm_hdf
     integer :: ierror
     logical :: debug_interp = .false.
 
@@ -108,11 +108,11 @@ program gtm
     call dsm2_hdf_geom
     call write_geom_to_text
 
-    call check_runtime(offset, num_buffers, memlen,                    &
-                       runtime_hydro_start, runtime_hydro_end, skip,   &
-                       memory_buffer, gtm_start_jmin, gtm_end_jmin,    &
-                       hydro_start_jmin, hydro_end_jmin,               &
-                       hydro_time_interval, gtm_time_interval) 
+    call check_runtime(num_blocks, memlen,                     & 
+                       memory_buffer, hydro_time_interval,     & 
+                       hydro_start_jmin, hydro_end_jmin,       &
+                       gtm_start_jmin, gtm_end_jmin)   
+                           
     !
     !----- allocate array for interpolation -----     
     !
@@ -125,13 +125,13 @@ program gtm
     allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
     allocate(prev_avga(n_comp))
     allocate(constituents(n_var))
+    allocate(flow_arr(n_comp), ws_arr(n_comp))
     call allocate_hydro_ts()
     call allocate_network_tmp()
     call allocate_cell_property()
     call allocate_state(n_cell, n_var)
     call allocate_state_resv(n_resv, n_var)
     allocate(init_c(n_cell,n_var))
-    !init_c = init_conc
     allocate(linear_decay(n_var))
     linear_decay = constant_decay
    
@@ -150,6 +150,11 @@ program gtm
         call write_input_to_hdf5(qual_hdf%file_id)
         call write_grid_to_tidefile(qual_hdf%file_id)
     end if
+
+    call find_boundary_index(n_bound_ts, bound_index, path_index, & 
+                             n_boun, bound,                       &
+                             n_inputpaths, pathinput)
+    allocate(bound_val(n_boun, n_var))
                        
     !
     !----- point to interface -----
@@ -172,11 +177,6 @@ program gtm
         conc = init_conc
     end if    
 
-    call find_boundary_index(n_bound_ts, bound_index, path_index, & 
-                             n_boun, bound,                       &
-                             n_inputpaths, pathinput)
-    allocate(bound_val(n_boun, n_var))
-
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
         !---print out processing date on screen
@@ -186,6 +186,7 @@ program gtm
             prev_day =  cdt(1:9)
         end if
         
+        !---get time series for boundary conditions
         call get_inp_value(int(current_time),int(current_time-gtm_time_interval))   ! this will update pathinput(:)%value; rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
         do i=1, n_boun
             bound_val(i,:) = conc(bound(i)%cell_no,:)
@@ -196,67 +197,79 @@ program gtm
         !write(debug_unit,'(3f10.0)')  current_time,bound_val(1,1), bound_val(2,1)
         
         !---read hydro data from hydro tidefile
-        call get_loc_in_hydro_buffer(iblock, t, t_index, current_time, runtime_hydro_start, &
-                                     memory_buffer, skip, hydro_time_interval, gtm_time_interval)
+        call get_loc_in_hydro_buffer(iblock, slice_in_block, t_index, current_time, hydro_start_jmin, &
+                                     memory_buffer, hydro_time_interval, gtm_time_interval)
 
-        !write(debug_unit,*) current_time,iblock, t, t_index, current_slice
-        if (iblock .gt. current_block) then  ! check if need to read new buffer
+        if (iblock .ne. current_block) then ! check if need to read new block into buffer
             current_block = iblock
-            time_offset = offset + memory_buffer*(iblock-1)
+            current_slice = 0
+            time_offset = memory_buffer*(iblock-1)
             call dsm2_hdf_ts(time_offset, memlen(iblock))
+            if (slice_in_block .eq. 1) then
+                call dsm2_hdf_slice(flow_arr, ws_arr, n_comp, time_offset-1)
+            end if
         end if
-        
 
         !--- interpolate flow and water surface between computational points
-        if (t .ne. current_slice) then  ! check if need to interpolate for new hydro time step
+        if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
             do i = 1, n_segm
                 up_comp = segm(i)%up_comppt
                 down_comp = segm(i)%down_comppt   
                 !---define initial values for flow and water surface
                 if (current_time == gtm_start_jmin) then
-                    do j = 1, nx
-                        prev_flow_cell(i,j) = hydro_flow(up_comp,t-1) +   &
-                                              (hydro_flow(down_comp,t-1)- &
-                                              hydro_flow(up_comp,t-1))*(dble(j)-one)/(dble(nx)-one)
-                    end do    
-                    prev_up_comp_flow(up_comp) = hydro_flow(up_comp,1)
-                    prev_down_comp_flow(down_comp) = hydro_flow(down_comp,1)
-                    prev_up_comp_ws(up_comp) = hydro_ws(up_comp,1)
-                    prev_down_comp_ws(down_comp) = hydro_ws(down_comp,1) 
-                    prev_avga(up_comp) = hydro_avga(up_comp,1)
+                    if (slice_in_block==1) then
+                        do j = 1, nx
+                            prev_flow_cell(i,j) = flow_arr(up_comp) + (flow_arr(down_comp)- flow_arr(up_comp))*(dble(j)-one)/(dble(nx)-one)
+                        end do
+                        prev_up_comp_flow(up_comp) = flow_arr(up_comp)
+                        prev_down_comp_flow(down_comp) = flow_arr(down_comp)
+                        prev_up_comp_ws(up_comp) = ws_arr(up_comp)
+                        prev_down_comp_ws(down_comp) = ws_arr(down_comp) 
+                    else
+                        do j = 1, nx
+                            prev_flow_cell(i,j) = hydro_flow(up_comp,slice_in_block-1) +   &
+                                                  (hydro_flow(down_comp,slice_in_block-1)- &
+                                                  hydro_flow(up_comp,slice_in_block-1))*(dble(j)-one)/(dble(nx)-one)
+                        end do                                           
+                        prev_up_comp_flow(up_comp) = hydro_flow(up_comp,slice_in_block-1)
+                        prev_down_comp_flow(down_comp) = hydro_flow(down_comp,slice_in_block-1)
+                        prev_up_comp_ws(up_comp) = hydro_ws(up_comp,slice_in_block-1)
+                        prev_down_comp_ws(down_comp) = hydro_ws(down_comp,slice_in_block-1) 
+                        prev_avga(up_comp) = hydro_avga(up_comp,slice_in_block-1)                        
+                    end if    
                 end if   
                 !avga_volume_change = (hydro_avga(up_comp,t)-prev_avga(up_comp)) * segm(i)%length
                 
                 if ((nt==2).and.(nx==2)) then
                     call no_need_to_interp(flow_mesh, area_mesh,              &
                                            segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,           &
-                                           prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),hydro_flow(up_comp,t), hydro_flow(down_comp,t),     &
-                                            prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp), hydro_ws(up_comp,t), hydro_ws(down_comp,t),    &
+                                           prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),     &
+                                            prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp), hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block),    &
                                             prev_flow_cell)           
                 elseif ((nt==2).and.(nx>2)) then
                     call interp_in_space_only(flow_mesh, area_mesh,                   &
                                               segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,           &
                                               prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),     &
-                                              hydro_flow(up_comp,t), hydro_flow(down_comp,t),                 &
+                                              hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),                 &
                                               prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
-                                              hydro_ws(up_comp,t), hydro_ws(down_comp,t), prev_flow_cell(i,:))
+                                              hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block), prev_flow_cell(i,:))
                 else
                     call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,   &
                                           segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.),   &
                                           gtm_time_interval, nt, nx,                                      &
                                           prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),     &
-                                          hydro_flow(up_comp,t), hydro_flow(down_comp,t),                 &
+                                          hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),                 &
                                           prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
-                                          hydro_ws(up_comp,t), hydro_ws(down_comp,t), prev_flow_cell(i,:))
+                                          hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block), prev_flow_cell(i,:))
                 end if
 
                 call fill_network(i, flow_mesh, area_mesh)                      
 
                 prev_flow_cell(i,:) = flow_mesh(nt,:)
-                prev_up_comp_flow(up_comp) = hydro_flow(up_comp,t)
-                prev_down_comp_flow(down_comp) = hydro_flow(down_comp,t)
-                prev_up_comp_ws(up_comp) = hydro_ws(up_comp,t)
-                prev_down_comp_ws(down_comp) = hydro_ws(down_comp,t)         
+                prev_up_comp_flow(up_comp) = hydro_flow(up_comp,slice_in_block)
+                prev_down_comp_flow(down_comp) = hydro_flow(down_comp,slice_in_block)
+                prev_up_comp_ws(up_comp) = hydro_ws(up_comp,slice_in_block)
+                prev_down_comp_ws(down_comp) = hydro_ws(down_comp,slice_in_block)         
                 
                 !prev_avga(up_comp) = hydro_avga(down_comp,t) 
                 
@@ -277,7 +290,7 @@ program gtm
                 !    end if
                 !end if
             end do   !end for segment loop
-            current_slice = t
+            current_slice = slice_in_block
         end if
         
         
@@ -288,7 +301,7 @@ program gtm
                         area_lo,  &
                         area_hi,  &
                         n_cell,   &
-                        t_index,  &
+                        dble(t_index),  &
                         dx_arr,   &
                         gtm_time_interval)         
                            
@@ -321,20 +334,20 @@ program gtm
         !
         !----- print output to hdf5 file -----
         !              
-        time_index = (current_time-gtm_start_jmin)/gtm_time_interval
+        time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_time_interval
         call write_qual_hdf(qual_hdf,                 &
                             conc,                     &
                             n_cell,                   &
                             n_var,                    &
-                            time_index)                      
+                            time_index_in_gtm_hdf)                      
         call write_qual_hdf_ts(qual_hdf%cell_flow_id, &
                                flow,                  & 
                                n_cell,                &
-                               time_index)
+                               time_index_in_gtm_hdf)
         call write_qual_hdf_ts(qual_hdf%cell_area_id, &
                                area,                  & 
                                n_cell,                &
-                               time_index)                               
+                               time_index_in_gtm_hdf)                               
         mass_prev = mass
         area_prev = area                 
     end do

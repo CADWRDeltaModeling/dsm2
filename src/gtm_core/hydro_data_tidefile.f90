@@ -56,5 +56,18 @@ module hydro_data_tidefile
         return  
     end subroutine      
     
+    !> This subroutine is used to read one slice of DSM2 hydro tidefile,
+    !> mainly time series.
+    subroutine dsm2_hdf_slice(flow_arr, ws_arr, num_comp, time_offset)
+        implicit none
+        integer, intent(in) :: num_comp                   !< number of computational points
+        integer, intent(in) :: time_offset                !< time offset in hydro tidefile
+        real(gtm_real), intent(out) :: flow_arr(num_comp) !< output array for the slice at time of request
+        real(gtm_real), intent(out) :: ws_arr(num_comp)   !< output array for the slice at time of request
+        call get_ts_from_hdf5(flow_arr,"flow",time_offset,1)
+        call get_ts_from_hdf5(ws_arr,"water surface",time_offset,1)
+        return
+    end subroutine
+         
 end module     
 

@@ -99,73 +99,45 @@ module time_utilities
  231  format (i4,'-',i2.2,'-',i2.2,' ',i2.2,':',i2.2,':00')
       return
     end function
-
-    !> Routine to determine offset and buffer length to read HDF file
-    subroutine check_runtime(offset, num_buffers, memlen,          &
-                             runtime_hydro_start,                  &
-                             runtime_hydro_end,                    &
-                             beginning_skip,                       & 
-                             time_buffer,                          & 
-                             run_start_jmin, run_end_jmin,         &
+    
+ 
+     !> Routine to determine offset and buffer length to read HDF file
+    subroutine check_runtime(num_blocks, memlen,                   & 
+                             time_buffer, hdf_time_interval,       & 
                              hdf_start_jmin, hdf_end_jmin,         &
-                             hdf_time_interval, run_time_interval)              
-          integer, intent(out) :: offset                  !< time offset to read hydro tidefile (from runtime_hydro_prev on)
-          integer, intent(out) :: num_buffers             !< number of total buffer blocks
+                             gtm_start_jmin, gtm_end_jmin)         
+          implicit none                            
+          integer, intent(out) :: num_blocks              !< number of total buffer blocks
           integer, allocatable, intent(out) :: memlen(:)  !< length of memory for each buffer
-          integer, intent(out) :: runtime_hydro_start     !< starting hydro julmin (corresponding hydro time window for GTM runtime)
-          integer, intent(out) :: runtime_hydro_end       !< ending hydro julmin (corresponding hydro time window for GTM runtime)
-          integer, intent(out) :: beginning_skip          !< skip gtm time step in the beginning of simulation (to get time_index right)
           integer, intent(in) :: time_buffer              !< time buffer length
           integer, intent(in) :: hdf_start_jmin           !< hydro tidefile start julian minutes
           integer, intent(in) :: hdf_end_jmin             !< hydro tidefile end Julian minutes
           integer, intent(in) :: hdf_time_interval        !< hydro tidefile time interval
-          real(gtm_real), intent(in) :: run_time_interval !< gtm runtime time interval
-          real(gtm_real), intent(in) :: run_start_jmin    !< GTM start Julian miniutes
-          real(gtm_real), intent(in) :: run_end_jmin      !< GTM end Julian miniutes
+          real(gtm_real), intent(in) :: gtm_start_jmin    !< gtm tidefile start julian minutes
+          real(gtm_real), intent(in) :: gtm_end_jmin      !< gtm tidefile end Julian minutes         
           integer :: remainder, i                         ! local variables
           integer :: istat = 0                            ! error handling for allocation
-          offset = LARGEINT
-          num_buffers = LARGEINT
-          remainder = LARGEINT
-          runtime_hydro_start = LARGEREAL
-          runtime_hydro_end  = LARGEREAL        
-          if (run_start_jmin < hdf_start_jmin+hdf_time_interval) then
+          num_blocks = LARGEINT
+          remainder = LARGEINT       
+          if (int(gtm_start_jmin) < hdf_start_jmin) then
               write(*,*) "HDF file time range:",jmin2cdt(hdf_start_jmin),"-",jmin2cdt(hdf_end_jmin)          
               call gtm_fatal("GTM starting time should be within HDF file time range.")
-          else if (run_end_jmin > hdf_end_jmin) then
+          else if (int(gtm_start_jmin) > hdf_end_jmin) then
               write(*,*) "HDF file time range:",jmin2cdt(hdf_start_jmin),"-",jmin2cdt(hdf_end_jmin)          
-              call gtm_fatal(" GTM ending time should be within HDF file time range.")
+              call gtm_fatal("GTM ending time should be within HDF file time range.")
           else 
-              do i = hdf_start_jmin, hdf_end_jmin, hdf_time_interval
-                  if (run_start_jmin .le. i) then
-                      runtime_hydro_start = i - hdf_time_interval
-                      goto 233
-                  end if                  
-              enddo     
-233           do i = hdf_end_jmin, hdf_start_jmin, -hdf_time_interval
-                  if (run_end_jmin .gt. i) then
-                      runtime_hydro_end = i + hdf_time_interval
-                      goto 234
-                  elseif (run_end_jmin .eq. i) then
-                      runtime_hydro_end = i
-                      goto 234
-                  end if                  
-              enddo                              
-234           offset = (runtime_hydro_start - hdf_start_jmin)/hdf_time_interval
-              num_buffers = int((runtime_hydro_end - runtime_hydro_start)/hdf_time_interval/time_buffer) + 1
-              remainder = mod((runtime_hydro_end - runtime_hydro_start)/hdf_time_interval, time_buffer)
-              allocate(memlen(num_buffers), stat = istat)
-              if (num_buffers>1) then
-                  do i = 1, num_buffers - 1
+              num_blocks = int((hdf_end_jmin - hdf_start_jmin)/hdf_time_interval/time_buffer) + 1
+              remainder = mod((hdf_end_jmin - hdf_start_jmin)/hdf_time_interval, time_buffer)
+              allocate(memlen(num_blocks), stat = istat)
+              if (num_blocks>1) then
+                  do i = 1, num_blocks - 1
                       memlen(i) = time_buffer
                   end do
               end if
-              memlen(num_buffers) = remainder              
-              beginning_skip = (run_start_jmin-runtime_hydro_start)/run_time_interval !+ hdf_time_interval/run_time_interval
+              memlen(num_blocks) = remainder              
           end if
           return  
     end subroutine
-    
     
     !> Subroutine to return current block number and slice in the block
     subroutine get_loc_in_hydro_buffer(iblock,            &
@@ -174,34 +146,25 @@ module time_utilities
                                        current_time,      &
                                        start_hydro_block, & 
                                        memory_buffer,     &
-                                       beginning_skip,    &
                                        hdf_time_interval, &
                                        gtm_time_interval)
         use gtm_logging, only:debug_unit
         implicit none
         integer, intent(in) :: start_hydro_block        !< offset to start reading hydro tidefile
         integer, intent(in) :: memory_buffer            !< memory buffer
-        integer, intent(in) :: beginning_skip           !< skip gtm time step in the beginning of simulation (to get time_index right)       
         integer, intent(in) :: hdf_time_interval        !< hydro tidefile time interval
         real(gtm_real), intent(in) :: current_time      !< current julian time        
         real(gtm_real), intent(in) :: gtm_time_interval !< gtm time interval
         integer, intent(out) :: iblock                  !< block index
         integer, intent(out) :: slice_in_block          !< slice in block
-        real(gtm_real), intent(out) :: time_index       !< time index within hydro time step
-        real(gtm_real) :: tmp1, tmp2, tmp3              ! local variable
-        tmp1 = (current_time - dble(start_hydro_block) + dble(hdf_time_interval)) &
-              /dble(hdf_time_interval)/dble(memory_buffer)
-        iblock = ceiling(tmp1)
-        tmp2 = (current_time - dble((iblock-1)*memory_buffer*hdf_time_interval) - &
-               dble(start_hydro_block-hdf_time_interval))/dble(hdf_time_interval)
-        slice_in_block = ceiling(tmp2)
-        if (iblock==1) then
-            tmp3 = (current_time - ((dble(iblock)-one)*dble(memory_buffer)+(dble(slice_in_block)-two))*dble(hdf_time_interval) - dble(start_hydro_block))/gtm_time_interval
-        else
-            tmp3 = (current_time - ((dble(iblock)-one)*dble(memory_buffer)+(dble(slice_in_block)-one))*dble(hdf_time_interval) - dble(start_hydro_block))/gtm_time_interval + dble(beginning_skip)
-        end if    
-        time_index = tmp3 + one
-        write(debug_unit,*) slice_in_block,time_index, current_time, start_hydro_block
+        integer, intent(out) :: time_index              !< time index within mesh
+        
+        iblock = int((current_time - dble(start_hydro_block))/dble(hdf_time_interval)/dble(memory_buffer)) + 1
+        
+        slice_in_block = int((current_time - dble(start_hydro_block))/dble(hdf_time_interval) - (dble(iblock)-one)*dble(memory_buffer)) + 1
+        
+        time_index = (current_time - dble(start_hydro_block) - ((dble(iblock)-one)*dble(memory_buffer)+(dble(slice_in_block)-one))*dble(hdf_time_interval))/gtm_time_interval + 1
+        
         return
     end subroutine        
     
