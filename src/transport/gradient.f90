@@ -136,6 +136,8 @@ module gradient
         integer :: n_up_cell, n_down_cell                     ! num of connected up/down-stream cells        
         integer :: icell, i, j       
         logical :: limit_slope                                ! whether slope limiter is used         
+        integer :: min_cell_no
+        
         if (present(use_limiter))then
             limit_slope = use_limiter
         else
@@ -147,89 +149,46 @@ module gradient
         else    
             grad = grad_center
         end if    
-        grad(1,:)     = grad_hi(1,:)             ! in case cell_no=1 does not locate at actual boundary, w/t this line will cause error. 
-        grad(ncell,:) = grad_lo(ncell,:)         ! in case cell_no=ncell does not locate at actual boundary, w/t this line will cause error.          
-         
+        !grad(1,:)     = grad_hi(1,:)             ! in case cell_no=1 does not locate at actual boundary, w/t this line will cause error. 
+        !grad(ncell,:) = grad_lo(ncell,:)         ! in case cell_no=ncell does not locate at actual boundary, w/t this line will cause error.          
+          
         !------ adjust boundaries ------
-        !                  ---------------------------------------
-        !    up_bound_val  |   vals(icell)   |   vals(icell+1)   |
-        !                  ---------------------------------------
-        !                     
-        !                  ---------------------------------------
-        !  down_bound_val  |   vals(icell)   |   vals(icell-1)   |
-        !                  ---------------------------------------
-        !if ((n_boun.eq.LARGEINT).or.(n_boun.eq.2)) then ! For single channel problem
-        !    return
-        !else                                            ! For multiple boundaries
-        !    do i = 1, n_boun
-        !        icell = bound(i)%cell_no
-        !        if (bound(i)%up_down .eq. 1) then  ! upstream boundary
-        !            grad_center(icell,:) = (vals(icell+1,:) - bound_val(i,:))/ &
-        !                                   (dx(icell) + half*dx(icell+1))
-        !            grad_hi(icell,:) = (vals(icell+1,:) - vals(icell,:)) /     &
-        !                               (half*dx(icell+1) + half*dx(icell))
-        !            grad_lo(icell,:) = (vals(icell,:) - bound_val(i,:)) /      &
-        !                               (half*dx(icell))
-        !        else                              ! downstream boundary
-        !            grad_center(icell,:) = (bound_val(i,:) - vals(icell-1,:))/ &
-        !                                   (dx(icell) + half*dx(icell-1))
-        !            grad_hi(icell,:) = (bound_val(i,:) - vals(icell,:))/       &
-        !                               (half*dx(icell))
-        !            grad_lo(icell,:) = (vals(icell,:) - vals(icell-1,:))/      &
-        !                               (half*dx(icell) + half*dx(icell-1)) 
-        !        end if                           
-        !    end do                 
-        !end if
+        if (n_boun > 0) then 
+            do i = 1, n_boun
+                icell = bound(i)%cell_no
+                if (bound(i)%up_down .eq. 1) then  ! upstream boundary
+                    grad(icell,:) = grad_hi(icell,:)
+                else                               ! downstream boundary
+                    grad(icell,:) = grad_lo(icell,:)
+                end if                           
+            end do                 
+        end if
  
         !------ adjust junctions ------
-        !if (n_junc > 0) then
-        !    do i = 1, n_junc
-        !        n_up_cell = 0
-        !        n_down_cell = 0 
-        !        upval = zero
-        !        downval = zero
-        !        up_length = zero
-        !        down_length = zero
-        !        do j = 1, junc(i)%n_conn_cells
-        !            if (junc(i)%up_down(j)==0) then ! upstream cells
-        !                n_up_cell = n_up_cell + 1
-        !                upval(:) = upval(:) + vals(junc(i)%cell_no(j),:)
-        !                up_length = up_length + dx(junc(i)%cell_no(j))
-        !            else ! downstream cells
-        !                n_down_cell = n_down_cell + 1
-        !                downval(:) = downval(:) + vals(junc(i)%cell_no(j),:)
-        !                down_length = down_length + dx(junc(i)%cell_no(j))
-        !            end if
-        !        end do
-        !   
-        !        up_split_ratio   = 1 / n_up_cell
-        !        down_split_ratio = 1 / n_down_cell
-        !        up_length   = up_length / n_up_cell
-        !        down_length = down_length / n_down_cell
-        !    
-        !        do j = 1, junc(i)%n_conn_cells
-        !            icell = junc(i)%cell_no(j)
-        !            if (junc(i)%up_down(j)==0) then ! upstream cells
-        !                grad_center(icell,:) = (up_split_ratio*downval(:) - vals(icell-1,:))/     &
-        !                                       (half*up_split_ratio*down_length + dx(icell) + half*dx(icell-1))
-        !                grad_hi(icell,:)     = (up_split_ratio*downval(:) - vals(icell,:))/       &
-        !                                       (half*up_split_ratio*down_length + half*dx(icell))
-        !                grad_lo(icell,:)     = (vals(icell,:) - vals(icell-1,:))/                 &
-        !                                       (half*dx(icell) + half*dx(icell-1))
-        !                grad(icell,:) = min(grad_center(icell,:), grad_hi(icell,:), grad_lo(icell,:))
-        !            else ! downstream cells
-        !                grad_center(icell,:) = (vals(icell+1,:) - down_split_ratio*upval(:))/     &
-        !                                       (half*dx(icell+1) + dx(icell) + half*down_split_ratio*up_length)
-        !                grad_hi(icell,:)     = (vals(icell+1,:) - vals(icell,:))/                 &
-        !                                       (half*dx(icell+1) + half*dx(icell))
-        !                grad_lo(icell,:)     = (vals(icell,:) - down_split_ratio*upval(:))/     &
-        !                                       (half*dx(icell) + half*down_split_ratio*up_length)                       
-        !                grad(icell,:) = min(grad_center(icell,:), grad_hi(icell,:), grad_lo(icell,:))
-        !            end if
-        !        end do
-        !    end do  
-        !end if
-
+        if (n_junc > 0) then
+            ! assign gradient for cells around junction to be zero--> first order accuracy
+            do i = 1, n_junc           
+                do j = 1, junc(i)%n_conn_cells
+                   icell = junc(i)%cell_no(j)
+                   grad(icell,:) = zero
+                end do
+            end do          
+            ! assign gradient for cells around junction equal to upstream adjent cell
+            !do i = 1, n_junc           
+            !    min_cell_no = 10000   ! a dummy number helps to detect minimum cell no
+            !    do j = 1, junc(i)%n_conn_cells
+            !       icell = junc(i)%cell_no(j)                
+            !       if ((junc(i)%up_down(j)==0) .and. (icell<min_cell_no)) then
+            !           min_cell_no = icell
+            !       end if
+            !    end do
+            !    do j = 1, junc(i)%n_conn_cells
+            !        icell = junc(i)%cell_no(j)
+            !        grad(icell,:) = grad_hi(min_cell_no,:)
+            !    end do
+            !end do  
+        end if
+ 
         return
     end subroutine
 

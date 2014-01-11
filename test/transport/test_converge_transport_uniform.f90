@@ -119,7 +119,7 @@ module test_convergence_transport_uniform
         use gtm_logging
         use hydro_uniform_flow
         use dispersion_coefficient
-
+        
         implicit none
 
         logical, intent(in) :: verbose                   !< Switch for detailed show of the results
@@ -158,10 +158,10 @@ module test_convergence_transport_uniform
         logical :: remote  = .false.                                                !< Flag Switch todo: ?
 
         integer, parameter :: n_bound = 2
-        real(gtm_real) :: bound_val(n_bound)
+        real(gtm_real) :: bound_val(n_bound,nconc)
 
         bound_val = one
-
+        
         acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
 
         if (present(detail_result))then
@@ -273,7 +273,7 @@ module test_convergence_transport_uniform
     !> produce fine initial condition and reference solution 
     subroutine initial_final_solution_uniform(fine_initial_conc,     &
                                               fine_solution_conc,    &
-                                              ic_center,             &
+                                              ic_center,             & 
                                               ic_peak,               &
                                               const_velocity,        &
                                               decay_rate,            &

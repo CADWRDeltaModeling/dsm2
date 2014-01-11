@@ -130,6 +130,88 @@ module boundary_advection
    end subroutine 
   
   
+    !> Example advective flux that imposes boundary concentration based on the values read from input file
+    subroutine bc_fixup_advection_flux(flux_lo,    &
+                                     flux_hi,    &
+                                     conc_lo,    &
+                                     conc_hi,    &
+                                     flow_lo,    &
+                                     flow_hi,    &
+                                     ncell,      &
+                                     nvar,       &
+                                     time,       &
+                                     dt,         &
+                                     dx)
+       use gtm_precision
+       use error_handling
+       use common_variables, only: n_boun, bound, n_junc, junc
+       implicit none
+       !--- args          
+       integer,intent(in)  :: ncell                            !< Number of cells
+       integer,intent(in)  :: nvar                             !< Number of variables
+       real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
+       real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+       real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
+       real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
+       real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
+       real(gtm_real),intent(in)    :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
+       real(gtm_real),intent(in)    :: time                    !< Current time
+       real(gtm_real),intent(in)    :: dx(ncell)               !< Spatial step  
+       real(gtm_real),intent(in)    :: dt                      !< Time step 
+       real(gtm_real) :: flow_tmp
+       real(gtm_real) :: mass_tmp(nvar)
+       real(gtm_real) :: conc_tmp(nvar)
+       integer :: i, j, icell   
+     
+       if (n_boun .ne. LARGEINT) then 
+           do i = 1, n_boun
+               icell = bound(i)%cell_no
+               if (bound(i)%up_down .eq. 1) then      ! upstream boundary
+                   flux_lo(icell,:) = conc_lo(icell,:)*flow_lo(icell)
+               else
+                   flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)
+               end if
+           end do            
+       end if
+       
+       if (n_junc .ne. LARGEINT) then
+           do i = 1, n_junc
+               ! calculate the average concentration into a junction
+               flow_tmp = zero               
+               mass_tmp(:) = zero
+               conc_tmp(:) = zero
+               do j = 1, junc(i)%n_conn_cells
+                   icell = junc(i)%cell_no(j)
+                   if (junc(i)%up_down(j)==0 .and. flow_hi(icell)>zero) then        !cell at updstream of junction
+                       mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
+                       flow_tmp = flow_tmp + flow_hi(icell)
+                   elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then    !cell at downdstream of junction
+                       mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*flow_lo(icell)
+                       flow_tmp = flow_tmp + flow_lo(icell)
+                   endif                   
+               end do
+               if (flow_tmp==zero) then
+                   write(*,*) "WARNING: No flow flows into junction!!",icell               
+                   conc_tmp(:) = zero
+               else     
+                   conc_tmp(:) = mass_tmp(:)/flow_tmp
+               end if
+               ! assign average concentration to downstream cell faces
+               do j = 1, junc(i)%n_conn_cells
+                    icell = junc(i)%cell_no(j)
+                    if (junc(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then
+                       flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)
+                   elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then
+                       flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
+                   endif                
+               end do   
+           end do
+       end if
+               
+       return
+  end subroutine  
+  
+  
   !> Example advective flux that imposes boundary concentration based on the values read from input file
   subroutine bc_advection_flux(flux_lo,    &
                                flux_hi,    &

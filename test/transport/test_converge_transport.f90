@@ -61,6 +61,7 @@ module test_convergence_transport
         use test_utility
         use source_sink
         use dispersion_coefficient
+        use common_variables, only: boundary_t
 
         implicit none
 
@@ -85,7 +86,8 @@ module test_convergence_transport
         real(gtm_real), intent(in) :: bound_val(n_bound, nconc)         !< boundary condition
         logical, intent(in),optional :: detail_printout                 !< Whether to produce detailed printouts
         real(gtm_real), intent(in) :: acceptance_ratio(3)               !< Acceptance ratio for test convergence
-
+        type(boundary_t) :: boundary(n_bound)                           !< boundary
+        
         !---local
         logical :: detailed_printout= .true.                            !< Printout Flag
         integer, parameter :: nrefine = 3                               !< Number of refinements 
@@ -159,6 +161,10 @@ module test_convergence_transport
       
             dx = domain_length/dble(nx)
             dt = total_time/dble(nstep)
+            boundary(1)%cell_no = 1
+            boundary(1)%up_down = 1
+            boundary(2)%cell_no = nx
+            boundary(2)%up_down = 0            
 
             do icell = 1,nx
                 x_center(icell) = (dble(icell)-half)*dx(icell)
@@ -254,6 +260,8 @@ module test_convergence_transport
                            time,       &
                            dt,         &
                            dx,         &
+                           n_bound,    &
+                           boundary,   &
                            bound_val,  &
                            limit_slope)
 

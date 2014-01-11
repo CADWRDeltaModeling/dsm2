@@ -120,7 +120,7 @@ program gtm
     nt = npartition_t + 1
     allocate(flow_mesh(nt, nx), area_mesh(nt, nx))
     allocate(flow_volume_change(nt-1, nx-1), area_volume_change(nt-1, nx-1))
-    allocate(prev_flow_cell(n_comp*nx, nx))
+    allocate(prev_flow_cell(n_comp, nx))
     allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
     allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
     allocate(prev_avga(n_comp))
@@ -162,7 +162,7 @@ program gtm
     fill_hydro => gtm_flow_area
     compute_source => no_source
     !compute_source => linear_decay_source
-    advection_boundary_flux => zero_advective_flux
+    advection_boundary_flux => bc_fixup_advection_flux
     
     write(*,*) "Process time series...."
     write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
@@ -327,6 +327,8 @@ program gtm
                     dble(current_time)*sixty, &
                     gtm_time_interval*sixty,  &
                     dx_arr,                   &
+                    n_boun,                   &
+                    bound,                    &
                     bound_val,                &
                     limit_slope)     
         call cons2prim(conc, mass, area, n_cell, n_var)
@@ -366,5 +368,6 @@ program gtm
     call close_qual_hdf(qual_hdf)         
     call hdf5_close
     close(debug_unit)
+    pause    
 end program
 

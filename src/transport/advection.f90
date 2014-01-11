@@ -54,6 +54,8 @@ module advection
                       time,       &
                       dt,         &
                       dx,         &
+                      n_bound,    &
+                      boundary,   &
                       bound_val,  &
                       use_limiter)  
    
@@ -62,22 +64,24 @@ module advection
         use gradient
         use source_sink
         use boundary_advection
-        use common_variables
+        use common_variables, only: boundary_t
 
         implicit none
  
         !--- args
-        integer,intent(in)  :: ncell                        !< Number of cells
-        integer,intent(in)  :: nvar                         !< Number of variables
+        integer, intent(in) :: ncell                         !< Number of cells
+        integer, intent(in) :: nvar                          !< Number of variables
+        integer, intent(in) :: n_bound                       !< number of boundaries
 
-        real(gtm_real),intent(out) :: mass(ncell,nvar)      !< mass at new time
-        real(gtm_real),intent(in)  :: mass_prev(ncell,nvar) !< mass at old time
-        real(gtm_real),intent(in)  :: flow_prev(ncell)      !< cell-centered flow, old time
-        real(gtm_real),intent(in)  :: flow_lo(ncell)        !< flow on lo side of cells centered in time
-        real(gtm_real),intent(in)  :: flow_hi(ncell)        !< flow on hi side of cells centered in time
-        real(gtm_real),intent(in)  :: area_prev(ncell)      !< cell-centered area at old time. not used in algorithm?
-        real(gtm_real),intent(in)  :: area(ncell)           !< cell-centered area at new time. not used in algorithm?
-        real(gtm_real),intent(in)  :: bound_val(n_boun,nvar)!< boundary concentrations
+        real(gtm_real),intent(out) :: mass(ncell,nvar)       !< mass at new time
+        real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)  !< mass at old time
+        real(gtm_real),intent(in)  :: flow_prev(ncell)       !< cell-centered flow, old time
+        real(gtm_real),intent(in)  :: flow_lo(ncell)         !< flow on lo side of cells centered in time
+        real(gtm_real),intent(in)  :: flow_hi(ncell)         !< flow on hi side of cells centered in time
+        real(gtm_real),intent(in)  :: area_prev(ncell)       !< cell-centered area at old time. not used in algorithm?
+        real(gtm_real),intent(in)  :: area(ncell)            !< cell-centered area at new time. not used in algorithm?
+        type(boundary_t), intent(in) :: boundary(n_bound)    !< boundary info
+        real(gtm_real),intent(in)  :: bound_val(n_bound,nvar)!< boundary concentrations
 
         ! todo: area_lo is time centered here? I think currently it is correct for advection only.
         !       however, area_lo is also needed for diffusion at old time and new time.
@@ -85,12 +89,12 @@ module advection
         !       it may be adequately accurate to have a first order estimate and the half time estimate is first order)
 
         ! todo: should we separate hydro_if for centered and face data?
-        real(gtm_real),intent(in)  :: area_lo(ncell)        !< lo side area (todo: at new time?)
-        real(gtm_real),intent(in)  :: area_hi(ncell)        !< hi side area (todo: at new time?
-        real(gtm_real),intent(in)  :: time                  !< new time
-        real(gtm_real),intent(in)  :: dt                    !< current time step from old time to new time
-        real(gtm_real),intent(in)  :: dx(ncell)             !< spatial step
-        logical,intent(in),optional :: use_limiter          !< whether to use slope limiter
+        real(gtm_real),intent(in)  :: area_lo(ncell)         !< lo side area (todo: at new time?)
+        real(gtm_real),intent(in)  :: area_hi(ncell)         !< hi side area (todo: at new time?
+        real(gtm_real),intent(in)  :: time                   !< new time
+        real(gtm_real),intent(in)  :: dt                     !< current time step from old time to new time
+        real(gtm_real),intent(in)  :: dx(ncell)              !< spatial step
+        logical,intent(in),optional :: use_limiter           !< whether to use slope limiter
 
         !-----locals
         real(gtm_real) :: source_prev(ncell,nvar) !< cell centered source at old time
@@ -182,29 +186,34 @@ module advection
 
         ! Replace fluxes for special cases having to do with boundaries, network and structures
         ! Imposes the advection boundary flux
-        if (n_boun .ne. LARGEINT) then 
-            do i = 1, n_boun
-                icell = bound(i)%cell_no
-                if (bound(i)%up_down .eq. 1) then      ! upstream boundary
+        if (n_bound .ne. LARGEINT) then 
+            do i = 1, n_bound
+                icell = boundary(i)%cell_no
+                if (boundary(i)%up_down .eq. 1) then      ! upstream boundary
                     conc_lo(icell,:) = bound_val(i,:)
                 else
                     conc_hi(icell,:) = bound_val(i,:)
                 end if
-            end do            
-            advection_boundary_flux => bc_advection_flux
+            end do                          
         end if
         
-        call advection_boundary_flux(flux_lo,     &
-                                     flux_hi,     &
-                                     conc_lo,     &
-                                     conc_hi,     &
-                                     flow_lo,     &
-                                     flow_hi,     &
-                                     ncell,       &
-                                     nvar,        &
-                                     half_time,   &
-                                     dt,          &
-                                     dx)
+        
+        if (associated(advection_boundary_flux))then
+            call advection_boundary_flux(flux_lo,     &
+                                         flux_hi,     &
+                                         conc_lo,     &
+                                         conc_hi,     &
+                                         flow_lo,     &
+                                         flow_hi,     &
+                                         ncell,       &
+                                         nvar,        &
+                                         half_time,   &
+                                         dt,          &
+                                         dx)        
+        else        
+            advection_boundary_flux => bc_advection_flux      
+        end if
+
 
         ! Combine the fluxes into a divergence term at the half time at cell edges.
         ! Computing and storing the divergence separately gives some flexibility with integrating

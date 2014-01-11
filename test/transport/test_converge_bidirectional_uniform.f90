@@ -133,9 +133,10 @@ module test_converge_bidirectional_uniform
         logical :: remote  = .false.                                                 !< Flag Switch todo: ?
 
         integer, parameter :: n_bound = 2
-        real(gtm_real) :: bound_val(n_bound)
+        real(gtm_real) :: bound_val(n_bound,nconc)
 
-        bound_val = one
+        bound_val(1,:) = one
+        bound_val(2,:) = zero
 
         acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
 
