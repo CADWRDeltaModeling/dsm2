@@ -35,7 +35,7 @@ public class RouteInputs {
 			else
 				setFishScreens(screensInText);
 			
-			if( dicuInText == null || dicuInText.size() < 3)
+			if( dicuInText == null || dicuInText.size() < 1)
 				System.err.println("WARNING: no dicu info found or the info is not properly defined in behavior inputs.");
 			else
 				_dicuFilterEfficiency = PTMUtil.getDouble(dicuInText.get(0).trim());

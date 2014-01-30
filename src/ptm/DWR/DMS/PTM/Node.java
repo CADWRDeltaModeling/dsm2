@@ -50,7 +50,7 @@ public class Node{
     for (int i=0 ; i<numberOfWaterbodies; i++){
       wbIndexArray[i] = wbIdArray[i];
     }
-    boundaryType = bdType;
+    //boundaryType = bdType;
     randomNumberGenerator = new Ranecu(INITIAL_SEED);
   }
   
@@ -60,7 +60,7 @@ public class Node{
   public Node(int nId){
     EnvIndex = nId;
     numberOfWaterbodies=0;
-    LABoundaryType = -1;
+    //LABoundaryType = -1;
   }
   
   /**
@@ -106,17 +106,6 @@ public class Node{
   
   public final Waterbody[] getWaterbodies() {return wbArray; }
   
-  //TODO clean up this never been called
-  /*
-  public final ArrayList<Float> getChannelOutflows(){
-	  ArrayList<Float> chanflows = new ArrayList<Float>();
-	  for (int i = 0; i<wbArray.length; i++){
-		  if (wbArray[i].getType()==Waterbody.CHANNEL)
-			  chanflows.add(getOutflow(i));
-	  }
-	  return chanflows;	  
-  }
-  */
   
   public final Waterbody getChannel(int envIndex){
 	  for (int i = 0; i<wbArray.length; i++){
@@ -146,15 +135,6 @@ public class Node{
   public final boolean isJunctionDeadEnd(){
     return(false);
   }
-  //TODO clean up nolonger used
-  /*
-  private boolean isAgSeep(int internalWbId){
-	  if ((getWaterbody(internalWbId).getType() == Waterbody.BOUNDARY) &&
-		  (((Boundary)getWaterbody(internalWbId)).getBoundaryName().equals("AG_SEEP")))
-			  return true;
-	  return false;
-  }
-  */
   
   public final void setTotalWaterbodyInflows(){
 	  float totalInflows = 0.0f;
@@ -177,55 +157,7 @@ public class Node{
    *  Add up all flows leaving the Node
    *  for particle decision making at junction
    */
-  //TODO get rid of addSeepDICU
-  public final float getTotalWaterbodyInflows(){
-	 return _totalWBInflows; 
-	//TODO clean up
-	/*
-    float totalInflow=0.0f;
-    // for each Waterbody connected to junction add the outflows
-    for (int id=0; id < numberOfWaterbodies; id++) {
-    	if(!addSeepDicu){
-	  		float thisFlow = getWBInflow(id);
-	        if (thisFlow != 0 && !isAgSeep(id)
-	        		&& !(this._fishScreenInstalled && wbArray[id].isFishScreenInstalled()))
-	        	totalInflow += thisFlow; 		  
-  	  	}
-  	  	else{
-  	  		totalInflow += getWBInflow(id);
-  	  	}
-    }
-    return (totalInflow);
-    */
-  }
-  
-  /**
-   *  Get the positive outflow to a particular Waterbody from this Node
-   *  It returns a zero for negative outflow or inflow
-   */
-  //TODO clean up don't need it anymore
-  /*
-  private final float getOutflow(int id){
-    return Math.max(0.0f,getSignedOutflow(id));
-  }
-  */
-  /**
-   *  Return a particular Waterbody inflow through this Node
-   *  return 0 if the flow leaves the Waterbody
-   *  the parameter id is a local Waterbody id connected to the node
-   */
-  //private final float getSignedOutflow(int id){
-  //TODO no need for this method, clean up
-  /*
-  public final float getWBInflow(int id){
-    int junctionIdInWaterbody= 0;
-    //find the local node id in the particular waterbody, e.g. in channel 0 or 1
-    junctionIdInWaterbody = wbArray[id].getNodeLocalIndex(EnvIndex);
-    if (junctionIdInWaterbody == -1)
-      PTMUtil.systemExit("No such node " + this.toString());
-    return Math.max(0.0f, wbArray[id].getInflow(junctionIdInWaterbody));
-  }
-  */
+  public final float getTotalWaterbodyInflows(){return _totalWBInflows;}
   
   /**
    *  Return the node index
@@ -350,12 +282,12 @@ public class Node{
    *  for boundary Waterbody information as only waterbodies can be
    *  boundaries.
    */
-  private String boundaryType;
+  //private String boundaryType;
   
   /**
    *  Length of boundary array.
    */
-  private int LABoundaryType;
+  //private int LABoundaryType;
   
   private boolean _barrierInstalled = false;
   private boolean _fishScreenInstalled = false;

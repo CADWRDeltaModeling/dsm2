@@ -8,7 +8,7 @@ package DWR.DMS.PTM;
  *
  */
 
-//TODO Should make this class universal? but how to make sure type safe?
+//TODO Should make this class to be accessible by other fish types? but how to make sure type safe?
 public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	// is that good to have so many private variables?
 	private Waterbody _wb;
@@ -80,14 +80,14 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 			System.out.println("Particle doesn't know the node! exit.");
 			System.exit(-1);
 		}
-		// false means that seepage flows are excluded.  the total out flow does not include ag seepage flow
+		// false means that seepage flows are excluded.  the total waterbody inflows do not include ag seepage flow
 	    _waterbodyInflows = _nd.getTotalWaterbodyInflows();
 	    _rand = _nd.getRandomNumber();
 	}
 
 	/* 
-	 * be careful! when isNodeReached() method is called in Particle,
-	 * the current node is replaced by the node just reached and the total outflows is related to
+	 * be careful! when isNodeReached() method is called in Particle, the current node is replaced 
+	 * by the node just reached and the total waterbodyInflows is related to
 	 * that node.  
 	 */
 	public void makeRouteDecision(Particle p) {
@@ -106,40 +106,26 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	    float totalInflowWOAgDiv = _nd.getTotalWaterbodyInflows() - totalAgDivFlows;
 	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
 	    boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
-	    
-	    //TODO need to be changed here bugs about ag dicu efficiency
-	    //float agDivFlowLeft = 0.0f;
-	    //float totalFlowWOAg = 0.0f;
-	    //int numWb = _nd.getNumberOfWaterbodies();
-	    //float [] wbs = new float[numWb];
 
-	    
-	    //System.err.println("nd id="+_nd.getEnvIndex()+" # of wb =");
 	    do {
 	    	waterbodyId ++;
 	    	thisWb = _nd.getWaterbody(waterbodyId);
-	    	//System.out.println("wb id ="+thisWb.getEnvIndex());
 	    	float thisFlow = Math.max(0, thisWb.getInflow(_nd.getEnvIndex()));
 		    float modFlow = 0.0f;
-		    //float agDivFlowLeft = 0.0f;
-		    //float totalFlowWOAg = 0.0f;
-		    //TODO check for conveyor and reservoir types
-	    	if (dicuFilter){
+	    	if (thisWb.isAgSeep() || (_nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
+	    		modFlow = 0;
+	    	else if (dicuFilter){
 	    		if (thisWb.isAgDiv())
 	    			modFlow = ((float) (thisFlow*_dicuEfficiency)); 
-    			//agDivFlowLeft = thisFlow - modFlow;
-    			//totalFlowWOAg = _waterbodyInflows - thisFlow;
 	    		else if (totalInflowWOAgDiv > 0.0f)
 	    			modFlow = thisFlow + (thisFlow/totalInflowWOAgDiv)*totalAgDivLeftOver;
+	    		else
+		    		modFlow = thisFlow;
 	    	}
-	    	//else if (agDivFlowLeft > 0.0f && totalFlowWOAg > 0.0f)
-	    		//modFlow = thisFlow + agDivFlowLeft*thisFlow/totalFlowWOAg;
-	    	else if (thisWb.isAgSeep() || (_nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
-	    		modFlow = 0;	
 	    	else
 	    		modFlow = thisFlow;
 	    	flow += modFlow;	    	
-	    	// _outflow here is total _outflow * _rand
+	    	// _waterbodyInflows here is total _waterbodyInflows * _rand
 	    }while (flow < _waterbodyInflows && waterbodyId < _nd.getNumberOfWaterbodies());
 	    // get a pointer to the waterbody in which pParticle entered.
 	    p.wb = thisWb;
