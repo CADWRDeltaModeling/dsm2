@@ -64,7 +64,9 @@ class Conveyor extends Waterbody {
    *  Return flow direction sign
    *  always opposite from H5 flow sign
    */
-  public int flowType(int nodeId){return INFLOW;}
+  public int flowType(int nodeId){return OUTFLOW;}
+  public boolean isAgSeep(){ return false;}
+  public boolean isAgDiv(){ return false;}
   /**
    *  Get the type from particle's point of view
    */

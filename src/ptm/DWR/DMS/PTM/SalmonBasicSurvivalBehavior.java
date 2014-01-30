@@ -30,6 +30,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	public void isSurvived(Particle p) {
 		// age in days
 		// p.age in seconds
+		/*
 		double age = p.age/(60d*60d*24d);
 		if (age<0)
 			PTMUtil.systemExit("Particle age is negative. Please fix it.  Exit from Particle line 30");
@@ -71,6 +72,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 				System.out.println("channel:"+PTMHydroInput.getExtFromIntChan(((Channel) aWB).getEnvIndex())
 				+"  id:" + p.Id + "  age:"+age*24*60*60+"  survival probability:"+ survivalProbability+"  p.isDead:"+p.isDead);	
 		}
+		*/
 	}
 	
 	//TODO this is fast exp calculation.  should it be used for other PTM calculations?

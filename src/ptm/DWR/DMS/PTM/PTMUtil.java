@@ -60,6 +60,8 @@ public class PTMUtil {
         catch(IOException e){
              e.printStackTrace();
         }
+        if (blockList.size() == 0)
+        		return null;
         return blockList;
     }
 	public static ArrayList<String> getInputBlock(ArrayList<String> inputBlocks, String start, String end){

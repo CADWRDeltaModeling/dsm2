@@ -55,7 +55,9 @@ public class SurvivalInputs {
 	public SurvivalInputs(ArrayList<String> inList, String fishType) {
 		_fishType = fishType;
 		setHelper();
-		setChannelGroups(PTMUtil.getInputBlock(inList, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS"));
+		if (inList != null)
+			setChannelGroups(PTMUtil.getInputBlock(inList, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS"));
+		System.out.println("Created SurvivalHelper...");
 	}
 	public void addSpecialBehaviors(SurvivalHelper sh, String particleType){}
 	public void setChannelInfo(Waterbody[] allChans, int chanNum){

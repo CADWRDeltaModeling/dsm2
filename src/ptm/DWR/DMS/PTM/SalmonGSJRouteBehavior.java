@@ -18,6 +18,7 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 	public SalmonGSJRouteBehavior(Integer nodeId, Integer gsWbId) {
 		_nodeId = nodeId;
 		_gsWbId = gsWbId;
+		System.out.println("Created SalmonGSJRouteBehavior...");
 	}
 	public SalmonGSJRouteBehavior() {
 		// instantiate a junction with internal node number

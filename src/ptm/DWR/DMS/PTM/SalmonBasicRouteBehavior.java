@@ -15,17 +15,21 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	private Node _nd;
 	private float _channelLength;
 	private float _repositionFactor;
-	private float _outflow;
+	private float _waterbodyInflows;
 	private float _rand;
 	private Particle _p = null;
+	static double _dicuEfficiency = 0.0;
 
 	/**
 	 * 
 	 */
 	public SalmonBasicRouteBehavior() {
-		// TODO do nothing for now
+		
 	}
 	
+	public static void setDicuFilterEfficiency(double eff) {
+		_dicuEfficiency = eff;
+	}
 	private final float getPerturbedXLocation(){
 	    float newXPosition = 0.0f;
 	    if (_wb.getPTMType() ==  Waterbody.CHANNEL) {
@@ -52,16 +56,16 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	    // end of a slough, then move the Particle into the Channel a
 	    // small amount.
 
-	    if (_outflow == 0.0f && _nd.getNumberOfWaterbodies() == 1) {
+	    if (_waterbodyInflows == 0.0f && _nd.getNumberOfWaterbodies() == 1) {
 	      p.x = getPerturbedXLocation();
 	      return false;
 	    }
 	    //float out2 = outflow;
 	    
 
-	    _outflow = _rand*_outflow;
+	    _waterbodyInflows = _rand*_waterbodyInflows;
 	  
-	    if (_outflow == 0.0){
+	    if (_waterbodyInflows == 0.0){
 	      p.particleWait = true;
 	      return false;
 	    }
@@ -77,7 +81,7 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 			System.exit(-1);
 		}
 		// false means that seepage flows are excluded.  the total out flow does not include ag seepage flow
-	    _outflow = _nd.getTotalOutflow(false);
+	    _waterbodyInflows = _nd.getTotalWaterbodyInflows();
 	    _rand = _nd.getRandomNumber();
 	}
 
@@ -91,35 +95,52 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 			PTMUtil.systemExit("the particle passed in SalmonBasicRouteBehavior is null");
 	    _p = p;
 		assignVariables();
-		// after prescreen() call, _outflow = _rand*_outflow
+		// after prescreen() call, _waterbodyInflows = _rand*_waterbodyInflows
 	    if (!prescreen(p))
 	    	return;
 	    
 	    int waterbodyId = -1;
 	    Waterbody thisWb = null;
 	    float flow = 0.0f;
+	    float totalAgDivFlows = _nd.getTotalAgDiversion();
+	    float totalInflowWOAgDiv = _nd.getTotalWaterbodyInflows() - totalAgDivFlows;
+	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
+	    boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
+	    
+	    //TODO need to be changed here bugs about ag dicu efficiency
+	    //float agDivFlowLeft = 0.0f;
+	    //float totalFlowWOAg = 0.0f;
+	    //int numWb = _nd.getNumberOfWaterbodies();
+	    //float [] wbs = new float[numWb];
+
+	    
+	    //System.err.println("nd id="+_nd.getEnvIndex()+" # of wb =");
 	    do {
 	    	waterbodyId ++;
 	    	thisWb = _nd.getWaterbody(waterbodyId);
-	    	float thisFlow = _nd.getOutflow(waterbodyId);
+	    	//System.out.println("wb id ="+thisWb.getEnvIndex());
+	    	float thisFlow = Math.max(0, thisWb.getInflow(_nd.getEnvIndex()));
 		    float modFlow = 0.0f;
-		    float agDivFlowLeft = 0.0f;
-		    float totalFlowWOAg = 0.0f;
+		    //float agDivFlowLeft = 0.0f;
+		    //float totalFlowWOAg = 0.0f;
 		    //TODO check for conveyor and reservoir types
-	    	if (thisWb.getType() == Waterbody.BOUNDARY && ((Boundary) thisWb).getBoundaryName().equals("AG_DIV")){
-    			modFlow = ((float) (thisFlow*Globals.Environment.getBehaviorInputs().getRouteInputs().getDicuFilterEfficiency())); 
-    			agDivFlowLeft = thisFlow - modFlow;
-    			totalFlowWOAg = _outflow - thisFlow;
+	    	if (dicuFilter){
+	    		if (thisWb.isAgDiv())
+	    			modFlow = ((float) (thisFlow*_dicuEfficiency)); 
+    			//agDivFlowLeft = thisFlow - modFlow;
+    			//totalFlowWOAg = _waterbodyInflows - thisFlow;
+	    		else if (totalInflowWOAgDiv > 0.0f)
+	    			modFlow = thisFlow + (thisFlow/totalInflowWOAgDiv)*totalAgDivLeftOver;
 	    	}
-	    	else if (agDivFlowLeft > 0.0f && totalFlowWOAg > 0.0f)
-	    		modFlow = thisFlow + agDivFlowLeft*thisFlow/totalFlowWOAg;
-	    	else if (_nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled())
+	    	//else if (agDivFlowLeft > 0.0f && totalFlowWOAg > 0.0f)
+	    		//modFlow = thisFlow + agDivFlowLeft*thisFlow/totalFlowWOAg;
+	    	else if (thisWb.isAgSeep() || (_nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
 	    		modFlow = 0;	
 	    	else
 	    		modFlow = thisFlow;
 	    	flow += modFlow;	    	
 	    	// _outflow here is total _outflow * _rand
-	    }while (flow < _outflow && waterbodyId < _nd.getNumberOfWaterbodies());
+	    }while (flow < _waterbodyInflows && waterbodyId < _nd.getNumberOfWaterbodies());
 	    // get a pointer to the waterbody in which pParticle entered.
 	    p.wb = thisWb;
 	    // send message to observer about change 

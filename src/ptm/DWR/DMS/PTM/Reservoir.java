@@ -42,7 +42,9 @@ public class Reservoir extends Waterbody{
    *  Return flow direction sign
    *  always opposite from H5 flow sign
    */
-  public int flowType(int nodeId){return INFLOW;}
+  public int flowType(int nodeId){return OUTFLOW;}
+  public boolean isAgSeep(){ return false;}
+  public boolean isAgDiv(){ return false;}
   /**
    *  Return the hydrodynamic type of Reservoir
    */

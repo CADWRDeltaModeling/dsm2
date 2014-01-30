@@ -109,36 +109,6 @@ public class PTMEnv{
     _behaviorInputs.setWaterbodyInfo(wbArray);
     _behaviorInputs.setNodeInfo(nodeArray);
     _particleType = _behaviorInputs.getFishType();
-    //TODO Clean up
-    
-    /*
-     * add helpers
-             
-    if ((_particleType == null) || (!_particleType.equalsIgnoreCase("SALMON") && !_particleType.equalsIgnoreCase("SMELT"))) 
-    	 PTMUtil.systemExit("Particle Type is not defined or defined incorrect! Exit from line 147 PTMEnv.");
-    // String switch only works for Java 1.7  make a map for now
-    Map<String, Integer> map = new HashMap<String, Integer>();
-    map.put("SALMON",1);
-    map.put("SMELT", 2);
-    switch (map.get(_particleType.toUpperCase())){
-		case 1: //"SALMON":
-			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
-			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior());
-			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior());
-			_behaviorInputs.getRouteInputs().addSpecialBehaviors(_routeHelper, "SALMON");
-			_behaviorInputs.getSwimInputs().addSpecialBehaviors(_swimHelper, "SALMON");
-			_behaviorInputs.getSurvivalInputs().addSpecialBehaviors(_survivalHelper, "SALMON");
-			break;
-		case 2: //"SMELT":
-			// will be implemented later
-			//_routeHelper = new SmeltRouteHelper(new SalmonBasicRouteBehavior());
-			//_swimHelper = new SmeltSwimHelper(new SalmonBasicSwimBehavior());
-			//_survivalHelper = new SmeltSurvivalHelper(new SalmonBasicSurvivalBehavior());
-			break;
-    }
-    
-     * end adding helpers
-     */
   }
 
   /**
@@ -159,8 +129,6 @@ public class PTMEnv{
 			  aChan.setXSectionArray(xSPtrArray);
 		  }  
 	  }
-	  //TODO Clean up
-	  //_behaviorInputs.setChannelInfo(wbArray, fixedInput.getNumberOfChannels());
 	  if (DEBUG) System.out.println("Done with initialzing xSections");
 	  //set nodes for wb (not only channels)
 	  for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
@@ -465,6 +433,8 @@ public class PTMEnv{
   /**
    *
    */
+  //TODO this is never called, please investigate. commented out for now
+  /*
   void updateBoundaryWaterbodiesHydroInfo(){
     if (DEBUG) System.out.println("in updateBoundaryWaterbodiesHydroInfo");
     int flowNumber = fixedInput.getMaximumNumberOfChannels()
@@ -491,6 +461,7 @@ public class PTMEnv{
       }//end if
     }//end for
   }
+  */
   
   /**
    *  Fills in Node info. It also collects info from waterbodies defined
@@ -512,8 +483,6 @@ public class PTMEnv{
       }
       nodeArray[i].setWbArray(wbs);
     }
-    //TODO clean up
-    //_behaviorInputs.setNodeInfo(nodeArray, fixedInput.getMaximumNumberOfNodes());
     // Now initialize each Node object with an array of waterbodies it connects to
     if (DEBUG) System.out.println("Done with setNodeInfo");
   }
@@ -525,6 +494,7 @@ public class PTMEnv{
   public final void getHydroInfo(int currentTime){
     hydroInput.getNextChunk(currentTime);
     hydroInput.updateWaterbodiesHydroInfo(wbArray, fixedInput.getLimitsFixedData());
+    hydroInput.updateNodesHydroInfo(nodeArray);
     //  updateBoundaryWaterbodiesHydroInfo();
     _behaviorInputs.updateCurrentInfo(nodeArray, wbArray, currentTime);
   }
@@ -593,9 +563,9 @@ public class PTMEnv{
   }
   
   public PTMBehaviorInputs getBehaviorInputs(){ return _behaviorInputs;}
-  public RouteHelper getRouteHelper(){return _behaviorInputs.getRouteInputs().getRouteHelper();}
+  public RouteHelper getRouteHelper(){ return _behaviorInputs.getRouteInputs().getRouteHelper();}
   public SurvivalHelper getSurvivalHelper(){return _behaviorInputs.getSurvivalInputs().getSurvivalHelper();}
-  public SwimHelper getSwimHelper(){return _behaviorInputs.getSwimInputs().getSwimHelper();}
+  public SwimHelper getSwimHelper(){ return _behaviorInputs.getSwimInputs().getSwimHelper();}
   public static Integer getReservoirObj2ObjEnvId(String name){
 	  if (_reservoirObj2objNameID == null || _reservoirObj2objNameID.isEmpty())
 			  PTMUtil.systemExit("the map for reservoir/Object to Object name vs waterbody ID is empty!");
@@ -652,9 +622,6 @@ public class PTMEnv{
   private int numberOfGroups;
   private String _particleType;
   private PTMBehaviorInputs _behaviorInputs;
-  //private RouteHelper _routeHelper = null;
-  //private SwimHelper _swimHelper = null;
-  //private SurvivalHelper _survivalHelper = null;
   private static Map<String, Integer> _reservoirObj2objNameID = null; 
 }
 

@@ -80,7 +80,7 @@ public class PTMHydroInput{
     float[] areaArray = new float[2];
     int numConst = PTMFixedData.getQualConstituentNames().length;  
     float[][] qualityArray = new float[2][numConst];
-
+    // channelNumber is waterbody's envIndex because waterbodies start from channels
     for(int channelNumber=1; 
         channelNumber <= PTMFixedData.getMaximumNumberOfChannels(); 
         channelNumber++){
@@ -161,7 +161,6 @@ public class PTMHydroInput{
     		}
     	}
 
-    
     	// update stage boundary flows
     	flowArray = new float[1];
     	for (int stgId = 0;
@@ -211,6 +210,12 @@ public class PTMHydroInput{
   	}
 
   	private native void  readMultTide(int currentModelTime);
+	public final void updateNodesHydroInfo(Node [] nodeArray) {
+		for (Node node: nodeArray){
+			if (node != null)
+				node.setTotalWaterbodyInflows();
+		}
+	}
 
   //private native int   getExtFromInt(int channelNumber);
   public native static int getExtFromIntChan(int inchannelNumber);

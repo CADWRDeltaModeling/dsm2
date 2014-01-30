@@ -59,9 +59,21 @@ class Boundary extends Waterbody {
     super(Waterbody.BOUNDARY, nId, ndArray);
     String upName = boundaryName.toUpperCase();
     if (upName.contains("DICU")){
-    	if(upName.contains("SEEP")){_boundaryName = "AG_SEEP";}
-    	else if (upName.contains("DIV")){_boundaryName = "AG_DIV";}
-    	else if  (upName.contains("DRAIN")){_boundaryName = "AG_DRAIN";}
+    	if(upName.contains("SEEP")){
+    		_boundaryName = "AG_SEEP";
+    		_isSeep = true;
+    		_isDiv = false;
+    	}
+    	else if (upName.contains("DIV")){
+    		_boundaryName = "AG_DIV";
+    		_isSeep = false;
+    		_isDiv = true;
+    	}
+    	else if  (upName.contains("DRAIN")){
+    		_boundaryName = "AG_DRAIN";
+    		_isSeep = false;
+    		_isDiv = false;
+    	}
     	else {PTMUtil.systemExit("Wrong DICU Type encountered: "+boundaryName);}
     }
     else{ _boundaryName = boundaryName;}
@@ -70,7 +82,9 @@ class Boundary extends Waterbody {
    *  Return flow direction sign
    *  always opposite from H5 flow sign
    */
-  public int flowType(int nodeId){return INFLOW;}
+  public int flowType(int nodeId){return OUTFLOW;}
+  public boolean isAgSeep(){ return _isSeep;}
+  public boolean isAgDiv(){ return _isDiv;}
   /**
    *  Get the type from particle's point of view
    */
@@ -83,4 +97,5 @@ class Boundary extends Waterbody {
   
   public String getBoundaryName(){return _boundaryName;}
   private String _boundaryName;
+  private boolean _isSeep = false, _isDiv = false;
 }

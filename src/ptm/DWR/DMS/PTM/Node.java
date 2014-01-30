@@ -103,6 +103,11 @@ public class Node{
 	  }
 	  return chans;	  
   }
+  
+  public final Waterbody[] getWaterbodies() {return wbArray; }
+  
+  //TODO clean up this never been called
+  /*
   public final ArrayList<Float> getChannelOutflows(){
 	  ArrayList<Float> chanflows = new ArrayList<Float>();
 	  for (int i = 0; i<wbArray.length; i++){
@@ -111,6 +116,8 @@ public class Node{
 	  }
 	  return chanflows;	  
   }
+  */
+  
   public final Waterbody getChannel(int envIndex){
 	  for (int i = 0; i<wbArray.length; i++){
 		  Waterbody awb = wbArray[i];
@@ -139,53 +146,86 @@ public class Node{
   public final boolean isJunctionDeadEnd(){
     return(false);
   }
+  //TODO clean up nolonger used
+  /*
   private boolean isAgSeep(int internalWbId){
 	  if ((getWaterbody(internalWbId).getType() == Waterbody.BOUNDARY) &&
 		  (((Boundary)getWaterbody(internalWbId)).getBoundaryName().equals("AG_SEEP")))
 			  return true;
 	  return false;
   }
+  */
   
+  public final void setTotalWaterbodyInflows(){
+	  float totalInflows = 0.0f;
+	  float totalags = 0.0f;
+	  for (Waterbody wb: wbArray){
+		  // not count for negative inflow
+		  float thisFlow = Math.max(0, wb.getInflow(EnvIndex));
+		  if (thisFlow != 0 && !wb.isAgSeep()
+	        		&& !(this._fishScreenInstalled && wb.isFishScreenInstalled()))
+	        	totalInflows += thisFlow;
+		  if (wb.isAgDiv())
+			  totalags += thisFlow;
+	  }
+	  _totalWBInflows = totalInflows;
+	  _totalAgInflows = totalags;
+  }
+  public float getTotalAgDiversion(){return _totalAgInflows;}
   /**
-   *  Get total positive outflow from Node<br>
+   *  Get total positive inflow to the water bodies<br>
    *  Add up all flows leaving the Node
    *  for particle decision making at junction
    */
-  public final float getTotalOutflow(boolean addSeepDicu){
-    float outflow=0.0f;
+  //TODO get rid of addSeepDICU
+  public final float getTotalWaterbodyInflows(){
+	 return _totalWBInflows; 
+	//TODO clean up
+	/*
+    float totalInflow=0.0f;
     // for each Waterbody connected to junction add the outflows
     for (int id=0; id < numberOfWaterbodies; id++) {
     	if(!addSeepDicu){
-  		float thisFlow = getOutflow(id);
-        if (thisFlow != 0 && !isAgSeep(id)
-        		&& !(this._fishScreenInstalled && wbArray[id].isFishScreenInstalled()))
-        	outflow += thisFlow; 		  
+	  		float thisFlow = getWBInflow(id);
+	        if (thisFlow != 0 && !isAgSeep(id)
+	        		&& !(this._fishScreenInstalled && wbArray[id].isFishScreenInstalled()))
+	        	totalInflow += thisFlow; 		  
   	  	}
   	  	else{
-  	  		outflow += getOutflow(id);
+  	  		totalInflow += getWBInflow(id);
   	  	}
     }
-    return (outflow);
+    return (totalInflow);
+    */
   }
   
   /**
    *  Get the positive outflow to a particular Waterbody from this Node
    *  It returns a zero for negative outflow or inflow
    */
-  public final float getOutflow(int id){
+  //TODO clean up don't need it anymore
+  /*
+  private final float getOutflow(int id){
     return Math.max(0.0f,getSignedOutflow(id));
   }
-  
+  */
   /**
-   *  Return signed flow to a particular Waterbody from this Node
+   *  Return a particular Waterbody inflow through this Node
+   *  return 0 if the flow leaves the Waterbody
+   *  the parameter id is a local Waterbody id connected to the node
    */
-  public final float getSignedOutflow(int id){
+  //private final float getSignedOutflow(int id){
+  //TODO no need for this method, clean up
+  /*
+  public final float getWBInflow(int id){
     int junctionIdInWaterbody= 0;
+    //find the local node id in the particular waterbody, e.g. in channel 0 or 1
     junctionIdInWaterbody = wbArray[id].getNodeLocalIndex(EnvIndex);
     if (junctionIdInWaterbody == -1)
-      System.out.println("Exception thrown in node " + this.toString());
-    return wbArray[id].getFlowInto(junctionIdInWaterbody);
+      PTMUtil.systemExit("No such node " + this.toString());
+    return Math.max(0.0f, wbArray[id].getInflow(junctionIdInWaterbody));
   }
+  */
   
   /**
    *  Return the node index
@@ -319,6 +359,8 @@ public class Node{
   
   private boolean _barrierInstalled = false;
   private boolean _fishScreenInstalled = false;
+  private float _totalWBInflows=0.0f;  // this number will never be negative
+  private float _totalAgInflows=0.0f;
   
   /**
    *  Delete wbIndexArray and anything else to save space.

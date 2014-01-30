@@ -802,7 +802,7 @@ _survivalHelper = null;
   protected void moveInConveyor(float delT){
     Conveyor c = (Conveyor)wb;
     if (DEBUG) System.out.println("Particle in conveyor: " + c );
-    float flow = c.getFlowInto(0);
+    float flow = c.getInflow(0);
     if (flow > 0) 
       setLocation( c.getNode(1) );
     else

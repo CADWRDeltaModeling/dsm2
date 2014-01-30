@@ -108,20 +108,19 @@ public abstract class Waterbody{
       randomNumberGenerator = new Ranecu(INITIAL_SEED);
   }
   /**
-   *  Get the signed flow into a particular Node
-   *  from the view of current Waterbody
+   *  Get the flow into the Waterbody through the particular Node, which Id is passed in
+   *  Node is identified by its global index
    *  used for particle node decision
-   *  Node is identified by its local index
    *  Sign convention:
-   *  Inflows into Node - positive (no sign change)
-   *  Outflows from Node - negative (sign change)
+   *  flows into the water body through the node - positive
+   *  flows out the water body through the node - negative 
+   *  in case of reverse flows flow there is a change in sign
    */
-  public final float getFlowInto(int nodeId){
-    //float flow=0.0f;
+  public final float getInflow(int nodeEnvId){
+	int nodeId = getNodeLocalIndex(nodeEnvId);
     if (flowType(nodeId) == OUTFLOW) 
-      return (flowAt[nodeId]);
-    else
       return (-flowAt[nodeId]);
+    return (flowAt[nodeId]);
   }
   
   /**
@@ -129,7 +128,12 @@ public abstract class Waterbody{
    *  OUTFLOW & INFLOW do not represent their physical meanings 
    *  i.e. intermediate var for particle decision making at junction node
    */
-  public abstract int flowType(int nodeId);
+  protected abstract int flowType(int nodeId);
+  /**
+   *  inform the boundary type
+   */
+  public abstract boolean isAgSeep();
+  public abstract boolean isAgDiv();
   /**
    *  Get the type from particle's point of view
    */
@@ -170,7 +174,10 @@ public abstract class Waterbody{
    * from the its global index
    */
   public final int getNodeLocalIndex(int nodeIdGlobal){
-	  return _nodeIdArray.indexOf(new Integer(nodeIdGlobal));
+	  int nodeId = _nodeIdArray.indexOf(new Integer(nodeIdGlobal));
+	  if (nodeId == -1)
+		  PTMUtil.systemExit("No such node " + this.toString());
+	  return nodeId;
   }
   
   /**

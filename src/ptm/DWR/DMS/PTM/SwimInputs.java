@@ -20,6 +20,7 @@ public class SwimInputs {
 		_fishType = fishType;
 		setHelper();
 		// TODO Auto-generated constructor stub
+		System.out.println("Created SwimHelper...");
 	}
 	public void setChannelInfo(Waterbody[] allChans, int chanNum){}
 	public void setNodeInfo(Node[] allNodes, int nodeNum){}

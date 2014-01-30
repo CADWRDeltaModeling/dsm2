@@ -9,10 +9,10 @@ import java.util.ArrayList;
  *
  */
 public class PTMBehaviorInputs {
-	private String _fishType;
-	private SurvivalInputs _survivalInputs;
-	private SwimInputs _swimInputs;
-	private RouteInputs _routeInputs;
+	private String _fishType = null;
+	private SurvivalInputs _survivalInputs=null;
+	private SwimInputs _swimInputs=null;
+	private RouteInputs _routeInputs=null;
 	
 	private void extractFishType(ArrayList<String> fishTypeText){
 		if (fishTypeText==null || fishTypeText.size()==0) 
@@ -32,28 +32,39 @@ public class PTMBehaviorInputs {
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
 		extractFishType(fishTypeList);
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
+		if (survivalInputText == null)
+			System.err.println("WARNING: no survival behavior input found!");
 		_survivalInputs = new SurvivalInputs(survivalInputText,  _fishType);
 		ArrayList<String> swimInputText = PTMUtil.getInputBlock(inputText, "SWIM_INPUTS", "END_SWIM_INPUTS");
+		if (swimInputText == null)
+			System.err.println("WARNING: no swim behavior input found!");
 		_swimInputs = new SwimInputs(swimInputText,  _fishType);
 		ArrayList<String> routeInputText = PTMUtil.getInputBlock(inputText, "ROUTE_INPUTS", "END_ROUTE_INPUTS");
+		if (routeInputText == null)
+			System.err.println("WARNING: no route behavior input found!");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
 		PTMUtil.closeBuffer(inputText);
 	}
 	public void setWaterbodyInfo(Waterbody[] allWbs){
-		_routeInputs.setBarrierWbInfo(allWbs);
-		_routeInputs.setFishScreenWbInfo(allWbs);
+		if (_routeInputs != null){
+			_routeInputs.setBarrierWbInfo(allWbs);
+			_routeInputs.setFishScreenWbInfo(allWbs);
+		}
 		//_survivalInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
 		//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
 		
 	}
 	public void setNodeInfo(Node[] allNodes){
-		_routeInputs.setBarrierNodeInfo(allNodes);
-		_routeInputs.setFishScreenNodeInfo(allNodes);
+		if (_routeInputs != null){
+			_routeInputs.setBarrierNodeInfo(allNodes);
+			_routeInputs.setFishScreenNodeInfo(allNodes);
+		}
 		//_survivalInputs.setNodeInfo(allNodes);
 		//_swimInputs.setNodeInfo(allNodes);
 	}
-	public void updateCurrentInfo(Node[] allNodes, Waterbody[] allChans, int currentTime){
-		_routeInputs.updateCurrentBarrierInfo(allChans, currentTime);
+	public void updateCurrentInfo(Node[] allNodes, Waterbody[] allWbs, int currentTime){
+		if (_routeInputs != null)
+			_routeInputs.updateCurrentBarrierInfo(allWbs, currentTime);
 		//_survivalInputs.updateCurrentInfo(allNodes, allChans, currentTime);
 		//_swimInputs.updateCurrentInfo(allNodes, allChans, currentTime);
 	}

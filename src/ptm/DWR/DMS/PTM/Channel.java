@@ -212,19 +212,23 @@ public class Channel extends Waterbody{
    
   /**
    *  Return flow direction sign
-   *  OUTFLOW->Positive (no sign change) if node is upstream node
-   *  INFLOW->Negative (sign change) if downstream node
+   *  INFLOW (flow into water body) = 1 if node is upstream node
+   *  OUTFLoW (flow out water body) = -1 if downstream node
+   *  in tidal situation, if flow reverses (flow from downstream), 
+   *  flow at down node will be multiplied by -1 to be positive
+   *  flow at down node will stay negative
    */
   public int flowType( int nodeId ){
     if (nodeId == UPNODE) 
-      return OUTFLOW;
-    else if (nodeId == DOWNNODE) 
       return INFLOW;
+    else if (nodeId == DOWNNODE) 
+      return OUTFLOW;
     else{
       throw new IllegalArgumentException();
     }
   }
-  
+  public boolean isAgSeep(){ return false;}
+  public boolean isAgDiv(){ return false;}
   /**
    *  vertical profile multiplier
    */
@@ -379,61 +383,6 @@ public class Channel extends Waterbody{
     for(int i=1; i<MAX_PROFILE; i++)
       vertProfile[i] = (float) (1.0f + (0.1f/VONKARMAN)*(1.0f + Math.log(((float)i)/MAX_PROFILE)));
   }
-  
-  //non-physical barriers related
-  
-  /**
-   *  install a non-physical barrier
-   */
-  //TODO clean up
-  /*
-  public final void installBarrierAtUpNode(){
-	  _upBarrierInstalled = true;
-  }
-  public final void installBarrierAtDownNode(){
-	  _downBarrierInstalled = true;
-  }
-  *
-  
-  /**
-   *  get non-physical barrier op info
-   */
-  /*
-  public final boolean isBarrierAtUpNodeInstalled(){
-	  return _upBarrierInstalled;
-  }
-  public final boolean isBarrierAtDownNodeInstalled(){
-	  return _downBarrierInstalled;
-  }
-  */
-  
-  /**
-   *  get non-physical barrier op info
-   */
-  /*
-  public final int getBarrierAtUpNodeOp(){
-	  return _upBarrierOp;
-  }
-  public final int getBarrierAtDownNodeOp(){
-	  return _downBarrierOp;
-  }
-  */
-  
-  /**
-   *  set non-physical barrier op value
-   */
-  /*
-  public final void setBarrierAtUpNodeOp(int barrierOp){
-	  _upBarrierOp = barrierOp;
-  }
-  
-  public final void setBarrierAtDownNodeOp(int barrierOp){
-	  _downBarrierOp = barrierOp;
-  }
-  */
-  
- // end non-physical barriers
-  
   /**
    *  Number of cross sections
    */
@@ -464,15 +413,6 @@ public class Channel extends Waterbody{
   private float[] areaAt;
   private float[] depthAt;
   private float[] stageAt;
-  //TODO Clean up
-  /*
-  private float area;
-  private float bottomElevation;
-  private int _upBarrierOp = 0;
-  private int _downBarrierOp = 0;
-  private boolean _upBarrierInstalled = false;
-  private boolean _downBarrierInstalled = false;
-  */
   private int _chanGroupID = -1;
   
   /**

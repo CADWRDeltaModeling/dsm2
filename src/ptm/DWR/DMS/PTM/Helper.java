@@ -64,9 +64,8 @@ public abstract class Helper<K,B> {
 		K key = getKey(p);
 		if (key != null){
 			B specialB = lookUp(key);
-			if (specialB != null){
+			if (specialB != null)
 				return specialB;
-			}
 			else if (_basic != null)
 				return _basic;
 			else{
