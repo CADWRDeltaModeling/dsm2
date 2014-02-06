@@ -254,19 +254,24 @@ public abstract class Waterbody{
   public int getObjectType(){
     return _oType;
   }
+  //TODO clean up not going to use
   /**
    * sets the group number
    */
+  /*
   public void setGroup(int group){
     _group = group;
     //    System.out.println(numberId+", group "+group);
   }
+  */
   /**
     * Returns the group number
     */
+  /*
   public int getGroup(){
     return _group;
   }
+  */
   /**
    *  returns upstream water quality for constituent
    */
@@ -371,7 +376,7 @@ public abstract class Waterbody{
   /**
    * The group number
    */
-  private int _group;
+  //private int _group;
   private boolean _isBarrierInstalled = false;
   private ArrayList<Integer> _barrierNodeIdList = null;
   private ArrayList<Integer> _fishScreenNodeIdList = null;

@@ -3,6 +3,7 @@
  */
 package DWR.DMS.PTM;
 import java.security.SecureRandom;
+import java.util.Map;
 
 /**
  * @author xwang
@@ -10,11 +11,12 @@ import java.security.SecureRandom;
  */
 public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	//TODO Hard-wired temporarily, need to be read from input file 
-	public static double _instSacMortalityRate = 0.048262; 
-	public static double _instInteriorMortalityRate = 0.084402;
-	public static double _instSJRMortalityRate = 0.0;
-	public static double _instOtherMortalityRate = 0.0;
-	private boolean DEBUG = false;
+	//public static double _instSacMortalityRate = 0.048262; 
+	//public static double _instInteriorMortalityRate = 0.084402;
+	//public static double _instSJRMortalityRate = 0.0;
+	//public static double _instOtherMortalityRate = 0.0;
+	private boolean DEBUG = true;
+	private Map<String, Double> _survivalRates = null;
 
 	/**
 	 * 
@@ -22,7 +24,12 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	public SalmonBasicSurvivalBehavior() {
 		// TODO Auto-generated constructor stub
 	}
-
+	/**
+	 * 
+	 */
+	public SalmonBasicSurvivalBehavior(Map<String, Double> survivalRates) {
+		_survivalRates = survivalRates;
+	}
 	/* (non-Javadoc)
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
 	 */
@@ -30,12 +37,24 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	public void isSurvived(Particle p) {
 		// age in days
 		// p.age in seconds
-		/*
+		
 		double age = p.age/(60d*60d*24d);
 		if (age<0)
-			PTMUtil.systemExit("Particle age is negative. Please fix it.  Exit from Particle line 30");
+			PTMUtil.systemExit("in particle survial behavior, expect positive age but get:" + age);
 		double survivalProbability = 0;
-		Waterbody aWB = p.wb;
+		Waterbody wb = p.wb;
+		Double rate = null;
+		if ((wb.getType() == Waterbody.CHANNEL) && (_survivalRates != null)
+				&& ((rate = _survivalRates.get(((Channel) wb).getChanGroup())) != null)){
+			survivalProbability = Math.exp(rate*age*(-1.0));
+			if(DEBUG){
+				System.out.println("id:"+p.Id+" group:"+((Channel) wb).getChanGroup()+ " rate:"+ rate);
+				System.out.println("age:"+age*60d*60d*24d+"  survival probability:"+survivalProbability);
+			}	
+		}
+		else
+			survivalProbability = 1;
+		/*
 		if (aWB.getType() == Waterbody.CHANNEL){
 			switch (((Channel) aWB).getChanGroup()){
 				case 1: survivalProbability = Math.exp(_instSacMortalityRate*age*(-1.0));
@@ -66,13 +85,14 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		}
 		else
 			survivalProbability = 1;
+		*/
 		if (survivalProbability<(new SecureRandom()).nextDouble()){
 			p.isDead = true;	
 			if(DEBUG) 
-				System.out.println("channel:"+PTMHydroInput.getExtFromIntChan(((Channel) aWB).getEnvIndex())
+				System.out.println("channel:"+PTMHydroInput.getExtFromIntChan(((Channel) wb).getEnvIndex())
 				+"  id:" + p.Id + "  age:"+age*24*60*60+"  survival probability:"+ survivalProbability+"  p.isDead:"+p.isDead);	
 		}
-		*/
+		
 	}
 	
 	//TODO this is fast exp calculation.  should it be used for other PTM calculations?

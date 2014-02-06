@@ -50,9 +50,13 @@ public class PTMBehaviorInputs {
 			_routeInputs.setBarrierWbInfo(allWbs);
 			_routeInputs.setFishScreenWbInfo(allWbs);
 		}
-		//TODO
-		//_survivalInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
-		//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
+		if (_survivalInputs != null){
+			_survivalInputs.setChannelInfo(allWbs);
+		}
+		if (_swimInputs != null){
+			//TODO need finish this
+			//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
+		}
 		
 	}
 	public void setNodeInfo(Node[] allNodes){

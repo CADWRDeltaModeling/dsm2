@@ -67,6 +67,8 @@ public class PTMUtil {
 	public static ArrayList<String> getInputBlock(ArrayList<String> inputBlocks, String start, String end){
         ArrayList<String> block = null;
         Iterator<String> it;
+        start = start.toUpperCase();
+        end = end.toUpperCase();
         try{
             if (inputBlocks == null || (it = inputBlocks.iterator())==null || !it.hasNext())
             	return null;
@@ -83,6 +85,8 @@ public class PTMUtil {
         catch(Exception e){
              e.printStackTrace();
         }
+        if (block.size()==0)
+        	return null;
         return block;
     }
 	public static void systemExit(String message){
@@ -99,9 +103,13 @@ public class PTMUtil {
 		cur.setTimeInMillis((long)currentTime*60000+hecTime0.getTimeInMillis());
 		return cur;
 	}
+	
+	//TODO clean up never been used
+	/*
 	public static String concatNodeWbIds(int nodeId, int wbId){	
 		return (Integer.toString(nodeId)+"_"+Integer.toString(wbId));
 	}
+
 	public static int[] getIntsFromString(String text){
 		int[] ints = null;
 		try{
@@ -115,17 +123,18 @@ public class PTMUtil {
 		}
 		return ints;
 	}
+	*/
 	public static Set<Integer> readSet(ArrayList<String> inText){
 		  if (inText == null)
 			  return null;
 		  Set<Integer> list = new HashSet<Integer>();
-		  for (int i = 0; i<inText.size();i++){
-			  String[] items = inText.get(i).trim().split("[,\\s\\t]+");
-			  for (int j= 0; j<items.length;j++){
+		  for (String line: inText){
+			  String[] items = line.trim().split("[,\\s\\t]+");
+			  for (String item: items){
 				  try{
-					  list.add(PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[j])));
+					  list.add(PTMHydroInput.getIntFromExtChan(Integer.parseInt(item)));
 				  }catch(NumberFormatException e){
-					  PTMUtil.systemExit("Channel numbers in Survival inputs has wrong format: "+items[j]);
+					  PTMUtil.systemExit("Channel numbers in Survival inputs has wrong format: "+item);
 				  }
 			  }
 		  }
@@ -152,6 +161,18 @@ public class PTMUtil {
 			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be a double");	
 		}
 		return number;
+	}
+	public static ArrayList<Integer> getInts(String numberLine){
+		ArrayList<Integer> ints = new ArrayList<Integer>();
+		try{
+			String[] items = numberLine.split("[,:\\s\\t]+");
+			for (String item: items)
+				ints.add(Integer.parseInt(item));
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("expect integers but get:"+numberLine);	
+		}
+		return ints;
 	}
 	//TODO cleanup
 	/*

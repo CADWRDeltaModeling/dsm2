@@ -413,7 +413,7 @@ public class Channel extends Waterbody{
   private float[] areaAt;
   private float[] depthAt;
   private float[] stageAt;
-  private int _chanGroupID = -1;
+  private String _chanGroup = null;
   
   /**
    *  Bottom elevation of Channel or reservoir
@@ -481,9 +481,9 @@ public class Channel extends Waterbody{
       }
     }//end for
   }
-  public void setChanGroup(int groupID){ // 1: sac 2: interior 3: sjr
-	  _chanGroupID = groupID;
+  public void setChanGroup(String group){ 
+	  _chanGroup = group;
   }
-  public int getChanGroup(){ return _chanGroupID;}
+  public String getChanGroup(){ return _chanGroup;}
 }
 
