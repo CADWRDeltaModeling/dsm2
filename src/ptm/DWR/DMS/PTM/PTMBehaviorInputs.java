@@ -64,14 +64,16 @@ public class PTMBehaviorInputs {
 			_routeInputs.setBarrierNodeInfo(allNodes);
 			_routeInputs.setFishScreenNodeInfo(allNodes);
 		}
+		//TODO not needed now, maybe later
 		//_survivalInputs.setNodeInfo(allNodes);
 		//_swimInputs.setNodeInfo(allNodes);
 	}
 	public void updateCurrentInfo(Node[] allNodes, Waterbody[] allWbs, int currentTime){
 		if (_routeInputs != null)
 			_routeInputs.updateCurrentBarrierInfo(allWbs, currentTime);
-		//_survivalInputs.updateCurrentInfo(allNodes, allChans, currentTime);
-		//_swimInputs.updateCurrentInfo(allNodes, allChans, currentTime);
+		//TODO not needed now, maybe later
+		//_survivalInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
+		//_swimInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
 	}
 	public String getFishType(){return _fishType;}
 	public SwimInputs getSwimInputs(){ return _swimInputs;}

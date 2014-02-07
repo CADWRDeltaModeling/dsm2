@@ -39,7 +39,7 @@ public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior
 		else
 			return null;
 	}
-	//public void help(Particle p){}
+	
 	public void helpSurvival(Particle p){
 		SalmonSurvivalBehavior b = super.getBehavior(p);
 		if (b != null)

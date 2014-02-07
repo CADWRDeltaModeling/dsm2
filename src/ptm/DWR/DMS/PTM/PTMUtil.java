@@ -104,26 +104,6 @@ public class PTMUtil {
 		return cur;
 	}
 	
-	//TODO clean up never been used
-	/*
-	public static String concatNodeWbIds(int nodeId, int wbId){	
-		return (Integer.toString(nodeId)+"_"+Integer.toString(wbId));
-	}
-
-	public static int[] getIntsFromString(String text){
-		int[] ints = null;
-		try{
-			String [] intsStr = text.split("_");
-			int idNum = intsStr.length;
-			ints = new int[idNum];
-			for (int i = 0; i < idNum; i++)
-				ints[i] = Integer.parseInt(intsStr[i]);
-		}catch (NumberFormatException e){
-			e.printStackTrace();
-		}
-		return ints;
-	}
-	*/
 	public static Set<Integer> readSet(ArrayList<String> inText){
 		  if (inText == null)
 			  return null;

@@ -29,8 +29,6 @@ public class SurvivalInputs {
 		System.out.println("Created Survival Helper...");
 	}
 	
-	public void addSpecialBehaviors(SurvivalHelper sh, String particleType){}
-	
 	public void setChannelInfo(Waterbody[] waterbodies){
 		for (Waterbody wb: waterbodies){
 			if (wb != null && wb.getType() == Waterbody.CHANNEL){
@@ -44,10 +42,10 @@ public class SurvivalInputs {
 		}
 	}
 	
-	public void setNodeInfo(Node[] allNodes, int nodeNum){}
-	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
-		
-	}
+	//TODO never been used, may be needed later?
+	//public void setNodeInfo(Node[] allNodes){}
+	//public void updateCurrentInfo(Node[] allNodes, Waterbody[] allChans, int currentTime){}
+	//public void addSpecialBehaviors(SurvivalHelper sh, String particleType){}
 	public SurvivalHelper getSurvivalHelper(){ return _survivalHelper;}
 	
 	private void setChannelGroups(ArrayList<String> chanGroups){
@@ -75,7 +73,7 @@ public class SurvivalInputs {
 		//get Channel list
 		ArrayList<String> channelListStrs = PTMUtil.getInputBlock(chanGroups, "CHANNEL_LIST", "END_CHANNEL_LIST");
 		if (channelListStrs == null)
-			PTMUtil.systemExit("No channel list found or some list missing in the Channel_Groups block, system exit");
+			PTMUtil.systemExit("No channel list found, system exit");
 		_channelGroups = new HashMap<Integer, String>();
 		for (String name: _groupNames){
 			ArrayList<String> chanList = PTMUtil.getInputBlock(channelListStrs, name, "End_".concat(name));
@@ -87,32 +85,11 @@ public class SurvivalInputs {
 					Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
 					if (envId <= 0)
 						PTMUtil.systemExit("got a wrong channel ID:"+chanId+", system exit.");
-					else{
+					else
 						_channelGroups.put(envId, name);
-						System.out.println(name + " "+ envId);
-					}
 				}
 			}
 		}
-		/*
-		if (channelListStrs == null || (_groupNames.size() != channelListStrs.size()/2))
-			PTMUtil.systemExit("No channel list found or some list missing in the Channel_Groups block, system exit");
-		_channelGroups = new HashMap<Integer, String>();
-		for (int i = 0; i < channelListStrs.size()/2; i++){
-			String []  items = channelListStrs.get(2*i).trim().split("[:,\\s\\t]+");
-			String groupName = items[0].toUpperCase();
-			if (!_groupNames.contains(groupName))
-				PTMUtil.systemExit("got a wrong group name:"+groupName+", system exit.");
-			ArrayList<Integer> channelList = PTMUtil.getInts(channelListStrs.get(2*i+1));
-			for (Integer chanId: channelList){
-				Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
-				if (envId <= 0)
-					PTMUtil.systemExit("got a wrong channel ID:"+chanId+", system exit.");
-				else
-					_channelGroups.put(envId, groupName);
-			}
-		}
-		*/
 	}
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
