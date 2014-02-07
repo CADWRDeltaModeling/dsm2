@@ -10,11 +10,6 @@ import java.util.Map;
  *
  */
 public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
-	//TODO Hard-wired temporarily, need to be read from input file 
-	//public static double _instSacMortalityRate = 0.048262; 
-	//public static double _instInteriorMortalityRate = 0.084402;
-	//public static double _instSJRMortalityRate = 0.0;
-	//public static double _instOtherMortalityRate = 0.0;
 	private boolean DEBUG = true;
 	private Map<String, Double> _survivalRates = null;
 
@@ -54,38 +49,6 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		}
 		else
 			survivalProbability = 1;
-		/*
-		if (aWB.getType() == Waterbody.CHANNEL){
-			switch (((Channel) aWB).getChanGroup()){
-				case 1: survivalProbability = Math.exp(_instSacMortalityRate*age*(-1.0));
-				if(DEBUG){
-					System.out.println("in case Sac river");
-					System.out.println("age:"+age+"  survival probability:"+survivalProbability);
-				}			
-						break;
-				case 2: survivalProbability = Math.exp(_instInteriorMortalityRate*age*(-1.0));
-				if(DEBUG){
-					System.out.println("in case Interior");
-					System.out.println("age:"+age+"  survival probability:"+survivalProbability);
-				}
-						break;					
-				case 3: survivalProbability = Math.exp(_instSJRMortalityRate*age*(-1.0));
-				if(DEBUG){
-					System.out.println("in case SJR");
-					System.out.println("age:"+age+"  survival probability:"+survivalProbability);
-				}
-						break;
-				//TODO hardwired need to be changed
-				case 8: survivalProbability = Math.exp(_instOtherMortalityRate*age*(-1.0));
-				if(DEBUG){
-					System.out.println("in case other");
-					System.out.println("age:"+age+"  survival probability:"+survivalProbability);
-				}
-			}
-		}
-		else
-			survivalProbability = 1;
-		*/
 		if (survivalProbability<(new SecureRandom()).nextDouble()){
 			p.isDead = true;	
 			if(DEBUG) 

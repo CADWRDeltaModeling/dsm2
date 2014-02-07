@@ -74,6 +74,27 @@ public class SurvivalInputs {
 		}
 		//get Channel list
 		ArrayList<String> channelListStrs = PTMUtil.getInputBlock(chanGroups, "CHANNEL_LIST", "END_CHANNEL_LIST");
+		if (channelListStrs == null)
+			PTMUtil.systemExit("No channel list found or some list missing in the Channel_Groups block, system exit");
+		_channelGroups = new HashMap<Integer, String>();
+		for (String name: _groupNames){
+			ArrayList<String> chanList = PTMUtil.getInputBlock(channelListStrs, name, "End_".concat(name));
+			if (chanList == null)
+				PTMUtil.systemExit("expect to get a channel list for group:"+name+", but got none, system exit.");
+			for (String line: chanList){
+				ArrayList<Integer> chanIds = PTMUtil.getInts(line);
+				for (int chanId: chanIds){
+					Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
+					if (envId <= 0)
+						PTMUtil.systemExit("got a wrong channel ID:"+chanId+", system exit.");
+					else{
+						_channelGroups.put(envId, name);
+						System.out.println(name + " "+ envId);
+					}
+				}
+			}
+		}
+		/*
 		if (channelListStrs == null || (_groupNames.size() != channelListStrs.size()/2))
 			PTMUtil.systemExit("No channel list found or some list missing in the Channel_Groups block, system exit");
 		_channelGroups = new HashMap<Integer, String>();
@@ -91,6 +112,7 @@ public class SurvivalInputs {
 					_channelGroups.put(envId, groupName);
 			}
 		}
+		*/
 	}
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
