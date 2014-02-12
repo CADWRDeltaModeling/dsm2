@@ -181,8 +181,8 @@ module process_gtm_scalar
          write(unit_error,610)"repeating_tide is deprecated"         
       elseif (Param .eq. 'warmup_run') then
          call exit(-2)  
-      elseif (Param .eq. 'output_comp_pt') then
-         read(Val, '(l2)', err=810) output_comp_pt       
+      elseif (Param .eq. 'debug_print') then
+         read(Val, '(l2)', err=810) debug_print   
       else
          write(unit_error,610), Param, Val
          call exit(-1)

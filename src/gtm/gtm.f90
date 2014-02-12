@@ -49,6 +49,7 @@ program gtm
     use source_sink
     use boundary_advection
     use gtm_subs
+    use dsm2_time_utils, only: incr_intvl
 
     implicit none
     integer :: nt
@@ -60,6 +61,7 @@ program gtm
     real(gtm_real), allocatable :: prev_up_comp_ws(:), prev_down_comp_ws(:)
     real(gtm_real), allocatable :: prev_avga(:)
     real(gtm_real), allocatable :: flow_arr(:), ws_arr(:)
+    real(gtm_real), allocatable :: cfl(:)
     real(gtm_real) :: total_flow_volume_change, total_area_volume_change
     real(gtm_real) :: avga_volume_change, diff
     integer :: up_comp, down_comp    
@@ -68,6 +70,7 @@ program gtm
     integer :: iblock, slice_in_block, t_index
     real(gtm_real) :: time
     real(gtm_real) :: current_time
+    real(gtm_real) :: gtm_hdf_time_intvl
     integer :: offset, num_blocks, jday
     integer, allocatable :: memlen(:)
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
@@ -83,6 +86,7 @@ program gtm
     integer :: current_block = 0
     integer :: current_slice = 0
     integer :: time_index_in_gtm_hdf
+
     integer :: ierror
     logical :: debug_interp = .false.
 
@@ -133,10 +137,12 @@ program gtm
     call allocate_state_resv(n_resv, n_var)
     allocate(init_c(n_cell,n_var))
     allocate(linear_decay(n_var))
+    allocate(cfl(n_cell))    
     linear_decay = constant_decay
    
     constituents(1)%name = "EC"
     
+    gtm_hdf_time_intvl = incr_intvl(zero,gtm_io(3,2)%interval,1)
     call init_qual_hdf(qual_hdf,             &
                        gtm_io(3,2)%filename, &
                        n_cell,               &
@@ -241,26 +247,33 @@ program gtm
                 !avga_volume_change = (hydro_avga(up_comp,t)-prev_avga(up_comp)) * segm(i)%length
                 
                 if ((nt==2).and.(nx==2)) then
-                    call no_need_to_interp(flow_mesh, area_mesh,              &
+                    call no_need_to_interp(flow_mesh, area_mesh,                &
                                            segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,           &
                                            prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),     &
-                                            prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp), hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block),    &
-                                            prev_flow_cell)           
+                                           prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp), hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block),    &
+                                           prev_flow_cell)           
                 elseif ((nt==2).and.(nx>2)) then
-                    call interp_in_space_only(flow_mesh, area_mesh,                   &
-                                              segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,           &
-                                              prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),     &
-                                              hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),                 &
-                                              prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
+                    call interp_in_space_only(flow_mesh, area_mesh,                                                                       &
+                                              segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,    &
+                                              prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),                                 &
+                                              hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),                   &
+                                              prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),                                     &
                                               hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block), prev_flow_cell(i,:))
                 else
-                    call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,   &
-                                          segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.),   &
-                                          gtm_time_interval, nt, nx,                                      &
-                                          prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),     &
-                                          hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),                 &
-                                          prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),         &
+                    call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,             &
+                                          segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(dble(nx)-one),      &
+                                          gtm_time_interval, nt, nx,                                                &
+                                          prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),               &
+                                          hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block), &
+                                          prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),                   &
                                           hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block), prev_flow_cell(i,:))
+                    !call linear_interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,             & 
+                    !                             segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(dble(nx)-one),      &
+                    !                             gtm_time_interval, nt, nx,                                                &
+                    !                             prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),               &
+                    !                             hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block), &
+                    !                             prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),                   &
+                    !                             hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block))                    
                 end if
 
                 call fill_network(i, flow_mesh, area_mesh)                      
@@ -292,8 +305,7 @@ program gtm
             end do   !end for segment loop
             current_slice = slice_in_block
         end if
-        
-        
+                
         call fill_hydro(flow,     &
                         flow_lo,  &
                         flow_hi,  &
@@ -332,24 +344,33 @@ program gtm
                     bound_val,                &
                     limit_slope)     
         call cons2prim(conc, mass, area, n_cell, n_var)
+        cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
         
         !
         !----- print output to hdf5 file -----
         !              
-        time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_time_interval
-        call write_qual_hdf(qual_hdf,                 &
-                            conc,                     &
-                            n_cell,                   &
-                            n_var,                    &
-                            time_index_in_gtm_hdf)                      
-        call write_qual_hdf_ts(qual_hdf%cell_flow_id, &
-                               flow,                  & 
-                               n_cell,                &
-                               time_index_in_gtm_hdf)
-        call write_qual_hdf_ts(qual_hdf%cell_area_id, &
-                               area,                  & 
-                               n_cell,                &
-                               time_index_in_gtm_hdf)                               
+        if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
+            time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
+            call write_qual_hdf(qual_hdf,                 &
+                                conc,                     &
+                                n_cell,                   &
+                                n_var,                    &
+                                time_index_in_gtm_hdf)     
+            if (debug_print==.true.) then                                                 
+                call write_qual_hdf_ts(qual_hdf%cell_flow_id, &
+                                       flow,                  & 
+                                       n_cell,                &
+                                       time_index_in_gtm_hdf)
+                call write_qual_hdf_ts(qual_hdf%cell_area_id, &
+                                       area,                  & 
+                                       n_cell,                &
+                                       time_index_in_gtm_hdf)                               
+                call write_qual_hdf_ts(qual_hdf%cell_cfl_id, &
+                                       cfl,                  & 
+                                       n_cell,                &
+                                       time_index_in_gtm_hdf)                                             
+            end if
+        end if                           
         mass_prev = mass
         area_prev = area                 
     end do

@@ -38,6 +38,8 @@ module ut_hydro_data_tide
         character(len=*), parameter :: h5_file_name = 'test_hydro.h5'   !< hydro tidefile for testing
         real(gtm_real) :: area_from_CxArea
         integer :: time_offset, time_buffer
+        integer :: branch, nt, nx
+        real(gtm_real) :: ws_a, ws_b, ws_c, ws_d, dt, up_x, dx, x, ws, area
         integer :: error
         
         call h5open_f(error)
@@ -106,7 +108,23 @@ module ut_hydro_data_tide
         ! test CxArea calculation
         call CxArea(area_from_CxArea, dble(5000),hydro_ws(6,1),2)                   
         call assertEquals (area_from_CxArea, dble(7524.127), weakest_eps, "problem in calculating CxArea")
-                    
+
+        branch = 2
+        nt = 4
+        nx = 5
+        dt = five
+        up_x = dble(5000.)
+        dx = dble(1250.)
+        ws_a = dble(2.355571)
+        ws_b = dble(1.307376)
+        ws_c = dble(2.302306)
+        ws_d = dble(1.252751)
+        x = dble(5000) + two*dx
+        ws = ws_a + two/(dble(nx)-one)*(ws_b-ws_a)
+        call CxArea(area, x, ws, branch)           
+        x = dble(5000) + three*dx
+        ws = (ws_a+(ws_c-ws_a)*two/(dble(nt)-one))+((ws_b+(ws_d-ws_b)*two/(dble(nt)-one))-(ws_a+(ws_c-ws_a)*two/(dble(nt)-one)))*three/(dble(nx)-one) 
+        call CxArea(area, x, ws, branch)              
         call deallocate_hydro_ts 
         call hdf5_close  
         return

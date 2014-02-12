@@ -21,8 +21,9 @@ module gtm_hdf_ts_write
         integer(HID_T) :: data_id
         integer(HID_T) :: cell_conc_id
         integer(HID_T) :: resv_conc_id
-        integer(HID_T) :: cell_flow_id       !todo::temporarily for debugging purpose
+        integer(HID_T) :: cell_flow_id
         integer(HID_T) :: cell_area_id
+        integer(HID_T) :: cell_cfl_id        
         integer(HSIZE_T) :: conc_dim
         integer(HSIZE_T) :: cell_dim
         integer(HSIZE_T) :: resv_dim
@@ -49,7 +50,7 @@ module gtm_hdf_ts_write
                              hdf_interval_char)
  
    	    use hdf5		! HDF5 This module contains all necessary modules
-        use common_variables, only: unit_error, unit_screen, gtm_time_interval
+        use common_variables, only: unit_error, unit_screen, gtm_time_interval, debug_print
         use dsm2_time_utils, only: incr_intvl
         use common_dsm2_vars, only: NEAREST_BOUNDARY, TO_BOUNDARY, print_level
   	    implicit none
@@ -135,15 +136,13 @@ module gtm_hdf_ts_write
 	    call write_dimensions(hdf_file%data_id, ncell, nresv, nconc)
 	
 	    ! create the data sets for time-varying output
-	    call init_cell_qual_hdf5_flow_area(hdf_file, ncell, ntime)
 	    call init_cell_qual_hdf5(hdf_file, ncell, nconc, ntime)
+	    if (debug_print==.true.) then
+	        call init_cell_qual_hdf5_debug(hdf_file, ncell, ntime)	    
+	    end if
 	    if (hdf_file%resv_dim .gt. 0)then
 	        call init_reservoir_qual_hdf5(hdf_file, nresv, nconc, ntime)
 	    end if
-	    
-        ! initialize attributes and datasets
-        ! call write_qual_attributes_hdf5()
-        !call attach_qual_dimscales(hdf_file%file_id) !todo:: comment out by ehsu, do we need this?
 
         using_qual_hdf = .true.
         
@@ -230,7 +229,7 @@ module gtm_hdf_ts_write
     end subroutine
 
     !> Initialize qual tide file for cell time series (ncell)
-	subroutine init_cell_qual_hdf5_flow_area(hdf_file, ncell, ntime)
+	subroutine init_cell_qual_hdf5_debug(hdf_file, ncell, ntime)
 
 	    use hdf5
 	    use time_utilities, only: jmin2cdt
@@ -250,7 +249,9 @@ module gtm_hdf_ts_write
 	    integer(HSIZE_T), dimension(2) :: cell_chunk_dims = 0 ! Dataset chunk dimensions
 
 	    integer(HID_T) :: fspace_flow_id                  ! File space identifier
-	    integer(HID_T) :: fspace_area_id
+	    integer(HID_T) :: fspace_area_id                  ! File space identifier
+	    integer(HID_T) :: fspace_cfl_id                   ! File space identifier	    
+	    
 	    integer(HID_T) :: cparms                          ! dataset creatation property identifier 
 	    integer        :: error                           ! HDF5 Error flag
 	    
@@ -309,8 +310,24 @@ module gtm_hdf_ts_write
 	    call verify_error(error,"Cell area dataset creation")
         call add_timeseries_attributes(hdf_file%cell_area_id,   &  
                                        hdf_file%start_julmin,   &
-                                       hdf_file%write_interval) 
+                                       hdf_file%write_interval)                                        
 
+        ! initialize table for cell cfl number
+	    call h5screate_simple_f(cell_rank,              &   
+                                cell_file_dims,         &     
+                                fspace_cfl_id,          &    
+                                error)
+	    call h5dcreate_f(hdf_file%data_id,              &  
+                         "cell cfl",                    &    
+                         H5T_NATIVE_DOUBLE,             &	   
+                         fspace_cfl_id,                 &
+                         hdf_file%cell_cfl_id,          &    
+                         error,                         &     
+                         cparms)                      
+	    call verify_error(error,"Cell CFL dataset creation")
+        call add_timeseries_attributes(hdf_file%cell_cfl_id,    &  
+                                       hdf_file%start_julmin,   &
+                                       hdf_file%write_interval)       
 	    return
 	end subroutine
 
@@ -337,8 +354,6 @@ module gtm_hdf_ts_write
 	    integer(HSIZE_T), dimension(3) :: cell_chunk_dims = 0 ! Dataset chunk dimensions
 
 	    integer(HID_T) :: fspace_id                       ! File space identifier
-	    integer(HID_T) :: fspace_flow_id                  ! File space identifier
-	    integer(HID_T) :: fspace_area_id                  ! File space identifier
 	    integer(HID_T) :: cparms                          ! dataset creatation property identifier 
 	    integer        :: error                           ! HDF5 Error flag
 	    

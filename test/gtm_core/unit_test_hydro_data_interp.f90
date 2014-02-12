@@ -79,7 +79,11 @@ module ut_hydro_data_interp
         call assertEquals (flow_mesh(2,3), dble(25225.24251), weakest_eps, "problem in interp_flow_linear")
         call assertEquals (flow_mesh(3,4), dble(25217.88916), weakest_eps, "problem in interp_flow_linear")
         call assertEquals (flow_mesh(3,3), dble(25167.57975), weakest_eps, "problem in interp_flow_linear")
-        
+
+        call interp_area_linear(area_mesh, area_volume_change, branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d)
+        call assertEquals (area_mesh(1,3), dble(6583.6541162), weakest_eps, "problem in interp_area_linear")
+        call assertEquals (area_mesh(3,4), dble(6370.3967760), weakest_eps, "problem in interp_area_linear")
+
         call interp_flow_linear_with_target(flow_mesh, flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, avga)
         call assertEquals (flow_mesh(3,1), dble(25067.75608), weakest_eps, "problem in interp_flow_linear_with_target")
         call assertEquals (flow_mesh(2,1), dble(25113.34809), weakest_eps, "problem in interp_flow_linear_with_target")

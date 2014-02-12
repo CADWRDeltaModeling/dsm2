@@ -87,6 +87,51 @@ module interpolation
         end do           
         return
     end subroutine
+
+
+   !> Linear area interpolation with four given points
+    subroutine interp_area_linear(area_mesh,                 &
+                                  area_volume_change,        &                      
+                                  branch, up_x, dx, nt, nx,  &
+                                  ws_a, ws_b, ws_c, ws_d)
+        use common_xsect
+        implicit none
+        integer, intent(in) :: branch                                           !< hydro channel number (required by CxArea())
+        real(gtm_real), intent (in) :: up_x                                     !< upstream point distance (required for CxArea())  
+        real(gtm_real), intent(in) :: dx                                        !< finer cell size( in feet)
+        integer, intent(in) :: nt                                               !< nt: number of points in time
+        integer, intent(in) :: nx                                               !< nx: number of points in space
+        real(gtm_real), intent(in) :: ws_a, ws_b, ws_c, ws_d                    !< input four corner points (water surface)
+        real(gtm_real), dimension(nt-1,nx-1), intent(out) :: area_volume_change !< volume change for each cell from area interpolation
+        real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh              !< interpolated area mesh         
+        real(gtm_real), dimension(nt) :: subtotal_volume_change                 ! local variable to check mass balance (sub total in time)
+        real(gtm_real) :: total_volume_change, factor                           ! local variable
+        real(gtm_real), dimension(nt, nx) :: ws                                 ! local variable
+        integer :: i, j                                                         ! local variable      
+        area_mesh = LARGEREAL
+        area_volume_change = LARGEREAL
+        ! initialize mesh boundary by linear interpolation. 
+        ! todo:: shall be taken from adjacent segement and previous time steps
+        do i = 1, nx
+            ws(1,i) = ws_a + (dble(i)-one)/(dble(nx)-one)*(ws_b-ws_a)
+            ws(nt,i) = ws_c + (dble(i)-one)/(dble(nx)-one)*(ws_d-ws_c)
+            call CxArea(area_mesh(1,i), up_x+(dble(i)-one)*dx, ws(1,i), branch)
+            call CxArea(area_mesh(nt,i), up_x+(dble(i)-one)*dx, ws(nt,i), branch)
+        end do
+        do j = 2, nt-1
+            do i = 1, nx
+                ws(j,i) = ws(1,i) + (dble(j)-one)/(dble(nt)-one)*(ws(nt,i)-ws(1,i))
+                call CxArea(area_mesh(j,i), up_x+(dble(i)-one)*dx, ws(j,i), branch)
+            end do   
+        end do
+        do i = 2, nx
+            do j  = 2, nt
+                area_volume_change(j-1,i-1) = half*(area_mesh(j,i)+area_mesh(j,i-1)-area_mesh(j-1,i)-area_mesh(j-1,i-1))*dx
+            end do     
+        end do        
+        return   
+    end subroutine
+
        
    !> Linear flow interpolation with four given points and total mass balance target
     subroutine interp_flow_linear_with_target(mesh, volume_change,       &    ! todo:: if we decide to go for CxArea(), we may get rid of this function.
@@ -624,7 +669,8 @@ module interpolation
     end subroutine      
     
     
-   !> Interpolated flow and area mesh based on given four points of flows and water surface elevations
+   !> Linear interpolate flow and area mesh based on given four points of flows and water surface elevations
+   !> This does not conserve the mass. 
     subroutine interp_flow_area(flow_mesh, area_mesh,                   &
                                 flow_volume_change, area_volume_change, &
                                 branch, up_x, dx, dt, nt, nx,           &
@@ -648,9 +694,9 @@ module interpolation
         real(gtm_real), dimension(nt,nx) :: flow_mesh_tmp                           !< local variable     
         real(gtm_real), dimension(nt-1,nx-1) :: flow_volume_change_tmp              !< local variable
      
-        call interp_flow_linear(flow_mesh_tmp, flow_volume_change_tmp,                       &
-                                dt, nt, nx, flow_a, flow_b, flow_c, flow_d) 
-        call interp_area_byCxArea(area_mesh, area_volume_change, branch, up_x, dx, nt, nx,   &
+        call interp_flow_linear(flow_mesh_tmp, flow_volume_change_tmp,                          &
+                                dt, nt, nx, flow_a, flow_b, flow_c, flow_d)  
+        call interp_area_byCxArea(area_mesh, area_volume_change, branch, up_x, dx, nt, nx,      &
                                   ws_a, ws_b, ws_c, ws_d, flow_volume_change_tmp)
         call interp_flow_from_area_theta_m1(flow_mesh, flow_volume_change, dt, nt, nx,          &  
                                             flow_a, flow_b, flow_c, flow_d,                     &
@@ -658,6 +704,32 @@ module interpolation
         return
     end subroutine            
 
+   !> Linear interpolated flow and area mesh based on given four points of flows and water surface elevations
+    subroutine linear_interp_flow_area(flow_mesh, area_mesh,                   &
+                                       flow_volume_change, area_volume_change, &
+                                       branch, up_x, dx, dt, nt, nx,           &
+                                       flow_a, flow_b, flow_c, flow_d,         &
+                                       ws_a, ws_b, ws_c, ws_d)
+        implicit none
+        integer, intent(in) :: branch                                               !< hydro channel number (required by CxArea())
+        real(gtm_real), intent (in) :: up_x                                         !< upstream point distance (required for CxArea())
+        real(gtm_real), intent(in) :: dx                                            !< finer cell size (in feet) 
+        real(gtm_real), intent(in) :: dt                                            !< finer time step (in minutes)
+        integer, intent(in) :: nt                                                   !< nt: number of points in time
+        integer, intent(in) :: nx                                                   !< nx: number of points in space
+        real(gtm_real), intent(in) :: flow_a, flow_b, flow_c, flow_d                !< input four corner flow points
+        real(gtm_real), intent(in) :: ws_a, ws_b, ws_c, ws_d                        !< input four corner water surface points 
+        real(gtm_real), dimension(nt,nx), intent(out) :: flow_mesh                  !< interpolated flow mesh
+        real(gtm_real), dimension(nt,nx), intent(out) :: area_mesh                  !< interpolated area mesh
+        real(gtm_real), dimension(nt-1,nx-1), intent(out) :: flow_volume_change     !< volume change from flow interpolation for each cell 
+        real(gtm_real), dimension(nt-1,nx-1), intent(out) :: area_volume_change     !< volume change from area interpolation for each cell 
+     
+        call interp_flow_linear(flow_mesh, flow_volume_change,                    & 
+                                dt, nt, nx, flow_a, flow_b, flow_c, flow_d )
+        call interp_area_linear(area_mesh, area_volume_change,                    & 
+                                branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d)
+        return
+    end subroutine    
     
    !>  Calculate total volume change
     subroutine calc_total_volume_change(total_volume_change, nt_1, nx_1, volume_change)
