@@ -833,7 +833,7 @@ C....add check here for positive parcel volume and concentration
             endif
             
             DO K=1,NSN
-               if (GPV(N,K).le.0) then
+               if (GPV(N,K).lt.0) then
                   WRITE(UNIT_ERROR,*) ' ERROR... PARCEL HAVING NEGATIVE VOLUME in CHANNEL: ',
      &              chan_geom(N).chan_no
                   call exit(2)
