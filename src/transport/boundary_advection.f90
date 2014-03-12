@@ -144,7 +144,7 @@ module boundary_advection
                                        dx)
         use gtm_precision
         use error_handling
-        use common_variables, only: n_boun, bound, n_junc, junc
+        use common_variables, only: n_boun, bound, n_junc, junc, n_link, link
         implicit none
         !--- args          
         integer,intent(in)  :: ncell                            !< Number of cells
@@ -186,8 +186,8 @@ module boundary_advection
                         mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
                         flow_tmp = flow_tmp + flow_hi(icell)
                     elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then    !cell at downdstream of junction
-                        mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*flow_lo(icell)
-                        flow_tmp = flow_tmp + flow_lo(icell)
+                        mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
+                        flow_tmp = flow_tmp + abs(flow_lo(icell))
                     endif                   
                 end do
                 if (flow_tmp==zero) then
@@ -203,10 +203,29 @@ module boundary_advection
                         flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)
                     elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
+                    elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then
+                        flux_lo(icell,:) = conc_hi(icell,:)*flow_hi(icell)
                     endif                
                 end do   
             end do
-        end if               
+        end if           
+
+        if (n_link .ne. LARGEINT) then  ! without this fixup, the error can be seen at DSM2 node 239
+            do i = 1, n_link
+                if (abs(link(i)%cell_no(1)-link(i)%cell_no(2)).gt.1) then
+                ! assign average concentration to downstream cell faces
+                do j = 1, 2
+                    icell = link(i)%cell_no(j)
+                    if (link(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then !cell at updstream of link
+                        flux_hi(icell,:) = conc_lo(icell,:)*flow_hi(icell)
+                    elseif (link(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of link
+                        flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)
+                    endif                
+                end do
+                end if   
+            end do
+        end if 
+                    
         return
     end subroutine  
   

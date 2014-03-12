@@ -46,12 +46,16 @@ program gtm
     use state_variables
     use primitive_variable_conversion
     use advection
+    use diffusion
+    use dispersion_coefficient    
     use source_sink
-    use boundary_advection
+    use boundary_advection 
+    use boundary_diffusion        
     use gtm_subs
     use dsm2_time_utils, only: incr_intvl
 
     implicit none
+    
     integer :: nt
     integer :: nx
     real(gtm_real), allocatable :: flow_mesh(:,:), area_mesh(:,:)
@@ -62,6 +66,13 @@ program gtm
     real(gtm_real), allocatable :: prev_avga(:)
     real(gtm_real), allocatable :: flow_arr(:), ws_arr(:)
     real(gtm_real), allocatable :: cfl(:)
+    real(gtm_real), allocatable :: disp_coef_lo(:)      !< Low side constituent dispersion coef. at new time
+    real(gtm_real), allocatable :: disp_coef_hi(:)      !< High side constituent dispersion coef. at new time
+    real(gtm_real), allocatable :: disp_coef_lo_prev(:) !< Low side constituent dispersion coef. at old time
+    real(gtm_real), allocatable :: disp_coef_hi_prev(:) !< High side constituent dispersion coef. at old time
+    real(gtm_real) :: theta = half                      !< Crank-Nicolson implicitness coeficient
+    real(gtm_real), parameter :: constant_dispersion = 2000.d0
+    
     real(gtm_real) :: total_flow_volume_change, total_area_volume_change
     real(gtm_real) :: avga_volume_change, diff
     integer :: up_comp, down_comp    
@@ -93,6 +104,8 @@ program gtm
     integer :: n_bound_ts
     integer, allocatable :: bound_index(:), path_index(:)
     real(gtm_real), allocatable :: bound_val(:,:)
+    
+    logical :: apply_diffusion = .false.
 
     n_var = 1
     
@@ -138,6 +151,9 @@ program gtm
     allocate(init_c(n_cell,n_var))
     allocate(linear_decay(n_var))
     allocate(cfl(n_cell))    
+    allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
+    allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
+    
     linear_decay = constant_decay
    
     constituents(1)%name = "EC"
@@ -166,9 +182,14 @@ program gtm
     !----- point to interface -----
     !
     fill_hydro => gtm_flow_area
+    dispersion_coef => constant_dispersion_coef
     compute_source => no_source
     !compute_source => linear_decay_source
     advection_boundary_flux => bc_fixup_advection_flux
+    boundary_diffusion_flux => neumann_zero_diffusive_flux
+    boundary_diffusion_matrix => neumann_zero_diffusion_matrix
+    
+    call set_constant_dispersion(constant_dispersion)
     
     write(*,*) "Process time series...."
     write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
@@ -183,6 +204,26 @@ program gtm
         conc = init_conc
     end if    
 
+    if (apply_diffusion)then
+        call dispersion_coef(disp_coef_lo,         &
+                             disp_coef_hi,         &
+                             flow,                 &
+                             flow_lo,              &
+                             flow_hi,              &
+                             gtm_start_jmin,       &
+                             dx_arr,               &
+                             gtm_time_interval,    &
+                             n_cell,               &
+                             n_var) 
+    else
+        disp_coef_lo = LARGEREAL
+        disp_coef_hi = LARGEREAL            
+    end if
+    disp_coef_lo_prev = disp_coef_lo
+    disp_coef_hi_prev = disp_coef_hi    
+
+    write(debug_unit,'(2a6,a10,11a24)') "cell","var","dx","grad","grad_lo","grad_hi","area","mass_prev","flow_lo","flow_hi","conc_lo","conc_hi","flux_lo","flux_hi"
+        
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
         !---print out processing date on screen
@@ -320,6 +361,8 @@ program gtm
         if (current_time == gtm_start_jmin) then
             call prim2cons(mass_prev, conc, area, n_cell, n_var)
             area_prev = area
+            area_lo_prev = area_lo
+            area_hi_prev = area_hi
         end if
         
         !
@@ -342,9 +385,42 @@ program gtm
                     n_boun,                   &
                     bound,                    &
                     bound_val,                &
-                    limit_slope)     
+                    .true.)     
         call cons2prim(conc, mass, area, n_cell, n_var)
         cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
+        
+        conc_prev = conc
+        if (apply_diffusion) then
+            call dispersion_coef(disp_coef_lo,     &
+                                 disp_coef_hi,     &
+                                 flow,             &
+                                 flow_lo,          &
+                                 flow_hi,          &
+                                 current_time,     &
+                                 dx_arr,           &
+                                 gtm_time_interval,&
+                                 n_cell,           &
+                                 n_var)                                   
+            call diffuse(conc,                     &
+                         conc_prev,         &
+                         area,              &
+                         area_prev,         &
+                         area_lo,           &
+                         area_hi,           &
+                         area_lo_prev,      &
+                         area_hi_prev,      &
+                         disp_coef_lo,      &  
+                         disp_coef_hi,      &
+                         disp_coef_lo_prev, &  
+                         disp_coef_hi_prev, &
+                         n_cell,            &
+                         n_var,             &
+                         current_time,      &
+                         theta,             &
+                         gtm_time_interval, &
+                         dx_arr)
+        end if
+        call prim2cons(mass,conc,area,n_cell,n_var)
         
         !
         !----- print output to hdf5 file -----

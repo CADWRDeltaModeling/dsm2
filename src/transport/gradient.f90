@@ -173,7 +173,34 @@ module gradient
                    grad(icell,:) = zero
                 end do
             end do          
-            ! assign gradient for cells around junction equal to upstream adjent cell
+            ! assign gradient for cells around junction equal to upstream adjacent cell
+            !do i = 1, n_junc           
+            !    min_cell_no = 10000   ! a dummy number helps to detect minimum cell no
+            !    do j = 1, junc(i)%n_conn_cells
+            !       icell = junc(i)%cell_no(j)                
+            !       if ((junc(i)%up_down(j)==0) .and. (icell<min_cell_no)) then
+            !           min_cell_no = icell
+            !       end if
+            !    end do
+            !    do j = 1, junc(i)%n_conn_cells
+            !        icell = junc(i)%cell_no(j)
+            !        grad(icell,:) = grad_hi(min_cell_no,:)
+            !    end do
+            !end do  
+        end if
+
+        !------ adjust links ------
+        if (n_link > 0) then
+            ! assign gradient for cells around link to be zero--> first order accuracy
+            do i = 1, n_link
+                if (abs(link(i)%cell_no(1)-link(i)%cell_no(2)).gt.1) then
+                do j = 1, 2
+                   icell = link(i)%cell_no(j)
+                   grad(icell,:) = zero
+                end do
+                end if
+            end do          
+            ! assign gradient for cells around junction equal to upstream adjacent cell
             !do i = 1, n_junc           
             !    min_cell_no = 10000   ! a dummy number helps to detect minimum cell no
             !    do j = 1, junc(i)%n_conn_cells

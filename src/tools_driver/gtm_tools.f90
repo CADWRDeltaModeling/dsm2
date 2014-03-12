@@ -5,11 +5,15 @@
 program gtm_tools
 
     use create_restart
+    use create_synth_tide
+    use select_cell_ts
     implicit none
     integer :: tool_no
     character(len=128) :: restart_file
     character(len=128) :: gtm_tidefile
     character(len=14) :: datetime
+    integer :: n_select_cell, ncell
+    integer, allocatable :: arr(:)
     
     write(*,'(//5x,a52)') "****************************************************"
     write(*,'(5x,a52)')   "*                                                  *"    
@@ -19,7 +23,8 @@ program gtm_tools
     write(*,*) ""
     write(*,*) "Please select the tools you want to use:"
     write(*,*) "(1) Create restart file from DSM2-GTM tidefile"
-    write(*,*) "(2)"
+    write(*,*) "(2) Create synthetic tidal time series for dummy tidefile"
+    write(*,*) "(3) Print selected cells into a text file"
     
     read(*,*) tool_no
     if (tool_no .eq. 1) then
@@ -34,6 +39,18 @@ program gtm_tools
         !call create_restart_file("test.txt", "channel_gtm.h5", "01FEB1998 0900")
         !todo:: not working, not sure why. It is working in unit test.
         call test_create_restart
+    elseif (tool_no .eq. 2) then
+        call print_tidal_to_file
+    elseif (tool_no .eq. 3) then
+        n_select_cell = 25
+        ncell = 2780
+        allocate(arr(n_select_cell))
+        arr = (/ 1938,1950,2018,2022,1662,1658,1666,1722,1854,2078,2086,2094,1286,2114,2182,2270,2186,1514,1522,1538,190,734,966,866 /)
+        call print_select_cell(n_select_cell,             &     
+                               arr,                       &     
+                               ncell,                     &  
+                               "cell concentration.txt",  &    
+                               "select_cell_conc.txt") 
     else
         write(*,*) "Please select a tool!"
     end if       

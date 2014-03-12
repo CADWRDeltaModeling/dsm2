@@ -124,22 +124,22 @@ end subroutine
 !> both ends of the channel.
 !todo: make sure this is generic for all Neumann bc
 subroutine neumann_diffusion_matrix(center_diag ,       &
-                                     up_diag,            &     
-                                     down_diag,          &
-                                     right_hand_side,    & 
-                                     conc,               &
-                                     explicit_diffuse_op,&
-                                     area,               &
-                                     area_lo,            &
-                                     area_hi,            &          
-                                     disp_coef_lo,       &
-                                     disp_coef_hi,       &
-                                     theta_stm,          &
-                                     ncell,              &
-                                     time,               & 
-                                     nvar,               & 
-                                     dx,                 &
-                                     dt)
+                                    up_diag,            &     
+                                    down_diag,          &
+                                    right_hand_side,    & 
+                                    conc,               &
+                                    explicit_diffuse_op,&
+                                    area,               &
+                                    area_lo,            &
+                                    area_hi,            &          
+                                    disp_coef_lo,       &
+                                    disp_coef_hi,       &
+                                    theta_stm,          &
+                                    ncell,              &
+                                    time,               & 
+                                    nvar,               & 
+                                    dx,                 &
+                                    dt)
     use gtm_precision
     implicit none
     !--- args

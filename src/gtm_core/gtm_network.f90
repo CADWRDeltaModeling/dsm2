@@ -185,7 +185,7 @@ module gtm_network
         area    = area_tmp(:,time_in_mesh)
         area_lo = area_lo_tmp(:,time_in_mesh)
         area_hi = area_hi_tmp(:,time_in_mesh)
-        write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
+        !write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
         return
     end subroutine       
 

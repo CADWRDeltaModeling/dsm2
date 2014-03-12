@@ -156,27 +156,25 @@ subroutine print_out_tidal_hydro
 
     use gtm_precision
     use hydro_data
-    use test_advection_reaction_tidal   
+    use test_tidal_synthetic
   
     implicit none
-    integer, parameter :: nx = 65
-    integer, parameter :: nt = 12*24*90+1        
+    integer, parameter :: nx = nx_base
+    integer, parameter :: nt = nstep_base     
     real(gtm_real) :: dx(nx)
     real(gtm_real) :: dt
     real(gtm_real) :: time
     real(gtm_real) :: flow(nx), flow_lo(nx), flow_hi(nx)
     real(gtm_real) :: area(nx), area_lo(nx), area_hi(nx)
     integer :: itime, j
-    real(gtm_real), parameter :: m2ft = 3.28084
-    real(gtm_real), parameter :: total_domain_length = 20000/m2ft
-    real(gtm_real), parameter :: channel_bottom = -18.762
-    integer, parameter :: total_test_time  = 5*60*nt    
+    real(gtm_real), parameter :: m2ft = 3.28084d0
+    real(gtm_real), parameter :: channel_bottom = 0.1d0
     procedure(hydro_data_if),pointer :: tidal_hydro           !< The pointer points to tidal flow data
    
-    tidal_hydro=> tidal_flow_modified ! this flow generator is mass conservative
+    tidal_hydro=>tidal_flow_synthetic ! this flow generator is mass conservative
 
-    dx = total_domain_length/dble(nx)
-    dt = total_test_time/dble(nt)                                           
+    dx = domain_length/dble(nx)
+    dt = total_time/dble(nt)                                           
     
     time =  start_time                                          
     do itime = 1, nt
@@ -194,8 +192,8 @@ subroutine print_out_tidal_hydro
                    time,    &
                    dx,      &                  
                    dt)
-       write(143,'(200f15.6)') (flow(j)*m2ft**3,j=1,nx)
-       write(144,'(200f15.6)') (area(j)*m2ft+channel_bottom,j=1,nx)     !this will be water surface elevation
+       write(143,'(512f8.2)') (flow_lo(j)*m2ft**3, flow_hi(j)*m2ft**3, j=1,nx)
+       write(144,'(512f8.2)') (area_lo(j)*m2ft+channel_bottom, area_hi(j)*m2ft+channel_bottom, j=1,nx)     !this will be water surface elevation
     end do
     return
 end subroutine                   

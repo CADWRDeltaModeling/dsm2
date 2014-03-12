@@ -40,6 +40,7 @@
 		<File RelativePath="..\..\test\transport\test_converge_transport_uniform.f90"/>
 		<File RelativePath="..\..\test\transport\test_explicit_diffusion_operator.f90"/>
 		<File RelativePath="..\..\test\transport\test_hydro.f90"/>
+		<File RelativePath="..\..\test\transport\test_tidal_synthetic.f90"/>
 		<File RelativePath="..\..\test\transport\unit_test_boundary_diffusive_flux.f90"/>
 		<File RelativePath="..\..\test\transport\unit_test_coarsen.f90"/>
 		<File RelativePath="..\..\test\transport\unit_test_construct_rhs.f90"/>

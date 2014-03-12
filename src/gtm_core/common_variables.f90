@@ -32,6 +32,7 @@ module common_variables
      integer :: n_conn = LARGEINT                   !< number of connected cells
      integer :: n_junc = LARGEINT                   !< number of junctions
      integer :: n_boun = LARGEINT                   !< number of boundaries
+     integer :: n_link = LARGEINT                   !< number of connections for two cells
      integer :: n_xsect = LARGEINT                  !< number of entries in virt xsect table
      integer :: n_resv = 0                          !< number of reservoirs
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
@@ -132,6 +133,14 @@ module common_variables
           integer :: up_down                       !< flow toward boundary (0) or away from boundary (1) from DSM2 base grid definition
      end type
      type(boundary_t), allocatable :: bound(:)
+     
+     !> Define link between two cells
+     type link_t
+         integer :: dsm2_node_no                   !< DSM2 node number
+         integer :: cell_no(2)        !< cell no connectedd to this link
+         integer :: up_down(2)        !< flow toward link (0) or away from link (1) from DSM2 base grid definition
+     end type
+     type(link_t), allocatable :: link(:)
 
      !> Define reservoirs
      type reservoir_t
@@ -253,6 +262,7 @@ module common_variables
          character(len=128) :: message
          allocate(junc(n_junc), stat = istat)
          allocate(bound(n_boun), stat = istat)
+         allocate(link(n_link), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if             
@@ -322,8 +332,10 @@ module common_variables
          implicit none
          n_boun = LARGEINT
          n_junc = LARGEINT
+         n_link = LARGEINT
          deallocate(junc)
-         deallocate(bound)    
+         deallocate(bound)
+         deallocate(link)    
          deallocate(conn)
          return
      end subroutine
@@ -433,7 +445,8 @@ module common_variables
          integer, dimension(:), allocatable :: unique_num
          integer, dimension(:), allocatable :: occurrence
          integer :: num_nodes
-         integer :: n, i, j, k, nj, nb
+         integer :: n, i, j, k
+         integer :: nj, nb, nl
          n = size(chan_geom%up_node)
          allocate(nodes(n+n))
          allocate(sorted_nodes(n+n))
@@ -443,13 +456,16 @@ module common_variables
          call unique_num_count(unique_num, occurrence, num_nodes, sorted_nodes, n+n)
          n_junc = 0
          n_boun = 0
+         n_link = 0
          do i = 1, num_nodes
              if (occurrence(i)>2) n_junc = n_junc + 1
              if (occurrence(i)==1) n_boun = n_boun + 1
+             if (occurrence(i)==2) n_link = n_link + 1
          end do
          call allocate_junc_bound_property()
          nj = 0
          nb = 0
+         nl = 0
          do i = 1, num_nodes
              if (occurrence(i)>2) then
                  nj = nj + 1
@@ -465,7 +481,8 @@ module common_variables
                          junc(nj)%up_down(k) = conn(j)%conn_up_down
                      end if
                  end do
-             elseif (occurrence(i)==1) then
+             end if                 
+             if (occurrence(i)==1) then
                  nb = nb + 1
                  do j = 1, n_conn
                      if (conn(j)%dsm2_node_no==unique_num(i)) then
@@ -474,6 +491,18 @@ module common_variables
                          bound(nb)%up_down = conn(j)%conn_up_down
                      end if    
                  end do    
+             end if
+             if (occurrence(i)==2) then
+                 nl = nl + 1
+                 link(nl)%dsm2_node_no = unique_num(i)
+                 k = 0
+                 do j = 1, n_conn
+                     if (conn(j)%dsm2_node_no==unique_num(i)) then
+                         k = k + 1
+                         link(nl)%cell_no(k) = conn(j)%cell_no
+                         link(nl)%up_down(k) = conn(j)%conn_up_down
+                     end if
+                 end do
              end if
          end do
          return

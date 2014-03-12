@@ -137,7 +137,7 @@ module advection
                         dx,         &
                         ncell,      &
                         nvar)
-
+                        
         ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
         ! or other differencing is required
         call adjust_differences(grad,         &
@@ -150,7 +150,7 @@ module advection
                                 ncell,        &
                                 nvar,         &
                                 use_limiter)
-                                  
+                                
         ! Compute sources and sinks for each constituent
         call compute_source(source_prev, & 
                             conc_prev,   &
@@ -196,8 +196,7 @@ module advection
                 end if
             end do                          
         end if
-        
-        
+               
         if (associated(advection_boundary_flux))then
             call advection_boundary_flux(flux_lo,     &
                                          flux_hi,     &
@@ -213,8 +212,7 @@ module advection
         else        
             advection_boundary_flux => bc_advection_flux      
         end if
-
-
+                                  
         ! Combine the fluxes into a divergence term at the half time at cell edges.
         ! Computing and storing the divergence separately gives some flexibility with integrating
         ! the source term, e.g. Heun's method
@@ -225,6 +223,23 @@ module advection
                                 ncell,      &
                                 nvar)
 
+        call advect_debug_print(1384,     &
+                                1,      &
+                                conc_lo,     &
+                                conc_hi,     & 
+                                flux_lo,     &
+                                flux_hi,     &
+                                flow_lo,     &
+                                flow_hi,     &
+                                grad_lo,     &
+                                grad_hi,     &
+                                grad,        &   
+                                area,        &         
+                                mass_prev,   &
+                                dx,          &
+                                ncell,       &
+                                nvar)
+                                    
         !Conservative update including source. 
         call update_conservative(mass,        &
                                  mass_prev,   &
@@ -332,10 +347,12 @@ module advection
                     flux_hi(icell,ivar)=conc_lo(icell+1,ivar)*flow_lo(icell+1)
                 end if
             end do
-            if (flow_lo(1) > zero) flux_lo(1,ivar) = LARGEREAL                   ! boundary: handled elsewhere
-            if (flow_lo(1) < zero) flux_lo(1,ivar) = conc_lo(1,ivar)*flow_lo(1)  ! interior
-            if (flow_hi(ncell) < zero) flux_hi(ncell,ivar) = LARGEREAL           ! boundary: handled elsewhere
-            if (flow_hi(ncell) > zero) flux_hi(ncell,ivar) = conc_hi(ncell,ivar)*flow_hi(ncell)  ! interior
+            flux_lo(1,ivar) = conc_lo(1,ivar)*flow_lo(1) 
+            flux_hi(ncell,ivar) = conc_hi(ncell,ivar)*flow_hi(ncell)
+            !if (flow_lo(1) > zero) flux_lo(1,ivar) = LARGEREAL                   ! boundary: handled elsewhere
+            !if (flow_lo(1) < zero) flux_lo(1,ivar) = conc_lo(1,ivar)*flow_lo(1)  ! interior
+            !if (flow_hi(ncell) < zero) flux_hi(ncell,ivar) = LARGEREAL           ! boundary: handled elsewhere
+            !if (flow_hi(ncell) > zero) flux_hi(ncell,ivar) = conc_hi(ncell,ivar)*flow_hi(ncell)  ! interior
         end do
 
         return
@@ -440,6 +457,47 @@ module advection
                          + dt*half*source(:,ivar)*area
        end do    
        return
+    end subroutine
+
+    subroutine advect_debug_print(cell_no,     &
+                                  var_no,      &
+                                  conc_lo,     &
+                                  conc_hi,     & 
+                                  flux_lo,     &
+                                  flux_hi,     &
+                                  flow_lo,     &
+                                  flow_hi,     &
+                                  grad_lo,     &
+                                  grad_hi,     &
+                                  grad,        &
+                                  area,        &
+                                  mass_prev,   &
+                                  dx,          &
+                                  ncell,       &
+                                  nvar)
+        use gtm_precision                
+        use gtm_logging                  
+        implicit none
+        integer, intent(in) :: cell_no
+        integer, intent(in) :: var_no
+        integer, intent(in) :: ncell
+        integer, intent(in) :: nvar
+        real(gtm_real), intent(in) :: conc_lo(ncell,nvar)
+        real(gtm_real), intent(in) :: conc_hi(ncell,nvar)
+        real(gtm_real), intent(in) :: flux_lo(ncell,nvar)
+        real(gtm_real), intent(in) :: flux_hi(ncell,nvar)
+        real(gtm_real), intent(in) :: dx(ncell)
+        real(gtm_real), intent(in) :: flow_lo(ncell)
+        real(gtm_real), intent(in) :: flow_hi(ncell)
+        real(gtm_real), intent(in) :: grad_lo(ncell,nvar)
+        real(gtm_real), intent(in) :: grad_hi(ncell,nvar)
+        real(gtm_real), intent(in) :: grad(ncell,nvar)
+        real(gtm_real), intent(in) :: mass_prev(ncell,nvar)
+        real(gtm_real), intent(in) :: area(ncell)
+        !write(debug_unit,'(2i6,f10.2,3f24.15,8f24.2)') cell_no, var_no, dx(cell_no), grad(cell_no,var_no), grad_lo(cell_no,var_no), grad_hi(cell_no,var_no), &
+        !                                  area(cell_no), mass_prev(cell_no,var_no), flow_lo(cell_no),flow_hi(cell_no),  &
+        !                                  conc_lo(cell_no, var_no),conc_hi(cell_no, var_no), flux_lo(cell_no,var_no), flux_hi(cell_no,var_no)
+        return                          
     end subroutine
 
 end module
