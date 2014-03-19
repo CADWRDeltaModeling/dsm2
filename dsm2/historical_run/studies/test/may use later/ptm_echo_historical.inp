@@ -1,0 +1,162 @@
+
+# ====================== Files used in simulation ========================
+
+# Entry file (top priority):  historical_ptm.inp
+# Other files, increasing priority: 
+# 1    configuration_historical.inp
+
+
+
+#===================      Simulation input data    =====================
+
+ENVVAR
+NAME  VALUE  
+BNDRYINPUT                          ../../timeseries/hist0312.dss    
+CLIMATE                             ../../timeseries/climate-5years.dss    
+DICUFILE                            ../../timeseries/dicu_201203.dss    
+DICUFILE-ECS                        ../../timeseries/dicu.dss    
+DICUFILE_ECE                        ../../timeseries/dicuwq_3vals_extended.dss    
+DICUFILE_ECS                        ../../timeseries/dicuwq_3vals.dss    
+DSM2AGENCY                          dwr    
+DSM2INPUTDIR                        ../../common_input    
+DSM2MODIFIER                        historical    
+DSM2OUTPUTDIR                       ./output    
+END_DATE                            30MAR2011    
+END_TIME                            0000    
+EVENTSINPUT                         ../../timeseries/events.dss    
+FINE_OUT                            15MIN    
+FINE_OUT_DAY                        1DAY    
+FLOWPATTERN                         ./output/FLOWPATTERN.dss    
+GATEFILE                            ../../timeseries/gates-v8-06212012.dss    
+GATEOUTPUTFILE                      ./output/historical.dss    
+HISTFLOWVERSION                     DWR-DMS-201203    
+HISTQUALVERSION                     DWR-DMS-201203    
+HISTSTAGEVERSION                    DWR-DMS-201203    
+HYDROOUTDSSFILE                     ./output/historical.dss    
+HYDROOUTFILE                        ./output/historical.hof    
+HYDRORSTFILE                        ./output/historical.hrf    
+HYDROTIDEFILE                       ./output/historical.h5    
+OUTPUTFILE                          historical.dss    
+PTMOUTFILE                          ./output/historical.pof    
+PTMOUTPUTFILE                       ./output/ptmout.dss    
+PTM_START_DATE                      01MAR2011    
+QUALBNDINP                          ../../timeseries/hist0312.dss    
+QUALOUTDSSFILE                      ./output/historical.dss    
+QUALOUTFILE                         ./output/historical.qof    
+QUALRSTFILE                         ./output/historical.qrf    
+QUALTIDEFILE                        ./output/historical_ec.h5    
+QUAL_START_DATE                     01MAR2011    
+START_DATE                          17MAR2011    
+START_TIME                          0000    
+STOCKTON_EFF_FLOW                   0.0    
+STOCKTON_FLOW_FILE                  constant    
+STUDYDIR                            .    
+TEMPDIR                             z:/temp    
+TSINPUTDIR                          ../../timeseries    
+VERSIONDATE                         201203    
+END
+
+SCALAR
+NAME  VALUE  
+binary_output                       false    
+display_intvl                       1day    
+dss_direct                          true    
+flush_output                        15day    
+printlevel                          1    
+ptm_flux_cumulative                 t    
+ptm_flux_percent                    t    
+ptm_group_percent                   t    
+ptm_iey                             t    
+ptm_iez                             t    
+ptm_itrans                          t    
+ptm_ivert                           t    
+ptm_no_animated                     2000    
+ptm_random_seed                     32001    
+ptm_time_step                       15min    
+ptm_trans_a_coef                    1.2    
+ptm_trans_b_coef                    0.3    
+ptm_trans_c_coef                    -1.5    
+ptm_trans_constant                  0.6    
+ptm_vert_constant                   0.0067    
+run_end_date                        30MAR2011    
+run_end_time                        0000    
+run_start_date                      01MAR2011    
+run_start_time                      0000    
+temp_dir                            z:/temp    
+theta                               0.6    
+title                               "PTM SIMULATION: historical"  
+END
+
+IO_FILE
+MODEL  TYPE  IO  INTERVAL  FILE  
+ptm         anim        out         15min         ./output/anim_db.bin    
+ptm         behavior      in          none          ptm_behavior_inputs.inp    
+ptm         echo        out         none          ./output/ptm_echo_historical.inp    
+ptm         output      out         none          ./output/historical.pof    
+ptm         trace       out         none          ./output/trace.out    
+END
+
+TIDEFILE
+START_DATE  END_DATE  FILE  
+runtime             length              ./output/historical.h5    
+END
+
+GROUP
+NAME  
+GS    
+ag_div    
+chipps_east    
+chipps_west    
+cvp    
+franks    
+mtz    
+swp    
+whole    
+END
+
+GROUP_MEMBER
+GROUP_NAME  MEMBER_TYPE  PATTERN  
+GS                  channel             (366)    
+ag_div              qext                bbid.*    
+ag_div              qext                dicu_div_.*    
+chipps_east         channel             (288|294|291)    
+chipps_west         channel             (442|437)    
+cvp                 qext                cvp    
+franks              reservoir           franks_tract    
+mtz                 stage               mtz.*    
+swp                 qext                swp    
+whole               channel             .*    
+whole               reservoir           .*    
+END
+
+PARTICLE_INSERTION
+NODE  NPARTS  DELAY  DURATION  
+341   10      1day            1day            
+END
+
+PARTICLE_FILTER
+NAME  NODE  AT_WB  FILLIN  FILE  PATH  
+END
+
+PARTICLE_RES_FILTER
+NAME  RES_NAME  AT_WB  FILLIN  FILE  PATH  
+END
+
+PARTICLE_GROUP_OUTPUT
+NAME  GROUP_NAME  INTERVAL  FILE  
+GS                  GS                          15min         ./output/ptmout.dss    
+franks              franks                      15min         ./output/ptmout.dss    
+whole               whole                       15min         ./output/ptmout.dss    
+whole_15min         whole                       1hour         ./output/ptmout.dss    
+END
+
+PARTICLE_FLUX_OUTPUT
+NAME  FROM_WB  TO_WB  INTERVAL  FILE  
+GS_flux             chan:422                    chan:366                    15min         ./output/ptmout.dss    
+diversion_ag        group:all                   group:ag_div                15min         ./output/ptmout.dss    
+export_cvp          chan:216                    group:cvp                   15min         ./output/ptmout.dss    
+export_swp          res:clifton_court           group:swp                   15min         ./output/ptmout.dss    
+past_chipps         group:chipps_east           group:chipps_west           15min         ./output/ptmout.dss    
+past_mtz            chan:441                    group:mtz                   15min         ./output/ptmout.dss    
+END
+
