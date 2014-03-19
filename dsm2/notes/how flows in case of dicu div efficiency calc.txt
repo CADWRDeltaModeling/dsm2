@@ -1,2 +1,0 @@
-in PTMHydroInput.java line 178 update boundary flows: times the dicu div flow by efficiency and put left over flow into a map (waterbody envIndex, dicu div flow*(1-efficency))
-need to set Total outflow , total left over flow for a node in PTMHydroInput when flow is set and dicu div should be dicu div * efficiency
