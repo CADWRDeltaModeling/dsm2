@@ -297,20 +297,20 @@ _survivalHelper = null;
     */
   public final void updatePosition(float delT){ //delT in seconds
 	if (observer == null)
-		PTMUtil.systemExit("Please install observer in particle, exit from line 290 Particle.java");
+		PTMUtil.systemExit("expect an observer be installed, but not, system exit");
   	particleWait = false;  //set or reset particle wait variable
     if (DEBUG) System.out.println("In updating position for particle " + this);
     
     if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
-        if ((Globals.currentModelTime - insertionTime)/60.0 > delT)//insertion time may set as way before PTM start time 
-          warning("Particle insertion time specification may be incorrect");//may include particles 1 time step before the 1st insertion
+        if ((Globals.currentModelTime - insertionTime)/60.0 > delT)//insertion time may set as way before PTM start time:  How is it possible?!  particle insert time is defined as a delay time.
+          warning("Particle insertion time specification may be incorrect");//may include particles 1 time step before the 1st insertion?!
         insert();
     }
     
     if (inserted){//after initial insertion  
         recursionCounter=0;
-        updateXYZPosition(delT);
-        updateOtherParameters(delT);
+        updateXYZPosition(delT); //TODO let helper do the job
+        updateOtherParameters(delT); //TODO Why need this?
         ////TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
         //if(! isDead) checkHealth(); 
     }
