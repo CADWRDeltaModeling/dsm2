@@ -30,7 +30,8 @@ public class SwimInputs {
 	public SwimHelper getSwimHelper(){return _swimHelper;}
 	//private void addSpecialBehaviors(SwimHelper sh, String particleType){}
 	private void setHelper(){
-		if(_fishType.equalsIgnoreCase("SALMON"))
+		// TODO make particle own helper???
+		if(_fishType.equalsIgnoreCase("SALMON") || _fishType.equalsIgnoreCase("PARTICLE"))
 			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior());
 		else if (_fishType.equalsIgnoreCase("SMELT"))
 			PTMUtil.systemExit("the special help for smelt has been defined yet");

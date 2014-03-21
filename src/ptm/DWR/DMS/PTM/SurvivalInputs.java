@@ -30,14 +30,16 @@ public class SurvivalInputs {
 	}
 	
 	public void setChannelInfo(Waterbody[] waterbodies){
-		for (Waterbody wb: waterbodies){
-			if (wb != null && wb.getType() == Waterbody.CHANNEL){
-				Channel chan = (Channel) wb;
-				String chanGroup = _channelGroups.get(chan.getEnvIndex());
-				if (chanGroup != null)
-					chan.setChanGroup(chanGroup);
-				else
-					chan.setChanGroup(null);
+		if (_channelGroups != null){
+			for (Waterbody wb: waterbodies){
+				if (wb != null && wb.getType() == Waterbody.CHANNEL){
+					Channel chan = (Channel) wb;
+					String chanGroup = _channelGroups.get(chan.getEnvIndex());
+					if (chanGroup != null)
+						chan.setChanGroup(chanGroup);
+					else
+						chan.setChanGroup(null);
+				}
 			}
 		}
 	}
@@ -98,7 +100,8 @@ public class SurvivalInputs {
 			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Survival_Rate but get:"+title[0] + " " +title[1]);
 	}
 	private void setHelper(){
-		if(_fishType.equalsIgnoreCase("SALMON"))
+		//TODO particle should have its own basic behavior???
+		if(_fishType.equalsIgnoreCase("SALMON") || _fishType.equalsIgnoreCase("PARTICLE"))
 			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_survivalRates));
 		else if (_fishType.equalsIgnoreCase("SMELT"))
 			PTMUtil.systemExit("the special help for smelt has not been defined yet");

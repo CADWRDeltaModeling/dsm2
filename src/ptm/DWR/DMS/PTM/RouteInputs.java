@@ -17,6 +17,7 @@ public class RouteInputs {
 		if (fishType == null)
 				PTMUtil.systemExit("No Particle Type! exit.");
 		_fishType = fishType;
+		setHelper();
 		if (inText != null){
 			_barriers = new ArrayList<NonPhysicalBarrier>();
 			_fishScreens = new ArrayList<IntBuffer>();
@@ -37,9 +38,10 @@ public class RouteInputs {
 			
 			if( dicuInText == null || dicuInText.size() < 1)
 				System.err.println("WARNING: no dicu info found or the info is not properly defined in behavior inputs.");
-			else
+			else{
 				_dicuFilterEfficiency = PTMUtil.getDouble(dicuInText.get(0).trim());
-			setHelper();				
+				setDicuFilterEfficiency();
+			}
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
 				System.err.println("WARNING: no specialBehavior defined or defined improperly in behavior inputs.");
 			else
@@ -62,7 +64,7 @@ public class RouteInputs {
 	public void setFishScreenNodeInfo(Node[] allNodes){
 	    //nodeArray starts from 1 PTMFixedInput.java line 287
 		if (_fishScreens == null)
-			System.err.println("WARNING: no fish screen info avaiable");
+			System.err.println("WARNING: no fish screen info avaiable while set up the model node info");
 		else
 			for (IntBuffer screen: _fishScreens)
 				allNodes[screen.get(0)].installFishScreen();
@@ -81,36 +83,47 @@ public class RouteInputs {
 	
 	public void setFishScreenWbInfo(Waterbody[] allWbs){
 		if (_fishScreens == null)
-			System.err.println("WARNING: no fish screen info avaiable");
+			System.err.println("WARNING: no fish screen info avaiable while set up the model water body info");
 		else{
 			for (IntBuffer screen: _fishScreens)
 				allWbs[screen.get(1)].installFishScreen(screen.get(0));
 		}
 	}
 
-	public void updateCurrentBarrierInfo(Waterbody[] allWbs, int currentTime){
+	public boolean updateCurrentBarrierInfo(Waterbody[] allWbs, int currentTime){
 		if (_barriers == null)
-			System.err.println("WARNING: no non-pysical barriers info avaiable");
+			return false;
 		else{
 			for (NonPhysicalBarrier barrier: _barriers)
 				allWbs[barrier.getWaterbodyId()].setCurrentBarrierOp(barrier.getNodeId(), 
 						barrier.getBarrierOp(PTMUtil.convertHecTime(currentTime)));
 		}
+		return true;
 	}
 	
 	public double getDicuFilterEfficiency(){return _dicuFilterEfficiency;}
 	public RouteHelper getRouteHelper(){ return _routeHelper;}
 	
 	private void setHelper(){
-		if(_fishType.equalsIgnoreCase("SALMON")){
+		//TODO particle has basic route behavior as Salmon???
+		if(_fishType.equalsIgnoreCase("SALMON") || _fishType.equalsIgnoreCase("PARTICLE"))
 			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
-			if (_dicuFilterEfficiency > 0)
-				SalmonBasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
-		}
 		else if (_fishType.equalsIgnoreCase("SMELT"))
 			PTMUtil.systemExit("the special help for smelt has been defined yet");
 		else
 			PTMUtil.systemExit("the special help for smelt has been defined yet");
+	}
+	
+	private void setDicuFilterEfficiency(){
+		if (_dicuFilterEfficiency > 0){
+			//TODO particle has basic route behavior as Salmon???
+			if(_fishType.equalsIgnoreCase("SALMON")|| _fishType.equalsIgnoreCase("PARTICLE"))
+				SalmonBasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
+		}
+		else if (_fishType.equalsIgnoreCase("SMELT"))
+			PTMUtil.systemExit("the method to set Dicu filter for smelt has been defined yet");
+		else
+			PTMUtil.systemExit("the method to set Dicu filter for other species has been defined yet");
 	}
 	
 	private void setBehaviors(ArrayList<String> inText){

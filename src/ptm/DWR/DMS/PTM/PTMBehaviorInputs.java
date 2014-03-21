@@ -13,6 +13,7 @@ public class PTMBehaviorInputs {
 	private SurvivalInputs _survivalInputs=null;
 	private SwimInputs _swimInputs=null;
 	private RouteInputs _routeInputs=null;
+	private boolean _barrierInstalled = true;
 	
 	private void extractFishType(ArrayList<String> fishTypeText){
 		if (fishTypeText==null || fishTypeText.size()==0) 
@@ -25,9 +26,11 @@ public class PTMBehaviorInputs {
 	 * 
 	 */
 	public PTMBehaviorInputs() {
-		PTMUtil.systemExit("no input behavior file found, system exit.");
+		PTMUtil.systemExit("should not be here, system exit.");
 	}
 	public PTMBehaviorInputs(String inputFileName) {
+		if (inputFileName == null || inputFileName.length() == 0)
+			PTMUtil.systemExit("Behavior input file not found, system exit");
 		BufferedReader inputText = PTMUtil.getInputBuffer(inputFileName);
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
 		extractFishType(fishTypeList);
@@ -43,7 +46,8 @@ public class PTMBehaviorInputs {
 		if (routeInputText == null)
 			System.err.println("WARNING: no route behavior input found!");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
-		PTMUtil.closeBuffer(inputText);
+			PTMUtil.closeBuffer(inputText);
+		
 	}
 	public void setWaterbodyInfo(Waterbody[] allWbs){
 		if (_routeInputs != null){
@@ -69,8 +73,10 @@ public class PTMBehaviorInputs {
 		//_swimInputs.setNodeInfo(allNodes);
 	}
 	public void updateCurrentInfo(Node[] allNodes, Waterbody[] allWbs, int currentTime){
-		if (_routeInputs != null)
-			_routeInputs.updateCurrentBarrierInfo(allWbs, currentTime);
+		if (_barrierInstalled && _routeInputs != null){
+			_barrierInstalled = _routeInputs.updateCurrentBarrierInfo(allWbs, currentTime);
+			System.err.println("in update method");
+		}
 		//TODO not needed now, maybe later
 		//_survivalInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
 		//_swimInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
