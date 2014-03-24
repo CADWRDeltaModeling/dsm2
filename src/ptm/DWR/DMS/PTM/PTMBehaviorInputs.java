@@ -73,10 +73,8 @@ public class PTMBehaviorInputs {
 		//_swimInputs.setNodeInfo(allNodes);
 	}
 	public void updateCurrentInfo(Node[] allNodes, Waterbody[] allWbs, int currentTime){
-		if (_barrierInstalled && _routeInputs != null){
+		if (_barrierInstalled && _routeInputs != null)
 			_barrierInstalled = _routeInputs.updateCurrentBarrierInfo(allWbs, currentTime);
-			System.err.println("in update method");
-		}
 		//TODO not needed now, maybe later
 		//_survivalInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
 		//_swimInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
