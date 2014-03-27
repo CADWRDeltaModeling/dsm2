@@ -8,11 +8,13 @@ package DWR.DMS.PTM;
  *
  */
 public class BasicRouteBehavior {
+	/*
 	private Particle _p = null;
 	private Waterbody _wb = null;
 	private Node _nd = null;
 	private float _waterbodyInflows;
 	private float _rand;
+	*/
 	static double _dicuEfficiency = 0.0;
 
 	/**
@@ -27,9 +29,10 @@ public class BasicRouteBehavior {
 		_dicuEfficiency = eff;
 	}
 	
-	private float getPerturbedXLocation(Channel chan, Node, nd, float repostionFactor){
+	private float getPerturbedXLocation(Waterbody wb, Node nd, float repositionFactor){
 	    float newXPosition = 0.0f;
-	    if (chan != null && nd != null) {
+	    if (wb.getPTMType() == Waterbody.CHANNEL){
+	    	Channel chan = (Channel) wb;
 		    float cLength = chan.getLength();
 		    if (chan.getUpNodeId() == nd.getEnvIndex())
 		    	newXPosition = cLength *repositionFactor;
@@ -42,7 +45,6 @@ public class BasicRouteBehavior {
 	private float getXLocationInChannel(Channel chan, Node nd){
 	    float newXPosition = 0.0f;
 	    if (chan != null && nd != null) {
-		    float cLength = chan.getLength();
 		    if (chan.getUpNodeId() == nd.getEnvIndex())
 		    	newXPosition = 0;
 		    if (chan.getDownNodeId() == nd.getEnvIndex())
@@ -51,13 +53,13 @@ public class BasicRouteBehavior {
 	    return newXPosition;
 	}
 	
-	private boolean prescreen(Particle p) {
+	private boolean prescreen(Particle p, float wbInflows) {
 	    // if the Node is at a Node with zero flow, for example at the
 	    // end of a slough, then move the Particle into the Channel a
 	    // small amount.
 
 	    if (_waterbodyInflows == 0.0f && _nd.getNumberOfWaterbodies() == 1) {
-	      p.x = getPerturbedXLocation();
+	      p.x = getPerturbedXLocation(p.);
 	      return false;
 	    }
 	    //float out2 = outflow;
