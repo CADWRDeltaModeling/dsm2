@@ -63,6 +63,7 @@ contains
         use chstatus, only: GlobalStreamSurfaceElevation
         use netcntrl, only: NetworkTheta
         use netbnd, only: reservoir_source_sink, reservoir_source_sink_prev
+        use reservoir_geometry
         implicit none
 
         !   Purpose:  Compute flow between reservoirs and channels
@@ -86,6 +87,7 @@ contains
         real*8 dResEqdQ,coefSqrtTwoG
 
         real*8 y1,y2,dy,q1,dT
+        real*8 reser_area, reser_vol
         logical OK
 
         !   Routines by module:
@@ -105,11 +107,13 @@ contains
             ResIndex = ResEqIndex(i)
             ResRow = ResEqRow(i)            ! The mass balance row
 
-
+            call calculateReservoirGeometry(i, Yres(i), reser_area, reser_vol)
             !--------The "dV/dt" part of Sum Q = dV/dt
-            dVdtknown = (Yres(i)-YResOld(i))*ARes(i)/dt
+            !---------dVdtknown = (Yres(i)-YResOld(i))*ARes(i)/dt
+            dVdtknown = (reser_vol-VResOld(i))/dt
             OK = AddAtRow(ResRow,-dVdtknown)
-            OK = AddAtLocation(ResEqPointer(ResIndex),ARes(i)/dt)
+            !----------OK = AddAtLocation(ResEqPointer(ResIndex),ARes(i)/dt)
+            OK = AddAtLocation(ResEqPointer(ResIndex),reser_area/dt)
             ResIndex = ResIndex+1
             !--------Add contributions from external sources to the reservoir mass
             !        balance. These are weighted in time. Note sign convention

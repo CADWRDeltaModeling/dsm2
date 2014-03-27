@@ -52,6 +52,7 @@
 		<File RelativePath="..\..\src\input_storage\particle_group_output_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\particle_insertion_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\rate_coefficient_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\reservoir_area_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\reservoir_concentration_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\reservoir_connection_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\reservoir_ic_input_storage.fi"/>

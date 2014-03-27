@@ -31,6 +31,7 @@ c-----Process Hydro tidefile data into arrays needed by Qual.
       use runtime_data
       use grid_data      
       use network
+      use reservoir_geometry
       implicit none
 
       include 'param.inc'
@@ -60,6 +61,7 @@ c-----local variables
      &     correct_fact,totv,totnewv
      &     ,totsysv
      &     ,totsysnewv
+      real*8 reser_area, reser_vol, reser_elv
 
       real*8 mass_before(MAX_CONSTITUENT),mass_after(MAX_CONSTITUENT)
 
@@ -77,10 +79,21 @@ c-----smoothing is needed if a new tidefile is read
      
       if (new_tidefile) then
 	   !@fixme is this the right condition? was same as smoothing_needed
-         do i=1,nreser
-            resvol(i)=(eresv(i)-hres(i))*ares(i)
+         do i=1,nreser          
+            !resvol(i)=(eresv(i)-hres(i))*ares(i)
+            !Reservoir volume not stored in HDF file, need to calculate
+            reser_elv = eresv(i)
+            call calculateReservoirGeometry(i, reser_elv, reser_area, reser_vol)
+            resvol(i) = reser_vol
+            ares(i) = reser_area
          enddo
       endif
+c--------update reservoir area, this area will be used to calulate depth.
+         do i=1,nreser          
+            reser_elv = eresv(i)
+            call calculateReservoirGeometry(i, reser_elv, reser_area, reser_vol)
+            ares(i) = reser_area
+         enddo
 
 c--------assign flows to reservoirs. Couldn't do this before
 c        in ReadReservoirData because of anothe variable called qres
@@ -139,7 +152,11 @@ c        fixme: this is incredibly confusing
 c--------Now adjust the reservoirs
 
          do i=1,nreser
-            resvol(i)=(eresv(i)-hres(i))*ares(i)
+            !resvol(i)=(eresv(i)-hres(i))*ares(i)
+            reser_elv = eresv(i)
+            call calculateReservoirGeometry(i, reser_elv, reser_area, reser_vol)
+            resvol(i)=reser_vol
+            ares(i) = reser_area
          enddo
          IF(MASS_TRACKING)THEN
             call determine_mass_in_delta(mass_after)

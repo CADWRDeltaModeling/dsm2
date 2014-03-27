@@ -102,12 +102,16 @@ module type_defs
 
     !      MaxResConnectChannel must be consistent with maxresnodes
     integer, parameter ::  maxresnodes=50  ! Maximum reservoir connections to channels/nodes
+    integer, parameter ::  maxreselevs=50  ! Maximum reservoir elevation/area layers
 
     type reservoir_t
         sequence
         character*32 :: name = ' '      ! reservoir name
-        real*8 :: area = 0.D0           ! average top area
+        real*8 :: toparea = 0.D0           ! average top area, renamed to toparea
         real*8 :: botelv = 0.D0         ! bottom elevation wrt datum
+        real*8 :: area(maxreselevs) = 0.D0           ! reservoir area at elev
+        real*8 :: elev(maxreselevs) = 0.D0         !  elevation wrt datum
+        real*8 :: vol(maxreselevs) = 0.D0         !  reservoir vol at elev        
         real*8 :: stage = 0.D0          ! stage elevation
         real*8 :: coeff2res(maxresnodes) = 0.D0  ! to reservoir flow coefficient to node
         real*8 :: coeff2chan(maxresnodes) = 0.D0 ! to channel flow coefficient to node
@@ -118,6 +122,7 @@ module type_defs
         integer*4 :: nConnect = 0                ! number of nodes connected using reservoir connections
         integer*4 :: nnodes = 0      ! total nodes connected to this reservoir, whether by
                                      ! reservoir connections or gates
+        integer*4 :: nelevs = 0      ! total elevation~area values                                     
         integer*4 :: node_no(maxresnodes) = 0    ! (internal) connecting node number
         integer*4 :: first_connect_index  ! index of this reservoir, connection 1
                                           ! in list of all connections (starting from res 1, connect 1)

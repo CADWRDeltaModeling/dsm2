@@ -43,7 +43,7 @@ C!</license>
       res_geom(nreser).id=ID
       res_geom(nreser).inUse=.true.
       res_geom(nreser).name=trim(reser_name)
-      res_geom(nreser).area=reser_area
+      res_geom(nreser).toparea=reser_area * 1.0e6
       res_geom(nreser).botelv=reser_botelv
       if (print_level .ge. 3)
      &    write(unit_screen,'(i5,1x,a)')
@@ -72,6 +72,72 @@ C!</license>
       if (.not. alloc)then
          deallocate(qresv)
       end if
+      return
+      end subroutine
+      
+      subroutine process_reservoir_area(resname,
+     &                                        reser_area,
+     &                                        reselev)
+      use constants
+      use grid_data
+      use logging
+      use io_units
+      use network
+      implicit none
+            
+      character*32 resname
+      integer :: resno
+      integer :: nn
+      integer, external :: name_to_objno
+      real*8 :: reser_area      
+      real*8 :: reselev
+      real*8 :: prev_area,prev_vol,prev_elev,calc_vol
+      call locase(resname)
+      resno = name_to_objno(obj_reservoir,resname)
+      res_geom(resno).nelevs=res_geom(resno).nelevs+1
+	if (res_geom(resno).nelevs .gt. MaxResElevs) then
+          write(unit_error,*) 'Number of reservoir elevations for ',
+     &      res_geom(resno).name, ' exceeds maximum of ',
+     &      MaxResElevs
+            call exit(-1)
+          return
+      endif	                   
+      nn=res_geom(resno).nelevs
+      res_geom(resno).area(nn)=reser_area * 1.0e6
+      res_geom(resno).elev(nn)=reselev
+      if (nn .eq. 1) then
+         res_geom(resno).vol(nn)=0.D0
+      endif
+
+c-----------upper layer vol=lower layer vol + trapezoidal vol between them 
+      if (nn .gt. 1) then
+	   prev_area = res_geom(resno).area(nn-1)
+	   prev_elev = res_geom(resno).elev(nn-1)
+	   prev_vol= res_geom(resno).vol(nn-1)
+	   if (res_geom(resno).area(nn) .lt. prev_area) then
+            write(unit_error,'(a,i5)')
+     &		   "Reservoir areas decreasing with elevation ",
+     &         resname, " Elev: ",reselev,
+     &         " Area: ",reser_area 
+	         call exit(-3)
+	         return
+	   end if
+	   if (reselev .lt. prev_elev) then
+            write(unit_error,'(a,i5)')
+     &         "Reservoir elevation decreasing not allowed at ",
+     &         resname, " Elev: ",reselev,
+     &         " Area: ",reser_area 
+	         call exit(-3)
+	         return
+	   end if
+
+	   calc_vol=prev_vol + 
+     &      (reselev-prev_elev)*0.5*(res_geom(resno).area(nn)+prev_area)
+         
+         res_geom(resno).vol(nn)=calc_vol
+
+      end if
+    
       return
       end subroutine
       

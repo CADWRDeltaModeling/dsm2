@@ -287,6 +287,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_area.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir_concentration.cpp"
 				>
 			</File>
@@ -450,6 +454,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_area.h"
 				>
 			</File>
 			<File

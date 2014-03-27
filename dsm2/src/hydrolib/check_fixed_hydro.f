@@ -617,7 +617,7 @@ subroutine check_fixed_hydro(istat)
     !-----convert reservoir info for fourpt variables
     do i=1,nreser
         !--------channel connections to this reservoir
-        Ares(i)=res_geom(i)%area * 1.0e6
+       ! Ares(i)=res_geom(i)%toparea * 1.0e6
         !--------Yres(i)=res_geom(i)%stage
         Dres(i)=res_geom(i)%botelv
         do j=1,res_geom(i)%nconnect

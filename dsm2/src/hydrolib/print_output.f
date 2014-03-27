@@ -213,7 +213,7 @@ subroutine print_output(istat)
 
     do i=1,nreser
         write(unit_output,1420)res_geom(i)%name, &
-            res_geom(i)%area, &
+            res_geom(i)%toparea/1.0e6, &
             res_geom(i)%botelv, &
             res_geom(i)%node_no(1), &
             res_geom(i)%coeff2res(1),res_geom(i)%coeff2chan(1)

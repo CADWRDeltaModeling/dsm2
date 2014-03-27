@@ -158,6 +158,20 @@ c       are file-based
        end do
        print *,"Number of reservoirs: ", nitem
 
+      nitem = reservoir_area_buffer_size()
+      do icount = 1,nitem
+         call reservoir_area_query_from_buffer(icount,
+     &                                   name,
+     &                                   area,     
+     &                                   elev,
+     &                                   ierror)
+         
+         call process_reservoir_area(name,
+     &                                     area, 
+     &                                     elev)
+       end do
+       print *,"Number of reservoir areas/elevations: ", nitem
+
       nitem = reservoir_connection_buffer_size()
       do icount = 1,nitem
          call reservoir_connection_query_from_buffer(icount,

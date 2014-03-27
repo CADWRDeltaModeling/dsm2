@@ -54,6 +54,7 @@
 		<File RelativePath="..\..\src\hydrolib\print_output.f"/>
 		<File RelativePath="..\..\src\hydrolib\process_text_hydro_input.f"/>
 		<File RelativePath="..\..\src\hydrolib\process_tide.f"/>
+		<File RelativePath="..\..\src\hydrolib\reservoir_geometry.f"/>
 		<File RelativePath="..\..\src\hydrolib\reservoirs.f"/>
 		<File RelativePath="..\..\src\hydrolib\solvealloc.f"/>
 		<File RelativePath="..\..\src\hydrolib\solver.f"/>

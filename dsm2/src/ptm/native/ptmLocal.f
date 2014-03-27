@@ -82,6 +82,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       use common_tide
       use ptm_local
       use network
+      use reservoir_geometry
 C-----Processes tide file input
       implicit none
 C-----This subroutine is called from read_mult_tide after reading in the tide
@@ -102,6 +103,7 @@ c-----local variables
       integer    k!,numchangedflows
 !      integer nodeIndex, reservoirNumber
      &     , new_tide           ! new tide block being used
+      real*8 reser_area, reser_vol, reser_elv
 
       save old_tide_block_no
 
@@ -110,8 +112,11 @@ c-----local variables
 
       if (new_tide) then
          do k=1,max_reservoirs
-            reservoirVolume(k)=
-     &           (eresv(k)-res_geom(k).botelv)*res_geom(k).area
+!            reservoirVolume(k)=
+!     &           (eresv(k)-res_geom(k).botelv)*res_geom(k).toparea
+            reser_elv = eresv(k)
+            call calculateReservoirGeometry(k, reser_elv, reser_area, reser_vol)
+            reservoirVolume(k) = reser_vol
          enddo
       endif
 c----- update all waterbody flows

@@ -29,7 +29,8 @@ module chconnec
         ReservoirCoeff(MaxNres,MaxResConnectChannel,2), &
         QRes(MaxNres,MaxResConnectChannel),      &
         YResOld(MaxNres), &
-        QResOld(MaxNres,MaxResConnectChannel)
+        QResOld(MaxNres,MaxResConnectChannel), &
+        VResOld(MaxNres)
     integer, save::  ResConnectingChannels(MaxNres, MaxResConnectChannel)
 
     integer, save:: UpBoundaryCode(MaxChannels) &

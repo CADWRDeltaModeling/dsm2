@@ -105,8 +105,8 @@ c-----Now the reservoirs
       nconres=0
       do ires=1,nreser
 c--------channel connections to this reservoir
-         ares(ires)=res_geom(ires).area*1.e6
-         hres(ires)=res_geom(ires).botelv
+         !ares(ires)=res_geom(ires).toparea
+         !hres(ires)=res_geom(ires).botelv
          nresjunc(ires)=res_geom(ires).nnodes
          do j=1,res_geom(ires).nnodes
             reschjunc(ires,j)=res_geom(ires).node_no(j)

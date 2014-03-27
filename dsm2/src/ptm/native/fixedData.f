@@ -783,7 +783,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       real get_reservoir_area
       integer reservoirNumber
-      get_reservoir_area = res_geom(reservoirNumber).area
+      get_reservoir_area = res_geom(reservoirNumber).toparea
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -951,7 +951,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       implicit none
 
       integer pumpNumber,get_pump_number_of_nodes
-      if(res_geom(pumpNumber).area .gt. 0.0) then
+      if(res_geom(pumpNumber).toparea .gt. 0.0) then
          get_pump_number_of_nodes = 1
       else
          get_pump_number_of_nodes = -1

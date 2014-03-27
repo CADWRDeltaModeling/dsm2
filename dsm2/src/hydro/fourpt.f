@@ -47,6 +47,7 @@ C!</license>
       use oprule_management
       use tidefile
       use reservoirs
+      use reservoir_geometry
       use channel_schematic
       use dss
       use mod_readdss
@@ -109,6 +110,7 @@ c-----include '../input/time-varying/writedss.inc'
      &     ,jmin2cdt*14         ! convert from julian minute to char date/time
 
       logical :: updated
+      real*8 reser_area, reser_vol
 *   Programmed by: Lew DeLong
 *   Date:          February 1991
 *   Modified by:   Lew DeLong
@@ -274,12 +276,8 @@ C--special treatment to avoid averaging in the begining
 
          DO i=1,Nreser
             YResOld(i)=YRes(i)
-            if (YResOld(i).lt. res_geom(i).botelv) then
-               WRITE(UNIT_ERROR,923)res_geom(i).name,YResOld(i)
- 923           FORMAT(' ERROR ... RESERVOIR: ',a,'HAS NEGATIVE DEPTH',/,
-     &           ' Water Surface Elevation =', 1PE12.5)
-               call exit(2)
-            endif
+            call calculateReservoirGeometry(i, Yres(i), reser_area, reser_vol)
+            VResOld(i)=reser_vol
             DO j=1,res_geom(i).nnodes
                QResOld(i,j)=QRes(i,j)
             ENDDO
