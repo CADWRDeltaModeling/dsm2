@@ -8,13 +8,6 @@ package DWR.DMS.PTM;
  *
  */
 public class BasicRouteBehavior {
-	/*
-	private Particle _p = null;
-	private Waterbody _wb = null;
-	private Node _nd = null;
-	private float _waterbodyInflows;
-	private float _rand;
-	*/
 	static double _dicuEfficiency = 0.0;
 
 	/**
@@ -28,29 +21,29 @@ public class BasicRouteBehavior {
 	public static void setDicuFilterEfficiency(double eff) {
 		_dicuEfficiency = eff;
 	}
-	
-	private float getPerturbedXLocation(Waterbody wb, Node nd, float repositionFactor){
-	    float newXPosition = 0.0f;
-	    if (wb.getPTMType() == Waterbody.CHANNEL){
-	    	Channel chan = (Channel) wb;
-		    float cLength = chan.getLength();
-		    if (chan.getUpNodeId() == nd.getEnvIndex())
-		    	newXPosition = cLength *repositionFactor;
-		    else if (chan.getDownNodeId() == nd.getEnvIndex())
-		    	newXPosition= cLength - cLength * repositionFactor;
-	    }
-	    return newXPosition;
+	/*
+	private void checkNull(Waterbody wb, Node nd){
+		if (wb == null || nd == null)
+			PTMUtil.systemExit("water body or node not exist while making node decision, system exit.");
+	}
+	*/
+	private float getPerturbedXLocation(Channel chan, Node nd, float repositionFactor){
+	    float cLength = chan.getLength();
+	    if (chan.getUpNodeId() == nd.getEnvIndex())
+	    	return (cLength *repositionFactor);
+	    if (chan.getDownNodeId() == nd.getEnvIndex())
+	    	return (cLength - cLength * repositionFactor);
+	    PTMUtil.systemExit("Node: " + nd.getEnvIndex() + " and channel: " + chan.getEnvIndex() + "doesn't match! exit.");
+	    return -999999.0f;
 	}
 	
 	private float getXLocationInChannel(Channel chan, Node nd){
-	    float newXPosition = 0.0f;
-	    if (chan != null && nd != null) {
-		    if (chan.getUpNodeId() == nd.getEnvIndex())
-		    	newXPosition = 0;
-		    if (chan.getDownNodeId() == nd.getEnvIndex())
-		    	newXPosition = chan.getLength();
-	    }
-	    return newXPosition;
+	    if (chan.getUpNodeId() == nd.getEnvIndex())
+	    	return 0;
+	    if (chan.getDownNodeId() == nd.getEnvIndex())
+	    	return chan.getLength();
+	    PTMUtil.systemExit("Node: " + nd.getEnvIndex() + " and channel: " + chan.getEnvIndex() + "doesn't match! exit.");
+	    return -999999.0f;
 	}
 	
 	private boolean prescreen(Particle p, float wbInflows) {
@@ -58,16 +51,19 @@ public class BasicRouteBehavior {
 	    // end of a slough, then move the Particle into the Channel a
 	    // small amount.
 
-	    if (_waterbodyInflows == 0.0f && _nd.getNumberOfWaterbodies() == 1) {
-	      p.x = getPerturbedXLocation(p.);
-	      return false;
+	    if (wbInflows == 0.0f && p.nd.getNumberOfWaterbodies() == 1) {
+	    	if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
+	    		p.x = 0;
+	    	else
+	    		p.x = getPerturbedXLocation(((Channel) p.wb), p.nd, p.repositionFactor);
+	    	return false;
 	    }
 	    //float out2 = outflow;
 	    
 
-	    _waterbodyInflows = _rand*_waterbodyInflows;
+	    wbInflows = p.nd.getRandomNumber()*wbInflows;
 	  
-	    if (_waterbodyInflows == 0.0){
+	    if (wbInflows == 0.0){
 	      p.particleWait = true;
 	      return false;
 	    }
@@ -84,31 +80,34 @@ public class BasicRouteBehavior {
 			PTMUtil.systemExit("the particle passed in SalmonBasicRouteBehavior is null");
 		Waterbody wb = p.wb;
 		Node nd = p.nd;
-		if (_wb == null)
+		//TODO when particle just inserted wb = null, but node is assigned.
+		/*
+		if (wb == null)
 			PTMUtil.systemExit("Particle doesn't have a water body to stay! exit.");
-		if (_nd == null)
+		*/
+		if (nd == null)
 			PTMUtil.systemExit("Particle doesn't know the node! exit.");
+		
 		float waterbodyInflows = nd.getTotalWaterbodyInflows();
-		float rand = nd.getRandomNumber();
 		
 		// after prescreen() call, _waterbodyInflows = _rand*_waterbodyInflows
-	    if (!prescreen(p))
+	    if (!prescreen(p, waterbodyInflows))
 	    	return;
 	    
 	    int waterbodyId = -1;
 	    Waterbody thisWb = null;
 	    float flow = 0.0f;
-	    float totalAgDivFlows = _nd.getTotalAgDiversion();
-	    float totalInflowWOAgDiv = _nd.getTotalWaterbodyInflows() - totalAgDivFlows;
+	    float totalAgDivFlows = nd.getTotalAgDiversion();
+	    float totalInflowWOAgDiv = nd.getTotalWaterbodyInflows() - totalAgDivFlows;
 	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
 	    boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
 
 	    do {
 	    	waterbodyId ++;
-	    	thisWb = _nd.getWaterbody(waterbodyId);
-	    	float thisFlow = Math.max(0, thisWb.getInflow(_nd.getEnvIndex()));
+	    	thisWb = nd.getWaterbody(waterbodyId);
+	    	float thisFlow = Math.max(0, thisWb.getInflow(p.nd.getEnvIndex()));
 		    float modFlow = 0.0f;
-	    	if (thisWb.isAgSeep() || (_nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
+	    	if (thisWb.isAgSeep() || (nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
 	    		modFlow = 0;
 	    	else if (dicuFilter){
 	    		if (thisWb.isAgDiv())
@@ -122,7 +121,7 @@ public class BasicRouteBehavior {
 	    		modFlow = thisFlow;
 	    	flow += modFlow;	    	
 	    	// _waterbodyInflows here is total _waterbodyInflows * _rand
-	    }while (flow < _waterbodyInflows && waterbodyId < _nd.getNumberOfWaterbodies());
+	    }while (flow < waterbodyInflows && waterbodyId < nd.getNumberOfWaterbodies());
 	    // get a pointer to the waterbody in which pParticle entered.
 	    p.wb = thisWb;
 	    // send message to observer about change 
@@ -130,6 +129,9 @@ public class BasicRouteBehavior {
 	    if (p.observer != null) 
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 	    // set x as beginning of Channel...
-	    p.x = getXLocationInChannel(p.wb);
+	    if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
+	    	p.x = 0.0f;
+	    else
+	    	p.x = getXLocationInChannel((Channel)p.wb, nd);
 	}
 }
