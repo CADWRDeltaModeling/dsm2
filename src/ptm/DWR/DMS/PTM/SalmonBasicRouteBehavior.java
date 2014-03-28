@@ -8,9 +8,21 @@ package DWR.DMS.PTM;
  *
  */
 
-//TODO Should make this class to be accessible by other fish types? but how to make sure type safe?
-public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
+public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements SalmonRouteBehavior {
+//public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
+	
+	/**
+	 * 
+	 */
+	public SalmonBasicRouteBehavior() {
+		super();
+	}
+	
+	//TODO there is no specific basic route behavior for Salmon for now.....
+	
+	//TODO clean up
 	// is that good to have so many private variables?
+	/*
 	private Waterbody _wb;
 	private Node _nd;
 	private float _channelLength;
@@ -20,12 +32,7 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	private Particle _p = null;
 	static double _dicuEfficiency = 0.0;
 
-	/**
-	 * 
-	 */
-	public SalmonBasicRouteBehavior() {
-		
-	}
+
 	
 	public static void setDicuFilterEfficiency(double eff) {
 		_dicuEfficiency = eff;
@@ -84,12 +91,14 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	    _waterbodyInflows = _nd.getTotalWaterbodyInflows();
 	    _rand = _nd.getRandomNumber();
 	}
-
+	*/
+	 
 	/* 
 	 * be careful! when isNodeReached() method is called in Particle, the current node is replaced 
 	 * by the node just reached and the total waterbodyInflows is related to
 	 * that node.  
 	 */
+	/*
 	public void makeRouteDecision(Particle p) {
 		if (p == null)
 			PTMUtil.systemExit("the particle passed in SalmonBasicRouteBehavior is null");
@@ -136,4 +145,5 @@ public class SalmonBasicRouteBehavior implements SalmonRouteBehavior {
 	    // set x as beginning of Channel...
 	    p.x = getXLocationInChannel(p.wb);
 	}
+	*/
 }

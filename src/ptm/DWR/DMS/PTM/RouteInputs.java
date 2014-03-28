@@ -55,7 +55,7 @@ public class RouteInputs {
 	public void setBarrierNodeInfo(Node[] allNodes){
 	    //nodeArray starts from 1 PTMFixedInput.java line 287
 		if (_barriers == null)
-			System.err.println("WARNING: no non-pysical barriers info avaiable");
+			System.err.println("WARNING: no non-pysical barriers info avaiable while setting up node info");
 		else
 			for (NonPhysicalBarrier barrier: _barriers)
 				allNodes[barrier.getNodeId()].installBarrier();
@@ -74,7 +74,7 @@ public class RouteInputs {
 		//wbArray start from 1 see PTMFixedInput.java line 180
 		//Channels are first filled in wbArray
 		if (_barriers == null)
-			System.err.println("WARNING: no non-pysical barriers info avaiable");
+			System.err.println("WARNING: no non-pysical barriers info avaiable while setting up water body info");
 		else{
 			for (NonPhysicalBarrier barrier: _barriers)
 				allWbs[barrier.getWaterbodyId()].installBarrier(barrier.getNodeId());
@@ -105,13 +105,15 @@ public class RouteInputs {
 	public RouteHelper getRouteHelper(){ return _routeHelper;}
 	
 	private void setHelper(){
-		//TODO particle has basic route behavior as Salmon???
-		if(_fishType.equalsIgnoreCase("SALMON") || _fishType.equalsIgnoreCase("PARTICLE"))
+		if ( _fishType.equalsIgnoreCase("PARTICLE"))
+			_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
+			//_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
+		else if(_fishType.equalsIgnoreCase("SALMON"))
 			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
 		else if (_fishType.equalsIgnoreCase("SMELT"))
-			PTMUtil.systemExit("the special help for smelt has been defined yet");
+			PTMUtil.systemExit("No smelt helper defined, system exit.");
 		else
-			PTMUtil.systemExit("the special help for smelt has been defined yet");
+			PTMUtil.systemExit("No helper defined, system exit.");
 	}
 	
 	private void setDicuFilterEfficiency(){
