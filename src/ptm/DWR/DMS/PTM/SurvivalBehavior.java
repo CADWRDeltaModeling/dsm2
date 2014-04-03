@@ -9,6 +9,6 @@ package DWR.DMS.PTM;
  */
 public interface SurvivalBehavior {
 	static final String behaviorType = "SURVIVAL";
-	public void isSurvived(Particle p);
+	public void isSurvived(Particle p, float timeToAdvance);
 
 }

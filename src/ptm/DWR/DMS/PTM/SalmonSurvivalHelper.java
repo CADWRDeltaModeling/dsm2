@@ -40,10 +40,10 @@ public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior
 			return null;
 	}
 	
-	public void helpSurvival(Particle p){
+	public void helpSurvival(Particle p, float timeToAdvance){
 		SalmonSurvivalBehavior b = super.getBehavior(p);
 		if (b != null)
-			b.isSurvived(p);
+			b.isSurvived(p, timeToAdvance);
 	};
 	public void setSurvivalHelperForParticle(Particle p){
 		p.installSurvivalHelper(this);

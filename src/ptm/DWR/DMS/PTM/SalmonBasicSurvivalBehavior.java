@@ -29,22 +29,22 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
 	 */
 	@Override
-	public void isSurvived(Particle p) {
-		// age in days
+	public void isSurvived(Particle p, float timeToAdvance) {
+		// timeInterval in days
 		// p.age in seconds
 		
-		double age = p.age/(60d*60d*24d);
-		if (age<0)
-			PTMUtil.systemExit("in particle survial behavior, expect positive age but get:" + age);
+		double timeInterval = timeToAdvance/(60d*60d*24d);
+		if (timeInterval<0)
+			PTMUtil.systemExit("in particle survial behavior, expect positive time interval but get:" + timeInterval);
 		double survivalProbability = 0;
 		Waterbody wb = p.wb;
 		Double rate = null;
 		if ((wb.getType() == Waterbody.CHANNEL) && (_survivalRates != null)
 				&& ((rate = _survivalRates.get(((Channel) wb).getChanGroup())) != null)){
-			survivalProbability = Math.exp(rate*age*(-1.0));
+			survivalProbability = Math.exp(rate*timeInterval*(-1.0));
 			if(DEBUG){
-				System.out.println("id:"+p.Id+" group:"+((Channel) wb).getChanGroup()+ " rate:"+ rate);
-				System.out.println("age:"+age*60d*60d*24d+"  survival probability:"+survivalProbability);
+				//System.out.println("id:"+p.Id+" group:"+((Channel) wb).getChanGroup()+ " rate:"+ rate);
+				System.out.println("channel:"+wb.getEnvIndex()+ " timeInterval:"+timeInterval*60d*60d*24d+"  survival probability:"+survivalProbability);
 			}	
 		}
 		else
@@ -53,7 +53,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			p.isDead = true;	
 			if(DEBUG) 
 				System.out.println("channel:"+PTMHydroInput.getExtFromIntChan(((Channel) wb).getEnvIndex())
-				+"  id:" + p.Id + "  age:"+age*24*60*60+"  survival probability:"+ survivalProbability+"  p.isDead:"+p.isDead);	
+				+"  id:" + p.Id + "  timeInterval:"+timeInterval*24*60*60+"  survival probability:"+ survivalProbability+"  p.isDead:"+p.isDead);	
 		}
 		
 	}
