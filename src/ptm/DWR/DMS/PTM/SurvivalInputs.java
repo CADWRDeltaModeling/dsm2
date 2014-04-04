@@ -101,7 +101,9 @@ public class SurvivalInputs {
 	}
 	private void setHelper(){
 		//TODO particle should have its own basic behavior???
-		if(_fishType.equalsIgnoreCase("SALMON") || _fishType.equalsIgnoreCase("PARTICLE"))
+		if(_fishType.equalsIgnoreCase("PARTICLE"))
+			_survivalHelper = new ParticleSurvivalHelper(new ParticleBasicSurvivalBehavior());
+		else if(_fishType.equalsIgnoreCase("SALMON"))
 			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_survivalRates));
 		else if (_fishType.equalsIgnoreCase("SMELT"))
 			PTMUtil.systemExit("the special help for smelt has not been defined yet");

@@ -59,14 +59,6 @@ public class BasicRouteBehavior {
 	    	return false;
 	    }
 	    //float out2 = outflow;
-	    
-
-	    wbInflows = p.nd.getRandomNumber()*wbInflows;
-	  
-	    if (wbInflows == 0.0){
-	      p.particleWait = true;
-	      return false;
-	    }
 	    return true;
 	}
 
@@ -77,37 +69,36 @@ public class BasicRouteBehavior {
 	 */
 	public void makeRouteDecision(Particle p) {
 		if (p == null)
-			PTMUtil.systemExit("the particle passed in SalmonBasicRouteBehavior is null");
-		Waterbody wb = p.wb;
-		Node nd = p.nd;
-		//TODO when particle just inserted wb = null, but node is assigned.
-		/*
-		if (wb == null)
-			PTMUtil.systemExit("Particle doesn't have a water body to stay! exit.");
-		*/
-		if (nd == null)
+			PTMUtil.systemExit("the particle passed in BasicRouteBehavior is null");
+		//when particle just inserted wb = null, but node is assigned.
+		if (p.nd == null)
 			PTMUtil.systemExit("Particle doesn't know the node! exit.");
 		
-		float waterbodyInflows = nd.getTotalWaterbodyInflows();
+		float waterbodyInflows = p.nd.getTotalWaterbodyInflows();
 		
 		// after prescreen() call, _waterbodyInflows = _rand*_waterbodyInflows
 	    if (!prescreen(p, waterbodyInflows))
 	    	return;
 	    
+	    waterbodyInflows = p.nd.getRandomNumber()*waterbodyInflows;
+		  
+	    if (waterbodyInflows == 0.0)
+	      p.particleWait = true;
+	    
 	    int waterbodyId = -1;
 	    Waterbody thisWb = null;
 	    float flow = 0.0f;
-	    float totalAgDivFlows = nd.getTotalAgDiversion();
-	    float totalInflowWOAgDiv = nd.getTotalWaterbodyInflows() - totalAgDivFlows;
+	    float totalAgDivFlows = p.nd.getTotalAgDiversion();
+	    float totalInflowWOAgDiv = p.nd.getTotalWaterbodyInflows() - totalAgDivFlows;
 	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
 	    boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
 
 	    do {
 	    	waterbodyId ++;
-	    	thisWb = nd.getWaterbody(waterbodyId);
+	    	thisWb = p.nd.getWaterbody(waterbodyId);
 	    	float thisFlow = Math.max(0, thisWb.getInflow(p.nd.getEnvIndex()));
 		    float modFlow = 0.0f;
-	    	if (thisWb.isAgSeep() || (nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
+	    	if (thisWb.isAgSeep() || (p.nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
 	    		modFlow = 0;
 	    	else if (dicuFilter){
 	    		if (thisWb.isAgDiv())
@@ -121,7 +112,7 @@ public class BasicRouteBehavior {
 	    		modFlow = thisFlow;
 	    	flow += modFlow;	    	
 	    	// _waterbodyInflows here is total _waterbodyInflows * _rand
-	    }while (flow < waterbodyInflows && waterbodyId < nd.getNumberOfWaterbodies());
+	    }while (flow < waterbodyInflows && waterbodyId < p.nd.getNumberOfWaterbodies());
 	    // get a pointer to the waterbody in which pParticle entered.
 	    p.wb = thisWb;
 	    // send message to observer about change 
@@ -132,6 +123,6 @@ public class BasicRouteBehavior {
 	    if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
 	    	p.x = 0.0f;
 	    else
-	    	p.x = getXLocationInChannel((Channel)p.wb, nd);
+	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
 	}
 }

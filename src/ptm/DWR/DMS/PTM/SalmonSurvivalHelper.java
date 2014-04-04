@@ -44,9 +44,9 @@ public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior
 		SalmonSurvivalBehavior b = super.getBehavior(p);
 		if (b != null)
 			b.isSurvived(p, timeToAdvance);
-	};
+	}
 	public void setSurvivalHelperForParticle(Particle p){
 		p.installSurvivalHelper(this);
-	};
+	}
 
 }

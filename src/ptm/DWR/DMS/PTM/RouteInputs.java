@@ -106,8 +106,8 @@ public class RouteInputs {
 	
 	private void setHelper(){
 		if ( _fishType.equalsIgnoreCase("PARTICLE"))
-			_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
-			//_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
+			//_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
+			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
 		else if(_fishType.equalsIgnoreCase("SALMON"))
 			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
 		else if (_fishType.equalsIgnoreCase("SMELT"))

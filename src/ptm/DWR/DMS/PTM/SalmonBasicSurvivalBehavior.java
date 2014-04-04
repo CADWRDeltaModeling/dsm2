@@ -10,7 +10,7 @@ import java.util.Map;
  *
  */
 public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
-	private boolean DEBUG = true;
+	private boolean DEBUG = false;
 	private Map<String, Double> _survivalRates = null;
 
 	/**
@@ -31,8 +31,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	@Override
 	public void isSurvived(Particle p, float timeToAdvance) {
 		// timeInterval in days
-		// p.age in seconds
-		
+		// timeToAdvance in seconds
 		double timeInterval = timeToAdvance/(60d*60d*24d);
 		if (timeInterval<0)
 			PTMUtil.systemExit("in particle survial behavior, expect positive time interval but get:" + timeInterval);
@@ -43,7 +42,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 				&& ((rate = _survivalRates.get(((Channel) wb).getChanGroup())) != null)){
 			survivalProbability = Math.exp(rate*timeInterval*(-1.0));
 			if(DEBUG){
-				//System.out.println("id:"+p.Id+" group:"+((Channel) wb).getChanGroup()+ " rate:"+ rate);
+				System.out.println("id:"+p.Id+" group:"+((Channel) wb).getChanGroup()+ " rate:"+ rate);
 				System.out.println("channel:"+wb.getEnvIndex()+ " timeInterval:"+timeInterval*60d*60d*24d+"  survival probability:"+survivalProbability);
 			}	
 		}
