@@ -22,8 +22,7 @@
             open(1102, file=outfile_name)
             do while (.true.)
                 read (1101, *, end=999) (conc(i),i=1,ncell)
-                !write(1102,'(30f10.2)') (conc(select_cell(j)), j=1,n_select_cell)
-                write(1102,'(30f10.2)') (conc(select_cell(j)),j=1,24)
+                write(1102,'(40f10.2)') (conc(select_cell(j)), j=1,n_select_cell)
             enddo
 999         continue            
             close(1101)

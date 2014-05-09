@@ -150,6 +150,18 @@ module advection
                                 ncell,        &
                                 nvar,         &
                                 use_limiter)
+        !call adjust_differences_flow(grad,         &
+        !                        grad_lo,      &  
+        !                        grad_hi,      &
+        !                        grad_center,  &
+        !                        flow_lo,      &
+        !                        flow_hi,      &
+        !                        conc_prev,    &
+        !                        dx,           &
+        !                        bound_val,    &
+        !                        ncell,        &
+        !                        nvar,         &
+        !                        use_limiter)                                
                                 
         ! Compute sources and sinks for each constituent
         call compute_source(source_prev, & 
@@ -221,23 +233,6 @@ module advection
                                 flux_lo,    &
                                 flux_hi,    &
                                 ncell,      &
-                                nvar)
-
-        call advect_debug_print(1384,     &
-                                1,      &
-                                conc_lo,     &
-                                conc_hi,     & 
-                                flux_lo,     &
-                                flux_hi,     &
-                                flow_lo,     &
-                                flow_hi,     &
-                                grad_lo,     &
-                                grad_hi,     &
-                                grad,        &   
-                                area,        &         
-                                mass_prev,   &
-                                dx,          &
-                                ncell,       &
                                 nvar)
                                     
         !Conservative update including source. 
@@ -457,47 +452,6 @@ module advection
                          + dt*half*source(:,ivar)*area
        end do    
        return
-    end subroutine
-
-    subroutine advect_debug_print(cell_no,     &
-                                  var_no,      &
-                                  conc_lo,     &
-                                  conc_hi,     & 
-                                  flux_lo,     &
-                                  flux_hi,     &
-                                  flow_lo,     &
-                                  flow_hi,     &
-                                  grad_lo,     &
-                                  grad_hi,     &
-                                  grad,        &
-                                  area,        &
-                                  mass_prev,   &
-                                  dx,          &
-                                  ncell,       &
-                                  nvar)
-        use gtm_precision                
-        use gtm_logging                  
-        implicit none
-        integer, intent(in) :: cell_no
-        integer, intent(in) :: var_no
-        integer, intent(in) :: ncell
-        integer, intent(in) :: nvar
-        real(gtm_real), intent(in) :: conc_lo(ncell,nvar)
-        real(gtm_real), intent(in) :: conc_hi(ncell,nvar)
-        real(gtm_real), intent(in) :: flux_lo(ncell,nvar)
-        real(gtm_real), intent(in) :: flux_hi(ncell,nvar)
-        real(gtm_real), intent(in) :: dx(ncell)
-        real(gtm_real), intent(in) :: flow_lo(ncell)
-        real(gtm_real), intent(in) :: flow_hi(ncell)
-        real(gtm_real), intent(in) :: grad_lo(ncell,nvar)
-        real(gtm_real), intent(in) :: grad_hi(ncell,nvar)
-        real(gtm_real), intent(in) :: grad(ncell,nvar)
-        real(gtm_real), intent(in) :: mass_prev(ncell,nvar)
-        real(gtm_real), intent(in) :: area(ncell)
-        !write(debug_unit,'(2i6,f10.2,3f24.15,8f24.2)') cell_no, var_no, dx(cell_no), grad(cell_no,var_no), grad_lo(cell_no,var_no), grad_hi(cell_no,var_no), &
-        !                                  area(cell_no), mass_prev(cell_no,var_no), flow_lo(cell_no),flow_hi(cell_no),  &
-        !                                  conc_lo(cell_no, var_no),conc_hi(cell_no, var_no), flux_lo(cell_no,var_no), flux_hi(cell_no,var_no)
-        return                          
     end subroutine
 
 end module

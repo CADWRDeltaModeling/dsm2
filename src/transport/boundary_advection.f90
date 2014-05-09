@@ -199,12 +199,12 @@ module boundary_advection
                 ! assign average concentration to downstream cell faces
                 do j = 1, junc(i)%n_conn_cells
                     icell = junc(i)%cell_no(j)
-                    if (junc(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then !cell at updstream of junction
-                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)
+                    if (junc(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of junction
+                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                                            
                     elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
                     elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then
-                        flux_lo(icell,:) = conc_hi(icell,:)*flow_hi(icell)
+                        flux_lo(icell,:) = conc_hi(icell,:)*flow_hi(icell)                        
                     endif                
                 end do   
             end do

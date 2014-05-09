@@ -23,7 +23,7 @@
 module gradient
     contains
 
-    !> Calculate the undivided lo, hi, and centered differences
+    !> Calculate the divided lo, hi, and centered differences
     subroutine difference(grad_lo,     & 
                           grad_hi,     &
                           grad_center, &
@@ -41,7 +41,7 @@ module gradient
         real(gtm_real), intent(in) :: dx(ncell)               !< Cell length
         real(gtm_real), intent(out):: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
         real(gtm_real), intent(out):: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
-        real(gtm_real), intent(out):: grad_center(ncell,nvar) !< Dentered diff, LARGEREAL for undefined boundary cells
+        real(gtm_real), intent(out):: grad_center(ncell,nvar) !< Centered diff, LARGEREAL for undefined boundary cells
         !----local
         integer :: ivar
 
@@ -103,6 +103,7 @@ module gradient
 
         return
     end subroutine
+
 
     !> Adjust differences to account for special cases (boundaries, structures, junctions, flow reversals)
     subroutine adjust_differences(grad,         &
@@ -167,26 +168,24 @@ module gradient
         !------ adjust junctions ------
         if (n_junc > 0) then
             ! assign gradient for cells around junction to be zero--> first order accuracy
+            ! but this may run into issue of smoothing two close signals (delta uniform flow case)
             do i = 1, n_junc           
                 do j = 1, junc(i)%n_conn_cells
                    icell = junc(i)%cell_no(j)
                    grad(icell,:) = zero
                 end do
             end do          
-            ! assign gradient for cells around junction equal to upstream adjacent cell
+            ! assign gradient for cells around junction equal to the other size of cell
             !do i = 1, n_junc           
-            !    min_cell_no = 10000   ! a dummy number helps to detect minimum cell no
             !    do j = 1, junc(i)%n_conn_cells
             !       icell = junc(i)%cell_no(j)                
-            !       if ((junc(i)%up_down(j)==0) .and. (icell<min_cell_no)) then
-            !           min_cell_no = icell
+            !       if (junc(i)%up_down(j)==0) then !cell at updstream of junction
+            !           grad(icell,:) = grad_lo(icell,:)
+            !       else
+            !           grad(icell,:) = grad_hi(icell,:)
             !       end if
             !    end do
-            !    do j = 1, junc(i)%n_conn_cells
-            !        icell = junc(i)%cell_no(j)
-            !        grad(icell,:) = grad_hi(min_cell_no,:)
-            !    end do
-            !end do  
+            !end do              
         end if
 
         !------ adjust links ------
@@ -195,30 +194,19 @@ module gradient
             do i = 1, n_link
                 if (abs(link(i)%cell_no(1)-link(i)%cell_no(2)).gt.1) then
                 do j = 1, 2
-                   icell = link(i)%cell_no(j)
-                   grad(icell,:) = zero
+                    icell = link(i)%cell_no(j)
+                    if (link(i)%up_down(j)==0) then   !cell at upstream of link
+                        grad(icell,:) = grad_lo(icell,:)
+                    else
+                        grad(icell,:) = grad_hi(icell,:)
+                    end if    
                 end do
                 end if
             end do          
-            ! assign gradient for cells around junction equal to upstream adjacent cell
-            !do i = 1, n_junc           
-            !    min_cell_no = 10000   ! a dummy number helps to detect minimum cell no
-            !    do j = 1, junc(i)%n_conn_cells
-            !       icell = junc(i)%cell_no(j)                
-            !       if ((junc(i)%up_down(j)==0) .and. (icell<min_cell_no)) then
-            !           min_cell_no = icell
-            !       end if
-            !    end do
-            !    do j = 1, junc(i)%n_conn_cells
-            !        icell = junc(i)%cell_no(j)
-            !        grad(icell,:) = grad_hi(min_cell_no,:)
-            !    end do
-            !end do  
         end if
  
         return
     end subroutine
-
 
 !==============================================================================
 !======================todo:: BELOW CAN BE DELETED AFTER TESTING===============

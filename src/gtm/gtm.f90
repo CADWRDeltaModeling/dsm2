@@ -71,7 +71,7 @@ program gtm
     real(gtm_real), allocatable :: disp_coef_lo_prev(:) !< Low side constituent dispersion coef. at old time
     real(gtm_real), allocatable :: disp_coef_hi_prev(:) !< High side constituent dispersion coef. at old time
     real(gtm_real) :: theta = half                      !< Crank-Nicolson implicitness coeficient
-    real(gtm_real), parameter :: constant_dispersion = 2000.d0
+    real(gtm_real), parameter :: constant_dispersion = 0  !6000.d0
     
     real(gtm_real) :: total_flow_volume_change, total_area_volume_change
     real(gtm_real) :: avga_volume_change, diff
@@ -87,7 +87,7 @@ program gtm
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .false.                 ! Flag to switch on/off slope limiter  
     real(gtm_real), allocatable :: init_c(:,:)
-    !real(gtm_real), parameter :: constant_decay = 1.552749d-5
+    !real(gtm_real), parameter :: constant_decay = 5.0d-5
     real(gtm_real), parameter :: constant_decay = zero
     character(len=130) :: init_input_file                       ! initial input file on command line [optional]
     character(len=24) :: restart_file_name
