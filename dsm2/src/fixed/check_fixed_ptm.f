@@ -100,9 +100,9 @@ c-----Local variables
 
 
 c-----adjust areas
-      do m=1,max_reservoirs
-         res_geom(m).area = res_geom(m).area*1e06
-      enddo
+!      do m=1,max_reservoirs
+!         res_geom(m).area = res_geom(m).area*1e06
+!      enddo
 
 c-----adjust totals
 c-----npass_node=npass_node-1

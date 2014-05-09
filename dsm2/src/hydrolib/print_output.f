@@ -217,7 +217,7 @@ subroutine print_output(istat)
             res_geom(i)%botelv, &
             res_geom(i)%node_no(1), &
             res_geom(i)%coeff2res(1),res_geom(i)%coeff2chan(1)
-1420    format(/a19,1x,f10.5,1x,f9.2,2x,i4,2x,f8.0,4x,f8.0,5x)
+1420    format(/a19,1x,f12.6,1x,f10.3,2x,i4,2x,f8.0,4x,f8.0,5x)
         do j=2,res_geom(i)%nnodes
             write(unit_output,1440)res_geom(i)%node_no(j), &
                 res_geom(i)%coeff2res(j),res_geom(i)%coeff2chan(j)

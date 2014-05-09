@@ -41,14 +41,14 @@ contains
         !     Z      - Elevation based!
 
         !----local variables
-        real*8 z1,z2,V1,A1,A2,dz
+        real*8 z1,z2,A1,A2,V1,V2,dz,dV,A,factor
         real*8 Small
         parameter (Small = 1.00e-6)
         integer nn
 
         nn=res_geom(resno).nelevs
         if ( nn.eq.0) then   !constant area reservoir
-           if ( Z < res_geom(resno).botelv) then  !lower than the bottom
+           if ( z < res_geom(resno).botelv) then  !lower than the bottom
               WRITE(UNIT_ERROR,923)res_geom(resno).name,z
  923          FORMAT(' ERROR ... RESERVOIR: ',a,'HAS NEGATIVE DEPTH',/, &
                 ' Water Surface Elevation =', 1PE12.5)
@@ -59,38 +59,48 @@ contains
            return
         endif
         
-        if ( Z>res_geom(resno).elev(nn)) then  !higher than the highest layer, assume constant area
-           reser_area=res_geom(resno).area(nn)
+        if ( z > res_geom(resno).elev(nn)) then  !higher than the highest layer, assume constant area
            z1=res_geom(resno).elev(nn)
            V1=res_geom(resno).vol(nn)
+           reser_area=res_geom(resno).area(nn)
            reser_vol=reser_area*(z-z1)+V1
            return
         endif  
         
-        if ( Z < res_geom(resno).elev(1)) then  !lower than the bottom
+        if ( z < res_geom(resno).elev(1)) then  !lower than the bottom
            WRITE(UNIT_ERROR,923)res_geom(resno).name,z
            call exit(2)
         endif        
         
         nn=nn-1
-        do while (res_geom(resno).elev(nn) > Z)
+        do while (res_geom(resno).elev(nn) > z)
         nn=nn-1
         enddo
+        if ( nn < 1) then
+            write(unit_error,*) 'Reservoir bug: elevation cannot be located!'
+            WRITE(UNIT_ERROR,925)res_geom(resno).name,z
+ 925        FORMAT(' ERROR ... RESERVOIR: ',a,'Elevation =', 1PE12.5)
+            call exit(2)
+        end if
         
         z1=res_geom(resno).elev(nn)
         z2=res_geom(resno).elev(nn+1)
         A1=res_geom(resno).area(nn)
-        A2=res_geom(resno).area(nn+1)
+        A2=res_geom(resno).area(nn+1)        
         V1=res_geom(resno).vol(nn)
+        V2=res_geom(resno).vol(nn+1)
         dz=z2-z1
         if ( abs(dz) <= Small) then
             write(unit_error,*) 'Reservoir division by zero! Two layers having the same elevation.'
-            WRITE(UNIT_ERROR,924)res_geom(resno).name,z1
- 924        FORMAT(' ERROR ... RESERVOIR: ',a,'Elevation =', 1PE12.5)
+            WRITE(UNIT_ERROR,926)res_geom(resno).name,z1
+ 926        FORMAT(' ERROR ... RESERVOIR: ',a,'Elevation =', 1PE12.5)
             call exit(2)
         end if
-        reser_area=(A2-A1)/dz*(z-z1)+A1
-        reser_vol=0.5*(reser_area+A1)*(z-z1)+V1
+        dV=0.5*(A1+A2)*(z2-z1)
+        factor=(V2-V1)/dV
+        A=A1+(A2-A1)/dz*(z-z1) 
+        reser_area= A*factor
+        reser_vol=V1+factor*0.5*(A1+A)*(z-z1)
         return
     end subroutine
 

@@ -127,16 +127,16 @@ c-----------upstream node
 
  1400 FORMAT(////,'                         RESERVOIRS',/
      &       '                         ----------'///
-     &       '               6'/
-     &       '            x10            (ft.)      (mg/l)'/
-     &       '           (Sqft)         BOTTOM      INITIAL'/
-     &       ' NAME       AREA           ELEV.    CONCENTRATION'/
-     &       '------   ---------       --------   -------------'/)
+     &       '                          6'/
+     &       '                         x10            (ft.)      (mg/l)'/
+     &       '                        (Sqft)         BOTTOM      INITIAL'/
+     &       ' NAME                    AREA           ELEV.    CONCENTRATION'/
+     &       '------                ---------       --------   -------------'/)
 
       do i=1,nreser
-         write(unit_output,1420)trim(res_geom(i).name),res_geom(i).area,
+         write(unit_output,1420)res_geom(i).name,res_geom(i).toparea/1.0e6,
      &        res_geom(i).botelv,(cres(i,l),l =1,neq)
- 1420 format(a32,2x,f11.5,2x,f10.1,5x,15f9.3)
+ 1420 format(a19,2x,f12.6,2x,f10.3,5x,15f9.3)
       enddo
 
       WRITE(unit_output,1600)

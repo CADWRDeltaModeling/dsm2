@@ -75,9 +75,10 @@ C!</license>
       return
       end subroutine
       
-      subroutine process_reservoir_area(resname,
-     &                                        reser_area,
-     &                                        reselev)
+      subroutine process_reservoir_vol(resname,
+     &                                        reselev,
+     &                                        reser_area,     
+     &                                        reser_vol)
       use constants
       use grid_data
       use logging
@@ -89,9 +90,12 @@ C!</license>
       integer :: resno
       integer :: nn
       integer, external :: name_to_objno
-      real*8 :: reser_area      
+      real*8 :: reser_area,reser_vol      
       real*8 :: reselev
-      real*8 :: prev_area,prev_vol,prev_elev,calc_vol
+      real*8 :: prev_area,prev_vol,prev_elev
+      real*8 Small,dz
+      parameter (Small = 1.00e-6)
+      
       call locase(resname)
       resno = name_to_objno(obj_reservoir,resname)
       res_geom(resno).nelevs=res_geom(resno).nelevs+1
@@ -103,38 +107,42 @@ C!</license>
           return
       endif	                   
       nn=res_geom(resno).nelevs
-      res_geom(resno).area(nn)=reser_area * 1.0e6
+      res_geom(resno).area(nn)=reser_area * 43560
+      res_geom(resno).vol(nn)=reser_vol * 43560
       res_geom(resno).elev(nn)=reselev
-      if (nn .eq. 1) then
-         res_geom(resno).vol(nn)=0.D0
-      endif
 
 c-----------upper layer vol=lower layer vol + trapezoidal vol between them 
       if (nn .gt. 1) then
-	   prev_area = res_geom(resno).area(nn-1)
 	   prev_elev = res_geom(resno).elev(nn-1)
-	   prev_vol= res_geom(resno).vol(nn-1)
-	   if (res_geom(resno).area(nn) .lt. prev_area) then
-            write(unit_error,'(a,i5)')
-     &		   "Reservoir areas decreasing with elevation ",
+	   prev_area = res_geom(resno).area(nn-1)
+	   prev_vol = res_geom(resno).vol(nn-1)
+	   dz=reselev - prev_elev
+         if ( abs(dz) <= Small) then
+            write(unit_error,*) 'Reservoir two layers having the same elevation.'
+            WRITE(UNIT_ERROR,925)res_geom(resno).name,reselev
+ 925        FORMAT(' ERROR ... RESERVOIR: ',a,'Elevation =', 1PE12.5)
+            call exit(2)
+         end if
+         if (res_geom(resno).area(nn) .lt. prev_area) then
+            write(unit_error,'(a)')
+     &		   "Reservoir area decreasing with elevation: "
+            write(unit_error,'(a19,a,f13.3,a,f13.3,a,f13.3)')
      &         resname, " Elev: ",reselev,
-     &         " Area: ",reser_area 
+     &         " Area: ",reser_area,
+     &         " Volume: ",reser_vol     
 	         call exit(-3)
 	         return
 	   end if
-	   if (reselev .lt. prev_elev) then
-            write(unit_error,'(a,i5)')
-     &         "Reservoir elevation decreasing not allowed at ",
+	   if (res_geom(resno).vol(nn) .lt. prev_vol) then
+            write(unit_error,'(a)')
+     &		   "Reservoir volume decreasing with elevation: "
+            write(unit_error,'(a19,a,f13.3,a,f13.3,a,f13.3)')
      &         resname, " Elev: ",reselev,
-     &         " Area: ",reser_area 
+     &         " Area: ",reser_area,     
+     &         " Volume: ",reser_vol 
 	         call exit(-3)
 	         return
 	   end if
-
-	   calc_vol=prev_vol + 
-     &      (reselev-prev_elev)*0.5*(res_geom(resno).area(nn)+prev_area)
-         
-         res_geom(resno).vol(nn)=calc_vol
 
       end if
     

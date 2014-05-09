@@ -13,6 +13,7 @@
       use qual_hdf_file
       use hdf5, only: h5open_f, h5close_f
       use hdfvars
+      use reservoir_geometry
 C-----************ MULTIPLE BRANCH ESTUARY TRANSPORT MODEL
 c-----******************
 
@@ -132,6 +133,7 @@ C-----+ + + LOCAL VARIABLES + + +C
 c-------Mass balance check      
       real*8    Achan_AvgP(NOBR),Diff(NOBR),PercentDiff(NOBR)
       real*8    VolHydro,VolQual,VolDiff,PDiffMax
+      real*8    reser_elv, reser_area, reser_vol
       INTEGER    NSN,channelMax
       
       real*8    HR,SVOL,tTIME,VJ,VOL
@@ -349,7 +351,6 @@ c-----for mass balance check
                Achan_AvgP(N)=Achan_Avg(N)
          End do
 
-
       if (check_input_data) then
 c--------just check input data for bogus values; no simulation
 
@@ -362,9 +363,6 @@ C--------start time loop for checking boundary data
          julmin=julmin+time_step
          current_date=jmin2cdt(julmin)
          
-
-
-
          do while (julmin .le. end_julmin)
 
             if (julmin .ge. next_display) then
@@ -403,14 +401,14 @@ C--------- mass balance check
          End do     
          if (PDiffMax.gt.1.0) then
              write(unit_screen,*)''
-             write(unit_screen,*)'Warning: Hydro mass balance in tidefile is bad!' 
+             write(unit_screen,*)'Warning: Channel mass balance in tidefile is bad!' 
              write(unit_screen,*)'Check output file(.qof) for details.'
-             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_screen,'(A17,E10.2,A1,A16,I10)')'Maximum percent error is',PDiffMax,'Channel:',channelMax
              write(unit_screen,*)'Suggest improve Hydro simulation!'
          else
              write(unit_screen,*)''
-             write(unit_screen,*)'Hydro mass balance in tidefile is fine,'
-             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_screen,*)'Channel mass balance in tidefile is fine,'
+             write(unit_screen,'(A17,E10.2,A1,A16,I10)')'Maximum percent error is',PDiffMax,'Channel:',channelMax
          endif
 
          
@@ -725,7 +723,7 @@ c-----------Update reservoir salinities
          endif
 
          call update_resvol_for_masstracking_region
-
+         
          IF(MASS_TRACKING)THEN
             call print_results_for_masstracking
          ENDIF
@@ -871,25 +869,42 @@ C--------- Hydro mass balance check
          End do     
          if (PDiffMax.gt.1.0) then
              write(unit_screen,*)''
-             write(unit_screen,*)'Warning: Hydro mass balance in tidefile is bad!' 
+             write(unit_screen,*)'Warning: Channel mass balance in tidefile is bad!' 
              write(unit_screen,*)'Check output file(.qof) for details.'
-             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_screen,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax
              write(unit_screen,*)'Suggest improve Hydro simulation!'
              
              write(unit_output,*)''
-             write(unit_output,*)'Warning: Hydro mass balance in tidefile is bad!' 
+             write(unit_output,*)'Warning: Channel mass balance in tidefile is bad!' 
              write(unit_output,*)'Check output file(.qof) for details.'
-             write(unit_output,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_output,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax
              write(unit_output,*)'Suggest improve Hydro simulation!'
          else
              write(unit_screen,*)''
-             write(unit_screen,*)'Hydro mass balance in tidefile is fine,'
-             write(unit_screen,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax
+             write(unit_screen,*)'Channel mass balance in tidefile is fine.'
+             write(unit_screen,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax
              
              write(unit_output,*)''
-             write(unit_output,*)'Hydro mass balance in tidefile is fine,'
-             write(unit_output,'(A17,F10.2,A1,A16,I10)')'Maximum error is',PDiffMax,'%','Channel:',channelMax             
+             write(unit_output,*)'Channel mass balance in tidefile is fine.'
+             write(unit_output,'(A17,E10.2,A16,I10)')'Maximum %error is',PDiffMax,'Channel:',channelMax             
          endif
+         
+         write(unit_screen,*)''
+         write(unit_output,*)''
+         write(unit_screen,*)"Reservoir volume balance:"
+         write(unit_output,*)"Reservoir volume balance:"
+         write(unit_screen,*)'Reservoir       Volume(Acre-ft)  Calculated   Difference   PercentDiff(%)'
+         write(unit_output,*)'Reservoir       Volume(Acre-ft)  Calculated   Difference   PercentDiff(%)'
+         do i=1,nreser          
+            reser_elv = eresv(i)
+            call calculateReservoirGeometry(i, reser_elv, reser_area, reser_vol)
+            PDiffMax=(resvol(i)-reser_vol)/reser_vol*100
+            write(unit_screen,920)res_geom(i).name,reser_vol/43560,resvol(i)/43560,(resvol(i)-reser_vol)/43560,PDiffMax
+            write(unit_output,920)res_geom(i).name,reser_vol/43560,resvol(i)/43560,(resvol(i)-reser_vol)/43560,PDiffMax
+ 920        format(/a19,3f12.3,E12.2)
+         enddo
+         write(unit_screen,*)''
+         write(unit_output,*)''
 
       if (julmin .gt. end_julmin) then
          julmin=prev_julmin

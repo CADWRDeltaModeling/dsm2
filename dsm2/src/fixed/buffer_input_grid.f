@@ -38,7 +38,7 @@ c====================================================================
       
       real*8 dist,elev,width,wet_perim
       
-      real*8 area, bottom_elev,coef_in,coef_out
+      real*8 area, bottom_elev,coef_in,coef_out,vol
       logical,external :: order_nodes
 
       character(len=16) :: from_obj
@@ -158,19 +158,21 @@ c       are file-based
        end do
        print *,"Number of reservoirs: ", nitem
 
-      nitem = reservoir_area_buffer_size()
+      nitem = reservoir_vol_buffer_size()
       do icount = 1,nitem
-         call reservoir_area_query_from_buffer(icount,
+         call reservoir_vol_query_from_buffer(icount,
      &                                   name,
-     &                                   area,     
      &                                   elev,
+     &                                   area,          
+     &                                   vol,
      &                                   ierror)
          
-         call process_reservoir_area(name,
-     &                                     area, 
-     &                                     elev)
+         call process_reservoir_vol(name,
+     &                                     elev,
+     &                                     area,      
+     &                                     vol)
        end do
-       print *,"Number of reservoir areas/elevations: ", nitem
+       print *,"Number of reservoir elevations/volume: ", nitem
 
       nitem = reservoir_connection_buffer_size()
       do icount = 1,nitem

@@ -78,15 +78,16 @@ def generate_dsm2():
     component = TableComponent("reservoir",
                            [CharField("name",DSM2_NAME_LEN,16),
                            DoubleField("area",12,6),
-                           DoubleField("bot_elev",12,2)],
+                           DoubleField("bot_elev",12,3)],
                            ["name"])
     component.layered=True                         # Component is part of the layering system
     prep_component(component,outdir)               # Group reads/writes/clears are based on the
    
-    component = TableComponent("reservoir_area",
+    component = TableComponent("reservoir_vol",
                            [CharField("res_name",DSM2_NAME_LEN,16),
+                           DoubleField("elev",10,3),
                            DoubleField("area",12,3),
-                           DoubleField("elev",10,3)],
+                           DoubleField("volume",12,3)],
                            ["res_name","elev"],
                            parent="reservoir",                  # parent table. overrides will be based on the channel table
                            parent_id=["res_name"])             # field in the xsect that links to the parent id (in this case also chan_no)              
@@ -490,7 +491,7 @@ def generate_dsm2():
 
     envvar_keywords=["envvar"]
     scalar_keywords = ["scalar"]
-    grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_area","reservoir_connection","gate",\
+    grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_vol","reservoir_connection","gate",\
                    "gate_weir_device","gate_pipe_device","transfer"]
     #todo: the following additions are not really desired, and should be eliminated in 8.1
     grid_keywords_additions = ["source_flow_reservoir","input_gate","input_transfer_flow"]
@@ -500,7 +501,7 @@ def generate_dsm2():
     hydro_time_series_keywords = ["boundary_stage","boundary_flow","source_flow",\
                          "source_flow_reservoir","input_gate","input_transfer_flow"]  # ,"oprule_time_series"
     
-    hydro_time_series_keywords_additions = ["reservoir","reservoir_area","reservoir_connection",\
+    hydro_time_series_keywords_additions = ["reservoir","reservoir_vol","reservoir_connection",\
                                             "gate","gate_weir_device","gate_pipe_device","transfer"]
     
     qual_time_series_keywords = ["node_concentration",\

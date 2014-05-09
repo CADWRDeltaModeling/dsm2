@@ -287,10 +287,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_reservoir_area.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir_concentration.cpp"
 				>
 			</File>
@@ -300,6 +296,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir_ic.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_vol.cpp"
 				>
 			</File>
 			<File
@@ -457,10 +457,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_reservoir_area.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir_concentration.h"
 				>
 			</File>
@@ -470,6 +466,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_reservoir_ic.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_reservoir_vol.h"
 				>
 			</File>
 			<File
