@@ -29,55 +29,74 @@ module ut_gtm_network
    !> Test to create flow and area array for entire network
    !> Make sure that ut_hydro_data_tide is executed before this test 
    !> so that all values in common_variables are filled.
+   !>       (5)=====5500======(4)=====12000=====(3)=====9000=======(2)=====11000========(1)
+   !>                [4]               [3]       ||      [2]                 [1]
+   !>                                             \\
+   !>                                              ===2400===(6)
+   !>                                                  [5]
     subroutine test_gtm_network()
         use gtm_precision
         use error_handling
         use gtm_logging
         use common_variables
         use hdf_util
+        use hydro_data_tidefile
         use hydro_data
         use gtm_network
         implicit none
-        character(len=*), parameter :: h5_file_name = 'test_hydro.h5'   !< hydro tidefile for testing
+        character(len=*), parameter :: h5_file_name = 'network.h5'   !< hydro tidefile for testing
         integer :: time_offset, time_buffer       
         integer :: hydro_time_index
         integer :: icell, t, i
         procedure(hydro_data_if), pointer :: dsm2_hydro=> null()  !< Hydrodynamic pointer to be filled by the driver
         dsm2_hydro  => gtm_flow_area
         open(debug_unit, file = "gtm_network_debug.txt")       !< output text file
-        npartition_x = 4
         npartition_t = 3
+        gtm_dx = 1250.d0
         
         ! this read hydro_ts
         time_offset = 3 
         time_buffer = 20        
         call hdf5_init(h5_file_name)
-        call allocate_hydro_ts()       
+        call dsm2_hdf_geom
+        call allocate_hydro_ts
         call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
         call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)  
 
-        call allocate_network_tmp()
-        hydro_time_index = 10        
-        call interp_network(npartition_x, npartition_t, hydro_time_index)
+        call allocate_network_tmp
+        hydro_time_index = 10      
+        call interp_network(npartition_t, hydro_time_index)
+        call assertEquals (junc(1)%dsm2_node_no, 3, "problem in allocate network junc(1)%dsm2_node_no")
+        call assertEquals (junc(1)%cell_no(1), 15, "problem in allocate network junc(1)%cell_no(1)")
+        call assertEquals (junc(1)%cell_no(2), 16, "problem in allocate network junc(1)%cell_no(2)")
+        call assertEquals (junc(1)%cell_no(3), 29, "problem in allocate network junc(1)%cell_no(3)")
+        call assertEquals (dx_arr(1), dble(1375), weakest_eps, "problem in allocate network dx_arr(1)")
+        call assertEquals (dx_arr(9), dble(1285.71429), weakest_eps, "problem in allocate network dx_arr(9)")
+        call assertEquals (segm(7)%up_comppt, 11, "problem in allocate network segm(7)%up_comppt")
+        call assertEquals (segm(7)%down_comppt, 12, "problem in allocate network segm(7)%down_comppt")
+        write(debug_unit,*) "flow_mesh_lo at hydro_time_index=10:"
         do t = 1, npartition_t+1
-            do icell = 1, npartition_x
-                write(debug_unit,'(6f15.6)') flow_hi_tmp(icell,t),flow_tmp(icell,t),flow_lo_tmp(icell,t),  &
-                                    area_hi_tmp(icell,t), area_tmp(icell,t), area_lo_tmp(icell,t)
-            end do        
-            write(debug_unit,*) ""
+            write(debug_unit,'(28f15.6)') (flow_mesh_lo(t,icell),icell=1,28)
         end do
-        do i = 1, n_segm
-            write(debug_unit,'(4i5,f15.4)') segm(i)%segm_no, segm(i)%chan_no, segm(i)%up_comppt, segm(i)%down_comppt, segm(i)%length
+        write(debug_unit,*) ""       
+        write(debug_unit,*) "flow_mesh_hi at hydro_time_index=10:"
+        do t = 1, npartition_t+1
+            write(debug_unit,'(28f15.6)') (flow_mesh_hi(t,icell),icell=1,28)
         end do
+        write(debug_unit,*) ""     
+                
         hydro_time_index = 11
-        call interp_network(npartition_x, npartition_t, hydro_time_index)
+        call interp_network(npartition_t, hydro_time_index)
+        write(debug_unit,*) "flow_mesh_lo at hydro_time_index=11:"
         do t = 1, npartition_t+1
-            do icell = 1, npartition_x
-                write(debug_unit,'(6f15.6)') flow_hi_tmp(icell,t),flow_tmp(icell,t),flow_lo_tmp(icell,t),  &
-                                    area_hi_tmp(icell,t), area_tmp(icell,t), area_lo_tmp(icell,t)
-            end do      
-            write(debug_unit,*) ""
+            write(debug_unit,'(28f15.6)') (flow_mesh_lo(t,icell),icell=1,28)  
         end do
+        write(debug_unit,*) ""
+        write(debug_unit,*) "flow_mesh_hi at hydro_time_index=11:"
+        do t = 1, npartition_t+1
+            write(debug_unit,'(28f15.6)') (flow_mesh_hi(t,icell),icell=1,28)  
+        end do
+        write(debug_unit,*) ""        
         call deallocate_network_tmp()
         close(debug_unit)        
         !call deallocate_hydro_ts() !don't deallocate this one for later use in test_advection_reaction_hdf5

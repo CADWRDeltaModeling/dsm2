@@ -36,7 +36,8 @@ module ut_process_gtm_input
         call read_input_text("gtm.inp")
         ! todo: way to test is to check if the echo file and tidefile are successfully generated. 
         !       any better way to verify this?
-        call assertEquals (npartition_x, 4, "problem in reading npartition_x from read_input_text")
+        !call assertEquals (npartition_x, 4, "problem in reading npartition_x from read_input_text")
+        call assertEquals (gtm_dx, dble(1250), "problem in reading gtm_dx from read_input_text")
         deallocate(pathinput)
         call deallocate_datain
       return          

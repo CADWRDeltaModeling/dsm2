@@ -133,19 +133,19 @@ program gtm
     !
     !----- allocate array for interpolation -----     
     !
-    nx = npartition_x + 1
+    !nx = npartition_x + 1
     nt = npartition_t + 1
-    allocate(flow_mesh(nt, nx), area_mesh(nt, nx))
-    allocate(flow_volume_change(nt-1, nx-1), area_volume_change(nt-1, nx-1))
-    allocate(prev_flow_cell(n_comp, nx))
+    !allocate(flow_mesh(nt, nx), area_mesh(nt, nx))
+    !allocate(flow_volume_change(nt-1, nx-1), area_volume_change(nt-1, nx-1))
+    !allocate(prev_flow_cell(n_comp, nx))
     allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
     allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
     allocate(prev_avga(n_comp))
     allocate(constituents(n_var))
     allocate(flow_arr(n_comp), ws_arr(n_comp))
     call allocate_hydro_ts()
+    call allocate_cell_property()    
     call allocate_network_tmp()
-    call allocate_cell_property()
     call allocate_state(n_cell, n_var)
     call allocate_state_resv(n_resv, n_var)
     allocate(init_c(n_cell,n_var))
@@ -262,6 +262,8 @@ program gtm
             do i = 1, n_segm
                 up_comp = segm(i)%up_comppt
                 down_comp = segm(i)%down_comppt   
+                nx = segm(i)%nx + one
+                allocate(prev_flow_cell(n_segm,nx))
                 !---define initial values for flow and water surface
                 if (current_time == gtm_start_jmin) then
                     if (slice_in_block==1) then
@@ -343,6 +345,7 @@ program gtm
                 !        write(debug_unit,*) ""
                 !    end if
                 !end if
+                deallocate(prev_flow_cell)
             end do   !end for segment loop
             current_slice = slice_in_block
         end if

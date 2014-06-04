@@ -85,7 +85,7 @@ bound_val = one
 acceptance_ratio = [four, four, four]
 
 call allocate_network_tmp()
-call interp_network(nx_base, nstep_base, 2) 
+call interp_network(nstep_base, 2) 
 ncell = nx_base*n_segm
 gtm_hydro => gtm_flow_area
 ! do not remove it 

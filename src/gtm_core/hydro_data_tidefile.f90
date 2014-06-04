@@ -38,8 +38,9 @@ module hydro_data_tidefile
         call get_hydro_attr
         call read_channel_tbl
         call read_comp_tbl
-        call read_xsect_tbl   !todo: this consumes lots of stack memory. Try to reduce.
+        call read_xsect_tbl  
         call assign_segment   
+        call allocate_cell_property
         call assign_chan_comppt
         call get_dsm2_node_info        
     end subroutine     

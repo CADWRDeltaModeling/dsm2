@@ -94,7 +94,7 @@ program test_driver
     call test_hdf_ts_wrt
     call test_gtm_hdf_write
     call test_find_bound_index
-    call test_create_restart
+    !call test_create_restart
     call test_read_init_file
     
     !----- function calls to test units in project common -----

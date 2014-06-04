@@ -45,6 +45,7 @@ module common_variables
      real(gtm_real), allocatable :: hydro_avga(:,:) !< average area from DSM2 hydro
    
      !> Define scalar and envvar in input file 
+     real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
      integer :: npartition_x = LARGEINT                !< number of cells within a segment
      integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
      character(len=128) :: hydro_hdf5                  !< hydro tide filename
@@ -98,6 +99,8 @@ module common_variables
           integer :: chan_no                       !< channel no
           integer :: up_comppt                     !< upstream computational point (used as index to search time series data)        
           integer :: down_comppt                   !< downstream computational point
+          integer :: nx                            !< number of cells in a segment
+          integer :: start_cell_no                 !< start cell number (for keeping track of icell)          
           real(gtm_real) :: up_distance            !< up_comppt distance from upstream node
           real(gtm_real) :: down_distance          !< down_comppt distance from upstream node
           real(gtm_real) :: length                 !< segment length in feet
@@ -233,7 +236,7 @@ module common_variables
 
         
      !> Calculate n_cell and allocate dx array
-     subroutine allocate_cell_property()
+     subroutine allocate_cell_property0()
          use error_handling
          implicit none
          integer :: istat = 0
@@ -252,7 +255,30 @@ module common_variables
          end do          
          return
      end subroutine
-
+     
+     subroutine allocate_cell_property()
+         use error_handling
+         implicit none
+         integer :: istat = 0
+         integer :: i, j, icell
+         character(len=128) :: message
+         n_cell = 0      
+         do i = 1, n_segm               
+             n_cell = n_cell + segm(i)%nx
+         end do          
+         allocate(dx_arr(n_cell), stat = istat)
+         if (istat .ne. 0 )then
+            call gtm_fatal(message)
+         end if    
+         icell = 0      
+         do i = 1, n_segm
+             do j = 1, segm(i)%nx
+                 icell = icell + 1
+                 dx_arr(icell) = segm(i)%length/segm(i)%nx
+             end do                      
+         end do         
+         return
+     end subroutine
     
      !> Allocate junctions and boudaries
      subroutine allocate_junc_bound_property()
@@ -295,6 +321,7 @@ module common_variables
          call deallocate_channel
          call deallocate_comp_pt
          call deallocate_segment
+         call deallocate_cell
          call deallocate_junc_bound_property
          return
      end subroutine
@@ -325,6 +352,16 @@ module common_variables
          deallocate(segm)
          return
      end subroutine
+
+
+     !> Deallocate cell property
+     subroutine deallocate_cell()
+         implicit none
+         n_cell = LARGEINT
+         deallocate(dx_arr)
+         return
+     end subroutine
+
 
 
      !> Deallocate junctions and boudaries
@@ -363,6 +400,8 @@ module common_variables
          segm(1)%up_distance = 0
          segm(1)%down_distance = comp_pt(2)%distance
          segm(1)%length = segm(1)%down_distance - segm(1)%up_distance
+         segm(1)%nx = max( floor(segm(1)%length/gtm_dx), 1)
+         segm(1)%start_cell_no = 1
          previous_chan_no = 1
          conn(1)%conn_no = 1
          conn(1)%segm_no = 1
@@ -371,6 +410,7 @@ module common_variables
          conn(1)%chan_no = segm(1)%chan_no
          conn(1)%dsm2_node_no = chan_geom(segm(1)%chan_no)%up_node
          conn(1)%conn_up_down = 1
+         
          j = 1
          k = 1
          do i = 3, n_comp
@@ -383,12 +423,14 @@ module common_variables
                  segm(j)%up_distance = comp_pt(i-1)%distance
                  segm(j)%down_distance = comp_pt(i)%distance
                  segm(j)%length = comp_pt(i)%distance - comp_pt(i-1)%distance
+                 segm(j)%nx = max( floor(segm(j)%length/gtm_dx), 1)
+                 segm(j)%start_cell_no = segm(j-1)%start_cell_no + segm(j-1)%nx
              else
                  previous_chan_no = comp_pt(i)%chan_no
                  k = k + 1
                  conn(k)%conn_no = k
                  conn(k)%segm_no = j
-                 conn(k)%cell_no = j*npartition_x
+                 conn(k)%cell_no = segm(j)%start_cell_no + segm(j)%nx - 1
                  conn(k)%comp_pt = i - 1
                  conn(k)%chan_no = comp_pt(i-1)%chan_no
                  conn(k)%dsm2_node_no = chan_geom(comp_pt(i-1)%chan_no)%down_node
@@ -396,7 +438,7 @@ module common_variables
                  k = k + 1
                  conn(k)%conn_no = k
                  conn(k)%segm_no = j + 1
-                 conn(k)%cell_no = j*npartition_x + 1
+                 conn(k)%cell_no = segm(j)%start_cell_no + segm(j)%nx
                  conn(k)%comp_pt = i
                  conn(k)%chan_no = comp_pt(i)%chan_no
                  conn(k)%dsm2_node_no = chan_geom(comp_pt(i)%chan_no)%up_node
@@ -407,7 +449,7 @@ module common_variables
          n_conn = k + 1
          conn(n_conn)%conn_no = n_conn
          conn(n_conn)%segm_no = n_segm
-         conn(n_conn)%cell_no = n_segm*npartition_x
+         conn(n_conn)%cell_no = segm(n_segm)%start_cell_no + segm(n_segm)%nx 
          conn(n_conn)%comp_pt = n_comp
          conn(n_conn)%chan_no = comp_pt(n_comp)%chan_no
          conn(n_conn)%dsm2_node_no = chan_geom(comp_pt(n_comp)%chan_no)%down_node

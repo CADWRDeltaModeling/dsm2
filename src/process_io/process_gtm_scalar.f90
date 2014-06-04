@@ -59,6 +59,8 @@ module process_gtm_scalar
       elseif (Param .eq. 'npartition_x') then
          npartition=Val
          read(npartition,'(i)') npartition_x
+      elseif (Param .eq. 'gtm_dx') then
+         read(Val, '(f20.5)') gtm_dx
       elseif (Param .eq. 'title') then
          ntitles=1
          title(ntitles)=' '

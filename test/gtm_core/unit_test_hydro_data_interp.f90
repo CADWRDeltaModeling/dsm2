@@ -28,13 +28,20 @@ module ut_hydro_data_interp
    
     !> Test all interpolation functions
     subroutine test_interpolation()
+        use common_variables
+        use common_xsect
         implicit none
         ! spot checking interpolated results with pre-calculated numbers
-        call test_interp_spot_checking()
+        call test_interp_spot_checking
         ! print out mesh for different sizes to debug_unit text file 
-        call test_interp_flow_area(4, 5, dble(5), dble(1250.))     ! inputs: nt, nx, dt, dx
-        call test_interp_flow_area(6, 17, dble(3), dble(312.5))    ! inputs: nt, nx, dt, dx
-        call test_interp_flow_area(16, 33, dble(1), dble(156.25))  ! inputs: nt, nx, dt, dx
+        call test_interp_flow_area(4, 4, dble(5), dble(1250.))     ! inputs: nt, nx, dt, dx
+        !call test_interp_flow_area(6, 17, dble(3), dble(312.5))    ! inputs: nt, nx, dt, dx
+        !call test_interp_flow_area(16, 33, dble(1), dble(156.25))  ! inputs: nt, nx, dt, dx
+        call deallocate_virt_xsect
+        call deallocate_channel
+        call deallocate_comp_pt
+        call deallocate_segment
+        deallocate(conn)
         return
     end subroutine
    
@@ -47,15 +54,20 @@ module ut_hydro_data_interp
         real(gtm_real) :: flow_a, flow_b, flow_c, flow_d
         real(gtm_real) :: area_a, area_b, area_c, area_d
         real(gtm_real) :: ws_a, ws_b, ws_c, ws_d
-        real(gtm_real), dimension(4,5) :: flow_mesh, area_mesh, new_flow_mesh
-        real(gtm_real), dimension(4-1,5-1) :: flow_volume_change
-        real(gtm_real), dimension(4-1,5-1) :: area_volume_change
-        real(gtm_real), dimension(4-1,5-1) :: new_flow_volume_change
-        real(gtm_real), dimension(5) :: prev_flow_cell
+        real(gtm_real), allocatable :: flow_volume_change(:,:)
+        real(gtm_real), allocatable :: area_volume_change(:,:)
+        real(gtm_real), allocatable :: new_flow_volume_change(:,:)
+        real(gtm_real), allocatable :: prev_flow_cell_lo(:)
+        real(gtm_real), allocatable :: prev_flow_cell_hi(:)
+        real(gtm_real), allocatable :: flow_mesh_lo(:,:), flow_mesh_hi(:,:)
+        real(gtm_real), allocatable :: area_mesh_lo(:,:), area_mesh_hi(:,:)
+        real(gtm_real), allocatable :: new_flow_mesh_lo(:,:), new_flow_mesh_hi(:,:)
         real(gtm_real) :: total_volume_change
+        integer :: start_c, ncell
+                
         branch = 2
         nt = 4
-        nx = 5
+        nx = 4
         dt = 5
         up_x = dble(5000.)
         dx = dble(1250.)
@@ -72,44 +84,108 @@ module ut_hydro_data_interp
         ws_b = dble(1.307376)
         ws_c = dble(2.302306)
         ws_d = dble(1.252751)
-        prev_flow_cell = (/25156.55469, 25219.72998, 25282.90527, 25346.08057, 25409.25586/)
+        ncell = 4
+        start_c = 1
+        allocate(flow_mesh_lo(nt,ncell), flow_mesh_hi(nt,ncell))
+        allocate(area_mesh_lo(nt,ncell), area_mesh_hi(nt,ncell))
+        allocate(new_flow_mesh_lo(nt,ncell), new_flow_mesh_hi(nt,ncell))
+        allocate(prev_flow_cell_lo(ncell))
+        allocate(prev_flow_cell_hi(ncell))
+        allocate(flow_volume_change(nt-1,ncell))
+        allocate(area_volume_change(nt-1,ncell))
+        allocate(new_flow_volume_change(nt-1,ncell))
+        prev_flow_cell_lo = (/25156.55469, 25219.72998, 25282.90527, 25346.08057/)
+        prev_flow_cell_hi = (/25219.72998, 25282.90527, 25346.08057, 25409.25586/)
         
-        call interp_flow_linear(flow_mesh, flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d)
-        call assertEquals (flow_mesh(3,1), dble(25066.96094), weakest_eps, "problem in interp_flow_linear")
-        call assertEquals (flow_mesh(2,3), dble(25225.24251), weakest_eps, "problem in interp_flow_linear")
-        call assertEquals (flow_mesh(3,4), dble(25217.88916), weakest_eps, "problem in interp_flow_linear")
-        call assertEquals (flow_mesh(3,3), dble(25167.57975), weakest_eps, "problem in interp_flow_linear")
+        call interp_flow_linear(flow_mesh_lo, flow_mesh_hi, flow_volume_change, ncell, start_c, nx, dt, nt, flow_a, flow_b, flow_c, flow_d)
+        call assertEquals (flow_mesh_lo(3,1), dble(25066.96094), weakest_eps, "problem in interp_flow_linear")
+        call assertEquals (flow_mesh_lo(2,3), dble(25225.24251), weakest_eps, "problem in interp_flow_linear")
+        call assertEquals (flow_mesh_lo(3,4), dble(25217.88916), weakest_eps, "problem in interp_flow_linear")
+        call assertEquals (flow_mesh_lo(3,3), dble(25167.57975), weakest_eps, "problem in interp_flow_linear")
 
-        call interp_area_linear(area_mesh, area_volume_change, branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d)
-        call assertEquals (area_mesh(1,3), dble(6583.6541162), weakest_eps, "problem in interp_area_linear")
-        call assertEquals (area_mesh(3,4), dble(6370.3967760), weakest_eps, "problem in interp_area_linear")
-
-        call interp_flow_linear_with_target(flow_mesh, flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, avga)
-        call assertEquals (flow_mesh(3,1), dble(25067.75608), weakest_eps, "problem in interp_flow_linear_with_target")
-        call assertEquals (flow_mesh(2,1), dble(25113.34809), weakest_eps, "problem in interp_flow_linear_with_target")
-        call assertEquals (flow_mesh(3,5), dble(25267.40343), weakest_eps, "problem in interp_flow_linear_with_target")
-        call assertEquals (flow_mesh(2,5), dble(25337.13693), weakest_eps, "problem in interp_flow_linear_with_target")
-        write(debug_unit,'(/a90)') "interp_flow_linear_with_mass balance target_from average area:                            "
-        call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change)
-        
-        call interp_area_from_flow_vol_change(area_mesh, area_volume_change, branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d, flow_volume_change)
-        call assertEquals (area_mesh(3,1), dble(7749.494792), weakest_eps, "problem in interp_area")
-        call assertEquals (area_mesh(2,3), dble(6979.528402), weakest_eps, "problem in interp_area")
-        call assertEquals (area_mesh(3,4), dble(6571.40202), weakest_eps, "problem in interp_area")
-        call assertEquals (area_mesh(3,3), dble(6968.719157), weakest_eps, "problem in interp_area")
-        write(debug_unit,'(/a90)') "Area Interpolation from linear flow interpolation with mass balance target:               "
-        call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)        
-        
-        call interp_flow_linear(flow_mesh, flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d)
-        call interp_area_byCxArea(area_mesh, area_volume_change, branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d, flow_volume_change)
-        call assertEquals (area_mesh(3,1), dble(7748.17759), weakest_eps, "problem in interp_area_byCxArea")
-        call assertEquals (area_mesh(2,3), dble(6569.20053), weakest_eps, "problem in interp_area_byCxArea")
-        call assertEquals (area_mesh(3,4), dble(6368.82653), weakest_eps, "problem in interp_area_byCxArea")
-        call assertEquals (area_mesh(3,3), dble(6556.31834), weakest_eps, "problem in interp_area_byCxArea")
+        call interp_area_byCxArea(area_mesh_lo, area_mesh_hi, area_volume_change, branch, up_x, dx,            &
+                                  ncell, start_c, nx, dt, nt, ws_a, ws_b, ws_c, ws_d, flow_volume_change)        
+        call assertEquals (area_mesh_lo(3,1), dble(7748.17759), weakest_eps, "problem in interp_area_byCxArea")
+        call assertEquals (area_mesh_lo(2,3), dble(6569.20053), weakest_eps, "problem in interp_area_byCxArea")
+        call assertEquals (area_mesh_lo(3,4), dble(6368.82653), weakest_eps, "problem in interp_area_byCxArea")
+        call assertEquals (area_mesh_lo(3,3), dble(6556.31834), weakest_eps, "problem in interp_area_byCxArea")
         write(debug_unit,'(/a90)') "Area from Water Surface Interpolation:                                                    "
-        call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)
+        call print_mass_balance_check(debug_unit, nt, nx, area_mesh_lo, area_volume_change)
+        call print_mass_balance_check(debug_unit, nt, nx, area_mesh_hi, area_volume_change)
+
+        call interp_flow_from_area_theta(new_flow_mesh_lo, new_flow_mesh_hi, new_flow_volume_change,ncell, start_c, dt, nt, nx,  &
+              flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell_lo, prev_flow_cell_hi)      
+        call assertEquals (new_flow_mesh_hi(2,4), dble(25336.90799), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(2,4)")
+        call assertEquals (new_flow_mesh_hi(3,4), dble(25266.93487), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(3,4)")
+        call assertEquals (new_flow_mesh_hi(4,4), dble(25197.67000), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(4,4)")
+        call assertEquals (new_flow_mesh_lo(4,4), dble(25152.15708), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_lo(4,4)")        
+        call assertEquals (new_flow_mesh_hi(4,3), dble(25152.15708), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(4,3)")        
+        write(debug_unit,'(/a90)') "New Flow from Water Surface Interpolation - theta average:                                "
+        call print_mass_balance_check(debug_unit, nt, nx, new_flow_mesh_lo, new_flow_volume_change)  
+
+        !call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi, flow_volume_change, area_volume_change,       &
+        !                      ncell, start_c, branch, up_x, dx, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, ws_a, ws_b, ws_c, ws_d, &
+        !                      prev_flow_cell_lo, prev_flow_cell_hi)
+        !call assertEquals (flow_mesh_hi(2,4), dble(25336.91), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(2,4)")
+        !call assertEquals (flow_mesh_hi(3,4), dble(25266.93), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(3,4)")
+        !call assertEquals (flow_mesh_hi(4,4), dble(25197.67), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(4,4)")
+        !call assertEquals (flow_mesh_lo(4,4), dble(25152.16), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_lo(4,4)")        
+        !call assertEquals (flow_mesh_hi(4,3), dble(25152.16), weakest_eps, "problem in interp_flow_from_area_theta new_flow_mesh_hi(4,3)")        
+                                      
+        deallocate(flow_mesh_lo, flow_mesh_hi)
+        deallocate(area_mesh_lo, area_mesh_hi)
+        deallocate(prev_flow_cell_lo)
+        deallocate(prev_flow_cell_hi)
+        deallocate(flow_volume_change)
+        deallocate(area_volume_change)
+        deallocate(new_flow_volume_change)
         
-        !call interp_flow_from_area_theta(new_flow_mesh, new_flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, area_volume_change)
+        ncell = 9
+        start_c = 6
+        !allocate(flow_mesh_lo(nt,ncell), flow_mesh_hi(nt,ncell))
+        !allocate(area_mesh_lo(nt,ncell), area_mesh_hi(nt,ncell))
+        !allocate(prev_flow_cell_lo(ncell))
+        !allocate(prev_flow_cell_hi(ncell))
+        !allocate(flow_volume_change(nt-1,ncell))
+        !allocate(area_volume_change(nt-1,ncell))
+        !allocate(new_flow_volume_change(nt-1,ncell))
+
+ 
+        
+        !call assertEquals (area_mesh_lo(3,6), dble(7748.17759), weakest_eps, "problem in interp_area_byCxArea start_c=6")
+        !call assertEquals (area_mesh_lo(2,8), dble(6569.20053), weakest_eps, "problem in interp_area_byCxArea start_c=6")
+        !call assertEquals (area_mesh_lo(3,9), dble(6368.82653), weakest_eps, "problem in interp_area_byCxArea start_c=6")
+
+        !call interp_area_linear(area_mesh, area_volume_change, branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d)
+        !call assertEquals (area_mesh(1,3), dble(6583.6541162), weakest_eps, "problem in interp_area_linear")
+        !call assertEquals (area_mesh(3,4), dble(6370.3967760), weakest_eps, "problem in interp_area_linear")
+
+        !call interp_flow_linear_with_target(flow_mesh, flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, avga)
+        !call assertEquals (flow_mesh(3,1), dble(25067.75608), weakest_eps, "problem in interp_flow_linear_with_target")
+        !call assertEquals (flow_mesh(2,1), dble(25113.34809), weakest_eps, "problem in interp_flow_linear_with_target")
+        !call assertEquals (flow_mesh(3,5), dble(25267.40343), weakest_eps, "problem in interp_flow_linear_with_target")
+        !call assertEquals (flow_mesh(2,5), dble(25337.13693), weakest_eps, "problem in interp_flow_linear_with_target")
+        !write(debug_unit,'(/a90)') "interp_flow_linear_with_mass balance target_from average area:                            "
+        !call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change)
+        
+        !call interp_area_from_flow_vol_change(area_mesh, area_volume_change, branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d, flow_volume_change)
+        !call assertEquals (area_mesh(3,1), dble(7749.494792), weakest_eps, "problem in interp_area")
+        !call assertEquals (area_mesh(2,3), dble(6979.528402), weakest_eps, "problem in interp_area")
+        !call assertEquals (area_mesh(3,4), dble(6571.40202), weakest_eps, "problem in interp_area")
+        !call assertEquals (area_mesh(3,3), dble(6968.719157), weakest_eps, "problem in interp_area")
+        !write(debug_unit,'(/a90)') "Area Interpolation from linear flow interpolation with mass balance target:               "
+        !call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)        
+        
+        !call interp_flow_linear(flow_mesh, flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d)
+        !call interp_area_byCxArea(area_mesh, area_volume_change, branch, up_x, dx, nt, nx, ws_a, ws_b, ws_c, ws_d, flow_volume_change)
+        !call assertEquals (area_mesh(3,1), dble(7748.17759), weakest_eps, "problem in interp_area_byCxArea")
+        !call assertEquals (area_mesh(2,3), dble(6569.20053), weakest_eps, "problem in interp_area_byCxArea")
+        !call assertEquals (area_mesh(3,4), dble(6368.82653), weakest_eps, "problem in interp_area_byCxArea")
+        !call assertEquals (area_mesh(3,3), dble(6556.31834), weakest_eps, "problem in interp_area_byCxArea")
+        !write(debug_unit,'(/a90)') "Area from Water Surface Interpolation:                                                    "
+        !call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)
+        
+        !call interp_flow_from_area_theta0(new_flow_mesh, new_flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, area_volume_change)
         !call assertEquals (new_flow_mesh(3,1), dble(25066.96094), weakest_eps, "problem in interp_flow_from_area_theta")
         !call assertEquals (new_flow_mesh(2,3), dble(25219.96664), weakest_eps, "problem in interp_flow_from_area_theta")
         !call assertEquals (new_flow_mesh(3,4), dble(25216.99209), weakest_eps, "problem in interp_flow_from_area_theta")
@@ -117,24 +193,24 @@ module ut_hydro_data_interp
         !write(debug_unit,'(/a90)') "New Flow from Water Surface Interpolation - theta average:                                "
         !call print_mass_balance_check(debug_unit, nt, nx, new_flow_mesh, new_flow_volume_change)  
             
-        call interp_flow_from_area_inst(new_flow_mesh, new_flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, area_volume_change)
-        call assertEquals (new_flow_mesh(3,1), dble(25066.96094), weakest_eps, "problem in interp_flow_from_area_inst")
-        call assertEquals (new_flow_mesh(2,3), dble(25231.89136), weakest_eps, "problem in interp_flow_from_area_inst")
-        call assertEquals (new_flow_mesh(3,4), dble(25228.27663), weakest_eps, "problem in interp_flow_from_area_inst")
-        call assertEquals (new_flow_mesh(3,3), dble(25174.54297), weakest_eps, "problem in interp_flow_from_area_inst")
-        write(debug_unit,'(/a90)') "New Flow from Water Surface Interpolation - instantaneous:                                "
-        call print_mass_balance_check(debug_unit, nt, nx, new_flow_mesh, new_flow_volume_change)   
+        !call interp_flow_from_area_inst(new_flow_mesh, new_flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, area_volume_change)
+        !call assertEquals (new_flow_mesh(3,1), dble(25066.96094), weakest_eps, "problem in interp_flow_from_area_inst")
+        !call assertEquals (new_flow_mesh(2,3), dble(25231.89136), weakest_eps, "problem in interp_flow_from_area_inst")
+        !call assertEquals (new_flow_mesh(3,4), dble(25228.27663), weakest_eps, "problem in interp_flow_from_area_inst")
+        !call assertEquals (new_flow_mesh(3,3), dble(25174.54297), weakest_eps, "problem in interp_flow_from_area_inst")
+        !write(debug_unit,'(/a90)') "New Flow from Water Surface Interpolation - instantaneous:                                "
+        !call print_mass_balance_check(debug_unit, nt, nx, new_flow_mesh, new_flow_volume_change)   
 
 
-        call interp_flow_from_area_theta_m2(new_flow_mesh, new_flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell)
+        !call interp_flow_from_area_theta_m2(new_flow_mesh, new_flow_volume_change, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell_lo)
         !call assertEquals (new_flow_mesh(3,1), dble(25066.96094), weakest_eps, "problem in interp_flow_from_area_theta")
         !call assertEquals (new_flow_mesh(2,3), dble(25219.96664), weakest_eps, "problem in interp_flow_from_area_theta")
         !call assertEquals (new_flow_mesh(3,4), dble(25216.99209), weakest_eps, "problem in interp_flow_from_area_theta")
         !call assertEquals (new_flow_mesh(3,3), dble(25166.34508), weakest_eps, "problem in interp_flow_from_area_theta")        
-        write(debug_unit,'(/a90)') "New Flow from Water Surface Interpolation - theta average:                                "
-        call print_mass_balance_check(debug_unit, nt, nx, new_flow_mesh, new_flow_volume_change)  
+        !write(debug_unit,'(/a90)') "New Flow from Water Surface Interpolation - theta average:                                "
+        !call print_mass_balance_check(debug_unit, nt, nx, new_flow_mesh, new_flow_volume_change)  
                             
-        call calc_total_volume_change(total_volume_change, nt-1, nx-1, new_flow_volume_change)
+        !call calc_total_volume_change(total_volume_change, nt-1, nx-1, new_flow_volume_change)
         !call assertEquals (total_volume_change, dble(-189452.439905135), weakest_eps, "problem in calc_total_volume_change")   !todo:: weird, not sure why dble(-189452.439905135) return me -189452.4375
 
         return
@@ -147,14 +223,19 @@ module ut_hydro_data_interp
         implicit none      
         integer, intent(in) :: nt          !< number of points in time
         integer, intent(in) :: nx          !< number of points in space
+        integer :: ncell, start_c
         real(gtm_real), intent(in) :: dt   !< dt
         real(gtm_real), intent(in) :: dx   !< dx
         integer :: branch
         real(gtm_real) :: up_x
         real(gtm_real) :: flow_a, flow_b, flow_c, flow_d, ws_a, ws_b, ws_c, ws_d
-        real(gtm_real), dimension(nt,nx) :: flow_mesh, area_mesh, new_flow_mesh              
-        real(gtm_real), dimension(nt-1,nx-1) :: flow_volume_change, area_volume_change, new_flow_volume_change    
-        real(gtm_real), dimension(nx) :: prev_flow_cell
+        real(gtm_real), allocatable :: flow_volume_change(:,:)
+        real(gtm_real), allocatable :: area_volume_change(:,:)
+        real(gtm_real), allocatable :: new_flow_volume_change(:,:)
+        real(gtm_real), allocatable :: prev_flow_cell_lo(:)
+        real(gtm_real), allocatable :: prev_flow_cell_hi(:)
+        real(gtm_real), allocatable :: flow_mesh_lo(:,:), flow_mesh_hi(:,:)
+        real(gtm_real), allocatable :: area_mesh_lo(:,:), area_mesh_hi(:,:)
         real(gtm_real) :: total 
         branch = 2
         up_x = dble(5000.)
@@ -165,18 +246,35 @@ module ut_hydro_data_interp
         ws_a = dble(2.355571)
         ws_b = dble(1.307376)
         ws_c = dble(2.302306)
-        ws_d = dble(1.252751)  
-        prev_flow_cell = (/25156.55469, 25219.72998, 25282.90527, 25346.08057, 25409.25586/)
-        call interp_flow_area(flow_mesh, area_mesh,                   & 
-                              flow_volume_change, area_volume_change, &
-                              branch, up_x, dx, dt, nt, nx,           &
-                              flow_a, flow_b, flow_c, flow_d,         &
-                              ws_a, ws_b, ws_c, ws_d,                 &
-                              prev_flow_cell)
+        ws_d = dble(1.252751)
+        ncell = 4
+        start_c = 1
+
+        allocate(flow_mesh_lo(nt,ncell), flow_mesh_hi(nt,ncell))
+        allocate(area_mesh_lo(nt,ncell), area_mesh_hi(nt,ncell))
+        allocate(prev_flow_cell_lo(ncell))
+        allocate(prev_flow_cell_hi(ncell))
+        allocate(flow_volume_change(nt-1,ncell))
+        allocate(area_volume_change(nt-1,ncell))
+        allocate(new_flow_volume_change(nt-1,ncell))
+        prev_flow_cell_lo = (/25156.55469, 25219.72998, 25282.90527, 25346.08057/)
+        prev_flow_cell_hi = (/25219.72998, 25282.90527, 25346.08057, 25409.25586/)
+        
+        call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi, flow_volume_change, area_volume_change,       &
+                              ncell, start_c, branch, up_x, dx, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, ws_a, ws_b, ws_c, ws_d, &
+                              prev_flow_cell_lo, prev_flow_cell_hi)
         write(debug_unit,'(/a17,i3,a5,i3,a5,f4.1,a8,f10.3,a2)') "Flow mesh for nt=", nt,", nx=", nx,", dt=", dt, "min, dx=", dx,"ft"
-        call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change)            
+        call print_mass_balance_check(debug_unit, nt, nx, flow_mesh_lo, flow_volume_change)            
         write(debug_unit,'(/a17,i3,a5,i3,a5,f4.1,a8,f10.3,a2)') "Area mesh for nt=", nt,", nx=", nx,", dt=", dt, "min, dx=", dx,"ft"
-        call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)                     
+        call print_mass_balance_check(debug_unit, nt, nx, area_mesh_lo, area_volume_change)               
+        
+        deallocate(flow_mesh_lo, flow_mesh_hi)
+        deallocate(area_mesh_lo, area_mesh_hi)
+        deallocate(prev_flow_cell_lo)
+        deallocate(prev_flow_cell_hi)
+        deallocate(flow_volume_change)
+        deallocate(area_volume_change)
+        deallocate(new_flow_volume_change)      
         return
     end subroutine    
 	

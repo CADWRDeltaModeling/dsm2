@@ -126,7 +126,7 @@ module ut_hydro_data_tide
         ws = (ws_a+(ws_c-ws_a)*two/(dble(nt)-one))+((ws_b+(ws_d-ws_b)*two/(dble(nt)-one))-(ws_a+(ws_c-ws_a)*two/(dble(nt)-one)))*three/(dble(nx)-one) 
         call CxArea(area, x, ws, branch)              
         call deallocate_hydro_ts 
-        call hdf5_close  
+        call hdf5_close         
         return
     end subroutine
                

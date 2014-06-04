@@ -23,7 +23,7 @@
 !>@ingroup gtm_core
 module common_xsect
 
-    use common_variables
+    use common_variables, only: n_chan, chan_geom
     use gtm_precision
     implicit none  
     integer :: n_irreg                         !< actual number of irregular cross sections
@@ -64,7 +64,9 @@ module common_xsect
         chan_index = LARGEREAL
         num_xsect_chan = LARGEREAL
         num_elev_chan = LARGEREAL
+        return
     end subroutine
+    
     
     !> Allocate dimension for virtual xsect array
     !> (Before allocation, call calc_virt_xsect_dimension() to obtain n_irreg, chan_index, num_xsect_chan and num_elev_chan.)
@@ -90,6 +92,19 @@ module common_xsect
            call gtm_fatal(message)
         end if      
     end subroutine
+    
+    
+    !> Deallocate virtual xsect array
+    subroutine deallocate_virt_xsect()
+        implicit none
+        chan_index = LARGEREAL
+        num_xsect_chan = LARGEREAL
+        num_elev_chan = LARGEREAL        
+        deallocate(chan_index, num_xsect_chan, num_elev_chan)
+        deallocate(xsect_index, virt_xsect)        
+        return
+    end subroutine    
+    
     
     !> Calculate area of channel cross section based on given X, Z and channel number
     subroutine CxArea(area,                  &        ! return cross section area
