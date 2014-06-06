@@ -48,6 +48,8 @@ module ut_gtm_network
         integer :: time_offset, time_buffer       
         integer :: hydro_time_index
         integer :: icell, t, i
+        real(gtm_real), allocatable :: prev_comp_flow(:) 
+        real(gtm_real), allocatable :: prev_comp_ws(:)
         procedure(hydro_data_if), pointer :: dsm2_hydro=> null()  !< Hydrodynamic pointer to be filled by the driver
         dsm2_hydro  => gtm_flow_area
         open(debug_unit, file = "gtm_network_debug.txt")       !< output text file
@@ -59,22 +61,25 @@ module ut_gtm_network
         time_buffer = 20        
         call hdf5_init(h5_file_name)
         call dsm2_hdf_geom
+        allocate(prev_comp_flow(n_comp), prev_comp_ws(n_comp))
+        
         call allocate_hydro_ts
         call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
         call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)  
-
+        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset-1)     
+        
         call allocate_network_tmp
-        hydro_time_index = 10      
-        call interp_network(npartition_t, hydro_time_index)
+        hydro_time_index = 10 
+        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
         call assertEquals (junc(1)%dsm2_node_no, 3, "problem in allocate network junc(1)%dsm2_node_no")
         call assertEquals (junc(1)%cell_no(1), 15, "problem in allocate network junc(1)%cell_no(1)")
         call assertEquals (junc(1)%cell_no(2), 16, "problem in allocate network junc(1)%cell_no(2)")
-        call assertEquals (junc(1)%cell_no(3), 29, "problem in allocate network junc(1)%cell_no(3)")
+        call assertEquals (junc(1)%cell_no(3), 28, "problem in allocate network junc(1)%cell_no(3)")
         call assertEquals (dx_arr(1), dble(1375), weakest_eps, "problem in allocate network dx_arr(1)")
         call assertEquals (dx_arr(9), dble(1285.71429), weakest_eps, "problem in allocate network dx_arr(9)")
         call assertEquals (segm(7)%up_comppt, 11, "problem in allocate network segm(7)%up_comppt")
-        call assertEquals (segm(7)%down_comppt, 12, "problem in allocate network segm(7)%down_comppt")
-        write(debug_unit,*) "flow_mesh_lo at hydro_time_index=10:"
+        call assertEquals (segm(7)%down_comppt, 12, "problem in allocate network segm(7)%down_comppt") 
+        write(debug_unit,*) "flow_mesh_lo at hydro_time_index=10:"      
         do t = 1, npartition_t+1
             write(debug_unit,'(28f15.6)') (flow_mesh_lo(t,icell),icell=1,28)
         end do
@@ -86,7 +91,8 @@ module ut_gtm_network
         write(debug_unit,*) ""     
                 
         hydro_time_index = 11
-        call interp_network(npartition_t, hydro_time_index)
+        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset)    
+        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
         write(debug_unit,*) "flow_mesh_lo at hydro_time_index=11:"
         do t = 1, npartition_t+1
             write(debug_unit,'(28f15.6)') (flow_mesh_lo(t,icell),icell=1,28)  

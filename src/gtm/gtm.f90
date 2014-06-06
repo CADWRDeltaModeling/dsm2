@@ -57,13 +57,8 @@ program gtm
     implicit none
     
     integer :: nt
-    integer :: nx
-    real(gtm_real), allocatable :: flow_mesh(:,:), area_mesh(:,:)
-    real(gtm_real), allocatable :: flow_volume_change(:,:), area_volume_change(:,:)
-    real(gtm_real), allocatable :: prev_flow_cell(:,:)
-    real(gtm_real), allocatable :: prev_up_comp_flow(:), prev_down_comp_flow(:)
-    real(gtm_real), allocatable :: prev_up_comp_ws(:), prev_down_comp_ws(:)
-    real(gtm_real), allocatable :: prev_avga(:)
+    real(gtm_real), allocatable :: prev_comp_flow(:)
+    real(gtm_real), allocatable :: prev_comp_ws(:)
     real(gtm_real), allocatable :: flow_arr(:), ws_arr(:)
     real(gtm_real), allocatable :: cfl(:)
     real(gtm_real), allocatable :: disp_coef_lo(:)      !< Low side constituent dispersion coef. at new time
@@ -133,18 +128,12 @@ program gtm
     !
     !----- allocate array for interpolation -----     
     !
-    !nx = npartition_x + 1
     nt = npartition_t + 1
-    !allocate(flow_mesh(nt, nx), area_mesh(nt, nx))
-    !allocate(flow_volume_change(nt-1, nx-1), area_volume_change(nt-1, nx-1))
-    !allocate(prev_flow_cell(n_comp, nx))
-    allocate(prev_up_comp_flow(n_comp), prev_down_comp_flow(n_comp))
-    allocate(prev_up_comp_ws(n_comp), prev_down_comp_ws(n_comp))
-    allocate(prev_avga(n_comp))
+    allocate(prev_comp_flow(n_comp))
+    allocate(prev_comp_ws(n_comp))
     allocate(constituents(n_var))
     allocate(flow_arr(n_comp), ws_arr(n_comp))
-    call allocate_hydro_ts()
-    call allocate_cell_property()    
+    call allocate_hydro_ts()  
     call allocate_network_tmp()
     call allocate_state(n_cell, n_var)
     call allocate_state_resv(n_resv, n_var)
@@ -153,6 +142,9 @@ program gtm
     allocate(cfl(n_cell))    
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
+    
+    prev_comp_flow = LARGEREAL
+    prev_comp_ws = LARGEREAL
     
     linear_decay = constant_decay
    
@@ -241,7 +233,6 @@ program gtm
         do i=1,n_bound_ts
             bound_val(bound_index(i),:) = pathinput(path_index(i))%value
         end do
-        !write(debug_unit,'(3f10.0)')  current_time,bound_val(1,1), bound_val(2,1)
         
         !---read hydro data from hydro tidefile
         call get_loc_in_hydro_buffer(iblock, slice_in_block, t_index, current_time, hydro_start_jmin, &
@@ -252,101 +243,16 @@ program gtm
             current_slice = 0
             time_offset = memory_buffer*(iblock-1)
             call dsm2_hdf_ts(time_offset, memlen(iblock))
-            if (slice_in_block .eq. 1) then
-                call dsm2_hdf_slice(flow_arr, ws_arr, n_comp, time_offset-1)
+            if (prev_comp_flow(1)==LARGEREAL) then                             !if (slice_in_block .eq. 1) then
+                call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset-1)
             end if
         end if
 
         !--- interpolate flow and water surface between computational points
         if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
-            do i = 1, n_segm
-                up_comp = segm(i)%up_comppt
-                down_comp = segm(i)%down_comppt   
-                nx = segm(i)%nx + one
-                allocate(prev_flow_cell(n_segm,nx))
-                !---define initial values for flow and water surface
-                if (current_time == gtm_start_jmin) then
-                    if (slice_in_block==1) then
-                        do j = 1, nx
-                            prev_flow_cell(i,j) = flow_arr(up_comp) + (flow_arr(down_comp)- flow_arr(up_comp))*(dble(j)-one)/(dble(nx)-one)
-                        end do
-                        prev_up_comp_flow(up_comp) = flow_arr(up_comp)
-                        prev_down_comp_flow(down_comp) = flow_arr(down_comp)
-                        prev_up_comp_ws(up_comp) = ws_arr(up_comp)
-                        prev_down_comp_ws(down_comp) = ws_arr(down_comp) 
-                    else
-                        do j = 1, nx
-                            prev_flow_cell(i,j) = hydro_flow(up_comp,slice_in_block-1) +   &
-                                                  (hydro_flow(down_comp,slice_in_block-1)- &
-                                                  hydro_flow(up_comp,slice_in_block-1))*(dble(j)-one)/(dble(nx)-one)
-                        end do                                           
-                        prev_up_comp_flow(up_comp) = hydro_flow(up_comp,slice_in_block-1)
-                        prev_down_comp_flow(down_comp) = hydro_flow(down_comp,slice_in_block-1)
-                        prev_up_comp_ws(up_comp) = hydro_ws(up_comp,slice_in_block-1)
-                        prev_down_comp_ws(down_comp) = hydro_ws(down_comp,slice_in_block-1) 
-                        prev_avga(up_comp) = hydro_avga(up_comp,slice_in_block-1)                        
-                    end if    
-                end if   
-                !avga_volume_change = (hydro_avga(up_comp,t)-prev_avga(up_comp)) * segm(i)%length
-                
-                if ((nt==2).and.(nx==2)) then
-                    call no_need_to_interp(flow_mesh, area_mesh,                &
-                                           segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,           &
-                                           prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),     &
-                                           prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp), hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block),    &
-                                           prev_flow_cell)           
-                elseif ((nt==2).and.(nx>2)) then
-                    call interp_in_space_only(flow_mesh, area_mesh,                                                                       &
-                                              segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(nx-1.), gtm_time_interval, nt, nx,    &
-                                              prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),                                 &
-                                              hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block),                   &
-                                              prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),                                     &
-                                              hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block), prev_flow_cell(i,:))
-                else
-                    call interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,             &
-                                          segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(dble(nx)-one),      &
-                                          gtm_time_interval, nt, nx,                                                &
-                                          prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),               &
-                                          hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block), &
-                                          prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),                   &
-                                          hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block), prev_flow_cell(i,:))
-                    !call linear_interp_flow_area(flow_mesh, area_mesh, flow_volume_change, area_volume_change,             & 
-                    !                             segm(i)%chan_no, segm(i)%up_distance, segm(i)%length/(dble(nx)-one),      &
-                    !                             gtm_time_interval, nt, nx,                                                &
-                    !                             prev_up_comp_flow(up_comp), prev_down_comp_flow(down_comp),               &
-                    !                             hydro_flow(up_comp,slice_in_block), hydro_flow(down_comp,slice_in_block), &
-                    !                             prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),                   &
-                    !                             hydro_ws(up_comp,slice_in_block), hydro_ws(down_comp,slice_in_block))                    
-                end if
-
-                call fill_network(i, flow_mesh, area_mesh)                      
-
-                prev_flow_cell(i,:) = flow_mesh(nt,:)
-                prev_up_comp_flow(up_comp) = hydro_flow(up_comp,slice_in_block)
-                prev_down_comp_flow(down_comp) = hydro_flow(down_comp,slice_in_block)
-                prev_up_comp_ws(up_comp) = hydro_ws(up_comp,slice_in_block)
-                prev_down_comp_ws(down_comp) = hydro_ws(down_comp,slice_in_block)         
-                
-                !prev_avga(up_comp) = hydro_avga(down_comp,t) 
-                
-                !if (debug_interp) then
-                !    write(debug_unit,'(3i8,7f15.4)')  segm(i)%chan_no,up_comp,down_comp,hydro_flow(up_comp,t), hydro_flow(down_comp,t), prev_flow_cell(i,1), prev_flow_cell(i,2), prev_flow_cell(i,3), prev_flow_cell(i,4), prev_flow_cell(i,5)
-                !    call calc_total_volume_change(total_flow_volume_change, nt-1, nx-1, flow_volume_change)
-                !    call calc_total_volume_change(total_area_volume_change, nt-1, nx-1, area_volume_change)
-                !    diff = (total_flow_volume_change-avga_volume_change)/avga_volume_change * 100
-                !    write(debug_unit,'(3i6,4f10.4)') segm(i)%chan_no,up_comp, down_comp, prev_up_comp_ws(up_comp), prev_down_comp_ws(down_comp),hydro_ws(up_comp,t), hydro_ws(down_comp,t)              
-                !    if (diff.gt.ten*two)then   !todo::I tried to figure out when and why there are huge inconsistency of volume change from interpolation and average area
-                !        write(debug_unit,'(2a8,5a20)') "t","chan_no","segm_length","flow_vol_change","area_vol_change","avga_vol_change","% difference"           
-                !        write(debug_unit,'(2i8,5f20.5)') t, segm(i)%chan_no, segm(i)%length, total_flow_volume_change,total_area_volume_change, avga_volume_change, diff
-                !        write(debug_unit,'(a10)') "flow mesh"
-                !        call print_mass_balance_check(debug_unit, nt, nx, flow_mesh, flow_volume_change) 
-                !        write(debug_unit,'(a10)') "area mesh"
-                !        call print_mass_balance_check(debug_unit, nt, nx, area_mesh, area_volume_change)             
-                !        write(debug_unit,*) ""
-                !    end if
-                !end if
-                deallocate(prev_flow_cell)
-            end do   !end for segment loop
+            call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws)
+            prev_comp_flow(:) = hydro_flow(:,slice_in_block)
+            prev_comp_ws(:) = hydro_ws(:,slice_in_block)       
             current_slice = slice_in_block
         end if
                 

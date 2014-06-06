@@ -38,7 +38,7 @@ module common_variables
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
     
-     real(gtm_real), allocatable :: dx_arr(:)
+     real(gtm_real), allocatable :: dx_arr(:)       !< dx array
      real(gtm_real), allocatable :: hydro_flow(:,:) !< flow from DSM2 hydro
      real(gtm_real), allocatable :: hydro_area(:,:) !< area from DSM2 hydro
      real(gtm_real), allocatable :: hydro_ws(:,:)   !< water surface from DSM2 hydro
@@ -449,7 +449,7 @@ module common_variables
          n_conn = k + 1
          conn(n_conn)%conn_no = n_conn
          conn(n_conn)%segm_no = n_segm
-         conn(n_conn)%cell_no = segm(n_segm)%start_cell_no + segm(n_segm)%nx 
+         conn(n_conn)%cell_no = segm(n_segm)%start_cell_no + segm(n_segm)%nx - 1
          conn(n_conn)%comp_pt = n_comp
          conn(n_conn)%chan_no = comp_pt(n_comp)%chan_no
          conn(n_conn)%dsm2_node_no = chan_geom(comp_pt(n_comp)%chan_no)%down_node

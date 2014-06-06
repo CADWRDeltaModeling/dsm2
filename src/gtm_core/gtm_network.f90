@@ -78,11 +78,14 @@ module gtm_network
     
     !> Return flow_tmp(1:ncell) and area_tmp(1:ncell) for the entire network 
     !> at the specified hydro time index
-    subroutine interp_network(npart_t, hydro_time_index)
+    subroutine interp_network(npart_t, hydro_time_index, ncomp, prev_flow, prev_ws)
         use interpolation
         implicit none
         integer, intent(in) :: npart_t                    !< number of partitions in time
         integer, intent(in) :: hydro_time_index           !< starting time step index in DSM2 hydro 
+        integer, intent(in) :: ncomp                    
+        real(gtm_real), intent(in) :: prev_flow(ncomp)
+        real(gtm_real), intent(in) :: prev_ws(ncomp)
         real(gtm_real) :: dt, dx                                                                  ! local variables
         integer :: nx, nt                                                                         ! local variables
         integer :: up_comp, down_comp                                                             ! local variables
@@ -110,8 +113,8 @@ module gtm_network
                                   flow_volume_change, area_volume_change,                             &
                                   n_cell, segm(i)%start_cell_no,                                      &
                                   segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
-                                  hydro_flow(up_comp,t_index-1), hydro_flow(down_comp,t_index-1), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
-                                  hydro_ws(up_comp,t_index-1), hydro_ws(down_comp,t_index-1), hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),           &
+                                  prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
+                                  prev_ws(up_comp), prev_ws(down_comp), hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),           &
                                   prev_flow_cell_lo, prev_flow_cell_hi)                              
         end do
         prev_flow_cell_lo(:) = flow_mesh_lo(nt,:)
