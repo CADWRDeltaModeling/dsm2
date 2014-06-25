@@ -69,7 +69,10 @@ module hdf_util
        integer :: error                                 ! error flag
        call h5gclose_f(hydro_id, error)
        call h5fclose_f(hydro_file_id, error)
-       call h5pclose_f(hydro_access_plist, error)                       
+       call h5pclose_f(hydro_access_plist, error)                   
+       hydro_id  = LARGEINT 
+       hydro_file_id  = LARGEINT 
+       hydro_access_plist = LARGEINT     
    end subroutine
    
    !> Read number of objects from hydro tidefile
@@ -78,6 +81,9 @@ module hdf_util
        call get_int_attribute_from_hdf5(n_chan, "Number of channels")
        call get_int_attribute_from_hdf5(n_xsect, "Number of virt xsects")
        call get_int_attribute_from_hdf5(n_comp, "Number of comp pts")
+       call get_int_attribute_from_hdf5(n_resv, "Number of reservoirs")
+       call get_int_attribute_from_hdf5(n_resv_conn, "Number of reservoir node connects")
+       call get_int_attribute_from_hdf5(n_qext, "Number of QExt")
        call get_int_attribute_from_hdf5(hydro_ntideblocks, "Number of intervals")
        call get_int_attribute_from_hdf5(hydro_start_jmin, "Start time")
        call get_int_attribute_from_hdf5(hydro_time_interval, "Time interval")
@@ -87,12 +93,13 @@ module hdf_util
 
 
    !> Read time series dataset from hydro tidefile        
-   subroutine get_ts_from_hdf5(dset_data, dset_name, time_offset, buffer_size)
+   subroutine get_ts_from_hdf5(dset_data, dset_name, n_coln, time_offset, buffer_size)
        implicit none     
        character(len=*), intent(in) :: dset_name                                !< dataset name   
        integer, intent(in) :: time_offset                                       !< time offset                                 
        integer, intent(in) :: buffer_size                                       !< time buffer size
-       real(gtm_real), dimension(n_comp, buffer_size), intent(out) :: dset_data !< output array
+       integer, intent(in) :: n_coln                                            !< number of columns in tidefile
+       real(gtm_real), dimension(n_coln, buffer_size), intent(out) :: dset_data !< output array
        integer(HID_T) :: data_id                                                ! local group identifier
        integer(HID_T) :: dset_id                                                ! local dataset identifier
        integer(HID_T) :: dataspace                                              ! Dataspace identifier
@@ -107,14 +114,14 @@ module hdf_util
        call h5gopen_f(hydro_id, "data", data_id, error)
        call h5dopen_f(data_id, dset_name, dset_id, error) 
        call h5dget_space_f(dset_id, dataspace, error)
-       dimsm = (/n_comp, buffer_size/)
+       dimsm = (/n_coln, buffer_size/)
        offset = (/0,time_offset/)
-       count = (/n_comp, buffer_size/) 
+       count = (/n_coln, buffer_size/) 
        offset_out = (/0,0/)
        call h5sselect_hyperslab_f(dataspace, H5S_SELECT_SET_F, offset, count, error)
        call h5screate_simple_f(memrank, dimsm, memspace, error)
        call h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, offset_out, count, error)
-       data_dims(1) = n_comp
+       data_dims(1) = n_coln
        data_dims(2) =  buffer_size
        call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dset_data, data_dims, error, memspace, dataspace)
        
@@ -321,7 +328,7 @@ module hdf_util
        call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
        call h5tinsert_f(dt1_id, "comp_index", offset, dt_id, error)    
        call h5dread_f(dset_id, dt1_id, comp_pt%comp_index, data_dims, error)
-
+       
        call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
        call h5tinsert_f(dt2_id, "channel", offset, H5T_NATIVE_INTEGER, error)    
        call h5dread_f(dset_id, dt2_id, comp_pt%chan_no, data_dims, error)
@@ -336,6 +343,188 @@ module hdf_util
        call h5tclose_f(dt3_id, error)            
        call h5dclose_f(dset_id, error)                
        call h5gclose_f(geom_id, error)
+       return        
+   end subroutine  
+
+
+   !> Read input/reservoir table from hydro tidefile
+   subroutine read_reservoir_tbl()
+       use common_variables, only : n_resv, n_resv_conn, resv_geom, allocate_reservoir_property
+       implicit none
+       integer(HID_T) :: geom_id                        ! Group identifier       
+       integer(HID_T) :: input_id                       ! Group identifier
+       integer(HID_T) :: dset_id                        ! Dataset identifier
+       integer(HID_T) :: dt_id                          ! Memory datatype identifier
+       integer(HID_T) :: dt1_id, dt2_id, dt3_id         ! Memory datatype identifier
+       integer(HID_T) :: dt4_id, dt5_id, dt6_id, dt7_id ! Memory datatype identifier
+       integer(SIZE_T):: offset                         ! Member's offset
+       integer(HSIZE_T), dimension(1) :: data_dims      ! Datasets dimensions
+       integer(SIZE_T) :: typesize                      ! Size of the datatype
+       integer(SIZE_T) :: type_size                     ! Size of the datatype
+       integer :: error                                 ! Error flag
+       character*8 :: node_type(n_resv_conn)            ! local variables
+       integer :: int_node(n_resv_conn)                 ! local variables
+       integer :: ext_node(n_resv_conn)                 ! local variables
+       integer :: resv_index(n_resv_conn)               ! local variables
+       integer :: i, j, k
+       character*8 :: node_str
+       
+       node_type = ' '
+       data_dims(1) = n_resv
+       call allocate_reservoir_property()
+       if (n_resv > 0) then
+           call h5gopen_f(hydro_id, "input", input_id, error)
+           call h5dopen_f(input_id, "reservoir", dset_id, error) 
+           call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+           typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+           call h5tset_size_f(dt_id, typesize, error)
+           call h5tget_size_f(dt_id, type_size, error)
+           
+            do i = 1,n_resv
+               resv_geom(i)%resv_index = i
+           end do     
+           
+           offset = 0
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt1_id, resv_geom%name, data_dims, error) 
+           
+           type_size = 8
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+           call h5tinsert_f(dt2_id, "area", offset, H5T_NATIVE_DOUBLE, error)    
+           call h5dread_f(dset_id, dt2_id, resv_geom%area, data_dims, error)
+
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
+           call h5tinsert_f(dt3_id, "bot_elev", offset, H5T_NATIVE_DOUBLE, error)    
+           call h5dread_f(dset_id, dt3_id, resv_geom%bot_elev, data_dims, error)
+                       
+           call h5tclose_f(dt_id, error)
+           call h5tclose_f(dt1_id, error)
+           call h5tclose_f(dt2_id, error)  
+           call h5tclose_f(dt3_id, error)          
+           call h5dclose_f(dset_id, error)  
+           call h5gclose_f(input_id, error)
+       
+           ! read node connected to reservoir
+           data_dims(1) = n_resv_conn
+           call h5gopen_f(hydro_id, "geometry", geom_id, error)
+           call h5dopen_f(geom_id, "reservoir_node_connect", dset_id, error) 
+
+           call h5tcopy_f(H5T_NATIVE_INTEGER, dt_id, error)
+           typesize = 4
+           call h5tset_size_f(dt_id, typesize, error)
+           call h5tget_size_f(dt_id, type_size, error)
+        
+           offset = 0
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
+           call h5tinsert_f(dt4_id, "node_no", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt4_id, int_node, data_dims, error)
+
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt5_id, error)
+           call h5tinsert_f(dt5_id, "ext_node_no", offset, H5T_NATIVE_INTEGER, error)    
+           call h5dread_f(dset_id, dt5_id, ext_node, data_dims, error)
+
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt6_id, error)
+           call h5tinsert_f(dt6_id, "res_index", offset, H5T_NATIVE_INTEGER, error)    
+           call h5dread_f(dset_id, dt6_id, resv_index, data_dims, error)
+ 
+           type_size = 8
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt7_id, error)
+           call h5tinsert_f(dt7_id, "connection_type", offset, H5T_NATIVE_CHARACTER, error)    
+           call h5dread_f(dset_id, dt7_id, node_type, data_dims, error)
+           
+           do i = 1, n_resv
+               resv_geom(i)%n_res_conn = 0
+               do j = 1, n_resv_conn
+                   if (resv_index(j)==i) then
+                       resv_geom(i)%n_res_conn = resv_geom(i)%n_res_conn + 1
+                   end if
+               end do
+               allocate(resv_geom(i)%int_node_no(resv_geom(i)%n_res_conn))
+               allocate(resv_geom(i)%ext_node_no(resv_geom(i)%n_res_conn))
+               allocate(resv_geom(i)%is_gated(resv_geom(i)%n_res_conn))
+           end do
+           
+           k = 0
+           do i = 1, n_resv
+               do j = 1, resv_geom(i)%n_res_conn
+                   k = k + 1
+                   resv_geom(i)%int_node_no(j) = int_node(k)
+                   resv_geom(i)%ext_node_no(j) = ext_node(k)
+                   node_str = node_type(k)
+                   if (node_str(1:1)=='g') then
+                       resv_geom(i)%is_gated(j) = 1
+                   else 
+                       resv_geom(i)%is_gated(j) = 0
+                   end if
+               end do        
+           end do
+             
+           call h5tclose_f(dt_id, error)
+           call h5tclose_f(dt4_id, error)
+           call h5tclose_f(dt5_id, error)
+           call h5tclose_f(dt6_id, error)
+           call h5tclose_f(dt7_id, error)
+           call h5dclose_f(dset_id, error)                
+           call h5gclose_f(geom_id, error)                    
+       end if    
+       return        
+   end subroutine  
+
+
+   !> Read input/boundary_flow, source_flow and source_flow_reservoir tables from hydro tidefile to fill in qext
+   subroutine read_qext_tbl()
+       use common_variables, only : n_qext, qext, allocate_qext_property
+       implicit none
+       integer(HID_T) :: geom_id                        ! Group identifier
+       integer(HID_T) :: dset_id                        ! Dataset identifier
+       integer(HID_T) :: dt_id                          ! Memory datatype identifier
+       integer(HID_T) :: dt1_id, dt2_id                 ! Memory datatype identifier
+       integer(HID_T) :: dt3_id, dt4_id                 ! Memory datatype identifier
+       integer(SIZE_T):: offset                         ! Member's offset
+       integer(HSIZE_T), dimension(1) :: data_dims      ! Datasets dimensions
+       integer(SIZE_T) :: typesize                      ! Size of the datatype
+       integer(SIZE_T) :: type_size                     ! Size of the datatype
+       integer :: error                                 ! Error flag
+       integer :: i, j, k
+       
+       data_dims(1) = n_qext
+       call allocate_qext_property()
+       if (n_qext > 0) then
+           call h5gopen_f(hydro_id, "geometry", geom_id, error)
+           call h5dopen_f(geom_id, "qext", dset_id, error) 
+           call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+           typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+           call h5tset_size_f(dt_id, typesize, error)
+           call h5tget_size_f(dt_id, type_size, error)
+           
+           offset = 0
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt1_id, qext%name, data_dims, error) 
+           
+           !!!!!!!!!!!! Didn't get this value... try to figure out
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+           call h5tinsert_f(dt2_id, "attach_obj_name", offset, H5T_NATIVE_CHARACTER, error)    
+           call h5dread_f(dset_id, dt2_id, qext%attach_obj_name, data_dims, error)           
+           
+           type_size = 4
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
+           call h5tinsert_f(dt3_id, "attached_obj_type", offset, H5T_NATIVE_INTEGER, error)    
+           call h5dread_f(dset_id, dt3_id, qext%attach_obj_type, data_dims, error)
+
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
+           call h5tinsert_f(dt4_id, "attached_obj_no", offset, H5T_NATIVE_INTEGER, error)    
+           call h5dread_f(dset_id, dt4_id, qext%attach_obj_no, data_dims, error)        
+           
+           call h5tclose_f(dt4_id, error)                       
+           call h5tclose_f(dt3_id, error)          
+           call h5tclose_f(dt2_id, error)  
+           call h5tclose_f(dt1_id, error)         
+           call h5tclose_f(dt_id, error)
+           call h5dclose_f(dset_id, error) 
+           call h5gclose_f(geom_id, error) 
+       end if    
        return        
    end subroutine  
    

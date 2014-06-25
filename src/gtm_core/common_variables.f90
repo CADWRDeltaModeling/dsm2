@@ -34,16 +34,19 @@ module common_variables
      integer :: n_boun = LARGEINT                   !< number of boundaries
      integer :: n_link = LARGEINT                   !< number of connections for two cells
      integer :: n_xsect = LARGEINT                  !< number of entries in virt xsect table
-     integer :: n_resv = 0                          !< number of reservoirs
+     integer :: n_resv = LARGEINT                   !< number of reservoirs
+     integer :: n_resv_conn = LARGEINT              !< number of reservoir connects
+     integer :: n_qext = LARGEINT                   !< number of external flows
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
     
-     real(gtm_real), allocatable :: dx_arr(:)       !< dx array
-     real(gtm_real), allocatable :: hydro_flow(:,:) !< flow from DSM2 hydro
-     real(gtm_real), allocatable :: hydro_area(:,:) !< area from DSM2 hydro
-     real(gtm_real), allocatable :: hydro_ws(:,:)   !< water surface from DSM2 hydro
-     real(gtm_real), allocatable :: hydro_avga(:,:) !< average area from DSM2 hydro
-   
+     real(gtm_real), allocatable :: dx_arr(:)              !< dx array
+     real(gtm_real), allocatable :: hydro_flow(:,:)        !< flow from DSM2 hydro
+     real(gtm_real), allocatable :: hydro_ws(:,:)          !< water surface from DSM2 hydro
+     real(gtm_real), allocatable :: hydro_resv_flow(:,:)   !< reservoir flow
+     real(gtm_real), allocatable :: hydro_resv_height(:,:) !< reservoir height
+     real(gtm_real), allocatable :: hydro_qext(:,:)        !< external flows
+
      !> Define scalar and envvar in input file 
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
      integer :: npartition_x = LARGEINT                !< number of cells within a segment
@@ -147,31 +150,39 @@ module common_variables
 
      !> Define reservoirs
      type reservoir_t
-        character*32 :: name = ' '      ! reservoir name
-        real*8 :: area = 0.D0           ! average top area
-        real*8 :: botelv = 0.D0         ! bottom elevation wrt datum
-        real*8 :: stage = 0.D0          ! stage elevation
-        !real*8 :: coeff2res(maxresnodes) = 0.D0  ! to reservoir flow coefficient to node
-        !real*8 :: coeff2chan(maxresnodes) = 0.D0 ! to channel flow coefficient to node
-        logical*4 :: inUse = .false.             ! true to use this reservoir
-        !logical*4 :: isNodeGated(maxresnodes) = .false. ! flag that a node is gated
-        integer*4 :: nConnect = 0                ! number of nodes connected using reservoir connections
-        integer*4 :: nnodes = 0      ! total nodes connected to this reservoir
-        !integer*4 :: node_no(maxresnodes) = 0    ! (internal) connecting node number
-        !integer*4 :: first_connect_index  ! index of this reservoir, connection 1
+        integer ::       resv_index            ! reservoir index
+        character*32 ::   name = ' '           ! reservoir name
+        real(gtm_real) :: area = 0.d0          ! average top area
+        real(gtm_real) :: bot_elev = 0.d0      ! bottom elevation wrt datum
+        integer :: n_res_conn = LARGEINT       ! number of nodes connected using reservoir connections
+        integer, allocatable :: int_node_no(:) ! DSM2 internal node number
+        integer, allocatable :: ext_node_no(:) ! DSM2 grid node number
+        integer, allocatable :: is_gated(:)    ! 1: if a node is gated, 0: otherwise
      end type
-     type(reservoir_t), allocatable :: res_geom(:)
+     type(reservoir_t), allocatable :: resv_geom(:)
      
+     
+     !> Define external flows
+     type qext_t
+         integer :: qext_index                 ! qext index
+         character*32 :: name                  ! qext name
+         character*32 :: attach_obj_name       ! attached obj name
+         integer :: attach_obj_type            ! attached obj type (2:node, 3:reservoir)
+         integer :: attach_obj_no              ! attached obj no (internal number)
+     end type
+     type(qext_t), allocatable :: qext(:)
+          
+               
      !> Define constituent
      type constituent_t
         integer :: conc_id                   ! constituent id
         character*16 :: name = ' '           ! constituent name
-        logical :: conservative = .true.   ! true if conservative, false if nonconservative
-    end type     
-    type(constituent_t), allocatable :: constituents(:)
+        logical :: conservative = .true.     ! true if conservative, false if nonconservative
+     end type     
+     type(constituent_t), allocatable :: constituents(:)
 
     
-    contains
+     contains
 
     
      !> Allocate channel_t array    
@@ -187,6 +198,36 @@ module common_variables
          return
      end subroutine
 
+     !> Allocate reservoir_t array    
+     subroutine allocate_reservoir_property()
+         use error_handling
+         implicit none
+         integer :: istat = 0
+         character(len=128) :: message
+         allocate(resv_geom(n_resv), stat = istat)
+         if (istat .ne. 0 )then
+            call gtm_fatal(message)
+         end if
+         return
+     end subroutine
+
+     !> Allocate qext_t array
+     subroutine allocate_qext_property()
+         use error_handling
+         implicit none
+         integer :: istat = 0
+         character(len=128) :: message
+         allocate(qext(n_qext), stat = istat)
+         if (istat .ne. 0 )then
+            call gtm_fatal(message)
+         end if
+         qext%qext_index = 0
+         qext%name = ' '
+         qext%attach_obj_name = ' '
+         qext%attach_obj_type = 0
+         qext%attach_obj_no = 0         
+         return
+     end subroutine
 
      !> Allocate comp_pt_t array
      subroutine allocate_comp_pt_property()
@@ -302,23 +343,37 @@ module common_variables
          implicit none
          integer :: istat = 0
          character(len=128) :: message
-         allocate(hydro_flow(n_comp,memory_buffer),hydro_area(n_comp,memory_buffer), &
-                  hydro_ws(n_comp,memory_buffer),hydro_avga(n_comp,memory_buffer), stat = istat)
+         allocate(hydro_flow(n_comp,memory_buffer), hydro_ws(n_comp,memory_buffer), stat = istat)
+         allocate(hydro_resv_flow(n_resv_conn, memory_buffer), stat = istat)
+         allocate(hydro_resv_height(n_resv, memory_buffer), stat = istat)
+         allocate(hydro_qext(n_qext, memory_buffer), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if
          hydro_flow = LARGEREAL
-         hydro_area = LARGEREAL
          hydro_ws = LARGEREAL
-         hydro_avga = LARGEREAL
+         hydro_resv_flow = LARGEREAL
+         hydro_resv_height = LARGEREAL
+         hydro_qext = LARGEREAL
          return
      end subroutine    
-
+    
+     !> Allocate geometry property
+     subroutine allocate_geometry()
+         implicit none
+         call allocate_channel_property
+         call allocate_comp_pt_property
+         call allocate_segment_property
+         call allocate_conn_property
+         call allocate_junc_bound_property
+         return
+     end subroutine    
 
      !> Deallocate geometry property
      subroutine deallocate_geometry()
          implicit none
          call deallocate_channel
+         call deallocate_reservoir
          call deallocate_comp_pt
          call deallocate_segment
          call deallocate_cell
@@ -335,7 +390,24 @@ module common_variables
          return
      end subroutine
 
- 
+
+     !> Deallocate reservoir property
+     subroutine deallocate_reservoir()
+         implicit none
+         n_resv = LARGEINT
+         n_resv_conn = LARGEINT
+         deallocate(resv_geom)
+         return
+     end subroutine
+
+     !> Deallocate external flows property
+     subroutine deallocate_qext()
+         implicit none
+         n_qext = LARGEINT
+         deallocate(qext)
+         return
+     end subroutine     
+      
      !> Deallocate computational point property
      subroutine deallocate_comp_pt()
          implicit none
@@ -370,6 +442,7 @@ module common_variables
          n_boun = LARGEINT
          n_junc = LARGEINT
          n_link = LARGEINT
+         n_conn = LARGEINT
          deallocate(junc)
          deallocate(bound)
          deallocate(link)    
@@ -381,7 +454,10 @@ module common_variables
      !> Deallocate hydro time series array
      subroutine deallocate_hydro_ts()
          implicit none
-         deallocate(hydro_flow, hydro_area, hydro_ws, hydro_avga)
+         deallocate(hydro_flow, hydro_ws)
+         deallocate(hydro_resv_flow)
+         deallocate(hydro_resv_height)
+         deallocate(hydro_qext)
          return
      end subroutine
 

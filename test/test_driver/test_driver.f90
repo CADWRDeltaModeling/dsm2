@@ -31,6 +31,7 @@ program test_driver
     !----- modules used in project test_common ------
     use ut_hydro_data_tide
     use ut_hydro_data_interp
+    use ut_interpolation
     use ut_gtm_network
     
     !----- modules used in project test_process_io -----
@@ -59,8 +60,7 @@ program test_driver
     use test_construct_r_h_s
     use source_sink
     use test_hydro
-    use test_advection_reaction_tidal
-    use test_advection_reaction_hdf5      
+    use test_advection_reaction_tidal    
     use test_coarsening
     use test_converge_bidirectional_uniform
     use test_diffusion_fletcher
@@ -103,6 +103,7 @@ program test_driver
     call test_hdf_util                                   ! test hdf_util()
     !call test_resample                                  ! test resample coarse grid from finer grid (for testing comparison only)
     call test_interpolation                              ! test interpolation schemes
+    !call test_interpolation_ooa                          ! test order of accurary for interpolation scheme -- very slow and the numbers are not verified
     call test_gtm_network                                ! test creating GTM network   
            
     !----- function calls to test units in project transport ----- 

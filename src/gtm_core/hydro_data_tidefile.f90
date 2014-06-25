@@ -37,6 +37,7 @@ module hydro_data_tidefile
         implicit none                      
         call get_hydro_attr
         call read_channel_tbl
+        call read_reservoir_tbl
         call read_comp_tbl
         call read_xsect_tbl  
         call assign_segment   
@@ -51,9 +52,11 @@ module hydro_data_tidefile
         implicit none              
         integer, intent(in) :: time_offset
         integer, intent(in) :: time_buffer
-        call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
-        call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)
-        call get_ts_from_hdf5(hydro_avga, "avg area", time_offset, time_buffer)    ! todo::if we decide to go with elevation, this can be removed. 
+        call get_ts_from_hdf5(hydro_flow, "flow", n_comp, time_offset, time_buffer)
+        call get_ts_from_hdf5(hydro_ws, "water surface", n_comp, time_offset, time_buffer)
+        if (n_resv_conn > 0) call get_ts_from_hdf5(hydro_resv_flow, "reservoir flow", n_resv_conn, time_offset, time_buffer)
+        if (n_resv > 0) call get_ts_from_hdf5(hydro_resv_height, "reservoir height", n_resv, time_offset, time_buffer)
+        if (n_qext > 0) call get_ts_from_hdf5(hydro_qext, "qext flow", n_qext, time_offset, time_buffer)
         return  
     end subroutine      
     
@@ -61,12 +64,12 @@ module hydro_data_tidefile
     !> mainly time series.
     subroutine dsm2_hdf_slice(flow_arr, ws_arr, num_comp, time_offset)
         implicit none
-        integer, intent(in) :: num_comp                   !< number of computational points
-        integer, intent(in) :: time_offset                !< time offset in hydro tidefile
-        real(gtm_real), intent(out) :: flow_arr(num_comp) !< output array for the slice at time of request
-        real(gtm_real), intent(out) :: ws_arr(num_comp)   !< output array for the slice at time of request
-        call get_ts_from_hdf5(flow_arr,"flow",time_offset,1)
-        call get_ts_from_hdf5(ws_arr,"water surface",time_offset,1)
+        integer, intent(in) :: num_comp                             !< number of computational points
+        integer, intent(in) :: time_offset                          !< time offset in hydro tidefile
+        real(gtm_real), intent(out) :: flow_arr(num_comp)           !< output array for the slice at time of request
+        real(gtm_real), intent(out) :: ws_arr(num_comp)             !< output array for the slice at time of request
+        call get_ts_from_hdf5(flow_arr,"flow",num_comp, time_offset,1)
+        call get_ts_from_hdf5(ws_arr,"water surface",num_comp, time_offset,1) 
         return
     end subroutine
          

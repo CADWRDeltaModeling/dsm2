@@ -26,7 +26,7 @@ module ut_gtm_hdf_ts_wrt
 
     !> Test for initializing qual tidefile
     subroutine test_init_qual_hdf()
-        use common_variables, only: chan_geom, res_geom, constituents, gtm_time_interval
+        use common_variables, only: chan_geom, resv_geom, constituents, gtm_time_interval
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name                   ! name of qual hdf5 file
@@ -47,12 +47,12 @@ module ut_gtm_hdf_ts_wrt
         sim_end = 44400.d0
         hdf_interval_char = "15min"        
         allocate(chan_geom(ncell))
-        allocate(res_geom(nres))
+        allocate(resv_geom(nres))
         allocate(constituents(nconc))
         chan_geom(1)%channel_num = 101
         chan_geom(2)%channel_num = 102
         chan_geom(3)%channel_num = 103
-        res_geom(1)%name = "res_1"
+        resv_geom(1)%name = "res_1"
         constituents(1)%name = "conc_1"
         constituents(2)%name = "conc_2"
         call init_qual_hdf(qual_hdf,          &
@@ -65,7 +65,7 @@ module ut_gtm_hdf_ts_wrt
                            hdf_interval_char)
         call close_qual_hdf(qual_hdf)          
         deallocate(chan_geom)        
-        deallocate(res_geom) 
+        deallocate(resv_geom) 
         deallocate(constituents)                
         return
     end subroutine
@@ -74,7 +74,7 @@ module ut_gtm_hdf_ts_wrt
     !> Test for writing time series data to qual tidefile as well as geometry data
     subroutine test_write_ts_qual_hdf()
         use hdf5
-        use common_variables, only: chan_geom, res_geom, constituents
+        use common_variables, only: chan_geom, resv_geom, constituents
         use gtm_hdf_write
         use gtm_hdf_ts_write
         implicit none
@@ -112,11 +112,11 @@ module ut_gtm_hdf_ts_wrt
         hdf_interval_char = "15min"        
 
         allocate(chan_geom(ncell))
-        allocate(res_geom(nres))
+        allocate(resv_geom(nres))
         allocate(constituents(nconc))
         allocate(conc(ncell, nconc))
         allocate(conc_res(nres, nconc))
-        res_geom(1)%name = "res_1"
+        resv_geom(1)%name = "res_1"
         constituents(1)%name = "conc_1"
         constituents(2)%name = "conc_2"
         constituents(3)%name = "conc_3"
@@ -175,7 +175,7 @@ module ut_gtm_hdf_ts_wrt
                                  time_index)                                                                              
         call close_qual_hdf(qual_hdf)          
         deallocate(chan_geom)        
-        deallocate(res_geom) 
+        deallocate(resv_geom) 
         deallocate(constituents) 
         deallocate(conc)
         deallocate(conc_res)  
@@ -219,7 +219,7 @@ module ut_gtm_hdf_ts_wrt
     !> Test for writing large time series data to qual tidefile
     subroutine test_write_ts_qual_hdf_lg()
         use hdf5    
-        use common_variables, only: chan_geom, res_geom, constituents
+        use common_variables, only: chan_geom, resv_geom, constituents
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name                   ! name of qual hdf5 file
@@ -258,7 +258,7 @@ module ut_gtm_hdf_ts_wrt
         hdf_interval_char = "15min"        
 
         allocate(chan_geom(ncell))
-        allocate(res_geom(nres))
+        allocate(resv_geom(nres))
         allocate(constituents(nconc))
         allocate(conc(ncell, nconc))
         allocate(conc_res(nres, nconc))
@@ -326,7 +326,7 @@ module ut_gtm_hdf_ts_wrt
         call close_qual_hdf(qual_hdf)          
                   
         deallocate(chan_geom)        
-        deallocate(res_geom) 
+        deallocate(resv_geom) 
         deallocate(constituents) 
         deallocate(conc)
         deallocate(conc_res)               

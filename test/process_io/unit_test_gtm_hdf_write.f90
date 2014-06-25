@@ -47,7 +47,9 @@ module ut_gtm_hdf_write
         n_chan = 3
         n_segm = 4
         n_comp = 7
+        n_resv = 0
         call allocate_channel_property
+        call allocate_reservoir_property
         call allocate_comp_pt_property
         chan_geom(1)%chan_no = 1
         chan_geom(1)%up_node = 51

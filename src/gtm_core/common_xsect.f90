@@ -125,7 +125,11 @@ module common_xsect
         do i = 2, n_chan
             xsect_index(i) = xsect_index(i-1) + num_xsect_chan(i-1)
         end do
-        virt_deltax = chan_geom(branch)%channel_length/(num_xsect_chan(branch)-1)
+        if (num_xsect_chan(branch)>1) then 
+            virt_deltax = chan_geom(branch)%channel_length/(num_xsect_chan(branch)-1)
+        else
+            virt_deltax = chan_geom(branch)%channel_length
+        end if    
         vsecno_forX = nint(X/virt_deltax) + 1 
         si = xsect_index(branch) + vsecno_forX - 1
         OK = 0

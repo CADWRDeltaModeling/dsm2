@@ -64,9 +64,8 @@ module ut_gtm_network
         allocate(prev_comp_flow(n_comp), prev_comp_ws(n_comp))
         
         call allocate_hydro_ts
-        call get_ts_from_hdf5(hydro_flow, "flow", time_offset, time_buffer)
-        call get_ts_from_hdf5(hydro_ws, "water surface", time_offset, time_buffer)  
-        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset-1)     
+        call dsm2_hdf_ts(time_offset, time_buffer) 
+        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset-1)             
         
         call allocate_network_tmp
         hydro_time_index = 10 
@@ -91,7 +90,7 @@ module ut_gtm_network
         write(debug_unit,*) ""     
                 
         hydro_time_index = 11
-        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset)    
+        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset)
         call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
         write(debug_unit,*) "flow_mesh_lo at hydro_time_index=11:"
         do t = 1, npartition_t+1
@@ -103,7 +102,8 @@ module ut_gtm_network
             write(debug_unit,'(28f15.6)') (flow_mesh_hi(t,icell),icell=1,28)  
         end do
         write(debug_unit,*) ""        
-        call deallocate_network_tmp()
+        call deallocate_network_tmp
+        call deallocate_geometry
         close(debug_unit)        
         !call deallocate_hydro_ts() !don't deallocate this one for later use in test_advection_reaction_hdf5
         call hdf5_close()         

@@ -153,7 +153,7 @@ module gtm_hdf_ts_write
     !> Write out lookup information for cells, reservoirs, and constituents. 
     subroutine write_dimensions(loc_id, ncell, nresv, nconc)
         use hdf5
-        use common_variables, only: chan_geom, res_geom, constituents, npartition_x
+        use common_variables, only: chan_geom, resv_geom, constituents, npartition_x
         implicit none
         integer (HID_T), intent(in) :: loc_id              !< hdf file data ID
         integer, intent(in) :: ncell                       !< number of cells
@@ -206,7 +206,7 @@ module gtm_hdf_ts_write
             allocate(names(nresv))
 	        names = ' '
 	        do i = 1, nresv
-	            names(i) = res_geom(i)%name 
+	            names(i) = resv_geom(i)%name 
             end do
 	        call write_1D_string_array(loc_id,"reservoir_names",names,    &     
                                        name_len, nresv)
