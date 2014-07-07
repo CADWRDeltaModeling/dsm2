@@ -40,6 +40,7 @@ module ut_hydro_data_interp
         call deallocate_virt_xsect
         call deallocate_channel
         call deallocate_reservoir
+        call deallocate_qext
         call deallocate_comp_pt
         call deallocate_segment
         deallocate(conn)

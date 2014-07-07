@@ -43,6 +43,8 @@ module gtm_subs
         call write_attributes_gtm(geom_id)
         call write_segment_info(geom_id, n_segm, segm)
         call write_channel_info(geom_id, n_chan, chan_geom)
+        call write_reservoir_info(geom_id)
+        call write_qext_info(geom_id)
         call write_junction_info(geom_id, n_junc, junc)
         call write_boundary_info(geom_id, n_boun, bound)
         call write_connection_info(geom_id, n_conn, conn)

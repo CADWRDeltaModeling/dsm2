@@ -44,6 +44,8 @@ module ut_interpolation
         nx = 4
         npartition_t = 3
         n_chan = 1
+        n_resv = 0
+        n_qext = 0
         n_comp = 31
         n_segm = 30
         n_cell = n_segm * nx 

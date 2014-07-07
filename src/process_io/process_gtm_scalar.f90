@@ -56,9 +56,6 @@ module process_gtm_scalar
          if (run_end_date(1:9).ne.'         ') gtm_end_jmin = dble(cdt2jmin(run_end_date))
       elseif (Param .eq. 'run_length') then
          run_length=Val
-      elseif (Param .eq. 'npartition_x') then
-         npartition=Val
-         read(npartition,'(i)') npartition_x
       elseif (Param .eq. 'gtm_dx') then
          read(Val, '(f20.5)') gtm_dx
       elseif (Param .eq. 'title') then

@@ -486,7 +486,7 @@ module hdf_util
        integer(SIZE_T) :: typesize                      ! Size of the datatype
        integer(SIZE_T) :: type_size                     ! Size of the datatype
        integer :: error                                 ! Error flag
-       integer :: i, j, k
+       integer :: i
        
        data_dims(1) = n_qext
        call allocate_qext_property()
@@ -497,6 +497,10 @@ module hdf_util
            typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
            call h5tset_size_f(dt_id, typesize, error)
            call h5tget_size_f(dt_id, type_size, error)
+           
+           do i = 1, n_qext
+               qext(i)%qext_index = i
+           end do
            
            offset = 0
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)

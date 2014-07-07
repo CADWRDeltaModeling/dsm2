@@ -51,15 +51,39 @@ module gtm_hdf_write
         hdf_dummy_integer = n_chan
         call h5ltset_attribute_int_f(geom_id,".","n_chan", &
                                      hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_segm
+        call h5ltset_attribute_int_f(geom_id,".","n_segm", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_conn
+        call h5ltset_attribute_int_f(geom_id,".","n_conn", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_junc
+        call h5ltset_attribute_int_f(geom_id,".","n_junc", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_boun
+        call h5ltset_attribute_int_f(geom_id,".","n_boun", &
+                                     hdf_dummy_integer, scalar, error)                                                                                                               
+        hdf_dummy_integer = n_link
+        call h5ltset_attribute_int_f(geom_id,".","n_link", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_xsect
+        call h5ltset_attribute_int_f(geom_id,".","n_xsect", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_resv
+        call h5ltset_attribute_int_f(geom_id,".","n_resv", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_resv_conn
+        call h5ltset_attribute_int_f(geom_id,".","n_resv_conn", &
+                                     hdf_dummy_integer, scalar, error)
+        hdf_dummy_integer = n_qext
+        call h5ltset_attribute_int_f(geom_id,".","n_qext", &
+                                     hdf_dummy_integer, scalar, error)                                                                          
         hdf_dummy_integer = n_cell
         call h5ltset_attribute_int_f(geom_id,".","n_cell", &
                                      hdf_dummy_integer, scalar, error)
         hdf_dummy_integer = n_var
         call h5ltset_attribute_int_f(geom_id,".","n_var", &
-                                     hdf_dummy_integer, scalar, error) 
-        hdf_dummy_integer = npartition_x
-        call h5ltset_attribute_int_f(geom_id,".","npartition_x", &
-                                     hdf_dummy_integer, scalar, error)                                           
+                                     hdf_dummy_integer, scalar, error)                                         
         return
     end subroutine
             
@@ -642,6 +666,240 @@ module gtm_hdf_write
         call h5tclose_f(dt_id, error)                
         return
     end subroutine
+
+
+    !> Write out reservoir info into GTM tidefile
+    subroutine write_reservoir_info(geom_id)
+        use hdf5
+        use common_variables, only: n_resv, n_resv_conn, resv_geom
+        implicit none
+        integer(HID_T), intent(in) :: geom_id            !< hdf5 dataset identifier
+        integer(HID_T) :: dset_id                        ! dataset identifier
+        integer(HID_T) :: dspace_id                      ! dataspace identifier
+        integer(HID_T) :: dtype_id                       ! compound datatype identifier
+        integer(HID_T) :: dt1_id, dt2_id, dt3_id, dt_id  ! memory datatype identifier 
+        integer(HID_T) :: dt4_id, dt5_id, dt6_id, dt7_id ! memory datatype identifier        
+        integer(HID_T) :: plist_id                       ! dataset transfer property
+        integer(SIZE_T) :: typesize
+        integer(SIZE_T) :: type_size
+        integer(SIZE_T) :: type_sizei
+        integer(SIZE_T) :: type_sized
+        integer(SIZE_T) :: offset
+        integer(HSIZE_T), dimension(1) :: data_dims                     
+        integer(HSIZE_T), dimension(1) :: dims 
+        integer :: resv_index(n_resv_conn), n_res_conn(n_resv_conn)
+        integer :: n_res_connection(n_resv_conn), int_node_no(n_resv_conn)
+        integer :: ext_node_no(n_resv_conn), is_gated(n_resv_conn)
+        real(gtm_real) :: area(n_resv_conn), bot_elev(n_resv_conn)        
+        integer :: rank = 1
+        integer :: i, j, k
+        integer :: error
+        
+        if (n_resv_conn .eq. 0) then
+            write(*,*) "Number of reservoirs = 0"
+            return
+        end if    
+        
+        dims = (/n_resv_conn/) 
+        data_dims(1) = n_resv_conn
+       
+        call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, error)
+        call h5pset_preserve_f(plist_id, .TRUE., error)
+               
+        call h5screate_simple_f(rank, dims, dspace_id, error)
+        
+        call h5tcopy_f(H5T_NATIVE_INTEGER, dt_id, error)
+        typesize = 4
+        call h5tset_size_f(dt_id, typesize, error)
+        call h5tget_size_f(dt_id, type_sizei, error)
+        call h5tget_size_f(H5T_NATIVE_DOUBLE, type_sized, error)
+        type_size = 5*type_sizei + 2*type_sized
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_size, dtype_id, error)
+        
+        offset = 0
+        call h5tinsert_f(dtype_id, "resv_index", offset, dt_id, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "n_res_conn", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "int_node_no", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "ext_node_no", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "is_gated", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "area", offset, H5T_NATIVE_DOUBLE, error)
+        
+        offset = offset + type_sized
+        call h5tinsert_f(dtype_id, "bot_elev", offset, H5T_NATIVE_DOUBLE, error)
+        
+        call h5dcreate_f(geom_id, "reservoir", dtype_id, dspace_id, dset_id, error)        
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt1_id, error)
+        offset = 0
+        call h5tinsert_f(dt1_id, "resv_index", offset, dt_id, error)   
  
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt2_id, error)
+        offset = 0
+        call h5tinsert_f(dt2_id, "n_res_conn", offset, H5T_NATIVE_INTEGER, error)  
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt3_id, error)
+        offset = 0
+        call h5tinsert_f(dt3_id, "int_node_no", offset, H5T_NATIVE_INTEGER, error)
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt4_id, error)
+        offset = 0
+        call h5tinsert_f(dt4_id, "ext_node_no", offset, H5T_NATIVE_INTEGER, error)
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt5_id, error)
+        offset = 0
+        call h5tinsert_f(dt5_id, "is_gated", offset, H5T_NATIVE_INTEGER, error)
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sized, dt6_id, error)
+        offset = 0
+        call h5tinsert_f(dt6_id, "area", offset, H5T_NATIVE_DOUBLE, error)
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sized, dt7_id, error)
+        offset = 0
+        call h5tinsert_f(dt7_id, "bot_elev", offset, H5T_NATIVE_DOUBLE, error)
+
+        k = 0
+        do i = 1, n_resv
+            do j = 1, resv_geom(i)%n_res_conn   
+                k = k + 1
+                resv_index(k) = resv_geom(i)%resv_index
+                area(k) = resv_geom(i)%area
+                bot_elev(k) = resv_geom(i)%bot_elev            
+                n_res_connection(k) = resv_geom(i)%n_res_conn                        
+                int_node_no(k) = resv_geom(i)%int_node_no(j)
+                ext_node_no(k) = resv_geom(i)%ext_node_no(j)
+                is_gated(k) = resv_geom(i)%is_gated(j)
+            end do    
+        end do
+             
+        call h5dwrite_f(dset_id, dt1_id, resv_index, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt2_id, n_res_connection, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt3_id, int_node_no, data_dims, error, xfer_prp = plist_id)                     
+        call h5dwrite_f(dset_id, dt4_id, ext_node_no, data_dims, error, xfer_prp = plist_id) 
+        call h5dwrite_f(dset_id, dt5_id, is_gated, data_dims, error, xfer_prp = plist_id) 
+        call h5dwrite_f(dset_id, dt6_id, area, data_dims, error, xfer_prp = plist_id) 
+        call h5dwrite_f(dset_id, dt7_id, bot_elev, data_dims, error, xfer_prp = plist_id) 
+
+        call h5dclose_f(dset_id, error)
+        call h5sclose_f(dspace_id, error)
+        call h5tclose_f(dtype_id, error)
+        call h5tclose_f(dt1_id, error)
+        call h5tclose_f(dt2_id, error)
+        call h5tclose_f(dt3_id, error)
+        call h5tclose_f(dt4_id, error)
+        call h5tclose_f(dt5_id, error)
+        call h5tclose_f(dt6_id, error)                
+        call h5tclose_f(dt7_id, error)        
+        call h5tclose_f(dt_id, error)        
+        return
+    end subroutine    
+ 
+ 
+
+    !> Write out external flow info into GTM tidefile
+    subroutine write_qext_info(geom_id)
+        use hdf5
+        use common_variables, only: n_qext, qext
+        implicit none
+        integer(HID_T), intent(in) :: geom_id            !< hdf5 dataset identifier
+        integer(HID_T) :: dset_id                        ! dataset identifier
+        integer(HID_T) :: dspace_id                      ! dataspace identifier
+        integer(HID_T) :: dtype_id                       ! compound datatype identifier
+        integer(HID_T) :: dt1_id, dt2_id, dt_id          ! memory datatype identifier 
+        integer(HID_T) :: dt3_id, dt4_id                 ! memory datatype identifier        
+        integer(HID_T) :: plist_id                       ! dataset transfer property
+        integer(SIZE_T) :: typesize
+        integer(SIZE_T) :: type_size
+        integer(SIZE_T) :: type_sizei
+        integer(SIZE_T) :: type_sizec
+        integer(SIZE_T) :: offset
+        integer(HSIZE_T), dimension(1) :: data_dims                     
+        integer(HSIZE_T), dimension(1) :: dims 
+        integer :: rank = 1
+        integer :: i, j, k
+        integer :: error
+        
+        if (n_qext .eq. 0) then
+            write(*,*) "Number of external flows = 0"
+            return
+        end if    
+        
+        dims = (/n_qext/) 
+        data_dims(1) = n_qext
+       
+        call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, error)
+        call h5pset_preserve_f(plist_id, .TRUE., error)
+               
+        call h5screate_simple_f(rank, dims, dspace_id, error)
+ 
+        call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+        typesize = 32
+        call h5tset_size_f(dt_id, typesize, error)
+        call h5tget_size_f(dt_id, type_sizec, error)
+        
+        !call h5tcopy_f(H5T_NATIVE_INTEGER, dt_id, error)
+        !typesize = 4
+        !call h5tset_size_f(dt_id, typesize, error)
+        !call h5tget_size_f(dt_id, type_sizei, error)
+        type_sizei = 4
+        type_size = 3*type_sizei + type_sizec
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_size, dtype_id, error)
+        
+        offset = 0
+        call h5tinsert_f(dtype_id, "name", offset, dt_id, error)
+
+        offset = offset + type_sizec
+        call h5tinsert_f(dtype_id, "qext_index", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "attach_obj_type", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "attach_obj_no", offset, H5T_NATIVE_INTEGER, error)
+        
+        call h5dcreate_f(geom_id, "qext", dtype_id, dspace_id, dset_id, error)        
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizec, dt1_id, error)
+        offset = 0
+        call h5tinsert_f(dt1_id, "name", offset, dt_id, error)   
+ 
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt2_id, error)
+        offset = 0
+        call h5tinsert_f(dt2_id, "qext_index", offset, H5T_NATIVE_INTEGER, error)  
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt3_id, error)
+        offset = 0
+        call h5tinsert_f(dt3_id, "attach_obj_type", offset, H5T_NATIVE_INTEGER, error)
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt4_id, error)
+        offset = 0
+        call h5tinsert_f(dt4_id, "attach_obj_no", offset, H5T_NATIVE_INTEGER, error)
+             
+        call h5dwrite_f(dset_id, dt1_id, qext%name, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt2_id, qext%qext_index, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt3_id, qext%attach_obj_type, data_dims, error, xfer_prp = plist_id)                     
+        call h5dwrite_f(dset_id, dt4_id, qext%attach_obj_no, data_dims, error, xfer_prp = plist_id) 
+
+        call h5dclose_f(dset_id, error)
+        call h5sclose_f(dspace_id, error)
+        call h5tclose_f(dtype_id, error)
+        call h5tclose_f(dt1_id, error)
+        call h5tclose_f(dt2_id, error)
+        call h5tclose_f(dt3_id, error)
+        call h5tclose_f(dt4_id, error)        
+        call h5tclose_f(dt_id, error)        
+        return
+    end subroutine     
     
 end module        

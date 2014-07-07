@@ -133,7 +133,7 @@ module gtm_hdf_ts_write
 	    hdf_file%resv_dim = nresv
 	    hdf_file%time_index = 1
 	
-	    call write_dimensions(hdf_file%data_id, ncell, nresv, nconc)
+	    call write_dimensions(hdf_file%data_id, nresv, nconc)
 	
 	    ! create the data sets for time-varying output
 	    call init_cell_qual_hdf5(hdf_file, ncell, nconc, ntime)
@@ -151,12 +151,11 @@ module gtm_hdf_ts_write
 
 
     !> Write out lookup information for cells, reservoirs, and constituents. 
-    subroutine write_dimensions(loc_id, ncell, nresv, nconc)
+    subroutine write_dimensions(loc_id, nresv, nconc)
         use hdf5
-        use common_variables, only: chan_geom, resv_geom, constituents, npartition_x
+        use common_variables, only: chan_geom, resv_geom, constituents
         implicit none
         integer (HID_T), intent(in) :: loc_id              !< hdf file data ID
-        integer, intent(in) :: ncell                       !< number of cells
         integer, intent(in) :: nresv                       !< number of reservoirs
         integer, intent(in) :: nconc                       !< number of constituents
         integer(HSIZE_T), dimension(1) :: in_dims != (/0/) ! Dataset dimensions
@@ -172,34 +171,10 @@ module gtm_hdf_ts_write
         integer, parameter :: label_len = 12
 	    integer, parameter :: name_len = 32
         character(LEN=name_len),dimension(:), allocatable :: names
-        integer, dimension(ncell) :: segm_no
         real(gtm_real) :: tmp
         integer :: i
         integer :: ierror
-      
-        in_dims(1) = ncell
-        ! Write out cell geometry
-        call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, ierror)      
-         
-        ! Obtain cell properties
-        do i = 1, ncell 
-            tmp = i/npartition_x
-            if (mod(i,npartition_x)==0) then
-                segm_no(i) = int(tmp)
-            else
-                segm_no(i) = floor(tmp)+1
-            end if    
-        end do
-        
-        ! Write out cell properties
-        call h5screate_simple_f(in_rank, in_dims, in_dspace_id, ierror)
-        call h5dcreate_f(loc_id, "cell_number", H5T_NATIVE_INTEGER,       &   
-                         in_dspace_id, in_dset_id, ierror, cparms)
-        call h5dwrite_f(in_dset_id,H5T_NATIVE_INTEGER,                    &   
-                        segm_no, in_dims, ierror)
-        call h5sclose_f (in_dspace_id, ierror)
-        call h5dclose_f(in_dset_id,ierror)
- 
+       
   	    ! Write reservoir names
   	    if (nresv.gt.0) then
             in_dims(1) = nresv

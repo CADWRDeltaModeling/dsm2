@@ -49,7 +49,6 @@ module common_variables
 
      !> Define scalar and envvar in input file 
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
-     integer :: npartition_x = LARGEINT                !< number of cells within a segment
      integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
      character(len=128) :: hydro_hdf5                  !< hydro tide filename
      integer :: hydro_start_jmin = LARGEINT            !< hydro start time in hydro tidefile
@@ -171,7 +170,31 @@ module common_variables
          integer :: attach_obj_no              ! attached obj no (internal number)
      end type
      type(qext_t), allocatable :: qext(:)
-          
+     
+     
+     !> Define reservoir connections
+     type reservoir_conn_t
+         integer :: resv_no                    ! reservoir number
+         integer :: n_res_conn                 ! number of connected nodes
+         integer :: dsm2_node_no               ! DSM2 node number
+         integer :: n_conn_cells               ! number of connected cells
+         integer :: conn_cell                  ! connected cells
+         integer :: up_down                    ! flow toward node (0) or away from node (1)
+     end type
+     type(reservoir_conn_t), allocatable :: resv_conn(:)
+     
+     !> DSM2 Node information
+     type dsm2_node_t
+         integer :: dsm2_node_no               ! DSM2 node number
+         integer :: n_cell_conn                ! number of cells connected
+         integer, allocatable :: cell_no(:)    ! cell number
+         integer, allocatable :: up_down(:)    ! flow toward node (0) or away from node (1) from DSM2 base grid definition
+         integer :: n_qext                     ! number of external flows
+         integer :: is_resv                    ! is connected to reservoir
+         integer :: nonsequential 
+     end type
+     type(dsm2_node_t), allocatable :: dsm2_node(:)
+     
                
      !> Define constituent
      type constituent_t
@@ -275,28 +298,7 @@ module common_variables
          return
      end subroutine
 
-        
-     !> Calculate n_cell and allocate dx array
-     subroutine allocate_cell_property0()
-         use error_handling
-         implicit none
-         integer :: istat = 0
-         integer :: i, j, icell
-         character(len=128) :: message
-         n_cell = n_segm * npartition_x
-         allocate(dx_arr(n_cell), stat = istat)
-         if (istat .ne. 0 )then
-            call gtm_fatal(message)
-         end if        
-         do i = 1, n_segm               
-             do j = 1, npartition_x
-                 icell = npartition_x*(i-1)+j
-                 dx_arr(icell) = segm(i)%length/npartition_x
-             end do
-         end do          
-         return
-     end subroutine
-     
+     !> Allocate size for cell and dx array     
      subroutine allocate_cell_property()
          use error_handling
          implicit none
@@ -361,7 +363,9 @@ module common_variables
      !> Allocate geometry property
      subroutine allocate_geometry()
          implicit none
-         call allocate_channel_property
+         call allocate_channel_property         
+         call allocate_reservoir_property
+         call allocate_qext_property
          call allocate_comp_pt_property
          call allocate_segment_property
          call allocate_conn_property
@@ -374,6 +378,7 @@ module common_variables
          implicit none
          call deallocate_channel
          call deallocate_reservoir
+         call deallocate_qext
          call deallocate_comp_pt
          call deallocate_segment
          call deallocate_cell
@@ -626,6 +631,36 @@ module common_variables
          return
      end subroutine
 
+     !> Look up cell info around nodes connected to reservoir
+     subroutine lookup_resv_cells()
+         implicit none
+         integer :: i, j, k, l, count1, count2, count0
+         count0 = 0
+         count1 = 0
+         allocate(resv_conn(n_conn)) ! this is the upper limit of the connections, for simplicity.
+         do i = 1, n_resv
+             do j = 1, resv_geom(i)%n_res_conn
+                 count2 = 0
+                 count0 = count1 + 1
+                 do k = 1, n_conn                     
+                     if (conn(k)%dsm2_node_no==resv_geom(i)%ext_node_no(j)) then
+                         count1 = count1 + 1
+                         count2 = count2 + 1
+                         resv_conn(count1)%resv_no = resv_geom(i)%resv_index
+                         resv_conn(count1)%n_res_conn = resv_geom(i)%n_res_conn
+                         resv_conn(count1)%dsm2_node_no = conn(k)%dsm2_node_no
+                         resv_conn(count1)%conn_cell = conn(k)%cell_no
+                         resv_conn(count1)%up_down = conn(k)%conn_up_down
+                     end if
+                 end do
+                 do l = count0, count1
+                     resv_conn(l)%n_conn_cells = count2
+                 end do
+             end do
+         end do
+         return
+     end subroutine
+      
 
      !> Define common variables for single channel case
      subroutine set_up_single_channel(bound_val, ncell, nvar)
@@ -633,15 +668,15 @@ module common_variables
          integer, intent(in) :: ncell
          integer, intent(in) :: nvar
          real(gtm_real), intent(out) :: bound_val(2,nvar)
-          n_boun = 2
-          n_junc = 0
-          call allocate_junc_bound_property()
-          bound(1)%cell_no = 1
-          bound(2)%cell_no = ncell
-          bound(1)%up_down = 1
-          bound(2)%up_down = 0
-          bound_val = LARGEREAL
-        return
+         n_boun = 2
+         n_junc = 0
+         call allocate_junc_bound_property()
+         bound(1)%cell_no = 1
+         bound(2)%cell_no = ncell
+         bound(1)%up_down = 1
+         bound(2)%up_down = 0
+         bound_val = LARGEREAL
+         return
      end subroutine    
 
 
