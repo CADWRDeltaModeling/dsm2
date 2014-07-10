@@ -30,6 +30,7 @@ module common_variables
      integer :: n_chan = LARGEINT                   !< number of channels
      integer :: n_segm = LARGEINT                   !< number of segments
      integer :: n_conn = LARGEINT                   !< number of connected cells
+     integer :: n_node = LARGEINT                   !< number of DSM2 nodes
      integer :: n_junc = LARGEINT                   !< number of junctions
      integer :: n_boun = LARGEINT                   !< number of boundaries
      integer :: n_link = LARGEINT                   !< number of connections for two cells
@@ -186,12 +187,15 @@ module common_variables
      !> DSM2 Node information
      type dsm2_node_t
          integer :: dsm2_node_no               ! DSM2 node number
-         integer :: n_cell_conn                ! number of cells connected
+         integer :: n_conn_cell                ! number of cells connected
          integer, allocatable :: cell_no(:)    ! cell number
          integer, allocatable :: up_down(:)    ! flow toward node (0) or away from node (1) from DSM2 base grid definition
+         integer :: boundary_no                !
+         integer :: junction_no                !
+         integer :: reservoir_no               ! connected to reservoir no         
          integer :: n_qext                     ! number of external flows
-         integer :: is_resv                    ! is connected to reservoir
-         integer :: nonsequential 
+         integer :: nonsequential              ! true: 1, false: 0
+         integer :: no_fixup                   ! true: 1, false: 0
      end type
      type(dsm2_node_t), allocatable :: dsm2_node(:)
      
@@ -377,6 +381,7 @@ module common_variables
      subroutine deallocate_geometry()
          implicit none
          call deallocate_channel
+         call deallocate_dsm2_node_property
          call deallocate_reservoir
          call deallocate_qext
          call deallocate_comp_pt
@@ -440,18 +445,29 @@ module common_variables
      end subroutine
 
 
+     !> Deallocate DSM2 node
+     subroutine deallocate_dsm2_node_property()
+         implicit none
+         n_node = LARGEINT    
+         deallocate(dsm2_node)
+         return
+     end subroutine
 
      !> Deallocate junctions and boudaries
      subroutine deallocate_junc_bound_property()
          implicit none
-         n_boun = LARGEINT
-         n_junc = LARGEINT
-         n_link = LARGEINT
-         n_conn = LARGEINT
-         deallocate(junc)
-         deallocate(bound)
-         deallocate(link)    
-         deallocate(conn)
+         if (n_boun .ne. LARGEINT) then
+             n_boun = LARGEINT
+             deallocate(bound)
+         end if
+         if (n_conn .ne. LARGEINT) then    
+             n_conn = LARGEINT
+             deallocate(conn)
+         end if    
+         !n_junc = LARGEINT
+         !n_link = LARGEINT         
+         !deallocate(junc)         
+         !deallocate(link)             
          return
      end subroutine
 
@@ -561,7 +577,7 @@ module common_variables
      !> Obtain info for DSM2 nodes 
      !> This will count occurence of nodes in channel table. If count>2, a junction; if count==1, a boundary.
      !> This updates common variables: n_junc, n_boun, junc, and bound.
-     subroutine get_dsm2_node_info()
+     subroutine get_dsm2_node_info0()
          implicit none
          integer, dimension(:), allocatable :: nodes
          integer, dimension(:), allocatable :: sorted_nodes
@@ -595,7 +611,7 @@ module common_variables
                  junc(nj)%dsm2_node_no = unique_num(i)
                  junc(nj)%n_conn_cells = occurrence(i)                
                  allocate(junc(nj)%cell_no(occurrence(i)))
-                 allocate(junc(nj)%up_down(occurrence(i)))                         
+                 allocate(junc(nj)%up_down(occurrence(i)))
                  k = 0
                  do j = 1, n_conn
                      if (conn(j)%dsm2_node_no==unique_num(i)) then
@@ -630,6 +646,82 @@ module common_variables
          end do
          return
      end subroutine
+
+     !> Obtain info for DSM2 nodes 
+     !> This will count occurence of nodes in channel table. If count>2, a junction; if count==1, a boundary.
+     !> This updates common variables: n_junc, n_boun, junc, and bound.
+     subroutine get_dsm2_node_info(n_connection)
+         implicit none
+         integer, intent(in) :: n_connection
+         integer :: sorted_conns(n_connection)
+         integer, dimension(:), allocatable :: unique_num
+         integer, dimension(:), allocatable :: occurrence
+         integer :: num_nodes
+         integer :: i, j, k
+         integer :: nj, nb, nl
+          
+         call sort_arr(sorted_conns, conn(:)%dsm2_node_no, n_connection)
+         call unique_num_count(unique_num, occurrence, num_nodes, sorted_conns, n_connection)
+         n_node = num_nodes
+         allocate(dsm2_node(num_nodes))
+         dsm2_node(:)%n_conn_cell = 0 
+         dsm2_node(:)%boundary_no = 0 
+         dsm2_node(:)%junction_no = 0
+         dsm2_node(:)%reservoir_no = 0
+         dsm2_node(:)%n_qext = 0
+         dsm2_node(:)%nonsequential = 0         
+         dsm2_node(:)%no_fixup = 0
+         n_junc = 0
+         n_boun = 0
+         n_link = 0
+         do i = 1, num_nodes
+             dsm2_node(i)%dsm2_node_no = unique_num(i)
+             if (occurrence(i)==1) then 
+                 allocate(dsm2_node(i)%cell_no(1))
+                 allocate(dsm2_node(i)%up_down(1))   
+                 n_boun = n_boun + 1
+                 dsm2_node(i)%boundary_no = n_boun
+                 dsm2_node(i)%n_conn_cell = 1
+                 do j = 1, n_conn
+                     if (unique_num(i) .eq. conn(j)%dsm2_node_no) then
+                        dsm2_node(i)%cell_no(1) = conn(j)%cell_no
+                        dsm2_node(i)%up_down(1) = conn(j)%conn_up_down
+                     end if
+                 end do
+             elseif (occurrence(i)==2) then
+                 allocate(dsm2_node(i)%cell_no(2))
+                 allocate(dsm2_node(i)%up_down(2))
+                 dsm2_node(i)%n_conn_cell = 2
+                 nj = 0
+                 do j = 1, n_conn
+                     if (unique_num(i) .eq. conn(j)%dsm2_node_no) then
+                         nj = nj + 1
+                         dsm2_node(i)%cell_no(nj) = conn(j)%cell_no
+                         dsm2_node(i)%up_down(nj) = conn(j)%conn_up_down
+                     end if
+                 end do
+                 if ( abs(dsm2_node(i)%cell_no(1)-dsm2_node(i)%cell_no(2)) > 1) then
+                     dsm2_node(i)%nonsequential = 1
+                 end if
+             elseif (occurrence(i)>2) then 
+                 allocate(dsm2_node(i)%cell_no(occurrence(i)))
+                 allocate(dsm2_node(i)%up_down(occurrence(i)))             
+                 n_junc = n_junc + 1
+                 dsm2_node(i)%junction_no = n_junc
+                 dsm2_node(i)%n_conn_cell = occurrence(i)
+                 nj = 0
+                 do j = 1, n_conn
+                     if (unique_num(i) .eq. conn(j)%dsm2_node_no) then
+                         nj = nj + 1
+                         dsm2_node(i)%cell_no(nj) = conn(j)%cell_no
+                         dsm2_node(i)%up_down(nj) = conn(j)%conn_up_down
+                     end if
+                 end do
+             end if
+         end do   
+         return
+     end subroutine
+
 
      !> Look up cell info around nodes connected to reservoir
      subroutine lookup_resv_cells()

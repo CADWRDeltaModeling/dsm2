@@ -109,6 +109,7 @@ module ut_hydro_data_tide
         call assertEquals (dble(segm(4)%down_comppt), dble(6), weakest_eps, "problem in assigning segment for down_comppt")  
         call assertEquals (dble(segm(4)%length), dble(7000), weakest_eps, "problem in assigning segment for length")  
        
+        call get_dsm2_node_info(n_conn)
         ! 
         call lookup_resv_cells
        

@@ -44,7 +44,7 @@ module hydro_data_tidefile
         call assign_segment   
         call allocate_cell_property
         call assign_chan_comppt
-        call get_dsm2_node_info        
+        call get_dsm2_node_info0      
     end subroutine     
     
     !> This subroutine is used to read DSM2 hydro tidefile,

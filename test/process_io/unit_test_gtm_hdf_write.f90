@@ -46,13 +46,17 @@ module ut_gtm_hdf_write
         
         n_chan = 3
         n_segm = 4
+        n_node = 4
         n_comp = 7
         n_resv = 0
         n_qext = 0
+        n_conn = 6
+        n_boun = 2
         call allocate_channel_property
         call allocate_reservoir_property
         call allocate_qext_property
         call allocate_comp_pt_property
+        allocate(bound(n_boun))
         chan_geom(1)%chan_no = 1
         chan_geom(1)%up_node = 51
         chan_geom(1)%down_node = 52
@@ -92,13 +96,14 @@ module ut_gtm_hdf_write
         
         call assign_chan_comppt        
         call assign_segment
-        call get_dsm2_node_info
+        call get_dsm2_node_info(n_conn)
         call allocate_cell_property
         
         call write_segment_info(geom_id, n_segm, segm)
         call write_channel_info(geom_id, n_chan, chan_geom)
-        call write_junction_info(geom_id, n_junc, junc)
-        call write_boundary_info(geom_id, n_boun, bound)
+        call write_dsm2_node_info(geom_id)
+        !call write_junction_info(geom_id, n_junc, junc)
+        !call write_boundary_info(geom_id, n_boun, bound)
         call write_connection_info(geom_id, n_conn, conn)
         call h5gclose_f(geom_id, error)
         call h5fclose_f(file_id, error)

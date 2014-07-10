@@ -348,6 +348,199 @@ module gtm_hdf_write
     end subroutine
 
 
+    !> Write out DSM2 node info into GTM tidefile
+    subroutine write_dsm2_node_info(geom_id)
+        use hdf5
+        use common_variables, only: n_node, dsm2_node
+        implicit none
+        integer(HID_T), intent(in) :: geom_id            !< hdf5 dataset identifier
+        integer(HID_T) :: dset_id                        ! dataset identifier
+        integer(HID_T) :: dspace_id                      ! dataspace identifier
+        integer(HID_T) :: dtype_id                       ! compound datatype identifier
+        integer(HID_T) :: dt_id, dt1_id, dt2_id, dt3_id  ! memory datatype identifier
+        integer(HID_T) :: dt4_id, dt5_id, dt6_id, dt7_id ! memory datatype identifier     
+        integer(HID_T) :: dt8_id, dt9_id, dt10_id        ! memory datatype identifier 
+        integer(HID_T) :: plist_id                       ! dataset transfer property
+        integer(SIZE_T) :: typesize
+        integer(SIZE_T) :: type_size
+        integer(SIZE_T) :: type_sizei
+        integer(SIZE_T) :: type_sized
+        integer(SIZE_T) :: offset
+        integer(HSIZE_T), dimension(1) :: data_dims                     
+        integer(HSIZE_T), dimension(1) :: dims 
+        integer, allocatable :: dsm2_node_no(:)
+        integer, allocatable :: n_conn_cell(:)
+        integer, allocatable :: cell_no(:)
+        integer, allocatable :: up_down(:)
+        integer, allocatable :: boundary_no(:)
+        integer, allocatable :: junction_no(:)
+        integer, allocatable :: reservoir_no(:)
+        integer, allocatable :: n_qext(:)
+        integer, allocatable :: nonsequential(:)
+        integer, allocatable :: no_fixup(:)   
+        integer :: rank = 1
+        integer :: i, j, k, n, error
+        
+        if (n_node .eq. LARGEINT) then
+            write(*,*) "Number of DSM2 Node = 0"
+            return
+        end if                  
+  
+        n = 0
+        do i = 1, n_node
+            n = n + dsm2_node(i)%n_conn_cell
+        end do
+
+        allocate(dsm2_node_no(n))
+        allocate(n_conn_cell(n))
+        allocate(cell_no(n))
+        allocate(up_down(n))
+        allocate(boundary_no(n))
+        allocate(junction_no(n))
+        allocate(reservoir_no(n))
+        allocate(n_qext(n))
+        allocate(nonsequential(n))
+        allocate(no_fixup(n)) 
+
+        dims = (/n/) 
+        data_dims(1) = n
+       
+        call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, error)
+        call h5pset_preserve_f(plist_id, .TRUE., error)
+               
+        call h5screate_simple_f(rank, dims, dspace_id, error)
+        
+        call h5tcopy_f(H5T_NATIVE_INTEGER, dt_id, error)
+        typesize = 4
+        call h5tset_size_f(dt_id, typesize, error)
+        call h5tget_size_f(dt_id, type_sizei, error)
+        type_size = 10*type_sizei
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_size, dtype_id, error)
+        
+        offset = 0
+        call h5tinsert_f(dtype_id, "dsm2_node_no", offset, dt_id, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "n_conn_cell", offset, H5T_NATIVE_INTEGER, error)
+        
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "cell_no", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "up_down", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "boundary_no", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "junction_no", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "reservoir_no", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "n_qext", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "nonsequential", offset, H5T_NATIVE_INTEGER, error)
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "no_fixup", offset, H5T_NATIVE_INTEGER, error)
+                                                       
+        call h5dcreate_f(geom_id, "dsm2_node", dtype_id, dspace_id, dset_id, error)        
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt1_id, error)
+        offset = 0
+        call h5tinsert_f(dt1_id, "dsm2_node_no", offset, dt_id, error)
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt2_id, error)
+        offset = 0
+        call h5tinsert_f(dt2_id, "n_conn_cell", offset, H5T_NATIVE_INTEGER, error)         
+ 
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt3_id, error)
+        offset = 0
+        call h5tinsert_f(dt3_id, "cell_no", offset, H5T_NATIVE_INTEGER, error)  
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt4_id, error)
+        offset = 0
+        call h5tinsert_f(dt4_id, "up_down", offset, H5T_NATIVE_INTEGER, error)         
+ 
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt5_id, error)
+        offset = 0
+        call h5tinsert_f(dt5_id, "boundary_no", offset, H5T_NATIVE_INTEGER, error)  
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt6_id, error)
+        offset = 0
+        call h5tinsert_f(dt6_id, "junction_no", offset, H5T_NATIVE_INTEGER, error)  
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt7_id, error)
+        offset = 0
+        call h5tinsert_f(dt7_id, "reservoir_no", offset, H5T_NATIVE_INTEGER, error)  
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt8_id, error)
+        offset = 0
+        call h5tinsert_f(dt8_id, "n_qext", offset, H5T_NATIVE_INTEGER, error)  
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt9_id, error)
+        offset = 0
+        call h5tinsert_f(dt9_id, "nonsequential", offset, H5T_NATIVE_INTEGER, error)  
+                                
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt10_id, error)
+        offset = 0
+        call h5tinsert_f(dt10_id, "no_fixup", offset, H5T_NATIVE_INTEGER, error) 
+       
+        k = 0
+        do i = 1, n_node
+            do j = 1, dsm2_node(i)%n_conn_cell
+                k = k + 1
+                dsm2_node_no(k) = dsm2_node(i)%dsm2_node_no
+                n_conn_cell(k) = dsm2_node(i)%n_conn_cell
+                cell_no(k) = dsm2_node(i)%cell_no(j)
+                up_down(k) = dsm2_node(i)%up_down(j)
+                boundary_no(k) = dsm2_node(i)%boundary_no
+                junction_no(k) = dsm2_node(i)%junction_no
+                reservoir_no(k) = dsm2_node(i)%reservoir_no
+                n_qext(k) = dsm2_node(i)%n_qext
+                nonsequential(k) = dsm2_node(i)%nonsequential
+                no_fixup(k) = dsm2_node(i)%no_fixup                                                                                  
+            end do
+        end do
+                
+        call h5dwrite_f(dset_id, dt1_id, dsm2_node_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt2_id, n_conn_cell, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt3_id, cell_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt4_id, up_down, data_dims, error, xfer_prp = plist_id)                        
+        call h5dwrite_f(dset_id, dt5_id, boundary_no, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt6_id, junction_no, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt7_id, reservoir_no, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt8_id, n_qext, data_dims, error, xfer_prp = plist_id) 
+        call h5dwrite_f(dset_id, dt9_id, nonsequential, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt10_id, no_fixup, data_dims, error, xfer_prp = plist_id)                 
+
+        call h5dclose_f(dset_id, error)
+        call h5sclose_f(dspace_id, error)
+        call h5tclose_f(dtype_id, error)
+        call h5tclose_f(dt1_id, error)
+        call h5tclose_f(dt2_id, error)
+        call h5tclose_f(dt3_id, error)
+        call h5tclose_f(dt4_id, error)
+        call h5tclose_f(dt5_id, error)
+        call h5tclose_f(dt6_id, error)
+        call h5tclose_f(dt7_id, error)
+        call h5tclose_f(dt8_id, error)
+        call h5tclose_f(dt9_id, error)
+        call h5tclose_f(dt10_id, error)
+        call h5tclose_f(dt_id, error)        
+        deallocate(dsm2_node_no, n_conn_cell)
+        deallocate(cell_no, up_down)
+        deallocate(boundary_no, junction_no)
+        deallocate(reservoir_no, n_qext)
+        deallocate(nonsequential, no_fixup)     
+        return
+    end subroutine    
+
+
     !> Write out junction info into GTM tidefile
     subroutine write_junction_info(geom_id, num_junction, junction)
         use hdf5
@@ -464,7 +657,6 @@ module gtm_hdf_write
         deallocate(cell_no, up_down)
         return
     end subroutine    
-
 
     !> Write out boundary info into GTM tidefile
     subroutine write_boundary_info(geom_id, num_boundary, boundary)
