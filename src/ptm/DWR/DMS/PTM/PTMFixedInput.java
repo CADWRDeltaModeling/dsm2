@@ -373,7 +373,7 @@ public class PTMFixedInput{
     int [] nInjected = pFD.getNumberInjectedArray();
     int [] startJulmin = pFD.getInjectionStartJulminArray();
     int [] lengthJulmin = pFD.getInjectionLengthJulminArray();
-  
+    
     info.setVariables(nInjections, nNode, nInjected, startJulmin, lengthJulmin);
   
     boolean qBinary = pFD.getBinaryExistance();

@@ -407,12 +407,13 @@ public class PTMEnv{
       int injectionNode = pInfo.getLocationOfParticlesInjected(injNum);
       long injectionLength = pInfo.getInjectionLengthJulmin(injNum);
       long numberOfInjectedParticles = pInfo.getNumberOfParticlesInjected(injNum);
+      int start = pInfo.getInjectionStartJulmin(injNum);
       // each injection row in PTM input
       for(long injection=0;
   	      injection < numberOfInjectedParticles;
   	      injection++){
     	// force to its integer time
-        int insertionTime = pInfo.getInjectionStartJulmin(injNum) + (int)
+        int insertionTime = start + (int)
   	                        ((injectionLength*injection)/numberOfInjectedParticles);
         Node nd = getNode(injectionNode);
         particlePtrArray[pNum].setInsertionInfo(insertionTime, nd);

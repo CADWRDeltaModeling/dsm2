@@ -4,6 +4,9 @@
 package DWR.DMS.PTM;
 import java.io.BufferedReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Calendar;
 /**
  * @author xwang
  *
@@ -14,13 +17,65 @@ public class PTMBehaviorInputs {
 	private SwimInputs _swimInputs=null;
 	private RouteInputs _routeInputs=null;
 	private boolean _barrierInstalled = true;
+	// Map<NodeId, FishReleaseGroup>
+	private Map<Integer, FishReleaseGroup> _fishGroups = null; 
 	
-	private void extractFishType(ArrayList<String> fishTypeText){
-		if (fishTypeText==null || fishTypeText.size()==0) 
-				PTMUtil.systemExit("No Fish Type found, exit from PTMBehaviorInput line 61");
-		_fishType = fishTypeText.get(0).trim();		 	
+	private void extractReleaseInputs(ArrayList<String> releaseInputText){
+		if (releaseInputText.size()< 7)
+			PTMUtil.systemExit("Errors in Fish_Release_Inputs, system exit.");
+		int numOfGroups = PTMUtil.getInt(releaseInputText.get(0));
+		for (int i = 1; i< numOfGroups + 1; i++){
+			ArrayList<String> groupText = PTMUtil.getInputBlock(releaseInputText, "GROUP_"+i, "END_GROUP_"+i);
+			if (groupText.size()<4)
+				PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+" system exit.");
+			//TODO clean up
+			/*
+			String [] title = groupText.get(0).trim().split("[,\\s\\t]+");
+			String shouldBe[] = {"NODEID", "RELEASE_START_DATE", "RELEASE_START_TIME", "TOTAL_RELEASE_HOURS", "NUMBER_OF_FISH"};
+			if (!PTMUtil.check(title, shouldBe))
+				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong:"+releaseInputText.get(0));
+			else{
+				ArrayList<String> groupInfo = PTMUtil.getInts(groupText.get(1));
+				FishReleaseGroup group = new FishReleaseGroup(groupInfo.get(0), );
+			*/
+			Integer nodeId = PTMUtil.getInt(groupText.get(0));
+			String [] title = groupText.get(1).trim().split("[,\\s\\t]+");
+			String shouldBe[] = {"RELEASE_DATE", "RELEASE_TIME", "FISH_NUMBER", "RELEASE_STYLE"};
+			if (!PTMUtil.check(title, shouldBe))
+				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong while reading particle release info: "+groupText.get(1));
+			else{
+				for (String rline: groupText.subList(2, groupText.size())){
+					String [] oneRelease = rline.trim().split("[,\\s\\t]+");
+					
+					if (oneRelease.length<4)
+						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
+					
+					Calendar releaseTime = PTMUtil.getDateTime(oneRelease[0], oneRelease[1]);
+					int fishNumber = Integer.parseInt(oneRelease[2].trim());
+					
+					int releaseStyle = FishRelease.RANDOM;
+					if(oneRelease[3].equalsIgnoreCase("CENTER"))
+						releaseStyle = FishRelease.CENTER;
+					else if (oneRelease[3].equalsIgnoreCase("RANDOM"))
+						releaseStyle = FishRelease.RANDOM;
+					else
+						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
+					
+					if (_fishGroups == null)
+						_fishGroups = new HashMap<Integer, FishReleaseGroup>();
+					
+					if (_fishGroups.get(nodeId) == null){
+						ArrayList<FishRelease> frList = new ArrayList<FishRelease>();
+						frList.add(new FishRelease(releaseTime, fishNumber, releaseStyle));
+						_fishGroups.put(nodeId, new FishReleaseGroup(nodeId, frList));
+					}
+					else
+						_fishGroups.get(nodeId).addFishRelease(new FishRelease(releaseTime, fishNumber, releaseStyle));
+				}
+			}
+		}
+			
 	}
-	
 	
 	/**
 	 * 
@@ -32,8 +87,17 @@ public class PTMBehaviorInputs {
 		if (inputFileName == null || inputFileName.length() == 0)
 			PTMUtil.systemExit("Behavior input file not found, system exit");
 		BufferedReader inputText = PTMUtil.getInputBuffer(inputFileName);
+		// PTMUtil.getInputBlock(...) returns an ArrayList
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
-		extractFishType(fishTypeList);
+		if (fishTypeList==null || fishTypeList.size()==0) 
+			PTMUtil.systemExit("No Fish Type found, exit from PTMBehaviorInput line 61");
+		_fishType = fishTypeList.get(0).trim();		
+		
+		ArrayList<String> releaseInputs = PTMUtil.getInputBlock(inputText, "FISH_RELEASE_INPUTS", "END_FISH_RELEASE_INPUTS");
+		if (releaseInputs==null || releaseInputs.size()==0)
+			System.err.println("No fish release timeseries found!");
+		else
+			extractReleaseInputs(releaseInputs);
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
 		if (survivalInputText == null)
 			System.err.println("WARNING: no survival behavior input found!");
@@ -83,4 +147,5 @@ public class PTMBehaviorInputs {
 	public SwimInputs getSwimInputs(){ return _swimInputs;}
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}
 	public RouteInputs getRouteInputs(){ return _routeInputs;}
+	public Map<Integer, FishReleaseGroup> getFishReleaseGroups() {return _fishGroups;}
 }

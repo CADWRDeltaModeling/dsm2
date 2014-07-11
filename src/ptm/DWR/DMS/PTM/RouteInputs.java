@@ -45,7 +45,7 @@ public class RouteInputs {
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
 				System.err.println("WARNING: no specialBehavior defined or defined improperly in behavior inputs.");
 			else
-				setBehaviors(specialBehaviorInText);
+				setSpecialBehaviors(specialBehaviorInText);
 		}
 		
 		System.out.println("Created RouteHelper...");
@@ -128,16 +128,18 @@ public class RouteInputs {
 			PTMUtil.systemExit("the method to set Dicu filter for other species has been defined yet");
 	}
 	
-	private void setBehaviors(ArrayList<String> inText){
+	private void setSpecialBehaviors(ArrayList<String> inText){
 		String title = inText.get(0);
 		String [] tItems = title.trim().split("[,\\s\\t]+");
-		checkTitle(title);
-		if (tItems.length<3 || !tItems[2].equalsIgnoreCase("Class_Name"))
-			PTMUtil.systemExit("SYSTEM EXIT: error in input:"+inText.get(0));
+		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "CLASS_NAME"};
+		checkTitle(title, shouldBe);
+		//TODO clean up
+		//if (tItems.length<3 || !tItems[2].equalsIgnoreCase("Class_Name"))
+			//PTMUtil.systemExit("SYSTEM EXIT: error in input:"+inText.get(0));
 		for (String line: inText.subList(1, inText.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			if (items.length<3)
-				PTMUtil.systemExit("SYSTEM EXIT: error in input:"+line);
+				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:"+line);
 			int[] ids = getEnvIds(items); 
 			addRouteBehavior(ids, items[2]);
 		} 
@@ -178,10 +180,11 @@ public class RouteInputs {
 	}
 
 	private void setBarrier(ArrayList<String> barrierText){
+		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE"};
 		if( barrierText == null || barrierText.size() < 4)
 			PTMUtil.systemExit("SYSTEM EXIT: the non-physical-barrier operation info is not properly defined in behavior inputs.");
 		else{
-			checkTitle(barrierText.get(0));
+			checkTitle(barrierText.get(0), shouldBe);
 			String[] items = barrierText.get(1).trim().split("[,\\s\\t]+");
 			// convert to Internal Env Ids
 			int[] ids = getEnvIds(items);
@@ -198,9 +201,16 @@ public class RouteInputs {
 		  // and the data end before line: end_barrieri
 		  for (String inLine: barrierBlock.subList(3, barrierBlock.size())){
 			  String[] items = inLine.trim().split("[,\\s\\t]+");
-			  String[] dateStr = items[0].trim().split("[-/]+"), timeStr = items[1].trim().split("[:]+");
-			  int optemp = -99, year = -99, month = -99, day = -99, hour = -99, minute = -99;
+			  int optemp = -99;
 			  try{
+				  if (items.length < 3)
+					  throw new NumberFormatException();
+				  e_time = PTMUtil.getDateTime(items[0], items[1]);
+				  optemp = Integer.parseInt(items[2].trim());
+				  //TODO clean up
+				  /*
+				  String[] dateStr = items[0].trim().split("[-/]+"), timeStr = items[1].trim().split("[:]+");
+				  int optemp = -99, year = -99, month = -99, day = -99, hour = -99, minute = -99;
 				  if (items.length<3 || dateStr.length<3 || timeStr.length<2)
 					  throw new NumberFormatException();
 				  optemp = Integer.parseInt(items[2].trim());
@@ -211,16 +221,20 @@ public class RouteInputs {
 				  hour = Integer.parseInt(timeStr[0]);
 				  minute = Integer.parseInt(timeStr[1]);
 				  if(DEBUG) System.out.println("year:"+year+" month:"+month+" day:"+day+" hour:"+hour+" minute:"+minute+" op:"+optemp);
+				  */
 			  }catch (NumberFormatException e){
 					e.printStackTrace();
 					PTMUtil.systemExit("operation schecule line has wrong format: "+inLine);	
 			  }
-					  
+			  //TODO clean up
+			  /*		  
 			  e_time = Calendar.getInstance();
 			  e_time.clear();
 			  if (year == -99||month == -99|| day== -99|| hour== -99|| minute== -99||optemp == -99 )
 				  PTMUtil.systemExit("wrong format for barrier operation schedule data: "+inLine);
 			  e_time.set(year, month, day, hour, minute);
+			  */
+			  
 			  /*
 			   * schedule example:
 			   * Date		Time		On/Off
@@ -244,18 +258,18 @@ public class RouteInputs {
 	}
 	private void setFishScreens(ArrayList<String> inText){	
 		// first line is the title
-		checkTitle(inText.get(0));
+		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE"};
+		checkTitle(inText.get(0), shouldBe);
 		for (int i = 1; i<inText.size(); i++){
 			int[] ids = getEnvIds(inText.get(i).trim().split("[,\\s\\t]+")); 
 			_fishScreens.add(IntBuffer.wrap(ids));
 		}
 	}
 	
-	private void checkTitle(String inTitle){
+	private void checkTitle(String inTitle, String[] titleShouldBe){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
-		if (!title[0].equalsIgnoreCase("NODEID")
-				|| !title[1].equalsIgnoreCase("CHANNELID/RESERVOIRNAME/OBJ2OBJNAME"))
-			PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong:"+title[0] + " " +title[1]);
+		if (!PTMUtil.check(title, titleShouldBe))
+			PTMUtil.systemExit("SYSTEM EXIT while reading Route Input info: Title line is wrong:"+inTitle);
 	}
 	
 	private int[] getEnvIds(String[] items){

@@ -132,7 +132,7 @@ public final void setVariables(int nInjections,
     qualityNames = qNames;
   }
   /**
-   *  sets the particl type 
+   *  sets the particle type 
    */
   public final void setVariables(String particleType){
 	  _particleType = particleType;

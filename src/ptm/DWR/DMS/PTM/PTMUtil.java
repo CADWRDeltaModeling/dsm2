@@ -120,6 +120,8 @@ public class PTMUtil {
 		  }
 		  return list;
 	  }
+	
+	// only work with format name: number
 	public static int getInt(String numberLine){
 		int number = -999999;
 		try{
@@ -153,6 +155,37 @@ public class PTMUtil {
 			PTMUtil.systemExit("expect integers but get:"+numberLine);	
 		}
 		return ints;
+	}
+	public static boolean check(String[] listToCheck, String[] standards){
+		int length = listToCheck.length;
+		if (length != standards.length)
+			return false;
+		for (int i = 0; i < length; i++){
+			if (!listToCheck[i].equalsIgnoreCase(standards[i]))
+				return false;
+		}
+		return true;
+	}
+	public static Calendar getDateTime(String date, String time) throws NumberFormatException{
+		//TODO clean up DEBUG later
+		//boolean DEBUG = true;
+		Calendar dateTime = null;
+		String[] dateStr = date.trim().split("[-/]+"), timeStr = time.trim().split("[:]+");
+		int year = -99, month = -99, day = -99, hour = -99, minute = -99;
+		if (dateStr.length<3 || timeStr.length<2)
+			throw new NumberFormatException();
+		year = Integer.parseInt(dateStr[2]);
+		// java month start from 0
+		month = Integer.parseInt(dateStr[0])-1;
+		day = Integer.parseInt(dateStr[1]);
+		hour = Integer.parseInt(timeStr[0]);
+		minute = Integer.parseInt(timeStr[1]);
+		//if(DEBUG) System.out.println("year:"+year+" month:"+month+" day:"+day+" hour:"+hour+" minute:"+minute);
+				  
+		dateTime = Calendar.getInstance();
+		dateTime.clear();
+		dateTime.set(year, month, day, hour, minute);
+		return dateTime;
 	}
 	//TODO cleanup
 	/*
