@@ -38,12 +38,7 @@ module ut_hydro_data_interp
         !call test_interp_flow_area(6, 17, dble(3), dble(312.5))    ! inputs: nt, nx, dt, dx
         !call test_interp_flow_area(16, 33, dble(1), dble(156.25))  ! inputs: nt, nx, dt, dx
         call deallocate_virt_xsect
-        call deallocate_channel
-        call deallocate_reservoir
-        call deallocate_qext
-        call deallocate_comp_pt
-        call deallocate_segment
-        deallocate(conn)
+        call deallocate_geometry
         return
     end subroutine
    

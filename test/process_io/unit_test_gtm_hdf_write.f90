@@ -28,7 +28,7 @@ module ut_gtm_hdf_write
         implicit none
         integer(HID_T) :: file_id, geom_id
         character*128 :: hdf_name                   ! name of qual hdf5 file
-        integer :: error
+        integer :: err
         logical :: h5_file_exists
         
         hdf_name = "gtm_out_hdf_test_geom.h5"
@@ -40,8 +40,8 @@ module ut_gtm_hdf_write
  920         format(' File already exists... deleting existing file :: ', a )
 	    endif        
 	    
-        call h5open_f(error)
-	    call h5fcreate_f(hdf_name, H5F_ACC_TRUNC_F, file_id, error)
+        call h5open_f(err)
+	    call h5fcreate_f(hdf_name, H5F_ACC_TRUNC_F, file_id, err)
         call create_geometry_group(geom_id, file_id)
         
         n_chan = 3
@@ -56,7 +56,6 @@ module ut_gtm_hdf_write
         call allocate_reservoir_property
         call allocate_qext_property
         call allocate_comp_pt_property
-        allocate(bound(n_boun))
         chan_geom(1)%chan_no = 1
         chan_geom(1)%up_node = 51
         chan_geom(1)%down_node = 52
@@ -96,18 +95,15 @@ module ut_gtm_hdf_write
         
         call assign_chan_comppt        
         call assign_segment
-        call get_dsm2_node_info(n_conn)
-        call allocate_cell_property
+        call get_dsm2_node_info
         
         call write_segment_info(geom_id, n_segm, segm)
         call write_channel_info(geom_id, n_chan, chan_geom)
         call write_dsm2_node_info(geom_id)
-        !call write_junction_info(geom_id, n_junc, junc)
-        !call write_boundary_info(geom_id, n_boun, bound)
         call write_connection_info(geom_id, n_conn, conn)
-        call h5gclose_f(geom_id, error)
-        call h5fclose_f(file_id, error)
-        call h5close_f(error)   
+        call h5gclose_f(geom_id, err)
+        call h5fclose_f(file_id, err)
+        call h5close_f(err)   
         call deallocate_geometry
         return
     end subroutine    

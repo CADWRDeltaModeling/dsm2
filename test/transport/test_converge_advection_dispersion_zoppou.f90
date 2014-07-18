@@ -65,6 +65,7 @@ use test_convergence_transport
 use test_convergence_transport_uniform
 use single_channel_boundary
 use dispersion_coefficient
+use common_variables, only : dsm2_node_t
 
 implicit none
 logical :: verbose                                        !< The flag for showing the details on the screen
@@ -83,10 +84,12 @@ procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< P
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
 procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< Pointer for boundary diffusin matrix to be filled by driver
 
-integer, parameter :: n_bound = 2
-real(gtm_real) :: bound_val(n_bound,nconc)
+integer, parameter :: n_dsm2_node = 2
+type(dsm2_node_t) :: dsm2_node_type(2)
+real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
-bound_val = one
+call set_single_channel(dsm2_node_type, nx_base)
+node_conc_val = one
 
 acceptance_ratio = [four, four, four]
  
@@ -131,24 +134,25 @@ boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
 !> The general subroutine which gets the fine initial and reference values from the privious subroutine and 
 !> compute the norms, after each step coarsen the values and repeat computation.
 !> at the end  calculates the ratio of the norms and prints a log 
-call test_convergence(label,                  &
-                      zoppou_hydro ,          &
-                      single_channel_boundary_advective_flux,   &
-                      boundary_diffusion_flux,&
-                      boundary_diffusion_matrix,&
-                      no_source,              &
-                      test_domain_length,     &
-                      total_time,             &
-                      start_time,             &
-                      fine_initial_condition, &
-                      fine_solution,          &            
-                      nstep_base,             &
-                      nx_base,                &
-                      nconc,                  &
-                      n_bound,                &
-                      bound_val,              &                      
-                      verbose,                &
-                      .true.,                 &
+call test_convergence(label,                                  &
+                      zoppou_hydro ,                          &
+                      single_channel_boundary_advective_flux, &
+                      boundary_diffusion_flux,                &
+                      boundary_diffusion_matrix,              &
+                      no_source,                              &
+                      test_domain_length,                     &
+                      total_time,                             &
+                      start_time,                             &
+                      fine_initial_condition,                 &
+                      fine_solution,                          &            
+                      nstep_base,                             &
+                      nx_base,                                &
+                      nconc,                                  &
+                      n_dsm2_node,                            &
+                      dsm2_node_type,                         &
+                      node_conc_val,                          &                    
+                      verbose,                                &
+                      .true.,                                 &
                       acceptance_ratio)
                       
 return                      
@@ -389,6 +393,7 @@ use test_convergence_transport
 use test_convergence_transport_uniform
 use single_channel_boundary
 use dispersion_coefficient
+use common_variables, only : dsm2_node_t
 
 implicit none
 logical :: verbose                                        !< The flag for showing the details on the screen
@@ -406,10 +411,12 @@ procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< P
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
 procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< Pointer for boundary diffusin matrix to be filled by driver
 
-integer, parameter :: n_bound = 2
-real(gtm_real) :: bound_val(n_bound)
+integer, parameter :: n_dsm2_node = 2
+type(dsm2_node_t) :: dsm2_node_type(2)
+real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
-bound_val = one
+call set_single_channel(dsm2_node_type, nx_base)
+node_conc_val = one
  
 ! this flow generator is mass conservative
 ! todo: use test_convergence_transport_uniform as a model. You will be using dirichlet
@@ -454,24 +461,25 @@ boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
 !> The general subroutine which gets the fine initial and reference values from the privious subroutine and 
 !> compute the norms, after each step coarsen the values and repeat computation.
 !> at the end  calculates the ratio of the norms and prints a log 
-call test_convergence(label,                    &
-                      time_hydro ,              &
-                      single_channel_boundary_advective_flux,   &
-                      boundary_diffusion_flux,  &
-                      boundary_diffusion_matrix,&
-                      no_source,                &
-                      test_domain_length,       &
-                      total_time,               &
-                      start_time,               &
-                      fine_initial_condition,   &
-                      fine_solution,            &            
-                      nstep_base,               &
-                      nx_base,                  &
-                      nconc,                    &
-                      n_bound,                  &
-                      bound_val,                &                      
-                      verbose,                  &
-                      .true.,                   &
+call test_convergence(label,                                  &
+                      time_hydro ,                            &
+                      single_channel_boundary_advective_flux, &
+                      boundary_diffusion_flux,                &
+                      boundary_diffusion_matrix,              &
+                      no_source,                              &
+                      test_domain_length,                     &
+                      total_time,                             &
+                      start_time,                             &
+                      fine_initial_condition,                 &
+                      fine_solution,                          &            
+                      nstep_base,                             &
+                      nx_base,                                &
+                      nconc,                                  &
+                      n_dsm2_node,                            &
+                      dsm2_node_type,                         &
+                      node_conc_val,                          &                     
+                      verbose,                                &
+                      .true.,                                 &
                       acceptance_ratio)
                       
 return                      

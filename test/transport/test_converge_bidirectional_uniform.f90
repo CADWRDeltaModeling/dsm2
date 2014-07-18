@@ -94,7 +94,8 @@ module test_converge_bidirectional_uniform
         use gtm_logging
         use hydro_uniform_flow
         use dispersion_coefficient
-
+        use common_variables, only : dsm2_node_t
+        
         implicit none
 
         logical, intent(in) :: verbose                   !< Switch for detailed show of the results
@@ -132,11 +133,13 @@ module test_converge_bidirectional_uniform
         logical :: details = .false.                                                 !< Flag switch todo: ?
         logical :: remote  = .false.                                                 !< Flag Switch todo: ?
 
-        integer, parameter :: n_bound = 2
-        real(gtm_real) :: bound_val(n_bound,nconc)
-
-        bound_val(1,:) = one
-        bound_val(2,:) = zero
+        integer, parameter :: n_dsm2_node = 2
+        type(dsm2_node_t) :: dsm2_node_type(2)
+        real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
+        
+        call set_single_channel(dsm2_node_type, nx_base)
+        node_conc_val(1,:) = one
+        node_conc_val(2,:) = zero
 
         acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
 
@@ -220,24 +223,25 @@ module test_converge_bidirectional_uniform
                                             domain_length,            &
                                             nx_base,                  &
                                             nconc)
-        call test_convergence(label,                                     &
-                              uniform_hydro,                             &
-                              single_channel_boundary_advective_flux,    &
-                              bc_diff_flux,                              &
-                              bc_diff_matrix,                            &
-                              test_source,                               &
-                              domain_length,                             &
-                              total_time,                                &
-                              start_time,                                &
-                              fine_initial_conc,                         &
-                              fine_solution,                             &            
-                              nstep_base,                                &
-                              nx_base,                                   &
-                              nconc,                                     &
-                              n_bound,                                   &
-                              bound_val,                                 &
-                              verbose,                                   &
-                              details,                                   &
+        call test_convergence(label,                                  &
+                              uniform_hydro,                          &
+                              single_channel_boundary_advective_flux, &
+                              bc_diff_flux,                           &
+                              bc_diff_matrix,                         &
+                              test_source,                            &
+                              domain_length,                          &
+                              total_time,                             &
+                              start_time,                             &
+                              fine_initial_conc,                      &
+                              fine_solution,                          &            
+                              nstep_base,                             &
+                              nx_base,                                &
+                              nconc,                                  &
+                              n_dsm2_node,                            &
+                              dsm2_node_type,                         &
+                              node_conc_val,                          &
+                              verbose,                                &
+                              details,                                &
                               acceptance_ratio)
                         
         deallocate(fine_initial_conc,fine_solution)

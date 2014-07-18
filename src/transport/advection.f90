@@ -40,23 +40,23 @@ module advection
     !>   - Compute conservative divergence
     !>   - Apply divergence in conservative_update along with Heun's method for sources.
     !>   Note that all these steps are operations on entire arrays of values -- this keeps things efficient
-    subroutine advect(mass,       &
-                      mass_prev,  &
-                      flow_prev,  &      
-                      flow_lo,    &
-                      flow_hi,    &
-                      area,       &
-                      area_prev,  &
-                      area_lo,    &
-                      area_hi,    &
-                      ncell,      &
-                      nvar,       &
-                      time,       &
-                      dt,         &
-                      dx,         &
-                      n_bound,    &
-                      boundary,   &
-                      bound_val,  &
+    subroutine advect(mass,           &
+                      mass_prev,      &
+                      flow_prev,      &      
+                      flow_lo,        &
+                      flow_hi,        &
+                      area,           &
+                      area_prev,      & 
+                      area_lo,        &
+                      area_hi,        &
+                      ncell,          &
+                      nvar,           &
+                      time,           &
+                      dt,             &
+                      dx,             &
+                      n_dsm2_node,    &
+                      dsm2_node_type, &
+                      node_conc,      &
                       use_limiter)  
    
         use gtm_precision
@@ -64,14 +64,13 @@ module advection
         use gradient
         use source_sink
         use boundary_advection
-        use common_variables, only: boundary_t
+        use common_variables, only: dsm2_node_t
 
         implicit none
  
         !--- args
         integer, intent(in) :: ncell                         !< Number of cells
         integer, intent(in) :: nvar                          !< Number of variables
-        integer, intent(in) :: n_bound                       !< number of boundaries
 
         real(gtm_real),intent(out) :: mass(ncell,nvar)       !< mass at new time
         real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)  !< mass at old time
@@ -80,8 +79,6 @@ module advection
         real(gtm_real),intent(in)  :: flow_hi(ncell)         !< flow on hi side of cells centered in time
         real(gtm_real),intent(in)  :: area_prev(ncell)       !< cell-centered area at old time. not used in algorithm?
         real(gtm_real),intent(in)  :: area(ncell)            !< cell-centered area at new time. not used in algorithm?
-        type(boundary_t), intent(in) :: boundary(n_bound)    !< boundary info
-        real(gtm_real),intent(in)  :: bound_val(n_bound,nvar)!< boundary concentrations
 
         ! todo: area_lo is time centered here? I think currently it is correct for advection only.
         !       however, area_lo is also needed for diffusion at old time and new time.
@@ -94,7 +91,10 @@ module advection
         real(gtm_real),intent(in)  :: time                   !< new time
         real(gtm_real),intent(in)  :: dt                     !< current time step from old time to new time
         real(gtm_real),intent(in)  :: dx(ncell)              !< spatial step
-        logical,intent(in),optional :: use_limiter           !< whether to use slope limiter
+        integer, intent(in) :: n_dsm2_node                            !< number of DSM2 nodes
+        type(dsm2_node_t), intent(in) :: dsm2_node_type(n_dsm2_node)  !< DSM2 node properties
+        real(gtm_real),intent(in)  :: node_conc(n_dsm2_node,nvar)     !< node concentration
+        logical,intent(in),optional :: use_limiter                    !< whether to use slope limiter
 
         !-----locals
         real(gtm_real) :: source_prev(ncell,nvar) !< cell centered source at old time
@@ -146,22 +146,9 @@ module advection
                                 grad_center,  &
                                 conc_prev,    &
                                 dx,           &
-                                bound_val,    &
                                 ncell,        &
                                 nvar,         &
-                                use_limiter)
-        !call adjust_differences_flow(grad,         &
-        !                        grad_lo,      &  
-        !                        grad_hi,      &
-        !                        grad_center,  &
-        !                        flow_lo,      &
-        !                        flow_hi,      &
-        !                        conc_prev,    &
-        !                        dx,           &
-        !                        bound_val,    &
-        !                        ncell,        &
-        !                        nvar,         &
-        !                        use_limiter)                                
+                                use_limiter)                          
                                 
         ! Compute sources and sinks for each constituent
         call compute_source(source_prev, & 
@@ -171,6 +158,7 @@ module advection
                             ncell,       &
                             nvar,        &
                             old_time)
+                            
         ! Extrapolate primitive data from cell center at the old time
         call extrapolate(conc_lo,     &
                          conc_hi,     & 
@@ -196,18 +184,30 @@ module advection
                           ncell,      &
                           nvar)
 
-        ! Replace fluxes for special cases having to do with boundaries, network and structures
-        ! Imposes the advection boundary flux
-        if (n_bound .ne. LARGEINT) then 
-            do i = 1, n_bound
-                icell = boundary(i)%cell_no
-                if (boundary(i)%up_down .eq. 1) then      ! upstream boundary
-                    conc_lo(icell,:) = bound_val(i,:)
+        do i = 1, n_dsm2_node
+            if (dsm2_node_type(i)%boundary_no .ne. 0) then
+                icell = dsm2_node_type(i)%cell_no(1)
+                if (dsm2_node_type(i)%up_down(1) .eq. 1) then     ! upstream boundary
+                    conc_lo(icell,:) = node_conc(dsm2_node_type(i)%ts_index,:)
                 else
-                    conc_hi(icell,:) = bound_val(i,:)
-                end if
-            end do                          
-        end if
+                    conc_hi(icell,:) = node_conc(dsm2_node_type(i)%ts_index,:)
+                end if    
+            end if
+        end do
+
+        !! Replace fluxes for special cases having to do with boundaries, network and structures
+        !! Imposes the advection boundary flux
+        !if (n_bound .ne. LARGEINT) then 
+        !    do i = 1, n_bound
+        !        icell = boundary(i)%cell_no
+        !        if (boundary(i)%up_down .eq. 1) then      ! upstream boundary
+        !            conc_lo(icell,:) = bound_val(i,:)
+        !        else
+        !            conc_hi(icell,:) = bound_val(i,:)
+        !        end if
+        !    end do                          
+        !end if
+        
                
         if (associated(advection_boundary_flux))then
             call advection_boundary_flux(flux_lo,     &

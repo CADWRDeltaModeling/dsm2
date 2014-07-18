@@ -144,7 +144,7 @@ module boundary_advection
                                        dx)
         use gtm_precision
         use error_handling
-        use common_variables, only: n_boun, bound, n_junc, junc, n_link, link
+        use common_variables, only: n_node, dsm2_node
         implicit none
         !--- args          
         integer,intent(in)  :: ncell                            !< Number of cells
@@ -163,29 +163,27 @@ module boundary_advection
         real(gtm_real) :: conc_tmp(nvar)
         integer :: i, j, icell   
       
-        if (n_boun .ne. LARGEINT) then 
-            do i = 1, n_boun
-                icell = bound(i)%cell_no
-                if (bound(i)%up_down .eq. 1) then      ! upstream boundary
+      
+        do i = 1, n_node
+            if (dsm2_node(i)%boundary_no > 0) then                    ! is a boundary
+                icell = dsm2_node(i)%cell_no(1)
+                if ( dsm2_node(i)%up_down(1) .eq. 1) then             ! upstream boundary
                     flux_lo(icell,:) = conc_lo(icell,:)*flow_lo(icell)
                 else
                     flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)
                 end if
-            end do            
-        end if
-       
-        if (n_junc .ne. LARGEINT) then
-            do i = 1, n_junc
-                ! calculate the average concentration into a junction
+            end if
+         
+            if (dsm2_node(i)%junction_no > 0) then
                 flow_tmp = zero 
                 mass_tmp(:) = zero
                 conc_tmp(:) = zero
-                do j = 1, junc(i)%n_conn_cells
-                    icell = junc(i)%cell_no(j)
-                    if (junc(i)%up_down(j)==0 .and. flow_hi(icell)>zero) then        !cell at updstream of junction
+                do j = 1, dsm2_node(i)%n_conn_cell
+                    icell = dsm2_node(i)%cell_no(j)
+                    if (dsm2_node(i)%up_down(j)==0 .and. flow_hi(icell)>zero) then        !cell at updstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
                         flow_tmp = flow_tmp + flow_hi(icell)
-                    elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then    !cell at downdstream of junction
+                    elseif (dsm2_node(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then    !cell at downdstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
                     endif                   
@@ -197,35 +195,29 @@ module boundary_advection
                     conc_tmp(:) = mass_tmp(:)/flow_tmp
                 end if
                 ! assign average concentration to downstream cell faces
-                do j = 1, junc(i)%n_conn_cells
-                    icell = junc(i)%cell_no(j)
-                    if (junc(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of junction
+                do j = 1, dsm2_node(i)%n_conn_cell
+                    icell = dsm2_node(i)%cell_no(j)
+                    if (dsm2_node(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of junction
                         flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                                            
-                    elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
+                    elseif (dsm2_node(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
-                    elseif (junc(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then
+                    elseif (dsm2_node(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then
                         flux_lo(icell,:) = conc_hi(icell,:)*flow_hi(icell)                        
                     endif                
-                end do   
-            end do
-        end if           
-
-        if (n_link .ne. LARGEINT) then  ! without this fixup, the error can be seen at DSM2 node 239
-            do i = 1, n_link
-                if (abs(link(i)%cell_no(1)-link(i)%cell_no(2)).gt.1) then
-                ! assign average concentration to downstream cell faces
-                do j = 1, 2
-                    icell = link(i)%cell_no(j)
-                    if (link(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then !cell at updstream of link
+                end do              
+            end if
+       
+            if (dsm2_node(i)%nonsequential .eq. 1) then  ! without this fixup, the error can be seen at DSM2 node 239
+                do j = 1, 2                              ! assign lo/hi face of the same cell to avoid discontinuity
+                    icell = dsm2_node(i)%cell_no(j)
+                    if (dsm2_node(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of link
                         flux_hi(icell,:) = conc_lo(icell,:)*flow_hi(icell)
-                    elseif (link(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of link
+                    elseif (dsm2_node(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of link
                         flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)
                     endif                
                 end do
-                end if   
-            end do
-        end if 
-                    
+            end if   
+        end do        
         return
     end subroutine  
   

@@ -119,6 +119,7 @@ module test_convergence_transport_uniform_vary_dx
         use gtm_logging
         use hydro_uniform_flow
         use dispersion_coefficient
+        use common_variables, only : dsm2_node_t
         
         implicit none
 
@@ -157,10 +158,12 @@ module test_convergence_transport_uniform_vary_dx
         logical :: details = .false.                                                !< Flag switch todo: ?
         logical :: remote  = .false.                                                !< Flag Switch todo: ?
 
-        integer, parameter :: n_bound = 2
-        real(gtm_real) :: bound_val(n_bound,nconc)
-
-        bound_val = one
+        integer, parameter :: n_dsm2_node = 2
+        type(dsm2_node_t) :: dsm2_node_type(2)
+        real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
+        
+        call set_single_channel(dsm2_node_type, nx_base)
+        node_conc_val = one
         
         acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
 
@@ -259,8 +262,9 @@ module test_convergence_transport_uniform_vary_dx
                               nstep_base,                                &
                               nx_base,                                   &
                               nconc,                                     &
-                              n_bound,                                   &
-                              bound_val,                                 &
+                              n_dsm2_node,                               &
+                              dsm2_node_type,                            &
+                              node_conc_val,                             &
                               verbose,                                   &
                               details,                                   &
                               acceptance_ratio)

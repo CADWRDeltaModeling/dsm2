@@ -37,14 +37,13 @@ module hydro_data_tidefile
         implicit none                      
         call get_hydro_attr
         call read_channel_tbl
+        call read_comp_tbl
+        call assign_chan_comppt
+        call assign_segment   
         call read_reservoir_tbl
         call read_qext_tbl
-        call read_comp_tbl
-        call read_xsect_tbl  
-        call assign_segment   
-        call allocate_cell_property
-        call assign_chan_comppt
-        call get_dsm2_node_info0      
+        call read_xsect_tbl    
+        call get_dsm2_node_info
     end subroutine     
     
     !> This subroutine is used to read DSM2 hydro tidefile,

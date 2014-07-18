@@ -381,7 +381,7 @@ module hdf_util
            call h5tget_size_f(dt_id, type_size, error)
            
             do i = 1,n_resv
-               resv_geom(i)%resv_index = i
+               resv_geom(i)%resv_no = i
            end do     
            
            offset = 0
@@ -434,20 +434,20 @@ module hdf_util
            call h5dread_f(dset_id, dt7_id, node_type, data_dims, error)
            
            do i = 1, n_resv
-               resv_geom(i)%n_res_conn = 0
+               resv_geom(i)%n_resv_conn = 0
                do j = 1, n_resv_conn
                    if (resv_index(j)==i) then
-                       resv_geom(i)%n_res_conn = resv_geom(i)%n_res_conn + 1
+                       resv_geom(i)%n_resv_conn = resv_geom(i)%n_resv_conn + 1
                    end if
                end do
-               allocate(resv_geom(i)%int_node_no(resv_geom(i)%n_res_conn))
-               allocate(resv_geom(i)%ext_node_no(resv_geom(i)%n_res_conn))
-               allocate(resv_geom(i)%is_gated(resv_geom(i)%n_res_conn))
+               allocate(resv_geom(i)%int_node_no(resv_geom(i)%n_resv_conn))
+               allocate(resv_geom(i)%ext_node_no(resv_geom(i)%n_resv_conn))
+               allocate(resv_geom(i)%is_gated(resv_geom(i)%n_resv_conn))
            end do
            
            k = 0
            do i = 1, n_resv
-               do j = 1, resv_geom(i)%n_res_conn
+               do j = 1, resv_geom(i)%n_resv_conn
                    k = k + 1
                    resv_geom(i)%int_node_no(j) = int_node(k)
                    resv_geom(i)%ext_node_no(j) = ext_node(k)

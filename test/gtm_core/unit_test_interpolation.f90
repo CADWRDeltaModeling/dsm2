@@ -52,7 +52,6 @@ module ut_interpolation
         n_irreg = 2
         n_boun = 2
         n_junc = 0
-        n_link = 0
         n_conn = 0
         allocate(flow_mesh_lo_ref(npartition_t+1,n_segm*nx))
         allocate(flow_mesh_hi_ref(npartition_t+1,n_segm*nx))

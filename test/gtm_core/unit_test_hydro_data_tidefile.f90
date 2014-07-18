@@ -40,9 +40,9 @@ module ut_hydro_data_tide
         integer :: time_offset, time_buffer
         integer :: branch, nt, nx
         real(gtm_real) :: ws_a, ws_b, ws_c, ws_d, dt, up_x, dx, x, ws, area
-        integer :: error
+        integer :: err
         
-        call h5open_f(error)
+        call h5open_f(err)
         
         ! test loading hdf5 file
         call hdf5_init(h5_file_name)   
@@ -71,7 +71,7 @@ module ut_hydro_data_tide
         call assertEquals (dble(resv_geom(2)%bot_elev), dble(-10.1), weakest_eps, "problem in reading reservoir bot_elev")
         call assertEquals (dble(resv_geom(2)%is_gated(1)), dble(1), weakest_eps, "problem in reading reservoir connection type")
         call assertEquals (dble(resv_geom(3)%is_gated(1)), dble(0), weakest_eps, "problem in reading reservoir connection type")
-        call assertEquals (dble(resv_geom(3)%n_res_conn), dble(2), weakest_eps, "problem in reading reservoir connection number")
+        call assertEquals (dble(resv_geom(3)%n_resv_conn), dble(2), weakest_eps, "problem in reading reservoir connection number")
         call assertEquals (dble(resv_geom(3)%int_node_no(1)), dble(183), weakest_eps, "problem in reading reservoir connection internal node number")
         call assertEquals (dble(resv_geom(3)%ext_node_no(1)), dble(197), weakest_eps, "problem in reading reservoir connection external node number")
 
@@ -109,10 +109,21 @@ module ut_hydro_data_tide
         call assertEquals (dble(segm(4)%down_comppt), dble(6), weakest_eps, "problem in assigning segment for down_comppt")  
         call assertEquals (dble(segm(4)%length), dble(7000), weakest_eps, "problem in assigning segment for length")  
        
-        call get_dsm2_node_info(n_conn)
-        ! 
-        call lookup_resv_cells
-       
+        call get_dsm2_node_info
+        call assertEquals (dble(n_node), dble(430), weakest_eps, "problem in assigning segment for n_node") 
+        call assertEquals (dble(dsm2_node(210)%dsm2_node_no), dble(218), weakest_eps, "problem in assigning segment for dsm2_node(210)%dsm2_node_no") 
+        call assertEquals (dble(dsm2_node(210)%n_conn_cell), dble(4), weakest_eps, "problem in assigning segment for dsm2_node(210)%n_conn_cell") 
+        call assertEquals (dble(dsm2_node(221)%dsm2_node_no), dble(232), weakest_eps, "problem in assigning segment for dsm2_node(221)%dsm2_node_no") 
+        call assertEquals (dble(dsm2_node(221)%reservoir_no), dble(4), weakest_eps, "problem in assigning segment for dsm2_node(221)%reservoir_no") 
+        call assertEquals (dble(dsm2_node(17)%dsm2_node_no), dble(17), weakest_eps, "problem in assigning segment for dsm2_node(17)%dsm2_node_no") 
+        call assertEquals (dble(dsm2_node(17)%boundary_no), dble(1), weakest_eps, "problem in assigning segment for dsm2_node(17)%boundary_no") 
+        call assertEquals (dble(dsm2_node(17)%cell_no(1)), dble(125), weakest_eps, "problem in assigning segment for dsm2_node(17)%cell_no") 
+        call assertEquals (dble(dsm2_node(17)%up_down(1)), dble(1), weakest_eps, "problem in assigning segment for dsm2_node(17)%up_down") 
+        call assertEquals (dble(dsm2_node(344)%dsm2_node_no), dble(361), weakest_eps, "problem in assigning segment for dsm2_node(344)%dsm2_node_no") 
+        call assertEquals (dble(dsm2_node(344)%boundary_no), dble(21), weakest_eps, "problem in assigning segment for dsm2_node(344)%boundary_no") 
+        call assertEquals (dble(dsm2_node(344)%cell_no(1)), dble(2154), weakest_eps, "problem in assigning segment for dsm2_node(344)%cell_no") 
+        call assertEquals (dble(dsm2_node(344)%up_down(1)), dble(0), weakest_eps, "problem in assigning segment for dsm2_node(344)%up_down") 
+               
         ! test reading time series data
         call allocate_hydro_ts
         time_offset = 3

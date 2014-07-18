@@ -44,6 +44,7 @@ use test_utility
 use error_handling
 use fruit
 use gtm_logging
+use common_variables, only : dsm2_node_t
 
 implicit none
 
@@ -91,15 +92,17 @@ integer :: which_cell(nrefine)
 real(gtm_real),allocatable :: reference(:)
 real(gtm_real) :: norm_error(3,nrefine)
 real(gtm_real) :: acceptance_ratio(3)                        !< Acceptance ratio
-
-integer, parameter :: n_bound = 2
-real(gtm_real) :: bound_val(n_bound)
+ 
+integer, parameter :: n_dsm2_node = 2
+type(dsm2_node_t) :: dsm2_node_type(2)
+real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
  
 character(LEN=64):: label = 'test_diffusion_cubic_decay'
 
 acceptance_ratio = [three, three, three]      ! relax the standard for diffusion cubic decay
 
-bound_val = one
+call set_single_channel(dsm2_node_type, nx_base)
+node_conc_val = one
 
 call set_uniform_flow_area(zero,constant_area)
 uniform_hydro => uniform_flow_area
@@ -138,8 +141,9 @@ call test_convergence(label,                            &
                       nstep_base,                       &
                       nx_base,                          &
                       nconc,                            &
-                      n_bound,                          &
-                      bound_val,                        &
+                      n_dsm2_node,                      &
+                      dsm2_node_type,                   &
+                      node_conc_val,                    &
                       verbose,.true.,                   &
                       acceptance_ratio)
 
