@@ -17,6 +17,7 @@ public class PTMBehaviorInputs {
 	private SwimInputs _swimInputs=null;
 	private RouteInputs _routeInputs=null;
 	private boolean _barrierInstalled = true;
+	private int _totalParticlesReleased = 0;
 	// Map<NodeId, FishReleaseGroup>
 	private Map<Integer, FishReleaseGroup> _fishGroups = null; 
 	
@@ -71,6 +72,7 @@ public class PTMBehaviorInputs {
 					}
 					else
 						_fishGroups.get(nodeId).addFishRelease(new FishRelease(releaseTime, fishNumber, releaseStyle));
+					_totalParticlesReleased += fishNumber; 
 				}
 			}
 		}
@@ -148,4 +150,5 @@ public class PTMBehaviorInputs {
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}
 	public RouteInputs getRouteInputs(){ return _routeInputs;}
 	public Map<Integer, FishReleaseGroup> getFishReleaseGroups() {return _fishGroups;}
+	public int getTotalParticlesReleased() {return _totalParticlesReleased;}
 }

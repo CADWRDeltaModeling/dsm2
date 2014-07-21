@@ -392,7 +392,10 @@ public class PTMEnv{
    * @return total number of particles injected.
    */
   int getNumberOfParticlesInjected(){
-    return pInfo.getTotalNumberOfInjectedParticles();
+	  int totalParticles = _behaviorInputs.getTotalParticlesReleased();
+	  if ( totalParticles > 0)
+		  return totalParticles;
+	  return pInfo.getTotalNumberOfInjectedParticles();
   }
   /**
    * Set insertion time and location into Particle
@@ -404,25 +407,37 @@ public class PTMEnv{
     if (DEBUG) System.out.println("Injection info in PTMEnv");
     
     while(pNum < getNumberOfParticlesInjected() + numberOfRestartParticles){
-      int injectionNode = pInfo.getLocationOfParticlesInjected(injNum);
-      long injectionLength = pInfo.getInjectionLengthJulmin(injNum);
-      long numberOfInjectedParticles = pInfo.getNumberOfParticlesInjected(injNum);
-      int start = pInfo.getInjectionStartJulmin(injNum);
-      // each injection row in PTM input
-      for(long injection=0;
-  	      injection < numberOfInjectedParticles;
-  	      injection++){
-    	// force to its integer time
-        int insertionTime = start + (int)
-  	                        ((injectionLength*injection)/numberOfInjectedParticles);
-        Node nd = getNode(injectionNode);
-        particlePtrArray[pNum].setInsertionInfo(insertionTime, nd);
-        pNum++;
-        if (DEBUG) System.out.println("Particle injection for particle " + pNum);
-      } // end for
-      
-      injNum++;
-      
+    	if (_behaviorInputs.getTotalParticlesReleased()>0){
+    		Map<Integer, FishReleaseGroup> fgs = _behaviorInputs.getFishReleaseGroups();
+    		for (int releaseNode:fgs.keySet()){
+    			for (FishRelease fr: fgs.get(releaseNode).getFishReleases()){
+    				for (int i = 0; i < fr.getFishNumber(); i++ ){
+    					particlePtrArray[pNum].setInsertionInfo(((int)PTMUtil.convertCalendar(fr.getRelaseTime())), getNode(releaseNode));
+    					pNum++;
+    				}	
+    			}
+    		}
+    	}
+    	else{
+		      int injectionNode = pInfo.getLocationOfParticlesInjected(injNum);
+		      long injectionLength = pInfo.getInjectionLengthJulmin(injNum);
+		      long numberOfInjectedParticles = pInfo.getNumberOfParticlesInjected(injNum);
+		      int start = pInfo.getInjectionStartJulmin(injNum);
+		      // each injection row in PTM input
+		      for(long injection=0;
+		  	      injection < numberOfInjectedParticles;
+		  	      injection++){
+		    	// force to its integer time
+		        int insertionTime = start + (int)
+		  	                        ((injectionLength*injection)/numberOfInjectedParticles);
+		        Node nd = getNode(injectionNode);
+		        particlePtrArray[pNum].setInsertionInfo(insertionTime, nd);
+		        pNum++;
+		        if (DEBUG) System.out.println("Particle injection for particle " + pNum);
+		      } // end for
+		      
+		      injNum++;
+    	}
     } // end while
     if (DEBUG) System.out.println("Finished injection");
   }

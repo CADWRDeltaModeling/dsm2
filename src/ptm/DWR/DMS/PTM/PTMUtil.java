@@ -93,17 +93,24 @@ public class PTMUtil {
 		System.err.println(message);
 		System.exit(-1);
 	}
-	public static Calendar convertHecTime(int currentTime){
+	public static Calendar convertHecTime(long currentTime){
 		Calendar cur = Calendar.getInstance();
 		cur.clear();
 		Calendar hecTime0 = Calendar.getInstance();
 		hecTime0.clear();
 		hecTime0.set(1900,0,0,0,0);
 		// current time is in minutes
-		cur.setTimeInMillis((long)currentTime*60000+hecTime0.getTimeInMillis());
+		cur.setTimeInMillis(currentTime*60000+hecTime0.getTimeInMillis());
 		return cur;
 	}
-	
+	// convert calendar time to model time
+	public static long convertCalendar(Calendar time){
+		Calendar hecTime0 = Calendar.getInstance();
+		hecTime0.clear();
+		hecTime0.set(1900,0,0,0,0);
+		// PTM time is in minute
+		return (time.getTimeInMillis() - hecTime0.getTimeInMillis())/60000;
+	}
 	public static Set<Integer> readSet(ArrayList<String> inText){
 		  if (inText == null)
 			  return null;
