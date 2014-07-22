@@ -16,16 +16,6 @@ module gtm_subs
         write(debug_unit,'(4a10)') "conn_no","chan_no","cell_no","up_down"
         write(debug_unit,'(4i10)')       &
              (conn(i)%conn_no, conn(i)%chan_no, conn(i)%cell_no, conn(i)%conn_up_down, i=1,n_conn)
-        do i = 1, n_junc
-            write(debug_unit,'(a10, i10)') "DSM2_node:", junc(i)%dsm2_node_no
-            do j = 1, junc(i)%n_conn_cells
-                write(debug_unit,'(2i10)') junc(i)%cell_no(j), junc(i)%up_down(j)
-            end do
-        end do    
-        write(debug_unit,'(3a10)') "DSM2_node","cell_no","up_down"
-        do i = 1, n_boun
-            write(debug_unit,'(3i10)') bound(i)%dsm2_node_no, bound(i)%cell_no, bound(i)%up_down
-        end do     
         return
     end subroutine
     
@@ -38,17 +28,16 @@ module gtm_subs
         implicit none
         integer(HID_T), intent(in) :: file_id
         integer(HID_T) :: geom_id
-        integer :: error
+        integer :: err
         call create_geometry_group(geom_id, file_id)
         call write_attributes_gtm(geom_id)
-        call write_segment_info(geom_id, n_segm, segm)
-        call write_channel_info(geom_id, n_chan, chan_geom)
+        call write_segment_info(geom_id)
+        call write_channel_info(geom_id)
         call write_reservoir_info(geom_id)
         call write_qext_info(geom_id)
-        call write_junction_info(geom_id, n_junc, junc)
-        call write_boundary_info(geom_id, n_boun, bound)
-        call write_connection_info(geom_id, n_conn, conn)
-        call h5gclose_f(geom_id, error) 
+        call write_connection_info(geom_id)
+        call write_dsm2_node_info(geom_id)
+        call h5gclose_f(geom_id, err) 
         return
     end subroutine    
     

@@ -32,7 +32,6 @@ program gtm
     use process_gtm_input
     use io_utilities  
     use time_utilities
-    use boundary
     use read_init
     use gtm_hdf_write    
     use gtm_hdf_ts_write    
@@ -98,7 +97,7 @@ program gtm
 
     integer :: n_bound_ts
     integer, allocatable :: bound_index(:), path_index(:)
-    real(gtm_real), allocatable :: bound_val(:,:)
+    real(gtm_real), allocatable :: node_conc(:,:)
     
     logical :: apply_diffusion = .false.
 
@@ -147,7 +146,8 @@ program gtm
     prev_comp_ws = LARGEREAL
     
     linear_decay = constant_decay
-   
+    
+    constituents(1)%conc_no = 1
     constituents(1)%name = "EC"
     
     gtm_hdf_time_intvl = incr_intvl(zero,gtm_io(3,2)%interval,1)
@@ -165,10 +165,25 @@ program gtm
         call write_grid_to_tidefile(qual_hdf%file_id)
     end if
 
-    call find_boundary_index(n_bound_ts, bound_index, path_index, & 
-                             n_boun, bound,                       &
-                             n_inputpaths, pathinput)
-    allocate(bound_val(n_boun, n_var))
+    
+    do i = 1, n_inputpaths
+        do j = 1, n_var
+            call locase(pathinput(i)%variable)
+            call locase(constituents(j)%name)
+            if (trim(pathinput(i)%variable) .eq. trim(constituents(j)%name)) then
+                pathinput(i)%i_var = constituents(j)%conc_no
+            end if
+        end do
+        do j = 1, n_node
+            if (pathinput(i)%obj_no==dsm2_node(j)%dsm2_node_no) then
+                pathinput(i)%i_node = j
+            end if        
+        end do
+    end do
+
+    
+    allocate(node_conc(n_node, n_var))
+    node_conc = zero
                        
     !
     !----- point to interface -----
@@ -227,12 +242,10 @@ program gtm
         
         !---get time series for boundary conditions
         call get_inp_value(int(current_time),int(current_time-gtm_time_interval))   ! this will update pathinput(:)%value; rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
-        do i=1, n_boun
-            bound_val(i,:) = conc(bound(i)%cell_no,:)
-        end do
-        do i=1,n_bound_ts
-            bound_val(bound_index(i),:) = pathinput(path_index(i))%value
-        end do
+        
+        do i = 1, n_inputpaths
+            node_conc(pathinput(i)%i_node, pathinput(i)%i_var) = pathinput(i)%value   
+        end do    
         
         !---read hydro data from hydro tidefile
         call get_loc_in_hydro_buffer(iblock, slice_in_block, t_index, current_time, hydro_start_jmin, &
@@ -291,9 +304,9 @@ program gtm
                     dble(current_time)*sixty, &
                     gtm_time_interval*sixty,  &
                     dx_arr,                   &
-                    n_boun,                   &
-                    bound,                    &
-                    bound_val,                &
+                    n_node,                   &
+                    dsm2_node,                &
+                    node_conc,                &
                     .true.)     
         call cons2prim(conc, mass, area, n_cell, n_var)
         cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
@@ -363,9 +376,10 @@ program gtm
         call zclose(ifltab_in)  !!ADD A global to detect if dss is opened
         deallocate(ifltab_in) 
     end if   
-    deallocate(pathinput)        
+    deallocate(pathinput)
+    deallocate(node_conc)   
+    deallocate(constituents)             
     call deallocate_datain             
-    deallocate(constituents)
     call deallocate_geometry
     call deallocate_state
     call deallocate_state_resv

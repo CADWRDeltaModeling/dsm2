@@ -171,6 +171,9 @@ module common_dsm2_vars
            integer :: obj_type = miss_val_i        ! object type this data goes to: channel, reservoir, node, gate?
            integer :: obj_no = miss_val_i          ! number of object
            integer data_type                       ! data type: flow, stage, gate position..
+           integer :: i_var                        ! constituent no      (to be filled later when GTM 
+           integer :: i_node                       ! GTM internal node    decides index for var and node)
+           
            !--------'type' section
            integer group_ndx      ! group index
            integer gate_param     ! time-varying gate parameter

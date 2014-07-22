@@ -426,7 +426,6 @@ module test_convergence_transport
          dsm2_node_type(1)%n_qext = 0
          dsm2_node_type(1)%nonsequential = 0
          dsm2_node_type(1)%no_fixup = 1
-         dsm2_node_type(1)%ts_index = 1
          dsm2_node_type(1)%cell_no(1) = 1
          dsm2_node_type(1)%up_down(1) = 1
          dsm2_node_type(2)%dsm2_node_no = 2
@@ -437,7 +436,6 @@ module test_convergence_transport
          dsm2_node_type(2)%n_qext = 0
          dsm2_node_type(2)%nonsequential = 0
          dsm2_node_type(2)%no_fixup = 1
-         dsm2_node_type(2)%ts_index = 2
          dsm2_node_type(2)%cell_no(1) = ncell
          dsm2_node_type(2)%up_down(1) = 0              
          return

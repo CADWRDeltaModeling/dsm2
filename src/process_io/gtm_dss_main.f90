@@ -43,7 +43,6 @@ module gtm_dss_main
       
         do i = 1, n_inputpaths
             call get_inp_data(i)
-            !print*, pathinput(i)%value
         end do
           
         return

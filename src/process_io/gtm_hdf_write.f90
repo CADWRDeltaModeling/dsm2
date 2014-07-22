@@ -85,13 +85,11 @@ module gtm_hdf_write
     end subroutine
             
     !> Write out channel info into GTM tidefile
-    subroutine write_channel_info(geom_id, num_channel, channel)
+    subroutine write_channel_info(geom_id)
         use hdf5
-        use common_variables, only: channel_t  
+        use common_variables, only: n_chan, chan_geom
         implicit none
         integer(HID_T), intent(in) :: geom_id        !< hdf5 geom dataset identifier
-        integer, intent(in) :: num_channel           !< number of channels
-        type(channel_t) :: channel(num_channel)      !< channel info
         integer(HID_T) :: dset_id                    ! dataset identifier
         integer(HID_T) :: dspace_id                  ! dataspace identifier
         integer(HID_T) :: dtype_id                   ! compound datatype identifier
@@ -109,13 +107,13 @@ module gtm_hdf_write
         integer :: rank = 1
         integer :: i, error
  
-        if (num_channel .eq. 0) then
+        if (n_chan .eq. 0) then
             write(*,*) "Number of channels = 0"
             return
         end if    
         
-        dims = (/num_channel/) 
-        data_dims(1) = num_channel
+        dims = (/n_chan/) 
+        data_dims(1) = n_chan
        
         call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, error)
         call h5pset_preserve_f(plist_id, .TRUE., error)
@@ -181,13 +179,13 @@ module gtm_hdf_write
         offset = 0
         call h5tinsert_f(dt7_id, "down_comp", offset, H5T_NATIVE_INTEGER, error)
                 
-        call h5dwrite_f(dset_id, dt1_id, channel%chan_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt2_id, channel%channel_num, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt3_id, channel%channel_length, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt4_id, channel%up_node, data_dims, error, xfer_prp = plist_id)                        
-        call h5dwrite_f(dset_id, dt5_id, channel%down_node, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt6_id, channel%up_comp, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt7_id, channel%down_comp, data_dims, error, xfer_prp = plist_id)        
+        call h5dwrite_f(dset_id, dt1_id, chan_geom%chan_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt2_id, chan_geom%channel_num, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt3_id, chan_geom%channel_length, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt4_id, chan_geom%up_node, data_dims, error, xfer_prp = plist_id)                        
+        call h5dwrite_f(dset_id, dt5_id, chan_geom%down_node, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt6_id, chan_geom%up_comp, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt7_id, chan_geom%down_comp, data_dims, error, xfer_prp = plist_id)        
         
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dspace_id, error)
@@ -205,13 +203,11 @@ module gtm_hdf_write
  
  
     !> Write out geomotry info into GTM tidefile
-    subroutine write_segment_info(geom_id, num_segment, segment)
+    subroutine write_segment_info(geom_id)
         use hdf5
-        use common_variables, only: segment_t  
+        use common_variables, only: n_segm, segm
         implicit none
         integer(HID_T), intent(in) :: geom_id        !< hdf5 dataset identifier
-        integer, intent(in) :: num_segment           !< number of segments
-        type(segment_t) :: segment(num_segment)      !< segment info
         integer(HID_T) :: dset_id                    ! dataset identifier
         integer(HID_T) :: dspace_id                  ! dataspace identifier
         integer(HID_T) :: dtype_id                   ! compound datatype identifier
@@ -230,13 +226,13 @@ module gtm_hdf_write
         integer :: rank = 1
         integer :: i, error
         
-        if (num_segment .eq. 0) then
+        if (n_segm .eq. 0) then
             write(*,*) "Number of segments = 0"
             return
         end if    
         
-        dims = (/num_segment/) 
-        data_dims(1) = num_segment  
+        dims = (/n_segm/) 
+        data_dims(1) = n_segm
        
         call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, error)
         call h5pset_preserve_f(plist_id, .TRUE., error)
@@ -318,15 +314,15 @@ module gtm_hdf_write
         offset = 0
         call h5tinsert_f(dt9_id, "length", offset, H5T_NATIVE_DOUBLE, error)
         
-        call h5dwrite_f(dset_id, dt1_id, segment%segm_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt2_id, segment%chan_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt3_id, segment%up_comppt, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt4_id, segment%down_comppt, data_dims, error, xfer_prp = plist_id)   
-        call h5dwrite_f(dset_id, dt5_id, segment%nx, data_dims, error, xfer_prp = plist_id) 
-        call h5dwrite_f(dset_id, dt6_id, segment%start_cell_no, data_dims, error, xfer_prp = plist_id)                              
-        call h5dwrite_f(dset_id, dt7_id, segment%up_distance, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt8_id, segment%down_distance, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt9_id, segment%length, data_dims, error, xfer_prp = plist_id)        
+        call h5dwrite_f(dset_id, dt1_id, segm%segm_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt2_id, segm%chan_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt3_id, segm%up_comppt, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt4_id, segm%down_comppt, data_dims, error, xfer_prp = plist_id)   
+        call h5dwrite_f(dset_id, dt5_id, segm%nx, data_dims, error, xfer_prp = plist_id) 
+        call h5dwrite_f(dset_id, dt6_id, segm%start_cell_no, data_dims, error, xfer_prp = plist_id)                              
+        call h5dwrite_f(dset_id, dt7_id, segm%up_distance, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt8_id, segm%down_distance, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt9_id, segm%length, data_dims, error, xfer_prp = plist_id)        
         
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dspace_id, error)
@@ -350,14 +346,14 @@ module gtm_hdf_write
         use hdf5
         use common_variables, only: n_node, dsm2_node
         implicit none
-        integer(HID_T), intent(in) :: geom_id            !< hdf5 dataset identifier
-        integer(HID_T) :: dset_id                        ! dataset identifier
-        integer(HID_T) :: dspace_id                      ! dataspace identifier
-        integer(HID_T) :: dtype_id                       ! compound datatype identifier
-        integer(HID_T) :: dt_id, dt1_id, dt2_id, dt3_id  ! memory datatype identifier
-        integer(HID_T) :: dt4_id, dt5_id, dt6_id, dt7_id ! memory datatype identifier     
-        integer(HID_T) :: dt8_id, dt9_id, dt10_id        ! memory datatype identifier 
-        integer(HID_T) :: plist_id                       ! dataset transfer property
+        integer(HID_T), intent(in) :: geom_id              !< hdf5 dataset identifier
+        integer(HID_T) :: dset_id                          ! dataset identifier
+        integer(HID_T) :: dspace_id                        ! dataspace identifier
+        integer(HID_T) :: dtype_id                         ! compound datatype identifier
+        integer(HID_T) :: dt_id, dt1_id, dt2_id, dt3_id    ! memory datatype identifier
+        integer(HID_T) :: dt4_id, dt5_id, dt6_id, dt7_id   ! memory datatype identifier     
+        integer(HID_T) :: dt8_id, dt9_id, dt10_id, dt11_id ! memory datatype identifier 
+        integer(HID_T) :: plist_id                         ! dataset transfer property
         integer(SIZE_T) :: typesize
         integer(SIZE_T) :: type_size
         integer(SIZE_T) :: type_sizei
@@ -366,6 +362,7 @@ module gtm_hdf_write
         integer(HSIZE_T), dimension(1) :: data_dims                     
         integer(HSIZE_T), dimension(1) :: dims 
         integer, allocatable :: dsm2_node_no(:)
+        integer, allocatable :: int_node(:)
         integer, allocatable :: n_conn_cell(:)
         integer, allocatable :: cell_no(:)
         integer, allocatable :: up_down(:)
@@ -389,6 +386,7 @@ module gtm_hdf_write
         end do
 
         allocate(dsm2_node_no(n))
+        allocate(int_node(n))
         allocate(n_conn_cell(n))
         allocate(cell_no(n))
         allocate(up_down(n))
@@ -411,12 +409,15 @@ module gtm_hdf_write
         typesize = 4
         call h5tset_size_f(dt_id, typesize, error)
         call h5tget_size_f(dt_id, type_sizei, error)
-        type_size = 10*type_sizei
+        type_size = 11*type_sizei
         
         call h5tcreate_f(H5T_COMPOUND_F, type_size, dtype_id, error)
         
         offset = 0
         call h5tinsert_f(dtype_id, "dsm2_node_no", offset, dt_id, error)
+        
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "int_node", offset, H5T_NATIVE_INTEGER, error)
 
         offset = offset + type_sizei
         call h5tinsert_f(dtype_id, "n_conn_cell", offset, H5T_NATIVE_INTEGER, error)
@@ -450,48 +451,53 @@ module gtm_hdf_write
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt1_id, error)
         offset = 0
         call h5tinsert_f(dt1_id, "dsm2_node_no", offset, dt_id, error)
-        
+
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt2_id, error)
         offset = 0
-        call h5tinsert_f(dt2_id, "n_conn_cell", offset, H5T_NATIVE_INTEGER, error)         
- 
+        call h5tinsert_f(dt2_id, "int_node", offset, H5T_NATIVE_INTEGER, error)    
+        
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt3_id, error)
         offset = 0
-        call h5tinsert_f(dt3_id, "cell_no", offset, H5T_NATIVE_INTEGER, error)  
-
+        call h5tinsert_f(dt3_id, "n_conn_cell", offset, H5T_NATIVE_INTEGER, error)         
+ 
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt4_id, error)
         offset = 0
-        call h5tinsert_f(dt4_id, "up_down", offset, H5T_NATIVE_INTEGER, error)         
- 
+        call h5tinsert_f(dt4_id, "cell_no", offset, H5T_NATIVE_INTEGER, error)  
+
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt5_id, error)
         offset = 0
-        call h5tinsert_f(dt5_id, "boundary_no", offset, H5T_NATIVE_INTEGER, error)  
-
+        call h5tinsert_f(dt5_id, "up_down", offset, H5T_NATIVE_INTEGER, error)         
+ 
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt6_id, error)
         offset = 0
-        call h5tinsert_f(dt6_id, "junction_no", offset, H5T_NATIVE_INTEGER, error)  
+        call h5tinsert_f(dt6_id, "boundary_no", offset, H5T_NATIVE_INTEGER, error)  
 
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt7_id, error)
         offset = 0
-        call h5tinsert_f(dt7_id, "reservoir_no", offset, H5T_NATIVE_INTEGER, error)  
+        call h5tinsert_f(dt7_id, "junction_no", offset, H5T_NATIVE_INTEGER, error)  
 
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt8_id, error)
         offset = 0
-        call h5tinsert_f(dt8_id, "n_qext", offset, H5T_NATIVE_INTEGER, error)  
+        call h5tinsert_f(dt8_id, "reservoir_no", offset, H5T_NATIVE_INTEGER, error)  
 
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt9_id, error)
         offset = 0
-        call h5tinsert_f(dt9_id, "nonsequential", offset, H5T_NATIVE_INTEGER, error)  
-                                
+        call h5tinsert_f(dt9_id, "n_qext", offset, H5T_NATIVE_INTEGER, error)  
+
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt10_id, error)
         offset = 0
-        call h5tinsert_f(dt10_id, "no_fixup", offset, H5T_NATIVE_INTEGER, error) 
+        call h5tinsert_f(dt10_id, "nonsequential", offset, H5T_NATIVE_INTEGER, error)  
+                                
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt11_id, error)
+        offset = 0
+        call h5tinsert_f(dt11_id, "no_fixup", offset, H5T_NATIVE_INTEGER, error) 
        
         k = 0
         do i = 1, n_node
             do j = 1, dsm2_node(i)%n_conn_cell
                 k = k + 1
                 dsm2_node_no(k) = dsm2_node(i)%dsm2_node_no
+                int_node(k) = k
                 n_conn_cell(k) = dsm2_node(i)%n_conn_cell
                 cell_no(k) = dsm2_node(i)%cell_no(j)
                 up_down(k) = dsm2_node(i)%up_down(j)
@@ -505,15 +511,16 @@ module gtm_hdf_write
         end do
                 
         call h5dwrite_f(dset_id, dt1_id, dsm2_node_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt2_id, n_conn_cell, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt3_id, cell_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt4_id, up_down, data_dims, error, xfer_prp = plist_id)                        
-        call h5dwrite_f(dset_id, dt5_id, boundary_no, data_dims, error, xfer_prp = plist_id)  
-        call h5dwrite_f(dset_id, dt6_id, junction_no, data_dims, error, xfer_prp = plist_id)  
-        call h5dwrite_f(dset_id, dt7_id, reservoir_no, data_dims, error, xfer_prp = plist_id)  
-        call h5dwrite_f(dset_id, dt8_id, n_qext, data_dims, error, xfer_prp = plist_id) 
-        call h5dwrite_f(dset_id, dt9_id, nonsequential, data_dims, error, xfer_prp = plist_id)  
-        call h5dwrite_f(dset_id, dt10_id, no_fixup, data_dims, error, xfer_prp = plist_id)                 
+        call h5dwrite_f(dset_id, dt2_id, int_node, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt3_id, n_conn_cell, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt4_id, cell_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt5_id, up_down, data_dims, error, xfer_prp = plist_id)                        
+        call h5dwrite_f(dset_id, dt6_id, boundary_no, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt7_id, junction_no, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt8_id, reservoir_no, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt9_id, n_qext, data_dims, error, xfer_prp = plist_id) 
+        call h5dwrite_f(dset_id, dt10_id, nonsequential, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt11_id, no_fixup, data_dims, error, xfer_prp = plist_id)                 
 
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dspace_id, error)
@@ -528,6 +535,7 @@ module gtm_hdf_write
         call h5tclose_f(dt8_id, error)
         call h5tclose_f(dt9_id, error)
         call h5tclose_f(dt10_id, error)
+        call h5tclose_f(dt11_id, error)
         call h5tclose_f(dt_id, error)        
         deallocate(dsm2_node_no, n_conn_cell)
         deallocate(cell_no, up_down)
@@ -539,13 +547,11 @@ module gtm_hdf_write
 
 
     !> Write out connection info into GTM tidefile
-    subroutine write_connection_info(geom_id, num_connection, connection)
+    subroutine write_connection_info(geom_id)
         use hdf5
-        use common_variables, only: conn_t  
+        use common_variables, only: n_conn, conn 
         implicit none
         integer(HID_T), intent(in) :: geom_id        !< hdf5 dataset identifier
-        integer, intent(in) :: num_connection        !< number of channels
-        type(conn_t) :: connection(num_connection)   !< channel info
         integer(HID_T) :: dset_id                    ! dataset identifier
         integer(HID_T) :: dspace_id                  ! dataspace identifier
         integer(HID_T) :: dtype_id                   ! compound datatype identifier
@@ -563,13 +569,13 @@ module gtm_hdf_write
         integer :: rank = 1
         integer :: i, error
         
-        if (num_connection .eq. 0) then
+        if (n_conn .eq. 0) then
             write(*,*) "Number of connections = 0"
             return
         end if    
         
-        dims = (/num_connection/) 
-        data_dims(1) = num_connection
+        dims = (/n_conn/) 
+        data_dims(1) = n_conn
        
         call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, error)
         call h5pset_preserve_f(plist_id, .TRUE., error)
@@ -635,13 +641,13 @@ module gtm_hdf_write
         offset = 0
         call h5tinsert_f(dt7_id, "conn_up_down", offset, H5T_NATIVE_INTEGER, error)
                 
-        call h5dwrite_f(dset_id, dt1_id, connection%conn_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt2_id, connection%segm_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt3_id, connection%cell_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt4_id, connection%comp_pt, data_dims, error, xfer_prp = plist_id)                        
-        call h5dwrite_f(dset_id, dt5_id, connection%chan_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt6_id, connection%dsm2_node_no, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt7_id, connection%conn_up_down, data_dims, error, xfer_prp = plist_id)        
+        call h5dwrite_f(dset_id, dt1_id, conn%conn_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt2_id, conn%segm_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt3_id, conn%cell_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt4_id, conn%comp_pt, data_dims, error, xfer_prp = plist_id)                        
+        call h5dwrite_f(dset_id, dt5_id, conn%chan_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt6_id, conn%dsm2_node_no, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt7_id, conn%conn_up_down, data_dims, error, xfer_prp = plist_id)        
         
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dspace_id, error)
@@ -760,12 +766,12 @@ module gtm_hdf_write
 
         k = 0
         do i = 1, n_resv
-            do j = 1, resv_geom(i)%n_res_conn   
+            do j = 1, resv_geom(i)%n_resv_conn   
                 k = k + 1
-                resv_index(k) = resv_geom(i)%resv_index
+                resv_index(k) = resv_geom(i)%resv_no
                 area(k) = resv_geom(i)%area
                 bot_elev(k) = resv_geom(i)%bot_elev            
-                n_res_connection(k) = resv_geom(i)%n_res_conn                        
+                n_res_connection(k) = resv_geom(i)%n_resv_conn                        
                 int_node_no(k) = resv_geom(i)%int_node_no(j)
                 ext_node_no(k) = resv_geom(i)%ext_node_no(j)
                 is_gated(k) = resv_geom(i)%is_gated(j)
@@ -837,10 +843,6 @@ module gtm_hdf_write
         call h5tset_size_f(dt_id, typesize, error)
         call h5tget_size_f(dt_id, type_sizec, error)
         
-        !call h5tcopy_f(H5T_NATIVE_INTEGER, dt_id, error)
-        !typesize = 4
-        !call h5tset_size_f(dt_id, typesize, error)
-        !call h5tget_size_f(dt_id, type_sizei, error)
         type_sizei = 4
         type_size = 3*type_sizei + type_sizec
         

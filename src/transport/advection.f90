@@ -188,25 +188,12 @@ module advection
             if (dsm2_node_type(i)%boundary_no .ne. 0) then
                 icell = dsm2_node_type(i)%cell_no(1)
                 if (dsm2_node_type(i)%up_down(1) .eq. 1) then     ! upstream boundary
-                    conc_lo(icell,:) = node_conc(dsm2_node_type(i)%ts_index,:)
+                    conc_lo(icell,:) = node_conc(i,:)
                 else
-                    conc_hi(icell,:) = node_conc(dsm2_node_type(i)%ts_index,:)
+                    conc_hi(icell,:) = node_conc(i,:)
                 end if    
             end if
         end do
-
-        !! Replace fluxes for special cases having to do with boundaries, network and structures
-        !! Imposes the advection boundary flux
-        !if (n_bound .ne. LARGEINT) then 
-        !    do i = 1, n_bound
-        !        icell = boundary(i)%cell_no
-        !        if (boundary(i)%up_down .eq. 1) then      ! upstream boundary
-        !            conc_lo(icell,:) = bound_val(i,:)
-        !        else
-        !            conc_hi(icell,:) = bound_val(i,:)
-        !        end if
-        !    end do                          
-        !end if
         
                
         if (associated(advection_boundary_flux))then

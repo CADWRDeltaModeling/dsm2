@@ -173,14 +173,13 @@ module common_variables
          integer, allocatable :: qext_no(:)        !< connected qext number
          integer :: nonsequential                  !< true: 1, false: 0
          integer :: no_fixup                       !< true: 1, false: 0
-         integer :: ts_index                       !< time series index for pathinputs
      end type
      type(dsm2_node_t), allocatable :: dsm2_node(:)
      
                
      !> Define constituent
      type constituent_t
-         integer :: conc_id                        !< constituent id
+         integer :: conc_no                        !< constituent id
          character*16 :: name = ' '                !< constituent name
          logical :: conservative = .true.          !< true if conservative, false if nonconservative
      end type     
@@ -476,8 +475,7 @@ module common_variables
          conn(1)%comp_pt = 1
          conn(1)%chan_no = segm(1)%chan_no
          conn(1)%dsm2_node_no = chan_geom(segm(1)%chan_no)%up_node
-         conn(1)%conn_up_down = 1
-         
+         conn(1)%conn_up_down = 1         
          j = 1
          k = 1
          do i = 3, n_comp
@@ -571,7 +569,7 @@ module common_variables
          dsm2_node(:)%no_fixup = 0
          n_boun = 0
          n_junc = 0
-         do i = 1, num_nodes
+         do i = 1, n_node
              dsm2_node(i)%dsm2_node_no = unique_num(i)
              if (occurrence(i)==1) then 
                  allocate(dsm2_node(i)%cell_no(1))
@@ -629,8 +627,16 @@ module common_variables
                      dsm2_node(i)%n_qext = dsm2_node(i)%n_qext + 1
                  end if
              end do
-             
+             allocate(dsm2_node(i)%qext_no(dsm2_node(i)%n_qext))
+             k = 0 
+             do j = 1, n_qext
+                 if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_no==unique_num(i)) then
+                     k = k + 1
+                     dsm2_node(i)%qext_no(k) = qext(j)%qext_index
+                 end if
+             end do                                      
          end do   
+                  
          return
      end subroutine
 
