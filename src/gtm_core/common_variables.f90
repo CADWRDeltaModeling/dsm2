@@ -173,6 +173,7 @@ module common_variables
          integer, allocatable :: qext_no(:)        !< connected qext number
          integer :: nonsequential                  !< true: 1, false: 0
          integer :: no_fixup                       !< true: 1, false: 0
+         integer :: node_conc                      !< true: 1, false: 0
      end type
      type(dsm2_node_t), allocatable :: dsm2_node(:)
      
@@ -567,6 +568,7 @@ module common_variables
          dsm2_node(:)%n_qext = 0
          dsm2_node(:)%nonsequential = 0         
          dsm2_node(:)%no_fixup = 0
+         dsm2_node(:)%node_conc = 0
          n_boun = 0
          n_junc = 0
          do i = 1, n_node

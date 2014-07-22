@@ -177,6 +177,7 @@ program gtm
         do j = 1, n_node
             if (pathinput(i)%obj_no==dsm2_node(j)%dsm2_node_no) then
                 pathinput(i)%i_node = j
+                dsm2_node(j)%node_conc = 1
             end if        
         end do
     end do
