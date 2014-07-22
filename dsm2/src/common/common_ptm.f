@@ -88,7 +88,7 @@ module common_ptm
     integer:: ptm_no_animated_int = 0
 
 
-    integer,parameter :: max_injection = 200 ! Maximum Injection Locations and time of injections combined
+    integer,parameter :: max_injection = 2000 ! Maximum Injection Locations and time of injections combined
     integer:: npartno   = 0           ! Actual No of Injection Loc and times combined   ! todo: eli changed initialization to 0 for text? consequences?
     integer:: ngroup_outputs = 0      ! Actual No of Groups requested
 
