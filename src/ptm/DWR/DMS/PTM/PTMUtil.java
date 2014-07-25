@@ -93,6 +93,7 @@ public class PTMUtil {
 		System.err.println(message);
 		System.exit(-1);
 	}
+	// convert model time to calendar time
 	public static Calendar convertHecTime(long currentTime){
 		Calendar cur = Calendar.getInstance();
 		cur.clear();
@@ -140,17 +141,12 @@ public class PTMUtil {
 		}
 		return number;
 	}
-	public static double getDouble(String numberLine){
-		double number = -999999.0;
-		try{
-			String[] items = numberLine.split("[,:\\s\\t]+");
-			number = Double.parseDouble(items[1]);
-		}catch (NumberFormatException e){
-			e.printStackTrace();
-			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be a double");	
-		}
-		return number;
+	// get a double from a line with format name: double
+	public static double getDoubleFromLine(String numberLine) throws NumberFormatException{
+		String[] items = numberLine.split("[,:\\s\\t]+");
+		return Double.parseDouble(items[1]);
 	}
+	
 	public static ArrayList<Integer> getInts(String numberLine){
 		ArrayList<Integer> ints = new ArrayList<Integer>();
 		try{
@@ -174,8 +170,6 @@ public class PTMUtil {
 		return true;
 	}
 	public static Calendar getDateTime(String date, String time) throws NumberFormatException{
-		//TODO clean up DEBUG later
-		//boolean DEBUG = true;
 		Calendar dateTime = null;
 		String[] dateStr = date.trim().split("[-/]+"), timeStr = time.trim().split("[:]+");
 		int year = -99, month = -99, day = -99, hour = -99, minute = -99;
@@ -194,21 +188,4 @@ public class PTMUtil {
 		dateTime.set(year, month, day, hour, minute);
 		return dateTime;
 	}
-	//TODO cleanup
-	/*
-	public static ArrayList<String> cleanUp(ArrayList<String> inList){
-		Iterator<String> it = null;
-		ArrayList<String> cleanList = new ArrayList<String>();
-		String line = null;
-		if (inList == null || (it = inList.iterator()) == null)
-			return null;
-		else{
-			while (it.hasNext()){
-				if (!(line = it.next().trim().toUpperCase()).startsWith("#"))
-					cleanList.add(line);
-			}
-		}
-		return cleanList;
-	}
-	*/
 }

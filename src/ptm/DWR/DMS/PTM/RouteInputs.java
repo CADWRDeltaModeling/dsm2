@@ -12,7 +12,6 @@ import java.lang.reflect.Constructor;
  *
  */
 public class RouteInputs {
-	private boolean DEBUG = false;
 	public RouteInputs(ArrayList<String> inText, String fishType) {
 		if (fishType == null)
 				PTMUtil.systemExit("No Particle Type! exit.");
@@ -39,7 +38,12 @@ public class RouteInputs {
 			if( dicuInText == null || dicuInText.size() < 1)
 				System.err.println("WARNING: no dicu info found or the info is not properly defined in behavior inputs.");
 			else{
-				_dicuFilterEfficiency = PTMUtil.getDouble(dicuInText.get(0).trim());
+				try{
+					_dicuFilterEfficiency = PTMUtil.getDoubleFromLine(dicuInText.get(0).trim());
+				}catch (NumberFormatException e){
+					e.printStackTrace();
+					PTMUtil.systemExit("expect a double for dicu efficiency coefficient but get:" + dicuInText.get(0));	
+				}					
 				setDicuFilterEfficiency();
 			}
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
@@ -130,12 +134,8 @@ public class RouteInputs {
 	
 	private void setSpecialBehaviors(ArrayList<String> inText){
 		String title = inText.get(0);
-		String [] tItems = title.trim().split("[,\\s\\t]+");
 		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "CLASS_NAME"};
 		checkTitle(title, shouldBe);
-		//TODO clean up
-		//if (tItems.length<3 || !tItems[2].equalsIgnoreCase("Class_Name"))
-			//PTMUtil.systemExit("SYSTEM EXIT: error in input:"+inText.get(0));
 		for (String line: inText.subList(1, inText.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			if (items.length<3)
@@ -207,34 +207,10 @@ public class RouteInputs {
 					  throw new NumberFormatException();
 				  e_time = PTMUtil.getDateTime(items[0], items[1]);
 				  optemp = Integer.parseInt(items[2].trim());
-				  //TODO clean up
-				  /*
-				  String[] dateStr = items[0].trim().split("[-/]+"), timeStr = items[1].trim().split("[:]+");
-				  int optemp = -99, year = -99, month = -99, day = -99, hour = -99, minute = -99;
-				  if (items.length<3 || dateStr.length<3 || timeStr.length<2)
-					  throw new NumberFormatException();
-				  optemp = Integer.parseInt(items[2].trim());
-				  year = Integer.parseInt(dateStr[2]);
-				  // java month start from 0
-				  month = Integer.parseInt(dateStr[0])-1;
-				  day = Integer.parseInt(dateStr[1]);
-				  hour = Integer.parseInt(timeStr[0]);
-				  minute = Integer.parseInt(timeStr[1]);
-				  if(DEBUG) System.out.println("year:"+year+" month:"+month+" day:"+day+" hour:"+hour+" minute:"+minute+" op:"+optemp);
-				  */
 			  }catch (NumberFormatException e){
 					e.printStackTrace();
 					PTMUtil.systemExit("operation schecule line has wrong format: "+inLine);	
 			  }
-			  //TODO clean up
-			  /*		  
-			  e_time = Calendar.getInstance();
-			  e_time.clear();
-			  if (year == -99||month == -99|| day== -99|| hour== -99|| minute== -99||optemp == -99 )
-				  PTMUtil.systemExit("wrong format for barrier operation schedule data: "+inLine);
-			  e_time.set(year, month, day, hour, minute);
-			  */
-			  
 			  /*
 			   * schedule example:
 			   * Date		Time		On/Off

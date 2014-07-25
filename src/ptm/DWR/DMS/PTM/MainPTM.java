@@ -54,8 +54,16 @@ public class MainPTM {
             // Initialize environment
             if (DEBUG) System.out.println("Initializing environment");
             String fixedInputFilename = "dsm2.inp";
-            if(args.length > 0) fixedInputFilename = args[0];
+            String swimmingVel = null;
+            if(args.length > 0){ 
+            	fixedInputFilename = args[0];
+            	if (args.length > 1)
+            		swimmingVel = args[1];	
+            }
+            
             PTMEnv Environment = new PTMEnv(fixedInputFilename);
+            if (swimmingVel != null)
+            	Environment.getBehaviorInputs().getSwimInputs().setSwimmingVelocityForAll(swimmingVel);
             if (DEBUG) System.out.println("Environment initialized");
     
             // set global environment pointer

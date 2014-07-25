@@ -50,9 +50,10 @@ public class SurvivalInputs {
 	//public void addSpecialBehaviors(SurvivalHelper sh, String particleType){}
 	public SurvivalHelper getSurvivalHelper(){ return _survivalHelper;}
 	
+	//TODO should allow to set a survival rate for all the channels?
 	private void setChannelGroups(ArrayList<String> chanGroups){
 		if (chanGroups == null){
-			System.err.println("WARNING: No channel group defined!");
+			System.err.println("WARNING: No channel groups for suvival rates are defined in behavior input file!");
 			return;
 		}
 		// get survival rates
