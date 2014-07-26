@@ -852,7 +852,7 @@ module gtm_hdf_write
         call h5tinsert_f(dtype_id, "name", offset, dt_id, error)
 
         offset = offset + type_sizec
-        call h5tinsert_f(dtype_id, "qext_index", offset, H5T_NATIVE_INTEGER, error)
+        call h5tinsert_f(dtype_id, "qext_no", offset, H5T_NATIVE_INTEGER, error)
 
         offset = offset + type_sizei
         call h5tinsert_f(dtype_id, "attach_obj_type", offset, H5T_NATIVE_INTEGER, error)
@@ -868,7 +868,7 @@ module gtm_hdf_write
  
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt2_id, error)
         offset = 0
-        call h5tinsert_f(dt2_id, "qext_index", offset, H5T_NATIVE_INTEGER, error)  
+        call h5tinsert_f(dt2_id, "qext_no", offset, H5T_NATIVE_INTEGER, error)  
 
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt3_id, error)
         offset = 0
@@ -879,7 +879,7 @@ module gtm_hdf_write
         call h5tinsert_f(dt4_id, "attach_obj_no", offset, H5T_NATIVE_INTEGER, error)
              
         call h5dwrite_f(dset_id, dt1_id, qext%name, data_dims, error, xfer_prp = plist_id)
-        call h5dwrite_f(dset_id, dt2_id, qext%qext_index, data_dims, error, xfer_prp = plist_id)
+        call h5dwrite_f(dset_id, dt2_id, qext%qext_no, data_dims, error, xfer_prp = plist_id)
         call h5dwrite_f(dset_id, dt3_id, qext%attach_obj_type, data_dims, error, xfer_prp = plist_id)                     
         call h5dwrite_f(dset_id, dt4_id, qext%attach_obj_no, data_dims, error, xfer_prp = plist_id) 
 

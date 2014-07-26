@@ -42,6 +42,7 @@ module hydro_data_tidefile
         call assign_segment   
         call read_reservoir_tbl
         call read_qext_tbl
+        call read_tran_tbl
         call read_xsect_tbl    
         call get_dsm2_node_info
     end subroutine     
@@ -56,20 +57,33 @@ module hydro_data_tidefile
         call get_ts_from_hdf5(hydro_ws, "water surface", n_comp, time_offset, time_buffer)
         if (n_resv_conn > 0) call get_ts_from_hdf5(hydro_resv_flow, "reservoir flow", n_resv_conn, time_offset, time_buffer)
         if (n_resv > 0) call get_ts_from_hdf5(hydro_resv_height, "reservoir height", n_resv, time_offset, time_buffer)
-        if (n_qext > 0) call get_ts_from_hdf5(hydro_qext, "qext flow", n_qext, time_offset, time_buffer)
+        if (n_qext > 0) call get_ts_from_hdf5(hydro_qext_flow, "qext flow", n_qext, time_offset, time_buffer)
+        if (n_tran > 0) call get_ts_from_hdf5(hydro_tran_flow, "transfer flow", n_tran, time_offset, time_buffer)
         return  
     end subroutine      
     
     !> This subroutine is used to read one slice of DSM2 hydro tidefile,
     !> mainly time series.
-    subroutine dsm2_hdf_slice(flow_arr, ws_arr, num_comp, time_offset)
+    subroutine dsm2_hdf_slice(flow_arr, ws_arr, resv_arr, resv_conn_arr, qext_arr, tran_arr, num_comp, num_resv, num_resv_conn, num_qext, num_tran, time_offset)
         implicit none
         integer, intent(in) :: num_comp                             !< number of computational points
+        integer, intent(in) :: num_resv                             !< number of reservoirs
+        integer, intent(in) :: num_resv_conn                        !< number of reservoir connections
+        integer, intent(in) :: num_qext                             !< number of external flows
+        integer, intent(in) :: num_tran                             !< number of transfer flows
         integer, intent(in) :: time_offset                          !< time offset in hydro tidefile
         real(gtm_real), intent(out) :: flow_arr(num_comp)           !< output array for the slice at time of request
         real(gtm_real), intent(out) :: ws_arr(num_comp)             !< output array for the slice at time of request
-        call get_ts_from_hdf5(flow_arr,"flow",num_comp, time_offset,1)
-        call get_ts_from_hdf5(ws_arr,"water surface",num_comp, time_offset,1) 
+        real(gtm_real), intent(out) :: resv_arr(num_resv)           !< output array for the sloce at time of request
+        real(gtm_real), intent(out) :: resv_conn_arr(num_resv_conn) !< output array for the sloce at time of request
+        real(gtm_real), intent(out) :: qext_arr(num_qext)           !< output array for the sloce at time of request
+        real(gtm_real), intent(out) :: tran_arr(num_tran)           !< output array for the sloce at time of request
+        if (num_comp>0) call get_ts_from_hdf5(flow_arr,"flow", num_comp, time_offset,1)
+        if (num_comp>0) call get_ts_from_hdf5(ws_arr,"water surface", num_comp, time_offset,1) 
+        if (num_resv>0) call get_ts_from_hdf5(resv_arr,"reservoir height", num_resv, time_offset,1)
+        if (num_resv_conn>0) call get_ts_from_hdf5(resv_conn_arr,"reservoir flow", num_resv_conn, time_offset,1)
+        if (num_qext>0) call get_ts_from_hdf5(qext_arr,"qext flow", num_qext, time_offset,1)
+        if (num_tran>0) call get_ts_from_hdf5(tran_arr,"transfer flow", num_tran, time_offset,1)
         return
     end subroutine
          

@@ -137,7 +137,7 @@ module gtm_hdf_ts_write
 	
 	    ! create the data sets for time-varying output
 	    call init_cell_qual_hdf5(hdf_file, ncell, nconc, ntime)
-	    if (debug_print==.true.) then
+	    if (debug_print .eq. .true.) then
 	        call init_cell_qual_hdf5_debug(hdf_file, ncell, ntime)	    
 	    end if
 	    if (hdf_file%resv_dim .gt. 0)then

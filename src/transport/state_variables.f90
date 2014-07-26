@@ -86,6 +86,12 @@ module state_variables
     !> face-centered flow on hi side of cell  (so this is cell-indexed),
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: flow_hi(:)
+
+
+    real(gtm_real), save, allocatable :: resv_height(:)
+    real(gtm_real), save, allocatable :: resv_flow(:)
+    real(gtm_real), save, allocatable :: qext_flow(:)
+    real(gtm_real), save, allocatable :: tran_flow(:)
     
     
     contains
@@ -141,7 +147,52 @@ module state_variables
         return
     end subroutine
     
+    
+    !> Allocate the state variables consistently for reservoir/qext/transfer flows.
+    !> Initial value is LARGEREAL
+    subroutine allocate_state_node(a_nresv,a_nresv_conn,a_nqext,a_ntran,a_nvar)
+        use error_handling
+        implicit none
+        character(LEN=128) :: message
+        integer :: istat = 0
+        integer, intent(in) :: a_nresv      !< Number of requested 
+        integer, intent(in) :: a_nresv_conn !< Number of requested
+        integer, intent(in) :: a_nqext      !< Number of requested
+        integer, intent(in) :: a_ntran      !< Number of requested
+        integer, intent(in) :: a_nvar       !< Number of constituents
+        integer :: ncell, nvar
+        write(message,*)"Could not allocate state variable. " //&
+         "This could be due to allocating several times in " // &
+         "a row without deallocating (memory leak)"
         
+        allocate(resv_height(a_nresv), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        resv_height      = LARGEREAL
+
+        allocate(resv_flow(a_nresv_conn), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        resv_flow        = LARGEREAL
+
+        allocate(qext_flow(a_nqext), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        qext_flow        = LARGEREAL          
+
+        allocate(tran_flow(a_ntran), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        tran_flow        = LARGEREAL
+              
+        return
+    end subroutine
+    
+       
     !> Allocate reservoir state variables
     subroutine allocate_state_resv(a_nresv, a_nvar) 
         use error_handling
@@ -181,6 +232,23 @@ module state_variables
         deallocate(flow, flow_lo, flow_hi)
         return
     end subroutine
+    
+    !> Deallocate the state variables for nodes
+    !> including concentration and hydrodynamics
+    !> and reset ncell and nvar to zero.
+    subroutine deallocate_state_node
+        implicit none
+        n_resv = 0
+        n_resv_conn = 0
+        n_qext = 0
+        n_tran = 0
+        n_var  = 0
+        deallocate(resv_height)
+        deallocate(resv_flow)
+        deallocate(qext_flow)
+        deallocate(tran_flow)
+        return
+    end subroutine    
     
     !> Deallocate the state variables for reservoir
     !> including concentration and hydrodynamics

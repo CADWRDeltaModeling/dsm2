@@ -50,6 +50,10 @@ module ut_gtm_network
         integer :: icell, t, i
         real(gtm_real), allocatable :: prev_comp_flow(:) 
         real(gtm_real), allocatable :: prev_comp_ws(:)
+        real(gtm_real), allocatable :: prev_resv(:)
+        real(gtm_real), allocatable :: prev_resv_conn(:)
+        real(gtm_real), allocatable :: prev_qext(:)
+        real(gtm_real), allocatable :: prev_tran(:)
         procedure(hydro_data_if), pointer :: dsm2_hydro=> null()  !< Hydrodynamic pointer to be filled by the driver
         dsm2_hydro  => gtm_flow_area
         open(debug_unit, file = "gtm_network_debug.txt")       !< output text file
@@ -62,10 +66,12 @@ module ut_gtm_network
         call hdf5_init(h5_file_name)
         call dsm2_hdf_geom
         allocate(prev_comp_flow(n_comp), prev_comp_ws(n_comp))
+        allocate(prev_resv(n_resv), prev_resv_conn(n_resv_conn))
+        allocate(prev_qext(n_qext), prev_tran(n_tran))
         
         call allocate_hydro_ts
         call dsm2_hdf_ts(time_offset, time_buffer) 
-        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset-1)             
+        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)             
         
         call allocate_network_tmp
         hydro_time_index = 10 
@@ -90,7 +96,7 @@ module ut_gtm_network
         write(debug_unit,*) ""     
                 
         hydro_time_index = 11
-        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset)
+        call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset)           
         call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
         write(debug_unit,*) "flow_mesh_lo at hydro_time_index=11:"
         do t = 1, npartition_t+1

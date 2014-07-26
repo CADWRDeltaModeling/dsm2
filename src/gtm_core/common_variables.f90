@@ -38,6 +38,7 @@ module common_variables
      integer :: n_resv = LARGEINT                   !< number of reservoirs
      integer :: n_resv_conn = LARGEINT              !< number of reservoir connects
      integer :: n_qext = LARGEINT                   !< number of external flows
+     integer :: n_tran = LARGEINT                   !< number of transfer flows
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
     
@@ -46,7 +47,8 @@ module common_variables
      real(gtm_real), allocatable :: hydro_ws(:,:)          !< water surface from DSM2 hydro
      real(gtm_real), allocatable :: hydro_resv_flow(:,:)   !< reservoir flow
      real(gtm_real), allocatable :: hydro_resv_height(:,:) !< reservoir height
-     real(gtm_real), allocatable :: hydro_qext(:,:)        !< external flows
+     real(gtm_real), allocatable :: hydro_qext_flow(:,:)   !< external flows
+     real(gtm_real), allocatable :: hydro_tran_flow(:,:)   !< transfer flows
 
      !> Define scalar and envvar in input file 
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
@@ -140,7 +142,7 @@ module common_variables
      
      !> Define external flows
      type qext_t
-         integer :: qext_index                       !< qext index
+         integer :: qext_no                       !< qext index
          character*32 :: name                        !< qext name
          character*32 :: attach_obj_name             !< attached obj name
          integer :: attach_obj_type                  !< attached obj type (2:node, 3:reservoir)
@@ -160,6 +162,18 @@ module common_variables
      end type
      type(reservoir_conn_t), allocatable :: resv_conn(:)
      
+     !> Define transfer flows
+     type transfer_flow_t
+         integer :: tran_no                          !< transfer flow number
+         character*32 :: name                        !< transfer name
+         integer :: from_obj                         !< from obj (2: node, 3: reservoir)
+         integer :: from_identifier                  !< from identifier         
+         integer :: to_obj                           !< to obj (2: node, 3: reservoir)
+         integer :: to_identifier                    !< to identifier 
+     end type
+     type(transfer_flow_t), allocatable :: tran(:)
+     
+     
      !> DSM2 Node information
      type dsm2_node_t
          integer :: dsm2_node_no                   !< DSM2 node number
@@ -171,6 +185,8 @@ module common_variables
          integer :: reservoir_no                   !< connected to reservoir no (exist if not 0)
          integer :: n_qext                         !< number of external flows (exist if not 0)
          integer, allocatable :: qext_no(:)        !< connected qext number
+         integer :: n_tran                         !< number of transfer flows (exist if not 0)
+         integer, allocatable :: tran_no(:)        !< connected tran number
          integer :: nonsequential                  !< true: 1, false: 0
          integer :: no_fixup                       !< true: 1, false: 0
          integer :: node_conc                      !< true: 1, false: 0
@@ -191,28 +207,26 @@ module common_variables
      !> Allocate geometry property
      subroutine allocate_geometry()
          implicit none
-         integer :: checker
-         call check_param(checker)
-         if (checker == 0) then
-             call allocate_channel_property      
-             call allocate_comp_pt_property
-             call assign_segment
-             call allocate_reservoir_property
-             call allocate_qext_property     
-             call get_dsm2_node_info    
-         end if
+         if (n_chan .ne. LARGEINT) call allocate_channel_property      
+         if (n_comp .ne. LARGEINT) call allocate_comp_pt_property
+         if (n_comp .ne. LARGEINT) call assign_segment
+         if (n_resv .ne. LARGEINT) call allocate_reservoir_property
+         if (n_qext .ne. LARGEINT) call allocate_qext_property     
+         if (n_tran .ne. LARGEINT) call allocate_tran_property
+         if (n_node .ne. LARGEINT) call get_dsm2_node_info    
          return
      end subroutine    
 
      !> Deallocate geometry property
      subroutine deallocate_geometry()
          implicit none
-         call deallocate_channel_property
-         call deallocate_comp_pt_property
-         call deallocate_segment_property
-         call deallocate_reservoir_property
-         call deallocate_qext_property    
-         call deallocate_dsm2_node_property              
+         if (n_chan .ne. LARGEINT) call deallocate_channel_property
+         if (n_comp .ne. LARGEINT) call deallocate_comp_pt_property
+         if (n_segm .ne. LARGEINT) call deallocate_segment_property
+         if (n_resv .ne. LARGEINT) call deallocate_reservoir_property
+         if (n_qext .ne. LARGEINT) call deallocate_qext_property  
+         if (n_tran .ne. LARGEINT) call deallocate_tran_property  
+         if (n_node .ne. LARGEINT) call deallocate_dsm2_node_property              
          return
      end subroutine
          
@@ -322,13 +336,32 @@ module common_variables
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if
-         qext%qext_index = 0
+         qext%qext_no = 0
          qext%name = ' '
          qext%attach_obj_name = ' '
          qext%attach_obj_type = 0
          qext%attach_obj_no = 0         
          return
      end subroutine
+
+     !> Allocate transfer_t array
+     subroutine allocate_tran_property()
+         use error_handling
+         implicit none
+         integer :: istat = 0
+         character(len=128) :: message
+         allocate(tran(n_tran), stat = istat)
+         if (istat .ne. 0 )then
+            call gtm_fatal(message)
+         end if
+         tran%tran_no = 0
+         tran%name = ' '
+         tran%from_obj = 0
+         tran%from_identifier = 0
+         tran%to_obj = 0
+         tran%to_identifier = 0
+         return
+     end subroutine     
     
      !> Allocate hydro time series array
      subroutine allocate_hydro_ts()
@@ -339,7 +372,8 @@ module common_variables
          allocate(hydro_flow(n_comp,memory_buffer), hydro_ws(n_comp,memory_buffer), stat = istat)
          allocate(hydro_resv_flow(n_resv_conn, memory_buffer), stat = istat)
          allocate(hydro_resv_height(n_resv, memory_buffer), stat = istat)
-         allocate(hydro_qext(n_qext, memory_buffer), stat = istat)
+         allocate(hydro_qext_flow(n_qext, memory_buffer), stat = istat)
+         allocate(hydro_tran_flow(n_tran, memory_buffer), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if
@@ -347,32 +381,11 @@ module common_variables
          hydro_ws = LARGEREAL
          hydro_resv_flow = LARGEREAL
          hydro_resv_height = LARGEREAL
-         hydro_qext = LARGEREAL
+         hydro_qext_flow = LARGEREAL
+         hydro_tran_flow = LARGEREAL
          return
      end subroutine    
-    
-    
-     !> check all parameters are given
-     subroutine check_param(checker)
-         implicit none
-         integer, intent(out) :: checker
-         checker = 0
-         if (n_chan .eq. LARGEINT) then
-             checker = 1
-             call gtm_log(WARNING, "n_chan is not defined")
-         elseif (n_comp .eq. LARGEINT) then 
-             checker = 1
-             call gtm_log(WARNING, "n_comp is not defined")
-         elseif (n_resv_conn .eq. LARGEINT) then
-             checker = 1
-             call gtm_log(WARNING, "n_resv_conn is not defined")
-         elseif (n_qext .eq. LARGEINT) then
-             checker = 1
-             call gtm_log(WARNING, "n_qext is not defined")
-         end if    
-         return
-     end subroutine
-
+ 
 
      !> Deallocate channel property
      subroutine deallocate_channel_property()
@@ -406,7 +419,17 @@ module common_variables
          end if    
          return
      end subroutine     
-      
+
+     !> Deallocate transfer flows property
+     subroutine deallocate_tran_property()
+         implicit none
+         if (n_tran .ne. LARGEINT) then
+             n_tran = LARGEINT
+             deallocate(tran)
+         end if    
+         return
+     end subroutine   
+           
      !> Deallocate computational point property
      subroutine deallocate_comp_pt_property()
          implicit none
@@ -445,10 +468,11 @@ module common_variables
      !> Deallocate hydro time series array
      subroutine deallocate_hydro_ts()
          implicit none
-         deallocate(hydro_flow, hydro_ws)
-         deallocate(hydro_resv_flow)
-         deallocate(hydro_resv_height)
-         deallocate(hydro_qext)
+         if (n_comp .ne. LARGEINT) deallocate(hydro_flow, hydro_ws)
+         if (n_resv_conn .ne. LARGEINT) deallocate(hydro_resv_flow)
+         if (n_resv .ne. LARGEINT) deallocate(hydro_resv_height)
+         if (n_qext .ne. LARGEINT) deallocate(hydro_qext_flow)
+         if (n_tran .ne. LARGEINT) deallocate(hydro_tran_flow)
          return
      end subroutine
 
@@ -634,9 +658,24 @@ module common_variables
              do j = 1, n_qext
                  if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_no==unique_num(i)) then
                      k = k + 1
-                     dsm2_node(i)%qext_no(k) = qext(j)%qext_index
+                     dsm2_node(i)%qext_no(k) = qext(j)%qext_no
                  end if
-             end do                                      
+             end do
+             
+             do j = 1, n_tran
+                 if (tran(j)%from_obj==2 .and. tran(j)%from_identifier==unique_num(i)) then
+                     dsm2_node(i)%n_tran = dsm2_node(i)%n_tran + 1
+                 end if             
+             end do
+             allocate(dsm2_node(i)%tran_no(dsm2_node(i)%n_tran))
+             k = 0
+             do j = 1, n_tran
+                 if ((tran(j)%from_obj==2 .and. tran(j)%from_identifier==unique_num(i)) .or. &
+                     (tran(j)%from_obj==2 .and. tran(j)%to_identifier==unique_num(i))) then
+                     k = k + 1
+                     dsm2_node(i)%tran_no(k) = tran(j)%tran_no
+                 end if
+             end do                                  
          end do   
                   
          return

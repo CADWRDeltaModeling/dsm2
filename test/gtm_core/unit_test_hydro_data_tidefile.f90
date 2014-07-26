@@ -81,6 +81,8 @@ module ut_hydro_data_tide
         call assertEquals (dble(qext(2)%attach_obj_type),  dble(2), "problem in reading external flow type")
         call assertEquals (dble(qext(2)%attach_obj_no),  dble(425), "problem in reading external flow connect number")
 
+        call read_tran_tbl
+        
         ! test reading computational info
         call read_comp_tbl        
         call assertEquals (dble(comp_pt(15)%comp_index), dble(15), weakest_eps, "problem in reading comp_index")
@@ -132,7 +134,7 @@ module ut_hydro_data_tide
         call get_ts_from_hdf5(hydro_ws, "water surface", n_comp, time_offset, time_buffer)
         call get_ts_from_hdf5(hydro_resv_height, "reservoir height", n_resv, time_offset, time_buffer)
         call get_ts_from_hdf5(hydro_resv_flow, "reservoir flow", n_resv_conn, time_offset, time_buffer)
-        call get_ts_from_hdf5(hydro_qext, "qext flow", n_qext, time_offset, time_buffer)
+        call get_ts_from_hdf5(hydro_qext_flow, "qext flow", n_qext, time_offset, time_buffer)
         call assertEquals (dble(hydro_flow(6,1)), dble(890.294067382812), weakest_eps, "problem in reading flow")
         call assertEquals (dble(hydro_ws(6,1)), dble(5.62393283843994), weakest_eps, "problem in reading water surface")
         time_offset = 10
@@ -141,12 +143,12 @@ module ut_hydro_data_tide
         call get_ts_from_hdf5(hydro_ws, "water surface", n_comp, time_offset, time_buffer)
         call get_ts_from_hdf5(hydro_resv_height, "reservoir height", n_resv, time_offset, time_buffer)
         call get_ts_from_hdf5(hydro_resv_flow, "reservoir flow", n_resv_conn, time_offset, time_buffer)
-        call get_ts_from_hdf5(hydro_qext, "qext flow", n_qext, time_offset, time_buffer)        
+        call get_ts_from_hdf5(hydro_qext_flow, "qext flow", n_qext, time_offset, time_buffer)        
         call assertEquals (dble(hydro_flow(6,1)), dble(1231.77636718750), weakest_eps, "problem in reading flow")
         call assertEquals (dble(hydro_ws(6,1)), dble(5.14460611343384), weakest_eps, "problem in reading water surface")
         call assertEquals (dble(hydro_resv_height(3,2)), dble(1.9372283220291), weakest_eps, "problem in reading hydro_resv_height(3,2)")
         call assertEquals (dble(hydro_resv_flow(3,2)), dble(-640.6436), weakest_eps, "problem in reading hydro_resv_flow(3,2)")
-        call assertEquals (dble(hydro_qext(6,2)), dble(121.99999), weakest_eps, "problem in reading hydro_qext(5,2)")
+        call assertEquals (dble(hydro_qext_flow(6,2)), dble(121.99999), weakest_eps, "problem in reading hydro_qext(5,2)")
                
         ! test CxArea calculation
         call CxArea(area_from_CxArea, dble(5000),hydro_ws(6,1),2)                   

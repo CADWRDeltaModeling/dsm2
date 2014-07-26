@@ -42,6 +42,7 @@ program gtm
     use interpolation
     use gtm_network 
     use hydro_data
+    use hydro_data_node
     use state_variables
     use primitive_variable_conversion
     use advection
@@ -58,7 +59,15 @@ program gtm
     integer :: nt
     real(gtm_real), allocatable :: prev_comp_flow(:)
     real(gtm_real), allocatable :: prev_comp_ws(:)
-    real(gtm_real), allocatable :: flow_arr(:), ws_arr(:)
+    real(gtm_real), allocatable :: prev_resv(:)
+    real(gtm_real), allocatable :: prev_resv_conn(:)
+    real(gtm_real), allocatable :: prev_qext(:)
+    real(gtm_real), allocatable :: prev_tran(:)
+    real(gtm_real), allocatable :: flow_arr(:)
+    real(gtm_real), allocatable :: ws_arr(:)
+    real(gtm_real), allocatable :: resv_arr(:)
+    real(gtm_real), allocatable :: resv_conn_arr(:)
+    real(gtm_real), allocatable :: qext_arr(:)
     real(gtm_real), allocatable :: cfl(:)
     real(gtm_real), allocatable :: disp_coef_lo(:)      !< Low side constituent dispersion coef. at new time
     real(gtm_real), allocatable :: disp_coef_hi(:)      !< High side constituent dispersion coef. at new time
@@ -67,8 +76,6 @@ program gtm
     real(gtm_real) :: theta = half                      !< Crank-Nicolson implicitness coeficient
     real(gtm_real), parameter :: constant_dispersion = 0  !6000.d0
     
-    real(gtm_real) :: total_flow_volume_change, total_area_volume_change
-    real(gtm_real) :: avga_volume_change, diff
     integer :: up_comp, down_comp    
     integer :: time_offset
     integer :: i, j, ibuffer, start_buffer, icell
@@ -130,11 +137,19 @@ program gtm
     nt = npartition_t + 1
     allocate(prev_comp_flow(n_comp))
     allocate(prev_comp_ws(n_comp))
-    allocate(constituents(n_var))
-    allocate(flow_arr(n_comp), ws_arr(n_comp))
+    allocate(prev_resv(n_resv))
+    allocate(prev_resv_conn(n_resv_conn))
+    allocate(prev_qext(n_qext))
+    allocate(flow_arr(n_comp))
+    allocate(ws_arr(n_comp))
+    allocate(resv_arr(n_resv))
+    allocate(resv_conn_arr(n_resv_conn))
+    allocate(qext_arr(n_qext))
+    allocate(constituents(n_var))    
     call allocate_hydro_ts()  
     call allocate_network_tmp()
     call allocate_state(n_cell, n_var)
+    call allocate_state_node(n_resv, n_resv_conn, n_qext, n_tran, n_var)
     call allocate_state_resv(n_resv, n_var)
     allocate(init_c(n_cell,n_var))
     allocate(linear_decay(n_var))
@@ -149,6 +164,9 @@ program gtm
     
     constituents(1)%conc_no = 1
     constituents(1)%name = "EC"
+    call assign_node_ts
+    allocate(node_conc(n_node, n_var))
+    node_conc = zero    
     
     gtm_hdf_time_intvl = incr_intvl(zero,gtm_io(3,2)%interval,1)
     call init_qual_hdf(qual_hdf,             &
@@ -164,32 +182,12 @@ program gtm
         call write_input_to_hdf5(qual_hdf%file_id)
         call write_grid_to_tidefile(qual_hdf%file_id)
     end if
-
-    
-    do i = 1, n_inputpaths
-        do j = 1, n_var
-            call locase(pathinput(i)%variable)
-            call locase(constituents(j)%name)
-            if (trim(pathinput(i)%variable) .eq. trim(constituents(j)%name)) then
-                pathinput(i)%i_var = constituents(j)%conc_no
-            end if
-        end do
-        do j = 1, n_node
-            if (pathinput(i)%obj_no==dsm2_node(j)%dsm2_node_no) then
-                pathinput(i)%i_node = j
-                dsm2_node(j)%node_conc = 1
-            end if        
-        end do
-    end do
-
-    
-    allocate(node_conc(n_node, n_var))
-    node_conc = zero
                        
     !
     !----- point to interface -----
     !
     fill_hydro => gtm_flow_area
+    fill_hydro_node => gtm_node
     dispersion_coef => constant_dispersion_coef
     compute_source => no_source
     !compute_source => linear_decay_source
@@ -241,9 +239,8 @@ program gtm
             prev_day =  cdt(1:9)
         end if
         
-        !---get time series for boundary conditions
-        call get_inp_value(int(current_time),int(current_time-gtm_time_interval))   ! this will update pathinput(:)%value; rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
-        
+        !---get time series for boundary conditions, this will update pathinput(:)%value; rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
+        call get_inp_value(int(current_time),int(current_time-gtm_time_interval))        
         do i = 1, n_inputpaths
             node_conc(pathinput(i)%i_node, pathinput(i)%i_var) = pathinput(i)%value   
         end do    
@@ -258,15 +255,20 @@ program gtm
             time_offset = memory_buffer*(iblock-1)
             call dsm2_hdf_ts(time_offset, memlen(iblock))
             if (prev_comp_flow(1)==LARGEREAL) then                             !if (slice_in_block .eq. 1) then
-                call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, n_comp, time_offset-1)
+                call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)
             end if
         end if
 
         !--- interpolate flow and water surface between computational points
         if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
             call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws)
+            call interp_node(slice_in_block, prev_resv, prev_resv_conn, prev_qext, prev_tran)
             prev_comp_flow(:) = hydro_flow(:,slice_in_block)
-            prev_comp_ws(:) = hydro_ws(:,slice_in_block)       
+            prev_comp_ws(:) = hydro_ws(:,slice_in_block)      
+            prev_resv(:) = hydro_resv_height(:,slice_in_block)
+            prev_resv_conn(:) = hydro_resv_flow(:,slice_in_block)
+            prev_qext(:) = hydro_qext_flow(:,slice_in_block)
+            prev_tran(:) = hydro_tran_flow(:,slice_in_block)
             current_slice = slice_in_block
         end if
                 
@@ -279,7 +281,17 @@ program gtm
                         n_cell,   &
                         dble(t_index),  &
                         dx_arr,   &
-                        gtm_time_interval)         
+                        gtm_time_interval)  
+                        
+        call fill_hydro_node(resv_height, &
+                             resv_flow,   &
+                             qext_flow,   &
+                             tran_flow,   &
+                             n_resv,       &
+                             n_resv_conn,  &
+                             n_qext,       &
+                             n_tran,       &
+                             dble(t_index))                               
                            
         if (current_time == gtm_start_jmin) then
             call prim2cons(mass_prev, conc, area, n_cell, n_var)
@@ -383,6 +395,7 @@ program gtm
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state
+    call deallocate_state_node
     call deallocate_state_resv
     call deallocate_network_tmp
     call deallocate_hydro_ts

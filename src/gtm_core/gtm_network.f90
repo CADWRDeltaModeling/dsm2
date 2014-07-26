@@ -32,6 +32,11 @@ module gtm_network
     real(gtm_real), allocatable :: flow_mesh_hi(:,:)
     real(gtm_real), allocatable :: area_mesh_lo(:,:)
     real(gtm_real), allocatable :: area_mesh_hi(:,:)
+    real(gtm_real), allocatable :: resv_height_mesh(:,:)
+    real(gtm_real), allocatable :: resv_flow_mesh(:,:)
+    real(gtm_real), allocatable :: qext_flow_mesh(:,:)
+    real(gtm_real), allocatable :: tran_flow_mesh(:,:)     
+    
     real(gtm_real), allocatable :: prev_flow_cell_lo(:)
     real(gtm_real), allocatable :: prev_flow_cell_hi(:)
     real(gtm_real), allocatable :: flow_volume_change(:,:)
@@ -44,10 +49,14 @@ module gtm_network
         implicit none
         integer :: istat = 0
         character(len=128) :: message
-        allocate(flow_mesh_lo(npartition_t+1,n_cell), stat = istat)
-        allocate(flow_mesh_hi(npartition_t+1,n_cell), stat = istat)
-        allocate(area_mesh_lo(npartition_t+1,n_cell), stat = istat)
-        allocate(area_mesh_hi(npartition_t+1,n_cell), stat = istat)
+        allocate(flow_mesh_lo(npartition_t+1, n_cell), stat = istat)
+        allocate(flow_mesh_hi(npartition_t+1, n_cell), stat = istat)
+        allocate(area_mesh_lo(npartition_t+1, n_cell), stat = istat)
+        allocate(area_mesh_hi(npartition_t+1, n_cell), stat = istat)
+        allocate(resv_height_mesh(npartition_t+1, n_resv), stat = istat)
+        allocate(resv_flow_mesh(npartition_t+1, n_resv_conn), stat = istat)
+        allocate(qext_flow_mesh(npartition_t+1, n_qext), stat = istat)
+        allocate(tran_flow_mesh(npartition_t+1, n_tran), stat = istat)        
         allocate(flow_volume_change(npartition_t, n_cell), stat = istat)
         allocate(area_volume_change(npartition_t, n_cell), stat = istat)        
         allocate(prev_flow_cell_lo(n_cell), stat = istat)
@@ -59,6 +68,10 @@ module gtm_network
         flow_mesh_hi = LARGEREAL
         area_mesh_lo = LARGEREAL
         area_mesh_hi = LARGEREAL
+        resv_height_mesh = LARGEREAL
+        resv_flow_mesh = LARGEREAL
+        qext_flow_mesh = LARGEREAL
+        tran_flow_mesh = LARGEREAL
         flow_volume_change = LARGEREAL
         area_volume_change = LARGEREAL
         prev_flow_cell_lo = LARGEREAL
@@ -71,6 +84,10 @@ module gtm_network
         implicit none
         deallocate(flow_mesh_lo, flow_mesh_hi)
         deallocate(area_mesh_lo, area_mesh_hi)
+        deallocate(resv_height_mesh)
+        deallocate(resv_flow_mesh)
+        deallocate(qext_flow_mesh)
+        deallocate(tran_flow_mesh)
         deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
         return
     end subroutine
@@ -122,6 +139,40 @@ module gtm_network
         return
     end subroutine
     
+    !> interpolate external flows data (reservoir, qext and transfer) for node
+    !> use common_variabls, only : npartition_t, n_resv, nresv_conn
+    subroutine interp_node(hydro_time_index, prev_resv, prev_resv_conn, prev_qext, prev_tran)
+        implicit none
+        integer, intent(in) :: hydro_time_index
+        real(gtm_real), intent(in) :: prev_resv(n_resv)
+        real(gtm_real), intent(in) :: prev_resv_conn(n_resv_conn)
+        real(gtm_real), intent(in) :: prev_qext(n_qext)
+        real(gtm_real), intent(in) :: prev_tran(n_tran)
+        call interp_linear_in_time(resv_height_mesh, npartition_t+1, n_resv, hydro_resv_height(:,hydro_time_index), prev_resv)
+        call interp_linear_in_time(resv_flow_mesh, npartition_t+1, n_resv_conn, hydro_resv_flow(:,hydro_time_index), prev_resv_conn)
+        call interp_linear_in_time(qext_flow_mesh, npartition_t+1, n_qext, hydro_qext_flow(:,hydro_time_index), prev_qext)
+        call interp_linear_in_time(tran_flow_mesh, npartition_t+1, n_tran, hydro_tran_flow(:,hydro_time_index), prev_tran)        
+        return
+    end subroutine    
+    
+    !> return linear interpolated values (only interpolate over time, not space, because they are not spatially related.)
+    subroutine interp_linear_in_time(mesh, nt, n_dim, current_ts, prev_ts)
+        implicit none
+        integer, intent(in) :: nt                        !< number of partition in time
+        integer, intent(in) :: n_dim                     !< dimension
+        real(gtm_real), intent(in) :: prev_ts(n_dim)     !< time series at previous time slice
+        real(gtm_real), intent(in) :: current_ts(n_dim)  !< time series at current time slice
+        real(gtm_real), intent(out) :: mesh(n_dim, nt)
+        integer :: i, j
+        do i = 1, n_dim
+            do j = 1, nt
+                mesh(i, j) = prev_ts(i) + (current_ts(i)-prev_ts(i))*(dble(j)-one)/(dble(nt)-one)
+            end do
+        end do        
+        return
+    end subroutine
+    
+    
     !> hydrodynamic interface to retrieve area and flow
     subroutine gtm_flow_area(flow,    &
                              flow_lo, &
@@ -160,5 +211,36 @@ module gtm_network
         !write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
         return
     end subroutine       
+
+
+    !> hydrodynamic interface to retrieve reservor, external and transfer flows
+    !> connected to nodes
+    subroutine gtm_node(resv_height,  &
+                        resv_flow,    &
+                        qext_flow,    &
+                        tran_flow,    &
+                        nresv,        &
+                        nresv_conn,   &
+                        nqext,        &
+                        ntran,        &
+                        time)
+        implicit none
+        integer, intent(in) :: nresv                         !< number of reservoirs
+        integer, intent(in) :: nresv_conn                    !< number of reservoir connections
+        integer, intent(in) :: nqext                         !< number of external flows
+        integer, intent(in) :: ntran                         !< number of transfer flows
+        real(gtm_real), intent(in) :: time                   !< time index in the mesh
+        real(gtm_real), intent(out) :: resv_height(nresv)    !< reservoir height
+        real(gtm_real), intent(out) :: resv_flow(nresv_conn) !< reservoir flow
+        real(gtm_real), intent(out) :: qext_flow(nqext)      !< external flow
+        real(gtm_real), intent(out) :: tran_flow(ntran)      !< transfer flow
+        integer :: time_index
+        time_index = int(time)
+        resv_height(:) = resv_height_mesh(time_index,:)
+        resv_flow(:) = resv_flow_mesh(time_index,:)
+        qext_flow(:) = qext_flow_mesh(time_index,:)
+        tran_flow(:) = tran_flow_mesh(time_index,:)                        
+        return                
+    end subroutine                    
 
 end module

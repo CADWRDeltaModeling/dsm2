@@ -185,7 +185,7 @@ module advection
                           nvar)
 
         do i = 1, n_dsm2_node
-            if ( (dsm2_node_type(i)%boundary_no.ne.0) .and. (dsm2_node_type(i)%node_conc==1) ) then
+            if ( (dsm2_node_type(i)%boundary_no.ne.0) .and. (dsm2_node_type(i)%node_conc==1) ) then  !if boundary and node concentration is given
                 icell = dsm2_node_type(i)%cell_no(1)
                 if (dsm2_node_type(i)%up_down(1) .eq. 1) then     ! upstream boundary
                     conc_lo(icell,:) = node_conc(i,:)

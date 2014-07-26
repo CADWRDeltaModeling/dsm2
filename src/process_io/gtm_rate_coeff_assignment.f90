@@ -44,7 +44,7 @@ module gtm_rate_coeff_assignment
             do  j=1,ncoef_type
                 do  i=1,max_constituent
                     if (rate_var_require_flag (i,j)) then
-                        if(rcoef_res(i,j,k)==miss_val_r) then
+                        if(rcoef_res(i,j,k).eq. miss_val_r) then
                             write(funit,4000) trim(name)//" missing ",trim(constituent_name(i))//" " &
                                 ,trim(rate_name(j))//" coefficient value "
                         else
@@ -63,7 +63,7 @@ module gtm_rate_coeff_assignment
             do  j=1,ncoef_type
                 do  i=1,max_constituent
                     if (rate_var_require_flag(i,j)) then
-                        if(rcoef_chan(i,j,k)==miss_val_r) then
+                        if(rcoef_chan(i,j,k).eq. miss_val_r) then
                             write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" "&
                                 ,trim(rate_name(j))//" coefficient value "
                         else
@@ -108,7 +108,7 @@ module gtm_rate_coeff_assignment
             do  j=1,ncoef_type
                 do  i=1,max_constituent
                     if (rate_var_require_flag (i,j)) then
-                        if(rcoef_res(i,j,k)==miss_val_r) then
+                        if(rcoef_res(i,j,k).eq. miss_val_r) then
                             call objno_to_name(obj_reservoir,k,name)
                             write(funit,*) "fatal error:"
                             write(funit,4000) trim(name)//" missing ", &
@@ -130,7 +130,7 @@ module gtm_rate_coeff_assignment
             do  j=1,ncoef_type
                 do  i=1,max_constituent
                     if (rate_var_require_flag(i,j)) then
-                        if(rcoef_chan(i,j,k)==miss_val_r) then
+                        if(rcoef_chan(i,j,k) .eq. miss_val_r) then
                             call objno_to_name(obj_channel,k,name)
                             write(funit,4000) trim(name)//" miss ",trim(constituent_name(i))//" " &
                                 ,trim(rate_name(j))//" coefficient value "

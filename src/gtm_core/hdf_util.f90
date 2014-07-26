@@ -84,6 +84,7 @@ module hdf_util
        call get_int_attribute_from_hdf5(n_resv, "Number of reservoirs")
        call get_int_attribute_from_hdf5(n_resv_conn, "Number of reservoir node connects")
        call get_int_attribute_from_hdf5(n_qext, "Number of QExt")
+       call get_int_attribute_from_hdf5(n_tran, "Number of flow transfers")
        call get_int_attribute_from_hdf5(hydro_ntideblocks, "Number of intervals")
        call get_int_attribute_from_hdf5(hydro_start_jmin, "Start time")
        call get_int_attribute_from_hdf5(hydro_time_interval, "Time interval")
@@ -499,7 +500,7 @@ module hdf_util
            call h5tget_size_f(dt_id, type_size, error)
            
            do i = 1, n_qext
-               qext(i)%qext_index = i
+               qext(i)%qext_no = i
            end do
            
            offset = 0
@@ -532,6 +533,80 @@ module hdf_util
        return        
    end subroutine  
    
+
+   !> Read transfer flow tables from hydro tidefile to fill in transfer flow
+   subroutine read_tran_tbl()
+       use common_variables, only : n_tran, tran, allocate_tran_property
+       implicit none
+       integer(HID_T) :: input_id                       ! Group identifier
+       integer(HID_T) :: dset_id                        ! Dataset identifier
+       integer(HID_T) :: dt_id, dt5_id                  ! Memory datatype identifier
+       integer(HID_T) :: dt1_id, dt2_id                 ! Memory datatype identifier
+       integer(HID_T) :: dt3_id, dt4_id                 ! Memory datatype identifier
+       integer(SIZE_T):: offset                         ! Member's offset
+       integer(HSIZE_T), dimension(1) :: data_dims      ! Datasets dimensions
+       integer(SIZE_T) :: typesize                      ! Size of the datatype
+       integer(SIZE_T) :: type_size                     ! Size of the datatype
+       integer :: error                                 ! Error flag
+       integer :: i, from_i, to_i                       ! local variables
+       character*32 :: from_obj, from_identifier        ! local variables
+       character*32 :: to_obj, to_identifier            ! local variables
+       
+       data_dims(1) = n_tran
+       call allocate_tran_property()
+       if (n_tran > 0) then
+           call h5gopen_f(hydro_id, "input", input_id, error)
+           call h5dopen_f(input_id, "transfer", dset_id, error) 
+           call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+           typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+           call h5tset_size_f(dt_id, typesize, error)
+           call h5tget_size_f(dt_id, type_size, error)
+           
+           offset = 0
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt1_id, tran%name, data_dims, error) 
+           
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+           call h5tinsert_f(dt2_id, "from_obj", offset, H5T_NATIVE_CHARACTER, error)    
+           call h5dread_f(dset_id, dt2_id, from_obj, data_dims, error)           
+           
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
+           call h5tinsert_f(dt3_id, "from_identifier", offset, H5T_NATIVE_CHARACTER, error)    
+           call h5dread_f(dset_id, dt3_id, from_identifier, data_dims, error)
+
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
+           call h5tinsert_f(dt4_id, "to_obj", offset, H5T_NATIVE_CHARACTER, error)    
+           call h5dread_f(dset_id, dt4_id, to_obj, data_dims, error)        
+
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt5_id, error)
+           call h5tinsert_f(dt5_id, "to_identifier", offset, H5T_NATIVE_CHARACTER, error)    
+           call h5dread_f(dset_id, dt5_id, to_identifier, data_dims, error)    
+           
+           call h5tclose_f(dt5_id, error)
+           call h5tclose_f(dt4_id, error)                       
+           call h5tclose_f(dt3_id, error)          
+           call h5tclose_f(dt2_id, error)  
+           call h5tclose_f(dt1_id, error)         
+           call h5tclose_f(dt_id, error)
+           call h5dclose_f(dset_id, error) 
+           call h5gclose_f(input_id, error) 
+           
+           do i = 1, n_tran
+               tran(i)%tran_no = i
+               if (trim(from_obj)=='NODE') tran(i)%from_obj = 2
+               if (trim(from_obj)=='RESERVOIR') tran(i)%from_obj = 3
+               if (trim(to_obj)=='NODE') tran(i)%from_obj = 2
+               if (trim(to_obj)=='RESERVOIR') tran(i)%from_obj = 3
+               read(from_identifier,'(i)') from_i
+               read(to_identifier,'(i)') to_i
+               tran(i)%from_identifier = from_i
+               tran(i)%to_identifier = to_i               
+           end do            
+       end if    
+       return        
+   end subroutine  
+
      
    !> Read integer attributes from hydro tidefile     
    subroutine get_int_attribute_from_hdf5(attr_value, attr_name)        
