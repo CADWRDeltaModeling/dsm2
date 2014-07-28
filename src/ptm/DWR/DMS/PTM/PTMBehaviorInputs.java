@@ -124,6 +124,7 @@ public class PTMBehaviorInputs {
 			_survivalInputs.setChannelInfo(allWbs);
 		}
 		if (_swimInputs != null){
+			_swimInputs.setChannelInfo(allWbs);
 			//TODO need finish this
 			//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
 		}

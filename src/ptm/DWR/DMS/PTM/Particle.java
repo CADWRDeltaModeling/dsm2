@@ -295,6 +295,7 @@ _survivalHelper = null;
   /**
     *  updates the position and parameters of Particle.
     */
+  //delT is ptm input time step
   public final void updatePosition(float delT){ //delT in seconds
 	if (observer == null)
 		PTMUtil.systemExit("expect an observer be installed, but not, system exit");
@@ -419,7 +420,7 @@ _survivalHelper = null;
   /**
     *  Time left for completing the current PTM input time step
     */
-  protected float tmLeft;
+  private float tmLeft;
   
   /**
     *  Mixing co-efficients
@@ -464,10 +465,11 @@ _survivalHelper = null;
     *  The new position of the Particle is available as
     *  Particle.x, Particle.y and Particle.z
     */
-  protected final void updateXYZPosition(float delT){
+ //delT in seconds, is ptm input time step 
+ protected final void updateXYZPosition(float delT){
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
-      tmLeft = delT;
+      tmLeft = delT+_leftoverTime;
       // update sub-time step due to y & z mixing
       int numOfSubTimeSteps = getSubTimeSteps(delT);
       float tmstep = delT/numOfSubTimeSteps;
@@ -553,23 +555,34 @@ _survivalHelper = null;
   /**
     *  X Position calculation for the time step given
     */
+  //timeStep in seconds
   protected final float calcXPosition(float timeStep){
     // get current position
 	float xPos = this.x;
     // calculate position after timeStep
+	//System.err.println("before "+ xPos);
     xPos = xPos + calcXDisplacementExtDeterministic(timeStep)
                 + calcXDisplacementExtRandom(timeStep)
                 + calcXDisplacementIntDeterministic(timeStep)
                 + calcXDisplacementIntRandom(timeStep);
-
+    float totalVelocity = calcTotalXVelocity();
+    	//System.err.println("after:"+PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex())
+    			//+ " in channel " + PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex()));
+    	//System.err.println("after "+ xPos);
+    	//System.err.println("before:"+PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex()));
     // when particle crossing the coming node, into next wb
+    // TO is NodeReached (...): this code need to be re-written, very confusing
     if (isNodeReached(xPos) == true) {
     	// isNodeReached changes nd if a node is reached and this.nd is the node just reached
-    	// wb has not been changed yet
+    	// wb has not been changed yet. wb will be changed when makeNodeDecision is called
+      //TODO clean Up
+      /* this part of the code caused infinite loop  	
       float timeToReachNode = calcTimeToNode(xPos);
       tmLeft -= timeToReachNode;
       age = age - timeStep + timeToReachNode;
-   
+      */
+      
+      //makeNodeDecision() set x to the start of a new node
       makeNodeDecision();
       
       // for dead-end, or not flow-conflict node (not effective outflows)
@@ -579,14 +592,28 @@ _survivalHelper = null;
    	      repositionFactor += RFIncrement;//increase timestep
    	      System.out.println("Reposition Factor set to " + repositionFactor
                            + " for particle " + getId() + " at node "
-                           + ((Channel)wb).getUpNodeId());
+                           + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())
+                           //+ PTMHydroInput.getExtFromIntNode(((Channel)wb).getUpNodeId())
+                           + " in channel " + PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex()));
         }
         recursionCounter = 0;
       }
       
-      // update XYZ for the rest of 1 PTM input time step
-      if ( tmLeft > 1.0e-3f ) updateXYZPosition(tmLeft);
-      
+    //TODO clean Up
+      /* this part of the code caused infinite loop  	
+      // update XYZ for the rest of 1 PTM input time step in new waterbody (water body is updated after make NodeDecision
+      // tmLeft in seconds
+      //TODO this code need to be rewritten, causing infinite loop tmLeft never change 
+      if ( tmLeft > 1.0e-3f ){
+    	  System.err.println("tmLeft:"+tmLeft);
+    	  updateXYZPosition(tmLeft);
+      }
+      return x;
+      */
+      // do I need leftover time since wb and nd are all changed?
+      _leftoverTime = Math.abs((xPos-x)/totalVelocity);
+      tmLeft = 0;
+      age -= 
       return x;
     }// end if (nodeReached)
     
@@ -748,6 +775,12 @@ _survivalHelper = null;
     */
   protected float calcXVelocityIntRandom() {return 0.0f;}
   
+  private float calcTotalXVelocity(){
+	  return (calcXVelocityExtDeterministic() + calcXVelocityExtRandom()
+			  + calcXVelocityIntDeterministic() + calcXVelocityIntRandom());
+  }
+  
+  
   /**
     *  Makes Node decision on which Waterbody to enter into next;
     *  update nd, wb, x
@@ -758,8 +791,8 @@ _survivalHelper = null;
 	 * now node is the current Node in which Particle entered
 	 * send message to observer about change 
 	*/
-	//TODO clean up checkSurvival is done in updateXYZPosition.
-	//if (!checkSurvival()) return;
+	if (wb != null && wb.getType() != Waterbody.CHANNEL)
+		PTMUtil.systemExit("makeNOdeDecision call for non-channel waterbody, illegal, system exit");
 	if (observer != null) 
 	  observer.observeChange(ParticleObserver.NODE_CHANGE,this); 
 	
@@ -770,9 +803,8 @@ _survivalHelper = null;
 	  
 	if (observer != null) 
 		observer.observeChange(ParticleObserver.WATERBODY_CHANGE,this);
-	    // set x as beginning of Channel...
-		x = getXLocationInChannel();
-   
+	// set x as beginning of Channel...
+	x = getXLocationInChannel();
   }
   /**
     *  updates pParticle position after calling makeReservoirDecision
@@ -782,6 +814,7 @@ _survivalHelper = null;
   
     // adjust time and age
     age += timeStep;
+    //TODO don't know why to do this?
     tmLeft = tmLeft - timeStep;
   
     //get a pointer to the Node into which pParticleenters from Reservoir
@@ -1075,9 +1108,9 @@ _survivalHelper = null;
     float newXPosition = 0.0f;
     if (wb.getPTMType() ==  Waterbody.CHANNEL) {
       if (((Channel)wb).getUpNodeId() == nd.getEnvIndex())
-      newXPosition = 0;
+    	  newXPosition = 0;
       if (((Channel)wb).getDownNodeId() == nd.getEnvIndex())
-      newXPosition = ((Channel)wb).getLength();
+    	  newXPosition = ((Channel)wb).getLength();
     }
     return newXPosition;
   }
@@ -1172,7 +1205,6 @@ _survivalHelper = null;
   private float [] cD = new float[1];
   private float [] cV = new float[1];
   private float [] cA = new float[1];
-
-
+  private float _leftoverTime = 0.0f;
 }
 

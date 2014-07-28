@@ -507,6 +507,7 @@ public class PTMEnv{
    *  Get the next chunk of data for time step given
    *  and updates the Waterbody array with that information.
    */
+  //currentTime here is in minute
   public final void getHydroInfo(int currentTime){
     hydroInput.getNextChunk(currentTime);
     hydroInput.updateWaterbodiesHydroInfo(wbArray, fixedInput.getLimitsFixedData());

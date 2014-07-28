@@ -26,6 +26,11 @@ package DWR.DMS.PTM;
  * @version $Id: Channel.java,v 1.4.6.1 2006/04/04 18:16:24 eli2 Exp $
  */
 public class Channel extends Waterbody{
+	/**
+	   *  a constant for universal swimming velocity.
+	   */
+	public static float uSwimmingVelocity = 0.0f;
+	
   /**
    *  a constant for vertical velocity profiling.
    */
@@ -123,6 +128,7 @@ public class Channel extends Waterbody{
   /**
    *  Gets the velocity of water in Channel at that particular x,y,z position
    */
+  //TODO never been used, clean up
   public final float getVelocity(float xPos, float yPos, float zPos){
     // returns v >= sign(v)*0.001
     float v = getAverageVelocity(xPos);
@@ -142,7 +148,14 @@ public class Channel extends Waterbody{
     float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, depth);
     if(useTransProfile) tp = calcTransProfile(yPos, width);
-    return (averageVelocity*vp*tp);
+    if (_isSwimmingVelSet) 
+    	return (averageVelocity*vp*tp + ( _swimmingVelocity));
+    return  (averageVelocity*vp*tp + uSwimmingVelocity);
+  }
+  
+  public void setSwimmingVelocity(float sv){
+	  _swimmingVelocity = sv;
+	  _isSwimmingVelSet = true;
   }
   
   /**
@@ -414,6 +427,8 @@ public class Channel extends Waterbody{
   private float[] depthAt;
   private float[] stageAt;
   private String _chanGroup = null;
+  private float _swimmingVelocity = 0.0f;
+  private boolean _isSwimmingVelSet = false;
   
   /**
    *  Bottom elevation of Channel or reservoir

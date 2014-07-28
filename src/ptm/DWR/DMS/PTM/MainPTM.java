@@ -189,7 +189,9 @@ public class MainPTM {
             // initialize current model time
             //   Globals.currentModelTime = startTime;
             //main loop for running Particle model
-            // unit of time is second
+            
+            //currentModelTime, startTime, endTime, PTMTimeStep are in minutes
+            // timeStep is in seconds, which is used to update positions
             for(Globals.currentModelTime  = startTime; 
                 Globals.currentModelTime <= endTime; 
                 Globals.currentModelTime += PTMTimeStep){
@@ -205,6 +207,7 @@ public class MainPTM {
                 for (int i=0; i<numberOfParticles; i++){
                 	//TODO survival check was checked in updateXYZPosition in particle class but commented out
                 	// because with subtime step too many random numbers are sampled
+                	// ptm timeStep in seconds
                 	if (!particleArray[i].isDead) 
                 		particleArray[i].updatePosition(timeStep);
                 }

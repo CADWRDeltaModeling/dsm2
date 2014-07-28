@@ -92,7 +92,6 @@ public class BasicRouteBehavior {
 	    float totalInflowWOAgDiv = p.nd.getTotalWaterbodyInflows() - totalAgDivFlows;
 	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
 	    boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
-
 	    do {
 	    	waterbodyId ++;
 	    	thisWb = p.nd.getWaterbody(waterbodyId);

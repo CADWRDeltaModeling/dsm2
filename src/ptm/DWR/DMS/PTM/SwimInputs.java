@@ -31,27 +31,41 @@ public class SwimInputs {
 	public void setSwimmingVelocityForAll(String sVel){
 		if (_groupNames == null && _swimmingVelocities == null){
 			_groupNames = new ArrayList<String>();
-			_swimmingVelocities = new HashMap<String, Double>();
+			_swimmingVelocities = new HashMap<String, Float>();
 		}
 		else if (_groupNames != null && _swimmingVelocities != null){
 			if(!_groupNames.contains("ALL"))
 				_groupNames.add("ALL");
 			try{
-				_swimmingVelocities.put("ALL", Double.parseDouble(sVel));
+				_swimmingVelocities.put("ALL", Float.parseFloat(sVel));
 			}catch (NumberFormatException e){
 				e.printStackTrace();
-				PTMUtil.systemExit("expect a double for a swimming velocity for all channels but get:" + sVel);	
+				PTMUtil.systemExit("expect a float for a swimming velocity for all channels but get:" + sVel);	
 			}	
 		}
 		else
 			PTMUtil.systemExit("Tried to set swimming velocity but it is incorrectly set before, system exit.");
 	}
-	public double getSwimmingVelocityForAll(){
+	public float getSwimmingVelocityForAll(){
 		if (_swimmingVelocities == null || _swimmingVelocities.get("ALL") == null)
-			return 0;
+			return 0.0f;
 		return _swimmingVelocities.get("ALL");
 	}
-	public void setChannelInfo(Waterbody[] allChans, int chanNum){}
+	public void setChannelInfo(Waterbody[] allWbs){
+		if (_swimmingVelocities != null){
+			Float sv = _swimmingVelocities.get("ALL");
+			if (sv != null)
+				Channel.uSwimmingVelocity = sv;
+			if (_channelGroups != null){
+				for (int chan: _channelGroups.keySet()){
+					//wbArray starts from 1. see PTMFixedInput.java line 180
+					((Channel) allWbs[chan]).setSwimmingVelocity(_swimmingVelocities.get(_channelGroups.get(new Integer(chan))));
+				}
+			}
+				
+		}
+		
+	}
 	public void setNodeInfo(Node[] allNodes, int nodeNum){}
 	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
 		
@@ -70,16 +84,16 @@ public class SwimInputs {
 		if (_groupNames != null || _swimmingVelocities != null)
 			PTMUtil.systemExit("Swimming velocities should not have been set before SwimInputs intialization, system exit");
 		_groupNames = new ArrayList<String>();
-		_swimmingVelocities = new HashMap<String, Double>();
+		_swimmingVelocities = new HashMap<String, Float>();
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			// put into the map: group name, survival rate
 			try{
 				String groupName = items[0].toUpperCase();
-				_swimmingVelocities.put(groupName, Double.parseDouble(items[1]));
+				_swimmingVelocities.put(groupName, Float.parseFloat(items[1]));
 				_groupNames.add(items[0].toUpperCase());
 			}catch(NumberFormatException e){
-				PTMUtil.systemExit("expect to read a double in the swimming velocity line, but read: "+items[1]+", System exit.");
+				PTMUtil.systemExit("expect to read a float in the swimming velocity line, but read: "+items[1]+", System exit.");
 			}
 		}
 		//get Channel list
@@ -125,7 +139,7 @@ public class SwimInputs {
 	}
 	private SwimHelper _swimHelper = null;
 	private String _fishType = null;
-	private Map<String, Double> _swimmingVelocities=null;
+	private Map<String, Float> _swimmingVelocities=null;
 	private ArrayList<String> _groupNames=null;
 	private Map<Integer, String> _channelGroups=null;
 }
