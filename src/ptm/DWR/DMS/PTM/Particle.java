@@ -467,65 +467,89 @@ _survivalHelper = null;
     */
  //delT in seconds, is ptm input time step 
  protected final void updateXYZPosition(float delT){
-    if (wb.getPTMType() ==  Waterbody.CHANNEL) {
-      if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
-      tmLeft = delT+_leftoverTime;
-      // update sub-time step due to y & z mixing
-      int numOfSubTimeSteps = getSubTimeSteps(delT);
-      float tmstep = delT/numOfSubTimeSteps;
-      // PTM internal calculation time step
-      float tmToAdv = 0;
-      
-      //y, z set up for particles which are just out of reservoir and conveyor
-      if (Macro.APPROX_EQ(y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {
-        setYZLocationInChannel();
-      }
-      
-      // update particle's x,y,z position every sub-time step
-      while (tmLeft > 0 && isDead == false){
-        if (tmLeft >= tmstep) {// for all sub-time steps except the last
-        	tmToAdv = tmstep;
-        } else {// for the last sub-time step; deal with division precision & truncation
-        	tmToAdv = tmLeft;
-        }
-        
-        // age in seconds
-        age += tmToAdv;
-        // check survival, if not survived, isDead is set to true and call observer.observeDeath()
-        //TODO commented out for now.  When survival is checked here,  the small sub-time step makes survival checks be performed too many times
-        // and eventually the random number be greater than the survival possibility and isDead is set to true.
-        // the survival check is now placed in makeNodeDecision.  Only when node, reservoir, etc. is encountered, the survival is checked.
-        if (!checkSurvival(tmToAdv)) return;
-        updateAllParameters(tmToAdv);
-        if (particleWait == false){
-          x = calcXPosition(tmToAdv);
-          // particle into reservoir/conveyor, out of the whole function
-          if (wb.getPTMType() != Waterbody.CHANNEL) return;
-          if (isDead == false) {// save time if particle's dead
-            y = calcYPosition(tmToAdv);
-            z = calcZPosition(tmToAdv);
-          }
-        }//end if(particleWait)
-        tmLeft -= tmToAdv;
-      }// end while
-      
-    }// end if(CHANNEL)
-    
-    else if (wb.getPTMType() ==  Waterbody.RESERVOIR){
-      if (DEBUG) System.out.println("Particle " + this + " in reservoir " + wb.getEnvIndex() );
-      tryCrossReservoir(delT); 
-    }
-    
-    else if (wb.getPTMType() == Waterbody.CONVEYOR){
-      if (DEBUG) System.out.println("Particle " + this + " in conveyor " + wb.getEnvIndex() );
-      // zero time delay
-      moveInConveyor(delT);
-    }
+	 tmLeft = delT;
+	 while (tmLeft>0){
+		 if (wb.getPTMType() ==  Waterbody.CHANNEL) {
+			 if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
 
-    else if (wb.getPTMType() ==  Waterbody.BOUNDARY) {
-      if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
-      isDead=true;
-    }
+			 // update sub-time step due to y & z mixing
+			 int numOfSubTimeSteps = getSubTimeSteps(tmLeft);
+			 float tmstep = tmLeft/numOfSubTimeSteps;
+			 // PTM internal calculation time step
+			 float tmToAdv = 0;
+      
+			 //y, z set up for particles which are just out of reservoir and conveyor
+			 if (Macro.APPROX_EQ(y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {
+				 setYZLocationInChannel();
+			 }
+      
+			 // update particle's x,y,z position every sub-time step
+			 while (tmLeft > 0 && !isDead){
+				 if (tmLeft >= tmstep) // for all sub-time steps except the last
+					 tmToAdv = tmstep;
+				 else // for the last sub-time step; deal with division precision & truncation
+					 tmToAdv = tmLeft;
+				 // the statistical formula of survival is only for channels
+				 if (!checkSurvival(tmToAdv)) return;
+				 updateAllParameters(tmToAdv);
+				 if (!particleWait){
+					 x = calcXPosition(tmToAdv);
+					 /* 
+					 1) when a node is reached, tmToAdv may not be used up.
+					    The remain time (_leftoverTime) is put back to tmLeft to be used in the next water body
+					    then reset leftoverTime = 0 
+					 2) Here wb and nd are already the new ones that just passed and entered
+					 */ 
+					 tmToAdv -= _leftoverTime;
+					 _leftoverTime = 0.0f;
+					 if (tmToAdv < 0){
+						 if (DEBUG)
+							 System.err.println("The particle reached the node at the beginning of the time step " +
+						 		"causing division precision & truncation error, tmToAdv = "+tmToAdv+", ignor.");
+						 tmToAdv = 0;
+					 }
+					 // now check if the new water body is a channel
+					 if (wb.getPTMType() != Waterbody.CHANNEL){
+						 tmLeft -= tmToAdv;
+						 break;
+					 }
+					 
+					 /* 	
+					  * Careful!!! wb, nd are updated!!!
+					  * but channel parameters (channel width, etc.) are not (!!!) updated yet 
+					  * because updateAllParameters is not called 
+					  * y, z calculation are based on previous wb, nd.
+					  */
+					 if (!isDead) {// save time if particle's dead
+						 y = calcYPosition(tmToAdv);
+						 z = calcZPosition(tmToAdv);
+					 }
+				 }//end if(particleWait)
+				 tmLeft -= tmToAdv;
+				// age in seconds
+				 age += tmToAdv;
+				 //if (!checkSurvival(tmToAdv)) return;
+			 }// end while
+      
+		 }// end if(CHANNEL)
+    
+		 else if (wb.getPTMType() ==  Waterbody.RESERVOIR){
+			 if (DEBUG) System.out.println("Particle " + this + " in reservoir " + wb.getEnvIndex() );
+			 tryCrossReservoir(tmLeft); 
+		 }
+    
+		 else if (wb.getPTMType() == Waterbody.CONVEYOR){
+			 if (DEBUG) System.out.println("Particle " + this + " in conveyor " + wb.getEnvIndex() );
+			 // zero time delay
+			 moveInConveyor(tmLeft);
+		 }
+
+		 else if (wb.getPTMType() ==  Waterbody.BOUNDARY) {
+			 if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
+			 isDead=true;
+			 break;
+		 }
+	 }
     
   }
   
@@ -560,29 +584,29 @@ _survivalHelper = null;
     // get current position
 	float xPos = this.x;
     // calculate position after timeStep
-	//System.err.println("before "+ xPos);
     xPos = xPos + calcXDisplacementExtDeterministic(timeStep)
                 + calcXDisplacementExtRandom(timeStep)
                 + calcXDisplacementIntDeterministic(timeStep)
                 + calcXDisplacementIntRandom(timeStep);
     float totalVelocity = calcTotalXVelocity();
-    	//System.err.println("after:"+PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex())
-    			//+ " in channel " + PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex()));
-    	//System.err.println("after "+ xPos);
-    	//System.err.println("before:"+PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex()));
-    // when particle crossing the coming node, into next wb
-    // TO is NodeReached (...): this code need to be re-written, very confusing
+    // TODO consider rewrite this: 
+    /*
+     * isNodeReached (...) reset the node to the node just encountered, 
+     * but the waterbody will be reset to the waterbody currently entered until makeNodeDecision, very confusing.
+     */
+
     if (isNodeReached(xPos) == true) {
-    	// isNodeReached changes nd if a node is reached and this.nd is the node just reached
-    	// wb has not been changed yet. wb will be changed when makeNodeDecision is called
       //TODO clean Up
-      /* this part of the code caused infinite loop  	
+      /*  	
       float timeToReachNode = calcTimeToNode(xPos);
       tmLeft -= timeToReachNode;
       age = age - timeStep + timeToReachNode;
       */
       
-      //makeNodeDecision() set x to the start of a new node
+      /* after this method call
+       * 1) x set to the start of the node passed
+       * 2) waterbody to set the waterbody just entered
+       */
       makeNodeDecision();
       
       // for dead-end, or not flow-conflict node (not effective outflows)
@@ -590,33 +614,30 @@ _survivalHelper = null;
       if (recursionCounter++ > 5) {
         if (repositionFactor < MAX_R_F){
    	      repositionFactor += RFIncrement;//increase timestep
+   	      
    	      System.out.println("Reposition Factor set to " + repositionFactor
                            + " for particle " + getId() + " at node "
                            + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())
                            //+ PTMHydroInput.getExtFromIntNode(((Channel)wb).getUpNodeId())
                            + " in channel " + PTMHydroInput.getExtFromIntChan(((Channel)wb).getEnvIndex()));
+                           
         }
         recursionCounter = 0;
       }
       
-    //TODO clean Up
-      /* this part of the code caused infinite loop  	
+      //TODO clean Up
+      /* dangerous recursive calls as many class variables are involved! 	
       // update XYZ for the rest of 1 PTM input time step in new waterbody (water body is updated after make NodeDecision
-      // tmLeft in seconds
-      //TODO this code need to be rewritten, causing infinite loop tmLeft never change 
-      if ( tmLeft > 1.0e-3f ){
-    	  System.err.println("tmLeft:"+tmLeft);
+      if ( tmLeft > 1.0e-3f )
     	  updateXYZPosition(tmLeft);
-      }
       return x;
       */
-      // do I need leftover time since wb and nd are all changed?
-      _leftoverTime = Math.abs((xPos-x)/totalVelocity);
-      tmLeft = 0;
-      age -= 
+      if (xPos < 0)
+    	  _leftoverTime = Math.abs(xPos/totalVelocity);
+      else
+    	  _leftoverTime = Math.abs((xPos-channelLength)/totalVelocity);
       return x;
     }// end if (nodeReached)
-    
     return xPos;
   }
   
@@ -811,11 +832,10 @@ _survivalHelper = null;
     */
     
   protected final void tryCrossReservoir(float timeStep){
-  
-    // adjust time and age
-    age += timeStep;
-    //TODO don't know why to do this?
-    tmLeft = tmLeft - timeStep;
+	// a bug? particle may go through the reservoir without taking any time!
+	// adjust time and age
+    //age += timeStep;
+    //tmLeft = tmLeft - timeStep;
   
     //get a pointer to the Node into which pParticleenters from Reservoir
     nd = makeReservoirDecision(timeStep);
@@ -827,6 +847,11 @@ _survivalHelper = null;
       first = true;
       //? what should be new x,y,z for the pParticle in the Waterbody?
       setXYZLocationInChannel();
+    }
+    else{
+    	// if no node found the particle will still in the reservior until next time step
+    	tmLeft -= timeStep;
+    	age += timeStep;
     }
   }
   
@@ -986,7 +1011,9 @@ _survivalHelper = null;
 
   /**
     *  calculate the rest time for particle reaching its target node
-    */ 
+    */
+  //clean up
+  /*
   private final float calcTimeToNode(float xpos){
   
     float dT = 0.0f;
@@ -1003,6 +1030,7 @@ _survivalHelper = null;
   
     return dT;
   }
+  */
   
   /**
     *  get the sub-time step used for PTM calculation 

@@ -73,7 +73,6 @@ public class BasicRouteBehavior {
 		//when particle just inserted wb = null, but node is assigned.
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle doesn't know the node! exit.");
-		
 		float waterbodyInflows = p.nd.getTotalWaterbodyInflows();
 		
 		// after prescreen() call, _waterbodyInflows = _rand*_waterbodyInflows
@@ -113,9 +112,9 @@ public class BasicRouteBehavior {
 	    	// _waterbodyInflows here is total _waterbodyInflows * _rand
 	    }while (flow < waterbodyInflows && waterbodyId < p.nd.getNumberOfWaterbodies());
 	    // get a pointer to the waterbody in which pParticle entered.
+	    	    
 	    p.wb = thisWb;
 	    // send message to observer about change 
-	    
 	    if (p.observer != null) 
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 	    // set x as beginning of Channel...
