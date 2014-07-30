@@ -39,9 +39,9 @@ public class PTMBehaviorInputs {
 				ArrayList<String> groupInfo = PTMUtil.getInts(groupText.get(1));
 				FishReleaseGroup group = new FishReleaseGroup(groupInfo.get(0), );
 			*/
-			Integer nodeId = PTMUtil.getInt(groupText.get(0));
+			Integer nodeId = PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
 			String [] title = groupText.get(1).trim().split("[,\\s\\t]+");
-			String shouldBe[] = {"RELEASE_DATE", "RELEASE_TIME", "FISH_NUMBER", "RELEASE_STYLE"};
+			String shouldBe[] = {"RELEASE_DATE", "RELEASE_TIME", "PARTICLE_NUMBER", "RELEASE_STYLE"};
 			if (!PTMUtil.check(title, shouldBe))
 				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong while reading particle release info: "+groupText.get(1));
 			else{
@@ -52,7 +52,7 @@ public class PTMBehaviorInputs {
 						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
 					
 					Calendar releaseTime = PTMUtil.getDateTime(oneRelease[0], oneRelease[1]);
-					int fishNumber = Integer.parseInt(oneRelease[2].trim());
+					int particleNumber = Integer.parseInt(oneRelease[2].trim());
 					
 					int releaseStyle = FishRelease.RANDOM;
 					if(oneRelease[3].equalsIgnoreCase("CENTER"))
@@ -67,12 +67,12 @@ public class PTMBehaviorInputs {
 					
 					if (_fishGroups.get(nodeId) == null){
 						ArrayList<FishRelease> frList = new ArrayList<FishRelease>();
-						frList.add(new FishRelease(releaseTime, fishNumber, releaseStyle));
+						frList.add(new FishRelease(releaseTime, particleNumber, releaseStyle));
 						_fishGroups.put(nodeId, new FishReleaseGroup(nodeId, frList));
 					}
 					else
-						_fishGroups.get(nodeId).addFishRelease(new FishRelease(releaseTime, fishNumber, releaseStyle));
-					_totalParticlesReleased += fishNumber; 
+						_fishGroups.get(nodeId).addFishRelease(new FishRelease(releaseTime, particleNumber, releaseStyle));
+					_totalParticlesReleased += particleNumber; 
 				}
 			}
 		}
