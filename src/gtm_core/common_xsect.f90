@@ -35,11 +35,11 @@ module common_xsect
 
     !> Define type for virtual xsect  
     type cross_section_t
-        real :: min_elev                       !< minimum elevation in the sec
-        real, allocatable :: elevation(:)      !< all elevations in the sec
-        real, allocatable :: area(:)           !< all area values in the sec
-        real, allocatable :: wet_p(:)          !< all wetted perimeter values in the sec
-        real, allocatable :: width(:)          !< all width values in the sec
+        real(gtm_real) :: min_elev                       !< minimum elevation in the sec
+        real(gtm_real), allocatable :: elevation(:)      !< all elevations in the sec
+        real(gtm_real), allocatable :: area(:)           !< all area values in the sec
+        real(gtm_real), allocatable :: wet_p(:)          !< all wetted perimeter values in the sec
+        real(gtm_real), allocatable :: width(:)          !< all width values in the sec
         integer :: ID                          !< irregular cross section RDB ID
         integer :: chan_no                     !< channel number
         integer :: vsecno                      !< virtual cross-section number

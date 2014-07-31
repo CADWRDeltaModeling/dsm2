@@ -162,8 +162,7 @@ module boundary_advection
         real(gtm_real) :: mass_tmp(nvar)
         real(gtm_real) :: conc_tmp(nvar)
         integer :: i, j, icell   
-      
-      
+   
         do i = 1, n_node
             if (dsm2_node(i)%boundary_no > 0) then                    ! is a boundary
                 icell = dsm2_node(i)%cell_no(1)
@@ -178,7 +177,7 @@ module boundary_advection
                 flow_tmp = zero 
                 mass_tmp(:) = zero
                 conc_tmp(:) = zero
-                do j = 1, dsm2_node(i)%n_conn_cell
+                do j = 1, dsm2_node(i)%n_conn_cell    ! counting flow into the junctions
                     icell = dsm2_node(i)%cell_no(j)
                     if (dsm2_node(i)%up_down(j)==0 .and. flow_hi(icell)>zero) then        !cell at updstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
@@ -198,7 +197,7 @@ module boundary_advection
                 do j = 1, dsm2_node(i)%n_conn_cell
                     icell = dsm2_node(i)%cell_no(j)
                     if (dsm2_node(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of junction
-                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                                            
+                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                                         
                     elseif (dsm2_node(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
                     elseif (dsm2_node(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then
@@ -217,6 +216,17 @@ module boundary_advection
                     endif                
                 end do
             end if   
+            
+            !flow_chk = flow_chk + resv_flow(dsm2_node(i)%resv_conn_no(j))
+             
+            !do j = 1, dsm2_node(i)%n_qext
+            !    flow_chk = flow_chk + qext_flow(dsm2_node(i)%qext_no(j))
+            !end do
+            
+            !do j = 1, dsm2_node(i)%n_tran 
+            !    flow_chk = flow_chk + tran_flow(dsm2_node(i)%tran_no(j))
+            !end do 
+            !write(11,*) dsm2_node(i)%dsm2_node_no, flow_chk
         end do        
         return
     end subroutine  

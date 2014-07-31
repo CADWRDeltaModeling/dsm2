@@ -447,7 +447,7 @@ module interpolation
         n = 2*nx
         write(format_str(2:4),'(I3)') n       
         write(file_unit, format_str) (mesh(1,j), j=1,nx)
-        total = 0
+        total = zero
         do i = 2, nt
             do j = 1, nx-1
                 total = total + volume_change(i-1,j)

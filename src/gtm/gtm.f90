@@ -106,6 +106,8 @@ program gtm
     integer, allocatable :: bound_index(:), path_index(:)
     real(gtm_real), allocatable :: node_conc(:,:)
     
+    real(gtm_real) :: flow_chk
+    
     logical :: apply_diffusion = .false.
 
     n_var = 1
@@ -292,6 +294,27 @@ program gtm
                              n_qext,       &
                              n_tran,       &
                              dble(t_index))                               
+        write(11,*) current_time
+        
+        if (t_index==1) then
+            do i = 1, n_node
+            flow_chk = zero
+                do j = 1, dsm2_node(i)%n_conn_cell
+                    if (dsm2_node(i)%up_down(j) == 0 ) then  !upstream
+                    write(11,*) dsm2_node(i)%dsm2_node_no, dsm2_node(i)%up_down(j), flow_hi(dsm2_node(i)%cell_no(j))
+                    flow_chk = flow_chk + flow_hi(dsm2_node(i)%cell_no(j))
+                    else  
+                    write(11,*) dsm2_node(i)%dsm2_node_no, dsm2_node(i)%up_down(j), flow_lo(dsm2_node(i)%cell_no(j))
+                    flow_chk = flow_chk + minus*flow_lo(dsm2_node(i)%cell_no(j))
+                    end if
+                end do 
+                write(11,*) dsm2_node(i)%dsm2_node_no, flow_chk
+                do j = 1, dsm2_node(i)%n_qext 
+                    write(11,*) dsm2_node(i)%dsm2_node_no,qext_flow(dsm2_node(i)%qext_no(j)),"ext"
+                end do
+                if (dsm2_node(i)%resv_conn_no.ne.0) write(11,*) dsm2_node(i)%dsm2_node_no,resv_flow(dsm2_node(i)%resv_conn_no),"resv_flow"
+            end do        
+        end if    
                            
         if (current_time == gtm_start_jmin) then
             call prim2cons(mass_prev, conc, area, n_cell, n_var)

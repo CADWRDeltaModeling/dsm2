@@ -133,6 +133,7 @@ module common_variables
         real(gtm_real) :: area = 0.d0                !< average top area
         real(gtm_real) :: bot_elev = 0.d0            !< bottom elevation wrt datum
         integer :: n_resv_conn = LARGEINT            !< number of nodes connected using reservoir connections
+        integer, allocatable :: resv_conn_no(:)         !< reservoir connection no
         integer, allocatable :: int_node_no(:)       !< DSM2 internal node number
         integer, allocatable :: ext_node_no(:)       !< DSM2 grid node number
         integer, allocatable :: is_gated(:)          !< 1: if a node is gated, 0: otherwise
@@ -142,9 +143,9 @@ module common_variables
      
      !> Define external flows
      type qext_t
-         integer :: qext_no                       !< qext index
+         integer :: qext_no                          !< qext index
          character*32 :: name                        !< qext name
-         character*32 :: attach_obj_name             !< attached obj name
+         integer :: attach_obj_name                  !< attached obj name
          integer :: attach_obj_type                  !< attached obj type (2:node, 3:reservoir)
          integer :: attach_obj_no                    !< attached obj no (internal number)
      end type
@@ -153,6 +154,7 @@ module common_variables
      
      !> Define reservoir connections
      type reservoir_conn_t
+         integer :: resv_conn_no                    !< reservoir connection number
          integer :: resv_no                         !< reservoir number
          integer :: n_res_conn                      !< number of connected nodes
          integer :: dsm2_node_no                    !< DSM2 node number
@@ -183,6 +185,7 @@ module common_variables
          integer :: boundary_no                    !< boundary serial number (exist if not 0)
          integer :: junction_no                    !< junction serial number (exist if not 0)
          integer :: reservoir_no                   !< connected to reservoir no (exist if not 0)
+         integer :: resv_conn_no                   !< reservoir conection number (exist if not 0)
          integer :: n_qext                         !< number of external flows (exist if not 0)
          integer, allocatable :: qext_no(:)        !< connected qext number
          integer :: n_tran                         !< number of transfer flows (exist if not 0)
@@ -589,6 +592,7 @@ module common_variables
          dsm2_node(:)%boundary_no = 0 
          dsm2_node(:)%junction_no = 0
          dsm2_node(:)%reservoir_no = 0
+         dsm2_node(:)%resv_conn_no = 0
          dsm2_node(:)%n_qext = 0
          dsm2_node(:)%nonsequential = 0         
          dsm2_node(:)%no_fixup = 0
@@ -644,19 +648,20 @@ module common_variables
                  do k = 1, resv_geom(j)%n_resv_conn
                      if (resv_geom(j)%ext_node_no(k)==unique_num(i)) then
                          dsm2_node(i)%reservoir_no = resv_geom(j)%resv_no
+                         dsm2_node(i)%resv_conn_no = resv_geom(j)%resv_conn_no(k)
                      end if
                  end do    
              end do
 
              do j = 1, n_qext
-                 if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_no==unique_num(i)) then
+                 if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_name==unique_num(i)) then
                      dsm2_node(i)%n_qext = dsm2_node(i)%n_qext + 1
                  end if
              end do
              allocate(dsm2_node(i)%qext_no(dsm2_node(i)%n_qext))
              k = 0 
              do j = 1, n_qext
-                 if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_no==unique_num(i)) then
+                 if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_name==unique_num(i)) then
                      k = k + 1
                      dsm2_node(i)%qext_no(k) = qext(j)%qext_no
                  end if

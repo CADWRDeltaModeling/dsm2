@@ -441,6 +441,7 @@ module hdf_util
                        resv_geom(i)%n_resv_conn = resv_geom(i)%n_resv_conn + 1
                    end if
                end do
+               allocate(resv_geom(i)%resv_conn_no(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%int_node_no(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%ext_node_no(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%is_gated(resv_geom(i)%n_resv_conn))
@@ -450,6 +451,7 @@ module hdf_util
            do i = 1, n_resv
                do j = 1, resv_geom(i)%n_resv_conn
                    k = k + 1
+                   resv_geom(i)%resv_conn_no(j) = k
                    resv_geom(i)%int_node_no(j) = int_node(k)
                    resv_geom(i)%ext_node_no(j) = ext_node(k)
                    node_str = node_type(k)
@@ -488,6 +490,7 @@ module hdf_util
        integer(SIZE_T) :: type_size                     ! Size of the datatype
        integer :: error                                 ! Error flag
        integer :: i
+       character*32 :: attach_obj_name(n_qext)
        
        data_dims(1) = n_qext
        call allocate_qext_property()
@@ -499,20 +502,16 @@ module hdf_util
            call h5tset_size_f(dt_id, typesize, error)
            call h5tget_size_f(dt_id, type_size, error)
            
-           do i = 1, n_qext
-               qext(i)%qext_no = i
-           end do
-           
            offset = 0
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
-           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
-           call h5dread_f(dset_id, dt1_id, qext%name, data_dims, error) 
+           call h5tinsert_f(dt1_id, "attach_obj_name", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt1_id, attach_obj_name, data_dims, error) 
            
-           !!!!!!!!!!!! Didn't get this value... try to figure out
-           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
-           call h5tinsert_f(dt2_id, "attach_obj_name", offset, H5T_NATIVE_CHARACTER, error)    
-           call h5dread_f(dset_id, dt2_id, qext%attach_obj_name, data_dims, error)           
-           
+           ! todo: cannot get this vaue somehow. I switch attach_obj_name to front because it is more crucial. 
+           call h5tcreate_f(H5T_COMPOUND_F,type_size, dt2_id, error)
+           call h5tinsert_f(dt2_id, "name", offset, H5T_NATIVE_CHARACTER, error)    
+           call h5dread_f(dset_id, dt2_id, qext%name, data_dims, error)   
+                                                
            type_size = 4
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
            call h5tinsert_f(dt3_id, "attached_obj_type", offset, H5T_NATIVE_INTEGER, error)    
@@ -521,7 +520,12 @@ module hdf_util
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
            call h5tinsert_f(dt4_id, "attached_obj_no", offset, H5T_NATIVE_INTEGER, error)    
            call h5dread_f(dset_id, dt4_id, qext%attach_obj_no, data_dims, error)        
-           
+ 
+           do i = 1, n_qext
+               qext(i)%qext_no = i
+               read(attach_obj_name(i),'(i)') qext(i)%attach_obj_name
+           end do
+                    
            call h5tclose_f(dt4_id, error)                       
            call h5tclose_f(dt3_id, error)          
            call h5tclose_f(dt2_id, error)  
