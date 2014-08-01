@@ -52,6 +52,7 @@ program test_driver
     use test_prim_increment_to_cons
     use test_gradient    
     use test_converge_bidirectional_uniform
+    use test_convergence_transport_uniform_vary_dx
     use test_matrix_solver
     use test_boundary_diffusion
     use test_diffusive_flux
@@ -124,6 +125,7 @@ program test_driver
     !    operators are layered in successively
     call test_converge_transport_uniform(verbose)
     call test_converge_uniform_bidirectional(verbose)
+    !call test_converge_transport_uniform_vary_dx(verbose)
 
     !/////// Diffusion unit tests
     call test_tridi_solver

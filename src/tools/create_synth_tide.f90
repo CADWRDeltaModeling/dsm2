@@ -37,7 +37,7 @@ module create_synth_tide
         real(gtm_real) :: area_lo(nx_base)
         real(gtm_real) :: area_hi(nx_base)
         integer :: i, j
-        dx = domain_length/nx_base
+        dx = domain_length/dble(nx_base)
         dt = total_time/nstep_base
         open(1001,file="tidal_flow_gen.txt")
         open(1002,file="tidal_ws_gen.txt")

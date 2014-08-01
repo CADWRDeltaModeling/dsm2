@@ -20,22 +20,22 @@
 
 !> Hydrodynamics interface for reservoirs, external flows and tranfer flows to be fulfilled by driver or application
 !>@ingroup gtm_core
-module hydro_data_node
+module hydro_data_network
     !> Generic interface for fetching hydrodynamic data of reservoirs and external flows
     interface
         !> Fill in hydrodynamic data.
         !> This data might be calculated from a function or provided by another module
         !> Note that continuity must be satisfied between time steps. The implementation
         !> must be provided by the driver or application 
-        subroutine hydro_data_node_if(resv_height, &
-                                      resv_flow,   &
-                                      qext,        &
-                                      transf,      &
-                                      nresv,       &
-                                      nresv_conn,  &
-                                      nqext,       &
-                                      ntran,       &
-                                      time_index)
+        subroutine hydro_data_network_if(resv_height, &
+                                         resv_flow,   &
+                                         qext,        &
+                                         transf,      &
+                                         nresv,       &
+                                         nresv_conn,  &
+                                         nqext,       &
+                                         ntran,       &
+                                         time_index)
             use gtm_precision
             implicit none
             integer, intent(in) :: nresv                         !< Number of reservoirs
@@ -53,6 +53,6 @@ module hydro_data_node
       
     !> This pointer should be set by the driver or client code to specify the 
     !> treatment at the boundaries
-    procedure(hydro_data_node_if), pointer :: fill_hydro_node  => null()
+    procedure(hydro_data_network_if), pointer :: fill_hydro_network  => null()
       
 end module

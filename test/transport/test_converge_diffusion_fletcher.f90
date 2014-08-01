@@ -73,7 +73,7 @@ real(gtm_real) :: fine_initial_condition(nx_base,nconc)!< initial condition f co
 real(gtm_real) :: fine_solution(nx_base,nconc)         !< reference solution at finest resolution
 
 real(gtm_real) :: dt                                            !< Time step    
-real(gtm_real) :: dx                                            !< Spacial step
+real(gtm_real) :: dx(nx_base)                                   !< Spacial step
 real(gtm_real), parameter :: constant_area = 100.0d0            !< Constant Area
 real(gtm_real), parameter :: start_time = zero                  !< Start time 
 !NOTE: Initial condition depends on this
@@ -104,6 +104,8 @@ acceptance_ratio = [four, four, four]
 
 call set_single_channel(dsm2_node_type, nx_base)
 node_conc_val = one
+
+dx = domain_length/dble(nx_base)
 
 call set_uniform_flow_area(zero,constant_area)
 uniform_hydro => uniform_flow_area
@@ -141,6 +143,7 @@ call test_convergence(label,                            &
                       nstep_base,                       &
                       nx_base,                          &
                       nconc,                            &      
+                      dx,                               &
                       n_dsm2_node,                      &
                       dsm2_node_type,                   &
                       node_conc_val,                    &
@@ -177,6 +180,7 @@ call test_convergence(label,                      &
                       nstep_base,                 &
                       nx_base,                    &
                       nconc,                      &
+                      dx,                         &
                       n_dsm2_node,                &
                       dsm2_node_type,             &
                       node_conc_val,              &
@@ -219,7 +223,7 @@ real(gtm_real) :: dx
 real(gtm_real) :: xposition(nx_base)
 real(gtm_real) :: current_time
 
-dx = domain_length/nx_base
+dx = domain_length/dble(nx_base)
 
 do icell = 1,nx_base
   xposition(icell) = dx*(dble(icell)-half)+ origin

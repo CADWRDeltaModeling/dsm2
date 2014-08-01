@@ -215,15 +215,15 @@ module gtm_network
 
     !> hydrodynamic interface to retrieve reservor, external and transfer flows
     !> connected to nodes
-    subroutine gtm_node(resv_height,  &
-                        resv_flow,    &
-                        qext_flow,    &
-                        tran_flow,    &
-                        nresv,        &
-                        nresv_conn,   &
-                        nqext,        &
-                        ntran,        &
-                        time)
+    subroutine gtm_network_data(resv_height,  &
+                                resv_flow,    &
+                                qext_flow,    &
+                                tran_flow,    &
+                                nresv,        &
+                                nresv_conn,   &
+                                nqext,        &
+                                ntran,        &
+                                time)
         implicit none
         integer, intent(in) :: nresv                         !< number of reservoirs
         integer, intent(in) :: nresv_conn                    !< number of reservoir connections

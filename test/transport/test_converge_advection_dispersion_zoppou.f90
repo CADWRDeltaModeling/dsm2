@@ -78,6 +78,7 @@ real(gtm_real) :: total_time                              !< Total time of testi
 real(gtm_real) :: cfl_number                              !< Courant number
 real(gtm_real) :: point_value                             !< Point value of the analytical solution or solution on boundary
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
+real(gtm_real) :: dx(nx_base)
 
 procedure(hydro_data_if),               pointer :: zoppou_hydro   => null() !< The pointer points to the test's flow data
 procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< Pointer for boundary advective flux to be filled by driver
@@ -107,6 +108,7 @@ dispersion_coef => zoppou_disp_coef
 label = 'advection_dispersion_zoppou' 
 test_domain_length = x_right - x_left
 total_time = end_time - start_time
+dx = test_domain_length/nx_base
 
 cfl_number = u0*x_right*total_time*dble(nx_base)/dble(nstep_base)/test_domain_length
 
@@ -148,6 +150,7 @@ call test_convergence(label,                                  &
                       nstep_base,                             &
                       nx_base,                                &
                       nconc,                                  &
+                      dx,                                     &
                       n_dsm2_node,                            &
                       dsm2_node_type,                         &
                       node_conc_val,                          &                    
@@ -406,6 +409,7 @@ real(gtm_real) :: total_time                              !< Total time of testi
 real(gtm_real) :: cfl_number                              !< Courant number
 real(gtm_real) :: point_value                             !< Point value of the analytical solution or solution on boundary
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
+real(gtm_real) :: dx(nx_base)
 procedure(hydro_data_if),               pointer :: time_hydro   => null() !< The pointer points to the test's flow data
 procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< Pointer for boundary advective flux to be filled by driver
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
@@ -417,6 +421,8 @@ real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
 call set_single_channel(dsm2_node_type, nx_base)
 node_conc_val = one
+
+dx = domain_length/dble(nx_base)
  
 ! this flow generator is mass conservative
 ! todo: use test_convergence_transport_uniform as a model. You will be using dirichlet
@@ -475,6 +481,7 @@ call test_convergence(label,                                  &
                       nstep_base,                             &
                       nx_base,                                &
                       nconc,                                  &
+                      dx,                                     &
                       n_dsm2_node,                            &
                       dsm2_node_type,                         &
                       node_conc_val,                          &                     

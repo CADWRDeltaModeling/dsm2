@@ -148,6 +148,7 @@ module test_convergence_transport_uniform
         real(gtm_real), dimension(nconc) :: rates                                   !< todo: Norm of teh errors rate 
         real(gtm_real),allocatable :: fine_initial_conc(:,:)                        !< Initial condition at finest resolution
         real(gtm_real),allocatable :: fine_solution(:,:)                            !< Reference solution at finest resolution
+        real(gtm_real),allocatable :: dx(:)                                         !< Spatial step
         procedure(hydro_data_if),               pointer :: uniform_hydro   => null()!< Hydrodynamic data pointer
         procedure(source_if),                   pointer :: test_source     => null()!< Source term data pointer
         procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux  => null()!< Boundary fluxes of advection pointer
@@ -232,8 +233,11 @@ module test_convergence_transport_uniform
         const_dispersion = const_disp_coef
         diffuse_start_time  = ic_gaussian_sd**two/(const_disp_coef*two)
         advection_boundary_flux => single_channel_boundary_advective_flux
-
+        
         allocate(fine_initial_conc(nx_base,nconc),fine_solution(nx_base,nconc))
+        allocate(dx(nx_base))
+        dx = domain_length/dble(nx_base)
+        
         ! Subroutine which generates fine initial values and reference values to compare with 
         ! and feed the covvergence test subroutine.
         call initial_final_solution_uniform(fine_initial_conc,     &
@@ -262,6 +266,7 @@ module test_convergence_transport_uniform
                               nstep_base,                                &
                               nx_base,                                   &
                               nconc,                                     &
+                              dx,                                        &
                               n_dsm2_node,                               &
                               dsm2_node_type,                            &
                               node_conc_val,                             &
@@ -302,10 +307,10 @@ module test_convergence_transport_uniform
         real(gtm_real),intent(in)  :: domain_length                        !< Domain length
         !--local
         integer :: ivar                                                    !< Counter on constituent     
-        real(gtm_real) :: dx                                               !< Spacial step
+        real(gtm_real) :: dx(nx_base)                                      !< Spacial step
         real(gtm_real) :: diffuse_end_time = LARGEREAL                     !< End time of diffusion process initialized to LARGEREAL 
         real(gtm_real) :: final_center                                     !< Solution center
-        dx = domain_length/nx_base
+        dx = domain_length/dble(nx_base)
 
         final_center = ic_center  + const_velocity * total_time
         if (use_diffusion())then

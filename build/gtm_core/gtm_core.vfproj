@@ -33,7 +33,7 @@
 		<File RelativePath="..\..\src\gtm_core\gtm_precision.f90"/>
 		<File RelativePath="..\..\src\gtm_core\hdf_util.f90"/>
 		<File RelativePath="..\..\src\gtm_core\hydro_data.f90"/>
-		<File RelativePath="..\..\src\gtm_core\hydro_data_node.f90"/>
+		<File RelativePath="..\..\src\gtm_core\hydro_data_network.f90"/>
 		<File RelativePath="..\..\src\gtm_core\hydro_data_tidefile.f90"/>
 		<File RelativePath="..\..\src\gtm_core\interpolation.f90"/>
 		<File RelativePath="..\..\src\gtm_core\time_utilities.f90"/></Filter></Files>

@@ -51,7 +51,7 @@ subroutine fill_gaussian(vals,nloc,origin,dx,mean,sd,scale)
     integer, intent(in) :: nloc                   !< Number of cells (size of array) 
     real(gtm_real), intent(out) :: vals(nloc) !nloc)     !< Values to be filled
     real(gtm_real), intent(in)  :: origin         !< Origin (lo side of channel)
-    real(gtm_real), intent(in)  :: dx             !< dx
+    real(gtm_real), intent(in)  :: dx(nloc)       !< dx
     real(gtm_real), intent(in)  :: mean           !< Center of the gaussian shape
     real(gtm_real), intent(in)  :: sd             !< Standard deviation (Sigma)
     real(gtm_real), intent(in), optional :: scale !< scale
@@ -68,8 +68,8 @@ subroutine fill_gaussian(vals,nloc,origin,dx,mean,sd,scale)
     end if
     
     do iloc = 1,nloc
-       xlo = origin + dble(iloc - 1)*dx
-       xhi = origin + dble(iloc)*dx
+       xlo = origin + dble(iloc - 1)*dx(iloc)
+       xhi = origin + dble(iloc)*dx(iloc)
       ! todo: need to populate using cell averages
        vals(iloc) = (gaussian_cdf(xhi,mean,sd) & 
                     - gaussian_cdf(xlo,mean,sd))
@@ -77,6 +77,48 @@ subroutine fill_gaussian(vals,nloc,origin,dx,mean,sd,scale)
     vals = vals*(actual_scale/dx)
     return
 end subroutine
+
+!> Fill array with 1D gaussian shape
+!> This routine expects a 1D array, so multi-constituents
+!> have to be initialized separately
+!> fill_guassian(OUTPUT,num_cell,Left side of domain,dx,Center,sigma,a)
+!> f(x) = a*exp(-(x-b)^2/(2c^2)) [c is sigma]
+subroutine fill_gaussian_vary_dx(vals,nloc,origin,dx,mean,sd,scale) 
+    use gtm_precision
+    implicit none
+    integer, intent(in) :: nloc                   !< Number of cells (size of array) 
+    real(gtm_real), intent(out) :: vals(nloc) !nloc)     !< Values to be filled
+    real(gtm_real), intent(in)  :: origin         !< Origin (lo side of channel)
+    real(gtm_real), intent(in)  :: dx(nloc)       !< dx
+    real(gtm_real), intent(in)  :: mean           !< Center of the gaussian shape
+    real(gtm_real), intent(in)  :: sd             !< Standard deviation (Sigma)
+    real(gtm_real), intent(in), optional :: scale !< scale
+    !-----locals
+    real(gtm_real) :: xlo                         !< Low side position
+    real(gtm_real) :: xhi                         !< High side position
+    integer        :: iloc                        !< Cell counter
+    real(gtm_real) :: actual_scale                !< Scale 
+    real(gtm_real) :: current_loc
+   
+    if (present(scale))then
+        actual_scale = scale*dsqrt(two*pi*sd*sd)
+    else
+        actual_scale = one*dsqrt(two*pi*sd*sd)
+    end if
+    
+    current_loc = origin
+    do iloc = 1,nloc
+       xlo = current_loc             ! origin + dble(iloc - 1)*dx
+       xhi = current_loc + dx(iloc)  !origin + dble(iloc)*dx
+       current_loc = xhi
+      ! todo: need to populate using cell averages
+       vals(iloc) = (gaussian_cdf(xhi,mean,sd) & 
+                    - gaussian_cdf(xlo,mean,sd))
+    end do
+    vals = vals*(actual_scale/dx)
+    return
+end subroutine
+
 
 !> Compute a point value of a gaussian function 
 !> f(x) = a*exp(-(x-b)^2/(2c^2)) , [c is sigma]   

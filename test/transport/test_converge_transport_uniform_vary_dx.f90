@@ -59,38 +59,38 @@ module test_convergence_transport_uniform_vary_dx
         flow   = constant_flow
         diffuse= zero
         decay  = zero
-        call converge_transport_uniform(verbose,"uniform_advect",flow,diffuse,decay)
-        call converge_transport_uniform(verbose,"uniform_advect_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_vary_dx",flow,diffuse,decay)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_vary_dx_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
 
         flow   = zero
         diffuse= constant_diffuse
         decay  = zero
-        call converge_transport_uniform(verbose,"uniform_diffuse",flow,diffuse,decay)
-        call converge_transport_uniform(verbose,"uniform_diffuse_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_diffuse_vary_dx",flow,diffuse,decay)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_diffuse_vary_dx_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
 
         flow   = zero
         diffuse= zero
         decay  = constant_decay
-        call converge_transport_uniform(verbose,"uniform_react",flow,diffuse,decay)
-        call converge_transport_uniform(verbose,"uniform_react_remote_bc",flow,diffuse,decay,boundary_remote=remote)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_react_vary_dx",flow,diffuse,decay)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_react_vary_dx_remote_bc",flow,diffuse,decay,boundary_remote=remote)
 
         flow   = constant_flow
         diffuse= constant_diffuse
         decay  = zero
-        call converge_transport_uniform(verbose,"uniform_advect_diffuse",flow,diffuse,decay,detail_result=do_detail)
-        call converge_transport_uniform(verbose,"uniform_advect_diffuse_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_diffuse_vary_dx",flow,diffuse,decay,detail_result=do_detail)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_diffuse_vary_dx_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
 
         flow   = constant_flow
         diffuse= zero
         decay  = constant_decay
-        call converge_transport_uniform(verbose,"uniform_advect_react",flow,diffuse,decay)
-        call converge_transport_uniform(verbose,"uniform_advect_react_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_react_vary_dx",flow,diffuse,decay)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_react_vary_dx_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
 
         flow   = constant_flow
         diffuse= constant_diffuse
         decay  = constant_decay
-        call converge_transport_uniform(verbose,"uniform_advect_diffuse_react",flow,diffuse,decay)
-        call converge_transport_uniform(verbose,"uniform_advect_diffuse_react_remote_bc",flow,diffuse,decay,boundary_remote=remote)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_diffuse_react_vary_dx",flow,diffuse,decay)
+        call converge_transport_uniform_vary_dx(verbose,"uniform_advect_diffuse_react_vary_dx_remote_bc",flow,diffuse,decay,boundary_remote=remote)
 
         return
     end subroutine
@@ -146,6 +146,7 @@ module test_convergence_transport_uniform_vary_dx
         integer, parameter :: nconc = 2                                             !< Number of variables
         real(gtm_real) :: decay_rate = zero                                         !< Decay Rate
         real(gtm_real), dimension(nconc) :: rates                                   !< todo: Norm of teh errors rate 
+        real(gtm_real),allocatable :: dx(:) 
         real(gtm_real),allocatable :: fine_initial_conc(:,:)                        !< Initial condition at finest resolution
         real(gtm_real),allocatable :: fine_solution(:,:)                            !< Reference solution at finest resolution
         procedure(hydro_data_if),               pointer :: uniform_hydro   => null()!< Hydrodynamic data pointer
@@ -157,11 +158,13 @@ module test_convergence_transport_uniform_vary_dx
 
         logical :: details = .false.                                                !< Flag switch todo: ?
         logical :: remote  = .false.                                                !< Flag Switch todo: ?
+        integer :: i
+        real(gtm_real) :: weight
 
         integer, parameter :: n_dsm2_node = 2
         type(dsm2_node_t) :: dsm2_node_type(2)
         real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
-        
+                
         call set_single_channel(dsm2_node_type, nx_base)
         node_conc_val = one
         
@@ -233,10 +236,19 @@ module test_convergence_transport_uniform_vary_dx
         diffuse_start_time  = ic_gaussian_sd**two/(const_disp_coef*two)
         advection_boundary_flux => single_channel_boundary_advective_flux
 
+        allocate(dx(nx_base))        
+        do i = 1, nx_base
+            if (mod(i,4).eq.0) then
+                weight = four*0.4d0
+            else
+                weight = mod(i,4)*0.4d0
+            end if    
+            dx(i) = base_domain_length/nx_base*weight
+        end do    
         allocate(fine_initial_conc(nx_base,nconc),fine_solution(nx_base,nconc))
         ! Subroutine which generates fine initial values and reference values to compare with 
         ! and feed the covvergence test subroutine.
-        call initial_final_solution_uniform(fine_initial_conc,     &
+        call initial_final_solution_uniform_dx(fine_initial_conc,  &
                                             fine_solution,         &
                                             ic_center,             &
                                             ic_peak,               &
@@ -244,8 +256,8 @@ module test_convergence_transport_uniform_vary_dx
                                             decay_rate,            &
                                             total_time,            &
                                             origin,                &
-                                            domain_length,         &
                                             nx_base,               &
+                                            dx,                    &
                                             nconc)
 
         call test_convergence(label,                                     &
@@ -262,6 +274,7 @@ module test_convergence_transport_uniform_vary_dx
                               nstep_base,                                &
                               nx_base,                                   &
                               nconc,                                     &
+                              dx,                                        &
                               n_dsm2_node,                               &
                               dsm2_node_type,                            &
                               node_conc_val,                             &
@@ -270,6 +283,7 @@ module test_convergence_transport_uniform_vary_dx
                               acceptance_ratio)
                       
         deallocate(fine_initial_conc,fine_solution)
+        deallocate(dx)
         return
     end subroutine
 
@@ -283,7 +297,8 @@ module test_convergence_transport_uniform_vary_dx
                                                  decay_rate,            &
                                                  total_time,            &
                                                  origin,                &
-                                                 dx,                    &
+                                                 nx_base,               &
+                                                 dx,                    &                                                 
                                                  nconc)                                  
         use gaussian_init_boundary_condition
         use diffusion
@@ -298,13 +313,11 @@ module test_convergence_transport_uniform_vary_dx
         real(gtm_real),intent(in)  :: decay_rate                           !< Decay rate 
         real(gtm_real),intent(in)  :: total_time                           !< Total time of test  
         real(gtm_real),intent(in)  :: origin                               !< Origin location
-        real(gtm_real),intent(in)  :: dx                                   !< Domain length
+        real(gtm_real),intent(in)  :: dx(nx_base)                          !< Domain length
         !--local
         integer :: ivar                                                    !< Counter on constituent     
-        real(gtm_real) :: dx                                               !< Spacial step
         real(gtm_real) :: diffuse_end_time = LARGEREAL                     !< End time of diffusion process initialized to LARGEREAL 
         real(gtm_real) :: final_center                                     !< Solution center
-        dx = domain_length/nx_base
 
         final_center = ic_center  + const_velocity * total_time
         if (use_diffusion())then
@@ -314,11 +327,11 @@ module test_convergence_transport_uniform_vary_dx
         end if
 
         do ivar = 1, nconc
-            call fill_gaussian(fine_initial_conc(:,ivar),nx_base,origin,dx, &
-                               ic_center,dsqrt(two*const_disp_coef*diffuse_start_time),ic_peak)
-            call fill_gaussian(fine_solution_conc(:,ivar),nx_base,origin,dx, & 
-                               final_center,dsqrt(two*const_disp_coef*diffuse_end_time), &
-                               ic_peak*dsqrt(diffuse_start_time/diffuse_end_time))
+            call fill_gaussian_vary_dx(fine_initial_conc(:,ivar),nx_base,origin,dx, &
+                                       ic_center,dsqrt(two*const_disp_coef*diffuse_start_time),ic_peak)
+            call fill_gaussian_vary_dx(fine_solution_conc(:,ivar),nx_base,origin,dx, & 
+                                       final_center,dsqrt(two*const_disp_coef*diffuse_end_time), &
+                                       ic_peak*dsqrt(diffuse_start_time/diffuse_end_time))
         end do
 
         fine_solution_conc = fine_solution_conc * dexp(-decay_rate*total_time)

@@ -69,6 +69,7 @@ character(LEN=64) :: label                                !< Test's name label
 real(gtm_real) :: cfl_number                              !< Courant number
 real(gtm_real) :: point_value                             !< Point value of the analytical solution or solution on boundary
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
+real(gtm_real) :: dx(nx_base)
 
 procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< Pointer for boundary advective flux to be filled by driver
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
@@ -77,6 +78,7 @@ procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< P
 integer, parameter :: n_dsm2_node = 2
 type(dsm2_node_t) :: dsm2_node_type(2)
 real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
+
 
 call set_single_channel(dsm2_node_type, nx_base)
 node_conc_val = one
@@ -97,6 +99,8 @@ dispersion_coef => mms_const_disp_coef
 label = 'advection_dispersion_manufactured_solution' 
 test_domain_length = x_right - x_left
 total_time = end_time - start_time
+
+dx = domain_length/dble(nx_base)
 
 !cfl_number = u0*x_right*total_time*nx_base/nstep_base/test_domain_length
 !
@@ -137,6 +141,7 @@ call test_convergence(label,                                  &
                       nstep_base,                             &
                       nx_base,                                &
                       nconc,                                  &
+                      dx,                                     &
                       n_dsm2_node,                            &
                       dsm2_node_type,                         &
                       node_conc_val,                          &

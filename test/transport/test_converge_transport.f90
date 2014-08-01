@@ -41,6 +41,7 @@ module test_convergence_transport
                                 nstep_base,           &
                                 nx_base,              &
                                 nconc,                &
+                                fine_dx,              &
                                 n_dsm2_node,          &
                                 dsm2_node_type,       &
                                 node_conc,            &
@@ -83,6 +84,7 @@ module test_convergence_transport
         
         real(gtm_real), intent(in) :: fine_initial_conc(nx_base,nconc)  !< Initial condition at finest resolution
         real(gtm_real), intent(in) :: fine_solution(nx_base,nconc)      !< Reference solution at finest resolution
+        real(gtm_real), intent(in) :: fine_dx(nx_base)                  !< Spatial step in meters
         real(gtm_real), intent(in) :: total_time                        !< Total time of simulation
         real(gtm_real), intent(in) :: start_time                        !< Start time of simulation
         real(gtm_real), intent(in) :: domain_length                     !< Length of domain
@@ -112,6 +114,7 @@ module test_convergence_transport
         real(gtm_real), allocatable :: disp_coef_hi(:)      !< High side constituent dispersion coef. at new time
         real(gtm_real), allocatable :: disp_coef_lo_prev(:) !< Low side constituent dispersion coef. at old time
         real(gtm_real) ,allocatable :: disp_coef_hi_prev(:) !< High side constituent dispersion coef. at old time
+        real(gtm_real), allocatable :: dx(:)                !< Coarse dx array
         real(gtm_real) :: theta = half                      !< Crank-Nicolson implicitness coeficient
         real(gtm_real) :: ratio                             !< Norms ratio
         real(gtm_real) :: max_velocity                      !< Maximum Velocity
@@ -119,9 +122,9 @@ module test_convergence_transport
         real(gtm_real) :: fine_initial_mass(nx_base,nconc)  !< initial condition at finest resolution
         real(gtm_real) :: fine_solution_mass(nx_base,nconc) !< reference solution at finest resolution
         real(gtm_real) :: dt                                !< Time step in seconds
-        real(gtm_real), allocatable :: dx(:)                !< Spatial step in meters
         real(gtm_real) :: time                              !< Current time
         real(gtm_real) :: norm_error(3,nrefine)             !< Norm of error
+        integer :: i, j ,k
 
         if (present(detail_printout))then
             detailed_printout = detail_printout
@@ -163,7 +166,14 @@ module test_convergence_transport
                      
             dsm2_node_type(2)%cell_no(1) = nx
             
-            dx = domain_length/dble(nx)
+            dx = zero
+            do i = 1, nx
+                do j = 1, coarsening
+                    k = coarsening*(i-1)+j
+                    dx(i) = dx(i) + fine_dx(k)
+                end do    
+            end do
+            !dx = domain_length/dble(nx)
             dt = total_time/dble(nstep)        
 
             do icell = 1,nx

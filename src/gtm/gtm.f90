@@ -42,7 +42,7 @@ program gtm
     use interpolation
     use gtm_network 
     use hydro_data
-    use hydro_data_node
+    use hydro_data_network
     use state_variables
     use primitive_variable_conversion
     use advection
@@ -189,7 +189,7 @@ program gtm
     !----- point to interface -----
     !
     fill_hydro => gtm_flow_area
-    fill_hydro_node => gtm_node
+    fill_hydro_network => gtm_network_data
     dispersion_coef => constant_dispersion_coef
     compute_source => no_source
     !compute_source => linear_decay_source
@@ -285,15 +285,15 @@ program gtm
                         dx_arr,   &
                         gtm_time_interval)  
                         
-        call fill_hydro_node(resv_height, &
-                             resv_flow,   &
-                             qext_flow,   &
-                             tran_flow,   &
-                             n_resv,       &
-                             n_resv_conn,  &
-                             n_qext,       &
-                             n_tran,       &
-                             dble(t_index))                               
+        call fill_hydro_network(resv_height, &
+                                resv_flow,   &
+                                qext_flow,   &
+                                tran_flow,   &
+                                n_resv,       &
+                                n_resv_conn,  &
+                                n_qext,       &
+                                n_tran,       &
+                                dble(t_index))                               
         write(11,*) current_time
         
         if (t_index==1) then

@@ -123,6 +123,7 @@ module test_converge_bidirectional_uniform
         real(gtm_real), dimension(nconc) :: rates                                    !< todo: Norm of teh errors rate 
         real(gtm_real),allocatable :: fine_initial_conc(:,:)                         !< Initial condition at finest resolution
         real(gtm_real),allocatable :: fine_solution(:,:)                             !< Reference solution at finest resolution
+        real(gtm_real) :: dx(nx_base_standard)
         procedure(hydro_data_if),               pointer :: uniform_hydro   => null() !< Hydrodynamic data pointer
         procedure(source_if),                   pointer :: test_source     => null() !< Source term data pointer
         procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux  => null() !< Boundary fluxes of advection pointer
@@ -135,7 +136,9 @@ module test_converge_bidirectional_uniform
 
         integer, parameter :: n_dsm2_node = 2
         type(dsm2_node_t) :: dsm2_node_type(2)
-        real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
+        real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)        
+        
+        dx = domain_length/dble(nx_base)
         
         call set_single_channel(dsm2_node_type, nx_base)
         node_conc_val(1,:) = one
@@ -237,6 +240,7 @@ module test_converge_bidirectional_uniform
                               nstep_base,                             &
                               nx_base,                                &
                               nconc,                                  &
+                              dx,                                     &
                               n_dsm2_node,                            &
                               dsm2_node_type,                         &
                               node_conc_val,                          &

@@ -83,10 +83,13 @@ character(LEN=64) :: label                                !< Test name label
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
 integer, parameter :: n_dsm2_node = 2
 type(dsm2_node_t) :: dsm2_node_type(2)
+real(gtm_real) :: dx(nx_base)
 real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
 call set_single_channel(dsm2_node_type, nx_base)
 node_conc_val = one
+ 
+dx = domain_length/dble(nx_base)
  
 acceptance_ratio = [2.9, 2.9, 2.9]
  
@@ -135,6 +138,7 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      dx,                     &
                       n_dsm2_node,            &
                       dsm2_node_type,         &
                       node_conc_val,          &
@@ -170,6 +174,7 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      dx,                     &
                       n_dsm2_node,            &
                       dsm2_node_type,         &
                       node_conc_val,          &
@@ -214,6 +219,7 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      dx,                     &
                       n_dsm2_node,            &
                       dsm2_node_type,         &
                       node_conc_val,          &
@@ -249,6 +255,7 @@ call test_convergence(label,                  &
                       nstep_base,             &
                       nx_base,                &
                       nconc,                  &
+                      dx,                     &
                       n_dsm2_node,            &
                       dsm2_node_type,         &
                       node_conc_val,          &
@@ -288,11 +295,11 @@ real(gtm_real),intent(in)  :: origin                                !< Left hand
 real(gtm_real),intent(in)  :: domain_length                         !< Domain length
 real(gtm_real),intent(in)  ::  tidal_ar_decay_rate                  !< Decay rate
 !----local
-real(gtm_real):: dx
+real(gtm_real):: dx(nx_base)
 real(gtm_real):: xposition(nx_base)
 integer :: icell
 
-dx = domain_length/nx_base
+dx = domain_length/dble(nx_base)
 
 !todo: remove these gaussian
 call fill_gaussian(fine_initial_condition(:,1),nx_base,origin,dx, &
@@ -338,25 +345,25 @@ real(gtm_real),intent(in)  :: dye_center                            !< center of
 real(gtm_real),intent(in)  :: dye_length                            !< length of mass at the middle of the domain
 real(gtm_real),intent(in)  ::  tidal_ar_decay_rate                  !< Decay rate
 !----local
-real(gtm_real):: dx
+real(gtm_real):: dx(nx_base)
 real(gtm_real):: xposition
 real(gtm_real):: x_lo
 real(gtm_real):: x_hi
 integer :: icell
 
-dx = domain_length/nx_base
+dx = domain_length/dble(nx_base)
 
 do icell=1,nx_base
-  x_lo     = (dble(icell)-one)*dx
-  xposition= (dble(icell)-half)*dx 
-  x_hi     = (dble(icell))*dx
+  x_lo     = (dble(icell)-one)*dx(icell)
+  xposition= (dble(icell)-half)*dx(icell)
+  x_hi     = (dble(icell))*dx(icell)
   if (( x_lo > (dye_center + dye_length*half)) .or. & 
       ( x_hi < (dye_center - dye_length*half))  ) then
         fine_initial_condition(icell,1) = zero
   else
         fine_initial_condition(icell,1)= one + &
             (dye_length*half/pi)*(dsin((x_hi - dye_center)*two*pi/dye_length) - &
-                                  dsin((x_lo-dye_center)*two*pi/dye_length))/dx
+                                  dsin((x_lo-dye_center)*two*pi/dye_length))/dx(icell)
   end if 
 end do
 

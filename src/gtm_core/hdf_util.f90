@@ -523,7 +523,9 @@ module hdf_util
  
            do i = 1, n_qext
                qext(i)%qext_no = i
-               read(attach_obj_name(i),'(i)') qext(i)%attach_obj_name
+               if (qext(i)%attach_obj_type .eq. 2) then   !todo:reservoir character case
+                   read(attach_obj_name(i),'(i)') qext(i)%attach_obj_name
+               end if    
            end do
                     
            call h5tclose_f(dt4_id, error)                       

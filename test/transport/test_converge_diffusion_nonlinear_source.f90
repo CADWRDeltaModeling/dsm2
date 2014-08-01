@@ -56,7 +56,6 @@ integer :: icoarse = 0
 integer :: nstep
 integer :: nx
 integer, parameter  :: nconc = 2                       !< Number of constituents
-
 real(gtm_real), parameter :: domain_length =one        !< Domain length
 real(gtm_real), parameter :: origin = zero             !< Left side of channel
 real(gtm_real), parameter :: total_time  = one         !< Total time  (must be one)
@@ -74,7 +73,7 @@ logical, optional :: verbose                           !< Detailed printout flag
 real(gtm_real) :: fine_initial_condition(nx_base,nconc)!< initial condition f concentration at finest resolution
 real(gtm_real) :: fine_solution(nx_base,nconc)         !< reference solution at finest resolution
 real(gtm_real) :: dt                                            !< Time step    
-real(gtm_real) :: dx                                            !< Spacial step
+real(gtm_real) :: dx(nx_base)                                   !< Spacial step
 real(gtm_real), parameter :: constant_area = three              !< Constant Area
 real(gtm_real), parameter :: start_time = zero                  !< Start time 
 real(gtm_real), parameter :: end_time = start_time + total_time !< End time
@@ -113,6 +112,7 @@ advection_boundary_flux    => zero_advective_flux
 compute_source             => diffusion_cubic_decay_source
 call set_constant_dispersion(disp_coef)
 
+dx = domain_length/dble(nx_base)
 
 call initial_final_solution(fine_initial_condition,&
                             fine_solution,         &
@@ -141,6 +141,7 @@ call test_convergence(label,                            &
                       nstep_base,                       &
                       nx_base,                          &
                       nconc,                            &
+                      dx,                               &
                       n_dsm2_node,                      &
                       dsm2_node_type,                   &
                       node_conc_val,                    &
@@ -185,7 +186,7 @@ real(gtm_real) :: dx
 real(gtm_real) :: xposition(nx_base)
 real(gtm_real) :: current_time
 
-dx = domain_length/nx_base
+dx = domain_length/dble(nx_base)
 
 do icell = 1,nx_base
   xposition(icell) = dx*(dble(icell)-half)+ origin
