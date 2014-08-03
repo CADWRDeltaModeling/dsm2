@@ -148,13 +148,13 @@ public class Channel extends Waterbody{
     float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, depth);
     if(useTransProfile) tp = calcTransProfile(yPos, width);
-    if (averageVelocity < 0)
-    	return 0;
-    else{
-    	if (_isSwimmingVelSet) 
+    if (averageVelocity > 0){
+    	if (_isSwimmingVelSet)
     		return (averageVelocity*vp*tp + _swimmingVelocity);
     	return  (averageVelocity*vp*tp + uSwimmingVelocity);
     }
+    else
+	  return 0;
   }
   
   public void setSwimmingVelocity(float sv){
