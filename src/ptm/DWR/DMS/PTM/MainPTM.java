@@ -197,10 +197,10 @@ public class MainPTM {
                 Globals.currentModelTime += PTMTimeStep){
                 // output runtime information to screen
                 MainPTM.display(displayInterval);
-
                 if (behavior)
                     Globals.currentMilitaryTime = Integer.parseInt(Globals.getModelTime(Globals.currentModelTime));
-                // get latest hydro information
+                
+                // get latest hydro information using Global/model time in minutes!!!!!!
                 Environment.getHydroInfo(Globals.currentModelTime);
                 if (DEBUG) System.out.println("Updated flows");
                 // update Particle positions
@@ -209,6 +209,7 @@ public class MainPTM {
                 	// because with subtime step too many random numbers are sampled
                 	// ptm timeStep in seconds
                 	if (!particleArray[i].isDead) 
+                		// updatePosition uses timeStep in seconds!!!!!!
                 		particleArray[i].updatePosition(timeStep);
                 }
                 if (DEBUG) System.out.println("Updated particle positions");

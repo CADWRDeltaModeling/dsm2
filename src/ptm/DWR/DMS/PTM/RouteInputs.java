@@ -100,7 +100,7 @@ public class RouteInputs {
 		else{
 			for (NonPhysicalBarrier barrier: _barriers)
 				allWbs[barrier.getWaterbodyId()].setCurrentBarrierOp(barrier.getNodeId(), 
-						barrier.getBarrierOp(PTMUtil.convertHecTime(currentTime)));
+						barrier.getBarrierOp(PTMUtil.modelTimeToCalendar(currentTime)));
 		}
 		return true;
 	}

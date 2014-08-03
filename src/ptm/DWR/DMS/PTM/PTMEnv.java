@@ -412,7 +412,7 @@ public class PTMEnv{
     		for (int releaseNode:fgs.keySet()){
     			for (FishRelease fr: fgs.get(releaseNode).getFishReleases()){
     				for (int i = 0; i < fr.getFishNumber(); i++ ){
-    					particlePtrArray[pNum].setInsertionInfo(((int)PTMUtil.convertCalendar(fr.getRelaseTime())), getNode(releaseNode));
+    					particlePtrArray[pNum].setInsertionInfo(((int)PTMUtil.calendarToModelTime(fr.getRelaseTime())), getNode(releaseNode));
     					pNum++;
     				}	
     			}
