@@ -215,8 +215,8 @@ module test_convergence_transport_uniform_vary_dx
         if (test_diffuse .eq. zero) then    
             const_disp_coef = one !for production of initial and final solution
             call set_constant_dispersion(zero)
-            call set_single_channel_boundary(dirichlet_advective_flux_lo, gaussian_data,                &
-                                             dirichlet_advective_flux_hi, gaussian_data,                &
+            call set_single_channel_boundary(dirichlet_advective_flux_lo, gaussian_data_vary_dx,                &
+                                             dirichlet_advective_flux_hi, gaussian_data_vary_dx,                &
                                              dirichlet_diffusive_flux_lo, extrapolate_hi_boundary_data, &
                                              dirichlet_diffusive_flux_hi, extrapolate_hi_boundary_data ) !todo: are these intentionally set here as out flow?
             boundary_diffusion_flux   => no_diffusion_flux         ! todo: improve set_single_channel_boundary to avoid this
@@ -224,9 +224,9 @@ module test_convergence_transport_uniform_vary_dx
         else
             const_disp_coef =  test_diffuse
             call set_constant_dispersion(const_disp_coef)
-            call set_single_channel_boundary(dirichlet_advective_flux_lo, gaussian_data, &
-                                             dirichlet_advective_flux_hi, gaussian_data, &
-                                             dirichlet_diffusive_flux_lo, gaussian_data, &
+            call set_single_channel_boundary(dirichlet_advective_flux_lo, gaussian_data_vary_dx, &
+                                             dirichlet_advective_flux_hi, gaussian_data_vary_dx, &
+                                             dirichlet_diffusive_flux_lo, gaussian_data_vary_dx, &
                                              dirichlet_diffusive_flux_hi, extrapolate_hi_boundary_data )
 
             boundary_diffusion_flux => single_channel_boundary_diffusive_flux
@@ -236,16 +236,11 @@ module test_convergence_transport_uniform_vary_dx
         diffuse_start_time  = ic_gaussian_sd**two/(const_disp_coef*two)
         advection_boundary_flux => single_channel_boundary_advective_flux
 
-        allocate(dx(nx_base))        
-        do i = 1, nx_base
-            if (mod(i,4).eq.0) then
-                weight = four*0.4d0
-            else
-                weight = mod(i,4)*0.4d0
-            end if    
-            dx(i) = base_domain_length/nx_base*weight
-        end do    
         allocate(fine_initial_conc(nx_base,nconc),fine_solution(nx_base,nconc))
+        allocate(dx(nx_base))    
+        dx(1:nx_base/2) = domain_length/dble(nx_base) *0.9d0
+        dx(nx_base/2+1:nx_base) = domain_length/dble(nx_base) *1.1d0
+
         ! Subroutine which generates fine initial values and reference values to compare with 
         ! and feed the covvergence test subroutine.
         call initial_final_solution_uniform_dx(fine_initial_conc,  &
@@ -256,8 +251,8 @@ module test_convergence_transport_uniform_vary_dx
                                             decay_rate,            &
                                             total_time,            &
                                             origin,                &
-                                            nx_base,               &
                                             dx,                    &
+                                            nx_base,               &                                            
                                             nconc)
 
         call test_convergence(label,                                     &
@@ -297,8 +292,8 @@ module test_convergence_transport_uniform_vary_dx
                                                  decay_rate,            &
                                                  total_time,            &
                                                  origin,                &
-                                                 nx_base,               &
-                                                 dx,                    &                                                 
+                                                 dx,                    &
+                                                 nx_base,               &                                                                                                  
                                                  nconc)                                  
         use gaussian_init_boundary_condition
         use diffusion
@@ -340,7 +335,7 @@ module test_convergence_transport_uniform_vary_dx
     end subroutine
 
     !> Gaussian data
-    subroutine gaussian_data(bc_data,           &
+    subroutine gaussian_data_vary_dx(bc_data,           &
                              xloc,              &
                              conc,              &
                              ncell,             &
@@ -382,7 +377,7 @@ module test_convergence_transport_uniform_vary_dx
     end subroutine
 
     !> Gaussian gradient data
-    subroutine gaussian_gradient_data(bc_data,           &
+    subroutine gaussian_gradient_data_vary_dx(bc_data,           &
                                       xloc,              &
                                       conc,              &
                                       ncell,             &

@@ -124,9 +124,9 @@ program test_driver
     !/// Advection-diffusion-reaction convergence in uniform flow,
     !    operators are layered in successively
     call test_converge_transport_uniform(verbose)
+    call test_converge_transport_uniform_vary_dx(verbose)
     call test_converge_uniform_bidirectional(verbose)
-    !call test_converge_transport_uniform_vary_dx(verbose)
-
+    
     !/////// Diffusion unit tests
     call test_tridi_solver
     call test_boundary_diffusion_flux

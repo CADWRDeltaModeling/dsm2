@@ -124,7 +124,8 @@ module test_convergence_transport
         real(gtm_real) :: dt                                !< Time step in seconds
         real(gtm_real) :: time                              !< Current time
         real(gtm_real) :: norm_error(3,nrefine)             !< Norm of error
-        integer :: i, j ,k
+        integer :: i, j, k
+        real(gtm_real) :: current_loc
 
         if (present(detail_printout))then
             detailed_printout = detail_printout
@@ -173,11 +174,12 @@ module test_convergence_transport
                     dx(i) = dx(i) + fine_dx(k)
                 end do    
             end do
-            !dx = domain_length/dble(nx)
             dt = total_time/dble(nstep)        
 
+            current_loc = zero
             do icell = 1,nx
-                x_center(icell) = (dble(icell)-half)*dx(icell)
+                x_center(icell) = current_loc + half*dx(icell)
+                current_loc = current_loc + dx(icell)
             end do
 
             time = start_time
