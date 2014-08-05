@@ -95,11 +95,11 @@ module ut_gtm_hdf_write
         
         call assign_chan_comppt        
         call assign_segment
-        call get_dsm2_node_info
+        call get_dsm2_network_info
         
         call write_segment_info(geom_id)
         call write_channel_info(geom_id)
-        call write_dsm2_node_info(geom_id)
+        call write_dsm2_network_info(geom_id)
         call write_connection_info(geom_id)
         call h5gclose_f(geom_id, err)
         call h5fclose_f(file_id, err)

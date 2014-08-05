@@ -48,6 +48,7 @@ subroutine test_advection_diffusion_mms(verbose)
 use hydro_data
 use boundary_advection
 use boundary_diffusion
+use gradient_adjust
 use error_handling
 use dispersion_coefficient
 use source_sink
@@ -55,7 +56,7 @@ use test_convergence_transport
 use test_convergence_transport_uniform
 use single_channel_boundary
 use dispersion_coefficient
-use common_variables, only : dsm2_node_t
+use common_variables, only : dsm2_network_t
 
 implicit none
 procedure(hydro_data_if),pointer :: mms_hydro             !< The pointer points to the test's flow data
@@ -76,11 +77,11 @@ procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< P
 procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< Pointer for boundary diffusin matrix to be filled by driver
 
 integer, parameter :: n_dsm2_node = 2
-type(dsm2_node_t) :: dsm2_node_type(2)
+type(dsm2_network_t) :: dsm2_network_type(2)
 real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
 
-call set_single_channel(dsm2_node_type, nx_base)
+call set_single_channel(dsm2_network_type, nx_base)
 node_conc_val = one
 
 acceptance_ratio = [ four, four, four ]
@@ -95,6 +96,8 @@ acceptance_ratio = [ four, four, four ]
 mms_hydro => manufactured_solution_flow 
 compute_source => manufactured_solution_source
 dispersion_coef => mms_const_disp_coef
+
+adjust_gradient => adjust_differences_single_channel
 
 label = 'advection_dispersion_manufactured_solution' 
 test_domain_length = x_right - x_left
@@ -129,6 +132,7 @@ boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
 !> at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                                  &
                       mms_hydro,                              &
+                      adjust_differences_single_channel,      &
                       single_channel_boundary_advective_flux, &
                       boundary_diffusion_flux,                &
                       boundary_diffusion_matrix,              &
@@ -143,7 +147,7 @@ call test_convergence(label,                                  &
                       nconc,                                  &
                       dx,                                     &
                       n_dsm2_node,                            &
-                      dsm2_node_type,                         &
+                      dsm2_network_type,                         &
                       node_conc_val,                          &
                       verbose,                                &
                       .true.,                                 &

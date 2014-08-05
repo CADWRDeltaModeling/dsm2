@@ -110,6 +110,7 @@ module test_convergence_transport_uniform
         use diffusion
         use boundary_advection
         use boundary_diffusion
+        use gradient_adjust
         use single_channel_boundary
         use primitive_variable_conversion
         use hydro_data
@@ -119,7 +120,7 @@ module test_convergence_transport_uniform
         use gtm_logging
         use hydro_uniform_flow
         use dispersion_coefficient
-        use common_variables, only : dsm2_node_t
+        use common_variables, only : dsm2_network_t
         
         implicit none
 
@@ -160,10 +161,10 @@ module test_convergence_transport_uniform
         logical :: remote  = .false.                                                !< Flag Switch todo: ?
 
         integer, parameter :: n_dsm2_node = 2
-        type(dsm2_node_t) :: dsm2_node_type(2)
+        type(dsm2_network_t) :: dsm2_network_type(2)
         real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
-        call set_single_channel(dsm2_node_type, nx_base)
+        call set_single_channel(dsm2_network_type, nx_base)
         node_conc_val = one
         
         acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
@@ -193,7 +194,8 @@ module test_convergence_transport_uniform
         end if
 
         call set_uniform_flow_area(test_flow,constant_area)
-        uniform_hydro=> uniform_flow_area
+        uniform_hydro => uniform_flow_area
+        adjust_gradient => adjust_differences_single_channel
         const_velocity = test_flow/constant_area
 
         ! source
@@ -254,6 +256,7 @@ module test_convergence_transport_uniform
 
         call test_convergence(label,                                     &
                               uniform_hydro,                             &
+                              adjust_differences_single_channel,         &
                               single_channel_boundary_advective_flux,    &
                               bc_diff_flux,                              &
                               bc_diff_matrix,                            &
@@ -268,7 +271,7 @@ module test_convergence_transport_uniform
                               nconc,                                     &
                               dx,                                        &
                               n_dsm2_node,                               &
-                              dsm2_node_type,                            &
+                              dsm2_network_type,                            &
                               node_conc_val,                             &
                               verbose,                                   &
                               details,                                   &

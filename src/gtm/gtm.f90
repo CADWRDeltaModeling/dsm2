@@ -44,7 +44,9 @@ program gtm
     use hydro_data
     use hydro_data_network
     use state_variables
+    use state_variables_network
     use primitive_variable_conversion
+    use gradient_adjust
     use advection
     use diffusion
     use dispersion_coefficient    
@@ -151,8 +153,7 @@ program gtm
     call allocate_hydro_ts()  
     call allocate_network_tmp()
     call allocate_state(n_cell, n_var)
-    call allocate_state_node(n_resv, n_resv_conn, n_qext, n_tran, n_var)
-    call allocate_state_resv(n_resv, n_var)
+    call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_var)
     allocate(init_c(n_cell,n_var))
     allocate(linear_decay(n_var))
     allocate(cfl(n_cell))    
@@ -193,6 +194,7 @@ program gtm
     dispersion_coef => constant_dispersion_coef
     compute_source => no_source
     !compute_source => linear_decay_source
+    adjust_gradient => adjust_differences_network
     advection_boundary_flux => bc_fixup_advection_flux
     boundary_diffusion_flux => neumann_zero_diffusive_flux
     boundary_diffusion_matrix => neumann_zero_diffusion_matrix
@@ -299,20 +301,20 @@ program gtm
         if (t_index==1) then
             do i = 1, n_node
             flow_chk = zero
-                do j = 1, dsm2_node(i)%n_conn_cell
-                    if (dsm2_node(i)%up_down(j) == 0 ) then  !upstream
-                    write(11,*) dsm2_node(i)%dsm2_node_no, dsm2_node(i)%up_down(j), flow_hi(dsm2_node(i)%cell_no(j))
-                    flow_chk = flow_chk + flow_hi(dsm2_node(i)%cell_no(j))
+                do j = 1, dsm2_network(i)%n_conn_cell
+                    if (dsm2_network(i)%up_down(j) == 0 ) then  !upstream
+                    write(11,*) dsm2_network(i)%dsm2_node_no, dsm2_network(i)%up_down(j), flow_hi(dsm2_network(i)%cell_no(j))
+                    flow_chk = flow_chk + flow_hi(dsm2_network(i)%cell_no(j))
                     else  
-                    write(11,*) dsm2_node(i)%dsm2_node_no, dsm2_node(i)%up_down(j), flow_lo(dsm2_node(i)%cell_no(j))
-                    flow_chk = flow_chk + minus*flow_lo(dsm2_node(i)%cell_no(j))
+                    write(11,*) dsm2_network(i)%dsm2_node_no, dsm2_network(i)%up_down(j), flow_lo(dsm2_network(i)%cell_no(j))
+                    flow_chk = flow_chk + minus*flow_lo(dsm2_network(i)%cell_no(j))
                     end if
                 end do 
-                write(11,*) dsm2_node(i)%dsm2_node_no, flow_chk
-                do j = 1, dsm2_node(i)%n_qext 
-                    write(11,*) dsm2_node(i)%dsm2_node_no,qext_flow(dsm2_node(i)%qext_no(j)),"ext"
+                write(11,*) dsm2_network(i)%dsm2_node_no, flow_chk
+                do j = 1, dsm2_network(i)%n_qext 
+                    write(11,*) dsm2_network(i)%dsm2_node_no,qext_flow(dsm2_network(i)%qext_no(j)),"ext"
                 end do
-                if (dsm2_node(i)%resv_conn_no.ne.0) write(11,*) dsm2_node(i)%dsm2_node_no,resv_flow(dsm2_node(i)%resv_conn_no),"resv_flow"
+                if (dsm2_network(i)%resv_conn_no.ne.0) write(11,*) dsm2_network(i)%dsm2_node_no,resv_flow(dsm2_network(i)%resv_conn_no),"resv_flow"
             end do        
         end if    
                            
@@ -341,7 +343,8 @@ program gtm
                     gtm_time_interval*sixty,  &
                     dx_arr,                   &
                     n_node,                   &
-                    dsm2_node,                &
+                    dsm2_network,             &
+                    adjust_differences_network, &
                     node_conc,                &
                     .true.)     
         call cons2prim(conc, mass, area, n_cell, n_var)
@@ -399,8 +402,8 @@ program gtm
                                        area,                  & 
                                        n_cell,                &
                                        time_index_in_gtm_hdf)                               
-                call write_qual_hdf_ts(qual_hdf%cell_cfl_id, &
-                                       cfl,                  & 
+                call write_qual_hdf_ts(qual_hdf%cell_cfl_id,  &
+                                       cfl,                   & 
                                        n_cell,                &
                                        time_index_in_gtm_hdf)                                             
             end if
@@ -418,8 +421,7 @@ program gtm
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state
-    call deallocate_state_node
-    call deallocate_state_resv
+    call deallocate_state_network
     call deallocate_network_tmp
     call deallocate_hydro_ts
     call close_qual_hdf(qual_hdf)         

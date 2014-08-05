@@ -63,12 +63,13 @@ subroutine test_tidal_advection_reaction(verbose)
 use hydro_data
 use boundary_advection
 use boundary_diffusion
+use gradient_adjust
 use gaussian_init_boundary_condition
 use source_sink
 use test_convergence_transport
 use diffusion
 use dispersion_coefficient
-use common_variables, only : dsm2_node_t
+use common_variables, only : dsm2_network_t
   
 implicit none
 procedure(hydro_data_if),pointer :: tidal_hydro           !< The pointer points to tidal flow data
@@ -82,11 +83,11 @@ real(gtm_real) :: tidal_ar_decay_rate                     !< Tidal decay rate
 character(LEN=64) :: label                                !< Test name label
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
 integer, parameter :: n_dsm2_node = 2
-type(dsm2_node_t) :: dsm2_node_type(2)
+type(dsm2_network_t) :: dsm2_network_type(2)
 real(gtm_real) :: dx(nx_base)
 real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
-call set_single_channel(dsm2_node_type, nx_base)
+call set_single_channel(dsm2_network_type, nx_base)
 node_conc_val = one
  
 dx = domain_length/dble(nx_base)
@@ -96,7 +97,7 @@ acceptance_ratio = [2.9, 2.9, 2.9]
 tidal_hydro=> tidal_flow_modified ! this flow generator is mass conservative
 ! do not remove it 
 !tidal_hydro=> tidal_flow_cell_average ! this flow generator is NOT mass conservative but it is cell averaged
-
+adjust_gradient => adjust_differences_single_channel
 advection_boundary_flux => zero_advective_flux !todo: move this so it isn't hardwired
 boundary_diffusion_flux => no_diffusion_flux
 boundary_diffusion_matrix => no_diffusion_matrix
@@ -124,26 +125,27 @@ call initial_fine_solution_tidal_gaussian(fine_initial_condition, &
 ! The general subroutine which gets the fine initial and reference values from the privious subroutine and 
 ! compute the norms, after each step coarsen the values and repeat computation.
 ! at the end  calculates the ratio of the norms and prints a log 
-call test_convergence(label,                  &
-                      tidal_hydro ,           &
-                      zero_advective_flux,    &
-                      no_diffusion_flux,      &
-                      no_diffusion_matrix,    &
-                      no_source,              &
-                      domain_length,          &
-                      total_time,             &
-                      start_time,             &
-                      fine_initial_condition, &
-                      fine_solution,          &            
-                      nstep_base,             &
-                      nx_base,                &
-                      nconc,                  &
-                      dx,                     &
-                      n_dsm2_node,            &
-                      dsm2_node_type,         &
-                      node_conc_val,          &
-                      verbose,                &
-                      .true.,                 &
+call test_convergence(label,                             &
+                      tidal_hydro ,                      &
+                      adjust_differences_single_channel, &
+                      zero_advective_flux,               &
+                      no_diffusion_flux,                 &
+                      no_diffusion_matrix,               &
+                      no_source,                         &
+                      domain_length,                     &
+                      total_time,                        &
+                      start_time,                        &
+                      fine_initial_condition,            &
+                      fine_solution,                     &            
+                      nstep_base,                        &
+                      nx_base,                           &
+                      nconc,                             &
+                      dx,                                &
+                      n_dsm2_node,                       &
+                      dsm2_network_type,                 &
+                      node_conc_val,                     &
+                      verbose,                           &
+                      .true.,                            &
                       acceptance_ratio)
                       
 label = "advection_tidal_sinusoidal" 
@@ -160,26 +162,27 @@ call initial_fine_solution_tidal_sinusoidal(fine_initial_condition, &
 ! The general subroutine which gets the fine initial and reference values from the privious subroutine and 
 ! compute the norms, after each step coarsen the values and repeat computation.
 ! at the end  calculates the ratio of the norms and prints a log 
-call test_convergence(label,                  &
-                      tidal_hydro ,           &
-                      zero_advective_flux,    &
-                      no_diffusion_flux,      &
-                      no_diffusion_matrix,    &
-                      no_source,              &
-                      domain_length,          &
-                      total_time,             &
-                      start_time,             &
-                      fine_initial_condition, &
-                      fine_solution,          &            
-                      nstep_base,             &
-                      nx_base,                &
-                      nconc,                  &
-                      dx,                     &
-                      n_dsm2_node,            &
-                      dsm2_node_type,         &
-                      node_conc_val,          &
-                      verbose,                &
-                      .true.,                 &
+call test_convergence(label,                             &
+                      tidal_hydro ,                      &
+                      adjust_differences_single_channel, &
+                      zero_advective_flux,               &
+                      no_diffusion_flux,                 &
+                      no_diffusion_matrix,               &
+                      no_source,                         &
+                      domain_length,                     &
+                      total_time,                        &
+                      start_time,                        &
+                      fine_initial_condition,            &
+                      fine_solution,                     &            
+                      nstep_base,                        &
+                      nx_base,                           &
+                      nconc,                             &
+                      dx,                                &
+                      n_dsm2_node,                       &
+                      dsm2_network_type,                 &
+                      node_conc_val,                     &
+                      verbose,                           &
+                      .true.,                            &
                       acceptance_ratio)
 
 !!!!!!!!!!!!!!!!!!!!!!
@@ -205,26 +208,27 @@ call initial_fine_solution_tidal_gaussian(fine_initial_condition, &
 ! The general subroutine which gets the fine initial and reference values from the privious subroutine and 
 ! compute the norms, after each step coarsen the values and repeat computation.
 ! at the end  calculates the ratio of the norms and prints a log 
-call test_convergence(label,                  &
-                      tidal_hydro ,           &
-                      zero_advective_flux,    &
-                      no_diffusion_flux,      &
-                      no_diffusion_matrix,    &
-                      no_source,              &
-                      domain_length,          &
-                      total_time,             &
-                      start_time,             &
-                      fine_initial_condition, &
-                      fine_solution,          &            
-                      nstep_base,             &
-                      nx_base,                &
-                      nconc,                  &
-                      dx,                     &
-                      n_dsm2_node,            &
-                      dsm2_node_type,         &
-                      node_conc_val,          &
-                      verbose,                &
-                      .true.,                 &
+call test_convergence(label,                             &
+                      tidal_hydro ,                      &
+                      adjust_differences_single_channel, &
+                      zero_advective_flux,               &
+                      no_diffusion_flux,                 &
+                      no_diffusion_matrix,               &
+                      no_source,                         &
+                      domain_length,                     &
+                      total_time,                        &
+                      start_time,                        &
+                      fine_initial_condition,            &
+                      fine_solution,                     &            
+                      nstep_base,                        &
+                      nx_base,                           &
+                      nconc,                             &
+                      dx,                                &
+                      n_dsm2_node,                       &
+                      dsm2_network_type,                 &
+                      node_conc_val,                     &
+                      verbose,                           &
+                      .true.,                            &
                       acceptance_ratio)
                       
 label = "advection_reaction_tidal_sinusoidal" 
@@ -241,26 +245,27 @@ call initial_fine_solution_tidal_sinusoidal(fine_initial_condition, &
 ! The general subroutine which gets the fine initial and reference values from the privious subroutine and 
 ! compute the norms, after each step coarsen the values and repeat computation.
 ! at the end  calculates the ratio of the norms and prints a log 
-call test_convergence(label,                  &
-                      tidal_hydro ,           &
-                      zero_advective_flux,    &
-                      no_diffusion_flux,      &
-                      no_diffusion_matrix,    &
-                      no_source,              &
-                      domain_length,          &
-                      total_time,             &
-                      start_time,             &
-                      fine_initial_condition, &
-                      fine_solution,          &            
-                      nstep_base,             &
-                      nx_base,                &
-                      nconc,                  &
-                      dx,                     &
-                      n_dsm2_node,            &
-                      dsm2_node_type,         &
-                      node_conc_val,          &
-                      verbose,                &
-                      .true.,                 &
+call test_convergence(label,                             &
+                      tidal_hydro ,                      &
+                      adjust_differences_single_channel, &
+                      zero_advective_flux,               &
+                      no_diffusion_flux,                 &
+                      no_diffusion_matrix,               &
+                      no_source,                         &
+                      domain_length,                     &
+                      total_time,                        &
+                      start_time,                        &
+                      fine_initial_condition,            &
+                      fine_solution,                     &            
+                      nstep_base,                        &
+                      nx_base,                           &
+                      nconc,                             &
+                      dx,                                &
+                      n_dsm2_node,                       &
+                      dsm2_network_type,                 &
+                      node_conc_val,                     &
+                      verbose,                           &
+                      .true.,                            &
                       acceptance_ratio)
 
 end subroutine

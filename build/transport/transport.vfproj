@@ -31,9 +31,11 @@
 		<File RelativePath="..\..\src\transport\diffusion.f90"/>
 		<File RelativePath="..\..\src\transport\dispersion_coefficient.f90"/>
 		<File RelativePath="..\..\src\transport\gradient.f90"/>
+		<File RelativePath="..\..\src\transport\gradient_adjust.f90"/>
 		<File RelativePath="..\..\src\transport\matrix_solver.f90"/>
 		<File RelativePath="..\..\src\transport\primitive_variable_conversion.f90"/>
 		<File RelativePath="..\..\src\transport\reaction.f90"/>
 		<File RelativePath="..\..\src\transport\source.f90"/>
-		<File RelativePath="..\..\src\transport\state_variables.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\transport\state_variables.f90"/>
+		<File RelativePath="..\..\src\transport\state_variables_network.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

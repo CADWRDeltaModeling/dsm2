@@ -36,6 +36,7 @@ use primitive_variable_conversion
 use boundary_diffusion
 use boundary_advection
 use hydro_uniform_flow
+use gradient_adjust
 use dispersion_coefficient
 use gaussian_init_boundary_condition
 use diffusion
@@ -45,7 +46,7 @@ use test_utility
 use error_handling
 use fruit
 use gtm_logging
-use common_variables, only : dsm2_node_t
+use common_variables, only : dsm2_network_t
 
 implicit none
 
@@ -95,21 +96,21 @@ real(gtm_real) :: norm_error(3,nrefine)
 real(gtm_real) :: acceptance_ratio(3)                        !< Acceptance ratio
 
 integer, parameter :: n_dsm2_node = 2
-type(dsm2_node_t) :: dsm2_node_type(2)
+type(dsm2_network_t) :: dsm2_network_type(2)
 real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
 character(LEN=64):: label = 'test_diffusion_fletcher_dirichlet'
 
 acceptance_ratio = [four, four, four]
 
-call set_single_channel(dsm2_node_type, nx_base)
+call set_single_channel(dsm2_network_type, nx_base)
 node_conc_val = one
 
 dx = domain_length/dble(nx_base)
 
 call set_uniform_flow_area(zero,constant_area)
 uniform_hydro => uniform_flow_area
-
+adjust_gradient => adjust_differences_single_channel
 boundary_diffusion_matrix  => dirichlet_test_diffusion_matrix
 boundary_diffusion_flux    => dirichlet_test_diffusive_flux
 advection_boundary_flux    => zero_advective_flux
@@ -129,25 +130,26 @@ call initial_final_solution(fine_initial_condition,&
                                 
 !=====Dirichlet
 label = 'test_diffusion_fletcher_dirichlet'
-call test_convergence(label,                            &
-                      uniform_hydro,                    &
-                      zero_advective_flux,              &
-                      dirichlet_test_diffusive_flux,    &
-                      dirichlet_test_diffusion_matrix , &
-                      no_source,                        &
-                      domain_length,                    &
-                      total_time,                       &
-                      start_time,                       &
-                      fine_initial_condition,           &
-                      fine_solution,                    &            
-                      nstep_base,                       &
-                      nx_base,                          &
-                      nconc,                            &      
-                      dx,                               &
-                      n_dsm2_node,                      &
-                      dsm2_node_type,                   &
-                      node_conc_val,                    &
-                      verbose,.true.,                   &
+call test_convergence(label,                             &
+                      uniform_hydro,                     &
+                      adjust_differences_single_channel, &
+                      zero_advective_flux,               &
+                      dirichlet_test_diffusive_flux,     &
+                      dirichlet_test_diffusion_matrix ,  &
+                      no_source,                         &
+                      domain_length,                     &
+                      total_time,                        &
+                      start_time,                        &
+                      fine_initial_condition,            &
+                      fine_solution,                     &            
+                      nstep_base,                        &
+                      nx_base,                           &
+                      nconc,                             &      
+                      dx,                                &
+                      n_dsm2_node,                       &
+                      dsm2_network_type,                 &
+                      node_conc_val,                     &
+                      verbose,.true.,                    &
                       acceptance_ratio)
 
 
@@ -166,25 +168,26 @@ call initial_final_solution(fine_initial_condition,&
                             nx_base,               &
                             nconc)
 
-call test_convergence(label,                      &
-                      uniform_hydro,              &
-                      zero_advective_flux,        &
-                      n_d_test_diffusive_flux,    &
-                      n_d_test_diffusion_matrix , &
-                      no_source,                  &
-                      domain_length,              &
-                      total_time,                 &
-                      start_time,                 &
-                      fine_initial_condition,     &
-                      fine_solution,              &            
-                      nstep_base,                 &
-                      nx_base,                    &
-                      nconc,                      &
-                      dx,                         &
-                      n_dsm2_node,                &
-                      dsm2_node_type,             &
-                      node_conc_val,              &
-                      verbose,.true.,             &
+call test_convergence(label,                             &
+                      uniform_hydro,                     &
+                      adjust_differences_single_channel, &
+                      zero_advective_flux,               &
+                      n_d_test_diffusive_flux,           &
+                      n_d_test_diffusion_matrix ,        &
+                      no_source,                         &
+                      domain_length,                     &
+                      total_time,                        &
+                      start_time,                        &
+                      fine_initial_condition,            &
+                      fine_solution,                     &            
+                      nstep_base,                        &
+                      nx_base,                           &
+                      nconc,                             &
+                      dx,                                &
+                      n_dsm2_node,                       &
+                      dsm2_network_type,                 &
+                      node_conc_val,                     &
+                      verbose,.true.,                    &
                       acceptance_ratio)
 
 return

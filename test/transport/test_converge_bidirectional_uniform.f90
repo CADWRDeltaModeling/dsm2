@@ -85,6 +85,7 @@ module test_converge_bidirectional_uniform
         use diffusion
         use boundary_advection
         use boundary_diffusion
+        use gradient_adjust
         use single_channel_boundary
         use primitive_variable_conversion
         use hydro_data
@@ -94,7 +95,7 @@ module test_converge_bidirectional_uniform
         use gtm_logging
         use hydro_uniform_flow
         use dispersion_coefficient
-        use common_variables, only : dsm2_node_t
+        use common_variables, only : dsm2_network_t
         
         implicit none
 
@@ -135,12 +136,12 @@ module test_converge_bidirectional_uniform
         logical :: remote  = .false.                                                 !< Flag Switch todo: ?
 
         integer, parameter :: n_dsm2_node = 2
-        type(dsm2_node_t) :: dsm2_node_type(2)
+        type(dsm2_network_t) :: dsm2_network_type(2)
         real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)        
         
         dx = domain_length/dble(nx_base)
         
-        call set_single_channel(dsm2_node_type, nx_base)
+        call set_single_channel(dsm2_network_type, nx_base)
         node_conc_val(1,:) = one
         node_conc_val(2,:) = zero
 
@@ -173,7 +174,8 @@ module test_converge_bidirectional_uniform
         call set_uniform_flow_area(test_flow,constant_area,reverse_time)
         uniform_hydro=> uniform_flow_area
         const_velocity = test_flow/constant_area
-
+        adjust_gradient => adjust_differences_single_channel
+        
         ! source
         decay_rate = test_decay
         rates = decay_rate
@@ -228,6 +230,7 @@ module test_converge_bidirectional_uniform
                                             nconc)
         call test_convergence(label,                                  &
                               uniform_hydro,                          &
+                              adjust_differences_single_channel,      &
                               single_channel_boundary_advective_flux, &
                               bc_diff_flux,                           &
                               bc_diff_matrix,                         &
@@ -242,7 +245,7 @@ module test_converge_bidirectional_uniform
                               nconc,                                  &
                               dx,                                     &
                               n_dsm2_node,                            &
-                              dsm2_node_type,                         &
+                              dsm2_network_type,                         &
                               node_conc_val,                          &
                               verbose,                                &
                               details,                                &

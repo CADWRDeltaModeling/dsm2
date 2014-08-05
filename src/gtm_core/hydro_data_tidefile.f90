@@ -44,7 +44,7 @@ module hydro_data_tidefile
         call read_qext_tbl
         call read_tran_tbl
         call read_xsect_tbl    
-        call get_dsm2_node_info
+        call get_dsm2_network_info
     end subroutine     
     
     !> This subroutine is used to read DSM2 hydro tidefile,

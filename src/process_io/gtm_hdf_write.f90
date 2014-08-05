@@ -342,9 +342,9 @@ module gtm_hdf_write
 
 
     !> Write out DSM2 node info into GTM tidefile
-    subroutine write_dsm2_node_info(geom_id)
+    subroutine write_dsm2_network_info(geom_id)
         use hdf5
-        use common_variables, only: n_node, dsm2_node
+        use common_variables, only: n_node, dsm2_network
         implicit none
         integer(HID_T), intent(in) :: geom_id              !< hdf5 dataset identifier
         integer(HID_T) :: dset_id                          ! dataset identifier
@@ -384,7 +384,7 @@ module gtm_hdf_write
   
         n = 0
         do i = 1, n_node
-            n = n + dsm2_node(i)%n_conn_cell
+            n = n + dsm2_network(i)%n_conn_cell
         end do
 
         allocate(dsm2_node_no(n))
@@ -504,20 +504,20 @@ module gtm_hdf_write
        
         k = 0
         do i = 1, n_node
-            do j = 1, dsm2_node(i)%n_conn_cell
+            do j = 1, dsm2_network(i)%n_conn_cell
                 k = k + 1
-                dsm2_node_no(k) = dsm2_node(i)%dsm2_node_no
+                dsm2_node_no(k) = dsm2_network(i)%dsm2_node_no
                 int_node(k) = k
-                n_conn_cell(k) = dsm2_node(i)%n_conn_cell
-                cell_no(k) = dsm2_node(i)%cell_no(j)
-                up_down(k) = dsm2_node(i)%up_down(j)
-                boundary_no(k) = dsm2_node(i)%boundary_no
-                junction_no(k) = dsm2_node(i)%junction_no
-                reservoir_no(k) = dsm2_node(i)%reservoir_no
-                resv_conn_no(k) = dsm2_node(i)%resv_conn_no
-                n_qext(k) = dsm2_node(i)%n_qext
-                nonsequential(k) = dsm2_node(i)%nonsequential
-                no_fixup(k) = dsm2_node(i)%no_fixup                                                                                  
+                n_conn_cell(k) = dsm2_network(i)%n_conn_cell
+                cell_no(k) = dsm2_network(i)%cell_no(j)
+                up_down(k) = dsm2_network(i)%up_down(j)
+                boundary_no(k) = dsm2_network(i)%boundary_no
+                junction_no(k) = dsm2_network(i)%junction_no
+                reservoir_no(k) = dsm2_network(i)%reservoir_no
+                resv_conn_no(k) = dsm2_network(i)%resv_conn_no
+                n_qext(k) = dsm2_network(i)%n_qext
+                nonsequential(k) = dsm2_network(i)%nonsequential
+                no_fixup(k) = dsm2_network(i)%no_fixup                                                                                  
             end do
         end do
                 

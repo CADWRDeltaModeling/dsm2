@@ -76,7 +76,7 @@ module ut_gtm_network
         call allocate_network_tmp
         hydro_time_index = 10 
         call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
-        !call assertEquals (junc(1)%dsm2_node_no, 3, "problem in allocate network junc(1)%dsm2_node_no")
+        !call assertEquals (junc(1)%dsm2_network_no, 3, "problem in allocate network junc(1)%dsm2_network_no")
         !call assertEquals (junc(1)%cell_no(1), 15, "problem in allocate network junc(1)%cell_no(1)")
         !call assertEquals (junc(1)%cell_no(2), 16, "problem in allocate network junc(1)%cell_no(2)")
         !call assertEquals (junc(1)%cell_no(3), 28, "problem in allocate network junc(1)%cell_no(3)")

@@ -36,15 +36,15 @@ module gtm_subs
         call write_reservoir_info(geom_id)
         call write_qext_info(geom_id)
         call write_connection_info(geom_id)
-        call write_dsm2_node_info(geom_id)
+        call write_dsm2_network_info(geom_id)
         call h5gclose_f(geom_id, err) 
         return
     end subroutine    
 
 
-    !> assign value to dsm2_node(:)%node_conc, pathinput(:)%i_node, pathinput(:)%i_var
+    !> assign value to dsm2_network(:)%node_conc, pathinput(:)%i_node, pathinput(:)%i_var
     subroutine assign_node_ts()
-        use common_variables, only : n_node, dsm2_node, n_var, constituents
+        use common_variables, only : n_node, dsm2_network, n_var, constituents
         use common_dsm2_vars, only : n_inputpaths, pathinput    
         implicit none
         integer :: i, j
@@ -57,9 +57,9 @@ module gtm_subs
                 end if
             end do
             do j = 1, n_node 
-                if (pathinput(i)%obj_no .eq. dsm2_node(j)%dsm2_node_no) then
+                if (pathinput(i)%obj_no .eq. dsm2_network(j)%dsm2_node_no) then
                     pathinput(i)%i_node = j
-                    dsm2_node(j)%node_conc = 1
+                    dsm2_network(j)%node_conc = 1
                 end if        
             end do
         end do

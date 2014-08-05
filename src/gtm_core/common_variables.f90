@@ -177,7 +177,7 @@ module common_variables
      
      
      !> DSM2 Node information
-     type dsm2_node_t
+     type dsm2_network_t
          integer :: dsm2_node_no                   !< DSM2 node number
          integer :: n_conn_cell                    !< number of cells connected
          integer, allocatable :: cell_no(:)        !< cell number
@@ -194,7 +194,7 @@ module common_variables
          integer :: no_fixup                       !< true: 1, false: 0
          integer :: node_conc                      !< true: 1, false: 0
      end type
-     type(dsm2_node_t), allocatable :: dsm2_node(:)
+     type(dsm2_network_t), allocatable :: dsm2_network(:)
      
                
      !> Define constituent
@@ -216,7 +216,7 @@ module common_variables
          if (n_resv .ne. LARGEINT) call allocate_reservoir_property
          if (n_qext .ne. LARGEINT) call allocate_qext_property     
          if (n_tran .ne. LARGEINT) call allocate_tran_property
-         if (n_node .ne. LARGEINT) call get_dsm2_node_info    
+         if (n_node .ne. LARGEINT) call get_dsm2_network_info    
          return
      end subroutine    
 
@@ -229,7 +229,7 @@ module common_variables
          if (n_resv .ne. LARGEINT) call deallocate_reservoir_property
          if (n_qext .ne. LARGEINT) call deallocate_qext_property  
          if (n_tran .ne. LARGEINT) call deallocate_tran_property  
-         if (n_node .ne. LARGEINT) call deallocate_dsm2_node_property              
+         if (n_node .ne. LARGEINT) call deallocate_dsm2_network_property              
          return
      end subroutine
          
@@ -459,11 +459,11 @@ module common_variables
 
 
      !> Deallocate DSM2 node
-     subroutine deallocate_dsm2_node_property()
+     subroutine deallocate_dsm2_network_property()
          implicit none
          if (n_node .ne. LARGEINT) then 
              n_node = LARGEINT    
-             deallocate(dsm2_node)
+             deallocate(dsm2_network)
          end if    
          return
      end subroutine
@@ -573,9 +573,9 @@ module common_variables
 
      !> Obtain info for DSM2 nodes 
      !> This will count occurence of nodes in channel table. If count>2, a junction; if count==1, a boundary.
-     !> This updates common variables: n_junc, n_boun and dsm2_node(:)
+     !> This updates common variables: n_junc, n_boun and dsm2_network(:)
      !> use common_variables, only n_conn, conn as inputs
-     subroutine get_dsm2_node_info()
+     subroutine get_dsm2_network_info()
          implicit none
          integer :: sorted_conns(n_conn)
          integer, dimension(:), allocatable :: unique_num
@@ -587,59 +587,59 @@ module common_variables
          call sort_arr(sorted_conns, conn(:)%dsm2_node_no, n_conn)
          call unique_num_count(unique_num, occurrence, num_nodes, sorted_conns, n_conn)
          n_node = num_nodes
-         allocate(dsm2_node(num_nodes))
-         dsm2_node(:)%n_conn_cell = 0 
-         dsm2_node(:)%boundary_no = 0 
-         dsm2_node(:)%junction_no = 0
-         dsm2_node(:)%reservoir_no = 0
-         dsm2_node(:)%resv_conn_no = 0
-         dsm2_node(:)%n_qext = 0
-         dsm2_node(:)%nonsequential = 0         
-         dsm2_node(:)%no_fixup = 0
-         dsm2_node(:)%node_conc = 0
+         allocate(dsm2_network(num_nodes))
+         dsm2_network(:)%n_conn_cell = 0 
+         dsm2_network(:)%boundary_no = 0 
+         dsm2_network(:)%junction_no = 0
+         dsm2_network(:)%reservoir_no = 0
+         dsm2_network(:)%resv_conn_no = 0
+         dsm2_network(:)%n_qext = 0
+         dsm2_network(:)%nonsequential = 0         
+         dsm2_network(:)%no_fixup = 0
+         dsm2_network(:)%node_conc = 0
          n_boun = 0
          n_junc = 0
          do i = 1, n_node
-             dsm2_node(i)%dsm2_node_no = unique_num(i)
+             dsm2_network(i)%dsm2_node_no = unique_num(i)
              if (occurrence(i)==1) then 
-                 allocate(dsm2_node(i)%cell_no(1))
-                 allocate(dsm2_node(i)%up_down(1))   
+                 allocate(dsm2_network(i)%cell_no(1))
+                 allocate(dsm2_network(i)%up_down(1))   
                  n_boun = n_boun + 1
-                 dsm2_node(i)%boundary_no = n_boun
-                 dsm2_node(i)%n_conn_cell = 1
+                 dsm2_network(i)%boundary_no = n_boun
+                 dsm2_network(i)%n_conn_cell = 1
                  do j = 1, n_conn
                      if (unique_num(i) .eq. conn(j)%dsm2_node_no) then
-                        dsm2_node(i)%cell_no(1) = conn(j)%cell_no
-                        dsm2_node(i)%up_down(1) = conn(j)%conn_up_down
+                        dsm2_network(i)%cell_no(1) = conn(j)%cell_no
+                        dsm2_network(i)%up_down(1) = conn(j)%conn_up_down
                      end if
                  end do
              elseif (occurrence(i)==2) then
-                 allocate(dsm2_node(i)%cell_no(2))
-                 allocate(dsm2_node(i)%up_down(2))
-                 dsm2_node(i)%n_conn_cell = 2
+                 allocate(dsm2_network(i)%cell_no(2))
+                 allocate(dsm2_network(i)%up_down(2))
+                 dsm2_network(i)%n_conn_cell = 2
                  nj = 0
                  do j = 1, n_conn
                      if (unique_num(i) .eq. conn(j)%dsm2_node_no) then
                          nj = nj + 1
-                         dsm2_node(i)%cell_no(nj) = conn(j)%cell_no
-                         dsm2_node(i)%up_down(nj) = conn(j)%conn_up_down
+                         dsm2_network(i)%cell_no(nj) = conn(j)%cell_no
+                         dsm2_network(i)%up_down(nj) = conn(j)%conn_up_down
                      end if
                  end do
-                 if ( abs(dsm2_node(i)%cell_no(1)-dsm2_node(i)%cell_no(2)) > 1) then
-                     dsm2_node(i)%nonsequential = 1
+                 if ( abs(dsm2_network(i)%cell_no(1)-dsm2_network(i)%cell_no(2)) > 1) then
+                     dsm2_network(i)%nonsequential = 1
                  end if
              elseif (occurrence(i)>2) then 
-                 allocate(dsm2_node(i)%cell_no(occurrence(i)))
-                 allocate(dsm2_node(i)%up_down(occurrence(i)))             
+                 allocate(dsm2_network(i)%cell_no(occurrence(i)))
+                 allocate(dsm2_network(i)%up_down(occurrence(i)))             
                  n_junc = n_junc + 1
-                 dsm2_node(i)%junction_no = n_junc
-                 dsm2_node(i)%n_conn_cell = occurrence(i)
+                 dsm2_network(i)%junction_no = n_junc
+                 dsm2_network(i)%n_conn_cell = occurrence(i)
                  nj = 0
                  do j = 1, n_conn
                      if (unique_num(i) .eq. conn(j)%dsm2_node_no) then
                          nj = nj + 1
-                         dsm2_node(i)%cell_no(nj) = conn(j)%cell_no
-                         dsm2_node(i)%up_down(nj) = conn(j)%conn_up_down
+                         dsm2_network(i)%cell_no(nj) = conn(j)%cell_no
+                         dsm2_network(i)%up_down(nj) = conn(j)%conn_up_down
                      end if
                  end do
              end if
@@ -647,38 +647,38 @@ module common_variables
              do j = 1, n_resv
                  do k = 1, resv_geom(j)%n_resv_conn
                      if (resv_geom(j)%ext_node_no(k)==unique_num(i)) then
-                         dsm2_node(i)%reservoir_no = resv_geom(j)%resv_no
-                         dsm2_node(i)%resv_conn_no = resv_geom(j)%resv_conn_no(k)
+                         dsm2_network(i)%reservoir_no = resv_geom(j)%resv_no
+                         dsm2_network(i)%resv_conn_no = resv_geom(j)%resv_conn_no(k)
                      end if
                  end do    
              end do
 
              do j = 1, n_qext
                  if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_name==unique_num(i)) then
-                     dsm2_node(i)%n_qext = dsm2_node(i)%n_qext + 1
+                     dsm2_network(i)%n_qext = dsm2_network(i)%n_qext + 1
                  end if
              end do
-             allocate(dsm2_node(i)%qext_no(dsm2_node(i)%n_qext))
+             allocate(dsm2_network(i)%qext_no(dsm2_network(i)%n_qext))
              k = 0 
              do j = 1, n_qext
                  if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_name==unique_num(i)) then
                      k = k + 1
-                     dsm2_node(i)%qext_no(k) = qext(j)%qext_no
+                     dsm2_network(i)%qext_no(k) = qext(j)%qext_no
                  end if
              end do
              
              do j = 1, n_tran
                  if (tran(j)%from_obj==2 .and. tran(j)%from_identifier==unique_num(i)) then
-                     dsm2_node(i)%n_tran = dsm2_node(i)%n_tran + 1
+                     dsm2_network(i)%n_tran = dsm2_network(i)%n_tran + 1
                  end if             
              end do
-             allocate(dsm2_node(i)%tran_no(dsm2_node(i)%n_tran))
+             allocate(dsm2_network(i)%tran_no(dsm2_network(i)%n_tran))
              k = 0
              do j = 1, n_tran
                  if ((tran(j)%from_obj==2 .and. tran(j)%from_identifier==unique_num(i)) .or. &
                      (tran(j)%from_obj==2 .and. tran(j)%to_identifier==unique_num(i))) then
                      k = k + 1
-                     dsm2_node(i)%tran_no(k) = tran(j)%tran_no
+                     dsm2_network(i)%tran_no(k) = tran(j)%tran_no
                  end if
              end do                                  
          end do   

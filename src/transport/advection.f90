@@ -55,16 +55,18 @@ module advection
                       dt,             &
                       dx,             &
                       n_dsm2_node,    &
-                      dsm2_node_type, &
+                      dsm2_network_type, &
+                      adjust_differences, &
                       node_conc,      &
                       use_limiter)  
    
         use gtm_precision
         use primitive_variable_conversion
         use gradient
+        use gradient_adjust
         use source_sink
         use boundary_advection
-        use common_variables, only: dsm2_node_t
+        use common_variables, only: dsm2_network_t
 
         implicit none
  
@@ -92,10 +94,11 @@ module advection
         real(gtm_real),intent(in)  :: dt                     !< current time step from old time to new time
         real(gtm_real),intent(in)  :: dx(ncell)              !< spatial step
         integer, intent(in) :: n_dsm2_node                            !< number of DSM2 nodes
-        type(dsm2_node_t), intent(in) :: dsm2_node_type(n_dsm2_node)  !< DSM2 node properties
+        type(dsm2_network_t), intent(in) :: dsm2_network_type(n_dsm2_node)  !< DSM2 node properties
         real(gtm_real),intent(in)  :: node_conc(n_dsm2_node,nvar)     !< node concentration
         logical,intent(in),optional :: use_limiter                    !< whether to use slope limiter
-
+        procedure(adjust_gradient_if), pointer, intent(in) :: adjust_differences !< interface to adjust gradient
+        
         !-----locals
         real(gtm_real) :: source_prev(ncell,nvar) !< cell centered source at old time
         real(gtm_real) :: conc_prev(ncell,nvar)   !< cell centered concentration at old time
@@ -113,7 +116,9 @@ module advection
         real(gtm_real) :: old_time                !< previous time
         real(gtm_real) :: half_time               !< half time
         integer :: i, icell
+
         
+     
         old_time = time - dt
         half_time = time - half*dt
     
@@ -185,9 +190,9 @@ module advection
                           nvar)
 
         do i = 1, n_dsm2_node
-            if ( (dsm2_node_type(i)%boundary_no.ne.0) .and. (dsm2_node_type(i)%node_conc==1) ) then  !if boundary and node concentration is given
-                icell = dsm2_node_type(i)%cell_no(1)
-                if (dsm2_node_type(i)%up_down(1) .eq. 1) then     ! upstream boundary
+            if ( (dsm2_network_type(i)%boundary_no.ne.0) .and. (dsm2_network_type(i)%node_conc==1) ) then  !if boundary and node concentration is given
+                icell = dsm2_network_type(i)%cell_no(1)
+                if (dsm2_network_type(i)%up_down(1) .eq. 1) then     ! upstream boundary
                     conc_lo(icell,:) = node_conc(i,:)
                 else
                     conc_hi(icell,:) = node_conc(i,:)
