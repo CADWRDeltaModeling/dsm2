@@ -270,8 +270,7 @@ subroutine n_d_test_diffusion_matrix(center_diag ,       &
      real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
      real(gtm_real), intent (in)  :: dt                                          !< Time step     
       
-        !---local
- 
+     !---local
      real(gtm_real) :: dt_by_dxsq(ncell)
      real(gtm_real) :: xstart
      real(gtm_real) :: xend  

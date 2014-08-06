@@ -328,24 +328,21 @@ program gtm
         !
         !----- call advection and source -----
         !
-        call advect(mass,                     &
-                    mass_prev,                &  
-                    flow,                     &
-                    flow_lo,                  &
-                    flow_hi,                  &
-                    area,                     &
-                    area_prev,                & 
-                    area_lo,                  &
-                    area_hi,                  &
-                    n_cell,                   &
-                    n_var,                    &
-                    dble(current_time)*sixty, &
-                    gtm_time_interval*sixty,  &
-                    dx_arr,                   &
-                    n_node,                   &
-                    dsm2_network,             &
+        call advect(mass,                       &
+                    mass_prev,                  &  
+                    flow,                       &
+                    flow_lo,                    &
+                    flow_hi,                    &
+                    area,                       &
+                    area_prev,                  & 
+                    area_lo,                    &
+                    area_hi,                    &
+                    n_cell,                     &
+                    n_var,                      &
+                    dble(current_time)*sixty,   &
+                    gtm_time_interval*sixty,    &
+                    dx_arr,                     &
                     adjust_differences_network, &
-                    node_conc,                &
                     .true.)     
         call cons2prim(conc, mass, area, n_cell, n_var)
         cfl = flow/area*(gtm_time_interval*sixty)/dx_arr

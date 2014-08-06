@@ -40,24 +40,21 @@ module advection
     !>   - Compute conservative divergence
     !>   - Apply divergence in conservative_update along with Heun's method for sources.
     !>   Note that all these steps are operations on entire arrays of values -- this keeps things efficient
-    subroutine advect(mass,           &
-                      mass_prev,      &
-                      flow_prev,      &      
-                      flow_lo,        &
-                      flow_hi,        &
-                      area,           &
-                      area_prev,      & 
-                      area_lo,        &
-                      area_hi,        &
-                      ncell,          &
-                      nvar,           &
-                      time,           &
-                      dt,             &
-                      dx,             &
-                      n_dsm2_node,    &
-                      dsm2_network_type, &
+    subroutine advect(mass,               &
+                      mass_prev,          &
+                      flow_prev,          &      
+                      flow_lo,            &
+                      flow_hi,            &
+                      area,               &
+                      area_prev,          & 
+                      area_lo,            &
+                      area_hi,            &
+                      ncell,              &
+                      nvar,               &
+                      time,               &
+                      dt,                 &
+                      dx,                 &
                       adjust_differences, &
-                      node_conc,      &
                       use_limiter)  
    
         use gtm_precision
@@ -66,7 +63,6 @@ module advection
         use gradient_adjust
         use source_sink
         use boundary_advection
-        use common_variables, only: dsm2_network_t
 
         implicit none
  
@@ -93,9 +89,6 @@ module advection
         real(gtm_real),intent(in)  :: time                   !< new time
         real(gtm_real),intent(in)  :: dt                     !< current time step from old time to new time
         real(gtm_real),intent(in)  :: dx(ncell)              !< spatial step
-        integer, intent(in) :: n_dsm2_node                            !< number of DSM2 nodes
-        type(dsm2_network_t), intent(in) :: dsm2_network_type(n_dsm2_node)  !< DSM2 node properties
-        real(gtm_real),intent(in)  :: node_conc(n_dsm2_node,nvar)     !< node concentration
         logical,intent(in),optional :: use_limiter                    !< whether to use slope limiter
         procedure(adjust_gradient_if), pointer, intent(in) :: adjust_differences !< interface to adjust gradient
         
@@ -117,8 +110,6 @@ module advection
         real(gtm_real) :: half_time               !< half time
         integer :: i, icell
 
-        
-     
         old_time = time - dt
         half_time = time - half*dt
     
@@ -189,17 +180,6 @@ module advection
                           ncell,      &
                           nvar)
 
-        do i = 1, n_dsm2_node
-            if ( (dsm2_network_type(i)%boundary_no.ne.0) .and. (dsm2_network_type(i)%node_conc==1) ) then  !if boundary and node concentration is given
-                icell = dsm2_network_type(i)%cell_no(1)
-                if (dsm2_network_type(i)%up_down(1) .eq. 1) then     ! upstream boundary
-                    conc_lo(icell,:) = node_conc(i,:)
-                else
-                    conc_hi(icell,:) = node_conc(i,:)
-                end if    
-            end if
-        end do
-        
                
         if (associated(advection_boundary_flux))then
             call advection_boundary_flux(flux_lo,     &
@@ -427,19 +407,19 @@ module advection
                       ncell,   &
                       nvar)
 
-       call compute_source(source,& 
-                           conc,  &
-                           area,  &
-                           flow,  &    ! todo: this is not really available yet
-                           ncell, &
-                           nvar,  &
+       call compute_source(source, & 
+                           conc,   &
+                           area,   &
+                           flow,   &    ! todo: this is not really available yet
+                           ncell,  &
+                           nvar,   &
                            time) 
 
        ! now recalculate the update using a source half from the old state 
        ! and half from the new state guess 
        do ivar = 1,nvar
-           mass(:,ivar) =  mass_prev(:,ivar) &
-                         - dtbydx*div_flux(:,ivar) &
+           mass(:,ivar) =  mass_prev(:,ivar)                     &
+                         - dtbydx*div_flux(:,ivar)               &
                          + dt*half*source_prev(:,ivar)*area_prev &
                          + dt*half*source(:,ivar)*area
        end do    

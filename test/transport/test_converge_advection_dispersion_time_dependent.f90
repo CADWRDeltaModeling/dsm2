@@ -76,13 +76,6 @@ procedure(boundary_advective_flux_if),  pointer :: bc_advect_flux => null() !< P
 procedure(boundary_diffusive_flux_if),  pointer :: bc_diff_flux   => null() !< Pointer for boundary diffusive flux to be filled by driver
 procedure(boundary_diffusive_matrix_if),pointer :: bc_diff_matrix => null() !< Pointer for boundary diffusin matrix to be filled by driver
 
-integer, parameter :: n_dsm2_node = 2
-type(dsm2_network_t) :: dsm2_network_type(2)
-real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
-
-call set_single_channel(dsm2_network_type, nx_base)
-node_conc_val = one
-
 acceptance_ratio = [ four, four, four ]
  
 ! this flow generator is mass conservative
@@ -144,9 +137,6 @@ call test_convergence(label,                                  &
                       nx_base,                                &
                       nconc,                                  &
                       dx,                                     &
-                      n_dsm2_node,                            &
-                      dsm2_network_type,                      &
-                      node_conc_val,                          &
                       verbose,                                &
                       .true.,                                 &
                       acceptance_ratio)

@@ -69,8 +69,7 @@ use source_sink
 use test_convergence_transport
 use diffusion
 use dispersion_coefficient
-use common_variables, only : dsm2_network_t
-  
+
 implicit none
 procedure(hydro_data_if),pointer :: tidal_hydro           !< The pointer points to tidal flow data
 logical :: verbose                                        !< Falg for showing the detail on the screen
@@ -82,14 +81,8 @@ real(gtm_real) :: solution_gaussian_sd = ic_gaussian_sd   !< Standard deviation 
 real(gtm_real) :: tidal_ar_decay_rate                     !< Tidal decay rate
 character(LEN=64) :: label                                !< Test name label
 real(gtm_real) :: acceptance_ratio(3)                     !< Acceptance ratio
-integer, parameter :: n_dsm2_node = 2
-type(dsm2_network_t) :: dsm2_network_type(2)
 real(gtm_real) :: dx(nx_base)
-real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
 
-call set_single_channel(dsm2_network_type, nx_base)
-node_conc_val = one
- 
 dx = domain_length/dble(nx_base)
  
 acceptance_ratio = [2.9, 2.9, 2.9]
@@ -141,9 +134,6 @@ call test_convergence(label,                             &
                       nx_base,                           &
                       nconc,                             &
                       dx,                                &
-                      n_dsm2_node,                       &
-                      dsm2_network_type,                 &
-                      node_conc_val,                     &
                       verbose,                           &
                       .true.,                            &
                       acceptance_ratio)
@@ -178,9 +168,6 @@ call test_convergence(label,                             &
                       nx_base,                           &
                       nconc,                             &
                       dx,                                &
-                      n_dsm2_node,                       &
-                      dsm2_network_type,                 &
-                      node_conc_val,                     &
                       verbose,                           &
                       .true.,                            &
                       acceptance_ratio)
@@ -224,9 +211,6 @@ call test_convergence(label,                             &
                       nx_base,                           &
                       nconc,                             &
                       dx,                                &
-                      n_dsm2_node,                       &
-                      dsm2_network_type,                 &
-                      node_conc_val,                     &
                       verbose,                           &
                       .true.,                            &
                       acceptance_ratio)
@@ -261,9 +245,6 @@ call test_convergence(label,                             &
                       nx_base,                           &
                       nconc,                             &
                       dx,                                &
-                      n_dsm2_node,                       &
-                      dsm2_network_type,                 &
-                      node_conc_val,                     &
                       verbose,                           &
                       .true.,                            &
                       acceptance_ratio)

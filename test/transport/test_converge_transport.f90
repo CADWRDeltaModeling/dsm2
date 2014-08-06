@@ -43,9 +43,6 @@ module test_convergence_transport
                                 nx_base,              &
                                 nconc,                &
                                 fine_dx,              &
-                                n_dsm2_node,          &
-                                dsm2_network_type,       &
-                                node_conc,            &
                                 verbose,              &
                                 detail_printout,      &
                                 acceptance_ratio)
@@ -65,25 +62,22 @@ module test_convergence_transport
         use test_utility
         use source_sink
         use dispersion_coefficient
-        use common_variables, only: dsm2_network_t
 
         implicit none
 
         !--- Problem variables
         procedure(hydro_data_if), pointer, intent(in)               :: hydro                !< Hydrodynamics
         procedure(adjust_gradient_if), pointer, intent(in)          :: bc_adjust_gradient   !< Adjust gradients
-        procedure(boundary_advective_flux_if),pointer, intent(in)   :: bc_advective_flux    !< Advection BC
-        procedure(boundary_diffusive_flux_if),pointer, intent(in)   :: bc_diffusive_flux    !< Diffusion BC
+        procedure(boundary_advective_flux_if), pointer, intent(in)  :: bc_advective_flux    !< Advection BC
+        procedure(boundary_diffusive_flux_if), pointer, intent(in)  :: bc_diffusive_flux    !< Diffusion BC
         procedure(boundary_diffusive_matrix_if),pointer, intent(in) :: bc_diffusive_matrix  !< Diffusion BC
-        procedure(source_if),pointer, intent(in)                    :: source_term          !< Source term 
+        procedure(source_if), pointer, intent(in)                   :: source_term          !< Source term 
 
         character(LEN=*),intent(in) :: label                            !< Unique label for test
         logical,intent(in) :: verbose                                   !< Whether to output convergence results
         integer, intent(in) :: nconc                                    !< Number of constituents
         integer, intent(in) :: nstep_base                               !< Number of steps at finest resolution
         integer, intent(in) :: nx_base                                  !< Number of cells at finest resolution
-        integer, intent(in) :: n_dsm2_node
-        type(dsm2_network_t) :: dsm2_network_type(n_dsm2_node)
         
         real(gtm_real), intent(in) :: fine_initial_conc(nx_base,nconc)  !< Initial condition at finest resolution
         real(gtm_real), intent(in) :: fine_solution(nx_base,nconc)      !< Reference solution at finest resolution
@@ -91,7 +85,6 @@ module test_convergence_transport
         real(gtm_real), intent(in) :: total_time                        !< Total time of simulation
         real(gtm_real), intent(in) :: start_time                        !< Start time of simulation
         real(gtm_real), intent(in) :: domain_length                     !< Length of domain
-        real(gtm_real), intent(in) :: node_conc(n_dsm2_node, nconc)     !< boundary condition
         logical, intent(in),optional :: detail_printout                 !< Whether to produce detailed printouts
         real(gtm_real), intent(in) :: acceptance_ratio(3)               !< Acceptance ratio for test convergence
         
@@ -168,8 +161,6 @@ module test_convergence_transport
                      disp_coef_hi(nx),      &
                      disp_coef_lo_prev(nx), &
                      disp_coef_hi_prev(nx))
-                     
-            dsm2_network_type(2)%cell_no(1) = nx
             
             dx = zero
             do i = 1, nx
@@ -262,24 +253,21 @@ module test_convergence_transport
                end if
        
                ! call advection and source
-               call advect(mass,           &
-                           mass_prev,      &  
-                           flow,           &
-                           flow_lo,        &
-                           flow_hi,        &
-                           area,           &
-                           area_prev,      &
-                           area_lo,        &
-                           area_hi,        &
-                           nx,             &
-                           nconc,          &
-                           time,           &
-                           dt,             &
-                           dx,             &
-                           n_dsm2_node,    &
-                           dsm2_network_type, &
+               call advect(mass,               &
+                           mass_prev,          &  
+                           flow,               &
+                           flow_lo,            &
+                           flow_hi,            &
+                           area,               &
+                           area_prev,          &
+                           area_lo,            &
+                           area_hi,            &
+                           nx,                 &
+                           nconc,              &
+                           time,               &
+                           dt,                 &
+                           dx,                 &
                            bc_adjust_gradient, &
-                           node_conc,      &
                            limit_slope)
 
                call cons2prim(conc,mass,area,nx,nconc) 
@@ -424,38 +412,4 @@ module test_convergence_transport
         return
     end subroutine
 
-
-     !> Define a single channel network
-     subroutine set_single_channel(dsm2_network_type, ncell)
-         use common_variables, only: dsm2_network_t
-         implicit none
-         integer, intent(in) :: ncell                            !< number of cells
-         type(dsm2_network_t), intent(out) :: dsm2_network_type(2)  !< DSM2 node structure
-         allocate(dsm2_network_type(1)%cell_no(1))
-         allocate(dsm2_network_type(1)%up_down(1))
-         allocate(dsm2_network_type(2)%cell_no(1))
-         allocate(dsm2_network_type(2)%up_down(1))         
-         dsm2_network_type(1)%dsm2_node_no = 1
-         dsm2_network_type(1)%n_conn_cell = 1
-         dsm2_network_type(1)%boundary_no = 1
-         dsm2_network_type(1)%junction_no = 0
-         dsm2_network_type(1)%reservoir_no = 0
-         dsm2_network_type(1)%n_qext = 0
-         dsm2_network_type(1)%nonsequential = 0
-         dsm2_network_type(1)%no_fixup = 1
-         dsm2_network_type(1)%cell_no(1) = 1
-         dsm2_network_type(1)%up_down(1) = 1
-         dsm2_network_type(2)%dsm2_node_no = 2
-         dsm2_network_type(2)%n_conn_cell = 1
-         dsm2_network_type(2)%boundary_no = 2
-         dsm2_network_type(2)%junction_no = 0
-         dsm2_network_type(2)%reservoir_no = 0
-         dsm2_network_type(2)%n_qext = 0
-         dsm2_network_type(2)%nonsequential = 0
-         dsm2_network_type(2)%no_fixup = 1
-         dsm2_network_type(2)%cell_no(1) = ncell
-         dsm2_network_type(2)%up_down(1) = 0              
-         return
-     end subroutine
-     
 end module

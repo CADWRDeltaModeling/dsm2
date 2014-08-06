@@ -46,7 +46,6 @@ use test_utility
 use error_handling
 use fruit
 use gtm_logging
-use common_variables, only : dsm2_network_t
 
 implicit none
 
@@ -95,16 +94,9 @@ real(gtm_real),allocatable :: reference(:)
 real(gtm_real) :: norm_error(3,nrefine)
 real(gtm_real) :: acceptance_ratio(3)                        !< Acceptance ratio
 
-integer, parameter :: n_dsm2_node = 2
-type(dsm2_network_t) :: dsm2_network_type(2)
-real(gtm_real) :: node_conc_val(n_dsm2_node,nconc)
-
 character(LEN=64):: label = 'test_diffusion_fletcher_dirichlet'
 
 acceptance_ratio = [four, four, four]
-
-call set_single_channel(dsm2_network_type, nx_base)
-node_conc_val = one
 
 dx = domain_length/dble(nx_base)
 
@@ -116,7 +108,6 @@ boundary_diffusion_flux    => dirichlet_test_diffusive_flux
 advection_boundary_flux    => zero_advective_flux
 compute_source             => no_source
 call set_constant_dispersion(disp_coef)
-
 
 call initial_final_solution(fine_initial_condition,&
                             fine_solution,         &
@@ -146,9 +137,6 @@ call test_convergence(label,                             &
                       nx_base,                           &
                       nconc,                             &      
                       dx,                                &
-                      n_dsm2_node,                       &
-                      dsm2_network_type,                 &
-                      node_conc_val,                     &
                       verbose,.true.,                    &
                       acceptance_ratio)
 
@@ -184,9 +172,6 @@ call test_convergence(label,                             &
                       nx_base,                           &
                       nconc,                             &
                       dx,                                &
-                      n_dsm2_node,                       &
-                      dsm2_network_type,                 &
-                      node_conc_val,                     &
                       verbose,.true.,                    &
                       acceptance_ratio)
 
