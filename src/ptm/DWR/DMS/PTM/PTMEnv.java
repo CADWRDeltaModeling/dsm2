@@ -109,6 +109,7 @@ public class PTMEnv{
     _behaviorInputs.setWaterbodyInfo(wbArray);
     _behaviorInputs.setNodeInfo(nodeArray);
     _particleType = _behaviorInputs.getFishType();
+    _travelTimeOutput = _behaviorInputs.getTravelTimeOutput();
   }
 
   /**
@@ -640,5 +641,6 @@ public class PTMEnv{
   private String _particleType;
   private PTMBehaviorInputs _behaviorInputs;
   private static Map<String, Integer> _reservoirObj2objNameID = null; 
+  private TravelTimeOutput _travelTimeOutput = null;
 }
 

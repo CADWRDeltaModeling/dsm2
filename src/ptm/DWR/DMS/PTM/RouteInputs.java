@@ -135,7 +135,7 @@ public class RouteInputs {
 	private void setSpecialBehaviors(ArrayList<String> inText){
 		String title = inText.get(0);
 		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "CLASS_NAME"};
-		checkTitle(title, shouldBe);
+		PTMUtil.checkTitle(title, shouldBe);
 		for (String line: inText.subList(1, inText.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			if (items.length<3)
@@ -184,7 +184,7 @@ public class RouteInputs {
 		if( barrierText == null || barrierText.size() < 4)
 			PTMUtil.systemExit("SYSTEM EXIT: the non-physical-barrier operation info is not properly defined in behavior inputs.");
 		else{
-			checkTitle(barrierText.get(0), shouldBe);
+			PTMUtil.checkTitle(barrierText.get(0), shouldBe);
 			String[] items = barrierText.get(1).trim().split("[,\\s\\t]+");
 			// convert to Internal Env Ids
 			int[] ids = getEnvIds(items);
@@ -235,17 +235,11 @@ public class RouteInputs {
 	private void setFishScreens(ArrayList<String> inText){	
 		// first line is the title
 		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE"};
-		checkTitle(inText.get(0), shouldBe);
+		PTMUtil.checkTitle(inText.get(0), shouldBe);
 		for (int i = 1; i<inText.size(); i++){
 			int[] ids = getEnvIds(inText.get(i).trim().split("[,\\s\\t]+")); 
 			_fishScreens.add(IntBuffer.wrap(ids));
 		}
-	}
-	
-	private void checkTitle(String inTitle, String[] titleShouldBe){
-		String [] title = inTitle.trim().split("[,\\s\\t]+");
-		if (!PTMUtil.check(title, titleShouldBe))
-			PTMUtil.systemExit("SYSTEM EXIT while reading Route Input info: Title line is wrong:"+inTitle);
 	}
 	
 	private int[] getEnvIds(String[] items){

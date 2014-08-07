@@ -4,10 +4,13 @@
 package DWR.DMS.PTM;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,7 +39,25 @@ public class PTMUtil {
         }
         return buffer;
     }
+	public static BufferedWriter getOutputBuffer(String fileName){
+		BufferedWriter buffer = null;
+        try{
+            buffer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName)));
+        }
+        catch(FileNotFoundException fe){
+             fe.printStackTrace();
+        }
+        return buffer;
+	}
 	public static void closeBuffer(BufferedReader bf){
+        try{
+            bf.close();
+        }
+        catch(IOException e){
+             e.printStackTrace();
+        }
+    }
+	public static void closeBuffer(BufferedWriter bf){
         try{
             bf.close();
         }
@@ -188,5 +209,10 @@ public class PTMUtil {
 		dateTime.clear();
 		dateTime.set(year, month, day, hour, minute);
 		return dateTime;
+	}
+	public static void checkTitle(String inTitle, String[] titleShouldBe){
+		String [] title = inTitle.trim().split("[,\\s\\t]+");
+		if (!PTMUtil.check(title, titleShouldBe))
+			PTMUtil.systemExit("SYSTEM EXIT while reading Input info: Title line is wrong:"+inTitle);
 	}
 }

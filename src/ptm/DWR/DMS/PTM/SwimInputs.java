@@ -139,7 +139,9 @@ public class SwimInputs {
 	}
 	private SwimHelper _swimHelper = null;
 	private String _fishType = null;
+	// group name, velocity
 	private Map<String, Float> _swimmingVelocities=null;
 	private ArrayList<String> _groupNames=null;
+	// node, group name
 	private Map<Integer, String> _channelGroups=null;
 }

@@ -18,6 +18,7 @@ public class PTMBehaviorInputs {
 	private RouteInputs _routeInputs=null;
 	private boolean _barrierInstalled = true;
 	private int _totalParticlesReleased = 0;
+	private TravelTimeOutput _travelTimeOutput = null;
 	// Map<NodeId, FishReleaseGroup>
 	private Map<Integer, FishReleaseGroup> _fishGroups = null; 
 	
@@ -29,16 +30,6 @@ public class PTMBehaviorInputs {
 			ArrayList<String> groupText = PTMUtil.getInputBlock(releaseInputText, "GROUP_"+i, "END_GROUP_"+i);
 			if (groupText.size()<4)
 				PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+" system exit.");
-			//TODO clean up
-			/*
-			String [] title = groupText.get(0).trim().split("[,\\s\\t]+");
-			String shouldBe[] = {"NODEID", "RELEASE_START_DATE", "RELEASE_START_TIME", "TOTAL_RELEASE_HOURS", "NUMBER_OF_FISH"};
-			if (!PTMUtil.check(title, shouldBe))
-				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong:"+releaseInputText.get(0));
-			else{
-				ArrayList<String> groupInfo = PTMUtil.getInts(groupText.get(1));
-				FishReleaseGroup group = new FishReleaseGroup(groupInfo.get(0), );
-			*/
 			Integer nodeId = PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
 			String [] title = groupText.get(1).trim().split("[,\\s\\t]+");
 			String shouldBe[] = {"RELEASE_DATE", "RELEASE_TIME", "PARTICLE_NUMBER", "RELEASE_STYLE"};
@@ -63,6 +54,7 @@ public class PTMBehaviorInputs {
 						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
 					
 					if (_fishGroups == null)
+						// map key: node id
 						_fishGroups = new HashMap<Integer, FishReleaseGroup>();
 					
 					if (_fishGroups.get(nodeId) == null){
@@ -90,10 +82,17 @@ public class PTMBehaviorInputs {
 			PTMUtil.systemExit("Behavior input file not found, system exit");
 		BufferedReader inputText = PTMUtil.getInputBuffer(inputFileName);
 		// PTMUtil.getInputBlock(...) returns an ArrayList
+		// careful! the order of items here has to be the exactly same as in behavior input file 
+		// because BufferedReader does not look back. 
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
 		if (fishTypeList==null || fishTypeList.size()==0) 
 			PTMUtil.systemExit("No Fish Type found, exit from PTMBehaviorInput line 61");
-		_fishType = fishTypeList.get(0).trim();		
+		_fishType = fishTypeList.get(0).trim();	
+		
+		ArrayList<String> travelTimeOutputInfo = PTMUtil.getInputBlock(inputText, "TRAVEL_TIME_OUTPUT", "END_TRAVEL_TIME_OUTPUT");
+		if (travelTimeOutputInfo==null || travelTimeOutputInfo.size()==0) 
+			System.err.println("Warning: no travel time output info defined in behavior input file");
+		_travelTimeOutput = new TravelTimeOutput(travelTimeOutputInfo);	
 		
 		ArrayList<String> releaseInputs = PTMUtil.getInputBlock(inputText, "FISH_RELEASE_INPUTS", "END_FISH_RELEASE_INPUTS");
 		if (releaseInputs==null || releaseInputs.size()==0)
@@ -150,6 +149,8 @@ public class PTMBehaviorInputs {
 	public SwimInputs getSwimInputs(){ return _swimInputs;}
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}
 	public RouteInputs getRouteInputs(){ return _routeInputs;}
+	// map key: node Id (internal Id system)
 	public Map<Integer, FishReleaseGroup> getFishReleaseGroups() {return _fishGroups;}
 	public int getTotalParticlesReleased() {return _totalParticlesReleased;}
+	public TravelTimeOutput getTravelTimeOutput(){return _travelTimeOutput;}
 }

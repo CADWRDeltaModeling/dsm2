@@ -839,7 +839,7 @@ _survivalHelper = null;
     */
   //TODO can be separated from particle using particle.move()
   protected float calcXVelocityExtDeterministic(){
-      return( ((Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth) );
+      return ((Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth);
   }
   
   /**
