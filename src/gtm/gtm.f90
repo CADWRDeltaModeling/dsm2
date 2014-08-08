@@ -48,6 +48,7 @@ program gtm
     use state_variables_network
     use primitive_variable_conversion
     use gradient_adjust
+    use boundary_concentration
     use advection
     use diffusion
     use dispersion_coefficient    
@@ -195,6 +196,7 @@ program gtm
     compute_source => no_source
     !compute_source => linear_decay_source 
     adjust_gradient => adjust_differences_network           ! adjust gradients for DSM2 network
+    boundary_conc => assign_boundary_concentration          ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network    ! adjust flux for DSM2 network
     boundary_diffusion_flux => neumann_zero_diffusive_flux
     boundary_diffusion_matrix => neumann_zero_diffusion_matrix

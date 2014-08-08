@@ -19,6 +19,7 @@
 !</license>
  
 !> Routines that fulfill interfaces to accomandate DSM2 network
+!> Use some back door information, such as dsm2_network, node_concentration
 !>@ingroup gtm
 module dsm2_gtm_network
 
@@ -213,7 +214,8 @@ module dsm2_gtm_network
                                              nvar)
         use gtm_precision
         use error_handling
-        use common_variables, only : n_node, dsm2_network 
+        use common_variables, only : n_node, dsm2_network
+        use state_variables_network, only : node_conc
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
@@ -224,11 +226,11 @@ module dsm2_gtm_network
         do i = 1, n_node
             if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc==1) ) then  !if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)
-                !if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
-                !    conc_lo(icell,:) = node_conc(i,:)
-                !else
-                !    conc_hi(icell,:) = node_conc(i,:)
-                !end if    
+                if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
+                    conc_lo(icell,:) = node_conc(i,:)
+                else
+                    conc_hi(icell,:) = node_conc(i,:)
+                end if    
             end if
         end do
                         

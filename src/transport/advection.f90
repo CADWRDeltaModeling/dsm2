@@ -195,11 +195,12 @@ module advection
                           nvar)
 
         ! Assign boundary concentration if it is given
-
-          !call assign_concentration(conc_lo,    &
-          !                        conc_hi,    &
-          !                        ncell,      &
-          !                        nvar)        
+        if (associated(boundary_conc)) then        
+            call boundary_conc(conc_lo,              &
+                               conc_hi,              & 
+                               ncell,                &
+                               nvar)
+        end if                              
                
         if (associated(advection_boundary_flux)) then
             call advection_boundary_flux(flux_lo,     &
