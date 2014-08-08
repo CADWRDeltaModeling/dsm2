@@ -51,7 +51,7 @@ public class BasicRouteBehavior {
 	    // end of a slough, then move the Particle into the Channel a
 	    // small amount.
 
-	    if (wbInflows == 0.0f && p.nd.getNumberOfWaterbodies() == 1) {
+	    if (Math.abs(wbInflows) < PTMUtil.EPSILON && p.nd.getNumberOfWaterbodies() == 1) {
 	    	if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
 	    		p.x = 0;
 	    	else
@@ -72,7 +72,7 @@ public class BasicRouteBehavior {
 			PTMUtil.systemExit("the particle passed in BasicRouteBehavior is null");
 		//when particle just inserted wb = null, but node is assigned.
 		if (p.nd == null)
-			PTMUtil.systemExit("Particle doesn't know the node! exit.");
+			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
 		float waterbodyInflows = p.nd.getTotalWaterbodyInflows();
 		
 		// after prescreen() call, _waterbodyInflows = _rand*_waterbodyInflows
@@ -81,8 +81,10 @@ public class BasicRouteBehavior {
 	    
 	    waterbodyInflows = p.nd.getRandomNumber()*waterbodyInflows;
 		  
-	    if (waterbodyInflows == 0.0)
+	    if (Math.abs(waterbodyInflows) < PTMUtil.EPSILON){
 	      p.particleWait = true;
+	      return;
+	    }
 	    
 	    int waterbodyId = -1;
 	    Waterbody thisWb = null;
@@ -117,10 +119,8 @@ public class BasicRouteBehavior {
 	    // send message to observer about change 
 	    if (p.observer != null) 
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
-	    // set x as beginning of Channel...
-	    if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
-	    	p.x = 0.0f;
-	    else
+	    //set x to only channels.  other water body types don't need to be set. 
+	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
 	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
 	}
 }

@@ -22,6 +22,7 @@ import java.util.Set;
  *
  */
 public class PTMUtil {
+	static float EPSILON = 0.0000001f;
 
 	/**
 	 * 
@@ -214,5 +215,8 @@ public class PTMUtil {
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
 		if (!PTMUtil.check(title, titleShouldBe))
 			PTMUtil.systemExit("SYSTEM EXIT while reading Input info: Title line is wrong:"+inTitle);
+	}
+	public static boolean floatNearlyEqual(float f1, float f2){
+		return f1 == f2 ? true: Math.abs(f1-f2) < EPSILON*Math.min(Math.abs(f1),Math.abs(f2));
 	}
 }

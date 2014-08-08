@@ -221,6 +221,7 @@ public class MainPTM {
                 if ( outRestart != null ) outRestart.output();
       
             }
+            Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
             if ( animationOutput != null ) animationOutput.FlushAndClose();
             // write out restart file information
             if ( outRestart != null ) outRestart.output();

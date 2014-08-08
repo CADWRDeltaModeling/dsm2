@@ -18,6 +18,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import java.util.*;
+
 import edu.cornell.RngPack.*;
 /**
  * 
@@ -345,6 +346,7 @@ _survivalHelper = null;
     */
   public final void setInsertionInfo(int particleInsertionTime, Node injectionNode){
     this.insertionTime = particleInsertionTime;
+    _insertionNodeId = injectionNode.getEnvIndex();
     setLocation(injectionNode);
   }
   // return particle age in seconds
@@ -459,6 +461,7 @@ _survivalHelper = null;
  // SwimHelper will be used later
  private SwimHelper _swimHelper;
  private SurvivalHelper _survivalHelper;
+ private boolean _travelTimeRecorded = false;
   
   /**
     *  updates the Particle position for the given time step;
@@ -470,7 +473,7 @@ _survivalHelper = null;
  //delT in seconds, is ptm input time step 
  protected final void updateXYZPosition(float delT){
 	 float tmLeft = delT;
-	 while (tmLeft>0){
+	 while (tmLeft>0 && !isDead){
 		 // Channel
 		 if (wb.getPTMType() ==  Waterbody.CHANNEL) {
 			 if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
@@ -509,7 +512,7 @@ _survivalHelper = null;
 						// makeNodeDecision sets x to length or 0, so x doesn't need to be set again
 						 makeNodeDecision();
 						 tmToAdv = 0.0f;
-					 }
+					 } // x = 0 or channel length
 					 else{
 						 float xPos = calcXDisplacementExtDeterministic(tmToAdv)
 							 		+ calcXDisplacementExtRandom(tmToAdv)
@@ -539,14 +542,15 @@ _survivalHelper = null;
 								 		", tmToAdv = "+tmToAdv+", so ignor.");
 								 tmToAdv = 0.0f;
 							 }
-						 }
+						 } // x = 0 or channel length
 						 else
 							 x += xPos;
 					 }					 
 					 
-					 // now check if the new water body is a channel
+					 // water body is updated if a node is reached.  Now check if the new water body is a channel
 					 if (wb.getPTMType() != Waterbody.CHANNEL){
 						 tmLeft -= tmToAdv;
+						 age += tmToAdv;
 						 break;
 					 }
 					 
@@ -564,6 +568,12 @@ _survivalHelper = null;
 				 tmLeft -= tmToAdv;
 				// age in seconds
 				 age += tmToAdv;
+				 TravelTimeOutput tto = Globals.Environment.getBehaviorInputs().getTravelTimeOutput();
+				 if ((wb.getEnvIndex() == tto.getOutputWbId()) && (nd.getEnvIndex() == tto.getOutputNodeId()) 
+						 && (x > tto.getOutputChannelDistance() && !_travelTimeRecorded)){
+					 _travelTimeRecorded = true;
+					 tto.setTravelTime(_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
+				 }
 			 }// end while
       
 		 }// end if(CHANNEL)
@@ -586,8 +596,8 @@ _survivalHelper = null;
 		    }
 		    else{
 		    	// if no node found the particle will still in the reservior until next time step
-		    	tmLeft = 0.0f;
 		    	age += tmLeft;
+		    	tmLeft = 0.0f;
 		    }
 			 
 		 }
@@ -870,15 +880,19 @@ _survivalHelper = null;
 	if (observer != null) 
 	  observer.observeChange(ParticleObserver.NODE_CHANGE,this); 
 	
-	// decide which water body to go and reset it
+	// decide which water body to go and set the paticle with the new water body and new x
 	if(_routeHelper ==  null)
 		PTMUtil.systemExit("routeHelper not initialized, exit from Particle.java line 727.");
 	_routeHelper.helpSelectRoute(this);
-	  
+	
+	
+	//TODO clean up, the block below is done in RouteHelper
+	/*  
 	if (observer != null) 
 		observer.observeChange(ParticleObserver.WATERBODY_CHANGE,this);
-	// set x as beginning of Channel...
+	// set x at beginning/end of the new channel,if type is not a channel x = 0
 	x = getXLocationInChannel();
+	*/
   }
   /**
     *  updates pParticle position after calling makeReservoirDecision
@@ -1181,6 +1195,11 @@ _survivalHelper = null;
     *  Insertion time for pParticle
     */
   private int insertionTime;
+  
+  /**
+   *  Insertion Node Id for pParticle
+   */
+ private int _insertionNodeId;
   
   /**
     *  gets x location in Channel corresponding to upnode and
