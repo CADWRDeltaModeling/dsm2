@@ -27,6 +27,8 @@
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\src\gtm\dsm2_gtm_network.f90"/>
 		<File RelativePath="..\..\src\gtm\gtm.f90"/>
-		<File RelativePath="..\..\src\gtm\gtm_subs.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\gtm\gtm_subs.f90"/>
+		<File RelativePath="..\..\src\gtm\state_variables_network.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

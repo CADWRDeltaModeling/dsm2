@@ -58,7 +58,6 @@ subroutine test_advection_diffusion_zoppou(verbose)
 use hydro_data
 use boundary_advection
 use boundary_diffusion
-use gradient_adjust
 use error_handling
 use dispersion_coefficient
 use source_sink
@@ -97,7 +96,6 @@ acceptance_ratio = [four, four, four]
 zoppou_hydro => zoppou_flow 
 compute_source => no_source
 dispersion_coef => zoppou_disp_coef
-adjust_gradient => adjust_differences_single_channel
 
 label = 'advection_dispersion_zoppou' 
 test_domain_length = x_right - x_left
@@ -132,7 +130,6 @@ boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
 !> at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                                  &
                       zoppou_hydro ,                          &
-                      adjust_differences_single_channel,      &
                       single_channel_boundary_advective_flux, &
                       boundary_diffusion_flux,                &
                       boundary_diffusion_matrix,              &
@@ -381,7 +378,6 @@ subroutine test_advection_diffusion_t_dependent(verbose)
 use hydro_data
 use boundary_advection
 use boundary_diffusion
-use gradient_adjust
 use error_handling
 use dispersion_coefficient
 use source_sink
@@ -419,7 +415,6 @@ dx = domain_length/dble(nx_base)
 time_hydro => time_flow 
 compute_source => no_source
 dispersion_coef => time_disp_coef
-adjust_gradient => adjust_differences_single_channel
 
 acceptance_ratio = [four, four, four]
 
@@ -455,7 +450,6 @@ boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
 !> at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                                  &
                       time_hydro ,                            &
-                      adjust_differences_single_channel,      &
                       single_channel_boundary_advective_flux, &
                       boundary_diffusion_flux,                &
                       boundary_diffusion_matrix,              &

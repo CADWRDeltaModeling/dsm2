@@ -48,7 +48,6 @@ subroutine test_advection_diffusion_time_dependent(verbose)
 use hydro_data
 use boundary_advection
 use boundary_diffusion
-use gradient_adjust
 use error_handling
 use dispersion_coefficient
 use source_sink
@@ -56,7 +55,6 @@ use test_convergence_transport
 use test_convergence_transport_uniform
 use single_channel_boundary
 use dispersion_coefficient
-use common_variables, only : dsm2_network_t
 
 implicit none
 procedure(hydro_data_if),    pointer :: time_dependent_hydro => null() !< The pointer points to the test's flow data
@@ -88,7 +86,6 @@ acceptance_ratio = [ four, four, four ]
 time_dependent_hydro => time_dependent_flow 
 compute_source => no_source
 dispersion_coef_t => time_dependent_disp_coef
-adjust_gradient => adjust_differences_single_channel
 
 label = 'advection_dispersion_time_dependent' 
 test_domain_length = x_right - x_left
@@ -123,7 +120,6 @@ boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
 !> at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                                  &
                       time_dependent_hydro,                   &
-                      adjust_differences_single_channel,      &
                       single_channel_boundary_advective_flux, &
                       boundary_diffusion_flux,                &
                       boundary_diffusion_matrix,              &

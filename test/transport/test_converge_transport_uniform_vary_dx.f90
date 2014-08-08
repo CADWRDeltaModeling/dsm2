@@ -109,8 +109,7 @@ module test_convergence_transport_uniform_vary_dx
         use advection
         use diffusion
         use boundary_advection
-        use boundary_diffusion
-        use gradient_adjust        
+        use boundary_diffusion     
         use single_channel_boundary
         use primitive_variable_conversion
         use hydro_data
@@ -189,7 +188,6 @@ module test_convergence_transport_uniform_vary_dx
 
         call set_uniform_flow_area(test_flow,constant_area)
         uniform_hydro => uniform_flow_area
-        adjust_gradient => adjust_differences_single_channel
         const_velocity = test_flow/constant_area
 
         ! source
@@ -251,7 +249,6 @@ module test_convergence_transport_uniform_vary_dx
 
         call test_convergence(label,                                     &
                               uniform_hydro,                             &
-                              adjust_differences_single_channel,         &
                               single_channel_boundary_advective_flux,    &
                               bc_diff_flux,                              &
                               bc_diff_matrix,                            &

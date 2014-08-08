@@ -63,7 +63,6 @@ subroutine test_tidal_advection_reaction(verbose)
 use hydro_data
 use boundary_advection
 use boundary_diffusion
-use gradient_adjust
 use gaussian_init_boundary_condition
 use source_sink
 use test_convergence_transport
@@ -90,7 +89,6 @@ acceptance_ratio = [2.9, 2.9, 2.9]
 tidal_hydro=> tidal_flow_modified ! this flow generator is mass conservative
 ! do not remove it 
 !tidal_hydro=> tidal_flow_cell_average ! this flow generator is NOT mass conservative but it is cell averaged
-adjust_gradient => adjust_differences_single_channel
 advection_boundary_flux => zero_advective_flux !todo: move this so it isn't hardwired
 boundary_diffusion_flux => no_diffusion_flux
 boundary_diffusion_matrix => no_diffusion_matrix
@@ -120,7 +118,6 @@ call initial_fine_solution_tidal_gaussian(fine_initial_condition, &
 ! at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                             &
                       tidal_hydro ,                      &
-                      adjust_differences_single_channel, &
                       zero_advective_flux,               &
                       no_diffusion_flux,                 &
                       no_diffusion_matrix,               &
@@ -154,7 +151,6 @@ call initial_fine_solution_tidal_sinusoidal(fine_initial_condition, &
 ! at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                             &
                       tidal_hydro ,                      &
-                      adjust_differences_single_channel, &
                       zero_advective_flux,               &
                       no_diffusion_flux,                 &
                       no_diffusion_matrix,               &
@@ -197,7 +193,6 @@ call initial_fine_solution_tidal_gaussian(fine_initial_condition, &
 ! at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                             &
                       tidal_hydro ,                      &
-                      adjust_differences_single_channel, &
                       zero_advective_flux,               &
                       no_diffusion_flux,                 &
                       no_diffusion_matrix,               &
@@ -231,7 +226,6 @@ call initial_fine_solution_tidal_sinusoidal(fine_initial_condition, &
 ! at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                             &
                       tidal_hydro ,                      &
-                      adjust_differences_single_channel, &
                       zero_advective_flux,               &
                       no_diffusion_flux,                 &
                       no_diffusion_matrix,               &

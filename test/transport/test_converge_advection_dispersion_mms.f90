@@ -48,7 +48,6 @@ subroutine test_advection_diffusion_mms(verbose)
 use hydro_data
 use boundary_advection
 use boundary_diffusion
-use gradient_adjust
 use error_handling
 use dispersion_coefficient
 use source_sink
@@ -88,8 +87,6 @@ mms_hydro => manufactured_solution_flow
 compute_source => manufactured_solution_source
 dispersion_coef => mms_const_disp_coef
 
-adjust_gradient => adjust_differences_single_channel
-
 label = 'advection_dispersion_manufactured_solution' 
 test_domain_length = x_right - x_left
 total_time = end_time - start_time
@@ -123,7 +120,6 @@ boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
 !> at the end  calculates the ratio of the norms and prints a log 
 call test_convergence(label,                                  &
                       mms_hydro,                              &
-                      adjust_differences_single_channel,      &
                       single_channel_boundary_advective_flux, &
                       boundary_diffusion_flux,                &
                       boundary_diffusion_matrix,              &

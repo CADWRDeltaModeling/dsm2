@@ -40,29 +40,30 @@ module advection
     !>   - Compute conservative divergence
     !>   - Apply divergence in conservative_update along with Heun's method for sources.
     !>   Note that all these steps are operations on entire arrays of values -- this keeps things efficient
-    subroutine advect(mass,               &
-                      mass_prev,          &
-                      flow_prev,          &      
-                      flow_lo,            &
-                      flow_hi,            &
-                      area,               &
-                      area_prev,          & 
-                      area_lo,            &
-                      area_hi,            &
-                      ncell,              &
-                      nvar,               &
-                      time,               &
-                      dt,                 &
-                      dx,                 &
-                      adjust_differences, &
+    subroutine advect(mass,                 &
+                      mass_prev,            &
+                      flow_prev,            &      
+                      flow_lo,              &
+                      flow_hi,              &
+                      area,                 &
+                      area_prev,            & 
+                      area_lo,              &
+                      area_hi,              &
+                      ncell,                &
+                      nvar,                 &
+                      time,                 &
+                      dt,                   &
+                      dx,                   &
                       use_limiter)  
    
         use gtm_precision
         use primitive_variable_conversion
         use gradient
-        use gradient_adjust
         use source_sink
         use boundary_advection
+        use boundary_concentration
+        use gradient_adjust        
+        use boundary_concentration
 
         implicit none
  
@@ -84,13 +85,12 @@ module advection
         !       it may be adequately accurate to have a first order estimate and the half time estimate is first order)
 
         ! todo: should we separate hydro_if for centered and face data?
-        real(gtm_real),intent(in)  :: area_lo(ncell)         !< lo side area (todo: at new time?)
-        real(gtm_real),intent(in)  :: area_hi(ncell)         !< hi side area (todo: at new time?
-        real(gtm_real),intent(in)  :: time                   !< new time
-        real(gtm_real),intent(in)  :: dt                     !< current time step from old time to new time
-        real(gtm_real),intent(in)  :: dx(ncell)              !< spatial step
+        real(gtm_real),intent(in)  :: area_lo(ncell)                  !< lo side area (todo: at new time?)
+        real(gtm_real),intent(in)  :: area_hi(ncell)                  !< hi side area (todo: at new time?
+        real(gtm_real),intent(in)  :: time                            !< new time
+        real(gtm_real),intent(in)  :: dt                              !< current time step from old time to new time
+        real(gtm_real),intent(in)  :: dx(ncell)                       !< spatial step
         logical,intent(in),optional :: use_limiter                    !< whether to use slope limiter
-        procedure(adjust_gradient_if), pointer, intent(in) :: adjust_differences !< interface to adjust gradient
         
         !-----locals
         real(gtm_real) :: source_prev(ncell,nvar) !< cell centered source at old time
@@ -136,15 +136,29 @@ module advection
                         
         ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
         ! or other differencing is required
-        call adjust_differences(grad,         &
-                                grad_lo,      &  
-                                grad_hi,      &
-                                grad_center,  &
-                                conc_prev,    &
-                                dx,           &
-                                ncell,        &
-                                nvar,         &
-                                use_limiter)                          
+        if (associated(adjust_gradient)) then
+            call adjust_gradient(grad,         &
+                                 grad_lo,      &  
+                                 grad_hi,      &
+                                 grad_center,  &
+                                 conc_prev,    &
+                                 dx,           &
+                                 ncell,        &
+                                 nvar,         &
+                                 use_limiter)    
+        else
+            adjust_gradient => adjust_differences_single_channel
+            call adjust_differences_single_channel(grad,         &
+                                                   grad_lo,      &  
+                                                   grad_hi,      &
+                                                   grad_center,  &
+                                                   conc_prev,    &
+                                                   dx,           &
+                                                   ncell,        &
+                                                   nvar,         &
+                                                   use_limiter)                              
+        end if        
+                    
                                 
         ! Compute sources and sinks for each constituent
         call compute_source(source_prev, & 
@@ -180,8 +194,14 @@ module advection
                           ncell,      &
                           nvar)
 
+        ! Assign boundary concentration if it is given
+
+          !call assign_concentration(conc_lo,    &
+          !                        conc_hi,    &
+          !                        ncell,      &
+          !                        nvar)        
                
-        if (associated(advection_boundary_flux))then
+        if (associated(advection_boundary_flux)) then
             call advection_boundary_flux(flux_lo,     &
                                          flux_hi,     &
                                          conc_lo,     &
@@ -194,7 +214,18 @@ module advection
                                          dt,          &
                                          dx)        
         else        
-            advection_boundary_flux => bc_advection_flux      
+            advection_boundary_flux => bc_advection_flux
+            call bc_advection_flux(flux_lo,     &
+                                   flux_hi,     &
+                                   conc_lo,     &
+                                   conc_hi,     &
+                                   flow_lo,     &
+                                   flow_hi,     &
+                                   ncell,       &
+                                   nvar,        &
+                                   half_time,   &
+                                   dt,          &
+                                   dx)       
         end if
                                   
         ! Combine the fluxes into a divergence term at the half time at cell edges.

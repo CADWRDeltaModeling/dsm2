@@ -85,7 +85,6 @@ module test_converge_bidirectional_uniform
         use diffusion
         use boundary_advection
         use boundary_diffusion
-        use gradient_adjust
         use single_channel_boundary
         use primitive_variable_conversion
         use hydro_data
@@ -165,7 +164,6 @@ module test_converge_bidirectional_uniform
         call set_uniform_flow_area(test_flow,constant_area,reverse_time)
         uniform_hydro=> uniform_flow_area
         const_velocity = test_flow/constant_area
-        adjust_gradient => adjust_differences_single_channel
         
         ! source
         decay_rate = test_decay
@@ -221,7 +219,6 @@ module test_converge_bidirectional_uniform
                                             nconc)
         call test_convergence(label,                                  &
                               uniform_hydro,                          &
-                              adjust_differences_single_channel,      &
                               single_channel_boundary_advective_flux, &
                               bc_diff_flux,                           &
                               bc_diff_matrix,                         &

@@ -35,7 +35,6 @@ use primitive_variable_conversion
 use boundary_diffusion
 use boundary_advection
 use hydro_uniform_flow
-use gradient_adjust
 use dispersion_coefficient
 use gaussian_init_boundary_condition
 use diffusion
@@ -98,8 +97,6 @@ acceptance_ratio = [three, three, three]      ! relax the standard for diffusion
 
 call set_uniform_flow_area(zero,constant_area)
 uniform_hydro => uniform_flow_area
-adjust_gradient => adjust_differences_single_channel
-
 boundary_diffusion_matrix  => dirichlet_diffusion_nonlinear_matrix
 boundary_diffusion_flux    => dirichlet_diffusive_nonlinear_flux
 advection_boundary_flux    => zero_advective_flux
@@ -123,7 +120,6 @@ call initial_final_solution(fine_initial_condition,&
 label = 'test_diffusion_cubic_decay'
 call test_convergence(label,                             &
                       uniform_hydro,                     &
-                      adjust_differences_single_channel, &
                       zero_advective_flux,               &
                       dirichlet_test_diffusive_flux,     &
                       dirichlet_test_diffusion_matrix ,  &

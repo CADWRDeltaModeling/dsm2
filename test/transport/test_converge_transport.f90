@@ -29,7 +29,6 @@ module test_convergence_transport
     !> must be provided. 
     subroutine test_convergence(label,                &
                                 hydro,                &
-                                bc_adjust_gradient,   &
                                 bc_advective_flux,    &
                                 bc_diffusive_flux,    &
                                 bc_diffusive_matrix,  &
@@ -52,7 +51,6 @@ module test_convergence_transport
         use gtm_precision
         use state_variables
         use primitive_variable_conversion 
-        use gradient_adjust
         use advection
         use diffusion
         use boundary_diffusion
@@ -67,7 +65,6 @@ module test_convergence_transport
 
         !--- Problem variables
         procedure(hydro_data_if), pointer, intent(in)               :: hydro                !< Hydrodynamics
-        procedure(adjust_gradient_if), pointer, intent(in)          :: bc_adjust_gradient   !< Adjust gradients
         procedure(boundary_advective_flux_if), pointer, intent(in)  :: bc_advective_flux    !< Advection BC
         procedure(boundary_diffusive_flux_if), pointer, intent(in)  :: bc_diffusive_flux    !< Diffusion BC
         procedure(boundary_diffusive_matrix_if),pointer, intent(in) :: bc_diffusive_matrix  !< Diffusion BC
@@ -138,7 +135,6 @@ module test_convergence_transport
             else
             !compute_source => no_source
         end if
-        adjust_gradient => adjust_differences_single_channel
         advection_boundary_flux => bc_advective_flux
 
         !todo: this had to be disabled. 
@@ -267,7 +263,6 @@ module test_convergence_transport
                            time,               &
                            dt,                 &
                            dx,                 &
-                           bc_adjust_gradient, &
                            limit_slope)
 
                call cons2prim(conc,mass,area,nx,nconc) 

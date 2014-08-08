@@ -41,6 +41,7 @@ program gtm
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
+    use dsm2_gtm_network
     use hydro_data
     use hydro_data_network
     use state_variables
@@ -106,7 +107,6 @@ program gtm
 
     integer :: n_bound_ts
     integer, allocatable :: bound_index(:), path_index(:)
-    real(gtm_real), allocatable :: node_conc(:,:)
     
     real(gtm_real) :: flow_chk
     
@@ -193,9 +193,9 @@ program gtm
     fill_hydro_network => gtm_network_data
     dispersion_coef => constant_dispersion_coef
     compute_source => no_source
-    !compute_source => linear_decay_source
-    adjust_gradient => adjust_differences_network
-    advection_boundary_flux => bc_fixup_advection_flux
+    !compute_source => linear_decay_source 
+    adjust_gradient => adjust_differences_network           ! adjust gradients for DSM2 network
+    advection_boundary_flux => bc_advection_flux_network    ! adjust flux for DSM2 network
     boundary_diffusion_flux => neumann_zero_diffusive_flux
     boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
@@ -243,7 +243,8 @@ program gtm
             prev_day =  cdt(1:9)
         end if
         
-        !---get time series for boundary conditions, this will update pathinput(:)%value; rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
+        !---get time series for boundary conditions, this will update pathinput(:)%value; 
+        !---rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
         call get_inp_value(int(current_time),int(current_time-gtm_time_interval))        
         do i = 1, n_inputpaths
             node_conc(pathinput(i)%i_node, pathinput(i)%i_var) = pathinput(i)%value   
@@ -342,7 +343,6 @@ program gtm
                     dble(current_time)*sixty,   &
                     gtm_time_interval*sixty,    &
                     dx_arr,                     &
-                    adjust_differences_network, &
                     .true.)     
         call cons2prim(conc, mass, area, n_cell, n_var)
         cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
