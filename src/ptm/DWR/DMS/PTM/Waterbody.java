@@ -116,12 +116,7 @@ public abstract class Waterbody{
    *  flows out the water body through the node - negative 
    *  in case of reverse flows flow there is a change in sign
    */
-  public final float getInflow(int nodeEnvId){
-	int nodeId = getNodeLocalIndex(nodeEnvId);
-    if (flowType(nodeId) == OUTFLOW) 
-      return (-flowAt[nodeId]);
-    return (flowAt[nodeId]);
-  }
+  public abstract float getInflow(int nodeEnvId);
   
   /**
    *  Get flow direction sign

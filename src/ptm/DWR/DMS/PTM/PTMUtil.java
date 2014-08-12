@@ -22,7 +22,7 @@ import java.util.Set;
  *
  */
 public class PTMUtil {
-	static float EPSILON = 0.0000001f;
+	static float EPSILON = 0.000000001f;
 
 	/**
 	 * 

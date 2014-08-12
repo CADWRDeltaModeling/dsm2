@@ -37,7 +37,7 @@ public class BasicRouteBehavior {
 	    return -999999.0f;
 	}
 	
-	private float getXLocationInChannel(Channel chan, Node nd){
+	protected float getXLocationInChannel(Channel chan, Node nd){
 	    if (chan.getUpNodeId() == nd.getEnvIndex())
 	    	return 0;
 	    if (chan.getDownNodeId() == nd.getEnvIndex())

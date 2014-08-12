@@ -72,6 +72,12 @@ public class Reservoir extends Waterbody{
     depthAt[0] = depthArray[0];
   }
   public final String getName(){return name;}
+  public float getInflow(int nodeEnvId){
+		int nodeId = getNodeLocalIndex(nodeEnvId);
+	    if (flowType(nodeId) == OUTFLOW) 
+	      return (-flowAt[nodeId]);
+	    return (flowAt[nodeId]);
+	  }
   /**
    *  String containing the name
    */

@@ -129,6 +129,7 @@ public class Channel extends Waterbody{
    *  Gets the velocity of water in Channel at that particular x,y,z position
    */
   //TODO never been used, clean up
+  /*
   public final float getVelocity(float xPos, float yPos, float zPos){
     // returns v >= sign(v)*0.001
     float v = getAverageVelocity(xPos);
@@ -138,6 +139,7 @@ public class Channel extends Waterbody{
     if(useTransProfile) tp = calcTransProfile(yPos, getWidth(xPos));
     return (v*vp*tp);
   }
+  */
   
   /**
    *  A more efficient calculation of velocity if average velocity, width and
@@ -148,15 +150,13 @@ public class Channel extends Waterbody{
     float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, depth);
     if(useTransProfile) tp = calcTransProfile(yPos, width);
-    if (averageVelocity > 0){
-    	if (_isSwimmingVelSet)
-    		return (averageVelocity*vp*tp + _swimmingVelocity);
-    	return  (averageVelocity*vp*tp + uSwimmingVelocity);
-    }
-    else
-	  return 0;
+    return  (averageVelocity*vp*tp + getSwimmingVelocity());
   }
-  
+  public float getSwimmingVelocity(){
+	  if (_isSwimmingVelSet)
+  		return  _swimmingVelocity;
+	  return  uSwimmingVelocity;
+  }
   public void setSwimmingVelocity(float sv){
 	  _swimmingVelocity = sv;
 	  _isSwimmingVelSet = true;
@@ -243,6 +243,12 @@ public class Channel extends Waterbody{
     else{
       throw new IllegalArgumentException();
     }
+  }
+  public float getInflow(int nodeEnvId){
+	int nodeId = getNodeLocalIndex(nodeEnvId);
+	if (flowType(nodeId) == OUTFLOW)
+	  return -1.0f*(flowAt[nodeId]+getSwimmingVelocity()*getFlowArea(length));
+	return flowAt[nodeId]+getSwimmingVelocity()*getFlowArea(0.0f);
   }
   public boolean isAgSeep(){ return false;}
   public boolean isAgDiv(){ return false;}
@@ -345,6 +351,8 @@ public class Channel extends Waterbody{
   /**
    *  Get average velocity
    */
+  //TODO clean up this method is never used and have run time errors
+  /*
   public final float getAverageVelocity(float xPos){
     int upX = 0, downX = 1;
     downX = getDownSectionId(xPos);
@@ -356,9 +364,10 @@ public class Channel extends Waterbody{
     velocityAt[downX] = calcVelocity(flowAt[downX], length);
     v = alfx*velocityAt[downX] + (1-alfx)*velocityAt[upX];
     //? what if velocity is negative due to negative flows??
-    if (v!=0) return v/Math.abs(v)*Math.max(0.001f,Math.abs(v));
+    if (Math.abs(v)< PTMUtil.EPSILON) return v/Math.abs(v)*Math.max(0.001f,Math.abs(v));
     else return 0.001f;
   }
+  */
   
   /**
    *  Get the flow area
@@ -439,14 +448,19 @@ public class Channel extends Waterbody{
    */
 
   //  private static final float a=1.62f,b=-2.22f,c=0.60f;
-  
+ 
+  //TODO clean up never be used
+  /*
   private final float calcVelocity(float flow, float xpos){
     return flow/getFlowArea(xpos);
   }
+  */
   
   /**
    *  
    */
+  //TODO clean up this method is never used and has run time errors
+  /*
   private final int getDownSectionId(float xPos){
     //check distance vs x till distance of XSection > xPos
     //that XSection mark it as downX and the previous one as upX
@@ -455,21 +469,22 @@ public class Channel extends Waterbody{
     
     while( (sectionNumber < nXsects) && notFound){
       sectionNumber++;
-      if (Macro.APPROX_EQ(xPos,0.0f)){
+      if (PTMUtil.floatNearlyEqual(xPos,0.0f)){
         sectionNumber = 1;
         notFound = false;
       }
-      if (Macro.APPROX_EQ(xPos,length)){
+      if (PTMUtil.floatNearlyEqual(xPos,length)){
         sectionNumber = nXsects-1;
         notFound = false;
       }
+      System.err.println("nXsects:"+nXsects+"  "+sectionNumber);
       if (xPos < xSArray[sectionNumber].getDistance()){
         notFound = false;
       }
     }//end while
     return (sectionNumber);
   }
-  
+  */
   private final void sortXSections(){
     int i,j;
     float currentSection;

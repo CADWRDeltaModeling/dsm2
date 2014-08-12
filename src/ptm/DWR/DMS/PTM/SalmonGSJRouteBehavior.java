@@ -40,6 +40,8 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 			PTMUtil.systemExit("could not found Georgiana Slough channel at Georgiana Slough Junction, exit.");
 		for (int i = 0; i< 3; i++){
 			Channel ch = chans.get(i);
+			if (ch == null)
+				PTMUtil.systemExit("could not found Sac River channels at Georgiana Slough Junction, exit.");
 			if (ch.getDownNode().equals(curNode))
 				sacUp = ch;
 			else if (ch.getUpNode().equals(curNode)){
@@ -47,8 +49,6 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 					sacDown = ch;
 			}
 		}
-		if (sacUp == null || sacDown == null)
-			PTMUtil.systemExit("could not found channels at Georgiana Slough Junction, exit.");
 		return new Channel[] {sacUp, sacDown, gs};
 	}
 
@@ -90,13 +90,15 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 		    float multi_v = -2.104f-0.531f*d-1.7f*(gs.getCurrentBarrierOp(p.nd.getEnvIndex()))
 		    			+0.082f*s+0.068f*qUpSac+0.045f*pos-0.006f*qUpSac*pos;
 		    double possibility = Math.exp(multi_v)/(1+Math.exp(multi_v));
-		    //TODO clean up
-		    //System.out.println(possibility+" "+w+" "+s+" "+pos+" "+qUpSac+" "+qGs+" "+qDownSac+" "+gs.getBarrierAtUpNodeOp());
 		    if (possibility < p.nd.getRandomNumber()){
 		    	p.wb = sacDown;
 		    }
 		    else
-		    	p.wb = gs;						    
+		    	p.wb = gs;			
+		    if (p.observer != null) 
+		    	p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
+			//set x to only channels.  other water body types don't need to be set. 
+			 p.x = super.getXLocationInChannel((Channel)p.wb, p.nd);
 		}
 		else
 			super.makeRouteDecision(p);

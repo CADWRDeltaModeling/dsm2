@@ -109,8 +109,8 @@ public class PTMHydroInput{
     		chan.setStage(stageArray);
     		chan.setFlow(flowArray);
     		chan.setArea(areaArray);
-    		}//end if (wbArray)
-    	}//end for (channelNumber)
+    	}//end if (wbArray)
+    }//end for (channelNumber)
 
 
     	// update Reservoir dynamic information

@@ -77,5 +77,11 @@ class Conveyor extends Waterbody {
    */
   public int getHydroType(){return FlowTypes.rim;}
   public String getName(){return _name;}
+  public float getInflow(int nodeEnvId){
+		int nodeId = getNodeLocalIndex(nodeEnvId);
+	    if (flowType(nodeId) == OUTFLOW) 
+	      return (-flowAt[nodeId]);
+	    return (flowAt[nodeId]);
+	  }
   private String _name = null;
 }

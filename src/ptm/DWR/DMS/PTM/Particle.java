@@ -149,13 +149,15 @@ public class Particle{
     *  Sets the location of Particle by identifying the Waterbody<br>
     *  it is in and the co-ordinate position w.r.t the Waterbody
     */
+  //TODO clean up never be used
+  /*
   public final void setLocation(Waterbody w, float xPos, float yPos, float zPos){
     wb = w;
     x = xPos;
     y = yPos;
     z = zPos;
   }
-  
+  */
   /**
     *  Sets the location of Particle by Node Id # and random positioning
     *  of Particle within the Waterbody it enters thereupon.
@@ -485,7 +487,7 @@ _survivalHelper = null;
 			 float tmToAdv = 0;
       
 			 //y, z set up for particles which are just out of reservoir and conveyor
-			 if (Macro.APPROX_EQ(y, MISSING) || Macro.APPROX_EQ(z,MISSING)) {
+			 if (PTMUtil.floatNearlyEqual(y, MISSING) || PTMUtil.floatNearlyEqual(z,MISSING)) {
 				 setYZLocationInChannel();
 			 }
       

@@ -96,6 +96,12 @@ class Boundary extends Waterbody {
   public int getHydroType(){return FlowTypes.rim;}
   
   public String getBoundaryName(){return _boundaryName;}
+  public float getInflow(int nodeEnvId){
+		int nodeId = getNodeLocalIndex(nodeEnvId);
+	    if (flowType(nodeId) == OUTFLOW) 
+	      return (-flowAt[nodeId]);
+	    return (flowAt[nodeId]);
+	  }
   private String _boundaryName;
   private boolean _isSeep = false, _isDiv = false;
 }
