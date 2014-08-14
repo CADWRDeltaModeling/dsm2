@@ -125,14 +125,27 @@ module gtm_network
                                        -hydro_flow(up_comp,t_index-1))*j/(segm(i)%nx)                                       
                end do
             end if   
-            
-            call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
-                                  flow_volume_change, area_volume_change,                             &
-                                  n_cell, segm(i)%start_cell_no,                                      &
-                                  segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
-                                  prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
-                                  prev_ws(up_comp), prev_ws(down_comp), hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),           &
-                                  prev_flow_cell_lo, prev_flow_cell_hi)                              
+            if (segm(i)%segm_no .eq. 830) then
+                write(11,*) prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index)
+                write(11,*) flow_mesh_lo(1,830), flow_mesh_hi(1,830)
+            end if
+            if (segm(i)%nx .gt. 1) then
+                call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
+                                      flow_volume_change, area_volume_change,                             &
+                                      n_cell, segm(i)%start_cell_no,                                      &
+                                      segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
+                                      prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
+                                      prev_ws(up_comp), prev_ws(down_comp), hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),           &
+                                      prev_flow_cell_lo, prev_flow_cell_hi)                              
+            else
+                call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
+                                      flow_volume_change, area_volume_change,                             &
+                                      n_cell, segm(i)%start_cell_no,                                      &
+                                      segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
+                                      prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
+                                      prev_ws(up_comp), prev_ws(down_comp), hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),           &
+                                      prev_flow_cell_lo, prev_flow_cell_hi)                  
+            end if
         end do
         prev_flow_cell_lo(:) = flow_mesh_lo(nt,:)
         prev_flow_cell_hi(:) = flow_mesh_hi(nt,:)
@@ -162,11 +175,11 @@ module gtm_network
         integer, intent(in) :: n_dim                     !< dimension
         real(gtm_real), intent(in) :: prev_ts(n_dim)     !< time series at previous time slice
         real(gtm_real), intent(in) :: current_ts(n_dim)  !< time series at current time slice
-        real(gtm_real), intent(out) :: mesh(n_dim, nt)
+        real(gtm_real), intent(out) :: mesh(nt, n_dim)
         integer :: i, j
         do i = 1, n_dim
             do j = 1, nt
-                mesh(i, j) = prev_ts(i) + (current_ts(i)-prev_ts(i))*(dble(j)-one)/(dble(nt)-one)
+                mesh(j, i) = prev_ts(i) + (current_ts(i)-prev_ts(i))*(dble(j)-one)/(dble(nt)-one)
             end do
         end do        
         return

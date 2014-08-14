@@ -65,5 +65,43 @@ module gtm_subs
         end do
         return
     end subroutine        
+
+    !> check the flow mass balance at DSM2 network
+    subroutine flow_mass_balance_check(ncell, nqext, nresv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
+        use gtm_precision
+        use common_variables, only : n_node, dsm2_network
+        implicit none
+        integer, intent(in) :: ncell
+        integer, intent(in) :: nqext
+        integer, intent(in) :: nresv_conn
+        real(gtm_real), intent(in) :: flow_lo(ncell)
+        real(gtm_real), intent(in) :: flow_hi(ncell)
+        real(gtm_real), intent(in) :: qext_flow(nqext)
+        real(gtm_real), intent(in) :: resv_flow(nresv_conn)        
+        real(gtm_real) :: flow_chk
+        integer :: i, j
+        
+        do i = 1, n_node
+            flow_chk = zero
+            do j = 1, dsm2_network(i)%n_conn_cell
+                if (dsm2_network(i)%up_down(j) == 0 ) then  !upstream
+                    !write(11,*) dsm2_network(i)%dsm2_node_no, dsm2_network(i)%up_down(j), flow_hi(dsm2_network(i)%cell_no(j))
+                    flow_chk = flow_chk + flow_hi(dsm2_network(i)%cell_no(j))
+                else  
+                    !write(11,*) dsm2_network(i)%dsm2_node_no, dsm2_network(i)%up_down(j), flow_lo(dsm2_network(i)%cell_no(j))
+                    flow_chk = flow_chk + minus*flow_lo(dsm2_network(i)%cell_no(j))
+                end if
+            end do 
+            do j = 1, dsm2_network(i)%n_qext 
+                 !write(11,*) dsm2_network(i)%dsm2_node_no, qext_flow(dsm2_network(i)%qext_no(j)),"qext_flow"
+                 flow_chk = flow_chk + qext_flow(dsm2_network(i)%qext_no(j))
+            end do
+            if (dsm2_network(i)%reservoir_no.ne.0) then 
+                  !write(11,*) dsm2_network(i)%dsm2_node_no, resv_flow(dsm2_network(i)%resv_conn_no),"resv_flow"
+                  flow_chk = flow_chk + resv_flow(dsm2_network(i)%resv_conn_no)
+            end if                   
+            if (abs(flow_chk) .gt. weakest_eps) write(11,*) dsm2_network(i)%dsm2_node_no, flow_chk, "*******" 
+        end do        
+    end subroutine
     
 end module    

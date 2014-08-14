@@ -195,9 +195,9 @@ program gtm
     dispersion_coef => constant_dispersion_coef
     compute_source => no_source
     !compute_source => linear_decay_source 
-    adjust_gradient => adjust_differences_network           ! adjust gradients for DSM2 network
-    boundary_conc => assign_boundary_concentration          ! assign boundary concentration    
-    advection_boundary_flux => bc_advection_flux_network    ! adjust flux for DSM2 network
+    adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
+    boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
+    advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => neumann_zero_diffusive_flux
     boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
@@ -290,10 +290,10 @@ program gtm
                         dx_arr,   &
                         gtm_time_interval)  
                         
-        call fill_hydro_network(resv_height, &
-                                resv_flow,   &
-                                qext_flow,   &
-                                tran_flow,   &
+        call fill_hydro_network(resv_height,  &
+                                resv_flow,    &
+                                qext_flow,    &
+                                tran_flow,    &
                                 n_resv,       &
                                 n_resv_conn,  &
                                 n_qext,       &
@@ -302,23 +302,7 @@ program gtm
         write(11,*) current_time
         
         if (t_index==1) then
-            do i = 1, n_node
-            flow_chk = zero
-                do j = 1, dsm2_network(i)%n_conn_cell
-                    if (dsm2_network(i)%up_down(j) == 0 ) then  !upstream
-                    write(11,*) dsm2_network(i)%dsm2_node_no, dsm2_network(i)%up_down(j), flow_hi(dsm2_network(i)%cell_no(j))
-                    flow_chk = flow_chk + flow_hi(dsm2_network(i)%cell_no(j))
-                    else  
-                    write(11,*) dsm2_network(i)%dsm2_node_no, dsm2_network(i)%up_down(j), flow_lo(dsm2_network(i)%cell_no(j))
-                    flow_chk = flow_chk + minus*flow_lo(dsm2_network(i)%cell_no(j))
-                    end if
-                end do 
-                write(11,*) dsm2_network(i)%dsm2_node_no, flow_chk
-                do j = 1, dsm2_network(i)%n_qext 
-                    write(11,*) dsm2_network(i)%dsm2_node_no,qext_flow(dsm2_network(i)%qext_no(j)),"ext"
-                end do
-                if (dsm2_network(i)%resv_conn_no.ne.0) write(11,*) dsm2_network(i)%dsm2_node_no,resv_flow(dsm2_network(i)%resv_conn_no),"resv_flow"
-            end do        
+            call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
         end if    
                            
         if (current_time == gtm_start_jmin) then
