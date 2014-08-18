@@ -51,7 +51,7 @@ public class BasicRouteBehavior {
 	    // end of a slough, then move the Particle into the Channel a
 	    // small amount.
 
-	    if (Math.abs(wbInflows) < PTMUtil.EPSILON && p.nd.getNumberOfWaterbodies() == 1) {
+	    if (Math.abs(wbInflows) < Float.MIN_VALUE && p.nd.getNumberOfWaterbodies() == 1) {
 	    	if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
 	    		p.x = 0;
 	    	else
@@ -81,7 +81,7 @@ public class BasicRouteBehavior {
 	    
 	    waterbodyInflows = p.nd.getRandomNumber()*waterbodyInflows;
 		  
-	    if (Math.abs(waterbodyInflows) < PTMUtil.EPSILON){
+	    if (Math.abs(waterbodyInflows) < Float.MIN_VALUE){
 	      p.particleWait = true;
 	      return;
 	    }

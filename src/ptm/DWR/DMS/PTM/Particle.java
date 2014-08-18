@@ -346,11 +346,24 @@ _survivalHelper = null;
   /**
     *  Insertion time and insertion Node
     */
-  public final void setInsertionInfo(int particleInsertionTime, Node injectionNode){
+  public final void setInsertionInfo(int particleInsertionTime, Node inNode){
     this.insertionTime = particleInsertionTime;
-    _insertionNodeId = injectionNode.getEnvIndex();
-    setLocation(injectionNode);
+    _insertionNodeId = inNode.getEnvIndex();
+    nd = inNode;
   }
+  
+  //TODO will be used to release particles at an exact location
+  /*
+  public final void setInsertionInfo(int particleInsertionTime, Node inNode, Waterbody inWb, float inChanDist){
+	    this.insertionTime = particleInsertionTime;
+	    _insertionNodeId = inNode.getEnvIndex();
+	    _insertionWbId = inWb.getEnvIndex();
+	    _insertionChanDist = inChanDist;
+	    wb = inWb;
+	    nd = inNode;
+	    x = inChanDist;
+  }
+ */
   // return particle age in seconds
   public float getParticleAge(){
 	  return age;
@@ -575,6 +588,7 @@ _survivalHelper = null;
 						 && (x > tto.getOutputChannelDistance() && !_travelTimeRecorded)){
 					 _travelTimeRecorded = true;
 					 tto.setTravelTime(_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
+					 //setParticleDead();
 				 }
 			 }// end while
       
@@ -612,7 +626,7 @@ _survivalHelper = null;
 
 		 else if (wb.getPTMType() ==  Waterbody.BOUNDARY) {
 			 if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
-			 isDead=true;
+			 setParticleDead();
 			 break;
 		 }
 	 }
@@ -1202,6 +1216,8 @@ _survivalHelper = null;
    *  Insertion Node Id for pParticle
    */
  private int _insertionNodeId;
+ private int _insertionWbId;
+ private float _insertionChanDist;
   
   /**
     *  gets x location in Channel corresponding to upnode and
@@ -1301,6 +1317,13 @@ _survivalHelper = null;
       System.out.println("Exception while parsing particle string representation");
     }
   }  
+  
+  private void setParticleDead(){
+	  if (observer == null)
+		  PTMUtil.systemExit("try to take away particle from the system, but oberser is not set.  system exit");
+	  isDead = true;
+	  observer.observeDeath(this);
+  }
 
   // array applied for the convenience of vars transfer 
   private float [] cL = new float[1];

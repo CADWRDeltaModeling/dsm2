@@ -23,12 +23,12 @@ public class PTMBehaviorInputs {
 	private Map<Integer, FishReleaseGroup> _fishGroups = null; 
 	
 	private void extractReleaseInputs(ArrayList<String> releaseInputText){
-		if (releaseInputText.size()< 7)
+		if (releaseInputText.size()< 6)
 			PTMUtil.systemExit("Errors in Fish_Release_Inputs, system exit.");
 		int numOfGroups = PTMUtil.getInt(releaseInputText.get(0));
 		for (int i = 1; i< numOfGroups + 1; i++){
 			ArrayList<String> groupText = PTMUtil.getInputBlock(releaseInputText, "GROUP_"+i, "END_GROUP_"+i);
-			if (groupText.size()<4)
+			if (groupText.size()<3)
 				PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+" system exit.");
 			Integer nodeId = PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
 			String [] title = groupText.get(1).trim().split("[,\\s\\t]+");
@@ -80,10 +80,9 @@ public class PTMBehaviorInputs {
 	public PTMBehaviorInputs(String inputFileName) {
 		if (inputFileName == null || inputFileName.length() == 0)
 			PTMUtil.systemExit("Behavior input file not found, system exit");
-		BufferedReader inputText = PTMUtil.getInputBuffer(inputFileName);
-		// PTMUtil.getInputBlock(...) returns an ArrayList
-		// careful! the order of items here has to be the exactly same as in behavior input file 
-		// because BufferedReader does not look back. 
+		BufferedReader inputTextBuff = PTMUtil.getInputBuffer(inputFileName);
+
+		ArrayList<String> inputText = PTMUtil.getInputs(inputTextBuff);
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
 		if (fishTypeList==null || fishTypeList.size()==0) 
 			PTMUtil.systemExit("No Fish Type found, exit from PTMBehaviorInput line 61");
@@ -111,7 +110,7 @@ public class PTMBehaviorInputs {
 		if (routeInputText == null)
 			System.err.println("WARNING: no route behavior input found!");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
-			PTMUtil.closeBuffer(inputText);
+			PTMUtil.closeBuffer(inputTextBuff);
 		
 	}
 	public void setWaterbodyInfo(Waterbody[] allWbs){

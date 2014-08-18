@@ -28,16 +28,19 @@ public class SwimInputs {
 		// TODO Auto-generated constructor stub
 		System.out.println("Created SwimHelper...");
 	}
-	public void setSwimmingVelocityForAll(String sVel){
+	public void setSwimmingVelocityForAllFromCommand(String sVel){
 		if (_groupNames == null && _swimmingVelocities == null){
 			_groupNames = new ArrayList<String>();
 			_swimmingVelocities = new HashMap<String, Float>();
 		}
-		else if (_groupNames != null && _swimmingVelocities != null){
-			if(!_groupNames.contains("ALL"))
-				_groupNames.add("ALL");
+		if (_groupNames != null && _swimmingVelocities != null){
+			if(_groupNames.contains("ALL"))
+				System.err.println("warning: swiming velocity for all the channels, "+_swimmingVelocities.get("ALL")
+						+", will be replaced by "+sVel+" from the commandline input");
 			try{
-				_swimmingVelocities.put("ALL", Float.parseFloat(sVel));
+				Float v = Float.parseFloat(sVel);
+				_swimmingVelocities.put("ALL", v);
+				Channel.uSwimmingVelocity = v;
 			}catch (NumberFormatException e){
 				e.printStackTrace();
 				PTMUtil.systemExit("expect a float for a swimming velocity for all channels but get:" + sVel);	
@@ -59,7 +62,11 @@ public class SwimInputs {
 			if (_channelGroups != null){
 				for (int chan: _channelGroups.keySet()){
 					//wbArray starts from 1. see PTMFixedInput.java line 180
-					((Channel) allWbs[chan]).setSwimmingVelocity(_swimmingVelocities.get(_channelGroups.get(new Integer(chan))));
+					Channel c = (Channel) allWbs[chan];
+					if (c == null){
+						PTMUtil.systemExit("while seting swiming velocity, find no such channel:" + PTMHydroInput.getExtFromIntChan(chan));
+					}
+					c.setSwimmingVelocity(_swimmingVelocities.get(_channelGroups.get(new Integer(chan))));
 				}
 			}
 				
@@ -113,7 +120,7 @@ public class SwimInputs {
 					for (int chanId: chanIds){
 						Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
 						if (envId <= 0)
-							PTMUtil.systemExit("got a wrong channel ID:"+chanId+", system exit.");
+							PTMUtil.systemExit("No such channel number:"+chanId+", Please check swimming velocity section in behavior input file, system exit.");
 						else
 							_channelGroups.put(envId, name);
 					}

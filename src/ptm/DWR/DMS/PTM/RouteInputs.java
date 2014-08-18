@@ -47,7 +47,7 @@ public class RouteInputs {
 				setDicuFilterEfficiency();
 			}
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
-				System.err.println("WARNING: no specialBehavior defined or defined improperly in behavior inputs.");
+				System.err.println("WARNING: no special routing Behavior defined or defined improperly in behavior inputs.");
 			else
 				setSpecialBehaviors(specialBehaviorInText);
 		}

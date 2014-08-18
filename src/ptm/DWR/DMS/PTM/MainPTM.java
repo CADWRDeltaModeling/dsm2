@@ -59,12 +59,12 @@ public class MainPTM {
             if(args.length > 0){ 
             	fixedInputFilename = args[0];
             	if (args.length > 1)
-            		swimmingVel = args[1];	
+            		swimmingVel = args[1];
             }
             
             PTMEnv Environment = new PTMEnv(fixedInputFilename);
             if (swimmingVel != null)
-            	Environment.getBehaviorInputs().getSwimInputs().setSwimmingVelocityForAll(swimmingVel);
+            	Environment.getBehaviorInputs().getSwimInputs().setSwimmingVelocityForAllFromCommand(swimmingVel);
             if (DEBUG) System.out.println("Environment initialized");
     
             // set global environment pointer

@@ -147,7 +147,7 @@ public class Channel extends Waterbody{
    */
   public final float getVelocity(float xPos, float yPos, float zPos,
                                  float averageVelocity, float width, float depth){
-    float vp=1.0f, tp=1.0f;
+	float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, depth);
     if(useTransProfile) tp = calcTransProfile(yPos, width);
     return  (averageVelocity*vp*tp + getSwimmingVelocity());
@@ -246,6 +246,9 @@ public class Channel extends Waterbody{
   }
   public float getInflow(int nodeEnvId){
 	int nodeId = getNodeLocalIndex(nodeEnvId);
+	//at gate flow == 0
+	if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
+		return 0.0f;
 	if (flowType(nodeId) == OUTFLOW)
 	  return -1.0f*(flowAt[nodeId]+getSwimmingVelocity()*getFlowArea(length));
 	return flowAt[nodeId]+getSwimmingVelocity()*getFlowArea(0.0f);
@@ -396,9 +399,24 @@ public class Channel extends Waterbody{
     channelArea[0] = channelDepth[0]*channelWidth[0];
     
     float Vave = (alfx*flowAt[DOWNNODE] + nalfx*flowAt[UPNODE])/channelArea[0];
-    if (Vave < 0.001f && Vave > -0.001f)
-      Vave = Vave/Math.abs(Vave)*0.001f;
+    
+    if (Vave < 0.001f && Vave > -0.001f){
+      if (Math.abs(Vave) < Float.MIN_VALUE)
+    	  Vave = 0.001f;
+      else
+    	  Vave = Vave/Math.abs(Vave)*0.001f;
+    }
+    
     channelVave[0] = Vave;
+    //TODO clean UP
+    /*
+    if (PTMHydroInput.getExtFromIntChan(getEnvIndex()) == 365 && PTMHydroInput.getExtFromIntNode(getUpNodeId()) == 342)
+		 System.err.println("  channelArea:" + channelArea[0]
+				 + "  channelWidth:" + channelWidth[0]
+				 + "  channelDepth:" + channelDepth[0]
+				 + "  channelVave:" + Vave
+				 + "  flow:" + flowAt[UPNODE]);
+			*/	 
   }
   
   /**

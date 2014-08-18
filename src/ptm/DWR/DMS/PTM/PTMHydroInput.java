@@ -99,7 +99,7 @@ public class PTMHydroInput{
     		areaArray[Channel.DOWNNODE] = getDownNodeArea(channelNumber);
     		// no use of quality currently
     		for (int indx = 0; indx < qualityArray[0].length; indx++){
-    			//fixme: got rid of quality temporarily
+    			//TODO fixme: got rid of quality temporarily
     				qualityArray[Channel.UPNODE][0] = 0.f; //getUpNodeQuality(channelNumber,indx+1);
     				qualityArray[Channel.DOWNNODE][0] = 0.f; //getDownNodeQuality(channelNumber,indx+1);
     		}

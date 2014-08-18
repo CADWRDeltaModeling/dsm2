@@ -66,7 +66,7 @@ public class PTMUtil {
              e.printStackTrace();
         }
     }
-	public static ArrayList<String> getInputBlock(BufferedReader inputBuffer, String start, String end){
+	public static ArrayList<String> getInputBlock(BufferedReader inputBuffer, String start, String end){	
         ArrayList<String> blockList = new ArrayList<String>();
         try{
             String line;
@@ -75,6 +75,22 @@ public class PTMUtil {
             } while(line != null && !line.trim().toUpperCase().startsWith(start));
             
             while((line=inputBuffer.readLine()) != null && !(line.trim().toUpperCase()).startsWith(end)){//(line = line.trim().toUpperCase()).startsWith(end)){
+            	if (!line.startsWith("#"))
+            		blockList.add(line.trim());
+            }
+        }
+        catch(IOException e){
+             e.printStackTrace();
+        }
+        if (blockList.size() == 0)
+        		return null;
+        return blockList;
+    }
+	public static ArrayList<String> getInputs(BufferedReader inputBuffer){	
+        ArrayList<String> blockList = new ArrayList<String>();
+        try{
+            String line;
+            while((line=inputBuffer.readLine()) != null){
             	if (!line.startsWith("#"))
             		blockList.add(line.trim());
             }

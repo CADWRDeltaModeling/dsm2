@@ -406,7 +406,6 @@ public class PTMEnv{
     int pNum=numberOfRestartParticles;
     int injNum=1;
     if (DEBUG) System.out.println("Injection info in PTMEnv");
-    
     while(pNum < getNumberOfParticlesInjected() + numberOfRestartParticles){
     	if (_behaviorInputs.getTotalParticlesReleased()>0){
     		Map<Integer, FishReleaseGroup> fgs = _behaviorInputs.getFishReleaseGroups();
