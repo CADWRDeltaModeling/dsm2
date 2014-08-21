@@ -119,6 +119,8 @@ public class PTMUtil {
             while(it.hasNext() && ((line= it.next()) != null) && !(line.trim()).toUpperCase().startsWith(end)){
                 block.add(line);
             }
+            if(block.size()!=0 && !(line.trim()).toUpperCase().startsWith(end))
+            	PTMUtil.systemExit(end + " in the behavior input file is spelled wrong, please check, system exit.");
         }
         catch(Exception e){
              e.printStackTrace();

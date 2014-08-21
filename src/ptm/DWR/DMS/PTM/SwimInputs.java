@@ -109,20 +109,20 @@ public class SwimInputs {
 			PTMUtil.systemExit("No channel list found in behavior input file, system exit");
 		_channelGroups = new HashMap<Integer, String>();
 		for (String name: _groupNames){
-			ArrayList<String> chanList = PTMUtil.getInputBlock(channelListStrs, name, "End_".concat(name));
-			if (chanList == null){
-				if (!name.equals("ALL"))
-					PTMUtil.systemExit("expect a channel list for a specific swimming velocity:"+name+", but got none, please check behavior inputs, system exit.");
-			}
-			else{
-				for (String line: chanList){
-					ArrayList<Integer> chanIds = PTMUtil.getInts(line);
-					for (int chanId: chanIds){
-						Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
-						if (envId <= 0)
-							PTMUtil.systemExit("No such channel number:"+chanId+", Please check swimming velocity section in behavior input file, system exit.");
-						else
-							_channelGroups.put(envId, name);
+			if (!name.equalsIgnoreCase("ALL")){
+				ArrayList<String> chanList = PTMUtil.getInputBlock(channelListStrs, name, "End_".concat(name));
+				if (chanList == null)
+						PTMUtil.systemExit("expect a channel list for a group:"+name+", but got none, please check swimming behavior inputs, system exit.");
+				else{
+					for (String line: chanList){
+						ArrayList<Integer> chanIds = PTMUtil.getInts(line);
+						for (int chanId: chanIds){
+							Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
+							if (envId <= 0)
+								PTMUtil.systemExit("No such channel number:"+chanId+", Please check swimming velocity section in behavior input file, system exit.");
+							else
+								_channelGroups.put(envId, name);
+						}
 					}
 				}
 			}

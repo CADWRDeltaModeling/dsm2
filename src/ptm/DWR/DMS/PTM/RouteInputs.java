@@ -123,8 +123,12 @@ public class RouteInputs {
 	private void setDicuFilterEfficiency(){
 		if (_dicuFilterEfficiency > 0){
 			//TODO particle has basic route behavior as Salmon???
-			if(_fishType.equalsIgnoreCase("SALMON")|| _fishType.equalsIgnoreCase("PARTICLE"))
+			if(_fishType.equalsIgnoreCase("SALMON"))
 				SalmonBasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
+			else if(_fishType.equalsIgnoreCase("PARTICLE"))
+				BasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
+			else
+				PTMUtil.systemExit("don't know how to deal with this fish type:" + _fishType+", system exit");
 		}
 		else if (_fishType.equalsIgnoreCase("SMELT"))
 			PTMUtil.systemExit("the method to set Dicu filter for smelt has been defined yet");

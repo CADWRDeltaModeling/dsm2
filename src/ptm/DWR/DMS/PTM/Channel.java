@@ -402,7 +402,7 @@ public class Channel extends Waterbody{
     
     if (Vave < 0.001f && Vave > -0.001f){
       if (Math.abs(Vave) < Float.MIN_VALUE)
-    	  Vave = 0.001f;
+    	  Vave = 0.001f; // if velocity is 0 return a positive 0.001
       else
     	  Vave = Vave/Math.abs(Vave)*0.001f;
     }
