@@ -154,7 +154,7 @@ module gtm_network
     
     !> interpolate external flows data (reservoir, qext and transfer) for node
     !> use common_variabls, only : npartition_t, n_resv, nresv_conn
-    subroutine interp_node(hydro_time_index, prev_resv, prev_resv_conn, prev_qext, prev_tran)
+    subroutine interp_network_ext(hydro_time_index, prev_resv, prev_resv_conn, prev_qext, prev_tran)
         implicit none
         integer, intent(in) :: hydro_time_index
         real(gtm_real), intent(in) :: prev_resv(n_resv)

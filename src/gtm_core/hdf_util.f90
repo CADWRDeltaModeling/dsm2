@@ -444,6 +444,7 @@ module hdf_util
                allocate(resv_geom(i)%resv_conn_no(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%int_node_no(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%ext_node_no(resv_geom(i)%n_resv_conn))
+               allocate(resv_geom(i)%network_id(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%is_gated(resv_geom(i)%n_resv_conn))
            end do
            

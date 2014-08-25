@@ -79,18 +79,18 @@ module dsm2_gtm_network
                 icell = dsm2_network(i)%cell_no(1)
                 if (dsm2_network(i)%up_down(1) .eq. 1) then  ! upstream boundary
                     grad(icell,:) = grad_hi(icell,:)
-                else                               ! downstream boundary
+                else                                         ! downstream boundary
                     grad(icell,:) = grad_lo(icell,:)
                 end if              
+            ! assign gradient for cells around junction to be zero--> first order accuracy
+            ! but this may run into issue of smoothing two close signals (delta uniform flow case)                
             elseif (dsm2_network(i)%junction_no .ne. 0) then
-                ! assign gradient for cells around junction to be zero--> first order accuracy
-                ! but this may run into issue of smoothing two close signals (delta uniform flow case)
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    grad(icell,:) = zero
                 end do
-            elseif (dsm2_network(i)%nonsequential==1) then
-                ! assign gradient for nonsequential adjucent cells to be zero--> first order accuracy
+            ! assign gradient for nonsequential adjucent cells to be zero--> first order accuracy     
+            elseif (dsm2_network(i)%nonsequential==1) then                
                 do j = 1, 2
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j)==0) then   !cell at upstream of link
@@ -120,7 +120,8 @@ module dsm2_gtm_network
                                          dx)
         use gtm_precision
         use error_handling
-        use common_variables, only: n_node, dsm2_network
+        use common_variables, only: n_node, dsm2_network, n_resv, resv_geom
+        use state_variables_network
         implicit none
         !--- args          
         integer,intent(in)  :: ncell                            !< Number of cells
@@ -137,7 +138,36 @@ module dsm2_gtm_network
         real(gtm_real) :: flow_tmp
         real(gtm_real) :: mass_tmp(nvar)
         real(gtm_real) :: conc_tmp(nvar)
-        integer :: i, j, icell   
+        real(gtm_real) :: up_count
+        real(gtm_real) :: vol
+        real(gtm_real) :: mass_resv(nvar)
+        integer :: network_id
+        integer :: i, j, k, icell      
+                 
+        ! recalculate concentration for reservoirs
+        do i = 1, n_resv
+            vol = resv_geom(i)%area * prev_resv_height(i)
+            mass_resv(:) = vol * prev_conc_resv(i,:)
+            do j = 1, resv_geom(i)%n_resv_conn
+                network_id = resv_geom(i)%network_id(j)
+                conc_tmp(:) = zero
+                up_count = zero 
+                do  k = 1, dsm2_network(network_id)%n_conn_cell
+                    if (dsm2_network(network_id)%up_down(k) .eq. 0) then !upstream cell
+                        up_count = up_count + one
+                        conc_tmp(:) = conc_tmp(:) + conc_hi(dsm2_network(network_id)%cell_no(k),:)
+                    end if
+                end do
+                conc_tmp(:) = conc_tmp(:)/up_count  !temporary upstream concentration around DSM2 node                
+                vol = vol + resv_flow(resv_geom(i)%resv_conn_no(j))*dt*sixty
+                if (resv_flow(resv_geom(i)%resv_conn_no(j)).gt.zero) then   ! flow from reservoir
+                    mass_resv(:) = mass_resv(:) + resv_flow(resv_geom(i)%resv_conn_no(j))*dt*sixty*prev_conc_resv(i,:)                
+                else   ! flow from channel
+                    mass_resv(:) = mass_resv(:) + resv_flow(resv_geom(i)%resv_conn_no(j))*dt*sixty*conc_tmp(:)
+                end if
+            end do
+            conc_resv(i,:) = mass_resv(:)/vol
+        end do
    
         do i = 1, n_node
             if (dsm2_network(i)%boundary_no > 0) then                    ! is a boundary
@@ -149,7 +179,7 @@ module dsm2_gtm_network
                 end if
             end if
          
-            if (dsm2_network(i)%junction_no > 0) then
+            if (dsm2_network(i)%junction_no .gt. 0) then
                 flow_tmp = zero 
                 mass_tmp(:) = zero
                 conc_tmp(:) = zero
@@ -163,12 +193,34 @@ module dsm2_gtm_network
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
                     endif                   
                 end do
+                ! temporarily calculated concentration to assign to seepage and diversion
                 if (flow_tmp==zero) then
-                    write(*,*) "WARNING: No flow flows into junction!!",icell               
+                    !write(*,*) "WARNING: No flow flows into junction!!",icell               
                     conc_tmp(:) = zero
                 else     
                     conc_tmp(:) = mass_tmp(:)/flow_tmp
                 end if
+                ! add external flows
+                if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network(i)%n_qext.gt.0)) then
+                    do j = 1, dsm2_network(i)%n_qext
+                        if ((qext_flow(dsm2_network(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.eq.1)) then    !drain
+                            mass_tmp(:) = mass_tmp(:) + node_conc(i,:)*qext_flow(dsm2_network(i)%qext_no(j))
+                            flow_tmp = flow_tmp + qext_flow(dsm2_network(i)%qext_no(j))
+                        elseif ((qext_flow(dsm2_network(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.eq.0)) then !drain but node concentration is absent
+                            write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                        else     ! seepage and diversion
+                            mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network(i)%qext_no(j))
+                            flow_tmp = flow_tmp + qext_flow(dsm2_network(i)%qext_no(j))                        
+                        end if
+                    end do                
+                end if                
+                if (flow_tmp==zero) then
+                    !write(*,*) "WARNING: No flow flows into junction!!",icell               
+                    conc_tmp(:) = zero
+                else     
+                    conc_tmp(:) = mass_tmp(:)/flow_tmp
+                end if
+                                                
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
@@ -183,7 +235,7 @@ module dsm2_gtm_network
             end if
        
             if (dsm2_network(i)%nonsequential .eq. 1) then  ! without this fixup, the error can be seen at DSM2 node 239
-                do j = 1, 2                              ! assign lo/hi face of the same cell to avoid discontinuity
+                do j = 1, 2                                 ! assign lo/hi face of the same cell to avoid discontinuity
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of link
                         flux_hi(icell,:) = conc_lo(icell,:)*flow_hi(icell)
@@ -193,16 +245,6 @@ module dsm2_gtm_network
                 end do
             end if   
             
-            !flow_chk = flow_chk + resv_flow(dsm2_node(i)%resv_conn_no(j))
-             
-            !do j = 1, dsm2_node(i)%n_qext
-            !    flow_chk = flow_chk + qext_flow(dsm2_node(i)%qext_no(j))
-            !end do
-            
-            !do j = 1, dsm2_node(i)%n_tran 
-            !    flow_chk = flow_chk + tran_flow(dsm2_node(i)%tran_no(j))
-            !end do 
-            !write(11,*) dsm2_node(i)%dsm2_node_no, flow_chk
         end do        
         return
     end subroutine  
@@ -224,7 +266,7 @@ module dsm2_gtm_network
         integer :: i, icell
         
         do i = 1, n_node
-            if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc==1) ) then  !if boundary and node concentration is given
+            if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc.eq.1) ) then  !if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)
                 if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
                     conc_lo(icell,:) = node_conc(i,:)

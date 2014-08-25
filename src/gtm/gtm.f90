@@ -63,15 +63,10 @@ program gtm
     integer :: nt
     real(gtm_real), allocatable :: prev_comp_flow(:)
     real(gtm_real), allocatable :: prev_comp_ws(:)
-    real(gtm_real), allocatable :: prev_resv(:)
-    real(gtm_real), allocatable :: prev_resv_conn(:)
-    real(gtm_real), allocatable :: prev_qext(:)
-    real(gtm_real), allocatable :: prev_tran(:)
-    real(gtm_real), allocatable :: flow_arr(:)
-    real(gtm_real), allocatable :: ws_arr(:)
-    real(gtm_real), allocatable :: resv_arr(:)
-    real(gtm_real), allocatable :: resv_conn_arr(:)
-    real(gtm_real), allocatable :: qext_arr(:)
+    real(gtm_real), allocatable :: prev_hydro_resv(:)
+    real(gtm_real), allocatable :: prev_hydro_resv_flow(:)
+    real(gtm_real), allocatable :: prev_hydro_qext(:)
+    real(gtm_real), allocatable :: prev_hydro_tran(:)
     real(gtm_real), allocatable :: cfl(:)
     real(gtm_real), allocatable :: disp_coef_lo(:)      !< Low side constituent dispersion coef. at new time
     real(gtm_real), allocatable :: disp_coef_hi(:)      !< High side constituent dispersion coef. at new time
@@ -142,17 +137,13 @@ program gtm
     nt = npartition_t + 1
     allocate(prev_comp_flow(n_comp))
     allocate(prev_comp_ws(n_comp))
-    allocate(prev_resv(n_resv))
-    allocate(prev_resv_conn(n_resv_conn))
-    allocate(prev_qext(n_qext))
-    allocate(flow_arr(n_comp))
-    allocate(ws_arr(n_comp))
-    allocate(resv_arr(n_resv))
-    allocate(resv_conn_arr(n_resv_conn))
-    allocate(qext_arr(n_qext))
+    allocate(prev_hydro_resv(n_resv))
+    allocate(prev_hydro_resv_flow(n_resv_conn))
+    allocate(prev_hydro_qext(n_qext))
+    allocate(prev_hydro_tran(n_tran))
     allocate(constituents(n_var))    
-    call allocate_hydro_ts()  
-    call allocate_network_tmp()
+    call allocate_hydro_ts 
+    call allocate_network_tmp
     call allocate_state(n_cell, n_var)
     call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_var)
     allocate(init_c(n_cell,n_var))
@@ -163,6 +154,10 @@ program gtm
     
     prev_comp_flow = LARGEREAL
     prev_comp_ws = LARGEREAL
+    prev_hydro_resv = LARGEREAL
+    prev_hydro_resv_flow = LARGEREAL
+    prev_hydro_qext = LARGEREAL
+    prev_hydro_tran = LARGEREAL
     
     linear_decay = constant_decay
     
@@ -212,8 +207,10 @@ program gtm
     call read_init_file(init_c, restart_file_name, n_cell, n_var)
     if (init_c(1,1) .ne. LARGEREAL) then
         conc = init_c
+        conc_resv = init_c
     else    
         conc = init_conc
+        conc_resv = init_conc
     end if    
 
     if (apply_diffusion)then
@@ -262,20 +259,20 @@ program gtm
             time_offset = memory_buffer*(iblock-1)
             call dsm2_hdf_ts(time_offset, memlen(iblock))
             if (prev_comp_flow(1)==LARGEREAL) then                             !if (slice_in_block .eq. 1) then
-                call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)
+                call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_hydro_resv, prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)
             end if
         end if
 
         !--- interpolate flow and water surface between computational points
         if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
-            call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws)
-            call interp_node(slice_in_block, prev_resv, prev_resv_conn, prev_qext, prev_tran)
-            prev_comp_flow(:) = hydro_flow(:,slice_in_block)
+            call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws) 
+            call interp_network_ext(slice_in_block, prev_hydro_resv, prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)
+            prev_comp_flow(:) = hydro_flow(:,slice_in_block)  ! keep track of prev_* to avoid index error at t_index=1
             prev_comp_ws(:) = hydro_ws(:,slice_in_block)      
-            prev_resv(:) = hydro_resv_height(:,slice_in_block)
-            prev_resv_conn(:) = hydro_resv_flow(:,slice_in_block)
-            prev_qext(:) = hydro_qext_flow(:,slice_in_block)
-            prev_tran(:) = hydro_tran_flow(:,slice_in_block)
+            prev_hydro_resv(:) = hydro_resv_height(:,slice_in_block)
+            prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
+            prev_hydro_qext(:) = hydro_qext_flow(:,slice_in_block)
+            prev_hydro_tran(:) = hydro_tran_flow(:,slice_in_block)
             current_slice = slice_in_block
         end if
                 
@@ -301,7 +298,7 @@ program gtm
                                 dble(t_index))                               
         write(11,*) current_time
         
-        if (t_index==1) then
+        if (t_index.eq.1) then
             call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
         end if    
                            
@@ -334,6 +331,7 @@ program gtm
         cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
         
         conc_prev = conc
+        prev_conc_resv = conc_resv
         if (apply_diffusion) then
             call dispersion_coef(disp_coef_lo,     &
                                  disp_coef_hi,     &
@@ -392,7 +390,11 @@ program gtm
             end if
         end if                           
         mass_prev = mass
-        area_prev = area                 
+        area_prev = area
+        prev_resv_height = resv_height
+        prev_resv_flow = resv_flow
+        prev_qext_flow = qext_flow
+        prev_tran_flow = tran_flow
     end do
     if (n_dssfiles .ne. 0) then
         call zclose(ifltab_in)  !!ADD A global to detect if dss is opened

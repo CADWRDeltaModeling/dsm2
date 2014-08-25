@@ -133,9 +133,10 @@ module common_variables
         real(gtm_real) :: area = 0.d0                !< average top area
         real(gtm_real) :: bot_elev = 0.d0            !< bottom elevation wrt datum
         integer :: n_resv_conn = LARGEINT            !< number of nodes connected using reservoir connections
-        integer, allocatable :: resv_conn_no(:)         !< reservoir connection no
+        integer, allocatable :: resv_conn_no(:)      !< reservoir connection no
         integer, allocatable :: int_node_no(:)       !< DSM2 internal node number
         integer, allocatable :: ext_node_no(:)       !< DSM2 grid node number
+        integer, allocatable :: network_id(:)        !< DSM2 network internal id (slightly different to DSM2-Hydro internal id)
         integer, allocatable :: is_gated(:)          !< 1: if a node is gated, 0: otherwise
      end type
      type(reservoir_t), allocatable :: resv_geom(:)
@@ -613,22 +614,7 @@ module common_variables
                         dsm2_network(i)%up_down(1) = conn(j)%conn_up_down
                      end if
                  end do
-             elseif (occurrence(i)==2) then
-                 allocate(dsm2_network(i)%cell_no(2))
-                 allocate(dsm2_network(i)%up_down(2))
-                 dsm2_network(i)%n_conn_cell = 2
-                 nj = 0
-                 do j = 1, n_conn
-                     if (unique_num(i) .eq. conn(j)%dsm2_node_no) then
-                         nj = nj + 1
-                         dsm2_network(i)%cell_no(nj) = conn(j)%cell_no
-                         dsm2_network(i)%up_down(nj) = conn(j)%conn_up_down
-                     end if
-                 end do
-                 if ( abs(dsm2_network(i)%cell_no(1)-dsm2_network(i)%cell_no(2)) > 1) then
-                     dsm2_network(i)%nonsequential = 1
-                 end if
-             elseif (occurrence(i)>2) then 
+             else 
                  allocate(dsm2_network(i)%cell_no(occurrence(i)))
                  allocate(dsm2_network(i)%up_down(occurrence(i)))             
                  n_junc = n_junc + 1
@@ -642,11 +628,15 @@ module common_variables
                          dsm2_network(i)%up_down(nj) = conn(j)%conn_up_down
                      end if
                  end do
+                 if ((dsm2_network(i)%n_conn_cell==2) .and. (abs(dsm2_network(i)%cell_no(1)-dsm2_network(i)%cell_no(2))> 1)) then
+                     dsm2_network(i)%nonsequential = 1
+                 end if                                  
              end if
              
              do j = 1, n_resv
                  do k = 1, resv_geom(j)%n_resv_conn
                      if (resv_geom(j)%ext_node_no(k)==unique_num(i)) then
+                         resv_geom(j)%network_id(k) = i
                          dsm2_network(i)%reservoir_no = resv_geom(j)%resv_no
                          dsm2_network(i)%resv_conn_no = resv_geom(j)%resv_conn_no(k)
                      end if

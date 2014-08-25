@@ -32,13 +32,20 @@ module state_variables_network
     
     !> Concentration in the previous time step,
     !> dimensions (nresv, nvar)
-    real(gtm_real), save, allocatable :: conc_resv_prev(:,:)
+    real(gtm_real), save, allocatable :: prev_conc_resv(:,:)
 
     real(gtm_real), save, allocatable :: resv_height(:)
     real(gtm_real), save, allocatable :: resv_flow(:)
     real(gtm_real), save, allocatable :: qext_flow(:)
     real(gtm_real), save, allocatable :: tran_flow(:)
     real(gtm_real), save, allocatable :: node_conc(:,:)
+    
+    real(gtm_real), save, allocatable :: prev_resv_height(:)
+    real(gtm_real), save, allocatable :: prev_resv_flow(:)
+    real(gtm_real), save, allocatable :: prev_qext_flow(:)
+    real(gtm_real), save, allocatable :: prev_tran_flow(:)
+    real(gtm_real), save, allocatable :: prev_node_conc(:,:)    
+    
         
     contains
     
@@ -60,31 +67,39 @@ module state_variables_network
          "a row without deallocating (memory leak)"
         
         allocate(resv_height(a_nresv), stat = istat)
+        allocate(prev_resv_height(a_nresv), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
-        resv_height      = LARGEREAL
+        resv_height        = LARGEREAL
+        prev_resv_height   = LARGEREAL
 
         allocate(resv_flow(a_nresv_conn), stat = istat)
+        allocate(prev_resv_flow(a_nresv_conn), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
-        resv_flow        = LARGEREAL
+        resv_flow         = LARGEREAL
+        prev_resv_flow    = LARGEREAL
 
         allocate(qext_flow(a_nqext), stat = istat)
+        allocate(prev_qext_flow(a_nqext), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
-        qext_flow        = LARGEREAL          
+        qext_flow         = LARGEREAL
+        prev_qext_flow    = LARGEREAL 
 
         allocate(tran_flow(a_ntran), stat = istat)
+        allocate(prev_tran_flow(a_ntran), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
-        tran_flow        = LARGEREAL           
+        tran_flow         = LARGEREAL 
+        prev_tran_flow    = LARGEREAL 
         
         allocate(conc_resv(a_nresv,a_nvar), stat = istat)
-        allocate(conc_resv_prev(a_nresv,a_nvar), stat = istat)
+        allocate(prev_conc_resv(a_nresv,a_nvar), stat = istat)
         
         return
     end subroutine
@@ -100,11 +115,11 @@ module state_variables_network
         n_qext = 0
         n_tran = 0
         n_var = 0
-        deallocate(resv_height)
-        deallocate(resv_flow)
-        deallocate(qext_flow)
-        deallocate(tran_flow)
-        deallocate(conc_resv, conc_resv_prev)
+        deallocate(resv_height, prev_resv_height)
+        deallocate(resv_flow, prev_resv_flow)
+        deallocate(qext_flow, prev_qext_flow)
+        deallocate(tran_flow, prev_tran_flow)
+        deallocate(conc_resv, prev_conc_resv)
         return
     end subroutine    
 
