@@ -68,12 +68,12 @@ program gtm
     real(gtm_real), allocatable :: prev_hydro_qext(:)
     real(gtm_real), allocatable :: prev_hydro_tran(:)
     real(gtm_real), allocatable :: cfl(:)
-    real(gtm_real), allocatable :: disp_coef_lo(:)      !< Low side constituent dispersion coef. at new time
-    real(gtm_real), allocatable :: disp_coef_hi(:)      !< High side constituent dispersion coef. at new time
-    real(gtm_real), allocatable :: disp_coef_lo_prev(:) !< Low side constituent dispersion coef. at old time
-    real(gtm_real), allocatable :: disp_coef_hi_prev(:) !< High side constituent dispersion coef. at old time
-    real(gtm_real) :: theta = half                      !< Crank-Nicolson implicitness coeficient
-    real(gtm_real), parameter :: constant_dispersion = 0  !6000.d0
+    real(gtm_real), allocatable :: disp_coef_lo(:)           !< Low side constituent dispersion coef. at new time
+    real(gtm_real), allocatable :: disp_coef_hi(:)           !< High side constituent dispersion coef. at new time
+    real(gtm_real), allocatable :: disp_coef_lo_prev(:)      !< Low side constituent dispersion coef. at old time
+    real(gtm_real), allocatable :: disp_coef_hi_prev(:)      !< High side constituent dispersion coef. at old time
+    real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
+    real(gtm_real), parameter :: constant_dispersion = zero  !6000.d0
     
     integer :: up_comp, down_comp    
     integer :: time_offset
@@ -87,6 +87,7 @@ program gtm
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .false.                 ! Flag to switch on/off slope limiter  
     real(gtm_real), allocatable :: init_c(:,:)
+    real(gtm_real), allocatable :: init_r(:,:)
     !real(gtm_real), parameter :: constant_decay = 5.0d-5
     real(gtm_real), parameter :: constant_decay = zero
     character(len=130) :: init_input_file                       ! initial input file on command line [optional]
@@ -147,11 +148,11 @@ program gtm
     call allocate_state(n_cell, n_var)
     call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_var)
     allocate(init_c(n_cell,n_var))
+    allocate(init_r(n_resv,n_var))
     allocate(linear_decay(n_var))
     allocate(cfl(n_cell))    
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
-    
     prev_comp_flow = LARGEREAL
     prev_comp_ws = LARGEREAL
     prev_hydro_resv = LARGEREAL
@@ -204,14 +205,17 @@ program gtm
     prev_day =  "01JAN1000"       ! to initialize for screen printing only
 
     restart_file_name = trim(gtm_io(1,1)%filename)   
-    call read_init_file(init_c, restart_file_name, n_cell, n_var)
+    call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var)
     if (init_c(1,1) .ne. LARGEREAL) then
         conc = init_c
-        conc_resv = init_c
     else    
         conc = init_conc
-        conc_resv = init_conc
     end if    
+    if (init_r(1,1) .ne. LARGEREAL) then
+        conc_resv = init_r
+    else    
+        conc_resv = init_conc
+    end if      
 
     if (apply_diffusion)then
         call dispersion_coef(disp_coef_lo,         &
@@ -306,7 +310,12 @@ program gtm
             call prim2cons(mass_prev, conc, area, n_cell, n_var)
             area_prev = area
             area_lo_prev = area_lo
-            area_hi_prev = area_hi
+            area_hi_prev = area_hi          
+            prev_resv_height = resv_height
+            prev_resv_flow = resv_flow
+            prev_qext_flow = qext_flow
+            prev_tran_flow = tran_flow
+            prev_conc_resv = conc_resv
         end if
         
         !
@@ -369,11 +378,18 @@ program gtm
         !              
         if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
             time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
-            call write_qual_hdf(qual_hdf,                 &
-                                conc,                     &
-                                n_cell,                   &
-                                n_var,                    &
+            call write_qual_hdf(qual_hdf,                     &
+                                conc,                         &
+                                n_cell,                       &
+                                n_var,                        &
                                 time_index_in_gtm_hdf)     
+            if (n_resv .gt. 0) then
+                call write_qual_hdf_resv(qual_hdf,            & 
+                                         conc_resv,           & 
+                                         n_resv,              &
+                                         n_var,               &  
+                                         time_index_in_gtm_hdf)                                
+            end if
             if (debug_print==.true.) then                                                 
                 call write_qual_hdf_ts(qual_hdf%cell_flow_id, &
                                        flow,                  & 
@@ -402,7 +418,9 @@ program gtm
     end if   
     deallocate(pathinput)
     deallocate(node_conc)   
-    deallocate(constituents)             
+    deallocate(constituents)
+    deallocate(init_c)
+    deallocate(init_r)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state
