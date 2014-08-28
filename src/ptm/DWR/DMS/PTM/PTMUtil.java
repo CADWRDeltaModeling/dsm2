@@ -187,6 +187,11 @@ public class PTMUtil {
 		String[] items = numberLine.split("[,:\\s\\t]+");
 		return Double.parseDouble(items[1]);
 	}
+	// get a double from a line with format name: double
+	public static float getFloatFromLine(String numberLine) throws NumberFormatException{
+		String[] items = numberLine.split("[,:\\s\\t]+");
+		return Float.parseFloat(items[1]);
+	}
 	
 	public static ArrayList<Integer> getInts(String numberLine){
 		ArrayList<Integer> ints = new ArrayList<Integer>();

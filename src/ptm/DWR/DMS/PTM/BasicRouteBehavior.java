@@ -8,7 +8,7 @@ package DWR.DMS.PTM;
  *
  */
 public class BasicRouteBehavior {
-	static double _dicuEfficiency = 0.0;
+	static float _dicuEfficiency = 0.0f;
 
 	/**
 	 * 
@@ -18,7 +18,9 @@ public class BasicRouteBehavior {
 	}
 
 	
-	public static void setDicuFilterEfficiency(double eff) {
+	public static void setDicuFilterEfficiency(float eff) {
+		if (eff < 0.0)
+			PTMUtil.systemExit("negative Dicu efficiency coefficient, system exit.");
 		_dicuEfficiency = eff;
 	}
 	/*
@@ -74,6 +76,9 @@ public class BasicRouteBehavior {
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
 		float waterbodyInflows = p.nd.getTotalWaterbodyInflows();
+		float totalAgDiversions = p.nd.getTotalAgDiversion();
+		if (PTMUtil.floatNearlyEqual(waterbodyInflows, totalAgDiversions))
+			waterbodyInflows = totalAgDiversions*_dicuEfficiency;
 		
 		// after prescreen() call, _waterbodyInflows = _rand*_waterbodyInflows
 	    if (!prescreen(p, waterbodyInflows))
@@ -90,9 +95,9 @@ public class BasicRouteBehavior {
 	    Waterbody thisWb = null;
 	    float flow = 0.0f;
 	    float totalAgDivFlows = p.nd.getTotalAgDiversion();
-	    float totalInflowWOAgDiv = p.nd.getTotalWaterbodyInflows() - totalAgDivFlows;
+	    float totalInflowWOAgDiv = p.nd.getTotalWaterbodyInflows() - totalAgDivFlows; 
 	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
-	    boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
+	    //boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
 	    do {
 	    	waterbodyId ++;
 	    	thisWb = p.nd.getWaterbody(waterbodyId);
@@ -100,19 +105,17 @@ public class BasicRouteBehavior {
 		    float modFlow = 0.0f;
 	    	if (thisWb.isAgSeep() || (p.nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
 	    		modFlow = 0;
-	    	else if (dicuFilter){
-	    		if (thisWb.isAgDiv())
-	    			modFlow = ((float) (thisFlow*_dicuEfficiency)); 
-	    		else if (totalInflowWOAgDiv > 0.0f)
-	    			modFlow = thisFlow + (thisFlow/totalInflowWOAgDiv)*totalAgDivLeftOver;
-	    		else
-		    		modFlow = thisFlow;
-	    	}
+	    	else if (thisWb.isAgDiv())
+	    		// only allow _dicuEfficiency*ag_flow to go through 
+	    		modFlow = ((float) (thisFlow*_dicuEfficiency)); 
+	    	else if (totalInflowWOAgDiv > 0.0f)
+	    		modFlow = thisFlow + (thisFlow/totalInflowWOAgDiv)*totalAgDivLeftOver;
 	    	else
-	    		modFlow = thisFlow;
+		    	modFlow = thisFlow;
 	    	flow += modFlow;	    	
 	    	// _waterbodyInflows here is total _waterbodyInflows * _rand
-	    }while (flow < waterbodyInflows && waterbodyId < p.nd.getNumberOfWaterbodies());
+	    	// waterbodyId start from 0 
+	    }while (flow < waterbodyInflows && waterbodyId < (p.nd.getNumberOfWaterbodies()-1));
 	    // get a pointer to the waterbody in which pParticle entered.
 	    	    
 	    p.wb = thisWb;

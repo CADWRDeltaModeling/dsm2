@@ -26,12 +26,14 @@ public class RouteInputs {
 			ArrayList<String> specialBehaviorInText = PTMUtil.getInputBlock(inText, "SPECIAL_BEHAVIORS", "END_SPECIAL_BEHAVIORS");
 			
 			if( barriersInText == null || barriersInText.size() < 6)
-				System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
+				System.err.println("");
+				//System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
 			else
 				setBarriers(barriersInText);
 			
 			if( screensInText == null || screensInText.size() < 2)
-				System.err.println("WARNING: no fish screen info found or the info is not properly defined in behavior inputs.");
+				System.err.println("");
+				//System.err.println("WARNING: no fish screen info found or the info is not properly defined in behavior inputs.");
 			else
 				setFishScreens(screensInText);
 			
@@ -39,15 +41,16 @@ public class RouteInputs {
 				System.err.println("WARNING: no dicu info found or the info is not properly defined in behavior inputs.");
 			else{
 				try{
-					_dicuFilterEfficiency = PTMUtil.getDoubleFromLine(dicuInText.get(0).trim());
+					_dicuFilterEfficiency = PTMUtil.getFloatFromLine(dicuInText.get(0).trim());
 				}catch (NumberFormatException e){
 					e.printStackTrace();
-					PTMUtil.systemExit("expect a double for dicu efficiency coefficient but get:" + dicuInText.get(0));	
+					PTMUtil.systemExit("expect a float for dicu efficiency coefficient but get:" + dicuInText.get(0));	
 				}					
 				setDicuFilterEfficiency();
 			}
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
-				System.err.println("WARNING: no special routing Behavior defined or defined improperly in behavior inputs.");
+				System.err.println("");
+				//System.err.println("WARNING: no special routing Behavior defined or defined improperly in behavior inputs.");
 			else
 				setSpecialBehaviors(specialBehaviorInText);
 		}
@@ -105,7 +108,7 @@ public class RouteInputs {
 		return true;
 	}
 	
-	public double getDicuFilterEfficiency(){return _dicuFilterEfficiency;}
+	public float getDicuFilterEfficiency(){return _dicuFilterEfficiency;}
 	public RouteHelper getRouteHelper(){ return _routeHelper;}
 	
 	private void setHelper(){
@@ -127,13 +130,11 @@ public class RouteInputs {
 				SalmonBasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
 			else if(_fishType.equalsIgnoreCase("PARTICLE"))
 				BasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
+			else if (_fishType.equalsIgnoreCase("SMELT"))
+				PTMUtil.systemExit("the method to set Dicu filter for smelt has been defined yet");
 			else
 				PTMUtil.systemExit("don't know how to deal with this fish type:" + _fishType+", system exit");
 		}
-		else if (_fishType.equalsIgnoreCase("SMELT"))
-			PTMUtil.systemExit("the method to set Dicu filter for smelt has been defined yet");
-		else
-			PTMUtil.systemExit("the method to set Dicu filter for other species has been defined yet");
 	}
 	
 	private void setSpecialBehaviors(ArrayList<String> inText){
@@ -275,7 +276,7 @@ public class RouteInputs {
 	}
 
 	private ArrayList<IntBuffer> _fishScreens = null;
-	private double _dicuFilterEfficiency;
+	private float _dicuFilterEfficiency;
 	private ArrayList<NonPhysicalBarrier> _barriers = null;
 	private RouteHelper _routeHelper = null;
 	private String _fishType = null;

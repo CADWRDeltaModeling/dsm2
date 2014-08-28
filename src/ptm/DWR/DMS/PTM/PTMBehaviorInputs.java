@@ -28,7 +28,9 @@ public class PTMBehaviorInputs {
 		int numOfGroups = PTMUtil.getInt(releaseInputText.get(0));
 		for (int i = 1; i< numOfGroups + 1; i++){
 			ArrayList<String> groupText = PTMUtil.getInputBlock(releaseInputText, "GROUP_"+i, "END_GROUP_"+i);
-			if (groupText.size()<3)
+			if (groupText == null)
+				PTMUtil.systemExit("No Fish_Release_Inputs Group_"+i+" inputs, system exit.");
+			else if (groupText.size()<3)
 				PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+" system exit.");
 			Integer nodeId = PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
 			String [] title = groupText.get(1).trim().split("[,\\s\\t]+");
@@ -100,7 +102,8 @@ public class PTMBehaviorInputs {
 			extractReleaseInputs(releaseInputs);
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
 		if (survivalInputText == null)
-			System.err.println("WARNING: no survival behavior input found!");
+			System.err.println("");
+			//System.err.println("WARNING: no survival behavior input found!");
 		_survivalInputs = new SurvivalInputs(survivalInputText,  _fishType);
 		ArrayList<String> swimInputText = PTMUtil.getInputBlock(inputText, "SWIM_INPUTS", "END_SWIM_INPUTS");
 		if (swimInputText == null)
