@@ -62,7 +62,7 @@ module common_variables
      real(gtm_real) :: gtm_end_jmin = LARGEREAL        !< gtm end time
      integer :: gtm_ntideblocks = LARGEINT             !< gtm time blocks
      real(gtm_real) :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
-     logical :: debug_print = .false.
+     logical :: debug_print = .true.
      
      type gtm_io_files_t
           character(len=130) :: filename               !< filename

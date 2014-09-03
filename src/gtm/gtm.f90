@@ -206,17 +206,21 @@ program gtm
 
     restart_file_name = trim(gtm_io(1,1)%filename)   
     call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var)
-    if (init_c(1,1) .ne. LARGEREAL) then
-        conc = init_c
-    else    
-        conc = init_conc
-    end if    
-    if (init_r(1,1) .ne. LARGEREAL) then
-        conc_resv = init_r
-    else    
-        conc_resv = init_conc
-    end if      
-
+    if (n_cell .gt. 0) then
+        if (init_c(1,1) .ne. LARGEREAL) then
+            conc = init_c
+        else    
+            conc = init_conc
+        end if    
+    end if
+    if (n_resv .gt. 0) then
+        if (init_r(1,1) .ne. LARGEREAL) then
+            conc_resv = init_r
+        else    
+            conc_resv = init_conc
+        end if      
+    end if
+    
     if (apply_diffusion)then
         call dispersion_coef(disp_coef_lo,         &
                              disp_coef_hi,         &
@@ -300,7 +304,7 @@ program gtm
                                 n_qext,       &
                                 n_tran,       &
                                 dble(t_index))                               
-        write(11,*) current_time
+
         
         if (t_index.eq.1) then
             call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 

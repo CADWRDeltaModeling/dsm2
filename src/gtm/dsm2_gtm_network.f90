@@ -84,7 +84,7 @@ module dsm2_gtm_network
                 end if              
             ! assign gradient for cells around junction to be zero--> first order accuracy
             ! but this may run into issue of smoothing two close signals (delta uniform flow case)                
-            elseif (dsm2_network(i)%junction_no .ne. 0) then
+            elseif ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    grad(icell,:) = zero
@@ -146,7 +146,7 @@ module dsm2_gtm_network
                  
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
-            vol = resv_geom(i)%area * prev_resv_height(i)
+            vol = resv_geom(i)%area * million * prev_resv_height(i)
             mass_resv(:) = vol * prev_conc_resv(i,:)
             do j = 1, resv_geom(i)%n_resv_conn
                 network_id = resv_geom(i)%network_id(j)
@@ -159,36 +159,38 @@ module dsm2_gtm_network
                     end if
                 end do
                 conc_tmp(:) = conc_tmp(:)/up_count  !temporary upstream concentration around DSM2 node                
-                vol = vol + resv_flow(resv_geom(i)%resv_conn_no(j))*dt*sixty
+                vol = vol - resv_flow(resv_geom(i)%resv_conn_no(j))*dt
                 if (resv_flow(resv_geom(i)%resv_conn_no(j)).gt.zero) then   ! flow from reservoir
-                    mass_resv(:) = mass_resv(:) + resv_flow(resv_geom(i)%resv_conn_no(j))*dt*sixty*prev_conc_resv(i,:)                
+                    mass_resv(:) = mass_resv(:) - resv_flow(resv_geom(i)%resv_conn_no(j))*dt*prev_conc_resv(i,:)                
                 else   ! flow from channel
-                    mass_resv(:) = mass_resv(:) + resv_flow(resv_geom(i)%resv_conn_no(j))*dt*sixty*conc_tmp(:)
+                    mass_resv(:) = mass_resv(:) - resv_flow(resv_geom(i)%resv_conn_no(j))*dt*conc_tmp(:)
                 end if
+                !write(22,'(f15.0,i3,3f20.3,2f20.10)') time, j, resv_flow(resv_geom(i)%resv_conn_no(j)), vol, mass_resv(1), prev_conc_resv(i,1), conc_tmp(1)
             end do
             conc_resv(i,:) = mass_resv(:)/vol
         end do
    
         do i = 1, n_node
-            if (dsm2_network(i)%boundary_no > 0) then                    ! is a boundary
+            ! adjust flux for boundaries
+            if (dsm2_network(i)%boundary_no > 0) then       
                 icell = dsm2_network(i)%cell_no(1)
                 if ( dsm2_network(i)%up_down(1) .eq. 1) then             ! upstream boundary
                     flux_lo(icell,:) = conc_lo(icell,:)*flow_lo(icell)
                 else
                     flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)
                 end if
-            end if
-         
+            end if            
+            ! adjust flux for junctions
             if (dsm2_network(i)%junction_no .gt. 0) then
                 flow_tmp = zero 
                 mass_tmp(:) = zero
                 conc_tmp(:) = zero
-                do j = 1, dsm2_network(i)%n_conn_cell    ! counting flow into the junctions
+                do j = 1, dsm2_network(i)%n_conn_cell     ! counting flow into the junctions
                     icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)>zero) then        !cell at updstream of junction
+                    if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)>zero) then     !cell at updstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
                         flow_tmp = flow_tmp + flow_hi(icell)
-                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then    !cell at downdstream of junction
+                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then !cell at downdstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
                     endif                   
@@ -212,15 +214,16 @@ module dsm2_gtm_network
                             mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network(i)%qext_no(j))                        
                         end if
-                    end do                
+                    end do
+                    if (flow_tmp==zero) then
+                        !write(*,*) "WARNING: No flow flows into junction!!",icell               
+                        conc_tmp(:) = zero
+                    else     
+                        conc_tmp(:) = mass_tmp(:)/flow_tmp
+                    end if       
+                    !write(22,'(i5,f20.10)') i, conc_tmp(1)
                 end if                
-                if (flow_tmp==zero) then
-                    !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                    conc_tmp(:) = zero
-                else     
-                    conc_tmp(:) = mass_tmp(:)/flow_tmp
-                end if
-                                                
+                             
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)

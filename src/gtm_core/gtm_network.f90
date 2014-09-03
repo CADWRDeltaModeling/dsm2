@@ -49,18 +49,18 @@ module gtm_network
         implicit none
         integer :: istat = 0
         character(len=128) :: message
+        allocate(prev_flow_cell_lo(n_cell), stat = istat)
+        allocate(prev_flow_cell_hi(n_cell), stat = istat)
         allocate(flow_mesh_lo(npartition_t+1, n_cell), stat = istat)
         allocate(flow_mesh_hi(npartition_t+1, n_cell), stat = istat)
         allocate(area_mesh_lo(npartition_t+1, n_cell), stat = istat)
-        allocate(area_mesh_hi(npartition_t+1, n_cell), stat = istat)
+        allocate(area_mesh_hi(npartition_t+1, n_cell), stat = istat)   
+        allocate(flow_volume_change(npartition_t, n_cell), stat = istat)
+        allocate(area_volume_change(npartition_t, n_cell), stat = istat)         
         allocate(resv_height_mesh(npartition_t+1, n_resv), stat = istat)
         allocate(resv_flow_mesh(npartition_t+1, n_resv_conn), stat = istat)
         allocate(qext_flow_mesh(npartition_t+1, n_qext), stat = istat)
-        allocate(tran_flow_mesh(npartition_t+1, n_tran), stat = istat)        
-        allocate(flow_volume_change(npartition_t, n_cell), stat = istat)
-        allocate(area_volume_change(npartition_t, n_cell), stat = istat)        
-        allocate(prev_flow_cell_lo(n_cell), stat = istat)
-        allocate(prev_flow_cell_hi(n_cell), stat = istat)
+        allocate(tran_flow_mesh(npartition_t+1, n_tran), stat = istat)           
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
