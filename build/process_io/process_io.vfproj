@@ -13,8 +13,8 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/></Configuration>
 		<Configuration Name="Release|Win32" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true"/>
-				<Tool Name="VFLibrarianTool"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"/>
+				<Tool Name="VFLibrarianTool" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib" IgnoreDefaultLibraryNames="libc.lib,msvcrt.lib,libcmt.lib,msvcrtd.lib"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
 				<Tool Name="VFCustomBuildTool"/>
@@ -29,7 +29,8 @@
 		<File RelativePath="..\..\src\process_io\buffer_gtm_input_qual.f90"/>
 		<File RelativePath="..\..\src\process_io\codes_conv_nonconservative.f90"/>
 		<File RelativePath="..\..\src\process_io\codes_conv_objno.f90">
-			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
+			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/>
+			<FileConfiguration Name="Release|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\..\src\process_io\common_dsm2_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_qual.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_vars.f90"/>

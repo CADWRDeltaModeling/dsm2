@@ -17,8 +17,8 @@
             integer, intent(in) :: ncell
             character(len=*), intent(in) :: infile_name
             character(len=*), intent(in) :: outfile_name            
-            real(gtm_real) :: conc(ncell)                              ! local variable
-            integer :: i, j                                  ! local variable
+            real(gtm_real) :: conc(ncell)                     ! local variable
+            integer :: i, j                                   ! local variable
             open(1101, file=infile_name)
             open(1102, file=outfile_name)
             do while (.true.)
