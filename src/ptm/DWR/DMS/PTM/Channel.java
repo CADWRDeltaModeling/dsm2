@@ -427,6 +427,8 @@ public class Channel extends Waterbody{
     for(int i=1; i<MAX_PROFILE; i++)
       vertProfile[i] = (float) (1.0f + (0.1f/VONKARMAN)*(1.0f + Math.log(((float)i)/MAX_PROFILE)));
   }
+  public void setOutputDistance(int distance){ _outputChannelDist = distance;}
+  public int getOutputDistance(){return _outputChannelDist;}
   /**
    *  Number of cross sections
    */
@@ -460,6 +462,7 @@ public class Channel extends Waterbody{
   private String _chanGroup = null;
   private float _swimmingVelocity = 0.0f;
   private boolean _isSwimmingVelSet = false;
+  private int _outputChannelDist = 0;
   
   /**
    *  Bottom elevation of Channel or reservoir

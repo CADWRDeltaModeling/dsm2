@@ -326,6 +326,11 @@ public abstract class Waterbody{
   }
   public void setCurrentBarrierOp (int nodeId, int barrierOp){ _barrierOpMap.put(nodeId, barrierOp);}
   public int getCurrentBarrierOp (int nodeId) {return _barrierOpMap.get(nodeId);}
+  public void setOutputWb() {_isOutputWb = true;}
+  public boolean isOutputWb() { return _isOutputWb;}
+  abstract public void setOutputDistance(int distance);
+  abstract public int getOutputDistance();
+  private boolean _isOutputWb = false;
   /**
    *  Index in PTMEnv Waterbody array
    */

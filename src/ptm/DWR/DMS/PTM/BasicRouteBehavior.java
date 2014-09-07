@@ -85,9 +85,10 @@ public class BasicRouteBehavior {
 	    	return;
 	    
 	    waterbodyInflows = p.nd.getRandomNumber()*waterbodyInflows;
-		  
 	    if (Math.abs(waterbodyInflows) < Float.MIN_VALUE){
 	      p.particleWait = true;
+	      if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
+		    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	
 	      return;
 	    }
 	    
@@ -112,7 +113,13 @@ public class BasicRouteBehavior {
 	    		modFlow = thisFlow + (thisFlow/totalInflowWOAgDiv)*totalAgDivLeftOver;
 	    	else
 		    	modFlow = thisFlow;
-	    	flow += modFlow;	    	
+	    	flow += modFlow;
+	    	
+	    	//TODO clean up
+	    	/*
+	    	if (p.getId() == 6 && PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) == 350)
+	    		System.err.println("age:"+p.age/60+"  wb:"+PTMHydroInput.getExtFromIntChan(thisWb.getEnvIndex())+"  modflow:"+modFlow+ "  thisFlow:"+thisFlow);
+	    		*/
 	    	// _waterbodyInflows here is total _waterbodyInflows * _rand
 	    	// waterbodyId start from 0 
 	    }while (flow < waterbodyInflows && waterbodyId < (p.nd.getNumberOfWaterbodies()-1));

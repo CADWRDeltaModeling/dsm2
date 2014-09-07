@@ -83,5 +83,10 @@ class Conveyor extends Waterbody {
 	      return (-flowAt[nodeId]);
 	    return (flowAt[nodeId]);
 	  }
+  public void setOutputDistance(int distance){
+	  if (distance != 0)
+		  PTMUtil.systemExit("a conveyor doesn't have distance, please check the behavior input file to make sure output location info is set properly, system exit.");
+  }
+  public int getOutputDistance(){return 0;}
   private String _name = null;
 }

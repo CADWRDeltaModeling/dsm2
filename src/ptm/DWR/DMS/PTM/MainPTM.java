@@ -185,7 +185,7 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-            
+             
             //Environment.getHydroInfo(startTime-PTMTimeStep*4);//@todo: warning if < hydro start time 
             // initialize current model time
             //   Globals.currentModelTime = startTime;

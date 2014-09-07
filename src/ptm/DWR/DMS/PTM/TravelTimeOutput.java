@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Calendar;
 import java.util.ArrayList;
+import java.nio.IntBuffer;
 
 /**
  * @author xwang
@@ -22,24 +23,29 @@ public class TravelTimeOutput {
 		if (outText == null)
 			System.err.println("Warning: travel time output info is not defined in behavior input file!");
 		else{
-			String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE"};
+			String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE", "STATION_NAME"};
 			PTMUtil.checkTitle(outText.get(0), shouldBe);
-			//TODO only allow one output for now, may change later
-			if (outText.size()<2 || outText.size() > 2)
-				PTMUtil.systemExit("only allow to output travel times at one station, please revise travel time output in behavior input file");
-			setIdsDistance(outText.get(1).trim().split("[,\\s\\t]+"));
+			if (outText.size()<2 )
+				PTMUtil.systemExit("travel time output stations are not entered correctly, please revise them in behavior input file");
+			setIdsDistance(outText);
 		}
 	}
 	//public void setOutputNodeId(int nodeId){_outputNodeId = nodeId;}
 	//public void setOutputWbId(int wbId){_outputWbId = wbId;}
 	//public void setOutputChannelDistance(float distance){_distanceFromUpNode = distance;}
-	public void setTravelTime(Integer releaseNodeId, Calendar releaseTime, Integer pid, Float travelTimeInMin){
+	public void setTravelTime(int nodeId, int wbId, int distance, Integer releaseNodeId, Calendar releaseTime, Integer pid, Float travelTimeInMin){ 
+		IntBuffer station = IntBuffer.wrap(new int[]{nodeId, wbId, distance});
 		if (_travelTimeOutput == null)
-				_travelTimeOutput = new HashMap<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>>();
-		Map<Calendar, ArrayList <Pair<Integer, Float>>> travelTimesPerNode = _travelTimeOutput.get(releaseNodeId);
+				_travelTimeOutput = new HashMap<IntBuffer, Map<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>>>();
+		Map<Integer, Map<Calendar, ArrayList <Pair<Integer, Float>>>> travelTimesPerStation = _travelTimeOutput.get(station);
+		if (travelTimesPerStation == null){
+			travelTimesPerStation = new HashMap<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>>();
+			_travelTimeOutput.put(station, travelTimesPerStation);
+		}
+		Map<Calendar, ArrayList <Pair<Integer, Float>>> travelTimesPerNode = travelTimesPerStation.get(releaseNodeId);
 		if (travelTimesPerNode == null){
 			travelTimesPerNode = new HashMap<Calendar, ArrayList<Pair<Integer, Float>>>();
-			_travelTimeOutput.put(releaseNodeId, travelTimesPerNode);
+			travelTimesPerStation.put(releaseNodeId, travelTimesPerNode);
 		}
 		ArrayList <Pair<Integer, Float>> travelTimesPerRelease = travelTimesPerNode.get(releaseTime);
 		if (travelTimesPerRelease == null){
@@ -49,41 +55,90 @@ public class TravelTimeOutput {
 		Pair<Integer, Float> travelTime = new Pair<Integer, Float>(pid, travelTimeInMin); 
 		travelTimesPerRelease.add(travelTime);
 	}
+	
+	public void setOutputNodeInfo(Node[] allNodes){
+	    //nodeArray starts from 1 PTMFixedInput.java line 287
+		if (_outputStations == null)
+			System.err.println("WARNING: no output station info avaiable while setting up node info");
+		else
+			for (IntBuffer station: _outputStations)
+				allNodes[station.get(0)].setOutputNode();
+	}
+	public void setOutputWbInfo(Waterbody[] allWbs){
+		//wbArray start from 1 see PTMFixedInput.java line 180
+		//Channels are first filled in wbArray
+		if (_outputStations == null)
+			System.err.println("WARNING: no water body output station info avaiable while setting up water body info");
+		else{
+			for (IntBuffer station: _outputStations){
+				Waterbody w = allWbs[station.get(1)];
+				w.setOutputWb();
+				// only channels need to set distance
+				if (w.getPTMType() == Waterbody.CHANNEL){
+					Channel c = (Channel) w;
+					if (!c.getUpNode().isOutputNode())
+						PTMUtil.systemExit("the node specified in the input file for the output channel:"+
+									PTMHydroInput.getExtFromIntChan(station.get(1))+" is not an upstream node. Please check.");
+					else{
+						int d = station.get(2);
+						if (d == -999999)
+							c.setOutputDistance((int) Math.round(c.getLength()));
+						else
+							c.setOutputDistance(d);
+					}
+				}
+			}
+		}
+	}
 	public void travelTimeOutput(){
 		if (_travelTimeOutput == null){
 			System.err.println("warning: entire travel time map is empty. no travel time output!");
 			return;
 		}
-		for (Integer n: _travelTimeOutput.keySet()){
-			BufferedWriter ttWriter = PTMUtil.getOutputBuffer("output/Node"+PTMHydroInput.getExtFromIntNode(n)+"-Chan"
-																+ PTMHydroInput.getExtFromIntChan(getOutputWbId()) 
-																+ "Dist" + (int)getOutputChannelDistance()+"-TravelTimeInMin.csv");
-			Map<Calendar, ArrayList<Pair<Integer, Float>>> m = _travelTimeOutput.get(n);
-			if (m == null){
-				PTMUtil.systemExit("try to write travel time to a file but the map with the release node:" + n
-						+" is empty, system exit.");
-			}
-			try{
-				ttWriter.write("PID".concat(",").concat("Release_Node").concat(",").concat("Release_Time").concat(",").concat("Travel_Time(Min)"));
-				ttWriter.newLine();
-				for (Calendar c: m.keySet()){
-					ArrayList<Pair<Integer, Float>> tts = m.get(c);
-					for (Pair<Integer, Float> tt: tts){
-						ttWriter.write(tt.getFist().toString().concat(",").
-								concat((new Integer(PTMHydroInput.getExtFromIntNode(n))).toString()).concat(",").concat(c.getTime().toString()).concat(",").
-							    concat(tt.getSecond().toString()));
-					ttWriter.newLine();
+		try{
+			BufferedWriter ttWriter = PTMUtil.getOutputBuffer("output/travel_time_in_min.csv");
+			ttWriter.write("PID".concat(",").concat("Release_Node").concat(",").concat("Release_Time").concat(",").concat("Detect_Sta").concat(",").concat("Travel_Time(Min)"));
+			ttWriter.newLine();
+			for (IntBuffer station: _travelTimeOutput.keySet()){
+				int[] wbNd = {station.get(0), station.get(1)};
+				String stationName = _stationNames.get(IntBuffer.wrap(wbNd));
+				if (stationName == null)
+					PTMUtil.systemExit("try to output travel time, but no station name found, node Id:"
+							+ PTMHydroInput.getExtFromIntNode(station.get(0)));
+				Map<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>> travelTimePerStation = _travelTimeOutput.get(station);
+				if (travelTimePerStation == null)
+					System.err.println("warning: no travel time recorded for station:" + stationName);
+				else{
+					for (Integer n: travelTimePerStation.keySet()){
+						Map<Calendar, ArrayList<Pair<Integer, Float>>> travelTimePerNode = travelTimePerStation.get(n);
+						if (travelTimePerNode == null){
+							PTMUtil.systemExit("try to write travel time to a file but no record found with the release node:" 
+									+ PTMHydroInput.getExtFromIntNode(n) +" , system exit.");
+						}
+						for (Calendar c: travelTimePerNode.keySet()){
+							ArrayList<Pair<Integer, Float>> tts = travelTimePerNode.get(c);
+							if (tts == null)
+								PTMUtil.systemExit("try to write travel time to a file but no record found with the release node:" 
+										+ PTMHydroInput.getExtFromIntNode(n) +" and time:" +c.getTime()+", system exit.");
+							for (Pair<Integer, Float> tt: tts){
+								ttWriter.write(tt.getFist().toString().concat(",").
+										concat((new Integer(PTMHydroInput.getExtFromIntNode(n))).toString()).concat(",").concat(c.getTime().toString()).concat(",").
+									    concat(stationName).concat(",").concat(tt.getSecond().toString()));
+							ttWriter.newLine();
+							}
+						}
 					}
+				}
 			}
 			PTMUtil.closeBuffer(ttWriter);
-			}catch(IOException e){
-				System.err.println("error occured when writing out travel times!");
-				e.printStackTrace();
-			}
+		}catch(IOException e){
+			System.err.println("error occured when writing out travel times!");
+			e.printStackTrace();
 		}
 	}
-	public int getOutputNodeId(){ return _outputNodeId;}
-	public int getOutputWbId(){return _outputWbId;}
+	public Map<IntBuffer, String> getStationNames(){return _stationNames;}
+	//TODO clean up
+	/*
 	public float getOutputChannelDistance(){
 		if (_isLength){
 			try{
@@ -95,44 +150,54 @@ public class TravelTimeOutput {
 		}
 		return _distanceFromUpNode;
 	}
-	private void setIdsDistance(String[] items){
-		if (items.length<3)
-			PTMUtil.systemExit("SYSTEM EXIT: expect 3 items in travel time output line in behavior input file. ");
-		try{
-			_outputNodeId = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[0]));
-		}catch(NumberFormatException e){
-				e.printStackTrace();
-				PTMUtil.systemExit("SYSTEM EXIT:wrong node id:" + items[0]);
-		}
-		try{
-			_wbInput = items[1];
-			_outputWbId = PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[1]));
-		}catch(NumberFormatException e){
-			if ((_outputWbId=PTMEnv.getReservoirObj2ObjEnvId(items[1])) == null){
-				e.printStackTrace();
-				PTMUtil.systemExit("SYSTEM EXIT:wrong channel/reservior/obj2obj id:" + items[1]);
+	*/
+	private void setIdsDistance(ArrayList<String> stationText){
+		_outputStations = new ArrayList<IntBuffer>();
+		_stationNames = new HashMap<IntBuffer, String>();
+		for (String stationLine: stationText.subList(1, stationText.size())){
+			int[] station = new int[3];
+			String[] items = stationLine.trim().split("[,\\s\\t]+");
+			if (items.length<4)
+				PTMUtil.systemExit("SYSTEM EXIT: expect at least 4 items in travel time output line in behavior input file. ");
+			try{
+				// nodeId
+				station[0] = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[0]));
+			}catch(NumberFormatException e){
+					e.printStackTrace();
+					PTMUtil.systemExit("node id:" + items[0]+ " in the travel time output line is wrong, please check");
 			}
-		}
-		try{
-			_distanceFromUpNode = Float.parseFloat(items[2]);
-		}catch(NumberFormatException e){
-			if (items[2].equalsIgnoreCase("LENGTH")){
-				_distanceFromUpNode = -1.0f;
-				_isLength = true;
+			try{
+				// wbId
+				station[1] = PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[1]));
+			}catch(NumberFormatException e){
+				if (PTMEnv.getReservoirObj2ObjEnvId(items[1]) == null){
+					PTMUtil.systemExit("channel/reservior/obj2obj id:" + items[1] + " in the travel time output line is wrong, please check");
+				}
+				else
+					station[1] = PTMEnv.getReservoirObj2ObjEnvId(items[1]);
 			}
-			else{
-				e.printStackTrace();
-				PTMUtil.systemExit("SYSTEM EXIT:wrong distance number:" + items[2]);
+			try{
+				//distance
+				station[2] = Integer.parseInt(items[2]);
+			}catch(NumberFormatException e){
+				if (items[2].equalsIgnoreCase("LENGTH"))
+					station[2] = -999999;
+				else{
+					PTMUtil.systemExit("distance input:" + items[2] +" for channel:" + items[0] + " and node:"+items[1] + " in travel time output line is wrong, please check." );
+				}
 			}
+			_outputStations.add(IntBuffer.wrap(station));
+			int[] wbNd = {station[0], station[1]};
+			_stationNames.put(IntBuffer.wrap(wbNd), items[3]);
 		}
 	}
-	private int _outputNodeId = -99999;
-	private Integer _outputWbId = -999999;
-	private float _distanceFromUpNode = 0.0f; 
-	private boolean _isLength = false;
-	private String _wbInput = null;
-	// release node, Map<release time, array[pid, detection time]>
-	private Map<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>> _travelTimeOutput;
+	//IntBuffer:station nodeId, wbId, distance; Map<release node, Map<release time, array[pid, detection time]>>
+	private Map<IntBuffer, Map<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>>> _travelTimeOutput;
+	//IntBuffer: 0: nodeId, 1: wbId, 2: distance,
+	private ArrayList<IntBuffer> _outputStations;
+	//IntBuffer: 0: nodeId, 1: wbId; String: station name.  
+	//a node id and wb id are engough to identify a station name because it is impossible for a channel has two station names
+	private Map<IntBuffer, String> _stationNames = null;
 	
 	
 }

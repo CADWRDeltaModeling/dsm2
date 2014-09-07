@@ -102,6 +102,7 @@ public class PTMBehaviorInputs {
 			extractReleaseInputs(releaseInputs);
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
 		if (survivalInputText == null)
+			//TODO comment out for USGS, restore warning later
 			System.err.println("");
 			//System.err.println("WARNING: no survival behavior input found!");
 		_survivalInputs = new SurvivalInputs(survivalInputText,  _fishType);
@@ -129,12 +130,17 @@ public class PTMBehaviorInputs {
 			//TODO need finish this
 			//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
 		}
-		
+		if (_travelTimeOutput != null){
+			_travelTimeOutput.setOutputWbInfo(allWbs);
+		}
 	}
 	public void setNodeInfo(Node[] allNodes){
 		if (_routeInputs != null){
 			_routeInputs.setBarrierNodeInfo(allNodes);
 			_routeInputs.setFishScreenNodeInfo(allNodes);
+		}
+		if (_travelTimeOutput != null){
+			_travelTimeOutput.setOutputNodeInfo(allNodes);
 		}
 		//TODO not needed now, maybe later
 		//_survivalInputs.setNodeInfo(allNodes);

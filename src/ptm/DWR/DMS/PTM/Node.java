@@ -255,6 +255,8 @@ public class Node{
   public boolean isFishScreenInstalled(){
 	  return _fishScreenInstalled;
   }
+  public void setOutputNode(){_isOutputNode = true;}
+  public boolean isOutputNode(){return _isOutputNode;}
   
   /**
    *  Node global index
@@ -293,6 +295,7 @@ public class Node{
   private boolean _fishScreenInstalled = false;
   private float _totalWBInflows=0.0f;  // this number will never be negative
   private float _totalAgInflows=0.0f;
+  private boolean _isOutputNode = false;
   
   /**
    *  Delete wbIndexArray and anything else to save space.

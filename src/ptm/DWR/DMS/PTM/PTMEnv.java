@@ -106,8 +106,10 @@ public class PTMEnv{
      */
     // behaviors (basic and special) are added when instantiating PTMBehaviorInputs
     _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName());
-    _behaviorInputs.setWaterbodyInfo(wbArray);
+    //TODO consider change:
+    //setNodeInfo has to be done first, because in TravelTimeOutput, setOutputWbInfo depends on setOutputNodeInfo
     _behaviorInputs.setNodeInfo(nodeArray);
+    _behaviorInputs.setWaterbodyInfo(wbArray);
     _particleType = _behaviorInputs.getFishType();
     _travelTimeOutput = _behaviorInputs.getTravelTimeOutput();
   }

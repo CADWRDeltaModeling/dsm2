@@ -510,10 +510,12 @@ _survivalHelper = null;
 					 tmToAdv = tmstep;
 				 else // for the last sub-time step; deal with division precision & truncation
 					 tmToAdv = tmLeft;
+				 
 				 // the statistical formula of survival is only for channels
 				 if (!checkSurvival(tmToAdv)) return;
 				 updateAllParameters(tmToAdv);
 				 boolean needToBeRecorded = false;
+				 int n = -999999, w= -999999, d = 0;
 				 if (!particleWait){
 					 //Calculate X direction movement
 					 float xPos = x + calcXDisplacementExtDeterministic(tmToAdv)
@@ -524,26 +526,34 @@ _survivalHelper = null;
 					/**
 					  * wb and nd will be updated after isNodeReached and makeNodeDecision calls, 
 					  * so test if the travel time needs to be recorded before those calls
-					  * only record the travel time for particles from upstream
-					  * because the output node is an upnode  
-					  */
-					 if (!_travelTimeRecorded && (wb.getEnvIndex() == _tto.getOutputWbId()) 
-							 && (nd.getEnvIndex() == _tto.getOutputNodeId()) 
-							 && (xPos > _tto.getOutputChannelDistance()))
+					  * only record the travel time for particles from upstream because the output node is an upstream node
+					  * xPos - x is always positive because the particle is from the upstream  
+					  */					 
+					 
+					 n = nd.getEnvIndex();
+					 w = wb.getEnvIndex();
+					 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode() && ((xPos > wb.getOutputDistance()) || PTMUtil.floatNearlyEqual(xPos, wb.getOutputDistance()))){
+						 //n = nd.getEnvIndex();
+						 //w = wb.getEnvIndex();
+						 d = wb.getOutputDistance();
 						 needToBeRecorded = true;
-					 
-					 //TODO for debug clean up.
+					 }
+					 //TODO clean up
 					 /*
-					 int n = PTMHydroInput.getExtFromIntNode(nd.getEnvIndex());
-					 int w = PTMHydroInput.getExtFromIntChan(wb.getEnvIndex());
-					 float v = calcXVelocityExtDeterministic() + calcXVelocityExtRandom()
-  			 	 			 + calcXVelocityIntDeterministic() + calcXVelocityIntRandom();
-					 float xx = x;
-					*/ 
-					 
+					 if (getId() == 6 && PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) == 419)
+						 System.err.println(age/60+" "+Etdt+" "+Evdt);
+						 //System.err.println("age:"+age/60+"  x:"+x+"  y:"+y+"  z:"+z+"  sv:"+((Channel) wb).getSwimmingVelocity()+"  vel:"+calcXVelocityExtDeterministic()
+								// +"  area:"+channelArea+"  cDep:"+channelDepth+"  clength:"+channelLength+"  cVel:"+channelVave+"  cWid:"+channelWidth);
+					*/
 					 if (isNodeReached(xPos) == true){
 						 float totalVelocity = calcXVelocityExtDeterministic() + calcXVelocityExtRandom()
-				  			 	 			 + calcXVelocityIntDeterministic() + calcXVelocityIntRandom(); 
+				  			 	 			 + calcXVelocityIntDeterministic() + calcXVelocityIntRandom();
+						//TODO clean up
+						 /*
+						 if (getId() == 6)
+							 System.err.println("PId: "+getId()+"  x:"+x+"  xPos:"+xPos+"  age:"+age/60+"  nodeId: "+PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())
+								 +"  wbId: "+PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+ " vel:" +totalVelocity + "  totalFlows:"+nd.getTotalWaterbodyInflows());
+							*/	 
 						 if(Math.abs(totalVelocity)<Float.MIN_VALUE) //xPos == x
 							 PTMUtil.systemExit("when calculate x position, encountered a 0 velocity which is impossible");
 						 else{ 
@@ -558,17 +568,35 @@ _survivalHelper = null;
 						 }
 						 // makeNodeDecision updates wb and sets x for new wb, x = 0 or channel length
 						 makeNodeDecision();
-					 }  
+						// water body is updated if a node is reached.  Now check if the new water body is a channel
+						 if (wb.getPTMType() != Waterbody.CHANNEL){
+							 tmLeft -= tmToAdv;
+							 age += tmToAdv;
+							 if (needToBeRecorded){
+								 _travelTimeRecorded = true;
+								 needToBeRecorded = false;
+								 _tto.setTravelTime(n,w,d,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
+								 //setParticleDead();
+							 } 
+							 break;
+						 }
+						 else{
+							 // particle stays in the same node
+							 if (tmToAdv < Float.MIN_VALUE && wb.getEnvIndex() == w && nd.getEnvIndex() == n 
+									 && totalVelocity*wb.getInflow(nd.getEnvIndex())<0)
+								 particleWait = true;
+						 }
+						 //TODO clean up
+						 /*
+						 if (getId() == 6 && wb.getEnvIndex()< 600)
+							 System.err.println("PId: "+getId()+"  x:"+x+"  xPos:"+xPos+"  age:"+age/60+"  nodeId: "+PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())
+								 +"  wbId: "+PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+ " vel:" +totalVelocity + "  totalFlows:"+nd.getTotalWaterbodyInflows()+"  after" + "  wait:"+particleWait
+								 + " wbFlow:" + wb.getInflow(nd.getEnvIndex()));
+							*/	 
+					 } //end if (isNodeReached(xPos) == true) 
 					 else
 						 x = xPos;
-					 
-					 // water body is updated if a node is reached.  Now check if the new water body is a channel
-					 if (wb.getPTMType() != Waterbody.CHANNEL){
-						 tmLeft -= tmToAdv;
-						 age += tmToAdv;
-						 break;
-					 }
-					 
+				 
 					 /* 	
 					  * Careful!!! wb, nd are updated in makeNodeDecision!!!
 					  * but channel parameters (channel width, etc.) are not (!!!) 
@@ -587,10 +615,10 @@ _survivalHelper = null;
 				 if (needToBeRecorded){
 					 _travelTimeRecorded = true;
 					 needToBeRecorded = false;
-					 _tto.setTravelTime(_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
+					 _tto.setTravelTime(n,w,d,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
 					 //setParticleDead();
 				 } 
-			 }// end while
+			 }// end second while
       
 		 }// end if(CHANNEL)
     
@@ -615,9 +643,9 @@ _survivalHelper = null;
 		    	age += tmLeft;
 		    	tmLeft = 0.0f;
 		    }
-		    if (!_travelTimeRecorded && (wb.getEnvIndex() == _tto.getOutputWbId()) && (nd.getEnvIndex() == _tto.getOutputNodeId())){
+		    if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode()){
 				 _travelTimeRecorded = true;
-				 _tto.setTravelTime(_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
+				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
 		    }
 		 }
     
@@ -625,22 +653,22 @@ _survivalHelper = null;
 			 if (DEBUG) System.out.println("Particle " + this + " in conveyor " + wb.getEnvIndex() );
 			 // zero time delay
 			 moveInConveyor(tmLeft);
-			 if (!_travelTimeRecorded && (wb.getEnvIndex() == _tto.getOutputWbId()) && (nd.getEnvIndex() == _tto.getOutputNodeId())){
+			 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode()){
 				 _travelTimeRecorded = true;
-				 _tto.setTravelTime(_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
+				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
 		    }
 		 }
 
 		 else if (wb.getPTMType() ==  Waterbody.BOUNDARY) {
 			 if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
-			 if (!_travelTimeRecorded && (wb.getEnvIndex() == _tto.getOutputWbId()) && (nd.getEnvIndex() == _tto.getOutputNodeId())){
+			 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode()){
 				 _travelTimeRecorded = true;
-				 _tto.setTravelTime(_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
+				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
 		    }
 			 setParticleDead();
 			 break;
 		 }
-	 }
+	 } // end first while
     
   }
   
