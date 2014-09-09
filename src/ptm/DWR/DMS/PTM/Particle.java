@@ -18,8 +18,8 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import java.util.*;
-
 import edu.cornell.RngPack.*;
+
 /**
  * 
  *  This class is the core definition of a Particle and its movement in
@@ -348,22 +348,17 @@ _survivalHelper = null;
     */
   public final void setInsertionInfo(int particleInsertionTime, Node inNode){
     this.insertionTime = particleInsertionTime;
-    _insertionNodeId = inNode.getEnvIndex();
     nd = inNode;
   }
   
-  //TODO will be used to release particles at an exact location
-  /*
-  public final void setInsertionInfo(int particleInsertionTime, Node inNode, Waterbody inWb, float inChanDist){
+  public final void setInsertionInfo(int particleInsertionTime, Node inNode, Waterbody inWb, int distance, String name){
 	    this.insertionTime = particleInsertionTime;
-	    _insertionNodeId = inNode.getEnvIndex();
-	    _insertionWbId = inWb.getEnvIndex();
-	    _insertionChanDist = inChanDist;
 	    wb = inWb;
 	    nd = inNode;
-	    x = inChanDist;
+	    x = distance;
+	    _insertStationName = name;
   }
- */
+  
   // return particle age in seconds
   public float getParticleAge(){
 	  return age;
@@ -503,14 +498,13 @@ _survivalHelper = null;
 			 if (PTMUtil.floatNearlyEqual(y, MISSING) || PTMUtil.floatNearlyEqual(z,MISSING)) {
 				 setYZLocationInChannel();
 			 }
-      
+			 
 			 // update particle's x,y,z position every sub-time step
 			 while (tmLeft > 0 && !isDead){
 				 if (tmLeft >= tmstep) // for all sub-time steps except the last
 					 tmToAdv = tmstep;
 				 else // for the last sub-time step; deal with division precision & truncation
 					 tmToAdv = tmLeft;
-				 
 				 // the statistical formula of survival is only for channels
 				 if (!checkSurvival(tmToAdv)) return;
 				 updateAllParameters(tmToAdv);
@@ -530,6 +524,7 @@ _survivalHelper = null;
 					  * xPos - x is always positive because the particle is from the upstream  
 					  */					 
 					 
+					 // n and w need to be used to check if the particle stay in the same node
 					 n = nd.getEnvIndex();
 					 w = wb.getEnvIndex();
 					 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode() && ((xPos > wb.getOutputDistance()) || PTMUtil.floatNearlyEqual(xPos, wb.getOutputDistance()))){
@@ -575,7 +570,7 @@ _survivalHelper = null;
 							 if (needToBeRecorded){
 								 _travelTimeRecorded = true;
 								 needToBeRecorded = false;
-								 _tto.setTravelTime(n,w,d,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
+								 _tto.setTravelTime(n,w,d, _insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
 								 //setParticleDead();
 							 } 
 							 break;
@@ -615,7 +610,7 @@ _survivalHelper = null;
 				 if (needToBeRecorded){
 					 _travelTimeRecorded = true;
 					 needToBeRecorded = false;
-					 _tto.setTravelTime(n,w,d,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
+					 _tto.setTravelTime(n,w,d,_insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
 					 //setParticleDead();
 				 } 
 			 }// end second while
@@ -636,7 +631,7 @@ _survivalHelper = null;
 		      // set previous depth and width to current depth and width
 		      first = true;
 		      //? what should be new x,y,z for the pParticle in the Waterbody?
-		      setXYZLocationInChannel();
+		      setXYZLocationInChannel(true);
 		    }
 		    else{
 		    	// if no node found the particle will still in the reservior until next time step
@@ -645,7 +640,7 @@ _survivalHelper = null;
 		    }
 		    if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode()){
 				 _travelTimeRecorded = true;
-				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
+				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
 		    }
 		 }
     
@@ -655,7 +650,7 @@ _survivalHelper = null;
 			 moveInConveyor(tmLeft);
 			 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode()){
 				 _travelTimeRecorded = true;
-				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
+				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
 		    }
 		 }
 
@@ -663,7 +658,7 @@ _survivalHelper = null;
 			 if (DEBUG) System.out.println("Particle " + this + " in boundary " + wb.getEnvIndex() );
 			 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode()){
 				 _travelTimeRecorded = true;
-				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertionNodeId, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
+				 _tto.setTravelTime(nd.getEnvIndex(), wb.getEnvIndex(), 0,_insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60); 
 		    }
 			 setParticleDead();
 			 break;
@@ -676,9 +671,10 @@ _survivalHelper = null;
     *  x,y,z positioning
     *  called after Particle insertion or returned from Reservoir/Conveyor
     */
-  protected final void setXYZLocationInChannel(){
+  protected final void setXYZLocationInChannel(boolean calcX){
     if (wb.getPTMType() == Waterbody.CHANNEL) {
-      x = getXLocationInChannel();
+      if (calcX)
+    	  x = getXLocationInChannel();
       if (first) updateChannelParameters();
       setYZLocationInChannel();
     }else {
@@ -997,7 +993,7 @@ _survivalHelper = null;
                                 + Waterbody.CHANNEL);
     if (wb.getPTMType() == Waterbody.CHANNEL) {
       first=true;
-      setXYZLocationInChannel();
+      setXYZLocationInChannel(true);
     }
   }  
   
@@ -1054,8 +1050,12 @@ _survivalHelper = null;
     if (observer != null) 
       observer.observeChange(ParticleObserver.INSERT,this);
     inserted = true;
-    makeNodeDecision();
-    setXYZLocationInChannel();
+    if (wb == null){
+    	makeNodeDecision();
+    	setXYZLocationInChannel(true);
+    }
+    else
+    	setXYZLocationInChannel(false);
   }
 
   /**
@@ -1254,9 +1254,7 @@ _survivalHelper = null;
   /**
    *  Insertion Node Id for pParticle
    */
- private int _insertionNodeId;
- private int _insertionWbId;
- private float _insertionChanDist;
+ public String _insertStationName;
   
   /**
     *  gets x location in Channel corresponding to upnode and

@@ -33,19 +33,19 @@ public class TravelTimeOutput {
 	//public void setOutputNodeId(int nodeId){_outputNodeId = nodeId;}
 	//public void setOutputWbId(int wbId){_outputWbId = wbId;}
 	//public void setOutputChannelDistance(float distance){_distanceFromUpNode = distance;}
-	public void setTravelTime(int nodeId, int wbId, int distance, Integer releaseNodeId, Calendar releaseTime, Integer pid, Float travelTimeInMin){ 
+	public void setTravelTime(int nodeId, int wbId, int distance, String releaseStationName, Calendar releaseTime, Integer pid, Float travelTimeInMin){ 
 		IntBuffer station = IntBuffer.wrap(new int[]{nodeId, wbId, distance});
 		if (_travelTimeOutput == null)
-				_travelTimeOutput = new HashMap<IntBuffer, Map<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>>>();
-		Map<Integer, Map<Calendar, ArrayList <Pair<Integer, Float>>>> travelTimesPerStation = _travelTimeOutput.get(station);
+				_travelTimeOutput = new HashMap<IntBuffer, Map<String, Map<Calendar, ArrayList<Pair<Integer, Float>>>>>();
+		Map<String, Map<Calendar, ArrayList <Pair<Integer, Float>>>> travelTimesPerStation = _travelTimeOutput.get(station);
 		if (travelTimesPerStation == null){
-			travelTimesPerStation = new HashMap<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>>();
+			travelTimesPerStation = new HashMap<String, Map<Calendar, ArrayList<Pair<Integer, Float>>>>();
 			_travelTimeOutput.put(station, travelTimesPerStation);
 		}
-		Map<Calendar, ArrayList <Pair<Integer, Float>>> travelTimesPerNode = travelTimesPerStation.get(releaseNodeId);
+		Map<Calendar, ArrayList <Pair<Integer, Float>>> travelTimesPerNode = travelTimesPerStation.get(releaseStationName);
 		if (travelTimesPerNode == null){
 			travelTimesPerNode = new HashMap<Calendar, ArrayList<Pair<Integer, Float>>>();
-			travelTimesPerStation.put(releaseNodeId, travelTimesPerNode);
+			travelTimesPerStation.put(releaseStationName, travelTimesPerNode);
 		}
 		ArrayList <Pair<Integer, Float>> travelTimesPerRelease = travelTimesPerNode.get(releaseTime);
 		if (travelTimesPerRelease == null){
@@ -82,7 +82,7 @@ public class TravelTimeOutput {
 					else{
 						int d = station.get(2);
 						if (d == -999999)
-							c.setOutputDistance((int) Math.round(c.getLength()));
+							c.setOutputDistance((int) c.getLength());
 						else
 							c.setOutputDistance(d);
 					}
@@ -97,7 +97,7 @@ public class TravelTimeOutput {
 		}
 		try{
 			BufferedWriter ttWriter = PTMUtil.getOutputBuffer("output/travel_time_in_min.csv");
-			ttWriter.write("PID".concat(",").concat("Release_Node").concat(",").concat("Release_Time").concat(",").concat("Detect_Sta").concat(",").concat("Travel_Time(Min)"));
+			ttWriter.write("PID".concat(",").concat("Release_Sta").concat(",").concat("Release_Time").concat(",").concat("Detect_Sta").concat(",").concat("Travel_Time(Min)"));
 			ttWriter.newLine();
 			for (IntBuffer station: _travelTimeOutput.keySet()){
 				int[] wbNd = {station.get(0), station.get(1)};
@@ -105,24 +105,24 @@ public class TravelTimeOutput {
 				if (stationName == null)
 					PTMUtil.systemExit("try to output travel time, but no station name found, node Id:"
 							+ PTMHydroInput.getExtFromIntNode(station.get(0)));
-				Map<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>> travelTimePerStation = _travelTimeOutput.get(station);
+				Map<String, Map<Calendar, ArrayList<Pair<Integer, Float>>>> travelTimePerStation = _travelTimeOutput.get(station);
 				if (travelTimePerStation == null)
 					System.err.println("warning: no travel time recorded for station:" + stationName);
 				else{
-					for (Integer n: travelTimePerStation.keySet()){
-						Map<Calendar, ArrayList<Pair<Integer, Float>>> travelTimePerNode = travelTimePerStation.get(n);
+					for (String s: travelTimePerStation.keySet()){
+						Map<Calendar, ArrayList<Pair<Integer, Float>>> travelTimePerNode = travelTimePerStation.get(s);
 						if (travelTimePerNode == null){
-							PTMUtil.systemExit("try to write travel time to a file but no record found with the release node:" 
-									+ PTMHydroInput.getExtFromIntNode(n) +" , system exit.");
+							PTMUtil.systemExit("try to write travel time to a file but no record found with the release station:" 
+									+ s +" , system exit.");
 						}
 						for (Calendar c: travelTimePerNode.keySet()){
 							ArrayList<Pair<Integer, Float>> tts = travelTimePerNode.get(c);
 							if (tts == null)
-								PTMUtil.systemExit("try to write travel time to a file but no record found with the release node:" 
-										+ PTMHydroInput.getExtFromIntNode(n) +" and time:" +c.getTime()+", system exit.");
+								PTMUtil.systemExit("try to write travel time to a file but no record found with the release station:" 
+										+ s +" and time:" +c.getTime()+", system exit.");
 							for (Pair<Integer, Float> tt: tts){
-								ttWriter.write(tt.getFist().toString().concat(",").
-										concat((new Integer(PTMHydroInput.getExtFromIntNode(n))).toString()).concat(",").concat(c.getTime().toString()).concat(",").
+								ttWriter.write(tt.getFirst().toString().concat(",").
+										concat(s).concat(",").concat(c.getTime().toString()).concat(",").
 									    concat(stationName).concat(",").concat(tt.getSecond().toString()));
 							ttWriter.newLine();
 							}
@@ -159,6 +159,8 @@ public class TravelTimeOutput {
 			String[] items = stationLine.trim().split("[,\\s\\t]+");
 			if (items.length<4)
 				PTMUtil.systemExit("SYSTEM EXIT: expect at least 4 items in travel time output line in behavior input file. ");
+			if (items[3] == null)
+				PTMUtil.systemExit("expect a travel time output station name, but found none, system exit. ");
 			try{
 				// nodeId
 				station[0] = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[0]));
@@ -192,7 +194,7 @@ public class TravelTimeOutput {
 		}
 	}
 	//IntBuffer:station nodeId, wbId, distance; Map<release node, Map<release time, array[pid, detection time]>>
-	private Map<IntBuffer, Map<Integer, Map<Calendar, ArrayList<Pair<Integer, Float>>>>> _travelTimeOutput;
+	private Map<IntBuffer, Map<String, Map<Calendar, ArrayList<Pair<Integer, Float>>>>> _travelTimeOutput;
 	//IntBuffer: 0: nodeId, 1: wbId, 2: distance,
 	private ArrayList<IntBuffer> _outputStations;
 	//IntBuffer: 0: nodeId, 1: wbId; String: station name.  

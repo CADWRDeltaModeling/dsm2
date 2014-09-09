@@ -3,6 +3,7 @@
  */
 package DWR.DMS.PTM;
 import java.io.BufferedReader;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +20,9 @@ public class PTMBehaviorInputs {
 	private boolean _barrierInstalled = true;
 	private int _totalParticlesReleased = 0;
 	private TravelTimeOutput _travelTimeOutput = null;
-	// Map<NodeId, FishReleaseGroup>
-	private Map<Integer, FishReleaseGroup> _fishGroups = null; 
+	// Map<name of release station, FishReleaseGroup>
+	private Map<String, FishReleaseGroup> _fishGroups = null; 
+	// Map<insert station(node id, wb id, and distance), station name> 
 	
 	private void extractReleaseInputs(ArrayList<String> releaseInputText){
 		if (releaseInputText.size()< 6)
@@ -30,15 +32,19 @@ public class PTMBehaviorInputs {
 			ArrayList<String> groupText = PTMUtil.getInputBlock(releaseInputText, "GROUP_"+i, "END_GROUP_"+i);
 			if (groupText == null)
 				PTMUtil.systemExit("No Fish_Release_Inputs Group_"+i+" inputs, system exit.");
-			else if (groupText.size()<3)
+			else if (groupText.size()<4)
 				PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+" system exit.");
-			Integer nodeId = PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
+			String stationShouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE", "STATION_NAME"};
+			PTMUtil.checkTitle(groupText.get(0), stationShouldBe);
+			Pair<String, IntBuffer> stationName = setIdsDistance(groupText.get(1)); //PTMHydroInput.getIntFromExtNode(PTMUtil.getInt(groupText.get(0)));  // convert to internal id system
+			IntBuffer station = stationName.getSecond();
+			String name = stationName.getFirst();
 			String [] title = groupText.get(1).trim().split("[,\\s\\t]+");
-			String shouldBe[] = {"RELEASE_DATE", "RELEASE_TIME", "PARTICLE_NUMBER", "RELEASE_STYLE"};
-			if (!PTMUtil.check(title, shouldBe))
-				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong while reading particle release info: "+groupText.get(1));
+			String[] releaseShouldBe = {"RELEASE_DATE", "RELEASE_TIME", "PARTICLE_NUMBER", "RELEASE_STYLE"};
+			if (PTMUtil.check(title, releaseShouldBe))
+				PTMUtil.systemExit("SYSTEM EXIT: Title line is wrong while reading particle release info: "+groupText.get(2));
 			else{
-				for (String rline: groupText.subList(2, groupText.size())){
+				for (String rline: groupText.subList(3, groupText.size())){
 					String [] oneRelease = rline.trim().split("[,\\s\\t]+");
 					
 					if (oneRelease.length<4)
@@ -57,21 +63,60 @@ public class PTMBehaviorInputs {
 					
 					if (_fishGroups == null)
 						// map key: node id
-						_fishGroups = new HashMap<Integer, FishReleaseGroup>();
+						_fishGroups = new HashMap<String, FishReleaseGroup>();
 					
-					if (_fishGroups.get(nodeId) == null){
+					if (_fishGroups.get(name) == null){
 						ArrayList<FishRelease> frList = new ArrayList<FishRelease>();
 						frList.add(new FishRelease(releaseTime, particleNumber, releaseStyle));
-						_fishGroups.put(nodeId, new FishReleaseGroup(nodeId, frList));
+						_fishGroups.put(name, new FishReleaseGroup(station, name, frList));
 					}
 					else
-						_fishGroups.get(nodeId).addFishRelease(new FishRelease(releaseTime, particleNumber, releaseStyle));
+						_fishGroups.get(name).addFishRelease(new FishRelease(releaseTime, particleNumber, releaseStyle));
 					_totalParticlesReleased += particleNumber; 
 				}
 			}
 		}
 			
 	}
+	
+	//TODO copied from TravelTimeOutput, need write a utility method to read in node, wb ids and distances
+	private Pair<String, IntBuffer> setIdsDistance(String stationLine){
+		int[] station = new int[3];
+		String[] items = stationLine.trim().split("[,\\s\\t]+");
+		if (items.length<4)
+			PTMUtil.systemExit("expect at least 4 items in paticle release line in behavior input file, system exit ");
+		if (items[3] == null)
+			PTMUtil.systemExit("expect a release station name, but found none, system exit. ");
+		try{
+			// nodeId
+			station[0] = PTMHydroInput.getIntFromExtNode(Integer.parseInt(items[0]));
+		}catch(NumberFormatException e){
+				e.printStackTrace();
+				PTMUtil.systemExit("node id:" + items[0]+ " in the travel time output line is wrong, please check");
+		}
+		try{
+			// wbId
+			station[1] = PTMHydroInput.getIntFromExtChan(Integer.parseInt(items[1]));
+		}catch(NumberFormatException e){
+			if (PTMEnv.getReservoirObj2ObjEnvId(items[1]) == null){
+				PTMUtil.systemExit("channel/reservior/obj2obj id:" + items[1] + " in the travel time output line is wrong, please check");
+			}
+			else
+				station[1] = PTMEnv.getReservoirObj2ObjEnvId(items[1]);
+		}
+		try{
+			//distance
+			station[2] = Integer.parseInt(items[2]);
+		}catch(NumberFormatException e){
+			if (items[2].equalsIgnoreCase("LENGTH"))
+				station[2] = -999999;
+			else{
+				PTMUtil.systemExit("distance input:" + items[2] +" for channel:" + items[0] + " and node:"+items[1] + " in travel time output line is wrong, please check." );
+			}
+		}
+		return new Pair<String, IntBuffer>(items[3], IntBuffer.wrap(station));
+	}
+	
 	
 	/**
 	 * 
@@ -158,7 +203,7 @@ public class PTMBehaviorInputs {
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}
 	public RouteInputs getRouteInputs(){ return _routeInputs;}
 	// map key: node Id (internal Id system)
-	public Map<Integer, FishReleaseGroup> getFishReleaseGroups() {return _fishGroups;}
+	public Map<String, FishReleaseGroup> getFishReleaseGroups() {return _fishGroups;}
 	public int getTotalParticlesReleased() {return _totalParticlesReleased;}
 	public TravelTimeOutput getTravelTimeOutput(){return _travelTimeOutput;}
 }

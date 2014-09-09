@@ -19,6 +19,8 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 package DWR.DMS.PTM;
 import java.io.*;
 import java.util.*;
+import java.lang.Exception;
+import java.nio.IntBuffer;
 /**
  *  PTM is an acronym for "Particle Tracking Model". This is version 2 of PTM
  *  which utilizes information from DSM2 to track particles moving according
@@ -410,11 +412,38 @@ public class PTMEnv{
     if (DEBUG) System.out.println("Injection info in PTMEnv");
     while(pNum < getNumberOfParticlesInjected() + numberOfRestartParticles){
     	if (_behaviorInputs.getTotalParticlesReleased()>0){
-    		Map<Integer, FishReleaseGroup> fgs = _behaviorInputs.getFishReleaseGroups();
-    		for (int releaseNode:fgs.keySet()){
-    			for (FishRelease fr: fgs.get(releaseNode).getFishReleases()){
+    		Map<String, FishReleaseGroup> fgs = _behaviorInputs.getFishReleaseGroups();
+    		for (String releaseStationName:fgs.keySet()){
+    			FishReleaseGroup fg = fgs.get(releaseStationName);
+    			IntBuffer releaseStation = fg.getStation();
+    			for (FishRelease fr: fg.getFishReleases()){
     				for (int i = 0; i < fr.getFishNumber(); i++ ){
-    					particlePtrArray[pNum].setInsertionInfo(((int)PTMUtil.calendarToModelTime(fr.getRelaseTime())), getNode(releaseNode));
+    					Waterbody w = null;
+    					Node n = null;
+    					int d = 0;
+    					try{
+    						int nid = releaseStation.get(0);
+    						w = getWaterbody(releaseStation.get(1));
+    						n = getNode(nid);
+    						d = releaseStation.get(2);
+    						if (w.getPTMType() == Waterbody.CHANNEL){
+    							Channel c = (Channel) w;
+    							if (c.getUpNode().getEnvIndex()!= nid)
+    								PTMUtil.systemExit("the node specified in the insertion info line:"+
+    											PTMHydroInput.getExtFromIntNode(nid)+" is not an upstream node. Please check.");
+    							int l = (int) c.getLength();
+    							if (d == -999999)
+    								d = l;
+    							else if (d < 0 || d > l)
+    								PTMUtil.systemExit("expect the channel distance of particle insert station greater than 0 and less than channel length, but get:" + d);
+    						}
+    						else 
+    							d = 0;
+    					}catch (Exception e){
+    						PTMUtil.systemExit("input wrong insert station info for insert station name:" + releaseStationName);
+    					}	
+    					particlePtrArray[pNum].setInsertionInfo(((int)PTMUtil.calendarToModelTime(fr.getRelaseTime())), 
+    															n, w,d, releaseStationName);
     					pNum++;
     				}	
     			}

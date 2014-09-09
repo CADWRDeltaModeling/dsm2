@@ -19,9 +19,9 @@ public class Pair <F, S> {
 		_first = first;
 		_second = second;
 	}
-	public void setFist(F first){_first = first;}
+	public void setFirst(F first){_first = first;}
 	public void setSecond(S second){_second = second;}
-	public F getFist(){ return _first;}
+	public F getFirst(){ return _first;}
 	public S getSecond(){ return _second;}
 	private F _first = null;
 	private S _second = null;
