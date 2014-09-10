@@ -162,7 +162,7 @@ public class PTMBehaviorInputs {
 			PTMUtil.closeBuffer(inputTextBuff);
 		
 	}
-	public void setWaterbodyInfo(Waterbody[] allWbs){
+	public void setWaterbodyInfo(Waterbody[] allWbs, Pair<String, Float> commandLineSwimInfo){
 		if (_routeInputs != null){
 			_routeInputs.setBarrierWbInfo(allWbs);
 			_routeInputs.setFishScreenWbInfo(allWbs);
@@ -171,7 +171,7 @@ public class PTMBehaviorInputs {
 			_survivalInputs.setChannelInfo(allWbs);
 		}
 		if (_swimInputs != null){
-			_swimInputs.setChannelInfo(allWbs);
+			_swimInputs.setChannelInfo(allWbs, commandLineSwimInfo);
 			//TODO need finish this
 			//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
 		}

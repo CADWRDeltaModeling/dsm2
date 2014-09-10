@@ -28,33 +28,46 @@ public class SwimInputs {
 		// TODO Auto-generated constructor stub
 		System.out.println("Created SwimHelper...");
 	}
-	public void setSwimmingVelocityForAllFromCommand(String sVel){
-		if (_groupNames == null && _swimmingVelocities == null){
-			_groupNames = new ArrayList<String>();
-			_swimmingVelocities = new HashMap<String, Float>();
-		}
-		if (_groupNames != null && _swimmingVelocities != null){
-			if(_groupNames.contains("ALL"))
-				System.err.println("warning: swiming velocity for all the channels, "+_swimmingVelocities.get("ALL")
-						+", will be replaced by "+sVel+" from the commandline input");
-			try{
-				Float v = Float.parseFloat(sVel);
-				_swimmingVelocities.put("ALL", v);
-				Channel.uSwimmingVelocity = v;
-			}catch (NumberFormatException e){
-				e.printStackTrace();
-				PTMUtil.systemExit("expect a float for a swimming velocity for all channels but get:" + sVel);	
-			}	
-		}
+	/*
+	public void setSwimmingVelocityForAllFromCommand(String groupName, String sVel){
+		String name = groupName.toUpperCase();
+		if (_groupNames == null || _swimmingVelocities == null)
+			PTMUtil.systemExit("Swimming velocity for Channel groups are not specified in PTM behavior input file, please check.");
+		if(_swimmingVelocities.get(name) == null)
+			PTMUtil.systemExit("Channel group "+groupName+" is not specified in PTM behavior input file, please check.");
 		else
-			PTMUtil.systemExit("Tried to set swimming velocity but it is incorrectly set before, system exit.");
+			System.err.println("warning: swiming velocity: "+_swimmingVelocities.get(name) +" for the channel group: "
+					+ groupName +" will be replaced by "+sVel+" from the commandline input");
+		try{
+			Float v = Float.parseFloat(sVel);
+			_swimmingVelocities.put(name, v);
+			Channel.uSwimmingVelocity = v;
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("expect a float for a swimming velocity for all channels but get:" + sVel);	
+		}	
 	}
+	*/
+	
+	
 	public float getSwimmingVelocityForAll(){
 		if (_swimmingVelocities == null || _swimmingVelocities.get("ALL") == null)
 			return 0.0f;
 		return _swimmingVelocities.get("ALL");
 	}
-	public void setChannelInfo(Waterbody[] allWbs){
+	public void setChannelInfo(Waterbody[] allWbs, Pair<String, Float> commandLineSwimInfo){
+		if (commandLineSwimInfo != null){
+			boolean find = false;
+			for (String groupName: _swimmingVelocities.keySet()){
+				if (groupName.equalsIgnoreCase(commandLineSwimInfo.getFirst())){
+					_swimmingVelocities.put(groupName, commandLineSwimInfo.getSecond());
+					find = true;
+				}
+				if (!find)
+					PTMUtil.systemExit("commandline input channel group name: "+ commandLineSwimInfo.getFirst() + " is not found in the swimming " +
+							"velocity section in the behavior input file. ");
+			}
+		}
 		if (_swimmingVelocities != null){
 			Float sv = _swimmingVelocities.get("ALL");
 			if (sv != null)

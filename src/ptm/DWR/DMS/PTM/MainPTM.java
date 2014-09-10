@@ -54,17 +54,27 @@ public class MainPTM {
     
             // Initialize environment
             if (DEBUG) System.out.println("Initializing environment");
-            String fixedInputFilename = "dsm2.inp";
-            String swimmingVel = null;
+            String ptmInputFile = "dsm2.inp";
+            // 1: group name, 2: swimming velocity
+            Pair <String, Float> commandLineSwimInfo = null;
             if(args.length > 0){ 
-            	fixedInputFilename = args[0];
-            	if (args.length > 1)
-            		swimmingVel = args[1];
+            	ptmInputFile = args[0];
+            	if (args.length > 1){
+		        	if (args.length == 2)
+		        		PTMUtil.systemExit("usage: ptm [input file name, channel group name, swimming velocity]");
+		        	else{
+		        		try{
+		        			Float v = Float.parseFloat(args[2]);
+		        			commandLineSwimInfo = new Pair<String, Float>(args[1], v);
+		        		}catch (NumberFormatException e){
+		        			e.printStackTrace();
+		        			PTMUtil.systemExit("expect a float for a swimming velocity from commandline but get:" + args[2]);	
+		        		}	
+		        	}
+            	}
             }
             
-            PTMEnv Environment = new PTMEnv(fixedInputFilename);
-            if (swimmingVel != null)
-            	Environment.getBehaviorInputs().getSwimInputs().setSwimmingVelocityForAllFromCommand(swimmingVel);
+            PTMEnv Environment = new PTMEnv(ptmInputFile, commandLineSwimInfo);
             if (DEBUG) System.out.println("Environment initialized");
     
             // set global environment pointer
