@@ -60,7 +60,7 @@ module test_convergence_transport_uniform
         diffuse= zero
         decay  = zero
         call converge_transport_uniform(verbose,"uniform_advect",flow,diffuse,decay,detail_result=do_detail)
-        !call converge_transport_uniform(verbose,"uniform_advect_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
+        call converge_transport_uniform(verbose,"uniform_advect_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
 
         flow   = zero
         diffuse= constant_diffuse
@@ -158,7 +158,7 @@ module test_convergence_transport_uniform
         logical :: details = .false.                                                !< Flag switch todo: ?
         logical :: remote  = .false.                                                !< Flag Switch todo: ?
         
-        acceptance_ratio = [three, three, three]    ! relax the standard for uniform flow transport 
+        acceptance_ratio = [four, four, four]    ! relax the standard for uniform flow transport 
 
         if (present(detail_result))then
             details = detail_result

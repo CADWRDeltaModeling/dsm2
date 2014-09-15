@@ -466,7 +466,7 @@ subroutine dirichlet_diffusive_flux_lo(diffusive_flux_lo, &
                            dx,                &
                            dt)
     
-   diffusive_flux_lo(1,:)=-two*area_lo(1)*disp_coef_lo(1)*(conc(1,:)-bc_data(:))/dx
+   diffusive_flux_lo(1,:)=-two*area_lo(1)*disp_coef_lo(1)*(conc(1,:)-bc_data(:))/dx(1)
    
 return
 end subroutine
@@ -516,7 +516,7 @@ subroutine dirichlet_diffusive_flux_hi(diffusive_flux_lo, &
                            dx,                &
                            dt)
     
-   diffusive_flux_hi(ncell,:)=-two*area_hi(ncell)*disp_coef_hi(ncell)*(bc_data(:)-conc(ncell,:))/dx
+   diffusive_flux_hi(ncell,:)=-two*area_hi(ncell)*disp_coef_hi(ncell)*(bc_data(:)-conc(ncell,:))/dx(ncell)
 
 return
 end subroutine
@@ -901,7 +901,7 @@ subroutine neumann_diffusive_matrix_lo(center_diag ,           &
     flux(:) = -area_lo(1)*disp_coef_lo(1)*bc_data
     
     center_diag(1,:)= area(1)+ theta_stm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)  
-    right_hand_side(1,:) = right_hand_side(1,:)+ theta_stm*(dt/dx)*flux(:)
+    right_hand_side(1,:) = right_hand_side(1,:)+ theta_stm*(dt/dx(1))*flux(:)
      
     return
 end subroutine
@@ -970,7 +970,7 @@ subroutine neumann_diffusive_matrix_hi(center_diag ,           &
     flux(:) = -area_hi(ncell)*disp_coef_hi(ncell)*bc_data
        
     center_diag(ncell,:)= area(ncell)+ theta_stm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(1)
-    right_hand_side(ncell,:)= right_hand_side(ncell,:) - theta_stm*(dt/dx)*flux(:)
+    right_hand_side(ncell,:)= right_hand_side(ncell,:) - theta_stm*(dt/dx(ncell))*flux(:)
 
     return
 end subroutine

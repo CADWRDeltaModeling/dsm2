@@ -291,13 +291,13 @@ module boundary_diffusion
       flux_start(:) = zero
       flux_end(:) = zero
            
-      center_diag(1,:)= area(1)+ two*theta_stm*dt_by_dxsq* area_hi(1)*disp_coef_hi(1)     !todo: ehsu added "two" here, check with Eli.
+      center_diag(1,:)= area(1)+ two*theta_stm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)     !todo: ehsu added "two" here, check with Eli.
       right_hand_side(1,:) = right_hand_side(1,:) &
-                             + theta_stm*(dt/dx)*flux_start(:)
+                             + theta_stm*(dt/dx(1))*flux_start(:)
     
-      center_diag(ncell,:)= area(ncell)+ two*theta_stm*dt_by_dxsq* area_lo(ncell)*disp_coef_lo(1) !todo: ehsu added "two" here, check with Eli. 
+      center_diag(ncell,:)= area(ncell)+ two*theta_stm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(ncell) !todo: ehsu added "two" here, check with Eli. 
       right_hand_side(ncell,:)= right_hand_side(ncell,:) &
-                             - theta_stm*(dt/dx)*flux_end(:)
+                             - theta_stm*(dt/dx(ncell))*flux_end(:)
       return
   end subroutine
      

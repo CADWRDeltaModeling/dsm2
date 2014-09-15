@@ -144,7 +144,7 @@ module test_convergence_transport_uniform_vary_dx
 
         integer, parameter :: nconc = 2                                             !< Number of variables
         real(gtm_real) :: decay_rate = zero                                         !< Decay Rate
-        real(gtm_real), dimension(nconc) :: rates                                   !< todo: Norm of teh errors rate 
+        real(gtm_real), dimension(nconc) :: rates                                   !< todo: Norm of the errors rate 
         real(gtm_real),allocatable :: dx(:) 
         real(gtm_real),allocatable :: fine_initial_conc(:,:)                        !< Initial condition at finest resolution
         real(gtm_real),allocatable :: fine_solution(:,:)                            !< Reference solution at finest resolution
@@ -220,7 +220,6 @@ module test_convergence_transport_uniform_vary_dx
                                              dirichlet_advective_flux_hi, gaussian_data_vary_dx, &
                                              dirichlet_diffusive_flux_lo, gaussian_data_vary_dx, &
                                              dirichlet_diffusive_flux_hi, extrapolate_hi_boundary_data )
-
             boundary_diffusion_flux => single_channel_boundary_diffusive_flux
             boundary_diffusion_matrix => single_channel_boundary_diffusive_matrix
         end if
@@ -229,9 +228,12 @@ module test_convergence_transport_uniform_vary_dx
         advection_boundary_flux => single_channel_boundary_advective_flux
 
         allocate(fine_initial_conc(nx_base,nconc),fine_solution(nx_base,nconc))
-        allocate(dx(nx_base))    
-        dx(1:nx_base/2) = domain_length/dble(nx_base) *0.9d0
-        dx(nx_base/2+1:nx_base) = domain_length/dble(nx_base) *1.1d0
+        allocate(dx(nx_base))
+        ! define spatial varying dx here
+        do i = 1, nx_base/8
+            dx((i-1)*8+1:(i-1)*8+4) = domain_length/dble(nx_base) *0.9d0
+            dx((i-1)*8+5:i*8) = domain_length/dble(nx_base) *1.1d0
+        end do
 
         ! Subroutine which generates fine initial values and reference values to compare with 
         ! and feed the covvergence test subroutine.
@@ -325,14 +327,14 @@ module test_convergence_transport_uniform_vary_dx
 
     !> Gaussian data
     subroutine gaussian_data_vary_dx(bc_data,           &
-                             xloc,              &
-                             conc,              &
-                             ncell,             &
-                             nvar,              &
-                             origin,            &
-                             time,              &
-                             dx,                &
-                             dt)
+                                     xloc,              &
+                                     conc,              &
+                                     ncell,             &
+                                     nvar,              &
+                                     origin,            &
+                                     time,              &
+                                     dx,                &
+                                     dt)
         use gtm_precision
         use gaussian_init_boundary_condition
         use diffusion
@@ -366,7 +368,7 @@ module test_convergence_transport_uniform_vary_dx
     end subroutine
 
     !> Gaussian gradient data
-    subroutine gaussian_gradient_data_vary_dx(bc_data,           &
+    subroutine gaussian_gradient_data_vary_dx(bc_data,   &
                                       xloc,              &
                                       conc,              &
                                       ncell,             &

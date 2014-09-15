@@ -26,7 +26,7 @@
 program test_driver
   
     use fruit
-    use gtm_logging
+    use gtm_logging 
 
     !----- modules used in project test_common ------
     use ut_hydro_data_tide

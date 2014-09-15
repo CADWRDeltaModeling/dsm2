@@ -107,7 +107,7 @@ advection_boundary_flux    => zero_advective_flux
 compute_source             => no_source
 call set_constant_dispersion(disp_coef)
 
-call initial_final_solution(fine_initial_condition,&
+call initial_final_solution_fletcher(fine_initial_condition,&
                             fine_solution,         &
                             start_time,            &
                             disp_coef,             &
@@ -143,7 +143,7 @@ label = 'test_diffusion_fletcher_neumann'
 boundary_diffusion_matrix  => n_d_test_diffusion_matrix
 boundary_diffusion_flux    => n_d_test_diffusive_flux
 
-call initial_final_solution(fine_initial_condition,&
+call initial_final_solution_fletcher(fine_initial_condition,&
                             fine_solution,         &
                             start_time,            &
                             disp_coef,             &
@@ -177,7 +177,7 @@ end subroutine
 
 
 !> produce fine initial condition and reference solution 
-subroutine initial_final_solution(fine_initial_conc,     &
+subroutine initial_final_solution_fletcher(fine_initial_conc,     &
                                   fine_solution,         &
                                   init_time,             &
                                   dispersion_coef,       &
