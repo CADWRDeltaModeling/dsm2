@@ -53,6 +53,7 @@ program test_driver
     use test_gradient    
     use test_converge_bidirectional_uniform
     use test_convergence_transport_uniform_vary_dx
+    use test_advection_reaction_tidal_vary_dx
     use test_matrix_solver
     use test_boundary_diffusion
     use test_diffusive_flux
@@ -148,6 +149,7 @@ program test_driver
     ! todo: need to set an automatic check for hitting the boundary with coarse meshes
     !       this frequently causes problems that are undetected without scrutiny
     call test_tidal_advection_reaction(verbose)
+    call test_tidal_advection_reaction_vary_dx(verbose)
     !call test_hydro_advection_reaction(verbose) 
     
     !/////Advection-Diffusion tests
