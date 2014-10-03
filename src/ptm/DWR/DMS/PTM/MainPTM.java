@@ -195,7 +195,7 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-             
+            float daytimeNotSwimPercent = Environment.getBehaviorInputs().getSwimInputs().getDaytimeNotSwimPercent(); 
             //Environment.getHydroInfo(startTime-PTMTimeStep*4);//@todo: warning if < hydro start time 
             // initialize current model time
             //   Globals.currentModelTime = startTime;
@@ -206,14 +206,21 @@ public class MainPTM {
             for(Globals.currentModelTime  = startTime; 
                 Globals.currentModelTime <= endTime; 
                 Globals.currentModelTime += PTMTimeStep){
+
                 // output runtime information to screen
-                MainPTM.display(displayInterval);
+            	MainPTM.display(displayInterval);
                 if (behavior)
                     Globals.currentMilitaryTime = Integer.parseInt(Globals.getModelTime(Globals.currentModelTime));
                 
                 // get latest hydro information using Global/model time in minutes!!!!!!
                 Environment.getHydroInfo(Globals.currentModelTime);
                 if (DEBUG) System.out.println("Updated flows");
+                
+            	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime);
+            	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > 7 && curr.get(Calendar.HOUR_OF_DAY) < 16) 
+            			|| (curr.get(Calendar.HOUR_OF_DAY) == 7 && curr.get(Calendar.MINUTE)>22)
+            			|| (curr.get(Calendar.HOUR_OF_DAY) == 16 && curr.get(Calendar.MINUTE)<54);            	
+            	
                 // update Particle positions
                 for (int i=0; i<numberOfParticles; i++){
                 	//TODO survival check was checked in updateXYZPosition in particle class but commented out
@@ -221,7 +228,7 @@ public class MainPTM {
                 	// ptm timeStep in seconds
                 	if (!particleArray[i].isDead) 
                 		// updatePosition uses timeStep in seconds!!!!!!
-                		particleArray[i].updatePosition(timeStep);
+                			particleArray[i].updatePosition(timeStep, isDaytime, daytimeNotSwimPercent);
                 }
                 if (DEBUG) System.out.println("Updated particle positions");
       

@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Calendar;
 import java.util.Set;
+import edu.cornell.RngPack.*;
 
 /**
  * @author xwang
@@ -23,6 +24,7 @@ import java.util.Set;
  */
 public class PTMUtil {
 	static float EPSILON = 0.000000001f;
+	static RandomElement randomNumberGenerator= new Ranecu(10000);
 
 	/**
 	 * 
@@ -241,5 +243,8 @@ public class PTMUtil {
 	}
 	public static boolean floatNearlyEqual(float f1, float f2){
 		return f1 == f2 ? true: Math.abs(f1-f2) < EPSILON*Math.min(Math.abs(f1),Math.abs(f2));
+	}
+	public static double getRandomNumber(){
+		return randomNumberGenerator.uniform(0, 1);
 	}
 }

@@ -20,6 +20,12 @@ public class SwimInputs {
 	}
 	public SwimInputs(ArrayList<String> inText, String fishType) {
 		if (inText != null){
+			try{
+				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0).trim());
+			}catch (NumberFormatException e){
+				e.printStackTrace();
+				PTMUtil.systemExit("expect a float for day time not swim percent but get:" + inText.get(0));	
+			}					
 			ArrayList<String> sVelInText = PTMUtil.getInputBlock(inText, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS");
 			setChannelGroups(sVelInText);
 		}
@@ -49,7 +55,7 @@ public class SwimInputs {
 	}
 	*/
 	
-	
+	public float getDaytimeNotSwimPercent(){return _daytimeNotSwimPercent;}
 	public float getSwimmingVelocityForAll(){
 		if (_swimmingVelocities == null || _swimmingVelocities.get("ALL") == null)
 			return 0.0f;
@@ -164,4 +170,5 @@ public class SwimInputs {
 	private ArrayList<String> _groupNames=null;
 	// node, group name
 	private Map<Integer, String> _channelGroups=null;
+	private float _daytimeNotSwimPercent = 0.0f;
 }

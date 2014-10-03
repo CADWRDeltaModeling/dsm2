@@ -619,7 +619,12 @@ public class PTMEnv{
 			  PTMUtil.systemExit("the map for reservoir/Object to Object name vs waterbody ID is empty!");
 	  return _reservoirObj2objNameID.get(name);
   }
-
+  //TODO need to be rewrite 
+  //public void setSunrise(Calendar sunrise){ _sunrise = sunrise;}
+  //public Calendar getSunrise(){return _sunrise;}
+  //public void setSunset(Calendar sunset){ _sunset = sunset;}
+  //public Calendar getSunset(){return _sunset;}
+  //public PTMPeriod getDaytime(){return _daytime;}
   /**
    *  Particle behavior input
    */
@@ -671,6 +676,11 @@ public class PTMEnv{
   private String _particleType;
   private PTMBehaviorInputs _behaviorInputs;
   private static Map<String, Integer> _reservoirObj2objNameID = null; 
+  //TODO need these?
+  //private Calendar _sunrise = null;
+  //private Calendar _sunset = null;
+  //private PTMPeriod _daytime = new PTMPeriod(_sunrise, _sunset) ;
+  
   //private TravelTimeOutput _travelTimeOutput = null;
 }
 

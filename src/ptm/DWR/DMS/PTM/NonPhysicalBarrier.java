@@ -5,7 +5,7 @@ import java.util.Calendar;
 
 public class NonPhysicalBarrier {
 	// ids are internal env indices
-	public NonPhysicalBarrier(int nodeId, int waterbodyId, Map<BarrierOpPeriod, Integer> barrierOpTs){
+	public NonPhysicalBarrier(int nodeId, int waterbodyId, Map<PTMPeriod, Integer> barrierOpTs){
 		_nodeId = nodeId;
 		_waterbodyId = waterbodyId;
 		_barrierOpTs = barrierOpTs;	
@@ -18,7 +18,7 @@ public class NonPhysicalBarrier {
 		_waterbodyId = waterbodyId;
 		_barrierOpTs = null;	
 	}
-	public void setBarrier(int nodeId, int waterbodyId, Map<BarrierOpPeriod, Integer> barrierOpTs){
+	public void setBarrier(int nodeId, int waterbodyId, Map<PTMPeriod, Integer> barrierOpTs){
 		_nodeId = nodeId;
 		_waterbodyId = waterbodyId;
 		_barrierOpTs = barrierOpTs;	
@@ -27,7 +27,7 @@ public class NonPhysicalBarrier {
 		_nodeId = nodeId;
 		_waterbodyId = waterbodyId;
 	}
-	public void setBarrierOpTs(Map<BarrierOpPeriod, Integer> barrierOpTs){
+	public void setBarrierOpTs(Map<PTMPeriod, Integer> barrierOpTs){
 		_barrierOpTs = barrierOpTs;	
 	}
 	public int getNodeId(){
@@ -37,13 +37,13 @@ public class NonPhysicalBarrier {
 		return _waterbodyId;
 	}
 	public int getBarrierOp(Calendar currentTime){
-		BarrierOpPeriod key;
-        Iterator<BarrierOpPeriod> it = _barrierOpTs.keySet().iterator();
+		PTMPeriod key;
+        Iterator<PTMPeriod> it = _barrierOpTs.keySet().iterator();
         boolean found = false;
         if (it == null || !it.hasNext())
         	PTMUtil.systemExit("the barrier node Id:"+_nodeId+", water body Id:"+_waterbodyId+" has no operation schedule found, exit.");
         do{
-            key = (BarrierOpPeriod) it.next();
+            key = (PTMPeriod) it.next();
         }while (!(found = key.contains(currentTime))&&it.hasNext());
         if (found){
         	return _barrierOpTs.get(key);
@@ -54,7 +54,7 @@ public class NonPhysicalBarrier {
         	return -1;
         }
 	}
-	protected Map<BarrierOpPeriod, Integer> getBarrierOpTs(){
+	protected Map<PTMPeriod, Integer> getBarrierOpTs(){
 		return _barrierOpTs;
 	}
 	protected void InstallBarrier(){
@@ -65,6 +65,6 @@ public class NonPhysicalBarrier {
 	}
 	private int _nodeId;
 	private int _waterbodyId;
-	private Map<BarrierOpPeriod, Integer> _barrierOpTs;
+	private Map<PTMPeriod, Integer> _barrierOpTs;
 	private boolean _installed = false;
 }

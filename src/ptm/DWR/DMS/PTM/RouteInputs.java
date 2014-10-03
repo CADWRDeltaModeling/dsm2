@@ -200,7 +200,7 @@ public class RouteInputs {
 		}
 	}
 	private void addBarrier(ArrayList<String> barrierBlock, int[] nodeWbIds){
-		  HashMap<BarrierOpPeriod, Integer> bOpTS = new HashMap<BarrierOpPeriod, Integer>();
+		  HashMap<PTMPeriod, Integer> bOpTS = new HashMap<PTMPeriod, Integer>();
 		  Calendar s_time = null, e_time = null;
 		  int op = -99;
 		  
@@ -232,7 +232,7 @@ public class RouteInputs {
 			   * see BarrierOpPeriod for period treatment
 			   */
 			  if (s_time != null){
-				  bOpTS.put(new BarrierOpPeriod(s_time, e_time), op);
+				  bOpTS.put(new PTMPeriod(s_time, e_time), op);
 				  //System.out.println(s_time.getTime()+"--"+e_time.getTime()+"  op:"+op);
 			  }
 			  op = optemp;
