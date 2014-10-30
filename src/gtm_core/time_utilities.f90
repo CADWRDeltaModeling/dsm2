@@ -75,8 +75,6 @@ module time_utilities
     end function
 
 
-
-
     !> Convert from julian minute to character date/time
     !> in ISO compliant format yyyy-mmm-dd hh:mm::ss
     !> with no military time conversion (and 00:00 is 
@@ -99,7 +97,7 @@ module time_utilities
  231  format (i4,'-',i2.2,'-',i2.2,' ',i2.2,':',i2.2,':00')
       return
     end function
-    
+
  
      !> Routine to determine offset and buffer length to read HDF file
     subroutine check_runtime(num_blocks, memlen,                   & 

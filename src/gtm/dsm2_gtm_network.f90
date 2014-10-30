@@ -106,7 +106,8 @@ module dsm2_gtm_network
     end subroutine
   
   
-    !> Example advective flux that imposes boundary concentration based on the values read from input file
+    !> advective flux that imposes boundary concentration based on the values read from input file
+    !> overwrite flux_lo and flux_hi for boundaries and junctions
     subroutine bc_advection_flux_network(flux_lo,    &
                                          flux_hi,    &
                                          conc_lo,    &
@@ -142,8 +143,8 @@ module dsm2_gtm_network
         real(gtm_real) :: vol
         real(gtm_real) :: mass_resv(nvar)
         integer :: network_id
-        integer :: i, j, k, icell      
-                 
+        integer :: i, j, k, icell
+        
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
             vol = resv_geom(i)%area * million * prev_resv_height(i)
@@ -232,15 +233,15 @@ module dsm2_gtm_network
                     elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
                     elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then
-                        flux_lo(icell,:) = conc_hi(icell,:)*flow_hi(icell)                        
-                    endif                
+                        flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)                        
+                    endif               
                 end do              
             end if
        
             if (dsm2_network(i)%nonsequential .eq. 1) then  ! without this fixup, the error can be seen at DSM2 node 239
                 do j = 1, 2                                 ! assign lo/hi face of the same cell to avoid discontinuity
                     icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of link
+                    if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of link                        
                         flux_hi(icell,:) = conc_lo(icell,:)*flow_hi(icell)
                     elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of link
                         flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)

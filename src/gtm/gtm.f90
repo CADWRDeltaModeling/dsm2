@@ -153,6 +153,7 @@ program gtm
     allocate(cfl(n_cell))    
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
+    write(*,*) "You need to have ",n_cell," number of cells in initial file"
     prev_comp_flow = LARGEREAL
     prev_comp_ws = LARGEREAL
     prev_hydro_resv = LARGEREAL
@@ -304,8 +305,7 @@ program gtm
                                 n_qext,       &
                                 n_tran,       &
                                 dble(t_index))                               
-
-        
+      
         if (t_index.eq.1) then
             call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
         end if    

@@ -73,6 +73,8 @@ program test_driver
     use test_time_dependent_advection_dispersion
     use test_mms_advection_dispersion
     
+    use ut_do_source
+    
     implicit none
     logical :: verbose = .true.
     character(len=255) :: parent_dir
@@ -86,27 +88,24 @@ program test_driver
     call get_parent_working_dir(parent_dir) 
    
     !----- function calls to test units in project process_io API ---
-    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    call test_time_util
-    call test_readdss  
-    call test_readtvd
-    call test_dss_main
-    call test_input_storage 
-    call test_hdf_ts_wrt
-    call test_gtm_hdf_write
-    call test_find_bound_index
-    !call test_create_restart
-    call test_read_init_file
+    !call test_time_util
+    !call test_readdss  
+    !call test_readtvd
+    !call test_dss_main
+    !call test_input_storage 
+    !call test_hdf_ts_wrt
+    !call test_gtm_hdf_write
+    !call test_find_bound_index
+    !!call test_create_restart
+    !call test_read_init_file
     
     !----- function calls to test units in project common -----
-    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    open(debug_unit, file = "debug_unit.txt")            !< output text file
-    call test_hdf_util                                   ! test hdf_util()
-    !call test_resample                                  ! test resample coarse grid from finer grid (for testing comparison only)
-    call test_interpolation                              ! test interpolation schemes
-    !call test_interpolation_ooa                          ! test order of accurary for interpolation scheme -- very slow and the numbers are not verified
-    call test_gtm_network                                ! test creating GTM network   
+    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    !open(debug_unit, file = "debug_unit.txt")            !< output text file
+    !call test_hdf_util                                   ! test hdf_util()
+    !call test_interpolation                              ! test interpolation schemes
+    !call test_gtm_network                                ! test creating GTM network   
            
     !----- function calls to test units in project transport ----- 
     call change_working_dir(parent_dir, "/transport_unit_test_out")
@@ -160,6 +159,8 @@ program test_driver
 
     !/// Advection-diffusion-reaction
     call test_advection_diffusion_mms(verbose)
+    
+    call test_do_module
     
     !----- function calls to test units in project sediment -----
     
