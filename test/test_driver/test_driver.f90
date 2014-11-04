@@ -88,24 +88,24 @@ program test_driver
     call get_parent_working_dir(parent_dir) 
    
     !----- function calls to test units in project process_io API ---
-    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    !call test_time_util
-    !call test_readdss  
-    !call test_readtvd
-    !call test_dss_main
-    !call test_input_storage 
-    !call test_hdf_ts_wrt
-    !call test_gtm_hdf_write
-    !call test_find_bound_index
-    !!call test_create_restart
-    !call test_read_init_file
+    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    call test_time_util
+    call test_readdss  
+    call test_readtvd
+    call test_dss_main
+    call test_input_storage 
+    call test_hdf_ts_wrt
+    call test_gtm_hdf_write
+    call test_find_bound_index
+    !call test_create_restart
+    call test_read_init_file
     
     !----- function calls to test units in project common -----
-    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    !open(debug_unit, file = "debug_unit.txt")            !< output text file
-    !call test_hdf_util                                   ! test hdf_util()
-    !call test_interpolation                              ! test interpolation schemes
-    !call test_gtm_network                                ! test creating GTM network   
+    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    open(debug_unit, file = "debug_unit.txt")            !< output text file
+    call test_hdf_util                                   ! test hdf_util()
+    call test_interpolation                              ! test interpolation schemes
+    call test_gtm_network                                ! test creating GTM network   
            
     !----- function calls to test units in project transport ----- 
     call change_working_dir(parent_dir, "/transport_unit_test_out")

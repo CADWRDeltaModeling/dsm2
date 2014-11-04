@@ -74,6 +74,7 @@ program gtm
     real(gtm_real), allocatable :: disp_coef_hi_prev(:)      !< High side constituent dispersion coef. at old time
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real), parameter :: constant_dispersion = zero  !6000.d0
+    real(gtm_real) :: max_cfl
     
     integer :: up_comp, down_comp    
     integer :: time_offset
@@ -107,6 +108,9 @@ program gtm
     
     real(gtm_real) :: flow_chk
     
+    integer :: n_out_cell
+    integer, allocatable :: out_cell(:)
+    
     logical :: apply_diffusion = .false.
 
     n_var = 1
@@ -131,6 +135,9 @@ program gtm
                        memory_buffer, hydro_time_interval,     & 
                        hydro_start_jmin, hydro_end_jmin,       &
                        gtm_start_jmin, gtm_end_jmin)   
+    n_out_cell = 38
+    allocate(out_cell(n_out_cell))
+    call output_cell_arr(out_cell)
                            
     !
     !----- allocate array for interpolation -----     
@@ -295,7 +302,13 @@ program gtm
                         dble(t_index),  &
                         dx_arr,   &
                         gtm_time_interval)  
-                        
+        
+        cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
+        max_cfl = maxval(cfl)   
+        if (max_cfl .gt. one) then
+            write(*,*) current_time, max_cfl
+        end if           
+            
         call fill_hydro_network(resv_height,  &
                                 resv_flow,    &
                                 qext_flow,    &
@@ -321,10 +334,10 @@ program gtm
             prev_tran_flow = tran_flow
             prev_conc_resv = conc_resv
         end if
-        
+          
         !
         !----- call advection and source -----
-        !
+        !        
         call advect(mass,                       &
                     mass_prev,                  &  
                     flow,                       &
@@ -341,7 +354,7 @@ program gtm
                     dx_arr,                     &
                     .true.)     
         call cons2prim(conc, mass, area, n_cell, n_var)
-        cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
+
         
         conc_prev = conc
         prev_conc_resv = conc_resv
@@ -407,7 +420,8 @@ program gtm
                                        cfl,                   & 
                                        n_cell,                &
                                        time_index_in_gtm_hdf)                                             
-            end if
+            end if            
+            call print_out_cell_conc(conc(:,1), n_cell, out_cell, n_out_cell)
         end if                           
         mass_prev = mass
         area_prev = area

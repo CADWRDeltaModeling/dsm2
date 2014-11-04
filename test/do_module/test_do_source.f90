@@ -112,8 +112,7 @@ module ut_do_source
                             ncell,  &
                             nvar,   &
                             time_step)
-
-       !updatetempfactor(-100);            
+         
         return    
     end subroutine        
             

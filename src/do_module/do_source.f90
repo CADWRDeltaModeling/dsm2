@@ -24,8 +24,7 @@ module do_source
  
     use gtm_precision, only: gtm_real
     use source_sink 
-    use common_variables, only: n_var
-
+    
     contains
     
     !> DO module sources.

@@ -210,7 +210,7 @@ module dsm2_gtm_network
                             mass_tmp(:) = mass_tmp(:) + node_conc(i,:)*qext_flow(dsm2_network(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network(i)%qext_no(j))
                         elseif ((qext_flow(dsm2_network(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.eq.0)) then !drain but node concentration is absent
-                            write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                            !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                         else     ! seepage and diversion
                             mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network(i)%qext_no(j))                        
