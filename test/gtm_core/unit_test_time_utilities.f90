@@ -16,7 +16,8 @@ module ut_time_utilities
         character(len=14) :: cdt
         integer :: num_blocks, remainder
         integer :: hdf_start_jmin, hdf_end_jmin
-        integer :: iblock, slice_in_block, time_index
+        integer :: iblock, slice_in_block
+        real(gtm_real) :: time_in_slice
         real(gtm_real) :: gtm_start_jmin, gtm_end_jmin        
         real(gtm_real) :: current_time
         integer :: start_hydro_block, memory_buffer, hdf_time_interval
@@ -52,45 +53,45 @@ module ut_time_utilities
        
         gtm_time_interval = five
         current_time = 51546240.d0
-        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_index,             &
+        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_in_slice,          &
                                      current_time, start_hydro_block, memory_buffer, &
                                      hdf_time_interval, gtm_time_interval)      
         call assertEquals (iblock, 1, "Problem in get_loc_in_hydro_buffer iblock current_time = 51546240.d0")
         call assertEquals (slice_in_block, 1, "Problem in get_loc_in_hydro_buffer slice_in_block current_time = 51546240.d0")            
-        call assertEquals (time_index, 1, "Problem in get_loc_in_hydro_buffer time_index current_time = 51546240.d0")                          
+        call assertEquals (time_in_slice, zero, "Problem in get_loc_in_hydro_buffer time_in_slice current_time = 51546240.d0")                          
 
         current_time = 51546555.d0
-        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_index,             &
+        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_in_slice,          &
                                      current_time, start_hydro_block, memory_buffer, &
                                      hdf_time_interval, gtm_time_interval)      
         call assertEquals (iblock, 2, "Problem in get_loc_in_hydro_buffer iblock current_time = 51546555.d0")
         call assertEquals (slice_in_block, 2, "Problem in get_loc_in_hydro_buffer slice_in_block current_time = 51546555.d0")            
-        call assertEquals (time_index, 1, "Problem in get_loc_in_hydro_buffer time_index current_time = 51546555.d0")  
+        call assertEquals (time_in_slice, zero, "Problem in get_loc_in_hydro_buffer time_in_slice current_time = 51546555.d0")  
 
         current_time = 51546580.d0
-        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_index,             &
+        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_in_slice,          &
                                      current_time, start_hydro_block, memory_buffer, &
                                      hdf_time_interval, gtm_time_interval)      
         call assertEquals (iblock, 2, "Problem in get_loc_in_hydro_buffer iblock current_time = 51546580.d0")
         call assertEquals (slice_in_block, 3, "Problem in get_loc_in_hydro_buffer slice_in_block current_time = 51546580.d0")            
-        call assertEquals (time_index, 3, "Problem in get_loc_in_hydro_buffer time_index current_time = 51546580.d0")
+        call assertEquals (time_in_slice, 10.d0, "Problem in get_loc_in_hydro_buffer time_in_slice current_time = 51546580.d0")
       
         gtm_time_interval = 2.5d0
         current_time = 51546240.d0
-        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_index,             &
+        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_in_slice,          &
                                      current_time, start_hydro_block, memory_buffer, &
                                      hdf_time_interval, gtm_time_interval)      
         call assertEquals (iblock, 1, "Problem in get_loc_in_hydro_buffer iblock current_time = 51546240.d0")
         call assertEquals (slice_in_block, 1, "Problem in get_loc_in_hydro_buffer slice_in_block current_time = 51546240.d0")            
-        call assertEquals (time_index, 1, "Problem in get_loc_in_hydro_buffer time_index current_time = 51546240.d0")                          
+        call assertEquals (time_in_slice, zero, "Problem in get_loc_in_hydro_buffer time_in_slice current_time = 51546240.d0")                          
 
         current_time = 51546242.5d0
-        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_index,             &
+        call get_loc_in_hydro_buffer(iblock, slice_in_block, time_in_slice,          &
                                      current_time, start_hydro_block, memory_buffer, &
                                      hdf_time_interval, gtm_time_interval)      
         call assertEquals (iblock, 1, "Problem in get_loc_in_hydro_buffer iblock current_time = 51546242.5d0")
         call assertEquals (slice_in_block, 1, "Problem in get_loc_in_hydro_buffer slice_in_block current_time = 51546242.5d0")            
-        call assertEquals (time_index, 2, "Problem in get_loc_in_hydro_buffer time_index current_time = 51546242.5d0")                          
+        call assertEquals (time_in_slice, 2.5d0, "Problem in get_loc_in_hydro_buffer time_in_slice current_time = 51546242.5d0")                          
 
         return
     end subroutine

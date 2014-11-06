@@ -135,7 +135,7 @@ module ut_interpolation
             segm(i)%down_distance = i*segm(i)%length
         end do                
         call allocate_cell_property
-        call allocate_network_tmp
+        call allocate_network_tmp(npartition_t)
         call allocate_hydro_ts
         
         hydro_dx = 4000

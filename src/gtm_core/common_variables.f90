@@ -45,6 +45,7 @@ module common_variables
      real(gtm_real), allocatable :: dx_arr(:)              !< dx array
      real(gtm_real), allocatable :: hydro_flow(:,:)        !< flow from DSM2 hydro
      real(gtm_real), allocatable :: hydro_ws(:,:)          !< water surface from DSM2 hydro
+     real(gtm_real), allocatable :: hydro_area(:,:)        !< calculated cross section area from CxArea
      real(gtm_real), allocatable :: hydro_resv_flow(:,:)   !< reservoir flow
      real(gtm_real), allocatable :: hydro_resv_height(:,:) !< reservoir height
      real(gtm_real), allocatable :: hydro_qext_flow(:,:)   !< external flows
@@ -373,7 +374,7 @@ module common_variables
          implicit none
          integer :: istat = 0
          character(len=128) :: message
-         allocate(hydro_flow(n_comp,memory_buffer), hydro_ws(n_comp,memory_buffer), stat = istat)
+         allocate(hydro_flow(n_comp,memory_buffer), hydro_ws(n_comp,memory_buffer), hydro_area(n_comp,memory_buffer), stat = istat)
          allocate(hydro_resv_flow(n_resv_conn, memory_buffer), stat = istat)
          allocate(hydro_resv_height(n_resv, memory_buffer), stat = istat)
          allocate(hydro_qext_flow(n_qext, memory_buffer), stat = istat)
@@ -383,6 +384,7 @@ module common_variables
          end if
          hydro_flow = LARGEREAL
          hydro_ws = LARGEREAL
+         hydro_area = LARGEREAL
          hydro_resv_flow = LARGEREAL
          hydro_resv_height = LARGEREAL
          hydro_qext_flow = LARGEREAL
@@ -472,7 +474,7 @@ module common_variables
      !> Deallocate hydro time series array
      subroutine deallocate_hydro_ts()
          implicit none
-         if (n_comp .ne. LARGEINT) deallocate(hydro_flow, hydro_ws)
+         if (n_comp .ne. LARGEINT) deallocate(hydro_flow, hydro_ws, hydro_area)
          if (n_resv_conn .ne. LARGEINT) deallocate(hydro_resv_flow)
          if (n_resv .ne. LARGEINT) deallocate(hydro_resv_height)
          if (n_qext .ne. LARGEINT) deallocate(hydro_qext_flow)

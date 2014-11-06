@@ -140,7 +140,7 @@ module time_utilities
     !> Subroutine to return current block number and slice in the block
     subroutine get_loc_in_hydro_buffer(iblock,            &
                                        slice_in_block,    &
-                                       time_index,        &
+                                       time_in_slice,     &
                                        current_time,      &
                                        start_hydro_block, & 
                                        memory_buffer,     &
@@ -155,13 +155,13 @@ module time_utilities
         real(gtm_real), intent(in) :: gtm_time_interval !< gtm time interval
         integer, intent(out) :: iblock                  !< block index
         integer, intent(out) :: slice_in_block          !< slice in block
-        integer, intent(out) :: time_index              !< time index within mesh
+        real(gtm_real), intent(out) :: time_in_slice           !< time in slice
         
         iblock = int((current_time - dble(start_hydro_block))/dble(hdf_time_interval)/dble(memory_buffer)) + 1
         
         slice_in_block = int((current_time - dble(start_hydro_block))/dble(hdf_time_interval) - (dble(iblock)-one)*dble(memory_buffer)) + 1
         
-        time_index = (current_time - dble(start_hydro_block) - ((dble(iblock)-one)*dble(memory_buffer)+(dble(slice_in_block)-one))*dble(hdf_time_interval))/gtm_time_interval + 1
+        time_in_slice = current_time - dble(start_hydro_block) - ((dble(iblock)-one)*dble(memory_buffer)+(dble(slice_in_block)-one))*dble(hdf_time_interval)
         
         return
     end subroutine        

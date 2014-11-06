@@ -45,22 +45,23 @@ module gtm_network
     contains      
     
     !> Allocate network temporary array
-    subroutine allocate_network_tmp()
+    subroutine allocate_network_tmp(nt)
         implicit none
+        integer, intent(in) :: nt    !< npartition_t
         integer :: istat = 0
         character(len=128) :: message
         allocate(prev_flow_cell_lo(n_cell), stat = istat)
         allocate(prev_flow_cell_hi(n_cell), stat = istat)
-        allocate(flow_mesh_lo(npartition_t+1, n_cell), stat = istat)
-        allocate(flow_mesh_hi(npartition_t+1, n_cell), stat = istat)
-        allocate(area_mesh_lo(npartition_t+1, n_cell), stat = istat)
-        allocate(area_mesh_hi(npartition_t+1, n_cell), stat = istat)   
-        allocate(flow_volume_change(npartition_t, n_cell), stat = istat)
-        allocate(area_volume_change(npartition_t, n_cell), stat = istat)         
-        allocate(resv_height_mesh(npartition_t+1, n_resv), stat = istat)
-        allocate(resv_flow_mesh(npartition_t+1, n_resv_conn), stat = istat)
-        allocate(qext_flow_mesh(npartition_t+1, n_qext), stat = istat)
-        allocate(tran_flow_mesh(npartition_t+1, n_tran), stat = istat)           
+        allocate(flow_mesh_lo(nt+1, n_cell), stat = istat)
+        allocate(flow_mesh_hi(nt+1, n_cell), stat = istat)
+        allocate(area_mesh_lo(nt+1, n_cell), stat = istat)
+        allocate(area_mesh_hi(nt+1, n_cell), stat = istat)   
+        allocate(flow_volume_change(nt, n_cell), stat = istat)
+        allocate(area_volume_change(nt, n_cell), stat = istat)         
+        allocate(resv_height_mesh(nt+1, n_resv), stat = istat)
+        allocate(resv_flow_mesh(nt+1, n_resv_conn), stat = istat)
+        allocate(qext_flow_mesh(nt+1, n_qext), stat = istat)
+        allocate(tran_flow_mesh(nt+1, n_tran), stat = istat)           
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
@@ -89,6 +90,7 @@ module gtm_network
         deallocate(qext_flow_mesh)
         deallocate(tran_flow_mesh)
         deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
+        deallocate(flow_volume_change, area_volume_change)
         return
     end subroutine
    
@@ -110,10 +112,10 @@ module gtm_network
                         
         nt = npart_t + 1
         t_index = hydro_time_index 
+        dt = dble(hydro_time_interval)/dble(npart_t)
         do i = 1, n_segm
             nx = segm(i)%nx + one
-            dt = hydro_time_interval/npart_t
-            dx = segm(i)%length/segm(i)%nx
+            dx = segm(i)%length/dble(segm(i)%nx)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
             if (prev_flow_cell_lo(segm(i)%start_cell_no)==LARGEREAL) then
@@ -125,10 +127,6 @@ module gtm_network
                                        -hydro_flow(up_comp,t_index-1))*j/(segm(i)%nx)                                       
                end do
             end if   
-            if (segm(i)%segm_no .eq. 830) then
-                write(11,*) prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index)
-                write(11,*) flow_mesh_lo(1,830), flow_mesh_hi(1,830)
-            end if
             if (segm(i)%nx .gt. 1) then
                 call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
                                       flow_volume_change, area_volume_change,                             &
@@ -154,17 +152,18 @@ module gtm_network
     
     !> interpolate external flows data (reservoir, qext and transfer) for node
     !> use common_variabls, only : npartition_t, n_resv, nresv_conn
-    subroutine interp_network_ext(hydro_time_index, prev_resv, prev_resv_conn, prev_qext, prev_tran)
+    subroutine interp_network_ext(npart_t, hydro_time_index, prev_resv, prev_resv_conn, prev_qext, prev_tran)
         implicit none
         integer, intent(in) :: hydro_time_index
+        integer, intent(in) :: npart_t
         real(gtm_real), intent(in) :: prev_resv(n_resv)
         real(gtm_real), intent(in) :: prev_resv_conn(n_resv_conn)
         real(gtm_real), intent(in) :: prev_qext(n_qext)
         real(gtm_real), intent(in) :: prev_tran(n_tran)
-        call interp_linear_in_time(resv_height_mesh, npartition_t+1, n_resv, hydro_resv_height(:,hydro_time_index), prev_resv)
-        call interp_linear_in_time(resv_flow_mesh, npartition_t+1, n_resv_conn, hydro_resv_flow(:,hydro_time_index), prev_resv_conn)
-        call interp_linear_in_time(qext_flow_mesh, npartition_t+1, n_qext, hydro_qext_flow(:,hydro_time_index), prev_qext)
-        call interp_linear_in_time(tran_flow_mesh, npartition_t+1, n_tran, hydro_tran_flow(:,hydro_time_index), prev_tran)        
+        call interp_linear_in_time(resv_height_mesh, npart_t+1, n_resv, hydro_resv_height(:,hydro_time_index), prev_resv)
+        call interp_linear_in_time(resv_flow_mesh, npart_t+1, n_resv_conn, hydro_resv_flow(:,hydro_time_index), prev_resv_conn)
+        call interp_linear_in_time(qext_flow_mesh, npart_t+1, n_qext, hydro_qext_flow(:,hydro_time_index), prev_qext)
+        call interp_linear_in_time(tran_flow_mesh, npart_t+1, n_tran, hydro_tran_flow(:,hydro_time_index), prev_tran)        
         return
     end subroutine    
     

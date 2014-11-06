@@ -22,10 +22,14 @@ module gtm_subs
                     chan_no = chan_geom(j)%chan_no
                     do k = 1, n_segm
                         if (segm(k)%chan_no .eq. chan_no) then
-                            if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).le.segm(k)%down_distance)) then
+                            if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).lt.segm(k)%down_distance)) then
                                 out_cell(i) = segm(k)%start_cell_no + int((x_dist(i)-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
-                                goto 10
-                            end if                        
+                                goto 10    
+                            end if     
+                            if (x_dist(i).eq.segm(k)%down_distance) then
+                                out_cell(i) = segm(k)%start_cell_no + segm(k)%nx - 1
+                                goto 10    
+                            end if                                                  
                         end if
                     end do
                 end if
@@ -243,6 +247,7 @@ module gtm_subs
         return
     end subroutine        
 
+
     !> check the flow mass balance at DSM2 network
     subroutine flow_mass_balance_check(ncell, nqext, nresv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
         use gtm_precision
@@ -282,4 +287,28 @@ module gtm_subs
         end do        
     end subroutine
     
+    
+    !> calculate area for memory buffer
+    subroutine get_area_for_buffer(hyd_area, hyd_ws, ncomp, buffer)
+        use gtm_precision
+        use common_variables, only: comp_pt
+        use common_xsect
+        implicit none
+        integer, intent(in) :: ncomp                   !< number of computational points
+        integer, intent(in) :: buffer                  !< size of memory buffer
+        real(gtm_real), intent(in) :: hyd_ws(ncomp,buffer)    !< hydro water surface         
+        real(gtm_real), intent(out) :: hyd_area(ncomp,buffer) !< hydro calculated area
+        real(gtm_real) :: x
+        integer :: branch
+        integer :: i, j
+        do i = 1, ncomp
+            branch = comp_pt(i)%chan_no
+            x = comp_pt(i)%distance        
+            do j = 1, buffer                
+                call CxArea(hyd_area(i,j), x, hyd_ws(i,j), branch)
+            end do
+        end do
+        return
+    end subroutine
+      
 end module    

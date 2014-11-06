@@ -73,7 +73,7 @@ module ut_gtm_network
         call dsm2_hdf_ts(time_offset, time_buffer) 
         call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)             
         
-        call allocate_network_tmp
+        call allocate_network_tmp(npartition_t)
         hydro_time_index = 10 
         call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
         !call assertEquals (junc(1)%dsm2_network_no, 3, "problem in allocate network junc(1)%dsm2_network_no")
