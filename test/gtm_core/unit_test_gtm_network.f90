@@ -73,6 +73,8 @@ module ut_gtm_network
         call dsm2_hdf_ts(time_offset, time_buffer) 
         call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)             
         
+        call allocate_prev_flow_cell(28)
+        
         call allocate_network_tmp(npartition_t)
         hydro_time_index = 10 
         call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
@@ -108,6 +110,7 @@ module ut_gtm_network
             write(debug_unit,'(28f15.6)') (flow_mesh_hi(t,icell),icell=1,28)  
         end do
         write(debug_unit,*) ""        
+        call deallocate_prev_flow_cell
         call deallocate_network_tmp
         call deallocate_geometry
         close(debug_unit)        

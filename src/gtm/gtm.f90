@@ -104,6 +104,8 @@ program gtm
     !real(gtm_real), parameter :: constant_decay = 5.0d-5
     real(gtm_real), parameter :: constant_decay = zero
     logical :: debug_interp = .false.    
+    logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
+    integer, parameter :: max_num_sub_ts = 20                 ! maximum number of sub time step within GTM time step    
     
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
     character(len=24) :: restart_file_name
@@ -115,9 +117,7 @@ program gtm
     real(gtm_real) :: max_cfl                                 ! max_cfl = maxval(cfl)
     integer :: sub_st                                         ! number of sub time step within gtm time step
     integer :: prev_sub_ts                                    ! previous number of sub time step (used to decide if deallocate and allocate is needed.)
-    logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
     integer :: ceil_max_cfl                                   ! ceiling integer of max_cfl
-    integer, parameter :: max_num_sub_ts = 20                 ! maximum number of sub time step within GTM time step
 
     integer :: ierror
     
@@ -172,6 +172,7 @@ program gtm
     allocate(constituents(n_var))    
     call allocate_hydro_ts 
     call allocate_network_tmp(npartition_t)
+    call allocate_prev_flow_cell(n_cell)
     call allocate_state(n_cell, n_var)
     call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_var)
     allocate(init_c(n_cell,n_var))
@@ -302,14 +303,7 @@ program gtm
         if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
             call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws) 
             call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv, prev_hydro_resv_flow, &
-                                    prev_hydro_qext, prev_hydro_tran)
-            prev_comp_flow(:) = hydro_flow(:,slice_in_block)  ! keep track of prev_* to avoid index error at t_index=1
-            prev_comp_ws(:) = hydro_ws(:,slice_in_block)      
-            prev_hydro_resv(:) = hydro_resv_height(:,slice_in_block)
-            prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
-            prev_hydro_qext(:) = hydro_qext_flow(:,slice_in_block)
-            prev_hydro_tran(:) = hydro_tran_flow(:,slice_in_block)
-            current_slice = slice_in_block
+                                    prev_hydro_qext, prev_hydro_tran)              
             ! to determine if sub time step is required based on CFL number
             call fill_hydro(flow,          &
                             flow_lo,       &
@@ -339,6 +333,13 @@ program gtm
                                         prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)
                 prev_sub_ts = ceil_max_cfl
             end if                                     
+            prev_comp_flow(:) = hydro_flow(:,slice_in_block)  ! keep track of prev_* to avoid index error at t_index=1
+            prev_comp_ws(:) = hydro_ws(:,slice_in_block)      
+            prev_hydro_resv(:) = hydro_resv_height(:,slice_in_block)
+            prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
+            prev_hydro_qext(:) = hydro_qext_flow(:,slice_in_block)
+            prev_hydro_tran(:) = hydro_tran_flow(:,slice_in_block)
+            current_slice = slice_in_block            
         end if
         
         if (sub_time_step) then
@@ -352,7 +353,7 @@ program gtm
         do st = 1, sub_st
             t_index = int(t_in_slice/sub_gtm_time_step)+st
             new_current_time = current_time + dble(st-1)*sub_gtm_time_step
-
+            
             !---get time series for boundary conditions, this will update pathinput(:)%value; 
             !---rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
@@ -371,7 +372,6 @@ program gtm
                             dx_arr,        &
                             sub_gtm_time_step)  
         
-            
             call fill_hydro_network(resv_height,  &
                                     resv_flow,    &
                                     qext_flow,    &
@@ -382,11 +382,11 @@ program gtm
                                     n_tran,       &
                                     dble(t_index))                               
       
-            if (t_index.eq.1) then
-                call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
-            end if    
+            !if (t_index.eq.1) then
+            !    call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
+            !end if    
                            
-            if (current_time .eq. gtm_start_jmin) then
+            if (new_current_time .eq. gtm_start_jmin) then
                 call prim2cons(mass_prev, conc, area, n_cell, n_var)
                 area_prev = area
                 area_lo_prev = area_lo
@@ -398,9 +398,7 @@ program gtm
                 prev_conc_resv = conc_resv
             end if
            
-            !
-            !----- call advection and source -----
-            !        
+            !----- advection and source/sink -----        
             call advect(mass,                         &
                         mass_prev,                    &  
                         flow,                         &
@@ -415,39 +413,40 @@ program gtm
                         dble(new_current_time)*sixty, &
                         sub_gtm_time_step*sixty,      &
                         dx_arr,                       &
-                        .true.)     
-            call cons2prim(conc, mass, area, n_cell, n_var)
-        
+                        limit_slope)     
+            call cons2prim(conc, mass, area, n_cell, n_var)          
             conc_prev = conc
             prev_conc_resv = conc_resv
+            
+            !--------- Diffusion ----------
             if (apply_diffusion) then
-                call dispersion_coef(disp_coef_lo,      &
-                                     disp_coef_hi,      &
-                                     flow,              &
-                                     flow_lo,           &
-                                     flow_hi,           &
-                                     new_current_time,  &
-                                     dx_arr,            &
-                                     sub_gtm_time_step, &
-                                     n_cell,            &
+                call dispersion_coef(disp_coef_lo,                 &
+                                     disp_coef_hi,                 &
+                                     flow,                         &
+                                     flow_lo,                      &
+                                     flow_hi,                      &
+                                     dble(new_current_time)*sixty, &
+                                     dx_arr,                       &
+                                     sub_gtm_time_step*sixty,      &
+                                     n_cell,                       &
                                      n_var)                                   
-                call diffuse(conc,                  &
-                             conc_prev,             &
-                             area,                  &
-                             area_prev,             &
-                             area_lo,               &
-                             area_hi,               &
-                             area_lo_prev,          &
-                             area_hi_prev,          &
-                             disp_coef_lo,          &  
-                             disp_coef_hi,          &
-                             disp_coef_lo_prev,     &  
-                             disp_coef_hi_prev,     &
-                             n_cell,                &
-                             n_var,                 &
-                             new_current_time,      &
-                             theta,                 &
-                             sub_gtm_time_step,     &
+                call diffuse(conc,                         &
+                             conc_prev,                    &
+                             area,                         &
+                             area_prev,                    &
+                             area_lo,                      &
+                             area_hi,                      &
+                             area_lo_prev,                 &
+                             area_hi_prev,                 &
+                             disp_coef_lo,                 &  
+                             disp_coef_hi,                 &
+                             disp_coef_lo_prev,            &  
+                             disp_coef_hi_prev,            &
+                             n_cell,                       &
+                             n_var,                        &
+                             dble(new_current_time)*sixty, &
+                             theta,                        &
+                             sub_gtm_time_step*sixty,      &
                              dx_arr)
             end if
             call prim2cons(mass,conc,area,n_cell,n_var)
@@ -507,6 +506,7 @@ program gtm
     call deallocate_state
     call deallocate_state_network
     call deallocate_network_tmp
+    call deallocate_prev_flow_cell
     call deallocate_hydro_ts
     call close_qual_hdf(qual_hdf)         
     call hdf5_close

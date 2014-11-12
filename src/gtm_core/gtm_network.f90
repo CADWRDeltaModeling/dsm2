@@ -44,14 +44,31 @@ module gtm_network
 
     contains      
     
+    !> Allocate prev_flow_cell array
+    subroutine allocate_prev_flow_cell(ncell)
+        implicit none
+        integer, intent(in) :: ncell
+        integer :: istat = 0        
+        allocate(prev_flow_cell_lo(ncell), stat = istat)
+        allocate(prev_flow_cell_hi(ncell), stat = istat)        
+        prev_flow_cell_lo = LARGEREAL
+        prev_flow_cell_hi = LARGEREAL        
+        return
+    end subroutine
+    
+    !> Deallocate prev_flow_cell array
+    subroutine deallocate_prev_flow_cell()
+        implicit none
+        deallocate(prev_flow_cell_lo, prev_flow_cell_hi)        
+        return
+    end subroutine    
+    
     !> Allocate network temporary array
     subroutine allocate_network_tmp(nt)
         implicit none
         integer, intent(in) :: nt    !< npartition_t
         integer :: istat = 0
         character(len=128) :: message
-        allocate(prev_flow_cell_lo(n_cell), stat = istat)
-        allocate(prev_flow_cell_hi(n_cell), stat = istat)
         allocate(flow_mesh_lo(nt+1, n_cell), stat = istat)
         allocate(flow_mesh_hi(nt+1, n_cell), stat = istat)
         allocate(area_mesh_lo(nt+1, n_cell), stat = istat)
@@ -75,8 +92,6 @@ module gtm_network
         tran_flow_mesh = LARGEREAL
         flow_volume_change = LARGEREAL
         area_volume_change = LARGEREAL
-        prev_flow_cell_lo = LARGEREAL
-        prev_flow_cell_hi = LARGEREAL
         return
     end subroutine
  
@@ -89,7 +104,6 @@ module gtm_network
         deallocate(resv_flow_mesh)
         deallocate(qext_flow_mesh)
         deallocate(tran_flow_mesh)
-        deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
         deallocate(flow_volume_change, area_volume_change)
         return
     end subroutine
@@ -121,10 +135,17 @@ module gtm_network
             if (prev_flow_cell_lo(segm(i)%start_cell_no)==LARGEREAL) then
                do j = 1, segm(i)%nx
                    icell = segm(i)%start_cell_no + j - 1
-                   prev_flow_cell_lo(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
-                                       -hydro_flow(up_comp,t_index-1))*(j-1)/(segm(i)%nx)
-                   prev_flow_cell_hi(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
-                                       -hydro_flow(up_comp,t_index-1))*j/(segm(i)%nx)                                       
+                   if (t_index.gt.1) then
+                       prev_flow_cell_lo(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
+                                           -hydro_flow(up_comp,t_index-1))*dble(j-1)/dble(segm(i)%nx)
+                       prev_flow_cell_hi(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
+                                           -hydro_flow(up_comp,t_index-1))*dble(j)/dble(segm(i)%nx)                                       
+                   else
+                       prev_flow_cell_lo(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index) &
+                                           -hydro_flow(up_comp,t_index))*dble(j-1)/dble(segm(i)%nx)
+                       prev_flow_cell_hi(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index) &
+                                           -hydro_flow(up_comp,t_index))*dble(j)/dble(segm(i)%nx)                         
+                   end if                    
                end do
             end if   
             if (segm(i)%nx .gt. 1) then
@@ -132,16 +153,20 @@ module gtm_network
                                       flow_volume_change, area_volume_change,                             &
                                       n_cell, segm(i)%start_cell_no,                                      &
                                       segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
-                                      prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
-                                      prev_ws(up_comp), prev_ws(down_comp), hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),           &
+                                      prev_flow(up_comp), prev_flow(down_comp),                           &
+                                      hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
+                                      prev_ws(up_comp), prev_ws(down_comp),                               &
+                                      hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
                                       prev_flow_cell_lo, prev_flow_cell_hi)                              
             else
-                call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
+                call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,   &
                                       flow_volume_change, area_volume_change,                             &
                                       n_cell, segm(i)%start_cell_no,                                      &
                                       segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
-                                      prev_flow(up_comp), prev_flow(down_comp), hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
-                                      prev_ws(up_comp), prev_ws(down_comp), hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),           &
+                                      prev_flow(up_comp), prev_flow(down_comp),                           &
+                                      hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
+                                      prev_ws(up_comp), prev_ws(down_comp),                               &
+                                      hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
                                       prev_flow_cell_lo, prev_flow_cell_hi)                  
             end if
         end do
@@ -208,11 +233,6 @@ module gtm_network
         real(gtm_real), intent(out) :: area_lo(ncell)  !< Area lo face, time centered
         real(gtm_real), intent(out) :: area_hi(ncell)  !< Area hi face, time centered
         integer :: time_in_mesh, i                     ! local variable
-        !if (mod(int(time),npartition_t)==0) then
-        !    time_in_mesh = npartition_t+1       
-        !else
-        !    time_in_mesh = mod(int(time),npartition_t)+1
-        !end if    
         time_in_mesh = int(time)
         flow_lo = flow_mesh_lo(time_in_mesh,:)
         flow_hi = flow_mesh_hi(time_in_mesh,:)

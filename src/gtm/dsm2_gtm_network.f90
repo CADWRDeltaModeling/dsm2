@@ -58,7 +58,7 @@ module dsm2_gtm_network
         integer :: icell, i, j                                   ! local variables
         logical :: limit_slope                                   ! whether slope limiter is used         
         integer :: min_cell_no
-        
+
         if (present(use_limiter))then
             limit_slope = use_limiter
         else
@@ -72,7 +72,7 @@ module dsm2_gtm_network
         end if    
         grad(1,:)     = grad_hi(1,:)             ! in case cell_no=1 does not locate at actual boundary, w/t this line will cause error. 
         grad(ncell,:) = grad_lo(ncell,:)         ! in case cell_no=ncell does not locate at actual boundary, w/t this line will cause error.          
- 
+
         do i = 1, n_node
             ! adjust boundaries
             if (dsm2_network(i)%boundary_no .ne. 0) then
@@ -100,8 +100,7 @@ module dsm2_gtm_network
                     end if    
                 end do                        
             end if                  
-        end do         
- 
+        end do                  
         return
     end subroutine
   
@@ -175,8 +174,12 @@ module dsm2_gtm_network
             ! adjust flux for boundaries
             if (dsm2_network(i)%boundary_no > 0) then       
                 icell = dsm2_network(i)%cell_no(1)
-                if ( dsm2_network(i)%up_down(1) .eq. 1) then             ! upstream boundary
+                if (( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).ge.zero)) then    ! upstream boundary
                     flux_lo(icell,:) = conc_lo(icell,:)*flow_lo(icell)
+                elseif(( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).lt.zero)) then
+                    flux_lo(icell,:) = conc_hi(icell,:)*flow_hi(icell)
+                elseif(( dsm2_network(i)%up_down(1) .eq. 0).and.(flow_hi(icell).ge.zero)) then ! downstream boundary
+                    flux_hi(icell,:) = conc_lo(icell,:)*flow_lo(icell)
                 else
                     flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)
                 end if
@@ -222,7 +225,6 @@ module dsm2_gtm_network
                     else     
                         conc_tmp(:) = mass_tmp(:)/flow_tmp
                     end if       
-                    !write(22,'(i5,f20.10)') i, conc_tmp(1)
                 end if                
                              
                 ! assign average concentration to downstream cell faces
@@ -231,9 +233,7 @@ module dsm2_gtm_network
                     if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of junction
                         flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                                         
                     elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
-                        flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
-                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then
-                        flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)                        
+                        flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)                        
                     endif               
                 end do              
             end if
