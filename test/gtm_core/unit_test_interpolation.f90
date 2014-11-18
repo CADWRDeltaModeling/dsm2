@@ -40,6 +40,7 @@ module ut_interpolation
         real(gtm_real) :: hydro_dx, hydro_dt
         real(gtm_real) :: fine_dx, fine_dt
         real(gtm_real), allocatable :: flow_mesh_lo_ref(:,:), flow_mesh_hi_ref(:,:)
+        real(gtm_real), allocatable :: prev_flow_cell_lo(:), prev_flow_cell_hi(:)
         
         nx = 4
         npartition_t = 3
@@ -55,6 +56,8 @@ module ut_interpolation
         n_conn = 0
         allocate(flow_mesh_lo_ref(npartition_t+1,n_segm*nx))
         allocate(flow_mesh_hi_ref(npartition_t+1,n_segm*nx))
+        allocate(prev_flow_cell_lo(n_cell))
+        allocate(prev_flow_cell_hi(n_cell))
         call allocate_chan_virt_xsect
         call allocate_virt_xsec_geom
         virt_xsect(:)%min_elev = 0d0
@@ -173,6 +176,7 @@ module ut_interpolation
             write(debug_unit,'(i4,12f10.3)') i, flow_mesh_lo_ref(1,i), flow_mesh_lo_ref(2,i), flow_mesh_lo_ref(3,i), flow_mesh_lo_ref(4,i), flow_mesh_lo(1,i), flow_mesh_lo(2,i), flow_mesh_lo(3,i), flow_mesh_lo(4,i), area_mesh_lo(1,i), area_mesh_lo(2,i), area_mesh_lo(3,i), area_mesh_lo(4,i)
         end do 
         deallocate(flow_mesh_lo_ref, flow_mesh_hi_ref)         
+        deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
         call deallocate_virt_xsect
         call deallocate_network_tmp
         call deallocate_geometry

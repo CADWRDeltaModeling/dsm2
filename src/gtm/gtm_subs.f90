@@ -43,7 +43,7 @@ module gtm_subs
     subroutine output_cell_arr(out_cell)
         use gtm_precision
         implicit none
-        integer, parameter:: n_out_cell = 38        
+        integer, parameter:: n_out_cell = 39
         integer, intent(out) :: out_cell(n_out_cell)        
         type output_t
             character*16 :: name
@@ -90,6 +90,7 @@ module gtm_subs
         out(36)%name = 'VERNALIS' 
         out(37)%name = 'SAC'
         out(38)%name = 'GEORG_SL' 
+        out(39)%name = 'RIO'
         out(1)%chan_num = 276 
         out(2)%chan_num = 144 
         out(3)%chan_num = 145 
@@ -128,6 +129,7 @@ module gtm_subs
         out(36)%chan_num = 17 
         out(37)%chan_num = 410 
         out(38)%chan_num = 366       
+        out(39)%chan_num = 430
         out(1)%distance = 5480.d0        
         out(2)%distance = 838.d0 
         out(3)%distance = 2114.d0 
@@ -165,7 +167,8 @@ module gtm_subs
         out(35)%distance = 0.d0 
         out(36)%distance = 0.d0 
         out(37)%distance = 0.d0 
-        out(38)%distance = 0.d0         
+        out(38)%distance = 0.d0
+        out(39)%distance = 9684.d0         
         call get_select_cell(out_cell, n_out_cell, out(:)%chan_num, out(:)%distance)
         return
     end subroutine    
@@ -180,7 +183,7 @@ module gtm_subs
         real(gtm_real), intent(in) :: c(nc)
         integer, intent(in) :: out_cell(nout)
         integer :: i
-        write(101,'(38f10.0)') (c(out_cell(i)),i=1,nout)        
+        write(101,'(39f10.0)') (c(out_cell(i)),i=1,nout)        
         return
     end subroutine   
     

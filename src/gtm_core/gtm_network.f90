@@ -36,32 +36,10 @@ module gtm_network
     real(gtm_real), allocatable :: resv_flow_mesh(:,:)
     real(gtm_real), allocatable :: qext_flow_mesh(:,:)
     real(gtm_real), allocatable :: tran_flow_mesh(:,:)     
-    
-    real(gtm_real), allocatable :: prev_flow_cell_lo(:)
-    real(gtm_real), allocatable :: prev_flow_cell_hi(:)
     real(gtm_real), allocatable :: flow_volume_change(:,:)
     real(gtm_real), allocatable :: area_volume_change(:,:)
 
     contains      
-    
-    !> Allocate prev_flow_cell array
-    subroutine allocate_prev_flow_cell(ncell)
-        implicit none
-        integer, intent(in) :: ncell
-        integer :: istat = 0        
-        allocate(prev_flow_cell_lo(ncell), stat = istat)
-        allocate(prev_flow_cell_hi(ncell), stat = istat)        
-        prev_flow_cell_lo = LARGEREAL
-        prev_flow_cell_hi = LARGEREAL        
-        return
-    end subroutine
-    
-    !> Deallocate prev_flow_cell array
-    subroutine deallocate_prev_flow_cell()
-        implicit none
-        deallocate(prev_flow_cell_lo, prev_flow_cell_hi)        
-        return
-    end subroutine    
     
     !> Allocate network temporary array
     subroutine allocate_network_tmp(nt)
@@ -111,7 +89,7 @@ module gtm_network
     
     !> Return flow_tmp(1:ncell) and area_tmp(1:ncell) for the entire network 
     !> at the specified hydro time index
-    subroutine interp_network(npart_t, hydro_time_index, ncomp, prev_flow, prev_ws)
+    subroutine interp_network(npart_t, hydro_time_index, ncomp, prev_flow, prev_ws, ncell, prev_flow_cell_lo, prev_flow_cell_hi)
         use interpolation
         implicit none
         integer, intent(in) :: npart_t                    !< number of partitions in time
@@ -119,31 +97,38 @@ module gtm_network
         integer, intent(in) :: ncomp                    
         real(gtm_real), intent(in) :: prev_flow(ncomp)
         real(gtm_real), intent(in) :: prev_ws(ncomp)
-        real(gtm_real) :: dt, dx                                                                  ! local variables
-        integer :: nx, nt                                                                         ! local variables
-        integer :: up_comp, down_comp                                                             ! local variables
-        integer :: i, j, t, icell, t_index                                                        ! local variables
+        integer, intent(in) :: ncell    
+        real(gtm_real), intent(in) :: prev_flow_cell_lo(ncell)
+        real(gtm_real), intent(in) :: prev_flow_cell_hi(ncell)
+        real(gtm_real) :: prev_flow_lo_tmp(ncell)
+        real(gtm_real) :: prev_flow_hi_tmp(ncell)        
+        real(gtm_real) :: dt, dx                                  ! local variables
+        integer :: nx, nt                                         ! local variables
+        integer :: up_comp, down_comp                             ! local variables
+        integer :: i, j, t, icell, t_index                        ! local variables
                         
         nt = npart_t + 1
         t_index = hydro_time_index 
         dt = dble(hydro_time_interval)/dble(npart_t)
+        prev_flow_lo_tmp = prev_flow_cell_lo
+        prev_flow_hi_tmp = prev_flow_cell_hi
         do i = 1, n_segm
             nx = segm(i)%nx + one
             dx = segm(i)%length/dble(segm(i)%nx)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
-            if (prev_flow_cell_lo(segm(i)%start_cell_no)==LARGEREAL) then
+            if (prev_flow_lo_tmp(segm(i)%start_cell_no)==LARGEREAL) then
                do j = 1, segm(i)%nx
                    icell = segm(i)%start_cell_no + j - 1
                    if (t_index.gt.1) then
-                       prev_flow_cell_lo(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
+                       prev_flow_lo_tmp(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
                                            -hydro_flow(up_comp,t_index-1))*dble(j-1)/dble(segm(i)%nx)
-                       prev_flow_cell_hi(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
+                       prev_flow_hi_tmp(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
                                            -hydro_flow(up_comp,t_index-1))*dble(j)/dble(segm(i)%nx)                                       
                    else
-                       prev_flow_cell_lo(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index) &
+                       prev_flow_lo_tmp(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index)     &
                                            -hydro_flow(up_comp,t_index))*dble(j-1)/dble(segm(i)%nx)
-                       prev_flow_cell_hi(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index) &
+                       prev_flow_hi_tmp(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index)     &
                                            -hydro_flow(up_comp,t_index))*dble(j)/dble(segm(i)%nx)                         
                    end if                    
                end do
@@ -157,7 +142,7 @@ module gtm_network
                                       hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
                                       prev_ws(up_comp), prev_ws(down_comp),                               &
                                       hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
-                                      prev_flow_cell_lo, prev_flow_cell_hi)                              
+                                      prev_flow_lo_tmp, prev_flow_hi_tmp)                              
             else
                 call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,   &
                                       flow_volume_change, area_volume_change,                             &
@@ -167,11 +152,9 @@ module gtm_network
                                       hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
                                       prev_ws(up_comp), prev_ws(down_comp),                               &
                                       hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
-                                      prev_flow_cell_lo, prev_flow_cell_hi)                  
+                                      prev_flow_lo_tmp, prev_flow_hi_tmp)                  
             end if
         end do
-        prev_flow_cell_lo(:) = flow_mesh_lo(nt,:)
-        prev_flow_cell_hi(:) = flow_mesh_hi(nt,:)
         return
     end subroutine
     

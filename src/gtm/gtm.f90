@@ -66,6 +66,8 @@ program gtm
     real(gtm_real), allocatable :: prev_hydro_resv_flow(:)
     real(gtm_real), allocatable :: prev_hydro_qext(:)
     real(gtm_real), allocatable :: prev_hydro_tran(:)
+    real(gtm_real), allocatable :: prev_flow_cell_lo(:)
+    real(gtm_real), allocatable :: prev_flow_cell_hi(:)
     real(gtm_real), allocatable :: cfl(:)
     real(gtm_real), allocatable :: disp_coef_lo(:)           !< Low side constituent dispersion coef. at new time
     real(gtm_real), allocatable :: disp_coef_hi(:)           !< High side constituent dispersion coef. at new time
@@ -131,7 +133,7 @@ program gtm
     integer :: n_out_cell
     integer, allocatable :: out_cell(:)
     
-    integer :: st     ! temp index
+    integer :: st, k, n_st     ! temp index
 
     n_var = 1
     
@@ -170,9 +172,9 @@ program gtm
     allocate(prev_hydro_qext(n_qext))
     allocate(prev_hydro_tran(n_tran))
     allocate(constituents(n_var))    
+    allocate(prev_flow_cell_lo(n_cell), prev_flow_cell_hi(n_cell))
     call allocate_hydro_ts 
     call allocate_network_tmp(npartition_t)
-    call allocate_prev_flow_cell(n_cell)
     call allocate_state(n_cell, n_var)
     call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_var)
     allocate(init_c(n_cell,n_var))
@@ -189,6 +191,8 @@ program gtm
     prev_hydro_resv_flow = LARGEREAL
     prev_hydro_qext = LARGEREAL
     prev_hydro_tran = LARGEREAL
+    prev_flow_cell_lo = LARGEREAL
+    prev_flow_cell_hi = LARGEREAL
     
     linear_decay = constant_decay
     
@@ -301,7 +305,12 @@ program gtm
 
         !--- interpolate flow and water surface between computational points
         if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
-            call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws) 
+            n_st = npartition_t+1
+            if (prev_sub_ts .ne. 1) then
+                call deallocate_network_tmp
+                call allocate_network_tmp(npartition_t)
+            end if   
+            call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
             call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv, prev_hydro_resv_flow, &
                                     prev_hydro_qext, prev_hydro_tran)              
             ! to determine if sub time step is required based on CFL number
@@ -317,20 +326,19 @@ program gtm
                             gtm_time_interval)
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
             max_cfl = maxval(cfl)
-            ceil_max_cfl = ceiling(max_cfl)
+            ceil_max_cfl = ceiling(max_cfl) 
             if ((max_cfl .gt. one).and.(sub_time_step)) then
                 if (ceil_max_cfl .gt. max_num_sub_ts) then   ! try to avoid exceeding max_num_sub_ts
                     ceil_max_cfl = max_num_sub_ts                    
                 end if
                 sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
-                write(*,'(f15.0,f5.2,i5,f10.4)') current_time, max_cfl, ceil_max_cfl, sub_gtm_time_step                  
-                if (prev_sub_ts .ne. ceil_max_cfl) then
-                    call deallocate_network_tmp
-                    call allocate_network_tmp(npartition_t*ceil_max_cfl)
-                end if          
-                call interp_network(npartition_t*ceil_max_cfl, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws) 
+                write(*,'(f15.0,f5.2,i5,f10.4)') current_time, max_cfl, ceil_max_cfl, sub_gtm_time_step                             
+                call deallocate_network_tmp
+                call allocate_network_tmp(npartition_t*ceil_max_cfl)         
+                n_st = npartition_t*ceil_max_cfl+1
+                call interp_network(npartition_t*ceil_max_cfl, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
                 call interp_network_ext(npartition_t*ceil_max_cfl, slice_in_block, prev_hydro_resv,    &
-                                        prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)
+                                        prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)                                      
                 prev_sub_ts = ceil_max_cfl
             end if                                     
             prev_comp_flow(:) = hydro_flow(:,slice_in_block)  ! keep track of prev_* to avoid index error at t_index=1
@@ -339,6 +347,8 @@ program gtm
             prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
             prev_hydro_qext(:) = hydro_qext_flow(:,slice_in_block)
             prev_hydro_tran(:) = hydro_tran_flow(:,slice_in_block)
+            prev_flow_cell_lo(:) = flow_mesh_lo(n_st,:)
+            prev_flow_cell_hi(:) = flow_mesh_hi(n_st,:)            
             current_slice = slice_in_block            
         end if
         
@@ -351,7 +361,7 @@ program gtm
         end if
                                   
         do st = 1, sub_st
-            t_index = int(t_in_slice/sub_gtm_time_step)+st
+            t_index = int(t_in_slice/sub_gtm_time_step) + st
             new_current_time = current_time + dble(st-1)*sub_gtm_time_step
             
             !---get time series for boundary conditions, this will update pathinput(:)%value; 
@@ -417,6 +427,10 @@ program gtm
             call cons2prim(conc, mass, area, n_cell, n_var)          
             conc_prev = conc
             prev_conc_resv = conc_resv
+            
+            if (sub_st.gt.1) then
+                write(102,'(f15.0,2i4,2f12.0,f12.4)') current_time,st,t_index,flow(1159),area(1159),conc(1159,1)
+            end if            
             
             !--------- Diffusion ----------
             if (apply_diffusion) then
@@ -501,12 +515,12 @@ program gtm
     deallocate(constituents)
     deallocate(init_c)
     deallocate(init_r)
+    deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state
     call deallocate_state_network
     call deallocate_network_tmp
-    call deallocate_prev_flow_cell
     call deallocate_hydro_ts
     call close_qual_hdf(qual_hdf)         
     call hdf5_close

@@ -348,10 +348,6 @@ module advection
             end do
             flux_lo(1,ivar) = conc_lo(1,ivar)*flow_lo(1) 
             flux_hi(ncell,ivar) = conc_hi(ncell,ivar)*flow_hi(ncell)
-            !if (flow_lo(1) > zero) flux_lo(1,ivar) = LARGEREAL                   ! boundary: handled elsewhere
-            !if (flow_lo(1) < zero) flux_lo(1,ivar) = conc_lo(1,ivar)*flow_lo(1)  ! interior
-            !if (flow_hi(ncell) < zero) flux_hi(ncell,ivar) = LARGEREAL           ! boundary: handled elsewhere
-            !if (flow_hi(ncell) > zero) flux_hi(ncell,ivar) = conc_hi(ncell,ivar)*flow_hi(ncell)  ! interior
         end do
 
         return

@@ -99,8 +99,9 @@ module dsm2_gtm_network
                         grad(icell,:) = grad_hi(icell,:)
                     end if    
                 end do                        
-            end if                  
-        end do                  
+            end if 
+        end do     
+        grad(941,:)=grad_hi(817,:)  !todo: remove later
         return
     end subroutine
   
@@ -191,10 +192,10 @@ module dsm2_gtm_network
                 conc_tmp(:) = zero
                 do j = 1, dsm2_network(i)%n_conn_cell     ! counting flow into the junctions
                     icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)>zero) then     !cell at updstream of junction
+                    if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
                         flow_tmp = flow_tmp + flow_hi(icell)
-                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then !cell at downdstream of junction
+                    elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
                     endif                   
@@ -230,9 +231,9 @@ module dsm2_gtm_network
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of junction
+                    if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
                         flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                                         
-                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of junction
+                    elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)                        
                     endif               
                 end do              
@@ -242,14 +243,14 @@ module dsm2_gtm_network
                 do j = 1, 2                                 ! assign lo/hi face of the same cell to avoid discontinuity
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of link                        
-                        flux_hi(icell,:) = conc_lo(icell,:)*flow_hi(icell)
-                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)>zero) then !cell at downdstream of link
-                        flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)
+                        flux_hi(icell,:) = conc_lo(icell,:)*flow_hi(icell)                       
+                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then !cell at downdstream of link
+                        flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)                      
                     endif                
                 end do
             end if   
-            
-        end do        
+        end do 
+         
         return
     end subroutine  
     

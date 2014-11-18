@@ -54,6 +54,8 @@ module ut_gtm_network
         real(gtm_real), allocatable :: prev_resv_conn(:)
         real(gtm_real), allocatable :: prev_qext(:)
         real(gtm_real), allocatable :: prev_tran(:)
+        real(gtm_real), allocatable :: prev_flow_cell_lo(:)
+        real(gtm_real), allocatable :: prev_flow_cell_hi(:)
         procedure(hydro_data_if), pointer :: dsm2_hydro=> null()  !< Hydrodynamic pointer to be filled by the driver
         dsm2_hydro  => gtm_flow_area
         open(debug_unit, file = "gtm_network_debug.txt")       !< output text file
@@ -68,16 +70,20 @@ module ut_gtm_network
         allocate(prev_comp_flow(n_comp), prev_comp_ws(n_comp))
         allocate(prev_resv(n_resv), prev_resv_conn(n_resv_conn))
         allocate(prev_qext(n_qext), prev_tran(n_tran))
+
+        prev_flow_cell_lo = LARGEREAL
+        prev_flow_cell_hi = LARGEREAL
         
         call allocate_hydro_ts
         call dsm2_hdf_ts(time_offset, time_buffer) 
         call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)             
-        
-        call allocate_prev_flow_cell(28)
-        
+
+        allocate(prev_flow_cell_lo(28))
+        allocate(prev_flow_cell_hi(28))    
+            
         call allocate_network_tmp(npartition_t)
         hydro_time_index = 10 
-        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
+        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
         !call assertEquals (junc(1)%dsm2_network_no, 3, "problem in allocate network junc(1)%dsm2_network_no")
         !call assertEquals (junc(1)%cell_no(1), 15, "problem in allocate network junc(1)%cell_no(1)")
         !call assertEquals (junc(1)%cell_no(2), 16, "problem in allocate network junc(1)%cell_no(2)")
@@ -99,7 +105,7 @@ module ut_gtm_network
                 
         hydro_time_index = 11
         call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset)           
-        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws)
+        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
         write(debug_unit,*) "flow_mesh_lo at hydro_time_index=11:"
         do t = 1, npartition_t+1
             write(debug_unit,'(28f15.6)') (flow_mesh_lo(t,icell),icell=1,28)  
@@ -110,7 +116,7 @@ module ut_gtm_network
             write(debug_unit,'(28f15.6)') (flow_mesh_hi(t,icell),icell=1,28)  
         end do
         write(debug_unit,*) ""        
-        call deallocate_prev_flow_cell
+        deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
         call deallocate_network_tmp
         call deallocate_geometry
         close(debug_unit)        
