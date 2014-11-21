@@ -92,16 +92,11 @@ module dsm2_gtm_network
             ! assign gradient for nonsequential adjucent cells to be zero--> first order accuracy     
             elseif (dsm2_network(i)%nonsequential==1) then                
                 do j = 1, 2
-                    icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j)==0) then   !cell at upstream of link
-                        grad(icell,:) = grad_lo(icell,:)
-                    else
-                        grad(icell,:) = grad_hi(icell,:)
-                    end if    
+                    icell = dsm2_network(i)%cell_no(j)  
+                    grad(icell,:) = zero
                 end do                        
             end if 
         end do     
-        grad(941,:)=grad_hi(817,:)  !todo: remove later
         return
     end subroutine
   
@@ -238,19 +233,7 @@ module dsm2_gtm_network
                     endif               
                 end do              
             end if
-       
-            if (dsm2_network(i)%nonsequential .eq. 1) then  ! without this fixup, the error can be seen at DSM2 node 239
-                do j = 1, 2                                 ! assign lo/hi face of the same cell to avoid discontinuity
-                    icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j)==0 .and. flow_hi(icell)<zero) then     !cell at updstream of link                        
-                        flux_hi(icell,:) = conc_lo(icell,:)*flow_hi(icell)                       
-                    elseif (dsm2_network(i)%up_down(j)==1 .and. flow_lo(icell)<zero) then !cell at downdstream of link
-                        flux_lo(icell,:) = conc_hi(icell,:)*flow_lo(icell)                      
-                    endif                
-                end do
-            end if   
-        end do 
-         
+        end do          
         return
     end subroutine  
     
