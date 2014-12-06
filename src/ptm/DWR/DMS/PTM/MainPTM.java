@@ -195,7 +195,14 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-            float daytimeNotSwimPercent = Environment.getBehaviorInputs().getSwimInputs().getDaytimeNotSwimPercent(); 
+            SwimInputs si = Environment.getBehaviorInputs().getSwimInputs();
+            float daytimeNotSwimPercent = si.getDaytimeNotSwimPercent(); 
+            float floodHoldingThreshold = si.getFloodHoldingThreshold();
+            //TODO will use LocaTime when switch to Java 1.8
+            int sunrise_hour = si.getSunrise().getFirst();
+            int sunrise_min = si.getSunrise().getSecond();
+            int sunset_hour = si.getSunset().getFirst();
+            int sunset_min = si.getSunset().getSecond();
             //Environment.getHydroInfo(startTime-PTMTimeStep*4);//@todo: warning if < hydro start time 
             // initialize current model time
             //   Globals.currentModelTime = startTime;
@@ -217,18 +224,18 @@ public class MainPTM {
                 if (DEBUG) System.out.println("Updated flows");
                 
             	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime);
-            	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > 7 && curr.get(Calendar.HOUR_OF_DAY) < 16) 
-            			|| (curr.get(Calendar.HOUR_OF_DAY) == 7 && curr.get(Calendar.MINUTE)>22)
-            			|| (curr.get(Calendar.HOUR_OF_DAY) == 16 && curr.get(Calendar.MINUTE)<54);            	
+            	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour) 
+            			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
+            			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min);            	
             	
                 // update Particle positions
                 for (int i=0; i<numberOfParticles; i++){
-                	//TODO survival check was checked in updateXYZPosition in particle class but commented out
+                	// TODO survival check was checked in updateXYZPosition in particle class but commented out
                 	// because with subtime step too many random numbers are sampled
                 	// ptm timeStep in seconds
                 	if (!particleArray[i].isDead) 
                 		// updatePosition uses timeStep in seconds!!!!!!
-                			particleArray[i].updatePosition(timeStep, isDaytime, daytimeNotSwimPercent);
+                			particleArray[i].updatePosition(timeStep, isDaytime, daytimeNotSwimPercent, floodHoldingThreshold);
                 }
                 if (DEBUG) System.out.println("Updated particle positions");
       

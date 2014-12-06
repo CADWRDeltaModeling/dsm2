@@ -190,9 +190,17 @@ public class PTMUtil {
 		return Double.parseDouble(items[1]);
 	}
 	// get a double from a line with format name: double
-	public static float getFloatFromLine(String numberLine) throws NumberFormatException{
-		String[] items = numberLine.split("[,:\\s\\t]+");
+	public static float getFloatFromLine(String line, String lineName) throws NumberFormatException{
+		String[] items = line.split("[,:\\s\\t]+");
+		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
+			PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
 		return Float.parseFloat(items[1]);
+	}
+	public static Pair<Integer, Integer> getPairFromLine(String line, String lineName) throws NumberFormatException{
+		String[] items = line.split("[,:\\s\\t]+");
+		if (items.length < 3 || (!items[0].equalsIgnoreCase(lineName)))
+			PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
+		return new Pair<Integer, Integer> (Integer.parseInt(items[1]), Integer.parseInt(items[2]));
 	}
 	
 	public static ArrayList<Integer> getInts(String numberLine){

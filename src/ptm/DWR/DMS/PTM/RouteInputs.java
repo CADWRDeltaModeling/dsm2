@@ -43,7 +43,7 @@ public class RouteInputs {
 				System.err.println("WARNING: no dicu info found or the info is not properly defined in behavior inputs.");
 			else{
 				try{
-					_dicuFilterEfficiency = PTMUtil.getFloatFromLine(dicuInText.get(0).trim());
+					_dicuFilterEfficiency = PTMUtil.getFloatFromLine(dicuInText.get(0).trim(), "Filter_Efficiency");
 				}catch (NumberFormatException e){
 					e.printStackTrace();
 					PTMUtil.systemExit("expect a float for dicu efficiency coefficient but get:" + dicuInText.get(0));	

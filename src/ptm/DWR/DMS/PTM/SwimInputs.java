@@ -20,12 +20,17 @@ public class SwimInputs {
 	}
 	public SwimInputs(ArrayList<String> inText, String fishType) {
 		if (inText != null){
+			if (inText.size()<4)
+				PTMUtil.systemExit("information missing in Swim_Inputs section");
 			try{
-				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0).trim());
+				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(0), "FLOOD_HOLDING_THRESHOLD");
+				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(1), "DAY_TIME_NOT_SWIM_PERCENT");
+				_sunrise = PTMUtil.getPairFromLine(inText.get(2), "SUNRISE");
+				_sunset = PTMUtil.getPairFromLine(inText.get(3), "SUNSET");;
 			}catch (NumberFormatException e){
 				e.printStackTrace();
-				PTMUtil.systemExit("expect a float for day time not swim percent but get:" + inText.get(0));	
-			}					
+				PTMUtil.systemExit("number format is wrong in one of first 3 swimming input lines");	
+			}
 			ArrayList<String> sVelInText = PTMUtil.getInputBlock(inText, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS");
 			setChannelGroups(sVelInText);
 		}
@@ -56,6 +61,9 @@ public class SwimInputs {
 	*/
 	
 	public float getDaytimeNotSwimPercent(){return _daytimeNotSwimPercent;}
+	public float getFloodHoldingThreshold(){return _floodHoldVel;}
+	public Pair<Integer, Integer> getSunrise(){ return _sunrise;}
+	public Pair<Integer, Integer> getSunset(){ return _sunset;}
 	public float getSwimmingVelocityForAll(){
 		if (_swimmingVelocities == null || _swimmingVelocities.get("ALL") == null)
 			return 0.0f;
@@ -171,4 +179,7 @@ public class SwimInputs {
 	// node, group name
 	private Map<Integer, String> _channelGroups=null;
 	private float _daytimeNotSwimPercent = 0.0f;
+	private Pair<Integer, Integer> _sunrise = null;
+	private Pair<Integer, Integer> _sunset = null;
+	private float _floodHoldVel = -999999.0f;
 }

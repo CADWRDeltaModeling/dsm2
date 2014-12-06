@@ -300,7 +300,7 @@ _survivalHelper = null;
     *  updates the position and parameters of Particle.
     */
   //delT is ptm input time step
-  public final void updatePosition(float delT, boolean isDaytime, float daytimeNotSwimPercent){ //delT in seconds
+  public final void updatePosition(float delT, boolean isDaytime, float daytimeNotSwimPercent, float flowVelThreshold){ //delT in seconds
 	if (observer == null)
 		PTMUtil.systemExit("expect an observer be installed, but not, system exit");
   	particleWait = false;  //set or reset particle wait variable
@@ -316,9 +316,11 @@ _survivalHelper = null;
     
     if (inserted){//after initial insertion  
         //recursionCounter=0;
+    	// Day time holding, wait for a time step
     	if(isDaytime && PTMUtil.getRandomNumber()< daytimeNotSwimPercent)
-    		particleWait = true;
-		updateXYZPosition(delT); //TODO let helper do the job
+    		return;
+    		//particleWait = true;
+		updateXYZPosition(delT, flowVelThreshold); //TODO let helper do the job
 		updateOtherParameters(delT); //TODO Why need this?
         ////TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
         //if(! isDead) checkHealth(); 
@@ -483,7 +485,7 @@ _survivalHelper = null;
     *  Particle.x, Particle.y and Particle.z
     */
  //delT in seconds, is ptm input time step 
- protected final void updateXYZPosition(float delT){
+ protected final void updateXYZPosition(float delT, float velThreshold){
 	 float tmLeft = delT;
 	 while (tmLeft>0 && !isDead){
 		 // Channel
@@ -495,7 +497,6 @@ _survivalHelper = null;
 			 float tmstep = tmLeft/numOfSubTimeSteps;
 			 // PTM internal calculation time step
 			 float tmToAdv = 0;
-      
 			 //y, z set up for particles which are just out of reservoir and conveyor
 			 if (PTMUtil.floatNearlyEqual(y, MISSING) || PTMUtil.floatNearlyEqual(z,MISSING)) {
 				 setYZLocationInChannel();
@@ -510,6 +511,9 @@ _survivalHelper = null;
 				 // the statistical formula of survival is only for channels
 				 if (!checkSurvival(tmToAdv)) return;
 				 updateAllParameters(tmToAdv);
+				 // if an average cross section velocity (channelVave) is less than a user specified threshold, make the particle hold for one time step (channelVave will not change in that time step)
+				 if (channelVave < velThreshold)
+					 return;
 				 boolean needToBeRecorded = false;
 				 int n = -999999, w= -999999, d = 0;
 				 if (!particleWait){
@@ -519,7 +523,7 @@ _survivalHelper = null;
 						 		+ calcXDisplacementIntDeterministic(tmToAdv)
 						 		+ calcXDisplacementIntRandom(tmToAdv);
 					 
-					/**
+					 /**
 					  * wb and nd will be updated after isNodeReached and makeNodeDecision calls, 
 					  * so test if the travel time needs to be recorded before those calls
 					  * only record the travel time for particles from upstream because the output node is an upstream node
@@ -541,7 +545,7 @@ _survivalHelper = null;
 						 System.err.println(age/60+" "+Etdt+" "+Evdt);
 						 //System.err.println("age:"+age/60+"  x:"+x+"  y:"+y+"  z:"+z+"  sv:"+((Channel) wb).getSwimmingVelocity()+"  vel:"+calcXVelocityExtDeterministic()
 								// +"  area:"+channelArea+"  cDep:"+channelDepth+"  clength:"+channelLength+"  cVel:"+channelVave+"  cWid:"+channelWidth);
-					*/
+					 */
 					 if (isNodeReached(xPos) == true){
 						 float totalVelocity = calcXVelocityExtDeterministic() + calcXVelocityExtRandom()
 				  			 	 			 + calcXVelocityIntDeterministic() + calcXVelocityIntRandom();
@@ -556,6 +560,7 @@ _survivalHelper = null;
 						 else{ 
 							 //if isNodeReached(xPos) == true, xPos could only > length or < 0
 							 if (xPos < 0)
+								 // now the entire tmToAdv is not totally used up.  Reset tmToAdv to the part used 
 								 tmToAdv = Math.abs(x/totalVelocity); // tmToAdv is less than tmstep
 							 else if (xPos > channelLength)
 								 tmToAdv = (channelLength-x)/totalVelocity; 
@@ -565,7 +570,7 @@ _survivalHelper = null;
 						 }
 						 // makeNodeDecision updates wb and sets x for new wb, x = 0 or channel length
 						 makeNodeDecision();
-						// water body is updated if a node is reached.  Now check if the new water body is a channel
+						 // water body is updated if a node is reached.  Now check if the new water body is a channel
 						 if (wb.getPTMType() != Waterbody.CHANNEL){
 							 tmLeft -= tmToAdv;
 							 age += tmToAdv;
@@ -578,10 +583,11 @@ _survivalHelper = null;
 							 break;
 						 }
 						 else{
-							 // particle stays in the same node
+							 // if particle stays in the same node, wait for a time step.  toToAdv is calculated in lines 555 - 565 
 							 if (tmToAdv < Float.MIN_VALUE && wb.getEnvIndex() == w && nd.getEnvIndex() == n 
 									 && totalVelocity*wb.getInflow(nd.getEnvIndex())<0)
-								 particleWait = true;
+								 return;
+								 //particleWait = true;
 						 }
 						 //TODO clean up
 						 /*
@@ -604,7 +610,7 @@ _survivalHelper = null;
 						 y = calcYPosition(tmToAdv);
 						 z = calcZPosition(tmToAdv);
 					 }
-				 }//end if(particleWait)
+				 }//end if(!particleWait)
 				 tmLeft -= tmToAdv;
 				// age in seconds
 				 age += tmToAdv;
