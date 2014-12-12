@@ -23,7 +23,7 @@ public class SwimInputs {
 			if (inText.size()<4)
 				PTMUtil.systemExit("information missing in Swim_Inputs section");
 			try{
-				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(0), "FLOOD_HOLDING_THRESHOLD");
+				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(0), "STST_THRESHOLD");
 				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(1), "DAY_TIME_NOT_SWIM_PERCENT");
 				_sunrise = PTMUtil.getPairFromLine(inText.get(2), "SUNRISE");
 				_sunset = PTMUtil.getPairFromLine(inText.get(3), "SUNSET");;

@@ -316,7 +316,7 @@ _survivalHelper = null;
     
     if (inserted){//after initial insertion  
         //recursionCounter=0;
-    	// Day time holding, wait for a time step
+    	// Day time holding, wait a time step
     	if(isDaytime && PTMUtil.getRandomNumber()< daytimeNotSwimPercent)
     		return;
     		//particleWait = true;
