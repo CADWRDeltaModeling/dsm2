@@ -77,7 +77,7 @@ program gtm
     real(gtm_real), allocatable :: init_r(:,:)   
      
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
-    real(gtm_real), parameter :: constant_dispersion = zero  ! 6000.d0
+    real(gtm_real) :: constant_dispersion
     integer :: nt    
     integer :: up_comp, down_comp    
     
@@ -102,7 +102,6 @@ program gtm
     
     ! 
     logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
-    logical :: apply_diffusion = .false.
     !real(gtm_real), parameter :: constant_decay = 5.0d-5
     real(gtm_real), parameter :: constant_decay = zero
     logical :: debug_interp = .false.    
@@ -157,14 +156,17 @@ program gtm
                        memory_buffer, hydro_time_interval,     & 
                        hydro_start_jmin, hydro_end_jmin,       &
                        gtm_start_jmin, gtm_end_jmin)   
-    n_out_cell = 38
+    n_out_cell = 18
     allocate(out_cell(n_out_cell))
-    call output_cell_arr(out_cell)
+    call output_cell_arr_mtz(out_cell)
                            
     !
     !----- allocate array for interpolation -----     
     !
     nt = npartition_t + 1
+    if ((apply_diffusion).and.(disp_coef.ne.LARGEREAL)) then
+        constant_dispersion = disp_coef
+    end if    
     allocate(prev_comp_flow(n_comp))
     allocate(prev_comp_ws(n_comp))
     allocate(prev_hydro_resv(n_resv))
@@ -462,7 +464,7 @@ program gtm
                              theta,                        &
                              sub_gtm_time_step*sixty,      &
                              dx_arr)
-            end if
+            end if 
             call prim2cons(mass,conc,area,n_cell,n_var)
             mass_prev = mass
             area_prev = area
@@ -474,8 +476,10 @@ program gtm
         !
         !----- print output to hdf5 file -----
         !              
+
         if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
             time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
+            !write(*,'(10f8.0)') conc(2164,1),flow(2164),conc(2721,1),flow(2721),conc(2125,1),flow(2125),conc(2765,1),flow(2764)
             call write_qual_hdf(qual_hdf,                     &
                                 conc,                         &
                                 n_cell,                       &

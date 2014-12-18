@@ -64,6 +64,8 @@ module common_variables
      integer :: gtm_ntideblocks = LARGEINT             !< gtm time blocks
      real(gtm_real) :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
      logical :: debug_print = .true.
+     logical :: apply_diffusion = .false. 
+     real(gtm_real) :: disp_coef = LARGEREAL           !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
      
      type gtm_io_files_t
           character(len=130) :: filename               !< filename
@@ -87,6 +89,7 @@ module common_variables
           integer :: down_node                         !< downstream DSM2 node
           integer :: up_comp                           !< upstream computational point
           integer :: down_comp                         !< downstream computational point
+          real(gtm_real) :: dispersion                 !< dispersion coefficient
      end type
      type(channel_t), allocatable :: chan_geom(:)
      

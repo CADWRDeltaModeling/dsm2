@@ -86,8 +86,10 @@ module process_gtm_scalar
       elseif (Param .eq. 'init_conc') then
          read(Val, '(f10.0)', err=810) init_conc
       elseif (Param .eq. 'dispersion') then
-         read(Val, '(l2)', err=810) dispersion
-
+         read(Val, '(l2)', err=810) apply_diffusion
+      elseif (Param .eq. 'disp_coef') then
+         read(Val, '(f20.5)', err=810) disp_coef
+         
       !--------global rates for non-conserative const.
       elseif (Param .eq. 'algaefract_n') then
          read(Val, '(f8.3)', err=810) algaefract_n

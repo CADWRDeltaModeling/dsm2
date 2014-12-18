@@ -182,6 +182,14 @@ module advection
                          time,        &
                          dt,          &
                          dx)
+                         
+        ! Assign boundary concentration if it is given
+        if (associated(boundary_conc)) then        
+            call boundary_conc(conc_lo,              &
+                               conc_hi,              & 
+                               ncell,                &
+                               nvar)
+        end if  
 
         ! Compute upwind value of fluxes. This is a naive guess based on the extrapolated states
         ! It doesn't include any node-based sources or reservoirs or the like.
@@ -192,15 +200,7 @@ module advection
                           flow_lo,    &
                           flow_hi,    &
                           ncell,      &
-                          nvar)
-
-        ! Assign boundary concentration if it is given
-        if (associated(boundary_conc)) then        
-            call boundary_conc(conc_lo,              &
-                               conc_hi,              & 
-                               ncell,                &
-                               nvar)
-        end if                              
+                          nvar)                          
                
         if (associated(advection_boundary_flux)) then
             call advection_boundary_flux(flux_lo,     &

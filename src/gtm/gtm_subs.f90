@@ -173,6 +173,78 @@ module gtm_subs
         return
     end subroutine    
     
+
+    !> temporary output cells for spot checking
+    subroutine output_cell_arr_mtz(out_cell)
+        use gtm_precision
+        implicit none
+        integer, parameter:: n_out_cell = 18
+        integer, intent(out) :: out_cell(n_out_cell)        
+        type output_t
+            character*16 :: name
+            integer :: chan_num
+            real(gtm_real) :: distance
+        end type
+        type(output_t) :: out(n_out_cell)
+
+        out(1)%name = '437_0' 
+        out(2)%name = '437_L' 
+        out(3)%name = '438_0' 
+        out(4)%name = '438_L'
+        out(5)%name = '440_0'
+        out(6)%name = '440_L'
+        out(7)%name = '441_0'
+        out(8)%name = '441_L'
+        out(9)%name = '443_0'
+        out(10)%name = '443_L'
+        out(11)%name = '444_0'
+        out(12)%name = '444_L'
+        out(13)%name = '454_0'
+        out(14)%name = '454_L'
+        out(15)%name = '574_0'
+        out(16)%name = '574_L'
+        out(17)%name = '575_0'
+        out(18)%name = '575_L'
+        out(1)%chan_num = 437
+        out(2)%chan_num = 437 
+        out(3)%chan_num = 438 
+        out(4)%chan_num = 438 
+        out(5)%chan_num = 440 
+        out(6)%chan_num = 440 
+        out(7)%chan_num = 441 
+        out(8)%chan_num = 441 
+        out(9)%chan_num = 443 
+        out(10)%chan_num = 443 
+        out(11)%chan_num = 444 
+        out(12)%chan_num = 444
+        out(13)%chan_num = 454 
+        out(14)%chan_num = 454 
+        out(15)%chan_num = 574 
+        out(16)%chan_num = 574 
+        out(17)%chan_num = 575 
+        out(18)%chan_num = 575 
+        out(1)%distance = 0.d0        
+        out(2)%distance = 20200.d0 
+        out(3)%distance = 0.d0 
+        out(4)%distance = 12100.d0 
+        out(5)%distance = 0.d0 
+        out(6)%distance = 14800.d0 
+        out(7)%distance = 0.d0 
+        out(8)%distance = 5398.d0 
+        out(9)%distance = 0.d0 
+        out(10)%distance = 11500.d0 
+        out(11)%distance = 0.d0 
+        out(12)%distance = 12631.d0 
+        out(13)%distance = 0.d0 
+        out(14)%distance = 12200.d0 
+        out(15)%distance = 0.d0 
+        out(16)%distance = 13318.d0 
+        out(17)%distance = 0.d0 
+        out(18)%distance = 13000.d0         
+        call get_select_cell(out_cell, n_out_cell, out(:)%chan_num, out(:)%distance)
+        return
+    end subroutine    
+
     
     !> Write concentration for output cells
     subroutine print_out_cell_conc(c, nc, out_cell, nout)
@@ -183,7 +255,7 @@ module gtm_subs
         real(gtm_real), intent(in) :: c(nc)
         integer, intent(in) :: out_cell(nout)
         integer :: i
-        write(101,'(39f10.0)') (c(out_cell(i)),i=1,nout)        
+        write(102,'(18f10.0)') (c(out_cell(i)),i=1,nout)        
         return
     end subroutine   
     
