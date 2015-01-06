@@ -54,9 +54,10 @@ program gtm
     use dispersion_coefficient    
     use source_sink
     use boundary_advection 
-    use boundary_diffusion        
+    use boundary_diffusion       
     use gtm_subs
     use dsm2_time_utils, only: incr_intvl
+    use network_boundary_diffusion
 
     implicit none
     
@@ -129,8 +130,8 @@ program gtm
     real(gtm_real) :: flow_chk
     
     ! for specified output locations
-    integer :: n_out_cell
-    integer, allocatable :: out_cell(:)
+    integer :: n_out_cell, n_out_cell_mtz
+    integer, allocatable :: out_cell(:), out_cell_mtz(:)
     
     integer :: st, k, n_st     ! temp index
 
@@ -156,16 +157,19 @@ program gtm
                        memory_buffer, hydro_time_interval,     & 
                        hydro_start_jmin, hydro_end_jmin,       &
                        gtm_start_jmin, gtm_end_jmin)   
-    n_out_cell = 18
+    n_out_cell = 39
+    n_out_cell_mtz = 18
     allocate(out_cell(n_out_cell))
-    call output_cell_arr_mtz(out_cell)
+    call output_cell_arr(out_cell)    
+    allocate(out_cell_mtz(n_out_cell_mtz))
+    call output_cell_arr_mtz(out_cell_mtz)
                            
     !
     !----- allocate array for interpolation -----     
     !
     nt = npartition_t + 1
-    if ((apply_diffusion).and.(disp_coef.ne.LARGEREAL)) then
-        constant_dispersion = disp_coef
+    if ((apply_diffusion).and.(disp_coeff.ne.LARGEREAL)) then
+        constant_dispersion = disp_coeff
     end if    
     allocate(prev_comp_flow(n_comp))
     allocate(prev_comp_ws(n_comp))
@@ -230,7 +234,7 @@ program gtm
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
-    boundary_diffusion_flux => neumann_zero_diffusive_flux
+    boundary_diffusion_flux => network_boundary_diffusive_flux
     boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
     call set_constant_dispersion(constant_dispersion)
@@ -506,7 +510,8 @@ program gtm
                                        n_cell,                &
                                        time_index_in_gtm_hdf)                                             
             end if            
-            call print_out_cell_conc(conc(:,1), n_cell, out_cell, n_out_cell)
+            call print_out_cell_conc(103, conc(:,1), n_cell, out_cell, n_out_cell)
+            call print_out_cell_conc(104, conc(:,1), n_cell, out_cell_mtz, n_out_cell_mtz)
         end if                           
         
     end do
@@ -520,6 +525,7 @@ program gtm
     deallocate(init_c)
     deallocate(init_r)
     deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
+    deallocate(out_cell, out_cell_mtz)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state

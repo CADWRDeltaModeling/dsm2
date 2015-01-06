@@ -65,7 +65,7 @@ module common_variables
      real(gtm_real) :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
      logical :: debug_print = .true.
      logical :: apply_diffusion = .false. 
-     real(gtm_real) :: disp_coef = LARGEREAL           !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
+     real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
      
      type gtm_io_files_t
           character(len=130) :: filename               !< filename

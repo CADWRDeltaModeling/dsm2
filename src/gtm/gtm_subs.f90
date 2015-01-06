@@ -51,124 +51,127 @@ module gtm_subs
             real(gtm_real) :: distance
         end type
         type(output_t) :: out(n_out_cell)
-
-        out(1)%name = 'RFAL008' 
-        out(2)%name = 'RMID015_144' 
-        out(3)%name = 'RMID015_145' 
-        out(4)%name = 'RMID023' 
-        out(5)%name = 'RMID027' 
-        out(6)%name = 'RMID040' 
-        out(7)%name = 'RMKL019' 
-        out(8)%name = 'ROLD014' 
-        out(9)%name = 'ROLD024' 
-        out(10)%name = 'ROLD046' 
-        out(11)%name = 'ROLD047'
-        out(12)%name = 'ROLD059' 
-        out(13)%name = 'RSAC054'
-        out(14)%name = 'RSAC075'
-        out(15)%name = 'RSAC081' 
-        out(16)%name = 'RSAC092' 
-        out(17)%name = 'RSAC139' 
-        out(18)%name = 'RSAC142' 
-        out(19)%name = 'RSAC155' 
-        out(20)%name = 'RSAN007'
-        out(21)%name = 'RSAN018' 
-        out(22)%name = 'RSAN032'
-        out(23)%name = 'RSAN037'
-        out(24)%name = 'RSAN058' 
-        out(25)%name = 'RSAN072'
-        out(26)%name = 'RSAN087'
-        out(27)%name = 'RSAN112' 
-        out(28)%name = 'RSMKL008' 
-        out(29)%name = 'SLCCH016' 
-        out(30)%name = 'SLPPR000' 
-        out(31)%name = 'SLPPR003' 
-        out(32)%name = 'SLRCK005' 
-        out(33)%name = 'SLSBT011' 
-        out(34)%name = 'SLTRM004' 
-        out(35)%name = 'YOLO' 
-        out(36)%name = 'VERNALIS' 
-        out(37)%name = 'SAC'
-        out(38)%name = 'GEORG_SL' 
-        out(39)%name = 'RIO'
-        out(1)%chan_num = 276 
-        out(2)%chan_num = 144 
-        out(3)%chan_num = 145 
-        out(4)%chan_num = 135 
-        out(5)%chan_num = 133 
-        out(6)%chan_num = 126 
-        out(7)%chan_num = 357 
-        out(8)%chan_num = 117 
-        out(9)%chan_num = 106 
-        out(10)%chan_num = 80 
-        out(11)%chan_num = 79 
-        out(12)%chan_num = 71 
-        out(13)%chan_num = 441 
-        out(14)%chan_num = 437 
-        out(15)%chan_num = 436 
-        out(16)%chan_num = 434 
-        out(17)%chan_num = 417 
-        out(18)%chan_num = 417 
-        out(19)%chan_num = 412 
-        out(20)%chan_num = 52      
-        out(21)%chan_num = 83 
-        out(22)%chan_num = 349 
-        out(23)%chan_num = 42 
-        out(24)%chan_num = 20 
-        out(25)%chan_num = 10 
-        out(26)%chan_num = 6 
-        out(27)%chan_num = 17 
-        out(28)%chan_num = 344 
-        out(29)%chan_num = 402 
-        out(30)%chan_num = 268 
-        out(31)%chan_num = 269 
-        out(32)%chan_num = 206 
-        out(33)%chan_num = 385 
-        out(34)%chan_num = 310 
-        out(35)%chan_num = 398 
-        out(36)%chan_num = 17 
-        out(37)%chan_num = 410 
-        out(38)%chan_num = 366       
-        out(39)%chan_num = 430
-        out(1)%distance = 5480.d0        
-        out(2)%distance = 838.d0 
-        out(3)%distance = 2114.d0 
-        out(4)%distance = 4427.d0 
-        out(5)%distance = 3641.d0 
-        out(6)%distance = 3951.d0 
-        out(7)%distance = 0.d0 
+        
+        out(1)%name = 'GEORG_SL' 
+        out(2)%name = 'RFAL008' 
+        out(3)%name = 'RMID015_144' 
+        out(4)%name = 'RMID015_145' 
+        out(5)%name = 'RMID023' 
+        out(6)%name = 'RMID027' 
+        out(7)%name = 'RMID040' 
+        out(8)%name = 'RMKL019' 
+        out(9)%name = 'ROLD014' 
+        out(10)%name = 'ROLD024' 
+        out(11)%name = 'ROLD046' 
+        out(12)%name = 'ROLD047'
+        out(13)%name = 'ROLD059' 
+        out(14)%name = 'RSAC054'
+        out(15)%name = 'RSAC075'
+        out(16)%name = 'RSAC081' 
+        out(17)%name = 'RSAC092' 
+        out(18)%name = 'RIO'     
+        out(19)%name = 'RSAC139' 
+        out(20)%name = 'RSAC142' 
+        out(21)%name = 'RSAC155' 
+        out(22)%name = 'RSAN007'
+        out(23)%name = 'RSAN018' 
+        out(24)%name = 'RSAN032'
+        out(25)%name = 'RSAN037'
+        out(26)%name = 'RSAN058' 
+        out(27)%name = 'RSAN072'
+        out(28)%name = 'RSAN087'
+        out(29)%name = 'RSAN112' 
+        out(30)%name = 'RSMKL008' 
+        out(32)%name = 'SAC'        
+        out(32)%name = 'SLCCH016' 
+        out(33)%name = 'SLPPR000' 
+        out(34)%name = 'SLPPR003' 
+        out(35)%name = 'SLRCK005' 
+        out(36)%name = 'SLSBT011' 
+        out(37)%name = 'SLTRM004' 
+        out(38)%name = 'VERNALIS'         
+        out(39)%name = 'YOLO' 
+        
+        out(1)%chan_num = 366         
+        out(2)%chan_num = 276 
+        out(3)%chan_num = 144 
+        out(4)%chan_num = 145 
+        out(5)%chan_num = 135 
+        out(6)%chan_num = 133 
+        out(7)%chan_num = 126 
+        out(8)%chan_num = 357 
+        out(9)%chan_num = 117 
+        out(10)%chan_num = 106 
+        out(11)%chan_num = 80 
+        out(12)%chan_num = 79 
+        out(13)%chan_num = 71 
+        out(14)%chan_num = 441 
+        out(15)%chan_num = 437 
+        out(16)%chan_num = 436 
+        out(17)%chan_num = 434 
+        out(18)%chan_num = 430               
+        out(19)%chan_num = 417 
+        out(20)%chan_num = 417 
+        out(21)%chan_num = 412 
+        out(22)%chan_num = 52      
+        out(23)%chan_num = 83 
+        out(24)%chan_num = 349 
+        out(25)%chan_num = 42 
+        out(26)%chan_num = 20 
+        out(27)%chan_num = 10 
+        out(28)%chan_num = 6 
+        out(29)%chan_num = 17 
+        out(30)%chan_num = 344 
+        out(31)%chan_num = 410                 
+        out(32)%chan_num = 402 
+        out(33)%chan_num = 268         
+        out(34)%chan_num = 269 
+        out(35)%chan_num = 206 
+        out(36)%chan_num = 385 
+        out(37)%chan_num = 310 
+        out(38)%chan_num = 17 
+        out(39)%chan_num = 398 
+      
+        out(1)%distance = 0.d0        
+        out(2)%distance = 5480.d0        
+        out(3)%distance = 838.d0 
+        out(4)%distance = 2114.d0 
+        out(5)%distance = 4427.d0 
+        out(6)%distance = 3641.d0 
+        out(7)%distance = 3951.d0 
         out(8)%distance = 0.d0 
-        out(9)%distance = 2718.d0 
-        out(10)%distance = 1431.d0 
-        out(11)%distance = 2766.d0 
-        out(12)%distance = 3116.d0 
-        out(13)%distance = 5398.d0 
-        out(14)%distance = 11108.d0 
-        out(15)%distance = 5733.d0 
-        out(16)%distance = 435.d0 
-        out(17)%distance = 1718.d0 
-        out(18)%distance = 4400.d0 
-        out(19)%distance = 4623.d0 
-        out(20)%distance = 366.d0 
-        out(21)%distance = 4213.d0 
-        out(22)%distance = 9672.d0 
-        out(23)%distance = 286.d0 
-        out(24)%distance = 2520.d0 
-        out(25)%distance = 9400.d0 
-        out(26)%distance = 7902.d0 
-        out(27)%distance = 4744.d0 
-        out(28)%distance = 7088.d0 
-        out(29)%distance = 0.d0 
-        out(30)%distance = 4440.d0 
-        out(31)%distance = 13650.d0 
+        out(9)%distance = 0.d0 
+        out(10)%distance = 2718.d0 
+        out(11)%distance = 1431.d0 
+        out(12)%distance = 2766.d0 
+        out(13)%distance = 3116.d0 
+        out(14)%distance = 5398.d0 
+        out(15)%distance = 11108.d0 
+        out(16)%distance = 5733.d0 
+        out(17)%distance = 435.d0 
+        out(18)%distance = 9684.d0           
+        out(19)%distance = 1718.d0 
+        out(20)%distance = 4400.d0 
+        out(21)%distance = 4623.d0 
+        out(22)%distance = 366.d0 
+        out(23)%distance = 4213.d0 
+        out(24)%distance = 9672.d0 
+        out(25)%distance = 286.d0 
+        out(26)%distance = 2520.d0 
+        out(27)%distance = 9400.d0 
+        out(28)%distance = 7902.d0 
+        out(29)%distance = 4744.d0 
+        out(30)%distance = 7088.d0 
+        out(31)%distance = 0.d0                
         out(32)%distance = 0.d0 
-        out(33)%distance = 2273.d0 
-        out(34)%distance = 540.d0 
+        out(33)%distance = 4440.d0 
+        out(34)%distance = 13650.d0 
         out(35)%distance = 0.d0 
-        out(36)%distance = 0.d0 
-        out(37)%distance = 0.d0 
-        out(38)%distance = 0.d0
-        out(39)%distance = 9684.d0         
+        out(36)%distance = 2273.d0 
+        out(37)%distance = 540.d0 
+        out(38)%distance = 0.d0 
+        out(39)%distance = 0.d0 
+
         call get_select_cell(out_cell, n_out_cell, out(:)%chan_num, out(:)%distance)
         return
     end subroutine    
@@ -247,15 +250,16 @@ module gtm_subs
 
     
     !> Write concentration for output cells
-    subroutine print_out_cell_conc(c, nc, out_cell, nout)
+    subroutine print_out_cell_conc(file_id, c, nc, out_cell, nout)
         use gtm_precision
         implicit none
+        integer, intent(in) :: file_id
         integer, intent(in) :: nc
         integer, intent(in) :: nout
         real(gtm_real), intent(in) :: c(nc)
         integer, intent(in) :: out_cell(nout)
         integer :: i
-        write(102,'(18f10.0)') (c(out_cell(i)),i=1,nout)        
+        write(file_id,'(<nout>f10.0)') (c(out_cell(i)),i=1,nout)    
         return
     end subroutine   
     

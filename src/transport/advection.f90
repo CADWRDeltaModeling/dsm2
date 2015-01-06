@@ -227,8 +227,8 @@ module advection
                                    half_time,   &
                                    dt,          &
                                    dx)       
-        end if
-                                  
+        end if    
+                           
         ! Combine the fluxes into a divergence term at the half time at cell edges.
         ! Computing and storing the divergence separately gives some flexibility with integrating
         ! the source term, e.g. Heun's method

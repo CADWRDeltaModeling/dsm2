@@ -29,6 +29,7 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\gtm\dsm2_gtm_network.f90"/>
 		<File RelativePath="..\..\src\gtm\gtm.f90"/>
+		<File RelativePath="..\..\src\gtm\network_boundary_diffusion.f90"/>
 		<File RelativePath="..\..\src\gtm\gtm_subs.f90"/>
 		<File RelativePath="..\..\src\gtm\state_variables_network.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>
