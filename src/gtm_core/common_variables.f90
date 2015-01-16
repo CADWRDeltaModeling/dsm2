@@ -43,6 +43,7 @@ module common_variables
      integer :: n_var = LARGEINT                    !< number of variables
     
      real(gtm_real), allocatable :: dx_arr(:)              !< dx array
+     real(gtm_real), allocatable :: disp_arr(:)            !< dispersion coeff
      real(gtm_real), allocatable :: hydro_flow(:,:)        !< flow from DSM2 hydro
      real(gtm_real), allocatable :: hydro_ws(:,:)          !< water surface from DSM2 hydro
      real(gtm_real), allocatable :: hydro_area(:,:)        !< calculated cross section area from CxArea
@@ -307,6 +308,7 @@ module common_variables
              n_cell = n_cell + segm(i)%nx
          end do          
          allocate(dx_arr(n_cell), stat = istat)
+         allocate(disp_arr(n_cell), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if    
@@ -315,6 +317,7 @@ module common_variables
              do j = 1, segm(i)%nx
                  icell = icell + 1
                  dx_arr(icell) = segm(i)%length/segm(i)%nx
+                 disp_arr(icell) = chan_geom(segm(i)%chan_no)%dispersion
              end do                      
          end do         
          return
@@ -459,6 +462,7 @@ module common_variables
              deallocate(segm)
              deallocate(conn)
              deallocate(dx_arr)
+             deallocate(disp_arr)
          end if    
          return
      end subroutine

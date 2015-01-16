@@ -400,7 +400,7 @@ module diffusion
      real(gtm_real), intent (in)  :: dt                       !< Time step                                   
                                   
      !---local                                  
-     real(gtm_real) :: explicit_diffuse_op (ncell,nvar)       !< Explicit diffusion operator
+     real(gtm_real) :: explicit_diffuse_op(ncell,nvar)       !< Explicit diffusion operator
 
      integer :: icell
      integer :: ivar

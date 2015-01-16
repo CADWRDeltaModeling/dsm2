@@ -228,16 +228,17 @@ program gtm
     !
     fill_hydro => gtm_flow_area
     fill_hydro_network => gtm_network_data
-    dispersion_coef => constant_dispersion_coef
+    !dispersion_coef => constant_dispersion_coef
+    dispersion_coef => assign_dispersion_coef
     compute_source => no_source
     !compute_source => linear_decay_source 
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
-    boundary_diffusion_flux => network_boundary_diffusive_flux
+    boundary_diffusion_flux => network_neumann_zero_boundary_diffusive_flux
     boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
-    call set_constant_dispersion(constant_dispersion)
+    call set_dispersion_arr(disp_arr, n_cell)
     
     write(*,*) "Process time series...."
     write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
@@ -440,16 +441,6 @@ program gtm
             
             !--------- Diffusion ----------
             if (apply_diffusion) then
-                call dispersion_coef(disp_coef_lo,                 &
-                                     disp_coef_hi,                 &
-                                     flow,                         &
-                                     flow_lo,                      &
-                                     flow_hi,                      &
-                                     dble(new_current_time)*sixty, &
-                                     dx_arr,                       &
-                                     sub_gtm_time_step*sixty,      &
-                                     n_cell,                       &
-                                     n_var)                                   
                 call diffuse(conc,                         &
                              conc_prev,                    &
                              area,                         &
