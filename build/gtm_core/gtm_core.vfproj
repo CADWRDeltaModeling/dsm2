@@ -36,5 +36,6 @@
 		<File RelativePath="..\..\src\gtm_core\hydro_data_network.f90"/>
 		<File RelativePath="..\..\src\gtm_core\hydro_data_tidefile.f90"/>
 		<File RelativePath="..\..\src\gtm_core\interpolation.f90"/>
+		<File RelativePath="..\..\src\klu_fortran\klu.f90"/>
 		<File RelativePath="..\..\src\gtm_core\time_utilities.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

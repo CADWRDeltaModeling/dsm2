@@ -235,7 +235,7 @@ program gtm
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
-    boundary_diffusion_flux => network_neumann_zero_boundary_diffusive_flux
+    boundary_diffusion_flux => network_boundary_diffusive_flux
     boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
     call set_dispersion_arr(disp_arr, n_cell)
@@ -526,6 +526,6 @@ program gtm
     call close_qual_hdf(qual_hdf)         
     call hdf5_close
     close(debug_unit)
-    pause    
+    call exit(0)    
 end program
 

@@ -27,6 +27,7 @@ program test_driver
   
     use fruit
     use gtm_logging 
+    use klu
 
     !----- modules used in project test_common ------
     use ut_hydro_data_tide
@@ -75,6 +76,8 @@ program test_driver
     
     use ut_do_source
     
+    use test_klu
+    
     implicit none
     logical :: verbose = .true.
     character(len=255) :: parent_dir
@@ -86,6 +89,9 @@ program test_driver
     
     call init_fruit
     call get_parent_working_dir(parent_dir) 
+    
+    k_common = klu_fortran_init()  
+    call klu_fortran_free_numeric(k_numeric, k_common)
    
     !----- function calls to test units in project process_io API ---
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
@@ -97,7 +103,6 @@ program test_driver
     call test_hdf_ts_wrt
     call test_gtm_hdf_write
     call test_find_bound_index
-    !call test_create_restart
     call test_read_init_file
     
     !----- function calls to test units in project common -----
@@ -109,8 +114,6 @@ program test_driver
            
     !----- function calls to test units in project transport ----- 
     call change_working_dir(parent_dir, "/transport_unit_test_out")
-    ! todo: we have 6 pointers, [2 diff + 1 adv + 1 source + 1 hydro + 1 disp_coef]
-    ! can we right nullify(the six pointer) after each test?  
     
     !//////// Advection unit tests
     call test_gradient_calc
@@ -149,7 +152,6 @@ program test_driver
     !       this frequently causes problems that are undetected without scrutiny
     call test_tidal_advection_reaction(verbose)
     call test_tidal_advection_reaction_vary_dx(verbose)
-    !call test_hydro_advection_reaction(verbose) 
     
     !/////Advection-Diffusion tests
     call test_zoppou_flow()    ! unit test that goes with convergence test
@@ -160,11 +162,14 @@ program test_driver
     !/// Advection-diffusion-reaction
     call test_advection_diffusion_mms(verbose)
     
-    call test_do_module
+    !call test_do_module
+    call klu_fortran_free(k_symbolic, k_numeric, k_common)    
+    !call test_klu_exmamples
     
     !----- function calls to test units in project sediment -----
     
     call fruit_summary
+
     close(debug_unit)
     close(141)
     close(142)
