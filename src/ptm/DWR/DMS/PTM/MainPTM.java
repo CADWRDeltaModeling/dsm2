@@ -222,8 +222,9 @@ public class MainPTM {
                 // get latest hydro information using Global/model time in minutes!!!!!!
                 Environment.getHydroInfo(Globals.currentModelTime);
                 if (DEBUG) System.out.println("Updated flows");
-                
+                // keep day time check out of the particles for loop
             	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime);
+            	//TODO use LocalTime in Jave1.8 to simplify
             	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour) 
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min);            	
@@ -233,9 +234,10 @@ public class MainPTM {
                 	// TODO survival check was checked in updateXYZPosition in particle class but commented out
                 	// because with subtime step too many random numbers are sampled
                 	// ptm timeStep in seconds
-                	if (!particleArray[i].isDead) 
+                	// if Day time holding, wait a time step
+                	if ((!particleArray[i].isDead) && (!(isDaytime && PTMUtil.getRandomNumber()< daytimeNotSwimPercent))) 
                 		// updatePosition uses timeStep in seconds!!!!!!
-                			particleArray[i].updatePosition(timeStep, isDaytime, daytimeNotSwimPercent, floodHoldingThreshold);
+                			particleArray[i].updatePosition(timeStep, floodHoldingThreshold);
                 }
                 if (DEBUG) System.out.println("Updated particle positions");
       

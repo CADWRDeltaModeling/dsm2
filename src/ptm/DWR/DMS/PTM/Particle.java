@@ -300,7 +300,7 @@ _survivalHelper = null;
     *  updates the position and parameters of Particle.
     */
   //delT is ptm input time step
-  public final void updatePosition(float delT, boolean isDaytime, float daytimeNotSwimPercent, float flowVelThreshold){ //delT in seconds
+  public final void updatePosition(float delT, float flowVelThreshold){ //delT in seconds
 	if (observer == null)
 		PTMUtil.systemExit("expect an observer be installed, but not, system exit");
   	particleWait = false;  //set or reset particle wait variable
@@ -316,10 +316,7 @@ _survivalHelper = null;
     
     if (inserted){//after initial insertion  
         //recursionCounter=0;
-    	// Day time holding, wait a time step
-    	if(isDaytime && PTMUtil.getRandomNumber()< daytimeNotSwimPercent)
-    		return;
-    		//particleWait = true;
+    	//particleWait = true;
 		updateXYZPosition(delT, flowVelThreshold); //TODO let helper do the job
 		updateOtherParameters(delT); //TODO Why need this?
         ////TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step

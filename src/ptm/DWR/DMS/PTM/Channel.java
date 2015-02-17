@@ -246,12 +246,13 @@ public class Channel extends Waterbody{
   }
   public float getInflow(int nodeEnvId){
 	int nodeId = getNodeLocalIndex(nodeEnvId);
+	float sv = getSwimmingVelocity();
 	//at gate flow == 0
 	if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
 		return 0.0f;
 	if (flowType(nodeId) == OUTFLOW)
-	  return -1.0f*(flowAt[nodeId]+getSwimmingVelocity()*getFlowArea(length));
-	return flowAt[nodeId]+getSwimmingVelocity()*getFlowArea(0.0f);
+	  return -1.0f*(flowAt[nodeId]+sv*getFlowArea(length));
+	return flowAt[nodeId]+sv*getFlowArea(0.0f);
   }
   public boolean isAgSeep(){ return false;}
   public boolean isAgDiv(){ return false;}
