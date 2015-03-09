@@ -493,8 +493,9 @@ _survivalHelper = null;
 			 int numOfSubTimeSteps = getSubTimeSteps(tmLeft);
 			 float tmstep = tmLeft/numOfSubTimeSteps;
 			 // PTM internal calculation time step
-			 float tmToAdv = 0;
-			 //y, z set up for particles which are just out of reservoir and conveyor
+			 float tmToAdv = 0.0f;
+			 //y, z set up for particles which are just out of reservoir or conveyor or inserted
+			 //it is not necessary to set x because makeNodeDecision or setInsertInfo will be called and x will be set then
 			 if (PTMUtil.floatNearlyEqual(y, MISSING) || PTMUtil.floatNearlyEqual(z,MISSING)) {
 				 setYZLocationInChannel();
 			 }
@@ -574,13 +575,15 @@ _survivalHelper = null;
 							 if (needToBeRecorded){
 								 _travelTimeRecorded = true;
 								 needToBeRecorded = false;
+								 //TODO !!! use age as travel time, because when calibrate for travel time, particles will be inserted 
+								 //!!! in the upstream end of the river reach.  May consider modify later.
 								 _tto.setTravelTime(n,w,d, _insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
 								 //setParticleDead();
 							 } 
 							 break;
 						 }
 						 else{
-							 // if particle stays in the same node, wait for a time step.  toToAdv is calculated in lines 555 - 565 
+							 // if particle stays in the same node, wait for a time step.  tmToAdv is calculated in lines 555 - 565 
 							 if (tmToAdv < Float.MIN_VALUE && wb.getEnvIndex() == w && nd.getEnvIndex() == n 
 									 && totalVelocity*wb.getInflow(nd.getEnvIndex())<0)
 								 return;

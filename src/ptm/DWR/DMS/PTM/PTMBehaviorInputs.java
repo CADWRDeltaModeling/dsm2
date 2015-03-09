@@ -27,7 +27,7 @@ public class PTMBehaviorInputs {
 	private void extractReleaseInputs(ArrayList<String> releaseInputText){
 		if (releaseInputText.size()< 6)
 			PTMUtil.systemExit("Errors in Fish_Release_Inputs, system exit.");
-		int numOfGroups = PTMUtil.getInt(releaseInputText.get(0));
+		int numOfGroups = PTMUtil.getIntFromLine(releaseInputText.get(0), "NUMBER_OF_RELEASE_GROUPS");
 		for (int i = 1; i< numOfGroups + 1; i++){
 			ArrayList<String> groupText = PTMUtil.getInputBlock(releaseInputText, "GROUP_"+i, "END_GROUP_"+i);
 			if (groupText == null)

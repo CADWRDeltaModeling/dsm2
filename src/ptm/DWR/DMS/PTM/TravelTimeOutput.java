@@ -33,7 +33,9 @@ public class TravelTimeOutput {
 	//public void setOutputNodeId(int nodeId){_outputNodeId = nodeId;}
 	//public void setOutputWbId(int wbId){_outputWbId = wbId;}
 	//public void setOutputChannelDistance(float distance){_distanceFromUpNode = distance;}
+
 	public void setTravelTime(int nodeId, int wbId, int distance, String releaseStationName, Calendar releaseTime, Integer pid, Float travelTimeInMin){ 
+		//station: detect station where travel time needs to be output
 		IntBuffer station = IntBuffer.wrap(new int[]{nodeId, wbId, distance});
 		if (_travelTimeOutput == null)
 				_travelTimeOutput = new HashMap<IntBuffer, Map<String, Map<Calendar, ArrayList<Pair<Integer, Float>>>>>();
@@ -193,12 +195,12 @@ public class TravelTimeOutput {
 			_stationNames.put(IntBuffer.wrap(wbNd), items[3]);
 		}
 	}
-	//IntBuffer:station nodeId, wbId, distance; Map<release node, Map<release time, array[pid, detection time]>>
+	//IntBuffer:0:nodeId, 1:wbId, 2:distance; 
+	//Map<detection station, Map<release station name, Map<release time, array[pid, travel time]>>>
 	private Map<IntBuffer, Map<String, Map<Calendar, ArrayList<Pair<Integer, Float>>>>> _travelTimeOutput;
-	//IntBuffer: 0: nodeId, 1: wbId, 2: distance,
+	// list of detection stations
 	private ArrayList<IntBuffer> _outputStations;
-	//IntBuffer: 0: nodeId, 1: wbId; String: station name.  
-	//a node id and wb id are engough to identify a station name because it is impossible for a channel has two station names
+	// map of IntBuffer and detection station name
 	private Map<IntBuffer, String> _stationNames = null;
 	
 	

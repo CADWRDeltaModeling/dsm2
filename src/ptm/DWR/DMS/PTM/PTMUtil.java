@@ -184,9 +184,18 @@ public class PTMUtil {
 		}
 		return number;
 	}
+	// get a Int from a line with format name: double
+		public static int getIntFromLine(String line, String lineName) throws NumberFormatException{
+			String[] items = line.split("[,:\\s\\t]+");
+			if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
+				PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
+			return Integer.parseInt(items[1]);
+		}
 	// get a double from a line with format name: double
-	public static double getDoubleFromLine(String numberLine) throws NumberFormatException{
-		String[] items = numberLine.split("[,:\\s\\t]+");
+	public static double getDoubleFromLine(String line, String lineName) throws NumberFormatException{
+		String[] items = line.split("[,:\\s\\t]+");
+		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
+			PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
 		return Double.parseDouble(items[1]);
 	}
 	// get a double from a line with format name: double

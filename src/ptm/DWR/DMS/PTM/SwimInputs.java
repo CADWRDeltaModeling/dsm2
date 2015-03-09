@@ -20,16 +20,20 @@ public class SwimInputs {
 	}
 	public SwimInputs(ArrayList<String> inText, String fishType) {
 		if (inText != null){
-			if (inText.size()<4)
+			if (inText.size()<8)
 				PTMUtil.systemExit("information missing in Swim_Inputs section");
 			try{
-				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(0), "STST_THRESHOLD");
-				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(1), "DAY_TIME_NOT_SWIM_PERCENT");
-				_sunrise = PTMUtil.getPairFromLine(inText.get(2), "SUNRISE");
-				_sunset = PTMUtil.getPairFromLine(inText.get(3), "SUNSET");;
+				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT");
+				_sunrise = PTMUtil.getPairFromLine(inText.get(1), "SUNRISE");
+				_sunset = PTMUtil.getPairFromLine(inText.get(2), "SUNSET");
+				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(3), "STST_THRESHOLD");
+				_numTidalCycles = PTMUtil.getIntFromLine(inText.get(4), "TIDAL_CYCLES_TO_CALCULATE_CHANNEL_DIRECTION");
+				_constProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "CONSTANT_CONFUSION_PROBABILITY");
+				_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "MAXIMUM_CONFUSION_PROBABILITY");
+				_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(7), "CONFUSION_PROBABILITY_SLOPE");				
 			}catch (NumberFormatException e){
 				e.printStackTrace();
-				PTMUtil.systemExit("number format is wrong in one of first 3 swimming input lines");	
+				PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
 			}
 			ArrayList<String> sVelInText = PTMUtil.getInputBlock(inText, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS");
 			setChannelGroups(sVelInText);
@@ -62,6 +66,10 @@ public class SwimInputs {
 	
 	public float getDaytimeNotSwimPercent(){return _daytimeNotSwimPercent;}
 	public float getFloodHoldingThreshold(){return _floodHoldVel;}
+	public float getConstProbConfusion(){return _constProbConfusion;}
+	public float getMaxProbConfusion(){return _maxProbConfusion;}
+	public float getSlopeProbConfusion(){return _slopeProbConfusion;}
+	public int getNumberTidalCycles(){return _numTidalCycles;}
 	public Pair<Integer, Integer> getSunrise(){ return _sunrise;}
 	public Pair<Integer, Integer> getSunset(){ return _sunset;}
 	public float getSwimmingVelocityForAll(){
@@ -182,4 +190,6 @@ public class SwimInputs {
 	private Pair<Integer, Integer> _sunrise = null;
 	private Pair<Integer, Integer> _sunset = null;
 	private float _floodHoldVel = -999999.0f;
+	private float _constProbConfusion = -999999.0f, _maxProbConfusion = -999999.0f, _slopeProbConfusion = -999999.0f;
+	private int _numTidalCycles = -999999;
 }
