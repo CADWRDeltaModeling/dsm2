@@ -50,14 +50,15 @@ program gtm
     use gradient_adjust
     use boundary_concentration
     use advection
-    use diffusion
+    use diffusion_network
     use dispersion_coefficient    
     use source_sink
     use boundary_advection 
     use boundary_diffusion       
     use gtm_subs
     use dsm2_time_utils, only: incr_intvl
-    use network_boundary_diffusion
+    use boundary_diffusion_network
+    use klu
 
     implicit none
     
@@ -206,7 +207,9 @@ program gtm
     constituents(1)%name = "EC"
     call assign_node_ts
     allocate(node_conc(n_node, n_var))
+    allocate(prev_node_conc(n_node, n_var))
     node_conc = zero    
+    prev_node_conc = zero
     
     gtm_hdf_time_intvl = incr_intvl(zero,gtm_io(3,2)%interval,1)
     call init_qual_hdf(qual_hdf,             &
@@ -236,7 +239,7 @@ program gtm
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
-    boundary_diffusion_matrix => neumann_zero_diffusion_matrix
+    boundary_diffusion_network_matrix => network_diffusion_sparse_matrix
     
     call set_dispersion_arr(disp_arr, n_cell)
     
@@ -273,12 +276,17 @@ program gtm
                              gtm_time_interval,    &
                              n_cell,               &
                              n_var) 
+        call network_diffusion_sparse_geom(n_cell)
+        k_common=klu_fortran_init()
+        k_symbolic = klu_fortran_analyze(matrix_size, ica, jca, k_common)
+        call klu_fortran_free_numeric(k_numeric, k_common)
+        k_numeric = klu_fortran_factor(ica, jca, coo, k_symbolic, k_common)                                
     else
         disp_coef_lo = LARGEREAL
         disp_coef_hi = LARGEREAL            
     end if
     disp_coef_lo_prev = disp_coef_lo
-    disp_coef_hi_prev = disp_coef_hi    
+    disp_coef_hi_prev = disp_coef_hi
 
     write(debug_unit,'(2a6,a10,11a24)') "cell","var","dx","grad","grad_lo","grad_hi","area", &
                      "mass_prev","flow_lo","flow_hi","conc_lo","conc_hi","flux_lo","flux_hi"
@@ -403,7 +411,7 @@ program gtm
             !    call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
             !end if    
                            
-            if (new_current_time .eq. gtm_start_jmin) then
+            if ((new_current_time .eq. gtm_start_jmin).or.(area_prev(1) .eq. LARGEREAL)) then
                 call prim2cons(mass_prev, conc, area, n_cell, n_var)
                 area_prev = area
                 area_lo_prev = area_lo
@@ -435,13 +443,13 @@ program gtm
             conc_prev = conc
             prev_conc_resv = conc_resv
             
-            if (sub_st.gt.1) then
-                write(102,'(f15.0,2i4,2f12.0,f12.4)') current_time,st,t_index,flow(1159),area(1159),conc(1159,1)
-            end if            
+            !if (sub_st.gt.1) then
+            !    write(102,'(f15.0,2i4,2f12.0,f12.4)') current_time,st,t_index,flow(1159),area(1159),conc(1159,1)
+            !end if            
             
             !--------- Diffusion ----------
             if (apply_diffusion) then
-                call diffuse(conc,                         &
+                call diffuse_network(conc,                         &
                              conc_prev,                    &
                              area,                         &
                              area_prev,                    &
@@ -467,6 +475,7 @@ program gtm
             prev_resv_flow = resv_flow
             prev_qext_flow = qext_flow
             prev_tran_flow = tran_flow            
+            prev_node_conc = node_conc
         end do
         !
         !----- print output to hdf5 file -----
@@ -501,15 +510,18 @@ program gtm
                                        n_cell,                &
                                        time_index_in_gtm_hdf)                                             
             end if            
-            call print_out_cell_conc(103, conc(:,1), n_cell, out_cell, n_out_cell)
-            call print_out_cell_conc(104, conc(:,1), n_cell, out_cell_mtz, n_out_cell_mtz)
+            !call print_out_cell_conc(103, conc(:,1), n_cell, out_cell, n_out_cell)
+            !call print_out_cell_conc(104, conc(:,1), n_cell, out_cell_mtz, n_out_cell_mtz)
         end if                           
         
     end do
     if (n_dssfiles .ne. 0) then
         call zclose(ifltab_in)  !!ADD A global to detect if dss is opened
         deallocate(ifltab_in) 
-    end if   
+    end if
+    if (apply_diffusion)then
+        call klu_fortran_free(k_symbolic, k_numeric, k_common)
+    end if    
     deallocate(pathinput)
     deallocate(node_conc)   
     deallocate(constituents)
@@ -526,6 +538,7 @@ program gtm
     call close_qual_hdf(qual_hdf)         
     call hdf5_close
     close(debug_unit)
-    call exit(0)    
+    write(*,*) '-------- Normal program end -------'
+    call exit(0)   
 end program
 

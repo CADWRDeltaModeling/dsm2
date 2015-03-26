@@ -29,5 +29,7 @@
 		<File RelativePath="..\..\test\gtm_core\unit_test_hydro_data_interp.f90"/>
 		<File RelativePath="..\..\test\gtm_core\unit_test_hydro_data_tidefile.f90"/>
 		<File RelativePath="..\..\test\gtm_core\unit_test_interpolation.f90"/>
-		<File RelativePath="..\..\test\gtm_core\unit_test_time_utilities.f90"/></Filter></Files>
+		<File RelativePath="..\..\test\gtm_core\unit_test_klu.f90"/>
+		<File RelativePath="..\..\test\gtm_core\unit_test_time_utilities.f90"/>
+		<File RelativePath="..\..\test\gtm_core\unit_test_utils.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

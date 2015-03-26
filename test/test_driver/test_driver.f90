@@ -74,9 +74,9 @@ program test_driver
     use test_time_dependent_advection_dispersion
     use test_mms_advection_dispersion
     
-    use ut_do_source
-    
-    use test_klu
+    use ut_do_source    
+    use ut_klu
+    use ut_utils
     
     implicit none
     logical :: verbose = .true.
@@ -88,83 +88,85 @@ program test_driver
     open(144,file="temp4.txt")
     
     call init_fruit
-    call get_parent_working_dir(parent_dir) 
+    !call get_parent_working_dir(parent_dir) 
     
-    k_common = klu_fortran_init()  
-    call klu_fortran_free_numeric(k_numeric, k_common)
+    !k_common = klu_fortran_init()  
+    !call klu_fortran_free_numeric(k_numeric, k_common)
    
     !----- function calls to test units in project process_io API ---
-    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    call test_time_util
-    call test_readdss  
-    call test_readtvd
-    call test_dss_main
-    call test_input_storage 
-    call test_hdf_ts_wrt
-    call test_gtm_hdf_write
-    call test_find_bound_index
-    call test_read_init_file
+    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    !call test_time_util
+    !call test_readdss  
+    !call test_readtvd
+    !call test_dss_main
+    !call test_input_storage 
+    !call test_hdf_ts_wrt
+    !call test_gtm_hdf_write
+    !call test_find_bound_index
+    !call test_read_init_file
     
     !----- function calls to test units in project common -----
-    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    open(debug_unit, file = "debug_unit.txt")            !< output text file
-    call test_hdf_util                                   ! test hdf_util()
-    call test_interpolation                              ! test interpolation schemes
-    call test_gtm_network                                ! test creating GTM network   
+    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    !open(debug_unit, file = "debug_unit.txt")            !< output text file
+    !call test_hdf_util                                   ! test hdf_util()
+    !call test_interpolation                              ! test interpolation schemes
+    !call test_gtm_network                                ! test creating GTM network   
            
     !----- function calls to test units in project transport ----- 
-    call change_working_dir(parent_dir, "/transport_unit_test_out")
+    !call change_working_dir(parent_dir, "/transport_unit_test_out")
     
     !//////// Advection unit tests
-    call test_gradient_calc
-    call test_limiter
-    call test_prim_cons_convert
-    call test_prim_increment2cons
-    call test_extrapolation
-    call test_tidal_hydro
-    call print_out_tidal_hydro
+    !call test_gradient_calc
+    !call test_limiter
+    !call test_prim_cons_convert
+    !call test_prim_increment2cons
+    !call test_extrapolation
+    !call test_tidal_hydro
+    !call print_out_tidal_hydro
 
     !/// Advection-diffusion-reaction convergence in uniform flow,
     !    operators are layered in successively
-    call test_converge_transport_uniform(verbose)
-    call test_converge_transport_uniform_vary_dx(verbose)
-    call test_converge_uniform_bidirectional(verbose)
+    !call test_converge_transport_uniform(verbose)
+    !call test_converge_transport_uniform_vary_dx(verbose)
+    !call test_converge_uniform_bidirectional(verbose)
     
     !/////// Diffusion unit tests
-    call test_tridi_solver
-    call test_boundary_diffusion_flux
-    call test_make_dif_flux_sub
-    call test_explicit_interior_diffusion_op
-    call test_interior_coef_matrix_sub
-    call test_construct_elemnts_rhs 
-    call test_coarsen
-    call test_detect_wiggle
-    call test_mass_comparison
+    !call test_tridi_solver
+    !call test_boundary_diffusion_flux
+    !call test_make_dif_flux_sub
+    !call test_explicit_interior_diffusion_op
+    !call test_interior_coef_matrix_sub
+    !call test_construct_elemnts_rhs 
+    !call test_coarsen
+    !call test_detect_wiggle
+    !call test_mass_comparison
 
     !////// Diffusion convergence
-    call test_diffusion_convergence_fletcher(verbose)
+    !call test_diffusion_convergence_fletcher(verbose)
 
     !///// Diffusion-reaction convergence
-    call test_diffusion_cubic_decay(verbose)
+    !call test_diffusion_cubic_decay(verbose)
 
     ! Advection - reaction problems
     ! todo: need to set an automatic check for hitting the boundary with coarse meshes
     !       this frequently causes problems that are undetected without scrutiny
-    call test_tidal_advection_reaction(verbose)
-    call test_tidal_advection_reaction_vary_dx(verbose)
+    !call test_tidal_advection_reaction(verbose)
+    !call test_tidal_advection_reaction_vary_dx(verbose)
     
     !/////Advection-Diffusion tests
-    call test_zoppou_flow()    ! unit test that goes with convergence test
-    call test_advection_diffusion_zoppou(verbose)
-    call test_advection_diffusion_t_dependent(verbose)
-    call test_advection_diffusion_time_dependent(verbose)
+    !call test_zoppou_flow()    ! unit test that goes with convergence test
+    !call test_advection_diffusion_zoppou(verbose)
+    !call test_advection_diffusion_t_dependent(verbose)
+    !call test_advection_diffusion_time_dependent(verbose)
 
     !/// Advection-diffusion-reaction
-    call test_advection_diffusion_mms(verbose)
+    !call test_advection_diffusion_mms(verbose)
     
     !call test_do_module
-    call klu_fortran_free(k_symbolic, k_numeric, k_common)    
-    !call test_klu_exmamples
+    !call klu_fortran_free(k_symbolic, k_numeric, k_common)    
+    call test_klu_exmamples
+    call test_qsort
+    call test_rowcol2apai
     
     !----- function calls to test units in project sediment -----
     

@@ -57,21 +57,21 @@ module ut_gtm_dss_readtvd
         pathinput(2)%interval = "ir-year"
         pathinput(2)%per_type = per_type_inst_val
         
-        pathinput(3)%filename = "hist_19902007.dss"
+        pathinput(3)%filename = "testdss.dss"
         pathinput(3)%path = "/BAY/SHWSF001/STAGE//1HOUR/DWR-DMS-ASTRO/"
         pathinput(3)%ndx_file = 2
         pathinput(3)%intvl_path = 1        
         pathinput(3)%interval = "1hour"
         pathinput(3)%per_type = per_type_inst_val        
 
-        pathinput(4)%filename = "hist_19902007.dss"
+        pathinput(4)%filename = "testdss.dss"
         pathinput(4)%path = "/FILL+CHAN/EASTSIDE/DOC//1DAY/DWR-DMS-200609/"
         pathinput(4)%ndx_file = 2
         pathinput(4)%intvl_path = 1        
         pathinput(4)%interval = "1day"
         pathinput(4)%per_type = per_type_inst_val   
 
-        pathinput(5)%filename = "hist_19902007.dss"
+        pathinput(5)%filename = "testdss.dss"
         pathinput(5)%path = "/FILL+CHAN/LODI/PRECIP//1MON/DWR-DMS-200701/"
         pathinput(5)%ndx_file = 2
         pathinput(5)%intvl_path = 1        
