@@ -25,5 +25,4 @@ public class FishRelease {
 	public Calendar getReleaseTime(){return _releaseTime;}
 	public int getFishNumber(){return _fishNumber;}
 	public int getReleaseStyle(){return _releaseStyle;}
-
 }
