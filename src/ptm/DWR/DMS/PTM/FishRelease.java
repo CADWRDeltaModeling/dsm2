@@ -22,7 +22,7 @@ public class FishRelease {
 	private Calendar _releaseTime;
 	private int _fishNumber;
 	private int _releaseStyle;
-	public Calendar getRelaseTime(){return _releaseTime;}
+	public Calendar getReleaseTime(){return _releaseTime;}
 	public int getFishNumber(){return _fishNumber;}
 	public int getReleaseStyle(){return _releaseStyle;}
 
