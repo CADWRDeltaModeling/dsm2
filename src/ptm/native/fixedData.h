@@ -242,6 +242,7 @@
 #define LEN3 180
 #define LEN4 20
 #define LEN5 2000
+#define LEN6 1000
 
 
 

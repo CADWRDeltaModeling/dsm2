@@ -737,7 +737,7 @@ JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleNumberOfInjectio
  */
 JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionNodes
 (JNIEnv *env,  jobject thisOne){
-  int array[LEN1];
+  int array[LEN6];
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleInjectionNodes(array);
@@ -755,7 +755,7 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionNo
  */
 JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleNumberOfParticlesInjected
   (JNIEnv *env,  jobject thisOne){
-  int array[LEN1];
+  int array[LEN6];
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleNumberOfParticlesInjected(array);
@@ -773,7 +773,7 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleNumberOfPar
  */
 JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionStartJulmin
   (JNIEnv *env,  jobject thisOne){
-  int array[LEN1];
+  int array[LEN6];
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleInjectionStartJulmin(array);
@@ -791,7 +791,7 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionSt
  */
 JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getParticleInjectionLengthJulmin
   (JNIEnv *env,  jobject thisOne){
-  int array[LEN1];
+  int array[LEN6];
   int arrayLen = getParticleNumberOfInjections();
   jintArray arrayJava = env->NewIntArray((jsize) arrayLen);
   getParticleInjectionLengthJulmin(array);

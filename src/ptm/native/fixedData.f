@@ -1296,10 +1296,10 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_injection_nodes(array)
       use common_ptm
       implicit none
-      integer array(50)
+      integer array(1000)
       integer i
-      if (npartno .gt. 50) 
-     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno 
+      if (npartno .gt. 1000) 
+     &     write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno 
       do i=1,npartno
          array(i) = part_injection(i).node
       enddo
@@ -1309,10 +1309,12 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_number_of_particles_injected(array)
       use common_ptm
       implicit none
-      integer array(50)
+      integer array(1000)
       integer i
-      if (npartno .gt. 50) 
-     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno 
+      if (npartno .gt. 1000) then
+          write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno 
+          call exit (-1) 
+      endif  
       do i=1,npartno
          array(i) = part_injection(i).nparts
       enddo  
@@ -1322,10 +1324,12 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_injection_start_julmin(array)
       use common_ptm
       implicit none
-      integer array(50)
+      integer array(1000)
       integer i
-      if (npartno .gt. 50) 
-     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno 
+      if (npartno .gt. 1000) then
+          write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno 
+          call exit (-1) 
+      endif 
       do i=1,npartno
          array(i) = part_injection(i).start_julmin
       enddo  
@@ -1335,10 +1339,12 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_particle_injection_length_julmin(array)
       use common_ptm
       implicit none
-      integer array(50)
+      integer array(1000)
       integer i
-      if (npartno .gt. 50) 
-     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno 
+      if (npartno .gt. 1000) then
+          write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno 
+          call exit (-1) 
+      endif
       do i=1,npartno
          array(i) = part_injection(i).length_julmin
       enddo  
