@@ -19,6 +19,7 @@ public class FishRelease {
 		_fishNumber = fishNumber;
 		_releaseStyle = releaseStyle;
 	}
+	
 	private Calendar _releaseTime;
 	private int _fishNumber;
 	private int _releaseStyle;
