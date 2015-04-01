@@ -286,6 +286,9 @@ _survivalHelper = null;
   public final int getCurrentParticleTime(){
     return (Globals.currentModelTime);
   }
+  public final int getInsertionTime(){
+	  return insertionTime;
+  }
  
   public final boolean checkSurvival(float timeToAdvance){
     // check survival if not survived isDead is set to true	
@@ -310,6 +313,7 @@ _survivalHelper = null;
         //Global/model time in minutes, insertionTime in minutes, delT in seconds !!!!!!
     	if ((Globals.currentModelTime - insertionTime)*60 > delT){//insertion time may set as way before PTM start time:  How is it possible?!  particle insert time is defined as a delay time.
           warning("Particle insertion time specification may be incorrect");//may include particles 1 time step before the 1st insertion?!
+          System.out.println("curr:"+PTMUtil.modelTimeToCalendar(Globals.currentModelTime).getTime()+"  insert:"+PTMUtil.modelTimeToCalendar(insertionTime).getTime());
     	}
         insert();
     }
