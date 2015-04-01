@@ -670,7 +670,7 @@ JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getRestartOutputInterval
  */
 JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getRestartInputFileName
   (JNIEnv *, jobject);
-
+ 
 #ifdef __cplusplus
 }
 #endif

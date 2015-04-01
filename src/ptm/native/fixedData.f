@@ -26,7 +26,7 @@ C!</license>
 
       character*(*) filename
       integer i
-
+	  
 c-----module, name and version
       dsm2_module =  ptm
       dsm2_name   = 'PTM'

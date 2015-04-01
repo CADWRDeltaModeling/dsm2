@@ -1,3 +1,4 @@
+
 #ifdef __sun // Sun version
 #define STDCALL
 #define STRLEN_TYPE long int

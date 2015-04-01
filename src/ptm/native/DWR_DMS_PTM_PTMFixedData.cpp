@@ -3,7 +3,6 @@
 #include "DWR_DMS_PTM_PTMFixedData.h"
 #include "fixedData.h"
 
-
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    initialize
