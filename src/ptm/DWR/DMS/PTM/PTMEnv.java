@@ -417,6 +417,9 @@ public class PTMEnv{
     			FishReleaseGroup fg = fgs.get(releaseStationName);
     			IntBuffer releaseStation = fg.getStation();
     			for (FishRelease fr: fg.getFishReleases()){
+    				int rtime = (int)PTMUtil.calendarToModelTime(fr.getReleaseTime());
+    				if (rtime < getStartTime())
+    					PTMUtil.systemExit("Particle release time: " + fr.getReleaseTime().getTime() + " is earlier than model start time! exit.");
     				for (int i = 0; i < fr.getFishNumber(); i++ ){
     					Waterbody w = null;
     					Node n = null;
@@ -442,7 +445,7 @@ public class PTMEnv{
     					}catch (Exception e){
     						PTMUtil.systemExit("input wrong insert station info for insert station name:" + releaseStationName);
     					}	
-    					particlePtrArray[pNum].setInsertionInfo(((int)PTMUtil.calendarToModelTime(fr.getRelaseTime())), 
+    					particlePtrArray[pNum].setInsertionInfo((rtime), 
     															n, w,d, releaseStationName);
     					pNum++;
     				}	

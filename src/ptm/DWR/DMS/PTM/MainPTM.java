@@ -228,7 +228,6 @@ public class MainPTM {
             	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour) 
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min);            	
-            	
                 // update Particle positions
                 for (int i=0; i<numberOfParticles; i++){
                 	// TODO survival check was checked in updateXYZPosition in particle class but commented out

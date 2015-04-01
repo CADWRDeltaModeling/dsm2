@@ -27,14 +27,14 @@ public class RouteInputs {
 			
 			if( barriersInText == null || barriersInText.size() < 6)
 				//TODO comment out for USGS, restore warning later
-				System.err.println("");
+				System.out.println("add special items later.");
 				//System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
 			else
 				setBarriers(barriersInText);
 			
 			if( screensInText == null || screensInText.size() < 2)
 				//TODO comment out for USGS, restore warning later
-				System.err.println("");
+				System.out.println("add special items later.");
 				//System.err.println("WARNING: no fish screen info found or the info is not properly defined in behavior inputs.");
 			else
 				setFishScreens(screensInText);
@@ -52,7 +52,7 @@ public class RouteInputs {
 			}
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
 				//TODO comment out for USGS, restore warning later
-				System.err.println("");
+				System.out.println("add special items later.");
 				//System.err.println("WARNING: no special routing Behavior defined or defined improperly in behavior inputs.");
 			else
 				setSpecialBehaviors(specialBehaviorInText);

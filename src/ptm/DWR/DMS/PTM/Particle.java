@@ -309,6 +309,10 @@ _survivalHelper = null;
   	particleWait = false;  //set or reset particle wait variable
     if (DEBUG) System.out.println("In updating position for particle " + this);
     
+    // insertion time is checked in PTMEnv, if a insertion time is earlier than the model start time, simulation exits.
+    if(!inserted && Globals.currentModelTime >= insertionTime) //when current time reach insertion time
+    	insert();
+    /*
     if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
         //Global/model time in minutes, insertionTime in minutes, delT in seconds !!!!!!
     	if ((Globals.currentModelTime - insertionTime)*60 > delT){//insertion time may set as way before PTM start time:  How is it possible?!  particle insert time is defined as a delay time.
@@ -317,6 +321,7 @@ _survivalHelper = null;
     	}
         insert();
     }
+    */
     
     if (inserted){//after initial insertion  
         //recursionCounter=0;

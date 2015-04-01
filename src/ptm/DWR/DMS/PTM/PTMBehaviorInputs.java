@@ -125,6 +125,7 @@ public class PTMBehaviorInputs {
 		PTMUtil.systemExit("should not be here, system exit.");
 	}
 	public PTMBehaviorInputs(String inputFileName) {
+		System.out.println("");
 		if (inputFileName == null || inputFileName.length() == 0)
 			PTMUtil.systemExit("Behavior input file not found, system exit");
 		BufferedReader inputTextBuff = PTMUtil.getInputBuffer(inputFileName);
@@ -148,7 +149,7 @@ public class PTMBehaviorInputs {
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
 		if (survivalInputText == null)
 			//TODO comment out for USGS, restore warning later
-			System.err.println("");
+			System.out.println("add special items later.");
 			//System.err.println("WARNING: no survival behavior input found!");
 		_survivalInputs = new SurvivalInputs(survivalInputText,  _fishType);
 		ArrayList<String> swimInputText = PTMUtil.getInputBlock(inputText, "SWIM_INPUTS", "END_SWIM_INPUTS");
