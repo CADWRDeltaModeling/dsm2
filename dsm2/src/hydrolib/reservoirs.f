@@ -29,7 +29,8 @@ module reservoirs
         VariableStreamDensity, &
         NetworkQuadPts, NetworkQuadPtWt
     use channel_schematic, only: NumberOfChannels,StreamEndNode
-    use chstatus, only: NumberOfChannels, GlobalStreamSurfaceElevation
+    !use chstatus, only: NumberOfChannels, GlobalStreamSurfaceElevation
+    use chstatus, only: GlobalStreamSurfaceElevation ! FixMe NumberOfChannels,not found Xiao
     implicit none
 contains
     real*8 function get_res_flow(resndx, conn)

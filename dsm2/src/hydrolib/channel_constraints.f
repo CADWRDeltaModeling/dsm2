@@ -186,7 +186,8 @@ contains
         use solver
         use solveutil
         use channel_schematic
-        use chstatus, only: downstreampointer, globalstreamflow
+        !use chstatus, only: downstreampointer, globalstreamflow
+        use chstatus, only: globalstreamflow !FixMe cannot found downstreampointer Xiao 
         use netbnd, only: upstreamboundaryvalue, downstreamboundaryvalue
         implicit none
 
