@@ -122,7 +122,7 @@ module diffusion
                                          time_prev,          &
                                          dx,                 &
                                          dt)
-  
+
         call construct_right_hand_side(right_hand_side,       & 
                                        explicit_diffuse_op,   & 
                                        area_prev,             &
@@ -137,7 +137,7 @@ module diffusion
                                        nvar,                  &  
                                        dx,                    &
                                        dt)
-                                                                   
+                                                                      
         ! Construct the matrix for the diffusion solver
         ! without boundary condition modification or structure on interior of domain
         call construct_diffusion_matrix(center_diag ,     &
@@ -442,7 +442,7 @@ module diffusion
                      conc,                 &
                      ncell,                &
                      nvar)
-
+                     
         use matrix_solver
         use gtm_precision
         implicit none                                                       
@@ -458,6 +458,9 @@ module diffusion
 
         ! --- local
         integer :: ivar
+        integer :: ap(ncell+1), ai(4+3*(ncell-2))
+        real(gtm_real) :: ax(4+3*(ncell-2))
+
         do ivar = 1 ,nvar
             call tridi_solver(center_diag(:,ivar),    &
                               up_diag(:,ivar),        &     
@@ -465,7 +468,7 @@ module diffusion
                               right_hand_side(:,ivar),&
                               conc(:,ivar),           &
                               ncell)
-        end do
+        end do      
         return
     end subroutine 
 

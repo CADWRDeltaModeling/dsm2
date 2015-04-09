@@ -89,7 +89,7 @@ module diffusion_network
         real(gtm_real) :: up_diag(ncell,nvar)                         !< Values of the coefficients above the diagonal in matrix
         real(gtm_real) :: right_hand_side(ncell,nvar)                 !< Right hand side vector
         real(gtm_real) :: time_prev                                   !< old time 
-
+                
         ! This routine gives the effects of diffusion fluxes on each cell
         ! for a single time step (ie, explicit). This is needed for the advection step.
         ! It is also part of the right hand side of the implicit diffusion solver 
@@ -112,7 +112,7 @@ module diffusion_network
                                          time_prev,          &
                                          dx,                 &
                                          dt)
-  
+
         call construct_right_hand_side(right_hand_side,       & 
                                        explicit_diffuse_op,   & 
                                        area_prev,             &
@@ -127,7 +127,7 @@ module diffusion_network
                                        nvar,                  &  
                                        dx,                    &
                                        dt)
-                                                                   
+                                                                 
         ! Construct the matrix for the diffusion solver
         ! without boundary condition modification or structure on interior of domain
         call construct_diffusion_matrix(center_diag ,     &
@@ -169,10 +169,12 @@ module diffusion_network
                                                nvar,                & 
                                                dx,                  &
                                                dt)
-        
-        call klu_fortran_refactor(ica, jca, coo, k_symbolic, k_numeric, k_common)
-        call klu_fortran_solve(k_symbolic, k_numeric, matrix_size, 1, conc, k_common)
-
+                                               
+        k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)  ! need to have this one
+        call klu_fortran_refactor(aap, aai, aax, k_symbolic, k_numeric, k_common)
+        call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side, k_common)
+        conc = right_hand_side                
+ 
         return
     end subroutine 
 

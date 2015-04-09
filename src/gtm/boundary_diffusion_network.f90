@@ -27,9 +27,9 @@ module boundary_diffusion_network
     use boundary_diffusion
     use dispersion_coefficient        
     real(gtm_real), allocatable, save :: disp_coef_arr(:)
-    integer, allocatable :: ap(:)
-    integer, allocatable :: ai(:)
-    integer, allocatable :: ax(:)
+    integer, allocatable :: aap(:)
+    integer, allocatable :: aai(:)
+    real(gtm_real), allocatable :: aax(:)
     integer, allocatable :: rcind(:)        ! row and column count index
     integer, allocatable :: row(:)          ! row number
     integer, allocatable :: col(:)          ! column number
@@ -197,7 +197,7 @@ module boundary_diffusion_network
 
         do i = 1, n_node
             if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc.eq.1) ) then  !if boundary and node concentration is given
-                icell = dsm2_network(i)%cell_no(1)
+                icell = dsm2_network(i)%cell_no(1)               
                 if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
                     diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
                                                 (conc(icell,:)-node_conc(i,:))/(half*dx(icell))
@@ -266,12 +266,10 @@ module boundary_diffusion_network
         ud(:,:) = "n"
         nc = 0
                              
-        n_nonzero = 3*ncell
         do i = 1, n_node
             !if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc.eq.1) ) then  !if boundary and node concentration is given
             if ( dsm2_network(i)%boundary_no.ne.0 ) then
                 icell = dsm2_network(i)%cell_no(1)
-                n_nonzero = n_nonzero - 1
                 s(icell) = 2
                 nc(icell) = i
                 if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
@@ -292,7 +290,6 @@ module boundary_diffusion_network
             end if
             if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 nconn = dsm2_network(i)%n_conn_cell
-                n_nonzero = n_nonzero - nconn + nconn*(nconn-1)
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    s(icell) = nconn + 1
@@ -354,7 +351,13 @@ module boundary_diffusion_network
                 !call Qsortc(a(icell,:)) 
             end if
         end do 
-        
+
+        n_nonzero = 0        
+        do i = 1, ncell
+            do j = 1, max_conn
+                if (a(i,j).ne.LARGEINT) n_nonzero = n_nonzero + 1
+            end do
+        enddo                    
         allocate(rcind(n_nonzero))
         allocate(row(n_nonzero))
         allocate(col(n_nonzero))
@@ -385,8 +388,8 @@ module boundary_diffusion_network
                 end if
             end do
         end do
-        allocate(ap(ncell+1), ai(n_nonzero), ax(n_nonzero))
-        call rowcol2apai(ap, ai, row, col, rcind, n_nonzero, ncell)
+        allocate(aap(ncell+1), aai(n_nonzero), aax(n_nonzero))
+        call rowcol2apai(aap, aai, row, col, rcind, n_nonzero, ncell)
         return
     end subroutine
 
@@ -457,13 +460,15 @@ module boundary_diffusion_network
             if (typ(j).eq."u") then              ! "u": upstream boundary 
                 x_int = half*(dx(i+1)+dx(i))
                 do k = j, j + 1
-                    if (uds(j).eq."n") then
-                        ax(k) = area(i)+theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*dx(i)*half) &
+                    if (uds(k).eq."n") then
+                        aax(k) = area(i)+theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*dx(i)*half) &
                                        +theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)                                       
                     else                
-                        ax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)
+                        aax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)
                     end if
                 end do
+                where (prev_node_conc(ncc(j),:).eq.LARGEREAL) prev_node_conc(ncc(j),:) = conc(i,:) 
+                where (node_conc(ncc(j),:).eq.LARGEREAL)  node_conc(ncc(j),:) = conc(i,:) !???                
                 exp_diffusion_op_plus(:)  = -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
@@ -475,12 +480,14 @@ module boundary_diffusion_network
                 x_int = half*(dx(i)+dx(i-1))
                 do k = j, j + 1
                     if (uds(k).eq."n") then
-                        ax(k) = area(i)+theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*dx(i)*half)   &
+                        aax(k) = area(i)+theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*dx(i)*half)   &
                                        +theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
                     else
-                        ax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
-                    end if   
+                        aax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
+                    end if
                 end do    
+                where (prev_node_conc(ncc(j),:).eq.LARGEREAL) prev_node_conc(ncc(j),:) = conc(i,:)
+                where (node_conc(ncc(j),:).eq.LARGEREAL) node_conc(ncc(j),:) = conc(i,:) !????? 
                 exp_diffusion_op_plus(:) = -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
@@ -493,15 +500,15 @@ module boundary_diffusion_network
                 exp_diffusion_op_minus = zero
                 do k = j, j + nco(j) - 1
                     if (uds(k).eq."u") then
-                        ax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))                    
+                        aax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))                    
                     elseif (uds(k).eq."d") then
-                        ax(k) = -theta_stm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_hi(i) &
+                        aax(k) = -theta_stm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_hi(i) &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)
                     else
-                        ax(k) = area(i) + theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))
+                        aax(k) = area(i) + theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))
                         do kk = j, j + nco(j) - 1
                             if (uds(kk).eq."d") then
-                                ax(k) = ax(k) + theta_stm*dt*min(area_hi(i),area_lo(col(kk)))*disp_coef_hi(i)   &
+                                aax(k) = aax(k) + theta_stm*dt*min(area_hi(i),area_lo(col(kk)))*disp_coef_hi(i)   &
                                                 /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2)
                                 exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)  &
                                                           -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
@@ -519,15 +526,15 @@ module boundary_diffusion_network
                 exp_diffusion_op_minus = zero            
                 do k = j, j + nco(j) - 1
                     if (uds(k).eq."d") then
-                        ax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))                    
+                        aax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))                    
                     elseif (uds(k).eq."u") then
-                        ax(k) = -theta_stm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_lo(i)  &
+                        aax(k) = -theta_stm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_lo(i)  &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)
                     else
-                        ax(k) = area(i) + theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))
+                        aax(k) = area(i) + theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))
                         do kk = j, j + nco(j) - 1
                             if (uds(kk).eq."u") then
-                                ax(k) = ax(k) + theta_stm*dt*min(area_lo(i),area_hi(col(kk)))*disp_coef_lo(i)  &
+                                aax(k) = aax(k) + theta_stm*dt*min(area_lo(i),area_hi(col(kk)))*disp_coef_lo(i)  &
                                                 /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2)
                                  exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)  &
                                                           -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
@@ -553,12 +560,12 @@ module boundary_diffusion_network
                 end do
                 do k = j, j + 2
                     if (uds(k).eq."u") then
-                        ax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))
+                        aax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))
                     elseif (uds(j).eq."n") then
-                        ax(k) = area(i) + theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))  &    
+                        aax(k) = area(i) + theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))  &    
                                 + theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(d_cell))
                     else
-                        ax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(d_cell))
+                        aax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(d_cell))
                     end if
                 end do
                 exp_diffusion_op_plus  = -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i)*(conc_prev(d_cell,:)-conc_prev(i,:))/(half*dx(i)+half*dx(d_cell))/dx(i)
@@ -566,9 +573,9 @@ module boundary_diffusion_network
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus)
                 j = j + 3
             else                          ! "n": normal
-                ax(j)= down_diag(i,1)
-                ax(j+1) = center_diag(i,1)
-                ax(j+2) = up_diag(i,1)
+                aax(j)= up_diag(i-1,1)
+                aax(j+1) = center_diag(i,1)
+                aax(j+2) = down_diag(i+1,1)
                 j = j + 3
             end if
         end do
@@ -579,7 +586,7 @@ module boundary_diffusion_network
     !> deallocate global variables for sparse matrix
     subroutine deallocate_geom_arr()
         implicit none
-        deallocate(ap, ai, ax)
+        deallocate(aap, aai, aax)
         deallocate(rcind, row, col)
         deallocate(nco, ncc)
         deallocate(typ, uds)

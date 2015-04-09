@@ -50,6 +50,7 @@ program gtm
     use gradient_adjust
     use boundary_concentration
     use advection
+    use diffusion
     use diffusion_network
     use dispersion_coefficient    
     use source_sink
@@ -169,9 +170,14 @@ program gtm
     !----- allocate array for interpolation -----     
     !
     nt = npartition_t + 1
-    if ((apply_diffusion).and.(disp_coeff.ne.LARGEREAL)) then
-        constant_dispersion = disp_coeff
-    end if    
+    if (apply_diffusion) then
+        if (disp_coeff.ne.LARGEREAL) then
+            disp_arr = disp_coeff
+            dispersion_coef => constant_dispersion_coef
+        else
+            dispersion_coef => assign_dispersion_coef
+        end if        
+    end if        
     allocate(prev_comp_flow(n_comp))
     allocate(prev_comp_ws(n_comp))
     allocate(prev_hydro_resv(n_resv))
@@ -208,8 +214,8 @@ program gtm
     call assign_node_ts
     allocate(node_conc(n_node, n_var))
     allocate(prev_node_conc(n_node, n_var))
-    node_conc = zero    
-    prev_node_conc = zero
+    node_conc = LARGEREAL    
+    prev_node_conc = LARGEREAL 
     
     gtm_hdf_time_intvl = incr_intvl(zero,gtm_io(3,2)%interval,1)
     call init_qual_hdf(qual_hdf,             &
@@ -231,15 +237,17 @@ program gtm
     !
     fill_hydro => gtm_flow_area
     fill_hydro_network => gtm_network_data
-    !dispersion_coef => constant_dispersion_coef
-    dispersion_coef => assign_dispersion_coef
     compute_source => no_source
     !compute_source => linear_decay_source 
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
+    !boundary_diffusion_flux => neumann_zero_diffusive_flux !network_boundary_diffusive_flux
     boundary_diffusion_network_matrix => network_diffusion_sparse_matrix
+    
+    !boundary_diffusion_flux => neumann_zero_diffusive_flux
+    !boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
     call set_dispersion_arr(disp_arr, n_cell)
     
@@ -277,10 +285,10 @@ program gtm
                              n_cell,               &
                              n_var) 
         call network_diffusion_sparse_geom(n_cell)
-        k_common=klu_fortran_init()
-        k_symbolic = klu_fortran_analyze(matrix_size, ica, jca, k_common)
+        k_common = klu_fortran_init()
+        k_symbolic = klu_fortran_analyze(n_cell, aap, aai, k_common)
         call klu_fortran_free_numeric(k_numeric, k_common)
-        k_numeric = klu_fortran_factor(ica, jca, coo, k_symbolic, k_common)                                
+        k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)                                
     else
         disp_coef_lo = LARGEREAL
         disp_coef_hi = LARGEREAL            
@@ -476,6 +484,7 @@ program gtm
             prev_qext_flow = qext_flow
             prev_tran_flow = tran_flow            
             prev_node_conc = node_conc
+            node_conc = LARGEREAL 
         end do
         !
         !----- print output to hdf5 file -----
@@ -521,6 +530,7 @@ program gtm
     end if
     if (apply_diffusion)then
         call klu_fortran_free(k_symbolic, k_numeric, k_common)
+        call deallocate_geom_arr
     end if    
     deallocate(pathinput)
     deallocate(node_conc)   
