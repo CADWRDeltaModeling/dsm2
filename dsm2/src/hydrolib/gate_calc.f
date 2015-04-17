@@ -554,7 +554,7 @@ contains
             else                              ! Area limited by height of gate apperature
                 CxT1=0.
                 CxT2=0.
-                CxA=weir%height*coefWeir
+                CxA=weir%height*coefWeir*TopWidth
             end if
 
             !-----The value calculated below  is oriented from water body to node
