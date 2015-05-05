@@ -59,6 +59,8 @@ program gtm
     use gtm_subs
     use dsm2_time_utils, only: incr_intvl
     use boundary_diffusion_network
+    use gtm_init_store_outputs
+    use gtm_store_outpath
     use klu
 
     implicit none
@@ -99,7 +101,8 @@ program gtm
     integer :: runtime_hydro_start, runtime_hydro_end
     integer :: current_block = 0
     integer :: current_slice = 0
-    integer :: time_index_in_gtm_hdf  
+    integer :: time_index_in_gtm_hdf
+    real(gtm_real) :: next_output_flush   ! next time to flush output
       
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
     
@@ -124,6 +127,7 @@ program gtm
     integer :: ceil_max_cfl                                   ! ceiling integer of max_cfl
 
     integer :: ierror
+    integer :: istat = 0
     
     ! local variables for input time series
     integer :: n_bound_ts
@@ -134,6 +138,8 @@ program gtm
     ! for specified output locations
     integer :: n_out_cell, n_out_cell_mtz
     integer, allocatable :: out_cell(:), out_cell_mtz(:)
+    integer, allocatable :: out_chan_cell(:)
+    real(gtm_real), allocatable :: vals(:,:)
     
     integer :: st, k, n_st     ! temp index
 
@@ -147,7 +153,8 @@ program gtm
     !
     call get_command_args(init_input_file)
     call read_input_text(init_input_file)                  ! read input specification text
-    call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all dss files
+    call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
+    call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files    
     open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
     write(*,*) "Process DSM2 geometry info...."    
@@ -164,8 +171,11 @@ program gtm
     allocate(out_cell(n_out_cell))
     call output_cell_arr(out_cell)    
     allocate(out_cell_mtz(n_out_cell_mtz))
-    call output_cell_arr_mtz(out_cell_mtz)
-                           
+    call output_cell_arr_mtz(out_cell_mtz)    
+    
+    allocate(out_chan_cell(noutpaths))
+    call get_output_channel(out_chan_cell, noutpaths)
+    allocate(vals(noutpaths,n_var))
     !
     !----- allocate array for interpolation -----     
     !
@@ -217,7 +227,7 @@ program gtm
     node_conc = LARGEREAL    
     prev_node_conc = LARGEREAL 
     
-    gtm_hdf_time_intvl = incr_intvl(zero,gtm_io(3,2)%interval,1)
+    call incr_intvl(gtm_hdf_time_intvl, zero,gtm_io(3,2)%interval,1)
     call init_qual_hdf(qual_hdf,             &
                        gtm_io(3,2)%filename, &
                        n_cell,               &
@@ -242,12 +252,11 @@ program gtm
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
-    boundary_diffusion_flux => network_boundary_diffusive_flux
-    !boundary_diffusion_flux => neumann_zero_diffusive_flux !network_boundary_diffusive_flux
-    boundary_diffusion_network_matrix => network_diffusion_sparse_matrix
+    !boundary_diffusion_flux => network_boundary_diffusive_flux
+    !boundary_diffusion_network_matrix => network_diffusion_sparse_matrix
     
-    !boundary_diffusion_flux => neumann_zero_diffusive_flux
-    !boundary_diffusion_matrix => neumann_zero_diffusion_matrix
+    boundary_diffusion_flux => neumann_zero_diffusive_flux
+    boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
     call set_dispersion_arr(disp_arr, n_cell)
     
@@ -300,6 +309,8 @@ program gtm
                      "mass_prev","flow_lo","flow_hi","conc_lo","conc_hi","flux_lo","flux_hi"
     
     prev_sub_ts = 1
+    call incr_intvl(next_output_flush, gtm_start_jmin, flush_intvl, TO_BOUNDARY)
+    call gtm_init_store_outpaths(istat)
         
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
@@ -457,7 +468,7 @@ program gtm
             
             !--------- Diffusion ----------
             if (apply_diffusion) then
-                call diffuse_network(conc,                         &
+                call diffuse(conc,                         &
                              conc_prev,                    &
                              area,                         &
                              area_prev,                    &
@@ -485,7 +496,19 @@ program gtm
             prev_tran_flow = tran_flow            
             prev_node_conc = node_conc
             node_conc = LARGEREAL 
+        end do ! end of loop of sub time step
+
+        !---- print output to DSS file -----
+        do i = 1, noutpaths
+            vals(i,1) = conc(out_chan_cell(i),1)
         end do
+        if (current_time .ge. next_output_flush) then
+            call incr_intvl(next_output_flush, next_output_flush, flush_intvl,TO_BOUNDARY)
+            call gtm_store_outpaths(.true.,current_time,gtm_time_interval, vals)
+        else
+            call gtm_store_outpaths(.false.,current_time,gtm_time_interval, vals)
+        endif
+        
         !
         !----- print output to hdf5 file -----
         !              
@@ -528,17 +551,24 @@ program gtm
         call zclose(ifltab_in)  !!ADD A global to detect if dss is opened
         deallocate(ifltab_in) 
     end if
+    if (n_outdssfiles .ne. 0) then
+        call zclose(ifltab_out)  !!ADD A global to detect if dss is opened
+        deallocate(ifltab_out) 
+    end if    
     if (apply_diffusion)then
         call klu_fortran_free(k_symbolic, k_numeric, k_common)
         call deallocate_geom_arr
     end if    
     deallocate(pathinput)
+    deallocate(pathoutput)
     deallocate(node_conc)   
     deallocate(constituents)
     deallocate(init_c)
     deallocate(init_r)
     deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
     deallocate(out_cell, out_cell_mtz)
+    deallocate(out_chan_cell)
+    deallocate(vals)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state

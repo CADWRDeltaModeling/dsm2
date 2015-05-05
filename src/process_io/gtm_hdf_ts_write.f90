@@ -111,7 +111,7 @@ module gtm_hdf_ts_write
         ! create group for output
 	    call h5gcreate_f(hdf_file%file_id, "output", hdf_file%data_id, error)
 	
-	    hdf_interval = incr_intvl(zero,hdf_interval_char,TO_BOUNDARY)
+	    call incr_intvl(hdf_interval, zero,hdf_interval_char,TO_BOUNDARY)
 	    qual_hdf%write_interval = hdf_interval
 	    if (hdf_interval < time_step) then
 	        write(unit_error,*) "HDF write interval is finer than the simulation time step"
@@ -119,7 +119,7 @@ module gtm_hdf_ts_write
 	    end if
 	
 	    ! This would be more complex if time averages were stored
-        hdf_start = incr_intvl(sim_start, hdf_interval_char, NEAREST_BOUNDARY)
+        call incr_intvl(hdf_start, sim_start, hdf_interval_char, NEAREST_BOUNDARY)
         qual_hdf%start_julmin = hdf_start
 
         ! todo: is this "1+" always right? It wasn't in the original code      

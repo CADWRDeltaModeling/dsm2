@@ -33,6 +33,7 @@ module buffer_gtm_input_common
       use process_gtm_io_file
       use process_gtm_tidefile
       use process_gtm_groups
+      use process_gtm_output_channel
       use time_utilities
       
       implicit none
@@ -46,12 +47,17 @@ module buffer_gtm_input_common
       character(len=16) :: interval
       character(len=128) :: hydro_tidefile
       character(len=16) :: sdate, edate
+      !--output channel
+      character(len=8) :: distance
+      character(len=16) :: variable, perop
+      integer :: idistance, chan_length
+      integer :: channo   
       integer :: icount      
       integer :: ierror = 0
 
-      character*32 groupname
-      character*16 member_type
-      character*32 pattern
+      character(len=32) :: groupname, sourcegroup
+      character(len=16) :: member_type
+      character(len=32) :: pattern
       integer*4 obj_type
       integer*4, external :: obj_type_code
 
@@ -90,6 +96,24 @@ module buffer_gtm_input_common
       enddo
       print *,"Number of tidefiles: ", nitem    
 
+      ! process output channel block
+      nitem = output_channel_buffer_size()
+      allocate(pathoutput(nitem))
+      do icount = 1,nitem
+          call output_channel_query_from_buffer(icount, name, channo, distance, variable,  &
+                                                interval, perop, filename,ierror)
+          sourcegroup = ""
+          call locase(distance)
+          if (distance(:6) .eq. "length") then 
+             idistance = LARGEINT
+          else 
+             read(distance,'(i)') idistance
+          end if
+          call process_output_channel(name, channo, idistance, variable, interval, &
+                                      perop, sourcegroup, filename)
+      end do
+      print *,"Number of channel output requests: ", nitem      
+
       ! process group block
       !nitem = group_buffer_size()
       !do icount = 1,nitem
@@ -117,6 +141,10 @@ module buffer_gtm_input_common
       !call ConvertGroupPatternsToMembers
 
       call get_npartition_t(npartition_t, hydro_time_interval, gtm_time_interval)
+
+      allocate(outdssfiles(n_outdssfiles))
+      outdssfiles = outfilenames
+      allocate(ifltab_out(600, n_outdssfiles))
 
       return
     end subroutine

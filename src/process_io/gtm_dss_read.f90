@@ -1,3 +1,22 @@
+!<license>
+!    Copyright (C) 2013 State of California,
+!    Department of Water Resources.
+!    This file is part of DSM2-GTM.
+!
+!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
+!    is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    (at your option) any later version.
+!
+!    DSM2 is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
+!</license>
 
 
 !> Define arrays to be used as buffers for data values, data
@@ -87,9 +106,9 @@ module gtm_dss_read
        if (istat .eq. 0) then    ! regular time-series convention
        !--------jmin must be set to an interval end...if in the middle of an
        !--------interval, use the previous end, else if at an end, use that
-          jmin2=incr_intvl(jmin,ce,NEAREST_BOUNDARY)
+          call incr_intvl(jmin2, jmin,ce,NEAREST_BOUNDARY)
           if (jmin2 .ne. jmin) then ! not at interval end
-             jmin=incr_intvl(jmin,'-'//ce,NEAREST_BOUNDARY)
+             call incr_intvl(jmin, jmin,'-'//ce,NEAREST_BOUNDARY)
           endif
        endif
 

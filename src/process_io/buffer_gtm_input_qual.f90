@@ -30,8 +30,10 @@ module buffer_gtm_input_qual
         use process_gtm_input_climate 
         use process_gtm_node_conc
         !use process_gtm_rate_coef
-        use common_dsm2_vars, only: pathinput, n_inputpaths,infilenames, &
-                                    n_dssfiles, indssfiles, ifltab_in
+        use common_dsm2_vars, only: pathinput, n_inputpaths,infilenames,     &
+                                    n_dssfiles, indssfiles, ifltab_in,       &
+                                    n_outdssfiles, outdssfiles, ifltab_out,  &
+                                    outfilenames                      
         use gtm_dss, only: get_dss_each_npath
       
         implicit none
@@ -54,7 +56,6 @@ module buffer_gtm_input_qual
         integer :: idistance
         character*16 :: variable, perop
         character*32 :: sourcegroup
-      
         character*32 :: group_name
         character*16 :: constituent
         real*8  :: value

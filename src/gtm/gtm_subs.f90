@@ -2,7 +2,26 @@
 module gtm_subs
 
     contains
-    
+
+    !> subroutine to get output time series for selected output points
+    subroutine get_output_channel(out_cell,      &  !< output cells
+                                  n_chan_outpath)   !< number of output channels
+        use gtm_precision
+        use common_dsm2_vars, only: pathoutput
+        implicit none      
+        integer, intent(in) :: n_chan_outpath       
+        integer, intent(out) :: out_cell(n_chan_outpath)      
+        integer :: chan_num(n_chan_outpath)
+        real(gtm_real) :: x_dist(n_chan_outpath)        
+        integer :: i
+        do i = 1, n_chan_outpath
+            chan_num(i) = pathoutput(i)%channo
+            x_dist(i) = dble(pathoutput(i)%distance)
+        enddo
+        call get_select_cell(out_cell, n_chan_outpath, chan_num, x_dist)
+        return
+    end subroutine
+        
     !> subroutine to print out time series for selected cells into a text file
     subroutine get_select_cell(out_cell,            &  !< output cells
                                n_out_cell,          &  !< number of output cells
@@ -14,12 +33,15 @@ module gtm_subs
         integer, intent(out) :: out_cell(n_out_cell)
         integer, intent(in) :: n_out_cell
         integer, intent(in) :: chan_num(n_out_cell)
-        real(gtm_real), intent(in) :: x_dist(n_out_cell)
+        real(gtm_real), intent(inout) :: x_dist(n_out_cell)
         integer :: i, j, k, chan_no
         do i = 1, n_out_cell
             do j = 1, n_chan
-                if (chan_num(i).eq.chan_geom(j)%channel_num) then
+                if (chan_num(i).eq.chan_geom(j)%channel_num) then 
                     chan_no = chan_geom(j)%chan_no
+                    if (x_dist(i).eq.LARGEINT .or. x_dist(i).eq.LARGEREAL) then
+                        x_dist(i) = dble(chan_geom(j)%channel_length)
+                    end if 
                     do k = 1, n_segm
                         if (segm(k)%chan_no .eq. chan_no) then
                             if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).lt.segm(k)%down_distance)) then

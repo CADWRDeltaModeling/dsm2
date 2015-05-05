@@ -41,7 +41,7 @@ module input_storage_fortran
        include "source_flow_reservoir_input_storage.fi"
        include "node_concentration_input_storage.fi"
        include "reservoir_concentration_input_storage.fi"
-       !include "output_channel_input_storage.fi"
+       include "output_channel_input_storage.fi"
        !include "output_reservoir_input_storage.fi"
        !include "output_channel_source_track_input_storage.fi"
        !include "output_reservoir_source_track_input_storage.fi"
