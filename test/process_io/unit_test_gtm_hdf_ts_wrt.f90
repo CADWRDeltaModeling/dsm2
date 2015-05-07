@@ -29,10 +29,10 @@ module ut_gtm_hdf_ts_wrt
         use common_variables, only: chan_geom, resv_geom, constituents, gtm_time_interval
         use gtm_hdf_ts_write
         implicit none
-        character*128 :: hdf_name                   ! name of qual hdf5 file
-        real(gtm_real) :: sim_start                 ! first write time
-        real(gtm_real) :: sim_end                   ! last write time
-        character*16 :: hdf_interval_char           ! interval
+        character*128 :: hdf_name                 ! name of qual hdf5 file
+        integer :: sim_start                      ! first write time
+        integer :: sim_end                        ! last write time
+        character*16 :: hdf_interval_char         ! interval
         integer :: ncell
         integer :: nres
         integer :: nconc        
@@ -43,8 +43,8 @@ module ut_gtm_hdf_ts_wrt
         ncell = 3
         nres = 1
         nconc = 2
-        sim_start = 44100.d0
-        sim_end = 44400.d0
+        sim_start = 44100
+        sim_end = 44400
         hdf_interval_char = "15min"        
         allocate(chan_geom(ncell))
         allocate(resv_geom(nres))
@@ -79,8 +79,8 @@ module ut_gtm_hdf_ts_wrt
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name                  ! name of qual hdf5 file
-        real(gtm_real) :: sim_start                ! first write time
-        real(gtm_real) :: sim_end                  ! last write time
+        integer :: sim_start                       ! first write time
+        integer :: sim_end                         ! last write time
         character*16 :: hdf_interval_char          ! interval
         integer :: ncell
         integer :: nres
@@ -107,8 +107,8 @@ module ut_gtm_hdf_ts_wrt
         ncell = 5
         nres = 1
         nconc = 3
-        sim_start = 44100.d0
-        sim_end = 44250.d0
+        sim_start = 44100
+        sim_end = 44250
         hdf_interval_char = "15min"        
 
         allocate(chan_geom(ncell))
@@ -222,10 +222,10 @@ module ut_gtm_hdf_ts_wrt
         use common_variables, only: chan_geom, resv_geom, constituents
         use gtm_hdf_ts_write
         implicit none
-        character*128 :: hdf_name                   ! name of qual hdf5 file
-        real(gtm_real) :: sim_start                 ! first write time
-        real(gtm_real) :: sim_end                   ! last write time
-        character*16 :: hdf_interval_char           ! interval
+        character*128 :: hdf_name            ! name of qual hdf5 file
+        integer :: sim_start                 ! first write time
+        integer :: sim_end                   ! last write time
+        character*16 :: hdf_interval_char    ! interval
         integer :: ncell
         integer :: nres
         integer :: nconc        
@@ -253,8 +253,8 @@ module ut_gtm_hdf_ts_wrt
         ncell = 15000
         nres = 0
         nconc = 3
-        sim_start = 44100.d0
-        sim_end = 194100.d0
+        sim_start = 44100
+        sim_end = 194100
         hdf_interval_char = "15min"        
 
         allocate(chan_geom(ncell))

@@ -14,11 +14,11 @@ module ut_gtm_dss_main
         use gtm_dss_open
         use gtm_dss_main   
         use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t,              &
-                                    julmin, prev_julmin, start_julmin, end_julmin, &
                                     per_type_inst_val, n_inputpaths
         implicit none
         character(len=130) :: indssfilenames(2)
         integer :: num_dssfiles
+        integer :: start_julmin, end_julmin
         integer :: jmin, prev_jmin
         
         start_julmin = 48389400

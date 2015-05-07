@@ -102,7 +102,7 @@ program gtm
     integer :: current_block = 0
     integer :: current_slice = 0
     integer :: time_index_in_gtm_hdf
-    real(gtm_real) :: next_output_flush   ! next time to flush output
+    integer :: next_output_flush   ! next time to flush output
       
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
     
@@ -125,7 +125,7 @@ program gtm
     integer :: sub_st                                         ! number of sub time step within gtm time step
     integer :: prev_sub_ts                                    ! previous number of sub time step (used to decide if deallocate and allocate is needed.)
     integer :: ceil_max_cfl                                   ! ceiling integer of max_cfl
-
+    integer :: tmp_int
     integer :: ierror
     integer :: istat = 0
     
@@ -227,14 +227,15 @@ program gtm
     node_conc = LARGEREAL    
     prev_node_conc = LARGEREAL 
     
-    call incr_intvl(gtm_hdf_time_intvl, zero,gtm_io(3,2)%interval,1)
+    call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
+    gtm_hdf_time_intvl = dble(tmp_int)
     call init_qual_hdf(qual_hdf,             &
                        gtm_io(3,2)%filename, &
                        n_cell,               &
                        n_resv,               &
                        n_var,                &
-                       gtm_start_jmin,       &
-                       gtm_end_jmin,         &
+                       int(gtm_start_jmin),  &
+                       int(gtm_end_jmin),    &
                        gtm_io(3,2)%interval)
     
     if (trim(gtm_io(3,2)%filename) .ne. "") then
@@ -309,9 +310,11 @@ program gtm
                      "mass_prev","flow_lo","flow_hi","conc_lo","conc_hi","flux_lo","flux_hi"
     
     prev_sub_ts = 1
-    call incr_intvl(next_output_flush, gtm_start_jmin, flush_intvl, TO_BOUNDARY)
+    start_julmin = int(gtm_start_jmin)
+    end_julmin = int(gtm_end_jmin)    
+    call incr_intvl(next_output_flush, int(gtm_start_jmin), flush_intvl, TO_BOUNDARY)
     call gtm_init_store_outpaths(istat)
-        
+    
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
         !---print out processing date on screen
@@ -502,11 +505,11 @@ program gtm
         do i = 1, noutpaths
             vals(i,1) = conc(out_chan_cell(i),1)
         end do
-        if (current_time .ge. next_output_flush) then
+        if (int(current_time) .ge. next_output_flush) then
             call incr_intvl(next_output_flush, next_output_flush, flush_intvl,TO_BOUNDARY)
-            call gtm_store_outpaths(.true.,current_time,gtm_time_interval, vals)
+            call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
         else
-            call gtm_store_outpaths(.false.,current_time,gtm_time_interval, vals)
+            call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
         endif
         
         !
@@ -546,7 +549,9 @@ program gtm
             !call print_out_cell_conc(104, conc(:,1), n_cell, out_cell_mtz, n_out_cell_mtz)
         end if                           
         
-    end do
+        prev_julmin = int(current_time)
+        
+    end do  ! end of loop for gtm time step
     if (n_dssfiles .ne. 0) then
         call zclose(ifltab_in)  !!ADD A global to detect if dss is opened
         deallocate(ifltab_in) 

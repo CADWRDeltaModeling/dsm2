@@ -59,12 +59,12 @@ module gtm_dss_write
     integer :: ptout_year1(max_out_year)
                
     !-----the starting date/time of each block of data, in julian minutes
-    real(gtm_real) :: julstout_minutes15, &
-                      julstout_hours1,    &
-                      julstout_days1,     &
-                      julstout_weeks1,    &
-                      julstout_months1,   &
-                      julstout_years1
+    integer :: julstout_minutes15, &
+               julstout_hours1,    &
+               julstout_days1,     &
+               julstout_weeks1,    &
+               julstout_months1,   &
+               julstout_years1
 
     !-----the number of values that went into an average value over the
     !-----time interval

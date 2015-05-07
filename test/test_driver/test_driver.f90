@@ -36,6 +36,7 @@ program test_driver
     use ut_gtm_network
     
     !----- modules used in project test_process_io -----
+    use ut_dsm2_time_utils
     use ut_process_gtm_input
     use ut_time_utilities
     use ut_gtm_dss_readdss
@@ -95,6 +96,7 @@ program test_driver
    
     !----- function calls to test units in project process_io API ---
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    call test_dsm2_time_utils
     call test_time_util
     call test_readdss  
     call test_readtvd

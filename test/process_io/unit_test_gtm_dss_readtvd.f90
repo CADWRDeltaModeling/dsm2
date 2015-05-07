@@ -18,7 +18,6 @@ module ut_gtm_dss_readtvd
         use gtm_dss_read   
         use gtm_dss_readtvd 
         use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t, &
-                                    julmin, prev_julmin, start_julmin, end_julmin, &
                                     per_type_inst_val, n_inputpaths
         use time_utilities
         
@@ -27,6 +26,7 @@ module ut_gtm_dss_readtvd
         integer :: inpaths_dim
         integer :: block_dim
         integer :: num_dssfiles
+        integer :: start_julmin, end_julmin
         integer :: ninpath_15min, ninpath_1hr, ninpath_irr, ninpath_1day, ninpath_1mon
         integer, dimension(1) :: inpath_ptr_15min, inpath_ptr_1hr, inpath_ptr_irr, inpath_ptr_1day, inpath_ptr_1mon
         integer ::  i
@@ -131,7 +131,7 @@ module ut_gtm_dss_readtvd
         jmin = 48422685       ! 24JAN1992 2045 (hr data: -1.4699 at 20:00, -1.6051 at 21:00)
         prev_jmin = jmin - 15   
         call readtvd(indata_1hr, jmin, prev_jmin, ninpath_1hr, hrs, n_inputpaths, inpath_ptr_1hr)
-        call assertEquals (pathinput(3)%value, dble(-1.6051), weakest_eps, "problem in readtvd reading hour data at 24JAN1992 2045")   
+        call assertEquals (pathinput(3)%value, dble(-1.4699), weakest_eps, "problem in readtvd reading hour data at 24JAN1992 2045")   
 
         !---- test for daily data ----
         jmin = 48422685       ! 24JAN1992 2045 (daily data: 0.8438 at 23JAN1992 2400, 0.8400 at 24JAN1992 2400)

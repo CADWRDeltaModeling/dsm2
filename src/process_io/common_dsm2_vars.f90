@@ -35,9 +35,9 @@ module common_dsm2_vars
        integer, parameter :: max_print_dates = 10         ! previous time step in minutes
        integer:: nprints = 1                              ! number of start/stop output date/times
 
-       real(gtm_real) :: prev_julmin                      ! (hydro) when to start writing tidefile, jul mins
-       real(gtm_real) :: start_julmin                     ! (hydro) when to start writing tidefile, jul mins
-       real(gtm_real) :: end_julmin                       ! (hydro) when to start writing tidefile, jul mins
+       integer :: prev_julmin                      ! (hydro) when to start writing tidefile, jul mins
+       integer :: start_julmin                     ! (hydro) when to start writing tidefile, jul mins
+       integer :: end_julmin                       ! (hydro) when to start writing tidefile, jul mins
        
        character*14 :: current_date = ' '                  ! current date/time (corresponds to julmin)
        character*14 :: run_start_date = ' '                ! date/time of start of run

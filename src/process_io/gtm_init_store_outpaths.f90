@@ -48,11 +48,12 @@ module gtm_init_store_outputs
                    npaths                 ! path count 
         character*1 :: backslash = '\'
         character*13 :: crid             ! run date/time as character: YYMMDDhhmm
-        real(gtm_real) :: tmp_incr_intvl
-        real(gtm_real) :: start_julmin
+        integer :: tmp_incr_intvl
+        integer :: time_intv
+        integer :: start_julmin
 
         call get_npathout        
-        start_julmin = gtm_start_jmin
+        start_julmin = int(gtm_start_jmin)
 
         !-----For each interval with output data, create a scratch file
         !-----and write header info.
@@ -79,8 +80,7 @@ module gtm_init_store_outputs
 
         ctmp=trim(crid) // '.bin'
 
-        call incr_intvl(tmp_incr_intvl, start_julmin,'15min', NEAREST_BOUNDARY)
-        julstout_minutes15 = int(tmp_incr_intvl)
+        call incr_intvl(julstout_minutes15, start_julmin,'15min', NEAREST_BOUNDARY)
         if (need_tmpfile_min15) then
          call mkfilename(tmp_dir, 'tmp_min15-' // trim(ctmp), tmp_file)
          scratch_file_array(1)=tmp_file
@@ -112,9 +112,8 @@ module gtm_init_store_outputs
          scratch_file_array(1)=miss_val_c
       endif
 
-      call incr_intvl(tmp_incr_intvl, start_julmin,'1hour', &
+      call incr_intvl(julstout_hours1, start_julmin,'1hour', &
           NEAREST_BOUNDARY)
-      julstout_hours1 = int(tmp_incr_intvl)
       if (need_tmpfile_hour1) then
          call mkfilename(tmp_dir, 'tmp_hour1-' // trim(ctmp), tmp_file)
          scratch_file_array(2)=tmp_file
@@ -146,9 +145,8 @@ module gtm_init_store_outputs
          scratch_file_array(2)=miss_val_c
       endif
 
-      call incr_intvl(tmp_incr_intvl, start_julmin,'1day', &
+      call incr_intvl(julstout_days1, start_julmin,'1day', &
           NEAREST_BOUNDARY)
-      julstout_days1 = int(tmp_incr_intvl)
       if (need_tmpfile_day1) then
          call mkfilename(tmp_dir, 'tmp_day1-' // trim(ctmp), tmp_file)
          scratch_file_array(3)=tmp_file
@@ -180,9 +178,8 @@ module gtm_init_store_outputs
          scratch_file_array(3)=miss_val_c
       endif
 
-      call incr_intvl(tmp_incr_intvl, start_julmin,'1week', &
-          NEAREST_BOUNDARY)
-      julstout_weeks1 = int(tmp_incr_intvl)    
+      call incr_intvl(julstout_weeks1, start_julmin,'1week', &
+          NEAREST_BOUNDARY)  
       if (need_tmpfile_week1) then
          call mkfilename(tmp_dir, 'tmp_week1-' // trim(ctmp), tmp_file)
          scratch_file_array(4)=tmp_file
@@ -212,9 +209,8 @@ module gtm_init_store_outputs
          scratch_file_array(4)=miss_val_c
       endif
 
-      call incr_intvl(tmp_incr_intvl, start_julmin,'1month', &
+      call incr_intvl(julstout_months1, start_julmin,'1month', &
           NEAREST_BOUNDARY)
-      julstout_months1 = int(tmp_incr_intvl)
       if (need_tmpfile_month1) then
          call mkfilename(tmp_dir, 'tmp_month1-' // trim(ctmp), tmp_file)
          scratch_file_array(5)=tmp_file

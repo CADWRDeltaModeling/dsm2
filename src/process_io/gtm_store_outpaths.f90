@@ -28,16 +28,19 @@ module gtm_store_outpath
     
     !> Write output data periodically to temporary files.
     !> Initialize the temporary files first with init_store_outpaths.
-    subroutine gtm_store_outpaths(lflush, runtime_julmin, runtime_step, vals)
+    subroutine gtm_store_outpaths(lflush,          &
+                                  runtime_julmin,  &
+                                  runtime_step,    &
+                                  vals)
         use dsm2_time_utils, only: incr_intvl
-        use common_dsm2_vars, only: NEAREST_BOUNDARY, noutpaths, prev_julmin
+        use common_dsm2_vars, only: NEAREST_BOUNDARY, noutpaths
         implicit none
-        logical, intent(in) :: lflush                ! true to force data flush to scratch files
-        logical :: lupdate                           ! true to update value arrays
-        real(gtm_real) :: last_update                ! julian minute of last update
-        real(gtm_real), intent(in) :: runtime_julmin ! runtime julmin minute
-        real(gtm_real), intent(in) :: runtime_step
-        real(gtm_real), intent(in) :: vals(noutpaths)
+        logical, intent(in) :: lflush                 !< true to force data flush to scratch files
+        integer, intent(in) :: runtime_julmin         !< runtime julmin minute
+        integer, intent(in) :: runtime_step           !< runtime step
+        real(gtm_real), intent(in) :: vals(noutpaths) !< values for each output path
+        logical :: lupdate                            ! true to update value arrays
+        integer :: last_update                        ! julian minute of last update
         
         !-----the storage index pointer for each block of data
         integer :: ndx_minutes15, &
@@ -55,97 +58,88 @@ module gtm_store_outpath
               ndx_weeks1 /1/, ndx_months1 /1/, ndx_years1 /1/,  &
               last_update /0/
               
-        real(gtm_real):: jmin_15min, jmin_15min_prev,   &
+        integer :: jmin_15min, jmin_15min_prev,   &
                    jmin_1hour, jmin_1hour_prev,   &
                    jmin_1day, jmin_1day_prev,     &
                    jmin_1week, jmin_1week_prev,   &
                    jmin_1month, jmin_1month_prev, &
                    jmin_1year, jmin_1year_prev
-                 
-        real(gtm_real) :: tmp_incr_intvl
    
         lupdate = .not. (runtime_julmin .eq. last_update)
 
         if (npthsout_min15 .gt. 0) then
             call incr_intvl(jmin_15min,runtime_julmin,'15MIN',NEAREST_BOUNDARY)
-            !jmin_15min=int(tmp_incr_intvl)
             call incr_intvl(jmin_15min_prev,runtime_julmin,'-15MIN',NEAREST_BOUNDARY)
-            !jmin_15min_prev=int(tmp_incr_intvl)
-            call gtm_store_outpaths_gen(max_out_min, &
-                 mins15,npthsout_min15,ptout_min15, &
-                 julstout_minutes15,ndx_minutes15, &
+            call gtm_store_outpaths_gen(max_out_min,    &
+                 mins15,npthsout_min15,ptout_min15,     &
+                 julstout_minutes15,ndx_minutes15,      &
                  jmin_15min,jmin_15min_prev,nave_min15, &
-                 dataout_minutes15,unit_min15, &
-                 lflush,lupdate,need_tmpfile_min15,runtime_julmin,runtime_step,vals)
+                 dataout_minutes15,unit_min15,          &
+                 lflush,lupdate,need_tmpfile_min15,     &
+                 runtime_julmin,runtime_step,vals)
         endif
 
         if (npthsout_hour1 .gt. 0) then
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'1HOUR',NEAREST_BOUNDARY)
-            jmin_1hour=int(tmp_incr_intvl)
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'-1HOUR',NEAREST_BOUNDARY)
-            jmin_1hour_prev=int(tmp_incr_intvl)
-            call gtm_store_outpaths_gen(max_out_hour, &
-                 hrs,npthsout_hour1,ptout_hour1, &
-                 julstout_hours1,ndx_hours1, &
+            call incr_intvl(jmin_1hour,runtime_julmin,'1HOUR',NEAREST_BOUNDARY)
+            call incr_intvl(jmin_1hour_prev,runtime_julmin,'-1HOUR',NEAREST_BOUNDARY)
+            call gtm_store_outpaths_gen(max_out_hour,   &
+                 hrs,npthsout_hour1,ptout_hour1,        &
+                 julstout_hours1,ndx_hours1,            &
                  jmin_1hour,jmin_1hour_prev,nave_hour1, &
-                 dataout_hours,unit_hour1, &
-                 lflush,lupdate,need_tmpfile_hour1,runtime_julmin,runtime_step,vals)
+                 dataout_hours,unit_hour1,              &
+                 lflush,lupdate,need_tmpfile_hour1,     &
+                 runtime_julmin,runtime_step,vals)
         endif
 
         if (npthsout_day1 .gt. 0) then
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'1DAY',NEAREST_BOUNDARY)
-            jmin_1day=int(tmp_incr_intvl)
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'-1DAY',NEAREST_BOUNDARY)
-            jmin_1day_prev=int(tmp_incr_intvl)
-            call gtm_store_outpaths_gen(max_out_day, &
-                 dys,npthsout_day1,ptout_day1, &
-                 julstout_days1,ndx_days1, &
-                 jmin_1day,jmin_1day_prev,nave_day1, &
-                 dataout_days,unit_day1, &
-                 lflush,lupdate,need_tmpfile_day1,runtime_julmin,runtime_step,vals)
+            call incr_intvl(jmin_1day,runtime_julmin,'1DAY',NEAREST_BOUNDARY)
+            call incr_intvl(jmin_1day_prev,runtime_julmin,'-1DAY',NEAREST_BOUNDARY)
+            call gtm_store_outpaths_gen(max_out_day,    &
+                 dys,npthsout_day1,ptout_day1,          &
+                 julstout_days1,ndx_days1,              &
+                 jmin_1day,jmin_1day_prev,nave_day1,    &
+                 dataout_days,unit_day1,                &
+                 lflush,lupdate,need_tmpfile_day1,      &
+                 runtime_julmin,runtime_step,vals)
         endif
 
         if (npthsout_week1 .gt. 0) then
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'1WEEK',NEAREST_BOUNDARY)
-            jmin_1week=int(tmp_incr_intvl)
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'-1WEEK',NEAREST_BOUNDARY)
-            jmin_1week_prev=int(tmp_incr_intvl)
-            call gtm_store_outpaths_gen(max_out_week, &
-                 wks,npthsout_week1,ptout_week1, &
-                 julstout_weeks1,ndx_weeks1, &
+            call incr_intvl(jmin_1week,runtime_julmin,'1WEEK',NEAREST_BOUNDARY)
+            call incr_intvl(jmin_1week_prev,runtime_julmin,'-1WEEK',NEAREST_BOUNDARY)
+            call gtm_store_outpaths_gen(max_out_week,   &
+                 wks,npthsout_week1,ptout_week1,        &
+                 julstout_weeks1,ndx_weeks1,            &
                  jmin_1week,jmin_1week_prev,nave_week1, &
-                 dataout_weeks,unit_week1, &
-                 lflush,lupdate,need_tmpfile_week1,runtime_julmin,runtime_step,vals)
+                 dataout_weeks,unit_week1,              &
+                 lflush,lupdate,need_tmpfile_week1,     &
+                 runtime_julmin,runtime_step,vals)
         endif
 
         if (npthsout_month1 .gt. 0) then
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'1MON',NEAREST_BOUNDARY)
-            jmin_1month=int(tmp_incr_intvl)
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'-1MON',NEAREST_BOUNDARY)
-            jmin_1month_prev=int(tmp_incr_intvl)
-            call gtm_store_outpaths_gen(max_out_month, &
-                 mths,npthsout_month1,ptout_month1, &
-                 julstout_months1,ndx_months1, &
+            call incr_intvl(jmin_1month,runtime_julmin,'1MON',NEAREST_BOUNDARY)
+            call incr_intvl(jmin_1month_prev,runtime_julmin,'-1MON',NEAREST_BOUNDARY)
+            call gtm_store_outpaths_gen(max_out_month,     &
+                 mths,npthsout_month1,ptout_month1,        &
+                 julstout_months1,ndx_months1,             &
                  jmin_1month,jmin_1month_prev,nave_month1, &
-                 dataout_months,unit_month1, &
-                 lflush,lupdate,need_tmpfile_month1,runtime_julmin,runtime_step,vals)
+                 dataout_months,unit_month1,               &
+                 lflush,lupdate,need_tmpfile_month1,       &
+                 runtime_julmin,runtime_step,vals)
         endif
 
         if (npthsout_year1 .gt. 0) then
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'1YEAR',NEAREST_BOUNDARY)
-            jmin_1year=int(tmp_incr_intvl)
-            call incr_intvl(tmp_incr_intvl,runtime_julmin,'-1YEAR',NEAREST_BOUNDARY)
-            jmin_1year_prev=int(tmp_incr_intvl)
-            call gtm_store_outpaths_gen(max_out_year, &
-                 yrs,npthsout_year1,ptout_year1, &
-                 julstout_years1,ndx_years1, &
-                 jmin_1year,jmin_1year_prev,nave_year1, &
-                 dataout_years,unit_year1, &
-                 lflush,lupdate,need_tmpfile_year1,runtime_julmin,runtime_step,vals)
+            call incr_intvl(jmin_1year,runtime_julmin,'1YEAR',NEAREST_BOUNDARY)
+            call incr_intvl(jmin_1year_prev,runtime_julmin,'-1YEAR',NEAREST_BOUNDARY)
+            call gtm_store_outpaths_gen(max_out_year,      &
+                 yrs,npthsout_year1,ptout_year1,           &
+                 julstout_years1,ndx_years1,               &
+                 jmin_1year,jmin_1year_prev,nave_year1,    &
+                 dataout_years,unit_year1,                 &
+                 lflush,lupdate,need_tmpfile_year1,        &
+                 runtime_julmin,runtime_step,vals)
         endif
  
         last_update = runtime_julmin
-        prev_julmin = runtime_julmin
 
         return
     end subroutine
@@ -171,14 +165,21 @@ module gtm_store_outpath
                                       runtime_step,   &
                                       vals)
 
-        use common_dsm2_vars
+        use common_dsm2_vars, only: npaths, pathoutput, prev_julmin,      &
+                                    start_julmin, end_julmin,             &
+                                    per_type_per_aver, per_type_per_cum,  &
+                                    per_type_per_min, per_type_per_max,   &
+                                    per_type_inst_val, per_type_inst_cum, &
+                                    per_type_null
+ 
         use time_utilities, only: jmin2cdt
+ 
         implicit none
 
         !-----subroutine arguments
 
-        integer :: outpaths_dim, &              ! output paths array dimension
-                   block_dim                    ! data block array dimension
+        integer, intent(in) :: outpaths_dim     !< output paths array dimension
+        integer, intent(in) :: block_dim        !< data block array dimension
 
         integer :: npaths,                    & ! number of output paths for this interval
                    outpath_ptr(outpaths_dim), & ! pointer array to output pathnames
@@ -186,12 +187,13 @@ module gtm_store_outpath
                    nave_intvl(outpaths_dim),  & ! number of values in the interval average
                    unit                         ! write unit number
      
-        real(gtm_real) :: jul_start,     &      ! julian minute of start of data for this path 
-                          jmin_eop,      &      ! julian minute of end-of-period for this interval 
-                          jmin_eop_prev         ! previous value of jmin_eop
+       integer :: jul_start,     &      ! julian minute of start of data for this path 
+                  jmin_eop,      &      ! julian minute of end-of-period for this interval 
+                  jmin_eop_prev         ! previous value of jmin_eop
                  
-        real(gtm_real), intent(in) :: runtime_julmin
-        real(gtm_real), intent(in) :: runtime_step
+        integer, intent(in) :: runtime_julmin
+        integer, intent(in) :: runtime_step
+        
         real(gtm_real), intent(in) :: vals(npaths)
       
         real(gtm_real),intent(out) :: outdata_arr(0:block_dim,outpaths_dim) ! output data array
@@ -249,10 +251,9 @@ module gtm_store_outpath
                 else if (lnewndx .and. &
                          runtime_julmin .gt. prev_julmin .and. & ! skip recycled julmin &
                          prev_julmin .ne. jmin_eop_prev) then ! just crossed interval, interpolate between time steps
-                    outdata_arr(store_ndx,i) = val
-                    !outdata_arr(store_ndx-1,i) = ( (val-outdata_arr(0,i)) * &
-                    !   (jmin_eop-(jmin_eop-jmin_eop_prev)-prev_julmin)) / &
-                    !   (runtime_julmin-prev_julmin) + outdata_arr(0,i)
+                    outdata_arr(store_ndx-1,i) = ( (val-outdata_arr(0,i)) * &
+                       dble(jmin_eop-(jmin_eop-jmin_eop_prev)-prev_julmin)) / &
+                       (runtime_julmin-prev_julmin) + outdata_arr(0,i)
                 endif
             else if (pathoutput(ptr)%per_type .eq. per_type_inst_cum) then ! instantaneous cumulative value
                 outdata_arr(store_ndx,i) = val
@@ -282,16 +283,16 @@ module gtm_store_outpath
                 else
                     call writedss(ptr, ctmp, outdata_arr(1,i), nvals)
                 endif
-          !      if (.not. lendndx) then ! move incomplete value to start of array
-          !          outdata_arr(1,i)=outdata_arr(store_ndx,i)
-          !          store_ndx = 1
-          !      else
-          !          outdata_arr(1,i) = zero
-          !          store_ndx=0
-          !      endif
-          !      do j=2,block_dim
-          !          outdata_arr(j,i) = zero
-          !      enddo
+                if (.not. lendndx) then ! move incomplete value to start of array
+                    outdata_arr(1,i)=outdata_arr(store_ndx,i)
+                    store_ndx = 1
+                else
+                    outdata_arr(1,i) = zero
+                    store_ndx=0
+                endif
+                do j=2,block_dim
+                    outdata_arr(j,i) = zero
+                enddo
             enddo
             !--------set julian minute of start of next data block
             jul_start = jul_start+(jmin_eop-jmin_eop_prev)*nvals

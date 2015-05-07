@@ -22,7 +22,12 @@ module gtm_dss_readtvd
         use gtm_dss, only: last_value, last_ndx_next,     &
                            allocate_last_value, deallocate_last_value
         use gtm_dss_read
-        use common_dsm2_vars
+        use common_dsm2_vars, only: per_type_names, per_type_per_aver, per_type_per_cum,      &
+                                    per_type_per_min, per_type_per_max, per_type_inst_val,    &
+                                    per_type_inst_cum,per_type_null, n_inputpaths, pathinput, &
+                                    fill_interp, fill_bydata, generic_date, current_date,     &
+                                    start_julmin
+        use common_variables, only : unit_error
         use time_utilities
        
         implicit none
@@ -53,14 +58,14 @@ module gtm_dss_readtvd
         integer :: nvals                                ! status
         integer :: istat                                ! status
 
-        integer*4 :: jul_next                           ! increment time interval function
-        integer*4 :: jul_prev_curr                      ! increment time interval function
-        integer*4 :: jul                                ! increment time interval function
-        integer*4 :: jul2                               ! increment time interval function
-        real(gtm_real) :: js_data                       ! increment time interval function
-        integer*4 :: jm_next                            ! increment time interval function
-        integer*4 :: timediff_dat                       ! increment time interval function
-        integer*4 :: timediff_val                       ! increment time interval function
+        integer :: jul_next                           ! increment time interval function
+        integer :: jul_prev_curr                      ! increment time interval function
+        integer :: jul                                ! increment time interval function
+        integer :: jul2                               ! increment time interval function
+        integer :: js_data                            ! increment time interval function
+        integer :: jm_next                            ! increment time interval function
+        integer :: timediff_dat                       ! increment time interval function
+        integer :: timediff_val                       ! increment time interval function
  
         double precision :: val1                        ! values used for interpolating
         double precision :: val2                        ! values used for interpolating
@@ -106,7 +111,7 @@ module gtm_dss_readtvd
             if (pathinput(ptr)%constant_value == miss_val_r) then ! get value from dss file
                if ( (jmin+pathinput(ptr)%diff_julmin >= &
                    indata(block_dim,i)%julmin ) .or. &
-                   prev_jmin == start_julmin) then
+                   prev_jmin == int(start_julmin)) then
                    js_data = jmin+pathinput(ptr)%diff_julmin
                    call readdss(ptr, js_data, inpaths_dim, block_dim, & 
                                 indata, per_type)

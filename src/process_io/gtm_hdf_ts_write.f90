@@ -59,14 +59,15 @@ module gtm_hdf_ts_write
         integer, intent(in) :: ncell                  !< number of cells
         integer, intent(in) :: nresv                  !< number of reservoirs
         integer, intent(in) :: nconc                  !< number of constituents
-        real(gtm_real), intent(in) :: sim_start       !< first write time
-        real(gtm_real), intent(in) :: sim_end         !< last write time
+        integer, intent(in) :: sim_start       !< first write time
+        integer, intent(in) :: sim_end         !< last write time
         character*16 :: hdf_interval_char             !< interval
             
         !----- locals      
-        real(gtm_real) :: hdf_start
-        real(gtm_real) :: hdf_end
-        real(gtm_real) :: hdf_interval
+        integer :: hdf_start
+        integer :: hdf_end
+        integer :: hdf_interval
+        integer :: time_intv
         integer :: ntime                            ! number of time points in hdf5 file
         real(gtm_real) :: time_step                 ! gtm simulation time step
   	    integer(HID_T) :: access_plist              ! Dataset trasfer property
@@ -111,7 +112,7 @@ module gtm_hdf_ts_write
         ! create group for output
 	    call h5gcreate_f(hdf_file%file_id, "output", hdf_file%data_id, error)
 	
-	    call incr_intvl(hdf_interval, zero,hdf_interval_char,TO_BOUNDARY)
+	    call incr_intvl(hdf_interval, 0,hdf_interval_char,TO_BOUNDARY)
 	    qual_hdf%write_interval = hdf_interval
 	    if (hdf_interval < time_step) then
 	        write(unit_error,*) "HDF write interval is finer than the simulation time step"

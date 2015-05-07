@@ -23,7 +23,7 @@ module ut_gtm_dss_readdss
         use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t
         implicit none
         integer :: pathnumber
-        real(gtm_real) :: jmin
+        integer :: jmin
         integer :: inpaths_dim
         integer :: block_dim
         integer :: num_dssfiles
