@@ -18,6 +18,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import java.util.*;
+
 import edu.cornell.RngPack.*;
 
 /**
@@ -82,7 +83,10 @@ import edu.cornell.RngPack.*;
  */
 public class Particle{
 	
-  /**
+  private static SwimInputs  SwimmingInputs = Globals.Environment.getBehaviorInputs().getSwimInputs();
+  private static boolean IsRandomAccess = SwimmingInputs.getRandomAccess();
+  private static float AccessProb = SwimmingInputs.getAccessProbability();
+	/**
     *  unique Particle identity
     */
   public int Id;
@@ -143,6 +147,7 @@ public class Particle{
     //if (DEBUG) System.out.println("Fall velocity");
     //    fallvel = pFI.getFallVelocity();
     //    behaviorData = pFI.getBehavior();
+    
   }
   
   /**
@@ -188,6 +193,7 @@ public class Particle{
     Channel.useTransProfile = pFI.doTransverseProfile();
     Channel.constructProfile();
     Channel.constructProfile();
+    // use PTMUtil random methods instead
     //  if (DEBUG) System.out.println("set random seed");
     if(randomNumberGenerator == null)
       randomNumberGenerator = new Ranecu(pFI.getRandomSeed());
@@ -467,6 +473,7 @@ _survivalHelper = null;
   /**
     *  Gaussian random number generator for y and z dispersive movements
     */
+  // use method in PTMUtil instead
   protected static RandomElement randomNumberGenerator;
   
   /**
@@ -482,6 +489,9 @@ _survivalHelper = null;
  private SwimHelper _swimHelper;
  private SurvivalHelper _survivalHelper;
  private boolean _travelTimeRecorded = false;
+ private float _swimmingVelocity = 0.0f;
+ private float _meanSwimmingVelocity = 0.0f;
+ private int _confusionFactor = 1;
   
   /**
     *  updates the Particle position for the given time step;
@@ -497,7 +507,19 @@ _survivalHelper = null;
 		 // Channel
 		 if (wb.getPTMType() ==  Waterbody.CHANNEL) {
 			 if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
-
+			 if (IsRandomAccess){
+			    	if (PTMUtil.getRandomNumber() < AccessProb){
+			    		if (PTMUtil.getRandomNumber() < ((Channel)wb).getProbConfusion())
+			    			_confusionFactor = -1;
+			    		else
+			    			_confusionFactor = 1;
+			    				
+			    	}
+		     }
+			 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
+			 // temp comment out
+			 //System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_confusionFactor + "  " + ((Channel)wb).getProbConfusion());
+			 _swimmingVelocity = _confusionFactor*((Channel)wb).getChanDir()*_swimmingVelocity;
 			 // update sub-time step due to y & z mixing
 			 int numOfSubTimeSteps = getSubTimeSteps(tmLeft);
 			 float tmstep = tmLeft/numOfSubTimeSteps;
@@ -516,11 +538,17 @@ _survivalHelper = null;
 				 else // for the last sub-time step; deal with division precision & truncation
 					 tmToAdv = tmLeft;
 				 // the statistical formula of survival is only for channels
-				 if (!checkSurvival(tmToAdv)) return;
+				 if (!checkSurvival(tmToAdv)) {
+					 age += tmToAdv;
+					 return;
+				 }
 				 updateAllParameters(tmToAdv);
 				 // if an average cross section velocity (channelVave) is less than a user specified threshold, make the particle hold for one time step (channelVave will not change in that time step)
-				 if (channelVave < velThreshold)
+				 if (channelVave < velThreshold){
+					 // wait time is the time left for the time step.
+					 age += tmLeft;
 					 return;
+				 }
 				 boolean needToBeRecorded = false;
 				 int n = -999999, w= -999999, d = 0;
 				 if (!particleWait){
@@ -537,7 +565,7 @@ _survivalHelper = null;
 					  * xPos - x is always positive because the particle is from the upstream  
 					  */					 
 					 
-					 // n and w need to be used to check if the particle stay in the same node
+					 // n and w will be used to check if the particle stay in the same node
 					 n = nd.getEnvIndex();
 					 w = wb.getEnvIndex();
 					 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode() && ((xPos > wb.getOutputDistance()) || PTMUtil.floatNearlyEqual(xPos, wb.getOutputDistance()))){
@@ -546,28 +574,15 @@ _survivalHelper = null;
 						 d = wb.getOutputDistance();
 						 needToBeRecorded = true;
 					 }
-					 //TODO clean up
-					 /*
-					 if (getId() == 6 && PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) == 419)
-						 System.err.println(age/60+" "+Etdt+" "+Evdt);
-						 //System.err.println("age:"+age/60+"  x:"+x+"  y:"+y+"  z:"+z+"  sv:"+((Channel) wb).getSwimmingVelocity()+"  vel:"+calcXVelocityExtDeterministic()
-								// +"  area:"+channelArea+"  cDep:"+channelDepth+"  clength:"+channelLength+"  cVel:"+channelVave+"  cWid:"+channelWidth);
-					 */
 					 if (isNodeReached(xPos) == true){
 						 float totalVelocity = calcXVelocityExtDeterministic() + calcXVelocityExtRandom()
 				  			 	 			 + calcXVelocityIntDeterministic() + calcXVelocityIntRandom();
-						//TODO clean up
-						 /*
-						 if (getId() == 6)
-							 System.err.println("PId: "+getId()+"  x:"+x+"  xPos:"+xPos+"  age:"+age/60+"  nodeId: "+PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())
-								 +"  wbId: "+PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+ " vel:" +totalVelocity + "  totalFlows:"+nd.getTotalWaterbodyInflows());
-							*/	 
 						 if(Math.abs(totalVelocity)<Float.MIN_VALUE) //xPos == x
 							 PTMUtil.systemExit("when calculate x position, encountered a 0 velocity which is impossible");
 						 else{ 
 							 //if isNodeReached(xPos) == true, xPos could only > length or < 0
 							 if (xPos < 0)
-								 // now the entire tmToAdv is not totally used up.  Reset tmToAdv to the part used 
+								 // now the entire tmToAdv is not totally used up.  Reset tmToAdv to the time only used 
 								 tmToAdv = Math.abs(x/totalVelocity); // tmToAdv is less than tmstep
 							 else if (xPos > channelLength)
 								 tmToAdv = (channelLength-x)/totalVelocity; 
@@ -594,7 +609,7 @@ _survivalHelper = null;
 						 else{
 							 // if particle stays in the same node, wait for a time step.  tmToAdv is calculated in lines 555 - 565 
 							 if (tmToAdv < Float.MIN_VALUE && wb.getEnvIndex() == w && nd.getEnvIndex() == n 
-									 && totalVelocity*wb.getInflow(nd.getEnvIndex())<0)
+									 && totalVelocity*wb.getInflowWSV(nd.getEnvIndex(), _swimmingVelocity)<0)
 								 return;
 								 //particleWait = true;
 						 }
@@ -704,8 +719,10 @@ _survivalHelper = null;
     *  w random numbers generation 
     */
   protected final void setYZLocationInChannel(){
-      y = ((Channel)wb).getWidth(x)*(wb.getRandomNumber()-0.5f);
-      z = ((Channel)wb).getDepth(x)*wb.getRandomNumber();
+      //y = ((Channel)wb).getWidth(x)*(wb.getRandomNumber()-0.5f);
+      //z = ((Channel)wb).getDepth(x)*wb.getRandomNumber();
+      y = ((Channel)wb).getWidth(x)*((float)PTMUtil.getRandomNumber()-0.5f);
+      z = ((Channel)wb).getDepth(x)*(float)PTMUtil.getRandomNumber();
   }
   
   /**
@@ -867,7 +884,8 @@ _survivalHelper = null;
     */
   protected float calcYDisplacementExtRandom(float timeStep){
     // get y random mixing component
-    float dy = (float) (randomNumberGenerator.gaussian()*Etdt);
+    //float dy = (float) (randomNumberGenerator.gaussian()*Etdt);
+	float dy = (float) (PTMUtil.getNextGaussian()*Etdt);
     // return the random y movement if transverse mixing allowed
     if (transMove) return (dy);
     else return 0.0f;
@@ -896,7 +914,8 @@ _survivalHelper = null;
     */
   protected float calcZDisplacementExtRandom(float timeStep){
     // get z random mixing component
-    float dz = (float) (randomNumberGenerator.gaussian()*Evdt);
+    //float dz = (float) (randomNumberGenerator.gaussian()*Evdt);
+	float dz = (float) (PTMUtil.getNextGaussian()*Evdt);
     // return the random z movement if vertical mixing allowed
     if (vertMove) return (dz);
     else return 0.0f;
@@ -917,7 +936,7 @@ _survivalHelper = null;
     */
   //TODO can be separated from particle using particle.move()
   protected float calcXVelocityExtDeterministic(){
-      return ((Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth);
+      return ((Channel)wb).getVelocity(x,y,z, channelVave, channelWidth, channelDepth) + _swimmingVelocity;
   }
   
   /**
@@ -934,7 +953,11 @@ _survivalHelper = null;
     *  Internally induced Random x
     */
   protected float calcXVelocityIntRandom() {return 0.0f;}
-  
+  protected void setMeanSwimmingVelocity(float msv){_meanSwimmingVelocity = msv;}
+  protected void setSwimmingVelocity(float sv){_swimmingVelocity = sv; }
+  protected float getSwimmingVelocity() {
+	  return _swimmingVelocity;
+  }
   /**
     *  Makes Node decision on which Waterbody to enter into next;
     *  update nd, wb, x
@@ -952,7 +975,6 @@ _survivalHelper = null;
 	if(_routeHelper ==  null)
 		PTMUtil.systemExit("routeHelper not initialized, exit from Particle.java line 727.");
 	_routeHelper.helpSelectRoute(this);
-	
 	
 	//TODO clean up, the block below is done in RouteHelper
 	/*  
@@ -1020,8 +1042,8 @@ _survivalHelper = null;
   protected Node makeReservoirDecision(float timeStep){
     //Get total volume of Reservoir and multiply by random number
     float totvol = ((Reservoir)wb).getTotalVolume(timeStep);
-    float rand = wb.getRandomNumber();
-    totvol = totvol*rand;
+    //float rand = wb.getRandomNumber();
+    totvol = totvol*((float)PTMUtil.getRandomNumber());
   
     //Get flow volume out first Node
     int nodeId = -1;
@@ -1071,8 +1093,13 @@ _survivalHelper = null;
     	makeNodeDecision();
     	setXYZLocationInChannel(true);
     }
-    else
+    else{
+    	 if (wb.getPTMType() == Waterbody.CHANNEL){
+    		 _meanSwimmingVelocity = ((Channel)wb).getParticleMeanSwimmingVelocity();   		 
+ 	    	setSwimmingVelocity(((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity));
+    	 }
     	setXYZLocationInChannel(false);
+    }
   }
 
   /**

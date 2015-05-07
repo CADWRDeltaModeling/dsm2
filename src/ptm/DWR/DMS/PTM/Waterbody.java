@@ -117,7 +117,8 @@ public abstract class Waterbody{
    *  in case of reverse flows flow there is a change in sign
    */
   public abstract float getInflow(int nodeEnvId);
-  
+  // sv is a swimming velocity from a particle
+  public abstract float getInflowWSV(int nodeEnvId, float sv);
   /**
    *  Get flow direction sign
    *  OUTFLOW & INFLOW do not represent their physical meanings 
@@ -221,7 +222,7 @@ public abstract class Waterbody{
   /**
    *  Set flow information to given flow array.
    */
-  public final void setFlow(float[] flowArray){
+  public void setFlow(float[] flowArray){
     for( int nodeId =0; nodeId<nNodes; nodeId++)
       flowAt[nodeId] = flowArray[nodeId];
   }

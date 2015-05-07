@@ -75,8 +75,8 @@ public class BasicRouteBehavior {
 		//when particle just inserted wb = null, but node is assigned.
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
-		float waterbodyInflows = p.nd.getTotalWaterbodyInflows();
-		float totalAgDiversions = p.nd.getTotalAgDiversion();
+		float waterbodyInflows = p.nd.getTotalWaterbodyInflowsWSV(p.getSwimmingVelocity());
+		float totalAgDiversions = p.nd.getTotalAgDiversionWSV(p.getSwimmingVelocity());
 		if (PTMUtil.floatNearlyEqual(waterbodyInflows, totalAgDiversions))
 			waterbodyInflows = totalAgDiversions*_dicuEfficiency;
 		
@@ -95,14 +95,15 @@ public class BasicRouteBehavior {
 	    int waterbodyId = -1;
 	    Waterbody thisWb = null;
 	    float flow = 0.0f;
-	    float totalAgDivFlows = p.nd.getTotalAgDiversion();
-	    float totalInflowWOAgDiv = p.nd.getTotalWaterbodyInflows() - totalAgDivFlows; 
+	    float swimmingVel = p.getSwimmingVelocity();
+	    float totalAgDivFlows = p.nd.getTotalAgDiversionWSV(swimmingVel);
+	    float totalInflowWOAgDiv = p.nd.getTotalWaterbodyInflowsWSV(swimmingVel) - totalAgDivFlows; 
 	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
 	    //boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
 	    do {
 	    	waterbodyId ++;
 	    	thisWb = p.nd.getWaterbody(waterbodyId);
-	    	float thisFlow = Math.max(0, thisWb.getInflow(p.nd.getEnvIndex()));
+	    	float thisFlow = Math.max(0, thisWb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity()));
 		    float modFlow = 0.0f;
 	    	if (thisWb.isAgSeep() || (p.nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
 	    		modFlow = 0;
@@ -114,23 +115,19 @@ public class BasicRouteBehavior {
 	    	else
 		    	modFlow = thisFlow;
 	    	flow += modFlow;
-	    	
-	    	//TODO clean up
-	    	/*
-	    	if (p.getId() == 6 && PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) == 350)
-	    		System.err.println("age:"+p.age/60+"  wb:"+PTMHydroInput.getExtFromIntChan(thisWb.getEnvIndex())+"  modflow:"+modFlow+ "  thisFlow:"+thisFlow);
-	    		*/
-	    	// _waterbodyInflows here is total _waterbodyInflows * _rand
-	    	// waterbodyId start from 0 
 	    }while (flow < waterbodyInflows && waterbodyId < (p.nd.getNumberOfWaterbodies()-1));
 	    // get a pointer to the waterbody in which pParticle entered.
-	    	    
 	    p.wb = thisWb;
 	    // send message to observer about change 
 	    if (p.observer != null) 
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 	    //set x to only channels.  other water body types don't need to be set. 
-	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
-	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
+	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
+	    	Channel c = (Channel)p.wb;
+	    	p.x = getXLocationInChannel(c, p.nd);
+	    	float v = c.getParticleMeanSwimmingVelocity();
+	    	p.setMeanSwimmingVelocity(v);
+	    	p.setSwimmingVelocity(c.getSwimmingVelocity(v));
+	    }	
 	}
 }

@@ -55,26 +55,10 @@ public class MainPTM {
             // Initialize environment
             if (DEBUG) System.out.println("Initializing environment");
             String ptmInputFile = "dsm2.inp";
-            // 1: group name, 2: swimming velocity
-            Pair <String, Float> commandLineSwimInfo = null;
-            if(args.length > 0){ 
+            if(args.length > 0)
             	ptmInputFile = args[0];
-            	if (args.length > 1){
-		        	if (args.length == 2)
-		        		PTMUtil.systemExit("usage: ptm [input file name, channel group name, swimming velocity]");
-		        	else{
-		        		try{
-		        			Float v = Float.parseFloat(args[2]);
-		        			commandLineSwimInfo = new Pair<String, Float>(args[1], v);
-		        		}catch (NumberFormatException e){
-		        			e.printStackTrace();
-		        			PTMUtil.systemExit("expect a float for a swimming velocity from commandline but get:" + args[2]);	
-		        		}	
-		        	}
-            	}
-            }
             
-            PTMEnv Environment = new PTMEnv(ptmInputFile, commandLineSwimInfo);
+            PTMEnv Environment = new PTMEnv(ptmInputFile);
             if (DEBUG) System.out.println("Environment initialized");
     
             // set global environment pointer
@@ -228,13 +212,13 @@ public class MainPTM {
             	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour) 
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min);            	
-                // update Particle positions
+            	// update Particle positions
                 for (int i=0; i<numberOfParticles; i++){
                 	// TODO survival check was checked in updateXYZPosition in particle class but commented out
                 	// because with subtime step too many random numbers are sampled
                 	// ptm timeStep in seconds
                 	// if Day time holding, wait a time step
-                	if ((!particleArray[i].isDead) && (!(isDaytime && PTMUtil.getRandomNumber()< daytimeNotSwimPercent))) 
+                	if ((!particleArray[i].isDead) && (!(isDaytime && PTMUtil.getRandomNumber() < daytimeNotSwimPercent))) 
                 		// updatePosition uses timeStep in seconds!!!!!!
                 			particleArray[i].updatePosition(timeStep, floodHoldingThreshold);
                 }

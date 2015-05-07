@@ -51,7 +51,7 @@ public class PTMEnv{
    * Construct the network of nodes and waterbodies
    * @param fixedInputFilename File containing fixed input information
    */
-  public PTMEnv(String fixedInputFilename, Pair<String, Float> commandLineSwimInfo){
+  public PTMEnv(String fixedInputFilename){
     //Input files
     fixedInput = new PTMFixedInput(fixedInputFilename);
     hydroInput = new PTMHydroInput();
@@ -111,9 +111,13 @@ public class PTMEnv{
     //TODO consider change:
     //setNodeInfo has to be done first, because in TravelTimeOutput, setOutputWbInfo depends on setOutputNodeInfo
     _behaviorInputs.setNodeInfo(nodeArray);
-    _behaviorInputs.setWaterbodyInfo(wbArray, commandLineSwimInfo);
+    _behaviorInputs.setWaterbodyInfo(wbArray);
     _particleType = _behaviorInputs.getFishType();
+    //TODO clean up no longer used
     //_travelTimeOutput = _behaviorInputs.getTravelTimeOutput();
+    SwimInputs sIns = _behaviorInputs.getSwimInputs();   
+    PTMHydroInput.setConfusionParameters(sIns.getConstProbConfusion(), sIns.getMaxProbConfusion(), 
+    		                             sIns.getSlopeProbConfusion(), sIns.getNumberTidalCycles());
   }
 
   /**

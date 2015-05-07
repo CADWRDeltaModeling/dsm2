@@ -136,7 +136,7 @@ public class Node{
     return(false);
   }
   
-  public final void setTotalWaterbodyInflows(){
+  public final void setTotalWaterbodyInflowsWMeanSV(){
 	  float totalInflows = 0.0f;
 	  float totalags = 0.0f;
 	  for (Waterbody wb: wbArray){
@@ -146,18 +146,43 @@ public class Node{
 	        		&& !(this._fishScreenInstalled && wb.isFishScreenInstalled()))
 	        	totalInflows += thisFlow;
 		  if (wb.isAgDiv())
+			  // because DICU diversion is also treated as an inflow
+			  // this flow is also included the swimming flow
 			  totalags += thisFlow;
 	  }
-	  _totalWBInflows = totalInflows;
+	  _totalWBInflowsWMeanSV = totalInflows;
 	  _totalAgInflows = totalags;
   }
-  public float getTotalAgDiversion(){return _totalAgInflows;}
+  public float getTotalAgDiversionWMeanSV(){return _totalAgInflows;}
   /**
    *  Get total positive inflow to the water bodies<br>
    *  Add up all flows leaving the Node
    *  for particle decision making at junction
    */
-  public final float getTotalWaterbodyInflows(){return _totalWBInflows;}
+  public final float getTotalWaterbodyInflowsWMeanSV(){return _totalWBInflowsWMeanSV;}
+  public final float getTotalWaterbodyInflowsWSV(float sv){
+	  float totalInflows = 0.0f;
+	  for (Waterbody wb: wbArray){
+		  // not count for negative inflow
+		  float thisFlow = Math.max(0, wb.getInflowWSV(EnvIndex, sv));
+		  if (thisFlow != 0 && !wb.isAgSeep()
+	        		&& !(this._fishScreenInstalled && wb.isFishScreenInstalled()))
+	        	totalInflows += thisFlow;
+	  }
+	  return totalInflows;
+  }
+  public float getTotalAgDiversionWSV(float sv){
+	  float totalags = 0.0f;
+	  for (Waterbody wb: wbArray){
+		  // not count for negative inflow
+		  float thisFlow = Math.max(0, wb.getInflowWSV(EnvIndex, sv));
+		  if (wb.isAgDiv())
+			  // because DICU diversion is also treated as an inflow
+			  // this flow is also included the swimming flow
+			  totalags += thisFlow;
+	  }
+	  return totalags;
+  }
   
   /**
    *  Return the node index
@@ -293,7 +318,7 @@ public class Node{
   
   private boolean _barrierInstalled = false;
   private boolean _fishScreenInstalled = false;
-  private float _totalWBInflows=0.0f;  // this number will never be negative
+  private float _totalWBInflowsWMeanSV=0.0f;  // this number will never be negative
   private float _totalAgInflows=0.0f;
   private boolean _isOutputNode = false;
   

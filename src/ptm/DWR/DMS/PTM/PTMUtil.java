@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Calendar;
 import java.util.Set;
+import java.lang.Math;
+import java.util.Random;
 import edu.cornell.RngPack.*;
 
 /**
@@ -24,7 +26,9 @@ import edu.cornell.RngPack.*;
  */
 public class PTMUtil {
 	static float EPSILON = 0.000000001f;
-	static RandomElement randomNumberGenerator= new Ranecu(10000);
+	static Random rand = new Random();
+	//TODO temporary still use this because java.util.random doesn't work
+	static RandomElement randomNumberGenerator= new Ranecu(32001);
 
 	/**
 	 * 
@@ -185,31 +189,41 @@ public class PTMUtil {
 		return number;
 	}
 	// get a Int from a line with format name: double
-		public static int getIntFromLine(String line, String lineName) throws NumberFormatException{
-			String[] items = line.split("[,:\\s\\t]+");
-			if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
-				PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
-			return Integer.parseInt(items[1]);
-		}
+	public static int getIntFromLine(String line, String lineName) throws NumberFormatException{
+		String[] items = line.split("[,:\\s\\t]+");
+		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
+		return Integer.parseInt(items[1]);
+	}
 	// get a double from a line with format name: double
 	public static double getDoubleFromLine(String line, String lineName) throws NumberFormatException{
 		String[] items = line.split("[,:\\s\\t]+");
 		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
-			PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return Double.parseDouble(items[1]);
 	}
 	// get a double from a line with format name: double
 	public static float getFloatFromLine(String line, String lineName) throws NumberFormatException{
 		String[] items = line.split("[,:\\s\\t]+");
 		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
-			PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return Float.parseFloat(items[1]);
 	}
 	public static Pair<Integer, Integer> getPairFromLine(String line, String lineName) throws NumberFormatException{
 		String[] items = line.split("[,:\\s\\t]+");
 		if (items.length < 3 || (!items[0].equalsIgnoreCase(lineName)))
-			PTMUtil.systemExit("the input line:" + line +" is not correct! system exit");
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return new Pair<Integer, Integer> (Integer.parseInt(items[1]), Integer.parseInt(items[2]));
+	}
+	// get a boolean from a line with format name: double
+	public static boolean getBooleanFromLine(String line, String lineName){
+		String[] items = line.split("[,:\\s\\t]+");
+		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)) 
+				|| (!items[1].equalsIgnoreCase("TRUE") && !items[1].equalsIgnoreCase("FALSE")))
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
+		if (items[1].equalsIgnoreCase("FALSE"))
+			return false;
+		return true;
 	}
 	
 	public static ArrayList<Integer> getInts(String numberLine){
@@ -261,7 +275,22 @@ public class PTMUtil {
 	public static boolean floatNearlyEqual(float f1, float f2){
 		return f1 == f2 ? true: Math.abs(f1-f2) < EPSILON*Math.min(Math.abs(f1),Math.abs(f2));
 	}
+	
 	public static double getRandomNumber(){
 		return randomNumberGenerator.uniform(0, 1);
 	}
+	public static double getNextGaussian(){
+		return randomNumberGenerator.gaussian();
+	}
+	//TODO this version of Java has a bug that the random number generator crashes VM
+	// will change to Java random number generator when upgrade to new jre.
+	/*
+	public static double getRandomNumber(){
+		return Math.random();
+	}
+	public static double getNextGaussian(){
+		return rand.nextGaussian(); 
+	}
+	*/
+	
 }

@@ -29,7 +29,7 @@ public class Channel extends Waterbody{
 	/**
 	   *  a constant for universal swimming velocity.
 	   */
-	public static float uSwimmingVelocity = 0.0f;
+	public static float[]uSwimVelParameters = null;
 	
   /**
    *  a constant for vertical velocity profiling.
@@ -150,18 +150,46 @@ public class Channel extends Waterbody{
 	float vp=1.0f, tp=1.0f;
     if(useVertProfile) vp = calcVertProfile(zPos, depth);
     if(useTransProfile) tp = calcTransProfile(yPos, width);
-    return  (averageVelocity*vp*tp + getSwimmingVelocity());
+    return  (averageVelocity*vp*tp);
   }
-  public float getSwimmingVelocity(){
-	  if (_isSwimmingVelSet)
-  		return  _swimmingVelocity;
-	  return  uSwimmingVelocity;
+  public float getSwimmingVelocity(float particleMeanSwimmingVelocity){
+	  if (_swimVelParameters == null){
+		  if (uSwimVelParameters == null)
+			  return 0.0f;
+		  else{
+			  if (uSwimVelParameters.length < 3)
+				  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
+			  return particleMeanSwimmingVelocity +  uSwimVelParameters[2]*((float)PTMUtil.getNextGaussian());
+		  }
+	  }
+	  if (_swimVelParameters.length < 3)
+		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
+	  return particleMeanSwimmingVelocity + _swimVelParameters[2]*((float)PTMUtil.getNextGaussian()); 
   }
-  public void setSwimmingVelocity(float sv){
-	  _swimmingVelocity = sv;
-	  _isSwimmingVelSet = true;
+
+  public float getParticleMeanSwimmingVelocity(){
+	  if (_swimVelParameters == null){
+		  if (uSwimVelParameters == null)
+			  return 0.0f;
+		  else{
+			  if (uSwimVelParameters.length < 3)
+				  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
+			  return uSwimVelParameters[0] +  uSwimVelParameters[1]*((float)PTMUtil.getNextGaussian());
+		  }
+	  }
+	  if (_swimVelParameters.length < 3)
+		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
+	  return _swimVelParameters[0] + _swimVelParameters[1]*((float)PTMUtil.getNextGaussian());  
   }
-  
+  public float[] getSwimVelParameters(){
+	  if (_isSwimVelParametersSet)
+  		return  _swimVelParameters;
+	  return  uSwimVelParameters;
+  }
+  public void setSwimVelParameters(float[] sv){
+	  _swimVelParameters = sv;
+	  _isSwimVelParametersSet = true;
+  }
   /**
    *  the flow at that particular x position
    */
@@ -244,9 +272,26 @@ public class Channel extends Waterbody{
       throw new IllegalArgumentException();
     }
   }
+  // channel Inflow is channel inflow + swimming flow
+  // this method uses a constant mean swimming flow
   public float getInflow(int nodeEnvId){
+	  int nodeId = getNodeLocalIndex(nodeEnvId);
+		//at gate flow == 0
+		if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
+			return 0.0f;
+		if (flowType(nodeId) == OUTFLOW)
+		  return -1.0f*flowAt[nodeId];
+		return flowAt[nodeId];
+	  // return flow without swimming flow so commented this line out.
+	  //return getInflow(nodeEnvId, getMeanSwimmingVelocity());
+  }
+  // but when a particle's swimming velocity draws from a Gaussian distribution 
+  // (mean and std in this channel, but draws for each particle), 
+  // this channel doesn't know the exact value of the swimming velocity.  
+  // SV has to be passed from a particle
+  public float getInflowWSV(int nodeEnvId, float sv){
 	int nodeId = getNodeLocalIndex(nodeEnvId);
-	float sv = getSwimmingVelocity();
+	//float sv = getSwimmingVelocity();
 	//at gate flow == 0
 	if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
 		return 0.0f;
@@ -352,6 +397,21 @@ public class Channel extends Waterbody{
     widthAt[DOWNNODE] = areaAt[DOWNNODE]/depthAt[DOWNNODE];
   }
   
+ // channel direction and confusion constant are only calculated and updated once during a user defined number of tidal cycles for each channel.  
+ // the period of the tidal cycles is the PREVIOUS, not current. 
+  public void setChanDir(int chanDir){
+	  _chanDir = chanDir;
+  }
+  public float getChanDir(){
+	  return _chanDir;
+  }
+  
+  public void setConfusionConst(double confusionConst){
+	  _confusionConst = confusionConst;
+  }
+  public double getProbConfusion(){
+	  return _confusionConst;
+  }
   /**
    *  Get average velocity
    */
@@ -461,10 +521,13 @@ public class Channel extends Waterbody{
   private float[] depthAt;
   private float[] stageAt;
   private String _chanGroup = null;
-  private float _swimmingVelocity = 0.0f;
-  private boolean _isSwimmingVelSet = false;
+  //[0]: const swimming velocity; [1]: STD for particles; [2]: STD for time steps of each particle
+  private float[] _swimVelParameters = null;
+  private boolean _isSwimVelParametersSet = false;
+  // channel distance where a particle's travel time needs to be output
   private int _outputChannelDist = 0;
-  
+  private int _chanDir = 1;
+  private double _confusionConst = 0;
   /**
    *  Bottom elevation of Channel or reservoir
    */

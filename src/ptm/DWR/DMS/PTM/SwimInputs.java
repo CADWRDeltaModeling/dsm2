@@ -20,7 +20,7 @@ public class SwimInputs {
 	}
 	public SwimInputs(ArrayList<String> inText, String fishType) {
 		if (inText != null){
-			if (inText.size()<8)
+			if (inText.size()<10)
 				PTMUtil.systemExit("information missing in Swim_Inputs section");
 			try{
 				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT");
@@ -30,7 +30,9 @@ public class SwimInputs {
 				_numTidalCycles = PTMUtil.getIntFromLine(inText.get(4), "TIDAL_CYCLES_TO_CALCULATE_CHANNEL_DIRECTION");
 				_constProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "CONSTANT_CONFUSION_PROBABILITY");
 				_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "MAXIMUM_CONFUSION_PROBABILITY");
-				_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(7), "CONFUSION_PROBABILITY_SLOPE");				
+				_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(7), "CONFUSION_PROBABILITY_SLOPE");
+				_randomAccess = PTMUtil.getBooleanFromLine(inText.get(8), "RANDOM_ACCESS");
+				_accessProb = PTMUtil.getFloatFromLine(inText.get(9), "ACCESS_PROBABILITY"); 
 			}catch (NumberFormatException e){
 				e.printStackTrace();
 				PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
@@ -69,31 +71,21 @@ public class SwimInputs {
 	public float getConstProbConfusion(){return _constProbConfusion;}
 	public float getMaxProbConfusion(){return _maxProbConfusion;}
 	public float getSlopeProbConfusion(){return _slopeProbConfusion;}
+	public boolean getRandomAccess() {return _randomAccess;}
+	public float getAccessProbability() {return _accessProb;}
 	public int getNumberTidalCycles(){return _numTidalCycles;}
 	public Pair<Integer, Integer> getSunrise(){ return _sunrise;}
 	public Pair<Integer, Integer> getSunset(){ return _sunset;}
-	public float getSwimmingVelocityForAll(){
-		if (_swimmingVelocities == null || _swimmingVelocities.get("ALL") == null)
-			return 0.0f;
-		return _swimmingVelocities.get("ALL");
+	public float[] getConstSwimmingVelocityForAll(){
+		if (_swimVelParas == null || _swimVelParas.get("ALL") == null)
+			return new float[] {0.0f, 0.0f, 0.0f};
+		return _swimVelParas.get("ALL");
 	}
-	public void setChannelInfo(Waterbody[] allWbs, Pair<String, Float> commandLineSwimInfo){
-		if (commandLineSwimInfo != null){
-			boolean find = false;
-			for (String groupName: _swimmingVelocities.keySet()){
-				if (groupName.equalsIgnoreCase(commandLineSwimInfo.getFirst())){
-					_swimmingVelocities.put(groupName, commandLineSwimInfo.getSecond());
-					find = true;
-				}
-				if (!find)
-					PTMUtil.systemExit("commandline input channel group name: "+ commandLineSwimInfo.getFirst() + " is not found in the swimming " +
-							"velocity section in the behavior input file. ");
-			}
-		}
-		if (_swimmingVelocities != null){
-			Float sv = _swimmingVelocities.get("ALL");
+	public void setChannelInfo(Waterbody[] allWbs){
+		if (_swimVelParas != null){
+			float[] sv = _swimVelParas.get("ALL");
 			if (sv != null)
-				Channel.uSwimmingVelocity = sv;
+				Channel.uSwimVelParameters = sv;
 			if (_channelGroups != null){
 				for (int chan: _channelGroups.keySet()){
 					//wbArray starts from 1. see PTMFixedInput.java line 180
@@ -101,7 +93,7 @@ public class SwimInputs {
 					if (c == null){
 						PTMUtil.systemExit("while seting swiming velocity, find no such channel:" + PTMHydroInput.getExtFromIntChan(chan));
 					}
-					c.setSwimmingVelocity(_swimmingVelocities.get(_channelGroups.get(new Integer(chan))));
+					c.setSwimVelParameters(_swimVelParas.get(_channelGroups.get(new Integer(chan))));
 				}
 			}
 				
@@ -123,19 +115,24 @@ public class SwimInputs {
 		if (sVelStrs == null)
 			PTMUtil.systemExit("No swimming velocities found in the Channel_Groups block, system exit");
 		checkTitle(sVelStrs.get(0));
-		if (_groupNames != null || _swimmingVelocities != null)
+		if (_groupNames != null || _swimVelParas != null)
 			PTMUtil.systemExit("Swimming velocities should not have been set before SwimInputs intialization, system exit");
 		_groupNames = new ArrayList<String>();
-		_swimmingVelocities = new HashMap<String, Float>();
+		_swimVelParas = new HashMap<String, float[]>();
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			// put into the map: group name, survival rate
 			try{
+				if (items.length < 4)
+					throw new NumberFormatException();
 				String groupName = items[0].toUpperCase();
-				_swimmingVelocities.put(groupName, Float.parseFloat(items[1]));
-				_groupNames.add(items[0].toUpperCase());
+				// item[1], constant swimming velocity; item[2], std for particles; item[3] std for time steps for each particle
+				_swimVelParas.put(groupName, new float[] {Float.parseFloat(items[1]),
+														 Float.parseFloat(items[2]),
+														 Float.parseFloat(items[3])});
+				_groupNames.add(groupName);
 			}catch(NumberFormatException e){
-				PTMUtil.systemExit("expect to read a float in the swimming velocity line, but read: "+items[1]+", System exit.");
+				PTMUtil.systemExit("expect to read four floats in the swimming velocity line, but read: "+line+", System exit.");
 			}
 		}
 		//get Channel list
@@ -165,9 +162,13 @@ public class SwimInputs {
 	}
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
-		if (!title[0].equalsIgnoreCase("Group_Name")
-				|| !title[1].equalsIgnoreCase("Swimming_velocity"))		
-			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Survival_Rate but get:"+title[0] + " " +title[1]);
+		
+		if (title.length < 4
+				||!title[0].equalsIgnoreCase("Group_Name")
+				|| !title[1].equalsIgnoreCase("Constant_Swimming_velocity")
+				|| !title[2].equalsIgnoreCase("Standard_Deviation_Particles")
+				|| !title[3].equalsIgnoreCase("Standard_Deviation_Times"))		
+			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Constant_Swimming_Velocity ... but get:"+ inTitle);
 	}
 	//private void addSpecialBehaviors(SwimHelper sh, String particleType){}
 	private void setHelper(){
@@ -181,8 +182,8 @@ public class SwimInputs {
 	}
 	private SwimHelper _swimHelper = null;
 	private String _fishType = null;
-	// group name, velocity
-	private Map<String, Float> _swimmingVelocities=null;
+	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle
+	private Map<String, float[]> _swimVelParas=null;
 	private ArrayList<String> _groupNames=null;
 	// node, group name
 	private Map<Integer, String> _channelGroups=null;
@@ -192,4 +193,6 @@ public class SwimInputs {
 	private float _floodHoldVel = -999999.0f;
 	private float _constProbConfusion = -999999.0f, _maxProbConfusion = -999999.0f, _slopeProbConfusion = -999999.0f;
 	private int _numTidalCycles = -999999;
+	private boolean _randomAccess;
+	private float _accessProb;
 }

@@ -78,6 +78,9 @@ public class Reservoir extends Waterbody{
 	      return (-flowAt[nodeId]);
 	    return (flowAt[nodeId]);
 	  }
+  public float getInflowWSV(int nodeEnvId, float sv){ 
+	  return getInflow(nodeEnvId);
+  }
   public void setOutputDistance(int distance){
 	  if (distance != 0)
 		  PTMUtil.systemExit("a reservoir doesn't have distance, please check the behavior input file to make sure output location info is set properly, system exit.");
