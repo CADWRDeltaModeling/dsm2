@@ -1,10 +1,10 @@
 !<license>
-!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
+!    Copyright (C) 2015 State of California,
 !    Department of Water Resources.
-!    This file is part of DSM2.
+!    This file is part of DSM2-GTM.
 !
-!    The Delta Simulation Model 2 (DSM2) is free software: 
-!    you can redistribute it and/or modify
+!    The Delta Simulation Model 2 (DSM2) - General Transport Model (GTM) 
+!    is free software: you can redistribute it and/or modify
 !    it under the terms of the GNU General Public License as published by
 !    the Free Software Foundation, either version 3 of the License, or
 !    (at your option) any later version.
@@ -17,7 +17,6 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
-
 !> compute heat for DO module
 !>@ingroup do_module
 module do_heat

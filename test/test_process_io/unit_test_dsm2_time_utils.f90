@@ -26,6 +26,7 @@ module ut_dsm2_time_utils
  
     contains
     
+    !> test dsm2 time utils incr_intv()
     subroutine test_dsm2_time_utils
         use dsm2_time_utils
         implicit none
@@ -43,10 +44,10 @@ module ut_dsm2_time_utils
         jule = juls
         ietime = istime
         !istat = inctim(nom_mins, 0, number, juls, istime, jule, ietime)
-        !call incr_intvl_r(incr_intv_r, dble(jmins), '15MIN', boundary)
         call incr_intvl(incr_intv, jmins,'15MIN', boundary)
-        !call incr_intvl_r(incr_intv_r, dble(jmins), '-15MIN', boundary)
+        call assertEquals (dble(incr_intv), dble(51589470), weakest_eps, "problem in incr_intvl for 15MIN")
         call incr_intvl(incr_intv, jmins,'-15MIN', boundary)
+        call assertEquals (dble(incr_intv), dble(51589455), weakest_eps, "problem in incr_intvl for -15MIN")
         return
     end subroutine    
 

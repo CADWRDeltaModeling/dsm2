@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 2013 State of California,
+!    Copyright (C) 2015 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2-GTM.
 !
@@ -17,7 +17,6 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
-
 !> Routines to test input storage API
 !>@ingroup test_process_io
 module ut_process_gtm_input

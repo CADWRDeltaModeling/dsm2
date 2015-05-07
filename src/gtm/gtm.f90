@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 2013 State of California,
+!    Copyright (C) 2015 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2-GTM.
 !
@@ -17,9 +17,8 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
-! 
 !> Main program for General Transport Model
-!>@ingroup driver
+!>@ingroup gtm_driver
 program gtm
     
     use gtm_precision

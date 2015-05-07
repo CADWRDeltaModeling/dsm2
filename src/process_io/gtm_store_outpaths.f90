@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 2013 State of California,
+!    Copyright (C) 2015 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2-GTM.
 !
@@ -17,8 +17,8 @@
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
+!> This is to store output data periodically to temporary files.
 !>@ingroup process_io
-
 module gtm_store_outpath
 
     use gtm_precision
@@ -28,13 +28,17 @@ module gtm_store_outpath
     
     !> Write output data periodically to temporary files.
     !> Initialize the temporary files first with init_store_outpaths.
+    !> This routine does not allow outputs mixed with different output time intervals.
     subroutine gtm_store_outpaths(lflush,          &
                                   runtime_julmin,  &
                                   runtime_step,    &
                                   vals)
+                                  
         use dsm2_time_utils, only: incr_intvl
         use common_dsm2_vars, only: NEAREST_BOUNDARY, noutpaths
+        
         implicit none
+        
         logical, intent(in) :: lflush                 !< true to force data flush to scratch files
         integer, intent(in) :: runtime_julmin         !< runtime julmin minute
         integer, intent(in) :: runtime_step           !< runtime step
@@ -165,7 +169,7 @@ module gtm_store_outpath
                                       runtime_step,   &
                                       vals)
 
-        use common_dsm2_vars, only: npaths, pathoutput, prev_julmin,      &
+        use common_dsm2_vars, only: noutpaths, pathoutput, prev_julmin,      &
                                     start_julmin, end_julmin,             &
                                     per_type_per_aver, per_type_per_cum,  &
                                     per_type_per_min, per_type_per_max,   &
@@ -178,42 +182,33 @@ module gtm_store_outpath
 
         !-----subroutine arguments
 
-        integer, intent(in) :: outpaths_dim     !< output paths array dimension
-        integer, intent(in) :: block_dim        !< data block array dimension
-
-        integer :: npaths,                    & ! number of output paths for this interval
-                   outpath_ptr(outpaths_dim), & ! pointer array to output pathnames
-                   store_ndx,                 & ! end array index for output buffers (data blocks)
-                   nave_intvl(outpaths_dim),  & ! number of values in the interval average
-                   unit                         ! write unit number
-     
-       integer :: jul_start,     &      ! julian minute of start of data for this path 
-                  jmin_eop,      &      ! julian minute of end-of-period for this interval 
-                  jmin_eop_prev         ! previous value of jmin_eop
-                 
-        integer, intent(in) :: runtime_julmin
-        integer, intent(in) :: runtime_step
-        
-        real(gtm_real), intent(in) :: vals(npaths)
-      
-        real(gtm_real),intent(out) :: outdata_arr(0:block_dim,outpaths_dim) ! output data array
-
-        logical :: lflush,        &   ! true to force data flush to scratch files 
-                   lupdate,       &   ! true to update value arrays 
-                   need_tmpfile       ! true if tmp file is needed for this group
+        integer, intent(in) :: outpaths_dim                !< output paths array dimension
+        integer, intent(in) :: block_dim                   !< data block array dimension
+        integer, intent(in) :: npaths                      !< number of output paths for this interval
+        integer, intent(in) :: outpath_ptr(outpaths_dim)   !< pointer array to output pathnames
+        integer, intent(inout) :: store_ndx                !< end array index for output buffers (data blocks)
+        integer, intent(inout) :: nave_intvl(outpaths_dim) !< number of values in the interval average
+        integer, intent(inout) :: jul_start                !< julian minute of start of data for this path         
+        integer, intent(in) :: unit                        !< write unit number     
+        integer, intent(in) :: jmin_eop                    !< julian minute of end-of-period for this interval 
+        integer, intent(in) :: jmin_eop_prev               !< previous value of jmin_eop                 
+        integer, intent(in) :: runtime_julmin              !< runtime julimn
+        integer, intent(in) :: runtime_step                !< runtime step        
+        real(gtm_real), intent(in) :: vals(noutpaths)      !< runtime values
+        logical, intent(in) :: lflush                      !< true to force data flush to scratch files 
+        logical, intent(in) :: lupdate                     !< true to update value arrays 
+        logical, intent(in) :: need_tmpfile                !< true if tmp file is needed for this group                
+        real(gtm_real), intent(out) :: outdata_arr(0:block_dim,outpaths_dim) !< output data array
 
         !-----local variables
-        logical :: lnewndx,       &   ! this julmin first one in time interval 
-                   lendndx            ! this julmin last one in time interval
-
-        integer :: i,j,           &   ! array indices 
-                   ptr,           &   ! array pointer 
-                   nvals              ! number of values to write to disk
-
-        real(gtm_real) :: val,      & ! output value 
-                          get_output  ! function to get the output value for each DSM2 module
-
-        character(len=14) :: ctmp     ! temp string
+        logical :: lnewndx,         &   ! this julmin first one in time interval 
+                   lendndx              ! this julmin last one in time interval
+        integer :: i,j,             &   ! array indices 
+                   ptr,             &   ! array pointer 
+                   nvals                ! number of values to write to disk
+        real(gtm_real) :: val,      &   ! output value 
+                          get_output    ! function to get the output value for each DSM2 module
+        character(len=14) :: ctmp       ! temp string
       
         !-----data will be stored at end-of-period; for example, for 1HOUR:
         !-----from 05JUN1994 0101 to 05JUN1994 0200 (inclusive) all pertains
@@ -233,8 +228,7 @@ module gtm_store_outpath
         !-----put value into output buffer
         do i = 1, npaths
             ptr = outpath_ptr(i)    
-            val = vals(i)
-            !value = get_output(ptr)  ! get the desired output variable for each DSM2 module
+            val = vals(ptr)
             if (pathoutput(ptr)%per_type .eq. per_type_per_aver .or. &
                 pathoutput(ptr)%per_type .eq. per_type_per_cum) then ! period average
                 outdata_arr(store_ndx,i) = outdata_arr(store_ndx,i)*dble(nave_intvl(i)) + val
@@ -250,7 +244,7 @@ module gtm_store_outpath
                     outdata_arr(store_ndx,i) = val
                 else if (lnewndx .and. &
                          runtime_julmin .gt. prev_julmin .and. & ! skip recycled julmin &
-                         prev_julmin .ne. jmin_eop_prev) then ! just crossed interval, interpolate between time steps
+                         prev_julmin .ne. jmin_eop_prev) then    ! just crossed interval, interpolate between time steps
                     outdata_arr(store_ndx-1,i) = ( (val-outdata_arr(0,i)) * &
                        dble(jmin_eop-(jmin_eop-jmin_eop_prev)-prev_julmin)) / &
                        (runtime_julmin-prev_julmin) + outdata_arr(0,i)
@@ -269,7 +263,7 @@ module gtm_store_outpath
                 (runtime_julmin .eq. end_julmin)) then ! last value incomplete, don't write out
                 nvals = store_ndx - 1
             else                   ! last value is complete
-                nvals=store_ndx
+                nvals = store_ndx
             endif
             ctmp = jmin2cdt(int(jul_start)) ! date/time of start of data block
             if (need_tmpfile) then
