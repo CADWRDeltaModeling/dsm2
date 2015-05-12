@@ -137,7 +137,8 @@ program gtm
     ! for specified output locations
     integer :: n_out_cell, n_out_cell_mtz
     integer, allocatable :: out_cell(:), out_cell_mtz(:)
-    integer, allocatable :: out_chan_cell(:)
+    integer, allocatable :: out_chan_cell(:), calc_option(:)
+    real(gtm_real), allocatable :: x_from_lo_face(:)
     real(gtm_real), allocatable :: vals(:,:)
     
     integer :: st, k, n_st     ! temp index
@@ -165,16 +166,12 @@ program gtm
                        memory_buffer, hydro_time_interval,     & 
                        hydro_start_jmin, hydro_end_jmin,       &
                        gtm_start_jmin, gtm_end_jmin)   
-    n_out_cell = 39
-    n_out_cell_mtz = 18
-    allocate(out_cell(n_out_cell))
-    call output_cell_arr(out_cell)    
-    allocate(out_cell_mtz(n_out_cell_mtz))
-    call output_cell_arr_mtz(out_cell_mtz)    
     
-    allocate(out_chan_cell(noutpaths))
-    call get_output_channel(out_chan_cell, noutpaths)
-    allocate(vals(noutpaths,n_var))
+    allocate(out_chan_cell(noutpaths),x_from_lo_face(noutpaths), calc_option(noutpaths))
+    allocate(vals(noutpaths,n_var))    
+    call get_cell_info    
+    call get_output_channel(out_chan_cell, x_from_lo_face, calc_option, noutpaths)
+
     !
     !----- allocate array for interpolation -----     
     !
@@ -311,7 +308,7 @@ program gtm
     prev_sub_ts = 1
     start_julmin = int(gtm_start_jmin)
     end_julmin = int(gtm_end_jmin)    
-    call incr_intvl(next_output_flush, int(gtm_start_jmin), flush_intvl, TO_BOUNDARY)
+    call incr_intvl(next_output_flush, start_julmin, flush_intvl, TO_BOUNDARY)
     call gtm_init_store_outpaths(istat)
     
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
@@ -501,9 +498,7 @@ program gtm
         end do ! end of loop of sub time step
 
         !---- print output to DSS file -----
-        do i = 1, noutpaths
-            vals(i,1) = conc(out_chan_cell(i),1)
-        end do
+        call get_output_channel_vals(vals, out_chan_cell, x_from_lo_face, calc_option, conc, n_cell, noutpaths, n_var)
         if (int(current_time) .ge. next_output_flush) then
             call incr_intvl(next_output_flush, next_output_flush, flush_intvl,TO_BOUNDARY)
             call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
@@ -544,12 +539,8 @@ program gtm
                                        n_cell,                &
                                        time_index_in_gtm_hdf)                                             
             end if            
-            !call print_out_cell_conc(103, conc(:,1), n_cell, out_cell, n_out_cell)
-            !call print_out_cell_conc(104, conc(:,1), n_cell, out_cell_mtz, n_out_cell_mtz)
         end if                           
-        
-        prev_julmin = int(current_time)
-        
+        prev_julmin = int(current_time)   
     end do  ! end of loop for gtm time step
     if (n_dssfiles .ne. 0) then
         call zclose(ifltab_in)  !!ADD A global to detect if dss is opened
@@ -570,8 +561,7 @@ program gtm
     deallocate(init_c)
     deallocate(init_r)
     deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
-    deallocate(out_cell, out_cell_mtz)
-    deallocate(out_chan_cell)
+    deallocate(out_chan_cell, x_from_lo_face)
     deallocate(vals)
     call deallocate_datain             
     call deallocate_geometry

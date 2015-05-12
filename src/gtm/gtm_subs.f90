@@ -20,40 +20,55 @@
 !>@ingroup gtm_driver
 module gtm_subs
 
+    use gtm_precision
+    
     contains
 
     !> subroutine to get output time series for selected output points
-    subroutine get_output_channel(out_cell,      &  !< output cells
-                                  n_chan_outpath)   !< number of output channels
-        use gtm_precision
+    subroutine get_output_channel(out_cell,       &
+                                  x_from_lo_face, &
+                                  calc_option,    &
+                                  n_chan_outpath)   
         use common_dsm2_vars, only: pathoutput
-        implicit none      
-        integer, intent(in) :: n_chan_outpath       
-        integer, intent(out) :: out_cell(n_chan_outpath)      
-        integer :: chan_num(n_chan_outpath)
+        implicit none       
+        integer, intent(in) :: n_chan_outpath               !< number of output channels
+        integer, intent(out) :: out_cell(n_chan_outpath)    !< output cells
+        integer, intent(out) :: calc_option(n_chan_outpath) !< calculation option of interpolation by using u/s cell or d/s cell
+        integer :: chan_num(n_chan_outpath)                 !< channcel number
+        real(gtm_real) :: x_from_lo_face(n_chan_outpath)    !< distance from lo face of the cell
         real(gtm_real) :: x_dist(n_chan_outpath)        
         integer :: i
         do i = 1, n_chan_outpath
             chan_num(i) = pathoutput(i)%channo
             x_dist(i) = dble(pathoutput(i)%distance)
         enddo
-        call get_select_cell(out_cell, n_chan_outpath, chan_num, x_dist)
+        call get_select_cell_with_x(out_cell, x_from_lo_face, calc_option, n_chan_outpath, chan_num, x_dist)
         return
     end subroutine
         
-    !> subroutine to print out time series for selected cells into a text file
-    subroutine get_select_cell(out_cell,            &  !< output cells
-                               n_out_cell,          &  !< number of output cells
-                               chan_num,            &  !< total number of cells 
-                               x_dist)                 !< input file name
-        use gtm_precision
-        use common_variables, only: n_chan, n_segm, chan_geom, segm
+    !> subroutine to get the output cell information 
+    !> (cell_id, distance from lo face of cell, and calculation option)
+    !> cal1(slope of i and i+1): u/s boundary, d/s of junction, x close to hi face
+    !> cal2(slope of i and i-1): d/s boundary, u/s of junction, x close to lo face    
+    subroutine get_select_cell_with_x(out_cell,            &
+                                      x_from_lo_face,      &
+                                      calc_option,         &
+                                      n_out_cell,          &
+                                      chan_num,            &
+                                      x_dist)              
+        
+        use common_variables, only: n_chan, n_segm, chan_geom, segm, cell
+        
         implicit none            
-        integer, intent(out) :: out_cell(n_out_cell)
-        integer, intent(in) :: n_out_cell
-        integer, intent(in) :: chan_num(n_out_cell)
-        real(gtm_real), intent(inout) :: x_dist(n_out_cell)
+        
+        integer, intent(out) :: out_cell(n_out_cell)               !< output cells
+        integer, intent(out) :: calc_option(n_out_cell)            !< calculation option
+        integer, intent(in) :: n_out_cell                          !< number of output cells
+        integer, intent(in) :: chan_num(n_out_cell)                !< channel number
+        real(gtm_real), intent(out) :: x_from_lo_face(n_out_cell)  !< distance from lo face in that out cell
+        real(gtm_real), intent(inout) :: x_dist(n_out_cell)        !< distance from upstream node read from inp file
         integer :: i, j, k, chan_no
+        
         do i = 1, n_out_cell
             do j = 1, n_chan
                 if (chan_num(i).eq.chan_geom(j)%channel_num) then 
@@ -65,6 +80,62 @@ module gtm_subs
                         if (segm(k)%chan_no .eq. chan_no) then
                             if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).lt.segm(k)%down_distance)) then
                                 out_cell(i) = segm(k)%start_cell_no + int((x_dist(i)-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
+                                x_from_lo_face(i) = x_dist(i)-segm(k)%up_distance - (segm(k)%length/segm(k)%nx)*     &
+                                                    int((x_dist(i)-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
+                                if ((cell(out_cell(i))%up_cell.le.0) .or. (x_from_lo_face(i).ge.half*cell(out_cell(i))%dx) &
+                                     .and. (cell(out_cell(i))%down_cell.gt.0) ) then
+                                    calc_option(i) = 1
+                                elseif ((cell(out_cell(i))%down_cell.le.0) .or. (x_from_lo_face(i).lt.half*cell(out_cell(i))%dx) &
+                                     .and. (cell(out_cell(i))%up_cell.gt.0) ) then
+                                    calc_option(i) = 2
+                                else
+                                    calc_option(i) = 0
+                                end if    
+                                goto 10    
+                            end if     
+                            if (x_dist(i).eq.segm(k)%down_distance) then
+                                out_cell(i) = segm(k)%start_cell_no + segm(k)%nx - 1
+                                x_from_lo_face(i) = segm(k)%length/segm(k)%nx
+                                calc_option(i) = 2
+                                goto 10    
+                            end if                                                  
+                        end if
+                    end do
+                end if
+            end do                
+10      enddo
+        return
+    end subroutine
+    
+
+    !> subroutine to print out time series for selected cells into a text file
+    subroutine get_select_cell(out_cell,            &
+                               n_out_cell,          &
+                               chan_num,            &
+                               x_dist)               
+        
+        use common_variables, only: n_chan, n_segm, chan_geom, segm
+        
+        implicit none            
+        
+        integer, intent(out) :: out_cell(n_out_cell)        !< output cells
+        integer, intent(in) :: n_out_cell                   !< number of output cells
+        integer, intent(in) :: chan_num(n_out_cell)         !< channel no
+        real(gtm_real), intent(inout) :: x_dist(n_out_cell) !< distance from upstream node read from inp file
+        integer :: i, j, k, chan_no
+        
+        do i = 1, n_out_cell
+            do j = 1, n_chan
+                if (chan_num(i).eq.chan_geom(j)%channel_num) then 
+                    chan_no = chan_geom(j)%chan_no
+                    if (x_dist(i).eq.LARGEINT .or. x_dist(i).eq.LARGEREAL) then
+                        x_dist(i) = dble(chan_geom(j)%channel_length)
+                    end if 
+                    do k = 1, n_segm
+                        if (segm(k)%chan_no .eq. chan_no) then
+                            if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).lt.segm(k)%down_distance)) then
+                                out_cell(i) = segm(k)%start_cell_no + &
+                                              int((x_dist(i)-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
                                 goto 10    
                             end if     
                             if (x_dist(i).eq.segm(k)%down_distance) then
@@ -78,227 +149,62 @@ module gtm_subs
 10      enddo
         return
     end subroutine
-    
-    
-    !> temporary output cells for spot checking
-    subroutine output_cell_arr(out_cell)
-        use gtm_precision
-        implicit none
-        integer, parameter:: n_out_cell = 39
-        integer, intent(out) :: out_cell(n_out_cell)        
-        type output_t
-            character*16 :: name
-            integer :: chan_num
-            real(gtm_real) :: distance
-        end type
-        type(output_t) :: out(n_out_cell)
+
+
+    !> get output channel values
+    subroutine get_output_channel_vals(vals,           &
+                                       out_chan_cell,  &
+                                       x_from_lo_face, &
+                                       calc_option,    &
+                                       conc,           &
+                                       ncell,          &
+                                       noutpath,       &
+                                       nvar)
         
-        out(1)%name = 'GEORG_SL' 
-        out(2)%name = 'RFAL008' 
-        out(3)%name = 'RMID015_144' 
-        out(4)%name = 'RMID015_145' 
-        out(5)%name = 'RMID023' 
-        out(6)%name = 'RMID027' 
-        out(7)%name = 'RMID040' 
-        out(8)%name = 'RMKL019' 
-        out(9)%name = 'ROLD014' 
-        out(10)%name = 'ROLD024' 
-        out(11)%name = 'ROLD046' 
-        out(12)%name = 'ROLD047'
-        out(13)%name = 'ROLD059' 
-        out(14)%name = 'RSAC054'
-        out(15)%name = 'RSAC075'
-        out(16)%name = 'RSAC081' 
-        out(17)%name = 'RSAC092' 
-        out(18)%name = 'RIO'     
-        out(19)%name = 'RSAC139' 
-        out(20)%name = 'RSAC142' 
-        out(21)%name = 'RSAC155' 
-        out(22)%name = 'RSAN007'
-        out(23)%name = 'RSAN018' 
-        out(24)%name = 'RSAN032'
-        out(25)%name = 'RSAN037'
-        out(26)%name = 'RSAN058' 
-        out(27)%name = 'RSAN072'
-        out(28)%name = 'RSAN087'
-        out(29)%name = 'RSAN112' 
-        out(30)%name = 'RSMKL008' 
-        out(32)%name = 'SAC'        
-        out(32)%name = 'SLCCH016' 
-        out(33)%name = 'SLPPR000' 
-        out(34)%name = 'SLPPR003' 
-        out(35)%name = 'SLRCK005' 
-        out(36)%name = 'SLSBT011' 
-        out(37)%name = 'SLTRM004' 
-        out(38)%name = 'VERNALIS'         
-        out(39)%name = 'YOLO' 
+        use common_variables, only: cell
         
-        out(1)%chan_num = 366         
-        out(2)%chan_num = 276 
-        out(3)%chan_num = 144 
-        out(4)%chan_num = 145 
-        out(5)%chan_num = 135 
-        out(6)%chan_num = 133 
-        out(7)%chan_num = 126 
-        out(8)%chan_num = 357 
-        out(9)%chan_num = 117 
-        out(10)%chan_num = 106 
-        out(11)%chan_num = 80 
-        out(12)%chan_num = 79 
-        out(13)%chan_num = 71 
-        out(14)%chan_num = 441 
-        out(15)%chan_num = 437 
-        out(16)%chan_num = 436 
-        out(17)%chan_num = 434 
-        out(18)%chan_num = 430               
-        out(19)%chan_num = 417 
-        out(20)%chan_num = 417 
-        out(21)%chan_num = 412 
-        out(22)%chan_num = 52      
-        out(23)%chan_num = 83 
-        out(24)%chan_num = 349 
-        out(25)%chan_num = 42 
-        out(26)%chan_num = 20 
-        out(27)%chan_num = 10 
-        out(28)%chan_num = 6 
-        out(29)%chan_num = 17 
-        out(30)%chan_num = 344 
-        out(31)%chan_num = 410                 
-        out(32)%chan_num = 402 
-        out(33)%chan_num = 268         
-        out(34)%chan_num = 269 
-        out(35)%chan_num = 206 
-        out(36)%chan_num = 385 
-        out(37)%chan_num = 310 
-        out(38)%chan_num = 17 
-        out(39)%chan_num = 398 
-      
-        out(1)%distance = 0.d0        
-        out(2)%distance = 5480.d0        
-        out(3)%distance = 838.d0 
-        out(4)%distance = 2114.d0 
-        out(5)%distance = 4427.d0 
-        out(6)%distance = 3641.d0 
-        out(7)%distance = 3951.d0 
-        out(8)%distance = 0.d0 
-        out(9)%distance = 0.d0 
-        out(10)%distance = 2718.d0 
-        out(11)%distance = 1431.d0 
-        out(12)%distance = 2766.d0 
-        out(13)%distance = 3116.d0 
-        out(14)%distance = 5398.d0 
-        out(15)%distance = 11108.d0 
-        out(16)%distance = 5733.d0 
-        out(17)%distance = 435.d0 
-        out(18)%distance = 9684.d0           
-        out(19)%distance = 1718.d0 
-        out(20)%distance = 4400.d0 
-        out(21)%distance = 4623.d0 
-        out(22)%distance = 366.d0 
-        out(23)%distance = 4213.d0 
-        out(24)%distance = 9672.d0 
-        out(25)%distance = 286.d0 
-        out(26)%distance = 2520.d0 
-        out(27)%distance = 9400.d0 
-        out(28)%distance = 7902.d0 
-        out(29)%distance = 4744.d0 
-        out(30)%distance = 7088.d0 
-        out(31)%distance = 0.d0                
-        out(32)%distance = 0.d0 
-        out(33)%distance = 4440.d0 
-        out(34)%distance = 13650.d0 
-        out(35)%distance = 0.d0 
-        out(36)%distance = 2273.d0 
-        out(37)%distance = 540.d0 
-        out(38)%distance = 0.d0 
-        out(39)%distance = 0.d0 
-
-        call get_select_cell(out_cell, n_out_cell, out(:)%chan_num, out(:)%distance)
-        return
-    end subroutine    
-    
-
-    !> temporary output cells for spot checking
-    subroutine output_cell_arr_mtz(out_cell)
-        use gtm_precision
         implicit none
-        integer, parameter:: n_out_cell = 18
-        integer, intent(out) :: out_cell(n_out_cell)        
-        type output_t
-            character*16 :: name
-            integer :: chan_num
-            real(gtm_real) :: distance
-        end type
-        type(output_t) :: out(n_out_cell)
-
-        out(1)%name = '437_0' 
-        out(2)%name = '437_L' 
-        out(3)%name = '438_0' 
-        out(4)%name = '438_L'
-        out(5)%name = '440_0'
-        out(6)%name = '440_L'
-        out(7)%name = '441_0'
-        out(8)%name = '441_L'
-        out(9)%name = '443_0'
-        out(10)%name = '443_L'
-        out(11)%name = '444_0'
-        out(12)%name = '444_L'
-        out(13)%name = '454_0'
-        out(14)%name = '454_L'
-        out(15)%name = '574_0'
-        out(16)%name = '574_L'
-        out(17)%name = '575_0'
-        out(18)%name = '575_L'
-        out(1)%chan_num = 437
-        out(2)%chan_num = 437 
-        out(3)%chan_num = 438 
-        out(4)%chan_num = 438 
-        out(5)%chan_num = 440 
-        out(6)%chan_num = 440 
-        out(7)%chan_num = 441 
-        out(8)%chan_num = 441 
-        out(9)%chan_num = 443 
-        out(10)%chan_num = 443 
-        out(11)%chan_num = 444 
-        out(12)%chan_num = 444
-        out(13)%chan_num = 454 
-        out(14)%chan_num = 454 
-        out(15)%chan_num = 574 
-        out(16)%chan_num = 574 
-        out(17)%chan_num = 575 
-        out(18)%chan_num = 575 
-        out(1)%distance = 0.d0        
-        out(2)%distance = 20200.d0 
-        out(3)%distance = 0.d0 
-        out(4)%distance = 12100.d0 
-        out(5)%distance = 0.d0 
-        out(6)%distance = 14800.d0 
-        out(7)%distance = 0.d0 
-        out(8)%distance = 5398.d0 
-        out(9)%distance = 0.d0 
-        out(10)%distance = 11500.d0 
-        out(11)%distance = 0.d0 
-        out(12)%distance = 12631.d0 
-        out(13)%distance = 0.d0 
-        out(14)%distance = 12200.d0 
-        out(15)%distance = 0.d0 
-        out(16)%distance = 13318.d0 
-        out(17)%distance = 0.d0 
-        out(18)%distance = 13000.d0         
-        call get_select_cell(out_cell, n_out_cell, out(:)%chan_num, out(:)%distance)
+        
+        integer, intent(in) :: noutpath                        !< number of output path
+        integer, intent(in) :: nvar                            !< number of constituents
+        integer, intent(in) :: ncell                           !< number of cells
+        integer, intent(in) :: out_chan_cell(noutpath)         !< output cell no
+        integer, intent(in) :: calc_option(noutpath)           !< calculation option
+        real(gtm_real), intent(in) :: conc(ncell, nvar)        !< concentration
+        real(gtm_real), intent(in) :: x_from_lo_face(noutpath) !< distance from lo face in the cell
+        real(gtm_real), intent(out) :: vals(noutpath,nvar)     !< output requested values
+        integer :: i, icell, down_cell, up_cell
+        
+        do i = 1, noutpath
+            icell = out_chan_cell(i)
+            if (calc_option(i).eq.1) then       ! calculate the slope by icell and downstream cell
+                down_cell = cell(out_chan_cell(i))%down_cell
+                vals(i,:) = conc(icell,:)+(conc(down_cell,:)-conc(icell,:))*      &
+                            (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx
+            elseif (calc_option(i).eq.2) then   ! calculate the slope by icell and upstream cell
+                up_cell = cell(out_chan_cell(i))%up_cell
+                vals(i,:) = conc(icell,:)+(conc(up_cell,:)-conc(icell,:))*        &
+                            (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx               
+            else                            
+                vals(i,:) = conc(icell,:)
+            end if
+        end do
         return
-    end subroutine    
-
+    end subroutine                 
+                     
     
-    !> Write concentration for output cells
-    subroutine print_out_cell_conc(file_id, c, nc, out_cell, nout)
-        use gtm_precision
+    !> Write concentration for output cells to a text file
+    subroutine print_out_cell_conc(file_id,   &
+                                   c,         &
+                                   nc,        &
+                                   out_cell,  &
+                                   nout)
         implicit none
-        integer, intent(in) :: file_id
-        integer, intent(in) :: nc
-        integer, intent(in) :: nout
-        real(gtm_real), intent(in) :: c(nc)
-        integer, intent(in) :: out_cell(nout)
+        integer, intent(in) :: file_id           !< text file id
+        integer, intent(in) :: nc                !< concentration
+        integer, intent(in) :: nout              !< number of output cells
+        real(gtm_real), intent(in) :: c(nc)      !< number of cells
+        integer, intent(in) :: out_cell(nout)    !< output cell no
         integer :: i
         write(file_id,'(<nout>f10.0)') (c(out_cell(i)),i=1,nout)    
         return
@@ -370,7 +276,6 @@ module gtm_subs
 
     !> check the flow mass balance at DSM2 network
     subroutine flow_mass_balance_check(ncell, nqext, nresv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
-        use gtm_precision
         use common_variables, only : n_node, dsm2_network
         implicit none
         integer, intent(in) :: ncell
@@ -410,7 +315,6 @@ module gtm_subs
     
     !> calculate area for memory buffer
     subroutine get_area_for_buffer(hyd_area, hyd_ws, ncomp, buffer)
-        use gtm_precision
         use common_variables, only: comp_pt
         use common_xsect
         implicit none

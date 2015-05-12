@@ -28,7 +28,6 @@ module gtm_store_outpath
     
     !> Write output data periodically to temporary files.
     !> Initialize the temporary files first with init_store_outpaths.
-    !> This routine does not allow outputs mixed with different output time intervals.
     subroutine gtm_store_outpaths(lflush,          &
                                   runtime_julmin,  &
                                   runtime_step,    &

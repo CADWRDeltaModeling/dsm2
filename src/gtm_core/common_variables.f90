@@ -130,6 +130,14 @@ module common_variables
      end type
      type(conn_t), allocatable :: conn(:)
     
+     !> Define cells
+     type cell_t
+         integer :: cell_id                           !< cell id
+         integer :: up_cell                           !< upstream connected cell id (-1 for boundary, 0 for junction)
+         integer :: down_cell                         !< downstream connected cell id (-1 for boundary, 0 for junction)
+         real(gtm_real) :: dx                         !< cell length
+     end type
+     type(cell_t), allocatable :: cell(:)
 
      !> Define reservoirs
      type reservoir_t
@@ -309,6 +317,7 @@ module common_variables
          end do          
          allocate(dx_arr(n_cell), stat = istat)
          allocate(disp_arr(n_cell), stat = istat)
+         allocate(cell(n_cell), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if    
@@ -463,6 +472,7 @@ module common_variables
              deallocate(conn)
              deallocate(dx_arr)
              deallocate(disp_arr)
+             deallocate(cell)
          end if    
          return
      end subroutine
@@ -684,6 +694,50 @@ module common_variables
                   
          return
      end subroutine
+
+
+     !> Routine to obtain cell connection info
+     !> for boundaries, replace u/s or d/s cell no with -1;
+     !> for non-sequential cells, replace the wrong cell no with actual one;
+     !> for junctions, replace u/s or d/s cell with 0
+     subroutine get_cell_info()
+         implicit none
+         integer :: i, j, k
+         do i = 1, n_cell
+             cell(i)%cell_id = i
+             cell(i)%up_cell = i - 1
+             cell(i)%down_cell = i + 1
+             cell(i)%dx = dx_arr(i)
+         end do
+         do i = 1, n_node
+             do j = 1, dsm2_network(i)%n_conn_cell
+                 if (dsm2_network(i)%boundary_no .ge. 1) then   ! boundary
+                     if (dsm2_network(i)%up_down(j) .eq. 1) then
+                         cell(dsm2_network(i)%cell_no(j))%up_cell = -1
+                     else 
+                         cell(dsm2_network(i)%cell_no(j))%down_cell = -1
+                     end if
+                 end if
+                 if (dsm2_network(i)%nonsequential .eq. 1) then ! non sequential
+                     if (j.eq.1) k = 2
+                     if (j.eq.2) k = 1
+                     if (dsm2_network(i)%up_down(j) .eq. 1) then
+                         cell(dsm2_network(i)%cell_no(j))%up_cell = dsm2_network(i)%cell_no(k)
+                     else 
+                         cell(dsm2_network(i)%cell_no(j))%down_cell = dsm2_network(i)%cell_no(k)
+                     end if                 
+                 end if
+                 if (dsm2_network(i)%n_conn_cell .gt. 2) then   ! junction
+                     if (dsm2_network(i)%up_down(j) .eq. 1) then ! d/s of junction
+                         cell(dsm2_network(i)%cell_no(j))%up_cell = 0
+                     else                                        ! u/s of junction
+                         cell(dsm2_network(i)%cell_no(j))%down_cell = 0
+                     end if
+                 end if                 
+             end do
+         end do
+         return
+     end subroutine    
 
 
      !> Routine to obtain unique number of an array
