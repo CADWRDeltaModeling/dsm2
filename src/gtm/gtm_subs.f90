@@ -96,7 +96,11 @@ module gtm_subs
                             if (x_dist(i).eq.segm(k)%down_distance) then
                                 out_cell(i) = segm(k)%start_cell_no + segm(k)%nx - 1
                                 x_from_lo_face(i) = segm(k)%length/segm(k)%nx
-                                calc_option(i) = 2
+                                if (cell(out_cell(i))%down_cell.gt.0) then 
+                                    calc_option(i) = 1
+                                else
+                                    calc_option(i) = 2
+                                end if        
                                 goto 10    
                             end if                                                  
                         end if
@@ -176,6 +180,7 @@ module gtm_subs
         integer :: i, icell, down_cell, up_cell
         
         do i = 1, noutpath
+            vals(i,:) = zero
             icell = out_chan_cell(i)
             if (calc_option(i).eq.1) then       ! calculate the slope by icell and downstream cell
                 down_cell = cell(icell)%down_cell
@@ -183,7 +188,7 @@ module gtm_subs
                             (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx
             elseif (calc_option(i).eq.2) then   ! calculate the slope by icell and upstream cell
                 up_cell = cell(icell)%up_cell
-                vals(i,:) = conc(icell,:)+(conc(up_cell,:)-conc(icell,:))*        &
+                vals(i,:) = conc(icell,:)+(conc(icell,:)-conc(up_cell,:))*        &
                             (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx               
             else                            
                 vals(i,:) = conc(icell,:)
