@@ -135,8 +135,6 @@ program gtm
     real(gtm_real) :: flow_chk
     
     ! for specified output locations
-    integer :: n_out_cell, n_out_cell_mtz
-    integer, allocatable :: out_cell(:), out_cell_mtz(:)
     integer, allocatable :: out_chan_cell(:), calc_option(:)
     real(gtm_real), allocatable :: x_from_lo_face(:)
     real(gtm_real), allocatable :: vals(:,:)

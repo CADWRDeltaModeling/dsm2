@@ -150,10 +150,10 @@ module boundary_diffusion_network
         real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells 
         real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef.
         real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef. 
-        real(gtm_real) :: scaling = 0.5d0
+        !real(gtm_real) :: scaling = 0.5d0
    
-        disp_coef_hi = disp_coef_arr*scaling
-        disp_coef_lo = disp_coef_arr*scaling
+        disp_coef_hi = disp_coef_arr !*scaling
+        disp_coef_lo = disp_coef_arr !*scaling
         
         deallocate(disp_coef_arr)
         

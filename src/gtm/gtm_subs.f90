@@ -178,16 +178,17 @@ module gtm_subs
         do i = 1, noutpath
             icell = out_chan_cell(i)
             if (calc_option(i).eq.1) then       ! calculate the slope by icell and downstream cell
-                down_cell = cell(out_chan_cell(i))%down_cell
+                down_cell = cell(icell)%down_cell
                 vals(i,:) = conc(icell,:)+(conc(down_cell,:)-conc(icell,:))*      &
                             (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx
             elseif (calc_option(i).eq.2) then   ! calculate the slope by icell and upstream cell
-                up_cell = cell(out_chan_cell(i))%up_cell
+                up_cell = cell(icell)%up_cell
                 vals(i,:) = conc(icell,:)+(conc(up_cell,:)-conc(icell,:))*        &
                             (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx               
             else                            
                 vals(i,:) = conc(icell,:)
             end if
+            where (vals(i,:) .le. zero) vals(i,:) = conc(icell,:)
         end do
         return
     end subroutine                 
