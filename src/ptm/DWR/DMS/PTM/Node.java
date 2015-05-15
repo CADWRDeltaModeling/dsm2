@@ -18,6 +18,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import edu.cornell.RngPack.*;
+
 import java.util.ArrayList;
 /**
  *  Node is defined as the connection between two or more waterbodies.
@@ -136,6 +137,8 @@ public class Node{
     return(false);
   }
   
+  //TODO clean up, no longer used
+  /*
   public final void setTotalWaterbodyInflowsWMeanSV(){
 	  float totalInflows = 0.0f;
 	  float totalags = 0.0f;
@@ -153,35 +156,40 @@ public class Node{
 	  _totalWBInflowsWMeanSV = totalInflows;
 	  _totalAgInflows = totalags;
   }
+  
   public float getTotalAgDiversionWMeanSV(){return _totalAgInflows;}
+  */
   /**
    *  Get total positive inflow to the water bodies<br>
    *  Add up all flows leaving the Node
    *  for particle decision making at junction
    */
-  public final float getTotalWaterbodyInflowsWMeanSV(){return _totalWBInflowsWMeanSV;}
-  public final float getTotalWaterbodyInflowsWSV(float sv){
+  //public final float getTotalWaterbodyInflowsWMeanSV(){return _totalWBInflowsWMeanSV;}
+  
+  public void setTotalWaterbodyInflows(){
 	  float totalInflows = 0.0f;
 	  for (Waterbody wb: wbArray){
 		  // not count for negative inflow
-		  float thisFlow = Math.max(0, wb.getInflowWSV(EnvIndex, sv));
+		  float thisFlow = Math.max(0, wb.getInflow(EnvIndex));
 		  if (thisFlow != 0 && !wb.isAgSeep()
 	        		&& !(this._fishScreenInstalled && wb.isFishScreenInstalled()))
 	        	totalInflows += thisFlow;
 	  }
-	  return totalInflows;
+	  _totalWaterbodyInflows =  totalInflows;
   }
-  public float getTotalAgDiversionWSV(float sv){
+  public float getTotalWaterbodyInflows(){ return _totalWaterbodyInflows;}
+  public float getTotalAgDiversions(){ return _totalAgInflows;}
+  public void setTotalAgDiversions(){
 	  float totalags = 0.0f;
 	  for (Waterbody wb: wbArray){
-		  // not count for negative inflow
-		  float thisFlow = Math.max(0, wb.getInflowWSV(EnvIndex, sv));
+		  // 1) not count for negative inflow
+		  // 2) a boundary waterbody doesn't have an area and swimming velocity.  
+		  //    it therefore doesn't have a swimming flow
+		  float thisFlow = Math.max(0, wb.getInflow(EnvIndex));
 		  if (wb.isAgDiv())
-			  // because DICU diversion is also treated as an inflow
-			  // this flow is also included the swimming flow
 			  totalags += thisFlow;
 	  }
-	  return totalags;
+	  _totalAgInflows = totalags;
   }
   
   /**
@@ -318,8 +326,10 @@ public class Node{
   
   private boolean _barrierInstalled = false;
   private boolean _fishScreenInstalled = false;
-  private float _totalWBInflowsWMeanSV=0.0f;  // this number will never be negative
+  //TODO Clean up, not used anymore
+  //private float _totalWBInflowsWMeanSV=0.0f;  // this number will never be negative
   private float _totalAgInflows=0.0f;
+  private float _totalWaterbodyInflows=0.0f;
   private boolean _isOutputNode = false;
   
   /**

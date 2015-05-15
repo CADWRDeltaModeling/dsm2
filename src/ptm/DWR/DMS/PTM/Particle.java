@@ -517,6 +517,10 @@ _survivalHelper = null;
 			    	}
 		     }
 			 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
+			 //TODO clean up
+			 if(Id == 1)
+				 System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_meanSwimmingVelocity + "  " + _swimmingVelocity
+						 + "  " + _confusionFactor + "  " + ((Channel)wb).getChanDir());
 			 // temp comment out
 			 //System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_confusionFactor + "  " + ((Channel)wb).getProbConfusion());
 			 _swimmingVelocity = _confusionFactor*((Channel)wb).getChanDir()*_swimmingVelocity;
@@ -1096,7 +1100,7 @@ _survivalHelper = null;
     else{
     	 if (wb.getPTMType() == Waterbody.CHANNEL){
     		 _meanSwimmingVelocity = ((Channel)wb).getParticleMeanSwimmingVelocity();   		 
- 	    	setSwimmingVelocity(((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity));
+ 	    	 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
     	 }
     	setXYZLocationInChannel(false);
     }

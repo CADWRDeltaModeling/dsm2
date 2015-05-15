@@ -218,6 +218,15 @@ public class MainPTM {
                 	// because with subtime step too many random numbers are sampled
                 	// ptm timeStep in seconds
                 	// if Day time holding, wait a time step
+                	//TODO clean up
+                	/*
+        	    	if (i == 0 && particleArray[i].isDead){
+        	    		if (particleArray[i].wb.getPTMType() == Waterbody.CHANNEL)
+        	    			System.err.println(PTMHydroInput.getExtFromIntChan(particleArray[i].wb.getEnvIndex()));
+        	    		else
+        	    			System.err.println(particleArray[i].wb.getEnvIndex()+ "  " + particleArray[i].nd.getEnvIndex());
+        	    	}
+        	    	*/
                 	if ((!particleArray[i].isDead) && (!(isDaytime && PTMUtil.getRandomNumber() < daytimeNotSwimPercent))) 
                 		// updatePosition uses timeStep in seconds!!!!!!
                 			particleArray[i].updatePosition(timeStep, floodHoldingThreshold);

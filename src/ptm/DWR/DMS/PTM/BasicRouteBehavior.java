@@ -2,7 +2,6 @@
  * 
  */
 package DWR.DMS.PTM;
-
 /**
  * @author xwang
  *
@@ -72,62 +71,98 @@ public class BasicRouteBehavior {
 	public void makeRouteDecision(Particle p) {
 		if (p == null)
 			PTMUtil.systemExit("the particle passed in BasicRouteBehavior is null");
+		//TODO clean up
+		/*
+		if (p.Id == 1)
+			System.err.println(PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()));
+		*/
 		//when particle just inserted wb = null, but node is assigned.
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
-		float waterbodyInflows = p.nd.getTotalWaterbodyInflowsWSV(p.getSwimmingVelocity());
-		float totalAgDiversions = p.nd.getTotalAgDiversionWSV(p.getSwimmingVelocity());
-		if (PTMUtil.floatNearlyEqual(waterbodyInflows, totalAgDiversions))
-			waterbodyInflows = totalAgDiversions*_dicuEfficiency;
 		
-		// after prescreen() call, _waterbodyInflows = _rand*_waterbodyInflows
-	    if (!prescreen(p, waterbodyInflows))
-	    	return;
+		// calculate total waterbody Inflows:
+		// because swimming velocity changes from channel to channel and from particle to particle
+		// first need to get the swimming velocity for each waterbody of this particle
+		Waterbody [] wbs = p.nd.getWaterbodies();
+		if (wbs == null)
+			PTMUtil.systemExit("node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
+					              +" doesn't have any waterbody connect to it, please check, exit.");
+		float[] pMeanSwimmingVels = new float[wbs.length];
+		float[] swimmingVels = new float[wbs.length];
+		float[] wbFlows = new float[wbs.length];
 	    
-	    waterbodyInflows = p.nd.getRandomNumber()*waterbodyInflows;
-	    if (Math.abs(waterbodyInflows) < Float.MIN_VALUE){
-	      p.particleWait = true;
-	      if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
-		    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	
-	      return;
-	    }
-	    
-	    int waterbodyId = -1;
-	    Waterbody thisWb = null;
-	    float flow = 0.0f;
-	    float swimmingVel = p.getSwimmingVelocity();
-	    float totalAgDivFlows = p.nd.getTotalAgDiversionWSV(swimmingVel);
-	    float totalInflowWOAgDiv = p.nd.getTotalWaterbodyInflowsWSV(swimmingVel) - totalAgDivFlows; 
-	    float totalAgDivLeftOver = ((float) (totalAgDivFlows*(1-_dicuEfficiency)));
-	    //boolean dicuFilter = (totalAgDivFlows > 0 && _dicuEfficiency > 0);
-	    do {
-	    	waterbodyId ++;
-	    	thisWb = p.nd.getWaterbody(waterbodyId);
-	    	float thisFlow = Math.max(0, thisWb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity()));
+	    float totalWbInflows = 0.0f;
+	    int nodeId = p.nd.getEnvIndex();
+	    int wbId = 0;
+		for (Waterbody wb: wbs){
+			if(wb != null && wb.getPTMType() == Waterbody.CHANNEL){
+				Channel c = ((Channel) wb);
+				pMeanSwimmingVels[wbId] = c.getParticleMeanSwimmingVelocity();
+				swimmingVels[wbId] = c.getSwimmingVelocity(pMeanSwimmingVels[wbId]);
+	    		// not count for negative inflow
+				wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, swimmingVels[wbId]));
+				// comment out this line is for make swimming velocity not change at node
+				//wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, p.getSwimmingVelocity()));
+	    	}
+			else{
+				// no swimming velocity other than the water body type channel
+				pMeanSwimmingVels[wbId] = 0.0f;
+	    		swimmingVels[wbId] = 0.0f;
+	    		if(wb.isAgSeep()
+		        		|| (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled()))
+	    			wbFlows[wbId] = 0.0f;
+	    		else
+	    			wbFlows[wbId] = Math.max(0.0f,wb.getInflow(nodeId));
+			}
+			totalWbInflows += wbFlows[wbId];
+			wbId++;
+		}
+		
+		// if in a dead end, move some distance and recalculate
+		if (!prescreen(p, totalWbInflows))
+		    return;
+		
+		float totalAgDiversions = p.nd.getTotalAgDiversions();
+		if (PTMUtil.floatNearlyEqual(totalWbInflows, totalAgDiversions))
+			totalWbInflows = totalAgDiversions*_dicuEfficiency;
+		
+		float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
+		
+		// if total flow is 0 wait for a time step
+		if (Math.abs(randTotalWbInflows) < Float.MIN_VALUE){
+		      p.particleWait = true;
+		      if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
+			    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	
+		      return;
+		}
+		
+		float diversionsLeftover = totalAgDiversions*(1-_dicuEfficiency);
+		float totalFlowsWOAg = totalWbInflows - totalAgDiversions;
+		
+		wbId = -1;
+		float flow = 0.0f;
+		do {
 		    float modFlow = 0.0f;
-	    	if (thisWb.isAgSeep() || (p.nd.isFishScreenInstalled() && thisWb.isFishScreenInstalled()))
-	    		modFlow = 0;
-	    	else if (thisWb.isAgDiv())
-	    		// only allow _dicuEfficiency*ag_flow to go through 
-	    		modFlow = ((float) (thisFlow*_dicuEfficiency)); 
-	    	else if (totalInflowWOAgDiv > 0.0f)
-	    		modFlow = thisFlow + (thisFlow/totalInflowWOAgDiv)*totalAgDivLeftOver;
+		    wbId ++;
+	    	if (wbs[wbId].isAgDiv())
+	    		// the probability of this route reduce (1-_dicuEfficiency)
+	    		modFlow = ((float) (wbFlows[wbId]*_dicuEfficiency)); 
+	    	else if (totalFlowsWOAg > 0.0f)
+	    		modFlow = wbFlows[wbId] + (wbFlows[wbId]/totalFlowsWOAg)*diversionsLeftover;
 	    	else
-		    	modFlow = thisFlow;
+		    	modFlow = wbFlows[wbId];
 	    	flow += modFlow;
-	    }while (flow < waterbodyInflows && waterbodyId < (p.nd.getNumberOfWaterbodies()-1));
-	    // get a pointer to the waterbody in which pParticle entered.
-	    p.wb = thisWb;
+	    }while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
+		p.wb = wbs[wbId];
 	    // send message to observer about change 
 	    if (p.observer != null) 
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 	    //set x to only channels.  other water body types don't need to be set. 
 	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
-	    	Channel c = (Channel)p.wb;
-	    	p.x = getXLocationInChannel(c, p.nd);
-	    	float v = c.getParticleMeanSwimmingVelocity();
-	    	p.setMeanSwimmingVelocity(v);
-	    	p.setSwimmingVelocity(c.getSwimmingVelocity(v));
-	    }	
+	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
+	    	p.setMeanSwimmingVelocity(pMeanSwimmingVels[wbId]);
+	    	p.setSwimmingVelocity(swimmingVels[wbId]);
+	    }
 	}
+	
 }

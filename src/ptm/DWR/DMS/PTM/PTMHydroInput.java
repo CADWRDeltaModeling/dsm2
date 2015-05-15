@@ -288,8 +288,11 @@ public class PTMHydroInput{
   	private native void  readMultTide(int currentModelTime);
 	public final void updateNodesHydroInfo(Node [] nodeArray) {
 		for (Node node: nodeArray){
-			if (node != null)
-				node.setTotalWaterbodyInflowsWMeanSV();
+			if (node != null){
+				node.setTotalWaterbodyInflows();
+				node.setTotalAgDiversions();
+			}
+			
 		}
 
 	}
