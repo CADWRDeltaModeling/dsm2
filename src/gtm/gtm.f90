@@ -64,14 +64,6 @@ program gtm
 
     implicit none
     
-    real(gtm_real), allocatable :: prev_comp_flow(:)
-    real(gtm_real), allocatable :: prev_comp_ws(:)
-    real(gtm_real), allocatable :: prev_hydro_resv(:)
-    real(gtm_real), allocatable :: prev_hydro_resv_flow(:)
-    real(gtm_real), allocatable :: prev_hydro_qext(:)
-    real(gtm_real), allocatable :: prev_hydro_tran(:)
-    real(gtm_real), allocatable :: prev_flow_cell_lo(:)
-    real(gtm_real), allocatable :: prev_flow_cell_hi(:)
     real(gtm_real), allocatable :: cfl(:)
     real(gtm_real), allocatable :: disp_coef_lo(:)           !< Low side constituent dispersion coef. at new time
     real(gtm_real), allocatable :: disp_coef_hi(:)           !< High side constituent dispersion coef. at new time
@@ -104,8 +96,6 @@ program gtm
     integer :: next_output_flush   ! next time to flush output
       
     procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
-    
-    ! 
     logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
     !real(gtm_real), parameter :: constant_decay = 5.0d-5
     real(gtm_real), parameter :: constant_decay = zero
@@ -135,8 +125,6 @@ program gtm
     real(gtm_real) :: flow_chk
     
     ! for specified output locations
-    integer, allocatable :: out_chan_cell(:), calc_option(:)
-    real(gtm_real), allocatable :: x_from_lo_face(:)
     real(gtm_real), allocatable :: vals(:,:)
     
     integer :: st, k, n_st     ! temp index
@@ -165,10 +153,9 @@ program gtm
                        hydro_start_jmin, hydro_end_jmin,       &
                        gtm_start_jmin, gtm_end_jmin)   
     
-    allocate(out_chan_cell(noutpaths),x_from_lo_face(noutpaths), calc_option(noutpaths))
     allocate(vals(noutpaths,n_var))    
     call get_cell_info    
-    call get_output_channel(out_chan_cell, x_from_lo_face, calc_option, noutpaths)
+    call get_output_channel
 
     !
     !----- allocate array for interpolation -----     
@@ -182,14 +169,9 @@ program gtm
             dispersion_coef => assign_dispersion_coef
         end if        
     end if        
-    allocate(prev_comp_flow(n_comp))
-    allocate(prev_comp_ws(n_comp))
-    allocate(prev_hydro_resv(n_resv))
-    allocate(prev_hydro_resv_flow(n_resv_conn))
-    allocate(prev_hydro_qext(n_qext))
-    allocate(prev_hydro_tran(n_tran))
+  
     allocate(constituents(n_var))    
-    allocate(prev_flow_cell_lo(n_cell), prev_flow_cell_hi(n_cell))
+    call allocate_state_hydro(n_comp, n_resv, n_resv_conn, n_qext, n_tran, n_cell)
     call allocate_hydro_ts 
     call allocate_network_tmp(npartition_t)
     call allocate_state(n_cell, n_var)
@@ -202,14 +184,6 @@ program gtm
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
     
     write(*,*) "You need to have ",n_cell," number of cells in initial file"
-    prev_comp_flow = LARGEREAL
-    prev_comp_ws = LARGEREAL
-    prev_hydro_resv = LARGEREAL
-    prev_hydro_resv_flow = LARGEREAL
-    prev_hydro_qext = LARGEREAL
-    prev_hydro_tran = LARGEREAL
-    prev_flow_cell_lo = LARGEREAL
-    prev_flow_cell_hi = LARGEREAL
     
     linear_decay = constant_decay
     
@@ -247,11 +221,11 @@ program gtm
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
-    !boundary_diffusion_flux => network_boundary_diffusive_flux
-    !boundary_diffusion_network_matrix => network_diffusion_sparse_matrix
+    boundary_diffusion_flux => network_boundary_diffusive_flux
+    boundary_diffusion_network_matrix => network_diffusion_sparse_matrix
     
-    boundary_diffusion_flux => neumann_zero_diffusive_flux
-    boundary_diffusion_matrix => neumann_zero_diffusion_matrix
+    !boundary_diffusion_flux => neumann_zero_diffusive_flux
+    !boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
     call set_dispersion_arr(disp_arr, n_cell)
     
@@ -465,7 +439,7 @@ program gtm
             
             !--------- Diffusion ----------
             if (apply_diffusion) then
-                call diffuse(conc,                         &
+                call diffuse_network(conc,                         &
                              conc_prev,                    &
                              area,                         &
                              area_prev,                    &
@@ -496,7 +470,7 @@ program gtm
         end do ! end of loop of sub time step
 
         !---- print output to DSS file -----
-        call get_output_channel_vals(vals, out_chan_cell, x_from_lo_face, calc_option, conc, n_cell, noutpaths, n_var)
+        call get_output_channel_vals(vals, conc, n_cell, n_var)
         if (int(current_time) .ge. next_output_flush) then
             call incr_intvl(next_output_flush, next_output_flush, flush_intvl,TO_BOUNDARY)
             call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
@@ -510,7 +484,6 @@ program gtm
 
         if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
             time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
-            !write(*,'(10f8.0)') conc(2164,1),flow(2164),conc(2721,1),flow(2721),conc(2125,1),flow(2125),conc(2765,1),flow(2764)
             call write_qual_hdf(qual_hdf,                     &
                                 conc,                         &
                                 n_cell,                       &
@@ -558,14 +531,13 @@ program gtm
     deallocate(constituents)
     deallocate(init_c)
     deallocate(init_r)
-    deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
-    deallocate(out_chan_cell, x_from_lo_face)
     deallocate(vals)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state
     call deallocate_state_network
     call deallocate_network_tmp
+    call deallocate_state_hydro
     call deallocate_hydro_ts
     call close_qual_hdf(qual_hdf)         
     call hdf5_close

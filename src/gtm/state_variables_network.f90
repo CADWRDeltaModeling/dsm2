@@ -26,6 +26,16 @@ module state_variables_network
     use gtm_precision
     use common_variables
 
+    !> State variables for data read from hydro
+    real(gtm_real), allocatable :: prev_comp_flow(:)
+    real(gtm_real), allocatable :: prev_comp_ws(:)
+    real(gtm_real), allocatable :: prev_hydro_resv(:)
+    real(gtm_real), allocatable :: prev_hydro_resv_flow(:)
+    real(gtm_real), allocatable :: prev_hydro_qext(:)
+    real(gtm_real), allocatable :: prev_hydro_tran(:)
+    real(gtm_real), allocatable :: prev_flow_cell_lo(:)
+    real(gtm_real), allocatable :: prev_flow_cell_hi(:)
+
     !> Concentration in the current/new time step for reservoir, 
     !> dimensions (nresv, nvar)
     real(gtm_real), save, allocatable :: conc_resv(:,:)
@@ -45,9 +55,43 @@ module state_variables_network
     real(gtm_real), save, allocatable :: prev_qext_flow(:)
     real(gtm_real), save, allocatable :: prev_tran_flow(:)
     real(gtm_real), save, allocatable :: prev_node_conc(:,:)    
-    
+ 
         
     contains
+    
+    !> Allocate time series from hydro computational points
+    subroutine allocate_state_hydro(a_comp, a_resv, a_resv_conn, a_qext, a_tran, a_cell)
+        use error_handling
+        implicit none
+        integer, intent(in) :: a_comp
+        integer, intent(in) :: a_resv
+        integer, intent(in) :: a_resv_conn
+        integer, intent(in) :: a_qext
+        integer, intent(in) :: a_tran
+        integer, intent(in) :: a_cell  
+        integer :: istat = 0      
+        character(LEN=128) :: message
+        
+        allocate(prev_comp_flow(n_comp), stat = istat)
+        allocate(prev_comp_ws(n_comp), stat = istat)
+        allocate(prev_hydro_resv(n_resv), stat = istat)
+        allocate(prev_hydro_resv_flow(n_resv_conn), stat = istat)
+        allocate(prev_hydro_qext(n_qext), stat = istat)
+        allocate(prev_hydro_tran(n_tran), stat = istat)
+        allocate(prev_flow_cell_lo(n_cell), prev_flow_cell_hi(n_cell), stat = istat)      
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        prev_comp_flow = LARGEREAL
+        prev_comp_ws = LARGEREAL
+        prev_hydro_resv = LARGEREAL
+        prev_hydro_resv_flow = LARGEREAL
+        prev_hydro_qext = LARGEREAL
+        prev_hydro_tran = LARGEREAL
+        prev_flow_cell_lo = LARGEREAL
+        prev_flow_cell_hi = LARGEREAL        
+        return
+    end subroutine    
     
     !> Allocate the state variables consistently for reservoir/qext/transfer flows.
     !> Initial value is LARGEREAL
@@ -103,7 +147,22 @@ module state_variables_network
         
         return
     end subroutine
-       
+    
+    
+    !> Deallocate the state variables for hydro
+    !> time series reading
+    subroutine deallocate_state_hydro   
+        implicit none        
+        deallocate(prev_comp_flow)
+        deallocate(prev_comp_ws)
+        deallocate(prev_hydro_resv)
+        deallocate(prev_hydro_resv_flow)
+        deallocate(prev_hydro_qext)
+        deallocate(prev_hydro_tran)
+        deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
+        return
+    end subroutine
+    
     
     !> Deallocate the state variables for nodes
     !> including concentration and hydrodynamics

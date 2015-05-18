@@ -30,7 +30,8 @@ module diffusion_network
     !> selecting the level of implicitness. (theta_stm=0.5 is Crank Nicolson.).
     !> The matrix is solved via a tri-diagonal solver.  !
     !> The algoritm looks like this:
-    !>   - This creates the diffusive fluxes sends them for modification for boundaries and then differences the fluxes to get the operator d/dx(Ad/dx). 
+    !>   - This creates the diffusive fluxes sends them for modification for boundaries
+    !>     and then differences the fluxes to get the operator d/dx(Ad/dx). 
     !>         - Calculate interior and boundary fluxes 
     !>   - Construct right hand side with neumann boundary condition imposed
     !>   - Construct diffusion coefficeint matrix with neumann boundary condition imposed

@@ -195,14 +195,22 @@ module boundary_diffusion_network
         integer :: up_cell, down_cell
 
         do i = 1, n_node
-            if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc.eq.1) ) then  !if boundary and node concentration is given
+            if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
-                if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
-                    diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
+                if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
+                    if ( dsm2_network(i)%node_conc .eq. 1 ) then
+                        diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
                                                 (conc(icell,:)-node_conc(i,:))/(half*dx(icell))
+                    else
+                        diffusive_flux_lo(icell,:) = diffusive_flux_hi(icell,:)
+                    end if                            
                 else                                            ! downstream boundary
-                    diffusive_flux_hi(icell,:) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
+                    if ( dsm2_network(i)%node_conc .eq. 1 ) then
+                        diffusive_flux_hi(icell,:) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
                                                 (node_conc(i,:)-conc(icell,:))/(half*dx(icell))
+                    else
+                        diffusive_flux_hi(icell,:) = diffusive_flux_lo(icell,:)
+                    end if
                 end if    
             end if
             if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then

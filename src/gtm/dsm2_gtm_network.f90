@@ -25,7 +25,8 @@ module dsm2_gtm_network
 
     contains
   
-    !> Adjust differences to account for special cases (boundaries, structures, junctions, flow reversals)
+    !> Adjust differences to account for special cases 
+    !> (boundaries, structures, junctions, flow reversals)
     !> This routine needs to use back door information: dsm2_network
     subroutine adjust_differences_network(grad,         &
                                           grad_lo,      &  
@@ -70,8 +71,8 @@ module dsm2_gtm_network
         else    
             grad = grad_center
         end if    
-        grad(1,:)     = grad_hi(1,:)             ! in case cell_no=1 does not locate at actual boundary, w/t this line will cause error. 
-        grad(ncell,:) = grad_lo(ncell,:)         ! in case cell_no=ncell does not locate at actual boundary, w/t this line will cause error.          
+        grad(1,:)     = grad_hi(1,:)      ! in case cell_no=1 does not locate at actual boundary, w/t this line will cause error. 
+        grad(ncell,:) = grad_lo(ncell,:)  ! in case cell_no=ncell does not locate at actual boundary, w/t this line will cause error.          
 
         do i = 1, n_node
             ! adjust boundaries
@@ -161,7 +162,6 @@ module dsm2_gtm_network
                 else   ! flow from channel
                     mass_resv(:) = mass_resv(:) - resv_flow(resv_geom(i)%resv_conn_no(j))*dt*conc_tmp(:)
                 end if
-                !write(22,'(f15.0,i3,3f20.3,2f20.10)') time, j, resv_flow(resv_geom(i)%resv_conn_no(j)), vol, mass_resv(1), prev_conc_resv(i,1), conc_tmp(1)
             end do
             conc_resv(i,:) = mass_resv(:)/vol
         end do
@@ -237,6 +237,7 @@ module dsm2_gtm_network
         return
     end subroutine  
     
+    
     !> No assignment for boundary flow and leave it as it is
     subroutine assign_boundary_concentration(conc_lo,  &
                                              conc_hi,  &
@@ -254,7 +255,8 @@ module dsm2_gtm_network
         integer :: i, icell
         
         do i = 1, n_node
-            if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc.eq.1) ) then  !if boundary and node concentration is given
+            ! if boundary and node concentration is given, assign the value to lo or hi face.
+            if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc.eq.1) ) then  
                 icell = dsm2_network(i)%cell_no(1)
                 if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
                     conc_lo(icell,:) = node_conc(i,:)

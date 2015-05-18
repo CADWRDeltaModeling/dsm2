@@ -385,6 +385,13 @@ module gtm_init_store_outputs
                    // trim(pathoutput(p).interval) // '/' &! e part
                    // trim(cf) // '/'                      ! f part
 
+            ! define units for each output path
+            if (pathoutput(p).c_part .eq. 'ec') then
+                pathoutput(p).units = 'umhos/cm'
+            else 
+                pathoutput(p).units = 'mg/l'
+            endif
+
             call remblk(path,pathoutput(p).path,nlen)
             call upcase(pathoutput(p).path) ! convert to upper case
             call zchkpn(trim(path),len_trim(path),istat)

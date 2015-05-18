@@ -25,24 +25,24 @@ module gtm_subs
     contains
 
     !> subroutine to get output time series for selected output points
-    subroutine get_output_channel(out_cell,       &
-                                  x_from_lo_face, &
-                                  calc_option,    &
-                                  n_chan_outpath)   
-        use common_dsm2_vars, only: pathoutput
+    !> This will update pathoutput%out_cell, calc_option, x_from_lo_face
+    subroutine get_output_channel  
+        use common_dsm2_vars, only: noutpaths, pathoutput
         implicit none       
-        integer, intent(in) :: n_chan_outpath               !< number of output channels
-        integer, intent(out) :: out_cell(n_chan_outpath)    !< output cells
-        integer, intent(out) :: calc_option(n_chan_outpath) !< calculation option of interpolation by using u/s cell or d/s cell
-        integer :: chan_num(n_chan_outpath)                 !< channcel number
-        real(gtm_real) :: x_from_lo_face(n_chan_outpath)    !< distance from lo face of the cell
-        real(gtm_real) :: x_dist(n_chan_outpath)        
+        integer :: out_cell(noutpaths)    !< output cells
+        integer :: calc_option(noutpaths) !< calculation option of interpolation by using u/s cell or d/s cell
+        integer :: chan_num(noutpaths)                 !< channcel number
+        real(gtm_real) :: x_from_lo_face(noutpaths)    !< distance from lo face of the cell
+        real(gtm_real) :: x_dist(noutpaths)        
         integer :: i
-        do i = 1, n_chan_outpath
+        do i = 1, noutpaths
             chan_num(i) = pathoutput(i)%channo
             x_dist(i) = dble(pathoutput(i)%distance)
         enddo
-        call get_select_cell_with_x(out_cell, x_from_lo_face, calc_option, n_chan_outpath, chan_num, x_dist)
+        call get_select_cell_with_x(pathoutput(:)%out_chan_cell,  &
+                                    pathoutput(:)%x_from_lo_face, &
+                                    pathoutput(:)%calc_option,    &      
+                                    noutpaths, chan_num, x_dist)
         return
     end subroutine
         
@@ -157,39 +157,32 @@ module gtm_subs
 
     !> get output channel values
     subroutine get_output_channel_vals(vals,           &
-                                       out_chan_cell,  &
-                                       x_from_lo_face, &
-                                       calc_option,    &
                                        conc,           &
                                        ncell,          &
-                                       noutpath,       &
                                        nvar)
-        
+                                       
         use common_variables, only: cell
+        use common_dsm2_vars, only: noutpaths, pathoutput        
         
         implicit none
         
-        integer, intent(in) :: noutpath                        !< number of output path
         integer, intent(in) :: nvar                            !< number of constituents
         integer, intent(in) :: ncell                           !< number of cells
-        integer, intent(in) :: out_chan_cell(noutpath)         !< output cell no
-        integer, intent(in) :: calc_option(noutpath)           !< calculation option
         real(gtm_real), intent(in) :: conc(ncell, nvar)        !< concentration
-        real(gtm_real), intent(in) :: x_from_lo_face(noutpath) !< distance from lo face in the cell
-        real(gtm_real), intent(out) :: vals(noutpath,nvar)     !< output requested values
+        real(gtm_real), intent(out) :: vals(noutpaths,nvar)     !< output requested values
         integer :: i, icell, down_cell, up_cell
         
-        do i = 1, noutpath
+        do i = 1, noutpaths
             vals(i,:) = zero
-            icell = out_chan_cell(i)
-            if (calc_option(i).eq.1) then       ! calculate the slope by icell and downstream cell
+            icell = pathoutput(i)%out_chan_cell
+            if (pathoutput(i)%calc_option.eq.1) then       ! calculate the slope by icell and downstream cell
                 down_cell = cell(icell)%down_cell
                 vals(i,:) = conc(icell,:)+(conc(down_cell,:)-conc(icell,:))*      &
-                            (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx
-            elseif (calc_option(i).eq.2) then   ! calculate the slope by icell and upstream cell
+                            (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
+            elseif (pathoutput(i)%calc_option.eq.2) then   ! calculate the slope by icell and upstream cell
                 up_cell = cell(icell)%up_cell
                 vals(i,:) = conc(icell,:)+(conc(icell,:)-conc(up_cell,:))*        &
-                            (x_from_lo_face(i)-half*cell(icell)%dx)/cell(icell)%dx               
+                            (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx               
             else                            
                 vals(i,:) = conc(icell,:)
             end if
