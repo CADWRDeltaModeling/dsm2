@@ -82,7 +82,7 @@ import edu.cornell.RngPack.*;
  * 
  */
 public class Particle{
-	
+  //TODO what if SwimmingInputs is null?!	
   private static SwimInputs  SwimmingInputs = Globals.Environment.getBehaviorInputs().getSwimInputs();
   private static boolean IsRandomAccess = SwimmingInputs.getRandomAccess();
   private static float AccessProb = SwimmingInputs.getAccessProbability();
@@ -1099,7 +1099,7 @@ _survivalHelper = null;
     }
     else{
     	 if (wb.getPTMType() == Waterbody.CHANNEL){
-    		 _meanSwimmingVelocity = ((Channel)wb).getParticleMeanSwimmingVelocity();   		 
+    		 _meanSwimmingVelocity = SwimmingInputs.getParticleMeanSwimmingVelocity(Id, (Channel) wb);   		 
  	    	 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
     	 }
     	setXYZLocationInChannel(false);
@@ -1417,5 +1417,6 @@ _survivalHelper = null;
   private float [] cV = new float[1];
   private float [] cA = new float[1];
   private static TravelTimeOutput _tto = Globals.Environment.getBehaviorInputs().getTravelTimeOutput();
+    
 }
 

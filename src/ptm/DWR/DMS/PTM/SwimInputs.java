@@ -45,6 +45,7 @@ public class SwimInputs {
 		// TODO Auto-generated constructor stub
 		System.out.println("Created SwimHelper...");
 	}
+	// no longer allow to input from command line
 	/*
 	public void setSwimmingVelocityForAllFromCommand(String groupName, String sVel){
 		String name = groupName.toUpperCase();
@@ -100,11 +101,28 @@ public class SwimInputs {
 		}
 		
 	}
+	public Map<Integer, String> getChannelGroups(){return _channelGroups;}
+	public Map<String, Map<Integer, Float>> getPartcleMeanSwimmingVelocityMap() {return _particleMeanSwimVels;}
 	public void setNodeInfo(Node[] allNodes, int nodeNum){}
 	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
 		
 	}
 	public SwimHelper getSwimHelper(){return _swimHelper;}
+	public float getParticleMeanSwimmingVelocity(int pId, Channel chan){
+		String groupName = _channelGroups.get(chan.getEnvIndex());
+		// particle id vs. mean swimming velocity map
+		Map<Integer, Float> meanMap = null;
+		if (groupName == null)
+			//the channel is not specified in a channel group.  use "All" group
+			meanMap = _particleMeanSwimVels.get("ALL");
+		else
+			meanMap = _particleMeanSwimVels.get(groupName);
+		if (meanMap == null)
+			PTMUtil.systemExit("particle mean swimming velocity map should be defined earlier, but not, system exit.");
+		if (meanMap.get(pId) == null)
+			meanMap.put(pId, chan.getParticleMeanSwimmingVelocity());
+		return meanMap.get(pId);
+	}
 	private void setChannelGroups(ArrayList<String> chanGroups){
 		if (chanGroups == null){
 			System.err.println("WARNING: No channel groups for Swimming velocities defined in behavior input file!");
@@ -119,6 +137,7 @@ public class SwimInputs {
 			PTMUtil.systemExit("Swimming velocities should not have been set before SwimInputs intialization, system exit");
 		_groupNames = new ArrayList<String>();
 		_swimVelParas = new HashMap<String, float[]>();
+		_particleMeanSwimVels = new HashMap<String, Map<Integer, Float>>();
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			// put into the map: group name, survival rate
@@ -131,10 +150,12 @@ public class SwimInputs {
 														 Float.parseFloat(items[2]),
 														 Float.parseFloat(items[3])});
 				_groupNames.add(groupName);
+				_particleMeanSwimVels.put(groupName, new HashMap<Integer, Float>());
 			}catch(NumberFormatException e){
 				PTMUtil.systemExit("expect to read four floats in the swimming velocity line, but read: "+line+", System exit.");
 			}
 		}
+		_particleMeanSwimVels.put("ALL", new HashMap<Integer, Float>());
 		//get Channel list
 		ArrayList<String> channelListStrs = PTMUtil.getInputBlock(chanGroups, "CHANNEL_LIST", "END_CHANNEL_LIST");
 		if (channelListStrs == null)
@@ -184,8 +205,10 @@ public class SwimInputs {
 	private String _fishType = null;
 	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle
 	private Map<String, float[]> _swimVelParas=null;
+	// Map<ChanGroupName, Map<particleId, meanSwimmingVelocity>>
+	private Map<String, Map<Integer, Float>> _particleMeanSwimVels = null;
 	private ArrayList<String> _groupNames=null;
-	// node, group name
+	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;
 	private float _daytimeNotSwimPercent = 0.0f;
 	private Pair<Integer, Integer> _sunrise = null;

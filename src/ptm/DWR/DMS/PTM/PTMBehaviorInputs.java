@@ -160,8 +160,8 @@ public class PTMBehaviorInputs {
 		if (routeInputText == null)
 			System.err.println("WARNING: no route behavior input found!");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
-			PTMUtil.closeBuffer(inputTextBuff);
-		
+		PTMUtil.closeBuffer(inputTextBuff);
+		_routeInputs.setMeanSwimmingVelocityMap(_swimInputs);
 	}
 	public void setWaterbodyInfo(Waterbody[] allWbs){
 		if (_routeInputs != null){

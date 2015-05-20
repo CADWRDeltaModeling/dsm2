@@ -61,7 +61,19 @@ public class RouteInputs {
 		System.out.println("Created RouteHelper...");
 	}
 	
-
+	public void setMeanSwimmingVelocityMap(SwimInputs si){
+		if (si != null){
+			//TODO particle has basic route behavior as Salmon???
+			if(_fishType.equalsIgnoreCase("SALMON"))
+				SalmonBasicRouteBehavior.setMeanSwimmingVelocityMap(si);
+			else if(_fishType.equalsIgnoreCase("PARTICLE"))
+				BasicRouteBehavior.setMeanSwimmingVelocityMap(si);
+			else if (_fishType.equalsIgnoreCase("SMELT"))
+				PTMUtil.systemExit("the method to set mean swimming velocity map for smelt has been defined yet");
+			else
+				PTMUtil.systemExit("don't know how to deal with this fish type:" + _fishType+", system exit");
+		}
+	}
 	public void setBarrierNodeInfo(Node[] allNodes){
 	    //nodeArray starts from 1 PTMFixedInput.java line 287
 		if (_barriers == null)

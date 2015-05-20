@@ -2,32 +2,34 @@
  * 
  */
 package DWR.DMS.PTM;
+
+import java.util.Map;
+
 /**
  * @author xwang
  *
  */
 public class BasicRouteBehavior {
 	static float _dicuEfficiency = 0.0f;
+	private static SwimInputs _si = null;
 
 	/**
 	 * 
 	 */
 	public BasicRouteBehavior() {
-		// TODO Auto-generated constructor stub
+
 	}
 
-	
+	public static void setMeanSwimmingVelocityMap(SwimInputs si){
+		if (si == null)
+			PTMUtil.systemExit("Swimming inputs are not found, system exit.");
+		_si = si;
+	}
 	public static void setDicuFilterEfficiency(float eff) {
 		if (eff < 0.0)
 			PTMUtil.systemExit("negative Dicu efficiency coefficient, system exit.");
 		_dicuEfficiency = eff;
 	}
-	/*
-	private void checkNull(Waterbody wb, Node nd){
-		if (wb == null || nd == null)
-			PTMUtil.systemExit("water body or node not exist while making node decision, system exit.");
-	}
-	*/
 	private float getPerturbedXLocation(Channel chan, Node nd, float repositionFactor){
 	    float cLength = chan.getLength();
 	    if (chan.getUpNodeId() == nd.getEnvIndex())
@@ -71,15 +73,11 @@ public class BasicRouteBehavior {
 	public void makeRouteDecision(Particle p) {
 		if (p == null)
 			PTMUtil.systemExit("the particle passed in BasicRouteBehavior is null");
-		//TODO clean up
-		/*
-		if (p.Id == 1)
-			System.err.println(PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()));
-		*/
 		//when particle just inserted wb = null, but node is assigned.
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
-		
+		if (_si == null)
+			PTMUtil.systemExit("Swimming input is not defined! system exit.");
 		// calculate total waterbody Inflows:
 		// because swimming velocity changes from channel to channel and from particle to particle
 		// first need to get the swimming velocity for each waterbody of this particle
@@ -96,8 +94,8 @@ public class BasicRouteBehavior {
 	    int wbId = 0;
 		for (Waterbody wb: wbs){
 			if(wb != null && wb.getPTMType() == Waterbody.CHANNEL){
-				Channel c = ((Channel) wb);
-				pMeanSwimmingVels[wbId] = c.getParticleMeanSwimmingVelocity();
+				Channel c = (Channel) wb;
+				pMeanSwimmingVels[wbId] = _si.getParticleMeanSwimmingVelocity(p.Id, c);
 				swimmingVels[wbId] = c.getSwimmingVelocity(pMeanSwimmingVels[wbId]);
 	    		// not count for negative inflow
 				wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, swimmingVels[wbId]));
