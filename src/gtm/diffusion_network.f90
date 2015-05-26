@@ -26,8 +26,8 @@ module diffusion_network
  
     !> Calculates the diffusive portion of the constituent transport.
     !> It contains an explicit version of the diffusion operator and a general (involving all
-    !> potential cases) diffusion operator as well, with a coefficient theta_stm for 
-    !> selecting the level of implicitness. (theta_stm=0.5 is Crank Nicolson.).
+    !> potential cases) diffusion operator as well, with a coefficient theta_gtm for 
+    !> selecting the level of implicitness. (theta_gtm=0.5 is Crank Nicolson.).
     !> The matrix is solved via a tri-diagonal solver.  !
     !> The algoritm looks like this:
     !>   - This creates the diffusive fluxes sends them for modification for boundaries
@@ -51,7 +51,7 @@ module diffusion_network
                                ncell,             &
                                nvar,              &
                                time_new,          &
-                               theta_stm,         &
+                               theta_gtm,         &
                                dt,                &
                                dx)
 
@@ -79,7 +79,7 @@ module diffusion_network
         real(gtm_real), intent (in) :: disp_coef_lo_prev(ncell,nvar) !< Low side constituent dispersion coef. at old time
         real(gtm_real), intent (in) :: disp_coef_hi_prev(ncell,nvar) !< High side constituent dispersion coef. at old time
         real(gtm_real), intent (in) :: time_new                      !< Instantaneous "new" time to which we are advancing
-        real(gtm_real), intent (in) :: theta_stm                     !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+        real(gtm_real), intent (in) :: theta_gtm                     !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
         real(gtm_real), intent (in) :: dt                            !< Time step   
         real(gtm_real), intent (in) :: dx(ncell)                     !< Spacial step 
 
@@ -122,7 +122,7 @@ module diffusion_network
                                        disp_coef_lo_prev,     &
                                        disp_coef_hi_prev,     &
                                        conc_prev,             &
-                                       theta_stm,             &
+                                       theta_gtm,             &
                                        ncell,                 &
                                        time_prev,             &
                                        nvar,                  &  
@@ -139,7 +139,7 @@ module diffusion_network
                                         area_hi,          &
                                         disp_coef_lo,     &
                                         disp_coef_hi,     &
-                                        theta_stm,        &
+                                        theta_gtm,        &
                                         ncell,            &
                                         time_new,         & 
                                         nvar,             & 
@@ -164,7 +164,7 @@ module diffusion_network
                                                area_hi,             &          
                                                disp_coef_lo,        &
                                                disp_coef_hi,        &
-                                               theta_stm,           &
+                                               theta_gtm,           &
                                                ncell,               &
                                                time_new,            & 
                                                nvar,                & 

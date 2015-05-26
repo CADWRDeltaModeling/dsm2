@@ -37,6 +37,7 @@ module boundary_diffusion_network
     character(len=1), allocatable :: typ(:) ! cell type
     character(len=1), allocatable :: uds(:) ! up stream or downstream of node
     integer :: n_nonzero = LARGEINT
+    integer :: print_matrix = 0
 
     abstract interface
         !> Generic interface for calculating BC of matrix that should be fulfilled by
@@ -51,45 +52,45 @@ module boundary_diffusion_network
                                                         area_lo_prev,       &
                                                         area_hi_prev,       &
                                                         disp_coef_lo_prev,  &
-                                               disp_coef_hi_prev,  &
-                                               conc,               &                                                                                                                                               
-                                               area,               &
-                                               area_lo,            &
-                                               area_hi,            &          
-                                               disp_coef_lo,       &
-                                               disp_coef_hi,       &
-                                               theta_stm,          &
-                                               ncell,              &
-                                               time,               & 
-                                               nvar,               & 
-                                               dx,                 &
-                                               dt)      
+                                                        disp_coef_hi_prev,  &
+                                                        conc,               &                                                                                                                                               
+                                                        area,               &
+                                                        area_lo,            &
+                                                        area_hi,            &          
+                                                        disp_coef_lo,       &
+                                                        disp_coef_hi,       &
+                                                        theta_gtm,          &
+                                                        ncell,              &
+                                                        time,               & 
+                                                        nvar,               & 
+                                                        dx,                 &
+                                                        dt)      
         use gtm_precision
         implicit none
         !--- args 
-        integer, intent(in) :: ncell                                       !< Number of cells
-        integer, intent(in) :: nvar                                        !< Number of variables
-        real(gtm_real), intent(in) :: down_diag(ncell,nvar)                !< Values of the coefficients below diagonal in matrix
-        real(gtm_real), intent(in) :: center_diag(ncell,nvar)              !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real), intent(in) :: up_diag(ncell,nvar)                  !< Values of the coefficients above the diagonal in matrix
-        real(gtm_real), intent(inout):: right_hand_side(ncell,nvar)        !< Values of the coefficients of the right hand side    
-        real(gtm_real), intent(in) :: conc_prev(ncell, nvar)               !< concentration from previous time step
-        real(gtm_real), intent(in) :: area_prev(ncell)                     !< area from previous time step
-        real(gtm_real), intent(in) :: area_lo_prev(ncell)                  !< Low side area at previous time
-        real(gtm_real), intent(in) :: area_hi_prev(ncell)                  !< High side area at previous time
-        real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)             !< Low side constituent dispersion coef. at previous time
-        real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)             !< High side constituent dispersion coef. at previous time
-        real(gtm_real), intent(in) :: conc(ncell,nvar)                     !< Concentration
-        real(gtm_real), intent(in) :: explicit_diffuse_op(ncell,nvar)      !< Explicit diffusive operator
-        real(gtm_real), intent(in) :: area (ncell)                         !< Cell centered area at new time 
-        real(gtm_real), intent(in) :: area_lo(ncell)                       !< Low side area at new time
-        real(gtm_real), intent(in) :: area_hi(ncell)                       !< High side area at new time 
-        real(gtm_real), intent(in) :: disp_coef_lo(ncell)                  !< Low side constituent dispersion coef. at new time
-        real(gtm_real), intent(in) :: disp_coef_hi(ncell)                  !< High side constituent dispersion coef. at new time
-        real(gtm_real), intent(in) :: time                                 !< Current time
-        real(gtm_real), intent(in) :: theta_stm                            !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-        real(gtm_real), intent(in) :: dx(ncell)                            !< Spatial step  
-        real(gtm_real), intent(in) :: dt                                   !< Time step     
+        integer, intent(in) :: ncell                                 !< Number of cells
+        integer, intent(in) :: nvar                                  !< Number of variables
+        real(gtm_real), intent(in) :: down_diag(ncell,nvar)          !< Values of the coefficients below diagonal in matrix
+        real(gtm_real), intent(in) :: center_diag(ncell,nvar)        !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real), intent(in) :: up_diag(ncell,nvar)            !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real), intent(inout):: right_hand_side(ncell,nvar)  !< Values of the coefficients of the right hand side    
+        real(gtm_real), intent(in) :: conc_prev(ncell, nvar)         !< concentration from previous time step
+        real(gtm_real), intent(in) :: area_prev(ncell)               !< area from previous time step
+        real(gtm_real), intent(in) :: area_lo_prev(ncell)            !< Low side area at previous time
+        real(gtm_real), intent(in) :: area_hi_prev(ncell)            !< High side area at previous time
+        real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)       !< Low side constituent dispersion coef. at previous time
+        real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)       !< High side constituent dispersion coef. at previous time
+        real(gtm_real), intent(in) :: conc(ncell,nvar)               !< Concentration
+        real(gtm_real), intent(in) :: explicit_diffuse_op(ncell,nvar)!< Explicit diffusive operator
+        real(gtm_real), intent(in) :: area (ncell)                   !< Cell centered area at new time 
+        real(gtm_real), intent(in) :: area_lo(ncell)                 !< Low side area at new time
+        real(gtm_real), intent(in) :: area_hi(ncell)                 !< High side area at new time 
+        real(gtm_real), intent(in) :: disp_coef_lo(ncell)            !< Low side constituent dispersion coef. at new time
+        real(gtm_real), intent(in) :: disp_coef_hi(ncell)            !< High side constituent dispersion coef. at new time
+        real(gtm_real), intent(in) :: time                           !< Current time
+        real(gtm_real), intent(in) :: theta_gtm                      !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+        real(gtm_real), intent(in) :: dx(ncell)                      !< Spatial step  
+        real(gtm_real), intent(in) :: dt                             !< Time step     
    
     end subroutine 
   end interface
@@ -110,21 +111,23 @@ module boundary_diffusion_network
     end subroutine
  
     
-    !> Set dispersion coefficient interface to an implementation that is constant in space and time
-    !> This routine sets the value of the constant dispersion coefficient as well.
+    !> Set dispersion coefficient interface to an implementation 
+    !> that is constant in space and time. This routine sets
+    !> the value of the constant dispersion coefficient as well.
     subroutine set_dispersion_arr(d_arr,  &
                                   ncell)
 
         implicit none
-        integer, intent(in) :: ncell
-        real(gtm_real),intent(in) :: d_arr(ncell)     !< array of dispersion coefficients
+        integer, intent(in) :: ncell              !< number of cells
+        real(gtm_real),intent(in) :: d_arr(ncell) !< array of dispersion coefficients
         allocate(disp_coef_arr(ncell))
         disp_coef_arr = d_arr
         dispersion_coef => assign_dispersion_coef
         return
     end subroutine    
     
-    !> Implementation of diffusion_coef_if that sets dipsersion to a constant over space and time
+    !> Implementation of diffusion_coef_if that sets dipsersion
+    !> to a constant over space and time
     subroutine assign_dispersion_coef(disp_coef_lo,         &
                                       disp_coef_hi,         &
                                       flow,                 &
@@ -140,16 +143,16 @@ module boundary_diffusion_network
       
         implicit none
         !--- args          
-        integer,intent(in)  :: ncell                         !< Number of cells
-        integer,intent(in)  :: nvar                          !< Number of variables   
-        real(gtm_real),intent(in) :: time                    !< Current time
-        real(gtm_real),intent(in) :: dx(ncell)               !< Spatial step  
-        real(gtm_real),intent(in) :: dt                      !< Time step 
-        real(gtm_real),intent(in) :: flow_lo(ncell)          !< flow on lo side of cells centered in time
-        real(gtm_real),intent(in) :: flow_hi(ncell)          !< flow on hi side of cells centered in time       
-        real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells 
-        real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef.
-        real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef. 
+        integer,intent(in)  :: ncell                     !< Number of cells
+        integer,intent(in)  :: nvar                      !< Number of variables   
+        real(gtm_real),intent(in) :: time                !< Current time
+        real(gtm_real),intent(in) :: dx(ncell)           !< Spatial step  
+        real(gtm_real),intent(in) :: dt                  !< Time step 
+        real(gtm_real),intent(in) :: flow_lo(ncell)      !< flow on lo side of cells centered in time
+        real(gtm_real),intent(in) :: flow_hi(ncell)      !< flow on hi side of cells centered in time       
+        real(gtm_real),intent(in) :: flow(ncell)         !< flow on center of cells 
+        real(gtm_real),intent(out):: disp_coef_lo(ncell) !< Low side constituent dispersion coef.
+        real(gtm_real),intent(out):: disp_coef_hi(ncell) !< High side constituent dispersion coef. 
         !real(gtm_real) :: scaling = 0.5d0
    
         disp_coef_hi = disp_coef_arr !*scaling
@@ -253,13 +256,16 @@ module boundary_diffusion_network
         integer, intent(in) :: ncell            !< Number of cells
    
         !---local        
-        integer, parameter :: max_conn = 6
+        integer, parameter :: max_conn = 9
+        integer :: ind(max_conn)
         integer :: a(ncell, max_conn)          ! cell id of associated cells to each cell
+        integer :: aa(ncell, max_conn)         ! cell id of associated cells to each cell after sorting
         integer :: s(ncell)                    ! number of associated cells for each cell
         integer :: i, j, k, icell, nconn       ! local variables
         character(len=1) :: t(ncell)           ! cell type. "u": upstream boundary, "d": downstream boundary
                                                !            "h": u/s of junction, "l": d/s of junction, "s": non-sequantial, "n": normal
         character(len=1) :: ud(ncell,max_conn) ! upstream or downstream of cell i, "u": upstream, "d":downstream, "n":exact cell
+        character(len=1) :: uu(ncell,max_conn) ! temporary variable for ud before sorting
         integer :: nc(ncell)                   ! array index to obtain DSM2 boundary concentrations
               
         a(:,:) = LARGEINT
@@ -298,28 +304,34 @@ module boundary_diffusion_network
             if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 nconn = dsm2_network(i)%n_conn_cell
                 do j = 1, dsm2_network(i)%n_conn_cell
-                   icell = dsm2_network(i)%cell_no(j)
-                   s(icell) = nconn + 1
-                   if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
-                       t(icell) = "h"
-                       a(icell,1) = icell-1
-                       a(icell,2:nconn+1) = dsm2_network(i)%cell_no(1:nconn)
-                       ud(icell,1) = "u"
-                       ud(icell,2:nconn+1) = "d"
-                   else                        !cell at downstream of junction
-                       t(icell) = "l"                    
-                       a(icell,1:nconn) = dsm2_network(i)%cell_no(1:nconn)
-                       a(icell,nconn+1) = icell+1
-                       ud(icell,1:nconn) = "u"
-                       ud(icell,nconn+1) = "d"
-                   end if
-                   do k = 1, nconn+1
-                       if (icell.eq.a(icell,k)) ud(icell,k) = "n"
-                   end do                   
-                   !call Qsortc(a(icell,:))
+                    ind(1:max_conn) = (/ (j,j=1,max_conn,1) /)
+                    icell = dsm2_network(i)%cell_no(j)
+                    s(icell) = nconn + 1
+                    if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
+                        t(icell) = "h"
+                        a(icell,1) = icell-1
+                        a(icell,2:nconn+1) = dsm2_network(i)%cell_no(1:nconn)
+                        ud(icell,1) = "u"
+                        ud(icell,2:nconn+1) = "d"
+                    else                        !cell at downstream of junction
+                        t(icell) = "l"                    
+                        a(icell,1:nconn) = dsm2_network(i)%cell_no(1:nconn)
+                        a(icell,nconn+1) = icell+1
+                        ud(icell,1:nconn) = "u"
+                        ud(icell,nconn+1) = "d"
+                    end if
+                    do k = 1, nconn+1
+                        if (icell.eq.a(icell,k)) ud(icell,k) = "n"
+                    end do         
+                    aa(icell,:) = a(icell,:)
+                    uu(icell,:) = ud(icell,:)
+                    call QsortCI(a(icell,:),ind)
+                    a(icell,1:max_conn) = aa(icell,ind(1:max_conn))
+                    ud(icell,1:max_conn) = uu(icell,ind(1:max_conn))
                 end do                
             end if
             if (dsm2_network(i)%nonsequential==1) then
+               ind(1:max_conn) = (/ (j,j=1,max_conn,1) /)
                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of node
                    icell = dsm2_network(i)%cell_no(1)
                    t(icell) = "s" 
@@ -355,7 +367,11 @@ module boundary_diffusion_network
                    ud(icell,2) = "n"
                    ud(icell,3) = "d"                        
                 end if  
-                !call Qsortc(a(icell,:)) 
+                aa(icell,:) = a(icell,:)
+                uu(icell,:) = ud(icell,:)
+                call QsortCI(a(icell,:),ind)
+                a(icell,1:max_conn) = aa(icell,ind(1:max_conn))
+                ud(icell,1:max_conn) = uu(icell,ind(1:max_conn))
             end if
         end do 
 
@@ -419,7 +435,7 @@ module boundary_diffusion_network
                                                area_hi,            &          
                                                disp_coef_lo,       &
                                                disp_coef_hi,       &
-                                               theta_stm,          &
+                                               theta_gtm,          &
                                                ncell,              &
                                                time,               & 
                                                nvar,               & 
@@ -429,6 +445,7 @@ module boundary_diffusion_network
         use error_handling
         use common_variables, only : n_node, dsm2_network
         use state_variables_network, only : node_conc, prev_node_conc
+        !use utils, only: sparse2matrix
         implicit none
         !--- args                        
         integer, intent(in) :: ncell                                       !< Number of cells
@@ -451,9 +468,10 @@ module boundary_diffusion_network
         real(gtm_real), intent(in) :: disp_coef_lo(ncell)                  !< Low side constituent dispersion coef. at new time
         real(gtm_real), intent(in) :: disp_coef_hi(ncell)                  !< High side constituent dispersion coef. at new time
         real(gtm_real), intent(in) :: time                                 !< Current time
-        real(gtm_real), intent(in) :: theta_stm                            !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+        real(gtm_real), intent(in) :: theta_gtm                            !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
         real(gtm_real), intent(in) :: dx(ncell)                            !< Spatial step  
         real(gtm_real), intent(in) :: dt                                   !< Time step     
+        !real(gtm_real) :: matrix(ncell, ncell)   
         !---local
         real(gtm_real) :: x_int
         integer :: i, j, k, kk, icell
@@ -468,89 +486,93 @@ module boundary_diffusion_network
                 x_int = half*(dx(i+1)+dx(i))
                 do k = j, j + 1
                     if (uds(k).eq."n") then
-                        aax(k) = area(i)+theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*dx(i)*half) &
-                                       +theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)                                       
+                        aax(k) = area(i)+theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*dx(i)*half) &
+                                       +theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)                                       
                     else                
-                        aax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)
+                        aax(k) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)
                     end if
                 end do
                 where (prev_node_conc(ncc(j),:).eq.LARGEREAL) prev_node_conc(ncc(j),:) = conc(i,:) 
                 where (node_conc(ncc(j),:).eq.LARGEREAL)  node_conc(ncc(j),:) = conc(i,:) !???                
-                exp_diffusion_op_plus(:)  = -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
+                exp_diffusion_op_plus(:)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
-                exp_diffusion_op_minus(:) = -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
+                exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,:)-prev_node_conc(ncc(j),:))/(half*dx(i))/dx(i)  
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
-                                       + theta_stm*dt*area_lo(i)*disp_coef_lo(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
+                                       + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2
             elseif (typ(j).eq."d") then         ! "d": downstream boundary
                 x_int = half*(dx(i)+dx(i-1))
                 do k = j, j + 1
                     if (uds(k).eq."n") then
-                        aax(k) = area(i)+theta_stm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*dx(i)*half)   &
-                                       +theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
+                        aax(k) = area(i)+theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*dx(i)*half)   &
+                                       +theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
                     else
-                        aax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
+                        aax(k) = -theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
                     end if
                 end do    
                 where (prev_node_conc(ncc(j),:).eq.LARGEREAL) prev_node_conc(ncc(j),:) = conc(i,:)
                 where (node_conc(ncc(j),:).eq.LARGEREAL) node_conc(ncc(j),:) = conc(i,:) !????? 
-                exp_diffusion_op_plus(:) = -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
+                exp_diffusion_op_plus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
-                exp_diffusion_op_minus(:) = -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
+                exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                          *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)  
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
-                                       + theta_stm*dt*area_hi(i)*disp_coef_hi(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
+                                       + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2             
             elseif (typ(j).eq."h") then        ! "h": u/s of junction  
                 exp_diffusion_op_plus = zero
                 exp_diffusion_op_minus = zero
                 do k = j, j + nco(j) - 1
+                    aax(k) = zero
                     if (uds(k).eq."u") then
-                        aax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))                    
+                        aax(k) = -theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))                    
                     elseif (uds(k).eq."d") then
-                        aax(k) = -theta_stm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_hi(i) &
+                        aax(k) = -theta_gtm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_hi(i) &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)
                     else
-                        aax(k) = area(i) + theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))
+                        aax(k) = area(i) + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))
                         do kk = j, j + nco(j) - 1
                             if (uds(kk).eq."d") then
-                                aax(k) = aax(k) + theta_stm*dt*min(area_hi(i),area_lo(col(kk)))*disp_coef_hi(i)   &
+                                aax(k) = aax(k) + theta_gtm*dt*min(area_hi(i),area_lo(col(kk)))*disp_coef_hi(i)    &
                                                 /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2)
-                                exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)  &
-                                                          -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
-                                                          *(conc_prev(col(kk),:)-conc_prev(i,:))/(half*dx(col(kk))+half*dx(i))/dx(i)                                
+                                exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)                                &
+                                                          -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
+                                                          *(conc_prev(col(kk),:)-conc_prev(i,:))                   &
+                                                          /(half*dx(col(kk))+half*dx(i))/dx(i)/dble(nco(j)-2)                                
                             end if
                         end do                    
                     end if                                
                 end do
-                exp_diffusion_op_minus(:) = -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
+                exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,:)- conc_prev(i-1,:))/(half*dx(i)+half*dx(i-1))/dx(i)
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:)-(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))
                 j = j + nco(j)
             elseif (typ(j).eq."l") then       ! "l": d/s of junction
                 exp_diffusion_op_plus = zero
-                exp_diffusion_op_minus = zero            
+                exp_diffusion_op_minus = zero
                 do k = j, j + nco(j) - 1
+                    aax(k) = zero
                     if (uds(k).eq."d") then
-                        aax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))                    
+                        aax(k) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))   !?????                 
                     elseif (uds(k).eq."u") then
-                        aax(k) = -theta_stm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_lo(i)  &
+                        aax(k) = -theta_gtm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_lo(i)  &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)
                     else
-                        aax(k) = area(i) + theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))
+                        aax(k) = area(i) + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))
                         do kk = j, j + nco(j) - 1
                             if (uds(kk).eq."u") then
-                                aax(k) = aax(k) + theta_stm*dt*min(area_lo(i),area_hi(col(kk)))*disp_coef_lo(i)  &
-                                                /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2)
-                                 exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)  &
-                                                          -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
-                                                          *(conc_prev(i,:)-conc_prev(col(kk),:))/(half*dx(i)+half*dx(col(kk)))/dx(i) 
+                                aax(k) = aax(k) + theta_gtm*dt*min(area_lo(i),area_hi(col(kk)))*disp_coef_lo(i)    &
+                                                /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2) 
+                                 exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)                               &
+                                                          -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
+                                                          *(conc_prev(i,:)-conc_prev(col(kk),:))                   &
+                                                          /(half*dx(i)+half*dx(col(kk)))/dx(i)/dble(nco(j)-2) 
                             end if
                         end do                    
                     end if                    
                 end do 
-                exp_diffusion_op_minus(:) = -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
+                exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)- conc_prev(i,:))/(half*dx(i)+half*dx(i+1))/dx(i)
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:)+(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))                
                       
@@ -567,18 +589,23 @@ module boundary_diffusion_network
                 end do
                 do k = j, j + 2
                     if (uds(k).eq."u") then
-                        aax(k) = -theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))
+                        aax(k) = -theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))
                     elseif (uds(j).eq."n") then
-                        aax(k) = area(i) + theta_stm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))  &    
-                                + theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(d_cell))
+                        aax(k) = area(i) + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(u_cell))  &    
+                                + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(d_cell))
                     else
-                        aax(k) = -theta_stm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(d_cell))
+                        aax(k) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(d_cell))
                     end if
                 end do
-                exp_diffusion_op_plus  = -(one-theta_stm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i)*(conc_prev(d_cell,:)-conc_prev(i,:))/(half*dx(i)+half*dx(d_cell))/dx(i)
-                exp_diffusion_op_minus = -(one-theta_stm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)*(conc_prev(i,:)-conc_prev(u_cell,:))/(half*dx(i)+half*dx(u_cell))/dx(i)
+                exp_diffusion_op_plus  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i)*(conc_prev(d_cell,:)-conc_prev(i,:))/(half*dx(i)+half*dx(d_cell))/dx(i)
+                exp_diffusion_op_minus = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)*(conc_prev(i,:)-conc_prev(u_cell,:))/(half*dx(i)+half*dx(u_cell))/dx(i)
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus)
                 j = j + 3
+            !elseif ((typ(j).eq.'n') .and. (i.eq.ncell)) then ! "n": normal but on icell=ncell
+            !    aax(j)= up_diag(i-1,1)
+            !    aax(j+1) = center_diag(i,1)
+            !    aax(j+2) = down_diag(i,1)
+            !    j = j + 3            
             else                          ! "n": normal
                 aax(j)= up_diag(i-1,1)
                 aax(j+1) = center_diag(i,1)
@@ -586,6 +613,18 @@ module boundary_diffusion_network
                 j = j + 3
             end if
         end do
+        
+        !if (aax(1).gt.10 .and. print_matrix.eq.0) then
+        !    matrix = zero
+        !    call sparse2matrix(matrix, aap, aai, aax, n_nonzero, ncell) 
+        !    do i = 1, ncell
+        !    write(108,'(<ncell>f10.0)') (matrix(i,j),j=1,ncell)
+        !    end do
+        !    do i = 1, n_nonzero
+        !    write(108,'(4i4,a4,i4,f10.0)') rcind(i), rci(i),row(i),col(i),uds(i),aai(i),aax(i)
+        !    end do
+        !    print_matrix = 1
+        !end if    
         return
     end subroutine            
 

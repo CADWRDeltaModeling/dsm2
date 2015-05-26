@@ -44,6 +44,7 @@ module ut_klu
         use gtm_precision
         implicit none
         real(gtm_real) :: x(4)
+        real(gtm_real) :: matrix(4,4)
         matrix_size = 4
         allocate(ica(matrix_size+1))  !ap
         allocate(jca(12)) !ai
@@ -53,6 +54,9 @@ module ut_klu
         jca = (/ 0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3/)
         coo = (/ 4.0, -1.5, -2.5, -1.5, 8.0, -2.0, -2.5, 16.0, -3.0, -1.0, -1.0, 11.0/)
         b = (/3.0, 2.0, 8.0, 7.0/)
+        
+        !call sparse2matrix(matrix, ica, jca, coo, 12, matrix_size)        
+        !call assertEquals (matrix(4,2), dble(-2.0), weakest_eps, "problem in sparse2matrix")
         
         k_common=klu_fortran_init()
         k_symbolic = klu_fortran_analyze(matrix_size, ica, jca, k_common)

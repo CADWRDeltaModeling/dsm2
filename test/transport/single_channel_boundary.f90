@@ -253,7 +253,7 @@ subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
                                                     area_hi,                &          
                                                     disp_coef_lo,           &
                                                     disp_coef_hi,           &
-                                                    theta_stm,              &
+                                                    theta_gtm,              &
                                                     ncell,                  &
                                                     time,                   & 
                                                     nvar,                   & 
@@ -278,7 +278,7 @@ subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_lo (ncell)                        !< Low side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: disp_coef_hi (ncell)                        !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
- real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+ real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
  real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step     
 
@@ -293,7 +293,7 @@ subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
                           area_hi,                &          
                           disp_coef_lo,           &
                           disp_coef_hi,           &
-                          theta_stm,              &
+                          theta_gtm,              &
                           ncell,                  &
                           time,                   & 
                           nvar,                   & 
@@ -311,7 +311,7 @@ subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
                           area_hi,                &          
                           disp_coef_lo,           &
                           disp_coef_hi,           &
-                          theta_stm,              &
+                          theta_gtm,              &
                           ncell,                  &
                           time,                   & 
                           nvar,                   & 
@@ -535,7 +535,7 @@ subroutine dirichlet_diffusive_matrix_lo(center_diag ,           &
                                          area_hi,                &          
                                          disp_coef_lo,           &
                                          disp_coef_hi,           &
-                                         theta_stm,              &
+                                         theta_gtm,              &
                                          ncell,                  &
                                          time,                   & 
                                          nvar,                   & 
@@ -560,7 +560,7 @@ subroutine dirichlet_diffusive_matrix_lo(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_lo(ncell)                         !< Low side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
- real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+ real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
  real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step    
   !---local
@@ -584,9 +584,9 @@ subroutine dirichlet_diffusive_matrix_lo(center_diag ,           &
  dt_by_dxsq = dt/(dx*dx)
 ! todo: one part of center diag is based on old time and other part new time
 !       is this really true?
- center_diag(1,:)= center_diag(1,:)+theta_stm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))                  
+ center_diag(1,:)= center_diag(1,:)+theta_gtm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))                  
  right_hand_side(1,:) = right_hand_side(1,:)&
-             + two*theta_stm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))*bc_data
+             + two*theta_gtm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))*bc_data
 
 
 
@@ -605,7 +605,7 @@ subroutine dirichlet_diffusive_matrix_hi(center_diag ,           &
                                          area_hi,                &          
                                          disp_coef_lo,           &
                                          disp_coef_hi,           &
-                                         theta_stm,              &
+                                         theta_gtm,              &
                                          ncell,                  &
                                          time,                   & 
                                          nvar,                   & 
@@ -630,7 +630,7 @@ subroutine dirichlet_diffusive_matrix_hi(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_lo(ncell)                         !< Low side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
- real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+ real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
  real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step    
   !---local
@@ -654,9 +654,9 @@ subroutine dirichlet_diffusive_matrix_hi(center_diag ,           &
  ! todo: one part of center diag is based on old time and other part new time?
  ! todo: is this really true?
  center_diag(ncell,:)= center_diag(ncell,:)&
-                    +  theta_stm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))
+                    +  theta_gtm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))
  right_hand_side(ncell,:) = right_hand_side(ncell,:)&
-                    + two*theta_stm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))*bc_data
+                    + two*theta_gtm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))*bc_data
 
 return
 end subroutine
@@ -850,7 +850,7 @@ subroutine neumann_diffusive_matrix_lo(center_diag ,           &
                                        area_hi,                &          
                                        disp_coef_lo,           &
                                        disp_coef_hi,           &
-                                       theta_stm,              &
+                                       theta_gtm,              &
                                        ncell,                  &
                                        time,                   & 
                                        nvar,                   & 
@@ -875,7 +875,7 @@ subroutine neumann_diffusive_matrix_lo(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_lo(ncell)                         !< Low side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
- real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+ real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
  real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step      
 
@@ -900,8 +900,8 @@ subroutine neumann_diffusive_matrix_lo(center_diag ,           &
     
     flux(:) = -area_lo(1)*disp_coef_lo(1)*bc_data
     
-    center_diag(1,:)= area(1)+ theta_stm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)  
-    right_hand_side(1,:) = right_hand_side(1,:)+ theta_stm*(dt/dx(1))*flux(:)
+    center_diag(1,:)= area(1)+ theta_gtm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)  
+    right_hand_side(1,:) = right_hand_side(1,:)+ theta_gtm*(dt/dx(1))*flux(:)
      
     return
 end subroutine
@@ -919,7 +919,7 @@ subroutine neumann_diffusive_matrix_hi(center_diag ,           &
                                        area_hi,                &          
                                        disp_coef_lo,           &
                                        disp_coef_hi,           &
-                                       theta_stm,              &
+                                       theta_gtm,              &
                                        ncell,                  &
                                        time,                   & 
                                        nvar,                   & 
@@ -944,7 +944,7 @@ subroutine neumann_diffusive_matrix_hi(center_diag ,           &
  real(gtm_real), intent (in)  :: disp_coef_lo(ncell)                         !< Low side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
  real(gtm_real), intent (in)  :: time                                        !< Current time
- real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+ real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
  real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
  real(gtm_real), intent (in)  :: dt                                          !< Time step    
 
@@ -969,8 +969,8 @@ subroutine neumann_diffusive_matrix_hi(center_diag ,           &
      ! todo: there may be an issue of area vs area previous    
     flux(:) = -area_hi(ncell)*disp_coef_hi(ncell)*bc_data
        
-    center_diag(ncell,:)= area(ncell)+ theta_stm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(1)
-    right_hand_side(ncell,:)= right_hand_side(ncell,:) - theta_stm*(dt/dx(ncell))*flux(:)
+    center_diag(ncell,:)= area(ncell)+ theta_gtm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(1)
+    right_hand_side(ncell,:)= right_hand_side(ncell,:) - theta_gtm*(dt/dx(ncell))*flux(:)
 
     return
 end subroutine

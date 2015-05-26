@@ -515,6 +515,7 @@ module common_variables
          segm(1)%down_distance = comp_pt(2)%distance
          segm(1)%length = segm(1)%down_distance - segm(1)%up_distance
          segm(1)%nx = max( floor(segm(1)%length/gtm_dx), 1)
+         if (segm(1)%nx .eq. 1)  segm(1)%nx = 2
          segm(1)%start_cell_no = 1
          previous_chan_no = 1
          conn(1)%conn_no = 1
@@ -537,6 +538,7 @@ module common_variables
                  segm(j)%down_distance = comp_pt(i)%distance
                  segm(j)%length = comp_pt(i)%distance - comp_pt(i-1)%distance
                  segm(j)%nx = max( floor(segm(j)%length/gtm_dx), 1)
+                 if (segm(j)%nx .eq. 1) segm(j)%nx = 2
                  segm(j)%start_cell_no = segm(j-1)%start_cell_no + segm(j-1)%nx
              else
                  previous_chan_no = comp_pt(i)%chan_no

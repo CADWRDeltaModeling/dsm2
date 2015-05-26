@@ -145,7 +145,8 @@ module utils
         integer, intent(in) :: rcindex(n_nonzero)
         integer, intent(out) :: ai(n_nonzero)
         integer, intent(out) :: ap(n_matrix+1)
-        integer :: ro(n_nonzero), rci(n_nonzero)
+        integer :: rci(n_nonzero)
+        integer :: ro(n_nonzero)
         integer :: i, j, k 
         
         ro = row
@@ -212,5 +213,29 @@ module utils
         return
     end subroutine    
 
+    !> write the sparse matrix out
+    subroutine sparse2matrix(matrix,       &
+                             ap,           &
+                             ai,           &
+                             ax,           &
+                             nnonzero,     &                             
+                             ncell)
+        use gtm_precision
+        implicit none
+        integer, intent(in) :: ncell
+        integer, intent(in) :: nnonzero
+        real(gtm_real), intent(out) :: matrix(ncell,ncell)
+        integer, intent(in) :: ap(ncell+1)
+        integer, intent(in) :: ai(nnonzero)
+        real(gtm_real), intent(in) :: ax(nnonzero)
+        integer :: i, j
+        do i = 1, ncell
+            do j = ap(i)+1, ap(i+1)
+                matrix(ai(j)+1,i) = ax(j)
+            end do     
+        end do
+        return
+    end subroutine
     
+        
 end module

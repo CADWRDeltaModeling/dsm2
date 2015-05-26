@@ -46,7 +46,7 @@ real(gtm_real)  :: area_hi_prev (ncell)                        !< High side area
 real(gtm_real)  :: disp_coef_lo_prev (ncell,nvar)              !< Low side constituent dispersion coef. at old time
 real(gtm_real)  :: disp_coef_hi_prev (ncell,nvar)              !< High side constituent dispersion coef. at old time
 real(gtm_real)  :: time                                        !< Current time
-real(gtm_real)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+real(gtm_real)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
 real(gtm_real)  :: dx(ncell)                                   !< Spatial step  
 real(gtm_real)  :: dt                                          !< Time step                                   
 real(gtm_real)  :: diffusive_flux_boundary_lo (nvar)           !< Diffusive flux operator at low side 
@@ -62,7 +62,7 @@ diffusive_flux_boundary_lo(:) = zero
 diffusive_flux_boundary_hi(:) = zero
 dx=2.0d0
 dt=1.0d0
-theta_stm = 1.0d0
+theta_gtm = 1.0d0
 disp_coef_lo_prev(:,1) = [0.9d0,0.92d0,0.94d0,0.96d0,0.98d0,1.d0]
 disp_coef_hi_prev(:,1) = [0.92d0,0.94d0,0.96d0,0.98d0,1.d0,1.02d0]
 time =LARGEREAL 
@@ -77,7 +77,7 @@ call construct_right_hand_side(right_hand_side,       &
                                disp_coef_lo_prev,     &
                                disp_coef_hi_prev,     &
                                conc_prev,             &
-                               theta_stm,             &
+                               theta_gtm,             &
                                ncell,                 &
                                time,                  &
                                nvar,                  &  
@@ -89,7 +89,7 @@ call construct_right_hand_side(right_hand_side,       &
   call assertEquals (right_hand_side(5,1),30940d0,weak_eps,"Error in r_h_s vector 5 ,theta=1")
    
      !--theta =0.6 
-     theta_stm = 0.6d0 
+     theta_gtm = 0.6d0 
    
 call construct_right_hand_side(right_hand_side,       & 
                                explicit_diffuse_op,   & 
@@ -99,7 +99,7 @@ call construct_right_hand_side(right_hand_side,       &
                                disp_coef_lo_prev,     &
                                disp_coef_hi_prev,     &
                                conc_prev,             &
-                               theta_stm,             &
+                               theta_gtm,             &
                                ncell,                 &
                                time,                  &
                                nvar,                  &  
@@ -111,7 +111,7 @@ call construct_right_hand_side(right_hand_side,       &
   call assertEquals (right_hand_side(6,1),31240d0,weak_eps, "Error in r_h_s vector 6 ,theta = 0.6")
  
   !--theta =0.1 
-     theta_stm = 0.1d0 
+     theta_gtm = 0.1d0 
    
 call construct_right_hand_side(right_hand_side,       & 
                                explicit_diffuse_op,   & 
@@ -121,7 +121,7 @@ call construct_right_hand_side(right_hand_side,       &
                                disp_coef_lo_prev,     &
                                disp_coef_hi_prev,     &
                                conc_prev,             &
-                               theta_stm,             &
+                               theta_gtm,             &
                                ncell,                 &
                                time,                  &
                                nvar,                  &  

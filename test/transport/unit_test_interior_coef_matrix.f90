@@ -44,7 +44,7 @@ real(gtm_real)  :: area_hi(ncell)                              !< High side area
 real(gtm_real)  :: disp_coef_lo (ncell,nvar)                   !< Low side constituent dispersion coef. at new time
 real(gtm_real)  :: disp_coef_hi (ncell,nvar)                   !< High side constituent dispersion coef. at new time
 real(gtm_real)  :: time                                        !< Current time
-real(gtm_real)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+real(gtm_real)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
 real(gtm_real)  :: dx(ncell)                                   !< Spatial step  
 real(gtm_real)  :: dt                                          !< Time step                                   
                
@@ -53,7 +53,7 @@ area_hi(:) = 1d0
 area_lo(:) = 1d0
 disp_coef_lo =0.05d0
 disp_coef_hi =0.05d0
-theta_stm = 0.9d0
+theta_gtm = 0.9d0
 dx = 0.045d0
 time =LARGEREAL 
 dt = 0.001d0
@@ -68,7 +68,7 @@ call construct_diffusion_matrix(center_diag,      &
                                 area_hi,          &
                                 disp_coef_lo,     &
                                 disp_coef_hi,     &
-                                theta_stm,        &
+                                theta_gtm,        &
                                 ncell,            &
                                 time,             & 
                                 nvar,             & 
@@ -91,7 +91,7 @@ call construct_diffusion_matrix(center_diag,      &
   
   !---check for theta = 0.5
     
-     theta_stm = 0.5d0
+     theta_gtm = 0.5d0
 
 call construct_diffusion_matrix(center_diag ,     &
                                 up_diag,          &     
@@ -101,7 +101,7 @@ call construct_diffusion_matrix(center_diag ,     &
                                 area_hi,          &
                                 disp_coef_lo,     &
                                 disp_coef_hi,     &
-                                theta_stm,        &
+                                theta_gtm,        &
                                 ncell,            &
                                 time,             & 
                                 nvar,             & 
@@ -124,7 +124,7 @@ call construct_diffusion_matrix(center_diag ,     &
 
 !---check for theta = 0.1
     
-     theta_stm = 0.1d0
+     theta_gtm = 0.1d0
 
 call construct_diffusion_matrix(center_diag,      &
                                 up_diag,          &     
@@ -134,7 +134,7 @@ call construct_diffusion_matrix(center_diag,      &
                                 area_hi,          &
                                 disp_coef_lo,     &
                                 disp_coef_hi,     &
-                                theta_stm,        &
+                                theta_gtm,        &
                                 ncell,            &
                                 time,             & 
                                 nvar,             & 

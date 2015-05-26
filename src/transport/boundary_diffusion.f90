@@ -75,7 +75,7 @@ module boundary_diffusion
                                             area_hi,                &          
                                             disp_coef_lo,           &
                                             disp_coef_hi,           &
-                                            theta_stm,              &
+                                            theta_gtm,              &
                                             ncell,                  &
                                             time,                   & 
                                             nvar,                   & 
@@ -99,7 +99,7 @@ module boundary_diffusion
         real(gtm_real), intent (in)  :: disp_coef_lo (ncell)                        !< Low side constituent dispersion coef. at new time
         real(gtm_real), intent (in)  :: disp_coef_hi (ncell)                        !< High side constituent dispersion coef. at new time
         real(gtm_real), intent (in)  :: time                                        !< Current time
-        real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+        real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
         real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
         real(gtm_real), intent (in)  :: dt                                          !< Time step     
 
@@ -254,7 +254,7 @@ module boundary_diffusion
                                            area_hi,            &          
                                            disp_coef_lo,       &
                                            disp_coef_hi,       &
-                                           theta_stm,          &
+                                           theta_gtm,          &
                                            ncell,              &
                                            time,               & 
                                            nvar,               & 
@@ -278,7 +278,7 @@ module boundary_diffusion
       real(gtm_real), intent (in)  :: disp_coef_lo (ncell)                        !< Low side constituent dispersion coef. at new time
       real(gtm_real), intent (in)  :: disp_coef_hi (ncell)                        !< High side constituent dispersion coef. at new time
       real(gtm_real), intent (in)  :: time                                        !< Current time
-      real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+      real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
       real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
       real(gtm_real), intent (in)  :: dt                                          !< Time step     
       !---local
@@ -291,13 +291,13 @@ module boundary_diffusion
       flux_start(:) = zero
       flux_end(:) = zero
            
-      center_diag(1,:)= area(1)+ theta_stm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)    
+      center_diag(1,:)= area(1)+ theta_gtm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)    
       right_hand_side(1,:) = right_hand_side(1,:) &
-                             + theta_stm*(dt/dx(1))*flux_start(:)
+                             + theta_gtm*(dt/dx(1))*flux_start(:)
     
-      center_diag(ncell,:)= area(ncell)+ theta_stm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(ncell)
+      center_diag(ncell,:)= area(ncell)+ theta_gtm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(ncell)
       right_hand_side(ncell,:)= right_hand_side(ncell,:) &
-                             - theta_stm*(dt/dx(ncell))*flux_end(:)
+                             - theta_gtm*(dt/dx(ncell))*flux_end(:)
       return
   end subroutine
      
@@ -314,7 +314,7 @@ module boundary_diffusion
                                  area_hi,                &          
                                  disp_coef_lo,           &
                                  disp_coef_hi,           &
-                                 theta_stm,              &
+                                 theta_gtm,              &
                                  ncell,                  &
                                  time,                   & 
                                  nvar,                   & 
@@ -338,7 +338,7 @@ module boundary_diffusion
       real(gtm_real), intent (in)  :: disp_coef_lo (ncell)                        !< Low side constituent dispersion coef. at new time
       real(gtm_real), intent (in)  :: disp_coef_hi (ncell)                        !< High side constituent dispersion coef. at new time
       real(gtm_real), intent (in)  :: time                                        !< Current time
-      real(gtm_real), intent (in)  :: theta_stm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+      real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
       real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
       real(gtm_real), intent (in)  :: dt                                          !< Time step         
     
