@@ -469,15 +469,6 @@ public class Channel extends Waterbody{
     }
     
     channelVave[0] = Vave;
-    //TODO clean UP
-    /*
-    if (PTMHydroInput.getExtFromIntChan(getEnvIndex()) == 365 && PTMHydroInput.getExtFromIntNode(getUpNodeId()) == 342)
-		 System.err.println("  channelArea:" + channelArea[0]
-				 + "  channelWidth:" + channelWidth[0]
-				 + "  channelDepth:" + channelDepth[0]
-				 + "  channelVave:" + Vave
-				 + "  flow:" + flowAt[UPNODE]);
-			*/	 
   }
   
   /**

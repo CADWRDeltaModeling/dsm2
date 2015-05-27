@@ -213,24 +213,9 @@ public class MainPTM {
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
             			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min);            	
             	// update Particle positions
-                for (int i=0; i<numberOfParticles; i++){
-                	// TODO survival check was checked in updateXYZPosition in particle class but commented out
-                	// because with subtime step too many random numbers are sampled
-                	// ptm timeStep in seconds
-                	// if Day time holding, wait a time step
-                	//TODO clean up
-                	/*
-        	    	if (i == 0 && particleArray[i].isDead){
-        	    		if (particleArray[i].wb.getPTMType() == Waterbody.CHANNEL)
-        	    			System.err.println(PTMHydroInput.getExtFromIntChan(particleArray[i].wb.getEnvIndex()));
-        	    		else
-        	    			System.err.println(particleArray[i].wb.getEnvIndex()+ "  " + particleArray[i].nd.getEnvIndex());
-        	    	}
-        	    	*/
-                	if ((!particleArray[i].isDead) && (!(isDaytime && PTMUtil.getRandomNumber() < daytimeNotSwimPercent))) 
-                		// updatePosition uses timeStep in seconds!!!!!!
-                			particleArray[i].updatePosition(timeStep, floodHoldingThreshold);
-                }
+                for (int i=0; i<numberOfParticles; i++)
+            		// timeStep in seconds (PTMTimeStep in minutes)!
+            		particleArray[i].updatePosition(timeStep, floodHoldingThreshold, isDaytime, daytimeNotSwimPercent);
                 if (DEBUG) System.out.println("Updated particle positions");
       
                 // animation output

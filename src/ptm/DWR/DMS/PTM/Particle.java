@@ -149,20 +149,6 @@ public class Particle{
     //    behaviorData = pFI.getBehavior();
     
   }
-  
-  /**
-    *  Sets the location of Particle by identifying the Waterbody<br>
-    *  it is in and the co-ordinate position w.r.t the Waterbody
-    */
-  //TODO clean up never be used
-  /*
-  public final void setLocation(Waterbody w, float xPos, float yPos, float zPos){
-    wb = w;
-    x = xPos;
-    y = yPos;
-    z = zPos;
-  }
-  */
   /**
     *  Sets the location of Particle by Node Id # and random positioning
     *  of Particle within the Waterbody it enters thereupon.
@@ -233,7 +219,7 @@ public class Particle{
 	  }
 	  
 /**
-  *  uninstalls SwimHelper
+  *  uninstall SwimHelper
   */
 public final void uninstallSwimHelper(){
   _swimHelper = null;
@@ -244,7 +230,7 @@ public final void installSurvivalHelper(SurvivalHelper survivalHelper){
   }
   
 /**
-*  uninstalls SurvivalHelper
+*  uninstall SurvivalHelper
 */
 public final void uninstallSurvivalHelper(){
 _survivalHelper = null;
@@ -308,55 +294,29 @@ _survivalHelper = null;
   /**
     *  updates the position and parameters of Particle.
     */
-  //delT is ptm input time step
-  public final void updatePosition(float delT, float flowVelThreshold){ //delT in seconds
+  //delT is time step in seconds, usually 900 seconds (15 minutes) 
+  public final void updatePosition(float delT, float flowVelThreshold, boolean isDaytime, float daytimeNotSwimPercent){ //delT in seconds
+	if (isDead) return;
 	if (observer == null)
 		PTMUtil.systemExit("expect an observer be installed, but not, system exit");
   	particleWait = false;  //set or reset particle wait variable
     if (DEBUG) System.out.println("In updating position for particle " + this);
     
-    // insertion time is checked in PTMEnv, if a insertion time is earlier than the model start time, simulation exits.
-    if(!inserted && Globals.currentModelTime >= insertionTime) //when current time reach insertion time
+    // insertion time is checked in PTMEnv, if a insertion time is earlier than the model start time, simulation exits.  
+    if(!inserted && Globals.currentModelTime >= insertionTime){ //when current time reach insertion time
     	insert();
-    /*
-    if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
-        //Global/model time in minutes, insertionTime in minutes, delT in seconds !!!!!!
-    	if ((Globals.currentModelTime - insertionTime)*60 > delT){//insertion time may set as way before PTM start time:  How is it possible?!  particle insert time is defined as a delay time.
-          warning("Particle insertion time specification may be incorrect");//may include particles 1 time step before the 1st insertion?!
-          System.out.println("curr:"+PTMUtil.modelTimeToCalendar(Globals.currentModelTime).getTime()+"  insert:"+PTMUtil.modelTimeToCalendar(insertionTime).getTime());
+    	if (DEBUG) System.out.println("Inserted particle No. " + Id); 
+    }
+    
+    if (inserted){
+    	if(!isDaytime || PTMUtil.getRandomNumber() >= daytimeNotSwimPercent){
+    		updateXYZPosition(delT, flowVelThreshold); 
+			updateOtherParameters(delT); //TODO Why need this?
     	}
-        insert();
+    	else
+    		// diel holding, wait a time step
+    		age += delT;
     }
-    */
-    
-    if (inserted){//after initial insertion  
-        //recursionCounter=0;
-    	//particleWait = true;
-		updateXYZPosition(delT, flowVelThreshold); //TODO let helper do the job
-		updateOtherParameters(delT); //TODO Why need this?
-        ////TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
-        //if(! isDead) checkHealth(); 
-    }
-    
-    
-//TODO code has been rewritten above, clean up later
-    /*    
-    if (inserted){//after initial insertion  
-      recursionCounter=0;
-      updateXYZPosition(delT);
-      updateOtherParameters(delT);
-      ////TODO checkHealth do nothing needs to be cleaned up checkSurvival is done in updateXYZPosition for every subtime step
-      //if(! isDead) checkHealth(); 
-    }
-    else if (!inserted && Globals.currentModelTime >= insertionTime) {//when current time reach insertion time
-      if ((Globals.currentModelTime - insertionTime)/60.0 > delT)//insertion time may set as way before PTM start time 
-        warning("Particle insertion time specification may be incorrect");//may include particles 1 time step before the 1st insertion
-      insert();
-      recursionCounter=0;
-      updateXYZPosition(delT);
-	  updateOtherParameters(delT);
-    }
-    */
   }
   
   /**
@@ -521,8 +481,6 @@ _survivalHelper = null;
 			 if(Id == 1)
 				 System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_meanSwimmingVelocity + "  " + _swimmingVelocity
 						 + "  " + _confusionFactor + "  " + ((Channel)wb).getChanDir());
-			 // temp comment out
-			 //System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_confusionFactor + "  " + ((Channel)wb).getProbConfusion());
 			 _swimmingVelocity = _confusionFactor*((Channel)wb).getChanDir()*_swimmingVelocity;
 			 // update sub-time step due to y & z mixing
 			 int numOfSubTimeSteps = getSubTimeSteps(tmLeft);
@@ -532,7 +490,7 @@ _survivalHelper = null;
 			 //y, z set up for particles which are just out of reservoir or conveyor or inserted
 			 //it is not necessary to set x because makeNodeDecision or setInsertInfo will be called and x will be set then
 			 if (PTMUtil.floatNearlyEqual(y, MISSING) || PTMUtil.floatNearlyEqual(z,MISSING)) {
-				 setYZLocationInChannel();
+				 setYZLocationInChannel((Channel) wb);
 			 }
 			 
 			 // update particle's x,y,z position every sub-time step
@@ -572,11 +530,12 @@ _survivalHelper = null;
 					 // n and w will be used to check if the particle stay in the same node
 					 n = nd.getEnvIndex();
 					 w = wb.getEnvIndex();
-					 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode() && ((xPos > wb.getOutputDistance()) || PTMUtil.floatNearlyEqual(xPos, wb.getOutputDistance()))){
-						 //n = nd.getEnvIndex();
-						 //w = wb.getEnvIndex();
+					 if (!_travelTimeRecorded && wb.isOutputWb() && nd.isOutputNode() && 
+							 ((xPos > wb.getOutputDistance()) || PTMUtil.floatNearlyEqual(xPos, wb.getOutputDistance()))){
 						 d = wb.getOutputDistance();
 						 needToBeRecorded = true;
+						 //TODO !!! use age as travel time, because when calibrate for travel time, particles will be inserted 
+						 //!!! in the upstream end of the river reach.  May consider modify later.
 					 }
 					 if (isNodeReached(xPos) == true){
 						 float totalVelocity = calcXVelocityExtDeterministic() + calcXVelocityExtRandom()
@@ -596,34 +555,30 @@ _survivalHelper = null;
 						 }
 						 // makeNodeDecision updates wb and sets x for new wb, x = 0 or channel length
 						 makeNodeDecision();
-						 // water body is updated if a node is reached.  Now check if the new water body is a channel
+						 // water body is updated in makeNodeDecision.  Now check if the new water body is a channel
+						 // if not, exit the while loop and find a block that deal with the waterbody type
 						 if (wb.getPTMType() != Waterbody.CHANNEL){
 							 tmLeft -= tmToAdv;
 							 age += tmToAdv;
+							 // before exit the loop, check if time should be recorded
 							 if (needToBeRecorded){
 								 _travelTimeRecorded = true;
 								 needToBeRecorded = false;
-								 //TODO !!! use age as travel time, because when calibrate for travel time, particles will be inserted 
-								 //!!! in the upstream end of the river reach.  May consider modify later.
 								 _tto.setTravelTime(n,w,d, _insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
-								 //setParticleDead();
 							 } 
 							 break;
 						 }
+						 // if channel, check to see if stay in the same node, 
+						 // if yes, wait until next time step
+						 // if not, continue on the code that calc y, z
 						 else{
-							 // if particle stays in the same node, wait for a time step.  tmToAdv is calculated in lines 555 - 565 
+							 // if particle stays in the same node, wait for a time step (exit both while loops).  
 							 if (tmToAdv < Float.MIN_VALUE && wb.getEnvIndex() == w && nd.getEnvIndex() == n 
-									 && totalVelocity*wb.getInflowWSV(nd.getEnvIndex(), _swimmingVelocity)<0)
+									 && totalVelocity*wb.getInflowWSV(nd.getEnvIndex(), _swimmingVelocity)<0){
+								 age += tmLeft;
 								 return;
-								 //particleWait = true;
+							 }
 						 }
-						 //TODO clean up
-						 /*
-						 if (getId() == 6 && wb.getEnvIndex()< 600)
-							 System.err.println("PId: "+getId()+"  x:"+x+"  xPos:"+xPos+"  age:"+age/60+"  nodeId: "+PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())
-								 +"  wbId: "+PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+ " vel:" +totalVelocity + "  totalFlows:"+nd.getTotalWaterbodyInflows()+"  after" + "  wait:"+particleWait
-								 + " wbFlow:" + wb.getInflow(nd.getEnvIndex()));
-							*/	 
 					 } //end if (isNodeReached(xPos) == true) 
 					 else
 						 x = xPos;
@@ -632,7 +587,8 @@ _survivalHelper = null;
 					  * Careful!!! wb, nd are updated in makeNodeDecision!!!
 					  * but channel parameters (channel width, etc.) are not (!!!) 
 					  * because updateAllParameters is not called 
-					  * y, z calculation are based on previous wb, nd.
+					  * y, z calculation are based on previous wb, nd,
+					  * and will be updated for the new wb and nd at the beginning of the function
 					  */
 					 if (!isDead) {// save time if particle's dead
 						 y = calcYPosition(tmToAdv);
@@ -642,14 +598,13 @@ _survivalHelper = null;
 				 tmLeft -= tmToAdv;
 				// age in seconds
 				 age += tmToAdv;
-					 					 
+				// check if need record before going to next sub-timestep	 					 
 				 if (needToBeRecorded){
 					 _travelTimeRecorded = true;
 					 needToBeRecorded = false;
 					 _tto.setTravelTime(n,w,d,_insertStationName, PTMUtil.modelTimeToCalendar(insertionTime), Id, age/60);
-					 //setParticleDead();
 				 } 
-			 }// end second while
+			 }// end the while in Channel
       
 		 }// end if(CHANNEL)
     
@@ -710,10 +665,10 @@ _survivalHelper = null;
   protected final void setXYZLocationInChannel(boolean calcX){
     if (wb.getPTMType() == Waterbody.CHANNEL) {
       if (calcX)
-    	  x = getXLocationInChannel();
+    	  x = getXLocationInChannel((Channel)wb);
       if (first) updateChannelParameters();
-      setYZLocationInChannel();
-    }else {
+      setYZLocationInChannel((Channel)wb);
+    }else{ 
       x=MISSING; y=MISSING; z=MISSING;
     }
   }
@@ -722,11 +677,11 @@ _survivalHelper = null;
     *  y, z positioning for particle just out of reservoir/conveyor
     *  w random numbers generation 
     */
-  protected final void setYZLocationInChannel(){
+  protected final void setYZLocationInChannel(Channel c){
       //y = ((Channel)wb).getWidth(x)*(wb.getRandomNumber()-0.5f);
       //z = ((Channel)wb).getDepth(x)*wb.getRandomNumber();
-      y = ((Channel)wb).getWidth(x)*((float)PTMUtil.getRandomNumber()-0.5f);
-      z = ((Channel)wb).getDepth(x)*(float)PTMUtil.getRandomNumber();
+      y = c.getWidth(x)*((float)PTMUtil.getRandomNumber()-0.5f);
+      z = c.getDepth(x)*(float)PTMUtil.getRandomNumber();
   }
   
   /**
@@ -1090,8 +1045,7 @@ _survivalHelper = null;
    *  insert particle in the system
    */
   private final void insert(){
-    if (observer != null) 
-      observer.observeChange(ParticleObserver.INSERT,this);
+    observer.observeChange(ParticleObserver.INSERT,this);
     inserted = true;
     if (wb == null){
     	makeNodeDecision();
@@ -1102,7 +1056,9 @@ _survivalHelper = null;
     		 _meanSwimmingVelocity = SwimmingInputs.getParticleMeanSwimmingVelocity(Id, (Channel) wb);   		 
  	    	 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
     	 }
-    	setXYZLocationInChannel(false);
+    	 // if a particle is inserted in a channel instead of a node
+    	 // channel number and distance x are known.  No need to calc x so pass a false 
+    	 setXYZLocationInChannel(false);
     }
   }
 
@@ -1308,15 +1264,15 @@ _survivalHelper = null;
     *  gets x location in Channel corresponding to upnode and
     *  downnode.
     */
-  private final float getXLocationInChannel(){
-    float newXPosition = 0.0f;
-    if (wb.getPTMType() ==  Waterbody.CHANNEL) {
-      if (((Channel)wb).getUpNodeId() == nd.getEnvIndex())
-    	  newXPosition = 0;
-      if (((Channel)wb).getDownNodeId() == nd.getEnvIndex())
-    	  newXPosition = ((Channel)wb).getLength();
-    }
-    return newXPosition;
+  private final float getXLocationInChannel(Channel c){
+      if (c.getUpNodeId() == nd.getEnvIndex())
+    	  return 0.0f;
+      if (c.getDownNodeId() == nd.getEnvIndex())
+    	  return c.getLength();
+      PTMUtil.systemExit("the node: " + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex()) 
+    		  				+ "doesn't match with Channel: "+PTMHydroInput.getExtFromIntChan(c.getEnvIndex())
+    		  				+ ", system exit.");
+      return MISSING;
   }
 
   /**
