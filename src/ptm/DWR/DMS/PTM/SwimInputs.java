@@ -20,7 +20,7 @@ public class SwimInputs {
 	}
 	public SwimInputs(ArrayList<String> inText, String fishType) {
 		if (inText != null){
-			if (inText.size()<10)
+			if (inText.size()<11)
 				PTMUtil.systemExit("information missing in Swim_Inputs section");
 			try{
 				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT");
@@ -33,6 +33,8 @@ public class SwimInputs {
 				_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(7), "CONFUSION_PROBABILITY_SLOPE");
 				_randomAccess = PTMUtil.getBooleanFromLine(inText.get(8), "RANDOM_ACCESS");
 				_accessProb = PTMUtil.getFloatFromLine(inText.get(9), "ACCESS_PROBABILITY"); 
+				// rearing holding average time in hours, convert to minutes
+				_rearingHolding = PTMUtil.getIntFromLine(inText.get(10), "REARING_HOLDING_AVG")*60;
 			}catch (NumberFormatException e){
 				e.printStackTrace();
 				PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
@@ -75,6 +77,7 @@ public class SwimInputs {
 	public boolean getRandomAccess() {return _randomAccess;}
 	public float getAccessProbability() {return _accessProb;}
 	public int getNumberTidalCycles(){return _numTidalCycles;}
+	public int getRearingHoldingAvg(){return _rearingHolding;}
 	public Pair<Integer, Integer> getSunrise(){ return _sunrise;}
 	public Pair<Integer, Integer> getSunset(){ return _sunset;}
 	public float[] getConstSwimmingVelocityForAll(){
@@ -218,4 +221,5 @@ public class SwimInputs {
 	private int _numTidalCycles = -999999;
 	private boolean _randomAccess;
 	private float _accessProb;
+	private int _rearingHolding;
 }

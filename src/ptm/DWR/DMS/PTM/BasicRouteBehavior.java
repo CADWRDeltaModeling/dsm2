@@ -160,6 +160,7 @@ public class BasicRouteBehavior {
 	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
 	    	p.setMeanSwimmingVelocity(pMeanSwimmingVels[wbId]);
 	    	p.setSwimmingVelocity(swimmingVels[wbId]);
+	    	// add set Rearing holding time here
 	    }
 	}
 	
