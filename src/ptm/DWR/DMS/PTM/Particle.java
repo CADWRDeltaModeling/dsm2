@@ -310,7 +310,10 @@ _survivalHelper = null;
     }
     
     if (inserted){
-    	if((curTime >= insertionTime +_rearingHoldingTime)
+    	// commented out because a particle's rearing holding does not only happen at the insertion time
+    	// but also at the beginning when a particle hits a new channel group
+    	//if((curTime >= insertionTime +_rearingHoldingTime)
+    	if(curTime >= _swimmingTime
     			&&(!isDaytime || PTMUtil.getRandomNumber() >= daytimeNotSwimPercent)){
     		updateXYZPosition(delT, flowVelThreshold); 
 			updateOtherParameters(delT); //TODO Why need this?
@@ -480,9 +483,11 @@ _survivalHelper = null;
 		     }
 			 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
 			 //TODO clean up
+			 
 			 if(Id == 1)
 				 System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_meanSwimmingVelocity + "  " + _swimmingVelocity
-						 + "  " + _confusionFactor + "  " + ((Channel)wb).getChanDir()+"  "+_rearingHoldingTime);
+						 + "  " + _confusionFactor + "  " + ((Channel)wb).getChanDir()+"  "+_swimmingTime);
+						 
 			 _swimmingVelocity = _confusionFactor*((Channel)wb).getChanDir()*_swimmingVelocity;
 			 // update sub-time step due to y & z mixing
 			 int numOfSubTimeSteps = getSubTimeSteps(tmLeft);
@@ -1057,6 +1062,7 @@ _survivalHelper = null;
     	 if (wb.getPTMType() == Waterbody.CHANNEL){
     		 _meanSwimmingVelocity = SwimmingInputs.getParticleMeanSwimmingVelocity(Id, (Channel) wb);   		 
  	    	 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
+ 	    	 _swimmingTime = SwimmingInputs.getParticleRearingHoldingTime(Id, (Channel) wb);
     	 }
     	 // if a particle is inserted in a channel instead of a node
     	 // channel number and distance x are known.  No need to calc x so pass a false 
@@ -1368,14 +1374,12 @@ _survivalHelper = null;
 	  observer.observeDeath(this);
   }
   // rearing holding time in minutes
-  public void setRearingHoldingTime(int time){
+  public void setSwimmingTime(int time){
 	  if (time < 0)
 		  PTMUtil.systemExit("encountered negative time when tried to set Rearing Holding Time, system exit.");
-	  _rearingHoldingTime = time;
+	  _swimmingTime = time;
   }
-  public void setDidRearingHolding(boolean didRearingHolding){ _didRearingHolding = didRearingHolding;}
-  public int getRearingHoldingTime(){return _rearingHoldingTime;}
-  public boolean didRearingHolding() {return _didRearingHolding;}
+  public int getRearingHoldingTime(){return _swimmingTime;}
 
   // array applied for the convenience of vars transfer 
   private float [] cL = new float[1];
@@ -1384,8 +1388,6 @@ _survivalHelper = null;
   private float [] cV = new float[1];
   private float [] cA = new float[1];
   private static TravelTimeOutput _tto = Globals.Environment.getBehaviorInputs().getTravelTimeOutput();
-  private int _rearingHoldingTime = 0; 
-  private boolean _didRearingHolding = false;
-    
+  private int _swimmingTime = 0;    
 }
 

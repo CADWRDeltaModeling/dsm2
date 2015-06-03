@@ -166,8 +166,16 @@ public class Channel extends Waterbody{
 		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
 	  return particleMeanSwimmingVelocity + _swimVelParameters[2]*((float)PTMUtil.getNextGaussian()); 
   }
-
-  public float getParticleMeanSwimmingVelocity(){
+  public float getParticleMeanValue(String what){
+	  if (what.equalsIgnoreCase("SwimmingVelocity"))
+		  return getParticleMeanSwimmingVelocity();
+	  else if(what.equalsIgnoreCase("RearingHoldingTime"))
+		  return getParticleRearingHoldingTime();
+	  else
+		  PTMUtil.systemExit("don't know what to do with " + what);
+	  return 0.0f;
+  }
+  private float getParticleMeanSwimmingVelocity(){
 	  if (_swimVelParameters == null){
 		  if (uSwimVelParameters == null)
 			  return 0.0f;
@@ -180,6 +188,41 @@ public class Channel extends Waterbody{
 	  if (_swimVelParameters.length < 3)
 		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
 	  return _swimVelParameters[0] + _swimVelParameters[1]*((float)PTMUtil.getNextGaussian());  
+  }
+  private float getParticleRearingHoldingTime(){
+	  if (_swimVelParameters == null){
+		  if (uSwimVelParameters == null)
+			  return 0.0f;
+		  else
+			  return getHoldingTime(uSwimVelParameters);
+	  }
+	  return getHoldingTime(_swimVelParameters);
+		  /*
+		  else{
+			  if (uSwimVelParameters.length < 4)
+				  PTMUtil.systemExit("The particle raring holding time are not properly set, check the behavior input file, system exit.");
+			  float holdingTime = -uSwimVelParameters[3]*(float)Math.log(PTMUtil.getRandomNumber());
+			  if (holdingTime < 0)
+				  PTMUtil.systemExit("got a negative rearing holding time, which is imposible, system exit.");
+			  return holdingTime+Globals.currentModelTime;   
+		  }
+		  
+	  }
+	  if (_swimVelParameters.length < 4)
+		  PTMUtil.systemExit("The particle raring holding time are not properly set, check the behavior input file, system exit.");
+	  float holdingTime = -_swimVelParameters[3]*(float)Math.log(PTMUtil.getRandomNumber());
+	  if (holdingTime < 0)
+		  PTMUtil.systemExit("got a negative rearing holding time, which is imposible, system exit.");
+	  return holdingTime+Globals.currentModelTime; 
+	  */  
+  }
+  private float getHoldingTime(float [] parameters){
+	  if (parameters.length < 4)
+		  PTMUtil.systemExit("The particle raring holding time are not properly set, check the behavior input file, system exit.");
+	  float holdingTime = -parameters[3]*(float)Math.log(PTMUtil.getRandomNumber());
+	  if (holdingTime < 0)
+		  PTMUtil.systemExit("got a negative rearing holding time, which is imposible, system exit.");
+	  return holdingTime+Globals.currentModelTime;
   }
   public float[] getSwimVelParameters(){
 	  if (_isSwimVelParametersSet)

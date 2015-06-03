@@ -34,7 +34,8 @@ public class SwimInputs {
 				_randomAccess = PTMUtil.getBooleanFromLine(inText.get(8), "RANDOM_ACCESS");
 				_accessProb = PTMUtil.getFloatFromLine(inText.get(9), "ACCESS_PROBABILITY"); 
 				// rearing holding average time in hours, convert to minutes
-				_rearingHolding = PTMUtil.getIntFromLine(inText.get(10), "REARING_HOLDING_AVG")*60;
+				// changes reach by reach now
+				// _rearingHolding = PTMUtil.getIntFromLine(inText.get(10), "REARING_HOLDING_AVG")*60;
 			}catch (NumberFormatException e){
 				e.printStackTrace();
 				PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
@@ -77,12 +78,14 @@ public class SwimInputs {
 	public boolean getRandomAccess() {return _randomAccess;}
 	public float getAccessProbability() {return _accessProb;}
 	public int getNumberTidalCycles(){return _numTidalCycles;}
-	public int getRearingHoldingAvg(){return _rearingHolding;}
+	// now varies from reach to reach
+	//public int getRearingHoldingAvg(){return _rearingHolding;}
 	public Pair<Integer, Integer> getSunrise(){ return _sunrise;}
 	public Pair<Integer, Integer> getSunset(){ return _sunset;}
+	//TODO not used for now, may be used later for the general case (no fish behavior)
 	public float[] getConstSwimmingVelocityForAll(){
 		if (_swimVelParas == null || _swimVelParas.get("ALL") == null)
-			return new float[] {0.0f, 0.0f, 0.0f};
+			return new float[] {0.0f, 0.0f, 0.0f, 0.0f};
 		return _swimVelParas.get("ALL");
 	}
 	public void setChannelInfo(Waterbody[] allWbs){
@@ -106,24 +109,35 @@ public class SwimInputs {
 	}
 	public Map<Integer, String> getChannelGroups(){return _channelGroups;}
 	public Map<String, Map<Integer, Float>> getPartcleMeanSwimmingVelocityMap() {return _particleMeanSwimVels;}
+	public Map<String, Map<Integer, Float>> getPartcleMeanRearingHoldingMap() {return _particleMeanRearingHoldings;}
 	public void setNodeInfo(Node[] allNodes, int nodeNum){}
 	public void updateCurrentInfo(Node[] allNodes, int nodeNum, Waterbody[] allChans, int chanNum, int currentTime){
 		
 	}
 	public SwimHelper getSwimHelper(){return _swimHelper;}
 	public float getParticleMeanSwimmingVelocity(int pId, Channel chan){
+		return getParticleMeanValue(pId, chan, "SwimmingVelocity", _particleMeanSwimVels);
+	}
+	// Rearing holding time is actually current model time + holding time 
+	// cast float to int e.g., 900.6 = 900 (1 minute is not a big deal in this case)
+	public int getParticleRearingHoldingTime(int pId, Channel chan){
+		return (int) getParticleMeanValue(pId, chan, "RearingHoldingTime", _particleMeanRearingHoldings);
+	}
+	private float getParticleMeanValue(int pId, Channel chan, String what, Map<String, Map<Integer, Float>> meanValuesMap){
+		// _channelGroups and _particleMeanSwimVels/_particleMeanRearingHoldings have been initialized at the init
+		// no need to check null
 		String groupName = _channelGroups.get(chan.getEnvIndex());
 		// particle id vs. mean swimming velocity map
 		Map<Integer, Float> meanMap = null;
 		if (groupName == null)
 			//the channel is not specified in a channel group.  use "All" group
-			meanMap = _particleMeanSwimVels.get("ALL");
+			meanMap = meanValuesMap.get("ALL");
 		else
-			meanMap = _particleMeanSwimVels.get(groupName);
+			meanMap = meanValuesMap.get(groupName);
 		if (meanMap == null)
 			PTMUtil.systemExit("particle mean swimming velocity map should be defined earlier, but not, system exit.");
 		if (meanMap.get(pId) == null)
-			meanMap.put(pId, chan.getParticleMeanSwimmingVelocity());
+			meanMap.put(pId, chan.getParticleMeanValue(what));
 		return meanMap.get(pId);
 	}
 	private void setChannelGroups(ArrayList<String> chanGroups){
@@ -141,24 +155,28 @@ public class SwimInputs {
 		_groupNames = new ArrayList<String>();
 		_swimVelParas = new HashMap<String, float[]>();
 		_particleMeanSwimVels = new HashMap<String, Map<Integer, Float>>();
+		_particleMeanRearingHoldings = new HashMap<String, Map<Integer, Float>>();
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			// put into the map: group name, survival rate
 			try{
-				if (items.length < 4)
+				if (items.length < 5)
 					throw new NumberFormatException();
 				String groupName = items[0].toUpperCase();
 				// item[1], constant swimming velocity; item[2], std for particles; item[3] std for time steps for each particle
 				_swimVelParas.put(groupName, new float[] {Float.parseFloat(items[1]),
 														 Float.parseFloat(items[2]),
-														 Float.parseFloat(items[3])});
+														 Float.parseFloat(items[3]),
+														 Float.parseFloat(items[4])*60.0f}); // converting from hours to minutes
 				_groupNames.add(groupName);
 				_particleMeanSwimVels.put(groupName, new HashMap<Integer, Float>());
+				_particleMeanRearingHoldings.put(groupName, new HashMap<Integer, Float>());
 			}catch(NumberFormatException e){
 				PTMUtil.systemExit("expect to read four floats in the swimming velocity line, but read: "+line+", System exit.");
 			}
 		}
 		_particleMeanSwimVels.put("ALL", new HashMap<Integer, Float>());
+		_particleMeanRearingHoldings.put("ALL", new HashMap<Integer, Float>());
 		//get Channel list
 		ArrayList<String> channelListStrs = PTMUtil.getInputBlock(chanGroups, "CHANNEL_LIST", "END_CHANNEL_LIST");
 		if (channelListStrs == null)
@@ -187,11 +205,12 @@ public class SwimInputs {
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
 		
-		if (title.length < 4
+		if (title.length < 5
 				||!title[0].equalsIgnoreCase("Group_Name")
 				|| !title[1].equalsIgnoreCase("Constant_Swimming_velocity")
 				|| !title[2].equalsIgnoreCase("Standard_Deviation_Particles")
-				|| !title[3].equalsIgnoreCase("Standard_Deviation_Times"))		
+				|| !title[3].equalsIgnoreCase("Standard_Deviation_Times")
+				|| !title[4].equalsIgnoreCase("Rearing_Holding_Mean"))
 			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Constant_Swimming_Velocity ... but get:"+ inTitle);
 	}
 	//private void addSpecialBehaviors(SwimHelper sh, String particleType){}
@@ -210,6 +229,8 @@ public class SwimInputs {
 	private Map<String, float[]> _swimVelParas=null;
 	// Map<ChanGroupName, Map<particleId, meanSwimmingVelocity>>
 	private Map<String, Map<Integer, Float>> _particleMeanSwimVels = null;
+	// Map<ChanGroupName, Map<particleId, particleMeanRearingHoldingTime>>
+	private Map<String, Map<Integer, Float>> _particleMeanRearingHoldings = null;
 	private ArrayList<String> _groupNames=null;
 	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;
@@ -221,5 +242,6 @@ public class SwimInputs {
 	private int _numTidalCycles = -999999;
 	private boolean _randomAccess;
 	private float _accessProb;
-	private int _rearingHolding;
+	// now varies from reach to reach
+	//private int _rearingHolding;
 }

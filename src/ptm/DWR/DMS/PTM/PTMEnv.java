@@ -413,7 +413,8 @@ public class PTMEnv{
   				                int numberOfRestartParticles){
     int pNum=numberOfRestartParticles;
     int injNum=1;
-    int mu = _behaviorInputs.getSwimInputs().getRearingHoldingAvg();
+    //TODO clean up, Rearing holding varies from reach to reach instead of one value now.
+    //int mu = _behaviorInputs.getSwimInputs().getRearingHoldingAvg();
     if (DEBUG) System.out.println("Injection info in PTMEnv");
     while(pNum < getNumberOfParticlesInjected() + numberOfRestartParticles){
     	if (_behaviorInputs.getTotalParticlesReleased()>0){
@@ -453,8 +454,9 @@ public class PTMEnv{
     					particlePtrArray[pNum].setInsertionInfo((rtime), 
     															n, w,d, releaseStationName);
     					// cast double to int e.g., 900.6 = 900 (1 minute is not a big deal in this case)
-    					particlePtrArray[pNum].setRearingHoldingTime((int)(-mu*Math.log(PTMUtil.getRandomNumber())));
-    					System.err.println(particlePtrArray[pNum].getRearingHoldingTime());
+    					//TODO clean up, rearing holding varies from reach to reach now
+    					//particlePtrArray[pNum].setRearingHoldingTime((int)(-mu*Math.log(PTMUtil.getRandomNumber())));
+    					//System.err.println(particlePtrArray[pNum].getRearingHoldingTime());
     					pNum++;
     				}	
     			}

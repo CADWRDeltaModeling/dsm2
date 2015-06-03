@@ -88,6 +88,7 @@ public class BasicRouteBehavior {
 		float[] pMeanSwimmingVels = new float[wbs.length];
 		float[] swimmingVels = new float[wbs.length];
 		float[] wbFlows = new float[wbs.length];
+		float[] rearingHoldings = new float[wbs.length];
 	    
 	    float totalWbInflows = 0.0f;
 	    int nodeId = p.nd.getEnvIndex();
@@ -160,7 +161,8 @@ public class BasicRouteBehavior {
 	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
 	    	p.setMeanSwimmingVelocity(pMeanSwimmingVels[wbId]);
 	    	p.setSwimmingVelocity(swimmingVels[wbId]);
-	    	// add set Rearing holding time here
+			// get a rearing holding time for the particle for this channel group
+	    	p.setSwimmingTime(_si.getParticleRearingHoldingTime(p.Id, (Channel)p.wb));
 	    }
 	}
 	
