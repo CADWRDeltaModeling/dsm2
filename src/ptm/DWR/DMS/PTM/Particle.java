@@ -484,7 +484,7 @@ _survivalHelper = null;
 			 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
 			 //TODO clean up
 			 
-			 if(Id == 1)
+			 if(Id == 1813)
 				 System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_meanSwimmingVelocity + "  " + _swimmingVelocity
 						 + "  " + _confusionFactor + "  " + ((Channel)wb).getChanDir()+"  "+_swimmingTime);
 						 

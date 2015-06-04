@@ -179,15 +179,27 @@ public class Channel extends Waterbody{
 	  if (_swimVelParameters == null){
 		  if (uSwimVelParameters == null)
 			  return 0.0f;
+		  else
+			  return getMeanSwimVel(uSwimVelParameters);
+		  /*
 		  else{
 			  if (uSwimVelParameters.length < 3)
 				  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
 			  return uSwimVelParameters[0] +  uSwimVelParameters[1]*((float)PTMUtil.getNextGaussian());
 		  }
+		  */
 	  }
+	  return getMeanSwimVel(_swimVelParameters);
+	  /*
 	  if (_swimVelParameters.length < 3)
 		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
 	  return _swimVelParameters[0] + _swimVelParameters[1]*((float)PTMUtil.getNextGaussian());  
+	  */
+  }
+  private float getMeanSwimVel(float[] parameters){
+	  if (parameters.length < 3)
+		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
+	  return parameters[0] + parameters[1]*((float)PTMUtil.getNextGaussian());  
   }
   private float getParticleRearingHoldingTime(){
 	  if (_swimVelParameters == null){
