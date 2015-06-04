@@ -146,7 +146,7 @@ module diffusion_network
                                         dx,               &
                                         dt)
                                         
-        ! this cannot use single channel boundary diffusion                                   
+        ! this cannot use single channel boundary diffusion because this requires more input arguments                                  
         call boundary_diffusion_network_matrix(center_diag ,        &
                                                up_diag,             &     
                                                down_diag,           &
@@ -170,12 +170,12 @@ module diffusion_network
                                                nvar,                & 
                                                dx,                  &
                                                dt)
-                                               
+                  
         k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)  ! need to have this one
         call klu_fortran_refactor(aap, aai, aax, k_symbolic, k_numeric, k_common)
         call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side, k_common)
         conc = right_hand_side                
- 
+
         return
     end subroutine 
 

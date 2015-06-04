@@ -50,6 +50,7 @@ program gtm
     use boundary_concentration
     use advection
     use diffusion
+    use advection_network
     use diffusion_network
     use dispersion_coefficient    
     use source_sink
@@ -414,7 +415,7 @@ program gtm
             end if
            
             !----- advection and source/sink -----        
-            call advect(mass,                         &
+            call advect_network(mass,                         &
                         mass_prev,                    &  
                         flow,                         &
                         flow_lo,                      &
@@ -436,7 +437,7 @@ program gtm
             !if (sub_st.gt.1) then
             !    write(102,'(f15.0,2i4,2f12.0,f12.4)') current_time,st,t_index,flow(1159),area(1159),conc(1159,1)
             !end if            
-            
+            !write(108,*) conc(23,1)
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 call diffuse_network(conc,                         &
@@ -467,6 +468,7 @@ program gtm
             prev_tran_flow = tran_flow            
             prev_node_conc = node_conc
             node_conc = LARGEREAL 
+            !write(108,*) conc(23,1)
         end do ! end of loop of sub time step
 
         !---- print output to DSS file -----

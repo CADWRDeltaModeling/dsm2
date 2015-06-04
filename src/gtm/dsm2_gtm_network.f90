@@ -24,6 +24,66 @@
 module dsm2_gtm_network
 
     contains
+
+    !> Calculate the divided lo, hi, and centered differences
+    subroutine difference_network(grad_lo,     & 
+                          grad_hi,     &
+                          grad_center, &
+                          vals,        &
+                          dx,          &
+                          ncell,       &
+                          nvar)
+                          
+        use gtm_precision
+        use common_variables, only : n_node, dsm2_network        
+        implicit none
+
+        !---- args
+        integer, intent(in) :: ncell                          !< Number of cells
+        integer, intent(in) :: nvar                           !< Number of variables
+        real(gtm_real), intent(in) :: vals(ncell,nvar)        !< Data to be differenced
+        real(gtm_real), intent(in) :: dx(ncell)               !< Cell length
+        real(gtm_real), intent(out):: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
+        real(gtm_real), intent(out):: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
+        real(gtm_real), intent(out):: grad_center(ncell,nvar) !< Centered diff, LARGEREAL for undefined boundary cells
+        !----local
+        integer :: up_cell, down_cell
+        integer :: ivar
+        integer :: i
+
+        do ivar = 1, nvar
+            grad_center(2:(ncell-1),ivar) = (vals(3:ncell,ivar) - vals(1:(ncell-2),ivar))/    &
+                                          (half*dx(3:ncell) + dx(2:ncell-1) + half*dx(1:ncell-2))
+            grad_center(1,ivar)=LARGEREAL
+            grad_center(ncell,ivar)=LARGEREAL            
+            grad_hi(1:(ncell-1),ivar) = (vals(2:ncell,ivar) - vals(1:(ncell-1),ivar))/        &
+                                        (half*dx(2:ncell) + half*dx(1:ncell-1))
+            grad_hi(ncell,ivar)=LARGEREAL
+            grad_lo(2:ncell,ivar)=grad_hi(1:(ncell-1),ivar)
+            grad_lo(1,ivar)=LARGEREAL              
+            do i = 1, n_node
+                if (dsm2_network(i)%nonsequential==1) then
+                    if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
+                        up_cell = dsm2_network(i)%cell_no(1)
+                        down_cell = dsm2_network(i)%cell_no(2)
+                    else                                          !cell at downstream of junction
+                        up_cell = dsm2_network(i)%cell_no(2)
+                        down_cell = dsm2_network(i)%cell_no(1)
+                    end if               
+                    grad_hi(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell,ivar))/          &
+                                            (half*dx(down_cell)+half*dx(up_cell))
+                    grad_lo(down_cell,ivar) = grad_hi(up_cell,ivar)                                      
+                    grad_center(up_cell,ivar) = (vals(down_cell,ivar)-vals(up_cell-1,ivar))/    &
+                                                (half*dx(down_cell)+dx(up_cell)+half*dx(up_cell-1))
+                    grad_center(down_cell,ivar) = (vals(down_cell+1,ivar)-vals(up_cell,ivar))/  &
+                                                  (half*dx(down_cell+1)+dx(down_cell)+half*dx(up_cell))
+                end if    
+            end do
+        end do
+
+        return
+    end subroutine
+
   
     !> Adjust differences to account for special cases 
     !> (boundaries, structures, junctions, flow reversals)
@@ -90,12 +150,9 @@ module dsm2_gtm_network
                    icell = dsm2_network(i)%cell_no(j)
                    grad(icell,:) = zero
                 end do
-            ! assign gradient for nonsequential adjucent cells to be zero--> first order accuracy     
-            elseif (dsm2_network(i)%nonsequential==1) then                
-                do j = 1, 2
-                    icell = dsm2_network(i)%cell_no(j)  
-                    grad(icell,:) = zero
-                end do                        
+            !elseif (dsm2_network(i)%nonsequential==1) then
+            !    grad(dsm2_network(i)%cell_no(1),:) = zero
+            !    grad(dsm2_network(i)%cell_no(2),:) = zero
             end if 
         end do     
         return
@@ -189,7 +246,7 @@ module dsm2_gtm_network
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
-                        flow_tmp = flow_tmp + flow_hi(icell)
+                        flow_tmp = flow_tmp + flow_hi(icell)                       
                     elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))

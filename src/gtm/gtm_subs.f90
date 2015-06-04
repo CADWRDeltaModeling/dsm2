@@ -169,7 +169,7 @@ module gtm_subs
         integer, intent(in) :: nvar                            !< number of constituents
         integer, intent(in) :: ncell                           !< number of cells
         real(gtm_real), intent(in) :: conc(ncell, nvar)        !< concentration
-        real(gtm_real), intent(out) :: vals(noutpaths,nvar)     !< output requested values
+        real(gtm_real), intent(out) :: vals(noutpaths,nvar)    !< output requested values
         integer :: i, icell, down_cell, up_cell
         
         do i = 1, noutpaths

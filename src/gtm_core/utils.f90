@@ -30,6 +30,40 @@ module utils
 
     contains
 
+
+    subroutine data_sort(in_val, in_size, out_index)
+        implicit none
+        
+        integer, intent(in):: in_size
+        integer, intent(in):: in_val(in_size)
+        integer, intent(out):: out_index(in_size)
+      
+        integer :: i, j, jj
+        integer :: ix, iix, jix
+      
+        do i = 1, in_size
+            out_index(i) = i
+        end do
+      
+        ! Selection sort
+        do j = 1, in_size - 1
+            iix = out_index(j)
+            ix = j
+            do jj = j + 1, in_size
+                jix = out_index(jj)
+                ! Do your comparison here
+                if (in_val(iix) .gt. in_val(jix)) then
+                   ! Record the smallest
+                   ix = jj
+                   iix = jix
+                end if
+            end do
+            ! Swap
+            out_index(ix) = out_index(j)
+            out_index(j) = iix
+        end do
+    end subroutine    
+
     recursive subroutine QsortC(A)
         integer, intent(inout), dimension(:) :: A
         integer :: iq
