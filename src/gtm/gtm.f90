@@ -82,6 +82,7 @@ program gtm
     integer :: time_offset
     integer :: i, j, ibuffer, start_buffer, icell
     integer :: iblock, slice_in_block, t_index
+    integer :: time_step_int = 0
     real(gtm_real) :: t_in_slice
     real(gtm_real) :: time
     real(gtm_real) :: current_time
@@ -235,8 +236,14 @@ program gtm
  
     prev_day =  "01JAN1000"       ! to initialize for screen printing only
 
-    restart_file_name = trim(gtm_io(1,1)%filename)   
-    call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var)
+    restart_file_name = trim(gtm_io(1,1)%filename) 
+    if (restart_file_name.eq.'') then  
+        init_c = 200.d0
+        init_r = 200.d0    
+    else
+        call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var)
+    end if
+
     if (n_cell .gt. 0) then
         if (init_c(1,1) .ne. LARGEREAL) then
             conc = init_c
@@ -286,6 +293,8 @@ program gtm
     
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
+        time_step_int = int((current_time-gtm_start_jmin)/gtm_time_interval) + 1 
+         
         !---print out processing date on screen
         cdt = jmin2cdt(int(current_time))   ! this function only for screen status printout. 
         if (cdt(1:9) .ne. prev_day) then    ! Rough integer is fine.
@@ -434,10 +443,6 @@ program gtm
             conc_prev = conc
             prev_conc_resv = conc_resv
             
-            !if (sub_st.gt.1) then
-            !    write(102,'(f15.0,2i4,2f12.0,f12.4)') current_time,st,t_index,flow(1159),area(1159),conc(1159,1)
-            !end if            
-            !write(108,*) conc(23,1)
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 call diffuse_network(conc,                         &
@@ -468,7 +473,6 @@ program gtm
             prev_tran_flow = tran_flow            
             prev_node_conc = node_conc
             node_conc = LARGEREAL 
-            !write(108,*) conc(23,1)
         end do ! end of loop of sub time step
 
         !---- print output to DSS file -----
@@ -480,10 +484,12 @@ program gtm
             call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
         endif
         
+        !if (time_step_int.eq.7000) then
+        !   apply_diffusion = .false.
+        !end if
         !
         !----- print output to hdf5 file -----
-        !              
-
+        !                     
         if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
             time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
             call write_qual_hdf(qual_hdf,                     &
@@ -513,7 +519,8 @@ program gtm
                                        time_index_in_gtm_hdf)                                             
             end if            
         end if                           
-        prev_julmin = int(current_time)   
+        prev_julmin = int(current_time)         
+        
     end do  ! end of loop for gtm time step
     if (n_dssfiles .ne. 0) then
         call zclose(ifltab_in)  !!ADD A global to detect if dss is opened

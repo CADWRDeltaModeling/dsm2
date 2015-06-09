@@ -170,12 +170,14 @@ module diffusion_network
                                                nvar,                & 
                                                dx,                  &
                                                dt)
-                  
-        k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)  ! need to have this one
-        call klu_fortran_refactor(aap, aai, aax, k_symbolic, k_numeric, k_common)
+                                               
+          
+        call klu_fortran_free_numeric(k_numeric, k_common)                  
+        k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)  
+        !call klu_fortran_refactor(aap, aai, aax, k_symbolic, k_numeric, k_common)
         call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side, k_common)
+        
         conc = right_hand_side                
-
         return
     end subroutine 
 
