@@ -3,7 +3,7 @@
  */
 package DWR.DMS.PTM;
 
-import java.util.Map;
+//import java.util.Map;
 
 /**
  * @author xwang
@@ -88,7 +88,8 @@ public class BasicRouteBehavior {
 		float[] pMeanSwimmingVels = new float[wbs.length];
 		float[] swimmingVels = new float[wbs.length];
 		float[] wbFlows = new float[wbs.length];
-		float[] rearingHoldings = new float[wbs.length];
+		//TODO clean up no longer used
+		//float[] rearingHoldings = new float[wbs.length];
 	    
 	    float totalWbInflows = 0.0f;
 	    int nodeId = p.nd.getEnvIndex();

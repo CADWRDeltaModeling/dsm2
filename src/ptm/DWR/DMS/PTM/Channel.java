@@ -166,10 +166,12 @@ public class Channel extends Waterbody{
 		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
 	  return particleMeanSwimmingVelocity + _swimVelParameters[2]*((float)PTMUtil.getNextGaussian()); 
   }
+  // This more general function is for SwimInputs: it can be maintained a bit easier. 
   public float getParticleMeanValue(String what){
 	  if (what.equalsIgnoreCase("SwimmingVelocity"))
 		  return getParticleMeanSwimmingVelocity();
 	  else if(what.equalsIgnoreCase("RearingHoldingTime"))
+		  // the particle holding time returned is actually particle re-active time
 		  return getParticleRearingHoldingTime();
 	  else
 		  PTMUtil.systemExit("don't know what to do with " + what);
@@ -181,16 +183,18 @@ public class Channel extends Waterbody{
 			  return 0.0f;
 		  else
 			  return getMeanSwimVel(uSwimVelParameters);
+	  }
+	  return getMeanSwimVel(_swimVelParameters);
+		  //TODO clean up
 		  /*
 		  else{
 			  if (uSwimVelParameters.length < 3)
 				  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
 			  return uSwimVelParameters[0] +  uSwimVelParameters[1]*((float)PTMUtil.getNextGaussian());
 		  }
-		  */
+		  
 	  }
-	  return getMeanSwimVel(_swimVelParameters);
-	  /*
+	  
 	  if (_swimVelParameters.length < 3)
 		  PTMUtil.systemExit("The mean and standard deviations of the swimming velocity are not properly set, check the behavior input file, system exit.");
 	  return _swimVelParameters[0] + _swimVelParameters[1]*((float)PTMUtil.getNextGaussian());  
@@ -202,6 +206,7 @@ public class Channel extends Waterbody{
 	  return parameters[0] + parameters[1]*((float)PTMUtil.getNextGaussian());  
   }
   private float getParticleRearingHoldingTime(){
+	  // this if block is a must because for channel group ALL parameter is stored in uSwimVelParameters as static variable
 	  if (_swimVelParameters == null){
 		  if (uSwimVelParameters == null)
 			  return 0.0f;
@@ -209,6 +214,7 @@ public class Channel extends Waterbody{
 			  return getHoldingTime(uSwimVelParameters);
 	  }
 	  return getHoldingTime(_swimVelParameters);
+	  //TODO clean up
 		  /*
 		  else{
 			  if (uSwimVelParameters.length < 4)
@@ -231,6 +237,7 @@ public class Channel extends Waterbody{
   private float getHoldingTime(float [] parameters){
 	  if (parameters.length < 4)
 		  PTMUtil.systemExit("The particle raring holding time are not properly set, check the behavior input file, system exit.");
+	  // because PTMUtil.getRandomNumber() could never be exact 0 or 1, log(PTMUtil.getRandomNumber()) should be OK
 	  float holdingTime = -parameters[3]*(float)Math.log(PTMUtil.getRandomNumber());
 	  if (holdingTime < 0)
 		  PTMUtil.systemExit("got a negative rearing holding time, which is imposible, system exit.");
@@ -339,14 +346,11 @@ public class Channel extends Waterbody{
 		return flowAt[nodeId];
 	  // return flow without swimming flow so commented this line out.
 	  //return getInflow(nodeEnvId, getMeanSwimmingVelocity());
-  }
-  // but when a particle's swimming velocity draws from a Gaussian distribution 
-  // (mean and std in this channel, but draws for each particle), 
+  } 
   // this channel doesn't know the exact value of the swimming velocity.  
   // SV has to be passed from a particle
   public float getInflowWSV(int nodeEnvId, float sv){
 	int nodeId = getNodeLocalIndex(nodeEnvId);
-	//float sv = getSwimmingVelocity();
 	//at gate flow == 0
 	if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
 		return 0.0f;

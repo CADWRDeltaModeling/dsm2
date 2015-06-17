@@ -482,12 +482,14 @@ _survivalHelper = null;
 			    	}
 		     }
 			 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
-			 //TODO clean up
-			 
-			 if(Id == 1813)
-				 System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + "  " +_meanSwimmingVelocity + "  " + _swimmingVelocity
-						 + "  " + _confusionFactor + "  " + ((Channel)wb).getChanDir()+"  "+_swimmingTime);
-						 
+			 //TODO temporary print line out clean up later
+			 /*
+			 if(Id == 18)
+				 System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + ",  " +_meanSwimmingVelocity + ",  " + _swimmingVelocity
+						 + ",  " + _confusionFactor + ",  " + ((Channel)wb).getChanDir()+",  "
+						 +PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +",  "+ PTMUtil.modelTimeToCalendar(Globals.currentModelTime).getTime()
+						 +",  " + PTMUtil.modelTimeToCalendar(insertionTime).getTime());
+				*/		 
 			 _swimmingVelocity = _confusionFactor*((Channel)wb).getChanDir()*_swimmingVelocity;
 			 // update sub-time step due to y & z mixing
 			 int numOfSubTimeSteps = getSubTimeSteps(tmLeft);

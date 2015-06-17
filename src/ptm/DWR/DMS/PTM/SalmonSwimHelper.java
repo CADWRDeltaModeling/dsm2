@@ -43,6 +43,5 @@ public class SalmonSwimHelper extends Helper<Integer, SalmonSwimBehavior> implem
 		// TODO Auto-generated method stub
 		
 	}
-	
-
+	public SwimInputs getSwimInputs(){ return Globals.Environment.getBehaviorInputs().getSwimInputs();}
 }

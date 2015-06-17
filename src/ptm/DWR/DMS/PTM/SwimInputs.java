@@ -118,7 +118,7 @@ public class SwimInputs {
 	public float getParticleMeanSwimmingVelocity(int pId, Channel chan){
 		return getParticleMeanValue(pId, chan, "SwimmingVelocity", _particleMeanSwimVels);
 	}
-	// Rearing holding time is actually current model time + holding time 
+	// Rearing holding time is actually current model time + holding time
 	// cast float to int e.g., 900.6 = 900 (1 minute is not a big deal in this case)
 	public int getParticleRearingHoldingTime(int pId, Channel chan){
 		return (int) getParticleMeanValue(pId, chan, "RearingHoldingTime", _particleMeanRearingHoldings);
@@ -136,8 +136,20 @@ public class SwimInputs {
 			meanMap = meanValuesMap.get(groupName);
 		if (meanMap == null)
 			PTMUtil.systemExit("particle mean swimming velocity map should be defined earlier, but not, system exit.");
-		if (meanMap.get(pId) == null)
-			meanMap.put(pId, chan.getParticleMeanValue(what));
+		if (meanMap.get(pId) == null){
+			//TODO remove next two lines when print line is removed, clean up
+			float m = chan.getParticleMeanValue(what);
+			meanMap.put(pId, m);
+			//TODO put back in when println is removed
+			//meanMap.put(pId, chan.getParticleMeanValue(what));
+			//TODO clean up
+			
+			if (what.equalsIgnoreCase("RearingHoldingTime")){
+				System.err.println(PTMHydroInput.getExtFromIntChan(chan.getEnvIndex())
+								+"  "+groupName+"  "+pId+"  "+m+"  "+Globals.currentModelTime);
+			}
+			
+		}
 		return meanMap.get(pId);
 	}
 	private void setChannelGroups(ArrayList<String> chanGroups){
