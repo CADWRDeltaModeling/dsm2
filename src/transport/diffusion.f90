@@ -283,19 +283,10 @@ module diffusion
         do ivar = 1,nvar
             diffusive_flux_lo(2:ncell,ivar) = &
                    -(area_lo(2:ncell)*disp_coef_lo(2:ncell)* &
-                  (conc(2:ncell,ivar) - conc(1:(ncell-1),ivar)))/(half*dx(2:ncell)+half*dx(1:ncell-1))
-               
+                  (conc(2:ncell,ivar) - conc(1:(ncell-1),ivar)))/(half*dx(2:ncell)+half*dx(1:ncell-1))            
             diffusive_flux_hi(1:(ncell-1),ivar) = &
                    -(area_hi(1:(ncell-1))*disp_coef_hi(1:(ncell-1))* &
-                   (conc(2:ncell,ivar) - conc(1:(ncell-1),ivar)))/(half*dx(2:ncell)+half*dx(1:ncell-1))             
-            !should be delected after confirming with Eli (ehsu)       
-            !diffusive_flux_lo(2:ncell,ivar) = &
-            !       -(area_lo(2:ncell)*disp_coef_lo(2:ncell)* &
-            !      (conc(2:ncell,ivar) - conc(1:(ncell-1),ivar)))/dx(2:ncell)
-            !      
-            !diffusive_flux_hi(1:(ncell-1),ivar) = &
-            !       -(area_hi(1:(ncell-1))*disp_coef_hi(1:(ncell-1))* &
-            !       (conc(2:ncell,ivar) - conc(1:(ncell-1),ivar)))/dx(1:(ncell-1))                      
+                   (conc(2:ncell,ivar) - conc(1:(ncell-1),ivar)))/(half*dx(2:ncell)+half*dx(1:ncell-1))                                  
         end do 
         diffusive_flux_hi(ncell,:) = LARGEREAL
         diffusive_flux_lo(1,:) = LARGEREAL
@@ -420,16 +411,7 @@ module diffusion
         down_diag(ncell,:) = down_diag(ncell-1,:)
         center_diag(ncell,:) = center_diag(ncell-1,:)
         up_diag(ncell,:) = up_diag(ncell-1,:)     
-        !should be removed after confirming with Eli
-        !dt_by_dxsq = dt/(dx*dx)      
-        !do ivar = 1,nvar 
-        !    do icell = 1,ncell
-        !        down_diag(icell,ivar) = - theta_gtm*dt_by_dxsq(icell)*area_lo(icell)*disp_coef_lo(icell) 
-        !        center_diag(icell,ivar) = area(icell) + theta_gtm*dt_by_dxsq(icell)*(area_hi(icell)*disp_coef_hi(icell) &
-        !                                  + area_lo(icell)*disp_coef_lo(icell))
-        !        up_diag(icell,ivar) = - theta_gtm*dt_by_dxsq(icell)*area_hi(icell)*disp_coef_hi(icell)             
-        !    end do
-        !end do   
+
         return
     end subroutine 
 

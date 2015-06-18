@@ -109,7 +109,7 @@ module advection_network
         logical        :: limit_slope             !< whether slope limiter is used
         real(gtm_real) :: old_time                !< previous time
         real(gtm_real) :: half_time               !< half time
-        integer :: i, icell
+        integer :: i, j, icell
 
         old_time = time - dt
         half_time = time - half*dt
@@ -169,7 +169,7 @@ module advection_network
                             ncell,       &
                             nvar,        &
                             old_time)
-                            
+                    
         ! Extrapolate primitive data from cell center at the old time
         call extrapolate(conc_lo,     &
                          conc_hi,     & 
@@ -183,7 +183,7 @@ module advection_network
                          time,        &
                          dt,          &
                          dx)
-                         
+
         ! Assign boundary concentration if it is given
         if (associated(boundary_conc)) then        
             call boundary_conc(conc_lo,              &
@@ -253,5 +253,6 @@ module advection_network
                                  dt,          &
                                  dx)
          return
-    end subroutine
+    end subroutine    
+        
 end module

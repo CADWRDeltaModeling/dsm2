@@ -320,7 +320,7 @@ program gtm
 
         !--- interpolate flow and water surface between computational points
         if (slice_in_block .ne. current_slice) then  ! check if need to interpolate for new hydro time step
-            n_st = npartition_t+1
+            n_st = npartition_t + 1
             if (prev_sub_ts .ne. 1) then
                 call deallocate_network_tmp
                 call allocate_network_tmp(npartition_t)
@@ -350,7 +350,7 @@ program gtm
                 write(*,'(f15.0,f5.2,i5,f10.4)') current_time, max_cfl, ceil_max_cfl, sub_gtm_time_step                             
                 call deallocate_network_tmp
                 call allocate_network_tmp(npartition_t*ceil_max_cfl)         
-                n_st = npartition_t*ceil_max_cfl+1
+                n_st = npartition_t*ceil_max_cfl + 1
                 call interp_network(npartition_t*ceil_max_cfl, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
                 call interp_network_ext(npartition_t*ceil_max_cfl, slice_in_block, prev_hydro_resv,    &
                                         prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)                                      
@@ -410,7 +410,7 @@ program gtm
             !if (t_index.eq.1) then
             !    call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
             !end if    
-                           
+            ! assign initial hydro data                           
             if ((new_current_time .eq. gtm_start_jmin).or.(area_prev(1) .eq. LARGEREAL)) then
                 call prim2cons(mass_prev, conc, area, n_cell, n_var)
                 area_prev = area
@@ -425,48 +425,61 @@ program gtm
            
             !----- advection and source/sink -----        
             call advect_network(mass,                         &
-                        mass_prev,                    &  
-                        flow,                         &
-                        flow_lo,                      &
-                        flow_hi,                      &
-                        area,                         &
-                        area_prev,                    & 
-                        area_lo,                      &
-                        area_hi,                      &
-                        n_cell,                       &
-                        n_var,                        &
-                        dble(new_current_time)*sixty, &
-                        sub_gtm_time_step*sixty,      &
-                        dx_arr,                       &
-                        limit_slope)     
+                                mass_prev,                    &  
+                                flow,                         &
+                                flow_lo,                      &
+                                flow_hi,                      &
+                                area,                         &
+                                area_prev,                    & 
+                                area_lo,                      &
+                                area_hi,                      &
+                                n_cell,                       &
+                                n_var,                        &
+                                dble(new_current_time)*sixty, &
+                                sub_gtm_time_step*sixty,      &
+                                dx_arr,                       &
+                                limit_slope)     
             call cons2prim(conc, mass, area, n_cell, n_var)          
             conc_prev = conc
             prev_conc_resv = conc_resv
-            
+            !write(108,*) new_current_time
+            !write(108,'(16x,7a10)') "2897","2899","2900","2909","2989","2996","3007"
+            !write(108,'(a10,i6,7f10.2)') "FLOW",time_step_int,flow(2897),flow(2899),flow(2900),flow_hi(2909),flow_lo(2989),flow_hi(2996),flow_hi(3007)   ! to check junction #381
+            !write(108,'(a10,i6,7f10.2)') "AREA",time_step_int,area(2897),area(2899),area(2900),area(2909),area(2989),area(2996),area(3007)               ! to check junction #381
+            !write(108,'(a10,i6,7f10.2)') "VEL",time_step_int,flow(2897)/area(2897),flow(2899)/area(2899),flow(2900)/area(2900),flow(2899)/area(2899),flow(2900)/area(2900),flow(2909)/area(2909)               ! to check junction #381            
+            !write(108,'(a10,i6,7f10.3)') "ADVECT",time_step_int,conc(2897,1),conc(2899,1),conc(2900,1),conc(2909,1),conc(2989,1),conc(2996,1),conc(3007,1)  ! to check junction #381
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 call diffuse_network(conc,                         &
-                             conc_prev,                    &
-                             area,                         &
-                             area_prev,                    &
-                             area_lo,                      &
-                             area_hi,                      &
-                             area_lo_prev,                 &
-                             area_hi_prev,                 &
-                             disp_coef_lo,                 &  
-                             disp_coef_hi,                 &
-                             disp_coef_lo_prev,            &  
-                             disp_coef_hi_prev,            &
-                             n_cell,                       &
-                             n_var,                        &
-                             dble(new_current_time)*sixty, &
-                             theta,                        &
-                             sub_gtm_time_step*sixty,      &
-                             dx_arr)
+                                     conc_prev,                    &
+                                     area,                         &
+                                     area_prev,                    &
+                                     area_lo,                      &
+                                     area_hi,                      &
+                                     area_lo_prev,                 &
+                                     area_hi_prev,                 &
+                                     disp_coef_lo,                 &  
+                                     disp_coef_hi,                 &
+                                     disp_coef_lo_prev,            &  
+                                     disp_coef_hi_prev,            &
+                                     n_cell,                       &
+                                     n_var,                        &
+                                     dble(new_current_time)*sixty, &
+                                     theta,                        &
+                                     sub_gtm_time_step*sixty,      &
+                                     dx_arr)
             end if 
+            !write(108,'(a10,i6,7f10.3)') "DISP",time_step_int,conc(2897,1),conc(2899,1),conc(2900,1),conc(2909,1),conc(2989,1),conc(2996,1),conc(3007,1) ! to chcek junction #391
+                        
             call prim2cons(mass,conc,area,n_cell,n_var)
             mass_prev = mass
+            conc_prev = conc
+            prev_conc_resv = conc_resv            
             area_prev = area
+            area_lo_prev = area_lo
+            area_hi_prev = area_hi    
+            disp_coef_lo_prev = disp_coef_lo
+            disp_coef_hi_prev = disp_coef_hi 
             prev_resv_height = resv_height
             prev_resv_flow = resv_flow
             prev_qext_flow = qext_flow
@@ -484,7 +497,7 @@ program gtm
             call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
         endif
         
-        !if (time_step_int.eq.7000) then
+        !if (time_step_int.eq.442) then
         !   apply_diffusion = .false.
         !end if
         !

@@ -27,12 +27,12 @@ module dsm2_gtm_network
 
     !> Calculate the divided lo, hi, and centered differences
     subroutine difference_network(grad_lo,     & 
-                          grad_hi,     &
-                          grad_center, &
-                          vals,        &
-                          dx,          &
-                          ncell,       &
-                          nvar)
+                                  grad_hi,     &
+                                  grad_center, &
+                                  vals,        &
+                                  dx,          &
+                                  ncell,       &
+                                  nvar)
                           
         use gtm_precision
         use common_variables, only : n_node, dsm2_network        
@@ -60,7 +60,10 @@ module dsm2_gtm_network
                                         (half*dx(2:ncell) + half*dx(1:ncell-1))
             grad_hi(ncell,ivar)=LARGEREAL
             grad_lo(2:ncell,ivar)=grad_hi(1:(ncell-1),ivar)
-            grad_lo(1,ivar)=LARGEREAL              
+            grad_lo(1,ivar)=LARGEREAL  
+            ! This loop is added to take care of nonsequential numbering cells and because of 
+            ! introducing network component. A separate function is written here instead of 
+            ! using the one for single channel.
             do i = 1, n_node
                 if (dsm2_network(i)%nonsequential==1) then
                     if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
@@ -80,7 +83,6 @@ module dsm2_gtm_network
                 end if    
             end do
         end do
-
         return
     end subroutine
 
@@ -150,9 +152,6 @@ module dsm2_gtm_network
                    icell = dsm2_network(i)%cell_no(j)
                    grad(icell,:) = zero
                 end do
-            !elseif (dsm2_network(i)%nonsequential==1) then
-            !    grad(dsm2_network(i)%cell_no(1),:) = zero
-            !    grad(dsm2_network(i)%cell_no(2),:) = zero
             end if 
         end do     
         return
@@ -195,6 +194,7 @@ module dsm2_gtm_network
         real(gtm_real) :: up_count
         real(gtm_real) :: vol
         real(gtm_real) :: mass_resv(nvar)
+        integer :: up_cell, down_cell
         integer :: network_id
         integer :: i, j, k, icell
         
@@ -284,11 +284,31 @@ module dsm2_gtm_network
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
                     if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
-                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                                         
+                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)
                     elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
-                        flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)                        
+                        flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
                     endif               
                 end do              
+            end if
+            ! adjust flux for non-sequential adjacent cells
+            if (dsm2_network(i)%nonsequential==1) then
+                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
+                    up_cell = dsm2_network(i)%cell_no(1)
+                    down_cell = dsm2_network(i)%cell_no(2)
+                else                                          !cell at downstream of junction
+                    up_cell = dsm2_network(i)%cell_no(2)
+                    down_cell = dsm2_network(i)%cell_no(1)
+                end if
+                if (flow_hi(up_cell) .gt. zero) then
+                    flux_hi(up_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
+                else
+                    flux_hi(up_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
+                end if        
+                if (flow_lo(down_cell) .gt. zero) then
+                    flux_lo(down_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
+                else
+                    flux_lo(down_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
+                end if                 
             end if
         end do          
         return
