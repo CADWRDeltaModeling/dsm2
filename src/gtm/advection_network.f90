@@ -18,9 +18,9 @@
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
 
-!> Module orchestrating the advection scheme. The main
-!> routine in the module is advection().
-!>@ingroup transport
+!> Module orchestrating the advection scheme. This has some enhancements 
+!> to accommodate network features. 
+!>@ingroup gtm_driver
 module advection_network
 
     contains
@@ -41,20 +41,20 @@ module advection_network
     !>   - Apply divergence in conservative_update along with Heun's method for sources.
     !>   Note that all these steps are operations on entire arrays of values -- this keeps things efficient
     subroutine advect_network(mass,                 &
-                      mass_prev,            &
-                      flow_prev,            &      
-                      flow_lo,              &
-                      flow_hi,              &
-                      area,                 &
-                      area_prev,            & 
-                      area_lo,              &
-                      area_hi,              &
-                      ncell,                &
-                      nvar,                 &
-                      time,                 &
-                      dt,                   &
-                      dx,                   &
-                      use_limiter)  
+                              mass_prev,            &
+                              flow_prev,            &      
+                              flow_lo,              &
+                              flow_hi,              &
+                              area,                 &
+                              area_prev,            & 
+                              area_lo,              &
+                              area_hi,              &
+                              ncell,                &
+                              nvar,                 &
+                              time,                 &
+                              dt,                   &
+                              dx,                   &
+                              use_limiter)  
         use advection
         use gtm_precision
         use primitive_variable_conversion
@@ -119,6 +119,7 @@ module advection_network
         else
             limit_slope = .true.
         end if
+        
         ! Converts the conservative variable (mass) to the primitive variable (concentration)
         call cons2prim(conc_prev,&
                        mass_prev,&
@@ -201,8 +202,9 @@ module advection_network
                           flow_lo,    &
                           flow_hi,    &
                           ncell,      &
-                          nvar)                          
-               
+                          nvar)                   
+                                 
+        ! Adjust flux for boundaries and junctions
         if (associated(advection_boundary_flux)) then
             call advection_boundary_flux(flux_lo,     &
                                          flux_hi,     &
@@ -215,7 +217,8 @@ module advection_network
                                          half_time,   &
                                          dt,          &
                                          dx)        
-        else        
+        else
+            ! default method is for single channel which only updates two ends of the channel
             advection_boundary_flux => bc_advection_flux
             call bc_advection_flux(flux_lo,     &
                                    flux_hi,     &
@@ -233,14 +236,13 @@ module advection_network
         ! Combine the fluxes into a divergence term at the half time at cell edges.
         ! Computing and storing the divergence separately gives some flexibility with integrating
         ! the source term, e.g. Heun's method
-        ! todo: commented
         call compute_divergence(div_flux,   &
                                 flux_lo,    &
                                 flux_hi,    &
                                 ncell,      &
                                 nvar)
                                     
-        !Conservative update including source. 
+        ! Conservative update including source. 
         call update_conservative(mass,        &
                                  mass_prev,   &
                                  div_flux,    &

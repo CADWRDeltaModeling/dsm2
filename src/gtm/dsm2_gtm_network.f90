@@ -25,7 +25,8 @@ module dsm2_gtm_network
 
     contains
 
-    !> Calculate the divided lo, hi, and centered differences
+    !> Calculate the divided lo, hi, and centered differences. 
+    !> This has adjustments for non-sequential cells.
     subroutine difference_network(grad_lo,     & 
                                   grad_hi,     &
                                   grad_center, &
@@ -54,18 +55,18 @@ module dsm2_gtm_network
         do ivar = 1, nvar
             grad_center(2:(ncell-1),ivar) = (vals(3:ncell,ivar) - vals(1:(ncell-2),ivar))/    &
                                           (half*dx(3:ncell) + dx(2:ncell-1) + half*dx(1:ncell-2))
-            grad_center(1,ivar)=LARGEREAL
-            grad_center(ncell,ivar)=LARGEREAL            
+            grad_center(1,ivar) = LARGEREAL
+            grad_center(ncell,ivar) = LARGEREAL            
             grad_hi(1:(ncell-1),ivar) = (vals(2:ncell,ivar) - vals(1:(ncell-1),ivar))/        &
                                         (half*dx(2:ncell) + half*dx(1:ncell-1))
-            grad_hi(ncell,ivar)=LARGEREAL
-            grad_lo(2:ncell,ivar)=grad_hi(1:(ncell-1),ivar)
-            grad_lo(1,ivar)=LARGEREAL  
+            grad_hi(ncell,ivar) = LARGEREAL
+            grad_lo(2:ncell,ivar) = grad_hi(1:(ncell-1),ivar)
+            grad_lo(1,ivar) = LARGEREAL  
             ! This loop is added to take care of nonsequential numbering cells and because of 
             ! introducing network component. A separate function is written here instead of 
             ! using the one for single channel.
             do i = 1, n_node
-                if (dsm2_network(i)%nonsequential==1) then
+                if (dsm2_network(i)%nonsequential.eq.1) then
                     if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
                         up_cell = dsm2_network(i)%cell_no(1)
                         down_cell = dsm2_network(i)%cell_no(2)
@@ -89,7 +90,7 @@ module dsm2_gtm_network
   
     !> Adjust differences to account for special cases 
     !> (boundaries, structures, junctions, flow reversals)
-    !> This routine needs to use back door information: dsm2_network
+    !> This routine needs to use back door information from dsm2_network.
     subroutine adjust_differences_network(grad,         &
                                           grad_lo,      &  
                                           grad_hi,      &
@@ -236,6 +237,26 @@ module dsm2_gtm_network
                 else
                     flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)
                 end if
+            end if
+            ! adjust flux for non-sequential adjacent cells
+            if (dsm2_network(i)%nonsequential.eq.1 .and. dsm2_network(i)%n_qext.eq.0) then
+                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
+                    up_cell = dsm2_network(i)%cell_no(1)
+                    down_cell = dsm2_network(i)%cell_no(2)
+                else                                          !cell at downstream of junction
+                    up_cell = dsm2_network(i)%cell_no(2)
+                    down_cell = dsm2_network(i)%cell_no(1)
+                end if
+                if (flow_hi(up_cell) .gt. zero) then
+                    flux_hi(up_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
+                else
+                    flux_hi(up_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
+                end if        
+                if (flow_lo(down_cell) .gt. zero) then
+                    flux_lo(down_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
+                else
+                    flux_lo(down_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
+                end if                 
             end if            
             ! adjust flux for junctions
             if (dsm2_network(i)%junction_no .gt. 0) then
@@ -290,26 +311,7 @@ module dsm2_gtm_network
                     endif               
                 end do              
             end if
-            ! adjust flux for non-sequential adjacent cells
-            if (dsm2_network(i)%nonsequential==1) then
-                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
-                    up_cell = dsm2_network(i)%cell_no(1)
-                    down_cell = dsm2_network(i)%cell_no(2)
-                else                                          !cell at downstream of junction
-                    up_cell = dsm2_network(i)%cell_no(2)
-                    down_cell = dsm2_network(i)%cell_no(1)
-                end if
-                if (flow_hi(up_cell) .gt. zero) then
-                    flux_hi(up_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
-                else
-                    flux_hi(up_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
-                end if        
-                if (flow_lo(down_cell) .gt. zero) then
-                    flux_lo(down_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
-                else
-                    flux_lo(down_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
-                end if                 
-            end if
+
         end do          
         return
     end subroutine  
@@ -329,17 +331,19 @@ module dsm2_gtm_network
         integer, intent(in)  :: nvar                             !< Number of variables
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face        
-        integer :: i, icell
+        integer :: i, j, icell
         
         do i = 1, n_node
-            ! if boundary and node concentration is given, assign the value to lo or hi face.
-            if ( (dsm2_network(i)%boundary_no.ne.0) .and. (dsm2_network(i)%node_conc.eq.1) ) then  
-                icell = dsm2_network(i)%cell_no(1)
-                if (dsm2_network(i)%up_down(1) .eq. 1) then     ! upstream boundary
-                    conc_lo(icell,:) = node_conc(i,:)
-                else
-                    conc_hi(icell,:) = node_conc(i,:)
-                end if    
+            ! if node concentration is given, assign the value to lo or hi face.
+            if (dsm2_network(i)%node_conc.eq.1) then  
+                do j = 1, dsm2_network(i)%n_conn_cell
+                    icell = dsm2_network(i)%cell_no(j)
+                    if (dsm2_network(i)%up_down(j).eq.0) then !cell at upstream of junction 
+                        conc_hi(icell,:) = node_conc(i,:)
+                    else                                       !cell at downstream of junction 
+                        conc_lo(icell,:) = node_conc(i,:)
+                    end if 
+                end do                               
             end if
         end do
                         

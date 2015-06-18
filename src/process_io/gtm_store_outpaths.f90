@@ -168,7 +168,7 @@ module gtm_store_outpath
                                       runtime_step,   &
                                       vals)
 
-        use common_dsm2_vars, only: noutpaths, pathoutput, prev_julmin,      &
+        use common_dsm2_vars, only: noutpaths, pathoutput, prev_julmin,   &
                                     start_julmin, end_julmin,             &
                                     per_type_per_aver, per_type_per_cum,  &
                                     per_type_per_min, per_type_per_max,   &

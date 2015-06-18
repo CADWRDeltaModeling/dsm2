@@ -18,7 +18,9 @@
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
 
-!> Boundary diffusive flux interface to be fulfilled by driver or application
+!> Boundary diffusive flux interface for network problem to be fulfilled
+!> by driver or application. This has enhancements to accommodate multiple
+!> boundaries, junctions and non-sequential cell numbers. 
 !>@ingroup gtm_driver
 module diffusion_network
 
@@ -28,31 +30,31 @@ module diffusion_network
     !> It contains an explicit version of the diffusion operator and a general (involving all
     !> potential cases) diffusion operator as well, with a coefficient theta_gtm for 
     !> selecting the level of implicitness. (theta_gtm=0.5 is Crank Nicolson.).
-    !> The matrix is solved via a tri-diagonal solver.  !
+    !> The matrix is solved via a sparse matrix solver.
     !> The algoritm looks like this:
     !>   - This creates the diffusive fluxes sends them for modification for boundaries
     !>     and then differences the fluxes to get the operator d/dx(Ad/dx). 
     !>         - Calculate interior and boundary fluxes 
-    !>   - Construct right hand side with neumann boundary condition imposed
-    !>   - Construct diffusion coefficeint matrix with neumann boundary condition imposed
-    !>   - Solve the system
-    subroutine diffuse_network(conc,              &
-                               conc_prev,         &
-                               area,              &
-                               area_prev,         &
-                               area_lo,           &
-                               area_hi,           &
-                               area_lo_prev,      &
-                               area_hi_prev,      &
-                               disp_coef_lo,      &  
-                               disp_coef_hi,      &
-                               disp_coef_lo_prev, &  
-                               disp_coef_hi_prev, &
-                               ncell,             &
-                               nvar,              &
-                               time_new,          &
-                               theta_gtm,         &
-                               dt,                &
+    !>   - Construct right hand side with the network enhancements imposed
+    !>   - Construct diffusion sparse matrix with network enhancements imposed
+    !>   - Solve the system by klu solver
+    subroutine diffuse_network(conc,               &
+                               conc_prev,          &
+                               area,               &
+                               area_prev,          &
+                               area_lo,            &
+                               area_hi,            &
+                               area_lo_prev,       &
+                               area_hi_prev,       &
+                               disp_coef_lo,       &  
+                               disp_coef_hi,       &
+                               disp_coef_lo_prev,  &  
+                               disp_coef_hi_prev,  &
+                               ncell,              &
+                               nvar,               &
+                               time_new,           &
+                               theta_gtm,          &
+                               dt,                 &
                                dx)
 
         use gtm_precision
@@ -146,7 +148,8 @@ module diffusion_network
                                         dx,               &
                                         dt)
                                         
-        ! this cannot use single channel boundary diffusion because this requires more input arguments                                  
+        ! this cannot use single channel boundary diffusion because
+        ! this requires more input arguments
         call boundary_diffusion_network_matrix(center_diag ,        &
                                                up_diag,             &     
                                                down_diag,           &
@@ -170,32 +173,34 @@ module diffusion_network
                                                nvar,                & 
                                                dx,                  &
                                                dt)
-                                                     
+                                               
+        ! solve the sparse matrix by klu solver                                                    
         call klu_fortran_free_numeric(k_numeric, k_common)                  
         k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)  
         call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side, k_common)
         
-        conc = right_hand_side                
+        conc = right_hand_side     
+                   
         return
     end subroutine 
 
 
-    !> Construct the matrix for the diffusion solver  
-    !> without boundary condition modification or structure on interior of domain
+    !> Construct the tridiagonal matrix without boundary condition 
+    !> modification or structure on interior of domain
     subroutine construct_diffusion_matrix_tri(center_diag ,     &
-                                          up_diag,          &     
-                                          down_diag,        &
-                                          area,             &
-                                          area_lo,          &
-                                          area_hi,          &
-                                          disp_coef_lo,     &
-                                          disp_coef_hi,     &
-                                          theta_gtm,        &
-                                          ncell,            &
-                                          time,             & 
-                                          nvar,             & 
-                                          dx,               &
-                                          dt)
+                                              up_diag,          &     
+                                              down_diag,        &
+                                              area,             &
+                                              area_lo,          &
+                                              area_hi,          &
+                                              disp_coef_lo,     &
+                                              disp_coef_hi,     &
+                                              theta_gtm,        &
+                                              ncell,            &
+                                              time,             & 
+                                              nvar,             & 
+                                              dx,               &
+                                              dt)
         use gtm_precision
                                   
         ! ---args    
@@ -226,8 +231,10 @@ module diffusion_network
         down_diag(1,:) = LARGEREAL  
         do ivar = 1,nvar 
             do icell = 2,ncell-1
-                lo_face = theta_gtm*dt/dx(icell)*area_lo(icell)*disp_coef_lo(icell)/(half*dx(icell)+half*dx(icell-1))
-                hi_face = theta_gtm*dt/dx(icell)*area_hi(icell)*disp_coef_hi(icell)/(half*dx(icell)+half*dx(icell+1))
+                lo_face = theta_gtm*dt/dx(icell)*area_lo(icell)*disp_coef_lo(icell) &
+                          /(half*dx(icell)+half*dx(icell-1))
+                hi_face = theta_gtm*dt/dx(icell)*area_hi(icell)*disp_coef_hi(icell) &
+                          /(half*dx(icell)+half*dx(icell+1))
                 down_diag(icell,ivar) = - lo_face
                 center_diag(icell,ivar) = area(icell) + hi_face + lo_face
                 up_diag(icell,ivar) = - hi_face

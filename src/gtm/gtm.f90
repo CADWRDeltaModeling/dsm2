@@ -443,11 +443,11 @@ program gtm
             conc_prev = conc
             prev_conc_resv = conc_resv
             !write(108,*) new_current_time
-            !write(108,'(16x,7a10)') "2897","2899","2900","2909","2989","2996","3007"
-            !write(108,'(a10,i6,7f10.2)') "FLOW",time_step_int,flow(2897),flow(2899),flow(2900),flow_hi(2909),flow_lo(2989),flow_hi(2996),flow_hi(3007)   ! to check junction #381
-            !write(108,'(a10,i6,7f10.2)') "AREA",time_step_int,area(2897),area(2899),area(2900),area(2909),area(2989),area(2996),area(3007)               ! to check junction #381
-            !write(108,'(a10,i6,7f10.2)') "VEL",time_step_int,flow(2897)/area(2897),flow(2899)/area(2899),flow(2900)/area(2900),flow(2899)/area(2899),flow(2900)/area(2900),flow(2909)/area(2909)               ! to check junction #381            
-            !write(108,'(a10,i6,7f10.3)') "ADVECT",time_step_int,conc(2897,1),conc(2899,1),conc(2900,1),conc(2909,1),conc(2989,1),conc(2996,1),conc(3007,1)  ! to check junction #381
+            !write(108,'(16x,6a10)') "3591","3561","3570","2400","2413","2414"
+            !write(108,'(a10,i6,6f10.2)') "FLOW",time_step_int,flow(2591),flow(3561),flow_hi(3570),flow_lo(2400),flow_lo(2413),flow_hi(2414)   ! to check junction #381
+            !write(108,'(a10,i6,6f10.2)') "AREA",time_step_int,area(2897),area(2899),area(2900),area(2909),area(2989),area(2996),area(3007)               ! to check junction #381
+            !write(108,'(a10,i6,6f10.2)') "VEL",time_step_int,flow(2897)/area(2897),flow(2899)/area(2899),flow(2900)/area(2900),flow(2899)/area(2899),flow(2900)/area(2900),flow(2909)/area(2909)               ! to check junction #381            
+            !write(108,'(a10,i6,6f10.3)') "ADVECT",time_step_int,conc(3591,1),conc(3561,1),conc(3570,1),conc(2400,1),conc(2413,1),conc(2414,1)  ! to check junction #381
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 call diffuse_network(conc,                         &
@@ -469,7 +469,7 @@ program gtm
                                      sub_gtm_time_step*sixty,      &
                                      dx_arr)
             end if 
-            !write(108,'(a10,i6,7f10.3)') "DISP",time_step_int,conc(2897,1),conc(2899,1),conc(2900,1),conc(2909,1),conc(2989,1),conc(2996,1),conc(3007,1) ! to chcek junction #391
+            !write(108,'(a10,i6,6f10.3)') "DISP",time_step_int,conc(3591,1),conc(3561,1),conc(3570,1),conc(2400,1),conc(2413,1),conc(2414,1) ! to chcek junction #391
                         
             call prim2cons(mass,conc,area,n_cell,n_var)
             mass_prev = mass
@@ -490,7 +490,7 @@ program gtm
 
         !---- print output to DSS file -----
         call get_output_channel_vals(vals, conc, n_cell, n_var)
-        if (int(current_time) .ge. next_output_flush) then
+        if (int(current_time) .ge. next_output_flush .or. current_time.eq.gtm_end_jmin) then
             call incr_intvl(next_output_flush, next_output_flush, flush_intvl,TO_BOUNDARY)
             call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
         else
