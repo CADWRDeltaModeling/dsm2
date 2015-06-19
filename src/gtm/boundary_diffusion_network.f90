@@ -72,9 +72,9 @@ module boundary_diffusion_network
         !--- args 
         integer, intent(in) :: ncell                                 !< Number of cells
         integer, intent(in) :: nvar                                  !< Number of variables
-        real(gtm_real), intent(in) :: down_diag(ncell,nvar)          !< Values of the coefficients below diagonal in matrix
-        real(gtm_real), intent(in) :: center_diag(ncell,nvar)        !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real), intent(in) :: up_diag(ncell,nvar)            !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real), intent(in) :: down_diag(ncell)               !< Values of the coefficients below diagonal in matrix
+        real(gtm_real), intent(in) :: center_diag(ncell)             !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real), intent(in) :: up_diag(ncell)                 !< Values of the coefficients above the diagonal in matrix
         real(gtm_real), intent(inout):: right_hand_side(ncell,nvar)  !< Values of the coefficients of the right hand side    
         real(gtm_real), intent(in) :: conc_prev(ncell, nvar)         !< concentration from previous time step
         real(gtm_real), intent(in) :: area_prev(ncell)               !< area from previous time step
@@ -279,9 +279,9 @@ module boundary_diffusion_network
         !--- args                        
         integer, intent(in) :: ncell                                   !< Number of cells
         integer, intent(in) :: nvar                                    !< Number of variables
-        real(gtm_real), intent(in) :: down_diag(ncell,nvar)            !< Values of the coefficients below diagonal in matrix
-        real(gtm_real), intent(in) :: center_diag(ncell,nvar)          !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real), intent(in) :: up_diag(ncell,nvar)              !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real), intent(in) :: down_diag(ncell)                 !< Values of the coefficients below diagonal in matrix
+        real(gtm_real), intent(in) :: center_diag(ncell)               !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real), intent(in) :: up_diag(ncell)                   !< Values of the coefficients above the diagonal in matrix
         real(gtm_real), intent(inout):: right_hand_side(ncell,nvar)    !< Values of the coefficients of the right hand side    
         real(gtm_real), intent(in) :: conc_prev(ncell, nvar)           !< concentration from previous time step
         real(gtm_real), intent(in) :: area_prev(ncell)                 !< area from previous time step
@@ -401,7 +401,7 @@ module boundary_diffusion_network
                     h = kin(k)
                     aax(h) = zero
                     if (uds(k).eq."d") then
-                        aax(h) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))   !?????                 
+                        aax(h) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))               
                     elseif (uds(k).eq."u") then
                         aax(h) = -theta_gtm*dt*min(area_lo(i),area_hi(col(k)))*disp_coef_lo(i) &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)
@@ -462,9 +462,9 @@ module boundary_diffusion_network
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus)
                 j = j + 3           
             else                          ! "n": normal
-                aax(kin(j))= down_diag(i,1)
-                aax(kin(j+1)) = center_diag(i,1)
-                aax(kin(j+2)) = up_diag(i,1)
+                aax(kin(j))= down_diag(i)
+                aax(kin(j+1)) = center_diag(i)
+                aax(kin(j+2)) = up_diag(i)
                 j = j + 3
             end if
         end do 

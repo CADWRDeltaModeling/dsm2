@@ -252,23 +252,23 @@ subroutine n_d_test_diffusion_matrix(center_diag ,       &
      implicit none
          !--- args
                                        
-     integer, intent (in) :: ncell                                               !< Number of cells
-     integer, intent (in) :: nvar                                                !< Number of variables
-     real(gtm_real),intent (inout):: down_diag(ncell,nvar)                       !< Values of the coefficients below diagonal in matrix
-     real(gtm_real),intent (inout):: center_diag(ncell,nvar)                     !< Values of the coefficients at the diagonal in matrix
-     real(gtm_real),intent (inout):: up_diag(ncell,nvar)                         !< Values of the coefficients above the diagonal in matrix
-     real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)                 !< Values of the coefficients of right hand side vector
-     real(gtm_real), intent (in)  :: conc(ncell,nvar)                            !< Concentration 
-     real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar)             !< Explicit diffusive operator
-     real(gtm_real), intent (in)  :: area (ncell)                                !< Cell centered area at new time 
-     real(gtm_real), intent (in)  :: area_lo(ncell)                              !< Low side area at new time
-     real(gtm_real), intent (in)  :: area_hi(ncell)                              !< High side area at new time 
-     real(gtm_real), intent (in)  :: disp_coef_lo(ncell)                         !< Low side constituent dispersion coef. at new time
-     real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
-     real(gtm_real), intent (in)  :: time                                        !< Current time
-     real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-     real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
-     real(gtm_real), intent (in)  :: dt                                          !< Time step     
+     integer, intent (in) :: ncell                                   !< Number of cells
+     integer, intent (in) :: nvar                                    !< Number of variables
+     real(gtm_real),intent (inout):: down_diag(ncell)                !< Values of the coefficients below diagonal in matrix
+     real(gtm_real),intent (inout):: center_diag(ncell)              !< Values of the coefficients at the diagonal in matrix
+     real(gtm_real),intent (inout):: up_diag(ncell)                  !< Values of the coefficients above the diagonal in matrix
+     real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)     !< Values of the coefficients of right hand side vector
+     real(gtm_real), intent (in)  :: conc(ncell,nvar)                !< Concentration 
+     real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar) !< Explicit diffusive operator
+     real(gtm_real), intent (in)  :: area (ncell)                    !< Cell centered area at new time 
+     real(gtm_real), intent (in)  :: area_lo(ncell)                  !< Low side area at new time
+     real(gtm_real), intent (in)  :: area_hi(ncell)                  !< High side area at new time 
+     real(gtm_real), intent (in)  :: disp_coef_lo(ncell)             !< Low side constituent dispersion coef. at new time
+     real(gtm_real), intent (in)  :: disp_coef_hi(ncell)             !< High side constituent dispersion coef. at new time
+     real(gtm_real), intent (in)  :: time                            !< Current time
+     real(gtm_real), intent (in)  :: theta_gtm                       !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+     real(gtm_real), intent (in)  :: dx(ncell)                       !< Spatial step  
+     real(gtm_real), intent (in)  :: dt                              !< Time step     
       
      !---local
      real(gtm_real) :: dt_by_dxsq(ncell)
@@ -286,10 +286,10 @@ subroutine n_d_test_diffusion_matrix(center_diag ,       &
     flux_start(:) = - area_lo(1)*disp_coef_lo(1)*(two-two*pi*dsin(pi*xstart/two)*dexp(-disp_coef_lo(1)*pi*pi*time/four)) 
     flux_end(:) = - area_hi(ncell)*disp_coef_hi(ncell)*(two-two*pi*dsin(pi*xend/two)*dexp(-disp_coef_hi(ncell)*pi*pi*time/four))
          
-    center_diag(1,:)= area(1)+ theta_gtm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)  
+    center_diag(1)= area(1)+ theta_gtm*dt_by_dxsq(1)* area_hi(1)*disp_coef_hi(1)  
     right_hand_side(1,:) = right_hand_side(1,:) &
                                 + theta_gtm*(dt/dx(1))*flux_start(:)
-    center_diag(ncell,:)= area(ncell)+ theta_gtm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(ncell) !todo: was disp_coef_lo(1), may be a typo
+    center_diag(ncell)= area(ncell)+ theta_gtm*dt_by_dxsq(ncell)* area_lo(ncell)*disp_coef_lo(ncell) !todo: was disp_coef_lo(1), may be a typo
     right_hand_side(ncell,:)= right_hand_side(ncell,:) &
                                    - theta_gtm*(dt/dx(ncell))*flux_end(:)
       
@@ -319,23 +319,23 @@ subroutine dirichlet_test_diffusion_matrix(center_diag ,       &
    implicit none
     !--- args
                                   
-   integer, intent (in) :: ncell                                               !< Number of cells
-   integer, intent (in) :: nvar                                                !< Number of variables
-   real(gtm_real),intent (inout):: down_diag(ncell,nvar)                       !< Values of the coefficients below diagonal in matrix
-   real(gtm_real),intent (inout):: center_diag(ncell,nvar)                     !< Values of the coefficients at the diagonal in matrix
-   real(gtm_real),intent (inout):: up_diag(ncell,nvar)                         !< Values of the coefficients above the diagonal in matrix
-   real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)                 !< Values of the coefficients of right hand side vector
-   real(gtm_real), intent (in)  :: conc(ncell,nvar)                            !< Concentration 
-   real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar)             !< Explicit diffusive operator
-   real(gtm_real), intent (in)  :: area (ncell)                                !< Cell centered area at new time 
-   real(gtm_real), intent (in)  :: area_lo(ncell)                              !< Low side area at new time
-   real(gtm_real), intent (in)  :: area_hi(ncell)                              !< High side area at new time 
-   real(gtm_real), intent (in)  :: disp_coef_lo(ncell)                         !< Low side constituent dispersion coef. at new time
-   real(gtm_real), intent (in)  :: disp_coef_hi(ncell)                         !< High side constituent dispersion coef. at new time
-   real(gtm_real), intent (in)  :: time                                        !< Current time
-   real(gtm_real), intent (in)  :: theta_gtm                                   !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-   real(gtm_real), intent (in)  :: dx(ncell)                                   !< Spatial step  
-   real(gtm_real), intent (in)  :: dt                                          !< Time step     
+   integer, intent (in) :: ncell                                   !< Number of cells
+   integer, intent (in) :: nvar                                    !< Number of variables
+   real(gtm_real),intent (inout):: down_diag(ncell)                !< Values of the coefficients below diagonal in matrix
+   real(gtm_real),intent (inout):: center_diag(ncell)              !< Values of the coefficients at the diagonal in matrix
+   real(gtm_real),intent (inout):: up_diag(ncell)                  !< Values of the coefficients above the diagonal in matrix
+   real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)     !< Values of the coefficients of right hand side vector
+   real(gtm_real), intent (in)  :: conc(ncell,nvar)                !< Concentration 
+   real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar) !< Explicit diffusive operator
+   real(gtm_real), intent (in)  :: area (ncell)                    !< Cell centered area at new time 
+   real(gtm_real), intent (in)  :: area_lo(ncell)                  !< Low side area at new time
+   real(gtm_real), intent (in)  :: area_hi(ncell)                  !< High side area at new time 
+   real(gtm_real), intent (in)  :: disp_coef_lo(ncell)             !< Low side constituent dispersion coef. at new time
+   real(gtm_real), intent (in)  :: disp_coef_hi(ncell)             !< High side constituent dispersion coef. at new time
+   real(gtm_real), intent (in)  :: time                            !< Current time
+   real(gtm_real), intent (in)  :: theta_gtm                       !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
+   real(gtm_real), intent (in)  :: dx(ncell)                       !< Spatial step  
+   real(gtm_real), intent (in)  :: dt                              !< Time step     
    
    !---local
    real(gtm_real) :: dt_by_dxsq(ncell)
@@ -351,12 +351,12 @@ subroutine dirichlet_test_diffusion_matrix(center_diag ,       &
    conc_end = two
    conc_start = two*xstart + four*dcos(pi*xstart/two)*dexp(-disp_coef_lo(1)*time*pi*pi/four)
    ! todo: one part of center diag is based on old time and other part new time
-   center_diag(1,:)=  center_diag(1,:) &
+   center_diag(1)=  center_diag(1) &
                          + theta_gtm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))                  
    right_hand_side(1,:) = right_hand_side(1,:)&
                + two * theta_gtm*dt_by_dxsq(1)*(area_lo(1)*disp_coef_lo(1))*conc_start
      
-   center_diag(ncell,:)= center_diag(ncell,:)&
+   center_diag(ncell)= center_diag(ncell)&
                           +  theta_gtm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))
    right_hand_side(ncell,:) = right_hand_side(ncell,:)&
               + two * theta_gtm*dt_by_dxsq(ncell)*(area_hi(ncell)*disp_coef_hi(ncell))*conc_end

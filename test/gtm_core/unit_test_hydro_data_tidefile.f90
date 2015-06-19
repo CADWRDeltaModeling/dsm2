@@ -123,7 +123,7 @@ module ut_hydro_data_tide
         call assertEquals (dble(dsm2_network(17)%up_down(1)), dble(1), weakest_eps, "problem in assigning segment for dsm2_network(17)%up_down") 
         call assertEquals (dble(dsm2_network(344)%dsm2_node_no), dble(361), weakest_eps, "problem in assigning segment for dsm2_network(344)%dsm2_node_no") 
         call assertEquals (dble(dsm2_network(344)%boundary_no), dble(21), weakest_eps, "problem in assigning segment for dsm2_network(344)%boundary_no") 
-        call assertEquals (dble(dsm2_network(344)%cell_no(1)), dble(2154), weakest_eps, "problem in assigning segment for dsm2_network(344)%cell_no") 
+        call assertEquals (dble(dsm2_network(344)%cell_no(1)), dble(2169), weakest_eps, "problem in assigning segment for dsm2_network(344)%cell_no") 
         call assertEquals (dble(dsm2_network(344)%up_down(1)), dble(0), weakest_eps, "problem in assigning segment for dsm2_network(344)%up_down") 
                
         ! test reading time series data

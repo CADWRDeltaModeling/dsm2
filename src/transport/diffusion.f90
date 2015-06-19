@@ -93,9 +93,9 @@ module diffusion
 
         !---- locals
         real(gtm_real) :: explicit_diffuse_op(ncell,nvar)             !< Explicit diffusive operator
-        real(gtm_real) :: down_diag(ncell,nvar)                       !< Values of the coefficients below diagonal in matrix
-        real(gtm_real) :: center_diag(ncell,nvar)                     !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real) :: up_diag(ncell,nvar)                         !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real) :: down_diag(ncell)                       !< Values of the coefficients below diagonal in matrix
+        real(gtm_real) :: center_diag(ncell)                     !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real) :: up_diag(ncell)                         !< Values of the coefficients above the diagonal in matrix
         real(gtm_real) :: right_hand_side(ncell,nvar)                 !< Right hand side vector
         real(gtm_real) :: time_prev                                   !< old time 
 
@@ -334,8 +334,8 @@ module diffusion
         real(gtm_real), intent (in)  :: conc_prev(ncell,nvar)             !< Concentration at old time
         real(gtm_real), intent (in)  :: area_lo_prev (ncell)              !< Low side area at old time
         real(gtm_real), intent (in)  :: area_hi_prev (ncell)              !< High side area at old time 
-        real(gtm_real), intent (in)  :: disp_coef_lo_prev (ncell,nvar)    !< Low side constituent dispersion coef. at old time
-        real(gtm_real), intent (in)  :: disp_coef_hi_prev (ncell,nvar)    !< High side constituent dispersion coef. at old time
+        real(gtm_real), intent (in)  :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
+        real(gtm_real), intent (in)  :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
         real(gtm_real), intent (in)  :: time                              !< Current time
         real(gtm_real), intent (in)  :: theta                             !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
         real(gtm_real), intent (in)  :: dx(ncell)                         !< Spatial step  
@@ -374,9 +374,9 @@ module diffusion
         implicit none                            
         integer, intent (in) :: ncell                            !< Number of cells
         integer, intent (in) :: nvar                             !< Number of variables
-        real(gtm_real), intent (out) :: down_diag(ncell,nvar)    !< Values of the coefficients below diagonal in matrix
-        real(gtm_real), intent (out) :: center_diag(ncell,nvar)  !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real), intent (out) :: up_diag(ncell,nvar)      !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real), intent (out) :: down_diag(ncell)         !< Values of the coefficients below diagonal in matrix
+        real(gtm_real), intent (out) :: center_diag(ncell)       !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real), intent (out) :: up_diag(ncell)           !< Values of the coefficients above the diagonal in matrix
         real(gtm_real), intent (in)  :: area (ncell)             !< Cell centered area at new time 
         real(gtm_real), intent (in)  :: area_lo(ncell)           !< Low side area at new time
         real(gtm_real), intent (in)  :: area_hi(ncell)           !< High side area at new time 
@@ -394,23 +394,21 @@ module diffusion
      
         integer :: icell
         integer :: ivar
-        up_diag(ncell,:) = LARGEREAL
-        down_diag(1,:) = LARGEREAL  
-        do ivar = 1,nvar 
-            do icell = 2,ncell-1
-                lo_face = theta_gtm*dt/dx(icell)*area_lo(icell)*disp_coef_lo(icell)/(half*dx(icell)+half*dx(icell-1))
-                hi_face = theta_gtm*dt/dx(icell)*area_hi(icell)*disp_coef_hi(icell)/(half*dx(icell)+half*dx(icell+1))
-                down_diag(icell,ivar) = - lo_face
-                center_diag(icell,ivar) = area(icell) + hi_face + lo_face
-                up_diag(icell,ivar) = - hi_face
-            end do         
-        end do 
-        down_diag(1,:) = down_diag(2,:)
-        center_diag(1,:) = center_diag(2,:)
-        up_diag(1,:) = up_diag(2,:)
-        down_diag(ncell,:) = down_diag(ncell-1,:)
-        center_diag(ncell,:) = center_diag(ncell-1,:)
-        up_diag(ncell,:) = up_diag(ncell-1,:)     
+        up_diag(ncell) = LARGEREAL
+        down_diag(1) = LARGEREAL  
+        do icell = 2,ncell-1
+            lo_face = theta_gtm*dt/dx(icell)*area_lo(icell)*disp_coef_lo(icell)/(half*dx(icell)+half*dx(icell-1))
+            hi_face = theta_gtm*dt/dx(icell)*area_hi(icell)*disp_coef_hi(icell)/(half*dx(icell)+half*dx(icell+1))
+            down_diag(icell) = - lo_face
+            center_diag(icell) = area(icell) + hi_face + lo_face
+            up_diag(icell) = - hi_face
+        end do         
+        down_diag(1) = down_diag(2)
+        center_diag(1) = center_diag(2)
+        up_diag(1) = up_diag(2)
+        down_diag(ncell) = down_diag(ncell-1)
+        center_diag(ncell) = center_diag(ncell-1)
+        up_diag(ncell) = up_diag(ncell-1)     
 
         return
     end subroutine 
@@ -431,9 +429,9 @@ module diffusion
 
         integer, intent (in) :: ncell                              !< Number of volumes
         integer, intent (in) :: nvar                               !< Number of variables 
-        real(gtm_real),intent (in)  :: down_diag(ncell,nvar)       !< Values of the coefficients below diagonal in matrix
-        real(gtm_real),intent (in)  :: center_diag(ncell,nvar)     !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real),intent (in)  :: up_diag(ncell,nvar)         !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real),intent (in)  :: down_diag(ncell)            !< Values of the coefficients below diagonal in matrix
+        real(gtm_real),intent (in)  :: center_diag(ncell)          !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real),intent (in)  :: up_diag(ncell)              !< Values of the coefficients above the diagonal in matrix
         real(gtm_real),intent (in)  :: right_hand_side(ncell,nvar) !< Values of the right hand side vector
         real(gtm_real),intent (out) :: conc(ncell,nvar)            !< Values of the computed solution
 
@@ -443,9 +441,9 @@ module diffusion
         real(gtm_real) :: ax(4+3*(ncell-2))
 
         do ivar = 1 ,nvar
-            call tridi_solver(center_diag(:,ivar),    &
-                              up_diag(:,ivar),        &     
-                              down_diag(:,ivar),      &
+            call tridi_solver(center_diag(:),         &
+                              up_diag(:),             &     
+                              down_diag(:),           &
                               right_hand_side(:,ivar),&
                               conc(:,ivar),           &
                               ncell)
@@ -469,9 +467,9 @@ module diffusion
 
         integer, intent (in) :: ncell                              !< Number of volumes
         integer, intent (in) :: nvar                               !< Number of variables 
-        real(gtm_real),intent (in)  :: down_diag(ncell,nvar)       !< Values of the coefficients below diagonal in matrix
-        real(gtm_real),intent (in)  :: center_diag(ncell,nvar)     !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real),intent (in)  :: up_diag(ncell,nvar)         !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real),intent (in)  :: down_diag(ncell)            !< Values of the coefficients below diagonal in matrix
+        real(gtm_real),intent (in)  :: center_diag(ncell)          !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real),intent (in)  :: up_diag(ncell)              !< Values of the coefficients above the diagonal in matrix
         real(gtm_real),intent (in)  :: right_hand_side(ncell,nvar) !< Values of the right hand side vector
         real(gtm_real),intent (out) :: conc(ncell,nvar)            !< Values of the computed solution     
         integer :: ap(ncell+1)
@@ -484,9 +482,9 @@ module diffusion
            call tri2sparse(ap,                &
                            ai,                &
                            ax,                &
-                           up_diag(:,i),      &
-                           center_diag(:,i),  & 
-                           down_diag(:,i),    &
+                           up_diag(:),        &
+                           center_diag(:),    & 
+                           down_diag(:),      &
                            ncell)                     
            if ((first_time_klu).or.(ap(ncell+1).ne.previous_non_zero)) then          
                k_symbolic = klu_fortran_analyze(ncell, ap, ai, k_common)
