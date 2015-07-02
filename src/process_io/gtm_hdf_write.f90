@@ -361,17 +361,16 @@ module gtm_hdf_write
     !> Write out DSM2 node info into GTM tidefile
     subroutine write_dsm2_network_info(geom_id)
         use hdf5
-        use common_variables, only: n_node, dsm2_network
+        use common_variables, only: n_node, dsm2_network, dsm2_network_extra
         implicit none
-        integer(HID_T), intent(in) :: geom_id              !< hdf5 dataset identifier
-        integer(HID_T) :: dset_id                          ! dataset identifier
-        integer(HID_T) :: dspace_id                        ! dataspace identifier
-        integer(HID_T) :: dtype_id                         ! compound datatype identifier
-        integer(HID_T) :: dt_id, dt1_id, dt2_id, dt3_id    ! memory datatype identifier
-        integer(HID_T) :: dt4_id, dt5_id, dt6_id, dt7_id   ! memory datatype identifier     
-        integer(HID_T) :: dt8_id, dt9_id, dt10_id, dt11_id ! memory datatype identifier 
-        integer(HID_T) :: dt12_id                          ! memory datatype identifier 
-        integer(HID_T) :: plist_id                         ! dataset transfer property
+        integer(HID_T), intent(in) :: geom_id                !< hdf5 dataset identifier
+        integer(HID_T) :: dset_id                            ! dataset identifier
+        integer(HID_T) :: dspace_id                          ! dataspace identifier
+        integer(HID_T) :: dtype_id                           ! compound datatype identifier
+        integer(HID_T) :: dt_id, dt1_id, dt2_id, dt3_id      ! memory datatype identifier
+        integer(HID_T) :: dt4_id, dt5_id, dt6_id, dt7_id     ! memory datatype identifier     
+        integer(HID_T) :: dt8_id, dt9_id, dt10_id, dt11_id   ! memory datatype identifier 
+        integer(HID_T) :: plist_id                           ! dataset transfer property
         integer(SIZE_T) :: typesize
         integer(SIZE_T) :: type_size
         integer(SIZE_T) :: type_sizei
@@ -390,35 +389,33 @@ module gtm_hdf_write
         integer, allocatable :: resv_conn_no(:)
         integer, allocatable :: n_qext(:)
         integer, allocatable :: nonsequential(:)
-        integer, allocatable :: no_fixup(:)   
         integer :: rank = 1
-        integer :: i, j, k, n, error
+        integer :: i, j, k, nn, error
         
         if (n_node .eq. LARGEINT) then
             write(*,*) "Number of DSM2 Node = 0"
             return
         end if                  
   
-        n = 0
+        nn = 0
         do i = 1, n_node
-            n = n + dsm2_network(i)%n_conn_cell
+            nn = nn + dsm2_network(i)%n_conn_cell
         end do
 
-        allocate(dsm2_node_no(n))
-        allocate(int_node(n))
-        allocate(n_conn_cell(n))
-        allocate(cell_no(n))
-        allocate(up_down(n))
-        allocate(boundary_no(n))
-        allocate(junction_no(n))
-        allocate(reservoir_no(n))
-        allocate(resv_conn_no(n))
-        allocate(n_qext(n))
-        allocate(nonsequential(n))
-        allocate(no_fixup(n)) 
+        allocate(dsm2_node_no(nn))
+        allocate(int_node(nn))
+        allocate(n_conn_cell(nn))
+        allocate(cell_no(nn))
+        allocate(up_down(nn))
+        allocate(boundary_no(nn))
+        allocate(junction_no(nn))
+        allocate(reservoir_no(nn))
+        allocate(resv_conn_no(nn))
+        allocate(n_qext(nn))
+        allocate(nonsequential(nn))
 
-        dims = (/n/) 
-        data_dims(1) = n
+        dims = (/nn/) 
+        data_dims(1) = nn
        
         call h5pcreate_f(H5P_DATASET_XFER_F, plist_id, error)
         call h5pset_preserve_f(plist_id, .TRUE., error)
@@ -429,7 +426,7 @@ module gtm_hdf_write
         typesize = 4
         call h5tset_size_f(dt_id, typesize, error)
         call h5tget_size_f(dt_id, type_sizei, error)
-        type_size = 12*type_sizei
+        type_size = 11*type_sizei
         
         call h5tcreate_f(H5T_COMPOUND_F, type_size, dtype_id, error)
         
@@ -465,10 +462,7 @@ module gtm_hdf_write
 
         offset = offset + type_sizei
         call h5tinsert_f(dtype_id, "nonsequential", offset, H5T_NATIVE_INTEGER, error)
-
-        offset = offset + type_sizei
-        call h5tinsert_f(dtype_id, "no_fixup", offset, H5T_NATIVE_INTEGER, error)
-                                                       
+                                                               
         call h5dcreate_f(geom_id, "dsm2_node", dtype_id, dspace_id, dset_id, error)        
         
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt1_id, error)
@@ -514,11 +508,7 @@ module gtm_hdf_write
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt11_id, error)
         offset = 0
         call h5tinsert_f(dt11_id, "nonsequential", offset, H5T_NATIVE_INTEGER, error)  
-                                
-        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt12_id, error)
-        offset = 0
-        call h5tinsert_f(dt12_id, "no_fixup", offset, H5T_NATIVE_INTEGER, error) 
-       
+               
         k = 0
         do i = 1, n_node
             do j = 1, dsm2_network(i)%n_conn_cell
@@ -530,11 +520,10 @@ module gtm_hdf_write
                 up_down(k) = dsm2_network(i)%up_down(j)
                 boundary_no(k) = dsm2_network(i)%boundary_no
                 junction_no(k) = dsm2_network(i)%junction_no
-                reservoir_no(k) = dsm2_network(i)%reservoir_no
-                resv_conn_no(k) = dsm2_network(i)%resv_conn_no
-                n_qext(k) = dsm2_network(i)%n_qext
+                reservoir_no(k) = dsm2_network_extra(i)%reservoir_no
+                resv_conn_no(k) = dsm2_network_extra(i)%resv_conn_no
+                n_qext(k) = dsm2_network_extra(i)%n_qext
                 nonsequential(k) = dsm2_network(i)%nonsequential
-                no_fixup(k) = dsm2_network(i)%no_fixup                                                                                  
             end do
         end do
                 
@@ -548,9 +537,8 @@ module gtm_hdf_write
         call h5dwrite_f(dset_id, dt8_id, reservoir_no, data_dims, error, xfer_prp = plist_id)  
         call h5dwrite_f(dset_id, dt9_id, resv_conn_no, data_dims, error, xfer_prp = plist_id)  
         call h5dwrite_f(dset_id, dt10_id, n_qext, data_dims, error, xfer_prp = plist_id) 
-        call h5dwrite_f(dset_id, dt11_id, nonsequential, data_dims, error, xfer_prp = plist_id)  
-        call h5dwrite_f(dset_id, dt12_id, no_fixup, data_dims, error, xfer_prp = plist_id)                 
-
+        call h5dwrite_f(dset_id, dt11_id, nonsequential, data_dims, error, xfer_prp = plist_id)                  
+ 
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dspace_id, error)
         call h5tclose_f(dtype_id, error)
@@ -565,13 +553,12 @@ module gtm_hdf_write
         call h5tclose_f(dt9_id, error)
         call h5tclose_f(dt10_id, error)
         call h5tclose_f(dt11_id, error)
-        call h5tclose_f(dt12_id, error)
         call h5tclose_f(dt_id, error)        
         deallocate(dsm2_node_no, n_conn_cell)
         deallocate(cell_no, up_down)
         deallocate(boundary_no, junction_no)
         deallocate(reservoir_no, n_qext)
-        deallocate(nonsequential, no_fixup)     
+        deallocate(nonsequential)     
         return
     end subroutine    
 

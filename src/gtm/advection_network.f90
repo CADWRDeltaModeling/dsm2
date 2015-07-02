@@ -71,44 +71,36 @@ module advection_network
         !--- args
         integer, intent(in) :: ncell                         !< Number of cells
         integer, intent(in) :: nvar                          !< Number of variables
-
-        real(gtm_real),intent(out) :: mass(ncell,nvar)       !< mass at new time
-        real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)  !< mass at old time
-        real(gtm_real),intent(in)  :: flow_prev(ncell)       !< cell-centered flow, old time
-        real(gtm_real),intent(in)  :: flow_lo(ncell)         !< flow on lo side of cells centered in time
-        real(gtm_real),intent(in)  :: flow_hi(ncell)         !< flow on hi side of cells centered in time
-        real(gtm_real),intent(in)  :: area_prev(ncell)       !< cell-centered area at old time. not used in algorithm?
-        real(gtm_real),intent(in)  :: area(ncell)            !< cell-centered area at new time. not used in algorithm?
-
-        ! todo: area_lo is time centered here? I think currently it is correct for advection only.
-        !       however, area_lo is also needed for diffusion at old time and new time.
-        !       including being needed here if we want to include explicit diffusion op (though strictly speaking,
-        !       it may be adequately accurate to have a first order estimate and the half time estimate is first order)
-
-        ! todo: should we separate hydro_if for centered and face data?
-        real(gtm_real),intent(in)  :: area_lo(ncell)                  !< lo side area (todo: at new time?)
-        real(gtm_real),intent(in)  :: area_hi(ncell)                  !< hi side area (todo: at new time?
-        real(gtm_real),intent(in)  :: time                            !< new time
-        real(gtm_real),intent(in)  :: dt                              !< current time step from old time to new time
-        real(gtm_real),intent(in)  :: dx(ncell)                       !< spatial step
-        logical,intent(in),optional :: use_limiter                    !< whether to use slope limiter
+        real(gtm_real), intent(out) :: mass(ncell,nvar)      !< mass at new time
+        real(gtm_real), intent(in)  :: mass_prev(ncell,nvar) !< mass at old time
+        real(gtm_real), intent(in)  :: flow_prev(ncell)      !< cell-centered flow, old time
+        real(gtm_real), intent(in)  :: flow_lo(ncell)        !< flow on lo side of cells centered in time
+        real(gtm_real), intent(in)  :: flow_hi(ncell)        !< flow on hi side of cells centered in time
+        real(gtm_real), intent(in)  :: area_prev(ncell)      !< cell-centered area at old time. not used in algorithm?
+        real(gtm_real), intent(in)  :: area(ncell)           !< cell-centered area at new time. not used in algorithm?
+        real(gtm_real), intent(in)  :: area_lo(ncell)        !< lo side area (todo: at new time?)
+        real(gtm_real), intent(in)  :: area_hi(ncell)        !< hi side area (todo: at new time?
+        real(gtm_real), intent(in)  :: time                  !< new time
+        real(gtm_real), intent(in)  :: dt                    !< current time step from old time to new time
+        real(gtm_real), intent(in)  :: dx(ncell)             !< spatial step
+        logical, intent(in), optional :: use_limiter         !< whether to use slope limiter
         
         !-----locals
-        real(gtm_real) :: source_prev(ncell,nvar) !< cell centered source at old time
-        real(gtm_real) :: conc_prev(ncell,nvar)   !< cell centered concentration at old time
-        real(gtm_real) :: conc_lo(ncell,nvar)     !< concentration extrapolated to lo face at half time
-        real(gtm_real) :: conc_hi(ncell,nvar)     !< concentration extrapolated to hi face at half time
-        real(gtm_real) :: grad_lo(ncell,nvar)     !< gradient based on lo side difference
-        real(gtm_real) :: grad_hi(ncell,nvar)     !< gradient based on hi side difference
-        real(gtm_real) :: grad_center(ncell,nvar) !< cell centered difference
-        real(gtm_real) :: grad_lim(ncell,nvar)    !< limited cell centered difference
-        real(gtm_real) :: grad(ncell,nvar)        !< cell centered difference adujsted for boundaries and hydraulic devices
-        real(gtm_real) :: flux_lo(ncell,nvar)     !< flux on lo side of cell, time centered
-        real(gtm_real) :: flux_hi(ncell,nvar)     !< flux on hi side of cell, time centered
-        real(gtm_real) :: div_flux(ncell,nvar)    !< cell centered flux divergence, time centered
-        logical        :: limit_slope             !< whether slope limiter is used
-        real(gtm_real) :: old_time                !< previous time
-        real(gtm_real) :: half_time               !< half time
+        real(gtm_real) :: source_prev(ncell,nvar)            !< cell centered source at old time
+        real(gtm_real) :: conc_prev(ncell,nvar)              !< cell centered concentration at old time
+        real(gtm_real) :: conc_lo(ncell,nvar)                !< concentration extrapolated to lo face at half time
+        real(gtm_real) :: conc_hi(ncell,nvar)                !< concentration extrapolated to hi face at half time
+        real(gtm_real) :: grad_lo(ncell,nvar)                !< gradient based on lo side difference
+        real(gtm_real) :: grad_hi(ncell,nvar)                !< gradient based on hi side difference
+        real(gtm_real) :: grad_center(ncell,nvar)            !< cell centered difference
+        real(gtm_real) :: grad_lim(ncell,nvar)               !< limited cell centered difference
+        real(gtm_real) :: grad(ncell,nvar)                   !< cell centered difference adujsted for boundaries and hydraulic devices
+        real(gtm_real) :: flux_lo(ncell,nvar)                !< flux on lo side of cell, time centered
+        real(gtm_real) :: flux_hi(ncell,nvar)                !< flux on hi side of cell, time centered
+        real(gtm_real) :: div_flux(ncell,nvar)               !< cell centered flux divergence, time centered
+        logical        :: limit_slope                        !< whether slope limiter is used
+        real(gtm_real) :: old_time                           !< previous time
+        real(gtm_real) :: half_time                          !< half time
         integer :: i, j, icell
 
         old_time = time - dt
@@ -218,7 +210,7 @@ module advection_network
                                          dt,          &
                                          dx)        
         else
-            ! default method is for single channel which only updates two ends of the channel
+            ! default method is for single channel which only updates at two ends of the channel
             advection_boundary_flux => bc_advection_flux
             call bc_advection_flux(flux_lo,     &
                                    flux_hi,     &
@@ -232,10 +224,10 @@ module advection_network
                                    dt,          &
                                    dx)       
         end if    
-                           
+         
         ! Combine the fluxes into a divergence term at the half time at cell edges.
-        ! Computing and storing the divergence separately gives some flexibility with integrating
-        ! the source term, e.g. Heun's method
+        ! Computing and storing the divergence separately gives some flexibility with
+        ! integrating the source term, e.g. Heun's method
         call compute_divergence(div_flux,   &
                                 flux_lo,    &
                                 flux_hi,    &
@@ -254,6 +246,7 @@ module advection_network
                                  time,        &
                                  dt,          &
                                  dx)
+                                
          return
     end subroutine    
         

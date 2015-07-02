@@ -90,8 +90,8 @@ module ut_gtm_network
         !call assertEquals (junc(1)%cell_no(3), 28, "problem in allocate network junc(1)%cell_no(3)")
         call assertEquals (dx_arr(1), dble(1375), weakest_eps, "problem in allocate network dx_arr(1)")
         call assertEquals (dx_arr(9), dble(1285.71429), weakest_eps, "problem in allocate network dx_arr(9)")
-        call assertEquals (segm(7)%up_comppt, 11, "problem in allocate network segm(7)%up_comppt")
-        call assertEquals (segm(7)%down_comppt, 12, "problem in allocate network segm(7)%down_comppt") 
+        call assertEquals (segm(7)%up_comppt, 9, "problem in allocate network segm(7)%up_comppt")
+        call assertEquals (segm(7)%down_comppt, 10, "problem in allocate network segm(7)%down_comppt") 
         write(debug_unit,*) "flow_mesh_lo at hydro_time_index=10:"      
         do t = 1, npartition_t+1
             write(debug_unit,'(28f15.6)') (flow_mesh_lo(t,icell),icell=1,28)

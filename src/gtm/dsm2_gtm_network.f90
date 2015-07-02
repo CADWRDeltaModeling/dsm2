@@ -239,7 +239,7 @@ module dsm2_gtm_network
                 end if
             end if
             ! adjust flux for non-sequential adjacent cells
-            if (dsm2_network(i)%nonsequential.eq.1 .and. dsm2_network(i)%n_qext.eq.0) then
+            if (dsm2_network(i)%nonsequential.eq.1) then
                 if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
                     up_cell = dsm2_network(i)%cell_no(1)
                     down_cell = dsm2_network(i)%cell_no(2)
@@ -274,33 +274,37 @@ module dsm2_gtm_network
                     endif                   
                 end do
                 ! temporarily calculated concentration to assign to seepage and diversion
-                if (flow_tmp==zero) then
+                if (flow_tmp .lt. one) then
                     !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                    conc_tmp(:) = zero
+                    conc_tmp(:) = conc_lo(icell,:)
                 else     
                     conc_tmp(:) = mass_tmp(:)/flow_tmp
                 end if
                 ! add external flows
-                if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network(i)%n_qext.gt.0)) then
-                    do j = 1, dsm2_network(i)%n_qext
-                        if ((qext_flow(dsm2_network(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.eq.1)) then    !drain
-                            mass_tmp(:) = mass_tmp(:) + node_conc(i,:)*qext_flow(dsm2_network(i)%qext_no(j))
-                            flow_tmp = flow_tmp + qext_flow(dsm2_network(i)%qext_no(j))
-                        elseif ((qext_flow(dsm2_network(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.eq.0)) then !drain but node concentration is absent
+                if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
+                    do j = 1, dsm2_network_extra(i)%n_qext
+                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.eq.1)) then    !drain
+                            mass_tmp(:) = mass_tmp(:) + node_conc(i,:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.eq.0)) then !drain but node concentration is absent
+                            mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))                            
                             !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                         else     ! seepage and diversion
-                            mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network(i)%qext_no(j))
-                            flow_tmp = flow_tmp + qext_flow(dsm2_network(i)%qext_no(j))                        
+                            mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))                        
                         end if
                     end do
-                    if (flow_tmp==zero) then
+                    if (flow_tmp .lt. one) then
                         !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                        conc_tmp(:) = zero
+                        conc_tmp(:) = conc_lo(icell,:)
                     else     
                         conc_tmp(:) = mass_tmp(:)/flow_tmp
-                    end if       
-                end if                
-                             
+                    end if     
+                end if     
+                if (dsm2_network_extra(i)%dsm2_node_no.eq.316) then           
+                !write(201,'(f14.4,6f10.0)') flow_tmp,mass_tmp(1),conc_tmp(1),conc_hi(2157,1),conc_lo(2157,1),flow_hi(2157),flow_lo(2157)
+                end if
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
@@ -324,7 +328,7 @@ module dsm2_gtm_network
                                              nvar)
         use gtm_precision
         use error_handling
-        use common_variables, only : n_node, dsm2_network
+        use common_variables, only : n_node, dsm2_network, dsm2_network_extra
         use state_variables_network, only : node_conc
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
@@ -335,7 +339,7 @@ module dsm2_gtm_network
         
         do i = 1, n_node
             ! if node concentration is given, assign the value to lo or hi face.
-            if (dsm2_network(i)%node_conc.eq.1) then  
+            if (dsm2_network(i)%node_conc.eq.1 .and. dsm2_network_extra(i)%boundary.ne.0) then  
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0) then !cell at upstream of junction 

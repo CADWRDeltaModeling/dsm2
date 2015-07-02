@@ -77,6 +77,7 @@ program gtm
     real(gtm_real) :: constant_dispersion
     integer :: nt    
     integer :: up_comp, down_comp    
+    integer :: ok
     
     ! local variables to obtain time series data from HDF5 file
     integer :: time_offset
@@ -166,12 +167,10 @@ program gtm
     if (apply_diffusion) then
         if (disp_coeff.ne.LARGEREAL) then
             disp_arr = disp_coeff
-            dispersion_coef => constant_dispersion_coef
-        else
-            dispersion_coef => assign_dispersion_coef
         end if        
-    end if        
-  
+        dispersion_coef => assign_dispersion_coef
+    end if      
+    
     allocate(constituents(n_var))    
     call allocate_state_hydro(n_comp, n_resv, n_resv_conn, n_qext, n_tran, n_cell)
     call allocate_hydro_ts 
@@ -196,7 +195,7 @@ program gtm
     allocate(prev_node_conc(n_node, n_var))
     node_conc = LARGEREAL    
     prev_node_conc = LARGEREAL 
-    
+
     call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
     gtm_hdf_time_intvl = dble(tmp_int)
     call init_qual_hdf(qual_hdf,             &
@@ -265,6 +264,9 @@ program gtm
                              flow,                 &
                              flow_lo,              &
                              flow_hi,              &
+                             area,                 &
+                             area_lo,              &
+                             area_hi,              &                             
                              gtm_start_jmin,       &
                              dx_arr,               &
                              gtm_time_interval,    &
@@ -438,7 +440,8 @@ program gtm
                                 dble(new_current_time)*sixty, &
                                 sub_gtm_time_step*sixty,      &
                                 dx_arr,                       &
-                                limit_slope)     
+                                limit_slope)   
+            where (mass.lt.zero) mass = zero                                  
             call cons2prim(conc, mass, area, n_cell, n_var)          
             conc_prev = conc
             prev_conc_resv = conc_resv
@@ -450,6 +453,19 @@ program gtm
             !write(108,'(a10,i6,6f10.3)') "ADVECT",time_step_int,conc(3591,1),conc(3561,1),conc(3570,1),conc(2400,1),conc(2413,1),conc(2414,1)  ! to check junction #381
             !--------- Diffusion ----------
             if (apply_diffusion) then
+                call dispersion_coef(disp_coef_lo,         &
+                                     disp_coef_hi,         &
+                                     flow,                 &
+                                     flow_lo,              &
+                                     flow_hi,              &
+                                     area,                 &
+                                     area_lo,              &
+                                     area_hi,              &                             
+                                     gtm_start_jmin,       &
+                                     dx_arr,               &
+                                     gtm_time_interval,    &
+                                     n_cell,               &
+                                     n_var)             
                 call diffuse_network(conc,                         &
                                      conc_prev,                    &
                                      area,                         &
@@ -474,7 +490,7 @@ program gtm
             call prim2cons(mass,conc,area,n_cell,n_var)
             mass_prev = mass
             conc_prev = conc
-            prev_conc_resv = conc_resv            
+            prev_conc_resv = conc_resv
             area_prev = area
             area_lo_prev = area_lo
             area_hi_prev = area_hi    
@@ -546,7 +562,8 @@ program gtm
     if (apply_diffusion)then
         call klu_fortran_free(k_symbolic, k_numeric, k_common)
         call deallocate_geom_arr
-    end if    
+    end if
+    deallocate(disp_coef_arr)
     deallocate(pathinput)
     deallocate(pathoutput)
     deallocate(node_conc)   

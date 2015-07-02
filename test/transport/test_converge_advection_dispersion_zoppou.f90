@@ -294,6 +294,9 @@ subroutine zoppou_disp_coef(disp_coef_lo,         &
                             flow,                 &
                             flow_lo,              &
                             flow_hi,              &
+                            area,                 &
+                            area_lo,              &
+                            area_hi,              &                            
                             time,                 &
                             dx,                   &
                             dt,                   &
@@ -314,6 +317,9 @@ subroutine zoppou_disp_coef(disp_coef_lo,         &
      real(gtm_real),intent(in) :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
      real(gtm_real),intent(in) :: flow_hi(ncell)          !< Flow on hi side of cells centered in time       
      real(gtm_real),intent(in) :: flow(ncell)             !< Flow on center of cells 
+     real(gtm_real),intent(in) :: area_lo(ncell)          !< Area on lo side of cells centered in time
+     real(gtm_real),intent(in) :: area_hi(ncell)          !< Area on hi side of cells centered in time       
+     real(gtm_real),intent(in) :: area(ncell)             !< Area on center of cells 
      !--
      integer :: ivar
      integer :: icell
@@ -611,6 +617,9 @@ subroutine time_disp_coef(disp_coef_lo,         &
                          flow,                 &
                          flow_lo,              &
                          flow_hi,              &
+                         area,                 &
+                         area_lo,              &
+                         area_hi,              &                           
                          time,                 &
                          dx,                   &
                          dt,                   &
@@ -631,6 +640,9 @@ subroutine time_disp_coef(disp_coef_lo,         &
     real(gtm_real),intent(in) :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
     real(gtm_real),intent(in) :: flow_hi(ncell)          !< Flow on hi side of cells centered in time       
     real(gtm_real),intent(in) :: flow(ncell)             !< Flow on center of cells 
+    real(gtm_real),intent(in) :: area_lo(ncell)          !< Area on lo side of cells centered in time
+    real(gtm_real),intent(in) :: area_hi(ncell)          !< Area on hi side of cells centered in time       
+    real(gtm_real),intent(in) :: area(ncell)             !< Area on center of cells     
     !--local
     integer :: icell
      

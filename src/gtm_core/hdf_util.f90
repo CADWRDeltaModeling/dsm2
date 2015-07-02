@@ -620,7 +620,143 @@ module hdf_util
        return        
    end subroutine  
 
-     
+
+   !> Read input/gate table from hydro tidefile
+   subroutine read_gate_tbl()
+       use common_variables
+       implicit none
+       integer(HID_T) :: input_id                   ! Group identifier
+       integer(HID_T) :: dset_id                    ! Dataset identifier
+       integer(HID_T) :: dt_id                      ! Memory datatype identifier
+       integer(HID_T) :: dt1_id, dt2_id             ! Memory datatype identifier
+       integer(HID_T) :: dt3_id, dt4_id             ! Memory datatype identifier
+       integer(HID_T) :: dt5_id                     ! Memory datatype identifier
+       integer(SIZE_T):: offset                     ! Member's offset
+       integer(HSIZE_T), dimension(1) :: data_dims  ! Datasets dimensions
+       integer(SIZE_T) :: typesize                  ! Size of the datatype
+       integer(SIZE_T) :: type_size                 ! Size of the datatype
+       integer :: error                             ! Error flag
+       integer :: i
+      
+       call h5gopen_f(hydro_id, "input", input_id, error)
+       call h5dopen_f(input_id, "gate", dset_id, error) 
+         
+       n_gate = 17  !todo:: need to add output in hydro attribute table in order to read it
+       data_dims(1) = n_gate
+       call allocate_gate_property()
+       call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+       typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+       call h5tset_size_f(dt_id, typesize, error)
+       call h5tget_size_f(dt_id, type_size, error)    
+       do i = 1,n_gate
+           gate(i)%gate_no = i
+       end do     
+         
+       offset = 0
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+       call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+       call h5dread_f(dset_id, dt1_id, gate%name, data_dims, error) 
+           
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+       call h5tinsert_f(dt2_id, "from_obj", offset, dt_id, error)    
+       call h5dread_f(dset_id, dt2_id, gate%from_obj, data_dims, error)
+
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
+       call h5tinsert_f(dt3_id, "from_identifier", offset, dt_id, error)    
+       call h5dread_f(dset_id, dt3_id, gate%from_identifier, data_dims, error)
+       
+       type_size = 4
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
+       call h5tinsert_f(dt4_id, "to_node", offset, H5T_NATIVE_INTEGER, error)    
+       call h5dread_f(dset_id, dt4_id, gate%to_node, data_dims, error)  
+                       
+       call h5tclose_f(dt1_id, error)
+       call h5tclose_f(dt2_id, error)  
+       call h5tclose_f(dt3_id, error)   
+       call h5tclose_f(dt_id, error)               
+       call h5dclose_f(dset_id, error)  
+       call h5gclose_f(input_id, error)              
+       return        
+   end subroutine   
+
+   !> Read boundary flow tables from hydro tidefile
+   subroutine read_boundary_tbl()
+       use common_variables, only : n_bflow, n_bstage, bfbs
+       implicit none
+       integer(HID_T) :: input_id                       ! Group identifier
+       integer(HID_T) :: dset_id                        ! Dataset identifier
+       integer(HID_T) :: dt_id, dt5_id                  ! Memory datatype identifier
+       integer(HID_T) :: dt1_id, dt2_id                 ! Memory datatype identifier
+       integer(SIZE_T):: offset                         ! Member's offset
+       integer(HSIZE_T), dimension(1) :: data_dims      ! Datasets dimensions
+       integer(SIZE_T) :: typesize                      ! Size of the datatype
+       integer(SIZE_T) :: type_size                     ! Size of the datatype
+       integer :: error                                 ! Error flag
+       integer :: i, from_i, to_i                       ! local variables
+       character*32 :: from_obj, from_identifier        ! local variables
+       character*32 :: to_obj, to_identifier            ! local variables
+       
+       n_bflow = 7 !todo:need to read from hydro, modify hydro
+       n_bstage = 1 !todo:need to read from hydro, modify hydro
+       n_bfbs = n_bflow + n_bstage
+       call allocate_bfbs_property()
+       call h5gopen_f(hydro_id, "input", input_id, error)  
+       
+       data_dims(1) = n_bflow            
+       if (n_bflow > 0) then
+           call h5dopen_f(input_id, "boundary_flow", dset_id, error) 
+           call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+           typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+           call h5tset_size_f(dt_id, typesize, error)
+           call h5tget_size_f(dt_id, type_size, error)
+                      
+           bfbs(1:n_bflow)%btype = "flow"
+                      
+           offset = 0
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt1_id, bfbs%name, data_dims, error) 
+           
+           type_size = 4
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+           call h5tinsert_f(dt2_id, "node", offset, H5T_NATIVE_INTEGER, error)    
+           call h5dread_f(dset_id, dt2_id, bfbs%node, data_dims, error)
+
+           call h5tclose_f(dt2_id, error)  
+           call h5tclose_f(dt1_id, error)         
+           call h5tclose_f(dt_id, error)
+           call h5dclose_f(dset_id, error) 
+       end if
+       
+       data_dims(1) = n_bstage
+       if (n_bstage > 0) then
+           call h5dopen_f(input_id, "boundary_stage", dset_id, error) 
+           call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+           typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+           call h5tset_size_f(dt_id, typesize, error)
+           call h5tget_size_f(dt_id, type_size, error)
+           
+           bfbs(n_bflow+1)%btype = "stage"  
+           offset = 0
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt1_id, bfbs(n_bflow+1)%name, data_dims, error) 
+           
+           type_size = 4
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+           call h5tinsert_f(dt2_id, "node", offset, H5T_NATIVE_INTEGER, error)    
+           call h5dread_f(dset_id, dt2_id, bfbs(n_bflow+1)%node, data_dims, error)
+
+           call h5tclose_f(dt2_id, error)  
+           call h5tclose_f(dt1_id, error)         
+           call h5tclose_f(dt_id, error)
+           call h5dclose_f(dset_id, error)        
+       end if           
+       call h5gclose_f(input_id, error)     
+       return        
+   end subroutine  
+
+   
    !> Read integer attributes from hydro tidefile     
    subroutine get_int_attribute_from_hdf5(attr_value, attr_name)        
        use h5lt
@@ -636,7 +772,7 @@ module hdf_util
        return
    end subroutine   
    
-   
+      
    !> Calculate max dimension for irreg_geom array
    !> Updated variables are n_irreg, chan_index, num_xsect_chan and num_elev_chan.
    subroutine calc_virt_xsect_dimension(chan_no, num_virt_sec, num_elev)

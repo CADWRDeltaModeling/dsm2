@@ -134,6 +134,9 @@ module boundary_diffusion_network
                                       flow,                 &
                                       flow_lo,              &
                                       flow_hi,              &
+                                      area,                 &
+                                      area_lo,              &
+                                      area_hi,              &                                      
                                       time,                 &
                                       dx,                   &
                                       dt,                   &
@@ -141,6 +144,7 @@ module boundary_diffusion_network
                                       nvar)  
         use gtm_precision
         use error_handling
+        use common_variables, only: n_gate, gate
       
         implicit none
         !--- args          
@@ -152,14 +156,23 @@ module boundary_diffusion_network
         real(gtm_real),intent(in) :: flow_lo(ncell)      !< flow on lo side of cells centered in time
         real(gtm_real),intent(in) :: flow_hi(ncell)      !< flow on hi side of cells centered in time       
         real(gtm_real),intent(in) :: flow(ncell)         !< flow on center of cells 
+        real(gtm_real),intent(in) :: area_lo(ncell)      !< area on lo side of cells centered in time
+        real(gtm_real),intent(in) :: area_hi(ncell)      !< area on hi side of cells centered in time       
+        real(gtm_real),intent(in) :: area(ncell)         !< area on center of cells         
         real(gtm_real),intent(out):: disp_coef_lo(ncell) !< Low side constituent dispersion coef.
         real(gtm_real),intent(out):: disp_coef_hi(ncell) !< High side constituent dispersion coef. 
         !real(gtm_real) :: scaling = 0.5d0
+        integer :: i
    
-        disp_coef_hi = disp_coef_arr !*scaling
-        disp_coef_lo = disp_coef_arr !*scaling
-        
-        deallocate(disp_coef_arr)
+        disp_coef_hi = disp_coef_arr !*abs(flow_hi/area_hi)
+        disp_coef_lo = disp_coef_arr !*abs(flow_lo/area_lo)
+        do i = 1, n_gate
+            if (gate(i)%face .eq. 0) then            ! gate at lo face
+                disp_coef_lo(gate(i)%cell_no) = zero
+            elseif (gate(i)%face .eq. 1) then        ! gate at hi face
+                disp_coef_hi(gate(i)%cell_no) = zero
+            end if            
+        end do               
         
         return
     end subroutine
@@ -240,7 +253,7 @@ module boundary_diffusion_network
                              (conc(down_cell,:) - conc(up_cell,:)))/(half*dx(down_cell)+half*dx(up_cell))
                 diffusive_flux_lo(down_cell,:) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
                              (conc(down_cell,:) - conc(up_cell,:)))/(half*dx(down_cell)+half*dx(up_cell))
-            end if
+            end if          
         end do            
         return
     end subroutine
@@ -309,6 +322,7 @@ module boundary_diffusion_network
         real(gtm_real) :: exp_diffusion_op_plus(nvar)
         real(gtm_real) :: exp_diffusion_op_minus(nvar)
         real(gtm_real), allocatable :: matrix(:,:)
+        real(gtm_real) :: disp
 
         j = 1
         aax = zero
@@ -345,7 +359,7 @@ module boundary_diffusion_network
                     end if
                 end do    
                 where (prev_node_conc(ncc(j),:).eq.LARGEREAL) prev_node_conc(ncc(j),:) = conc(i,:)
-                where (node_conc(ncc(j),:).eq.LARGEREAL) node_conc(ncc(j),:) = conc(i,:) !????? 
+                where (node_conc(ncc(j),:).eq.LARGEREAL) node_conc(ncc(j),:) = conc(i,:) 
                 exp_diffusion_op_plus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
@@ -363,23 +377,43 @@ module boundary_diffusion_network
                     if (uds(k).eq."u") then
                         aax(h) = -theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))                    
                     elseif (uds(k).eq."d") then
-                        aax(h) = -theta_gtm*dt*min(area_hi(i),area_lo(col(k)))*disp_coef_hi(i) &
+                        if (disp_coef_lo(col(k)).eq.zero) then
+                            disp = zero 
+                        else
+                            disp = disp_coef_hi(i)
+                        end if
+                        aax(h) = -theta_gtm*dt*min(area_hi(i),area_lo(col(k)))*disp      &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)
                     elseif (uds(k).eq."f") then
-                        aax(h) = -theta_gtm*dt*min(area_hi(i),area_hi(col(k)))*disp_coef_hi(i) &
+                        if (disp_coef_hi(col(k)).eq.zero) then
+                            disp = zero 
+                        else
+                            disp = disp_coef_hi(i)
+                        end if                    
+                        aax(h) = -theta_gtm*dt*min(area_hi(i),area_hi(col(k)))*disp      &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)                      
                     else
                         aax(h) = area(i) + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))
                         do kk = j, j + nco(j) - 1
                             if (uds(kk).eq."d") then
-                                aax(h) = aax(h) + theta_gtm*dt*min(area_hi(i),area_lo(col(kk)))*disp_coef_hi(i)    &
+                                if (disp_coef_lo(col(kk)).eq.zero) then
+                                    disp = zero 
+                                else
+                                    disp = disp_coef_hi(i)
+                                end if                            
+                                aax(h) = aax(h) + theta_gtm*dt*min(area_hi(i),area_lo(col(kk)))*disp               &
                                                 /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2)                                                
                                 exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)                                &
                                                           -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                                           *(conc_prev(col(kk),:)-conc_prev(i,:))                   &
                                                           /(half*dx(col(kk))+half*dx(i))/dx(i)/dble(nco(j)-2)
                             elseif (uds(kk).eq."f") then
-                                aax(h) = aax(h) + theta_gtm*dt*min(area_hi(i),area_hi(col(kk)))*disp_coef_hi(i)    &
+                                if (disp_coef_hi(col(kk)).eq.zero) then
+                                    disp = zero 
+                                else
+                                    disp = disp_coef_hi(i)
+                                end if                              
+                                aax(h) = aax(h) + theta_gtm*dt*min(area_hi(i),area_hi(col(kk)))*disp               &
                                                 /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2)                                                
                                 exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)                                &
                                                           -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
@@ -403,29 +437,49 @@ module boundary_diffusion_network
                     if (uds(k).eq."d") then
                         aax(h) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))               
                     elseif (uds(k).eq."u") then
-                        aax(h) = -theta_gtm*dt*min(area_lo(i),area_hi(col(k)))*disp_coef_lo(i) &
+                        if (disp_coef_hi(col(k)).eq.zero) then
+                            disp = zero 
+                        else
+                            disp = disp_coef_lo(i)
+                        end if                       
+                        aax(h) = -theta_gtm*dt*min(area_lo(i),area_hi(col(k)))*disp        &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)
                     elseif (uds(k).eq."f") then
-                        aax(h) = -theta_gtm*dt*min(area_lo(i),area_lo(col(k)))*disp_coef_lo(i)  &
+                        if (disp_coef_lo(col(k)).eq.zero) then
+                            disp = zero 
+                        else
+                            disp = disp_coef_lo(i)
+                        end if                       
+                        aax(h) = -theta_gtm*dt*min(area_lo(i),area_lo(col(k)))*disp        &
                                 /dx(i)/(half*dx(i)+half*dx(col(k)))/dble(nco(j)-2)                                
                     else
                         aax(h) = area(i) + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))
                         do kk = j, j + nco(j) - 1
                             if (uds(kk).eq."u") then
-                                aax(h) = aax(h) + theta_gtm*dt*min(area_lo(i),area_hi(col(kk)))*disp_coef_lo(i)    &
+                                if (disp_coef_hi(col(kk)).eq.zero) then
+                                    disp = zero 
+                                else
+                                    disp = disp_coef_lo(i)
+                                end if                                                          
+                                aax(h) = aax(h) + theta_gtm*dt*min(area_lo(i),area_hi(col(kk)))*disp               &
                                                 /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2) 
                                 exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)                                &
                                                          -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)  &
                                                          *(conc_prev(i,:)-conc_prev(col(kk),:))                    &
                                                          /(half*dx(i)+half*dx(col(kk)))/dx(i)/dble(nco(j)-2) 
                             elseif (uds(kk).eq."f") then
-                                 aax(h) = aax(h) + theta_gtm*dt*min(area_lo(i),area_lo(col(kk)))*disp_coef_lo(i)    &
-                                                /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2) 
-                                 exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)                                &
-                                                          -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)  &
-                                                          *(conc_prev(i,:)-conc_prev(col(kk),:))                    &
-                                                          /(half*dx(i)+half*dx(col(kk)))/dx(i)/dble(nco(j)-2)                                                        
-                            end if
+                                if (disp_coef_lo(col(kk)).eq.zero) then
+                                    disp = zero 
+                                else
+                                    disp = disp_coef_lo(i)
+                                end if                              
+                                aax(h) = aax(h) + theta_gtm*dt*min(area_lo(i),area_lo(col(kk)))*disp               &
+                                               /dx(i)/(half*dx(i)+half*dx(col(kk)))/dble(nco(j)-2) 
+                                exp_diffusion_op_plus(:) = exp_diffusion_op_plus(:)                                &
+                                                         -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)  &
+                                                         *(conc_prev(i,:)-conc_prev(col(kk),:))                    &
+                                                         /(half*dx(i)+half*dx(col(kk)))/dx(i)/dble(nco(j)-2)                                                        
+                           end if
                         end do                    
                     end if                    
                 end do 

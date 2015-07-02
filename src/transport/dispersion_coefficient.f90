@@ -33,6 +33,9 @@ module dispersion_coefficient
                                  flow,                 &
                                  flow_lo,              &
                                  flow_hi,              &
+                                 area,                 &
+                                 area_lo,              &
+                                 area_hi,              &
                                  time,                 &
                                  dx,                   &
                                  dt,                   &
@@ -51,13 +54,16 @@ module dispersion_coefficient
         real(gtm_real),intent(in) :: dt                      !< Time step 
         real(gtm_real),intent(in) :: flow_lo(ncell)          !< flow on lo side of cells centered in time
         real(gtm_real),intent(in) :: flow_hi(ncell)          !< flow on hi side of cells centered in time       
-        real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells            
+        real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells          
+        real(gtm_real),intent(in) :: area_lo(ncell)          !< area on lo side of cells centered in time
+        real(gtm_real),intent(in) :: area_hi(ncell)          !< area on hi side of cells centered in time       
+        real(gtm_real),intent(in) :: area(ncell)             !< area on center of cells            
     end subroutine 
   end interface
 
   !> This pointer should be set by the driver or client code to specify the 
   !> treatment at the dispersion coefficients
-  procedure(diffusion_coef_if),pointer :: dispersion_coef  => null()
+  procedure(diffusion_coef_if), pointer :: dispersion_coef  => null()
 
   real(gtm_real),save :: const_dispersion
 
@@ -81,6 +87,9 @@ module dispersion_coefficient
                                       flow,                 &
                                       flow_lo,              &
                                       flow_hi,              &
+                                      area,                 &
+                                      area_lo,              &
+                                      area_hi,              &
                                       time,                 &
                                       dx,                   &
                                       dt,                   &
@@ -99,6 +108,9 @@ module dispersion_coefficient
       real(gtm_real),intent(in) :: flow_lo(ncell)          !< flow on lo side of cells centered in time
       real(gtm_real),intent(in) :: flow_hi(ncell)          !< flow on hi side of cells centered in time       
       real(gtm_real),intent(in) :: flow(ncell)             !< flow on center of cells 
+      real(gtm_real),intent(in) :: area_lo(ncell)          !< area on lo side of cells centered in time
+      real(gtm_real),intent(in) :: area_hi(ncell)          !< area on hi side of cells centered in time       
+      real(gtm_real),intent(in) :: area(ncell)             !< area on center of cells       
       real(gtm_real),intent(out):: disp_coef_lo(ncell)     !< Low side constituent dispersion coef.
       real(gtm_real),intent(out):: disp_coef_hi(ncell)     !< High side constituent dispersion coef. 
       !-- local

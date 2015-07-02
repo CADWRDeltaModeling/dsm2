@@ -29,10 +29,10 @@ module gtm_subs
     subroutine get_output_channel  
         use common_dsm2_vars, only: noutpaths, pathoutput
         implicit none       
-        integer :: out_cell(noutpaths)    !< output cells
-        integer :: calc_option(noutpaths) !< calculation option of interpolation by using u/s cell or d/s cell
-        integer :: chan_num(noutpaths)                 !< channcel number
-        real(gtm_real) :: x_from_lo_face(noutpaths)    !< distance from lo face of the cell
+        integer :: out_cell(noutpaths)              !< output cells
+        integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
+        integer :: chan_num(noutpaths)              !< channcel number
+        real(gtm_real) :: x_from_lo_face(noutpaths) !< distance from lo face of the cell
         real(gtm_real) :: x_dist(noutpaths)        
         integer :: i
         do i = 1, noutpaths
@@ -79,14 +79,17 @@ module gtm_subs
                     do k = 1, n_segm
                         if (segm(k)%chan_no .eq. chan_no) then
                             if ((x_dist(i).ge.segm(k)%up_distance).and.(x_dist(i).lt.segm(k)%down_distance)) then
-                                out_cell(i) = segm(k)%start_cell_no + int((x_dist(i)-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
+                                out_cell(i) = segm(k)%start_cell_no +  &
+                                              int((x_dist(i)-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
                                 x_from_lo_face(i) = x_dist(i)-segm(k)%up_distance - (segm(k)%length/segm(k)%nx)*     &
                                                     int((x_dist(i)-segm(k)%up_distance)/(segm(k)%length/segm(k)%nx))
-                                if ((cell(out_cell(i))%up_cell.le.0) .or. (x_from_lo_face(i).ge.half*cell(out_cell(i))%dx) &
-                                     .and. (cell(out_cell(i))%down_cell.gt.0) ) then
+                                if ((cell(out_cell(i))%up_cell.le.0) .or.                     &
+                                    (x_from_lo_face(i).ge.half*cell(out_cell(i))%dx) .and.    &
+                                    (cell(out_cell(i))%down_cell.gt.0) ) then
                                     calc_option(i) = 1
-                                elseif ((cell(out_cell(i))%down_cell.le.0) .or. (x_from_lo_face(i).lt.half*cell(out_cell(i))%dx) &
-                                     .and. (cell(out_cell(i))%up_cell.gt.0) ) then
+                                elseif ((cell(out_cell(i))%down_cell.le.0) .or.                &
+                                        (x_from_lo_face(i).lt.half*cell(out_cell(i))%dx) .and. &
+                                        (cell(out_cell(i))%up_cell.gt.0) ) then
                                     calc_option(i) = 2
                                 else
                                     calc_option(i) = 0
@@ -175,18 +178,18 @@ module gtm_subs
         do i = 1, noutpaths
             vals(i,:) = zero
             icell = pathoutput(i)%out_chan_cell
-            if (pathoutput(i)%calc_option.eq.1) then       ! calculate the slope by icell and downstream cell
+            if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
                 down_cell = cell(icell)%down_cell
                 vals(i,:) = conc(icell,:)+(conc(down_cell,:)-conc(icell,:))*      &
                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
-            elseif (pathoutput(i)%calc_option.eq.2) then   ! calculate the slope by icell and upstream cell
+            elseif (pathoutput(i)%calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
                 up_cell = cell(icell)%up_cell
                 vals(i,:) = conc(icell,:)+(conc(icell,:)-conc(up_cell,:))*        &
                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx               
             else                            
                 vals(i,:) = conc(icell,:)
             end if
-            where (vals(i,:) .le. zero) vals(i,:) = conc(icell,:)
+            where (vals(i,:) .le. zero) vals(i,:) = conc(icell,:) ! to avoid extrapolation unstability
         end do
         return
     end subroutine                 
@@ -274,16 +277,22 @@ module gtm_subs
 
 
     !> check the flow mass balance at DSM2 network
-    subroutine flow_mass_balance_check(ncell, nqext, nresv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
-        use common_variables, only : n_node, dsm2_network
+    subroutine flow_mass_balance_check(ncell,      &
+                                       nqext,      &
+                                       nresv_conn, &
+                                       flow_lo,    &
+                                       flow_hi,    &
+                                       qext_flow,  &
+                                       resv_flow) 
+        use common_variables, only : n_node, dsm2_network, dsm2_network_extra
         implicit none
-        integer, intent(in) :: ncell
-        integer, intent(in) :: nqext
-        integer, intent(in) :: nresv_conn
-        real(gtm_real), intent(in) :: flow_lo(ncell)
-        real(gtm_real), intent(in) :: flow_hi(ncell)
-        real(gtm_real), intent(in) :: qext_flow(nqext)
-        real(gtm_real), intent(in) :: resv_flow(nresv_conn)        
+        integer, intent(in) :: ncell                        !< number of cells
+        integer, intent(in) :: nqext                        !< number of external flows
+        integer, intent(in) :: nresv_conn                   !< number of reservoir connections
+        real(gtm_real), intent(in) :: flow_lo(ncell)        !< flow at lo face
+        real(gtm_real), intent(in) :: flow_hi(ncell)        !< flow at hi face
+        real(gtm_real), intent(in) :: qext_flow(nqext)      !< external flows
+        real(gtm_real), intent(in) :: resv_flow(nresv_conn) !< reservoir flows
         real(gtm_real) :: flow_chk
         integer :: i, j
         
@@ -298,13 +307,13 @@ module gtm_subs
                     flow_chk = flow_chk + minus*flow_lo(dsm2_network(i)%cell_no(j))
                 end if
             end do 
-            do j = 1, dsm2_network(i)%n_qext 
-                 write(11,*) dsm2_network(i)%dsm2_node_no, qext_flow(dsm2_network(i)%qext_no(j)),"qext_flow"
-                 flow_chk = flow_chk + qext_flow(dsm2_network(i)%qext_no(j))
+            do j = 1, dsm2_network_extra(i)%n_qext 
+                 write(11,*) dsm2_network_extra(i)%dsm2_node_no, qext_flow(dsm2_network_extra(i)%qext_no(j)),"qext_flow"
+                 flow_chk = flow_chk + qext_flow(dsm2_network_extra(i)%qext_no(j))
             end do
-            if (dsm2_network(i)%reservoir_no.ne.0) then 
-                  write(11,*) dsm2_network(i)%dsm2_node_no, resv_flow(dsm2_network(i)%resv_conn_no),"resv_flow"
-                  flow_chk = flow_chk + resv_flow(dsm2_network(i)%resv_conn_no)
+            if (dsm2_network_extra(i)%reservoir_no.ne.0) then 
+                  write(11,*) dsm2_network_extra(i)%dsm2_node_no, resv_flow(dsm2_network_extra(i)%resv_conn_no),"resv_flow"
+                  flow_chk = flow_chk + resv_flow(dsm2_network_extra(i)%resv_conn_no)
             end if        
             if (abs(flow_chk) .gt. weakest_eps) write(11,*) dsm2_network(i)%dsm2_node_no, "*******"            
             write(11,*) dsm2_network(i)%dsm2_node_no, flow_chk
@@ -317,8 +326,8 @@ module gtm_subs
         use common_variables, only: comp_pt
         use common_xsect
         implicit none
-        integer, intent(in) :: ncomp                   !< number of computational points
-        integer, intent(in) :: buffer                  !< size of memory buffer
+        integer, intent(in) :: ncomp                          !< number of computational points
+        integer, intent(in) :: buffer                         !< size of memory buffer
         real(gtm_real), intent(in) :: hyd_ws(ncomp,buffer)    !< hydro water surface         
         real(gtm_real), intent(out) :: hyd_area(ncomp,buffer) !< hydro calculated area
         real(gtm_real) :: x

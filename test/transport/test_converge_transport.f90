@@ -196,6 +196,9 @@ module test_convergence_transport
                                      flow,                 &
                                      flow_lo,              &
                                      flow_hi,              &
+                                     area,                 &
+                                     area_lo,              &
+                                     area_hi,              &                                     
                                      time,                 &
                                      dx,                   &
                                      dt,                   &
@@ -269,6 +272,9 @@ module test_convergence_transport
                                         flow,                 &
                                         flow_lo,              &
                                         flow_hi,              &
+                                        area,                 &
+                                        area_lo,              &
+                                        area_hi,              &                                          
                                         time,                 &
                                         dx,                   &
                                         dt,                   &

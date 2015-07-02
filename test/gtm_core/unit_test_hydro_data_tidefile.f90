@@ -106,24 +106,24 @@ module ut_hydro_data_tide
         call assign_segment
         call assertEquals (dble(n_segm), dble(693), weakest_eps, "problem in assigning segment for n_segm")        
         call assertEquals (dble(segm(4)%segm_no), dble(4), weakest_eps, "problem in assigning segment for segm_no")    
-        call assertEquals (dble(segm(4)%chan_no), dble(2), weakest_eps, "problem in assigning segment for chan_no")    
-        call assertEquals (dble(segm(4)%up_comppt), dble(5), weakest_eps, "problem in assigning segment for up_comppt")  
-        call assertEquals (dble(segm(4)%down_comppt), dble(6), weakest_eps, "problem in assigning segment for down_comppt")  
-        call assertEquals (dble(segm(4)%length), dble(7000), weakest_eps, "problem in assigning segment for length")  
+        call assertEquals (dble(segm(4)%chan_no), dble(1), weakest_eps, "problem in assigning segment for chan_no")    
+        call assertEquals (dble(segm(4)%up_comppt), dble(2), weakest_eps, "problem in assigning segment for up_comppt")  
+        call assertEquals (dble(segm(4)%down_comppt), dble(3), weakest_eps, "problem in assigning segment for down_comppt")  
+        call assertEquals (dble(segm(4)%length), dble(6500), weakest_eps, "problem in assigning segment for length")  
        
         call get_dsm2_network_info
         call assertEquals (dble(n_node), dble(430), weakest_eps, "problem in assigning segment for n_node") 
         call assertEquals (dble(dsm2_network(210)%dsm2_node_no), dble(218), weakest_eps, "problem in assigning segment for dsm2_network(210)%dsm2_node_no") 
         call assertEquals (dble(dsm2_network(210)%n_conn_cell), dble(4), weakest_eps, "problem in assigning segment for dsm2_network(210)%n_conn_cell") 
         call assertEquals (dble(dsm2_network(221)%dsm2_node_no), dble(232), weakest_eps, "problem in assigning segment for dsm2_network(221)%dsm2_node_no") 
-        call assertEquals (dble(dsm2_network(221)%reservoir_no), dble(4), weakest_eps, "problem in assigning segment for dsm2_network(221)%reservoir_no") 
+        call assertEquals (dble(dsm2_network_extra(221)%reservoir_no), dble(4), weakest_eps, "problem in assigning segment for dsm2_network(221)%reservoir_no") 
         call assertEquals (dble(dsm2_network(17)%dsm2_node_no), dble(17), weakest_eps, "problem in assigning segment for dsm2_network(17)%dsm2_node_no") 
         call assertEquals (dble(dsm2_network(17)%boundary_no), dble(1), weakest_eps, "problem in assigning segment for dsm2_network(17)%boundary_no") 
-        call assertEquals (dble(dsm2_network(17)%cell_no(1)), dble(125), weakest_eps, "problem in assigning segment for dsm2_network(17)%cell_no") 
+        call assertEquals (dble(dsm2_network(17)%cell_no(1)), dble(1), weakest_eps, "problem in assigning segment for dsm2_network(17)%cell_no") 
         call assertEquals (dble(dsm2_network(17)%up_down(1)), dble(1), weakest_eps, "problem in assigning segment for dsm2_network(17)%up_down") 
         call assertEquals (dble(dsm2_network(344)%dsm2_node_no), dble(361), weakest_eps, "problem in assigning segment for dsm2_network(344)%dsm2_node_no") 
         call assertEquals (dble(dsm2_network(344)%boundary_no), dble(21), weakest_eps, "problem in assigning segment for dsm2_network(344)%boundary_no") 
-        call assertEquals (dble(dsm2_network(344)%cell_no(1)), dble(2169), weakest_eps, "problem in assigning segment for dsm2_network(344)%cell_no") 
+        call assertEquals (dble(dsm2_network(344)%cell_no(1)), dble(2784), weakest_eps, "problem in assigning segment for dsm2_network(344)%cell_no") 
         call assertEquals (dble(dsm2_network(344)%up_down(1)), dble(0), weakest_eps, "problem in assigning segment for dsm2_network(344)%up_down") 
                
         ! test reading time series data
