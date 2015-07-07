@@ -253,7 +253,7 @@ module gtm_subs
 
     !> assign value to dsm2_network(:)%node_conc, pathinput(:)%i_node, pathinput(:)%i_var
     subroutine assign_node_ts()
-        use common_variables, only : n_node, dsm2_network, n_var, constituents
+        use common_variables, only : n_node, dsm2_network, dsm2_network_extra, n_var, constituents, qext
         use common_dsm2_vars, only : n_inputpaths, pathinput    
         implicit none
         integer :: i, j
@@ -270,6 +270,11 @@ module gtm_subs
                     pathinput(i)%i_node = j
                     dsm2_network(j)%node_conc = 1
                 end if        
+            end do
+            do j = 1, dsm2_network_extra(pathinput(i)%i_node)%n_qext
+                if (trim(qext(dsm2_network_extra(pathinput(i)%i_node)%qext_no(j))%name) .eq. trim(pathinput(i)%name)) then
+                    dsm2_network_extra(pathinput(i)%i_node)%qext_path(j) = i
+                end if            
             end do
         end do
         return

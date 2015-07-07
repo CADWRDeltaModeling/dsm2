@@ -42,6 +42,7 @@ module common_variables
      integer :: n_gate = LARGEINT                   !< number of gates
      integer :: n_bflow = LARGEINT                  !< number of boundary flow
      integer :: n_bstage = LARGEINT                 !< number of boundary stage
+     integer :: n_sflow = LARGEINT                  !< number of source flow
      integer :: n_bfbs = LARGEINT                   !< number of boundary flows and stage
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
@@ -57,6 +58,7 @@ module common_variables
      real(gtm_real), allocatable :: hydro_tran_flow(:,:)   !< transfer flows
 
      !> Define scalar and envvar in input file 
+     real(gtm_real) :: no_flow = one                   !< define a criteria for the definition of no flow to avoid the problem in calculating average concentration
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
      integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
      character(len=128) :: hydro_hdf5                  !< hydro tide filename
@@ -207,6 +209,7 @@ module common_variables
      end type
      type(gate_t), allocatable :: gate(:)
      
+     !> Define boundary flow and boundary stage
      type bfbs_t
          character*32 :: btype                       !< boundary type: "flow", "stage"
          character*32 :: name                        !< name
@@ -214,6 +217,13 @@ module common_variables
      end type    
      type(bfbs_t), allocatable :: bfbs(:)
      
+     !> Define source flow
+     type source_flow_t
+         character*32 :: name                        !< name
+         integer :: node                             !< node number
+     end type    
+     type(source_flow_t), allocatable :: source_flow(:)
+                    
      !> DSM2 Node information
      type dsm2_network_t
          integer :: dsm2_node_no                   !< DSM2 node number
@@ -235,6 +245,7 @@ module common_variables
          integer :: resv_conn_no                   !< reservoir conection number (exist if not 0)
          integer :: n_qext                         !< number of external flows (exist if not 0)
          integer, allocatable :: qext_no(:)        !< connected qext number
+         integer, allocatable :: qext_path(:)      !< node concentration input path (exist if not 0)
          integer :: n_tran                         !< number of transfer flows (exist if not 0)
          integer, allocatable :: tran_no(:)        !< connected tran number
          integer :: boundary                       !< 1: boundary flow, 2: boundary stage
@@ -447,6 +458,21 @@ module common_variables
          bfbs%node = 0
          return
      end subroutine
+
+     ! Allocate source_flow_t array
+     subroutine allocate_source_flow_property
+         use error_handling
+         implicit none
+         integer :: istat = 0
+         character(len=128) :: message
+         allocate(source_flow(n_sflow), stat = istat)
+         if (istat .ne. 0 )then
+            call gtm_fatal(message)
+         end if
+         source_flow%name = ''
+         source_flow%node = 0
+         return
+     end subroutine
     
      !> Allocate hydro time series array
      subroutine allocate_hydro_ts()
@@ -528,6 +554,16 @@ module common_variables
          return
      end subroutine
 
+     !> Deallocate source flow property
+     subroutine deallocate_source_flow_property()
+         implicit none
+         if (n_sflow .ne. LARGEINT) then
+             n_sflow = LARGEINT
+             deallocate(source_flow)
+         end if    
+         return
+     end subroutine
+     
      !> Deallocate gate property
      subroutine deallocate_gate_property()
          implicit none
@@ -839,6 +875,9 @@ module common_variables
                  end if
              end do
              allocate(dsm2_network_extra(i)%qext_no(dsm2_network_extra(i)%n_qext))
+             allocate(dsm2_network_extra(i)%qext_path(dsm2_network_extra(i)%n_qext))
+             dsm2_network_extra(i)%qext_no = 0
+             dsm2_network_extra(i)%qext_path = 0
              k = 0 
              do j = 1, n_qext
                  if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_name==unique_num(i)) then
@@ -867,7 +906,8 @@ module common_variables
                      bfbs(j)%btype.eq."flow") dsm2_network_extra(i)%boundary = 1       
                  if (bfbs(j)%node .eq. dsm2_network_extra(i)%dsm2_node_no .and.  &
                      bfbs(j)%btype.eq."stage") dsm2_network_extra(i)%boundary = 2                            
-             enddo                          
+             enddo                             
+                                
          end do   
          
          do j = 1, n_gate                                

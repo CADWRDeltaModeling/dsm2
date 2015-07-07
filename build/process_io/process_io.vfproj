@@ -43,8 +43,9 @@
 		<File RelativePath="..\..\src\process_io\gtm_dss_write.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_hdf_ts_write.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_hdf_write.f90"/>
-		<File RelativePath="..\..\src\process_io\gtm_rate_coeff_assignment.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_init_store_outpaths.f90"/>
+		<File RelativePath="..\..\src\process_io\gtm_rate_coeff_assignment.f90"/>
+		<File RelativePath="..\..\src\process_io\gtm_store_outpaths.f90"/>
 		<File RelativePath="..\..\src\process_io\io_utilities.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_input.f90"/>
@@ -57,6 +58,5 @@
 		<File RelativePath="..\..\src\process_io\process_gtm_reservoir_conc.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_scalar.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_tidefile.f90"/>
-		<File RelativePath="..\..\src\process_io\read_init.f90"/>
-		<File RelativePath="..\..\src\process_io\gtm_store_outpaths.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\process_io\read_init.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

@@ -126,6 +126,9 @@ module gtm_dss_readtvd
             ptr = inpath_ptr(i)
             pathinput(ptr)%replace = .false.
             if (pathinput(ptr)%constant_value == miss_val_r) then ! get value from dss file
+               !if (indata(block_dim,i)%julmin.lt.0 .or. indata(block_dim,i)%julmin>99999999) then ! to avoid release version error
+               !    indata(block_dim,i)%julmin = LARGEINT
+               !end if
                if ( (jmin+pathinput(ptr)%diff_julmin >= &
                    indata(block_dim,i)%julmin ) .or. &
                    prev_jmin == int(start_julmin)) then
@@ -181,7 +184,7 @@ module gtm_dss_readtvd
                  bufndx_next_nosync=-1
                end if
             endif
-  
+ 
             !----ndx_next is index in dss buffer for data forward of current
             !----time step; depends on whether data is to be synced or not
             !----calculate this once each for synchronized and non-synchronized
@@ -219,7 +222,7 @@ module gtm_dss_readtvd
             !----index in dss buffer for data at previous or current time step
             if (ndx_next >= 2) then
                 ndx_prev_curr=ndx_next-1
-            else                   ! this shouldn't happen
+            else                   ! this shouldn't happen 
                 datetime1=jmin2cdt(indata(ndx_next,i)%julmin)
                 write(unit_error,613) &
                    trim(pathinput(ptr)%path), &

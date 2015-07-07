@@ -136,7 +136,6 @@ module gtm_dss_read
               kheadu, nheadu, iofset, icomp, istat)
 
           cedt=jmin2cdt(cdt2jmin(csdt)+nvals*nmins) ! nominal end of data block
-
           if (istat .gt. 10) then
              write(unit_error, 610) pathinput(pathnumber)%path(1:npath), &
                  csdt,cedt,istat
@@ -200,7 +199,7 @@ module gtm_dss_read
              enddo
           endif
        endif
-
+       
        call upcase(per_type)
 
        return

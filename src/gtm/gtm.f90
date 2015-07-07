@@ -441,7 +441,7 @@ program gtm
                                 sub_gtm_time_step*sixty,      &
                                 dx_arr,                       &
                                 limit_slope)   
-            where (mass.lt.zero) mass = zero                                  
+            where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)          
             conc_prev = conc
             prev_conc_resv = conc_resv

@@ -164,8 +164,8 @@ module boundary_diffusion_network
         !real(gtm_real) :: scaling = 0.5d0
         integer :: i
    
-        disp_coef_hi = disp_coef_arr !*abs(flow_hi/area_hi)
-        disp_coef_lo = disp_coef_arr !*abs(flow_lo/area_lo)
+        disp_coef_hi = disp_coef_arr*abs(flow_hi/area_hi)
+        disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo)
         do i = 1, n_gate
             if (gate(i)%face .eq. 0) then            ! gate at lo face
                 disp_coef_lo(gate(i)%cell_no) = zero
