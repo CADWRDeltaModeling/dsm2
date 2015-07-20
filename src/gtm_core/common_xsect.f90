@@ -32,7 +32,7 @@ module common_xsect
     integer, allocatable :: xsect_index(:)     !< starting xsect index for a channel
     integer, allocatable :: num_xsect_chan(:)  !< number of xsect in a channel
     integer, allocatable :: num_elev_chan(:)   !< number of elevations in a channel
-
+    
     !> Define type for virtual xsect  
     type cross_section_t
         real(gtm_real) :: min_elev                       !< minimum elevation in the sec
@@ -45,6 +45,7 @@ module common_xsect
         integer :: vsecno                      !< virtual cross-section number
         integer :: num_elev                    !< number of elevations in the sec
         integer :: num_virt_sec                !< number of virtual xsects in the channel
+        integer :: prev_elevation_index        !< cache previous elevation index for performance only
     end type
     
     type(cross_section_t), allocatable:: virt_xsect(:)
@@ -87,7 +88,12 @@ module common_xsect
             virt_xsect(i)%area = LARGEREAL
             virt_xsect(i)%wet_p = LARGEREAL
             virt_xsect(i)%width = LARGEREAL
+            virt_xsect(i)%prev_elevation_index = 1
         end do    
+        xsect_index(1) = 1
+        do i = 2, n_chan
+            xsect_index(i) = xsect_index(i-1) + num_xsect_chan(i-1)
+        end do
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if      
@@ -118,13 +124,10 @@ module common_xsect
         real(gtm_real), intent(out) :: area           !< CxArea
         real(gtm_real) :: virt_deltax
         integer :: vsecno_forX
+        integer :: vindex
         integer :: i, si, di, ei, OK
         real(gtm_real) :: z1, z2, y1, y2, b1, b2, a1
         real(gtm_real) :: dz, slope, localChannelWidth
-        xsect_index(1) = 1
-        do i = 2, n_chan
-            xsect_index(i) = xsect_index(i-1) + num_xsect_chan(i-1)
-        end do
         if (num_xsect_chan(branch)>1) then 
             virt_deltax = chan_geom(branch)%channel_length/(num_xsect_chan(branch)-1)
         else
@@ -132,8 +135,12 @@ module common_xsect
         end if    
         vsecno_forX = nint(X/virt_deltax) + 1 
         si = xsect_index(branch) + vsecno_forX - 1
+        vindex = virt_xsect(si)%prev_elevation_index
+        do while ((Z .lt. virt_xsect(si)%elevation(vindex)) .and. (vindex .gt. 1))
+         vindex = vindex - 1
+        end do
         OK = 0
-        do i = 1, num_elev_chan(branch)-1
+        do i = vindex, num_elev_chan(branch)-1
            if (OK .eq. 0) then
                if (Z.ge.virt_xsect(si)%elevation(i) .and. Z.lt.virt_xsect(si)%elevation(i+1)) then
                    OK = 1
@@ -141,6 +148,7 @@ module common_xsect
                end if    
            end if
         end do
+        virt_xsect(si)%prev_elevation_index=ei ! caching for performance improvement only
         if (OK .eq. 0) then
             write(*,*) 'water surface is beyond limit at branch ',branch,', X=',X,', Z=',Z
         end if 
