@@ -138,17 +138,17 @@ public class SwimInputs {
 			PTMUtil.systemExit("particle mean swimming velocity map should be defined earlier, but not, system exit.");
 		if (meanMap.get(pId) == null){
 			//TODO remove next two lines when print line is removed, clean up
-			float m = chan.getParticleMeanValue(what);
-			meanMap.put(pId, m);
+			//float m = chan.getParticleMeanValue(what);
+			//meanMap.put(pId, m);
 			//TODO put back in when println is removed
-			//meanMap.put(pId, chan.getParticleMeanValue(what));
+			meanMap.put(pId, chan.getParticleMeanValue(what));
 			//TODO clean up
-			
+			/*
 			if (what.equalsIgnoreCase("RearingHoldingTime")){
 				System.err.println(PTMHydroInput.getExtFromIntChan(chan.getEnvIndex())
 								+"  "+groupName+"  "+pId+"  "+m+"  "+Globals.currentModelTime);
 			}
-			
+			*/
 		}
 		return meanMap.get(pId);
 	}

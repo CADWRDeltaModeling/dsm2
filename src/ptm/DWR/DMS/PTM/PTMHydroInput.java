@@ -135,7 +135,7 @@ public class PTMHydroInput{
     		chan.setFlow(flowArray);
     		chan.setArea(areaArray);
     		// calculate swimming related info: channel direction and confusion factor
-    		float curFlow = (flowUp + flowDown)/2;
+    		float curFlow = (flowUp + flowDown)/2;    		
     		ArrayList<Float> flows = _flowsInTidalCycles.get(channelNumber);
     		if (flows == null){
     			flows = new ArrayList<Float>();
