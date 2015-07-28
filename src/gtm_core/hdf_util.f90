@@ -85,6 +85,9 @@ module hdf_util
        call get_int_attribute_from_hdf5(n_resv_conn, "Number of reservoir node connects")
        call get_int_attribute_from_hdf5(n_qext, "Number of QExt")
        call get_int_attribute_from_hdf5(n_tran, "Number of flow transfers")
+       call get_int_attribute_from_hdf5(n_gate, "Number of gates")
+       call get_int_attribute_from_hdf5(n_flwbnd, "Number of flow boundaries")
+       call get_int_attribute_from_hdf5(n_stgbnd, "Number of stage boundaries")
        call get_int_attribute_from_hdf5(hydro_ntideblocks, "Number of intervals")
        call get_int_attribute_from_hdf5(hydro_start_jmin, "Start time")
        call get_int_attribute_from_hdf5(hydro_time_interval, "Time interval")
@@ -634,53 +637,63 @@ module hdf_util
        integer(HSIZE_T), dimension(1) :: data_dims  ! Datasets dimensions
        integer(SIZE_T) :: typesize                  ! Size of the datatype
        integer(SIZE_T) :: type_size                 ! Size of the datatype
+       character*32, allocatable :: from_obj(:)     ! from_obj
        integer :: error                             ! Error flag
        integer :: i
       
        call h5gopen_f(hydro_id, "input", input_id, error)
        call h5dopen_f(input_id, "gate", dset_id, error) 
          
-       n_gate = 17  !todo:: need to add output in hydro attribute table in order to read it
        data_dims(1) = n_gate
        call allocate_gate_property()
-       call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
-       typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
-       call h5tset_size_f(dt_id, typesize, error)
-       call h5tget_size_f(dt_id, type_size, error)    
-       do i = 1,n_gate
-           gate(i)%gate_no = i
-       end do     
+       if (n_tran > 0) then
+           allocate(from_obj(n_gate))       
+           call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+           typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+           call h5tset_size_f(dt_id, typesize, error)
+           call h5tget_size_f(dt_id, type_size, error)         
          
-       offset = 0
-       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
-       call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
-       call h5dread_f(dset_id, dt1_id, gate%name, data_dims, error) 
+           offset = 0
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt1_id, gate%name, data_dims, error) 
            
-       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
-       call h5tinsert_f(dt2_id, "from_obj", offset, dt_id, error)    
-       call h5dread_f(dset_id, dt2_id, gate%from_obj, data_dims, error)
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+           call h5tinsert_f(dt2_id, "from_obj", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt2_id, from_obj, data_dims, error)
 
-       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
-       call h5tinsert_f(dt3_id, "from_identifier", offset, dt_id, error)    
-       call h5dread_f(dset_id, dt3_id, gate%from_identifier, data_dims, error)
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt3_id, error)
+           call h5tinsert_f(dt3_id, "from_identifier", offset, dt_id, error)    
+           call h5dread_f(dset_id, dt3_id, gate%from_identifier, data_dims, error)
        
-       type_size = 4
-       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
-       call h5tinsert_f(dt4_id, "to_node", offset, H5T_NATIVE_INTEGER, error)    
-       call h5dread_f(dset_id, dt4_id, gate%to_node, data_dims, error)  
+           type_size = 4
+           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt4_id, error)
+           call h5tinsert_f(dt4_id, "to_node", offset, H5T_NATIVE_INTEGER, error)    
+           call h5dread_f(dset_id, dt4_id, gate%to_node, data_dims, error)  
+
+           do i = 1, n_gate
+               gate(i)%gate_no = i
+               if (trim(from_obj(i)).eq.'channel') then
+                   gate(i)%from_obj_int = 1
+               elseif(trim(from_obj(i)).eq.'reservoir') then
+                   gate(i)%from_obj_int = 2
+               end if    
+           end do                                                                  
                        
-       call h5tclose_f(dt1_id, error)
-       call h5tclose_f(dt2_id, error)  
-       call h5tclose_f(dt3_id, error)   
-       call h5tclose_f(dt_id, error)               
-       call h5dclose_f(dset_id, error)  
-       call h5gclose_f(input_id, error)              
+           call h5tclose_f(dt1_id, error)
+           call h5tclose_f(dt2_id, error)  
+           call h5tclose_f(dt3_id, error)   
+           call h5tclose_f(dt_id, error)               
+           call h5dclose_f(dset_id, error)  
+           call h5gclose_f(input_id, error)              
+           deallocate(from_obj)
+       end if    
        return        
    end subroutine   
 
    !> Read boundary flow tables from hydro tidefile
    subroutine read_boundary_tbl()
-       use common_variables, only : n_bflow, n_bstage, bfbs
+       use common_variables, only : n_flwbnd, n_stgbnd, bfbs
        implicit none
        integer(HID_T) :: input_id                       ! Group identifier
        integer(HID_T) :: dset_id                        ! Dataset identifier
@@ -695,21 +708,19 @@ module hdf_util
        character*32 :: from_obj, from_identifier        ! local variables
        character*32 :: to_obj, to_identifier            ! local variables
        
-       n_bflow = 7 !todo:need to read from hydro, modify hydro
-       n_bstage = 1 !todo:need to read from hydro, modify hydro
-       n_bfbs = n_bflow + n_bstage
+       n_bfbs = n_flwbnd + n_stgbnd
        call allocate_bfbs_property()
        call h5gopen_f(hydro_id, "input", input_id, error)  
        
-       data_dims(1) = n_bflow            
-       if (n_bflow > 0) then
+       data_dims(1) = n_flwbnd            
+       if (n_flwbnd > 0) then
            call h5dopen_f(input_id, "boundary_flow", dset_id, error) 
            call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
            typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
            call h5tset_size_f(dt_id, typesize, error)
            call h5tget_size_f(dt_id, type_size, error)
                       
-           bfbs(1:n_bflow)%btype = "flow"
+           bfbs(1:n_flwbnd)%btype = "flow"
                       
            offset = 0
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
@@ -727,24 +738,24 @@ module hdf_util
            call h5dclose_f(dset_id, error) 
        end if
        
-       data_dims(1) = n_bstage
-       if (n_bstage > 0) then
+       data_dims(1) = n_stgbnd
+       if (n_stgbnd > 0) then
            call h5dopen_f(input_id, "boundary_stage", dset_id, error) 
            call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
            typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
            call h5tset_size_f(dt_id, typesize, error)
            call h5tget_size_f(dt_id, type_size, error)
            
-           bfbs(n_bflow+1)%btype = "stage"  
+           bfbs(n_flwbnd+1)%btype = "stage"  
            offset = 0
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
            call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
-           call h5dread_f(dset_id, dt1_id, bfbs(n_bflow+1)%name, data_dims, error) 
+           call h5dread_f(dset_id, dt1_id, bfbs(n_flwbnd+1)%name, data_dims, error) 
            
            type_size = 4
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
            call h5tinsert_f(dt2_id, "node", offset, H5T_NATIVE_INTEGER, error)    
-           call h5dread_f(dset_id, dt2_id, bfbs(n_bflow+1)%node, data_dims, error)
+           call h5dread_f(dset_id, dt2_id, bfbs(n_flwbnd+1)%node, data_dims, error)
 
            call h5tclose_f(dt2_id, error)  
            call h5tclose_f(dt1_id, error)         

@@ -229,7 +229,7 @@ module ut_gtm_hdf_ts_wrt
         call h5sclose_f(dataspace, error)
         call h5gclose_f(output_id, error)
         call h5fclose_f(file_id,error)   
-                     
+        deallocate(rdata)                     
         return
     end subroutine
 
@@ -380,7 +380,7 @@ module ut_gtm_hdf_ts_wrt
         call h5sclose_f(dataspace, error)
         call h5gclose_f(output_id, error)
         call h5fclose_f(file_id,error)   
-                     
+        deallocate(rdata)                     
         return
     end subroutine
 

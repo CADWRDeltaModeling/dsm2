@@ -118,12 +118,30 @@ module boundary_diffusion_network
     !> the value of the constant dispersion coefficient as well.
     subroutine set_dispersion_arr(d_arr,  &
                                   ncell)
+        use common_variables, only: n_gate, gate, dsm2_network                             
         implicit none
         integer, intent(in) :: ncell              !< number of cells
         real(gtm_real),intent(in) :: d_arr(ncell) !< array of dispersion coefficients
+        integer :: i, j
+        
         allocate(disp_coef_arr(ncell))
         disp_coef_arr = d_arr
+        
+        do i = 1, n_gate
+            !if (gate(i)%face .eq. 0) then            ! gate at lo face
+            !    disp_coef_lo(gate(i)%cell_no) = zero
+            !elseif (gate(i)%face .eq. 1) then        ! gate at hi face
+            !    disp_coef_hi(gate(i)%cell_no) = zero
+            !end if    
+            if (gate(i)%from_obj_int .eq. 1) then
+                do j = 1, dsm2_network(gate(i)%to_node_int)%n_conn_cell
+                    disp_coef_arr(dsm2_network(gate(i)%to_node_int)%cell_no(j)) = zero
+                end do    
+            end if    
+        end do            
+        
         dispersion_coef => assign_dispersion_coef
+        
         return
     end subroutine    
     
@@ -144,8 +162,6 @@ module boundary_diffusion_network
                                       nvar)  
         use gtm_precision
         use error_handling
-        use common_variables, only: n_gate, gate
-      
         implicit none
         !--- args          
         integer,intent(in)  :: ncell                     !< Number of cells
@@ -165,14 +181,7 @@ module boundary_diffusion_network
         integer :: i
    
         disp_coef_hi = disp_coef_arr*abs(flow_hi/area_hi)
-        disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo)
-        do i = 1, n_gate
-            if (gate(i)%face .eq. 0) then            ! gate at lo face
-                disp_coef_lo(gate(i)%cell_no) = zero
-            elseif (gate(i)%face .eq. 1) then        ! gate at hi face
-                disp_coef_hi(gate(i)%cell_no) = zero
-            end if            
-        end do               
+        disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo)           
         
         return
     end subroutine

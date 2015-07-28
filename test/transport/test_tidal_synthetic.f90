@@ -30,8 +30,8 @@ module test_tidal_synthetic
 
 use gtm_precision
 integer, parameter  :: nconc = 2                              !< Number of constituents
-integer, parameter  :: nstep_base = 500                       !< Number of time steps in finer discritization
-integer, parameter  :: nx_base    = 20                       !< Number of spatial discritization in finer mesh 
+integer, parameter  :: nstep_base = 64                        !< Number of time steps in finer discritization
+integer, parameter  :: nx_base    = 128                       !< Number of spatial discritization in finer mesh 
 real(gtm_real),parameter :: origin = zero                     !< Left hand side of the channel
 real(gtm_real),parameter :: domain_length = 204800.d0/two     !< Domain Length in meter
 real(gtm_real),parameter :: amplitude = half                  !< Tidal amplitude in meter    

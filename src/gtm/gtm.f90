@@ -231,7 +231,6 @@ program gtm
     call set_dispersion_arr(disp_arr, n_cell)
     
     write(*,*) "Process time series...."
-    write(debug_unit,"(16x,3000i8)") (i, i = 1, n_cell) 
  
     prev_day =  "01JAN1000"       ! to initialize for screen printing only
 
@@ -284,9 +283,6 @@ program gtm
     disp_coef_lo_prev = disp_coef_lo
     disp_coef_hi_prev = disp_coef_hi
 
-    write(debug_unit,'(2a6,a10,11a24)') "cell","var","dx","grad","grad_lo","grad_hi","area", &
-                     "mass_prev","flow_lo","flow_hi","conc_lo","conc_hi","flux_lo","flux_hi"
-    
     prev_sub_ts = 1
     start_julmin = int(gtm_start_jmin)
     end_julmin = int(gtm_end_jmin)    
@@ -387,6 +383,11 @@ program gtm
             do i = 1, n_inputpaths
                 node_conc(pathinput(i)%i_node, pathinput(i)%i_var) = pathinput(i)%value   
             end do   
+            do i = 1, n_bfbs
+                do j = 1, n_inputpaths
+                    if (pathinput(j)%i_node .eq. bfbs(i)%i_node) node_conc(bfbs(i)%i_node,:) = pathinput(j)%value 
+                end do    
+            end do
                         
             call fill_hydro(flow,          &
                             flow_lo,       &
@@ -445,12 +446,6 @@ program gtm
             call cons2prim(conc, mass, area, n_cell, n_var)          
             conc_prev = conc
             prev_conc_resv = conc_resv
-            !write(108,*) new_current_time
-            !write(108,'(16x,6a10)') "3591","3561","3570","2400","2413","2414"
-            !write(108,'(a10,i6,6f10.2)') "FLOW",time_step_int,flow(2591),flow(3561),flow_hi(3570),flow_lo(2400),flow_lo(2413),flow_hi(2414)   ! to check junction #381
-            !write(108,'(a10,i6,6f10.2)') "AREA",time_step_int,area(2897),area(2899),area(2900),area(2909),area(2989),area(2996),area(3007)               ! to check junction #381
-            !write(108,'(a10,i6,6f10.2)') "VEL",time_step_int,flow(2897)/area(2897),flow(2899)/area(2899),flow(2900)/area(2900),flow(2899)/area(2899),flow(2900)/area(2900),flow(2909)/area(2909)               ! to check junction #381            
-            !write(108,'(a10,i6,6f10.3)') "ADVECT",time_step_int,conc(3591,1),conc(3561,1),conc(3570,1),conc(2400,1),conc(2413,1),conc(2414,1)  ! to check junction #381
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 call dispersion_coef(disp_coef_lo,         &
@@ -485,7 +480,6 @@ program gtm
                                      sub_gtm_time_step*sixty,      &
                                      dx_arr)
             end if 
-            !write(108,'(a10,i6,6f10.3)') "DISP",time_step_int,conc(3591,1),conc(3561,1),conc(3570,1),conc(2400,1),conc(2413,1),conc(2414,1) ! to chcek junction #391
                         
             call prim2cons(mass,conc,area,n_cell,n_var)
             mass_prev = mass
@@ -513,10 +507,6 @@ program gtm
             call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
         endif
         
-        !if (time_step_int.eq.442) then
-        !   apply_diffusion = .false.
-        !end if
-        !
         !----- print output to hdf5 file -----
         !                     
         if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then

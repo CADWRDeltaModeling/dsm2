@@ -38,7 +38,7 @@ module create_synth_tide
     real(gtm_real),parameter :: gravity = 9.80d0                  !< Gravitational acceleration in m/s^2
     real(gtm_real),parameter :: depth = 16.0d0                    !< Channel depth in meter
     real(gtm_real),parameter :: sec_per_hr = 60.d0*60.d0          !< Convert factor of hour to second 
-    real(gtm_real),parameter :: m2_period = 12.0d0*sec_per_hr     !< rough tidal period (shouold be 12.4)
+    real(gtm_real),parameter :: m2_period = 12.4d0*sec_per_hr     !< rough tidal period (shouold be 12.4)
     real(gtm_real),parameter :: freq=two*pi/m2_period             !< Frequency of tidal oscillation
     real(gtm_real),parameter :: total_time = m2_period*two*424.d0      !< Total time of the test
     real(gtm_real),parameter :: start_time = zero                 !< Starts at zero

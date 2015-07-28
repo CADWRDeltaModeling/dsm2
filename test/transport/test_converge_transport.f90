@@ -213,7 +213,7 @@ module test_convergence_transport
     
             if (icoarse == 1)then
                 call prim2cons(fine_initial_mass,fine_initial_conc,area,nx,nconc)
-             end if
+            end if
         
             call coarsen(mass,fine_initial_mass,nx_base,nx,nconc)
             call cons2prim(conc,mass,area,nx,nconc)

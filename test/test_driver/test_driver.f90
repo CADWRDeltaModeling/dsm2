@@ -56,6 +56,7 @@ program test_driver
     use test_converge_bidirectional_uniform
     use test_convergence_transport_uniform_vary_dx
     use test_advection_reaction_tidal_vary_dx
+    use test_converge_hydro_interpolation
     use test_matrix_solver
     use test_boundary_diffusion
     use test_diffusive_flux
@@ -154,6 +155,7 @@ program test_driver
     !       this frequently causes problems that are undetected without scrutiny
     call test_tidal_advection_reaction(verbose)
     call test_tidal_advection_reaction_vary_dx(verbose)
+    call test_advection_reaction_hydro_interp(verbose)
     
     !/////Advection-Diffusion tests
     call test_zoppou_flow()    ! unit test that goes with convergence test

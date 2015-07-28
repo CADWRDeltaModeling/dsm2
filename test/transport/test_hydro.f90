@@ -168,7 +168,6 @@ subroutine print_out_tidal_hydro
     real(gtm_real) :: area(nx), area_lo(nx), area_hi(nx)
     integer :: itime, j
     real(gtm_real), parameter :: m2ft = 3.28084d0
-    real(gtm_real), parameter :: channel_bottom = 0.1d0
     procedure(hydro_data_if),pointer :: tidal_hydro           !< The pointer points to tidal flow data
    
     tidal_hydro=>tidal_flow_synthetic ! this flow generator is mass conservative
@@ -176,8 +175,8 @@ subroutine print_out_tidal_hydro
     dx = domain_length/dble(nx)
     dt = total_time/dble(nt)                                           
     
-    time =  start_time                                          
-    do itime = 1, nt
+    time =  start_time                                        
+    do itime = 1, nt + 1
         time = time + dt
        
         ! Get cell centered data for t(n+1)
@@ -192,8 +191,8 @@ subroutine print_out_tidal_hydro
                    time,    &
                    dx,      &                  
                    dt)
-       write(143,'(512f8.2)') (flow_lo(j)*m2ft**3, flow_hi(j)*m2ft**3, j=1,nx)
-       write(144,'(512f8.2)') (area_lo(j)*m2ft+channel_bottom, area_hi(j)*m2ft+channel_bottom, j=1,nx)     !this will be water surface elevation
+       write(143,'(512f8.2)') (flow_lo(j)*m2ft**3, j=1,nx),flow_hi(nx)*m2ft**3
+       write(144,'(512f8.2)') (area_lo(j)*m2ft, j=1,nx), area_hi(nx)*m2ft     !this will be water surface elevation
     end do
     return
 end subroutine                   

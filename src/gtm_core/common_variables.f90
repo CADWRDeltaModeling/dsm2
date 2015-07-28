@@ -40,8 +40,8 @@ module common_variables
      integer :: n_qext = LARGEINT                   !< number of external flows
      integer :: n_tran = LARGEINT                   !< number of transfer flows
      integer :: n_gate = LARGEINT                   !< number of gates
-     integer :: n_bflow = LARGEINT                  !< number of boundary flow
-     integer :: n_bstage = LARGEINT                 !< number of boundary stage
+     integer :: n_flwbnd = LARGEINT                  !< number of boundary flow
+     integer :: n_stgbnd = LARGEINT                 !< number of boundary stage
      integer :: n_sflow = LARGEINT                  !< number of source flow
      integer :: n_bfbs = LARGEINT                   !< number of boundary flows and stage
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
@@ -58,7 +58,7 @@ module common_variables
      real(gtm_real), allocatable :: hydro_tran_flow(:,:)   !< transfer flows
 
      !> Define scalar and envvar in input file 
-     real(gtm_real) :: no_flow = one                   !< define a criteria for the definition of no flow to avoid the problem in calculating average concentration
+     real(gtm_real) :: no_flow = ten                   !< define a criteria for the definition of no flow to avoid the problem in calculating average concentration
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
      integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
      character(len=128) :: hydro_hdf5                  !< hydro tide filename
@@ -199,9 +199,9 @@ module common_variables
      type gate_t
          integer :: gate_no                          !< transfer flow number
          character*32 :: name                        !< transfer name
-         character*32 :: from_obj                    !< from obj
          character*32 :: from_identifier             !< from identifier         
          integer :: to_node                          !< to node
+         integer :: to_node_int                      !< to node internal number
          integer :: from_obj_int                     !< from_obj to integer, 1: channel, 2: reservoir
          integer :: from_identifier_int              !< from_identifier to its id
          integer :: cell_no                          !< cell_no
@@ -214,6 +214,7 @@ module common_variables
          character*32 :: btype                       !< boundary type: "flow", "stage"
          character*32 :: name                        !< name
          integer :: node                             !< node number
+         integer :: i_node                           !< internal node number
      end type    
      type(bfbs_t), allocatable :: bfbs(:)
      
@@ -271,6 +272,10 @@ module common_variables
          if (n_resv .ne. LARGEINT) call allocate_reservoir_property
          if (n_qext .ne. LARGEINT) call allocate_qext_property     
          if (n_tran .ne. LARGEINT) call allocate_tran_property
+         if (n_gate .ne. LARGEINT) call allocate_gate_property
+         if (n_bfbs .ne. LARGEINT) call allocate_bfbs_property
+         if (n_gate .ne. LARGEINT) call allocate_gate_property
+         if (n_sflow .ne. LARGEINT) call allocate_source_flow_property
          if (n_node .ne. LARGEINT) call get_dsm2_network_info    
          return
      end subroutine    
@@ -284,7 +289,9 @@ module common_variables
          if (n_resv .ne. LARGEINT) call deallocate_reservoir_property
          if (n_qext .ne. LARGEINT) call deallocate_qext_property  
          if (n_tran .ne. LARGEINT) call deallocate_tran_property 
-         if (n_gate .ne. LARGEINT) call deallocate_gate_property   
+         if (n_gate .ne. LARGEINT) call deallocate_gate_property  
+         if (n_bfbs .ne. LARGEINT) call deallocate_bfbs_property
+         if (n_sflow .ne. LARGEINT) call deallocate_source_flow_property          
          if (n_node .ne. LARGEINT) call deallocate_dsm2_network_property              
          return
      end subroutine
@@ -437,9 +444,9 @@ module common_variables
          end if
          gate%gate_no = 0                     
          gate%name = '    '
-         gate%from_obj = '    '
          gate%from_identifier = '    '
          gate%to_node = 0
+         gate%to_node_int = 0
          return
      end subroutine
      
@@ -456,6 +463,7 @@ module common_variables
          bfbs%btype = ''   
          bfbs%name = ''
          bfbs%node = 0
+         bfbs%i_node = 0
          return
      end subroutine
 
@@ -902,17 +910,20 @@ module common_variables
              end do       
 
              do j = 1, n_bfbs
-                 if (bfbs(j)%node .eq. dsm2_network_extra(i)%dsm2_node_no .and.  &
-                     bfbs(j)%btype.eq."flow") dsm2_network_extra(i)%boundary = 1       
-                 if (bfbs(j)%node .eq. dsm2_network_extra(i)%dsm2_node_no .and.  &
-                     bfbs(j)%btype.eq."stage") dsm2_network_extra(i)%boundary = 2                            
+                 if (bfbs(j)%node.eq.dsm2_network_extra(i)%dsm2_node_no .and. bfbs(j)%btype.eq."flow") then
+                     bfbs(j)%i_node = i
+                     dsm2_network_extra(i)%boundary = 1       
+                 end if    
+                 if (bfbs(j)%node.eq.dsm2_network_extra(i)%dsm2_node_no .and. bfbs(j)%btype.eq."stage") then
+                     dsm2_network_extra(i)%boundary = 2
+                     bfbs(j)%i_node = i
+                 end if    
              enddo                             
                                 
          end do   
          
          do j = 1, n_gate                                
-             if (trim(gate(j)%from_obj).eq.'channel') then
-                 gate(j)%from_obj_int = 1
+             if (gate(j)%from_obj_int .eq. 1) then
                  read(gate(j)%from_identifier,'(i)') gate(j)%from_identifier_int       
                  do i = 1, n_node
                      do k = 1, dsm2_network(i)%n_conn_cell
@@ -921,12 +932,12 @@ module common_variables
                              gate(j)%cell_no = dsm2_network(i)%cell_no(k)
                              gate(j)%face = dsm2_network(i)%up_down(k)
                              dsm2_network(i)%gate(k) = j
+                             gate(j)%to_node_int = i
                              exit
                          end if
                      end do
                  end do    
-             elseif(trim(gate(j)%from_obj).eq.'reservoir') then
-                 gate(j)%from_obj_int = 2
+             elseif(gate(j)%from_obj_int .eq. 2) then
                  do k = 1, n_resv
                      if (trim(gate(j)%from_identifier) .eq. trim(resv_geom(k)%name)) then
                          gate(j)%from_identifier_int = resv_geom(k)%resv_no

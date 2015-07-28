@@ -119,6 +119,8 @@ module ut_gtm_network
         deallocate(prev_flow_cell_lo, prev_flow_cell_hi)
         call deallocate_network_tmp
         call deallocate_geometry
+        call deallocate_virt_xsect
+        call deallocate_hydro_ts
         close(debug_unit)        
         !call deallocate_hydro_ts() !don't deallocate this one for later use in test_advection_reaction_hdf5
         call hdf5_close()         

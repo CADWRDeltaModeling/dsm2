@@ -196,6 +196,7 @@ module dsm2_gtm_network
         real(gtm_real) :: up_count
         real(gtm_real) :: vol
         real(gtm_real) :: mass_resv(nvar)
+        real(gtm_real):: conc_tmp0(nvar)                        ! when no flow flows into junction, use this temp value.
         integer :: up_cell, down_cell
         integer :: network_id
         integer :: i, j, k, icell
@@ -268,29 +269,32 @@ module dsm2_gtm_network
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
-                        flow_tmp = flow_tmp + flow_hi(icell)                       
+                        flow_tmp = flow_tmp + flow_hi(icell)            
+                        conc_tmp0(:) = conc_hi(icell,:)           
                     elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
                         mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
+                        conc_tmp0(:) = conc_lo(icell,:)
                     endif                   
                 end do
                 ! temporarily calculated concentration to assign to seepage and diversion
                 if (flow_tmp .lt. no_flow) then
                     !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                    conc_tmp(:) = conc_lo(icell,:)
+                    conc_tmp = conc_tmp0
                 else     
                     conc_tmp(:) = mass_tmp(:)/flow_tmp
                 end if
+
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
                     do j = 1, dsm2_network_extra(i)%n_qext
-                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j).ne.0)) then    !drain
-                            mass_tmp(:) = mass_tmp(:) + pathinput(dsm2_network_extra(i)%qext_path(j))%value*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.ne.0)) then    !drain
+                            mass_tmp(:) = mass_tmp(:) + node_conc(i,:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
                         !elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j).eq.0)) then !drain but node concentration is absent
                         !    mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                         !    flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))                            
-                        !    !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                        !    write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                         else     ! seepage and diversion
                             mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))                        
@@ -298,7 +302,7 @@ module dsm2_gtm_network
                     end do
                     if (flow_tmp .lt. no_flow) then
                         !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                        conc_tmp(:) = conc_lo(icell,:)
+                        conc_tmp = conc_tmp0
                     else     
                         conc_tmp(:) = mass_tmp(:)/flow_tmp
                     end if     
