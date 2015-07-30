@@ -216,7 +216,7 @@ module test_converge_hydro_interpolation
                               .true.,                            &
                               acceptance_ratio)
                       
-        label = "advection_reaction_tidal_sinusoidal_dx" 
+        label = "advection_reaction_tidal_sinusoidal_interp" 
         ! load the initial values and reference final values to feed the test routine
         call initial_fine_solution_tidal_sinusoidal_interp(fine_initial_condition, &
                                                             fine_solution,          &

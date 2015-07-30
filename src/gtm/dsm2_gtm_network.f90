@@ -203,7 +203,7 @@ module dsm2_gtm_network
         
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
-            vol = resv_geom(i)%area * million * prev_resv_height(i)
+            vol = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
             mass_resv(:) = vol * prev_conc_resv(i,:)
             do j = 1, resv_geom(i)%n_resv_conn
                 network_id = resv_geom(i)%network_id(j)

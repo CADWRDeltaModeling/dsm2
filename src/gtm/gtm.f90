@@ -107,7 +107,7 @@ program gtm
     integer, parameter :: max_num_sub_ts = 20                 ! maximum number of sub time step within GTM time step    
     
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
-    character(len=24) :: restart_file_name
+    character(len=:), allocatable :: restart_file_name
     character(len=14) :: cdt
     character(len=9) :: prev_day
 
@@ -131,6 +131,7 @@ program gtm
     real(gtm_real), allocatable :: vals(:,:)
     
     integer :: st, k, n_st     ! temp index
+    logical :: file_exists
 
     n_var = 1
     
@@ -189,7 +190,7 @@ program gtm
     linear_decay = constant_decay
     
     constituents(1)%conc_no = 1
-    constituents(1)%name = "EC"
+    constituents(1)%name = "EC"   
     call assign_node_ts
     allocate(node_conc(n_node, n_var))
     allocate(prev_node_conc(n_node, n_var))
@@ -233,14 +234,14 @@ program gtm
     write(*,*) "Process time series...."
  
     prev_day =  "01JAN1000"       ! to initialize for screen printing only
-
+    
+    init_c = 200.d0
+    init_r = 0.d0    
     restart_file_name = trim(gtm_io(1,1)%filename) 
-    if (restart_file_name.eq.'') then  
-        init_c = 200.d0
-        init_r = 200.d0    
-    else
-        call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var)
-    end if
+    inquire(file=gtm_io(1,1)%filename, exist=file_exists)
+    if (file_exists==.true.) then 
+        call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var) 
+    endif            
 
     if (n_cell .gt. 0) then
         if (init_c(1,1) .ne. LARGEREAL) then
@@ -381,11 +382,12 @@ program gtm
             !---rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
             do i = 1, n_inputpaths
-                node_conc(pathinput(i)%i_node, pathinput(i)%i_var) = pathinput(i)%value   
+                if (pathinput(i)%obj_type .eq. obj_node) &
+                      node_conc(pathinput(i)%i_no, pathinput(i)%i_var) = pathinput(i)%value   
             end do   
             do i = 1, n_bfbs
                 do j = 1, n_inputpaths
-                    if (pathinput(j)%i_node .eq. bfbs(i)%i_node) node_conc(bfbs(i)%i_node,:) = pathinput(j)%value 
+                    if (pathinput(j)%i_no .eq. bfbs(i)%i_node) node_conc(bfbs(i)%i_node,:) = pathinput(j)%value 
                 end do    
             end do
                         
