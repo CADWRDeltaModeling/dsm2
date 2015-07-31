@@ -53,10 +53,9 @@ module state_variables_network
     real(gtm_real), save, allocatable :: prev_resv_height(:)
     real(gtm_real), save, allocatable :: prev_resv_flow(:)
     real(gtm_real), save, allocatable :: prev_qext_flow(:)
-    real(gtm_real), save, allocatable :: prev_tran_flow(:)
-    real(gtm_real), save, allocatable :: prev_node_conc(:,:)    
+    real(gtm_real), save, allocatable :: prev_tran_flow(:) 
+    real(gtm_real), save, allocatable :: prev_node_conc(:,:)
  
-        
     contains
     
     !> Allocate time series from hydro computational points
@@ -95,7 +94,7 @@ module state_variables_network
     
     !> Allocate the state variables consistently for reservoir/qext/transfer flows.
     !> Initial value is LARGEREAL
-    subroutine allocate_state_network(a_nresv,a_nresv_conn,a_nqext,a_ntran,a_nvar)
+    subroutine allocate_state_network(a_nresv,a_nresv_conn,a_nqext,a_ntran,a_nnode,a_nvar)
         use error_handling
         implicit none
         character(LEN=128) :: message
@@ -104,6 +103,7 @@ module state_variables_network
         integer, intent(in) :: a_nresv_conn !< Number of requested
         integer, intent(in) :: a_nqext      !< Number of requested
         integer, intent(in) :: a_ntran      !< Number of requested
+        integer, intent(in) :: a_nnode      !< Number of requested
         integer, intent(in) :: a_nvar       !< Number of constituents
         
         write(message,*)"Could not allocate state variable. " //&
@@ -144,7 +144,12 @@ module state_variables_network
         
         allocate(conc_resv(a_nresv,a_nvar), stat = istat)
         allocate(prev_conc_resv(a_nresv,a_nvar), stat = istat)
-        
+
+        allocate(node_conc(a_nnode,a_nvar), stat = istat)
+        allocate(prev_node_conc(a_nnode,a_nvar), stat = istat)
+        node_conc = LARGEREAL 
+        prev_node_conc = LARGEREAL 
+         
         return
     end subroutine
     
@@ -173,12 +178,14 @@ module state_variables_network
         n_resv_conn = 0
         n_qext = 0
         n_tran = 0
+        n_node = 0
         n_var = 0
         deallocate(resv_height, prev_resv_height)
         deallocate(resv_flow, prev_resv_flow)
         deallocate(qext_flow, prev_qext_flow)
         deallocate(tran_flow, prev_tran_flow)
         deallocate(conc_resv, prev_conc_resv)
+        deallocate(node_conc, prev_node_conc)
         return
     end subroutine    
 

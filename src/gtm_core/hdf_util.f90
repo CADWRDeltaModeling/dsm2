@@ -532,8 +532,10 @@ module hdf_util
  
            do i = 1, n_qext
                qext(i)%qext_no = i
-               if (qext(i)%attach_obj_type .eq. 2) then   !todo:reservoir character case
+               if (qext(i)%attach_obj_type .eq. 2) then      ! node object
                    read(attach_obj_name(i),'(i)') qext(i)%attach_obj_name
+               elseif (qext(i)%attach_obj_type .eq. 3) then  ! reservoir object 
+                   qext(i)%attach_obj_name = 0  !todo:need to convert to internal reservoir no
                end if    
            end do
                     
@@ -646,7 +648,7 @@ module hdf_util
          
        data_dims(1) = n_gate
        call allocate_gate_property()
-       if (n_tran > 0) then
+       if (n_gate > 0) then
            allocate(from_obj(n_gate))       
            call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
            typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
@@ -766,56 +768,6 @@ module hdf_util
        return        
    end subroutine  
 
- 
-   !> Read source flow tables from hydro tidefile
-   subroutine read_source_flow_tbl()
-       use common_variables, only : n_sflow, source_flow
-       implicit none
-       integer(HID_T) :: input_id                       ! Group identifier
-       integer(HID_T) :: dset_id                        ! Dataset identifier
-       integer(HID_T) :: dt_id, dt5_id                  ! Memory datatype identifier
-       integer(HID_T) :: dt1_id, dt2_id                 ! Memory datatype identifier
-       integer(SIZE_T):: offset                         ! Member's offset
-       integer(HSIZE_T), dimension(1) :: data_dims      ! Datasets dimensions
-       integer(SIZE_T) :: typesize                      ! Size of the datatype
-       integer(SIZE_T) :: type_size                     ! Size of the datatype
-       integer :: error                                 ! Error flag
-       integer :: i, from_i, to_i                       ! local variables
-       character*32 :: from_obj, from_identifier        ! local variables
-       character*32 :: to_obj, to_identifier            ! local variables
-       
-       n_sflow = 779 !todo:need to read from hydro, modify hydro
-       call allocate_source_flow_property()
-       call h5gopen_f(hydro_id, "input", input_id, error)  
-       
-       data_dims(1) = n_sflow         
-       if ( n_sflow > 0) then
-           call h5dopen_f(input_id, "source_flow", dset_id, error) 
-           call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
-           typesize = 32 
-           call h5tset_size_f(dt_id, typesize, error)
-           call h5tget_size_f(dt_id, type_size, error)                     
-                      
-           offset = 0
-           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
-           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
-           call h5dread_f(dset_id, dt1_id, source_flow%name, data_dims, error) 
-           
-           type_size = 4
-           call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
-           call h5tinsert_f(dt2_id, "node", offset, H5T_NATIVE_INTEGER, error)    
-           call h5dread_f(dset_id, dt2_id, source_flow%node, data_dims, error)
-
-           call h5tclose_f(dt2_id, error)  
-           call h5tclose_f(dt1_id, error)         
-           call h5tclose_f(dt_id, error)
-           call h5dclose_f(dset_id, error) 
-           call h5gclose_f(input_id, error)  
-       end if
-
-       return        
-   end subroutine   
- 
  
    !> Read integer attributes from hydro tidefile     
    subroutine get_int_attribute_from_hdf5(attr_value, attr_name)        

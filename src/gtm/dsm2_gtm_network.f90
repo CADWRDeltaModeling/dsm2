@@ -286,10 +286,10 @@ module dsm2_gtm_network
                 end if
 
                 ! add external flows
-                if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
+                if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext > 0)) then
                     do j = 1, dsm2_network_extra(i)%n_qext
-                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network(i)%node_conc.ne.0)) then    !drain
-                            mass_tmp(:) = mass_tmp(:) + node_conc(i,:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)) > 0).and.(dsm2_network_extra(i)%qext_path(j,1).ne.0)) then    !drain
+                            mass_tmp(:) = mass_tmp(:) + pathinput(dsm2_network_extra(i)%qext_path(j,:))%value*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
                         !elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j).eq.0)) then !drain but node concentration is absent
                         !    mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
@@ -331,7 +331,9 @@ module dsm2_gtm_network
         use gtm_precision
         use error_handling
         use common_variables, only : n_node, dsm2_network, dsm2_network_extra
+        use common_dsm2_vars, only : pathinput
         use state_variables_network, only : node_conc
+         
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
@@ -341,7 +343,7 @@ module dsm2_gtm_network
         
         do i = 1, n_node
             ! if node concentration is given, assign the value to lo or hi face.
-            if (dsm2_network(i)%node_conc.eq.1 .and. dsm2_network_extra(i)%boundary.ne.0) then  
+            if (dsm2_network_extra(i)%boundary.eq.0) then  
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0) then  !cell at upstream of junction 
