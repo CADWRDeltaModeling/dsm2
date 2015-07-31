@@ -117,14 +117,28 @@ module boundary_diffusion_network
     !> that is constant in space and time. This routine sets
     !> the value of the constant dispersion coefficient as well.
     subroutine set_dispersion_arr(d_arr,  &
-                                  ncell)                        
+                                  ncell)
+        use common_variables, only: n_gate, gate, dsm2_network                             
         implicit none
         integer, intent(in) :: ncell              !< number of cells
         real(gtm_real),intent(in) :: d_arr(ncell) !< array of dispersion coefficients
         integer :: i, j
         
         allocate(disp_coef_arr(ncell))
-        disp_coef_arr = d_arr    
+        disp_coef_arr = d_arr
+        
+        do i = 1, n_gate
+            !if (gate(i)%face .eq. 0) then            ! gate at lo face
+            !    disp_coef_lo(gate(i)%cell_no) = zero
+            !elseif (gate(i)%face .eq. 1) then        ! gate at hi face
+            !    disp_coef_hi(gate(i)%cell_no) = zero
+            !end if    
+            if (gate(i)%from_obj_int .eq. 1) then
+                do j = 1, dsm2_network(gate(i)%to_node_int)%n_conn_cell
+                    disp_coef_arr(dsm2_network(gate(i)%to_node_int)%cell_no(j)) = zero
+                end do    
+            end if    
+        end do            
         
         dispersion_coef => assign_dispersion_coef
         
@@ -148,7 +162,6 @@ module boundary_diffusion_network
                                       nvar)  
         use gtm_precision
         use error_handling
-        use common_variables, only: n_gate, gate, dsm2_network     
         implicit none
         !--- args          
         integer,intent(in)  :: ncell                     !< Number of cells
@@ -169,19 +182,7 @@ module boundary_diffusion_network
    
         disp_coef_hi = disp_coef_arr*abs(flow_hi/area_hi)
         disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo)           
-
-        do i = 1, n_gate
-            if (gate(i)%face .eq. 0) then            ! gate at lo face
-                disp_coef_lo(gate(i)%cell_no) = zero
-            elseif (gate(i)%face .eq. 1) then        ! gate at hi face
-                disp_coef_hi(gate(i)%cell_no) = zero
-            end if    
-            !if (gate(i)%from_obj_int .eq. 1) then
-            !    do j = 1, dsm2_network(gate(i)%to_node_int)%n_conn_cell
-            !        disp_coef_arr(dsm2_network(gate(i)%to_node_int)%cell_no(j)) = zero
-            !    end do    
-            !end if    
-        end do                
+        
         return
     end subroutine
  
@@ -201,7 +202,7 @@ module boundary_diffusion_network
                                                dt)
         use gtm_precision
         use error_handling
-        use common_variables, only : n_node, dsm2_network, dsm2_network_extra
+        use common_variables, only : n_node, dsm2_network
         use state_variables_network, only : node_conc
         implicit none
         !--- args
@@ -221,17 +222,17 @@ module boundary_diffusion_network
         integer :: up_cell, down_cell
 
         do i = 1, n_node
-            if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given           
+            if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
                 if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
-                    if ( dsm2_network_extra(i)%boundary > 0 ) then
+                    if ( dsm2_network(i)%node_conc .eq. 1 ) then
                         diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
                                                 (conc(icell,:)-node_conc(i,:))/(half*dx(icell))
                     else
                         diffusive_flux_lo(icell,:) = diffusive_flux_hi(icell,:)
                     end if                            
                 else                                            ! downstream boundary
-                    if ( dsm2_network_extra(i)%boundary > 0 ) then
+                    if ( dsm2_network(i)%node_conc .eq. 1 ) then
                         diffusive_flux_hi(icell,:) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
                                                 (node_conc(i,:)-conc(icell,:))/(half*dx(icell))
                     else

@@ -28,7 +28,6 @@ module buffer_gtm_input_qual
         use input_storage_fortran
         use process_gtm_input_climate 
         use process_gtm_node_conc
-        use process_gtm_reservoir_conc
         !use process_gtm_rate_coef
         use common_dsm2_vars, only: pathinput, n_inputpaths,infilenames,     &
                                     n_dssfiles, indssfiles, ifltab_in,       &
@@ -149,13 +148,13 @@ module buffer_gtm_input_qual
                                                            inpath,    &
                                                            ierror)
             sign=0
-           call process_input_reservoir(name,       &
-                                        resname,    &
-                                        variable,   & 
-                                        sign,       &
-                                        fillin,     &
-                                        filename,   &
-                                        inpath)
+         !  call process_input_reservoir(name,       &
+         !                               resname,    &
+         !                               variable,   & 
+         !                               sign,       &
+         !                               fillin,     &
+         !                               filename,   &
+         !                               inpath)
          end do
          print *,"Number of reservoir concentration inputs processed: ", nitem_resv_conc
 

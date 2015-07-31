@@ -53,9 +53,10 @@ module state_variables_network
     real(gtm_real), save, allocatable :: prev_resv_height(:)
     real(gtm_real), save, allocatable :: prev_resv_flow(:)
     real(gtm_real), save, allocatable :: prev_qext_flow(:)
-    real(gtm_real), save, allocatable :: prev_tran_flow(:) 
-    real(gtm_real), save, allocatable :: prev_node_conc(:,:)
+    real(gtm_real), save, allocatable :: prev_tran_flow(:)
+    real(gtm_real), save, allocatable :: prev_node_conc(:,:)    
  
+        
     contains
     
     !> Allocate time series from hydro computational points
@@ -147,9 +148,12 @@ module state_variables_network
 
         allocate(node_conc(a_nnode,a_nvar), stat = istat)
         allocate(prev_node_conc(a_nnode,a_nvar), stat = istat)
-        node_conc = LARGEREAL 
-        prev_node_conc = LARGEREAL 
-         
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        node_conc         = LARGEREAL 
+        prev_node_conc    = LARGEREAL
+                
         return
     end subroutine
     

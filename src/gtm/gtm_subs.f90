@@ -251,14 +251,13 @@ module gtm_subs
     end subroutine    
 
 
-    !> assign value to dsm2_network(:)%node_conc, pathinput(:)%i_no, pathinput(:)%i_var
+    !> assign value to dsm2_network(:)%node_conc, pathinput(:)%i_node, pathinput(:)%i_var
     subroutine assign_node_ts()
-        use common_variables, only : n_node, dsm2_network, dsm2_network_extra, &
-                                     n_var, constituents, qext, n_resv, resv_geom
-        use common_dsm2_vars, only : n_inputpaths, pathinput, obj_reservoir
+        use common_variables, only : n_node, dsm2_network, dsm2_network_extra, n_var, constituents, qext
+        use common_dsm2_vars, only : n_inputpaths, pathinput    
         implicit none
         integer :: i, j
-        do i = 1, n_inputpaths        
+        do i = 1, n_inputpaths
             do j = 1, n_var
                 call locase(pathinput(i)%variable)
                 call locase(constituents(j)%name)
@@ -266,23 +265,17 @@ module gtm_subs
                     pathinput(i)%i_var = constituents(j)%conc_no
                 end if
             end do
-            if (pathinput(i)%obj_type.eq.obj_reservoir) then
-                do j = 1,n_resv
-                    if (resv_geom(j)%name .eq. pathinput(i)%obj_name) pathinput(i)%obj_no = j                        
-                end do              
-            else
-                do j = 1, n_node 
-                    if (pathinput(i)%obj_no .eq. dsm2_network(j)%dsm2_node_no) then
-                        pathinput(i)%i_no = j
-                        dsm2_network(j)%node_conc = 1
-                    end if        
-                end do
-                do j = 1, dsm2_network_extra(pathinput(i)%i_no)%n_qext
-                    if (trim(qext(dsm2_network_extra(pathinput(i)%i_no)%qext_no(j))%name) .eq. trim(pathinput(i)%name)) then
-                        dsm2_network_extra(pathinput(i)%i_no)%qext_path(j) = i
-                    end if            
-                end do
-            end if
+            do j = 1, n_node 
+                if (pathinput(i)%obj_no .eq. dsm2_network(j)%dsm2_node_no) then
+                    pathinput(i)%i_node = j
+                    dsm2_network(j)%node_conc = 1
+                end if        
+            end do
+            do j = 1, dsm2_network_extra(pathinput(i)%i_node)%n_qext
+                if (trim(qext(dsm2_network_extra(pathinput(i)%i_node)%qext_no(j))%name) .eq. trim(pathinput(i)%name)) then
+                    dsm2_network_extra(pathinput(i)%i_node)%qext_path(j,pathinput(i)%i_var) = i
+                end if            
+            end do
         end do
         return
     end subroutine        

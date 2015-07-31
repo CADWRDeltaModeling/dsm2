@@ -42,6 +42,7 @@ module common_variables
      integer :: n_gate = LARGEINT                   !< number of gates
      integer :: n_flwbnd = LARGEINT                  !< number of boundary flow
      integer :: n_stgbnd = LARGEINT                 !< number of boundary stage
+     integer :: n_sflow = LARGEINT                  !< number of source flow
      integer :: n_bfbs = LARGEINT                   !< number of boundary flows and stage
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
@@ -235,6 +236,7 @@ module common_variables
          integer :: boundary_no                    !< boundary serial number (exist if not 0)
          integer :: junction_no                    !< junction serial number (exist if not 0)
          integer :: nonsequential                  !< true: 1, false: 0
+         integer :: node_conc                      !< true: 1, false: 0
      end type
      type(dsm2_network_t), allocatable :: dsm2_network(:)
      
@@ -273,6 +275,7 @@ module common_variables
          if (n_gate .ne. LARGEINT) call allocate_gate_property
          if (n_bfbs .ne. LARGEINT) call allocate_bfbs_property
          if (n_gate .ne. LARGEINT) call allocate_gate_property
+         if (n_sflow .ne. LARGEINT) call allocate_source_flow_property
          if (n_node .ne. LARGEINT) call get_dsm2_network_info    
          return
      end subroutine    
@@ -287,7 +290,8 @@ module common_variables
          if (n_qext .ne. LARGEINT) call deallocate_qext_property  
          if (n_tran .ne. LARGEINT) call deallocate_tran_property 
          if (n_gate .ne. LARGEINT) call deallocate_gate_property  
-         if (n_bfbs .ne. LARGEINT) call deallocate_bfbs_property       
+         if (n_bfbs .ne. LARGEINT) call deallocate_bfbs_property
+         if (n_sflow .ne. LARGEINT) call deallocate_source_flow_property          
          if (n_node .ne. LARGEINT) call deallocate_dsm2_network_property              
          return
      end subroutine
@@ -462,6 +466,21 @@ module common_variables
          bfbs%i_node = 0
          return
      end subroutine
+
+     ! Allocate source_flow_t array
+     subroutine allocate_source_flow_property
+         use error_handling
+         implicit none
+         integer :: istat = 0
+         character(len=128) :: message
+         allocate(source_flow(n_sflow), stat = istat)
+         if (istat .ne. 0 )then
+            call gtm_fatal(message)
+         end if
+         source_flow%name = ''
+         source_flow%node = 0
+         return
+     end subroutine
     
      !> Allocate hydro time series array
      subroutine allocate_hydro_ts()
@@ -539,6 +558,16 @@ module common_variables
          if (n_comp .ne. LARGEINT) then
              n_comp = LARGEINT
              deallocate(comp_pt)
+         end if    
+         return
+     end subroutine
+
+     !> Deallocate source flow property
+     subroutine deallocate_source_flow_property()
+         implicit none
+         if (n_sflow .ne. LARGEINT) then
+             n_sflow = LARGEINT
+             deallocate(source_flow)
          end if    
          return
      end subroutine
@@ -789,6 +818,7 @@ module common_variables
          dsm2_network(:)%boundary_no = 0 
          dsm2_network(:)%junction_no = 0
          dsm2_network(:)%nonsequential = 0         
+         dsm2_network(:)%node_conc = 0
          dsm2_network_extra(:)%reservoir_no = 0
          dsm2_network_extra(:)%resv_conn_no = 0
          dsm2_network_extra(:)%n_qext = 0                  
@@ -853,7 +883,7 @@ module common_variables
                  end if
              end do
              allocate(dsm2_network_extra(i)%qext_no(dsm2_network_extra(i)%n_qext))
-             allocate(dsm2_network_extra(i)%qext_path(dsm2_network_extra(i)%n_qext, n_var))
+             allocate(dsm2_network_extra(i)%qext_path(dsm2_network_extra(i)%n_qext,n_var))
              dsm2_network_extra(i)%qext_no = 0
              dsm2_network_extra(i)%qext_path = 0
              k = 0 
@@ -882,7 +912,7 @@ module common_variables
              do j = 1, n_bfbs
                  if (bfbs(j)%node.eq.dsm2_network_extra(i)%dsm2_node_no .and. bfbs(j)%btype.eq."flow") then
                      bfbs(j)%i_node = i
-                     dsm2_network_extra(i)%boundary = 1     
+                     dsm2_network_extra(i)%boundary = 1       
                  end if    
                  if (bfbs(j)%node.eq.dsm2_network_extra(i)%dsm2_node_no .and. bfbs(j)%btype.eq."stage") then
                      dsm2_network_extra(i)%boundary = 2

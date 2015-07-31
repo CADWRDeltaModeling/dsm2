@@ -152,7 +152,7 @@ module common_dsm2_vars
            character*128 :: filename = ' '         ! DSS filename
            character*32 :: variable = ' '          ! DSS C part
            character*16 :: interval = ' '          ! e.g. MIN, DAY !eli was 15, changed for alignment
-           character*32 :: obj_name  = ' '         ! obj name
+           character*32 :: obj_name  = ' '         !todo needed?
            character*80 path                       ! DSS pathname
            real*8 :: constant_value  = miss_val_r  ! constant value (instead of reading from DSS filename)
            real*8 :: value = miss_val_r            ! value for this timestep
@@ -165,8 +165,8 @@ module common_dsm2_vars
            integer :: obj_type = miss_val_i        ! object type this data goes to: channel, reservoir, node, gate?
            integer :: obj_no = miss_val_i          ! number of object
            integer data_type                       ! data type: flow, stage, gate position..
-           integer :: i_var                        ! constituent no                    (to be filled later when GTM 
-           integer :: i_no                         ! GTM internal node no or resv no   decides index for var and node)
+           integer :: i_var                        ! constituent no      (to be filled later when GTM 
+           integer :: i_node                       ! GTM internal node    decides index for var and node)
            !--------'type' section
            integer group_ndx      ! group index
            integer gate_param     ! time-varying gate parameter

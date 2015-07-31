@@ -27,9 +27,9 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\process_io\buffer_gtm_input_common.f90"/>
 		<File RelativePath="..\..\src\process_io\buffer_gtm_input_qual.f90"/>
-		<File RelativePath="..\..\src\process_io\codes_conv_nonconservative.f90">
-			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
+		<File RelativePath="..\..\src\process_io\codes_conv_nonconservative.f90"/>
 		<File RelativePath="..\..\src\process_io\codes_conv_objno.f90">
+			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/>
 			<FileConfiguration Name="Release|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\..\src\process_io\common_dsm2_groups.f90"/>
 		<File RelativePath="..\..\src\process_io\common_dsm2_qual.f90"/>

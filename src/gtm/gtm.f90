@@ -107,7 +107,7 @@ program gtm
     integer, parameter :: max_num_sub_ts = 20                 ! maximum number of sub time step within GTM time step    
     
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
-    character(len=:), allocatable :: restart_file_name
+    character(len=24) :: restart_file_name
     character(len=14) :: cdt
     character(len=9) :: prev_day
 
@@ -131,7 +131,6 @@ program gtm
     real(gtm_real), allocatable :: vals(:,:)
     
     integer :: st, k, n_st     ! temp index
-    logical :: file_exists
 
     n_var = 1
     
@@ -177,7 +176,7 @@ program gtm
     call allocate_hydro_ts 
     call allocate_network_tmp(npartition_t)
     call allocate_state(n_cell, n_var)
-    call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_var)
+    call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_node, n_var)
     allocate(init_c(n_cell,n_var))
     allocate(init_r(n_resv,n_var))
     allocate(linear_decay(n_var))
@@ -190,13 +189,8 @@ program gtm
     linear_decay = constant_decay
     
     constituents(1)%conc_no = 1
-    constituents(1)%name = "EC"   
+    constituents(1)%name = "EC"
     call assign_node_ts
-    allocate(node_conc(n_node, n_var))
-    allocate(prev_node_conc(n_node, n_var))
-    node_conc = LARGEREAL    
-    prev_node_conc = LARGEREAL 
-
     call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
     gtm_hdf_time_intvl = dble(tmp_int)
     call init_qual_hdf(qual_hdf,             &
@@ -234,14 +228,14 @@ program gtm
     write(*,*) "Process time series...."
  
     prev_day =  "01JAN1000"       ! to initialize for screen printing only
-    
-    init_c = 200.d0
-    init_r = 0.d0    
+
     restart_file_name = trim(gtm_io(1,1)%filename) 
-    inquire(file=gtm_io(1,1)%filename, exist=file_exists)
-    if (file_exists==.true.) then 
-        call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var) 
-    endif            
+    if (restart_file_name.eq.'') then  
+        init_c = 200.d0
+        init_r = 200.d0    
+    else
+        call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var)
+    end if
 
     if (n_cell .gt. 0) then
         if (init_c(1,1) .ne. LARGEREAL) then
@@ -382,12 +376,11 @@ program gtm
             !---rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
             do i = 1, n_inputpaths
-                if (pathinput(i)%obj_type .eq. obj_node) &
-                      node_conc(pathinput(i)%i_no, pathinput(i)%i_var) = pathinput(i)%value   
+                node_conc(pathinput(i)%i_node, pathinput(i)%i_var) = pathinput(i)%value   
             end do   
             do i = 1, n_bfbs
                 do j = 1, n_inputpaths
-                    if (pathinput(j)%i_no .eq. bfbs(i)%i_node) node_conc(bfbs(i)%i_node,:) = pathinput(j)%value 
+                    if (pathinput(j)%i_node .eq. bfbs(i)%i_node) node_conc(bfbs(i)%i_node,:) = pathinput(j)%value 
                 end do    
             end do
                         
@@ -558,7 +551,6 @@ program gtm
     deallocate(disp_coef_arr)
     deallocate(pathinput)
     deallocate(pathoutput)
-    deallocate(node_conc)   
     deallocate(constituents)
     deallocate(init_c)
     deallocate(init_r)
