@@ -78,9 +78,6 @@ module interpolation
         integer :: i, j                                                    ! local variable      
         integer :: end_c
         end_c = start_c + nx - 1        
-        mesh_lo(1:nt,start_c:end_c) = LARGEREAL
-        mesh_hi(1:nt,start_c:end_c) = LARGEREAL
-        volume_change(1:nt-1,nx) = LARGEREAL
         mesh_lo(1,start_c) = a
         mesh_lo(nt,start_c) = c        
         mesh_hi(1,end_c) = b
@@ -136,11 +133,7 @@ module interpolation
         integer :: i, j, OK                                                        ! local variable  
         integer :: end_c
         OK = 0             ! use linear ratio, not distribute by flow        
-        end_c = start_c + nx - 1        
-        mesh_lo(1:nt,start_c:end_c) = LARGEREAL
-        mesh_hi(1:nt,start_c:end_c) = LARGEREAL
-        volume_change(1:nt-1,start_c:end_c) = LARGEREAL                                                    
-        ws = LARGEREAL
+        end_c = start_c + nx - 1                                                      
         ws(1,1) = a
         ws(1,nx+1) = b
         ws(nt,1) = c
@@ -222,9 +215,6 @@ module interpolation
         integer :: i, j                                                          ! local variables     
         integer :: end_c
         end_c = start_c + nx - 1        
-        mesh_lo(1:nt,start_c:end_c) = LARGEREAL
-        mesh_hi(1:nt,start_c:end_c) = LARGEREAL
-        volume_change(1:nt-1,start_c:end_c) = LARGEREAL    
         mesh_lo(1,start_c) = a
         mesh_hi(1,end_c) = b
         mesh_lo(nt,start_c) = c
@@ -513,8 +503,6 @@ module interpolation
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change !< volume change for each cell 
         real(gtm_real) :: total_volume_change, factor                      ! local variable
         integer :: i, j                                                    ! local variable      
-        mesh = LARGEREAL
-        volume_change = LARGEREAL
         mesh(1,1) = a
         mesh(1,nx) = b
         mesh(nt,1) = c
@@ -561,8 +549,6 @@ module interpolation
         real(gtm_real) :: total_volume_change, factor                           ! local variable
         real(gtm_real), dimension(nt, nx) :: ws                                 ! local variable
         integer :: i, j                                                         ! local variable      
-        area_mesh = LARGEREAL
-        area_volume_change = LARGEREAL
         ! initialize mesh boundary by linear interpolation. 
         ! todo:: shall be taken from adjacent segement and previous time steps
         do i = 1, nx
@@ -601,8 +587,6 @@ module interpolation
         real(gtm_real), dimension(nt) :: subtotal_volume_change            ! local variable to check mass balance (sub total in time)
         real(gtm_real) :: total_volume_change, factor                      ! local variable
         integer :: i, j                                                    ! local variable      
-        mesh = LARGEREAL
-        volume_change = LARGEREAL
         mesh(1,1) = a
         mesh(1,nx) = b
         mesh(nt,1) = c
@@ -659,8 +643,6 @@ module interpolation
         real(gtm_real) :: total_volume_change, factor                           ! local variable
         real(gtm_real) :: a, b, c, d                                            ! local variable
         integer :: i, j                                                         ! local variable      
-        area_mesh = LARGEREAL
-        area_volume_change = LARGEREAL
         call CxArea(a, up_x, ws_a, branch)
         call CxArea(b, up_x+(nx-one)*dx, ws_b, branch)
         call CxArea(c, up_x, ws_c, branch)
@@ -725,9 +707,6 @@ module interpolation
         real(gtm_real), dimension(nt-1) :: ratio                                   ! local variable
         integer :: i, j, OK                                                        ! local variable  
         OK = 0             ! use linear ratio, not distribute by flow
-        mesh = LARGEREAL                                                        
-        ws = LARGEREAL
-        volume_change = LARGEREAL
         ws(1,1) = a
         ws(1,nx) = b
         ws(nt,1) = c
@@ -803,8 +782,6 @@ module interpolation
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
         real(gtm_real) :: total_volume_change, factor                           ! local variables
         integer :: i, j                                                         ! local variables     
-        mesh = LARGEREAL
-        volume_change = LARGEREAL
         mesh(1,1) = a
         mesh(1,nx) = b
         mesh(nt,1) = c
@@ -864,8 +841,6 @@ module interpolation
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
         real(gtm_real) :: total_volume_change, factor                           ! local variables
         integer :: i, j                                                         ! local variables     
-        mesh = LARGEREAL
-        volume_change = LARGEREAL
         mesh(1,1) = a
         mesh(1,nx) = b
         mesh(nt,1) = c
@@ -923,8 +898,6 @@ module interpolation
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
         real(gtm_real) :: total_volume_change, factor, vol_change_tmp           ! local variables
         integer :: i, j                                                         ! local variables     
-        mesh = LARGEREAL
-        volume_change = LARGEREAL
         mesh(1,1) = a
         mesh(1,nx) = b
         mesh(nt,1) = c
@@ -995,8 +968,6 @@ module interpolation
         real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
         real(gtm_real) :: total_volume_change, factor, diff                     ! local variable
         integer :: i, j                                                         ! local variable      
-        mesh = LARGEREAL
-        volume_change = LARGEREAL
         mesh(1,1) = a
         mesh(1,nx) = b
         mesh(nt,1) = c

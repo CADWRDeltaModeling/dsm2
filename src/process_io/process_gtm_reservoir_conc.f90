@@ -56,7 +56,9 @@ module process_gtm_reservoir_conc
       pathinput(ninpaths).useobj=.true.
       pathinput(ninpaths).obj_name=LocName
       pathinput(ninpaths).obj_type=obj_reservoir
-
+      pathinput(ninpaths).obj_name=trim(LocName)
+      !pathinput(ninpaths).obj_no=name_to_objno(obj_reservoir,LocName)
+      
       if (sign .eq. -1) then
           pathinput(ninpaths).sign = -1
       elseif (sign .eq. 1) then
@@ -70,16 +72,13 @@ module process_gtm_reservoir_conc
           call exit(-3)
       end if
 
-      !------find object number given external object number
-      pathinput(ninpaths).obj_name=trim(LocName)
-      !pathinput(ninpaths).obj_no=name_to_objno(obj_reservoir,LocName) !todo: comment out for now, do we need this later?
-      if (pathinput(ninpaths).obj_no .eq.miss_val_i ) then
-          write(unit_error,'(a,a)')                                             &
-               'Reservoir Time Series Input: ',trim(pathinput(ninpaths).name),  &
-               ' attached to unrecognized object: ',LocName
-          call exit(-3)
-          return
-      end if
+      !if (pathinput(ninpaths).obj_no .eq.miss_val_i ) then
+      !    write(unit_error,'(a,a)')                                             &
+      !         'Reservoir Time Series Input: ',trim(pathinput(ninpaths).name),  &
+      !         ' attached to unrecognized object: ',LocName
+      !    call exit(-3)
+      !    return
+      !end if
 
       if (FileName(:8) .eq. 'constant' .or.                   &
              FileName(:8) .eq. 'CONSTANT') then

@@ -203,7 +203,7 @@ module dsm2_gtm_network
         
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
-            vol = resv_geom(i)%area * million * prev_resv_height(i)
+            vol = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
             mass_resv(:) = vol * prev_conc_resv(i,:)
             do j = 1, resv_geom(i)%n_resv_conn
                 network_id = resv_geom(i)%network_id(j)
@@ -288,7 +288,7 @@ module dsm2_gtm_network
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
                     do j = 1, dsm2_network_extra(i)%n_qext
-                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(pathinput(dsm2_network_extra(i)%qext_path(j,1))%value.ne.zero)) then    !drain
+                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,1).ne.0)) then    !drain
                             mass_tmp(:) = mass_tmp(:) + pathinput(dsm2_network_extra(i)%qext_path(j,:))%value*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
                         !elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j).eq.0)) then !drain but node concentration is absent

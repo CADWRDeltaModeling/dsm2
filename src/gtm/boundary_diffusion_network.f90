@@ -128,12 +128,8 @@ module boundary_diffusion_network
         disp_coef_arr = d_arr
         
         do i = 1, n_gate
-            !if (gate(i)%face .eq. 0) then            ! gate at lo face
-            !    disp_coef_lo(gate(i)%cell_no) = zero
-            !elseif (gate(i)%face .eq. 1) then        ! gate at hi face
-            !    disp_coef_hi(gate(i)%cell_no) = zero
-            !end if    
-            if (gate(i)%from_obj_int .eq. 1) then
+        
+            if (gate(i)%from_obj_int .eq. 1) then   ! from_obj_int = 1: channel
                 do j = 1, dsm2_network(gate(i)%to_node_int)%n_conn_cell
                     disp_coef_arr(dsm2_network(gate(i)%to_node_int)%cell_no(j)) = zero
                 end do    

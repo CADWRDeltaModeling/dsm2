@@ -376,11 +376,13 @@ program gtm
             !---rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
             do i = 1, n_inputpaths
-                node_conc(pathinput(i)%i_node, pathinput(i)%i_var) = pathinput(i)%value   
+                if (pathinput(i)%obj_type.eq.2) then !node
+                node_conc(pathinput(i)%i_no, pathinput(i)%i_var) = pathinput(i)%value   
+                end if
             end do   
             do i = 1, n_bfbs
                 do j = 1, n_inputpaths
-                    if (pathinput(j)%i_node .eq. bfbs(i)%i_node) node_conc(bfbs(i)%i_node,:) = pathinput(j)%value 
+                    if (pathinput(j)%i_no .eq. bfbs(i)%i_node) node_conc(bfbs(i)%i_node,:) = pathinput(j)%value 
                 end do    
             end do
                         
