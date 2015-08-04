@@ -133,8 +133,14 @@ public class PTMBehaviorInputs {
 		ArrayList<String> inputText = PTMUtil.getInputs(inputTextBuff);
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
 		if (fishTypeList==null || fishTypeList.size()==0) 
-			PTMUtil.systemExit("No Fish Type found, exit from PTMBehaviorInput line 61");
+			PTMUtil.systemExit("No Fish Type found, exit.");
 		_fishType = fishTypeList.get(0).trim();	
+		
+		ArrayList<String> randomSequence = PTMUtil.getInputBlock(inputText, "RANDOM_SEQUENCE_INPUTS", "END_RANDOM_SEQUENCE_INPUTS");
+		if (randomSequence==null || randomSequence.size()==0) 
+			System.err.println("Warning: No random sequence input found!");
+		if (PTMUtil.getStringFromLine(randomSequence.get(0).trim(), "Use_New_Random_Seed").equalsIgnoreCase("YES"))
+			PTMUtil.setRandomNumber();	
 		
 		ArrayList<String> travelTimeOutputInfo = PTMUtil.getInputBlock(inputText, "TRAVEL_TIME_OUTPUT", "END_TRAVEL_TIME_OUTPUT");
 		if (travelTimeOutputInfo==null || travelTimeOutputInfo.size()==0) 

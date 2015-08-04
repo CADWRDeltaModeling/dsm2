@@ -302,7 +302,8 @@ _survivalHelper = null;
   	particleWait = false;  //set or reset particle wait variable
     if (DEBUG) System.out.println("In updating position for particle " + this);
     
-    // insertion time is checked in PTMEnv, if a insertion time is earlier than the model start time, simulation exits.
+    // insertion time is checked in PTMEnv.
+    // if a insertion time is earlier than the model start time, simulation exits because a particle needs hydro info when inserted.
     int curTime = Globals.currentModelTime;
     if(!inserted && curTime >= insertionTime){ //when current time reach insertion time
     	insert();

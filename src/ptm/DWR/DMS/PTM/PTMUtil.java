@@ -28,7 +28,7 @@ public class PTMUtil {
 	static float EPSILON = 0.000000001f;
 	static Random rand = new Random();
 	//TODO temporary still use this because java.util.random doesn't work
-	static RandomElement randomNumberGenerator= new Ranecu(32001);
+	private static RandomElement randomNumberGenerator= new Ranecu(32001);
 
 	/**
 	 * 
@@ -209,6 +209,13 @@ public class PTMUtil {
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return Float.parseFloat(items[1]);
 	}
+	// get a String from a line with format name: String
+	public static String getStringFromLine(String line, String lineName){
+		String[] items = line.split("[,:\\s\\t]+");
+		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
+		return items[1];
+	}
 	public static Pair<Integer, Integer> getPairFromLine(String line, String lineName) throws NumberFormatException{
 		String[] items = line.split("[,:\\s\\t]+");
 		if (items.length < 3 || (!items[0].equalsIgnoreCase(lineName)))
@@ -292,5 +299,7 @@ public class PTMUtil {
 		return rand.nextGaussian(); 
 	}
 	*/
-	
+	public static void setRandomNumber(){
+		randomNumberGenerator = new Ranecu(System.currentTimeMillis());
+	} 
 }
