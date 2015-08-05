@@ -21,6 +21,7 @@
 !>@ingroup process_io
 module common_dsm2_qual
 
+    use common_variables
     use common_dsm2_vars
 
     !-----magic numbers for non-conservative constituents
@@ -83,7 +84,7 @@ module common_dsm2_qual
     logical :: mass_tracking
     logical :: dispersion
     integer :: nres_conc                     ! Number of reservoirs for which initial conc. specified
-    real*8:: init_conc = miss_val_r          ! initial concentration
+    real*8:: init_conc = LARGEREAL          ! initial concentration
 
     !integer :: no_of_constituent             ! number of constituents tracked from all sources
     integer :: no_of_nonconserve_constituent       ! number of constituents tracked from all sources

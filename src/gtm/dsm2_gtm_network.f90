@@ -194,37 +194,19 @@ module dsm2_gtm_network
         real(gtm_real) :: mass_tmp(nvar)
         real(gtm_real) :: conc_tmp(nvar)
         real(gtm_real) :: up_count
-        real(gtm_real) :: vol
-        real(gtm_real) :: mass_resv(nvar)
+        real(gtm_real) :: vol(n_resv)
+        real(gtm_real) :: mass_resv(n_resv,nvar)
         real(gtm_real):: conc_tmp0(nvar)                        ! when no flow flows into junction, use this temp value.
         integer :: up_cell, down_cell
         integer :: network_id
-        integer :: i, j, k, icell
-        
+        integer :: i, j, k, icell    
+        integer :: reservoir_id, resv_conn_id   
+
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
-            vol = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
-            mass_resv(:) = vol * prev_conc_resv(i,:)
-            do j = 1, resv_geom(i)%n_resv_conn
-                network_id = resv_geom(i)%network_id(j)
-                conc_tmp(:) = zero
-                up_count = zero 
-                do  k = 1, dsm2_network(network_id)%n_conn_cell
-                    if (dsm2_network(network_id)%up_down(k) .eq. 0) then !upstream cell
-                        up_count = up_count + one
-                        conc_tmp(:) = conc_tmp(:) + conc_hi(dsm2_network(network_id)%cell_no(k),:)
-                    end if
-                end do
-                conc_tmp(:) = conc_tmp(:)/up_count  !temporary upstream concentration around DSM2 node                
-                vol = vol - resv_flow(resv_geom(i)%resv_conn_no(j))*dt
-                if (resv_flow(resv_geom(i)%resv_conn_no(j)).gt.zero) then   ! flow from reservoir
-                    mass_resv(:) = mass_resv(:) - resv_flow(resv_geom(i)%resv_conn_no(j))*dt*prev_conc_resv(i,:)                
-                else   ! flow from channel
-                    mass_resv(:) = mass_resv(:) - resv_flow(resv_geom(i)%resv_conn_no(j))*dt*conc_tmp(:)
-                end if
-            end do
-            conc_resv(i,:) = mass_resv(:)/vol
-        end do
+            vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
+            mass_resv(i,:) = vol(i) * prev_conc_resv(i,:)
+        end do      
    
         do i = 1, n_node
             ! adjust flux for boundaries
@@ -306,8 +288,30 @@ module dsm2_gtm_network
                     else     
                         conc_tmp(:) = mass_tmp(:)/flow_tmp
                     end if     
-                end if     
-
+                end if
+                
+                ! add reservoir flows
+                if (dsm2_network_extra(i)%reservoir_no.ne.0) then
+                    reservoir_id = dsm2_network_extra(i)%reservoir_no
+                    resv_conn_id = dsm2_network_extra(i)%resv_conn_no
+                    vol(reservoir_id) = vol(reservoir_id) - resv_flow(resv_conn_id)*dt
+                    if (resv_flow(resv_conn_id).gt.zero) then
+                        mass_resv(reservoir_id,:) = mass_resv(reservoir_id,:) - resv_flow(resv_conn_id)*dt*prev_conc_resv(reservoir_id,:) 
+                        mass_tmp(:) = mass_tmp(:) + prev_conc_resv(reservoir_id,:)*resv_flow(resv_conn_id)
+                        flow_tmp = flow_tmp + resv_flow(resv_conn_id)
+                    else
+                        mass_resv(reservoir_id,:) = mass_resv(reservoir_id,:) - resv_flow(resv_conn_id)*dt*conc_tmp(:) 
+                        mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*resv_flow(resv_conn_id)
+                        flow_tmp = flow_tmp + resv_flow(resv_conn_id)                   
+                    end if
+                    if (flow_tmp .lt. no_flow) then
+                        !write(*,*) "WARNING: No flow flows into junction!!",icell               
+                        conc_tmp = conc_tmp0
+                    else     
+                        conc_tmp(:) = mass_tmp(:)/flow_tmp
+                    end if     
+                end if               
+                
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
@@ -318,7 +322,12 @@ module dsm2_gtm_network
                     endif               
                 end do                                  
             end if
-        end do          
+        end do    
+        
+        do i = 1, n_resv
+            conc_resv(i,:) = mass_resv(i,:)/vol(i)
+        end do             
+        
         return
     end subroutine  
     

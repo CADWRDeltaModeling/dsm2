@@ -268,7 +268,10 @@ module gtm_subs
             end do
             if (pathinput(i)%obj_type.eq.obj_reservoir) then
                 do j = 1,n_resv
-                    if (resv_geom(j)%name .eq. pathinput(i)%obj_name) pathinput(i)%obj_no = j                        
+                    if (trim(resv_geom(j)%name) .eq. trim(pathinput(i)%obj_name)) then
+                        pathinput(i)%obj_no = j
+                        pathinput(i)%i_no = j
+                    end if
                 end do              
             else
                 do j = 1, n_node 
