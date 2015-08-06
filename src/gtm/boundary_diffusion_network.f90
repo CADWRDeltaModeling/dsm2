@@ -527,23 +527,7 @@ module boundary_diffusion_network
                 j = j + 3
             end if
         end do 
-                
-        if (time.ge.dble(57199315*60) .and. print_matrix.eq.0) then   
-            !allocate(matrix(ncell,ncell))
-            !matrix = zero
-            !call sparse2matrix(matrix, aap, aai, aax, n_nonzero, ncell) 
-            !do i = 1, ncell
-            !write(121,'(<ncell>f10.0)') (matrix(i,j),j=1,ncell)
-            !end do
-            !do i = 1, n_nonzero
-            !write(108,'(3i4,a4,i4,f10.0)') rcind(i),row(i),col(i),uds(i),aai(i),aax(i)
-            !end do
-            !do i = 1, ncell
-            !   write(122,*) right_hand_side(i,1)
-            !end do
-            print_matrix = 1
-            !deallocate(matrix)
-        end if    
+                   
         return
     end subroutine            
 

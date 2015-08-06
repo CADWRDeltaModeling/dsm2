@@ -339,29 +339,33 @@ module dsm2_gtm_network
                                              nvar)
         use gtm_precision
         use error_handling
-        use common_variables, only : n_node, dsm2_network, dsm2_network_extra
+        use common_variables, only: n_node, dsm2_network, n_bfbs, bfbs
+        use common_dsm2_vars, only: n_inputpaths, pathinput
         use state_variables_network, only : node_conc
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face        
-        integer :: i, j, icell
-        
-        do i = 1, n_node
-            ! if node concentration is given, assign the value to lo or hi face.
-            if (dsm2_network(i)%node_conc.eq.1 .and. dsm2_network_extra(i)%boundary.ne.0) then  
-                do j = 1, dsm2_network(i)%n_conn_cell
-                    icell = dsm2_network(i)%cell_no(j)
-                    if (dsm2_network(i)%up_down(j).eq.0) then  !cell at upstream of junction 
-                        conc_hi(icell,:) = node_conc(i,:)
-                    else                                       !cell at downstream of junction 
-                        conc_lo(icell,:) = node_conc(i,:)
-                    end if 
-                end do                               
-            end if
-        end do
-                        
+        integer :: i, j, k, icell, inode
+
+        do i = 1, n_bfbs
+            inode = bfbs(i)%i_node
+            do j = 1, n_inputpaths
+                if (pathinput(j)%i_no .eq. inode .and. dsm2_network(inode)%boundary_no.ne.0) then
+                    node_conc(inode,:) = pathinput(j)%value 
+                    dsm2_network(inode)%node_conc = 1
+                    do k = 1, dsm2_network(inode)%n_conn_cell
+                        icell = dsm2_network(inode)%cell_no(k)
+                        if (dsm2_network(inode)%up_down(k).eq.0) then  !cell at upstream of junction 
+                            conc_hi(icell,:) = node_conc(inode,:)
+                        else                                           !cell at downstream of junction 
+                            conc_lo(icell,:) = node_conc(inode,:)
+                        end if 
+                    end do
+                end if    
+            end do    
+        end do                        
         return
     end subroutine    
        

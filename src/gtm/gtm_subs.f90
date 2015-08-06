@@ -277,7 +277,6 @@ module gtm_subs
                 do j = 1, n_node 
                     if (pathinput(i)%obj_no .eq. dsm2_network(j)%dsm2_node_no) then
                         pathinput(i)%i_no = j
-                        dsm2_network(j)%node_conc = 1
                     end if        
                 end do
                 do j = 1, dsm2_network_extra(pathinput(i)%i_no)%n_qext
