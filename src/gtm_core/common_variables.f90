@@ -225,7 +225,7 @@ module common_variables
      end type    
      type(source_flow_t), allocatable :: source_flow(:)
                     
-     !> DSM2 Node information
+     !> DSM2 node information
      type dsm2_network_t
          integer :: dsm2_node_no                   !< DSM2 node number
          integer :: n_conn_cell                    !< number of cells connected
@@ -236,10 +236,10 @@ module common_variables
          integer :: boundary_no                    !< boundary serial number (exist if not 0)
          integer :: junction_no                    !< junction serial number (exist if not 0)
          integer :: nonsequential                  !< true: 1, false: 0
-         integer :: node_conc                      !< true: 1, false: 0
      end type
      type(dsm2_network_t), allocatable :: dsm2_network(:)
      
+     !> DSM2 node extra information
      type dsm2_network_extra_t
          integer :: dsm2_node_no                   !< DSM2 node number    
          integer :: reservoir_no                   !< connected to reservoir no (exist if not 0)
@@ -250,6 +250,7 @@ module common_variables
          integer :: n_tran                         !< number of transfer flows (exist if not 0)
          integer, allocatable :: tran_no(:)        !< connected tran number
          integer :: boundary                       !< 1: boundary flow, 2: boundary stage
+         integer, allocatable :: node_conc(:)      !< true: 1, false: 0         
      end type
      type(dsm2_network_extra_t), allocatable :: dsm2_network_extra(:)    
        
@@ -319,7 +320,6 @@ module common_variables
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if
-         !comp_pt%dsm2_node_no = LARGEINT
          return
      end subroutine
     
@@ -818,7 +818,6 @@ module common_variables
          dsm2_network(:)%boundary_no = 0 
          dsm2_network(:)%junction_no = 0
          dsm2_network(:)%nonsequential = 0         
-         dsm2_network(:)%node_conc = 0
          dsm2_network_extra(:)%reservoir_no = 0
          dsm2_network_extra(:)%resv_conn_no = 0
          dsm2_network_extra(:)%n_qext = 0                  
@@ -826,6 +825,8 @@ module common_variables
          n_boun = 0
          n_junc = 0
          do i = 1, n_node
+             allocate(dsm2_network_extra(i)%node_conc(n_var))
+             dsm2_network_extra(i)%node_conc = 0         
              dsm2_network(i)%dsm2_node_no = unique_num(i)
              dsm2_network_extra(i)%dsm2_node_no = unique_num(i)
              if (occurrence(i)==1) then 

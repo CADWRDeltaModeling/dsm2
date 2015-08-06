@@ -131,15 +131,17 @@ program gtm
     real(gtm_real), allocatable :: vals(:,:)  
     logical :: file_exists
     integer :: st, k, n_st     ! temp index
-
+    real(gtm_real) :: start, finish
+    
+    !----- Start of GTM Program  -----
+    call cpu_time(start)
+    
     n_var = 1
     
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
     
-    !
     !----- Read input specification from *.inp text file -----
-    !
     call get_command_args(init_input_file)
     call read_input_text(init_input_file)                  ! read input specification text
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
@@ -160,9 +162,7 @@ program gtm
     call get_cell_info    
     call get_output_channel
 
-    !
-    !----- allocate array for interpolation -----     
-    !
+    !----- allocate array for interpolation -----  
     nt = npartition_t + 1
     if (apply_diffusion) then
         if (disp_coeff.ne.LARGEREAL) then
@@ -207,9 +207,7 @@ program gtm
         call write_grid_to_tidefile(qual_hdf%file_id)
     end if
                        
-    !
     !----- point to interface -----
-    !
     fill_hydro => gtm_flow_area
     fill_hydro_network => gtm_network_data
     compute_source => no_source
@@ -224,9 +222,7 @@ program gtm
     !boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
     call set_dispersion_arr(disp_arr, n_cell)
-    
     write(*,*) "Process time series...."
- 
     prev_day =  "01JAN1000"       ! to initialize for screen printing only
 
 
@@ -560,6 +556,8 @@ program gtm
     call hdf5_close
     close(debug_unit)
     write(*,*) '-------- Normal program end -------'
+    call cpu_time(finish)
+    write(*,*) "Total CPU Time = ",finish - start," seconds." 
     call exit(0)   
 end program
 

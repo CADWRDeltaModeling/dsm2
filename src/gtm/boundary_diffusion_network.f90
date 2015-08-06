@@ -198,7 +198,7 @@ module boundary_diffusion_network
                                                dt)
         use gtm_precision
         use error_handling
-        use common_variables, only : n_node, dsm2_network
+        use common_variables, only : n_node, n_var, dsm2_network, dsm2_network_extra
         use state_variables_network, only : node_conc
         implicit none
         !--- args
@@ -214,25 +214,26 @@ module boundary_diffusion_network
         real(gtm_real),intent(in)   :: disp_coef_hi(ncell)          !< High side constituent dispersion coef.
         real(gtm_real),intent(in)   :: dt                           !< Spatial step  
         real(gtm_real),intent(in)   :: dx(ncell)                    !< Time step     
-        integer :: i, j, icell
+        integer :: i, j, k, icell
         integer :: up_cell, down_cell
 
-        do i = 1, n_node
+        do k = 1, n_var
+          do i = 1, n_node
             if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
                 if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
-                    if ( dsm2_network(i)%node_conc .eq. 1 ) then
+                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
                         diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
-                                                (conc(icell,:)-node_conc(i,:))/(half*dx(icell))
+                                                (conc(icell,k)-node_conc(i,k))/(half*dx(icell))
                     else
                         diffusive_flux_lo(icell,:) = diffusive_flux_hi(icell,:)
                     end if                            
                 else                                            ! downstream boundary
-                    if ( dsm2_network(i)%node_conc .eq. 1 ) then
-                        diffusive_flux_hi(icell,:) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
-                                                (node_conc(i,:)-conc(icell,:))/(half*dx(icell))
+                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
+                        diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
+                                                (node_conc(i,k)-conc(icell,k))/(half*dx(icell))
                     else
-                        diffusive_flux_hi(icell,:) = diffusive_flux_lo(icell,:)
+                        diffusive_flux_hi(icell,k) = diffusive_flux_lo(icell,k)
                     end if
                 end if    
             end if
@@ -240,9 +241,9 @@ module boundary_diffusion_network
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
-                       diffusive_flux_hi(icell,:) = diffusive_flux_lo(icell,:)
+                       diffusive_flux_hi(icell,k) = diffusive_flux_lo(icell,k)
                    else                                         !cell at downstream of junction
-                       diffusive_flux_lo(icell,:) = diffusive_flux_hi(icell,:)
+                       diffusive_flux_lo(icell,k) = diffusive_flux_hi(icell,k)
                    end if                           
                 end do                
             end if
@@ -255,10 +256,11 @@ module boundary_diffusion_network
                     down_cell = dsm2_network(i)%cell_no(1)
                 end if                                  
                 diffusive_flux_hi(up_cell,:) = -(area_hi(up_cell)*disp_coef_hi(up_cell)*       &
-                             (conc(down_cell,:) - conc(up_cell,:)))/(half*dx(down_cell)+half*dx(up_cell))
-                diffusive_flux_lo(down_cell,:) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
-                             (conc(down_cell,:) - conc(up_cell,:)))/(half*dx(down_cell)+half*dx(up_cell))
-            end if          
+                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+                diffusive_flux_lo(down_cell,k) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
+                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+            end if
+          end do  
         end do            
         return
     end subroutine

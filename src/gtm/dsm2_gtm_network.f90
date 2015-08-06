@@ -339,7 +339,7 @@ module dsm2_gtm_network
                                              nvar)
         use gtm_precision
         use error_handling
-        use common_variables, only: n_node, dsm2_network, n_bfbs, bfbs
+        use common_variables, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs
         use common_dsm2_vars, only: n_inputpaths, pathinput
         use state_variables_network, only : node_conc
         implicit none
@@ -354,13 +354,13 @@ module dsm2_gtm_network
             do j = 1, n_inputpaths
                 if (pathinput(j)%i_no .eq. inode .and. dsm2_network(inode)%boundary_no.ne.0) then
                     node_conc(inode,:) = pathinput(j)%value 
-                    dsm2_network(inode)%node_conc = 1
+                    dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1
                     do k = 1, dsm2_network(inode)%n_conn_cell
                         icell = dsm2_network(inode)%cell_no(k)
                         if (dsm2_network(inode)%up_down(k).eq.0) then  !cell at upstream of junction 
-                            conc_hi(icell,:) = node_conc(inode,:)
+                            conc_hi(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
                         else                                           !cell at downstream of junction 
-                            conc_lo(icell,:) = node_conc(inode,:)
+                            conc_lo(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
                         end if 
                     end do
                 end if    
