@@ -473,25 +473,22 @@ _survivalHelper = null;
 		 // Channel
 		 if (wb.getPTMType() ==  Waterbody.CHANNEL) {
 			 if (DEBUG) System.out.println("Particle " + this + " in channel " + wb.getEnvIndex());
-			 if (IsRandomAccess){
-			    	if (PTMUtil.getRandomNumber() < AccessProb){
-			    		if (PTMUtil.getRandomNumber() < ((Channel)wb).getProbConfusion())
+			 Channel c = (Channel)wb;
+			 // set confusion factor
+			 if (IsRandomAccess && (PTMUtil.getRandomNumber() < AccessProb)
+					 && (PTMUtil.getRandomNumber() < c.getProbConfusion()))
 			    			_confusionFactor = -1;
-			    		else
-			    			_confusionFactor = 1;
-			    				
-			    	}
-		     }
-			 _swimmingVelocity = ((Channel)wb).getSwimmingVelocity(_meanSwimmingVelocity);
+			 
 			 //TODO temporary print line out clean up later
 			 /*
+			 _swimmingVelocity = c.getSwimmingVelocity(_meanSwimmingVelocity);
 			 if(Id == 1813)
 				 System.err.println(PTMHydroInput.getExtFromIntChan(wb.getEnvIndex()) + ",  " +_meanSwimmingVelocity + ",  " + _swimmingVelocity
 						 + ",  " + _confusionFactor + ",  " + ((Channel)wb).getChanDir()+",  "
 						 +PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +",  "+ PTMUtil.modelTimeToCalendar(Globals.currentModelTime).getTime()
 						 +",  " + PTMUtil.modelTimeToCalendar(insertionTime).getTime());
 			*/			 
-			 _swimmingVelocity = _confusionFactor*((Channel)wb).getChanDir()*_swimmingVelocity;
+			 _swimmingVelocity = _confusionFactor*c.getChanDir()*c.getSwimmingVelocity(_meanSwimmingVelocity);
 			 // update sub-time step due to y & z mixing
 			 int numOfSubTimeSteps = getSubTimeSteps(tmLeft);
 			 float tmstep = tmLeft/numOfSubTimeSteps;
@@ -500,7 +497,7 @@ _survivalHelper = null;
 			 //y, z set up for particles which are just out of reservoir or conveyor or inserted
 			 //it is not necessary to set x because makeNodeDecision or setInsertInfo will be called and x will be set then
 			 if (PTMUtil.floatNearlyEqual(y, MISSING) || PTMUtil.floatNearlyEqual(z,MISSING)) {
-				 setYZLocationInChannel((Channel) wb);
+				 setYZLocationInChannel(c);
 			 }
 			 
 			 // update particle's x,y,z position every sub-time step
@@ -924,6 +921,7 @@ _survivalHelper = null;
   protected float calcXVelocityIntRandom() {return 0.0f;}
   protected void setMeanSwimmingVelocity(float msv){_meanSwimmingVelocity = msv;}
   protected void setSwimmingVelocity(float sv){_swimmingVelocity = sv; }
+  protected void setConfusionFactor(int cf) {_confusionFactor = cf;}
   protected float getSwimmingVelocity() {
 	  return _swimmingVelocity;
   }

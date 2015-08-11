@@ -461,7 +461,7 @@ public class Channel extends Waterbody{
   public void setChanDir(int chanDir){
 	  _chanDir = chanDir;
   }
-  public float getChanDir(){
+  public int getChanDir(){
 	  return _chanDir;
   }
   

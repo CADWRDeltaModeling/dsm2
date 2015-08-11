@@ -61,13 +61,14 @@ public class RouteInputs {
 		System.out.println("Created RouteHelper...");
 	}
 	
-	public void setMeanSwimmingVelocityMap(SwimInputs si){
+	public void setSwimmingInputs(SwimInputs si){
 		if (si != null){
 			//TODO particle has basic route behavior as Salmon???
 			if(_fishType.equalsIgnoreCase("SALMON"))
-				SalmonBasicRouteBehavior.setMeanSwimmingVelocityMap(si);
-			else if(_fishType.equalsIgnoreCase("PARTICLE"))
-				BasicRouteBehavior.setMeanSwimmingVelocityMap(si);
+				SalmonBasicRouteBehavior.setSwimmingInputs(si);
+			//TODO clean up the make node decision code move to SalmonBasicRouteBehavior
+			//else if(_fishType.equalsIgnoreCase("PARTICLE"))
+				//BasicRouteBehavior.setSwimmingInputs(si);
 			else if (_fishType.equalsIgnoreCase("SMELT"))
 				PTMUtil.systemExit("the method to set mean swimming velocity map for smelt has been defined yet");
 			else
