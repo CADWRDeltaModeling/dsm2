@@ -83,6 +83,7 @@ module hdf_util
        call get_int_attribute_from_hdf5(n_comp, "Number of comp pts")
        call get_int_attribute_from_hdf5(n_resv, "Number of reservoirs")
        call get_int_attribute_from_hdf5(n_resv_conn, "Number of reservoir node connects")
+       call get_int_attribute_from_hdf5(n_resv_flow, "Number of reservoir flow connects")
        call get_int_attribute_from_hdf5(n_qext, "Number of QExt")
        call get_int_attribute_from_hdf5(n_tran, "Number of flow transfers")
        call get_int_attribute_from_hdf5(n_gate, "Number of gates")
@@ -451,7 +452,6 @@ module hdf_util
                    end if
                end do
                allocate(resv_geom(i)%resv_conn_no(resv_geom(i)%n_resv_conn))
-               allocate(resv_geom(i)%int_node_no(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%ext_node_no(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%network_id(resv_geom(i)%n_resv_conn))
                allocate(resv_geom(i)%is_gated(resv_geom(i)%n_resv_conn))
@@ -462,7 +462,6 @@ module hdf_util
                do j = 1, resv_geom(i)%n_resv_conn
                    k = k + 1
                    resv_geom(i)%resv_conn_no(j) = k
-                   resv_geom(i)%int_node_no(j) = int_node(k)
                    resv_geom(i)%ext_node_no(j) = ext_node(k)
                    node_str = node_type(k)
                    if (node_str(1:1)=='g') then
@@ -499,8 +498,7 @@ module hdf_util
        integer(SIZE_T) :: typesize                      ! Size of the datatype
        integer(SIZE_T) :: type_size                     ! Size of the datatype
        integer :: error                                 ! Error flag
-       integer :: i
-       character*32 :: attach_obj_name(n_qext)
+       integer :: i, j
        
        data_dims(1) = n_qext
        call allocate_qext_property()
@@ -515,7 +513,7 @@ module hdf_util
            offset = 0
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
            call h5tinsert_f(dt1_id, "attach_obj_name", offset, dt_id, error)    
-           call h5dread_f(dset_id, dt1_id, attach_obj_name, data_dims, error) 
+           call h5dread_f(dset_id, dt1_id, qext%attach_obj_name, data_dims, error) 
            
            call h5tcreate_f(H5T_COMPOUND_F,type_size, dt2_id, error)
            call h5tinsert_f(dt2_id, "name", offset, dt_id, error)    
@@ -532,14 +530,8 @@ module hdf_util
  
            do i = 1, n_qext
                qext(i)%qext_no = i
-               if (qext(i)%attach_obj_type .eq. 2) then      ! node object
-                   read(attach_obj_name(i),'(i)') qext(i)%attach_obj_name
-               elseif (qext(i)%attach_obj_type .eq. 3) then  ! reservoir object 
-                   qext(i)%attach_obj_name = 0  !todo:need to convert to internal reservoir no
-                   
-               end if    
            end do
-                    
+ 
            call h5tclose_f(dt4_id, error)                       
            call h5tclose_f(dt3_id, error)          
            call h5tclose_f(dt2_id, error)  

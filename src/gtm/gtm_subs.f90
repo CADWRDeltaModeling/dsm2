@@ -257,7 +257,8 @@ module gtm_subs
                                      n_var, constituents, qext, n_resv, resv_geom
         use common_dsm2_vars, only : n_inputpaths, pathinput, obj_reservoir
         implicit none
-        integer :: i, j
+        integer :: i, j, k
+        
         do i = 1, n_inputpaths
             do j = 1, n_var
                 call locase(pathinput(i)%variable)
@@ -269,8 +270,13 @@ module gtm_subs
             if (pathinput(i)%obj_type.eq.obj_reservoir) then
                 do j = 1,n_resv
                     if (trim(resv_geom(j)%name) .eq. trim(pathinput(i)%obj_name)) then
-                        pathinput(i)%obj_no = j
-                        pathinput(i)%i_no = j
+                        pathinput(i)%obj_no = resv_geom(j)%resv_no
+                        pathinput(i)%i_no = resv_geom(j)%resv_no
+                        do k = 1, resv_geom(j)%n_qext
+                            if (trim(resv_geom(j)%qext_name(k)).eq.trim(pathinput(i)%name)) then
+                                resv_geom(j)%qext_path(k,pathinput(i)%i_var) = i
+                            end if    
+                        end do                        
                     end if
                 end do              
             else

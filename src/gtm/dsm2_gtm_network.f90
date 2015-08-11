@@ -324,8 +324,18 @@ module dsm2_gtm_network
             end if
         end do    
         
-        do i = 1, n_resv
-            conc_resv(i,:) = mass_resv(i,:)/vol(i)
+        do i = 1, n_resv        
+            if (resv_geom(i)%n_qext > 0) then
+                do j = 1, resv_geom(i)%n_qext
+                    vol(i) = vol(i) + qext_flow(resv_geom(i)%qext_no(j))*dt
+                    if (qext_flow(resv_geom(i)%qext_no(j)).gt.zero) then
+                        mass_resv(i,:) = mass_resv(i,:) + pathinput(resv_geom(i)%qext_path(j,:))%value*qext_flow(resv_geom(i)%qext_no(j))*dt
+                    else
+                        mass_resv(i,:) = mass_resv(i,:) + prev_conc_resv(i,:)*qext_flow(resv_geom(i)%qext_no(j))*dt
+                    end if
+                end do
+            end if
+            conc_resv(i,:) = mass_resv(i,:)/vol(i)            
         end do             
         
         return

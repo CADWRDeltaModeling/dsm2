@@ -37,6 +37,7 @@ module common_variables
      integer :: n_xsect = LARGEINT                  !< number of entries in virt xsect table
      integer :: n_resv = LARGEINT                   !< number of reservoirs
      integer :: n_resv_conn = LARGEINT              !< number of reservoir connects
+     integer :: n_resv_flow = LARGEINT              !< number of reservoir flow connects
      integer :: n_qext = LARGEINT                   !< number of external flows
      integer :: n_tran = LARGEINT                   !< number of transfer flows
      integer :: n_gate = LARGEINT                   !< number of gates
@@ -147,16 +148,19 @@ module common_variables
 
      !> Define reservoirs
      type reservoir_t
-        integer ::       resv_no                     !< reservoir no
-        character*32 ::   name = ' '                 !< reservoir name
-        real(gtm_real) :: area = 0.d0                !< average top area
-        real(gtm_real) :: bot_elev = 0.d0            !< bottom elevation wrt datum
-        integer :: n_resv_conn = LARGEINT            !< number of nodes connected using reservoir connections
-        integer, allocatable :: resv_conn_no(:)      !< reservoir connection no
-        integer, allocatable :: int_node_no(:)       !< DSM2 internal node number
-        integer, allocatable :: ext_node_no(:)       !< DSM2 grid node number
-        integer, allocatable :: network_id(:)        !< DSM2 network internal id (slightly different to DSM2-Hydro internal id)
-        integer, allocatable :: is_gated(:)          !< 1: if a node is gated, 0: otherwise
+         integer ::       resv_no                     !< reservoir no
+         character*32 ::   name = ' '                 !< reservoir name
+         real(gtm_real) :: area = 0.d0                !< average top area
+         real(gtm_real) :: bot_elev = 0.d0            !< bottom elevation wrt datum
+         integer :: n_resv_conn = LARGEINT            !< number of nodes connected using reservoir connections
+         integer, allocatable :: resv_conn_no(:)      !< reservoir connection no
+         integer, allocatable :: ext_node_no(:)       !< DSM2 grid node number
+         integer, allocatable :: network_id(:)        !< DSM2 network internal id (slightly different to DSM2-Hydro internal id)
+         integer, allocatable :: is_gated(:)          !< 1: if a node is gated, 0: otherwise
+         integer :: n_qext                            !< reservoir flows
+         character*32,allocatable :: qext_name(:)     !< reservoir external flow name  
+         integer, allocatable :: qext_no(:)           !< connected qext number 
+         integer, allocatable :: qext_path(:,:)       !< node concentration input path (exist if not 0)
      end type
      type(reservoir_t), allocatable :: resv_geom(:)
      
@@ -165,7 +169,7 @@ module common_variables
      type qext_t
          integer :: qext_no                          !< qext index
          character*32 :: name                        !< qext name
-         integer :: attach_obj_name                  !< attached obj name
+         character*32 :: attach_obj_name             !< attached obj name
          integer :: attach_obj_type                  !< attached obj type (2:node, 3:reservoir)
          integer :: attach_obj_no                    !< attached obj no (internal number)
      end type
@@ -806,8 +810,8 @@ module common_variables
          integer, dimension(:), allocatable :: unique_num
          integer, dimension(:), allocatable :: occurrence
          integer :: num_nodes
-         integer :: i, j, k
-         integer :: nj
+         integer :: i, j, k, m
+         integer :: nj, tmp
 
          call sort_arr(sorted_conns, conn(:)%dsm2_node_no, n_conn)
          call unique_num_count(unique_num, occurrence, num_nodes, sorted_conns, n_conn)
@@ -879,8 +883,12 @@ module common_variables
              end do
 
              do j = 1, n_qext
-                 if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_name==unique_num(i)) then
-                     dsm2_network_extra(i)%n_qext = dsm2_network_extra(i)%n_qext + 1
+                 if (qext(j)%attach_obj_type==2) then  !node
+                     read(qext(j)%attach_obj_name,'(i)') tmp
+                     if (tmp==unique_num(i)) then
+                         qext(j)%attach_obj_no = i
+                         dsm2_network_extra(i)%n_qext = dsm2_network_extra(i)%n_qext + 1
+                      end if                         
                  end if
              end do
              allocate(dsm2_network_extra(i)%qext_no(dsm2_network_extra(i)%n_qext))
@@ -889,9 +897,12 @@ module common_variables
              dsm2_network_extra(i)%qext_path = 0
              k = 0 
              do j = 1, n_qext
-                 if (qext(j)%attach_obj_type==2 .and. qext(j)%attach_obj_name==unique_num(i)) then
-                     k = k + 1
-                     dsm2_network_extra(i)%qext_no(k) = qext(j)%qext_no
+                 if (qext(j)%attach_obj_type==2) then !node
+                     read(qext(j)%attach_obj_name,'(i)') tmp
+                     if (tmp==unique_num(i)) then
+                         k = k + 1
+                         dsm2_network_extra(i)%qext_no(k) = qext(j)%qext_no
+                     end if    
                  end if
              end do
              
@@ -945,7 +956,32 @@ module common_variables
                      end if
                  end do
              end if
-         end do                  
+         end do                      
+
+         do i = 1, n_resv
+            m = 0
+            do j = 1, n_qext            
+                if (trim(qext(j)%attach_obj_name).eq.trim(resv_geom(i)%name)) then
+                    m = m + 1
+                    qext(j)%attach_obj_no = resv_geom(i)%resv_no
+                end if
+             end do
+             resv_geom(i)%n_qext = m
+             allocate(resv_geom(i)%qext_no(m))
+             allocate(resv_geom(i)%qext_path(m,n_var))
+             allocate(resv_geom(i)%qext_name(m))
+             resv_geom(i)%qext_no = 0
+             resv_geom(i)%qext_path = 0
+             resv_geom(i)%qext_name = ' '
+             m = 0
+             do j = 1, n_qext            
+                if (trim(qext(j)%attach_obj_name).eq.trim(resv_geom(i)%name)) then
+                    m = m + 1
+                    resv_geom(i)%qext_no(m) = j
+                    resv_geom(i)%qext_name(m) = qext(j)%name                                   
+                end if
+             end do
+         end do
          
          deallocate(unique_num, occurrence)                  
          return

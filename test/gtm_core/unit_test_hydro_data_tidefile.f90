@@ -72,7 +72,6 @@ module ut_hydro_data_tide
         call assertEquals (dble(resv_geom(2)%is_gated(1)), dble(1), weakest_eps, "problem in reading reservoir connection type")
         call assertEquals (dble(resv_geom(3)%is_gated(1)), dble(0), weakest_eps, "problem in reading reservoir connection type")
         call assertEquals (dble(resv_geom(3)%n_resv_conn), dble(2), weakest_eps, "problem in reading reservoir connection number")
-        call assertEquals (dble(resv_geom(3)%int_node_no(1)), dble(183), weakest_eps, "problem in reading reservoir connection internal node number")
         call assertEquals (dble(resv_geom(3)%ext_node_no(1)), dble(197), weakest_eps, "problem in reading reservoir connection external node number")
 
         ! test reading external flows table
