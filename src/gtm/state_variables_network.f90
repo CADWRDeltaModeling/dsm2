@@ -27,14 +27,14 @@ module state_variables_network
     use common_variables
 
     !> State variables for data read from hydro
-    real(gtm_real), allocatable :: prev_comp_flow(:)
-    real(gtm_real), allocatable :: prev_comp_ws(:)
-    real(gtm_real), allocatable :: prev_hydro_resv(:)
-    real(gtm_real), allocatable :: prev_hydro_resv_flow(:)
-    real(gtm_real), allocatable :: prev_hydro_qext(:)
-    real(gtm_real), allocatable :: prev_hydro_tran(:)
-    real(gtm_real), allocatable :: prev_flow_cell_lo(:)
-    real(gtm_real), allocatable :: prev_flow_cell_hi(:)
+    real(gtm_real), save, allocatable :: prev_comp_flow(:)
+    real(gtm_real), save, allocatable :: prev_comp_ws(:)
+    real(gtm_real), save, allocatable :: prev_hydro_resv(:)
+    real(gtm_real), save, allocatable :: prev_hydro_resv_flow(:)
+    real(gtm_real), save, allocatable :: prev_hydro_qext(:)
+    real(gtm_real), save, allocatable :: prev_hydro_tran(:)
+    real(gtm_real), save, allocatable :: prev_flow_cell_lo(:)
+    real(gtm_real), save, allocatable :: prev_flow_cell_hi(:)
 
     !> Concentration in the current/new time step for reservoir, 
     !> dimensions (nresv, nvar)
@@ -42,7 +42,7 @@ module state_variables_network
     
     !> Concentration in the previous time step,
     !> dimensions (nresv, nvar)
-    real(gtm_real), save, allocatable :: prev_conc_resv(:,:)
+    real(gtm_real), save, allocatable :: conc_resv_prev(:,:)
 
     real(gtm_real), save, allocatable :: resv_height(:)
     real(gtm_real), save, allocatable :: resv_flow(:)
@@ -56,7 +56,6 @@ module state_variables_network
     real(gtm_real), save, allocatable :: prev_tran_flow(:)
     real(gtm_real), save, allocatable :: prev_node_conc(:,:)    
  
-        
     contains
     
     !> Allocate time series from hydro computational points
@@ -144,7 +143,7 @@ module state_variables_network
         prev_tran_flow    = LARGEREAL 
         
         allocate(conc_resv(a_nresv,a_nvar), stat = istat)
-        allocate(prev_conc_resv(a_nresv,a_nvar), stat = istat)
+        allocate(conc_resv_prev(a_nresv,a_nvar), stat = istat)
 
         allocate(node_conc(a_nnode,a_nvar), stat = istat)
         allocate(prev_node_conc(a_nnode,a_nvar), stat = istat)
@@ -188,8 +187,8 @@ module state_variables_network
         deallocate(resv_flow, prev_resv_flow)
         deallocate(qext_flow, prev_qext_flow)
         deallocate(tran_flow, prev_tran_flow)
-        deallocate(conc_resv, prev_conc_resv)
         deallocate(node_conc, prev_node_conc)
+        deallocate(conc_resv, conc_resv_prev)        
         return
     end subroutine    
 

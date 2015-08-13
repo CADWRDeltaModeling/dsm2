@@ -126,9 +126,9 @@ module gtm_dss_readtvd
             ptr = inpath_ptr(i)
             pathinput(ptr)%replace = .false.
             if (pathinput(ptr)%constant_value == miss_val_r) then ! get value from dss file
-               !if (indata(block_dim,i)%julmin.lt.0 .or. indata(block_dim,i)%julmin>99999999) then ! to avoid release version error
-               !    indata(block_dim,i)%julmin = LARGEINT
-               !end if
+               if (indata(block_dim,i)%julmin.lt.0 .or. indata(block_dim,i)%julmin>99999999) then ! to avoid release version error
+                   indata(block_dim,i)%julmin = LARGEINT
+               end if
                if ( (jmin+pathinput(ptr)%diff_julmin >= &
                    indata(block_dim,i)%julmin ) .or. &
                    prev_jmin == int(start_julmin)) then

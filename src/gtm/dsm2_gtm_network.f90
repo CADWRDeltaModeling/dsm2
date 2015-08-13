@@ -201,11 +201,11 @@ module dsm2_gtm_network
         integer :: network_id
         integer :: i, j, k, icell    
         integer :: reservoir_id, resv_conn_id   
-
+        
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
             vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
-            mass_resv(i,:) = vol(i) * prev_conc_resv(i,:)
+            mass_resv(i,:) = vol(i) * conc_resv_prev(i,:)
         end do      
    
         do i = 1, n_node
@@ -266,7 +266,7 @@ module dsm2_gtm_network
                 else     
                     conc_tmp(:) = mass_tmp(:)/flow_tmp
                 end if
-
+                
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
                     do j = 1, dsm2_network_extra(i)%n_qext
@@ -289,20 +289,20 @@ module dsm2_gtm_network
                         conc_tmp(:) = mass_tmp(:)/flow_tmp
                     end if     
                 end if
-                
+                    
                 ! add reservoir flows
                 if (dsm2_network_extra(i)%reservoir_no.ne.0) then
                     reservoir_id = dsm2_network_extra(i)%reservoir_no
                     resv_conn_id = dsm2_network_extra(i)%resv_conn_no
                     vol(reservoir_id) = vol(reservoir_id) - resv_flow(resv_conn_id)*dt
                     if (resv_flow(resv_conn_id).gt.zero) then
-                        mass_resv(reservoir_id,:) = mass_resv(reservoir_id,:) - resv_flow(resv_conn_id)*dt*prev_conc_resv(reservoir_id,:) 
-                        mass_tmp(:) = mass_tmp(:) + prev_conc_resv(reservoir_id,:)*resv_flow(resv_conn_id)
+                        mass_resv(reservoir_id,:) = mass_resv(reservoir_id,:) - resv_flow(resv_conn_id)*dt*conc_resv_prev(reservoir_id,:) 
+                        mass_tmp(:) = mass_tmp(:) + conc_resv_prev(reservoir_id,:)*resv_flow(resv_conn_id)
                         flow_tmp = flow_tmp + resv_flow(resv_conn_id)
                     else
                         mass_resv(reservoir_id,:) = mass_resv(reservoir_id,:) - resv_flow(resv_conn_id)*dt*conc_tmp(:) 
                         mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*resv_flow(resv_conn_id)
-                        flow_tmp = flow_tmp + resv_flow(resv_conn_id)                   
+                        flow_tmp = flow_tmp + resv_flow(resv_conn_id)              
                     end if
                     if (flow_tmp .lt. no_flow) then
                         !write(*,*) "WARNING: No flow flows into junction!!",icell               
@@ -329,15 +329,19 @@ module dsm2_gtm_network
                 do j = 1, resv_geom(i)%n_qext
                     vol(i) = vol(i) + qext_flow(resv_geom(i)%qext_no(j))*dt
                     if (qext_flow(resv_geom(i)%qext_no(j)).gt.zero) then
-                        mass_resv(i,:) = mass_resv(i,:) + pathinput(resv_geom(i)%qext_path(j,:))%value*qext_flow(resv_geom(i)%qext_no(j))*dt
+                        mass_resv(i,:) = mass_resv(i,:) + dble(pathinput(resv_geom(i)%qext_path(j,:))%value)*qext_flow(resv_geom(i)%qext_no(j))*dt
                     else
-                        mass_resv(i,:) = mass_resv(i,:) + prev_conc_resv(i,:)*qext_flow(resv_geom(i)%qext_no(j))*dt
+                        mass_resv(i,:) = mass_resv(i,:) + conc_resv_prev(i,:)*qext_flow(resv_geom(i)%qext_no(j))*dt
                     end if
                 end do
             end if
-            conc_resv(i,:) = mass_resv(i,:)/vol(i)            
+            if (vol(i).gt.zero) then
+                conc_resv(i,:) = mass_resv(i,:)/vol(i)            
+            else
+                conc_resv(i,:) = conc_resv_prev(i,:)
+            end if
         end do             
-        
+
         return
     end subroutine  
     

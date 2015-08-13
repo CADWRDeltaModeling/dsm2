@@ -242,13 +242,10 @@ program gtm
             conc = init_conc
         end if    
     end if
-    if (n_resv .gt. 0) then
-        if (init_r(1,1) .ne. LARGEREAL) then
-            conc_resv = init_r
-        else    
-            conc_resv = init_conc
-        end if      
-    end if
+    if (n_resv .gt. 0) conc_resv = init_r
+    conc_prev = zero         
+    conc_resv_prev = zero
+    mass_prev = zero
     
     if (apply_diffusion)then
         call dispersion_coef(disp_coef_lo,         &
@@ -408,9 +405,8 @@ program gtm
                 prev_resv_flow = resv_flow
                 prev_qext_flow = qext_flow
                 prev_tran_flow = tran_flow
-                prev_conc_resv = conc_resv
             end if
-           
+            
             !----- advection and source/sink -----        
             call advect_network(mass,                         &
                                 mass_prev,                    &  
@@ -430,7 +426,8 @@ program gtm
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)          
             conc_prev = conc
-            prev_conc_resv = conc_resv
+            conc_resv_prev = conc_resv
+                 
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 call dispersion_coef(disp_coef_lo,         &
@@ -465,11 +462,11 @@ program gtm
                                      sub_gtm_time_step*sixty,      &
                                      dx_arr)
             end if 
-                        
+         
             call prim2cons(mass,conc,area,n_cell,n_var)
             mass_prev = mass
             conc_prev = conc
-            prev_conc_resv = conc_resv
+            conc_resv_prev = conc_resv
             area_prev = area
             area_lo_prev = area_lo
             area_hi_prev = area_hi    

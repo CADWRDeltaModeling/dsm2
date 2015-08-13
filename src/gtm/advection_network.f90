@@ -111,13 +111,13 @@ module advection_network
         else
             limit_slope = .true.
         end if
-        
+
         ! Converts the conservative variable (mass) to the primitive variable (concentration)
         call cons2prim(conc_prev,&
                        mass_prev,&
                        area_prev,&
                        ncell,    &
-                       nvar)
+                       nvar)                 
 
         ! Calculate the (undivided) differences of concentrations
         call difference_network(grad_lo,    &
@@ -162,7 +162,7 @@ module advection_network
                             ncell,       &
                             nvar,        &
                             old_time)
-                    
+            
         ! Extrapolate primitive data from cell center at the old time
         call extrapolate(conc_lo,     &
                          conc_hi,     & 
@@ -176,7 +176,7 @@ module advection_network
                          time,        &
                          dt,          &
                          dx)
-
+ 
         ! Assign boundary concentration if it is given
         if (associated(boundary_conc)) then        
             call boundary_conc(conc_lo,              &
@@ -195,7 +195,7 @@ module advection_network
                           flow_hi,    &
                           ncell,      &
                           nvar)                   
-                                 
+                               
         ! Adjust flux for boundaries and junctions
         if (associated(advection_boundary_flux)) then
             call advection_boundary_flux(flux_lo,     &
