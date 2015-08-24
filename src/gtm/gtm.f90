@@ -74,10 +74,7 @@ program gtm
     real(gtm_real), allocatable :: init_r(:,:)   
      
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
-    real(gtm_real) :: constant_dispersion
-    integer :: nt    
-    integer :: up_comp, down_comp    
-    integer :: ok
+    real(gtm_real) :: constant_dispersion   
     
     ! local variables to obtain time series data from HDF5 file
     integer :: time_offset
@@ -96,22 +93,23 @@ program gtm
     integer :: current_block = 0
     integer :: current_slice = 0
     integer :: time_index_in_gtm_hdf
-    integer :: next_output_flush   ! next time to flush output
+    integer :: next_output_flush 
       
-    procedure(hydro_data_if), pointer :: fill_hydro => null()   ! Hydrodynamic pointer to be filled by the driver
+    procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
     !real(gtm_real), parameter :: constant_decay = 5.0d-5
     real(gtm_real), parameter :: constant_decay = zero
     logical :: debug_interp = .false.    
-    logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
-    integer, parameter :: max_num_sub_ts = 20                 ! maximum number of sub time step within GTM time step    
-    
+
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
     character(len=:), allocatable :: restart_file_name  
     character(len=14) :: cdt
     character(len=9) :: prev_day
-
+    integer :: ok
+    
     ! variables for sub time stepping 
+    logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
+    integer, parameter :: max_num_sub_ts = 20                 ! maximum number of sub time step within GTM time step    
     real(gtm_real) :: sub_gtm_time_step                       ! sub time step for GTM when max CFL > 1
     real(gtm_real) :: max_cfl                                 ! max_cfl = maxval(cfl)
     integer :: sub_st                                         ! number of sub time step within gtm time step
@@ -119,11 +117,8 @@ program gtm
     integer :: ceil_max_cfl                                   ! ceiling integer of max_cfl
     integer :: tmp_int
     integer :: ierror
+    integer :: nt     
     integer :: istat = 0
-    
-    ! local variables for input time series
-    integer :: n_bound_ts
-    integer, allocatable :: bound_index(:), path_index(:)
     
     real(gtm_real) :: flow_chk
     
@@ -133,11 +128,16 @@ program gtm
     integer :: st, k, n_st     ! temp index
     real(gtm_real) :: start, finish
     
+    
     !----- Start of GTM Program  -----
+    
     call cpu_time(start)
     
-    n_var = 1
-    
+    n_var = 1   !todo::need to design a way to define n vars in input
+    allocate(constituents(n_var))     
+    constituents(1)%conc_no = 1
+    constituents(1)%name = "EC"
+        
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
     
@@ -162,16 +162,17 @@ program gtm
     call get_cell_info    
     call get_output_channel
 
-    !----- allocate array for interpolation -----  
     nt = npartition_t + 1
+    
+    !----- assign dispersion coefficient and the pointer to function call
     if (apply_diffusion) then
         if (disp_coeff.ne.LARGEREAL) then
             disp_arr = disp_coeff
         end if        
-        dispersion_coef => assign_dispersion_coef
-    end if      
+        dispersion_coef => assign_dispersion_coef !adjust_dispersion_coef_with_velocity
+    end if 
     
-    allocate(constituents(n_var))    
+    !----- allocate array for interpolation -----         
     call allocate_state_hydro(n_comp, n_resv, n_resv_conn, n_qext, n_tran, n_cell)
     call allocate_hydro_ts 
     call allocate_network_tmp(npartition_t)
@@ -184,12 +185,10 @@ program gtm
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
     
-    write(*,*) "You need to have ",n_cell," number of cells in initial file"
+    write(*,*) "You need to have ",n_cell," number of cells in initial file."
     
     linear_decay = constant_decay
-    
-    constituents(1)%conc_no = 1
-    constituents(1)%name = "EC"
+   
     call assign_node_ts
     call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
     gtm_hdf_time_intvl = dble(tmp_int)
@@ -223,8 +222,7 @@ program gtm
     
     call set_dispersion_arr(disp_arr, n_cell)
     write(*,*) "Process time series...."
-    prev_day =  "01JAN1000"       ! to initialize for screen printing only
-
+    prev_day = "01JAN1000"                                      ! to initialize for screen printing only
 
     ! assigen the initial concentration to cells and reservoirs
     init_c = 200.d0
@@ -332,7 +330,8 @@ program gtm
             ceil_max_cfl = ceiling(max_cfl) 
             if ((max_cfl .gt. one).and.(sub_time_step)) then
                 if (ceil_max_cfl .gt. max_num_sub_ts) then   ! try to avoid exceeding max_num_sub_ts
-                    ceil_max_cfl = max_num_sub_ts                    
+                    ceil_max_cfl = max_num_sub_ts
+                    write(*,*) "exceed max number of sub timestep. consider to decrease the cell size."
                 end if
                 sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
                 write(*,'(f15.0,f5.2,i5,f10.4)') current_time, max_cfl, ceil_max_cfl, sub_gtm_time_step                             
@@ -368,7 +367,7 @@ program gtm
             new_current_time = current_time + dble(st-1)*sub_gtm_time_step
             
             !---get time series for boundary conditions, this will update pathinput(:)%value; 
-            !---rounded integer is fine since DSS does not take care of precision finer than 1minute anyway.
+            !---rounded integer is fine since DSS does not take care of precision finer than 1 minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
                         
             call fill_hydro(flow,          &
@@ -523,8 +522,10 @@ program gtm
         prev_julmin = int(current_time)         
         
     end do  ! end of loop for gtm time step
+    
+    !----- deallocate memories and close file units -----
     if (n_dssfiles .ne. 0) then
-        call zclose(ifltab_in)  !!ADD A global to detect if dss is opened
+        call zclose(ifltab_in)   !!ADD A global to detect if dss is opened
         deallocate(ifltab_in) 
     end if
     if (n_outdssfiles .ne. 0) then

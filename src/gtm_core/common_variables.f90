@@ -71,7 +71,7 @@ module common_variables
      real(gtm_real) :: gtm_end_jmin = LARGEREAL        !< gtm end time
      integer :: gtm_ntideblocks = LARGEINT             !< gtm time blocks
      real(gtm_real) :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
-     logical :: debug_print = .true.
+     logical :: debug_print = .false.
      logical :: apply_diffusion = .false. 
      real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
      

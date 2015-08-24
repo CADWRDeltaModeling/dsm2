@@ -114,50 +114,39 @@ module boundary_diffusion_network
  
     
     !> Set dispersion coefficient interface to an implementation 
-    !> that is constant in space and time. This routine sets
-    !> the value of the constant dispersion coefficient as well.
+    !> that is read from input file.
     subroutine set_dispersion_arr(d_arr,  &
                                   ncell)
-        use common_variables, only: n_gate, gate, dsm2_network                             
+                           
         implicit none
         integer, intent(in) :: ncell              !< number of cells
         real(gtm_real),intent(in) :: d_arr(ncell) !< array of dispersion coefficients
         integer :: i, j
-        
+       
         allocate(disp_coef_arr(ncell))
-        disp_coef_arr = d_arr
-        
-        do i = 1, n_gate
-        
-            if (gate(i)%from_obj_int .eq. 1) then   ! from_obj_int = 1: channel
-                do j = 1, dsm2_network(gate(i)%to_node_int)%n_conn_cell
-                    disp_coef_arr(dsm2_network(gate(i)%to_node_int)%cell_no(j)) = zero
-                end do    
-            end if    
-        end do            
-        
-        dispersion_coef => assign_dispersion_coef
+        disp_coef_arr = d_arr       
         
         return
     end subroutine    
     
     !> Implementation of diffusion_coef_if that sets dipsersion
-    !> to a constant over space and time
-    subroutine assign_dispersion_coef(disp_coef_lo,         &
-                                      disp_coef_hi,         &
-                                      flow,                 &
-                                      flow_lo,              &
-                                      flow_hi,              &
-                                      area,                 &
-                                      area_lo,              &
-                                      area_hi,              &                                      
-                                      time,                 &
-                                      dx,                   &
-                                      dt,                   &
-                                      ncell,                &
-                                      nvar)  
+    !> by multiplying input dispersion coefficients with flow velocities
+    subroutine adjust_dispersion_coef_with_velocity(disp_coef_lo,  &
+                                                    disp_coef_hi,  &
+                                                    flow,          &
+                                                    flow_lo,       &
+                                                    flow_hi,       &
+                                                    area,          &
+                                                    area_lo,       &
+                                                    area_hi,       &                                      
+                                                    time,          &
+                                                    dx,            &
+                                                    dt,            &
+                                                    ncell,         &
+                                                    nvar)  
         use gtm_precision
         use error_handling
+        use common_variables, only: n_gate, gate, dsm2_network  
         implicit none
         !--- args          
         integer,intent(in)  :: ncell                     !< Number of cells
@@ -173,12 +162,78 @@ module boundary_diffusion_network
         real(gtm_real),intent(in) :: area(ncell)         !< area on center of cells         
         real(gtm_real),intent(out):: disp_coef_lo(ncell) !< Low side constituent dispersion coef.
         real(gtm_real),intent(out):: disp_coef_hi(ncell) !< High side constituent dispersion coef. 
-        !real(gtm_real) :: scaling = 0.5d0
-        integer :: i
+        integer :: i, j, inode
    
         disp_coef_hi = disp_coef_arr*abs(flow_hi/area_hi)
-        disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo)           
+        disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo) 
         
+        do i = 1, n_gate
+            if (gate(i)%from_obj_int .eq. 1) then   ! from_obj_int = 1: channel 
+                inode = gate(i)%to_node_int
+                do j = 1, dsm2_network(inode)%n_conn_cell
+                    if (dsm2_network(inode)%up_down(j) .eq. 0) then   !cell at upstream of junction 
+                        disp_coef_hi(dsm2_network(inode)%cell_no(j)) = zero
+                    else
+                        disp_coef_lo(dsm2_network(inode)%cell_no(j)) = zero
+                    end if    
+                end do             
+            end if 
+        end do    
+                
+        return
+    end subroutine
+ 
+    !> Implementation of diffusion_coef_if that sets dipsersion
+    !> by directly using input dispersion coefficients
+    subroutine assign_dispersion_coef(disp_coef_lo,  &
+                                      disp_coef_hi,  &
+                                      flow,          &
+                                      flow_lo,       &
+                                      flow_hi,       &
+                                      area,          &
+                                      area_lo,       &
+                                      area_hi,       &                                      
+                                      time,          &
+                                      dx,            &
+                                      dt,            &
+                                      ncell,         &
+                                      nvar)  
+        use gtm_precision
+        use error_handling
+        use common_variables, only: n_gate, gate, dsm2_network  
+        implicit none
+        !--- args          
+        integer,intent(in)  :: ncell                     !< Number of cells
+        integer,intent(in)  :: nvar                      !< Number of variables   
+        real(gtm_real),intent(in) :: time                !< Current time
+        real(gtm_real),intent(in) :: dx(ncell)           !< Spatial step  
+        real(gtm_real),intent(in) :: dt                  !< Time step 
+        real(gtm_real),intent(in) :: flow_lo(ncell)      !< flow on lo side of cells centered in time
+        real(gtm_real),intent(in) :: flow_hi(ncell)      !< flow on hi side of cells centered in time       
+        real(gtm_real),intent(in) :: flow(ncell)         !< flow on center of cells 
+        real(gtm_real),intent(in) :: area_lo(ncell)      !< area on lo side of cells centered in time
+        real(gtm_real),intent(in) :: area_hi(ncell)      !< area on hi side of cells centered in time       
+        real(gtm_real),intent(in) :: area(ncell)         !< area on center of cells         
+        real(gtm_real),intent(out):: disp_coef_lo(ncell) !< Low side constituent dispersion coef.
+        real(gtm_real),intent(out):: disp_coef_hi(ncell) !< High side constituent dispersion coef. 
+        integer :: i, j, inode
+   
+        disp_coef_hi = disp_coef_arr
+        disp_coef_lo = disp_coef_arr
+        
+        do i = 1, n_gate
+            if (gate(i)%from_obj_int .eq. 1) then   ! from_obj_int = 1: channel 
+                inode = gate(i)%to_node_int
+                do j = 1, dsm2_network(inode)%n_conn_cell
+                    if (dsm2_network(inode)%up_down(j) .eq. 0) then   !cell at upstream of junction 
+                        disp_coef_hi(dsm2_network(inode)%cell_no(j)) = zero
+                    else
+                        disp_coef_lo(dsm2_network(inode)%cell_no(j)) = zero
+                    end if    
+                end do             
+            end if 
+        end do    
+                
         return
     end subroutine
  
