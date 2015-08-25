@@ -146,12 +146,12 @@ program gtm
     call read_input_text(init_input_file)                  ! read input specification text
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
     call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files    
-    open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
+    !open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
     write(*,*) "Process DSM2 geometry info...."    
     call hdf5_init(hydro_hdf5)                         
     call dsm2_hdf_geom
-    call write_geom_to_text
+    !call write_geom_to_text
 
     call check_runtime(num_blocks, memlen,                     & 
                        memory_buffer, hydro_time_interval,     & 
@@ -169,7 +169,7 @@ program gtm
         if (disp_coeff.ne.LARGEREAL) then
             disp_arr = disp_coeff
         end if        
-        dispersion_coef => assign_dispersion_coef !adjust_dispersion_coef_with_velocity
+        dispersion_coef => adjust_dispersion_coef_with_velocity !assign_dispersion_coef
     end if 
     
     !----- allocate array for interpolation -----         
@@ -552,7 +552,7 @@ program gtm
     call deallocate_hydro_ts
     call close_qual_hdf(qual_hdf)         
     call hdf5_close
-    close(debug_unit)
+    !close(debug_unit)
     write(*,*) '-------- Normal program end -------'
     call cpu_time(finish)
     write(*,*) "Total CPU Time = ",finish - start," seconds." 

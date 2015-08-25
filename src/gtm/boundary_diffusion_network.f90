@@ -788,9 +788,9 @@ module boundary_diffusion_network
                 end if
             end do
         end do
-        do k = 1, n_nonzero
-            write(101,'(5i7,2a7,i7)') rcind(k), kin(k), row(k), col(k), nco(k), typ(k), uds(k), ncc(k)
-        end do
+        !do k = 1, n_nonzero
+        !    write(101,'(5i7,2a7,i7)') rcind(k), kin(k), row(k), col(k), nco(k), typ(k), uds(k), ncc(k)
+        !end do
         allocate(aap(ncell+1), aai(n_nonzero), aax(n_nonzero))
         call rowcol2apai(aap, aai, row, col, rcind, n_nonzero, ncell)
         return
