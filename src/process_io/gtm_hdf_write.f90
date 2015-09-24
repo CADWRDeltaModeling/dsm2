@@ -112,7 +112,8 @@ module gtm_hdf_write
         integer(HID_T) :: dtype_id                   ! compound datatype identifier
         integer(HID_T) :: dt1_id, dt2_id, dt3_id     ! memory datatype identifier
         integer(HID_T) :: dt4_id, dt5_id, dt6_id     ! memory datatype identifier
-        integer(HID_T) :: dt_id, dt7_id              ! memory datatype identifier      
+        integer(HID_T) :: dt_id, dt7_id              ! memory datatype identifier
+        integer(HID_T) :: dt8_id, dt9_id             ! memory datatype identifier
         integer(HID_T) :: plist_id                   ! dataset transfer property
         integer(SIZE_T) :: typesize
         integer(SIZE_T) :: type_size
@@ -141,7 +142,7 @@ module gtm_hdf_write
         typesize = 4
         call h5tset_size_f(dt_id, typesize, error)
         call h5tget_size_f(dt_id, type_sizei, error)
-        type_size = 7*type_sizei
+        type_size = 9*type_sizei
         
         call h5tcreate_f(H5T_COMPOUND_F, type_size, dtype_id, error)
         
@@ -165,6 +166,12 @@ module gtm_hdf_write
         
         offset = offset + type_sizei
         call h5tinsert_f(dtype_id, "down_comp", offset, H5T_NATIVE_INTEGER, error)        
+
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "start_cell", offset, H5T_NATIVE_INTEGER, error) 
+        
+        offset = offset + type_sizei
+        call h5tinsert_f(dtype_id, "end_cell", offset, H5T_NATIVE_INTEGER, error)         
         
         call h5dcreate_f(geom_id, "channel", dtype_id, dspace_id, dset_id, error)        
         
@@ -195,6 +202,14 @@ module gtm_hdf_write
         call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt7_id, error)
         offset = 0
         call h5tinsert_f(dt7_id, "down_comp", offset, H5T_NATIVE_INTEGER, error)
+
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt8_id, error)
+        offset = 0
+        call h5tinsert_f(dt8_id, "start_cell", offset, H5T_NATIVE_INTEGER, error)
+        
+        call h5tcreate_f(H5T_COMPOUND_F, type_sizei, dt9_id, error)
+        offset = 0
+        call h5tinsert_f(dt9_id, "end_cell", offset, H5T_NATIVE_INTEGER, error)        
                 
         call h5dwrite_f(dset_id, dt1_id, chan_geom%chan_no, data_dims, error, xfer_prp = plist_id)
         call h5dwrite_f(dset_id, dt2_id, chan_geom%channel_num, data_dims, error, xfer_prp = plist_id)
@@ -203,6 +218,8 @@ module gtm_hdf_write
         call h5dwrite_f(dset_id, dt5_id, chan_geom%down_node, data_dims, error, xfer_prp = plist_id)
         call h5dwrite_f(dset_id, dt6_id, chan_geom%up_comp, data_dims, error, xfer_prp = plist_id)
         call h5dwrite_f(dset_id, dt7_id, chan_geom%down_comp, data_dims, error, xfer_prp = plist_id)        
+        call h5dwrite_f(dset_id, dt8_id, chan_geom%start_cell, data_dims, error, xfer_prp = plist_id)  
+        call h5dwrite_f(dset_id, dt9_id, chan_geom%end_cell, data_dims, error, xfer_prp = plist_id)          
         
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dspace_id, error)
@@ -214,6 +231,8 @@ module gtm_hdf_write
         call h5tclose_f(dt5_id, error)
         call h5tclose_f(dt6_id, error)
         call h5tclose_f(dt7_id, error)
+        call h5tclose_f(dt8_id, error)
+        call h5tclose_f(dt9_id, error)                
         call h5tclose_f(dt_id, error)                
         return
     end subroutine

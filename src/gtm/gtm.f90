@@ -125,7 +125,7 @@ program gtm
     ! for specified output locations
     real(gtm_real), allocatable :: vals(:,:)  
     logical :: file_exists
-    integer :: st, k, n_st     ! temp index
+    integer :: st, k, p, n_st     ! temp index
     real(gtm_real) :: start, finish
     
     
@@ -325,6 +325,13 @@ program gtm
                             dble(1),       &
                             dx_arr,        &
                             gtm_time_interval)
+            if (print_level.ge.4) then                      
+                write(102,'(<n_chan>f15.4)') (flow_lo(chan_geom(i)%start_cell),i=1,n_chan)
+                write(103,'(<n_chan>f15.4)') (flow_hi(chan_geom(i)%end_cell),i=1,n_chan)
+                write(104,'(<n_chan>f15.4)') (area_lo(chan_geom(i)%start_cell),i=1,n_chan)
+                write(105,'(<n_chan>f15.4)') (area_hi(chan_geom(i)%end_cell),i=1,n_chan)                
+            end if
+                            
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
             max_cfl = maxval(cfl)
             ceil_max_cfl = ceiling(max_cfl) 
@@ -344,7 +351,7 @@ program gtm
                 prev_sub_ts = ceil_max_cfl
             end if                                     
             prev_comp_flow(:) = hydro_flow(:,slice_in_block)  ! keep track of prev_* to avoid index error at t_index=1
-            prev_comp_ws(:) = hydro_ws(:,slice_in_block)      
+            prev_comp_ws(:) = hydro_ws(:,slice_in_block)     
             prev_hydro_resv(:) = hydro_resv_height(:,slice_in_block)
             prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
             prev_hydro_qext(:) = hydro_qext_flow(:,slice_in_block)

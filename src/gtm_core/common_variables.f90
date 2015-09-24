@@ -97,6 +97,8 @@ module common_variables
           integer :: down_node                         !< downstream DSM2 node
           integer :: up_comp                           !< upstream computational point
           integer :: down_comp                         !< downstream computational point
+          integer :: start_cell                        !< starting cell
+          integer :: end_cell                          !< ending cell
           real(gtm_real) :: dispersion                 !< dispersion coefficient
      end type
      type(channel_t), allocatable :: chan_geom(:)
@@ -642,6 +644,7 @@ module common_variables
          implicit none         
          integer :: i, j, k, m, previous_chan_no
          integer :: up_bound, down_bound     
+         integer :: chan_no, prev_chan_no
          integer :: num_segm    
          call allocate_segment_property()
          call allocate_conn_property()
@@ -776,11 +779,23 @@ module common_variables
          conn(m)%dsm2_node_no = chan_geom(down_bound)%down_node
          conn(m)%conn_up_down = 0
          n_conn = m
+         
+         prev_chan_no = 0         
+         do i = 1, n_segm
+             if (segm(i)%chan_no .ne. prev_chan_no) then
+                 chan_no = segm(i)%chan_no
+                 chan_geom(chan_no)%start_cell = segm(i)%start_cell_no
+                 chan_geom(chan_no)%end_cell = segm(i)%start_cell_no + segm(i)%nx - 1 
+                 prev_chan_no = chan_no
+             else
+                 chan_geom(chan_no)%end_cell = segm(i)%start_cell_no + segm(i)%nx - 1 
+             end if    
+         end do     
          call allocate_cell_property
          return    
      end subroutine    
    
-   
+  
      !> Assign up_comp_pt and down_comp_pt to channel_t
      subroutine assign_chan_comppt()
          implicit none

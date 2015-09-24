@@ -26,6 +26,7 @@ module boundary_diffusion_network
     use error_handling    
     use boundary_diffusion
     use dispersion_coefficient        
+    use common_dsm2_vars, only: print_level
     real(gtm_real), allocatable, save :: disp_coef_arr(:)
     integer, allocatable :: aap(:)
     integer, allocatable :: aai(:)
@@ -163,9 +164,9 @@ module boundary_diffusion_network
         real(gtm_real),intent(out):: disp_coef_lo(ncell) !< Low side constituent dispersion coef.
         real(gtm_real),intent(out):: disp_coef_hi(ncell) !< High side constituent dispersion coef. 
         integer :: i, j, inode
-   
+        
         disp_coef_hi = disp_coef_arr*abs(flow_hi/area_hi)
-        disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo) 
+        disp_coef_lo = disp_coef_arr*abs(flow_lo/area_lo)
         
         do i = 1, n_gate
             if (gate(i)%from_obj_int .eq. 1) then   ! from_obj_int = 1: channel 
@@ -788,9 +789,11 @@ module boundary_diffusion_network
                 end if
             end do
         end do
-        !do k = 1, n_nonzero
-        !    write(101,'(5i7,2a7,i7)') rcind(k), kin(k), row(k), col(k), nco(k), typ(k), uds(k), ncc(k)
-        !end do
+        if (print_level .ge. 3) then
+            do k = 1, n_nonzero
+                write(101,'(5i7,2a7,i7)') rcind(k), kin(k), row(k), col(k), nco(k), typ(k), uds(k), ncc(k)
+            end do
+        end if
         allocate(aap(ncell+1), aai(n_nonzero), aax(n_nonzero))
         call rowcol2apai(aap, aai, row, col, rcind, n_nonzero, ncell)
         return
