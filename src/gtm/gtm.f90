@@ -125,7 +125,7 @@ program gtm
     ! for specified output locations
     real(gtm_real), allocatable :: vals(:,:)  
     logical :: file_exists
-    integer :: st, k, p, n_st     ! temp index
+    integer :: st, k, p, n_st, chan_no     ! temp index
     real(gtm_real) :: start, finish
     
     
@@ -297,10 +297,10 @@ program gtm
             current_slice = 0
             time_offset = memory_buffer*(iblock-1)
             call dsm2_hdf_ts(time_offset, memlen(iblock))
-            call get_area_for_buffer(hydro_area, hydro_ws, n_comp, memory_buffer)
+            !call get_area_for_buffer(hydro_area, hydro_ws, n_comp, memory_buffer) ! can be deleted later
             if (prev_comp_flow(1)==LARGEREAL) then                             !if (slice_in_block .eq. 1) then
                 call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_hydro_resv, prev_hydro_resv_flow, &
-                     prev_hydro_qext, prev_hydro_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset-1)
+                     prev_hydro_qext, prev_hydro_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset+slice_in_block-2)
             end if
         end if
 
@@ -329,10 +329,15 @@ program gtm
                 write(102,'(<n_chan>f15.4)') (flow_lo(chan_geom(i)%start_cell),i=1,n_chan)
                 write(103,'(<n_chan>f15.4)') (flow_hi(chan_geom(i)%end_cell),i=1,n_chan)
                 write(104,'(<n_chan>f15.4)') (area_lo(chan_geom(i)%start_cell),i=1,n_chan)
-                write(105,'(<n_chan>f15.4)') (area_hi(chan_geom(i)%end_cell),i=1,n_chan)                
+                write(105,'(<n_chan>f15.4)') (area_hi(chan_geom(i)%end_cell),i=1,n_chan) 
+                !chan_no = 452               
+                !write(102,'(4f15.4,2f15.5)') flow_lo(chan_geom(chan_no)%start_cell),flow_hi(chan_geom(chan_no)%end_cell),area_lo(chan_geom(chan_no)%start_cell),area_hi(chan_geom(chan_no)%end_cell), conc(chan_geom(chan_no)%start_cell,1), conc(chan_geom(chan_no)%end_cell,1)
+                !if ((time_step_int.gt.14594).and(time_step_int.lt.15073)) then
+                !    write(102,'(4f15.4,2f15.5)') area_prev(chan_geom(chan_no)%start_cell),conc_prev(chan_geom(chan_no)%start_cell,1),area(chan_geom(chan_no)%end_cell)
+                !end if
             end if
                             
-            cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
+            cfl = abs(flow/area)*(gtm_time_interval*sixty)/dx_arr
             max_cfl = maxval(cfl)
             ceil_max_cfl = ceiling(max_cfl) 
             if ((max_cfl .gt. one).and.(sub_time_step)) then
@@ -412,6 +417,7 @@ program gtm
                 prev_qext_flow = qext_flow
                 prev_tran_flow = tran_flow
             end if
+            cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
             
             !----- advection and source/sink -----        
             call advect_network(mass,                         &
@@ -430,7 +436,7 @@ program gtm
                                 dx_arr,                       &
                                 limit_slope)   
             where (mass.lt.zero) mass = zero                               
-            call cons2prim(conc, mass, area, n_cell, n_var)          
+            call cons2prim(conc, mass, area, n_cell, n_var)                    
             conc_prev = conc
             conc_resv_prev = conc_resv
                  
@@ -459,7 +465,7 @@ program gtm
                                      area_hi_prev,                 &
                                      disp_coef_lo,                 &  
                                      disp_coef_hi,                 &
-                                     disp_coef_lo_prev,            &  
+                                     disp_coef_lo_prev,            &                  
                                      disp_coef_hi_prev,            &
                                      n_cell,                       &
                                      n_var,                        &
@@ -468,8 +474,17 @@ program gtm
                                      sub_gtm_time_step*sixty,      &
                                      dx_arr)
             end if 
+
+            if (print_level.ge.4) then                      
+            !    chan_no = 452               
+            !    write(108,'(f15.6)') conc(chan_geom(chan_no)%start_cell,1)
+            end if             
          
             call prim2cons(mass,conc,area,n_cell,n_var)
+            if (print_level.ge.4) then                      
+            !    chan_no = 452               
+            !    write(102,'(i10,2(f15.4,f15.6))') time_step_int,area_prev(chan_geom(chan_no)%start_cell),conc_prev(chan_geom(chan_no)%start_cell,1),area(chan_geom(chan_no)%start_cell),conc(chan_geom(chan_no)%start_cell,1)
+            end if               
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
@@ -483,7 +498,7 @@ program gtm
             prev_qext_flow = qext_flow
             prev_tran_flow = tran_flow            
             prev_node_conc = node_conc
-            node_conc = LARGEREAL 
+            node_conc = LARGEREAL             
         end do ! end of loop of sub time step
 
         !---- print output to DSS file -----

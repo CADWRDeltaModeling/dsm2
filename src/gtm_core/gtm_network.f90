@@ -157,6 +157,66 @@ module gtm_network
         end do
         return
     end subroutine
+
+
+    !> Return flow_tmp(1:ncell) and area_tmp(1:ncell) for the entire network 
+    !> at the specified hydro time index
+    subroutine interp_network_linear(npart_t, hydro_time_index, ncomp, prev_flow, prev_ws, ncell, prev_flow_cell_lo, prev_flow_cell_hi)
+        use interpolation
+        implicit none
+        integer, intent(in) :: npart_t                    !< number of partitions in time
+        integer, intent(in) :: hydro_time_index           !< starting time step index in DSM2 hydro 
+        integer, intent(in) :: ncomp                    
+        real(gtm_real), intent(in) :: prev_flow(ncomp)
+        real(gtm_real), intent(in) :: prev_ws(ncomp)
+        integer, intent(in) :: ncell    
+        real(gtm_real), intent(in) :: prev_flow_cell_lo(ncell)
+        real(gtm_real), intent(in) :: prev_flow_cell_hi(ncell)
+        real(gtm_real) :: prev_flow_lo_tmp(ncell)
+        real(gtm_real) :: prev_flow_hi_tmp(ncell)        
+        real(gtm_real) :: dt, dx                                  ! local variables
+        integer :: nx, nt                                         ! local variables
+        integer :: up_comp, down_comp                             ! local variables
+        integer :: i, j, t, icell, t_index                        ! local variables
+                        
+        nt = npart_t + 1
+        t_index = hydro_time_index 
+        dt = dble(hydro_time_interval)/dble(npart_t)
+        prev_flow_lo_tmp = prev_flow_cell_lo
+        prev_flow_hi_tmp = prev_flow_cell_hi
+        do i = 1, n_segm
+            nx = segm(i)%nx + one
+            dx = segm(i)%length/dble(segm(i)%nx)
+            up_comp = segm(i)%up_comppt
+            down_comp = segm(i)%down_comppt        
+            if (prev_flow_lo_tmp(segm(i)%start_cell_no)==LARGEREAL) then
+               do j = 1, segm(i)%nx
+                   icell = segm(i)%start_cell_no + j - 1
+                   if (t_index.gt.1) then
+                       prev_flow_lo_tmp(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
+                                           -hydro_flow(up_comp,t_index-1))*dble(j-1)/dble(segm(i)%nx)
+                       prev_flow_hi_tmp(icell) = hydro_flow(up_comp,t_index-1)+(hydro_flow(down_comp,t_index-1) &
+                                           -hydro_flow(up_comp,t_index-1))*dble(j)/dble(segm(i)%nx)                                       
+                   else
+                       prev_flow_lo_tmp(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index)     &
+                                           -hydro_flow(up_comp,t_index))*dble(j-1)/dble(segm(i)%nx)
+                       prev_flow_hi_tmp(icell) = hydro_flow(up_comp,t_index)+(hydro_flow(down_comp,t_index)     &
+                                           -hydro_flow(up_comp,t_index))*dble(j)/dble(segm(i)%nx)                         
+                   end if                    
+               end do
+            end if   
+            call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,   &
+                                      flow_volume_change, area_volume_change,                             &
+                                      n_cell, segm(i)%start_cell_no,                                      &
+                                      segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
+                                      prev_flow(up_comp), prev_flow(down_comp),                           &
+                                      hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
+                                      prev_ws(up_comp), prev_ws(down_comp),                               &
+                                      hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
+                                      prev_flow_lo_tmp, prev_flow_hi_tmp)                  
+        end do
+        return
+    end subroutine
     
     !> interpolate external flows data (reservoir, qext and transfer) for node
     !> use common_variabls, only : npartition_t, n_resv, nresv_conn

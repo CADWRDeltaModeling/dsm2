@@ -416,7 +416,7 @@ module boundary_diffusion_network
                     h = kin(k)
                     if (uds(k).eq."n") then
                         aax(h) = area(i)+theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*dx(i)*half)   &
-                                       +theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
+                                        +theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
                     else
                         aax(h) = -theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
                     end if
@@ -426,8 +426,7 @@ module boundary_diffusion_network
                 exp_diffusion_op_plus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
-                                         *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)
-                                           
+                                         *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)                               
                 right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
                                        + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2             
