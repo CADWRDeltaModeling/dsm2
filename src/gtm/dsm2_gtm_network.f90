@@ -83,7 +83,7 @@ module dsm2_gtm_network
                                                   (half*dx(down_cell+1)+dx(down_cell)+half*dx(up_cell))
                 end if    
             end do
-        end do
+        end do      
         return
     end subroutine
 
@@ -201,7 +201,8 @@ module dsm2_gtm_network
         integer :: network_id
         integer :: i, j, k, icell    
         integer :: reservoir_id, resv_conn_id   
-        
+     
+        !write(102,'(6f20.10)') conc_lo(48,1),conc_hi(48,1),flow_lo(48),flow_hi(48),flow_lo(49)*conc_lo(49,1), flux_hi(48,1)
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
             vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
@@ -257,8 +258,8 @@ module dsm2_gtm_network
                         mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
                         conc_tmp0(:) = conc_lo(icell,:)
-                    endif                   
-                end do
+                    endif       
+                end do           
                 ! temporarily calculated concentration to assign to seepage and diversion
                 if (flow_tmp .lt. no_flow) then
                     !write(*,*) "WARNING: No flow flows into junction!!",icell               
@@ -266,7 +267,6 @@ module dsm2_gtm_network
                 else     
                     conc_tmp(:) = mass_tmp(:)/flow_tmp
                 end if
-                
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
                     do j = 1, dsm2_network_extra(i)%n_qext
@@ -317,10 +317,11 @@ module dsm2_gtm_network
                     icell = dsm2_network(i)%cell_no(j)
                     if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
                         flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)
+                       ! if (icell.eq.48) write(102,'(2f20.10)')flow_hi(48),flow_lo(49)
                     elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
-                    endif               
-                end do                                  
+                    endif             
+                end do                                                
             end if
         end do    
         
@@ -340,8 +341,8 @@ module dsm2_gtm_network
             else
                 conc_resv(i,:) = conc_resv_prev(i,:)
             end if
-        end do             
-
+        end do      
+        !write(102,'(6f20.10)') conc_lo(48,1),conc_hi(48,1),flow_lo(48),flow_hi(48),flow_lo(49)*conc_lo(49,1), flux_hi(48,1)       
         return
     end subroutine  
     

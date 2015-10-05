@@ -127,7 +127,7 @@ module advection_network
                                 dx,         &
                                 ncell,      &
                                 nvar)
-                        
+                  
         ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
         ! or other differencing is required
         if (associated(adjust_gradient)) then
@@ -151,9 +151,8 @@ module advection_network
                                                    ncell,        &
                                                    nvar,         &
                                                    use_limiter)                              
-        end if        
-                    
-                                
+        end if                               
+                                 
         ! Compute sources and sinks for each constituent
         call compute_source(source_prev, & 
                             conc_prev,   &
@@ -161,8 +160,8 @@ module advection_network
                             flow_prev,   &
                             ncell,       &
                             nvar,        &
-                            old_time)
-            
+                            old_time)                          
+             
         ! Extrapolate primitive data from cell center at the old time
         call extrapolate(conc_lo,     &
                          conc_hi,     & 
@@ -176,7 +175,7 @@ module advection_network
                          time,        &
                          dt,          &
                          dx)
- 
+                         
         ! Assign boundary concentration if it is given
         if (associated(boundary_conc)) then        
             call boundary_conc(conc_lo,              &
@@ -184,7 +183,7 @@ module advection_network
                                ncell,                &
                                nvar)
         end if  
-
+        
         ! Compute upwind value of fluxes. This is a naive guess based on the extrapolated states
         ! It doesn't include any node-based sources or reservoirs or the like.
         call compute_flux(flux_lo,    &
@@ -195,7 +194,7 @@ module advection_network
                           flow_hi,    &
                           ncell,      &
                           nvar)                   
-                               
+
         ! Adjust flux for boundaries and junctions
         if (associated(advection_boundary_flux)) then
             call advection_boundary_flux(flux_lo,     &
@@ -224,7 +223,7 @@ module advection_network
                                    dt,          &
                                    dx)       
         end if    
-         
+           
         ! Combine the fluxes into a divergence term at the half time at cell edges.
         ! Computing and storing the divergence separately gives some flexibility with
         ! integrating the source term, e.g. Heun's method
@@ -233,7 +232,7 @@ module advection_network
                                 flux_hi,    &
                                 ncell,      &
                                 nvar)
-                                    
+
         ! Conservative update including source. 
         call update_conservative(mass,        &
                                  mass_prev,   &
@@ -245,8 +244,7 @@ module advection_network
                                  nvar,        &
                                  time,        &
                                  dt,          &
-                                 dx)
-                                
+                                 dx)                        
          return
     end subroutine    
         

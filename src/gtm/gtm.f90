@@ -311,7 +311,7 @@ program gtm
                 call deallocate_network_tmp
                 call allocate_network_tmp(npartition_t)
             end if   
-            call interp_network(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
+            call interp_network_linear(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
             call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv, prev_hydro_resv_flow, &
                                     prev_hydro_qext, prev_hydro_tran)              
             ! to determine if sub time step is required based on CFL number
@@ -350,7 +350,7 @@ program gtm
                 call deallocate_network_tmp
                 call allocate_network_tmp(npartition_t*ceil_max_cfl)         
                 n_st = npartition_t*ceil_max_cfl + 1
-                call interp_network(npartition_t*ceil_max_cfl, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
+                call interp_network_linear(npartition_t*ceil_max_cfl, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
                 call interp_network_ext(npartition_t*ceil_max_cfl, slice_in_block, prev_hydro_resv,    &
                                         prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)                                      
                 prev_sub_ts = ceil_max_cfl
@@ -437,6 +437,7 @@ program gtm
                                 limit_slope)   
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)                    
+            
             conc_prev = conc
             conc_resv_prev = conc_resv
                  
@@ -528,11 +529,11 @@ program gtm
             end if
             if (debug_print==.true.) then                                                 
                 call write_qual_hdf_ts(qual_hdf%cell_flow_id, &
-                                       flow,                  & 
+                                       flow_hi,                  & 
                                        n_cell,                &
                                        time_index_in_gtm_hdf)
                 call write_qual_hdf_ts(qual_hdf%cell_area_id, &
-                                       area,                  & 
+                                       area_hi,                  & 
                                        n_cell,                &
                                        time_index_in_gtm_hdf)                               
                 call write_qual_hdf_ts(qual_hdf%cell_cfl_id,  &
