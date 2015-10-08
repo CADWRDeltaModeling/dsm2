@@ -151,7 +151,12 @@ module dsm2_gtm_network
             elseif ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
-                   grad(icell,:) = zero
+                   if (dsm2_network(i)%up_down(j) .eq. 0) then  ! cell at upstream of junction
+                       grad(icell,:) = grad_lo(icell,:)
+                   else
+                       grad(icell,:) = grad_hi(icell,:)
+                   end if
+                   !grad(icell,:) = zero
                 end do
             end if 
         end do     
@@ -202,7 +207,6 @@ module dsm2_gtm_network
         integer :: i, j, k, icell    
         integer :: reservoir_id, resv_conn_id   
      
-        !write(102,'(6f20.10)') conc_lo(48,1),conc_hi(48,1),flow_lo(48),flow_hi(48),flow_lo(49)*conc_lo(49,1), flux_hi(48,1)
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
             vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
@@ -317,13 +321,13 @@ module dsm2_gtm_network
                     icell = dsm2_network(i)%cell_no(j)
                     if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
                         flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)
-                       ! if (icell.eq.48) write(102,'(2f20.10)')flow_hi(48),flow_lo(49)
                     elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
                     endif             
-                end do                                                
+                end do           
             end if
         end do    
+!write(112,'(f15.0,6f20.10)') time,flow_hi(256),conc_hi(256,1),flow_lo(257),conc_lo(257,1),flux_hi(256,1),flux_lo(257,1)
         
         do i = 1, n_resv        
             if (resv_geom(i)%n_qext > 0) then
