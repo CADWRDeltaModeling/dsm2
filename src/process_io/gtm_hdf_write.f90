@@ -533,7 +533,7 @@ module gtm_hdf_write
             do j = 1, dsm2_network(i)%n_conn_cell
                 k = k + 1
                 dsm2_node_no(k) = dsm2_network(i)%dsm2_node_no
-                int_node(k) = k
+                int_node(k) = i
                 n_conn_cell(k) = dsm2_network(i)%n_conn_cell
                 cell_no(k) = dsm2_network(i)%cell_no(j)
                 up_down(k) = dsm2_network(i)%up_down(j)

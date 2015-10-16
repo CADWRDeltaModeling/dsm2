@@ -325,17 +325,15 @@ program gtm
                             dble(1),       &
                             dx_arr,        &
                             gtm_time_interval)
-            if (print_level.ge.4) then                      
-                write(102,'(<n_chan>f15.4)') (flow_lo(chan_geom(i)%start_cell),i=1,n_chan)
-                write(103,'(<n_chan>f15.4)') (flow_hi(chan_geom(i)%end_cell),i=1,n_chan)
-                write(104,'(<n_chan>f15.4)') (area_lo(chan_geom(i)%start_cell),i=1,n_chan)
-                write(105,'(<n_chan>f15.4)') (area_hi(chan_geom(i)%end_cell),i=1,n_chan) 
-                !chan_no = 452               
-                !write(102,'(4f15.4,2f15.5)') flow_lo(chan_geom(chan_no)%start_cell),flow_hi(chan_geom(chan_no)%end_cell),area_lo(chan_geom(chan_no)%start_cell),area_hi(chan_geom(chan_no)%end_cell), conc(chan_geom(chan_no)%start_cell,1), conc(chan_geom(chan_no)%end_cell,1)
-                !if ((time_step_int.gt.14594).and(time_step_int.lt.15073)) then
-                !    write(102,'(4f15.4,2f15.5)') area_prev(chan_geom(chan_no)%start_cell),conc_prev(chan_geom(chan_no)%start_cell,1),area(chan_geom(chan_no)%end_cell)
-                !end if
-            end if
+            !if (print_level.ge.4) then                      
+                !write(102,'(<n_chan>f15.4)') (flow_lo(chan_geom(i)%start_cell),i=1,n_chan)
+                !write(103,'(<n_chan>f15.4)') (flow_hi(chan_geom(i)%end_cell),i=1,n_chan)
+                !write(104,'(<n_chan>f15.4)') (area_lo(chan_geom(i)%start_cell),i=1,n_chan)
+                !write(105,'(<n_chan>f15.4)') (area_hi(chan_geom(i)%end_cell),i=1,n_chan) 
+                !chan_no = 391
+                !write(102,'(4f15.4,2f15.5)') flow_lo(chan_geom(chan_no)%start_cell),flow_hi(chan_geom(chan_no)%end_cell),area_lo(chan_geom(chan_no)%start_cell),area_hi(chan_geom(chan_no)%end_cell), conc(chan_geom(chan_no)%start_cell,1), conc(chan_geom(chan_no)%end_cell,1)                
+                !write(102,'(2f15.5)') prev_comp_flow(874),prev_comp_flow(1214)
+            !end if
                             
             cfl = abs(flow/area)*(gtm_time_interval*sixty)/dx_arr
             max_cfl = maxval(cfl)
@@ -474,18 +472,12 @@ program gtm
                                      theta,                        &
                                      sub_gtm_time_step*sixty,      &
                                      dx_arr)
-            end if 
-
-            if (print_level.ge.4) then                      
-            !    chan_no = 452               
-            !    write(108,'(f15.6)') conc(chan_geom(chan_no)%start_cell,1)
-            end if             
+                !conc(:,1) = conc_prev(:,1)*area_prev(:)/area(:)
+                !write(112,'(240f8.4)') (area(i)/area_prev(i),i=1,240)
+               
+            end if       
          
-            call prim2cons(mass,conc,area,n_cell,n_var)
-            if (print_level.ge.4) then                      
-            !    chan_no = 452               
-            !    write(102,'(i10,2(f15.4,f15.6))') time_step_int,area_prev(chan_geom(chan_no)%start_cell),conc_prev(chan_geom(chan_no)%start_cell,1),area(chan_geom(chan_no)%start_cell),conc(chan_geom(chan_no)%start_cell,1)
-            end if               
+            call prim2cons(mass,conc,area,n_cell,n_var)              
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
