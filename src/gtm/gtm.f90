@@ -471,10 +471,7 @@ program gtm
                                      dble(new_current_time)*sixty, &
                                      theta,                        &
                                      sub_gtm_time_step*sixty,      &
-                                     dx_arr)
-                !conc(:,1) = conc_prev(:,1)*area_prev(:)/area(:)
-                !write(112,'(240f8.4)') (area(i)/area_prev(i),i=1,240)
-               
+                                     dx_arr)               
             end if       
          
             call prim2cons(mass,conc,area,n_cell,n_var)              

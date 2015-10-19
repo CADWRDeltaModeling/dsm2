@@ -43,6 +43,10 @@ module state_variables
     !> dimensions (ncell, nvar)
     real(gtm_real), save, allocatable :: conc_prev(:,:)
 
+    !> Concentration after advection,
+    !> dimensions (ncell, nvar)
+    real(gtm_real), save, allocatable :: conc_advt(:,:)
+    
     !> Cell-centered area
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: area(:)
@@ -99,12 +103,13 @@ module state_variables
          "This could be due to allocating several times in " // &
          "a row without deallocating (memory leak)"
         
-        allocate(conc(ncell,nvar), conc_prev(ncell,nvar), stat = istat)
+        allocate(conc(ncell,nvar), conc_prev(ncell,nvar), conc_advt(ncell,nvar), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
         conc      = LARGEREAL  ! absurd value helps expose bugs  
         conc_prev = LARGEREAL
+        conc_advt = LARGEREAL
         allocate(mass(ncell,nvar), mass_prev(ncell,nvar),stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)

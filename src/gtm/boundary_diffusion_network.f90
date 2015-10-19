@@ -407,7 +407,7 @@ module boundary_diffusion_network
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,:)-prev_node_conc(ncc(j),:))/(half*dx(i))/dx(i)  
-                right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
+                right_hand_side(i,:) = area(i)*conc_prev(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
                                        + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2
             elseif (typ(j).eq."d") then         ! "d": downstream boundary
@@ -427,7 +427,7 @@ module boundary_diffusion_network
                                             *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                          *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)                               
-                right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
+                right_hand_side(i,:) = area(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
                                        + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2             
             elseif (typ(j).eq."h") then        ! "h": u/s of junction  
@@ -488,7 +488,7 @@ module boundary_diffusion_network
                 end do
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,:)- conc_prev(i-1,:))/(half*dx(i)+half*dx(i-1))/dx(i)
-                right_hand_side(i,:) = area_prev(i)*conc_prev(i,:)-(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))
+                right_hand_side(i,:) = area(i)*conc_prev(i,:)-(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))
                 j = j + nco(j)
             elseif (typ(j).eq."l") then       ! "l": d/s of junction
                 exp_diffusion_op_plus = zero
@@ -547,7 +547,7 @@ module boundary_diffusion_network
                 end do 
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)- conc_prev(i,:))/(half*dx(i)+half*dx(i+1))/dx(i)
-                right_hand_side(i,:) = area_prev(i)*conc_prev(i,:)+(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))                
+                right_hand_side(i,:) = area(i)*conc_prev(i,:)+(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))                
                       
                 j = j + nco(j)     
             elseif (typ(j).eq."s") then      ! "s": non-sequantial 
@@ -575,7 +575,7 @@ module boundary_diffusion_network
                                          (conc_prev(d_cell,:)-conc_prev(i,:))/(half*dx(i)+half*dx(d_cell))/dx(i)
                 exp_diffusion_op_minus = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)*                 &
                                          (conc_prev(i,:)-conc_prev(u_cell,:))/(half*dx(i)+half*dx(u_cell))/dx(i)
-                right_hand_side(i,:) = area_prev(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus)
+                right_hand_side(i,:) = area(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus)
                 j = j + 3           
             else                          ! "n": normal
                 aax(kin(j))= down_diag(i)
@@ -583,8 +583,7 @@ module boundary_diffusion_network
                 aax(kin(j+2)) = up_diag(i)
                 j = j + 3
             end if
-        end do 
-                   
+        end do                
         return
     end subroutine            
 

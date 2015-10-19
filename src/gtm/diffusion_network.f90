@@ -116,9 +116,9 @@ module diffusion_network
                                          dx,                 &
                                          dt)
 
-        call construct_right_hand_side(right_hand_side,       & 
+        call construct_right_hand_side_0(right_hand_side,       & 
                                        explicit_diffuse_op,   & 
-                                       area_prev,             &
+                                       area,             &
                                        area_lo_prev,          &
                                        area_hi_prev,          &
                                        disp_coef_lo_prev,     &
@@ -176,7 +176,7 @@ module diffusion_network
                                                
         ! solve the sparse matrix by klu solver                                                    
         call klu_fortran_free_numeric(k_numeric, k_common)                  
-        k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)  
+        k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)
         call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side, k_common)
         
         conc = right_hand_side     
