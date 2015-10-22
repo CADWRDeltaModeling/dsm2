@@ -325,15 +325,6 @@ program gtm
                             dble(1),       &
                             dx_arr,        &
                             gtm_time_interval)
-            !if (print_level.ge.4) then                      
-                !write(102,'(<n_chan>f15.4)') (flow_lo(chan_geom(i)%start_cell),i=1,n_chan)
-                !write(103,'(<n_chan>f15.4)') (flow_hi(chan_geom(i)%end_cell),i=1,n_chan)
-                !write(104,'(<n_chan>f15.4)') (area_lo(chan_geom(i)%start_cell),i=1,n_chan)
-                !write(105,'(<n_chan>f15.4)') (area_hi(chan_geom(i)%end_cell),i=1,n_chan) 
-                !chan_no = 391
-                !write(102,'(4f15.4,2f15.5)') flow_lo(chan_geom(chan_no)%start_cell),flow_hi(chan_geom(chan_no)%end_cell),area_lo(chan_geom(chan_no)%start_cell),area_hi(chan_geom(chan_no)%end_cell), conc(chan_geom(chan_no)%start_cell,1), conc(chan_geom(chan_no)%end_cell,1)                
-                !write(102,'(2f15.5)') prev_comp_flow(874),prev_comp_flow(1214)
-            !end if
                             
             cfl = abs(flow/area)*(gtm_time_interval*sixty)/dx_arr
             max_cfl = maxval(cfl)
@@ -435,9 +426,6 @@ program gtm
                                 limit_slope)   
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)                    
-            
-            conc_prev = conc
-            conc_resv_prev = conc_resv
                  
             !--------- Diffusion ----------
             if (apply_diffusion) then
@@ -457,7 +445,7 @@ program gtm
                 call diffuse_network(conc,                         &
                                      conc_prev,                    &
                                      area,                         &
-                                     area_prev,                    &
+                                     mass,                         &
                                      area_lo,                      &
                                      area_hi,                      &
                                      area_lo_prev,                 &

@@ -41,7 +41,7 @@ module diffusion_network
     subroutine diffuse_network(conc,               &
                                conc_prev,          &
                                area,               &
-                               area_prev,          &
+                               mass,               &
                                area_lo,            &
                                area_hi,            &
                                area_lo_prev,       &
@@ -70,8 +70,8 @@ module diffusion_network
 
         real(gtm_real), intent (out):: conc(ncell,nvar)              !< Concentration at new time
         real(gtm_real), intent (in) :: conc_prev(ncell,nvar)         !< Concentration at old time
+        real(gtm_real), intent (in) :: mass(ncell,nvar)              !< mass from mass_prev+mass_divergence_advect
         real(gtm_real), intent (in) :: area (ncell)                  !< Cell-centered area at new time
-        real(gtm_real), intent (in) :: area_prev (ncell)             !< Cell-centered area at old time
         real(gtm_real), intent (in) :: area_lo (ncell)               !< Low side area centered in time
         real(gtm_real), intent (in) :: area_hi (ncell)               !< High side area centered in time 
         real(gtm_real), intent (in) :: area_lo_prev (ncell)          !< Low side area centered at old time
@@ -118,7 +118,7 @@ module diffusion_network
 
         call construct_right_hand_side_0(right_hand_side,       & 
                                        explicit_diffuse_op,   & 
-                                       area,             &
+                                       mass,                  &
                                        area_lo_prev,          &
                                        area_hi_prev,          &
                                        disp_coef_lo_prev,     &
@@ -156,7 +156,7 @@ module diffusion_network
                                                right_hand_side,     &
                                                explicit_diffuse_op, &
                                                conc_prev,           &
-                                               area_prev,           &
+                                               mass,                &
                                                area_lo_prev,        &
                                                area_hi_prev,        &
                                                disp_coef_lo_prev,   &

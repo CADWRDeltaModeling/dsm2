@@ -51,7 +51,7 @@ module boundary_diffusion_network
                                                         right_hand_side,     &
                                                         explicit_diffuse_op, &
                                                         conc_prev,           &
-                                                        area_prev,           &
+                                                        mass,                &
                                                         area_lo_prev,        &
                                                         area_hi_prev,        &
                                                         disp_coef_lo_prev,   &
@@ -78,7 +78,7 @@ module boundary_diffusion_network
         real(gtm_real), intent(in) :: up_diag(ncell)                 !< Values of the coefficients above the diagonal in matrix
         real(gtm_real), intent(inout):: right_hand_side(ncell,nvar)  !< Values of the coefficients of the right hand side    
         real(gtm_real), intent(in) :: conc_prev(ncell, nvar)         !< concentration from previous time step
-        real(gtm_real), intent(in) :: area_prev(ncell)               !< area from previous time step
+        real(gtm_real), intent (in) :: mass(ncell,nvar)              !< mass from mass_prev+mass_divergence_advect
         real(gtm_real), intent(in) :: area_lo_prev(ncell)            !< Low side area at previous time
         real(gtm_real), intent(in) :: area_hi_prev(ncell)            !< High side area at previous time
         real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)       !< Low side constituent dispersion coef. at previous time
@@ -329,7 +329,7 @@ module boundary_diffusion_network
                                                right_hand_side,    &
                                                explicit_diffuse_op,&
                                                conc_prev,          &
-                                               area_prev,          &
+                                               mass,               &
                                                area_lo_prev,       &
                                                area_hi_prev,       &
                                                disp_coef_lo_prev,  &
@@ -360,7 +360,7 @@ module boundary_diffusion_network
         real(gtm_real), intent(in) :: up_diag(ncell)                   !< Values of the coefficients above the diagonal in matrix
         real(gtm_real), intent(inout):: right_hand_side(ncell,nvar)    !< Values of the coefficients of the right hand side    
         real(gtm_real), intent(in) :: conc_prev(ncell, nvar)           !< concentration from previous time step
-        real(gtm_real), intent(in) :: area_prev(ncell)                 !< area from previous time step
+        real(gtm_real), intent (in) :: mass(ncell,nvar)              !< mass from mass_prev+mass_divergence_advect
         real(gtm_real), intent(in) :: area_lo_prev(ncell)              !< Low side area at previous time
         real(gtm_real), intent(in) :: area_hi_prev(ncell)              !< High side area at previous time
         real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)         !< Low side constituent dispersion coef. at previous time
@@ -407,7 +407,7 @@ module boundary_diffusion_network
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,:)-prev_node_conc(ncc(j),:))/(half*dx(i))/dx(i)  
-                right_hand_side(i,:) = area(i)*conc_prev(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
+                right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
                                        + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2
             elseif (typ(j).eq."d") then         ! "d": downstream boundary
@@ -427,7 +427,7 @@ module boundary_diffusion_network
                                             *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                          *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)                               
-                right_hand_side(i,:) = area(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
+                right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
                                        + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2             
             elseif (typ(j).eq."h") then        ! "h": u/s of junction  
@@ -488,7 +488,7 @@ module boundary_diffusion_network
                 end do
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,:)- conc_prev(i-1,:))/(half*dx(i)+half*dx(i-1))/dx(i)
-                right_hand_side(i,:) = area(i)*conc_prev(i,:)-(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))
+                right_hand_side(i,:) = mass(i,:)-(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))
                 j = j + nco(j)
             elseif (typ(j).eq."l") then       ! "l": d/s of junction
                 exp_diffusion_op_plus = zero
@@ -547,7 +547,7 @@ module boundary_diffusion_network
                 end do 
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)- conc_prev(i,:))/(half*dx(i)+half*dx(i+1))/dx(i)
-                right_hand_side(i,:) = area(i)*conc_prev(i,:)+(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))                
+                right_hand_side(i,:) = mass(i,:)+(exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:))                
                       
                 j = j + nco(j)     
             elseif (typ(j).eq."s") then      ! "s": non-sequantial 
@@ -575,7 +575,7 @@ module boundary_diffusion_network
                                          (conc_prev(d_cell,:)-conc_prev(i,:))/(half*dx(i)+half*dx(d_cell))/dx(i)
                 exp_diffusion_op_minus = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)*                 &
                                          (conc_prev(i,:)-conc_prev(u_cell,:))/(half*dx(i)+half*dx(u_cell))/dx(i)
-                right_hand_side(i,:) = area(i)*conc_prev(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus)
+                right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus)
                 j = j + 3           
             else                          ! "n": normal
                 aax(kin(j))= down_diag(i)
