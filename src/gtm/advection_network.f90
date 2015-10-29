@@ -184,6 +184,11 @@ module advection_network
                                nvar)
         end if  
         
+        call assign_upstream_node_conc_with_conc_lo(conc_lo,  &
+                                                    conc_hi,  &
+                                                    ncell,    &
+                                                    nvar)
+        
         ! Compute upwind value of fluxes. This is a naive guess based on the extrapolated states
         ! It doesn't include any node-based sources or reservoirs or the like.
         call compute_flux(flux_lo,    &

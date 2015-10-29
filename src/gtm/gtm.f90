@@ -425,22 +425,22 @@ program gtm
                                 dx_arr,                       &
                                 limit_slope)   
             where (mass.lt.zero) mass = zero                               
-            call cons2prim(conc, mass, area, n_cell, n_var)                    
+            call cons2prim(conc, mass, area, n_cell, n_var)
                  
             !--------- Diffusion ----------
             if (apply_diffusion) then
-                call dispersion_coef(disp_coef_lo,         &
-                                     disp_coef_hi,         &
-                                     flow,                 &
-                                     flow_lo,              &
-                                     flow_hi,              &
-                                     area,                 &
-                                     area_lo,              &
-                                     area_hi,              &                             
-                                     gtm_start_jmin,       &
-                                     dx_arr,               &
-                                     gtm_time_interval,    &
-                                     n_cell,               &
+                call dispersion_coef(disp_coef_lo,                 &
+                                     disp_coef_hi,                 &
+                                     flow,                         &
+                                     flow_lo,                      &
+                                     flow_hi,                      &
+                                     area,                         &
+                                     area_lo,                      &
+                                     area_hi,                      &                             
+                                     gtm_start_jmin,               &
+                                     dx_arr,                       &
+                                     gtm_time_interval,            &
+                                     n_cell,                       &
                                      n_var)             
                 call diffuse_network(conc,                         &
                                      conc_prev,                    &
@@ -459,10 +459,11 @@ program gtm
                                      dble(new_current_time)*sixty, &
                                      theta,                        &
                                      sub_gtm_time_step*sixty,      &
-                                     dx_arr)               
-            end if       
+                                     dx_arr)        
+                call prim2cons(mass,conc,area,n_cell,n_var)       
          
-            call prim2cons(mass,conc,area,n_cell,n_var)              
+            end if       
+                      
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
