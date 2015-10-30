@@ -11,13 +11,15 @@ package DWR.DMS.PTM;
  */
 public class BasicRouteBehavior {
 	static float _dicuEfficiency = 0.0f;
+	private RouteInputs _rIn;
 
 	/**
 	 * 
 	 */
-	public BasicRouteBehavior() {
-
+	public BasicRouteBehavior(RouteInputs in) {
+		_rIn = in;
 	}
+	public RouteInputs getRouteInputs() {return _rIn;}
 	public static void setDicuFilterEfficiency(float eff) {
 		if (eff < 0.0)
 			PTMUtil.systemExit("negative Dicu efficiency coefficient, system exit.");

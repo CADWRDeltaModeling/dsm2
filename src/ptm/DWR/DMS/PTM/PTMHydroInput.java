@@ -45,9 +45,6 @@
 //
 //    or see our home page: http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/
 package DWR.DMS.PTM;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.lang.Math;
 /**
  * This class handles the reading of the hydro tide file using
  * the appropriate fortran functions and using a common block
@@ -64,25 +61,6 @@ import java.lang.Math;
 public class PTMHydroInput{
 
   private final static boolean DEBUG = false;
-  // get fish swimming input info;
-  private static float constConfProb = 0.0f;
-  private static float maxConfProb = 1.0f;
-  private static float confProbSlope = -0.25f;
-  private static int tCycleForDir = 2;
-  private HashMap<Integer, ArrayList<Float>> _flowsInTidalCycles = new HashMap<Integer,ArrayList<Float>>();
-  private HashMap<Integer, Float> _preAdjFlow = new HashMap<Integer, Float>();
-  private HashMap<Integer, Float> _preChange = new HashMap<Integer, Float>();
-  private int _tideCount = 0;
-  
-  public static void setConfusionParameters(float ccProb, float mcProb, float cProbSlope, int cycles){
-	  constConfProb = ccProb;
-	  maxConfProb = mcProb;
-	  confProbSlope = cProbSlope;
-	  tCycleForDir = cycles;
-			  
-  }
-  
-
   /**
    *  the next chunk of data till the next time step
    */
@@ -112,13 +90,9 @@ public class PTMHydroInput{
   
     		stageArray[Channel.UPNODE]   = getUpNodeStage(channelNumber);
     		stageArray[Channel.DOWNNODE] = getDownNodeStage(channelNumber);
-    		//TODO clean up
-    		//flowArray[Channel.UPNODE]= getUpNodeFlow(channelNumber);
-    		//flowArray[Channel.DOWNNODE] = getDownNodeFlow(channelNumber);
-    		float flowUp = getUpNodeFlow(channelNumber);
-    		float flowDown = getDownNodeFlow(channelNumber);
-    		flowArray[Channel.UPNODE]   = flowUp;
-    		flowArray[Channel.DOWNNODE] = flowDown;
+    		
+    		flowArray[Channel.UPNODE]= getUpNodeFlow(channelNumber);
+    		flowArray[Channel.DOWNNODE] = getDownNodeFlow(channelNumber);
   
     		areaArray[Channel.UPNODE]   = getUpNodeArea(channelNumber);
     		areaArray[Channel.DOWNNODE] = getDownNodeArea(channelNumber);
@@ -133,58 +107,7 @@ public class PTMHydroInput{
     		chan.setDepth(depthArray);
     		chan.setStage(stageArray);
     		chan.setFlow(flowArray);
-    		chan.setArea(areaArray);
-    		// calculate swimming related info: channel direction and confusion factor
-    		float curFlow = (flowUp + flowDown)/2;    		
-    		ArrayList<Float> flows = _flowsInTidalCycles.get(channelNumber);
-    		if (flows == null){
-    			flows = new ArrayList<Float>();
-    			_flowsInTidalCycles.put(channelNumber, flows);
-    		}
-    		// For Java, Lists are passed by reference.  changing flows will also change _flowsInTidalCycles.get(channelNumber). 
-    		flows.add(curFlow);
-    		Float preAdjFlow = _preAdjFlow.get(channelNumber);
-    		// Careful! Java passes a Float by value.  changing preAdjFlow will not change _preAdjFlow.get(channelNumber).
-    		if (preAdjFlow == null)
-    			preAdjFlow = curFlow;
-    		float curAdjFlow = 0.1f*curFlow + 0.9f*preAdjFlow;
-    		float change = curAdjFlow - preAdjFlow;
-    		Float preChange =  _preChange.get(channelNumber);
-    		if (preChange == null)
-    			preChange = 0.0f;
-    		if ((change>0.0f) && (preChange<0.0f))
-    			_tideCount += 1;
-    		if(_tideCount >= tCycleForDir){
-    			int numFlows = flows.size();
-    			if (numFlows == 0)
-    				PTMUtil.systemExit("error: no flow found in the tidal cycles, system exit.");
-    			float sumFlows = 0.0f;
-    			for (float flow: flows)
-    				sumFlows += flow;
-    			if (sumFlows<0)
-    				chan.setChanDir(-1);
-    			else
-    				chan.setChanDir(1);
-    			float meanFlow = sumFlows/numFlows;
-    			double sumSqD = 0;
-    			for (float flow: flows){
-    				float d = (flow - meanFlow);
-    				sumSqD += d*d;
-    			}
-    			double sd = Math.sqrt(sumSqD/numFlows);
-    			if (sd < Double.MIN_VALUE){
-    				System.err.println("warn: flows are constant in the tidal cycle! set Stard Deviation to Double.MIN_VALUE.");
-    				sd = Double.MIN_VALUE;
-    			}
-    			double s_n = Math.log(Math.max(1E-10, Math.abs(meanFlow/sd)));
-    			double term = Math.exp(constConfProb + confProbSlope*s_n);
-    			double confusionConst = maxConfProb*term/(1+term);
-    			chan.setConfusionConst(confusionConst);   			
-    			_tideCount = 0;
-    			flows.clear();
-    		}
-    		_preAdjFlow.put(channelNumber, curAdjFlow);
-    		_preChange.put(channelNumber, change);    		
+    		chan.setArea(areaArray);   		
     	}//end if (wbArray)
     }//end for (channelNumber)
 

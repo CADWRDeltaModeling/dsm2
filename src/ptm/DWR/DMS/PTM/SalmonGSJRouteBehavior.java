@@ -15,13 +15,11 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 	/**
 	 * 
 	 */
-	public SalmonGSJRouteBehavior(Integer nodeId, Integer gsWbId) {
+	public SalmonGSJRouteBehavior(RouteInputs rIn, Integer nodeId, Integer gsWbId) {
+		super(rIn);
 		_nodeId = nodeId;
 		_gsWbId = gsWbId;
 		System.out.println("Created SalmonGSJRouteBehavior...");
-	}
-	public SalmonGSJRouteBehavior() {
-		// instantiate a junction with internal node number
 	}
 	
 	private Channel[] getChannels(Particle p){

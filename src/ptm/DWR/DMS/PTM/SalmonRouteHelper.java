@@ -28,6 +28,12 @@ public class SalmonRouteHelper extends Helper<Integer, SalmonRouteBehavior> impl
 	public SalmonRouteHelper() {
 		super();
 	}
+	/*
+	 * (non-Javadoc)
+	 * @see DWR.DMS.PTM.Helper#getKey(DWR.DMS.PTM.Particle)
+	 * method call to get a junction indicator. 
+	 * here to get a junction node number
+	 */
 	public Integer getKey(Particle p){
 		return p.nd.getEnvIndex();
 			
@@ -39,5 +45,5 @@ public class SalmonRouteHelper extends Helper<Integer, SalmonRouteBehavior> impl
 	public void setRouteHelperForParticle(Particle p){
 		p.installRouteHelper(this);
 	}
-
+	public void updateCurrentInfo(Waterbody[] allWbs, int currentTime){super.getBasicBehavior().updateCurrentInfo(allWbs, currentTime);}
 }

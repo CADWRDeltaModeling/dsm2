@@ -9,17 +9,11 @@ package DWR.DMS.PTM;
  */
 
 public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements SalmonRouteBehavior {
-	private static SwimInputs _si = null;
-	public static void setSwimmingInputs(SwimInputs si){
-		if (si == null)
-			PTMUtil.systemExit("Swimming inputs are not found, system exit.");
-		_si = si;
-	}
 	/**
 	 * 
 	 */
-	public SalmonBasicRouteBehavior() {
-		super();
+	public SalmonBasicRouteBehavior(RouteInputs in) {
+		super(in);
 	}
 	
 	/* 
@@ -30,15 +24,13 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	public void makeRouteDecision(Particle p) {
 		if (p == null)
 			PTMUtil.systemExit("the particle passed in BasicRouteBehavior is null");
-		//when particle just inserted wb = null, but node is assigned.
+		//wb can be null (when just inserted), but node is assigned.
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
-		if (_si == null)
-			PTMUtil.systemExit("Swimming input is not defined! system exit.");
 		
 		// calculate total waterbody Inflows:
 		// because swimming velocity changes from channel to channel and from particle to particle
-		// first need to get the swimming velocity for each waterbody of this particle
+		// get the swimming velocity for EACH waterbody of this particle
 		Waterbody [] wbs = p.nd.getWaterbodies();
 		if (wbs == null)
 			PTMUtil.systemExit("node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
@@ -55,21 +47,14 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		for (Waterbody wb: wbs){
 			if(wb != null && wb.getPTMType() == Waterbody.CHANNEL){
 				Channel c = (Channel) wb;
-				// mean swimming velocity is per particle per channel group
-				pMeanSwimmingVels[wbId] = _si.getParticleMeanSwimmingVelocity(p.Id, c); 
-				swimmingVels[wbId] = c.getSwimmingVelocity(pMeanSwimmingVels[wbId]);
-				
-				if (_si.getRandomAccess()&&(PTMUtil.getRandomNumber()<_si.getAccessProbability())
-						 &&(PTMUtil.getRandomNumber()<c.getProbConfusion())){
-					swimmingVels[wbId] *= -1;
-					confusionFactors[wbId] = -1;
-				}
-				else
-					confusionFactors[wbId] = 1;
-				swimmingVels[wbId] *= c.getChanDir();
-				
-	    		// not count for negative inflow
-				wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, swimmingVels[wbId]));
+				int cId = c.getEnvIndex();
+				//mean swimming velocity set once per particle per channel group.
+				// therefore here is the only place to set a mean swimming velocity
+				p.getSwimHelper().setMeanSwimmingVelocity(p.Id, cId);
+				//Swimming velocity here doesn't include confusion factor
+				swimmingVels[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, cId);
+				confusionFactors[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(cId);
+				wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, swimmingVels[wbId]*confusionFactors[wbId]));
 	    	}
 			else{
 				// no swimming velocity other than the water body type channel
@@ -130,11 +115,54 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	    //set x to only channels.  other water body types don't need to be set. 
 	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
 	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
-	    	p.setMeanSwimmingVelocity(pMeanSwimmingVels[wbId]);
-	    	p.setSwimmingVelocity(swimmingVels[wbId]);
-			// get a rearing holding time for the particle for this channel group
-	    	p.setSwimmingTime(_si.getParticleRearingHoldingTime(p.Id, (Channel)p.wb));
-	    	p.setConfusionFactor(confusionFactors[wbId]);  
+	    	p.setSwimmingVelocity(swimmingVels[wbId]*confusionFactors[wbId]);
+	    	p.setConfusionFactor(confusionFactors[wbId]);
+	    	// swimming time is set one per particle per channel group, here is the only place set a swimming time
+	    	p.getSwimHelper().setSwimmingTime(p, ((Channel)p.wb).getEnvIndex()); // to set swimming time in SalmonHoldingTimeCalculator
+	    	// set Swimming time in particle
+	    	p.setSwimmingTime(((SalmonSwimHelper) p.getSwimHelper()).getSwimmingTime(p.Id, ((Channel)p.wb).getEnvIndex()));
 	    }
 	}
+	public void updateCurrentInfo(Waterbody[] allWbs, int currT){
+		RouteInputs rIn = getRouteInputs();
+		if (rIn != null)
+			rIn.updateCurrentBarrierInfo(allWbs, currT);
+	}
 }
+
+
+//TODO move to swimming behavior swimmmingVels[...] includes confusion factor
+/*
+if (_si.getRandomAccess()&&(PTMUtil.getRandomNumber()<_si.getAccessProbability())
+		 &&(PTMUtil.getRandomNumber()<c.getProbConfusion())){
+	swimmingVels[wbId] *= -1;
+	confusionFactors[wbId] = -1;
+}
+else
+	confusionFactors[wbId] = 1;
+swimmingVels[wbId] *= c.getChanDir();
+*/
+// not count for negative inflow
+
+// mean swimming velocity is per particle per channel group
+//pMeanSwimmingVels[wbId] = _si.getParticleMeanSwimmingVelocity(p.Id, c.getEnvIndex());
+
+//swimmingVels[wbId] = _si.getSwimmingVelocity(cId, pMeanSwimmingVels[wbId]);
+//TODO clean up no longer needed
+/*
+private static SwimInputs _si = null;
+public static void setSwimmingInputs(SwimInputs si){
+	if (si == null)
+		PTMUtil.systemExit("Swimming inputs are not found, system exit.");
+	_si = si;
+}
+*/
+//TODO thinking to do this but then it'll do together with holding parameters, so leave seperated for now. 
+//((SalmonSwimHelper) p.swimHelper).setJunctionSwimmingParameters(p.Id, cId);
+//TODO clean up move to swimming behavior
+//p.setMeanSwimmingVelocity(pMeanSwimmingVels[wbId]);
+//TODO why need to set swimming velocity??? Yes, because which one picked is decided here.
+// get a rearing holding time for the particle for this channel group
+//TODO clean up move to swimming behavior
+//p.setSwimmingTime(_si.getParticleRearingHoldingTime(p.Id, p.wb.getEnvIndex()));
+//p.setConfusionFactor(confusionFactors[wbId]);

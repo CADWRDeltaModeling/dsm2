@@ -18,7 +18,6 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 
 package DWR.DMS.PTM;
-import java.lang.*;
 /*
  * Reservoir is a Waterbody with a large volume. A Reservoir
  * is modeled as storage for water with no velocity fields within it.
@@ -72,20 +71,10 @@ public class Reservoir extends Waterbody{
     depthAt[0] = depthArray[0];
   }
   public final String getName(){return name;}
-  public float getInflow(int nodeEnvId){
-		int nodeId = getNodeLocalIndex(nodeEnvId);
-	    if (flowType(nodeId) == OUTFLOW) 
-	      return (-flowAt[nodeId]);
-	    return (flowAt[nodeId]);
-	  }
-  public float getInflowWSV(int nodeEnvId, float sv){ 
+  public float getInflowWSV(int nodeEnvId, float sv){
+	//TODO implement unique inflow with swimming velocity later
 	  return getInflow(nodeEnvId);
   }
-  public void setOutputDistance(int distance){
-	  if (distance != 0)
-		  PTMUtil.systemExit("a reservoir doesn't have distance, please check the behavior input file to make sure output location info is set properly, system exit.");
-  }
-  public int getOutputDistance(){return 0;}
   /**
    *  String containing the name
    */

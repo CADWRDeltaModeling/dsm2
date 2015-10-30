@@ -116,7 +116,15 @@ public abstract class Waterbody{
    *  flows out the water body through the node - negative 
    *  in case of reverse flows flow there is a change in sign
    */
-  public abstract float getInflow(int nodeEnvId);
+  public float getInflow(int nodeEnvId){
+	  int nodeId = getNodeLocalIndex(nodeEnvId);
+		//at gate flow == 0
+		if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
+			return 0.0f;
+		if (flowType(nodeId) == OUTFLOW)
+		  return -1.0f*flowAt[nodeId];
+		return flowAt[nodeId];
+  }
   // sv is a swimming velocity from a particle
   public abstract float getInflowWSV(int nodeEnvId, float sv);
   /**
@@ -175,13 +183,6 @@ public abstract class Waterbody{
 		  PTMUtil.systemExit("No such node " + this.toString());
 	  return nodeId;
   }
-  
-  /**
-   *  Get the Node's global index by its local index
-   */
-//  public final int getNodeId(int nodeId){
-//    return(nodeIdArray[nodeId]);
-//  }
   /**
    *  the Node's EnvIndex from its local index
    */
@@ -327,19 +328,10 @@ public abstract class Waterbody{
   }
   public void setCurrentBarrierOp (int nodeId, int barrierOp){ _barrierOpMap.put(nodeId, barrierOp);}
   public int getCurrentBarrierOp (int nodeId) {return _barrierOpMap.get(nodeId);}
-  public void setOutputWb() {_isOutputWb = true;}
-  public boolean isOutputWb() { return _isOutputWb;}
-  abstract public void setOutputDistance(int distance);
-  abstract public int getOutputDistance();
-  private boolean _isOutputWb = false;
   /**
    *  Index in PTMEnv Waterbody array
    */
   private int EnvIndex;
-  /**
-   *  Id of array in the DSM2 hydro grid
-   */
-  //private int numberId;
   /**
    *  Type of Waterbody channel/reservoir/boundary/conveyor
    */
@@ -387,3 +379,23 @@ public abstract class Waterbody{
   
 }
 
+//TODO clean up no longer used, moved to TravelTimeOutput
+/*
+public void setOutputWb() {_isOutputWb = true;}
+public boolean isOutputWb() { return _isOutputWb;}
+abstract public void setOutputDistance(int distance);
+abstract public int getOutputDistance();
+private boolean _isOutputWb = false;
+*/
+/**
+ *  Id of array in the DSM2 hydro grid
+ */
+//private int numberId;
+
+
+/**
+ *  Get the Node's global index by its local index
+ */
+//public final int getNodeId(int nodeId){
+//  return(nodeIdArray[nodeId]);
+//}

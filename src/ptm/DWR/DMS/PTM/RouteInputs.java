@@ -3,10 +3,9 @@
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Calendar;
 import java.nio.IntBuffer;
-import java.lang.reflect.Constructor;
 /**
  * @author xwang
  *
@@ -16,7 +15,6 @@ public class RouteInputs {
 		if (fishType == null)
 				PTMUtil.systemExit("No Particle Type! exit.");
 		_fishType = fishType;
-		setHelper();
 		if (inText != null){
 			_barriers = new ArrayList<NonPhysicalBarrier>();
 			_fishScreens = new ArrayList<IntBuffer>();
@@ -60,21 +58,6 @@ public class RouteInputs {
 		
 		System.out.println("Created RouteHelper...");
 	}
-	
-	public void setSwimmingInputs(SwimInputs si){
-		if (si != null){
-			//TODO particle has basic route behavior as Salmon???
-			if(_fishType.equalsIgnoreCase("SALMON"))
-				SalmonBasicRouteBehavior.setSwimmingInputs(si);
-			//TODO clean up the make node decision code move to SalmonBasicRouteBehavior
-			//else if(_fishType.equalsIgnoreCase("PARTICLE"))
-				//BasicRouteBehavior.setSwimmingInputs(si);
-			else if (_fishType.equalsIgnoreCase("SMELT"))
-				PTMUtil.systemExit("the method to set mean swimming velocity map for smelt has been defined yet");
-			else
-				PTMUtil.systemExit("don't know how to deal with this fish type:" + _fishType+", system exit");
-		}
-	}
 	public void setBarrierNodeInfo(Node[] allNodes){
 	    //nodeArray starts from 1 PTMFixedInput.java line 287
 		if (_barriers == null)
@@ -113,31 +96,17 @@ public class RouteInputs {
 		}
 	}
 
-	public boolean updateCurrentBarrierInfo(Waterbody[] allWbs, int currentTime){
-		if (_barriers == null)
-			return false;
-		else{
+	public void updateCurrentBarrierInfo(Waterbody[] allWbs, int currentTime){
+		if (_barriers != null){
 			for (NonPhysicalBarrier barrier: _barriers)
 				allWbs[barrier.getWaterbodyId()].setCurrentBarrierOp(barrier.getNodeId(), 
 						barrier.getBarrierOp(PTMUtil.modelTimeToCalendar(currentTime)));
 		}
-		return true;
 	}
 	
 	public float getDicuFilterEfficiency(){return _dicuFilterEfficiency;}
 	public RouteHelper getRouteHelper(){ return _routeHelper;}
-	
-	private void setHelper(){
-		if ( _fishType.equalsIgnoreCase("PARTICLE"))
-			//_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
-			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
-		else if(_fishType.equalsIgnoreCase("SALMON"))
-			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior());
-		else if (_fishType.equalsIgnoreCase("SMELT"))
-			PTMUtil.systemExit("No smelt helper defined, system exit.");
-		else
-			PTMUtil.systemExit("No helper defined, system exit.");
-	}
+	public ConcurrentHashMap<IntBuffer, String> getSpecialBehaviors(){return _specialBehaviors;}
 	
 	private void setDicuFilterEfficiency(){
 		if (_dicuFilterEfficiency > 0){
@@ -160,38 +129,10 @@ public class RouteInputs {
 		for (String line: inText.subList(1, inText.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			if (items.length<3)
-				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:"+line);
-			int[] ids = getEnvIds(items); 
-			addRouteBehavior(ids, items[2]);
+				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:"+line);; 
+			_specialBehaviors.put(IntBuffer.wrap(getEnvIds(items)), items[2]);
 		} 
 	}
-	
-	private void addRouteBehavior(int[] ids, String name){
-		try{
-			if (ids == null || ids.length<2)
-				PTMUtil.systemExit("SYSTEM EXIT: cannot add Route Behavior: node id and wb id missing");
-			int nodeId = ids[0], wbId = ids[1];
-			if (!name.contains(_fishType))
-				PTMUtil.systemExit("SYSTEM EXIT: the type of fish species is not consistent with special behavior class names:"+_fishType);
-			Class<?> c = Class.forName("DWR.DMS.PTM."+name);
-			Constructor<?> con = c.getConstructor(Integer.class, Integer.class);
-			//TODO will use switch when we switch to jave 1.7
-			if (_fishType.equalsIgnoreCase("SALMON"))
-				((SalmonRouteHelper)_routeHelper).addSpecialBehavior(nodeId, (SalmonRouteBehavior)con.newInstance(nodeId, wbId));
-			else if (_fishType.equalsIgnoreCase("SMELT")){
-				//TODO do something
-				PTMUtil.systemExit("SYSTEM EXIT: the special behavior for Smelt has not been defined yet:"+_fishType);
-			}
-			else
-				PTMUtil.systemExit("SYSTEM EXIT: the fish species type is not defined:"+_fishType);			
-		}catch(Exception e){
-			e.printStackTrace();
-			System.err.println("Error: " + e.getMessage());
-			PTMUtil.systemExit("SYSTEM EXIT: got error when trying to add special fish behaviors to the helper");
-		}
-		System.out.println("Added Route Behaviors...");
-	}
-	
 	private void setBarriers(ArrayList<String> inText){
 		// first line of inText is number_of_barriers: number
 		int numberOfBarriers = PTMUtil.getInt(inText.get(0));
@@ -213,7 +154,7 @@ public class RouteInputs {
 		}
 	}
 	private void addBarrier(ArrayList<String> barrierBlock, int[] nodeWbIds){
-		  HashMap<PTMPeriod, Integer> bOpTS = new HashMap<PTMPeriod, Integer>();
+		  ConcurrentHashMap<PTMPeriod, Integer> bOpTS = new ConcurrentHashMap<PTMPeriod, Integer>();
 		  Calendar s_time = null, e_time = null;
 		  int op = -99;
 		  
@@ -296,5 +237,36 @@ public class RouteInputs {
 	private ArrayList<NonPhysicalBarrier> _barriers = null;
 	private RouteHelper _routeHelper = null;
 	private String _fishType = null;
+	//<<nodeId, wbId>, specialBehavior class name>
+	private ConcurrentHashMap<IntBuffer, String> _specialBehaviors;
 
 }
+
+/*
+   import java.lang.reflect.Constructor;
+ 	private void addRouteBehavior(int[] ids, String name){
+		try{
+			if (ids == null || ids.length<2)
+				PTMUtil.systemExit("SYSTEM EXIT: cannot add Route Behavior: node id and wb id missing");
+			int nodeId = ids[0], wbId = ids[1];
+			if (!name.contains(_fishType))
+				PTMUtil.systemExit("SYSTEM EXIT: the type of fish species is not consistent with special behavior class names:"+_fishType);
+			Class<?> c = Class.forName("DWR.DMS.PTM."+name);
+			Constructor<?> con = c.getConstructor(Integer.class, Integer.class);
+			//TODO will use switch when we switch to jave 1.7
+			if (_fishType.equalsIgnoreCase("SALMON"))
+				((SalmonRouteHelper)_routeHelper).addSpecialBehavior(nodeId, (SalmonRouteBehavior)con.newInstance(nodeId, wbId));
+			else if (_fishType.equalsIgnoreCase("SMELT")){
+				//TODO do something
+				PTMUtil.systemExit("SYSTEM EXIT: the special behavior for Smelt has not been defined yet:"+_fishType);
+			}
+			else
+				PTMUtil.systemExit("SYSTEM EXIT: the fish species type is not defined:"+_fishType);			
+		}catch(Exception e){
+			e.printStackTrace();
+			System.err.println("Error: " + e.getMessage());
+			PTMUtil.systemExit("SYSTEM EXIT: got error when trying to add special fish behaviors to the helper");
+		}
+		System.out.println("Added Route Behaviors...");
+	}
+*/

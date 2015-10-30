@@ -39,5 +39,7 @@ public class ParticleRouteHelper extends Helper<Integer, BasicRouteBehavior> imp
 		return p.nd.getEnvIndex();
 			
 	}
+	//nothing to do
+	public void updateCurrentInfo(Waterbody[] allWbs, int currentTime){}
 
 }

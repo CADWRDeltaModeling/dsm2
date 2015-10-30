@@ -136,7 +136,7 @@ public class PTMUtil {
         return block;
     }
 	public static void systemExit(String message){
-		System.err.println(message);
+		(new Exception(message)).printStackTrace();
 		System.exit(-1);
 	}
 	public static Calendar getHecTime(){

@@ -9,6 +9,4 @@ package DWR.DMS.PTM;
  */
 public interface SwimBehavior {
 	static final String behaviorType = "SWIM";
-	public void getSwimmingVelocities(Particle p);
-
 }

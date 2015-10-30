@@ -17,12 +17,13 @@ public class PTMBehaviorInputs {
 	private SurvivalInputs _survivalInputs=null;
 	private SwimInputs _swimInputs=null;
 	private RouteInputs _routeInputs=null;
-	private boolean _barrierInstalled = true;
 	private int _totalParticlesReleased = 0;
 	private TravelTimeOutput _travelTimeOutput = null;
 	// Map<name of release station, FishReleaseGroup>
 	private Map<String, FishReleaseGroup> _fishGroups = null; 
 	// Map<insert station(node id, wb id, and distance), station name> 
+	private Node[] _nodeArray=null;
+	private Waterbody[] _wbArray=null;
 	
 	private void extractReleaseInputs(ArrayList<String> releaseInputText){
 		if (releaseInputText.size()< 6)
@@ -117,17 +118,19 @@ public class PTMBehaviorInputs {
 		return new Pair<String, IntBuffer>(items[3], IntBuffer.wrap(station));
 	}
 	
-	
 	/**
 	 * 
 	 */
 	public PTMBehaviorInputs() {
 		PTMUtil.systemExit("should not be here, system exit.");
 	}
-	public PTMBehaviorInputs(String inputFileName) {
+	public PTMBehaviorInputs(String inputFileName, Node[] nodeArray, Waterbody[] wbArray) {
 		System.out.println("");
 		if (inputFileName == null || inputFileName.length() == 0)
 			PTMUtil.systemExit("Behavior input file not found, system exit");
+		_nodeArray = nodeArray;
+		_wbArray = wbArray;
+		
 		BufferedReader inputTextBuff = PTMUtil.getInputBuffer(inputFileName);
 
 		ArrayList<String> inputText = PTMUtil.getInputs(inputTextBuff);
@@ -157,7 +160,7 @@ public class PTMBehaviorInputs {
 			//TODO comment out for USGS, restore warning later
 			System.out.println("add special items later.");
 			//System.err.println("WARNING: no survival behavior input found!");
-		_survivalInputs = new SurvivalInputs(survivalInputText,  _fishType);
+		_survivalInputs = new SurvivalInputs(survivalInputText);
 		ArrayList<String> swimInputText = PTMUtil.getInputBlock(inputText, "SWIM_INPUTS", "END_SWIM_INPUTS");
 		if (swimInputText == null)
 			System.err.println("WARNING: no swim behavior input found!");
@@ -167,43 +170,22 @@ public class PTMBehaviorInputs {
 			System.err.println("WARNING: no route behavior input found!");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
 		PTMUtil.closeBuffer(inputTextBuff);
-		_routeInputs.setSwimmingInputs(_swimInputs);
+		setNodeInfo(_nodeArray);
+		setWaterbodyInfo(_wbArray);
+		//TODO get rid of it when swiming behavior is completed
+		//_routeInputs.setSwimmingInputs(_swimInputs);
 	}
-	public void setWaterbodyInfo(Waterbody[] allWbs){
+	private void setWaterbodyInfo(Waterbody[] allWbs){
 		if (_routeInputs != null){
 			_routeInputs.setBarrierWbInfo(allWbs);
 			_routeInputs.setFishScreenWbInfo(allWbs);
 		}
-		if (_survivalInputs != null){
-			_survivalInputs.setChannelInfo(allWbs);
-		}
-		if (_swimInputs != null){
-			_swimInputs.setChannelInfo(allWbs);
-			//TODO need finish this
-			//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
-		}
-		if (_travelTimeOutput != null){
-			_travelTimeOutput.setOutputWbInfo(allWbs);
-		}
 	}
-	public void setNodeInfo(Node[] allNodes){
+	private void setNodeInfo(Node[] allNodes){
 		if (_routeInputs != null){
 			_routeInputs.setBarrierNodeInfo(allNodes);
 			_routeInputs.setFishScreenNodeInfo(allNodes);
 		}
-		if (_travelTimeOutput != null){
-			_travelTimeOutput.setOutputNodeInfo(allNodes);
-		}
-		//TODO not needed now, maybe later
-		//_survivalInputs.setNodeInfo(allNodes);
-		//_swimInputs.setNodeInfo(allNodes);
-	}
-	public void updateCurrentInfo(Node[] allNodes, Waterbody[] allWbs, int currentTime){
-		if (_barrierInstalled && _routeInputs != null)
-			_barrierInstalled = _routeInputs.updateCurrentBarrierInfo(allWbs, currentTime);
-		//TODO not needed now, maybe later
-		//_survivalInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
-		//_swimInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
 	}
 	public String getFishType(){return _fishType;}
 	public SwimInputs getSwimInputs(){ return _swimInputs;}
@@ -214,3 +196,25 @@ public class PTMBehaviorInputs {
 	public int getTotalParticlesReleased() {return _totalParticlesReleased;}
 	public TravelTimeOutput getTravelTimeOutput(){return _travelTimeOutput;}
 }
+
+//TODO clean up
+/*
+ 		//TODO not needed now, maybe later
+		//_survivalInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
+		_swimInputs.updateCurrentInfo(allNodes, allWbs, currentTime);
+*/
+/*
+if (_survivalInputs != null){
+	_survivalInputs.setChannelInfo(allWbs);
+}
+if (_swimInputs != null){
+	_swimInputs.setChannelInfo(allWbs);
+	//TODO need finish this
+	//_swimInputs.setWaterbodyInfo(allWbs, reserviorObj2ObjNameID);
+}
+public void updateCurrentInfo(Node[] allNodes, Waterbody[] allWbs, int currentTime){
+		if (_barrierInstalled && _routeInputs != null)
+			_barrierInstalled = _routeInputs.updateCurrentBarrierInfo(allWbs, currentTime);
+	}
+		private boolean _barrierInstalled = true;
+*/

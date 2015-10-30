@@ -96,20 +96,11 @@ class Boundary extends Waterbody {
   public int getHydroType(){return FlowTypes.rim;}
   
   public String getBoundaryName(){return _boundaryName;}
-  public float getInflow(int nodeEnvId){
-		int nodeId = getNodeLocalIndex(nodeEnvId);
-	    if (flowType(nodeId) == OUTFLOW) 
-	      return (-flowAt[nodeId]);
-	    return (flowAt[nodeId]);
-	  }
-  public float getInflowWSV(int nodeEnvId, float sv){ 
+
+  public float getInflowWSV(int nodeEnvId, float sv){
+	//TODO implement unique inflow with swimming velocity later
 	  return getInflow(nodeEnvId);
   }
-  public void setOutputDistance(int distance){
-	  if (distance != 0)
-		  PTMUtil.systemExit("a boundary doesn't have distance, please check the behavior input file to make sure output location info is set properly, system exit.");
-  }
-  public int getOutputDistance(){return 0;}
   private String _boundaryName;
   private boolean _isSeep = false, _isDiv = false;
 }

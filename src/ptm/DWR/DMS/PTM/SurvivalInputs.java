@@ -13,7 +13,6 @@ import java.lang.NumberFormatException;
  *
  */
 public class SurvivalInputs {
-
 	/**
 	 * 
 	 */
@@ -21,34 +20,12 @@ public class SurvivalInputs {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public SurvivalInputs(ArrayList<String> inList, String fishType) {
-		_fishType = fishType;
+	public SurvivalInputs(ArrayList<String> inList) {
 		if (inList != null)
 			setChannelGroups(PTMUtil.getInputBlock(inList, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS"));
-		setHelper();
-		System.out.println("Created Survival Helper...");
 	}
-	
-	public void setChannelInfo(Waterbody[] waterbodies){
-		if (_channelGroups != null){
-			for (Waterbody wb: waterbodies){
-				if (wb != null && wb.getType() == Waterbody.CHANNEL){
-					Channel chan = (Channel) wb;
-					String chanGroup = _channelGroups.get(chan.getEnvIndex());
-					if (chanGroup != null)
-						chan.setChanGroup(chanGroup);
-					else
-						chan.setChanGroup(null);
-				}
-			}
-		}
-	}
-	
-	//TODO never been used, may be needed later?
-	//public void setNodeInfo(Node[] allNodes){}
-	//public void updateCurrentInfo(Node[] allNodes, Waterbody[] allChans, int currentTime){}
-	//public void addSpecialBehaviors(SurvivalHelper sh, String particleType){}
-	public SurvivalHelper getSurvivalHelper(){ return _survivalHelper;}
+	public Map<String, Double> getSurvivalRates() {return _survivalRates;}
+	public Double getSurvivalRate(int chanId){return _survivalRates.get(_channelGroups.get(chanId));}
 	
 	//TODO should allow to set a survival rate for all the channels?
 	private void setChannelGroups(ArrayList<String> chanGroups){
@@ -100,21 +77,46 @@ public class SurvivalInputs {
 				|| !title[1].equalsIgnoreCase("Survival_Rate"))		
 			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Survival_Rate but get:"+title[0] + " " +title[1]);
 	}
-	private void setHelper(){
-		//TODO particle should have its own basic behavior???
-		if(_fishType.equalsIgnoreCase("PARTICLE"))
-			_survivalHelper = new ParticleSurvivalHelper(new ParticleBasicSurvivalBehavior());
-		else if(_fishType.equalsIgnoreCase("SALMON"))
-			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_survivalRates));
-		else if (_fishType.equalsIgnoreCase("SMELT"))
-			PTMUtil.systemExit("the special help for smelt has not been defined yet");
-		else
-			PTMUtil.systemExit("the special help for smelt has not been defined yet");
-	}
-	private String _fishType = null;
-	private SurvivalHelper _survivalHelper = null;
+	// <group name, survival rate>
 	private Map<String, Double> _survivalRates=null;
 	private ArrayList<String> _groupNames=null;
+	// <channel number, group name>
 	private Map<Integer, String> _channelGroups=null;
 }
 
+/*
+public void setChannelInfo(Waterbody[] waterbodies){
+	if (_channelGroups != null){
+		for (Waterbody wb: waterbodies){
+			if (wb != null && wb.getType() == Waterbody.CHANNEL){
+				Channel chan = (Channel) wb;
+				String chanGroup = _channelGroups.get(chan.getEnvIndex());
+				//if (chanGroup != null)
+					//chan.setChanGroup(chanGroup);
+				//else
+					//chan.setChanGroup(null);
+			}
+		}
+	}
+}
+	private SurvivalHelper _survivalHelper = null;
+			//setHelper();
+*/
+//TODO never been used, may be needed later?
+//public void setNodeInfo(Node[] allNodes){}
+//public void updateCurrentInfo(Node[] allNodes, Waterbody[] allChans, int currentTime){}
+//public void addSpecialBehaviors(SurvivalHelper sh, String particleType){}
+//public SurvivalHelper getSurvivalHelper(){ return _survivalHelper;}
+/*
+private void setHelper(){
+	//TODO particle should have its own basic behavior???
+	if(_fishType.equalsIgnoreCase("PARTICLE"))
+		_survivalHelper = new ParticleSurvivalHelper(new ParticleBasicSurvivalBehavior());
+	else if(_fishType.equalsIgnoreCase("SALMON"))
+		_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_survivalRates));
+	else if (_fishType.equalsIgnoreCase("SMELT"))
+		PTMUtil.systemExit("the special help for smelt has not been defined yet");
+	else
+		PTMUtil.systemExit("the special help for smelt has not been defined yet");
+}
+*/
