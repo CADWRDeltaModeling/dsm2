@@ -446,6 +446,8 @@ program gtm
                                      conc_prev,                    &
                                      area,                         &
                                      mass,                         &
+                                     flow_lo,                      &
+                                     flow_hi,                      &                                     
                                      area_lo,                      &
                                      area_hi,                      &
                                      area_lo_prev,                 &

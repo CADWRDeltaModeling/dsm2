@@ -42,6 +42,8 @@ module diffusion_network
                                conc_prev,          &
                                area,               &
                                mass,               &
+                               flow_lo,            &
+                               flow_hi,            &                              
                                area_lo,            &
                                area_hi,            &
                                area_lo_prev,       &
@@ -71,13 +73,15 @@ module diffusion_network
         real(gtm_real), intent (out):: conc(ncell,nvar)              !< Concentration at new time
         real(gtm_real), intent (in) :: conc_prev(ncell,nvar)         !< Concentration at old time
         real(gtm_real), intent (in) :: mass(ncell,nvar)              !< mass from mass_prev+mass_divergence_advect
-        real(gtm_real), intent (in) :: area (ncell)                  !< Cell-centered area at new time
-        real(gtm_real), intent (in) :: area_lo (ncell)               !< Low side area centered in time
-        real(gtm_real), intent (in) :: area_hi (ncell)               !< High side area centered in time 
-        real(gtm_real), intent (in) :: area_lo_prev (ncell)          !< Low side area centered at old time
-        real(gtm_real), intent (in) :: area_hi_prev (ncell)          !< High side area centered at old time 
-        real(gtm_real), intent (in) :: disp_coef_lo (ncell,nvar)     !< Low side constituent dispersion coef. at new time
-        real(gtm_real), intent (in) :: disp_coef_hi (ncell,nvar)     !< High side constituent dispersion coef. at new time
+        real(gtm_real), intent (in) :: flow_lo(ncell)                !< Low side flow centered in time
+        real(gtm_real), intent (in) :: flow_hi(ncell)                !< High side flow centered in time         
+        real(gtm_real), intent (in) :: area(ncell)                   !< Cell-centered area at new time
+        real(gtm_real), intent (in) :: area_lo(ncell)                !< Low side area centered in time
+        real(gtm_real), intent (in) :: area_hi(ncell)                !< High side area centered in time 
+        real(gtm_real), intent (in) :: area_lo_prev(ncell)           !< Low side area centered at old time
+        real(gtm_real), intent (in) :: area_hi_prev(ncell)           !< High side area centered at old time 
+        real(gtm_real), intent (in) :: disp_coef_lo(ncell,nvar)      !< Low side constituent dispersion coef. at new time
+        real(gtm_real), intent (in) :: disp_coef_hi(ncell,nvar)      !< High side constituent dispersion coef. at new time
         real(gtm_real), intent (in) :: disp_coef_lo_prev(ncell,nvar) !< Low side constituent dispersion coef. at old time
         real(gtm_real), intent (in) :: disp_coef_hi_prev(ncell,nvar) !< High side constituent dispersion coef. at old time
         real(gtm_real), intent (in) :: time_new                      !< Instantaneous "new" time to which we are advancing
@@ -161,7 +165,9 @@ module diffusion_network
                                                area_hi_prev,        &
                                                disp_coef_lo_prev,   &
                                                disp_coef_hi_prev,   &
-                                               conc,                &                                                                                                                                               
+                                               conc,                &    
+                                               flow_lo,             &
+                                               flow_hi,             &                                                                                                                                                                                            
                                                area,                &
                                                area_lo,             &
                                                area_hi,             &          
