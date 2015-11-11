@@ -12,7 +12,7 @@ public interface SwimHelper {
 	public void setSwimHelperForParticle(Particle p);
 	public void setSwimmingTime(Particle p, int chId);
 	public void setMeanSwimmingVelocity(int pId, int chId);
-	public int getSwimmingTime(int pId, int chId);
+	public long getSwimmingTime(int pId, int chId);
 	public float getSwimmingVelocity (int pId, int chId); 
 	public int getConfusionFactor(int chId);
 	public void setXYZLocationInChannel(Particle p);

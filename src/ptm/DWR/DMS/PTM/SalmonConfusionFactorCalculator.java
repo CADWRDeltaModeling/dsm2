@@ -80,6 +80,12 @@ public class SalmonConfusionFactorCalculator {
 			_tideCount = 0;
 			flows.clear();
 		}
+		else{
+			if(_confusionConsts.get(channelNumber) == null)
+				_confusionConsts.put(channelNumber, 0.0);
+			if(_chanDirs.get(channelNumber) == null)
+				_chanDirs.put(channelNumber, 1);
+		}
 		_preAdjFlow.put(channelNumber, curAdjFlow);
 		_preChange.put(channelNumber, change);    		
 	}
@@ -92,8 +98,9 @@ public class SalmonConfusionFactorCalculator {
 	}
 	private double getConfusionConst(int chanId){
 		Double cc = _confusionConsts.get(chanId);
-		if ( cc == null)
+		if ( cc == null){
 			PTMUtil.systemExit("The fish confusion constant is not set, please check the code, system exit. ");
+		}
 		return cc;
 	}
 	private int getChanDir(int chanId){

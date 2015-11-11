@@ -102,22 +102,7 @@ public class PTMEnv{
     fixedInput.getPTMFixedInfo(pInfo);
     if(DEBUG) System.out.println(pInfo);
     numberOfAnimatedParticles = pInfo.getAnimatedParticles();
-    
-    /*
-     * add behaviors
-     */
-    // behaviors (basic and special) are added when instantiating PTMBehaviorInputs
-    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName());
-    //TODO consider change:
-    //setNodeInfo has to be done first, because in TravelTimeOutput, setOutputWbInfo depends on setOutputNodeInfo
-    _behaviorInputs.setNodeInfo(nodeArray);
-    _behaviorInputs.setWaterbodyInfo(wbArray);
-    _particleType = _behaviorInputs.getFishType();
-    //TODO clean up no longer used
-    //_travelTimeOutput = _behaviorInputs.getTravelTimeOutput();
-    SwimInputs sIns = _behaviorInputs.getSwimInputs();   
-    PTMHydroInput.setConfusionParameters(sIns.getConstProbConfusion(), sIns.getMaxProbConfusion(), 
-    		                             sIns.getSlopeProbConfusion(), sIns.getNumberTidalCycles());
+
   }
 
   /**
@@ -160,6 +145,51 @@ public class PTMEnv{
 	  }//end for wb
 	  if (DEBUG) System.out.println("Done with initialzing nodes");
   	}
+  public void addBehaviors(){	    
+	    /*
+	     * add behaviors
+	     */
+	    // behaviors (basic and special) are added when instantiating PTMBehaviorInputs
+	    //TODO need to move this to somewhere else so the behavior helper can be independently set???
+	    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName(), nodeArray, wbArray);
+	    _particleType = _behaviorInputs.getFishType();
+		if ( _particleType.equalsIgnoreCase("PARTICLE")){
+			//TODO need to create a particle route helper later
+			//_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
+			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(_behaviorInputs.getRouteInputs()));
+			System.out.println("Created Particle Route Helper");
+			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(_behaviorInputs.getSwimInputs()));
+			System.out.println("Created Particle Swim Helper");
+			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_behaviorInputs.getSurvivalInputs()));
+			System.out.println("Created Particle Survival Helper");
+		}
+		else if(_particleType.equalsIgnoreCase("SALMON")){
+			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(_behaviorInputs.getRouteInputs()));
+			System.out.println("Created Salmon Route Helper");
+			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(_behaviorInputs.getSwimInputs()));
+			System.out.println("Created Salmon Swim Helper");
+			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_behaviorInputs.getSurvivalInputs()));
+			System.out.println("Created Salmon Survival Helper");
+		}
+		else if (_particleType.equalsIgnoreCase("SMELT"))
+			PTMUtil.systemExit("No smelt helper defined, system exit.");
+		else
+			PTMUtil.systemExit("No helper defined for this type of particle, system exit.");
+	    
+	    //TODO clean up move to PTMBehaviorInputs
+	    /*
+	    //TODO consider change:
+	    //setNodeInfo has to be done first, because in TravelTimeOutput, setOutputWbInfo depends on setOutputNodeInfo
+	    _behaviorInputs.setNodeInfo(nodeArray);
+	    _behaviorInputs.setWaterbodyInfo(wbArray);
+	    //TODO clean up no longer used
+	    //_travelTimeOutput = _behaviorInputs.getTravelTimeOutput();
+	    SwimInputs sIns = _behaviorInputs.getSwimInputs(); 
+	    //TODO this should be in SwimInputs
+	    PTMHydroInput.setConfusionParameters(sIns.getConstProbConfusion(), sIns.getMaxProbConfusion(), 
+	    		                             sIns.getSlopeProbConfusion(), sIns.getNumberTidalCycles());
+	   */
+  }
 		  
   /**
    * Return the current PTMFixedInput object
@@ -213,6 +243,7 @@ public class PTMEnv{
   public Waterbody getWaterbody(int wbId){
     return wbArray[wbId];
   }
+  public Waterbody[] getWbArray(){return wbArray;}
 
   /** 
    * Get the Node object for given unique Node id
@@ -222,6 +253,7 @@ public class PTMEnv{
   public Node getNode(int nodeId){
     return nodeArray[nodeId];
   }
+  public Node[] getNodeArray(){return nodeArray;}
   
   /** 
    * Return a XSection* to the particular Node
@@ -413,17 +445,16 @@ public class PTMEnv{
   				                int numberOfRestartParticles){
     int pNum=numberOfRestartParticles;
     int injNum=1;
-    //TODO clean up, Rearing holding varies from reach to reach instead of one value now.
-    //int mu = _behaviorInputs.getSwimInputs().getRearingHoldingAvg();
     if (DEBUG) System.out.println("Injection info in PTMEnv");
     while(pNum < getNumberOfParticlesInjected() + numberOfRestartParticles){
+    	//TODO to consider move this part to somewhere else???
     	if (_behaviorInputs.getTotalParticlesReleased()>0){
     		Map<String, FishReleaseGroup> fgs = _behaviorInputs.getFishReleaseGroups();
     		for (String releaseStationName:fgs.keySet()){
     			FishReleaseGroup fg = fgs.get(releaseStationName);
     			IntBuffer releaseStation = fg.getStation();
     			for (FishRelease fr: fg.getFishReleases()){
-    				int rtime = (int)PTMUtil.calendarToModelTime(fr.getReleaseTime());
+    				long rtime = (int)PTMUtil.calendarToModelTime(fr.getReleaseTime());
     				if (rtime < getStartTime())
     					PTMUtil.systemExit("Particle release time: " + fr.getReleaseTime().getTime() + " is earlier than model start time! exit.");
     				for (int i = 0; i < fr.getFishNumber(); i++ ){
@@ -453,10 +484,6 @@ public class PTMEnv{
     					}	
     					particlePtrArray[pNum].setInsertionInfo((rtime), 
     															n, w,d, releaseStationName);
-    					// cast double to int e.g., 900.6 = 900 (1 minute is not a big deal in this case)
-    					//TODO clean up, rearing holding varies from reach to reach now
-    					//particlePtrArray[pNum].setRearingHoldingTime((int)(-mu*Math.log(PTMUtil.getRandomNumber())));
-    					//System.err.println(particlePtrArray[pNum].getRearingHoldingTime());
     					pNum++;
     				}	
     			}
@@ -557,9 +584,13 @@ public class PTMEnv{
     hydroInput.updateWaterbodiesHydroInfo(wbArray, fixedInput.getLimitsFixedData());
     hydroInput.updateNodesHydroInfo(nodeArray);
     //  updateBoundaryWaterbodiesHydroInfo();
-    _behaviorInputs.updateCurrentInfo(nodeArray, wbArray, currentTime);
   }
-  
+  //TODO clean up later
+  /*
+  public final void updateBehaviorHydroInfo(int currentTime){
+	 _behaviorInputs.updateCurrentInfo(nodeArray, wbArray, currentTime);  
+  }
+  */
   /**
    *  animation file name
    */
@@ -624,20 +655,14 @@ public class PTMEnv{
   }
   
   public PTMBehaviorInputs getBehaviorInputs(){ return _behaviorInputs;}
-  public RouteHelper getRouteHelper(){ return _behaviorInputs.getRouteInputs().getRouteHelper();}
-  public SurvivalHelper getSurvivalHelper(){return _behaviorInputs.getSurvivalInputs().getSurvivalHelper();}
-  public SwimHelper getSwimHelper(){ return _behaviorInputs.getSwimInputs().getSwimHelper();}
+  public RouteHelper getRouteHelper(){ return _routeHelper;}
+  public SurvivalHelper getSurvivalHelper(){return _survivalHelper;}
+  public SwimHelper getSwimHelper(){ return _swimHelper;}
   public static Integer getReservoirObj2ObjEnvId(String name){
 	  if (_reservoirObj2objNameID == null || _reservoirObj2objNameID.isEmpty())
 			  PTMUtil.systemExit("the map for reservoir/Object to Object name vs waterbody ID is empty!");
 	  return _reservoirObj2objNameID.get(name);
   }
-  //TODO need to be rewrite 
-  //public void setSunrise(Calendar sunrise){ _sunrise = sunrise;}
-  //public Calendar getSunrise(){return _sunrise;}
-  //public void setSunset(Calendar sunset){ _sunset = sunset;}
-  //public Calendar getSunset(){return _sunset;}
-  //public PTMPeriod getDaytime(){return _daytime;}
   /**
    *  Particle behavior input
    */
@@ -689,11 +714,8 @@ public class PTMEnv{
   private String _particleType;
   private PTMBehaviorInputs _behaviorInputs;
   private static Map<String, Integer> _reservoirObj2objNameID = null; 
-  //TODO need these?
-  //private Calendar _sunrise = null;
-  //private Calendar _sunset = null;
-  //private PTMPeriod _daytime = new PTMPeriod(_sunrise, _sunset) ;
-  
-  //private TravelTimeOutput _travelTimeOutput = null;
+  private RouteHelper _routeHelper;
+  private SwimHelper _swimHelper;
+  private SurvivalHelper _survivalHelper;
 }
 

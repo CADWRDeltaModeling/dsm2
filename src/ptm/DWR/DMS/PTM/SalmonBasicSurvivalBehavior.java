@@ -2,8 +2,6 @@
  * 
  */
 package DWR.DMS.PTM;
-import java.security.SecureRandom;
-import java.util.Map;
 
 /**
  * @author xwang
@@ -11,7 +9,8 @@ import java.util.Map;
  */
 public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	private boolean DEBUG = false;
-	private Map<String, Double> _survivalRates = null;
+	//private Map<String, Double> _survivalRates = null;
+	private SurvivalInputs _survivalIn;
 
 	/**
 	 * 
@@ -22,14 +21,19 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	/**
 	 * 
 	 */
-	public SalmonBasicSurvivalBehavior(Map<String, Double> survivalRates) {
-		_survivalRates = survivalRates;
+	public SalmonBasicSurvivalBehavior(SurvivalInputs survivalIn) {
+		_survivalIn = survivalIn;
 	}
+	
 	/* (non-Javadoc)
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
 	 */
 	@Override
 	public void isSurvived(Particle p, float timeToAdvance) {
+		if (_survivalIn.getSurvivalRates() == null){
+			p.isDead = false;
+			return;
+		}
 		// timeInterval in days
 		// timeToAdvance in seconds
 		double timeInterval = timeToAdvance/(60d*60d*24d);
@@ -38,17 +42,17 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		double survivalProbability = 0;
 		Waterbody wb = p.wb;
 		Double rate = null;
-		if ((wb.getType() == Waterbody.CHANNEL) && (_survivalRates != null)
-				&& ((rate = _survivalRates.get(((Channel) wb).getChanGroup())) != null)){
+		if ((wb.getType() == Waterbody.CHANNEL)
+				&& ((rate = _survivalIn.getSurvivalRate(p.wb.getEnvIndex()))!= null)){
 			survivalProbability = Math.exp(rate*timeInterval*(-1.0));
 			if(DEBUG){
-				System.out.println("id:"+p.Id+" group:"+((Channel) wb).getChanGroup()+ " rate:"+ rate);
+				System.out.println("id:"+p.Id+ " rate:"+ rate);
 				System.out.println("channel:"+wb.getEnvIndex()+ " timeInterval:"+timeInterval*60d*60d*24d+"  survival probability:"+survivalProbability);
 			}	
 		}
 		else
 			survivalProbability = 1;
-		if (survivalProbability<(new SecureRandom()).nextDouble()){
+		if (survivalProbability<PTMUtil.getNextGaussian()){
 			p.isDead = true;	
 			if(DEBUG) 
 				System.out.println("channel:"+PTMHydroInput.getExtFromIntChan(((Channel) wb).getEnvIndex())

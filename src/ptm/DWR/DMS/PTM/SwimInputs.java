@@ -55,7 +55,7 @@ public class SwimInputs {
 	public Pair<Integer, Integer> getSunset(){ return _sunset;}
 	public Map<Integer, String> getChannelGroups(){return _channelGroups;}
 	public Map<String, Map<Integer, Float>> getPartcleMeanSwimmingVelocityMap() {return _particleMeanSwimVels;}
-	public Map<String, Map<Integer, Integer>> getPartcleMeanRearingHoldingMap() {return _particleMeanRearingHoldings;}
+	public Map<String, Map<Integer, Long>> getPartcleMeanRearingHoldingMap() {return _particleMeanRearingHoldings;}
 	public String getFishType(){return _fishType;}
 	public Map<String, float[]> getSwimParameters() {return _swimVelParas;}
 
@@ -78,7 +78,7 @@ public class SwimInputs {
 		_groupNames = new ArrayList<String>();
 		_swimVelParas = new HashMap<String, float[]>();
 		_particleMeanSwimVels = new HashMap<String, Map<Integer, Float>>();
-		_particleMeanRearingHoldings = new HashMap<String, Map<Integer, Integer>>();
+		_particleMeanRearingHoldings = new HashMap<String, Map<Integer, Long>>();
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			// put into the map: group name, survival rate
@@ -93,13 +93,13 @@ public class SwimInputs {
 														 Float.parseFloat(items[4])*60.0f}); // converting from hours to minutes
 				_groupNames.add(groupName);
 				_particleMeanSwimVels.put(groupName, new HashMap<Integer, Float>());
-				_particleMeanRearingHoldings.put(groupName, new HashMap<Integer, Integer>());
+				_particleMeanRearingHoldings.put(groupName, new HashMap<Integer, Long>());
 			}catch(NumberFormatException e){
 				PTMUtil.systemExit("expect to read four floats in the swimming velocity line, but read: "+line+", System exit.");
 			}
 		}
 		_particleMeanSwimVels.put("ALL", new HashMap<Integer, Float>());
-		_particleMeanRearingHoldings.put("ALL", new HashMap<Integer, Integer>());
+		_particleMeanRearingHoldings.put("ALL", new HashMap<Integer, Long>());
 		//get Channel list
 		ArrayList<String> channelListStrs = PTMUtil.getInputBlock(chanGroups, "CHANNEL_LIST", "END_CHANNEL_LIST");
 		if (channelListStrs == null)
@@ -144,7 +144,7 @@ public class SwimInputs {
 	// Map<ChanGroupName, Map<particleId, meanSwimmingVelocity>>
 	private Map<String, Map<Integer, Float>> _particleMeanSwimVels = null;
 	// Map<ChanGroupName, Map<particleId, particleMeanRearingHoldingTime>>
-	private Map<String, Map<Integer, Integer>> _particleMeanRearingHoldings = null;
+	private Map<String, Map<Integer, Long>> _particleMeanRearingHoldings = null;
 	private ArrayList<String> _groupNames=null;
 	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;

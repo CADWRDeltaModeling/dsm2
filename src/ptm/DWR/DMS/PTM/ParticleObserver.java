@@ -90,7 +90,7 @@ class ParticleObserver{
    */
   public void observeInsert(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
+      long time = observed.getCurrentParticleTime();
       int pId = (int) observed.getId();
       short nodeId = -1;
       short wbId = 0;
@@ -104,7 +104,7 @@ class ParticleObserver{
    */
   public void observeWaterbodyChange(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
+      long time = observed.getCurrentParticleTime();
       int pId = (int) observed.getId();
       short nodeId = -1;
       if (observed.getRecentNode() != null) 
@@ -134,7 +134,7 @@ class ParticleObserver{
    */
   public void observeDeath(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
+      long time = observed.getCurrentParticleTime();
       int pId = observed.getId();
       short nodeId = -1;
       short wbId = (short) observed.getCurrentWaterbody().getEnvIndex();

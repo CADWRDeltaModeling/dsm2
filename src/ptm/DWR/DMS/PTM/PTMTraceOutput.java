@@ -71,7 +71,7 @@ public class PTMTraceOutput extends PTMOutput{
   /**
    *  output function
    */
-  public void output(int tmStamp, int particleNum, int nodeNum, int wbNum){
+  public void output(long tmStamp, int particleNum, int nodeNum, int wbNum){
     if (getOutputType() == Globals.ASCII) 
       writeOutputAscii(tmStamp, particleNum, nodeNum, wbNum);
     else if (getOutputType() == Globals.BINARY) 
@@ -81,7 +81,7 @@ public class PTMTraceOutput extends PTMOutput{
   /**
    *  write output in ascii format
    */
-  protected final void writeOutputAscii(int tmStamp, 
+  protected final void writeOutputAscii(long tmStamp, 
                                         int particleNum, 
                                         int nodeNum, 
                                         int wbNum){
@@ -104,12 +104,13 @@ public class PTMTraceOutput extends PTMOutput{
   /**
    *  write output in binary format
    */
-  protected final void writeOutputBinary(int tmStamp, 
+  protected final void writeOutputBinary(long tmStamp, 
                                          int particleNum, 
                                          int nodeNum, 
                                          int wbNum){
     try{
-      outputStream.writeInt(tmStamp); 
+    	//TODO temporary to cast to int, this code need to be rewritten
+      outputStream.writeInt((int)tmStamp); 
       outputStream.writeInt(particleNum);
       outputStream.writeShort(nodeNum);
       outputStream.writeShort(wbNum);

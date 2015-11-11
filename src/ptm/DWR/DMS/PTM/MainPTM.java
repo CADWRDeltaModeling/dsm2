@@ -96,6 +96,8 @@ public class MainPTM {
             }
             */
             boolean behavior = false;
+            //add behaviors
+            Environment.addBehaviors();
             try {
                 // set behavior file and return status
             	//TODO This behavior module is Aaron's original one and needs to be revisited, only works for delta smelt
@@ -142,10 +144,14 @@ public class MainPTM {
             SurvivalHelper survivalHelper = Environment.getSurvivalHelper();
             if(DEBUG) System.out.println("Set observer, helpers");
             for(int i=0; i<numberOfParticles; i++) {
-                if ( observer != null) observer.setObserverForParticle(particleArray[i]);
-                if (routeHelper != null) routeHelper.setRouteHelperForParticle(particleArray[i]);
-                if (swimHelper != null) swimHelper.setSwimHelperForParticle(particleArray[i]);
-                if (survivalHelper != null) survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
+            	if (observer != null && routeHelper != null && swimHelper != null && survivalHelper != null){
+            		observer.setObserverForParticle(particleArray[i]);
+            		routeHelper.setRouteHelperForParticle(particleArray[i]);
+            		swimHelper.setSwimHelperForParticle(particleArray[i]);
+            		survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
+            	}
+            	else
+            		PTMUtil.systemExit("observer or helpers are not properly set, system exit");
             }
             
             // initialize output restart file
@@ -157,6 +163,7 @@ public class MainPTM {
                                                   Environment.getRestartOutputInterval(),
                                                   particleArray);
             }catch(IOException ioe){
+            	//no restart option exit, do nothing
             }
             if(DEBUG) System.out.println("Set restart output");
     
@@ -179,14 +186,7 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-            SwimInputs si = Environment.getBehaviorInputs().getSwimInputs();
-            float daytimeNotSwimPercent = si.getDaytimeNotSwimPercent(); 
-            float floodHoldingThreshold = si.getFloodHoldingThreshold();
-            //TODO will use LocaTime when switch to Java 1.8
-            int sunrise_hour = si.getSunrise().getFirst();
-            int sunrise_min = si.getSunrise().getSecond();
-            int sunset_hour = si.getSunset().getFirst();
-            int sunset_min = si.getSunset().getSecond();
+
             //Environment.getHydroInfo(startTime-PTMTimeStep*4);//@todo: warning if < hydro start time 
             // initialize current model time
             //   Globals.currentModelTime = startTime;
@@ -205,18 +205,20 @@ public class MainPTM {
                 
                 // get latest hydro information using Global/model time in minutes!!!!!!
                 Environment.getHydroInfo(Globals.currentModelTime);
-                if (DEBUG) System.out.println("Updated flows");
-                // keep day time check out of the particles for loop
-            	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime);
-            	//TODO use LocalTime in Jave1.8 to simplify
-            	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour) 
-            			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
-            			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min);            	
+                Waterbody[] allWbs = Environment.getWbArray();
+                //update confusion factors, channel direction, etc.
+                swimHelper.updateCurrentInfo(allWbs);
+                //update barrier op infos, etc.
+                routeHelper.updateCurrentInfo(allWbs, Globals.currentModelTime);
+                if (DEBUG) System.out.println("Updated flows");         	
             	// update Particle positions
-                for (int i=0; i<numberOfParticles; i++)
+                for (int i=0; i<numberOfParticles; i++){
             		// timeStep in seconds (PTMTimeStep in minutes)!
-            		particleArray[i].updatePosition(timeStep, floodHoldingThreshold, isDaytime, daytimeNotSwimPercent);
-                if (DEBUG) System.out.println("Updated particle positions");
+                	if (DEBUG) System.out.println("Update particle " + i +" position");
+            		particleArray[i].updatePosition(timeStep);
+            		if (DEBUG) System.out.println("Updated particle "+i +" position");
+            		particleArray[i].clear();
+                }
       
                 // animation output
                 if ( animationOutput != null ) animationOutput.output();
@@ -224,6 +226,7 @@ public class MainPTM {
                 if ( outRestart != null ) outRestart.output();
       
             }
+            //print out travel times
             Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
             if ( animationOutput != null ) animationOutput.FlushAndClose();
             // write out restart file information
