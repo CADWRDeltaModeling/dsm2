@@ -106,7 +106,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			p.age += delT;
 			p.addTimeUsed(delT);
 			//TODO clean up	
-			
+			/*
 			if (p.wb.getType() == Channel.CHANNEL && p.wb.getEnvIndex()<801)
 				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
@@ -115,13 +115,13 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 						 +p.wb.getEnvIndex()
 						 + " " +"start" + " " + "day time holding no channel");
-						 
+			*/			 
 			return;
 		}
 		float tmLeft = delT;
 		while (tmLeft>0 && !p.isDead){
 			//TODO clean up
-			
+			/*
 			if (p.wb.getType() == Channel.CHANNEL && p.wb.getEnvIndex() < 801)
 				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
@@ -130,7 +130,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 						 +p.wb.getEnvIndex()
 						 + " " +"start" + " " + "day time holding no channel");
-						 
+			*/			 
 			// Channel	
 			if (p.wb.getPTMType() ==  Waterbody.CHANNEL) {
 				 Channel ch = (Channel)p.wb;
@@ -166,10 +166,11 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 p.age += tmToAdv;
 						 p.addTimeUsed(tmToAdv);
 						 //TODO clean up
+						 /*
 						 System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 								 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 								 + " " +"End survival");
-								 
+							*/	 
 						 return;
 					 }
 					 _hydroCalc.updateChannelParameters(p);
@@ -183,7 +184,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 p.age += tmLeft;
 						 p.addTimeUsed(tmLeft);
 						 //TODO clean up
-						 
+						 /*
 						 if (p.wb.getEnvIndex() < 801)
 							 System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 								 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
@@ -192,7 +193,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 								System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 										 +p.wb.getEnvIndex()
 										 + " " +"end flood");
-										 
+							*/			 
 						 return;
 					 }
 					 if (!p.particleWait){
@@ -318,11 +319,11 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				 //it doesn't record travel time when a particle at a boundary.
 				 p.setParticleDead();
 				 //TODO clean up
-				 
+				/* 
 				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 						 +p.wb.getEnvIndex()
 						 + " " +"End boundary");
-						 
+					*/	 
 				 break;
 			 }
 			//TODO clean up
@@ -330,13 +331,20 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			if (p.wb.getType() == Channel.CHANNEL && p.wb.getEnvIndex() < 801)
 				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
-					 + " " +"End" + " "+tmLeft);
-			else{
-				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
+					 + " " +"End" + " "+tmLeft+" "+p.x+" "+p.y+" "+p.z +" "+p.getConfusionFactor()+" "+p.age/3600.0f+" "+p.getSwimmingVelocity());
+			//else{
+				//TODO clean up
+				/*
+				if (p.nd == null) // inside reservior
+					System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " //+ PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
+							 +p.wb.getEnvIndex()
+							 + " " +"End non channel" + " " + tmLeft);
+				else
+					System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 						 +p.wb.getEnvIndex()
 						 + " " +"End non channel" + " " + tmLeft);
-						 
-			}
+					 
+			}*/
 			
 		 } // end first while 
 	}

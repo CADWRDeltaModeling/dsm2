@@ -289,6 +289,26 @@ public class Particle{
 		  }
 	
 		  if (inserted){
+			  //TODO clean up
+			  /*
+			  if (wb.getType() == Channel.CHANNEL && wb.getEnvIndex() < 801)
+				  System.err.println(Id + " " +(getCurrentParticleTime()-56300000)+" " 
+						  + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
+						 +PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+" "
+						 +(Globals.currentModelTime-56300000) + " "
+						 +(_swimmingTime-56300000) + " "
+						 //+PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() + " "
+						 //+ PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +" "
+						 +"swimming time");
+			  else
+				  System.err.println(Id + " " +(getCurrentParticleTime()-56300000)+" " 
+						  + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
+						 +wb.getEnvIndex()+" "
+						 +(Globals.currentModelTime-56300000) + " "
+						 //+PTMUtil.modelTimeToCalendar(_particleCurrentTime).getTime() + " "
+						 //+ PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +" "
+						 +"End rearing no channel");
+						 */
 			  if(currPTime >= _swimmingTime)
 				  _swimHelper.helpSwim(this, delT);
 			  else{
@@ -296,7 +316,7 @@ public class Particle{
 				  age += delT;
 				  // particle _timeUsedInsecond will be reset @ the beginning of the loop
 				  //TODO clean up later	
-				  
+				  /*
 				  if (wb.getType() == Channel.CHANNEL && wb.getEnvIndex() < 801)
 					  System.err.println(Id + " " +(getCurrentParticleTime()-56300000)+" " 
 							  + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
@@ -313,7 +333,7 @@ public class Particle{
 							 //+PTMUtil.modelTimeToCalendar(_particleCurrentTime).getTime() + " "
 							 //+ PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +" "
 							 +"End rearing no channel");
-							 
+							 */
 				 
 			  }		  
 		  }

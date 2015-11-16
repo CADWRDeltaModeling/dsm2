@@ -259,6 +259,8 @@ public class MainPTM {
     
     //public native static void display(int displayInterval);
     public static void display(int displayInterval) {
+    	//TODO put back later
+    	/*
         if(previousDisplayTime == 0){ 
             previousDisplayTime = Globals.currentModelTime - displayInterval;
         }
@@ -269,7 +271,9 @@ public class MainPTM {
             String modelDate = Globals.getModelDate(Globals.currentModelTime);
             System.out.println("Model date: " + modelDate + " time: " + modelTime);
             previousDisplayTime = Globals.currentModelTime;
+            
         }
+        */
     }
 
 

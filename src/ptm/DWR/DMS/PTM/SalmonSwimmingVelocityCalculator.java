@@ -27,8 +27,11 @@ public class SalmonSwimmingVelocityCalculator {
 	void setMeanSwimmingVelocity(int pId, int chanId){
 		float [] paras = getSwimParameters(chanId); 		
 		Map<Integer, Float> pidMeanSwimVel =  _meanSwimVels.get(getGroupName(chanId));
-		if (pidMeanSwimVel.get(pId) == null)
+		if (pidMeanSwimVel.get(pId) == null){
 			pidMeanSwimVel.put(pId, paras[0] + paras[1]*((float)PTMUtil.getNextGaussian()));
+			//TODO clean up later
+			System.err.println(pidMeanSwimVel.get(pId));
+		}
 	}
 	public float getMeanSwimmingVelocity(int pId, int chanId){
 		Map<Integer, Float> pidMeanSwimVel = _meanSwimVels.get(getGroupName(chanId));
