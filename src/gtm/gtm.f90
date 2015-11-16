@@ -215,7 +215,7 @@ program gtm
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
-    boundary_diffusion_network_matrix => network_diffusion_sparse_matrix
+    boundary_diffusion_network_matrix => network_diffusion_sparse_matrix_zero_at_junctions
     
     !boundary_diffusion_flux => neumann_zero_diffusive_flux
     !boundary_diffusion_matrix => neumann_zero_diffusion_matrix
@@ -426,7 +426,7 @@ program gtm
                                 limit_slope)   
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)
-                 
+
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 call dispersion_coef(disp_coef_lo,                 &
