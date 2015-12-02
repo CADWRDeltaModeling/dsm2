@@ -185,12 +185,13 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 p.swimVelSetInJunction(false);
 					 
 					 //TODO clean up
+					 /*
 					 System.err.println((p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 							 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())+ " "+tmToAdv
 							 + " "+tmLeft+" "+p.x+" "+p.y+" "+p.z + " "+xPos+" "+p.getConfusionFactor()+" "+p.age/3600.0f+" "+p.getSwimmingVelocity()
 							 + " "+ _swimCalc.getMeanSwimmingVelocity(p.Id, p.wb.getEnvIndex())+" " + _confusionCalc.getChanDir(p.wb.getEnvIndex())
 							 + " "+advVel + " "+advDeltaX + " "+swimDeltaX+" "+deltaX);
-					 
+					 */
 					 if (isNodeReached(p, xPos)){
 						 //Calculate actual tmToAdv 
 						 tmToAdv = _hydroCalc.calcTimeToNode(p, advVel+swimV, xPos);
@@ -217,15 +218,15 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 // if yes, wait until next time step
 						 // if not, continue on the code that calc y, z
 						 //TODO Clean up, the block is for preventing infinite loop but accutally it won't happen
-						 
+						 /*
 						 else{
 							 // if particle stays in the same node, wait for a time step (exit both while loops).
-							 /*
+							 
 							 if (tmToAdv < Float.MIN_VALUE && p.wb.getEnvIndex() == currNdWb.get(1) && p.nd.getEnvIndex() == currNdWb.get(0) 
 									 && advVel*p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())<0){
 								 p.age += tmLeft;
 								 p.addTimeUsed(tmLeft);
-								*/ 
+								
 								 //TODO clean up	
 								 if (p.wb.getType() == Channel.CHANNEL && p.wb.getEnvIndex() < 801)
 									 System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
@@ -233,12 +234,12 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 										 + " " +"End same node"+ " "+p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())
 										 +" "+p.getSwimmingVelocity()+" "+_hydroCalc.calcXAdvectionVelocity(p));
 										 
-								 //return;
+								 return;
 								 
-							 //}
+							 }
 						 }
 						 
-						 
+						 */
 					 
 					 } //end if (isNodeReached(xPos) == true) 
 					 else

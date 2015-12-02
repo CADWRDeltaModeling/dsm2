@@ -127,12 +127,12 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	    	p.setSwimmingTime(((SalmonSwimHelper) p.getSwimHelper()).getSwimmingTime(p.Id, ((Channel)p.wb).getEnvIndex()));
 	    	
 			//TODO clean up	
-			 
+			/* 
 	    	System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 					 + " " +"in route"+ " "+ wbFlows[wbId]//p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())
 					 +" "+p.getSwimmingVelocity()+" "+ totalWbInflows);
-	    	
+	    	*/
 	    	
 	    }
 	}
