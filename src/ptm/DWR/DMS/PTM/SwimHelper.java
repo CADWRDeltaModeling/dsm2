@@ -14,6 +14,7 @@ public interface SwimHelper {
 	public void setMeanSwimmingVelocity(int pId, int chId);
 	public long getSwimmingTime(int pId, int chId);
 	public float getSwimmingVelocity (int pId, int chId); 
+	// confusion factor returned include the channel direction
 	public int getConfusionFactor(int chId);
 	public void setXYZLocationInChannel(Particle p);
 	public void insert(Particle p);

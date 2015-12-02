@@ -258,8 +258,7 @@ public class MainPTM {
     protected static int previousDisplayTime = 0;
     
     //public native static void display(int displayInterval);
-    public static void display(int displayInterval) {
-    	//TODO put back later
+    public static void display(int displayInterval) { 
     	/*
         if(previousDisplayTime == 0){ 
             previousDisplayTime = Globals.currentModelTime - displayInterval;
@@ -275,6 +274,4 @@ public class MainPTM {
         }
         */
     }
-
-
 }

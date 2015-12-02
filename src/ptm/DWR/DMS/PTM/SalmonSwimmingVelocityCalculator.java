@@ -18,7 +18,7 @@ public class SalmonSwimmingVelocityCalculator {
 		}
 		_channelGroups = si.getChannelGroups();
 	}
-	public float CalcXSwimm(float swimSpeed, float timeStep){return swimSpeed*timeStep;}
+	public float CalcXSwim(float swimSpeed, float timeStep){return swimSpeed*timeStep;}
 	//Careful, confusion factor is not included in this swimming velocity returned
 	public float getSwimmingVelocity(int pId, int chanId){
 		float [] paras = getSwimParameters(chanId);	  
@@ -30,7 +30,7 @@ public class SalmonSwimmingVelocityCalculator {
 		if (pidMeanSwimVel.get(pId) == null){
 			pidMeanSwimVel.put(pId, paras[0] + paras[1]*((float)PTMUtil.getNextGaussian()));
 			//TODO clean up later
-			System.err.println(pidMeanSwimVel.get(pId));
+			//System.err.println(pidMeanSwimVel.get(pId));
 		}
 	}
 	public float getMeanSwimmingVelocity(int pId, int chanId){

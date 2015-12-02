@@ -142,10 +142,10 @@ public class BasicHydroCalculator {
 	float calcXAdvection(float XAdvectionVelocity, float deltaT){
 		return XAdvectionVelocity*deltaT;
 	}
-	private float calcDiffusionMove(Particle p, float timeStep, float ratio){
-		float dz = (float) (PTMUtil.getNextGaussian()*ratio*(float) Math.sqrt(2.0f*_pVertD.get(p.Id)*timeStep));
+	private float calcDiffusionMove(Particle p, float timeStep, float ratio, boolean usingProfile){
+		float dzy = (float) (PTMUtil.getNextGaussian()*ratio*(float) Math.sqrt(2.0f*_pVertD.get(p.Id)*timeStep));
 		// return the random z movement if vertical mixing allowed
-		if (_vertMove) return (dz);
+		if (usingProfile) return (dzy);
 		else return 0.0f;
 	}
 	/**
@@ -156,7 +156,7 @@ public class BasicHydroCalculator {
 		float zPos = p.z;
 		float depth = getChannelInfo(p.Id)[2];
 		// calculate position after timeStep
-		zPos = zPos + calcDiffusionMove(p, timeStep, 1);
+		zPos += calcDiffusionMove(p, timeStep, 1, _vertMove);
 		
 		// reflections from bottom of Channel and water surface
 		int k = 0;
@@ -178,7 +178,7 @@ public class BasicHydroCalculator {
 		float yPos = p.y; 
 		float width = getChannelInfo(p.Id)[1];
 		// calculate position after timeStep
-	    yPos = yPos + calcDiffusionMove(p, timeStep, EtToEvConst);
+	    yPos += calcDiffusionMove(p, timeStep, EtToEvConst, _transMove);
 	    // reflection from banks of Channel
 	    int k = 0;
 	    int MAX_BOUNCING = 100; // max num of iterations to do reflection
@@ -226,10 +226,10 @@ public class BasicHydroCalculator {
 			PTMUtil.systemExit("calcTimeToNode(Particle p, float xPos) should be only called when Particle is in channel, exit");
 		Channel ch = (Channel) p.wb;
 		float l = ch.getLength();
-		// v will never be 0
-		if (xPos < 0)
-			 return Math.abs(xPos/xAdvectionVelocity); 
-		else if (xPos > l)
+		// xAdvectionVelocity should not be exact 0
+		if (xPos <= 0)
+			 return Math.abs(p.x/xAdvectionVelocity); 
+		else if (xPos >= l)
 			 return (l-p.x)/xAdvectionVelocity; 
 		else
 			 PTMUtil.systemExit("calcTimeToNode(Particle p, float xPos) shold be only call when a node is reached, i.e., xPos < 0 or > length, but xPos ="+xPos

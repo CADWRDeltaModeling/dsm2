@@ -155,6 +155,7 @@ public class Particle{
 	  private SurvivalHelper _survivalHelper;
 	  private int _confusionFactor = 1;
 	  private float _swimmingVelocity = 0.0f;
+	  private boolean _swimVelSetInJunction = false;
 	  static final int MISSING = -99999;
 		
 	  /**
@@ -311,31 +312,11 @@ public class Particle{
 						 */
 			  if(currPTime >= _swimmingTime)
 				  _swimHelper.helpSwim(this, delT);
-			  else{
+			  else
 				  //rearing holding, wait a time step
 				  age += delT;
 				  // particle _timeUsedInsecond will be reset @ the beginning of the loop
-				  //TODO clean up later	
-				  /*
-				  if (wb.getType() == Channel.CHANNEL && wb.getEnvIndex() < 801)
-					  System.err.println(Id + " " +(getCurrentParticleTime()-56300000)+" " 
-							  + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
-							 +PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+" "
-							 +(Globals.currentModelTime-56300000) + " "
-							 //+PTMUtil.modelTimeToCalendar(_particleCurrentTime).getTime() + " "
-							 //+ PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +" "
-							 +"End rearing");
-				  else
-					  System.err.println(Id + " " +(getCurrentParticleTime()-56300000)+" " 
-							  + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
-							 +wb.getEnvIndex()+" "
-							 +(Globals.currentModelTime-56300000) + " "
-							 //+PTMUtil.modelTimeToCalendar(_particleCurrentTime).getTime() + " "
-							 //+ PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +" "
-							 +"End rearing no channel");
-							 */
-				 
-			  }		  
+	  
 		  }
 	  }
 	 
@@ -520,178 +501,7 @@ public class Particle{
 	  //will be overridden in Arron's behaved particle
 	  protected void updateOtherParameters(float delT){}
 	  protected float calcZDisplacementExtRandom(float timeStep){return 0.0f;}
+	  boolean isSwimVelSetInJunction(){return _swimVelSetInJunction;}
+	  void swimVelSetInJunction(boolean sVSet){_swimVelSetInJunction = sVSet;}
 	  
 }
-
-/**
- *  Sets fixed info for Particle
- */
-/*
-public final static void setFixedInfo(ParticleFixedInfo pFI){
-	  
- if (DEBUG) System.out.println("in setfixedinfo for particle");
- Particle.verticalConstant = pFI.getVerticalConstant();
- if (DEBUG) System.out.println("vertical constant = "+verticalConstant);
- Particle.transverseConstant = pFI.getTransverseConstant();
- if (DEBUG) System.out.println("trans constant = "+transverseConstant);
- Particle.CtCv = (float) (Math.sqrt(transverseConstant/verticalConstant));
- if (DEBUG) System.out.println("CtCv = " + CtCv);
- 
- Particle.vertMove = pFI.moveVertically();
- if (DEBUG) System.out.println("vert move");
- Particle.transMove = pFI.moveLaterally();
- if (DEBUG) System.out.println("trans move");
- //    Particle.behavior = pFI.getBehaviorExists();
- Channel.useVertProfile = pFI.doVerticalProfile();
- Channel.useTransProfile = pFI.doTransverseProfile();
- Channel.constructProfile();
- Channel.constructProfile();
- // use PTMUtil random methods instead
- //  if (DEBUG) System.out.println("set random seed");
- if(randomNumberGenerator == null)
-   randomNumberGenerator = new Ranecu(pFI.getRandomSeed());
-}
-*/
-
-/**
-  *  gets x location in Channel corresponding to upnode and
-  *  downnode.
-  */
-/*
-private final float getXLocationInChannel(Channel c){
-    if (c.getUpNodeId() == nd.getEnvIndex())
-  	  return 0.0f;
-    if (c.getDownNodeId() == nd.getEnvIndex())
-  	  return c.getLength();
-    PTMUtil.systemExit("the node: " + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex()) 
-  		  				+ "doesn't match with Channel: "+PTMHydroInput.getExtFromIntChan(c.getEnvIndex())
-  		  				+ ", system exit.");
-    return MISSING;
-}
-*/
-/**
- *  Channel parameters
- */
-//protected float channelLength, channelWidth, channelDepth, channelVave, channelArea;
-
-/**
- *  a flag to see if vertical movement is to be allowed, in other words
- *  if vertical mixing is to be allowed
- */
-//protected static boolean vertMove;
-
-/**
- *  a flag to check if transverse movement is to be allowed.
- */
-//protected static boolean transMove;
-
-/**
- *  The transverse constant for mixing
- */
-//protected static float transverseConstant;
-
-/**
- *  The vertical constant for mixing
- */
-//protected static float verticalConstant;
-
-/**
- *  A transverse diffusivity factor based on the Darcy-Wiesbach friction factor
- */
-//protected static float CtCv;
-
-/**
- *  Limiting factor for the movement during 1 time step due to mixing.<br>
- *  Used for sub-time step calculation
- *  to prevent excessive bouncing of particles at boundaries<br>
- *  usually keep particle movement <10% channel (width, depth) in 1 sub-time step
- */
-//protected static float dfac;
-/**
- *  Time left for completing the current PTM input time step
- */
-
-/**
- *  Mixing co-efficients
- */
-//protected float Ev,Evdt,Etdt;
-
-/**
- *  Falling velocity of Particle through water
- */
-//protected float fallvel;
-//TODO what if SwimmingInputs is null?!	clean up move to swimming behavior
-//private static SwimInputs  SwimmingInputs = Globals.Environment.getBehaviorInputs().getSwimInputs();
-//private static boolean IsRandomAccess = SwimmingInputs.getRandomAccess();
-//private static float AccessProb = SwimmingInputs.getAccessProbability();
-//if (Id == 1) setFixedInfo(pFI);
-//if (DEBUG) System.out.println("Initializing static info for particle ");
-// first means the particle never be in any water body
-//if (DEBUG) System.out.println("Fall velocity");
-//    fallvel = pFI.getFallVelocity();
-//    behaviorData = pFI.getBehavior();
-// age is in seconds actually
-//Particle.dfac = 0.1f;
-// commented out because a particle's rearing holding does not only happen at the insertion time
-// but also at the beginning when a particle hits a new channel group
-//if((curTime >= insertionTime +_rearingHoldingTime)
-/**
- *  inputs state of pParticle
- */
-/**
- *  outputs state to ostream
- */
-
-//private static final float Emin=0.0001f;
-//private static final int MAX_NUM_OF_SUB_TIME_STEPS=10000;
-/**
- *  Gaussian random number generator for y and z dispersive movements
- */
-// use method in PTMUtil instead
-//protected static RandomElement randomNumberGenerator;
-/*
-// return particle age in seconds
-public float getParticleAge(){
-	  return age;
-}
-*/
-
-/**
-  *  Internally induced Random x
-  */
-//protected float calcXVelocityIntRandom() {return 0.0f;}
-//TODO clean up not used anymore
-//protected void setMeanSwimmingVelocity(float msv){_meanSwimmingVelocity = msv;}
-//updateOtherParameters(delT); //TODO Why need this?
-/**
- *  insert particle in the system
- */
-/*
-private final void insert(){
-  observer.observeChange(ParticleObserver.INSERT,this);
-  inserted = true;
-  if (wb == null){
-  	makeNodeDecision();
-  	_swimHelper.setXYZLocationInChannel(this);
-  }
-  else{
-  	 if (wb.getPTMType() == Waterbody.CHANNEL){
-  		 int chId = wb.getEnvIndex();
-  		 _swimHelper.setMeanSwimmingVelocity(Id, wb.getEnvIndex());   
-	    	 _swimmingVelocity = _swimHelper.getSwimmingVelocity(Id, chId)
-	    			 			*_swimHelper.getConfusionFactor(chId);
-	    	 
-	    	 _swimmingTime = _swimHelper.getSwimmingTime(Id, chId);
-  	 }
-  	 // if a particle is inserted in a channel instead of a node
-  	 // channel number and distance x are known.  No need to calc x so pass a false 
-  	 _swimHelper.setXYZLocationInChannel(this);
-  	 
-  	 if (p.first) _hydroCalc.updateChannelParameters(p);
-			_hydroCalc.setYZLocationInChannel(p);
-		}else{ 
-			p.x=MISSING; p.y=MISSING; p.z=MISSING;
-		}
-  }
-}
-*/

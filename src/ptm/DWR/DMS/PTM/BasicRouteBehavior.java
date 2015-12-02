@@ -50,10 +50,12 @@ public class BasicRouteBehavior {
 	    // small amount.
 
 	    if (Math.abs(wbInflows) < Float.MIN_VALUE && p.nd.getNumberOfWaterbodies() == 1) {
+	    	
 	    	if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
 	    		p.x = 0;
 	    	else
 	    		p.x = getPerturbedXLocation(((Channel) p.wb), p.nd, p.repositionFactor);
+	    		
 	    	return false;
 	    }
 	    //float out2 = outflow;

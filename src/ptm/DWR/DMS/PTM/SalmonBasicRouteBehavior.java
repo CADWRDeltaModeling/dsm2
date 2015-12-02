@@ -36,7 +36,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			PTMUtil.systemExit("node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 					              +" doesn't have any waterbody connect to it, please check, exit.");
 		
-		float[] pMeanSwimmingVels = new float[wbs.length];
+		//float[] pMeanSwimmingVels = new float[wbs.length];
 		float[] swimmingVels = new float[wbs.length];
 		float[] wbFlows = new float[wbs.length];
 		int[] confusionFactors = new int[wbs.length];
@@ -55,10 +55,12 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 				swimmingVels[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, cId);
 				confusionFactors[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(cId);
 				wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, swimmingVels[wbId]*confusionFactors[wbId]));
+				//System.err.println(PTMHydroInput.getExtFromIntNode(c.getEnvIndex())+" " +swimmingVels[wbId]*confusionFactors[wbId]+ " "
+				//+wbFlows[wbId]);
 	    	}
 			else{
 				// no swimming velocity other than the water body type channel
-				pMeanSwimmingVels[wbId] = 0.0f;
+				//pMeanSwimmingVels[wbId] = 0.0f;
 	    		swimmingVels[wbId] = 0.0f;
 	    		if(wb.isAgSeep()
 		        		|| (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled()))
@@ -69,11 +71,12 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			totalWbInflows += wbFlows[wbId];
 			wbId++;
 		}
-		
+				
 		// if in a dead end, move some distance and recalculate
-		if (!prescreen(p, totalWbInflows))
+		if (!prescreen(p, totalWbInflows)){
+			p.particleWait = true;
 		    return;
-		
+		}
 		float totalAgDiversions = p.nd.getTotalAgDiversions();
 		if (PTMUtil.floatNearlyEqual(totalWbInflows, totalAgDiversions))
 			totalWbInflows = totalAgDiversions*_dicuEfficiency;
@@ -117,10 +120,20 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
 	    	p.setSwimmingVelocity(swimmingVels[wbId]*confusionFactors[wbId]);
 	    	p.setConfusionFactor(confusionFactors[wbId]);
+	    	p.swimVelSetInJunction(true);
 	    	// swimming time is set one per particle per channel group, here is the only place set a swimming time
 	    	p.getSwimHelper().setSwimmingTime(p, ((Channel)p.wb).getEnvIndex()); // to set swimming time in SalmonHoldingTimeCalculator
 	    	// set Swimming time in particle
 	    	p.setSwimmingTime(((SalmonSwimHelper) p.getSwimHelper()).getSwimmingTime(p.Id, ((Channel)p.wb).getEnvIndex()));
+	    	
+			//TODO clean up	
+			 
+	    	System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
+					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
+					 + " " +"in route"+ " "+ wbFlows[wbId]//p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())
+					 +" "+p.getSwimmingVelocity()+" "+ totalWbInflows);
+	    	
+	    	
 	    }
 	}
 	public void updateCurrentInfo(Waterbody[] allWbs, int currT){

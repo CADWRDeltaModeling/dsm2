@@ -49,6 +49,7 @@ public class SalmonSwimHelper extends Helper<Integer, SalmonSwimBehavior> implem
 	public void setMeanSwimmingVelocity(int pId, int chanId){super.getBasicBehavior().setMeanSwimmingVelocity(pId, chanId);}
 	// swimming velocity here does not include confusion factor
 	public float getSwimmingVelocity(int pId, int chanId) {return super.getBasicBehavior().getSwimmingVelocity(pId, chanId);}
+	// confusion factor returned include the channel direction
 	public int getConfusionFactor(int chanId) {return super.getBasicBehavior().getConfusionFactor(chanId);}
 	public long getSwimmingTime(int pId, int chanId){return super.getBasicBehavior().getSwimmingTime(pId, chanId);}
 	public void setXYZLocationInChannel(Particle p){super.getBasicBehavior().setXYZLocationInChannel(p);}
