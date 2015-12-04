@@ -136,7 +136,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				 //it is not necessary to set x because makeNodeDecision or setInsertInfo will be called and x will be set then
 				 if (PTMUtil.floatNearlyEqual(p.y, MISSING) || PTMUtil.floatNearlyEqual(p.z,MISSING)) 
 					 _hydroCalc.setYZLocationInChannel(p);
-					 
+				 int timesLooped = 0;	 
 				 // update particle's x,y,z position every sub-time step
 				 while (tmLeft > 0 && !p.isDead){
 					 if (tmLeft >= tmstep) // for all sub-time steps except the last
@@ -179,7 +179,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 float swimDeltaX = _swimCalc.CalcXSwim(swimV, tmToAdv);
 					 float deltaX = advDeltaX + swimDeltaX;
 					 float xPos = p.x + deltaX;
-					 IntBuffer currNdWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), cId});
+					 IntBuffer currNdWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
 					// this is to avoid swimming velocity to be reset immediately after exiting from a junction
 					// after a couple of sub-time step it is OK to reset
 					 p.swimVelSetInJunction(false);
@@ -217,30 +217,30 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 // if channel, check to see if stay in the same node, 
 						 // if yes, wait until next time step
 						 // if not, continue on the code that calc y, z
-						 //TODO Clean up, the block is for preventing infinite loop but accutally it won't happen
-						 /*
+						 
+						 //this block is for preventing the same particle stays in the same sub time step, node and waterbody too many times
 						 else{
-							 // if particle stays in the same node, wait for a time step (exit both while loops).
+							 // if particle stays in the same sub for 20 , wait for a time step (exit both while loops).
 							 
-							 if (tmToAdv < Float.MIN_VALUE && p.wb.getEnvIndex() == currNdWb.get(1) && p.nd.getEnvIndex() == currNdWb.get(0) 
-									 && advVel*p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())<0){
-								 p.age += tmLeft;
-								 p.addTimeUsed(tmLeft);
-								
+							 if (tmToAdv < Float.MIN_VALUE && p.nd.getEnvIndex() == currNdWb.get(0) && p.wb.getEnvIndex() == currNdWb.get(1)){
+								 timesLooped++;
+								 if (timesLooped > 20){
+									System.err.println("Warning: the particle "+p.Id+" looped more than 20 times at the same time step at the same node. It will continue on next time step.");
+									p.age += tmLeft;
+									p.addTimeUsed(tmLeft);
+									return;
+								 }
+								 
+								 /*
 								 //TODO clean up	
 								 if (p.wb.getType() == Channel.CHANNEL && p.wb.getEnvIndex() < 801)
 									 System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 										 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 										 + " " +"End same node"+ " "+p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())
 										 +" "+p.getSwimmingVelocity()+" "+_hydroCalc.calcXAdvectionVelocity(p));
-										 
-								 return;
-								 
+								 */ 
 							 }
 						 }
-						 
-						 */
-					 
 					 } //end if (isNodeReached(xPos) == true) 
 					 else
 						 p.x = xPos;
