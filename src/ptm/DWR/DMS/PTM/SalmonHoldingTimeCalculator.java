@@ -54,7 +54,7 @@ public class SalmonHoldingTimeCalculator {
 				PTMUtil.systemExit("got a negative rearing holding time, which is imposible, system exit.");
 			//pidSwimTimes.put(pId, (holdingTime+Globals.currentModelTime));
 			// this is more accurate
-			pidSwimTimes.put(p.Id, (holdingTime+p.getCurrentParticleTime()));
+			pidSwimTimes.put(p.Id, (holdingTime+p.getCurrentParticleTimeExact()));
 		}
 	}
 	public Long getSwimTime(int pId, int chanId){

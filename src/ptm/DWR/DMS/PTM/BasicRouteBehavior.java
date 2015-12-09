@@ -49,16 +49,13 @@ public class BasicRouteBehavior {
 	    // end of a slough, then move the Particle into the Channel a
 	    // small amount.
 
-	    if (Math.abs(wbInflows) < Float.MIN_VALUE && p.nd.getNumberOfWaterbodies() == 1) {
-	    	
+	    if (Math.abs(wbInflows) < Float.MIN_VALUE && p.nd.getNumberOfWaterbodies() == 1) {	    	
 	    	if (p.wb == null || p.wb.getPTMType() != Waterbody.CHANNEL)
 	    		p.x = 0;
 	    	else
-	    		p.x = getPerturbedXLocation(((Channel) p.wb), p.nd, p.repositionFactor);
-	    		
+	    		p.x = getPerturbedXLocation(((Channel) p.wb), p.nd, p.repositionFactor);	    		
 	    	return false;
 	    }
-	    //float out2 = outflow;
 	    return true;
 	}
 
@@ -72,51 +69,83 @@ public class BasicRouteBehavior {
 			//when particle just inserted wb = null, but node is assigned.
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
-			/*
-			float outflow = p.nd.getTotalEffectiveOutflow(false);
-	
-		// if the Node is at a Node with zero flow, for example at the
-		// end of a slough, then move the pParticle into the Channel a
-		// small amount.
-		if (outflow == 0.0f && nd.getNumberOfWaterbodies() == 1) {
-		  x = getPerturbedXLocation();
-		  return;
+		
+		
+		// calculate total waterbody Inflows:
+		Waterbody [] wbs = p.nd.getWaterbodies();
+		if (wbs == null)
+			PTMUtil.systemExit("node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
+					              +" doesn't have any waterbody connect to it, please check, exit.");
+		float[] wbFlows = new float[wbs.length];
+		
+	    float totalWbInflows = 0.0f;
+	    int nodeId = p.nd.getEnvIndex();
+	    int wbId = 0;
+		for (Waterbody wb: wbs){
+			if (wb == null)
+				PTMUtil.systemExit("when trying to route the particle, one of the water bodies is null, system exit.");
+			if(wb.isAgSeep() || (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled()))
+				wbFlows[wbId] = 0.0f;
+			else
+				wbFlows[wbId] = Math.max(0.0f, ((Channel) wb).getInflow(nodeId));	    		
+			totalWbInflows += wbFlows[wbId];
+			wbId++;
 		}
-		//float out2 = outflow;
-		    
-		    float rand = nd.getRandomNumber();
-		    outflow = rand*outflow;
-		  
-		    float flow = 0.0f;
-		  
-		    if (outflow == 0.0){
-		      particleWait = true;
+				
+		// if in a dead end, move some distance and recalculate
+		if (!prescreen(p, totalWbInflows)){
+			p.particleWait = true;
+		    return;
+		}
+		float totalAgDiversions = p.nd.getTotalAgDiversions();
+		if (PTMUtil.floatNearlyEqual(totalWbInflows, totalAgDiversions))
+			totalWbInflows = totalAgDiversions*_dicuEfficiency;
+		// at this point, totalFlows is the sum of all inflows and the dicuEfficiency doesn't matter for the totalFlows 
+		// because leftover flows are added to other inflows and the total remains the same.
+		// except for the case above with that only inflows are ag diversions, in which the dicuEfficiency has to be counted for.
+		// 
+		float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
+		
+		// if total flow is 0 wait for a time step
+		if (Math.abs(randTotalWbInflows) < Float.MIN_VALUE){
+		      p.particleWait = true;
+		      if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
+			    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	
 		      return;
-		    }
-		    
-		    // loop determines which wb is for particle to enter
-		int waterbodyId = -1;
+		}
+		
+		float diversionsLeftover = totalAgDiversions*(1-_dicuEfficiency);
+		float totalFlowsWOAg = totalWbInflows - totalAgDiversions;
+		
+		wbId = -1;
+		float flow = 0.0f;
 		do {
-		  waterbodyId ++;
-		  // this conditional statement added to exclude seepage
-		  // this should be read in as an argument
-		  //@todo: disabled this feature
-		  //if(nd.getWaterbody(waterbodyId).getAccountingType() != flowTypes.evap){
-		  flow += nd.getFilterOp(waterbodyId) * nd.getOutflow(waterbodyId);
-		  //}
-		    }while (flow < outflow && 
-			        waterbodyId < nd.getNumberOfWaterbodies());
-		  
-		    // get a pointer to the waterbody in which pParticle entered.
-		wb = nd.getWaterbody(waterbodyId);
-		// send message to observer about change 
-		if (observer != null) 
-		  observer.observeChange(ParticleObserver.WATERBODY_CHANGE,this);
-		// set x as beginning of Channel...
-		x = getXLocationInChannel();
-		// @todo: redesign the coding structure of this feature
-		 */
-	}
-			  	
-	
+		    float modFlow = 0.0f;
+		    wbId ++;
+	    	if (wbs[wbId].isAgDiv())
+	    		// the probability of this route reduce (1-_dicuEfficiency)
+	    		modFlow = ((float) (wbFlows[wbId]*_dicuEfficiency)); 
+	    	else if (totalFlowsWOAg > 0.0f)
+	    		modFlow = wbFlows[wbId] + (wbFlows[wbId]/totalFlowsWOAg)*diversionsLeftover;
+	    	else
+		    	modFlow = wbFlows[wbId];
+	    	flow += modFlow;
+	    }while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
+		p.wb = wbs[wbId];
+	    // send message to observer about change 
+	    if (p.observer != null) 
+	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
+	    //set x to only channels.  other water body types don't need to be set. 
+	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
+	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	    	
+			//TODO clean up	
+			/*
+	    	System.err.println(p.Id + " " +(p.getCurrentParticleTimeExact()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
+					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
+					 + " " +"in route"+ " "+ wbFlows[wbId]//p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())
+					 +" "+p.getSwimmingVelocity()+" "+ totalWbInflows);
+	    	*/
+	    	
+	    }
+	}			  		
 }

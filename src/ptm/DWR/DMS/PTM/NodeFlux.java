@@ -101,6 +101,7 @@ public class NodeFlux extends Flux{
       //System.out.println("number of timesteps = "+numberOfTimeSteps+" @ "+timeStep);
       try {
         for(index=0; index < numberOfTimeSteps; index++){
+        	
           if(! doFluxCumulative()) particleFlux = 0; // instantaneous values
           
           while (traceNum <= maxTraces && 

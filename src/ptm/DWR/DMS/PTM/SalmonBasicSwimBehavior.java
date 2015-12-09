@@ -186,7 +186,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 
 					 //TODO clean up
 					 /*
-					 System.err.println((p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
+					 System.err.println((p.getCurrentParticleTimeExact()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 							 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())+ " "+tmToAdv
 							 + " "+tmLeft+" "+p.x+" "+p.y+" "+p.z + " "+xPos+" "+p.getConfusionFactor()+" "+p.age/3600.0f+" "+p.getSwimmingVelocity()
 							 + " "+ _swimCalc.getMeanSwimmingVelocity(p.Id, p.wb.getEnvIndex())+" " + _confusionCalc.getChanDir(p.wb.getEnvIndex())
@@ -234,7 +234,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 								 /*
 								 //TODO clean up	
 								 if (p.wb.getType() == Channel.CHANNEL && p.wb.getEnvIndex() < 801)
-									 System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
+									 System.err.println(p.Id + " " +(p.getCurrentParticleTimeExact()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
 										 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 										 + " " +"End same node"+ " "+p.wb.getInflowWSV(p.nd.getEnvIndex(), p.getSwimmingVelocity())
 										 +" "+p.getSwimmingVelocity()+" "+_hydroCalc.calcXAdvectionVelocity(p));
@@ -302,25 +302,6 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				 p.setParticleDead();	 
 				 break;
 			 }
-			
-			//TODO clean up
-			/*
-			if (p.wb.getType() == Channel.CHANNEL && p.wb.getEnvIndex() < 801)
-				System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
-					 +PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
-					 + " " +"End" + " "+tmLeft+" "+p.x+" "+p.y+" "+p.z +" "+p.getConfusionFactor()+" "+p.age/3600.0f+" "+p.getSwimmingVelocity()
-					 + " "+ _swimCalc.getMeanSwimmingVelocity(p.Id, p.wb.getEnvIndex())+" " + _confusionCalc.getChanDir(p.wb.getEnvIndex()));
-			else{
-				if (p.nd == null) // inside reservior
-					System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " //+ PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
-							 +p.wb.getEnvIndex()
-							 + " " +"End non channel" + " " + tmLeft);
-				else
-					System.err.println(p.Id + " " +(p.getCurrentParticleTime()-56300000)+" " + PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())+" "
-						 +p.wb.getEnvIndex()
-						 + " " +"End non channel" + " " + tmLeft);
-			}
-			*/
 			
 		 } // end first while 
 	}

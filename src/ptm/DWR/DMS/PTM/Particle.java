@@ -18,8 +18,7 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import java.util.*;
-
-import edu.cornell.RngPack.*;
+//import edu.cornell.RngPack.*;
 
 /**
  * 
@@ -258,7 +257,10 @@ public class Particle{
 	  /**
 	   *  returns the current particle time
 	   */
-	  public final long getCurrentParticleTime(){return Globals.currentModelTime + Math.round(_timeUsedInSecond/60.0f);}
+	  public final long getCurrentParticleTime(){return Globals.currentModelTime;} //+ Math.round(_timeUsedInSecond/60.0f);}
+	  //TODO when return a exact current particle time it breaks the particle flux calculation.  So keep getCurrentParticleTime as it is
+	  // and create a new method below for set swimming time.  Need to change the flux calculation part to make it consistant
+	  public final long getCurrentParticleTimeExact(){return Globals.currentModelTime + Math.round(_timeUsedInSecond/60.0f);}
 	  public final long getInsertionTime(){return insertionTime;}
 	  public final boolean checkSurvival(float timeToAdvance){
 	    // check survival if not survived isDead is set to true	
@@ -283,34 +285,16 @@ public class Particle{
 		  // insertion time is checked in PTMEnv.
 		  // if a insertion time is earlier than the model start time, simulation exits because a particle needs hydro info when inserted.
 		  _timeUsedInSecond = 0;
-		  long currPTime = getCurrentParticleTime();
+		  long currPTime = getCurrentParticleTimeExact();
 		  if(!inserted && currPTime >= insertionTime){ //when current time reach insertion time
 			  _swimHelper.insert(this);
 			  if (DEBUG) System.out.println("Inserted particle No. " + Id); 
 		  }
 	
 		  if (inserted){
-			  //TODO clean up
-			  /*
-			  if (wb.getType() == Channel.CHANNEL && wb.getEnvIndex() < 801)
-				  System.err.println(Id + " " +(getCurrentParticleTime()-56300000)+" " 
-						  + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
-						 +PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+" "
-						 +(Globals.currentModelTime-56300000) + " "
-						 +(_swimmingTime-56300000) + " "
-						 //+PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() + " "
-						 //+ PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +" "
-						 +"swimming time");
-			  else
-				  System.err.println(Id + " " +(getCurrentParticleTime()-56300000)+" " 
-						  + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
-						 +wb.getEnvIndex()+" "
-						 +(Globals.currentModelTime-56300000) + " "
-						 //+PTMUtil.modelTimeToCalendar(_particleCurrentTime).getTime() + " "
-						 //+ PTMUtil.modelTimeToCalendar(_swimmingTime).getTime() +" "
-						 +"End rearing no channel");
-						 */
-			  if(currPTime >= _swimmingTime)
+			  // move when 1) it is a neutrally buoyant particle (swimming time never be set and no holding)
+			  // or 2) fish passes holding time
+			  if(_swimmingTime == 0 || currPTime >= _swimmingTime)
 				  _swimHelper.helpSwim(this, delT);
 			  else
 				  //rearing holding, wait a time step
@@ -318,6 +302,11 @@ public class Particle{
 				  // particle _timeUsedInsecond will be reset @ the beginning of the loop
 	  
 		  }
+		  /*
+		  if (wb.getType()==Waterbody.CHANNEL && Id == 1)
+			  System.err.println(PTMUtil.modelTimeToCalendar(getCurrentParticleTimeExact()).getTime()+" " + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex())+" "
+					 +PTMHydroInput.getExtFromIntChan(wb.getEnvIndex())+" "+x+" "+y+" "+z);
+					 */
 	  }
 	 
 	  /**

@@ -63,7 +63,7 @@ public class FluxMonitor{
    *  Calculate Flux
    */
   public final void calculateFlux() {
-  
+	
     int startId = 0;
     int endId = 0;
     int[] startTime = new int[1], endTime = new int[1], timeStep = new int[1];
@@ -74,7 +74,7 @@ public class FluxMonitor{
     
     //calculate traceArray with MAX_PARTICLES as size limit
     for (startId = 1; endId < totalNumberOfParticles[0]; startId += MAX_PARTICLES) {
-
+    	
       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
       int nParticles = endId - startId + 1;
       //totalNumberOfParticles will be reset in createTraceArray
