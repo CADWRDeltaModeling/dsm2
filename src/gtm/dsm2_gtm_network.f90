@@ -178,7 +178,7 @@ module dsm2_gtm_network
                                          dx)
         use gtm_precision
         use error_handling
-        use common_variables, only: n_node, dsm2_network, n_resv, resv_geom, no_flow
+        use common_variables, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close
         use common_dsm2_vars, only: pathinput
         use state_variables_network
         implicit none
@@ -203,7 +203,7 @@ module dsm2_gtm_network
         real(gtm_real) :: conc_tmp0(nvar)                       ! when no flow flows into junction, use this temp value.
         integer :: up_cell, down_cell
         integer :: network_id
-        integer :: i, j, k, icell    
+        integer :: i, j, k, icell, inode
         integer :: reservoir_id, resv_conn_id   
      
         ! recalculate concentration for reservoirs
@@ -329,7 +329,7 @@ module dsm2_gtm_network
                 
             end if
         end do    
-        
+             
         do i = 1, n_resv        
             if (resv_geom(i)%n_qext > 0) then
                 do j = 1, resv_geom(i)%n_qext
@@ -411,8 +411,8 @@ module dsm2_gtm_network
             if (dsm2_network(i)%boundary_no > 0) then    
                 icell = dsm2_network(i)%cell_no(1)
                 do j = 1, nvar
-                    if (dsm2_network(i)%up_down(1) .eq. 1 .and. node_conc(i,j).eq.LARGEREAL) node_conc(i,j) = conc_lo(icell,j) ! upstream boundary 
-                    if (dsm2_network(i)%up_down(1) .eq. 0 .and. node_conc(i,j).eq.LARGEREAL) node_conc(i,j) = conc_hi(icell,j) ! downstream boundary 
+                    if (dsm2_network(i)%up_down(1) .eq. 1 .and. node_conc(i,j).eq.LARGEREAL) node_conc(i,j) = conc_hi(icell,j) ! upstream boundary 
+                    if (dsm2_network(i)%up_down(1) .eq. 0 .and. node_conc(i,j).eq.LARGEREAL) node_conc(i,j) = conc_lo(icell,j) ! downstream boundary 
                 end do
             end if
         end do

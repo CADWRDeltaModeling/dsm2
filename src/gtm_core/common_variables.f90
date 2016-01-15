@@ -60,6 +60,7 @@ module common_variables
 
      !> Define scalar and envvar in input file 
      real(gtm_real) :: no_flow = ten                   !< define a criteria for the definition of no flow to avoid the problem in calculating average concentration
+     real(gtm_real) :: gate_close = 200.0d0             !< threshold to decide if gate is closed.
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
      integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
      character(len=128) :: hydro_hdf5                  !< hydro tide filename
@@ -970,6 +971,17 @@ module common_variables
                          gate(j)%from_identifier_int = resv_geom(k)%resv_no
                      end if
                  end do
+                 do i = 1, n_node
+                     do k = 1, dsm2_network(i)%n_conn_cell
+                         if (gate(j)%to_node.eq.dsm2_network(i)%dsm2_node_no) then
+                             gate(j)%cell_no = dsm2_network(i)%cell_no(k)
+                             gate(j)%face = dsm2_network(i)%up_down(k)
+                             dsm2_network(i)%gate(k) = j
+                             gate(j)%to_node_int = i
+                             exit
+                         end if
+                     end do
+                 end do                  
              end if
          end do                      
 

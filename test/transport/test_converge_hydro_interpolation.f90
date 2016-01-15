@@ -88,7 +88,7 @@ module test_converge_hydro_interpolation
 
         acceptance_ratio = [2.9, 2.9, 2.9]
  
-        interp_hydro=> interp_hydro_data ! this flow generator is mass conservative
+        interp_hydro=> interp_hydro_data
         ! do not remove it 
         !tidal_hydro=> tidal_flow_cell_average ! this flow generator is NOT mass conservative but it is cell averaged
         advection_boundary_flux => zero_advective_flux !todo: move this so it isn't hardwired
@@ -429,7 +429,7 @@ module test_converge_hydro_interpolation
         prev_flow_cell_hi = LARGEREAL
 
         do i = 2, memory_buffer
-            call interp_network(npart_t, i, n_comp, prev_flow, prev_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
+            call interp_network_linear(npart_t, i, n_comp, prev_flow, prev_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
             start_t_index = (i-2)*npart_t + 1
             end_t_index = (i-1)*npart_t
             flow_mesh_lo_tmp(start_t_index:end_t_index,:) = flow_mesh_lo(1:npart_t,:)

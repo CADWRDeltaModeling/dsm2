@@ -21,32 +21,30 @@
 !> Hydrodynamics interface to provide depth and flow velocity to be fed by user
 !>@ingroup sediment
 module suspended_sediment_variable
-      !> Generic interface for fetching hydrodynamic data (
+    !> Generic interface for fetching hydrodynamic data (
     abstract  interface
-       !> Get hydrodynamic data for sediment module.
-       !> This data might be calculated from a function or provided by another module
-        subroutine sediment_hydro_if(velocity,  &
-                                     depth,     &
-                                     ncell,     &
-                                     time,      &
-                                     dx,        &
-                                     dt)
-        use gtm_precision
-        implicit none
-        integer, intent(in) :: ncell                    !< Number of cells (in)
-        real(gtm_real), intent(in)  :: time             !< Time of request (in)
-        real(gtm_real), intent(in)  :: dx               !< Spatial step (in)
-        real(gtm_real), intent(in)  :: dt               !< Time step  (in)
-        real(gtm_real), intent(out) :: velocity(ncell)  !< Cell and time centered velocity (out)
-        real(gtm_real), intent(out) :: depth(ncell)     !< Cell center depth (out)
-       ! todo: the signature of this interface may be subjected to change 
-        
+        !> Get hydrodynamic data for sediment module.
+        !> This data might be calculated from a function or provided by another module
+         subroutine sediment_hydro_if(velocity,  &
+                                      depth,     &
+                                      ncell,     &
+                                      time,      &
+                                      dx,        &
+                                      dt)
+             use gtm_precision
+             implicit none
+             integer, intent(in) :: ncell                    !< Number of cells (in)
+             real(gtm_real), intent(in)  :: time             !< Time of request (in)
+             real(gtm_real), intent(in)  :: dx               !< Spatial step (in)
+             real(gtm_real), intent(in)  :: dt               !< Time step  (in)
+             real(gtm_real), intent(out) :: velocity(ncell)  !< Cell and time centered velocity (out)
+             real(gtm_real), intent(out) :: depth(ncell)     !< Cell center depth (out)
+             ! todo: the signature of this interface may be subjected to change 
         end subroutine
-      end interface
+     end interface
       
- !> This pointer should be set by the driver or client code to specify the 
- !> depth and velocity for the sediment source sink routine
- procedure(sediment_hydro_if),pointer :: fill_spatiotemporal_sediment_data  => null()
- 
+     !> This pointer should be set by the driver or client code to specify the 
+     !> depth and velocity for the sediment source sink routine
+     procedure(sediment_hydro_if),pointer :: fill_spatiotemporal_sediment_data  => null()
   
 end module

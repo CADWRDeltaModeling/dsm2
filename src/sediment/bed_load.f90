@@ -20,75 +20,63 @@
 !> Contains different relations of bedload transport
 module bed_load
 
+    contains 
+    !> The subroutine provides unit bedload per volume
+    !> q_sub_b has the dimension L2/T, Q_sub_b = integral over width q_sub_b, [L3/T]
+    subroutine bedload(q_sub_b,       &
+                       velocity,      &
+                       area,          &
+                       nclass,        &
+                       ncell,          &
+                       !!!!!!! todo: fill other ones
+                       bedload_func)                   
 
-contains 
-!> The subroutine provides unit bedload per volume
-!> q_sub_b has the dimension L2/T, Q_sub_b = integral over width q_sub_b, [L3/T]
-subroutine bedload(q_sub_b,       &
-                   velocity,      &
-                   area,          &
-                   nclass,        &
-                   ncell,          &
-                   !!!!!!! todo: fill other ones
-                   bedload_func)                   
+        use gtm_precision
+        use suspended_utility
+        implicit none
+        integer,intent(in) :: nclass                      !< Number of grain classes in bedload transport
+        integer,intent(in) :: ncell                       !< Number of volumes in a channel
+        real(gtm_real),intent(in) :: velocity(ncell)      !< Velocity
+        real(gtm_real),intent(in) :: area(ncell)          !< Area
+        real(gtm_real),intent(out)::q_sub_b(ncell,nclass) !< Volumetric bedload transport rate
+        character, intent(in),optional :: bedload_func    !< Bedload relation 
 
-use gtm_precision
-use suspended_utility
-
-implicit none
-
-integer,intent(in) :: nclass                  !< Number of grain classes in bedload transport
-integer,intent(in) :: ncell                    !< Number of volumes in a channel
-real(gtm_real),intent(in) :: velocity(ncell)                !< Velocity
-real(gtm_real),intent(in) :: area(ncell)                    !< Area
-real(gtm_real),intent(out)::q_sub_b(ncell,nclass)           !< Volumetric bedload transport rate
-character, intent(in),optional :: bedload_func             !< Bedload relation 
-!---
-character,parameter :: default ='meyer_peter_muller'
-character :: relation
+        character,parameter :: default ='meyer_peter_muller'
+        character :: relation
  
+        if(present(bedload_func))then
+            relation = bedload_func
+        end if 
 
-if(present(bedload_func))then
-  relation = bedload_func
-end if 
- 
-
-
-
-
-return
-end subroutine 
+        return
+    end subroutine 
 
 
-!> Subroutine for calculating the q_b based on q_* (see Garcia, 2008, page 70)
-subroutine volumetric_bedload_transport_rate(q_sub_b,                &
-                                             einstein_bedload_num,   &
-                                             diameter,               &
-                                             capital_r,              &
-                                             gravity,                &
-                                             nclass,                 &
-                                             ncell)
+    !> Subroutine for calculating the q_b based on q_* (see Garcia, 2008, page 70)
+    subroutine volumetric_bedload_transport_rate(q_sub_b,                &
+                                                 einstein_bedload_num,   &
+                                                 diameter,               &
+                                                 capital_r,              &
+                                                 gravity,                &
+                                                 nclass,                 &
+                                                 ncell)
 
-use gtm_precision
-implicit none
-                                             
-integer,intent(in) :: nclass                                  !< Number of sediment classes 
-integer,intent(in) :: ncell                                    !< Number of volume
-real(gtm_real),intent(in) ::gravity                           !< Gravity
-real(gtm_real),intent(in) ::capital_r                         !< Submerged specific gravity of sediment particles  
-real(gtm_real),intent(in) ::diameter(nclass)                  !< Particle diameter
-real(gtm_real),intent(in) ::einstein_bedload_num(ncell,nclass) !< Dimensionless belload transport rate 
-real(gtm_real),intent(out)::q_sub_b(ncell,nclass)              !< Volumetric bedload transport rate
-!--- local
-integer:: iclass
-
+        use gtm_precision
+        implicit none                                             
+        integer,intent(in) :: nclass                                  !< Number of sediment classes 
+        integer,intent(in) :: ncell                                    !< Number of volume
+        real(gtm_real),intent(in) ::gravity                           !< Gravity
+        real(gtm_real),intent(in) ::capital_r                         !< Submerged specific gravity of sediment particles  
+        real(gtm_real),intent(in) ::diameter(nclass)                  !< Particle diameter
+        real(gtm_real),intent(in) ::einstein_bedload_num(ncell,nclass) !< Dimensionless belload transport rate 
+        real(gtm_real),intent(out)::q_sub_b(ncell,nclass)              !< Volumetric bedload transport rate
+        !--- local
+        integer:: iclass
                 
-do iclass=1,nclass                             
-    q_sub_b(:,iclass) = diameter * einstein_bedload_num(:,iclass) * dsqrt(gravity*capital_r*diameter)
-end do 
-
-
-return
-end subroutine 
+        do iclass=1,nclass                             
+            q_sub_b(:,iclass) = diameter * einstein_bedload_num(:,iclass) * dsqrt(gravity*capital_r*diameter)
+        end do
+        return
+    end subroutine 
 
 end module 

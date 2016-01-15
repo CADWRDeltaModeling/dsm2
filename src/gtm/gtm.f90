@@ -109,7 +109,7 @@ program gtm
     
     ! variables for sub time stepping 
     logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
-    integer, parameter :: max_num_sub_ts = 20                 ! maximum number of sub time step within GTM time step    
+    integer, parameter :: max_num_sub_ts = 30                 ! maximum number of sub time step within GTM time step    
     real(gtm_real) :: sub_gtm_time_step                       ! sub time step for GTM when max CFL > 1
     real(gtm_real) :: max_cfl                                 ! max_cfl = maxval(cfl)
     integer :: sub_st                                         ! number of sub time step within gtm time step
@@ -225,7 +225,7 @@ program gtm
     prev_day = "01JAN1000"                                      ! to initialize for screen printing only
 
     ! assigen the initial concentration to cells and reservoirs
-    init_c = 200.d0
+    init_c = 0.d0
     init_r = 0.d0    
     restart_file_name = trim(gtm_io(1,1)%filename) 
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
