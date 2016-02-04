@@ -128,6 +128,7 @@ module common_xsect
         integer :: i, si, di, ei, OK
         real(gtm_real) :: z1, z2, y1, y2, b1, b2, a1
         real(gtm_real) :: dz, slope, localChannelWidth
+        real(gtm_real) :: wet_p, hydro_radius
         if (num_xsect_chan(branch)>1) then 
             virt_deltax = chan_geom(branch)%channel_length/(num_xsect_chan(branch)-1)
         else
@@ -165,8 +166,11 @@ module common_xsect
         a1 = virt_xsect(si)%area(ei)
         b1 = virt_xsect(si)%width(ei)
         b2 = localChannelWidth
-        area = a1 + half * ( b1 + b2 )* (Z - z1) 
+        area = a1 + half * ( b1 + b2 )* (Z - z1)
+        wet_p = virt_xsect(si)%wet_p(ei) + two*dsqrt(((b2-b1)*half)**2+(Z-z1)**2)
+        hydro_radius = area/wet_p
         return
     end subroutine
+                              
          
 end module common_xsect

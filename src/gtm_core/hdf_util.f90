@@ -255,7 +255,7 @@ module hdf_util
        integer(HID_T) :: dt_id                      ! Memory datatype identifier
        integer(HID_T) :: dt1_id, dt2_id             ! Memory datatype identifier
        integer(HID_T) :: dt3_id, dt4_id             ! Memory datatype identifier
-       integer(HID_T) :: dt5_id                     ! Memory datatype identifier
+       integer(HID_T) :: dt5_id, dt6_id             ! Memory datatype identifier
        integer(SIZE_T):: offset                     ! Member's offset
        integer(HSIZE_T), dimension(1) :: data_dims  ! Datasets dimensions
        integer(SIZE_T) :: typesize                  ! Size of the datatype
@@ -294,7 +294,11 @@ module hdf_util
 
        call h5tcreate_f(H5T_COMPOUND_F, gtm_real, dt5_id, error)
        call h5tinsert_f(dt5_id, "dispersion", offset, H5T_NATIVE_DOUBLE, error)    
-       call h5dread_f(dset_id, dt5_id, chan_geom%dispersion, data_dims, error)       
+       call h5dread_f(dset_id, dt5_id, chan_geom%dispersion, data_dims, error)    
+        
+       call h5tcreate_f(H5T_COMPOUND_F, gtm_real, dt6_id, error)
+       call h5tinsert_f(dt6_id, "manning", offset, H5T_NATIVE_DOUBLE, error)    
+       call h5dread_f(dset_id, dt6_id, chan_geom%manning, data_dims, error)             
                      
        call h5tclose_f(dt_id, error)
        call h5tclose_f(dt1_id, error)
@@ -302,6 +306,7 @@ module hdf_util
        call h5tclose_f(dt3_id, error)
        call h5tclose_f(dt4_id, error)             
        call h5tclose_f(dt5_id, error)
+       call h5tclose_f(dt6_id, error)
        call h5dclose_f(dset_id, error)  
        call h5gclose_f(input_id, error)              
        return        

@@ -50,6 +50,7 @@ module common_variables
     
      real(gtm_real), allocatable :: dx_arr(:)              !< dx array
      real(gtm_real), allocatable :: disp_arr(:)            !< dispersion coeff
+     real(gtm_real), allocatable :: mann_arr(:)            !< Manning's n
      real(gtm_real), allocatable :: hydro_flow(:,:)        !< flow from DSM2 hydro
      real(gtm_real), allocatable :: hydro_ws(:,:)          !< water surface from DSM2 hydro
      real(gtm_real), allocatable :: hydro_area(:,:)        !< calculated cross section area from CxArea
@@ -101,6 +102,7 @@ module common_variables
           integer :: start_cell                        !< starting cell
           integer :: end_cell                          !< ending cell
           real(gtm_real) :: dispersion                 !< dispersion coefficient
+          real(gtm_real) :: manning                    !< Manning's n
      end type
      type(channel_t), allocatable :: chan_geom(:)
      
@@ -145,6 +147,7 @@ module common_variables
          integer :: cell_id                           !< cell id
          integer :: up_cell                           !< upstream connected cell id (-1 for boundary, 0 for junction)
          integer :: down_cell                         !< downstream connected cell id (-1 for boundary, 0 for junction)
+         integer :: chan_no                           !< channel no
          real(gtm_real) :: dx                         !< cell length
      end type
      type(cell_t), allocatable :: cell(:)
@@ -373,6 +376,7 @@ module common_variables
          end do          
          allocate(dx_arr(n_cell), stat = istat)
          allocate(disp_arr(n_cell), stat = istat)
+         allocate(mann_arr(n_cell), stat = istat)
          allocate(cell(n_cell), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
@@ -383,6 +387,8 @@ module common_variables
                  icell = icell + 1
                  dx_arr(icell) = segm(i)%length/segm(i)%nx
                  disp_arr(icell) = chan_geom(segm(i)%chan_no)%dispersion
+                 mann_arr(icell) = chan_geom(segm(i)%chan_no)%manning
+                 cell(icell)%chan_no = segm(i)%chan_no
              end do                      
          end do         
          return

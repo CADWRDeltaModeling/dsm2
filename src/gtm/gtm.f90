@@ -136,7 +136,7 @@ program gtm
     n_var = 1   !todo::need to design a way to define n vars in input
     allocate(constituents(n_var))     
     constituents(1)%conc_no = 1
-    constituents(1)%name = "EC"
+    constituents(1)%name = "sed_sand"
         
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   

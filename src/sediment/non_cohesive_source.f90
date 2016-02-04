@@ -28,56 +28,49 @@ module non_cohesive_source
     contains 
     subroutine source_non_cohesive(vertical_flux,    &
                                    conc,             &
-                                   velocity,         &
+                                   flow,             &
                                    area,             &
-                                   !width,            &
-                                   !manning,          &
-                                   !diameter,         &
-                                   ncell,             &
+                                   width,            &
+                                   hydro_radius,     &
+                                   manning,          &
+                                   diameter,         &
+                                   ncell,            &
                                    nclass,           &
-                                   delta_b,          &
-                                   pick_up_flag,     &
-                                   dx,               &
-                                   dt,               &
-                                   time)
+                                   pick_up_flag)
 
         use gtm_precision 
-        !use suspended_sediment_variable
         use sediment_variables
         use suspended_utility
 
         implicit none
-        real(gtm_real),intent(out):: vertical_flux(ncell,nclass)    !< Vertical sediment net flux into the water column
-        real(gtm_real),intent(in) :: conc(ncell,nclass)             !< Concentration at new time
-        real(gtm_real),intent(in) :: velocity(ncell)                !< Velocity
-        real(gtm_real),intent(in) :: area(ncell)                    !< Area
-        !real(gtm_real),intent(in) :: width(ncell)                   !< Channel width
-        !real(gtm_real),intent(in) :: manning(ncell)                 !< Manning's n
-        !real(gtm_real),intent(in) :: diameter(nclass)              !< Diameters of non-cohesive paticles
-        real(gtm_real),intent(in) :: dx                             !< Grid size in space
-        real(gtm_real),intent(in) :: dt                             !< Step size in time
-        real(gtm_real),intent(in) :: time                           !< Current time
-        real(gtm_real),intent(in) :: delta_b                        !< Bed leyer relative tickness 
-        integer, intent(in)       :: ncell                          !< Number of cells 
-        integer, intent(in)       :: nclass                         !< Number of classes for non-cohesive sediment in suspension
-        character(len=32), optional, intent(in) :: pick_up_flag     !< Switch for sediment pickup function
+        real(gtm_real),intent(out):: vertical_flux(ncell,nclass)    !< vertical sediment net flux into the water column
+        real(gtm_real),intent(in) :: conc(ncell,nclass)             !< concentration at new time
+        real(gtm_real),intent(in) :: flow(ncell)                    !< flow
+        real(gtm_real),intent(in) :: area(ncell)                    !< area
+        real(gtm_real),intent(in) :: width(ncell)                   !< channel width
+        real(gtm_real),intent(in) :: hydro_radius(ncell)            !< hydraulic radius
+        real(gtm_real),intent(in) :: manning(ncell)                 !< Manning's n
+        real(gtm_real),intent(in) :: diameter(nclass)               !< diameter
+        integer, intent(in)       :: ncell                          !< number of cells 
+        integer, intent(in)       :: nclass                         !< number of classes for non-cohesive sediment in suspension
+        character(len=32), optional, intent(in) :: pick_up_flag     !< switch for sediment pickup function
 
         !---local
-        real(gtm_real) :: c_bar_bed(ncell,nclass)                   !< Near bed vaule of mean volumetric sediment concentration
-        real(gtm_real) :: fall_vel(nclass)                          !< Settling velocity         
+        real(gtm_real) :: velocity(ncell)                           !< flow velocity
+        real(gtm_real) :: c_bar_bed(ncell,nclass)                   !< near bed vaule of mean volumetric sediment concentration
+        real(gtm_real) :: fall_vel(nclass)                          !< settling velocity         
         real(gtm_real) :: rouse_num(ncell,nclass)                   !< Rouse dimensionless number  
-        real(gtm_real) :: specific_gravity                          !< Specific gravity
-        real(gtm_real) :: big_e_sub_s(ncell,nclass)                 !< Dimenssionless rate of entrainment of bed sediment into suspension  
-        real(gtm_real) :: shear_v(ncell)                            !< Shear velocity   
-        real(gtm_real) :: exp_re_p(nclass)                          !< Explicit particle reynolds number
-        real(gtm_real) :: capital_r                                 !< Submerged specific gravity of sediment particles     
-        real(gtm_real) :: hydr_radius(ncell)                        !< Hydraulic radius
-        real(gtm_real) :: I_1(ncell,nclass)                         !< First Einstein integral value   
-        integer :: iclass                                           !< Counter on grain class  
+        real(gtm_real) :: big_e_sub_s(ncell,nclass)                 !< dimenssionless rate of entrainment of bed sediment into suspension  
+        real(gtm_real) :: shear_v(ncell)                            !< shear velocity   
+        real(gtm_real) :: exp_re_p(nclass)                          !< explicit particle reynolds number  
+        real(gtm_real) :: I_1(ncell,nclass)                         !< first Einstein integral value   
+        integer :: iclass                                           !< counter on grain class  
          
         character :: pick_up_function 
         logical   :: function_van_rijn 
         logical   :: si_unit 
+
+        velocity = flow/area
 
         pick_up_function = 'garcia_parker'
 
@@ -85,36 +78,6 @@ module non_cohesive_source
             pick_up_function = pick_up_flag
         end if
 
-        !- initialization to LARGEREAL
-        call set_sediment_constants
-
-        ! allocate manning n + width and non_cohesive diameters
-        call allocate_sediment_parameters(ncell,nclass)
-
-        !- getting the values
-        ! todo: this must change to 3 subroutine for cohesive non-cohesive and bedload
-        call set_sediment_values(gravity,                 &                 
-                                 water_density,           &           
-                                 sediment_density,        &        
-                                 kappa,                   &                   
-                                 kinematic_viscosity,     &     
-                                 floc_density,            &            
-                                 cohesive_diameter,       &       
-                                 crit_stress_full_dep,    &    
-                                 density_wet_bulk,        &        
-                                 crit_stress_partial_dep, & 
-                                 crit_stress_surf_erosion,&
-                                 density_dry_bulk,        &        
-                                 ta_floc)  
-                         
-        specific_gravity  = sediment_density/water_density
-        !!------ set the values of manning's n, width and diameters of grains                     
-        !call set_manning_width_diameter(manning,      &
-        !                                width,        &
-        !                                diameter,     &
-        !                                nclass,       &
-        !                                ncell)
-                                
         ! here verfical_net_sediment_flux = settling_vel * (Es - c_bar_sub_b)
         call settling_velocity(fall_vel,             &
                                kinematic_viscosity,  &
@@ -123,11 +86,6 @@ module non_cohesive_source
                                gravity,              &
                                nclass,               &
                                function_van_rijn)
-                       
-        call submerged_specific_gravity(capital_r,            &
-                                        water_density,        &
-                                        sediment_density)
-
                        
         call explicit_particle_reynolds_number(exp_re_p,           &
                                                diameter,           &
@@ -140,9 +98,9 @@ module non_cohesive_source
                                        velocity,            &
                                        manning,             &
                                        gravity,             &
-                                       hydr_radius,         &
+                                       hydro_radius,        &
                                        ncell,               &
-                                       si_unit)
+                                       .true.)                !si_unit
                                                               
         !------Es                       
         call es_garcia_parker(big_e_sub_s,       &
@@ -169,10 +127,11 @@ module non_cohesive_source
 
         ! dimension of sediment vertical flux is area per time
         do iclass=1,nclass
-            vertical_flux(:,iclass) = width*fall_vel(iclass)*(big_e_sub_s(:,iclass) - c_bar_bed(:,iclass))
+            !vertical_flux(:,iclass) = width*fall_vel(iclass)*(big_e_sub_s(:,iclass) - c_bar_bed(:,iclass))
+            vertical_flux(:,iclass) = width*big_e_sub_s(:,iclass) - fall_vel(iclass)*c_bar_bed(:,iclass)
         end do  
    
-        call deallocate_sediment_static()
+        call deallocate_sediment_variables
 
     end subroutine 
 
