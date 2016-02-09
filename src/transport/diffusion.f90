@@ -49,7 +49,7 @@ module diffusion
     subroutine diffuse(conc,              &
                        conc_prev,         &
                        mass_prev,         &
-                       area,              &
+                       area,              &                       
                        area_prev,         &
                        area_lo,           &
                        area_hi,           &
@@ -77,8 +77,8 @@ module diffusion
 
         real(gtm_real), intent (out):: conc(ncell,nvar)              !< Concentration at new time
         real(gtm_real), intent (in) :: conc_prev(ncell,nvar)         !< Concentration at old time
-        real(gtm_real), intent (in) :: mass_prev(ncell,nvar)         !< mass from previous two steps
         real(gtm_real), intent (in) :: area (ncell)                  !< Cell-centered area at new time
+        real(gtm_real), intent (in) :: mass_prev(ncell)              !< mass from previous two steps
         real(gtm_real), intent (in) :: area_prev (ncell)             !< Cell-centered area at old time
         real(gtm_real), intent (in) :: area_lo (ncell)               !< Low side area centered in time
         real(gtm_real), intent (in) :: area_hi (ncell)               !< High side area centered in time 
@@ -125,8 +125,8 @@ module diffusion
                                          dt)
 
         call construct_right_hand_side(right_hand_side,       & 
-                                       explicit_diffuse_op,   &                                        
-                                       mass_prev,             &
+                                       explicit_diffuse_op,   & 
+                                       mass_prev,             &                                       
                                        area_lo_prev,          &
                                        area_hi_prev,          &
                                        disp_coef_lo_prev,     &
@@ -292,7 +292,7 @@ module diffusion
         end do 
         diffusive_flux_hi(ncell,:) = LARGEREAL
         diffusive_flux_lo(1,:) = LARGEREAL
-
+        
         call boundary_diffusion_flux(diffusive_flux_lo, &
                                      diffusive_flux_hi, &
                                      conc,              & 
@@ -307,7 +307,6 @@ module diffusion
                                      dt)
         return
     end subroutine 
-
 
     !> Construct the right hand side vector from previous step,
     !> and impose Neumann boundary condition on it.

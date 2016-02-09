@@ -98,25 +98,26 @@ module test_convergence_transport
         integer :: coarsening                           
         character(LEN=64)  ::  filename                                  
         character(LEN=256) ::  converge_message
-        logical, parameter :: limit_slope = .false.         !< Flag to switch on/off slope limiter  
-        real(gtm_real), allocatable :: solution_mass(:,:)   !< Mass in the exact solution
-        real(gtm_real), allocatable :: reference(:,:)       !< Reference values
-        real(gtm_real), allocatable :: x_center(:)          !< Location of the centers of cells
-        real(gtm_real), allocatable :: velocity (:)         !< Velocity
-        real(gtm_real), allocatable :: disp_coef_lo(:)      !< Low side constituent dispersion coef. at new time
-        real(gtm_real), allocatable :: disp_coef_hi(:)      !< High side constituent dispersion coef. at new time
-        real(gtm_real), allocatable :: disp_coef_lo_prev(:) !< Low side constituent dispersion coef. at old time
-        real(gtm_real) ,allocatable :: disp_coef_hi_prev(:) !< High side constituent dispersion coef. at old time
-        real(gtm_real), allocatable :: dx(:)                !< Coarse dx array
-        real(gtm_real) :: theta = half                      !< Crank-Nicolson implicitness coeficient
-        real(gtm_real) :: ratio                             !< Norms ratio
-        real(gtm_real) :: max_velocity                      !< Maximum Velocity
-        real(gtm_real) :: min_conc                          !< Minimum concentration   
-        real(gtm_real) :: fine_initial_mass(nx_base,nconc)  !< initial condition at finest resolution
-        real(gtm_real) :: fine_solution_mass(nx_base,nconc) !< reference solution at finest resolution
-        real(gtm_real) :: dt                                !< Time step in seconds
-        real(gtm_real) :: time                              !< Current time
-        real(gtm_real) :: norm_error(3,nrefine)             !< Norm of error
+        logical, parameter :: limit_slope = .false.             !< Flag to switch on/off slope limiter  
+        real(gtm_real), allocatable :: solution_mass(:,:)       !< Mass in the exact solution
+        real(gtm_real), allocatable :: reference(:,:)           !< Reference values
+        real(gtm_real), allocatable :: x_center(:)              !< Location of the centers of cells
+        real(gtm_real), allocatable :: velocity (:)             !< Velocity
+        real(gtm_real), allocatable :: disp_coef_lo(:)          !< Low side constituent dispersion coef. at new time
+        real(gtm_real), allocatable :: disp_coef_hi(:)          !< High side constituent dispersion coef. at new time
+        real(gtm_real), allocatable :: disp_coef_lo_prev(:)     !< Low side constituent dispersion coef. at old time
+        real(gtm_real) ,allocatable :: disp_coef_hi_prev(:)     !< High side constituent dispersion coef. at old time
+        real(gtm_real), allocatable :: dx(:)                    !< Coarse dx array
+        real(gtm_real), allocatable :: explicit_diffuse_op(:,:) !< Explicit diffuse operator        
+        real(gtm_real) :: theta = half                          !< Crank-Nicolson implicitness coeficient
+        real(gtm_real) :: ratio                                 !< Norms ratio
+        real(gtm_real) :: max_velocity                          !< Maximum Velocity
+        real(gtm_real) :: min_conc                              !< Minimum concentration   
+        real(gtm_real) :: fine_initial_mass(nx_base,nconc)      !< initial condition at finest resolution
+        real(gtm_real) :: fine_solution_mass(nx_base,nconc)     !< reference solution at finest resolution
+        real(gtm_real) :: dt                                    !< Time step in seconds
+        real(gtm_real) :: time                                  !< Current time
+        real(gtm_real) :: norm_error(3,nrefine)                 !< Norm of error
         integer :: i, j, k
         real(gtm_real) :: current_loc
 
@@ -152,6 +153,7 @@ module test_convergence_transport
             allocate(solution_mass(nx,nconc))
             allocate(velocity (nx))
             allocate(dx(nx))
+            allocate(explicit_diffuse_op(nx,nconc))
 
             allocate(disp_coef_lo(nx),      &
                      disp_coef_hi(nx),      &
@@ -205,8 +207,8 @@ module test_convergence_transport
                                      nx,                   &
                                      nconc) 
             else
-                disp_coef_lo = LARGEREAL
-                disp_coef_hi = LARGEREAL            
+                disp_coef_lo = zero !LARGEREAL
+                disp_coef_hi = zero !LARGEREAL            
             end if
             disp_coef_lo_prev = disp_coef_lo
             disp_coef_hi_prev = disp_coef_hi    
@@ -245,29 +247,19 @@ module test_convergence_transport
                if (maxval(abs(flow)/area) >=  max_velocity) then
                    max_velocity = maxval(abs(flow)/area)
                end if
-       
-               ! call advection and source
-               call advect(mass,               &
-                           mass_prev,          &  
-                           flow,               &
-                           flow_lo,            &
-                           flow_hi,            &
-                           area,               &
-                           area_prev,          &
-                           area_lo,            &
-                           area_hi,            &
-                           nx,                 &
-                           nconc,              &
-                           time,               &
-                           dt,                 &
-                           dx,                 &
-                           limit_slope)
 
-               call cons2prim(conc,mass,area,nx,nconc) 
-               conc_prev = conc
-               mass_prev = mass
-      
                if (use_diffusion()) then
+                   call explicit_diffusion_operator(explicit_diffuse_op,          &
+                                                    conc_prev,                    &
+                                                    area_lo_prev,                 &
+                                                    area_hi_prev,                 &
+                                                    disp_coef_lo_prev,            &  
+                                                    disp_coef_hi_prev,            &
+                                                    nx,                           &
+                                                    nconc,                        &
+                                                    time-dt,                         &
+                                                    dx,                           &
+                                                    dt)   
                    call dispersion_coef(disp_coef_lo,         &
                                         disp_coef_hi,         &
                                         flow,                 &
@@ -280,13 +272,38 @@ module test_convergence_transport
                                         dx,                   &
                                         dt,                   &
                                         nx,                   &
-                                        nconc)  
-                                        
+                                        nconc)
+               else
+                   explicit_diffuse_op = zero                       
+               end if
+                                               
+               ! call advection and source
+               call advect(mass,                &
+                           mass_prev,           &  
+                           flow,                &
+                           flow_lo,             &
+                           flow_hi,             &
+                           area,                &
+                           area_prev,           &
+                           area_lo,             &
+                           area_hi,             &
+                           explicit_diffuse_op, &                        
+                           nx,                  &
+                           nconc,               &
+                           time,                &
+                           dt,                  &
+                           dx,                  &
+                           limit_slope)
+
+               call cons2prim(conc,mass,area,nx,nconc) 
+               conc_prev = conc
+      
+               if (use_diffusion()) then                              
                     call diffuse(conc,              &
                                  conc_prev,         &
-                                 mass_prev,         &
-                                 area,              &
-                                 area_prev,         &
+                                 mass,              &                                
+                                 area,              &                               
+                                 area_prev,         &  
                                  area_lo,           &
                                  area_hi,           &
                                  area_lo_prev,      &
@@ -363,6 +380,7 @@ module test_convergence_transport
                        disp_coef_hi,      &
                        disp_coef_lo_prev, &
                        disp_coef_hi_prev)   
+            deallocate(explicit_diffuse_op)
             call deallocate_state
     
         end do

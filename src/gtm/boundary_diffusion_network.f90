@@ -301,9 +301,9 @@ module boundary_diffusion_network
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
-                       diffusive_flux_hi(icell,k) = diffusive_flux_lo(icell,k)
+                       diffusive_flux_hi(icell,k) = zero !diffusive_flux_lo(icell,k)
                    else                                         !cell at downstream of junction
-                       diffusive_flux_lo(icell,k) = diffusive_flux_hi(icell,k)
+                       diffusive_flux_lo(icell,k) = zero !diffusive_flux_hi(icell,k)
                    end if                           
                 end do                
             end if
@@ -324,6 +324,77 @@ module boundary_diffusion_network
         end do            
         return
     end subroutine
+
+
+    !> compute diffusive flux
+    subroutine compute_diffuse_network(diffusive_flux_lo, &
+                                       diffusive_flux_hi, &
+                                       conc,              &
+                                       area_lo,           &
+                                       area_hi,           &
+                                       disp_coef_lo,      &  
+                                       disp_coef_hi,      &
+                                       ncell,             &
+                                       nvar,              &
+                                       time,              &
+                                       dx,                &
+                                       dt)   
+        use gtm_precision
+        use common_variables, only : n_node, dsm2_network                
+        implicit none
+        !--- args
+        integer,intent(in)  :: ncell                                 !< Number of cells
+        integer,intent(in)  :: nvar                                  !< Number of variables        
+        real(gtm_real),intent(out) :: diffusive_flux_lo(ncell,nvar)  !< lo face diffusive flux at old time
+        real(gtm_real),intent(out) :: diffusive_flux_hi(ncell,nvar)  !< hi face diffusive flux at old time
+        real(gtm_real),intent(in) :: conc(ncell,nvar)                !< cell centered conc at old time
+        real(gtm_real),intent(in) :: area_lo(ncell)                  !< low face area at old time
+        real(gtm_real),intent(in) :: area_hi(ncell)                  !< high face area at old time
+        real(gtm_real),intent(in) :: disp_coef_lo(ncell)             !< low face disp coef at old time
+        real(gtm_real),intent(in) :: disp_coef_hi(ncell)             !< high face disp coef at old time
+        real(gtm_real),intent(in) :: time                            !< time
+        real(gtm_real),intent(in) :: dt                              !< length of current time step being advanced
+        real(gtm_real),intent(in) :: dx(ncell)                       !< spatial step
+        
+        !----- locals
+        integer :: i, j, k, icell, up_cell, down_cell
+        do k = 1, nvar
+          do i = 1, n_node
+            if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
+                icell = dsm2_network(i)%cell_no(1)               
+                if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
+                    diffusive_flux_lo(icell,:) = zero                         
+                else                                            ! downstream boundary
+                    diffusive_flux_hi(icell,k) = zero 
+                end if    
+            end if
+            if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
+                do j = 1, dsm2_network(i)%n_conn_cell
+                   icell = dsm2_network(i)%cell_no(j)
+                   if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
+                       diffusive_flux_hi(icell,k) = zero
+                   else                                         !cell at downstream of junction
+                       diffusive_flux_lo(icell,k) = zero
+                   end if                           
+                end do                
+            end if
+            if (dsm2_network(i)%nonsequential==1) then
+                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
+                    up_cell = dsm2_network(i)%cell_no(1)
+                    down_cell = dsm2_network(i)%cell_no(2)
+                else                                          !cell at downstream of junction
+                    up_cell = dsm2_network(i)%cell_no(2)
+                    down_cell = dsm2_network(i)%cell_no(1)
+                end if                                  
+                diffusive_flux_hi(up_cell,:) = -(area_hi(up_cell)*disp_coef_hi(up_cell)*       &
+                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+                diffusive_flux_lo(down_cell,k) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
+                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
+            end if
+          end do  
+        end do            
+        return       
+    end subroutine    
 
 
   !> Adjustments for network diffusion matrix

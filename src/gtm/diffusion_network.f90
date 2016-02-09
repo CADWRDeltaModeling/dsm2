@@ -120,7 +120,7 @@ module diffusion_network
                                          dx,                 &
                                          dt)
 
-        call construct_right_hand_side_0(right_hand_side,       & 
+        call construct_right_hand_side(right_hand_side,       & 
                                        explicit_diffuse_op,   & 
                                        mass,                  &
                                        area_lo_prev,          &

@@ -51,6 +51,7 @@ real(gtm_real)  :: dx(ncell)                                   !< Spatial step
 real(gtm_real)  :: dt                                          !< Time step                                   
 real(gtm_real)  :: diffusive_flux_boundary_lo (nvar)           !< Diffusive flux operator at low side 
 real(gtm_real)  :: diffusive_flux_boundary_hi (nvar)           !< Diffusive flux operator at high side 
+real(gtm_real)  :: mass_prev(ncell,nvar)
 
 
 conc_prev(:,1) = [300.0d0,305.0d0,320.0d0,330.0d0,340.0d0,350.0d0]
@@ -68,10 +69,11 @@ disp_coef_hi_prev(:,1) = [0.92d0,0.94d0,0.96d0,0.98d0,1.d0,1.02d0]
 time =LARGEREAL 
 
    !--theta =1 
+mass_prev(:,1) = area_prev(:)*conc_prev(:,1)
    
 call construct_right_hand_side(right_hand_side,       & 
-                               explicit_diffuse_op,   & 
-                               area_prev,             &
+                               explicit_diffuse_op,   &                                
+                               mass_prev,             &
                                area_lo_prev,          &
                                area_hi_prev,          &
                                disp_coef_lo_prev,     &
@@ -93,7 +95,7 @@ call construct_right_hand_side(right_hand_side,       &
    
 call construct_right_hand_side(right_hand_side,       & 
                                explicit_diffuse_op,   & 
-                               area_prev,             &
+                               mass_prev,             &
                                area_lo_prev,          &
                                area_hi_prev,          &
                                disp_coef_lo_prev,     &
@@ -115,7 +117,7 @@ call construct_right_hand_side(right_hand_side,       &
    
 call construct_right_hand_side(right_hand_side,       & 
                                explicit_diffuse_op,   & 
-                               area_prev,             &
+                               mass_prev,             &
                                area_lo_prev,          &
                                area_hi_prev,          &
                                disp_coef_lo_prev,     &

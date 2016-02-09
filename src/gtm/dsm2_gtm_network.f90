@@ -23,7 +23,7 @@
 !>@ingroup gtm_driver
 module dsm2_gtm_network
 
-    contains
+    contains  
 
     !> Calculate the divided lo, hi, and centered differences. 
     !> This has adjustments for non-sequential cells.
@@ -67,10 +67,10 @@ module dsm2_gtm_network
             ! using the one for single channel.
             do i = 1, n_node
                 if (dsm2_network(i)%nonsequential.eq.1) then
-                    if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
+                    if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of node
                         up_cell = dsm2_network(i)%cell_no(1)
                         down_cell = dsm2_network(i)%cell_no(2)
-                    else                                          !cell at downstream of junction
+                    else                                          !cell at downstream of node
                         up_cell = dsm2_network(i)%cell_no(2)
                         down_cell = dsm2_network(i)%cell_no(1)
                     end if               
@@ -146,8 +146,7 @@ module dsm2_gtm_network
                 else                                         ! downstream boundary
                     grad(icell,:) = grad_lo(icell,:)
                 end if              
-            ! assign gradient for cells around junction to be zero--> first order accuracy
-            ! but this may run into issue of smoothing two close signals (delta uniform flow case)                
+            ! adjust gradient for cells around junctions         
             elseif ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
@@ -281,7 +280,7 @@ module dsm2_gtm_network
                         elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,1).eq.0)) then !drain but node concentration is absent
                             mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))                            
-                            write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                            !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                         else     ! seepage and diversion
                             mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j)) 

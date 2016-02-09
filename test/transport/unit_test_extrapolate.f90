@@ -43,6 +43,7 @@ real(gtm_real) :: conc(nx,nconst)     !< Concentration in the center of cell
 real(gtm_real) :: conc_hi(nx,nconst)  !< Concentration on the high side of cell
 real(gtm_real) :: conc_lo(nx,nconst)  !< Concentration on the low side of cell
 real(gtm_real) :: source(nx,nconst)   !< Source value (decay or increase)
+real(gtm_real) :: diffuse(nx,nconst)  !< Diffuse value
 
 real(gtm_real) :: flow(nx)            !< Flow 
 real(gtm_real) :: area(nx)            !< Area
@@ -64,6 +65,7 @@ real(gtm_real) :: time                !< Currrent time
   grad(2,2)=-1.5d0
   grad(3,2)=-2.d0
   
+  diffuse = 0.d0
   source  =  0.d0
   flow(1) =  8.d0
   flow(2) =  zero
@@ -77,6 +79,7 @@ real(gtm_real) :: time                !< Currrent time
                    conc_hi,  &
                    conc,     &
                    grad,     &
+                   diffuse,  &
                    source,   &
                    flow,     &  
                    area,     &

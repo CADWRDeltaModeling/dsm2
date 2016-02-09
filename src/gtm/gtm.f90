@@ -70,6 +70,7 @@ program gtm
     real(gtm_real), allocatable :: disp_coef_hi(:)           !< High side constituent dispersion coef. at new time
     real(gtm_real), allocatable :: disp_coef_lo_prev(:)      !< Low side constituent dispersion coef. at old time
     real(gtm_real), allocatable :: disp_coef_hi_prev(:)      !< High side constituent dispersion coef. at old time
+    real(gtm_real), allocatable :: explicit_diffuse_op(:,:)   
     real(gtm_real), allocatable :: init_c(:,:)
     real(gtm_real), allocatable :: init_r(:,:)   
      
@@ -136,7 +137,7 @@ program gtm
     n_var = 1   !todo::need to design a way to define n vars in input
     allocate(constituents(n_var))     
     constituents(1)%conc_no = 1
-    constituents(1)%name = "sed_sand"
+    constituents(1)%name = "EC" !"sed_sand"
         
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
@@ -180,6 +181,7 @@ program gtm
     call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_node, n_var)
     allocate(init_c(n_cell,n_var))
     allocate(init_r(n_resv,n_var))
+    allocate(explicit_diffuse_op(n_cell,n_var))
     allocate(linear_decay(n_var))
     allocate(cfl(n_cell))    
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
@@ -216,9 +218,6 @@ program gtm
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
     boundary_diffusion_network_matrix => network_diffusion_sparse_matrix_zero_at_junctions
-    
-    !boundary_diffusion_flux => neumann_zero_diffusive_flux
-    !boundary_diffusion_matrix => neumann_zero_diffusion_matrix
     
     call set_dispersion_arr(disp_arr, n_cell)
     write(*,*) "Process time series...."
@@ -265,8 +264,8 @@ program gtm
         call klu_fortran_free_numeric(k_numeric, k_common)
         k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)                                
     else
-        disp_coef_lo = LARGEREAL
-        disp_coef_hi = LARGEREAL            
+        disp_coef_lo = zero !LARGEREAL
+        disp_coef_hi = zero !LARGEREAL            
     end if
     disp_coef_lo_prev = disp_coef_lo
     disp_coef_hi_prev = disp_coef_hi
@@ -408,6 +407,23 @@ program gtm
             end if
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
             
+            if (apply_diffusion) then
+                boundary_diffusion_flux => compute_diffuse_network
+                call explicit_diffusion_operator(explicit_diffuse_op,          &
+                                                 conc_prev,                    &
+                                                 area_lo_prev,                 &
+                                                 area_hi_prev,                 &
+                                                 disp_coef_lo_prev,            &  
+                                                 disp_coef_hi_prev,            &
+                                                 n_cell,                       &
+                                                 n_var,                        &
+                                                 dble(new_current_time)*sixty, &
+                                                 dx_arr,                       &
+                                                 sub_gtm_time_step*sixty)
+            else 
+                explicit_diffuse_op = zero
+            end if    
+            
             !----- advection and source/sink -----        
             call advect_network(mass,                         &
                                 mass_prev,                    &  
@@ -418,6 +434,7 @@ program gtm
                                 area_prev,                    & 
                                 area_lo,                      &
                                 area_hi,                      &
+                                explicit_diffuse_op,          &                             
                                 n_cell,                       &
                                 n_var,                        &
                                 dble(new_current_time)*sixty, &
@@ -429,6 +446,7 @@ program gtm
 
             !--------- Diffusion ----------
             if (apply_diffusion) then
+                boundary_diffusion_flux => network_boundary_diffusive_flux            
                 call dispersion_coef(disp_coef_lo,                 &
                                      disp_coef_hi,                 &
                                      flow,                         &

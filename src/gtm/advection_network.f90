@@ -49,6 +49,7 @@ module advection_network
                               area_prev,            & 
                               area_lo,              &
                               area_hi,              &
+                              explicit_diffuse_op,  &                                   
                               ncell,                &
                               nvar,                 &
                               time,                 &
@@ -69,38 +70,40 @@ module advection_network
         implicit none
  
         !--- args
-        integer, intent(in) :: ncell                         !< Number of cells
-        integer, intent(in) :: nvar                          !< Number of variables
-        real(gtm_real), intent(out) :: mass(ncell,nvar)      !< mass at new time
-        real(gtm_real), intent(in)  :: mass_prev(ncell,nvar) !< mass at old time
-        real(gtm_real), intent(in)  :: flow_prev(ncell)      !< cell-centered flow, old time
-        real(gtm_real), intent(in)  :: flow_lo(ncell)        !< flow on lo side of cells centered in time
-        real(gtm_real), intent(in)  :: flow_hi(ncell)        !< flow on hi side of cells centered in time
-        real(gtm_real), intent(in)  :: area_prev(ncell)      !< cell-centered area at old time. not used in algorithm?
-        real(gtm_real), intent(in)  :: area(ncell)           !< cell-centered area at new time. not used in algorithm?
-        real(gtm_real), intent(in)  :: area_lo(ncell)        !< lo side area (todo: at new time?)
-        real(gtm_real), intent(in)  :: area_hi(ncell)        !< hi side area (todo: at new time?
-        real(gtm_real), intent(in)  :: time                  !< new time
-        real(gtm_real), intent(in)  :: dt                    !< current time step from old time to new time
-        real(gtm_real), intent(in)  :: dx(ncell)             !< spatial step
-        logical, intent(in), optional :: use_limiter         !< whether to use slope limiter
+        integer, intent(in) :: ncell                                   !< Number of cells
+        integer, intent(in) :: nvar                                    !< Number of variables
+        real(gtm_real), intent(out) :: mass(ncell,nvar)                !< mass at new time
+        real(gtm_real), intent(in)  :: mass_prev(ncell,nvar)           !< mass at old time
+        real(gtm_real), intent(in)  :: flow_prev(ncell)                !< cell-centered flow, old time
+        real(gtm_real), intent(in)  :: flow_lo(ncell)                  !< flow on lo side of cells centered in time
+        real(gtm_real), intent(in)  :: flow_hi(ncell)                  !< flow on hi side of cells centered in time
+        real(gtm_real), intent(in)  :: area_prev(ncell)                !< cell-centered area at old time. not used in algorithm?
+        real(gtm_real), intent(in)  :: area(ncell)                     !< cell-centered area at new time. not used in algorithm?
+        real(gtm_real), intent(in)  :: area_lo(ncell)                  !< lo side area (todo: at new time?)
+        real(gtm_real), intent(in)  :: area_hi(ncell)                  !< hi side area (todo: at new time?)
+        real(gtm_real), intent(in)  :: explicit_diffuse_op(ncell,nvar) !< lo face area at old time         
+        real(gtm_real), intent(in)  :: time                            !< new time
+        real(gtm_real), intent(in)  :: dt                              !< current time step from old time to new time
+        real(gtm_real), intent(in)  :: dx(ncell)                       !< spatial step
+        logical, intent(in), optional :: use_limiter                   !< whether to use slope limiter
         
         !-----locals
-        real(gtm_real) :: source_prev(ncell,nvar)            !< cell centered source at old time
-        real(gtm_real) :: conc_prev(ncell,nvar)              !< cell centered concentration at old time
-        real(gtm_real) :: conc_lo(ncell,nvar)                !< concentration extrapolated to lo face at half time
-        real(gtm_real) :: conc_hi(ncell,nvar)                !< concentration extrapolated to hi face at half time
-        real(gtm_real) :: grad_lo(ncell,nvar)                !< gradient based on lo side difference
-        real(gtm_real) :: grad_hi(ncell,nvar)                !< gradient based on hi side difference
-        real(gtm_real) :: grad_center(ncell,nvar)            !< cell centered difference
-        real(gtm_real) :: grad_lim(ncell,nvar)               !< limited cell centered difference
-        real(gtm_real) :: grad(ncell,nvar)                   !< cell centered difference adujsted for boundaries and hydraulic devices
-        real(gtm_real) :: flux_lo(ncell,nvar)                !< flux on lo side of cell, time centered
-        real(gtm_real) :: flux_hi(ncell,nvar)                !< flux on hi side of cell, time centered
-        real(gtm_real) :: div_flux(ncell,nvar)               !< cell centered flux divergence, time centered
-        logical        :: limit_slope                        !< whether slope limiter is used
-        real(gtm_real) :: old_time                           !< previous time
-        real(gtm_real) :: half_time                          !< half time
+        real(gtm_real) :: diffuse_prev(ncell,nvar)                     !< cell centered diffuse at old time
+        real(gtm_real) :: source_prev(ncell,nvar)                      !< cell centered source at old time
+        real(gtm_real) :: conc_prev(ncell,nvar)                        !< cell centered concentration at old time
+        real(gtm_real) :: conc_lo(ncell,nvar)                          !< concentration extrapolated to lo face at half time
+        real(gtm_real) :: conc_hi(ncell,nvar)                          !< concentration extrapolated to hi face at half time
+        real(gtm_real) :: grad_lo(ncell,nvar)                          !< gradient based on lo side difference
+        real(gtm_real) :: grad_hi(ncell,nvar)                          !< gradient based on hi side difference
+        real(gtm_real) :: grad_center(ncell,nvar)                      !< cell centered difference
+        real(gtm_real) :: grad_lim(ncell,nvar)                         !< limited cell centered difference
+        real(gtm_real) :: grad(ncell,nvar)                             !< cell centered difference adujsted for boundaries and hydraulic devices
+        real(gtm_real) :: flux_lo(ncell,nvar)                          !< flux on lo side of cell, time centered
+        real(gtm_real) :: flux_hi(ncell,nvar)                          !< flux on hi side of cell, time centered
+        real(gtm_real) :: div_flux(ncell,nvar)                         !< cell centered flux divergence, time centered
+        logical        :: limit_slope                                  !< whether slope limiter is used
+        real(gtm_real) :: old_time                                     !< previous time
+        real(gtm_real) :: half_time                                    !< half time
         integer :: i, j, icell
 
         old_time = time - dt
@@ -163,17 +166,18 @@ module advection_network
                             old_time)                          
              
         ! Extrapolate primitive data from cell center at the old time
-        call extrapolate(conc_lo,     &
-                         conc_hi,     & 
-                         conc_prev,   &
-                         grad,        &            
-                         source_prev, &
-                         flow_prev,   &  
-                         area_prev,   &
-                         ncell,       &
-                         nvar,        &
-                         time,        &
-                         dt,          &
+        call extrapolate(conc_lo,             &
+                         conc_hi,             & 
+                         conc_prev,           &
+                         grad,                &       
+                         explicit_diffuse_op, &     
+                         source_prev,         &
+                         flow_prev,           &  
+                         area_prev,           &
+                         ncell,               &
+                         nvar,                &
+                         time,                &
+                         dt,                  &
                          dx)
                          
         ! Assign boundary concentration if it is given
@@ -239,16 +243,17 @@ module advection_network
                                 nvar)
 
         ! Conservative update including source. 
-        call update_conservative(mass,        &
-                                 mass_prev,   &
-                                 div_flux,    &
-                                 source_prev, & 
-                                 area,        &
-                                 area_prev,   &                         
-                                 ncell,       &
-                                 nvar,        &
-                                 time,        &
-                                 dt,          &
+        call update_conservative(mass,                &
+                                 mass_prev,           &
+                                 div_flux,            &
+                                 explicit_diffuse_op, &
+                                 source_prev,         & 
+                                 area,                &
+                                 area_prev,           &                         
+                                 ncell,               &
+                                 nvar,                &
+                                 time,                &
+                                 dt,                  &
                                  dx)                        
          return
     end subroutine    

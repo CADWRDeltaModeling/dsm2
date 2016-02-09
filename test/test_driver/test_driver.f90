@@ -119,10 +119,11 @@ program test_driver
     call test_hdf_util                                   ! test hdf_util()
     call test_interpolation                              ! test interpolation schemes
     call test_gtm_network                                ! test creating GTM network   
-         
+          
     !----- function calls to test units in project transport ----- 
     call change_working_dir(parent_dir, "/transport_unit_test_out")
-        !----- Advection unit tests
+    
+    !----- Advection unit tests
     call test_gradient_calc
     call test_limiter
     call test_prim_cons_convert
@@ -136,8 +137,7 @@ program test_driver
     call test_converge_transport_uniform(verbose)
     call test_converge_transport_uniform_vary_dx(verbose)
     call test_converge_uniform_bidirectional(verbose)
-    
-    !----- Diffusion unit tests
+        !----- Diffusion unit tests
     call test_tridi_solver
     call test_boundary_diffusion_flux
     call test_make_dif_flux_sub

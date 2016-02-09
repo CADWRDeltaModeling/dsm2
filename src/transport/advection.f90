@@ -49,6 +49,7 @@ module advection
                       area_prev,            & 
                       area_lo,              &
                       area_hi,              &
+                      explicit_diffuse_op,  &                      
                       ncell,                &
                       nvar,                 &
                       time,                 &
@@ -87,27 +88,29 @@ module advection
         ! todo: should we separate hydro_if for centered and face data?
         real(gtm_real),intent(in)  :: area_lo(ncell)                  !< lo side area (todo: at new time?)
         real(gtm_real),intent(in)  :: area_hi(ncell)                  !< hi side area (todo: at new time?
+        real(gtm_real),intent(in)  :: explicit_diffuse_op(ncell,nvar) !< explicit diffuse operator
         real(gtm_real),intent(in)  :: time                            !< new time
         real(gtm_real),intent(in)  :: dt                              !< current time step from old time to new time
         real(gtm_real),intent(in)  :: dx(ncell)                       !< spatial step
         logical,intent(in),optional :: use_limiter                    !< whether to use slope limiter
         
         !-----locals
-        real(gtm_real) :: source_prev(ncell,nvar) !< cell centered source at old time
-        real(gtm_real) :: conc_prev(ncell,nvar)   !< cell centered concentration at old time
-        real(gtm_real) :: conc_lo(ncell,nvar)     !< concentration extrapolated to lo face at half time
-        real(gtm_real) :: conc_hi(ncell,nvar)     !< concentration extrapolated to hi face at half time
-        real(gtm_real) :: grad_lo(ncell,nvar)     !< gradient based on lo side difference
-        real(gtm_real) :: grad_hi(ncell,nvar)     !< gradient based on hi side difference
-        real(gtm_real) :: grad_center(ncell,nvar) !< cell centered difference
-        real(gtm_real) :: grad_lim(ncell,nvar)    !< limited cell centered difference
-        real(gtm_real) :: grad(ncell,nvar)        !< cell centered difference adujsted for boundaries and hydraulic devices
-        real(gtm_real) :: flux_lo(ncell,nvar)     !< flux on lo side of cell, time centered
-        real(gtm_real) :: flux_hi(ncell,nvar)     !< flux on hi side of cell, time centered
-        real(gtm_real) :: div_flux(ncell,nvar)    !< cell centered flux divergence, time centered
-        logical        :: limit_slope             !< whether slope limiter is used
-        real(gtm_real) :: old_time                !< previous time
-        real(gtm_real) :: half_time               !< half time
+        real(gtm_real) :: source_prev(ncell,nvar)  !< cell centered source at old time
+        real(gtm_real) :: diffuse_prev(ncell,nvar) !< cell centered diffuse at old time
+        real(gtm_real) :: conc_prev(ncell,nvar)    !< cell centered concentration at old time
+        real(gtm_real) :: conc_lo(ncell,nvar)      !< concentration extrapolated to lo face at half time
+        real(gtm_real) :: conc_hi(ncell,nvar)      !< concentration extrapolated to hi face at half time
+        real(gtm_real) :: grad_lo(ncell,nvar)      !< gradient based on lo side difference
+        real(gtm_real) :: grad_hi(ncell,nvar)      !< gradient based on hi side difference
+        real(gtm_real) :: grad_center(ncell,nvar)  !< cell centered difference
+        real(gtm_real) :: grad_lim(ncell,nvar)     !< limited cell centered difference
+        real(gtm_real) :: grad(ncell,nvar)         !< cell centered difference adujsted for boundaries and hydraulic devices
+        real(gtm_real) :: flux_lo(ncell,nvar)      !< flux on lo side of cell, time centered
+        real(gtm_real) :: flux_hi(ncell,nvar)      !< flux on hi side of cell, time centered
+        real(gtm_real) :: div_flux(ncell,nvar)     !< cell centered flux divergence, time centered
+        logical        :: limit_slope              !< whether slope limiter is used
+        real(gtm_real) :: old_time                 !< previous time
+        real(gtm_real) :: half_time                !< half time
         integer :: i, icell
 
         old_time = time - dt
@@ -167,20 +170,21 @@ module advection
                             flow_prev,   &
                             ncell,       &
                             nvar,        &
-                            old_time)
+                            old_time)  
                             
         ! Extrapolate primitive data from cell center at the old time
-        call extrapolate(conc_lo,     &
-                         conc_hi,     & 
-                         conc_prev,   &
-                         grad,        &            
-                         source_prev, &
-                         flow_prev,   &  
-                         area_prev,   &
-                         ncell,       &
-                         nvar,        &
-                         time,        &
-                         dt,          &
+        call extrapolate(conc_lo,             &
+                         conc_hi,             & 
+                         conc_prev,           &
+                         grad,                &
+                         explicit_diffuse_op, &            
+                         source_prev,         &
+                         flow_prev,           &  
+                         area_prev,           &
+                         ncell,               &
+                         nvar,                &
+                         time,                &
+                         dt,                  &
                          dx)
                          
         ! Assign boundary concentration if it is given
@@ -240,63 +244,126 @@ module advection
                                 nvar)
                                     
         !Conservative update including source. 
-        call update_conservative(mass,        &
-                                 mass_prev,   &
-                                 div_flux,    &
-                                 source_prev, & 
-                                 area,        &
-                                 area_prev,   &                         
-                                 ncell,       &
-                                 nvar,        &
-                                 time,        &
-                                 dt,          &
+        call update_conservative(mass,                &
+                                 mass_prev,           &
+                                 div_flux,            &
+                                 explicit_diffuse_op, &
+                                 source_prev,         & 
+                                 area,                &
+                                 area_prev,           &                         
+                                 ncell,               &
+                                 nvar,                &
+                                 time,                &
+                                 dt,                  &
                                  dx)
          return
     end subroutine
 
 
+    !> 
+    subroutine compute_diffuse(diffuse,      &
+                               conc,         & 
+                               area_lo,      &
+                               area_hi,      &
+                               disp_lo,      &
+                               disp_hi,      &                         
+                               ncell,        &
+                               nvar,         &
+                               time,         &
+                               dt,           &
+                               dx)    
+        use gtm_precision
+        use boundary_diffusion
+        !use single_channel_boundary
+        implicit none
+        !--- args
+        integer,intent(in)  :: ncell                       !< Number of cells
+        integer,intent(in)  :: nvar                        !< Number of variables        
+        real(gtm_real),intent(out) :: diffuse(ncell,nvar)  !< diffuse at old time
+        real(gtm_real),intent(in) :: conc(ncell,nvar)      !< cell centered conc at old time
+        real(gtm_real),intent(in) :: area_lo(ncell)        !< low face area at old time
+        real(gtm_real),intent(in) :: area_hi(ncell)        !< high face area at old time
+        real(gtm_real),intent(in) :: disp_lo(ncell)   !< low face disp coef at old time
+        real(gtm_real),intent(in) :: disp_hi(ncell)   !< high face disp coef at old time
+        real(gtm_real),intent(in) :: time                  !< time
+        real(gtm_real),intent(in) :: dt                    !< length of current time step being advanced
+        real(gtm_real),intent(in) :: dx(ncell)             !< spatial step
+        
+        !----- locals
+        integer :: i, ivar
+        real(gtm_real) :: bc_data(nvar)
+        real(gtm_real) :: base_domain_length, domain_length, diffuse_start_t, ic_center
+        
+        do ivar = 1,nvar
+            do i = 2, ncell-1
+                diffuse(i,ivar) = disp_hi(i)*area_hi(i)*(conc(i+1,ivar)-conc(i,ivar))/(half*dx(i+1)+half*dx(i))/dx(i) &
+                                 -disp_lo(i)*area_lo(i)*(conc(i,ivar)-conc(i-1,ivar))/(half*dx(i)+half*dx(i-1))/dx(i)
+            end do       
+            if (disp_lo(1).gt.zero)then
+                base_domain_length= 25600.d0
+                ic_center =base_domain_length/three
+                diffuse_start_t = (base_domain_length/32.d0)**two/(disp_lo(1)*two)
+                call gaussian_(bc_data(ivar),zero,ic_center+0.6d0*time,dsqrt(two*disp_lo(1)*(diffuse_start_t+time-dt)),dsqrt(diffuse_start_t/(diffuse_start_t+time-dt)))
+                !bc_data = conc(1,:)+half*(conc(2,:)-conc(1,:))
+                !if (bc_data(ivar).lt.zero) bc_data(ivar)=conc(1,ivar)
+                diffuse(1,ivar) = disp_hi(1)*area_hi(1)*(conc(2,ivar)-conc(1,ivar))/(half*dx(2)+half*dx(1))/dx(1) &
+                             -disp_lo(1)*area_lo(1)*(conc(1,ivar)-bc_data(ivar))/(half*dx(1))/dx(1)
+                bc_data = conc(ncell,:)+half*(conc(ncell,:)-conc(ncell-1,:))            
+                diffuse(ncell,ivar) = disp_hi(ncell)*area_hi(ncell)*(bc_data(ivar)-conc(ncell,ivar))/(half*dx(ncell))/dx(ncell) &    
+                                 -disp_lo(ncell)*area_lo(ncell)*(conc(ncell,ivar)-conc(ncell-1,ivar))/(half*dx(ncell)+half*dx(ncell-1))/dx(ncell)
+            else
+                diffuse(1,ivar) = disp_hi(1)*area_hi(1)*(conc(2,ivar)-conc(1,ivar))/(half*dx(2)+half*dx(1))/dx(1)
+                diffuse(ncell,ivar) = -disp_lo(ncell)*area_lo(ncell)*(conc(ncell,ivar)-conc(ncell-1,ivar))/(half*dx(ncell)+half*dx(ncell-1))/dx(ncell)                            
+            end if                                 
+        end do    
+        return       
+    end subroutine                  
+                             
+
     !> Extrapolate primitive data from cell center at the old time
     !> to cell edges at the half time. The extrapolation is done by 
     !> a Taylor series in time and space in which an explicit discretization
     !> of the PDE is used to represent the time part.
-    pure subroutine extrapolate(conc_lo,  &
-                                conc_hi,  &
-                                conc,     &
-                                grad,     &
-                                source,   &                       
-                                flow,     &  
-                                area,     &
-                                ncell,    &
-                                nvar,     &
-                                time,     &
-                                dt,       &
+    pure subroutine extrapolate(conc_lo,             &
+                                conc_hi,             &
+                                conc,                &
+                                grad,                &
+                                explicit_diffuse_op, &
+                                source,              &                       
+                                flow,                &  
+                                area,                &
+                                ncell,               &
+                                nvar,                &
+                                time,                &
+                                dt,                  &
                                 dx)
         use gtm_precision
         implicit none
         !--- args
-        integer,intent(in)  :: ncell                     !< Number of cells
-        integer,intent(in)  :: nvar                      !< Number of variables
-        real(gtm_real),intent(out):: conc_lo(ncell,nvar) !< estimate from this cell extrapolated to lo face at half time
-        real(gtm_real),intent(out):: conc_hi(ncell,nvar) !< estimate from this cell extrapolated to hi face at half time
-        real(gtm_real),intent(in) :: conc(ncell,nvar)    !< cell centered conc at old time
-        real(gtm_real),intent(in) :: grad(ncell,nvar)    !< cell centered difference of conc at old time, currently assuming these are undivided differences
-        real(gtm_real),intent(in) :: area(ncell)         !< cell-centered area at old time
-        real(gtm_real),intent(in) :: flow(ncell)         !< cell-centered flow at old time
-        real(gtm_real),intent(in) :: source(ncell,nvar)  !< source terms at old time
-        real(gtm_real),intent(in) :: time                !< time
-        real(gtm_real),intent(in) :: dt                  !< length of current time step being advanced
-        real(gtm_real),intent(in) :: dx(ncell)           !< spatial step
+        integer,intent(in)  :: ncell                                 !< Number of cells
+        integer,intent(in)  :: nvar                                  !< Number of variables
+        real(gtm_real),intent(out):: conc_lo(ncell,nvar)             !< estimate from this cell extrapolated to lo face at half time
+        real(gtm_real),intent(out):: conc_hi(ncell,nvar)             !< estimate from this cell extrapolated to hi face at half time
+        real(gtm_real),intent(in) :: conc(ncell,nvar)                !< cell centered conc at old time
+        real(gtm_real),intent(in) :: grad(ncell,nvar)                !< cell centered difference of conc at old time, currently assuming these are undivided differences
+        real(gtm_real),intent(in) :: area(ncell)                     !< cell-centered area at old time
+        real(gtm_real),intent(in) :: flow(ncell)                     !< cell-centered flow at old time
+        real(gtm_real),intent(in) :: explicit_diffuse_op(ncell,nvar) !< diffuse terms at old time
+        real(gtm_real),intent(in) :: source(ncell,nvar)              !< source terms at old time
+        real(gtm_real),intent(in) :: time                            !< time
+        real(gtm_real),intent(in) :: dt                              !< length of current time step being advanced
+        real(gtm_real),intent(in) :: dx(ncell)                       !< spatial step
         !----- locals
         integer        :: ivar
-        real(gtm_real) :: vel(ncell)                     !< cell-centered flow at old time - todo: velocity or flow?
+        real(gtm_real) :: vel(ncell)                                 !< cell-centered flow at old time - todo: velocity or flow?
         !--------------------
         vel = flow/area
-
+        
         do ivar = 1,nvar
             ! todo: make sure source is in terms of primitive variables
             ! todo: this only works if I disable extrapolation (first order Godunov)
-            conc_lo(:,ivar) = conc(:,ivar) + half*(-grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar))
-            conc_hi(:,ivar) = conc(:,ivar) + half*( grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar))
+            conc_lo(:,ivar) = conc(:,ivar) + half*(-grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) - dt*explicit_diffuse_op(:,ivar)/area(:))
+            conc_hi(:,ivar) = conc(:,ivar) + half*( grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) - dt*explicit_diffuse_op(:,ivar)/area(:))
         end do
 
         return
@@ -377,16 +444,17 @@ module advection
 
     !> Update the conservative variables using divergence of fluxes and integrate the
     !> source term using Heun's method
-    subroutine update_conservative(mass,       &
-                                   mass_prev,  &
-                                   div_flux,   &
-                                   source_prev,&
-                                   area,       &
-                                   area_prev,  &                               
-                                   ncell,      &
-                                   nvar,       &
-                                   time,       &
-                                   dt,         &
+    subroutine update_conservative(mass,                &
+                                   mass_prev,           &
+                                   div_flux,            &
+                                   explicit_diffuse_op, &
+                                   source_prev,         &
+                                   area,                &
+                                   area_prev,           &                               
+                                   ncell,               &
+                                   nvar,                &
+                                   time,                &
+                                   dt,                  &
                                    dx)      
         use gtm_precision
         use primitive_variable_conversion
@@ -394,24 +462,24 @@ module advection
 
         implicit none
         !--- args
-        integer,intent(in)  :: ncell                         !< Number of cells
-        integer,intent(in)  :: nvar                          !< Number of variables
-
-        real(gtm_real),intent(out) :: mass(ncell,nvar)       !< Update of mass
-        real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)  !< Old time mass
-        real(gtm_real),intent(in)  :: area(ncell)            !< Area of cells
-        real(gtm_real),intent(in)  :: area_prev(ncell)       !< Area of cells at old time step
-        real(gtm_real),intent(in)  :: source_prev(ncell,nvar)!< Old time source term
-        real(gtm_real),intent(in)  :: div_flux(ncell,nvar)   !< Flux divergence, time centered
-        real(gtm_real),intent(in)  :: time                   !< Current (new) time
-        real(gtm_real),intent(in)  :: dt                     !< Length of current time step
-        real(gtm_real),intent(in)  :: dx(ncell)              !< Spatial step
+        integer,intent(in)  :: ncell                                 !< Number of cells
+        integer,intent(in)  :: nvar                                  !< Number of variables
+        real(gtm_real),intent(out) :: mass(ncell,nvar)               !< Update of mass
+        real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)          !< Old time mass
+        real(gtm_real),intent(in)  :: area(ncell)                    !< Area of cells
+        real(gtm_real),intent(in)  :: area_prev(ncell)               !< Area of cells at old time step
+        real(gtm_real),intent(in)  :: explicit_diffuse_op(ncell,nvar)!< Old time diffuse term
+        real(gtm_real),intent(in)  :: source_prev(ncell,nvar)        !< Old time source term
+        real(gtm_real),intent(in)  :: div_flux(ncell,nvar)           !< Flux divergence, time centered
+        real(gtm_real),intent(in)  :: time                           !< Current (new) time
+        real(gtm_real),intent(in)  :: dt                             !< Length of current time step
+        real(gtm_real),intent(in)  :: dx(ncell)                      !< Spatial step
 
         !--- locals
         real(gtm_real) :: dtbydx(ncell)
-        real(gtm_real) :: source(ncell,nvar)                 !< New time source term
-        real(gtm_real) :: conc(ncell,nvar)                   !< Concentration
-        real(gtm_real) :: flow(ncell)                        !< Cell centered flow 
+        real(gtm_real) :: source(ncell,nvar)                         !< New time source term
+        real(gtm_real) :: conc(ncell,nvar)                           !< Concentration
+        real(gtm_real) :: flow(ncell)                                !< Cell centered flow 
         integer :: ivar
         !--------------------
         dtbydx = dt/dx
@@ -425,7 +493,7 @@ module advection
        ! obtain a guess at the new state (predictor part of Huen) using the flux divergence and source evaluated at the
        ! old time step
        do ivar=1,nvar
-           mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev
+           mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev - dt*explicit_diffuse_op(:,ivar)
        end do
        
        ! compute the source at the new time from the predictor
@@ -453,5 +521,23 @@ module advection
        end do    
        return
     end subroutine
-
+!> Compute a point value of a gaussian function 
+!> f(x) = a*exp(-(x-b)^2/(2c^2)) , [c is sigma]   
+!> where a is a scale factor, b is the center/mean and 
+!> is a distance/standard deviation
+subroutine gaussian_(val,xposition,center,sd,scale)
+    ! df(x)/dx = -a*2*(x-b)/(2c^2)*exp(-(x-b)^2/(2c^2))
+    use gtm_precision
+    implicit none
+    real(gtm_real), intent(out) :: val            !< value to be produced
+    real(gtm_real), intent(in)  :: xposition      !< X
+    real(gtm_real), intent(in)  :: center         !< Center of gaussian shape
+    real(gtm_real), intent(in)  :: sd             !< Standard deviation (Sigma)
+    real(gtm_real), intent(in)  :: scale          !< scale
+    !---locals
+   
+    val = scale*dexp(-(xposition-center)**2/(two*sd*sd)) 
+   
+    return
+end subroutine
 end module
