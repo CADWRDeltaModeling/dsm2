@@ -66,10 +66,10 @@ call explicit_diffusion_operator (explicit_diffuse_op,&
                                   dx,                 &
                                   dt)                                                                     
   
-  call assertEquals(explicit_diffuse_op(2,nvar),-225.7d0,weak_eps,"Error in explicit diffusive flux operator 2")
-  call assertEquals(explicit_diffuse_op(3,nvar),112.8d0,weak_eps,"Error in explicit diffusive flux operator 3")
-  call assertEquals(explicit_diffuse_op(4,nvar),0.2d0,weak_eps,"Error in explicit diffusive flux operator 4")
-  call assertEquals(explicit_diffuse_op(5,nvar),0.4d0,weak_eps,"Error in explicit diffusive flux operator 5")
+  call assertEquals(explicit_diffuse_op(2,nvar),225.7d0,weak_eps,"Error in explicit diffusive flux operator 2")
+  call assertEquals(explicit_diffuse_op(3,nvar),-112.8d0,weak_eps,"Error in explicit diffusive flux operator 3")
+  call assertEquals(explicit_diffuse_op(4,nvar),-0.2d0,weak_eps,"Error in explicit diffusive flux operator 4")
+  call assertEquals(explicit_diffuse_op(5,nvar),-0.4d0,weak_eps,"Error in explicit diffusive flux operator 5")
  
 return
 end subroutine

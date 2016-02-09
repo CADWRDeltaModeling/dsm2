@@ -55,7 +55,7 @@ real(gtm_real)  :: mass_prev(ncell,nvar)
 
 
 conc_prev(:,1) = [300.0d0,305.0d0,320.0d0,330.0d0,340.0d0,350.0d0]
-explicit_diffuse_op(:,1) = [112.7d0,225.7d0,-112.8d0,-0.2d0,-0.4d0,-225.d0]
+explicit_diffuse_op(:,1) = [-112.7d0,-225.7d0,112.8d0,0.2d0,0.4d0,225.d0]
 area_lo_prev(:) = [100.0d0,98.0d0, 96.0d0,94.0d0,92.0d0,90.0d0]
 area_hi_prev(:) = [98.0d0, 96.0d0,94.0d0,92.0d0,90.0d0,88.0d0]
 area_prev (:) = [99d0,97d0,95d0,93d0,91d0,89d0]

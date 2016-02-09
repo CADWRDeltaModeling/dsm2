@@ -257,67 +257,7 @@ module advection
                                  dt,                  &
                                  dx)
          return
-    end subroutine
-
-
-    !> 
-    subroutine compute_diffuse(diffuse,      &
-                               conc,         & 
-                               area_lo,      &
-                               area_hi,      &
-                               disp_lo,      &
-                               disp_hi,      &                         
-                               ncell,        &
-                               nvar,         &
-                               time,         &
-                               dt,           &
-                               dx)    
-        use gtm_precision
-        use boundary_diffusion
-        !use single_channel_boundary
-        implicit none
-        !--- args
-        integer,intent(in)  :: ncell                       !< Number of cells
-        integer,intent(in)  :: nvar                        !< Number of variables        
-        real(gtm_real),intent(out) :: diffuse(ncell,nvar)  !< diffuse at old time
-        real(gtm_real),intent(in) :: conc(ncell,nvar)      !< cell centered conc at old time
-        real(gtm_real),intent(in) :: area_lo(ncell)        !< low face area at old time
-        real(gtm_real),intent(in) :: area_hi(ncell)        !< high face area at old time
-        real(gtm_real),intent(in) :: disp_lo(ncell)   !< low face disp coef at old time
-        real(gtm_real),intent(in) :: disp_hi(ncell)   !< high face disp coef at old time
-        real(gtm_real),intent(in) :: time                  !< time
-        real(gtm_real),intent(in) :: dt                    !< length of current time step being advanced
-        real(gtm_real),intent(in) :: dx(ncell)             !< spatial step
-        
-        !----- locals
-        integer :: i, ivar
-        real(gtm_real) :: bc_data(nvar)
-        real(gtm_real) :: base_domain_length, domain_length, diffuse_start_t, ic_center
-        
-        do ivar = 1,nvar
-            do i = 2, ncell-1
-                diffuse(i,ivar) = disp_hi(i)*area_hi(i)*(conc(i+1,ivar)-conc(i,ivar))/(half*dx(i+1)+half*dx(i))/dx(i) &
-                                 -disp_lo(i)*area_lo(i)*(conc(i,ivar)-conc(i-1,ivar))/(half*dx(i)+half*dx(i-1))/dx(i)
-            end do       
-            if (disp_lo(1).gt.zero)then
-                base_domain_length= 25600.d0
-                ic_center =base_domain_length/three
-                diffuse_start_t = (base_domain_length/32.d0)**two/(disp_lo(1)*two)
-                call gaussian_(bc_data(ivar),zero,ic_center+0.6d0*time,dsqrt(two*disp_lo(1)*(diffuse_start_t+time-dt)),dsqrt(diffuse_start_t/(diffuse_start_t+time-dt)))
-                !bc_data = conc(1,:)+half*(conc(2,:)-conc(1,:))
-                !if (bc_data(ivar).lt.zero) bc_data(ivar)=conc(1,ivar)
-                diffuse(1,ivar) = disp_hi(1)*area_hi(1)*(conc(2,ivar)-conc(1,ivar))/(half*dx(2)+half*dx(1))/dx(1) &
-                             -disp_lo(1)*area_lo(1)*(conc(1,ivar)-bc_data(ivar))/(half*dx(1))/dx(1)
-                bc_data = conc(ncell,:)+half*(conc(ncell,:)-conc(ncell-1,:))            
-                diffuse(ncell,ivar) = disp_hi(ncell)*area_hi(ncell)*(bc_data(ivar)-conc(ncell,ivar))/(half*dx(ncell))/dx(ncell) &    
-                                 -disp_lo(ncell)*area_lo(ncell)*(conc(ncell,ivar)-conc(ncell-1,ivar))/(half*dx(ncell)+half*dx(ncell-1))/dx(ncell)
-            else
-                diffuse(1,ivar) = disp_hi(1)*area_hi(1)*(conc(2,ivar)-conc(1,ivar))/(half*dx(2)+half*dx(1))/dx(1)
-                diffuse(ncell,ivar) = -disp_lo(ncell)*area_lo(ncell)*(conc(ncell,ivar)-conc(ncell-1,ivar))/(half*dx(ncell)+half*dx(ncell-1))/dx(ncell)                            
-            end if                                 
-        end do    
-        return       
-    end subroutine                  
+    end subroutine 
                              
 
     !> Extrapolate primitive data from cell center at the old time
@@ -362,8 +302,8 @@ module advection
         do ivar = 1,nvar
             ! todo: make sure source is in terms of primitive variables
             ! todo: this only works if I disable extrapolation (first order Godunov)
-            conc_lo(:,ivar) = conc(:,ivar) + half*(-grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) - dt*explicit_diffuse_op(:,ivar)/area(:))
-            conc_hi(:,ivar) = conc(:,ivar) + half*( grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) - dt*explicit_diffuse_op(:,ivar)/area(:))
+            conc_lo(:,ivar) = conc(:,ivar) + half*(-grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) + dt*explicit_diffuse_op(:,ivar)/area(:))
+            conc_hi(:,ivar) = conc(:,ivar) + half*( grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) + dt*explicit_diffuse_op(:,ivar)/area(:))
         end do
 
         return
@@ -493,7 +433,7 @@ module advection
        ! obtain a guess at the new state (predictor part of Huen) using the flux divergence and source evaluated at the
        ! old time step
        do ivar=1,nvar
-           mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev - dt*explicit_diffuse_op(:,ivar)
+           mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev + dt*explicit_diffuse_op(:,ivar)
        end do
        
        ! compute the source at the new time from the predictor

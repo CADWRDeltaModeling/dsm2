@@ -239,7 +239,7 @@ module diffusion
                             dt)
           
         do ivar = 1,nvar
-            explicit_diffuse_op(:,ivar) = (diffusive_flux_hi(:,ivar) - diffusive_flux_lo(:,ivar))/dx
+            explicit_diffuse_op(:,ivar) = minus*(diffusive_flux_hi(:,ivar) - diffusive_flux_lo(:,ivar))/dx
         end do
 
         return
@@ -348,7 +348,7 @@ module diffusion
         integer :: icell
 
         do ivar = 1,nvar
-            right_hand_side(:,ivar) = mass_prev(:,ivar) - (one-theta)*dt*explicit_diffuse_op(:,ivar) 
+            right_hand_side(:,ivar) = mass_prev(:,ivar) + (one-theta)*dt*explicit_diffuse_op(:,ivar) 
         end do
         return
     end subroutine
