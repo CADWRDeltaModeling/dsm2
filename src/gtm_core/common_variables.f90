@@ -616,6 +616,7 @@ module common_variables
              deallocate(conn)
              deallocate(dx_arr)
              deallocate(disp_arr)
+             deallocate(mann_arr)
              deallocate(cell)
          end if    
          return

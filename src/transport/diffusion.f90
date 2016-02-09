@@ -48,6 +48,7 @@ module diffusion
     !>   - Solve the system
     subroutine diffuse(conc,              &
                        conc_prev,         &
+                       mass_prev,         &
                        area,              &
                        area_prev,         &
                        area_lo,           &
@@ -76,6 +77,7 @@ module diffusion
 
         real(gtm_real), intent (out):: conc(ncell,nvar)              !< Concentration at new time
         real(gtm_real), intent (in) :: conc_prev(ncell,nvar)         !< Concentration at old time
+        real(gtm_real), intent (in) :: mass_prev(ncell,nvar)         !< mass from previous two steps
         real(gtm_real), intent (in) :: area (ncell)                  !< Cell-centered area at new time
         real(gtm_real), intent (in) :: area_prev (ncell)             !< Cell-centered area at old time
         real(gtm_real), intent (in) :: area_lo (ncell)               !< Low side area centered in time
@@ -123,8 +125,8 @@ module diffusion
                                          dt)
 
         call construct_right_hand_side(right_hand_side,       & 
-                                       explicit_diffuse_op,   & 
-                                       area_prev,             &
+                                       explicit_diffuse_op,   &                                        
+                                       mass_prev,             &
                                        area_lo_prev,          &
                                        area_hi_prev,          &
                                        disp_coef_lo_prev,     &
@@ -306,12 +308,13 @@ module diffusion
         return
     end subroutine 
 
+
     !> Construct the right hand side vector from previous step,
     !> and impose Neumann boundary condition on it.
     !todo remove disp_coef area_lo and hi
     pure subroutine construct_right_hand_side(right_hand_side,       & 
                                               explicit_diffuse_op,   & 
-                                              area_prev,             &
+                                              mass_prev,             &
                                               area_lo_prev,          &
                                               area_hi_prev,          &
                                               disp_coef_lo_prev,     &
@@ -330,7 +333,7 @@ module diffusion
         integer, intent (in) :: nvar                                      !< Number of variables
         real(gtm_real), intent (out) :: right_hand_side(ncell,nvar)       !< The right hand side vector
         real(gtm_real), intent (in)  :: explicit_diffuse_op (ncell,nvar)  !< Explicit diffusion operator
-        real(gtm_real), intent (in)  :: area_prev (ncell)                 !< Cell centered area at old time 
+        real(gtm_real), intent (in)  :: mass_prev(ncell,nvar)             !< mass from mass_prev+mass_divergence_advect
         real(gtm_real), intent (in)  :: conc_prev(ncell,nvar)             !< Concentration at old time
         real(gtm_real), intent (in)  :: area_lo_prev (ncell)              !< Low side area at old time
         real(gtm_real), intent (in)  :: area_hi_prev (ncell)              !< High side area at old time 
@@ -346,53 +349,7 @@ module diffusion
         integer :: icell
 
         do ivar = 1,nvar
-            right_hand_side(:,ivar) = area_prev(:)*conc_prev(:,ivar) &
-                                      - (one-theta)*dt*explicit_diffuse_op(:,ivar) 
-        end do
-        return
-    end subroutine
-
-    !> Construct the right hand side vector from previous step,
-    !> and impose Neumann boundary condition on it.
-    !todo remove disp_coef area_lo and hi
-    pure subroutine construct_right_hand_side_0(right_hand_side,       & 
-                                              explicit_diffuse_op,   & 
-                                              mass,                  &
-                                              area_lo_prev,          &
-                                              area_hi_prev,          &
-                                              disp_coef_lo_prev,     &
-                                              disp_coef_hi_prev,     &
-                                              conc_prev,             &
-                                              theta,                 &
-                                              ncell,                 &
-                                              time,                  &
-                                              nvar,                  &  
-                                              dx,                    &
-                                              dt)
-        use gtm_precision   
-        ! ---args  
-        implicit none                              
-        integer, intent (in) :: ncell                                     !< Number of cells
-        integer, intent (in) :: nvar                                      !< Number of variables
-        real(gtm_real), intent (out) :: right_hand_side(ncell,nvar)       !< The right hand side vector
-        real(gtm_real), intent (in)  :: explicit_diffuse_op (ncell,nvar)  !< Explicit diffusion operator
-        real(gtm_real), intent (in)  :: mass(ncell,nvar)                  !< mass from mass_prev+mass_divergence_advect
-        real(gtm_real), intent (in)  :: conc_prev(ncell,nvar)             !< Concentration at old time
-        real(gtm_real), intent (in)  :: area_lo_prev (ncell)              !< Low side area at old time
-        real(gtm_real), intent (in)  :: area_hi_prev (ncell)              !< High side area at old time 
-        real(gtm_real), intent (in)  :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
-        real(gtm_real), intent (in)  :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
-        real(gtm_real), intent (in)  :: time                              !< Current time
-        real(gtm_real), intent (in)  :: theta                             !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-        real(gtm_real), intent (in)  :: dx(ncell)                         !< Spatial step  
-        real(gtm_real), intent (in)  :: dt                                !< Time step 
-  
-        !---- locals
-        integer :: ivar
-        integer :: icell
-
-        do ivar = 1,nvar
-            right_hand_side(:,ivar) = mass(:,ivar) - (one-theta)*dt*explicit_diffuse_op(:,ivar) 
+            right_hand_side(:,ivar) = mass_prev(:,ivar) - (one-theta)*dt*explicit_diffuse_op(:,ivar) 
         end do
         return
     end subroutine
