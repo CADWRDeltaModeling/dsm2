@@ -384,28 +384,10 @@ module dsm2_gtm_network
                     end do
                 end if    
             end do    
-        end do                        
-        return
-    end subroutine    
-    
-    
-    !> Assign node concentration to the upstream boundaries that no node concentration is given.
-    !> This will update state variables node_conc.
-    subroutine assign_upstream_node_conc_with_conc_lo(conc_lo,  &
-                                                      conc_hi,  &
-                                                      ncell,    &
-                                                      nvar)
-        use gtm_precision
-        use error_handling
-        use common_variables, only: n_node, dsm2_network, dsm2_network_extra
-        use state_variables_network, only : node_conc
-        implicit none
-        integer, intent(in)  :: ncell                            !< Number of cells
-        integer, intent(in)  :: nvar                             !< Number of variables
-        real(gtm_real), intent(in) :: conc_lo(ncell,nvar)        !< Concentration extrapolated to lo face   
-        real(gtm_real), intent(in) :: conc_hi(ncell,nvar)        !< Concentration extrapolated to lo face   
-        integer :: i, j, icell
-
+        end do   
+        
+        !> Assign node concentration to the upstream boundaries that no node concentration is given.
+        !> This will update state variables node_conc.        
         do i = 1, n_node
             if (dsm2_network(i)%boundary_no > 0) then    
                 icell = dsm2_network(i)%cell_no(1)
@@ -414,8 +396,8 @@ module dsm2_gtm_network
                     if (dsm2_network(i)%up_down(1) .eq. 0 .and. node_conc(i,j).eq.LARGEREAL) node_conc(i,j) = conc_lo(icell,j) ! downstream boundary 
                 end do
             end if
-        end do
+        end do                             
         return
     end subroutine    
-             
+           
 end module  

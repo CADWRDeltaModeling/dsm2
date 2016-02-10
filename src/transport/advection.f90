@@ -129,38 +129,28 @@ module advection
                        nvar)
 
         ! Calculate the (undivided) differences of concentrations
-        call difference(grad_lo,    &
-                        grad_hi,    &
-                        grad_center,&
-                        conc_prev,  &
-                        dx,         &
-                        ncell,      &
-                        nvar)
+        if (.not.associated(conc_gradient)) conc_gradient => difference     
+        call conc_gradient(grad_lo,    &
+                           grad_hi,    &
+                           grad_center,&
+                           conc_prev,  &
+                           dx,         &
+                           ncell,      &
+                           nvar)
+                      
                         
         ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
         ! or other differencing is required
-        if (associated(adjust_gradient)) then
-            call adjust_gradient(grad,         &
-                                 grad_lo,      &  
-                                 grad_hi,      &
-                                 grad_center,  &
-                                 conc_prev,    &
-                                 dx,           &
-                                 ncell,        &
-                                 nvar,         &
-                                 use_limiter)    
-        else
-            adjust_gradient => adjust_differences_single_channel
-            call adjust_differences_single_channel(grad,         &
-                                                   grad_lo,      &  
-                                                   grad_hi,      &
-                                                   grad_center,  &
-                                                   conc_prev,    &
-                                                   dx,           &
-                                                   ncell,        &
-                                                   nvar,         &
-                                                   use_limiter)                              
-        end if        
+        if (.not.associated(adjust_gradient)) adjust_gradient => adjust_differences_single_channel
+        call adjust_gradient(grad,         &
+                             grad_lo,      &  
+                             grad_hi,      &
+                             grad_center,  &
+                             conc_prev,    &
+                             dx,           &
+                             ncell,        &
+                             nvar,         &
+                             use_limiter)                                  
                     
                                 
         ! Compute sources and sinks for each constituent

@@ -46,11 +46,11 @@ program gtm
     use state_variables
     use state_variables_network
     use primitive_variable_conversion
+    use gradient
     use gradient_adjust
     use boundary_concentration
     use advection
     use diffusion
-    use advection_network
     use diffusion_network
     use dispersion_coefficient    
     use source_sink
@@ -213,6 +213,7 @@ program gtm
     fill_hydro_network => gtm_network_data
     compute_source => no_source
     !compute_source => linear_decay_source 
+    conc_gradient => difference_network
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
@@ -425,22 +426,22 @@ program gtm
             end if    
             
             !----- advection and source/sink -----        
-            call advect_network(mass,                         &
-                                mass_prev,                    &  
-                                flow,                         &
-                                flow_lo,                      &
-                                flow_hi,                      &
-                                area,                         &
-                                area_prev,                    & 
-                                area_lo,                      &
-                                area_hi,                      &
-                                explicit_diffuse_op,          &                             
-                                n_cell,                       &
-                                n_var,                        &
-                                dble(new_current_time)*sixty, &
-                                sub_gtm_time_step*sixty,      &
-                                dx_arr,                       &
-                                limit_slope)   
+            call advect(mass,                         &
+                        mass_prev,                    &  
+                        flow,                         &
+                        flow_lo,                      &
+                        flow_hi,                      &
+                        area,                         &
+                        area_prev,                    & 
+                        area_lo,                      &
+                        area_hi,                      &
+                        explicit_diffuse_op,          &                             
+                        n_cell,                       &
+                        n_var,                        &
+                        dble(new_current_time)*sixty, &
+                        sub_gtm_time_step*sixty,      &
+                        dx_arr,                       &
+                        limit_slope)   
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)
 

@@ -21,6 +21,37 @@
 !> Module containing routines for calculating differences and limiters
 !>@ingroup transport
 module gradient
+
+    !> Gradient difference
+    interface
+      !> Generic interface for gradient differences routine that should be fulfilled by
+      !> client programs
+      subroutine difference_if(grad_lo,     & 
+                               grad_hi,     &
+                               grad_center, &
+                               vals,        &
+                               dx,          &
+                               ncell,       &
+                               nvar)
+                             
+          use gtm_precision
+          implicit none
+          !---- args
+          integer, intent(in) :: ncell                          !< Number of cells
+          integer, intent(in) :: nvar                           !< Number of variables
+          real(gtm_real), intent(in) :: vals(ncell,nvar)        !< Data to be differenced
+          real(gtm_real), intent(in) :: dx(ncell)               !< Cell length
+          real(gtm_real), intent(out):: grad_lo(ncell,nvar)     !< Difference on lo side, LARGEREAL in first index
+          real(gtm_real), intent(out):: grad_hi(ncell,nvar)     !< Difference on hi side (n+1) minus (n) LARGEREAL for last index
+          real(gtm_real), intent(out):: grad_center(ncell,nvar) !< Centered diff, LARGEREAL for undefined boundary cells        
+
+      end subroutine difference_if
+    end interface
+
+    !> This pointer should be set by the driver or client code to specify the 
+    !> treatment of gradient for the network
+    procedure(difference_if), pointer :: conc_gradient => null()
+
     contains
 
     !> Calculate the divided lo, hi, and centered differences
