@@ -75,7 +75,7 @@ program test_driver
     use test_zoppou_advection_dispersion
     use test_time_dependent_advection_dispersion
     use test_mms_advection_dispersion
-    
+
     use ut_do_source    
     use ut_klu
     use ut_utils
@@ -156,11 +156,11 @@ program test_driver
     !----- Advection-Diffusion tests
     call test_zoppou_flow() 
     call test_advection_diffusion_zoppou(verbose)
-    call test_advection_diffusion_t_dependent(verbose)
-    call test_advection_diffusion_time_dependent(verbose)
+    !call test_advection_diffusion_t_dependent(verbose)
+    !call test_advection_diffusion_time_dependent(verbose)
 
     !----- Advection-diffusion-reaction
-    call test_advection_diffusion_mms(verbose)
+    !call test_advection_diffusion_mms(verbose)
     
     !----- Test KLU Solver
     call klu_fortran_free(k_symbolic, k_numeric, k_common)    

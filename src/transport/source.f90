@@ -143,9 +143,8 @@ module source_sink
      real(gtm_real),intent(in)  :: time                !< time 
 
      ! source must be in primitive variable 
-
      do ivar = 1,nvar
-         source(:,ivar) = -linear_decay(ivar)*conc(:,ivar)
+         source(:,ivar) = -linear_decay(ivar)*area(:)*conc(:,ivar)
      end do
      return
  end subroutine 

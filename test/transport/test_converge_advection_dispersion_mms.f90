@@ -371,7 +371,7 @@ dx = (x_right-x_left)/ncell
 do ivar = 1,nvar
     do icell = 1,ncell  
         xpos    = x_left +(dble(icell)-half)*dx
-        source(icell,ivar) = half*(dexp(xpos/two)-four*dexp(xpos)-dexp(time+xpos))
+        source(icell,ivar) = half*(dexp(xpos/two)-four*dexp(xpos)-dexp(time+xpos))*area(icell)
     end do
 end do
      
