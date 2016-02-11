@@ -24,13 +24,11 @@ module boundary_diffusion_network
 
     use gtm_precision
     use error_handling    
+    use diffusion
     use boundary_diffusion
     use dispersion_coefficient        
     use common_dsm2_vars, only: print_level
     real(gtm_real), allocatable, save :: disp_coef_arr(:)
-    integer, allocatable :: aap(:)
-    integer, allocatable :: aai(:)
-    real(gtm_real), allocatable :: aax(:)
     integer, allocatable :: rcind(:)        ! row and column count index
     integer, allocatable :: kin(:)          ! lookup index for aax() transpose
     integer, allocatable :: row(:)          ! row number
@@ -41,70 +39,6 @@ module boundary_diffusion_network
     character(len=1), allocatable :: uds(:) ! up stream or downstream of node
     integer :: n_nonzero = LARGEINT
     integer :: print_matrix = 0
-
-    abstract interface
-        !> Generic interface for calculating BC of matrix that should be fulfilled by
-        !> the driver or the client programs
-        subroutine boundary_diffusive_network_matrix_if(center_diag ,        &
-                                                        up_diag,             &     
-                                                        down_diag,           &
-                                                        right_hand_side,     &
-                                                        explicit_diffuse_op, &
-                                                        conc_prev,           &
-                                                        mass,                &
-                                                        area_lo_prev,        &
-                                                        area_hi_prev,        &
-                                                        disp_coef_lo_prev,   &
-                                                        disp_coef_hi_prev,   &
-                                                        conc,                & 
-                                                        flow_lo,             &
-                                                        flow_hi,             &                                                                                                                                                                                                        
-                                                        area,                &
-                                                        area_lo,             &
-                                                        area_hi,             &          
-                                                        disp_coef_lo,        &
-                                                        disp_coef_hi,        &
-                                                        theta_gtm,           &
-                                                        ncell,               &
-                                                        time,                & 
-                                                        nvar,                & 
-                                                        dx,                  &
-                                                        dt)      
-        use gtm_precision
-        implicit none
-        !--- args 
-        integer, intent(in) :: ncell                                 !< Number of cells
-        integer, intent(in) :: nvar                                  !< Number of variables
-        real(gtm_real), intent(in) :: down_diag(ncell)               !< Values of the coefficients below diagonal in matrix
-        real(gtm_real), intent(in) :: center_diag(ncell)             !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real), intent(in) :: up_diag(ncell)                 !< Values of the coefficients above the diagonal in matrix
-        real(gtm_real), intent(inout):: right_hand_side(ncell,nvar)  !< Values of the coefficients of the right hand side    
-        real(gtm_real), intent(in) :: conc_prev(ncell, nvar)         !< concentration from previous time step
-        real(gtm_real), intent (in) :: mass(ncell,nvar)              !< mass from mass_prev+mass_divergence_advect
-        real(gtm_real), intent(in) :: area_lo_prev(ncell)            !< Low side area at previous time
-        real(gtm_real), intent(in) :: area_hi_prev(ncell)            !< High side area at previous time
-        real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)       !< Low side constituent dispersion coef. at previous time
-        real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)       !< High side constituent dispersion coef. at previous time
-        real(gtm_real), intent(in) :: conc(ncell,nvar)               !< Concentration
-        real(gtm_real), intent(in) :: explicit_diffuse_op(ncell,nvar)!< Explicit diffusive operator
-        real(gtm_real), intent(in) :: flow_lo(ncell)                 !< Low side flow at new time
-        real(gtm_real), intent(in) :: flow_hi(ncell)                 !< High side flow at new time        
-        real(gtm_real), intent(in) :: area (ncell)                   !< Cell centered area at new time 
-        real(gtm_real), intent(in) :: area_lo(ncell)                 !< Low side area at new time
-        real(gtm_real), intent(in) :: area_hi(ncell)                 !< High side area at new time 
-        real(gtm_real), intent(in) :: disp_coef_lo(ncell)            !< Low side constituent dispersion coef. at new time
-        real(gtm_real), intent(in) :: disp_coef_hi(ncell)            !< High side constituent dispersion coef. at new time
-        real(gtm_real), intent(in) :: time                           !< Current time
-        real(gtm_real), intent(in) :: theta_gtm                      !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
-        real(gtm_real), intent(in) :: dx(ncell)                      !< Spatial step  
-        real(gtm_real), intent(in) :: dt                             !< Time step     
-   
-        end subroutine 
-    end interface
-
-    !> This pointer should be set by the driver or client code to specify the 
-    !> treatment at the first and last row of coefficient matrix
-    procedure(boundary_diffusive_network_matrix_if), pointer :: boundary_diffusion_network_matrix  => null()
 
     contains
 
@@ -121,16 +55,14 @@ module boundary_diffusion_network
     !> Set dispersion coefficient interface to an implementation 
     !> that is read from input file.
     subroutine set_dispersion_arr(d_arr,  &
-                                  ncell)
-                           
+                                  ncell)                           
         implicit none
         integer, intent(in) :: ncell              !< number of cells
         real(gtm_real),intent(in) :: d_arr(ncell) !< array of dispersion coefficients
         integer :: i, j
        
         allocate(disp_coef_arr(ncell))
-        disp_coef_arr = d_arr       
-        
+        disp_coef_arr = d_arr               
         return
     end subroutine    
     
@@ -325,22 +257,22 @@ module boundary_diffusion_network
         return
     end subroutine
 
-
-    !> compute diffusive flux
-    subroutine compute_diffuse_network(diffusive_flux_lo, &
-                                       diffusive_flux_hi, &
-                                       conc,              &
-                                       area_lo,           &
-                                       area_hi,           &
-                                       disp_coef_lo,      &  
-                                       disp_coef_hi,      &
-                                       ncell,             &
-                                       nvar,              &
-                                       time,              &
-                                       dx,                &
-                                       dt)   
+    !> compute diffusive flux at old time
+    subroutine network_boundary_diffusive_flux_prev(diffusive_flux_lo, &
+                                                    diffusive_flux_hi, &
+                                                    conc,              &
+                                                    area_lo,           &
+                                                    area_hi,           &
+                                                    disp_coef_lo,      &  
+                                                    disp_coef_hi,      &
+                                                    ncell,             &
+                                                    nvar,              &
+                                                    time,              &
+                                                    dx,                &
+                                                    dt)   
         use gtm_precision
-        use common_variables, only : n_node, dsm2_network                
+        use common_variables, only : n_node, dsm2_network, dsm2_network_extra   
+        use state_variables_network, only : node_conc, prev_node_conc                     
         implicit none
         !--- args
         integer,intent(in)  :: ncell                                 !< Number of cells
@@ -358,23 +290,34 @@ module boundary_diffusion_network
         
         !----- locals
         integer :: i, j, k, icell, up_cell, down_cell
+              
         do k = 1, nvar
           do i = 1, n_node
             if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
                 if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
-                    diffusive_flux_lo(icell,:) = zero                         
+                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
+                        diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
+                                                (conc(icell,k)-prev_node_conc(i,k))/(half*dx(icell))
+                    else
+                        diffusive_flux_lo(icell,:) = zero 
+                    end if                            
                 else                                            ! downstream boundary
-                    diffusive_flux_hi(icell,k) = zero 
+                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
+                        diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
+                                                (prev_node_conc(i,k)-conc(icell,k))/(half*dx(icell))
+                    else
+                        diffusive_flux_hi(icell,k) = zero 
+                    end if
                 end if    
             end if
             if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
-                       diffusive_flux_hi(icell,k) = zero
+                       diffusive_flux_hi(icell,k) = zero !diffusive_flux_lo(icell,k)
                    else                                         !cell at downstream of junction
-                       diffusive_flux_lo(icell,k) = zero
+                       diffusive_flux_lo(icell,k) = zero !diffusive_flux_hi(icell,k)
                    end if                           
                 end do                
             end if
@@ -393,7 +336,7 @@ module boundary_diffusion_network
             end if
           end do  
         end do            
-        return       
+        return        
     end subroutine    
 
 
@@ -669,7 +612,7 @@ module boundary_diffusion_network
         return
     end subroutine            
 
-  !> Adjustments for network diffusion matrix
+    !> Adjustments for network diffusion matrix by assuming zero diffusive flux across junctions
     subroutine network_diffusion_sparse_matrix_zero_at_junctions(center_diag ,       &
                                                                  up_diag,            &     
                                                                  down_diag,          &
@@ -726,8 +669,7 @@ module boundary_diffusion_network
         real(gtm_real), intent(in) :: time                             !< Current time
         real(gtm_real), intent(in) :: theta_gtm                        !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
         real(gtm_real), intent(in) :: dx(ncell)                        !< Spatial step  
-        real(gtm_real), intent(in) :: dt                               !< Time step     
-        !real(gtm_real) :: matrix(ncell, ncell)   
+        real(gtm_real), intent(in) :: dt                               !< Time step      
         !---local
         real(gtm_real) :: x_int
         integer :: i, j, k, kk, h, icell

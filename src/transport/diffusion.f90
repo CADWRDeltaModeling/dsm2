@@ -23,6 +23,11 @@
 !>@ingroup transport
 module diffusion
 
+    use gtm_precision
+    integer, allocatable :: aap(:)
+    integer, allocatable :: aai(:)
+    real(gtm_real), allocatable :: aax(:)
+    
     contains
 
     !> Logical function to check whether to use diffusion or not
@@ -33,7 +38,6 @@ module diffusion
                        (.not. associated(boundary_diffusion_flux, no_diffusion_flux))
         return
     end function
-
  
     !> Calculates the diffusive portion of the constituent transport.
     !> It contains an explicit version of the diffusion operator and a general (involving all
@@ -49,8 +53,9 @@ module diffusion
     subroutine diffuse(conc,              &
                        conc_prev,         &
                        mass_prev,         &
-                       area,              &                       
-                       area_prev,         &
+                       area,              &
+                       flow_lo,           &
+                       flow_hi,           &                                              
                        area_lo,           &
                        area_hi,           &
                        area_lo_prev,      &
@@ -64,12 +69,14 @@ module diffusion
                        time_new,          &
                        theta_gtm,         &
                        dt,                &
-                       dx)
+                       dx,                &
+                       klu_solver)
 
         use gtm_precision
         use primitive_variable_conversion 
         use boundary_diffusion 
-
+        use klu
+        
         implicit none
         ! ---- args
         integer, intent (in) :: ncell                                !< Number of cells
@@ -79,7 +86,8 @@ module diffusion
         real(gtm_real), intent (in) :: conc_prev(ncell,nvar)         !< Concentration at old time
         real(gtm_real), intent (in) :: area (ncell)                  !< Cell-centered area at new time
         real(gtm_real), intent (in) :: mass_prev(ncell)              !< mass from previous two steps
-        real(gtm_real), intent (in) :: area_prev (ncell)             !< Cell-centered area at old time
+        real(gtm_real), intent (in) :: flow_lo (ncell)               !< Low side flow centered in time
+        real(gtm_real), intent (in) :: flow_hi (ncell)               !< High side flow centered in time         
         real(gtm_real), intent (in) :: area_lo (ncell)               !< Low side area centered in time
         real(gtm_real), intent (in) :: area_hi (ncell)               !< High side area centered in time 
         real(gtm_real), intent (in) :: area_lo_prev (ncell)          !< Low side area centered at old time
@@ -92,6 +100,7 @@ module diffusion
         real(gtm_real), intent (in) :: theta_gtm                     !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
         real(gtm_real), intent (in) :: dt                            !< Time step   
         real(gtm_real), intent (in) :: dx(ncell)                     !< Spacial step 
+        logical, intent(in) :: klu_solver                            !< Use KLU sparse matrix solver
 
         !---- locals
         real(gtm_real) :: explicit_diffuse_op(ncell,nvar)             !< Explicit diffusive operator
@@ -160,8 +169,16 @@ module diffusion
                                        up_diag,            &     
                                        down_diag,          &
                                        right_hand_side,    & 
+                                       explicit_diffuse_op,&   
                                        conc_prev,          &
-                                       explicit_diffuse_op,&
+                                       mass_prev,               &
+                                       area_lo_prev,       &
+                                       area_hi_prev,       &
+                                       disp_coef_lo_prev,  &
+                                       disp_coef_hi_prev,  &
+                                       conc,               &
+                                       flow_lo,            &
+                                       flow_hi,            &                                                                            
                                        area,               &
                                        area_lo,            &
                                        area_hi,            &          
@@ -174,14 +191,23 @@ module diffusion
                                        dx,                 &
                                        dt)
         
-        !call klu_solve_for_tri(center_diag ,     &
-        call solve(center_diag ,     &
-                   up_diag,          &     
-                   down_diag,        &
-                   right_hand_side,  &
-                   conc,             &
-                   ncell,            &
-                   nvar)
+
+        if (klu_solver) then ! solve the sparse matrix by klu solver            
+            call klu_fortran_free_numeric(k_numeric, k_common)                  
+            k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)
+            call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side, k_common)
+            conc = right_hand_side 
+        else
+            call solve(center_diag ,     &
+                       up_diag,          &     
+                       down_diag,        &
+                       right_hand_side,  &
+                       conc,             &
+                       ncell,            &
+                       nvar)
+        end if            
+        
+                    
 
         return
     end subroutine 

@@ -242,23 +242,31 @@ return
 end subroutine
 
 !> Matrix boundary condition, delagates to an implementation at each end
-subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
-                                                    up_diag,                &     
-                                                    down_diag,              &
-                                                    right_hand_side,        &
-                                                    conc,                   &
-                                                    explicit_diffuse_op,    &
-                                                    area,                   &
-                                                    area_lo,                &
-                                                    area_hi,                &          
-                                                    disp_coef_lo,           &
-                                                    disp_coef_hi,           &
-                                                    theta_gtm,              &
-                                                    ncell,                  &
-                                                    time,                   & 
-                                                    nvar,                   & 
-                                                    dx,                     &
-                                                    dt)
+subroutine single_channel_boundary_diffusive_matrix(center_diag ,        &
+                          up_diag,             &     
+                          down_diag,           &
+                          right_hand_side,     &
+                          explicit_diffuse_op, & 
+                          conc_prev,           &
+                          mass_prev,           &
+                          area_lo_prev,        &
+                          area_hi_prev,        &
+                          disp_coef_lo_prev,   &
+                          disp_coef_hi_prev,   & 
+                          conc,                &
+                          flow_lo,             &
+                          flow_hi,             & 
+                          area,                &
+                          area_lo,             &
+                          area_hi,             &          
+                          disp_coef_lo,        &
+                          disp_coef_hi,        &
+                          theta_gtm,           &
+                          ncell,               &
+                          time,                & 
+                          nvar,                & 
+                          dx,                  &
+                          dt)
                                               
  use gtm_precision
  implicit none
@@ -272,6 +280,14 @@ subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
  real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)      !< Values of the coefficients of right  hand side vector
  real(gtm_real), intent (in)  :: conc(ncell,nvar)                 !< Concentration
  real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar)  !< Explicit diffusive operator 
+ real(gtm_real), intent(in) :: conc_prev(ncell,nvar)             !< Cell centered concentration at old time
+ real(gtm_real), intent(in) :: mass_prev(ncell,nvar)             !< Mass from old time and previous two steps
+ real(gtm_real), intent(in) :: area_lo_prev(ncell)               !< Low side area at old time
+ real(gtm_real), intent(in) :: area_hi_prev(ncell)               !< High side area at old time
+ real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: flow_lo(ncell)                    !< Low side flow at new time
+ real(gtm_real), intent(in) :: flow_hi(ncell)                    !< High side flow at new time                                                      
  real(gtm_real), intent (in)  :: area (ncell)                     !< Cell centered area at new time 
  real(gtm_real), intent (in)  :: area_lo(ncell)                   !< Low side area at new time
  real(gtm_real), intent (in)  :: area_hi(ncell)                   !< High side area at new time 
@@ -282,41 +298,57 @@ subroutine single_channel_boundary_diffusive_matrix(center_diag ,           &
  real(gtm_real), intent (in)  :: dx(ncell)                        !< Spatial step  
  real(gtm_real), intent (in)  :: dt                               !< Time step     
 
- call diffusion_matrix_lo(center_diag ,           &
-                          up_diag,                &     
-                          down_diag,              &
-                          right_hand_side,        &
-                          conc,                   &
-                          explicit_diffuse_op,    &
-                          area,                   &
-                          area_lo,                &
-                          area_hi,                &          
-                          disp_coef_lo,           &
-                          disp_coef_hi,           &
-                          theta_gtm,              &
-                          ncell,                  &
-                          time,                   & 
-                          nvar,                   & 
-                          dx,                     &
+ call diffusion_matrix_lo(center_diag ,        &
+                          up_diag,             &     
+                          down_diag,           &
+                          right_hand_side,     &
+                          explicit_diffuse_op, & 
+                          conc_prev,           &
+                          mass_prev,           &
+                          area_lo_prev,        &
+                          area_hi_prev,        &
+                          disp_coef_lo_prev,   &
+                          disp_coef_hi_prev,   & 
+                          conc,                &
+                          flow_lo,             &
+                          flow_hi,             & 
+                          area,                &
+                          area_lo,             &
+                          area_hi,             &          
+                          disp_coef_lo,        &
+                          disp_coef_hi,        &
+                          theta_gtm,           &
+                          ncell,               &
+                          time,                & 
+                          nvar,                & 
+                          dx,                  &
                           dt)
                           
- call diffusion_matrix_hi(center_diag ,           &
-                          up_diag,                &     
-                          down_diag,              &
-                          right_hand_side,        &
-                          conc,                   &
-                          explicit_diffuse_op,    &
-                          area,                   &
-                          area_lo,                &
-                          area_hi,                &          
-                          disp_coef_lo,           &
-                          disp_coef_hi,           &
-                          theta_gtm,              &
-                          ncell,                  &
-                          time,                   & 
-                          nvar,                   & 
-                          dx,                     &
-                          dt)                          
+ call diffusion_matrix_hi(center_diag ,        &
+                          up_diag,             &     
+                          down_diag,           &
+                          right_hand_side,     &
+                          explicit_diffuse_op, & 
+                          conc_prev,           &
+                          mass_prev,           &
+                          area_lo_prev,        &
+                          area_hi_prev,        &
+                          disp_coef_lo_prev,   &
+                          disp_coef_hi_prev,   & 
+                          conc,                &
+                          flow_lo,             &
+                          flow_hi,             & 
+                          area,                &
+                          area_lo,             &
+                          area_hi,             &          
+                          disp_coef_lo,        &
+                          disp_coef_hi,        &
+                          theta_gtm,           &
+                          ncell,               &
+                          time,                & 
+                          nvar,                & 
+                          dx,                  &
+                          dt)
 return
 end subroutine 
 
@@ -524,22 +556,30 @@ end subroutine
 
 
 !> Matrix boundary condition for dirichlet, only operates on lo end
-subroutine dirichlet_diffusive_matrix_lo(center_diag ,           &
-                                         up_diag,                &     
-                                         down_diag,              &
-                                         right_hand_side,        &
-                                         conc,                   &
-                                         explicit_diffuse_op,    &
-                                         area,                   &
-                                         area_lo,                &
-                                         area_hi,                &          
-                                         disp_coef_lo,           &
-                                         disp_coef_hi,           &
-                                         theta_gtm,              &
-                                         ncell,                  &
-                                         time,                   & 
-                                         nvar,                   & 
-                                         dx,                     &
+subroutine dirichlet_diffusive_matrix_lo(center_diag ,        &
+                                         up_diag,             &     
+                                         down_diag,           &
+                                         right_hand_side,     &
+                                         explicit_diffuse_op, & 
+                                         conc_prev,           &
+                                         mass_prev,           &
+                                         area_lo_prev,        &
+                                         area_hi_prev,        &
+                                         disp_coef_lo_prev,   &
+                                         disp_coef_hi_prev,   & 
+                                         conc,                &
+                                         flow_lo,             &
+                                         flow_hi,             & 
+                                         area,                &
+                                         area_lo,             &
+                                         area_hi,             &          
+                                         disp_coef_lo,        &
+                                         disp_coef_hi,        &
+                                         theta_gtm,           &
+                                         ncell,               &
+                                         time,                & 
+                                         nvar,                & 
+                                         dx,                  &
                                          dt)
                                               
  use gtm_precision
@@ -554,6 +594,14 @@ subroutine dirichlet_diffusive_matrix_lo(center_diag ,           &
  real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)     !< Values of the coefficients of right  hand side vector
  real(gtm_real), intent (in)  :: conc(ncell,nvar)                !< Concentration
  real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar) !< Explicit diffusive operator 
+ real(gtm_real), intent(in) :: conc_prev(ncell,nvar)             !< Cell centered concentration at old time
+ real(gtm_real), intent(in) :: mass_prev(ncell,nvar)             !< Mass from old time and previous two steps
+ real(gtm_real), intent(in) :: area_lo_prev(ncell)               !< Low side area at old time
+ real(gtm_real), intent(in) :: area_hi_prev(ncell)               !< High side area at old time
+ real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: flow_lo(ncell)                    !< Low side flow at new time
+ real(gtm_real), intent(in) :: flow_hi(ncell)                    !< High side flow at new time                                                     
  real(gtm_real), intent (in)  :: area (ncell)                    !< Cell centered area at new time 
  real(gtm_real), intent (in)  :: area_lo(ncell)                  !< Low side area at new time
  real(gtm_real), intent (in)  :: area_hi(ncell)                  !< High side area at new time 
@@ -594,22 +642,30 @@ return
 end subroutine
 
 !> Matrix boundary condition for dirichlet, only operates on high end
-subroutine dirichlet_diffusive_matrix_hi(center_diag ,           &
-                                         up_diag,                &     
-                                         down_diag,              &
-                                         right_hand_side,        &
-                                         conc,                   &
-                                         explicit_diffuse_op,    &
-                                         area,                   &
-                                         area_lo,                &
-                                         area_hi,                &          
-                                         disp_coef_lo,           &
-                                         disp_coef_hi,           &
-                                         theta_gtm,              &
-                                         ncell,                  &
-                                         time,                   & 
-                                         nvar,                   & 
-                                         dx,                     &
+subroutine dirichlet_diffusive_matrix_hi(center_diag ,        &
+                                         up_diag,             &     
+                                         down_diag,           &
+                                         right_hand_side,     &
+                                         explicit_diffuse_op, & 
+                                         conc_prev,           &
+                                         mass_prev,           &
+                                         area_lo_prev,        &
+                                         area_hi_prev,        &
+                                         disp_coef_lo_prev,   &
+                                         disp_coef_hi_prev,   & 
+                                         conc,                &
+                                         flow_lo,             &
+                                         flow_hi,             & 
+                                         area,                &
+                                         area_lo,             &
+                                         area_hi,             &          
+                                         disp_coef_lo,        &
+                                         disp_coef_hi,        &
+                                         theta_gtm,           &
+                                         ncell,               &
+                                         time,                & 
+                                         nvar,                & 
+                                         dx,                  &
                                          dt)
                                               
  use gtm_precision
@@ -623,7 +679,15 @@ subroutine dirichlet_diffusive_matrix_hi(center_diag ,           &
  real(gtm_real),intent (inout):: up_diag(ncell)                  !< Values of the coefficients above the diagonal in matrix
  real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)     !< Values of the coefficients of right  hand side vector
  real(gtm_real), intent (in)  :: conc(ncell,nvar)                !< Concentration
- real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar) !< Explicit diffusive operator 
+ real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar) !< Explicit diffusive operator
+ real(gtm_real), intent(in) :: conc_prev(ncell,nvar)             !< Cell centered concentration at old time
+ real(gtm_real), intent(in) :: mass_prev(ncell,nvar)             !< Mass from old time and previous two steps
+ real(gtm_real), intent(in) :: area_lo_prev(ncell)               !< Low side area at old time
+ real(gtm_real), intent(in) :: area_hi_prev(ncell)               !< High side area at old time
+ real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: flow_lo(ncell)                    !< Low side flow at new time
+ real(gtm_real), intent(in) :: flow_hi(ncell)                    !< High side flow at new time   
  real(gtm_real), intent (in)  :: area (ncell)                    !< Cell centered area at new time 
  real(gtm_real), intent (in)  :: area_lo(ncell)                  !< Low side area at new time
  real(gtm_real), intent (in)  :: area_hi(ncell)                  !< High side area at new time 
@@ -839,23 +903,31 @@ end subroutine
 
 
 !> Matrix boundary condition for neumann, only operates on lo end
-subroutine neumann_diffusive_matrix_lo(center_diag ,           &
-                                       up_diag,                &     
-                                       down_diag,              &
-                                       right_hand_side,        &
-                                       conc,                   &
-                                       explicit_diffuse_op,    &
-                                       area,                   &
-                                       area_lo,                &
-                                       area_hi,                &          
-                                       disp_coef_lo,           &
-                                       disp_coef_hi,           &
-                                       theta_gtm,              &
-                                       ncell,                  &
-                                       time,                   & 
-                                       nvar,                   & 
-                                       dx,                     &
-                                       dt)
+subroutine neumann_diffusive_matrix_lo(center_diag ,        &
+                                         up_diag,             &     
+                                         down_diag,           &
+                                         right_hand_side,     &
+                                         explicit_diffuse_op, & 
+                                         conc_prev,           &
+                                         mass_prev,           &
+                                         area_lo_prev,        &
+                                         area_hi_prev,        &
+                                         disp_coef_lo_prev,   &
+                                         disp_coef_hi_prev,   & 
+                                         conc,                &
+                                         flow_lo,             &
+                                         flow_hi,             & 
+                                         area,                &
+                                         area_lo,             &
+                                         area_hi,             &          
+                                         disp_coef_lo,        &
+                                         disp_coef_hi,        &
+                                         theta_gtm,           &
+                                         ncell,               &
+                                         time,                & 
+                                         nvar,                & 
+                                         dx,                  &
+                                         dt)
                                               
  use gtm_precision
  implicit none
@@ -869,6 +941,14 @@ subroutine neumann_diffusive_matrix_lo(center_diag ,           &
  real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)     !< Values of the coefficients of right  hand side vector
  real(gtm_real), intent (in)  :: conc(ncell,nvar)                !< Concentration
  real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar) !< Explicit diffusive operator 
+ real(gtm_real), intent(in) :: conc_prev(ncell,nvar)             !< Cell centered concentration at old time
+ real(gtm_real), intent(in) :: mass_prev(ncell,nvar)             !< Mass from old time and previous two steps
+ real(gtm_real), intent(in) :: area_lo_prev(ncell)               !< Low side area at old time
+ real(gtm_real), intent(in) :: area_hi_prev(ncell)               !< High side area at old time
+ real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: flow_lo(ncell)                    !< Low side flow at new time
+ real(gtm_real), intent(in) :: flow_hi(ncell)                    !< High side flow at new time    
  real(gtm_real), intent (in)  :: area (ncell)                    !< Cell centered area at new time 
  real(gtm_real), intent (in)  :: area_lo(ncell)                  !< Low side area at new time
  real(gtm_real), intent (in)  :: area_hi(ncell)                  !< High side area at new time 
@@ -908,23 +988,31 @@ end subroutine
 
 
 !> Matrix boundary condition for neumann, only operates on high end
-subroutine neumann_diffusive_matrix_hi(center_diag ,           &
-                                       up_diag,                &     
-                                       down_diag,              &
-                                       right_hand_side,        &
-                                       conc,                   &
-                                       explicit_diffuse_op,    &
-                                       area,                   &
-                                       area_lo,                &
-                                       area_hi,                &          
-                                       disp_coef_lo,           &
-                                       disp_coef_hi,           &
-                                       theta_gtm,              &
-                                       ncell,                  &
-                                       time,                   & 
-                                       nvar,                   & 
-                                       dx,                     &
-                                       dt)
+subroutine neumann_diffusive_matrix_hi(center_diag ,        &
+                                         up_diag,             &     
+                                         down_diag,           &
+                                         right_hand_side,     &
+                                         explicit_diffuse_op, & 
+                                         conc_prev,           &
+                                         mass_prev,           &
+                                         area_lo_prev,        &
+                                         area_hi_prev,        &
+                                         disp_coef_lo_prev,   &
+                                         disp_coef_hi_prev,   & 
+                                         conc,                &
+                                         flow_lo,             &
+                                         flow_hi,             & 
+                                         area,                &
+                                         area_lo,             &
+                                         area_hi,             &          
+                                         disp_coef_lo,        &
+                                         disp_coef_hi,        &
+                                         theta_gtm,           &
+                                         ncell,               &
+                                         time,                & 
+                                         nvar,                & 
+                                         dx,                  &
+                                         dt)
                                               
  use gtm_precision
  implicit none
@@ -938,6 +1026,14 @@ subroutine neumann_diffusive_matrix_hi(center_diag ,           &
  real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)      !< Values of the coefficients of right  hand side vector
  real(gtm_real), intent (in)  :: conc(ncell,nvar)                 !< Concentration
  real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar)  !< Explicit diffusive operator 
+ real(gtm_real), intent(in) :: conc_prev(ncell,nvar)             !< Cell centered concentration at old time
+ real(gtm_real), intent(in) :: mass_prev(ncell,nvar)             !< Mass from old time and previous two steps
+ real(gtm_real), intent(in) :: area_lo_prev(ncell)               !< Low side area at old time
+ real(gtm_real), intent(in) :: area_hi_prev(ncell)               !< High side area at old time
+ real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: flow_lo(ncell)                    !< Low side flow at new time
+ real(gtm_real), intent(in) :: flow_hi(ncell)                    !< High side flow at new time    
  real(gtm_real), intent (in)  :: area (ncell)                     !< Cell centered area at new time 
  real(gtm_real), intent (in)  :: area_lo(ncell)                   !< Low side area at new time
  real(gtm_real), intent (in)  :: area_hi(ncell)                   !< High side area at new time 

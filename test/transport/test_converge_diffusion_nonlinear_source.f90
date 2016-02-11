@@ -227,22 +227,30 @@ end subroutine
 
 !> Diffusion matrix values for nonlinear decay test imposes Dirichlet boundaries at
 !> both ends of the channel. 
-subroutine dirichlet_diffusion_nonlinear_matrix(center_diag ,       &
-                                                up_diag,            &     
-                                                down_diag,          &
-                                                right_hand_side,    &
-                                                conc,               & 
-                                                explicit_diffuse_op,&
-                                                area,               &
-                                                area_lo,            &
-                                                area_hi,            &          
-                                                disp_coef_lo,       &
-                                                disp_coef_hi,       &
-                                                theta,              &
-                                                ncell,              &
-                                                time,               & 
-                                                nvar,               & 
-                                                dx,                 &
+subroutine dirichlet_diffusion_nonlinear_matrix(center_diag ,        &
+                                                up_diag,             &     
+                                                down_diag,           &
+                                                right_hand_side,     &
+                                                explicit_diffuse_op, & 
+                                                conc_prev,           &
+                                                mass_prev,           &
+                                                area_lo_prev,        &
+                                                area_hi_prev,        &
+                                                disp_coef_lo_prev,   &
+                                                disp_coef_hi_prev,   &                              
+                                                conc,                & 
+                                                flow_lo,             &
+                                                flow_hi,             & 
+                                                area,                &
+                                                area_lo,             &
+                                                area_hi,             &          
+                                                disp_coef_lo,        &
+                                                disp_coef_hi,        &
+                                                theta,               &
+                                                ncell,               &
+                                                time,                & 
+                                                nvar,                & 
+                                                dx,                  &
                                                 dt)
 use gtm_precision
 implicit none
@@ -256,6 +264,14 @@ real(gtm_real),intent (inout):: up_diag(ncell)                  !< Values of the
 real(gtm_real),intent (inout):: right_hand_side(ncell,nvar)     !< Values of the coefficients of right hand side vector
 real(gtm_real), intent (in)  :: conc(ncell,nvar)                !< Concentration 
 real(gtm_real), intent (in)  :: explicit_diffuse_op(ncell,nvar) !< Explicit diffusive operator
+ real(gtm_real), intent(in) :: conc_prev(ncell,nvar)             !< Cell centered concentration at old time
+ real(gtm_real), intent(in) :: mass_prev(ncell,nvar)             !< Mass from old time and previous two steps
+ real(gtm_real), intent(in) :: area_lo_prev(ncell)               !< Low side area at old time
+ real(gtm_real), intent(in) :: area_hi_prev(ncell)               !< High side area at old time
+ real(gtm_real), intent(in) :: disp_coef_lo_prev(ncell)          !< Low side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: disp_coef_hi_prev(ncell)          !< High side constituent dispersion coef. at old time
+ real(gtm_real), intent(in) :: flow_lo(ncell)                    !< Low side flow at new time
+ real(gtm_real), intent(in) :: flow_hi(ncell)                    !< High side flow at new time                                                      
 real(gtm_real), intent (in)  :: area (ncell)                    !< Cell centered area at new time 
 real(gtm_real), intent (in)  :: area_lo(ncell)                  !< Low side area at new time
 real(gtm_real), intent (in)  :: area_hi(ncell)                  !< High side area at new time 

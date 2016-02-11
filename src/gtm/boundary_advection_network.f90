@@ -21,7 +21,7 @@
 !> Routines that fulfill interfaces to accomandate DSM2 network
 !> Use some back door information, such as dsm2_network, node_concentration
 !>@ingroup gtm_driver
-module dsm2_gtm_network
+module boundary_advection_network
 
     contains  
 

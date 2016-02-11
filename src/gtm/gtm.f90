@@ -40,7 +40,7 @@ program gtm
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
-    use dsm2_gtm_network
+
     use hydro_data
     use hydro_data_network
     use state_variables
@@ -48,17 +48,17 @@ program gtm
     use primitive_variable_conversion
     use gradient
     use gradient_adjust
-    use boundary_concentration
     use advection
     use diffusion
-    use diffusion_network
     use dispersion_coefficient    
     use source_sink
     use boundary_advection 
-    use boundary_diffusion       
+    use boundary_diffusion  
+    use boundary_advection_network     
+    use boundary_diffusion_network    
+    use boundary_concentration        
     use gtm_subs
     use dsm2_time_utils, only: incr_intvl
-    use boundary_diffusion_network
     use gtm_init_store_outputs
     use gtm_store_outpath
     use klu
@@ -218,7 +218,7 @@ program gtm
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
-    boundary_diffusion_network_matrix => network_diffusion_sparse_matrix_zero_at_junctions
+    boundary_diffusion_matrix => network_diffusion_sparse_matrix_zero_at_junctions
     
     call set_dispersion_arr(disp_arr, n_cell)
     write(*,*) "Process time series...."
@@ -335,7 +335,7 @@ program gtm
                     write(*,*) "exceed max number of sub timestep. consider to decrease the cell size."
                 end if
                 sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
-                write(*,'(f15.0,f5.2,i5,f10.4)') current_time, max_cfl, ceil_max_cfl, sub_gtm_time_step                             
+                !write(*,'(f15.0,f5.2,i5,f10.4)') current_time, max_cfl, ceil_max_cfl, sub_gtm_time_step                             
                 call deallocate_network_tmp
                 call allocate_network_tmp(npartition_t*ceil_max_cfl)         
                 n_st = npartition_t*ceil_max_cfl + 1
@@ -344,7 +344,7 @@ program gtm
                                         prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)                                      
                 prev_sub_ts = ceil_max_cfl
             end if                                     
-            prev_comp_flow(:) = hydro_flow(:,slice_in_block)  ! keep track of prev_* to avoid index error at t_index=1
+            prev_comp_flow(:) = hydro_flow(:,slice_in_block)
             prev_comp_ws(:) = hydro_ws(:,slice_in_block)     
             prev_hydro_resv(:) = hydro_resv_height(:,slice_in_block)
             prev_hydro_resv_flow(:) = hydro_resv_flow(:,slice_in_block)
@@ -409,7 +409,7 @@ program gtm
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
             
             if (apply_diffusion) then
-                boundary_diffusion_flux => compute_diffuse_network
+                boundary_diffusion_flux => network_boundary_diffusive_flux_prev
                 call explicit_diffusion_operator(explicit_diffuse_op,          &
                                                  conc_prev,                    &
                                                  area_lo_prev,                 &
@@ -448,39 +448,40 @@ program gtm
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 boundary_diffusion_flux => network_boundary_diffusive_flux            
-                call dispersion_coef(disp_coef_lo,                 &
-                                     disp_coef_hi,                 &
-                                     flow,                         &
-                                     flow_lo,                      &
-                                     flow_hi,                      &
-                                     area,                         &
-                                     area_lo,                      &
-                                     area_hi,                      &                             
-                                     gtm_start_jmin,               &
-                                     dx_arr,                       &
-                                     gtm_time_interval,            &
-                                     n_cell,                       &
+                call dispersion_coef(disp_coef_lo,         &
+                                     disp_coef_hi,         &
+                                     flow,                 &
+                                     flow_lo,              &
+                                     flow_hi,              &
+                                     area,                 &
+                                     area_lo,              &
+                                     area_hi,              &                             
+                                     gtm_start_jmin,       &
+                                     dx_arr,               &
+                                     gtm_time_interval,    &
+                                     n_cell,               &
                                      n_var)             
-                call diffuse_network(conc,                         &
-                                     conc_prev,                    &
-                                     area,                         &
-                                     mass,                         &
-                                     flow_lo,                      &
-                                     flow_hi,                      &                                     
-                                     area_lo,                      &
-                                     area_hi,                      &
-                                     area_lo_prev,                 &
-                                     area_hi_prev,                 &
-                                     disp_coef_lo,                 &  
-                                     disp_coef_hi,                 &
-                                     disp_coef_lo_prev,            &                  
-                                     disp_coef_hi_prev,            &
-                                     n_cell,                       &
-                                     n_var,                        &
-                                     dble(new_current_time)*sixty, &
-                                     theta,                        &
-                                     sub_gtm_time_step*sixty,      &
-                                     dx_arr)        
+                call diffuse(conc,                         &
+                             conc_prev,                    &
+                             mass,                         &                                     
+                             area,                         &
+                             flow_lo,                      &
+                             flow_hi,                      &                                     
+                             area_lo,                      &
+                             area_hi,                      &
+                             area_lo_prev,                 &
+                             area_hi_prev,                 &
+                             disp_coef_lo,                 &  
+                             disp_coef_hi,                 &
+                             disp_coef_lo_prev,            &                  
+                             disp_coef_hi_prev,            &
+                             n_cell,                       &
+                             n_var,                        &
+                             dble(new_current_time)*sixty, &
+                             theta,                        &
+                             sub_gtm_time_step*sixty,      &
+                             dx_arr,                       &
+                             .true.)        
                 call prim2cons(mass,conc,area,n_cell,n_var)       
          
             end if       

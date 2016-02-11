@@ -301,9 +301,10 @@ module test_convergence_transport
                if (use_diffusion()) then                              
                     call diffuse(conc,              &
                                  conc_prev,         &
-                                 mass,              &                                
-                                 area,              &                               
-                                 area_prev,         &  
+                                 mass,              & 
+                                 area,              &                                  
+                                 flow_lo,           &
+                                 flow_hi,           &                               
                                  area_lo,           &
                                  area_hi,           &
                                  area_lo_prev,      &
@@ -317,7 +318,8 @@ module test_convergence_transport
                                  time,              &
                                  theta,             &
                                  dt,                &
-                                 dx)
+                                 dx,                &
+                                 .false.)
                end if
                        
                call prim2cons(mass,conc,area,nx,nconc)
