@@ -188,6 +188,7 @@ module test_convergence_transport
                        time,    &
                        dx,      &                  
                        dt)
+            flow_prev = flow                       
             area_prev = area
             area_hi_prev = area_hi
             area_lo_prev = area_lo
@@ -280,7 +281,7 @@ module test_convergence_transport
                ! call advection and source
                call advect(mass,                &
                            mass_prev,           &  
-                           flow,                &
+                           flow_prev,           &
                            flow_lo,             &
                            flow_hi,             &
                            area,                &
@@ -325,6 +326,7 @@ module test_convergence_transport
                call prim2cons(mass,conc,area,nx,nconc)
                mass_prev = mass
                area_prev = area
+               flow_prev = flow
                disp_coef_lo_prev = disp_coef_lo
                disp_coef_hi_prev = disp_coef_hi
       

@@ -423,11 +423,11 @@ program gtm
             else 
                 explicit_diffuse_op = zero
             end if    
-            
+
             !----- advection and source/sink -----        
             call advect(mass,                         &
                         mass_prev,                    &  
-                        flow,                         &
+                        flow_prev,                    &
                         flow_lo,                      &
                         flow_hi,                      &
                         area,                         &

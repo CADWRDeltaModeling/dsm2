@@ -23,6 +23,7 @@ program gtm_tools
     use create_restart
     use create_synth_tide
     use select_cell_ts
+    use read_unit_test
     implicit none
     integer :: tool_no
     character(len=128) :: restart_file
@@ -68,7 +69,7 @@ program gtm_tools
                                "cell concentration.txt",  &    
                                "select_cell_conc.txt") 
     elseif (tool_no .eq. 4) then
-    
+        call filelist
     
     
     else

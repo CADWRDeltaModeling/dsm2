@@ -27,5 +27,6 @@
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\tools\create_restart.f90"/>
 		<File RelativePath="..\..\src\tools\create_synth_tide.f90"/>
+		<File RelativePath="..\..\src\tools\read_unit_test.f90"/>
 		<File RelativePath="..\..\src\tools\select_cell_ts.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>
