@@ -27,6 +27,8 @@ module non_cohesive_source
 
     contains 
     subroutine source_non_cohesive(vertical_flux,    &
+                                   resuspension,     &
+                                   deposition,       &
                                    conc,             &
                                    flow,             &
                                    area,             &
@@ -44,6 +46,8 @@ module non_cohesive_source
 
         implicit none
         real(gtm_real),intent(out):: vertical_flux(ncell,nclass)    !< vertical sediment net flux into the water column
+        real(gtm_real),intent(out):: resuspension(ncell,nclass)     !< entrainment for resuspension
+        real(gtm_real),intent(out):: deposition(ncell,nclass)       !< deposition
         real(gtm_real),intent(in) :: conc(ncell,nclass)             !< concentration at new time
         real(gtm_real),intent(in) :: flow(ncell)                    !< flow
         real(gtm_real),intent(in) :: area(ncell)                    !< area
@@ -127,6 +131,8 @@ module non_cohesive_source
 
         ! dimension of sediment vertical flux is area per time
         do iclass=1,nclass
+            resuspension(:,iclass) = width*big_e_sub_s(:,iclass)*dx
+            deposition(:,iclass) = fall_vel(iclass)*c_bar_bed(:,iclass)
             !vertical_flux(:,iclass) = width*fall_vel(iclass)*(big_e_sub_s(:,iclass) - c_bar_bed(:,iclass))
             vertical_flux(:,iclass) = width*big_e_sub_s(:,iclass) - fall_vel(iclass)*c_bar_bed(:,iclass)
         end do  
@@ -254,7 +260,7 @@ module non_cohesive_source
             end where 
         end do
         big_e_sub_s  = cap_a*(z_u**five)/(one + (z_u**five)*cap_a/0.3d0)                                  
-                                     
+        return                             
     end subroutine
 
 end module 

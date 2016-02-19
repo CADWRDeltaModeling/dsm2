@@ -80,8 +80,8 @@ program test_driver
     use ut_utils
     
     !----- modules used to test sediment module ----- 
-    !use test_non_cohesive
-    !use unit_test_suspend_sed_utility
+    use test_non_cohesive
+    use unit_test_suspend_sed_utility
     
     implicit none
     logical :: verbose = .true.
@@ -178,7 +178,7 @@ program test_driver
     !call test_shear_velocity
     !call test_rouse_number
     !call test_allocation_ratio
-    !call test_source_non_cohesive
+    call test_source_non_cohesive
     
     !----- function calls to test units in project sediment -----
     
