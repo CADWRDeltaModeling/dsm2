@@ -69,12 +69,13 @@ program test_driver
     use test_converge_bidirectional_uniform
     use test_diffusion_fletcher
     use test_diffusion_nonlinear_decay
-
+    
     use test_convergence_transport_uniform
     use test_zoppou_advection_dispersion
     use test_time_dependent_advection_dispersion
     use test_mms_advection_dispersion
-
+    use test_convergence_transport_uniform_limiter_on
+    
     !use ut_do_source    
     use ut_klu
     use ut_utils
@@ -123,37 +124,38 @@ program test_driver
     call change_working_dir(parent_dir, "/transport_unit_test_out")
     
     !----- Advection unit tests
-    call test_gradient_calc
-    call test_limiter
-    call test_prim_cons_convert
-    call test_prim_increment2cons
-    call test_extrapolation
-    call test_tidal_hydro
-    call print_out_tidal_hydro
+    !call test_gradient_calc
+    !call test_limiter
+    !call test_prim_cons_convert
+    !call test_prim_increment2cons
+    !call test_extrapolation
+    !call test_tidal_hydro
+    !call print_out_tidal_hydro
 
     !----- Advection-diffusion-reaction convergence in uniform flow,
     !      operators are layered in successively
-    call test_converge_transport_uniform(verbose)
-    call test_converge_transport_uniform_vary_dx(verbose)
-    call test_converge_uniform_bidirectional(verbose)
-        !----- Diffusion unit tests
-    call test_tridi_solver
-    call test_boundary_diffusion_flux
-    call test_make_dif_flux_sub
-    call test_explicit_interior_diffusion_op
-    call test_interior_coef_matrix_sub
-    call test_construct_elemnts_rhs 
-    call test_coarsen
-    call test_detect_wiggle
-    call test_mass_comparison
+    !call test_converge_transport_uniform(verbose)
+    call test_converge_transport_uniform_limiter_on(verbose)
+    !call test_converge_transport_uniform_vary_dx(verbose)
+    !call test_converge_uniform_bidirectional(verbose)
+    !----- Diffusion unit tests
+    !call test_tridi_solver
+    !call test_boundary_diffusion_flux
+    !call test_make_dif_flux_sub
+    !call test_explicit_interior_diffusion_op
+    !call test_interior_coef_matrix_sub
+    !call test_construct_elemnts_rhs 
+    !call test_coarsen
+    !call test_detect_wiggle
+    !call test_mass_comparison
     
     !----- Advection - reaction problems
-    call test_tidal_advection_reaction(verbose)
-    call test_tidal_advection_reaction_vary_dx(verbose)
+    !call test_tidal_advection_reaction(verbose)
+    !call test_tidal_advection_reaction_vary_dx(verbose)
     
     !----- Advection-Diffusion tests
-    call test_zoppou_flow() 
-    call test_advection_diffusion_zoppou(verbose)
+    !call test_zoppou_flow() 
+    !call test_advection_diffusion_zoppou(verbose)
     !call test_advection_diffusion_t_dependent(verbose)
     !call test_advection_diffusion_time_dependent(verbose)
 
@@ -161,10 +163,10 @@ program test_driver
     !call test_advection_diffusion_mms(verbose)
     
     !----- Test KLU Solver
-    call klu_fortran_free(k_symbolic, k_numeric, k_common)    
-    call test_klu_exmamples
-    call test_qsort
-    call test_rowcol2apai
+    !call klu_fortran_free(k_symbolic, k_numeric, k_common)    
+    !call test_klu_exmamples
+    !call test_qsort
+    !call test_rowcol2apai
     
     !----- Test sediment module
     !call test_first_einstein_integral

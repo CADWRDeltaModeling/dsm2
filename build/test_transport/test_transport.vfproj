@@ -38,6 +38,7 @@
 		<File RelativePath="..\..\test\transport\test_converge_diffusion_nonlinear_source.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_hydro_interpolation.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_transport.f90"/>
+		<File RelativePath="..\..\test\transport\test_convergence_transport_uniform_limiter_on.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_transport_uniform.f90"/>
 		<File RelativePath="..\..\test\transport\test_converge_transport_uniform_vary_dx.f90"/>
 		<File RelativePath="..\..\test\transport\test_explicit_diffusion_operator.f90"/>

@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 2015 State of California,
+!    Copyright (C) 2016 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2-GTM.
 !
@@ -134,7 +134,7 @@ module non_cohesive_source
             resuspension(:,iclass) = width*big_e_sub_s(:,iclass)*dx
             deposition(:,iclass) = fall_vel(iclass)*c_bar_bed(:,iclass)
             !vertical_flux(:,iclass) = width*fall_vel(iclass)*(big_e_sub_s(:,iclass) - c_bar_bed(:,iclass))
-            vertical_flux(:,iclass) = width*big_e_sub_s(:,iclass) - fall_vel(iclass)*c_bar_bed(:,iclass)
+            vertical_flux(:,iclass) = big_e_sub_s(:,iclass) - fall_vel(iclass)*c_bar_bed(:,iclass)
         end do  
    
         call deallocate_sediment_variables

@@ -26,20 +26,20 @@ module read_unit_test
     
     subroutine filelist()
         implicit none
-        character(len=64) :: label(10)
+        character(len=64) :: label(11)
         integer :: start_nx
         integer :: i
         
-        start_nx = 64
-        label(1) = 'uniform_advect'
-        label(2) = 'uniform_diffuse'
-        label(3) = 'uniform_react'
-        label(4) = 'uniform_advect_diffuse'
-        label(5) = 'uniform_advect_react'
-        label(6) = 'uniform_advect_diffuse_react'        
-        do i = 1, 6            
-            call parse_output(label(i),start_nx) 
-        end do
+        !start_nx = 64
+        !label(1) = 'se_uniform_advect'
+        !label(2) = 'se_uniform_diffuse'
+        !label(3) = 'se_uniform_react'
+        !label(4) = 'se_uniform_advect_diffuse'
+        !label(5) = 'se_uniform_advect_react'
+        !label(6) = 'se_uniform_advect_diffuse_react'        
+        !do i = 1, 6            
+        !    call parse_output(label(i),start_nx) 
+        !end do
 
         start_nx = 128
         label(1) = 'uniform_advect_remote_bc'
@@ -51,8 +51,9 @@ module read_unit_test
         label(7) = 'advection_tidal_gaussian'
         label(8) = 'advection_tidal_sinusoidal'
         label(9) = 'advection_reaction_tidal_sinusoidal'
-        label(10) = 'advection_reaction_tidal_gaussian'   
-        do i = 1, 10
+        label(10) = 'advection_reaction_tidal_gaussian'  
+        label(11) = 'se_uniform_advect_remote_bc' 
+        do i = 1, 11
             call parse_output(label(i),start_nx) 
         end do
                     
