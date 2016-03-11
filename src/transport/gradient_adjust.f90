@@ -67,7 +67,7 @@ module gradient_adjust
                                                  nvar,         &
                                                  use_limiter)
         use gtm_precision
-        use gradient
+        use gradient, only : limiter
         implicit none
         !--- args
         real(gtm_real), intent(out) :: grad(ncell,nvar)          !< Cell centered difference adjusted for boundaries and hydraulic devices
@@ -87,9 +87,9 @@ module gradient_adjust
         else
             limit_slope = .true.
         end if        
-
+         
         if (limit_slope)then    ! Applies flux-limeter on high resolution gradient 
-            call van_Leer_limiter(grad, grad_lo, grad_hi ,grad_center, dx, ncell, nvar)
+            call limiter(grad, grad_lo, grad_hi ,grad_center, ncell, nvar)
         else    
             grad = grad_center
         end if    

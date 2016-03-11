@@ -40,6 +40,7 @@ program gtm
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
+
     use hydro_data
     use hydro_data_network
     use state_variables
@@ -423,11 +424,11 @@ program gtm
             else 
                 explicit_diffuse_op = zero
             end if    
-
+            
             !----- advection and source/sink -----        
             call advect(mass,                         &
                         mass_prev,                    &  
-                        flow_prev,                    &
+                        flow,                         &
                         flow_lo,                      &
                         flow_hi,                      &
                         area,                         &

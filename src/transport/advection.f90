@@ -292,8 +292,8 @@ module advection
         do ivar = 1,nvar
             ! todo: make sure source is in terms of primitive variables
             ! todo: this only works if I disable extrapolation (first order Godunov)
-            conc_lo(:,ivar) = conc(:,ivar) + half*(-grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar)/area(:) + dt*explicit_diffuse_op(:,ivar)/area(:))
-            conc_hi(:,ivar) = conc(:,ivar) + half*( grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar)/area(:) + dt*explicit_diffuse_op(:,ivar)/area(:))
+            conc_lo(:,ivar) = conc(:,ivar) + half*(-grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) + dt*explicit_diffuse_op(:,ivar)/area(:))
+            conc_hi(:,ivar) = conc(:,ivar) + half*( grad(:,ivar)*dx - dt*grad(:,ivar)*vel + dt*source(:,ivar) + dt*explicit_diffuse_op(:,ivar)/area(:))
         end do
 
         return
@@ -423,7 +423,7 @@ module advection
        ! obtain a guess at the new state (predictor part of Huen) using the flux divergence and source evaluated at the
        ! old time step
        do ivar=1,nvar
-           mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar) + dt*explicit_diffuse_op(:,ivar)
+           mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev + dt*explicit_diffuse_op(:,ivar)
        end do
        
        ! compute the source at the new time from the predictor
@@ -446,8 +446,8 @@ module advection
        do ivar = 1,nvar
            mass(:,ivar) =  mass_prev(:,ivar)                     &
                          - dtbydx*div_flux(:,ivar)               &
-                         + dt*half*source_prev(:,ivar) & !*area_prev &
-                         + dt*half*source(:,ivar)       !*area
+                         + dt*half*source_prev(:,ivar)*area_prev &
+                         + dt*half*source(:,ivar)*area
        end do    
        return
     end subroutine

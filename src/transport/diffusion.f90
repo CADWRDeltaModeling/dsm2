@@ -104,9 +104,9 @@ module diffusion
 
         !---- locals
         real(gtm_real) :: explicit_diffuse_op(ncell,nvar)             !< Explicit diffusive operator
-        real(gtm_real) :: down_diag(ncell)                            !< Values of the coefficients below diagonal in matrix
-        real(gtm_real) :: center_diag(ncell)                          !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real) :: up_diag(ncell)                              !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real) :: down_diag(ncell)                       !< Values of the coefficients below diagonal in matrix
+        real(gtm_real) :: center_diag(ncell)                     !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real) :: up_diag(ncell)                         !< Values of the coefficients above the diagonal in matrix
         real(gtm_real) :: right_hand_side(ncell,nvar)                 !< Right hand side vector
         real(gtm_real) :: time_prev                                   !< old time 
 
@@ -150,45 +150,45 @@ module diffusion
                                                                       
         ! Construct the matrix for the diffusion solver
         ! without boundary condition modification or structure on interior of domain
-        call construct_diffusion_matrix(center_diag ,      &
-                                        up_diag,           &     
-                                        down_diag,         &
-                                        area,              &
-                                        area_lo,           &
-                                        area_hi,           &
-                                        disp_coef_lo,      &
-                                        disp_coef_hi,      &
-                                        theta_gtm,         &
-                                        ncell,             &
-                                        time_new,          & 
-                                        nvar,              & 
-                                        dx,                &
+        call construct_diffusion_matrix(center_diag ,     &
+                                        up_diag,          &     
+                                        down_diag,        &
+                                        area,             &
+                                        area_lo,          &
+                                        area_hi,          &
+                                        disp_coef_lo,     &
+                                        disp_coef_hi,     &
+                                        theta_gtm,        &
+                                        ncell,            &
+                                        time_new,         & 
+                                        nvar,             & 
+                                        dx,               &
                                         dt)
                                   
-        call boundary_diffusion_matrix(center_diag ,        &
-                                       up_diag,             &     
-                                       down_diag,           &
-                                       right_hand_side,     & 
-                                       explicit_diffuse_op, &   
-                                       conc_prev,           &
-                                       mass_prev,           &
-                                       area_lo_prev,        &
-                                       area_hi_prev,        &
-                                       disp_coef_lo_prev,   &
-                                       disp_coef_hi_prev,   &
-                                       conc,                &
-                                       flow_lo,             &
-                                       flow_hi,             &                                                                            
-                                       area,                &
-                                       area_lo,             &
-                                       area_hi,             &          
-                                       disp_coef_lo,        &
-                                       disp_coef_hi,        &
-                                       theta_gtm,           &
-                                       ncell,               &
-                                       time_new,            & 
-                                       nvar,                & 
-                                       dx,                  &
+        call boundary_diffusion_matrix(center_diag ,       &
+                                       up_diag,            &     
+                                       down_diag,          &
+                                       right_hand_side,    & 
+                                       explicit_diffuse_op,&   
+                                       conc_prev,          &
+                                       mass_prev,               &
+                                       area_lo_prev,       &
+                                       area_hi_prev,       &
+                                       disp_coef_lo_prev,  &
+                                       disp_coef_hi_prev,  &
+                                       conc,               &
+                                       flow_lo,            &
+                                       flow_hi,            &                                                                            
+                                       area,               &
+                                       area_lo,            &
+                                       area_hi,            &          
+                                       disp_coef_lo,       &
+                                       disp_coef_hi,       &
+                                       theta_gtm,          &
+                                       ncell,              &
+                                       time_new,           & 
+                                       nvar,               & 
+                                       dx,                 &
                                        dt)
         
 
@@ -207,6 +207,8 @@ module diffusion
                        nvar)
         end if            
         
+                    
+
         return
     end subroutine 
  

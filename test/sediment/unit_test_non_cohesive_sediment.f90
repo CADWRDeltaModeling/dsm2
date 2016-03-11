@@ -39,8 +39,6 @@ module test_non_cohesive
         real(gtm_real) :: hydro_radius(ncell) 
         real(gtm_real) :: manning(ncell)
         real(gtm_real) :: diameter(nclass)
-        real(gtm_real) :: resuspension(ncell,nclass)
-        real(gtm_real) :: deposition(ncell,nclass)
         real(gtm_real) :: vertical_flux(ncell,nclass)
         
         flow = 1500.d0 *0.0283168
@@ -57,8 +55,6 @@ module test_non_cohesive
         call allocate_sediment_variables
         call set_sediment_constants
         call source_non_cohesive(vertical_flux,    &
-                                 resuspension,     &
-                                 deposition,       &
                                  conc,             &
                                  flow,             &
                                  area,             &

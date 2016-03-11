@@ -65,14 +65,14 @@ module test_convergence_transport_uniform
         flow   = zero
         diffuse= constant_diffuse
         decay  = zero
-        call converge_transport_uniform(verbose,"uniform_diffuse",flow,diffuse,decay,detail_result=do_detail)
+        call converge_transport_uniform(verbose,"uniform_diffuse",flow,diffuse,decay)
         call converge_transport_uniform(verbose,"uniform_diffuse_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
 
         flow   = zero
         diffuse= zero
         decay  = constant_decay
-        call converge_transport_uniform(verbose,"uniform_react",flow,diffuse,decay,detail_result=do_detail)
-        call converge_transport_uniform(verbose,"uniform_react_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
+        call converge_transport_uniform(verbose,"uniform_react",flow,diffuse,decay)
+        call converge_transport_uniform(verbose,"uniform_react_remote_bc",flow,diffuse,decay,boundary_remote=remote)
 
         flow   = constant_flow
         diffuse= constant_diffuse
@@ -83,14 +83,14 @@ module test_convergence_transport_uniform
         flow   = constant_flow
         diffuse= zero
         decay  = constant_decay
-        call converge_transport_uniform(verbose,"uniform_advect_react",flow,diffuse,decay,detail_result=do_detail)
+        call converge_transport_uniform(verbose,"uniform_advect_react",flow,diffuse,decay)
         call converge_transport_uniform(verbose,"uniform_advect_react_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
 
         flow   = constant_flow
         diffuse= constant_diffuse
         decay  = constant_decay
-        call converge_transport_uniform(verbose,"uniform_advect_diffuse_react",flow,diffuse,decay,detail_result=do_detail)
-        call converge_transport_uniform(verbose,"uniform_advect_diffuse_react_remote_bc",flow,diffuse,decay,boundary_remote=remote,detail_result=do_detail)
+        call converge_transport_uniform(verbose,"uniform_advect_diffuse_react",flow,diffuse,decay)
+        call converge_transport_uniform(verbose,"uniform_advect_diffuse_react_remote_bc",flow,diffuse,decay,boundary_remote=remote)
 
         return
     end subroutine

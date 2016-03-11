@@ -553,11 +553,8 @@ module test_converge_hydro_interpolation
         real(gtm_real),intent(in)   :: area(ncell)        !< area at source     
         real(gtm_real),intent(in)   :: flow(ncell)        !< flow at source location
         real(gtm_real),intent(in)   :: time               !< time 
-        !--- local
-        integer :: ivar
-        do ivar = 1, nvar
-            source(:,ivar) = -const_tidal_decay_rate*conc(:,ivar)*area(:)
-        enddo
+        ! source must be in primitive variable 
+        source = -const_tidal_decay_rate*conc
         return
      end subroutine 
 

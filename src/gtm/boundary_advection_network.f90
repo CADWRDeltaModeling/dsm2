@@ -101,7 +101,7 @@ module boundary_advection_network
                                           nvar,         &
                                           use_limiter)
         use gtm_precision
-        use gradient, only : van_Leer_limiter
+        use gradient, only : limiter
         use common_variables, only : n_node, dsm2_network
         implicit none
         !--- args
@@ -130,7 +130,7 @@ module boundary_advection_network
         end if        
          
         if (limit_slope)then    ! Applies flux-limeter on high resolution gradient 
-            call van_Leer_limiter(grad, grad_lo, grad_hi ,grad_center, dx, ncell, nvar)
+            call limiter(grad, grad_lo, grad_hi ,grad_center, ncell, nvar)
         else    
             grad = grad_center
         end if    
