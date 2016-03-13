@@ -191,7 +191,7 @@ module boundary_diffusion_network
         use gtm_precision
         use error_handling
         use common_variables, only : n_node, n_var, dsm2_network, dsm2_network_extra
-        use state_variables_network, only : node_conc
+        use state_variables_network, only : node_conc, conc_stip
         implicit none
         !--- args
         integer, intent(in)  :: ncell                               !< Number of cells
@@ -216,14 +216,14 @@ module boundary_diffusion_network
                 if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
                     if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
                         diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
-                                                (conc(icell,k)-node_conc(i,k))/(half*dx(icell))
+                                                (conc(icell,k)-conc_stip(icell,k))/(half*dx(icell))
                     else
                         diffusive_flux_lo(icell,:) = zero 
                     end if                            
                 else                                            ! downstream boundary
                     if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
                         diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
-                                                (node_conc(i,k)-conc(icell,k))/(half*dx(icell))
+                                                (conc_stip(icell,k)-conc(icell,k))/(half*dx(icell))
                     else
                         diffusive_flux_hi(icell,k) = zero 
                     end if
@@ -272,7 +272,7 @@ module boundary_diffusion_network
                                                     dt)   
         use gtm_precision
         use common_variables, only : n_node, dsm2_network, dsm2_network_extra   
-        use state_variables_network, only : node_conc, prev_node_conc                     
+        use state_variables_network, only : prev_node_conc, prev_conc_stip
         implicit none
         !--- args
         integer,intent(in)  :: ncell                                 !< Number of cells
@@ -298,14 +298,14 @@ module boundary_diffusion_network
                 if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
                     if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
                         diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
-                                                (conc(icell,k)-prev_node_conc(i,k))/(half*dx(icell))
+                                                (conc(icell,k)-prev_conc_stip(icell,k))/(half*dx(icell))
                     else
                         diffusive_flux_lo(icell,:) = zero 
                     end if                            
                 else                                            ! downstream boundary
                     if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
                         diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
-                                                (prev_node_conc(i,k)-conc(icell,k))/(half*dx(icell))
+                                                (prev_conc_stip(icell,k)-conc(icell,k))/(half*dx(icell))
                     else
                         diffusive_flux_hi(icell,k) = zero 
                     end if
@@ -641,7 +641,7 @@ module boundary_diffusion_network
         use gtm_precision
         use error_handling
         use common_variables, only : n_node, dsm2_network
-        use state_variables_network, only : node_conc, prev_node_conc
+        use state_variables_network, only : node_conc, prev_node_conc, conc_stip, prev_conc_stip
         use utils, only: sparse2matrix
         implicit none
         !--- args                        
@@ -699,9 +699,9 @@ module boundary_diffusion_network
                 exp_diffusion_op_plus(:)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
-                                            *(conc_prev(i,:)-prev_node_conc(ncc(j),:))/(half*dx(i))/dx(i)  
+                                            *(conc_prev(i,:)-prev_conc_stip(i,:))/(half*dx(i))/dx(i)  
                 right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
-                                       + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
+                                       + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*conc_stip(i,:)/(half*dx(i)*dx(i))
                 j = j + 2
             elseif (typ(j).eq."d") then         ! "d": downstream boundary
                 x_int = half*(dx(i)+dx(i-1))
@@ -716,11 +716,11 @@ module boundary_diffusion_network
                 end do  
                 if (prev_node_conc(ncc(j),1).eq.LARGEREAL) prev_node_conc(ncc(j),1) = zero           
                 exp_diffusion_op_plus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
-                                            *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
+                                            *(prev_conc_stip(i,:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                          *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)                               
                 right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
-                                       + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
+                                       + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*conc_stip(i,:)/(half*dx(i)*dx(i))
                 j = j + 2             
             elseif (typ(j).eq."h") then        ! "h": u/s of junction  
                 exp_diffusion_op_plus = zero

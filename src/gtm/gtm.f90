@@ -232,6 +232,7 @@ program gtm
     if (file_exists==.true.) then 
         call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var) 
     endif            
+    prev_conc_stip = zero 
 
     if (n_cell .gt. 0) then
         if (init_conc .ne. LARGEREAL) then
