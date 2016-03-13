@@ -49,6 +49,8 @@ module state_variables_network
     real(gtm_real), save, allocatable :: qext_flow(:)
     real(gtm_real), save, allocatable :: tran_flow(:)
     real(gtm_real), save, allocatable :: node_conc(:,:)
+    real(gtm_real), save, allocatable :: conc_stip(:,:)    
+    real(gtm_real), save, allocatable :: prev_conc_stip(:,:)
     
     real(gtm_real), save, allocatable :: prev_resv_height(:)
     real(gtm_real), save, allocatable :: prev_resv_flow(:)
@@ -94,7 +96,7 @@ module state_variables_network
     
     !> Allocate the state variables consistently for reservoir/qext/transfer flows.
     !> Initial value is LARGEREAL
-    subroutine allocate_state_network(a_nresv,a_nresv_conn,a_nqext,a_ntran,a_nnode,a_nvar)
+    subroutine allocate_state_network(a_nresv,a_nresv_conn,a_nqext,a_ntran,a_nnode,a_ncell,a_nvar)
         use error_handling
         implicit none
         character(LEN=128) :: message
@@ -104,6 +106,7 @@ module state_variables_network
         integer, intent(in) :: a_nqext      !< Number of requested
         integer, intent(in) :: a_ntran      !< Number of requested
         integer, intent(in) :: a_nnode      !< Number of requested
+        integer, intent(in) :: a_ncell      !< Number of requested
         integer, intent(in) :: a_nvar       !< Number of constituents
         
         write(message,*)"Could not allocate state variable. " //&
@@ -152,6 +155,14 @@ module state_variables_network
         end if
         node_conc         = LARGEREAL 
         prev_node_conc    = LARGEREAL
+         
+        allocate(conc_stip(a_ncell,a_nvar), stat = istat)
+        allocate(prev_conc_stip(a_ncell,a_nvar), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        conc_stip        = LARGEREAL      
+        prev_conc_stip   = LARGEREAL  
                 
         return
     end subroutine
@@ -189,10 +200,8 @@ module state_variables_network
         deallocate(tran_flow, prev_tran_flow)
         deallocate(node_conc, prev_node_conc)
         deallocate(conc_resv, conc_resv_prev)        
+        deallocate(conc_stip, prev_conc_stip)
         return
     end subroutine    
 
 end module
-
-
-

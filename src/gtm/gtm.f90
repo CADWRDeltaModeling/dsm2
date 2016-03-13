@@ -178,7 +178,7 @@ program gtm
     call allocate_hydro_ts 
     call allocate_network_tmp(npartition_t)
     call allocate_state(n_cell, n_var)
-    call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_node, n_var)
+    call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_node, n_cell, n_var)
     allocate(init_c(n_cell,n_var))
     allocate(init_r(n_resv,n_var))
     allocate(explicit_diffuse_op(n_cell,n_var))
@@ -499,6 +499,7 @@ program gtm
             prev_qext_flow = qext_flow
             prev_tran_flow = tran_flow            
             prev_node_conc = node_conc
+            prev_conc_stip = conc_stip            
             node_conc = LARGEREAL             
         end do ! end of loop of sub time step
 

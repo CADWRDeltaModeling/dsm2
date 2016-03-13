@@ -216,13 +216,13 @@ module boundary_advection_network
             if (dsm2_network(i)%boundary_no > 0) then       
                 icell = dsm2_network(i)%cell_no(1)
                 if (( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).ge.zero)) then    ! upstream boundary
-                    flux_lo(icell,:) = conc_lo(icell,:)*flow_lo(icell)
+                    flux_lo(icell,:) = conc_stip(icell,:)*flow_lo(icell)
                 elseif(( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).lt.zero)) then
-                    flux_lo(icell,:) = conc_hi(icell,:)*flow_hi(icell)
+                    flux_lo(icell,:) = conc_lo(icell,:)*flow_lo(icell)
                 elseif(( dsm2_network(i)%up_down(1) .eq. 0).and.(flow_hi(icell).ge.zero)) then ! downstream boundary
-                    flux_hi(icell,:) = conc_lo(icell,:)*flow_lo(icell)
-                else
-                    flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)
+                    flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)   !outflow
+                else 
+                    flux_hi(icell,:) = conc_stip(icell,:)*flow_hi(icell) !inflow
                 end if
             end if
             ! adjust flux for non-sequential adjacent cells
@@ -360,7 +360,7 @@ module boundary_advection_network
         use error_handling
         use common_variables, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs
         use common_dsm2_vars, only: n_inputpaths, pathinput
-        use state_variables_network, only : node_conc
+        use state_variables_network, only : node_conc, conc_stip
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
@@ -377,9 +377,11 @@ module boundary_advection_network
                     do k = 1, dsm2_network(inode)%n_conn_cell
                         icell = dsm2_network(inode)%cell_no(k)
                         if (dsm2_network(inode)%up_down(k).eq.0) then  !cell at upstream of junction 
-                            conc_hi(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                            !conc_hi(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                            conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
                         else                                           !cell at downstream of junction 
-                            conc_lo(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                            !conc_lo(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                            conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
                         end if 
                     end do
                 end if    
@@ -392,8 +394,14 @@ module boundary_advection_network
             if (dsm2_network(i)%boundary_no > 0) then    
                 icell = dsm2_network(i)%cell_no(1)
                 do j = 1, nvar
-                    if (dsm2_network(i)%up_down(1) .eq. 1 .and. node_conc(i,j).eq.LARGEREAL) node_conc(i,j) = conc_hi(icell,j) ! upstream boundary 
-                    if (dsm2_network(i)%up_down(1) .eq. 0 .and. node_conc(i,j).eq.LARGEREAL) node_conc(i,j) = conc_lo(icell,j) ! downstream boundary 
+                    if (dsm2_network(i)%up_down(1) .eq. 1 .and. node_conc(i,j).eq.LARGEREAL) then
+                     conc_stip(icell,j)=conc_hi(icell,j) 
+                    node_conc(i,j) = conc_hi(icell,j) ! upstream boundary 
+                    end if
+                    if (dsm2_network(i)%up_down(1) .eq. 0 .and. node_conc(i,j).eq.LARGEREAL) then 
+                    conc_stip(icell,j)=conc_lo(icell,j) 
+                    node_conc(i,j) = conc_lo(icell,j) ! downstream boundary 
+                    end if
                 end do
             end if
         end do                             
