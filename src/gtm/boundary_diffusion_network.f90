@@ -208,34 +208,29 @@ module boundary_diffusion_network
         real(gtm_real),intent(in)   :: dx(ncell)                    !< Time step     
         integer :: i, j, k, icell
         integer :: up_cell, down_cell
+        real(gtm_real) :: extrp
 
         do k = 1, n_var
           do i = 1, n_node
             if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
                 if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
-                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
-                        diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
-                                                (conc(icell,k)-conc_stip(icell,k))/(half*dx(icell))
-                    else
-                        diffusive_flux_lo(icell,:) = zero 
-                    end if                            
+                    extrp = conc(icell,k)-half*(conc(icell+1,k)-conc(icell,k))
+                    diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
+                                                (conc(icell,k)-extrp)/(half*dx(icell))                                             
                 else                                            ! downstream boundary
-                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
-                        diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
-                                                (conc_stip(icell,k)-conc(icell,k))/(half*dx(icell))
-                    else
-                        diffusive_flux_hi(icell,k) = zero 
-                    end if
+                    extrp = conc(icell,k)+half*(conc(icell,k)-conc(icell-1,k))
+                    diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
+                                                (extrp-conc(icell,k))/(half*dx(icell))                    
                 end if    
             end if
             if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
-                       diffusive_flux_hi(icell,k) = zero !diffusive_flux_lo(icell,k)
+                       diffusive_flux_hi(icell,k) = zero 
                    else                                         !cell at downstream of junction
-                       diffusive_flux_lo(icell,k) = zero !diffusive_flux_hi(icell,k)
+                       diffusive_flux_lo(icell,k) = zero 
                    end if                           
                 end do                
             end if
@@ -290,34 +285,29 @@ module boundary_diffusion_network
         
         !----- locals
         integer :: i, j, k, icell, up_cell, down_cell
+        real(gtm_real) :: extrp
               
         do k = 1, nvar
           do i = 1, n_node
             if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
                 if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
-                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
-                        diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
-                                                (conc(icell,k)-prev_conc_stip(icell,k))/(half*dx(icell))
-                    else
-                        diffusive_flux_lo(icell,:) = zero 
-                    end if                            
+                    extrp = conc(icell,k)-half*(conc(icell+1,k)-conc(icell,k))
+                    diffusive_flux_lo(icell,:) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
+                                                (conc(icell,k)-extrp)/(half*dx(icell))                             
                 else                                            ! downstream boundary
-                    if ( dsm2_network_extra(i)%node_conc(k) .eq. 1 ) then
-                        diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
-                                                (prev_conc_stip(icell,k)-conc(icell,k))/(half*dx(icell))
-                    else
-                        diffusive_flux_hi(icell,k) = zero 
-                    end if
+                    extrp = conc(icell,k)+half*(conc(icell,k)-conc(icell-1,k))
+                    diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
+                                                (extrp-conc(icell,k))/(half*dx(icell))                                                
                 end if    
             end if
             if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
                 do j = 1, dsm2_network(i)%n_conn_cell
                    icell = dsm2_network(i)%cell_no(j)
                    if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
-                       diffusive_flux_hi(icell,k) = zero !diffusive_flux_lo(icell,k)
+                       diffusive_flux_hi(icell,k) = zero 
                    else                                         !cell at downstream of junction
-                       diffusive_flux_lo(icell,k) = zero !diffusive_flux_hi(icell,k)
+                       diffusive_flux_lo(icell,k) = zero 
                    end if                           
                 end do                
             end if
@@ -678,7 +668,7 @@ module boundary_diffusion_network
         real(gtm_real) :: exp_diffusion_op_plus(nvar)
         real(gtm_real) :: exp_diffusion_op_minus(nvar)
         real(gtm_real), allocatable :: matrix(:,:)
-        real(gtm_real) :: disp
+        real(gtm_real) :: disp, extrp_prev(nvar)
         real(gtm_real) :: prev_nc(nvar), nc(nvar)
 
         j = 1
@@ -696,12 +686,13 @@ module boundary_diffusion_network
                     end if
                 end do
                 if (prev_node_conc(ncc(j),1).eq.LARGEREAL)  prev_node_conc(ncc(j),1) = zero
+                extrp_prev(:) = conc_prev(i,:)-half*(conc_prev(i+1,:)-conc_prev(i,:))                
                 exp_diffusion_op_plus(:)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
-                                            *(conc_prev(i,:)-prev_conc_stip(i,:))/(half*dx(i))/dx(i)  
+                                            *(conc_prev(i,:)-extrp_prev(:))/(half*dx(i))/dx(i)  
                 right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
-                                       + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*conc_stip(i,:)/(half*dx(i)*dx(i))
+                                       + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*extrp_prev(:)/(half*dx(i)*dx(i))
                 j = j + 2
             elseif (typ(j).eq."d") then         ! "d": downstream boundary
                 x_int = half*(dx(i)+dx(i-1))
@@ -715,12 +706,13 @@ module boundary_diffusion_network
                     end if
                 end do  
                 if (prev_node_conc(ncc(j),1).eq.LARGEREAL) prev_node_conc(ncc(j),1) = zero           
+                extrp_prev(:) = conc_prev(i,:)+half*(conc_prev(i,:)-conc_prev(i-1,:))
                 exp_diffusion_op_plus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
-                                            *(prev_conc_stip(i,:)-conc_prev(i,:))/(half*dx(i))/dx(i)
+                                            *(extrp_prev(:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                          *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)                               
                 right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
-                                       + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*conc_stip(i,:)/(half*dx(i)*dx(i))
+                                       + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*extrp_prev(:)/(half*dx(i)*dx(i))
                 j = j + 2             
             elseif (typ(j).eq."h") then        ! "h": u/s of junction  
                 exp_diffusion_op_plus = zero

@@ -409,22 +409,22 @@ program gtm
             end if
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
             
-            if (apply_diffusion) then
-                boundary_diffusion_flux => network_boundary_diffusive_flux_prev
-                call explicit_diffusion_operator(explicit_diffuse_op,          &
-                                                 conc_prev,                    &
-                                                 area_lo_prev,                 &
-                                                 area_hi_prev,                 &
-                                                 disp_coef_lo_prev,            &  
-                                                 disp_coef_hi_prev,            &
-                                                 n_cell,                       &
-                                                 n_var,                        &
-                                                 dble(new_current_time)*sixty, &
-                                                 dx_arr,                       &
-                                                 sub_gtm_time_step*sixty)
-            else 
+            !if (apply_diffusion) then  
+            !    boundary_diffusion_flux => network_boundary_diffusive_flux_prev
+            !    call explicit_diffusion_operator(explicit_diffuse_op,          &
+            !                                     conc_prev,                    &
+            !                                     area_lo_prev,                 &
+            !                                     area_hi_prev,                 &
+            !                                     disp_coef_lo_prev,            &  
+            !                                     disp_coef_hi_prev,            &
+            !                                     n_cell,                       &
+            !                                     n_var,                        &
+            !                                     dble(new_current_time)*sixty, &
+            !                                     dx_arr,                       &
+            !                                     sub_gtm_time_step*sixty)
+            !else !omit dispersion term in advection calculation
                 explicit_diffuse_op = zero
-            end if    
+            !end if    
             
             !----- advection and source/sink -----        
             call advect(mass,                         &
