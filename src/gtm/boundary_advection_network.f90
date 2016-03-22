@@ -319,10 +319,15 @@ module boundary_advection_network
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
+                    prev_conc_stip(icell,:) = LARGEREAL                    
+                    prev_conc_stip(icell,:) = conc_stip(icell,:) 
+                    conc_stip(icell,:) = LARGEREAL
                     if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
-                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)
+                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                        
+                        conc_stip(icell,:) = conc_tmp(:)
                     elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
                         flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
+                        conc_stip(icell,:) = conc_tmp(:)                      
                     endif            
                 end do           
                 

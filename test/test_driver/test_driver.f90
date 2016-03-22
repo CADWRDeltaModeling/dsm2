@@ -36,17 +36,17 @@ program test_driver
     use ut_gtm_network
     
     !----- modules used in project test_process_io -----
-    use ut_dsm2_time_utils
-    use ut_process_gtm_input
-    use ut_time_utilities
-    use ut_gtm_dss_readdss
-    use ut_gtm_dss_readtvd
-    use ut_gtm_dss_main
-    use ut_gtm_hdf_ts_wrt
-    use ut_gtm_hdf_write
-    use ut_boundary
-    use ut_create_restart
-    use ut_read_init_file
+    !use ut_dsm2_time_utils
+    !use ut_process_gtm_input
+    !use ut_time_utilities
+    !use ut_gtm_dss_readdss
+    !use ut_gtm_dss_readtvd
+    !use ut_gtm_dss_main
+    !use ut_gtm_hdf_ts_wrt
+    !use ut_gtm_hdf_write
+    !use ut_boundary
+    !use ut_create_restart
+    !use ut_read_init_file
     
     !----- modules used in project test_transport -----  
     use test_extrapolate
@@ -76,7 +76,7 @@ program test_driver
     use test_time_dependent_advection_dispersion
     use test_mms_advection_dispersion
     
-    use ut_do_source    
+    !use ut_do_source    
     use ut_klu
     use ut_utils
     
@@ -101,17 +101,17 @@ program test_driver
     call klu_fortran_free_numeric(k_numeric, k_common)
    
     !----- function calls to test units in project process_io API ---
-    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    call test_dsm2_time_utils
-    call test_time_util
-    call test_readdss  
-    call test_readtvd
-    call test_dss_main
-    call test_input_storage 
-    call test_hdf_ts_wrt
-    call test_gtm_hdf_write
-    call test_find_bound_index
-    call test_read_init_file
+    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    !call test_dsm2_time_utils
+    !call test_time_util
+    !call test_readdss  
+    !call test_readtvd
+    !call test_dss_main
+    !call test_input_storage 
+    !call test_hdf_ts_wrt
+    !call test_gtm_hdf_write
+    !call test_find_bound_index
+    !call test_read_init_file
     
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
@@ -135,7 +135,7 @@ program test_driver
     !----- Advection-diffusion-reaction convergence in uniform flow,
     !      operators are layered in successively
     call test_converge_transport_uniform(verbose)
-    call test_converge_transport_uniform_vary_dx(verbose)
+    !call test_converge_transport_uniform_vary_dx(verbose)
     call test_converge_uniform_bidirectional(verbose)
         !----- Diffusion unit tests
     call test_tridi_solver
@@ -150,8 +150,8 @@ program test_driver
     
     !----- Advection - reaction problems
     call test_tidal_advection_reaction(verbose)
-    call test_tidal_advection_reaction_vary_dx(verbose)
-    call test_advection_reaction_hydro_interp(verbose)
+    !call test_tidal_advection_reaction_vary_dx(verbose)
+    !call test_advection_reaction_hydro_interp(verbose)
     
     !----- Advection-Diffusion tests
     call test_zoppou_flow() 

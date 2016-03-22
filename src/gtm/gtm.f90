@@ -194,18 +194,18 @@ program gtm
     call assign_node_ts
     call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
     gtm_hdf_time_intvl = dble(tmp_int)
-    call init_qual_hdf(qual_hdf,             &
-                       gtm_io(3,2)%filename, &
-                       n_cell,               &
-                       n_resv,               &
-                       n_var,                &
-                       int(gtm_start_jmin),  &
-                       int(gtm_end_jmin),    &
-                       gtm_io(3,2)%interval)
+    call init_gtm_hdf(gtm_hdf,             &
+                      gtm_io(3,2)%filename, &
+                      n_cell,               &
+                      n_resv,               &
+                      n_var,                &
+                      int(gtm_start_jmin),  &
+                      int(gtm_end_jmin),    &
+                      gtm_io(3,2)%interval)
     
     if (trim(gtm_io(3,2)%filename) .ne. "") then
-        call write_input_to_hdf5(qual_hdf%file_id)
-        call write_grid_to_tidefile(qual_hdf%file_id)
+        call write_input_to_hdf5(gtm_hdf%file_id)
+        call write_grid_to_tidefile(gtm_hdf%file_id)
     end if
                        
     !----- point to interface -----
@@ -409,7 +409,7 @@ program gtm
             end if
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
             
-            !if (apply_diffusion) then  
+            !if (apply_diffusion) then   ! omit dispersion term for advection calculation
             !    boundary_diffusion_flux => network_boundary_diffusive_flux_prev
             !    call explicit_diffusion_operator(explicit_diffuse_op,          &
             !                                     conc_prev,                    &
@@ -517,31 +517,31 @@ program gtm
         !                     
         if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
             time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
-            call write_qual_hdf(qual_hdf,                     &
-                                conc,                         &
-                                n_cell,                       &
-                                n_var,                        &
-                                time_index_in_gtm_hdf)     
+            call write_gtm_hdf(gtm_hdf,                      &
+                               conc,                         &
+                               n_cell,                       &
+                               n_var,                        &
+                               time_index_in_gtm_hdf)     
             if (n_resv .gt. 0) then
-                call write_qual_hdf_resv(qual_hdf,            & 
-                                         conc_resv,           & 
-                                         n_resv,              &
-                                         n_var,               &  
-                                         time_index_in_gtm_hdf)                                
+                call write_gtm_hdf_resv(gtm_hdf,             & 
+                                        conc_resv,           & 
+                                        n_resv,              &
+                                        n_var,               &  
+                                        time_index_in_gtm_hdf)                                
             end if
             if (debug_print==.true.) then                                                 
-                call write_qual_hdf_ts(qual_hdf%cell_flow_id, &
-                                       flow_hi,                  & 
-                                       n_cell,                &
-                                       time_index_in_gtm_hdf)
-                call write_qual_hdf_ts(qual_hdf%cell_area_id, &
-                                       area_hi,                  & 
-                                       n_cell,                &
-                                       time_index_in_gtm_hdf)                               
-                call write_qual_hdf_ts(qual_hdf%cell_cfl_id,  &
-                                       cfl,                   & 
-                                       n_cell,                &
-                                       time_index_in_gtm_hdf)                                             
+                call write_gtm_hdf_ts(gtm_hdf%cell_flow_id, &
+                                      flow_hi,                  & 
+                                      n_cell,                &
+                                      time_index_in_gtm_hdf)
+                call write_gtm_hdf_ts(gtm_hdf%cell_area_id, &
+                                      area_hi,                  & 
+                                      n_cell,                &
+                                      time_index_in_gtm_hdf)                               
+                call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,  &
+                                      cfl,                   & 
+                                      n_cell,                &
+                                      time_index_in_gtm_hdf)                                             
             end if            
         end if                           
         prev_julmin = int(current_time)         
@@ -575,7 +575,7 @@ program gtm
     call deallocate_network_tmp
     call deallocate_state_hydro
     call deallocate_hydro_ts
-    call close_qual_hdf(qual_hdf)         
+    call close_gtm_hdf(gtm_hdf)         
     call hdf5_close
     !close(debug_unit)
     write(*,*) '-------- Normal program end -------'

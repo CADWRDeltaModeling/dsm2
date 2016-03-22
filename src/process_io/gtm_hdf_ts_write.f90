@@ -28,7 +28,7 @@ module gtm_hdf_ts_write
     use gtm_precision
     use error_handling      
     
-    type qual_hdf_t 
+    type gtm_hdf_t 
         character*128 file_name
         real(gtm_real) :: write_interval
         real(gtm_real) :: start_julmin
@@ -46,10 +46,9 @@ module gtm_hdf_ts_write
         integer(HSIZE_T) :: resv_dim
         integer(HSIZE_T) :: time_dim
     end type
-      
-    type(qual_hdf_t) :: qual_hdf
+    type(gtm_hdf_t) :: gtm_hdf
     
-    logical :: using_qual_hdf = .false.
+    logical :: using_gtm_hdf = .false.
     integer, parameter :: HDF_SZIP_PIXELS_PER_BLOCK = 16
     integer, parameter :: TIME_CHUNK = HDF_SZIP_PIXELS_PER_BLOCK
     integer, parameter :: MIN_STEPS_FOR_CHUNKING = TIME_CHUNK
@@ -57,21 +56,21 @@ module gtm_hdf_ts_write
     contains
       
     !< Initialize the qual output file, assume HDF5 interface is opne
-    subroutine init_qual_hdf(hdf_file,          &
-                             hdf_name,          &
-                             ncell,             &
-                             nresv,             &
-                             nconc,             &
-                             sim_start,         &
-                             sim_end,           &
-                             hdf_interval_char)
+    subroutine init_gtm_hdf(hdf_file,          &
+                            hdf_name,          &
+                            ncell,             &
+                            nresv,             &
+                            nconc,             &
+                            sim_start,         &
+                            sim_end,           &
+                            hdf_interval_char)
  
    	    use hdf5		! HDF5 This module contains all necessary modules
         use common_variables, only: unit_error, unit_screen, gtm_time_interval, debug_print
         use dsm2_time_utils, only: incr_intvl
         use common_dsm2_vars, only: NEAREST_BOUNDARY, TO_BOUNDARY, print_level
   	    implicit none
-        type(qual_hdf_t), intent(inout) :: hdf_file   !< persistent info about file and datasets
+        type(gtm_hdf_t), intent(inout) :: hdf_file   !< persistent info about file and datasets
         character*128, intent(in) :: hdf_name         !< name of qual hdf5 file
         integer, intent(in) :: ncell                  !< number of cells
         integer, intent(in) :: nresv                  !< number of reservoirs
@@ -130,7 +129,7 @@ module gtm_hdf_ts_write
 	    call h5gcreate_f(hdf_file%file_id, "output", hdf_file%data_id, error)
 	
 	    call incr_intvl(hdf_interval, 0,hdf_interval_char,TO_BOUNDARY)
-	    qual_hdf%write_interval = hdf_interval
+	    gtm_hdf%write_interval = hdf_interval
 	    if (hdf_interval < time_step) then
 	        write(unit_error,*) "HDF write interval is finer than the simulation time step"
 	        call exit(-3)
@@ -138,7 +137,7 @@ module gtm_hdf_ts_write
 	
 	    ! This would be more complex if time averages were stored
         call incr_intvl(hdf_start, sim_start, hdf_interval_char, NEAREST_BOUNDARY)
-        qual_hdf%start_julmin = hdf_start
+        gtm_hdf%start_julmin = hdf_start
 
         ! todo: is this "1+" always right? It wasn't in the original code      
         ! record the dimensions of the simulation
@@ -154,15 +153,15 @@ module gtm_hdf_ts_write
 	    call write_dimensions(hdf_file%data_id, nresv, nconc)
 	
 	    ! create the data sets for time-varying output
-	    call init_cell_qual_hdf5(hdf_file, ncell, nconc, ntime)
+	    call init_cell_gtm_hdf5(hdf_file, ncell, nconc, ntime)
 	    if (debug_print .eq. .true.) then
-	        call init_cell_qual_hdf5_debug(hdf_file, ncell, ntime)	    
+	        call init_cell_gtm_hdf5_debug(hdf_file, ncell, ntime)	    
 	    end if
 	    if (hdf_file%resv_dim .gt. 0)then
-	        call init_reservoir_qual_hdf5(hdf_file, nresv, nconc, ntime)
+	        call init_reservoir_gtm_hdf5(hdf_file, nresv, nconc, ntime)
 	    end if
 
-        using_qual_hdf = .true.
+        using_gtm_hdf = .true.
         
 	    return
 	end subroutine      
@@ -222,13 +221,13 @@ module gtm_hdf_ts_write
     end subroutine
 
     !> Initialize qual tide file for cell time series (ncell)
-	subroutine init_cell_qual_hdf5_debug(hdf_file, ncell, ntime)
+	subroutine init_cell_gtm_hdf5_debug(hdf_file, ncell, ntime)
 
 	    use hdf5
 	    use time_utilities, only: jmin2cdt
 	    implicit none
 	    
-        type(qual_hdf_t), intent(inout) :: hdf_file       !< hdf file properties
+        type(gtm_hdf_t), intent(inout) :: hdf_file       !< hdf file properties
 	    integer, intent(in) :: ntime                      !< number of time steps
 	    integer, intent(in) :: ncell                      !< number of cells
    	    integer(HID_T) :: attr_id                         ! Attribute identifier 
@@ -326,13 +325,13 @@ module gtm_hdf_ts_write
 
 
     !> Initialize qual tide file for cell time series (ncell, nvar)
-	subroutine init_cell_qual_hdf5(hdf_file, ncell, nconc, ntime)
+	subroutine init_cell_gtm_hdf5(hdf_file, ncell, nconc, ntime)
 
 	    use hdf5
 	    use time_utilities, only: jmin2cdt
 	    implicit none
 	    
-        type(qual_hdf_t), intent(inout) :: hdf_file       !< hdf file properties
+        type(gtm_hdf_t), intent(inout) :: hdf_file       !< hdf file properties
 	    integer, intent(in) :: ntime                      !< number of time steps
 	    integer, intent(in) :: ncell                      !< number of cells
         integer, intent(in) :: nconc	                  !< number of constituents
@@ -396,10 +395,10 @@ module gtm_hdf_ts_write
 
 
 	!> Initialize qual tide file for reservoir time series 
-	subroutine init_reservoir_qual_hdf5(hdf_file, nresv, nconc, ntime)
+	subroutine init_reservoir_gtm_hdf5(hdf_file, nresv, nconc, ntime)
 	    use hdf5
         implicit none
-        type(qual_hdf_t), intent(inout) :: hdf_file
+        type(gtm_hdf_t), intent(inout) :: hdf_file
         integer(HID_T) :: cparms          ! dataset creation property identifier 
         integer        :: error	          ! HDF5 Error flag
         integer        :: res_rank = 3
@@ -448,10 +447,10 @@ module gtm_hdf_ts_write
 
 
     !> Write flow/area time series data to Qual tidefile (dimension cell)
-    subroutine write_qual_hdf_ts(data_id,       &
-                                 cell_ts,       & 
-                                 ncell,         &
-                                 time_index)
+    subroutine write_gtm_hdf_ts(data_id,       &
+                                cell_ts,       & 
+                                ncell,         &
+                                time_index)
         use hdf5
         implicit none
         integer, intent(in) :: data_id                          !< data id
@@ -498,7 +497,7 @@ module gtm_hdf_ts_write
                             error,                       &
                             memspace_id,                 & 
                             fspace_id)
-	        call verify_error(error,"Cell time series write (write_qual_hdf_ts)")
+	        call verify_error(error,"Cell time series write (write_gtm_hdf_ts)")
             call h5sclose_f (fspace_id, error)
             call h5sclose_f (memspace_id, error)      
         end if
@@ -507,14 +506,14 @@ module gtm_hdf_ts_write
 
 
     !> Write time series data to Qual tidefile (dimension cell)
-    subroutine write_qual_hdf(hdf_file,      &
+    subroutine write_gtm_hdf(hdf_file,      &
                               cell_conc,     & 
                               ncell,         &
                               nconc,         &  
                               time_index)
         use hdf5
         implicit none
-        type(qual_hdf_t), intent(in) :: hdf_file                !< hdf file structure
+        type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
         integer, intent(in) :: ncell                            !< number of cells
         integer, intent(in) :: nconc                            !< number of constituents
         real(gtm_real), intent(in) :: cell_conc(ncell, nconc)   !< cell data from transport module
@@ -578,14 +577,14 @@ module gtm_hdf_ts_write
 
    
     !> Write time series data to Qual tidefile (dimension reservoir)
-    subroutine write_qual_hdf_resv(hdf_file,      & 
+    subroutine write_gtm_hdf_resv(hdf_file,      & 
                                    resv_conc,     & 
                                    nresv,         &
                                    nconc,         &  
                                    time_index)
         use hdf5
         implicit none
-        type(qual_hdf_t), intent(in) :: hdf_file                !< hdf file structure
+        type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
         integer, intent(in) :: nresv                            !< number of reservoirs
         integer, intent(in) :: nconc                            !< number of constituents
         real(gtm_real), intent(in) :: resv_conc(nresv, nconc)   !< resv data from transport module
@@ -647,13 +646,13 @@ module gtm_hdf_ts_write
 
  
     !> Close out the HDF5 file properly, leaves HDF5 API open
-    subroutine close_qual_hdf(hdf_file)
+    subroutine close_gtm_hdf(hdf_file)
         use hdf5
         use common_variables, only: unit_error,unit_screen
         use common_dsm2_vars, only: print_level
 
         implicit none
-        type(qual_hdf_t) :: hdf_file
+        type(gtm_hdf_t) :: hdf_file
 	
         integer        :: error	! HDF5 Error flag
        
@@ -691,11 +690,11 @@ module gtm_hdf_ts_write
       
       
     !> Query if it is time to write Qual state to HDF5      
-    logical function is_qual_hdf_write_interval(julmin)
+    logical function is_gtm_hdf_write_interval(julmin)
         implicit none
         real(gtm_real), intent(in) :: julmin
-        is_qual_hdf_write_interval = ( julmin .ge. qual_hdf.start_julmin .and.     &
-                                     mod(julmin, qual_hdf.write_interval) .eq. 0)
+        is_gtm_hdf_write_interval = ( julmin .ge. gtm_hdf.start_julmin .and.     &
+                                     mod(julmin, gtm_hdf.write_interval) .eq. 0)
         return
     end function
         

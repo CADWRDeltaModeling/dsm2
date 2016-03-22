@@ -34,16 +34,16 @@ module ut_gtm_hdf_ts_wrt
         implicit none
         integer :: error = 0
         call h5open_f(error)        
-        call test_init_qual_hdf
-        call test_write_ts_qual_hdf
-        call test_write_ts_qual_hdf_lg
+        call test_init_gtm_hdf
+        call test_write_ts_gtm_hdf
+        call test_write_ts_gtm_hdf_lg
         call h5close_f(error)   
         return
     end subroutine    
 
 
     !> Test for initializing qual tidefile
-    subroutine test_init_qual_hdf()
+    subroutine test_init_gtm_hdf()
         use common_variables, only: chan_geom, resv_geom, constituents, gtm_time_interval
         use gtm_hdf_ts_write
         implicit none
@@ -73,15 +73,15 @@ module ut_gtm_hdf_ts_wrt
         resv_geom(1)%name = "res_1"
         constituents(1)%name = "conc_1"
         constituents(2)%name = "conc_2"
-        call init_qual_hdf(qual_hdf,          &
-                           hdf_name,          &
-                           ncell,             &
-                           nres,              &
-                           nconc,             &
-                           sim_start,         &
-                           sim_end,           &
-                           hdf_interval_char)
-        call close_qual_hdf(qual_hdf)          
+        call init_gtm_hdf(qual_hdf,          &
+                          hdf_name,          &
+                          ncell,             &
+                          nres,              &
+                          nconc,             &
+                          sim_start,         &
+                          sim_end,           &
+                          hdf_interval_char)
+        call close_gtm_hdf(qual_hdf)          
         deallocate(chan_geom)        
         deallocate(resv_geom) 
         deallocate(constituents)                
@@ -90,7 +90,7 @@ module ut_gtm_hdf_ts_wrt
  
  
     !> Test for writing time series data to qual tidefile as well as geometry data
-    subroutine test_write_ts_qual_hdf()
+    subroutine test_write_ts_gtm_hdf()
         use hdf5
         use common_variables, only: chan_geom, resv_geom, constituents
         use gtm_hdf_write
@@ -139,18 +139,18 @@ module ut_gtm_hdf_ts_wrt
         constituents(2)%name = "conc_2"
         constituents(3)%name = "conc_3"
         
-        call init_qual_hdf(qual_hdf,          &
-                           hdf_name,          &
-                           ncell,             &
-                           nres,              &
-                           nconc,             &
-                           sim_start,         &
-                           sim_end,           &
-                           hdf_interval_char)
+        call init_gtm_hdf(qual_hdf,          &
+                          hdf_name,          &
+                          ncell,             &
+                          nres,              &
+                          nconc,             &
+                          sim_start,         &
+                          sim_end,           &
+                          hdf_interval_char)
                            
         !---write values into time_index=3                      
         julmin = 44130       
-        time_index = (julmin-qual_hdf%start_julmin)/qual_hdf%write_interval               
+        time_index = (julmin-qual_hdf%start_julmin)/gtm_hdf%write_interval               
         do i = 1, nconc
             do j = 1, ncell
                 conc(j,i) = 1000 + i*100 + j
@@ -159,16 +159,16 @@ module ut_gtm_hdf_ts_wrt
                 conc_res(j,i) = 1000 + i*100 + j
             end do    
         end do               
-        call write_qual_hdf(qual_hdf,         &
-                            conc,             &
-                            ncell,            &
-                            nconc,            &
-                            time_index)   
-        call write_qual_hdf_resv(qual_hdf,    &
-                                 conc_res,    &
-                                 nres,        &
-                                 nconc,       &
-                                 time_index)   
+        call write_gtm_hdf(gtm_hdf,          &
+                           conc,             &
+                           ncell,            &
+                           nconc,            &
+                           time_index)   
+        call write_gtm_hdf_resv(gtm_hdf,     &
+                                conc_res,    &
+                                nres,        &
+                                nconc,       &
+                                time_index)   
                                                            
         !---write values into time_index=4                                
         julmin = 44145.d0     
@@ -181,17 +181,17 @@ module ut_gtm_hdf_ts_wrt
                 conc_res(j,i) = 2000 + i*100 + j
             end do    
         end do               
-        call write_qual_hdf(qual_hdf,         &
-                            conc,             &
-                            ncell,            &
-                            nconc,            &
-                            time_index)   
-        call write_qual_hdf_resv(qual_hdf,    &
-                                 conc_res,    &
-                                 nres,        &
-                                 nconc,       &
-                                 time_index)                                                                              
-        call close_qual_hdf(qual_hdf)          
+        call write_gtm_hdf(gtm_hdf,          &
+                           conc,             &
+                           ncell,            &
+                           nconc,            &
+                           time_index)   
+        call write_gtm_hdf_resv(gtm_hdf,     &
+                                conc_res,    &
+                                nres,        &
+                                nconc,       &
+                                time_index)                                                                              
+        call close_gtm_hdf(gtm_hdf)          
         deallocate(chan_geom)        
         deallocate(resv_geom) 
         deallocate(constituents) 
@@ -222,8 +222,8 @@ module ut_gtm_hdf_ts_wrt
           
         !---cell value(time slice 1) = 1000 + 100*nconc + ncell
         !---cell value(time slice 2) = 2000 + 100*nconc + ncell
-        call assertEquals(rdata(1,1,1), dble(1101), weakest_eps, "problem in test_write_ts_qual_hdf rdata(1,1,1)")
-        call assertEquals(rdata(2,1,2), dble(2201), weakest_eps, "problem in test_write_ts_qual_hdf rdata(2,1,2)")
+        call assertEquals(rdata(1,1,1), dble(1101), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(1,1,1)")
+        call assertEquals(rdata(2,1,2), dble(2201), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(2,1,2)")
     
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dataspace, error)
@@ -235,7 +235,7 @@ module ut_gtm_hdf_ts_wrt
 
 
     !> Test for writing large time series data to qual tidefile
-    subroutine test_write_ts_qual_hdf_lg()
+    subroutine test_write_ts_gtm_hdf_lg()
         use hdf5    
         use common_variables, only: chan_geom, resv_geom, constituents
         use gtm_hdf_ts_write
@@ -288,14 +288,14 @@ module ut_gtm_hdf_ts_wrt
             constituents(j)%name = "conc_"//trim(x1)
         end do
         
-        call init_qual_hdf(qual_hdf,          &
-                           hdf_name,          &
-                           ncell,             &
-                           nres,              &
-                           nconc,             &
-                           sim_start,         &
-                           sim_end,           &
-                           hdf_interval_char)
+        call init_gtm_hdf(gtm_hdf,          &
+                          hdf_name,          &
+                          ncell,             &
+                          nres,              &
+                          nconc,             &
+                          sim_start,         &
+                          sim_end,           &
+                          hdf_interval_char)
                            
         !---write values into time_index=3                           
         julmin = 44130       
@@ -308,20 +308,20 @@ module ut_gtm_hdf_ts_wrt
                 conc_res(j,i) = 1000 + i*100 + j
             end do    
         end do               
-        call write_qual_hdf(qual_hdf,         &
-                            conc,             &
-                            ncell,            &
-                            nconc,            &
-                            time_index)   
-        call write_qual_hdf_resv(qual_hdf,    &
-                                 conc_res,    &
-                                 nres,        &
-                                 nconc,       &
-                                 time_index)  
+        call write_gtm_hdf(gtm_hdf,          &
+                           conc,             &
+                           ncell,            &
+                           nconc,            &
+                           time_index)   
+        call write_gtm_hdf_resv(gtm_hdf,     &
+                                conc_res,    &
+                                nres,        &
+                                nconc,       &
+                                time_index)  
                             
         !---write values into time_index=4
         julmin = 44145     
-        time_index = (julmin-qual_hdf%start_julmin)/qual_hdf%write_interval               
+        time_index = (julmin-gtm_hdf%start_julmin)/gtm_hdf%write_interval               
         do i = 1, nconc
             do j = 1, ncell
                 conc(j,i) = 2000 + i*100 + j
@@ -330,18 +330,18 @@ module ut_gtm_hdf_ts_wrt
                 conc_res(j,i) = 2000 + i*100 + j
             end do    
         end do               
-        call write_qual_hdf(qual_hdf,         &
-                            conc,             &
-                            ncell,            &
-                            nconc,            &
-                            time_index)   
-        call write_qual_hdf_resv(qual_hdf,    &
-                                 conc_res,    &
-                                 nres,        &
-                                 nconc,       &
-                                 time_index)      
+        call write_gtm_hdf(gtm_hdf,          &
+                           conc,             &
+                           ncell,            &
+                           nconc,            &
+                           time_index)   
+        call write_gtm_hdf_resv(gtm_hdf,     &
+                                conc_res,    &
+                                nres,        &
+                                nconc,       &
+                                time_index)      
                                                                                                                           
-        call close_qual_hdf(qual_hdf)          
+        call close_gtm_hdf(gtm_hdf)          
                   
         deallocate(chan_geom)        
         deallocate(resv_geom) 
@@ -373,8 +373,8 @@ module ut_gtm_hdf_ts_wrt
         
         !---cell value(time slice 1) = 1000 + 100*nconc + nchans
         !---cell value(time slice 2) = 2000 + 100*nconc + nchans    
-        call assertEquals(rdata(3,112,1), dble(1412), weakest_eps, "problem in test_write_ts_qual_hdf rdata(3,112,1)")
-        call assertEquals(rdata(2,9999,2), dble(12199), weakest_eps, "problem in test_write_ts_qual_hdf rdata(2,9999,2)")
+        call assertEquals(rdata(3,112,1), dble(1412), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(3,112,1)")
+        call assertEquals(rdata(2,9999,2), dble(12199), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(2,9999,2)")
         
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dataspace, error)
