@@ -70,13 +70,13 @@ module gtm_hdf_ts_write
         use dsm2_time_utils, only: incr_intvl
         use common_dsm2_vars, only: NEAREST_BOUNDARY, TO_BOUNDARY, print_level
   	    implicit none
-        type(gtm_hdf_t), intent(inout) :: hdf_file   !< persistent info about file and datasets
-        character*128, intent(in) :: hdf_name         !< name of qual hdf5 file
+        type(gtm_hdf_t), intent(inout) :: hdf_file    !< persistent info about file and datasets
+        character*128, intent(in) :: hdf_name         !< name of gtm hdf5 file
         integer, intent(in) :: ncell                  !< number of cells
         integer, intent(in) :: nresv                  !< number of reservoirs
         integer, intent(in) :: nconc                  !< number of constituents
-        integer, intent(in) :: sim_start       !< first write time
-        integer, intent(in) :: sim_end         !< last write time
+        integer, intent(in) :: sim_start              !< first write time
+        integer, intent(in) :: sim_end                !< last write time
         character*16 :: hdf_interval_char             !< interval
             
         !----- locals      

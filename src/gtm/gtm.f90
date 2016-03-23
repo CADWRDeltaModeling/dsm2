@@ -101,6 +101,7 @@ program gtm
     !real(gtm_real), parameter :: constant_decay = 5.0d-5
     real(gtm_real), parameter :: constant_decay = zero
     logical :: debug_interp = .false.    
+    logical :: use_gtm_hdf = .false.
 
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
     character(len=:), allocatable :: restart_file_name  
@@ -137,7 +138,7 @@ program gtm
     n_var = 1   !todo::need to design a way to define n vars in input
     allocate(constituents(n_var))     
     constituents(1)%conc_no = 1
-    constituents(1)%name = "EC" !"sed_sand"
+    constituents(1)%name = "ssc"
         
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
@@ -192,18 +193,19 @@ program gtm
     linear_decay = constant_decay
    
     call assign_node_ts
-    call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
-    gtm_hdf_time_intvl = dble(tmp_int)
-    call init_gtm_hdf(gtm_hdf,             &
-                      gtm_io(3,2)%filename, &
-                      n_cell,               &
-                      n_resv,               &
-                      n_var,                &
-                      int(gtm_start_jmin),  &
-                      int(gtm_end_jmin),    &
-                      gtm_io(3,2)%interval)
-    
-    if (trim(gtm_io(3,2)%filename) .ne. "") then
+    inquire (file=trim(gtm_io(3,2)%filename), exist=use_gtm_hdf)
+    if (use_gtm_hdf) then
+        use_gtm_hdf = .true.    
+        call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
+        gtm_hdf_time_intvl = dble(tmp_int)
+        call init_gtm_hdf(gtm_hdf,             &
+                          gtm_io(3,2)%filename, &
+                          n_cell,               &
+                          n_resv,               &
+                          n_var,                &
+                          int(gtm_start_jmin),  &
+                          int(gtm_end_jmin),    &
+                          gtm_io(3,2)%interval)
         call write_input_to_hdf5(gtm_hdf%file_id)
         call write_grid_to_tidefile(gtm_hdf%file_id)
     end if
@@ -515,35 +517,38 @@ program gtm
         
         !----- print output to hdf5 file -----
         !                     
-        if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
-            time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
-            call write_gtm_hdf(gtm_hdf,                      &
-                               conc,                         &
-                               n_cell,                       &
-                               n_var,                        &
-                               time_index_in_gtm_hdf)     
-            if (n_resv .gt. 0) then
-                call write_gtm_hdf_resv(gtm_hdf,             & 
-                                        conc_resv,           & 
-                                        n_resv,              &
-                                        n_var,               &  
-                                        time_index_in_gtm_hdf)                                
+        if (use_gtm_hdf) then
+            if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
+                time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
+                call write_gtm_hdf(gtm_hdf,                      &
+                                   conc,                         &
+                                   n_cell,                       &
+                                   n_var,                        &
+                                   time_index_in_gtm_hdf)     
+                if (n_resv .gt. 0) then
+                    call write_gtm_hdf_resv(gtm_hdf,             & 
+                                            conc_resv,           & 
+                                            n_resv,              &
+                                            n_var,               &  
+                                            time_index_in_gtm_hdf)                                
+                end if
+                if (debug_print==.true.) then                                                 
+                    call write_gtm_hdf_ts(gtm_hdf%cell_flow_id, &
+                                          flow_hi,                  & 
+                                          n_cell,                &
+                                          time_index_in_gtm_hdf)
+                    call write_gtm_hdf_ts(gtm_hdf%cell_area_id, &
+                                          area_hi,                  & 
+                                          n_cell,                &
+                                          time_index_in_gtm_hdf)                               
+                    call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,  &
+                                          cfl,                   & 
+                                          n_cell,                &
+                                          time_index_in_gtm_hdf)                                             
+                end if            
             end if
-            if (debug_print==.true.) then                                                 
-                call write_gtm_hdf_ts(gtm_hdf%cell_flow_id, &
-                                      flow_hi,                  & 
-                                      n_cell,                &
-                                      time_index_in_gtm_hdf)
-                call write_gtm_hdf_ts(gtm_hdf%cell_area_id, &
-                                      area_hi,                  & 
-                                      n_cell,                &
-                                      time_index_in_gtm_hdf)                               
-                call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,  &
-                                      cfl,                   & 
-                                      n_cell,                &
-                                      time_index_in_gtm_hdf)                                             
-            end if            
-        end if                           
+        end if
+                                       
         prev_julmin = int(current_time)         
         
     end do  ! end of loop for gtm time step
