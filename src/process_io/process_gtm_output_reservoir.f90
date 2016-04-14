@@ -19,13 +19,18 @@
 !</license>
 
 !>@ingroup process_io
-module process_gtm_output_channel
+module process_gtm_output_reservoir
 
     contains
     
-    !> Process a character line into data arrays for
-    !> output file names
-    subroutine process_output_channel(name, channo, distance, param, interval, perop, sourcegroup, filename)
+    subroutine process_output_reservoir(name,        &
+                                        resvno,      &
+                                        node,        &
+                                        param,       &
+                                        interval,    &
+                                        perop,       &
+                                        sourcegroup, &
+                                        filename)
 
         use common_dsm2_vars
         use io_utilities
@@ -37,23 +42,23 @@ module process_gtm_output_channel
         character*8  :: perop
         character*32 :: sourcegroup
         character*128 :: filename
-        integer :: channo
-        integer :: distance
+        integer :: resvno
+        integer :: node
 
         character*(200) :: ctmp
-        integer :: itmp
+        integer :: itmp, j
 
         call locase(name)
         call locase(param)
         call locase(sourcegroup)
         call locase(perop)
         call locase(interval)
-      
+
         noutpaths = noutpaths + 1
 
         pathoutput(noutpaths).a_part = ' '
-        pathoutput(noutpaths).b_part = Name
-        pathoutput(noutpaths).c_part = Param
+        pathoutput(noutpaths).b_part = name
+        pathoutput(noutpaths).c_part = param                      
         call split_epart(Interval,itmp,ctmp)
         if (itmp .ne. miss_val_i) then ! valid interval, parse it
             pathoutput(noutpaths).e_part = Interval
@@ -66,9 +71,8 @@ module process_gtm_output_channel
         endif
         pathoutput(noutpaths).f_part = ' '
         pathoutput(noutpaths).filename = FileName
-        pathoutput(noutpaths).distance = distance
-        pathoutput(noutpaths).obj_type = 1
-        pathoutput(noutpaths).no = channo
+        pathoutput(noutpaths).obj_type = 2
+        pathoutput(noutpaths).no = resvno
         pathoutput(noutpaths).modifier = dsm2_modifier
         !------accumulate unique dss output filenames
         itmp = loccarr(pathoutput(noutpaths).filename,  &
@@ -99,11 +103,12 @@ module process_gtm_output_channel
         !-----if (SourceLocLen .gt. 0)  pathoutput(noutpaths).source.loc_name = SourceLoc
 
         if (print_level .ge. 3) write(unit_screen, '(i5,a,1x,i,a30,1x,a8,1x,a80)')  &
-                                noutpaths, trim(Name),channo,trim(Param),trim(Interval), trim(FileName)
+                                noutpaths, trim(Name),resvno,trim(Param),trim(Interval), trim(FileName)
 
  610    format(/a)
  630    format(/a,i5)     
+     
         return
     end subroutine
-           
+    
 end module

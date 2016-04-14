@@ -77,3 +77,7 @@
 #include "input_storage_output_reservoir_source_track.h"
 
 #include "input_storage_output_gate.h"
+
+#include "input_storage_suspended_sediment_type.h"
+
+#include "input_storage_suspended_sediment.h"

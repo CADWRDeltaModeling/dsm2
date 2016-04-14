@@ -33,8 +33,9 @@ module buffer_gtm_input_qual
         use common_dsm2_vars, only: pathinput, n_inputpaths,infilenames,     &
                                     n_dssfiles, indssfiles, ifltab_in,       &
                                     n_outdssfiles, outdssfiles, ifltab_out,  &
-                                    outfilenames                      
+                                    outfilenames
         use gtm_dss, only: get_dss_each_npath
+        use common_variables, only: n_var, constituents
       
         implicit none
         integer :: nitem_climate, nitem_node_conc, nitem_resv_conc
@@ -65,17 +66,25 @@ module buffer_gtm_input_qual
         character*8 :: cdist
         real*8 :: stage
         real*8 :: flow
-      
-      
+            
         ! output_reservoir
         character*32 :: reservoir
         character*80 :: inpath
         character*8  :: fillin
         character*8  :: node_str
         integer :: sign
-        integer :: node      
-      
+        integer :: node
+        integer :: i      
         character*(16) :: sdate,edate  
+        
+        ! variables
+        integer :: nvar
+        type const_t
+            integer :: conc_no                        !< constituent id
+            character*32 :: name = ''                 !< constituent name
+        end type     
+        type(const_t) :: const(20)
+        character*32 :: tmp_const
 
         nitem_rate_coeff = rate_coefficient_buffer_size()
         do icount = 1,nitem_rate_coeff
@@ -118,7 +127,6 @@ module buffer_gtm_input_qual
         end do
         print *,"Number of climate inputs processed: ", nitem_climate
 
-     
         do icount = 1,nitem_node_conc
            call node_concentration_query_from_buffer(icount,    &
                                                      name,      &
@@ -127,14 +135,38 @@ module buffer_gtm_input_qual
                                                      fillin,    &
                                                      filename,  &
                                                      inpath,    &
-                                                     ierror)
-                                                            
+                                                     ierror)                                                            
            call process_node_conc(name,       &
                                   node,       &
                                   variable,   &    
                                   fillin,     &
                                   filename,   &
                                   inpath)
+           if (icount.eq.1)then
+               nvar = 1
+               const(nvar)%conc_no = 1
+               const(nvar)%name = variable
+           else
+               do i = 1, nvar
+                   if (trim(variable).eq.trim(const(i)%name)) then
+                       exit
+                   else
+                       tmp_const = variable
+                       if (i.eq.nvar) then
+                           nvar = nvar + 1
+                           const(nvar)%conc_no = nvar
+                           const(nvar)%name = tmp_const
+                       end if
+                   end if
+               end do           
+           end if
+        end do
+
+        n_var = nvar
+        allocate(constituents(n_var))
+        do i = 1, nvar 
+            constituents(i)%conc_no = i
+            constituents(i)%name = const(i)%name
         end do
         print *,"Number of node concentration inputs processed: ", nitem_node_conc
 

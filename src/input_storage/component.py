@@ -41,7 +41,9 @@ def component_order():
       "output_reservoir",\
       "output_channel_source_track",\
       "output_reservoir_source_track",\
-      "output_gate"]
+      "output_gate",\
+      "suspended_sediment_type",\
+      "suspended_sediment"]
 
 
 def component_members():
@@ -84,13 +86,16 @@ def component_members():
       "output_reservoir":["name","res_name","node","variable","interval","period_op","file"],\
       "output_channel_source_track":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
       "output_reservoir_source_track":["name","res_name","variable","source_group","interval","period_op","file"],\
-      "output_gate":["name","gate_name","device","variable","interval","period_op","file"]}
+      "output_gate":["name","gate_name","device","variable","interval","period_op","file"],\
+      "suspended_sediment_type":["composition","method"],\
+      "suspended_sediment":["name","composition","percent","size"]}
 
 
 def include_block():
     return {\
     "reservoir":"hydro_time_series",
     "particle_flux_output":"particle",
+    "particle_res_filter":"particle",
     "xsect":"grid",
     "output_gate":"output_time_series",
     "scalar":"parameter",
@@ -103,9 +108,10 @@ def include_block():
     "oprule_expression":"operation",
     "input_transfer_flow":"hydro_time_series",
     "group":"groups",
-    "output_channel":"output_time_series",
+    "suspended_sediment_type":"gtm_spatial",
     "particle_group_output":"particle",
     "transfer":"hydro_time_series",
+    "suspended_sediment":"gtm_spatial",
     "input_climate":"gtm_time_series",
     "oprule_time_series":"operation",
     "particle_insertion":"particle",
@@ -117,7 +123,7 @@ def include_block():
     "reservoir_ic":"initial_condition",
     "gate":"hydro_time_series",
     "output_reservoir_source_track":"output_time_series",
-    "particle_res_filter":"particle",
+    "output_channel":"output_time_series",
     "rate_coefficient":"gtm_spatial",
     "reservoir_connection":"hydro_time_series",
     "source_flow":"hydro_time_series",

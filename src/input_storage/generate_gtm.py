@@ -303,7 +303,6 @@ def generate_dsm2():
     prep_component(component,outdir)  
 
 
-    
     component = TableComponent("input_transfer_flow",
                              [CharField("transfer_name",DSM2_NAME_LEN,16),\
                               CharField("fillin", 8,12),\
@@ -313,8 +312,6 @@ def generate_dsm2():
                              ["transfer_name"])   # identifier
     component.layered=True
     prep_component(component,outdir)  
-
-
 
 
     component = TableComponent("input_gate",
@@ -367,7 +364,6 @@ def generate_dsm2():
     prep_component(component,outdir)      
 
    
-
     component = TableComponent("source_flow_reservoir",
                              [CharField("name",DSM2_NAME_LEN,16),\
                               CharField("res_name",32,16),\
@@ -462,8 +458,7 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)    
 
- 
-    
+     
     component = TableComponent("output_gate",
                              [CharField("name",DSM2_NAME_LEN,16),
                               CharField("gate_name",32,16),\
@@ -478,6 +473,26 @@ def generate_dsm2():
     prep_component(component,outdir)
 
 
+    component = TableComponent("suspended_sediment_type",
+                             [CharField("composition",16,16),\
+                              CharField("method",16,16)             
+                             ],
+                             ["composition"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)	
+	
+	
+    component = TableComponent("suspended_sediment",
+                             [CharField("name",DSM2_NAME_LEN,16),
+                              CharField("composition",16,16),\
+                              DoubleField("percent",16,6),\
+                              DoubleField("size",16,12)             
+                             ],
+                             ["name","composition"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)	    	
+	
+	
     envvar_keywords=["envvar"]
     scalar_keywords = ["scalar"]
     grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_connection","gate",\
@@ -500,7 +515,9 @@ def generate_dsm2():
     gtm_time_series_keywords = ["node_concentration",\
                          "reservoir_concentration",\
                          "input_climate"]
-    gtm_spatial_keywords = ["rate_coefficient"]	
+    gtm_spatial_keywords = ["rate_coefficient",\
+                            "suspended_sediment_type",\
+                            "suspended_sediment"]	
     water_body_output_keywords   =   ["output_channel","output_reservoir"]
     source_group_output_keywords = ["output_channel_source_track","output_reservoir_source_track"]
     gate_output_keywords         = ["output_gate"]

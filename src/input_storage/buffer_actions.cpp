@@ -57,6 +57,8 @@ HDFTableManager<output_reservoir>::instance().buffer().clear();
 HDFTableManager<output_channel_source_track>::instance().buffer().clear();
 HDFTableManager<output_reservoir_source_track>::instance().buffer().clear();
 HDFTableManager<output_gate>::instance().buffer().clear();
+HDFTableManager<suspended_sediment_type>::instance().buffer().clear();
+HDFTableManager<suspended_sediment>::instance().buffer().clear();
 LayerManager::instance().clearAllLayer(); //todo: make this separate?
 ) // end exception trap    
 }    
@@ -146,6 +148,10 @@ HDFTableManager<output_channel_source_track>::instance().prioritize_buffer();
 HDFTableManager<output_reservoir_source_track>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<output_gate>::instance().prioritize_buffer();
+     if(*ierror != 0) return;
+HDFTableManager<suspended_sediment_type>::instance().prioritize_buffer();
+     if(*ierror != 0) return;
+HDFTableManager<suspended_sediment>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 ) // end exception trap    
 }    
@@ -245,6 +251,10 @@ output_reservoir_source_track_write_buffer_to_text_f(file,append,ierror,filelen)
      if(*ierror != 0) return;
 output_gate_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
+suspended_sediment_type_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;
+suspended_sediment_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;
 ) // end exception trap    
 }    
 
@@ -335,6 +345,10 @@ if(buffer_name == "output_channel_source_track"){output_channel_source_track_wri
 if(buffer_name == "output_reservoir_source_track"){output_reservoir_source_track_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
 if(buffer_name == "output_gate"){output_gate_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;}
+if(buffer_name == "suspended_sediment_type"){suspended_sediment_type_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;}
+if(buffer_name == "suspended_sediment"){suspended_sediment_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
 }
 
@@ -474,6 +488,10 @@ if(buffer_name == "output_reservoir_source_track"){output_reservoir_source_track
      if(*ierror != 0) return;}
 if(buffer_name == "output_gate"){output_gate_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
+if(buffer_name == "suspended_sediment_type"){suspended_sediment_type_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
+if(buffer_name == "suspended_sediment"){suspended_sediment_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
 }
 
 FCALL void read_buffer_from_hdf5(const char*buffer,
@@ -561,6 +579,10 @@ if(buffer_name == "output_channel_source_track"){output_channel_source_track_rea
 if(buffer_name == "output_reservoir_source_track"){output_reservoir_source_track_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "output_gate"){output_gate_read_buffer_from_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
+if(buffer_name == "suspended_sediment_type"){suspended_sediment_type_read_buffer_from_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
+if(buffer_name == "suspended_sediment"){suspended_sediment_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 }
 
@@ -651,6 +673,10 @@ output_channel_source_track_write_buffer_to_hdf5_f(file_id,ierror);
 output_reservoir_source_track_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 output_gate_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;
+suspended_sediment_type_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;
+suspended_sediment_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 ) // end exception trap    
 }    

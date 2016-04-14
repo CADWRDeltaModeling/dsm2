@@ -28,16 +28,24 @@ module gtm_subs
     !> This will update pathoutput%out_cell, calc_option, x_from_lo_face
     subroutine get_output_channel  
         use common_dsm2_vars, only: noutpaths, pathoutput
+        use common_variables, only: resv_geom, n_resv
         implicit none       
         integer :: out_cell(noutpaths)              !< output cells
         integer :: calc_option(noutpaths)           !< calculation option of interpolation by using u/s cell or d/s cell
         integer :: chan_num(noutpaths)              !< channcel number
         real(gtm_real) :: x_from_lo_face(noutpaths) !< distance from lo face of the cell
         real(gtm_real) :: x_dist(noutpaths)        
-        integer :: i
+        integer :: i, j
         do i = 1, noutpaths
-            chan_num(i) = pathoutput(i)%channo
+            chan_num(i) = pathoutput(i)%no
             x_dist(i) = dble(pathoutput(i)%distance)
+            if (pathoutput(i)%obj_type.eq.2) then
+                do j = 1, n_resv
+                    if (trim(resv_geom(j)%name).eq.trim(pathoutput(i)%name)) then
+                        pathoutput(i)%no = resv_geom(j)%resv_no
+                    end if
+                end do
+            end if
         enddo
         call get_select_cell_with_x(pathoutput(:)%out_chan_cell,  &
                                     pathoutput(:)%x_from_lo_face, &
@@ -158,42 +166,73 @@ module gtm_subs
     end subroutine
 
 
+    !> assign i_var to outpath
+    subroutine assign_ivar_to_outpath()
+        use common_variables, only: n_var, constituents, n_resv, resv_geom
+        use common_dsm2_vars, only: noutpaths, pathoutput  
+        implicit none
+        integer :: i, j, k
+        do i = 1, noutpaths
+            do j = 1, n_var
+                if (trim(pathoutput(i).c_part).eq.trim(constituents(j)%name))then
+                    pathoutput(i)%i_var = constituents(j)%conc_no
+                end if
+                if (pathoutput(i).obj_type.eq.2) then
+                    do k = 1, n_resv
+                        call locase(resv_geom(k)%name)
+                        if (trim(resv_geom(k)%name).eq.trim(pathoutput(i)%b_part)) then
+                             pathoutput(i)%no = resv_geom(k)%resv_no
+                        end if
+                    end do        
+                end if                
+            end do
+        end do                
+        return
+    end subroutine            
+
+
     !> get output channel values
     subroutine get_output_channel_vals(vals,           &
                                        conc,           &
                                        ncell,          &
+                                       conc_resv,      &
+                                       nresv,          &
                                        nvar)
                                        
         use common_variables, only: cell
         use common_dsm2_vars, only: noutpaths, pathoutput        
-        
         implicit none
-        
         integer, intent(in) :: nvar                            !< number of constituents
         integer, intent(in) :: ncell                           !< number of cells
+        integer, intent(in) :: nresv                           !< number of reservoirs        
         real(gtm_real), intent(in) :: conc(ncell, nvar)        !< concentration
-        real(gtm_real), intent(out) :: vals(noutpaths,nvar)    !< output requested values
+        real(gtm_real), intent(in) :: conc_resv(nresv, nvar)   !< concentration        
+        real(gtm_real), intent(out) :: vals(noutpaths)         !< output requested values
         integer :: i, icell, down_cell, up_cell
         
         do i = 1, noutpaths
-            vals(i,:) = zero
-            icell = pathoutput(i)%out_chan_cell
-            if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
+            vals(i) = zero
+            if (pathoutput(i)%obj_type.eq.1) then   !channel
+                icell = pathoutput(i)%out_chan_cell
+                if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
                 down_cell = cell(icell)%down_cell
-                vals(i,:) = conc(icell,:)+(conc(down_cell,:)-conc(icell,:))*      &
+                vals(i) = conc(icell,pathoutput(i)%i_var)+(conc(down_cell,pathoutput(i)%i_var)-conc(icell,pathoutput(i)%i_var))*      &
                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
-            elseif (pathoutput(i)%calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
+                elseif (pathoutput(i)%calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
                 up_cell = cell(icell)%up_cell
-                vals(i,:) = conc(icell,:)+(conc(icell,:)-conc(up_cell,:))*        &
+                vals(i) = conc(icell,pathoutput(i)%i_var)+(conc(icell,pathoutput(i)%i_var)-conc(up_cell,pathoutput(i)%i_var))*        &
                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx               
-            else                            
-                vals(i,:) = conc(icell,:)
+                else                            
+                vals(i) = conc(icell,pathoutput(i)%i_var)
+                end if
+                if (vals(i) .le. zero) vals(i) = conc(icell,pathoutput(i)%i_var) ! to avoid extrapolation unstability
+            elseif (pathoutput(i)%obj_type.eq.2) then !reservoir
+                vals(i) = conc_resv(pathoutput(i)%no, pathoutput(i)%i_var)
             end if
-            where (vals(i,:) .le. zero) vals(i,:) = conc(icell,:) ! to avoid extrapolation unstability
         end do
         return
-    end subroutine                 
-                     
+    end subroutine                                                   
+
     
     !> Write concentration for output cells to a text file
     subroutine print_out_cell_conc(file_id,   &

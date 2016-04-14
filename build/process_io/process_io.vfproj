@@ -53,10 +53,12 @@
 		<File RelativePath="..\..\src\process_io\process_gtm_io_file.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_node_conc.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_output_channel.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_output_reservoir.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_rate_coef.f90">
 			<FileConfiguration Name="Debug|Win32" ExcludedFromBuild="true"/></File>
 		<File RelativePath="..\..\src\process_io\process_gtm_reservoir_conc.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_scalar.f90"/>
+		<File RelativePath="..\..\src\process_io\process_gtm_suspended_sediment.f90"/>
 		<File RelativePath="..\..\src\process_io\process_gtm_tidefile.f90"/>
 		<File RelativePath="..\..\src\process_io\read_init.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

@@ -132,6 +132,12 @@ ApplicationTextReader::InputStateMap input_state_map()
    InputStatePtr output_gatePtr(new ItemInputState<output_gate>());
     inputMap["OUTPUT_GATE"] = output_gatePtr;
 
+   InputStatePtr suspended_sediment_typePtr(new ItemInputState<suspended_sediment_type>());
+    inputMap["SUSPENDED_SEDIMENT_TYPE"] = suspended_sediment_typePtr;
+
+   InputStatePtr suspended_sedimentPtr(new ItemInputState<suspended_sediment>());
+    inputMap["SUSPENDED_SEDIMENT"] = suspended_sedimentPtr;
+
   
 
   // Include file definitions
@@ -207,6 +213,8 @@ ApplicationTextReader::InputStateMap input_state_map()
     inputMap["GTM_TIME_SERIES"] = gtm_time_seriesPtr;
     vector<string> gtm_spatialContextItems;
     gtm_spatialContextItems.push_back("RATE_COEFFICIENT");
+    gtm_spatialContextItems.push_back("SUSPENDED_SEDIMENT_TYPE");
+    gtm_spatialContextItems.push_back("SUSPENDED_SEDIMENT");
     InputStatePtr gtm_spatialPtr(new IncludeFileState(gtm_spatialContextItems));
     inputMap["GTM_SPATIAL"] = gtm_spatialPtr;
     vector<string> output_time_seriesContextItems;
@@ -266,6 +274,8 @@ const std::vector<std::string> profile(const std::string& name)
         out.push_back("GROUP");
         out.push_back("GROUP_MEMBER");
         out.push_back("RATE_COEFFICIENT");
+        out.push_back("SUSPENDED_SEDIMENT_TYPE");
+        out.push_back("SUSPENDED_SEDIMENT");
         out.push_back("OUTPUT_CHANNEL");
         out.push_back("OUTPUT_RESERVOIR");
         out.push_back("OUTPUT_CHANNEL_SOURCE_TRACK");

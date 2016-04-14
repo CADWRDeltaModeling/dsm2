@@ -136,6 +136,15 @@ module common_dsm2_vars
     !> From DSM2/common/type_def.f
        !-----path input (time-varying data)
        integer, parameter :: max_path_const = 10     ! maximum number of constituents associated with path
+       
+       logical :: checkdata = .false.
+       logical :: cont_bad = .false.
+       logical :: cont_missing = .false.
+       logical :: cont_question = .false.
+       logical :: cont_unchecked = .false.
+       logical :: warn_missing = .false.
+       logical :: warn_question = .false.
+       logical :: warn_unchecked = .false.
     
        !-----data value, quality flags, and timestamp object
        type dataqual_t
@@ -266,12 +275,14 @@ module common_dsm2_vars
            character*16 :: meas_type                      ! e.g. STAGE, VELOCITY, TDS
            character*32 :: modifier                       ! used for study name or such
            logical :: need_tmp_outfile = .false.
-           integer :: channo
+           integer :: no
+           integer :: obj_type                            ! 1: channel, 2: reservoir
            integer :: distance
            integer :: intvl_path                          ! path number for this interval
            integer :: out_chan_cell                       ! output GTM cell no
            real(gtm_real) :: x_from_lo_face               ! output distance from lo face in that cell
            integer :: calc_option                         ! interpolation option (calculated by using upstream cell or downstream cell}
+           integer :: i_var                               ! constituent no
        end type
        type(pathoutput_t), allocatable :: pathoutput(:)
        

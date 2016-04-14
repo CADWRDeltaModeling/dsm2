@@ -267,8 +267,10 @@ module common_variables
      !> Define constituent
      type constituent_t
          integer :: conc_no                        !< constituent id
-         character*16 :: name = ' '                !< constituent name
+         character*32 :: name = ' '                !< constituent name
          logical :: conservative = .true.          !< true if conservative, false if nonconservative
+         character*32 :: use_module = ' '          !< use module
+         character*32 :: method = ' '              !< method in module
      end type     
      type(constituent_t), allocatable :: constituents(:)
     

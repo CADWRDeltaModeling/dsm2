@@ -125,7 +125,7 @@ program gtm
     real(gtm_real) :: flow_chk
     
     ! for specified output locations
-    real(gtm_real), allocatable :: vals(:,:)  
+    real(gtm_real), allocatable :: vals(:)  
     logical :: file_exists
     integer :: st, k, p, n_st, chan_no     ! temp index
     real(gtm_real) :: start, finish
@@ -135,10 +135,10 @@ program gtm
     
     call cpu_time(start)
     
-    n_var = 1   !todo::need to design a way to define n vars in input
-    allocate(constituents(n_var))     
-    constituents(1)%conc_no = 1
-    constituents(1)%name = "ssc"
+    !n_var = 1   !todo::need to design a way to define n vars in input
+    !allocate(constituents(n_var))     
+    !constituents(1)%conc_no = 1
+    !constituents(1)%name = "ssc"
         
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
@@ -159,8 +159,9 @@ program gtm
                        memory_buffer, hydro_time_interval,     & 
                        hydro_start_jmin, hydro_end_jmin,       &
                        gtm_start_jmin, gtm_end_jmin)   
-    
-    allocate(vals(noutpaths,n_var))    
+                       
+    call assign_ivar_to_outpath    
+    allocate(vals(noutpaths))    
     call get_cell_info    
     call get_output_channel
 
@@ -193,7 +194,7 @@ program gtm
     linear_decay = constant_decay
    
     call assign_node_ts
-    inquire (file=trim(gtm_io(3,2)%filename), exist=use_gtm_hdf)
+    if (trim(gtm_io(3,2)%filename).ne.'') use_gtm_hdf = .true.
     if (use_gtm_hdf) then
         use_gtm_hdf = .true.    
         call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
@@ -485,8 +486,7 @@ program gtm
                              sub_gtm_time_step*sixty,      &
                              dx_arr,                       &
                              .true.)        
-                call prim2cons(mass,conc,area,n_cell,n_var)       
-         
+                call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
                       
             mass_prev = mass
@@ -507,7 +507,7 @@ program gtm
         end do ! end of loop of sub time step
 
         !---- print output to DSS file -----
-        call get_output_channel_vals(vals, conc, n_cell, n_var)
+        call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
         if (int(current_time) .ge. next_output_flush .or. current_time.eq.gtm_end_jmin) then
             call incr_intvl(next_output_flush, next_output_flush, flush_intvl,TO_BOUNDARY)
             call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
@@ -580,8 +580,10 @@ program gtm
     call deallocate_network_tmp
     call deallocate_state_hydro
     call deallocate_hydro_ts
-    call close_gtm_hdf(gtm_hdf)         
-    call hdf5_close
+    if (use_gtm_hdf) then
+        call close_gtm_hdf(gtm_hdf)         
+        call hdf5_close
+    end if    
     !close(debug_unit)
     write(*,*) '-------- Normal program end -------'
     call cpu_time(finish)

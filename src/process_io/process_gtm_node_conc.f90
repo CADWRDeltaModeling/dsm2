@@ -65,7 +65,7 @@ module process_gtm_node_conc
              FileName(:8) .eq. 'CONSTANT') then
           read(InPath, '(1f10.0)') ftmp
           !pathinput(ninpaths).constant_value=ftmp*pathinput(ninpaths).sign  
-          pathinput(ninpaths).constant_value=ftmp                          !ehsu modified this
+          pathinput(ninpaths).constant_value=ftmp                         
           pathinput(ninpaths).variable=Param
           pathinput(ninpaths).fillin=fill_last
           pathinput(ninpaths).path=trim(InPath)
@@ -116,7 +116,8 @@ module process_gtm_node_conc
       if (print_level .ge. 3) then
           write(unit_screen, '(i4,1x,a32,1x,a24,a24)') ninpaths, Name,  &
               trim(InPath(:24)), trim(FileName(:24))
-      end if
+      end if  
+
 
  610  format(/a)
  620  format(/a/a)

@@ -103,12 +103,13 @@ module diffusion
         logical, intent(in) :: klu_solver                            !< Use KLU sparse matrix solver
 
         !---- locals
-        real(gtm_real) :: explicit_diffuse_op(ncell,nvar)             !< Explicit diffusive operator
-        real(gtm_real) :: down_diag(ncell)                       !< Values of the coefficients below diagonal in matrix
-        real(gtm_real) :: center_diag(ncell)                     !< Values of the coefficients at the diagonal in matrix
-        real(gtm_real) :: up_diag(ncell)                         !< Values of the coefficients above the diagonal in matrix
-        real(gtm_real) :: right_hand_side(ncell,nvar)                 !< Right hand side vector
-        real(gtm_real) :: time_prev                                   !< old time 
+        real(gtm_real) :: explicit_diffuse_op(ncell,nvar)            !< Explicit diffusive operator
+        real(gtm_real) :: down_diag(ncell)                           !< Values of the coefficients below diagonal in matrix
+        real(gtm_real) :: center_diag(ncell)                         !< Values of the coefficients at the diagonal in matrix
+        real(gtm_real) :: up_diag(ncell)                             !< Values of the coefficients above the diagonal in matrix
+        real(gtm_real) :: right_hand_side(ncell,nvar)                !< Right hand side vector
+        real(gtm_real) :: time_prev                                  !< old time 
+        integer :: i                                                 !< local variable
 
         ! This routine gives the effects of diffusion fluxes on each cell
         ! for a single time step (ie, explicit). This is needed for the advection step.
@@ -192,11 +193,13 @@ module diffusion
                                        dt)
         
 
-        if (klu_solver) then ! solve the sparse matrix by klu solver            
-            call klu_fortran_free_numeric(k_numeric, k_common)                  
-            k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)
-            call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side, k_common)
-            conc = right_hand_side 
+        if (klu_solver) then ! solve the sparse matrix by klu solver       
+            do i = 1, nvar    
+                call klu_fortran_free_numeric(k_numeric, k_common)                  
+                k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)
+                call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side(:,i), k_common)
+                conc(:,i) = right_hand_side(:,i)
+            end do
         else
             call solve(center_diag ,     &
                        up_diag,          &     
@@ -207,8 +210,6 @@ module diffusion
                        nvar)
         end if            
         
-                    
-
         return
     end subroutine 
  
@@ -505,7 +506,7 @@ module diffusion
         integer :: i
         
         do i = 1, nvar
-           conc(:,nvar) = right_hand_side(:,i)
+           conc(:,i) = right_hand_side(:,i)
            call tri2sparse(ap,                &
                            ai,                &
                            ax,                &
@@ -521,7 +522,7 @@ module diffusion
            else    
                call klu_fortran_refactor(ap, ai, ax, k_symbolic, k_numeric, k_common)
            end if    
-           call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, conc(:,nvar), k_common)
+           call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, conc(:,i), k_common)
         end do
         
         return

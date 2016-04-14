@@ -303,6 +303,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment_type.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_tidefile.cpp"
 				>
 			</File>
@@ -474,6 +482,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_source_flow_reservoir.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment_type.h"
 				>
 			</File>
 			<File

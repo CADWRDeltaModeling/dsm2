@@ -85,6 +85,22 @@ module process_gtm_scalar
          read(Val, '(l2)', err=810) mass_tracking
       elseif (Param .eq. 'init_conc') then
          read(Val, '(f10.0)', err=810) init_conc
+      elseif (Param .eq. 'checkdata') then
+         read(Val, '(l2)', err=810) checkdata      
+       elseif (Param .eq. 'cont_bad') then
+         read(Val, '(l2)', err=810) cont_bad
+       elseif (Param .eq. 'cont_missing') then
+         read(Val, '(l2)', err=810) cont_missing
+       elseif (Param .eq. 'cont_question') then
+         read(Val, '(l2)', err=810) cont_question
+       elseif (Param .eq. 'cont_unchecked') then
+         read(Val, '(l2)', err=810) cont_unchecked
+       elseif (Param .eq. 'warn_missing') then
+         read(Val, '(l2)', err=810) warn_missing   
+       elseif (Param .eq. 'warn_question') then
+         read(Val, '(l2)', err=810) warn_question  
+       elseif (Param .eq. 'warn_unchecked') then
+         read(Val, '(l2)', err=810) warn_unchecked            
       elseif (Param .eq. 'dispersion') then
          read(Val, '(l2)', err=810) apply_diffusion
       elseif (Param .eq. 'disp_coef') then

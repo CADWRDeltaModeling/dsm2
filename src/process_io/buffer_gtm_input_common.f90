@@ -33,10 +33,13 @@ module buffer_gtm_input_common
       use process_gtm_tidefile
       use process_gtm_groups
       use process_gtm_output_channel
+      use process_gtm_output_reservoir
+      use process_gtm_suspended_sediment
       use time_utilities
       
       implicit none
       integer :: nitem
+      integer :: nitem_chan, nitem_resv
       character(len=32) :: name
       character(len=64) :: value     
       character(len=32) :: envname
@@ -51,6 +54,15 @@ module buffer_gtm_input_common
       character(len=16) :: variable, perop
       integer :: idistance, chan_length
       integer :: channo   
+      !--output reservoir
+      character(len=32) :: res_name
+      character(len=8) :: node_str
+      integer :: node, resvno   
+      !--suspended sediment
+      character(len=16) :: method
+      character(len=16) :: composition
+      real(gtm_real) :: grain_size, percent
+      
       integer :: icount      
       integer :: ierror = 0
 
@@ -95,9 +107,25 @@ module buffer_gtm_input_common
       enddo
       print *,"Number of tidefiles: ", nitem    
 
+      ! process suspended sediment table
+      nitem = suspended_sediment_type_buffer_size()
+      do icount = 1, nitem  
+          call suspended_sediment_type_query_from_buffer(icount, composition, method, ierror)
+          call process_suspended_sediment_type(composition, method)
+      enddo
+            
+      nitem = suspended_sediment_buffer_size()
+      do icount = 1, nitem  
+          call suspended_sediment_query_from_buffer(icount, name, composition, percent, grain_size, ierror)
+          call process_suspended_sediment(name, composition, percent, grain_size)
+      enddo
+      print *,"Number of sediments: ", nitem   
+      
       ! process output channel block
+      nitem_chan = output_channel_buffer_size()
+      nitem_resv = output_reservoir_buffer_size()
+      allocate(pathoutput(nitem_chan+nitem_resv))
       nitem = output_channel_buffer_size()
-      allocate(pathoutput(nitem))
       do icount = 1,nitem
           call output_channel_query_from_buffer(icount, name, channo, distance, variable,  &
                                                 interval, perop, filename,ierror)
@@ -112,6 +140,23 @@ module buffer_gtm_input_common
                                       perop, sourcegroup, filename)
       end do
       print *,"Number of channel output requests: ", nitem      
+
+      ! process output reservoir block
+      nitem = output_reservoir_buffer_size()
+      do icount = 1,nitem
+          call output_reservoir_query_from_buffer(icount, name, res_name, node_str, variable,  &
+                                                  interval, perop, filename, ierror)                                               
+          !sourcegroup = ""
+          !if (node_str .eq. "none") then
+          !    node = miss_val_i
+          !else
+          !    node = miss_val_i
+          !    read(node_str,'(i)') node
+          !end if 
+          call process_output_reservoir(res_name, resvno, node, variable, interval, &
+                                        perop, sourcegroup, filename)
+      end do
+      print *,"Number of reservoir output requests: ", nitem    
 
       ! process group block
       !nitem = group_buffer_size()
