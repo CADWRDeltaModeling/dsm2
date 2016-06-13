@@ -202,8 +202,9 @@ module boundary_advection_network
         real(gtm_real) :: conc_tmp0(nvar)                       ! when no flow flows into junction, use this temp value.
         integer :: up_cell, down_cell
         integer :: network_id
-        integer :: i, j, k, icell, inode
+        integer :: i, j, k, s, st, icell, inode
         integer :: reservoir_id, resv_conn_id   
+        real(gtm_real) :: conc_ext(nvar)
      
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
@@ -274,17 +275,36 @@ module boundary_advection_network
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
                     do j = 1, dsm2_network_extra(i)%n_qext
-                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,1).ne.0)) then    !drain
-                            mass_tmp(:) = mass_tmp(:) + pathinput(dsm2_network_extra(i)%qext_path(j,:))%value*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        if (qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0) then    !drain
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
-                        elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,1).eq.0)) then !drain but node concentration is absent
-                            mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        elseif (qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0) then !drain but node concentration is absent
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))                            
                             !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                         else     ! seepage and diversion
-                            mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j)) 
-                        end if
+                        end if                    
+                        do k = 1, n_var
+                            if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,k).ne.0)) then    !drain
+                                conc_ext(k) = pathinput(dsm2_network_extra(i)%qext_path(j,k))%value 
+                                if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,k))%variable).eq.'ssc') then
+                                    do st = 1, n_sediment
+                                        conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,k))%value / dble(n_sediment)
+                                        do s = 1, n_sediment_bc
+                                            if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,k))%name) .eq. trim(sediment_bc(s)%name)) &
+                                               .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
+                                                conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,k))%value * sediment_bc(s)%percent * 0.01d0
+                                            end if
+                                        end do    
+                                    end do                            
+                                 end if                            
+                                 mass_tmp(k) = mass_tmp(k) + conc_ext(k)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                            elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,k).eq.0)) then !drain but node concentration is absent
+                                mass_tmp(k) = mass_tmp(k) + conc_tmp(k)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                                !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                            else     ! seepage and diversion
+                                mass_tmp(k) = mass_tmp(k) + conc_tmp(k)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                            end if
+                        end do
                     end do
                     if (flow_tmp .lt. no_flow) then
                         !write(*,*) "WARNING: No flow flows into junction!!",icell               
@@ -363,7 +383,8 @@ module boundary_advection_network
                                              nvar)
         use gtm_precision
         use error_handling
-        use common_variables, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs
+        use common_variables, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
+                                    n_sediment, n_sediment_bc, sediment, sediment_bc
         use common_dsm2_vars, only: n_inputpaths, pathinput
         use state_variables_network, only : node_conc, conc_stip
         implicit none
@@ -371,21 +392,37 @@ module boundary_advection_network
         integer, intent(in)  :: nvar                             !< Number of variables
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face        
-        integer :: i, j, k, icell, inode
+        integer :: i, j, k, s, st, icell, inode
 
         do i = 1, n_bfbs
             inode = bfbs(i)%i_node
             do j = 1, n_inputpaths
                 if (pathinput(j)%i_no .eq. inode .and. dsm2_network(inode)%boundary_no.ne.0) then
-                    node_conc(inode,:) = pathinput(j)%value 
-                    dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1
+                    if (trim(pathinput(j)%variable) .eq. 'ssc') then
+                        node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value 
+                        dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1                    
+                        do st = 1, n_sediment
+                            do s = 1, n_sediment_bc
+                                if ((trim(pathinput(j)%name) .eq. trim(sediment_bc(s)%name)) .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
+                                    node_conc(inode,nvar-n_sediment+st) = pathinput(j)%value * sediment_bc(s)%percent * 0.01d0
+                                    dsm2_network_extra(inode)%node_conc(nvar-n_sediment+st) = 1                            
+                                end if
+                            end do    
+                        end do
+                    else
+                        node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value 
+                        dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1
+                    end if    
                     do k = 1, dsm2_network(inode)%n_conn_cell
                         icell = dsm2_network(inode)%cell_no(k)
-                        if (dsm2_network(inode)%up_down(k).eq.0) then  !cell at upstream of junction 
+                        if (trim(pathinput(j)%variable) .eq. 'ssc') then
                             conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
-                        else                                           !cell at downstream of junction 
+                            do st = 1, n_sediment
+                                conc_stip(icell,nvar-n_sediment+st) = node_conc(inode,nvar-n_sediment+st)   
+                            end do                                                        
+                        else
                             conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
-                        end if 
+                        end if    
                     end do
                 end if    
             end do    

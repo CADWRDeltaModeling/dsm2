@@ -38,6 +38,8 @@ module gtm_network
     real(gtm_real), allocatable :: tran_flow_mesh(:,:)     
     real(gtm_real), allocatable :: flow_volume_change(:,:)
     real(gtm_real), allocatable :: area_volume_change(:,:)
+    real(gtm_real), allocatable :: width_mesh(:,:)
+    real(gtm_real), allocatable :: hydro_radius_mesh(:,:)
 
     contains      
     
@@ -56,7 +58,9 @@ module gtm_network
         allocate(resv_height_mesh(nt+1, n_resv), stat = istat)
         allocate(resv_flow_mesh(nt+1, n_resv_conn), stat = istat)
         allocate(qext_flow_mesh(nt+1, n_qext), stat = istat)
-        allocate(tran_flow_mesh(nt+1, n_tran), stat = istat)           
+        allocate(tran_flow_mesh(nt+1, n_tran), stat = istat)
+        allocate(width_mesh(nt+1, n_cell), stat = istat)
+        allocate(hydro_radius_mesh(nt+1, n_cell), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
@@ -70,6 +74,8 @@ module gtm_network
         tran_flow_mesh = LARGEREAL
         flow_volume_change = LARGEREAL
         area_volume_change = LARGEREAL
+        width_mesh = LARGEREAL
+        hydro_radius_mesh = LARGEREAL
         return
     end subroutine
  
@@ -78,6 +84,7 @@ module gtm_network
         implicit none
         deallocate(flow_mesh_lo, flow_mesh_hi)
         deallocate(area_mesh_lo, area_mesh_hi)
+        deallocate(width_mesh, hydro_radius_mesh)        
         deallocate(resv_height_mesh)
         deallocate(resv_flow_mesh)
         deallocate(qext_flow_mesh)
@@ -135,6 +142,7 @@ module gtm_network
             end if   
             if (segm(i)%nx .gt. 1) then
                 call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
+                                      width_mesh, hydro_radius_mesh,                                      &                
                                       flow_volume_change, area_volume_change,                             &
                                       n_cell, segm(i)%start_cell_no,                                      &
                                       segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
@@ -145,6 +153,7 @@ module gtm_network
                                       prev_flow_lo_tmp, prev_flow_hi_tmp)                              
             else
                 call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,   &
+                                      width_mesh, hydro_radius_mesh,                                      &
                                       flow_volume_change, area_volume_change,                             &
                                       n_cell, segm(i)%start_cell_no,                                      &
                                       segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
@@ -205,15 +214,16 @@ module gtm_network
                    end if                    
                end do
             end if   
-            call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,   &
-                                      flow_volume_change, area_volume_change,                             &
-                                      n_cell, segm(i)%start_cell_no,                                      &
-                                      segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
-                                      prev_flow(up_comp), prev_flow(down_comp),                           &
-                                      hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
-                                      prev_ws(up_comp), prev_ws(down_comp),                               &
-                                      hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
-                                      prev_flow_lo_tmp, prev_flow_hi_tmp)                  
+            call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,       &
+                                            width_mesh, hydro_radius_mesh,                                &
+                                            flow_volume_change, area_volume_change,                       &
+                                            n_cell, segm(i)%start_cell_no,                                &
+                                            segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx, &
+                                            prev_flow(up_comp), prev_flow(down_comp),                     &
+                                            hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),   &
+                                            prev_ws(up_comp), prev_ws(down_comp),                         &
+                                            hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),       &
+                                            prev_flow_lo_tmp, prev_flow_hi_tmp)                  
         end do
         return
     end subroutine
@@ -251,6 +261,47 @@ module gtm_network
         end do        
         return
     end subroutine
+    
+
+    !> hydrodynamic interface to retrieve area and flow
+    subroutine hydro_info(flow,         &
+                          flow_lo,      &
+                          flow_hi,      &
+                          area,         &
+                          area_lo,      &
+                          area_hi,      &
+                          width,        &
+                          hydro_radius, &
+                          ncell,        &
+                          time,         &
+                          dx,           &                        
+                          dt)                
+        implicit none
+        integer, intent(in) :: ncell                       !< Number of cells
+        real(gtm_real), intent(in) :: time                 !< Time of request
+        real(gtm_real), intent(in) :: dt                   !< Time step 
+        real(gtm_real), intent(in) :: dx(ncell)            !< Spatial step
+        real(gtm_real), intent(out) :: flow(ncell)         !< Cell and time centered flow
+        real(gtm_real), intent(out) :: flow_lo(ncell)      !< Low face flow, time centered
+        real(gtm_real), intent(out) :: flow_hi(ncell)      !< High face flow, time centered
+        real(gtm_real), intent(out) :: area(ncell)         !< Cell center area, old time
+        real(gtm_real), intent(out) :: area_lo(ncell)      !< Area lo face, time centered
+        real(gtm_real), intent(out) :: area_hi(ncell)      !< Area hi face, time centered
+        real(gtm_real), intent(out) :: width(ncell)        !< With, time centered
+        real(gtm_real), intent(out) :: hydro_radius(ncell) !< Hydraulic radius, time centered
+        integer :: time_in_mesh, i                         ! local variable
+        time_in_mesh = int(time)
+        flow_lo = flow_mesh_lo(time_in_mesh,:)
+        flow_hi = flow_mesh_hi(time_in_mesh,:)
+        flow    = half * (flow_mesh_lo(time_in_mesh,:)+flow_mesh_hi(time_in_mesh,:))
+        area_lo = area_mesh_lo(time_in_mesh,:)
+        area_hi = area_mesh_hi(time_in_mesh,:)
+        area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))
+        width = width_mesh(time_in_mesh,:)
+        hydro_radius = hydro_radius_mesh(time_in_mesh,:)
+        !write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
+        return
+    end subroutine       
     
     
     !> hydrodynamic interface to retrieve area and flow

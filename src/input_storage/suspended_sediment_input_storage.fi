@@ -20,15 +20,14 @@
        end function
        
        !> write suspended_sediment data to buffer
-       subroutine suspended_sediment_append_to_buffer(name,composition,percent,size,ierror)
+       subroutine suspended_sediment_append_to_buffer(name,composition,percent,ierror)
          !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_append_to_buffer_f' :: suspended_sediment_append_to_buffer_f
          implicit none
          integer, intent(out) :: ierror         
                character(len=32), intent(in) :: name
        character(len=16), intent(in) :: composition
        real(8), intent(in) :: percent
-       real(8), intent(in) :: size
-         call suspended_sediment_append_to_buffer_f(name,composition,percent,size,ierror)
+         call suspended_sediment_append_to_buffer_f(name,composition,percent,ierror)
          return
        end subroutine
        
@@ -49,17 +48,16 @@
 
 
        !> Query row of data from buffer of type suspended_sediment
-       subroutine suspended_sediment_query_from_buffer(row, name,composition,percent,size,ierror)
+       subroutine suspended_sediment_query_from_buffer(row, name,composition,percent,ierror)
          !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_query_from_buffer_f' :: suspended_sediment_query_from_buffer_f
           implicit none
                 character(len=32), intent(out) :: name
        character(len=16), intent(out) :: composition
        real(8), intent(out) :: percent
-       real(8), intent(out) :: size
           integer row
           integer, intent(out) :: ierror
           call suspended_sediment_query_from_buffer_f(row, &
-                    name,composition,percent,size,ierror)
+                    name,composition,percent,ierror)
           return
        end subroutine
 

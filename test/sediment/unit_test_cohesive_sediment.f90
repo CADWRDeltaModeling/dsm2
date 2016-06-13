@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 2015 State of California,
+!    Copyright (C) 2016 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2-GTM.
 !
@@ -21,6 +21,95 @@
 !> Tests the suspended cohesive sediment subroutines
 !>@ingroup test_sediment
 module test_cohesive
+
+    use fruit
+    use gtm_precision
+    use sediment_variables
+    use suspended_utility
+    use cohesive_source
+    
+    contains
+
+    !> Test suite for cohesive subroutines
+    subroutine test_all_cohesive()
+        implicit none
+        call test_bed_shear_stress
+        call test_deposition
+        call test_erosion
+        return
+    end subroutine
+
+    !> test bed shear stress    
+    subroutine test_bed_shear_stress()
+        implicit none
+        integer, parameter :: ncell = 1
+        real(gtm_real) :: manning(ncell)
+        real(gtm_real) :: hydro_radius(ncell)
+        real(gtm_real) :: velocity(ncell)
+        real(gtm_real) :: bed_shear(ncell)
+
+        velocity = 0.3d0
+        manning = 0.022d0
+        hydro_radius = 2.d0
+        
+        call bed_shear_stress(bed_shear,     &
+                              velocity,      &
+                              manning,       &
+                              hydro_radius,  &
+                              ncell)  
+                                   
+        call assertEquals(0.339051144542464d0,bed_shear(1),weak_eps,"Error in test_bed_shear_stress")
+        
+        return
+    end subroutine    
+
+    !> test deposition
+    subroutine test_deposition()
+        implicit none
+        integer, parameter :: ncell = 1
+        real(gtm_real) :: deposition_flux(ncell)
+        real(gtm_real) :: settling_velocity
+        real(gtm_real) :: conc(ncell)
+
+        settling_velocity = 0.02d0
+        conc = 0.3d0
+        call deposition(deposition_flux,   &
+                        settling_velocity, &
+                        conc,              &
+                        ncell)        
+        call assertEquals(0.006d0,deposition_flux(1),weak_eps,"Error in test_deposition")
+        
+        return
+    end subroutine    
+
+    !> test erosion
+    subroutine test_erosion()
+        implicit none
+        integer, parameter :: ncell = 1
+        real(gtm_real), parameter :: param_M = 1.0d-4               ! kg/(m^2s)
+        real(gtm_real), parameter :: critical_shear_stress = 0.25d0 ! Pa
+        real(gtm_real) :: bottom_shear_stress(ncell)
+        real(gtm_real) :: erosion_rate(ncell)
+                
+        bottom_shear_stress = 0.5d0       
+        call erosion(erosion_rate,           &
+                     critical_shear_stress,  &
+                     bottom_shear_stress,    &
+                     param_M,                &
+                     ncell)  
+        call assertEquals(1.0d-4,erosion_rate(1),weak_eps,"Error in test_erosion")
+
+        bottom_shear_stress = 0.15d0       
+        call erosion(erosion_rate,           &
+                     critical_shear_stress,  &
+                     bottom_shear_stress,    &
+                     param_M,                &
+                     ncell)  
+        call assertEquals(zero,erosion_rate(1),weak_eps,"Error in test_erosion")
+                          
+        return
+    end subroutine    
+
 
 end module
 

@@ -38,7 +38,7 @@ public:
   typedef const tuple<const std::string>  identifier_type;
 
   suspended_sediment_type() :
-    
+    size(-901.0),
     used(true),
     layer(0)
   {
@@ -47,8 +47,8 @@ public:
   };
 
   /** Construct a suspended_sediment_type with actual data values */
-  suspended_sediment_type(const  char a_composition[16],const  char a_method[16], bool a_used=true, int a_layer = 0) :
-    
+  suspended_sediment_type(const  char a_composition[16],const double & a_size,const  char a_method[16], bool a_used=true, int a_layer = 0) :
+    size(a_size),
     used(a_used),
     layer(a_layer)
   {
@@ -59,7 +59,7 @@ public:
   /**Copy constructor) 
    */
   suspended_sediment_type (const suspended_sediment_type & other) :
-    
+    size(other.size),
     used(other.used),
     layer(other.layer)
   {
@@ -134,6 +134,7 @@ public:
   suspended_sediment_type& operator=(const suspended_sediment_type& rhs)
   {
     strcpy(this->composition,rhs.composition);
+    this->size=rhs.size;
     strcpy(this->method,rhs.method);
     used = rhs.used;
     layer = rhs.layer;
@@ -148,6 +149,7 @@ public:
 
   
   char composition[16];
+  double size;
   char method[16];
   /** indicator that the entry is used (true if not marked deleted by user)*/
   bool used;  
@@ -180,7 +182,7 @@ FCALL int suspended_sediment_type_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void suspended_sediment_type_append_to_buffer_f(const  char a_composition[16],const  char a_method[16], int * ierror, 
+FCALL void suspended_sediment_type_append_to_buffer_f(const  char a_composition[16],const double * a_size,const  char a_method[16], int * ierror, 
               const int composition_len,const int method_len);
   
 /** both makes the table and writes the contents of the buffer to it */
@@ -196,7 +198,7 @@ FCALL void suspended_sediment_type_number_rows_hdf5_f(const hid_t* file_id, hsiz
 
 /** get one row worth of information from the buffer */
 FCALL void suspended_sediment_type_query_from_buffer_f(size_t* row, 
-                         char a_composition[16], char a_method[16], int * ierror, 
+                         char a_composition[16],double * a_size, char a_method[16], int * ierror, 
               int composition_len,int method_len);
 /**
   prioritize buffer by layers, delete unused items and sort

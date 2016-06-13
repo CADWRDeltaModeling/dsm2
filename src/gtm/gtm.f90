@@ -40,7 +40,6 @@ program gtm
     use hydro_data_tidefile
     use interpolation
     use gtm_network 
-
     use hydro_data
     use hydro_data_network
     use state_variables
@@ -62,6 +61,8 @@ program gtm
     use gtm_init_store_outputs
     use gtm_store_outpath
     use klu
+    use suspended_sediment
+    use sediment_variables
 
     implicit none
     
@@ -73,6 +74,8 @@ program gtm
     real(gtm_real), allocatable :: explicit_diffuse_op(:,:)   
     real(gtm_real), allocatable :: init_c(:,:)
     real(gtm_real), allocatable :: init_r(:,:)   
+    real(gtm_real), allocatable :: manning(:)
+    real(gtm_real), allocatable :: diameter
      
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion   
@@ -98,8 +101,6 @@ program gtm
       
     procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
     logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
-    !real(gtm_real), parameter :: constant_decay = 5.0d-5
-    real(gtm_real), parameter :: constant_decay = zero
     logical :: debug_interp = .false.    
     logical :: use_gtm_hdf = .false.
 
@@ -128,18 +129,12 @@ program gtm
     real(gtm_real), allocatable :: vals(:)  
     logical :: file_exists
     integer :: st, k, p, n_st, chan_no     ! temp index
+    integer :: ivar
     real(gtm_real) :: start, finish
-    
     
     !----- Start of GTM Program  -----
     
-    call cpu_time(start)
-    
-    !n_var = 1   !todo::need to design a way to define n vars in input
-    !allocate(constituents(n_var))     
-    !constituents(1)%conc_no = 1
-    !constituents(1)%name = "ssc"
-        
+    call cpu_time(start)        
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
     
@@ -188,11 +183,10 @@ program gtm
     allocate(cfl(n_cell))    
     allocate(disp_coef_lo(n_cell), disp_coef_hi(n_cell))
     allocate(disp_coef_lo_prev(n_cell), disp_coef_hi_prev(n_cell))
+    allocate(source_term_by_cell(n_cell, n_var))    
     
     write(*,*) "You need to have ",n_cell," number of cells in initial file."
     
-    linear_decay = constant_decay
-   
     call assign_node_ts
     if (trim(gtm_io(3,2)%filename).ne.'') use_gtm_hdf = .true.
     if (use_gtm_hdf) then
@@ -210,18 +204,19 @@ program gtm
         call write_input_to_hdf5(gtm_hdf%file_id)
         call write_grid_to_tidefile(gtm_hdf%file_id)
     end if
-                       
+                
     !----- point to interface -----
-    fill_hydro => gtm_flow_area
+    fill_hydro_info => hydro_info
     fill_hydro_network => gtm_network_data
-    compute_source => no_source
-    !compute_source => linear_decay_source 
+    !compute_source => no_source
+    compute_source => set_source_term_by_cell
     conc_gradient => difference_network
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
     boundary_diffusion_matrix => network_diffusion_sparse_matrix_zero_at_junctions
+    source_term_by_cell = zero 
     
     call set_dispersion_arr(disp_arr, n_cell)
     write(*,*) "Process time series...."
@@ -319,16 +314,18 @@ program gtm
             call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv, prev_hydro_resv_flow, &
                                     prev_hydro_qext, prev_hydro_tran)              
             ! to determine if sub time step is required based on CFL number
-            call fill_hydro(flow,          &
-                            flow_lo,       &
-                            flow_hi,       &
-                            area,          &
-                            area_lo,       &
-                            area_hi,       &
-                            n_cell,        &
-                            dble(1),       &
-                            dx_arr,        &
-                            gtm_time_interval)
+            call fill_hydro_info(flow,          &
+                                 flow_lo,       &
+                                 flow_hi,       &
+                                 area,          &
+                                 area_lo,       &
+                                 area_hi,       &
+                                 width,         &
+                                 hydro_radius,  &
+                                 n_cell,        &
+                                 dble(1),       &
+                                 dx_arr,        &
+                                 gtm_time_interval)
                             
             cfl = abs(flow/area)*(gtm_time_interval*sixty)/dx_arr
             max_cfl = maxval(cfl)
@@ -375,16 +372,18 @@ program gtm
             !---rounded integer is fine since DSS does not take care of precision finer than 1 minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
                         
-            call fill_hydro(flow,          &
-                            flow_lo,       &
-                            flow_hi,       &
-                            area,          &
-                            area_lo,       &
-                            area_hi,       &
-                            n_cell,        &
-                            dble(t_index), &
-                            dx_arr,        &
-                            sub_gtm_time_step)  
+            call fill_hydro_info(flow,          &
+                                 flow_lo,       &
+                                 flow_hi,       &
+                                 area,          &
+                                 area_lo,       &
+                                 area_hi,       &
+                                 width,         &
+                                 hydro_radius,  &
+                                 n_cell,        &
+                                 dble(1),       &
+                                 dx_arr,        &
+                                 gtm_time_interval)
         
             call fill_hydro_network(resv_height,  &
                                     resv_flow,    &
@@ -411,6 +410,25 @@ program gtm
                 prev_tran_flow = tran_flow
             end if
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
+            !linear_decay_by_cell(1:n_cell/2,:) = zero
+            !linear_decay_by_cell(n_cell/2+1:n_cell,:) = 5.0d-5            
+            
+            do ivar = 1, n_var
+                if (trim(constituents(ivar)%use_module)=='sediment') then
+                    call sediment_flux(source_term_by_cell(:,ivar),   &
+                                       conc(:,ivar),                   &
+                                       flow,                           &
+                                       area,                           &
+                                       width,                          &
+                                       hydro_radius,                   &
+                                       mann_arr,                       &
+                                       constituents(ivar)%grain_size,  &
+                                       constituents(ivar)%method,      &
+                                       dx_arr,                         &
+                                       sub_gtm_time_step*sixty,        &
+                                       n_cell)
+                end if
+            end do     
             
             !if (apply_diffusion) then   ! omit dispersion term for advection calculation
             !    boundary_diffusion_flux => network_boundary_diffusive_flux_prev
@@ -428,6 +446,8 @@ program gtm
             !else !omit dispersion term in advection calculation
                 explicit_diffuse_op = zero
             !end if    
+                        
+
             
             !----- advection and source/sink -----        
             call advect(mass,                         &
@@ -488,6 +508,16 @@ program gtm
                              .true.)        
                 call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
+            
+            ! add all sediment to ssc
+            if (ssc_index .ne. 0) then
+                conc(:,ssc_index) = zero
+                do ivar = 1, n_var
+                    if (trim(constituents(ivar)%use_module)=='sediment') then
+                        conc(:,ssc_index) = conc(:,ssc_index) + conc(:,ivar)
+                    end if
+                end do
+            end if    
                       
             mass_prev = mass
             conc_prev = conc
@@ -509,7 +539,7 @@ program gtm
         !---- print output to DSS file -----
         call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
         if (int(current_time) .ge. next_output_flush .or. current_time.eq.gtm_end_jmin) then
-            call incr_intvl(next_output_flush, next_output_flush, flush_intvl,TO_BOUNDARY)
+            call incr_intvl(next_output_flush, next_output_flush, flush_intvl, TO_BOUNDARY)
             call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
         else
             call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
@@ -533,15 +563,15 @@ program gtm
                                             time_index_in_gtm_hdf)                                
                 end if
                 if (debug_print==.true.) then                                                 
-                    call write_gtm_hdf_ts(gtm_hdf%cell_flow_id, &
-                                          flow_hi,                  & 
+                    call write_gtm_hdf_ts(gtm_hdf%cell_flow_id,  &
+                                          flow_hi,               & 
                                           n_cell,                &
                                           time_index_in_gtm_hdf)
-                    call write_gtm_hdf_ts(gtm_hdf%cell_area_id, &
-                                          area_hi,                  & 
+                    call write_gtm_hdf_ts(gtm_hdf%cell_area_id,  &
+                                          area_hi,               & 
                                           n_cell,                &
                                           time_index_in_gtm_hdf)                               
-                    call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,  &
+                    call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,   &
                                           cfl,                   & 
                                           n_cell,                &
                                           time_index_in_gtm_hdf)                                             
@@ -573,6 +603,7 @@ program gtm
     deallocate(init_c)
     deallocate(init_r)
     deallocate(vals)
+    deallocate(source_term_by_cell)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state

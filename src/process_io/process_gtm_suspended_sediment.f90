@@ -20,34 +20,47 @@
 !>@ingroup process_io      
 module process_gtm_suspended_sediment
       
+    use gtm_precision
+      
     contains  
 
-
     subroutine process_suspended_sediment_type(composition,  &
+                                               grain_size,   &
                                                method)
-        use common_variables, only: constituents
+        use common_variables, only: n_var, constituents, n_sediment, sediment
         implicit none
         character :: composition*16
         character :: method*16
+        real*8 :: grain_size
         
+        call locase(composition)
+        call locase(method)
         
+        n_sediment = n_sediment + 1
+        sediment(n_sediment)%composition = composition
+        sediment(n_sediment)%grain_size = grain_size
+        sediment(n_sediment)%method = method
         return
     end subroutine    
 
 
-    subroutine process_suspended_sediment(name,       &   ! user defined name
-                                          composition,     &   ! DSM2 node number
-                                          percent,      &   ! ec, doc, etc
-                                          grain_size)         ! value or path
-      use common_dsm2_vars
+    subroutine process_suspended_sediment(name,         &   ! boundary location name
+                                          composition,  &   ! composition
+                                          percent)          ! percentage in SSC
+      use common_variables, only: n_sediment_bc, sediment_bc
       use io_utilities
       implicit none
-      character :: name*32,                  &
-                   composition*16
-      real*8 :: percent, grain_size
+      character :: name*32
+      character :: composition*16
+      real(gtm_real) :: percent
       
       call locase(name)
       call locase(composition) 
+      n_sediment_bc = n_sediment_bc + 1
+      sediment_bc(n_sediment_bc)%name = name
+      sediment_bc(n_sediment_bc)%composition = composition
+      sediment_bc(n_sediment_bc)%percent = percent
+      return 
     end subroutine
 
 end module    

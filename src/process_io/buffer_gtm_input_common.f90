@@ -109,15 +109,17 @@ module buffer_gtm_input_common
 
       ! process suspended sediment table
       nitem = suspended_sediment_type_buffer_size()
+      allocate(sediment(nitem))
       do icount = 1, nitem  
-          call suspended_sediment_type_query_from_buffer(icount, composition, method, ierror)
-          call process_suspended_sediment_type(composition, method)
+          call suspended_sediment_type_query_from_buffer(icount, composition, grain_size, method, ierror)
+          call process_suspended_sediment_type(composition, grain_size, method)
       enddo
             
       nitem = suspended_sediment_buffer_size()
+      allocate(sediment_bc(nitem))
       do icount = 1, nitem  
-          call suspended_sediment_query_from_buffer(icount, name, composition, percent, grain_size, ierror)
-          call process_suspended_sediment(name, composition, percent, grain_size)
+          call suspended_sediment_query_from_buffer(icount, name, composition, percent, ierror)
+          call process_suspended_sediment(name, composition, percent)
       enddo
       print *,"Number of sediments: ", nitem   
       

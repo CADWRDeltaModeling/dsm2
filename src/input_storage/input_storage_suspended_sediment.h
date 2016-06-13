@@ -39,7 +39,6 @@ public:
 
   suspended_sediment() :
     percent(-901.0),
-    size(-901.0),
     used(true),
     layer(0)
   {
@@ -48,9 +47,8 @@ public:
   };
 
   /** Construct a suspended_sediment with actual data values */
-  suspended_sediment(const  char a_name[32],const  char a_composition[16],const double & a_percent,const double & a_size, bool a_used=true, int a_layer = 0) :
+  suspended_sediment(const  char a_name[32],const  char a_composition[16],const double & a_percent, bool a_used=true, int a_layer = 0) :
     percent(a_percent),
-    size(a_size),
     used(a_used),
     layer(a_layer)
   {
@@ -62,7 +60,6 @@ public:
    */
   suspended_sediment (const suspended_sediment & other) :
     percent(other.percent),
-    size(other.size),
     used(other.used),
     layer(other.layer)
   {
@@ -140,7 +137,6 @@ public:
     strcpy(this->name,rhs.name);
     strcpy(this->composition,rhs.composition);
     this->percent=rhs.percent;
-    this->size=rhs.size;
     used = rhs.used;
     layer = rhs.layer;
     return *this;
@@ -156,7 +152,6 @@ public:
   char name[32];
   char composition[16];
   double percent;
-  double size;
   /** indicator that the entry is used (true if not marked deleted by user)*/
   bool used;  
   /** layer (version number) of this entry */
@@ -188,7 +183,7 @@ FCALL int suspended_sediment_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void suspended_sediment_append_to_buffer_f(const  char a_name[32],const  char a_composition[16],const double * a_percent,const double * a_size, int * ierror, 
+FCALL void suspended_sediment_append_to_buffer_f(const  char a_name[32],const  char a_composition[16],const double * a_percent, int * ierror, 
               const int name_len,const int composition_len);
   
 /** both makes the table and writes the contents of the buffer to it */
@@ -204,7 +199,7 @@ FCALL void suspended_sediment_number_rows_hdf5_f(const hid_t* file_id, hsize_t* 
 
 /** get one row worth of information from the buffer */
 FCALL void suspended_sediment_query_from_buffer_f(size_t* row, 
-                         char a_name[32], char a_composition[16],double * a_percent,double * a_size, int * ierror, 
+                         char a_name[32], char a_composition[16],double * a_percent, int * ierror, 
               int name_len,int composition_len);
 /**
   prioritize buffer by layers, delete unused items and sort

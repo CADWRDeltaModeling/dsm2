@@ -58,12 +58,6 @@ ostream& operator<<(ostream & stream, const suspended_sediment & obj)
             << setprecision(6)
             << left
             << obj.percent  
-        <<
-            setw(16)
-            << setfill(' ')
-            << setprecision(12)
-            << left
-            << obj.size  
         ;
 }
 
@@ -121,13 +115,6 @@ istream& operator>> (istream& stream, suspended_sediment & obj)
             throw runtime_error("Fewer input fields received than expected");
         }        
         obj.percent = strtod((beg++)->c_str(),NULL);
-         
-
-        if (beg == end)
-        {
-            throw runtime_error("Fewer input fields received than expected");
-        }        
-        obj.size = strtod((beg++)->c_str(),NULL);
          ;
   return stream;
 }
@@ -135,7 +122,7 @@ istream& operator>> (istream& stream, suspended_sediment & obj)
 template<>
 HDFTableManager<suspended_sediment>::HDFTableManager() :
     description(suspended_sediment_table_description()),  
-    m_default_fill(suspended_sediment("","",-901.0,-901.0)){}
+    m_default_fill(suspended_sediment("","",-901.0)){}
 
 template<>
 void HDFTableManager<suspended_sediment>::prioritize_buffer()
@@ -164,25 +151,23 @@ void HDFTableManager<suspended_sediment>::prioritize_buffer()
 TableDescription suspended_sediment_table_description(){
   const char* title = "suspended_sediment";
   const size_t size = sizeof(suspended_sediment);
-  const size_t nfields = 4;
-  suspended_sediment default_struct = suspended_sediment("","",-901.0,-901.0);
-  const char* fnames[] =  {"name","composition","percent","size"};
+  const size_t nfields = 3;
+  suspended_sediment default_struct = suspended_sediment("","",-901.0);
+  const char* fnames[] =  {"name","composition","percent"};
   const hid_t ftypes[] =  {
-            string_type(32),string_type(16),H5T_NATIVE_DOUBLE,H5T_NATIVE_DOUBLE
+            string_type(32),string_type(16),H5T_NATIVE_DOUBLE
                };
 
   const size_t foffsets[] ={
              ((char*)&default_struct.name - (char*)&default_struct),
              ((char*)&default_struct.composition - (char*)&default_struct),
-             ((char*)&default_struct.percent - (char*)&default_struct),
-             ((char*)&default_struct.size - (char*)&default_struct)
+             ((char*)&default_struct.percent - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {
          sizeof( default_struct.name ),
          sizeof( default_struct.composition ),
-         sizeof( default_struct.percent ),
-         sizeof( default_struct.size )
+         sizeof( default_struct.percent )
                           };
   const hsize_t chunk_size = 10;
   TableDescription descr(title,size,nfields,fnames,ftypes,foffsets,fsizes,chunk_size);
@@ -200,13 +185,13 @@ void suspended_sediment_clear_buffer_f(){
 }
 
 /** append to buffer, compatible with fortran, returns new size*/
-void suspended_sediment_append_to_buffer_f(const  char a_name[32],const  char a_composition[16],const double * a_percent,const double * a_size, int * ierror, 
+void suspended_sediment_append_to_buffer_f(const  char a_name[32],const  char a_composition[16],const double * a_percent, int * ierror, 
               const int name_len,const int composition_len)
 {
  _TRAP_EXCEPT(*ierror,
    suspended_sediment_table::instance().buffer().push_back(
                                       suspended_sediment(
-                                      a_name,a_composition,*a_percent,*a_size
+                                      a_name,a_composition,*a_percent
                                       ));
  ) // end of exception trap
 }
@@ -274,7 +259,7 @@ void suspended_sediment_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecor
     
 /** get one row worth of information from the buffer */
 void suspended_sediment_query_from_buffer_f(size_t* row, 
-                         char a_name[32], char a_composition[16],double * a_percent,double * a_size, int * ierror, 
+                         char a_name[32], char a_composition[16],double * a_percent, int * ierror, 
               int name_len,int composition_len
                         )
 {
@@ -285,7 +270,6 @@ void suspended_sediment_query_from_buffer_f(size_t* row,
     memcpy(a_name,obj.name,32);
     memcpy(a_composition,obj.composition,16);
     *a_percent=obj.percent;
-    *a_size=obj.size;
     if (strlen(a_name) < 32)fill(a_name+strlen(a_name),a_name+32,' ');
     if (strlen(a_composition) < 16)fill(a_composition+strlen(a_composition),a_composition+16,' ');
     name_len=(int)strlen(a_name);

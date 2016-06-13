@@ -270,9 +270,29 @@ module common_variables
          character*32 :: name = ' '                !< constituent name
          logical :: conservative = .true.          !< true if conservative, false if nonconservative
          character*32 :: use_module = ' '          !< use module
-         character*32 :: method = ' '              !< method in module
+         integer :: method = 0                     !< method in module 1:NC, 2:C, 3:O
+         real(gtm_real) :: grain_size              !< grain_size if sediment
      end type     
      type(constituent_t), allocatable :: constituents(:)
+     
+     !> Sediment variables
+     integer :: ssc_index = 0
+     integer :: n_sediment = 0
+     type sediment_t
+         character*16 :: composition = ' '               ! sediment composition type
+         real(gtm_real) :: grain_size                    ! grain size
+         character*16 :: method = ' '                    ! method for calculation
+     end type
+     type(sediment_t), allocatable :: sediment(:)
+    
+     !> Sediment variables
+     integer :: n_sediment_bc = 0
+     type sediment_bc_t
+         character*32 :: name = ' '                      ! location name
+         character*16 :: composition = ' '               ! sediment composition type
+         real(gtm_real) :: percent                       ! percentage 
+     end type
+     type(sediment_bc_t), allocatable :: sediment_bc(:)     
     
      contains
 

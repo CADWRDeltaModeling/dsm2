@@ -292,11 +292,12 @@ module gtm_subs
 
     !> assign value to dsm2_network(:)%node_conc, pathinput(:)%i_no, pathinput(:)%i_var
     subroutine assign_node_ts()
-        use common_variables, only : n_node, dsm2_network, dsm2_network_extra,    &
-                                     n_var, constituents, qext, n_resv, resv_geom
+        use common_variables, only : n_node, dsm2_network, dsm2_network_extra,     &
+                                     n_var, constituents, qext, n_resv, resv_geom, &
+                                     n_sediment
         use common_dsm2_vars, only : n_inputpaths, pathinput, obj_reservoir
         implicit none
-        integer :: i, j, k
+        integer :: i, j, k, st
         
         do i = 1, n_inputpaths
             do j = 1, n_var
@@ -327,6 +328,11 @@ module gtm_subs
                 do j = 1, dsm2_network_extra(pathinput(i)%i_no)%n_qext
                     if (trim(qext(dsm2_network_extra(pathinput(i)%i_no)%qext_no(j))%name) .eq. trim(pathinput(i)%name)) then
                         dsm2_network_extra(pathinput(i)%i_no)%qext_path(j,pathinput(i)%i_var) = i
+                        if (trim(pathinput(i)%variable).eq.'ssc') then
+                            do st = 1, n_sediment
+                                dsm2_network_extra(pathinput(i)%i_no)%qext_path(j,n_var-n_sediment+st) = i
+                            end do                        
+                        end if
                     end if            
                 end do
             end if

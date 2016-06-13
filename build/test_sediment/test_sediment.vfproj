@@ -28,7 +28,5 @@
 		<File RelativePath="..\..\test\sediment\unit_test_bed_load.f90"/>
 		<File RelativePath="..\..\test\sediment\unit_test_cohesive_sediment.f90"/>
 		<File RelativePath="..\..\test\sediment\unit_test_non_cohesive_sediment.f90"/>
-		<File RelativePath="..\..\test\sediment\unit_test_sediment_hydro_data.f90"/>
-		<File RelativePath="..\..\test\sediment\unit_test_sediment_variables_constant.f90"/>
-		<File RelativePath="..\..\test\sediment\unit_test_sediment_variables_derived.f90"/></Filter></Files>
+		<File RelativePath="..\..\test\sediment\unit_test_sediment_utility.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

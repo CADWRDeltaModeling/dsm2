@@ -28,6 +28,10 @@ module source_sink
  
  real(gtm_real), allocatable :: linear_decay(:) !< linear decay rates for when linear source is used, should be nonpositive
  
+ real(gtm_real), allocatable :: linear_decay_by_cell(:,:) !< linear decay rates per cell
+
+ real(gtm_real), allocatable :: source_term_by_cell(:,:) !< source term per cell 
+ 
  !> Calculate source
  interface
    !> Generic interface for calculating source that should be fulfilled by
@@ -146,6 +150,64 @@ module source_sink
 
      do ivar = 1,nvar
          source(:,ivar) = -linear_decay(ivar)*conc(:,ivar)
+     end do
+     return
+ end subroutine 
+
+
+ !> Linear decay source
+ !> This source term multiplies each constituent by a decay rate for each cell
+ subroutine linear_decay_source_by_cell(source, & 
+                                        conc,   &
+                                        area,   &
+                                        flow,   &
+                                        ncell,  &
+                                        nvar,   &
+                                        time)
+     use gtm_precision
+     implicit none 
+     !--- args
+     integer, intent(in)  :: ncell                      !< Number of cells
+     integer, intent(in)  :: nvar                       !< Number of variables
+     real(gtm_real), intent(inout) :: source(ncell,nvar)!< cell centered source 
+     real(gtm_real), intent(in) :: conc(ncell,nvar)     !< Concentration
+     real(gtm_real), intent(in) :: area(ncell)          !< area at source     
+     real(gtm_real), intent(in) :: flow(ncell)          !< flow at source location
+     real(gtm_real), intent(in) :: time                 !< time      
+     !---local
+     integer :: ivar                                    !< Counter on constituents
+
+     ! source must be in primitive variable 
+     do ivar = 1,nvar
+         source(:,ivar) = -linear_decay_by_cell(:,ivar)*conc(:,ivar)
+     end do
+     return
+ end subroutine 
+
+ !> Given source term by cell
+ subroutine set_source_term_by_cell(source, & 
+                                    conc,   &
+                                    area,   &
+                                    flow,   &
+                                    ncell,  &
+                                    nvar,   &
+                                    time)
+     use gtm_precision
+     implicit none 
+     !--- args
+     integer, intent(in)  :: ncell                      !< Number of cells
+     integer, intent(in)  :: nvar                       !< Number of variables
+     real(gtm_real), intent(inout) :: source(ncell,nvar)!< cell centered source 
+     real(gtm_real), intent(in) :: conc(ncell,nvar)     !< Concentration
+     real(gtm_real), intent(in) :: area(ncell)          !< area at source     
+     real(gtm_real), intent(in) :: flow(ncell)          !< flow at source location
+     real(gtm_real), intent(in) :: time                 !< time      
+     !---local
+     integer :: ivar                                    !< Counter on constituents
+
+     ! source must be in primitive variable 
+     do ivar = 1,nvar
+         source(:,ivar) = source_term_by_cell(:,ivar)
      end do
      return
  end subroutine 

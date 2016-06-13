@@ -47,7 +47,7 @@ module gtm_precision
    real(gtm_real), parameter :: pi = acos(-one)        !< Pi 
    real(gtm_real), parameter :: hydro_theta =  6.d-1   !< Real constant 0.6  properly typed
    real(gtm_real), parameter :: million = 1.d6         !< Real constant 1,000,000 property typed
-   
+
    integer, parameter :: LARGEINT = -123456789
    
    !> Absurd high value, for initialization and for marking undefined

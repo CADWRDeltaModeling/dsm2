@@ -23,57 +23,129 @@ module cohesive_source
 
     contains 
     
-    subroutine deposition_flux(flow, &
-                               area, &
-                               ncell)
+    !> Calculate vertical net flux for cohesive sediment
+    subroutine source_cohesive(vertical_flux,    & !< net vertical sediment flux
+                               erosion_flux,     & !< erosion flux
+                               deposition_flux,  & !< deposition flux
+                               conc,             & !< sediment concentration
+                               flow,             & !< flow
+                               area,             & !< area
+                               width,            & !< channel width
+                               hydro_radius,     & !< hydraulic radius
+                               manning,          & !< Manning's n
+                               diameter,         & !< sediment particle diameter
+                               ncell)              !< number of model cells
+        use sediment_variables, only : kinematic_viscosity, specific_gravity, gravity
+        use suspended_utility
+
+        implicit none
+        real(gtm_real), intent(out):: vertical_flux(ncell)  !< vertical sediment net flux into the water column
+        real(gtm_real), intent(out):: erosion_flux(ncell)   !< entrainment for resuspension
+        real(gtm_real), intent(out):: deposition_flux(ncell)!< deposition
+        real(gtm_real), intent(in) :: conc(ncell)           !< concentration at new time
+        real(gtm_real), intent(in) :: flow(ncell)           !< flow
+        real(gtm_real), intent(in) :: area(ncell)           !< area
+        real(gtm_real), intent(in) :: width(ncell)          !< channel width
+        real(gtm_real), intent(in) :: hydro_radius(ncell)   !< hydraulic radius
+        real(gtm_real), intent(in) :: manning(ncell)        !< Manning's n
+        real(gtm_real), intent(in) :: diameter              !< diameter
+        integer, intent(in) :: ncell                        !< number of cells 
+        
+        !--local variables
+        real(gtm_real), parameter :: param_M = 1.325d-5 !1.325d-5             ! kg/(m^2s)
+        real(gtm_real), parameter :: critical_shear_stress = 0.2d0 !0.25d0 ! Pa
+        real(gtm_real) :: fall_vel
+        real(gtm_real) :: velocity(ncell)                           ! flow velocity   
+        real(gtm_real) :: bottom_shear_stress(ncell)     
+        logical   :: function_van_rijn      
+            
+        function_van_rijn = .false. !use Dietrich formula                
+        velocity = abs(flow/area)
+        
+        call settling_velocity(fall_vel,            &
+                               kinematic_viscosity, &
+                               specific_gravity,    &
+                               diameter,            &
+                               gravity,             &
+                               function_van_rijn)   
+
+        call bed_shear_stress(bottom_shear_stress,  &
+                              velocity,             &
+                              manning,              &
+                              hydro_radius,         &
+                              ncell)
+                                
+        call erosion(erosion_flux,           &
+                     critical_shear_stress,  &
+                     bottom_shear_stress,    &
+                     param_M,                &
+                     ncell)                               
+
+        call deposition(deposition_flux,   &
+                        fall_vel,          &
+                        conc,              &
+                        ncell)                      
+       
+        vertical_flux = erosion_flux - deposition_flux
+        
+        !write(107,'(5f15.5)') fall_vel, bottom_shear_stress(562), conc(562), erosion_flux(562),deposition_flux(562)
+         
+        return
+    end subroutine 
+    
+    !> Deposition flux calculated by Krone(1962)
+    subroutine deposition(deposition_flux,   &
+                          settling_velocity, &
+                          conc,              &
+                          ncell)
         implicit none
         integer, intent(in) :: ncell
-        real(gtm_real), intent(in) :: flow(ncell)
-        real(gtm_real), intent(in) :: area(ncell)
+        real(gtm_real), intent(in) :: conc(ncell)
+        real(gtm_real), intent(in) :: settling_velocity
+        real(gtm_real), intent(out) :: deposition_flux(ncell)
         
-        !bed_shear_velocity = 0.5d0*water_density*friction_factor*velocity
+        deposition_flux(:) = settling_velocity * conc(:)
+        
         return
     end subroutine
 
-
-    subroutine critical_bed_shear_stress()
-        use sediment_variables
+    !> Erosion flux calculated by Krone(1962)
+    subroutine erosion(erosion_rate,           &
+                       critical_shear_stress,  &
+                       bottom_shear_stress,    &
+                       param_M,                &
+                       ncell)
         implicit none
+        integer, intent(in) :: ncell
+        real(gtm_real), intent(in) :: bottom_shear_stress(ncell)
+        real(gtm_real), intent(in) :: critical_shear_stress
+        real(gtm_real), intent(in) :: param_M
+        real(gtm_real), intent(out) :: erosion_rate(ncell)
+                
+        erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one)      
+        where (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero
         
+        return
+    end subroutine
+
+    !> Bed shear stress
+    subroutine bed_shear_stress(bed_shear,     &
+                                velocity,      &
+                                manning,       &
+                                hydro_radius,  &
+                                ncell)
+        use sediment_variables, only: water_density, gravity
+        implicit none
+        integer, intent(in) :: ncell
+        real(gtm_real), intent(in) :: velocity(ncell)
+        real(gtm_real), intent(in) :: manning(ncell)
+        real(gtm_real), intent(in) :: hydro_radius(ncell)
+        real(gtm_real), intent(out) :: bed_shear(ncell)
+        
+        bed_shear = water_density*velocity**two*(manning**two)*gravity/(hydro_radius**(one/three))
         
         return
     end subroutine    
-
-
-    !> Shields parameter
-    subroutine shields_parameter(shield_param,  &
-                                 grain_size)
-        implicit none
-        real(gtm_real), intent(out) :: shield_param
-        real(gtm_real), intent(in) :: grain_size
-        
-        if (grain_size.gt.1.0d0) then  ! roughly assign a number to avoid getting here
-            shield_param = 0.029d0     
-        elseif (grain_size.gt.0.5d0 .and. grain_size.le.1.0d0) then      ! coarse sand
-            shield_param = 0.029d0 + (0.033d0-0.029d0)*(grain_size-0.5d0)/(1.0d0-0.5d0)
-        elseif (grain_size.gt.0.25d0 .and. grain_size.le.0.5d0) then     ! medium sand
-            shield_param = 0.033d0 + (0.048d0-0.033d0)*(grain_size-0.25d0)/(0.5d0-0.25d0)    
-        elseif (grain_size.gt.0.125d0 .and. grain_size.le.0.25d0) then   ! fine sand
-            shield_param = 0.048d0 + (0.072d0-0.048d0)*(grain_size-0.125d0)/(0.25d0-0.125d0)
-        elseif (grain_size.gt.0.0625d0 .and. grain_size.le.0.125d0) then ! very fine sand
-            shield_param = 0.072d0 + (0.109d0-0.072d0)*(grain_size-0.0625d0)/(0.125d0-0.0625d0)
-        elseif (grain_size.gt.0.0310d0 .and. grain_size.le.0.0625d0) then ! coarse silt
-            shield_param = 0.109d0 + (0.165d0-0.109d0)*(grain_size-0.0310d0)/(0.0625d0-0.0310d0)                 
-        elseif (grain_size.gt.0.0156d0 .and. grain_size.le.0.0310d0) then ! medium silt
-            shield_param = 0.165d0 + (0.25d0-0.165d0)*(grain_size-0.0156d0)/(0.0310d0-0.0156d0)    
-        elseif (grain_size.gt.0.0078d0 .and. grain_size.le.0.0156d0) then ! fine silt
-            shield_param = 0.25d0 + (0.3d0-0.25d0)*(grain_size-0.0078d0)/(0.0156d0-0.0078d0)
-        else
-            shield_param = 0.3d0
-        end if
-                                    
-        return
-    end subroutine   
 
 
 end module

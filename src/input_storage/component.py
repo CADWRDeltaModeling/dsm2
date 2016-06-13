@@ -87,8 +87,8 @@ def component_members():
       "output_channel_source_track":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
       "output_reservoir_source_track":["name","res_name","variable","source_group","interval","period_op","file"],\
       "output_gate":["name","gate_name","device","variable","interval","period_op","file"],\
-      "suspended_sediment_type":["composition","method"],\
-      "suspended_sediment":["name","composition","percent","size"]}
+      "suspended_sediment_type":["composition","size","method"],\
+      "suspended_sediment":["name","composition","percent"]}
 
 
 def include_block():

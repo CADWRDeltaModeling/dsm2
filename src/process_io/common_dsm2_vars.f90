@@ -28,7 +28,7 @@ module common_dsm2_vars
 
     !> From DSM2/common/runtime_data.f
        character(len=:), allocatable :: dsm2_name         ! DSM2 name
-       character(len=:), allocatable  :: dsm2_modifier    ! DSM2 modifier
+       character(len=:), allocatable :: dsm2_modifier     ! DSM2 modifier
 
        !-----dates, timestep
        !-----Note: julian minutes are minutes from 01jan1900 0000 (31dec1899 2400)
@@ -125,7 +125,6 @@ module common_dsm2_vars
        integer, parameter :: obj_source_sink = 16
        integer, parameter :: obj_climate = 30
        integer, parameter :: obj_filter = 120
-
        
        !-----misc magic characters and numbers
        logical, parameter :: EXACT_MATCH = .true.
@@ -239,7 +238,7 @@ module common_dsm2_vars
        integer :: n_outdssfiles = 0                        ! total number of unique dss files
        character(len=130), allocatable :: outdssfiles(:)   ! unique dss output file names
        integer, allocatable :: ifltab_out(:,:)             ! DSS table for each output file       
-       integer, parameter :: max_dssoutfiles = 100         ! temporary dss file size, will be replaced by n_outdssfiles
+       integer, parameter :: max_dssoutfiles = 1000        ! temporary dss file size, will be replaced by n_outdssfiles
        character(len=130), dimension(max_dssoutfiles)::outfilenames= ' ' ! temporary unique dss input file names
        
        !-----path input (time-varying data)
@@ -293,6 +292,7 @@ module common_dsm2_vars
        integer, parameter :: LOG_INFO = 2 
        integer, parameter :: LOG_DEBUG = 2
        integer :: print_level                             ! diagnostic printout level
+
     
      contains
        

@@ -73,7 +73,7 @@ module ut_gtm_hdf_ts_wrt
         resv_geom(1)%name = "res_1"
         constituents(1)%name = "conc_1"
         constituents(2)%name = "conc_2"
-        call init_gtm_hdf(qual_hdf,          &
+        call init_gtm_hdf(gtm_hdf,           &
                           hdf_name,          &
                           ncell,             &
                           nres,              &
@@ -81,7 +81,7 @@ module ut_gtm_hdf_ts_wrt
                           sim_start,         &
                           sim_end,           &
                           hdf_interval_char)
-        call close_gtm_hdf(qual_hdf)          
+        call close_gtm_hdf(gtm_hdf)          
         deallocate(chan_geom)        
         deallocate(resv_geom) 
         deallocate(constituents)                
@@ -139,7 +139,7 @@ module ut_gtm_hdf_ts_wrt
         constituents(2)%name = "conc_2"
         constituents(3)%name = "conc_3"
         
-        call init_gtm_hdf(qual_hdf,          &
+        call init_gtm_hdf(gtm_hdf,          &
                           hdf_name,          &
                           ncell,             &
                           nres,              &
@@ -150,7 +150,7 @@ module ut_gtm_hdf_ts_wrt
                            
         !---write values into time_index=3                      
         julmin = 44130       
-        time_index = (julmin-qual_hdf%start_julmin)/gtm_hdf%write_interval               
+        time_index = (julmin-gtm_hdf%start_julmin)/gtm_hdf%write_interval               
         do i = 1, nconc
             do j = 1, ncell
                 conc(j,i) = 1000 + i*100 + j
@@ -172,7 +172,7 @@ module ut_gtm_hdf_ts_wrt
                                                            
         !---write values into time_index=4                                
         julmin = 44145.d0     
-        time_index = (julmin-qual_hdf%start_julmin)/qual_hdf%write_interval               
+        time_index = (julmin-gtm_hdf%start_julmin)/gtm_hdf%write_interval               
         do i = 1, nconc
             do j = 1, ncell
                 conc(j,i) = 2000 + i*100 + j
@@ -299,7 +299,7 @@ module ut_gtm_hdf_ts_wrt
                            
         !---write values into time_index=3                           
         julmin = 44130       
-        time_index = (julmin-qual_hdf%start_julmin)/qual_hdf%write_interval               
+        time_index = (julmin-gtm_hdf%start_julmin)/gtm_hdf%write_interval               
         do i = 1, nconc
             do j = 1, ncell
                 conc(j,i) = 1000 + i*100 + j

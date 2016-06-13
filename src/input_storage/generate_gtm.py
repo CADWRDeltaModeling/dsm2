@@ -475,6 +475,7 @@ def generate_dsm2():
 
     component = TableComponent("suspended_sediment_type",
                              [CharField("composition",16,16),\
+                              DoubleField("size",16,12),\
                               CharField("method",16,16)             
                              ],
                              ["composition"])   # identifier
@@ -483,10 +484,9 @@ def generate_dsm2():
 	
 	
     component = TableComponent("suspended_sediment",
-                             [CharField("name",DSM2_NAME_LEN,16),
+                             [CharField("name",DSM2_NAME_LEN,16),\
                               CharField("composition",16,16),\
-                              DoubleField("percent",16,6),\
-                              DoubleField("size",16,12)             
+                              DoubleField("percent",16,6)           
                              ],
                              ["name","composition"])   # identifier
     component.layered=True

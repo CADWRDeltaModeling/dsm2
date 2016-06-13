@@ -35,7 +35,7 @@ module buffer_gtm_input_qual
                                     n_outdssfiles, outdssfiles, ifltab_out,  &
                                     outfilenames
         use gtm_dss, only: get_dss_each_npath
-        use common_variables, only: n_var, constituents
+        use common_variables, only: n_var, constituents, n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index
       
         implicit none
         integer :: nitem_climate, nitem_node_conc, nitem_resv_conc
@@ -162,13 +162,34 @@ module buffer_gtm_input_qual
            end if
         end do
 
-        n_var = nvar
+        n_var = nvar + n_sediment
         allocate(constituents(n_var))
         do i = 1, nvar 
             constituents(i)%conc_no = i
             constituents(i)%name = const(i)%name
+            if (trim(constituents(i)%name).eq.'ssc') then
+                ssc_index = i
+                constituents(i)%use_module = ''
+                constituents(i)%conservative = .false.  
+                constituents(i)%method = 0
+            end if
         end do
-        print *,"Number of node concentration inputs processed: ", nitem_node_conc
+        do i = 1, n_sediment
+            constituents(nvar+i)%conc_no = nvar + i
+            constituents(nvar+i)%name = trim(sediment(i)%composition)
+            if (trim(sediment(i)%method).eq.'nc') then
+                constituents(nvar+i)%method = 1
+            elseif (trim(sediment(i)%method).eq.'c') then
+                constituents(nvar+i)%method = 2
+            elseif (trim(sediment(i)%method).eq.'o') then 
+                constituents(nvar+i)%method = 3
+            end if
+            constituents(nvar+i)%use_module = 'sediment'
+            constituents(nvar+i)%grain_size = sediment(i)%grain_size
+            constituents(nvar+i)%conservative = .false.
+        end do
+                
+        print *,"Number of constituents processed: ", n_var
 
 
         do icount = 1,nitem_resv_conc

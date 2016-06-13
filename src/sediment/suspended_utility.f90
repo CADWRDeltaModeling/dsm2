@@ -24,6 +24,8 @@
 
 module suspended_utility
 
+    use gtm_precision
+
     contains
 
     !> Calculates particle's settling velocity. NOTE: the subroutine works with SI units.
@@ -36,16 +38,13 @@ module suspended_utility
                                  specific_gravity,   &
                                  diameter,           &
                                  g_acceleration,     &
-                                 nclass,             &
                                  function_van_rijn)                
-        use gtm_precision
         implicit none
         !--- arg
-        integer,intent(in)         :: nclass              !< Number of sediment diameter classes
-        real(gtm_real),intent(out) :: settling_v(nclass)  !< Settling velocity (m/s)
+        real(gtm_real),intent(out) :: settling_v          !< Settling velocity (m/s)
         real(gtm_real),intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)
         real(gtm_real),intent(in)  :: specific_gravity    !< Specific gravity of particle (~2.65)
-        real(gtm_real),intent(in)  :: diameter(nclass)    !< Particle diameter in meter
+        real(gtm_real),intent(in)  :: diameter            !< Particle diameter in meter
         real(gtm_real),intent(in)  :: g_acceleration      !< Gravitational acceleration (m/sec2)
         logical, optional          :: function_van_rijn   !< Flag for using van Rijn (1984) formula o/ Dietrich (1982). the default is van Rijn
         !--local
@@ -57,8 +56,8 @@ module suspended_utility
         real(gtm_real) :: b_3 = 0.056835d0
         real(gtm_real) :: b_4 = 0.002892d0
         real(gtm_real) :: b_5 = 0.000245d0
-        real(gtm_real) :: dimless_fall_velocity(nclass)  ! todo: should we consider the local varibles in 
-        real(gtm_real) :: exp_re_p(nclass)               !< Explicit Reynols particle number 
+        real(gtm_real) :: dimless_fall_velocity          ! todo: should we consider the local varibles in 
+        real(gtm_real) :: exp_re_p                       !< Explicit Reynols particle number 
         real(gtm_real) :: capital_r                      !< Submerged specific gravity of sediment particles 
 
         if (present(function_van_rijn)) then
@@ -69,42 +68,37 @@ module suspended_utility
  
             case (.true.)
             ! van Rijn formula
-            do iclass=1,nclass
-                if (diameter(iclass) > 1.0d-3)     then
-                    settling_v(iclass) = 1.1d0*dsqrt((specific_gravity - one)*g_acceleration*diameter(iclass))
-                elseif (diameter(iclass) > 1.0d-4) then
-                    settling_v(iclass) = (ten*kinematic_viscosity/diameter(iclass))*(dsqrt(one + (0.01d0*(specific_gravity - one) &
-                                         *g_acceleration*diameter(iclass)**three)/kinematic_viscosity**two)- one)
-                elseif (diameter(iclass) > 0.9d-7) then
+                if (diameter.ge.1.0d-3)     then
+                    settling_v = 1.1d0*dsqrt((specific_gravity - one)*g_acceleration*diameter)
+                elseif (diameter.ge.1.0d-4 .and. diameter.lt.1.0d-3) then
+                    settling_v = (ten*kinematic_viscosity/diameter)*(dsqrt(one + (0.01d0*(specific_gravity - one) &
+                                         *g_acceleration*diameter**three)/kinematic_viscosity**two)- one)
+                elseif (diameter.ge.0.9d-7 .and. diameter.lt.1.0d-4) then
                     ! Stokes law here
-                    settling_v(iclass) = ((specific_gravity - one)*g_acceleration*diameter(iclass)**two)/(18.0d0*kinematic_viscosity)
+                    settling_v = ((specific_gravity - one)*g_acceleration*diameter**two)/(18.0d0*kinematic_viscosity)
                 else
-                    settling_v(iclass) = minus * LARGEREAL
+                    settling_v = minus * LARGEREAL
                     ! todo: the gtm_fatal can not be called here because settling velocity is a pure subroutine
-                end if 
-            end do   
+                end if  
             
             case(.false.)
             ! Dietrich formula
-            capital_r = specific_gravity - one
-            do iclass=1,nclass
+                capital_r = specific_gravity - one
                 ! Stokes fall velocity
-                if ( diameter(iclass) < 1.0d-5 ) then
-                    settling_v(iclass) = (capital_r*g_acceleration*diameter(iclass)**two)/(18.0d0*kinematic_viscosity)
+                if ( diameter < 1.0d-5 ) then
+                    settling_v = (capital_r*g_acceleration*diameter**two)/(18.0d0*kinematic_viscosity)
                 else
                     call explicit_particle_reynolds_number(exp_re_p,            &
                                                            diameter,            &
                                                            capital_r,           &
                                                            g_acceleration,      &
-                                                           kinematic_viscosity, &
-                                                           nclass)
+                                                           kinematic_viscosity)
             
-                    dimless_fall_velocity(iclass) = dexp(minus*b_1 + b_2*dlog(exp_re_p(iclass)) - b_3*(dlog(exp_re_p(iclass)))**two &
-                                                   - b_4*(dlog(exp_re_p(iclass)))**three + b_5*(dlog(exp_re_p(iclass)))**four)
+                    dimless_fall_velocity = dexp(minus*b_1 + b_2*dlog(exp_re_p) - b_3*(dlog(exp_re_p))**two &
+                                                   - b_4*(dlog(exp_re_p))**three + b_5*(dlog(exp_re_p))**four)
                                                
-                    settling_v(iclass) = dimless_fall_velocity(iclass) * dsqrt(capital_r*g_acceleration*diameter(iclass))                 
-                end if   
-            end do 
+                    settling_v = dimless_fall_velocity * dsqrt(capital_r*g_acceleration*diameter)                 
+                end if    
             end select 
 
         return
@@ -115,7 +109,6 @@ module suspended_utility
     pure subroutine submerged_specific_gravity(capital_r,            &
                                                water_density,        &
                                                sediment_density)
-        use gtm_precision
         implicit none
         !-- arguments
         real(gtm_real), intent(out) :: capital_r        !< Submerged specific gravity of sediment particles     
@@ -133,17 +126,14 @@ module suspended_utility
                                                       diameter,           &
                                                       capital_r,          &
                                                       g_acceleration,     &
-                                                      kinematic_viscosity,&
-                                                      nclass)
-        use gtm_precision
+                                                      kinematic_viscosity)
         implicit none
         !--- arguments 
-        integer, intent(in) :: nclass                         !< Number of sediment diameter classes
-        real(gtm_real), intent(out) :: exp_re_p(nclass)        !< Explicit particle reynolds number
-        real(gtm_real), intent(in)  :: diameter(nclass)        !< Particle diameter
-        real(gtm_real), intent(in)  :: capital_r               !< Submerged specific gravity of sediment particles  
-        real(gtm_real), intent(in)  :: g_acceleration          !< Gravitational acceleration 
-        real(gtm_real), intent(in)  :: kinematic_viscosity     !< Kinematic viscosity (m2/sec)
+        real(gtm_real), intent(out) :: exp_re_p               !< Explicit particle reynolds number
+        real(gtm_real), intent(in)  :: diameter               !< Particle diameter
+        real(gtm_real), intent(in)  :: capital_r              !< Submerged specific gravity of sediment particles  
+        real(gtm_real), intent(in)  :: g_acceleration         !< Gravitational acceleration 
+        real(gtm_real), intent(in)  :: kinematic_viscosity    !< Kinematic viscosity (m2/sec)
 
         exp_re_p = diameter*dsqrt(g_acceleration*capital_r*diameter)/kinematic_viscosity
 
@@ -155,16 +145,12 @@ module suspended_utility
     pure subroutine particle_reynolds_number(re_p,                &
                                              settling_v,          &
                                              diameter,            &
-                                             kinematic_viscosity, &
-                                             nclass)
-
-        use gtm_precision
+                                             kinematic_viscosity)
         implicit none
         !--- arguments 
-        integer, intent(in) :: nclass                     !< Number of sediment diameter classes
-        real(gtm_real), intent(out) :: re_p(nclass)        !< Particle Reynolds number
-        real(gtm_real), intent(in)  :: settling_v(nclass)  !< Settling velocity
-        real(gtm_real), intent(in)  :: diameter(nclass)    !< Particle diameter
+        real(gtm_real), intent(out) :: re_p                !< Particle Reynolds number
+        real(gtm_real), intent(in)  :: settling_v          !< Settling velocity
+        real(gtm_real), intent(in)  :: diameter            !< Particle diameter
         real(gtm_real), intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)                            
  
         re_p = settling_v*diameter/kinematic_viscosity
@@ -178,15 +164,12 @@ module suspended_utility
                                               g_acceleration,         &
                                               diameter,               &
                                               kinematic_viscosity,    &
-                                              capital_r,              &
-                                              nclass)
-        use gtm_precision
+                                              capital_r)
         implicit none
         !--- arguments 
-        integer, intent(in) :: nclass                     !< Number of sediment diameter classes
-        real(gtm_real),intent(out) :: d_star(nclass)      !< Dimensionless particle diameter
+        real(gtm_real),intent(out) :: d_star              !< Dimensionless particle diameter
         real(gtm_real),intent(in)  :: g_acceleration      !< Gravitational acceleration 
-        real(gtm_real),intent(in)  :: diameter(nclass)    !< Particle diameter
+        real(gtm_real),intent(in)  :: diameter            !< Particle diameter
         real(gtm_real),intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)                            
         real(gtm_real),intent(in)  :: capital_r           !< Submerged specific gravity of sediment particles     
 
@@ -200,30 +183,23 @@ module suspended_utility
     !> See van Rijn book equation (4.1.11)
     ! todo: add Parker formula here
     pure subroutine critical_shields_parameter(cr_shields_prmtr,   &
-                                               d_star,             &
-                                               nclass)                                           
-        use gtm_precision
+                                               d_star)                                           
         implicit none
         !--- arguments  
-        integer, intent(in) :: nclass                          !< Number of sediment diameter classes
-        real(gtm_real), intent(out):: cr_shields_prmtr(nclass) !< Critical Shields parameter                                      
-        real(gtm_real), intent(in) :: d_star(nclass)           !< Dimensionless particle diameter
-        !--local
-        integer :: iclass
+        real(gtm_real), intent(out):: cr_shields_prmtr !< Critical Shields parameter                                      
+        real(gtm_real), intent(in) :: d_star           !< Dimensionless particle diameter
 
-        do iclass =1,nclass
-            if (d_star(iclass).ge.150.0d0) then
-                cr_shields_prmtr(iclass) = 0.055d0   
-            elseif (d_star(iclass).ge.20.0d0 .and. d_star(iclass).lt.150.0d0) then
-                cr_shields_prmtr(iclass) = 0.013d0*d_star(iclass)**0.29d0 
-            elseif (d_star(iclass).ge.10.0d0 .and. d_star(iclass).lt.20.0d0) then
-                cr_shields_prmtr(iclass) = 0.04d0*d_star(iclass)**(-0.1d0)
-            elseif (d_star(iclass).ge.4.0d0 .and. d_star(iclass).lt.10.0d0)  then
-                cr_shields_prmtr(iclass) = 0.14d0*d_star(iclass)**(-0.64d0)
-            else
-                cr_shields_prmtr(iclass) = 0.24d0/d_star(iclass)**(-1.0d0)
-            end if    
-        end do                                     
+        if (d_star.ge.150.0d0) then
+            cr_shields_prmtr = 0.055d0   
+        elseif (d_star.ge.20.0d0 .and. d_star.lt.150.0d0) then
+            cr_shields_prmtr = 0.013d0*d_star**0.29d0 
+        elseif (d_star.ge.10.0d0 .and. d_star.lt.20.0d0) then
+            cr_shields_prmtr = 0.04d0*d_star**(-0.1d0)
+        elseif (d_star.ge.4.0d0 .and. d_star.lt.10.0d0)  then
+            cr_shields_prmtr = 0.14d0*d_star**(-0.64d0)
+        else
+            cr_shields_prmtr = 0.24d0*d_star**(-1.0d0)
+        end if                                       
         return
     end subroutine
 
@@ -236,7 +212,6 @@ module suspended_utility
                                          gravity,             &
                                          hydr_radius,         &
                                          ncell)                                     
-        use gtm_precision
         implicit none
 
         integer, intent(in) :: ncell                        !< Number of cells
@@ -261,22 +236,17 @@ module suspended_utility
     subroutine rouse_dimensionless_number(rouse_num,   &
                                           fall_vel,    &
                                           shear_vel,   &
-                                          ncell,       &
-                                          nclass)                                 
-        use gtm_precision
+                                          ncell)                                 
         implicit none
-        integer, intent(in) :: nclass                         !< Number of sediment classes 
-        integer, intent(in) :: ncell                          !< Number of cells
-        real(gtm_real), intent(out):: rouse_num(ncell,nclass) !< Rouse dimensionless number  
-        real(gtm_real), intent(in) :: fall_vel(nclass)        !< Settling velocity
-        real(gtm_real), intent(in) :: shear_vel(ncell)        !< Shear velocity 
+        integer, intent(in) :: ncell                    !< Number of cells
+        real(gtm_real), intent(out):: rouse_num(ncell)  !< Rouse dimensionless number  
+        real(gtm_real), intent(in) :: fall_vel          !< Settling velocity
+        real(gtm_real), intent(in) :: shear_vel(ncell)  !< Shear velocity 
         !----local
         real(gtm_real), parameter :: kappa = 0.41d0
         integer        :: icell
 
-        do icell=1,ncell
-            rouse_num(icell,:)= fall_vel/shear_vel(icell)/kappa
-        end do
+        rouse_num = fall_vel/shear_vel/kappa
 
         return
     end subroutine
@@ -288,16 +258,12 @@ module suspended_utility
     subroutine allocation_ratio(susp_percent,    &
                                 bed_percent,     &
                                 rouse_num,       &
-                                nclass,          &
                                 ncell)                            
-        use gtm_precision
-
         implicit none
-        integer, intent(in) :: nclass                             !< Number of sediment classes 
-        integer, intent(in) :: ncell                              !< Number of cells
-        real(gtm_real), intent(in) :: rouse_num(ncell,nclass)     !< Rouse dimensionless number  
-        real(gtm_real), intent(out):: susp_percent(ncell,nclass)  !< Percentage in suspension  
-        real(gtm_real), intent(out):: bed_percent(ncell,nclass)   !< Percentage in bedload
+        integer, intent(in) :: ncell                       !< Number of cells
+        real(gtm_real), intent(in) :: rouse_num(ncell)     !< Rouse dimensionless number  
+        real(gtm_real), intent(out):: susp_percent(ncell)  !< Percentage in suspension  
+        real(gtm_real), intent(out):: bed_percent(ncell)   !< Percentage in bedload
 
         susp_percent = min(one,(2.5d0*dexp(-rouse_num)))
         bed_percent  = one - susp_percent
@@ -316,65 +282,59 @@ module suspended_utility
     subroutine first_einstein_integral(I_1,       &
                                        delta_b,   &
                                        rouse_num, &
-                                       ncell,     &
-                                       nclass)                                    
-        use gtm_precision
+                                       ncell)                                    
         use error_handling
         implicit none
         !-- arg
-        integer, intent(in):: ncell                            !< Number of computational volumes in a channel
-        integer, intent(in):: nclass                           !< Number of non-cohesive sediment grain classes
-        real(gtm_real),intent(in) :: rouse_num(ncell,nclass)   !< Rouse dimenssionless number  
-        real(gtm_real),intent(in) :: delta_b                   !< Relative bed layer thickness = b/H 
-        real(gtm_real),intent(out):: I_1(ncell,nclass)         !< First Einstein integral value
+        integer, intent(in):: ncell                     !< Number of computational volumes in a channel
+        real(gtm_real),intent(in) :: rouse_num(ncell)   !< Rouse dimenssionless number  
+        real(gtm_real),intent(in) :: delta_b            !< Relative bed layer thickness = b/H 
+        real(gtm_real),intent(out):: I_1(ncell)         !< First Einstein integral value
 
         !-- local
         integer :: ivol
-        integer :: iclass
         real(gtm_real) :: ro_l   
         real(gtm_real) :: ro_r    !right
         real(gtm_real) :: i_1_l
         real(gtm_real) :: i_1_r   !right
 
         do ivol=1,ncell
-            do iclass=1,nclass
-                if (rouse_num(ivol,iclass) > 3.98d0) then
+                if (rouse_num(ivol) > 3.98d0) then
                     !todo: I am not sure if we need this subroutine in bed load or not 
                     print *, 'error in rouse number' ! todo: remove
                     pause
                     call gtm_fatal("This is not a Rouse number value for suspended sediment!")            
-                elseif (abs(rouse_num(ivol,iclass) - three)< 0.01d0) then
+                elseif (abs(rouse_num(ivol) - three)< 0.01d0) then
                     ro_l = three - 0.05d0
                     ro_r = three + 0.05d0 
                     call inside_i_1(i_1_l,delta_b,ro_l)
                     call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(ivol,iclass) = (i_1_r + i_1_l) / two                 
-                elseif (abs(rouse_num(ivol,iclass) - two)< 0.01d0) then
+                    I_1(ivol) = (i_1_r + i_1_l) / two                 
+                elseif (abs(rouse_num(ivol) - two)< 0.01d0) then
                     ro_l = two - 0.05d0
                     ro_r = two + 0.05d0 
                     call inside_i_1(i_1_l,delta_b,ro_l)
                     call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(ivol,iclass) = (i_1_r + i_1_l) / two                       
-                elseif(abs(rouse_num(ivol,iclass) - one)< 0.01d0) then  
+                    I_1(ivol) = (i_1_r + i_1_l) / two                       
+                elseif(abs(rouse_num(ivol) - one)< 0.01d0) then  
                     ro_l = one - 0.05d0
                     ro_r = one + 0.05d0 
                     call inside_i_1(i_1_l,delta_b,ro_l)
                     call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(ivol,iclass) = (i_1_r + i_1_l) / two
+                    I_1(ivol) = (i_1_r + i_1_l) / two
                 else
-                    call inside_i_1(I_1(ivol,iclass),       &
+                    call inside_i_1(I_1(ivol),       &
                                     delta_b,                &
-                                    rouse_num(ivol,iclass))                 
+                                    rouse_num(ivol))                 
                 end if
-            end do
         end do
     end subroutine
+
 
     !> inside I_1
     pure subroutine inside_i_1(J_1,      &
                                delta_b,  &
                                rouse)                               
-        use gtm_precision
         implicit none
         real(gtm_real),intent(in) :: rouse         !< Rouse dimenssionless number  
         real(gtm_real),intent(in) :: delta_b       !< Relative bed layer thickness = b/H 
@@ -394,5 +354,35 @@ module suspended_utility
                * (delta_b**(rouse)/((one-delta_b)**rouse))                               
     end subroutine 
 
+
+    !> Shields parameter
+    subroutine shields_parameter(shield_param,  &
+                                 grain_size)
+        implicit none
+        real(gtm_real), intent(out) :: shield_param
+        real(gtm_real), intent(in) :: grain_size
+        
+        if (grain_size.gt.1.0d0) then  ! roughly assign a number to avoid getting here
+            shield_param = 0.029d0     
+        elseif (grain_size.gt.0.5d0 .and. grain_size.le.1.0d0) then      ! coarse sand
+            shield_param = 0.029d0 + (0.033d0-0.029d0)*(grain_size-0.5d0)/(1.0d0-0.5d0)
+        elseif (grain_size.gt.0.25d0 .and. grain_size.le.0.5d0) then     ! medium sand
+            shield_param = 0.033d0 + (0.048d0-0.033d0)*(grain_size-0.25d0)/(0.5d0-0.25d0)    
+        elseif (grain_size.gt.0.125d0 .and. grain_size.le.0.25d0) then   ! fine sand
+            shield_param = 0.048d0 + (0.072d0-0.048d0)*(grain_size-0.125d0)/(0.25d0-0.125d0)
+        elseif (grain_size.gt.0.0625d0 .and. grain_size.le.0.125d0) then ! very fine sand
+            shield_param = 0.072d0 + (0.109d0-0.072d0)*(grain_size-0.0625d0)/(0.125d0-0.0625d0)
+        elseif (grain_size.gt.0.0310d0 .and. grain_size.le.0.0625d0) then ! coarse silt
+            shield_param = 0.109d0 + (0.165d0-0.109d0)*(grain_size-0.0310d0)/(0.0625d0-0.0310d0)                 
+        elseif (grain_size.gt.0.0156d0 .and. grain_size.le.0.0310d0) then ! medium silt
+            shield_param = 0.165d0 + (0.25d0-0.165d0)*(grain_size-0.0156d0)/(0.0310d0-0.0156d0)    
+        elseif (grain_size.gt.0.0078d0 .and. grain_size.le.0.0156d0) then ! fine silt
+            shield_param = 0.25d0 + (0.3d0-0.25d0)*(grain_size-0.0078d0)/(0.0156d0-0.0078d0)
+        else
+            shield_param = 0.3d0
+        end if
+                                    
+        return
+    end subroutine   
 
 end module
