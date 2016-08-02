@@ -75,7 +75,7 @@ program gtm
     real(gtm_real), allocatable :: init_c(:,:)
     real(gtm_real), allocatable :: init_r(:,:)   
     real(gtm_real), allocatable :: manning(:)
-    real(gtm_real), allocatable :: diameter
+    real(gtm_real), allocatable :: diameter(:,:)
      
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion   
@@ -131,6 +131,7 @@ program gtm
     integer :: st, k, p, n_st, chan_no     ! temp index
     integer :: ivar
     real(gtm_real) :: start, finish
+   
     
     !----- Start of GTM Program  -----
     
@@ -243,6 +244,15 @@ program gtm
     conc_prev = zero         
     conc_resv_prev = zero
     mass_prev = zero
+    
+    ! for sediment module
+    allocate(diameter(n_cell,n_var))
+    !do ivar = 1, n_var
+    !    if (trim(constituents(ivar)%use_module)=='sediment') then
+    !        diameter(:,ivar) = constituents(ivar)%grain_size
+    !    end if    
+    !end do  
+    call assign_diameter_by_text(diameter, n_var, n_cell)
     
     if (apply_diffusion)then
         call dispersion_coef(disp_coef_lo,         &
@@ -409,9 +419,7 @@ program gtm
                 prev_qext_flow = qext_flow
                 prev_tran_flow = tran_flow
             end if
-            cfl = flow/area*(gtm_time_interval*sixty)/dx_arr
-            !linear_decay_by_cell(1:n_cell/2,:) = zero
-            !linear_decay_by_cell(n_cell/2+1:n_cell,:) = 5.0d-5            
+            cfl = flow/area*(gtm_time_interval*sixty)/dx_arr           
             
             do ivar = 1, n_var
                 if (trim(constituents(ivar)%use_module)=='sediment') then
@@ -422,7 +430,7 @@ program gtm
                                        width,                          &
                                        hydro_radius,                   &
                                        mann_arr,                       &
-                                       constituents(ivar)%grain_size,  &
+                                       diameter(:,ivar),               &
                                        constituents(ivar)%method,      &
                                        dx_arr,                         &
                                        sub_gtm_time_step*sixty,        &
@@ -514,7 +522,7 @@ program gtm
                 conc(:,ssc_index) = zero
                 do ivar = 1, n_var
                     if (trim(constituents(ivar)%use_module)=='sediment') then
-                        conc(:,ssc_index) = conc(:,ssc_index) + conc(:,ivar)
+                        where (conc(:,ivar)>zero) conc(:,ssc_index) = conc(:,ssc_index) + conc(:,ivar)
                     end if
                 end do
             end if    
@@ -604,6 +612,7 @@ program gtm
     deallocate(init_r)
     deallocate(vals)
     deallocate(source_term_by_cell)
+    deallocate(diameter)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state

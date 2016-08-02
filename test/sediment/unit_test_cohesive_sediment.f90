@@ -68,7 +68,7 @@ module test_cohesive
         implicit none
         integer, parameter :: ncell = 1
         real(gtm_real) :: deposition_flux(ncell)
-        real(gtm_real) :: settling_velocity
+        real(gtm_real) :: settling_velocity(ncell)
         real(gtm_real) :: conc(ncell)
 
         settling_velocity = 0.02d0

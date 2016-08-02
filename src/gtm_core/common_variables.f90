@@ -266,12 +266,12 @@ module common_variables
        
      !> Define constituent
      type constituent_t
-         integer :: conc_no                        !< constituent id
-         character*32 :: name = ' '                !< constituent name
-         logical :: conservative = .true.          !< true if conservative, false if nonconservative
-         character*32 :: use_module = ' '          !< use module
-         integer :: method = 0                     !< method in module 1:NC, 2:C, 3:O
-         real(gtm_real) :: grain_size              !< grain_size if sediment
+         integer :: conc_no                             !< constituent id
+         character*32 :: name = ' '                     !< constituent name
+         logical :: conservative = .true.               !< true if conservative, false if nonconservative
+         character*32 :: use_module = ' '               !< use module
+         integer :: method = 0                          !< method in module 1:NC, 2:C, 3:O
+         real(gtm_real) :: grain_size                   !< grain_size if sediment
      end type     
      type(constituent_t), allocatable :: constituents(:)
      

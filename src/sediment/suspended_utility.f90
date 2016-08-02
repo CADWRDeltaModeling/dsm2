@@ -38,13 +38,15 @@ module suspended_utility
                                  specific_gravity,   &
                                  diameter,           &
                                  g_acceleration,     &
-                                 function_van_rijn)                
+                                 ncell,              &
+                                 function_van_rijn)   
         implicit none
         !--- arg
-        real(gtm_real),intent(out) :: settling_v          !< Settling velocity (m/s)
+        integer, intent(in) :: ncell                      !< number of cells 
+        real(gtm_real),intent(out) :: settling_v(ncell)   !< Settling velocity (m/s)
         real(gtm_real),intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)
         real(gtm_real),intent(in)  :: specific_gravity    !< Specific gravity of particle (~2.65)
-        real(gtm_real),intent(in)  :: diameter            !< Particle diameter in meter
+        real(gtm_real),intent(in)  :: diameter(ncell)     !< Particle diameter in meter
         real(gtm_real),intent(in)  :: g_acceleration      !< Gravitational acceleration (m/sec2)
         logical, optional          :: function_van_rijn   !< Flag for using van Rijn (1984) formula o/ Dietrich (1982). the default is van Rijn
         !--local
@@ -56,10 +58,11 @@ module suspended_utility
         real(gtm_real) :: b_3 = 0.056835d0
         real(gtm_real) :: b_4 = 0.002892d0
         real(gtm_real) :: b_5 = 0.000245d0
-        real(gtm_real) :: dimless_fall_velocity          ! todo: should we consider the local varibles in 
-        real(gtm_real) :: exp_re_p                       !< Explicit Reynols particle number 
-        real(gtm_real) :: capital_r                      !< Submerged specific gravity of sediment particles 
-
+        real(gtm_real) :: dimless_fall_velocity(ncell)       
+        real(gtm_real) :: exp_re_p(ncell)        !< Explicit Reynols particle number 
+        real(gtm_real) :: capital_r              !< Submerged specific gravity of sediment particles 
+        integer :: i
+        
         if (present(function_van_rijn)) then
             van_rijn_flag = function_van_rijn
         end if
@@ -68,37 +71,38 @@ module suspended_utility
  
             case (.true.)
             ! van Rijn formula
-                if (diameter.ge.1.0d-3)     then
-                    settling_v = 1.1d0*dsqrt((specific_gravity - one)*g_acceleration*diameter)
-                elseif (diameter.ge.1.0d-4 .and. diameter.lt.1.0d-3) then
-                    settling_v = (ten*kinematic_viscosity/diameter)*(dsqrt(one + (0.01d0*(specific_gravity - one) &
-                                         *g_acceleration*diameter**three)/kinematic_viscosity**two)- one)
-                elseif (diameter.ge.0.9d-7 .and. diameter.lt.1.0d-4) then
-                    ! Stokes law here
-                    settling_v = ((specific_gravity - one)*g_acceleration*diameter**two)/(18.0d0*kinematic_viscosity)
-                else
-                    settling_v = minus * LARGEREAL
-                    ! todo: the gtm_fatal can not be called here because settling velocity is a pure subroutine
-                end if  
-            
+                do i = 1, ncell
+                    if (diameter(i).ge.1.0d-3) then
+                        settling_v(i) = 1.1d0*dsqrt((specific_gravity - one)*g_acceleration*diameter(i))
+                    elseif (diameter(i).ge.1.0d-4 .and. diameter(i).lt.1.0d-3) then
+                        settling_v(i) = (ten*kinematic_viscosity/diameter(i))*(dsqrt(one + (0.01d0*(specific_gravity - one) &
+                                        *g_acceleration*diameter(i)**three)/kinematic_viscosity**two)- one)
+                    elseif (diameter(i).ge.0.9d-7 .and. diameter(i).lt.1.0d-4) then
+                        ! Stokes law here
+                        settling_v(i) = ((specific_gravity - one)*g_acceleration*diameter(i)**two)/(18.0d0*kinematic_viscosity)
+                    else
+                        settling_v(i) = minus * LARGEREAL
+                    end if  
+                end do
             case(.false.)
             ! Dietrich formula
                 capital_r = specific_gravity - one
+                call explicit_particle_reynolds_number(exp_re_p,            &
+                                                       diameter,            &
+                                                       capital_r,           &
+                                                       g_acceleration,      &
+                                                       kinematic_viscosity, &
+                                                       ncell)
+                dimless_fall_velocity = dexp(minus*b_1 + b_2*dlog(exp_re_p) - b_3*(dlog(exp_re_p))**two &
+                                        - b_4*(dlog(exp_re_p))**three + b_5*(dlog(exp_re_p))**four)            
                 ! Stokes fall velocity
-                if ( diameter < 1.0d-5 ) then
-                    settling_v = (capital_r*g_acceleration*diameter**two)/(18.0d0*kinematic_viscosity)
-                else
-                    call explicit_particle_reynolds_number(exp_re_p,            &
-                                                           diameter,            &
-                                                           capital_r,           &
-                                                           g_acceleration,      &
-                                                           kinematic_viscosity)
-            
-                    dimless_fall_velocity = dexp(minus*b_1 + b_2*dlog(exp_re_p) - b_3*(dlog(exp_re_p))**two &
-                                                   - b_4*(dlog(exp_re_p))**three + b_5*(dlog(exp_re_p))**four)
-                                               
-                    settling_v = dimless_fall_velocity * dsqrt(capital_r*g_acceleration*diameter)                 
-                end if    
+                do i = 1, ncell
+                    if ( diameter(i) < 1.0d-5 ) then
+                        settling_v(i) = (capital_r*g_acceleration*diameter(i)**two)/(18.0d0*kinematic_viscosity)
+                    else
+                        settling_v(i) = dimless_fall_velocity(i) * dsqrt(capital_r*g_acceleration*diameter(i))                 
+                    end if    
+                end do    
             end select 
 
         return
@@ -122,15 +126,17 @@ module suspended_utility
 
 
     !> Calculates the explicit particle Reynolds number
-    pure subroutine explicit_particle_reynolds_number(exp_re_p,           &
-                                                      diameter,           &
-                                                      capital_r,          &
-                                                      g_acceleration,     &
-                                                      kinematic_viscosity)
+    pure subroutine explicit_particle_reynolds_number(exp_re_p,            &
+                                                      diameter,            &
+                                                      capital_r,           &
+                                                      g_acceleration,      &
+                                                      kinematic_viscosity, &
+                                                      ncell)
         implicit none
         !--- arguments 
-        real(gtm_real), intent(out) :: exp_re_p               !< Explicit particle reynolds number
-        real(gtm_real), intent(in)  :: diameter               !< Particle diameter
+        integer, intent(in) :: ncell                          !< number of cells 
+        real(gtm_real), intent(out) :: exp_re_p(ncell)        !< Explicit particle reynolds number
+        real(gtm_real), intent(in)  :: diameter(ncell)        !< Particle diameter
         real(gtm_real), intent(in)  :: capital_r              !< Submerged specific gravity of sediment particles  
         real(gtm_real), intent(in)  :: g_acceleration         !< Gravitational acceleration 
         real(gtm_real), intent(in)  :: kinematic_viscosity    !< Kinematic viscosity (m2/sec)
@@ -145,12 +151,14 @@ module suspended_utility
     pure subroutine particle_reynolds_number(re_p,                &
                                              settling_v,          &
                                              diameter,            &
-                                             kinematic_viscosity)
+                                             kinematic_viscosity, &
+                                             ncell)
         implicit none
         !--- arguments 
-        real(gtm_real), intent(out) :: re_p                !< Particle Reynolds number
-        real(gtm_real), intent(in)  :: settling_v          !< Settling velocity
-        real(gtm_real), intent(in)  :: diameter            !< Particle diameter
+        integer, intent(in) :: ncell                       !< number of cells 
+        real(gtm_real), intent(out) :: re_p(ncell)         !< Particle Reynolds number
+        real(gtm_real), intent(in)  :: settling_v(ncell)   !< Settling velocity
+        real(gtm_real), intent(in)  :: diameter(ncell)     !< Particle diameter
         real(gtm_real), intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)                            
  
         re_p = settling_v*diameter/kinematic_viscosity
@@ -160,16 +168,18 @@ module suspended_utility
 
 
     !> Calculates dimensionless particle diameter
-    pure subroutine dimless_particle_diameter(d_star,                 &
-                                              g_acceleration,         &
-                                              diameter,               &
-                                              kinematic_viscosity,    &
-                                              capital_r)
+    pure subroutine dimless_particle_diameter(d_star,                &
+                                              g_acceleration,        &
+                                              diameter,              &
+                                              kinematic_viscosity,   &
+                                              capital_r,             &
+                                              ncell)
         implicit none
         !--- arguments 
-        real(gtm_real),intent(out) :: d_star              !< Dimensionless particle diameter
+        integer, intent(in) :: ncell                      !< number of cells 
+        real(gtm_real),intent(out) :: d_star(ncell)       !< Dimensionless particle diameter
         real(gtm_real),intent(in)  :: g_acceleration      !< Gravitational acceleration 
-        real(gtm_real),intent(in)  :: diameter            !< Particle diameter
+        real(gtm_real),intent(in)  :: diameter(ncell)     !< Particle diameter
         real(gtm_real),intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)                            
         real(gtm_real),intent(in)  :: capital_r           !< Submerged specific gravity of sediment particles     
 
@@ -183,25 +193,68 @@ module suspended_utility
     !> See van Rijn book equation (4.1.11)
     ! todo: add Parker formula here
     pure subroutine critical_shields_parameter(cr_shields_prmtr,   &
-                                               d_star)                                           
+                                               d_star,             &
+                                               ncell)                                           
         implicit none
         !--- arguments  
-        real(gtm_real), intent(out):: cr_shields_prmtr !< Critical Shields parameter                                      
-        real(gtm_real), intent(in) :: d_star           !< Dimensionless particle diameter
-
-        if (d_star.ge.150.0d0) then
-            cr_shields_prmtr = 0.055d0   
-        elseif (d_star.ge.20.0d0 .and. d_star.lt.150.0d0) then
-            cr_shields_prmtr = 0.013d0*d_star**0.29d0 
-        elseif (d_star.ge.10.0d0 .and. d_star.lt.20.0d0) then
-            cr_shields_prmtr = 0.04d0*d_star**(-0.1d0)
-        elseif (d_star.ge.4.0d0 .and. d_star.lt.10.0d0)  then
-            cr_shields_prmtr = 0.14d0*d_star**(-0.64d0)
-        else
-            cr_shields_prmtr = 0.24d0*d_star**(-1.0d0)
-        end if                                       
+        integer, intent(in) :: ncell                          !< number of cells 
+        real(gtm_real), intent(out):: cr_shields_prmtr(ncell) !< Critical Shields parameter                                      
+        real(gtm_real), intent(in) :: d_star(ncell)           !< Dimensionless particle diameter
+        integer :: icell
+        
+        do icell = 1, ncell
+            if (d_star(icell).ge.150.0d0) then
+                cr_shields_prmtr(icell) = 0.055d0   
+            elseif (d_star(icell).ge.20.0d0 .and. d_star(icell).lt.150.0d0) then
+                cr_shields_prmtr(icell) = 0.013d0*d_star(icell)**(0.29d0)   !+0.29d0 indeed
+            elseif (d_star(icell).ge.10.0d0 .and. d_star(icell).lt.20.0d0) then
+                cr_shields_prmtr(icell) = 0.04d0*d_star(icell)**(-0.1d0)
+            elseif (d_star(icell).ge.4.0d0 .and. d_star(icell).lt.10.0d0)  then
+                cr_shields_prmtr(icell) = 0.14d0*d_star(icell)**(-0.64d0)
+            else
+                cr_shields_prmtr(icell) = 0.24d0*d_star(icell)**(-1.0d0)
+            end if                                       
+        end do    
         return
     end subroutine
+
+
+    !> Calculate critical shear stress
+    subroutine critical_shear_stress(crtical_shear,           &
+                                     water_density,           &
+                                     sediment_density,        &
+                                     g_acceleration,          &
+                                     kinematic_viscosity,     &
+                                     diameter,                &
+                                     ncell)
+        implicit none
+        integer, intent(in) :: ncell
+        real(gtm_real), intent(out) :: crtical_shear(ncell)         !< Critical shear stress
+        real(gtm_real), intent(in) :: water_density                 !< Water density
+        real(gtm_real), intent(in) :: sediment_density              !< Sediment density
+        real(gtm_real), intent(in) :: g_acceleration                !< Gravitational acceleration 
+        real(gtm_real), intent(in)  :: kinematic_viscosity          !< Kinematic viscosity (m2/sec)  
+        real(gtm_real), intent(in) :: diameter(ncell)               !< Particle diameter in meters
+        real(gtm_real) :: dimless_critical_shear(ncell)             !< Dimensionless Shield's shear stress
+        real(gtm_real) :: submerged_specific_g                      !< Submerged specific gravity      
+        real(gtm_real) :: d_star(ncell)                             !< Rep^(2/3)
+        submerged_specific_g = sediment_density/water_density - one
+
+        call dimless_particle_diameter(d_star,                &
+                                       g_acceleration,        &
+                                       diameter,              &
+                                       kinematic_viscosity,   &
+                                       submerged_specific_g,  &
+                                       ncell)
+        
+        call critical_shields_parameter(dimless_critical_shear,   &
+                                        d_star,                   &
+                                        ncell)           
+                                        
+        crtical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
+        
+        return
+    end subroutine    
 
 
     ! todo: should we assume depth = Rh? it is larger than 1/10 in the Delta 
@@ -240,7 +293,7 @@ module suspended_utility
         implicit none
         integer, intent(in) :: ncell                    !< Number of cells
         real(gtm_real), intent(out):: rouse_num(ncell)  !< Rouse dimensionless number  
-        real(gtm_real), intent(in) :: fall_vel          !< Settling velocity
+        real(gtm_real), intent(in) :: fall_vel(ncell)          !< Settling velocity
         real(gtm_real), intent(in) :: shear_vel(ncell)  !< Shear velocity 
         !----local
         real(gtm_real), parameter :: kappa = 0.41d0
@@ -292,40 +345,40 @@ module suspended_utility
         real(gtm_real),intent(out):: I_1(ncell)         !< First Einstein integral value
 
         !-- local
-        integer :: ivol
+        integer :: icell
         real(gtm_real) :: ro_l   
         real(gtm_real) :: ro_r    !right
         real(gtm_real) :: i_1_l
         real(gtm_real) :: i_1_r   !right
 
-        do ivol=1,ncell
-                if (rouse_num(ivol) > 3.98d0) then
+        do icell=1,ncell
+                if (rouse_num(icell) > 3.98d0) then
                     !todo: I am not sure if we need this subroutine in bed load or not 
                     print *, 'error in rouse number' ! todo: remove
                     pause
                     call gtm_fatal("This is not a Rouse number value for suspended sediment!")            
-                elseif (abs(rouse_num(ivol) - three)< 0.01d0) then
+                elseif (abs(rouse_num(icell) - three)< 0.01d0) then
                     ro_l = three - 0.05d0
                     ro_r = three + 0.05d0 
                     call inside_i_1(i_1_l,delta_b,ro_l)
                     call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(ivol) = (i_1_r + i_1_l) / two                 
-                elseif (abs(rouse_num(ivol) - two)< 0.01d0) then
+                    I_1(icell) = (i_1_r + i_1_l) / two                 
+                elseif (abs(rouse_num(icell) - two)< 0.01d0) then
                     ro_l = two - 0.05d0
                     ro_r = two + 0.05d0 
                     call inside_i_1(i_1_l,delta_b,ro_l)
                     call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(ivol) = (i_1_r + i_1_l) / two                       
-                elseif(abs(rouse_num(ivol) - one)< 0.01d0) then  
+                    I_1(icell) = (i_1_r + i_1_l) / two                       
+                elseif(abs(rouse_num(icell) - one)< 0.01d0) then  
                     ro_l = one - 0.05d0
                     ro_r = one + 0.05d0 
                     call inside_i_1(i_1_l,delta_b,ro_l)
                     call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(ivol) = (i_1_r + i_1_l) / two
+                    I_1(icell) = (i_1_r + i_1_l) / two
                 else
-                    call inside_i_1(I_1(ivol),       &
+                    call inside_i_1(I_1(icell),       &
                                     delta_b,                &
-                                    rouse_num(ivol))                 
+                                    rouse_num(icell))                 
                 end if
         end do
     end subroutine
@@ -357,31 +410,35 @@ module suspended_utility
 
     !> Shields parameter
     subroutine shields_parameter(shield_param,  &
-                                 grain_size)
+                                 grain_size,    &
+                                 ncell)
         implicit none
-        real(gtm_real), intent(out) :: shield_param
-        real(gtm_real), intent(in) :: grain_size
+        integer, intent(in) :: ncell                        !< number of cells 
+        real(gtm_real), intent(out) :: shield_param(ncell)  !< Shield parameter
+        real(gtm_real), intent(in) :: grain_size(ncell)     !< grain size
+        integer :: icell
         
-        if (grain_size.gt.1.0d0) then  ! roughly assign a number to avoid getting here
-            shield_param = 0.029d0     
-        elseif (grain_size.gt.0.5d0 .and. grain_size.le.1.0d0) then      ! coarse sand
-            shield_param = 0.029d0 + (0.033d0-0.029d0)*(grain_size-0.5d0)/(1.0d0-0.5d0)
-        elseif (grain_size.gt.0.25d0 .and. grain_size.le.0.5d0) then     ! medium sand
-            shield_param = 0.033d0 + (0.048d0-0.033d0)*(grain_size-0.25d0)/(0.5d0-0.25d0)    
-        elseif (grain_size.gt.0.125d0 .and. grain_size.le.0.25d0) then   ! fine sand
-            shield_param = 0.048d0 + (0.072d0-0.048d0)*(grain_size-0.125d0)/(0.25d0-0.125d0)
-        elseif (grain_size.gt.0.0625d0 .and. grain_size.le.0.125d0) then ! very fine sand
-            shield_param = 0.072d0 + (0.109d0-0.072d0)*(grain_size-0.0625d0)/(0.125d0-0.0625d0)
-        elseif (grain_size.gt.0.0310d0 .and. grain_size.le.0.0625d0) then ! coarse silt
-            shield_param = 0.109d0 + (0.165d0-0.109d0)*(grain_size-0.0310d0)/(0.0625d0-0.0310d0)                 
-        elseif (grain_size.gt.0.0156d0 .and. grain_size.le.0.0310d0) then ! medium silt
-            shield_param = 0.165d0 + (0.25d0-0.165d0)*(grain_size-0.0156d0)/(0.0310d0-0.0156d0)    
-        elseif (grain_size.gt.0.0078d0 .and. grain_size.le.0.0156d0) then ! fine silt
-            shield_param = 0.25d0 + (0.3d0-0.25d0)*(grain_size-0.0078d0)/(0.0156d0-0.0078d0)
-        else
-            shield_param = 0.3d0
-        end if
-                                    
+        do icell = 1, ncell
+            if (grain_size(icell).gt.1.0d0) then  ! roughly assign a number to avoid getting here
+                shield_param(icell) = 0.029d0     
+            elseif (grain_size(icell).gt.0.5d0 .and. grain_size(icell).le.1.0d0) then      ! coarse sand
+                shield_param(icell) = 0.029d0 + (0.033d0-0.029d0)*(grain_size(icell)-0.5d0)/(1.0d0-0.5d0)
+            elseif (grain_size(icell).gt.0.25d0 .and. grain_size(icell).le.0.5d0) then     ! medium sand
+                shield_param(icell) = 0.033d0 + (0.048d0-0.033d0)*(grain_size(icell)-0.25d0)/(0.5d0-0.25d0)    
+            elseif (grain_size(icell).gt.0.125d0 .and. grain_size(icell).le.0.25d0) then   ! fine sand
+                shield_param(icell) = 0.048d0 + (0.072d0-0.048d0)*(grain_size(icell)-0.125d0)/(0.25d0-0.125d0)
+            elseif (grain_size(icell).gt.0.0625d0 .and. grain_size(icell).le.0.125d0) then ! very fine sand
+                shield_param(icell) = 0.072d0 + (0.109d0-0.072d0)*(grain_size(icell)-0.0625d0)/(0.125d0-0.0625d0)
+            elseif (grain_size(icell).gt.0.0310d0 .and. grain_size(icell).le.0.0625d0) then ! coarse silt
+                shield_param(icell) = 0.109d0 + (0.165d0-0.109d0)*(grain_size(icell)-0.0310d0)/(0.0625d0-0.0310d0)                 
+            elseif (grain_size(icell).gt.0.0156d0 .and. grain_size(icell).le.0.0310d0) then ! medium silt
+                shield_param(icell) = 0.165d0 + (0.25d0-0.165d0)*(grain_size(icell)-0.0156d0)/(0.0310d0-0.0156d0)    
+            elseif (grain_size(icell).gt.0.0078d0 .and. grain_size(icell).le.0.0156d0) then ! fine silt
+                shield_param(icell) = 0.25d0 + (0.3d0-0.25d0)*(grain_size(icell)-0.0078d0)/(0.0156d0-0.0078d0)
+            else
+                shield_param = 0.3d0
+            end if
+        end do                            
         return
     end subroutine   
 

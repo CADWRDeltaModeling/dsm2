@@ -51,7 +51,7 @@ module suspended_sediment
         real(gtm_real), intent(in) :: width(ncell)        !< channel width
         real(gtm_real), intent(in) :: hyd_radius(ncell)   !< hydraulic radius
         real(gtm_real), intent(in) :: manning_n(ncell)    !< Manning's n
-        real(gtm_real), intent(in) :: diameter            !< diameter
+        real(gtm_real), intent(in) :: diameter(ncell)     !< diameter
         real(gtm_real), intent(in) :: dx(ncell)           !< dx
         real(gtm_real), intent(in) :: dt                  !< dt
         integer, intent(in) :: method                     !< method  1: non-cohesive, 2: cohesive, 3: organic matters
@@ -60,13 +60,13 @@ module suspended_sediment
         real(gtm_real) :: erosion_flux(ncell)
         real(gtm_real) :: deposition_flux(ncell)
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
-        real(gtm_real) :: width_si(ncell), hyd_radius_si(ncell), diameter_si
+        real(gtm_real) :: width_si(ncell), hyd_radius_si(ncell), diameter_si(ncell)
         integer :: i
      
         call si_unit(conc_si, flow_si, area_si, width_si, hyd_radius_si, dx_si, diameter_si, &
                      conc, flow, area, width, hyd_radius, dx, diameter, ncell)
      
-        if (method.eq.1) then     ! non-cohesive sediment            
+        if (method.eq.1) then     ! non-cohesive sediment
             call source_non_cohesive(vertical_flux,    &
                                      erosion_flux,     &
                                      deposition_flux,  &
@@ -78,7 +78,6 @@ module suspended_sediment
                                      manning_n,        &
                                      diameter_si,      &
                                      ncell)
-
         elseif (method.eq.2) then ! cohesive sediment
             call source_cohesive(vertical_flux,       &
                                  erosion_flux,        &
@@ -97,7 +96,7 @@ module suspended_sediment
             write(*,*) "Invalid method for sediment calculation!!! Only accept NC, C and O"
         end if
        
-        source = vertical_flux*dt*width_si/area_si
+        source = vertical_flux*dx_si*width_si/area_si
         where (area_si .eq. zero) source = zero               
        
         return 
@@ -126,14 +125,14 @@ module suspended_sediment
         real(gtm_real), intent(out) :: width_si(ncell)
         real(gtm_real), intent(out) :: hyd_radius_si(ncell)
         real(gtm_real), intent(out) :: dx_si(ncell)
-        real(gtm_real), intent(out) :: diameter_si
+        real(gtm_real), intent(out) :: diameter_si(ncell)
         real(gtm_real), intent(in) :: conc(ncell)
         real(gtm_real), intent(in) :: flow(ncell)
         real(gtm_real), intent(in) :: area(ncell)
         real(gtm_real), intent(in) :: width(ncell)
         real(gtm_real), intent(in) :: hyd_radius(ncell)
         real(gtm_real), intent(in) :: dx(ncell)
-        real(gtm_real), intent(in) :: diameter
+        real(gtm_real), intent(in) :: diameter(ncell)
         real(gtm_real), parameter :: L = 0.3048d0
         
         conc_si = conc*0.001d0         ! mg/L-->kg/m3

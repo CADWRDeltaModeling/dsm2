@@ -164,14 +164,14 @@ module buffer_gtm_input_qual
 
         n_var = nvar + n_sediment
         allocate(constituents(n_var))
-        do i = 1, nvar 
+        do i = 1, nvar      
             constituents(i)%conc_no = i
             constituents(i)%name = const(i)%name
             if (trim(constituents(i)%name).eq.'ssc') then
                 ssc_index = i
                 constituents(i)%use_module = ''
                 constituents(i)%conservative = .false.  
-                constituents(i)%method = 0
+                constituents(i)%method = 0 
             end if
         end do
         do i = 1, n_sediment

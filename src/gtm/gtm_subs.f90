@@ -407,5 +407,25 @@ module gtm_subs
         end do
         return
     end subroutine
+    
+    !> assign diameter by text input
+    subroutine assign_diameter_by_text(diameter, &
+                                       nvar,     &
+                                       ncell)
+        implicit none
+        integer, intent(in) :: nvar
+        integer, intent(in) :: ncell
+        real(gtm_real), intent(inout) :: diameter(ncell,nvar)
+        integer :: i, j 
+        open(101,file='fines.txt')
+        open(102,file='sand.txt')
+        do i = 1, ncell
+            read(101,*) j, diameter(i,2)
+            read(102,*) j, diameter(i,3)
+        enddo 
+        close(101)
+        close(102)       
+        return
+    end subroutine    
       
 end module    

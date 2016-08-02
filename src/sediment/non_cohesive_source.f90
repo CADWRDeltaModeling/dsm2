@@ -51,16 +51,16 @@ module non_cohesive_source
         real(gtm_real), intent(in) :: width(ncell)          !< channel width
         real(gtm_real), intent(in) :: hydro_radius(ncell)   !< hydraulic radius
         real(gtm_real), intent(in) :: manning(ncell)        !< Manning's n
-        real(gtm_real), intent(in) :: diameter              !< diameter
+        real(gtm_real), intent(in) :: diameter(ncell)       !< diameter
         integer, intent(in) :: ncell                        !< number of cells 
 
         !---local
         real(gtm_real) :: velocity(ncell)                   !< flow velocity
         real(gtm_real) :: c_bar_bed(ncell)                  !< near bed vaule of mean volumetric sediment concentration
-        real(gtm_real) :: fall_vel                          !< settling velocity         
+        real(gtm_real) :: fall_vel(ncell)                   !< settling velocity         
         real(gtm_real) :: big_e_sub_s(ncell)                !< dimenssionless rate of entrainment of bed sediment into suspension  
         real(gtm_real) :: shear_vel(ncell)                  !< shear velocity   
-        real(gtm_real) :: exp_re_p                          !< explicit particle reynolds number  
+        real(gtm_real) :: exp_re_p(ncell)                   !< explicit particle reynolds number  
         integer :: iclass                                   !< counter on grain class  
         integer :: i  
         logical   :: function_van_rijn  
@@ -69,19 +69,21 @@ module non_cohesive_source
         function_van_rijn = .false. !use Dietrich formula
         velocity = abs(flow/area)        
         capital_r = specific_gravity - one
-        
+
         call settling_velocity(fall_vel,           &
                                kinematic_viscosity,&
                                specific_gravity,   &
                                diameter,           &
                                gravity,            &
+                               ncell,              &
                                function_van_rijn)
                        
-        call explicit_particle_reynolds_number(exp_re_p,           &
-                                               diameter,           &
-                                               capital_r,          &
-                                               gravity,            &
-                                               kinematic_viscosity)
+        call explicit_particle_reynolds_number(exp_re_p,            &
+                                               diameter,            &
+                                               capital_r,           &
+                                               gravity,             &
+                                               kinematic_viscosity, &
+                                               ncell)
 
         call shear_velocity_calculator(shear_vel,           &
                                        velocity,            &
@@ -103,7 +105,7 @@ module non_cohesive_source
                     ncell)
                     
         vertical_flux = (Es-c_b)*fall_vel  
-                             
+        
         return
     end subroutine 
 
@@ -119,18 +121,20 @@ module non_cohesive_source
         integer, intent(in):: ncell                      !< Number of computational volumes in a channel
         real(gtm_real), intent(out):: big_e_sub_s(ncell) !< Dimenssionless rate of entrainment of bed sediment into suspension (i.e., vol entrained sediment/unit bed area/time)                                       
         real(gtm_real), intent(in) :: shear_v(ncell)     !< Shear Velocity
-        real(gtm_real), intent(in) :: exp_re_p           !< Explicit particle Reynolds number
-        real(gtm_real), intent(in) :: settling_v         !< Settling velocity
+        real(gtm_real), intent(in) :: exp_re_p(ncell)    !< Explicit particle Reynolds number
+        real(gtm_real), intent(in) :: settling_v(ncell)  !< Settling velocity
         !---local
         real(gtm_real) :: z_u(ncell)                     !< Captial z sub u a measure for strength of shear stress but it also takes into account the particle size in Garcia notation
         real(gtm_real), parameter :: cap_a = 1.3d-7      ! Constant value (see ASCE sediment manual no. 110 page 118)
         integer :: icell
-
-        if (exp_re_p < 3.5d0) then
-            z_u = 0.708d0*shear_v*(exp_re_p**0.6d0)/settling_v
-        else
-            z_u = shear_v*(exp_re_p**0.6d0)/settling_v
-        end if
+       
+        do icell = 1, ncell
+            if (exp_re_p(icell) < 3.5d0) then
+                z_u(icell) = 0.708d0*shear_v(icell)*(exp_re_p(icell)**0.6d0)/settling_v(icell)
+            else
+                z_u(icell) = shear_v(icell)*(exp_re_p(icell)**0.6d0)/settling_v(icell)
+            end if
+        end do
         big_e_sub_s  = cap_a*(z_u**five)/(one + (z_u**five)*cap_a/0.3d0)                                  
         return                             
     end subroutine
@@ -146,7 +150,7 @@ module non_cohesive_source
         integer, intent(in):: ncell                    !< Number of computational volumes in a channel
         real(gtm_real), intent(out):: c_b(ncell)       !< Sediment into deposition
         real(gtm_real), intent(in) :: shear_v(ncell)   !< Shear Velocity
-        real(gtm_real), intent(in) :: settling_v       !< Settling velocity
+        real(gtm_real), intent(in) :: settling_v(ncell)!< Settling velocity
         real(gtm_real), intent(in) :: conc(ncell)      !< Sediment concentration
         !---local
         real(gtm_real) :: ro(ncell)
@@ -168,13 +172,13 @@ module non_cohesive_source
         use sediment_variables, only : kappa
         implicit none
         !-- arg
-        integer, intent(in):: ncell                  !< Number of computational volumes in a channel
-        real(gtm_real), intent(out):: c_b(ncell)     !< Sediment into deposition
-        real(gtm_real), intent(in) :: shear_v(ncell) !< Shear Velocity
-        real(gtm_real), intent(in) :: settling_v     !< Settling velocity
-        real(gtm_real), intent(in) :: conc(ncell)    !< Sediment concentration
+        integer, intent(in):: ncell                    !< Number of computational volumes in a channel
+        real(gtm_real), intent(out):: c_b(ncell)       !< Sediment into deposition
+        real(gtm_real), intent(in) :: shear_v(ncell)   !< Shear Velocity
+        real(gtm_real), intent(in) :: settling_v(ncell)!< Settling velocity
+        real(gtm_real), intent(in) :: conc(ncell)      !< Sediment concentration
         !---local
-        real(gtm_real) :: Pe(ncell)                  !< Peclet number
+        real(gtm_real) :: Pe(ncell)                    !< Peclet number
         real(gtm_real) :: ro(ncell)
         integer :: icell
         
