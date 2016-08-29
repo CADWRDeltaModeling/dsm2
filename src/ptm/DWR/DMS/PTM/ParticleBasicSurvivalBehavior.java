@@ -21,10 +21,15 @@ public class ParticleBasicSurvivalBehavior implements SurvivalBehavior {
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle, float)
 	 */
 	@Override
-	public void isSurvived(Particle p, float timeToAdvance) {
+	public void isSurvived(Particle p, float x, float t) {
 		// TODO Auto-generated method stub
 		// currently doing nothing
 
+	}
+	public float getXofXTSurvival(Channel ch, Node nd, float x, float maxDist){
+		PTMUtil.systemExit("Why am I here? in ParticleBasicSurvivalBehavior.java");
+		return 0.0f;
+				 
 	}
 
 }

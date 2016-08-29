@@ -37,17 +37,25 @@ public class BasicHydroCalculator {
 		_pVertD.put(p.Id, Math.max(Math.abs(EvConst*chanInfo[2]*chanInfo[3]*0.1f),EMIN));
 		
 	}
+	/*
+	 * update channel length, width, depth, velocity, area, previous width, depth info 
+	 */
 	void updateChannelParameters(Particle p){
 		float [] cL = new float[1], cW = new float[1], cD = new float[1], cV = new float[1], cA = new float[1];
 	    ((Channel)p.wb).updateChannelParameters(p.x,cL,cW,cD,cV,cA);
 	    //_pChanInfo and _prePChanInfo will be initialized in the constructor no need to check null
+	    //obtain previous channel info
 	    float [] chanInfo = _pChanInfo.get(p.Id);
 	    float [] preWD = _prePWidthDepth.get(p.Id);
+	    
+	    //if no previous info available, put an empty one, otherwise ignore.
 	    if (preWD == null) {
 	    	//previous=current, if transfer from reservoir/conveyer to channel
 	    	preWD = new float[2];
 	    	_prePWidthDepth.put(p.Id, preWD);
 	    }
+	    
+	    //if no previous info available, put an empty one, otherwise put value to the preWD basket.
 	    if (chanInfo == null){
 	    	chanInfo = new float[5];
 	    	_pChanInfo.put(p.Id, chanInfo);
@@ -55,18 +63,23 @@ public class BasicHydroCalculator {
 	    else{
 	    	preWD[0] = chanInfo[1];
 	    	preWD[1] = chanInfo[2];
-	    }	    	
+	    }
+	    //update current channel info
 	    chanInfo[0] = cL[0];
 	    chanInfo[1]  = cW[0];
 	    chanInfo[2]  = cD[0];
 	    chanInfo[3]   = cV[0];
 	    chanInfo[4]   = cA[0];
+	    //if this is the first update of channel info set previous = current.
 	    if (p.first){
 	    	p.first=false;
 	    	preWD[0] = chanInfo[1];
 	    	preWD[1] = chanInfo[2]; 
 	    }
 	}
+	/*
+	 * get channel length, width, depth, velocity, area info
+	 */
 	float[] getChannelInfo(int pId){
 		float [] chanInfo = _pChanInfo.get(pId);
 		// this method should be call after call update Channel parameters
@@ -78,9 +91,9 @@ public class BasicHydroCalculator {
 		return chanInfo;
 	}
 	/**
-	 *  updates particle y, z position, Ev, Evdt, Etdt
+	 *  map particle y, z position in previous cross section to current cross section
 	 */ 
-	void updateYZPosition(Particle p){
+	void mapYZ(Particle p){
 		// 
 		float [] chanInfo = getChannelInfo(p.Id);
 		float [] preWD = _prePWidthDepth.get(p.Id);
@@ -88,20 +101,14 @@ public class BasicHydroCalculator {
 		if (preWD == null || PTMUtil.floatNearlyEqual(preWD[0], 0.0f)
 									|| PTMUtil.floatNearlyEqual(preWD[1], 0.0f))
 			PTMUtil.systemExit("Particle previous width and depth were not properly updated, system exit.");
-		//map y & z in new xsection over the node
 		p.y = p.y*chanInfo[1]/preWD[0];
 		p.z = p.z*chanInfo[2]/preWD[1];
-  
-		preWD[0] = chanInfo[1];
-		preWD[1] = chanInfo[2];
+		//TODO clean up preWD is updated in updateChannelParameters
+		//preWD[0] = chanInfo[1];
+		//preWD[1] = chanInfo[2];
 	}
-	int getSubTimeSteps(float timeStep, Particle p){
-	    // the function will be called at the beginning of the time step so that parameters needs to be updated as hydrodynamic condition changes then.
-		//TODO should move updates at the beginning of a time step? if not doing vertMove or transMove, channel parameters should still be updated?
-		updateChannelParameters(p); 
-	    updateDiffusion(p);	    
+	int getSubTimeSteps(float timeStep, Particle p){	  	    
 	    float minTimeStep = timeStep;
-	  
 	    if ((_vertMove) || (_transMove))
 	    	minTimeStep = getMinTimeStep(timeStep, p);
 	  
@@ -133,17 +140,15 @@ public class BasicHydroCalculator {
 	    PTMUtil.systemExit("lateral or vertical move was not set properly. One of them has to be true, but not, system exit.");
 	    return timeStep;
 	}
-	float calcXAdvectionVelocity(Particle p){
-		if (p.wb.getType() != Waterbody.CHANNEL)
-			PTMUtil.systemExit("calcXAdvectionVelocity(Particle p) should be only called when Particle is in channel, exit");
-		float [] cInfo = getChannelInfo(p.Id);
-	    return ((Channel)p.wb).getVelocity(p.x,p.y,p.z, cInfo[3], cInfo[1], cInfo[2]);
+	float calcXAdvectionVelocity(int id, float x, float y, float z, Channel c){
+		float [] cInfo = getChannelInfo(id);
+	    return c.getVelocity(x, y, z, cInfo[3], cInfo[1], cInfo[2]);
 	}
 	float calcXAdvection(float XAdvectionVelocity, float deltaT){
 		return XAdvectionVelocity*deltaT;
 	}
-	private float calcDiffusionMove(Particle p, float timeStep, float ratio, boolean usingProfile){
-		float dzy = (float) (PTMUtil.getNextGaussian()*ratio*(float) Math.sqrt(2.0f*_pVertD.get(p.Id)*timeStep));
+	private float calcDiffusionMove(int id, float timeStep, float ratio, boolean usingProfile){
+		float dzy = (float) (PTMUtil.getNextGaussian()*ratio*(float) Math.sqrt(2.0f*_pVertD.get(id)*timeStep));
 		// return the random z movement if vertical mixing allowed
 		if (usingProfile) return (dzy);
 		else return 0.0f;
@@ -151,12 +156,12 @@ public class BasicHydroCalculator {
 	/**
 	  *  Z Position calculation for time step given
 	  */
-	float getZPosition(Particle p, float timeStep){
+	float getZPosition(int id, float z, float timeStep){
 		// get current position
-		float zPos = p.z;
-		float depth = getChannelInfo(p.Id)[2];
+		float zPos = z;
+		float depth = getChannelInfo(id)[2];
 		// calculate position after timeStep
-		zPos += calcDiffusionMove(p, timeStep, 1, _vertMove);
+		zPos += calcDiffusionMove(id, timeStep, 1, _vertMove);
 		
 		// reflections from bottom of Channel and water surface
 		int k = 0;
@@ -173,12 +178,12 @@ public class BasicHydroCalculator {
 	/**
 	 *  Y Position calculation for the time step given
 	 */
-	float getYPosition(Particle p, float timeStep){
+	float getYPosition(int id, float y, float timeStep){
 	    // get current position
-		float yPos = p.y; 
-		float width = getChannelInfo(p.Id)[1];
+		float yPos = y; 
+		float width = getChannelInfo(id)[1];
 		// calculate position after timeStep
-	    yPos += calcDiffusionMove(p, timeStep, EtToEvConst, _transMove);
+	    yPos += calcDiffusionMove(id, timeStep, EtToEvConst, _transMove);
 	    // reflection from banks of Channel
 	    int k = 0;
 	    int MAX_BOUNCING = 100; // max num of iterations to do reflection
@@ -221,22 +226,34 @@ public class BasicHydroCalculator {
 	}
 
 	  
-	float calcTimeToNode(Particle p, float xAdvectionVelocity, float xPos){
-		if (p.wb.getType() != Waterbody.CHANNEL)
-			PTMUtil.systemExit("calcTimeToNode(Particle p, float xPos) should be only called when Particle is in channel, exit");
-		Channel ch = (Channel) p.wb;
-		float l = ch.getLength();
+	float calcTimeToNode(Channel c, float advVel, float swimVel, float x, float xPos){
+		float xAdvectionVelocity = advVel + swimVel;
+		if (Math.abs(xAdvectionVelocity) < 0.000001)
+			System.err.println("Warning: very small advection + swimming velocities:" + xAdvectionVelocity + ".  It'll take a long time to reach a node.");
+		float l = c.getLength();
 		// xAdvectionVelocity should not be exact 0
-		if (xPos <= 0)
-			 return Math.abs(p.x/xAdvectionVelocity); 
-		else if (xPos >= l)
-			 return (l-p.x)/xAdvectionVelocity; 
+		if (xPos < 0)
+			 return Math.abs(x/xAdvectionVelocity); 
+		else if (xPos > l)
+			 return (l-x)/xAdvectionVelocity;
 		else
-			 PTMUtil.systemExit("calcTimeToNode(Particle p, float xPos) shold be only call when a node is reached, i.e., xPos < 0 or > length, but xPos ="+xPos
-					 + " in channel:"+PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex()));	
+			PTMUtil.systemExit("passed in wrong calculated x value while calculating time to node, system exit.");
 		return 0.0f;
 			
 	}
+	
+	float calcDistanceToNode(Channel c, float x, float xPos){
+		float l = c.getLength();
+		if (xPos < 0)
+			 return x; 
+		else if (xPos > l)
+			 return (l-x);
+		else
+			PTMUtil.systemExit("passed in wrong calculated xPos value while calculating distance to node, system exit.");
+		return 0.0f;
+			
+	}
+	
 	/**
 	  *  factor used for calculating minimum time step
 	  *  set outside of method to allow overwriting to include fall velocity

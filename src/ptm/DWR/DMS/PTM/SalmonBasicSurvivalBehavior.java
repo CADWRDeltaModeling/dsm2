@@ -29,14 +29,16 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
 	 */
 	@Override
-	public void isSurvived(Particle p, float timeToAdvance) {
+	//TODO this function need to be worked on
+	// read doug's code and Russ' paper
+	public void isSurvived(Particle p, float x, float t) {
 		if (_survivalIn.getSurvivalRates() == null){
 			p.isDead = false;
 			return;
 		}
 		// timeInterval in days
 		// timeToAdvance in seconds
-		double timeInterval = timeToAdvance/(60d*60d*24d);
+		double timeInterval = t/(60d*60d*24d);
 		if (timeInterval<0)
 			PTMUtil.systemExit("in particle survial behavior, expect positive time interval but get:" + timeInterval);
 		double survivalProbability = 0;
@@ -60,6 +62,16 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		}
 		
 	}
+	/*
+	 * get the maximum distance a particle traveled from the entrance node
+	 */
+	public float getXofXTSurvival(Channel ch, Node nd, float x, float maxDist){
+		int sign = (isDownNode(ch, nd)? -1: 1);
+		float overHead = (isDownNode(ch, nd)? ch.getLength(): 0.0f);
+		float currDist = x*sign + overHead;
+		return ((maxDist < currDist)? currDist: maxDist);			 
+	}
+	boolean isDownNode(Channel ch, Node nd){return (ch.getDownNodeId() == nd.getEnvIndex());}
 	
 	//TODO this is fast exp calculation.  should it be used for other PTM calculations?
 	/*

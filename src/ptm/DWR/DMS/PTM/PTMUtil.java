@@ -216,6 +216,13 @@ public class PTMUtil {
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return items[1];
 	}
+	// get a path name from a line with format name: String
+	public static String getPathFromLine(String line, String lineName){
+		String[] items = line.split("[,\\s\\t]+");
+		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
+		return items[1];
+	}
 	public static Pair<Integer, Integer> getPairFromLine(String line, String lineName) throws NumberFormatException{
 		String[] items = line.split("[,:\\s\\t]+");
 		if (items.length < 3 || (!items[0].equalsIgnoreCase(lineName)))

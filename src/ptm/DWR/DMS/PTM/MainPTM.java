@@ -46,6 +46,7 @@ import java.util.Calendar;
 public class MainPTM {
 
     public static void main(String[] args) {
+    	//DEBUG = true;
         try {
             //set version and module ids
             if (DEBUG) System.out.println("initializing globals");
@@ -58,6 +59,7 @@ public class MainPTM {
             if(args.length > 0)
             	ptmInputFile = args[0];
             
+            if (DEBUG) System.out.println("input file: " + ptmInputFile);
             PTMEnv Environment = new PTMEnv(ptmInputFile);
             if (DEBUG) System.out.println("Environment initialized");
     
@@ -245,6 +247,7 @@ public class MainPTM {
                                                          fluxFixedInfo,
                                                          groupFixedInfo);
             fluxCalculator.calculateFlux();
+            System.out.println("done simulation, but no output dss");
             fluxCalculator.writeOutput();
             
         }catch(Exception e){

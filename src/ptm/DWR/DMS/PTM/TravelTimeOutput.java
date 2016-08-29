@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.nio.IntBuffer;
+import java.util.List;
 
 /**
  * @author xwang
@@ -22,11 +23,12 @@ public class TravelTimeOutput {
 		if (outText == null)
 			System.err.println("Warning: travel time output info is not defined in behavior input file!");
 		else{
+			_pathName = PTMUtil.getPathFromLine(outText.get(0), "OUTPUT_PATH");
 			String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE", "STATION_NAME"};
-			PTMUtil.checkTitle(outText.get(0), shouldBe);
-			if (outText.size()<2 )
-				PTMUtil.systemExit("travel time output stations are not entered correctly, please revise them in behavior input file");
-			setIdsDistance(outText);
+			PTMUtil.checkTitle(outText.get(1), shouldBe);
+			if (outText.size()<3 )
+				PTMUtil.systemExit("travel time output info is not entered correctly, please revise them in behavior input file");
+			setIdsDistance(outText.subList(2, outText.size()));
 		}
 		_recorderTest = new ConcurrentHashMap<Integer, Boolean>();
 	}
@@ -40,12 +42,14 @@ public class TravelTimeOutput {
 		}
 		return -999999f;
 	}
-	private void setIdsDistance(ArrayList<String> stationText){
+	private void setIdsDistance(List<String> stationText){
 		_outputStations = new ArrayList<IntBuffer>();
 		_stationNames = new ConcurrentHashMap<IntBuffer, String>();
 		_ttHolder = new ConcurrentHashMap<String, Map<Integer, TTEntry>>();
 		_staDist = new ConcurrentHashMap<IntBuffer, Float>();
-		for (String stationLine: stationText.subList(1, stationText.size())){
+		//TODO clean up later, sublisted in the calling function
+		//for (String stationLine: stationText.subList(1, stationText.size())){
+		for (String stationLine: stationText){
 			int[] station = new int[2];
 			float d = 0.0f;
 			String[] items = stationLine.trim().split("[,\\s\\t]+");
@@ -89,12 +93,17 @@ public class TravelTimeOutput {
 	}
 	
 	public void travelTimeOutput(){
+		//TODO clean up _ttHolder will never be zero see line above line 91
+		/*
 		if (_ttHolder == null){
 			System.err.println("warning: entire travel time map is empty. no travel time output!");
 			return;
 		}
+		*/
 		try{
-			BufferedWriter ttWriter = PTMUtil.getOutputBuffer("output/travel_time_in_min.csv");
+			//TODO clean up later
+			//BufferedWriter ttWriter = PTMUtil.getOutputBuffer("output/travel_time_in_min.csv");
+			BufferedWriter ttWriter = PTMUtil.getOutputBuffer(_pathName);
 			ttWriter.write("PID".concat(",").concat("Release_Sta").concat(",").concat("Release_Time").concat(",").concat("Detect_Sta").concat(",").concat("Travel_Time(Min)"));
 			ttWriter.newLine();
 			//_ttHolder will never be null and there is at least one element
@@ -118,27 +127,35 @@ public class TravelTimeOutput {
 			e.printStackTrace();
 		}
 	}
-	public void recordTravelTime(Particle p, IntBuffer ndWb, float x, float deltaX){
+	public void recordTravelTime(int id, String inStation, long inTime, float ageInSec, IntBuffer ndWb, float velocity, float x, float deltaX){
 		// only record particles from upstream
 		if (deltaX >0){
 			String staName = _stationNames.get(ndWb);
-			// if staName == null, the particle is not at the recording location
-			// _recorderTest != null, the particle has been recorded, don't record again
-			// a particle can hit multiple receiving stations.  
-			// the station with the shortest travel time is the one that the particle first hits.
-			// do not record travel time after the first hit
-			if ((staName != null) && (_recorderTest.get(p.Id) == null)){
+			/*
+			 if staName == null, the particle is not at the recording location
+			 _recorderTest != null, the particle has been recorded, don't record again
+			 a particle can hit multiple receiving stations.  
+			 the station with the shortest travel time is the one that the particle first hits.
+			 do not record travel time after the first hit
+			 * */
+			if ((staName != null) && (_recorderTest.get(id) == null)){
 				float dist = _staDist.get(ndWb);
-				// it covers x<0 because dist is always > = 0
-				// if x >= dist record the travel time
-				if (!(x<dist)){
-					_ttHolder.get(staName).put(p.Id, new TTEntry(p.getInsertionStation(), p.getInsertionTime(), p.age/60.0f));
-					_recorderTest.put(p.Id, true);
+				float distDiff = Math.abs(x-dist);
+				// p.x is always > = 0
+				// if p.x >= dist record the travel time
+				if ((!(x<dist)) || (distDiff <_threshold)){
+					float tt = ageInSec/60.0f;
+					if (distDiff>_threshold)
+						// p.x always > 0 and velocity > 0 because !(p.x<dist) and deltaX >0
+						tt -= (x-dist)/velocity;
+					_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt));
+					_recorderTest.put(id, true);
 				}
 			}
 		}
 	}
-	
+	public void setThreshold(float t){_threshold = t;}
+	public float getThreshold(){ return _threshold;}
 	// list of detection stations
 	private ArrayList<IntBuffer> _outputStations;
 	// map of IntBuffer<nodeId, wbId> and detection station name
@@ -149,6 +166,8 @@ public class TravelTimeOutput {
 	private Map<IntBuffer, Float> _staDist;
 	// test if travel time has been recorded Map<pId, hasRecorded>
 	private Map<Integer, Boolean> _recorderTest;
+	private String _pathName;
+	private float _threshold = 0.000001f;
 	
 	//TODO assume that there is only one travel time per particle
 	private class TTEntry{

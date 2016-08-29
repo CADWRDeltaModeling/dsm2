@@ -40,10 +40,16 @@ public class SalmonSurvivalHelper extends Helper<Integer, SalmonSurvivalBehavior
 			return null;
 	}
 	
-	public void helpSurvival(Particle p, float timeToAdvance){
+	public void helpSurvival(Particle p, float x, float t){
 		SalmonSurvivalBehavior b = super.getBehavior(p);
 		if (b != null)
-			b.isSurvived(p, timeToAdvance);
+			b.isSurvived(p, x, t);
+	}
+	public float getXofXTSurvival(Channel ch, Node nd, float x, float currX){
+		SalmonSurvivalBehavior bBasic = super.getBasicBehavior();
+		if (bBasic == null)
+			PTMUtil.systemExit("Basic survival behavior is not defined, system exit");
+		return bBasic.getXofXTSurvival(ch, nd, x, currX);
 	}
 	public void setSurvivalHelperForParticle(Particle p){
 		p.installSurvivalHelper(this);

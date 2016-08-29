@@ -74,7 +74,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 			wbId++;
 		}
 				
-		// if in a dead end, move some distance and recalculate
+		// if in a dead end, move some distance and recalculate (p.x will be reset)
 		if (!prescreen(p, totalWbInflows)){
 			p.particleWait = true;
 		    return;
@@ -97,6 +97,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		}
 		
 		float diversionsLeftover = totalAgDiversions*(1-_dicuEfficiency);
+		//if totalWbInflows = totalAgDiversions*_dicuEfficiency totalFlowsWOAg = totalAgDiversions*(_dicuEfficiency-1) <= 0
 		float totalFlowsWOAg = totalWbInflows - totalAgDiversions;
 		
 		wbId = -1;
@@ -108,8 +109,11 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	    		// the probability of this route reduce (1-_dicuEfficiency)
 	    		modFlow = ((float) (wbFlows[wbId]*_dicuEfficiency)); 
 	    	else if (totalFlowsWOAg > 0.0f)
+	    		//wbFlows[wbId] always >= 0, if totalFlowsWOAg > 0.0f wbFlows[wbId] > = 0
 	    		modFlow = wbFlows[wbId] + (wbFlows[wbId]/totalFlowsWOAg)*diversionsLeftover;
 	    	else
+	    		// if (totalFlowsWOAg <= 0.0f) && (!wbs[wbId].isAgDiv()) always false. 
+	    		// this block will never be executed
 		    	modFlow = wbFlows[wbId];
 	    	flow += modFlow;
 	    }while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
@@ -117,7 +121,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	    // send message to observer about change 
 	    if (p.observer != null) 
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
-	    //set x to only channels.  other water body types don't need to be set. 
+	    // need to set x only channels.   
 	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
 	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
 	    	p.setSwimmingVelocity(swimmingVels[wbId]*confusionFactors[wbId]);
@@ -127,6 +131,8 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	    	p.getSwimHelper().setSwimmingTime(p, ((Channel)p.wb).getEnvIndex()); // to set swimming time in SalmonHoldingTimeCalculator
 	    	// set Swimming time in particle
 	    	p.setSwimmingTime(((SalmonSwimHelper) p.getSwimHelper()).getSwimmingTime(p.Id, ((Channel)p.wb).getEnvIndex()));
+	    	//upon entering into a channel, remember the particle's age at this time
+			p.setAgeAtEntrance(p.age);
 	    	
 			//TODO clean up	
 			/* 

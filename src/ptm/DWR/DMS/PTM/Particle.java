@@ -155,6 +155,8 @@ public class Particle{
 	  private int _confusionFactor = 1;
 	  private float _swimmingVelocity = 0.0f;
 	  private boolean _swimVelSetInJunction = false;
+	  private float _XofXTSurvival = 0.0f;
+	  private float _ageAtEntrance = 0.0f;
 	  static final int MISSING = -99999;
 		
 	  /**
@@ -262,9 +264,9 @@ public class Particle{
 	  // and create a new method below for set swimming time.  Need to change the flux calculation part to make it consistant
 	  public final long getCurrentParticleTimeExact(){return Globals.currentModelTime + Math.round(_timeUsedInSecond/60.0f);}
 	  public final long getInsertionTime(){return insertionTime;}
-	  public final boolean checkSurvival(float timeToAdvance){
+	  public final boolean checkSurvival(float x, float t){
 	    // check survival if not survived isDead is set to true	
-	    _survivalHelper.helpSurvival(this, timeToAdvance);
+	    _survivalHelper.helpSurvival(this, x, t);
 	    if(isDead == true) {
 	    	observer.observeDeath(this);
 	    	return false;
@@ -493,4 +495,11 @@ public class Particle{
 	  boolean isSwimVelSetInJunction(){return _swimVelSetInJunction;}
 	  void swimVelSetInJunction(boolean sVSet){_swimVelSetInJunction = sVSet;}
 	  
+	  //TODO to be used in survival model, should be in suvival model instead here???	  
+	  float getXofXTSurvival(){return _XofXTSurvival;}
+	  void setXofXTSurvival(Channel ch, Node nd, float x){ 
+		  _XofXTSurvival = _survivalHelper.getXofXTSurvival(ch, nd, x, _XofXTSurvival);
+	  }
+	  float getAgeAtEntrance(){return _ageAtEntrance;}
+	  void setAgeAtEntrance(float ageAtEntrance){_ageAtEntrance = ageAtEntrance;}	  
 }
