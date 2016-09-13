@@ -38,33 +38,30 @@ public:
   typedef const tuple<const std::string>  identifier_type;
 
   suspended_sediment_type() :
-    size(-901.0),
+    
     used(true),
     layer(0)
   {
     fill_n(composition,16,'\0');
-    fill_n(method,16,'\0');
   };
 
   /** Construct a suspended_sediment_type with actual data values */
-  suspended_sediment_type(const  char a_composition[16],const double & a_size,const  char a_method[16], bool a_used=true, int a_layer = 0) :
-    size(a_size),
+  suspended_sediment_type(const  char a_composition[16], bool a_used=true, int a_layer = 0) :
+    
     used(a_used),
     layer(a_layer)
   {
-    memcpy(composition,a_composition,16);
-    memcpy(method,a_method,16);  
+    memcpy(composition,a_composition,16);  
   }
   
   /**Copy constructor) 
    */
   suspended_sediment_type (const suspended_sediment_type & other) :
-    size(other.size),
+    
     used(other.used),
     layer(other.layer)
   {
-    memcpy(composition,other.composition,16);
-    memcpy(method,other.method,16);  
+    memcpy(composition,other.composition,16);  
   }
   
   /** Identifier that distinguishes whether two entries are distinct */
@@ -134,8 +131,6 @@ public:
   suspended_sediment_type& operator=(const suspended_sediment_type& rhs)
   {
     strcpy(this->composition,rhs.composition);
-    this->size=rhs.size;
-    strcpy(this->method,rhs.method);
     used = rhs.used;
     layer = rhs.layer;
     return *this;
@@ -149,8 +144,6 @@ public:
 
   
   char composition[16];
-  double size;
-  char method[16];
   /** indicator that the entry is used (true if not marked deleted by user)*/
   bool used;  
   /** layer (version number) of this entry */
@@ -182,8 +175,8 @@ FCALL int suspended_sediment_type_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void suspended_sediment_type_append_to_buffer_f(const  char a_composition[16],const double * a_size,const  char a_method[16], int * ierror, 
-              const int composition_len,const int method_len);
+FCALL void suspended_sediment_type_append_to_buffer_f(const  char a_composition[16], int * ierror, 
+              const int composition_len);
   
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void suspended_sediment_type_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
@@ -198,8 +191,8 @@ FCALL void suspended_sediment_type_number_rows_hdf5_f(const hid_t* file_id, hsiz
 
 /** get one row worth of information from the buffer */
 FCALL void suspended_sediment_type_query_from_buffer_f(size_t* row, 
-                         char a_composition[16],double * a_size, char a_method[16], int * ierror, 
-              int composition_len,int method_len);
+                         char a_composition[16], int * ierror, 
+              int composition_len);
 /**
   prioritize buffer by layers, delete unused items and sort
   */

@@ -28,8 +28,8 @@ module non_cohesive_source
     contains 
     
     subroutine source_non_cohesive(vertical_flux,    &
-                                   Es,               &
-                                   c_b,              &
+                                   erosion_flux,     &
+                                   deposition_flux,  &
                                    conc,             &
                                    flow,             &
                                    area,             &
@@ -37,31 +37,35 @@ module non_cohesive_source
                                    hydro_radius,     &
                                    manning,          &
                                    diameter,         &
-                                   ncell)
+                                   ncell,            &
+                                   available_bed)
         use sediment_variables, only : kinematic_viscosity, specific_gravity, gravity
         use suspended_utility
 
         implicit none
-        real(gtm_real), intent(out):: vertical_flux(ncell)  !< vertical sediment net flux into the water column
-        real(gtm_real), intent(out):: Es(ncell)             !< entrainment for resuspension
-        real(gtm_real), intent(out):: c_b(ncell)            !< deposition
-        real(gtm_real), intent(in) :: conc(ncell)           !< concentration at new time
-        real(gtm_real), intent(in) :: flow(ncell)           !< flow
-        real(gtm_real), intent(in) :: area(ncell)           !< area
-        real(gtm_real), intent(in) :: width(ncell)          !< channel width
-        real(gtm_real), intent(in) :: hydro_radius(ncell)   !< hydraulic radius
-        real(gtm_real), intent(in) :: manning(ncell)        !< Manning's n
-        real(gtm_real), intent(in) :: diameter(ncell)       !< diameter
-        integer, intent(in) :: ncell                        !< number of cells 
+        real(gtm_real), intent(out):: vertical_flux(ncell)   !< vertical sediment net flux into the water column
+        real(gtm_real), intent(out):: erosion_flux(ncell)    !< entrainment for resuspension
+        real(gtm_real), intent(out):: deposition_flux(ncell) !< deposition
+        real(gtm_real), intent(in) :: conc(ncell)            !< concentration at new time
+        real(gtm_real), intent(in) :: flow(ncell)            !< flow
+        real(gtm_real), intent(in) :: area(ncell)            !< area
+        real(gtm_real), intent(in) :: width(ncell)           !< channel width
+        real(gtm_real), intent(in) :: hydro_radius(ncell)    !< hydraulic radius
+        real(gtm_real), intent(in) :: manning(ncell)         !< Manning's n
+        real(gtm_real), intent(in) :: diameter(ncell)        !< diameter
+        integer, intent(in) :: ncell                         !< number of cells 
+        real(gtm_real), intent(in) :: available_bed(ncell)   !< available bed sediment flux
 
         !---local
-        real(gtm_real) :: velocity(ncell)                   !< flow velocity
-        real(gtm_real) :: c_bar_bed(ncell)                  !< near bed vaule of mean volumetric sediment concentration
-        real(gtm_real) :: fall_vel(ncell)                   !< settling velocity         
-        real(gtm_real) :: big_e_sub_s(ncell)                !< dimenssionless rate of entrainment of bed sediment into suspension  
-        real(gtm_real) :: shear_vel(ncell)                  !< shear velocity   
-        real(gtm_real) :: exp_re_p(ncell)                   !< explicit particle reynolds number  
-        integer :: iclass                                   !< counter on grain class  
+        real(gtm_real ):: Es(ncell)                      !< entrainment for resuspension
+        real(gtm_real) :: c_b(ncell)                     !< deposition       
+        real(gtm_real) :: velocity(ncell)                !< flow velocity
+        real(gtm_real) :: c_bar_bed(ncell)               !< near bed vaule of mean volumetric sediment concentration
+        real(gtm_real) :: fall_vel(ncell)                !< settling velocity         
+        real(gtm_real) :: big_e_sub_s(ncell)             !< dimenssionless rate of entrainment of bed sediment into suspension  
+        real(gtm_real) :: shear_vel(ncell)               !< shear velocity   
+        real(gtm_real) :: exp_re_p(ncell)                !< explicit particle reynolds number  
+        integer :: iclass                                !< counter on grain class  
         integer :: i  
         logical   :: function_van_rijn  
         real(gtm_real) :: capital_r
@@ -103,8 +107,13 @@ module non_cohesive_source
                     fall_vel,     &
                     conc,         &
                     ncell)
-                    
-        vertical_flux = (Es-c_b)*fall_vel  
+      
+        erosion_flux = Es * fall_vel
+        deposition_flux = c_b * fall_vel            
+      
+        where (erosion_flux .gt. available_bed+deposition_flux) erosion_flux = available_bed + deposition_flux
+                
+        vertical_flux = erosion_flux - deposition_flux
         
         return
     end subroutine 
@@ -138,6 +147,7 @@ module non_cohesive_source
         big_e_sub_s  = cap_a*(z_u**five)/(one + (z_u**five)*cap_a/0.3d0)                                  
         return                             
     end subroutine
+    
     
     !> Deposition by Parker(1982) estimated from the Rouse profile for rivers 
     subroutine parker_rouse_profile(c_b,          &

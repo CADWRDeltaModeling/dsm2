@@ -75,6 +75,9 @@ ApplicationTextReader::InputStateMap input_state_map()
    InputStatePtr rate_coefficientPtr(new ItemInputState<rate_coefficient>());
     inputMap["RATE_COEFFICIENT"] = rate_coefficientPtr;
 
+   InputStatePtr group_variablePtr(new ItemInputState<group_variable>());
+    inputMap["GROUP_VARIABLE"] = group_variablePtr;
+
    InputStatePtr particle_insertionPtr(new ItemInputState<particle_insertion>());
     inputMap["PARTICLE_INSERTION"] = particle_insertionPtr;
 
@@ -117,6 +120,9 @@ ApplicationTextReader::InputStateMap input_state_map()
    InputStatePtr reservoir_concentrationPtr(new ItemInputState<reservoir_concentration>());
     inputMap["RESERVOIR_CONCENTRATION"] = reservoir_concentrationPtr;
 
+   InputStatePtr input_time_seriesPtr(new ItemInputState<input_time_series>());
+    inputMap["INPUT_TIME_SERIES"] = input_time_seriesPtr;
+
    InputStatePtr output_channelPtr(new ItemInputState<output_channel>());
     inputMap["OUTPUT_CHANNEL"] = output_channelPtr;
 
@@ -135,8 +141,8 @@ ApplicationTextReader::InputStateMap input_state_map()
    InputStatePtr suspended_sediment_typePtr(new ItemInputState<suspended_sediment_type>());
     inputMap["SUSPENDED_SEDIMENT_TYPE"] = suspended_sediment_typePtr;
 
-   InputStatePtr suspended_sedimentPtr(new ItemInputState<suspended_sediment>());
-    inputMap["SUSPENDED_SEDIMENT"] = suspended_sedimentPtr;
+   InputStatePtr suspended_sediment_boundaryPtr(new ItemInputState<suspended_sediment_boundary>());
+    inputMap["SUSPENDED_SEDIMENT_BOUNDARY"] = suspended_sediment_boundaryPtr;
 
   
 
@@ -198,6 +204,7 @@ ApplicationTextReader::InputStateMap input_state_map()
     vector<string> qual_time_seriesContextItems;
     qual_time_seriesContextItems.push_back("NODE_CONCENTRATION");
     qual_time_seriesContextItems.push_back("RESERVOIR_CONCENTRATION");
+    qual_time_seriesContextItems.push_back("INPUT_TIME_SERIES");
     qual_time_seriesContextItems.push_back("INPUT_CLIMATE");
     InputStatePtr qual_time_seriesPtr(new IncludeFileState(qual_time_seriesContextItems));
     inputMap["QUAL_TIME_SERIES"] = qual_time_seriesPtr;
@@ -208,13 +215,12 @@ ApplicationTextReader::InputStateMap input_state_map()
     vector<string> gtm_time_seriesContextItems;
     gtm_time_seriesContextItems.push_back("NODE_CONCENTRATION");
     gtm_time_seriesContextItems.push_back("RESERVOIR_CONCENTRATION");
+    gtm_time_seriesContextItems.push_back("INPUT_TIME_SERIES");
     gtm_time_seriesContextItems.push_back("INPUT_CLIMATE");
     InputStatePtr gtm_time_seriesPtr(new IncludeFileState(gtm_time_seriesContextItems));
     inputMap["GTM_TIME_SERIES"] = gtm_time_seriesPtr;
     vector<string> gtm_spatialContextItems;
-    gtm_spatialContextItems.push_back("RATE_COEFFICIENT");
-    gtm_spatialContextItems.push_back("SUSPENDED_SEDIMENT_TYPE");
-    gtm_spatialContextItems.push_back("SUSPENDED_SEDIMENT");
+    gtm_spatialContextItems.push_back("GROUP_VARIABLE");
     InputStatePtr gtm_spatialPtr(new IncludeFileState(gtm_spatialContextItems));
     inputMap["GTM_SPATIAL"] = gtm_spatialPtr;
     vector<string> output_time_seriesContextItems;
@@ -270,16 +276,17 @@ const std::vector<std::string> profile(const std::string& name)
         out.push_back("TIDEFILE");
         out.push_back("NODE_CONCENTRATION");
         out.push_back("RESERVOIR_CONCENTRATION");
+        out.push_back("INPUT_TIME_SERIES");
         out.push_back("INPUT_CLIMATE");
         out.push_back("GROUP");
         out.push_back("GROUP_MEMBER");
-        out.push_back("RATE_COEFFICIENT");
-        out.push_back("SUSPENDED_SEDIMENT_TYPE");
-        out.push_back("SUSPENDED_SEDIMENT");
+        out.push_back("GROUP_VARIABLE");
         out.push_back("OUTPUT_CHANNEL");
         out.push_back("OUTPUT_RESERVOIR");
         out.push_back("OUTPUT_CHANNEL_SOURCE_TRACK");
         out.push_back("OUTPUT_RESERVOIR_SOURCE_TRACK");
+        out.push_back("SUSPENDED_SEDIMENT_TYPE");
+        out.push_back("SUSPENDED_SEDIMENT_BOUNDARY");
         out.push_back("CONFIGURATION");
         out.push_back("PARAMETER");
         out.push_back("GTM_TIME_SERIES");
@@ -296,6 +303,7 @@ const std::vector<std::string> profile(const std::string& name)
         out.push_back("TIDEFILE");
         out.push_back("NODE_CONCENTRATION");
         out.push_back("RESERVOIR_CONCENTRATION");
+        out.push_back("INPUT_TIME_SERIES");
         out.push_back("INPUT_CLIMATE");
         out.push_back("GROUP");
         out.push_back("GROUP_MEMBER");

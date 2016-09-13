@@ -215,15 +215,17 @@ module gtm_subs
             if (pathoutput(i)%obj_type.eq.1) then   !channel
                 icell = pathoutput(i)%out_chan_cell
                 if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
-                down_cell = cell(icell)%down_cell
-                vals(i) = conc(icell,pathoutput(i)%i_var)+(conc(down_cell,pathoutput(i)%i_var)-conc(icell,pathoutput(i)%i_var))*      &
-                            (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
+                    down_cell = cell(icell)%down_cell
+                    vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
+                             (conc(down_cell,pathoutput(i)%i_var)-conc(icell,pathoutput(i)%i_var))*  &
+                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
                 elseif (pathoutput(i)%calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
-                up_cell = cell(icell)%up_cell
-                vals(i) = conc(icell,pathoutput(i)%i_var)+(conc(icell,pathoutput(i)%i_var)-conc(up_cell,pathoutput(i)%i_var))*        &
-                            (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx               
+                    up_cell = cell(icell)%up_cell
+                    vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
+                             (conc(icell,pathoutput(i)%i_var)-conc(up_cell,pathoutput(i)%i_var))*    &
+                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx               
                 else                            
-                vals(i) = conc(icell,pathoutput(i)%i_var)
+                    vals(i) = conc(icell,pathoutput(i)%i_var)
                 end if
                 if (vals(i) .le. zero) vals(i) = conc(icell,pathoutput(i)%i_var) ! to avoid extrapolation unstability
             elseif (pathoutput(i)%obj_type.eq.2) then !reservoir
@@ -294,12 +296,12 @@ module gtm_subs
     subroutine assign_node_ts()
         use common_variables, only : n_node, dsm2_network, dsm2_network_extra,     &
                                      n_var, constituents, qext, n_resv, resv_geom, &
-                                     n_sediment
+                                     n_sediment, n_node_ts
         use common_dsm2_vars, only : n_inputpaths, pathinput, obj_reservoir
         implicit none
         integer :: i, j, k, st
         
-        do i = 1, n_inputpaths
+        do i = 1, n_node_ts
             do j = 1, n_var
                 call locase(pathinput(i)%variable)
                 call locase(constituents(j)%name)
@@ -315,6 +317,11 @@ module gtm_subs
                         do k = 1, resv_geom(j)%n_qext
                             if (trim(resv_geom(j)%qext_name(k)).eq.trim(pathinput(i)%name)) then
                                 resv_geom(j)%qext_path(k,pathinput(i)%i_var) = i
+                                if (trim(pathinput(i)%variable).eq.'ssc') then
+                                    do st = 1, n_sediment
+                                        resv_geom(j)%qext_path(k,n_var-n_sediment+st) = i
+                                    end do                        
+                                end if                                
                             end if    
                         end do                        
                     end if
@@ -337,6 +344,33 @@ module gtm_subs
                 end do
             end if
         end do
+        return
+    end subroutine        
+
+
+    !> assign value to group_var for input time series
+    subroutine assign_input_ts_group_var
+        use common_variables, only: n_node_ts, n_input_ts, n_group, group, &
+                                    group_var, ncc_string_to_code
+        use common_dsm2_vars, only: pathinput
+        implicit none
+        integer :: ncc_code
+        integer :: i, j, k, st
+        
+        do i = n_node_ts+1, n_node_ts+n_input_ts
+            call ncc_string_to_code(ncc_code, trim(pathinput(i)%variable))
+            if (ncc_code .ne. miss_val_i) then            
+                do j = 1, n_group
+                    if (trim(pathinput(i)%name) .eq. trim(group(j)%name)) then
+                        group_var(ncc_code,1,group(j)%id) = pathinput(i)%value
+                    end if
+                end do
+            else
+                        
+            end if
+         end do
+         return        
+        
         return
     end subroutine        
 
@@ -408,23 +442,29 @@ module gtm_subs
         return
     end subroutine
     
-    !> assign diameter by text input
-    subroutine assign_diameter_by_text(diameter, &
-                                       nvar,     &
-                                       ncell)
+    !> print out erosion flux and deposition flux 
+    subroutine print_erosion_deposition(erosion,           &
+                                        deposition,        &
+                                        time,              &
+                                        nvar,              &
+                                        ncell)
         implicit none
         integer, intent(in) :: nvar
         integer, intent(in) :: ncell
-        real(gtm_real), intent(inout) :: diameter(ncell,nvar)
-        integer :: i, j 
-        open(101,file='fines.txt')
-        open(102,file='sand.txt')
-        do i = 1, ncell
-            read(101,*) j, diameter(i,2)
-            read(102,*) j, diameter(i,3)
-        enddo 
-        close(101)
-        close(102)       
+        real(gtm_real), intent(in) :: time
+        real(gtm_real), intent(in) :: erosion(ncell,nvar)
+        real(gtm_real), intent(in) :: deposition(ncell,nvar)
+        character*4 :: out_name(16)
+        integer :: out_cell(16)
+        integer :: i, j
+        real(gtm_real) :: unit_convert
+        unit_convert = 0.3048d0*0.3048d0*1000000.0d0   ! kg/m^2--> mg/ft^2
+        out_name = ['CCH','DWS','GEO','JPT','LIB','LPS','MID','MIN','MLD','MOK','NFM','OLD','RIO','SFM','STK','UCS']
+        out_cell = [ 2285, 2272, 1914,  502, 2370, 1630,  743, 2122, 2737, 1807, 1863,  562, 2647, 1713,  159, 2351]
+        write(802,'(f10.0,32(a1,f12.9))') time,(',',erosion(out_cell(i),2)*unit_convert,            &
+                                            ',',deposition(out_cell(i),2)*unit_convert,i=1,16)
+        write(803,'(f10.0,32(a1,f12.9))') time,(',',erosion(out_cell(i),3)*unit_convert,            &
+                                            ',',deposition(out_cell(i),3)*unit_convert,i=1,16)
         return
     end subroutine    
       

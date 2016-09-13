@@ -41,7 +41,7 @@ module common_variables
      integer :: n_qext = LARGEINT                   !< number of external flows
      integer :: n_tran = LARGEINT                   !< number of transfer flows
      integer :: n_gate = LARGEINT                   !< number of gates
-     integer :: n_flwbnd = LARGEINT                  !< number of boundary flow
+     integer :: n_flwbnd = LARGEINT                 !< number of boundary flow
      integer :: n_stgbnd = LARGEINT                 !< number of boundary stage
      integer :: n_sflow = LARGEINT                  !< number of source flow
      integer :: n_bfbs = LARGEINT                   !< number of boundary flows and stage
@@ -235,6 +235,10 @@ module common_variables
      end type    
      type(source_flow_t), allocatable :: source_flow(:)
                     
+     !> Define input time series
+     integer :: n_input_ts = 0                     !< number of input time series
+     integer :: n_node_ts = 0
+
      !> DSM2 node information
      type dsm2_network_t
          integer :: dsm2_node_no                   !< DSM2 node number
@@ -263,6 +267,23 @@ module common_variables
          integer, allocatable :: node_conc(:)      !< true: 1, false: 0         
      end type
      type(dsm2_network_extra_t), allocatable :: dsm2_network_extra(:)    
+
+     !> Group
+     integer, parameter :: obj_channel = 1
+     integer, parameter :: obj_node = 2
+     integer, parameter :: obj_reservoir = 3
+     integer, parameter :: obj_gate = 4
+     integer, parameter :: obj_qext = 5
+     integer, parameter :: obj_transfer = 6
+     integer, parameter :: obj_stage = 7
+     integer, parameter :: obj_boundary_flow = 8 
+     integer, parameter :: obj_source_sink = 9
+     integer, parameter :: obj_flux = 10   
+     integer, parameter :: obj_group = 11
+     integer, parameter :: obj_climate = 12
+     integer, parameter :: obj_oprule = 13
+     integer, parameter :: obj_filter = 14
+     integer, parameter :: obj_null = 99
        
      !> Define constituent
      type constituent_t
@@ -270,8 +291,6 @@ module common_variables
          character*32 :: name = ' '                     !< constituent name
          logical :: conservative = .true.               !< true if conservative, false if nonconservative
          character*32 :: use_module = ' '               !< use module
-         integer :: method = 0                          !< method in module 1:NC, 2:C, 3:O
-         real(gtm_real) :: grain_size                   !< grain_size if sediment
      end type     
      type(constituent_t), allocatable :: constituents(:)
      
@@ -280,8 +299,6 @@ module common_variables
      integer :: n_sediment = 0
      type sediment_t
          character*16 :: composition = ' '               ! sediment composition type
-         real(gtm_real) :: grain_size                    ! grain size
-         character*16 :: method = ' '                    ! method for calculation
      end type
      type(sediment_t), allocatable :: sediment(:)
     
@@ -293,6 +310,64 @@ module common_variables
          real(gtm_real) :: percent                       ! percentage 
      end type
      type(sediment_bc_t), allocatable :: sediment_bc(:)     
+
+     !> non-conservative constituents codes
+     integer, parameter :: ncc_do = 1
+     integer, parameter :: ncc_organic_n = 2
+     integer, parameter :: ncc_nh3 = 3
+     integer, parameter :: ncc_no2 = 4
+     integer, parameter :: ncc_no3 = 5
+     integer, parameter :: ncc_organic_p = 6
+     integer, parameter :: ncc_po4 = 7
+     integer, parameter :: ncc_algae = 8
+     integer, parameter :: ncc_bod = 9
+     integer, parameter :: ncc_temp = 10
+     integer, parameter :: ncc_ssc = 11
+     integer, parameter :: ncc_ph  = 12
+     integer, parameter :: ncc_dots = 13
+     integer, parameter :: ncc_so4 = 14
+      
+     !> coefficient type codes
+     integer, parameter :: input = 1
+     integer, parameter :: decay = 2
+     integer, parameter :: settle = 3
+     integer, parameter :: benthic = 4
+     integer, parameter :: alg_grow = 5
+     integer, parameter :: alg_resp = 6
+     integer, parameter :: alg_die = 7
+     character*16 :: coeff_type(14)
+    
+     !> group variables
+     integer, parameter :: n_ncc = 14         !< number of non-conservative constiruents
+     integer, parameter :: n_coef = 7         !< basic number of rate coefficients
+     integer :: n_rate_var = 7                !< number of rate coefficients
+     integer :: n_floating = 7                !< number of floating space for rate coefficients other than the six specified
+     real(gtm_real), allocatable :: group_var(:,:,:)
+     real(gtm_real), allocatable :: group_var_chan(:,:,:)
+     real(gtm_real), allocatable :: group_var_resv(:,:,:)
+     real(gtm_real), allocatable :: group_var_cell(:,:,:)
+     
+     !> Group
+     integer :: n_group = 0
+     type group_t
+         integer :: id = 0
+         character*32 :: name = ' '
+         integer :: n_memberpatterns = 0
+         integer :: n_members = 0
+         integer, allocatable :: member_int_id(:)         
+         character*16, allocatable :: member_name(:)            
+         integer, allocatable :: member_pattern_code(:) 
+     end type
+     type(group_t), allocatable :: group(:)
+     
+     !> Group Member
+     integer :: n_group_member = 0
+     type group_member_t
+         character*32 :: groupname = ' '
+         integer :: membertype = 0
+         character*256 :: pattern = ' '     
+     end type
+     type(group_member_t), allocatable :: group_member(:)
     
      contains
 
@@ -541,8 +616,22 @@ module common_variables
          hydro_qext_flow = LARGEREAL
          hydro_tran_flow = LARGEREAL
          return
+     end subroutine
+     
+     !> Allocate group
+     subroutine allocate_group
+         implicit none
+         allocate(group(n_group))
+         allocate(group_var(n_ncc, n_coef+n_floating, n_group)) !14:n_ncc, 14:rate_variables(7 basic and 7 floating)
+         coeff_type(1) = "input"
+         coeff_type(2) = "decay"
+         coeff_type(3) = "settle"
+         coeff_type(4) = "benthic"
+         coeff_type(5) = "alg_grow"
+         coeff_type(6) = "alg_resp"
+         coeff_type(7) = "alg_die"
+         return
      end subroutine    
- 
 
      !> Deallocate channel property
      subroutine deallocate_channel_property()
@@ -667,7 +756,18 @@ module common_variables
          return
      end subroutine
 
-
+     !> Deallocate group
+     subroutine deallocate_group()
+         implicit none
+         deallocate(group)
+         deallocate(group_member)
+         deallocate(group_var) 
+         deallocate(group_var_chan)
+         deallocate(group_var_resv)
+         deallocate(group_var_cell)
+         return
+     end subroutine    
+     
      !> Assign numbers to segment array and connected cell array
      !> This updates common variables: n_segm, n_conn, segm, and conn.
      subroutine assign_segment()         
@@ -852,8 +952,8 @@ module common_variables
      subroutine get_dsm2_network_info()
          implicit none
          integer :: sorted_conns(n_conn)
-         integer, dimension(:), allocatable :: unique_num
-         integer, dimension(:), allocatable :: occurrence
+         integer, allocatable :: unique_num(:)
+         integer, allocatable :: occurrence(:)
          integer :: num_nodes
          integer :: i, j, k, m
          integer :: nj, tmp
@@ -1085,8 +1185,149 @@ module common_variables
              end do
          end do
          return
+     end subroutine
+             
+             
+     !> Assign group variables
+     subroutine assign_group_variables
+         implicit none
+         integer :: temp, io
+         integer :: i, j, k, m
+         
+         allocate(group_var_chan(n_ncc,n_coef+n_floating,n_chan))
+         allocate(group_var_resv(n_ncc,n_coef+n_floating,n_resv))
+         allocate(group_var_cell(n_ncc,n_coef+n_floating,n_cell))
+         group_var_chan = LARGEREAL
+         group_var_resv = LARGEREAL
+         group_var_cell = LARGEREAL
+                  
+         do i = 1, n_group
+             do j = 1, group(i)%n_members
+                 if (group(i)%member_pattern_code(j) .eq. obj_channel) then
+                     do k = 1, n_chan
+                         read(group(i)%member_name(j),'(i)',iostat=io) temp
+                         if (temp.eq. chan_geom(k)%channel_num) then
+                             group(i)%member_int_id(j) = chan_geom(k)%chan_no   
+                             group_var_chan(:,:,chan_geom(k)%chan_no) = group_var(:,:,group(i)%id)
+                             do m = chan_geom(k)%start_cell, chan_geom(k)%end_cell
+                                 group_var_cell(:,:,m) = group_var(:,:,group(i)%id)
+                             end do    
+                         end if
+                     end do
+                 elseif (group(i)%member_pattern_code(j) .eq. obj_reservoir) then
+                     do k = 1, n_resv
+                         if (trim(group(i)%member_name(j)) .eq. trim(resv_geom(k)%name)) then
+                             group(i)%member_int_id(j) = resv_geom(k)%resv_no
+                             group_var_resv(:,:,resv_geom(k)%resv_no) = group_var(:,:,group(i)%id)
+                         end if
+                     end do                     
+                 else
+                     write(*,*) "this is neither channel nor reservoir"
+                 end if
+             end do
+         end do
+         return
+     end subroutine
+     
+     !> Routine to make sure all channels are assigned from grouping
+     subroutine check_group_channel(ncc_code,      &
+                                    group_var_code)
+         implicit none
+         integer, intent(in) :: ncc_code
+         integer, intent(in) :: group_var_code
+         character*32 :: ncc_name
+         character*32 :: rate_name
+         integer :: i
+         do i = 1, n_chan
+             if (group_var_chan(ncc_code,group_var_code,i).eq.LARGEREAL) then
+                 call ncc_code_to_string(ncc_name, ncc_code)
+                 write(unit_error,'(a31,2a32,a16,i10)') "You forgot to assign values for ",ncc_name,coeff_type(group_var_code)," for Channel No.",chan_geom(i)%channel_num
+             end if
+         end do
+         return
      end subroutine    
 
+     !> Routine to get the constituent string by ncc_code
+     subroutine ncc_code_to_string(ncc_name,   &
+                                   ncc_code)
+         implicit none
+         character*32, intent(out) :: ncc_name
+         integer, intent(in) :: ncc_code
+         if (ncc_code == ncc_do) then
+             ncc_name = "DO"
+         else if (ncc_code==ncc_organic_n) then
+             ncc_name = "Organic_N"
+         else if (ncc_code==ncc_nh3) then
+             ncc_name = "NH3"
+         else if (ncc_code==ncc_no2) then
+             ncc_name = "NO2"
+         else if (ncc_code==ncc_no3) then
+             ncc_name = "NO3"
+         else if (ncc_code==ncc_organic_p) then
+             ncc_name = "Organic_P"
+         else if (ncc_code==ncc_po4) then
+             ncc_name = "PO4"
+         else if (ncc_code==ncc_algae) then
+             ncc_name = "Algae"
+         else if (ncc_code==ncc_bod) then
+             ncc_name = "BOD"
+         else if (ncc_code==ncc_temp) then
+             ncc_name = "Temperature"
+         else if (ncc_code==ncc_ssc) then
+             ncc_name = "SSC"
+         else if (ncc_code==ncc_ph) then
+             ncc_name = "PH"
+         else if (ncc_code==ncc_dots) then
+             ncc_name = "DO_TS"
+         else if (ncc_code==ncc_so4) then
+             ncc_name = "SO4"  
+         else
+             ncc_name = miss_val_c
+         end if
+         return
+     end subroutine
+
+
+     !> Routine to get the constituent string by ncc_code
+     subroutine ncc_string_to_code(ncc_code,   &
+                                   ncc_name)
+         implicit none
+         character*32, intent(in) :: ncc_name
+         integer, intent(out) :: ncc_code
+         if (ncc_name == "DO") then
+             ncc_code = ncc_do
+         else if (ncc_name == "Organic_N") then
+             ncc_code = ncc_organic_n
+         else if (ncc_name == "NH3") then
+             ncc_code = ncc_nh3
+         else if (ncc_name == "NO2") then
+             ncc_code = ncc_no2
+         else if (ncc_name == "NO3") then
+             ncc_code = ncc_no3
+         else if (ncc_name == "Organic_P") then
+             ncc_code = ncc_organic_p
+         else if (ncc_name == "PO4") then
+             ncc_code = ncc_po4
+         else if (ncc_name == "Algae") then
+             ncc_code = ncc_algae
+         else if (ncc_name == "BOD") then
+             ncc_code = ncc_bod
+         else if (ncc_name == "Temperature") then
+             ncc_code = ncc_temp
+         else if (ncc_name == "SSC") then
+             ncc_code = ncc_ssc
+         else if (ncc_name == "PH") then
+             ncc_code = ncc_ph
+         else if (ncc_name == "DO_TS") then
+             ncc_code = ncc_dots
+         else if (ncc_name == "SO4" ) then
+             ncc_code = ncc_so4 
+         else
+             ncc_code = miss_val_i
+         end if
+         return
+     end subroutine
+     
 
      !> Routine to obtain unique number of an array
      subroutine unique_num_count(unique_num, occurrence, num_nodes, in_arr, n)

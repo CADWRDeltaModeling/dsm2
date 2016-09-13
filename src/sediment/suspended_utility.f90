@@ -191,7 +191,6 @@ module suspended_utility
 
     !> Calculates critical shields parameter based on Yalin (1972) formula
     !> See van Rijn book equation (4.1.11)
-    ! todo: add Parker formula here
     pure subroutine critical_shields_parameter(cr_shields_prmtr,   &
                                                d_star,             &
                                                ncell)                                           

@@ -30,7 +30,6 @@ module gtm_rate_coeff_assignment
     !> output the rate coefficents values to a file ,if there are missing values
     !> at certain location, error message will be print out also
     subroutine output_rate_to_file(funit)
-        use common_dsm2_groups, only: groupContains
         integer,intent(in)::funit
         !     local variables
         integer:: i

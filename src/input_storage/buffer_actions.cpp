@@ -38,6 +38,7 @@ HDFTableManager<operating_rule>::instance().buffer().clear();
 HDFTableManager<oprule_expression>::instance().buffer().clear();
 HDFTableManager<oprule_time_series>::instance().buffer().clear();
 HDFTableManager<rate_coefficient>::instance().buffer().clear();
+HDFTableManager<group_variable>::instance().buffer().clear();
 HDFTableManager<particle_insertion>::instance().buffer().clear();
 HDFTableManager<particle_filter>::instance().buffer().clear();
 HDFTableManager<particle_res_filter>::instance().buffer().clear();
@@ -52,13 +53,14 @@ HDFTableManager<source_flow>::instance().buffer().clear();
 HDFTableManager<source_flow_reservoir>::instance().buffer().clear();
 HDFTableManager<node_concentration>::instance().buffer().clear();
 HDFTableManager<reservoir_concentration>::instance().buffer().clear();
+HDFTableManager<input_time_series>::instance().buffer().clear();
 HDFTableManager<output_channel>::instance().buffer().clear();
 HDFTableManager<output_reservoir>::instance().buffer().clear();
 HDFTableManager<output_channel_source_track>::instance().buffer().clear();
 HDFTableManager<output_reservoir_source_track>::instance().buffer().clear();
 HDFTableManager<output_gate>::instance().buffer().clear();
 HDFTableManager<suspended_sediment_type>::instance().buffer().clear();
-HDFTableManager<suspended_sediment>::instance().buffer().clear();
+HDFTableManager<suspended_sediment_boundary>::instance().buffer().clear();
 LayerManager::instance().clearAllLayer(); //todo: make this separate?
 ) // end exception trap    
 }    
@@ -111,6 +113,8 @@ HDFTableManager<oprule_time_series>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<rate_coefficient>::instance().prioritize_buffer();
      if(*ierror != 0) return;
+HDFTableManager<group_variable>::instance().prioritize_buffer();
+     if(*ierror != 0) return;
 HDFTableManager<particle_insertion>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<particle_filter>::instance().prioritize_buffer();
@@ -139,6 +143,8 @@ HDFTableManager<node_concentration>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<reservoir_concentration>::instance().prioritize_buffer();
      if(*ierror != 0) return;
+HDFTableManager<input_time_series>::instance().prioritize_buffer();
+     if(*ierror != 0) return;
 HDFTableManager<output_channel>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<output_reservoir>::instance().prioritize_buffer();
@@ -151,7 +157,7 @@ HDFTableManager<output_gate>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<suspended_sediment_type>::instance().prioritize_buffer();
      if(*ierror != 0) return;
-HDFTableManager<suspended_sediment>::instance().prioritize_buffer();
+HDFTableManager<suspended_sediment_boundary>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 ) // end exception trap    
 }    
@@ -213,6 +219,8 @@ oprule_time_series_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 rate_coefficient_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
+group_variable_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;
 particle_insertion_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 particle_filter_write_buffer_to_text_f(file,append,ierror,filelen);
@@ -241,6 +249,8 @@ node_concentration_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 reservoir_concentration_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
+input_time_series_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;
 output_channel_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 output_reservoir_write_buffer_to_text_f(file,append,ierror,filelen);
@@ -253,7 +263,7 @@ output_gate_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 suspended_sediment_type_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
-suspended_sediment_write_buffer_to_text_f(file,append,ierror,filelen);
+suspended_sediment_boundary_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 ) // end exception trap    
 }    
@@ -308,6 +318,8 @@ if(buffer_name == "oprule_time_series"){oprule_time_series_write_buffer_to_text_
      if(*ierror != 0) return;}
 if(buffer_name == "rate_coefficient"){rate_coefficient_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
+if(buffer_name == "group_variable"){group_variable_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;}
 if(buffer_name == "particle_insertion"){particle_insertion_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
 if(buffer_name == "particle_filter"){particle_filter_write_buffer_to_text_f(file,append,ierror,filelen);
@@ -336,6 +348,8 @@ if(buffer_name == "node_concentration"){node_concentration_write_buffer_to_text_
      if(*ierror != 0) return;}
 if(buffer_name == "reservoir_concentration"){reservoir_concentration_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
+if(buffer_name == "input_time_series"){input_time_series_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;}
 if(buffer_name == "output_channel"){output_channel_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
 if(buffer_name == "output_reservoir"){output_reservoir_write_buffer_to_text_f(file,append,ierror,filelen);
@@ -348,7 +362,7 @@ if(buffer_name == "output_gate"){output_gate_write_buffer_to_text_f(file,append,
      if(*ierror != 0) return;}
 if(buffer_name == "suspended_sediment_type"){suspended_sediment_type_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
-if(buffer_name == "suspended_sediment"){suspended_sediment_write_buffer_to_text_f(file,append,ierror,filelen);
+if(buffer_name == "suspended_sediment_boundary"){suspended_sediment_boundary_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
 }
 
@@ -450,6 +464,8 @@ if(buffer_name == "oprule_time_series"){oprule_time_series_write_buffer_to_hdf5_
      if(*ierror != 0) return;}
 if(buffer_name == "rate_coefficient"){rate_coefficient_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
+if(buffer_name == "group_variable"){group_variable_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
 if(buffer_name == "particle_insertion"){particle_insertion_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "particle_filter"){particle_filter_write_buffer_to_hdf5_f(file_id,ierror);
@@ -478,6 +494,8 @@ if(buffer_name == "node_concentration"){node_concentration_write_buffer_to_hdf5_
      if(*ierror != 0) return;}
 if(buffer_name == "reservoir_concentration"){reservoir_concentration_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
+if(buffer_name == "input_time_series"){input_time_series_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
 if(buffer_name == "output_channel"){output_channel_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "output_reservoir"){output_reservoir_write_buffer_to_hdf5_f(file_id,ierror);
@@ -490,7 +508,7 @@ if(buffer_name == "output_gate"){output_gate_write_buffer_to_hdf5_f(file_id,ierr
      if(*ierror != 0) return;}
 if(buffer_name == "suspended_sediment_type"){suspended_sediment_type_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
-if(buffer_name == "suspended_sediment"){suspended_sediment_write_buffer_to_hdf5_f(file_id,ierror);
+if(buffer_name == "suspended_sediment_boundary"){suspended_sediment_boundary_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 }
 
@@ -542,6 +560,8 @@ if(buffer_name == "oprule_time_series"){oprule_time_series_read_buffer_from_hdf5
      if(*ierror != 0) return;}
 if(buffer_name == "rate_coefficient"){rate_coefficient_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
+if(buffer_name == "group_variable"){group_variable_read_buffer_from_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
 if(buffer_name == "particle_insertion"){particle_insertion_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "particle_filter"){particle_filter_read_buffer_from_hdf5_f(file_id,ierror);
@@ -570,6 +590,8 @@ if(buffer_name == "node_concentration"){node_concentration_read_buffer_from_hdf5
      if(*ierror != 0) return;}
 if(buffer_name == "reservoir_concentration"){reservoir_concentration_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
+if(buffer_name == "input_time_series"){input_time_series_read_buffer_from_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
 if(buffer_name == "output_channel"){output_channel_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "output_reservoir"){output_reservoir_read_buffer_from_hdf5_f(file_id,ierror);
@@ -582,7 +604,7 @@ if(buffer_name == "output_gate"){output_gate_read_buffer_from_hdf5_f(file_id,ier
      if(*ierror != 0) return;}
 if(buffer_name == "suspended_sediment_type"){suspended_sediment_type_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
-if(buffer_name == "suspended_sediment"){suspended_sediment_read_buffer_from_hdf5_f(file_id,ierror);
+if(buffer_name == "suspended_sediment_boundary"){suspended_sediment_boundary_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 }
 
@@ -636,6 +658,8 @@ oprule_time_series_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 rate_coefficient_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
+group_variable_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;
 particle_insertion_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 particle_filter_write_buffer_to_hdf5_f(file_id,ierror);
@@ -664,6 +688,8 @@ node_concentration_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 reservoir_concentration_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
+input_time_series_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;
 output_channel_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 output_reservoir_write_buffer_to_hdf5_f(file_id,ierror);
@@ -676,7 +702,7 @@ output_gate_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 suspended_sediment_type_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
-suspended_sediment_write_buffer_to_hdf5_f(file_id,ierror);
+suspended_sediment_boundary_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 ) // end exception trap    
 }    

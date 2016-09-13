@@ -35,8 +35,10 @@
 		<File RelativePath="..\..\src\input_storage\gate_weir_device_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\group_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\group_member_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\group_variable_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_climate_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_gate_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\input_time_series_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_transfer_flow_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\io_file_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\node_concentration_input_storage.fi"/>
@@ -61,7 +63,7 @@
 		<File RelativePath="..\..\src\input_storage\scalar_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\source_flow_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\source_flow_reservoir_input_storage.fi"/>
-		<File RelativePath="..\..\src\input_storage\suspended_sediment_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\suspended_sediment_boundary_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\suspended_sediment_type_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\tidefile_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\transfer_input_storage.fi"/>

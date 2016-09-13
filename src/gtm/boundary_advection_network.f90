@@ -384,7 +384,7 @@ module boundary_advection_network
         use gtm_precision
         use error_handling
         use common_variables, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
-                                    n_sediment, n_sediment_bc, sediment, sediment_bc
+                                    n_sediment, n_sediment_bc, sediment, sediment_bc, n_node_ts
         use common_dsm2_vars, only: n_inputpaths, pathinput
         use state_variables_network, only : node_conc, conc_stip
         implicit none
@@ -396,7 +396,7 @@ module boundary_advection_network
 
         do i = 1, n_bfbs
             inode = bfbs(i)%i_node
-            do j = 1, n_inputpaths
+            do j = 1, n_node_ts
                 if (pathinput(j)%i_no .eq. inode .and. dsm2_network(inode)%boundary_no.ne.0) then
                     if (trim(pathinput(j)%variable) .eq. 'ssc') then
                         node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value 

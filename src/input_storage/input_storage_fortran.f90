@@ -27,6 +27,7 @@ module input_storage_fortran
        include "oprule_expression_input_storage.fi"
        include "oprule_time_series_input_storage.fi"
        include "rate_coefficient_input_storage.fi"
+       include "group_variable_input_storage.fi"
        include "particle_insertion_input_storage.fi"
        include "particle_filter_input_storage.fi"
        include "particle_res_filter_input_storage.fi"
@@ -41,13 +42,14 @@ module input_storage_fortran
        include "source_flow_reservoir_input_storage.fi"
        include "node_concentration_input_storage.fi"
        include "reservoir_concentration_input_storage.fi"
+       include "input_time_series_input_storage.fi"
        include "output_channel_input_storage.fi"
        include "output_reservoir_input_storage.fi"
        include "output_channel_source_track_input_storage.fi"
        include "output_reservoir_source_track_input_storage.fi"
        include "output_gate_input_storage.fi"
        include "suspended_sediment_type_input_storage.fi"
-       include "suspended_sediment_input_storage.fi"
+       include "suspended_sediment_boundary_input_storage.fi"
 
        subroutine clear_all_buffers(ierror)
           !DEC$ ATTRIBUTES ALIAS:'_clear_all_buffers_f' :: clear_all_buffers_f

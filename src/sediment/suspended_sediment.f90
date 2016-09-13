@@ -27,81 +27,106 @@ module suspended_sediment
  
     contains
     
-    subroutine sediment_flux(source,      & !< sediment source/sink
-                             conc,        & !< concentration
-                             flow,        & !< flow
-                             area,        & !< cross-section area
-                             width,       & !< channel width
-                             hyd_radius,  & !< hydraulic radius
-                             manning_n,   & !< Manning's n
-                             diameter,    & !< sediment diameter
-                             method,      & !< sediment equation
-                             dx,          & !< spatial steps
-                             dt,          & !< time step
-                             ncell)         !< number of cells
-        use non_cohesive_source
+    subroutine sediment_flux(source,          & 
+                             erosion_flux,    &
+                             deposition_flux, &
+                             conc,            & 
+                             flow,            & 
+                             area,            & 
+                             width,           & 
+                             hydro_radius,    & 
+                             manning_n,       & 
+                             diameter,        & 
+                             dx,              & 
+                             dt,              & 
+                             ncell,           & 
+                             available_bed)
         use cohesive_source
+        use non_cohesive_source
         implicit none
         !--- args
-        integer, intent(in) :: ncell                      !< number of cells      
-        real(gtm_real), intent(out) :: source(ncell)      !< source
-        real(gtm_real), intent(in) :: conc(ncell)         !< concentration
-        real(gtm_real), intent(in) :: flow(ncell)         !< flow
-        real(gtm_real), intent(in) :: area(ncell)         !< area
-        real(gtm_real), intent(in) :: width(ncell)        !< channel width
-        real(gtm_real), intent(in) :: hyd_radius(ncell)   !< hydraulic radius
-        real(gtm_real), intent(in) :: manning_n(ncell)    !< Manning's n
-        real(gtm_real), intent(in) :: diameter(ncell)     !< diameter
-        real(gtm_real), intent(in) :: dx(ncell)           !< dx
-        real(gtm_real), intent(in) :: dt                  !< dt
-        integer, intent(in) :: method                     !< method  1: non-cohesive, 2: cohesive, 3: organic matters
+        integer, intent(in) :: ncell                              !< number of cells      
+        real(gtm_real), intent(out) :: source(ncell)              !< sediment source/sink
+        real(gtm_real), intent(out) :: erosion_flux(ncell)        !< sediment erosion flux
+        real(gtm_real), intent(out) :: deposition_flux(ncell)     !< sediment deposition flux
+        real(gtm_real), intent(in) :: conc(ncell)                 !< concentration
+        real(gtm_real), intent(in) :: flow(ncell)                 !< flow
+        real(gtm_real), intent(in) :: area(ncell)                 !< area
+        real(gtm_real), intent(in) :: width(ncell)                !< channel width
+        real(gtm_real), intent(in) :: hydro_radius(ncell)         !< hydraulic radius
+        real(gtm_real), intent(in) :: manning_n(ncell)            !< Manning's n
+        real(gtm_real), intent(in) :: diameter(ncell)             !< diameter
+        real(gtm_real), intent(in) :: dx(ncell)                   !< dx
+        real(gtm_real), intent(in) :: dt                          !< dt
+        real(gtm_real), intent(in) :: available_bed(ncell)        !< available bed sediment flux
         !--- local
+        real(gtm_real), parameter :: default_fines_size = 0.00002d0
+        real(gtm_real), parameter :: default_sand_size =  0.00005d0
+        real(gtm_real), parameter :: velocity_for_erosion = 1.0d0
         real(gtm_real) :: vertical_flux(ncell)
-        real(gtm_real) :: erosion_flux(ncell)
-        real(gtm_real) :: deposition_flux(ncell)
+        real(gtm_real) :: vertical_flux_nc(ncell)
+        real(gtm_real) :: erosion_flux_nc(ncell), deposition_flux_nc(ncell)
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
-        real(gtm_real) :: width_si(ncell), hyd_radius_si(ncell), diameter_si(ncell)
-        integer :: i
-     
-        call si_unit(conc_si, flow_si, area_si, width_si, hyd_radius_si, dx_si, diameter_si, &
-                     conc, flow, area, width, hyd_radius, dx, diameter, ncell)
-     
-        if (method.eq.1) then     ! non-cohesive sediment
-            call source_non_cohesive(vertical_flux,    &
-                                     erosion_flux,     &
-                                     deposition_flux,  &
-                                     conc_si,          &
-                                     flow_si,          &
-                                     area_si,          &
-                                     width_si,         &
-                                     hyd_radius_si,    &
-                                     manning_n,        &
-                                     diameter_si,      &
-                                     ncell)
-        elseif (method.eq.2) then ! cohesive sediment
-            call source_cohesive(vertical_flux,       &
-                                 erosion_flux,        &
-                                 deposition_flux,     &
+        real(gtm_real) :: width_si(ncell), hydro_radius_si(ncell), diameter_si(ncell)
+        real(gtm_real) :: diameter_tmp(ncell)
+        real(gtm_real) :: velocity(ncell)
+        integer :: icell
+        
+        call si_unit(conc_si, flow_si, area_si, width_si, hydro_radius_si, dx_si, diameter_si, &
+                     conc, flow, area, width, hydro_radius, dx, diameter, ncell)
+  
+        velocity = abs(flow_si/area_si)     
+        
+        diameter_tmp = diameter_si
+        where (diameter_si.ge.0.00100d0) diameter_tmp = default_fines_size           
+        call source_cohesive(vertical_flux,      & 
+                             erosion_flux,       & 
+                             deposition_flux,    & 
+                             conc_si,            &
+                             flow_si,            & 
+                             area_si,            & 
+                             width_si,           & 
+                             hydro_radius_si,    & 
+                             manning_n,          & 
+                             diameter_tmp,       & 
+                             ncell,              &         
+                             available_bed)     
+             
+        diameter_tmp = default_sand_size
+        call source_non_cohesive(vertical_flux_nc,    &
+                                 erosion_flux_nc,     &
+                                 deposition_flux_nc,  &
                                  conc_si,             &
-                                 flow_si,             &
-                                 area_si,             &
-                                 width_si,            &
-                                 hyd_radius_si,       &
-                                 manning_n,           &
-                                 diameter_si,         &
-                                 ncell)
-        elseif (method.eq.3) then ! organic matters
-            vertical_flux = zero
-        else
-            write(*,*) "Invalid method for sediment calculation!!! Only accept NC, C and O"
-        end if
-       
+                                 flow_si,             & 
+                                 area_si,             & 
+                                 width_si,            & 
+                                 hydro_radius_si,     & 
+                                 manning_n,           & 
+                                 diameter_tmp,        &
+                                 ncell,               &
+                                 available_bed)
+
+        do icell = 1, ncell
+            if ((diameter_si(icell).ge.0.00100d0 .and. erosion_flux(icell).ne.zero) &
+                .or.(diameter_si(icell).ge.0.00300d0)) then
+                vertical_flux(icell) = zero
+                erosion_flux(icell) = deposition_flux(icell)
+            end if    
+            if ((diameter_si(icell).ge.0.00200d0 .and. diameter_si(icell).lt.0.00250d0) &
+                .and.(velocity(icell).gt.velocity_for_erosion)) then
+                vertical_flux(icell) = vertical_flux_nc(icell)
+                erosion_flux(icell) = erosion_flux_nc(icell)
+                deposition_flux(icell) = deposition_flux_nc(icell)
+            end if 
+        end do
+         
         source = vertical_flux*dx_si*width_si/area_si
         where (area_si .eq. zero) source = zero               
        
         return 
     end subroutine
     
+    !> Convert all variables from English unit to SI unit
     subroutine si_unit(conc_si,        &
                        flow_si,        &
                        area_si,        &

@@ -23,6 +23,7 @@ def component_order():
       "oprule_expression",\
       "oprule_time_series",\
       "rate_coefficient",\
+      "group_variable",\
       "particle_insertion",\
       "particle_filter",\
       "particle_res_filter",\
@@ -37,13 +38,14 @@ def component_order():
       "source_flow_reservoir",\
       "node_concentration",\
       "reservoir_concentration",\
+      "input_time_series",\
       "output_channel",\
       "output_reservoir",\
       "output_channel_source_track",\
       "output_reservoir_source_track",\
       "output_gate",\
       "suspended_sediment_type",\
-      "suspended_sediment"]
+      "suspended_sediment_boundary"]
 
 
 def component_members():
@@ -68,6 +70,7 @@ def component_members():
       "oprule_expression":["name","definition"],\
       "oprule_time_series":["name","fillin","file","path"],\
       "rate_coefficient":["group_name","constituent","variable","value"],\
+      "group_variable":["group_name","constituent","variable","value"],\
       "particle_insertion":["node","nparts","delay","duration"],\
       "particle_filter":["name","node","at_wb","fillin","file","path"],\
       "particle_res_filter":["name","res_name","at_wb","fillin","file","path"],\
@@ -82,20 +85,20 @@ def component_members():
       "source_flow_reservoir":["name","res_name","sign","fillin","file","path"],\
       "node_concentration":["name","node_no","variable","fillin","file","path"],\
       "reservoir_concentration":["name","res_name","variable","fillin","file","path"],\
+      "input_time_series":["group_name","constituent","fillin","file","path"],\
       "output_channel":["name","chan_no","distance","variable","interval","period_op","file"],\
       "output_reservoir":["name","res_name","node","variable","interval","period_op","file"],\
       "output_channel_source_track":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\
       "output_reservoir_source_track":["name","res_name","variable","source_group","interval","period_op","file"],\
       "output_gate":["name","gate_name","device","variable","interval","period_op","file"],\
-      "suspended_sediment_type":["composition","size","method"],\
-      "suspended_sediment":["name","composition","percent"]}
+      "suspended_sediment_type":["composition"],\
+      "suspended_sediment_boundary":["name","composition","percent"]}
 
 
 def include_block():
     return {\
     "reservoir":"hydro_time_series",
     "particle_flux_output":"particle",
-    "particle_res_filter":"particle",
     "xsect":"grid",
     "output_gate":"output_time_series",
     "scalar":"parameter",
@@ -103,15 +106,14 @@ def include_block():
     "node_concentration":"gtm_time_series",
     "gate_pipe_device":"hydro_time_series",
     "xsect_layer":"grid",
-    "output_channel_source_track":"output_time_series",
+    "group_variable":"gtm_spatial",
     "group_member":"groups",
     "oprule_expression":"operation",
     "input_transfer_flow":"hydro_time_series",
     "group":"groups",
-    "suspended_sediment_type":"gtm_spatial",
+    "output_channel":"output_time_series",
     "particle_group_output":"particle",
     "transfer":"hydro_time_series",
-    "suspended_sediment":"gtm_spatial",
     "input_climate":"gtm_time_series",
     "oprule_time_series":"operation",
     "particle_insertion":"particle",
@@ -121,10 +123,12 @@ def include_block():
     "operating_rule":"operation",
     "reservoir_concentration":"gtm_time_series",
     "reservoir_ic":"initial_condition",
+    "output_channel_source_track":"output_time_series",
     "gate":"hydro_time_series",
     "output_reservoir_source_track":"output_time_series",
-    "output_channel":"output_time_series",
-    "rate_coefficient":"gtm_spatial",
+    "particle_res_filter":"particle",
+    "rate_coefficient":"qual_spatial",
+    "input_time_series":"gtm_time_series",
     "reservoir_connection":"hydro_time_series",
     "source_flow":"hydro_time_series",
     "gate_weir_device":"hydro_time_series",

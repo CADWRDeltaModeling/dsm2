@@ -68,7 +68,7 @@ module buffer_gtm_input_common
 
       character(len=32) :: groupname, sourcegroup
       character(len=16) :: member_type
-      character(len=32) :: pattern
+      character(len=256) :: pattern
       integer*4 obj_type
       integer*4, external :: obj_type_code
 
@@ -111,17 +111,17 @@ module buffer_gtm_input_common
       nitem = suspended_sediment_type_buffer_size()
       allocate(sediment(nitem))
       do icount = 1, nitem  
-          call suspended_sediment_type_query_from_buffer(icount, composition, grain_size, method, ierror)
-          call process_suspended_sediment_type(composition, grain_size, method)
+          call suspended_sediment_type_query_from_buffer(icount, composition, ierror)
+          call process_suspended_sediment_type(composition)
       enddo
-            
-      nitem = suspended_sediment_buffer_size()
+      print *,"Number of sediments: ", nitem         
+      
+      nitem = suspended_sediment_boundary_buffer_size()
       allocate(sediment_bc(nitem))
       do icount = 1, nitem  
-          call suspended_sediment_query_from_buffer(icount, name, composition, percent, ierror)
-          call process_suspended_sediment(name, composition, percent)
+          call suspended_sediment_boundary_query_from_buffer(icount, name, composition, percent, ierror)
+          call process_suspended_sediment_boundary(name, composition, percent)
       enddo
-      print *,"Number of sediments: ", nitem   
       
       ! process output channel block
       nitem_chan = output_channel_buffer_size()
@@ -161,27 +161,35 @@ module buffer_gtm_input_common
       print *,"Number of reservoir output requests: ", nitem    
 
       ! process group block
-      !nitem = group_buffer_size()
-      !do icount = 1,nitem
-      !   call group_query_from_buffer(icount, name, ierror)
-      !   call  process_group(name, icount)
-      !end do
-      !print *,"Number of groups processed: ", nitem
+      nitem = group_buffer_size()
+      n_group = nitem
+      
+      call allocate_group
+      
+      do icount = 1,nitem
+         call group_query_from_buffer(icount, name, ierror)
+         call process_gtm_group(name, icount)
+      end do
+      print *,"Number of groups processed: ", nitem
 
       ! process group_member block
-      !nitem = group_member_buffer_size()
-      !do icount = 1,nitem
-      !   call group_member_query_from_buffer(icount,         &
-      !                                       groupname,      &
-      !                                       member_type,    &
-      !                                       pattern,        &
-      !                                       ierror)
-      !   obj_type = obj_type_code(member_type)
-      !   call  process_group_member(groupname,               &
-      !                              obj_type,                &
-      !                              pattern)
-      !end do
-      !print *,"Number of group members processed: ", nitem
+      nitem = group_member_buffer_size()
+      n_group_member = nitem
+      allocate(group_member(n_group_member))
+      do icount = 1,nitem
+         call group_member_query_from_buffer(icount,         &
+                                             groupname,      &
+                                             member_type,    &
+                                             pattern,        &
+                                             ierror)
+         call obj_type_to_code(obj_type, member_type)
+         call  process_gtm_group_member(groupname,           &
+                                        obj_type,            &
+                                        pattern,             &
+                                        icount)
+      end do
+      print *,"Number of group members processed: ", nitem
+      call process_members_detail
       !! convert group members from patterns to actual objects&indexes
       !! This must come after tidefile is loaded
       !call ConvertGroupPatternsToMembers
@@ -193,6 +201,47 @@ module buffer_gtm_input_common
       allocate(ifltab_out(600, n_outdssfiles))
 
       return
+    end subroutine
+    
+    !> Convert member pattern name to obj code
+    subroutine obj_type_to_code(obj_type,     &
+                                member_type)
+        use common_variables
+        implicit none
+        integer, intent(out) :: obj_type
+        character*16, intent(in) :: member_type
+        if (trim(member_type).eq."channel") then
+            obj_type = 1
+        elseif(trim(member_type).eq."node") then
+            obj_type = 2
+        elseif(trim(member_type).eq."reservoir") then
+            obj_type = 3
+        elseif(trim(member_type).eq."gate") then
+            obj_type = 4
+        elseif(trim(member_type).eq."qext") then
+            obj_type = 5
+        elseif(trim(member_type).eq."transfer") then
+            obj_type = 6
+        elseif(trim(member_type).eq."stage") then
+            obj_type = 7
+        elseif(trim(member_type).eq."flow_boundary") then
+            obj_type = 8
+        elseif(trim(member_type).eq."source_sink") then
+            obj_type = 9
+        elseif(trim(member_type).eq."flux") then
+            obj_type = 10
+        elseif(trim(member_type).eq."group") then
+            obj_type = 11                                                               
+        elseif(trim(member_type).eq."climate") then
+            obj_type = 12   
+        elseif(trim(member_type).eq."oprule") then
+            obj_type = 13   
+        elseif(trim(member_type).eq."filter") then
+            obj_type = 14   
+        else
+            obj_type = 99  
+        end if
+        return
     end subroutine
     
     !> Routine to fill in gtm_io(:,:)

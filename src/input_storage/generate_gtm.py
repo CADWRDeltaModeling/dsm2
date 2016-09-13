@@ -173,7 +173,7 @@ def generate_dsm2():
     component = TableComponent("group_member",
                               [CharField("group_name",DSM2_NAME_LEN,16),
                                CharField("member_type",DSM2_OBJECT_TYPE_LEN,16),
-                               CharField("pattern",32,LAST_FIELD)],                              
+                               CharField("pattern",256,LAST_FIELD)],                              
                               ["group_name","pattern"],\
                               parent="group",\
                               parent_id=["group_name"])
@@ -231,7 +231,15 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)
 
-   
+    component = TableComponent("group_variable",
+                              [CharField("group_name",DSM2_NAME_LEN,16),
+                              CharField("constituent",16,16),
+                              CharField("variable",16,16),
+                              DoubleField("value",16,4)],          
+                              ["group_name","constituent","variable"])
+    component.layered=True
+    prep_component(component,outdir)
+
     component = TableComponent("particle_insertion",
                              [IntField("node"),\
                               IntField("nparts"),\
@@ -401,6 +409,17 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)        
     
+
+    component = TableComponent("input_time_series",
+                             [CharField("group_name",DSM2_NAME_LEN,16),\
+                              CharField("constituent",16,12),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
+                             ],
+                             ["group_name","constituent"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)  
     
     
     component = TableComponent("output_channel",
@@ -474,16 +493,14 @@ def generate_dsm2():
 
 
     component = TableComponent("suspended_sediment_type",
-                             [CharField("composition",16,16),\
-                              DoubleField("size",16,12),\
-                              CharField("method",16,16)             
+                             [CharField("composition",16,16)            
                              ],
                              ["composition"])   # identifier
     component.layered=True
     prep_component(component,outdir)	
 	
 	
-    component = TableComponent("suspended_sediment",
+    component = TableComponent("suspended_sediment_boundary",
                              [CharField("name",DSM2_NAME_LEN,16),\
                               CharField("composition",16,16),\
                               DoubleField("percent",16,6)           
@@ -510,14 +527,15 @@ def generate_dsm2():
     
     qual_time_series_keywords = ["node_concentration",\
                          "reservoir_concentration",\
+                         "input_time_series",\
                          "input_climate"]
     qual_spatial_keywords = ["rate_coefficient"]
     gtm_time_series_keywords = ["node_concentration",\
                          "reservoir_concentration",\
+                         "input_time_series",\
                          "input_climate"]
-    gtm_spatial_keywords = ["rate_coefficient",\
-                            "suspended_sediment_type",\
-                            "suspended_sediment"]	
+    gtm_spatial_keywords = ["group_variable"]
+    sediment_keywords = ["suspended_sediment_type","suspended_sediment_boundary"]
     water_body_output_keywords   =   ["output_channel","output_reservoir"]
     source_group_output_keywords = ["output_channel_source_track","output_reservoir_source_track"]
     gate_output_keywords         = ["output_gate"]
@@ -573,7 +591,7 @@ def generate_dsm2():
                          +groups_keywords+particle_keywords+ptm_includes)
     define_profile("GTM",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+gtm_time_series_keywords\
                          +groups_keywords+gtm_spatial_keywords+water_body_output_keywords\
-                         +source_group_output_keywords+gtm_includes)
+                         +source_group_output_keywords+sediment_keywords+gtm_includes)
     finalize(outdir)
 
 

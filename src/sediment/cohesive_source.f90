@@ -34,55 +34,56 @@ module cohesive_source
                                hydro_radius,     & !< hydraulic radius
                                manning,          & !< Manning's n
                                diameter,         & !< sediment particle diameter
-                               ncell)              !< number of model cells
-        use sediment_variables, only : kinematic_viscosity, specific_gravity, gravity
+                               ncell,            & !< number of model cells
+                               available_bed)      !< available bed sediment flux
+        use sediment_variables
         use suspended_utility
-  use non_cohesive_source
 
         implicit none
-        real(gtm_real), intent(out):: vertical_flux(ncell)  !< vertical sediment net flux into the water column
-        real(gtm_real), intent(out):: erosion_flux(ncell)   !< entrainment for resuspension
-        real(gtm_real), intent(out):: deposition_flux(ncell)!< deposition
-        real(gtm_real), intent(in) :: conc(ncell)           !< concentration at new time
-        real(gtm_real), intent(in) :: flow(ncell)           !< flow
-        real(gtm_real), intent(in) :: area(ncell)           !< area
-        real(gtm_real), intent(in) :: width(ncell)          !< channel width
-        real(gtm_real), intent(in) :: hydro_radius(ncell)   !< hydraulic radius
-        real(gtm_real), intent(in) :: manning(ncell)        !< Manning's n
-        real(gtm_real), intent(in) :: diameter(ncell)       !< diameter in meter
-        integer, intent(in) :: ncell                        !< number of cells 
+        real(gtm_real), intent(out):: vertical_flux(ncell)     !< vertical sediment net flux into the water column
+        real(gtm_real), intent(out):: erosion_flux(ncell)      !< entrainment for resuspension
+        real(gtm_real), intent(out):: deposition_flux(ncell)   !< deposition
+        real(gtm_real), intent(in) :: conc(ncell)              !< concentration at new time
+        real(gtm_real), intent(in) :: flow(ncell)              !< flow
+        real(gtm_real), intent(in) :: area(ncell)              !< area
+        real(gtm_real), intent(in) :: width(ncell)             !< channel width
+        real(gtm_real), intent(in) :: hydro_radius(ncell)      !< hydraulic radius
+        real(gtm_real), intent(in) :: manning(ncell)           !< Manning's n
+        real(gtm_real), intent(in) :: diameter(ncell)          !< diameter in meter
+        integer, intent(in) :: ncell                           !< number of cells
+        real(gtm_real), intent(in) :: available_bed(ncell)     !< available bed sediment flux
         
         !--local variables
-        real(gtm_real), parameter :: param_M = 1.325d-6 !1.325d-5             ! kg/(m^2s)
+        real(gtm_real), parameter :: param_M = 1.325d-6        ! kg/(m^2s)
         real(gtm_real) :: critical_shear(ncell)
         real(gtm_real) :: fall_vel(ncell) 
-        real(gtm_real) :: velocity(ncell)                           ! flow velocity   
+        real(gtm_real) :: velocity(ncell)                      ! flow velocity   
         real(gtm_real) :: bottom_shear_stress(ncell)
-        real(gtm_real) :: diameter_tmp(ncell)
         logical   :: function_van_rijn      
-        integer :: icell 
-real(gtm_real) :: vertical_flux_nc(ncell), Es(ncell), c_b(ncell)
-
-        
-        diameter_tmp = diameter
-        where (diameter.ge.0.00040d0) diameter_tmp = 0.00002d0
         
         function_van_rijn = .false. !use Dietrich formula                
         velocity = abs(flow/area)
-        critical_shear = 0.179813408d0 !0.25d0 ! Pa
         
-        call settling_velocity(fall_vel,            &
-                               kinematic_viscosity, &
-                               specific_gravity,    &
-                               diameter_tmp,            &
-                               gravity,             &
-                               ncell,               &
+        call settling_velocity(fall_vel,               &
+                               kinematic_viscosity,    &
+                               specific_gravity,       &
+                               diameter,           &
+                               gravity,                &
+                               ncell,                  &
                                function_van_rijn)   
 
-        call bed_shear_stress(bottom_shear_stress,  &
-                              velocity,             &
-                              manning,              &
-                              hydro_radius,         &
+        call critical_shear_stress(critical_shear,      &
+                                   water_density,       &
+                                   sediment_density,    &
+                                   gravity,             &
+                                   kinematic_viscosity, &
+                                   diameter,            &
+                                   ncell)
+                                     
+        call bed_shear_stress(bottom_shear_stress,      &
+                              velocity,                 &
+                              manning,                  &
+                              hydro_radius,             &
                               ncell)
                                 
         call erosion(erosion_flux,           &
@@ -90,47 +91,16 @@ real(gtm_real) :: vertical_flux_nc(ncell), Es(ncell), c_b(ncell)
                      bottom_shear_stress,    &
                      param_M,                &
                      ncell)                               
-
-        call deposition0(deposition_flux,       &
-                         critical_shear,        &
-                         bottom_shear_stress,   &    
-                         fall_vel,              &
-                         conc,                  &
-                         ncell)
-                         
-
-        diameter_tmp = 0.00005d0
-        call source_non_cohesive(vertical_flux_nc,    &
-                                 Es,               &
-                                 c_b,              &
-                                 conc,             &
-                                 flow,             &
-                                 area,             &
-                                 width,            &
-                                 hydro_radius,     &
-                                 manning,          &
-                                 diameter_tmp,         &
-                                 ncell)
-
-
-                         
-        !call deposition(deposition_flux,   &
-        !                fall_vel, &
-        !                conc,              &
-        !                ncell)       
-                           
+                                   
+        call deposition(deposition_flux,   &
+                        fall_vel,          &
+                        conc,              &
+                        ncell)       
+        
+        where (erosion_flux .gt. available_bed+deposition_flux) erosion_flux = available_bed + deposition_flux
+             
         vertical_flux = erosion_flux - deposition_flux
-        do icell = 1, ncell
-            if ((diameter(icell).ge.0.00040d0 .and. velocity(icell).gt.0.1d0).or.(diameter(icell).ge.0.00050d0)) then
-                vertical_flux(icell) = zero
-            end if    
-            if ((diameter(icell).ge.0.00045d0 .and. diameter(icell).lt.0.00046d0).and.(velocity(icell).gt.1.0d0)) then
-                vertical_flux(icell) = vertical_flux_nc(icell)
-            end if 
-        end do
-        !where (diameter.ge.0.00020d0) vertical_flux = zero
-        !write(107,'(5f15.10)') fall_vel(743), bottom_shear_stress(743), conc(743), erosion_flux(743),deposition_flux(743)
-         
+
         return
     end subroutine 
     
@@ -151,27 +121,6 @@ real(gtm_real) :: vertical_flux_nc(ncell), Es(ncell), c_b(ncell)
     end subroutine
 
 
-    !> Deposition flux calculated by Krone(1962)
-    subroutine deposition0(deposition_flux,       &
-                           critical_shear_stress, &
-                           bottom_shear_stress,   &    
-                           settling_velocity,     &
-                           conc,                  &
-                           ncell)
-        implicit none
-        integer, intent(in) :: ncell
-        real(gtm_real), intent(in) :: bottom_shear_stress(ncell)
-        real(gtm_real), intent(in) :: critical_shear_stress(ncell)        
-        real(gtm_real), intent(in) :: conc(ncell)
-        real(gtm_real), intent(in) :: settling_velocity(ncell)
-        real(gtm_real), intent(out) :: deposition_flux(ncell)
-        
-        deposition_flux = settling_velocity * conc
-        where (bottom_shear_stress < critical_shear_stress) &
-             deposition_flux = settling_velocity * conc * (one - bottom_shear_stress/critical_shear_stress)
-        return
-    end subroutine
-
     !> Erosion flux calculated by Krone(1962)
     subroutine erosion(erosion_rate,           &
                        critical_shear_stress,  &
@@ -186,10 +135,10 @@ real(gtm_real) :: vertical_flux_nc(ncell), Es(ncell), c_b(ncell)
         real(gtm_real), intent(out) :: erosion_rate(ncell)
                 
         erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one)      
-        where (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero
-        
+        where (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero        
         return
     end subroutine
+
 
     !> Bed shear stress
     subroutine bed_shear_stress(bed_shear,     &
@@ -205,7 +154,7 @@ real(gtm_real) :: vertical_flux_nc(ncell), Es(ncell), c_b(ncell)
         real(gtm_real), intent(in) :: hydro_radius(ncell)
         real(gtm_real), intent(out) :: bed_shear(ncell)
         
-        bed_shear = water_density*velocity**two*(manning**two)*gravity/(hydro_radius**(one/three))
+        bed_shear = water_density*velocity**two*(manning**two)*gravity/(hydro_radius**(one/three))        
         
         return
     end subroutine    

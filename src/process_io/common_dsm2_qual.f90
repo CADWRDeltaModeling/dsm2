@@ -24,18 +24,6 @@ module common_dsm2_qual
     use common_variables
     use common_dsm2_vars
 
-    !-----magic numbers for non-conservative constituents
-    integer, parameter :: ncc_do = 1
-    integer, parameter :: ncc_organic_n = 2
-    integer, parameter :: ncc_nh3 = 3
-    integer, parameter :: ncc_no2 = 4
-    integer, parameter :: ncc_no3 = 5
-    integer, parameter :: ncc_organic_p = 6
-    integer, parameter :: ncc_po4 = 7
-    integer, parameter :: ncc_algae = 8
-    integer, parameter :: ncc_bod = 9
-    integer, parameter :: ncc_temp = 10
-      
     !-----magic numbers for temperature coefficients
     !     total number of these should be equal to temp_coeff_type,
     !     so temp_coeff_type must be increased if you add more of these
@@ -56,14 +44,6 @@ module common_dsm2_qual
     integer, parameter :: temp_alg_resp = 14
     integer, parameter :: temp_alg_set = 15
     integer, parameter :: temp_alg_die = 16
-
-    !-----coefficient type codes
-    integer, parameter :: decay = 1
-    integer, parameter :: settle = 2
-    integer, parameter :: benthic = 3
-    integer, parameter :: alg_grow = 4
-    integer, parameter :: alg_resp = 5
-    integer, parameter :: alg_die = 6
 
     !-----Qual Parameters
 

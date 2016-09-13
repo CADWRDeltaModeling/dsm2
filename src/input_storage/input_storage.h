@@ -40,6 +40,8 @@
 
 #include "input_storage_rate_coefficient.h"
 
+#include "input_storage_group_variable.h"
+
 #include "input_storage_particle_insertion.h"
 
 #include "input_storage_particle_filter.h"
@@ -68,6 +70,8 @@
 
 #include "input_storage_reservoir_concentration.h"
 
+#include "input_storage_input_time_series.h"
+
 #include "input_storage_output_channel.h"
 
 #include "input_storage_output_reservoir.h"
@@ -80,4 +84,4 @@
 
 #include "input_storage_suspended_sediment_type.h"
 
-#include "input_storage_suspended_sediment.h"
+#include "input_storage_suspended_sediment_boundary.h"

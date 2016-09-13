@@ -108,23 +108,6 @@ module common_dsm2_vars
        integer, parameter :: fill_bydata = 4              ! integer for initializing variables
        integer, parameter :: init_small_i = 0             ! integer for initializing variables
        integer, parameter :: init_big_i = 9998888         ! integer for initializing variables
-
-       !-----object type codes
-       integer, parameter :: obj_channel = 1
-       integer, parameter :: obj_node = 2
-       integer, parameter :: obj_reservoir = 3
-       integer, parameter :: obj_gate = 4
-       integer, parameter :: obj_qext = 5
-       integer, parameter :: obj_obj2obj = 6
-       integer, parameter :: obj_flux = 7
-       integer, parameter :: obj_stage = 8
-       integer, parameter :: obj_null = 9
-       integer, parameter :: obj_group = 22
-       integer, parameter :: obj_oprule = 111
-       integer, parameter :: obj_boundary_flow = 15
-       integer, parameter :: obj_source_sink = 16
-       integer, parameter :: obj_climate = 30
-       integer, parameter :: obj_filter = 120
        
        !-----misc magic characters and numbers
        logical, parameter :: EXACT_MATCH = .true.
@@ -175,6 +158,8 @@ module common_dsm2_vars
            integer data_type                       ! data type: flow, stage, gate position..
            integer :: i_var                        ! constituent no                   (to be filled later when GTM 
            integer :: i_no                         ! GTM internal node no or resv no   decides index for var and node)
+           character*32 :: group_name
+           integer :: group_id           
            !--------'type' section
            integer group_ndx      ! group index
            integer gate_param     ! time-varying gate parameter

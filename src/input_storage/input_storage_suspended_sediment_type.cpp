@@ -47,17 +47,6 @@ ostream& operator<<(ostream & stream, const suspended_sediment_type & obj)
             << setfill(' ')
             << left
             << quote_spaces(obj.composition, 16)  
-        <<
-            setw(16)
-            << setfill(' ')
-            << setprecision(12)
-            << left
-            << obj.size  
-        << 
-            setw(max(4+16,(int)(4+strlen(obj.method))))
-            << setfill(' ')
-            << left
-            << quote_spaces(obj.method, 16)  
         ;
 }
 
@@ -93,28 +82,6 @@ istream& operator>> (istream& stream, suspended_sediment_type & obj)
       cout << "fatal error" <<endl;
          throw logic_error("String too long (max width 16):" + (*beg));
    }
-   
-
-        if (beg == end)
-        {
-            throw runtime_error("Fewer input fields received than expected");
-        }        
-        obj.size = strtod((beg++)->c_str(),NULL);
-         
-
-   if (beg == end)
-   {
-     throw runtime_error("Fewer input fields received than expected");
-   }        
-   if(beg->size()<= 16)
-   {
-        strcpy(obj.method, (beg++)->c_str());
-   }
-   else
-   {
-      cout << "fatal error" <<endl;
-         throw logic_error("String too long (max width 16):" + (*beg));
-   }
    ;
   return stream;
 }
@@ -122,7 +89,7 @@ istream& operator>> (istream& stream, suspended_sediment_type & obj)
 template<>
 HDFTableManager<suspended_sediment_type>::HDFTableManager() :
     description(suspended_sediment_type_table_description()),  
-    m_default_fill(suspended_sediment_type("",-901.0,"")){}
+    m_default_fill(suspended_sediment_type("")){}
 
 template<>
 void HDFTableManager<suspended_sediment_type>::prioritize_buffer()
@@ -151,23 +118,19 @@ void HDFTableManager<suspended_sediment_type>::prioritize_buffer()
 TableDescription suspended_sediment_type_table_description(){
   const char* title = "suspended_sediment_type";
   const size_t size = sizeof(suspended_sediment_type);
-  const size_t nfields = 3;
-  suspended_sediment_type default_struct = suspended_sediment_type("",-901.0,"");
-  const char* fnames[] =  {"composition","size","method"};
+  const size_t nfields = 1;
+  suspended_sediment_type default_struct = suspended_sediment_type("");
+  const char* fnames[] =  {"composition"};
   const hid_t ftypes[] =  {
-            string_type(16),H5T_NATIVE_DOUBLE,string_type(16)
+            string_type(16)
                };
 
   const size_t foffsets[] ={
-             ((char*)&default_struct.composition - (char*)&default_struct),
-             ((char*)&default_struct.size - (char*)&default_struct),
-             ((char*)&default_struct.method - (char*)&default_struct)
+             ((char*)&default_struct.composition - (char*)&default_struct)
                            };
 
   const size_t fsizes[] = {
-         sizeof( default_struct.composition ),
-         sizeof( default_struct.size ),
-         sizeof( default_struct.method )
+         sizeof( default_struct.composition )
                           };
   const hsize_t chunk_size = 10;
   TableDescription descr(title,size,nfields,fnames,ftypes,foffsets,fsizes,chunk_size);
@@ -185,13 +148,13 @@ void suspended_sediment_type_clear_buffer_f(){
 }
 
 /** append to buffer, compatible with fortran, returns new size*/
-void suspended_sediment_type_append_to_buffer_f(const  char a_composition[16],const double * a_size,const  char a_method[16], int * ierror, 
-              const int composition_len,const int method_len)
+void suspended_sediment_type_append_to_buffer_f(const  char a_composition[16], int * ierror, 
+              const int composition_len)
 {
  _TRAP_EXCEPT(*ierror,
    suspended_sediment_type_table::instance().buffer().push_back(
                                       suspended_sediment_type(
-                                      a_composition,*a_size,a_method
+                                      a_composition
                                       ));
  ) // end of exception trap
 }
@@ -259,8 +222,8 @@ void suspended_sediment_type_number_rows_hdf5_f(const hid_t *file_id, hsize_t* n
     
 /** get one row worth of information from the buffer */
 void suspended_sediment_type_query_from_buffer_f(size_t* row, 
-                         char a_composition[16],double * a_size, char a_method[16], int * ierror, 
-              int composition_len,int method_len
+                         char a_composition[16], int * ierror, 
+              int composition_len
                         )
 {
  _TRAP_EXCEPT(*ierror,
@@ -268,12 +231,8 @@ void suspended_sediment_type_query_from_buffer_f(size_t* row,
     size_t ndx = *row - 1;
     suspended_sediment_type obj =suspended_sediment_type_table::instance().buffer()[ndx];
     memcpy(a_composition,obj.composition,16);
-    *a_size=obj.size;
-    memcpy(a_method,obj.method,16);
     if (strlen(a_composition) < 16)fill(a_composition+strlen(a_composition),a_composition+16,' ');
-    if (strlen(a_method) < 16)fill(a_method+strlen(a_method),a_method+16,' ');
     composition_len=(int)strlen(a_composition);
-        method_len=(int)strlen(a_method);
  ) // end of exception trap
 }
 

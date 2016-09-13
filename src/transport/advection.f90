@@ -413,11 +413,6 @@ module advection
         integer :: ivar
         !--------------------
         dtbydx = dt/dx
-
-       !todo: kaveh, this is major. Up to now flow has been just an uninitialized, essentially random number
-       !      I did this to make it safer. However, I doubt that we will be able to use flow in a source term
-       !      at multiple time steps
-       !todo: Eli, what do you mean by 'we will be able to use flow in a source term...'?
        flow = LARGEREAL
 
        ! obtain a guess at the new state (predictor part of Huen) using the flux divergence and source evaluated at the
@@ -436,7 +431,7 @@ module advection
        call compute_source(source, & 
                            conc,   &
                            area,   &
-                           flow,   &    ! todo: this is not really available yet
+                           flow,   & 
                            ncell,  &
                            nvar,   &
                            time) 

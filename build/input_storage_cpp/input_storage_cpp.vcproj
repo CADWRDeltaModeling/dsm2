@@ -199,11 +199,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_group_variable.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_climate.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_gate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_time_series.cpp"
 				>
 			</File>
 			<File
@@ -303,7 +311,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment.cpp"
+				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment_boundary.cpp"
 				>
 			</File>
 			<File
@@ -381,11 +389,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_group_variable.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_climate.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_gate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_input_time_series.h"
 				>
 			</File>
 			<File
@@ -485,7 +501,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment.h"
+				RelativePath="..\..\src\input_storage\input_storage_suspended_sediment_boundary.h"
 				>
 			</File>
 			<File

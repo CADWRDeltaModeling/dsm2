@@ -53,6 +53,7 @@ module test_non_cohesive
         real(gtm_real) :: resuspension(ncell)
         real(gtm_real) :: deposition(ncell)        
         real(gtm_real) :: vertical_flux(ncell)
+        real(gtm_real) :: available_bed(ncell)
         integer :: i
         
         flow = 1500.d0 *0.0283168
@@ -64,6 +65,7 @@ module test_non_cohesive
         diameter(1) = 200.0d-6  ! fine sand 125-250 mu-m
         diameter(2) = 20.0d-6   ! silt 3.9-62.5 mu-m
         diameter(3) = 2.0d-6    ! clay 0.98-3.9 mu-m
+        available_bed = 9999.d0
         
         do i = 1, 3       
         call source_non_cohesive(vertical_flux,    &
@@ -76,7 +78,8 @@ module test_non_cohesive
                                  hydro_radius,     &
                                  manning,          &
                                  diameter(i),      &
-                                 ncell)
+                                 ncell,            &
+                                 available_bed)
         end do        
         return
     end subroutine    

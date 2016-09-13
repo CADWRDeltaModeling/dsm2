@@ -29,20 +29,22 @@ module buffer_gtm_input_qual
         use process_gtm_input_climate 
         use process_gtm_node_conc
         use process_gtm_reservoir_conc
-        !use process_gtm_rate_coef
+        use process_gtm_group_variable
+        use process_gtm_input_time_series
         use common_dsm2_vars, only: pathinput, n_inputpaths,infilenames,     &
                                     n_dssfiles, indssfiles, ifltab_in,       &
                                     n_outdssfiles, outdssfiles, ifltab_out,  &
                                     outfilenames
         use gtm_dss, only: get_dss_each_npath
-        use common_variables, only: n_var, constituents, n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index
+        use common_variables, only: n_var, constituents, n_input_ts, n_node_ts,                 &
+                                    n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index
       
         implicit none
-        integer :: nitem_climate, nitem_node_conc, nitem_resv_conc
-        integer :: nitem_rate_coeff
-        character*(128) :: filename
+        integer :: nitem_climate, nitem_node_conc, nitem_resv_conc, nitem_input_time_series
+        integer :: nitem_group_variable
+        character*128 :: filename
         integer :: icount
-        character*(32) :: name
+        character*32 :: name
         character*8 :: model,filetype,io
         character*16 :: interval
         character*128 :: iofile
@@ -82,51 +84,38 @@ module buffer_gtm_input_qual
         type const_t
             integer :: conc_no                        !< constituent id
             character*32 :: name = ''                 !< constituent name
+            character*32 :: use_module = ' '          !< use module
+            logical :: conservative = .true.          !< conservative
         end type     
         type(const_t) :: const(20)
         character*32 :: tmp_const
 
-        nitem_rate_coeff = rate_coefficient_buffer_size()
-        do icount = 1,nitem_rate_coeff
-           call rate_coefficient_query_from_buffer(icount,      &
-                                                  group_name,   &
-                                                  constituent,  &
-                                                  variable,     &
-                                                  value,        &
-                                                  ierror) 
+        nitem_group_variable = group_variable_buffer_size()
+        do icount = 1,nitem_group_variable
+           call group_variable_query_from_buffer(icount,      &
+                                                 group_name,   &
+                                                 constituent,  &
+                                                 variable,     &
+                                                 value,        &
+                                                 ierror) 
            sign = 1
-        !   call process_rate_coef(group_name,     &
-        !                          constituent,    &
-        !                          variable,       &
-        !                          value) 
+           call process_group_variable(group_name,     &
+                                       constituent,    &
+                                       variable,       &
+                                       value) 
         end do
-        print *,"Number of rate coefficients processed: ", nitem_rate_coeff
-
+        print *,"Number of group variables processed: ", nitem_group_variable
 
         nitem_climate = input_climate_buffer_size()
         nitem_node_conc = node_concentration_buffer_size()
         nitem_resv_conc = reservoir_concentration_buffer_size()      
-        n_inputpaths = nitem_climate + nitem_node_conc + nitem_resv_conc
-        allocate(pathinput(n_inputpaths))
-      
-        do icount = 1,nitem_climate
-           call input_climate_query_from_buffer(icount,     &
-                                                name,       &
-                                                variable,   &
-                                                fillin,     &
-                                                filename,   &
-                                                inpath,     &
-                                                ierror)
-           sign = 1
-           call process_input_climate(name,        &
-                                      variable,    &
-                                      fillin,      &
-                                      filename,    &
-                                      inpath)
- 
-        end do
-        print *,"Number of climate inputs processed: ", nitem_climate
-
+        nitem_input_time_series = input_time_series_buffer_size()        
+        n_inputpaths = nitem_climate + nitem_node_conc + nitem_resv_conc + nitem_input_time_series
+        n_input_ts = nitem_input_time_series
+        n_node_ts = n_inputpaths - n_input_ts
+        allocate(pathinput(n_inputpaths))     
+        
+        nvar = 0 
         do icount = 1,nitem_node_conc
            call node_concentration_query_from_buffer(icount,    &
                                                      name,      &
@@ -142,7 +131,7 @@ module buffer_gtm_input_qual
                                   fillin,     &
                                   filename,   &
                                   inpath)
-           if (icount.eq.1)then
+           if (icount.eq.1 .and. nvar.eq.0)then
                nvar = 1
                const(nvar)%conc_no = 1
                const(nvar)%name = variable
@@ -162,36 +151,6 @@ module buffer_gtm_input_qual
            end if
         end do
 
-        n_var = nvar + n_sediment
-        allocate(constituents(n_var))
-        do i = 1, nvar      
-            constituents(i)%conc_no = i
-            constituents(i)%name = const(i)%name
-            if (trim(constituents(i)%name).eq.'ssc') then
-                ssc_index = i
-                constituents(i)%use_module = ''
-                constituents(i)%conservative = .false.  
-                constituents(i)%method = 0 
-            end if
-        end do
-        do i = 1, n_sediment
-            constituents(nvar+i)%conc_no = nvar + i
-            constituents(nvar+i)%name = trim(sediment(i)%composition)
-            if (trim(sediment(i)%method).eq.'nc') then
-                constituents(nvar+i)%method = 1
-            elseif (trim(sediment(i)%method).eq.'c') then
-                constituents(nvar+i)%method = 2
-            elseif (trim(sediment(i)%method).eq.'o') then 
-                constituents(nvar+i)%method = 3
-            end if
-            constituents(nvar+i)%use_module = 'sediment'
-            constituents(nvar+i)%grain_size = sediment(i)%grain_size
-            constituents(nvar+i)%conservative = .false.
-        end do
-                
-        print *,"Number of constituents processed: ", n_var
-
-
         do icount = 1,nitem_resv_conc
             call reservoir_concentration_query_from_buffer(icount,    &
                                                            name,      &
@@ -202,16 +161,95 @@ module buffer_gtm_input_qual
                                                            inpath,    &
                                                            ierror)
             sign=0
-           call process_input_reservoir(name,       &
-                                        resname,    &
-                                        variable,   & 
-                                        sign,       &
-                                        fillin,     &
-                                        filename,   &
-                                        inpath)
+            call process_input_reservoir(name,       &
+                                         resname,    &
+                                         variable,   & 
+                                         sign,       &
+                                         fillin,     &
+                                         filename,   &
+                                         inpath)
          end do
          print *,"Number of reservoir concentration inputs processed: ", nitem_resv_conc
 
+
+        do icount = 1,nitem_climate
+           call input_climate_query_from_buffer(icount,     &
+                                                name,       &
+                                                variable,   &
+                                                fillin,     &
+                                                filename,   &
+                                                inpath,     &
+                                                ierror)
+           sign = 1
+           call process_input_climate(name,        &
+                                      variable,    &
+                                      fillin,      &
+                                      filename,    &
+                                      inpath)
+ 
+        end do
+        print *,"Number of climate inputs processed: ", nitem_climate
+
+        do icount = 1,nitem_input_time_series
+             call input_time_series_query_from_buffer(icount,     &
+                                                      name,       &
+                                                      variable,   &
+                                                      fillin,     &
+                                                      filename,   &
+                                                      inpath,     &
+                                                      ierror)
+             sign = 1
+             call process_input_time_series(name,        &
+                                            variable,    &
+                                            fillin,      &
+                                            filename,    &
+                                            inpath)
+             if (icount.eq.1 .and. nvar.eq.0)then
+                 nvar = 1
+                 const(nvar)%conc_no = 1
+                 const(nvar)%name = variable
+                 const(nvar)%use_module = 'time_series'
+                 const(nvar)%conservative = .false.  
+             else
+                 do i = 1, nvar
+                     if (trim(variable).eq.trim(const(i)%name)) then
+                         exit
+                     else
+                         tmp_const = variable
+                         if (i.eq.nvar) then
+                             nvar = nvar + 1
+                             const(nvar)%conc_no = nvar
+                             const(nvar)%name = tmp_const
+                             const(nvar)%use_module = 'time_series'
+                             const(nvar)%conservative = .false.
+                         end if
+                     end if
+                 end do           
+             end if
+        end do
+        print *,"Number of input time series processed: ", nitem_input_time_series
+
+        n_var = nvar + n_sediment
+        allocate(constituents(n_var))
+        do i = 1, nvar      
+            constituents(i)%conc_no = i
+            constituents(i)%name = const(i)%name
+            constituents(i)%use_module = const(i)%use_module
+            constituents(i)%conservative = const(i)%conservative
+            if (trim(constituents(i)%name).eq.'ssc') then
+                ssc_index = i
+                constituents(i)%use_module = ''
+                constituents(i)%conservative = .false.  
+            end if
+        end do
+        do i = 1, n_sediment
+            constituents(nvar+i)%conc_no = nvar + i
+            constituents(nvar+i)%name = trim(sediment(i)%composition)
+            constituents(nvar+i)%use_module = 'sediment'
+            constituents(nvar+i)%conservative = .false.
+        end do
+        print *,"Number of constituents processed: ", n_var
+     
          allocate(indssfiles(n_dssfiles))
          indssfiles = infilenames
          allocate(ifltab_in(600, n_dssfiles))

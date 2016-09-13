@@ -44,18 +44,18 @@ public:
   {
     fill_n(group_name,32,'\0');
     fill_n(member_type,16,'\0');
-    fill_n(pattern,32,'\0');
+    fill_n(pattern,256,'\0');
   };
 
   /** Construct a group_member with actual data values */
-  group_member(const  char a_group_name[32],const  char a_member_type[16],const  char a_pattern[32], bool a_used=true, int a_layer = 0) :
+  group_member(const  char a_group_name[32],const  char a_member_type[16],const  char a_pattern[256], bool a_used=true, int a_layer = 0) :
     
     used(a_used),
     layer(a_layer)
   {
     memcpy(group_name,a_group_name,32);
     memcpy(member_type,a_member_type,16);
-    memcpy(pattern,a_pattern,32);  
+    memcpy(pattern,a_pattern,256);  
   }
   
   /**Copy constructor) 
@@ -67,7 +67,7 @@ public:
   {
     memcpy(group_name,other.group_name,32);
     memcpy(member_type,other.member_type,16);
-    memcpy(pattern,other.pattern,32);  
+    memcpy(pattern,other.pattern,256);  
   }
   
   /** Identifier that distinguishes whether two entries are distinct */
@@ -79,7 +79,7 @@ public:
   void set_identifier(identifier_type identifier)
   {
      memcpy(group_name,identifier.get<0>().c_str(),32);
-      memcpy(pattern,identifier.get<1>().c_str(),32);
+      memcpy(pattern,identifier.get<1>().c_str(),256);
   }
   
   /** Parent object class name.
@@ -145,7 +145,7 @@ public:
   
   char group_name[32];
   char member_type[16];
-  char pattern[32];
+  char pattern[256];
   /** indicator that the entry is used (true if not marked deleted by user)*/
   bool used;  
   /** layer (version number) of this entry */
@@ -177,7 +177,7 @@ FCALL int group_member_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void group_member_append_to_buffer_f(const  char a_group_name[32],const  char a_member_type[16],const  char a_pattern[32], int * ierror, 
+FCALL void group_member_append_to_buffer_f(const  char a_group_name[32],const  char a_member_type[16],const  char a_pattern[256], int * ierror, 
               const int group_name_len,const int member_type_len,const int pattern_len);
   
 /** both makes the table and writes the contents of the buffer to it */
@@ -193,7 +193,7 @@ FCALL void group_member_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nrecor
 
 /** get one row worth of information from the buffer */
 FCALL void group_member_query_from_buffer_f(size_t* row, 
-                         char a_group_name[32], char a_member_type[16], char a_pattern[32], int * ierror, 
+                         char a_group_name[32], char a_member_type[16], char a_pattern[256], int * ierror, 
               int group_name_len,int member_type_len,int pattern_len);
 /**
   prioritize buffer by layers, delete unused items and sort

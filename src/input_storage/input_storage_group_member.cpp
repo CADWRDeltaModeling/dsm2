@@ -56,7 +56,7 @@ ostream& operator<<(ostream & stream, const group_member & obj)
             setw(max(4+1,(int)(4+strlen(obj.pattern))))
             << setfill(' ')
             << left
-            << quote_spaces(obj.pattern, 32)  
+            << quote_spaces(obj.pattern, 256)  
         ;
 }
 
@@ -113,14 +113,14 @@ istream& operator>> (istream& stream, group_member & obj)
    {
      throw runtime_error("Fewer input fields received than expected");
    }        
-   if(beg->size()<= 32)
+   if(beg->size()<= 256)
    {
         strcpy(obj.pattern, (beg++)->c_str());
    }
    else
    {
       cout << "fatal error" <<endl;
-         throw logic_error("String too long (max width 32):" + (*beg));
+         throw logic_error("String too long (max width 256):" + (*beg));
    }
    ;
   return stream;
@@ -152,7 +152,7 @@ TableDescription group_member_table_description(){
   group_member default_struct = group_member("","","");
   const char* fnames[] =  {"group_name","member_type","pattern"};
   const hid_t ftypes[] =  {
-            string_type(32),string_type(16),string_type(32)
+            string_type(32),string_type(16),string_type(256)
                };
 
   const size_t foffsets[] ={
@@ -182,7 +182,7 @@ void group_member_clear_buffer_f(){
 }
 
 /** append to buffer, compatible with fortran, returns new size*/
-void group_member_append_to_buffer_f(const  char a_group_name[32],const  char a_member_type[16],const  char a_pattern[32], int * ierror, 
+void group_member_append_to_buffer_f(const  char a_group_name[32],const  char a_member_type[16],const  char a_pattern[256], int * ierror, 
               const int group_name_len,const int member_type_len,const int pattern_len)
 {
  _TRAP_EXCEPT(*ierror,
@@ -256,7 +256,7 @@ void group_member_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecords, in
     
 /** get one row worth of information from the buffer */
 void group_member_query_from_buffer_f(size_t* row, 
-                         char a_group_name[32], char a_member_type[16], char a_pattern[32], int * ierror, 
+                         char a_group_name[32], char a_member_type[16], char a_pattern[256], int * ierror, 
               int group_name_len,int member_type_len,int pattern_len
                         )
 {
@@ -266,10 +266,10 @@ void group_member_query_from_buffer_f(size_t* row,
     group_member obj =group_member_table::instance().buffer()[ndx];
     memcpy(a_group_name,obj.group_name,32);
     memcpy(a_member_type,obj.member_type,16);
-    memcpy(a_pattern,obj.pattern,32);
+    memcpy(a_pattern,obj.pattern,256);
     if (strlen(a_group_name) < 32)fill(a_group_name+strlen(a_group_name),a_group_name+32,' ');
     if (strlen(a_member_type) < 16)fill(a_member_type+strlen(a_member_type),a_member_type+16,' ');
-    if (strlen(a_pattern) < 32)fill(a_pattern+strlen(a_pattern),a_pattern+32,' ');
+    if (strlen(a_pattern) < 256)fill(a_pattern+strlen(a_pattern),a_pattern+256,' ');
     group_name_len=(int)strlen(a_group_name);
         member_type_len=(int)strlen(a_member_type);
         pattern_len=(int)strlen(a_pattern);

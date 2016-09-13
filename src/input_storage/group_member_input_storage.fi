@@ -26,7 +26,7 @@
          integer, intent(out) :: ierror         
                character(len=32), intent(in) :: group_name
        character(len=16), intent(in) :: member_type
-       character(len=32), intent(in) :: pattern
+       character(len=256), intent(in) :: pattern
          call group_member_append_to_buffer_f(group_name,member_type,pattern,ierror)
          return
        end subroutine
@@ -53,7 +53,7 @@
           implicit none
                 character(len=32), intent(out) :: group_name
        character(len=16), intent(out) :: member_type
-       character(len=32), intent(out) :: pattern
+       character(len=256), intent(out) :: pattern
           integer row
           integer, intent(out) :: ierror
           call group_member_query_from_buffer_f(row, &
