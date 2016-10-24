@@ -28,86 +28,6 @@ module suspended_utility
 
     contains
 
-    !> Calculates particle's settling velocity. NOTE: the subroutine works with SI units.
-    !> Settling velocity formula based on Leo van Rijn (1984b).
-    !> The subroutine does not consider particles smaller than 10 microns (fine clay).
-    !> The smaller particles are assumed to be either part of wash load or pertain to cohesive sediment. 
-    !> The subroutine is for non-cohesive particles.
-    subroutine settling_velocity(settling_v,         &
-                                 kinematic_viscosity,&
-                                 specific_gravity,   &
-                                 diameter,           &
-                                 g_acceleration,     &
-                                 ncell,              &
-                                 function_van_rijn)   
-        implicit none
-        !--- arg
-        integer, intent(in) :: ncell                      !< number of cells 
-        real(gtm_real),intent(out) :: settling_v(ncell)   !< Settling velocity (m/s)
-        real(gtm_real),intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)
-        real(gtm_real),intent(in)  :: specific_gravity    !< Specific gravity of particle (~2.65)
-        real(gtm_real),intent(in)  :: diameter(ncell)     !< Particle diameter in meter
-        real(gtm_real),intent(in)  :: g_acceleration      !< Gravitational acceleration (m/sec2)
-        logical, optional          :: function_van_rijn   !< Flag for using van Rijn (1984) formula o/ Dietrich (1982). the default is van Rijn
-        !--local
-        logical :: van_rijn_flag
-        integer :: iclass
-        ! I checked the following values with the ebook on the website of Parker (UIUC)
-        real(gtm_real) :: b_1 = 2.891394d0
-        real(gtm_real) :: b_2 = 0.95296d0
-        real(gtm_real) :: b_3 = 0.056835d0
-        real(gtm_real) :: b_4 = 0.002892d0
-        real(gtm_real) :: b_5 = 0.000245d0
-        real(gtm_real) :: dimless_fall_velocity(ncell)       
-        real(gtm_real) :: exp_re_p(ncell)        !< Explicit Reynols particle number 
-        real(gtm_real) :: capital_r              !< Submerged specific gravity of sediment particles 
-        integer :: i
-        
-        if (present(function_van_rijn)) then
-            van_rijn_flag = function_van_rijn
-        end if
- 
-        select case (van_rijn_flag)
- 
-            case (.true.)
-            ! van Rijn formula
-                do i = 1, ncell
-                    if (diameter(i).ge.1.0d-3) then
-                        settling_v(i) = 1.1d0*dsqrt((specific_gravity - one)*g_acceleration*diameter(i))
-                    elseif (diameter(i).ge.1.0d-4 .and. diameter(i).lt.1.0d-3) then
-                        settling_v(i) = (ten*kinematic_viscosity/diameter(i))*(dsqrt(one + (0.01d0*(specific_gravity - one) &
-                                        *g_acceleration*diameter(i)**three)/kinematic_viscosity**two)- one)
-                    elseif (diameter(i).ge.0.9d-7 .and. diameter(i).lt.1.0d-4) then
-                        ! Stokes law here
-                        settling_v(i) = ((specific_gravity - one)*g_acceleration*diameter(i)**two)/(18.0d0*kinematic_viscosity)
-                    else
-                        settling_v(i) = minus * LARGEREAL
-                    end if  
-                end do
-            case(.false.)
-            ! Dietrich formula
-                capital_r = specific_gravity - one
-                call explicit_particle_reynolds_number(exp_re_p,            &
-                                                       diameter,            &
-                                                       capital_r,           &
-                                                       g_acceleration,      &
-                                                       kinematic_viscosity, &
-                                                       ncell)
-                dimless_fall_velocity = dexp(minus*b_1 + b_2*dlog(exp_re_p) - b_3*(dlog(exp_re_p))**two &
-                                        - b_4*(dlog(exp_re_p))**three + b_5*(dlog(exp_re_p))**four)            
-                ! Stokes fall velocity
-                do i = 1, ncell
-                    if ( diameter(i) < 1.0d-5 ) then
-                        settling_v(i) = (capital_r*g_acceleration*diameter(i)**two)/(18.0d0*kinematic_viscosity)
-                    else
-                        settling_v(i) = dimless_fall_velocity(i) * dsqrt(capital_r*g_acceleration*diameter(i))                 
-                    end if    
-                end do    
-            end select 
-
-        return
-    end subroutine
-
 
     !> Calculates the submerged specific gravity
     pure subroutine submerged_specific_gravity(capital_r,            &
@@ -125,40 +45,16 @@ module suspended_utility
     end subroutine
 
 
-    !> Calculates the explicit particle Reynolds number
-    pure subroutine explicit_particle_reynolds_number(exp_re_p,            &
-                                                      diameter,            &
-                                                      capital_r,           &
-                                                      g_acceleration,      &
-                                                      kinematic_viscosity, &
-                                                      ncell)
-        implicit none
-        !--- arguments 
-        integer, intent(in) :: ncell                          !< number of cells 
-        real(gtm_real), intent(out) :: exp_re_p(ncell)        !< Explicit particle reynolds number
-        real(gtm_real), intent(in)  :: diameter(ncell)        !< Particle diameter
-        real(gtm_real), intent(in)  :: capital_r              !< Submerged specific gravity of sediment particles  
-        real(gtm_real), intent(in)  :: g_acceleration         !< Gravitational acceleration 
-        real(gtm_real), intent(in)  :: kinematic_viscosity    !< Kinematic viscosity (m2/sec)
-
-        exp_re_p = diameter*dsqrt(g_acceleration*capital_r*diameter)/kinematic_viscosity
-
-        return
-    end subroutine
-
-
     !> Calculates particle Reynolds number
     pure subroutine particle_reynolds_number(re_p,                &
                                              settling_v,          &
                                              diameter,            &
-                                             kinematic_viscosity, &
-                                             ncell)
+                                             kinematic_viscosity)
         implicit none
-        !--- arguments 
-        integer, intent(in) :: ncell                       !< number of cells 
-        real(gtm_real), intent(out) :: re_p(ncell)         !< Particle Reynolds number
-        real(gtm_real), intent(in)  :: settling_v(ncell)   !< Settling velocity
-        real(gtm_real), intent(in)  :: diameter(ncell)     !< Particle diameter
+        !--- arguments  
+        real(gtm_real), intent(out) :: re_p                !< Particle Reynolds number
+        real(gtm_real), intent(in)  :: settling_v          !< Settling velocity
+        real(gtm_real), intent(in)  :: diameter            !< Particle diameter
         real(gtm_real), intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)                            
  
         re_p = settling_v*diameter/kinematic_viscosity
@@ -167,19 +63,143 @@ module suspended_utility
     end subroutine
 
 
+    !> Shear velocity calculator
+    subroutine shear_velocity_calculator(shear_velocity,      &
+                                         velocity,            &
+                                         manning,             &
+                                         gravity,             &
+                                         hydr_radius)                                     
+        implicit none
+
+        real(gtm_real), intent(in) :: velocity       !< Flow velocity  
+        real(gtm_real), intent(in) :: manning        !< Manning's n 
+        real(gtm_real), intent(in) :: hydr_radius    !< Hydraulic radius 
+        real(gtm_real), intent(in) :: gravity        !< Gravity
+        real(gtm_real), intent(out):: shear_velocity !< Shear velocity 
+
+        ! the ABS used due to the nature of shear velocity 
+        shear_velocity = abs(velocity)*manning*dsqrt(gravity)/(hydr_radius**(one/six))
+
+    end subroutine
+
+
+    !> Calculates particle's settling velocity. NOTE: the subroutine works with SI units.
+    !> Settling velocity formula based on Leo van Rijn (1984b).
+    !> The subroutine does not consider particles smaller than 10 microns (fine clay).
+    !> The smaller particles are assumed to be either part of wash load or pertain to cohesive sediment. 
+    !> The subroutine is for non-cohesive particles.
+    subroutine settling_velocity(settling_v,         &
+                                 kinematic_viscosity,&
+                                 specific_gravity,   &
+                                 diameter,           &
+                                 g_acceleration,     &
+                                 function_van_rijn)   
+        implicit none
+        !--- arg
+        real(gtm_real),intent(out) :: settling_v          !< Settling velocity (m/s)
+        real(gtm_real),intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)
+        real(gtm_real),intent(in)  :: specific_gravity    !< Specific gravity of particle (~2.65)
+        real(gtm_real),intent(in)  :: diameter            !< Particle diameter in meter
+        real(gtm_real),intent(in)  :: g_acceleration      !< Gravitational acceleration (m/sec2)
+        logical, optional          :: function_van_rijn   !< Flag for using van Rijn (1984) formula o/ Dietrich (1982). the default is van Rijn
+        !--local
+        logical :: van_rijn_flag
+        ! I checked the following values with the ebook on the website of Parker (UIUC)
+        real(gtm_real) :: b_1 = 2.891394d0
+        real(gtm_real) :: b_2 = 0.95296d0
+        real(gtm_real) :: b_3 = 0.056835d0
+        real(gtm_real) :: b_4 = 0.002892d0
+        real(gtm_real) :: b_5 = 0.000245d0
+        real(gtm_real) :: dimless_fall_velocity       
+        real(gtm_real) :: exp_re_p               !< Explicit Reynols particle number 
+        real(gtm_real) :: capital_r              !< Submerged specific gravity of sediment particles 
+        
+        if (present(function_van_rijn)) then
+            van_rijn_flag = function_van_rijn
+        end if
+ 
+        select case (van_rijn_flag)
+ 
+            case (.true.)
+            ! van Rijn formula
+                if (diameter.ge.1.0d-3) then
+                    settling_v = 1.1d0*dsqrt((specific_gravity - one)*g_acceleration*diameter)
+                elseif (diameter.ge.1.0d-4 .and. diameter.lt.1.0d-3) then
+                    settling_v = (ten*kinematic_viscosity/diameter)*(dsqrt(one + (0.01d0*(specific_gravity - one) &
+                                    *g_acceleration*diameter**three)/kinematic_viscosity**two)- one)
+                elseif (diameter.ge.0.9d-7 .and. diameter.lt.1.0d-4) then
+                    ! Stokes law here
+                    settling_v = ((specific_gravity - one)*g_acceleration*diameter**two)/(18.0d0*kinematic_viscosity)
+                else
+                    settling_v = minus * LARGEREAL
+                end if  
+            case(.false.)
+            ! Dietrich formula
+                capital_r = specific_gravity - one
+                call explicit_particle_reynolds_number(exp_re_p,            &
+                                                       diameter,            &
+                                                       capital_r,           &
+                                                       g_acceleration,      &
+                                                       kinematic_viscosity)
+                dimless_fall_velocity = dexp(minus*b_1 + b_2*dlog(exp_re_p) - b_3*(dlog(exp_re_p))**two &
+                                        - b_4*(dlog(exp_re_p))**three + b_5*(dlog(exp_re_p))**four)            
+                ! Stokes fall velocity
+                if ( diameter < 1.0d-5 ) then
+                    settling_v = (capital_r*g_acceleration*diameter**two)/(18.0d0*kinematic_viscosity)
+                else
+                    settling_v = dimless_fall_velocity * dsqrt(capital_r*g_acceleration*diameter)                 
+                end if    
+            end select 
+        return
+    end subroutine
+
+
+    !> Calculate critical shear stress
+    subroutine critical_shear_stress(crtical_shear,           &
+                                     water_density,           &
+                                     sediment_density,        &
+                                     g_acceleration,          &
+                                     kinematic_viscosity,     &
+                                     diameter)
+        implicit none
+        real(gtm_real), intent(out) :: crtical_shear         !< Critical shear stress
+        real(gtm_real), intent(in) :: water_density          !< Water density
+        real(gtm_real), intent(in) :: sediment_density       !< Sediment density
+        real(gtm_real), intent(in) :: g_acceleration         !< Gravitational acceleration 
+        real(gtm_real), intent(in)  :: kinematic_viscosity   !< Kinematic viscosity (m2/sec)  
+        real(gtm_real), intent(in) :: diameter               !< Particle diameter in meters
+        real(gtm_real) :: dimless_critical_shear             !< Dimensionless Shield's shear stress
+        real(gtm_real) :: submerged_specific_g               !< Submerged specific gravity      
+        real(gtm_real) :: d_star                             !< Rep^(2/3)
+        submerged_specific_g = sediment_density/water_density - one
+
+        call dimless_particle_diameter(d_star,                &
+                                       g_acceleration,        &
+                                       diameter,              &
+                                       kinematic_viscosity,   &
+                                       submerged_specific_g)
+        
+        call critical_shields_parameter(dimless_critical_shear,   &
+                                        d_star)           
+                                        
+        crtical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
+        
+        return
+    end subroutine    
+
+
+
     !> Calculates dimensionless particle diameter
     pure subroutine dimless_particle_diameter(d_star,                &
                                               g_acceleration,        &
                                               diameter,              &
                                               kinematic_viscosity,   &
-                                              capital_r,             &
-                                              ncell)
+                                              capital_r)
         implicit none
         !--- arguments 
-        integer, intent(in) :: ncell                      !< number of cells 
-        real(gtm_real),intent(out) :: d_star(ncell)       !< Dimensionless particle diameter
+        real(gtm_real),intent(out) :: d_star              !< Dimensionless particle diameter
         real(gtm_real),intent(in)  :: g_acceleration      !< Gravitational acceleration 
-        real(gtm_real),intent(in)  :: diameter(ncell)     !< Particle diameter
+        real(gtm_real),intent(in)  :: diameter            !< Particle diameter
         real(gtm_real),intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)                            
         real(gtm_real),intent(in)  :: capital_r           !< Submerged specific gravity of sediment particles     
 
@@ -192,90 +212,24 @@ module suspended_utility
     !> Calculates critical shields parameter based on Yalin (1972) formula
     !> See van Rijn book equation (4.1.11)
     pure subroutine critical_shields_parameter(cr_shields_prmtr,   &
-                                               d_star,             &
-                                               ncell)                                           
+                                               d_star)                                           
         implicit none
         !--- arguments  
-        integer, intent(in) :: ncell                          !< number of cells 
-        real(gtm_real), intent(out):: cr_shields_prmtr(ncell) !< Critical Shields parameter                                      
-        real(gtm_real), intent(in) :: d_star(ncell)           !< Dimensionless particle diameter
-        integer :: icell
-        
-        do icell = 1, ncell
-            if (d_star(icell).ge.150.0d0) then
-                cr_shields_prmtr(icell) = 0.055d0   
-            elseif (d_star(icell).ge.20.0d0 .and. d_star(icell).lt.150.0d0) then
-                cr_shields_prmtr(icell) = 0.013d0*d_star(icell)**(0.29d0)   !+0.29d0 indeed
-            elseif (d_star(icell).ge.10.0d0 .and. d_star(icell).lt.20.0d0) then
-                cr_shields_prmtr(icell) = 0.04d0*d_star(icell)**(-0.1d0)
-            elseif (d_star(icell).ge.4.0d0 .and. d_star(icell).lt.10.0d0)  then
-                cr_shields_prmtr(icell) = 0.14d0*d_star(icell)**(-0.64d0)
+        real(gtm_real), intent(out):: cr_shields_prmtr !< Critical Shields parameter                                      
+        real(gtm_real), intent(in) :: d_star           !< Dimensionless particle diameter
+
+            if (d_star.ge.150.0d0) then
+                cr_shields_prmtr = 0.055d0   
+            elseif (d_star.ge.20.0d0 .and. d_star.lt.150.0d0) then
+                cr_shields_prmtr = 0.013d0*d_star**(0.29d0)   !+0.29d0 indeed
+            elseif (d_star.ge.10.0d0 .and. d_star.lt.20.0d0) then
+                cr_shields_prmtr = 0.04d0*d_star**(-0.1d0)
+            elseif (d_star.ge.4.0d0 .and. d_star.lt.10.0d0)  then
+                cr_shields_prmtr = 0.14d0*d_star**(-0.64d0)
             else
-                cr_shields_prmtr(icell) = 0.24d0*d_star(icell)**(-1.0d0)
-            end if                                       
-        end do    
+                cr_shields_prmtr = 0.24d0*d_star**(-1.0d0)
+            end if                                           
         return
-    end subroutine
-
-
-    !> Calculate critical shear stress
-    subroutine critical_shear_stress(crtical_shear,           &
-                                     water_density,           &
-                                     sediment_density,        &
-                                     g_acceleration,          &
-                                     kinematic_viscosity,     &
-                                     diameter,                &
-                                     ncell)
-        implicit none
-        integer, intent(in) :: ncell
-        real(gtm_real), intent(out) :: crtical_shear(ncell)         !< Critical shear stress
-        real(gtm_real), intent(in) :: water_density                 !< Water density
-        real(gtm_real), intent(in) :: sediment_density              !< Sediment density
-        real(gtm_real), intent(in) :: g_acceleration                !< Gravitational acceleration 
-        real(gtm_real), intent(in)  :: kinematic_viscosity          !< Kinematic viscosity (m2/sec)  
-        real(gtm_real), intent(in) :: diameter(ncell)               !< Particle diameter in meters
-        real(gtm_real) :: dimless_critical_shear(ncell)             !< Dimensionless Shield's shear stress
-        real(gtm_real) :: submerged_specific_g                      !< Submerged specific gravity      
-        real(gtm_real) :: d_star(ncell)                             !< Rep^(2/3)
-        submerged_specific_g = sediment_density/water_density - one
-
-        call dimless_particle_diameter(d_star,                &
-                                       g_acceleration,        &
-                                       diameter,              &
-                                       kinematic_viscosity,   &
-                                       submerged_specific_g,  &
-                                       ncell)
-        
-        call critical_shields_parameter(dimless_critical_shear,   &
-                                        d_star,                   &
-                                        ncell)           
-                                        
-        crtical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
-        
-        return
-    end subroutine    
-
-
-    ! todo: should we assume depth = Rh? it is larger than 1/10 in the Delta 
-    !> Shear velocity calculator
-    subroutine shear_velocity_calculator(shear_velocity,      &
-                                         velocity,            &
-                                         manning,             &
-                                         gravity,             &
-                                         hydr_radius,         &
-                                         ncell)                                     
-        implicit none
-
-        integer, intent(in) :: ncell                        !< Number of cells
-        real(gtm_real), intent(in) :: velocity(ncell)       !< Flow velocity  
-        real(gtm_real), intent(in) :: manning(ncell)        !< Manning's n 
-        real(gtm_real), intent(in) :: hydr_radius(ncell)    !< Hydraulic radius 
-        real(gtm_real), intent(in) :: gravity               !< Gravity
-        real(gtm_real), intent(out):: shear_velocity(ncell) !< Shear velocity 
-
-        ! the ABS used due to the nature of shear velocity 
-        shear_velocity = abs(velocity)*manning*dsqrt(gravity)/(hydr_radius**(one/six))
-
     end subroutine
 
 
@@ -287,13 +241,11 @@ module suspended_utility
     !> Ro # > 7 does not move at all
     subroutine rouse_dimensionless_number(rouse_num,   &
                                           fall_vel,    &
-                                          shear_vel,   &
-                                          ncell)                                 
+                                          shear_vel)                                 
         implicit none
-        integer, intent(in) :: ncell                    !< Number of cells
-        real(gtm_real), intent(out):: rouse_num(ncell)  !< Rouse dimensionless number  
-        real(gtm_real), intent(in) :: fall_vel(ncell)          !< Settling velocity
-        real(gtm_real), intent(in) :: shear_vel(ncell)  !< Shear velocity 
+        real(gtm_real), intent(out):: rouse_num  !< Rouse dimensionless number  
+        real(gtm_real), intent(in) :: fall_vel   !< Settling velocity
+        real(gtm_real), intent(in) :: shear_vel  !< Shear velocity 
         !----local
         real(gtm_real), parameter :: kappa = 0.41d0
         integer        :: icell
@@ -322,6 +274,28 @@ module suspended_utility
      
         return
     end subroutine 
+
+
+    !> Calculates the explicit particle Reynolds number
+    pure subroutine explicit_particle_reynolds_number(exp_re_p,            &
+                                                      diameter,            &
+                                                      capital_r,           &
+                                                      g_acceleration,      &
+                                                      kinematic_viscosity)
+        implicit none
+        !--- arguments 
+        real(gtm_real), intent(out) :: exp_re_p            !< Explicit particle reynolds number
+        real(gtm_real), intent(in)  :: diameter            !< Particle diameter
+        real(gtm_real), intent(in)  :: capital_r           !< Submerged specific gravity of sediment particles  
+        real(gtm_real), intent(in)  :: g_acceleration      !< Gravitational acceleration 
+        real(gtm_real), intent(in)  :: kinematic_viscosity !< Kinematic viscosity (m2/sec)
+
+        exp_re_p = diameter*dsqrt(g_acceleration*capital_r*diameter)/kinematic_viscosity
+
+        return
+    end subroutine
+
+
 
 
     !> Calculates the first Einstein integral values

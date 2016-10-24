@@ -60,60 +60,58 @@ module cohesive_source
         real(gtm_real) :: velocity(ncell)                      ! flow velocity   
         real(gtm_real) :: bottom_shear_stress(ncell)
         logical   :: function_van_rijn      
+        integer :: icell
         
         function_van_rijn = .false. !use Dietrich formula                
         velocity = abs(flow/area)
         
-        call settling_velocity(fall_vel,               &
-                               kinematic_viscosity,    &
-                               specific_gravity,       &
-                               diameter,           &
-                               gravity,                &
-                               ncell,                  &
-                               function_van_rijn)   
+        do icell = 1, ncell
+            call settling_velocity(fall_vel(icell),           &
+                                   kinematic_viscosity,       &
+                                   specific_gravity,          &
+                                   diameter(icell),           &
+                                   gravity,                   &
+                                   function_van_rijn)   
 
-        call critical_shear_stress(critical_shear,      &
-                                   water_density,       &
-                                   sediment_density,    &
-                                   gravity,             &
-                                   kinematic_viscosity, &
-                                   diameter,            &
-                                   ncell)
+            call critical_shear_stress(critical_shear(icell), &
+                                       water_density,         &
+                                       sediment_density,      &
+                                       gravity,               &
+                                       kinematic_viscosity,   &
+                                       diameter(icell))
                                      
-        call bed_shear_stress(bottom_shear_stress,      &
-                              velocity,                 &
-                              manning,                  &
-                              hydro_radius,             &
-                              ncell)
+            call bed_shear_stress(bottom_shear_stress(icell), &
+                                  velocity(icell),            &
+                                  manning(icell),             &
+                                  hydro_radius(icell))
                                 
-        call erosion(erosion_flux,           &
-                     critical_shear,         &
-                     bottom_shear_stress,    &
-                     param_M,                &
-                     ncell)                               
+            call cohesive_erosion(erosion_flux(icell),        &
+                                  critical_shear(icell),      &
+                                  bottom_shear_stress(icell), &
+                                  param_M)                               
                                    
-        call deposition(deposition_flux,   &
-                        fall_vel,          &
-                        conc,              &
-                        ncell)       
+            call cohesive_deposition(deposition_flux(icell),  &
+                                     fall_vel(icell),         &
+                                     conc(icell))       
         
-        where (erosion_flux .gt. available_bed+deposition_flux) erosion_flux = available_bed + deposition_flux
-             
-        vertical_flux = erosion_flux - deposition_flux
+            if (erosion_flux(icell) .gt. available_bed(icell)) &
+                 erosion_flux(icell) = available_bed(icell)
+                              
+            vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
+        end do
 
         return
     end subroutine 
-    
+
+
     !> Deposition flux calculated by Krone(1962)
-    subroutine deposition(deposition_flux,   &
-                          settling_velocity, &
-                          conc,              &
-                          ncell)
+    subroutine cohesive_deposition(deposition_flux,   &
+                                   settling_velocity, &
+                                   conc)
         implicit none
-        integer, intent(in) :: ncell
-        real(gtm_real), intent(in) :: conc(ncell)
-        real(gtm_real), intent(in) :: settling_velocity(ncell)
-        real(gtm_real), intent(out) :: deposition_flux(ncell)
+        real(gtm_real), intent(in) :: conc
+        real(gtm_real), intent(in) :: settling_velocity
+        real(gtm_real), intent(out) :: deposition_flux
         
         deposition_flux = settling_velocity * conc
         
@@ -122,42 +120,37 @@ module cohesive_source
 
 
     !> Erosion flux calculated by Krone(1962)
-    subroutine erosion(erosion_rate,           &
-                       critical_shear_stress,  &
-                       bottom_shear_stress,    &
-                       param_M,                &
-                       ncell)
+    subroutine cohesive_erosion(erosion_rate,           &
+                                critical_shear_stress,  &
+                                bottom_shear_stress,    &
+                                param_M)
         implicit none
-        integer, intent(in) :: ncell
-        real(gtm_real), intent(in) :: bottom_shear_stress(ncell)
-        real(gtm_real), intent(in) :: critical_shear_stress(ncell)
+        real(gtm_real), intent(in) :: bottom_shear_stress
+        real(gtm_real), intent(in) :: critical_shear_stress
         real(gtm_real), intent(in) :: param_M
-        real(gtm_real), intent(out) :: erosion_rate(ncell)
+        real(gtm_real), intent(out) :: erosion_rate
                 
         erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one)      
-        where (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero        
+        if (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero 
+       
         return
     end subroutine
-
 
     !> Bed shear stress
     subroutine bed_shear_stress(bed_shear,     &
                                 velocity,      &
                                 manning,       &
-                                hydro_radius,  &
-                                ncell)
+                                hydro_radius)
         use sediment_variables, only: water_density, gravity
         implicit none
-        integer, intent(in) :: ncell
-        real(gtm_real), intent(in) :: velocity(ncell)
-        real(gtm_real), intent(in) :: manning(ncell)
-        real(gtm_real), intent(in) :: hydro_radius(ncell)
-        real(gtm_real), intent(out) :: bed_shear(ncell)
+        real(gtm_real), intent(in) :: velocity
+        real(gtm_real), intent(in) :: manning
+        real(gtm_real), intent(in) :: hydro_radius
+        real(gtm_real), intent(out) :: bed_shear
         
         bed_shear = water_density*velocity**two*(manning**two)*gravity/(hydro_radius**(one/three))        
         
         return
     end subroutine    
-
-
+    
 end module

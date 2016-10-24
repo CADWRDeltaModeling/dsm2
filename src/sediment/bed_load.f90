@@ -21,36 +21,6 @@
 module bed_load
 
     contains 
-    !> The subroutine provides unit bedload per volume
-    !> q_sub_b has the dimension L2/T, Q_sub_b = integral over width q_sub_b, [L3/T]
-    subroutine bedload(q_sub_b,       &
-                       velocity,      &
-                       area,          &
-                       nclass,        &
-                       ncell,          &
-                       !!!!!!! todo: fill other ones
-                       bedload_func)                   
-
-        use gtm_precision
-        use suspended_utility
-        implicit none
-        integer,intent(in) :: nclass                      !< Number of grain classes in bedload transport
-        integer,intent(in) :: ncell                       !< Number of volumes in a channel
-        real(gtm_real),intent(in) :: velocity(ncell)      !< Velocity
-        real(gtm_real),intent(in) :: area(ncell)          !< Area
-        real(gtm_real),intent(out)::q_sub_b(ncell,nclass) !< Volumetric bedload transport rate
-        character, intent(in),optional :: bedload_func    !< Bedload relation 
-
-        character,parameter :: default ='meyer_peter_muller'
-        character :: relation
- 
-        if(present(bedload_func))then
-            relation = bedload_func
-        end if 
-
-        return
-    end subroutine 
-
 
     !> Subroutine for calculating the q_b based on q_* (see Garcia, 2008, page 70)
     subroutine volumetric_bedload_transport_rate(q_sub_b,                &

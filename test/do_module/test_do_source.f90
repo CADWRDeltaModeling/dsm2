@@ -112,7 +112,7 @@ module ut_do_source
                             ncell,  &
                             nvar,   &
                             time_step)
-         
+        deallocate(constituents)
         return    
     end subroutine        
             

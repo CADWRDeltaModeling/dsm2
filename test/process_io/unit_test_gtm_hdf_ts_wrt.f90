@@ -56,6 +56,7 @@ module ut_gtm_hdf_ts_wrt
         integer :: nconc        
         integer :: error = 0
        
+        if (allocated(constituents)) deallocate(constituents)
         gtm_time_interval = 5
         hdf_name = "gtm_out_hdf_test_init.h5"
         ncell = 3

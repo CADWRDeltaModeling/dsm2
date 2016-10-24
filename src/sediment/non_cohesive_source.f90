@@ -64,107 +64,70 @@ module non_cohesive_source
         real(gtm_real) :: fall_vel(ncell)                !< settling velocity         
         real(gtm_real) :: big_e_sub_s(ncell)             !< dimenssionless rate of entrainment of bed sediment into suspension  
         real(gtm_real) :: shear_vel(ncell)               !< shear velocity   
-        real(gtm_real) :: exp_re_p(ncell)                !< explicit particle reynolds number  
-        integer :: iclass                                !< counter on grain class  
-        integer :: i  
+        real(gtm_real) :: exp_re_p(ncell)                !< explicit particle reynolds number    
         logical   :: function_van_rijn  
         real(gtm_real) :: capital_r
+        integer :: icell        
 
         function_van_rijn = .false. !use Dietrich formula
         velocity = abs(flow/area)        
         capital_r = specific_gravity - one
-
-        call settling_velocity(fall_vel,           &
-                               kinematic_viscosity,&
-                               specific_gravity,   &
-                               diameter,           &
-                               gravity,            &
-                               ncell,              &
-                               function_van_rijn)
+  
+        do icell = 1, ncell
+            call settling_velocity(fall_vel(icell),                   &
+                                   kinematic_viscosity,               &
+                                   specific_gravity,                  &
+                                   diameter(icell),                   &
+                                   gravity,                           &
+                                   function_van_rijn)
                        
-        call explicit_particle_reynolds_number(exp_re_p,            &
-                                               diameter,            &
-                                               capital_r,           &
-                                               gravity,             &
-                                               kinematic_viscosity, &
-                                               ncell)
+            call explicit_particle_reynolds_number(exp_re_p(icell),   &
+                                                   diameter(icell),   &
+                                                   capital_r,         &
+                                                   gravity,           &
+                                                   kinematic_viscosity)
 
-        call shear_velocity_calculator(shear_vel,           &
-                                       velocity,            &
-                                       manning,             &
-                                       gravity,             &
-                                       hydro_radius,        &
-                                       ncell)     
+            call shear_velocity_calculator(shear_vel(icell),          &
+                                           velocity(icell),           &
+                                           manning(icell),            &
+                                           gravity,                   &
+                                           hydro_radius(icell))     
                                                                                   
-        call es_garcia_parker(Es,                &
-                              shear_vel,         &
-                              exp_re_p,          &
-                              fall_vel,          & 
-                              ncell)
+            call es_garcia_parker(Es(icell),                          &
+                                  shear_vel(icell),                   &
+                                  exp_re_p(icell),                    &
+                                  fall_vel(icell))
                               
-        call teeter(c_b,          &
-                    shear_vel,    &                                   
-                    fall_vel,     &
-                    conc,         &
-                    ncell)
+            call teeter(c_b(icell),                                   &
+                        shear_vel(icell),                             &             
+                        fall_vel(icell),                              &
+                        conc(icell))
       
-        erosion_flux = Es * fall_vel
-        deposition_flux = c_b * fall_vel            
+            erosion_flux(icell) = Es(icell) * fall_vel(icell)
+            deposition_flux(icell) = c_b(icell) * fall_vel(icell)            
       
-        where (erosion_flux .gt. available_bed+deposition_flux) erosion_flux = available_bed + deposition_flux
+            if (erosion_flux(icell).gt.available_bed(icell))          &
+                erosion_flux(icell) = available_bed(icell)
                 
-        vertical_flux = erosion_flux - deposition_flux
-        
+            vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
+        end do
         return
     end subroutine 
 
-
-    !> Entrainment by Garcia Parker (1991)
-    subroutine es_garcia_parker(big_e_sub_s,       &
-                                shear_v,           &
-                                exp_re_p,          &
-                                settling_v,        & 
-                                ncell)
-        implicit none
-        !-- arg
-        integer, intent(in):: ncell                      !< Number of computational volumes in a channel
-        real(gtm_real), intent(out):: big_e_sub_s(ncell) !< Dimenssionless rate of entrainment of bed sediment into suspension (i.e., vol entrained sediment/unit bed area/time)                                       
-        real(gtm_real), intent(in) :: shear_v(ncell)     !< Shear Velocity
-        real(gtm_real), intent(in) :: exp_re_p(ncell)    !< Explicit particle Reynolds number
-        real(gtm_real), intent(in) :: settling_v(ncell)  !< Settling velocity
-        !---local
-        real(gtm_real) :: z_u(ncell)                     !< Captial z sub u a measure for strength of shear stress but it also takes into account the particle size in Garcia notation
-        real(gtm_real), parameter :: cap_a = 1.3d-7      ! Constant value (see ASCE sediment manual no. 110 page 118)
-        integer :: icell
-       
-        do icell = 1, ncell
-            if (exp_re_p(icell) < 3.5d0) then
-                z_u(icell) = 0.708d0*shear_v(icell)*(exp_re_p(icell)**0.6d0)/settling_v(icell)
-            else
-                z_u(icell) = shear_v(icell)*(exp_re_p(icell)**0.6d0)/settling_v(icell)
-            end if
-        end do
-        big_e_sub_s  = cap_a*(z_u**five)/(one + (z_u**five)*cap_a/0.3d0)                                  
-        return                             
-    end subroutine
-    
     
     !> Deposition by Parker(1982) estimated from the Rouse profile for rivers 
     subroutine parker_rouse_profile(c_b,          &
                                     shear_v,      &                                   
                                     settling_v,   &
-                                    conc,         &
-                                    ncell)
+                                    conc)
         implicit none
         !-- arg
-        integer, intent(in):: ncell                    !< Number of computational volumes in a channel
-        real(gtm_real), intent(out):: c_b(ncell)       !< Sediment into deposition
-        real(gtm_real), intent(in) :: shear_v(ncell)   !< Shear Velocity
-        real(gtm_real), intent(in) :: settling_v(ncell)!< Settling velocity
-        real(gtm_real), intent(in) :: conc(ncell)      !< Sediment concentration
+        real(gtm_real), intent(out):: c_b        !< Sediment into deposition
+        real(gtm_real), intent(in) :: shear_v    !< Shear Velocity
+        real(gtm_real), intent(in) :: settling_v !< Settling velocity
+        real(gtm_real), intent(in) :: conc       !< Sediment concentration
         !---local
-        real(gtm_real) :: ro(ncell)
-        integer :: icell
+        real(gtm_real) :: ro
 
         ro = one + 31.5d0*(shear_v/settling_v)**(-1.46d0)
         c_b = ro * conc
@@ -172,32 +135,51 @@ module non_cohesive_source
         return
     end subroutine
 
-
+    !> Entrainment by Garcia Parker (1991)
+    subroutine es_garcia_parker(big_e_sub_s,       &
+                                shear_v,           &
+                                exp_re_p,          &
+                                settling_v)
+        implicit none
+        !-- arg
+        real(gtm_real), intent(out):: big_e_sub_s !< Dimenssionless rate of entrainment of bed sediment into suspension (i.e., vol entrained sediment/unit bed area/time)                                       
+        real(gtm_real), intent(in) :: shear_v     !< Shear Velocity
+        real(gtm_real), intent(in) :: exp_re_p    !< Explicit particle Reynolds number
+        real(gtm_real), intent(in) :: settling_v  !< Settling velocity
+        !---local
+        real(gtm_real) :: z_u                     !< Captial z sub u a measure for strength of shear stress but it also takes into account the particle size in Garcia notation
+        real(gtm_real), parameter :: cap_a = 1.3d-7  ! Constant value (see ASCE sediment manual no. 110 page 118)
+       
+        if (exp_re_p < 3.5d0) then
+            z_u = 0.708d0*shear_v*(exp_re_p**0.6d0)/settling_v
+        else
+            z_u = shear_v*(exp_re_p**0.6d0)/settling_v
+        end if
+        big_e_sub_s  = cap_a*(z_u**five)/(one + (z_u**five)*cap_a/0.3d0)                                  
+        return                             
+    end subroutine
+    
     !> Deposition by Teeter(1988) 
     subroutine teeter(c_b,          &
                       shear_v,      &                                   
                       settling_v,   &
-                      conc,         &
-                      ncell)
+                      conc)
         use sediment_variables, only : kappa
         implicit none
         !-- arg
-        integer, intent(in):: ncell                    !< Number of computational volumes in a channel
-        real(gtm_real), intent(out):: c_b(ncell)       !< Sediment into deposition
-        real(gtm_real), intent(in) :: shear_v(ncell)   !< Shear Velocity
-        real(gtm_real), intent(in) :: settling_v(ncell)!< Settling velocity
-        real(gtm_real), intent(in) :: conc(ncell)      !< Sediment concentration
+        real(gtm_real), intent(out):: c_b        !< Sediment into deposition
+        real(gtm_real), intent(in) :: shear_v    !< Shear Velocity
+        real(gtm_real), intent(in) :: settling_v !< Settling velocity
+        real(gtm_real), intent(in) :: conc       !< Sediment concentration
         !---local
-        real(gtm_real) :: Pe(ncell)                    !< Peclet number
-        real(gtm_real) :: ro(ncell)
-        integer :: icell
+        real(gtm_real) :: Pe                     !< Peclet number
+        real(gtm_real) :: ro
         
         Pe = six*settling_v/kappa/shear_v
         ro = one + Pe/1.25d0
         c_b = ro * conc
        
         return
-    end subroutine            
-    
+    end subroutine      
 
 end module 

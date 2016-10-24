@@ -24,6 +24,55 @@ module gtm_subs
     
     contains
 
+    !> print out final stage in a text file as a initial file format
+    subroutine print_last_stage(cdtdate,        &
+                                intdate,        &
+                                out_conc,       &
+                                out_conc_resv,  &
+                                ncell,          &
+                                nresv,          &
+                                nvar)                                
+        use common_variables, only : constituents, resv_geom    
+        implicit none
+        character(len=14), intent(in) :: cdtdate
+        integer, intent(in) :: intdate
+        integer, intent(in) :: ncell
+        integer, intent(in) :: nresv
+        integer, intent(in) :: nvar
+        real(gtm_real) :: out_conc(ncell,nvar)
+        real(gtm_real) :: out_conc_resv(nresv,nvar)
+        integer :: ncol
+        integer :: a(nvar)
+        character*16 :: c(nvar)
+        integer :: i, j        
+        ncol = 0
+        a = 0
+        c = ''
+        do i = 1, nvar
+            if (constituents(i)%simulate) then
+                ncol = ncol + 1
+                a(ncol) = i
+                c(ncol) = constituents(i)%name
+            end if
+        end do             
+        open(801,file="init.txt")
+        write(801,*) cdtdate, "/time"
+        write(801,*) intdate, "/julmin"
+        write(801,*) nvar, "/n_var"
+        write(801,*) ncell, "/n_cell"
+        write(801,'(a32,<ncol>a32)') "cell_no", (c(j),j=1,ncol)
+        do i = 1, ncell
+            write(801,'(i32,<ncol>f32.16)') i, (out_conc(i,a(j)),j=1,ncol) 
+        end do
+        write(801,*) nresv, "/n_resv"
+        write(801,'(a32,<ncol>a32)') "reservoir_name", (c(j),j=1,ncol)
+        do i = 1, nresv
+            write(801,'(a32,<ncol>f32.16)') resv_geom(i)%name, (out_conc_resv(i,a(j)),j=1,ncol) 
+        end do
+        close(801)
+        return
+    end subroutine    
+
     !> subroutine to get output time series for selected output points
     !> This will update pathoutput%out_cell, calc_option, x_from_lo_face
     subroutine get_output_channel  
@@ -350,29 +399,63 @@ module gtm_subs
 
     !> assign value to group_var for input time series
     subroutine assign_input_ts_group_var
-        use common_variables, only: n_node_ts, n_input_ts, n_group, group, &
-                                    group_var, ncc_string_to_code
+        use common_variables
         use common_dsm2_vars, only: pathinput
-        implicit none
+        implicit none        
         integer :: ncc_code
-        integer :: i, j, k, st
+        integer :: i, j, k, m, p, ivar, c
+        integer :: n_input_ts_type
+        integer :: temp, ivar_temp, io
         
-        do i = n_node_ts+1, n_node_ts+n_input_ts
-            call ncc_string_to_code(ncc_code, trim(pathinput(i)%variable))
-            if (ncc_code .ne. miss_val_i) then            
+        n_input_ts_type = 0
+        do ivar = 1, n_var
+            if (trim(constituents(ivar)%use_module).eq.'time_series') then
+                n_input_ts_type = n_input_ts_type + 1
+            end if
+        end do
+        n_input_ts_cell = n_input_ts_type*n_cell
+        allocate(input_ts(n_input_ts_cell))
+        
+        c = 0
+        do i = 1, n_input_ts            
+            call ncc_string_to_code(ncc_code, pathinput(n_node_ts+i)%variable)
+            do k = 1, n_var
+                if (trim(pathinput(n_node_ts+i)%variable) .eq. trim(constituents(k)%name)) then
+                    ivar_temp = constituents(k)%conc_no
+                end if
+            end do                  
+            if (ncc_code .ne. miss_val_i) then 
                 do j = 1, n_group
-                    if (trim(pathinput(i)%name) .eq. trim(group(j)%name)) then
-                        group_var(ncc_code,1,group(j)%id) = pathinput(i)%value
-                    end if
+                    if (trim(pathinput(n_node_ts+i)%name) .eq. trim(group(j)%name)) then                  
+                        do k = 1, group(j)%n_members
+                            if (group(j)%member_pattern_code(k) .eq. obj_channel) then
+                                read(group(j)%member_name(k),'(i)',iostat=io) temp
+                                do m = 1, n_chan
+                                    if (temp.eq. chan_geom(m)%channel_num) then
+                                        do p = chan_geom(m)%start_cell, chan_geom(m)%end_cell
+                                              c = c + 1
+                                              input_ts(c)%ncc_code = ncc_code
+                                              input_ts(c)%ivar = ivar_temp
+                                              input_ts(c)%icell = p
+                                              input_ts(c)%pathinput_id = n_node_ts+i 
+                                              input_ts(c)%group_id = group(j)%id
+                                         end do
+                                     end if
+                                 end do                                     
+                             elseif (group(i)%member_pattern_code(j) .eq. obj_reservoir) then   
+                    
+                             else
+                                 write(*,*) "this is neither channel nor reservoir"
+                             end if
+                         end do
+                    end if     
                 end do
             else
                         
             end if
-         end do
-         return        
-        
+        end do
         return
-    end subroutine        
+    end subroutine       
 
 
     !> check the flow mass balance at DSM2 network

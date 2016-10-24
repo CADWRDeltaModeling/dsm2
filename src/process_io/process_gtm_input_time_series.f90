@@ -50,7 +50,6 @@ module process_gtm_input_time_series
          call locase(fillin)
          call locase(inpath)
       
-         n_input_ts = n_input_ts + 1
          ninpaths = ninpaths + 1
          pathinput(ninpaths).name = Name
          pathinput(ninpaths).obj_name = 'group'
@@ -95,7 +94,7 @@ module process_gtm_input_time_series
                      pathinput(ninpaths).ndx_file = abs(itmp)
                      n_dssfiles = n_dssfiles + 1
                   else
-                     write(unit_error,610)                              &
+                     write(unit_error,610)                                &
                           'Maximum number of unique DSS input files exceeded'
                      call exit(-3)
                   endif

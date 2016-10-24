@@ -118,6 +118,7 @@ module common_variables
      type segment_t                                   !< segment between computational points
           integer :: segm_no                          !< segment serial no
           integer :: chan_no                          !< channel no
+          integer :: chan_num                         !< DSM2 channel no
           integer :: up_comppt                        !< upstream computational point (used as index to search time series data)        
           integer :: down_comppt                      !< downstream computational point
           integer :: nx                               !< number of cells in a segment
@@ -291,6 +292,7 @@ module common_variables
          character*32 :: name = ' '                     !< constituent name
          logical :: conservative = .true.               !< true if conservative, false if nonconservative
          character*32 :: use_module = ' '               !< use module
+         logical :: simulate = .true.                   !< simulate or not. trigger to klu solver
      end type     
      type(constituent_t), allocatable :: constituents(:)
      
@@ -310,6 +312,17 @@ module common_variables
          real(gtm_real) :: percent                       ! percentage 
      end type
      type(sediment_bc_t), allocatable :: sediment_bc(:)     
+
+     !> Input time series 
+     integer :: n_input_ts_cell = 0 
+     type input_ts_t
+         integer :: ncc_code
+         integer :: group_id
+         integer :: pathinput_id
+         integer :: icell
+         integer :: ivar
+     end type
+     type(input_ts_t), allocatable :: input_ts(:)
 
      !> non-conservative constituents codes
      integer, parameter :: ncc_do = 1
@@ -812,6 +825,7 @@ module common_variables
          do i = 1, num_segm
              segm(i)%segm_no = i
              segm(i)%chan_no = up_bound         
+             segm(i)%chan_num = chan_geom(up_bound)%channel_num
              segm(i)%up_comppt = chan_geom(up_bound)%up_comp + i - 1
              segm(i)%down_comppt = segm(i)%up_comppt + 1
              segm(i)%up_distance = comp_pt(segm(i)%up_comppt)%distance
@@ -846,6 +860,7 @@ module common_variables
                      k = k + 1
                      segm(k)%segm_no = k
                      segm(k)%chan_no = chan_geom(i)%chan_no
+                     segm(k)%chan_num = chan_geom(i)%channel_num
                      segm(k)%up_comppt = chan_geom(i)%up_comp + j - 1
                      segm(k)%down_comppt = segm(k)%up_comppt + 1
                      segm(k)%up_distance = comp_pt(segm(k)%up_comppt)%distance
@@ -880,6 +895,7 @@ module common_variables
              k = k + 1
              segm(k)%segm_no = k
              segm(k)%chan_no = down_bound
+             segm(k)%chan_num = chan_geom(down_bound)%channel_num
              segm(k)%up_comppt = chan_geom(down_bound)%up_comp + j - 1
              segm(k)%down_comppt = segm(k)%up_comppt + 1
              segm(k)%up_distance = comp_pt(segm(k)%up_comppt)%distance
@@ -1186,10 +1202,27 @@ module common_variables
          end do
          return
      end subroutine
+
+     !> Routine to make sure all channels are assigned from grouping
+     subroutine check_group_channel(ncc_code,      &
+                                    group_var_code)
+         implicit none
+         integer, intent(in) :: ncc_code
+         integer, intent(in) :: group_var_code
+         character*32 :: ncc_name
+         character*32 :: rate_name
+         integer :: i
+         do i = 1, n_chan
+             if (group_var_chan(ncc_code,group_var_code,i).eq.LARGEREAL) then
+                 call ncc_code_to_string(ncc_name, ncc_code)
+                 write(unit_error,'(a31,2a32,a16,i10)') "You forgot to assign values for ",ncc_name,coeff_type(group_var_code)," for Channel No.",chan_geom(i)%channel_num
+             end if
+         end do
+         return
+     end subroutine              
              
-             
-     !> Assign group variables
-     subroutine assign_group_variables
+     !> Assign group static variables
+     subroutine assign_group_static_variables
          implicit none
          integer :: temp, io
          integer :: i, j, k, m
@@ -1228,24 +1261,6 @@ module common_variables
          end do
          return
      end subroutine
-     
-     !> Routine to make sure all channels are assigned from grouping
-     subroutine check_group_channel(ncc_code,      &
-                                    group_var_code)
-         implicit none
-         integer, intent(in) :: ncc_code
-         integer, intent(in) :: group_var_code
-         character*32 :: ncc_name
-         character*32 :: rate_name
-         integer :: i
-         do i = 1, n_chan
-             if (group_var_chan(ncc_code,group_var_code,i).eq.LARGEREAL) then
-                 call ncc_code_to_string(ncc_name, ncc_code)
-                 write(unit_error,'(a31,2a32,a16,i10)') "You forgot to assign values for ",ncc_name,coeff_type(group_var_code)," for Channel No.",chan_geom(i)%channel_num
-             end if
-         end do
-         return
-     end subroutine    
 
      !> Routine to get the constituent string by ncc_code
      subroutine ncc_code_to_string(ncc_name,   &
@@ -1294,33 +1309,34 @@ module common_variables
          implicit none
          character*32, intent(in) :: ncc_name
          integer, intent(out) :: ncc_code
-         if (ncc_name == "DO") then
+         call locase(ncc_name)
+         if (trim(ncc_name) == "do") then
              ncc_code = ncc_do
-         else if (ncc_name == "Organic_N") then
+         else if (trim(ncc_name) == "organic_n") then
              ncc_code = ncc_organic_n
-         else if (ncc_name == "NH3") then
+         else if (trim(ncc_name) == "nh3") then
              ncc_code = ncc_nh3
-         else if (ncc_name == "NO2") then
+         else if (trim(ncc_name) == "no2") then
              ncc_code = ncc_no2
-         else if (ncc_name == "NO3") then
+         else if (trim(ncc_name) == "no3") then
              ncc_code = ncc_no3
-         else if (ncc_name == "Organic_P") then
+         else if (trim(ncc_name) == "organic_p") then
              ncc_code = ncc_organic_p
-         else if (ncc_name == "PO4") then
+         else if (trim(ncc_name) == "po4") then
              ncc_code = ncc_po4
-         else if (ncc_name == "Algae") then
+         else if (trim(ncc_name) == "algae") then
              ncc_code = ncc_algae
-         else if (ncc_name == "BOD") then
+         else if (trim(ncc_name) == "bod") then
              ncc_code = ncc_bod
-         else if (ncc_name == "Temperature") then
+         else if (trim(ncc_name) == "temperature") then
              ncc_code = ncc_temp
-         else if (ncc_name == "SSC") then
+         else if (trim(ncc_name) == "ssc") then
              ncc_code = ncc_ssc
-         else if (ncc_name == "PH") then
+         else if (trim(ncc_name) == "ph") then
              ncc_code = ncc_ph
-         else if (ncc_name == "DO_TS") then
+         else if (trim(ncc_name) == "do_ts") then
              ncc_code = ncc_dots
-         else if (ncc_name == "SO4" ) then
+         else if (trim(ncc_name) == "so4" ) then
              ncc_code = ncc_so4 
          else
              ncc_code = miss_val_i

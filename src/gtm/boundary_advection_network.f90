@@ -36,7 +36,7 @@ module boundary_advection_network
                                   nvar)
                           
         use gtm_precision
-        use common_variables, only : n_node, dsm2_network        
+        use common_variables, only : n_node, dsm2_network, constituents       
         implicit none
 
         !---- args
@@ -53,6 +53,7 @@ module boundary_advection_network
         integer :: i
 
         do ivar = 1, nvar
+            if (constituents(ivar)%simulate) then
             grad_center(2:(ncell-1),ivar) = (vals(3:ncell,ivar) - vals(1:(ncell-2),ivar))/    &
                                           (half*dx(3:ncell) + dx(2:ncell-1) + half*dx(1:ncell-2))
             grad_center(1,ivar) = LARGEREAL
@@ -83,6 +84,7 @@ module boundary_advection_network
                                                   (half*dx(down_cell+1)+dx(down_cell)+half*dx(up_cell))
                 end if    
             end do
+            end if
         end do      
         return
     end subroutine
@@ -177,7 +179,7 @@ module boundary_advection_network
                                          dx)
         use gtm_precision
         use error_handling
-        use common_variables, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close
+        use common_variables, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close, constituents
         use common_dsm2_vars, only: pathinput
         use state_variables_network
         implicit none
@@ -202,14 +204,16 @@ module boundary_advection_network
         real(gtm_real) :: conc_tmp0(nvar)                       ! when no flow flows into junction, use this temp value.
         integer :: up_cell, down_cell
         integer :: network_id
-        integer :: i, j, k, s, st, icell, inode
+        integer :: i, j, k, s, st, icell, inode, ivar
         integer :: reservoir_id, resv_conn_id   
         real(gtm_real) :: conc_ext(nvar)
      
+        do ivar = 1, nvar
+        if (constituents(ivar)%simulate) then
         ! recalculate concentration for reservoirs
         do i = 1, n_resv
             vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
-            mass_resv(i,:) = vol(i) * conc_resv_prev(i,:)
+            mass_resv(i,ivar) = vol(i) * conc_resv_prev(i,ivar)
         end do      
    
         do i = 1, n_node
@@ -217,13 +221,13 @@ module boundary_advection_network
             if (dsm2_network(i)%boundary_no > 0) then       
                 icell = dsm2_network(i)%cell_no(1)
                 if (( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).ge.zero)) then    ! upstream boundary
-                    flux_lo(icell,:) = conc_stip(icell,:)*flow_lo(icell)
+                    flux_lo(icell,ivar) = conc_stip(icell,ivar)*flow_lo(icell)
                 elseif(( dsm2_network(i)%up_down(1) .eq. 1).and.(flow_lo(icell).lt.zero)) then
-                    flux_lo(icell,:) = conc_lo(icell,:)*flow_lo(icell)
+                    flux_lo(icell,ivar) = conc_lo(icell,ivar)*flow_lo(icell)
                 elseif(( dsm2_network(i)%up_down(1) .eq. 0).and.(flow_hi(icell).ge.zero)) then ! downstream boundary
-                    flux_hi(icell,:) = conc_hi(icell,:)*flow_hi(icell)   !outflow
+                    flux_hi(icell,ivar) = conc_hi(icell,ivar)*flow_hi(icell)   !outflow
                 else 
-                    flux_hi(icell,:) = conc_stip(icell,:)*flow_hi(icell) !inflow
+                    flux_hi(icell,ivar) = conc_stip(icell,ivar)*flow_hi(icell) !inflow
                 end if
             end if
             ! adjust flux for non-sequential adjacent cells
@@ -236,41 +240,41 @@ module boundary_advection_network
                     down_cell = dsm2_network(i)%cell_no(1)
                 end if
                 if (flow_hi(up_cell) .gt. zero) then
-                    flux_hi(up_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
+                    flux_hi(up_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(up_cell)
                 else
-                    flux_hi(up_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
+                    flux_hi(up_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(down_cell)
                 end if        
                 if (flow_lo(down_cell) .gt. zero) then
-                    flux_lo(down_cell,:) = conc_hi(up_cell,:)*flow_hi(up_cell)
+                    flux_lo(down_cell,ivar) = conc_hi(up_cell,ivar)*flow_hi(up_cell)
                 else
-                    flux_lo(down_cell,:) = conc_lo(down_cell,:)*flow_lo(down_cell)
+                    flux_lo(down_cell,ivar) = conc_lo(down_cell,ivar)*flow_lo(down_cell)
                 end if                 
             end if             
             ! adjust flux for junctions
             if (dsm2_network(i)%junction_no .gt. 0) then
                 flow_tmp = zero 
-                mass_tmp(:) = zero
-                conc_tmp(:) = zero
-                conc_tmp0(:) = zero
+                mass_tmp(ivar) = zero
+                conc_tmp(ivar) = zero
+                conc_tmp0(ivar) = zero
                 do j = 1, dsm2_network(i)%n_conn_cell     ! counting flow into the junctions
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
-                        mass_tmp(:) = mass_tmp(:) + conc_hi(icell,:)*flow_hi(icell)
+                        mass_tmp(ivar) = mass_tmp(ivar) + conc_hi(icell,ivar)*flow_hi(icell)
                         flow_tmp = flow_tmp + flow_hi(icell)            
-                        conc_tmp0(:) = conc_hi(icell,:)           
+                        conc_tmp0(ivar) = conc_hi(icell,ivar)           
                     elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
-                        mass_tmp(:) = mass_tmp(:) + conc_lo(icell,:)*abs(flow_lo(icell))
+                        mass_tmp(ivar) = mass_tmp(ivar) + conc_lo(icell,ivar)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
-                        conc_tmp0(:) = conc_lo(icell,:)
+                        conc_tmp0(ivar) = conc_lo(icell,ivar)
                     endif       
                 end do
 
                 ! temporarily calculated concentration to assign to seepage and diversion
                 if (flow_tmp .lt. no_flow) then
                     !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                    conc_tmp = conc_tmp0
+                    conc_tmp(ivar) = conc_tmp0(ivar)
                 else     
-                    conc_tmp(:) = mass_tmp(:)/flow_tmp
+                    conc_tmp(ivar) = mass_tmp(ivar)/flow_tmp
                 end if
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
@@ -283,34 +287,33 @@ module boundary_advection_network
                         else     ! seepage and diversion
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j)) 
                         end if                    
-                        do k = 1, n_var
-                            if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,k).ne.0)) then    !drain
-                                conc_ext(k) = pathinput(dsm2_network_extra(i)%qext_path(j,k))%value 
-                                if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,k))%variable).eq.'ssc') then
-                                    do st = 1, n_sediment
-                                        conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,k))%value / dble(n_sediment)
-                                        do s = 1, n_sediment_bc
-                                            if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,k))%name) .eq. trim(sediment_bc(s)%name)) &
-                                               .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
-                                                conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,k))%value * sediment_bc(s)%percent * 0.01d0
-                                            end if
-                                        end do    
-                                    end do                            
-                                 end if                            
-                                 mass_tmp(k) = mass_tmp(k) + conc_ext(k)*qext_flow(dsm2_network_extra(i)%qext_no(j))
-                            elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,k).eq.0)) then !drain but node concentration is absent
-                                mass_tmp(k) = mass_tmp(k) + conc_tmp(k)*qext_flow(dsm2_network_extra(i)%qext_no(j))
-                                !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
-                            else     ! seepage and diversion
-                                mass_tmp(k) = mass_tmp(k) + conc_tmp(k)*qext_flow(dsm2_network_extra(i)%qext_no(j))
-                            end if
-                        end do
+
+                        if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).ne.0)) then    !drain
+                            conc_ext(ivar) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value 
+                            if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%variable).eq.'ssc') then
+                                do st = 1, n_sediment
+                                    conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value / dble(n_sediment)
+                                    do s = 1, n_sediment_bc
+                                        if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%name) .eq. trim(sediment_bc(s)%name)) &
+                                           .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
+                                            conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sediment_bc(s)%percent * 0.01d0
+                                        end if
+                                    end do    
+                                end do                            
+                             end if                            
+                             mass_tmp(ivar) = mass_tmp(ivar) + conc_ext(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).eq.0)) then !drain but node concentration is absent
+                            mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                            !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
+                        else     ! seepage and diversion
+                            mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        end if
                     end do
                     if (flow_tmp .lt. no_flow) then
                         !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                        conc_tmp = conc_tmp0
+                        conc_tmp(ivar) = conc_tmp0(ivar)
                     else     
-                        conc_tmp(:) = mass_tmp(:)/flow_tmp
+                        conc_tmp(ivar) = mass_tmp(ivar)/flow_tmp
                     end if     
                 end if
 
@@ -320,34 +323,34 @@ module boundary_advection_network
                     resv_conn_id = dsm2_network_extra(i)%resv_conn_no
                     vol(reservoir_id) = vol(reservoir_id) - resv_flow(resv_conn_id)*dt
                     if (resv_flow(resv_conn_id).gt.zero) then
-                        mass_resv(reservoir_id,:) = mass_resv(reservoir_id,:) - resv_flow(resv_conn_id)*dt*conc_resv_prev(reservoir_id,:) 
-                        mass_tmp(:) = mass_tmp(:) + conc_resv_prev(reservoir_id,:)*resv_flow(resv_conn_id)
+                        mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_resv_prev(reservoir_id,ivar) 
+                        mass_tmp(ivar) = mass_tmp(ivar) + conc_resv_prev(reservoir_id,ivar)*resv_flow(resv_conn_id)
                         flow_tmp = flow_tmp + resv_flow(resv_conn_id)
                     else
-                        mass_resv(reservoir_id,:) = mass_resv(reservoir_id,:) - resv_flow(resv_conn_id)*dt*conc_tmp(:) 
-                        mass_tmp(:) = mass_tmp(:) + conc_tmp(:)*resv_flow(resv_conn_id)
+                        mass_resv(reservoir_id,ivar) = mass_resv(reservoir_id,ivar) - resv_flow(resv_conn_id)*dt*conc_tmp(ivar) 
+                        mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*resv_flow(resv_conn_id)
                         flow_tmp = flow_tmp + resv_flow(resv_conn_id)              
                     end if
                     if (flow_tmp .lt. no_flow) then
                         !write(*,*) "WARNING: No flow flows into junction!!",icell               
-                        conc_tmp = conc_tmp0
+                        conc_tmp(ivar) = conc_tmp0(ivar)
                     else     
-                        conc_tmp(:) = mass_tmp(:)/flow_tmp
+                        conc_tmp(ivar) = mass_tmp(ivar)/flow_tmp
                     end if     
                 end if               
                 
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
                     icell = dsm2_network(i)%cell_no(j)
-                    prev_conc_stip(icell,:) = LARGEREAL                    
-                    prev_conc_stip(icell,:) = conc_stip(icell,:) 
-                    conc_stip(icell,:) = LARGEREAL
+                    prev_conc_stip(icell,ivar) = LARGEREAL                    
+                    prev_conc_stip(icell,ivar) = conc_stip(icell,ivar) 
+                    conc_stip(icell,ivar) = LARGEREAL
                     if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction
-                        flux_hi(icell,:) = conc_tmp(:)*flow_hi(icell)                        
-                        conc_stip(icell,:) = conc_tmp(:)
+                        flux_hi(icell,ivar) = conc_tmp(ivar)*flow_hi(icell)                        
+                        conc_stip(icell,ivar) = conc_tmp(ivar)
                     elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
-                        flux_lo(icell,:) = conc_tmp(:)*flow_lo(icell)
-                        conc_stip(icell,:) = conc_tmp(:)                      
+                        flux_lo(icell,ivar) = conc_tmp(ivar)*flow_lo(icell)
+                        conc_stip(icell,ivar) = conc_tmp(ivar)                      
                     endif            
                 end do           
                 
@@ -359,18 +362,21 @@ module boundary_advection_network
                 do j = 1, resv_geom(i)%n_qext
                     vol(i) = vol(i) + qext_flow(resv_geom(i)%qext_no(j))*dt
                     if (qext_flow(resv_geom(i)%qext_no(j)).gt.zero) then
-                        mass_resv(i,:) = mass_resv(i,:) + dble(pathinput(resv_geom(i)%qext_path(j,:))%value)*qext_flow(resv_geom(i)%qext_no(j))*dt
+                        mass_resv(i,ivar) = mass_resv(i,ivar) + dble(pathinput(resv_geom(i)%qext_path(j,ivar))%value)*qext_flow(resv_geom(i)%qext_no(j))*dt
                     else
-                        mass_resv(i,:) = mass_resv(i,:) + conc_resv_prev(i,:)*qext_flow(resv_geom(i)%qext_no(j))*dt
+                        mass_resv(i,ivar) = mass_resv(i,ivar) + conc_resv_prev(i,ivar)*qext_flow(resv_geom(i)%qext_no(j))*dt
                     end if
                 end do
             end if
             if (vol(i).gt.zero) then
-                conc_resv(i,:) = mass_resv(i,:)/vol(i)            
+                conc_resv(i,ivar) = mass_resv(i,ivar)/vol(i)            
             else
-                conc_resv(i,:) = conc_resv_prev(i,:)
+                conc_resv(i,ivar) = conc_resv_prev(i,ivar)
             end if
-        end do      
+        end do   
+        
+        end if
+        end do
            
         return
     end subroutine  

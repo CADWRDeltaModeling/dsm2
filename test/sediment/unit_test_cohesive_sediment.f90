@@ -42,11 +42,10 @@ module test_cohesive
     !> test bed shear stress    
     subroutine test_bed_shear_stress()
         implicit none
-        integer, parameter :: ncell = 1
-        real(gtm_real) :: manning(ncell)
-        real(gtm_real) :: hydro_radius(ncell)
-        real(gtm_real) :: velocity(ncell)
-        real(gtm_real) :: bed_shear(ncell)
+        real(gtm_real) :: manning
+        real(gtm_real) :: hydro_radius
+        real(gtm_real) :: velocity
+        real(gtm_real) :: bed_shear
 
         velocity = 0.3d0
         manning = 0.022d0
@@ -55,10 +54,9 @@ module test_cohesive
         call bed_shear_stress(bed_shear,     &
                               velocity,      &
                               manning,       &
-                              hydro_radius,  &
-                              ncell)  
+                              hydro_radius)  
                                    
-        call assertEquals(0.339051144542464d0,bed_shear(1),weak_eps,"Error in test_bed_shear_stress")
+        call assertEquals(0.339051144542464d0,bed_shear,weak_eps,"Error in test_bed_shear_stress")
         
         return
     end subroutine    
@@ -66,18 +64,16 @@ module test_cohesive
     !> test deposition
     subroutine test_deposition()
         implicit none
-        integer, parameter :: ncell = 1
-        real(gtm_real) :: deposition_flux(ncell)
-        real(gtm_real) :: settling_velocity(ncell)
-        real(gtm_real) :: conc(ncell)
+        real(gtm_real) :: deposition_flux
+        real(gtm_real) :: settling_velocity
+        real(gtm_real) :: conc
 
         settling_velocity = 0.02d0
         conc = 0.3d0
-        call deposition(deposition_flux,   &
-                        settling_velocity, &
-                        conc,              &
-                        ncell)        
-        call assertEquals(0.006d0,deposition_flux(1),weak_eps,"Error in test_deposition")
+        call cohesive_deposition(deposition_flux,   &
+                                 settling_velocity, &
+                                 conc)        
+        call assertEquals(0.006d0,deposition_flux,weak_eps,"Error in test_deposition")
         
         return
     end subroutine    
@@ -85,27 +81,24 @@ module test_cohesive
     !> test erosion
     subroutine test_erosion()
         implicit none
-        integer, parameter :: ncell = 1
         real(gtm_real), parameter :: param_M = 1.0d-4               ! kg/(m^2s)
         real(gtm_real), parameter :: critical_shear_stress = 0.25d0 ! Pa
-        real(gtm_real) :: bottom_shear_stress(ncell)
-        real(gtm_real) :: erosion_rate(ncell)
+        real(gtm_real) :: bottom_shear_stress
+        real(gtm_real) :: erosion_rate
                 
         bottom_shear_stress = 0.5d0       
-        call erosion(erosion_rate,           &
-                     critical_shear_stress,  &
-                     bottom_shear_stress,    &
-                     param_M,                &
-                     ncell)  
-        call assertEquals(1.0d-4,erosion_rate(1),weak_eps,"Error in test_erosion")
+        call cohesive_erosion(erosion_rate,           &
+                              critical_shear_stress,  &
+                              bottom_shear_stress,    &
+                              param_M)  
+        call assertEquals(1.0d-4,erosion_rate,weak_eps,"Error in test_erosion")
 
         bottom_shear_stress = 0.15d0       
-        call erosion(erosion_rate,           &
-                     critical_shear_stress,  &
-                     bottom_shear_stress,    &
-                     param_M,                &
-                     ncell)  
-        call assertEquals(zero,erosion_rate(1),weak_eps,"Error in test_erosion")
+        call cohesive_erosion(erosion_rate,           &
+                              critical_shear_stress,  &
+                              bottom_shear_stress,    &
+                              param_M)  
+        call assertEquals(zero,erosion_rate,weak_eps,"Error in test_erosion")
                           
         return
     end subroutine    

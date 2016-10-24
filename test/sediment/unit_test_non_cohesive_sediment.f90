@@ -90,7 +90,7 @@ module test_non_cohesive
         implicit none
         integer,parameter :: ncell = 3         !< Number of computational volumes in a channel
         integer,parameter :: nclass = 2        !< Number of non-cohesive sediment grain classes
-        real(gtm_real) :: e_s(ncell)           !< Dimenssionless rate of entrainment of bed sediment into suspension 
+        real(gtm_real) :: e_s           !< Dimenssionless rate of entrainment of bed sediment into suspension 
         real(gtm_real) :: shear_v(ncell)       !< Shear Velocity
         real(gtm_real) :: exp_re_p(ncell)      !< Explicit particle Reynolds number
         real(gtm_real) :: settling_v(ncell)    !< Settling velocity
@@ -103,25 +103,23 @@ module test_non_cohesive
         hand_calc_value = reshape ([0.29995136236d0,	0.29999995249d0,	0.29999999951d0, &
                                 0.00012994369d0,	0.09220539342d0,	0.29323308271d0],[3,2])
         exp_re_p = two
-        settling_v = 0.001d0        
-        call es_garcia_parker(e_s,         &
-                              shear_v,     &
-                              exp_re_p,    &
-                              settling_v,  & 
-                              ncell)       
-        do icell = 1, ncell                                                 
-            call assertEquals(hand_calc_value(icell,1),e_s(icell),weak_eps,"Error in subroutine es_garcia_parker1")             
+        settling_v = 0.001d0
+        do icell = 1, ncell
+            call es_garcia_parker(e_s,                &
+                                  shear_v(icell),     &
+                                  exp_re_p(icell),    &
+                                  settling_v(icell))                                                       
+            call assertEquals(hand_calc_value(icell,1),e_s,weak_eps,"Error in subroutine es_garcia_parker1")             
         end do 
 
         exp_re_p = ten
         settling_v = 0.1d0        
-        call es_garcia_parker(e_s,         &
-                              shear_v,     &
-                              exp_re_p,    &
-                              settling_v,  & 
-                              ncell)       
-        do icell = 1, ncell                                                 
-            call assertEquals(hand_calc_value(icell,2),e_s(icell),weak_eps,"Error in subroutine es_garcia_parker2")             
+        do icell = 1, ncell  
+            call es_garcia_parker(e_s,                &
+                                  shear_v(icell),     &
+                                  exp_re_p(icell),    &
+                                  settling_v(icell))                                                              
+            call assertEquals(hand_calc_value(icell,2),e_s,weak_eps,"Error in subroutine es_garcia_parker2")             
         end do 
         return
     end subroutine
@@ -132,7 +130,7 @@ module test_non_cohesive
         implicit none
         integer,parameter :: ncell = 3                 !< Number of computational volumes in a channel
         integer,parameter :: nclass = 6                !< Number of non-cohesive sediment grain classes
-        real(gtm_real) :: c_b(ncell)                   !< deposition 
+        real(gtm_real) :: c_b                   !< deposition 
         real(gtm_real) :: shear_v(ncell)               !< Shear Velocity
         real(gtm_real) :: settling_v(ncell)           !< Settling velocity
         real(gtm_real) :: conc(ncell)                  !< Concentration
@@ -148,63 +146,57 @@ module test_non_cohesive
         hand_calc_value(3,:) = [0.2d0, 0.200000024d0, 0.200019875d0, 0.202055347d0, 0.202953787d0, 0.206265530904005d0 ]
         
         settling_v = 6.67177d-9
-        call parker_rouse_profile(c_b,          &
-                                  shear_v,      &                                   
-                                  settling_v,   &
-                                  conc,         &
-                                  ncell)
-        do icell = 1, ncell                                                              
-            call assertEquals(hand_calc_value(icell,1),c_b(icell),weak_eps,"Error in subroutine parker_rouse_profile")
+        do icell = 1, ncell 
+            call parker_rouse_profile(c_b,                 &
+                                      shear_v(icell),      &                                   
+                                      settling_v(icell),   &
+                                      conc(icell))                                                                     
+            call assertEquals(hand_calc_value(icell,1),c_b,weak_eps,"Error in subroutine parker_rouse_profile")
         end do 
         
         settling_v = 6.67177d-7
-        call parker_rouse_profile(c_b,          &
-                                  shear_v,      &                                   
-                                  settling_v,   &
-                                  conc,         &
-                                  ncell)
-        do icell = 1, ncell                                                              
-            call assertEquals(hand_calc_value(icell,2),c_b(icell),weak_eps,"Error in subroutine parker_rouse_profile")
+        do icell = 1, ncell 
+            call parker_rouse_profile(c_b,                 &
+                                      shear_v(icell),      &                                   
+                                      settling_v(icell),   &
+                                      conc(icell))                                                                     
+            call assertEquals(hand_calc_value(icell,2),c_b,weak_eps,"Error in subroutine parker_rouse_profile")
         end do 
         
         settling_v = 6.67177d-5
-        call parker_rouse_profile(c_b,          &
-                                  shear_v,      &                                   
-                                  settling_v,   &
-                                  conc,         &
-                                  ncell)
-        do icell = 1, ncell                                                          
-            call assertEquals(hand_calc_value(icell,3),c_b(icell),weak_eps,"Error in subroutine parker_rouse_profile")
+        do icell = 1, ncell
+            call parker_rouse_profile(c_b,                 &
+                                      shear_v(icell),      &                                   
+                                      settling_v(icell),   &
+                                      conc(icell))                                                                  
+            call assertEquals(hand_calc_value(icell,3),c_b,weak_eps,"Error in subroutine parker_rouse_profile")
         end do 
         
         settling_v = 0.001599879d0
-        call parker_rouse_profile(c_b,          &
-                                  shear_v,      &                                   
-                                  settling_v,   &
-                                  conc,         &
-                                  ncell)
-        do icell = 1, ncell                                                               
-            call assertEquals(hand_calc_value(icell,4),c_b(icell),weak_eps,"Error in subroutine parker_rouse_profile")
+        do icell = 1, ncell
+            call parker_rouse_profile(c_b,                 &
+                                      shear_v(icell),      &                                   
+                                      settling_v(icell),   &
+                                      conc(icell))                                                                       
+            call assertEquals(hand_calc_value(icell,4),c_b,weak_eps,"Error in subroutine parker_rouse_profile")
         end do 
         
         settling_v = 0.002050972d0
-        call parker_rouse_profile(c_b,          &
-                                  shear_v,      &                                   
-                                  settling_v,   &
-                                  conc,         &
-                                  ncell)
-        do icell = 1, ncell                                                              
-            call assertEquals(hand_calc_value(icell,5),c_b(icell),weak_eps,"Error in subroutine parker_rouse_profile")
+        do icell = 1, ncell   
+            call parker_rouse_profile(c_b,                 &
+                                      shear_v(icell),      &                                   
+                                      settling_v(icell),   &
+                                      conc(icell))                                                                   
+            call assertEquals(hand_calc_value(icell,5),c_b,weak_eps,"Error in subroutine parker_rouse_profile")
         end do 
         
         settling_v = 0.003432763d0
-        call parker_rouse_profile(c_b,          &
-                                  shear_v,      &                                   
-                                  settling_v,   &
-                                  conc,         &
-                                  ncell)
-        do icell = 1, ncell                                                             
-            call assertEquals(hand_calc_value(icell,6),c_b(icell),weak_eps,"Error in subroutine parker_rouse_profile")
+        do icell = 1, ncell 
+            call parker_rouse_profile(c_b,                 &
+                                      shear_v(icell),      &                                   
+                                      settling_v(icell),   &
+                                      conc(icell))                                                                    
+            call assertEquals(hand_calc_value(icell,6),c_b,weak_eps,"Error in subroutine parker_rouse_profile")
         end do 
         return
     end subroutine
@@ -215,7 +207,7 @@ module test_non_cohesive
         implicit none
         integer,parameter :: ncell = 3        !< Number of computational volumes in a channel
         integer,parameter :: nclass = 6       !< Number of non-cohesive sediment grain classes
-        real(gtm_real) :: c_b(ncell)          !< deposition 
+        real(gtm_real) :: c_b          !< deposition 
         real(gtm_real) :: shear_v(ncell)      !< Shear Velocity
         real(gtm_real) :: settling_v(ncell)   !< Settling velocity
         real(gtm_real) :: conc(ncell)         !< Concentration
@@ -230,63 +222,57 @@ module test_non_cohesive
         hand_calc_value(3,:) = [ 0.20000004d0, 0.200003996d0, 0.20039963d0, 0.209583059956680d0, 0.212285046335049d0, 0.220561788514051d0 ]
 
         settling_v = 6.67177d-9
-        call teeter(c_b,                &
-                    shear_v,            &                                   
-                    settling_v, &
-                    conc,               &
-                    ncell)  
-        do icell=1,ncell                                           
-            call assertEquals(hand_calc_value(icell,1),c_b(icell),weak_eps,"Error in subroutine teeter")
+        do icell=1,ncell          
+            call teeter(c_b,                 &
+                        shear_v(icell),      &                                   
+                        settling_v(icell),   &
+                        conc(icell))                      
+            call assertEquals(hand_calc_value(icell,1),c_b,weak_eps,"Error in subroutine teeter")
         end do 
         
         settling_v = 6.67177d-7
-        call teeter(c_b,                &
-                    shear_v,            &                                   
-                    settling_v, &
-                    conc,               &
-                    ncell)  
-        do icell=1,ncell                                           
-            call assertEquals(hand_calc_value(icell,2),c_b(icell),weak_eps,"Error in subroutine teeter")
+        do icell=1,ncell
+            call teeter(c_b,                 &
+                        shear_v(icell),      &                                   
+                        settling_v(icell),   &
+                        conc(icell))                              
+            call assertEquals(hand_calc_value(icell,2),c_b,weak_eps,"Error in subroutine teeter")
         end do 
                 
         settling_v = 6.67177d-5
-        call teeter(c_b,                &
-                    shear_v,            &                                   
-                    settling_v, &
-                    conc,               &
-                    ncell)  
-        do icell=1,ncell                                           
-            call assertEquals(hand_calc_value(icell,3),c_b(icell),weak_eps,"Error in subroutine teeter")
+        do icell=1,ncell         
+            call teeter(c_b,                 &
+                        shear_v(icell),      &                                   
+                        settling_v(icell),   &
+                        conc(icell))                          
+            call assertEquals(hand_calc_value(icell,3),c_b,weak_eps,"Error in subroutine teeter")
         end do 
               
         settling_v = 0.001599879d0
-        call teeter(c_b,                &
-                    shear_v,            &                                   
-                    settling_v, &
-                    conc,               &
-                    ncell)  
-        do icell=1,ncell                                           
-            call assertEquals(hand_calc_value(icell,4),c_b(icell),weak_eps,"Error in subroutine teeter")
+        do icell=1,ncell 
+            call teeter(c_b,                 &
+                        shear_v(icell),      &                                   
+                        settling_v(icell),   &
+                        conc(icell))                           
+            call assertEquals(hand_calc_value(icell,4),c_b,weak_eps,"Error in subroutine teeter")
         end do 
                
         settling_v = 0.002050972d0
-        call teeter(c_b,                &
-                    shear_v,            &                                   
-                    settling_v, &
-                    conc,               &
-                    ncell)  
-        do icell=1,ncell                                           
-            call assertEquals(hand_calc_value(icell,5),c_b(icell),weak_eps,"Error in subroutine teeter")
+        do icell=1,ncell 
+            call teeter(c_b,                 &
+                        shear_v(icell),      &                                   
+                        settling_v(icell),   &
+                        conc(icell))                                    
+            call assertEquals(hand_calc_value(icell,5),c_b,weak_eps,"Error in subroutine teeter")
         end do 
                 
         settling_v = 0.003432763d0
-        call teeter(c_b,                &
-                    shear_v,            &                                   
-                    settling_v, &
-                    conc,               &
-                    ncell)  
-        do icell=1,ncell                                           
-            call assertEquals(hand_calc_value(icell,6),c_b(icell),weak_eps,"Error in subroutine teeter")
+        do icell=1,ncell  
+            call teeter(c_b,                 &
+                        shear_v(icell),      &                                   
+                        settling_v(icell),   &
+                        conc(icell))                              
+            call assertEquals(hand_calc_value(icell,6),c_b,weak_eps,"Error in subroutine teeter")
         end do         
                 
         return

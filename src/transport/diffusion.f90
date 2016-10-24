@@ -76,6 +76,7 @@ module diffusion
         use primitive_variable_conversion 
         use boundary_diffusion 
         use klu
+        use common_variables, only: constituents
         
         implicit none
         ! ---- args
@@ -172,7 +173,7 @@ module diffusion
                                        right_hand_side,    & 
                                        explicit_diffuse_op,&   
                                        conc_prev,          &
-                                       mass_prev,               &
+                                       mass_prev,          &
                                        area_lo_prev,       &
                                        area_hi_prev,       &
                                        disp_coef_lo_prev,  &
@@ -192,13 +193,14 @@ module diffusion
                                        dx,                 &
                                        dt)
         
-
         if (klu_solver) then ! solve the sparse matrix by klu solver       
-            do i = 1, nvar    
-                call klu_fortran_free_numeric(k_numeric, k_common)                  
-                k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)
-                call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side(:,i), k_common)
-                conc(:,i) = right_hand_side(:,i)
+            do i = 1, nvar
+                if (constituents(i)%simulate) then 
+                    call klu_fortran_free_numeric(k_numeric, k_common)                  
+                    k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)
+                    call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side(:,i), k_common)
+                    conc(:,i) = right_hand_side(:,i)
+                end if
             end do
         else
             call solve(center_diag ,     &

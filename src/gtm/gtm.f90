@@ -76,6 +76,9 @@ program gtm
     real(gtm_real), allocatable :: init_r(:,:)   
     real(gtm_real), allocatable :: manning(:)
     real(gtm_real), allocatable :: diameter(:,:)
+    real(gtm_real), allocatable :: fall_velocity(:,:)
+    real(gtm_real), allocatable :: critical_shear(:,:)
+    real(gtm_real), allocatable :: particle_reynolds(:,:)
     real(gtm_real), allocatable :: erosion(:,:)
     real(gtm_real), allocatable :: deposition(:,:)
     real(gtm_real), allocatable :: available_bed(:,:)
@@ -106,6 +109,7 @@ program gtm
     logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
     logical :: debug_interp = .false.    
     logical :: use_gtm_hdf = .false.
+    logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
 
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
     character(len=:), allocatable :: restart_file_name  
@@ -118,6 +122,7 @@ program gtm
     integer, parameter :: max_num_sub_ts = 30                 ! maximum number of sub time step within GTM time step    
     real(gtm_real) :: sub_gtm_time_step                       ! sub time step for GTM when max CFL > 1
     real(gtm_real) :: max_cfl                                 ! max_cfl = maxval(cfl)
+    real(gtm_real) :: flow_chk                                ! flow check
     integer :: sub_st                                         ! number of sub time step within gtm time step
     integer :: prev_sub_ts                                    ! previous number of sub time step (used to decide if deallocate and allocate is needed.)
     integer :: ceil_max_cfl                                   ! ceiling integer of max_cfl
@@ -126,12 +131,10 @@ program gtm
     integer :: nt     
     integer :: istat = 0
     
-    real(gtm_real) :: flow_chk
-    
     ! for specified output locations
     real(gtm_real), allocatable :: vals(:)  
     logical :: file_exists
-    integer :: st, k, p, n_st, chan_no     ! temp index
+    integer :: st, k, p, n_st, chan_no
     integer :: ivar
     real(gtm_real) :: start, finish
     open(unit_error, file="error.log")
@@ -163,7 +166,6 @@ program gtm
     allocate(vals(noutpaths))    
     call get_cell_info    
     call get_output_channel
-
     nt = npartition_t + 1
     
     !----- assign dispersion coefficient and the pointer to function call
@@ -212,7 +214,6 @@ program gtm
     !----- point to interface -----
     fill_hydro_info => hydro_info
     fill_hydro_network => gtm_network_data
-    !compute_source => no_source
     compute_source => set_source_term_by_cell
     conc_gradient => difference_network
     adjust_gradient => adjust_differences_network               ! adjust gradients for DSM2 network
@@ -226,42 +227,45 @@ program gtm
     write(*,*) "Process time series...."
     prev_day = "01JAN1000"                                      ! to initialize for screen printing only
 
-    ! assigen the initial concentration to cells and reservoirs
-    init_c = 0.d0
-    init_r = 0.d0    
+    ! for sediment module
+    call assign_group_static_variables
+    call check_group_channel(11,8)
+    call check_group_channel(11,9)    
+    allocate(diameter(n_cell,n_sediment))  
+    allocate(fall_velocity(n_cell,n_sediment))                                   
+    allocate(particle_reynolds(n_cell,n_sediment))
+    allocate(critical_shear(n_cell,n_sediment))
+    allocate(erosion(n_cell,n_sediment))
+    allocate(deposition(n_cell,n_sediment))
+    allocate(available_bed(n_cell,n_sediment))
+    do i = 1, n_sediment
+        diameter(:,i) = group_var_cell(11,n_coef+i,:)
+        call get_sediment_properties(fall_velocity(:,i), particle_reynolds(:,i), &
+                                     critical_shear(:,i), diameter(:,i), n_cell)
+    end do
+    
+    call assign_input_ts_group_var    
+
+    ! assigen the initial concentration to cells and reservoirs    
     restart_file_name = trim(gtm_io(1,1)%filename) 
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
     if (file_exists==.true.) then 
-        call read_init_file(init_c, init_r, restart_file_name, n_cell, n_resv, n_var) 
-    endif            
-    prev_conc_stip = zero 
-
-    if (n_cell .gt. 0) then
+        call read_init_file(init_c, init_r, restart_file_name)
+        conc = init_c
+        conc_resv = init_r
+    else    
         if (init_conc .ne. LARGEREAL) then
-            conc = init_c
-        else    
             conc = init_conc
-        end if    
-    end if
-    if (n_resv .gt. 0) conc_resv = init_r
+            conc_resv = init_conc
+        else    
+            init_c = zero
+            init_r = zero            
+        end if                         
+    endif      
+    prev_conc_stip = zero 
     conc_prev = zero         
     conc_resv_prev = zero
     mass_prev = zero
-    
-    call assign_group_variables
-    call check_group_channel(11,8)
-    call check_group_channel(11,9)
-
-    !call assign_input_ts_group_var
-    
-    ! for sediment module
-    allocate(diameter(n_cell,n_var))
-    allocate(erosion(n_cell,n_var))
-    allocate(deposition(n_cell,n_var))
-    allocate(available_bed(n_cell,n_var))
-    do i = n_coef+1, n_rate_var
-        diameter(:,i-n_coef+1) = group_var_cell(11,i,:)
-    end do
     
     if (apply_diffusion)then
         call dispersion_coef(disp_coef_lo,         &
@@ -301,7 +305,7 @@ program gtm
          
         !---print out processing date on screen
         cdt = jmin2cdt(int(current_time))   ! this function only for screen status printout. 
-        if (cdt(1:9) .ne. prev_day) then    ! Rough integer is fine.
+        if (cdt(1:9) .ne. prev_day) then    ! Rough integer is fine, only for screen printing
             write(*,*) cdt(1:9)
             prev_day =  cdt(1:9)
         end if
@@ -331,8 +335,10 @@ program gtm
                 call allocate_network_tmp(npartition_t)
             end if
             !call print_erosion_deposition(erosion,deposition,current_time,n_var,n_cell)
-            call interp_network_linear(npartition_t, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
-            call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv, prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)              
+            call interp_network_linear(npartition_t, slice_in_block, n_comp, prev_comp_flow, &
+                 prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
+            call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv,           &
+                 prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)              
             ! to determine if sub time step is required based on CFL number
             call fill_hydro_info(flow,          &
                                  flow_lo,       &
@@ -359,8 +365,10 @@ program gtm
                 call deallocate_network_tmp
                 call allocate_network_tmp(npartition_t*ceil_max_cfl)         
                 n_st = npartition_t*ceil_max_cfl + 1
-                call interp_network_linear(npartition_t*ceil_max_cfl, slice_in_block, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
-                call interp_network_ext(npartition_t*ceil_max_cfl, slice_in_block, prev_hydro_resv, prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)                                      
+                call interp_network_linear(npartition_t*ceil_max_cfl, slice_in_block, n_comp,    &
+                     prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
+                call interp_network_ext(npartition_t*ceil_max_cfl, slice_in_block,               &
+                     prev_hydro_resv, prev_hydro_resv_flow, prev_hydro_qext, prev_hydro_tran)                                      
                 prev_sub_ts = ceil_max_cfl
             end if                                                 
             prev_comp_flow(:) = hydro_flow(:,slice_in_block)
@@ -389,7 +397,7 @@ program gtm
             !---get time series for boundary conditions, this will update pathinput(:)%value; 
             !---rounded integer is fine since DSS does not take care of precision finer than 1 minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
-                        
+                              
             call fill_hydro_info(flow,          &
                                  flow_lo,       &
                                  flow_hi,       &
@@ -432,39 +440,42 @@ program gtm
             available_bed = 9999.d0  ! Ideally, this number should come from bed sediment module
             do ivar = 1, n_var
                 if (trim(constituents(ivar)%use_module)=='sediment') then
-                    call sediment_flux(source_term_by_cell(:,ivar), &
-                                       erosion(:,ivar),             &
-                                       deposition(:,ivar),          &
-                                       conc(:,ivar),                &
-                                       flow,                        &
-                                       area,                        &
-                                       width,                       &
-                                       hydro_radius,                &
-                                       mann_arr,                    &
-                                       diameter(:,ivar),            &
-                                       dx_arr,                      &
-                                       sub_gtm_time_step*sixty,     &
-                                       n_cell,                      &
-                                       available_bed(:,ivar))                  
+                    call suspended_sediment_flux(source_term_by_cell(:,ivar),                  &
+                                                 erosion(:,ivar-(n_var-n_sediment)),           &
+                                                 deposition(:,ivar-(n_var-n_sediment)),        &
+                                                 conc(:,ivar),                                 &
+                                                 flow,                                         &
+                                                 area,                                         &
+                                                 width,                                        &
+                                                 hydro_radius,                                 & 
+                                                 mann_arr,                                     &
+                                                 diameter(:,ivar-(n_var-n_sediment)),          &
+                                                 fall_velocity(:,ivar-(n_var-n_sediment)),     &
+                                                 critical_shear(:,ivar-(n_var-n_sediment)),    &
+                                                 particle_reynolds(:,ivar-(n_var-n_sediment)), & 
+                                                 dx_arr,                                       &
+                                                 sub_gtm_time_step*sixty,                      &
+                                                 n_cell,                                       &
+                                                 available_bed(:,ivar-(n_var-n_sediment)))                  
                 end if
             end do
           
-            !if (apply_diffusion) then   ! omit dispersion term for advection calculation
-            !    boundary_diffusion_flux => network_boundary_diffusive_flux_prev
-            !    call explicit_diffusion_operator(explicit_diffuse_op,          &
-            !                                     conc_prev,                    &
-            !                                     area_lo_prev,                 &
-            !                                     area_hi_prev,                 &
-            !                                     disp_coef_lo_prev,            &  
-            !                                     disp_coef_hi_prev,            &
-            !                                     n_cell,                       &
-            !                                     n_var,                        &
-            !                                     dble(new_current_time)*sixty, &
-            !                                     dx_arr,                       &
-            !                                     sub_gtm_time_step*sixty)
-            !else !omit dispersion term in advection calculation
+            if (apply_diffusion_prev) then   ! omit dispersion term for advection calculation
+                boundary_diffusion_flux => network_boundary_diffusive_flux_prev
+                call explicit_diffusion_operator(explicit_diffuse_op,          &
+                                                 conc_prev,                    &
+                                                 area_lo_prev,                 &
+                                                 area_hi_prev,                 &
+                                                 disp_coef_lo_prev,            &  
+                                                 disp_coef_hi_prev,            &
+                                                 n_cell,                       &
+                                                 n_var,                        &
+                                                 dble(new_current_time)*sixty, &
+                                                 dx_arr,                       &
+                                                 sub_gtm_time_step*sixty)
+            else !omit dispersion term in advection calculation
                 explicit_diffuse_op = zero
-            !end if    
+            end if    
 
             !----- advection and source/sink -----        
             call advect(mass,                         &
@@ -528,15 +539,17 @@ program gtm
             
             ! add all sediment to ssc
             if (ssc_index .ne. 0) then
-                conc(:,ssc_index) = zero
-                do ivar = 1, n_var
-                    if (trim(constituents(ivar)%use_module)=='sediment') then
-                        conc(:,ssc_index) = conc(:,ssc_index) + conc(:,ivar)
-                        !where (conc(:,ivar)>zero) conc(:,ssc_index) = conc(:,ssc_index) + conc(:,ivar)
-                    end if
+                do i = 1, n_cell
+                    conc(i,ssc_index) = zero
+                    do ivar = n_var-n_sediment+1,n_var
+                        conc(i,ssc_index) = conc(i,ssc_index) + conc(i,ivar)
+                    end do
                 end do
             end if    
-                      
+            
+            do i = 1, n_input_ts_cell
+                conc(input_ts(i)%icell,input_ts(i)%ivar) = pathinput(input_ts(i)%pathinput_id)%value
+            end do                       
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
@@ -551,7 +564,8 @@ program gtm
             prev_tran_flow = tran_flow            
             prev_node_conc = node_conc
             prev_conc_stip = conc_stip            
-            node_conc = LARGEREAL             
+            node_conc = LARGEREAL
+        
         end do ! end of loop of sub time step
 
         !---- print output to DSS file -----
@@ -601,6 +615,8 @@ program gtm
         
     end do  ! end of loop for gtm time step
     
+    call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var)
+    
     !----- deallocate memories and close file units -----
     if (n_dssfiles .ne. 0) then
         call zclose(ifltab_in)   !!ADD A global to detect if dss is opened
@@ -614,6 +630,10 @@ program gtm
         call klu_fortran_free(k_symbolic, k_numeric, k_common)
         call deallocate_geom_arr
     end if
+    if (use_gtm_hdf) then
+        call close_gtm_hdf(gtm_hdf)         
+        call hdf5_close
+    end if    
     deallocate(disp_coef_arr)
     deallocate(pathinput)
     deallocate(pathoutput)
@@ -623,9 +643,13 @@ program gtm
     deallocate(vals)
     deallocate(source_term_by_cell)
     deallocate(diameter)
+    deallocate(fall_velocity)
+    deallocate(particle_reynolds)
+    deallocate(critical_shear)
     deallocate(erosion)
     deallocate(deposition)
     deallocate(available_bed)
+    deallocate(input_ts)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state
@@ -633,10 +657,6 @@ program gtm
     call deallocate_network_tmp
     call deallocate_state_hydro
     call deallocate_hydro_ts
-    if (use_gtm_hdf) then
-        call close_gtm_hdf(gtm_hdf)         
-        call hdf5_close
-    end if    
     !close(debug_unit)
     close(unit_error)
     write(*,*) '-------- Normal program end -------'

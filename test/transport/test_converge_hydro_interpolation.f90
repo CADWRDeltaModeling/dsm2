@@ -417,8 +417,8 @@ module test_converge_hydro_interpolation
         call allocate_hydro_ts
         allocate(prev_flow(n_comp),prev_ws(n_comp))
         allocate(prev_flow_cell_lo(n_cell), prev_flow_cell_hi(n_cell))
-        open(401,file='flow.txt')
-        open(402,file='ws.txt')
+        open(401,file='flow_hydro.txt')
+        open(402,file='ws_hydro.txt')
         do i = 1, memory_buffer
             read(401,*) (hydro_flow(j,i), j=1,n_comp)
             read(402,*) (hydro_ws(j,i), j=1,n_comp)

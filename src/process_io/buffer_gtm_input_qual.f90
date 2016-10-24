@@ -86,6 +86,7 @@ module buffer_gtm_input_qual
             character*32 :: name = ''                 !< constituent name
             character*32 :: use_module = ' '          !< use module
             logical :: conservative = .true.          !< conservative
+            logical :: simulate = .true.              !< simulate or not
         end type     
         type(const_t) :: const(20)
         character*32 :: tmp_const
@@ -209,7 +210,8 @@ module buffer_gtm_input_qual
                  const(nvar)%conc_no = 1
                  const(nvar)%name = variable
                  const(nvar)%use_module = 'time_series'
-                 const(nvar)%conservative = .false.  
+                 const(nvar)%conservative = .false.   
+                 const(nvar)%simulate = .false.
              else
                  do i = 1, nvar
                      if (trim(variable).eq.trim(const(i)%name)) then
@@ -222,6 +224,7 @@ module buffer_gtm_input_qual
                              const(nvar)%name = tmp_const
                              const(nvar)%use_module = 'time_series'
                              const(nvar)%conservative = .false.
+                             const(nvar)%simulate = .false.
                          end if
                      end if
                  end do           
@@ -236,10 +239,12 @@ module buffer_gtm_input_qual
             constituents(i)%name = const(i)%name
             constituents(i)%use_module = const(i)%use_module
             constituents(i)%conservative = const(i)%conservative
+            constituents(i)%simulate = const(i)%simulate
             if (trim(constituents(i)%name).eq.'ssc') then
                 ssc_index = i
                 constituents(i)%use_module = ''
                 constituents(i)%conservative = .false.  
+                constituents(i)%simulate = .false.
             end if
         end do
         do i = 1, n_sediment
@@ -250,11 +255,11 @@ module buffer_gtm_input_qual
         end do
         print *,"Number of constituents processed: ", n_var
      
-         allocate(indssfiles(n_dssfiles))
-         indssfiles = infilenames
-         allocate(ifltab_in(600, n_dssfiles))
-         call get_dss_each_npath         
-         return
+        allocate(indssfiles(n_dssfiles))
+        indssfiles = infilenames
+        allocate(ifltab_in(600, n_dssfiles))
+        call get_dss_each_npath         
+        return
 
     end subroutine      
       

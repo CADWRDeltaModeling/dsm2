@@ -50,7 +50,7 @@ module test_sediment_utility
         implicit none
         !---arg
         integer,parameter :: nclas = 5
-        real(gtm_real) :: w_s(nclas)                     !< Settling velocity
+        real(gtm_real) :: w_s                     !< Settling velocity
         real(gtm_real), parameter :: nu =1.0d-6          !< Kinematic viscosity 
         real(gtm_real), parameter :: specific_g = 2.65d0 !< Specific gravity of particle (~2.65)
         real(gtm_real) :: diameter(nclas)                !< Particle diameter in meter
@@ -61,28 +61,27 @@ module test_sediment_utility
         diameter = [0.8d-7,zero,5.0d-4,5.0d-5,2.0d-3]
         hand_calc_value = [-LARGEREAL,-LARGEREAL,0.07214383457399631d0,0.002247357291666667d0,0.19788368666972d0] 
         ! van Rijn     
+        do iclas = 1, nclas
         call settling_velocity(w_s,             &
                                nu,              &
                                specific_g,      &
-                               diameter,        &
-                               g_accel,         &
-                               nclas,           &               
+                               diameter(iclas),        &
+                               g_accel,         &            
                                .true.)       
-        do iclas = 1, nclas                                                            
-            call assertEquals(w_s(iclas),hand_calc_value(iclas),weak_eps,"Error in settling velocity, van Rijn, no optional input!")
+                                                                    
+            call assertEquals(w_s,hand_calc_value(iclas),weak_eps,"Error in settling velocity, van Rijn, no optional input!")
         end do
         !Dietrich 
         diameter = [100d-3,10d-3,1d-3,0.1d-3,0.01d-3]
         hand_calc_value = [1.97046240408866d0,0.7417624150d0,0.155040076887562d0,0.007482431190836277d0,8.00579353533193d-05]
-        call settling_velocity(w_s,              &
-                               nu,               &
-                               specific_g,       &
-                               diameter,         &
-                               g_accel,          &
-                               nclas,            &
-                              .false.)     
-        do iclas=1,nclas                                                                                                        
-            call assertEquals(w_s(iclas),hand_calc_value(iclas),weak_eps,"Error in settling velocity, Dietrich optional input=.false.!")
+        do iclas=1,nclas  
+            call settling_velocity(w_s,              &
+                                   nu,               &
+                                   specific_g,       &
+                                   diameter(iclas),  &
+                                   g_accel,          &
+                                  .false.)                                                                                                 
+            call assertEquals(w_s,hand_calc_value(iclas),weak_eps,"Error in settling velocity, Dietrich optional input=.false.!")
         end do
 
         return
@@ -115,7 +114,7 @@ module test_sediment_utility
         implicit none
         !---args
         integer,parameter  :: nclas = 3            !< Number of sediment diameter classes
-        real(gtm_real)  :: exp_re_p(nclas)         !< Explicit particle reynolds number
+        real(gtm_real)  :: exp_re_p         !< Explicit particle reynolds number
         real(gtm_real)  :: diameter(nclas)         !< Particle diameter
         real(gtm_real)  :: capital_r               !< Submerged specific gravity of sediment particles  
         real(gtm_real)  :: g_acceleration          !< Gravitational acceleration 
@@ -129,15 +128,14 @@ module test_sediment_utility
         kinematic_viscosity = 1.0d-6 
 
         hand_calc_value =  [4023.2449589852d0,11379.455171492d0,127.22617655184d0]
-       
-        call explicit_particle_reynolds_number(exp_re_p,            &
-                                               diameter,            &
-                                               capital_r,           &
-                                               g_acceleration,      &
-                                               kinematic_viscosity, &
-                                               nclas)          
-        do i = 1, nclas                                                                                
-            call assertEquals(hand_calc_value(i),exp_re_p(i),weak_eps,"Error in subroutine explicit_particle_reynolds_number!")
+        do i = 1, nclas  
+            call explicit_particle_reynolds_number(exp_re_p,            &
+                                                   diameter(i),         &
+                                                   capital_r,           &
+                                                   g_acceleration,      &
+                                                   kinematic_viscosity)          
+                                                                                     
+            call assertEquals(hand_calc_value(i),exp_re_p,weak_eps,"Error in subroutine explicit_particle_reynolds_number!")
         end do
         return
     end subroutine
@@ -148,7 +146,7 @@ module test_sediment_utility
         implicit none
         !---args
         integer, parameter :: nclas = 3       !< Number of sediment diameter classes
-        real(gtm_real):: re_p(nclas)          !< Particle Reynolds number
+        real(gtm_real):: re_p          !< Particle Reynolds number
         real(gtm_real):: settling_v(nclas)    !< Settling velocity
         real(gtm_real):: diameter(nclas)      !< Particle diameter
         real(gtm_real):: kinematic_viscosity  !< Kinematic viscosity (m2/sec)
@@ -159,14 +157,13 @@ module test_sediment_utility
         kinematic_viscosity = 1.0d-6 
         settling_v = [162d-3,25.7d-3,0.49d-3]
         hand_calc_value =  [324.0d0,6.425d0,0.01519d0]
-        
-        call particle_reynolds_number(re_p,                &
-                                      settling_v,          &
-                                      diameter,            &
-                                      kinematic_viscosity, &
-                                      nclas)                       
-        do i = 1, nclas                           
-            call assertEquals(hand_calc_value(i),re_p(i),weak_eps,"Error in subroutine particle_reynolds_number!")
+        do i = 1, nclas 
+            call particle_reynolds_number(re_p,                   &
+                                          settling_v(i),          &
+                                          diameter(i),            &
+                                          kinematic_viscosity)                       
+                                  
+            call assertEquals(hand_calc_value(i),re_p,weak_eps,"Error in subroutine particle_reynolds_number!")
         end do                                         
         return
     end subroutine
@@ -176,7 +173,7 @@ module test_sediment_utility
     subroutine test_dimless_particle_diameter
         implicit none
         integer, parameter :: nclas = 2        !< Number of cells
-        real(gtm_real):: d_star(nclas)          
+        real(gtm_real):: d_star          
         real(gtm_real):: capital_r             !< Submerged specific gravity of sediment particles  
         real(gtm_real):: g_accel               !< Gravitational acceleration 
         real(gtm_real):: diameter(nclas)       !< Particle diameter
@@ -190,15 +187,14 @@ module test_sediment_utility
         capital_r = 1.65d0
 
         hand_calc_value =  [50.591898800422d0,6.3239873500d0]
-
-        call dimless_particle_diameter(d_star,              &
-                                       g_accel,             &
-                                       diameter,            &
-                                       kinematic_viscosity, &
-                                       capital_r,           &
-                                       nclas)  
-        do i = 1, nclas                                                                 
-            call assertEquals(hand_calc_value(i),d_star(i),weak_eps,"Error in subroutine dimensionless particle number!")
+        do i = 1, nclas  
+            call dimless_particle_diameter(d_star,              &
+                                           g_accel,             &
+                                           diameter(i),         &
+                                           kinematic_viscosity, &
+                                           capital_r)  
+                                                                       
+            call assertEquals(hand_calc_value(i),d_star,weak_eps,"Error in subroutine dimensionless particle number!")
         end do
         return 
     end subroutine
@@ -209,7 +205,7 @@ module test_sediment_utility
         implicit none
         integer, parameter :: ncell = 6           !< Number of cells
         real(gtm_real):: d_star(ncell)          
-        real(gtm_real):: cr_shields_prmtr(ncell)  !< Critical Shields parameter                                      
+        real(gtm_real):: cr_shields_prmtr  !< Critical Shields parameter                                      
         real(gtm_real):: hand_calc_value(ncell)
         integer :: icell
 
@@ -221,11 +217,12 @@ module test_sediment_utility
                             0.03177312938897126d0, &
                             0.12d0,                &
                             0.24d0]
-        call critical_shields_parameter(cr_shields_prmtr, &
-                                        d_star,           &
-                                        ncell)
-        do icell=1,ncell                      
-            call assertEquals(hand_calc_value(icell),cr_shields_prmtr(icell),weak_eps,"Error in subroutine critical_shields_parameter!")             
+                            
+        do icell=1,ncell
+            call critical_shields_parameter(cr_shields_prmtr, &
+                                            d_star(icell))
+                                 
+            call assertEquals(hand_calc_value(icell),cr_shields_prmtr,weak_eps,"Error in subroutine critical_shields_parameter!")             
         end do
         return 
     end subroutine
@@ -235,7 +232,7 @@ module test_sediment_utility
     subroutine test_critical_shear
         implicit none
         integer, parameter :: ncell = 7               !< Number of cell
-        real(gtm_real):: crtical_shear(ncell)                                            
+        real(gtm_real):: crtical_shear                                            
         real(gtm_real):: hand_calc_value(ncell) 
         real(gtm_real), parameter :: water_density = 1000.d0
         real(gtm_real), parameter :: sediment_density = 2600.d0
@@ -247,16 +244,15 @@ module test_sediment_utility
         diameter = [0.007639944d0, 0.001002743d0, 0.000716245d0, 0.000477496d0, 0.000190999d0, 9.54993d-5, 4.77496d-5]
         
         hand_calc_value = [6.59315860082880d0,0.494558072136527d0,0.342888649993472d0,0.240291666728025d0,0.172774958701322d0,0.179813408d0,0.179813408d0]
-        
-        call critical_shear_stress(crtical_shear,           &
-                                   water_density,           &
-                                   sediment_density,        &
-                                   g_acceleration,          &
-                                   kinematic_viscosity,     &
-                                   diameter,                &
-                                   ncell)
         do icell = 1, ncell
-            call assertEquals(hand_calc_value(icell),crtical_shear(icell),weak_eps,"Error in subroutine critical_shear!")
+            call critical_shear_stress(crtical_shear,           &
+                                       water_density,           &
+                                       sediment_density,        &
+                                       g_acceleration,          &
+                                       kinematic_viscosity,     &
+                                       diameter(icell))
+        
+            call assertEquals(hand_calc_value(icell),crtical_shear,weak_eps,"Error in subroutine critical_shear!")
         end do 
         
         return
@@ -272,7 +268,7 @@ module test_sediment_utility
         real(gtm_real):: hand_calc_value(ncell)  !< The sought output 
         real(gtm_real):: big_r(ncell)            !< Hydraulic radius 
         real(gtm_real):: gravity                 !< Gravity
-        real(gtm_real):: shear_v(ncell)          !< Shear velocity 
+        real(gtm_real):: shear_v          !< Shear velocity 
         integer :: iclas
 
         vel =  [1.1d0,.7d0,-1.5d0]    ! values for a river
@@ -281,15 +277,14 @@ module test_sediment_utility
         big_r = [three,five,seven]
 
         hand_calc_value =  [ 0.057347634619921d0,   0.050273292832295d0,   0.152780222207618d0]
-
-        call shear_velocity_calculator(shear_v,   &
-                                       vel,       &
-                                       manning_n, &
-                                       gravity,   &
-                                       big_r,     &
-                                       ncell)                      
         do iclas=1,ncell
-            call assertEquals(hand_calc_value(iclas),shear_v(iclas),weak_eps,"Error in subroutine Shear Velocity!")
+            call shear_velocity_calculator(shear_v,          &
+                                           vel(iclas),       &
+                                           manning_n(iclas), &
+                                           gravity,          &
+                                           big_r(iclas))                      
+         
+            call assertEquals(hand_calc_value(iclas),shear_v,weak_eps,"Error in subroutine Shear Velocity!")
         end do
 
         return 
@@ -301,7 +296,7 @@ module test_sediment_utility
         implicit none
         integer, parameter :: nclas   = 2
         integer, parameter :: nvolume = 3
-        real(gtm_real) :: rouse_num(nvolume,nclas)   !< Rouse dimensionless number  
+        real(gtm_real) :: rouse_num   !< Rouse dimensionless number  
         real(gtm_real) :: fall_vel(nclas)            !< Settling velocity
         real(gtm_real) :: shear_vel(nvolume)         !< Shear velocity 
         real(gtm_real) :: hand_value(nvolume,nclas)  !< Calculated values 
@@ -316,11 +311,10 @@ module test_sediment_utility
                                
         do iclas=1,nclas
             do icell =1, nvolume
-                call rouse_dimensionless_number(rouse_num(icell,iclas), &
+                call rouse_dimensionless_number(rouse_num,              &
                                                 fall_vel(iclas),        &
-                                                shear_vel(icell),       &
-                                                nvolume)
-                call assertEquals(hand_value(icell,iclas),rouse_num(icell,iclas),weak_eps,"Error in subroutine Rouse number!")
+                                                shear_vel(icell))
+                call assertEquals(hand_value(icell,iclas),rouse_num,weak_eps,"Error in subroutine Rouse number!")
             end do
         end do
                                 

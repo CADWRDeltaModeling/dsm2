@@ -189,8 +189,8 @@ module boundary_diffusion_network
                                                dx,                &
                                                dt)
         use gtm_precision
-        use error_handling
-        use common_variables, only : n_node, n_var, dsm2_network, dsm2_network_extra
+        use error_handling 
+        use common_variables, only : n_node, n_var, dsm2_network, dsm2_network_extra, constituents
         use state_variables_network, only : node_conc, conc_stip
         implicit none
         !--- args
@@ -211,6 +211,7 @@ module boundary_diffusion_network
         real(gtm_real) :: extrp
 
         do k = 1, n_var
+          if (constituents(k)%simulate) then
           do i = 1, n_node
             if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
@@ -247,7 +248,8 @@ module boundary_diffusion_network
                 diffusive_flux_lo(down_cell,k) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
                              (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
             end if
-          end do  
+          end do
+          end if  
         end do      
         return
     end subroutine
@@ -357,7 +359,7 @@ module boundary_diffusion_network
                                                     dx,                &
                                                     dt)   
         use gtm_precision
-        use common_variables, only : n_node, dsm2_network, dsm2_network_extra   
+        use common_variables, only : n_node, dsm2_network, dsm2_network_extra, constituents 
         use state_variables_network, only : prev_node_conc, prev_conc_stip
         implicit none
         !--- args
@@ -379,6 +381,7 @@ module boundary_diffusion_network
         real(gtm_real) :: extrp
               
         do k = 1, nvar
+          if (constituents(k)%simulate) then
           do i = 1, n_node
             if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
                 icell = dsm2_network(i)%cell_no(1)               
@@ -416,7 +419,8 @@ module boundary_diffusion_network
                              (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
             end if
           end do  
-        end do            
+        end if
+        end do
         return        
     end subroutine    
 
@@ -721,7 +725,7 @@ module boundary_diffusion_network
                                                                  dt)
         use gtm_precision
         use error_handling
-        use common_variables, only : n_node, dsm2_network
+        use common_variables, only : n_node, dsm2_network, constituents
         use state_variables_network, only : node_conc, prev_node_conc, conc_stip, prev_conc_stip
         use utils, only: sparse2matrix
         implicit none
@@ -777,6 +781,7 @@ module boundary_diffusion_network
                     end if
                 end do
                 do ivar = 1, nvar
+                if (constituents(ivar)%simulate) then
                 if (prev_node_conc(ncc(j),ivar).eq.LARGEREAL)  prev_node_conc(ncc(j),ivar) = zero
                 extrp_prev(ivar) = conc_prev(i,ivar)-half*(conc_prev(i+1,ivar)-conc_prev(i,ivar))                
                 exp_diffusion_op_plus(ivar)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
@@ -785,6 +790,7 @@ module boundary_diffusion_network
                                             *(conc_prev(i,ivar)-extrp_prev(ivar))/(half*dx(i))/dx(i)  
                 right_hand_side(i,ivar) = mass(i,ivar) - (exp_diffusion_op_plus(ivar)-exp_diffusion_op_minus(ivar)) &
                                        + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*extrp_prev(ivar)/(half*dx(i)*dx(i))
+                end if
                 end do                       
                 j = j + 2
                 !write(105,'(i10,3f20.8)') i, exp_diffusion_op_plus(1),exp_diffusion_op_minus(1), right_hand_side(i,1)
@@ -800,6 +806,7 @@ module boundary_diffusion_network
                     end if
                 end do
                 do ivar = 1, nvar
+                if (constituents(ivar)%simulate) then
                 if (prev_node_conc(ncc(j),ivar).eq.LARGEREAL)  prev_node_conc(ncc(j),ivar) = zero 
                 extrp_prev(ivar) = conc_prev(i,ivar)+half*(conc_prev(i,ivar)-conc_prev(i-1,ivar))
                 exp_diffusion_op_plus(ivar) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
@@ -808,6 +815,7 @@ module boundary_diffusion_network
                                          *(conc_prev(i,ivar)- conc_prev(i-1,ivar))/x_int/dx(i)                               
                 right_hand_side(i,ivar) = mass(i,ivar) - (exp_diffusion_op_plus(ivar)-exp_diffusion_op_minus(ivar)) &
                                        + theta_gtm*dt*area_hi(i)*disp_coef_hi(i)*extrp_prev(ivar)/(half*dx(i)*dx(i))
+                end if
                 end do                
                 !write(105,'(i10,3f20.8)') i, exp_diffusion_op_plus(2),exp_diffusion_op_minus(2), right_hand_side(i,2)       
                 j = j + 2             
@@ -826,9 +834,11 @@ module boundary_diffusion_network
                     end if                                
                 end do
                 do ivar = 1, nvar
+                if (constituents(ivar)%simulate) then
                 exp_diffusion_op_minus(ivar) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,ivar)- conc_prev(i-1,ivar))/(half*dx(i)+half*dx(i-1))/dx(i)
                 right_hand_side(i,ivar) = mass(i,ivar)-(exp_diffusion_op_plus(ivar)-exp_diffusion_op_minus(ivar))
+                end if
                 end do
                 !write(105,'(i10,3f20.8)') i, exp_diffusion_op_plus(2),exp_diffusion_op_minus(2), right_hand_side(i,2)
                 j = j + nco(j)
@@ -847,9 +857,11 @@ module boundary_diffusion_network
                     end if                    
                 end do 
                 do ivar = 1, nvar
+                if (constituents(ivar)%simulate) then
                 exp_diffusion_op_plus(ivar) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,ivar)- conc_prev(i,ivar))/(half*dx(i)+half*dx(i+1))/dx(i)
                 right_hand_side(i,ivar) = mass(i,ivar)-(exp_diffusion_op_plus(ivar)-exp_diffusion_op_minus(ivar))  
+                end if
                 end do  
                 !write(105,'(i10,3f20.8)') i, exp_diffusion_op_plus(2),exp_diffusion_op_minus(2), right_hand_side(i,2)
                 
@@ -876,11 +888,13 @@ module boundary_diffusion_network
                     end if
                 end do
                 do ivar = 1, nvar
+                if (constituents(ivar)%simulate) then
                 exp_diffusion_op_plus(ivar)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i)*                 &
                                          (conc_prev(d_cell,ivar)-conc_prev(i,ivar))/(half*dx(i)+half*dx(d_cell))/dx(i)
                 exp_diffusion_op_minus(ivar) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i)*                 &
                                          (conc_prev(i,ivar)-conc_prev(u_cell,ivar))/(half*dx(i)+half*dx(u_cell))/dx(i)
                 right_hand_side(i,ivar) = mass(i,ivar) - (exp_diffusion_op_plus(ivar)-exp_diffusion_op_minus(ivar))
+                end if
                 end do
                 !write(105,'(i10,3f20.8)') i, exp_diffusion_op_plus(2),exp_diffusion_op_minus(2), right_hand_side(i,2)
                 j = j + 3           
