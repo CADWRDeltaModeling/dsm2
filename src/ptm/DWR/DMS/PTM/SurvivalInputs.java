@@ -24,8 +24,11 @@ public class SurvivalInputs {
 		if (inList != null)
 			setChannelGroups(PTMUtil.getInputBlock(inList, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS"));
 	}
-	public Map<String, Double> getSurvivalRates() {return _survivalRates;}
-	public Double getSurvivalRate(int chanId){return _survivalRates.get(_channelGroups.get(chanId));}
+	public Map<String, Pair<Double, Double>> getAllSurvivalParameters() {return _survivalParas;}
+	public Pair<Double, Double> getSurvivalParameters(int chanId){
+		String groupName = _channelGroups.get(chanId);
+		return (groupName != null)?_survivalParas.get(groupName):_survivalParas.get("ALL");
+	}
 	
 	//TODO should allow to set a survival rate for all the channels?
 	private void setChannelGroups(ArrayList<String> chanGroups){
@@ -34,20 +37,23 @@ public class SurvivalInputs {
 			return;
 		}
 		// get survival rates
-		ArrayList<String> survivalRateStrs = PTMUtil.getInputBlock(chanGroups, "SURVIVAL_RATES", "END_SURVIVAL_RATES");
+		ArrayList<String> survivalRateStrs = PTMUtil.getInputBlock(chanGroups, "SURVIVAL_PARAMETERS", "END_SURVIVAL_PARAMETERS");
 		if (survivalRateStrs == null)
-			PTMUtil.systemExit("No survival rates found in the Channel_Groups block, system exit");
+			PTMUtil.systemExit("No survival parameters found in the Channel_Groups block, system exit");
 		checkTitle(survivalRateStrs.get(0));
-		_survivalRates = new HashMap<String, Double>();
+		_survivalParas = new HashMap<String, Pair<Double, Double>>();
 		_groupNames = new ArrayList<String>();
 		for (String line: survivalRateStrs.subList(1, survivalRateStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
-			// put into the map: group name, survival rate
+			if(items.length < 3)
+				PTMUtil.systemExit("errors in the survival parameter input line:"+items);
+			// put into the map: group name, survival parameters
 			try{
-				_survivalRates.put(items[0].toUpperCase(), Double.parseDouble(items[1]));
+				_survivalParas.put(items[0].toUpperCase(), 
+						new Pair<Double, Double>(Double.parseDouble(items[1]), Double.parseDouble(items[2])));
 				_groupNames.add(items[0].toUpperCase());
 			}catch(NumberFormatException e){
-				PTMUtil.systemExit("expect to read a double in the survival rate line, but read: "+items[1]+", System exit.");
+				PTMUtil.systemExit("expect to read two doubles in the survival parameter line, but read: "+items+", System exit.");
 			}
 		}
 		//get Channel list
@@ -56,17 +62,19 @@ public class SurvivalInputs {
 			PTMUtil.systemExit("No channel list found, system exit");
 		_channelGroups = new HashMap<Integer, String>();
 		for (String name: _groupNames){
-			ArrayList<String> chanList = PTMUtil.getInputBlock(channelListStrs, name, "End_".concat(name));
-			if (chanList == null)
-				PTMUtil.systemExit("expect to get a channel list for group:"+name+", but got none, system exit.");
-			for (String line: chanList){
-				ArrayList<Integer> chanIds = PTMUtil.getInts(line);
-				for (int chanId: chanIds){
-					Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
-					if (envId <= 0)
-						PTMUtil.systemExit("got a wrong channel ID:"+chanId+", system exit.");
-					else
-						_channelGroups.put(envId, name);
+			if(!name.equalsIgnoreCase("ALL")){
+				ArrayList<String> chanList = PTMUtil.getInputBlock(channelListStrs, name, "End_".concat(name));
+				if (chanList == null)
+					PTMUtil.systemExit("expect to get a channel list for group:"+name+", but got none, system exit.");
+				for (String line: chanList){
+					ArrayList<Integer> chanIds = PTMUtil.getInts(line);
+					for (int chanId: chanIds){
+						Integer envId = PTMHydroInput.getIntFromExtChan(chanId);
+						if (envId <= 0)
+							PTMUtil.systemExit("got a wrong channel ID:"+chanId+", system exit.");
+						else
+							_channelGroups.put(envId, name);
+					}
 				}
 			}
 		}
@@ -74,11 +82,11 @@ public class SurvivalInputs {
 	private void checkTitle(String inTitle){
 		String [] title = inTitle.trim().split("[,\\s\\t]+");
 		if (!title[0].equalsIgnoreCase("Group_Name")
-				|| !title[1].equalsIgnoreCase("Survival_Rate"))		
-			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Survival_Rate but get:"+title[0] + " " +title[1]);
+				|| !title[1].equalsIgnoreCase("Lambda")|| !title[2].equalsIgnoreCase("Omega"))		
+			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Lambda Omega but get:"+title[0] + " " +title[1]+ " " +title[1]);
 	}
-	// <group name, survival rate>
-	private Map<String, Double> _survivalRates=null;
+	// <group name, Pair<Lambda, Omega>>
+	private Map<String, Pair<Double, Double>> _survivalParas=null;
 	private ArrayList<String> _groupNames=null;
 	// <channel number, group name>
 	private Map<Integer, String> _channelGroups=null;

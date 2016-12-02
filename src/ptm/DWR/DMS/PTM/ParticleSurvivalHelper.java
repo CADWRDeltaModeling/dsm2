@@ -29,11 +29,6 @@ public class ParticleSurvivalHelper extends Helper<Integer, ParticleBasicSurviva
 	public void helpSurvival(Particle p, float x, float t) {
 		super.getBehavior(p).isSurvived(p, x, t);;
 	}
-	
-	public float getXofXTSurvival(Channel ch, Node nd, float x, float currX){
-		PTMUtil.systemExit("Why am I here? in ParticleSurvivalHelper.java");
-		return 0.0f;
-	}
 
 	/* (non-Javadoc)
 	 * @see DWR.DMS.PTM.SurvivalHelper#setSurvivalHelperForParticle(DWR.DMS.PTM.Particle)

@@ -26,10 +26,5 @@ public class ParticleBasicSurvivalBehavior implements SurvivalBehavior {
 		// currently doing nothing
 
 	}
-	public float getXofXTSurvival(Channel ch, Node nd, float x, float maxDist){
-		PTMUtil.systemExit("Why am I here? in ParticleBasicSurvivalBehavior.java");
-		return 0.0f;
-				 
-	}
 
 }

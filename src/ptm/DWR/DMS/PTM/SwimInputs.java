@@ -56,10 +56,11 @@ public class SwimInputs {
 	public Map<Integer, String> getChannelGroups(){return _channelGroups;}
 	public Map<String, Map<Integer, Float>> getPartcleMeanSwimmingVelocityMap() {return _particleMeanSwimVels;}
 	public Map<String, Map<Integer, Long>> getPartcleMeanRearingHoldingMap() {return _particleMeanRearingHoldings;}
+	public Map<String, Map<Integer, Boolean>> getPartcleDaytimeHoldingMap() {return _particleDaytimeHoldings;}
 	public String getFishType(){return _fishType;}
 	public Map<String, float[]> getSwimParameters() {return _swimVelParas;}
 
-	//TODO do nothing for now, should be included in bahavior or helper?
+	//TODO do nothing for now, should be included in behavior or helper?
 	public void setChannelInfo(Waterbody[] allWbs){}
 	public void setNodeInfo(Node[] allNodes, int nodeNum){}
 	
@@ -79,6 +80,8 @@ public class SwimInputs {
 		_swimVelParas = new HashMap<String, float[]>();
 		_particleMeanSwimVels = new HashMap<String, Map<Integer, Float>>();
 		_particleMeanRearingHoldings = new HashMap<String, Map<Integer, Long>>();
+		_particleDaytimeHoldings = new HashMap<String, Map<Integer, Boolean>>();
+		boolean includeAll = false;
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
 			// put into the map: group name, survival rate
@@ -86,6 +89,8 @@ public class SwimInputs {
 				if (items.length < 5)
 					throw new NumberFormatException();
 				String groupName = items[0].toUpperCase();
+				if(groupName.equals("ALL"))
+					includeAll = true;
 				// item[1], constant swimming velocity; item[2], std for particles; item[3] std for time steps for each particle
 				_swimVelParas.put(groupName, new float[] {Float.parseFloat(items[1]),
 														 Float.parseFloat(items[2]),
@@ -94,12 +99,17 @@ public class SwimInputs {
 				_groupNames.add(groupName);
 				_particleMeanSwimVels.put(groupName, new HashMap<Integer, Float>());
 				_particleMeanRearingHoldings.put(groupName, new HashMap<Integer, Long>());
+				_particleDaytimeHoldings.put(groupName, new HashMap<Integer, Boolean>());
 			}catch(NumberFormatException e){
 				PTMUtil.systemExit("expect to read four floats in the swimming velocity line, but read: "+line+", System exit.");
 			}
 		}
-		_particleMeanSwimVels.put("ALL", new HashMap<Integer, Float>());
-		_particleMeanRearingHoldings.put("ALL", new HashMap<Integer, Long>());
+		if(!includeAll)
+			PTMUtil.systemExit("Swiming Velocities Input must include an \"ALL\" channel group, system exit");
+		//TODO clean up: groupName "ALL" already added in the loop above, no need to do again.  
+		//_particleMeanSwimVels.put("ALL", new HashMap<Integer, Float>());
+		//_particleMeanRearingHoldings.put("ALL", new HashMap<Integer, Long>());
+		//_particleDaytimeHoldings.put("ALL", new HashMap<Integer, Boolean>());
 		//get Channel list
 		ArrayList<String> channelListStrs = PTMUtil.getInputBlock(chanGroups, "CHANNEL_LIST", "END_CHANNEL_LIST");
 		if (channelListStrs == null)
@@ -145,6 +155,8 @@ public class SwimInputs {
 	private Map<String, Map<Integer, Float>> _particleMeanSwimVels = null;
 	// Map<ChanGroupName, Map<particleId, particleMeanRearingHoldingTime>>
 	private Map<String, Map<Integer, Long>> _particleMeanRearingHoldings = null;
+	// Map<ChanGroupName, Map<particleId, particleDaytimeHolding>>
+	private Map<String, Map<Integer, Boolean>> _particleDaytimeHoldings = null;
 	private ArrayList<String> _groupNames=null;
 	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;

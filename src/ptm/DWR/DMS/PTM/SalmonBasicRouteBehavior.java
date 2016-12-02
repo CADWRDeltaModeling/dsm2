@@ -9,6 +9,7 @@ package DWR.DMS.PTM;
  */
 
 public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements SalmonRouteBehavior {
+	public boolean DEBUG = false;
 	/**
 	 * 
 	 */
@@ -76,6 +77,8 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 				
 		// if in a dead end, move some distance and recalculate (p.x will be reset)
 		if (!prescreen(p, totalWbInflows)){
+			if(p.Id == 1 && DEBUG)
+				System.err.println("in a dead end, wait until next time step");
 			p.particleWait = true;
 		    return;
 		}
@@ -90,6 +93,8 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		
 		// if total flow is 0 wait for a time step
 		if (Math.abs(randTotalWbInflows) < Float.MIN_VALUE){
+			if(p.Id == 1 && DEBUG)
+				System.err.println("total flow = 0, wait until next time step");
 		      p.particleWait = true;
 		      if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL)
 			    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	

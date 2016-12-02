@@ -4,9 +4,11 @@ import java.util.Calendar;
 import java.util.Map;
 
 public class SalmonHoldingTimeCalculator {
+	public boolean DEBUG = false;
 
 	public SalmonHoldingTimeCalculator(SwimInputs si) {
 		_swimmingTimes = si.getPartcleMeanRearingHoldingMap();
+		_daytimeHoldings = si.getPartcleDaytimeHoldingMap();
 		_swimParameters = si.getSwimParameters();
 		if (_swimParameters == null)
 			PTMUtil.systemExit("The parameter for rear holding is not properly set! Please check the behavior input file, system exit.");
@@ -28,33 +30,51 @@ public class SalmonHoldingTimeCalculator {
         _sunset_min = _sunset.getSecond();
 		_channelGroups = si.getChannelGroups();
 	}
-	boolean daytimeHolding(){
+
+	public boolean getDaytimeHolding(int pId, int chanId){
+		Map<Integer, Boolean> pidDaytimeHoldings =  _daytimeHoldings.get(getGroupName(chanId));
+		if (DEBUG && pId == 1)
+			System.err.println(getGroupName(chanId) + "  channel:"+PTMHydroInput.getExtFromIntChan(chanId)
+					+"  daytime holding:" + pidDaytimeHoldings.get(pId));
+		if (pidDaytimeHoldings.get(pId) == null){
+			boolean pDaytimeHolding = PTMUtil.getRandomNumber() < _daytimeNotSwimPercent;
+			pidDaytimeHoldings.put(pId, pDaytimeHolding); 
+		}
+		if (DEBUG && pId == 1)
+			System.err.println("channel:"+PTMHydroInput.getExtFromIntChan(chanId)
+					+"  daytime holding:" + pidDaytimeHoldings.get(pId));
+		return pidDaytimeHoldings.get(pId);
+	}
+	boolean daytimeHolding(int pId, int chanId){
     	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime);
     	//TODO will use LocaTime when switch to Java 1.8
     	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > _sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < _sunset_hour) 
     			|| (curr.get(Calendar.HOUR_OF_DAY) == _sunrise_hour && curr.get(Calendar.MINUTE)>_sunrise_min)
     			|| (curr.get(Calendar.HOUR_OF_DAY) == _sunset_hour && curr.get(Calendar.MINUTE)<_sunset_min);
-    	return (isDaytime && (PTMUtil.getRandomNumber() < _daytimeNotSwimPercent));
+    	//change to a new daytime holding algorithm, please see notes
+    	//return (isDaytime && (PTMUtil.getRandomNumber() < _daytimeNotSwimPercent));
+    	return (isDaytime && getDaytimeHolding(pId, chanId));
 	}
 	// Rearing holding time is the time when a particle to swimming again, i.e., current model time + holding time
 	//TODO cast float to int e.g., 900.6 = 900, good enough?   
 	void setSwimTime(Particle p, int chanId){
-		String groupName = _channelGroups.get(chanId);
-		if (groupName == null)
-				groupName = "ALL";
+		String groupName = getGroupName(chanId);
 		// pidSwimTimes is set in SwimInputs, impossible to be null
-		Map<Integer, Long> pidSwimTimes = ((groupName == null)? _swimmingTimes.get("ALL"): _swimmingTimes.get(groupName));
+		Map<Integer, Long> pidSwimTimes = _swimmingTimes.get(groupName);
 		// if swim time never be set for this particle, set, otherwise do nothing
 		// swimming time is one per channel group per particle
 		if (pidSwimTimes.get(p.Id) == null){
-			//TODO clean up later
-			//System.err.println(groupName + " "+ PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex()));
 			int holdingTime = (int) (-_swimParameters.get(groupName)[3]*(float)Math.log(PTMUtil.getRandomNumber()));
 			if (holdingTime < 0)
 				PTMUtil.systemExit("got a negative rearing holding time, which is imposible, system exit.");
 			//pidSwimTimes.put(pId, (holdingTime+Globals.currentModelTime));
 			// this is more accurate
+			///*
+			if (DEBUG && p.Id == 1)
+				System.err.println("node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) +"  channel:"+PTMHydroInput.getExtFromIntChan(((Channel) p.wb).getEnvIndex())
+						+"  holdingTime:" + holdingTime*60 + "  p.getCurrentParticleTimeExact():" + p.getCurrentParticleTimeExact() + "  p.age:" + p.age);
 			pidSwimTimes.put(p.Id, (holdingTime+p.getCurrentParticleTimeExact()));
+			//*/
 		}
 	}
 	public Long getSwimTime(int pId, int chanId){
@@ -65,6 +85,11 @@ public class SalmonHoldingTimeCalculator {
 			PTMUtil.systemExit("swimming time is not properly set, check the code! system exit.");
 		return pidSwimTimes.get(pId);
 	}
+	
+	private String getGroupName(int chanId){
+		String groupName = _channelGroups.get(chanId);
+		return ((groupName == null)? "ALL":groupName);
+	}	
 	
 	//TODO be very careful, the class variables are visible to all particles!!!
 	private float _daytimeNotSwimPercent = 0.0f;
@@ -80,4 +105,6 @@ public class SalmonHoldingTimeCalculator {
     private int _sunrise_min;
     private int _sunset_hour;
     private int _sunset_min;
+	// Map<ChanGroupName, Map<particleId, daytimeHolding>>
+	private Map<String, Map<Integer, Boolean>> _daytimeHoldings = null;
 }

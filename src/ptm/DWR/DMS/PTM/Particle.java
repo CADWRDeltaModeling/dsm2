@@ -157,6 +157,7 @@ public class Particle{
 	  private boolean _swimVelSetInJunction = false;
 	  private float _XofXTSurvival = 0.0f;
 	  private float _ageAtEntrance = 0.0f;
+	  private double _survivalProb = 1;
 	  static final int MISSING = -99999;
 		
 	  /**
@@ -496,10 +497,8 @@ public class Particle{
 	  void swimVelSetInJunction(boolean sVSet){_swimVelSetInJunction = sVSet;}
 	  
 	  //TODO to be used in survival model, should be in suvival model instead here???	  
-	  float getXofXTSurvival(){return _XofXTSurvival;}
-	  void setXofXTSurvival(Channel ch, Node nd, float x){ 
-		  _XofXTSurvival = _survivalHelper.getXofXTSurvival(ch, nd, x, _XofXTSurvival);
-	  }
 	  float getAgeAtEntrance(){return _ageAtEntrance;}
-	  void setAgeAtEntrance(float ageAtEntrance){_ageAtEntrance = ageAtEntrance;}	  
+	  void setAgeAtEntrance(float ageAtEntrance){_ageAtEntrance = ageAtEntrance;}
+	  double getSurvivalProbability(){return _survivalProb;}
+	  void setSurvivalProbability(double survivalProb){_survivalProb = survivalProb;}	
 }

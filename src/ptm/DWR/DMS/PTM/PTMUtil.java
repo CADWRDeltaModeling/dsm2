@@ -28,6 +28,7 @@ public class PTMUtil {
 	static float EPSILON = 0.000000001f;
 	static Random rand = new Random();
 	//TODO temporary still use this because java.util.random doesn't work
+	// this value will be reset in setRandomNumber()
 	private static RandomElement randomNumberGenerator= new Ranecu(32001);
 
 	/**

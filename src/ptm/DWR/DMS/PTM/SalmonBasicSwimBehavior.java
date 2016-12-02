@@ -9,6 +9,8 @@ import java.nio.IntBuffer;
  *
  */
 public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
+	public boolean DEBUG_SWIM = false;
+	public boolean DEBUG_SURVIVAL = false;
 	//these variables are visible to ALL particles.  The containers in the classes are mapped with pid as the key.
 	SalmonConfusionFactorCalculator _confusionCalc;
 	SalmonSwimmingVelocityCalculator _swimCalc;
@@ -39,25 +41,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	public float getSwimmingVelocity(int pId, int chanId){ 
 		return _swimCalc.getSwimmingVelocity(pId, chanId);
 	}
-	//TODO clean up: very confusing when changing node here, write another method to change the node
-	/**
-	  *  check if a node is reached
-	  *  if reached return the new node else return null
-	  */ 
-	/*
-	private final boolean isNodeReached(Particle p, float xpos){
-		Channel ch = (Channel) p.wb;
-	    if (xpos < 0.0f) {// crossed starting Node of Channel
-	    	p.nd = ch.getNode(Channel.UPNODE);
-	    	return true;
-	    }
-	    else if (xpos > ch.getLength()) {// crossed ending Node of Channel
-	    	p.nd = ch.getNode(Channel.DOWNNODE);
-	    	return true;
-	    }
-	    else return false;
-	}
-	*/
+
 	private final boolean isNodeReached(Channel ch, float xpos){
 	    if ((xpos < 0.0f) || (xpos > ch.getLength())) // crossed starting/ending Node of Channel 
 	    	return true;
@@ -116,17 +100,19 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	    }
 	}
 	public void updatePosition(Particle p, float delT){
-		boolean holding = _holdingTimeCalc.daytimeHolding();
-		if (holding){
+		if ((p.wb.getPTMType() ==  Waterbody.CHANNEL) 
+				&& (_holdingTimeCalc.daytimeHolding(p.Id, ((Channel)p.wb).getEnvIndex()))) {
 			p.age += delT;
-			p.addTimeUsed(delT);		 
+			p.addTimeUsed(delT);
 			return;
-		}
+		}		
 		float tmLeft = delT;
 		while (tmLeft>0){
 			if (p.particleWait){
 				 p.age += tmLeft;
 				 p.addTimeUsed(tmLeft);
+				 if (p.Id == 1 && DEBUG_SWIM)
+					 System.err.println("Warning: At the beginning of the loop, the particle "+p.Id+" will wait until next time step.");
 				 return;
 			}
 			// Channel	
@@ -166,7 +152,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 if (cInfo[3]*p.getConfusionFactor() < _floodHoldVel){
 						 // wait time is the time left for the time step.
 						 p.age += tmLeft;
-						 p.addTimeUsed(tmLeft);			 
+						 p.addTimeUsed(tmLeft);						 
+						 if (p.Id == 1 && DEBUG_SWIM)
+							 System.err.println("Warning: particle "+p.Id+" velocity < flood hold velocity, velocity:"
+							 + cInfo[3]*p.getConfusionFactor()+", will wait until next time step.");							 
 						 return;
 					 } 
 					 _hydroCalc.mapYZ(p);
@@ -189,7 +178,20 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					// this is to avoid swimming velocity to be reset immediately after exiting from a junction
 					// after a couple of sub-time step it is OK to reset
 					 p.swimVelSetInJunction(false);
-
+					 
+					 if (DEBUG_SWIM && p.Id == 1 && p.wb.getEnvIndex()<800){
+						  System.out.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+								  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
+								  + "  p.x:" +p.x +"  xPos:" +xPos +" p.age:" + p.age
+								  +"  advVel:" + advVel + "  swimV:" + swimV + "  tmToAdv:" + tmToAdv 
+								  + "  tmLeft:" +tmLeft +"  currTime:" + p.getCurrentParticleTimeExact()
+								  + "  confusion:" + p.getConfusionFactor()
+								  + "  timeAtEntrance:" + p.getAgeAtEntrance()
+								  );
+					  }
+					 
+					 
+					 // isNodeReached now keeps the old node. the node will be changed to the new node just reached when getNewNode(...) is called	
 					 if (isNodeReached((Channel) p.wb, xPos)){
 						 //tmToAdv could be less than tmToAdv passed on 
 						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, swimV, p.x, xPos); 						 
@@ -201,23 +203,61 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, deltaX);
 						 p.addTimeUsed(tmToAdv);
 						 
+						 //TODO survival module temporary disabled, work on new algorithm, will work on later 
 						 //for use to calc survival
 						 // be very careful to call this before node and water body are changed because it uses node # and channel length to calc dist  
-						 p.setXofXTSurvival((Channel) p.wb, p.nd, p.x);
-						 //TODO need to work on it
+						 //p.setXofXTSurvival((Channel) p.wb, p.nd, p.x);
+						 //survival module works with current node and water body not the one just reached and assigned.
 						 //p.checkSurvival(p.getXofXTSurvival(), p.age-p.getAgeAtEntrance());
-						 if(p.isDead) return;
-						 
+						 //p.initializeXofXTSurvival();
+						 //TODO should set entrance age here?
+						 //p.setAgeAtEntrance(p.age);
+						 /*
+						 if(p.isDead){
+							 if (p.Id == 1 && DEBUG_SURVIVAL && p.wb.getEnvIndex()<800){
+								  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+										  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
+										  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
+										  + "  tmLeft:" +tmLeft
+										  + "  p.isDead:" + p.isDead
+										  + "  xOfXT:" + p.getXofXTSurvival() +"  enTOfXT:" + p.getAgeAtEntrance()
+										  + "  timeAtEntrance:" + p.getAgeAtEntrance()
+										  );
+							 }
+							 return;
+						 }
+						 */
 						 p.nd = getNewNode((Channel) p.wb, xPos);
 						 //set new node so make node decision can calculate total node inflow
 						 p.makeNodeDecision();
 						 // now p.wb is the new water body just selected
 						 // and p.x is set either 0 or channel length if p.wb is a channel
 						 
+						 if (DEBUG_SWIM && p.Id == 1 && p.wb.getEnvIndex()<800){
+							  System.err.println("Reach Node, node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
+									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
+									  + "  tmLeft:" +tmLeft
+									  );
+						  }
+						 
+						 if (DEBUG_SURVIVAL && p.Id == 1 && p.wb.getEnvIndex()<800){
+							  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
+									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
+									  + "  tmLeft:" +tmLeft
+									  + "  p.isDead:" + p.isDead
+									  +"  enTOfXT:" + p.getAgeAtEntrance()
+									  );
+						  }
+						 
 						 // wait for a time step
 						 if (p.particleWait){
 							 p.age += tmLeft;
 							 p.addTimeUsed(tmLeft);
+							 if (DEBUG_SWIM && p.Id == 1)
+								 System.err.println("Warning: the particle "+p.Id
+										 +" is set to wait by makeNodeDecision, will wait until next time step.");
 							 return;
 						 }
 						 // check if the new water body is a channel
@@ -251,7 +291,6 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 tmLeft -= tmToAdv;
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, deltaX);
 						 p.addTimeUsed(tmToAdv);
-						 p.setXofXTSurvival((Channel) p.wb, p.nd, p.x);
 					 }
 				 }// end the while in Channel
 			}// end if(CHANNEL)
@@ -290,17 +329,38 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			
 		 } // end first while 
 	}
-	//TODO clean up moved to survival behavior
-	/*
-	private void setMaxDistanceFromEntrance(Particle p){
-		//set the maximum distance a particle traveled from the entrance node
-		 float currDist = p.x * p.getDistSignForXT() + p.getDistOverheadForXT();
-		 if (p.getMaxDistFrmEntrance() < currDist)
-			 p.setMaxDistFrmEntrance(currDist);
-		
-	}
-	*/
 }
+
+
+//TODO clean up: very confusing when changing node here, write another method to change the node
+/**
+  *  check if a node is reached
+  *  if reached return the new node else return null
+  */ 
+/*
+private final boolean isNodeReached(Particle p, float xpos){
+	Channel ch = (Channel) p.wb;
+    if (xpos < 0.0f) {// crossed starting Node of Channel
+    	p.nd = ch.getNode(Channel.UPNODE);
+    	return true;
+    }
+    else if (xpos > ch.getLength()) {// crossed ending Node of Channel
+    	p.nd = ch.getNode(Channel.DOWNNODE);
+    	return true;
+    }
+    else return false;
+}
+*/
+//TODO clean up moved to survival behavior
+/*
+private void setMaxDistanceFromEntrance(Particle p){
+	//set the maximum distance a particle traveled from the entrance node
+	 float currDist = p.x * p.getDistSignForXT() + p.getDistOverheadForXT();
+	 if (p.getMaxDistFrmEntrance() < currDist)
+		 p.setMaxDistFrmEntrance(currDist);
+	
+}
+*/
 
 /*
 //TODO clean up	
