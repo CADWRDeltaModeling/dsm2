@@ -51,7 +51,7 @@ module process_gtm_input_time_series
          call locase(inpath)
       
          ninpaths = ninpaths + 1
-         pathinput(ninpaths).name = Name
+         pathinput(ninpaths).name = Name 
          pathinput(ninpaths).obj_name = 'group'
          if (FileName(:8) .eq. 'constant' .or.                     &
              FileName(:8) .eq. 'CONSTANT') then

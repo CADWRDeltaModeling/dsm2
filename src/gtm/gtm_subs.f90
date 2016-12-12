@@ -396,66 +396,84 @@ module gtm_subs
         return
     end subroutine        
 
-
     !> assign value to group_var for input time series
     subroutine assign_input_ts_group_var
         use common_variables
         use common_dsm2_vars, only: pathinput
         implicit none        
-        integer :: ncc_code
+        integer :: ts_var_code
         integer :: i, j, k, m, p, ivar, c
         integer :: n_input_ts_type
         integer :: temp, ivar_temp, io
+        integer :: chan_chk(n_chan), print_status
+        character*100 :: error_out
         
-        n_input_ts_type = 0
-        do ivar = 1, n_var
-            if (trim(constituents(ivar)%use_module).eq.'time_series') then
-                n_input_ts_type = n_input_ts_type + 1
-            end if
-        end do
-        n_input_ts_cell = n_input_ts_type*n_cell
-        allocate(input_ts(n_input_ts_cell))
-        
-        c = 0
-        do i = 1, n_input_ts            
-            call ncc_string_to_code(ncc_code, pathinput(n_node_ts+i)%variable)
-            do k = 1, n_var
-                if (trim(pathinput(n_node_ts+i)%variable) .eq. trim(constituents(k)%name)) then
-                    ivar_temp = constituents(k)%conc_no
+        allocate(input_ts(n_input_ts))
+        do i = 1, n_input_ts
+            call ts_var_string_to_code(ts_var_code, pathinput(n_node_ts+i)%variable)
+            input_ts(i)%input_ts_id = i
+            input_ts(i)%ts_var_code = ts_var_code
+            input_ts(i)%pathinput_id = n_node_ts+i  
+            do j = 1, n_group
+                if (trim(pathinput(n_node_ts+i)%name) .eq. trim(group(j)%name)) then          
+                    input_ts(i)%group_id = group(j)%id
                 end if
-            end do                  
-            if (ncc_code .ne. miss_val_i) then 
-                do j = 1, n_group
-                    if (trim(pathinput(n_node_ts+i)%name) .eq. trim(group(j)%name)) then                  
-                        do k = 1, group(j)%n_members
-                            if (group(j)%member_pattern_code(k) .eq. obj_channel) then
-                                read(group(j)%member_name(k),'(i)',iostat=io) temp
-                                do m = 1, n_chan
-                                    if (temp.eq. chan_geom(m)%channel_num) then
-                                        do p = chan_geom(m)%start_cell, chan_geom(m)%end_cell
-                                              c = c + 1
-                                              input_ts(c)%ncc_code = ncc_code
-                                              input_ts(c)%ivar = ivar_temp
-                                              input_ts(c)%icell = p
-                                              input_ts(c)%pathinput_id = n_node_ts+i 
-                                              input_ts(c)%group_id = group(j)%id
-                                         end do
-                                     end if
-                                 end do                                     
-                             elseif (group(i)%member_pattern_code(j) .eq. obj_reservoir) then   
-                    
-                             else
-                                 write(*,*) "this is neither channel nor reservoir"
-                             end if
-                         end do
-                    end if     
-                end do
+            end do    
+            if (i.eq.1 .and. n_ts_var.eq.0)then
+                n_ts_var = 1
+                ts_code(n_ts_var) = ts_var_code
+                ts_name(n_ts_var) = pathinput(n_node_ts+i)%variable
             else
-                        
-            end if
+                do j = 1, n_ts_var
+                    if (ts_var_code.eq.ts_code(j)) then
+                        exit
+                    else
+                        if (j.eq.n_ts_var) then
+                            n_ts_var = n_ts_var + 1
+                            ts_code(n_ts_var) = ts_var_code
+                            ts_name(n_ts_var) = pathinput(n_node_ts+i)%variable                            
+                        end if
+                    end if
+                end do           
+            end if 
+        end do         
+        
+        allocate(ts(n_ts_var,n_cell))
+        print_status = 0 
+        do i = 1, n_ts_var
+            chan_chk = 0
+            do j = 1, n_input_ts                
+                if (ts_code(i) .eq. input_ts(j)%ts_var_code) then
+                    do k = 1, group(input_ts(j)%group_id)%n_members
+                        if (group(input_ts(j)%group_id)%member_pattern_code(k) .eq. obj_channel) then
+                            read(group(input_ts(j)%group_id)%member_name(k),'(i)',iostat=io) temp
+                            do m = 1, n_chan
+                                if (temp.eq. chan_geom(m)%channel_num) then
+                                    chan_chk(m) = 1
+                                    do p = chan_geom(m)%start_cell, chan_geom(m)%end_cell
+                                        ts(i,p) = input_ts(j)%pathinput_id                                                 
+                                    end do
+                                end if
+                            end do
+                        elseif (group(i)%member_pattern_code(j) .eq. obj_reservoir) then
+                    
+                        else
+                            write(*,*) "this is neither channel nor reservoir"
+                        end if           
+                    end do
+                end if
+            end do
+            ! check if all the channels are assigned
+            do m = 1, n_chan
+                if (chan_chk(m) .eq. 0) then
+                    print_status = 1
+                    write(*,'(a24,i6,a21,a20)') "warning: Channel Number: ",chan_geom(m)%channel_num," is not assigned for ",ts_name(i)
+                end if
+            end do        
         end do
+        if (print_status .eq. 1) call exit(-1)
         return
-    end subroutine       
+    end subroutine      
 
 
     !> check the flow mass balance at DSM2 network

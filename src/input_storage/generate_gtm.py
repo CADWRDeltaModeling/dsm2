@@ -412,12 +412,12 @@ def generate_dsm2():
 
     component = TableComponent("input_time_series",
                              [CharField("group_name",DSM2_NAME_LEN,16),\
-                              CharField("constituent",16,12),\
+                              CharField("variable",16,12),\
                               CharField("fillin", 8,12),\
                               CharField("file",DSS_FILE_LEN,32),\
                               CharField("path",80,LAST_FIELD)
                              ],
-                             ["group_name","constituent"])   # identifier
+                             ["group_name","variable"])   # identifier
     component.layered=True
     prep_component(component,outdir)  
     

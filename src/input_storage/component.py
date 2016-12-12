@@ -85,7 +85,7 @@ def component_members():
       "source_flow_reservoir":["name","res_name","sign","fillin","file","path"],\
       "node_concentration":["name","node_no","variable","fillin","file","path"],\
       "reservoir_concentration":["name","res_name","variable","fillin","file","path"],\
-      "input_time_series":["group_name","constituent","fillin","file","path"],\
+      "input_time_series":["group_name","variable","fillin","file","path"],\
       "output_channel":["name","chan_no","distance","variable","interval","period_op","file"],\
       "output_reservoir":["name","res_name","node","variable","interval","period_op","file"],\
       "output_channel_source_track":["name","chan_no","distance","variable","source_group","interval","period_op","file"],\

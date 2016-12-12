@@ -30,5 +30,6 @@
 		<File RelativePath="..\..\src\sediment\non_cohesive_source.f90"/>
 		<File RelativePath="..\..\src\sediment\sediment_variables.f90"/>
 		<File RelativePath="..\..\src\sediment\suspended_sediment.f90"/>
-		<File RelativePath="..\..\src\sediment\suspended_utility.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\sediment\suspended_utility.f90"/>
+		<File RelativePath="..\..\src\sediment\turbidity.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

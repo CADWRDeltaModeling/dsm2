@@ -34,7 +34,7 @@ module process_gtm_group_variable
         real(gtm_real), intent(in) :: rate_value
         integer :: group_id, ncc_code, var_code
         integer :: i        
-        
+       
         group_id = 0
         ncc_code = 0
         var_code = 0
@@ -73,6 +73,10 @@ module process_gtm_group_variable
             ncc_code = ncc_temp
         elseif (constituent.eq."ssc") then
             ncc_code = ncc_ssc
+        elseif (constituent.eq."mercury") then
+            ncc_code = ncc_mercury
+        elseif (constituent.eq."turbidity") then
+            ncc_code = ncc_turbidity
         else
             write(*,*) "Check group_variable, cannot find a matched constituent!!"
         end if

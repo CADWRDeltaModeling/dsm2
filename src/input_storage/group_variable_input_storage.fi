@@ -1,0 +1,109 @@
+       !>@ingroup fortran
+       !>@defgroup group_variable group_variable
+       !>@{
+        
+       !> Clear the buffer of all stored data of type group_variable 
+       subroutine group_variable_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_clear_buffer_f' :: group_variable_clear_buffer_f
+         implicit none
+         call group_variable_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type group_variable
+       integer function group_variable_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_buffer_size_f' :: group_variable_buffer_size_f
+          implicit none
+          integer, external :: group_variable_buffer_size_f
+          group_variable_buffer_size = group_variable_buffer_size_f()
+          return
+       end function
+       
+       !> write group_variable data to buffer
+       subroutine group_variable_append_to_buffer(group_name,constituent,variable,value,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_append_to_buffer_f' :: group_variable_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: group_name
+       character(len=16), intent(in) :: constituent
+       character(len=16), intent(in) :: variable
+       real(8), intent(in) :: value
+         call group_variable_append_to_buffer_f(group_name,constituent,variable,value,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type group_variable
+       subroutine group_variable_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_number_rows_hdf5_f' :: group_variable_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call group_variable_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type group_variable
+       subroutine group_variable_query_from_buffer(row, group_name,constituent,variable,value,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_query_from_buffer_f' :: group_variable_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: group_name
+       character(len=16), intent(out) :: constituent
+       character(len=16), intent(out) :: variable
+       real(8), intent(out) :: value
+          integer row
+          integer, intent(out) :: ierror
+          call group_variable_query_from_buffer_f(row, &
+                    group_name,constituent,variable,value,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine group_variable_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_prioritize_buffer_f' :: group_variable_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call group_variable_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of group_variable data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine group_variable_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_write_buffer_to_hdf5_f' :: group_variable_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call group_variable_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of group_variable data from hdf5 to buffer 
+       subroutine group_variable_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_read_buffer_from_hdf5_f' :: group_variable_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call group_variable_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine group_variable_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_variable_write_buffer_to_text_f' :: group_variable_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call group_variable_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

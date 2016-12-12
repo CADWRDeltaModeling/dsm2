@@ -235,10 +235,6 @@ module common_variables
          integer :: node                             !< node number
      end type    
      type(source_flow_t), allocatable :: source_flow(:)
-                    
-     !> Define input time series
-     integer :: n_input_ts = 0                     !< number of input time series
-     integer :: n_node_ts = 0
 
      !> DSM2 node information
      type dsm2_network_t
@@ -313,17 +309,6 @@ module common_variables
      end type
      type(sediment_bc_t), allocatable :: sediment_bc(:)     
 
-     !> Input time series 
-     integer :: n_input_ts_cell = 0 
-     type input_ts_t
-         integer :: ncc_code
-         integer :: group_id
-         integer :: pathinput_id
-         integer :: icell
-         integer :: ivar
-     end type
-     type(input_ts_t), allocatable :: input_ts(:)
-
      !> non-conservative constituents codes
      integer, parameter :: ncc_do = 1
      integer, parameter :: ncc_organic_n = 2
@@ -336,9 +321,8 @@ module common_variables
      integer, parameter :: ncc_bod = 9
      integer, parameter :: ncc_temp = 10
      integer, parameter :: ncc_ssc = 11
-     integer, parameter :: ncc_ph  = 12
-     integer, parameter :: ncc_dots = 13
-     integer, parameter :: ncc_so4 = 14
+     integer, parameter :: ncc_mercury = 12
+     integer, parameter :: ncc_turbidity = 13
       
      !> coefficient type codes
      integer, parameter :: input = 1
@@ -349,7 +333,42 @@ module common_variables
      integer, parameter :: alg_resp = 6
      integer, parameter :: alg_die = 7
      character*16 :: coeff_type(14)
-    
+     integer :: sediment_coef_start = 0
+
+     !> input time series codes
+     integer, parameter :: max_ts_var = 14
+     integer, parameter :: ts_var_ph = 1
+     integer, parameter :: ts_var_so4 = 2
+     integer, parameter :: ts_var_do = 3
+     integer, parameter :: ts_var_ipar = 4
+     integer, parameter :: ts_var_iuva = 5
+     integer, parameter :: ts_var_iuvb = 6
+     integer, parameter :: ts_var_hg0_air = 7
+     integer, parameter :: ts_var_mehg_air = 8
+     integer, parameter :: ts_var_precip = 9
+     integer, parameter :: ts_var_wet_hgii = 10
+     integer, parameter :: ts_var_dry_hgii = 11
+     integer, parameter :: ts_var_wet_mehg  = 12
+     integer, parameter :: ts_var_dry_mehg = 13
+     integer, parameter :: ts_var_rgm_air = 14
+
+     !> Input time series 
+     integer :: n_input_ts = 0                     !< number of input time series
+     integer :: n_node_ts = 0                      !< to exclude variables from node_concentration block
+     type input_ts_t
+         integer :: input_ts_id
+         integer :: ts_var_code
+         integer :: group_id
+         integer :: pathinput_id
+     end type
+     type(input_ts_t), allocatable :: input_ts(:)
+     
+     integer :: n_ts_var = 0
+     integer :: ts_id(max_ts_var)
+     integer :: ts_code(max_ts_var)
+     character*32 :: ts_name(max_ts_var)
+     integer, allocatable :: ts(:,:)
+
      !> group variables
      integer, parameter :: n_ncc = 14         !< number of non-conservative constiruents
      integer, parameter :: n_coef = 7         !< basic number of rate coefficients
@@ -1220,12 +1239,31 @@ module common_variables
          end do
          return
      end subroutine              
+
+     !> Routine to make sure all channels are assigned from grouping for time series
+     subroutine check_group_channel_time_series(ncc_code,      &
+                                                group_var_code)
+         implicit none
+         integer, intent(in) :: ncc_code
+         integer, intent(in) :: group_var_code
+         character*32 :: ncc_name
+         character*32 :: rate_name
+         integer :: i
+         do i = 1, n_chan
+             if (group_var_chan(ncc_code,group_var_code,i).eq.LARGEREAL) then
+                 call ncc_code_to_string(ncc_name, ncc_code)
+                 write(unit_error,'(a31,2a32,a16,i10)') "You forgot to assign values for ",ncc_name,coeff_type(group_var_code)," for Channel No.",chan_geom(i)%channel_num
+             end if
+         end do
+         return
+     end subroutine  
              
      !> Assign group static variables
      subroutine assign_group_static_variables
          implicit none
          integer :: temp, io
-         integer :: i, j, k, m
+         integer :: i, j, k, m, n, mm
+         integer :: index = 0
          
          allocate(group_var_chan(n_ncc,n_coef+n_floating,n_chan))
          allocate(group_var_resv(n_ncc,n_coef+n_floating,n_resv))
@@ -1233,32 +1271,42 @@ module common_variables
          group_var_chan = LARGEREAL
          group_var_resv = LARGEREAL
          group_var_cell = LARGEREAL
-                  
-         do i = 1, n_group
-             do j = 1, group(i)%n_members
-                 if (group(i)%member_pattern_code(j) .eq. obj_channel) then
-                     do k = 1, n_chan
-                         read(group(i)%member_name(j),'(i)',iostat=io) temp
-                         if (temp.eq. chan_geom(k)%channel_num) then
-                             group(i)%member_int_id(j) = chan_geom(k)%chan_no   
-                             group_var_chan(:,:,chan_geom(k)%chan_no) = group_var(:,:,group(i)%id)
-                             do m = chan_geom(k)%start_cell, chan_geom(k)%end_cell
-                                 group_var_cell(:,:,m) = group_var(:,:,group(i)%id)
-                             end do    
+         
+         do m = 1, n_ncc
+             do n = 1, n_coef+n_floating
+                 do i = 1, n_group
+                     if (group_var(m,n,i).ne.LARGEREAL) then
+                         if (m.eq.ncc_ssc .and. index.eq.0) then 
+                             sediment_coef_start = n
+                             index = 1
                          end if
-                     end do
-                 elseif (group(i)%member_pattern_code(j) .eq. obj_reservoir) then
-                     do k = 1, n_resv
-                         if (trim(group(i)%member_name(j)) .eq. trim(resv_geom(k)%name)) then
-                             group(i)%member_int_id(j) = resv_geom(k)%resv_no
-                             group_var_resv(:,:,resv_geom(k)%resv_no) = group_var(:,:,group(i)%id)
-                         end if
-                     end do                     
-                 else
-                     write(*,*) "this is neither channel nor reservoir"
-                 end if
+                         do j = 1, group(i)%n_members
+                             if (group(i)%member_pattern_code(j) .eq. obj_channel) then
+                                 do k = 1, n_chan
+                                     read(group(i)%member_name(j),'(i)',iostat=io) temp
+                                     if (temp.eq. chan_geom(k)%channel_num) then
+                                         group(i)%member_int_id(j) = chan_geom(k)%chan_no   
+                                         group_var_chan(m,n,chan_geom(k)%chan_no) = group_var(m,n,group(i)%id)
+                                         do mm = chan_geom(k)%start_cell, chan_geom(k)%end_cell
+                                             group_var_cell(m,n,mm) = group_var(m,n,group(i)%id)
+                                         end do    
+                                     end if
+                                 end do
+                             elseif (group(i)%member_pattern_code(j) .eq. obj_reservoir) then
+                                 do k = 1, n_resv
+                                    if (trim (group(i)%member_name(j)) .eq. trim(resv_geom(k)%name)) then
+                                       group(i)%member_int_id(j) = resv_geom(k)%resv_no
+                                       group_var_resv(m,n,resv_geom(k)%resv_no) = group_var(m,n,group(i)%id)
+                                    end if
+                                end do                     
+                            else
+                                write(*,*) "this is neither channel nor reservoir"
+                            end if
+                        end do
+                     end if
+                 end do
              end do
-         end do
+         end do            
          return
      end subroutine
 
@@ -1290,12 +1338,10 @@ module common_variables
              ncc_name = "Temperature"
          else if (ncc_code==ncc_ssc) then
              ncc_name = "SSC"
-         else if (ncc_code==ncc_ph) then
-             ncc_name = "PH"
-         else if (ncc_code==ncc_dots) then
-             ncc_name = "DO_TS"
-         else if (ncc_code==ncc_so4) then
-             ncc_name = "SO4"  
+         else if (ncc_code==ncc_mercury) then
+             ncc_name = "MERCURY"
+         else if (ncc_code==ncc_turbidity) then
+             ncc_name = "TURBIDITY"  
          else
              ncc_name = miss_val_c
          end if
@@ -1332,14 +1378,95 @@ module common_variables
              ncc_code = ncc_temp
          else if (trim(ncc_name) == "ssc") then
              ncc_code = ncc_ssc
-         else if (trim(ncc_name) == "ph") then
-             ncc_code = ncc_ph
-         else if (trim(ncc_name) == "do_ts") then
-             ncc_code = ncc_dots
-         else if (trim(ncc_name) == "so4" ) then
-             ncc_code = ncc_so4 
+         else if (trim(ncc_name) == "mercury") then
+             ncc_code = ncc_mercury
+         else if (trim(ncc_name) == "turbidity") then
+             ncc_code = ncc_turbidity
          else
              ncc_code = miss_val_i
+         end if
+         return
+     end subroutine
+     
+
+     !> Routine to get the constituent string by ncc_code
+     subroutine ts_var_code_to_string(ts_var_name,   &
+                                      ts_var_code)
+         implicit none
+         character*32, intent(out) :: ts_var_name
+         integer, intent(in) :: ts_var_code
+         if (ts_var_code == ts_var_ph) then
+             ts_var_name = "PH"
+         else if (ts_var_code == ts_var_so4) then
+             ts_var_name = "SO4"
+         else if (ts_var_code == ts_var_do) then
+             ts_var_name = "DO"
+         else if (ts_var_code == ts_var_ipar) then
+             ts_var_name = "IPAR"
+         else if (ts_var_code == ts_var_iuva) then
+             ts_var_name = "IUVA"
+         else if (ts_var_code == ts_var_iuvb) then
+             ts_var_name = "IUVB"
+         else if (ts_var_code == ts_var_hg0_air) then
+             ts_var_name = "HG0_AIR"
+         else if (ts_var_code == ts_var_mehg_air) then
+             ts_var_name = "MEHG_AIR"
+         else if (ts_var_code == ts_var_precip) then
+             ts_var_name = "PRECIP"
+         else if (ts_var_code == ts_var_wet_hgii) then
+             ts_var_name = "WET_HGII"
+         else if (ts_var_code == ts_var_dry_hgii) then
+             ts_var_name = "DRY_HGII"
+         else if (ts_var_code == ts_var_wet_mehg) then
+             ts_var_name = "WET_MEHG"
+         else if (ts_var_code == ts_var_dry_mehg) then
+             ts_var_name = "DRY_MEHG"
+         else if (ts_var_code == ts_var_rgm_air) then
+             ts_var_name = "RGM_AIR"       
+         else   
+             ts_var_name = miss_val_c
+         end if
+         return
+     end subroutine
+
+
+     !> Routine to get the constituent string by ncc_code
+     subroutine ts_var_string_to_code(ts_var_code,   &
+                                      ts_var_name)
+         implicit none
+         character*32, intent(in) :: ts_var_name
+         integer, intent(out) :: ts_var_code
+         call locase(ts_var_name)
+         if (trim(ts_var_name) == "ph") then
+             ts_var_code = ts_var_ph
+         else if (trim(ts_var_name) == "so4") then
+             ts_var_code = ts_var_so4
+         else if (trim(ts_var_name) == "do") then
+             ts_var_code = ts_var_do
+         else if (trim(ts_var_name) == "ipar") then
+             ts_var_code = ts_var_ipar
+         else if (trim(ts_var_name) == "iuva") then
+             ts_var_code = ts_var_iuva
+         else if (trim(ts_var_name) == "iuvb") then
+             ts_var_code = ts_var_iuvb
+         else if (trim(ts_var_name) == "hg0_air") then
+             ts_var_code = ts_var_hg0_air
+         else if (trim(ts_var_name) == "mehg_air") then
+             ts_var_code = ts_var_mehg_air
+         else if (trim(ts_var_name) == "precip") then
+             ts_var_code = ts_var_precip
+         else if (trim(ts_var_name) == "wet_hgii") then
+             ts_var_code = ts_var_wet_hgii
+         else if (trim(ts_var_name) == "dry_hgii") then
+             ts_var_code = ts_var_dry_hgii
+         else if (trim(ts_var_name) == "wet_mehg") then
+             ts_var_code = ts_var_wet_mehg
+         else if (trim(ts_var_name) == "dry_mehg") then
+             ts_var_code = ts_var_dry_mehg
+         else if (trim(ts_var_name) == "rgm_air") then
+             ts_var_code = ts_var_rgm_air
+         else
+             ts_var_code = miss_val_i
          end if
          return
      end subroutine

@@ -36,9 +36,10 @@ module buffer_gtm_input_qual
                                     n_outdssfiles, outdssfiles, ifltab_out,  &
                                     outfilenames
         use gtm_dss, only: get_dss_each_npath
-        use common_variables, only: n_var, constituents, n_input_ts, n_node_ts,                 &
-                                    n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index
-      
+        use gtm_precision
+        use common_variables, only: n_var, constituents, n_input_ts, n_node_ts,                  &
+                                    n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index, &
+                                    group_var
         implicit none
         integer :: nitem_climate, nitem_node_conc, nitem_resv_conc, nitem_input_time_series
         integer :: nitem_group_variable
@@ -81,6 +82,7 @@ module buffer_gtm_input_qual
         
         ! variables
         integer :: nvar
+        integer :: nts
         type const_t
             integer :: conc_no                        !< constituent id
             character*32 :: name = ''                 !< constituent name
@@ -91,9 +93,10 @@ module buffer_gtm_input_qual
         type(const_t) :: const(20)
         character*32 :: tmp_const
 
+        group_var = LARGEREAL
         nitem_group_variable = group_variable_buffer_size()
         do icount = 1,nitem_group_variable
-           call group_variable_query_from_buffer(icount,      &
+           call group_variable_query_from_buffer(icount,       &
                                                  group_name,   &
                                                  constituent,  &
                                                  variable,     &
@@ -205,30 +208,6 @@ module buffer_gtm_input_qual
                                             fillin,      &
                                             filename,    &
                                             inpath)
-             if (icount.eq.1 .and. nvar.eq.0)then
-                 nvar = 1
-                 const(nvar)%conc_no = 1
-                 const(nvar)%name = variable
-                 const(nvar)%use_module = 'time_series'
-                 const(nvar)%conservative = .false.   
-                 const(nvar)%simulate = .false.
-             else
-                 do i = 1, nvar
-                     if (trim(variable).eq.trim(const(i)%name)) then
-                         exit
-                     else
-                         tmp_const = variable
-                         if (i.eq.nvar) then
-                             nvar = nvar + 1
-                             const(nvar)%conc_no = nvar
-                             const(nvar)%name = tmp_const
-                             const(nvar)%use_module = 'time_series'
-                             const(nvar)%conservative = .false.
-                             const(nvar)%simulate = .false.
-                         end if
-                     end if
-                 end do           
-             end if
         end do
         print *,"Number of input time series processed: ", nitem_input_time_series
 
@@ -245,6 +224,8 @@ module buffer_gtm_input_qual
                 constituents(i)%use_module = ''
                 constituents(i)%conservative = .false.  
                 constituents(i)%simulate = .false.
+            elseif (trim(constituents(i)%name).eq.'turbidity') then
+                constituents(i)%conservative = .false.  
             end if
         end do
         do i = 1, n_sediment

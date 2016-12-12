@@ -63,6 +63,7 @@ program gtm
     use klu
     use suspended_sediment
     use sediment_variables
+    use turbidity
 
     implicit none
     
@@ -82,6 +83,7 @@ program gtm
     real(gtm_real), allocatable :: erosion(:,:)
     real(gtm_real), allocatable :: deposition(:,:)
     real(gtm_real), allocatable :: available_bed(:,:)
+    real(gtm_real), allocatable :: input_time_series(:,:)
      
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion   
@@ -130,6 +132,10 @@ program gtm
     integer :: ierror
     integer :: nt     
     integer :: istat = 0
+    
+    ! variables for extended modules
+    real(gtm_real), allocatable :: turbidity_decay(:)
+    real(gtm_real), allocatable :: turbidity_settle(:)
     
     ! for specified output locations
     real(gtm_real), allocatable :: vals(:)  
@@ -229,8 +235,7 @@ program gtm
 
     ! for sediment module
     call assign_group_static_variables
-    call check_group_channel(11,8)
-    call check_group_channel(11,9)    
+
     allocate(diameter(n_cell,n_sediment))  
     allocate(fall_velocity(n_cell,n_sediment))                                   
     allocate(particle_reynolds(n_cell,n_sediment))
@@ -239,12 +244,18 @@ program gtm
     allocate(deposition(n_cell,n_sediment))
     allocate(available_bed(n_cell,n_sediment))
     do i = 1, n_sediment
-        diameter(:,i) = group_var_cell(11,n_coef+i,:)
+        call check_group_channel(ncc_ssc,sediment_coef_start+i-1)     
+        diameter(:,i) = group_var_cell(ncc_ssc,sediment_coef_start+i-1,:)
         call get_sediment_properties(fall_velocity(:,i), particle_reynolds(:,i), &
                                      critical_shear(:,i), diameter(:,i), n_cell)
     end do
+    !> Assigning group variables for turbidity module
+    allocate(turbidity_decay(n_cell),turbidity_settle(n_cell))
+    turbidity_decay(:) = group_var_cell(ncc_turbidity,decay,:)
+    turbidity_settle(:) = group_var_cell(ncc_turbidity,settle,:)
     
-    call assign_input_ts_group_var    
+    call assign_input_ts_group_var
+    allocate(input_time_series(n_ts_var,n_cell))
 
     ! assigen the initial concentration to cells and reservoirs    
     restart_file_name = trim(gtm_io(1,1)%filename) 
@@ -457,6 +468,12 @@ program gtm
                                                  sub_gtm_time_step*sixty,                      &
                                                  n_cell,                                       &
                                                  available_bed(:,ivar-(n_var-n_sediment)))                  
+                elseif (trim(constituents(ivar)%name)=='turbidity') then
+                    call turbidity_source(source_term_by_cell(:,ivar), & 
+                                          conc(:,ivar),                &
+                                          turbidity_decay,                       &
+                                          turbidity_settle,                      &
+                                          n_cell)
                 end if
             end do
           
@@ -547,9 +564,10 @@ program gtm
                 end do
             end if    
             
-            do i = 1, n_input_ts_cell
-                conc(input_ts(i)%icell,input_ts(i)%ivar) = pathinput(input_ts(i)%pathinput_id)%value
-            end do                       
+            do i = 1, n_ts_var   !use ts_name(i) to get the variable name
+                input_time_series(i,:) = pathinput(ts(i,:))%value
+            end do
+                                  
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
@@ -649,7 +667,8 @@ program gtm
     deallocate(erosion)
     deallocate(deposition)
     deallocate(available_bed)
-    deallocate(input_ts)
+    deallocate(input_ts, ts, input_time_series)
+    deallocate(turbidity_decay, turbidity_settle)
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state

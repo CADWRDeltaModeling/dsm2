@@ -28,7 +28,7 @@ module read_init
                               restart_file_name)
         use gtm_precision
         use error_handling
-        use common_variables, only: resv_geom, constituents, n_var, n_cell, n_resv, n_sediment, n_input_ts_cell
+        use common_variables, only: resv_geom, constituents, n_var, n_cell, n_resv, n_sediment
         implicit none
         character*(*), intent(in) :: restart_file_name   !< Restart file name
         real(gtm_real), intent(out) :: init(n_cell,n_var)  !< Initial concentration for cells
@@ -49,29 +49,31 @@ module read_init
             read(file_unit,*)
             read(file_unit,*) nvar_r
             read(file_unit,*) ncell_r
-            ncolp = n_var - 1 - n_input_ts_cell/n_cell
-            read(file_unit,*) a, (b(i),i=1,ncolp)
-            ncol = 0                        
-            do i = 1, ncolp
+            read(file_unit,*) a, (b(i),i=1,n_var)
+            ncol = 0
+            do i = 1, n_var                
                 do j = 1, n_var
                     if(trim(b(i)).eq.trim(constituents(j)%name)) then
                         ncol = ncol + 1
                         d(ncol) = constituents(j)%conc_no
                     end if
-                end do
+                end do    
             end do
-            if (ncol .ne. ncolp) then
-                call gtm_fatal("Please only give the initial concentration for simulated constituents:")
-                do i = 1, n_var
-                    if (constituents(i)%simulate) then
-                        write(*,*) constituents(i)%name
-                    end if    
-                end do
-            end if                       
-            if (nvar_r .ne. n_var) then
-                call gtm_fatal("Error: number of constituents are not consistent in restart file!")
-            elseif (ncell_r .ne. n_cell) then
+            rewind(file_unit)
+            read(file_unit,*)
+            read(file_unit,*)
+            read(file_unit,*)
+            read(file_unit,*)
+            read(file_unit,*)                   
+            do i = 1, n_var
+                if (constituents(i)%simulate) then
+                    write(*,*) constituents(i)%name
+                end if    
+            end do                      
+            if (ncell_r .ne. n_cell) then
                 call gtm_fatal("Error: number of cells are not consistent in restart file!")
+            !elseif (nvar_r .ne. n_var) then
+            !    call gtm_fatal("Error: number of constituents are not consistent in restart file!")
             else        
                 do i = 1, n_cell
                     read(file_unit,*) k,(init(k,d(j)),j=1,ncol)

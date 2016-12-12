@@ -161,8 +161,11 @@ module suspended_sediment
                     erosion_flux(icell) = deposition_flux(icell)
                 end if
             end if
+            
             source(icell) = vertical_flux(icell)*dx_si(icell)*width_si(icell)/area_si(icell)
-            if (area_si(icell) .eq. zero) source(icell) = zero           
+            
+            if (area_si(icell) .eq. zero) source(icell) = zero
+            
          end do   
        
          return 
