@@ -37,12 +37,14 @@ module gtm_hdf_ts_write
         integer(HID_T) :: qual_id
         integer(HID_T) :: data_id
         integer(HID_T) :: cell_conc_id
+        integer(HID_T) :: chan_conc_id
         integer(HID_T) :: resv_conc_id
         integer(HID_T) :: cell_flow_id
         integer(HID_T) :: cell_area_id
         integer(HID_T) :: cell_cfl_id        
         integer(HSIZE_T) :: conc_dim
         integer(HSIZE_T) :: cell_dim
+        integer(HSIZE_T) :: chan_dim
         integer(HSIZE_T) :: resv_dim
         integer(HSIZE_T) :: time_dim
     end type
@@ -59,6 +61,7 @@ module gtm_hdf_ts_write
     subroutine init_gtm_hdf(hdf_file,          &
                             hdf_name,          &
                             ncell,             &
+                            nchan,             &                            
                             nresv,             &
                             nconc,             &
                             sim_start,         &
@@ -68,11 +71,12 @@ module gtm_hdf_ts_write
    	    use hdf5		! HDF5 This module contains all necessary modules
         use common_variables, only: unit_error, unit_screen, gtm_time_interval, debug_print
         use dsm2_time_utils, only: incr_intvl
-        use common_dsm2_vars, only: NEAREST_BOUNDARY, TO_BOUNDARY, print_level
+        use common_dsm2_vars, only: NEAREST_BOUNDARY, TO_BOUNDARY, print_level, hdf_out
   	    implicit none
         type(gtm_hdf_t), intent(inout) :: hdf_file    !< persistent info about file and datasets
         character*128, intent(in) :: hdf_name         !< name of gtm hdf5 file
         integer, intent(in) :: ncell                  !< number of cells
+        integer, intent(in) :: nchan                  !< number of channels
         integer, intent(in) :: nresv                  !< number of reservoirs
         integer, intent(in) :: nconc                  !< number of constituents
         integer, intent(in) :: sim_start              !< first write time
@@ -145,6 +149,7 @@ module gtm_hdf_ts_write
         hdf_end = hdf_start + (ntime-1)*hdf_interval
 
         hdf_file%cell_dim = ncell
+        hdf_file%chan_dim = nchan
         hdf_file%conc_dim = nconc
         hdf_file%time_dim = ntime
 	    hdf_file%resv_dim = nresv
@@ -153,12 +158,17 @@ module gtm_hdf_ts_write
 	    call write_dimensions(hdf_file%data_id, nresv, nconc)
 	
 	    ! create the data sets for time-varying output
-	    call init_cell_gtm_hdf5(hdf_file, ncell, nconc, ntime)
-	    if (debug_print .eq. .true.) then
-	        call init_cell_gtm_hdf5_debug(hdf_file, ncell, ntime)	    
-	    end if
+	    if (trim(hdf_out).eq.'channel') then
+	        call init_chan_gtm_hdf5(hdf_file, nchan, nconc, ntime)
+	    else
+	        call init_cell_gtm_hdf5(hdf_file, ncell, nconc, ntime)
+	    endif
 	    if (hdf_file%resv_dim .gt. 0)then
 	        call init_reservoir_gtm_hdf5(hdf_file, nresv, nconc, ntime)
+	    end if	    
+	    ! for debug print only
+	    if (debug_print .eq. .true. .and. trim(hdf_out).eq.'cell') then
+	        call init_cell_gtm_hdf5_debug(hdf_file, ncell, ntime)	    
 	    end if
 
         using_gtm_hdf = .true.
@@ -170,7 +180,7 @@ module gtm_hdf_ts_write
     !> Write out lookup information for cells, reservoirs, and constituents. 
     subroutine write_dimensions(loc_id, nresv, nconc)
         use hdf5
-        use common_variables, only: chan_geom, resv_geom, constituents
+        use common_variables, only: chan_geom, resv_geom, constituents, hdf_out
         implicit none
         integer (HID_T), intent(in) :: loc_id              !< hdf file data ID
         integer, intent(in) :: nresv                       !< number of reservoirs
@@ -191,6 +201,17 @@ module gtm_hdf_ts_write
         real(gtm_real) :: tmp
         integer :: i
         integer :: ierror
+
+        ! Write channel up/down labels
+        if (hdf_out .eq. 'channel') then
+            in_dims(1) = 2
+            allocate(names(2))
+            names(1) = 'upstream'
+            names(2) = 'downstream'
+            call write_1D_string_array(loc_id,"channel_location", names,  &
+                                       name_len,2)
+            deallocate(names) 
+        end if
        
   	    ! Write reservoir names
   	    if (nresv.gt.0) then
@@ -354,12 +375,12 @@ module gtm_hdf_ts_write
 
 		! Create cell data set, one data point per cell
         cell_rank = 3
-        cell_file_dims(1) = nconc
-        cell_file_dims(2) = ncell
+        cell_file_dims(1) = ncell
+        cell_file_dims(2) = nconc
 	    cell_file_dims(3) = ntime
       
-        cell_chunk_dims(1) = nconc
-	    cell_chunk_dims(2) = ncell
+        cell_chunk_dims(1) = ncell
+	    cell_chunk_dims(2) = nconc
 	    cell_chunk_dims(3) = min(TIME_CHUNK,ntime)
 	
 	    cparms = 0
@@ -394,6 +415,78 @@ module gtm_hdf_ts_write
 	end subroutine
 
 
+    !> Initialize qual tide file for channel time series (nchan, nvar)
+	subroutine init_chan_gtm_hdf5(hdf_file, nchan, nconc, ntime)
+
+	    use hdf5
+	    use time_utilities, only: jmin2cdt
+	    implicit none
+	    
+        type(gtm_hdf_t), intent(inout) :: hdf_file       !< hdf file properties
+	    integer, intent(in) :: ntime                      !< number of time steps
+	    integer, intent(in) :: nchan                      !< number of channels
+        integer, intent(in) :: nconc	                  !< number of constituents
+   	    integer(HID_T) :: attr_id                         ! Attribute identifier 
+        integer(HID_T) :: aspace_id                       ! Attribute dataspace identifier 
+        integer(HID_T) :: atype_id                        ! Attribute type identifier 
+        integer(HSIZE_T), dimension(1) :: adims = (/1/)   ! Attribute dimension
+        integer     ::   arank = 1                        ! Attribute rank
+        integer(HSIZE_T), dimension(7) :: a_data_dims
+        integer     ::   chan_rank = 0
+   	    integer(HSIZE_T), dimension(4) :: chan_file_dims  = 0 ! Data size on file
+	    integer(HSIZE_T), dimension(4) :: chan_chunk_dims = 0 ! Dataset chunk dimensions
+
+	    integer(HID_T) :: fspace_id                       ! File space identifier
+	    integer(HID_T) :: cparms                          ! dataset creatation property identifier 
+	    integer        :: error                           ! HDF5 Error flag
+	    
+	    call h5screate_simple_f(arank, adims, aspace_id, error)
+	    call h5tcopy_f(H5T_NATIVE_INTEGER, atype_id, error)
+
+		! Create cell data set, one data point per cell
+        chan_rank = 4
+        chan_file_dims(1) = 2
+        chan_file_dims(2) = nchan
+	    chan_file_dims(3) = nconc
+	    chan_file_dims(4) = ntime
+      
+        chan_chunk_dims(1) = 2
+	    chan_chunk_dims(2) = nchan
+	    chan_chunk_dims(3) = nconc
+	    chan_chunk_dims(4) = min(TIME_CHUNK,ntime)
+	
+	    cparms = 0
+		! Add chunking and compression
+	    call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+        if (ntime.gt. MIN_STEPS_FOR_CHUNKING) then
+          call h5pset_chunk_f(cparms,                   &    
+                              chan_rank,                &      
+                              chan_chunk_dims,          &     
+                              error)
+	      call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,  &     
+                              HDF_SZIP_PIXELS_PER_BLOCK, error);
+	    end if
+       
+        ! initialize table for channel concentration
+	    call h5screate_simple_f(chan_rank,              &   
+                                chan_file_dims,         &     
+                                fspace_id,              &    
+                                error)
+	    call h5dcreate_f(hdf_file%data_id,              &  
+                         "chan concentration",          &    
+                         H5T_NATIVE_DOUBLE,             &	   
+                         fspace_id,                     &
+                         hdf_file%chan_conc_id,         &    
+                         error,                         &     
+                         cparms)                      
+	    call verify_error(error,"Channel concentration dataset creation")
+        call add_timeseries_attributes(hdf_file%chan_conc_id,   &  
+                                       hdf_file%start_julmin,   &
+                                       hdf_file%write_interval)                                                                             
+	    return
+	end subroutine
+
+
 	!> Initialize qual tide file for reservoir time series 
 	subroutine init_reservoir_gtm_hdf5(hdf_file, nresv, nconc, ntime)
 	    use hdf5
@@ -411,12 +504,12 @@ module gtm_hdf_ts_write
 	    
         !-------Create the datasets
         res_rank = 3
-	    file_dims(1) = nconc        
-        file_dims(2) = nresv
+	    file_dims(1) = nresv       
+        file_dims(2) = nconc 
 	    file_dims(3) = ntime
 
-        chunk_dims(1) = nconc
-	    chunk_dims(2) = nresv
+        chunk_dims(1) = nresv
+	    chunk_dims(2) = nconc
 	    chunk_dims(3) = min(TIME_CHUNK,ntime)
 
 		! Add chunking and compression
@@ -468,7 +561,6 @@ module gtm_hdf_ts_write
         if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
      
         if (ncell .ne. 0) then
-     
             !-----cell conc
             h_offset(1) = 0
             h_offset(2) = time_index
@@ -499,7 +591,7 @@ module gtm_hdf_ts_write
                             fspace_id)
 	        call verify_error(error,"Cell time series write (write_gtm_hdf_ts)")
             call h5sclose_f (fspace_id, error)
-            call h5sclose_f (memspace_id, error)      
+            call h5sclose_f (memspace_id, error)
         end if
         return
     end subroutine
@@ -507,10 +599,10 @@ module gtm_hdf_ts_write
 
     !> Write time series data to Qual tidefile (dimension cell)
     subroutine write_gtm_hdf(hdf_file,      &
-                              cell_conc,     & 
-                              ncell,         &
-                              nconc,         &  
-                              time_index)
+                             cell_conc,     & 
+                             ncell,         &
+                             nconc,         &  
+                             time_index)
         use hdf5
         implicit none
         type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
@@ -524,38 +616,30 @@ module gtm_hdf_ts_write
      	integer(HSIZE_T), dimension(2) :: mdata_dims  = 0       ! Dims of data in memory
       	integer(HSIZE_T), dimension(3) :: subset_dims  = 0      ! Dims of subset for time step
     	integer(HSIZE_T), dimension(3) :: h_offset = (/0,0,0/)
-        real(gtm_real) ::  cell_conc_hdf(nconc, ncell)          ! transposed chan data to write
     	integer :: i, j
         integer :: error                                        ! HDF5 Error flag
         if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
      
-        if (ncell .ne. 0) then
-            !----transpose array
-            do i = 1, nconc
-                do j = 1, ncell
-                    cell_conc_hdf(i,j) = cell_conc(j,i)
-                end do
-            enddo        
-     
+        if (ncell .ne. 0) then 
             !-----cell conc
             h_offset(1) = 0
             h_offset(2) = 0
             h_offset(3) = time_index
 
-	        subset_dims(1) = nconc
-	        subset_dims(2) = ncell
+	        subset_dims(1) = ncell
+	        subset_dims(2) = nconc
 	        subset_dims(3) = 1
 
-	        mdata_dims(1) = nconc
-	        mdata_dims(2) = ncell
+	        mdata_dims(1) = ncell
+	        mdata_dims(2) = nconc
             cell_rank = 2
             call H5Screate_simple_f(cell_rank,           &
                                     mdata_dims,          &
                                     memspace_id,         &
                                     error);  
-            call h5dget_space_f (hdf_file%cell_conc_id,  &  
-                                 fspace_id,              &
-                                 error)
+            call h5dget_space_f(hdf_file%cell_conc_id,   &  
+                                fspace_id,               &
+                                error)
             call h5sselect_hyperslab_f(fspace_id,        &
                                        H5S_SELECT_SET_F, &
                                        h_offset,         & 
@@ -563,14 +647,90 @@ module gtm_hdf_ts_write
                                        error)
             call h5dwrite_f(hdf_file%cell_conc_id,       &
                             H5T_NATIVE_DOUBLE,           &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
-                            cell_conc_hdf,               &
+                            cell_conc,                   &
                             mdata_dims,                  &
                             error,                       &
                             memspace_id,                 & 
                             fspace_id)
 	        call verify_error(error,"Cell concentration write")
-            call h5sclose_f (fspace_id, error)
-            call h5sclose_f (memspace_id, error)      
+            call h5sclose_f(fspace_id, error)
+            call h5sclose_f(memspace_id, error)      
+        end if
+        return
+    end subroutine
+
+
+    !> Write time series data to Qual tidefile (dimension cell)
+    subroutine write_gtm_chan_hdf(hdf_file,      &
+                                  conc,          & 
+                                  nchan,         &
+                                  ncell,         &
+                                  nconc,         &  
+                                  time_index)
+        use hdf5
+        use common_variables, only: hdf_out, chan_geom
+        implicit none
+        type(gtm_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
+        integer, intent(in) :: nchan                               !< number of channels
+        integer, intent(in) :: ncell                               !< number of cells
+        integer, intent(in) :: nconc                               !< number of constituents
+        real(gtm_real), intent(in) :: conc(ncell, nconc)           !< cell data from transport module
+        real(gtm_real) :: chan_conc(2, nchan, nconc)               !< channel data from transport module
+        integer, intent(in) :: time_index                          !< time index to write the data
+        integer :: chan_rank
+        integer(HID_T) :: fspace_id
+        integer(HID_T) :: memspace_id
+     	integer(HSIZE_T), dimension(3) :: mdata_dims  = 0       ! Dims of data in memory
+      	integer(HSIZE_T), dimension(4) :: subset_dims  = 0      ! Dims of subset for time step
+    	integer(HSIZE_T), dimension(4) :: h_offset = (/0,0,0,0/)
+    	integer :: ichan
+        integer :: error                                        ! HDF5 Error flag
+        if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
+     
+        if (nchan .ne. 0) then 
+            !-----cell conc
+            h_offset(1) = 0
+            h_offset(2) = 0
+            h_offset(3) = 0
+            h_offset(4) = time_index
+
+	        subset_dims(1) = 2
+	        subset_dims(2) = nchan
+	        subset_dims(3) = nconc
+	        subset_dims(4) = 1
+
+	        mdata_dims(1) = 2
+	        mdata_dims(2) = nchan
+	        mdata_dims(3) = nconc
+            chan_rank = 3
+            
+            do ichan = 1, nchan
+                chan_conc(1,ichan,:) = conc(chan_geom(ichan)%start_cell,:)
+                chan_conc(2,ichan,:) = conc(chan_geom(ichan)%end_cell,:)
+            end do
+              
+            call H5Screate_simple_f(chan_rank,           &
+                                    mdata_dims,          &
+                                    memspace_id,         &
+                                    error);  
+            call h5dget_space_f(hdf_file%chan_conc_id,   &  
+                                fspace_id,               &
+                                error)
+            call h5sselect_hyperslab_f(fspace_id,        &
+                                       H5S_SELECT_SET_F, &
+                                       h_offset,         & 
+                                       subset_dims,      &
+                                       error)
+            call h5dwrite_f(hdf_file%chan_conc_id,       &
+                            H5T_NATIVE_DOUBLE,           &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
+                            chan_conc,                   &
+                            mdata_dims,                  &
+                            error,                       &
+                            memspace_id,                 & 
+                            fspace_id)
+	        call verify_error(error,"Channel concentration write")
+            call h5sclose_f(fspace_id, error)
+            call h5sclose_f(memspace_id, error)      
         end if
         return
     end subroutine
@@ -578,10 +738,10 @@ module gtm_hdf_ts_write
    
     !> Write time series data to Qual tidefile (dimension reservoir)
     subroutine write_gtm_hdf_resv(hdf_file,      & 
-                                   resv_conc,     & 
-                                   nresv,         &
-                                   nconc,         &  
-                                   time_index)
+                                  resv_conc,     & 
+                                  nresv,         &
+                                  nconc,         &  
+                                  time_index)
         use hdf5
         implicit none
         type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
@@ -595,36 +755,29 @@ module gtm_hdf_ts_write
      	integer(HSIZE_T), dimension(2) :: mdata_dims  = 0       ! Dims of data in memory
       	integer(HSIZE_T), dimension(3) :: subset_dims  = 0      ! Dims of subset for time step
     	integer(HSIZE_T), dimension(3) :: h_offset = (/0,0,0/)
-        real(gtm_real) ::  resv_conc_hdf(nconc, nresv)          ! transposed res data to write 
     	integer :: i, j
         integer :: error                                        ! HDF5 Error flag
         if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
      
         if (nresv .ne. 0) then
-            !----transpose array
-            do i = 1, nconc
-                do j = 1, nresv
-                    resv_conc_hdf(i,j) = resv_conc(j,i)
-                end do
-            enddo        
-     
+
             !-----reservoir conc      
             h_offset(1) = 0
             h_offset(2) = 0
             h_offset(3) = time_index
-            subset_dims(1) = nconc
-	        subset_dims(2) = nresv
+            subset_dims(1) = nresv
+	        subset_dims(2) = nconc
 	        subset_dims(3) = 1
-   	        mdata_dims(1) = nconc
-	        mdata_dims(2) = nresv 
+   	        mdata_dims(1) = nresv
+	        mdata_dims(2) = nconc 
 	        resv_rank = 2
             call H5Screate_simple_f(resv_rank,           &
                                     mdata_dims,          & 
                                     memspace_id,         &
                                     error); 
-            call h5dget_space_f (hdf_file%resv_conc_id,  &
-                                 fspace_id,              &
-                                 error)
+            call h5dget_space_f(hdf_file%resv_conc_id,   &
+                                fspace_id,               &
+                                error)
             call h5sselect_hyperslab_f(fspace_id,        &
                                        H5S_SELECT_SET_F, & 
                                        h_offset,         & 
@@ -632,7 +785,7 @@ module gtm_hdf_ts_write
                                        error) 
             call h5dwrite_f(hdf_file%resv_conc_id,       &
                             H5T_NATIVE_DOUBLE,           &   
-                            resv_conc_hdf,               &
+                            resv_conc,                   &
                             mdata_dims,                  & 
                             error,                       &
                             memspace_id,                 &

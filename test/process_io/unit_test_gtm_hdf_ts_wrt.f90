@@ -41,10 +41,9 @@ module ut_gtm_hdf_ts_wrt
         return
     end subroutine    
 
-
     !> Test for initializing qual tidefile
     subroutine test_init_gtm_hdf()
-        use common_variables, only: chan_geom, resv_geom, constituents, gtm_time_interval
+        use common_variables, only: chan_geom, resv_geom, constituents, gtm_time_interval, hdf_out
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name                 ! name of qual hdf5 file
@@ -52,10 +51,13 @@ module ut_gtm_hdf_ts_wrt
         integer :: sim_end                        ! last write time
         character*16 :: hdf_interval_char         ! interval
         integer :: ncell
+        integer :: nchan
         integer :: nres
         integer :: nconc        
         integer :: error = 0
        
+        hdf_out = 'cell'
+        nchan = 1
         if (allocated(constituents)) deallocate(constituents)
         gtm_time_interval = 5
         hdf_name = "gtm_out_hdf_test_init.h5"
@@ -77,6 +79,7 @@ module ut_gtm_hdf_ts_wrt
         call init_gtm_hdf(gtm_hdf,           &
                           hdf_name,          &
                           ncell,             &
+                          nchan,             &
                           nres,              &
                           nconc,             &
                           sim_start,         &
@@ -93,7 +96,7 @@ module ut_gtm_hdf_ts_wrt
     !> Test for writing time series data to qual tidefile as well as geometry data
     subroutine test_write_ts_gtm_hdf()
         use hdf5
-        use common_variables, only: chan_geom, resv_geom, constituents
+        use common_variables, only: chan_geom, resv_geom, constituents, hdf_out
         use gtm_hdf_write
         use gtm_hdf_ts_write
         implicit none
@@ -102,6 +105,7 @@ module ut_gtm_hdf_ts_wrt
         integer :: sim_end                         ! last write time
         character*16 :: hdf_interval_char          ! interval
         integer :: ncell
+        integer :: nchan
         integer :: nres
         integer :: nconc        
         integer :: julmin
@@ -121,7 +125,9 @@ module ut_gtm_hdf_ts_wrt
         INTEGER(HID_T) :: memspace                  ! memspace identifier         
         integer :: error = 0        
         integer :: i, j
-        
+
+        hdf_out = 'cell'
+        nchan = 1        
         hdf_name = "gtm_out_hdf_test_ts.h5"
         ncell = 5
         nres = 1
@@ -143,6 +149,7 @@ module ut_gtm_hdf_ts_wrt
         call init_gtm_hdf(gtm_hdf,          &
                           hdf_name,          &
                           ncell,             &
+                          nchan,             &
                           nres,              &
                           nconc,             &
                           sim_start,         &
@@ -238,7 +245,7 @@ module ut_gtm_hdf_ts_wrt
     !> Test for writing large time series data to qual tidefile
     subroutine test_write_ts_gtm_hdf_lg()
         use hdf5    
-        use common_variables, only: chan_geom, resv_geom, constituents
+        use common_variables, only: chan_geom, resv_geom, constituents, hdf_out
         use gtm_hdf_ts_write
         implicit none
         character*128 :: hdf_name            ! name of qual hdf5 file
@@ -246,6 +253,7 @@ module ut_gtm_hdf_ts_wrt
         integer :: sim_end                   ! last write time
         character*16 :: hdf_interval_char    ! interval
         integer :: ncell
+        integer :: nchan
         integer :: nres
         integer :: nconc        
         integer :: julmin
@@ -267,7 +275,9 @@ module ut_gtm_hdf_ts_wrt
 
         integer :: error = 0
         integer :: i, j     
-           
+
+        hdf_out = 'cell'
+        nchan = 1           
         hdf_name = "gtm_out_hdf_test_ts_large.h5"
         ncell = 15000
         nres = 0
@@ -289,9 +299,10 @@ module ut_gtm_hdf_ts_wrt
             constituents(j)%name = "conc_"//trim(x1)
         end do
         
-        call init_gtm_hdf(gtm_hdf,          &
+        call init_gtm_hdf(gtm_hdf,           &
                           hdf_name,          &
                           ncell,             &
+                          nchan,             &
                           nres,              &
                           nconc,             &
                           sim_start,         &

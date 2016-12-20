@@ -46,7 +46,6 @@ program test_driver
     use ut_gtm_hdf_write
     use ut_boundary
     !use ut_create_restart
-    use ut_read_init_file
     
     !----- modules used in project test_transport -----  
     use test_extrapolate
@@ -112,7 +111,6 @@ program test_driver
     call test_hdf_ts_wrt
     call test_gtm_hdf_write
     call test_find_bound_index
-    call test_read_init_file
     
     !----- function calls to test units in project common -----
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
@@ -152,13 +150,13 @@ program test_driver
     !----- Advection - reaction problems
     call test_tidal_advection_reaction(verbose)
     call test_tidal_advection_reaction_vary_dx(verbose)
-    call test_advection_reaction_hydro_interp(verbose)
+    !call test_advection_reaction_hydro_interp(verbose)
     
     !----- Advection-Diffusion tests
     call test_zoppou_flow() 
     call test_advection_diffusion_zoppou(verbose)
-    call test_advection_diffusion_t_dependent(verbose)
-    call test_advection_diffusion_time_dependent(verbose)
+    !call test_advection_diffusion_t_dependent(verbose)
+    !call test_advection_diffusion_time_dependent(verbose)
 
     !----- Advection-diffusion-reaction
     !call test_advection_diffusion_mms(verbose)

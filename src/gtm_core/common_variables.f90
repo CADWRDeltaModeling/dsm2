@@ -77,6 +77,8 @@ module common_variables
      logical :: apply_diffusion = .false. 
      real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
      
+     character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
+     
      type gtm_io_files_t
           character(len=130) :: filename               !< filename
           character(len=16) :: interval                !< I/O time interval

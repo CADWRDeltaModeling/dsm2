@@ -58,7 +58,7 @@ module process_gtm_scalar
          run_length=Val
       elseif (Param .eq. 'gtm_dx') then
          read(Val, '(f20.5)') gtm_dx
-      elseif (Param .eq. 'hdfout') then
+      elseif (Param .eq. 'hdf_out') then
          hdf_out = Val(1:7)
       elseif (Param .eq. 'title') then
          ntitles=1

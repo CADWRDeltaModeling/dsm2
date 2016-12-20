@@ -63,6 +63,7 @@ program gtm
     use klu
     use suspended_sediment
     use sediment_variables
+    use sediment_bed
     use turbidity
 
     implicit none
@@ -134,6 +135,7 @@ program gtm
     integer :: istat = 0
     
     ! variables for extended modules
+    integer :: isediment = 0
     real(gtm_real), allocatable :: turbidity_decay(:)
     real(gtm_real), allocatable :: turbidity_settle(:)
     
@@ -144,9 +146,9 @@ program gtm
     integer :: ivar
     real(gtm_real) :: start, finish
     open(unit_error, file="error.log")
+    !open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
-    !----- Start of GTM Program  -----
-    
+    !----- Start of GTM Program  -----    
     call cpu_time(start)
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
@@ -155,8 +157,7 @@ program gtm
     call get_command_args(init_input_file)
     call read_input_text(init_input_file)                  ! read input specification text
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
-    call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files    
-    !open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
+    call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files        
     
     write(*,*) "Process DSM2 geometry info...."    
     call hdf5_init(hydro_hdf5)                         
@@ -205,9 +206,10 @@ program gtm
         use_gtm_hdf = .true.    
         call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)
         gtm_hdf_time_intvl = dble(tmp_int)
-        call init_gtm_hdf(gtm_hdf,             &
+        call init_gtm_hdf(gtm_hdf,              &
                           gtm_io(3,2)%filename, &
                           n_cell,               &
+                          n_chan,               &
                           n_resv,               &
                           n_var,                &
                           int(gtm_start_jmin),  &
@@ -447,30 +449,36 @@ program gtm
                 prev_tran_flow = tran_flow
             end if
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr           
-            
-            available_bed = 9999.d0  ! Ideally, this number should come from bed sediment module
+
+            ! Sedimentation process
+            call sediment_bed_main(available_bed,      &
+                                   erosion,            &
+                                   deposition,         &                                 
+                                   n_cell,             &
+                                   n_sediment)            
             do ivar = 1, n_var
                 if (trim(constituents(ivar)%use_module)=='sediment') then
-                    call suspended_sediment_flux(source_term_by_cell(:,ivar),                  &
-                                                 erosion(:,ivar-(n_var-n_sediment)),           &
-                                                 deposition(:,ivar-(n_var-n_sediment)),        &
-                                                 conc(:,ivar),                                 &
-                                                 flow,                                         &
-                                                 area,                                         &
-                                                 width,                                        &
-                                                 hydro_radius,                                 & 
-                                                 mann_arr,                                     &
-                                                 diameter(:,ivar-(n_var-n_sediment)),          &
-                                                 fall_velocity(:,ivar-(n_var-n_sediment)),     &
-                                                 critical_shear(:,ivar-(n_var-n_sediment)),    &
-                                                 particle_reynolds(:,ivar-(n_var-n_sediment)), & 
-                                                 dx_arr,                                       &
-                                                 sub_gtm_time_step*sixty,                      &
-                                                 n_cell,                                       &
-                                                 available_bed(:,ivar-(n_var-n_sediment)))                  
+                    isediment = ivar-(n_var-n_sediment)
+                    call suspended_sediment_flux(source_term_by_cell(:,ivar),    &
+                                                 erosion(:,isediment),           &
+                                                 deposition(:,isediment),        &
+                                                 conc(:,ivar),                   &
+                                                 flow,                           &
+                                                 area,                           &
+                                                 width,                          &
+                                                 hydro_radius,                   & 
+                                                 mann_arr,                       &
+                                                 diameter(:,isediment),          &
+                                                 fall_velocity(:,isediment),     &
+                                                 critical_shear(:,isediment),    &
+                                                 particle_reynolds(:,isediment), & 
+                                                 dx_arr,                         &
+                                                 sub_gtm_time_step*sixty,        &
+                                                 n_cell,                         &
+                                                 available_bed(:,isediment))                  
                 elseif (trim(constituents(ivar)%name)=='turbidity') then
-                    call turbidity_source(source_term_by_cell(:,ivar), & 
-                                          conc(:,ivar),                &
+                    call turbidity_source(source_term_by_cell(:,ivar),           & 
+                                          conc(:,ivar),                          &
                                           turbidity_decay,                       &
                                           turbidity_settle,                      &
                                           n_cell)
@@ -562,6 +570,12 @@ program gtm
                         conc(i,ssc_index) = conc(i,ssc_index) + conc(i,ivar)
                     end do
                 end do
+                do i = 1, n_resv
+                    conc_resv(i,ssc_index) = zero
+                    do ivar = n_var-n_sediment+1,n_var
+                        conc_resv(i,ssc_index) = conc_resv(i,ssc_index) + conc_resv(i,ivar)
+                    end do
+                end do                
             end if    
             
             do i = 1, n_ts_var   !use ts_name(i) to get the variable name
@@ -600,11 +614,20 @@ program gtm
         if (use_gtm_hdf) then
             if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
                 time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
-                call write_gtm_hdf(gtm_hdf,                      &
-                                   conc,                         &
-                                   n_cell,                       &
-                                   n_var,                        &
-                                   time_index_in_gtm_hdf)     
+                if (hdf_out .eq. 'channel') then
+                    call write_gtm_chan_hdf(gtm_hdf,                      &
+                                            conc,                         &
+                                            n_chan,                       &
+                                            n_cell,                       &
+                                            n_var,                        &
+                                            time_index_in_gtm_hdf)                
+                else
+                    call write_gtm_hdf(gtm_hdf,                      &
+                                       conc,                         &
+                                       n_cell,                       &
+                                       n_var,                        &
+                                       time_index_in_gtm_hdf)
+                end if
                 if (n_resv .gt. 0) then
                     call write_gtm_hdf_resv(gtm_hdf,             & 
                                             conc_resv,           & 

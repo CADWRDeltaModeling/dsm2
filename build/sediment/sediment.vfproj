@@ -25,7 +25,6 @@
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-		<File RelativePath="..\..\src\sediment\bed_load.f90"/>
 		<File RelativePath="..\..\src\sediment\cohesive_source.f90"/>
 		<File RelativePath="..\..\src\sediment\non_cohesive_source.f90"/>
 		<File RelativePath="..\..\src\sediment\sediment_variables.f90"/>

@@ -45,8 +45,6 @@ module common_dsm2_vars
        character*14 :: tf_start_date = ' '                 ! (hydro) date/time of when to start writing tidefile
        character*14 :: print_start_date(max_print_dates) = ' ' ! date/time of print starts
        character*14 :: print_end_date(max_print_dates) = ' '   ! date/time of print ends
- 
-       character*14 ::  hdf_out                            ! hdf output resolution ('channel' or 'cell')
 
        !-----alternate method: instead of start/end dates, specify run length
        !-----in form, e.g. 5day_3hour.  Model will generate end date/times.
