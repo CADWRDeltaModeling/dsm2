@@ -30,19 +30,28 @@ module sediment_bed
     
     contains
      
-    subroutine sediment_bed_main(available_solid,   &
-                                 erosion_flux,      &
-                                 deposition_flux,   &                                 
-                                 ncell,             &
-                                 nsolids)
+    subroutine sediment_bed_main(resuspension,     &  
+                                 deposition,       &
+                                 temperature,      &
+                                 area_wet,         &  
+                                 delta_t,          & 
+                                 rkstep,           &
+                                 nlayers,          &
+                                 ncell,            &
+                                 nsolids)    
         implicit none
-        integer, intent(in) :: ncell
-        integer, intent(in) :: nsolids
-        real(gtm_real), intent(in) :: erosion_flux(ncell,nsolids)
-        real(gtm_real), intent(in) :: deposition_flux(ncell,nsolids)
-        real(gtm_real), intent(out) :: available_solid(ncell,nsolids)
+        integer, intent(in) :: ncell                                  !> number of cells
+        integer, intent(in) :: nsolids                                !> number of sediment types
+        integer, intent(in) :: nlayers                                !> number of sediment bed layers
+        real(gtm_real), intent(inout) :: resuspension(ncell,nsolids)  !> g per day
+        real(gtm_real), intent(in) :: deposition(ncell,nsolids)       !> g per day
+        real(gtm_real), intent(in) :: temperature(ncell)              !> temperature
+        real(gtm_real), intent(in) :: area_wet(ncell)                 !> m2 todo: may not need this here
+        real(gtm_real), intent(in) :: delta_t                         !> time step
+        integer, intent(in) :: rkstep                                 !> Huens step (1 or 2)
         
-        available_solid = 9999.d0
+        resuspension = 9999.d0
+        
         return
     end subroutine    
 

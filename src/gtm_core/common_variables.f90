@@ -74,8 +74,10 @@ module common_variables
      integer :: gtm_ntideblocks = LARGEINT             !< gtm time blocks
      real(gtm_real) :: gtm_time_interval = LARGEREAL   !< gtm simulation time interval
      logical :: debug_print = .false.
-     logical :: apply_diffusion = .false. 
+     logical :: apply_diffusion = .false.              !< turn on/off dispersion
      real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
+     logical :: run_mercury = .false.                  !< run mercury module if true
+     integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
      
      character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
      
@@ -311,6 +313,10 @@ module common_variables
      end type
      type(sediment_bc_t), allocatable :: sediment_bc(:)     
 
+     !> Mercury variables
+     integer, parameter :: n_mercury = 6
+     integer :: mercury_ivar(n_mercury)          
+     
      !> non-conservative constituents codes
      integer, parameter :: ncc_do = 1
      integer, parameter :: ncc_organic_n = 2
@@ -323,8 +329,13 @@ module common_variables
      integer, parameter :: ncc_bod = 9
      integer, parameter :: ncc_temp = 10
      integer, parameter :: ncc_ssc = 11
-     integer, parameter :: ncc_mercury = 12
-     integer, parameter :: ncc_turbidity = 13
+     integer, parameter :: ncc_turbidity = 12
+     integer, parameter :: ncc_hgii = 13
+     integer, parameter :: ncc_mehg = 14
+     integer, parameter :: ncc_hg0 = 15
+     integer, parameter :: ncc_hgii_s1 = 16
+     integer, parameter :: ncc_hgii_s2 = 17
+     integer, parameter :: ncc_hgii_s3 = 18  
       
      !> coefficient type codes
      integer, parameter :: input = 1
@@ -338,22 +349,28 @@ module common_variables
      integer :: sediment_coef_start = 0
 
      !> input time series codes
-     integer, parameter :: max_ts_var = 14
-     integer, parameter :: ts_var_ph = 1
-     integer, parameter :: ts_var_so4 = 2
-     integer, parameter :: ts_var_do = 3
-     integer, parameter :: ts_var_ipar = 4
-     integer, parameter :: ts_var_iuva = 5
-     integer, parameter :: ts_var_iuvb = 6
-     integer, parameter :: ts_var_hg0_air = 7
-     integer, parameter :: ts_var_mehg_air = 8
-     integer, parameter :: ts_var_precip = 9
-     integer, parameter :: ts_var_wet_hgii = 10
-     integer, parameter :: ts_var_dry_hgii = 11
-     integer, parameter :: ts_var_wet_mehg  = 12
-     integer, parameter :: ts_var_dry_mehg = 13
-     integer, parameter :: ts_var_rgm_air = 14
-
+     integer, parameter :: max_ts_var = 19
+     integer :: code_to_ts_id(max_ts_var) = 0
+     integer, parameter :: ts_var_temp = 1
+     integer, parameter :: ts_var_ph = 2
+     integer, parameter :: ts_var_so4 = 3
+     integer, parameter :: ts_var_do = 4
+     integer, parameter :: ts_var_ipar = 5
+     integer, parameter :: ts_var_iuva = 6
+     integer, parameter :: ts_var_iuvb = 7
+     integer, parameter :: ts_var_hg0_air = 8
+     integer, parameter :: ts_var_mehg_air = 9
+     integer, parameter :: ts_var_precip = 10
+     integer, parameter :: ts_var_wet_hgii = 11
+     integer, parameter :: ts_var_dry_hgii = 12
+     integer, parameter :: ts_var_wet_mehg  = 13
+     integer, parameter :: ts_var_dry_mehg = 14
+     integer, parameter :: ts_var_rgm_air = 15
+     integer, parameter :: ts_var_rct_if = 16
+     integer, parameter :: ts_var_rct_water = 17
+     integer, parameter :: ts_var_solid_in = 18
+     integer, parameter :: ts_var_vol_frac = 19
+     
      !> Input time series 
      integer :: n_input_ts = 0                     !< number of input time series
      integer :: n_node_ts = 0                      !< to exclude variables from node_concentration block
@@ -372,7 +389,7 @@ module common_variables
      integer, allocatable :: ts(:,:)
 
      !> group variables
-     integer, parameter :: n_ncc = 14         !< number of non-conservative constiruents
+     integer, parameter :: n_ncc = 30         !< number of non-conservative constituents
      integer, parameter :: n_coef = 7         !< basic number of rate coefficients
      integer :: n_rate_var = 7                !< number of rate coefficients
      integer :: n_floating = 7                !< number of floating space for rate coefficients other than the six specified
@@ -1340,10 +1357,20 @@ module common_variables
              ncc_name = "Temperature"
          else if (ncc_code==ncc_ssc) then
              ncc_name = "SSC"
-         else if (ncc_code==ncc_mercury) then
-             ncc_name = "MERCURY"
          else if (ncc_code==ncc_turbidity) then
-             ncc_name = "TURBIDITY"  
+             ncc_name = "TURBIDITY"              
+         else if (ncc_code==ncc_hgii) then
+             ncc_name = "HgII"
+         else if (ncc_code==ncc_mehg) then
+             ncc_name = "MeHg"
+         else if (ncc_code==ncc_hg0) then
+             ncc_name = "Hg0"
+         else if (ncc_code==ncc_hgii_s1) then
+             ncc_name = "HgII_s1"
+         else if (ncc_code==ncc_hgii_s2) then
+             ncc_name = "HgII_s2"
+         else if (ncc_code==ncc_hgii_s3) then
+             ncc_name = "HgII_s3"
          else
              ncc_name = miss_val_c
          end if
@@ -1380,10 +1407,20 @@ module common_variables
              ncc_code = ncc_temp
          else if (trim(ncc_name) == "ssc") then
              ncc_code = ncc_ssc
-         else if (trim(ncc_name) == "mercury") then
-             ncc_code = ncc_mercury
          else if (trim(ncc_name) == "turbidity") then
-             ncc_code = ncc_turbidity
+             ncc_code = ncc_turbidity             
+         else if (trim(ncc_name) == "hgii") then
+             ncc_code = ncc_hgii
+         else if (trim(ncc_name) == "mehg") then
+             ncc_code = ncc_mehg
+         else if (trim(ncc_name) == "hg0") then
+             ncc_code = ncc_hg0
+         else if (trim(ncc_name) == "hgii_s1") then
+             ncc_code = ncc_hgii_s1
+         else if (trim(ncc_name) == "hgii_s2") then
+             ncc_code = ncc_hgii_s2
+         else if (trim(ncc_name) == "hgii_s3") then
+             ncc_code = ncc_hgii_s3
          else
              ncc_code = miss_val_i
          end if
@@ -1397,7 +1434,9 @@ module common_variables
          implicit none
          character*32, intent(out) :: ts_var_name
          integer, intent(in) :: ts_var_code
-         if (ts_var_code == ts_var_ph) then
+         if (ts_var_code == ts_var_temp) then
+             ts_var_name = "TEMP"
+         elseif (ts_var_code == ts_var_ph) then
              ts_var_name = "PH"
          else if (ts_var_code == ts_var_so4) then
              ts_var_name = "SO4"
@@ -1424,7 +1463,15 @@ module common_variables
          else if (ts_var_code == ts_var_dry_mehg) then
              ts_var_name = "DRY_MEHG"
          else if (ts_var_code == ts_var_rgm_air) then
-             ts_var_name = "RGM_AIR"       
+             ts_var_name = "RGM_AIR"
+         else if (ts_var_code == ts_var_rct_if) then
+             ts_var_name = "RCT_IF"   
+         else if (ts_var_code == ts_var_rct_water) then
+             ts_var_name = "RCT_WATER"
+         else if (ts_var_code == ts_var_solid_in) then
+             ts_var_name = "SOLID_IN"
+         else if (ts_var_code == ts_var_vol_frac) then
+             ts_var_name = "VOL_FRAC"
          else   
              ts_var_name = miss_val_c
          end if
@@ -1439,7 +1486,9 @@ module common_variables
          character*32, intent(in) :: ts_var_name
          integer, intent(out) :: ts_var_code
          call locase(ts_var_name)
-         if (trim(ts_var_name) == "ph") then
+         if (trim(ts_var_name) == "temp") then
+             ts_var_code = ts_var_temp         
+         elseif (trim(ts_var_name) == "ph") then
              ts_var_code = ts_var_ph
          else if (trim(ts_var_name) == "so4") then
              ts_var_code = ts_var_so4
@@ -1467,6 +1516,14 @@ module common_variables
              ts_var_code = ts_var_dry_mehg
          else if (trim(ts_var_name) == "rgm_air") then
              ts_var_code = ts_var_rgm_air
+         else if (trim(ts_var_name) == "rct_if") then
+             ts_var_code = ts_var_rct_if
+         else if (trim(ts_var_name) == "rct_water") then
+             ts_var_code = ts_var_rct_water
+         else if (trim(ts_var_name) == "solid_in") then
+             ts_var_code = ts_var_solid_in
+         else if (trim(ts_var_name) == "vol_frac") then
+             ts_var_code = ts_var_vol_frac
          else
              ts_var_code = miss_val_i
          end if
@@ -1529,5 +1586,19 @@ module common_variables
          end do
          return
      end subroutine
+     
+     !> Function to return ivar for the constituent of interest
+     subroutine constituent_name_to_ivar(id, name)
+         implicit none
+         integer, intent(out) :: id
+         character(len=*), intent(in) :: name
+         integer :: i 
+         do i = 1, n_var
+             if (trim(name) .eq. trim(constituents(i)%name)) then
+                 id = constituents(i)%conc_no
+             end if
+         end do         
+         return
+     end subroutine    
     
 end module

@@ -73,15 +73,27 @@ module process_gtm_group_variable
             ncc_code = ncc_temp
         elseif (constituent.eq."ssc") then
             ncc_code = ncc_ssc
-        elseif (constituent.eq."mercury") then
-            ncc_code = ncc_mercury
         elseif (constituent.eq."turbidity") then
             ncc_code = ncc_turbidity
+        elseif (constituent.eq."hgii") then
+            ncc_code = ncc_hgii
+        elseif (constituent.eq."mehg") then
+            ncc_code = ncc_mehg
+        elseif (constituent.eq."hg0") then
+            ncc_code = ncc_hg0
+        elseif (constituent.eq."hgii_s1") then
+            ncc_code = ncc_hgii_s1
+        elseif (constituent.eq."hgii_s2") then
+            ncc_code = ncc_hgii_s2
+        elseif (constituent.eq."hgii_s3") then
+            ncc_code = ncc_hgii_s3
         else
             write(*,*) "Check group_variable, cannot find a matched constituent!!"
         end if
         
-        if (rate_variable.eq."decay") then
+        if (rate_variable.eq."input") then
+            var_code = input
+        elseif (rate_variable.eq."decay") then
             var_code = decay
         elseif (rate_variable.eq."settle") then
             var_code = settle

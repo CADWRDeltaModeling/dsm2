@@ -848,7 +848,6 @@ module gtm_hdf_write
     end subroutine    
  
  
-
     !> Write out external flow info into GTM tidefile
     subroutine write_qext_info(geom_id)
         use hdf5

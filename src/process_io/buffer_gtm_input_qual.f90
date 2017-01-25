@@ -39,7 +39,7 @@ module buffer_gtm_input_qual
         use gtm_precision
         use common_variables, only: n_var, constituents, n_input_ts, n_node_ts,                  &
                                     n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index, &
-                                    group_var
+                                    group_var, run_mercury, mercury_start_ivar, mercury_ivar
         implicit none
         integer :: nitem_climate, nitem_node_conc, nitem_resv_conc, nitem_input_time_series
         integer :: nitem_group_variable
@@ -210,7 +210,7 @@ module buffer_gtm_input_qual
                                             inpath)
         end do
         print *,"Number of input time series processed: ", nitem_input_time_series
-
+ 
         n_var = nvar + n_sediment
         allocate(constituents(n_var))
         do i = 1, nvar      
@@ -225,7 +225,31 @@ module buffer_gtm_input_qual
                 constituents(i)%conservative = .false.  
                 constituents(i)%simulate = .false.
             elseif (trim(constituents(i)%name).eq.'turbidity') then
-                constituents(i)%conservative = .false.  
+                constituents(i)%conservative = .false.
+            elseif (trim(constituents(i)%name) =='hgii') then
+                mercury_ivar(1) = i
+                constituents(i)%use_module = 'mercury'
+                constituents(i)%conservative = .false.
+            elseif (trim(constituents(i)%name) =='mehg') then
+                mercury_ivar(2) = i
+                constituents(i)%use_module = 'mercury'
+                constituents(i)%conservative = .false.                
+            elseif (trim(constituents(i)%name) =='hg0') then
+                mercury_ivar(3) = i
+                constituents(i)%use_module = 'mercury'
+                constituents(i)%conservative = .false.
+            elseif (trim(constituents(i)%name) =='hgii_s1') then 
+                mercury_ivar(4) = i
+                constituents(i)%use_module = 'mercury'
+                constituents(i)%conservative = .false.
+            elseif (trim(constituents(i)%name) =='hgii_s2') then
+                mercury_ivar(5) = i
+                constituents(i)%use_module = 'mercury'
+                constituents(i)%conservative = .false.
+            elseif (trim(constituents(i)%name) =='hgii_s3') then
+                mercury_ivar(6) = i
+                constituents(i)%use_module = 'mercury'
+                constituents(i)%conservative = .false.
             end if
         end do
         do i = 1, n_sediment

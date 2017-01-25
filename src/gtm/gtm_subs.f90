@@ -336,7 +336,7 @@ module gtm_subs
         call write_qext_info(geom_id)
         call write_connection_info(geom_id)
         call write_dsm2_network_info(geom_id)
-        call h5gclose_f(geom_id, err) 
+        call h5gclose_f(geom_id, err)
         return
     end subroutine    
 
@@ -423,6 +423,7 @@ module gtm_subs
                 n_ts_var = 1
                 ts_code(n_ts_var) = ts_var_code
                 ts_name(n_ts_var) = pathinput(n_node_ts+i)%variable
+                code_to_ts_id(ts_var_code) = n_ts_var
             else
                 do j = 1, n_ts_var
                     if (ts_var_code.eq.ts_code(j)) then
@@ -431,7 +432,8 @@ module gtm_subs
                         if (j.eq.n_ts_var) then
                             n_ts_var = n_ts_var + 1
                             ts_code(n_ts_var) = ts_var_code
-                            ts_name(n_ts_var) = pathinput(n_node_ts+i)%variable                            
+                            ts_name(n_ts_var) = pathinput(n_node_ts+i)%variable
+                            code_to_ts_id(ts_var_code) = n_ts_var                        
                         end if
                     end if
                 end do           
@@ -475,6 +477,30 @@ module gtm_subs
         return
     end subroutine      
 
+
+    !> check if the mercury related time series inputs are specified
+    subroutine check_mercury_ts_input()
+        use common_variables
+        use error_handling
+        implicit none
+        if (code_to_ts_id(ts_var_do) == 0) call gtm_fatal("Time series for DO is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_ph) == 0) call gtm_fatal("Time series for PH is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_so4) == 0) call gtm_fatal("Time series for SO4 is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_temp) == 0) call gtm_fatal("Time series for Temperature is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_ipar) == 0) call gtm_fatal("Time series for IPAR is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_iuva) == 0) call gtm_fatal("Time series for IUVA is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_iuvb) == 0) call gtm_fatal("Time series for IUVB is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_rgm_air) == 0) call gtm_fatal("Time series for RGM_AIR is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_hg0_air) == 0) call gtm_fatal("Time series for Hg0_Air is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_mehg_air) == 0) call gtm_fatal("Time series for MeHg_Air is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_precip) == 0) call gtm_fatal("Time series for Precipitation is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_wet_hgii) == 0) call gtm_fatal("Time series for Wet_HgII is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_dry_hgii) == 0) call gtm_fatal("Time series for Dry_HgII is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_wet_mehg) == 0) call gtm_fatal("Time series for Wet_MeHg is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_dry_mehg) == 0) call gtm_fatal("Time series for Dry_MeHg is not specified!!!! It is needed for Mercury Module.")
+        return
+    end subroutine
+    
 
     !> check the flow mass balance at DSM2 network
     subroutine flow_mass_balance_check(ncell,      &

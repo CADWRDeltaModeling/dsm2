@@ -61,10 +61,13 @@ program gtm
     use gtm_init_store_outputs
     use gtm_store_outpath
     use klu
+    ! extended modules
+    use turbidity
     use suspended_sediment
     use sediment_variables
-    use sediment_bed
-    use turbidity
+    use sediment_bed    
+    use mercury_state_variables
+    use mercury_fluxes
 
     implicit none
     
@@ -76,16 +79,7 @@ program gtm
     real(gtm_real), allocatable :: explicit_diffuse_op(:,:)   
     real(gtm_real), allocatable :: init_c(:,:)
     real(gtm_real), allocatable :: init_r(:,:)   
-    real(gtm_real), allocatable :: manning(:)
-    real(gtm_real), allocatable :: diameter(:,:)
-    real(gtm_real), allocatable :: fall_velocity(:,:)
-    real(gtm_real), allocatable :: critical_shear(:,:)
-    real(gtm_real), allocatable :: particle_reynolds(:,:)
-    real(gtm_real), allocatable :: erosion(:,:)
-    real(gtm_real), allocatable :: deposition(:,:)
-    real(gtm_real), allocatable :: available_bed(:,:)
-    real(gtm_real), allocatable :: input_time_series(:,:)
-     
+    real(gtm_real), allocatable :: manning(:)     
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion   
     
@@ -107,18 +101,6 @@ program gtm
     integer :: current_slice = 0
     integer :: time_index_in_gtm_hdf
     integer :: next_output_flush 
-      
-    procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
-    logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
-    logical :: debug_interp = .false.    
-    logical :: use_gtm_hdf = .false.
-    logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
-
-    character(len=130) :: init_input_file                     ! initial input file on command line [optional]
-    character(len=:), allocatable :: restart_file_name  
-    character(len=14) :: cdt
-    character(len=9) :: prev_day
-    integer :: ok
     
     ! variables for sub time stepping 
     logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
@@ -132,23 +114,52 @@ program gtm
     integer :: tmp_int
     integer :: ierror
     integer :: nt     
-    integer :: istat = 0
-    
-    ! variables for extended modules
-    integer :: isediment = 0
-    real(gtm_real), allocatable :: turbidity_decay(:)
-    real(gtm_real), allocatable :: turbidity_settle(:)
-    
+    integer :: istat = 0  
+        
     ! for specified output locations
     real(gtm_real), allocatable :: vals(:)  
     logical :: file_exists
-    integer :: st, k, p, n_st, chan_no
+    integer :: st, p, n_st, chan_no
     integer :: ivar
-    real(gtm_real) :: start, finish
+    real(gtm_real) :: start, finish    
+    
+    procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
+    logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
+    logical :: debug_interp = .false.    
+    logical :: use_gtm_hdf = .false.
+    logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
+    character(len=130) :: init_input_file                     ! initial input file on command line [optional]
+    character(len=:), allocatable :: restart_file_name  
+    character(len=14) :: cdt
+    character(len=9) :: prev_day
+    integer :: ok
+    real(gtm_real), allocatable :: input_time_series(:,:) 
+    
+    ! variables for sediment module
+    real(gtm_real), allocatable :: diameter(:,:)
+    real(gtm_real), allocatable :: fall_velocity(:,:)
+    real(gtm_real), allocatable :: critical_shear(:,:)
+    real(gtm_real), allocatable :: particle_reynolds(:,:)
+    real(gtm_real), allocatable :: erosion(:,:)
+    real(gtm_real), allocatable :: deposition(:,:)
+    real(gtm_real), allocatable :: available_bed(:,:)       
+    integer :: isediment = 0
+    ! variables for turbidity module
+    real(gtm_real), allocatable :: turbidity_decay(:)
+    real(gtm_real), allocatable :: turbidity_settle(:)
+    ! variables for mercury module
+    real(gtm_real), allocatable :: conc_mercury(:,:)
+    real(gtm_real), allocatable :: source_mercury(:,:)
+    real(gtm_real), allocatable :: area_wet(:)
+    real(gtm_real), allocatable :: depth(:)
+    integer :: ec_ivar, doc_ivar
+    integer :: nlayers = 2
+    integer :: rkstep = 2
+        
     open(unit_error, file="error.log")
     !open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
-    !----- Start of GTM Program  -----    
+    !----- Start of DSM2-GTM Program  -----    
     call cpu_time(start)
     call h5open_f(ierror)
     call verify_error(ierror, "opening hdf interface")   
@@ -236,15 +247,17 @@ program gtm
     prev_day = "01JAN1000"                                      ! to initialize for screen printing only
 
     ! for sediment module
-    call assign_group_static_variables
-
     allocate(diameter(n_cell,n_sediment))  
-    allocate(fall_velocity(n_cell,n_sediment))                                   
+    allocate(fall_velocity(n_cell,n_sediment)) 
     allocate(particle_reynolds(n_cell,n_sediment))
     allocate(critical_shear(n_cell,n_sediment))
     allocate(erosion(n_cell,n_sediment))
     allocate(deposition(n_cell,n_sediment))
     allocate(available_bed(n_cell,n_sediment))
+    call assign_group_static_variables
+    call assign_input_ts_group_var
+    allocate(input_time_series(n_ts_var,n_cell)) 
+       
     do i = 1, n_sediment
         call check_group_channel(ncc_ssc,sediment_coef_start+i-1)     
         diameter(:,i) = group_var_cell(ncc_ssc,sediment_coef_start+i-1,:)
@@ -255,10 +268,16 @@ program gtm
     allocate(turbidity_decay(n_cell),turbidity_settle(n_cell))
     turbidity_decay(:) = group_var_cell(ncc_turbidity,decay,:)
     turbidity_settle(:) = group_var_cell(ncc_turbidity,settle,:)
+    !> for mercury module
+    if (run_mercury) then
+        call allocate_mercury(n_cell,nlayers)
+        allocate(conc_mercury(n_cell,n_mercury), source_mercury(n_cell,n_mercury))
+        allocate(area_wet(n_cell), depth(n_cell))
+        call check_mercury_ts_input
+        call constituent_name_to_ivar(ec_ivar, 'ec')  
+        call constituent_name_to_ivar(doc_ivar, 'ec')  ! todo: change 'ec' to 'doc' when doc model setup is ready
+    end if
     
-    call assign_input_ts_group_var
-    allocate(input_time_series(n_ts_var,n_cell))
-
     ! assigen the initial concentration to cells and reservoirs    
     restart_file_name = trim(gtm_io(1,1)%filename) 
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
@@ -312,12 +331,13 @@ program gtm
     call incr_intvl(next_output_flush, start_julmin, flush_intvl, TO_BOUNDARY)
     call gtm_init_store_outpaths(istat)
     
+    ! start marching throught the time steps for simulation
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
         
         time_step_int = int((current_time-gtm_start_jmin)/gtm_time_interval) + 1 
          
         !---print out processing date on screen
-        cdt = jmin2cdt(int(current_time))   ! this function only for screen status printout. 
+        cdt = jmin2cdt(int(current_time))   ! this function only used for screen status printout
         if (cdt(1:9) .ne. prev_day) then    ! Rough integer is fine, only for screen printing
             write(*,*) cdt(1:9)
             prev_day =  cdt(1:9)
@@ -347,7 +367,6 @@ program gtm
                 call deallocate_network_tmp
                 call allocate_network_tmp(npartition_t)
             end if
-            !call print_erosion_deposition(erosion,deposition,current_time,n_var,n_cell)
             call interp_network_linear(npartition_t, slice_in_block, n_comp, prev_comp_flow, &
                  prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi) 
             call interp_network_ext(npartition_t, slice_in_block, prev_hydro_resv,           &
@@ -370,7 +389,7 @@ program gtm
             max_cfl = maxval(cfl)
             ceil_max_cfl = ceiling(max_cfl) 
             if ((max_cfl .gt. one).and.(sub_time_step)) then
-                if (ceil_max_cfl .gt. max_num_sub_ts) then   ! try to avoid exceeding max_num_sub_ts
+                if (ceil_max_cfl .gt. max_num_sub_ts) then  
                     ceil_max_cfl = max_num_sub_ts
                     write(*,*) "exceed max number of sub timestep. consider to decrease the cell size."
                 end if
@@ -394,6 +413,10 @@ program gtm
             prev_flow_cell_hi(:) = flow_mesh_hi(n_st,:)            
             current_slice = slice_in_block            
         end if
+
+        do i = 1, n_ts_var   !use ts_name(i) to get the variable name
+            input_time_series(i,:) = pathinput(ts(i,:))%value
+        end do        
         
         if (sub_time_step) then
             sub_st = ceil_max_cfl
@@ -434,9 +457,6 @@ program gtm
                                     n_tran,       &
                                     dble(t_index))                               
       
-            !if (t_index.eq.1) then
-            !    call flow_mass_balance_check(n_cell, n_qext, n_resv_conn, flow_lo, flow_hi, qext_flow, resv_flow) 
-            !end if    
             ! assign initial hydro data                           
             if ((new_current_time .eq. gtm_start_jmin).or.(area_prev(1) .eq. LARGEREAL)) then
                 call prim2cons(mass_prev, conc, area, n_cell, n_var)
@@ -450,15 +470,13 @@ program gtm
             end if
             cfl = flow/area*(gtm_time_interval*sixty)/dx_arr           
 
-            ! Sedimentation process
-            call sediment_bed_main(available_bed,      &
-                                   erosion,            &
-                                   deposition,         &                                 
-                                   n_cell,             &
-                                   n_sediment)            
+
+            !--------------- Source Terms Implementation --------------
+            ! Sedimentation process       
             do ivar = 1, n_var
                 if (trim(constituents(ivar)%use_module)=='sediment') then
                     isediment = ivar-(n_var-n_sediment)
+                    available_bed(:,isediment) = erosion(:,isediment)
                     call suspended_sediment_flux(source_term_by_cell(:,ivar),    &
                                                  erosion(:,isediment),           &
                                                  deposition(:,isediment),        &
@@ -481,11 +499,60 @@ program gtm
                                           conc(:,ivar),                          &
                                           turbidity_decay,                       &
                                           turbidity_settle,                      &
+                                          sub_gtm_time_step*sixty,               &
                                           n_cell)
                 end if
             end do
+            area_wet = dx_arr*width
+            depth = area/width         ! an approximation
+            temperature = input_time_series(code_to_ts_id(ts_var_temp),:)
+            call sediment_bed_main(erosion,                 &
+                                   deposition,              &
+                                   temperature,             &
+                                   area_wet,                &   
+                                   sub_gtm_time_step*sixty, & 
+                                   rkstep,                  &
+                                   nlayers,                 &
+                                   n_cell,                  &
+                                   n_sediment)             
+            ! call mercury module 
+            if (run_mercury) then    
+                conc_mercury(:,1:n_mercury) = conc(:,mercury_ivar(1:n_mercury))
+                call mercury_source(source_mercury,                                      & !< source/sink to GTM
+                                    conc_mercury,                                        & !< GTM results from previous step
+                                    area_wet,                                            & !< hydrodynamic data from Hydro
+                                    depth,                                               & !< water depth
+                                    n_cell,                                              & !< number of cells
+                                    n_sediment,                                          & !< number of sediments
+                                    n_mercury,                                           & !< number of mercury constituents
+                                    conc(:,n_var-n_sediment+1:n_var),                    & !< sediment concentration 
+                                    conc(:,ec_ivar),                                     & 
+                                    conc(:,doc_ivar),                                    &
+                                    input_time_series(code_to_ts_id(ts_var_do),:),       & ! DO
+                                    input_time_series(code_to_ts_id(ts_var_ph),:),       & ! pH
+                                    input_time_series(code_to_ts_id(ts_var_so4),:),      & ! SO4
+                                    input_time_series(code_to_ts_id(ts_var_temp),:),     & ! Temperature
+                                    input_time_series(code_to_ts_id(ts_var_ipar),:),     & ! ipar
+                                    input_time_series(code_to_ts_id(ts_var_iuva),:),     & ! iuva
+                                    input_time_series(code_to_ts_id(ts_var_iuvb),:),     & ! iuvb
+                                    input_time_series(code_to_ts_id(ts_var_rgm_air),:),  & ! rgm_atm
+                                    input_time_series(code_to_ts_id(ts_var_hg0_air),:),  & ! Hg0_atm
+                                    input_time_series(code_to_ts_id(ts_var_mehg_air),:), & ! MeHg_atm
+                                    input_time_series(code_to_ts_id(ts_var_precip),:),   & ! precip 
+                                    input_time_series(code_to_ts_id(ts_var_wet_hgii),:), & ! wetdep_HgII
+                                    input_time_series(code_to_ts_id(ts_var_dry_hgii),:), & ! drydep_HgII
+                                    input_time_series(code_to_ts_id(ts_var_wet_mehg),:), & ! wetdep_MeHg
+                                    input_time_series(code_to_ts_id(ts_var_dry_mehg),:), & ! drydep_MeHg
+                                    input_time_series(code_to_ts_id(ts_var_rct_if),:),   & ! dgm_ratio
+                                    input_time_series(code_to_ts_id(ts_var_rct_water),:),& ! rct_interface
+                                    input_time_series(code_to_ts_id(ts_var_solid_in),:), & ! rct_water
+                                    input_time_series(code_to_ts_id(ts_var_vol_frac),:))   ! vol_frac                
+                source_term_by_cell(:,mercury_ivar(1:n_mercury)) = source_mercury(:,1:n_mercury)
+            end if
+                     
+            !------------------ End of Source Terms Implementation -----------------         
           
-            if (apply_diffusion_prev) then   ! omit dispersion term for advection calculation
+            if (apply_diffusion_prev) then   ! take dispersion term for advection calculation
                 boundary_diffusion_flux => network_boundary_diffusive_flux_prev
                 call explicit_diffusion_operator(explicit_diffuse_op,          &
                                                  conc_prev,                    &
@@ -577,11 +644,7 @@ program gtm
                     end do
                 end do                
             end if    
-            
-            do i = 1, n_ts_var   !use ts_name(i) to get the variable name
-                input_time_series(i,:) = pathinput(ts(i,:))%value
-            end do
-                                  
+                                    
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
@@ -602,7 +665,7 @@ program gtm
 
         !---- print output to DSS file -----
         call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
-        if (int(current_time) .ge. next_output_flush .or. current_time.eq.gtm_end_jmin) then
+        if (int(current_time) .ge. next_output_flush .or. current_time .eq. gtm_end_jmin) then
             call incr_intvl(next_output_flush, next_output_flush, flush_intvl, TO_BOUNDARY)
             call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
         else
@@ -615,38 +678,39 @@ program gtm
             if (mod(current_time-gtm_start_jmin,gtm_hdf_time_intvl)==zero) then
                 time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
                 if (hdf_out .eq. 'channel') then
-                    call write_gtm_chan_hdf(gtm_hdf,                      &
-                                            conc,                         &
-                                            n_chan,                       &
-                                            n_cell,                       &
-                                            n_var,                        &
+                    call write_gtm_chan_hdf(gtm_hdf,               &
+                                            conc,                  &
+                                            n_chan,                &
+                                            n_cell,                &
+                                            n_var,                 &
                                             time_index_in_gtm_hdf)                
                 else
-                    call write_gtm_hdf(gtm_hdf,                      &
-                                       conc,                         &
-                                       n_cell,                       &
-                                       n_var,                        &
+                    call write_gtm_hdf(gtm_hdf,                    &
+                                       conc,                       &
+                                       n_cell,                     &
+                                       n_var,                      &
                                        time_index_in_gtm_hdf)
+                    !write(501,'(a15,<n_cell>(a1,f8.3))') cdt(1:9),((',',conc(i,1)),i=1,n_cell)
                 end if
                 if (n_resv .gt. 0) then
-                    call write_gtm_hdf_resv(gtm_hdf,             & 
-                                            conc_resv,           & 
-                                            n_resv,              &
-                                            n_var,               &  
+                    call write_gtm_hdf_resv(gtm_hdf,               & 
+                                            conc_resv,             & 
+                                            n_resv,                &
+                                            n_var,                 &  
                                             time_index_in_gtm_hdf)                                
                 end if
                 if (debug_print==.true.) then                                                 
-                    call write_gtm_hdf_ts(gtm_hdf%cell_flow_id,  &
-                                          flow_hi,               & 
-                                          n_cell,                &
+                    call write_gtm_hdf_ts(gtm_hdf%cell_flow_id,    &
+                                          flow_hi,                 & 
+                                          n_cell,                  &
                                           time_index_in_gtm_hdf)
-                    call write_gtm_hdf_ts(gtm_hdf%cell_area_id,  &
-                                          area_hi,               & 
-                                          n_cell,                &
+                    call write_gtm_hdf_ts(gtm_hdf%cell_area_id,    &
+                                          area_hi,                 & 
+                                          n_cell,                  &
                                           time_index_in_gtm_hdf)                               
-                    call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,   &
-                                          cfl,                   & 
-                                          n_cell,                &
+                    call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,     &
+                                          cfl,                     & 
+                                          n_cell,                  &
                                           time_index_in_gtm_hdf)                                             
                 end if            
             end if
@@ -692,6 +756,10 @@ program gtm
     deallocate(available_bed)
     deallocate(input_ts, ts, input_time_series)
     deallocate(turbidity_decay, turbidity_settle)
+    if (run_mercury) then
+        deallocate(conc_mercury, source_mercury, area_wet, depth)
+        call deallocate_mercury
+    end if
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state

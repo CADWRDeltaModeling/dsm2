@@ -28,5 +28,6 @@
 		<File RelativePath=".\equilibrium.f90"/>
 		<File RelativePath=".\hg_type_defs.f90"/>
 		<File RelativePath=".\math_utils.f90"/>
-		<File RelativePath=".\mercury_fluxes.f90"/></Filter></Files>
+		<File RelativePath=".\mercury_fluxes.f90"/>
+		<File RelativePath=".\mercury_state_variables.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

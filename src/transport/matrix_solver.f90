@@ -67,7 +67,7 @@ module matrix_solver
 
       ! todo: what is this?
       if(center_diag(1) == zero)then
-          !call stm_fail("Error in tridiagonal system of equations")
+          !call gtm_fail("Error in tridiagonal system of equations")
       end if
 
       bet = center_diag(1)

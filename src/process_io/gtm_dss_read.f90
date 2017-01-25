@@ -18,7 +18,6 @@
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
 
-
 !> Define arrays to be used as buffers for data values, data
 !> quality flags from DSS, and julian minute timestamp.
 !> Use one array for each kind of data interval for DSS.

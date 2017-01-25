@@ -32,6 +32,7 @@ module turbidity
                                 conc,   &
                                 decay,  &
                                 settle, &
+                                dt,     &
                                 ncell)
         use gtm_precision
         implicit none 
@@ -41,9 +42,10 @@ module turbidity
         real(gtm_real), intent(in) :: conc(ncell)     !< Concentration
         real(gtm_real), intent(in) :: decay(ncell)    !< area at source     
         real(gtm_real), intent(in) :: settle(ncell)   !< flow at source location
+        real(gtm_real), intent(in) :: dt              !< delta t
 
         ! source must be in primitive variable 
-        source = - decay*conc - settle*conc
+        source = - decay*conc/dt - settle*conc/dt
      
         return
     end subroutine     

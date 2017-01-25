@@ -172,7 +172,6 @@ module common_dsm2_vars
            integer :: sign = 0    ! forced sign convention for the series
            logical :: useobj = .false.! true to use this input path
            character*14 :: start_date  = ' '! path start date and time
-           character*2 dummy3     ! make up for character*14 in data alignment
            logical :: replace = .false.
        end type     
                     

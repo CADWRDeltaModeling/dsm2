@@ -84,6 +84,7 @@ module suspended_sediment
         real(gtm_real) :: c_b
         real(gtm_real) :: capital_r
         real(gtm_real) :: exp_re_p_tmp, fall_vel_tmp, critical_shear_tmp
+        real(gtm_real) :: si_to_english = 1000.d0                !< kg/m3-->mg/L
         integer :: icell
         logical :: function_van_rijn  
 
@@ -162,10 +163,11 @@ module suspended_sediment
                 end if
             end if
             
-            source(icell) = vertical_flux(icell)*dx_si(icell)*width_si(icell)/area_si(icell)
-            
-            if (area_si(icell) .eq. zero) source(icell) = zero
-            
+            if (area_si(icell) .eq. zero) then
+                source(icell) = zero
+            else                
+                source(icell) = vertical_flux(icell)*dx_si(icell)*width_si(icell)/area_si(icell) !*si_to_english 
+            end if            
          end do   
        
          return 
@@ -228,7 +230,7 @@ module suspended_sediment
         use suspended_utility
         implicit none
         integer, intent(in) :: ncell
-        real(gtm_real), intent(in) :: diameter(ncell)
+        real(gtm_real), intent(in) :: diameter(ncell)           !< mm
         real(gtm_real), intent(out) :: fall_velocity(ncell)
         real(gtm_real), intent(out) :: exp_re_p(ncell)
         real(gtm_real), intent(out) :: critical_shear(ncell)

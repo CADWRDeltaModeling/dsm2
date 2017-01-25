@@ -155,7 +155,7 @@ module gtm_hdf_ts_write
 	    hdf_file%resv_dim = nresv
 	    hdf_file%time_index = 1
 	
-	    call write_dimensions(hdf_file%data_id, nresv, nconc)
+	    call write_dimensions(hdf_file%data_id, nchan, nresv, nconc)
 	
 	    ! create the data sets for time-varying output
 	    if (trim(hdf_out).eq.'channel') then
@@ -178,11 +178,12 @@ module gtm_hdf_ts_write
 
 
     !> Write out lookup information for cells, reservoirs, and constituents. 
-    subroutine write_dimensions(loc_id, nresv, nconc)
+    subroutine write_dimensions(loc_id, nchan, nresv, nconc)
         use hdf5
         use common_variables, only: chan_geom, resv_geom, constituents, hdf_out
         implicit none
         integer (HID_T), intent(in) :: loc_id              !< hdf file data ID
+        integer, intent(in) :: nchan                       !< nbumber of channels
         integer, intent(in) :: nresv                       !< number of reservoirs
         integer, intent(in) :: nconc                       !< number of constituents
         integer(HSIZE_T), dimension(1) :: in_dims != (/0/) ! Dataset dimensions
@@ -211,6 +212,15 @@ module gtm_hdf_ts_write
             call write_1D_string_array(loc_id,"channel_location", names,  &
                                        name_len,2)
             deallocate(names) 
+            
+            ! Write out external channel numbers int2ext
+            in_dims(1) = nchan
+            call h5screate_simple_f(in_rank, in_dims, in_dspace_id, ierror)
+            call h5dcreate_f(loc_id, "channel_number", H5T_NATIVE_INTEGER,   &
+                             in_dspace_id, in_dset_id, ierror, cparms)
+            call h5dwrite_f(in_dset_id,H5T_NATIVE_INTEGER, chan_geom%channel_num, in_dims, ierror)
+            call h5sclose_f (in_dspace_id, ierror)
+            call h5dclose_f(in_dset_id, ierror)
         end if
        
   	    ! Write reservoir names
@@ -473,8 +483,8 @@ module gtm_hdf_ts_write
                                 fspace_id,              &    
                                 error)
 	    call h5dcreate_f(hdf_file%data_id,              &  
-                         "chan concentration",          &    
-                         H5T_NATIVE_DOUBLE,             &	   
+                         "channel concentration",       &    
+                         H5T_NATIVE_REAL,               &	   
                          fspace_id,                     &
                          hdf_file%chan_conc_id,         &    
                          error,                         &     
@@ -744,7 +754,7 @@ module gtm_hdf_ts_write
                                   time_index)
         use hdf5
         implicit none
-        type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
+        type(gtm_hdf_t), intent(in) :: hdf_file                 !< hdf file structure
         integer, intent(in) :: nresv                            !< number of reservoirs
         integer, intent(in) :: nconc                            !< number of constituents
         real(gtm_real), intent(in) :: resv_conc(nresv, nconc)   !< resv data from transport module
@@ -907,7 +917,7 @@ module gtm_hdf_ts_write
 	    integer*4, parameter :: ISO_LEN = 19  ! includes null termination
         character(LEN=ISO_LEN) :: iso_datetime
 
-        write(cinterval,"(f,'min')") ts_interval
+        write(cinterval,"(i,'min')") int(ts_interval)
         cinterval=adjustl(cinterval)
 
         call h5screate_simple_f(arank, a_dims, aspace_id, error)
@@ -943,6 +953,5 @@ module gtm_hdf_ts_write
 
         return
 	end subroutine
-    
-    
+        
 end module        
