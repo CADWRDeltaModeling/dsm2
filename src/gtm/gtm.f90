@@ -132,7 +132,8 @@ program gtm
     character(len=:), allocatable :: restart_file_name  
     character(len=14) :: cdt
     character(len=9) :: prev_day
-    integer :: ok
+    character(len=32) :: name(10)
+    integer :: nadd, ok
     real(gtm_real), allocatable :: input_time_series(:,:) 
     
     ! variables for sediment module
@@ -168,7 +169,7 @@ program gtm
     call read_input_text(init_input_file)                  ! read input specification text
     call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
     call opendss(ifltab_out, n_outdssfiles, outdssfiles)   ! open all output dss files        
-    
+        
     write(*,*) "Process DSM2 geometry info...."    
     call hdf5_init(hydro_hdf5)                         
     call dsm2_hdf_geom
@@ -177,7 +178,32 @@ program gtm
     call check_runtime(num_blocks, memlen,                     & 
                        memory_buffer, hydro_time_interval,     & 
                        hydro_start_jmin, hydro_end_jmin,       &
-                       gtm_start_jmin, gtm_end_jmin)   
+                       gtm_start_jmin, gtm_end_jmin)  
+    
+    ! assigen the initial concentration to cells and reservoirs    
+    restart_file_name = trim(gtm_io(1,1)%filename) 
+    inquire(file=gtm_io(1,1)%filename, exist=file_exists)
+    if (file_exists==.true.) then 
+        call check_init_file(nadd, name, restart_file_name)
+        if (nadd .gt. 0) then
+            n_var = n_var + 1
+        end if
+        allocate(init_c(n_cell,n_var))
+        allocate(init_r(n_resv,n_var))                
+        call read_init_file(init_c, init_r, restart_file_name)
+        conc = init_c
+        conc_resv = init_r
+    else
+        allocate(init_c(n_cell,n_var))
+        allocate(init_r(n_resv,n_var))  
+        if (init_conc .ne. LARGEREAL) then
+            conc = init_conc
+            conc_resv = init_conc
+        else    
+            conc = zero
+            conc_resv = zero            
+        end if                         
+    endif       
                        
     call assign_ivar_to_outpath    
     allocate(vals(noutpaths))    
@@ -199,8 +225,6 @@ program gtm
     call allocate_network_tmp(npartition_t)
     call allocate_state(n_cell, n_var)
     call allocate_state_network(n_resv, n_resv_conn, n_qext, n_tran, n_node, n_cell, n_var)
-    allocate(init_c(n_cell,n_var))
-    allocate(init_r(n_resv,n_var))
     allocate(explicit_diffuse_op(n_cell,n_var))
     allocate(linear_decay(n_var))
     allocate(cfl(n_cell))    
@@ -277,22 +301,7 @@ program gtm
         call constituent_name_to_ivar(doc_ivar, 'ec')  ! todo: change 'ec' to 'doc' when doc model setup is ready
     end if
     
-    ! assigen the initial concentration to cells and reservoirs    
-    restart_file_name = trim(gtm_io(1,1)%filename) 
-    inquire(file=gtm_io(1,1)%filename, exist=file_exists)
-    if (file_exists==.true.) then 
-        call read_init_file(init_c, init_r, restart_file_name)
-        conc = init_c
-        conc_resv = init_r
-    else    
-        if (init_conc .ne. LARGEREAL) then
-            conc = init_conc
-            conc_resv = init_conc
-        else    
-            init_c = zero
-            init_r = zero            
-        end if                         
-    endif      
+    ! initialize concentrations
     prev_conc_stip = zero 
     conc_prev = zero         
     conc_resv_prev = zero

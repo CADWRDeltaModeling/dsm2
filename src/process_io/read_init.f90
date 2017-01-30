@@ -104,5 +104,56 @@ module read_init
         close(file_unit)
         return
     end subroutine
+
+    !> check if there are additional constituents in initial condition file
+    subroutine check_init_file(nadd,             &
+                               name,             &
+                               restart_file_name)
+        use gtm_precision
+        use error_handling
+        use common_variables, only: constituents, n_var
+        implicit none
+        character*(*), intent(in) :: restart_file_name   !< Restart file name
+        character*32, intent(out) :: name(10)            !< additional constituents, maximum 10
+        integer, intent(out) :: nadd                     !< number of additional constituents
+        integer :: file_unit
+        integer :: nvar_r, ncell_r
+        integer :: i, j, ncol
+        character*32 :: a, b(n_var)
+        logical :: file_exists
+
+        file_unit = 151
+        inquire(file=restart_file_name, exist=file_exists)
+        if (file_exists) then
+            open(file_unit, file=restart_file_name)
+            read(file_unit,*)
+            read(file_unit,*)
+            read(file_unit,*) nvar_r
+            read(file_unit,*) ncell_r
+            read(file_unit,*) a, (b(i),i=1,nvar_r)
+            ncol = 0
+            name = ''
+            do i = 1, n_var          
+                do j = 1, nvar_r
+                    if (trim(b(j)).eq.trim(constituents(i)%name)) ncol = 1
+                end do
+                if (ncol.eq.0 .and. constituents(i)%simulate) call gtm_fatal("Please specify initial condition for "//trim(constituents(i)%name))
+            end do
+            nadd = 0
+            ncol = 0
+            do i = 1, nvar_r              
+                do j = 1, n_var
+                    if(trim(b(i)).eq.trim(constituents(j)%name)) ncol = 1
+                end do
+                if (ncol.eq.0) then
+                    write(*,*) trim(b(i))," is simulated without boundary condition given."
+                    nadd = nadd + 1
+                    name(nadd) = trim(b(i))
+                end if
+            end do
+            rewind(file_unit)
+        end if
+        return
+    end subroutine
     
 end module
