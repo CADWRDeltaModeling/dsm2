@@ -177,6 +177,7 @@ module common_xsect
     subroutine CxInfo(area,                  &        ! return cross section area
                       width,                 &        ! return channel width
                       hydro_radius,          &        ! return hydraulic radius
+                      depth,                 &        ! return water depth
                       X,                     &        ! distance from upstream
                       Z,                     &        ! water surface elevation
                       branch)                         ! channel no
@@ -187,6 +188,7 @@ module common_xsect
         real(gtm_real), intent(out) :: area           !< CxArea
         real(gtm_real), intent(out) :: width          !< Width
         real(gtm_real), intent(out) :: hydro_radius   !< Hydraulic radius
+        real(gtm_real), intent(out) :: depth          !< Water depth
         real(gtm_real) :: virt_deltax
         integer :: vsecno_forX
         integer :: vindex
@@ -234,6 +236,8 @@ module common_xsect
         area = a1 + half * ( b1 + b2 )* (Z - z1)
         wet_p = virt_xsect(si)%wet_p(ei) + two*dsqrt(((b2-b1)*half)**2+(Z-z1)**2)
         hydro_radius = area/wet_p
+        depth = Z - (chan_geom(branch)%chan_btm_up + X/chan_geom(branch)%channel_length* &
+                       (chan_geom(branch)%chan_btm_down-chan_geom(branch)%chan_btm_up))
         return
     end subroutine                              
          

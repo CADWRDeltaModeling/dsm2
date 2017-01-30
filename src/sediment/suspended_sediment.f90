@@ -35,6 +35,7 @@ module suspended_sediment
                                        area,              & 
                                        width,             & 
                                        hydro_radius,      & 
+                                       depth,             &
                                        manning_n,         & 
                                        diameter,          &
                                        fall_vel,          &
@@ -59,6 +60,7 @@ module suspended_sediment
         real(gtm_real), intent(in) :: area(ncell)                   !< area
         real(gtm_real), intent(in) :: width(ncell)                  !< channel width
         real(gtm_real), intent(in) :: hydro_radius(ncell)           !< hydraulic radius
+        real(gtm_real), intent(in) :: depth(ncell)                  !< depth
         real(gtm_real), intent(in) :: manning_n(ncell)              !< Manning's n
         real(gtm_real), intent(in) :: diameter(ncell)               !< diameter
         real(gtm_real), intent(in) :: fall_vel(ncell)               !< settling velocity
@@ -75,7 +77,7 @@ module suspended_sediment
         real(gtm_real) :: vertical_flux(ncell)
         real(gtm_real) :: erosion_flux_nc, deposition_flux_nc
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
-        real(gtm_real) :: width_si(ncell), hydro_radius_si(ncell), diameter_si(ncell)
+        real(gtm_real) :: width_si(ncell), hydro_radius_si(ncell), depth_si(ncell), diameter_si(ncell)
         real(gtm_real) :: diameter_tmp(ncell)
         real(gtm_real) :: velocity(ncell)
         real(gtm_real) :: bottom_shear_stress(ncell)
@@ -90,8 +92,8 @@ module suspended_sediment
 
         function_van_rijn = .false. !use Dietrich formula        
         
-        call si_unit(conc_si, flow_si, area_si, width_si, hydro_radius_si, dx_si, diameter_si, &
-                     conc, flow, area, width, hydro_radius, dx, diameter, ncell)    
+        call si_unit(conc_si, flow_si, area_si, width_si, hydro_radius_si, depth_si, dx_si, diameter_si, &
+                     conc, flow, area, width, hydro_radius, depth, dx, diameter, ncell)    
                                                                         
         do icell = 1, ncell        
             velocity(icell) = abs(flow_si(icell)/area_si(icell))     
@@ -166,7 +168,7 @@ module suspended_sediment
             if (area_si(icell) .eq. zero) then
                 source(icell) = zero
             else                
-                source(icell) = vertical_flux(icell)*dx_si(icell)*width_si(icell)/area_si(icell) !*si_to_english 
+                source(icell) = vertical_flux(icell)/depth_si(icell)*si_to_english
             end if            
          end do   
        
@@ -180,6 +182,7 @@ module suspended_sediment
                        area_si,        &
                        width_si,       &
                        hyd_radius_si,  &
+                       depth_si,       &
                        dx_si,          &                       
                        diameter_si,    &
                        conc,           &
@@ -187,6 +190,7 @@ module suspended_sediment
                        area,           &
                        width,          &
                        hyd_radius,     &
+                       depth,          &
                        dx,             &
                        diameter,       &
                        ncell) 
@@ -197,6 +201,7 @@ module suspended_sediment
         real(gtm_real), intent(out) :: area_si(ncell)
         real(gtm_real), intent(out) :: width_si(ncell)
         real(gtm_real), intent(out) :: hyd_radius_si(ncell)
+        real(gtm_real), intent(out) :: depth_si(ncell)
         real(gtm_real), intent(out) :: dx_si(ncell)
         real(gtm_real), intent(out) :: diameter_si(ncell)
         real(gtm_real), intent(in) :: conc(ncell)
@@ -204,6 +209,7 @@ module suspended_sediment
         real(gtm_real), intent(in) :: area(ncell)
         real(gtm_real), intent(in) :: width(ncell)
         real(gtm_real), intent(in) :: hyd_radius(ncell)
+        real(gtm_real), intent(in) :: depth(ncell)
         real(gtm_real), intent(in) :: dx(ncell)
         real(gtm_real), intent(in) :: diameter(ncell)
         real(gtm_real), parameter :: L = 0.3048d0
@@ -213,6 +219,7 @@ module suspended_sediment
         area_si = area*L*L             ! ft^2-->m^2
         width_si = width*L             ! ft-->m
         hyd_radius_si = hyd_radius*L   ! ft-->m
+        depth_si = depth*L             ! ft-->m
         dx_si = dx*L                   ! ft-->m
         diameter_si = diameter*0.001d0 ! mm-->m        
         return

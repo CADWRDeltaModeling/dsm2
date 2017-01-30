@@ -87,11 +87,6 @@ program test_driver
     implicit none
     logical :: verbose = .true.
     character(len=255) :: parent_dir
-
-    open(141,file="temp1.txt")
-    open(142,file="temp2.txt")
-    open(143,file="temp3.txt")
-    open(144,file="temp4.txt")
     
     call init_fruit
     
@@ -135,7 +130,7 @@ program test_driver
     !      operators are layered in successively
     call test_converge_transport_uniform(verbose)
     !call test_converge_transport_uniform_vary_dx(verbose)
-    call test_converge_uniform_bidirectional(verbose)
+    !call test_converge_uniform_bidirectional(verbose)
         !----- Diffusion unit tests
     call test_tridi_solver
     call test_boundary_diffusion_flux
@@ -153,8 +148,8 @@ program test_driver
     !call test_advection_reaction_hydro_interp(verbose)
     
     !----- Advection-Diffusion tests
-    call test_zoppou_flow() 
-    call test_advection_diffusion_zoppou(verbose)
+    !call test_zoppou_flow() 
+    !call test_advection_diffusion_zoppou(verbose)
     !call test_advection_diffusion_t_dependent(verbose)
     !call test_advection_diffusion_time_dependent(verbose)
 

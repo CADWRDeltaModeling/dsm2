@@ -192,7 +192,7 @@ module interpolation
 
    !> Area calculated from interpolation of four given water surface elevations
     subroutine interp_area_byCxInfo(mesh_lo, mesh_hi, volume_change,    &   
-                                    width, hydro_radius,                & 
+                                    width, hydro_radius, depth,         & 
                                     branch, up_x, dx,                   &  
                                     ncell, start_c, nx, dt, nt,         &
                                     a, b, c, d,                         &
@@ -214,12 +214,14 @@ module interpolation
         real(gtm_real), intent(inout) :: volume_change(nt-1,ncell)       !< volume change for each cell 
         real(gtm_real), intent(inout) :: width(nt,ncell)                 !< water surface width for each cell 
         real(gtm_real), intent(inout) :: hydro_radius(nt,ncell)          !< hydraulic radius for each cell 
+        real(gtm_real), intent(inout) :: depth(nt,ncell)                 !< water depth for each cell 
         real(gtm_real) :: ws(nt,nx+1)                                    ! interpolated water surface mesh
         real(gtm_real) :: subtotal_volume_change(nt)                     ! local variable to check mass balance (sub total in time)
         real(gtm_real) :: total_volume_change, factor, sub_flow_vol      ! local variable
         real(gtm_real) :: ratio(nt-1)                                    ! local variable
         real(gtm_real) :: b_lo(nt,ncell), b_hi(nt,ncell)                 ! local variable
         real(gtm_real) :: dh_lo(nt,ncell), dh_hi(nt,ncell)               ! local variable
+        real(gtm_real) :: dp_lo(nt,ncell), dp_hi(nt,ncell)               ! local variable
         integer :: i, j, OK                                              ! local variable  
         integer :: end_c
         OK = 0             ! use linear ratio, not distribute by flow        
@@ -267,15 +269,17 @@ module interpolation
         ! call CxArea to obtain area 
         do j  = 1, nt
             do i = 1, nx
-                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,start_c+i-1), dh_lo(j,start_c+i-1), up_x+dx*(dble(i)-one), ws(j,i), branch)
+                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,start_c+i-1), dh_lo(j,start_c+i-1), dp_lo(j,start_c+i-1), up_x+dx*(dble(i)-one), ws(j,i), branch)
             end do     
-            call CxInfo(mesh_hi(j,end_c), b_hi(j,end_c), dh_hi(j,end_c), up_x+dx*nx, ws(j,nx+1), branch)
+            call CxInfo(mesh_hi(j,end_c), b_hi(j,end_c), dh_hi(j,end_c), dp_hi(j,end_c), up_x+dx*nx, ws(j,nx+1), branch)
         end do                                                            
         mesh_hi(:,start_c:end_c-1) = mesh_lo(:,start_c+1:end_c)
         b_hi(:,start_c:end_c-1) = b_lo(:,start_c+1:end_c)
         dh_hi(:,start_c:end_c-1) = dh_lo(:,start_c+1:end_c)
+        dp_hi(:,start_c:end_c-1) = dp_lo(:,start_c+1:end_c)
         width(:,start_c:end_c) = half * (b_lo(:,start_c:end_c) + b_hi(:,start_c:end_c))
         hydro_radius(:,start_c:end_c) = half * (dh_lo(:,start_c:end_c) + dh_hi(:,start_c:end_c))
+        depth(:,start_c:end_c) = half * (dp_lo(:,start_c:end_c) + dp_hi(:,start_c:end_c))
         
         do j = 1, nt-1
             volume_change(j,start_c:end_c) = half*(mesh_hi(j+1,start_c:end_c)+mesh_lo(j+1,start_c:end_c)-mesh_hi(j,start_c:end_c)-mesh_lo(j,start_c:end_c))*dx
@@ -355,14 +359,14 @@ module interpolation
     
    !> Linear interpolate flow and area mesh based on given four points of flows and water surface elevations
    !> This does not conserve the mass. 
-    subroutine interp_flow_area(flow_mesh_lo, flow_mesh_hi,             &
-                                area_mesh_lo, area_mesh_hi,             &
-                                width_mesh, hydro_radius_mesh,          &
-                                flow_volume_change, area_volume_change, &
-                                ncell, start_c,                         &
-                                branch, up_x, dx, dt, nt, nx,           &
-                                flow_a, flow_b, flow_c, flow_d,         &
-                                ws_a, ws_b, ws_c, ws_d,                 &
+    subroutine interp_flow_area(flow_mesh_lo, flow_mesh_hi,                &
+                                area_mesh_lo, area_mesh_hi,                &
+                                width_mesh, hydro_radius_mesh, depth_mesh, &
+                                flow_volume_change, area_volume_change,    &
+                                ncell, start_c,                            &
+                                branch, up_x, dx, dt, nt, nx,              &
+                                flow_a, flow_b, flow_c, flow_d,            &
+                                ws_a, ws_b, ws_c, ws_d,                    &
                                 prev_flow_cell_lo, prev_flow_cell_hi)
         implicit none
         integer, intent(in) :: branch                                               !< hydro channel number (required by CxArea())
@@ -383,11 +387,12 @@ module interpolation
         real(gtm_real), dimension(nt,ncell), intent(inout) :: area_mesh_hi          !< interpolated area mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: width_mesh            !< width mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: hydro_radius_mesh     !< hydraulic radius mesh
+        real(gtm_real), dimension(nt,ncell), intent(inout) :: depth_mesh            !< water depth mesh
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: flow_volume_change  !< volume change from flow interpolation for each cell 
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: area_volume_change  !< volume change from area interpolation for each cell 
      
         call interp_flow_linear(flow_mesh_lo, flow_mesh_hi, flow_volume_change, ncell, start_c, nx, dt, nt, flow_a, flow_b, flow_c, flow_d)       
-        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width_mesh, hydro_radius_mesh, branch, up_x, dx,  &
+        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width_mesh, hydro_radius_mesh, depth_mesh, branch, up_x, dx,  &
                                   ncell, start_c, nx, dt, nt, ws_a, ws_b, ws_c, ws_d, flow_volume_change)
         call interp_flow_from_area_theta(flow_mesh_lo, flow_mesh_hi, flow_volume_change,ncell, start_c, dt, nt, nx,  &
                                          flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell_lo, prev_flow_cell_hi)   
@@ -399,7 +404,7 @@ module interpolation
    !> This does not conserve the mass. 
     subroutine interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi,             &
                                           area_mesh_lo, area_mesh_hi,             &
-                                          width, hydro_radius,                    &
+                                          width, hydro_radius, depth,             &
                                           flow_volume_change, area_volume_change, &
                                           ncell, start_c,                         &
                                           branch, up_x, dx, dt, nt, nx,           &
@@ -425,11 +430,12 @@ module interpolation
         real(gtm_real), dimension(nt,ncell), intent(inout) :: area_mesh_hi          !< interpolated area mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: width                 !< interpolated width
         real(gtm_real), dimension(nt,ncell), intent(inout) :: hydro_radius          !< interpolated hydraulic radius
+        real(gtm_real), dimension(nt,ncell), intent(inout) :: depth                 !< interpolated water depth
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: flow_volume_change  !< volume change from flow interpolation for each cell 
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: area_volume_change  !< volume change from area interpolation for each cell 
      
         call interp_flow_linear(flow_mesh_lo, flow_mesh_hi, flow_volume_change, ncell, start_c, nx, dt, nt, flow_a, flow_b, flow_c, flow_d)       
-        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width, hydro_radius, branch, up_x, dx,                  &
+        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width, hydro_radius, depth, branch, up_x, dx,              &
                                   ncell, start_c, nx, dt, nt, ws_a, ws_b, ws_c, ws_d, flow_volume_change)
         return
     end subroutine      

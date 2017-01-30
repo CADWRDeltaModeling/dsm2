@@ -26,7 +26,6 @@ module test_bed_load
     subroutine test_volumetric_bedload_transport_rate
 
         use fruit
-        use bed_load
         use gtm_precision
         implicit none
         integer,parameter:: nsed  = 2                     !< Number of sediment classes 

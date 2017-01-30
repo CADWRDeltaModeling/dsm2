@@ -38,6 +38,7 @@ module hydro_data_tidefile
         call get_hydro_attr
         call read_channel_tbl
         call read_comp_tbl
+        call read_channel_bottom_tbl        
         call assign_chan_comppt
         call assign_segment   
         call read_reservoir_tbl

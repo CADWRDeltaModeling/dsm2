@@ -72,6 +72,7 @@ module hydro_data
                                  area_hi,      &
                                  width,        &
                                  hydro_radius, &
+                                 depth,        &
                                  ncell,        &
                                  time,         &
                                  dx,           &
@@ -90,6 +91,7 @@ module hydro_data
             real(gtm_real), intent(out) :: area_hi(ncell)      !< Area hi face, time centered     
             real(gtm_real), intent(out) :: width(ncell)        !< Channel top water width
             real(gtm_real), intent(out) :: hydro_radius(ncell) !< Hydraulic radius
+            real(gtm_real), intent(out) :: depth(ncell)        !< water depth
         end subroutine
         
       end interface

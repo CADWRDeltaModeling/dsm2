@@ -214,13 +214,14 @@ module gtm_hdf_ts_write
             deallocate(names) 
             
             ! Write out external channel numbers int2ext
+            call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, ierror)
             in_dims(1) = nchan
             call h5screate_simple_f(in_rank, in_dims, in_dspace_id, ierror)
             call h5dcreate_f(loc_id, "channel_number", H5T_NATIVE_INTEGER,   &
                              in_dspace_id, in_dset_id, ierror, cparms)
             call h5dwrite_f(in_dset_id,H5T_NATIVE_INTEGER, chan_geom%channel_num, in_dims, ierror)
             call h5sclose_f (in_dspace_id, ierror)
-            call h5dclose_f(in_dset_id, ierror)
+            call h5dclose_f(in_dset_id,ierror)
         end if
        
   	    ! Write reservoir names
@@ -732,8 +733,8 @@ module gtm_hdf_ts_write
                                        subset_dims,      &
                                        error)
             call h5dwrite_f(hdf_file%chan_conc_id,       &
-                            H5T_NATIVE_DOUBLE,           &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
-                            chan_conc,                   &
+                            H5T_NATIVE_REAL,             &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
+                            real(chan_conc),             &
                             mdata_dims,                  &
                             error,                       &
                             memspace_id,                 & 
@@ -811,7 +812,7 @@ module gtm_hdf_ts_write
     !> Close out the HDF5 file properly, leaves HDF5 API open
     subroutine close_gtm_hdf(hdf_file)
         use hdf5
-        use common_variables, only: unit_error,unit_screen
+        use common_variables, only: unit_error,unit_screen, hdf_out
         use common_dsm2_vars, only: print_level
 
         implicit none
@@ -822,10 +823,17 @@ module gtm_hdf_ts_write
         !-------Close the datasets corresponding to model states
         if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data sets"
 
-	    call h5dclose_f(hdf_file%cell_conc_id,error)
-        if (error .ne. 0) then
-	        write(unit_error,*)"HDF5 error closing cell conc data set: ",error
-	    end if
+        if (hdf_out .eq. 'channel') then
+	        call h5dclose_f(hdf_file%chan_conc_id,error)
+            if (error .ne. 0) then
+	            write(unit_error,*)"HDF5 error closing chan conc data set: ",error
+	        end if        
+        else         
+	        call h5dclose_f(hdf_file%cell_conc_id,error)
+            if (error .ne. 0) then
+	            write(unit_error,*)"HDF5 error closing cell conc data set: ",error
+	        end if
+	    end if    
 
         if (hdf_file%resv_dim.gt.0) then
 	        call h5dclose_f(hdf_file%resv_conc_id,error)
@@ -904,6 +912,7 @@ module gtm_hdf_ts_write
         real(gtm_real) :: ts_start
         real(gtm_real) :: ts_interval
         character*30 :: cinterval
+        character*30 :: cinterval_f
    	    integer(HID_T) :: dset_id ! Attribute identifier 
         integer(HID_T) :: aspace_id ! Attribute Dataspace identifier 
 	    integer(HID_T) :: atype_id
@@ -918,7 +927,8 @@ module gtm_hdf_ts_write
         character(LEN=ISO_LEN) :: iso_datetime
 
         write(cinterval,"(i,'min')") int(ts_interval)
-        cinterval=adjustl(cinterval)
+        write(cinterval_f,"(f,'min')") ts_interval
+        cinterval=adjustl(cinterval_f)
 
         call h5screate_simple_f(arank, a_dims, aspace_id, error)
         call verify_error(error,"time series attributes dataspace")

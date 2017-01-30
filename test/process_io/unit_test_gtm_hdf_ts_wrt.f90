@@ -207,18 +207,18 @@ module ut_gtm_hdf_ts_wrt
         deallocate(conc_res)  
 
         !----verify the data that was written to tidefile
-        allocate(rdata(nconc,ncell,2)) 
+        allocate(rdata(ncell,nconc,2)) 
         call h5open_f(error)
         call h5fopen_f(hdf_name, H5F_ACC_RDWR_F, file_id, error) 
         call h5gopen_f(file_id, "output", output_id, error)
         call h5dopen_f(output_id, "cell concentration", dset_id, error) 
         call h5dget_space_f(dset_id, dataspace, error)
         offset = (/0,0,2/)
-        count = (/3,5,2/)
+        count = (/5,3,2/)
         offset_out = (/0,0,0/)
-        count_out = (/3,5,2/)
-        data_dims(1) = nconc
-        data_dims(2) = ncell
+        count_out = (/5,3,2/)
+        data_dims(1) = ncell
+        data_dims(2) = nconc
         data_dims(3) = 2
         rdata = 0
         call h5sselect_hyperslab_f(dataspace, H5S_SELECT_SET_F, &
@@ -231,7 +231,7 @@ module ut_gtm_hdf_ts_wrt
         !---cell value(time slice 1) = 1000 + 100*nconc + ncell
         !---cell value(time slice 2) = 2000 + 100*nconc + ncell
         call assertEquals(rdata(1,1,1), dble(1101), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(1,1,1)")
-        call assertEquals(rdata(2,1,2), dble(2201), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(2,1,2)")
+        call assertEquals(rdata(1,2,2), dble(2201), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(2,1,2)")
     
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dataspace, error)
@@ -362,18 +362,18 @@ module ut_gtm_hdf_ts_wrt
         deallocate(conc_res)               
         
         !----verify the data that was written to tidefile
-        allocate(rdata(nconc,ncell,2)) 
+        allocate(rdata(ncell,nconc,2)) 
         call h5open_f(error)
         call h5fopen_f(hdf_name, H5F_ACC_RDWR_F, file_id, error) 
         call h5gopen_f(file_id, "output", output_id, error)
         call h5dopen_f(output_id, "cell concentration", dset_id, error) 
         call h5dget_space_f(dset_id, dataspace, error)
         offset = (/0,0,2/)
-        count = (/nconc,ncell,2/)
+        count = (/ncell,nconc,2/)
         offset_out = (/0,0,0/)
-        count_out = (/nconc,ncell,2/)
-        data_dims(1) = nconc
-        data_dims(2) = ncell
+        count_out = (/ncell,nconc,2/)
+        data_dims(1) = ncell
+        data_dims(2) = nconc
         data_dims(3) = 2
         rdata = 0
         call h5sselect_hyperslab_f(dataspace, H5S_SELECT_SET_F, &
@@ -385,8 +385,8 @@ module ut_gtm_hdf_ts_wrt
         
         !---cell value(time slice 1) = 1000 + 100*nconc + nchans
         !---cell value(time slice 2) = 2000 + 100*nconc + nchans    
-        call assertEquals(rdata(3,112,1), dble(1412), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(3,112,1)")
-        call assertEquals(rdata(2,9999,2), dble(12199), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(2,9999,2)")
+        call assertEquals(rdata(112,3,1), dble(1412), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(3,112,1)")
+        call assertEquals(rdata(9999,2,2), dble(12199), weakest_eps, "problem in test_write_ts_gtm_hdf rdata(2,9999,2)")
         
         call h5dclose_f(dset_id, error)
         call h5sclose_f(dataspace, error)

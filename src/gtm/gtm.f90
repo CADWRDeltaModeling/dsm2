@@ -151,7 +151,6 @@ program gtm
     real(gtm_real), allocatable :: conc_mercury(:,:)
     real(gtm_real), allocatable :: source_mercury(:,:)
     real(gtm_real), allocatable :: area_wet(:)
-    real(gtm_real), allocatable :: depth(:)
     integer :: ec_ivar, doc_ivar
     integer :: nlayers = 2
     integer :: rkstep = 2
@@ -272,7 +271,7 @@ program gtm
     if (run_mercury) then
         call allocate_mercury(n_cell,nlayers)
         allocate(conc_mercury(n_cell,n_mercury), source_mercury(n_cell,n_mercury))
-        allocate(area_wet(n_cell), depth(n_cell))
+        allocate(area_wet(n_cell))
         call check_mercury_ts_input
         call constituent_name_to_ivar(ec_ivar, 'ec')  
         call constituent_name_to_ivar(doc_ivar, 'ec')  ! todo: change 'ec' to 'doc' when doc model setup is ready
@@ -380,6 +379,7 @@ program gtm
                                  area_hi,       &
                                  width,         &
                                  hydro_radius,  &
+                                 depth,         &
                                  n_cell,        &
                                  dble(1),       &
                                  dx_arr,        &
@@ -442,6 +442,7 @@ program gtm
                                  area_hi,       &
                                  width,         &
                                  hydro_radius,  &
+                                 depth,         &
                                  n_cell,        &
                                  dble(1),       &
                                  dx_arr,        &
@@ -477,14 +478,15 @@ program gtm
                 if (trim(constituents(ivar)%use_module)=='sediment') then
                     isediment = ivar-(n_var-n_sediment)
                     available_bed(:,isediment) = erosion(:,isediment)
-                    call suspended_sediment_flux(source_term_by_cell(:,ivar),    &
-                                                 erosion(:,isediment),           &
-                                                 deposition(:,isediment),        &
+                    call suspended_sediment_flux(source_term_by_cell(:,ivar),    &  
+                                                 erosion(:,isediment),           &  !unit:kg/m2/s
+                                                 deposition(:,isediment),        &  !unit:kg/m2/s
                                                  conc(:,ivar),                   &
                                                  flow,                           &
                                                  area,                           &
                                                  width,                          &
                                                  hydro_radius,                   & 
+                                                 depth,                          &
                                                  mann_arr,                       &
                                                  diameter(:,isediment),          &
                                                  fall_velocity(:,isediment),     &
@@ -504,7 +506,6 @@ program gtm
                 end if
             end do
             area_wet = dx_arr*width
-            depth = area/width         ! an approximation
             temperature = input_time_series(code_to_ts_id(ts_var_temp),:)
             call sediment_bed_main(erosion,                 &
                                    deposition,              &
@@ -757,7 +758,7 @@ program gtm
     deallocate(input_ts, ts, input_time_series)
     deallocate(turbidity_decay, turbidity_settle)
     if (run_mercury) then
-        deallocate(conc_mercury, source_mercury, area_wet, depth)
+        deallocate(conc_mercury, source_mercury, area_wet)
         call deallocate_mercury
     end if
     call deallocate_datain             

@@ -388,28 +388,21 @@ module test_convergence_transport
         end do
         ratio = norm_error(1,2)/norm_error(1,1)
         call create_converge_message(converge_message,"L-1   (fine)   ",trim(label),ratio)
-        write(301,'(a140)') converge_message
         call assert_true(ratio > acceptance_ratio(1),trim(converge_message))
         ratio = norm_error(2,2)/norm_error(2,1)
         call create_converge_message(converge_message,"L-2   (fine)   ",trim(label),ratio)
-        write(301,'(a140)') converge_message
         call assert_true(ratio > acceptance_ratio(2),trim(converge_message))
         ratio = norm_error(3,2)/norm_error(3,1)
         call create_converge_message(converge_message,"L-inf (fine)   ",trim(label),ratio)
-        write(301,'(a140)') converge_message
         call assert_true(ratio > acceptance_ratio(3),trim(converge_message))
-
         ratio = norm_error(1,3)/norm_error(1,2)
         call create_converge_message(converge_message,"L-1   (coarse) ",trim(label),ratio)
-        write(301,'(a140)') converge_message
         call assert_true(ratio > acceptance_ratio(1),trim(converge_message))
         ratio = norm_error(2,3)/norm_error(2,2)
         call create_converge_message(converge_message,"L-2   (coarse) ",trim(label),ratio)
-        write(301,'(a140)') converge_message
         call assert_true(ratio > acceptance_ratio(2),trim(converge_message))
         ratio = norm_error(3,3)/norm_error(3,2)
         call create_converge_message(converge_message,"L-inf (coarse) ",trim(label),ratio)
-        write(301,'(a140)') converge_message
         call assert_true(ratio > acceptance_ratio(3),trim(converge_message))
 
         if (verbose == .true.) then

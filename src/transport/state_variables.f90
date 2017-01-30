@@ -86,6 +86,10 @@ module state_variables
     !> face-centered hydraulic radius on the center of cell  (so this is cell-indexed),
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: hydro_radius(:)     
+
+    !> face-centered water depth on the center of cell  (so this is cell-indexed),
+    !> dimensions (ncell)
+    real(gtm_real), save, allocatable :: depth(:)
     
     contains
     
@@ -138,12 +142,13 @@ module state_variables
         flow_lo   = LARGEREAL
         flow_hi   = LARGEREAL
 
-        allocate(width(ncell),hydro_radius(ncell), stat = istat)
+        allocate(width(ncell),hydro_radius(ncell), depth(ncell), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
         width        = LARGEREAL
-        hydro_radius = LARGEREAL        
+        hydro_radius = LARGEREAL     
+        depth = LARGEREAL     
         return
     end subroutine
      
@@ -161,7 +166,7 @@ module state_variables
         deallocate(area_lo,area_hi)
         deallocate(area_lo_prev, area_hi_prev)
         deallocate(flow, flow_lo, flow_hi)
-        deallocate(width, hydro_radius)
+        deallocate(width, hydro_radius, depth)
         return
     end subroutine 
 

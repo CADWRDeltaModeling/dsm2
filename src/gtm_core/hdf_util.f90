@@ -29,7 +29,7 @@ module hdf_util
    use error_handling
    use hdf5
    integer(HID_T) :: hydro_file_id        !< HDF5 File identifier
-   integer(HID_T) :: hydro_id             !< hydro group identifier      
+   integer(HID_T) :: hydro_id             !< hydro group identifier
    integer(HID_T) :: hydro_access_plist   !< HDF5 property identifier
 
    contains
@@ -362,6 +362,44 @@ module hdf_util
        return        
    end subroutine  
 
+
+   !> Read geometry/channel_bottom table from hydro tidefile
+   subroutine read_channel_bottom_tbl()
+       use common_variables
+       implicit none     
+       real(gtm_real), dimension(n_chan, 2) :: dset_data !< output array
+       integer(HID_T) :: data_id                                                ! local group identifier
+       integer(HID_T) :: dset_id                                                ! local dataset identifier
+       integer(HID_T) :: dataspace                                              ! Dataspace identifier
+       integer(HID_T) :: memspace                                               ! memspace identifier
+       integer(HSIZE_T), dimension(2) :: count                                  ! local variable
+       integer(HSIZE_T), dimension(2) :: offset                                 ! local variable
+       integer(HSIZE_T), dimension(2) :: offset_out                             ! local variable      
+       integer(HSIZE_T), dimension(2) :: data_dims                              ! local datasets dimensions
+       integer(HSIZE_T), dimension(2) :: dimsm                                  ! local variable
+       integer :: memrank = 2                                                   ! memory rank
+       integer :: error                                                         ! error flag              
+       call h5gopen_f(hydro_id, "geometry", data_id, error)
+       call h5dopen_f(data_id, "channel_bottom", dset_id, error) 
+       call h5dget_space_f(dset_id, dataspace, error)
+       dimsm = (/n_chan, 2/)
+       offset = (/0,0/)
+       count = (/n_chan, 2/) 
+       offset_out = (/0,0/)
+       call h5sselect_hyperslab_f(dataspace, H5S_SELECT_SET_F, offset, count, error)
+       call h5screate_simple_f(memrank, dimsm, memspace, error)
+       call h5sselect_hyperslab_f(memspace, H5S_SELECT_SET_F, offset_out, count, error)
+       data_dims(1) = n_chan
+       data_dims(2) =  2
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dset_data, data_dims, error, memspace, dataspace)
+       chan_geom(:)%chan_btm_up = dset_data(:,1)
+       chan_geom(:)%chan_btm_down = dset_data(:,2)
+       call h5sclose_f(dataspace, error)
+       call h5sclose_f(memspace, error)
+       call h5dclose_f(dset_id, error)
+       call h5gclose_f(data_id, error)
+       return       
+   end subroutine  
 
    !> Read input/reservoir table from hydro tidefile
    subroutine read_reservoir_tbl()

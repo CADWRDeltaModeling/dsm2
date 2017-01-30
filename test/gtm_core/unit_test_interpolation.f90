@@ -170,7 +170,7 @@ module ut_interpolation
         prev_flow_cell_lo = 1820d0
         prev_flow_cell_hi = 1820d0
         do i = 1, n_segm
-            call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,  width_mesh, hydro_radius_mesh, &
+            call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,  width_mesh, hydro_radius_mesh, depth_mesh, &
                                   flow_volume_change, area_volume_change, n_cell, segm(i)%start_cell_no , segm(i)%chan_no, segm(i)%up_distance, fine_dx, fine_dt,  npartition_t+1, segm(i)%nx,hydro_flow(segm(i)%up_comppt,1), hydro_flow(segm(i)%down_comppt,1), hydro_flow(segm(i)%up_comppt,2), hydro_flow(segm(i)%down_comppt,2), hydro_ws(segm(i)%up_comppt,1), hydro_ws(segm(i)%down_comppt,1), hydro_ws(segm(i)%up_comppt,2), hydro_ws(segm(i)%down_comppt,2), prev_flow_cell_lo, prev_flow_cell_hi)
         end do    
         do i = 1, n_segm*nx

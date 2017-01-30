@@ -107,6 +107,8 @@ module common_variables
           integer :: end_cell                          !< ending cell
           real(gtm_real) :: dispersion                 !< dispersion coefficient
           real(gtm_real) :: manning                    !< Manning's n
+          real(gtm_real) :: chan_btm_up                !< upstream channel bottom elevation
+          real(gtm_real) :: chan_btm_down              !< downstream channel bottom elevation
      end type
      type(channel_t), allocatable :: chan_geom(:)
      
