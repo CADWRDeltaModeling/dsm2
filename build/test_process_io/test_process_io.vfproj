@@ -28,7 +28,6 @@
 		<File RelativePath="..\..\test\process_io\unit_test_boundary.f90"/>
 		<File RelativePath="..\..\test\test_process_io\unit_test_dsm2_time_utils.f90"/>
 		<File RelativePath="..\..\src\process_io\unit_test_gtm_dss_main.f90"/>
-		<File RelativePath="..\..\test\process_io\unit_test_gtm_dss_readdss.f90"/>
 		<File RelativePath="..\..\test\process_io\unit_test_gtm_dss_readtvd.f90"/>
 		<File RelativePath="..\..\test\process_io\unit_test_gtm_hdf_ts_wrt.f90"/>
 		<File RelativePath="..\..\test\process_io\unit_test_gtm_hdf_write.f90"/>

@@ -39,7 +39,6 @@ program test_driver
     use ut_dsm2_time_utils
     use ut_process_gtm_input
     use ut_time_utilities
-    use ut_gtm_dss_readdss
     use ut_gtm_dss_readtvd
     use ut_gtm_dss_main
     use ut_gtm_hdf_ts_wrt

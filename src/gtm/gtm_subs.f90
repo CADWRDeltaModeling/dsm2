@@ -73,6 +73,55 @@ module gtm_subs
         return
     end subroutine    
 
+    !> Read initial values
+    !> This will update variables n_var and constituents if detecting extra constituents
+    !> in initial condition file.
+    subroutine read_init_values(init_c,            &
+                                init_r,            &
+                                init_conc,         &
+                                file_exists,       &
+                                restart_file_name)
+        use common_variables, only: n_var, n_cell, n_resv, constituents, constituents_tmp
+        use read_init
+        implicit none
+        real(gtm_real), allocatable, intent(out) :: init_c(:,:)
+        real(gtm_real), allocatable, intent(out) :: init_r(:,:)
+        real(gtm_real), intent(in) :: init_conc
+        logical, intent(in) :: file_exists
+        character(len=:), allocatable, intent(in) :: restart_file_name
+        character(len=32) :: name(10)
+        integer :: nadd, i     
+        
+        if (file_exists==.true.) then 
+            call check_init_file(nadd, name, restart_file_name)
+            if (nadd .gt. 0) n_var = n_var + nadd
+            allocate(constituents(n_var))
+            allocate(init_c(n_cell,n_var))
+            allocate(init_r(n_resv,n_var))               
+            do i = 1, nadd
+                constituents(i)%conc_no = i
+                constituents(i)%name = name(i)
+            enddo
+            constituents(nadd+1:n_var) = constituents_tmp(1:n_var-nadd)             
+            call read_init_file(init_c, init_r, restart_file_name)
+        else
+            allocate(constituents(n_var))
+            allocate(init_c(n_cell,n_var))
+            allocate(init_r(n_resv,n_var))             
+            constituents = constituents_tmp
+            if (init_conc .ne. LARGEREAL) then
+                init_c = init_conc
+                init_r = init_conc
+            else    
+                init_c = zero
+                init_r = zero            
+            end if                         
+        endif 
+        deallocate(constituents_tmp)
+        return
+    end subroutine
+    
+
     !> subroutine to get output time series for selected output points
     !> This will update pathoutput%out_cell, calc_option, x_from_lo_face
     subroutine get_output_channel  

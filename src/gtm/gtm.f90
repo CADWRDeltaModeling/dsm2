@@ -34,8 +34,6 @@ program gtm
     use read_init
     use gtm_hdf_write    
     use gtm_hdf_ts_write    
-    use gtm_dss
-    use gtm_dss_open
     use gtm_dss_main      
     use hydro_data_tidefile
     use interpolation
@@ -132,8 +130,7 @@ program gtm
     character(len=:), allocatable :: restart_file_name  
     character(len=14) :: cdt
     character(len=9) :: prev_day
-    character(len=32) :: name(10)
-    integer :: nadd, ok
+    integer :: ok
     real(gtm_real), allocatable :: input_time_series(:,:) 
     
     ! variables for sediment module
@@ -173,7 +170,6 @@ program gtm
     write(*,*) "Process DSM2 geometry info...."    
     call hdf5_init(hydro_hdf5)                         
     call dsm2_hdf_geom
-    !call write_geom_to_text
 
     call check_runtime(num_blocks, memlen,                     & 
                        memory_buffer, hydro_time_interval,     & 
@@ -183,32 +179,8 @@ program gtm
     ! assigen the initial concentration to cells and reservoirs    
     restart_file_name = trim(gtm_io(1,1)%filename) 
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
-    if (file_exists==.true.) then 
-        call check_init_file(nadd, name, restart_file_name)
-        if (nadd .gt. 0) n_var = n_var + nadd
-        allocate(constituents(n_var))
-        do i = 1, nadd
-            constituents(i)%conc_no = i
-            constituents(i)%name = name(i)
-        enddo
-        constituents(nadd+1:n_var) = constituents_tmp(1:n_var-nadd)
-        allocate(init_c(n_cell,n_var))
-        allocate(init_r(n_resv,n_var))                
-        call read_init_file(init_c, init_r, restart_file_name)
-    else
-        allocate(constituents(n_var))
-        constituents = constituents_tmp
-        allocate(init_c(n_cell,n_var))
-        allocate(init_r(n_resv,n_var))  
-        if (init_conc .ne. LARGEREAL) then
-            init_c = init_conc
-            init_r = init_conc
-        else    
-            init_c = zero
-            init_r = zero            
-        end if                         
-    endif       
-                       
+    call read_init_values(init_c, init_r, init_conc, file_exists, restart_file_name)
+
     call assign_ivar_to_outpath    
     allocate(vals(noutpaths))    
     call get_cell_info    
@@ -220,7 +192,7 @@ program gtm
         if (disp_coeff.ne.LARGEREAL) then
             disp_arr = disp_coeff
         end if        
-        dispersion_coef => adjust_dispersion_coef_with_velocity !assign_dispersion_coef
+        dispersion_coef => adjust_dispersion_coef_with_velocity
     end if 
     
     !----- allocate array for interpolation -----         

@@ -33,7 +33,6 @@
 		<File RelativePath="..\..\src\process_io\dsm2_time_utils.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_main.f90"/>
-		<File RelativePath="..\..\src\process_io\gtm_dss_open.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_read.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_readtvd.f90"/>
 		<File RelativePath="..\..\src\process_io\gtm_dss_write.f90"/>

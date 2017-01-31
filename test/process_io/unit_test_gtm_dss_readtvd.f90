@@ -32,7 +32,7 @@ module ut_gtm_dss_readtvd
     subroutine test_readtvd()
     
         use gtm_dss
-        use gtm_dss_open
+        use gtm_dss_main
         use gtm_dss_read   
         use gtm_dss_readtvd 
         use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t, &

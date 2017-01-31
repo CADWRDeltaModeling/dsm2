@@ -23,13 +23,76 @@
 module ut_gtm_dss_main
 
     use fruit
+    use gtm_precision
+    use gtm_dss, only: mins15, irrs
+    use gtm_dss_read
+    use gtm_dss_main
  
     contains
+
+    !> Unit test of readdss() subroutine for 15min and irr data
+    subroutine test_readdss()
+   
+        use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t
+        implicit none
+        integer :: pathnumber
+        integer :: jmin
+        integer :: inpaths_dim
+        integer :: block_dim
+        integer :: num_dssfiles
+        integer, parameter :: ninpath_15min = 1
+        integer, parameter :: ninpath_irr = 1
+        character(len=130) :: indssfilenames(1)
+        character*8 :: per_type
+        type(dataqual_t) :: indata_15min(ninpath_15min, mins15)
+        type(dataqual_t) :: indata_irr(ninpath_irr, irrs)
+
+        allocate(pathinput(2))
+        
+        pathinput(1)%filename = "tutorial.dss"
+        pathinput(1)%path = "/TUTORIAL/DOWNSTREAM/STAGE//15MIN/REALISTIC/"
+        pathinput(1)%ndx_file = 1
+        pathinput(1)%intvl_path = 1
+        
+        pathinput(2)%filename = "tutorial.dss"
+        pathinput(2)%path = "/TUTORIAL/GATE/FLAP_OP//IR-YEAR/TIMEVAR/"
+        pathinput(2)%ndx_file = 1
+        pathinput(2)%intvl_path = 1        
+        pathinput(2)%interval = "ir-year"
+        
+        num_dssfiles = 1
+        indssfilenames(1) = pathinput(1)%filename
+
+        allocate(ifltab_in(600,num_dssfiles ))                
+        call opendss(ifltab_in, num_dssfiles, indssfilenames)       
+        
+        jmin = 48422520       ! 24JAN1992 1800
+        
+        pathnumber = 1       
+        call readdss (pathnumber,    & 
+                      jmin,          &
+                      ninpath_15min, &
+                      mins15,        &
+                      indata_15min,  &
+                      per_type)    
+        call assertEquals (indata_15min(1,2)%data, dble(1.8628), weakest_eps, "problem in readdss indata_15min(2,1)")
+        
+        pathnumber = 2
+        call readdss (pathnumber,    & 
+                      jmin,          &
+                      ninpath_irr,   &
+                      irrs,          &
+                      indata_irr,    &
+                      per_type)          
+        call assertEquals  (indata_irr(1,1)%data, dble(0.0000), weakest_eps, "problem in readdss indata_irr(1,1)")
+         
+        call zclose(ifltab_in)
+        deallocate(pathinput)
+        deallocate(ifltab_in) 
+        return
+    end subroutine
     
     subroutine test_dss_main
-        use gtm_dss
-        use gtm_dss_open
-        use gtm_dss_main   
         use common_dsm2_vars, only: pathinput, ifltab_in, dataqual_t,              &
                                     per_type_inst_val, n_inputpaths
         implicit none
