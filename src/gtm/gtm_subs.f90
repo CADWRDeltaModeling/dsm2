@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 2015 State of California,
+!    Copyright (C) 2017 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2-GTM.
 !
@@ -58,7 +58,7 @@ module gtm_subs
         open(801,file="init.txt")
         write(801,*) cdtdate, "/time"
         write(801,*) intdate, "/julmin"
-        write(801,*) nvar, "/n_var"
+        write(801,*) ncol, "/n_column"
         write(801,*) ncell, "/n_cell"
         write(801,'(a32,<ncol>a32)') "cell_no", (c(j),j=1,ncol)
         do i = 1, ncell

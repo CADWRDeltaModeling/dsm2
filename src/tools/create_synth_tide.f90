@@ -1,5 +1,5 @@
 !<license>
-!    Copyright (C) 2015 State of California,
+!    Copyright (C) 2017 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2-GTM.
 !
