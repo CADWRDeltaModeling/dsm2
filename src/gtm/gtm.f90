@@ -185,23 +185,27 @@ program gtm
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
     if (file_exists==.true.) then 
         call check_init_file(nadd, name, restart_file_name)
-        if (nadd .gt. 0) then
-            n_var = n_var + 1
-        end if
+        if (nadd .gt. 0) n_var = n_var + nadd
+        allocate(constituents(n_var))
+        do i = 1, nadd
+            constituents(i)%conc_no = i
+            constituents(i)%name = name(i)
+        enddo
+        constituents(nadd+1:n_var) = constituents_tmp(1:n_var-nadd)
         allocate(init_c(n_cell,n_var))
         allocate(init_r(n_resv,n_var))                
         call read_init_file(init_c, init_r, restart_file_name)
-        conc = init_c
-        conc_resv = init_r
     else
+        allocate(constituents(n_var))
+        constituents = constituents_tmp
         allocate(init_c(n_cell,n_var))
         allocate(init_r(n_resv,n_var))  
         if (init_conc .ne. LARGEREAL) then
-            conc = init_conc
-            conc_resv = init_conc
+            init_c = init_conc
+            init_r = init_conc
         else    
-            conc = zero
-            conc_resv = zero            
+            init_c = zero
+            init_r = zero            
         end if                         
     endif       
                        
@@ -302,9 +306,11 @@ program gtm
     end if
     
     ! initialize concentrations
-    prev_conc_stip = zero 
-    conc_prev = zero         
-    conc_resv_prev = zero
+    conc = init_c
+    conc_prev = init_c        
+    conc_resv = init_r 
+    conc_resv_prev = init_r       
+    prev_conc_stip = zero
     mass_prev = zero
     
     if (apply_diffusion)then

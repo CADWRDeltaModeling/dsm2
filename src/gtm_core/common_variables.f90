@@ -297,6 +297,7 @@ module common_variables
          logical :: simulate = .true.                   !< simulate or not. trigger to klu solver
      end type     
      type(constituent_t), allocatable :: constituents(:)
+     type(constituent_t), allocatable :: constituents_tmp(:)
      
      !> Sediment variables
      integer :: ssc_index = 0

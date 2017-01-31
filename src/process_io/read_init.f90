@@ -111,7 +111,7 @@ module read_init
                                restart_file_name)
         use gtm_precision
         use error_handling
-        use common_variables, only: constituents, n_var
+        use common_variables, only: constituents_tmp, n_var
         implicit none
         character*(*), intent(in) :: restart_file_name   !< Restart file name
         character*32, intent(out) :: name(10)            !< additional constituents, maximum 10
@@ -119,7 +119,7 @@ module read_init
         integer :: file_unit
         integer :: nvar_r, ncell_r
         integer :: i, j, ncol
-        character*32 :: a, b(n_var)
+        character*32 :: a, b(30)
         logical :: file_exists
 
         file_unit = 151
@@ -135,15 +135,16 @@ module read_init
             name = ''
             do i = 1, n_var          
                 do j = 1, nvar_r
-                    if (trim(b(j)).eq.trim(constituents(i)%name)) ncol = 1
+                    if (trim(b(j)).eq.trim(constituents_tmp(i)%name)) ncol = 1
                 end do
-                if (ncol.eq.0 .and. constituents(i)%simulate) call gtm_fatal("Please specify initial condition for "//trim(constituents(i)%name))
+                if (ncol.eq.0 .and. constituents_tmp(i)%simulate) &
+                    call gtm_fatal("Please specify initial condition for "//trim(constituents_tmp(i)%name))
             end do
             nadd = 0
             ncol = 0
             do i = 1, nvar_r              
                 do j = 1, n_var
-                    if(trim(b(i)).eq.trim(constituents(j)%name)) ncol = 1
+                    if(trim(b(i)).eq.trim(constituents_tmp(j)%name)) ncol = 1
                 end do
                 if (ncol.eq.0) then
                     write(*,*) trim(b(i))," is simulated without boundary condition given."
