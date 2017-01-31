@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{AE40C818-292A-4F09-82E7-29CF11C02B96}">
+<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{5B6E00A4-DA9B-4B36-8896-C6D51D2EA693}">
 	<Platforms>
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
@@ -25,5 +25,9 @@
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-		<File RelativePath="..\..\..\test\do_module\test_do_source.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\mercury\equilibrium.f90"/>
+		<File RelativePath="..\..\src\mercury\hg_type_defs.f90"/>
+		<File RelativePath="..\..\src\mercury\math_utils.f90"/>
+		<File RelativePath="..\..\src\mercury\mercury_fluxes.f90"/>
+		<File RelativePath="..\..\src\mercury\mercury_state_variables.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

@@ -19,6 +19,7 @@
 !</license>
 !> DO source terms to fulfill source interface
 !>@ingroup do_module
+module do_basic
     !> DO module sources.
     !> This source term multiplies each constituent by a decay rate
     subroutine do_basic_source(source, & 
@@ -42,11 +43,11 @@
  
         source = zero   
            
-        do i = 1, ncell
-            decay = bod_decay(i) * conc(i,i_bod)          ! contribution due to reactions
-            settle = bod_settle(i) * conc(i,i_bod)        ! loss of mass due to settling
-            source(i,i_bod) = - decay - settle
-        enddo
+        !do i = 1, ncell
+        !    decay = bod_decay(i) * conc(i,i_bod)          ! contribution due to reactions
+        !    settle = bod_settle(i) * conc(i,i_bod)        ! loss of mass due to settling
+        !    source(i,i_bod) = - decay - settle
+        !enddo
     end subroutine
     
-end module                 
+end module               
