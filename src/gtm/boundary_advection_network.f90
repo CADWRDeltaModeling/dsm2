@@ -181,6 +181,7 @@ module boundary_advection_network
         use error_handling
         use common_variables, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close, constituents
         use common_dsm2_vars, only: pathinput
+        use state_variables, only: conc_prev
         use state_variables_network
         implicit none
         !--- args          
@@ -260,13 +261,12 @@ module boundary_advection_network
                     icell = dsm2_network(i)%cell_no(j)
                     if (dsm2_network(i)%up_down(j).eq.0 .and. flow_hi(icell).gt.zero) then     !cell at updstream of junction
                         mass_tmp(ivar) = mass_tmp(ivar) + conc_hi(icell,ivar)*flow_hi(icell)
-                        flow_tmp = flow_tmp + flow_hi(icell)            
-                        conc_tmp0(ivar) = conc_hi(icell,ivar)           
+                        flow_tmp = flow_tmp + flow_hi(icell)       
                     elseif (dsm2_network(i)%up_down(j).eq.1 .and. flow_lo(icell).lt.zero) then !cell at downdstream of junction
                         mass_tmp(ivar) = mass_tmp(ivar) + conc_lo(icell,ivar)*abs(flow_lo(icell))
                         flow_tmp = flow_tmp + abs(flow_lo(icell))
-                        conc_tmp0(ivar) = conc_lo(icell,ivar)
-                    endif       
+                    endif
+                    conc_tmp0(ivar) = conc_tmp0(ivar)+conc_prev(icell,ivar)/dsm2_network(i)%n_conn_cell                        
                 end do
 
                 ! temporarily calculated concentration to assign to seepage and diversion
@@ -341,8 +341,7 @@ module boundary_advection_network
                 
                 ! assign average concentration to downstream cell faces
                 do j = 1, dsm2_network(i)%n_conn_cell
-                    icell = dsm2_network(i)%cell_no(j)
-                    prev_conc_stip(icell,ivar) = LARGEREAL                    
+                    icell = dsm2_network(i)%cell_no(j)               
                     prev_conc_stip(icell,ivar) = conc_stip(icell,ivar) 
                     conc_stip(icell,ivar) = LARGEREAL
                     if ((dsm2_network(i)%up_down(j).eq.0) .and. (flow_hi(icell).le.zero)) then  !cell at updstream of junction and flow away from junction

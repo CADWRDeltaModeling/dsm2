@@ -167,7 +167,7 @@ module gtm_hdf_ts_write
 	        call init_reservoir_gtm_hdf5(hdf_file, nresv, nconc, ntime)
 	    end if	    
 	    ! for debug print only
-	    if (debug_print .eq. .true. .and. trim(hdf_out).eq.'cell') then
+	    if (debug_print .eq. .true.) then
 	        call init_cell_gtm_hdf5_debug(hdf_file, ncell, ntime)	    
 	    end if
 

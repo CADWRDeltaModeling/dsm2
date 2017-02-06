@@ -301,7 +301,7 @@ module advection
 
     !> Compute the upwinded fluxes 
     !> The calculation here does not include tributaries, boundaries or special objects
-    pure subroutine compute_flux(flux_lo,  &
+    subroutine compute_flux(flux_lo,  &
                                  flux_hi,  &
                                  conc_lo,  &
                                  conc_hi,  &                       
@@ -326,21 +326,19 @@ module advection
         integer :: icell
 
         ! For each constitutuent, go through the cells and calculate the upwinded flux
-        ! todo: make sure this tests OK for the variables
-        ! todo: this could cause problems in mass conservation. kevin
         do ivar = 1,nvar
             do icell = 2,ncell
-                if (flow_lo(icell) > zero) then
+                if (flow_lo(icell) > zero .and. flow_hi(icell-1) > zero) then 
                     flux_lo(icell,ivar)=conc_hi(icell-1,ivar)*flow_hi(icell-1)
                 else
                     flux_lo(icell,ivar)=conc_lo(icell,ivar)*flow_lo(icell)
                 end if
             end do
             do icell = 1,(ncell-1)
-                if (flow_hi(icell) > zero) then
-                    flux_hi(icell,ivar)=conc_hi(icell,ivar)*flow_hi(icell)
-                else
+                if (flow_hi(icell) < zero .and. flow_lo(icell+1) < zero) then
                     flux_hi(icell,ivar)=conc_lo(icell+1,ivar)*flow_lo(icell+1)
+                else
+                    flux_hi(icell,ivar)=conc_hi(icell,ivar)*flow_hi(icell)
                 end if
             end do
             flux_lo(1,ivar) = conc_lo(1,ivar)*flow_lo(1) 
