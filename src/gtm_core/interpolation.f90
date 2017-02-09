@@ -34,20 +34,8 @@ module interpolation
    !! interpolation mesh grid with four given points
    !! For example, space divided into four and time divided into three (*: given, nx=4, nt=4)
    !! Tij stands for volume change for each cell.
-   !!    1      2      3      4      nx
+   !!        1      2      3      nx    
    !! 1  a*----c12----c13----c14-----b*  t-1       -----------------------------
-   !!    |      |      |      |      |             |      |      |      |      |
-   !!    |      |      |      |      |             |  T11 |  T12 |  T13 |  T14 |
-   !! 2 c21----c22----c23----c24----c25  t-2t/3    -----------------------------
-   !!    |      |      |      |      |             |      |      |      |      |
-   !!    |      |      |      |      |             |  T21 |  T22 |  T23 |  T24 |
-   !! 3 c31----c32----c33----c34----c35  t-1t/3    -----------------------------
-   !!    |      |      |      |      |             |      |      |      |      |
-   !!    |      |      |      |      |             |  T31 |  T32 |  T33 |  T34 | 
-   !! nt c*----c42----c43----c44-----d*  t         -----------------------------          
-   !! <-- upstream               downstream -->
-   !!         1      2      3    nx
-   !! 1   a*----c12----c13----c14-----b*  t-1       -----------------------------
    !!    |      |      |      |      |             |      |      |      |      |
    !!    |      |      |      |      |             |  T11 |  T12 |  T13 |  T14 |
    !! 2 c21----c22----c23----c24----c25  t-2t/3    -----------------------------
@@ -103,6 +91,106 @@ module interpolation
         end do           
         return
     end subroutine
+
+
+   !> Area calculated from interpolation of four given water surface elevations
+    subroutine interp_area_byCxInfo(mesh_lo, mesh_hi, volume_change,    &   
+                                    width, hydro_radius, depth,         & 
+                                    branch, up_x, dx,                   &  
+                                    ncell, start_c, nx, dt, nt,         &
+                                    a, b, c, d,                         &
+                                    mass_balance_from_flow)
+        use common_xsect    
+        implicit none
+        integer, intent(in) :: branch                                    !< hydro channel number (required by CxArea())
+        real(gtm_real), intent(in) :: up_x                               !< upstream point distance (required for CxArea())
+        real(gtm_real), intent(in) :: dx                                 !< finer cell size (in feet)
+        real(gtm_real), intent(in) :: dt                                 !< finer time step (in sec)
+        integer, intent(in) :: nt                                        !< nt: number of points in time
+        integer, intent(in) :: nx                                        !< nx: number of intervals in space
+        integer, intent(in) :: ncell                                     !< total number of cells
+        integer, intent(in) :: start_c                                   !< starting cell no
+        real(gtm_real), intent(in) :: a, b, c, d                         !< input four corner points (water surface elevation)
+        real(gtm_real), intent(in) :: mass_balance_from_flow(nt-1,ncell) !< mass balance from flow interpolation (to calculate factors to interpolate water surface in time)
+        real(gtm_real), intent(inout) :: mesh_lo(nt,ncell)               !< interpolated area mesh at low face
+        real(gtm_real), intent(inout) :: mesh_hi(nt,ncell)               !< interpolated area mesh at high face
+        real(gtm_real), intent(inout) :: volume_change(nt-1,ncell)       !< volume change for each cell 
+        real(gtm_real), intent(inout) :: width(nt,ncell)                 !< water surface width for each cell 
+        real(gtm_real), intent(inout) :: hydro_radius(nt,ncell)          !< hydraulic radius for each cell 
+        real(gtm_real), intent(inout) :: depth(nt,ncell)                 !< water depth for each cell 
+        real(gtm_real) :: ws(nt,nx+1)                                    ! interpolated water surface mesh
+        real(gtm_real) :: subtotal_volume_change(nt)                     ! local variable to check mass balance (sub total in time)
+        real(gtm_real) :: total_volume_change, factor, sub_flow_vol      ! local variable
+        real(gtm_real) :: ratio(nt-1)                                    ! local variable
+        real(gtm_real) :: b_lo(nt,ncell), b_hi(nt,ncell)                 ! local variable
+        real(gtm_real) :: dh_lo(nt,ncell), dh_hi(nt,ncell)               ! local variable
+        real(gtm_real) :: dp_lo(nt,ncell), dp_hi(nt,ncell)               ! local variable
+        integer :: i, j, OK                                              ! local variable  
+        integer :: end_c
+        OK = 0             ! use linear ratio, not distribute by flow        
+        end_c = start_c + nx - 1                                                      
+        ws(1,1) = a
+        ws(1,nx+1) = b
+        ws(nt,1) = c
+        ws(nt,nx+1) = d
+        !! calculate the ratio to distribute water surface in time from flow interpolation
+        sub_flow_vol = zero
+        do i = 1, nt-1
+            sub_flow_vol = sub_flow_vol + mass_balance_from_flow(i,start_c)
+        end do
+        if ((sub_flow_vol.ne.zero).and.((b-a)*(d-c).gt.zero)) then
+            do i = 1, nt-1
+                ratio(i) = zero
+                do j = 1, i
+                    ratio(i) = ratio(i) + mass_balance_from_flow(j,start_c)/sub_flow_vol
+                end do    
+                if ((abs(ratio(i))>one).or.(ratio(i)<zero)) OK = 1
+            end do
+        else
+            OK = 1 
+        end if 
+        ! if no mass change or flow in transition status, interpolate linearly.
+        if (OK == 1) then
+            do i = 1, nt-1
+                ratio(i) = dble(i)/(dble(nt)-one)
+            end do
+        end if  
+        
+        ! apply flow mass balance as ratio to interpolate water surface in time
+        do i = 2, nt-1
+            ws(i,1) = a + ratio(i-1)*(c-a)
+            ws(i,nx+1) = b + ratio(i-1)*(d-b)
+        end do    
+        ! linear interpolating water surface in space  
+        do i = 1, nt 
+            do j = 2, nx
+                factor = (dble(j)-one)/dble(nx)
+                ws(i,j) = ws(i,1) + factor*(ws(i,nx+1)-ws(i,1))
+            end do
+        end do   
+  
+        ! call CxArea to obtain area 
+        do j  = 1, nt
+            do i = 1, nx
+                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,start_c+i-1), dh_lo(j,start_c+i-1), dp_lo(j,start_c+i-1), up_x+dx*(dble(i)-one), ws(j,i), branch)
+            end do     
+            call CxInfo(mesh_hi(j,end_c), b_hi(j,end_c), dh_hi(j,end_c), dp_hi(j,end_c), up_x+dx*nx, ws(j,nx+1), branch)
+        end do                                                            
+        mesh_hi(:,start_c:end_c-1) = mesh_lo(:,start_c+1:end_c)
+        b_hi(:,start_c:end_c-1) = b_lo(:,start_c+1:end_c)
+        dh_hi(:,start_c:end_c-1) = dh_lo(:,start_c+1:end_c)
+        dp_hi(:,start_c:end_c-1) = dp_lo(:,start_c+1:end_c)
+        width(:,start_c:end_c) = half * (b_lo(:,start_c:end_c) + b_hi(:,start_c:end_c))
+        hydro_radius(:,start_c:end_c) = half * (dh_lo(:,start_c:end_c) + dh_hi(:,start_c:end_c))
+        depth(:,start_c:end_c) = half * (dp_lo(:,start_c:end_c) + dp_hi(:,start_c:end_c))
+
+        do j = 1, nt-1
+            do i = 1, nx
+                volume_change(j,start_c+i-1) = half*(mesh_hi(j+1,start_c+i-1)+mesh_lo(j+1,start_c+i-1)-mesh_hi(j,start_c+i-1)-mesh_lo(j,start_c+i-1))*dx
+            end do
+        enddo   
+        return   
+    end subroutine    
 
 
    !> Area calculated from interpolation of four given water surface elevations
@@ -190,8 +278,8 @@ module interpolation
     end subroutine    
 
 
-   !> Area calculated from interpolation of four given water surface elevations
-    subroutine interp_area_byCxInfo(mesh_lo, mesh_hi, volume_change,    &   
+   !> Area calculated from interpolation of four given water surface elevations and linearly interpolate in between
+    subroutine interp_area_byCxInfo0(mesh_lo, mesh_hi, volume_change,    &   
                                     width, hydro_radius, depth,         & 
                                     branch, up_x, dx,                   &  
                                     ncell, start_c, nx, dt, nt,         &
@@ -222,65 +310,52 @@ module interpolation
         real(gtm_real) :: b_lo(nt,ncell), b_hi(nt,ncell)                 ! local variable
         real(gtm_real) :: dh_lo(nt,ncell), dh_hi(nt,ncell)               ! local variable
         real(gtm_real) :: dp_lo(nt,ncell), dp_hi(nt,ncell)               ! local variable
-        integer :: i, j, OK                                              ! local variable  
+        integer :: i, j                                                  ! local variable  
         integer :: end_c
-        OK = 0             ! use linear ratio, not distribute by flow        
         end_c = start_c + nx - 1                                                      
         ws(1,1) = a
         ws(1,nx+1) = b
         ws(nt,1) = c
         ws(nt,nx+1) = d
-        ! calculate the ratio to distribute water surface in time from flow interpolation
-        sub_flow_vol = zero
-        do i = 1, nt-1
-            sub_flow_vol = sub_flow_vol + mass_balance_from_flow(i,start_c)
+        call CxInfo(mesh_lo(1,start_c), b_lo(1,start_c), dh_lo(1,start_c), dp_lo(1,start_c), up_x, a, branch) 
+        call CxInfo(mesh_hi(1,end_c), b_hi(1,end_c), dh_hi(1,end_c), dp_hi(1,end_c), up_x+dx*nx, b, branch)
+        call CxInfo(mesh_lo(nt,start_c), b_lo(nt,start_c), dh_lo(nt,start_c), dp_lo(nt,start_c), up_x, c, branch) 
+        call CxInfo(mesh_hi(nt,end_c), b_hi(nt,end_c), dh_hi(nt,end_c), dp_hi(nt,end_c), up_x+dx*nx, d, branch)
+        do i = 1, nx-1
+            factor = dble(i)/dble(nx)
+            mesh_lo(1,start_c+i) = mesh_lo(1,start_c)+factor*(mesh_hi(1,end_c)-mesh_lo(1,start_c))
+            mesh_lo(nt,start_c+i) = mesh_lo(nt,start_c)+factor*(mesh_hi(nt,end_c)-mesh_lo(nt,start_c))
+            b_lo(1,start_c+i) = b_lo(1,start_c)+factor*(b_hi(1,end_c)-b_lo(1,start_c))
+            b_lo(nt,start_c+i) = b_lo(nt,start_c)+factor*(b_hi(nt,end_c)-b_lo(nt,start_c))
+            dh_lo(1,start_c+i) = dh_lo(1,start_c)+factor*(dh_hi(1,end_c)-dh_lo(1,start_c))
+            dh_lo(nt,start_c+i) = dh_lo(nt,start_c)+factor*(dh_hi(nt,end_c)-dh_lo(nt,start_c))
+            dp_lo(1,start_c+i) = dp_lo(1,start_c)+factor*(dp_hi(1,end_c)-dp_lo(1,start_c))
+            dp_lo(nt,start_c+i) = dp_lo(nt,start_c)+factor*(dp_hi(nt,end_c)-dp_lo(nt,start_c))
+            mesh_hi(1,start_c+i-1) = mesh_lo(1,start_c+i)
+            b_hi(1,start_c+i-1) = b_lo(1,start_c+i)
+            b_hi(nt,start_c+i-1) = b_lo(nt,start_c+i)
+            dh_hi(1,start_c+i-1) = dh_lo(1,start_c+i)
+            dh_hi(nt,start_c+i-1) = dh_lo(nt,start_c+i)
+            dp_hi(1,start_c+i-1) = dp_lo(1,start_c+i)
+            dp_hi(nt,start_c+i-1) = dp_lo(nt,start_c+i)
         end do
-        if ((sub_flow_vol.ne.zero).and.((b-a)*(d-c).gt.zero)) then
-            do i = 1, nt-1
-                ratio(i) = zero
-                do j = 1, i
-                    ratio(i) = ratio(i) + mass_balance_from_flow(j,start_c)/sub_flow_vol
-                end do    
-                if ((abs(ratio(i))>one).or.(ratio(i)<zero)) OK = 1
-            end do
-        else
-            OK = 1 
-        end if 
-        ! if no mass change or flow in transition status, interpolate linearly.
-        if (OK == 1) then
-            do i = 1, nt-1
-                ratio(i) = dble(i)/(dble(nt)-one)
-            end do
-        end if  
-        
-        ! apply flow mass balance as ratio to interpolate water surface in time
-        do i = 2, nt-1
-            ws(i,1) = a + ratio(i-1)*(c-a)
-            ws(i,nx+1) = b + ratio(i-1)*(d-b)
-        end do    
-        ! linear interpolating water surface in space  
-        do i = 1, nt 
-            do j = 2, nx
-                factor = (dble(j)-one)/dble(nx)
-                ws(i,j) = ws(i,1) + factor*(ws(i,nx+1)-ws(i,1))
-            end do
-        end do   
-  
-        ! call CxArea to obtain area 
-        do j  = 1, nt
+        do j  = 2, nt-1
             do i = 1, nx
-                call CxInfo(mesh_lo(j,start_c+i-1), b_lo(j,start_c+i-1), dh_lo(j,start_c+i-1), dp_lo(j,start_c+i-1), up_x+dx*(dble(i)-one), ws(j,i), branch)
-            end do     
-            call CxInfo(mesh_hi(j,end_c), b_hi(j,end_c), dh_hi(j,end_c), dp_hi(j,end_c), up_x+dx*nx, ws(j,nx+1), branch)
+                factor = dble(j-1)/dble(nt-1)
+                mesh_lo(j,i) = mesh_lo(1,i)+factor*(mesh_lo(nt,i)-mesh_lo(1,i))
+                mesh_hi(j,i) = mesh_hi(1,i)+factor*(mesh_hi(nt,i)-mesh_hi(1,i))
+                b_lo(j,i) = b_lo(1,i)+factor*(b_lo(nt,i)-b_lo(1,i))
+                b_hi(j,i) = b_hi(1,i)+factor*(b_hi(nt,i)-b_hi(1,i))
+                dh_lo(j,i) = dh_lo(1,i)+factor*(dh_lo(nt,i)-dh_lo(1,i))
+                dh_hi(j,i) = dh_hi(1,i)+factor*(dh_hi(nt,i)-dh_hi(1,i))
+                dp_lo(j,i) = dp_lo(1,i)+factor*(dp_lo(nt,i)-dp_lo(1,i))
+                dp_hi(j,i) = dp_hi(1,i)+factor*(dp_hi(nt,i)-dp_hi(1,i))
+            end do
         end do                                                            
-        mesh_hi(:,start_c:end_c-1) = mesh_lo(:,start_c+1:end_c)
-        b_hi(:,start_c:end_c-1) = b_lo(:,start_c+1:end_c)
-        dh_hi(:,start_c:end_c-1) = dh_lo(:,start_c+1:end_c)
-        dp_hi(:,start_c:end_c-1) = dp_lo(:,start_c+1:end_c)
         width(:,start_c:end_c) = half * (b_lo(:,start_c:end_c) + b_hi(:,start_c:end_c))
         hydro_radius(:,start_c:end_c) = half * (dh_lo(:,start_c:end_c) + dh_hi(:,start_c:end_c))
         depth(:,start_c:end_c) = half * (dp_lo(:,start_c:end_c) + dp_hi(:,start_c:end_c))
-        
+                
         do j = 1, nt-1
             volume_change(j,start_c:end_c) = half*(mesh_hi(j+1,start_c:end_c)+mesh_lo(j+1,start_c:end_c)-mesh_hi(j,start_c:end_c)-mesh_lo(j,start_c:end_c))*dx
         enddo   
@@ -356,7 +431,7 @@ module interpolation
         return
     end subroutine
     
-    
+     
    !> Linear interpolate flow and area mesh based on given four points of flows and water surface elevations
    !> This does not conserve the mass. 
     subroutine interp_flow_area(flow_mesh_lo, flow_mesh_hi,                &
@@ -594,7 +669,6 @@ module interpolation
         return
     end subroutine    
 
-
       
    !> Linear flow interpolation with four given points
     subroutine interp_flow_linear0(mesh, volume_change,    & 
@@ -788,7 +862,6 @@ module interpolation
         end do        
         return   
     end subroutine
-
 
     
    !> Area calculated from interpolation of four given water surface elevations

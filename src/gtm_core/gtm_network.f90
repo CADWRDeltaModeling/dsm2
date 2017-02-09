@@ -123,7 +123,6 @@ module gtm_network
         prev_flow_lo_tmp = prev_flow_cell_lo
         prev_flow_hi_tmp = prev_flow_cell_hi
         do i = 1, n_segm
-            nx = segm(i)%nx + one
             dx = segm(i)%length/dble(segm(i)%nx)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
@@ -143,29 +142,16 @@ module gtm_network
                    end if                    
                end do
             end if   
-            if (segm(i)%nx .gt. 1) then
-                call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
-                                      width_mesh, hydro_radius_mesh, depth_mesh,                          &                
-                                      flow_volume_change, area_volume_change,                             &
-                                      n_cell, segm(i)%start_cell_no,                                      &
-                                      segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
-                                      prev_flow(up_comp), prev_flow(down_comp),                           &
-                                      hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
-                                      prev_ws(up_comp), prev_ws(down_comp),                               &
-                                      hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
-                                      prev_flow_lo_tmp, prev_flow_hi_tmp)                              
-            else
-                call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,   &
-                                      width_mesh, hydro_radius_mesh, depth_mesh,                          &
-                                      flow_volume_change, area_volume_change,                             &
-                                      n_cell, segm(i)%start_cell_no,                                      &
-                                      segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
-                                      prev_flow(up_comp), prev_flow(down_comp),                           &
-                                      hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
-                                      prev_ws(up_comp), prev_ws(down_comp),                               &
-                                      hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
-                                      prev_flow_lo_tmp, prev_flow_hi_tmp)                  
-            end if
+            call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,             &
+                                  width_mesh, hydro_radius_mesh, depth_mesh,                          &                
+                                  flow_volume_change, area_volume_change,                             &
+                                  n_cell, segm(i)%start_cell_no,                                      &
+                                  segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,       &
+                                  prev_flow(up_comp), prev_flow(down_comp),                           &
+                                  hydro_flow(up_comp,t_index), hydro_flow(down_comp,t_index),         &
+                                  prev_ws(up_comp), prev_ws(down_comp),                               &
+                                  hydro_ws(up_comp,t_index), hydro_ws(down_comp,t_index),             &
+                                  prev_flow_lo_tmp, prev_flow_hi_tmp)                              
         end do
         return
     end subroutine
@@ -197,7 +183,6 @@ module gtm_network
         prev_flow_lo_tmp = prev_flow_cell_lo
         prev_flow_hi_tmp = prev_flow_cell_hi
         do i = 1, n_segm
-            nx = segm(i)%nx + one
             dx = segm(i)%length/dble(segm(i)%nx)
             up_comp = segm(i)%up_comppt
             down_comp = segm(i)%down_comppt        
@@ -217,7 +202,7 @@ module gtm_network
                    end if                    
                end do
             end if   
-            call interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,       &
+            call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,       &
                                             width_mesh, hydro_radius_mesh, depth_mesh,                    &
                                             flow_volume_change, area_volume_change,                       &
                                             n_cell, segm(i)%start_cell_no,                                &

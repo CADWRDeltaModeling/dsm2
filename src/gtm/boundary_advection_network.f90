@@ -216,7 +216,7 @@ module boundary_advection_network
             vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
             mass_resv(i,ivar) = vol(i) * conc_resv_prev(i,ivar)
         end do      
-   
+        
         do i = 1, n_node
             ! adjust flux for boundaries
             if (dsm2_network(i)%boundary_no > 0) then       
@@ -349,10 +349,9 @@ module boundary_advection_network
                         conc_stip(icell,ivar) = conc_tmp(ivar)
                     elseif ((dsm2_network(i)%up_down(j).eq.1) .and. (flow_lo(icell).ge.zero)) then !cell at downdstream of junction
                         flux_lo(icell,ivar) = conc_tmp(ivar)*flow_lo(icell)
-                        conc_stip(icell,ivar) = conc_tmp(ivar)                      
-                    endif            
+                        conc_stip(icell,ivar) = conc_tmp(ivar)                    
+                    endif           
                 end do           
-                
             end if
         end do    
              
