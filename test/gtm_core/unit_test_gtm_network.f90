@@ -83,7 +83,7 @@ module ut_gtm_network
             
         call allocate_network_tmp(npartition_t)
         hydro_time_index = 10 
-        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
+        call interp_network_linear(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
         !call assertEquals (junc(1)%dsm2_network_no, 3, "problem in allocate network junc(1)%dsm2_network_no")
         !call assertEquals (junc(1)%cell_no(1), 15, "problem in allocate network junc(1)%cell_no(1)")
         !call assertEquals (junc(1)%cell_no(2), 16, "problem in allocate network junc(1)%cell_no(2)")
@@ -105,7 +105,7 @@ module ut_gtm_network
                 
         hydro_time_index = 11
         call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_resv, prev_resv_conn, prev_qext, prev_tran, n_comp, n_resv, n_resv_conn, n_qext, n_tran, time_offset)           
-        call interp_network(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
+        call interp_network_linear(npartition_t, hydro_time_index, n_comp, prev_comp_flow, prev_comp_ws, n_cell, prev_flow_cell_lo, prev_flow_cell_hi)
         write(debug_unit,*) "flow_mesh_lo at hydro_time_index=11:"
         do t = 1, npartition_t+1
             write(debug_unit,'(28f15.6)') (flow_mesh_lo(t,icell),icell=1,28)  

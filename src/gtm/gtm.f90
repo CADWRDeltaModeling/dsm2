@@ -431,7 +431,7 @@ program gtm
                                  hydro_radius,  &
                                  depth,         &
                                  n_cell,        &
-                                 dble(1),       &
+                                 dble(t_index), &
                                  dx_arr,        &
                                  gtm_time_interval)
         

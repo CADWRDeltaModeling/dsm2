@@ -49,6 +49,7 @@ module suspended_sediment
         use suspended_utility
         use cohesive_source
         use non_cohesive_source
+        use common_variables, only: eros_coeff, vel_dep, vel_ero, size_dep, size_ero
         implicit none
         !--- args
         integer, intent(in) :: ncell                                !< number of cells      
@@ -70,10 +71,11 @@ module suspended_sediment
         real(gtm_real), intent(in) :: dt                            !< dt
         real(gtm_real), intent(in) :: available_bed(ncell)          !< available bed sediment flux
         !--- local
-        real(gtm_real), parameter :: default_fines_size = 0.00002d0    !< unit m
-        real(gtm_real), parameter :: default_sand_size =  0.00005d0    !< unit m
-        real(gtm_real), parameter :: velocity_for_erosion = 1.0d0      !< unit m/s
-        real(gtm_real), parameter :: param_M = 1.325d-6             ! kg/(m^2s)        
+        real(gtm_real) :: default_fines_size                        !< unit m
+        real(gtm_real) :: default_sand_size                         !< unit m
+        real(gtm_real) :: velocity_for_erosion                      !< unit m/s
+        real(gtm_real) :: velocity_for_deposition                   !< unit m/s
+        real(gtm_real) :: param_M            ! !1.325d-6            !< unit kg/(m^2s)        
         real(gtm_real) :: vertical_flux(ncell)
         real(gtm_real) :: erosion_flux_nc, deposition_flux_nc
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
@@ -90,7 +92,12 @@ module suspended_sediment
         integer :: icell
         logical :: function_van_rijn  
 
-        function_van_rijn = .false. !use Dietrich formula        
+        function_van_rijn = .false.                ! use Dietrich formula        
+        default_fines_size = size_dep*0.001d0      ! unit mm-->m
+        default_sand_size = size_ero*0.001d0       ! unit mm-->m
+        velocity_for_erosion = vel_ero*0.3048d0    ! unit ft/s-->m/s
+        velocity_for_deposition = vel_dep*0.3048d0 ! unit ft/s-->m/s
+        param_M = eros_coeff                       ! unit kg/(m^2s)    
         
         call si_unit(conc_si, flow_si, area_si, width_si, hydro_radius_si, depth_si, dx_si, diameter_si, &
                      conc, flow, area, width, hydro_radius, depth, dx, diameter, ncell)    

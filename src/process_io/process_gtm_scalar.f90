@@ -107,6 +107,16 @@ module process_gtm_scalar
          read(Val, '(l2)', err=810) apply_diffusion
       elseif (Param .eq. 'disp_coef') then
          read(Val, '(f20.5)', err=810) disp_coeff
+      elseif (Param .eq. 'eros_coef') then
+         read(Val, '(f20.15)', err=810) eros_coeff
+      elseif (Param .eq. 'vel_dep') then
+         read(Val, '(f20.15)', err=810) vel_dep
+      elseif (Param .eq. 'vel_ero') then
+         read(Val, '(f20.15)', err=810) vel_ero
+      elseif (Param .eq. 'size_dep') then
+         read(Val, '(f20.15)', err=810) size_dep
+      elseif (Param .eq. 'size_ero') then
+         read(Val, '(f20.15)', err=810) size_ero
       elseif (Param .eq. 'run_mercury') then
          read(Val, '(l2)', err=810) run_mercury
       !--------global rates for non-conserative const.
