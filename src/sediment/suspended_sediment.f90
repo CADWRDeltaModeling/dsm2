@@ -24,7 +24,13 @@
 module suspended_sediment
 
     use gtm_precision
- 
+    use common_variables, only: eros_coeff, vel_dep, vel_ero, size_dep, size_ero 
+    real(gtm_real) :: default_dep_size                       !< unit m
+    real(gtm_real) :: default_ero_size                       !< unit m
+    real(gtm_real) :: velocity_for_erosion                   !< unit m/s
+    real(gtm_real) :: velocity_for_deposition                !< unit m/s
+    real(gtm_real) :: param_M            ! !1.325d-6         !< unit kg/(m^2s) 
+         
     contains
 
     subroutine suspended_sediment_flux(source,            & 
@@ -49,7 +55,7 @@ module suspended_sediment
         use suspended_utility
         use cohesive_source
         use non_cohesive_source
-        use common_variables, only: eros_coeff, vel_dep, vel_ero, size_dep, size_ero
+        
         implicit none
         !--- args
         integer, intent(in) :: ncell                                !< number of cells      
@@ -70,12 +76,7 @@ module suspended_sediment
         real(gtm_real), intent(in) :: dx(ncell)                     !< dx
         real(gtm_real), intent(in) :: dt                            !< dt
         real(gtm_real), intent(in) :: available_bed(ncell)          !< available bed sediment flux
-        !--- local
-        real(gtm_real) :: default_fines_size                        !< unit m
-        real(gtm_real) :: default_sand_size                         !< unit m
-        real(gtm_real) :: velocity_for_erosion                      !< unit m/s
-        real(gtm_real) :: velocity_for_deposition                   !< unit m/s
-        real(gtm_real) :: param_M            ! !1.325d-6            !< unit kg/(m^2s)        
+        !--- local      
         real(gtm_real) :: vertical_flux(ncell)
         real(gtm_real) :: erosion_flux_nc, deposition_flux_nc
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
@@ -93,8 +94,8 @@ module suspended_sediment
         logical :: function_van_rijn  
 
         function_van_rijn = .false.                ! use Dietrich formula        
-        default_fines_size = size_dep*0.001d0      ! unit mm-->m
-        default_sand_size = size_ero*0.001d0       ! unit mm-->m
+        default_dep_size = size_dep*0.001d0        ! unit mm-->m
+        default_ero_size = size_ero*0.001d0        ! unit mm-->m
         velocity_for_erosion = vel_ero*0.3048d0    ! unit ft/s-->m/s
         velocity_for_deposition = vel_dep*0.3048d0 ! unit ft/s-->m/s
         param_M = eros_coeff                       ! unit kg/(m^2s)    
@@ -105,8 +106,8 @@ module suspended_sediment
         do icell = 1, ncell        
             velocity(icell) = abs(flow_si(icell)/area_si(icell))     
             call bed_shear_stress(bottom_shear_stress(icell),          &
-                                  velocity(icell),                       &
-                                  manning_n(icell),                     &
+                                  velocity(icell),                     &
+                                  manning_n(icell),                    &
                                   hydro_radius_si(icell))          
             call shear_velocity_calculator(shear_vel(icell),           &
                                            velocity(icell),            &
@@ -118,7 +119,7 @@ module suspended_sediment
                 ! Non-cohesive sediment
                 capital_r = sediment_density/water_density  - one
                 call explicit_particle_reynolds_number(exp_re_p_tmp,       &
-                                                       default_sand_size,  &
+                                                       default_ero_size,   &
                                                        capital_r,          &
                                                        gravity,            &
                                                        kinematic_viscosity)
@@ -126,7 +127,7 @@ module suspended_sediment
                 call settling_velocity(fall_vel_tmp,                       &
                                        kinematic_viscosity,                &
                                        specific_gravity,                   &
-                                       default_sand_size,                  &
+                                       default_ero_size,                   &
                                        gravity,                            &
                                        function_van_rijn)       
 
@@ -135,7 +136,7 @@ module suspended_sediment
                                            sediment_density,               &
                                            gravity,                        &
                                            kinematic_viscosity,            &
-                                           default_sand_size)            
+                                           default_ero_size)            
                   
                 call es_garcia_parker(Es,                                  &
                                       shear_vel(icell),                    &
@@ -165,7 +166,9 @@ module suspended_sediment
                 if (erosion_flux(icell) .gt. available_bed(icell))          &
                     erosion_flux(icell) = available_bed(icell)
                 vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
-                if (((diameter_si(icell).ge.0.00100d0).and.(erosion_flux(icell).ne.zero)) .or. &
+                !if (((diameter_si(icell).ge.0.00100d0).and.(erosion_flux(icell).ne.zero)) .or. &
+                if (((diameter_si(icell).ge.0.00100d0).and.(velocity(icell).gt.velocity_for_deposition) .and. &
+                     (velocity(icell).lt.velocity_for_erosion)) .or.                                          &
                      (diameter_si(icell).ge.0.00300d0) ) then
                     vertical_flux(icell) = zero
                     erosion_flux(icell) = deposition_flux(icell)
@@ -256,8 +259,11 @@ module suspended_sediment
         
         function_van_rijn = .false. !use Dietrich formula
         diameter_si = diameter*0.001d0 ! mm-->m
+        
+        default_dep_size = size_dep*0.001d0      ! unit mm-->m
+        default_ero_size = size_ero*0.001d0       ! unit mm-->m
 
-        where (diameter_si.ge.0.00100d0) diameter_si = default_fines_size
+        where (diameter_si.ge.0.00100d0) diameter_si = default_dep_size
         
         call submerged_specific_gravity(capital_r,                     &
                                         water_density,                 &
