@@ -255,96 +255,6 @@ module boundary_diffusion_network
     end subroutine
 
 
-    !> Adjustments for network diffusion boundary flux
-    subroutine network_boundary_diffusive_dirichlet_flux(diffusive_flux_lo, &
-                                                          diffusive_flux_hi, &
-                                                          conc,              &
-                                                          area_lo,           &
-                                                          area_hi,           &
-                                                          disp_coef_lo,      &  
-                                                          disp_coef_hi,      &
-                                                          ncell,             &
-                                                          nvar,              &
-                                                          time,              &
-                                                          dx,                &
-                                                          dt)
-        use gtm_precision
-        use error_handling
-        use common_variables, only : n_node, n_var, dsm2_network, dsm2_network_extra
-        use state_variables_network, only : node_conc, conc_stip
-        implicit none
-        !--- args
-        integer, intent(in)  :: ncell                               !< Number of cells
-        integer, intent(in)  :: nvar                                !< Number of variables
-        real(gtm_real),intent(inout):: diffusive_flux_lo(ncell,nvar)!< Face flux, lo side
-        real(gtm_real),intent(inout):: diffusive_flux_hi(ncell,nvar)!< Face flux, hi side
-        real(gtm_real),intent(in)   :: area_lo(ncell)               !< Low side area centered at time
-        real(gtm_real),intent(in)   :: area_hi(ncell)               !< High side area centered at time
-        real(gtm_real),intent(in)   :: time                         !< Time
-        real(gtm_real),intent(in)   :: conc(ncell,nvar)             !< Concentration 
-        real(gtm_real),intent(in)   :: disp_coef_lo(ncell)          !< Low side constituent dispersion coef.
-        real(gtm_real),intent(in)   :: disp_coef_hi(ncell)          !< High side constituent dispersion coef.
-        real(gtm_real),intent(in)   :: dt                           !< Spatial step  
-        real(gtm_real),intent(in)   :: dx(ncell)                    !< Time step     
-        integer :: i, j, k, icell
-        integer :: up_cell, down_cell
-        real(gtm_real) :: extrp
-
-        do k = 1, n_var
-          do i = 1, n_node
-            if ( dsm2_network(i)%boundary_no .ne. 0 ) then   ! if boundary and node concentration is given
-                icell = dsm2_network(i)%cell_no(1)               
-                if ( dsm2_network(i)%up_down(1) .eq. 1 ) then   ! upstream boundary
-                    extrp = conc(icell,k)-half*(conc(icell+1,k)-conc(icell,k))
-                    diffusive_flux_lo(icell,k) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
-                                                (conc(icell,k)-extrp)/(half*dx(icell))                                             
-                else                                            ! downstream boundary
-                    extrp = conc(icell,k)+half*(conc(icell,k)-conc(icell-1,k))
-                    diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
-                                                (extrp-conc(icell,k))/(half*dx(icell))                    
-                end if    
-            end if
-            if ((dsm2_network(i)%junction_no .ne. 0) .and. (dsm2_network(i)%n_conn_cell .gt. 2)) then
-                do j = 1, dsm2_network(i)%n_conn_cell
-                   icell = dsm2_network(i)%cell_no(j)
-                   if (dsm2_network(i)%up_down(j) .eq. 0) then  !cell at upstream of junction
-                       if (conc_stip(icell,k).ne.LARGEREAL) then
-                           extrp = conc_stip(icell,k)
-                       else
-                           extrp = conc(icell,k)+half*(conc(icell,k)-conc(icell-1,k))
-                       end if    
-                       diffusive_flux_hi(icell,k) = minus*area_hi(icell)*disp_coef_hi(icell)*  &
-                                                (extrp-conc(icell,k))/(half*dx(icell))                          
-                   else                                         !cell at downstream of junction
-                       if (conc_stip(icell,k).ne.LARGEREAL) then
-                           extrp = conc_stip(icell,k)
-                       else
-                           extrp = conc(icell,k)-half*(conc(icell+1,k)-conc(icell,k))
-                       end if    
-                       diffusive_flux_lo(icell,k) = minus*area_lo(icell)*disp_coef_lo(icell)*  &
-                                                   (conc(icell,k)-extrp)/(half*dx(icell))                         
-                   end if                           
-                end do                
-            end if
-            if (dsm2_network(i)%nonsequential==1) then
-                if (dsm2_network(i)%up_down(1) .eq. 0) then   !cell at upstream of junction 
-                    up_cell = dsm2_network(i)%cell_no(1)
-                    down_cell = dsm2_network(i)%cell_no(2)
-                else                                          !cell at downstream of junction
-                    up_cell = dsm2_network(i)%cell_no(2)
-                    down_cell = dsm2_network(i)%cell_no(1)
-                end if                                  
-                diffusive_flux_hi(up_cell,k) = -(area_hi(up_cell)*disp_coef_hi(up_cell)*       &
-                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
-                diffusive_flux_lo(down_cell,k) = -(area_lo(down_cell)*disp_coef_lo(down_cell)* &
-                             (conc(down_cell,k) - conc(up_cell,k)))/(half*dx(down_cell)+half*dx(up_cell))
-            end if
-          end do  
-        end do            
-        return
-    end subroutine
-
-
     !> compute diffusive flux at old time
     subroutine network_boundary_diffusive_flux_prev(diffusive_flux_lo, &
                                                     diffusive_flux_hi, &
@@ -360,7 +270,7 @@ module boundary_diffusion_network
                                                     dt)   
         use gtm_precision
         use common_variables, only : n_node, dsm2_network, dsm2_network_extra, constituents 
-        use state_variables_network, only : prev_node_conc, prev_conc_stip
+        use state_variables_network, only : current_prev_node_conc, current_prev_conc_stip
         implicit none
         !--- args
         integer,intent(in)  :: ncell                                 !< Number of cells
@@ -454,7 +364,7 @@ module boundary_diffusion_network
         use gtm_precision
         use error_handling
         use common_variables, only : n_node, dsm2_network
-        use state_variables_network, only : node_conc, prev_node_conc
+        use state_variables_network, only : node_conc, current_prev_node_conc
         use utils, only: sparse2matrix
         implicit none
         !--- args                        
@@ -509,11 +419,11 @@ module boundary_diffusion_network
                         aax(h) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)
                     end if
                 end do
-                if (prev_node_conc(ncc(j),1).eq.LARGEREAL)  prev_node_conc(ncc(j),1) = zero
+                if (current_prev_node_conc(ncc(j),1).eq.LARGEREAL)  current_prev_node_conc(ncc(j),1) = zero
                 exp_diffusion_op_plus(:)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
-                                            *(conc_prev(i,:)-prev_node_conc(ncc(j),:))/(half*dx(i))/dx(i)  
+                                            *(conc_prev(i,:)-current_prev_node_conc(ncc(j),:))/(half*dx(i))/dx(i)  
                 right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus(:)-exp_diffusion_op_minus(:)) &
                                        + theta_gtm*dt*area_lo(i)*disp_coef_lo(i)*node_conc(ncc(j),:)/(half*dx(i)*dx(i))
                 j = j + 2
@@ -528,9 +438,9 @@ module boundary_diffusion_network
                         aax(h) = -theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
                     end if
                 end do  
-                if (prev_node_conc(ncc(j),1).eq.LARGEREAL) prev_node_conc(ncc(j),1) = zero           
+                if (current_prev_node_conc(ncc(j),1).eq.LARGEREAL) current_prev_node_conc(ncc(j),1) = zero           
                 exp_diffusion_op_plus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
-                                            *(prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
+                                            *(current_prev_node_conc(ncc(j),:)-conc_prev(i,:))/(half*dx(i))/dx(i)
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                          *(conc_prev(i,:)- conc_prev(i-1,:))/x_int/dx(i)                               
                 right_hand_side(i,:) = mass(i,:) - (exp_diffusion_op_plus-exp_diffusion_op_minus) &
@@ -726,7 +636,7 @@ module boundary_diffusion_network
         use gtm_precision
         use error_handling
         use common_variables, only : n_node, dsm2_network, constituents
-        use state_variables_network, only : node_conc, prev_node_conc, conc_stip, prev_conc_stip
+        use state_variables_network, only : node_conc, current_prev_node_conc, conc_stip, current_prev_conc_stip
         use utils, only: sparse2matrix
         implicit none
         !--- args                        
@@ -782,7 +692,7 @@ module boundary_diffusion_network
                 end do
                 do ivar = 1, nvar
                 if (constituents(ivar)%simulate) then
-                if (prev_node_conc(ncc(j),ivar).eq.LARGEREAL)  prev_node_conc(ncc(j),ivar) = zero
+                if (current_prev_node_conc(ncc(j),ivar).eq.LARGEREAL)  current_prev_node_conc(ncc(j),ivar) = zero
                 extrp_prev(ivar) = conc_prev(i,ivar)-half*(conc_prev(i+1,ivar)-conc_prev(i,ivar))                
                 exp_diffusion_op_plus(ivar)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,ivar)-conc_prev(i,ivar))/x_int/dx(i)
@@ -807,7 +717,7 @@ module boundary_diffusion_network
                 end do
                 do ivar = 1, nvar
                 if (constituents(ivar)%simulate) then
-                if (prev_node_conc(ncc(j),ivar).eq.LARGEREAL)  prev_node_conc(ncc(j),ivar) = zero 
+                if (current_prev_node_conc(ncc(j),ivar).eq.LARGEREAL)  current_prev_node_conc(ncc(j),ivar) = zero 
                 extrp_prev(ivar) = conc_prev(i,ivar)+half*(conc_prev(i,ivar)-conc_prev(i-1,ivar))
                 exp_diffusion_op_plus(ivar) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(extrp_prev(ivar)-conc_prev(i,ivar))/(half*dx(i))/dx(i)
@@ -939,7 +849,7 @@ module boundary_diffusion_network
         use gtm_precision
         use error_handling
         use common_variables, only : n_node, dsm2_network
-        use state_variables_network, only : node_conc, prev_node_conc, conc_stip, prev_conc_stip
+        use state_variables_network, only : node_conc, conc_stip, current_prev_conc_stip, current_prev_node_conc
         use utils, only: sparse2matrix
         implicit none
         !--- args                        
@@ -993,7 +903,7 @@ module boundary_diffusion_network
                         aax(h) = -theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/(dx(i)*x_int)
                     end if
                 end do
-                if (prev_node_conc(ncc(j),1).eq.LARGEREAL)  prev_node_conc(ncc(j),1) = zero
+                if (current_prev_node_conc(ncc(j),1).eq.LARGEREAL)  current_prev_node_conc(ncc(j),1) = zero
                 extrp_prev(:) = conc_prev(i,:)-half*(conc_prev(i+1,:)-conc_prev(i,:))                
                 exp_diffusion_op_plus(:)  = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(conc_prev(i+1,:)-conc_prev(i,:))/x_int/dx(i)
@@ -1013,7 +923,7 @@ module boundary_diffusion_network
                         aax(h) = -theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/(dx(i)*x_int)
                     end if
                 end do  
-                if (prev_node_conc(ncc(j),1).eq.LARGEREAL) prev_node_conc(ncc(j),1) = zero           
+                if (current_prev_node_conc(ncc(j),1).eq.LARGEREAL) current_prev_node_conc(ncc(j),1) = zero           
                 extrp_prev(:) = conc_prev(i,:)+half*(conc_prev(i,:)-conc_prev(i-1,:))
                 exp_diffusion_op_plus(:) = -(one-theta_gtm)*dt*area_hi_prev(i)*disp_coef_hi_prev(i) &
                                             *(extrp_prev(:)-conc_prev(i,:))/(half*dx(i))/dx(i)
@@ -1037,8 +947,8 @@ module boundary_diffusion_network
                                            theta_gtm*dt*area_lo(i)*disp_coef_lo(i)/dx(i)/(half*dx(i)+half*dx(i-1))                  
                     end if                                
                 end do
-                if (prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then
-                    extrp_prev(:) = prev_conc_stip(i,:)
+                if (current_prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then
+                    extrp_prev(:) = current_prev_conc_stip(i,:)
                 else
                     extrp_prev(:) = conc_prev(i,:)+half*(conc_prev(i,:)-conc_prev(i-1,:))
                 end if    
@@ -1046,7 +956,7 @@ module boundary_diffusion_network
                                             *(extrp_prev(:)-conc_prev(i,:))/(half*dx(i))/dx(i)                
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i,:)- conc_prev(i-1,:))/(half*dx(i)+half*dx(i-1))/dx(i)
-                if (prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then 
+                if (current_prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then 
                     extrp_prev(:) = conc_stip(i,:)
                 else
                     extrp_prev(:) = conc_prev(i,:)-half*(conc_prev(i+1,:)-conc_prev(i,:))                
@@ -1069,8 +979,8 @@ module boundary_diffusion_network
                                            theta_gtm*dt*area_hi(i)*disp_coef_hi(i)/dx(i)/(half*dx(i)+half*dx(i+1))
                     end if                    
                 end do 
-                if (prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then !???
-                    extrp_prev(:) = prev_conc_stip(i,:)
+                if (current_prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then !???
+                    extrp_prev(:) = current_prev_conc_stip(i,:)
                 else
                     extrp_prev(:) = conc_prev(i,:)-half*(conc_prev(i+1,:)-conc_prev(i,:))                
                 end if           
@@ -1078,7 +988,7 @@ module boundary_diffusion_network
                                             *(conc_prev(i,:)-extrp_prev(:))/(half*dx(i))/dx(i)                
                 exp_diffusion_op_minus(:) = -(one-theta_gtm)*dt*area_lo_prev(i)*disp_coef_lo_prev(i) &
                                             *(conc_prev(i+1,:)- conc_prev(i,:))/(half*dx(i)+half*dx(i+1))/dx(i)
-                if (prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then
+                if (current_prev_conc_stip(i,1).ne.LARGEREAL .and. conc_stip(i,1).ne.LARGEREAL) then
                     extrp_prev(:) = conc_stip(i,:)
                 else
                     extrp_prev(:) = conc_prev(i,:)-half*(conc_prev(i+1,:)-conc_prev(i,:))                

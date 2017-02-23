@@ -91,6 +91,11 @@ module state_variables
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: depth(:)
     
+    !> for the loop of diffusion time step
+    real(gtm_real), save, allocatable :: current_area_lo_prev(:)
+    real(gtm_real), save, allocatable :: current_area_hi_prev(:)
+    real(gtm_real), save, allocatable :: current_conc_prev(:,:)    
+    
     contains
     
     !> Allocate the state variables consistently
@@ -110,12 +115,14 @@ module state_variables
          "This could be due to allocating several times in " // &
          "a row without deallocating (memory leak)"
         
-        allocate(conc(ncell,nvar), conc_prev(ncell,nvar), stat = istat)
+        allocate(conc(ncell,nvar), conc_prev(ncell,nvar), current_conc_prev(ncell,nvar),stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
         conc      = LARGEREAL  ! absurd value helps expose bugs  
         conc_prev = LARGEREAL
+        current_conc_prev = LARGEREAL
+        
         allocate(mass(ncell,nvar), mass_prev(ncell,nvar),stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
@@ -148,7 +155,15 @@ module state_variables
         end if
         width        = LARGEREAL
         hydro_radius = LARGEREAL     
-        depth = LARGEREAL     
+        depth = LARGEREAL
+
+        allocate(current_area_lo_prev(ncell),current_area_hi_prev(ncell), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if
+        current_area_lo_prev = LARGEREAL
+        current_area_hi_prev = LARGEREAL     
+ 
         return
     end subroutine
      
@@ -167,6 +182,7 @@ module state_variables
         deallocate(area_lo_prev, area_hi_prev)
         deallocate(flow, flow_lo, flow_hi)
         deallocate(width, hydro_radius, depth)
+        deallocate(current_area_lo_prev,current_area_hi_prev,current_conc_prev)
         return
     end subroutine 
 
