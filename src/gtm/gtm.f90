@@ -238,7 +238,7 @@ program gtm
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
-    boundary_diffusion_matrix => network_diffusion_diag_matrix_zero_at_junctions
+    boundary_diffusion_matrix => network_diffusion_sparse_matrix_zero_at_junctions
     source_term_by_cell = zero 
     
     call set_dispersion_arr(disp_arr, n_cell)
@@ -283,9 +283,7 @@ program gtm
     conc_resv = init_r 
     conc_resv_prev = init_r       
     prev_conc_stip = zero
-    mass_prev = zero    
-    current_prev_conc_stip = zero
-    current_conc_prev = init_c 
+    mass_prev = zero
     
     if (apply_diffusion)then
         call dispersion_coef(disp_coef_lo,         &
@@ -341,7 +339,7 @@ program gtm
             time_offset = memory_buffer*(iblock-1)
             call dsm2_hdf_ts(time_offset, memlen(iblock))
             !call get_area_for_buffer(hydro_area, hydro_ws, n_comp, memory_buffer) ! can be deleted later
-            if (prev_comp_flow(1)==LARGEREAL) then     
+            if (prev_comp_flow(1)==LARGEREAL) then                             !if (slice_in_block .eq. 1) then
                 call dsm2_hdf_slice(prev_comp_flow, prev_comp_ws, prev_hydro_resv, prev_hydro_resv_flow,   &
                                     prev_hydro_qext, prev_hydro_tran, n_comp, n_resv, n_resv_conn, n_qext, &
                                     n_tran, time_offset+slice_in_block-2)
@@ -452,14 +450,14 @@ program gtm
                 call prim2cons(mass_prev, conc, area, n_cell, n_var)
                 area_prev = area
                 area_lo_prev = area_lo
-                area_hi_prev = area_hi 
-                current_area_lo_prev = area_lo
-                current_area_hi_prev = area_hi                          
+                area_hi_prev = area_hi          
                 prev_resv_height = resv_height
                 prev_resv_flow = resv_flow
                 prev_qext_flow = qext_flow
                 prev_tran_flow = tran_flow
-            end if      
+            end if
+            cfl = flow/area*(gtm_time_interval*sixty)/dx_arr           
+
 
             !--------------- Source Terms Implementation --------------
             ! Sedimentation process       
@@ -579,22 +577,6 @@ program gtm
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)
 
-            mass_prev = mass
-            conc_prev = conc
-            conc_resv_prev = conc_resv
-            area_prev = area
-            area_lo_prev = area_lo
-            area_hi_prev = area_hi    
-            prev_resv_height = resv_height
-            prev_resv_flow = resv_flow
-            prev_qext_flow = qext_flow
-            prev_tran_flow = tran_flow            
-            prev_node_conc = node_conc
-            prev_conc_stip = conc_stip            
-            node_conc = LARGEREAL
-        
-        end do ! end of loop of sub time step
-
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 boundary_diffusion_flux => network_boundary_diffusive_flux            
@@ -612,40 +594,28 @@ program gtm
                                      n_cell,               &
                                      n_var)             
                 call diffuse(conc,                         &
-                             conc_prev,            &
+                             conc_prev,                    &
                              mass,                         &                                     
                              area,                         &
                              flow_lo,                      &
                              flow_hi,                      &                                     
                              area_lo,                      &
                              area_hi,                      &
-                             area_lo_prev,         &
-                             area_hi_prev,         &
+                             area_lo_prev,                 &
+                             area_hi_prev,                 &
                              disp_coef_lo,                 &  
                              disp_coef_hi,                 &
                              disp_coef_lo_prev,            &                  
                              disp_coef_hi_prev,            &
                              n_cell,                       &
                              n_var,                        &
-                             dble(sub_gtm_time_step)*sixty, &
+                             dble(new_current_time)*sixty, &
                              theta,                        &
-                             gtm_time_interval*sixty,      &
+                             sub_gtm_time_step*sixty,      &
                              dx_arr,                       &
-                             .false.)        
+                             .true.)        
                 call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
-
-        mass_prev = mass
-        conc_prev = conc
-        conc_resv_prev = conc_resv
-        disp_coef_lo_prev = disp_coef_lo
-        disp_coef_hi_prev = disp_coef_hi 
-        current_prev_conc_stip = conc_stip
-        current_prev_node_conc = node_conc
-        current_conc_prev = conc
-        current_area_lo_prev = area_lo
-        current_area_hi_prev = area_hi
-        prev_julmin = int(current_time)         
             
             ! add all sediment to ssc
             if (ssc_index .ne. 0) then
@@ -661,7 +631,25 @@ program gtm
                         conc_resv(i,ssc_index) = conc_resv(i,ssc_index) + conc_resv(i,ivar)
                     end do
                 end do                
-            end if                                        
+            end if    
+                                    
+            mass_prev = mass
+            conc_prev = conc
+            conc_resv_prev = conc_resv
+            area_prev = area
+            area_lo_prev = area_lo
+            area_hi_prev = area_hi    
+            disp_coef_lo_prev = disp_coef_lo
+            disp_coef_hi_prev = disp_coef_hi 
+            prev_resv_height = resv_height
+            prev_resv_flow = resv_flow
+            prev_qext_flow = qext_flow
+            prev_tran_flow = tran_flow            
+            prev_node_conc = node_conc
+            prev_conc_stip = conc_stip            
+            node_conc = LARGEREAL
+        
+        end do ! end of loop of sub time step
 
         !---- print output to DSS file -----
         call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
@@ -715,6 +703,8 @@ program gtm
                 end if            
             end if
         end if
+                                       
+        prev_julmin = int(current_time)         
         
     end do  ! end of loop for gtm time step
     
