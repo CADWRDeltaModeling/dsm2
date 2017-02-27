@@ -238,7 +238,7 @@ program gtm
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
-    boundary_diffusion_matrix => network_diffusion_sparse_matrix_zero_at_junctions
+    boundary_diffusion_matrix => network_diffusion_diag_matrix_zero_at_junctions
     source_term_by_cell = zero 
     
     call set_dispersion_arr(disp_arr, n_cell)
@@ -631,7 +631,7 @@ program gtm
                              theta,                        &
                              gtm_time_interval*sixty,      &
                              dx_arr,                       &
-                             .true.)        
+                             .false.)        
                 call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
 

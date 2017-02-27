@@ -37,6 +37,7 @@ module hydro_data_tidefile
         implicit none                      
         call get_hydro_attr
         call read_channel_tbl
+        call find_non_sequential
         call read_comp_tbl
         call read_channel_bottom_tbl        
         call assign_chan_comppt

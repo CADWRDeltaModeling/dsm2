@@ -252,7 +252,7 @@ module utils
                              ap,           &
                              ai,           &
                              ax,           &
-                             nnonzero,     &                             
+                             nnonzero,     & 
                              ncell)
         use gtm_precision
         implicit none
