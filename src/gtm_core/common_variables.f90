@@ -34,6 +34,7 @@ module common_variables
      integer :: n_boun = LARGEINT                   !< number of boundaries
      integer :: n_junc = LARGEINT                   !< number of junctions
      integer :: n_node = LARGEINT                   !< number of DSM2 nodes
+     integer :: n_non_sequential = LARGEINT         !< number of non-sequential nodes      
      integer :: n_xsect = LARGEINT                  !< number of entries in virt xsect table
      integer :: n_resv = LARGEINT                   !< number of reservoirs
      integer :: n_resv_conn = LARGEINT              !< number of reservoir connects
@@ -47,7 +48,7 @@ module common_variables
      integer :: n_bfbs = LARGEINT                   !< number of boundary flows and stage
      integer :: n_cell = LARGEINT                   !< number of cells in the entire network
      integer :: n_var = LARGEINT                    !< number of variables
-    
+      
      real(gtm_real), allocatable :: dx_arr(:)              !< dx array
      real(gtm_real), allocatable :: disp_arr(:)            !< dispersion coeff
      real(gtm_real), allocatable :: mann_arr(:)            !< Manning's n
@@ -61,7 +62,7 @@ module common_variables
 
      !> Define scalar and envvar in input file 
      real(gtm_real) :: no_flow = ten                   !< define a criteria for the definition of no flow to avoid the problem in calculating average concentration
-     real(gtm_real) :: gate_close = 200.0d0             !< threshold to decide if gate is closed.
+     real(gtm_real) :: gate_close = 200.0d0            !< threshold to decide if gate is closed.
      real(gtm_real) :: gtm_dx = LARGEREAL              !< gtm dx
      integer :: npartition_t = LARGEINT                !< number of gtm time intervals partition from hydro time interval
      character(len=128) :: hydro_hdf5                  !< hydro tide filename
@@ -118,6 +119,15 @@ module common_variables
      end type
      type(channel_t), allocatable :: chan_geom(:)
      
+     !> Define non-sequential channels related arrays   
+     type non_sequential_t                             !< computational points
+          integer :: node_no                           !< node_no
+          integer :: up_chan_no                        !< downstream chan_no
+          integer :: down_chan_no(40)                  !< upstream chan_no, assume max 40 for number of d/s channels
+          integer :: n_down_chan = 1                   !< number of downstream channels before node
+     end type
+     type(non_sequential_t), allocatable :: non_sequential(:)
+
      !> Define computational point type to store computational point related arrays   
      type comp_pt_t                                    !< computational points
           integer :: comp_index                        !< computational point index
@@ -780,9 +790,11 @@ module common_variables
      subroutine deallocate_segment_property()
          implicit none
          if (n_segm .ne. LARGEINT) then
+             n_non_sequential = LARGEINT
              n_segm = LARGEINT
              n_conn = LARGEINT
              n_cell = LARGEINT
+             deallocate(non_sequential)
              deallocate(segm)
              deallocate(conn)
              deallocate(dx_arr)
@@ -828,14 +840,70 @@ module common_variables
          return
      end subroutine    
      
+     !> Find non-sequential channels
+     subroutine find_non_sequential()
+         implicit none
+         integer :: nchan2node(n_chan*2) !use n_chan*2 to assign the limit for node
+         integer :: channo(n_chan*2,10)
+         integer :: chan_direction(n_chan*2,10) !toward node=1, away node=0
+         integer :: i, j, k
+         n_non_sequential = 0
+         nchan2node = 0
+         channo = 0         
+         chan_direction = 0
+         do i = 1, n_chan
+             nchan2node(chan_geom(i)%up_node) = nchan2node(chan_geom(i)%up_node) + 1
+             nchan2node(chan_geom(i)%down_node) = nchan2node(chan_geom(i)%down_node) + 1
+             channo(chan_geom(i)%up_node,nchan2node(chan_geom(i)%up_node)) = chan_geom(i)%chan_no
+             channo(chan_geom(i)%down_node,nchan2node(chan_geom(i)%down_node)) = chan_geom(i)%chan_no
+             chan_direction(chan_geom(i)%up_node,nchan2node(chan_geom(i)%up_node)) = 0
+             chan_direction(chan_geom(i)%down_node,nchan2node(chan_geom(i)%down_node)) = 1
+         enddo
+         do i = 1, n_chan*2
+             if ((nchan2node(i).eq.2) .and. (channo(i,1)-channo(i,2))*(chan_direction(i,2)-chan_direction(i,1)).ne.1) n_non_sequential = n_non_sequential + 1
+         end do
+         j = 0
+         allocate(non_sequential(n_non_sequential))
+         do i = 1, n_chan*2
+             if ((nchan2node(i).eq.2) .and. (channo(i,1)-channo(i,2))*(chan_direction(i,2)-chan_direction(i,1)).ne.1) then
+                 j = j + 1
+                 non_sequential(j)%node_no = i
+                 if (chan_direction(i,1).eq.1) then
+                     non_sequential(j)%up_chan_no = channo(i,1)
+                     non_sequential(j)%down_chan_no(1) = channo(i,2)
+                 else
+                     non_sequential(j)%up_chan_no = channo(i,2)
+                     non_sequential(j)%down_chan_no(1) = channo(i,1)
+                 end if
+
+                 k = 1
+100              if (nchan2node(chan_geom(non_sequential(j)%down_chan_no(k))%down_node).eq.2) then
+                     if (chan_direction(chan_geom(non_sequential(j)%down_chan_no(k))%down_node,1).eq.1) then
+                         non_sequential(j)%down_chan_no(k+1) = channo(chan_geom(non_sequential(j)%down_chan_no(k))%down_node,2)
+                     else
+                         non_sequential(j)%down_chan_no(k+1) = channo(chan_geom(non_sequential(j)%down_chan_no(k))%down_node,1)
+                     end if
+                     k = k + 1
+                     non_sequential(j)%n_down_chan = non_sequential(j)%n_down_chan + 1
+                     goto 100
+                 else
+                     goto 200
+                 end if
+             end if
+200      end do
+         return
+     end subroutine
+     
      !> Assign numbers to segment array and connected cell array
      !> This updates common variables: n_segm, n_conn, segm, and conn.
      subroutine assign_segment()         
          implicit none         
-         integer :: i, j, k, m, previous_chan_no
+         integer :: i, j, k, m, p, q, previous_chan_no
          integer :: up_bound, down_bound     
          integer :: chan_no, prev_chan_no
-         integer :: num_segm    
+         integer :: num_segm
+         integer :: skip, adjust, seq_no, next
+         
          call allocate_segment_property()
          call allocate_conn_property()
          ! to make sure cell #1 and cell #ncell are actual boundaries. 
@@ -901,40 +969,93 @@ module common_variables
          k = num_segm
          m = 2
          do i = 1, n_chan
+             skip = 0
+             adjust = 0
              if (chan_geom(i)%chan_no.ne.up_bound .and. chan_geom(i)%chan_no.ne.down_bound) then
-                 num_segm = chan_geom(i)%down_comp - chan_geom(i)%up_comp
-                 do j = 1, num_segm
-                     k = k + 1
-                     segm(k)%segm_no = k
-                     segm(k)%chan_no = chan_geom(i)%chan_no
-                     segm(k)%chan_num = chan_geom(i)%channel_num
-                     segm(k)%up_comppt = chan_geom(i)%up_comp + j - 1
-                     segm(k)%down_comppt = segm(k)%up_comppt + 1
-                     segm(k)%up_distance = comp_pt(segm(k)%up_comppt)%distance
-                     segm(k)%down_distance = comp_pt(segm(k)%down_comppt)%distance
-                     segm(k)%length = segm(k)%down_distance - segm(k)%up_distance
-                     segm(k)%nx = max( floor(segm(k)%length/gtm_dx), 1)
-                     if (segm(k)%nx .eq. 1)  segm(k)%nx = 2
-                     segm(k)%start_cell_no = segm(k-1)%start_cell_no + segm(k-1)%nx
-                 end do    
-                 m = m + 1
-                 conn(m)%conn_no = m
-                 conn(m)%segm_no = k - num_segm + 1
-                 conn(m)%cell_no = segm(conn(m)%segm_no)%start_cell_no      
-                 conn(m)%comp_pt = chan_geom(i)%up_comp
-                 conn(m)%chan_no = chan_geom(i)%chan_no
-                 conn(m)%chan_num = chan_geom(i)%channel_num
-                 conn(m)%dsm2_node_no = chan_geom(i)%up_node
-                 conn(m)%conn_up_down = 1   
-                 m = m + 1      
-                 conn(m)%conn_no = m
-                 conn(m)%segm_no = k
-                 conn(m)%cell_no = segm(conn(m)%segm_no)%start_cell_no + segm(conn(m)%segm_no)%nx -1 
-                 conn(m)%comp_pt = chan_geom(i)%down_comp
-                 conn(m)%chan_no = chan_geom(i)%chan_no
-                 conn(m)%chan_num = chan_geom(i)%channel_num
-                 conn(m)%dsm2_node_no = chan_geom(i)%down_node
-                 conn(m)%conn_up_down = 0           
+                 do p = 1, n_non_sequential
+                     do q = 1, non_sequential(p)%n_down_chan
+                         if ((chan_geom(i)%chan_no .eq. non_sequential(p)%down_chan_no(q)) .and.  &
+                            (non_sequential(p)%up_chan_no.ne.up_bound .and.                       &
+                             non_sequential(p)%down_chan_no(q).ne.down_bound)) skip = 1
+                     end do
+                     if (chan_geom(i)%chan_no .eq. non_sequential(p)%up_chan_no) then 
+                         adjust = 1
+                         seq_no = p
+                     end if
+                 enddo
+                 if (skip .eq. 0) then
+                     num_segm = chan_geom(i)%down_comp - chan_geom(i)%up_comp
+                     do j = 1, num_segm
+                         k = k + 1
+                         segm(k)%segm_no = k
+                         segm(k)%chan_no = chan_geom(i)%chan_no
+                         segm(k)%chan_num = chan_geom(i)%channel_num
+                         segm(k)%up_comppt = chan_geom(i)%up_comp + j - 1
+                         segm(k)%down_comppt = segm(k)%up_comppt + 1
+                         segm(k)%up_distance = comp_pt(segm(k)%up_comppt)%distance
+                         segm(k)%down_distance = comp_pt(segm(k)%down_comppt)%distance
+                         segm(k)%length = segm(k)%down_distance - segm(k)%up_distance
+                         segm(k)%nx = max( floor(segm(k)%length/gtm_dx), 1)
+                         if (segm(k)%nx .eq. 1)  segm(k)%nx = 2
+                         segm(k)%start_cell_no = segm(k-1)%start_cell_no + segm(k-1)%nx
+                     end do    
+                     m = m + 1
+                     conn(m)%conn_no = m
+                     conn(m)%segm_no = k - num_segm + 1
+                     conn(m)%cell_no = segm(conn(m)%segm_no)%start_cell_no      
+                     conn(m)%comp_pt = chan_geom(i)%up_comp
+                     conn(m)%chan_no = chan_geom(i)%chan_no
+                     conn(m)%chan_num = chan_geom(i)%channel_num
+                     conn(m)%dsm2_node_no = chan_geom(i)%up_node
+                     conn(m)%conn_up_down = 1   
+                     m = m + 1      
+                     conn(m)%conn_no = m
+                     conn(m)%segm_no = k
+                     conn(m)%cell_no = segm(conn(m)%segm_no)%start_cell_no + segm(conn(m)%segm_no)%nx -1 
+                     conn(m)%comp_pt = chan_geom(i)%down_comp
+                     conn(m)%chan_no = chan_geom(i)%chan_no
+                     conn(m)%chan_num = chan_geom(i)%channel_num
+                     conn(m)%dsm2_node_no = chan_geom(i)%down_node
+                     conn(m)%conn_up_down = 0
+                     if (adjust .eq. 1) then
+                         do q = 1, non_sequential(seq_no)%n_down_chan
+                             next = non_sequential(seq_no)%down_chan_no(q)
+                             num_segm = chan_geom(next)%down_comp - chan_geom(next)%up_comp
+                             do j = 1, num_segm
+                             k = k + 1
+                             segm(k)%segm_no = k
+                             segm(k)%chan_no = chan_geom(next)%chan_no
+                             segm(k)%chan_num = chan_geom(next)%channel_num
+                             segm(k)%up_comppt = chan_geom(next)%up_comp + j - 1
+                             segm(k)%down_comppt = segm(k)%up_comppt + 1
+                             segm(k)%up_distance = comp_pt(segm(k)%up_comppt)%distance
+                             segm(k)%down_distance = comp_pt(segm(k)%down_comppt)%distance
+                             segm(k)%length = segm(k)%down_distance - segm(k)%up_distance
+                             segm(k)%nx = max( floor(segm(k)%length/gtm_dx), 1)
+                             if (segm(k)%nx .eq. 1)  segm(k)%nx = 2
+                             segm(k)%start_cell_no = segm(k-1)%start_cell_no + segm(k-1)%nx
+                             end do    
+                             m = m + 1
+                             conn(m)%conn_no = m
+                             conn(m)%segm_no = k - num_segm + 1
+                             conn(m)%cell_no = segm(conn(m)%segm_no)%start_cell_no      
+                             conn(m)%comp_pt = chan_geom(next)%up_comp
+                             conn(m)%chan_no = chan_geom(next)%chan_no
+                             conn(m)%chan_num = chan_geom(next)%channel_num
+                             conn(m)%dsm2_node_no = chan_geom(next)%up_node
+                             conn(m)%conn_up_down = 1   
+                             m = m + 1      
+                             conn(m)%conn_no = m
+                             conn(m)%segm_no = k
+                             conn(m)%cell_no = segm(conn(m)%segm_no)%start_cell_no + segm(conn(m)%segm_no)%nx -1 
+                             conn(m)%comp_pt = chan_geom(next)%down_comp
+                             conn(m)%chan_no = chan_geom(next)%chan_no
+                             conn(m)%chan_num = chan_geom(next)%channel_num
+                             conn(m)%dsm2_node_no = chan_geom(next)%down_node
+                             conn(m)%conn_up_down = 0
+                         end do
+                     end if
+                 end if
              end if
          end do
          num_segm = chan_geom(down_bound)%down_comp - chan_geom(down_bound)%up_comp         

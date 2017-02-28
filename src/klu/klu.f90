@@ -23,7 +23,6 @@
 module klu
 
      ! KLU Sparse Solver
-      logical, parameter :: use_klu=.true.
       integer :: k_common, k_symbolic, k_numeric
       real*8, allocatable :: coo(:), b(:)
       integer, allocatable:: jca(:),ica(:)

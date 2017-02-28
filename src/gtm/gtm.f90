@@ -126,6 +126,7 @@ program gtm
     logical :: debug_interp = .false.    
     logical :: use_gtm_hdf = .false.
     logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
+    logical :: use_klu = .false.                              ! Use KLU sparse matrix solver
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
     character(len=:), allocatable :: restart_file_name  
     character(len=14) :: cdt
@@ -238,7 +239,7 @@ program gtm
     boundary_conc => assign_boundary_concentration              ! assign boundary concentration    
     advection_boundary_flux => bc_advection_flux_network        ! adjust flux for DSM2 network
     boundary_diffusion_flux => network_boundary_diffusive_flux
-    boundary_diffusion_matrix => network_diffusion_sparse_matrix_zero_at_junctions
+    boundary_diffusion_matrix => network_diffusion_diag_matrix_zero_at_junctions
     source_term_by_cell = zero 
     
     call set_dispersion_arr(disp_arr, n_cell)
@@ -300,10 +301,12 @@ program gtm
                              n_cell,               &
                              n_var) 
         call network_diffusion_sparse_geom(n_cell)
-        k_common = klu_fortran_init()
-        k_symbolic = klu_fortran_analyze(n_cell, aap, aai, k_common)
-        call klu_fortran_free_numeric(k_numeric, k_common)
-        k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)                                
+        if (use_klu) then
+            k_common = klu_fortran_init()
+            k_symbolic = klu_fortran_analyze(n_cell, aap, aai, k_common)
+            call klu_fortran_free_numeric(k_numeric, k_common)
+            k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)                                
+        end if
     else
         disp_coef_lo = zero !LARGEREAL
         disp_coef_hi = zero !LARGEREAL            
@@ -613,25 +616,9 @@ program gtm
                              theta,                        &
                              sub_gtm_time_step*sixty,      &
                              dx_arr,                       &
-                             .true.)        
+                             use_klu)        
                 call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
-            
-            ! add all sediment to ssc
-            if (ssc_index .ne. 0) then
-                do i = 1, n_cell
-                    conc(i,ssc_index) = zero
-                    do ivar = n_var-n_sediment+1,n_var
-                        conc(i,ssc_index) = conc(i,ssc_index) + conc(i,ivar)
-                    end do
-                end do
-                do i = 1, n_resv
-                    conc_resv(i,ssc_index) = zero
-                    do ivar = n_var-n_sediment+1,n_var
-                        conc_resv(i,ssc_index) = conc_resv(i,ssc_index) + conc_resv(i,ivar)
-                    end do
-                end do                
-            end if    
                                     
             mass_prev = mass
             conc_prev = conc
@@ -650,6 +637,22 @@ program gtm
             node_conc = LARGEREAL
         
         end do ! end of loop of sub time step
+
+        ! add all sediment to ssc
+        if (ssc_index .ne. 0) then
+            do i = 1, n_cell
+                conc(i,ssc_index) = zero
+                do ivar = n_var-n_sediment+1,n_var
+                    conc(i,ssc_index) = conc(i,ssc_index) + conc(i,ivar)
+                end do
+            end do
+            do i = 1, n_resv
+                conc_resv(i,ssc_index) = zero
+                do ivar = n_var-n_sediment+1,n_var
+                    conc_resv(i,ssc_index) = conc_resv(i,ssc_index) + conc_resv(i,ivar)
+                end do
+            end do                
+        end if    
 
         !---- print output to DSS file -----
         call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
@@ -719,10 +722,8 @@ program gtm
         call zclose(ifltab_out)  !!ADD A global to detect if dss is opened
         deallocate(ifltab_out) 
     end if    
-    if (apply_diffusion)then
-        call klu_fortran_free(k_symbolic, k_numeric, k_common)
-        call deallocate_geom_arr
-    end if
+    if (apply_diffusion) call deallocate_geom_arr
+    if (use_klu) call klu_fortran_free(k_symbolic, k_numeric, k_common)
     if (use_gtm_hdf) then
         call close_gtm_hdf(gtm_hdf)         
         call hdf5_close
