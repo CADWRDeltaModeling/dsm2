@@ -627,7 +627,7 @@ module gtm_subs
         implicit none
         integer, intent(in) :: nvar
         integer, intent(in) :: ncell
-        real(gtm_real), intent(in) :: time
+        character*14, intent(in) :: time
         real(gtm_real), intent(in) :: erosion(ncell,nvar)
         real(gtm_real), intent(in) :: deposition(ncell,nvar)
         character*4 :: out_name(16)
@@ -636,11 +636,11 @@ module gtm_subs
         real(gtm_real) :: unit_convert
         unit_convert = 0.3048d0*0.3048d0*1000000.0d0   ! kg/m^2--> mg/ft^2
         out_name = ['CCH','DWS','GEO','JPT','LIB','LPS','MID','MIN','MLD','MOK','NFM','OLD','RIO','SFM','STK','UCS']
-        out_cell = [ 2285, 2272, 1914,  502, 2370, 1630,  743, 2122, 2737, 1807, 1863,  562, 2647, 1713,  159, 2351]
-        write(802,'(f10.0,32(a1,f12.9))') time,(',',erosion(out_cell(i),2)*unit_convert,            &
+        out_cell = [ 2285, 2272, 1913,  490, 2369, 1630,  737, 2121, 2607, 1807, 1862,  555, 2516, 1712,  158, 2351]
+        write(802,'(a14,32(a1,f12.9))') time,(',',erosion(out_cell(i),1)*unit_convert,            &
+                                            ',',deposition(out_cell(i),1)*unit_convert,i=1,16)
+        write(803,'(a14,32(a1,f12.9))') time,(',',erosion(out_cell(i),2)*unit_convert,            &
                                             ',',deposition(out_cell(i),2)*unit_convert,i=1,16)
-        write(803,'(f10.0,32(a1,f12.9))') time,(',',erosion(out_cell(i),3)*unit_convert,            &
-                                            ',',deposition(out_cell(i),3)*unit_convert,i=1,16)
         return
     end subroutine    
       

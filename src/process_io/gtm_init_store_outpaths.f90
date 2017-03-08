@@ -388,7 +388,9 @@ module gtm_init_store_outputs
             ! define units for each output path
             if (pathoutput(p).c_part .eq. 'ec') then
                 pathoutput(p).units = 'umhos/cm'
-            else 
+            elseif (pathoutput(p).c_part .eq. 'turbidity') then
+                pathoutput(p).units = 'ntu'
+            else
                 pathoutput(p).units = 'mg/l'
             endif
 

@@ -58,7 +58,7 @@ program gtm
     use dsm2_time_utils, only: incr_intvl
     use gtm_init_store_outputs
     use gtm_store_outpath
-    use klu
+    !use klu
     ! extended modules
     use turbidity
     use suspended_sediment
@@ -121,12 +121,14 @@ program gtm
     integer :: ivar
     real(gtm_real) :: start, finish    
     
-    procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
+    ! logical variables
     logical, parameter :: limit_slope = .true.                ! Flag to switch on/off slope limiter  
     logical :: debug_interp = .false.    
     logical :: use_gtm_hdf = .false.
     logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
     logical :: use_klu = .false.                              ! Use KLU sparse matrix solver
+    
+    procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver    
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
     character(len=:), allocatable :: restart_file_name  
     character(len=14) :: cdt
@@ -195,6 +197,7 @@ program gtm
         end if        
         dispersion_coef => adjust_dispersion_coef_with_velocity
     end if 
+    
     
     !----- allocate array for interpolation -----         
     call allocate_state_hydro(n_comp, n_resv, n_resv_conn, n_qext, n_tran, n_cell)
@@ -301,12 +304,12 @@ program gtm
                              n_cell,               &
                              n_var) 
         call network_diffusion_sparse_geom(n_cell)
-        if (use_klu) then
-            k_common = klu_fortran_init()
-            k_symbolic = klu_fortran_analyze(n_cell, aap, aai, k_common)
-            call klu_fortran_free_numeric(k_numeric, k_common)
-            k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)                                
-        end if
+        !if (use_klu) then
+        !    k_common = klu_fortran_init()
+        !    k_symbolic = klu_fortran_analyze(n_cell, aap, aai, k_common)
+        !    call klu_fortran_free_numeric(k_numeric, k_common)
+        !    k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)                                
+        !end if
     else
         disp_coef_lo = zero !LARGEREAL
         disp_coef_hi = zero !LARGEREAL            
@@ -459,7 +462,7 @@ program gtm
                 prev_qext_flow = qext_flow
                 prev_tran_flow = tran_flow
             end if
-            cfl = flow/area*(gtm_time_interval*sixty)/dx_arr           
+            cfl = flow/area*(sub_gtm_time_step*sixty)/dx_arr           
 
 
             !--------------- Source Terms Implementation --------------
@@ -485,7 +488,7 @@ program gtm
                                                  dx_arr,                         &
                                                  sub_gtm_time_step*sixty,        &
                                                  n_cell,                         &
-                                                 available_bed(:,isediment))                  
+                                                 available_bed(:,isediment))         
                 elseif (trim(constituents(ivar)%name)=='turbidity') then
                     call turbidity_source(source_term_by_cell(:,ivar),           & 
                                           conc(:,ivar),                          &
@@ -495,6 +498,7 @@ program gtm
                                           n_cell)
                 end if
             end do
+            if (st.eq.sub_st) call print_erosion_deposition(erosion, deposition, cdt, n_sediment, n_cell)
             area_wet = dx_arr*width
             temperature = input_time_series(code_to_ts_id(ts_var_temp),:)
             call sediment_bed_main(erosion,                 &
@@ -707,7 +711,7 @@ program gtm
             end if
         end if
                                        
-        prev_julmin = int(current_time)         
+        prev_julmin = int(current_time)       
         
     end do  ! end of loop for gtm time step
     
@@ -723,7 +727,7 @@ program gtm
         deallocate(ifltab_out) 
     end if    
     if (apply_diffusion) call deallocate_geom_arr
-    if (use_klu) call klu_fortran_free(k_symbolic, k_numeric, k_common)
+    !if (use_klu) call klu_fortran_free(k_symbolic, k_numeric, k_common)
     if (use_gtm_hdf) then
         call close_gtm_hdf(gtm_hdf)         
         call hdf5_close
