@@ -120,6 +120,8 @@ module test_convergence_transport
         real(gtm_real) :: norm_error(3,nrefine)                 !< Norm of error
         integer :: i, j, k
         real(gtm_real) :: current_loc
+        real(gtm_real) :: constraint(nx_base)
+        character*32 :: name(nconc)
 
         if (present(detail_printout))then
             detailed_printout = detail_printout
@@ -281,6 +283,7 @@ module test_convergence_transport
                call advect(mass,                &
                            mass_prev,           &  
                            flow,                &
+                           flow_prev,           &
                            flow_lo,             &
                            flow_hi,             &
                            area,                &
@@ -293,7 +296,15 @@ module test_convergence_transport
                            time,                &
                            dt,                  &
                            dx,                  &
-                           limit_slope)
+                           limit_slope,         &
+                           width,               &
+                           width_prev,          &
+                           depth,               &
+                           depth_prev,          &
+                           hydro_radius,        &
+                           hydro_radius_prev,   &
+                           constraint,          &
+                           name)  
 
                call cons2prim(conc,mass,area,nx,nconc) 
                conc_prev = conc

@@ -27,117 +27,87 @@
 
 module mercury_fluxes
 
-use gtm_precision
-use equilibrium
+    use gtm_precision
+    use equilibrium
+    use mercury_state_variables
 
-implicit none
-    
-contains
-
-!> Main interface between Mercury Module and DSM2-GTM
-subroutine mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
-                          conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
-                          area,           & !< hydrodynamic data from Hydro
-                          depth,          & !< hydrodynamic data from Hydro 
-                          ncell,          & !< number of cells
-                          nosolids,       & !< number of sediments
-                          nmercury,       & !< number of mercury related constituents
-                          solids,         & !< sediment concentration from    
-                          ec,             & !< EC from GTM conservative constituent simulation
-                          doc,            & !< DOC from GTM conservative constituent simulation
-                          DOxy,           & !< Dissolved oxygen from time series
-                          pH,             & !< PH from time series
-                          SO4,            & !< SO4 from time series
-                          T,              & !< Temperature from time series        
-                          ipar,           & !< surface light intensity - PAR (kJ/m2/d) - from TS
-                          iuva,           & !< surface light intensity - UVA (kJ/m2/d) - from TS
-                          iuvb,           & !< surface light intensity - UVB (kJ/m2/d) - from TS
-                          rgm_atm,        & !< dry deposition (pg/m3) - from TS 
-                          Hg0_atm,        & !< conc of Hg0 in atmosphere (ug/m3) - from TS
-                          MeHg_atm,       & !< conc of MeHg in atmosphere (ug/m3) - from TS       
-                          precip,         & !< prcipitation (mm/d) - from TS
-                          wetdep_HgII,    & !< dry deposition (ng/L) - from TS
-                          drydep_HgII,    & !< dry deposition (ug/m2/d) - from TS                   
-                          wetdep_MeHg,    & !< dry deposition (ng/L) - from TS
-                          drydep_MeHg,    & !< dry deposition (ug/m2/d) - from TS
-                          dgm_ratio,      & !< DGM ratio - ratio of Hg0 to HgII - from TS
-                          rct_interface,  & !< carbon turnover at interface (g/m2/day) - from TS
-                          rct_water,      & !< carbon turnover in water column (g/m3/day) - from TS
-                          vol_frac)         !< fraction of volume where methylation occurs or porosity in sediments - from TS
-    integer, intent(in) :: ncell
-    integer, intent(in) :: nosolids         !< total suspended solids (mg/L) - from GTM
-    integer, intent(in) :: nmercury
-    real (gtm_real), intent(out) :: source_mercury(ncell,nmercury)         !> cell source
-    real (gtm_real), intent(in)  :: conc_mercury(ncell,nmercury)         !> cell conc    
-    real (gtm_real), intent(in)  :: area(ncell)         !< cell area (ft2) todo: need to convert to m2
-    real (gtm_real), intent(in)  :: depth(ncell)        !< cell depth (ft)  todo: need to convert to m
-    real (gtm_real), intent(in)  :: ipar(ncell)         !< surface light intensity - PAR (kJ/m2/d) - from TS
-    real (gtm_real), intent(in)  :: iuva(ncell)         !< surface light intensity - UVA (kJ/m2/d) - from TS
-    real (gtm_real), intent(in)  :: iuvb(ncell)         !< surface light intensity - UVB (kJ/m2/d) - from TS
-    real (gtm_real), intent(in)  :: ec(ncell)           !< ec from GTM conservative constituent simulation
-    real (gtm_real), intent(in)  :: doc(ncell)          !< doc from GTM conservative constituent simulation
-    real (gtm_real), intent(in)  :: DOxy(ncell)         !< dissolved oxygen - from TS or GTM (?)
-    real (gtm_real), intent(in)  :: pH(ncell)           !< doc (mg/L) - from TS
-    real (gtm_real), dimension(nosolids), intent(in) :: solids !< total suspended solids (mg/L) - from GTM
-    real (gtm_real), intent(in)  :: SO4(ncell)          !< sulfate (mg/L) - from TS
-    real (gtm_real), intent(in)  :: T(ncell)            !< temperature (C) - from TS or GTM (?)
-    real (gtm_real), intent(in)  :: Hg0_atm(ncell)      !< conc of Hg0 in atmosphere (ug/m3) - from TS
-    real (gtm_real), intent(in)  :: MeHg_atm(ncell)     !< conc of MeHg in atmosphere (ug/m3) - from TS
-    real (gtm_real), intent(in)  :: precip(ncell)       !< prcipitation (mm/d) - from TS
-    real (gtm_real), intent(in)  :: wetdep_HgII(ncell)  !< dry deposition (ng/L) - from TS
-    real (gtm_real), intent(in)  :: drydep_HgII(ncell)  !< dry deposition (ug/m2/d) - from TS
-    real (gtm_real), intent(in)  :: rgm_atm(ncell)      !< dry deposition (pg/m3) - from TS
-    real (gtm_real), intent(in)  :: wetdep_MeHg(ncell)  !< dry deposition (ng/L) - from TS
-    real (gtm_real), intent(in)  :: drydep_MeHg(ncell)  !< dry deposition (ug/m2/d) - from TS
-    real (gtm_real), intent(in)  :: dgm_ratio(ncell)    !< DGM ratio - ratio of Hg0 to HgII - from TS
-    real (gtm_real), intent(in)  :: rct_interface(ncell)!< carbon turnover at interface (g/m2/day) from GTM or TS (?)
-    real (gtm_real), intent(in)  :: rct_water(ncell)    !< carbon turnover in water column (g/m3/day) from GTM or TS (?) driver for wat methyl/demethylation
-    real (gtm_real), intent(in)  :: vol_frac(ncell)     !< fraction of volume where methylation occurs or porosity in sediments
-    real (gtm_real), dimension(nosolids) :: Hg_Inert    !< Hg_Inert on each solids type - from GTM (ug/g)
-    type (solids_inputs):: solid_in(nosolids)           !< solids adsorption desorption inputs
-    type (hg_concs)                :: concs_hg          !< hg concs for reactions (ng/L) -> (ug/m3)
-    type (hg_flux_def)             :: r    
-    type (hg_rate_parms)           :: k                 !< hg reaction rate parmeters 
-    integer :: i
-    
-    do i = 1, ncell
-        !r =
-        !k =
-        !solid_in = 
-        !concs_hg = conc_mercury(i,1:3)             ! concentrations of HgII, MeHg, and Hg0?
-        Hg_inert = conc_mercury(i,4:4+nosolids-1)   ! concentrations of HgII_S1, HgII_S2, and HgII_S3
-        call hg_flux(area(i),            &
-                     depth(i),           &
-                     vol_frac(i),        &
-                     ipar(i),            &
-                     iuva(i),            &
-                     iuvb(i),            &
-                     doc(i),             &
-                     pH(i),              &
-                     nosolids,           &
-                     solids,             & 
-                     Hg_inert,           &  
-                     SO4(i),             &
-                     T(i),               &
-                     Hg0_atm(i),         &
-                     MeHg_atm(i),        &
-                     precip(i),          &
-                     wetdep_HgII(i),     &
-                     drydep_HgII(i),     &
-                     rgm_atm(i),         &
-                     wetdep_MeHg(i),     &
-                     drydep_MeHg(i),     &
-                     dgm_ratio(i),       &
-                     rct_interface(i),   &
-                     rct_water(i),       &
-                     k,                  &
-                     solid_in,           &
-                     concs_hg,           &   
-                     r)                   
-        source_mercury = zero !you may want to point to the right number here....
-    end do
-    return                      
-end subroutine
+    contains
+   
+    !> Main interface between Mercury Module and DSM2-GTM
+    !> Implementation of compute_source_if for 
+    !> mercury source
+    subroutine mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
+                              conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
+                              area,           & !< hydrodynamic data from Hydro
+                              width,          & !< hydrodynamic data from Hydro
+                              depth,          & !< hydrodynamic data from Hydro 
+                              dx,             & !< dx
+                              dt,             & !< dt
+                              ncell,          & !< number of cells
+                              nsediment,      & !< number of sediments
+                              nmercury)         !< number of mercury related constituents      
+        implicit none
+        integer, intent(in) :: ncell                                  !< Number of cell
+        integer, intent(in) :: nsediment                              !< Number of sediment
+        integer, intent(in) :: nmercury                               !< Number of mercury
+        real(gtm_real), intent(out) :: source_mercury(nmercury,ncell) !< cell source
+        real(gtm_real), intent(in) :: conc_mercury(nmercury,ncell)    !< cell conc
+        real(gtm_real), intent(in) :: area(ncell)                     !< cell area (ft2) 
+        real(gtm_real), intent(in) :: width(ncell)                    !< cell area (ft2)
+        real(gtm_real), intent(in) :: depth(ncell)                    !< cell depth (ft) 
+        real(gtm_real), intent(in) :: dx(ncell)                       !< dx
+        real(gtm_real), intent(in) :: dt                              !< dt
+        !--local
+        integer :: icell
+        real(gtm_real) :: area_wet(ncell)    
+        real(gtm_real) :: Hg_inert(nsediment)
+        real(gtm_real) :: solids(nsediment)
+        type(hg_rate_parms) :: k                                     !> hg reaction rate parmeters
+        type(solids_inputs) :: solid_in(nsediment)                   !> solids adsorption desorption inputs
+        type(hg_concs) :: concs_hg                                   !> hg concs for reactions (ng/L) -> (ug/m3)
+        type(hg_flux_def) :: r                                       !> reaction and fluxes at air/water boundary
+        
+        area_wet = width * dx
+        do icell = 1, ncell
+            solids = conc_sediment(:,icell)
+            !r = 
+            !k =      
+            !concs_hg = conc_mercury(icell,1:3)             ! concentrations of HgII, MeHg, and Hg0?
+            Hg_inert = conc_mercury(4:4+nsediment-1,icell)   ! concentrations of HgII_S1, HgII_S2, and HgII_S3
+            call hg_flux(area_wet(icell),        &
+                         depth(icell),           &
+                         val_vol_frac(icell),    &
+                         val_ipar(icell),        &
+                         val_iuva(icell),        &
+                         val_iuvb(icell),        &
+                         conc_doc(icell),        &
+                         conc_ph(icell),         &
+                         nsediment,              &
+                         solids,                 &
+                         Hg_inert,               &
+                         conc_so4(icell),        &
+                         conc_temp(icell),       &
+                         val_hg0_air(icell),     &
+                         val_mehg_air(icell),    &
+                         val_precip(icell),      &
+                         val_wet_hgii(icell),    &
+                         val_dry_hgii(icell),    &
+                         val_rgm_air(icell),     &
+                         val_wet_mehg(icell),    &
+                         val_dry_mehg(icell),    &
+                         val_dgm_ratio(icell),   &
+                         val_rct_if(icell),      &
+                         val_rct_water(icell),   &
+                         k,                      & ! not given yet
+                         solid_in,               &
+                         concs_hg,               & ! not given yet  
+                         r)                        ! not given yet
+                         
+            source_mercury = zero !you may want to point to the right number here....
+            
+        end do
+        return
+    end subroutine
 
 
 !> water compartment fluxes for cell

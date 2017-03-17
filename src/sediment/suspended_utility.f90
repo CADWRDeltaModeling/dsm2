@@ -28,7 +28,6 @@ module suspended_utility
 
     contains
 
-
     !> Calculates the submerged specific gravity
     pure subroutine submerged_specific_gravity(capital_r,            &
                                                water_density,        &

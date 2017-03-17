@@ -89,19 +89,19 @@ module process_gtm_scalar
          read(Val, '(f10.0)', err=810) init_conc
       elseif (Param .eq. 'checkdata') then
          read(Val, '(l2)', err=810) checkdata      
-       elseif (Param .eq. 'cont_bad') then
+      elseif (Param .eq. 'cont_bad') then
          read(Val, '(l2)', err=810) cont_bad
-       elseif (Param .eq. 'cont_missing') then
+      elseif (Param .eq. 'cont_missing') then
          read(Val, '(l2)', err=810) cont_missing
-       elseif (Param .eq. 'cont_question') then
+      elseif (Param .eq. 'cont_question') then
          read(Val, '(l2)', err=810) cont_question
-       elseif (Param .eq. 'cont_unchecked') then
+      elseif (Param .eq. 'cont_unchecked') then
          read(Val, '(l2)', err=810) cont_unchecked
-       elseif (Param .eq. 'warn_missing') then
+      elseif (Param .eq. 'warn_missing') then
          read(Val, '(l2)', err=810) warn_missing   
-       elseif (Param .eq. 'warn_question') then
+      elseif (Param .eq. 'warn_question') then
          read(Val, '(l2)', err=810) warn_question  
-       elseif (Param .eq. 'warn_unchecked') then
+      elseif (Param .eq. 'warn_unchecked') then
          read(Val, '(l2)', err=810) warn_unchecked            
       elseif (Param .eq. 'dispersion') then
          read(Val, '(l2)', err=810) apply_diffusion
@@ -119,6 +119,8 @@ module process_gtm_scalar
          read(Val, '(f20.15)', err=810) size_ero
       elseif (Param .eq. 'run_mercury') then
          read(Val, '(l2)', err=810) run_mercury
+      elseif (Param .eq. 'use_sediment_bed') then
+         read(Val, '(l2)', err=810) use_sediment_bed
       !--------global rates for non-conserative const.
       elseif (Param .eq. 'algaefract_n') then
          read(Val, '(f8.3)', err=810) algaefract_n

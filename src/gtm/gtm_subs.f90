@@ -526,7 +526,15 @@ module gtm_subs
         return
     end subroutine      
 
-
+    !> Check sediment bed time series input
+    subroutine check_sediment_bed_ts_input()
+        use common_variables
+        use error_handling
+        implicit none
+        if (code_to_ts_id(ts_var_temp) == 0) call gtm_fatal("Time series for Temperature is not specified!!!! It is needed for Sediment Bed Module.")
+        return
+    end subroutine
+    
     !> check if the mercury related time series inputs are specified
     subroutine check_mercury_ts_input()
         use common_variables
@@ -547,6 +555,7 @@ module gtm_subs
         if (code_to_ts_id(ts_var_dry_hgii) == 0) call gtm_fatal("Time series for Dry_HgII is not specified!!!! It is needed for Mercury Module.")
         if (code_to_ts_id(ts_var_wet_mehg) == 0) call gtm_fatal("Time series for Wet_MeHg is not specified!!!! It is needed for Mercury Module.")
         if (code_to_ts_id(ts_var_dry_mehg) == 0) call gtm_fatal("Time series for Dry_MeHg is not specified!!!! It is needed for Mercury Module.")
+        if (code_to_ts_id(ts_var_dgm_ratio) == 0) call gtm_fatal("Time series for DGM_Ratio is not specified!!!! It is needed for Mercury Module.")
         return
     end subroutine
     

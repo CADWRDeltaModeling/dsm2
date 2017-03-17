@@ -65,7 +65,7 @@ module reaction
       conc = conc_prev
       time_star = time
 
-      call compute_source(source,   & 
+      call simple_compute_source(source,   & 
                           conc,     &
                           area,     &
                           flow,     &
@@ -78,7 +78,7 @@ module reaction
       conc = conc_prev + k_1*half
 
       !todo: do we need to update are here to feed "compute_source"?
-      call compute_source(source,   & 
+      call simple_compute_source(source,   & 
                           conc,     &
                           area,     &
                           flow,     &
@@ -90,7 +90,7 @@ module reaction
       time_star = time + dt
       conc = conc_prev + (two* k_2)- k_1
 
-      call compute_source(source,   & 
+      call simple_compute_source(source,   & 
                           conc,     &
                           area,     &
                           flow,     &

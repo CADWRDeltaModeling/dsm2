@@ -71,6 +71,10 @@ module state_variables
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: flow(:)
     
+    !> Cell-centered flow at old time step
+    !> dimensions (ncell)
+    real(gtm_real), save, allocatable :: flow_prev(:)
+
     !> face-centered flow on lo side of cell  (so this is cell-indexed),
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: flow_lo(:)
@@ -82,15 +86,18 @@ module state_variables
     !> face-centered width on the center of cell  (so this is cell-indexed),
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: width(:) 
-
+    real(gtm_real), save, allocatable :: width_prev(:)
+     
     !> face-centered hydraulic radius on the center of cell  (so this is cell-indexed),
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: hydro_radius(:)     
+    real(gtm_real), save, allocatable :: hydro_radius_prev(:)     
 
     !> face-centered water depth on the center of cell  (so this is cell-indexed),
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: depth(:)
-    
+    real(gtm_real), save, allocatable :: depth_prev(:)
+        
     contains
     
     !> Allocate the state variables consistently
@@ -134,21 +141,26 @@ module state_variables
         area_lo_prev   = LARGEREAL
         area_hi_prev   = LARGEREAL
         
-        allocate(flow(ncell),flow_lo(ncell), flow_hi(ncell),stat = istat)
+        allocate(flow(ncell),flow_prev(ncell), flow_lo(ncell), flow_hi(ncell),stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
         flow      = LARGEREAL
+        flow_prev = LARGEREAL
         flow_lo   = LARGEREAL
         flow_hi   = LARGEREAL
 
         allocate(width(ncell),hydro_radius(ncell), depth(ncell), stat = istat)
+        allocate(width_prev(ncell),hydro_radius_prev(ncell), depth_prev(ncell), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
         end if
         width        = LARGEREAL
         hydro_radius = LARGEREAL     
         depth = LARGEREAL     
+        width_prev        = LARGEREAL
+        hydro_radius_prev = LARGEREAL     
+        depth_prev = LARGEREAL     
         return
     end subroutine
      
@@ -165,8 +177,9 @@ module state_variables
         deallocate(area_prev)
         deallocate(area_lo,area_hi)
         deallocate(area_lo_prev, area_hi_prev)
-        deallocate(flow, flow_lo, flow_hi)
+        deallocate(flow, flow_prev, flow_lo, flow_hi)
         deallocate(width, hydro_radius, depth)
+        deallocate(width_prev, hydro_radius_prev, depth_prev)
         return
     end subroutine 
 

@@ -536,23 +536,40 @@ module test_converge_hydro_interpolation
 
 
     !> Subroutine provides source term (constant decay) to the tidal test
-    subroutine tidal_reaction_source_interp(source,      & 
-                                            conc,        &
-                                            area,        &
-                                            flow,        &
-                                            ncell,       &
-                                            nvar,        &
-                                            time)
+    subroutine tidal_reaction_source_interp(source,       & 
+                                            conc,         &
+                                            flow,         &
+                                            area,         &
+                                            width,        &
+                                            depth,        &
+                                            hyd_radius,   &
+                                            dx,           &
+                                            dt,           &
+                                            time,         &
+                                            ncell,        &
+                                            nvar,         &
+                                            constraint,   &
+                                            name,         &
+                                            rkstep)
         use  primitive_variable_conversion
         implicit none
         !--- args
-        integer,intent(in)  :: ncell                      !< Number of cells
-        integer,intent(in)  :: nvar                       !< Number of variables
-        real(gtm_real),intent(inout):: source(ncell,nvar) !< cell centered source 
-        real(gtm_real),intent(in)   :: conc(ncell,nvar)   !< Concentration
-        real(gtm_real),intent(in)   :: area(ncell)        !< area at source     
-        real(gtm_real),intent(in)   :: flow(ncell)        !< flow at source location
-        real(gtm_real),intent(in)   :: time               !< time 
+        integer, intent(in) :: ncell                           !< Number of cells
+        integer, intent(in) :: nvar                            !< Number of variables   
+        integer, intent(in) :: rkstep                          !< Reaction step in Huen's method
+        real(gtm_real), intent(inout) :: source(ncell,nvar)    !< cell centered source 
+        real(gtm_real), intent(in)  :: conc(ncell,nvar)        !< Concentration 
+        real(gtm_real), intent(in)  :: flow(ncell)             !< flow at source location
+        real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
+        real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
+        real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
+        real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location       
+        real(gtm_real), intent(in)  :: dx(ncell)               !< dx
+        real(gtm_real), intent(in)  :: dt                      !< dt
+        real(gtm_real), intent(in)  :: time                    !< time
+        real(gtm_real), intent(in)  :: constraint(ncell,nvar)  !< Constraint 
+        character(len=32), intent(in) :: name(nvar)            !< Constituent name
+
         ! source must be in primitive variable 
         source = -const_tidal_decay_rate*conc
         return

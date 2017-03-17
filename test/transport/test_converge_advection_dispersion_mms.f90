@@ -341,36 +341,53 @@ subroutine bc_data_mms(bc_value_mms,   &
     return
 end subroutine
 
-subroutine manufactured_solution_source(source, & 
-                                        conc,   &
-                                        area,   &
-                                        flow,   &
-                                        ncell,  &
-                                        nvar,   &
-                                        time)
+subroutine manufactured_solution_source(source,       & 
+                                        conc,         &
+                                        flow,         &
+                                        area,         &
+                                        width,        &
+                                        depth,        &
+                                        hyd_radius,   &
+                                        dx,           &
+                                        dt,           &
+                                        time,         &
+                                        ncell,        &
+                                        nvar,         &
+                                        constraint,   &
+                                        name,         &
+                                        rkstep)
                                          
- use gtm_precision 
+    use gtm_precision 
 
-implicit none
- !--- args
- integer,intent(in)  :: ncell                        !< Number of cells
- integer,intent(in)  :: nvar                         !< Number of variables
- real(gtm_real),intent(inout) :: source(ncell,nvar)  !< cell centered source 
- real(gtm_real),intent(in)    :: conc(ncell,nvar)    !< Concentration
- real(gtm_real),intent(in)    :: area(ncell)         !< area at source     
- real(gtm_real),intent(in)    :: flow(ncell)         !< flow at source location
- real(gtm_real),intent(in)    :: time                !< time
+    implicit none
+    !--- args
+    integer, intent(in) :: ncell                           !< Number of cells
+    integer, intent(in) :: nvar                            !< Number of variables   
+    integer, intent(in) :: rkstep                          !< Reaction step in Huen's method
+    real(gtm_real), intent(inout) :: source(ncell,nvar)    !< cell centered source 
+    real(gtm_real), intent(in)  :: conc(ncell,nvar)        !< Concentration 
+    real(gtm_real), intent(in)  :: flow(ncell)             !< flow at source location
+    real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
+    real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
+    real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
+    real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location       
+    real(gtm_real), intent(in)  :: dx(ncell)               !< dx
+    real(gtm_real), intent(in)  :: dt                      !< dt
+    real(gtm_real), intent(in)  :: time                    !< time
+    real(gtm_real), intent(in)  :: constraint(ncell,nvar)  !< Constraint 
+    character(len=32), intent(in) :: name(nvar)            !< Constituent name
+
  !--- local
 integer :: ivar  
 integer :: icell     
-real(gtm_real) :: dx
+real(gtm_real) :: dxx
 real(gtm_real) :: xpos
 
-dx = (x_right-x_left)/ncell
+dxx = (x_right-x_left)/ncell
 
 do ivar = 1,nvar
     do icell = 1,ncell  
-        xpos    = x_left +(dble(icell)-half)*dx
+        xpos    = x_left +(dble(icell)-half)*dxx
         source(icell,ivar) = half*(dexp(xpos/two)-four*dexp(xpos)-dexp(time+xpos))
     end do
 end do

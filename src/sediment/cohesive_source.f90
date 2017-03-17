@@ -33,7 +33,7 @@ module cohesive_source
                                width,            & !< channel width
                                hydro_radius,     & !< hydraulic radius
                                manning,          & !< Manning's n
-                               diameter,         & !< sediment particle diameter
+                               diameterp,         & !< sediment particle diameter
                                ncell,            & !< number of model cells
                                available_bed)      !< available bed sediment flux
         use sediment_variables
@@ -49,13 +49,13 @@ module cohesive_source
         real(gtm_real), intent(in) :: width(ncell)             !< channel width
         real(gtm_real), intent(in) :: hydro_radius(ncell)      !< hydraulic radius
         real(gtm_real), intent(in) :: manning(ncell)           !< Manning's n
-        real(gtm_real), intent(in) :: diameter(ncell)          !< diameter in meter
+        real(gtm_real), intent(in) :: diameterp(ncell)          !< diameter in meter
         integer, intent(in) :: ncell                           !< number of cells
         real(gtm_real), intent(in) :: available_bed(ncell)     !< available bed sediment flux
         
         !--local variables
         real(gtm_real), parameter :: param_M = 1.325d-6        ! kg/(m^2s)
-        real(gtm_real) :: critical_shear(ncell)
+        real(gtm_real) :: critical_shear_strs(ncell)
         real(gtm_real) :: fall_vel(ncell) 
         real(gtm_real) :: velocity(ncell)                      ! flow velocity   
         real(gtm_real) :: bottom_shear_stress(ncell)
@@ -66,28 +66,28 @@ module cohesive_source
         velocity = abs(flow/area)
         
         do icell = 1, ncell
-            call settling_velocity(fall_vel(icell),           &
-                                   kinematic_viscosity,       &
-                                   specific_gravity,          &
-                                   diameter(icell),           &
-                                   gravity,                   &
+            call settling_velocity(fall_vel(icell),            &
+                                   kinematic_viscosity,        &
+                                   specific_gravity,           &
+                                   diameterp(icell),           &
+                                   gravity,                    &
                                    function_van_rijn)   
 
-            call critical_shear_stress(critical_shear(icell), &
-                                       water_density,         &
-                                       sediment_density,      &
-                                       gravity,               &
-                                       kinematic_viscosity,   &
-                                       diameter(icell))
+            call critical_shear_stress(critical_shear_strs(icell),   &
+                                       water_density,                &
+                                       sediment_density,             &
+                                       gravity,                      &
+                                       kinematic_viscosity,          &
+                                       diameterp(icell))
                                      
             call bed_shear_stress(bottom_shear_stress(icell), &
                                   velocity(icell),            &
                                   manning(icell),             &
                                   hydro_radius(icell))
                                 
-            call cohesive_erosion(erosion_flux(icell),        &
-                                  critical_shear(icell),      &
-                                  bottom_shear_stress(icell), &
+            call cohesive_erosion(erosion_flux(icell),          &
+                                  critical_shear_strs(icell),   &
+                                  bottom_shear_stress(icell),   &
                                   param_M)                               
                                    
             call cohesive_deposition(deposition_flux(icell),  &

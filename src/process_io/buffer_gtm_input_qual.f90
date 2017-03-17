@@ -37,8 +37,8 @@ module buffer_gtm_input_qual
                                     outfilenames
         use gtm_dss, only: get_dss_each_npath
         use gtm_precision
-        use common_variables, only: n_var, constituents_tmp, n_input_ts, n_node_ts,              &
-                                    n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index, &
+        use common_variables, only: n_var, constituents_tmp, n_input_ts, n_node_ts,                            &
+                                    n_sediment, n_sediment_bc, sediment, sediment_bc, ssc_index, run_sediment, &
                                     group_var, run_mercury, mercury_start_ivar, mercury_ivar
         implicit none
         integer :: nitem_climate, nitem_node_conc, nitem_resv_conc, nitem_input_time_series
@@ -225,6 +225,7 @@ module buffer_gtm_input_qual
                 constituents_tmp(i)%conservative = .false.  
                 constituents_tmp(i)%simulate = .false.
             elseif (trim(constituents_tmp(i)%name).eq.'turbidity') then
+                constituents_tmp(i)%use_module = 'turbidity'
                 constituents_tmp(i)%conservative = .false.
             elseif (trim(constituents_tmp(i)%name) =='hgii') then
                 mercury_ivar(1) = i
@@ -258,6 +259,7 @@ module buffer_gtm_input_qual
             constituents_tmp(nvar+i)%use_module = 'sediment'
             constituents_tmp(nvar+i)%conservative = .false.
         end do
+        if (n_sediment.gt.0) run_sediment = .true.
         print *,"Number of constituents processed: ", n_var
      
         allocate(indssfiles(n_dssfiles))

@@ -20,24 +20,44 @@
 !> DO source terms to fulfill source interface
 !>@ingroup do_module
 module do_basic
+
+    contains 
+    
     !> DO module sources.
     !> This source term multiplies each constituent by a decay rate
-    subroutine do_basic_source(source, & 
-                               conc,   &
-                               area,   &
-                               flow,   &
-                               ncell,  &
-                               nvar,   &
-                               time)
+    subroutine do_basic_source(source,       & 
+                         conc,         &
+                         flow,         &
+                         area,         &
+                         width,        &
+                         depth,        &
+                         hyd_radius,   &
+                         dx,           &
+                         dt,           &
+                         time,         &
+                         ncell,        &
+                         nvar,         &
+                         constraint,   &
+                         name,         &
+                         rkstep)
         use gtm_precision
         implicit none 
-        integer, intent(in)  :: ncell                      !< Number of cells
-        integer, intent(in)  :: nvar                       !< Number of variables
-        real(gtm_real), intent(inout) :: source(ncell,nvar)!< cell centered source 
-        real(gtm_real), intent(in)  :: conc(ncell,nvar)    !< Concentration
-        real(gtm_real), intent(in)  :: area(ncell)         !< area at source     
-        real(gtm_real), intent(in)  :: flow(ncell)         !< flow at source location
-        real(gtm_real), intent(in)  :: time                !< time
+        integer, intent(in) :: ncell                           !< Number of cells
+        integer, intent(in) :: nvar                            !< Number of variables   
+        integer, intent(in) :: rkstep                          !< Reaction step in Huen's method
+        real(gtm_real), intent(inout) :: source(ncell,nvar)    !< cell centered source 
+        real(gtm_real), intent(in)  :: conc(ncell,nvar)        !< Concentration 
+        real(gtm_real), intent(in)  :: flow(ncell)             !< flow at source location
+        real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
+        real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
+        real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
+        real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location       
+        real(gtm_real), intent(in)  :: dx(ncell)               !< dx
+        real(gtm_real), intent(in)  :: dt                      !< dt
+        real(gtm_real), intent(in)  :: time                    !< time
+        real(gtm_real), intent(in)  :: constraint(ncell,nvar)  !< Constraint 
+        character(len=32), intent(in) :: name(nvar)            !< Constituent name
+
         real(gtm_real) :: decay                            ! temporary variables
         real(gtm_real) :: settle                           ! temporary variables
  

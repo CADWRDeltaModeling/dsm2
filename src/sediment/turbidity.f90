@@ -25,28 +25,49 @@ module turbidity
 
     use gtm_precision
  
+    ! Variables for turbidity module
+    real(gtm_real), allocatable :: turbidity_decay(:)
+    real(gtm_real), allocatable :: turbidity_settle(:)
+    
     contains
 
+    !> Allocate turbidity variables
+    subroutine allocate_turbidity_variables(ncell)
+        implicit none
+        integer, intent(in) :: ncell  !< number of cells
+        allocate(turbidity_decay(ncell),turbidity_settle(ncell))
+        return
+    end subroutine
+        
+        
+    !> Deallocate turbidity variables
+    subroutine deallocate_turbidity_variables()
+        implicit none
+        deallocate(turbidity_decay,turbidity_settle)
+        return
+    end subroutine    
+
+
     !> turbidity decay and settling
-    subroutine turbidity_source(source, & 
-                                conc,   &
-                                decay,  &
-                                settle, &
-                                dt,     &
-                                ncell)
+    subroutine turbidity_source(source,        & 
+                                conc,          & 
+                                dt,            & 
+                                ncell,         & 
+                                constraint) 
         use gtm_precision
         implicit none 
         !--- args
-        integer, intent(in) :: ncell                  !< Number of cells
-        real(gtm_real), intent(inout) :: source(ncell)!< cell centered source 
-        real(gtm_real), intent(in) :: conc(ncell)     !< Concentration
-        real(gtm_real), intent(in) :: decay(ncell)    !< area at source     
-        real(gtm_real), intent(in) :: settle(ncell)   !< flow at source location
-        real(gtm_real), intent(in) :: dt              !< delta t
+        integer, intent(in) :: ncell                         !< Number of cells
+        real(gtm_real), intent(inout) :: source(ncell)       !< cell centered source 
+        real(gtm_real), intent(in) :: conc(ncell)            !< Concentration
+        real(gtm_real), intent(in) :: dt                      !< delta t
+        real(gtm_real), intent(in) :: constraint(ncell)   !< constraint
 
         ! source must be in primitive variable 
-        source = - decay*conc/dt - settle*conc/dt
+        source = - turbidity_decay*conc/dt - turbidity_settle*conc/dt
      
         return
-    end subroutine     
+    end subroutine    
+    
+     
  end module

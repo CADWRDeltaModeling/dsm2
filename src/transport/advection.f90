@@ -42,20 +42,29 @@ module advection
     !>   Note that all these steps are operations on entire arrays of values -- this keeps things efficient
     subroutine advect(mass,                 &
                       mass_prev,            &
-                      flow_prev,            &      
+                      flow,                 &
+                      flow_prev,            &
                       flow_lo,              &
                       flow_hi,              &
                       area,                 &
-                      area_prev,            & 
+                      area_prev,            &
                       area_lo,              &
                       area_hi,              &
-                      explicit_diffuse_op,  &                      
+                      explicit_diffuse_op,  &
                       ncell,                &
                       nvar,                 &
                       time,                 &
                       dt,                   &
                       dx,                   &
-                      use_limiter)  
+                      use_limiter,          &
+                      width,                &
+                      width_prev,           &
+                      depth,                &
+                      depth_prev,           &
+                      hyd_radius,           &
+                      hyd_radius_prev,      &
+                      constraint,           &
+                      name)  
    
         use gtm_precision
         use primitive_variable_conversion
@@ -74,11 +83,12 @@ module advection
 
         real(gtm_real),intent(out) :: mass(ncell,nvar)       !< mass at new time
         real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)  !< mass at old time
+        real(gtm_real),intent(in)  :: flow(ncell)            !< cell-centered flow at new time
         real(gtm_real),intent(in)  :: flow_prev(ncell)       !< cell-centered flow, old time
         real(gtm_real),intent(in)  :: flow_lo(ncell)         !< flow on lo side of cells centered in time
         real(gtm_real),intent(in)  :: flow_hi(ncell)         !< flow on hi side of cells centered in time
-        real(gtm_real),intent(in)  :: area_prev(ncell)       !< cell-centered area at old time. not used in algorithm?
-        real(gtm_real),intent(in)  :: area(ncell)            !< cell-centered area at new time. not used in algorithm?
+        real(gtm_real),intent(in)  :: area_prev(ncell)       !< cell-centered area at old time
+        real(gtm_real),intent(in)  :: area(ncell)            !< cell-centered area at new time
 
         ! todo: area_lo is time centered here? I think currently it is correct for advection only.
         !       however, area_lo is also needed for diffusion at old time and new time.
@@ -93,6 +103,15 @@ module advection
         real(gtm_real),intent(in)  :: dt                              !< current time step from old time to new time
         real(gtm_real),intent(in)  :: dx(ncell)                       !< spatial step
         logical,intent(in),optional :: use_limiter                    !< whether to use slope limiter
+
+        real(gtm_real), intent(in) :: width(ncell)
+        real(gtm_real), intent(in) :: width_prev(ncell)
+        real(gtm_real), intent(in) :: depth(ncell)
+        real(gtm_real), intent(in) :: depth_prev(ncell)     
+        real(gtm_real), intent(in) :: hyd_radius(ncell)  
+        real(gtm_real), intent(in) :: hyd_radius_prev(ncell)                 
+        real(gtm_real), intent(in) :: constraint(ncell,nvar)
+        character(len=32), intent(in) :: name(nvar)            
         
         !-----locals
         real(gtm_real) :: source_prev(ncell,nvar)  !< cell centered source at old time
@@ -137,8 +156,7 @@ module advection
                            dx,         &
                            ncell,      &
                            nvar)
-                      
-                        
+                                              
         ! Adjust differences to account for places (boundaries, gates, etc) where one-sided
         ! or other differencing is required
         if (.not.associated(adjust_gradient)) adjust_gradient => adjust_differences_single_channel
@@ -151,17 +169,24 @@ module advection
                              ncell,        &
                              nvar,         &
                              use_limiter)                                  
-                    
-                                
+
         ! Compute sources and sinks for each constituent
-        call compute_source(source_prev, & 
-                            conc_prev,   &
-                            area_prev,   &
-                            flow_prev,   &
-                            ncell,       &
-                            nvar,        &
-                            old_time)  
-                            
+        call compute_source(source_prev,       & 
+                            conc_prev,         &
+                            flow_prev,         &
+                            area_prev,         &
+                            width_prev,        &
+                            depth_prev,        &
+                            hyd_radius_prev,   &
+                            dx,                &
+                            dt,                &
+                            time,              &
+                            ncell,             &
+                            nvar,              &
+                            constraint,        &
+                            name,              &
+                            1)  
+                           
         ! Extrapolate primitive data from cell center at the old time
         call extrapolate(conc_lo,             &
                          conc_hi,             & 
@@ -239,8 +264,14 @@ module advection
                                  div_flux,            &
                                  explicit_diffuse_op, &
                                  source_prev,         & 
+                                 flow,                &
                                  area,                &
-                                 area_prev,           &                         
+                                 area_prev,           &
+                                 width,               &
+                                 depth,               &
+                                 hyd_radius,          &
+                                 constraint,          &
+                                 name,                &                                                          
                                  ncell,               &
                                  nvar,                &
                                  time,                &
@@ -299,16 +330,17 @@ module advection
         return
     end subroutine
 
+
     !> Compute the upwinded fluxes 
     !> The calculation here does not include tributaries, boundaries or special objects
     subroutine compute_flux(flux_lo,  &
-                                 flux_hi,  &
-                                 conc_lo,  &
-                                 conc_hi,  &                       
-                                 flow_lo,  &
-                                 flow_hi,  &
-                                 ncell,    &
-                                 nvar)
+                            flux_hi,  &
+                            conc_lo,  &
+                            conc_hi,  &                       
+                            flow_lo,  &
+                            flow_hi,  &
+                            ncell,    &
+                            nvar)
                              
         use gtm_precision
         implicit none
@@ -348,6 +380,7 @@ module advection
         return
     end subroutine
 
+
     !> Compute the divergence of fluxes.
     ! todo: At present, this is undivided...which may be not what we want.
     subroutine compute_divergence(div_flux, &
@@ -370,6 +403,7 @@ module advection
         return
     end subroutine
 
+
     !> Update the conservative variables using divergence of fluxes and integrate the
     !> source term using Heun's method
     subroutine update_conservative(mass,                &
@@ -377,8 +411,14 @@ module advection
                                    div_flux,            &
                                    explicit_diffuse_op, &
                                    source_prev,         &
+                                   flow,                &
                                    area,                &
-                                   area_prev,           &                               
+                                   area_prev,           &
+                                   width,               &
+                                   depth,               &
+                                   hyd_radius,          &
+                                   constraint,          &
+                                   name,                &                               
                                    ncell,               &
                                    nvar,                &
                                    time,                &
@@ -392,75 +432,88 @@ module advection
         !--- args
         integer,intent(in)  :: ncell                                 !< Number of cells
         integer,intent(in)  :: nvar                                  !< Number of variables
-        real(gtm_real),intent(out) :: mass(ncell,nvar)               !< Update of mass
-        real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)          !< Old time mass
-        real(gtm_real),intent(in)  :: area(ncell)                    !< Area of cells
-        real(gtm_real),intent(in)  :: area_prev(ncell)               !< Area of cells at old time step
-        real(gtm_real),intent(in)  :: explicit_diffuse_op(ncell,nvar)!< Old time diffuse term
-        real(gtm_real),intent(in)  :: source_prev(ncell,nvar)        !< Old time source term
-        real(gtm_real),intent(in)  :: div_flux(ncell,nvar)           !< Flux divergence, time centered
-        real(gtm_real),intent(in)  :: time                           !< Current (new) time
-        real(gtm_real),intent(in)  :: dt                             !< Length of current time step
-        real(gtm_real),intent(in)  :: dx(ncell)                      !< Spatial step
-
+        real(gtm_real), intent(out) :: mass(ncell,nvar)              !< Update of mass
+        real(gtm_real), intent(in) :: mass_prev(ncell,nvar)          !< Old time mass
+        real(gtm_real), intent(in) :: flow(ncell)                    !< Flow of cells
+        real(gtm_real), intent(in) :: area(ncell)                    !< Area of cells
+        real(gtm_real), intent(in) :: area_prev(ncell)               !< Area of cells at old time step
+        real(gtm_real), intent(in) :: explicit_diffuse_op(ncell,nvar)!< Old time diffuse term
+        real(gtm_real), intent(in) :: source_prev(ncell,nvar)        !< Old time source term
+        real(gtm_real), intent(in) :: div_flux(ncell,nvar)           !< Flux divergence, time centered
+        real(gtm_real), intent(in) :: time                           !< Current (new) time
+        real(gtm_real), intent(in) :: dt                             !< Length of current time step
+        real(gtm_real), intent(in) :: dx(ncell)                      !< Spatial step
+        real(gtm_real), intent(in) :: width(ncell)
+        real(gtm_real), intent(in) :: depth(ncell)
+        real(gtm_real), intent(in) :: hyd_radius(ncell)
+        real(gtm_real), intent(in) :: constraint(ncell,nvar)
+        character(len=32), intent(in) :: name(nvar)
         !--- locals
         real(gtm_real) :: dtbydx(ncell)
         real(gtm_real) :: source(ncell,nvar)                         !< New time source term
         real(gtm_real) :: conc(ncell,nvar)                           !< Concentration
-        real(gtm_real) :: flow(ncell)                                !< Cell centered flow 
         integer :: ivar
         !--------------------
         dtbydx = dt/dx
-       flow = LARGEREAL
 
-       ! obtain a guess at the new state (predictor part of Huen) using the flux divergence and source evaluated at the
-       ! old time step
-       do ivar=1,nvar
-           mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev + dt*explicit_diffuse_op(:,ivar)
-       end do
+        ! obtain a guess at the new state (predictor part of Huen) using the flux divergence and source evaluated at the
+        ! old time step
+        do ivar=1,nvar
+            mass(:,ivar) = mass_prev(:,ivar) - dtbydx*div_flux(:,ivar) + dt*source_prev(:,ivar)*area_prev + dt*explicit_diffuse_op(:,ivar)
+        end do
        
-       ! compute the source at the new time from the predictor
-       call cons2prim(conc,    &
-                      mass,    &
-                      area,    &
-                      ncell,   &
-                      nvar)
+        ! compute the source at the new time from the predictor
+        call cons2prim(conc,    &
+                       mass,    &
+                       area,    &
+                       ncell,   &
+                       nvar)
 
-       call compute_source(source, & 
-                           conc,   &
-                           area,   &
-                           flow,   & 
-                           ncell,  &
-                           nvar,   &
-                           time) 
+        call compute_source(source,       & 
+                            conc,         &
+                            flow,         &
+                            area,         &
+                            width,        &
+                            depth,        &
+                            hyd_radius,   &
+                            dx,           &
+                            dt,           &
+                            time,         &
+                            ncell,        &
+                            nvar,         &
+                            constraint,   &
+                            name,         &
+                            2)  
 
-       ! now recalculate the update using a source half from the old state 
-       ! and half from the new state guess 
-       do ivar = 1,nvar
-           mass(:,ivar) =  mass_prev(:,ivar)                     &
-                         - dtbydx*div_flux(:,ivar)               &
-                         + dt*half*source_prev(:,ivar)*area_prev &
-                         + dt*half*source(:,ivar)*area
-       end do    
-       return
+        ! now recalculate the update using a source half from the old state 
+        ! and half from the new state guess 
+        do ivar = 1,nvar
+            mass(:,ivar) =  mass_prev(:,ivar)                     &
+                          - dtbydx*div_flux(:,ivar)               &
+                          + dt*half*source_prev(:,ivar)*area_prev &
+                          + dt*half*source(:,ivar)*area
+        end do    
+        return
     end subroutine
-!> Compute a point value of a gaussian function 
-!> f(x) = a*exp(-(x-b)^2/(2c^2)) , [c is sigma]   
-!> where a is a scale factor, b is the center/mean and 
-!> is a distance/standard deviation
-subroutine gaussian_(val,xposition,center,sd,scale)
-    ! df(x)/dx = -a*2*(x-b)/(2c^2)*exp(-(x-b)^2/(2c^2))
-    use gtm_precision
-    implicit none
-    real(gtm_real), intent(out) :: val            !< value to be produced
-    real(gtm_real), intent(in)  :: xposition      !< X
-    real(gtm_real), intent(in)  :: center         !< Center of gaussian shape
-    real(gtm_real), intent(in)  :: sd             !< Standard deviation (Sigma)
-    real(gtm_real), intent(in)  :: scale          !< scale
-    !---locals
-   
-    val = scale*dexp(-(xposition-center)**2/(two*sd*sd)) 
-   
-    return
-end subroutine
+    
+    
+    !> Compute a point value of a gaussian function 
+    !> f(x) = a*exp(-(x-b)^2/(2c^2)) , [c is sigma]   
+    !> where a is a scale factor, b is the center/mean and 
+    !> is a distance/standard deviation
+    subroutine gaussian_(val,xposition,center,sd,scale)
+        ! df(x)/dx = -a*2*(x-b)/(2c^2)*exp(-(x-b)^2/(2c^2))
+        use gtm_precision
+        implicit none
+        real(gtm_real), intent(out) :: val            !< value to be produced
+        real(gtm_real), intent(in)  :: xposition      !< X
+        real(gtm_real), intent(in)  :: center         !< Center of gaussian shape
+        real(gtm_real), intent(in)  :: sd             !< Standard deviation (Sigma)
+        real(gtm_real), intent(in)  :: scale          !< scale
+        !---locals
+         val = scale*dexp(-(xposition-center)**2/(two*sd*sd)) 
+        return
+    end subroutine
+    
+    
 end module

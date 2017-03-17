@@ -135,7 +135,7 @@ module common_dsm2_vars
        end type
 
        type pathinput_t
-           sequence
+           !sequence
            character*32 :: name = ' '              ! name of the data stream needed to match
                                                    ! flow and concentration paths between hydro and qual)
            character*128 :: filename = ' '         ! DSS filename

@@ -33,5 +33,5 @@ module sediment_variables
     real(gtm_real), parameter :: kinematic_viscosity = 1.307d-6       !< Kinematic viscosity (m2/sec) of water @ 10 deg C   
     real(gtm_real), parameter :: delta_b = 0.05d0                     !< Bed leyer relative tickness     
     real(gtm_real), parameter :: specific_gravity = sediment_density/water_density   !< specific gravity
- 
+     
 end module

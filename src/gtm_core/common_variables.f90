@@ -83,6 +83,7 @@ module common_variables
      real(gtm_real) :: size_dep = LARGEREAL
      real(gtm_real) :: size_ero = LARGEREAL
      
+     logical :: run_sediment = .false.                 !< run sediment module if true
      logical :: run_mercury = .false.                  !< run mercury module if true
      integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
      
@@ -332,6 +333,10 @@ module common_variables
      end type
      type(sediment_bc_t), allocatable :: sediment_bc(:)     
 
+     !> Sediment Bed variables
+     logical :: use_sediment_bed = .false. 
+     integer :: n_layers = 2
+
      !> Mercury variables
      integer, parameter :: n_mercury = 6
      integer :: mercury_ivar(n_mercury)          
@@ -387,8 +392,8 @@ module common_variables
      integer, parameter :: ts_var_rgm_air = 15
      integer, parameter :: ts_var_rct_if = 16
      integer, parameter :: ts_var_rct_water = 17
-     integer, parameter :: ts_var_solid_in = 18
-     integer, parameter :: ts_var_vol_frac = 19
+     integer, parameter :: ts_var_vol_frac = 18
+     integer, parameter :: ts_var_dgm_ratio = 19
      
      !> Input time series 
      integer :: n_input_ts = 0                     !< number of input time series
@@ -1599,10 +1604,10 @@ module common_variables
              ts_var_name = "RCT_IF"   
          else if (ts_var_code == ts_var_rct_water) then
              ts_var_name = "RCT_WATER"
-         else if (ts_var_code == ts_var_solid_in) then
-             ts_var_name = "SOLID_IN"
          else if (ts_var_code == ts_var_vol_frac) then
              ts_var_name = "VOL_FRAC"
+         else if (ts_var_code == ts_var_dgm_ratio) then
+             ts_var_name = "DGM_RATIO"
          else   
              ts_var_name = miss_val_c
          end if
@@ -1651,10 +1656,10 @@ module common_variables
              ts_var_code = ts_var_rct_if
          else if (trim(ts_var_name) == "rct_water") then
              ts_var_code = ts_var_rct_water
-         else if (trim(ts_var_name) == "solid_in") then
-             ts_var_code = ts_var_solid_in
          else if (trim(ts_var_name) == "vol_frac") then
              ts_var_code = ts_var_vol_frac
+         else if (trim(ts_var_name) == "dgm_ratio") then
+             ts_var_code = ts_var_dgm_ratio
          else
              ts_var_code = miss_val_i
          end if

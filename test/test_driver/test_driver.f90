@@ -27,7 +27,7 @@ program test_driver
   
     use fruit
     use gtm_logging 
-    use klu
+    !use klu
 
     !----- modules used in project test_common ------
     use ut_hydro_data_tide
@@ -75,8 +75,8 @@ program test_driver
     use test_mms_advection_dispersion
     
     !use ut_do_source    
-    use ut_klu
-    use ut_utils
+    !use ut_klu
+    !use ut_utils
     
     !----- modules used to test sediment module ----- 
     use test_sediment_utility
@@ -91,8 +91,8 @@ program test_driver
     
     call get_parent_working_dir(parent_dir) 
     
-    k_common = klu_fortran_init()  
-    call klu_fortran_free_numeric(k_numeric, k_common)
+    !k_common = klu_fortran_init()  
+    !call klu_fortran_free_numeric(k_numeric, k_common)
    
     !----- function calls to test units in project process_io API ---
     call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
@@ -156,10 +156,10 @@ program test_driver
     !call test_advection_diffusion_mms(verbose)
     
     !----- Test KLU Solver
-    call klu_fortran_free(k_symbolic, k_numeric, k_common)    
-    call test_klu_exmamples
-    call test_qsort
-    call test_rowcol2apai
+    !call klu_fortran_free(k_symbolic, k_numeric, k_common)    
+    !call test_klu_exmamples
+    !call test_qsort
+    !call test_rowcol2apai
     
     !----- Test sediment module
     call test_all_sediment_utility

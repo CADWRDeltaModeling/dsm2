@@ -28,11 +28,12 @@ module sediment_bed
 
     use gtm_precision
     
+    real(gtm_real), allocatable :: temperature(:) 
+    
     contains
      
     subroutine sediment_bed_main(resuspension,     &  
                                  deposition,       &
-                                 temperature,      &
                                  area_wet,         &  
                                  delta_t,          & 
                                  rkstep,           &
@@ -40,19 +41,40 @@ module sediment_bed
                                  ncell,            &
                                  nsolids)    
         implicit none
-        integer, intent(in) :: ncell                                  !> number of cells
-        integer, intent(in) :: nsolids                                !> number of sediment types
-        integer, intent(in) :: nlayers                                !> number of sediment bed layers
-        real(gtm_real), intent(inout) :: resuspension(ncell,nsolids)  !> g per day
-        real(gtm_real), intent(in) :: deposition(ncell,nsolids)       !> g per day
-        real(gtm_real), intent(in) :: temperature(ncell)              !> temperature
-        real(gtm_real), intent(in) :: area_wet(ncell)                 !> m2 todo: may not need this here
-        real(gtm_real), intent(in) :: delta_t                         !> time step
-        integer, intent(in) :: rkstep                                 !> Huens step (1 or 2)
+        integer, intent(in) :: ncell                                  !< number of cells
+        integer, intent(in) :: nsolids                                !< number of sediment types
+        integer, intent(in) :: nlayers                                !< number of sediment bed layers
+        real(gtm_real), intent(inout) :: resuspension(ncell,nsolids)  !< g per day
+        real(gtm_real), intent(in) :: deposition(ncell,nsolids)       !< g per day
+        real(gtm_real), intent(in) :: area_wet(ncell)                 !< m2 todo: may not need this here
+        real(gtm_real), intent(in) :: delta_t                         !< time step
+        integer, intent(in) :: rkstep                                 !< Huens step (1 or 2)
         
-        resuspension = 9999.d0
+        resuspension = 8888.d0  !you may want to point to the right number here....
         
         return
     end subroutine    
+
+    !> Allocate sediment bed required variables from input time series
+    subroutine allocate_sediment_bed(ncell)
+        implicit none
+        integer, intent(in) :: ncell
+        allocate(temperature(ncell))
+    end subroutine
+    
+    !> Deallocate sediment bed required variables from input time series
+    subroutine deallocate_sediment_bed()
+        implicit none
+        deallocate(temperature)
+    end subroutine
+                
+    !> Set the values to the variables
+    subroutine set_sediment_bed(input_ts_temp, &
+                                ncell)
+        implicit none
+        integer, intent(in) :: ncell
+        real(gtm_real), intent(in) :: input_ts_temp(ncell)
+        temperature = input_ts_temp
+    end subroutine
 
 end module
