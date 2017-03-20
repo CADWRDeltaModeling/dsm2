@@ -799,7 +799,7 @@ module common_variables
              n_segm = LARGEINT
              n_conn = LARGEINT
              n_cell = LARGEINT
-             deallocate(non_sequential)
+             if (allocated(non_sequential)) deallocate(non_sequential)
              deallocate(segm)
              deallocate(conn)
              deallocate(dx_arr)

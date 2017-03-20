@@ -32,6 +32,7 @@ module gtm_source
                                      hyd_radius,   &
                                      dx,           &
                                      dt,           &
+                                     time,         &
                                      ncell,        &
                                      nvar,         &
                                      constraint,   &
@@ -58,6 +59,7 @@ module gtm_source
         real(gtm_real), intent(in)  :: hyd_radius(ncell)        !< hydraulic radius at source location       
         real(gtm_real), intent(in)  :: dx(ncell)                !< dx
         real(gtm_real), intent(in)  :: dt                       !< dt
+        real(gtm_real), intent(in)  :: time                     !< time
         real(gtm_real), intent(inout) :: constraint(ncell,nvar) !< Constraint 
         character(len=32), intent(in) :: name(nvar)             !< Constituent name
         !--- local
