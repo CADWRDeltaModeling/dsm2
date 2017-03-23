@@ -193,6 +193,7 @@ module test_convergence_transport
             area_prev = area
             area_hi_prev = area_hi
             area_lo_prev = area_lo
+            flow_prev = flow
     
             if (use_diffusion())then
                 call dispersion_coef(disp_coef_lo,         &
@@ -336,6 +337,7 @@ module test_convergence_transport
                call prim2cons(mass,conc,area,nx,nconc)
                mass_prev = mass
                area_prev = area
+               flow_prev = flow
                disp_coef_lo_prev = disp_coef_lo
                disp_coef_hi_prev = disp_coef_hi
       
