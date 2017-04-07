@@ -101,7 +101,7 @@ module process_gtm_groups
         character*256 :: buffer
         integer :: pos, pos2, io
         integer :: i, before, after
-        integer, parameter :: max_member = 1000    ! max number of members in a group
+        integer, parameter :: max_member = 2000    ! max number of members in a group
         character(8) :: v(max_member)
         
         count_member = 0

@@ -980,72 +980,81 @@ module interpolation
 
    !> Flow interpolation based on area interpolation from CxArea() while theta average is used for calculation
    !> This pushes mass inconsistency to T21, T31 and T14.
-    subroutine interp_flow_from_area_theta_m2(mesh, volume_change,         &
-                                              dt, nt, nx,                  &
-                                              a, b, c, d,                  &
-                                              mass_balance_target,         &
-                                              prev_flow_cell)
+    subroutine interp_flow_from_area_theta_m2(mesh_lo, mesh_hi, volume_change,  &
+                                           ncell, start_c, dt, nt, nx,       &
+                                           a, b, c, d,                       &
+                                           mass_balance_target,              & 
+                                           prev_flow_cell_lo,                &
+                                           prev_flow_cell_hi)
         implicit none
-        real(gtm_real), intent(in) :: dt                                        !< finer time step (in minutes)
-        integer, intent(in) :: nt                                               !< nt: number of points in time
-        integer, intent(in) :: nx                                               !< nx: number of points in space
-        real(gtm_real), intent(in) :: a, b, c, d                                !< input four corner points
-        real(gtm_real), dimension(nt-1,nx-1), intent(in) :: mass_balance_target !< mass balance from flow interpolation
-        real(gtm_real), dimension(nx), intent(in) :: prev_flow_cell             !< previous time step interpolated flow cells
-        real(gtm_real), dimension(nt,nx), intent(out) :: mesh                   !< interpolated flow mesh
-        real(gtm_real), dimension(nt-1,nx-1), intent(out) :: volume_change      !< volume change for each cell 
-        real(gtm_real) :: total_volume_change, factor, vol_change_tmp           ! local variables
-        integer :: i, j                                                         ! local variables     
-        mesh(1,1) = a
-        mesh(1,nx) = b
-        mesh(nt,1) = c
-        mesh(nt,nx) = d
-        ! assigne initial row and interpolate boundary column linearly       
-        do j = 2, nx-1
-            mesh(1,j) = prev_flow_cell(j)
-        end do
+        real(gtm_real), intent(in) :: dt                                         !< finer time step (in minutes)
+        integer, intent(in) :: ncell                                             !< total number of cells
+        integer, intent(in) :: start_c                                           !< starting cell no
+        integer, intent(in) :: nt                                                !< nt: number of points in time
+        integer, intent(in) :: nx                                                !< nx: number of points in space
+        real(gtm_real), intent(in) :: a, b, c, d                                 !< input four corner points
+        real(gtm_real), dimension(nt-1,ncell), intent(in) :: mass_balance_target !< mass balance from flow interpolation
+        real(gtm_real), dimension(ncell), intent(in) :: prev_flow_cell_lo        !< previous time step interpolated flow cells
+        real(gtm_real), dimension(ncell), intent(in) :: prev_flow_cell_hi        !< previous time step interpolated flow cells        
+        real(gtm_real), dimension(nt,ncell), intent(inout) :: mesh_lo            !< interpolated mesh at lo face
+        real(gtm_real), dimension(nt,ncell), intent(inout) :: mesh_hi            !< interpolated mesh at hi face
+        real(gtm_real), dimension(nt-1,ncell), intent(out) :: volume_change      !< volume change for each cell 
+        real(gtm_real) :: total_volume_change, factor, vol_change_tmp            ! local variables
+        integer :: i, j                                                          ! local variables     
+        integer :: end_c
+        end_c = start_c + nx - 1        
+        mesh_lo(1,start_c) = a
+        mesh_hi(1,end_c) = b
+        mesh_lo(nt,start_c) = c
+        mesh_hi(nt,end_c) = d
+        ! assign initial row and interpolate boundary column linearly       
+        mesh_lo(1,start_c:end_c) = prev_flow_cell_lo(start_c:end_c)
+        mesh_hi(1,start_c:end_c) = prev_flow_cell_hi(start_c:end_c)
+        
         do i = 2, nt-1
             factor = (dble(i)-one)/(dble(nt)-one)
-            mesh(i,1) = mesh(1,1) + factor*(mesh(nt,1)-mesh(1,1))
+            mesh_lo(i,start_c) = a + factor*(c-a)         
         end do
         
         ! interpolate all cells initially (mass balance error will accumulate at the end)
         do i = 2, nt
-            do j = 2, nx
-            mesh(i,j) = mesh(i,j-1) - (mass_balance_target(i-1,j-1)/dt/sixty  &
-                       - (one-hydro_theta)*mesh(i-1,j-1)                      &
-                       + (one-hydro_theta)*mesh(i-1,j))/hydro_theta
+            do j = start_c, end_c
+                mesh_hi(i,j) = mesh_lo(i,j) - (mass_balance_target(i-1,j)/dt/sixty    &
+                              - (one-hydro_theta)*mesh_lo(i-1,j)                      &
+                              + (one-hydro_theta)*mesh_hi(i-1,j))/hydro_theta
             end do
         end do   
-        mesh(nt,nx) = d
+        mesh_hi(nt,nx) = d
+        
         ! adjust cell c31-c34
-        do j = nx-1, 1, -1
-            mesh(nt-1,j) = (mass_balance_target(nt-1,j)/dt/sixty                &
-                           - hydro_theta*mesh(nt,j) + hydro_theta*mesh(nt,j+1)     &
-                           + (one-hydro_theta)*mesh(nt-1,j+1))/(one-hydro_theta)
+        do j = end_c, start_c, -1
+            mesh_lo(nt-1,j) = (mass_balance_target(nt-1,j)/dt/sixty                                 &
+                              - hydro_theta*mesh_lo(nt,j) + hydro_theta*mesh_hi(nt,j)               &
+                              + (one-hydro_theta)*mesh_hi(nt-1,j))/(one-hydro_theta)
         end do
+
         ! adjust cell c25
-        mesh(nt-2,nx) = (hydro_theta*mesh(nt-1,nx-1) - hydro_theta*mesh(nt-1,nx)    &
-                        + (one-hydro_theta)*mesh(nt-2,nx-1)                         &
-                        - mass_balance_target(nt-2,nx-1)/dt/sixty)/(one-hydro_theta)
+        mesh_hi(nt-2,end_c) = (hydro_theta*mesh_lo(nt-1,end_c) - hydro_theta*mesh_hi(nt-1,end_c)    &
+                             + (one-hydro_theta)*mesh_lo(nt-2,end_c)                                &
+                             - mass_balance_target(nt-2,end_c)/dt/sixty)/(one-hydro_theta)        
 
         ! adjust c31 to make sure total mass balance
-        vol_change_tmp = ((one-hydro_theta)*mesh(nt-3,nx-1)+hydro_theta*mesh(nt-2,nx-1)-           &
-                         (one-hydro_theta)*mesh(nt-3,nx)-hydro_theta*mesh(nt-2,nx))*dt*sixty
-        mesh(nt-1,1) = (mass_balance_target(nt-1,1)                    &
-                       + mass_balance_target(nt-2,1)                   &
-                       + mass_balance_target(nt-3,nx-1)                &
+        vol_change_tmp = ((one-hydro_theta)*mesh_lo(nt-3,end_c)+hydro_theta*mesh_lo(nt-2,end_c)-           &
+                         (one-hydro_theta)*mesh_hi(nt-3,end_c)-hydro_theta*mesh_hi(nt-2,end_c))*dt*sixty
+        mesh_lo(nt-1,1) = (mass_balance_target(nt-1,start_c)                    &
+                       + mass_balance_target(nt-2,start_c)                   &
+                       + mass_balance_target(nt-3,end_c)                &
                        - vol_change_tmp)/dt/sixty                      &
-                       + mesh(nt-1,2) - (one-hydro_theta)*mesh(nt-2,1) & 
-                       + (one-hydro_theta)*mesh(nt-2,2)                &
-                       - hydro_theta*mesh(nt,1)                        &
-                       + hydro_theta*mesh(nt,2)
+                       + mesh_hi(nt-1,start_c) - (one-hydro_theta)*mesh_lo(nt-2,start_c) & 
+                       + (one-hydro_theta)*mesh_hi(nt-2,start_c)                &
+                       - hydro_theta*mesh_lo(nt,start_c)                        &
+                       + hydro_theta*mesh_hi(nt,start_c)
         
         ! calculate volume change for mesh cells
         do i = 1, nt-1
-            do j = 1, nx-1
-                volume_change(i,j) = ((one-hydro_theta)*mesh(i,j)+hydro_theta*mesh(i+1,j)- &
-                                     (one-hydro_theta)*mesh(i,j+1)-hydro_theta*mesh(i+1,j+1))*dt*sixty ! theta average
+            do j = start_c, end_c
+                volume_change(i,j) = ((one-hydro_theta)*mesh_lo(i,j)+hydro_theta*mesh_lo(i+1,j)- &
+                                     (one-hydro_theta)*mesh_hi(i,j)-hydro_theta*mesh_hi(i+1,j))*dt*sixty ! theta average
             end do
         end do                           
         return
