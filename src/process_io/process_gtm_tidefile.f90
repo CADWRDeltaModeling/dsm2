@@ -68,7 +68,6 @@ module process_gtm_tidefile
         hydro_end_jmin = hydro_start_jmin + (hydro_ntideblocks-1)*hydro_time_interval   
         call h5fclose_f(tfile_id, ierror)
         return
-      return
     end subroutine
 
 end module
