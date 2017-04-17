@@ -34,7 +34,7 @@ module non_cohesive_source
                                    flow,             &
                                    area,             &
                                    width,            &
-                                   hydro_radius,     &
+                                   wet_p,            &
                                    manning,          &
                                    diameter,         &
                                    ncell,            &
@@ -50,13 +50,14 @@ module non_cohesive_source
         real(gtm_real), intent(in) :: flow(ncell)            !< flow
         real(gtm_real), intent(in) :: area(ncell)            !< area
         real(gtm_real), intent(in) :: width(ncell)           !< channel width
-        real(gtm_real), intent(in) :: hydro_radius(ncell)    !< hydraulic radius
+        real(gtm_real), intent(in) :: wet_p(ncell)           !< wetted perimeter
         real(gtm_real), intent(in) :: manning(ncell)         !< Manning's n
         real(gtm_real), intent(in) :: diameter(ncell)        !< diameter
         integer, intent(in) :: ncell                         !< number of cells 
         real(gtm_real), intent(in) :: available_bed(ncell)   !< available bed sediment flux
 
         !---local
+        real(gtm_real) :: hydro_radius(ncell)            !< hydraulic radius
         real(gtm_real ):: Es(ncell)                      !< entrainment for resuspension
         real(gtm_real) :: c_b(ncell)                     !< deposition       
         real(gtm_real) :: velocity(ncell)                !< flow velocity
@@ -71,6 +72,7 @@ module non_cohesive_source
 
         function_van_rijn = .false. !use Dietrich formula
         velocity = abs(flow/area)        
+        hydro_radius = area/wet_p
         capital_r = specific_gravity - one
   
         do icell = 1, ncell

@@ -48,7 +48,7 @@ module suspended_sediment
                                          flow,            & 
                                          area,            & 
                                          depth,           &
-                                         hydro_radius,    & 
+                                         wet_p,           & 
                                          dx,              & 
                                          dt,              & 
                                          ncell,           & 
@@ -71,11 +71,12 @@ module suspended_sediment
         real(gtm_real), intent(in) :: flow(ncell)                   !< flow
         real(gtm_real), intent(in) :: area(ncell)                   !< area
         real(gtm_real), intent(in) :: depth(ncell)                  !< depth        
-        real(gtm_real), intent(in) :: hydro_radius(ncell)           !< hydraulic radius
+        real(gtm_real), intent(in) :: wet_p(ncell)                  !< wetted perimeter
         real(gtm_real), intent(in) :: dx(ncell)                     !< dx
         real(gtm_real), intent(in) :: dt                            !< dt
         real(gtm_real), intent(in) :: available_bed(ncell)          !< available bed sediment flux
         !--- local      
+        real(gtm_real) :: hydro_radius(ncell)                       !< hydraulic radius
         real(gtm_real) :: diameterp(ncell), fall_vel(ncell),critical_shear_strs(ncell)
         real(gtm_real) :: vertical_flux(ncell)
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
@@ -92,11 +93,11 @@ module suspended_sediment
         velocity_for_deposition = vel_dep*0.3048d0 ! unit ft/s-->m/s
         param_M = eros_coeff                       ! unit kg/(m^2s)    
         
+        hydro_radius = area/wet_p
         diameterp = diameter(:,isediment)
         fall_vel = fall_velocity(:,isediment)
         critical_shear_strs = critical_shear(:,isediment)
-        
-        
+                
         call si_unit(conc_si, flow_si, area_si,hydro_radius_si, depth_si, dx_si, diameter_si, &
                      conc, flow, area, hydro_radius, depth, dx, diameterp, ncell)    
                                                                         
@@ -169,7 +170,7 @@ module suspended_sediment
                                        conc,                & 
                                        flow,                & 
                                        area,                & 
-                                       hydro_radius,        & 
+                                       wet_p,               & 
                                        depth,               &
                                        manning_n,           & 
                                        diameterp,           &
@@ -194,7 +195,7 @@ module suspended_sediment
         real(gtm_real), intent(in) :: conc(ncell)                   !< concentration
         real(gtm_real), intent(in) :: flow(ncell)                   !< flow
         real(gtm_real), intent(in) :: area(ncell)                   !< area
-        real(gtm_real), intent(in) :: hydro_radius(ncell)           !< hydraulic radius
+        real(gtm_real), intent(in) :: wet_p(ncell)                  !< wetted perimeter
         real(gtm_real), intent(in) :: depth(ncell)                  !< depth
         real(gtm_real), intent(in) :: manning_n(ncell)              !< Manning's n
         real(gtm_real), intent(in) :: diameterp(ncell)              !< diameter
@@ -205,6 +206,7 @@ module suspended_sediment
         real(gtm_real), intent(in) :: dt                            !< dt
         real(gtm_real), intent(in) :: available_bed(ncell)          !< available bed sediment flux
         !--- local      
+        real(gtm_real) :: hydro_radius(ncell)           !< hydraulic radius
         real(gtm_real) :: vertical_flux(ncell)
         real(gtm_real) :: erosion_flux_nc, deposition_flux_nc
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
@@ -227,6 +229,8 @@ module suspended_sediment
         velocity_for_erosion = vel_ero*0.3048d0    ! unit ft/s-->m/s
         velocity_for_deposition = vel_dep*0.3048d0 ! unit ft/s-->m/s
         param_M = eros_coeff                       ! unit kg/(m^2s)    
+        
+        hydro_radius = area/wet_p
         
         call si_unit(conc_si, flow_si, area_si, hydro_radius_si, depth_si, dx_si, diameter_si, &
                      conc, flow, area, hydro_radius, depth, dx, diameterp, ncell)    

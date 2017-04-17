@@ -61,8 +61,8 @@ module advection
                       width_prev,           &
                       depth,                &
                       depth_prev,           &
-                      hyd_radius,           &
-                      hyd_radius_prev,      &
+                      wet_p,                &
+                      wet_p_prev,           &
                       constraint,           &
                       name)  
    
@@ -108,8 +108,8 @@ module advection
         real(gtm_real), intent(in) :: width_prev(ncell)
         real(gtm_real), intent(in) :: depth(ncell)
         real(gtm_real), intent(in) :: depth_prev(ncell)     
-        real(gtm_real), intent(in) :: hyd_radius(ncell)  
-        real(gtm_real), intent(in) :: hyd_radius_prev(ncell)                 
+        real(gtm_real), intent(in) :: wet_p(ncell)  
+        real(gtm_real), intent(in) :: wet_p_prev(ncell)                 
         real(gtm_real), intent(in) :: constraint(ncell,nvar)
         character(len=32), intent(in) :: name(nvar)            
         
@@ -177,7 +177,7 @@ module advection
                             area_prev,         &
                             width_prev,        &
                             depth_prev,        &
-                            hyd_radius_prev,   &
+                            wet_p_prev,        &
                             dx,                &
                             dt,                &
                             time,              &
@@ -269,7 +269,7 @@ module advection
                                  area_prev,           &
                                  width,               &
                                  depth,               &
-                                 hyd_radius,          &
+                                 wet_p,               &
                                  constraint,          &
                                  name,                &                                                          
                                  ncell,               &
@@ -416,7 +416,7 @@ module advection
                                    area_prev,           &
                                    width,               &
                                    depth,               &
-                                   hyd_radius,          &
+                                   wet_p,               &
                                    constraint,          &
                                    name,                &                               
                                    ncell,               &
@@ -445,7 +445,7 @@ module advection
         real(gtm_real), intent(in) :: dx(ncell)                      !< Spatial step
         real(gtm_real), intent(in) :: width(ncell)
         real(gtm_real), intent(in) :: depth(ncell)
-        real(gtm_real), intent(in) :: hyd_radius(ncell)
+        real(gtm_real), intent(in) :: wet_p(ncell)
         real(gtm_real), intent(in) :: constraint(ncell,nvar)
         character(len=32), intent(in) :: name(nvar)
         !--- locals
@@ -475,7 +475,7 @@ module advection
                             area,         &
                             width,        &
                             depth,        &
-                            hyd_radius,   &
+                            wet_p,        &
                             dx,           &
                             dt,           &
                             time,         &

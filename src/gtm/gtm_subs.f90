@@ -23,6 +23,32 @@ module gtm_subs
     use gtm_precision
     
     contains
+    
+    !> get the properties for top survey elevation
+    subroutine get_survey_top(wet_perim,   &
+                              elevation,   &
+                              ncell)
+        use common_variables, only: chan_geom, n_chan, dx_arr
+        use common_xsect
+        implicit none
+        integer, intent(in) :: ncell
+        real(gtm_real), intent(out) :: wet_perim(ncell)
+        real(gtm_real), intent(out) :: elevation(ncell)
+        integer :: ichan, icell
+        integer :: chan_no, elev_no
+        real(gtm_real) :: area, width, depth, X
+        
+        do ichan = 1, n_chan
+            chan_no = chan_geom(ichan)%chan_no
+            elev_no = virt_xsect(xsect_index(chan_no))%num_elev-1
+            do icell = chan_geom(chan_no)%start_cell, chan_geom(chan_no)%end_cell
+                X = half*dx_arr(icell) + dx_arr(icell)*(icell-chan_geom(chan_no)%start_cell)
+                elevation(icell) = virt_xsect(xsect_index(chan_no))%elevation(elev_no)
+                call CxInfo(area, width, wet_perim(icell), depth, X, elevation(icell), chan_no)
+            end do   
+        end do
+        return
+    end subroutine       
 
     !> print out final stage in a text file as a initial file format
     subroutine print_last_stage(cdtdate,        &

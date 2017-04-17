@@ -42,7 +42,7 @@ interface
                          area,         &
                          width,        &
                          depth,        &
-                         hyd_radius,   &
+                         wet_p,        &
                          dx,           &
                          dt,           &
                          time,         &
@@ -63,7 +63,7 @@ interface
         real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
         real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
         real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
-        real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location       
+        real(gtm_real), intent(in)  :: wet_p(ncell)            !< wetted perimeter at source location  
         real(gtm_real), intent(in)  :: dx(ncell)               !< dx
         real(gtm_real), intent(in)  :: dt                      !< dt
         real(gtm_real), intent(in)  :: time                    !< time
@@ -96,7 +96,7 @@ end interface
                          area,         &
                          width,        &
                          depth,        &
-                         hyd_radius,   &
+                         wet_p,        &
                          dx,           &
                          dt,           &
                          time,         &
@@ -118,7 +118,7 @@ end interface
         real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
         real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
         real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
-        real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location         
+        real(gtm_real), intent(in)  :: wet_p(ncell)            !< wetted perimeter at source location         
         real(gtm_real), intent(in)  :: dx(ncell)               !< dx
         real(gtm_real), intent(in)  :: dt                      !< dt
         real(gtm_real), intent(in)  :: time                    !< time
@@ -158,7 +158,7 @@ end interface
                                    area,         &
                                    width,        &
                                    depth,        &
-                                   hyd_radius,   &
+                                   wet_p,        &
                                    dx,           &
                                    dt,           &
                                    time,         &
@@ -179,7 +179,7 @@ end interface
         real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
         real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
         real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
-        real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location       
+        real(gtm_real), intent(in)  :: wet_p(ncell)            !< wetted perimeter at source location       
         real(gtm_real), intent(in)  :: dx(ncell)               !< dx
         real(gtm_real), intent(in)  :: dt                      !< dt
         real(gtm_real), intent(in)  :: time                    !< time
@@ -203,7 +203,7 @@ end interface
                                            area,         &
                                            width,        &
                                            depth,        &
-                                           hyd_radius,   &
+                                           wet_p,        &
                                            dx,           &
                                            dt,           &
                                            time,         &
@@ -224,7 +224,7 @@ end interface
         real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
         real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
         real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
-        real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location       
+        real(gtm_real), intent(in)  :: wet_p(ncell)            !< wetted perimeter at source location       
         real(gtm_real), intent(in)  :: dx(ncell)               !< dx
         real(gtm_real), intent(in)  :: dt                      !< dt
         real(gtm_real), intent(in)  :: time                    !< time
@@ -247,7 +247,7 @@ end interface
                                        area,         &
                                        width,        &
                                        depth,        &
-                                       hyd_radius,   &
+                                       wet_p,        &
                                        dx,           &
                                        dt,           &
                                        time,         &
@@ -268,7 +268,7 @@ end interface
         real(gtm_real), intent(in)  :: area(ncell)             !< Cell centered area at source     
         real(gtm_real), intent(in)  :: width(ncell)            !< Cell centered width at source 
         real(gtm_real), intent(in)  :: depth(ncell)            !< depth at source location
-        real(gtm_real), intent(in)  :: hyd_radius(ncell)       !< hydraulic radius at source location       
+        real(gtm_real), intent(in)  :: wet_p(ncell)            !< wetted perimeter at source location       
         real(gtm_real), intent(in)  :: dx(ncell)               !< dx
         real(gtm_real), intent(in)  :: dt                      !< dt
         real(gtm_real), intent(in)  :: time                    !< time

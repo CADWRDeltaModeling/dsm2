@@ -334,6 +334,8 @@ module common_variables
      type(sediment_bc_t), allocatable :: sediment_bc(:)     
 
      !> Sediment Bed variables
+     real(gtm_real), allocatable :: top_wet_p(:)
+     real(gtm_real), allocatable :: top_elev(:)
      logical :: use_sediment_bed = .false. 
      integer :: n_layers = 2
 
@@ -550,6 +552,8 @@ module common_variables
          allocate(disp_arr(n_cell), stat = istat)
          allocate(mann_arr(n_cell), stat = istat)
          allocate(cell(n_cell), stat = istat)
+         allocate(top_wet_p(n_cell), stat = istat)
+         allocate(top_elev(n_cell), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if    
@@ -805,6 +809,8 @@ module common_variables
              deallocate(dx_arr)
              deallocate(disp_arr)
              deallocate(mann_arr)
+             deallocate(top_wet_p)
+             deallocate(top_elev)
              deallocate(cell)
          end if    
          return

@@ -39,7 +39,7 @@ module gtm_network
     real(gtm_real), allocatable :: flow_volume_change(:,:)
     real(gtm_real), allocatable :: area_volume_change(:,:)
     real(gtm_real), allocatable :: width_mesh(:,:)
-    real(gtm_real), allocatable :: hydro_radius_mesh(:,:)
+    real(gtm_real), allocatable :: wet_p_mesh(:,:)
     real(gtm_real), allocatable :: depth_mesh(:,:)
     
     ! sub-timestep
@@ -54,7 +54,7 @@ module gtm_network
     real(gtm_real), allocatable :: sub_flow_volume_change(:,:)
     real(gtm_real), allocatable :: sub_area_volume_change(:,:)
     real(gtm_real), allocatable :: sub_width_mesh(:,:)
-    real(gtm_real), allocatable :: sub_hydro_radius_mesh(:,:)
+    real(gtm_real), allocatable :: sub_wet_p_mesh(:,:)
     real(gtm_real), allocatable :: sub_depth_mesh(:,:)
     
     contains      
@@ -76,7 +76,7 @@ module gtm_network
         allocate(qext_flow_mesh(nt+1, n_qext), stat = istat)
         allocate(tran_flow_mesh(nt+1, n_tran), stat = istat)
         allocate(width_mesh(nt+1, n_cell), stat = istat)
-        allocate(hydro_radius_mesh(nt+1, n_cell), stat = istat)
+        allocate(wet_p_mesh(nt+1, n_cell), stat = istat)
         allocate(depth_mesh(nt+1, n_cell), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
@@ -92,7 +92,7 @@ module gtm_network
         flow_volume_change = LARGEREAL
         area_volume_change = LARGEREAL
         width_mesh = LARGEREAL
-        hydro_radius_mesh = LARGEREAL
+        wet_p_mesh = LARGEREAL
         depth_mesh = LARGEREAL
         return
     end subroutine
@@ -102,7 +102,7 @@ module gtm_network
         implicit none
         deallocate(flow_mesh_lo, flow_mesh_hi)
         deallocate(area_mesh_lo, area_mesh_hi)
-        deallocate(width_mesh, hydro_radius_mesh, depth_mesh)        
+        deallocate(width_mesh, wet_p_mesh, depth_mesh)        
         deallocate(resv_height_mesh)
         deallocate(resv_flow_mesh)
         deallocate(qext_flow_mesh)
@@ -129,7 +129,7 @@ module gtm_network
         allocate(sub_qext_flow_mesh(nt+1, n_qext), stat = istat)
         allocate(sub_tran_flow_mesh(nt+1, n_tran), stat = istat)
         allocate(sub_width_mesh(nt+1, n_cell), stat = istat)
-        allocate(sub_hydro_radius_mesh(nt+1, n_cell), stat = istat)
+        allocate(sub_wet_p_mesh(nt+1, n_cell), stat = istat)
         allocate(sub_depth_mesh(nt+1, n_cell), stat = istat)
         if (istat .ne. 0 )then
            call gtm_fatal(message)
@@ -145,7 +145,7 @@ module gtm_network
         sub_flow_volume_change = LARGEREAL
         sub_area_volume_change = LARGEREAL
         sub_width_mesh = LARGEREAL
-        sub_hydro_radius_mesh = LARGEREAL
+        sub_wet_p_mesh = LARGEREAL
         sub_depth_mesh = LARGEREAL
         return
     end subroutine
@@ -156,7 +156,7 @@ module gtm_network
         implicit none
         deallocate(sub_flow_mesh_lo, sub_flow_mesh_hi)
         deallocate(sub_area_mesh_lo, sub_area_mesh_hi)
-        deallocate(sub_width_mesh, sub_hydro_radius_mesh, sub_depth_mesh)        
+        deallocate(sub_width_mesh, sub_wet_p_mesh, sub_depth_mesh)        
         deallocate(sub_resv_height_mesh)
         deallocate(sub_resv_flow_mesh)
         deallocate(sub_qext_flow_mesh)
@@ -212,7 +212,7 @@ module gtm_network
                end do
             end if   
             call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,       &
-                                  width_mesh, hydro_radius_mesh, depth_mesh,                    &
+                                  width_mesh, wet_p_mesh, depth_mesh,                           &
                                   flow_volume_change, area_volume_change,                       &
                                   n_cell, segm(i)%start_cell_no,                                &
                                   segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx, &
@@ -289,7 +289,7 @@ module gtm_network
                end do
             end if   
             call interp_flow_area(sub_flow_mesh_lo, sub_flow_mesh_hi, sub_area_mesh_lo, sub_area_mesh_hi, &
-                                  sub_width_mesh, sub_hydro_radius_mesh, sub_depth_mesh,                  &
+                                  sub_width_mesh, sub_wet_p_mesh, sub_depth_mesh,                         &
                                   sub_flow_volume_change, sub_area_volume_change,                         &
                                   n_cell, segm(i)%start_cell_no,                                          &
                                   segm(i)%chan_no, segm(i)%up_distance, dx, dt, nt, segm(i)%nx,           &
@@ -345,7 +345,7 @@ module gtm_network
                           area_lo,      &
                           area_hi,      &
                           width,        &
-                          hydro_radius, &
+                          wet_p,        &
                           depth,        &
                           ncell,        &
                           time,         &
@@ -363,7 +363,7 @@ module gtm_network
         real(gtm_real), intent(out) :: area_lo(ncell)      !< Area lo face, time centered
         real(gtm_real), intent(out) :: area_hi(ncell)      !< Area hi face, time centered
         real(gtm_real), intent(out) :: width(ncell)        !< With, time centered
-        real(gtm_real), intent(out) :: hydro_radius(ncell) !< Hydraulic radius, time centered
+        real(gtm_real), intent(out) :: wet_p(ncell)        !< Hydraulic radius, time centered
         real(gtm_real), intent(out) :: depth(ncell)        !< Water depth, time centered
         integer :: time_in_mesh, i                         ! local variable
         time_in_mesh = int(time)
@@ -374,7 +374,7 @@ module gtm_network
         area_hi = area_mesh_hi(time_in_mesh,:)
         area    = half * (area_mesh_lo(time_in_mesh,:)+area_mesh_hi(time_in_mesh,:))
         width = width_mesh(time_in_mesh,:)
-        hydro_radius = hydro_radius_mesh(time_in_mesh,:)
+        wet_p = wet_p_mesh(time_in_mesh,:)
         depth = depth_mesh(time_in_mesh,:)
         !write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
         return
@@ -389,7 +389,7 @@ module gtm_network
                               area_lo,      &
                               area_hi,      &
                               width,        &
-                              hydro_radius, &
+                              wet_p,        &
                               depth,        &
                               ncell,        &
                               time,         &
@@ -407,7 +407,7 @@ module gtm_network
         real(gtm_real), intent(out) :: area_lo(ncell)      !< Area lo face, time centered
         real(gtm_real), intent(out) :: area_hi(ncell)      !< Area hi face, time centered
         real(gtm_real), intent(out) :: width(ncell)        !< With, time centered
-        real(gtm_real), intent(out) :: hydro_radius(ncell) !< Hydraulic radius, time centered
+        real(gtm_real), intent(out) :: wet_p(ncell)        !< Wetted perimeter, time centered
         real(gtm_real), intent(out) :: depth(ncell)        !< Water depth, time centered
         integer :: time_in_mesh, i                         ! local variable
         time_in_mesh = int(time)
@@ -418,7 +418,7 @@ module gtm_network
         area_hi = sub_area_mesh_hi(time_in_mesh,:)
         area    = half * (sub_area_mesh_lo(time_in_mesh,:)+sub_area_mesh_hi(time_in_mesh,:))
         width = sub_width_mesh(time_in_mesh,:)
-        hydro_radius = sub_hydro_radius_mesh(time_in_mesh,:)
+        wet_p = sub_wet_p_mesh(time_in_mesh,:)
         depth = sub_depth_mesh(time_in_mesh,:)
         !write(debug_unit,'(f8.0,i4,5f10.1)') time, time_in_mesh ,flow_tmp(1,1),flow_tmp(1,2),flow_tmp(1,3),flow_tmp(1,4), flow(1)
         return

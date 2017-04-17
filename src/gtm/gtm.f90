@@ -230,7 +230,8 @@ program gtm
         call write_input_to_hdf5(gtm_hdf%file_id)
         call write_grid_to_tidefile(gtm_hdf%file_id)
     end if
-
+    
+    call get_survey_top(top_wet_p, top_elev, n_cell)
     call assign_group_static_variables
     call assign_input_ts_group_var
     allocate(input_time_series(n_ts_var,n_cell)) 
@@ -347,7 +348,7 @@ program gtm
                                  area_lo,       &
                                  area_hi,       &
                                  width,         &
-                                 hydro_radius,  &
+                                 wet_p,         &
                                  depth,         &
                                  n_cell,        &
                                  dble(1),       &
@@ -424,7 +425,7 @@ program gtm
                                  area_lo,       &
                                  area_hi,       &
                                  width,         &
-                                 hydro_radius,  &
+                                 wet_p,         &
                                  depth,         &
                                  n_cell,        &
                                  dble(t_index), &
@@ -449,7 +450,7 @@ program gtm
                 area_lo_prev = area_lo
                 area_hi_prev = area_hi          
                 depth_prev = depth
-                hydro_radius_prev = hydro_radius
+                wet_p_prev = wet_p
                 width_prev = width
                 prev_resv_height = resv_height
                 prev_resv_flow = resv_flow
@@ -501,8 +502,8 @@ program gtm
                         width_prev,                   &
                         depth,                        &
                         depth_prev,                   &
-                        hydro_radius,                 &                      
-                        hydro_radius_prev,            &
+                        wet_p,                        &                      
+                        wet_p_prev,                   &
                         constraint,                   &
                         constituents(:)%use_module)   
             where (mass.lt.zero) mass = zero                               
@@ -557,7 +558,7 @@ program gtm
             area_hi_prev = area_hi
             width_prev = width
             depth_prev = depth
-            hydro_radius_prev = hydro_radius
+            wet_p_prev = wet_p
             width_prev = width            
             disp_coef_lo_prev = disp_coef_lo
             disp_coef_hi_prev = disp_coef_hi 

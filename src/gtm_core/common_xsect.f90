@@ -176,7 +176,7 @@ module common_xsect
     !> Calculate information of channel cross section based on given X, Z and channel number
     subroutine CxInfo(area,                  &        ! return cross section area
                       width,                 &        ! return channel width
-                      hydro_radius,          &        ! return hydraulic radius
+                      wet_p,                 &        ! return wetted perimeter
                       depth,                 &        ! return water depth
                       X,                     &        ! distance from upstream
                       Z,                     &        ! water surface elevation
@@ -187,7 +187,7 @@ module common_xsect
         integer, intent(in) :: branch                 !< channel no
         real(gtm_real), intent(out) :: area           !< CxArea
         real(gtm_real), intent(out) :: width          !< Width
-        real(gtm_real), intent(out) :: hydro_radius   !< Hydraulic radius
+        real(gtm_real), intent(out) :: wet_p          !< Wetted perimeter
         real(gtm_real), intent(out) :: depth          !< Water depth
         real(gtm_real) :: virt_deltax
         integer :: vsecno_forX
@@ -195,7 +195,6 @@ module common_xsect
         integer :: i, si, di, ei, OK
         real(gtm_real) :: z1, z2, y1, y2, b1, b2, a1
         real(gtm_real) :: dz, slope
-        real(gtm_real) :: wet_p
         if (num_xsect_chan(branch)>1) then 
             virt_deltax = chan_geom(branch)%channel_length/(num_xsect_chan(branch)-1)
         else
@@ -235,7 +234,6 @@ module common_xsect
         b2 = width
         area = a1 + half * ( b1 + b2 )* (Z - z1)
         wet_p = virt_xsect(si)%wet_p(ei) + two*dsqrt(((b2-b1)*half)**2+(Z-z1)**2)
-        hydro_radius = area/wet_p
         depth = Z - (chan_geom(branch)%chan_btm_up + X/chan_geom(branch)%channel_length* &
                        (chan_geom(branch)%chan_btm_down-chan_geom(branch)%chan_btm_up))
         return

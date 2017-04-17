@@ -95,7 +95,7 @@ module interpolation
 
    !> Area calculated from interpolation of four given water surface elevations
     subroutine interp_area_byCxInfo(mesh_lo, mesh_hi, volume_change,    &   
-                                    width, hydro_radius, depth,         & 
+                                    width, wet_p, depth,                & 
                                     branch, up_x, dx,                   &  
                                     ncell, start_c, nx, dt, nt,         &
                                     a, b, c, d,                         &
@@ -116,7 +116,7 @@ module interpolation
         real(gtm_real), intent(inout) :: mesh_hi(nt,ncell)               !< interpolated area mesh at high face
         real(gtm_real), intent(inout) :: volume_change(nt-1,ncell)       !< volume change for each cell 
         real(gtm_real), intent(inout) :: width(nt,ncell)                 !< water surface width for each cell 
-        real(gtm_real), intent(inout) :: hydro_radius(nt,ncell)          !< hydraulic radius for each cell 
+        real(gtm_real), intent(inout) :: wet_p(nt,ncell)                 !< wetted perimeter for each cell 
         real(gtm_real), intent(inout) :: depth(nt,ncell)                 !< water depth for each cell 
         real(gtm_real) :: ws(nt,nx+1)                                    ! interpolated water surface mesh
         real(gtm_real) :: subtotal_volume_change(nt)                     ! local variable to check mass balance (sub total in time)
@@ -181,11 +181,11 @@ module interpolation
                 dh_hi(j,start_c+i-1) = dh_lo(j,start_c+i)
                 dp_hi(j,start_c+i-1) = dp_lo(j,start_c+i)
                 width(j,start_c+i-1) = half * (b_lo(j,start_c+i-1) + b_hi(j,start_c+i-1))
-                hydro_radius(j,start_c+i-1) = half * (dh_lo(j,start_c+i-1) + dh_hi(j,start_c+i-1))
+                wet_p(j,start_c+i-1) = half * (dh_lo(j,start_c+i-1) + dh_hi(j,start_c+i-1))
                 depth(j,start_c+i-1) = half * (dp_lo(j,start_c+i-1) + dp_hi(j,start_c+i-1))                 
             end do
             width(j,end_c) = half * (b_lo(j,end_c) + b_hi(j,end_c))
-            hydro_radius(j,end_c) = half * (dh_lo(j,end_c) + dh_hi(j,end_c))
+            wet_p(j,end_c) = half * (dh_lo(j,end_c) + dh_hi(j,end_c))
             depth(j,end_c) = half * (dp_lo(j,end_c) + dp_hi(j,end_c)) 
         end do                                                            
         do j = 1, nt-1
@@ -355,7 +355,7 @@ module interpolation
    !> This does not conserve the mass. 
     subroutine interp_flow_area(flow_mesh_lo, flow_mesh_hi,                &
                                 area_mesh_lo, area_mesh_hi,                &
-                                width_mesh, hydro_radius_mesh, depth_mesh, &
+                                width_mesh, wet_p_mesh, depth_mesh,        &
                                 flow_volume_change, area_volume_change,    &
                                 ncell, start_c,                            &
                                 branch, up_x, dx, dt, nt, nx,              &
@@ -380,13 +380,13 @@ module interpolation
         real(gtm_real), dimension(nt,ncell), intent(inout) :: area_mesh_lo          !< interpolated area mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: area_mesh_hi          !< interpolated area mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: width_mesh            !< width mesh
-        real(gtm_real), dimension(nt,ncell), intent(inout) :: hydro_radius_mesh     !< hydraulic radius mesh
+        real(gtm_real), dimension(nt,ncell), intent(inout) :: wet_p_mesh            !< wetted perimeter mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: depth_mesh            !< water depth mesh
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: flow_volume_change  !< volume change from flow interpolation for each cell 
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: area_volume_change  !< volume change from area interpolation for each cell 
      
         call interp_flow_linear(flow_mesh_lo, flow_mesh_hi, flow_volume_change, ncell, start_c, nx, dt, nt, flow_a, flow_b, flow_c, flow_d)       
-        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width_mesh, hydro_radius_mesh, depth_mesh, branch, up_x, dx,  &
+        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width_mesh, wet_p_mesh, depth_mesh, branch, up_x, dx,  &
                                   ncell, start_c, nx, dt, nt, ws_a, ws_b, ws_c, ws_d, flow_volume_change)                                  
         if (nt.gt.5 .and. nx.gt.4) call interp_flow_from_area_theta(flow_mesh_lo, flow_mesh_hi, flow_volume_change,ncell, start_c, dt, nt, nx,  &
                           flow_a, flow_b, flow_c, flow_d, area_volume_change, prev_flow_cell_lo, prev_flow_cell_hi)
@@ -398,7 +398,7 @@ module interpolation
    !> This does not conserve the mass. 
     subroutine interp_flow_area_time_only(flow_mesh_lo, flow_mesh_hi,             &
                                           area_mesh_lo, area_mesh_hi,             &
-                                          width, hydro_radius, depth,             &
+                                          width, wet_p, depth,                    &
                                           flow_volume_change, area_volume_change, &
                                           ncell, start_c,                         &
                                           branch, up_x, dx, dt, nt, nx,           &
@@ -423,13 +423,13 @@ module interpolation
         real(gtm_real), dimension(nt,ncell), intent(inout) :: area_mesh_lo          !< interpolated area mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: area_mesh_hi          !< interpolated area mesh
         real(gtm_real), dimension(nt,ncell), intent(inout) :: width                 !< interpolated width
-        real(gtm_real), dimension(nt,ncell), intent(inout) :: hydro_radius          !< interpolated hydraulic radius
+        real(gtm_real), dimension(nt,ncell), intent(inout) :: wet_p                 !< interpolated wetted perimeter
         real(gtm_real), dimension(nt,ncell), intent(inout) :: depth                 !< interpolated water depth
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: flow_volume_change  !< volume change from flow interpolation for each cell 
         real(gtm_real), dimension(nt-1,ncell), intent(inout) :: area_volume_change  !< volume change from area interpolation for each cell 
      
         call interp_flow_linear(flow_mesh_lo, flow_mesh_hi, flow_volume_change, ncell, start_c, nx, dt, nt, flow_a, flow_b, flow_c, flow_d)       
-        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width, hydro_radius, depth, branch, up_x, dx,              &
+        call interp_area_byCxInfo(area_mesh_lo, area_mesh_hi, area_volume_change, width, wet_p, depth, branch, up_x, dx,              &
                                   ncell, start_c, nx, dt, nt, ws_a, ws_b, ws_c, ws_d, flow_volume_change)
         return
     end subroutine      

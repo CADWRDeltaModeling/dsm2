@@ -31,7 +31,7 @@ module cohesive_source
                                flow,             & !< flow
                                area,             & !< area
                                width,            & !< channel width
-                               hydro_radius,     & !< hydraulic radius
+                               wet_p,            & !< wetted perimeter
                                manning,          & !< Manning's n
                                diameterp,         & !< sediment particle diameter
                                ncell,            & !< number of model cells
@@ -47,13 +47,14 @@ module cohesive_source
         real(gtm_real), intent(in) :: flow(ncell)              !< flow
         real(gtm_real), intent(in) :: area(ncell)              !< area
         real(gtm_real), intent(in) :: width(ncell)             !< channel width
-        real(gtm_real), intent(in) :: hydro_radius(ncell)      !< hydraulic radius
+        real(gtm_real), intent(in) :: wet_p(ncell)             !< wetted perimeter
         real(gtm_real), intent(in) :: manning(ncell)           !< Manning's n
         real(gtm_real), intent(in) :: diameterp(ncell)          !< diameter in meter
         integer, intent(in) :: ncell                           !< number of cells
         real(gtm_real), intent(in) :: available_bed(ncell)     !< available bed sediment flux
         
         !--local variables
+        real(gtm_real) :: hydro_radius(ncell)                    !< hydraulic radius
         real(gtm_real), parameter :: param_M = 1.325d-6        ! kg/(m^2s)
         real(gtm_real) :: critical_shear_strs(ncell)
         real(gtm_real) :: fall_vel(ncell) 
@@ -63,6 +64,7 @@ module cohesive_source
         integer :: icell
         
         function_van_rijn = .false. !use Dietrich formula                
+        hydro_radius = area/wet_p
         velocity = abs(flow/area)
         
         do icell = 1, ncell
