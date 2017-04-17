@@ -302,8 +302,8 @@ module test_convergence_transport
                            width_prev,          &
                            depth,               &
                            depth_prev,          &
-                           hydro_radius,        &
-                           hydro_radius_prev,   &
+                           wet_p,               &
+                           wet_p_prev,          &
                            constraint,          &
                            name)  
 

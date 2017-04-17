@@ -150,7 +150,7 @@ module ut_hydro_data_interp
         real(gtm_real), allocatable :: prev_flow_cell_hi(:)
         real(gtm_real), allocatable :: flow_mesh_lo(:,:), flow_mesh_hi(:,:)
         real(gtm_real), allocatable :: area_mesh_lo(:,:), area_mesh_hi(:,:)
-        real(gtm_real), allocatable :: width_mesh(:,:), hydro_radius_mesh(:,:), depth_mesh(:,:)
+        real(gtm_real), allocatable :: width_mesh(:,:), wet_p_mesh(:,:), depth_mesh(:,:)
         real(gtm_real) :: total 
         branch = 2
         up_x = dble(5000.)
@@ -167,7 +167,7 @@ module ut_hydro_data_interp
 
         allocate(flow_mesh_lo(nt,ncell), flow_mesh_hi(nt,ncell))
         allocate(area_mesh_lo(nt,ncell), area_mesh_hi(nt,ncell))
-        allocate(width_mesh(nt,ncell),hydro_radius_mesh(nt,ncell),depth_mesh(nt,ncell))
+        allocate(width_mesh(nt,ncell),wet_p_mesh(nt,ncell),depth_mesh(nt,ncell))
         allocate(prev_flow_cell_lo(ncell))
         allocate(prev_flow_cell_hi(ncell))
         allocate(flow_volume_change(nt-1,ncell))
@@ -176,7 +176,7 @@ module ut_hydro_data_interp
         prev_flow_cell_lo = (/25156.55469, 25219.72998, 25282.90527, 25346.08057/)
         prev_flow_cell_hi = (/25219.72998, 25282.90527, 25346.08057, 25409.25586/)
         
-        call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,  width_mesh, hydro_radius_mesh, depth_mesh, &
+        call interp_flow_area(flow_mesh_lo, flow_mesh_hi, area_mesh_lo, area_mesh_hi,  width_mesh, wet_p_mesh, depth_mesh, &
                               flow_volume_change, area_volume_change,       &
                               ncell, start_c, branch, up_x, dx, dt, nt, nx, flow_a, flow_b, flow_c, flow_d, ws_a, ws_b, ws_c, ws_d, &
                               prev_flow_cell_lo, prev_flow_cell_hi)
@@ -187,7 +187,7 @@ module ut_hydro_data_interp
         
         deallocate(flow_mesh_lo, flow_mesh_hi)
         deallocate(area_mesh_lo, area_mesh_hi)
-        deallocate(width_mesh, hydro_radius_mesh, depth_mesh)
+        deallocate(width_mesh, wet_p_mesh, depth_mesh)
         deallocate(prev_flow_cell_lo)
         deallocate(prev_flow_cell_hi)
         deallocate(flow_volume_change)

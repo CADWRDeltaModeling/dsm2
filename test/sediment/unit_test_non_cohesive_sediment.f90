@@ -47,7 +47,7 @@ module test_non_cohesive
         real(gtm_real) :: flow(ncell)
         real(gtm_real) :: area(ncell)
         real(gtm_real) :: width(ncell)
-        real(gtm_real) :: hydro_radius(ncell) 
+        real(gtm_real) :: wet_p(ncell) 
         real(gtm_real) :: manning(ncell)
         real(gtm_real) :: diameter(3)
         real(gtm_real) :: resuspension(ncell)
@@ -59,7 +59,7 @@ module test_non_cohesive
         flow = 1500.d0 *0.0283168
         area = 1500.d0 *0.092903
         width = 100.d0 *0.3048
-        hydro_radius = 110.d0 *0.3048
+        wet_p = 110.d0 *0.3048
         conc(:) = 0.2       
         manning(:) = 0.022d0
         diameter(1) = 200.0d-6  ! fine sand 125-250 mu-m
@@ -75,7 +75,7 @@ module test_non_cohesive
                                  flow,             &
                                  area,             &
                                  width,            &
-                                 hydro_radius,     &
+                                 wet_p,            &
                                  manning,          &
                                  diameter(i),      &
                                  ncell,            &
