@@ -103,6 +103,7 @@ public class Particle{
 	  /**
 	    *  age of Particle in seconds since insertion
 	    */
+	  //TODO change to double???
 	  public float age;
 	  /**
 	    *  keeps track of if Particle alive or dead
@@ -155,9 +156,6 @@ public class Particle{
 	  private int _confusionFactor = 1;
 	  private float _swimmingVelocity = 0.0f;
 	  private boolean _swimVelSetInJunction = false;
-	  private float _XofXTSurvival = 0.0f;
-	  private float _ageAtEntrance = 0.0f;
-	  private double _survivalProb = 1;
 	  static final int MISSING = -99999;
 		
 	  /**
@@ -265,9 +263,9 @@ public class Particle{
 	  // and create a new method below for set swimming time.  Need to change the flux calculation part to make it consistant
 	  public final long getCurrentParticleTimeExact(){return Globals.currentModelTime + Math.round(_timeUsedInSecond/60.0f);}
 	  public final long getInsertionTime(){return insertionTime;}
-	  public final boolean checkSurvival(float x, float t){
+	  public final boolean checkSurvival(){
 	    // check survival if not survived isDead is set to true	
-	    _survivalHelper.helpSurvival(this, x, t);
+	    _survivalHelper.helpSurvival(this);
 	    if(isDead == true) {
 	    	observer.observeDeath(this);
 	    	return false;
@@ -359,7 +357,7 @@ public class Particle{
 		  if (observer != null) 
 			  observer.observeChange(ParticleObserver.NODE_CHANGE,this); 
 	
-		  // decide which water body to go and set the paticle with the new water body and new x
+		  // decide which water body to go and set the particle with the new water body and new x
 		  if(_routeHelper ==  null)
 			  PTMUtil.systemExit("routeHelper not initialized, exit from Particle.java line 727.");
 		  _routeHelper.helpSelectRoute(this);
@@ -496,9 +494,10 @@ public class Particle{
 	  boolean isSwimVelSetInJunction(){return _swimVelSetInJunction;}
 	  void swimVelSetInJunction(boolean sVSet){_swimVelSetInJunction = sVSet;}
 	  
-	  //TODO to be used in survival model, should be in suvival model instead here???	  
-	  float getAgeAtEntrance(){return _ageAtEntrance;}
-	  void setAgeAtEntrance(float ageAtEntrance){_ageAtEntrance = ageAtEntrance;}
-	  double getSurvivalProbability(){return _survivalProb;}
-	  void setSurvivalProbability(double survivalProb){_survivalProb = survivalProb;}	
+	  //to be used in survival model
+	  private boolean _fromUpstream;
+	  void setFromUpstream(boolean fromUp){_fromUpstream = fromUp;}
+	  boolean getFromUpstream(){return _fromUpstream;}
+	  
+	  
 }

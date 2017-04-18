@@ -21,7 +21,7 @@ public class ParticleBasicSurvivalBehavior implements SurvivalBehavior {
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle, float)
 	 */
 	@Override
-	public void isSurvived(Particle p, float x, float t) {
+	public void isSurvived(Particle p) {
 		// TODO Auto-generated method stub
 		// currently doing nothing
 

@@ -8,6 +8,6 @@ package DWR.DMS.PTM;
  *
  */
 public interface SurvivalHelper {
-	public void helpSurvival(Particle p, float x, float t);
+	public void helpSurvival(Particle p);
 	public void setSurvivalHelperForParticle(Particle p);
 }

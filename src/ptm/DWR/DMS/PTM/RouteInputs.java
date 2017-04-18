@@ -55,8 +55,6 @@ public class RouteInputs {
 			else
 				setSpecialBehaviors(specialBehaviorInText);
 		}
-		
-		System.out.println("Created RouteHelper...");
 	}
 	public void setBarrierNodeInfo(Node[] allNodes){
 	    //nodeArray starts from 1 PTMFixedInput.java line 287

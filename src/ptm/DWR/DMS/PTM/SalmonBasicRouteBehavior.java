@@ -128,16 +128,20 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 	    // need to set x only channels.   
 	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
-	    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);
+	    	Channel chan = (Channel) p.wb;
+	    	int chanId = chan.getEnvIndex();
+	    	p.x = getXLocationInChannel(chan, p.nd);
 	    	p.setSwimmingVelocity(swimmingVels[wbId]*confusionFactors[wbId]);
 	    	p.setConfusionFactor(confusionFactors[wbId]);
 	    	p.swimVelSetInJunction(true);
 	    	// swimming time is set one per particle per channel group, here is the only place set a swimming time
-	    	p.getSwimHelper().setSwimmingTime(p, ((Channel)p.wb).getEnvIndex()); // to set swimming time in SalmonHoldingTimeCalculator
+	    	p.getSwimHelper().setSwimmingTime(p, chanId); // to set swimming time in SalmonHoldingTimeCalculator
 	    	// set Swimming time in particle
 	    	p.setSwimmingTime(((SalmonSwimHelper) p.getSwimHelper()).getSwimmingTime(p.Id, ((Channel)p.wb).getEnvIndex()));
-	    	//upon entering into a channel, remember the particle's age at this time
-			p.setAgeAtEntrance(p.age);
+			if(p.nd.getEnvIndex() == chan.getUpNodeId())
+				p.setFromUpstream(true);
+			else
+				p.setFromUpstream(false);
 	    	
 			//TODO clean up	
 			/* 

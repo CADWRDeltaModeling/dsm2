@@ -143,7 +143,16 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				 // update particle's x,y,z position every sub-time step
 				 while (tmLeft > 0 && !p.isDead){
 					 _hydroCalc.updateChannelParameters(p);
-					 _hydroCalc.updateDiffusion(p);					 
+					 _hydroCalc.updateDiffusion(p);	
+					 /*
+					  * check survival
+					  * to make sure a survival station is not skipped, will be checked again in the node reached loop 
+					  * because node and channel will be reset when a node is reached
+					  * 
+					  * only calculate survival when a particle is in a channel
+					  */
+					 p.checkSurvival();
+					 if (p.isDead) return;
 					 float [] cInfo = _hydroCalc.getChannelInfo(p.Id);
 					 
 					 // if an average cross section velocity (channelVave) is less than a user specified threshold, make the particle hold for one time step 
@@ -185,9 +194,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 								  + "  p.x:" +p.x +"  xPos:" +xPos +" p.age:" + p.age
 								  +"  advVel:" + advVel + "  swimV:" + swimV + "  tmToAdv:" + tmToAdv 
 								  + "  tmLeft:" +tmLeft +"  currTime:" + p.getCurrentParticleTimeExact()
-								  + "  confusion:" + p.getConfusionFactor()
-								  + "  timeAtEntrance:" + p.getAgeAtEntrance()
-								  );
+								  + "  confusion:" + p.getConfusionFactor());
 					  }
 					 
 					 
@@ -202,31 +209,18 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 tmLeft -= tmToAdv;
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, deltaX);
 						 p.addTimeUsed(tmToAdv);
-						 
-						 //TODO survival module temporary disabled, work on new algorithm, will work on later 
-						 //for use to calc survival
-						 // be very careful to call this before node and water body are changed because it uses node # and channel length to calc dist  
-						 //p.setXofXTSurvival((Channel) p.wb, p.nd, p.x);
-						 //survival module works with current node and water body not the one just reached and assigned.
-						 //p.checkSurvival(p.getXofXTSurvival(), p.age-p.getAgeAtEntrance());
-						 //p.initializeXofXTSurvival();
-						 //TODO should set entrance age here?
-						 //p.setAgeAtEntrance(p.age);
-						 /*
+						 //here node and channel hasn't been changed yet because the survival calc needs to do with current ones
+						 p.checkSurvival();
 						 if(p.isDead){
-							 if (p.Id == 1 && DEBUG_SURVIVAL && p.wb.getEnvIndex()<800){
+							 if (DEBUG_SURVIVAL && p.Id == 1 && p.wb.getEnvIndex()<800){
 								  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 										  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 										  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
 										  + "  tmLeft:" +tmLeft
-										  + "  p.isDead:" + p.isDead
-										  + "  xOfXT:" + p.getXofXTSurvival() +"  enTOfXT:" + p.getAgeAtEntrance()
-										  + "  timeAtEntrance:" + p.getAgeAtEntrance()
-										  );
+										  + "  p.isDead:" + p.isDead);
 							 }
 							 return;
 						 }
-						 */
 						 p.nd = getNewNode((Channel) p.wb, xPos);
 						 //set new node so make node decision can calculate total node inflow
 						 p.makeNodeDecision();
@@ -246,12 +240,11 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
 									  + "  tmLeft:" +tmLeft
-									  + "  p.isDead:" + p.isDead
-									  +"  enTOfXT:" + p.getAgeAtEntrance()
-									  );
+									  + "  p.isDead:" + p.isDead);
 						  }
 						 
 						 // wait for a time step
+						 // don't need to check survival because nothing has been changed since the last time step
 						 if (p.particleWait){
 							 p.age += tmLeft;
 							 p.addTimeUsed(tmLeft);
@@ -262,9 +255,14 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 }
 						 // check if the new water body is a channel
 						 // if NOT, exit the while loop and find a block that deal with the waterbody type
+						// don't need to check survival because survival stations are only installed in channels
 						 if (p.wb.getPTMType() != Waterbody.CHANNEL)							 
 							 break;
 						 else{
+							 //check survival when arrive a new channel
+							 p.checkSurvival();
+							 if(p.isDead)
+								 return;
 							 // if channel, check to see if stay in the same node. if yes, wait until next time step
 							 // if not, continue on the code that calc y, z
 							 // this block is for preventing the same particle from staying in the same sub time step, node and waterbody too many times

@@ -26,8 +26,8 @@ public class ParticleSurvivalHelper extends Helper<Integer, ParticleBasicSurviva
 	 * @see DWR.DMS.PTM.SurvivalHelper#helpSurvival(DWR.DMS.PTM.Particle, float)
 	 */
 	@Override
-	public void helpSurvival(Particle p, float x, float t) {
-		super.getBehavior(p).isSurvived(p, x, t);;
+	public void helpSurvival(Particle p) {
+		super.getBehavior(p).isSurvived(p);;
 	}
 
 	/* (non-Javadoc)

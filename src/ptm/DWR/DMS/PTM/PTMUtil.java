@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.regex.*;
+import java.nio.IntBuffer;
 import java.lang.Math;
 import java.util.Random;
 import edu.cornell.RngPack.*;
@@ -230,6 +232,46 @@ public class PTMUtil {
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return new Pair<Integer, Integer> (Integer.parseInt(items[1]), Integer.parseInt(items[2]));
 	}
+	public static ArrayList<int[]> getIntPairsFromLine(String line, String lineName) throws NumberFormatException{
+		String[] items = line.split(":");
+		if (items.length != 2 || (!items[0].equalsIgnoreCase(lineName))||items[1].contains("."))
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
+		Pattern p = Pattern.compile("\\((\\s*\\t*\\d+\\s*\\t*),(\\s*\\t*\\d+\\s*\\t*)\\)");
+		Matcher m = p.matcher(items[1]);
+		ArrayList<int[]> pairs = new ArrayList<int[]>();
+		try{
+			while(m.find()){
+				int[] intPair = {Integer.parseInt(m.group(1).trim()), Integer.parseInt(m.group(2).trim())};
+				pairs.add(intPair);
+			}
+			if (pairs.size()<1)
+				throw new NumberFormatException("no integer pairs found, check the input file!");
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");	
+		}
+		return pairs;
+	}
+	public static ArrayList<IntBuffer> getIntBuffersFromLine(String line, String lineName) throws NumberFormatException{
+		String[] items = line.split(":");
+		if (items.length != 2 || (!items[0].equalsIgnoreCase(lineName))||items[1].contains("."))
+			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
+		Pattern p = Pattern.compile("\\((\\s*\\t*\\d+\\s*\\t*),(\\s*\\t*\\d+\\s*\\t*)\\)");
+		Matcher m = p.matcher(items[1]);
+		ArrayList<IntBuffer> pairs = new ArrayList<IntBuffer>();
+		try{
+			while(m.find()){
+				int[] intPair = {Integer.parseInt(m.group(1).trim()), Integer.parseInt(m.group(2).trim())};
+				pairs.add(IntBuffer.wrap(intPair));
+			}
+			if (pairs.size()<1)
+				throw new NumberFormatException("no integer pairs found, check the input file!");
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");	
+		}
+		return pairs;
+	}
 	// get a boolean from a line with format name: double
 	public static boolean getBooleanFromLine(String line, String lineName){
 		String[] items = line.split("[,:\\s\\t]+");
@@ -252,6 +294,18 @@ public class PTMUtil {
 			PTMUtil.systemExit("expect integers but get:"+numberLine);	
 		}
 		return ints;
+	}
+	public static ArrayList<Double> getDoubles(String numberLine){
+		ArrayList<Double> dbls = new ArrayList<Double>();
+		try{
+			String[] items = numberLine.split("[,:\\s\\t]+");
+			for (String item: items)
+				dbls.add(Double.parseDouble(item));
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("expect Doubles but get:"+numberLine);	
+		}
+		return dbls;
 	}
 	public static boolean check(String[] listToCheck, String[] standards){
 		int length = listToCheck.length;
