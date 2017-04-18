@@ -44,6 +44,8 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
 	 */
 	public void isSurvived(Particle p) {
+		if(!_survivalIn.getDoSurvival())
+			return;
 		int pId = p.Id;
 		Channel ch = (Channel)p.wb;
 		int chanId = ch.getEnvIndex();

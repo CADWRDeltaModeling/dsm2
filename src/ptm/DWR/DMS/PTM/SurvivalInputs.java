@@ -57,6 +57,10 @@ public class SurvivalInputs {
 				}
 			}
 		}
+		else{
+			_doSurvival = false;
+			System.err.println("No survival parameters are input, and survival rates will not be calculated.");
+		}
 	}
 	public int getGroupNumber(int startStation){return _startStaGroup.get(startStation);}
 	public Map<Integer, ArrayList<Double>> getSurvivalParameterMap(){return _groupParas;}
@@ -79,6 +83,7 @@ public class SurvivalInputs {
 	public boolean isEnd(int groupId, int chanId, float x, boolean fromUpstream){return isEndChan(groupId, chanId) && checkEnd(chanId, x, fromUpstream);}
 	public boolean isExchange(int groupId, int chanId, float x, boolean fromUpstream){return isExchangeChan(groupId, chanId) 
 																						&& checkExchange(chanId, x, fromUpstream); }
+	public boolean getDoSurvival(){return _doSurvival;}
 	// x = 0 @ upstream node and x = length @ downstream node
 	public boolean staReached(int chanId, float x, Map<Integer, Integer> staDist, boolean fromUpstream){
 		Integer dist = staDist.get(chanId);
@@ -156,7 +161,8 @@ public class SurvivalInputs {
 	private Map<Integer, ArrayList<Double>> _groupParas=null;
 	// <start station chan#, survival calculation group number> start chan# is unique for each Calculation Group
 	private Map<Integer,Integer> _startStaGroup = null;
-	private boolean DEBUG = false;
+	private boolean _doSurvival = true;
+	private boolean DEBUG = false;	
 }
 
 /*
