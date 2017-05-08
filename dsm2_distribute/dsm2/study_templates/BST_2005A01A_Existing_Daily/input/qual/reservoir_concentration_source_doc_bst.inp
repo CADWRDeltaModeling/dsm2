@@ -1,7 +1,0 @@
-# Description:
-# DOC source data for BST Scenario March 15, 2010
-RESERVOIR_CONCENTRATION
-NAME            RES_NAME      VARIABLE FILLIN FILE     PATH
-dicu_drain_bbid clifton_court doc      last   constant   0. 
-END
-

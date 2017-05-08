@@ -1,8 +1,0 @@
-# Description:
-# Delta Cross Channel timing for planning runs
-INPUT_GATE
-GATE_NAME           DEVICE              VARIABLE     FILLIN FILE                                        PATH                                                              
-delta_cross_channel cross_channel_gates op           last   ./timeseries/${DSM2MODIFIER}_daily.dss      /CALSIM-DAILY/DCC/OP//1DAY/${CALSIMSTUDY_MODIFIED}/                  
-END
-
-
