@@ -857,7 +857,8 @@ c-----local variables
      &         CLA(:2) .eq. "-V" .or.
      &         CLA(:2) .eq. "-h" .or.
      &         CLA(:2) .eq. "-H") then ! print version and subversion, usage, quit
-         print *, 'DSM2-' // trim(dsm2_name) // ' ', trim(dsm2_version) // '  Subversion: ', trim(svn_build)
+         print *, 'DSM2-' // trim(dsm2_name) // ' ', trim(dsm2_version) 
+     &            // '  Git Version: ', trim(git_build) // ' Git GUI: ', trim(git_uid)
          print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
          call exit(1)
       else                      ! command line arg

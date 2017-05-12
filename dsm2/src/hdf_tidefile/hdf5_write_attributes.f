@@ -91,8 +91,12 @@ c**********contains routines for writing data to an HDF5 file
      &           trim(dsm2_version)//char(0), error)
 
       call h5ltset_attribute_string_f(hydro_id,".", 
-     &           "Subversion",
-     &           trim(svn_build)//char(0), error)
+     &           "Git Version",
+     &           trim(git_build)//char(0), error)
+
+      call h5ltset_attribute_string_f(hydro_id,".", 
+     &           "Git GUID",
+     &           trim(git_uid)//char(0), error)
 
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Start time string",
