@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Intel C++ Project"
-	Version="13.0"
+	Version="14.0"
 	Name="sparse"
 	ProjectGUID="{82919F0D-2D36-4B44-B949-B92B9362FFCE}"
 	VCNestedProjectGUID="{900B4C2C-75CD-4AF7-905A-C7A2CF90344A}"

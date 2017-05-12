@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Intel C++ Project"
-	Version="13.0"
+	Version="14.0"
 	Name="klu_fortran"
 	ProjectGUID="{54CB74E3-1335-4C2C-ACDD-97F3B39B856E}"
 	VCNestedProjectGUID="{5DC35BAD-0999-4CEE-9878-9FFFF8E73CF5}"
