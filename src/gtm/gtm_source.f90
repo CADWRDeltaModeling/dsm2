@@ -18,11 +18,12 @@
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 !</license>
 !>@ingroup gtm_driver
+!> Interface to implement source term
 module gtm_source
     
     contains
  
-     !> Given source term by cell
+     !> Given source term by cell 
      subroutine gtm_source_implement(source,       & 
                                      conc,         &
                                      flow,         &
