@@ -1,3 +1,0 @@
-PACKAGE=DWR.DMS.PTM
-
-JAVA_FILES = Bar.java GraphicComponents.java LocationWriter.java RightDiagBar.java BarrierOperGraphic.java GraphicElement.java PlotBarGraph.java SolidBar.java CrossHatchBar.java ImageDisplayer.java PlotGraphic.java SquareHatchBar.java GateOperGraphic.java LeftDiagBar.java PlotLabel.java VertLineBar.java

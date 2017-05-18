@@ -1,8 +1,0 @@
-
-
-interface
-  subroutine callback(intarg)
-  integer,intent(in) :: intarg
-  end subroutine
-end interface
-
