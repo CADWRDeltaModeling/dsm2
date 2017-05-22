@@ -230,6 +230,7 @@ public class MainPTM {
             }
             //print out travel times
             Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
+            Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();
             if ( animationOutput != null ) animationOutput.FlushAndClose();
             // write out restart file information
             if ( outRestart != null ) outRestart.output();

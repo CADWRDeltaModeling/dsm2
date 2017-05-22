@@ -23,7 +23,7 @@ public class TravelTimeOutput {
 		if (outText == null)
 			System.err.println("Warning: travel time output info is not defined in behavior input file!");
 		else{
-			_pathName = PTMUtil.getPathFromLine(outText.get(0), "OUTPUT_PATH");
+			_pathName = PTMUtil.getPathFromLine(outText.get(0), ':');
 			String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE", "STATION_NAME"};
 			PTMUtil.checkTitle(outText.get(1), shouldBe);
 			if (outText.size()<3 )

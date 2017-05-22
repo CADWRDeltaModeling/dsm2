@@ -20,6 +20,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	private Map<Integer, Float> _pStartAge;
 	// Map<pid, list of start stations already used>
 	private Map<Integer, HashSet<Integer>> _pGroupUsed;
+	//TODO may not be needed because survival rates are not calculated as accumulative
 	// Map<pid, survival probability>
 	private Map<Integer, Double> _pProb;
 
@@ -56,7 +57,8 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		if (sSta == null){
 			if (isStart){
 				_pStartSta.put(pId, chanId);
-				_pStartAge.put(pId, p.age);	
+				_pStartAge.put(pId, p.age);
+				_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(chanId));
 				if(DEBUG){
 					System.err.println("pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(chanId)+" pAge:"+p.age+" p.x:"+p.x+" start null ");
 				}
@@ -76,6 +78,11 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		if (sSta == chanId)
 			return;
 		if (isExchange){
+			//to subtract 1 from the arrival number in the group that this particle is from,
+			//and add one to the arrival number in the current group
+			_survivalIn.minusArrivalToGroup(_survivalIn.getGroupNumber(_pStartSta.get(pId)));
+			_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(chanId));
+			
 			_pStartSta.put(pId, chanId);
 			if(DEBUG)
 				System.err.println("pId:"+pId+" chanId:"+PTMHydroInput.getExtFromIntChan(chanId)+" isExchange ");
@@ -99,16 +106,24 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			 */
 			if (_pProb.get(pId) == null)
 				_pProb.put(pId, 1.0);
-			double survival = _pProb.get(pId)*(Math.exp((-1.0/lam)*Math.sqrt(X*X + om*om*t*t)));
+			//TODO according to Russ, the survival rate should not be accumulative (i.e., calculated according to previous survival rate) so comment out
+			//TODO should only be calculated according to the current rate
+			//TODO _pProb may not be needed
+			//double survival = _pProb.get(pId)*(Math.exp((-1.0/lam)*Math.sqrt(X*X + om*om*t*t)));
+			double survival = (Math.exp((-1.0/lam)*Math.sqrt(X*X + om*om*t*t)));
 			double po = PTMUtil.getRandomNumber();
+			//TODO may not need the following line because the survival is not accumulative
 			_pProb.put(pId, survival);		
 			if (survival < po){
 				p.setParticleDead();
+				_survivalIn.addLostToGroup(groupId);
 				if(DEBUG) 
 					System.err.println("pId:" + pId +" channel:"+PTMHydroInput.getExtFromIntChan(chanId)
 					+"  timeInterval:"+t+"  survival probability:"+ _pProb.get(pId)+"  p.isDead:"+p.isDead + "  rand:" + po+" isDead");	
 				return;
 			}
+			else
+				_survivalIn.addSurvivalToGroup(groupId);
 			if(DEBUG){
 				System.err.println("pId:" + pId +" node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 							+"  channel:"+PTMHydroInput.getExtFromIntChan(chanId)
@@ -126,17 +141,21 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			 * */
 			if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(chanId))){
 				_pStartSta.put(pId, chanId);
-				_pStartAge.put(pId, p.age);	
+				_pStartAge.put(pId, p.age);
+				_survivalIn.addArrivalToGroup(_survivalIn.getGroupNumber(chanId));
 			}
-			else
-				System.err.println("Warnning: the end channel:" +PTMHydroInput.getExtFromIntChan(chanId)+" is not a next start channel, could miss travel time.");
+			//TODO really need a warning?
+			//else
+				//System.err.println("Warnning: the end channel:" +PTMHydroInput.getExtFromIntChan(chanId)+" is not a next start channel, could miss travel time.");
 			return;
 		} //isEnd
+		/*
 		if (isStart && !_pGroupUsed.get(pId).contains(_survivalIn.getGroupNumber(chanId))){
 			//TODO should be a warning or exit???
 			System.err.println(pId+"  "+ p.x + "  "+p.getFromUpstream()+"  " + PTMHydroInput.getExtFromIntChan(chanId)+ "  "+PTMHydroInput.getExtFromIntChan(sSta));
 			PTMUtil.systemExit("the particle gets to a start channel without passing through an end or exchangeable channel, impossible, system exit!");
 		}
+		*/
 	}
 }
 		//the start station has been used, ignore
@@ -189,7 +208,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		if (survivalParas.size()!=3)
 			PTMUtil.systemExit("survival parameter lamda, omega, x are not input correctly, check the input file, system exit.");
 		Double lam = survivalParas.get(0), om = survivalParas.get(1), X = survivalParas.get(2);
-		//TODO is survival rate accumulative?
+		
 		p.setSurvivalProbability(p.getSurvivalProbability()*(Math.exp((-1.0/lam)*Math.sqrt(x*x + om*om*t*t))));
 		//survivalProb = Math.exp((-1.0/lam)*Math.sqrt(x*x + om*om*t*t));
 		if(DEBUG){
@@ -217,7 +236,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 */	
 /*	
 	@Override
-	//TODO this function need to be worked on
+	
 	// read doug's code and Russ' paper
 	public void isSurvived(Particle p) {
 		Channel ch = (Channel)p.wb;
@@ -317,7 +336,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		if (survivalParas.size()!=3)
 			PTMUtil.systemExit("survival parameter lamda, omega, x are not input correctly, check the input file, system exit.");
 		Double lam = survivalParas.get(0), om = survivalParas.get(1), X = survivalParas.get(2);
-		//TODO is survival rate accumulative?
+		
 		p.setSurvivalProbability(p.getSurvivalProbability()*(Math.exp((-1.0/lam)*Math.sqrt(x*x + om*om*t*t))));
 		//survivalProb = Math.exp((-1.0/lam)*Math.sqrt(x*x + om*om*t*t));
 		if(DEBUG){
@@ -411,7 +430,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 /*
 	Double lam = paras.getFirst();
 			Double om = paras.getSecond();
-			//TODO is survival rate accumulative?
+			
 			p.setSurvivalProbability(p.getSurvivalProbability()*(Math.exp((-1.0/lam)*Math.sqrt(x*x + om*om*t*t))));
 			//survivalProb = Math.exp((-1.0/lam)*Math.sqrt(x*x + om*om*t*t));
 			if(DEBUG){
@@ -473,7 +492,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	/*
 	 * get the maximum distance a particle traveled from the entrance node
 	 */
-	//TODO clean up new algorithm don't need it anymore 
+	
 	/*
 	public float getXofXTSurvival(Channel ch, Node nd, float x, float maxDist){
 		int sign = (isDownNode(ch, nd)? -1: 1);
@@ -485,7 +504,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	/*
 	boolean isDownNode(Channel ch, Node nd){return (ch.getDownNodeId() == nd.getEnvIndex());}
 	
-	//TODO this is fast exp calculation.  should it be used for other PTM calculations?
+	
 	/*
 	private double exp(double val) {
         final long tmp = (long) (1512775 * val + 1072632447);

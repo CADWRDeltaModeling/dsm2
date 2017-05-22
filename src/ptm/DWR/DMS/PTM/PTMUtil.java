@@ -222,6 +222,7 @@ public class PTMUtil {
 	// get a path name from a line with format name: String
 	public static String getPathFromLine(String line, char divider){
 		return (line.substring(line.indexOf(divider)+1)).trim();
+		//fixed the problem that the path cannot have ":"
 		/*
 		String[] items = line.split("[,\\s\\t]+");
 		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
