@@ -2,6 +2,8 @@
  * 
  */
 package DWR.DMS.PTM;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -30,6 +32,9 @@ public class SurvivalInputs {
 			_exchStasDist = new HashMap<Integer, Integer>();
 			_groupEndStas = new HashMap<Integer, ArrayList<Integer>>();
 			_groupExchStas = new HashMap<Integer, ArrayList<Integer>>();
+			_groupArrivals = new HashMap<Integer, Integer>();
+			_groupLost = new HashMap<Integer, Integer>();
+			_groupSurvival = new HashMap<Integer, Integer>();
 			_startStaGroup = new HashMap<Integer, Integer>();
 			setSurvivalParameters(PTMUtil.getInputBlock(inList, "SURVIVAL_PARAMETERS", "END_SURVIVAL_PARAMETERS"));
 			if(DEBUG){
@@ -83,6 +88,9 @@ public class SurvivalInputs {
 	public boolean isEnd(int groupId, int chanId, float x, boolean fromUpstream){return isEndChan(groupId, chanId) && checkEnd(chanId, x, fromUpstream);}
 	public boolean isExchange(int groupId, int chanId, float x, boolean fromUpstream){return isExchangeChan(groupId, chanId) 
 																						&& checkExchange(chanId, x, fromUpstream); }
+
+	public int getGroupArrivals(int groupNumber){ return _groupArrivals.get(groupNumber);}
+	public int getGroupLost(int groupNumber){ return _groupLost.get(groupNumber);}
 	public boolean getDoSurvival(){return _doSurvival;}
 	// x = 0 @ upstream node and x = length @ downstream node
 	public boolean staReached(int chanId, float x, Map<Integer, Integer> staDist, boolean fromUpstream){
@@ -94,13 +102,76 @@ public class SurvivalInputs {
 		x = sign*x;
 		return !(x < dist);				
 	}
-
+	public void writeSurvivalRates(){
+		try{
+			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileName);
+			srWriter.write("Group ID".concat(",").concat("# of Particle Arrived").concat(",").concat("# of Particle Lost")
+					.concat(",").concat(" # of Particle Survived").concat(",").concat("Survival Rate"));
+			srWriter.newLine();
+			//_ttHolder will never be null and there is at least one element
+			for (int id: _groupArrivals.keySet()){						
+				Integer ar = _groupArrivals.get(id);
+				Integer lost = _groupLost.get(id);
+				Integer sur = _groupSurvival.get(id);
+				float survival = 1;
+				if (ar == null)
+					ar = 0;
+				if (lost == null)
+					lost = 0;
+				if (sur == null)
+					sur = 0;
+				//TODO survival rate may be calculated differently
+				//else
+					//survival =1.0f - 1.0f*lost/ar;
+				srWriter.write(Integer.toString(id).concat(",").concat(Integer.toString(ar)).concat(",").concat(Integer.toString(lost))
+						.concat(",").concat(Integer.toString(sur)).concat(",").concat(Float.toString(1.0f*sur/ar)));
+				srWriter.newLine();	
+			}
+			PTMUtil.closeBuffer(srWriter);
+		}catch(IOException e){
+			System.err.println("error occured when writing out survival rates!");
+			e.printStackTrace();
+		}
+	}
+	public void addArrivalToGroup(int groupNumber){
+		addToGroup(groupNumber, _groupArrivals);
+	}
+	public void addSurvivalToGroup(int groupNumber){
+		addToGroup(groupNumber, _groupSurvival);
+	}
+	public void addLostToGroup(int groupNumber){
+		addToGroup(groupNumber, _groupLost);
+	}
+	public void minusArrivalToGroup(int groupNumber){
+		minusToGroup(groupNumber, _groupArrivals);
+	}
+	public void minusSurvivalToGroup(int groupNumber){
+		minusToGroup(groupNumber, _groupSurvival);
+	}
+	public void minusLostToGroup(int groupNumber){
+		minusToGroup(groupNumber, _groupLost);
+	}
+	private void addToGroup(int groupNumber, Map<Integer, Integer> grp_arr_sur_lost){
+		Integer i = grp_arr_sur_lost.get(groupNumber);
+		if (i == null)
+			grp_arr_sur_lost.put(groupNumber, 1);
+		else
+			grp_arr_sur_lost.put(groupNumber, ++i);
+	}
+	private void minusToGroup(int groupNumber, Map<Integer, Integer> grp_arr_sur_lost){
+		Integer i = grp_arr_sur_lost.get(groupNumber);
+		if (i == null)
+			System.err.println("WARNING: cannot subtract 1 from the particle group, the list is empty!");
+		else
+			grp_arr_sur_lost.put(groupNumber, --i);
+	}
 	private void setSurvivalParameters(ArrayList<String> survivalParasIn){
 		if (survivalParasIn == null){
 			System.err.println("WARNING: No channel groups for suvival rates are defined in behavior input file!");
 			return;
 		}
-		int num_groups = PTMUtil.getIntFromLine(survivalParasIn.get(0), "NUMBER_OF_SURVIVAL_CALCULATION_GROUP");
+		_pathFileName = PTMUtil.getPathFromLine(survivalParasIn.get(0), ':');
+		int num_groups = PTMUtil.getIntFromLine(survivalParasIn.get(1), "NUMBER_OF_SURVIVAL_CALCULATION_GROUP");
 		for (int i=1; i<num_groups+1; i++){
 			ArrayList<String> survivalStrs = PTMUtil.getInputBlock(survivalParasIn, "GROUP_"+i, "END_GROUP_"+i);
 			if(survivalStrs.size() != 5)
@@ -145,6 +216,7 @@ public class SurvivalInputs {
 			_groupParas.put(i, paras);						
 		}
 	}
+	private String _pathFileName = null;
 	// <start station chan#> start chan# is unique for each Calculation Group
 	private ArrayList<Integer> _startStas=null;
 	// <start station chan#, start station distance> start chan# is unique for each Calculation Group
@@ -153,13 +225,19 @@ public class SurvivalInputs {
 	private Map<Integer, Integer> _endStasDist=null;
 	// <exchangeable station chan#, exchangeable station distance> 
 	private Map<Integer, Integer> _exchStasDist=null;
-	// <group#, end station chan# list> start chan# is unique for each Calculation Group
+	// <group#, end station chan# list> group# is unique for each Calculation Group
 	private Map<Integer, ArrayList<Integer>> _groupEndStas=null;
-	// <group#, exchangeable station chan# list> start chan# is unique for each Calculation Group
+	// <group#, exchangeable station chan# list> group# is unique for each Calculation Group
 	private Map<Integer, ArrayList<Integer>> _groupExchStas=null;
-	// <group#, survival parameters lambda, omega, x list> start chan# is unique for each Calculation Group
+	// <group#, survival parameters lambda, omega, x list> group# is unique for each Calculation Group
 	private Map<Integer, ArrayList<Double>> _groupParas=null;
-	// <start station chan#, survival calculation group number> start chan# is unique for each Calculation Group
+	// <group#, # of particles arrived in the reach group> group# is unique for each Calculation Group
+	private Map<Integer, Integer> _groupArrivals=null;
+	// <group#, # of particles survived in the reach group> group# is unique for each Calculation Group
+	private Map<Integer, Integer> _groupSurvival=null;
+	// <group#, # of particles dead in the reach group> group# is unique for each Calculation Group
+	private Map<Integer, Integer> _groupLost=null;
+	// <start station chan#, survival calculation group number> 
 	private Map<Integer,Integer> _startStaGroup = null;
 	private boolean _doSurvival = true;
 	private boolean DEBUG = false;	
