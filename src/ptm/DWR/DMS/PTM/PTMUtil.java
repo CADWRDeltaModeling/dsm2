@@ -35,7 +35,6 @@ public class PTMUtil {
 
 	/**
 	 * 
-	 * 
 	 */
 	public PTMUtil() {
 		// TODO Auto-generated constructor stub
@@ -221,11 +220,14 @@ public class PTMUtil {
 		return items[1];
 	}
 	// get a path name from a line with format name: String
-	public static String getPathFromLine(String line, String lineName){
+	public static String getPathFromLine(String line, char divider){
+		return (line.substring(line.indexOf(divider)+1)).trim();
+		/*
 		String[] items = line.split("[,\\s\\t]+");
 		if (items.length < 2 || (!items[0].equalsIgnoreCase(lineName)))
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return items[1];
+		*/
 	}
 	public static Pair<Integer, Integer> getPairFromLine(String line, String lineName) throws NumberFormatException{
 		String[] items = line.split("[,:\\s\\t]+");
