@@ -24,13 +24,14 @@
 module suspended_sediment
 
     use gtm_precision
-    use common_variables, only: eros_coeff, vel_dep, vel_ero, size_dep, size_ero 
+    use common_variables, only: ero_coeff, vel_dep, vel_ero, size_dep, size_ero_c, size_ero_nc
     
-    real(gtm_real) :: default_dep_size                       !< unit m
-    real(gtm_real) :: default_ero_size                       !< unit m
-    real(gtm_real) :: velocity_for_erosion                   !< unit m/s
-    real(gtm_real) :: velocity_for_deposition                !< unit m/s
-    real(gtm_real) :: param_M            ! !1.325d-6         !< unit kg/(m^2s) 
+    real(gtm_real) :: default_dep_size                      !< unit m
+    real(gtm_real) :: default_ero_size_c                    !< unit m
+    real(gtm_real) :: default_ero_size_nc                   !< unit m
+    real(gtm_real) :: velocity_for_erosion                  !< unit m/s
+    real(gtm_real) :: velocity_for_deposition               !< unit m/s
+    real(gtm_real) :: param_M            ! !1.325d-6        !< unit kg/(m^2s) 
 
     real(gtm_real), allocatable :: diameter(:,:)
     real(gtm_real), allocatable :: fall_velocity(:,:)
@@ -55,7 +56,7 @@ module suspended_sediment
                                          available_bed,   &
                                          isediment)      
         use common_variables, only: mann_arr 
-        use sediment_variables, only: gravity
+        use sediment_variables
         use suspended_utility
         use cohesive_source
         use non_cohesive_source
@@ -78,6 +79,8 @@ module suspended_sediment
         !--- local      
         real(gtm_real) :: hydro_radius(ncell)                       !< hydraulic radius
         real(gtm_real) :: diameterp(ncell), fall_vel(ncell),critical_shear_strs(ncell)
+        real(gtm_real) :: exp_re_p(ncell)
+        real(gtm_real) :: capital_r, fall_vel_tmp, critical_shear_tmp, exp_re_p_tmp
         real(gtm_real) :: vertical_flux(ncell)
         real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
         real(gtm_real) :: hydro_radius_si(ncell), depth_si(ncell), diameter_si(ncell)
@@ -86,17 +89,21 @@ module suspended_sediment
         real(gtm_real) :: shear_vel(ncell)
         real(gtm_real) :: si_to_english = 1000.d0                !< kg/m3-->mg/L
         integer :: icell
+        logical ::  function_van_rijn 
    
         default_dep_size = size_dep*0.001d0        ! unit mm-->m
-        default_ero_size = size_ero*0.001d0        ! unit mm-->m
+        default_ero_size_c = size_ero_c*0.001d0    ! unit mm-->m
+        default_ero_size_nc = size_ero_nc*0.001d0  ! unit mm-->m
         velocity_for_erosion = vel_ero*0.3048d0    ! unit ft/s-->m/s
         velocity_for_deposition = vel_dep*0.3048d0 ! unit ft/s-->m/s
-        param_M = eros_coeff                       ! unit kg/(m^2s)    
-        
+        param_M = ero_coeff                        ! unit kg/(m^2s)    
+
+        function_van_rijn = .false. !use Dietrich formula        
         hydro_radius = area/wet_p
         diameterp = diameter(:,isediment)
         fall_vel = fall_velocity(:,isediment)
         critical_shear_strs = critical_shear(:,isediment)
+        exp_re_p = particle_reynolds(:,isediment)
                 
         call si_unit(conc_si, flow_si, area_si,hydro_radius_si, depth_si, dx_si, diameter_si, &
                      conc, flow, area, hydro_radius, depth, dx, diameterp, ncell)    
@@ -111,25 +118,68 @@ module suspended_sediment
                                            velocity(icell),            &
                                            mann_arr(icell),            &
                                            gravity,                    &
-                                           hydro_radius_si(icell))         
-            ! Cohesive sediment
-            call cohesive_erosion(erosion_flux(icell),                 &
-                                  critical_shear_strs(icell),          &
-                                  bottom_shear_stress(icell),          &
-                                  param_M)                                                                  
-            call cohesive_deposition(deposition_flux(icell),           &
-                                     fall_vel(icell),                  &
-                                     conc_si(icell))               
-            if (erosion_flux(icell) .gt. available_bed(icell))         &
-                erosion_flux(icell) = available_bed(icell)
-            vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
-            !if (((diameter_si(icell).ge.0.00100d0).and.(erosion_flux(icell).ne.zero)) .or. &
-            if (((diameter_si(icell).ge.0.00100d0).and.(velocity(icell).gt.velocity_for_deposition) .and. &
-                 (velocity(icell).lt.velocity_for_erosion)) .or.                                          &
-                 (diameter_si(icell).ge.0.00300d0) ) then
-                vertical_flux(icell) = zero
-                erosion_flux(icell) = deposition_flux(icell)
+                                           hydro_radius_si(icell))  
+            if (diameter_si(icell).gt.0.0000625d0 .and. diameter_si(icell).lt.0.001d0) then
+                ! Non-cohesive sediment  
+                call non_cohesive_erosion(erosion_flux(icell),         &
+                                          shear_vel(icell),            &
+                                          exp_re_p(icell),             &
+                                          fall_vel(icell))                
+                call non_cohesive_deposition(deposition_flux(icell),   &
+                                             shear_vel(icell),         &
+                                             fall_vel(icell),          &
+                                             conc(icell))               
+            else
+                ! Cohesive sediment
+                call cohesive_erosion(erosion_flux(icell),             &
+                                      critical_shear_strs(icell),      &
+                                      bottom_shear_stress(icell),      &
+                                      param_M)                                                                  
+                call cohesive_deposition(deposition_flux(icell),       &
+                                         fall_vel(icell),              &
+                                         conc_si(icell))                  
             end if
+            
+            ! For special cases
+            ! case 1: vertical flux=0 for cell i
+            if ((diameter_si(icell).ge.0.001d0) .and. (diameter_si(icell).lt.0.002d0)) then                
+                erosion_flux(icell) = deposition_flux(icell)
+            elseif ((diameter_si(icell).ge.0.002d0) .and. (diameter_si(icell).lt.0.003d0)) then 
+                if (velocity(icell).gt.velocity_for_deposition) erosion_flux(icell) = deposition_flux(icell)            
+            elseif ((diameter_si(icell).ge.0.003d0) .and. (diameter_si(icell).lt.0.004d0)) then 
+                if ((velocity(icell).gt.velocity_for_deposition).and.(velocity(icell).le.velocity_for_erosion)) then
+                    erosion_flux(icell) = deposition_flux(icell)
+                elseif (velocity(icell).gt.velocity_for_erosion) then
+                    call settling_velocity(fall_vel_tmp, kinematic_viscosity, specific_gravity, default_ero_size_c, gravity, function_van_rijn)    
+                    call critical_shear_stress(critical_shear_tmp, water_density, sediment_density, gravity, kinematic_viscosity, default_ero_size_c)                
+                    call cohesive_erosion(erosion_flux(icell),             &
+                                          critical_shear_tmp,              &
+                                          bottom_shear_stress(icell),      &
+                                          param_M)                                                                  
+                    call cohesive_deposition(deposition_flux(icell),       &
+                                             fall_vel_tmp,                 &
+                                             conc_si(icell))                
+                end if
+            elseif ((diameter_si(icell).ge.0.004d0) .and. (diameter_si(icell).lt.0.005d0)) then 
+                if ((velocity(icell).gt.velocity_for_deposition).and.(velocity(icell).le.velocity_for_erosion)) then
+                    erosion_flux(icell) = deposition_flux(icell)
+                elseif (velocity(icell).gt.velocity_for_erosion) then
+                    call submerged_specific_gravity(capital_r, water_density, sediment_density)
+                    call explicit_particle_reynolds_number(exp_re_p_tmp, default_ero_size_nc, capital_r, gravity, kinematic_viscosity)    
+                    call settling_velocity(fall_vel_tmp, kinematic_viscosity, specific_gravity, default_ero_size_nc, gravity, function_van_rijn)
+                    call non_cohesive_erosion(erosion_flux(icell),         &
+                                              shear_vel(icell),            &
+                                              exp_re_p_tmp,                &
+                                              fall_vel_tmp)                
+                    call non_cohesive_deposition(deposition_flux(icell),   &
+                                                 shear_vel(icell),         &
+                                                 fall_vel_tmp,             &
+                                                 conc(icell)) 
+                end if                            
+            end if
+            
+            if (erosion_flux(icell) .gt. available_bed(icell)) erosion_flux(icell) = available_bed(icell)
+            vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
             
             if (area_si(icell) .eq. zero) then
                 source(icell) = zero
@@ -161,160 +211,6 @@ module suspended_sediment
         deallocate(fall_velocity)
         deallocate(particle_reynolds)
         deallocate(critical_shear)
-    end subroutine
-
-    !> Suspended sediment flux
-    subroutine suspended_sediment_flux(source,              & 
-                                       erosion_flux,        &
-                                       deposition_flux,     &
-                                       conc,                & 
-                                       flow,                & 
-                                       area,                & 
-                                       wet_p,               & 
-                                       depth,               &
-                                       manning_n,           & 
-                                       diameterp,           &
-                                       fall_vel,            &
-                                       critical_shear_strs, &
-                                       exp_re_p,            &                             
-                                       dx,                  & 
-                                       dt,                  & 
-                                       ncell,               & 
-                                       available_bed)
-        use sediment_variables
-        use suspended_utility
-        use cohesive_source
-        use non_cohesive_source
-        
-        implicit none
-        !--- args
-        integer, intent(in) :: ncell                                !< number of cells      
-        real(gtm_real), intent(out) :: source(ncell)                !< sediment source/sink
-        real(gtm_real), intent(out) :: erosion_flux(ncell)          !< sediment erosion flux
-        real(gtm_real), intent(out) :: deposition_flux(ncell)       !< sediment deposition flux
-        real(gtm_real), intent(in) :: conc(ncell)                   !< concentration
-        real(gtm_real), intent(in) :: flow(ncell)                   !< flow
-        real(gtm_real), intent(in) :: area(ncell)                   !< area
-        real(gtm_real), intent(in) :: wet_p(ncell)                  !< wetted perimeter
-        real(gtm_real), intent(in) :: depth(ncell)                  !< depth
-        real(gtm_real), intent(in) :: manning_n(ncell)              !< Manning's n
-        real(gtm_real), intent(in) :: diameterp(ncell)              !< diameter
-        real(gtm_real), intent(in) :: fall_vel(ncell)               !< settling velocity
-        real(gtm_real), intent(in) :: critical_shear_strs(ncell)    !< critical shear stress
-        real(gtm_real), intent(in) :: exp_re_p(ncell)               !< explicit particle Reynolds number
-        real(gtm_real), intent(in) :: dx(ncell)                     !< dx
-        real(gtm_real), intent(in) :: dt                            !< dt
-        real(gtm_real), intent(in) :: available_bed(ncell)          !< available bed sediment flux
-        !--- local      
-        real(gtm_real) :: hydro_radius(ncell)           !< hydraulic radius
-        real(gtm_real) :: vertical_flux(ncell)
-        real(gtm_real) :: erosion_flux_nc, deposition_flux_nc
-        real(gtm_real) :: conc_si(ncell), flow_si(ncell), area_si(ncell), dx_si(ncell)
-        real(gtm_real) :: width_si(ncell), hydro_radius_si(ncell), depth_si(ncell), diameter_si(ncell)
-        real(gtm_real) :: diameter_tmp(ncell)
-        real(gtm_real) :: velocity(ncell)
-        real(gtm_real) :: bottom_shear_stress(ncell)
-        real(gtm_real) :: shear_vel(ncell)
-        real(gtm_real) :: Es
-        real(gtm_real) :: c_b
-        real(gtm_real) :: capital_r
-        real(gtm_real) :: exp_re_p_tmp, fall_vel_tmp, critical_shear_tmp
-        real(gtm_real) :: si_to_english = 1000.d0                !< kg/m3-->mg/L
-        integer :: icell
-        logical :: function_van_rijn  
-
-        function_van_rijn = .false.                ! use Dietrich formula        
-        default_dep_size = size_dep*0.001d0        ! unit mm-->m
-        default_ero_size = size_ero*0.001d0        ! unit mm-->m
-        velocity_for_erosion = vel_ero*0.3048d0    ! unit ft/s-->m/s
-        velocity_for_deposition = vel_dep*0.3048d0 ! unit ft/s-->m/s
-        param_M = eros_coeff                       ! unit kg/(m^2s)    
-        
-        hydro_radius = area/wet_p
-        
-        call si_unit(conc_si, flow_si, area_si, hydro_radius_si, depth_si, dx_si, diameter_si, &
-                     conc, flow, area, hydro_radius, depth, dx, diameterp, ncell)    
-                                                                        
-        do icell = 1, ncell        
-            velocity(icell) = abs(flow_si(icell)/area_si(icell))     
-            call bed_shear_stress(bottom_shear_stress(icell),          &
-                                  velocity(icell),                     &
-                                  manning_n(icell),                    &
-                                  hydro_radius_si(icell))          
-            call shear_velocity_calculator(shear_vel(icell),           &
-                                           velocity(icell),            &
-                                           manning_n(icell),           &
-                                           gravity,             &
-                                           hydro_radius_si(icell))         
-            if (((diameter_si(icell).ge.0.00200d0) .and. (diameter_si(icell).lt.0.00201d0)) &
-                 .and.(velocity(icell).gt.velocity_for_erosion)) then        
-                ! Non-cohesive sediment
-                capital_r = sediment_density/water_density  - one
-                call explicit_particle_reynolds_number(exp_re_p_tmp,       &
-                                                       default_ero_size,   &
-                                                       capital_r,          &
-                                                       gravity,            &
-                                                       kinematic_viscosity)
-    
-                call settling_velocity(fall_vel_tmp,                       &
-                                       kinematic_viscosity,                &
-                                       specific_gravity,                   &
-                                       default_ero_size,                   &
-                                       gravity,                            &
-                                       function_van_rijn)       
-
-                call critical_shear_stress(critical_shear_tmp,             &
-                                           water_density,                  &
-                                           sediment_density,               &
-                                           gravity,                        &
-                                           kinematic_viscosity,            &
-                                           default_ero_size)            
-                  
-                call es_garcia_parker(Es,                                  &
-                                      shear_vel(icell),                    &
-                                      exp_re_p_tmp,                        &
-                                      fall_vel_tmp)
-                              
-                call teeter(c_b,                                           &
-                            shear_vel(icell),                              &            
-                            fall_vel_tmp,                                  &
-                            conc_si(icell))                 
-                erosion_flux_nc = Es * fall_vel_tmp
-                deposition_flux_nc = c_b * fall_vel_tmp                 
-                if (erosion_flux_nc .gt. available_bed(icell))             &
-                    erosion_flux_nc = available_bed(icell)
-                erosion_flux(icell) = erosion_flux_nc
-                deposition_flux(icell) = deposition_flux_nc
-                vertical_flux(icell) = erosion_flux_nc - deposition_flux_nc               
-            else                         
-                ! Cohesive sediment
-                call cohesive_erosion(erosion_flux(icell),                  &
-                                      critical_shear_strs(icell),           &
-                                      bottom_shear_stress(icell),           &
-                                      param_M)                                                                  
-                call cohesive_deposition(deposition_flux(icell),            &
-                                         fall_vel(icell),                   &
-                                         conc_si(icell))               
-                if (erosion_flux(icell) .gt. available_bed(icell))          &
-                    erosion_flux(icell) = available_bed(icell)
-                vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
-                !if (((diameter_si(icell).ge.0.00100d0).and.(erosion_flux(icell).ne.zero)) .or. &
-                if (((diameter_si(icell).ge.0.00100d0).and.(velocity(icell).gt.velocity_for_deposition) .and. &
-                     (velocity(icell).lt.velocity_for_erosion)) .or.                                          &
-                     (diameter_si(icell).ge.0.00300d0) ) then
-                    vertical_flux(icell) = zero
-                    erosion_flux(icell) = deposition_flux(icell)
-                end if
-            end if
-            
-            if (area_si(icell) .eq. zero) then
-                source(icell) = zero
-            else                
-                source(icell) = vertical_flux(icell)/depth_si(icell)*si_to_english
-            end if            
-         end do   
-       
-         return 
     end subroutine
 
     
@@ -388,7 +284,6 @@ module suspended_sediment
         diameter_si = diameterp*0.001d0 ! mm-->m
          
         default_dep_size = size_dep*0.001d0       ! unit mm-->m
-        default_ero_size = size_ero*0.001d0       ! unit mm-->m
 
         where (diameter_si.ge.0.00100d0) diameter_si = default_dep_size
         

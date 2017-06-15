@@ -24,6 +24,7 @@ def component_order():
       "oprule_time_series",\
       "rate_coefficient",\
       "group_variable",\
+      "group_variable_sed",\
       "particle_insertion",\
       "particle_filter",\
       "particle_res_filter",\
@@ -71,6 +72,7 @@ def component_members():
       "oprule_time_series":["name","fillin","file","path"],\
       "rate_coefficient":["group_name","constituent","variable","value"],\
       "group_variable":["group_name","constituent","variable","value"],\
+      "group_variable_sed":["group_name","sed_layer","variable","value"],\
       "particle_insertion":["node","nparts","delay","duration"],\
       "particle_filter":["name","node","at_wb","fillin","file","path"],\
       "particle_res_filter":["name","res_name","at_wb","fillin","file","path"],\
@@ -115,6 +117,7 @@ def include_block():
     "particle_group_output":"particle",
     "transfer":"hydro_time_series",
     "input_climate":"gtm_time_series",
+    "group_variable_sed":"gtm_spatial",
     "oprule_time_series":"operation",
     "particle_insertion":"particle",
     "channel":"grid",

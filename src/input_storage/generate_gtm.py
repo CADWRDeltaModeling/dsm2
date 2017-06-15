@@ -240,6 +240,15 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)
 
+    component = TableComponent("group_variable_sed",
+                              [CharField("group_name",DSM2_NAME_LEN,16),
+                              IntField("sed_layer"),
+                              CharField("variable",16,16),
+                              DoubleField("value",16,4)],          
+                              ["group_name","sed_layer","variable"])
+    component.layered=True
+    prep_component(component,outdir)
+	
     component = TableComponent("particle_insertion",
                              [IntField("node"),\
                               IntField("nparts"),\
@@ -534,7 +543,7 @@ def generate_dsm2():
                          "reservoir_concentration",\
                          "input_time_series",\
                          "input_climate"]
-    gtm_spatial_keywords = ["group_variable"]
+    gtm_spatial_keywords = ["group_variable","group_variable_sed"]
     sediment_keywords = ["suspended_sediment_type","suspended_sediment_boundary"]
     water_body_output_keywords   =   ["output_channel","output_reservoir"]
     source_group_output_keywords = ["output_channel_source_track","output_reservoir_source_track"]

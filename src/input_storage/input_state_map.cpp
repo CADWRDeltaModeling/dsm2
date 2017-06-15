@@ -78,6 +78,9 @@ ApplicationTextReader::InputStateMap input_state_map()
    InputStatePtr group_variablePtr(new ItemInputState<group_variable>());
     inputMap["GROUP_VARIABLE"] = group_variablePtr;
 
+   InputStatePtr group_variable_sedPtr(new ItemInputState<group_variable_sed>());
+    inputMap["GROUP_VARIABLE_SED"] = group_variable_sedPtr;
+
    InputStatePtr particle_insertionPtr(new ItemInputState<particle_insertion>());
     inputMap["PARTICLE_INSERTION"] = particle_insertionPtr;
 
@@ -221,6 +224,7 @@ ApplicationTextReader::InputStateMap input_state_map()
     inputMap["GTM_TIME_SERIES"] = gtm_time_seriesPtr;
     vector<string> gtm_spatialContextItems;
     gtm_spatialContextItems.push_back("GROUP_VARIABLE");
+    gtm_spatialContextItems.push_back("GROUP_VARIABLE_SED");
     InputStatePtr gtm_spatialPtr(new IncludeFileState(gtm_spatialContextItems));
     inputMap["GTM_SPATIAL"] = gtm_spatialPtr;
     vector<string> output_time_seriesContextItems;
@@ -281,6 +285,7 @@ const std::vector<std::string> profile(const std::string& name)
         out.push_back("GROUP");
         out.push_back("GROUP_MEMBER");
         out.push_back("GROUP_VARIABLE");
+        out.push_back("GROUP_VARIABLE_SED");
         out.push_back("OUTPUT_CHANNEL");
         out.push_back("OUTPUT_RESERVOIR");
         out.push_back("OUTPUT_CHANNEL_SOURCE_TRACK");

@@ -116,6 +116,44 @@ module non_cohesive_source
         return
     end subroutine 
 
+
+    !> Non-cohesive erosion flux
+    subroutine non_cohesive_erosion(erosion_flux,      &
+                                    shear_vel,         &
+                                    exp_re_p,          &
+                                    fall_vel)
+        implicit none
+        real(gtm_real), intent(out) :: erosion_flux
+        real(gtm_real), intent(in) :: shear_vel
+        real(gtm_real), intent(in) :: exp_re_p
+        real(gtm_real), intent(in) :: fall_vel
+        real(gtm_real) :: Es
+        call es_garcia_parker(Es,                       &
+                              shear_vel,                &
+                              exp_re_p,                 &
+                              fall_vel)              
+        erosion_flux = Es * fall_vel
+        return
+    end subroutine
+
+    !> Non-cohesive deposition flux
+    subroutine non_cohesive_deposition(deposition_flux,   &
+                                       shear_vel,         &
+                                       fall_vel,          &
+                                       conc)
+        implicit none
+        real(gtm_real), intent(out) :: deposition_flux
+        real(gtm_real), intent(in) :: shear_vel
+        real(gtm_real), intent(in) :: fall_vel
+        real(gtm_real), intent(in) :: conc
+        real(gtm_real) :: c_b
+        call teeter(c_b,                                   &
+                    shear_vel,                             &             
+                    fall_vel,                              &
+                    conc)              
+        deposition_flux = c_b * fall_vel
+        return
+    end subroutine
     
     !> Deposition by Parker(1982) estimated from the Rouse profile for rivers 
     subroutine parker_rouse_profile(c_b,          &

@@ -4,7 +4,7 @@
 		<Platform Name="Win32"/></Platforms>
 	<Configurations>
 		<Configuration Name="Debug|Win32" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" WarnInterfaces="true" Traceback="true" BoundsCheck="true" StackFrameCheck="true" RuntimeLibrary="rtMultiThreadedDebug"/>
 				<Tool Name="VFLibrarianTool"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
@@ -13,7 +13,7 @@
 				<Tool Name="VFPreBuildEventTool"/>
 				<Tool Name="VFPostBuildEventTool"/></Configuration>
 		<Configuration Name="Release|Win32" ConfigurationType="typeStaticLibrary">
-				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true"/>
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include"/>
 				<Tool Name="VFLibrarianTool"/>
 				<Tool Name="VFResourceCompilerTool"/>
 				<Tool Name="VFMidlTool" SuppressStartupBanner="true"/>
@@ -25,5 +25,11 @@
 		<Filter Name="Header Files" Filter="fi;fd"/>
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
-		<File RelativePath="..\..\src\sediment_bed\sediment_bed.f90"/></Filter></Files>
+		<File RelativePath="..\..\src\sediment_bed\sed_bed.f90"/>
+		<File RelativePath="..\..\src\sediment_bed\sed_bed_hdf.f90"/>
+		<File RelativePath="..\..\src\sediment_bed\sed_bed_utils.f90"/>
+		<File RelativePath="..\..\src\sediment_bed\sed_internal_vars.f90"/>
+		<File RelativePath="..\..\src\sediment_bed\sed_type_defs.f90"/>
+		<File RelativePath="..\..\src\sediment_bed\sediment_bed.f90"/>
+		<File RelativePath="..\..\src\sediment_bed\sediment_bed_setup.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

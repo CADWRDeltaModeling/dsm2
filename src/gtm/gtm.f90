@@ -382,25 +382,7 @@ program gtm
             prev_flow_cell_lo(:) = flow_mesh_lo(n_st,:)
             prev_flow_cell_hi(:) = flow_mesh_hi(n_st,:)            
             current_slice = slice_in_block            
-        end if
-
-        do i = 1, n_ts_var   !use ts_name(i) to get the variable name
-            input_time_series(i,:) = pathinput(ts(i,:))%value
-        end do        
-
-        ! set values to variables needed for sediment bed module
-        if (run_sediment) call set_sediment_bed(input_time_series(code_to_ts_id(ts_var_temp),:), n_cell)
-        
-        ! set values to variables needed for mercury module
-        if (run_mercury) then    
-            call set_mercury_inputs(conc(:,n_var-n_sediment+1:n_var),  & 
-                                    conc(:,ec_ivar),                   & 
-                                    conc(:,doc_ivar),                  & 
-                                    input_time_series,                 &
-                                    n_cell,                            &
-                                    n_sediment,                        &
-                                    n_ts_var)                
-        end if
+        end if    
 
         if (sub_time_step) then
             sub_st = ceil_max_cfl
@@ -417,6 +399,24 @@ program gtm
             !---get time series for boundary conditions, this will update pathinput(:)%value; 
             !---rounded integer is fine since DSS does not take care of precision finer than 1 minute anyway.
             call get_inp_value(int(new_current_time),int(new_current_time-sub_gtm_time_step))
+
+            do i = 1, n_ts_var   !use ts_name(i) to get the variable name
+                input_time_series(i,:) = pathinput(ts(i,:))%value
+            end do    
+
+            ! set values to variables needed for sediment bed module
+            if (run_sediment) call set_sediment_bed(input_time_series(code_to_ts_id(ts_var_temp),:), n_cell)
+        
+            ! set values to variables needed for mercury module
+            if (run_mercury) then    
+                call set_mercury_inputs(conc(:,n_var-n_sediment+1:n_var),  & 
+                                        conc(:,ec_ivar),                   & 
+                                        conc(:,doc_ivar),                  & 
+                                        input_time_series,                 &
+                                        n_cell,                            &
+                                        n_sediment,                        &
+                                        n_ts_var)                
+            end if
                               
             call fill_hydro_info(flow,          &
                                  flow_lo,       &

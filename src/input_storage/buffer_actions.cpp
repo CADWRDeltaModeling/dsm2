@@ -39,6 +39,7 @@ HDFTableManager<oprule_expression>::instance().buffer().clear();
 HDFTableManager<oprule_time_series>::instance().buffer().clear();
 HDFTableManager<rate_coefficient>::instance().buffer().clear();
 HDFTableManager<group_variable>::instance().buffer().clear();
+HDFTableManager<group_variable_sed>::instance().buffer().clear();
 HDFTableManager<particle_insertion>::instance().buffer().clear();
 HDFTableManager<particle_filter>::instance().buffer().clear();
 HDFTableManager<particle_res_filter>::instance().buffer().clear();
@@ -114,6 +115,8 @@ HDFTableManager<oprule_time_series>::instance().prioritize_buffer();
 HDFTableManager<rate_coefficient>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<group_variable>::instance().prioritize_buffer();
+     if(*ierror != 0) return;
+HDFTableManager<group_variable_sed>::instance().prioritize_buffer();
      if(*ierror != 0) return;
 HDFTableManager<particle_insertion>::instance().prioritize_buffer();
      if(*ierror != 0) return;
@@ -221,6 +224,8 @@ rate_coefficient_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 group_variable_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
+group_variable_sed_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;
 particle_insertion_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;
 particle_filter_write_buffer_to_text_f(file,append,ierror,filelen);
@@ -319,6 +324,8 @@ if(buffer_name == "oprule_time_series"){oprule_time_series_write_buffer_to_text_
 if(buffer_name == "rate_coefficient"){rate_coefficient_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
 if(buffer_name == "group_variable"){group_variable_write_buffer_to_text_f(file,append,ierror,filelen);
+     if(*ierror != 0) return;}
+if(buffer_name == "group_variable_sed"){group_variable_sed_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
 if(buffer_name == "particle_insertion"){particle_insertion_write_buffer_to_text_f(file,append,ierror,filelen);
      if(*ierror != 0) return;}
@@ -466,6 +473,8 @@ if(buffer_name == "rate_coefficient"){rate_coefficient_write_buffer_to_hdf5_f(fi
      if(*ierror != 0) return;}
 if(buffer_name == "group_variable"){group_variable_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
+if(buffer_name == "group_variable_sed"){group_variable_sed_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
 if(buffer_name == "particle_insertion"){particle_insertion_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "particle_filter"){particle_filter_write_buffer_to_hdf5_f(file_id,ierror);
@@ -561,6 +570,8 @@ if(buffer_name == "oprule_time_series"){oprule_time_series_read_buffer_from_hdf5
 if(buffer_name == "rate_coefficient"){rate_coefficient_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "group_variable"){group_variable_read_buffer_from_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;}
+if(buffer_name == "group_variable_sed"){group_variable_sed_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
 if(buffer_name == "particle_insertion"){particle_insertion_read_buffer_from_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;}
@@ -659,6 +670,8 @@ oprule_time_series_write_buffer_to_hdf5_f(file_id,ierror);
 rate_coefficient_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 group_variable_write_buffer_to_hdf5_f(file_id,ierror);
+     if(*ierror != 0) return;
+group_variable_sed_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;
 particle_insertion_write_buffer_to_hdf5_f(file_id,ierror);
      if(*ierror != 0) return;

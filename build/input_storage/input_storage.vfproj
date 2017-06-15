@@ -36,6 +36,7 @@
 		<File RelativePath="..\..\src\input_storage\group_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\group_member_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\group_variable_input_storage.fi"/>
+		<File RelativePath="..\..\src\input_storage\group_variable_sed_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_climate_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_gate_input_storage.fi"/>
 		<File RelativePath="..\..\src\input_storage\input_time_series_input_storage.fi"/>

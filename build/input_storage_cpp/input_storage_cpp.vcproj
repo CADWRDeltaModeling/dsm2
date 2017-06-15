@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\input_storage\input_storage_group_variable_sed.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\input_storage\input_storage_input_climate.cpp"
 				>
 			</File>
@@ -390,6 +394,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\input_storage\input_storage_group_variable.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\input_storage\input_storage_group_variable_sed.h"
 				>
 			</File>
 			<File

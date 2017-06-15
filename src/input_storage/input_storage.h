@@ -42,6 +42,8 @@
 
 #include "input_storage_group_variable.h"
 
+#include "input_storage_group_variable_sed.h"
+
 #include "input_storage_particle_insertion.h"
 
 #include "input_storage_particle_filter.h"

@@ -77,11 +77,12 @@ module common_variables
      logical :: debug_print = .false.
      logical :: apply_diffusion = .false.              !< turn on/off dispersion
      real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
-     real(gtm_real) :: eros_coeff = LARGEREAL          !< erosion coefficient for sediment module
+     real(gtm_real) :: ero_coeff = LARGEREAL           !< erosion coefficient for sediment module
      real(gtm_real) :: vel_dep = LARGEREAL
      real(gtm_real) :: vel_ero = LARGEREAL
      real(gtm_real) :: size_dep = LARGEREAL
-     real(gtm_real) :: size_ero = LARGEREAL
+     real(gtm_real) :: size_ero_c = LARGEREAL
+     real(gtm_real) :: size_ero_nc = LARGEREAL
      
      logical :: run_sediment = .false.                 !< run sediment module if true
      logical :: run_mercury = .false.                  !< run mercury module if true
