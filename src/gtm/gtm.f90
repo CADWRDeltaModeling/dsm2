@@ -64,7 +64,10 @@ program gtm
     use turbidity
     use suspended_sediment
     use sediment_variables
-    use sediment_bed    
+    use sediment_bed
+    use sediment_bed_setup , only: set_up_sediment_bed, close_sediment_bed !<added:dhh
+    use sed_bed_hdf, only: write_gtm_sed_hdf   !<added:dhh
+    use sed_bed_utils !<added:dhh     
     use mercury_state_variables
     use mercury_fluxes
 
@@ -231,7 +234,13 @@ program gtm
         call write_grid_to_tidefile(gtm_hdf%file_id)
     end if
     
-    call get_survey_top(top_wet_p, top_elev, n_cell)
+    !call get_survey_top(top_wet_p, top_elev, n_cell)
+    !> for sediment bed module ----- added:dhh setup sediment bed cells, read inputs, initial conditions etc.
+    if (use_sediment_bed) then 
+        call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
+                          int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
+    end if    
+    
     call assign_group_static_variables
     call assign_input_ts_group_var
     allocate(input_time_series(n_ts_var,n_cell)) 
@@ -257,6 +266,12 @@ program gtm
         call constituent_name_to_ivar(ec_ivar, 'ec')  
         call constituent_name_to_ivar(doc_ivar, 'ec')  ! todo: change 'ec' to 'doc' when doc model setup is ready
     end if
+
+   !> for sediment bed module ----- added:dhh setup sediment bed cells, read inputs, initial conditions etc.
+   ! if (use_sediment_bed) then 
+   !     call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
+   !                      int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
+   !end if
     
     ! initialize concentrations
     conc = init_c
@@ -608,7 +623,13 @@ program gtm
                                             n_chan,                &
                                             n_cell,                &
                                             n_var,                 &
-                                            time_index_in_gtm_hdf)                
+                                            time_index_in_gtm_hdf)      
+                    if (use_sediment_bed) then   !<added:dhh
+                        call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
+                        if (use_sediment_bed) then 
+                         ! call print_last_stage_sed(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !todo: move down
+                        endif
+                    end if                           
                 else
                     call write_gtm_hdf(gtm_hdf,                    &
                                        conc,                       &
@@ -674,6 +695,7 @@ program gtm
     deallocate(constraint)
     deallocate(input_ts, ts, input_time_series)
     if (run_mercury) call deallocate_mercury
+    if (use_sediment_bed) call close_sediment_bed  !<added:dhh
     call deallocate_datain             
     call deallocate_geometry
     call deallocate_state

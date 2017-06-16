@@ -9,7 +9,6 @@
                                 intdate,        &
                                 out_conc_resv,  &
                                 ncell,          &
-                                nzone,          &
                                 nresv,          &
                                 nvar)                                
         use common_variables, only : constituents, resv_geom    
@@ -19,7 +18,6 @@
         character(len=14), intent(in) :: cdtdate
         integer, intent(in) :: intdate
         integer, intent(in) :: ncell
-        integer, intent(in) :: nzone
         integer, intent(in) :: nresv
         integer, intent(in) :: nvar
         real(gtm_real) :: out_conc_resv(nresv,nvar)
@@ -34,11 +32,11 @@
         write(801,*) intdate, "/julmin"
         write(801,*) ncol, "/n_column"
         write(801,*) ncell, "/n_cell"
-        write(801,*) nzone, "/n_zone"
-        write(801,'(a32,<ncol>a32)') "cell_no", "zone_no", "thickness_1",	"org_L1", "inorg_L1", "sand_L1",	"thickness_2",	"org_L2", "inorg_L2", "sand_L2"
+        write(801,*) n_zones, "/n_zone"
+        write(801,'(a32,a32,<ncol>a32)') "cell_no", "zone", "thickness_1",	"org_L1", "inorg_L1", "sand_L1",	"thickness_2",	"org_L2", "inorg_L2", "sand_L2"
         do i = 1, ncell
-            do j = 1, nzone
-                write(801,'(i32,<ncol>f32.16)') i, j, bed(i,j,1).thickness, (bed(i,j,1).mass_frac(k),k=1,isolids), bed(i,j,2).thickness, (bed(i,j,2).mass_frac(k),k=1,isolids)
+            do j = 1, n_zones
+                write(801,'(i32,i32,<ncol>f32.16)') i, j, bed(i,j,1).thickness, (bed(i,j,1).mass_frac(k),k=1,isolids), bed(i,j,2).thickness, (bed(i,j,2).mass_frac(k),k=1,isolids)
             end do
         end do
         close(801)

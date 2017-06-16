@@ -1,7 +1,6 @@
 module sed_internal_vars
     
 use gtm_precision
-
 implicit none
 !these variables contain sediment bed mass fluxes for the two Huens method steps
 
@@ -69,5 +68,7 @@ subroutine deallocate_sed_internals()
     deallocate (decomposition_inter)   
     deallocate (carbonturnover_inter)
 end subroutine deallocate_sed_internals
+
+
 
 end module

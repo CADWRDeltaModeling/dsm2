@@ -13,8 +13,8 @@ module sed_bed_hdf
     use sed_type_defs
     implicit none
   
-    type(gtm_hdf_t) :: gtm_sed_hdf
-    type(gtm_hdf_t) :: gtm_sed_flux_hdf
+    type(gtm_sed_hdf_t) :: gtm_sed_hdf
+    !type(gtm_sed_hdf_t) :: gtm_sed_flux_hdf
     
     integer, parameter :: sed_bed_solids = 1
     integer, parameter :: sed_bed_solids_flux = 2
@@ -59,7 +59,7 @@ module sed_bed_hdf
 	    inquire (file=file_name_hdf_sed_flux, exist=file_exists)
     	if (file_exists) write(*,*) 'Deleting existing file: ' // trim(file_name_hdf_sed_flux) 
               
-	    gtm_sed_hdf%file_name = file_name_hdf_sed
+	    gtm_sed_hdf%file_name_solids = file_name_hdf_sed
 	    ! set up stdio to allow for buffered read/write
 	    call H5Pcreate_f(H5P_FILE_ACCESS_F, access_plist, error)
       
@@ -77,11 +77,11 @@ module sed_bed_hdf
 	    if (print_level .gt. 1) then
 	         write(unit_screen,*) "Creating new HDF5 file"
 	    end if
-	    call h5fcreate_f(file_name_hdf_sed, H5F_ACC_TRUNC_F,gtm_sed_hdf%file_id, error, &     
+	    call h5fcreate_f(file_name_hdf_sed, H5F_ACC_TRUNC_F,gtm_sed_hdf%file_id_sed, error, &     
                          H5P_DEFAULT_F, access_plist)
       
         ! create group for output
-	    call h5gcreate_f(gtm_sed_hdf%file_id, "output", gtm_sed_hdf%data_id, error)
+	    call h5gcreate_f(gtm_sed_hdf%file_id_sed, "output", gtm_sed_hdf%data_id_sed, error)
 	
 	    call incr_intvl(hdf_interval, 0,hdf_interval_char,TO_BOUNDARY)
 	    gtm_sed_hdf%write_interval = hdf_interval
@@ -90,36 +90,26 @@ module sed_bed_hdf
         call incr_intvl(hdf_start, sim_start, hdf_interval_char, NEAREST_BOUNDARY)
         gtm_sed_hdf%start_julmin = hdf_start
 
-        gtm_sed_flux_hdf%file_name = file_name_hdf_sed_flux
-        call h5fcreate_f(file_name_hdf_sed_flux, H5F_ACC_TRUNC_F,gtm_sed_flux_hdf%file_id, error, &     
-                         H5P_DEFAULT_F, access_plist)
-        ! create group for output
-	    call h5gcreate_f(gtm_sed_flux_hdf%file_id, "output", gtm_sed_flux_hdf%data_id, error)
-        
-        gtm_sed_flux_hdf%write_interval = gtm_sed_hdf%write_interval
-        gtm_sed_flux_hdf%start_julmin = gtm_sed_hdf%start_julmin
         
         ! todo: is this "1+" always right? It wasn't in the original code      
         ! record the dimensions of the simulation
 	    ntime = 1+(sim_end - hdf_start)/hdf_interval
         hdf_end = hdf_start + (ntime-1)*hdf_interval
         
-        call write_1D_string_array_sed_bed(gtm_sed_hdf.data_id, "output_names", sed_bed_solids)
-        call write_1D_string_array_sed_bed(gtm_sed_hdf.data_id, "zone", sed_bed_zone)
-        call write_1D_string_array_sed_bed(gtm_sed_hdf.data_id, "layer", sed_bed_layer)
+        call write_1D_string_array_sed_bed(gtm_sed_hdf.data_id_sed, "bed_solid_names", sed_bed_solids)
+        call write_1D_string_array_sed_bed(gtm_sed_hdf.data_id_sed, "zone", sed_bed_zone)
+        call write_1D_string_array_sed_bed(gtm_sed_hdf.data_id_sed, "layer", sed_bed_layer)
         
-        call write_1D_string_array_sed_bed(gtm_sed_flux_hdf.data_id, "output_names", sed_bed_solids_flux)
-        call write_1D_string_array_sed_bed(gtm_sed_flux_hdf.data_id, "zone", sed_bed_zone)
-        call write_1D_string_array_sed_bed(gtm_sed_flux_hdf.data_id, "layer", sed_bed_layer)
+        call write_1D_string_array_sed_bed(gtm_sed_hdf.data_id_sed, "bed_solid_flux_names", sed_bed_solids_flux)
         if (trim(hdf_out).eq.'channel') then
-	        call init_chan_gtm_sed_hdf5(gtm_sed_hdf, n_chans, sed_bed_solids_count, ntime, "sediment_bed_properties", sed_bed_solids)
-            call init_chan_gtm_sed_hdf5(gtm_sed_flux_hdf, n_chans, sed_bed_solids_flux_count, ntime, "bed_solid_fluxes", sed_bed_solids_flux)
+	        call init_chan_gtm_sed_hdf5(gtm_sed_hdf, n_chans, sed_bed_solids_count, ntime, "bed_solids", sed_bed_solids)
+            call init_chan_gtm_sed_hdf5(gtm_sed_hdf, n_chans, sed_bed_solids_flux_count, ntime, "bed_solid_fluxes", sed_bed_solids_flux)
 	    else
 	        !call init_cell_gtm_sed_hdf5(gtm_sed_hdf, n_cell, 8, ntime)
         endif
-        call add_timeseries_attributes(gtm_sed_hdf.chan_conc_id,  gtm_sed_flux_hdf%start_julmin,gtm_sed_hdf%write_interval)
-        call add_timeseries_attributes(gtm_sed_flux_hdf.chan_conc_id,  gtm_sed_flux_hdf%start_julmin,gtm_sed_flux_hdf%write_interval)
-       
+        call add_timeseries_attributes(gtm_sed_hdf.bed_solids_id,  gtm_sed_hdf%start_julmin,gtm_sed_hdf%write_interval)
+        call add_timeseries_attributes(gtm_sed_hdf.bed_solids_flux_id,  gtm_sed_hdf%start_julmin,gtm_sed_hdf%write_interval)
+        call write_channel_labels(gtm_sed_hdf.data_id_sed, n_chans)
         return
     end subroutine init_sed_hdf
 
@@ -129,7 +119,7 @@ module sed_bed_hdf
         use gtm_hdf_ts_write, only : HDF_SZIP_PIXELS_PER_BLOCK, TIME_CHUNK, MIN_STEPS_FOR_CHUNKING
 	    
         !args
-        type(gtm_hdf_t), intent(inout)  :: hdf_file
+        type(gtm_sed_hdf_t), intent(inout)  :: hdf_file
         integer, intent (in)            :: nchan
         integer, intent (in)            :: nconc
         integer, intent (in)            :: ntime
@@ -184,14 +174,26 @@ module sed_bed_hdf
                                 chan_file_dims,         &     
                                 fspace_id,              &    
                                 error)
-	    call h5dcreate_f(hdf_file%data_id,              &  
-                         trim(name),       &    
-                         H5T_NATIVE_REAL,               &	   
-                         fspace_id,                     &
-                         hdf_file%chan_conc_id,         &    
-                         error,                         &     
-                         cparms)                      
-	    call verify_error(error,"Channel concentration dataset creation")
+        select case ( itype)
+        case (1)
+	        call h5dcreate_f(hdf_file%data_id_sed,          &  
+                             trim(name),                    &    
+                             H5T_NATIVE_REAL,               &	   
+                             fspace_id,                     &
+                             hdf_file%bed_solids_id,        &    
+                             error,                         &     
+                             cparms)                      
+        case (2)
+            call h5dcreate_f(hdf_file%data_id_sed,          &  
+                             trim(name),                    &    
+                             H5T_NATIVE_REAL,               &	   
+                             fspace_id,                     &
+                             hdf_file%bed_solids_flux_id,        &    
+                             error,                         &     
+                             cparms)  
+        case (3)
+        end select
+	    call verify_error(error,"Channel sediment bed output dataset creation")
         !call add_timeseries_attributes(hdf_file%chan_conc_id,   &  
         !                               hdf_file%start_julmin,   &
         !                               hdf_file%write_interval)                                                                             
@@ -220,10 +222,10 @@ module sed_bed_hdf
         integer :: error                ! HDF5 Error flag
         integer(HSIZE_T), dimension(arank) :: data_dims
         character * 3                ::istr
-        strlen = 20
         
         select case (iopt)
             case (sed_bed_solids)
+                strlen = 20
                 nstr = sed_bed_solids_count
                 allocate(character(strlen) :: arr(nstr))
                 arr(1) = "thickness (m)"
@@ -231,6 +233,7 @@ module sed_bed_hdf
                 arr(3) = "mass_frac_2"
                 arr(4) = "mass_frac_3"
             case (sed_bed_solids_flux)
+                strlen = 32
                 nstr = sed_bed_solids_flux_count
                 allocate(character(strlen) :: arr(nstr))
                 arr(1) = "deposition (g/m2/yr)"
@@ -239,6 +242,7 @@ module sed_bed_hdf
                 arr(4) = "burial/erosion (g/m2/yr)"
                 arr(5) = "carbon_turnover (g/m2/yr)"
             case (sed_bed_zone)
+                strlen = 20
                 nstr = n_zones
                 allocate(character(strlen) :: arr(nstr))
                 do ii=1,n_zones
@@ -246,7 +250,8 @@ module sed_bed_hdf
                     istr = adjustl(istr)
                     arr(ii) = "zone_" // istr
                 end do
-             case (sed_bed_layer)
+            case (sed_bed_layer)
+                strlen = 20
                 nstr = 2
                 allocate(character(strlen) :: arr(nstr))
                 arr(1) = "layer_1"
@@ -275,7 +280,7 @@ module sed_bed_hdf
         !local
         integer :: ii
         real(gtm_real), allocatable :: mass_total(:,:,:)
-        settling(:,:, :, :) = 0.1
+        
         allocate(mass_total(ncell,n_zones,2))
         
         mass_total(:,:,:) = sedsolids(:,:,:,1,3) + sedsolids(:,:,:,2,3) + sedsolids(:,:,:,3,3)  !todo:check that rkstep = 3 is correct
@@ -285,7 +290,7 @@ module sed_bed_hdf
         
         if (hdf_out .eq. 'channel') then
             call write_gtm_chan_sed_hdf( gtm_sed_hdf, bed, nchan, ncell, n_zones, sed_bed_solids_count, time_index)
-           ! call write_gtm_chan_sed_flux_hdf(gtm_sed_flux_hdf, settling, erosion, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
+            call write_gtm_chan_sed_flux_hdf(gtm_sed_hdf, settling, erosion, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
         end if
         
         deallocate(mass_total)
@@ -302,7 +307,7 @@ module sed_bed_hdf
         use hdf5
         use common_variables, only: hdf_out, chan_geom
         implicit none
-        type(gtm_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
+        type(gtm_sed_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
         integer, intent(in) :: nchan                               !< number of channels
         integer, intent(in) :: ncell                               !< number of cells
         integer, intent(in) :: nzone                               !< number of cells
@@ -356,7 +361,7 @@ module sed_bed_hdf
                                     mdata_dims,          &
                                     memspace_id,         &
                                     error);  
-            call h5dget_space_f(hdf_file%chan_conc_id,   &  
+            call h5dget_space_f(hdf_file%bed_solids_id,   &  
                                 fspace_id,               &
                                 error)
             call h5sselect_hyperslab_f(fspace_id,        &
@@ -364,7 +369,7 @@ module sed_bed_hdf
                                        h_offset,         & 
                                        subset_dims,      &
                                        error)
-            call h5dwrite_f(hdf_file%chan_conc_id,       &
+            call h5dwrite_f(hdf_file%bed_solids_id,       &
                             H5T_NATIVE_REAL,             &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
                             real(chan_conc),             &
                             mdata_dims,                  &
@@ -393,25 +398,25 @@ module sed_bed_hdf
         use hdf5
         use common_variables, only: hdf_out, chan_geom
         implicit none
-        type(gtm_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
-        real(gtm_real), intent(in)  :: settling(ncell, nsolids,2) 
-        real(gtm_real), intent(in)  :: erosion(ncell, nsolids,2)
-        real(gtm_real), intent(in)  :: decomposition(ncell, 2, nsolids, 2)
-        real(gtm_real), intent(in)  :: burial(ncell, 2, nsolids, 2)
-        real(gtm_real), intent(in)  :: carbonturnover(ncell, 2, nsolids, 2)
+        type(gtm_sed_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
+        real(gtm_real), intent(in)  :: settling(ncell,nzone, nsolids,2)      ! 2 is the number of steps in Huen's method
+        real(gtm_real), intent(in)  :: erosion(ncell, nzone, nsolids,2)
+        real(gtm_real), intent(in)  :: decomposition(ncell, nzone, 2, nsolids, 2)
+        real(gtm_real), intent(in)  :: burial(ncell, nzone,2, nsolids, 2)
+        real(gtm_real), intent(in)  :: carbonturnover(ncell, nzone, 2, nsolids, 2)
         integer, intent(in) :: nchan                               !< number of channels
         integer, intent(in) :: ncell                               !< number of cells
         integer, intent(in) :: nconc                               !< number of constituents
         integer, intent(in) :: nzone                               !< number of constituents
         integer, intent(in) :: nsolids                             !< number of constituents
-        real(gtm_real) :: chan_conc(2, nchan, nconc)               !< channel data from transport module
         integer, intent(in) :: time_index                          !< time index to write the data
+        real(gtm_real) :: chan_flux(nzone, 2, nchan, nconc)               !< channel data from transport module (layer, zone, channel, conc)
         integer :: chan_rank
         integer(HID_T) :: fspace_id
         integer(HID_T) :: memspace_id
-     	integer(HSIZE_T), dimension(3) :: mdata_dims  = 0       ! Dims of data in memory
-      	integer(HSIZE_T), dimension(4) :: subset_dims  = 0      ! Dims of subset for time step
-    	integer(HSIZE_T), dimension(4) :: h_offset = (/0,0,0,0/)
+     	integer(HSIZE_T), dimension(4) :: mdata_dims  = 0       ! Dims of data in memory
+      	integer(HSIZE_T), dimension(5) :: subset_dims  = 0      ! Dims of subset for time step
+    	integer(HSIZE_T), dimension(5) :: h_offset = (/0,0,0,0,0/)
     	integer :: ichan
         integer :: error                                        ! HDF5 Error flag
         integer :: imid
@@ -423,35 +428,52 @@ module sed_bed_hdf
             h_offset(1) = 0
             h_offset(2) = 0
             h_offset(3) = 0
-            h_offset(4) = time_index
+            h_offset(4) = 0
+            h_offset(5) = time_index
 
-	        subset_dims(1) = 2
-	        subset_dims(2) = nchan
-	        subset_dims(3) = nconc
-	        subset_dims(4) = 1
+	        subset_dims(1) = 2  
+            subset_dims(2) = nzone
+	        subset_dims(3) = nchan
+	        subset_dims(4) = nconc
+	        subset_dims(5) = 1
 
-	        mdata_dims(1) = 2
-	        mdata_dims(2) = nchan
-	        mdata_dims(3) = nconc
-            chan_rank = 3
+            mdata_dims(1) = 2
+            mdata_dims(2) = nzone
+	        mdata_dims(3) = nchan
+	        mdata_dims(4) = nconc
             
-            chan_conc(2,:,4) = zero     ! no burial from layer 2
-            chan_conc(2,:,2) = zero     ! no resuspension from layer 2
+            chan_rank = 4
+            
+            chan_flux(:,2,:,4) = zero     ! no burial from layer 2
+            chan_flux(:,2,:,2) = zero     ! no resuspension from layer 2
+            chan_flux(:,:,:,:) = zero     ! no resuspension from layer 2
             do ichan = 1, nchan             ! overall Huen flux for the previous time step - all three solid types combined
                 imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  ! write for middle cell in channel
-                chan_conc(1,ichan,1) =  (settling(imid, 1, 1) + settling(imid,2,1 ) + settling(imid, 3, 1) + settling(imid, 1, 2) + settling(imid, 2, 2) + settling(imid, 3, 2))/two
-                chan_conc(1,ichan,2) =  (erosion(imid, 1, 1) + erosion(imid,2, 1) + erosion(imid, 3, 1) + erosion(imid, 1, 2) + erosion(imid, 2, 2) + erosion(imid, 3, 2))/two
-                chan_conc(:,ichan,3) =  (decomposition(imid, :, 1, 1) + decomposition(imid, :, 2, 1) + decomposition(imid, :, 3, 1) + decomposition(imid, :, 1, 2) + decomposition(imid, :, 2, 2) + decomposition(imid, :, 3, 2))/two
-                chan_conc(1,ichan,4) =  (burial(imid, 1, 1, 1) + burial(imid, 1, 2, 1) + burial(imid, 1, 3, 1) + burial(imid, 1, 1, 2) + burial(imid, 1, 2, 2) + burial(imid, 1, 3, 2))/two
-                chan_conc(:,ichan,5) =  (carbonturnover(imid, :, 1, 1) + carbonturnover(imid, :, 2, 1) + carbonturnover(imid, :, 3, 1) + carbonturnover(imid, :, 1, 2) + carbonturnover(imid, :, 2, 2) + carbonturnover(imid, :, 3, 2))/two
-                chan_conc(2,ichan,1) = chan_conc(1,ichan,4)   ! settling into layer 2 = burial from layer 1
+                where (bed(imid,:,1).area_wet > zero) 
+                         chan_flux(:,1,ichan,1) =  (((settling(imid, :, 1, 1) + settling(imid,:, 2,1 ) + settling(imid,:, 3, 1) + settling(imid,:, 1, 2) + settling(imid,:, 2, 2) + settling(imid,:, 3, 2))/two) &
+                                             /(bed(imid,:,1).area_wet * ft_to_m**2)) * day_to_sec
+                         chan_flux(:,1,ichan,2) = (((erosion(imid,:, 1, 1) + erosion(imid,:,2, 1) + erosion(imid,:, 3, 1) + erosion(imid,:, 1, 2) + erosion(imid,:, 2, 2) + erosion(imid,:, 3, 2))/two) &
+                                             /(bed(imid,:,1).area_wet * ft_to_m**2)) * day_to_sec
+                         chan_flux(:,1,ichan,4) = (((burial(imid,:,1,1,1) + burial(imid,:,1,2,1) + burial(imid,:,1,3,1) + burial(imid,:,1,1,2) + burial(imid,:,1,2, 2) + burial(imid,:,1,3,2))/two) &
+                                             /(bed(imid,:,1).area_wet * ft_to_m**2)) * day_to_sec
+                endwhere
+                
+                where (bed(imid,:,:).area_wet > zero)
+                    chan_flux(:,:,ichan,3) = (((decomposition(imid,:,:,1,1) + decomposition(imid,:,:,2,1) + decomposition(imid,:,:,3,1) + decomposition(imid,:,:,1, 2) + decomposition(imid,:,:,2, 2) + decomposition(imid,:,:,3,2))/two) &
+                                             /(bed(imid,:,:).area_wet * ft_to_m**2)) * day_to_sec
+                    chan_flux(:,:,ichan,5) = (((carbonturnover(imid,:,:,1,1) + carbonturnover(imid,:,:,2,1) + carbonturnover(imid,:,:,3,1) + carbonturnover(imid,:,:,1,2) + carbonturnover(imid,:,:,2,2) + carbonturnover(imid,:,:,3,2))/two) &
+                                             /(bed(imid,:,:).area_wet * ft_to_m**2)) * day_to_sec
+                                                              
+                endwhere
+                chan_flux(:,2,ichan,1) = chan_flux(:,1,ichan,4)   ! settling into layer 2 = burial from layer 1
+                
             end do
               
             call H5Screate_simple_f(chan_rank,           &
                                     mdata_dims,          &
                                     memspace_id,         &
                                     error);  
-            call h5dget_space_f(hdf_file%chan_conc_id,   &  
+            call h5dget_space_f(hdf_file%bed_solids_flux_id,   &  
                                 fspace_id,               &
                                 error)
             call h5sselect_hyperslab_f(fspace_id,        &
@@ -459,9 +481,9 @@ module sed_bed_hdf
                                        h_offset,         & 
                                        subset_dims,      &
                                        error)
-            call h5dwrite_f(hdf_file%chan_conc_id,       &
+            call h5dwrite_f(hdf_file% bed_solids_flux_id,       &
                             H5T_NATIVE_REAL,             &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
-                            real(chan_conc),             &
+                            real(chan_flux),             &
                             mdata_dims,                  &
                             error,                       &
                             memspace_id,                 & 
@@ -474,11 +496,59 @@ module sed_bed_hdf
     end subroutine
 
     subroutine close_hdf_sed_all()
-        call  close_gtm_hdf(gtm_sed_hdf)
-        call  close_gtm_hdf(gtm_sed_flux_hdf)
+        call  close_gtm_sed_hdf(gtm_sed_hdf)
+        !call  close_gtm_sed_hdf(gtm_sed_flux_hdf)
         return
     end subroutine close_hdf_sed_all
     
+     subroutine close_gtm_sed_hdf(hdf_file)
+        use hdf5
+        use common_variables, only: unit_error,unit_screen, hdf_out
+        use common_dsm2_vars, only: print_level
+
+        implicit none
+        type(gtm_sed_hdf_t) :: hdf_file
+	
+        integer        :: error	! HDF5 Error flag
+       
+        !-------Close the datasets 
+        if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data sets"
+
+        if (hdf_out .eq. 'channel') then
+	        call h5dclose_f(hdf_file%bed_solids_id,error)
+            if (error .ne. 0) then
+	            write(unit_error,*)"HDF5 error closing chan conc data set: ",error
+            end if  
+            call h5dclose_f(hdf_file%bed_solids_flux_id,error)
+            if (error .ne. 0) then
+	            write(unit_error,*)"HDF5 error closing chan conc data set: ",error
+	        end if        
+	    end if    
+
+       ! if (hdf_file%resv_dim.gt.0) then
+	   !     call h5dclose_f(hdf_file%resv_conc_id,error)
+	   !     if (error .ne. 0) then
+	   !         write(unit_error,*)"HDF5 error closing reservoir conc data set: ",error
+	   !     end if
+	   ! end if    
+
+        !-----Close the groups in the dataset. Only the data group should be open
+        !     on an ongoing basis  
+        call h5gclose_f(hdf_file%data_id_sed, error)
+        if (error .ne. 0) then 
+            write(unit_error,*)"HDF5 error closing data group: ",error
+        end if
+        
+        !-------Close the file
+ 333    if (print_level .gt.1) write(unit_screen,*)"Closing HDF5 file"
+	    call h5fclose_f(hdf_file%file_id_sed, error)
+        if (error .ne. 0) then
+	       write(unit_error,*)"HDF5 error closing hdf file: ",error
+        end if
+
+	    return
+     end subroutine
+     
     subroutine init_bed_geom_hdf()
         use hdf5
         use h5lt
@@ -614,6 +684,35 @@ module sed_bed_hdf
         endif
 
     end subroutine
+    
+    subroutine write_channel_labels(loc_id, nchan)
+        use hdf5
+        use common_variables, only: chan_geom,hdf_out !resv_geom, constituents, 
+        implicit none
+        !args
+        integer (HID_T), intent(in) :: loc_id              !< hdf file data ID
+        integer, intent(in) :: nchan                       !< nbumber of channels
+        !local
+        integer(HSIZE_T), dimension(1)  :: in_dims != (/0/) ! Dataset dimensions
+        integer(HID_T)                  :: in_dspace_id     ! Dataspace identifier
+        integer(HID_T)                  :: in_dset_id       ! Dataspace identifier
+        integer                         :: in_rank = 1      ! Dataset rank
+        Integer(HID_T) :: cparms                             ! dataset creatation property identifier
+        integer                         :: ierror
+        
+        if (hdf_out .eq. 'channel') then
+                     
+            ! Write out external channel numbers int2ext
+            call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, ierror)
+            in_dims(1) = nchan
+            call h5screate_simple_f(in_rank, in_dims, in_dspace_id, ierror)
+            call h5dcreate_f(loc_id, "channel_number", H5T_NATIVE_INTEGER,   &
+                             in_dspace_id, in_dset_id, ierror, cparms)
+            call h5dwrite_f(in_dset_id,H5T_NATIVE_INTEGER, chan_geom%channel_num, in_dims, ierror)
+            call h5sclose_f (in_dspace_id, ierror)
+            call h5dclose_f(in_dset_id,ierror)
+        end if
+    end subroutine write_channel_labels
     
     subroutine sed_setup_solids(ncells,nzones,layers)
         integer, intent (in)            :: ncells

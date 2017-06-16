@@ -35,9 +35,10 @@ class group_variable_sed
 public:
 
   /** Data type group_variable_sed, default constructor */  
-  typedef const tuple<const std::string,const int&,const std::string>  identifier_type;
+  typedef const tuple<const std::string,const int&,const int&,const std::string>  identifier_type;
 
   group_variable_sed() :
+    sed_zone(-901),
     sed_layer(-901),
     value(-901.0),
     used(true),
@@ -48,7 +49,8 @@ public:
   };
 
   /** Construct a group_variable_sed with actual data values */
-  group_variable_sed(const  char a_group_name[32],const int & a_sed_layer,const  char a_variable[16],const double & a_value, bool a_used=true, int a_layer = 0) :
+  group_variable_sed(const  char a_group_name[32],const int & a_sed_zone,const int & a_sed_layer,const  char a_variable[16],const double & a_value, bool a_used=true, int a_layer = 0) :
+    sed_zone(a_sed_zone),
     sed_layer(a_sed_layer),
     value(a_value),
     used(a_used),
@@ -61,6 +63,7 @@ public:
   /**Copy constructor) 
    */
   group_variable_sed (const group_variable_sed & other) :
+    sed_zone(other.sed_zone),
     sed_layer(other.sed_layer),
     value(other.value),
     used(other.used),
@@ -73,14 +76,15 @@ public:
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
   {  
-     return identifier_type( group_name,sed_layer,variable );
+     return identifier_type( group_name,sed_zone,sed_layer,variable );
   }
   
   void set_identifier(identifier_type identifier)
   {
      memcpy(group_name,identifier.get<0>().c_str(),32);
-      sed_layer=identifier.get<1>();
-      memcpy(variable,identifier.get<2>().c_str(),16);
+      sed_zone=identifier.get<1>();
+      sed_layer=identifier.get<2>();
+      memcpy(variable,identifier.get<3>().c_str(),16);
   }
   
   /** Parent object class name.
@@ -90,7 +94,7 @@ public:
   */
   group_variable_sed::identifier_type parent_identifier()  const
   {
-     return group_variable_sed::identifier_type( group_name,sed_layer,variable );
+     return group_variable_sed::identifier_type( group_name,sed_zone,sed_layer,variable );
   }
 
   /** Return the version/layer number of the parent object */ 
@@ -139,6 +143,7 @@ public:
   group_variable_sed& operator=(const group_variable_sed& rhs)
   {
     strcpy(this->group_name,rhs.group_name);
+    this->sed_zone=rhs.sed_zone;
     this->sed_layer=rhs.sed_layer;
     strcpy(this->variable,rhs.variable);
     this->value=rhs.value;
@@ -155,6 +160,7 @@ public:
 
   
   char group_name[32];
+  int sed_zone;
   int sed_layer;
   char variable[16];
   double value;
@@ -189,7 +195,7 @@ FCALL int group_variable_sed_buffer_size_f();
 
 
 /** append to buffer, compatible with fortran, returns new size*/
-FCALL void group_variable_sed_append_to_buffer_f(const  char a_group_name[32],const int * a_sed_layer,const  char a_variable[16],const double * a_value, int * ierror, 
+FCALL void group_variable_sed_append_to_buffer_f(const  char a_group_name[32],const int * a_sed_zone,const int * a_sed_layer,const  char a_variable[16],const double * a_value, int * ierror, 
               const int group_name_len,const int variable_len);
   
 /** both makes the table and writes the contents of the buffer to it */
@@ -205,7 +211,7 @@ FCALL void group_variable_sed_number_rows_hdf5_f(const hid_t* file_id, hsize_t* 
 
 /** get one row worth of information from the buffer */
 FCALL void group_variable_sed_query_from_buffer_f(size_t* row, 
-                         char a_group_name[32],int * a_sed_layer, char a_variable[16],double * a_value, int * ierror, 
+                         char a_group_name[32],int * a_sed_zone,int * a_sed_layer, char a_variable[16],double * a_value, int * ierror, 
               int group_name_len,int variable_len);
 /**
   prioritize buffer by layers, delete unused items and sort

@@ -43,7 +43,8 @@ module gtm_source
         use common_variables, only: n_sediment, use_sediment_bed, n_layers, &
                                     run_mercury, n_mercury, mercury_ivar
         use suspended_sediment
-        use sediment_bed
+        use sed_type_defs, only: n_zones !added by dhh
+        use sediment_bed, only: sediment_bed_main !added by dhh
         use turbidity
         use mercury_fluxes
         implicit none
@@ -88,18 +89,18 @@ module gtm_source
                                                ncell,                   & 
                                                constraint(:,ivar),      &
                                                isediment)      
-                ! Sediment Bed Module
-                if (use_sediment_bed) then
-                    call sediment_bed_main(erosion(:,isediment),        &
-                                           deposition(:,isediment),     &
-                                           dx*width,                    &   
-                                           dt,                          & 
-                                           rkstep,                      &
-                                           n_layers,                    &
-                                           ncell,                       &
-                                           n_sediment)           
-                    constraint(:,ivar) = erosion(:,isediment)
-                end if 
+                ! Sediment Bed Module #comment out by dhh
+                !if (use_sediment_bed) then
+                !    call sediment_bed_main(erosion(:,isediment),        &
+                !                           deposition(:,isediment),     &
+                !                           dx*width,                    &   
+                !                           dt,                          & 
+                !                           rkstep,                      &
+                !                           n_layers,                    &
+                !                           ncell,                       &
+                !                           n_sediment)           
+                !    constraint(:,ivar) = erosion(:,isediment)
+                !end if 
             elseif (trim(name(ivar)).eq."turbidity") then
                 call turbidity_source(source(:,ivar),       & 
                                       conc(:,ivar),         & 
@@ -108,6 +109,24 @@ module gtm_source
                                       conc(:,ivar))
             end if
         end do
+        ! Sediment Bed Module
+        if (use_sediment_bed) then          !added by dhh
+            call sediment_bed_main(ncell,           &
+                                   n_zones,         &
+                                   2,               &
+                                   n_sediment,      &
+                                   deposition,      &
+                                   erosion,         &
+                                   area,            &
+                                   width,           &
+                                   depth,           &
+                                   hyd_radius,      &
+                                   dt,              &
+                                   rkstep)
+            !todo: maybe need to adjust suspended sediment erosion and deposition for GTM (units)
+        end if        
+        
+        
         if (run_mercury) then
                 conc_mercury(:,1:n_mercury) = conc(:,mercury_ivar(1:n_mercury))
                 source_mercury(:,1:n_mercury) = source(:,mercury_ivar(1:n_mercury))

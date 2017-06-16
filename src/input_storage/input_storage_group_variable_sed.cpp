@@ -47,6 +47,10 @@ ostream& operator<<(ostream & stream, const group_variable_sed & obj)
             << setfill(' ')
             << left
             << quote_spaces(obj.group_name, 32)  
+        << setw(10)
+            << setfill(' ')
+            << left
+            << obj.sed_zone  
         << setw(11)
             << setfill(' ')
             << left
@@ -106,6 +110,20 @@ istream& operator>> (istream& stream, group_variable_sed & obj)
         tokenstrm.clear();
         tempstr = *(beg++);
         tokenstrm.str(tempstr);
+        tokenstrm >> obj.sed_zone;  // strtol(tempStr.c_str(),NULL,10);
+        if (!tokenstrm.eof())
+        {
+          throw invalid_argument("Could not convert sed_zone to correct data type:"+tempstr);
+        }
+        
+
+        if (beg == end)
+        {
+            throw runtime_error("Fewer input fields received than expected");
+        }        
+        tokenstrm.clear();
+        tempstr = *(beg++);
+        tokenstrm.str(tempstr);
         tokenstrm >> obj.sed_layer;  // strtol(tempStr.c_str(),NULL,10);
         if (!tokenstrm.eof())
         {
@@ -140,7 +158,7 @@ istream& operator>> (istream& stream, group_variable_sed & obj)
 template<>
 HDFTableManager<group_variable_sed>::HDFTableManager() :
     description(group_variable_sed_table_description()),  
-    m_default_fill(group_variable_sed("",-901,"",-901.0)){}
+    m_default_fill(group_variable_sed("",-901,-901,"",-901.0)){}
 
 template<>
 void HDFTableManager<group_variable_sed>::prioritize_buffer()
@@ -169,15 +187,16 @@ void HDFTableManager<group_variable_sed>::prioritize_buffer()
 TableDescription group_variable_sed_table_description(){
   const char* title = "group_variable_sed";
   const size_t size = sizeof(group_variable_sed);
-  const size_t nfields = 4;
-  group_variable_sed default_struct = group_variable_sed("",-901,"",-901.0);
-  const char* fnames[] =  {"group_name","sed_layer","variable","value"};
+  const size_t nfields = 5;
+  group_variable_sed default_struct = group_variable_sed("",-901,-901,"",-901.0);
+  const char* fnames[] =  {"group_name","sed_zone","sed_layer","variable","value"};
   const hid_t ftypes[] =  {
-            string_type(32),H5T_NATIVE_INT,string_type(16),H5T_NATIVE_DOUBLE
+            string_type(32),H5T_NATIVE_INT,H5T_NATIVE_INT,string_type(16),H5T_NATIVE_DOUBLE
                };
 
   const size_t foffsets[] ={
              ((char*)&default_struct.group_name - (char*)&default_struct),
+             ((char*)&default_struct.sed_zone - (char*)&default_struct),
              ((char*)&default_struct.sed_layer - (char*)&default_struct),
              ((char*)&default_struct.variable - (char*)&default_struct),
              ((char*)&default_struct.value - (char*)&default_struct)
@@ -185,6 +204,7 @@ TableDescription group_variable_sed_table_description(){
 
   const size_t fsizes[] = {
          sizeof( default_struct.group_name ),
+         sizeof( default_struct.sed_zone ),
          sizeof( default_struct.sed_layer ),
          sizeof( default_struct.variable ),
          sizeof( default_struct.value )
@@ -205,13 +225,13 @@ void group_variable_sed_clear_buffer_f(){
 }
 
 /** append to buffer, compatible with fortran, returns new size*/
-void group_variable_sed_append_to_buffer_f(const  char a_group_name[32],const int * a_sed_layer,const  char a_variable[16],const double * a_value, int * ierror, 
+void group_variable_sed_append_to_buffer_f(const  char a_group_name[32],const int * a_sed_zone,const int * a_sed_layer,const  char a_variable[16],const double * a_value, int * ierror, 
               const int group_name_len,const int variable_len)
 {
  _TRAP_EXCEPT(*ierror,
    group_variable_sed_table::instance().buffer().push_back(
                                       group_variable_sed(
-                                      a_group_name,*a_sed_layer,a_variable,*a_value
+                                      a_group_name,*a_sed_zone,*a_sed_layer,a_variable,*a_value
                                       ));
  ) // end of exception trap
 }
@@ -279,7 +299,7 @@ void group_variable_sed_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecor
     
 /** get one row worth of information from the buffer */
 void group_variable_sed_query_from_buffer_f(size_t* row, 
-                         char a_group_name[32],int * a_sed_layer, char a_variable[16],double * a_value, int * ierror, 
+                         char a_group_name[32],int * a_sed_zone,int * a_sed_layer, char a_variable[16],double * a_value, int * ierror, 
               int group_name_len,int variable_len
                         )
 {
@@ -288,6 +308,7 @@ void group_variable_sed_query_from_buffer_f(size_t* row,
     size_t ndx = *row - 1;
     group_variable_sed obj =group_variable_sed_table::instance().buffer()[ndx];
     memcpy(a_group_name,obj.group_name,32);
+    *a_sed_zone=obj.sed_zone;
     *a_sed_layer=obj.sed_layer;
     memcpy(a_variable,obj.variable,16);
     *a_value=obj.value;
