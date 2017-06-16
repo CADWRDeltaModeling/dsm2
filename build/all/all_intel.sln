@@ -135,13 +135,6 @@ Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "test_do_module", "..\test_d
 		{8115A2EE-4BB3-4202-BB8C-DD6793F2F854} = {8115A2EE-4BB3-4202-BB8C-DD6793F2F854}
 	EndProjectSection
 EndProject
-Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "sediment_bed_setup", "..\sediment_bed_setup\sediment_bed_setup.vfproj", "{D68CC610-755F-4F9E-A4D6-665098309D54}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9EB0CD1A-D080-4E5A-8023-6462D724850E} = {9EB0CD1A-D080-4E5A-8023-6462D724850E}
-		{325B5758-AC70-48BB-8B4B-723C10EC8662} = {325B5758-AC70-48BB-8B4B-723C10EC8662}
-		{7ADFF7D6-2462-460B-91E4-60D0D0DBB5F8} = {7ADFF7D6-2462-460B-91E4-60D0D0DBB5F8}
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(IntelOptPkgProperties) = preSolution
 		LoadPackage = true
@@ -613,26 +606,6 @@ Global
 		{5DC35BAD-0999-4CEE-9878-9FFFF8E73CF5}.Release|Any CPU.ActiveCfg = Release|Win32
 		{5DC35BAD-0999-4CEE-9878-9FFFF8E73CF5}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{5DC35BAD-0999-4CEE-9878-9FFFF8E73CF5}.Release|Win32.ActiveCfg = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Debug|Win32.Build.0 = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.DLL|Any CPU.ActiveCfg = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.DLL|Mixed Platforms.ActiveCfg = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.DLL|Mixed Platforms.Build.0 = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.DLL|Win32.ActiveCfg = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.DLL|Win32.Build.0 = Debug|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Intel_SSA|Any CPU.ActiveCfg = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Intel_SSA|Mixed Platforms.ActiveCfg = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Intel_SSA|Mixed Platforms.Build.0 = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Intel_SSA|Win32.ActiveCfg = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Intel_SSA|Win32.Build.0 = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Release|Any CPU.ActiveCfg = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Release|Mixed Platforms.Build.0 = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Release|Win32.ActiveCfg = Release|Win32
-		{D68CC610-755F-4F9E-A4D6-665098309D54}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
