@@ -70,6 +70,7 @@ module gtm_source
         real(gtm_real) :: deposition(ncell,n_sediment)
         real(gtm_real) :: conc_mercury(ncell,n_mercury)
         real(gtm_real) :: source_mercury(ncell,n_mercury)
+        real(gtm_real) :: si_to_english = 1000.d0                !< kg/m3-->mg/L
                 
         ! source must be in primitive variable 
         do ivar = 1, nvar
@@ -88,19 +89,7 @@ module gtm_source
                                                dt,                      & 
                                                ncell,                   & 
                                                constraint(:,ivar),      &
-                                               isediment)      
-                ! Sediment Bed Module #comment out by dhh
-                !if (use_sediment_bed) then
-                !    call sediment_bed_main(erosion(:,isediment),        &
-                !                           deposition(:,isediment),     &
-                !                           dx*width,                    &   
-                !                           dt,                          & 
-                !                           rkstep,                      &
-                !                           n_layers,                    &
-                !                           ncell,                       &
-                !                           n_sediment)           
-                !    constraint(:,ivar) = erosion(:,isediment)
-                !end if 
+                                               isediment)
             elseif (trim(name(ivar)).eq."turbidity") then
                 call turbidity_source(source(:,ivar),       & 
                                       conc(:,ivar),         & 
@@ -124,9 +113,14 @@ module gtm_source
                                    dt,              &
                                    rkstep)
             !todo: maybe need to adjust suspended sediment erosion and deposition for GTM (units)
+            do ivar = 1, nvar
+                if (trim(name(ivar)).eq."sediment") then
+                    isediment = ivar - (nvar - n_sediment)
+                    source(:,ivar) = (erosion(:,isediment)-deposition(:,isediment))/(depth(:)*0.3048d0)*si_to_english
+                end if
+            end do
         end if        
-        
-        
+               
         if (run_mercury) then
                 conc_mercury(:,1:n_mercury) = conc(:,mercury_ivar(1:n_mercury))
                 source_mercury(:,1:n_mercury) = source(:,mercury_ivar(1:n_mercury))

@@ -81,8 +81,7 @@ module common_variables
      real(gtm_real) :: vel_dep = LARGEREAL
      real(gtm_real) :: vel_ero = LARGEREAL
      real(gtm_real) :: size_dep = LARGEREAL
-     real(gtm_real) :: size_ero_c = LARGEREAL
-     real(gtm_real) :: size_ero_nc = LARGEREAL
+     real(gtm_real) :: size_ero = LARGEREAL
      
      logical :: run_sediment = .false.                 !< run sediment module if true
      logical :: run_mercury = .false.                  !< run mercury module if true

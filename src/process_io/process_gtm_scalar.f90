@@ -115,10 +115,8 @@ module process_gtm_scalar
          read(Val, '(f20.15)', err=810) vel_ero
       elseif (Param .eq. 'size_dep') then
          read(Val, '(f20.15)', err=810) size_dep
-      elseif (Param .eq. 'size_ero_c') then
-         read(Val, '(f20.15)', err=810) size_ero_c
-      elseif (Param .eq. 'size_ero_nc') then
-         read(Val, '(f20.15)', err=810) size_ero_nc         
+      elseif (Param .eq. 'size_ero') then
+         read(Val, '(f20.15)', err=810) size_ero        
       elseif (Param .eq. 'run_mercury') then
          read(Val, '(l2)', err=810) run_mercury
       elseif (Param .eq. 'use_sediment_bed') then

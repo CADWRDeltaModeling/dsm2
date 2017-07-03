@@ -543,9 +543,8 @@ def generate_dsm2():
                          "reservoir_concentration",\
                          "input_time_series",\
                          "input_climate"]
-    gtm_spatial_keywords = ["group_variable"]
+    gtm_spatial_keywords = ["group_variable","group_variable_sed"]
     sediment_keywords = ["suspended_sediment_type","suspended_sediment_boundary","group_variable_sed"]
-    sediment_bed_keywords = ["group_variable_sed"]
     water_body_output_keywords   =   ["output_channel","output_reservoir"]
     source_group_output_keywords = ["output_channel_source_track","output_reservoir_source_track"]
     gate_output_keywords         = ["output_gate"]

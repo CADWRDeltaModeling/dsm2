@@ -24,14 +24,12 @@
 module suspended_sediment
 
     use gtm_precision
-    use common_variables, only: ero_coeff, vel_dep, vel_ero, size_dep, size_ero_c, size_ero_nc
-    
+    use common_variables, only: ero_coeff, vel_dep, vel_ero, size_dep, size_ero
     real(gtm_real) :: default_dep_size                      !< unit m
-    real(gtm_real) :: default_ero_size_c                    !< unit m
-    real(gtm_real) :: default_ero_size_nc                   !< unit m
+    real(gtm_real) :: default_ero_size                      !< unit m
     real(gtm_real) :: velocity_for_erosion                  !< unit m/s
     real(gtm_real) :: velocity_for_deposition               !< unit m/s
-    real(gtm_real) :: param_M            ! !1.325d-6        !< unit kg/(m^2s) 
+    real(gtm_real) :: param_M                               !< unit kg/(m^2s) 
 
     real(gtm_real), allocatable :: diameter(:,:)
     real(gtm_real), allocatable :: fall_velocity(:,:)
@@ -92,8 +90,7 @@ module suspended_sediment
         logical ::  function_van_rijn 
    
         default_dep_size = size_dep*0.001d0        ! unit mm-->m
-        default_ero_size_c = size_ero_c*0.001d0    ! unit mm-->m
-        default_ero_size_nc = size_ero_nc*0.001d0  ! unit mm-->m
+        default_ero_size = size_ero*0.001d0        ! unit mm-->m
         velocity_for_erosion = vel_ero*0.3048d0    ! unit ft/s-->m/s
         velocity_for_deposition = vel_dep*0.3048d0 ! unit ft/s-->m/s
         param_M = ero_coeff                        ! unit kg/(m^2s)    
@@ -144,14 +141,16 @@ module suspended_sediment
             ! case 1: vertical flux=0 for cell i
             if ((diameter_si(icell).ge.0.001d0) .and. (diameter_si(icell).lt.0.002d0)) then                
                 erosion_flux(icell) = deposition_flux(icell)
+            ! case 2: trigger deposition when flow velocity is less than vel_dep
             elseif ((diameter_si(icell).ge.0.002d0) .and. (diameter_si(icell).lt.0.003d0)) then 
-                if (velocity(icell).gt.velocity_for_deposition) erosion_flux(icell) = deposition_flux(icell)            
+                if (velocity(icell).gt.velocity_for_deposition) erosion_flux(icell) = deposition_flux(icell)
+            ! case 3: trigger erosion when flow velocity is greater than vel_ero
             elseif ((diameter_si(icell).ge.0.003d0) .and. (diameter_si(icell).lt.0.004d0)) then 
                 if ((velocity(icell).gt.velocity_for_deposition).and.(velocity(icell).le.velocity_for_erosion)) then
                     erosion_flux(icell) = deposition_flux(icell)
                 elseif (velocity(icell).gt.velocity_for_erosion) then
-                    call settling_velocity(fall_vel_tmp, kinematic_viscosity, specific_gravity, default_ero_size_c, gravity, function_van_rijn)    
-                    call critical_shear_stress(critical_shear_tmp, water_density, sediment_density, gravity, kinematic_viscosity, default_ero_size_c)                
+                    call settling_velocity(fall_vel_tmp, kinematic_viscosity, specific_gravity, default_ero_size, gravity, function_van_rijn)    
+                    call critical_shear_stress(critical_shear_tmp, water_density, sediment_density, gravity, kinematic_viscosity, default_ero_size)                
                     call cohesive_erosion(erosion_flux(icell),             &
                                           critical_shear_tmp,              &
                                           bottom_shear_stress(icell),      &
@@ -159,23 +158,7 @@ module suspended_sediment
                     call cohesive_deposition(deposition_flux(icell),       &
                                              fall_vel_tmp,                 &
                                              conc_si(icell))                
-                end if
-            elseif ((diameter_si(icell).ge.0.004d0) .and. (diameter_si(icell).lt.0.005d0)) then 
-                if ((velocity(icell).gt.velocity_for_deposition).and.(velocity(icell).le.velocity_for_erosion)) then
-                    erosion_flux(icell) = deposition_flux(icell)
-                elseif (velocity(icell).gt.velocity_for_erosion) then
-                    call submerged_specific_gravity(capital_r, water_density, sediment_density)
-                    call explicit_particle_reynolds_number(exp_re_p_tmp, default_ero_size_nc, capital_r, gravity, kinematic_viscosity)    
-                    call settling_velocity(fall_vel_tmp, kinematic_viscosity, specific_gravity, default_ero_size_nc, gravity, function_van_rijn)
-                    call non_cohesive_erosion(erosion_flux(icell),         &
-                                              shear_vel(icell),            &
-                                              exp_re_p_tmp,                &
-                                              fall_vel_tmp)                
-                    call non_cohesive_deposition(deposition_flux(icell),   &
-                                                 shear_vel(icell),         &
-                                                 fall_vel_tmp,             &
-                                                 conc(icell)) 
-                end if                            
+                end if                           
             end if
             
             if (erosion_flux(icell) .gt. available_bed(icell)) erosion_flux(icell) = available_bed(icell)
