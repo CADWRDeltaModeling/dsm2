@@ -238,7 +238,9 @@ module gtm_network
         call interp_linear_in_time(resv_height_mesh, npart_t+1, n_resv, hydro_resv_height(:,hydro_time_index), prev_resv)
         call interp_linear_in_time(resv_flow_mesh, npart_t+1, n_resv_conn, hydro_resv_flow(:,hydro_time_index), prev_resv_conn)
         call interp_linear_in_time(qext_flow_mesh, npart_t+1, n_qext, hydro_qext_flow(:,hydro_time_index), prev_qext)
-        call interp_linear_in_time(tran_flow_mesh, npart_t+1, n_tran, hydro_tran_flow(:,hydro_time_index), prev_tran)        
+        if (n_tran>0) then 
+            call interp_linear_in_time(tran_flow_mesh, npart_t+1, n_tran, hydro_tran_flow(:,hydro_time_index), prev_tran)
+        endif
         return
     end subroutine
 

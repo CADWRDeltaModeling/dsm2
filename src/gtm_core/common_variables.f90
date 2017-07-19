@@ -375,7 +375,7 @@ module common_variables
      integer :: sediment_coef_start = 0
 
      !> input time series codes
-     integer, parameter :: max_ts_var = 19
+     integer, parameter :: max_ts_var = 23 !19 updated by dhh 20170718
      integer :: code_to_ts_id(max_ts_var) = 0
      integer, parameter :: ts_var_temp = 1
      integer, parameter :: ts_var_ph = 2
@@ -396,7 +396,12 @@ module common_variables
      integer, parameter :: ts_var_rct_water = 17
      integer, parameter :: ts_var_vol_frac = 18
      integer, parameter :: ts_var_dgm_ratio = 19
-     
+     !>added by dhh -------------------------------
+     integer, parameter :: ts_var_ph_pw = 20
+     integer, parameter :: ts_var_cl_pw = 21
+     integer, parameter :: ts_var_so4_pw = 22
+     integer, parameter :: ts_var_doc_pw = 23
+     !>--------------------------------------------
      !> Input time series 
      integer :: n_input_ts = 0                     !< number of input time series
      integer :: n_node_ts = 0                      !< to exclude variables from node_concentration block
@@ -1614,6 +1619,16 @@ module common_variables
              ts_var_name = "VOL_FRAC"
          else if (ts_var_code == ts_var_dgm_ratio) then
              ts_var_name = "DGM_RATIO"
+         !>added by DHH --------------------------
+         else if (ts_var_code == ts_var_ph_pw) then
+             ts_var_name = "PH_PW"
+         else if (ts_var_code == ts_var_cl_pw) then
+             ts_var_name = "CL_PW"
+         else if (ts_var_code == ts_var_so4_pw) then
+             ts_var_name = "SO4_PW"
+         else if (ts_var_code == ts_var_doc_pw) then
+             ts_var_name = "DOC_PW"
+         !> --------------------------------------
          else   
              ts_var_name = miss_val_c
          end if
@@ -1666,6 +1681,17 @@ module common_variables
              ts_var_code = ts_var_vol_frac
          else if (trim(ts_var_name) == "dgm_ratio") then
              ts_var_code = ts_var_dgm_ratio
+         !>added by dhh -------------------------------    
+         else if (trim(ts_var_name) == "ph_pw") then
+             ts_var_code = ts_var_ph_pw
+         else if (trim(ts_var_name) == "cl_pw") then
+             ts_var_code = ts_var_cl_pw
+         else if (trim(ts_var_name) == "so4_pw") then
+             ts_var_code = ts_var_so4_pw
+         else if (trim(ts_var_name) == "doc_pw") then
+             ts_var_code = ts_var_doc_pw
+         !> -------------------------------------------
+             
          else
              ts_var_code = miss_val_i
          end if

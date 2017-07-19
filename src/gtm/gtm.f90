@@ -527,18 +527,18 @@ program gtm
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 boundary_diffusion_flux => network_boundary_diffusive_flux            
-                call dispersion_coef(disp_coef_lo,         &
-                                     disp_coef_hi,         &
-                                     flow,                 &
-                                     flow_lo,              &
-                                     flow_hi,              &
-                                     area,                 &
-                                     area_lo,              &
-                                     area_hi,              &                             
-                                     gtm_start_jmin,       &
-                                     dx_arr,               &
-                                     gtm_time_interval,    &
-                                     n_cell,               &
+                call dispersion_coef(disp_coef_lo,            &
+                                     disp_coef_hi,            &
+                                     flow,                    &
+                                     flow_lo,                 &
+                                     flow_hi,                 &
+                                     area,                    &
+                                     area_lo,                 &
+                                     area_hi,                 &                             
+                                     gtm_start_jmin,          &
+                                     dx_arr,                  &
+                                     sub_gtm_time_step*sixty, &
+                                     n_cell,                  &
                                      n_var)             
                 call diffuse(conc,                         &
                              conc_prev,                    &
@@ -563,7 +563,7 @@ program gtm
                              use_klu)        
                 call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
-                                    
+                        
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
@@ -584,8 +584,8 @@ program gtm
             prev_node_conc = node_conc
             prev_conc_stip = conc_stip            
             node_conc = LARGEREAL
-        
         end do ! end of loop of sub time step
+
 
         ! add all sediment to ssc
         if (ssc_index .ne. 0) then

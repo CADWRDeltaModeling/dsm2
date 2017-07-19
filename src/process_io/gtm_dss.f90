@@ -42,7 +42,7 @@ module gtm_dss
     integer, parameter :: wks = 5              !       the longest length block, you must resize outdata_arr 
     integer, parameter :: mths = 13            !       in wrt_outpaths.f 
     integer, parameter :: yrs = 3 
-    integer, parameter :: irrs = 10 
+    integer, parameter :: irrs = 100 
     integer, parameter :: maxinpsize = max(mins15,hrs,dys,wks,mths,yrs,irrs)
     
     type(dataqual_t), allocatable :: datain_min15(:,:)    ! 15 minute data 
