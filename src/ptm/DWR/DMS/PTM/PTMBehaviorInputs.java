@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Calendar;
+import java.util.TimeZone;
 /**
  * @author xwang
  *
@@ -24,6 +25,7 @@ public class PTMBehaviorInputs {
 	// Map<insert station(node id, wb id, and distance), station name> 
 	private Node[] _nodeArray=null;
 	private Waterbody[] _wbArray=null;
+	private TimeZone _timeZone = null;
 	
 	private void extractReleaseInputs(ArrayList<String> releaseInputText){
 		if (releaseInputText.size()< 6)
@@ -51,7 +53,7 @@ public class PTMBehaviorInputs {
 					if (oneRelease.length<4)
 						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
 					
-					Calendar releaseTime = PTMUtil.getDateTime(oneRelease[0], oneRelease[1]);
+					Calendar releaseTime = PTMUtil.getDateTime(oneRelease[0], oneRelease[1], _timeZone);
 					int particleNumber = Integer.parseInt(oneRelease[2].trim());
 					
 					int releaseStyle = FishRelease.RANDOM;
@@ -139,6 +141,21 @@ public class PTMBehaviorInputs {
 			PTMUtil.systemExit("No Fish Type found, exit.");
 		_fishType = fishTypeList.get(0).trim();	
 		
+		ArrayList<String> tzList = PTMUtil.getInputBlock(inputText, "TIME_ZONE", "END_TIME_ZONE");
+		if (tzList==null || fishTypeList.size()==0){ 
+			_timeZone = TimeZone.getTimeZone("PST");
+			System.err.println("Set default time zone to PST");
+		}
+		else{ 
+			String id = tzList.get(0).trim();
+			if(id.equalsIgnoreCase("PST")|| id.equalsIgnoreCase("MST")
+					|| id.equalsIgnoreCase("CST")|| id.equalsIgnoreCase("EST"))
+				_timeZone = TimeZone.getTimeZone(id);
+			else
+				PTMUtil.systemExit("Wrong time zone input, exit.");
+		}
+		Globals.TIME_ZONE = _timeZone;
+		
 		ArrayList<String> randomSequence = PTMUtil.getInputBlock(inputText, "RANDOM_SEQUENCE_INPUTS", "END_RANDOM_SEQUENCE_INPUTS");
 		if (randomSequence==null || randomSequence.size()==0) 
 			System.err.println("Warning: No random sequence input found!");
@@ -188,6 +205,7 @@ public class PTMBehaviorInputs {
 		}
 	}
 	public String getFishType(){return _fishType;}
+	public TimeZone getTimeZone(){return _timeZone;}
 	public SwimInputs getSwimInputs(){ return _swimInputs;}
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}
 	public RouteInputs getRouteInputs(){ return _routeInputs;}

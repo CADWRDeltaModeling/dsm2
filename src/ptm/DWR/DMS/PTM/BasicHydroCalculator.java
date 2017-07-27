@@ -107,7 +107,7 @@ public class BasicHydroCalculator {
 		//preWD[0] = chanInfo[1];
 		//preWD[1] = chanInfo[2];
 	}
-	int getSubTimeSteps(float timeStep, Particle p){	  	    
+	int getSubTimeSteps(float timeStep, Particle p){
 	    float minTimeStep = timeStep;
 	    if ((_vertMove) || (_transMove))
 	    	minTimeStep = getMinTimeStep(timeStep, p);

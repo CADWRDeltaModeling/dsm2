@@ -410,11 +410,11 @@ public class Particle{
 	  protected final void warning(String msg){
 	    System.out.println( "WARNING: " + msg + " !" );
 	  }
-	  //TODO need to clean up
+	  //TODO need to clean up left over from Aaron's code
 	  // this function is overridden in the BehavedParticle class  
-	  protected void checkHealth(){
+	  //protected void checkHealth(){
 	    // used for behavior
-	  }
+	  //}
 	  
 	  
 	  /**

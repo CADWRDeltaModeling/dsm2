@@ -454,7 +454,7 @@ public class PTMEnv{
     			FishReleaseGroup fg = fgs.get(releaseStationName);
     			IntBuffer releaseStation = fg.getStation();
     			for (FishRelease fr: fg.getFishReleases()){
-    				long rtime = (int)PTMUtil.calendarToModelTime(fr.getReleaseTime());
+    				long rtime = (int)PTMUtil.calendarToModelTime(fr.getReleaseTime(), _behaviorInputs.getTimeZone());
     				if (rtime < getStartTime())
     					PTMUtil.systemExit("Particle release time: " + fr.getReleaseTime().getTime() + " is earlier than model start time! exit.");
     				for (int i = 0; i < fr.getFishNumber(); i++ ){

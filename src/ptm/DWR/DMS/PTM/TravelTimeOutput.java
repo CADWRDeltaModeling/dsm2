@@ -9,6 +9,9 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.nio.IntBuffer;
 import java.util.List;
+import java.util.TimeZone;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 /**
  * @author xwang
@@ -112,10 +115,14 @@ public class TravelTimeOutput {
 				for (int pId: travelTimePerStation.keySet()){
 					TTEntry tt4P = travelTimePerStation.get(pId);
 					//travelTimePerStation will never be null
-					if (tt4P != null){ 
+					if (tt4P != null){
+						//creating DateFormat for converting time from local machine time zone to specified time zone
+						DateFormat converter = new SimpleDateFormat("MM/DD/yyyy  HH:mm:ss");
+						converter.setTimeZone(Globals.TIME_ZONE);
+						String dateStr = converter.format(PTMUtil.modelTimeToCalendar(tt4P.getInsertTime(),Globals.TIME_ZONE).getTime());
 						ttWriter.write(Integer.toString(pId).concat(",").
-									concat(tt4P.getInsertStationName()).concat(",").concat(PTMUtil.modelTimeToCalendar(tt4P.getInsertTime()).getTime().toString()).
-									concat(",").concat(stationName).concat(",").concat(Integer.toString((int)tt4P.getTravelTime())));
+									concat(tt4P.getInsertStationName()).concat(",").concat(dateStr).concat(",").
+									concat(stationName).concat(",").concat(Integer.toString((int)tt4P.getTravelTime())));
 						ttWriter.newLine();	
 					}
 				}

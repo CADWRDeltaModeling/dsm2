@@ -46,7 +46,7 @@ public class SalmonHoldingTimeCalculator {
 		return pidDaytimeHoldings.get(pId);
 	}
 	boolean daytimeHolding(int pId, int chanId){
-    	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime);
+    	Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime, Globals.TIME_ZONE);
     	//TODO will use LocaTime when switch to Java 1.8
     	boolean isDaytime = (curr.get(Calendar.HOUR_OF_DAY) > _sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < _sunset_hour) 
     			|| (curr.get(Calendar.HOUR_OF_DAY) == _sunrise_hour && curr.get(Calendar.MINUTE)>_sunrise_min)

@@ -20,6 +20,7 @@ import java.util.regex.*;
 import java.nio.IntBuffer;
 import java.lang.Math;
 import java.util.Random;
+import java.util.TimeZone;
 import edu.cornell.RngPack.*;
 
 /**
@@ -142,25 +143,25 @@ public class PTMUtil {
 		(new Exception(message)).printStackTrace();
 		System.exit(-1);
 	}
-	public static Calendar getHecTime(){
-		Calendar hecTime0 = Calendar.getInstance();
+	public static Calendar getHecTime(TimeZone timeZone){
+		Calendar hecTime0 = Calendar.getInstance(timeZone);
 		hecTime0.clear();
 		hecTime0.set(1899,11,30,23,0);;
 		return hecTime0;
 		
 	}
 	// convert model time (in minutes!!!) to calendar time
-	public static Calendar modelTimeToCalendar(long currentTime){//convertHecTime(long currentTime){
-		Calendar cur = Calendar.getInstance();
+	public static Calendar modelTimeToCalendar(long currentTime, TimeZone timeZone){//convertHecTime(long currentTime){
+		Calendar cur = Calendar.getInstance(timeZone);
 		cur.clear();
 		// current time is in minutes
-		cur.setTimeInMillis(currentTime*60000+ getHecTime().getTimeInMillis());
+		cur.setTimeInMillis(currentTime*60000+ getHecTime(timeZone).getTimeInMillis());
 		return cur;
 	}
 	// convert calendar time to model time in minutes!!!
-	public static long calendarToModelTime(Calendar time){ //convertCalendar(Calendar time){
+	public static long calendarToModelTime(Calendar time, TimeZone timeZone){ //convertCalendar(Calendar time){
 		// PTM time is in minute
-		return (time.getTimeInMillis() - getHecTime().getTimeInMillis())/60000;
+		return (time.getTimeInMillis() - getHecTime(timeZone).getTimeInMillis())/60000;
 	}
 	public static Set<Integer> readSet(ArrayList<String> inText){
 		  if (inText == null)
@@ -321,7 +322,7 @@ public class PTMUtil {
 		}
 		return true;
 	}
-	public static Calendar getDateTime(String date, String time) throws NumberFormatException{
+	public static Calendar getDateTime(String date, String time, TimeZone timeZone) throws NumberFormatException{
 		Calendar dateTime = null;
 		String[] dateStr = date.trim().split("[-/]+"), timeStr = time.trim().split("[:]+");
 		int year = -99, month = -99, day = -99, hour = -99, minute = -99;
@@ -334,8 +335,7 @@ public class PTMUtil {
 		hour = Integer.parseInt(timeStr[0]);
 		minute = Integer.parseInt(timeStr[1]);
 		//if(DEBUG) System.out.println("year:"+year+" month:"+month+" day:"+day+" hour:"+hour+" minute:"+minute);
-				  
-		dateTime = Calendar.getInstance();
+		dateTime = Calendar.getInstance(timeZone);
 		dateTime.clear();
 		dateTime.set(year, month, day, hour, minute);
 		return dateTime;

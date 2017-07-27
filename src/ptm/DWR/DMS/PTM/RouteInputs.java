@@ -98,7 +98,7 @@ public class RouteInputs {
 		if (_barriers != null){
 			for (NonPhysicalBarrier barrier: _barriers)
 				allWbs[barrier.getWaterbodyId()].setCurrentBarrierOp(barrier.getNodeId(), 
-						barrier.getBarrierOp(PTMUtil.modelTimeToCalendar(currentTime)));
+						barrier.getBarrierOp(PTMUtil.modelTimeToCalendar(currentTime, Globals.TIME_ZONE)));
 		}
 	}
 	
@@ -165,7 +165,7 @@ public class RouteInputs {
 			  try{
 				  if (items.length < 3)
 					  throw new NumberFormatException();
-				  e_time = PTMUtil.getDateTime(items[0], items[1]);
+				  e_time = PTMUtil.getDateTime(items[0], items[1], Globals.TIME_ZONE);
 				  optemp = Integer.parseInt(items[2].trim());
 			  }catch (NumberFormatException e){
 					e.printStackTrace();
