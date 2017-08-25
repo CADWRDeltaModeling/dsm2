@@ -922,13 +922,17 @@ module gtm_hdf_ts_write
         character(LEN=32) :: buffer
 	    integer(HSIZE_T), dimension(1) :: a_dims = (/1/)
         integer     ::   arank = 1                      ! Attribure rank
-
+        character*5:: dsm2_name
+        character*5:: dsm2_version
 	    integer*4, parameter :: ISO_LEN = 19  ! includes null termination
         character(LEN=ISO_LEN) :: iso_datetime
 
+        dsm2_name = 'GTM'
+        dsm2_version = '8.2'
+        
         write(cinterval,"(i,'min')") int(ts_interval)
-        write(cinterval_f,"(f,'min')") ts_interval
-        cinterval=adjustl(cinterval_f)
+        !write(cinterval_f,"(f,'min')") ts_interval
+        cinterval=adjustl(cinterval)
 
         call h5screate_simple_f(arank, a_dims, aspace_id, error)
         call verify_error(error,"time series attributes dataspace")
@@ -949,7 +953,19 @@ module gtm_hdf_ts_write
  	    call h5awrite_f(attr_id, atype_id, iso_datetime(1:19),  &
                         a_dims, error)
 	    call h5aclose_f(attr_id,error)
+	    
+        nlen = 5
+        call h5tset_size_f(atype_id, nlen, error)
+        call h5acreate_f(dset_id, "model", atype_id, aspace_id, attr_id, error)
+        call h5awrite_f(attr_id, atype_id, dsm2_name, a_dims, error)
+        call h5aclose_f(attr_id,error)
 
+        nlen = 3
+        call h5tset_size_f(atype_id, nlen, error)
+        call h5acreate_f(dset_id, "model_version", atype_id, aspace_id, attr_id, error)
+        call h5awrite_f(attr_id, atype_id, dsm2_version, a_dims, error)
+        call h5aclose_f(attr_id,error)
+        
         nlen = len_trim(cinterval)
         call h5tset_size_f(atype_id, nlen, error)
 	    call h5acreate_f(dset_id, "interval",                   &

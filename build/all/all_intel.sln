@@ -126,6 +126,7 @@ EndProject
 Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "mercury", "..\mercury\mercury.vfproj", "{5B6E00A4-DA9B-4B36-8896-C6D51D2EA693}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9EB0CD1A-D080-4E5A-8023-6462D724850E} = {9EB0CD1A-D080-4E5A-8023-6462D724850E}
+		{325B5758-AC70-48BB-8B4B-723C10EC8662} = {325B5758-AC70-48BB-8B4B-723C10EC8662}
 	EndProjectSection
 EndProject
 Project("{6989167D-11E4-40FE-8C1A-2192A86A7E90}") = "test_do_module", "..\test_do_module\test_do_module.vfproj", "{61899BC8-081F-470E-AEED-0800C62F3E31}"

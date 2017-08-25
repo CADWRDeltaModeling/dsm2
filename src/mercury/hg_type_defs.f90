@@ -22,12 +22,13 @@
 module hg_type_defs
     
 use gtm_precision
+
 implicit none
 
 !> unit conversions
 !****************************************************************************************************************************************
 
-integer     :: nosolids = 4                                 !> number of solids types defined in GTM
+integer     :: nosolids = 3                                 !> number of solids types defined in GTM
 
 real(gtm_real), parameter  :: mole_Hg           = 200.59d0  !< g Hg/mole
 real(gtm_real), parameter  :: mole_Cl           = 35.45d0   !< g Cl/mole
@@ -75,33 +76,9 @@ type (ts_ptr) , allocatable:: Cl(:)                         !< pointers to inter
 !> equilibrium types
 !****************************************************************************************************************************************
 !global - no need to input
-type :: k_eq_parms                                      !< thermodynamic constants - most likely don't need to be changed with inputs
-    real (gtm_real) ::  HRS         = 10**10.3d0	   
-    real (gtm_real) ::  H2RS        = 10** 16.6d0
-    real (gtm_real) ::  H2S         = 10** 6.99d0		
-    real (gtm_real) ::  HS          = 10**-12.92d0
-    real (gtm_real) ::  HgCl        = 10** 7.2d0
-    real (gtm_real) ::  HgCl2       = 10**13.970d0
-    real (gtm_real) ::  HgCl3       = 10** 14.80d0
-    real (gtm_real) ::  HgCl4       = 10** 15.70d0
-    real (gtm_real) ::  HgOH        = 10**10.67d0
-    real (gtm_real) ::  Hg_OH_2     = 10**21.84d0
-    real (gtm_real) ::  HgOHCl      = 10** 18.0d0
-    real (gtm_real) ::  HgRS        = 10** 28.5d0
-    real (gtm_real) ::  Hg_RS_2     = 10** -8.0d0	
-    real (gtm_real) ::  HgHS2       = 10** 32.0d0    
-    real (gtm_real) ::  Hg_HS_2     = 10** 37.5d0
-    real (gtm_real) ::  HgHS        = 10** 23.5d0
-    real (gtm_real) ::  HgS2        = 10** 30.5d0
-    real (gtm_real) ::  HgS         = 10** 26.5d0	
-    real (gtm_real) ::  HgOHHS      = 10** -10.0d0	
-    real (gtm_real) ::  HgS_sol     = 1.0d-52        
-    real (gtm_real) ::  MeHgCl      = 10** 5.2d0
-    real (gtm_real) ::  MeHgOH      = 10** 9.37d0
-    real (gtm_real) ::  MeHgS       = 10** 8.28d0	
-    real (gtm_real) ::  MeHg2S      = 10** 24.58d0	
-    real (gtm_real) ::  MeHgRS      = 10** 14.63d0
-end type k_eq_parms
+
+
+
 
 type k_phyto_parms
     real (gtm_real) :: p_phytoMeHg  = 0.0d0	        !< permeability coefficient for MeHg (dm d-1)
@@ -126,29 +103,6 @@ type k_phyto_parms
     
 end type k_phyto_parms
 
-type :: k_eq_solids                                  !> solids partitioning parameters - for each compartment
-    !> todo: solids partitioning parameters - need to be inputs for tuning
-    real (gtm_real) ::  XOHg        = 10** 17.8d0
-    real (gtm_real) ::  XOMeHg      = 10** 3.7d0
-    real (gtm_real) ::  xRS_Hg      = 10** 32.0d0
-    real (gtm_real) ::  xRS_2_Hg    = zero !10** 42d0
-    real (gtm_real) ::  xRS_MeHg    = zero
-    real (gtm_real) ::  xR_SH       = 10** 23.0d0
-end type k_eq_solids
-
-!> solids
-!****************************************************************************************************************************************
-type solids_inputs          !> for each solid type and each compartment
-    real (gtm_real) :: density              = 1.8       !> g/cm3
-    real (gtm_real) :: mole_XOH             = 2.0d-08   !> moles of SS-XOH groups/ g solid
-    real (gtm_real) :: mole_ROH             = 4.0d-10   !> moles of SS-ROH groups/ g solid
-    real (gtm_real) :: XOH_exch_frac        = 1.0d0     !> fraction of SS-XOH groups that are freely exchangeable
-    !real (stm_real) :: mole_XOH_exchnge                 !> moles of exchangeable XOH groups/ g solid  = mole_ROH*XOH_exchange_frac (calculated)
-end type solids_inputs
-
-type solids_inputs_array                                     !< for solids inputs for different types
-    type (solids_inputs), dimension(:), allocatable :: solid_parm                    !dimnsion nosolids
-end type
 
 
 !> global hg reaction rate constants & parameters
@@ -194,12 +148,12 @@ end type
     
 !> compartment specific hg reaction rate constants, parameters
 !****************************************************************************************************************************************
-type hg_rate_parms
+type hg_rate_parms1
     real (gtm_real) :: methyl               !> methylation rate constant
     real (gtm_real) :: biodemethyl          !> methylation rate constant 
     real (gtm_real) :: methyl_int           !> methylation rate constant
     real (gtm_real) :: biodemethyl_int      !> methylation rate constant  
-end type hg_rate_parms
+end type hg_rate_parms1
 
 type :: eq_complexes
     !> computed complexes/ions Molar concentrations

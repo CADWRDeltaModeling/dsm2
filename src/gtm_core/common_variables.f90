@@ -338,10 +338,70 @@ module common_variables
      real(gtm_real), allocatable :: top_elev(:)
      logical :: use_sediment_bed = .false. 
      integer :: n_layers = 2
+     real (gtm_real)        :: cfrac_labile = 0.2d0     !< carbon fraction on labile organic particles (g/g)
+     real (gtm_real)        :: cfrac_refract = 0.2d0    !< carbon fraction on refractory organic particles (g/g)
 
      !> Mercury variables
      integer, parameter :: n_mercury = 6
      integer :: mercury_ivar(n_mercury)          
+     integer :: use_mercury_ic = .false.            !< dhh added 20170801
+     
+     type :: k_eq_solids_t                                  !> solids partitioning parameters - for each compartment
+        real (gtm_real) ::  XOHg        = 10** 17.8d0
+        real (gtm_real) ::  XOMeHg      = 10** 3.7d0
+        real (gtm_real) ::  xRS_Hg      = 10** 32.0d0
+        real (gtm_real) ::  xRS_2_Hg    = zero !10** 42d0
+        real (gtm_real) ::  xRS_MeHg    = zero
+        real (gtm_real) ::  xR_SH       = 10** 23.0d0
+    end type k_eq_solids_t
+
+     type (k_eq_solids_t)  :: k_eq_solids_wat
+     type (k_eq_solids_t)  :: k_eq_solids_sed
+     
+     type :: k_eq_parms_t                                     !< thermodynamic constants - most likely don't need to be changed with inputs
+        real (gtm_real) ::  HRS         = 10**10.3d0	   
+        real (gtm_real) ::  H2RS        = 10** 16.6d0
+        real (gtm_real) ::  H2S         = 10** 6.99d0		
+        real (gtm_real) ::  HS          = 10**-12.92d0
+        real (gtm_real) ::  HgCl        = 10** 7.2d0
+        real (gtm_real) ::  HgCl2       = 10**13.970d0
+        real (gtm_real) ::  HgCl3       = 10** 14.80d0
+        real (gtm_real) ::  HgCl4       = 10** 15.70d0
+        real (gtm_real) ::  HgOH        = 10**10.67d0
+        real (gtm_real) ::  Hg_OH_2     = 10**21.84d0
+        real (gtm_real) ::  HgOHCl      = 10** 18.0d0
+        real (gtm_real) ::  HgRS        = 10** 28.5d0
+        real (gtm_real) ::  Hg_RS_2     = 10** -8.0d0	
+        real (gtm_real) ::  HgHS2       = 10** 32.0d0    
+        real (gtm_real) ::  Hg_HS_2     = 10** 37.5d0
+        real (gtm_real) ::  HgHS        = 10** 23.5d0
+        real (gtm_real) ::  HgS2        = 10** 30.5d0
+        real (gtm_real) ::  HgS         = 10** 26.5d0	
+        real (gtm_real) ::  HgOHHS      = 10** -10.0d0	
+        real (gtm_real) ::  HgS_sol     = 1.0d-52        
+        real (gtm_real) ::  MeHgCl      = 10** 5.2d0
+        real (gtm_real) ::  MeHgOH      = 10** 9.37d0
+        real (gtm_real) ::  MeHgS       = 10** 8.28d0	
+        real (gtm_real) ::  MeHg2S      = 10** 24.58d0	
+        real (gtm_real) ::  MeHgRS      = 10** 14.63d0
+     end type k_eq_parms_t
+     
+     type (k_eq_parms_t)    :: k_eq                        !> global partitioning parameters
+     
+     type solids_inputs_t          !> for each solid type and each compartment
+        real (gtm_real) :: density              = 2.6       !> g/cm3  todo:this is redundant set in sed_type_defs
+        real (gtm_real) :: mole_XOH             = 2.0d-08   !> moles of SS-XOH groups/ g solid
+        real (gtm_real) :: mole_ROH             = 4.0d-10   !> moles of SS-ROH groups/ g solid
+        real (gtm_real) :: XOH_exch_frac        = 1.0d0     !> fraction of SS-XOH groups that are freely exchangeable
+     end type solids_inputs_t
+     
+     type (solids_inputs_t) :: solid_parms_wat1
+     type (solids_inputs_t) :: solid_parms_wat2
+     type (solids_inputs_t) :: solid_parms_wat3
+     type (solids_inputs_t) :: solid_parms_sed1
+     type (solids_inputs_t) :: solid_parms_sed2
+     type (solids_inputs_t) :: solid_parms_sed3
+    
      
      !> non-conservative constituents codes
      integer, parameter :: ncc_do = 1
@@ -373,7 +433,7 @@ module common_variables
      integer, parameter :: alg_die = 7
      character*16 :: coeff_type(14)
      integer :: sediment_coef_start = 0
-
+     integer :: hg_coef_start = 0          !added by dhh 20170817
      !> input time series codes
      integer, parameter :: max_ts_var = 23 !19 updated by dhh 20170718
      integer :: code_to_ts_id(max_ts_var) = 0
@@ -1445,6 +1505,10 @@ module common_variables
                          if (m.eq.ncc_ssc .and. index.eq.0) then 
                              sediment_coef_start = n
                              index = 1
+                         end if
+                         if (m.eq.ncc_hgii .and. index.eq.1) then   !added dhh
+                             hg_coef_start = n
+                             index = 2
                          end if
                          do j = 1, group(i)%n_members
                              if (group(i)%member_pattern_code(j) .eq. obj_channel) then

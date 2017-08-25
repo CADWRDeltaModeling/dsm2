@@ -262,6 +262,10 @@ program gtm
     !> for mercury module
     if (run_mercury) then
         call allocate_mercury(n_sediment,n_cell)
+        call check_group_channel(ncc_hgii,hg_coef_start)   
+        k_wat(:)%biodemethyl =  group_var_cell(ncc_hgii, Hg_coef_start,:)
+        call check_group_channel(ncc_hgii,hg_coef_start+1) 
+        k_wat(:)%methyl =  group_var_cell(ncc_hgii, Hg_coef_start+1,:)
         call check_mercury_ts_input
         call constituent_name_to_ivar(ec_ivar, 'ec')  
         call constituent_name_to_ivar(doc_ivar, 'ec')  ! todo: change 'ec' to 'doc' when doc model setup is ready

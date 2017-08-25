@@ -26,8 +26,9 @@
 		<Filter Name="Resource Files" Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"/>
 		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
 		<File RelativePath="..\..\src\mercury\equilibrium.f90"/>
+		<File RelativePath="..\..\src\mercury\hg_internal_vars.f90"/>
 		<File RelativePath="..\..\src\mercury\hg_type_defs.f90"/>
-		<File RelativePath="..\..\src\mercury\math_utils.f90"/>
 		<File RelativePath="..\..\src\mercury\mercury_fluxes.f90"/>
+		<File RelativePath="..\..\src\mercury\mercury_initialize.f90"/>
 		<File RelativePath="..\..\src\mercury\mercury_state_variables.f90"/></Filter></Files>
 	<Globals/></VisualStudioProject>

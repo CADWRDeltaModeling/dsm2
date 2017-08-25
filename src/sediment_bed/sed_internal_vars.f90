@@ -1,6 +1,8 @@
 module sed_internal_vars
     
 use gtm_precision
+use sed_type_defs
+
 implicit none
 !these variables contain sediment bed mass fluxes for the two Huens method steps
 
@@ -17,8 +19,8 @@ real (gtm_real), allocatable, dimension (:,:,:,:,:)   :: sedsolids
 real (gtm_real), allocatable, dimension (:,:,:,:,:)   :: sedsolidsflux
         ! dimensions (ncells,nozones,nosolids, RK/Huens step)
 real (gtm_real), allocatable, dimension (:,:,:,:)     :: settling
-real (gtm_real), allocatable, dimension (:,:,:,:)     :: erosion
-    ! dimensions (ncells, nzones,RK/Huens step)
+real (gtm_real), allocatable, dimension (:,:,:,:)     :: erosion_sb
+        ! dimensions (ncells, nzones,RK/Huens step)
 real (gtm_real), allocatable, dimension (:,:,:)   :: decomposition_inter   !for Hg module drives interface methylation
 real (gtm_real), allocatable, dimension (:,:,:)   :: carbonturnover_inter  !for Hg module
 
@@ -27,7 +29,9 @@ real (gtm_real), allocatable, dimension (:,:)         :: burial_total  !for outp
 
          ! dimensions (ncells)  
 real (gtm_real), allocatable, dimension (:)           :: length         !cell length
-
+         ! dimensions (ncells, nzones,nlayers)
+type (bed_mercury_inputs_t), allocatable, dimension (:,:,:)   :: bed_mercury_inputs
+type (hg_rate_parms_t), allocatable, dimension(:,:,:) :: k_sed
     contains
 
 subroutine setup_sed_internals(ncells,nzones,layers,nosolids)
@@ -42,7 +46,7 @@ subroutine setup_sed_internals(ncells,nzones,layers,nosolids)
     allocate (carbonturnover(ncells,nzones,layers,nosolids,2))
     allocate (burial(ncells,nzones,layers,nosolids,2))
     allocate (settling(ncells,nzones,nosolids,2))
-    allocate (erosion(ncells,nzones,nosolids,2))
+    allocate (erosion_sb(ncells,nzones,nosolids,2))
     allocate (sedsolids(ncells,nzones,layers,nosolids,3))
     allocate (sedsolidsflux(ncells,nzones,layers,nosolids,2))
     allocate (burial_total(ncells,nzones))
@@ -50,7 +54,10 @@ subroutine setup_sed_internals(ncells,nzones,layers,nosolids)
     
     allocate (decomposition_inter(ncells,nzones,2))   
     allocate (carbonturnover_inter(ncells,nzones,2))
-    
+    allocate (bed_mercury_inputs(ncells,nzones,layers))
+    allocate (k_sed(ncells, nzones, layers))
+    k_sed(:,:,:)%methyl_int = zero
+    k_sed(:,:,:)%biodemethyl_int = zero
 end subroutine setup_sed_internals
 
 subroutine deallocate_sed_internals()
@@ -59,7 +66,7 @@ subroutine deallocate_sed_internals()
     deallocate (carbonturnover)
     deallocate (burial)
     deallocate (settling)
-    deallocate (erosion)
+    deallocate (erosion_sb)
     
     deallocate (sedsolids)
     deallocate (sedsolidsflux)
@@ -67,6 +74,8 @@ subroutine deallocate_sed_internals()
     deallocate (length)
     deallocate (decomposition_inter)   
     deallocate (carbonturnover_inter)
+    deallocate (bed_mercury_inputs)
+    deallocate (k_sed)
 end subroutine deallocate_sed_internals
 
 

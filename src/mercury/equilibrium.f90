@@ -25,7 +25,7 @@
 module equilibrium
 
 use gtm_precision
-use math_utils
+use common_variables
 use hg_type_defs
 
 implicit none
@@ -37,7 +37,7 @@ type phytoplankton_jacob                            !> temporary storage for phy
     real (gtm_real) :: dHgIIphyto_dHS
 end type phytoplankton_jacob
 
-type (k_eq_parms)       :: k                        !> global partitioning parameters
+!type (k_eq_parms)       :: k                        !> global partitioning parameters
 type (k_phyto_parms)    :: k_phyto                  !> global partitioning parameters
 
 real (gtm_real) ::  eps_equil = 1.0d-6              !< convergence criteria 
@@ -72,7 +72,7 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
     real (gtm_real), intent (in)     :: porosity
     integer, intent (in)             :: jacob_order
     integer, intent (in)             :: itype
-    type (k_eq_solids), intent (in)  :: ks
+    type (k_eq_solids_t), intent (in)  :: ks
     integer, intent (out)            :: iter
     logical, intent (inout)          :: converge
     type (molar_total), intent (inout)  :: total
@@ -207,7 +207,7 @@ end subroutine equil_solver
 subroutine mass_action(ks, porosity, phyto, phyto_jacob, jacob_order, m, sum, itype)
     !args 
     integer, intent (in) :: jacob_order
-    type (k_eq_solids), intent (in)     :: ks               !> partitioning parameters for solids
+    type (k_eq_solids_t), intent (in)     :: ks               !> partitioning parameters for solids
     real (gtm_real), intent (in)        :: porosity
     real (gtm_real), intent (in)        :: phyto            !> phtyoplankton concentration (mg/L)
     type (phytoplankton_jacob), intent (out) :: phyto_jacob !> internal variable to hold phytoplankton contributions to jacobian
@@ -220,23 +220,23 @@ subroutine mass_action(ks, porosity, phyto, phyto_jacob, jacob_order, m, sum, it
     phyto_jacob%dHgIIphyto_dHgII = zero
     phyto_jacob%dHgIIphyto_dHS   = zero
     
-    m%HRS = k%HRS * m%H * m%RS
-    m%H2RS = k%H2RS*m%RS*m%H**two
+    m%HRS = k_eq%HRS * m%H * m%RS
+    m%H2RS = k_eq%H2RS*m%RS*m%H**two
     
-    m%HgCl = k%HgCl * m%HgII * m%Cl
-    m%HgCl2 = k%HgCl2 * m%HgII * m%Cl**two
-    m%HgCl3 = k%HgCl3 * m%HgII * m%Cl**three
-    m%HgCl4 = k%HgCl4 * m%HgII * m%Cl**four
-    m%HgOH = k%HgOH* m%HgII * m%OH
-    m%Hg_OH_2 = k%Hg_OH_2 * m%HgII * m%OH**two
-    m%HgOHCl = k%HgOHCl * m%HgII * m%OH * m%Cl
-    m%HgRS = k%HgRS * m%HgII * m%RS
-    m%Hg_RS_2 = k%Hg_RS_2 * m%HgII * m%RS**two
+    m%HgCl = k_eq%HgCl * m%HgII * m%Cl
+    m%HgCl2 = k_eq%HgCl2 * m%HgII * m%Cl**two
+    m%HgCl3 = k_eq%HgCl3 * m%HgII * m%Cl**three
+    m%HgCl4 = k_eq%HgCl4 * m%HgII * m%Cl**four
+    m%HgOH = k_eq%HgOH* m%HgII * m%OH
+    m%Hg_OH_2 = k_eq%Hg_OH_2 * m%HgII * m%OH**two
+    m%HgOHCl = k_eq%HgOHCl * m%HgII * m%OH * m%Cl
+    m%HgRS = k_eq%HgRS * m%HgII * m%RS
+    m%Hg_RS_2 = k_eq%Hg_RS_2 * m%HgII * m%RS**two
     m%XOHg = ks%XOHg*m%XOH*m%HgII/m%H			
     
-    m%MeHgCl = k%MeHgCl * m%MeHg * m%Cl
-    m%MeHgOH = k%MeHgOH  * m%MeHg * m%OH
-    m%MeHgRS = k%MeHgRS * m%MeHg * m%RS
+    m%MeHgCl = k_eq%MeHgCl * m%MeHg * m%Cl
+    m%MeHgOH = k_eq%MeHgOH  * m%MeHg * m%OH
+    m%MeHgRS = k_eq%MeHgRS * m%MeHg * m%RS
     m%XOMeHg = ks%XOMeHg*m%XOH*m%MeHg/m%H
     
     
@@ -252,18 +252,18 @@ subroutine mass_action(ks, porosity, phyto, phyto_jacob, jacob_order, m, sum, it
 	sum%XOH = m%XOH + m%XOHg + m%XOMeHg
     
     if (jacob_order > 4) then
-        m%HgHS2 = k%HgHS2 *m%HgII*(m%HS**two)/m%H
-        m%Hg_HS_2 = k%Hg_HS_2 * m%HgII * m%HS**two
-        m%HgHS = k%HgHS * m%HgII * m%HS
-        m%HgS2 = k%HgS2 * m%HgII * (m%HS**two)/ (m%H**two)
-        m%HgS = k%HgS * m%HgII * m%HS/m%H
-        m%HgOHHS = k%HgOHHS * m%HgII * m%OH * m%HS
+        m%HgHS2 = k_eq%HgHS2 *m%HgII*(m%HS**two)/m%H
+        m%Hg_HS_2 = k_eq%Hg_HS_2 * m%HgII * m%HS**two
+        m%HgHS = k_eq%HgHS * m%HgII * m%HS
+        m%HgS2 = k_eq%HgS2 * m%HgII * (m%HS**two)/ (m%H**two)
+        m%HgS = k_eq%HgS * m%HgII * m%HS/m%H
+        m%HgOHHS = k_eq%HgOHHS * m%HgII * m%OH * m%HS
     
-        m%H2S = k%H2S*m%HS*m%H 
-        m%Sulph = k%HS * m%HS/m%H
+        m%H2S = k_eq%H2S*m%HS*m%H 
+        m%Sulph = k_eq%HS * m%HS/m%H
                 
-        m%MeHgS = k%MeHgS  * m%MeHg * m%HS/m%H
-        m%MeHg2S = k%MeHg2S * (m%MeHg ** two) * m%HS/m%H
+        m%MeHgS = k_eq%MeHgS  * m%MeHg * m%HS/m%H
+        m%MeHg2S = k_eq%MeHg2S * (m%MeHg ** two) * m%HS/m%H
         
         sum%HgII =  sum%HgII + (m%HgHS2 + m%Hg_HS_2 + m%HgS2 + m%HgHS + m%HgS + m%HgOHHS) * porosity
         sum%MeHg = sum%MeHg + (m%MeHgS + two* m%MeHg2S) * porosity
@@ -276,7 +276,7 @@ subroutine mass_action(ks, porosity, phyto, phyto_jacob, jacob_order, m, sum, it
 	        
             m%xRS_MeHg = ks%xRS_MeHg*m%xROH*m%HS*m%MeHg
             m%xR_SH = ks%xR_SH*m%xROH*m%HS
-            !ROH_SH = k%ROH_SH*ROH*HS/OH
+            !ROH_SH = k_eq%ROH_SH*ROH*HS/OH
             
             sum%HgII =  sum%HgII + m%xRS_Hg + m%xRS_2_Hg
             sum%MeHg = sum%MeHg + m%xRS_MeHg
@@ -417,7 +417,7 @@ subroutine mass_action_test(jacob_order,vals, Cl, pH, phyto, sum, m, conc, itype
     integer, intent (in) :: itype
     real (gtm_real) :: porosity = 1 
     type (phytoplankton_jacob):: phyto_jacob !> internal variable to hold phytoplankton contributions to jacobian
-    type (k_eq_solids) :: ks
+    type (k_eq_solids_t) :: ks
    
     m%Cl = Cl/molar_Cl_to_mg_l
     m%H = 10d0**(-pH)
@@ -444,7 +444,7 @@ subroutine Hg_reactant_concs(m, nosolids, ss, sol_inp, conc)
     type (eq_complexes), intent (in)    :: m
     integer, intent (in)                :: nosolids
     real (gtm_real), dimension(nosolids), intent(in) :: ss      !solids (mg/L)
-    type (solids_inputs), dimension(nosolids), intent(in) :: sol_inp   !solids (mg/L)
+    type (solids_inputs_t), dimension(nosolids), intent(in) :: sol_inp   !solids (mg/L)
     type (hg_concs), intent (inout)       :: conc
     !local
     integer :: ii

@@ -13,6 +13,7 @@ module sediment_bed_setup
     use sed_bed_hdf
     use common_dsm2_vars, only: dsm2_name, dsm2_modifier,ninpaths,pathinput,n_input_ts,n_inputpaths
     use process_timeseries_input_sed
+    !use hg_type_defs
     implicit none
 
     !real (gtm_real), allocatable :: group_values_sed(:,:,:) ! (group_id, variable_code, sed_layer)
@@ -27,6 +28,15 @@ module sediment_bed_setup
     integer, parameter :: sb_porosity = 8
     
     integer, parameter :: sb_inter_frac_tb = 9
+    
+    ! mercury parameter id's
+    integer, parameter :: sb_mole_xoh_1 = 10
+    integer, parameter :: sb_mole_xoh_2 = 11
+    integer, parameter :: sb_mole_xoh_3 = 12
+    integer, parameter :: sb_frac_exchg_1 = 13
+    integer, parameter :: sb_frac_exchg_2 = 14
+    integer, parameter :: sb_frac_exchg_3 = 15
+    
     
     contains
     
@@ -46,17 +56,17 @@ module sediment_bed_setup
         call init_bed_geom_hdf()
         call init_sed_hdf(n_cells, n_chans, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
         call setup_sed_internals(n_cells, n_zones, 2,3)
+       
         call sed_get_group_variables()
         !call set_up_interface_parms(n_cells, n_zones)
         call sed_read_init_values(n_cells, n_zones, n_resv, file_name_qrf, 8, 1)
         call sed_solids_initialize(n_cells,n_zones, 2, 3)
        return
     end subroutine set_up_sediment_bed
-    
-    
+        
 
     subroutine deallocate_sed_solids()
-        deallocate (bed)    
+        deallocate (bed)   
         call deallocate_sed_internals()
         return
     end subroutine deallocate_sed_solids
@@ -304,6 +314,7 @@ module sediment_bed_setup
                            ! do kk = 1, n_zones
                                 call assign_sed_input_variable(jj, sed_zone, sed_layer, var_id, value)
                                 n_sed_cells = n_sed_cells + 1
+                                bed(jj,:,:).channel = chan_number
                            ! end do
                         end do
                     end if
@@ -380,9 +391,21 @@ module sediment_bed_setup
             sb_variable_id =  sb_tb_ct_inter
         else if (variable == "porosity") then
             sb_variable_id = sb_porosity
-            
         else if (variable == "inter_frac_tb") then
             sb_variable_id = sb_inter_frac_tb
+        
+        else if (variable == "mole_xoh_1") then
+            sb_variable_id = sb_mole_xoh_1 
+        else if (variable == "mole_xoh_2") then
+            sb_variable_id = sb_mole_xoh_2 
+        else if (variable == "mole_xoh_3") then
+            sb_variable_id = sb_mole_xoh_3 
+        else if (variable == "frac_exchg_1") then
+            sb_variable_id = sb_frac_exchg_1 
+        else if (variable == "frac_exchg_2") then
+            sb_variable_id = sb_frac_exchg_2
+        else if (variable == "frac_exchg_3") then
+            sb_variable_id = sb_frac_exchg_3 
         end if
         return
     end subroutine
@@ -412,9 +435,23 @@ module sediment_bed_setup
                 bed(cell_no,:, :).tb_ct_inter = value
             case (sb_porosity)
                 bed(cell_no,:, :).porosity = value
-                
             case (sb_inter_frac_tb)
                 bed(cell_no,:, 1).inter_frac_tb = value
+                
+            case (sb_mole_xoh_1) 
+                bed_mercury_inputs(cell_no,:,:).mole_xoh(1) = value
+            case (sb_mole_xoh_2)
+                bed_mercury_inputs(cell_no,:,:).mole_xoh(2) = value
+            case (sb_mole_xoh_3) 
+                bed_mercury_inputs(cell_no,:,:).mole_xoh(3) = value
+            case (sb_frac_exchg_1) 
+                bed_mercury_inputs(cell_no,:,:).frac_exchg(1) = value
+            case (sb_frac_exchg_2)
+                bed_mercury_inputs(cell_no,:,:).frac_exchg(2) = value
+            case (sb_frac_exchg_3)
+                bed_mercury_inputs(cell_no,:,:).frac_exchg(3) = value
+            case default
+               ! write(*,*) "variable_id not found",  sb_variable_id
             end select
         elseif (sed_zone== 0) then
             select case  (sb_variable_id)
@@ -436,6 +473,20 @@ module sediment_bed_setup
                 bed(cell_no,:, sed_layer).porosity = value 
             case (sb_inter_frac_tb)
                 bed(cell_no,:, 1).inter_frac_tb = value
+                
+            case (sb_mole_xoh_1) 
+                bed_mercury_inputs(cell_no,:,sed_layer).mole_xoh(1) = value
+            case (sb_mole_xoh_2)
+                bed_mercury_inputs(cell_no,:,sed_layer).mole_xoh(2) = value
+            case (sb_mole_xoh_3) 
+                bed_mercury_inputs(cell_no,:,sed_layer).mole_xoh(3) = value
+            case (sb_frac_exchg_1) 
+                bed_mercury_inputs(cell_no,:,:sed_layer).frac_exchg(1) = value
+            case (sb_frac_exchg_2)
+                bed_mercury_inputs(cell_no,:,:sed_layer).frac_exchg(2) = value
+            case (sb_frac_exchg_3)
+                bed_mercury_inputs(cell_no,:,sed_layer).frac_exchg(3) = value
+                
             end select
         elseif (sed_layer == 0) then
             select case  (sb_variable_id)
@@ -456,6 +507,19 @@ module sediment_bed_setup
             
             case (sb_inter_frac_tb)
                 bed(cell_no, sed_zone, :).inter_frac_tb = value
+                
+            case (sb_mole_xoh_1) 
+                bed_mercury_inputs(cell_no,sed_zone,:).mole_xoh(1) = value
+            case (sb_mole_xoh_2)
+                bed_mercury_inputs(cell_no,sed_zone,:).mole_xoh(2) = value
+            case (sb_mole_xoh_3) 
+                bed_mercury_inputs(cell_no,sed_zone,:).mole_xoh(3) = value
+            case (sb_frac_exchg_1) 
+                bed_mercury_inputs(cell_no,sed_zone,:).frac_exchg(1) = value
+            case (sb_frac_exchg_2)
+                bed_mercury_inputs(cell_no,sed_zone,:).frac_exchg(2) = value
+            case (sb_frac_exchg_3)
+                bed_mercury_inputs(cell_no,sed_zone,:).frac_exchg(3) = value
             end select
         else
             select case  (sb_variable_id)
@@ -473,9 +537,21 @@ module sediment_bed_setup
                 bed(cell_no, sed_zone, sed_layer).tb_ct_inter = value
             case (sb_porosity)
                 bed(cell_no, sed_zone, sed_layer).porosity = value
-            
             case (sb_inter_frac_tb)
                 if (sed_layer ==1 ) bed(cell_no, sed_zone, sed_layer).inter_frac_tb = value
+                  
+            case (sb_mole_xoh_1) 
+                bed_mercury_inputs(cell_no,sed_zone,sed_layer).mole_xoh(1) = value
+            case (sb_mole_xoh_2)
+                bed_mercury_inputs(cell_no,sed_zone,sed_layer).mole_xoh(2) = value
+            case (sb_mole_xoh_3) 
+                bed_mercury_inputs(cell_no,sed_zone,sed_layer).mole_xoh(3) = value
+            case (sb_frac_exchg_1) 
+                bed_mercury_inputs(cell_no,sed_zone,sed_layer).frac_exchg(1) = value
+            case (sb_frac_exchg_2)
+                bed_mercury_inputs(cell_no,sed_zone,sed_layer).frac_exchg(2) = value
+            case (sb_frac_exchg_3)
+                bed_mercury_inputs(cell_no,sed_zone,sed_layer).frac_exchg(3) = value
             end select
         end if
         return

@@ -30,7 +30,8 @@ module mercury_fluxes
     use gtm_precision
     use equilibrium
     use mercury_state_variables
-
+    use hg_internal_vars
+    
     contains
    
     !> Main interface between Mercury Module and DSM2-GTM
@@ -45,7 +46,8 @@ module mercury_fluxes
                               dt,             & !< dt
                               ncell,          & !< number of cells
                               nsediment,      & !< number of sediments
-                              nmercury)         !< number of mercury related constituents      
+                              nmercury,       & !< number of mercury related constituents
+                              rkstep)
         implicit none
         integer, intent(in) :: ncell                                  !< Number of cell
         integer, intent(in) :: nsediment                              !< Number of sediment
@@ -57,19 +59,20 @@ module mercury_fluxes
         real(gtm_real), intent(in) :: depth(ncell)                    !< cell depth (ft) 
         real(gtm_real), intent(in) :: dx(ncell)                       !< dx
         real(gtm_real), intent(in) :: dt                              !< dt
+        integer , intent(in)       :: rkstep                          ! added dhh 20170804
         !--local
         integer :: icell
         real(gtm_real) :: area_wet(ncell)    
         real(gtm_real) :: Hg_inert(nsediment)
         real(gtm_real) :: solids(nsediment)
-        type(hg_rate_parms) :: k                                     !> hg reaction rate parmeters
-        type(solids_inputs) :: solid_in(nsediment)                   !> solids adsorption desorption inputs
+        type(hg_rate_parms_t) :: k                                     !> hg reaction rate parmeters
+        type(solids_inputs_t) :: solid_in(nsediment)                   !> solids adsorption desorption inputs
         type(hg_concs) :: concs_hg                                   !> hg concs for reactions (ng/L) -> (ug/m3)
         type(hg_flux_def) :: r                                       !> reaction and fluxes at air/water boundary
         
         area_wet = width * dx
         do icell = 1, ncell
-            solids = conc_sediment(:,icell)
+            solids(:) = conc_sediment(:,icell)
             !r = 
             !k =      
             !concs_hg = conc_mercury(icell,1:3)             ! concentrations of HgII, MeHg, and Hg0?
@@ -164,8 +167,8 @@ subroutine hg_flux(area,            &
     real (gtm_real), intent (in)             :: dgm_ratio    !> DGM ratio - ratio of Hg0 to HgII - from TS
     real (gtm_real), intent (in)                :: rct_interface    !> carbon turnover at interface (g/m2/day) from GTM or TS (?)
     real (gtm_real), intent (in)                :: rct_water    !> carbon turnover in water column (g/m3/day) from GTM or TS (?) driver for wat methyl/demethylation
-    type (hg_rate_parms), intent (in)           :: k            !> hg reaction rate parmeters
-    type (solids_inputs), dimension (nosolids),intent(in) :: solid_in    !> solids adsorption desorption inputs
+    type (hg_rate_parms_t), intent (in)           :: k            !> hg reaction rate parmeters
+    type (solids_inputs_t), dimension (nosolids),intent(in) :: solid_in    !> solids adsorption desorption inputs
     type (hg_concs), intent (in)                :: concs        !> hg concs for reactions (ng/L) -> (ug/m3)
     type (hg_flux_def), intent (inout)          :: r            !> reaction and fluxes at air/water boundary
 !local

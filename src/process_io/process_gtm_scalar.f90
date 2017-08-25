@@ -117,10 +117,67 @@ module process_gtm_scalar
          read(Val, '(f20.15)', err=810) size_dep
       elseif (Param .eq. 'size_ero') then
          read(Val, '(f20.15)', err=810) size_ero        
+      !--------------mercury and sediment bed related parameters  
       elseif (Param .eq. 'run_mercury') then
-         read(Val, '(l2)', err=810) run_mercury
+         read(Val, '(l2)', err=810) run_mercury      
+      elseif (Param .eq. 'use_mercury_ic') then    
+         read(Val, '(l2)', err=810) use_mercury_ic
       elseif (Param .eq. 'use_sediment_bed') then
          read(Val, '(l2)', err=810) use_sediment_bed
+         
+      elseif (Param .eq. 'mole_XOH_1_w') then 
+         read(Val, '(f20.15)', err=810) solid_parms_wat1.mole_XOH
+      elseif (Param .eq. 'mole_XOH_2_w') then
+         read(Val, '(f20.15)', err=810) solid_parms_wat2.mole_XOH
+      elseif (Param .eq. 'mole_XOH_3_w') then
+         read(Val, '(f20.15)', err=810) solid_parms_wat3.mole_XOH
+      elseif (Param .eq. 'frac_exchg_1_w') then
+         read(Val, '(f20.15)', err=810) solid_parms_wat1.XOH_exch_frac
+      elseif (Param .eq. 'frac_exchg_2_w') then
+         read(Val, '(f20.15)', err=810) solid_parms_wat2.XOH_exch_frac
+      elseif (Param .eq. 'frac_exchg_3_w') then
+         read(Val, '(f20.15)', err=810) solid_parms_wat3.XOH_exch_frac
+
+      elseif (Param .eq. 'k_XOHg_wat') then
+         read(Val,'(f20.15)', err=810) k_eq_solids_wat.xohg
+         k_eq_solids_wat.xohg = 10**k_eq_solids_wat.xohg
+      elseif (Param .eq. 'k_XOMeHg_wat') then
+         read(Val, '(f20.15)', err=810) k_eq_solids_wat.xomehg 
+         k_eq_solids_wat.xomehg = 10**k_eq_solids_wat.xomehg
+      
+      elseif (Param .eq. 'mole_XOH_1_s') then 
+          read(Val, '(f20.15)', err=810) solid_parms_sed1.mole_XOH
+      elseif (Param .eq. 'mole_XOH_2_s') then
+          read(Val, '(f20.15)', err=810) solid_parms_sed2.mole_XOH
+      elseif (Param .eq. 'mole_XOH_3_s') then
+          read(Val, '(f20.15)', err=810) solid_parms_sed3.mole_XOH
+      elseif (Param .eq. 'frac_exchg_1_s') then
+          read(Val, '(f20.15)', err=810) solid_parms_sed1.XOH_exch_frac
+      elseif (Param .eq. 'frac_exchg_2_s') then
+          read(Val, '(f20.15)', err=810) solid_parms_sed2.XOH_exch_frac
+      elseif (Param .eq. 'frac_exchg_3_s') then
+          read(Val, '(f20.15)', err=810) solid_parms_sed3.XOH_exch_frac
+              
+      elseif (Param .eq. 'k_XOHg_sed') then
+          read(Val, '(f20.15)' , err=810) k_eq_solids_sed.xohg
+          k_eq_solids_sed.xohg = 10**k_eq_solids_sed.xohg
+      elseif (Param .eq. 'k_XOMeHg_sed') then
+          read(Val, '(f20.15)' , err=810) k_eq_solids_sed.xomehg
+          k_eq_solids_sed.xomehg = 10**k_eq_solids_sed.xomehg
+      elseif (Param .eq. 'k_HgRS') then
+          read(Val, '(f20.15)', err=810) k_eq.HgRS  
+          k_eq.HgRS = 10**k_eq.HgRS
+      elseif (Param .eq. 'k_MeHgRS') then
+          read(Val, '(f20.15)', err=810) k_eq.MeHgRS  
+          k_eq.MeHgRS = 10**k_eq.MeHgRS
+         
+      elseif (Param .eq. 'cfrac_labile') then
+          read(Val, '(f20.15)', err=810) cfrac_labile  
+      elseif (Param .eq. 'cfrac_refract') then
+          read(Val, '(f20.15)', err=810) cfrac_refract
+         
+      elseif (Param .eq. 'r_methyl_int') then
+      !   read(Val, '(f20.15)', err=810) r_methyl_int 
       !--------global rates for non-conserative const.
       elseif (Param .eq. 'algaefract_n') then
          read(Val, '(f8.3)', err=810) algaefract_n

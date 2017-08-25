@@ -30,7 +30,7 @@ module sediment_bed
 use gtm_precision
 use sed_type_defs
 use sed_internal_vars
-
+use common_variables
 
 implicit none
 
@@ -56,8 +56,8 @@ integer, intent (in)             :: ncells
 integer, intent (in)             :: nzones
 integer, intent (in)             :: layers
 integer, intent (in)             :: nsolids
-real (gtm_real), intent (in)     :: deposition(ncells, nsolids)     !g per day ????
-real (gtm_real), intent (inout)  :: resuspension(ncells, nsolids)   !g per day ????
+real (gtm_real), intent (in)     :: deposition(ncells, nsolids)     !kg/m2/day
+real (gtm_real), intent (inout)  :: resuspension(ncells, nsolids)   !kg/m2/day
 real (gtm_real), intent (in)     :: area(ncells)                    ! cross-sectional area
 real (gtm_real), intent (in)     :: wet_width(ncells) 
 real (gtm_real), intent (in)     :: depth(ncells) 
@@ -74,20 +74,23 @@ real (gtm_real)                  :: mass_total(ncells, nzones, layers)
 real (gtm_real)                  :: erosion_bed(ncells,nsolids)
 real (gtm_real)                  :: settling_bed(ncells,nsolids)
 real (gtm_real)                  :: wet_p(ncells)
+real (gtm_real)                  :: volume(ncells)
+real (gtm_real)                  :: vol
 
 integer i, j 
     
     if (rkstep==1) sedsolids(:,:,:,:,1) = sedsolids(:,:,:,:,3)          !update for Huen's method
+    volume(:) = (area(:) * length(:)/depth(:)) * (ft_to_m) ** 2 
     do i=1,nsolids
-        erosion_bed(:,i) = (resuspension(:, i) * kg_to_g) * (area(:) * length(:)/depth(:)) * (ft_to_m) ** 2     !> units g/s
-        settling_bed(:,i) = (deposition (:, i) * kg_to_g) * (area(:) * length(:)/depth(:)) * (ft_to_m) ** 2     !> units g/s
+        erosion_bed(:,i) = (resuspension(:, i) * kg_to_g) * volume(:)     !> units g/m2/ss
+        settling_bed(:,i) = (deposition (:, i) * kg_to_g) * volume(:)     !> units g/m2/s
     end do
     
     call get_sed_wet_p(ncells, nzones, hyd_radius, area, wet_width, wet_p)
     do i= 1, nzones                                                             !> allocate bed erosion to zones  todo: check for divide by zero
         do j=1, nsolids
             settling(:,i,j, rkstep) =  settling_bed(:,j) * bed(:,i,1).area_wet / (wet_width(:) *length(:))   
-            erosion(:,i,j, rkstep) = erosion_bed(:,j)* bed(:,i,1).wp_wet/ (wet_p(:))       
+            erosion_sb(:,i,j, rkstep) = erosion_bed(:,j)* bed(:,i,1).wp_wet/ (wet_p(:))       
         end do
     end do
     
@@ -109,17 +112,28 @@ integer i, j
     
     !calculate max erosion for top layer only    !todo: ****adjust resuspension and settling to match wetted perimeter for each zone
     dmdt_erosion(:,:,:) = frac * ((sedsolids(:,:,1,:,rkstep) - decomposition(:,:,1,:,rkstep) )/delta_t) 
-  !  erosion(:,:,:,rkstep) = min(dmdt_erosion(:,:,:) , erosion(:,:,:, rkstep))
+       
+    !do i=1, ncells
+    !    do j=1,nsolids
+    !        if ((dmdt_erosion(i,1,j) < erosion(i,1,j, rkstep)).and.(rkstep == 1))then
+    !           write(*,'(A28, I3, 2x, A10, I4, 2x, A10, I2)') "erosion limited - channel : ",  bed(i,1,1).channel , "cell no : ",  i, "solid no: " , j
+    !        end if
+    !    end do
+    !end do
+    !if (dmdt_erosion(:,:,:) > erosion(:,:,:, rkstep)) then
+    erosion_sb(:,:,:,rkstep) = min(dmdt_erosion(:,:,:) , erosion_sb(:,:,:, rkstep))
+    !end if
     
     resuspension(:, :) = zero
-    !do i=1, ncells
+    do i=1, ncells
+        vol = volume(i)
         do j=1,nzones
-            resuspension(:, :) = resuspension(:, :) + erosion(:,j,:, rkstep)   !pass erosion rates back to GTM
+            resuspension(i, :) = resuspension(i, :) + erosion_sb(i,j,:, rkstep)/vol/kg_to_g  !pass erosion rates back to GTM
         end do
-    !end od
+    end do
     !burial calculations top layer only
     do i = 1, nsolids
-        srt(:,:,i) = (settling(:,:,i, rkstep)-decomposition(:,:,1,i,rkstep) - erosion(:,:,i, rkstep))
+        srt(:,:,i) = (settling(:,:,i, rkstep)-decomposition(:,:,1,i,rkstep) - erosion_sb(:,:,i, rkstep))
     end do
     sum_srt(:,:) = (srt(:,:,1)/density(1) + srt(:,:,2)/density(2) + srt(:,:,3)/density(3)) !/(one - bed(:,:,1).porosity)
     
@@ -136,7 +150,7 @@ integer i, j
     end do
     
     do i=1,nsolids
-      sedsolidsflux(:,:,1,i,rkstep) = settling(:,:,i, rkstep)-decomposition(:,:,1,i,rkstep) - erosion(:,:,i, rkstep) - burial(:,:,1,i, rkstep)
+      sedsolidsflux(:,:,1,i,rkstep) = settling(:,:,i, rkstep)-decomposition(:,:,1,i,rkstep) - erosion_sb(:,:,i, rkstep) - burial(:,:,1,i, rkstep)
       sedsolidsflux(:,:,2,i,rkstep) = -decomposition(:,:,2,i,rkstep) + burial(:,:,1,i, rkstep)
     end do
     !sedsolidsflux(:,2,:,rkstep) = -decomposition(:,2,:,rkstep) + burial(:,1,:, rkstep)

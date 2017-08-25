@@ -160,19 +160,20 @@ module suspended_sediment
                                              conc_si(icell))                
                 end if                           
             end if
-            
-            if (erosion_flux(icell) .gt. available_bed(icell)) erosion_flux(icell) = available_bed(icell)
-            vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
-            
-            if (depth_si(icell) .eq. zero .or. conc(icell).lt.zero) then
-                source(icell) = zero
+
+            if (erosion_flux(icell) .gt. available_bed(icell)) then
+                erosion_flux(icell) = available_bed(icell)
+            end if
+            if (depth_si(icell) .eq. zero) then                
                 erosion_flux(icell) = zero
                 deposition_flux(icell) = zero
-            else                
-                source(icell) = vertical_flux(icell)/depth_si(icell)*si_to_english
-            end if            
-         end do   
-       
+            end if
+            if (conc(icell).le.zero) then    
+                deposition_flux(icell) = zero
+            end if
+            vertical_flux(icell) = erosion_flux(icell) - deposition_flux(icell)
+            source(icell) = vertical_flux(icell)/depth_si(icell)*si_to_english
+         end do          
          return 
     end subroutine
 

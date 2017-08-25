@@ -290,7 +290,7 @@ module sed_bed_hdf
         
         if (hdf_out .eq. 'channel') then
             call write_gtm_chan_sed_hdf( gtm_sed_hdf, bed, nchan, ncell, n_zones, sed_bed_solids_count, time_index)
-            call write_gtm_chan_sed_flux_hdf(gtm_sed_hdf, settling, erosion, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
+            call write_gtm_chan_sed_flux_hdf(gtm_sed_hdf, settling, erosion_sb, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
         end if
         
         deallocate(mass_total)

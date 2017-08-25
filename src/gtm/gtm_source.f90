@@ -133,7 +133,8 @@ module gtm_source
                                     dt,             & !< dt
                                     ncell,          & !< number of cells
                                     n_sediment,     & !< number of sediments
-                                    n_mercury)         !< number of mercury related constituents              
+                                    n_mercury,      & !< number of mercury related constituents
+                                    rkstep)           ! added dhh 20170804
         end if
     return
     end subroutine 

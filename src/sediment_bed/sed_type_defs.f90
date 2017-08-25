@@ -8,8 +8,8 @@ real(gtm_real), parameter  :: g_cm3_to_g_m3     = 1.d06
 real(gtm_real), parameter  :: ft_to_m           = 0.3048d00
 real(gtm_real), parameter  :: ft3_to_m3         = 0.028316846592d00
 real(gtm_real), parameter  :: kg_to_g           = 1.0d03
-real(gtm_real), parameter  :: min_to_sec       = 60.0d0
-real(gtm_real), parameter  :: day_to_sec       = 86400.0d0
+real(gtm_real), parameter  :: min_to_sec        = 60.0d0
+real(gtm_real), parameter  :: day_to_sec        = 86400.0d0
  
 integer, parameter     :: isolids = 3  !< number of solids types defined in GTM ?
 integer :: n_zones =3
@@ -40,22 +40,19 @@ type bed_properties_t                                   !also used for ic's
     real (gtm_real)     :: inter_k                      !< sigmoid constant for turnover calculated
     real (gtm_real)     :: inter_a1                     !< sigmoid constant for turnover calculated
     real (gtm_real)     :: inter_a2                     !< sigmoid constant calculated
-    !real (gtm_real), dimension (nosolids)::  vol_frac  ! fraction of total solids volume for each particle type i.e. ((1-porosity)* volume)
-    real (gtm_real), dimension (isolids)::  mass_frac  ! mass for each particle type
+    !real (gtm_real), dimension (nosolids)::  vol_frac  !< fraction of total solids volume for each particle type i.e. ((1-porosity)* volume)
+    real (gtm_real), dimension (isolids)::  mass_frac   !< mass for each particle type
+    integer             :: channel                      !< channel no for debugging
 end type
-
 
 !particle properties
 !real (gtm_real), dimension (isolids)   :: diameter  = 0.0005       !< units (m)
 real (gtm_real), dimension (isolids)   :: density   = 2.6          !< density (g/m^3) or (g/cm3) and convert
-real (gtm_real)                         :: cfrac_labile = 0.2d0     !< carbon fraction on labile organic particles (g/g)
-real (gtm_real)                         :: cfrac_refract = 0.2d0    !< carbon fraction on refractory organic particles (g/g)
-
 
 type (bed_properties_t), allocatable, dimension(:,:,:) :: bed     ! dimensions(cell_no,zone, layer)
 
 !bed fluxes for GTM ???
-real (gtm_real), allocatable, dimension (:,:)  :: deposition
+!real (gtm_real), allocatable, dimension (:,:)  :: deposition
 real (gtm_real), allocatable, dimension (:,:)  :: resuspension
 
 type gtm_sed_hdf_t 
@@ -80,5 +77,17 @@ type gtm_sed_hdf_t
         integer(HSIZE_T) :: resv_dim
         integer(HSIZE_T) :: time_dim
 end type
+
+type bed_mercury_inputs_t
+        real (gtm_real), dimension (isolids):: mole_xoh         !<moles of XOH site per g of particle
+        real (gtm_real), dimension (isolids):: frac_exchg       !<fraction of X0H sites that are exchangeable
+end type
+
+type hg_rate_parms_t
+    real (gtm_real) :: methyl               !> methylation rate constant
+    real (gtm_real) :: biodemethyl          !> methylation rate constant 
+    real (gtm_real) :: methyl_int           !> methylation rate constant
+    real (gtm_real) :: biodemethyl_int      !> methylation rate constant  
+end type hg_rate_parms_t
 
 end module

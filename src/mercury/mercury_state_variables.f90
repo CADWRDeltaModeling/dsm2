@@ -23,7 +23,11 @@
 module mercury_state_variables
 
     use gtm_precision
-   
+    use sed_internal_vars
+    use sed_type_defs
+    use hg_internal_vars
+    use common_variables, only:n_mercury
+    
     real(gtm_real), allocatable :: conc_sediment(:,:) !< sediment concentration 
     real(gtm_real), allocatable :: conc_ec(:)         !< EC
     real(gtm_real), allocatable :: conc_doc(:)        !< DOC
@@ -77,6 +81,7 @@ module mercury_state_variables
         allocate(val_rct_if(ncell)) 
         allocate(val_rct_water(ncell))
         allocate(val_vol_frac(ncell))
+        call setup_hg_internals(ncell,n_zones,2,3,n_mercury)
         return
     end subroutine    
     
@@ -87,6 +92,7 @@ module mercury_state_variables
         deallocate(val_ipar, val_iuva, val_iuvb, val_rgm_air, val_hg0_air, val_mehg_air, val_precip)
         deallocate(val_wet_hgii, val_dry_hgii, val_wet_mehg, val_dry_mehg)
         deallocate(val_dgm_ratio, val_rct_if, val_rct_water, val_vol_frac)
+        !call deallocate_sed_internals()
         return 
     end subroutine        
         
