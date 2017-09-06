@@ -177,7 +177,7 @@ public class PTMBehaviorInputs {
 			//TODO comment out for USGS, restore warning later
 			System.out.println("add special items later.");
 			//System.err.println("WARNING: no survival behavior input found!");
-		_survivalInputs = new SurvivalInputs(survivalInputText);
+		_survivalInputs = new SurvivalInputs(survivalInputText, _fishType);
 		ArrayList<String> swimInputText = PTMUtil.getInputBlock(inputText, "SWIM_INPUTS", "END_SWIM_INPUTS");
 		if (swimInputText == null)
 			System.err.println("WARNING: no swim behavior input found!");
@@ -213,6 +213,35 @@ public class PTMBehaviorInputs {
 	public Map<String, FishReleaseGroup> getFishReleaseGroups() {return _fishGroups;}
 	public int getTotalParticlesReleased() {return _totalParticlesReleased;}
 	public TravelTimeOutput getTravelTimeOutput(){return _travelTimeOutput;}
+	public RouteHelper getRouteHelper(){return _routeInputs.getRouteHelper();}
+	public SwimHelper getSwimHelper(){return _swimInputs.getSwimHelper();}
+	public SurvivalHelper getSurvivalHelper(){return _survivalInputs.getSurvivalHelper();}
+    //helpers are now instantiated in the individual inputs
+	/*
+	if ( _particleType.equalsIgnoreCase("PARTICLE")){
+		//TODO need to create a particle route helper later
+		//_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
+		_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(_behaviorInputs.getRouteInputs()));
+		System.out.println("Created Particle Route Helper");
+		_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(_behaviorInputs.getSwimInputs()));
+		System.out.println("Created Particle Swim Helper");
+		_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_behaviorInputs.getSurvivalInputs()));
+		System.out.println("Created Particle Survival Helper");
+	}
+	else if(_particleType.equalsIgnoreCase("SALMON")){
+		_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(_behaviorInputs.getRouteInputs()));
+		System.out.println("Created Salmon Route Helper");
+		_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(_behaviorInputs.getSwimInputs()));
+		System.out.println("Created Salmon Swim Helper");
+		_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_behaviorInputs.getSurvivalInputs()));
+		System.out.println("Created Salmon Survival Helper");
+	}
+	else if (_particleType.equalsIgnoreCase("SMELT"))
+		PTMUtil.systemExit("No smelt helper defined, system exit.");
+	else
+		PTMUtil.systemExit("No helper defined for this type of particle, system exit.");
+    
+	*/
 }
 
 //TODO clean up

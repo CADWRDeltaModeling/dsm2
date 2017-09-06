@@ -20,7 +20,10 @@ public class SurvivalInputs {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public SurvivalInputs(ArrayList<String> inList) {
+	public SurvivalInputs(ArrayList<String> inList, String fishType) {
+		if (fishType == null)
+			PTMUtil.systemExit("No Particle Type! exit.");
+		_fishType = fishType;
 		if (inList != null){
 			/*
 			 * !!! a channel can only have at most one start, end, and exchange station.
@@ -153,6 +156,11 @@ public class SurvivalInputs {
 	public void minusLostToGroup(int groupNumber){
 		minusToGroup(groupNumber, _groupLost);
 	}
+	public SurvivalHelper getSurvivalHelper(){
+		if(_survivalHelper == null)
+			setSurvivalHelper();
+		return _survivalHelper;
+	}
 	private void addToGroup(int groupNumber, Map<Integer, Integer> grp_arr_sur_lost){
 		Integer i = grp_arr_sur_lost.get(groupNumber);
 		if (i == null)
@@ -218,6 +226,14 @@ public class SurvivalInputs {
 			_groupParas.put(i, paras);						
 		}
 	}
+	private void setSurvivalHelper(){
+		if (_fishType.equalsIgnoreCase("SALMON")){
+			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(this));
+			System.out.println("Created Particle Salmon Survival Helper");
+		}
+		else
+			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");
+	}
 	private String _pathFileName = null;
 	// <start station chan#> start chan# is unique for each Calculation Group
 	private ArrayList<Integer> _startStas=null;
@@ -242,5 +258,7 @@ public class SurvivalInputs {
 	// <start station chan#, survival calculation group number> 
 	private Map<Integer,Integer> _startStaGroup = null;
 	private boolean _doSurvival = true;
+	private SurvivalHelper _survivalHelper = null;
+	private String _fishType = null;
 	private boolean DEBUG = false;	
 }

@@ -9,7 +9,7 @@ package DWR.DMS.PTM;
  */
 
 public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements SalmonRouteBehavior {
-	public boolean DEBUG = false;
+	private boolean DEBUG = false;
 	/**
 	 * 
 	 */
@@ -28,7 +28,6 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		//wb can be null (when just inserted), but node is assigned.
 		if (p.nd == null)
 			PTMUtil.systemExit("Particle is not assigned a node! system exit.");
-		
 		// calculate total waterbody Inflows:
 		// because swimming velocity changes from channel to channel and from particle to particle
 		// get the swimming velocity for EACH waterbody of this particle

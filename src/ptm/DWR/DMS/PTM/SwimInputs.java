@@ -3,6 +3,7 @@
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +60,22 @@ public class SwimInputs {
 	public Map<String, Map<Integer, Boolean>> getPartcleDaytimeHoldingMap() {return _particleDaytimeHoldings;}
 	public String getFishType(){return _fishType;}
 	public Map<String, float[]> getSwimParameters() {return _swimVelParas;}
+	public SwimHelper getSwimHelper(){
+		if (_swimHelper == null)
+			setSwimHelper();
+		return _swimHelper;
+	}
+	public static boolean isDayTime(){
+		Calendar curr = PTMUtil.modelTimeToCalendar(Globals.currentModelTime, Globals.TIME_ZONE);
+		int sunrise_hour = _sunrise.getFirst();
+        int sunrise_min = _sunrise.getSecond();
+        int sunset_hour = _sunset.getFirst();
+        int sunset_min = _sunset.getSecond();
+    	//TODO will use LocaTime when switch to Java 1.8
+    	return ((curr.get(Calendar.HOUR_OF_DAY) > sunrise_hour && curr.get(Calendar.HOUR_OF_DAY) < sunset_hour) 
+    			|| (curr.get(Calendar.HOUR_OF_DAY) == sunrise_hour && curr.get(Calendar.MINUTE)>sunrise_min)
+    			|| (curr.get(Calendar.HOUR_OF_DAY) == sunset_hour && curr.get(Calendar.MINUTE)<sunset_min));
+	}
 
 	//TODO do nothing for now, should be included in behavior or helper?
 	public void setChannelInfo(Waterbody[] allWbs){}
@@ -146,7 +163,14 @@ public class SwimInputs {
 				|| !title[4].equalsIgnoreCase("Rearing_Holding_Mean"))
 			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Constant_Swimming_Velocity ... but get:"+ inTitle);
 	}
-	
+	private void setSwimHelper(){
+		if (_fishType.equalsIgnoreCase("SALMON")){
+			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(this));
+			System.out.println("Created Particle Salmon Swim Helper");
+		}
+		else
+			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");
+	}
  
 	private String _fishType = null;
 	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle
@@ -161,11 +185,12 @@ public class SwimInputs {
 	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;
 	private float _daytimeNotSwimPercent = 0.0f;
-	private Pair<Integer, Integer> _sunrise = null;
-	private Pair<Integer, Integer> _sunset = null;
+	private static Pair<Integer, Integer> _sunrise = null;
+	private static Pair<Integer, Integer> _sunset = null;
 	private float _floodHoldVel = -999999.0f;
 	private float _constProbConfusion = 0.0f, _maxProbConfusion = 2.0f, _slopeProbConfusion = 0.0f;
 	private int _numTidalCycles = 0;
 	private boolean _randomAccess;
 	private float _accessProb;
+	private SwimHelper _swimHelper = null;
 }

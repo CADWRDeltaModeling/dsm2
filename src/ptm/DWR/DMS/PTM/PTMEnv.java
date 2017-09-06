@@ -153,6 +153,13 @@ public class PTMEnv{
 	    //TODO need to move this to somewhere else so the behavior helper can be independently set???
 	    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName(), nodeArray, wbArray);
 	    _particleType = _behaviorInputs.getFishType();
+	    _routeHelper = _behaviorInputs.getRouteHelper();
+	    _swimHelper = _behaviorInputs.getSwimHelper();
+	    _survivalHelper = _behaviorInputs.getSurvivalHelper();
+	    	
+	    
+	    //TODO move the block to PTMBehaviorInputs
+	    /*
 		if ( _particleType.equalsIgnoreCase("PARTICLE")){
 			//TODO need to create a particle route helper later
 			//_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
@@ -176,6 +183,10 @@ public class PTMEnv{
 		else
 			PTMUtil.systemExit("No helper defined for this type of particle, system exit.");
 	    
+		*/
+	    
+	    
+		
 	    //TODO clean up move to PTMBehaviorInputs
 	    /*
 	    //TODO consider change:

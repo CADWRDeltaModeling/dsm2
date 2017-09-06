@@ -13,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Calendar;
 import java.util.Set;
@@ -237,23 +239,68 @@ public class PTMUtil {
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return new Pair<Integer, Integer> (Integer.parseInt(items[1]), Integer.parseInt(items[2]));
 	}
-	public static ArrayList<int[]> getIntPairsFromLine(String line, String lineName) throws NumberFormatException{
+	
+	private static ArrayList<String[]> getStringPairsFromLine(String line, String lineName){
 		String[] items = line.split(":");
 		if (items.length != 2 || (!items[0].equalsIgnoreCase(lineName))||items[1].contains("."))
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
-		Pattern p = Pattern.compile("\\((\\s*\\t*\\d+\\s*\\t*),(\\s*\\t*\\d+\\s*\\t*)\\)");
+		Pattern p = Pattern.compile("\\((\\s*\\t*\\w+\\d*\\s*\\t*),(\\s*\\t*\\d+\\s*\\t*)\\)");
 		Matcher m = p.matcher(items[1]);
-		ArrayList<int[]> pairs = new ArrayList<int[]>();
+		ArrayList<String[]> pairs = new ArrayList<String[]>();
+		while(m.find()){
+			String[] strPair = {m.group(1).trim(), m.group(2).trim()};
+			pairs.add(strPair);
+		}
+		if (pairs.size()<1)
+			PTMUtil.systemExit("the look up line is empty, exit.");	
+		return pairs;
+	}
+	public static Map<Integer,String> getIntStrPairsFromLine(String line, String lineName) throws NumberFormatException{
+		ArrayList<String[]> lookUpStrs = getStringPairsFromLine(line, lineName);
+		Map<Integer, String> lookUpMap = new HashMap<Integer, String>();
 		try{
-			while(m.find()){
-				int[] intPair = {Integer.parseInt(m.group(1).trim()), Integer.parseInt(m.group(2).trim())};
-				pairs.add(intPair);
+			for (String[] pair: lookUpStrs){
+				if (pair.length<2)
+					throw new NumberFormatException("pair length < 2:"+pair);
+				int in = Integer.parseInt(pair[0].trim());
+				lookUpMap.put(in, pair[1]);
 			}
-			if (pairs.size()<1)
-				throw new NumberFormatException("no integer pairs found, check the input file!");
 		}catch (NumberFormatException e){
 			e.printStackTrace();
-			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");	
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.  The line input:" + line);
+		}
+		return lookUpMap;
+	}
+	public static Map<String, Integer> getStrIntPairsFromLine(String line, String lineName) throws NumberFormatException{
+		ArrayList<String[]> lookUpStrs = getStringPairsFromLine(line, lineName);
+		Map<String, Integer> lookUpMap = new HashMap<String, Integer>();
+		try{
+			for (String[] pair: lookUpStrs){
+				if (pair.length<2)
+					throw new NumberFormatException("pair length < 2:"+pair);
+				int value = Integer.parseInt(pair[1].trim());
+				lookUpMap.put(pair[0], value);
+			}
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.  The line input:" + line);
+		}
+		return lookUpMap;
+	}
+	public static ArrayList<int[]> getIntPairsFromLine(String line, String lineName) throws NumberFormatException{
+		ArrayList<String[]> strs = getStringPairsFromLine(line, lineName);
+		ArrayList<int[]> pairs = new ArrayList<int[]>();
+		try{
+			for (String[] pair: strs){
+				if (pair.length<2)
+					throw new NumberFormatException("pair length < 2:"+pair);
+				int[] intPair = {Integer.parseInt(pair[0].trim()), Integer.parseInt(pair[1].trim())};
+				pairs.add(intPair);
+			}
+			
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers. The line input:" + line);	
 		}
 		return pairs;
 	}

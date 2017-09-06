@@ -36,7 +36,11 @@ public class SalmonSwimHelper extends Helper<Integer, SalmonSwimBehavior> implem
 		return p.wb.getEnvIndex();
 
 	}
-	public void helpSwim(Particle p, float deltaT){super.getBasicBehavior().updatePosition(p, deltaT);}
+	public void helpSwim(Particle p, float deltaT){
+		super.getBehavior(p).updatePosition(p, deltaT);
+		//Commented out because it needs to be consistent with other helpers,i.e., using the call getBehavior method 
+		//super.getBasicBehavior().updatePosition(p, deltaT);
+	}
 
 	@Override
 	public void setSwimHelperForParticle(Particle p) {

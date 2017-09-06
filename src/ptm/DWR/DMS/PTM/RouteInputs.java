@@ -3,9 +3,12 @@
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Calendar;
 import java.nio.IntBuffer;
+import java.lang.reflect.Constructor;
 /**
  * @author xwang
  *
@@ -24,16 +27,12 @@ public class RouteInputs {
 			ArrayList<String> specialBehaviorInText = PTMUtil.getInputBlock(inText, "SPECIAL_BEHAVIORS", "END_SPECIAL_BEHAVIORS");
 			
 			if( barriersInText == null || barriersInText.size() < 6)
-				//TODO comment out for USGS, restore warning later
-				System.out.println("add special items later.");
-				//System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
+				System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
 			else
 				setBarriers(barriersInText);
 			
 			if( screensInText == null || screensInText.size() < 2)
-				//TODO comment out for USGS, restore warning later
-				System.out.println("add special items later.");
-				//System.err.println("WARNING: no fish screen info found or the info is not properly defined in behavior inputs.");
+				System.err.println("WARNING: no fish screen info found or the info is not properly defined in behavior inputs.");
 			else
 				setFishScreens(screensInText);
 			
@@ -49,9 +48,7 @@ public class RouteInputs {
 				setDicuFilterEfficiency();
 			}
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
-				//TODO comment out for USGS, restore warning later
-				System.out.println("add special items later.");
-				//System.err.println("WARNING: no special routing Behavior defined or defined improperly in behavior inputs.");
+				System.err.println("WARNING: no special routing Behavior defined or defined improperly in behavior inputs.");
 			else
 				setSpecialBehaviors(specialBehaviorInText);
 		}
@@ -103,8 +100,40 @@ public class RouteInputs {
 	}
 	
 	public float getDicuFilterEfficiency(){return _dicuFilterEfficiency;}
-	public RouteHelper getRouteHelper(){ return _routeHelper;}
-	public ConcurrentHashMap<IntBuffer, String> getSpecialBehaviors(){return _specialBehaviors;}
+	public RouteHelper getRouteHelper(){
+		if (_routeHelper == null)
+			setRouteHelper();
+		return _routeHelper;
+	}
+	private void setRouteHelper(){
+		if(_fishType.equalsIgnoreCase("SALMON")){
+			if (_specialBehaviorNames == null)
+				_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(this));
+			else{
+				Map<Integer, SalmonRouteBehavior> specialBehaviors = new ConcurrentHashMap<Integer, SalmonRouteBehavior>();
+				//load special behaviors
+				try{
+					for (int nodeId: _specialBehaviorNames.keySet()){
+						Class<?> c = Class.forName("DWR.DMS.PTM."+_specialBehaviorNames.get(nodeId));
+						Constructor<?> con = c.getConstructor(RouteInputs.class, Integer.class);
+						specialBehaviors.put(nodeId, (SalmonRouteBehavior)con.newInstance(this, nodeId));
+					}
+				}catch(Exception e){
+					e.printStackTrace();
+					System.err.println("Error: " + e.getMessage());
+					PTMUtil.systemExit("SYSTEM EXIT: got error when trying to add special fish behaviors to the helper");
+				}
+				//create a route helper with special behaviors
+				_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(this), specialBehaviors);
+			}
+			System.out.println("Created Particle Salmon Route Helper");
+		}
+		else
+			PTMUtil.systemExit("System Exit: only implemented for SALMON not for: "+_fishType);
+	}
+	public ConcurrentHashMap<Integer, String> getSpecialBehaviorNames(){ return _specialBehaviorNames; }
+	public Map<String, Integer> getNameChannelLookUp() { return _nameChanLookUp;}
+	public int getChannelId(String channelName) {return _nameChanLookUp.get(channelName);}
 	
 	private void setDicuFilterEfficiency(){
 		if (_dicuFilterEfficiency > 0){
@@ -121,15 +150,30 @@ public class RouteInputs {
 	}
 	
 	private void setSpecialBehaviors(ArrayList<String> inText){
-		String title = inText.get(0);
-		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "CLASS_NAME"};
+		//set up a channel look up table so that a channel number can be searched if a channel name is given 
+		 Map<String, Integer> lookUp= PTMUtil.getStrIntPairsFromLine(inText.get(0), "Channel_Name_Look_Up");
+		 _nameChanLookUp = new HashMap<String, Integer>();
+		 //convert to internal nodeIds
+		 for (String key: lookUp.keySet())
+			 _nameChanLookUp.put(key, PTMHydroInput.getIntFromExtChan(lookUp.get(key)));
+		// make sure the title line in the input file is right 
+		String title = inText.get(1);
+		String shouldBe[] = {"NODEID", "CLASS_NAME"};
 		PTMUtil.checkTitle(title, shouldBe);
-		for (String line: inText.subList(1, inText.size())){
+		// read in node vs. special junction class name
+		_specialBehaviorNames = new ConcurrentHashMap<Integer, String>(); 
+		for (String line: inText.subList(2, inText.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
-			if (items.length<3)
+			if (items.length!=2)
 				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:"+line);; 
-			_specialBehaviors.put(IntBuffer.wrap(getEnvIds(items)), items[2]);
+			_specialBehaviorNames.put(getEnvNodeId(items[0]), items[1]);
 		} 
+		if(DEBUG == true){
+			for (String key:_nameChanLookUp.keySet())
+				System.out.println("_nameChanLookUp Key: "+key+" chan: "+PTMHydroInput.getExtFromIntChan(_nameChanLookUp.get(key)));
+			for (int key:_specialBehaviorNames.keySet())
+				System.out.println("_specialBehaviorNames Key: "+PTMHydroInput.getExtFromIntNode(key)+" value: "+_specialBehaviorNames.get(key));
+		}
 	}
 	private void setBarriers(ArrayList<String> inText){
 		// first line of inText is number_of_barriers: number
@@ -202,17 +246,24 @@ public class RouteInputs {
 		}
 	}
 	
+	private Integer getEnvNodeId(String idStr){
+		Integer nodeId = null;
+		if (idStr == null)
+			PTMUtil.systemExit("SYSTEM EXIT: try to get internal Id for Node but the string is empty. ");
+		try{
+			nodeId = Integer.parseInt(idStr);
+		}catch(NumberFormatException e){
+				e.printStackTrace();
+				PTMUtil.systemExit("SYSTEM EXIT: node id has a wrong format:" + idStr);
+		}
+		nodeId = PTMHydroInput.getIntFromExtNode(nodeId);
+		return nodeId;
+	}
 	private int[] getEnvIds(String[] items){
 		if (items.length<2)
 			PTMUtil.systemExit("SYSTEM EXIT: Barrier or fish screen ID input line should have more than 3 items, and less items noticed. ");
-		Integer nodeId=null, wbId=null;
-		// find external node id
-		try{
-			nodeId = Integer.parseInt(items[0]);
-		}catch(NumberFormatException e){
-				e.printStackTrace();
-				PTMUtil.systemExit("SYSTEM EXIT:wrong node id:" + items[0]);
-		}
+		Integer wbId=null;
+		Integer nodeId = getEnvNodeId(items[0]);
 		// find external channel id or reservoir/obj2obj name
 		try{
 			wbId = Integer.parseInt(items[1]);
@@ -223,8 +274,6 @@ public class RouteInputs {
 				PTMUtil.systemExit("SYSTEM EXIT:wrong channel/reservior/obj2obj id:" + items[1]);
 			}
 		}
-		// convert external ids to internal env ids
-		nodeId = PTMHydroInput.getIntFromExtNode(nodeId);
 		if (nodeId == null || wbId == null)
 			PTMUtil.systemExit("SYSTEM EXIT: wrong node/channel/reservior/obj2obj ids, node id: " + items[0]+" waterbody Id: "+items[1]);
 		return new int[] {nodeId, wbId};
@@ -235,8 +284,10 @@ public class RouteInputs {
 	private ArrayList<NonPhysicalBarrier> _barriers = null;
 	private RouteHelper _routeHelper = null;
 	private String _fishType = null;
-	//<<nodeId, wbId>, specialBehavior class name>
-	private ConcurrentHashMap<IntBuffer, String> _specialBehaviors;
+	//<nodeId, specialBehavior class name>
+	private ConcurrentHashMap<Integer, String> _specialBehaviorNames = null;
+	private Map<String, Integer> _nameChanLookUp;
+	private boolean DEBUG = false;
 
 }
 

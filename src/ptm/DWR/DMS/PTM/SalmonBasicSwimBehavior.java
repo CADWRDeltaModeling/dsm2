@@ -213,7 +213,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 							 return;
 						 }
 						 p.nd = getNewNode((Channel) p.wb, xPos);
-						 //set new node so make node decision can calculate total node inflow
+						 //set new node so make node decision can calculate total node inflow and call a special behavior if necessary
 						 p.makeNodeDecision();
 						 // now p.wb is the new water body just selected
 						 // and p.x is set either 0 or channel length if p.wb is a channel
