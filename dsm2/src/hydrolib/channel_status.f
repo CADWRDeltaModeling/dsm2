@@ -148,7 +148,7 @@ contains
         use channel_schematic
         use chconnec
         use netcntrl
-        use netbnd, only: reservoir_source_sink
+        !use netbnd, only: reservoir_source_sink
         use fileutil, only: OpenNewText
         implicit none
 

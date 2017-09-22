@@ -1,5 +1,4 @@
 import os
-
 print __file__
 
 VersionTemplate     = "      character*16 :: dsm2_version = '8.1.3', git_build = '@{Version_GIT}', git_uid = '@{GUID_GIT}'"
