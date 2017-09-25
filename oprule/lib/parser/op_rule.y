@@ -160,7 +160,7 @@ line:
 
    | error ';' {
                 cerr << "Error parsing expression." << endl;
-				YYABORT}
+				YYABORT;}
 
 ; 
 
@@ -260,7 +260,7 @@ array:
                   $$ = add_array_vector();
                   get_array_vector($$).push_back($2); 
                 }
- | array ',' NUMBER {get_array_vector($1).push_back($3)}
+ | array ',' NUMBER {get_array_vector($1).push_back($3);}
  | array ']'
 ;
 
