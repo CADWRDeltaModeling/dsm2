@@ -33,8 +33,7 @@ module state_variables
     !> Mass of constituent in the previous time step,
     !> dimensions (ncell, nvar)
     real(gtm_real), save, allocatable :: mass_prev(:,:)
-    
-    
+        
     !> Concentration in the current/new time step,
     !> dimensions (ncell, nvar)
     real(gtm_real), save, allocatable :: conc(:,:)
@@ -97,6 +96,18 @@ module state_variables
     !> dimensions (ncell)
     real(gtm_real), save, allocatable :: depth(:)
     real(gtm_real), save, allocatable :: depth_prev(:)
+        
+    !> face-centered flow on lo side of cell  (so this is cell-indexed),
+    !> dimensions (ncell)
+    real(gtm_real), save, allocatable :: budget_prev_flow_lo(:)
+    
+    !> face-centered flow on hi side of cell  (so this is cell-indexed),
+    !> dimensions (ncell)
+    real(gtm_real), save, allocatable :: budget_prev_flow_hi(:)
+   
+    !> Concentration in the previous tme step for budget calculation,
+    !> dimensions (ncell, nvar)
+    real(gtm_real), save, allocatable :: budget_prev_conc(:,:)
         
     contains
     
@@ -161,6 +172,15 @@ module state_variables
         width_prev = LARGEREAL
         wet_p_prev = LARGEREAL     
         depth_prev = LARGEREAL     
+        
+        allocate(budget_prev_flow_lo(ncell),budget_prev_flow_hi(ncell), budget_prev_conc(ncell,nvar), stat = istat)
+        if (istat .ne. 0 )then
+           call gtm_fatal(message)
+        end if     
+        budget_prev_flow_lo = LARGEREAL
+        budget_prev_flow_hi = LARGEREAL
+        budget_prev_conc = LARGEREAL
+        
         return
     end subroutine
      
@@ -180,6 +200,7 @@ module state_variables
         deallocate(flow, flow_prev, flow_lo, flow_hi)
         deallocate(width, wet_p, depth)
         deallocate(width_prev, wet_p_prev, depth_prev)
+        deallocate(budget_prev_flow_lo, budget_prev_flow_hi, budget_prev_conc)
         return
     end subroutine 
 

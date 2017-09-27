@@ -83,11 +83,12 @@ module common_variables
      real(gtm_real) :: size_dep = LARGEREAL
      real(gtm_real) :: size_ero = LARGEREAL
      
+     logical :: calc_budget = .false.                  !< calculate budget if true
      logical :: run_sediment = .false.                 !< run sediment module if true
      logical :: run_mercury = .false.                  !< run mercury module if true
      integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
      
-     character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
+     character*14 :: hdf_out                           ! hdf output resolution ('channel' or 'cell')
      
      type gtm_io_files_t
           character(len=130) :: filename               !< filename
@@ -936,7 +937,7 @@ module common_variables
              chan_direction(chan_geom(i)%down_node,nchan2node(chan_geom(i)%down_node)) = 1
          enddo
          do i = 1, n_chan*2
-             if ((nchan2node(i).eq.2) .and. (chan_direction(i,2).eq.chan_direction(i,1))) write(*,*) chan_geom(channo(i,1))%channel_num
+             if ((nchan2node(i).eq.2) .and. (chan_direction(i,2).eq.chan_direction(i,1))) write(*,*) "Channel Number Sequience Error, check channel no.", chan_geom(channo(i,1))%channel_num
              if ((nchan2node(i).eq.2) .and. (channo(i,1)-channo(i,2))*(chan_direction(i,2)-chan_direction(i,1)).ne.1) n_non_sequential = n_non_sequential + 1
          end do
          j = 0

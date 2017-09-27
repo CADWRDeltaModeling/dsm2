@@ -116,7 +116,9 @@ module process_gtm_scalar
       elseif (Param .eq. 'size_dep') then
          read(Val, '(f20.15)', err=810) size_dep
       elseif (Param .eq. 'size_ero') then
-         read(Val, '(f20.15)', err=810) size_ero        
+         read(Val, '(f20.15)', err=810) size_ero      
+      elseif (Param .eq. 'calc_budget') then
+         read(Val, '(l2)', err=810) calc_budget
       !--------------mercury and sediment bed related parameters  
       elseif (Param .eq. 'run_mercury') then
          read(Val, '(l2)', err=810) run_mercury      

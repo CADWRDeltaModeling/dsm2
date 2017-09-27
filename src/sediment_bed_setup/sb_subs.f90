@@ -120,7 +120,7 @@ module sb_subs
                 do kk = 1, n_zone
                     sedcell(cell_no)%elev(kk) = sedcell(cell_no)%min_elev + (kk-1)*dy_elev
                     call CxInfo(area, sedcell(cell_no)%width(kk), sedcell(cell_no)%wet_p(kk), depth, X, sedcell(cell_no)%elev(kk), segm(ii)%chan_no)
-                    sedcell(cell_no)%wet_p(kk) = area/sedcell(cell_no)%wet_p(kk)
+                    !sedcell(cell_no)%wet_p(kk) = area/sedcell(cell_no)%wet_p(kk)  !todo what was I trying to do here dhh hydraulic radius ????????
                 end do
             end do
         end do

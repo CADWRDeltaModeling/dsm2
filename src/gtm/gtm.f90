@@ -229,7 +229,8 @@ program gtm
                           n_var,                &
                           int(gtm_start_jmin),  &
                           int(gtm_end_jmin),    &
-                          gtm_io(3,2)%interval)
+                          gtm_io(3,2)%interval, &
+                          calc_budget)
         call write_input_to_hdf5(gtm_hdf%file_id)
         call write_grid_to_tidefile(gtm_hdf%file_id)
     end if
@@ -279,7 +280,8 @@ program gtm
     
     ! initialize concentrations
     conc = init_c
-    conc_prev = init_c        
+    conc_prev = init_c
+    budget_prev_conc = init_c       
     conc_resv = init_r 
     conc_resv_prev = init_r       
     prev_conc_stip = zero
@@ -401,7 +403,7 @@ program gtm
             prev_flow_cell_lo(:) = flow_mesh_lo(n_st,:)
             prev_flow_cell_hi(:) = flow_mesh_hi(n_st,:)            
             current_slice = slice_in_block            
-        end if    
+        end if            
 
         if (sub_time_step) then
             sub_st = ceil_max_cfl
@@ -475,6 +477,8 @@ program gtm
                 prev_resv_flow = resv_flow
                 prev_qext_flow = qext_flow
                 prev_tran_flow = tran_flow
+                budget_prev_flow_lo = flow_lo
+                budget_prev_flow_hi = flow_hi
             end if
             cfl = flow/area*(sub_gtm_time_step*sixty)/dx_arr           
        
@@ -590,7 +594,6 @@ program gtm
             node_conc = LARGEREAL
         end do ! end of loop of sub time step
 
-
         ! add all sediment to ssc
         if (ssc_index .ne. 0) then
             do i = 1, n_cell
@@ -623,11 +626,21 @@ program gtm
                 time_index_in_gtm_hdf = (current_time-gtm_start_jmin)/gtm_hdf_time_intvl
                 if (hdf_out .eq. 'channel') then
                     call write_gtm_chan_hdf(gtm_hdf,               &
-                                            conc,                  &
+                                            flow_lo,               &
+                                            flow_hi,               &
+                                            conc,                  & 
                                             n_chan,                &
                                             n_cell,                &
                                             n_var,                 &
-                                            time_index_in_gtm_hdf)      
+                                            gtm_hdf_time_intvl,    &
+                                            budget_prev_flow_lo,   &
+                                            budget_prev_flow_hi,   &
+                                            budget_prev_conc,      &
+                                            time_index_in_gtm_hdf, &
+                                            calc_budget)
+                    budget_prev_flow_lo = flow_lo
+                    budget_prev_flow_hi = flow_hi
+                    budget_prev_conc = conc
                     if (use_sediment_bed) then   !<added:dhh
                         call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
                         if (use_sediment_bed) then 
@@ -651,11 +664,11 @@ program gtm
                 end if
                 if (debug_print==.true.) then                                                 
                     call write_gtm_hdf_ts(gtm_hdf%cell_flow_id,    &
-                                          flow_hi,                 & 
+                                          flow,                    & 
                                           n_cell,                  &
                                           time_index_in_gtm_hdf)
                     call write_gtm_hdf_ts(gtm_hdf%cell_area_id,    &
-                                          area_hi,                 & 
+                                          area,                    & 
                                           n_cell,                  &
                                           time_index_in_gtm_hdf)                               
                     call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,     &
