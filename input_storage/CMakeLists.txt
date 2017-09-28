@@ -82,12 +82,19 @@ add_custom_command(TARGET input_storage POST_BUILD
      "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:input_storage>" 
   COMMENT "Copying to output directory")
 #-------------------- EXAMPLE exe and fortran library -----------------
+# add pre build command
+execute_process(COMMAND python generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example)
+# search by file pattern and include in library
+file(GLOB EXAMPLE_F_SOURCES example/*.f90)
+file(GLOB EXAMPLE_F_HEADERS example/*.fi)
+add_library(example_f STATIC ${EXAMPLE_F_SOURCES} ${EXAMPLE_F_HEADERS})
+set_property(TARGET example_f PROPERTY LINKER_LANGUAGE Fortran)
 # search by file pattern and include in library
 file(GLOB EXAMPLE_CXX_SOURCES example/*.cpp)
 add_executable(example_c ${EXAMPLE_CXX_SOURCES})
 set_property(TARGET example_c PROPERTY LINKER_LANGUAGE CXX)
 target_link_libraries(example_c
-    input_storage
+    input_storage example_f
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -95,35 +102,23 @@ target_link_libraries(example_c
     ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
     ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
-# add pre build command
-add_custom_command(OUTPUT example/xsect_input_storage.fi PRE_BUILD 
-    COMMAND python generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example
-    COMMENT "Generating source code from script")
-# search by file pattern and include in library
-file(GLOB EXAMPLE_F_SOURCES example/*.f90)
-file(GLOB EXAMPLE_F_HEADERS example/*.fi)
-add_library(example_f STATIC ${EXAMPLE_F_SOURCES} ${EXAMPLE_F_HEADERS})
-set_property(TARGET example_f PROPERTY LINKER_LANGUAGE Fortran)
 #---------------------- TEST exe and fortran ------------------------
+# add pre build command
+execute_process(COMMAND python generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
+# search by file pattern and include in library
+file(GLOB TEST_F_SOURCES test/*.f90)
+file(GLOB TEST_F_HEADERS test/*.fi)
+add_library(input_storage_test_f STATIC ${TEST_F_SOURCES} ${TEST_F_HEADERS})
+set_property(TARGET input_storage_test_f PROPERTY LINKER_LANGUAGE Fortran)
 # search by file pattern and include in library
 file(GLOB TEST_CXX_SOURCES test/*.cpp)
 add_executable(input_storage_test_c ${TEST_CXX_SOURCES})
 set_property(TARGET input_storage_test_c PROPERTY LINKER_LANGUAGE CXX)
 target_link_libraries(input_storage_test_c
-    input_storage
+    input_storage input_storage_test_f
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
     ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
     ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
-# add pre build command
-add_custom_command(OUTPUT channel_input_storage.fi PRE_BUILD 
-    COMMAND python generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Generating source code from script")
-
-# search by file pattern and include in library
-file(GLOB TEST_F_SOURCES test/*.f90)
-file(GLOB TEST_F_HEADERS test/*.fi)
-add_library(input_storage_test_f STATIC ${TEST_F_SOURCES} ${TEST_F_HEADERS})
-set_property(TARGET input_storage_test_f PROPERTY LINKER_LANGUAGE Fortran)

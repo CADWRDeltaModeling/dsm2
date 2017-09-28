@@ -83,16 +83,6 @@ add_custom_command(TARGET OperatingRule POST_BUILD
   COMMENT "Copying OperatingRule lib to output directory")
 #--------------------- OPRULE PARSER LIB ------------------------------------
 # add pre build command
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.cpp PRE_BUILD 
-    COMMAND flex -L -Pop_rule -oop_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
-    COMMENT "Generating op_rule.cpp using flex")
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp PRE_BUILD 
-    COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
-    COMMAND move /Y op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
-    COMMAND move /Y op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.h
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
-    COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
 file(GLOB SOURCES lib/parser/*.cpp)
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/Parser-notyet.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/ModelTimeNodeFactory.cpp")
@@ -119,6 +109,16 @@ target_link_libraries(OpRuleParser
 set(CMAKE_DEBUG_POSTFIX "d")
 set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs9_mt")
 set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
+add_custom_command(TARGET OpRuleParser PRE_BUILD 
+    COMMAND flex -L -Pop_rule -oop_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
+    COMMENT "Generating op_rule.cpp using flex")
+add_custom_command(TARGET OpRuleParser PRE_BUILD 
+    COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
+    COMMAND move /Y op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
+    COMMAND move /Y op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.h
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
+    COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
 add_custom_command(TARGET OpRuleParser POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
      "$<TARGET_FILE:OpRuleParser>"
