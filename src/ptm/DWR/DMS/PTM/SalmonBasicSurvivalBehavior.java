@@ -54,7 +54,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		if (_pGroupUsed.get(pId) == null)
 			_pGroupUsed.put(pId, new HashSet<Integer>());
 		boolean isStart = _survivalIn.isStart(chanId, p.x, p.getFromUpstream());
-		Integer sSta = _pStartSta.get(pId);
+		Integer sSta = _pStartSta.get(pId);		
 		// sSta == null means the particle doesn't know its survival start station. 
 		// need only to search for a start station.  no need to search for an end or exchange station
 		if (sSta == null){

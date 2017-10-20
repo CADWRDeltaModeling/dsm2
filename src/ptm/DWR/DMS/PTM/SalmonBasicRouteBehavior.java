@@ -127,6 +127,9 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 	    // need to set x only channels.   
 	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
+	    	setChannelStartingCondition(p);
+	    	//TODO use a method setChannelStartingCondition(Particle p)instead, code below to be cleaned up.
+	    	/*
 	    	Channel chan = (Channel) p.wb;
 	    	int chanId = chan.getEnvIndex();
 	    	p.x = getXLocationInChannel(chan, p.nd);
@@ -141,6 +144,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 				p.setFromUpstream(true);
 			else
 				p.setFromUpstream(false);
+			*/
 	    	
 			//TODO clean up	
 			/* 
@@ -157,4 +161,25 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		if (rIn != null)
 			rIn.updateCurrentBarrierInfo(allWbs, currT);
 	}
+	void setChannelStartingCondition(Particle p){
+		// need to set x only channels.   
+    	Channel chan = (Channel) p.wb;
+    	int chanId = chan.getEnvIndex();
+    	p.x = super.getXLocationInChannel(chan, p.nd);
+    	float swimVel = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, chanId);
+    	int confFactor = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(chanId);
+    	p.setSwimmingVelocity(swimVel*confFactor);
+    	p.setConfusionFactor(confFactor);
+    	p.swimVelSetInJunction(true);
+    	// swimming time is set one per particle per channel group, here is the only place set a swimming time
+    	p.getSwimHelper().setSwimmingTime(p, chanId); // to set swimming time in SalmonHoldingTimeCalculator
+    	// set Swimming time in particle
+    	p.setSwimmingTime(((SalmonSwimHelper) p.getSwimHelper()).getSwimmingTime(p.Id, chanId));
+		if(p.nd.getEnvIndex() == chan.getUpNodeId())
+			p.setFromUpstream(true);
+		else
+			p.setFromUpstream(false);
+		if(DEBUG && (chanId == PTMHydroInput.getIntFromExtChan(309) || chanId == PTMHydroInput.getIntFromExtChan(281)))
+			System.err.println("pId: "+p.Id+" chanId: "+ chanId+" swimVel: "+swimVel+" chan: "+PTMHydroInput.getExtFromIntChan(chanId)+" node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()));
+	} 
 }

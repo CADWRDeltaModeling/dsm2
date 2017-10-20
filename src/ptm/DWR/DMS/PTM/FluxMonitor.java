@@ -73,6 +73,7 @@ public class FluxMonitor{
     traceArray = null;
     
     //calculate traceArray with MAX_PARTICLES as size limit
+    //TODO why need this for loop?  confusing, need to be fixed later --Xiao
     for (startId = 1; endId < totalNumberOfParticles[0]; startId += MAX_PARTICLES) {
     	
       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);

@@ -3,6 +3,7 @@
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
+
 import org.apache.commons.math3.special.Beta;
 
 //import java.util.ArrayList;
@@ -24,7 +25,6 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 		_nodeId = nodeId;
 		System.out.println("Created SalmonGSJRouteBehavior...");
 	}
-	
 	private Channel[] getChannels(Particle p){
 		Node curNode = p.nd;
 		if (curNode == null)
@@ -133,7 +133,10 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 		    	p.wb = gs;			
 		    if (p.observer != null) 
 		    	p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
-
+		    _rIn.putEntrainmentRate(_nodeId, qUpSac/scaled, d, bOp, sr, gsProbability);
+		    setChannelStartingCondition(p);
+		    //TODO use a method setChannelStartingCondition(Particle p)instead, code below to be cleaned up.
+		    /*
 			// need to set x only channels.   
 	    	Channel chan = (Channel) p.wb;
 	    	int chanId = chan.getEnvIndex();
@@ -151,6 +154,7 @@ public class SalmonGSJRouteBehavior extends SalmonBasicRouteBehavior {
 				p.setFromUpstream(true);
 			else
 				p.setFromUpstream(false);
+			*/
 		} //if (qUpSac > 0.7924 && qGs > 0 && qDownSac > 0)
 		else		
 			super.makeRouteDecision(p);

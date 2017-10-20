@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Calendar;
 import java.nio.IntBuffer;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 /**
  * @author xwang
@@ -21,10 +23,13 @@ public class RouteInputs {
 		if (inText != null){
 			_barriers = new ArrayList<NonPhysicalBarrier>();
 			_fishScreens = new ArrayList<IntBuffer>();
+			//if pathname is not input, the entrainment file will not be written.
+			_pathFileName = PTMUtil.getPathFromLine(inText.get(0), ':');	
 			ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
 			ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
 			ArrayList<String> dicuInText = PTMUtil.getInputBlock(inText, "DICU_FILTER", "END_DICU_FILTER");
 			ArrayList<String> specialBehaviorInText = PTMUtil.getInputBlock(inText, "SPECIAL_BEHAVIORS", "END_SPECIAL_BEHAVIORS");
+			_entrainmentRates = new HashMap<Integer, ArrayList<ArrayList<Object>>>();
 			
 			if( barriersInText == null || barriersInText.size() < 6)
 				System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
@@ -134,7 +139,46 @@ public class RouteInputs {
 	public ConcurrentHashMap<Integer, String> getSpecialBehaviorNames(){ return _specialBehaviorNames; }
 	public Map<String, Integer> getNameChannelLookUp() { return _nameChanLookUp;}
 	public int getChannelId(String channelName) {return _nameChanLookUp.get(channelName);}
-	
+	public void putEntrainmentRate(int nodeId, float sacUpFlow, int dayTime, int BarrierOp, Float flowSplit, double entrainmentRate){
+		if ( _entrainmentRates.get(nodeId) == null)
+			_entrainmentRates.put(nodeId, new ArrayList<ArrayList<Object>>());
+		ArrayList<Object> elm = new ArrayList<Object>();
+		elm.add(sacUpFlow);
+		elm.add(dayTime);
+		elm.add(BarrierOp);
+		elm.add(flowSplit);
+		elm.add(entrainmentRate);
+		_entrainmentRates.get(nodeId).add(elm);
+	}
+	public Map<Integer, ArrayList<ArrayList<Object>>> getEntrainmentRates(){return _entrainmentRates;}
+	public void writeEntrainmentRates(){
+		if (_pathFileName == null)
+				return;
+		try{
+			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileName);
+			srWriter.write("Node ID".concat(",").concat("Sac Up Flow (cfs)").concat(",")
+					.concat("Day Time (day/night = 0/1)").concat(",")
+					.concat("Barrier Operation (on/off = 1/0)").concat(",")
+					.concat("% to GS").concat(",")
+					.concat("Entrainment Probability"));
+			srWriter.newLine();
+			//_ttHolder will never be null and there is at least one element
+			for (int ndId: _entrainmentRates.keySet()){						
+				for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){
+					srWriter.write(Integer.toString(ndId).concat(",").concat(Float.toString(((Float) elm.get(0))))
+							.concat(",").concat(Integer.toString(((Integer) elm.get(1))))
+							.concat(",").concat(Integer.toString(((Integer) elm.get(2))))
+							.concat(",").concat(Float.toString(((Float) elm.get(3))))
+							.concat(",").concat(Double.toString(((Double) elm.get(4)))));
+					srWriter.newLine();
+				}	
+			}
+			PTMUtil.closeBuffer(srWriter);
+		}catch(IOException e){
+			System.err.println("error occured when writing out survival rates!");
+			e.printStackTrace();
+		}
+	}
 	private void setDicuFilterEfficiency(){
 		if (_dicuFilterEfficiency > 0){
 			//TODO particle has basic route behavior as Salmon???
@@ -279,6 +323,7 @@ public class RouteInputs {
 		return new int[] {nodeId, wbId};
 	}
 
+	private String _pathFileName;
 	private ArrayList<IntBuffer> _fishScreens = null;
 	private float _dicuFilterEfficiency;
 	private ArrayList<NonPhysicalBarrier> _barriers = null;
@@ -288,6 +333,8 @@ public class RouteInputs {
 	private ConcurrentHashMap<Integer, String> _specialBehaviorNames = null;
 	private Map<String, Integer> _nameChanLookUp;
 	private boolean DEBUG = false;
+	//Map<nodeId, <pid, entrainment rate>>
+	private Map<Integer, ArrayList<ArrayList<Object>>> _entrainmentRates;
 
 }
 

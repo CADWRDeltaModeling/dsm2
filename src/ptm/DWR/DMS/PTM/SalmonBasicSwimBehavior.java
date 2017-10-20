@@ -117,6 +117,8 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			}
 			// Channel	
 			if (p.wb.getPTMType() ==  Waterbody.CHANNEL) {
+				 p.checkSurvival();
+				 if (p.isDead) return;
 				 int cId = ((Channel)p.wb).getEnvIndex();		
 				 
 				 // confusion and swimming velocity are sampled in two places

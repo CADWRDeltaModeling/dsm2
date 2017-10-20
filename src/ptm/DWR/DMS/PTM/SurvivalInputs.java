@@ -110,6 +110,11 @@ public class SurvivalInputs {
 				return;
 		try{
 			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileName);
+			srWriter.write("Particles survived + lost at an end node are not necessary " 
+					+"equal to particle arrived at the beginning node because a particle can be lost at a boundary "
+					+"or wondering without reach an end node or an exchange node.  "
+					+"All particles not detected at an end node or an exchange node are assumed lost.");
+			srWriter.newLine();
 			srWriter.write("Group ID".concat(",").concat("# of Particle Arrived").concat(",").concat("# of Particle Lost")
 					.concat(",").concat(" # of Particle Survived").concat(",").concat("Survival Rate"));
 			srWriter.newLine();
@@ -118,16 +123,16 @@ public class SurvivalInputs {
 				Integer ar = _groupArrivals.get(id);
 				Integer lost = _groupLost.get(id);
 				Integer sur = _groupSurvival.get(id);
-				float survival = 1;
-				if (ar == null)
-					ar = 0;
+				if (ar == null){
+					PTMUtil.systemExit("error in writing survival output.  this particle has never arrived at the starting node of this channel group");;
+				}
 				if (lost == null)
 					lost = 0;
 				if (sur == null)
 					sur = 0;
-				//TODO survival rate may be calculated differently
-				//else
-					//survival =1.0f - 1.0f*lost/ar;
+				//TODO 
+				//survival rate = sur/ar (not (1-lost/ar) ) is to be consistent with Russ' XT model. if fish is not detected at the end node, it assumes that it is lost.
+				// not every fish arrived is detected at the end node.
 				srWriter.write(Integer.toString(id).concat(",").concat(Integer.toString(ar)).concat(",").concat(Integer.toString(lost))
 						.concat(",").concat(Integer.toString(sur)).concat(",").concat(Float.toString(1.0f*sur/ar)));
 				srWriter.newLine();	
