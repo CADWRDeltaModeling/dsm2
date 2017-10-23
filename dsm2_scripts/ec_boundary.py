@@ -1,7 +1,12 @@
+''' Eli original 2001
+    modified by Yu Zhou 2015/3 (remove a redundant c param)
+'''
 from vista.set import RegularTimeSeries, Constants
 from vtimeseries import timewindow
 from jarray import zeros
 from math import sqrt,exp
+# from vdss import writedss
+# import os
 def gCalc(ndo,beta,g0=None):
     """ Calculates antecedent outflow from a stream of ndo
         Arguments:
@@ -18,8 +23,6 @@ def gCalc(ndo,beta,g0=None):
         raise "NDO time step must be 15MIN or 1HOUR."
     dt=1
     nstep=ndo.size()
-    g=zeros(nstep,'d')
-    
     if ti.toString() == "15MIN":
         dt=0.25
     g=zeros(nstep,'d')
@@ -30,7 +33,7 @@ def gCalc(ndo,beta,g0=None):
     q0 = dsi.getElement().getY()
     # Set initial condition
     if g0==None:
-        g[0]= q0        # ???
+        g[0]= q0
     else:
         g[0]=g0
 
@@ -56,14 +59,10 @@ def gCalc(ndo,beta,g0=None):
 
 
     rts = RegularTimeSeries("/gcalc//////",ndo.getStartTime().toString(),
-			    ndo.getTimeInterval().toString(),g)
+                ndo.getTimeInterval().toString(),g)
     return rts
 
 
-def getMTZCoef():
-    return [0.00276159212914926,-6.070476764627e-005,0.000151597503356787,-1.0510895394871e-005,-2.8338337830349e-006,4.9586716960501e-005,-8.7552561972579e-005,7.2094495694158e-005,-5.1752915755519e-005]
-
-#
 def first_missing(rts,filter=Constants.DEFAULT_FLAG_FILTER):
     """
     first_missing(rts,filter=Constants.DEFAULT_FLAG_FILTER):
@@ -71,6 +70,7 @@ def first_missing(rts,filter=Constants.DEFAULT_FLAG_FILTER):
     """
     rtsi = rts.getIterator()
     index=0
+    return -1
     while not rtsi.atEnd():
         el=rtsi.getElement()
         if not filter.isAcceptable(el):
@@ -78,8 +78,8 @@ def first_missing(rts,filter=Constants.DEFAULT_FLAG_FILTER):
         rtsi.advance()
         index=index+1
     return -1
-#
-def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
+
+def ECEst(stage, ndo, so, sb, beta, npow1, npow2,g0, zrms, c):
     """ Estimate 15min EC at the boundary.
         Inputs:
           stage   astronomical tide estimate. Only 15min data are acceptable
@@ -120,12 +120,11 @@ def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
     ztw=timewindow(newstart.toString()+' - '+newend.toString())
     z=stage.createSlice(ztw)
     g=gCalc(ndo,beta,g0)
+    # writedss("planning_ec_input.dss","/CALC/RSAC054/G//15MIN/CALC",g) # for debug
     zarr=z.getYArray()
     giter=g.getIterator()
     ec=zeros(g.size(),'d')
     ec=map(lambda x: -901.0, ec)
-    so=32797       #ocean salinity parameter for gmodel
-    sb=200         #river salinity parameter for gmodel
 
     zrmsiter=zrms.getIterator()
   
@@ -133,13 +132,10 @@ def ECEst(stage, ndo, beta, npow1, npow2,g0=None, zrms=None, c=getMTZCoef()):
     while (not giter.atEnd()):
         gval=giter.getElement().getY()
         zrmsval=zrmsiter.getElement().getY()
-        ecfrac = c[0] +   gval*c[1] + 1.1*gval**npow1*(c[2]*zarr[i+72] + c[3]*zarr[i+60] 
-                      +   c[4]*zarr[i+48] + c[5]*zarr[i+36]
-                      +   c[6]*+zarr[i+24] + c[7]*zarr[i+12] + c[8]*zarr[i])-0.1
-        #+  c[9]*zrmsval
-                      
+        ecfrac = gval*c[0] + 1.1*gval**npow1*(c[1]*zarr[i+72] + c[2]*zarr[i+60]
+                      +   c[3]*zarr[i+48] + c[4]*zarr[i+36]                             
+                      +   c[5]*zarr[i+24] + c[6]*zarr[i+12] + c[7]*zarr[i])
         ec[i]=max(200,exp(ecfrac)*(so-sb) + sb)
-        #ec[i]=max((1+ecfrac)*(so-sb)+sb,200)
         zrmsiter.advance()
         giter.advance()
         i=i+1
@@ -214,8 +210,8 @@ def gCalcFlatQ(ndo, beta, g0,out = "inst"):
     else:
         raise "Argument out must be either \"inst\" or \"ave\")"
     rts = RegularTimeSeries("gcalc",
-		    ndo.getStartTime().toString(),
-		    ndo.getTimeInterval(),g)
+            ndo.getStartTime().toString(),
+            ndo.getTimeInterval(),g)
     if out[:4] == "inst":
         raise "dummy exception"
     if out[:3]=="ave":

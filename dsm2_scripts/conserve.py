@@ -39,7 +39,8 @@ def conserveSpline(avedata, interval):
     while not dsi.atEnd():
         el=dsi.getElement()
         if spline.rh2val(el.getX()) < 0:
-            useY=y(el.getX())
+            # useY=y(el.getX())
+            useY=spline.rh2val(el.getX())
         else:
             useY=spline.rh2val(el.getX())
         #

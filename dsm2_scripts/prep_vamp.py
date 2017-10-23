@@ -3,11 +3,11 @@
     
 """
 from calendar import monthrange,month_abbr
-import sys
-import config
+import sys,string
+import config,conserve
 from calsim_study_fpart import calsim_study_fpart
-from vista.set import RegularTimeSeries,DataSetAttr,DataType,Constants
-from vtimeseries import timeinterval,interpolate
+from vista.set import DataReference,RegularTimeSeries,DataSetAttr,DataType,Constants
+from vtimeseries import timewindow,timeinterval,interpolate
 from vdss import opendss,findpath,writedss
 from vmath import tsmax,tsmin
 from config import getAttr,setConfigVars
@@ -21,16 +21,28 @@ monthlist=[m.upper() for m in month_abbr]
 filter=Constants.DEFAULT_FLAG_FILTER
 NA_VAL=-901,0
 
-def dss_retrieve_ts(file, path):
+# def dss_retrieve_ts(file, path):
+    # f=opendss(file)
+    # g=findpath(f,path)
+    # if g==None or len(g) != 1:
+        # raise ValueError("Path %s in file s% does not exist or is not unique" % (path,file))
+    # return g[0].getData()
+    
+def dss_retrieve_ts(file, path, *arg):
     f=opendss(file)
     g=findpath(f,path)
     if g==None or len(g) != 1:
         raise ValueError("Path %s in file s% does not exist or is not unique" % (path,file))
-    return g[0].getData()
+    
+    if len(arg)>1:
+        raise ValueError("usage: file, dss_path, time window")
+    elif len(arg)==1:
+        twind=timewindow(arg[0])
+        return DataReference.create(g[0],twind).getData()
+    else: return g[0].getData()
 
 def dss_store_ts(file,path,ts):
     writedss(file,path,ts)
-
     
     
 def replace_vamp(non_pulse,pulse,include_shoulder=0):
@@ -358,7 +370,56 @@ def prep_vamp_exports(calsimfile,outfile,fpart,fpart_mod,sjr_process):
     cvp_path="/CALSIM-VAMP/D418/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
     dss_store_ts(outfile,cvp_path,cvp)
 
-use = '''
+    
+def prep_vamp_ndo(calsimfile,outdss,fpart):
+
+    STEP=string.lower(config.getAttr('CALSIMSTEP'))
+    
+    # CALSIM=opendss(calsimfile)
+    SJR_PROCESS=config.getAttr("SJR_PROCESS")
+    
+    startyr=int(config.getAttr('START_DATE')[5:])
+    endyr=int(config.getAttr('END_DATE')[5:])
+    
+    if (startyr < 1974 and endyr > 1991):
+        twstr = "01NOV1921 0000 - 01OCT2003 0000"
+    else: 
+        twstr = "01OCT1974 0000 - 01OCT1991 0000"
+        
+    path="/CALSIM/NDO/FLOW-NDO//"+STEP+"/"+fpart+"/"
+    ndo=dss_retrieve_ts(calsimfile,path,twstr)
+    print ndo
+    ndo15=conserve.conserveSpline(ndo,"15MIN")
+    if (SJR_PROCESS.upper()=="SINGLE_STEP") or (SJR_PROCESS.upper()=="MULTI_STEP"):
+        fpart_modified=calsim_study_fpart(modify=1)
+        delta_ndo = calc_vamp_delta_ndo(calsimfile,outdss,fpart,fpart_modified,SJR_PROCESS)
+        ndo15_vamp = ndo15 + interpolate(delta_ndo, "15MIN")
+	
+    writedss(calsimfile,"/CALSIM/NDO/FLOW-NDO//15MIN/"
+                              +fpart+"/",ndo15_vamp)
+                                  
+
+def calc_vamp_delta_ndo(calsimfile,vamp_dss,fpart,fpart_mod,sjr_process):
+    # sjr flow
+    path="/CALSIM/C639/FLOW-CHANNEL//1MON/fpart/".replace("fpart",fpart)
+    sjr_average_flow = dss_retrieve_ts(calsimfile,path)
+    path = "/CALSIM-VAMP/C639/FLOW//1DAY/fpart/".replace("fpart",fpart_mod)
+    sjr_vamp_flow = dss_retrieve_ts(vamp_dss,path)
+    delta_sjr_flow = sjr_vamp_flow - interpolate(sjr_average_flow,"1DAY") 
+    
+    #cvp swp export
+    path="/CALSIM/D419/FLOW-DELIVERY//1MON/fpart/".replace("fpart",fpart)   
+    swp_average_exports=dss_retrieve_ts(calsimfile,path)
+    path="/CALSIM/D418/FLOW-DELIVERY//1MON/fpart/".replace("fpart",fpart)
+    cvp_average_exports=dss_retrieve_ts(calsimfile,path)
+    path="/CALSIM-VAMP/D419/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
+    swp_vamp_exports=dss_retrieve_ts(vamp_dss,path)
+    path="/CALSIM-VAMP/D418/FLOW-EXPORT//1DAY/fpart/".replace("fpart",fpart_mod)
+    cvp_vamp_exports=dss_retrieve_ts(vamp_dss,path)
+    delta_cvp_exports = cvp_vamp_exports - interpolate(cvp_average_exports,"1DAY")
+    delta_swp_exports = swp_vamp_exports - interpolate(swp_average_exports,"1DAY")
+    return delta_sjr_flow - delta_cvp_exports - delta_swp_exports
+'''
 Usage:
 vscript prep_vamp.py configfile
 - OR -
@@ -394,8 +455,10 @@ def main():
     else:
 	    raise "wrong number of arguments in script prep_vamp"
 	
+    print "prep VAMP"
     prep_vamp_vernalis(calsimdss,outdss,fpart,fpart_modified) 
     prep_vamp_exports(calsimdss,outdss,fpart,fpart_modified,sjr_process)
+    prep_vamp_ndo(calsimdss,outdss,fpart)
     sys.exit()
         
 if __name__ == '__main__':
