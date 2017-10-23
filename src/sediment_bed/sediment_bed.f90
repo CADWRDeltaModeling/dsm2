@@ -77,7 +77,7 @@ real (gtm_real)                  :: wet_p(ncells)
 real (gtm_real)                  :: volume(ncells)
 real (gtm_real)                  :: vol
 
-integer i, j 
+integer i, j, k
     
     if (rkstep==1) sedsolids(:,:,:,:,1) = sedsolids(:,:,:,:,3)          !update for Huen's method
     volume(:) = (area(:) * length(:)/depth(:)) * (ft_to_m) ** 2 
@@ -121,7 +121,9 @@ integer i, j
     !    end do
     !end do
     !if (dmdt_erosion(:,:,:) > erosion(:,:,:, rkstep)) then
+    
     erosion_sb(:,:,:,rkstep) = min(dmdt_erosion(:,:,:) , erosion_sb(:,:,:, rkstep))
+    erosion_sb(:,:,:,rkstep) = max(zero, erosion_sb(:,:,:, rkstep))
     !end if
     
     resuspension(:, :) = zero
