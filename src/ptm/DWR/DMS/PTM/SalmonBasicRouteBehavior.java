@@ -56,15 +56,12 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 					Channel c = (Channel) wb;
 					int cId = c.getEnvIndex();
 					//mean swimming velocity set once per particle per channel group.
-					// therefore here is the only place to set a mean swimming velocity
+					//Here is the only place to set a mean swimming velocity.
 					p.getSwimHelper().setMeanSwimmingVelocity(p.Id, cId);
 					//Swimming velocity here doesn't include confusion factor
 					swimmingVels[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, cId);
 					confusionFactors[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(cId);
 					wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, swimmingVels[wbId]*confusionFactors[wbId]));
-					//TODO clean up
-					//System.err.println(PTMHydroInput.getExtFromIntChan(c.getEnvIndex())+" " +swimmingVels[wbId]*confusionFactors[wbId]+ " "
-					//+wbFlows[wbId]);
 		    	}
 				else
 					// swimming velocity = 0 in the other types of water bodies
@@ -127,7 +124,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 	      p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
 	    // need to set x only channels.   
 	    if (p.wb != null && p.wb.getPTMType() == Waterbody.CHANNEL){
-	    	setChannelStartingCondition(p);
+	    	setChannelStartingCondition(p, swimmingVels[wbId], confusionFactors[wbId]);
 	    	//TODO use a method setChannelStartingCondition(Particle p)instead, code below to be cleaned up.
 	    	/*
 	    	Channel chan = (Channel) p.wb;
@@ -161,13 +158,11 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		if (rIn != null)
 			rIn.updateCurrentBarrierInfo(allWbs, currT);
 	}
-	void setChannelStartingCondition(Particle p){
+	void setChannelStartingCondition(Particle p, float swimVel, int confFactor){
 		// need to set x only channels.   
     	Channel chan = (Channel) p.wb;
     	int chanId = chan.getEnvIndex();
     	p.x = super.getXLocationInChannel(chan, p.nd);
-    	float swimVel = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, chanId);
-    	int confFactor = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(chanId);
     	p.setSwimmingVelocity(swimVel*confFactor);
     	p.setConfusionFactor(confFactor);
     	p.swimVelSetInJunction(true);

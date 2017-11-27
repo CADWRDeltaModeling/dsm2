@@ -3,6 +3,7 @@
  */
 package DWR.DMS.PTM;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -137,17 +138,15 @@ public class RouteInputs {
 			PTMUtil.systemExit("System Exit: only implemented for SALMON not for: "+_fishType);
 	}
 	public ConcurrentHashMap<Integer, String> getSpecialBehaviorNames(){ return _specialBehaviorNames; }
+	public String getSpecialBehaviorName(int nodeId){return _specialBehaviorNames.get(nodeId);}
 	public Map<String, Integer> getNameChannelLookUp() { return _nameChanLookUp;}
 	public int getChannelId(String channelName) {return _nameChanLookUp.get(channelName);}
-	public void putEntrainmentRate(int nodeId, float sacUpFlow, int dayTime, int BarrierOp, Float flowSplit, double entrainmentRate){
+	public void putEntrainmentRate(int nodeId, List<Object> rates){
 		if ( _entrainmentRates.get(nodeId) == null)
 			_entrainmentRates.put(nodeId, new ArrayList<ArrayList<Object>>());
 		ArrayList<Object> elm = new ArrayList<Object>();
-		elm.add(sacUpFlow);
-		elm.add(dayTime);
-		elm.add(BarrierOp);
-		elm.add(flowSplit);
-		elm.add(entrainmentRate);
+		for (Object rate:rates)
+			elm.add(rate);
 		_entrainmentRates.get(nodeId).add(elm);
 	}
 	public Map<Integer, ArrayList<ArrayList<Object>>> getEntrainmentRates(){return _entrainmentRates;}
@@ -156,22 +155,70 @@ public class RouteInputs {
 				return;
 		try{
 			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileName);
-			srWriter.write("Node ID".concat(",").concat("Sac Up Flow (cfs)").concat(",")
-					.concat("Day Time (day/night = 0/1)").concat(",")
-					.concat("Barrier Operation (on/off = 1/0)").concat(",")
-					.concat("% to GS").concat(",")
-					.concat("Entrainment Probability"));
-			srWriter.newLine();
-			//_ttHolder will never be null and there is at least one element
-			for (int ndId: _entrainmentRates.keySet()){						
-				for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){
-					srWriter.write(Integer.toString(ndId).concat(",").concat(Float.toString(((Float) elm.get(0))))
-							.concat(",").concat(Integer.toString(((Integer) elm.get(1))))
-							.concat(",").concat(Integer.toString(((Integer) elm.get(2))))
-							.concat(",").concat(Float.toString(((Float) elm.get(3))))
-							.concat(",").concat(Double.toString(((Double) elm.get(4)))));
+			for (int ndId: _entrainmentRates.keySet()){
+				if(DEBUGRouteInputs){
+					if(getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonGSJRouteBehavior")){
+						srWriter.write("GS Junction");
+						srWriter.newLine();
+						srWriter.write("Node ID".concat(",").concat("Sac Up Flow (cfs)").concat(",")
+								.concat("Day Time (day/night = 0/1)").concat(",")
+								.concat("Barrier Operation (on/off = 1/0)").concat(",")
+								.concat("Inflow % to GS").concat(",")
+								.concat("Entrainment Probability"));
+						srWriter.newLine();
+						srWriter.write("Node ID".concat(",").concat("Sac Flow below GS (cfs)").concat(",")
+								.concat("Sac Flow Change").concat(",")
+								.concat("GS Flow").concat(",")
+								.concat("DCC flow").concat(",")
+								.concat("piDCC").concat(",")
+								.concat("piGs").concat(",")
+								.concat("Entrainment Probability"));
+						srWriter.newLine();
+					}
+					else if (getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonSutterJRouteBehavior")
+							||getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonSTMJRouteBehavior")){
+						
+						if(getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonSutterJRouteBehavior"))
+							srWriter.write("Sutter Junction");
+						else
+							srWriter.write("Steamboat Junction");
+						srWriter.newLine();
+						srWriter.write("Node ID".concat(",").concat("% flow into sut").concat(",")
+								.concat("% flow into stm").concat(",")
+								.concat("sut flow (cfs)").concat(",")
+								.concat("stm flow (cfs)").concat(",")
+								.concat("delta sut flow (cfs)").concat(",")
+								.concat("Entrainment Probability"));
+						srWriter.newLine();
+					}
+					else if (getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonDCCRouteBehavior")){
+						srWriter.write("DCC Junction");
+						srWriter.newLine();
+						srWriter.write("Node ID".concat(",").concat("Sac flow (cfs)").concat(",")
+								.concat("dt Sacflow (cfs)").concat(",")
+								.concat("GS flow (cfs)").concat(",")
+								.concat("DCC flow (cfs)").concat(",")
+								.concat("Entrainment Probability"));
+						srWriter.newLine();
+					}
+					for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){
+						String s = Integer.toString(PTMHydroInput.getExtFromIntNode(ndId));
+						for(Object item: elm)
+							s = s.concat(",").concat(item.toString());
+						srWriter.write(s);
+						srWriter.newLine();
+					}
 					srWriter.newLine();
-				}	
+				}
+				else{
+					srWriter.write("Node Id".concat(",").concat("Entrainment Probability"));
+					srWriter.newLine();
+					for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){
+						srWriter.write(Integer.toString(PTMHydroInput.getExtFromIntNode(ndId)).concat(",").concat(elm.get(elm.size()-1).toString()));
+						srWriter.newLine();
+					}
+					srWriter.newLine();
+				}
 			}
 			PTMUtil.closeBuffer(srWriter);
 		}catch(IOException e){
@@ -335,6 +382,7 @@ public class RouteInputs {
 	private boolean DEBUG = false;
 	//Map<nodeId, <pid, entrainment rate>>
 	private Map<Integer, ArrayList<ArrayList<Object>>> _entrainmentRates;
+	private boolean DEBUGRouteInputs = true;
 
 }
 

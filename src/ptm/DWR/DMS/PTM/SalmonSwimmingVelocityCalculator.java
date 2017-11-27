@@ -34,7 +34,9 @@ public class SalmonSwimmingVelocityCalculator {
 	public float getMeanSwimmingVelocity(int pId, int chanId){
 		Map<Integer, Float> pidMeanSwimVel = _meanSwimVels.get(getGroupName(chanId));
 		if (pidMeanSwimVel == null || pidMeanSwimVel.get(pId) == null)
-			PTMUtil.systemExit("Mean swimming velocity never been set, check the code! system exit."); 
+			PTMUtil.systemExit("Mean swimming velocity never been set for channel: "
+					+PTMHydroInput.getExtFromIntChan(chanId)
+					+" in the group: "+getGroupName(chanId)+", check the code! system exit."); 
 		return pidMeanSwimVel.get(pId);
 	}
 	private float[] getSwimParameters(int chanId){

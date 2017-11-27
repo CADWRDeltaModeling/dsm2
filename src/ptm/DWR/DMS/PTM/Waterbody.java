@@ -24,6 +24,7 @@ import edu.cornell.RngPack.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 /**
  * Waterbody is an abstract entity which is connected to other
  * waterbodies via nodes. Each Waterbody is identified by its unique
@@ -100,6 +101,10 @@ public abstract class Waterbody{
     	  _nodeIdArray.add(new Integer(id));
       nodeArray = new Node[nNodes];
       depthAt = new float[nNodes];
+      previousFlowAt = new float[nNodes];
+      deltaFlowAt = new float[nNodes];
+      _firstTimeSetFlows = new boolean[nNodes];
+      Arrays.fill(_firstTimeSetFlows, true);
       flowAt = new float[nNodes];
       velocityAt = new float[nNodes];
       qualityAt = new float[nNodes][getNumConstituents()];
@@ -224,8 +229,18 @@ public abstract class Waterbody{
    *  Set flow information to given flow array.
    */
   public void setFlow(float[] flowArray){
-    for( int nodeId =0; nodeId<nNodes; nodeId++)
+    for( int nodeId =0; nodeId<nNodes; nodeId++){
+    	if (_firstTimeSetFlows[nodeId]){
+    		_firstTimeSetFlows[nodeId] = false;
+    		previousFlowAt[nodeId]= flowArray[nodeId];
+    		deltaFlowAt[nodeId] = 0;
+    	}
+    	else{
+    		previousFlowAt[nodeId] = flowAt[nodeId];
+    		deltaFlowAt[nodeId] = flowArray[nodeId] - flowAt[nodeId];
+    	}
       flowAt[nodeId] = flowArray[nodeId];
+    }
   }
   /**
    * sets the accounting name
@@ -352,7 +367,7 @@ public abstract class Waterbody{
   /**
    *  Flow, depth, velocity, width and area information read from tide file
    */
-  protected float[] flowAt, depthAt, velocityAt, widthAt;
+  protected float[] flowAt, previousFlowAt, deltaFlowAt, depthAt, velocityAt, widthAt;
   /**
    *  Water quality information read from Qual binary file
    */
@@ -376,6 +391,7 @@ public abstract class Waterbody{
   // nodeId as key and operation (0,1) as value
   private HashMap<Integer, Integer> _barrierOpMap = null;
   private boolean _fishScreenInstalled = false;
+  private boolean [] _firstTimeSetFlows;
   
 }
 

@@ -40,7 +40,8 @@ public class BasicRouteBehavior {
 	    	return 0;
 	    if (chan.getDownNodeId() == nd.getEnvIndex())
 	    	return chan.getLength();
-	    PTMUtil.systemExit("Node: " + nd.getEnvIndex() + " and channel: " + chan.getEnvIndex() + "doesn't match! exit.");
+	    PTMUtil.systemExit("Node: " + PTMHydroInput.getExtFromIntNode(nd.getEnvIndex()) + " and channel: " 
+	    	+ PTMHydroInput.getExtFromIntChan(chan.getEnvIndex()) + " doesn't match! exit.");
 	    return -999999.0f;
 	}
 	//TODO clean up moved to survival module.
