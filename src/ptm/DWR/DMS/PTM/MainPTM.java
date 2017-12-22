@@ -188,7 +188,20 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-
+            /* to print out internal external channels, nodes
+            Node[] nodens = Environment.getNodeArray();
+            Waterbody[] wbwbs = Environment.getWbArray();
+            for (Waterbody w:wbwbs){
+            	if ((w != null)&& (w.getType() == Waterbody.CHANNEL))
+            		System.err.println(""+w.getEnvIndex()+" "+PTMHydroInput.getExtFromIntChan(w.getEnvIndex()));
+            }
+            System.err.println(" ");
+            System.err.println("node");
+            for (Node nn:nodens){
+            	if (nn != null && nn.getEnvIndex()<811)
+            			System.err.println(""+nn.getEnvIndex()+" "+PTMHydroInput.getExtFromIntNode(nn.getEnvIndex()));
+            }
+            */
             //Environment.getHydroInfo(startTime-PTMTimeStep*4);//@todo: warning if < hydro start time 
             // initialize current model time
             //   Globals.currentModelTime = startTime;
@@ -231,7 +244,10 @@ public class MainPTM {
             //print out travel times
             Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
             Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();
-            Environment.getBehaviorInputs().getRouteInputs().writeEntrainmentRates();
+            RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();
+            rIn.writeEntrainmentRates();
+            rIn.writeFlux(particleArray);
+            
             if ( animationOutput != null ) animationOutput.FlushAndClose();
             // write out restart file information
             if ( outRestart != null ) outRestart.output();
@@ -239,8 +255,10 @@ public class MainPTM {
             // clean up after run is over
             observer = null;
             particleArray = null;
-    
+            
             // output flux calculations in dss format
+            // flux calculation has some errors, disable for now
+           
             FluxInfo fluxFixedInfo = Environment.getFluxFixedInfo();
             GroupInfo groupFixedInfo = Environment.getGroupFixedInfo();
 
@@ -249,8 +267,9 @@ public class MainPTM {
                                                          fluxFixedInfo,
                                                          groupFixedInfo);
             fluxCalculator.calculateFlux();
-            System.out.println("done simulation, but no output dss");
-            fluxCalculator.writeOutput();
+            fluxCalculator.writeOutput(); 
+            
+            //System.out.println("done simulation, but no dss output");
             
         }catch(Exception e){
             e.printStackTrace();

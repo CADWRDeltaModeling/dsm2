@@ -25,12 +25,19 @@ public class RouteInputs {
 			_barriers = new ArrayList<NonPhysicalBarrier>();
 			_fishScreens = new ArrayList<IntBuffer>();
 			//if pathname is not input, the entrainment file will not be written.
-			_pathFileName = PTMUtil.getPathFromLine(inText.get(0), ':');	
+			_pathFileNameEntrainment = PTMUtil.getPathFromLine(inText.get(0), ':');
+			_pathFileNameFlux = PTMUtil.getPathFromLine(inText.get(1), ':');
+			ArrayList<String> fluxInText = PTMUtil.getInputBlock(inText, "FLUX_CALCULATION", "END_FLUX_CALCULATION");
 			ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
 			ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
 			ArrayList<String> dicuInText = PTMUtil.getInputBlock(inText, "DICU_FILTER", "END_DICU_FILTER");
 			ArrayList<String> specialBehaviorInText = PTMUtil.getInputBlock(inText, "SPECIAL_BEHAVIORS", "END_SPECIAL_BEHAVIORS");
 			_entrainmentRates = new HashMap<Integer, ArrayList<ArrayList<Object>>>();
+			
+			if( fluxInText == null || fluxInText.size() < 2)
+				System.err.println("WARNING: no flux calculation info found or the info is not properly defined in behavior inputs.");
+			else
+				setFluxInfo(fluxInText);
 			
 			if( barriersInText == null || barriersInText.size() < 6)
 				System.err.println("WARNING: no non-physical-barrier info found or the info is not properly defined in behavior inputs.");
@@ -141,6 +148,7 @@ public class RouteInputs {
 	public String getSpecialBehaviorName(int nodeId){return _specialBehaviorNames.get(nodeId);}
 	public Map<String, Integer> getNameChannelLookUp() { return _nameChanLookUp;}
 	public int getChannelId(String channelName) {return _nameChanLookUp.get(channelName);}
+	public int getPercentToModify(int nodeId){return _specialBehaviorPercent.get(nodeId);}
 	public void putEntrainmentRate(int nodeId, List<Object> rates){
 		if ( _entrainmentRates.get(nodeId) == null)
 			_entrainmentRates.put(nodeId, new ArrayList<ArrayList<Object>>());
@@ -151,10 +159,10 @@ public class RouteInputs {
 	}
 	public Map<Integer, ArrayList<ArrayList<Object>>> getEntrainmentRates(){return _entrainmentRates;}
 	public void writeEntrainmentRates(){
-		if (_pathFileName == null)
+		if (_pathFileNameEntrainment == null)
 				return;
 		try{
-			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileName);
+			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileNameEntrainment);
 			for (int ndId: _entrainmentRates.keySet()){
 				if(DEBUGRouteInputs){
 					if(getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonGSJRouteBehavior")){
@@ -226,6 +234,33 @@ public class RouteInputs {
 			e.printStackTrace();
 		}
 	}
+	public void writeFlux(Particle[] pArray){
+		if (_pathFileNameFlux == null)
+				return;
+		if(pArray == null)
+			PTMUtil.systemExit("particle array empty when trying to write out flux, system exit");
+		try{
+			int totalParticles = pArray.length;
+			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileNameFlux);
+			srWriter.write("Name".concat(",").concat("# of particles passed")
+					.concat(",").concat("total # of particles")
+					.concat(",").concat("Flux %"));
+			srWriter.newLine();
+			for (Pair<ArrayList<Integer>,ArrayList<Integer>> g: _fluxChannelGroups){
+				int count = 0;
+				for(Particle p: pArray)
+					count += p.particlePassed(g.getFirst(), g.getSecond());
+				srWriter.write(g.getName().concat(",").concat(Integer.toString(count))
+						.concat(",").concat(Integer.toString(totalParticles))
+						.concat(",").concat(Float.toString(((float)count)/totalParticles)));
+				srWriter.newLine();	
+			}
+			PTMUtil.closeBuffer(srWriter);
+		}catch(IOException e){
+			System.err.println("error occured when writing out survival rates!");
+			e.printStackTrace();
+		}
+	}
 	private void setDicuFilterEfficiency(){
 		if (_dicuFilterEfficiency > 0){
 			//TODO particle has basic route behavior as Salmon???
@@ -249,21 +284,40 @@ public class RouteInputs {
 			 _nameChanLookUp.put(key, PTMHydroInput.getIntFromExtChan(lookUp.get(key)));
 		// make sure the title line in the input file is right 
 		String title = inText.get(1);
-		String shouldBe[] = {"NODEID", "CLASS_NAME"};
+		String shouldBe[] = {"NODEID", "CLASS_NAME", "PERCENT_INCREASE_DECREASE"};
 		PTMUtil.checkTitle(title, shouldBe);
 		// read in node vs. special junction class name
 		_specialBehaviorNames = new ConcurrentHashMap<Integer, String>(); 
+		_specialBehaviorPercent = new ConcurrentHashMap<Integer, Integer>();
 		for (String line: inText.subList(2, inText.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
-			if (items.length!=2)
-				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:"+line);; 
-			_specialBehaviorNames.put(getEnvNodeId(items[0]), items[1]);
+			if (items.length!=3)
+				PTMUtil.systemExit("SYSTEM EXIT: error while reading special behavior inputs:"+line);
+			int nId = getEnvNodeId(items[0]);
+			_specialBehaviorNames.put(nId, items[1]);
+			_specialBehaviorPercent.put(nId, PTMUtil.getIntFromString(items[2]));
 		} 
 		if(DEBUG == true){
 			for (String key:_nameChanLookUp.keySet())
 				System.out.println("_nameChanLookUp Key: "+key+" chan: "+PTMHydroInput.getExtFromIntChan(_nameChanLookUp.get(key)));
 			for (int key:_specialBehaviorNames.keySet())
 				System.out.println("_specialBehaviorNames Key: "+PTMHydroInput.getExtFromIntNode(key)+" value: "+_specialBehaviorNames.get(key));
+		}
+	}
+	private void setFluxInfo(ArrayList<String> inText){
+		String title = inText.get(0);
+		String shouldBe[] = {"NAME", "CHANNELS_FROM", "CHANNELS_TO"};
+		PTMUtil.checkTitle(title, shouldBe);
+		_fluxChannelGroups = new ArrayList<Pair<ArrayList<Integer>, ArrayList<Integer>>>();
+		for (String line: inText.subList(1, inText.size()))
+			_fluxChannelGroups.add(PTMUtil.getGroupPair(line));
+		if(DEBUGRouteInputs){
+			for (Pair<ArrayList<Integer>, ArrayList<Integer>> p: _fluxChannelGroups){
+				for (int in: p.getFirst())
+					System.err.println(p.getName()+"  from: "+PTMHydroInput.getExtFromIntChan(in));
+				for (int out: p.getSecond())
+					System.err.println(p.getName()+"  to: "+PTMHydroInput.getExtFromIntChan(out));
+			}
 		}
 	}
 	private void setBarriers(ArrayList<String> inText){
@@ -350,6 +404,19 @@ public class RouteInputs {
 		nodeId = PTMHydroInput.getIntFromExtNode(nodeId);
 		return nodeId;
 	}
+	private Integer getEnvChanId(String idStr){
+		Integer chanId = null;
+		if (idStr == null)
+			PTMUtil.systemExit("SYSTEM EXIT: try to get internal Id for channel but the string is empty. ");
+		try{
+			chanId = Integer.parseInt(idStr);
+		}catch(NumberFormatException e){
+				e.printStackTrace();
+				PTMUtil.systemExit("SYSTEM EXIT: node id has a wrong format:" + idStr);
+		}
+		chanId = PTMHydroInput.getIntFromExtChan(chanId);
+		return chanId;
+	}
 	private int[] getEnvIds(String[] items){
 		if (items.length<2)
 			PTMUtil.systemExit("SYSTEM EXIT: Barrier or fish screen ID input line should have more than 3 items, and less items noticed. ");
@@ -370,7 +437,8 @@ public class RouteInputs {
 		return new int[] {nodeId, wbId};
 	}
 
-	private String _pathFileName;
+	private String _pathFileNameEntrainment;
+	private String _pathFileNameFlux;
 	private ArrayList<IntBuffer> _fishScreens = null;
 	private float _dicuFilterEfficiency;
 	private ArrayList<NonPhysicalBarrier> _barriers = null;
@@ -378,11 +446,15 @@ public class RouteInputs {
 	private String _fishType = null;
 	//<nodeId, specialBehavior class name>
 	private ConcurrentHashMap<Integer, String> _specialBehaviorNames = null;
+	//<nodeId, entrainment rate % increase/decrease>
+	private ConcurrentHashMap<Integer, Integer> _specialBehaviorPercent = null;
 	private Map<String, Integer> _nameChanLookUp;
 	private boolean DEBUG = false;
 	//Map<nodeId, <pid, entrainment rate>>
 	private Map<Integer, ArrayList<ArrayList<Object>>> _entrainmentRates;
 	private boolean DEBUGRouteInputs = true;
+	//Flux channel name look up: Map<Channel_Id, channel name>
+	private ArrayList<Pair<ArrayList<Integer>, ArrayList<Integer>>> _fluxChannelGroups = null;
 
 }
 

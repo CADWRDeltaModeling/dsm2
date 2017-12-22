@@ -165,6 +165,7 @@ public class PTMUtil {
 		// PTM time is in minute
 		return (time.getTimeInMillis() - getHecTime(timeZone).getTimeInMillis())/60000;
 	}
+	//careful to use this.  Set may not necessary preserve the order
 	public static Set<Integer> readSet(ArrayList<String> inText){
 		  if (inText == null)
 			  return null;
@@ -181,6 +182,16 @@ public class PTMUtil {
 		  }
 		  return list;
 	  }
+	public static int getIntFromString(String intStr){
+		int number = -999999;
+		try{
+			number = Integer.parseInt(intStr);
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the behavior input file! Should be an integer.");	
+		}
+		return number;
+	}
 	
 	// only work with format name: number
 	public static int getInt(String numberLine){
@@ -323,6 +334,38 @@ public class PTMUtil {
 			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");	
 		}
 		return pairs;
+	}
+	public static Pair<ArrayList<Integer>, ArrayList<Integer>> getGroupPair(String numberline){
+		if (numberline == null)
+			PTMUtil.systemExit("the input line (" + numberline +") is not correct! system exit");
+		Pattern p_name = Pattern.compile("([a-zA-Z_]+\\s*\\t*[a-zA-Z_]*)");
+		Matcher m_name = p_name.matcher(numberline);
+		String name = null;
+		if (m_name.find())
+			name = m_name.group(1).trim();
+		else
+			PTMUtil.systemExit("the input line (" + numberline +") is not correct! system exit");
+		Pattern p_number = Pattern.compile("\\((.*)\\)\\s*\\t*\\((.*)\\)");
+		Matcher m_number = p_number.matcher(numberline);
+		String g1Str=null, g2Str=null;
+		if(m_number.find()){
+			g1Str = m_number.group(1).trim();
+			g2Str = m_number.group(2).trim();
+		}
+		else
+			PTMUtil.systemExit("the input line (" + numberline +") is not correct! system exit");
+		String[] g1 = g1Str.split(","), g2 = g2Str.split(",");
+		ArrayList<Integer> g1Ints = new ArrayList<Integer>(), g2Ints= new ArrayList<Integer>();
+		try{
+			for(String s: g1)
+				g1Ints.add(PTMHydroInput.getIntFromExtChan(Integer.parseInt(s.trim())));
+			for(String s: g2)
+				g2Ints.add(PTMHydroInput.getIntFromExtChan(Integer.parseInt(s.trim())));
+		}catch (NumberFormatException e){
+			e.printStackTrace();
+			PTMUtil.systemExit("number format is wrong in the input file! Should be integers.");	
+		}
+		return new Pair<ArrayList<Integer>, ArrayList<Integer>>(name, g1Ints, g2Ints);
 	}
 	// get a boolean from a line with format name: double
 	public static boolean getBooleanFromLine(String line, String lineName){

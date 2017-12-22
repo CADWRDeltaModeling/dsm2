@@ -192,6 +192,7 @@ public class Particle{
 		  isDead = false;
 		  _swimmingTime = 0;
 		  _timeUsedInSecond = 0.0f;
+		  _particleTrace = new BasicParticleTrace();
 	  }
 	  /**
 	   *  Sets the location of Particle by Node Id # and random positioning
@@ -496,6 +497,11 @@ public class Particle{
 	  
 	  //to be used in survival model
 	  private boolean _fromUpstream;
+	  private BasicParticleTrace _particleTrace;
+	  void addParticleTrace(long time, int wbId, int nodeId){_particleTrace.addTrack(time, wbId, nodeId);}
+	  int particlePassed(ArrayList<Integer> fromWbIds, ArrayList<Integer> toWbIds){
+		  return _particleTrace.particlePassed(fromWbIds, toWbIds);
+	  }
 	  void setFromUpstream(boolean fromUp){_fromUpstream = fromUp;}
 	  boolean getFromUpstream(){return _fromUpstream;}
 	  

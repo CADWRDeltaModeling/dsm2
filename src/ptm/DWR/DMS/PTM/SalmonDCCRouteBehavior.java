@@ -8,7 +8,10 @@ import java.util.Arrays;
 
 /**
  * @author xwang
- *
+ * using junction models developed by Russ Perry's group in USGS to calculate entrainment/routing probability
+ * the equations used are in the paper
+ * "Effect of Tides, River Flow, and Gate Operations on Entrainment of Juvenile Salmon into the interior Sacramento-san Joaquin river Delta"
+ * by Perry et al. 
  */
 public class SalmonDCCRouteBehavior extends SalmonUpSacRouteBehavior {
 
@@ -78,42 +81,3 @@ public class SalmonDCCRouteBehavior extends SalmonUpSacRouteBehavior {
 	
 	}
 }
-
-/*
-		//TODO put this block in a function, only need to pass three channels and piDcc
-		//void selectChannel(Channels[] chans, double prob){}
-		int sacUpDccId = sacUpDcc.getEnvIndex(), sacDownDccId = sacUpgs.getEnvIndex(), dccId = dcc.getEnvIndex();
-		//mean swimming velocity set once per particle per channel group.
-		//Here is the only place to set a mean swimming velocity.
-		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, sacUpDccId);
-		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, sacDownDccId);
-		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, dccId);
-		//Swimming velocity here doesn't include confusion factor
-		float swVelSacUpDcc = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, sacUpDccId);
-		float swVelSacDownDcc = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, sacDownDccId);
-		float swVelDcc = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, dccId);
-		int confFacSacUpDcc = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(sacUpDccId);
-		int confFacSacDownDcc = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(sacDownDccId);
-		int confFacDcc = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(dccId);
-		float wbFlowSacUpDcc = Math.max(0.0f, sacUpgs.getInflowWSV(nodeId, swVelSacUpDcc*confFacSacUpDcc));
-		float wbFlowSacDownDcc = Math.max(0.0f, sacDownDown.getInflowWSV(nodeId, swVelSacDownDcc*confFacSacDownDcc));
-	
-		if(piDcc < p.nd.getRandomNumber()){
-			float total = wbFlowSacUpDcc + wbFlowSacDownDcc;
-			if(wbFlowSacUpDcc/total < p.nd.getRandomNumber()){
-				p.wb = sacUpgs;
-				setChannelStartingCondition(p, swVelSacDownDcc, confFacSacDownDcc);
-			}
-			else{
-				p.wb = sacUpDcc;
-				setChannelStartingCondition(p, swVelSacUpDcc, confFacSacUpDcc);
-			}	
-		}
-	    else{
-	    	p.wb = dcc;
-	    	setChannelStartingCondition(p, swVelDcc, confFacDcc);
-	    }		
-		if (p.observer != null) 
-	    	p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
-	    	
-*/

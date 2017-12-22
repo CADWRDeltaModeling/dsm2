@@ -9,7 +9,10 @@ import java.util.List;
 
 /**
  * @author xwangs
- *
+ * junction model used to calculate entrainment/routing probability for Steamboat Slough
+ * the equations used are in paper:
+ * "Effects of tidally varying river flow on entrainment of juvenile salmon into Sutter and Steamboat Sloughs"
+ * by Romine et al.
  */
 public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 
@@ -40,15 +43,20 @@ public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 		float qSacDDCFS = sacDownDown.getFlow(0.0f);
 		float qSutCFS = sut.getFlow(0.0f);
 		float qSutPreCFS = sut.previousFlowAt[0];
+		float dtQSutCFS = qSutCFS - qSutPreCFS;
 		float qStmCFS = stm.getFlow(0.0f);
 		float[] ratios = calcFlowProportions(new float[]{qSacDDCFS, qSutCFS, qStmCFS});
 		//the flow unit in DSM2 is cfs. scale the flow to the unit used by route model, i.e., cms 
 		float qSut = (scaled*qSutCFS-qSutMean)/qSutSD;
 		float qSutPre = (scaled*qSutPreCFS-qSutMean)/qSutSD;
-		float deltaQSut = qSut - qSutPre;
+		//float deltaQSut = qSut - qSutPre;
+		float deltaQSut = (scaled*dtQSutCFS-dtQSutMean)/dtQSutSD;
 		float qStm = (scaled*qStmCFS-qStmMean)/qStmSD;
-		float pSut = (ratios[1]-pSutMean)/pSutSD;
-		float pStm = (ratios[2]-pStmMean)/pStmSD;
+		//from Jason email proportions should not be standardized
+		//float pSut = (ratios[1]-pSutMean)/pSutSD;
+		//float pStm = (ratios[2]-pStmMean)/pStmSD;
+		float pSut = ratios[1];
+		float pStm = ratios[2];
 		double a = calcA(new float[]{qStm, deltaQSut, pStm});
 		double b = calcB(new float[]{qSut, pSut});
 		double piSut = pi(b, a, 1, 1);
@@ -59,16 +67,3 @@ public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 		selectChannel(p, new Channel[]{channels[1],channels[4],channels[3]}, nodeId, stmProb);
 	}
 }
-/*
-if (stmProb < p.nd.getRandomNumber())
-p.wb = sacDownDown;
-else
-p.wb = stm;
-if (p.observer != null) 
-p.observer.observeChange(ParticleObserver.WATERBODY_CHANGE,p);
-
-//rIn.putEntrainmentRate(PTMHydroInput.getExtFromIntNode(nodeId), ratios[2], Math.round(qSutCFS), 
-	//Math.round(qStmCFS), deltaQSut*qSutSD/scaled, stmProb);
-p.getSwimHelper().setMeanSwimmingVelocity(p.Id, p.wb.getEnvIndex());
-setChannelStartingCondition(p);
-*/

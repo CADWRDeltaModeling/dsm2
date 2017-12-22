@@ -114,5 +114,5 @@ public class TypeFlux extends Flux {
            && info.getOutGroup().containsWaterbody(wbOut);
   }
   
-  protected FluxFixedData info;
+  private FluxFixedData info;
 }

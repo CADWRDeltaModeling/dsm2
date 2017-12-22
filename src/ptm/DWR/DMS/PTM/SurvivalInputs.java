@@ -38,7 +38,9 @@ public class SurvivalInputs {
 			_groupArrivals = new HashMap<Integer, Integer>();
 			_groupLost = new HashMap<Integer, Integer>();
 			_groupSurvival = new HashMap<Integer, Integer>();
+			_groupName = new HashMap<Integer, String>();
 			_startStaGroup = new HashMap<Integer, Integer>();
+			_pReachProb = new HashMap<Integer, Map<Integer, Double>>();
 			setSurvivalParameters(PTMUtil.getInputBlock(inList, "SURVIVAL_PARAMETERS", "END_SURVIVAL_PARAMETERS"));
 			if(DEBUG){
 				for(int ss: _startStas)
@@ -116,8 +118,10 @@ public class SurvivalInputs {
 						+"or wondering without reach an end node or an exchange node.  "
 						+"All particles not detected at an end node or an exchange node are assumed lost.");
 				srWriter.newLine();
-				srWriter.write("Group ID".concat(",").concat("# of Particle Arrived").concat(",").concat("# of Particle Lost")
-						.concat(",").concat(" # of Particle Survived").concat(",").concat("Survival Rate not count missing")
+				srWriter.write("Group ID".concat(",").concat("Station Name").concat(",")
+						.concat("# of Particle Arrived").concat(",").concat("# of Particle Lost")
+						.concat(",").concat(" # of Particle Survived").concat(",")
+						.concat("Survival Rate not count missing")
 						.concat(",").concat("Survival Rate missing as lost"));
 				srWriter.newLine();
 				//_ttHolder will never be null and there is at least one element
@@ -135,7 +139,7 @@ public class SurvivalInputs {
 					//TODO 
 					//survival rate = sur/ar (not (1-lost/ar) ) is to be consistent with Russ' XT model. if fish is not detected at the end node, it assumes that it is lost.
 					// not every fish arrived is detected at the end node.
-					srWriter.write(Integer.toString(id).concat(",").concat(Integer.toString(ar)).concat(",").concat(Integer.toString(lost))
+					srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Integer.toString(ar)).concat(",").concat(Integer.toString(lost))
 							.concat(",").concat(Integer.toString(sur)).concat(",")
 							.concat(Float.toString(1.0f*sur/(sur+lost))).concat(",")
 							.concat(Float.toString(1.0f*sur/ar)));
@@ -143,7 +147,7 @@ public class SurvivalInputs {
 				}
 			}
 			else{
-				srWriter.write("Group ID".concat(",").concat("Survival Rate"));
+				srWriter.write("Group ID".concat(",").concat("Station Name").concat(",").concat("Survival Rate"));
 				srWriter.newLine();
 				//_ttHolder will never be null and there is at least one element
 				for (int id: _groupArrivals.keySet()){						
@@ -157,7 +161,16 @@ public class SurvivalInputs {
 						lost = 0;
 					if (sur == null)
 						sur = 0;
-					srWriter.write(Integer.toString(id).concat(",").concat(Float.toString(1.0f*sur/(sur+lost))));
+					srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Float.toString(1.0f*sur/(sur+lost))));
+					srWriter.newLine();
+				}
+			}
+			srWriter.write("Particle ID".concat(",").concat("Group Id").concat(",").concat("Survival Rate"));
+			srWriter.newLine();
+			for (int parId: _pReachProb.keySet()){
+				for (int gId: _pReachProb.get(parId).keySet()){
+					srWriter.write(Integer.toString(parId).concat(",").concat(Integer.toString(gId)).concat(",")
+							.concat(Double.toString(_pReachProb.get(parId).get(gId))));
 					srWriter.newLine();
 				}
 			}
@@ -190,6 +203,15 @@ public class SurvivalInputs {
 			setSurvivalHelper();
 		return _survivalHelper;
 	}
+	public Map<Integer, Map<Integer, Double>> getParticleSurvivalRates(){return _pReachProb;}
+	public void addSurvivalRate(int pId, int groupId, double rate){
+		Map<Integer, Double> reachSurvivals = _pReachProb.get(pId);
+		if(reachSurvivals == null){
+			reachSurvivals = new HashMap<Integer, Double>();
+			_pReachProb.put(pId, reachSurvivals);
+		}
+		reachSurvivals.put(groupId, rate);
+	}
 	private void addToGroup(int groupNumber, Map<Integer, Integer> grp_arr_sur_lost){
 		Integer i = grp_arr_sur_lost.get(groupNumber);
 		if (i == null)
@@ -213,16 +235,18 @@ public class SurvivalInputs {
 		int num_groups = PTMUtil.getIntFromLine(survivalParasIn.get(1), "NUMBER_OF_SURVIVAL_CALCULATION_GROUP");
 		for (int i=1; i<num_groups+1; i++){
 			ArrayList<String> survivalStrs = PTMUtil.getInputBlock(survivalParasIn, "GROUP_"+i, "END_GROUP_"+i);
-			if(survivalStrs.size() != 5)
+			if(survivalStrs.size() != 6)
 				PTMUtil.systemExit("errors in the survival parameter input line group:"+i);
+			String name = PTMUtil.getPathFromLine(survivalStrs.get(0), ':');
 			//stSta only has one pair, but enStas and exStas can have many pairs.
-			ArrayList<int[]> stStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(0), "START_STATION");
-			ArrayList<int[]> enStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(1), "END_STATION");
+			ArrayList<int[]> stStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(1), "START_STATION");
+			ArrayList<int[]> enStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(2), "END_STATION");
 			ArrayList<int[]> exStas = null;
-			if (survivalStrs.get(2).split(":").length < 2)
+			//exchangeable start station often empty
+			if (survivalStrs.get(3).split(":").length < 2)
 				System.err.println("Warning: EXCHANGEABLE_START_STATION line is empty!");
 			else
-				exStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(2), "EXCHANGEABLE_START_STATION");
+				exStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(3), "EXCHANGEABLE_START_STATION");
 			ArrayList<Integer> enStasInt = new ArrayList<Integer>();
 			ArrayList<Integer> exStasInt = new ArrayList<Integer>();
 			//External channel numbers are converted to internal channel numbers
@@ -244,14 +268,15 @@ public class SurvivalInputs {
 					exStasInt.add(exSta);
 				}
 			}
+			_groupName.put(i, name);
 			//Java pass by reference. changing enStasInt and exStasInt will change the maps.
 			//so don't change them once they are put into the maps unless you rewrite code here to make the map immutable 
 			_groupEndStas.put(i,enStasInt);
 			_groupExchStas.put(i,exStasInt);
 			String [] paraTitle = {"LAMBDA","OMEGA","X"};
-			if(!PTMUtil.check(survivalStrs.get(3).split("[,:\\s\\t]+"), paraTitle))
-				PTMUtil.systemExit("wrong survival input line:"+survivalStrs.get(3));
-			ArrayList<Double> paras = PTMUtil.getDoubles(survivalStrs.get(4));
+			if(!PTMUtil.check(survivalStrs.get(4).split("[,:\\s\\t]+"), paraTitle))
+				PTMUtil.systemExit("wrong survival input line:"+survivalStrs.get(4));
+			ArrayList<Double> paras = PTMUtil.getDoubles(survivalStrs.get(5));
 			_groupParas.put(i, paras);						
 		}
 	}
@@ -282,10 +307,15 @@ public class SurvivalInputs {
 	private Map<Integer, Integer> _groupArrivals=null;
 	// <group#, # of particles survived in the reach group> group# is unique for each Calculation Group
 	private Map<Integer, Integer> _groupSurvival=null;
+	// <group#, group name> group# is unique for each Calculation Group
+	private Map<Integer, String> _groupName=null;	
 	// <group#, # of particles dead in the reach group> group# is unique for each Calculation Group
 	private Map<Integer, Integer> _groupLost=null;
 	// <start station chan#, survival calculation group number> 
 	private Map<Integer,Integer> _startStaGroup = null;
+	//for output survival rate for each particle for each group
+	//Map<pid, Map<group#, survival probability>>
+	private Map<Integer, Map<Integer, Double>> _pReachProb = null;
 	private boolean _doSurvival = true;
 	private SurvivalHelper _survivalHelper = null;
 	private String _fishType = null;

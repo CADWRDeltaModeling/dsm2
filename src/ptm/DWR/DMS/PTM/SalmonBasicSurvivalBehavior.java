@@ -41,7 +41,6 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		_pStartAge = new HashMap<Integer, Float>();
 		_pProb = new HashMap<Integer, Double>();
 	}
-	
 	/* (non-Javadoc)
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
 	 */
@@ -122,6 +121,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			double po = PTMUtil.getRandomNumber();
 			//TODO may not need the following line because the survival is not accumulative
 			_pProb.put(pId, survival);
+			_survivalIn.addSurvivalRate(pId, groupId, survival);
 			if (survival < po){
 				p.setParticleDead();
 				_survivalIn.addLostToGroup(groupId);

@@ -256,9 +256,20 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 							 p.checkSurvival();
 							 if(p.isDead)
 								 return;
-							 // if channel, check to see if stay in the same node. if yes, wait until next time step
-							 // if not, continue on the code that calc y, z
-							 // this block is for preventing the same particle from staying in the same sub time step, node and waterbody too many times
+							 /* 
+							  * in some special junctions (e.g., Georgiana Slough Junction) the probability of a particle
+							  * into a certain branch is calculated by a statistical model and may not be related to 
+							  * swimming velocity etc.  Under certain swimming and hydrodynamic conditions 
+							  * (e.g., the swimming velocity is upstream, or the downstream flow rate is small), 
+							  * a particle could swim upstream. Because the particle is at the same time and place, 
+							  * the hydrodynamic conditions are not changed, the particle could come back 
+							  * to the same node where it is from again and again.  
+							  *   
+							  * this block is to prevent the same particle from coming back to the same node more than 20 times 
+							  * at the same sub time step.  it counts how many times the particle gets to the same node.  
+							  * If the count is more than 20 times, the particle will wait until the next time step. 
+							  * By then, the hydrodynamic condition will be changed.
+							  */
 							 if (tmToAdv < Float.MIN_VALUE && p.nd.getEnvIndex() == ndWb.get(0) && p.wb.getEnvIndex() == ndWb.get(1)){
 								 timesLooped++;
 								 if (timesLooped > 20){

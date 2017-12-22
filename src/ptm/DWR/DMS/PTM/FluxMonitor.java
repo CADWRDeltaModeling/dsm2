@@ -24,6 +24,26 @@ package DWR.DMS.PTM;
  *  in handling PTMFluxOutput object to write out the Flux output.
  */
 
+//TODO
+/*
+ * this code needs to be refactored.  The main problems:
+ * 1. too many protected variables. could be dangerous potentially.  
+ *    I have changed some variables to private and tested.  it seems nothing is broken so far.  
+ * 2. the flux calculation is calculated for each time step from the trace file. 
+ *    But the trace file only records a trace whenever a particle changes channels (ParticleObserver.observeWaterbodyChange), 
+ *    which could fall in the middle of a time step. Or within a time step there could be many channel switches 
+ *    when swimming and flow velocities are high.  And Also, the time stamp the trace file uses are only at exact
+ *    input time step (usually 15 minutes) (Particle.getCurrentParticleTime()).  There could be many line with the same 
+ *    time stamp but different channels in the file, which causes confusion and error.  
+ *    When calculating flux, the previous code loops through the time steps and picks a line in the file 
+ *    that is the first occurrence of a trace at the time stamp, which causes errors.  
+ *    I changed the code to pick the last occurrence of a trace at the time stamp, which could also cause errors.
+ *    
+ *    the correct way to calculate flux is that
+ *    for each particle, loop through all time steps and find if the particle eventually passes the to-channel 
+ *    (the particle could go back and forth).  if yes, count one otherwise count 0.   
+ */
+
 public class FluxMonitor{
 
   public static final boolean DEBUG = false;

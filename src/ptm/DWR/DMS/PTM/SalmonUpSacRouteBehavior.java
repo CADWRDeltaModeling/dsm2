@@ -5,14 +5,20 @@ package DWR.DMS.PTM;
 
 /**
  * @author xwang
- *
+ * including common methods used for the upstream Sacramento River junction models
  */
 public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior {
 	private int _nodeId;
 	float scaled = 0.0283f;
-	//mean flow in cms
-	final static float qStmMean = 77.0f, qStmSD = 46.0f;
-	final static float qSutMean = 91.0f, qSutSD = 36.0f;
+	/* mean flow in cms
+	 * parameters (mean, standard deviation) are used to standardize the junction model variables.
+	 * the parameters can be found in the papers
+	 * "Effects of tidally varying river flow on entrainment of juvenile salmon into Sutter and Steamboat Sloughs"
+	 * and "Effect of Tides, River Flow, and Gate Operations on Entrainment of Juvenile Salmon into the interior Sacramento-san Joaquin river Delta"
+	 */
+
+	final static float qStmMean = 77.0f, qStmSD = 46.0f, dtQStmMean = -1.661f, dtQStmSD = 5.63f;
+	final static float qSutMean = 91.0f, qSutSD = 36.0f, dtQSutMean = -0.5327f, dtQSutSD = 4.25f;
 	final static float qSacDownStmMean = 170.0f, qSacDownStmSD = 143.0f;
 	final static float pSutMean = 0.213f, pSutSD = 0.072f;
 	final static float pStmMean = 0.165f, pStmSD = 0.059f;
@@ -77,7 +83,7 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		
 		RouteInputs rIn = getRouteInputs();
 		
-		//ex. channelNames[]:{"SACUPSUT", "SACDOWNSUT", "SUT", "STM", "SACDOWNSTM"}
+		//ex. channelNames[]:{"SACUPDCC", "SACUPGS", "DCC", "GS", "SACDOWNGS"}
 		//"up" means current node is at the first junction; "down" means current node is at the second junction
 		if(upDown.equalsIgnoreCase("UP")){
 			sacUp = (Channel) curNode.getChannel(rIn.getChannelId(channelNames[0])); 
@@ -116,8 +122,10 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		float wbFlowSacUp = Math.max(0.0f, chans[0].getInflowWSV(nodeId, swVelSacUp*confFacSacUp));
 		float wbFlowSacDown = Math.max(0.0f, chans[1].getInflowWSV(nodeId, swVelSacDown*confFacSacDown));
 		double ram = p.nd.getRandomNumber();
-		float total = wbFlowSacUp + wbFlowSacDown;  
-		if(prob < ram){
+		float total = wbFlowSacUp + wbFlowSacDown;
+		//users can input a modify amount to increase or decrease the chance.
+		double probModified = Math.min(prob*((double)getRouteInputs().getPercentToModify(nodeId))/100.0d, 1.0d);
+		if(probModified < ram){
 			//if total flow in Sac River is equal to 0, the particle has 50% chance going up or down
 			double chanceUp = 0;
 			if (total < Float.MIN_VALUE)
