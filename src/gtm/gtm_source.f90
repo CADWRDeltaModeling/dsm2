@@ -90,6 +90,7 @@ module gtm_source
                                                ncell,                   & 
                                                constraint(:,ivar),      &
                                                isediment)
+               !if (isediment.eq.1) write(802,'(f12.0,5f12.5)') time, flow(1913)/area(1913),depth(1913),erosion(1913,isediment)*10000, deposition(1913,isediment)*10000,conc(1913,ivar) 
             elseif (trim(name(ivar)).eq."turbidity") then
                 call turbidity_source(source(:,ivar),       & 
                                       conc(:,ivar),         & 
@@ -120,7 +121,7 @@ module gtm_source
                 end if
             end do
         end if        
-               
+   
         if (run_mercury) then
                 conc_mercury(:,1:n_mercury) = conc(:,mercury_ivar(1:n_mercury))
                 source_mercury(:,1:n_mercury) = source(:,mercury_ivar(1:n_mercury))

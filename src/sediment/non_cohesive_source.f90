@@ -136,21 +136,46 @@ module non_cohesive_source
         return
     end subroutine
 
+
+    subroutine non_cohesive_deposition(deposition_flux,        &
+                                   settling_velocity,      &
+                                   conc,                   &
+                                   critical_shear_stress,  &
+                                   bottom_shear_stress)
+        implicit none
+        real(gtm_real), intent(in) :: conc
+        real(gtm_real), intent(in) :: settling_velocity
+        real(gtm_real), intent(in) :: critical_shear_stress
+        real(gtm_real), intent(in) :: bottom_shear_stress        
+        real(gtm_real), intent(out) :: deposition_flux
+        
+        if (bottom_shear_stress.lt.critical_shear_stress) then
+            deposition_flux = settling_velocity * conc *(one-bottom_shear_stress/critical_shear_stress)
+        else
+            deposition_flux = settling_velocity * conc
+        end if
+
+        return
+    end subroutine
+
     !> Non-cohesive deposition flux
-    subroutine non_cohesive_deposition(deposition_flux,   &
+    subroutine non_cohesive_deposition_teeter(deposition_flux,   &
                                        shear_vel,         &
                                        fall_vel,          &
-                                       conc)
+                                       conc)                                
         implicit none
         real(gtm_real), intent(out) :: deposition_flux
         real(gtm_real), intent(in) :: shear_vel
         real(gtm_real), intent(in) :: fall_vel
         real(gtm_real), intent(in) :: conc
         real(gtm_real) :: c_b
-        call teeter(c_b,                                   &
-                    shear_vel,                             &             
-                    fall_vel,                              &
-                    conc)              
+        !call teeter(c_b,                                   &
+        !            shear_vel,                             &             
+        !            fall_vel,                              &
+        !            conc)              
+        
+        
+        
         deposition_flux = c_b * fall_vel
         return
     end subroutine

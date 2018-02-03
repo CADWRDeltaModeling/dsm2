@@ -152,16 +152,62 @@ module suspended_utility
         return
     end subroutine
 
+    !> Calculate near bed concentration
+    subroutine near_bed_concentration(near_bed_c,           &
+                                      water_density,           &
+                                      sediment_density,        &
+                                      g_acceleration,          &
+                                      kinematic_viscosity,     &
+                                      diameter, &
+                                      water_depth, &
+                                      bed_shear,   &
+                                      conc)
+        implicit none
+        real(gtm_real), intent(out) :: near_bed_c        !< 
+        real(gtm_real), intent(in) :: water_density          !< Water density
+        real(gtm_real), intent(in) :: sediment_density       !< Sediment density
+        real(gtm_real), intent(in) :: g_acceleration         !< Gravitational acceleration 
+        real(gtm_real), intent(in)  :: kinematic_viscosity   !< Kinematic viscosity (m2/sec)  
+        real(gtm_real), intent(in) :: diameter               !< Particle diameter in meters
+        real(gtm_real), intent(in) :: water_depth            !< 
+        real(gtm_real), intent(in) :: bed_shear            !< 
+        real(gtm_real), intent(in) :: conc            !< 
+        real(gtm_real) :: dimless_critical_shear             !< Dimensionless Shield's shear stress
+        real(gtm_real) :: submerged_specific_g               !< Submerged specific gravity      
+        real(gtm_real) :: d_star                             !< Rep^(2/3)
+        real(gtm_real) :: b, critical_shear
+        submerged_specific_g = sediment_density/water_density - one
 
+        call dimless_particle_diameter(d_star,                &
+                                       g_acceleration,        &
+                                       diameter,              &
+                                       kinematic_viscosity,   &
+                                       submerged_specific_g)
+        
+        call critical_shields_parameter(dimless_critical_shear,   &
+                                        d_star)           
+                                        
+        critical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
+        
+        b = max(three*diameter,0.01d0*water_depth)
+        if (bed_shear.gt.critical_shear) then
+            near_bed_c = 0.015d0*diameter/b*(bed_shear/critical_shear-one)**1.5d0/d_star**0.3d0
+        else
+            near_bed_c = conc !0.015d0*diameter/b*(0.01)**1.5d0/d_star**0.3d0
+        end if
+        
+        return
+    end subroutine 
+    
     !> Calculate critical shear stress
-    subroutine critical_shear_stress(crtical_shear,           &
+    subroutine critical_shear_stress(critical_shear,           &
                                      water_density,           &
                                      sediment_density,        &
                                      g_acceleration,          &
                                      kinematic_viscosity,     &
                                      diameter)
         implicit none
-        real(gtm_real), intent(out) :: crtical_shear         !< Critical shear stress
+        real(gtm_real), intent(out) :: critical_shear        !< Critical shear stress
         real(gtm_real), intent(in) :: water_density          !< Water density
         real(gtm_real), intent(in) :: sediment_density       !< Sediment density
         real(gtm_real), intent(in) :: g_acceleration         !< Gravitational acceleration 
@@ -181,7 +227,7 @@ module suspended_utility
         call critical_shields_parameter(dimless_critical_shear,   &
                                         d_star)           
                                         
-        crtical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
+        critical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
         
         return
     end subroutine    

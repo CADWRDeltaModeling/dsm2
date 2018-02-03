@@ -66,13 +66,19 @@ module test_cohesive
         implicit none
         real(gtm_real) :: deposition_flux
         real(gtm_real) :: settling_velocity
+        real(gtm_real) :: critical_shear
+        real(gtm_real) :: bed_shear
         real(gtm_real) :: conc
 
         settling_velocity = 0.02d0
         conc = 0.3d0
+        critical_shear = 0.02d0
+        bed_shear = 0.02d0
         call cohesive_deposition(deposition_flux,   &
                                  settling_velocity, &
-                                 conc)        
+                                 conc, &
+                                 critical_shear, &
+                                 bed_shear)        
         call assertEquals(0.006d0,deposition_flux,weak_eps,"Error in test_deposition")
         
         return

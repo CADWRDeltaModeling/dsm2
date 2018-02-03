@@ -84,7 +84,8 @@ module ut_gtm_hdf_ts_wrt
                           nconc,             &
                           sim_start,         &
                           sim_end,           &
-                          hdf_interval_char)
+                          hdf_interval_char, &
+                          .false.)
         call close_gtm_hdf(gtm_hdf)          
         deallocate(chan_geom)        
         deallocate(resv_geom) 
@@ -154,7 +155,8 @@ module ut_gtm_hdf_ts_wrt
                           nconc,             &
                           sim_start,         &
                           sim_end,           &
-                          hdf_interval_char)
+                          hdf_interval_char, &
+                          .false.)
                            
         !---write values into time_index=3                      
         julmin = 44130       
@@ -307,7 +309,8 @@ module ut_gtm_hdf_ts_wrt
                           nconc,             &
                           sim_start,         &
                           sim_end,           &
-                          hdf_interval_char)
+                          hdf_interval_char, &
+                          .false.)
                            
         !---write values into time_index=3                           
         julmin = 44130       

@@ -227,7 +227,6 @@ module test_sediment_utility
         return 
     end subroutine
 
-
     !> test critical shear stress
     subroutine test_critical_shear
         implicit none

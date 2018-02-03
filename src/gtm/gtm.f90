@@ -105,7 +105,7 @@ program gtm
     
     ! variables for sub time stepping 
     logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
-    integer, parameter :: max_num_sub_ts = 30                 ! maximum number of sub time step within GTM time step    
+    integer, parameter :: max_num_sub_ts = 1000               ! maximum number of sub time step within GTM time step    
     real(gtm_real) :: sub_gtm_time_step                       ! sub time step for GTM when max CFL > 1
     real(gtm_real) :: max_cfl                                 ! max_cfl = maxval(cfl)
     real(gtm_real) :: flow_chk                                ! flow check
@@ -171,7 +171,9 @@ program gtm
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
     call read_init_values(init_c, init_r, init_conc, file_exists, restart_file_name)
 
-    call assign_ivar_to_outpath    
+    call assign_ivar_to_outpath
+    call check_outdss_time_interval(gtm_time_interval)
+    call check_hydro_timestep(hydro_time_interval, gtm_io(3,2)%interval)
     allocate(vals(noutpaths))    
     call get_cell_info    
     call get_output_channel

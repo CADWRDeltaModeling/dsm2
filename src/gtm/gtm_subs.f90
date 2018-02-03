@@ -247,7 +247,49 @@ module gtm_subs
         return
     end subroutine
     
-
+    !> subroutine to check if gtm time interval is greater than output DSS time interval
+    subroutine check_outdss_time_interval(gtm_time_step)
+        use common_dsm2_vars, only: noutpaths, pathoutput
+        implicit none
+        real(gtm_real), intent(in) :: gtm_time_step
+        integer :: ind, i, c
+        character*10 :: a, b
+        do i = 1, noutpaths
+            b = trim(pathoutput(i)%interval)
+            ind = index(b,'min')
+            if (ind .gt. 0) then
+                 a = trim(pathoutput(i)%interval(1:ind-1))
+                 read(a,'(i9)') c
+                 if (dble(c).lt.gtm_time_step) then
+                     write(*,*) "Warning! GTM runtime step has to be smaller than DSS output time interval!"
+                     write(*,*) "Check", pathoutput(i)%B_PART, pathoutput(i)%C_PART, pathoutput(i)%E_PART
+                     call exit(-3)
+                 end if
+            end if
+        end do
+        return   
+    end subroutine
+    
+    !> subroutine to check if hydro runtime step is identical to output hdf5 time step
+    subroutine check_hydro_timestep(hydro_time_step,     &
+                                    hydro_hdf_time_step)
+        implicit none
+        integer, intent(in) :: hydro_time_step
+        character*(*), intent(in) :: hydro_hdf_time_step
+        character*10 :: a, b
+        integer :: ind, c
+        a = trim(hydro_hdf_time_step)
+        if (index(a,'min').gt.0) then
+            b = trim(hydro_hdf_time_step(1:index(a,'min')-1))
+            read(b,'(i9)') c
+            if (c.ne.hydro_time_step) then 
+                write(*,*) "Warning! HYDRO runtime step has to be identical to HYDRO hdf5 output time interval!"
+            !    call exit(-3)
+            end if
+        end if
+        return
+    end subroutine 
+    
     !> subroutine to print out time series for selected cells into a text file
     subroutine get_select_cell(out_cell,            &
                                n_out_cell,          &

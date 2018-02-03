@@ -850,7 +850,55 @@ module hdf_util
            call h5dclose_f(dset_id, error) 
            call h5gclose_f(input_id, error)  
        end if
-
+       return        
+   end subroutine   
+ 
+ 
+    !> Read input/scalar table from hydro tidefile
+   subroutine read_scalar_tbl()
+       implicit none
+       integer(HID_T) :: input_id                   ! Group identifier
+       integer(HID_T) :: dset_id                    ! Dataset identifier
+       integer(HID_T) :: dt_id                      ! Memory datatype identifier
+       integer(HID_T) :: dt1_id, dt2_id             ! Memory datatype identifier
+       integer(SIZE_T):: offset                     ! Member's offset
+       integer(HSIZE_T), dimension(1) :: data_dims  ! Datasets dimensions
+       integer(SIZE_T) :: typesize                  ! Size of the datatype
+       integer(SIZE_T) :: type_size                 ! Size of the datatype
+       character*32, allocatable :: scalar_name(:)  ! scalar name
+       character*32, allocatable :: scalar_value(:) ! scalar value
+       integer :: error                             ! Error flag
+       integer :: n_hydro_scalar, i
+      
+       call h5gopen_f(hydro_id, "input", input_id, error)
+       call h5dopen_f(input_id, "scalar", dset_id, error) 
+       
+       n_hydro_scalar = 29 !todo:need to read from hydro, modify hydro
+       data_dims(1) = n_hydro_scalar
+       allocate(scalar_name(n_hydro_scalar))
+       allocate(scalar_value(n_hydro_scalar))
+  
+       call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
+       typesize = 32  ! the first column is charater, use typesize 32 to avoid reading errors.
+       call h5tset_size_f(dt_id, typesize, error)
+       call h5tget_size_f(dt_id, type_size, error)         
+         
+       offset = 0
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
+       call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+       call h5dread_f(dset_id, dt1_id, scalar_name, data_dims, error) 
+           
+       call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
+       call h5tinsert_f(dt2_id, "value", offset, dt_id, error)    
+       call h5dread_f(dset_id, dt2_id, scalar_value, data_dims, error)
+                       
+       call h5tclose_f(dt1_id, error)
+       call h5tclose_f(dt2_id, error)   
+       call h5tclose_f(dt_id, error)               
+       call h5dclose_f(dset_id, error)  
+       call h5gclose_f(input_id, error)      
+       deallocate(scalar_name)
+       deallocate(scalar_value)        
        return        
    end subroutine   
  

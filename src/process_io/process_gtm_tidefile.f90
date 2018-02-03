@@ -40,7 +40,7 @@ module process_gtm_tidefile
         integer, dimension(1) :: hdf5_read_buffer
   	    inquire (file = trim(tide_filename), exist = hdf_file_exists)
 	    if (.not. hdf_file_exists) then
-             write (unit_error,*) "HDF5 file does not exist: " // &
+             write (*,*) "HDF5 file does not exist: " // &
                                   tide_filename
 	         call exit(2)
 	    end if

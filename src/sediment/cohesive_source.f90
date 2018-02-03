@@ -94,6 +94,8 @@ module cohesive_source
                                    
             call cohesive_deposition(deposition_flux(icell),  &
                                      fall_vel(icell),         &
+                                     critical_shear_strs(icell), &
+                                     bottom_shear_stress(icell), &
                                      conc(icell))       
         
             if (erosion_flux(icell) .gt. available_bed(icell)) &
@@ -107,16 +109,24 @@ module cohesive_source
 
 
     !> Deposition flux calculated by Krone(1962)
-    subroutine cohesive_deposition(deposition_flux,   &
-                                   settling_velocity, &
-                                   conc)
+    subroutine cohesive_deposition(deposition_flux,        &
+                                   settling_velocity,      &
+                                   conc,                   &
+                                   critical_shear_stress,  &
+                                   bottom_shear_stress)
         implicit none
         real(gtm_real), intent(in) :: conc
         real(gtm_real), intent(in) :: settling_velocity
+        real(gtm_real), intent(in) :: critical_shear_stress
+        real(gtm_real), intent(in) :: bottom_shear_stress        
         real(gtm_real), intent(out) :: deposition_flux
         
-        deposition_flux = settling_velocity * conc
-        
+        if (bottom_shear_stress.lt.critical_shear_stress) then
+            deposition_flux = settling_velocity * conc *(one-bottom_shear_stress/critical_shear_stress)
+        else
+            deposition_flux = settling_velocity * conc
+        end if
+
         return
     end subroutine
 
