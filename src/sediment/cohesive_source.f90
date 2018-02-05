@@ -120,12 +120,8 @@ module cohesive_source
         real(gtm_real), intent(in) :: critical_shear_stress
         real(gtm_real), intent(in) :: bottom_shear_stress        
         real(gtm_real), intent(out) :: deposition_flux
-        
-        if (bottom_shear_stress.lt.critical_shear_stress) then
-            deposition_flux = settling_velocity * conc *(one-bottom_shear_stress/critical_shear_stress)
-        else
-            deposition_flux = settling_velocity * conc
-        end if
+
+        deposition_flux = settling_velocity * conc
 
         return
     end subroutine

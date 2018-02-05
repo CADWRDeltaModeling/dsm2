@@ -193,7 +193,7 @@ module suspended_utility
         if (bed_shear.gt.critical_shear) then
             near_bed_c = 0.015d0*diameter/b*(bed_shear/critical_shear-one)**1.5d0/d_star**0.3d0
         else
-            near_bed_c = conc !0.015d0*diameter/b*(0.01)**1.5d0/d_star**0.3d0
+            near_bed_c = conc*0.6d0
         end if
         
         return

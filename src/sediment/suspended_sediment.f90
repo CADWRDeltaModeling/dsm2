@@ -132,7 +132,7 @@ module suspended_sediment
                 !                             shear_vel(icell),         &
                 !                             fall_vel(icell),          &
                 !                             near_bed_c(icell))               
-                call non_cohesive_deposition(deposition_flux(icell),       &
+                call cohesive_deposition(deposition_flux(icell),       &
                                          fall_vel(icell),              &
                                          near_bed_c(icell),            &
                                          critical_shear_strs(icell),   &
