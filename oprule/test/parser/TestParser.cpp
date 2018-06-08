@@ -151,9 +151,9 @@ public:
       instr="LookupName*5*test_state(first_xxx=4;second_arg='quoted string');";
       set_input_string(instr);
       try{
-		 BOOST_MESSAGE("****  Parsing error messages below are expected");
+		 BOOST_TEST_MESSAGE("****  Parsing error messages below are expected");
 	     parseok=op_ruleparse();
-		 BOOST_MESSAGE("\n****  End of expected error messages.");
+		 BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
          BOOST_CHECK(parseok != 0);
       }catch(std::logic_error e){
          BOOST_FAIL("Parser should handle error, no exception here.");         
@@ -357,12 +357,12 @@ public:
       instr="lookup(60.,[10.,30.,55.],[1.,4.]);";
       set_input_string(instr);
 	  try{
-		 BOOST_MESSAGE("****  Parsing error messages below are expected");
+		 BOOST_TEST_MESSAGE("****  Parsing error messages below are expected");
 	     parseok=op_ruleparse(); 
-		 BOOST_MESSAGE("\n****  End of expected error messages.");
+		 BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
          BOOST_CHECK(parseok != 0);
       }catch(std::domain_error e){
-         BOOST_MESSAGE("\n****  End of expected error messages.");
+         BOOST_TEST_MESSAGE("\n****  End of expected error messages.");
 		  //BOOST_FAIL("Parser handled error, no exception here.");         
       }
       init_expression();

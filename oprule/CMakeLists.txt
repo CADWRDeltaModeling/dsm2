@@ -28,30 +28,51 @@ set(CMAKE_C_FLAGS_DEBUG "/MTd")
 #------------------ DEPENDENCIES ---------------------
 #----------------- EXECUTABLES --------------------------------------------
 #----------------- FIND THE LIBRARIES -------------------
-include_directories("${DSM2_THIRD_PARTY_DIR}/hdf5_183_xp32_vs2008_ivf101/include" "${DSM2_THIRD_PARTY_DIR}/boost_1_39")
 #boost libraries
-find_library(BOOST_FILESYSTEM_DEBUG NAMES libboost_filesystem-vc90-mt-sgd-1_39 PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_FILESYSTEM_RELEASE NAMES libboost_filesystem-vc90-mt-s-1_39 PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_REGEX_DEBUG NAMES libboost_regex-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_REGEX_RELEASE NAMES libboost_regex-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_SYSTEM_DEBUG NAMES libboost_system-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_SYSTEM_RELEASE NAMES libboost_system-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_UNITTEST_DEBUG NAMES libboost_unit_test_framework-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_UNITTEST_RELEASE NAMES libboost_unit_test_framework-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
+#boost libraries built with ./b2 runtime-link=static
+set(BOOST_VERSION 1_64)
+set(BOOST_DIR ${DSM2_THIRD_PARTY_DIR}/boost_${BOOST_VERSION}_0)
+set(BOOST_LIB_DIR ${BOOST_DIR}/stage/lib)
+set(BOOST_VC_VERSION "vc140")
+find_library(BOOST_FILESYSTEM_DEBUG NAMES libboost_filesystem-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_FILESYSTEM_RELEASE NAMES libboost_filesystem-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_REGEX_DEBUG NAMES libboost_regex-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_REGEX_RELEASE NAMES libboost_regex-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_SYSTEM_DEBUG NAMES libboost_system-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_SYSTEM_RELEASE NAMES libboost_system-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_UNITTEST_DEBUG NAMES libboost_unit_test_framework-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_UNITTEST_RELEASE NAMES libboost_unit_test_framework-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+include_directories("${BOOST_DIR}")
 #hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib 
-set(HDF5_LIB_PATH "${DSM2_THIRD_PARTY_DIR}/hdf5_183_xp32_vs2008_ivf101/lib")
-find_library(HDF5 NAMES hdf5.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL_FORTRAN NAMES hdf5_hl_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_FORTRAN NAMES hdf5_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_F90CSTUB NAMES hdf5_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL NAMES hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+# ---------------- HDF5 setup -------------- hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib 
+add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB) # needed as HDF5 was compiled with CMake and we want to link static
+#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/hdf5_x32_vs2015")
+set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.10.1-win32")
+#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.8.20-win32")
+set(HDF5_LIB_PREFIX "lib")
+set(HDF5_LIB_PATH "${HDF5_DIR}/lib")
+set(HDF5_FORTRAN_INCLUDE_PATH "${HDF5_DIR}/include/static")
+include_directories("${HDF5_DIR}/include")
+find_library(HDF5 NAMES ${HDF5_LIB_PREFIX}hdf5.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_FORTRAN NAMES ${HDF5_LIB_PREFIX}hdf5_hl_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_FORTRAN NAMES ${HDF5_LIB_PREFIX}hdf5_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_F90CSTUB NAMES ${HDF5_LIB_PREFIX}hdf5_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_F90CSTUB NAMES ${HDF5_LIB_PREFIX}hdf5_hl_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL NAMES ${HDF5_LIB_PREFIX}hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_hl_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 #szlib.lib zlib.lib 
-find_library(SZLIB NAMES szlib.lib PATHS "${DSM2_THIRD_PARTY_DIR}/szip21_vs6_enc/lib" NO_DEFAULT_PATH)
-find_library(ZLIB NAMES zlib.lib PATHS "${DSM2_THIRD_PARTY_DIR}/zlib123_vs6/lib" NO_DEFAULT_PATH)
+find_library(SZLIB NAMES szip.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
+find_library(ZLIB NAMES zlib.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
 #standard libraries. no need to specify path as they are linked from default library paths FIXME: find_package
 set (CMT_LIB_DEBUG "libcmtd.lib")
 set (CMT_LIB_RELEASE "libcmt.lib")
-set (MMT_LIB "libmmt.lib")
+#math library for Intel Composer 2013 set (MMT_LIB "libmmt.lib")
+# math library for Intel VF 16  mkl_intel_c.lib mkl_sequential.lib mkl_core.lib
+set (INTEL_LIB_PATH "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/ia32")
+set(MMT_LIB "${INTEL_LIB_PATH}/mkl_intel_c.lib")
+set(MMT_SQ_LIB "${INTEL_LIB_PATH}/mkl_sequential.lib")
+set(MMT_CORE_LIB "${INTEL_LIB_PATH}/mkl_core.lib")
 #-------------add linker flags and excluded and included libraries
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
@@ -74,7 +95,7 @@ target_link_libraries(OperatingRule
     ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 set(CMAKE_DEBUG_POSTFIX "d")
-set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_vs9_mt")
+set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_vs14_mt")
 set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
 add_custom_command(TARGET OperatingRule POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
@@ -117,7 +138,7 @@ target_link_libraries(OpRuleParser
     ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 set(CMAKE_DEBUG_POSTFIX "d")
-set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs9_mt")
+set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs14_mt")
 set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
 add_custom_command(TARGET OpRuleParser POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 

@@ -35,7 +35,7 @@ class reservoir_flow_connections
 public:
 
   /** Data type reservoir_flow_connections, default constructor */  
-  typedef const tuple<const int&>  identifier_type;
+  typedef const boost::tuple<const int&>  identifier_type;
 
   reservoir_flow_connections() :
     connection_index(-901),

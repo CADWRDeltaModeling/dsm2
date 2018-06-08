@@ -3,5 +3,5 @@ enable_language(CXX)
 # add pre build command
 # search by file pattern and include in library
 file(GLOB sources *.cpp)
-include_directories("${DSM2_THIRD_PARTY_DIR}/boost_1_39")
+include_directories("${BOOST_DIR}")
 add_library(pattern_match_cpp STATIC ${sources})

@@ -4,6 +4,6 @@ enable_language(CXX Fortran)
 #add_custom_command(OUTPUT version.fi PRE_BUILD COMMAND python version_generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 # search by file pattern and include in library
 set (CMAKE_Fortran_FLAGS "/extend_source:132")
-include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "..\\hydrolib" "..\\timevar" "${DSM2_THIRD_PARTY_DIR}/hdf5_183_xp32_vs2008_ivf101/include")
+include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "..\\hydrolib" "..\\timevar" "../${HDF5_DIR}/include/static")
 file(GLOB sources *.f)
 add_library(fixed STATIC ${sources})

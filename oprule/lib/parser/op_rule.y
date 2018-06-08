@@ -348,8 +348,7 @@ laggedval:
 			     laggedNode=LaggedDoubleNode::create((int)$5);
                const string nm=get_temp_symbol($1).stringval;;
                get_lagged_vals().push_back(
-			      make_pair<string, LaggedExpressionNode<double>::NodePtr>(
-				     nm,laggedNode));
+			      make_pair(nm,laggedNode));
 				$$=_SETD(laggedNode);
 				  }
 ;

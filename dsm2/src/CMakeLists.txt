@@ -45,11 +45,17 @@ get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 ### GENERAL FLAGS ###
 #####################
 #- To ensure static linking for C++ code
-set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+#set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+#set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+# As per HDF5 linking this is required
+set(CMAKE_CXX_FLAGS_RELEASE "/MD")
+set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
 #- To ensure static linking for C code
-set(CMAKE_C_FLAGS_RELEASE "/MT")
-set(CMAKE_C_FLAGS_DEBUG "/MTd")
+#set(CMAKE_C_FLAGS_RELEASE "/MT")
+#set(CMAKE_C_FLAGS_DEBUG "/MTd")
+# As per HDF5 linking this is required
+set(CMAKE_C_FLAGS_RELEASE "/MD")
+set(CMAKE_C_FLAGS_DEBUG "/MDd")
 # Fortran flags
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 #--- Fortran compiler options
@@ -81,6 +87,84 @@ else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   set (CMAKE_Fortran_FLAGS_DEBUG   "-O0 -g")
 endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 #---------------LIBRARIES-------------------------------------------------
+#----------------- EXECUTABLES --------------------------------------------
+set (CMAKE_Fortran_FLAGS "/extend_source:132")
+#FIXME: change top directory to one-less. There should be a better way
+set(DSM2_TOP_DIR "../../")
+set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+#----------------- FIND THE LIBRARIES -------------------
+#boost libraries
+#boost libraries built with ./b2 runtime-link=static
+set(BOOST_VERSION 1_64)
+set(BOOST_DIR ${DSM2_THIRD_PARTY_DIR}/boost_${BOOST_VERSION}_0)
+set(BOOST_LIB_DIR ${BOOST_DIR}/stage/lib)
+set(BOOST_VC_VERSION "vc140")
+find_library(BOOST_FILESYSTEM_DEBUG NAMES libboost_filesystem-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_FILESYSTEM_RELEASE NAMES libboost_filesystem-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_REGEX_DEBUG NAMES libboost_regex-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_REGEX_RELEASE NAMES libboost_regex-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_SYSTEM_DEBUG NAMES libboost_system-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_SYSTEM_RELEASE NAMES libboost_system-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_UNITTEST_DEBUG NAMES libboost_unit_test_framework-${BOOST_VC_VERSION}-mt-sgd-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+find_library(BOOST_UNITTEST_RELEASE NAMES libboost_unit_test_framework-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
+include_directories("${BOOST_DIR}")
+# ---------------- HDF5 setup -------------- hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib 
+#add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB) # needed as HDF5 was compiled with CMake and we want to link static
+#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/hdf5_x32_vs2015")
+set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.10.1-win32")
+#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.8.20-win32")
+set(HDF5_LIB_PREFIX "")
+set(HDF5_LIB_PATH "${HDF5_DIR}/lib")
+set(HDF5_FORTRAN_INCLUDE_PATH "${HDF5_DIR}/include/static")
+include_directories("${HDF5_DIR}/include" "${HDF5_DIR}/include/static")
+
+find_library(HDF5 NAMES ${HDF5_LIB_PREFIX}hdf5.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_FORTRAN NAMES ${HDF5_LIB_PREFIX}hdf5_hl_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_FORTRAN NAMES ${HDF5_LIB_PREFIX}hdf5_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_F90CSTUB NAMES ${HDF5_LIB_PREFIX}hdf5_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_F90CSTUB NAMES ${HDF5_LIB_PREFIX}hdf5_hl_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL NAMES ${HDF5_LIB_PREFIX}hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_hl_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+#szlib.lib zlib.lib 
+find_library(SZLIB NAMES ${HDF5_LIB_PREFIX}szip.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
+find_library(ZLIB NAMES ${HDF5_LIB_PREFIX}zlib.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
+# heclib_vs14_debug.lib 
+find_library(HECLIB_DEBUG NAMES heclib_vs14_debug.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(HECLIB_RELEASE NAMES heclib_vs14.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+# oprule_vs14_mtd.lib oprule_parser_vs14_mtd.lib
+find_library(OPRULE_DEBUG NAMES_DEBUG oprule_vs14_mtd.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(OPRULE_PARSER_DEBUG NAMES oprule_parser_vs14_mtd.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(OPRULE_RELEASE NAMES oprule_vs14_mt.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(OPRULE_PARSER_RELEASE NAMES oprule_parser_vs14_mt.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+# input_storage_vs14.lib 
+find_library(INPUT_STORAGE_DEBUG input_storage_vs14_mtd.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+find_library(INPUT_STORAGE_RELEASE input_storage_vs14_mt.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+# sparse klu library
+find_library(KLULIB_DEBUG KLU.lib PATHS "${DSM2_THIRD_PARTY_DIR}/SuiteSparse/KLU/build/Debug" NO_DEFAULT_PATH)
+find_library(KLULIB_RELEASE KLU.lib PATHS "${DSM2_THIRD_PARTY_DIR}/SuiteSparse/KLU/build/Release" NO_DEFAULT_PATH)
+# mkl libraries
+find_library(MKL_CORE_LIB NAMES mkl_core.lib HINTS "$ENV{IFORT_COMPILER13}/mkl/lib/ia32")
+find_library(MKL_INTEL_LIB NAMES mkl_intel_c.lib HINTS "$ENV{IFORT_COMPILER13}/mkl/lib/ia32")
+#standard libraries. no need to specify path as they are linked from default library paths FIXME: find_package
+set (CMT_LIB_DEBUG "libcmtd.lib")
+set (CMT_LIB_RELEASE "libcmt.lib")
+#math library for Intel Composer 2013 set (MMT_LIB "libmmt.lib")
+# math library for Intel VF 16  mkl_intel_c.lib mkl_sequential.lib mkl_core.lib
+set(INTEL_LIB_PATH "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/ia32")
+set(MMT_LIB "${INTEL_LIB_PATH}/mkl_intel_c.lib")
+set(MMT_SQ_LIB "${INTEL_LIB_PATH}/mkl_sequential.lib")
+set(MMT_CORE_LIB "${INTEL_LIB_PATH}/mkl_core.lib")
+#-------------add linker flags and excluded and included libraries
+if(MSVC)
+  set(CMAKE_EXE_LINKER_FLAGS
+      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /MANIFEST:NO")
+  set (CMAKE_SHARED_LINKER_FLAGS "/NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /MANIFEST:NO")
+  set (VS_STARTUP_PROJECT hydro)
+endif()
+include_directories("${DSM2_TOP_DIR}/input_storage/src")
+include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
+#------------------------- SUB PROJECTS --------------------------------
 add_subdirectory(${DSM2_COMMONS_DIR})
 # generate the files now
 execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
@@ -95,66 +179,15 @@ add_subdirectory(${DSM2_SPARSE})
 add_subdirectory(${DSM2_PATTERN_MATCH})
 add_subdirectory(${DSM2_TIMEVAR})
 #------------------ DEPENDENCIES ---------------------
-add_dependencies(hydrolib common fixed hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp klu_fortran pattern_match_cpp sparse timevar)
-add_dependencies(hdf_tidefile_fortran common timevar input_storage hdf_tidefile_cpp)
+add_dependencies(oprule_interface_fortran common fixed timevar input_storage hydrolib oprule_interface_cpp pattern_match_cpp input_storage)
+add_dependencies(hydrolib common fixed input_storage_cpp input_storage hdf_tidefile_cpp hdf_tidefile_fortran klu_fortran pattern_match_cpp sparse timevar)
 add_dependencies(input_storage input_storage_cpp)
-add_dependencies(oprule_interface_fortran common timevar input_storage hydrolib oprule_interface_cpp pattern_match_cpp timevar)
-add_dependencies(klu_fortran common sparse)
 add_dependencies(fixed hdf_tidefile_fortran common input_storage timevar)
 add_dependencies(timevar common)
-#----------------- EXECUTABLES --------------------------------------------
-set (CMAKE_Fortran_FLAGS "/extend_source:132")
-#FIXME: change top directory to one-less. There should be a better way
-set(DSM2_TOP_DIR "../../")
-set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
-#----------------- FIND THE LIBRARIES -------------------
-#boost libraries
-find_library(BOOST_FILESYSTEM_DEBUG NAMES libboost_filesystem-vc90-mt-sgd-1_39 PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_FILESYSTEM_RELEASE NAMES libboost_filesystem-vc90-mt-s-1_39 PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_REGEX_DEBUG NAMES libboost_regex-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_REGEX_RELEASE NAMES libboost_regex-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_SYSTEM_DEBUG NAMES libboost_system-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_SYSTEM_RELEASE NAMES libboost_system-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-#hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib 
-set(HDF5_LIB_PATH "${DSM2_THIRD_PARTY_DIR}/hdf5_183_xp32_vs2008_ivf101/lib")
-find_library(HDF5 NAMES hdf5.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL_FORTRAN NAMES hdf5_hl_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_FORTRAN NAMES hdf5_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_F90CSTUB NAMES hdf5_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL NAMES hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-#szlib.lib zlib.lib 
-find_library(SZLIB NAMES szlib.lib PATHS "${DSM2_THIRD_PARTY_DIR}/szip21_vs6_enc/lib" NO_DEFAULT_PATH)
-find_library(ZLIB NAMES zlib.lib PATHS "${DSM2_THIRD_PARTY_DIR}/zlib123_vs6/lib" NO_DEFAULT_PATH)
-# heclib_vs9_debug.lib 
-find_library(HECLIB_DEBUG NAMES heclib_vs9_debug.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-find_library(HECLIB_RELEASE NAMES heclib_vs9.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-# oprule_vs9_mtd.lib oprule_parser_vs9_mtd.lib
-find_library(OPRULE_DEBUG NAMES_DEBUG oprule_vs9_mtd.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-find_library(OPRULE_PARSER_DEBUG NAMES oprule_parser_vs9_mtd.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-find_library(OPRULE_RELEASE NAMES oprule_vs9_mt.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-find_library(OPRULE_PARSER_RELEASE NAMES oprule_parser_vs9_mt.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-# input_storage_vs9.lib 
-find_library(INPUT_STORAGE_DEBUG input_storage_vs9_mtd.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-find_library(INPUT_STORAGE_RELEASE input_storage_vs9_mt.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-# sparse klu library
-find_library(KLULIB_DEBUG KLU.lib PATHS "${DSM2_THIRD_PARTY_DIR}/SuiteSparse/KLU/build/Debug" NO_DEFAULT_PATH)
-find_library(KLULIB_RELEASE KLU.lib PATHS "${DSM2_THIRD_PARTY_DIR}/SuiteSparse/KLU/build/Release" NO_DEFAULT_PATH)
-# mkl libraries
-find_library(MKL_CORE_LIB NAMES mkl_core.lib HINTS "$ENV{IFORT_COMPILER13}/mkl/lib/ia32")
-find_library(MKL_INTEL_LIB NAMES mkl_intel_c.lib HINTS "$ENV{IFORT_COMPILER13}/mkl/lib/ia32")
-#standard libraries. no need to specify path as they are linked from default library paths FIXME: find_package
-set (CMT_LIB_DEBUG "libcmtd.lib")
-set (CMT_LIB_RELEASE "libcmt.lib")
-set (MMT_LIB "libmmt.lib")
-#-------------add linker flags and excluded and included libraries
-if(MSVC)
-  set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "/NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /MANIFEST:NO")
-  set (VS_STARTUP_PROJECT hydro)
-endif()
-include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed" "${DSM2_THIRD_PARTY_DIR}/hdf5_183_xp32_vs2008_ivf101/include")
+add_dependencies(hdf_tidefile_fortran common timevar input_storage hdf_tidefile_cpp)
+add_dependencies(klu_fortran common sparse)
 add_executable(hydro hydro/fourpt.f)
+add_dependencies(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
 set_property(TARGET hydro PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
 target_link_libraries(hydro 
@@ -167,12 +200,14 @@ target_link_libraries(hydro
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
-    ${MKL_CORE_LIB} ${MKL_INTEL_LIB}
-    ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
+    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 # QUAL EXE
 file(GLOB QUAL_SOURCES qual/*.f)
+set (CMAKE_Fortran_FLAGS "/extend_source:132")
 add_executable(qual ${QUAL_SOURCES})
+set_property(TARGET qual PROPERTY LINKER_LANGUAGE Fortran)
 target_link_libraries(qual common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar)
 target_link_libraries(qual 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
@@ -183,11 +218,12 @@ target_link_libraries(qual
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-    ${MKL_CORE_LIB} ${MKL_INTEL_LIB}
-    ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
+    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 # PTM DLL
 file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f)
+set (CMAKE_Fortran_FLAGS "/extend_source:132")
 add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(ptm_fortran common timevar fixed hydrolib)
 file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
@@ -204,6 +240,6 @@ target_link_libraries(ptm_dll
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-    ${MKL_CORE_LIB} ${MKL_INTEL_LIB}
-    ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
+    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )

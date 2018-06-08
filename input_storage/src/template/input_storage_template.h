@@ -35,7 +35,7 @@ class @TABLEOBJ
 public:
 
   /** Data type @TABLEOBJ, default constructor */  
-  typedef const tuple<@IDENTIFIERTYPES>  identifier_type;
+  typedef const boost::tuple<@IDENTIFIERTYPES>  identifier_type;
 
   @TABLEOBJ() :
     @DEFAULT_MEMBER_INIT
