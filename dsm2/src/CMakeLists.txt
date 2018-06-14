@@ -45,17 +45,11 @@ get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 ### GENERAL FLAGS ###
 #####################
 #- To ensure static linking for C++ code
-#set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-#set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
-# As per HDF5 linking this is required
-set(CMAKE_CXX_FLAGS_RELEASE "/MD")
-set(CMAKE_CXX_FLAGS_DEBUG "/MDd")
+set(CMAKE_CXX_FLAGS_RELEASE "/MT")
+set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 #- To ensure static linking for C code
-#set(CMAKE_C_FLAGS_RELEASE "/MT")
-#set(CMAKE_C_FLAGS_DEBUG "/MTd")
-# As per HDF5 linking this is required
-set(CMAKE_C_FLAGS_RELEASE "/MD")
-set(CMAKE_C_FLAGS_DEBUG "/MDd")
+set(CMAKE_C_FLAGS_RELEASE "/MT")
+set(CMAKE_C_FLAGS_DEBUG "/MTd")
 # Fortran flags
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 #--- Fortran compiler options
@@ -68,7 +62,8 @@ elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
   if (CMAKE_SYSTEM_NAME MATCHES "Windows.*")
       set (CMAKE_Fortran_FLAGS "/free")  
       set (CMAKE_Fortran_FLAGS_RELEASE "/f77rtl /O3")
-      set (CMAKE_Fortran_FLAGS_DEBUG   "/Od /f77rtl /debug:full /Qfp-stack-check /dbglibs /check:all /traceback /warn:unused")
+      #set (CMAKE_Fortran_FLAGS_DEBUG   "/Od /f77rtl /debug:full /Qfp-stack-check /dbglibs /check:all /traceback /warn:unused")
+      set (CMAKE_Fortran_FLAGS_DEBUG   "/f77rtl /check:all /traceback /warn:unused")
   else (CMAKE_SYSTEM_NAME MATCHES "Windows.*")
       # free format
       set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}" "-free")  
@@ -109,23 +104,19 @@ find_library(BOOST_UNITTEST_DEBUG NAMES libboost_unit_test_framework-${BOOST_VC_
 find_library(BOOST_UNITTEST_RELEASE NAMES libboost_unit_test_framework-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
 include_directories("${BOOST_DIR}")
 # ---------------- HDF5 setup -------------- hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib 
-#add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB) # needed as HDF5 was compiled with CMake and we want to link static
-#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/hdf5_x32_vs2015")
-set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.10.1-win32")
-#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.8.20-win32")
-set(HDF5_LIB_PREFIX "")
+set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.8.20-win32")
+set(HDF5_LIB_PREFIX "lib")
 set(HDF5_LIB_PATH "${HDF5_DIR}/lib")
 set(HDF5_FORTRAN_INCLUDE_PATH "${HDF5_DIR}/include/static")
 include_directories("${HDF5_DIR}/include" "${HDF5_DIR}/include/static")
-
 find_library(HDF5 NAMES ${HDF5_LIB_PREFIX}hdf5.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL NAMES ${HDF5_LIB_PREFIX}hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 find_library(HDF5_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL_FORTRAN NAMES ${HDF5_LIB_PREFIX}hdf5_hl_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_hl_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 find_library(HDF5_FORTRAN NAMES ${HDF5_LIB_PREFIX}hdf5_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
+find_library(HDF5_HL_FORTRAN NAMES ${HDF5_LIB_PREFIX}hdf5_hl_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 find_library(HDF5_F90CSTUB NAMES ${HDF5_LIB_PREFIX}hdf5_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 find_library(HDF5_HL_F90CSTUB NAMES ${HDF5_LIB_PREFIX}hdf5_hl_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL NAMES ${HDF5_LIB_PREFIX}hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_hl_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 #szlib.lib zlib.lib 
 find_library(SZLIB NAMES ${HDF5_LIB_PREFIX}szip.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
 find_library(ZLIB NAMES ${HDF5_LIB_PREFIX}zlib.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
@@ -158,8 +149,8 @@ set(MMT_CORE_LIB "${INTEL_LIB_PATH}/mkl_core.lib")
 #-------------add linker flags and excluded and included libraries
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "/NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /MANIFEST:NO")
+      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT hydro)
 endif()
 include_directories("${DSM2_TOP_DIR}/input_storage/src")
@@ -189,12 +180,13 @@ add_dependencies(klu_fortran common sparse)
 add_executable(hydro hydro/fourpt.f)
 add_dependencies(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
 set_property(TARGET hydro PROPERTY LINKER_LANGUAGE Fortran)
+target_link_libraries(hydro debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 target_link_libraries(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
 target_link_libraries(hydro 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
     debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
@@ -208,12 +200,13 @@ file(GLOB QUAL_SOURCES qual/*.f)
 set (CMAKE_Fortran_FLAGS "/extend_source:132")
 add_executable(qual ${QUAL_SOURCES})
 set_property(TARGET qual PROPERTY LINKER_LANGUAGE Fortran)
+target_link_libraries(qual debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 target_link_libraries(qual common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar)
 target_link_libraries(qual 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
     debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
@@ -227,7 +220,9 @@ set (CMAKE_Fortran_FLAGS "/extend_source:132")
 add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(ptm_fortran common timevar fixed hydrolib)
 file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
-add_library(ptm_dll SHARED ${PTM_JAVA_CPP_SOURCES})
+add_library(ptm_dll STATIC ${PTM_JAVA_CPP_SOURCES})
+include(FindJNI)
+target_include_directories(ptm_dll PUBLIC ${JNI_INCLUDE_DIRS})
 set (CMAKE_CXX_STANDARD_LIBRARIES "")
 target_link_libraries(ptm_dll ptm_fortran common fixed timevar hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
 add_dependencies(ptm_dll common fixed timevar hydrolib)
@@ -235,7 +230,7 @@ target_link_libraries(ptm_dll
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
     debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}

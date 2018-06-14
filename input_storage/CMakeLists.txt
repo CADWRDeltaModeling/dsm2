@@ -23,8 +23,36 @@ set(CMAKE_CXX_FLAGS_RELEASE "/MT")
 set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 #- To ensure static linking for C code
 set(CMAKE_C_FLAGS_RELEASE "/MT")
-set(CMAKE_C_FLAGS_RELEASE "/MT")
 set(CMAKE_C_FLAGS_DEBUG "/MTd")
+#--- Fortran compiler options
+if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
+  # gfortran
+  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g")
+elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
+  # ifort (untested)
+  if (CMAKE_SYSTEM_NAME MATCHES "Windows.*")
+      set (CMAKE_Fortran_FLAGS "/free")  
+      set (CMAKE_Fortran_FLAGS_RELEASE "/f77rtl /O3")
+      set (CMAKE_Fortran_FLAGS_DEBUG   "/Od /f77rtl /debug:full /Qfp-stack-check /dbglibs /check:all /traceback /warn:unused")
+      # set (CMAKE_Fortran_FLAGS_DEBUG   "/f77rtl /check:all /traceback /warn:unused")
+  else (CMAKE_SYSTEM_NAME MATCHES "Windows.*")
+      # free format
+      set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}" "-free")  
+      set (CMAKE_Fortran_FLAGS_RELEASE "-f77rtl -O3")
+      set (CMAKE_Fortran_FLAGS_DEBUG   "-f77rtl -O0 -g")
+  endif (CMAKE_SYSTEM_NAME MATCHES "Windows.*")
+elseif (Fortran_COMPILER_NAME MATCHES "g77")
+  # g77
+  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 -m32")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -O0 -g -m32")
+else (Fortran_COMPILER_NAME MATCHES "gfortran.*")
+  message ("CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
+  message ("Fortran compiler: " ${Fortran_COMPILER_NAME})
+  message ("No optimized Fortran compiler flags are known, we just try -O2...")
+  set (CMAKE_Fortran_FLAGS_RELEASE "-O2")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-O0 -g")
+endif (Fortran_COMPILER_NAME MATCHES "gfortran.*")
 #---------------LIBRARIES-------------------------------------------------
 #------------------ DEPENDENCIES ---------------------
 #----------------- EXECUTABLES --------------------------------------------
@@ -45,10 +73,7 @@ find_library(BOOST_UNITTEST_DEBUG NAMES libboost_unit_test_framework-${BOOST_VC_
 find_library(BOOST_UNITTEST_RELEASE NAMES libboost_unit_test_framework-${BOOST_VC_VERSION}-mt-s-${BOOST_VERSION}.lib PATHS ${BOOST_LIB_DIR} NO_DEFAULT_PATH)
 include_directories("${BOOST_DIR}")
 # ---------------- HDF5 setup -------------- hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib 
-add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB) # needed as HDF5 was compiled with CMake and we want to link static
-#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/hdf5_x32_vs2015")
-set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.10.1-win32")
-#set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.8.20-win32")
+set(HDF5_DIR "${DSM2_THIRD_PARTY_DIR}/HDF5-1.8.20-win32")
 set(HDF5_LIB_PREFIX "lib")
 set(HDF5_LIB_PATH "${HDF5_DIR}/lib")
 set(HDF5_FORTRAN_INCLUDE_PATH "${HDF5_DIR}/include/static")
@@ -62,8 +87,8 @@ find_library(HDF5_HL_F90CSTUB NAMES ${HDF5_LIB_PREFIX}hdf5_hl_f90cstub.lib PATHS
 find_library(HDF5_HL NAMES ${HDF5_LIB_PREFIX}hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 find_library(HDF5_HL_CPP NAMES ${HDF5_LIB_PREFIX}hdf5_hl_cpp.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
 #szlib.lib zlib.lib 
-find_library(SZLIB NAMES szip.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
-find_library(ZLIB NAMES zlib.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
+find_library(SZLIB NAMES ${HDF5_LIB_PREFIX}szip.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
+find_library(ZLIB NAMES ${HDF5_LIB_PREFIX}zlib.lib PATHS "${HDF5_LIB_PATH}" NO_DEFAULT_PATH)
 #standard libraries. no need to specify path as they are linked from default library paths FIXME: find_package
 set (CMT_LIB_DEBUG "libcmtd.lib")
 set (CMT_LIB_RELEASE "libcmt.lib")
