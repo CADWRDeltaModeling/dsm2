@@ -1,5 +1,4 @@
 **/BUILD
-third_party/**
 dsm2/src/input_storage/xsect_layer_input_storage.fi
 dsm2/src/input_storage/xsect_input_storage.fi
 dsm2/src/input_storage/userDefineLangTemplate.xml
@@ -197,9 +196,5 @@ input_storage/test/input_storage_fortran.f90
 input_storage/test/input_storage_envvar.h
 input_storage/example/input_storage_fortran.f90
 input_storage/example/input_storage_envvar.h
-oprule/ConsoleApplication1/targetver.h
-oprule/ConsoleApplication1/stdafx.h
-oprule/ConsoleApplication1/stdafx.cpp
-oprule/ConsoleApplication1/ReadMe.txt
 lib/oprule_parser_vs9_mtd.lib
 input_storage/example/xsect_input_storage.fi
