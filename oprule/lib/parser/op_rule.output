@@ -1,0 +1,5611 @@
+Terminals unused in grammar
+
+   STEP
+   NEG
+
+
+Grammar
+
+    0 $accept: line $end
+
+    1 line: NAME ASSIGN boolexpression ';'
+    2     | NAME ASSIGN expression ';'
+    3     | boolexpression ';'
+    4     | expression ';'
+    5     | NAME ASSIGN oprule ';'
+    6     | oprule ';'
+    7     | reassignment
+    8     | error ';'
+
+    9 reassignment: boolexpression ASSIGN
+   10             | expression ASSIGN
+
+   11 oprule: action trigger
+
+   12 trigger: WHEN boolexpression
+
+   13 action: modelaction
+   14       | action THEN action
+   15       | action WHILE action
+   16       | '(' action ')'
+
+   17 modelaction: actionspec targetspec transitionspec
+   18            | actionspec targetspec
+
+   19 actionspec: SET interface
+
+   20 targetspec: TO expression
+
+   21 transitionspec: RAMP NUMBER MIN
+
+   22 term: NUMBER
+   23     | unary
+   24     | date
+   25     | namedval
+   26     | laggedval
+
+   27 boolterm: '(' boolexpression ')'
+   28         | FALSE
+   29         | TRUE
+   30         | namedboolval
+
+   31 array: '[' NUMBER
+   32      | array ',' NUMBER
+   33      | array ']'
+
+   34 unary: SQRT '(' expression ')'
+   35      | ABS '(' expression ')'
+   36      | LOG '(' expression ')'
+   37      | LN '(' expression ')'
+   38      | EXP '(' expression ')'
+   39      | LOOKUP '(' expression ',' array ',' array ')'
+
+   40 expression: term
+   41           | expression '^' expression
+   42           | expression '*' expression
+   43           | expression '/' expression
+   44           | expression '+' expression
+   45           | expression '-' expression
+   46           | '-' expression
+   47           | '(' expression ')'
+   48           | IFELSE '(' boolexpression ',' expression ',' expression ')'
+   49           | ACCUMULATE '(' expression ',' expression ',' boolexpression ')'
+   50           | ACCUMULATE '(' expression ',' expression ')'
+   51           | PREDICT '(' expression ',' LINEAR ',' NUMBER MIN ')'
+   52           | PREDICT '(' expression ',' QUAD ',' NUMBER MIN ')'
+   53           | MIN2 '(' expression ',' expression ')'
+   54           | MAX2 '(' expression ',' expression ')'
+   55           | MIN3 '(' expression ',' expression ',' expression ')'
+   56           | MAX3 '(' expression ',' expression ',' expression ')'
+   57           | PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+   58           | IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+   59 boolexpression: boolterm
+   60               | expression LE expression
+   61               | expression GE expression
+   62               | expression GT expression
+   63               | expression LT expression
+   64               | expression EQ expression
+   65               | expression NE expression
+   66               | boolexpression OR boolexpression
+   67               | boolexpression AND boolexpression
+   68               | NOT boolexpression
+
+   69 laggedval: NAME '(' 't' '-' NUMBER ')'
+
+   70 arglist: arg
+   71        | arglist ',' arg
+   72        | arglist ';' arg
+
+   73 arg: NAME DEFINE NUMBER
+   74    | NAME DEFINE QUOTEDSTRING
+   75    | NAME DEFINE NAME
+
+   76 date: DATETIME
+   77     | REFDATE REFTIME
+   78     | REFDATE
+   79     | SEASON
+   80     | REFSEASON REFTIME
+   81     | REFSEASON
+   82     | YEAR
+   83     | MONTH
+   84     | DAY
+   85     | HOUR
+   86     | MINDAY
+   87     | MIN
+   88     | DT
+
+   89 interface: IFPARAM '(' arglist ')'
+   90          | IFNAME
+
+   91 namedval: NAMEDVAL
+   92         | EXPRESSPARAM '(' arglist ')'
+   93         | EXPRESS
+   94         | interface
+
+   95 namedboolval: BOOLNAMEDVAL
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'(' (40) 16 27 34 35 36 37 38 39 47 48 49 50 51 52 53 54 55 56 57 58
+    69 89 92
+')' (41) 16 27 34 35 36 37 38 39 47 48 49 50 51 52 53 54 55 56 57 58
+    69 89 92
+'*' (42) 42
+'+' (43) 44
+',' (44) 32 39 48 49 50 51 52 53 54 55 56 57 58 71
+'-' (45) 45 46 69
+'/' (47) 43
+';' (59) 1 2 3 4 5 6 8 72
+'[' (91) 31
+']' (93) 33
+'^' (94) 41
+'t' (116) 69
+error (256) 8
+NAME (258) 1 2 5 69 73 74 75
+IFNAME (259) 90
+IFPARAM (260) 89
+EXPRESS (261) 93
+EXPRESSPARAM (262) 92
+NAMEDVAL (263) 91
+BOOLNAMEDVAL (264) 95
+LT (265) 63
+LE (266) 60
+GT (267) 62
+GE (268) 61
+EQ (269) 64
+NE (270) 65
+MAX2 (271) 54
+MIN2 (272) 53
+MAX3 (273) 56
+MIN3 (274) 55
+PID (275) 57
+IPID (276) 58
+LOOKUP (277) 39
+IFELSE (278) 48
+ACCUMULATE (279) 49 50
+PREDICT (280) 51 52
+LINEAR (281) 51
+QUAD (282) 52
+SQRT (283) 34
+LOG (284) 36
+LN (285) 37
+EXP (286) 38
+ABS (287) 35
+SET (288) 19
+TO (289) 20
+WHEN (290) 12
+WHILE (291) 15
+THEN (292) 14
+RAMP (293) 21
+STEP (294)
+YEAR (295) 82
+MONTH (296) 83
+DAY (297) 84
+HOUR (298) 85
+MINDAY (299) 86
+MIN (300) 21 51 52 87
+DT (301) 88
+SEASON (302) 79
+DATETIME (303) 76
+REFDATE (304) 77 78
+REFTIME (305) 77 80
+REFSEASON (306) 80 81
+NUMBER (307) 21 22 31 32 51 52 69 73
+QUOTEDSTRING (308) 74
+ASSIGN (309) 1 2 5 9 10
+FALSE (310) 28
+TRUE (311) 29
+OR (312) 66
+AND (313) 67
+NOT (314) 68
+DEFINE (315) 73 74 75
+NEG (316)
+
+
+Nonterminals, with rules where they appear
+
+$accept (74)
+    on left: 0
+line (75)
+    on left: 1 2 3 4 5 6 7 8, on right: 0
+reassignment (76)
+    on left: 9 10, on right: 7
+oprule (77)
+    on left: 11, on right: 5 6
+trigger (78)
+    on left: 12, on right: 11
+action (79)
+    on left: 13 14 15 16, on right: 11 14 15 16
+modelaction (80)
+    on left: 17 18, on right: 13
+actionspec (81)
+    on left: 19, on right: 17 18
+targetspec (82)
+    on left: 20, on right: 17 18
+transitionspec (83)
+    on left: 21, on right: 17
+term (84)
+    on left: 22 23 24 25 26, on right: 40
+boolterm (85)
+    on left: 27 28 29 30, on right: 59
+array (86)
+    on left: 31 32 33, on right: 32 33 39
+unary (87)
+    on left: 34 35 36 37 38 39, on right: 23
+expression (88)
+    on left: 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57
+    58, on right: 2 4 10 20 34 35 36 37 38 39 41 42 43 44 45 46 47
+    48 49 50 51 52 53 54 55 56 57 58 60 61 62 63 64 65
+boolexpression (89)
+    on left: 59 60 61 62 63 64 65 66 67 68, on right: 1 3 9 12 27 48
+    49 66 67 68
+laggedval (90)
+    on left: 69, on right: 26
+arglist (91)
+    on left: 70 71 72, on right: 71 72 89 92
+arg (92)
+    on left: 73 74 75, on right: 70 71 72
+date (93)
+    on left: 76 77 78 79 80 81 82 83 84 85 86 87 88, on right: 24
+interface (94)
+    on left: 89 90, on right: 19 94
+namedval (95)
+    on left: 91 92 93 94, on right: 25
+namedboolval (96)
+    on left: 95, on right: 30
+
+
+State 0
+
+    0 $accept: . line $end
+
+    error         shift, and go to state 1
+    NAME          shift, and go to state 2
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    SET           shift, and go to state 24
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 41
+
+    line            go to state 42
+    reassignment    go to state 43
+    oprule          go to state 44
+    action          go to state 45
+    modelaction     go to state 46
+    actionspec      go to state 47
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 51
+    boolexpression  go to state 52
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 1
+
+    8 line: error . ';'
+
+    ';'  shift, and go to state 58
+
+
+State 2
+
+    1 line: NAME . ASSIGN boolexpression ';'
+    2     | NAME . ASSIGN expression ';'
+    5     | NAME . ASSIGN oprule ';'
+   69 laggedval: NAME . '(' 't' '-' NUMBER ')'
+
+    ASSIGN  shift, and go to state 59
+    '('     shift, and go to state 60
+
+
+State 3
+
+   90 interface: IFNAME .
+
+    $default  reduce using rule 90 (interface)
+
+
+State 4
+
+   89 interface: IFPARAM . '(' arglist ')'
+
+    '('  shift, and go to state 61
+
+
+State 5
+
+   93 namedval: EXPRESS .
+
+    $default  reduce using rule 93 (namedval)
+
+
+State 6
+
+   92 namedval: EXPRESSPARAM . '(' arglist ')'
+
+    '('  shift, and go to state 62
+
+
+State 7
+
+   91 namedval: NAMEDVAL .
+
+    $default  reduce using rule 91 (namedval)
+
+
+State 8
+
+   95 namedboolval: BOOLNAMEDVAL .
+
+    $default  reduce using rule 95 (namedboolval)
+
+
+State 9
+
+   54 expression: MAX2 . '(' expression ',' expression ')'
+
+    '('  shift, and go to state 63
+
+
+State 10
+
+   53 expression: MIN2 . '(' expression ',' expression ')'
+
+    '('  shift, and go to state 64
+
+
+State 11
+
+   56 expression: MAX3 . '(' expression ',' expression ',' expression ')'
+
+    '('  shift, and go to state 65
+
+
+State 12
+
+   55 expression: MIN3 . '(' expression ',' expression ',' expression ')'
+
+    '('  shift, and go to state 66
+
+
+State 13
+
+   57 expression: PID . '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '('  shift, and go to state 67
+
+
+State 14
+
+   58 expression: IPID . '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '('  shift, and go to state 68
+
+
+State 15
+
+   39 unary: LOOKUP . '(' expression ',' array ',' array ')'
+
+    '('  shift, and go to state 69
+
+
+State 16
+
+   48 expression: IFELSE . '(' boolexpression ',' expression ',' expression ')'
+
+    '('  shift, and go to state 70
+
+
+State 17
+
+   49 expression: ACCUMULATE . '(' expression ',' expression ',' boolexpression ')'
+   50           | ACCUMULATE . '(' expression ',' expression ')'
+
+    '('  shift, and go to state 71
+
+
+State 18
+
+   51 expression: PREDICT . '(' expression ',' LINEAR ',' NUMBER MIN ')'
+   52           | PREDICT . '(' expression ',' QUAD ',' NUMBER MIN ')'
+
+    '('  shift, and go to state 72
+
+
+State 19
+
+   34 unary: SQRT . '(' expression ')'
+
+    '('  shift, and go to state 73
+
+
+State 20
+
+   36 unary: LOG . '(' expression ')'
+
+    '('  shift, and go to state 74
+
+
+State 21
+
+   37 unary: LN . '(' expression ')'
+
+    '('  shift, and go to state 75
+
+
+State 22
+
+   38 unary: EXP . '(' expression ')'
+
+    '('  shift, and go to state 76
+
+
+State 23
+
+   35 unary: ABS . '(' expression ')'
+
+    '('  shift, and go to state 77
+
+
+State 24
+
+   19 actionspec: SET . interface
+
+    IFNAME   shift, and go to state 3
+    IFPARAM  shift, and go to state 4
+
+    interface  go to state 78
+
+
+State 25
+
+   82 date: YEAR .
+
+    $default  reduce using rule 82 (date)
+
+
+State 26
+
+   83 date: MONTH .
+
+    $default  reduce using rule 83 (date)
+
+
+State 27
+
+   84 date: DAY .
+
+    $default  reduce using rule 84 (date)
+
+
+State 28
+
+   85 date: HOUR .
+
+    $default  reduce using rule 85 (date)
+
+
+State 29
+
+   86 date: MINDAY .
+
+    $default  reduce using rule 86 (date)
+
+
+State 30
+
+   87 date: MIN .
+
+    $default  reduce using rule 87 (date)
+
+
+State 31
+
+   88 date: DT .
+
+    $default  reduce using rule 88 (date)
+
+
+State 32
+
+   79 date: SEASON .
+
+    $default  reduce using rule 79 (date)
+
+
+State 33
+
+   76 date: DATETIME .
+
+    $default  reduce using rule 76 (date)
+
+
+State 34
+
+   77 date: REFDATE . REFTIME
+   78     | REFDATE .
+
+    REFTIME  shift, and go to state 79
+
+    $default  reduce using rule 78 (date)
+
+
+State 35
+
+   80 date: REFSEASON . REFTIME
+   81     | REFSEASON .
+
+    REFTIME  shift, and go to state 80
+
+    $default  reduce using rule 81 (date)
+
+
+State 36
+
+   22 term: NUMBER .
+
+    $default  reduce using rule 22 (term)
+
+
+State 37
+
+   28 boolterm: FALSE .
+
+    $default  reduce using rule 28 (boolterm)
+
+
+State 38
+
+   29 boolterm: TRUE .
+
+    $default  reduce using rule 29 (boolterm)
+
+
+State 39
+
+   68 boolexpression: NOT . boolexpression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 82
+
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 83
+    boolexpression  go to state 84
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 40
+
+   46 expression: '-' . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 86
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 41
+
+   16 action: '(' . action ')'
+   27 boolterm: '(' . boolexpression ')'
+   47 expression: '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    SET           shift, and go to state 24
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 41
+
+    action          go to state 87
+    modelaction     go to state 46
+    actionspec      go to state 47
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 88
+    boolexpression  go to state 89
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 42
+
+    0 $accept: line . $end
+
+    $end  shift, and go to state 90
+
+
+State 43
+
+    7 line: reassignment .
+
+    $default  reduce using rule 7 (line)
+
+
+State 44
+
+    6 line: oprule . ';'
+
+    ';'  shift, and go to state 91
+
+
+State 45
+
+   11 oprule: action . trigger
+   14 action: action . THEN action
+   15       | action . WHILE action
+
+    WHEN   shift, and go to state 92
+    WHILE  shift, and go to state 93
+    THEN   shift, and go to state 94
+
+    trigger  go to state 95
+
+
+State 46
+
+   13 action: modelaction .
+
+    $default  reduce using rule 13 (action)
+
+
+State 47
+
+   17 modelaction: actionspec . targetspec transitionspec
+   18            | actionspec . targetspec
+
+    TO  shift, and go to state 96
+
+    targetspec  go to state 97
+
+
+State 48
+
+   40 expression: term .
+
+    $default  reduce using rule 40 (expression)
+
+
+State 49
+
+   59 boolexpression: boolterm .
+
+    $default  reduce using rule 59 (boolexpression)
+
+
+State 50
+
+   23 term: unary .
+
+    $default  reduce using rule 23 (term)
+
+
+State 51
+
+    4 line: expression . ';'
+   10 reassignment: expression . ASSIGN
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   60 boolexpression: expression . LE expression
+   61               | expression . GE expression
+   62               | expression . GT expression
+   63               | expression . LT expression
+   64               | expression . EQ expression
+   65               | expression . NE expression
+
+    LT      shift, and go to state 98
+    LE      shift, and go to state 99
+    GT      shift, and go to state 100
+    GE      shift, and go to state 101
+    EQ      shift, and go to state 102
+    NE      shift, and go to state 103
+    ASSIGN  shift, and go to state 104
+    '+'     shift, and go to state 105
+    '-'     shift, and go to state 106
+    '*'     shift, and go to state 107
+    '/'     shift, and go to state 108
+    '^'     shift, and go to state 109
+    ';'     shift, and go to state 110
+
+
+State 52
+
+    3 line: boolexpression . ';'
+    9 reassignment: boolexpression . ASSIGN
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+
+    ASSIGN  shift, and go to state 111
+    OR      shift, and go to state 112
+    AND     shift, and go to state 113
+    ';'     shift, and go to state 114
+
+
+State 53
+
+   26 term: laggedval .
+
+    $default  reduce using rule 26 (term)
+
+
+State 54
+
+   24 term: date .
+
+    $default  reduce using rule 24 (term)
+
+
+State 55
+
+   94 namedval: interface .
+
+    $default  reduce using rule 94 (namedval)
+
+
+State 56
+
+   25 term: namedval .
+
+    $default  reduce using rule 25 (term)
+
+
+State 57
+
+   30 boolterm: namedboolval .
+
+    $default  reduce using rule 30 (boolterm)
+
+
+State 58
+
+    8 line: error ';' .
+
+    $default  reduce using rule 8 (line)
+
+
+State 59
+
+    1 line: NAME ASSIGN . boolexpression ';'
+    2     | NAME ASSIGN . expression ';'
+    5     | NAME ASSIGN . oprule ';'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    SET           shift, and go to state 24
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 41
+
+    oprule          go to state 115
+    action          go to state 45
+    modelaction     go to state 46
+    actionspec      go to state 47
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 116
+    boolexpression  go to state 117
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 60
+
+   69 laggedval: NAME '(' . 't' '-' NUMBER ')'
+
+    't'  shift, and go to state 118
+
+
+State 61
+
+   89 interface: IFPARAM '(' . arglist ')'
+
+    NAME  shift, and go to state 119
+
+    arglist  go to state 120
+    arg      go to state 121
+
+
+State 62
+
+   92 namedval: EXPRESSPARAM '(' . arglist ')'
+
+    NAME  shift, and go to state 119
+
+    arglist  go to state 122
+    arg      go to state 121
+
+
+State 63
+
+   54 expression: MAX2 '(' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 123
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 64
+
+   53 expression: MIN2 '(' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 124
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 65
+
+   56 expression: MAX3 '(' . expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 125
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 66
+
+   55 expression: MIN3 '(' . expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 126
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 67
+
+   57 expression: PID '(' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 127
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 68
+
+   58 expression: IPID '(' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 128
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 69
+
+   39 unary: LOOKUP '(' . expression ',' array ',' array ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 129
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 70
+
+   48 expression: IFELSE '(' . boolexpression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 82
+
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 83
+    boolexpression  go to state 130
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 71
+
+   49 expression: ACCUMULATE '(' . expression ',' expression ',' boolexpression ')'
+   50           | ACCUMULATE '(' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 131
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 72
+
+   51 expression: PREDICT '(' . expression ',' LINEAR ',' NUMBER MIN ')'
+   52           | PREDICT '(' . expression ',' QUAD ',' NUMBER MIN ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 132
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 73
+
+   34 unary: SQRT '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 133
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 74
+
+   36 unary: LOG '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 134
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 75
+
+   37 unary: LN '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 135
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 76
+
+   38 unary: EXP '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 136
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 77
+
+   35 unary: ABS '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 137
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 78
+
+   19 actionspec: SET interface .
+
+    $default  reduce using rule 19 (actionspec)
+
+
+State 79
+
+   77 date: REFDATE REFTIME .
+
+    $default  reduce using rule 77 (date)
+
+
+State 80
+
+   80 date: REFSEASON REFTIME .
+
+    $default  reduce using rule 80 (date)
+
+
+State 81
+
+   69 laggedval: NAME . '(' 't' '-' NUMBER ')'
+
+    '('  shift, and go to state 60
+
+
+State 82
+
+   27 boolterm: '(' . boolexpression ')'
+   47 expression: '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 82
+
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 88
+    boolexpression  go to state 89
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 83
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   60 boolexpression: expression . LE expression
+   61               | expression . GE expression
+   62               | expression . GT expression
+   63               | expression . LT expression
+   64               | expression . EQ expression
+   65               | expression . NE expression
+
+    LT   shift, and go to state 98
+    LE   shift, and go to state 99
+    GT   shift, and go to state 100
+    GE   shift, and go to state 101
+    EQ   shift, and go to state 102
+    NE   shift, and go to state 103
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+
+State 84
+
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+   68               | NOT boolexpression .
+
+    $default  reduce using rule 68 (boolexpression)
+
+
+State 85
+
+   47 expression: '(' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 138
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 86
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   46           | '-' expression .
+
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 46 (expression)
+
+
+State 87
+
+   14 action: action . THEN action
+   15       | action . WHILE action
+   16       | '(' action . ')'
+
+    WHILE  shift, and go to state 93
+    THEN   shift, and go to state 94
+    ')'    shift, and go to state 139
+
+
+State 88
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   47           | '(' expression . ')'
+   60 boolexpression: expression . LE expression
+   61               | expression . GE expression
+   62               | expression . GT expression
+   63               | expression . LT expression
+   64               | expression . EQ expression
+   65               | expression . NE expression
+
+    LT   shift, and go to state 98
+    LE   shift, and go to state 99
+    GT   shift, and go to state 100
+    GE   shift, and go to state 101
+    EQ   shift, and go to state 102
+    NE   shift, and go to state 103
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 140
+
+
+State 89
+
+   27 boolterm: '(' boolexpression . ')'
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+
+    OR   shift, and go to state 112
+    AND  shift, and go to state 113
+    ')'  shift, and go to state 141
+
+
+State 90
+
+    0 $accept: line $end .
+
+    $default  accept
+
+
+State 91
+
+    6 line: oprule ';' .
+
+    $default  reduce using rule 6 (line)
+
+
+State 92
+
+   12 trigger: WHEN . boolexpression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 82
+
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 83
+    boolexpression  go to state 142
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 93
+
+   15 action: action WHILE . action
+
+    SET  shift, and go to state 24
+    '('  shift, and go to state 143
+
+    action       go to state 144
+    modelaction  go to state 46
+    actionspec   go to state 47
+
+
+State 94
+
+   14 action: action THEN . action
+
+    SET  shift, and go to state 24
+    '('  shift, and go to state 143
+
+    action       go to state 145
+    modelaction  go to state 46
+    actionspec   go to state 47
+
+
+State 95
+
+   11 oprule: action trigger .
+
+    $default  reduce using rule 11 (oprule)
+
+
+State 96
+
+   20 targetspec: TO . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 146
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 97
+
+   17 modelaction: actionspec targetspec . transitionspec
+   18            | actionspec targetspec .
+
+    RAMP  shift, and go to state 147
+
+    $default  reduce using rule 18 (modelaction)
+
+    transitionspec  go to state 148
+
+
+State 98
+
+   63 boolexpression: expression LT . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 149
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 99
+
+   60 boolexpression: expression LE . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 150
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 100
+
+   62 boolexpression: expression GT . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 151
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 101
+
+   61 boolexpression: expression GE . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 152
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 102
+
+   64 boolexpression: expression EQ . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 153
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 103
+
+   65 boolexpression: expression NE . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 154
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 104
+
+   10 reassignment: expression ASSIGN .
+
+    $default  reduce using rule 10 (reassignment)
+
+
+State 105
+
+   44 expression: expression '+' . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 155
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 106
+
+   45 expression: expression '-' . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 156
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 107
+
+   42 expression: expression '*' . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 157
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 108
+
+   43 expression: expression '/' . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 158
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 109
+
+   41 expression: expression '^' . expression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 159
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 110
+
+    4 line: expression ';' .
+
+    $default  reduce using rule 4 (line)
+
+
+State 111
+
+    9 reassignment: boolexpression ASSIGN .
+
+    $default  reduce using rule 9 (reassignment)
+
+
+State 112
+
+   66 boolexpression: boolexpression OR . boolexpression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 82
+
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 83
+    boolexpression  go to state 160
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 113
+
+   67 boolexpression: boolexpression AND . boolexpression
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 82
+
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 83
+    boolexpression  go to state 161
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 114
+
+    3 line: boolexpression ';' .
+
+    $default  reduce using rule 3 (line)
+
+
+State 115
+
+    5 line: NAME ASSIGN oprule . ';'
+
+    ';'  shift, and go to state 162
+
+
+State 116
+
+    2 line: NAME ASSIGN expression . ';'
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   60 boolexpression: expression . LE expression
+   61               | expression . GE expression
+   62               | expression . GT expression
+   63               | expression . LT expression
+   64               | expression . EQ expression
+   65               | expression . NE expression
+
+    LT   shift, and go to state 98
+    LE   shift, and go to state 99
+    GT   shift, and go to state 100
+    GE   shift, and go to state 101
+    EQ   shift, and go to state 102
+    NE   shift, and go to state 103
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ';'  shift, and go to state 163
+
+
+State 117
+
+    1 line: NAME ASSIGN boolexpression . ';'
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+
+    OR   shift, and go to state 112
+    AND  shift, and go to state 113
+    ';'  shift, and go to state 164
+
+
+State 118
+
+   69 laggedval: NAME '(' 't' . '-' NUMBER ')'
+
+    '-'  shift, and go to state 165
+
+
+State 119
+
+   73 arg: NAME . DEFINE NUMBER
+   74    | NAME . DEFINE QUOTEDSTRING
+   75    | NAME . DEFINE NAME
+
+    DEFINE  shift, and go to state 166
+
+
+State 120
+
+   71 arglist: arglist . ',' arg
+   72        | arglist . ';' arg
+   89 interface: IFPARAM '(' arglist . ')'
+
+    ';'  shift, and go to state 167
+    ')'  shift, and go to state 168
+    ','  shift, and go to state 169
+
+
+State 121
+
+   70 arglist: arg .
+
+    $default  reduce using rule 70 (arglist)
+
+
+State 122
+
+   71 arglist: arglist . ',' arg
+   72        | arglist . ';' arg
+   92 namedval: EXPRESSPARAM '(' arglist . ')'
+
+    ';'  shift, and go to state 167
+    ')'  shift, and go to state 170
+    ','  shift, and go to state 169
+
+
+State 123
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   54           | MAX2 '(' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 171
+
+
+State 124
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   53           | MIN2 '(' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 172
+
+
+State 125
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   56           | MAX3 '(' expression . ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 173
+
+
+State 126
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   55           | MIN3 '(' expression . ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 174
+
+
+State 127
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 175
+
+
+State 128
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 176
+
+
+State 129
+
+   39 unary: LOOKUP '(' expression . ',' array ',' array ')'
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 177
+
+
+State 130
+
+   48 expression: IFELSE '(' boolexpression . ',' expression ',' expression ')'
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+
+    OR   shift, and go to state 112
+    AND  shift, and go to state 113
+    ','  shift, and go to state 178
+
+
+State 131
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   49           | ACCUMULATE '(' expression . ',' expression ',' boolexpression ')'
+   50           | ACCUMULATE '(' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 179
+
+
+State 132
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   51           | PREDICT '(' expression . ',' LINEAR ',' NUMBER MIN ')'
+   52           | PREDICT '(' expression . ',' QUAD ',' NUMBER MIN ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 180
+
+
+State 133
+
+   34 unary: SQRT '(' expression . ')'
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 181
+
+
+State 134
+
+   36 unary: LOG '(' expression . ')'
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 182
+
+
+State 135
+
+   37 unary: LN '(' expression . ')'
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 183
+
+
+State 136
+
+   38 unary: EXP '(' expression . ')'
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 184
+
+
+State 137
+
+   35 unary: ABS '(' expression . ')'
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 185
+
+
+State 138
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   47           | '(' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 140
+
+
+State 139
+
+   16 action: '(' action ')' .
+
+    $default  reduce using rule 16 (action)
+
+
+State 140
+
+   47 expression: '(' expression ')' .
+
+    $default  reduce using rule 47 (expression)
+
+
+State 141
+
+   27 boolterm: '(' boolexpression ')' .
+
+    $default  reduce using rule 27 (boolterm)
+
+
+State 142
+
+   12 trigger: WHEN boolexpression .
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+
+    OR   shift, and go to state 112
+    AND  shift, and go to state 113
+
+    $default  reduce using rule 12 (trigger)
+
+
+State 143
+
+   16 action: '(' . action ')'
+
+    SET  shift, and go to state 24
+    '('  shift, and go to state 143
+
+    action       go to state 87
+    modelaction  go to state 46
+    actionspec   go to state 47
+
+
+State 144
+
+   14 action: action . THEN action
+   15       | action . WHILE action
+   15       | action WHILE action .
+
+    THEN  shift, and go to state 94
+
+    $default  reduce using rule 15 (action)
+
+
+State 145
+
+   14 action: action . THEN action
+   14       | action THEN action .
+   15       | action . WHILE action
+
+    $default  reduce using rule 14 (action)
+
+
+State 146
+
+   20 targetspec: TO expression .
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 20 (targetspec)
+
+
+State 147
+
+   21 transitionspec: RAMP . NUMBER MIN
+
+    NUMBER  shift, and go to state 186
+
+
+State 148
+
+   17 modelaction: actionspec targetspec transitionspec .
+
+    $default  reduce using rule 17 (modelaction)
+
+
+State 149
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   63 boolexpression: expression LT expression .
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 63 (boolexpression)
+
+
+State 150
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   60 boolexpression: expression LE expression .
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 60 (boolexpression)
+
+
+State 151
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   62 boolexpression: expression GT expression .
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 62 (boolexpression)
+
+
+State 152
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   61 boolexpression: expression GE expression .
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 61 (boolexpression)
+
+
+State 153
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   64 boolexpression: expression EQ expression .
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 64 (boolexpression)
+
+
+State 154
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   65 boolexpression: expression NE expression .
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 65 (boolexpression)
+
+
+State 155
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   44           | expression '+' expression .
+   45           | expression . '-' expression
+
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 44 (expression)
+
+
+State 156
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   45           | expression '-' expression .
+
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 45 (expression)
+
+
+State 157
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   42           | expression '*' expression .
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 42 (expression)
+
+
+State 158
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   43           | expression '/' expression .
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    '^'  shift, and go to state 109
+
+    $default  reduce using rule 43 (expression)
+
+
+State 159
+
+   41 expression: expression . '^' expression
+   41           | expression '^' expression .
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+
+    $default  reduce using rule 41 (expression)
+
+
+State 160
+
+   66 boolexpression: boolexpression . OR boolexpression
+   66               | boolexpression OR boolexpression .
+   67               | boolexpression . AND boolexpression
+
+    AND  shift, and go to state 113
+
+    $default  reduce using rule 66 (boolexpression)
+
+
+State 161
+
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+   67               | boolexpression AND boolexpression .
+
+    $default  reduce using rule 67 (boolexpression)
+
+
+State 162
+
+    5 line: NAME ASSIGN oprule ';' .
+
+    $default  reduce using rule 5 (line)
+
+
+State 163
+
+    2 line: NAME ASSIGN expression ';' .
+
+    $default  reduce using rule 2 (line)
+
+
+State 164
+
+    1 line: NAME ASSIGN boolexpression ';' .
+
+    $default  reduce using rule 1 (line)
+
+
+State 165
+
+   69 laggedval: NAME '(' 't' '-' . NUMBER ')'
+
+    NUMBER  shift, and go to state 187
+
+
+State 166
+
+   73 arg: NAME DEFINE . NUMBER
+   74    | NAME DEFINE . QUOTEDSTRING
+   75    | NAME DEFINE . NAME
+
+    NAME          shift, and go to state 188
+    NUMBER        shift, and go to state 189
+    QUOTEDSTRING  shift, and go to state 190
+
+
+State 167
+
+   72 arglist: arglist ';' . arg
+
+    NAME  shift, and go to state 119
+
+    arg  go to state 191
+
+
+State 168
+
+   89 interface: IFPARAM '(' arglist ')' .
+
+    $default  reduce using rule 89 (interface)
+
+
+State 169
+
+   71 arglist: arglist ',' . arg
+
+    NAME  shift, and go to state 119
+
+    arg  go to state 192
+
+
+State 170
+
+   92 namedval: EXPRESSPARAM '(' arglist ')' .
+
+    $default  reduce using rule 92 (namedval)
+
+
+State 171
+
+   54 expression: MAX2 '(' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 193
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 172
+
+   53 expression: MIN2 '(' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 194
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 173
+
+   56 expression: MAX3 '(' expression ',' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 195
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 174
+
+   55 expression: MIN3 '(' expression ',' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 196
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 175
+
+   57 expression: PID '(' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 197
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 176
+
+   58 expression: IPID '(' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 198
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 177
+
+   39 unary: LOOKUP '(' expression ',' . array ',' array ')'
+
+    '['  shift, and go to state 199
+
+    array  go to state 200
+
+
+State 178
+
+   48 expression: IFELSE '(' boolexpression ',' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 201
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 179
+
+   49 expression: ACCUMULATE '(' expression ',' . expression ',' boolexpression ')'
+   50           | ACCUMULATE '(' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 202
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 180
+
+   51 expression: PREDICT '(' expression ',' . LINEAR ',' NUMBER MIN ')'
+   52           | PREDICT '(' expression ',' . QUAD ',' NUMBER MIN ')'
+
+    LINEAR  shift, and go to state 203
+    QUAD    shift, and go to state 204
+
+
+State 181
+
+   34 unary: SQRT '(' expression ')' .
+
+    $default  reduce using rule 34 (unary)
+
+
+State 182
+
+   36 unary: LOG '(' expression ')' .
+
+    $default  reduce using rule 36 (unary)
+
+
+State 183
+
+   37 unary: LN '(' expression ')' .
+
+    $default  reduce using rule 37 (unary)
+
+
+State 184
+
+   38 unary: EXP '(' expression ')' .
+
+    $default  reduce using rule 38 (unary)
+
+
+State 185
+
+   35 unary: ABS '(' expression ')' .
+
+    $default  reduce using rule 35 (unary)
+
+
+State 186
+
+   21 transitionspec: RAMP NUMBER . MIN
+
+    MIN  shift, and go to state 205
+
+
+State 187
+
+   69 laggedval: NAME '(' 't' '-' NUMBER . ')'
+
+    ')'  shift, and go to state 206
+
+
+State 188
+
+   75 arg: NAME DEFINE NAME .
+
+    $default  reduce using rule 75 (arg)
+
+
+State 189
+
+   73 arg: NAME DEFINE NUMBER .
+
+    $default  reduce using rule 73 (arg)
+
+
+State 190
+
+   74 arg: NAME DEFINE QUOTEDSTRING .
+
+    $default  reduce using rule 74 (arg)
+
+
+State 191
+
+   72 arglist: arglist ';' arg .
+
+    $default  reduce using rule 72 (arglist)
+
+
+State 192
+
+   71 arglist: arglist ',' arg .
+
+    $default  reduce using rule 71 (arglist)
+
+
+State 193
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   54           | MAX2 '(' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 207
+
+
+State 194
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   53           | MIN2 '(' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 208
+
+
+State 195
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   56           | MAX3 '(' expression ',' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 209
+
+
+State 196
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   55           | MIN3 '(' expression ',' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 210
+
+
+State 197
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 211
+
+
+State 198
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 212
+
+
+State 199
+
+   31 array: '[' . NUMBER
+
+    NUMBER  shift, and go to state 213
+
+
+State 200
+
+   32 array: array . ',' NUMBER
+   33      | array . ']'
+   39 unary: LOOKUP '(' expression ',' array . ',' array ')'
+
+    ','  shift, and go to state 214
+    ']'  shift, and go to state 215
+
+
+State 201
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   48           | IFELSE '(' boolexpression ',' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 216
+
+
+State 202
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   49           | ACCUMULATE '(' expression ',' expression . ',' boolexpression ')'
+   50           | ACCUMULATE '(' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 217
+    ','  shift, and go to state 218
+
+
+State 203
+
+   51 expression: PREDICT '(' expression ',' LINEAR . ',' NUMBER MIN ')'
+
+    ','  shift, and go to state 219
+
+
+State 204
+
+   52 expression: PREDICT '(' expression ',' QUAD . ',' NUMBER MIN ')'
+
+    ','  shift, and go to state 220
+
+
+State 205
+
+   21 transitionspec: RAMP NUMBER MIN .
+
+    $default  reduce using rule 21 (transitionspec)
+
+
+State 206
+
+   69 laggedval: NAME '(' 't' '-' NUMBER ')' .
+
+    $default  reduce using rule 69 (laggedval)
+
+
+State 207
+
+   54 expression: MAX2 '(' expression ',' expression ')' .
+
+    $default  reduce using rule 54 (expression)
+
+
+State 208
+
+   53 expression: MIN2 '(' expression ',' expression ')' .
+
+    $default  reduce using rule 53 (expression)
+
+
+State 209
+
+   56 expression: MAX3 '(' expression ',' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 221
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 210
+
+   55 expression: MIN3 '(' expression ',' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 222
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 211
+
+   57 expression: PID '(' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 223
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 212
+
+   58 expression: IPID '(' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 224
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 213
+
+   31 array: '[' NUMBER .
+
+    $default  reduce using rule 31 (array)
+
+
+State 214
+
+   32 array: array ',' . NUMBER
+   39 unary: LOOKUP '(' expression ',' array ',' . array ')'
+
+    NUMBER  shift, and go to state 225
+    '['     shift, and go to state 199
+
+    array  go to state 226
+
+
+State 215
+
+   33 array: array ']' .
+
+    $default  reduce using rule 33 (array)
+
+
+State 216
+
+   48 expression: IFELSE '(' boolexpression ',' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 227
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 217
+
+   50 expression: ACCUMULATE '(' expression ',' expression ')' .
+
+    $default  reduce using rule 50 (expression)
+
+
+State 218
+
+   49 expression: ACCUMULATE '(' expression ',' expression ',' . boolexpression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    BOOLNAMEDVAL  shift, and go to state 8
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    FALSE         shift, and go to state 37
+    TRUE          shift, and go to state 38
+    NOT           shift, and go to state 39
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 82
+
+    term            go to state 48
+    boolterm        go to state 49
+    unary           go to state 50
+    expression      go to state 83
+    boolexpression  go to state 228
+    laggedval       go to state 53
+    date            go to state 54
+    interface       go to state 55
+    namedval        go to state 56
+    namedboolval    go to state 57
+
+
+State 219
+
+   51 expression: PREDICT '(' expression ',' LINEAR ',' . NUMBER MIN ')'
+
+    NUMBER  shift, and go to state 229
+
+
+State 220
+
+   52 expression: PREDICT '(' expression ',' QUAD ',' . NUMBER MIN ')'
+
+    NUMBER  shift, and go to state 230
+
+
+State 221
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   56           | MAX3 '(' expression ',' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 231
+
+
+State 222
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   55           | MIN3 '(' expression ',' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 232
+
+
+State 223
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 233
+
+
+State 224
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 234
+
+
+State 225
+
+   32 array: array ',' NUMBER .
+
+    $default  reduce using rule 32 (array)
+
+
+State 226
+
+   32 array: array . ',' NUMBER
+   33      | array . ']'
+   39 unary: LOOKUP '(' expression ',' array ',' array . ')'
+
+    ')'  shift, and go to state 235
+    ','  shift, and go to state 236
+    ']'  shift, and go to state 215
+
+
+State 227
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   48           | IFELSE '(' boolexpression ',' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 237
+
+
+State 228
+
+   49 expression: ACCUMULATE '(' expression ',' expression ',' boolexpression . ')'
+   66 boolexpression: boolexpression . OR boolexpression
+   67               | boolexpression . AND boolexpression
+
+    OR   shift, and go to state 112
+    AND  shift, and go to state 113
+    ')'  shift, and go to state 238
+
+
+State 229
+
+   51 expression: PREDICT '(' expression ',' LINEAR ',' NUMBER . MIN ')'
+
+    MIN  shift, and go to state 239
+
+
+State 230
+
+   52 expression: PREDICT '(' expression ',' QUAD ',' NUMBER . MIN ')'
+
+    MIN  shift, and go to state 240
+
+
+State 231
+
+   56 expression: MAX3 '(' expression ',' expression ',' expression ')' .
+
+    $default  reduce using rule 56 (expression)
+
+
+State 232
+
+   55 expression: MIN3 '(' expression ',' expression ',' expression ')' .
+
+    $default  reduce using rule 55 (expression)
+
+
+State 233
+
+   57 expression: PID '(' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 241
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 234
+
+   58 expression: IPID '(' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 242
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 235
+
+   39 unary: LOOKUP '(' expression ',' array ',' array ')' .
+
+    $default  reduce using rule 39 (unary)
+
+
+State 236
+
+   32 array: array ',' . NUMBER
+
+    NUMBER  shift, and go to state 225
+
+
+State 237
+
+   48 expression: IFELSE '(' boolexpression ',' expression ',' expression ')' .
+
+    $default  reduce using rule 48 (expression)
+
+
+State 238
+
+   49 expression: ACCUMULATE '(' expression ',' expression ',' boolexpression ')' .
+
+    $default  reduce using rule 49 (expression)
+
+
+State 239
+
+   51 expression: PREDICT '(' expression ',' LINEAR ',' NUMBER MIN . ')'
+
+    ')'  shift, and go to state 243
+
+
+State 240
+
+   52 expression: PREDICT '(' expression ',' QUAD ',' NUMBER MIN . ')'
+
+    ')'  shift, and go to state 244
+
+
+State 241
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 245
+
+
+State 242
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 246
+
+
+State 243
+
+   51 expression: PREDICT '(' expression ',' LINEAR ',' NUMBER MIN ')' .
+
+    $default  reduce using rule 51 (expression)
+
+
+State 244
+
+   52 expression: PREDICT '(' expression ',' QUAD ',' NUMBER MIN ')' .
+
+    $default  reduce using rule 52 (expression)
+
+
+State 245
+
+   57 expression: PID '(' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 247
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 246
+
+   58 expression: IPID '(' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 248
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 247
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 249
+
+
+State 248
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 250
+
+
+State 249
+
+   57 expression: PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 251
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 250
+
+   58 expression: IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 252
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 251
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 253
+
+
+State 252
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 254
+
+
+State 253
+
+   57 expression: PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 255
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 254
+
+   58 expression: IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 256
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 255
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 257
+
+
+State 256
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 258
+
+
+State 257
+
+   57 expression: PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 259
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 258
+
+   58 expression: IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ',' expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 260
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 259
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 261
+
+
+State 260
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ',' expression ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ','  shift, and go to state 262
+
+
+State 261
+
+   57 expression: PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 263
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 262
+
+   58 expression: IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' . expression ')'
+
+    NAME          shift, and go to state 81
+    IFNAME        shift, and go to state 3
+    IFPARAM       shift, and go to state 4
+    EXPRESS       shift, and go to state 5
+    EXPRESSPARAM  shift, and go to state 6
+    NAMEDVAL      shift, and go to state 7
+    MAX2          shift, and go to state 9
+    MIN2          shift, and go to state 10
+    MAX3          shift, and go to state 11
+    MIN3          shift, and go to state 12
+    PID           shift, and go to state 13
+    IPID          shift, and go to state 14
+    LOOKUP        shift, and go to state 15
+    IFELSE        shift, and go to state 16
+    ACCUMULATE    shift, and go to state 17
+    PREDICT       shift, and go to state 18
+    SQRT          shift, and go to state 19
+    LOG           shift, and go to state 20
+    LN            shift, and go to state 21
+    EXP           shift, and go to state 22
+    ABS           shift, and go to state 23
+    YEAR          shift, and go to state 25
+    MONTH         shift, and go to state 26
+    DAY           shift, and go to state 27
+    HOUR          shift, and go to state 28
+    MINDAY        shift, and go to state 29
+    MIN           shift, and go to state 30
+    DT            shift, and go to state 31
+    SEASON        shift, and go to state 32
+    DATETIME      shift, and go to state 33
+    REFDATE       shift, and go to state 34
+    REFSEASON     shift, and go to state 35
+    NUMBER        shift, and go to state 36
+    '-'           shift, and go to state 40
+    '('           shift, and go to state 85
+
+    term        go to state 48
+    unary       go to state 50
+    expression  go to state 264
+    laggedval   go to state 53
+    date        go to state 54
+    interface   go to state 55
+    namedval    go to state 56
+
+
+State 263
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   57           | PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 265
+
+
+State 264
+
+   41 expression: expression . '^' expression
+   42           | expression . '*' expression
+   43           | expression . '/' expression
+   44           | expression . '+' expression
+   45           | expression . '-' expression
+   58           | IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression . ')'
+
+    '+'  shift, and go to state 105
+    '-'  shift, and go to state 106
+    '*'  shift, and go to state 107
+    '/'  shift, and go to state 108
+    '^'  shift, and go to state 109
+    ')'  shift, and go to state 266
+
+
+State 265
+
+   57 expression: PID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')' .
+
+    $default  reduce using rule 57 (expression)
+
+
+State 266
+
+   58 expression: IPID '(' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ',' expression ')' .
+
+    $default  reduce using rule 58 (expression)

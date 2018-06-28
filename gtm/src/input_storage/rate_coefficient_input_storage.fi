@@ -1,0 +1,109 @@
+       !>@ingroup fortran
+       !>@defgroup rate_coefficient rate_coefficient
+       !>@{
+        
+       !> Clear the buffer of all stored data of type rate_coefficient 
+       subroutine rate_coefficient_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_clear_buffer_f' :: rate_coefficient_clear_buffer_f
+         implicit none
+         call rate_coefficient_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type rate_coefficient
+       integer function rate_coefficient_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_buffer_size_f' :: rate_coefficient_buffer_size_f
+          implicit none
+          integer, external :: rate_coefficient_buffer_size_f
+          rate_coefficient_buffer_size = rate_coefficient_buffer_size_f()
+          return
+       end function
+       
+       !> write rate_coefficient data to buffer
+       subroutine rate_coefficient_append_to_buffer(group_name,constituent,variable,value,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_append_to_buffer_f' :: rate_coefficient_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: group_name
+       character(len=16), intent(in) :: constituent
+       character(len=16), intent(in) :: variable
+       real(8), intent(in) :: value
+         call rate_coefficient_append_to_buffer_f(group_name,constituent,variable,value,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type rate_coefficient
+       subroutine rate_coefficient_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_number_rows_hdf5_f' :: rate_coefficient_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call rate_coefficient_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type rate_coefficient
+       subroutine rate_coefficient_query_from_buffer(row, group_name,constituent,variable,value,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_query_from_buffer_f' :: rate_coefficient_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: group_name
+       character(len=16), intent(out) :: constituent
+       character(len=16), intent(out) :: variable
+       real(8), intent(out) :: value
+          integer row
+          integer, intent(out) :: ierror
+          call rate_coefficient_query_from_buffer_f(row, &
+                    group_name,constituent,variable,value,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine rate_coefficient_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_prioritize_buffer_f' :: rate_coefficient_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call rate_coefficient_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of rate_coefficient data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine rate_coefficient_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_write_buffer_to_hdf5_f' :: rate_coefficient_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call rate_coefficient_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of rate_coefficient data from hdf5 to buffer 
+       subroutine rate_coefficient_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_read_buffer_from_hdf5_f' :: rate_coefficient_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call rate_coefficient_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine rate_coefficient_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_rate_coefficient_write_buffer_to_text_f' :: rate_coefficient_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call rate_coefficient_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

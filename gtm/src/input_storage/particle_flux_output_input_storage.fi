@@ -1,0 +1,111 @@
+       !>@ingroup fortran
+       !>@defgroup particle_flux_output particle_flux_output
+       !>@{
+        
+       !> Clear the buffer of all stored data of type particle_flux_output 
+       subroutine particle_flux_output_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_clear_buffer_f' :: particle_flux_output_clear_buffer_f
+         implicit none
+         call particle_flux_output_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type particle_flux_output
+       integer function particle_flux_output_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_buffer_size_f' :: particle_flux_output_buffer_size_f
+          implicit none
+          integer, external :: particle_flux_output_buffer_size_f
+          particle_flux_output_buffer_size = particle_flux_output_buffer_size_f()
+          return
+       end function
+       
+       !> write particle_flux_output data to buffer
+       subroutine particle_flux_output_append_to_buffer(name,from_wb,to_wb,interval,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_append_to_buffer_f' :: particle_flux_output_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       character(len=40), intent(in) :: from_wb
+       character(len=40), intent(in) :: to_wb
+       character(len=16), intent(in) :: interval
+       character(len=128), intent(in) :: file
+         call particle_flux_output_append_to_buffer_f(name,from_wb,to_wb,interval,file,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type particle_flux_output
+       subroutine particle_flux_output_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_number_rows_hdf5_f' :: particle_flux_output_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call particle_flux_output_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type particle_flux_output
+       subroutine particle_flux_output_query_from_buffer(row, name,from_wb,to_wb,interval,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_query_from_buffer_f' :: particle_flux_output_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       character(len=40), intent(out) :: from_wb
+       character(len=40), intent(out) :: to_wb
+       character(len=16), intent(out) :: interval
+       character(len=128), intent(out) :: file
+          integer row
+          integer, intent(out) :: ierror
+          call particle_flux_output_query_from_buffer_f(row, &
+                    name,from_wb,to_wb,interval,file,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine particle_flux_output_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_prioritize_buffer_f' :: particle_flux_output_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call particle_flux_output_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of particle_flux_output data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine particle_flux_output_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_write_buffer_to_hdf5_f' :: particle_flux_output_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call particle_flux_output_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of particle_flux_output data from hdf5 to buffer 
+       subroutine particle_flux_output_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_read_buffer_from_hdf5_f' :: particle_flux_output_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call particle_flux_output_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine particle_flux_output_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_flux_output_write_buffer_to_text_f' :: particle_flux_output_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call particle_flux_output_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

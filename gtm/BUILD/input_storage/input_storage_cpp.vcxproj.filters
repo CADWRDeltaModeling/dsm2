@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\buffer_actions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_state_map.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_boundary_flow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_boundary_stage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_channel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_channel_ic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_envvar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_gate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_gate_pipe_device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_gate_weir_device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_group.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_group_member.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_group_variable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_group_variable_sed.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_input_climate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_input_gate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_input_time_series.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_input_transfer_flow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_io_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_node_concentration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_operating_rule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_oprule_expression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_oprule_time_series.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_output_channel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_output_channel_source_track.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_output_gate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_output_reservoir.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_output_reservoir_source_track.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_particle_filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_particle_flux_output.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_particle_group_output.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_particle_insertion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_particle_res_filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_rate_coefficient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_reservoir.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_reservoir_concentration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_reservoir_connection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_reservoir_ic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_scalar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_source_flow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_source_flow_reservoir.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_suspended_sediment_boundary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_suspended_sediment_type.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_tidefile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_transfer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_xsect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\input_storage_xsect_layer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\text_parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Z:\gtm_build\gtm_hydro\gtm\src\input_storage\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{91FF85F8-E2DF-3792-B7BF-8C6436989221}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

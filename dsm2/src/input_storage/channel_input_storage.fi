@@ -1,0 +1,113 @@
+       !>@ingroup fortran
+       !>@defgroup channel channel
+       !>@{
+        
+       !> Clear the buffer of all stored data of type channel 
+       subroutine channel_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_channel_clear_buffer_f' :: channel_clear_buffer_f
+         implicit none
+         call channel_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type channel
+       integer function channel_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_channel_buffer_size_f' :: channel_buffer_size_f
+          implicit none
+          integer, external :: channel_buffer_size_f
+          channel_buffer_size = channel_buffer_size_f()
+          return
+       end function
+       
+       !> write channel data to buffer
+       subroutine channel_append_to_buffer(chan_no,length,manning,dispersion,upnode,downnode,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_channel_append_to_buffer_f' :: channel_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               integer, intent(in) :: chan_no
+       integer, intent(in) :: length
+       real(8), intent(in) :: manning
+       real(8), intent(in) :: dispersion
+       integer, intent(in) :: upnode
+       integer, intent(in) :: downnode
+         call channel_append_to_buffer_f(chan_no,length,manning,dispersion,upnode,downnode,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type channel
+       subroutine channel_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_channel_number_rows_hdf5_f' :: channel_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call channel_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type channel
+       subroutine channel_query_from_buffer(row, chan_no,length,manning,dispersion,upnode,downnode,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_channel_query_from_buffer_f' :: channel_query_from_buffer_f
+          implicit none
+                integer, intent(out) :: chan_no
+       integer, intent(out) :: length
+       real(8), intent(out) :: manning
+       real(8), intent(out) :: dispersion
+       integer, intent(out) :: upnode
+       integer, intent(out) :: downnode
+          integer row
+          integer, intent(out) :: ierror
+          call channel_query_from_buffer_f(row, &
+                    chan_no,length,manning,dispersion,upnode,downnode,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine channel_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_channel_prioritize_buffer_f' :: channel_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call channel_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of channel data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine channel_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_channel_write_buffer_to_hdf5_f' :: channel_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call channel_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of channel data from hdf5 to buffer 
+       subroutine channel_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_channel_read_buffer_from_hdf5_f' :: channel_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call channel_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine channel_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_channel_write_buffer_to_text_f' :: channel_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call channel_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

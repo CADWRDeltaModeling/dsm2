@@ -1,0 +1,109 @@
+       !>@ingroup fortran
+       !>@defgroup gate gate
+       !>@{
+        
+       !> Clear the buffer of all stored data of type gate 
+       subroutine gate_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_gate_clear_buffer_f' :: gate_clear_buffer_f
+         implicit none
+         call gate_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type gate
+       integer function gate_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_gate_buffer_size_f' :: gate_buffer_size_f
+          implicit none
+          integer, external :: gate_buffer_size_f
+          gate_buffer_size = gate_buffer_size_f()
+          return
+       end function
+       
+       !> write gate data to buffer
+       subroutine gate_append_to_buffer(name,from_obj,from_identifier,to_node,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_append_to_buffer_f' :: gate_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       character(len=16), intent(in) :: from_obj
+       character(len=32), intent(in) :: from_identifier
+       integer, intent(in) :: to_node
+         call gate_append_to_buffer_f(name,from_obj,from_identifier,to_node,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type gate
+       subroutine gate_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_number_rows_hdf5_f' :: gate_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call gate_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type gate
+       subroutine gate_query_from_buffer(row, name,from_obj,from_identifier,to_node,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_query_from_buffer_f' :: gate_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       character(len=16), intent(out) :: from_obj
+       character(len=32), intent(out) :: from_identifier
+       integer, intent(out) :: to_node
+          integer row
+          integer, intent(out) :: ierror
+          call gate_query_from_buffer_f(row, &
+                    name,from_obj,from_identifier,to_node,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine gate_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_prioritize_buffer_f' :: gate_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call gate_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of gate data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine gate_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_write_buffer_to_hdf5_f' :: gate_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call gate_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of gate data from hdf5 to buffer 
+       subroutine gate_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_read_buffer_from_hdf5_f' :: gate_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call gate_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine gate_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_write_buffer_to_text_f' :: gate_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call gate_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

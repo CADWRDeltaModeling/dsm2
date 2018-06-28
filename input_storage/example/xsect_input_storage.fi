@@ -1,0 +1,107 @@
+       !>@ingroup fortran
+       !>@defgroup xsect xsect
+       !>@{
+        
+       !> Clear the buffer of all stored data of type xsect 
+       subroutine xsect_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_clear_buffer_f' :: xsect_clear_buffer_f
+         implicit none
+         call xsect_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type xsect
+       integer function xsect_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_buffer_size_f' :: xsect_buffer_size_f
+          implicit none
+          integer, external :: xsect_buffer_size_f
+          xsect_buffer_size = xsect_buffer_size_f()
+          return
+       end function
+       
+       !> write xsect data to buffer
+       subroutine xsect_append_to_buffer(chan_no,dist,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_append_to_buffer_f' :: xsect_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               integer, intent(in) :: chan_no
+       real(8), intent(in) :: dist
+       character(len=128), intent(in) :: file
+         call xsect_append_to_buffer_f(chan_no,dist,file,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type xsect
+       subroutine xsect_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_number_rows_hdf5_f' :: xsect_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call xsect_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type xsect
+       subroutine xsect_query_from_buffer(row, chan_no,dist,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_query_from_buffer_f' :: xsect_query_from_buffer_f
+          implicit none
+                integer, intent(out) :: chan_no
+       real(8), intent(out) :: dist
+       character(len=128), intent(out) :: file
+          integer row
+          integer, intent(out) :: ierror
+          call xsect_query_from_buffer_f(row, &
+                    chan_no,dist,file,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine xsect_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_prioritize_buffer_f' :: xsect_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call xsect_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of xsect data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine xsect_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_write_buffer_to_hdf5_f' :: xsect_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call xsect_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of xsect data from hdf5 to buffer 
+       subroutine xsect_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_read_buffer_from_hdf5_f' :: xsect_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call xsect_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine xsect_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_xsect_write_buffer_to_text_f' :: xsect_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call xsect_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

@@ -1,0 +1,105 @@
+       !>@ingroup fortran
+       !>@defgroup envvar envvar
+       !>@{
+        
+       !> Clear the buffer of all stored data of type envvar 
+       subroutine envvar_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_clear_buffer_f' :: envvar_clear_buffer_f
+         implicit none
+         call envvar_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type envvar
+       integer function envvar_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_buffer_size_f' :: envvar_buffer_size_f
+          implicit none
+          integer, external :: envvar_buffer_size_f
+          envvar_buffer_size = envvar_buffer_size_f()
+          return
+       end function
+       
+       !> write envvar data to buffer
+       subroutine envvar_append_to_buffer(name,value,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_append_to_buffer_f' :: envvar_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       character(len=128), intent(in) :: value
+         call envvar_append_to_buffer_f(name,value,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type envvar
+       subroutine envvar_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_number_rows_hdf5_f' :: envvar_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call envvar_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type envvar
+       subroutine envvar_query_from_buffer(row, name,value,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_query_from_buffer_f' :: envvar_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       character(len=128), intent(out) :: value
+          integer row
+          integer, intent(out) :: ierror
+          call envvar_query_from_buffer_f(row, &
+                    name,value,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine envvar_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_prioritize_buffer_f' :: envvar_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call envvar_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of envvar data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine envvar_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_write_buffer_to_hdf5_f' :: envvar_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call envvar_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of envvar data from hdf5 to buffer 
+       subroutine envvar_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_read_buffer_from_hdf5_f' :: envvar_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call envvar_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine envvar_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_envvar_write_buffer_to_text_f' :: envvar_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call envvar_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

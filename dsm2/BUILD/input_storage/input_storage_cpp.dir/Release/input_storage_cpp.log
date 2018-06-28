@@ -1,0 +1,95 @@
+﻿  Building Custom Rule Z:/gtm_build/gtm_hydro/dsm2/src/input_storage/CMakeLists.txt
+  CMake does not need to re-run because Z:/gtm_build/gtm_hydro/dsm2/BUILD/input_storage/CMakeFiles/generate.stamp is up-to-date.
+  buffer_actions.cpp
+  input_state_map.cpp
+  input_storage_boundary_flow.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_boundary_flow.cpp(231): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_boundary_stage.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_boundary_stage.cpp(212): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_channel.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_channel.cpp(43): warning C4101: 'quote_spaces': unreferenced local variable
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_channel.cpp(213): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_channel_ic.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_channel_ic.cpp(177): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_envvar.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_envvar.cpp(151): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_gate.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_gate.cpp(191): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_gate_pipe_device.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_gate_pipe_device.cpp(237): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_gate_weir_device.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_gate_weir_device.cpp(251): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_group.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_group.cpp(130): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_group_member.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_group_member.cpp(162): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_input_climate.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_input_climate.cpp(214): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_input_gate.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_input_gate.cpp(235): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_input_transfer_flow.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_input_transfer_flow.cpp(193): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_io_file.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_io_file.cpp(214): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_node_concentration.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_node_concentration.cpp(233): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_operating_rule.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_operating_rule.cpp(172): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_oprule_expression.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_oprule_expression.cpp(151): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_oprule_time_series.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_oprule_time_series.cpp(193): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  Generating Code...
+  Compiling...
+  input_storage_output_channel.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_channel.cpp(254): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_output_channel_source_track.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_channel_source_track.cpp(275): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_output_gate.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_gate.cpp(256): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_output_reservoir.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_reservoir.cpp(256): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_output_reservoir_source_track.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_reservoir_source_track.cpp(256): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_particle_filter.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_filter.cpp(233): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_particle_flux_output.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_flux_output.cpp(214): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_particle_group_output.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_group_output.cpp(193): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_particle_insertion.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_insertion.cpp(189): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_particle_res_filter.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_res_filter.cpp(235): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_rate_coefficient.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_rate_coefficient.cpp(186): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_reservoir.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir.cpp(158): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_reservoir_concentration.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_concentration.cpp(235): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_reservoir_connection.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_connection.cpp(167): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_reservoir_ic.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_ic.cpp(144): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_reservoir_vol.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_vol.cpp(162): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_scalar.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_scalar.cpp(151): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_source_flow.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_source_flow.cpp(231): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_source_flow_reservoir.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_source_flow_reservoir.cpp(233): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_tidefile.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_tidefile.cpp(172): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  Generating Code...
+  Compiling...
+  input_storage_transfer.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_transfer.cpp(214): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_xsect.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_xsect.cpp(153): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  input_storage_xsect_layer.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_xsect_layer.cpp(43): warning C4101: 'quote_spaces': unreferenced local variable
+Z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_xsect_layer.cpp(188): warning C4838: conversion from 'int' to 'const std::size_t' requires a narrowing conversion
+  text_parser.cpp
+  Generating Code...
+  input_storage_cpp.vcxproj -> Z:\gtm_build\gtm_hydro\dsm2\BUILD\input_storage\Release\input_storage_cpp.lib

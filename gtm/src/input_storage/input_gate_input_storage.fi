@@ -1,0 +1,113 @@
+       !>@ingroup fortran
+       !>@defgroup input_gate input_gate
+       !>@{
+        
+       !> Clear the buffer of all stored data of type input_gate 
+       subroutine input_gate_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_clear_buffer_f' :: input_gate_clear_buffer_f
+         implicit none
+         call input_gate_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type input_gate
+       integer function input_gate_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_buffer_size_f' :: input_gate_buffer_size_f
+          implicit none
+          integer, external :: input_gate_buffer_size_f
+          input_gate_buffer_size = input_gate_buffer_size_f()
+          return
+       end function
+       
+       !> write input_gate data to buffer
+       subroutine input_gate_append_to_buffer(gate_name,device,variable,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_append_to_buffer_f' :: input_gate_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: gate_name
+       character(len=32), intent(in) :: device
+       character(len=16), intent(in) :: variable
+       character(len=8), intent(in) :: fillin
+       character(len=128), intent(in) :: file
+       character(len=80), intent(in) :: path
+         call input_gate_append_to_buffer_f(gate_name,device,variable,fillin,file,path,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type input_gate
+       subroutine input_gate_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_number_rows_hdf5_f' :: input_gate_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call input_gate_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type input_gate
+       subroutine input_gate_query_from_buffer(row, gate_name,device,variable,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_query_from_buffer_f' :: input_gate_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: gate_name
+       character(len=32), intent(out) :: device
+       character(len=16), intent(out) :: variable
+       character(len=8), intent(out) :: fillin
+       character(len=128), intent(out) :: file
+       character(len=80), intent(out) :: path
+          integer row
+          integer, intent(out) :: ierror
+          call input_gate_query_from_buffer_f(row, &
+                    gate_name,device,variable,fillin,file,path,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine input_gate_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_prioritize_buffer_f' :: input_gate_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call input_gate_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of input_gate data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine input_gate_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_write_buffer_to_hdf5_f' :: input_gate_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call input_gate_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of input_gate data from hdf5 to buffer 
+       subroutine input_gate_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_read_buffer_from_hdf5_f' :: input_gate_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call input_gate_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine input_gate_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_input_gate_write_buffer_to_text_f' :: input_gate_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call input_gate_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

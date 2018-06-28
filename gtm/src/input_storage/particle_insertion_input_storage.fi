@@ -1,0 +1,109 @@
+       !>@ingroup fortran
+       !>@defgroup particle_insertion particle_insertion
+       !>@{
+        
+       !> Clear the buffer of all stored data of type particle_insertion 
+       subroutine particle_insertion_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_clear_buffer_f' :: particle_insertion_clear_buffer_f
+         implicit none
+         call particle_insertion_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type particle_insertion
+       integer function particle_insertion_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_buffer_size_f' :: particle_insertion_buffer_size_f
+          implicit none
+          integer, external :: particle_insertion_buffer_size_f
+          particle_insertion_buffer_size = particle_insertion_buffer_size_f()
+          return
+       end function
+       
+       !> write particle_insertion data to buffer
+       subroutine particle_insertion_append_to_buffer(node,nparts,delay,duration,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_append_to_buffer_f' :: particle_insertion_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               integer, intent(in) :: node
+       integer, intent(in) :: nparts
+       character(len=8), intent(in) :: delay
+       character(len=16), intent(in) :: duration
+         call particle_insertion_append_to_buffer_f(node,nparts,delay,duration,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type particle_insertion
+       subroutine particle_insertion_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_number_rows_hdf5_f' :: particle_insertion_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call particle_insertion_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type particle_insertion
+       subroutine particle_insertion_query_from_buffer(row, node,nparts,delay,duration,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_query_from_buffer_f' :: particle_insertion_query_from_buffer_f
+          implicit none
+                integer, intent(out) :: node
+       integer, intent(out) :: nparts
+       character(len=8), intent(out) :: delay
+       character(len=16), intent(out) :: duration
+          integer row
+          integer, intent(out) :: ierror
+          call particle_insertion_query_from_buffer_f(row, &
+                    node,nparts,delay,duration,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine particle_insertion_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_prioritize_buffer_f' :: particle_insertion_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call particle_insertion_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of particle_insertion data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine particle_insertion_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_write_buffer_to_hdf5_f' :: particle_insertion_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call particle_insertion_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of particle_insertion data from hdf5 to buffer 
+       subroutine particle_insertion_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_read_buffer_from_hdf5_f' :: particle_insertion_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call particle_insertion_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine particle_insertion_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_particle_insertion_write_buffer_to_text_f' :: particle_insertion_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call particle_insertion_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

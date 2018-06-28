@@ -1,0 +1,113 @@
+       !>@ingroup fortran
+       !>@defgroup boundary_flow boundary_flow
+       !>@{
+        
+       !> Clear the buffer of all stored data of type boundary_flow 
+       subroutine boundary_flow_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_clear_buffer_f' :: boundary_flow_clear_buffer_f
+         implicit none
+         call boundary_flow_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type boundary_flow
+       integer function boundary_flow_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_buffer_size_f' :: boundary_flow_buffer_size_f
+          implicit none
+          integer, external :: boundary_flow_buffer_size_f
+          boundary_flow_buffer_size = boundary_flow_buffer_size_f()
+          return
+       end function
+       
+       !> write boundary_flow data to buffer
+       subroutine boundary_flow_append_to_buffer(name,node,sign,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_append_to_buffer_f' :: boundary_flow_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       integer, intent(in) :: node
+       integer, intent(in) :: sign
+       character(len=8), intent(in) :: fillin
+       character(len=128), intent(in) :: file
+       character(len=80), intent(in) :: path
+         call boundary_flow_append_to_buffer_f(name,node,sign,fillin,file,path,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type boundary_flow
+       subroutine boundary_flow_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_number_rows_hdf5_f' :: boundary_flow_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call boundary_flow_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type boundary_flow
+       subroutine boundary_flow_query_from_buffer(row, name,node,sign,fillin,file,path,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_query_from_buffer_f' :: boundary_flow_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+       integer, intent(out) :: node
+       integer, intent(out) :: sign
+       character(len=8), intent(out) :: fillin
+       character(len=128), intent(out) :: file
+       character(len=80), intent(out) :: path
+          integer row
+          integer, intent(out) :: ierror
+          call boundary_flow_query_from_buffer_f(row, &
+                    name,node,sign,fillin,file,path,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine boundary_flow_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_prioritize_buffer_f' :: boundary_flow_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call boundary_flow_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of boundary_flow data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine boundary_flow_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_write_buffer_to_hdf5_f' :: boundary_flow_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call boundary_flow_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of boundary_flow data from hdf5 to buffer 
+       subroutine boundary_flow_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_read_buffer_from_hdf5_f' :: boundary_flow_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call boundary_flow_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine boundary_flow_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_boundary_flow_write_buffer_to_text_f' :: boundary_flow_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call boundary_flow_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

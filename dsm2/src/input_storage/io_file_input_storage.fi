@@ -1,0 +1,111 @@
+       !>@ingroup fortran
+       !>@defgroup io_file io_file
+       !>@{
+        
+       !> Clear the buffer of all stored data of type io_file 
+       subroutine io_file_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_clear_buffer_f' :: io_file_clear_buffer_f
+         implicit none
+         call io_file_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type io_file
+       integer function io_file_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_buffer_size_f' :: io_file_buffer_size_f
+          implicit none
+          integer, external :: io_file_buffer_size_f
+          io_file_buffer_size = io_file_buffer_size_f()
+          return
+       end function
+       
+       !> write io_file data to buffer
+       subroutine io_file_append_to_buffer(model,type,io,interval,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_append_to_buffer_f' :: io_file_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=8), intent(in) :: model
+       character(len=8), intent(in) :: type
+       character(len=8), intent(in) :: io
+       character(len=16), intent(in) :: interval
+       character(len=128), intent(in) :: file
+         call io_file_append_to_buffer_f(model,type,io,interval,file,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type io_file
+       subroutine io_file_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_number_rows_hdf5_f' :: io_file_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call io_file_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type io_file
+       subroutine io_file_query_from_buffer(row, model,type,io,interval,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_query_from_buffer_f' :: io_file_query_from_buffer_f
+          implicit none
+                character(len=8), intent(out) :: model
+       character(len=8), intent(out) :: type
+       character(len=8), intent(out) :: io
+       character(len=16), intent(out) :: interval
+       character(len=128), intent(out) :: file
+          integer row
+          integer, intent(out) :: ierror
+          call io_file_query_from_buffer_f(row, &
+                    model,type,io,interval,file,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine io_file_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_prioritize_buffer_f' :: io_file_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call io_file_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of io_file data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine io_file_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_write_buffer_to_hdf5_f' :: io_file_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call io_file_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of io_file data from hdf5 to buffer 
+       subroutine io_file_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_read_buffer_from_hdf5_f' :: io_file_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call io_file_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine io_file_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_io_file_write_buffer_to_text_f' :: io_file_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call io_file_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

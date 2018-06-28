@@ -1,0 +1,93 @@
+﻿  text_parser.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\text_parser.cpp(1): fatal error C1083: Cannot open include file: 'boost/algorithm/string/trim.hpp': No such file or directory
+  input_storage_xsect_layer.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_xsect_layer.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_xsect.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_xsect.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_transfer.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_transfer.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_tidefile.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_tidefile.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_source_flow_reservoir.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_source_flow_reservoir.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_source_flow.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_source_flow.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_scalar.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_scalar.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_reservoir_vol.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_vol.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_reservoir_ic.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_ic.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_reservoir_connection.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_connection.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_reservoir_concentration.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir_concentration.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_reservoir.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_reservoir.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_rate_coefficient.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_rate_coefficient.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_particle_res_filter.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_res_filter.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_particle_insertion.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_insertion.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_particle_group_output.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_group_output.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_particle_flux_output.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_flux_output.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_particle_filter.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_particle_filter.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_output_reservoir_source_track.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_reservoir_source_track.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  Generating Code...
+  Compiling...
+  input_storage_output_reservoir.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_reservoir.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_output_gate.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_gate.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_output_channel_source_track.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_channel_source_track.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_output_channel.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_output_channel.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_oprule_time_series.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_oprule_time_series.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_oprule_expression.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_oprule_expression.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_operating_rule.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_operating_rule.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_node_concentration.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_node_concentration.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_io_file.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_io_file.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_input_transfer_flow.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_input_transfer_flow.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_input_gate.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_input_gate.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_input_climate.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_input_climate.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_group_member.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_group_member.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_group.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_group.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_gate_weir_device.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_gate_weir_device.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_gate_pipe_device.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_gate_pipe_device.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_gate.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_gate.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_envvar.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_envvar.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_channel_ic.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_channel_ic.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_channel.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_channel.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  Generating Code...
+  Compiling...
+  input_storage_boundary_stage.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_boundary_stage.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_storage_boundary_flow.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_boundary_flow.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  input_state_map.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\input_storage_envvar.h(10): fatal error C1083: Cannot open include file: 'hdf5.h': No such file or directory
+  buffer_actions.cpp
+z:\gtm_build\gtm_hydro\dsm2\src\input_storage\buffer_actions.cpp(2): fatal error C1083: Cannot open include file: 'boost/filesystem.hpp': No such file or directory
+  Generating Code...

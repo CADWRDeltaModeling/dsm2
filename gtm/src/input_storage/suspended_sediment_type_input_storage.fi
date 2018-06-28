@@ -1,0 +1,103 @@
+       !>@ingroup fortran
+       !>@defgroup suspended_sediment_type suspended_sediment_type
+       !>@{
+        
+       !> Clear the buffer of all stored data of type suspended_sediment_type 
+       subroutine suspended_sediment_type_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_clear_buffer_f' :: suspended_sediment_type_clear_buffer_f
+         implicit none
+         call suspended_sediment_type_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type suspended_sediment_type
+       integer function suspended_sediment_type_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_buffer_size_f' :: suspended_sediment_type_buffer_size_f
+          implicit none
+          integer, external :: suspended_sediment_type_buffer_size_f
+          suspended_sediment_type_buffer_size = suspended_sediment_type_buffer_size_f()
+          return
+       end function
+       
+       !> write suspended_sediment_type data to buffer
+       subroutine suspended_sediment_type_append_to_buffer(composition,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_append_to_buffer_f' :: suspended_sediment_type_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=16), intent(in) :: composition
+         call suspended_sediment_type_append_to_buffer_f(composition,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type suspended_sediment_type
+       subroutine suspended_sediment_type_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_number_rows_hdf5_f' :: suspended_sediment_type_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call suspended_sediment_type_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type suspended_sediment_type
+       subroutine suspended_sediment_type_query_from_buffer(row, composition,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_query_from_buffer_f' :: suspended_sediment_type_query_from_buffer_f
+          implicit none
+                character(len=16), intent(out) :: composition
+          integer row
+          integer, intent(out) :: ierror
+          call suspended_sediment_type_query_from_buffer_f(row, &
+                    composition,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine suspended_sediment_type_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_prioritize_buffer_f' :: suspended_sediment_type_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call suspended_sediment_type_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of suspended_sediment_type data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine suspended_sediment_type_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_write_buffer_to_hdf5_f' :: suspended_sediment_type_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call suspended_sediment_type_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of suspended_sediment_type data from hdf5 to buffer 
+       subroutine suspended_sediment_type_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_read_buffer_from_hdf5_f' :: suspended_sediment_type_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call suspended_sediment_type_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine suspended_sediment_type_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_suspended_sediment_type_write_buffer_to_text_f' :: suspended_sediment_type_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call suspended_sediment_type_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

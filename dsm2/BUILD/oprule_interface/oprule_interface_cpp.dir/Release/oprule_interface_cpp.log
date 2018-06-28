@@ -1,0 +1,14 @@
+﻿  Building Custom Rule Z:/gtm_build/gtm_hydro/dsm2/src/oprule_interface/CMakeLists.txt
+  CMake does not need to re-run because Z:/gtm_build/gtm_hydro/dsm2/BUILD/oprule_interface/CMakeFiles/generate.stamp is up-to-date.
+  dsm2_expressions.cpp
+  dsm2_hydro_named_value_lookup.cpp
+  dsm2_model_interface.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\oprule_interface\dsm2_model_interface.cpp(45): warning C4244: 'initializing': conversion from 'const double' to 'int', possible loss of data
+Z:\gtm_build\gtm_hydro\dsm2\src\oprule_interface\dsm2_model_interface.cpp(65): warning C4244: 'initializing': conversion from 'const double' to 'int', possible loss of data
+  dsm2_model_interface_gate.cpp
+  dsm2_named_value_factories.cpp
+Z:\gtm_build\gtm_hydro\dsm2\src\oprule_interface\dsm2_named_value_factories.cpp(18): warning C4018: '<': signed/unsigned mismatch
+  dsm2_oprule_management.cpp
+  dsm2_time_interface.cpp
+  Generating Code...
+  oprule_interface_cpp.vcxproj -> Z:\gtm_build\gtm_hydro\dsm2\BUILD\oprule_interface\Release\oprule_interface_cpp.lib

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\dsm2_tidefile_input_storage_hydro_comp_point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\dsm2_tidefile_input_storage_node_flow_connections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\dsm2_tidefile_input_storage_qext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\dsm2_tidefile_input_storage_reservoir_flow_connections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\dsm2_tidefile_input_storage_reservoir_node_connect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\dsm2_tidefile_input_storage_stage_boundaries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\dsm2_tidefile_input_storage_virtual_xsect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\hdf_attach_dimension_scales.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Z:\gtm_build\gtm_hydro\dsm2\src\hdf_tidefile\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{51FD1604-04A0-39B5-ACAE-09D709415773}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

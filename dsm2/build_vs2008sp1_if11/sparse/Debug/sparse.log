@@ -1,0 +1,21 @@
+﻿  dsm2_spfortran.c
+  spallocate.c
+  spbuild.c
+  spfactor.c
+  spfortran.c
+  spoutput.c
+..\..\src\sparse\spoutput.c(423): warning #1786: function "fopen" (declared at line 205 of "C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h") was declared deprecated ("This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.")
+        if ((pMatrixFile = fopen(File, "w")) == NULL)
+                           ^
+  
+..\..\src\sparse\spoutput.c(577): warning #1786: function "fopen" (declared at line 205 of "C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h") was declared deprecated ("This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.")
+        if ((pMatrixFile = fopen(File,"a")) == NULL)
+                           ^
+  
+..\..\src\sparse\spoutput.c(699): warning #1786: function "fopen" (declared at line 205 of "C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h") was declared deprecated ("This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.")
+        if ((pStatsFile = fopen(File, "a")) == NULL)
+                          ^
+  
+  spsolve.c
+  sputils.c
+  sparse.vcxproj -> Z:\gtm_build\gtm_hydro\dsm2\build_vs2008sp1_if11\all\Debug\sparse.lib

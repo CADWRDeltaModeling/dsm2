@@ -1,0 +1,103 @@
+       !>@ingroup fortran
+       !>@defgroup group group
+       !>@{
+        
+       !> Clear the buffer of all stored data of type group 
+       subroutine group_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_group_clear_buffer_f' :: group_clear_buffer_f
+         implicit none
+         call group_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type group
+       integer function group_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_group_buffer_size_f' :: group_buffer_size_f
+          implicit none
+          integer, external :: group_buffer_size_f
+          group_buffer_size = group_buffer_size_f()
+          return
+       end function
+       
+       !> write group data to buffer
+       subroutine group_append_to_buffer(name,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_append_to_buffer_f' :: group_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+         call group_append_to_buffer_f(name,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type group
+       subroutine group_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_number_rows_hdf5_f' :: group_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call group_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type group
+       subroutine group_query_from_buffer(row, name,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_query_from_buffer_f' :: group_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: name
+          integer row
+          integer, intent(out) :: ierror
+          call group_query_from_buffer_f(row, &
+                    name,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine group_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_prioritize_buffer_f' :: group_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call group_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of group data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine group_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_write_buffer_to_hdf5_f' :: group_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call group_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of group data from hdf5 to buffer 
+       subroutine group_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_read_buffer_from_hdf5_f' :: group_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call group_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine group_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_group_write_buffer_to_text_f' :: group_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call group_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

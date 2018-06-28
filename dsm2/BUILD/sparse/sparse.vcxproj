@@ -1,0 +1,275 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CA31DA5B-635E-3D1C-9E94-EA0A862BF34B}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>sparse</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">sparse.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">sparse</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">sparse.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">sparse</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">sparse.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">sparse</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">sparse.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">sparse</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat></DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat></DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat></DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\boost_1_64_0;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\third_party\HDF5-1.8.20-win32\include\static;Z:\gtm_build\gtm_hydro\dsm2\src\..\..\input_storage\src;Z:\gtm_build\gtm_hydro\dsm2\BUILD\modules;Z:\gtm_build\gtm_hydro\dsm2\src\..\hdf_tidefile;Z:\gtm_build\gtm_hydro\dsm2\src\..\fixed;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+D:\Programs\cmake-3.9.1-win32-x86\bin\cmake.exe -HZ:/gtm_build/gtm_hydro/dsm2/src -BZ:/gtm_build/gtm_hydro/dsm2/BUILD --check-stamp-file Z:/gtm_build/gtm_hydro/dsm2/BUILD/sparse/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+D:\Programs\cmake-3.9.1-win32-x86\bin\cmake.exe -HZ:/gtm_build/gtm_hydro/dsm2/src -BZ:/gtm_build/gtm_hydro/dsm2/BUILD --check-stamp-file Z:/gtm_build/gtm_hydro/dsm2/BUILD/sparse/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+D:\Programs\cmake-3.9.1-win32-x86\bin\cmake.exe -HZ:/gtm_build/gtm_hydro/dsm2/src -BZ:/gtm_build/gtm_hydro/dsm2/BUILD --check-stamp-file Z:/gtm_build/gtm_hydro/dsm2/BUILD/sparse/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+D:\Programs\cmake-3.9.1-win32-x86\bin\cmake.exe -HZ:/gtm_build/gtm_hydro/dsm2/src -BZ:/gtm_build/gtm_hydro/dsm2/BUILD --check-stamp-file Z:/gtm_build/gtm_hydro/dsm2/BUILD/sparse/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Z:/gtm_build/gtm_hydro/dsm2/src/sparse/CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;Z:\gtm_build\gtm_hydro\dsm2\src\sparse\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Z:\gtm_build\gtm_hydro\dsm2\BUILD\sparse\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\dsm2_spfortran.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\spallocate.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\spbuild.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\spfactor.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\spfortran.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\spoutput.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\spsolve.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\sptest.c"  />
+    <ClCompile Include="Z:\gtm_build\gtm_hydro\dsm2\src\sparse\sputils.c"  />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Z:\gtm_build\gtm_hydro\dsm2\BUILD\ZERO_CHECK.vcxproj">
+      <Project>{2BB66935-FB9C-384A-A5E9-D4B3C2610F86}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

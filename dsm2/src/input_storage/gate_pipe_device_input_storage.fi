@@ -1,0 +1,117 @@
+       !>@ingroup fortran
+       !>@defgroup gate_pipe_device gate_pipe_device
+       !>@{
+        
+       !> Clear the buffer of all stored data of type gate_pipe_device 
+       subroutine gate_pipe_device_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_clear_buffer_f' :: gate_pipe_device_clear_buffer_f
+         implicit none
+         call gate_pipe_device_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type gate_pipe_device
+       integer function gate_pipe_device_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_buffer_size_f' :: gate_pipe_device_buffer_size_f
+          implicit none
+          integer, external :: gate_pipe_device_buffer_size_f
+          gate_pipe_device_buffer_size = gate_pipe_device_buffer_size_f()
+          return
+       end function
+       
+       !> write gate_pipe_device data to buffer
+       subroutine gate_pipe_device_append_to_buffer(gate_name,device,nduplicate,radius,elev,cf_from_node,cf_to_node,default_op,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_append_to_buffer_f' :: gate_pipe_device_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: gate_name
+       character(len=32), intent(in) :: device
+       integer, intent(in) :: nduplicate
+       real(8), intent(in) :: radius
+       real(8), intent(in) :: elev
+       real(8), intent(in) :: cf_from_node
+       real(8), intent(in) :: cf_to_node
+       character(len=16), intent(in) :: default_op
+         call gate_pipe_device_append_to_buffer_f(gate_name,device,nduplicate,radius,elev,cf_from_node,cf_to_node,default_op,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type gate_pipe_device
+       subroutine gate_pipe_device_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_number_rows_hdf5_f' :: gate_pipe_device_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call gate_pipe_device_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type gate_pipe_device
+       subroutine gate_pipe_device_query_from_buffer(row, gate_name,device,nduplicate,radius,elev,cf_from_node,cf_to_node,default_op,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_query_from_buffer_f' :: gate_pipe_device_query_from_buffer_f
+          implicit none
+                character(len=32), intent(out) :: gate_name
+       character(len=32), intent(out) :: device
+       integer, intent(out) :: nduplicate
+       real(8), intent(out) :: radius
+       real(8), intent(out) :: elev
+       real(8), intent(out) :: cf_from_node
+       real(8), intent(out) :: cf_to_node
+       character(len=16), intent(out) :: default_op
+          integer row
+          integer, intent(out) :: ierror
+          call gate_pipe_device_query_from_buffer_f(row, &
+                    gate_name,device,nduplicate,radius,elev,cf_from_node,cf_to_node,default_op,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine gate_pipe_device_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_prioritize_buffer_f' :: gate_pipe_device_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call gate_pipe_device_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of gate_pipe_device data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine gate_pipe_device_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_write_buffer_to_hdf5_f' :: gate_pipe_device_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call gate_pipe_device_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of gate_pipe_device data from hdf5 to buffer 
+       subroutine gate_pipe_device_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_read_buffer_from_hdf5_f' :: gate_pipe_device_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call gate_pipe_device_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine gate_pipe_device_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_gate_pipe_device_write_buffer_to_text_f' :: gate_pipe_device_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call gate_pipe_device_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

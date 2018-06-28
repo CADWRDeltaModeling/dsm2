@@ -1,0 +1,107 @@
+       !>@ingroup fortran
+       !>@defgroup tidefile tidefile
+       !>@{
+        
+       !> Clear the buffer of all stored data of type tidefile 
+       subroutine tidefile_clear_buffer()
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_clear_buffer_f' :: tidefile_clear_buffer_f
+         implicit none
+         call tidefile_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type tidefile
+       integer function tidefile_buffer_size()
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_buffer_size_f' :: tidefile_buffer_size_f
+          implicit none
+          integer, external :: tidefile_buffer_size_f
+          tidefile_buffer_size = tidefile_buffer_size_f()
+          return
+       end function
+       
+       !> write tidefile data to buffer
+       subroutine tidefile_append_to_buffer(start_date,end_date,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_append_to_buffer_f' :: tidefile_append_to_buffer_f
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=16), intent(in) :: start_date
+       character(len=16), intent(in) :: end_date
+       character(len=128), intent(in) :: file
+         call tidefile_append_to_buffer_f(start_date,end_date,file,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type tidefile
+       subroutine tidefile_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_number_rows_hdf5_f' :: tidefile_number_rows_hdf5_f
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call tidefile_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type tidefile
+       subroutine tidefile_query_from_buffer(row, start_date,end_date,file,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_query_from_buffer_f' :: tidefile_query_from_buffer_f
+          implicit none
+                character(len=16), intent(out) :: start_date
+       character(len=16), intent(out) :: end_date
+       character(len=128), intent(out) :: file
+          integer row
+          integer, intent(out) :: ierror
+          call tidefile_query_from_buffer_f(row, &
+                    start_date,end_date,file,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine tidefile_prioritize_buffer(ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_prioritize_buffer_f' :: tidefile_prioritize_buffer_f
+	      implicit none
+          integer, intent(out) :: ierror          
+          call tidefile_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of tidefile data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine tidefile_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_write_buffer_to_hdf5_f' :: tidefile_write_buffer_to_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call tidefile_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of tidefile data from hdf5 to buffer 
+       subroutine tidefile_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_read_buffer_from_hdf5_f' :: tidefile_read_buffer_from_hdf5_f
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call tidefile_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine tidefile_write_buffer_to_text(filename,append,ierror)
+         !DEC$ ATTRIBUTES ALIAS:'_tidefile_write_buffer_to_text_f' :: tidefile_write_buffer_to_text_f
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call tidefile_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

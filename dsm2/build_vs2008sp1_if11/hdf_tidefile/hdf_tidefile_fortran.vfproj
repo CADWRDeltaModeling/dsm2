@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectType="typeStaticLibrary" ProjectCreator="Intel Fortran" Keyword="Static Library" Version="11.0" ProjectIdGuid="{33F25CCB-9EE6-4DAA-B823-D396DD23F90A}">
+	<Platforms>
+		<Platform Name="Win32"/></Platforms>
+	<Configurations>
+		<Configuration Name="Debug|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" AdditionalOptions="/Qfp-stack-check" SuppressStartupBanner="true" DebugInformationFormat="debugEnabled" Optimization="optimizeDisabled" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Debug;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)/../modules/Debug" ObjectFile="$(INTDIR)/" Traceback="true" RuntimeChecks="rtChecksAll" BoundsCheck="true" RuntimeLibrary="rtMultiThreadedDebug" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/hdf_tidefile.lib" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
+		<Configuration Name="Release|Win32" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)\..\modules\Release;..\..\..\third_party\loki_0.1.7\include\loki;..\..\..\third_party\boost_1_39;..\..\..\third_party\szip21_vs6_enc\include;..\..\..\third_party\zlib123_vs6\include;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\include" OpenMPConditionalCompilation="false" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)/../modules/Release" ObjectFile="$(INTDIR)/" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/hdf_tidefile.lib" AdditionalLibraryDirectories="..\..\..\lib;..\..\..\third_party\szip21_vs6_enc\lib;..\..\..\third_party\zlib123_vs6\lib;..\..\..\third_party\hdf5_183_xp32_vs2008_ivf101\lib;..\..\..\third_party\boost_1_39\lib" IgnoreDefaultLibraryNames="libc.lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/>
+				<Tool Name="VFManifestTool" SuppressStartupBanner="true"/></Configuration>
+		<Configuration Name="DLL|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)" DeleteExtensionsOnClean="*.obj;*.mod;*.pdb;*.asm;*.map;*.dyn;*.dpi;*.tmp;*.log;*.lib;$(TargetPath)" ConfigurationType="typeStaticLibrary">
+				<Tool Name="VFFortranCompilerTool" SuppressStartupBanner="true" AdditionalIncludeDirectories="$(ProjectDir)/../modules/DLL" FixedFormLineLength="fixedLength132" ModulePath="$(ProjectDir)/../modules/DLL" ObjectFile="$(INTDIR)/" RuntimeLibrary="rtMultiThreadedDLL" DisableDefaultLibSearch="true"/>
+				<Tool Name="VFLibrarianTool" OutputFile="$(OUTDIR)/hdf_tidefile.lib"/>
+				<Tool Name="VFResourceCompilerTool"/>
+				<Tool Name="VFMidlTool" SuppressStartupBanner="true" TypeLibraryName="$(IntDir)/$(InputName).tlb"/>
+				<Tool Name="VFCustomBuildTool"/>
+				<Tool Name="VFPreLinkEventTool"/>
+				<Tool Name="VFPreBuildEventTool"/>
+				<Tool Name="VFPostBuildEventTool"/></Configuration></Configurations>
+	<Files>
+		<Filter Name="Header Files">
+		<File RelativePath="..\..\src\hdf_tidefile\hydro_comp_point_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\node_flow_connections_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\qext_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\reservoir_flow_connections_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\reservoir_node_connect_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\stage_boundaries_input_storage.fi"/>
+		<File RelativePath="..\..\src\hdf_tidefile\virtual_xsect_input_storage.fi"/></Filter>
+		<Filter Name="Source Files" Filter="f90;for;f;fpp;ftn;def;odl;idl">
+		<File RelativePath="..\..\src\hdf_tidefile\common_qual_bin.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\dsm2_tidefile_input_storage_fortran.f90"/>
+		<File RelativePath="..\..\src\hdf_tidefile\get_tidefile_dates.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_diagnostic.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_init.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_modules.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_read.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_read_attributes.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_write.f">
+			<FileConfiguration Name="Debug|Win32">
+				<Tool Name="VFFortranCompilerTool" WarnTruncateSource="true" WarnInterfaces="true"/></FileConfiguration></File>
+		<File RelativePath="..\..\src\hdf_tidefile\hdf5_write_attributes.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\read_mult_tide.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\read_tide_flow.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\read_tide_head.f"/>
+		<File RelativePath="..\..\src\hdf_tidefile\tide_time.f"/></Filter></Files>
+	<Globals/></VisualStudioProject>
