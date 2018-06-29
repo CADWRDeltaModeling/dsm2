@@ -94,6 +94,8 @@ macro (FIND_LIBS)
     #standard libraries. no need to specify path as they are linked from default library paths FIXME: find_package
     set (CMT_LIB_DEBUG "libcmtd.lib")
     set (CMT_LIB_RELEASE "libcmt.lib")
+    set (CPMT_LIB_DEBUG "libcpmtd.lib")
+    set (CPMT_LIB_RELEASE "libcpmt.lib")
     #math library for Intel Composer 2013 set (MMT_LIB "libmmt.lib")
     # math library for Intel VF 16  mkl_intel_c.lib mkl_sequential.lib mkl_core.lib
     set(INTEL_LIB_PATH "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/ia32")
