@@ -59,7 +59,6 @@ program gtm
     use dsm2_time_utils, only: incr_intvl
     use gtm_init_store_outputs
     use gtm_store_outpath
-    !use klu
     ! extended modules
     use turbidity
     use suspended_sediment
@@ -129,7 +128,6 @@ program gtm
     logical :: debug_interp = .false.    
     logical :: use_gtm_hdf = .false.
     logical :: apply_diffusion_prev = .false.                 ! Calculate diffusive operatore from previous time step
-    logical :: use_klu = .false.                              ! Use KLU sparse matrix solver
     
     procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver    
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
@@ -272,7 +270,7 @@ program gtm
         call check_mercury_ts_input
         call constituent_name_to_ivar(ec_ivar, 'ec')  
         call constituent_name_to_ivar(doc_ivar, 'ec')  ! todo: change 'ec' to 'doc' when doc model setup is ready
-    end if
+    end if   
 
    !> for sediment bed module ----- added:dhh setup sediment bed cells, read inputs, initial conditions etc.
    ! if (use_sediment_bed) then 
@@ -304,12 +302,6 @@ program gtm
                              n_cell,               &
                              n_var) 
         call network_diffusion_sparse_geom(n_cell)
-        !if (use_klu) then
-        !    k_common = klu_fortran_init()
-        !    k_symbolic = klu_fortran_analyze(n_cell, aap, aai, k_common)
-        !    call klu_fortran_free_numeric(k_numeric, k_common)
-        !    k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)                                
-        !end if
     else
         disp_coef_lo = zero !LARGEREAL
         disp_coef_hi = zero !LARGEREAL            
@@ -483,9 +475,7 @@ program gtm
                 budget_prev_flow_hi = flow_hi
             end if
             cfl = flow/area*(sub_gtm_time_step*sixty)/dx_arr           
-       
-            !if (st.eq.sub_st) call print_erosion_deposition(erosion, deposition, cdt, n_sediment, n_cell)
-                             
+          
             !------------------ End of Source Terms Implementation -----------------         
           
             if (apply_diffusion_prev) then   ! take dispersion term for advection calculation
@@ -569,8 +559,7 @@ program gtm
                              dble(new_current_time)*sixty, &
                              theta,                        &
                              sub_gtm_time_step*sixty,      &
-                             dx_arr,                       &
-                             use_klu)        
+                             dx_arr)        
                 call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
                         
@@ -689,15 +678,14 @@ program gtm
     
     !----- deallocate memories and close file units -----
     if (n_dssfiles .ne. 0) then
-        call zclose(ifltab_in)   !!ADD A global to detect if dss is opened
+        call zclose(ifltab_in)   !!add a global to detect if dss is opened
         deallocate(ifltab_in) 
     end if
     if (n_outdssfiles .ne. 0) then
-        call zclose(ifltab_out)  !!ADD A global to detect if dss is opened
+        call zclose(ifltab_out)  !!add a global to detect if dss is opened
         deallocate(ifltab_out) 
     end if    
     if (apply_diffusion) call deallocate_geom_arr
-    !if (use_klu) call klu_fortran_free(k_symbolic, k_numeric, k_common)
     if (use_gtm_hdf) then
         call close_gtm_hdf(gtm_hdf)         
         call hdf5_close

@@ -16,7 +16,7 @@
 !
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-!</license>
+!</license> 
 
 !> Process scalars in input textfile and save them to common_variables module
 !>@ingroup process_io
@@ -108,15 +108,7 @@ module process_gtm_scalar
       elseif (Param .eq. 'disp_coef') then
          read(Val, '(f20.5)', err=810) disp_coeff
       elseif (Param .eq. 'ero_coef') then
-         read(Val, '(f20.15)', err=810) ero_coeff
-      elseif (Param .eq. 'vel_dep') then
-         read(Val, '(f20.15)', err=810) vel_dep
-      elseif (Param .eq. 'vel_ero') then
-         read(Val, '(f20.15)', err=810) vel_ero
-      elseif (Param .eq. 'size_dep') then
-         read(Val, '(f20.15)', err=810) size_dep
-      elseif (Param .eq. 'size_ero') then
-         read(Val, '(f20.15)', err=810) size_ero      
+         read(Val, '(f20.15)', err=810) ero_coeff  
       elseif (Param .eq. 'calc_budget') then
          read(Val, '(l2)', err=810) calc_budget
       !--------------mercury and sediment bed related parameters  

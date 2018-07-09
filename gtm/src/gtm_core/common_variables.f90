@@ -78,10 +78,6 @@ module common_variables
      logical :: apply_diffusion = .false.              !< turn on/off dispersion
      real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
      real(gtm_real) :: ero_coeff = LARGEREAL           !< erosion coefficient for sediment module
-     real(gtm_real) :: vel_dep = LARGEREAL
-     real(gtm_real) :: vel_ero = LARGEREAL
-     real(gtm_real) :: size_dep = LARGEREAL
-     real(gtm_real) :: size_ero = LARGEREAL
      
      logical :: calc_budget = .false.                  !< calculate budget if true
      logical :: run_sediment = .false.                 !< run sediment module if true
@@ -312,7 +308,7 @@ module common_variables
          character*32 :: name = ' '                     !< constituent name
          logical :: conservative = .true.               !< true if conservative, false if nonconservative
          character*32 :: use_module = ' '               !< use module
-         logical :: simulate = .true.                   !< simulate or not. trigger to klu solver
+         logical :: simulate = .true.                   !< simulate or not
      end type     
      type(constituent_t), allocatable :: constituents(:)
      type(constituent_t), allocatable :: constituents_tmp(:)

@@ -71,6 +71,7 @@ module gtm_source
         real(gtm_real) :: conc_mercury(ncell,n_mercury)
         real(gtm_real) :: source_mercury(ncell,n_mercury)
         real(gtm_real) :: si_to_english = 1000.d0                !< kg/m3-->mg/L
+        integer :: method = 1
                 
         ! source must be in primitive variable 
         do ivar = 1, nvar
@@ -89,8 +90,9 @@ module gtm_source
                                                dt,                      & 
                                                ncell,                   & 
                                                constraint(:,ivar),      &
-                                               isediment)
-               !if (isediment.eq.1) write(802,'(f12.0,5f12.5)') time, flow(1913)/area(1913),depth(1913),erosion(1913,isediment)*10000, deposition(1913,isediment)*10000,conc(1913,ivar) 
+                                               isediment,               &
+                                               method,                  &
+                                               rkstep)
             elseif (trim(name(ivar)).eq."turbidity") then
                 call turbidity_source(source(:,ivar),       & 
                                       conc(:,ivar),         & 
@@ -139,5 +141,5 @@ module gtm_source
         end if
     return
     end subroutine 
- 
+  
 end module

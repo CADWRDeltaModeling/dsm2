@@ -16,7 +16,9 @@
 !
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-!</license>
+!</license> 
+!> Routines provide the calculation for cohesive suspended sediment erosion and deposition functions.
+!>@ingroup sediment 
 module cohesive_source
 
     use gtm_precision
@@ -63,7 +65,7 @@ module cohesive_source
         logical   :: function_van_rijn      
         integer :: icell
         
-        function_van_rijn = .false. !use Dietrich formula                
+        function_van_rijn = .true.  !use van rijn 
         hydro_radius = area/wet_p
         velocity = abs(flow/area)
         
@@ -121,8 +123,11 @@ module cohesive_source
         real(gtm_real), intent(in) :: bottom_shear_stress        
         real(gtm_real), intent(out) :: deposition_flux
 
-        deposition_flux = settling_velocity * conc
-
+        if (bottom_shear_stress.gt.critical_shear_stress) then
+            deposition_flux = zero
+        else
+            deposition_flux = settling_velocity * conc * (one-bottom_shear_stress/critical_shear_stress)        
+        end if
         return
     end subroutine
 

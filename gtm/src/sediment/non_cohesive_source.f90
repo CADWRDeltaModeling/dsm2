@@ -16,7 +16,7 @@
 !
 !    You should have received a copy of the GNU General Public License
 !    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
-!</license>
+!</license> 
 
 !> Routines provide the calculation for non-cohesive suspended sediment erosion and deposition functions.
 !>@ingroup sediment 
@@ -70,7 +70,7 @@ module non_cohesive_source
         real(gtm_real) :: capital_r
         integer :: icell        
 
-        function_van_rijn = .false. !use Dietrich formula
+        function_van_rijn = .true.  !use van rijn
         velocity = abs(flow/area)        
         hydro_radius = area/wet_p
         capital_r = specific_gravity - one
@@ -94,19 +94,7 @@ module non_cohesive_source
                                            manning(icell),            &
                                            gravity,                   &
                                            hydro_radius(icell))     
-                                                                                  
-            call es_garcia_parker(Es(icell),                          &
-                                  shear_vel(icell),                   &
-                                  exp_re_p(icell),                    &
-                                  fall_vel(icell))
-                              
-            call teeter(c_b(icell),                                   &
-                        shear_vel(icell),                             &             
-                        fall_vel(icell),                              &
-                        conc(icell))
-      
-            erosion_flux(icell) = Es(icell) * fall_vel(icell)
-            deposition_flux(icell) = c_b(icell) * fall_vel(icell)            
+                                                                                         
       
             if (erosion_flux(icell).gt.available_bed(icell))          &
                 erosion_flux(icell) = available_bed(icell)
@@ -137,11 +125,12 @@ module non_cohesive_source
     end subroutine
 
 
-    subroutine non_cohesive_deposition(deposition_flux,        &
+    subroutine non_cohesive_deposition_(deposition_flux,        &
                                    settling_velocity,      &
                                    conc,                   &
                                    critical_shear_stress,  &
                                    bottom_shear_stress)
+        
         implicit none
         real(gtm_real), intent(in) :: conc
         real(gtm_real), intent(in) :: settling_velocity
@@ -159,24 +148,38 @@ module non_cohesive_source
     end subroutine
 
     !> Non-cohesive deposition flux
-    subroutine non_cohesive_deposition_teeter(deposition_flux,   &
-                                       shear_vel,         &
-                                       fall_vel,          &
-                                       conc)                                
+    subroutine non_cohesive_deposition(deposition_flux,       &
+                                       shear_vel,             &
+                                       fall_vel,              &
+                                       conc,                  &
+                                       critical_shear_stress, &
+                                       bottom_shear_stress)   
+        use sediment_variables, only : kappa, water_density                        
         implicit none
         real(gtm_real), intent(out) :: deposition_flux
         real(gtm_real), intent(in) :: shear_vel
         real(gtm_real), intent(in) :: fall_vel
         real(gtm_real), intent(in) :: conc
-        real(gtm_real) :: c_b
-        !call teeter(c_b,                                   &
-        !            shear_vel,                             &             
-        !            fall_vel,                              &
-        !            conc)              
+        real(gtm_real), intent(in) :: critical_shear_stress
+        real(gtm_real), intent(in) :: bottom_shear_stress
+        !---local
+        real(gtm_real) :: c_b          !< Sediment into deposition       
+        real(gtm_real) :: Pe           !< Peclet number
+        real(gtm_real) :: Pd           !< probability for deposition
+        real(gtm_real) :: ro            
         
+        ! Deposition by Teeter(1988) 
+        Pe = 15.d0*fall_vel/(bottom_shear_stress/water_density)**0.5d0
+        if (bottom_shear_stress.lt.critical_shear_stress) then
+            Pd = (one - bottom_shear_stress/critical_shear_stress)
+            ro = one + Pe/(1.25d0+4.75d0*Pd**2.50d0)
+        else
+            Pd = zero
+        end if
+        ro = one + Pe/(1.25d0+4.75d0*Pd**2)
+        c_b = ro * conc                        
+        deposition_flux = c_b * fall_vel        
         
-        
-        deposition_flux = c_b * fall_vel
         return
     end subroutine
     
@@ -224,27 +227,4 @@ module non_cohesive_source
         return                             
     end subroutine
     
-    !> Deposition by Teeter(1988) 
-    subroutine teeter(c_b,          &
-                      shear_v,      &                                   
-                      settling_v,   &
-                      conc)
-        use sediment_variables, only : kappa
-        implicit none
-        !-- arg
-        real(gtm_real), intent(out):: c_b        !< Sediment into deposition
-        real(gtm_real), intent(in) :: shear_v    !< Shear Velocity
-        real(gtm_real), intent(in) :: settling_v !< Settling velocity
-        real(gtm_real), intent(in) :: conc       !< Sediment concentration
-        !---local
-        real(gtm_real) :: Pe                     !< Peclet number
-        real(gtm_real) :: ro
-        
-        Pe = six*settling_v/kappa/shear_v
-        ro = one + Pe/1.25d0
-        c_b = ro * conc
-       
-        return
-    end subroutine      
-
 end module 

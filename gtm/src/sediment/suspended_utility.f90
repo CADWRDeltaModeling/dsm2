@@ -104,11 +104,11 @@ module suspended_utility
         !--local
         logical :: van_rijn_flag
         ! I checked the following values with the ebook on the website of Parker (UIUC)
-        real(gtm_real) :: b_1 = 2.891394d0
-        real(gtm_real) :: b_2 = 0.95296d0
-        real(gtm_real) :: b_3 = 0.056835d0
-        real(gtm_real) :: b_4 = 0.002892d0
-        real(gtm_real) :: b_5 = 0.000245d0
+        real(gtm_real) :: b_1 =  3.76715d0 ! = 2.891394d0
+        real(gtm_real) :: b_2 =  1.92944d0 !0.95296d0
+        real(gtm_real) :: b_3 =  0.09815d0 !0.056835d0
+        real(gtm_real) :: b_4 =  0.00575d0 !0.002892d0
+        real(gtm_real) :: b_5 =  0.00056d0 !0.000245d0
         real(gtm_real) :: dimless_fall_velocity       
         real(gtm_real) :: exp_re_p               !< Explicit Reynols particle number 
         real(gtm_real) :: capital_r              !< Submerged specific gravity of sediment particles 
@@ -153,65 +153,48 @@ module suspended_utility
     end subroutine
 
     !> Calculate near bed concentration
-    subroutine near_bed_concentration(near_bed_c,           &
+    subroutine near_bed_concentration(near_bed_c,              &
                                       water_density,           &
                                       sediment_density,        &
                                       g_acceleration,          &
                                       kinematic_viscosity,     &
-                                      diameter, &
-                                      water_depth, &
-                                      bed_shear,   &
+                                      diameter,                &
+                                      water_depth,             &
+                                      bed_shear,               &
                                       conc)
         implicit none
-        real(gtm_real), intent(out) :: near_bed_c        !< 
+        real(gtm_real), intent(out) :: near_bed_c            !< 
         real(gtm_real), intent(in) :: water_density          !< Water density
         real(gtm_real), intent(in) :: sediment_density       !< Sediment density
         real(gtm_real), intent(in) :: g_acceleration         !< Gravitational acceleration 
         real(gtm_real), intent(in)  :: kinematic_viscosity   !< Kinematic viscosity (m2/sec)  
         real(gtm_real), intent(in) :: diameter               !< Particle diameter in meters
         real(gtm_real), intent(in) :: water_depth            !< 
-        real(gtm_real), intent(in) :: bed_shear            !< 
-        real(gtm_real), intent(in) :: conc            !< 
+        real(gtm_real), intent(in) :: bed_shear              !< 
+        real(gtm_real), intent(in) :: conc                   !< (kg/m3)
         real(gtm_real) :: dimless_critical_shear             !< Dimensionless Shield's shear stress
         real(gtm_real) :: submerged_specific_g               !< Submerged specific gravity      
         real(gtm_real) :: d_star                             !< Rep^(2/3)
         real(gtm_real) :: b, critical_shear
-        submerged_specific_g = sediment_density/water_density - one
-
-        call dimless_particle_diameter(d_star,                &
-                                       g_acceleration,        &
-                                       diameter,              &
-                                       kinematic_viscosity,   &
-                                       submerged_specific_g)
         
-        call critical_shields_parameter(dimless_critical_shear,   &
-                                        d_star)           
-                                        
-        critical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
-        
-        b = max(three*diameter,0.01d0*water_depth)
-        if (bed_shear.gt.critical_shear) then
-            near_bed_c = 0.015d0*diameter/b*(bed_shear/critical_shear-one)**1.5d0/d_star**0.3d0
-        else
-            near_bed_c = conc*0.6d0
-        end if
+        near_bed_c = conc
         
         return
     end subroutine 
     
     !> Calculate critical shear stress
-    subroutine critical_shear_stress(critical_shear,           &
+    subroutine critical_shear_stress(critical_shear,          &
                                      water_density,           &
                                      sediment_density,        &
                                      g_acceleration,          &
                                      kinematic_viscosity,     &
                                      diameter)
         implicit none
-        real(gtm_real), intent(out) :: critical_shear        !< Critical shear stress
+        real(gtm_real), intent(out) :: critical_shear        !< Critical shear stress (Pa)
         real(gtm_real), intent(in) :: water_density          !< Water density
         real(gtm_real), intent(in) :: sediment_density       !< Sediment density
         real(gtm_real), intent(in) :: g_acceleration         !< Gravitational acceleration 
-        real(gtm_real), intent(in)  :: kinematic_viscosity   !< Kinematic viscosity (m2/sec)  
+        real(gtm_real), intent(in) :: kinematic_viscosity    !< Kinematic viscosity (m2/sec)  
         real(gtm_real), intent(in) :: diameter               !< Particle diameter in meters
         real(gtm_real) :: dimless_critical_shear             !< Dimensionless Shield's shear stress
         real(gtm_real) :: submerged_specific_g               !< Submerged specific gravity      
@@ -224,9 +207,13 @@ module suspended_utility
                                        kinematic_viscosity,   &
                                        submerged_specific_g)
         
-        call critical_shields_parameter(dimless_critical_shear,   &
-                                        d_star)           
-                                        
+        call critical_shields_parameter_Brownlie(dimless_critical_shear,&
+                                                 water_density,      &
+                                                 sediment_density,   &
+                                                 g_acceleration,     &
+                                                 kinematic_viscosity,&
+                                                 diameter)                   
+        
         critical_shear = water_density*g_acceleration*diameter*submerged_specific_g*dimless_critical_shear
         
         return
@@ -253,11 +240,41 @@ module suspended_utility
         return
     end subroutine
 
+    !> Calculates critical_shields_parameter based on Brownlie expression
+    pure subroutine critical_shields_parameter_Brownlie(cr_shields_prmtr,   &
+                                                        water_density,      &
+                                                        sediment_density,   &
+                                                        g_acceleration,     &
+                                                        kinematic_viscosity,&
+                                                        diameter)                                           
+        implicit none
+        !--- arguments  
+        real(gtm_real), intent(out):: cr_shields_prmtr       !< Critical Shields parameter                                      
+        real(gtm_real), intent(in) :: water_density          !< Water density
+        real(gtm_real), intent(in) :: sediment_density       !< Sediment density
+        real(gtm_real), intent(in) :: g_acceleration         !< Gravitational acceleration 
+        real(gtm_real), intent(in) :: kinematic_viscosity    !< Kinematic viscosity (m2/sec)  
+        real(gtm_real), intent(in) :: diameter               !< Particle diameter in meters
+        real(gtm_real) :: capital_r
+        real(gtm_real) :: exp_re_p
+        
+        call submerged_specific_gravity(capital_r, water_density, sediment_density)
+        
+        call explicit_particle_reynolds_number(exp_re_p,            &
+                                               diameter,            &
+                                               capital_r,           &
+                                               g_acceleration,      &
+                                               kinematic_viscosity)
+                                               
+        cr_shields_prmtr = 0.22d0*exp_re_p**(-0.6d0)+0.06d0*exp(-17.77d0*exp_re_p**(-0.06d0))
+        
+        return
+    end subroutine
 
     !> Calculates critical shields parameter based on Yalin (1972) formula
     !> See van Rijn book equation (4.1.11)
-    pure subroutine critical_shields_parameter(cr_shields_prmtr,   &
-                                               d_star)                                           
+    pure subroutine critical_shields_parameter_Yalin(cr_shields_prmtr,   &
+                                                     d_star)                                           
         implicit none
         !--- arguments  
         real(gtm_real), intent(out):: cr_shields_prmtr !< Critical Shields parameter                                      
@@ -339,8 +356,6 @@ module suspended_utility
 
         return
     end subroutine
-
-
 
 
     !> Calculates the first Einstein integral values
