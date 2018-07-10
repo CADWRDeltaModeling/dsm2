@@ -34,7 +34,7 @@ module test_non_cohesive
         call test_source_non_cohesive
         call test_es_garcia_parker
         call test_parker_rouse_profile
-        call test_teeter
+        !call test_teeter
         return
     end subroutine    
 
@@ -203,79 +203,79 @@ module test_non_cohesive
      
 
     !> Test teeter
-    subroutine test_teeter()
-        implicit none
-        integer,parameter :: ncell = 3        !< Number of computational volumes in a channel
-        integer,parameter :: nclass = 6       !< Number of non-cohesive sediment grain classes
-        real(gtm_real) :: c_b          !< deposition 
-        real(gtm_real) :: shear_v(ncell)      !< Shear Velocity
-        real(gtm_real) :: settling_v(ncell)   !< Settling velocity
-        real(gtm_real) :: conc(ncell)         !< Concentration
-        !---local
-        real(gtm_real) :: hand_calc_value(ncell,nclass)
-        integer :: icell
+    !subroutine test_teeter()
+    !    implicit none
+    !    integer,parameter :: ncell = 3        !< Number of computational volumes in a channel
+    !    integer,parameter :: nclass = 6       !< Number of non-cohesive sediment grain classes
+    !    real(gtm_real) :: c_b          !< deposition 
+    !    real(gtm_real) :: shear_v(ncell)      !< Shear Velocity
+    !    real(gtm_real) :: settling_v(ncell)   !< Settling velocity
+    !    real(gtm_real) :: conc(ncell)         !< Concentration
+    !    !---local
+    !    real(gtm_real) :: hand_calc_value(ncell,nclass)
+    !    integer :: icell
  
-        conc = 0.2d0
-        shear_v =[0.003909042d0, 0.039090417d0, 0.390904175d0]
-        hand_calc_value(1,:) = [ 0.200003996d0, 0.20039963d0, 0.239963002100908d0, 1.15830593438020d0, 1.42850455493674d0, 2.25617871990369d0 ]
-        hand_calc_value(2,:) = [ 0.2000004d0, 0.200039963d0, 0.203996300516787d0, 0.295830600792554d0, 0.322850464921851d0, 0.405617887770544d0 ]
-        hand_calc_value(3,:) = [ 0.20000004d0, 0.200003996d0, 0.20039963d0, 0.209583059956680d0, 0.212285046335049d0, 0.220561788514051d0 ]
+    !    conc = 0.2d0
+    !    shear_v =[0.003909042d0, 0.039090417d0, 0.390904175d0]
+    !    hand_calc_value(1,:) = [ 0.200003996d0, 0.20039963d0, 0.239963002100908d0, 1.15830593438020d0, 1.42850455493674d0, 2.25617871990369d0 ]
+    !    hand_calc_value(2,:) = [ 0.2000004d0, 0.200039963d0, 0.203996300516787d0, 0.295830600792554d0, 0.322850464921851d0, 0.405617887770544d0 ]
+    !    hand_calc_value(3,:) = [ 0.20000004d0, 0.200003996d0, 0.20039963d0, 0.209583059956680d0, 0.212285046335049d0, 0.220561788514051d0 ]
 
-        settling_v = 6.67177d-9
-        do icell=1,ncell          
-            call teeter(c_b,                 &
-                        shear_v(icell),      &                                   
-                        settling_v(icell),   &
-                        conc(icell))                      
-            call assertEquals(hand_calc_value(icell,1),c_b,weak_eps,"Error in subroutine teeter")
-        end do 
+    !    settling_v = 6.67177d-9
+    !    do icell=1,ncell          
+    !        call teeter(c_b,                 &
+    !                    shear_v(icell),      &                                   
+    !                    settling_v(icell),   &
+    !                    conc(icell))                      
+    !        call assertEquals(hand_calc_value(icell,1),c_b,weak_eps,"Error in subroutine teeter")
+    !    end do 
         
-        settling_v = 6.67177d-7
-        do icell=1,ncell
-            call teeter(c_b,                 &
-                        shear_v(icell),      &                                   
-                        settling_v(icell),   &
-                        conc(icell))                              
-            call assertEquals(hand_calc_value(icell,2),c_b,weak_eps,"Error in subroutine teeter")
-        end do 
+    !    settling_v = 6.67177d-7
+    !    do icell=1,ncell
+    !        call teeter(c_b,                 &
+    !                    shear_v(icell),      &                                   
+    !                    settling_v(icell),   &
+    !                    conc(icell))                              
+    !        call assertEquals(hand_calc_value(icell,2),c_b,weak_eps,"Error in subroutine teeter")
+    !    end do 
                 
-        settling_v = 6.67177d-5
-        do icell=1,ncell         
-            call teeter(c_b,                 &
-                        shear_v(icell),      &                                   
-                        settling_v(icell),   &
-                        conc(icell))                          
-            call assertEquals(hand_calc_value(icell,3),c_b,weak_eps,"Error in subroutine teeter")
-        end do 
+    !    settling_v = 6.67177d-5
+    !    do icell=1,ncell         
+    !        call teeter(c_b,                 &
+    !                    shear_v(icell),      &                                   
+    !                    settling_v(icell),   &
+    !                    conc(icell))                          
+    !        call assertEquals(hand_calc_value(icell,3),c_b,weak_eps,"Error in subroutine teeter")
+    !    end do 
               
-        settling_v = 0.001599879d0
-        do icell=1,ncell 
-            call teeter(c_b,                 &
-                        shear_v(icell),      &                                   
-                        settling_v(icell),   &
-                        conc(icell))                           
-            call assertEquals(hand_calc_value(icell,4),c_b,weak_eps,"Error in subroutine teeter")
-        end do 
+    !    settling_v = 0.001599879d0
+    !    do icell=1,ncell 
+    !        call teeter(c_b,                 &
+    !                    shear_v(icell),      &                                   
+    !                    settling_v(icell),   &
+    !                    conc(icell))                           
+    !        call assertEquals(hand_calc_value(icell,4),c_b,weak_eps,"Error in subroutine teeter")
+    !    end do 
                
-        settling_v = 0.002050972d0
-        do icell=1,ncell 
-            call teeter(c_b,                 &
-                        shear_v(icell),      &                                   
-                        settling_v(icell),   &
-                        conc(icell))                                    
-            call assertEquals(hand_calc_value(icell,5),c_b,weak_eps,"Error in subroutine teeter")
-        end do 
+    !    settling_v = 0.002050972d0
+    !    do icell=1,ncell 
+    !        call teeter(c_b,                 &
+    !                    shear_v(icell),      &                                   
+    !                    settling_v(icell),   &
+    !                    conc(icell))                                    
+    !        call assertEquals(hand_calc_value(icell,5),c_b,weak_eps,"Error in subroutine teeter")
+    !    end do 
                 
-        settling_v = 0.003432763d0
-        do icell=1,ncell  
-            call teeter(c_b,                 &
-                        shear_v(icell),      &                                   
-                        settling_v(icell),   &
-                        conc(icell))                              
-            call assertEquals(hand_calc_value(icell,6),c_b,weak_eps,"Error in subroutine teeter")
-        end do         
+    !    settling_v = 0.003432763d0
+    !    do icell=1,ncell  
+    !        call teeter(c_b,                 &
+    !                    shear_v(icell),      &                                   
+    !                    settling_v(icell),   &
+    !                    conc(icell))                              
+    !        call assertEquals(hand_calc_value(icell,6),c_b,weak_eps,"Error in subroutine teeter")
+    !    end do         
                 
-        return
-    end subroutine
+    !    return
+    !end subroutine
      
 end module

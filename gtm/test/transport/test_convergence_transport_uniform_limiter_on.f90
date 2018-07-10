@@ -2,7 +2,7 @@
 !    Copyright (C) 2017 State of California,
 !    Department of Water Resources.
 !    This file is part of DSM2.
-!
+! 
 !    The Delta Simulation Model 2 (DSM2) is free software: 
 !    you can redistribute it and/or modify
 !    it under the terms of the GNU General Public License as published by

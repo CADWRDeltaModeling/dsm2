@@ -27,24 +27,22 @@ program test_driver
   
     use fruit
     use gtm_logging 
-    !use klu
 
     !----- modules used in project test_common ------
-    !use ut_hydro_data_tide
-    !use ut_hydro_data_interp
-    !use ut_interpolation
-    !use ut_gtm_network
+    use ut_hydro_data_tide
+    use ut_hydro_data_interp
+    use ut_interpolation
+    use ut_gtm_network
     
     !----- modules used in project test_process_io -----
-    !use ut_dsm2_time_utils
+    use ut_dsm2_time_utils
     use ut_process_gtm_input
-    !use ut_time_utilities
+    use ut_time_utilities
     use ut_gtm_dss_readtvd
     use ut_gtm_dss_main
-    !use ut_gtm_hdf_ts_wrt
-    !use ut_gtm_hdf_write
+    use ut_gtm_hdf_ts_wrt
+    use ut_gtm_hdf_write
     use ut_boundary
-    !use ut_create_restart
     
     !----- modules used in project test_transport -----  
     use test_extrapolate
@@ -75,14 +73,13 @@ program test_driver
     use test_mms_advection_dispersion
     
     !use ut_do_source    
-    !use ut_klu
     !use ut_utils
     
     !----- modules used to test sediment module ----- 
     use test_sediment_utility
     use test_non_cohesive
     use test_cohesive
-        
+    !    
     implicit none
     logical :: verbose = .true.
     character(len=255) :: parent_dir
@@ -90,28 +87,25 @@ program test_driver
     call init_fruit
     
     call get_parent_working_dir(parent_dir) 
-    
-    !k_common = klu_fortran_init()  
-    !call klu_fortran_free_numeric(k_numeric, k_common)
-   
+
     !----- function calls to test units in project process_io API ---
-    !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
-    !call test_dsm2_time_utils
-    !call test_time_util
-    !call test_readdss  
-    !call test_readtvd
-    !call test_dss_main
-    !call test_input_storage 
-    !call test_hdf_ts_wrt
-    !call test_gtm_hdf_write
-    !call test_find_bound_index
+    call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
+    call test_dsm2_time_utils
+    call test_time_util
+    call test_readdss  
+    call test_readtvd
+    call test_dss_main
+    call test_input_storage 
+    call test_hdf_ts_wrt
+    call test_gtm_hdf_write
+    call test_find_bound_index
     
     !----- function calls to test units in project common -----
     !call change_working_dir(parent_dir, "/gtm_core_unit_test_io")
     !open(debug_unit, file = "debug_unit.txt")            !< output text file
-    !call test_hdf_util                                   ! test hdf_util()
-    !call test_interpolation                              ! test interpolation schemes
-    !call test_gtm_network                                ! test creating GTM network   
+    call test_hdf_util                                   ! test hdf_util()
+    call test_interpolation                              ! test interpolation schemes
+    call test_gtm_network                                ! test creating GTM network   
          
     !----- function calls to test units in project transport ----- 
     call change_working_dir(parent_dir, "/transport_unit_test_out")
@@ -128,8 +122,6 @@ program test_driver
     !----- Advection-diffusion-reaction convergence in uniform flow,
     !      operators are layered in successively
     call test_converge_transport_uniform(verbose)
-    !call test_converge_transport_uniform_vary_dx(verbose)
-    !call test_converge_uniform_bidirectional(verbose)
         !----- Diffusion unit tests
     call test_tridi_solver
     call test_boundary_diffusion_flux
@@ -144,30 +136,17 @@ program test_driver
     !----- Advection - reaction problems
     call test_tidal_advection_reaction(verbose)
     call test_tidal_advection_reaction_vary_dx(verbose)
-    !call test_advection_reaction_hydro_interp(verbose)
     
     !----- Advection-Diffusion tests
-    !call test_zoppou_flow() 
-    !call test_advection_diffusion_zoppou(verbose)
-    !call test_advection_diffusion_t_dependent(verbose)
-    !call test_advection_diffusion_time_dependent(verbose)
-
-    !----- Advection-diffusion-reaction
-    !call test_advection_diffusion_mms(verbose)
-    
-    !----- Test KLU Solver
-    !call klu_fortran_free(k_symbolic, k_numeric, k_common)    
-    !call test_klu_exmamples
-    !call test_qsort
-    !call test_rowcol2apai
+    call test_zoppou_flow() 
+    call test_advection_diffusion_zoppou(verbose)
     
     !----- Test sediment module
     call test_all_sediment_utility
     call test_all_non_cohesive
     call test_all_cohesive
     
-    !----- function calls to test units in project sediment -----
-    
+    !----- write out summary and close file units
     call fruit_summary
 
     close(debug_unit)

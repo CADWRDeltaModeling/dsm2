@@ -36,7 +36,7 @@ module test_sediment_utility
         call test_explicit_particle_reynolds_number
         call test_particle_reynolds_number
         call test_dimless_particle_diameter
-        call test_critical_shields_parameter
+        !call test_critical_shields_parameter
         call test_shear_velocity
         call test_rouse_number
         call test_critical_shear
@@ -51,7 +51,7 @@ module test_sediment_utility
         !---arg
         integer,parameter :: nclas = 5
         real(gtm_real) :: w_s                     !< Settling velocity
-        real(gtm_real), parameter :: nu =1.0d-6          !< Kinematic viscosity 
+        real(gtm_real), parameter :: nu =1.307d-6          !< Kinematic viscosity 
         real(gtm_real), parameter :: specific_g = 2.65d0 !< Specific gravity of particle (~2.65)
         real(gtm_real) :: diameter(nclas)                !< Particle diameter in meter
         real(gtm_real), parameter :: g_accel = 9.80665d0 !< Gravitational acceleration
@@ -59,7 +59,7 @@ module test_sediment_utility
         integer :: iclas
         ! Small value
         diameter = [0.8d-7,zero,5.0d-4,5.0d-5,2.0d-3]
-        hand_calc_value = [-LARGEREAL,-LARGEREAL,0.07214383457399631d0,0.002247357291666667d0,0.19788368666972d0] 
+        hand_calc_value = [-LARGEREAL,-LARGEREAL,0.067528489d0,0.0017194776526d0,0.197883687d0] 
         ! van Rijn     
         do iclas = 1, nclas
         call settling_velocity(w_s,             &
@@ -72,8 +72,8 @@ module test_sediment_utility
             call assertEquals(w_s,hand_calc_value(iclas),weak_eps,"Error in settling velocity, van Rijn, no optional input!")
         end do
         !Dietrich 
-        diameter = [100d-3,10d-3,1d-3,0.1d-3,0.01d-3]
-        hand_calc_value = [1.97046240408866d0,0.7417624150d0,0.155040076887562d0,0.007482431190836277d0,8.00579353533193d-05]
+        diameter = [0.001d0,0.0001d0,0.0005d0,0.00005d0,0.000005d0]
+        hand_calc_value = [1.898700795d0,0.007135499d0,0.475002507d0,0.000773401d0,0.000017195d0]
         do iclas=1,nclas  
             call settling_velocity(w_s,              &
                                    nu,               &
@@ -219,8 +219,8 @@ module test_sediment_utility
                             0.24d0]
                             
         do icell=1,ncell
-            call critical_shields_parameter(cr_shields_prmtr, &
-                                            d_star(icell))
+            call critical_shields_parameter_Yalin(cr_shields_prmtr, &
+                                                  d_star(icell))
                                  
             call assertEquals(hand_calc_value(icell),cr_shields_prmtr,weak_eps,"Error in subroutine critical_shields_parameter!")             
         end do
@@ -230,19 +230,19 @@ module test_sediment_utility
     !> test critical shear stress
     subroutine test_critical_shear
         implicit none
-        integer, parameter :: ncell = 7               !< Number of cell
+        integer, parameter :: ncell = 3               !< Number of cell
         real(gtm_real):: crtical_shear                                            
         real(gtm_real):: hand_calc_value(ncell) 
         real(gtm_real), parameter :: water_density = 1000.d0
-        real(gtm_real), parameter :: sediment_density = 2600.d0
+        real(gtm_real), parameter :: sediment_density = 2650.d0
         real(gtm_real), parameter :: g_acceleration = 9.80665d0
         real(gtm_real), parameter :: kinematic_viscosity =  1.307d-6
         real(gtm_real) :: diameter(ncell)
         integer :: icell
         
-        diameter = [0.007639944d0, 0.001002743d0, 0.000716245d0, 0.000477496d0, 0.000190999d0, 9.54993d-5, 4.77496d-5]
+        diameter = [0.00001d0, 0.0001d0, 0.001d0]
         
-        hand_calc_value = [6.59315860082880d0,0.494558072136527d0,0.342888649993472d0,0.240291666728025d0,0.172774958701322d0,0.179813408d0,0.179813408d0]
+        hand_calc_value = [0.144042705d0, 0.181339027d0, 0.22829363d0]
         do icell = 1, ncell
             call critical_shear_stress(crtical_shear,           &
                                        water_density,           &

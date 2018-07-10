@@ -220,7 +220,6 @@ module suspended_utility
     end subroutine    
 
 
-
     !> Calculates dimensionless particle diameter
     pure subroutine dimless_particle_diameter(d_star,                &
                                               g_acceleration,        &
@@ -356,89 +355,6 @@ module suspended_utility
 
         return
     end subroutine
-
-
-    !> Calculates the first Einstein integral values
-    !> This subroutine is developed based on analtycal solution of Guo and Julien (2004)
-    !> To avoid disambiguation: C_bar = c_b_bar * first_einstein_integral
-    !> the out put of the subroutine is equal to J_1 in the page 116 of ASCE sediment manual  
-    !> To avoid singularities here an analytical solution used for integers    
-    ! todo: Should we place this subroutine here? another separate file? or sediment derived variable?
-    ! I think we will use it again in the bedload
-    subroutine first_einstein_integral(I_1,       &
-                                       delta_b,   &
-                                       rouse_num, &
-                                       ncell)                                    
-        use error_handling
-        implicit none
-        !-- arg
-        integer, intent(in):: ncell                     !< Number of computational volumes in a channel
-        real(gtm_real),intent(in) :: rouse_num(ncell)   !< Rouse dimenssionless number  
-        real(gtm_real),intent(in) :: delta_b            !< Relative bed layer thickness = b/H 
-        real(gtm_real),intent(out):: I_1(ncell)         !< First Einstein integral value
-
-        !-- local
-        integer :: icell
-        real(gtm_real) :: ro_l   
-        real(gtm_real) :: ro_r    !right
-        real(gtm_real) :: i_1_l
-        real(gtm_real) :: i_1_r   !right
-
-        do icell=1,ncell
-                if (rouse_num(icell) > 3.98d0) then
-                    !todo: I am not sure if we need this subroutine in bed load or not 
-                    print *, 'error in rouse number' ! todo: remove
-                    pause
-                    call gtm_fatal("This is not a Rouse number value for suspended sediment!")            
-                elseif (abs(rouse_num(icell) - three)< 0.01d0) then
-                    ro_l = three - 0.05d0
-                    ro_r = three + 0.05d0 
-                    call inside_i_1(i_1_l,delta_b,ro_l)
-                    call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(icell) = (i_1_r + i_1_l) / two                 
-                elseif (abs(rouse_num(icell) - two)< 0.01d0) then
-                    ro_l = two - 0.05d0
-                    ro_r = two + 0.05d0 
-                    call inside_i_1(i_1_l,delta_b,ro_l)
-                    call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(icell) = (i_1_r + i_1_l) / two                       
-                elseif(abs(rouse_num(icell) - one)< 0.01d0) then  
-                    ro_l = one - 0.05d0
-                    ro_r = one + 0.05d0 
-                    call inside_i_1(i_1_l,delta_b,ro_l)
-                    call inside_i_1(i_1_r,delta_b,ro_r)
-                    I_1(icell) = (i_1_r + i_1_l) / two
-                else
-                    call inside_i_1(I_1(icell),       &
-                                    delta_b,                &
-                                    rouse_num(icell))                 
-                end if
-        end do
-    end subroutine
-
-
-    !> inside I_1
-    pure subroutine inside_i_1(J_1,      &
-                               delta_b,  &
-                               rouse)                               
-        implicit none
-        real(gtm_real),intent(in) :: rouse         !< Rouse dimenssionless number  
-        real(gtm_real),intent(in) :: delta_b       !< Relative bed layer thickness = b/H 
-        real(gtm_real),intent(out):: J_1           !< First Einstein integral value
-
-        J_1   = (rouse*pi/dsin(rouse*pi) - ((one-delta_b)**rouse)/(delta_b**(rouse-one))    &
-               - rouse*(((delta_b/(one-delta_b))**(one-rouse))  /(one-rouse))               & 
-               + rouse*(((delta_b/(one-delta_b))**(two-rouse))  /(one-rouse))               &
-               - rouse*(((delta_b/(one-delta_b))**(three-rouse))/(one-rouse))               &
-               + rouse*(((delta_b/(one-delta_b))**(four-rouse)) /(one-rouse))               &
-               - rouse*(((delta_b/(one-delta_b))**(five-rouse)) /(one-rouse))               &
-               + rouse*(((delta_b/(one-delta_b))**(six-rouse))  /(one-rouse))               &
-               - rouse*(((delta_b/(one-delta_b))**(seven-rouse))/(one-rouse))               &
-               + rouse*(((delta_b/(one-delta_b))**(eight-rouse))/(one-rouse))               &
-               - rouse*(((delta_b/(one-delta_b))**(nine-rouse)) /(one-rouse))               &
-               + rouse*(((delta_b/(one-delta_b))**(ten -rouse)) /(one-rouse)))              &
-               * (delta_b**(rouse)/((one-delta_b)**rouse))                               
-    end subroutine 
 
 
     !> Shields parameter

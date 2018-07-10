@@ -69,13 +69,11 @@ module diffusion
                        time_new,          &
                        theta_gtm,         &
                        dt,                &
-                       dx,                &
-                       klu_solver)
+                       dx)
 
         use gtm_precision
         use primitive_variable_conversion 
         use boundary_diffusion 
-        !use klu
         use common_variables, only: constituents
         
         implicit none
@@ -101,7 +99,6 @@ module diffusion
         real(gtm_real), intent (in) :: theta_gtm                     !< Explicitness coefficient; 0 is explicit, 0.5 Crank-Nicolson, 1 full implicit  
         real(gtm_real), intent (in) :: dt                            !< Time step   
         real(gtm_real), intent (in) :: dx(ncell)                     !< Spacial step 
-        logical, intent(in) :: klu_solver                            !< Use KLU sparse matrix solver
 
         !---- locals
         real(gtm_real) :: explicit_diffuse_op(ncell,nvar)            !< Explicit diffusive operator
@@ -192,25 +189,14 @@ module diffusion
                                        nvar,               & 
                                        dx,                 &
                                        dt)
-        
-        !if (klu_solver) then ! solve the sparse matrix by klu solver       
-        !    do i = 1, nvar
-        !        if (constituents(i)%simulate) then 
-        !            call klu_fortran_free_numeric(k_numeric, k_common)                  
-        !            k_numeric = klu_fortran_factor(aap, aai, aax, k_symbolic, k_common)
-        !            call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, right_hand_side(:,i), k_common)
-        !            conc(:,i) = right_hand_side(:,i)
-        !        end if
-        !    end do
-        !else
-            call solve(center_diag ,     &
-                       up_diag,          &     
-                       down_diag,        &
-                       right_hand_side,  &
-                       conc,             &
-                       ncell,            &
-                       nvar)
-        !end if            
+
+        call solve(center_diag ,     &
+                   up_diag,          &     
+                   down_diag,        &
+                   right_hand_side,  &
+                   conc,             &
+                   ncell,            &
+                   nvar)         
         
         return
     end subroutine 
@@ -480,54 +466,5 @@ module diffusion
         end do      
         return
     end subroutine 
-
-
-    !> Solve the system of linear equations by using KLU Sparse Solver
-    !subroutine klu_solve_for_tri(center_diag ,         &
-    !                             up_diag,              &     
-    !                             down_diag,            &
-    !                             right_hand_side,      &
-    !                             conc,                 &
-    !                             ncell,                &
-    !                             nvar)
-    !    use klu
-    !    use gtm_precision
-    !    implicit none                                                       
-    !    !----- args
-
-    !    integer, intent (in) :: ncell                              !< Number of volumes
-    !    integer, intent (in) :: nvar                               !< Number of variables 
-    !    real(gtm_real),intent (in)  :: down_diag(ncell)            !< Values of the coefficients below diagonal in matrix
-    !    real(gtm_real),intent (in)  :: center_diag(ncell)          !< Values of the coefficients at the diagonal in matrix
-    !    real(gtm_real),intent (in)  :: up_diag(ncell)              !< Values of the coefficients above the diagonal in matrix
-    !    real(gtm_real),intent (in)  :: right_hand_side(ncell,nvar) !< Values of the right hand side vector
-    !    real(gtm_real),intent (out) :: conc(ncell,nvar)            !< Values of the computed solution     
-    !    integer :: ap(ncell+1)
-    !    integer :: ai(4+3*(ncell-2))
-    !    real(gtm_real) :: ax(4+3*(ncell-2))
-    !    integer :: i
-        
-    !    do i = 1, nvar
-    !       conc(:,i) = right_hand_side(:,i)
-    !       call tri2sparse(ap,                &
-    !                       ai,                &
-    !                       ax,                &
-    !                       up_diag(:),        &
-    !                       center_diag(:),    & 
-    !                       down_diag(:),      &
-    !                       ncell)                     
-    !       if ((first_time_klu).or.(ap(ncell+1).ne.previous_non_zero)) then          
-    !           k_symbolic = klu_fortran_analyze(ncell, ap, ai, k_common)
-    !           k_numeric = klu_fortran_factor(ap, ai, ax, k_symbolic, k_common)                        
-    !           first_time_klu = .false.
-    !           previous_non_zero = ap(ncell+1)
-    !       else    
-    !           call klu_fortran_refactor(ap, ai, ax, k_symbolic, k_numeric, k_common)
-    !       end if    
-    !       call klu_fortran_solve(k_symbolic, k_numeric, ncell, 1, conc(:,i), k_common)
-    !    end do
-        
-    !    return
-    !end subroutine 
 
 end module 

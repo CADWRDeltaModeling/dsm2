@@ -251,7 +251,6 @@ module advection
         ! Combine the fluxes into a divergence term at the half time at cell edges.
         ! Computing and storing the divergence separately gives some flexibility with integrating
         ! the source term, e.g. Heun's method
-        ! todo: commented
         call compute_divergence(div_flux,   &
                                 flux_lo,    &
                                 flux_hi,    &

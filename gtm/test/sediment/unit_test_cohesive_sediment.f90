@@ -79,8 +79,18 @@ module test_cohesive
                                  conc, &
                                  critical_shear, &
                                  bed_shear)        
-        call assertEquals(0.006d0,deposition_flux,weak_eps,"Error in test_deposition")
+        call assertEquals(zero,deposition_flux,weak_eps,"Error in test_deposition")
         
+        settling_velocity = 0.02d0
+        conc = 0.3d0
+        critical_shear = 0.02d0
+        bed_shear = 0.01d0
+        call cohesive_deposition(deposition_flux,   &
+                                 settling_velocity, &
+                                 conc, &
+                                 critical_shear, &
+                                 bed_shear)        
+        call assertEquals(0.003d0,deposition_flux,weak_eps,"Error in test_deposition")        
         return
     end subroutine    
 

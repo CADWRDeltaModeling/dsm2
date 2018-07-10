@@ -24,8 +24,7 @@
 module suspended_sediment
 
     use gtm_precision
-    use common_variables, only: ero_coeff
-    real(gtm_real) :: param_M                               !< unit kg/(m^2s) 
+    use common_variables, only: ero_coeff   !< unit kg/(m^2s)                             
 
     real(gtm_real), allocatable :: diameter(:,:)
     real(gtm_real), allocatable :: fall_velocity(:,:)
@@ -89,7 +88,8 @@ module suspended_sediment
         real(gtm_real) :: si_to_english = 1000.d0                !< kg/m3-->mg/L
         integer :: icell
         logical ::  function_van_rijn 
-   
+        real(gtm_real) :: param_M
+        
         param_M = ero_coeff                        ! unit kg/(m^2s)    
 
         function_van_rijn = .true.  !use van rijn   
