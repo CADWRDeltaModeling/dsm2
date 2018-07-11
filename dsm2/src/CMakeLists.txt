@@ -94,6 +94,7 @@ target_link_libraries(hydro
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    debug ${CPMT_LIB_DEBUG} optimized ${CPMT_LIB_RELEASE}
     )
 # QUAL EXE
 file(GLOB QUAL_SOURCES qual/*.f)
