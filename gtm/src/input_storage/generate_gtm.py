@@ -600,11 +600,11 @@ def generate_dsm2():
                          +groups_keywords+particle_keywords+ptm_includes)
     define_profile("GTM",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+gtm_time_series_keywords\
                          +groups_keywords+gtm_spatial_keywords+water_body_output_keywords\
-                         +source_group_output_keywords+sediment_keywords+gtm_includes)
+                         +source_group_output_keywords+sediment_keywords+sediment_bed_keywords+gtm_includes)
     finalize(outdir)
 
 
 if (__name__ == "__main__"):
     generate_dsm2()
 print("Done")
-#os.system("pause")
+os.system("pause")

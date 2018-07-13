@@ -29,18 +29,15 @@ module test_sediment_utility
 
     !> Test suite for suspended sediment utility
     subroutine test_all_sediment_utility
-        implicit none
-        call test_first_einstein_integral    
+        implicit none 
         call test_settling_velocity
         call test_submerged_specific_gravity
         call test_explicit_particle_reynolds_number
         call test_particle_reynolds_number
         call test_dimless_particle_diameter
-        !call test_critical_shields_parameter
         call test_shear_velocity
         call test_rouse_number
         call test_critical_shear
-        call test_allocation_ratio
         return
     end subroutine
    
@@ -317,120 +314,6 @@ module test_sediment_utility
             end do
         end do
                                 
-        return
-    end subroutine
-
-
-    !> Tests Einsstein's first integral 
-    ! todo: incase the main subroutine replaced somewhere else this counterpart should place in the correct test package
-    subroutine test_first_einstein_integral
-        implicit none
-        !---args
-        integer,parameter :: ncell = 1                 !< Number of volumes              
-        integer,parameter :: nclass =1                 !< Number of sediment grain classes
-        real(gtm_real)  :: rouse(ncell,nclass)         !< Rouse dimenssionless number  
-        real(gtm_real)  :: delta                       !< Relative bed layer thickness = b/H 
-        real(gtm_real)  :: J_1(ncell,nclass)           !< First Einstein integral value  
-
-        !--- local
-        real(gtm_real)  :: hand_calc_value
-
-        delta = 0.01d0        
-        rouse = 0.1d0
-        hand_calc_value = 0.630990839362793d0 !MATLAB calculation
-        call first_einstein_integral(J_1,      &
-                                     delta,    &
-                                     rouse,    &
-                                     ncell)                                         
-        call assertEquals(hand_calc_value,J_1(1,1),weak_eps,"Error in subroutine first Einstein integral!")
-
-        rouse = 0.7d0
-        hand_calc_value = 0.075646372654714d0 !MATLAB calculation
-        call first_einstein_integral(J_1,      &
-                                     delta,    &
-                                     rouse,    &
-                                     ncell)                                         
-        call assertEquals(hand_calc_value,J_1(1,1),weak_eps,"Error in subroutine first Einstein integral!")
-
-        rouse = 1.7d0
-        hand_calc_value = 0.011612330444738d0 !MATLAB calculation 
-        call first_einstein_integral(J_1,      &
-                                     delta,    &
-                                     rouse,    &
-                                     ncell)                                        
-        call assertEquals(hand_calc_value,J_1(1,1),weak_eps,"Error in subroutine first Einstein integral!")
-
-        rouse = 2.7d0
-        hand_calc_value = 0.005925241451994d0 !MATLAB calculation
-        call first_einstein_integral(J_1,      &
-                                     delta,    &
-                                     rouse,    &
-                                     ncell)                                         
-        call assertEquals(hand_calc_value,J_1(1,1),weak_eps,"Error in subroutine first Einstein integral!")
-
-        rouse = one
-        hand_calc_value = 0.03660635394262368d0
-        call first_einstein_integral(J_1,      &
-                                     delta,    &
-                                     rouse,    &
-                                     ncell)                                        
-        call assertEquals(hand_calc_value,J_1(1,1),weak_eps,"Error in subroutine first Einstein integral integer=1!")
-
-        rouse = two
-        hand_calc_value = 0.0091803731517870750d0 
-        call first_einstein_integral(J_1,      &
-                                     delta,    &
-                                     rouse,    &
-                                     ncell)                                         
-        call assertEquals(hand_calc_value,J_1(1,1),weak_eps,"Error in subroutine first Einstein integral integer=2!")
-
-        rouse = three
-        hand_calc_value =  0.005016456427667411d0 
-        call first_einstein_integral(J_1,      &
-                                     delta,    &
-                                     rouse,    &
-                                     ncell)                                         
-        call assertEquals(hand_calc_value,J_1(1,1),weak_eps,"Error in subroutine first Einstein integral integer=3!")
-
-        return
-    end subroutine
-    
-
-    !> test allocation ratio
-    subroutine test_allocation_ratio()
-        implicit none
-        integer, parameter :: nclass = 2
-        integer, parameter :: ncell = 3
-        real(gtm_real) :: rouse_num(ncell,nclass)    !< Rouse dimensionless number  
-        real(gtm_real) :: susp_percent(ncell,nclass) !< Percentage in suspension  
-        real(gtm_real) :: bed_percent(ncell,nclass)  !< Percentage in bedload
-        real(gtm_real) :: hand_value(ncell,nclass)   !< Calculated value
-        !---local
-        integer:: iclass,icell
-
-        rouse_num  = reshape ([0.5d0,	one ,	1.1d0, &
-                                2d0,	 5.5d0,	8.5d0 ],[3,2])                                             
-        hand_value = reshape ([1.000000000000000d0,   0.919698602928606d0,   0.832177709245199d0, &
-                               0.338338208091532d0,   0.010216928596160d0,   0.000508670922527d0],[3,2])
-                                                              
-        do iclass = 1, nclass
-            call allocation_ratio(susp_percent(:,iclass),    &
-                                  bed_percent(:,iclass),     &
-                                  rouse_num(:,iclass),       &
-                                  ncell)  
-            do icell =1, ncell
-                call assertEquals(hand_value(icell,iclass),susp_percent(icell,iclass),weak_eps,"Error in subroutine bedload allocation ratio!")
-            end do                
-        end do
-
-        hand_value = one - hand_value
-
-        do iclass = 1, nclass
-            do icell =1, ncell
-                call assertEquals(hand_value(icell,iclass),bed_percent(icell,iclass),weak_eps,"Error in subroutine bedload allocation ratio!")
-            end do
-        end do
-
         return
     end subroutine
 

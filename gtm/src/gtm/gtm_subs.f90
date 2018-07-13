@@ -341,7 +341,7 @@ module gtm_subs
         integer :: i, j, k
         do i = 1, noutpaths
             do j = 1, n_var
-                if (trim(pathoutput(i).c_part).eq.trim(constituents(j)%name))then
+                if (trim(pathoutput(i)%c_part).eq.trim(constituents(j)%name))then
                     pathoutput(i)%i_var = constituents(j)%conc_no
                 end if
                 if (pathoutput(i).obj_type.eq.2) then

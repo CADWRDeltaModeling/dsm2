@@ -235,9 +235,9 @@ module gtm_network
         real(gtm_real), intent(in) :: prev_resv_conn(n_resv_conn)
         real(gtm_real), intent(in) :: prev_qext(n_qext)
         real(gtm_real), intent(in) :: prev_tran(n_tran)
-        call interp_linear_in_time(resv_height_mesh, npart_t+1, n_resv, hydro_resv_height(:,hydro_time_index), prev_resv)
-        call interp_linear_in_time(resv_flow_mesh, npart_t+1, n_resv_conn, hydro_resv_flow(:,hydro_time_index), prev_resv_conn)
-        call interp_linear_in_time(qext_flow_mesh, npart_t+1, n_qext, hydro_qext_flow(:,hydro_time_index), prev_qext)
+        if (n_resv.gt.0) call interp_linear_in_time(resv_height_mesh, npart_t+1, n_resv, hydro_resv_height(:,hydro_time_index), prev_resv)
+        if (n_resv_conn.gt.0) call interp_linear_in_time(resv_flow_mesh, npart_t+1, n_resv_conn, hydro_resv_flow(:,hydro_time_index), prev_resv_conn)
+        if (n_qext.gt.0) call interp_linear_in_time(qext_flow_mesh, npart_t+1, n_qext, hydro_qext_flow(:,hydro_time_index), prev_qext)
         if (n_tran>0) then 
             call interp_linear_in_time(tran_flow_mesh, npart_t+1, n_tran, hydro_tran_flow(:,hydro_time_index), prev_tran)
         endif

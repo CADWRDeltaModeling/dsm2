@@ -1,2 +1,3 @@
 **/BUILD
 *.pyc
+third_party/

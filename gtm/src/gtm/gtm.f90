@@ -101,6 +101,7 @@ program gtm
     integer :: current_slice = 0
     integer :: time_index_in_gtm_hdf
     integer :: next_output_flush 
+    character*2 :: detect_out_hdf
     
     ! variables for sub time stepping 
     logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
@@ -115,7 +116,7 @@ program gtm
     integer :: ierror
     integer :: nt     
     integer :: istat = 0  
-        
+     
     ! for specified output locations
     real(gtm_real), allocatable :: vals(:)  
     logical :: file_exists
@@ -215,8 +216,8 @@ program gtm
     prev_day = "01JAN1000"                                      ! to initialize for screen printing only
     allocate(constraint(n_cell,n_var))
     constraint = 9999.d0      
-    
-    if (trim(gtm_io(3,2)%filename).ne.'') use_gtm_hdf = .true.
+    detect_out_hdf = trim(gtm_io(3,2)%filename)
+    if (len(detect_out_hdf).gt.2) use_gtm_hdf = .true.
     if (use_gtm_hdf) then
         use_gtm_hdf = .true.    
         call incr_intvl(tmp_int, 0,gtm_io(3,2)%interval,1)

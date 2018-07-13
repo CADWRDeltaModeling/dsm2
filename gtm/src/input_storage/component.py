@@ -117,7 +117,6 @@ def include_block():
     "particle_group_output":"particle",
     "transfer":"hydro_time_series",
     "input_climate":"gtm_time_series",
-    "group_variable_sed":"gtm_spatial",
     "oprule_time_series":"operation",
     "particle_insertion":"particle",
     "channel":"grid",

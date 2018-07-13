@@ -330,8 +330,7 @@ module test_convergence_transport
                                  time,              &
                                  theta,             &
                                  dt,                &
-                                 dx,                &
-                                 .false.)
+                                 dx)
                end if
                        
                call prim2cons(mass,conc,area,nx,nconc)
