@@ -25,12 +25,10 @@ module mercury_state_variables
     use gtm_precision
     use sed_internal_vars
     use sed_type_defs
-    use hg_internal_vars
+    use hg_internal_vars, only:setup_hg_internals
     use common_variables, only:n_mercury
+    use hg_hdf   
     
-    real(gtm_real), allocatable :: conc_sediment(:,:) !< sediment concentration 
-    real(gtm_real), allocatable :: conc_ec(:)         !< EC
-    real(gtm_real), allocatable :: conc_doc(:)        !< DOC
     real(gtm_real), allocatable :: conc_do(:)         !< DO
     real(gtm_real), allocatable :: conc_ph(:)         !< pH
     real(gtm_real), allocatable :: conc_so4(:)        !< SO4
@@ -46,11 +44,17 @@ module mercury_state_variables
     real(gtm_real), allocatable :: val_dry_hgii(:)    !< drydep_HgII
     real(gtm_real), allocatable :: val_wet_mehg(:)    !< wetdep_MeHg
     real(gtm_real), allocatable :: val_dry_mehg(:)    !< drydep_MeHg
-    real(gtm_real), allocatable :: val_dgm_ratio(:)   !< dgm ratio
-    real(gtm_real), allocatable :: val_rct_if(:)      !< rct_interface
-    real(gtm_real), allocatable :: val_rct_water(:)   !< rct_water
-    real(gtm_real), allocatable :: val_vol_frac(:)    !< vol_frac     
-                                     
+    real(gtm_real), allocatable :: val_dgm_ratio(:)   !< dgm ratio  
+    ! sediment bed pore water variables
+    real(gtm_real), allocatable :: conc_cl_pw(:)      !< EC
+    real(gtm_real), allocatable :: conc_doc_pw(:)     !< DOC
+    real(gtm_real), allocatable :: conc_ph_pw(:)      !< pH
+    real(gtm_real), allocatable :: conc_so4_pw(:)     !< SO4
+    
+    ! variables for mercury module
+    integer :: ec_ivar, doc_ivar
+    
+    
     contains
 
     !> allocate mercury variables
@@ -59,9 +63,6 @@ module mercury_state_variables
         implicit none
         integer, intent(in) :: nsediment         !< Number of sediment types
         integer, intent(in) :: ncell             !< Number of cells
-        allocate(conc_sediment(nsediment,ncell))
-        allocate(conc_ec(ncell))
-        allocate(conc_doc(ncell))
         allocate(conc_do(ncell))
         allocate(conc_ph(ncell))
         allocate(conc_so4(ncell))
@@ -77,10 +78,12 @@ module mercury_state_variables
         allocate(val_dry_hgii(ncell))
         allocate(val_wet_mehg(ncell))
         allocate(val_dry_mehg(ncell))
-        allocate(val_dgm_ratio(ncell)) 
-        allocate(val_rct_if(ncell)) 
-        allocate(val_rct_water(ncell))
-        allocate(val_vol_frac(ncell))
+        allocate(val_dgm_ratio(ncell))      
+        allocate(conc_cl_pw(ncell))
+        allocate(conc_doc_pw(ncell))
+        allocate(conc_ph_pw(ncell))
+        allocate(conc_so4_pw(ncell))
+               
         call setup_hg_internals(ncell,n_zones,2,3,n_mercury)
         return
     end subroutine    
@@ -88,35 +91,26 @@ module mercury_state_variables
     !> Deallocate mercury variables
     subroutine deallocate_mercury()
         implicit none
-        deallocate(conc_sediment, conc_ec, conc_doc, conc_do, conc_ph, conc_so4, conc_temp)
         deallocate(val_ipar, val_iuva, val_iuvb, val_rgm_air, val_hg0_air, val_mehg_air, val_precip)
         deallocate(val_wet_hgii, val_dry_hgii, val_wet_mehg, val_dry_mehg)
-        deallocate(val_dgm_ratio, val_rct_if, val_rct_water, val_vol_frac)
+        deallocate(val_dgm_ratio)
+        deallocate(conc_cl_pw, conc_doc_pw, conc_ph_pw, conc_so4_pw)
+        
         !call deallocate_sed_internals()
+        call close_gtm_hg_hdf()
         return 
     end subroutine        
         
     ! set mercury input variables
-    subroutine set_mercury_inputs(read_conc_sediment,   & 
-                                  read_conc_ec,         & 
-                                  read_conc_doc,        & 
-                                  input_timeseries,     &
+    subroutine set_mercury_inputs(input_timeseries,     &
                                   ncell,                &
-                                  nsediment, &
                                   ntsvar)
         use common_variables
         implicit none
         integer, intent(in) :: ncell                                      !< Number of cells
-        integer, intent(in) :: nsediment                                  !< Number of sediment types
         integer, intent(in) :: ntsvar                                     !< Number of input time series
-        real(gtm_real), intent(in) :: read_conc_sediment(nsediment,ncell) !< sediment concentration 
-        real(gtm_real), intent(in) :: read_conc_ec(ncell)                 !< EC
-        real(gtm_real), intent(in) :: read_conc_doc(ncell)                !< DOC
         real(gtm_real), intent(in) :: input_timeseries(ntsvar,ncell)      !< Input time series
-             
-        conc_sediment = read_conc_sediment
-        conc_ec = read_conc_ec
-        conc_doc = read_conc_doc        
+               
         conc_do = input_timeseries(code_to_ts_id(ts_var_do),:)
         conc_ph = input_timeseries(code_to_ts_id(ts_var_ph),:)
         conc_so4 = input_timeseries(code_to_ts_id(ts_var_so4),:)
@@ -131,11 +125,12 @@ module mercury_state_variables
         val_wet_hgii = input_timeseries(code_to_ts_id(ts_var_wet_hgii),:)
         val_dry_hgii = input_timeseries(code_to_ts_id(ts_var_dry_hgii),:)
         val_wet_mehg = input_timeseries(code_to_ts_id(ts_var_wet_mehg),:)
-        val_dry_mehg = input_timeseries(code_to_ts_id(ts_var_dry_mehg),:)
-        val_dgm_ratio = input_timeseries(code_to_ts_id(ts_var_dgm_ratio),:)  
-        val_rct_if = input_timeseries(code_to_ts_id(ts_var_rct_if),:)
-        val_rct_water = input_timeseries(code_to_ts_id(ts_var_rct_water),:)
-        val_vol_frac = input_timeseries(code_to_ts_id(ts_var_vol_frac),:)  
+        val_dry_mehg = run_mercury
+        val_dgm_ratio = input_timeseries(code_to_ts_id(ts_var_dgm_ratio),:)         
+        conc_cl_pw = input_timeseries(code_to_ts_id(ts_var_cl_pw),:)
+        conc_doc_pw = input_timeseries(code_to_ts_id(ts_var_doc_pw),:)
+        conc_ph_pw = input_timeseries(code_to_ts_id(ts_var_ph_pw),:)
+        conc_so4_pw = input_timeseries(code_to_ts_id(ts_var_so4_pw),:)
         return
     end subroutine
  

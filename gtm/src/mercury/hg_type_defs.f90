@@ -47,6 +47,12 @@ integer     :: biodemethyl_switch   = 4
 integer     :: phyto_uptakeMeHg     = 2	                    !< free ion = 1, iorganic = 2
 integer     :: phyto_uptakeHgII     = 1	                    !< free ion = 1, iorganic = 2
 
+integer     :: mf_HgII = 1
+integer     :: mf_MeHg = 2
+integer     :: mf_Hg0 = 3
+integer     :: mf_HgII_s1 =4
+integer     :: mf_HgII_s2 = 5
+integer     :: mf_HgII_s3 =6
 
 !> time series types
 !****************************************************************************************************************************************
@@ -145,15 +151,15 @@ end type k_phyto_parms
     real (gtm_real) :: Tbbiodemeth          !> base temperature for dependence for bio-demethylation
     real (gtm_real) :: kSO4                 !> Half saturation constant for SO4 effect on methylation (mg/L)
     real (gtm_real) :: uSO4                 !> maximum effect that sulfate can have on the microbial methylation rate (dimensionless)
-    
+    real (gtm_real) :: mtc_sed_sed          !> Mass transfer coefficient for Hg diffusion between sediment compartments (m/d)
+    real (gtm_real) :: mtc_sed_wat          !> Mass transfer coefficient for Hg diffusion between water and sediment compartments (m/d)
 !> compartment specific hg reaction rate constants, parameters
 !****************************************************************************************************************************************
-type hg_rate_parms1
-    real (gtm_real) :: methyl               !> methylation rate constant
-    real (gtm_real) :: biodemethyl          !> methylation rate constant 
-    real (gtm_real) :: methyl_int           !> methylation rate constant
-    real (gtm_real) :: biodemethyl_int      !> methylation rate constant  
-end type hg_rate_parms1
+!    real (gtm_real) :: methyl               !> methylation rate constant
+!    real (gtm_real) :: biodemethyl          !> methylation rate constant 
+!    real (gtm_real) :: methyl_int           !> methylation rate constant
+!    real (gtm_real) :: biodemethyl_int      !> methylation rate constant  
+!end type hg_rate_parms1
 
 type :: eq_complexes
     !> computed complexes/ions Molar concentrations
@@ -213,6 +219,7 @@ type eq_vals                                            !< molar concs. to be so
     real (gtm_real) :: XOH
     real (gtm_real) :: HS
     real (gtm_real) :: xROH
+    logical         :: initialized = .false.
 end type eq_vals
 
 type molar_total                                        !> inputs to eq. solver
@@ -230,16 +237,17 @@ type :: hg_concs                                        !> hg concentrations to 
     real (gtm_real) :: HgII_inorganic
     real (gtm_real) :: HgII_photo
     real (gtm_real) :: HgII_methyl
-    real (gtm_real), dimension(:), allocatable :: HgII_ssX      !> exchangeable HgII on solids (ug/g)
-    real (gtm_real), dimension(:), allocatable :: HgII_ssR      !> exchangeable HgII on solids (ug/g)
-       
+    real (gtm_real) :: HgII_ssX(3)      !> exchangeable HgII on solids (ug/g)
+    real (gtm_real) :: HgII_ssR(3)      !> exchangeable HgII on solids (ug/g)
+    real (gtm_real) :: HgII_inert(3)      
+    
     real (gtm_real) :: MeHg_diss
     real (gtm_real) :: MeHg_organic
     real (gtm_real) :: MeHg_inorganic
     real (gtm_real) :: MeHg_photo
     real (gtm_real) :: MeHg_biodemeth
     real (gtm_real) :: MeHg_Cl
-    real (gtm_real), dimension(:), allocatable :: MeHg_ss       !> exchangeable MeHg on solids (ug/g)
+    real (gtm_real) :: MeHg_ss(3)       !> exchangeable MeHg on solids (ug/g)
     
     real (gtm_real) :: Hg0
 end type hg_concs
@@ -256,21 +264,23 @@ type hg_flux_def
     real (gtm_real) :: biodemethyl
     real (gtm_real) :: biodemethyl_int
     real (gtm_real) :: photodemethyl
-    real (gtm_real) :: drydep_MeHg
-    real (gtm_real) :: wetdep_MeHg
-    real (gtm_real) :: volatil_MeHg
+    real (gtm_real) :: drydep_meHg
+    real (gtm_real) :: wetdep_meHg
+    real (gtm_real) :: volatil_meHg
     real (gtm_real) :: photoreduction
-    real (gtm_real) :: drydep_HgII
-    real (gtm_real) :: wetdep_HgII
-    real (gtm_real) :: rgmdep_HgII
+    real (gtm_real) :: drydep_hgii
+    real (gtm_real) :: wetdep_hgii
+    real (gtm_real) :: rgmdep_hgii
     real (gtm_real) :: oxidation
     real (gtm_real) :: evasion_Hg0
-    real (gtm_real), dimension(:), allocatable :: adsorption
+    real (gtm_real) :: adsorption(3)        !for each solid type
+    real (gtm_real) :: decomposition(3)     !hginert -> hgii due to particle decomposition
     real (gtm_real) :: MeHg                 !> net fluxes for cell
     real (gtm_real) :: HgII
-    real (gtm_real) :: Hg_inert
+    real (gtm_real) :: Hg_inert(3)          
     real (gtm_real) :: Hg0
-    
+    real (gtm_real) :: settle(6)
+    real (gtm_real) :: erosion(6)
 end type hg_flux_def
 
 end module

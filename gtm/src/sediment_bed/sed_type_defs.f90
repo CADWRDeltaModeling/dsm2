@@ -2,6 +2,7 @@ module sed_type_defs
     
 use gtm_precision
 use hdf5, only: HID_T, HSIZE_T
+use common_variables, only: k_eq_solids_t
 implicit none
 
 real(gtm_real), parameter  :: g_cm3_to_g_m3     = 1.d06
@@ -45,9 +46,12 @@ type bed_properties_t                                   !also used for ic's
     integer             :: channel                      !< channel no for debugging
 end type
 
+
 !particle properties
 !real (gtm_real), dimension (isolids)   :: diameter  = 0.0005       !< units (m)
 real (gtm_real), dimension (isolids)   :: density   = 2.6          !< density (g/m^3) or (g/cm3) and convert
+
+
 
 type (bed_properties_t), allocatable, dimension(:,:,:) :: bed     ! dimensions(cell_no,zone, layer)
 
@@ -56,26 +60,25 @@ type (bed_properties_t), allocatable, dimension(:,:,:) :: bed     ! dimensions(c
 real (gtm_real), allocatable, dimension (:,:)  :: resuspension
 
 type gtm_sed_hdf_t 
-        character*128 file_name_solids
-        character*128 file_name_hg
+        character*128 file_name
+        !character*128 file_name_hg
         real(gtm_real) :: write_interval
         real(gtm_real) :: start_julmin
         real(gtm_real) :: time_index  
-        integer(HID_T) :: file_id_sed
-        integer(HID_T) :: file_id_Hg
-        integer(HID_T) :: data_id_sed
-        integer(HID_T) :: data_id_sed_flux
+        integer(HID_T) :: file_id  !_sed   
+        !integer(HID_T) :: file_id_Hg
+        integer(HID_T) :: data_id !_sed
+        integer(HID_T) :: data_id_flux !sed_flux
         
-        integer(HID_T) :: bed_solids_id
-        integer(HID_T) :: bed_solids_flux_id
-        integer(HID_T) :: bed_hg_id
-        integer(HID_T) :: bed_hg_flux_id
-               
-        integer(HSIZE_T) :: conc_dim
-        integer(HSIZE_T) :: cell_dim
-        integer(HSIZE_T) :: chan_dim
-        integer(HSIZE_T) :: resv_dim
-        integer(HSIZE_T) :: time_dim
+        integer(HID_T) :: bed_out_id
+        integer(HID_T) :: bed_out_flux_id
+        integer(HID_T) :: wat_hg_id
+        integer(HID_T) :: wat_hg_flux_id
+       ! integer(HSIZE_T) :: conc_dim
+       ! integer(HSIZE_T) :: cell_dim
+       ! integer(HSIZE_T) :: chan_dim
+       ! integer(HSIZE_T) :: resv_dim
+       ! integer(HSIZE_T) :: time_dim
 end type
 
 type bed_mercury_inputs_t

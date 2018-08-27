@@ -9,35 +9,38 @@ module sediment_bed_setup
     use sed_type_defs
     use sed_internal_vars
     use common_variables , only: n_cell, n_resv, n_chan, group, n_group, obj_channel, obj_reservoir, chan_geom, hydro_hdf5, run_mercury
-    use common_dsm2_vars, only: gtm, io_write, io_restart, io_hdf5, io_read, io_files,pathinput_t 
+    use common_dsm2_vars, only: gtm, io_write, io_restart, io_hdf5, io_read, io_files,pathinput_t, n_dssfiles,ifltab_in,indssfiles,infilenames
     use sed_bed_hdf
     use common_dsm2_vars, only: dsm2_name, dsm2_modifier,ninpaths,pathinput,n_input_ts,n_inputpaths
     use process_timeseries_input_sed
+    
     !use hg_type_defs
     implicit none
 
     !real (gtm_real), allocatable :: group_values_sed(:,:,:) ! (group_id, variable_code, sed_layer)
     
     integer, parameter :: sb_r_ct_labile = 1
-    integer, parameter :: sb_q10_ct = 2
-    integer, parameter :: sb_tb_ct = 3
-    integer, parameter :: sb_inter_frac_base = 4
-    integer, parameter :: sb_inter_frac_max  = 5
-    integer, parameter :: sb_q10_ct_inter = 6
-    integer, parameter :: sb_tb_ct_inter = 7
-    integer, parameter :: sb_porosity = 8
+    integer, parameter :: sb_r_ct_refract = 2
+    integer, parameter :: sb_q10_ct = 3
+    integer, parameter :: sb_tb_ct = 4
+    integer, parameter :: sb_inter_frac_base = 5
+    integer, parameter :: sb_inter_frac_max  = 6
+    integer, parameter :: sb_q10_ct_inter = 7
+    integer, parameter :: sb_tb_ct_inter = 8
+    integer, parameter :: sb_porosity = 9
     
-    integer, parameter :: sb_inter_frac_tb = 9
+    integer, parameter :: sb_inter_frac_tb = 10
     
     ! mercury parameter id's
-    integer, parameter :: sb_mole_xoh_1 = 10
-    integer, parameter :: sb_mole_xoh_2 = 11
-    integer, parameter :: sb_mole_xoh_3 = 12
-    integer, parameter :: sb_frac_exchg_1 = 13
-    integer, parameter :: sb_frac_exchg_2 = 14
-    integer, parameter :: sb_frac_exchg_3 = 15
-    
-    
+    integer, parameter :: sb_mole_xoh_1 = 11
+    integer, parameter :: sb_mole_xoh_2 = 12
+    integer, parameter :: sb_mole_xoh_3 = 13
+    integer, parameter :: sb_frac_exchg_1 = 14
+    integer, parameter :: sb_frac_exchg_2 = 15
+    integer, parameter :: sb_frac_exchg_3 = 16
+    integer, parameter :: sb_mole_rs = 17
+    integer, parameter :: sb_k_xohg = 18
+    integer, parameter :: sb_k_xomehg = 19
     contains
     
     subroutine set_up_sediment_bed(n_cells, n_chans, init_input_file, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
@@ -106,11 +109,8 @@ module sediment_bed_setup
         ii = index(file_name_hdf_sed,".", .true.)
         file_name_hdf_sed(ii:ii+8) = "_sed.h5" 
         
-        file_name_hdf_sed_flux = io_files(gtm,io_hdf5, io_write).filename
-        ii = index(file_name_hdf_sed_flux,".", .true.)
-        file_name_hdf_sed_flux(ii:ii+12) = "_sed_flux.h5" 
-        
-        file_name_hdf_bed = hydro_hdf5
+                
+        file_name_hdf_bed = hydro_hdf5              !cell and zone inputs
         ii = index(file_name_hdf_bed,".", .true.)
         file_name_hdf_bed(ii:ii+11) = "_bed_zone.h5" 
         
@@ -125,7 +125,6 @@ module sediment_bed_setup
         integer, intent(in) :: n_var
         integer, intent (in)            :: input_type       !1 for solids, 2-Hg
         !local
-        
         integer :: ncell_l
         integer :: nvar_l
         integer :: nzone_l
@@ -133,6 +132,8 @@ module sediment_bed_setup
         integer :: file_unit
         integer :: i
         integer :: j
+        integer :: layercount
+        integer :: nlayers  = 2
         integer :: count,zonecount
         integer :: cellno, zoneno
         real(gtm_real):: value(n_var)
@@ -162,7 +163,21 @@ module sediment_bed_setup
                 end do
             end do                    
         else
-                
+            do count=1, n_cells
+                do zonecount = 1, n_zone
+                    read(file_unit,*) cellno, zoneno, (value(i),i=1,(n_var))
+                    layercount = 1
+                    do j=1, nlayers
+                        sed_Hg0_ic(count,zonecount,j) = value(layercount)
+                        sed_HgII_ic(count,zonecount,j) = value(layercount+1)
+                        sed_s1_HgII_ic(count,zonecount,j) = value(layercount+2)
+                        sed_s2_HgII_ic(count,zonecount,j) = value(layercount+3)
+                        sed_s3_HgII_ic(count,zonecount,j) = value(layercount+4)
+                        sed_MeHg_ic(count,zonecount,j) = value(layercount+5)
+                        layercount = layercount + (n_var/nlayers)
+                    end do
+                end do
+            end do
         end if
         close(file_unit)
         return
@@ -184,8 +199,14 @@ module sediment_bed_setup
         end do
         bed(:,:,2).area_zone = bed(:,:,1).area_zone
     
-        bed(:,:,1).volume = bed(:,:,1).wp_zone*bed(:,:,1).thickness
-    
+        bed(:,:,:).volume = bed(:,:,:).wp_zone*bed(:,:,:).thickness
+        do i=1,nzones
+            do j=1,nlayers
+                bed(:,i,j).volume = bed(:,i,j).volume*length(:)
+            end do
+        end do
+        
+        
         !todo: maybe make the underlying layer have the same properties
         !normalize mass_fractions
         mass_total(:,:,:) = bed(:,:,:).mass_frac(1)+bed(:,:,:).mass_frac(2)+bed(:,:,:).mass_frac(3)
@@ -197,7 +218,7 @@ module sediment_bed_setup
         
         do i=1,nzones
             do j = 1 , nlayers
-                mass_total(:,i,j) = mass_total(:,i,j) * length(:) * (ft_to_m **2)
+                mass_total(:,i,j) = mass_total(:,i,j) * length(:) !* (ft_to_m **2)
             end do
         end do
         
@@ -211,6 +232,7 @@ module sediment_bed_setup
     subroutine set_up_interface_parms(ncells, nzones )   
         !coefficients for interface decomposition of particle type 1
         !args
+        use gtm_dss_main
         integer, intent (in)            :: ncells
         integer, intent (in)            :: nzones
         !local
@@ -235,6 +257,8 @@ module sediment_bed_setup
 
     subroutine sed_get_group_variables()
     !local
+        use gtm_dss
+        use gtm_dss_main
         character*16 :: init_input_file
         integer :: ierror = 0
         integer :: nitems
@@ -260,6 +284,7 @@ module sediment_bed_setup
         character*8  :: fillin
         type (pathinput_t), allocatable :: path(:)
         character(len=128) :: qrfpath
+        integer :: chan_no
         call clear_all_buffers(ierror)
         call init_file_reader(ierror)
         call set_initial_context_profile(dsm2_name)
@@ -309,12 +334,14 @@ module sediment_bed_setup
             do ii =1, group(group_id)%n_members  
                 if (group(group_id)%member_pattern_code(ii) .eq. obj_channel) then
                     read (group(group_id)%member_name(ii), *) chan_number       !get channel no:
-                    if (chan_number<=n_chan) then
-                        do jj= chan_geom(chan_number)%start_cell,chan_geom(chan_number)%end_cell
+                    chan_no = chan_number
+                    call get_chan_number(n_chan, chan_no)
+                    if (chan_no<=n_chan) then
+                        do jj= chan_geom(chan_no)%start_cell,chan_geom(chan_no)%end_cell
                            ! do kk = 1, n_zones
                                 call assign_sed_input_variable(jj, sed_zone, sed_layer, var_id, value)
                                 n_sed_cells = n_sed_cells + 1
-                                bed(jj,:,:).channel = chan_number
+                                bed(jj,:,:).channel = chan_no
                            ! end do
                         end do
                     end if
@@ -354,7 +381,19 @@ module sediment_bed_setup
                                            filename,    &
                                            inpath)
             end do
-            print *,"Number of input time series processed: ", nitem_input_time_series
+              
+            if (n_dssfiles .ne. 0) then
+                call zclose(ifltab_in)   !!ADD A global to detect if dss is opened
+                deallocate(ifltab_in) 
+            end if
+            deallocate(indssfiles)
+            allocate(indssfiles(n_dssfiles))
+            indssfiles = infilenames
+            allocate(ifltab_in(600, n_dssfiles))
+            call opendss(ifltab_in, n_dssfiles, indssfiles)        ! open all input dss files
+            call deallocate_datain()
+            call get_dss_each_npath()
+            print *,"Number of mercury input time series processed: ", nitem_input_time_series
         end if
         
         
@@ -370,6 +409,18 @@ module sediment_bed_setup
         return
     end subroutine sed_get_group_variables
     
+    subroutine get_chan_number(nchans, chan_no)
+        integer, intent(in) ::  nchans
+        integer, intent(inout) :: chan_no
+        integer :: i
+        integer :: ichan
+        ichan = chan_no
+        chan_no = nchans+1
+        do i=1,nchans
+            if (chan_geom(i)%channel_num.eq.ichan) chan_no = i
+        enddo
+    end subroutine
+    
     subroutine sed_input_variable(variable, sb_variable_id)
         character (*), intent(in) :: variable
         integer, intent(out) :: sb_variable_id
@@ -377,6 +428,8 @@ module sediment_bed_setup
         sb_variable_id = 0
         if (trim(variable).eq.'r_ct_labile') then
             sb_variable_id = sb_r_ct_labile
+        else if (trim(variable).eq.'r_ct_refract') then
+            sb_variable_id = sb_r_ct_refract
         else if (variable == "q10_ct") then
             sb_variable_id = sb_q10_ct
         else if (variable == "tb_ct") then
@@ -406,6 +459,12 @@ module sediment_bed_setup
             sb_variable_id = sb_frac_exchg_2
         else if (variable == "frac_exchg_3") then
             sb_variable_id = sb_frac_exchg_3 
+        else if (variable == "mole_rs") then    
+            sb_variable_id =  sb_mole_rs
+        else if (variable == "k_xohg_sed") then 
+            sb_variable_id =  sb_k_xohg
+        else if (variable == "k_xomehg_sed") then 
+            sb_variable_id =  sb_k_xomehg
         end if
         return
     end subroutine
@@ -421,6 +480,8 @@ module sediment_bed_setup
             select case  (sb_variable_id)
             case (sb_r_ct_labile)
                 bed(cell_no,: , :).r_ct_labile = value
+            case (sb_r_ct_refract)
+                bed(cell_no,: , :).r_ct_refract = value
             case (sb_q10_ct)
                 bed(cell_no,:, :).q10_ct = value
             case (sb_tb_ct)
@@ -439,17 +500,23 @@ module sediment_bed_setup
                 bed(cell_no,:, 1).inter_frac_tb = value
                 
             case (sb_mole_xoh_1) 
-                bed_mercury_inputs(cell_no,:,:).mole_xoh(1) = value
+                solid_parms_sed(cell_no,:,:,1).mole_xoh = value
             case (sb_mole_xoh_2)
-                bed_mercury_inputs(cell_no,:,:).mole_xoh(2) = value
+                solid_parms_sed(cell_no,:,:,2).mole_xoh = value
             case (sb_mole_xoh_3) 
-                bed_mercury_inputs(cell_no,:,:).mole_xoh(3) = value
+                solid_parms_sed(cell_no,:,:,3).mole_xoh = value
             case (sb_frac_exchg_1) 
-                bed_mercury_inputs(cell_no,:,:).frac_exchg(1) = value
+                solid_parms_sed(cell_no,:,:,1).frac_exchg = value
             case (sb_frac_exchg_2)
-                bed_mercury_inputs(cell_no,:,:).frac_exchg(2) = value
+                solid_parms_sed(cell_no,:,:,2).frac_exchg = value
             case (sb_frac_exchg_3)
-                bed_mercury_inputs(cell_no,:,:).frac_exchg(3) = value
+                solid_parms_sed(cell_no,:,:,3).frac_exchg = value
+            case (sb_mole_rs)
+                mole_rs_sed(cell_no,:,:) = value 
+            case (sb_k_xohg)
+                k_eq_solids_sed(cell_no,:,:)%xohg = 10**value
+            case (sb_k_xomehg)
+                k_eq_solids_sed(cell_no,:,:)%xomehg = 10**value
             case default
                ! write(*,*) "variable_id not found",  sb_variable_id
             end select
@@ -457,12 +524,14 @@ module sediment_bed_setup
             select case  (sb_variable_id)
             case (sb_r_ct_labile)
                 bed(cell_no,: , sed_layer).r_ct_labile = value
+            case (sb_r_ct_refract)
+                bed(cell_no,: , sed_layer).r_ct_refract = value
             case (sb_q10_ct)
                 bed(cell_no,:, sed_layer).q10_ct = value
             case (sb_tb_ct)
                 bed(cell_no,:, sed_layer).tb_ct = value
             case (sb_inter_frac_base)
-                bed(cell_no,:, 1).inter_frac_base = value
+                bed(cell_no,:, sed_layer).inter_frac_base = value
             case (sb_inter_frac_max)
                 bed(cell_no,:, sed_layer).inter_frac_max = value
             case (sb_q10_ct_inter)
@@ -475,29 +544,36 @@ module sediment_bed_setup
                 bed(cell_no,:, 1).inter_frac_tb = value
                 
             case (sb_mole_xoh_1) 
-                bed_mercury_inputs(cell_no,:,sed_layer).mole_xoh(1) = value
+                solid_parms_sed(cell_no,:,sed_layer,1).mole_xoh = value
             case (sb_mole_xoh_2)
-                bed_mercury_inputs(cell_no,:,sed_layer).mole_xoh(2) = value
+                solid_parms_sed(cell_no,:,sed_layer,2).mole_xoh = value
             case (sb_mole_xoh_3) 
-                bed_mercury_inputs(cell_no,:,sed_layer).mole_xoh(3) = value
+                solid_parms_sed(cell_no,:,sed_layer,3).mole_xoh = value
             case (sb_frac_exchg_1) 
-                bed_mercury_inputs(cell_no,:,:sed_layer).frac_exchg(1) = value
+                solid_parms_sed(cell_no,:,:sed_layer,1).frac_exchg = value
             case (sb_frac_exchg_2)
-                bed_mercury_inputs(cell_no,:,:sed_layer).frac_exchg(2) = value
+                solid_parms_sed(cell_no,:,:sed_layer,2).frac_exchg = value
             case (sb_frac_exchg_3)
-                bed_mercury_inputs(cell_no,:,sed_layer).frac_exchg(3) = value
-                
+                solid_parms_sed(cell_no,:,sed_layer,3).frac_exchg = value
+            case (sb_mole_rs)
+                mole_rs_sed(cell_no,:,sed_layer) = value
+            case (sb_k_xohg)
+                k_eq_solids_sed(cell_no,:,sed_layer)%xohg = 10**value
+            case (sb_k_xomehg)
+                k_eq_solids_sed(cell_no,:,sed_layer)%xomehg = 10**value
             end select
         elseif (sed_layer == 0) then
             select case  (sb_variable_id)
             case (sb_r_ct_labile)
                 bed(cell_no, sed_zone, :).r_ct_labile = value
+            case (sb_r_ct_refract)
+                bed(cell_no, sed_zone, :).r_ct_refract = value
             case (sb_q10_ct)
                 bed(cell_no, sed_zone, :).q10_ct = value
             case (sb_tb_ct)
                 bed(cell_no, sed_zone, :).tb_ct = value
             case (sb_inter_frac_base)
-                bed(cell_no, sed_zone, 1).inter_frac_base = value
+                bed(cell_no, sed_zone, :).inter_frac_base = value
             case (sb_q10_ct_inter)
                 bed(cell_no, sed_zone, :).q10_ct_inter = value
             case (sb_tb_ct_inter)
@@ -509,22 +585,30 @@ module sediment_bed_setup
                 bed(cell_no, sed_zone, :).inter_frac_tb = value
                 
             case (sb_mole_xoh_1) 
-                bed_mercury_inputs(cell_no,sed_zone,:).mole_xoh(1) = value
+                solid_parms_sed(cell_no,sed_zone,:,1).mole_xoh = value
             case (sb_mole_xoh_2)
-                bed_mercury_inputs(cell_no,sed_zone,:).mole_xoh(2) = value
+                solid_parms_sed(cell_no,sed_zone,:,2).mole_xoh = value
             case (sb_mole_xoh_3) 
-                bed_mercury_inputs(cell_no,sed_zone,:).mole_xoh(3) = value
+                solid_parms_sed(cell_no,sed_zone,:,3).mole_xoh = value
             case (sb_frac_exchg_1) 
-                bed_mercury_inputs(cell_no,sed_zone,:).frac_exchg(1) = value
+                solid_parms_sed(cell_no,sed_zone,:,1).frac_exchg = value
             case (sb_frac_exchg_2)
-                bed_mercury_inputs(cell_no,sed_zone,:).frac_exchg(2) = value
+                solid_parms_sed(cell_no,sed_zone,:,2).frac_exchg = value
             case (sb_frac_exchg_3)
-                bed_mercury_inputs(cell_no,sed_zone,:).frac_exchg(3) = value
+                solid_parms_sed(cell_no,sed_zone,:,3).frac_exchg = value
+            case (sb_mole_rs)
+                mole_rs_sed(cell_no, sed_zone,:) = value
+            case (sb_k_xohg)
+                k_eq_solids_sed(cell_no,sed_zone,:)%xohg = 10**value
+            case (sb_k_xomehg)
+                k_eq_solids_sed(cell_no,sed_zone,:)%xomehg = 10**value
             end select
         else
             select case  (sb_variable_id)
             case (sb_r_ct_labile)
                 bed(cell_no, sed_zone, sed_layer).r_ct_labile = value
+            case (sb_r_ct_refract)
+                bed(cell_no, sed_zone, sed_layer).r_ct_refract = value
             case (sb_q10_ct)
                 bed(cell_no, sed_zone, sed_layer).q10_ct = value
             case (sb_tb_ct)
@@ -541,17 +625,23 @@ module sediment_bed_setup
                 if (sed_layer ==1 ) bed(cell_no, sed_zone, sed_layer).inter_frac_tb = value
                   
             case (sb_mole_xoh_1) 
-                bed_mercury_inputs(cell_no,sed_zone,sed_layer).mole_xoh(1) = value
+                solid_parms_sed(cell_no,sed_zone,sed_layer,1).mole_xoh = value
             case (sb_mole_xoh_2)
-                bed_mercury_inputs(cell_no,sed_zone,sed_layer).mole_xoh(2) = value
+                solid_parms_sed(cell_no,sed_zone,sed_layer,2).mole_xoh = value
             case (sb_mole_xoh_3) 
-                bed_mercury_inputs(cell_no,sed_zone,sed_layer).mole_xoh(3) = value
+                solid_parms_sed(cell_no,sed_zone,sed_layer,3).mole_xoh = value
             case (sb_frac_exchg_1) 
-                bed_mercury_inputs(cell_no,sed_zone,sed_layer).frac_exchg(1) = value
+                solid_parms_sed(cell_no,sed_zone,sed_layer,1).frac_exchg = value
             case (sb_frac_exchg_2)
-                bed_mercury_inputs(cell_no,sed_zone,sed_layer).frac_exchg(2) = value
+                solid_parms_sed(cell_no,sed_zone,sed_layer,2).frac_exchg = value
             case (sb_frac_exchg_3)
-                bed_mercury_inputs(cell_no,sed_zone,sed_layer).frac_exchg(3) = value
+                solid_parms_sed(cell_no,sed_zone,sed_layer,3).frac_exchg = value
+            case (sb_mole_rs)
+                mole_rs_sed(cell_no, sed_zone,sed_layer) = value
+            case (sb_k_xohg)
+                k_eq_solids_sed(cell_no,sed_zone,sed_layer)%xohg = 10**value
+            case (sb_k_xomehg)
+                k_eq_solids_sed(cell_no,sed_zone,sed_layer)%xomehg = 10**value
             end select
         end if
         return

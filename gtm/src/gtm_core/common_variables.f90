@@ -78,13 +78,12 @@ module common_variables
      logical :: apply_diffusion = .false.              !< turn on/off dispersion
      real(gtm_real) :: disp_coeff = LARGEREAL          !< constant dispersion coefficient (using this one will overwrite those from hydro tidefile)
      real(gtm_real) :: ero_coeff = LARGEREAL           !< erosion coefficient for sediment module
-     
      logical :: calc_budget = .false.                  !< calculate budget if true
      logical :: run_sediment = .false.                 !< run sediment module if true
      logical :: run_mercury = .false.                  !< run mercury module if true
      integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
      
-     character*14 :: hdf_out                           ! hdf output resolution ('channel' or 'cell')
+     character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
      
      type gtm_io_files_t
           character(len=130) :: filename               !< filename
@@ -308,7 +307,7 @@ module common_variables
          character*32 :: name = ' '                     !< constituent name
          logical :: conservative = .true.               !< true if conservative, false if nonconservative
          character*32 :: use_module = ' '               !< use module
-         logical :: simulate = .true.                   !< simulate or not
+         logical :: simulate = .true.                   !< simulate or not. trigger to klu solver
      end type     
      type(constituent_t), allocatable :: constituents(:)
      type(constituent_t), allocatable :: constituents_tmp(:)
@@ -346,14 +345,13 @@ module common_variables
      type :: k_eq_solids_t                                  !> solids partitioning parameters - for each compartment
         real (gtm_real) ::  XOHg        = 10** 17.8d0
         real (gtm_real) ::  XOMeHg      = 10** 3.7d0
-        real (gtm_real) ::  xRS_Hg      = 10** 32.0d0
-        real (gtm_real) ::  xRS_2_Hg    = zero !10** 42d0
-        real (gtm_real) ::  xRS_MeHg    = zero
-        real (gtm_real) ::  xR_SH       = 10** 23.0d0
+        real (gtm_real) ::  xr_sh       != 10** 23.0d0  not used
+        real (gtm_real) ::  xrs_hg      != 10** 23.0d0  not used
+        real (gtm_real) ::  xrs_2_hg    != 10** 23.0d0  not used
+        real (gtm_real) ::  xrs_mehg    != 10** 23.0d0  not used
     end type k_eq_solids_t
 
      type (k_eq_solids_t)  :: k_eq_solids_wat
-     type (k_eq_solids_t)  :: k_eq_solids_sed
      
      type :: k_eq_parms_t                                     !< thermodynamic constants - most likely don't need to be changed with inputs
         real (gtm_real) ::  HRS         = 10**10.3d0	   
@@ -389,16 +387,13 @@ module common_variables
         real (gtm_real) :: density              = 2.6       !> g/cm3  todo:this is redundant set in sed_type_defs
         real (gtm_real) :: mole_XOH             = 2.0d-08   !> moles of SS-XOH groups/ g solid
         real (gtm_real) :: mole_ROH             = 4.0d-10   !> moles of SS-ROH groups/ g solid
-        real (gtm_real) :: XOH_exch_frac        = 1.0d0     !> fraction of SS-XOH groups that are freely exchangeable
+        real (gtm_real) :: frac_exchg           = 1.0d0     !> fraction of SS-XOH groups that are freely exchangeable
      end type solids_inputs_t
      
      type (solids_inputs_t) :: solid_parms_wat1
      type (solids_inputs_t) :: solid_parms_wat2
      type (solids_inputs_t) :: solid_parms_wat3
-     type (solids_inputs_t) :: solid_parms_sed1
-     type (solids_inputs_t) :: solid_parms_sed2
-     type (solids_inputs_t) :: solid_parms_sed3
-    
+     real (gtm_real)        :: mole_rs    
      
      !> non-conservative constituents codes
      integer, parameter :: ncc_do = 1
@@ -449,9 +444,6 @@ module common_variables
      integer, parameter :: ts_var_wet_mehg  = 13
      integer, parameter :: ts_var_dry_mehg = 14
      integer, parameter :: ts_var_rgm_air = 15
-     integer, parameter :: ts_var_rct_if = 16
-     integer, parameter :: ts_var_rct_water = 17
-     integer, parameter :: ts_var_vol_frac = 18
      integer, parameter :: ts_var_dgm_ratio = 19
      !>added by dhh -------------------------------
      integer, parameter :: ts_var_ph_pw = 20
@@ -1672,12 +1664,6 @@ module common_variables
              ts_var_name = "DRY_MEHG"
          else if (ts_var_code == ts_var_rgm_air) then
              ts_var_name = "RGM_AIR"
-         else if (ts_var_code == ts_var_rct_if) then
-             ts_var_name = "RCT_IF"   
-         else if (ts_var_code == ts_var_rct_water) then
-             ts_var_name = "RCT_WATER"
-         else if (ts_var_code == ts_var_vol_frac) then
-             ts_var_name = "VOL_FRAC"
          else if (ts_var_code == ts_var_dgm_ratio) then
              ts_var_name = "DGM_RATIO"
          !>added by DHH --------------------------
@@ -1734,12 +1720,6 @@ module common_variables
              ts_var_code = ts_var_dry_mehg
          else if (trim(ts_var_name) == "rgm_air") then
              ts_var_code = ts_var_rgm_air
-         else if (trim(ts_var_name) == "rct_if") then
-             ts_var_code = ts_var_rct_if
-         else if (trim(ts_var_name) == "rct_water") then
-             ts_var_code = ts_var_rct_water
-         else if (trim(ts_var_name) == "vol_frac") then
-             ts_var_code = ts_var_vol_frac
          else if (trim(ts_var_name) == "dgm_ratio") then
              ts_var_code = ts_var_dgm_ratio
          !>added by dhh -------------------------------    

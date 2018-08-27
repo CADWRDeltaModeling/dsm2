@@ -22,8 +22,10 @@
 module cohesive_source
 
     use gtm_precision
+    
 
     contains 
+    
 
     !> Deposition flux calculated by Krone(1962)
     subroutine cohesive_deposition(deposition_flux,        &
@@ -51,14 +53,21 @@ module cohesive_source
     subroutine cohesive_erosion(erosion_rate,           &
                                 critical_shear_stress,  &
                                 bottom_shear_stress,    &
-                                param_M)
+                                param_M)                
+        use common_variables, only: n_sediment   !8/10/2018, Ahmed, included number of sediments.
+                
+                
+        
+                                
         implicit none
         real(gtm_real), intent(in) :: bottom_shear_stress
         real(gtm_real), intent(in) :: critical_shear_stress
         real(gtm_real), intent(in) :: param_M
         real(gtm_real), intent(out) :: erosion_rate
+        
                 
-        erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one)      
+!        erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one)       8/10/2018, Ahmed
+        erosion_rate = 1.0D0/n_sediment*param_M * (bottom_shear_stress/critical_shear_stress-one)     !8/10/2018, Ahmed, included number of sediments. 
         if (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero 
        
         return

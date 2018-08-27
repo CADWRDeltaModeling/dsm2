@@ -46,7 +46,8 @@ module gtm_source
         use sed_type_defs, only: n_zones !added by dhh
         use sediment_bed, only: sediment_bed_main !added by dhh
         use turbidity
-        use mercury_fluxes
+        use mercury_fluxes, only: mercury_source
+        use mercury_state_variables, only: ec_ivar, doc_ivar
         implicit none
         !--- args  
         integer, intent(in) :: ncell                            !< Number of cells
@@ -69,15 +70,19 @@ module gtm_source
         real(gtm_real) :: erosion(ncell,n_sediment)   
         real(gtm_real) :: deposition(ncell,n_sediment)
         real(gtm_real) :: conc_mercury(ncell,n_mercury)
+        real(gtm_real) :: conc_sed(ncell,n_sediment)
+        !real(gtm_real) :: conc_doc(ncell)
+        !real(gtm_real) :: conc_ec(ncell)
         real(gtm_real) :: source_mercury(ncell,n_mercury)
         real(gtm_real) :: si_to_english = 1000.d0                !< kg/m3-->mg/L
         integer :: method = 1
-                
+
         ! source must be in primitive variable 
         do ivar = 1, nvar
             source(:,ivar) = zero
             if (trim(name(ivar)).eq."sediment") then
                 isediment = ivar - (nvar - n_sediment)
+                conc_sed(:,isediment) = conc(:,ivar)
                 call suspended_sediment_source(source(:,ivar),          & 
                                                erosion(:,isediment),    &
                                                deposition(:,isediment), &
@@ -113,33 +118,44 @@ module gtm_source
                                    width,           &
                                    depth,           &
                                    hyd_radius,      &
+                                   dx,              & 
                                    dt,              &
                                    rkstep)
             !todo: maybe need to adjust suspended sediment erosion and deposition for GTM (units)
             do ivar = 1, nvar
                 if (trim(name(ivar)).eq."sediment") then
-                    isediment = ivar - (nvar - n_sediment)
+                    isediment = ivar - (nvar - n_sediment)          
                     source(:,ivar) = (erosion(:,isediment)-deposition(:,isediment))/(depth(:)*0.3048d0)*si_to_english
+                    erosion(:,isediment) = erosion(:,isediment)*si_to_english !/(depth(:)*0.3048d0)
+                    deposition(:,isediment) = deposition(:,isediment)*si_to_english !/(depth(:)*0.3048d0)
                 end if
             end do
-        end if        
-   
+        end if 
+               
         if (run_mercury) then
                 conc_mercury(:,1:n_mercury) = conc(:,mercury_ivar(1:n_mercury))
                 source_mercury(:,1:n_mercury) = source(:,mercury_ivar(1:n_mercury))
                 call mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
                                     conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
+                                    conc_sed,       &
+                                    conc(:,doc_ivar), &
+                                    conc(:,ec_ivar), &
                                     area,           & !< hydrodynamic data from Hydro
                                     width,          & !< hydrodynamic data from Hydro
-                                    depth,          & !< hydrodynamic data from Hydro 
+                                    depth,          & !< hydrodynamic data from Hydro   
                                     dx,             & !< dx
                                     dt,             & !< dt
                                     ncell,          & !< number of cells
                                     n_sediment,     & !< number of sediments
                                     n_mercury,      & !< number of mercury related constituents
+                                    deposition,     &
+                                    erosion,        &
                                     rkstep)           ! added dhh 20170804
+             source(:,mercury_ivar(1:n_mercury)) = source_mercury(:,1:n_mercury)
         end if
+        
+        
     return
     end subroutine 
-  
+ 
 end module

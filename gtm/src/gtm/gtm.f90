@@ -66,10 +66,12 @@ program gtm
     use sediment_bed
     use sediment_bed_setup , only: set_up_sediment_bed, close_sediment_bed !<added:dhh
     use sed_bed_hdf, only: write_gtm_sed_hdf   !<added:dhh
+    use hg_hdf,      only: write_gtm_hg_hdf
     use sed_bed_utils !<added:dhh     
     use mercury_state_variables
     use mercury_fluxes
-
+    use mercury_initialize  !added dhh***
+    
     implicit none
     
     real(gtm_real), allocatable :: cfl(:)
@@ -101,8 +103,8 @@ program gtm
     integer :: current_slice = 0
     integer :: time_index_in_gtm_hdf
     integer :: next_output_flush 
-    character*2 :: detect_out_hdf
-    
+    character*3 :: detect_out_hdf
+
     ! variables for sub time stepping 
     logical :: sub_time_step = .true.                         ! flag to turn on/off sub time stepping
     integer, parameter :: max_num_sub_ts = 1000               ! maximum number of sub time step within GTM time step    
@@ -116,7 +118,7 @@ program gtm
     integer :: ierror
     integer :: nt     
     integer :: istat = 0  
-     
+        
     ! for specified output locations
     real(gtm_real), allocatable :: vals(:)  
     logical :: file_exists
@@ -138,10 +140,8 @@ program gtm
     integer :: ok
     real(gtm_real), allocatable :: input_time_series(:,:)
     real(gtm_real), allocatable :: constraint(:,:) 
-
     ! variables for mercury module
-    integer :: ec_ivar, doc_ivar
-        
+    
     open(unit_error, file="error.log")
     !open(debug_unit, file = "gtm_debug_unit.txt")          ! debug output text file
     
@@ -170,7 +170,7 @@ program gtm
     inquire(file=gtm_io(1,1)%filename, exist=file_exists)
     call read_init_values(init_c, init_r, init_conc, file_exists, restart_file_name)
 
-    call assign_ivar_to_outpath
+    call assign_ivar_to_outpath 
     call check_outdss_time_interval(gtm_time_interval)
     call check_hydro_timestep(hydro_time_interval, gtm_io(3,2)%interval)
     allocate(vals(noutpaths))    
@@ -232,6 +232,7 @@ program gtm
                           int(gtm_end_jmin),    &
                           gtm_io(3,2)%interval, &
                           calc_budget)
+
         call write_input_to_hdf5(gtm_hdf%file_id)
         call write_grid_to_tidefile(gtm_hdf%file_id)
     end if
@@ -239,6 +240,9 @@ program gtm
     !call get_survey_top(top_wet_p, top_elev, n_cell)
     !> for sediment bed module ----- added:dhh setup sediment bed cells, read inputs, initial conditions etc.
     if (use_sediment_bed) then 
+        if (run_mercury) then 
+            call allocate_mercury(n_sediment,n_cell)
+        end if
         call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
                           int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
     end if    
@@ -247,6 +251,7 @@ program gtm
     call assign_input_ts_group_var
     allocate(input_time_series(n_ts_var,n_cell)) 
     
+      
     if (run_sediment) then
         call allocate_sediment_variables(n_cell, n_sediment)   
         do i = 1, n_sediment
@@ -263,22 +268,17 @@ program gtm
     turbidity_settle(:) = group_var_cell(ncc_turbidity,settle,:)
     !> for mercury module
     if (run_mercury) then
-        call allocate_mercury(n_sediment,n_cell)
-        call check_group_channel(ncc_hgii,hg_coef_start)   
+        call check_group_channel(ncc_hgii,hg_coef_start)
         k_wat(:)%biodemethyl =  group_var_cell(ncc_hgii, Hg_coef_start,:)
-        call check_group_channel(ncc_hgii,hg_coef_start+1) 
+        call check_group_channel(ncc_hgii,hg_coef_start+1)
         k_wat(:)%methyl =  group_var_cell(ncc_hgii, Hg_coef_start+1,:)
         call check_mercury_ts_input
         call constituent_name_to_ivar(ec_ivar, 'ec')  
-        call constituent_name_to_ivar(doc_ivar, 'ec')  ! todo: change 'ec' to 'doc' when doc model setup is ready
-    end if   
-
-   !> for sediment bed module ----- added:dhh setup sediment bed cells, read inputs, initial conditions etc.
-   ! if (use_sediment_bed) then 
-   !     call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
-   !                      int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
-   !end if
-    
+        call constituent_name_to_ivar(doc_ivar, 'doc')  ! todo: change 'ec' to 'doc' when doc model setup is ready
+       ! if (use_mercury_ic) call hg_ic_alternate()
+       initialize_bed_mercury = .true.
+        write(*,*) 'Hg Set UP Done'
+    end if
     ! initialize concentrations
     conc = init_c
     conc_prev = init_c
@@ -398,8 +398,8 @@ program gtm
             prev_flow_cell_lo(:) = flow_mesh_lo(n_st,:)
             prev_flow_cell_hi(:) = flow_mesh_hi(n_st,:)            
             current_slice = slice_in_block            
-        end if            
-
+        end if    
+        
         if (sub_time_step) then
             sub_st = ceil_max_cfl
             sub_gtm_time_step = gtm_time_interval/dble(ceil_max_cfl)
@@ -425,13 +425,14 @@ program gtm
         
             ! set values to variables needed for mercury module
             if (run_mercury) then    
-                call set_mercury_inputs(conc(:,n_var-n_sediment+1:n_var),  & 
-                                        conc(:,ec_ivar),                   & 
-                                        conc(:,doc_ivar),                  & 
-                                        input_time_series,                 &
+                call set_mercury_inputs(input_time_series,                 &   !????????
                                         n_cell,                            &
-                                        n_sediment,                        &
-                                        n_ts_var)                
+                                        n_ts_var)
+                if (initialize_bed_mercury) then        !added dhh 20171114
+                    call hg_init_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
+                          int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)
+                    initialize_bed_mercury = .false.
+                endif
             end if
                               
             call fill_hydro_info(flow,          &
@@ -476,7 +477,7 @@ program gtm
                 budget_prev_flow_hi = flow_hi
             end if
             cfl = flow/area*(sub_gtm_time_step*sixty)/dx_arr           
-          
+       
             !------------------ End of Source Terms Implementation -----------------         
           
             if (apply_diffusion_prev) then   ! take dispersion term for advection calculation
@@ -528,18 +529,18 @@ program gtm
             !--------- Diffusion ----------
             if (apply_diffusion) then
                 boundary_diffusion_flux => network_boundary_diffusive_flux            
-                call dispersion_coef(disp_coef_lo,            &
-                                     disp_coef_hi,            &
-                                     flow,                    &
-                                     flow_lo,                 &
-                                     flow_hi,                 &
-                                     area,                    &
-                                     area_lo,                 &
-                                     area_hi,                 &                             
-                                     gtm_start_jmin,          &
-                                     dx_arr,                  &
-                                     sub_gtm_time_step*sixty, &
-                                     n_cell,                  &
+                call dispersion_coef(disp_coef_lo,         &
+                                     disp_coef_hi,         &
+                                     flow,                 &
+                                     flow_lo,              &
+                                     flow_hi,              &
+                                     area,                 &
+                                     area_lo,              &
+                                     area_hi,              &                             
+                                     gtm_start_jmin,       &
+                                     dx_arr,               &
+                                     sub_gtm_time_step*sixty,    &
+                                     n_cell,               &
                                      n_var)             
                 call diffuse(conc,                         &
                              conc_prev,                    &
@@ -563,7 +564,7 @@ program gtm
                              dx_arr)        
                 call prim2cons(mass,conc,area,n_cell,n_var)                
             end if       
-                        
+                                    
             mass_prev = mass
             conc_prev = conc
             conc_resv_prev = conc_resv
@@ -584,6 +585,7 @@ program gtm
             prev_node_conc = node_conc
             prev_conc_stip = conc_stip            
             node_conc = LARGEREAL
+        
         end do ! end of loop of sub time step
 
         ! add all sediment to ssc
@@ -620,7 +622,7 @@ program gtm
                     call write_gtm_chan_hdf(gtm_hdf,               &
                                             flow_lo,               &
                                             flow_hi,               &
-                                            conc,                  & 
+                                            conc,                  &
                                             n_chan,                &
                                             n_cell,                &
                                             n_var,                 &
@@ -632,12 +634,10 @@ program gtm
                                             calc_budget)
                     budget_prev_flow_lo = flow_lo
                     budget_prev_flow_hi = flow_hi
-                    budget_prev_conc = conc
+                    budget_prev_conc = conc     
                     if (use_sediment_bed) then   !<added:dhh
                         call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
-                        if (use_sediment_bed) then 
-                         ! call print_last_stage_sed(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !todo: move down
-                        endif
+                        if (run_mercury)  call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, time_index_in_gtm_hdf,constituents(:)%use_module)
                     end if                           
                 else
                     call write_gtm_hdf(gtm_hdf,                    &
@@ -660,7 +660,7 @@ program gtm
                                           n_cell,                  &
                                           time_index_in_gtm_hdf)
                     call write_gtm_hdf_ts(gtm_hdf%cell_area_id,    &
-                                          area,                    & 
+                                          area ,                   & 
                                           n_cell,                  &
                                           time_index_in_gtm_hdf)                               
                     call write_gtm_hdf_ts(gtm_hdf%cell_cfl_id,     &
@@ -676,7 +676,9 @@ program gtm
     end do  ! end of loop for gtm time step
     
     call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var)
-    
+    if (use_sediment_bed) then 
+        call print_last_stage_sed(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !added:dhh
+    endif
     !----- deallocate memories and close file units -----
     if (n_dssfiles .ne. 0) then
         call zclose(ifltab_in)   !!add a global to detect if dss is opened

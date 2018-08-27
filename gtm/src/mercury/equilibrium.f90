@@ -25,6 +25,7 @@
 module equilibrium
 
 use gtm_precision
+use math_utils
 use common_variables
 use hg_type_defs
 
@@ -52,7 +53,7 @@ contains
 !>      note that porosity needs to be provided for sediment compartments
 !>      jacob_order should be 4 if there is no sulfide in solution
 subroutine equil_solver(vals,                   &       !> initial guess for unknowns(in) - results (out)
-                        Cl,                     &       !> Cl (mg/L)
+                        cl,                     &       !> Cl (mg/L)
                         pH,                     & 
                         phyto,                  &       !> phytoplankton (mg/L)
                         porosity,               &       !> porosity
@@ -63,10 +64,12 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
                         ks,                     &       !> equilibrium constants for solids partitioning (compartment specific)
                         iter,                   &       !> number of iterations to reach solution
                         converge,               &       !> true if solution converged
-                        m)
+                        m,                      &                                               
+                        icell,                  &
+                        izone)
     !arguments  
     type (eq_vals), intent (inout)   :: vals
-    real (gtm_real), intent (in)     :: Cl
+    real (gtm_real), intent (in)     :: cl
     real (gtm_real), intent (in)     :: pH
     real (gtm_real), intent (in)     :: phyto
     real (gtm_real), intent (in)     :: porosity
@@ -77,12 +80,14 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
     logical, intent (inout)          :: converge
     type (molar_total), intent (inout)  :: total
     type (eq_complexes) , intent (out) :: m             !> molar concentrations of individual complexes
+    integer, intent (in), optional     :: icell
+    integer, intent (in), optional     :: izone
     !local
     type (molar_total)  :: sum                          !> working molar concentrations - updated each iteration
     real (gtm_real) :: jacob(jacob_order,jacob_order)        
     real (gtm_real) :: delta_x(jacob_order)             !> solution vector gives -delta_x/x 
     real (gtm_real) :: error(jacob_order)               !> errors - right hand side of system of equations (sum_x - tot_x)
-     type (phytoplankton_jacob) :: phyto_jacob          !> internal variable to hold phytoplankton contributions to jacobian
+    type (phytoplankton_jacob) :: phyto_jacob          !> internal variable to hold phytoplankton contributions to jacobian
     
     logical :: test_HgII                                !> result of tests for convergence of unknows: abs((tot_x-sum_x)/(tot_x+sum_xI))<EPS
     logical :: test_MeHg
@@ -91,17 +96,48 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
     logical :: test_Sulph
     logical :: test_xROH    
     logical :: solved = .false.
+    integer :: local_order
+    type (eq_vals) :: debugvals
+                             !Chloride (mg/l) = 0.285 * EC (umhos/cm) – 50.    (this is the 'seawater' line)
+                             !Chloride (mg/l) = 0.15 * EC (umhos/cm) – 12.      (this is the 'ag. drainage' line)   
+      
+    local_order = jacob_order
     call set_complexes_to_zero(m)
+   
+    if ((vals%MeHg.le.zero).or.(total%mehg.le.1.0d-20))then
+        converge = .false.
+    end if
+    if ((vals%hgii.le.zero).or.(total%hgii.le.1.0d-20)) then
+       converge = .false.
+    end if
+        
+    if (total%xoh.lt.1.0d-20)then
+        converge = .false.
+    end if
+    
+    if (converge.eq..false.) then
+        return
+    end if
+    debugvals=vals
     
     m%Cl = Cl/molar_Cl_to_mg_l
     m%H = 10d0**(-pH)
-    m%OH = 10d0**(-(14d0-pH))
+    m%OH = 10d0**(-(14.0d0-pH))
     m%HgII = vals%HgII
     m%MeHg = vals%MeHg
     m%RS   = vals%RS
     m%XOH  = vals%XOH
     m%HS   = vals%HS
     m%xROH = vals%xROH
+    
+    if(total%RS.lt.zero) then
+        print *, "doc warning  cell", icell
+        print *, total%RS
+        !pause
+        total%RS = 1.0D-4
+        
+    endif
+   
     converge = .false.
     jacob = zero
     error = zero
@@ -113,10 +149,13 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
         test_HgII = abs((total%HgII-sum%HgII)/(total%HgII+sum%HgII))<eps_equil
         test_MeHg = abs((total%MeHg-sum%MeHg)/(total%MeHg+sum%MeHg))<eps_equil
 	    test_RS = abs((total%RS-sum%RS)/(total%RS+sum%RS))<eps_equil
-	    test_XOH = abs((total%XOH-sum%XOH)/(total%XOH+sum%XOH))<eps_equil
-        converge = test_HgII.and.test_MeHg.and.test_RS.and. test_XOH
-        
-        if (jacob_order > 4) then
+	    
+        converge = test_HgII.and.test_MeHg.and.test_RS
+        if (local_order > 3) then
+            test_XOH = abs((total%XOH-sum%XOH)/(total%XOH+sum%XOH))<eps_equil
+            converge = converge.and. test_XOH
+        end if
+        if (local_order > 4) then
             test_Sulph = (abs((total%Sulph-sum%Sulph)/(total%Sulph+sum%Sulph))<eps_equil)
 			converge = converge.and.test_Sulph
 			if (jacob_order > 5) then
@@ -129,22 +168,35 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
             error(1) = sum%HgII - total%HgII
             error(2) = sum%MeHg - total%MeHg
 			error(3) = sum%RS - total%RS
-			error(4) = sum%XOH - total%XOH
-			if (jacob_order > 4) then
+            if (local_order > 3) then
+			    error(4) = sum%XOH - total%XOH
+            end if
+			if (local_order > 4) then
 				error(5) = sum%Sulph - total%Sulph
 				if (jacob_order > 5) then
 					error(6) = sum%XROH - total%xROH
 				endif
             endif
             
-            call jacobian(jacob_order, phyto_jacob, jacob,m, sum, porosity,itype)
-            call matrix_invert(jacob, jacob_order, solved)
+            call jacobian(local_order, phyto_jacob, jacob,m, sum, porosity,itype)
+            call matrix_invert(jacob, local_order, solved)
             
             if (.not. solved) then          !> todo: error trapping if inversion fails
-                print *, "matrix inversion error"
+                print *, "matrix inversion error: iterations", iter
+                print *, "cell no, zone", icell, izone
+                print *, "hgii", total%hgii
+                print *, "mehg", total%mehg
+                print *, "XOH", total%XOH
+                print *, "RS", total%RS
+                print *,"______________________________________________________"
+                !print *, debugvals%HgII,debugvals%MeHg,debugvals%RS,debugvals%XOH,total%XOH
+                !print *,"______________________________________________________"
+                !print *, vals%HgII,vals%MeHg,vals%RS,vals%XOH,total%XOH
+                !print *, m%HgII,m%MeHg,m%RS,m%XOH 
+                pause
                 return
             endif
-			call matrix_x_vector(jacob_order, jacob_order, jacob, error, delta_x)
+			call matrix_x_vector(local_order, local_order, jacob, error, delta_x)
 			if (delta_x(1)<1.0) then
                 m%HgII = m%HgII * (1.0 - delta_x(1))
             else 
@@ -160,11 +212,13 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
             else 
                 m%RS = m%RS/10.0
             endif
-			if (delta_x(4)<1.0) then 
-                m%XOH = m%XOH * (1.0 - delta_x(4))
-            else 
-                m%XOH = m%XOH/10.0
+            if (total%xoh > 0.0)then
+			    if (delta_x(4)<1.0) then 
+                    m%XOH = m%XOH * (1.0 - delta_x(4))
+                else 
+                    m%XOH = m%XOH/10.0
             endif
+            end if
 			if (total%Sulph > 0.0)then
 				if (delta_x(5)<1.0) then
                     m%HS = m%HS * (1.0 - delta_x(5))
@@ -315,20 +369,22 @@ subroutine jacobian(n, phyto_jacob, jacob, m, sum, porosity, itype)
     jacob = zero
     jacob(1,1) = sum%HgII  + phyto_jacob%dHgIIphyto_dHgII
     jacob(1,3) = (m%HgRS + m%Hg_RS_2) * porosity
-    jacob(1,4) = m%XOHg
+    
     
 	jacob(2,2) = sum%MeHg + phyto_jacob%dMeHgphyto_dMeHg * m%MeHg
 	jacob(2,3) = m%MeHgRS*porosity                      !<????MeHg + MeHgRS;  MeHg looks like extra term
-	jacob(2,4) = m%XOMeHg
+	
     
 	jacob(3,1) = (m%HgRS + two*m%Hg_RS_2) *porosity
 	jacob(3,2) = (m%MeHgRS)*porosity
 	jacob(3,3) = sum%RS + (two*m%Hg_RS_2)*porosity
-    
-    jacob(4,1) = m%XOHg
-	jacob(4,2) = m%XOMeHg
-	jacob(4,4) = m%XOH + m%XOHg + m%XOMeHg
-    
+    if (n > 3) then
+        jacob(1,4) = m%XOHg
+        jacob(2,4) = m%XOMeHg
+        jacob(4,1) = m%XOHg
+	    jacob(4,2) = m%XOMeHg
+	    jacob(4,4) = m%XOH + m%XOHg + m%XOMeHg
+    end if
     if (n > 4) then
 		Jacob(1,1) =  Jacob(1,1) + (m%HgHS2 + m%Hg_HS_2 + m%HgS2 + m%HgHS + m%HgS + m%HgOHHS)*porosity
 		Jacob(1,5) = Jacob(1,5) + (two*m%HgHS2 + two*m%Hg_HS_2 + two*m%HgS2 + m%HgHS + m%HgS + m%HgOHHS)*porosity &
@@ -400,6 +456,42 @@ Subroutine set_complexes_to_zero(m)
     
     m%MeHg_phyto = zero
     m%HgII_phyto = zero
+    !-------
+    m%HRS = zero             !< RS molar concentration of DOC thiol groups
+    m%H2RS = zero
+    m%H2S = zero
+    m%sulph = zero
+    m%HgCl = zero
+    m%HgCl2 = zero
+    m%HgCl3 = zero
+    m%HgCl4 = zero
+    m%HgOH = zero
+    m%Hg_OH_2 = zero
+    m%HgOHCl = zero
+    m%HgRS = zero
+    m%Hg_RS_2 = zero
+    m%HgHS2 = zero
+    m%Hg_HS_2 = zero
+    m%HgHS = zero
+    m%HgS2 = zero
+    m%HgS = zero
+    m%HgOHHS = zero
+    m%MeHgCl = zero
+    m%MeHgOH = zero
+    m%MeHgS = zero
+    m%MeHg2S = zero
+    m%MeHgRS = zero
+    m%XOMeHg = zero
+    m%XOHg = zero
+    m%ROHg = zero
+    
+    m%xRS_Hg = zero
+    m%xRS_2_Hg = zero
+    m%xRS_MeHg = zero
+    m%xR_SH = zero
+    
+    m%MeHg_phyto = zero
+    m%HgII_phyto = zero
    
 end subroutine
 
@@ -443,13 +535,15 @@ subroutine Hg_reactant_concs(m, nosolids, ss, sol_inp, conc)
     !args
     type (eq_complexes), intent (in)    :: m
     integer, intent (in)                :: nosolids
-    real (gtm_real), dimension(nosolids), intent(in) :: ss      !solids (mg/L)
+    real (gtm_real), dimension(nosolids), intent(in) :: ss      !solids (mg/L) 
     type (solids_inputs_t), dimension(nosolids), intent(in) :: sol_inp   !solids (mg/L)
     type (hg_concs), intent (inout)       :: conc
     !local
     integer :: ii
     real (gtm_real) :: exchnge_XOH
     real (gtm_real) :: exchnge_ROH
+     real (gtm_real) :: kd
+     real (gtm_real) :: kdMeHg
     conc%HgII_diss      = (m%HgII + m%HgCl + m%HgCl2 + m%HgCl3 + m%HgCl4 + m%HgOHCl + m%HgOH + m%Hg_OH_2 + m%HgRS + m%Hg_RS_2 +    &
                            m%HgHS2 + m%Hg_HS_2 + m%HgS2 + m%HgHS + m%HgS + m%HgOHHS) * molar_Hg_to_ng_l
     conc%HgII_organic   = (m%HgRS + m%Hg_RS_2) * molar_Hg_to_ng_l
@@ -506,15 +600,26 @@ subroutine Hg_reactant_concs(m, nosolids, ss, sol_inp, conc)
     exchnge_ROH = zero
     !todo: add to sol_inp type-  xchangeXOH(ii) = sol_inp(ii)%XOH_exchange_frac * sol_inp(ii)%mole_XOH/1.0d3 and revise following code
     do ii=1, nosolids
-        exchnge_XOH = exchnge_XOH + sol_inp(ii)%XOH_exch_frac * sol_inp(ii)%mole_XOH * ss(ii)/1.0d3     !> (moles/L)
-        exchnge_ROH = exchnge_ROH + sol_inp(ii)%mole_ROH * ss(ii)/1.0d3                                     !> (moles/L)
+        exchnge_XOH = exchnge_XOH + sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH * ss(ii)       !> (moles/L)
+        exchnge_ROH = exchnge_ROH + sol_inp(ii)%mole_ROH * ss(ii)                                !> (moles/L)
     end do
     do ii=1, nosolids
-        conc%HgII_ssX(ii) = (((sol_inp(ii)%XOH_exch_frac * sol_inp(ii)%mole_XOH  * ss(ii)/1.0d3)/exchnge_XOH) * m%XOHg)/ (ss(ii)/1.0d3) * mole_Hg *1.0d6    !> ug/g
-        conc%MeHg_ss(ii) =  (((sol_inp(ii)%XOH_exch_frac * sol_inp(ii)%mole_XOH  * ss(ii)/1.0d3)/exchnge_XOH) * m%XOMeHg)/ (ss(ii)/1.0d3) * mole_Hg *1.0d6  !> ug/g
-        conc%HgII_ssR(ii) = (((sol_inp(ii)%mole_ROH  * ss(ii)/1.0d3)/exchnge_ROH) * (m%xRS_Hg + m%xRS_2_Hg))/ (ss(ii)/1.0d3) * mole_Hg *1.0d6                   !> ug/g
+        conc%HgII_ssX(ii) = (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH  * ss(ii))/exchnge_XOH) * m%XOHg)/ (ss(ii)/1.0d3) * mole_Hg *1.0d6    !> ug/g
+        conc%MeHg_ss(ii) =  (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH  * ss(ii))/exchnge_XOH) * m%XOMeHg)/ (ss(ii)/1.0d3) * mole_Hg *1.0d6  !> ug/g
+        conc%HgII_ssR(ii) = (((sol_inp(ii)%mole_ROH  * ss(ii))/exchnge_ROH) * (m%xRS_Hg + m%xRS_2_Hg))/ (ss(ii)/1.0d3) * mole_Hg *1.0d6               !> ug/g
+        
+        conc%HgII_ssX(ii) = (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH) /exchnge_XOH) * m%XOHg) * mole_Hg *1.0d9     !> ug/g
+        conc%MeHg_ss(ii) =  (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH)  /exchnge_XOH) * m%XOMeHg) * mole_Hg *1.0d9   !> ug/g
+        conc%HgII_ssR(ii) = (((sol_inp(ii)%mole_ROH )/exchnge_ROH) * (m%xRS_Hg + m%xRS_2_Hg)) * mole_Hg *1.0d9              !> ug/g
+        
+        ! conc%HgII_ssX(ii) = (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH * ss(ii))/exchnge_XOH) * mole_hg)/ ss(ii)
     end do
     
+    kd =  log10((m%XOHg* mole_Hg/(ss(1)+ss(2)+ss(3)))*1.0d9/conc%HgII_diss*1.0d6)  !debug
+    kdmehg =  log10((m%XOMeHg* mole_Hg/(ss(1)+ss(2)+ss(3)))*1.0d9/conc%MeHg_diss*1.0d6)  !debug
+    if ((ss(1)+ss(2)+ss(3)).gt.zero) then
+        kd = log10(((conc%HgII_ssX(1)*ss(1)+conc%HgII_ssX(2)*ss(2)+conc%HgII_ssX(3)*ss(3))/(ss(1)+ss(2)+ss(3))/conc%HgII_diss)*1.0d6)
+    end if
 end subroutine Hg_reactant_concs
 
 
