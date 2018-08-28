@@ -54,7 +54,7 @@ module cohesive_source
                                 critical_shear_stress,  &
                                 bottom_shear_stress,    &
                                 param_M)                
-        use common_variables, only: n_sediment   !8/10/2018, Ahmed, included number of sediments.
+        
                 
                 
         
@@ -66,8 +66,8 @@ module cohesive_source
         real(gtm_real), intent(out) :: erosion_rate
         
                 
-!        erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one)       8/10/2018, Ahmed
-        erosion_rate = 1.0D0/n_sediment*param_M * (bottom_shear_stress/critical_shear_stress-one)     !8/10/2018, Ahmed, included number of sediments. 
+        erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one)       
+         
         if (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero 
        
         return
