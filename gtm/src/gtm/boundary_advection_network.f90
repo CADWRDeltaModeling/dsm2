@@ -208,7 +208,7 @@ module boundary_advection_network
         integer :: i, j, k, s, st, icell, inode, ivar
         integer :: reservoir_id, resv_conn_id   
         real(gtm_real) :: conc_ext(nvar)
-     
+        logical :: dicu_flag=.true.  
         do ivar = 1, nvar
         if (constituents(ivar)%simulate) then
         ! recalculate concentration for reservoirs
@@ -289,18 +289,24 @@ module boundary_advection_network
                         end if                    
 
                         if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).ne.0)) then    !drain
-                            conc_ext(ivar) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value 
+                            conc_ext(ivar) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value
                             if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%variable).eq.'ssc') then
                                 do st = 1, n_sediment
-                                    conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value / dble(n_sediment)
+                                    !conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value / dble(n_sediment)
+                                    dicu_flag= .true.
                                     do s = 1, n_sediment_bc
                                         if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%name) .eq. trim(sediment_bc(s)%name)) &
                                            .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
-                                            conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sediment_bc(s)%percent * 0.01d0
+                                           dicu_flag= .false.
+                                           conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sediment_bc(s)%percent * 0.01d0
                                         end if
-                                    end do    
-                                end do                            
-                             end if                            
+                                    end do 
+                                    if (dicu_flag) then
+                                        write(*,*) 'DICU input classes less than specified'
+                                        stop
+                                    end if
+                                end do
+                             end if
                              mass_tmp(ivar) = mass_tmp(ivar) + conc_ext(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                         elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).eq.0)) then !drain but node concentration is absent
                             mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
@@ -397,7 +403,7 @@ module boundary_advection_network
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face        
         integer :: i, j, k, s, st, icell, inode
-
+       
         do i = 1, n_bfbs
             inode = bfbs(i)%i_node
             do j = 1, n_node_ts
@@ -409,7 +415,7 @@ module boundary_advection_network
                             do s = 1, n_sediment_bc
                                 if ((trim(pathinput(j)%name) .eq. trim(sediment_bc(s)%name)) .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
                                     node_conc(inode,nvar-n_sediment+st) = pathinput(j)%value * sediment_bc(s)%percent * 0.01d0
-                                    dsm2_network_extra(inode)%node_conc(nvar-n_sediment+st) = 1                            
+                                    dsm2_network_extra(inode)%node_conc(nvar-n_sediment+st) = 1                                 
                                 end if
                             end do    
                         end do

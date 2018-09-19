@@ -39,6 +39,10 @@ module buffer_gtm_input_common
       
       implicit none
       integer :: nitem
+      integer,allocatable :: no_inp(:)
+      integer :: jcount
+      integer :: kcount
+      integer :: no_sed
       integer :: nitem_chan, nitem_resv
       character(len=32) :: name
       character(len=64) :: value     
@@ -109,6 +113,7 @@ module buffer_gtm_input_common
 
       ! process suspended sediment table
       nitem = suspended_sediment_type_buffer_size()
+      no_sed=nitem
       allocate(sediment(nitem))
       do icount = 1, nitem  
           call suspended_sediment_type_query_from_buffer(icount, composition, ierror)
@@ -122,6 +127,27 @@ module buffer_gtm_input_common
           call suspended_sediment_boundary_query_from_buffer(icount, name, composition, percent, ierror)
           call process_suspended_sediment_boundary(name, composition, percent)
       enddo
+      
+      allocate(no_inp(nitem))
+      no_inp(1)= 1
+      do jcount =1, nitem-1
+        if ((sediment_bc(jcount+1)%name.eq.sediment_bc(jcount)%name) .and. (sediment_bc(jcount+1)%composition.ne.sediment_bc(jcount)%composition)) then 
+           no_inp(jcount+1)=no_inp(jcount)+1
+        else
+           no_inp(jcount+1)=1
+        end if
+      end do
+      
+      do kcount =1, nitem-1
+        if (no_inp(kcount+1).lt.no_inp(kcount)) then
+           if ((no_inp(kcount).ne.no_sed).or.(no_inp(nitem).ne.no_sed))then
+              write(*,*) 'input classes less than specified'
+              stop
+           end if
+        end if   
+      end do               
+    
+      
       
       ! process output channel block
       nitem_chan = output_channel_buffer_size()
@@ -199,7 +225,7 @@ module buffer_gtm_input_common
       allocate(outdssfiles(n_outdssfiles))
       outdssfiles = outfilenames
       allocate(ifltab_out(600, n_outdssfiles))
-
+      
       return
     end subroutine
     
@@ -267,4 +293,4 @@ module buffer_gtm_input_common
         return
     end subroutine    
       
-end module      
+end module
