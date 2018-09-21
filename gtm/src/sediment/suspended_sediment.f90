@@ -55,6 +55,7 @@ module suspended_sediment
         use suspended_utility
         use cohesive_source
         use non_cohesive_source
+        use sed_internal_vars, only: bed
         
         implicit none
         !--- args
@@ -127,7 +128,8 @@ module suspended_sediment
                 call cohesive_erosion(erosion_flux(icell),             &
                                       critical_shear_strs(icell),      &
                                       bottom_shear_stress(icell),      &
-                                      param_M)                                                                  
+                                      param_M,                         &
+                                      bed(icell,1,1).mass_frac(isediment))      
                 call cohesive_deposition(deposition_flux(icell),       &
                                          fall_vel(icell),              &
                                          near_bed_c(icell),            &
@@ -138,7 +140,8 @@ module suspended_sediment
                 call non_cohesive_erosion(erosion_flux(icell),         &
                                           shear_vel(icell),            &
                                           exp_re_p(icell),             &
-                                          fall_vel(icell))                               
+                                          fall_vel(icell),             &
+                                          bed(icell,1,1).mass_frac(isediment))                              
                 call non_cohesive_deposition(deposition_flux(icell),       &
                                              shear_vel(icell),             &
                                              fall_vel(icell),              &

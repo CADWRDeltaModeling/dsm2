@@ -31,18 +31,20 @@ module non_cohesive_source
     subroutine non_cohesive_erosion(erosion_flux,      &
                                     shear_vel,         &
                                     exp_re_p,          &
-                                    fall_vel)
+                                    fall_vel,          &
+                                    bed_frac)
         implicit none
         real(gtm_real), intent(out) :: erosion_flux
         real(gtm_real), intent(in) :: shear_vel
         real(gtm_real), intent(in) :: exp_re_p
         real(gtm_real), intent(in) :: fall_vel
         real(gtm_real) :: Es
+        real(gtm_real), intent(in) :: bed_frac
         call es_garcia_parker(Es,                       &
                               shear_vel,                &
                               exp_re_p,                 &
                               fall_vel)              
-        erosion_flux = Es * fall_vel
+        erosion_flux = Es * fall_vel * bed_frac
         return
     end subroutine
 
