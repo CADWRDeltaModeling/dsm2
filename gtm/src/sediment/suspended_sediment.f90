@@ -55,7 +55,7 @@ module suspended_sediment
         use suspended_utility
         use cohesive_source
         use non_cohesive_source
-        use sed_internal_vars, only: bed
+        use sed_type_defs, only: bed                
         
         implicit none
         !--- args
@@ -71,7 +71,7 @@ module suspended_sediment
         real(gtm_real), intent(in) :: wet_p(ncell)                  !< wetted perimeter
         real(gtm_real), intent(in) :: dx(ncell)                     !< dx
         real(gtm_real), intent(in) :: dt                            !< dt
-        real(gtm_real), intent(in) :: available_bed(ncell)          !< available bed sediment flux
+        real(gtm_real), intent(in) :: available_bed(ncell)          !< available bed sediment flux		
         integer, intent(in) :: method                               !< method
         integer, intent(in) :: rkstep                               !< rkstep
         !--- local      
@@ -129,7 +129,8 @@ module suspended_sediment
                                       critical_shear_strs(icell),      &
                                       bottom_shear_stress(icell),      &
                                       param_M,                         &
-                                      bed(icell,1,1).mass_frac(isediment))      
+                                      bed(icell,1,1).mass_frac(isediment))							  
+                                      
                 call cohesive_deposition(deposition_flux(icell),       &
                                          fall_vel(icell),              &
                                          near_bed_c(icell),            &
@@ -141,7 +142,8 @@ module suspended_sediment
                                           shear_vel(icell),            &
                                           exp_re_p(icell),             &
                                           fall_vel(icell),             &
-                                          bed(icell,1,1).mass_frac(isediment))                              
+                                          bed(icell,1,1).mass_frac(isediment))                                                                   
+                                          
                 call non_cohesive_deposition(deposition_flux(icell),       &
                                              shear_vel(icell),             &
                                              fall_vel(icell),              &
