@@ -103,6 +103,8 @@ public class TravelTimeOutput {
 			return;
 		}
 		*/
+		if (NOTWRITETT)
+			return;
 		try{
 			//TODO clean up later
 			//BufferedWriter ttWriter = PTMUtil.getOutputBuffer("output/travel_time_in_min.csv");
@@ -117,7 +119,7 @@ public class TravelTimeOutput {
 					//travelTimePerStation will never be null
 					if (tt4P != null){
 						//creating DateFormat for converting time from local machine time zone to specified time zone
-						DateFormat converter = new SimpleDateFormat("MM/DD/yyyy  HH:mm:ss");
+						DateFormat converter = new SimpleDateFormat("MM/dd/yyyy  HH:mm:ss");
 						converter.setTimeZone(Globals.TIME_ZONE);
 						String dateStr = converter.format(PTMUtil.modelTimeToCalendar(tt4P.getInsertTime(),Globals.TIME_ZONE).getTime());
 						ttWriter.write(Integer.toString(pId).concat(",").
@@ -135,6 +137,9 @@ public class TravelTimeOutput {
 		}
 	}
 	public void recordTravelTime(int id, String inStation, long inTime, float ageInSec, IntBuffer ndWb, float velocity, float x, float deltaX){
+		//only record when need to output TravelTime
+		if (NOTWRITETT)
+			return;
 		// only record particles from upstream
 		if (deltaX >0){
 			String staName = _stationNames.get(ndWb);
@@ -152,9 +157,13 @@ public class TravelTimeOutput {
 				// if p.x >= dist record the travel time
 				if ((!(x<dist)) || (distDiff <_threshold)){
 					float tt = ageInSec/60.0f;
-					if (distDiff>_threshold)
+					if (distDiff>_threshold){
 						// p.x always > 0 and velocity > 0 because !(p.x<dist) and deltaX >0
+						if (velocity < 0.0001f)  
+							System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:" 
+						+ velocity+", could cause an error at travel time calculation");
 						tt -= (x-dist)/velocity;
+					}
 					_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt));
 					_recorderTest.put(id, true);
 				}
@@ -175,6 +184,7 @@ public class TravelTimeOutput {
 	private Map<Integer, Boolean> _recorderTest;
 	private String _pathName;
 	private float _threshold = 0.000001f;
+	private boolean NOTWRITETT = false;
 	
 	//TODO assume that there is only one travel time per particle
 	private class TTEntry{

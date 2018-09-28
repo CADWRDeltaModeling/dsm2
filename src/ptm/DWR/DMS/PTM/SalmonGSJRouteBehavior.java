@@ -4,6 +4,7 @@
 package DWR.DMS.PTM;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.apache.commons.math3.special.Beta;
 
@@ -59,6 +60,7 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 		 * by Perry et al. 
 		 */
 		// else using Russ' regression model 
+		
 		if (qUpSacGSCFS > 14000 && qGsCFS > 0 && qSacDDCFS > 0 && (p.wb.getEnvIndex() == sacUpgs.getEnvIndex())){
 			//the flow unit in DSM2 is cfs. scale the flow to the unit used by route model, i.e., cms/500 
 			float gs_scaled = 0.0283f/500.0f;
@@ -116,14 +118,19 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 		    p0 = 1-p1;
 		    gsProbability = pr1*p1 + pr0*p0;	
 		    _rIn.putEntrainmentRate(_nodeId, 
-		    		new ArrayList<Object>(Arrays.asList(qUpSac/gs_scaled, d, bOp, sr, "", "",gsProbability)));
+		    		new ArrayList<Object>(Arrays.asList(p.Id, qUpSac/gs_scaled, d, bOp, sr, "", "",gsProbability)));
 		} //if (qUpSacGSCFS > 14000 && qGsCFS > 0 && qSacDDCFS > 0 && (p.wb.getEnvIndex() == sacUpgs.getEnvIndex()))
 		else{					
 			//the flow unit in DSM2 is cfs. scale the flow to the unit used by the junction model, i.e., cms 
-			//and standardized it
+			//and standardized it			
 			float qSacDD = (scaled*qSacDDCFS-qSacDownGsMean)/qSacDownGsSD;
 			float qGss = (scaled*qGsCFS-qGsMean)/qGsSD;
 			float dtQSac = (scaled*dtSacDDCFS-dtQSacDownGsMean)/dtQSacDownGsSD;
+			/* using cfs
+			float qSacDD = (qSacDDCFS-qSacDownGsCfsMean)/qSacDownGsCfsSD;
+			float qGss = (qGsCFS-qGsCfsMean)/qGsCfsSD;
+			float dtQSac = (scaled*dtSacDDCFS-dtQSacDownGsMean)/dtQSacDownGsSD;
+			*/
 			float dir = 0;
 			if(qSacDDCFS < 0)
 				dir = 1;
@@ -136,9 +143,10 @@ public class SalmonGSJRouteBehavior extends SalmonDCCRouteBehavior {
 			double piGs = pi(a, b, 1, dccGate);	
 			gsProbability = piGs/(1.0d-piDcc);
 			rIn.putEntrainmentRate(nodeId, 
-					new ArrayList<Object>(Arrays.asList(qSacDDCFS,dtSacDDCFS, qGsCFS, qDCCFS, piDcc, piGs, gsProbability)));
+					new ArrayList<Object>(Arrays.asList(p.Id, qSacDDCFS,dtSacDDCFS, qGsCFS, qDCCFS, piDcc, piGs, gsProbability)));
 		}
-		selectChannel(p, new Channel[]{sacUpgs, sacDownDown, gs}, nodeId, gsProbability);
+		selectChannel(p, new Channel[]{sacUpgs, sacDownDown, gs}, nodeId, gsProbability,3);
+		
 	}
 }
 

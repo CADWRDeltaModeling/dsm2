@@ -1,6 +1,7 @@
 package DWR.DMS.PTM;
 
 import java.util.Map;
+import java.util.HashMap;
 
 public class SalmonSwimmingVelocityCalculator {
 
@@ -12,8 +13,8 @@ public class SalmonSwimmingVelocityCalculator {
 		else{
 			for (String key: _swimParameters.keySet()){
 				float[] paras = _swimParameters.get(key);
-				if (paras == null || paras.length < 3)
-					PTMUtil.systemExit("The parameter for rear holding is not properly set! Please check the behavior input file, system exit.");
+				if (paras == null || paras.length < 5)
+					PTMUtil.systemExit("The parameter for swimming parameters are not correctly set, expect 5, but get less than 5!");
 			}
 		}
 		_channelGroups = si.getChannelGroups();
@@ -28,8 +29,15 @@ public class SalmonSwimmingVelocityCalculator {
 		float [] paras = getSwimParameters(chanId); 		
 		Map<Integer, Float> pidMeanSwimVel =  _meanSwimVels.get(getGroupName(chanId));
 		//one mean swimming velocity per channel group per particle
-		if (pidMeanSwimVel.get(pId) == null)
-			pidMeanSwimVel.put(pId, paras[0] + paras[1]*((float)PTMUtil.getNextGaussian()));
+		if (pidMeanSwimVel.get(pId) == null){
+			
+			Float z = _pZValues.get(pId);
+			if (z == null)
+				_pZValues.put(pId, ((float)PTMUtil.getNextGaussian()));
+			pidMeanSwimVel.put(pId, paras[0] + paras[1]*_pZValues.get(pId));
+			
+			//pidMeanSwimVel.put(pId, paras[0] + paras[1]*((float)PTMUtil.getNextGaussian()));
+		}
 	}
 	public float getMeanSwimmingVelocity(int pId, int chanId){
 		Map<Integer, Float> pidMeanSwimVel = _meanSwimVels.get(getGroupName(chanId));
@@ -56,5 +64,7 @@ public class SalmonSwimmingVelocityCalculator {
 	private Map<String, Map<Integer, Float>> _meanSwimVels = null;
 	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;
+	// <pid, an normal distribution draw>
+	private Map<Integer, Float> _pZValues = new HashMap<Integer, Float>();
 
 }

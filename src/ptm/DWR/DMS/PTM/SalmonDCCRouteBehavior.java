@@ -5,6 +5,7 @@ package DWR.DMS.PTM;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * @author xwang
@@ -21,7 +22,6 @@ public class SalmonDCCRouteBehavior extends SalmonUpSacRouteBehavior {
 	 */
 	public SalmonDCCRouteBehavior(RouteInputs in, Integer nodeId) {
 		super(in, nodeId);
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
@@ -75,9 +75,9 @@ public class SalmonDCCRouteBehavior extends SalmonUpSacRouteBehavior {
 		if ((Math.abs(qDCCFS) < GATECLOSEDFLOW))
 			dccGate = 0;		
 		double piDcc = pi(calcB(new float[]{qSacDD, dtQSac}), calcA(new float[]{qSacDD, qGs, dir}), dccGate, 1);
-		selectChannel(p, new Channel[] {channels[0], channels[1], channels[2]}, nodeId, piDcc);
+		selectChannel(p, new Channel[] {channels[0], channels[1], channels[2]}, nodeId, piDcc,2);
 		rIn.putEntrainmentRate(nodeId, 
-				new ArrayList<Object>(Arrays.asList(qSacDDCFS,dtSacDDCFS, qGsCFS, qDCCFS, piDcc)));
+				new ArrayList<Object>(Arrays.asList(p.Id, qSacDDCFS,dtSacDDCFS, qGsCFS, qDCCFS, piDcc)));
 	
 	}
 }

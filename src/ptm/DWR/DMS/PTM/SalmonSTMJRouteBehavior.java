@@ -5,6 +5,7 @@ package DWR.DMS.PTM;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,7 +23,6 @@ public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 	 */
 	public SalmonSTMJRouteBehavior(RouteInputs in, Integer nodeId) {
 		super(in, nodeId);
-		// TODO Auto-generated constructor stub
 	}
 
 	/* (non-Javadoc)
@@ -63,7 +63,7 @@ public class SalmonSTMJRouteBehavior extends SalmonSutterJRouteBehavior {
 		double piStm = pi(a, b, 1, 1);
 		double stmProb = piStm/(1.0d-piSut);
 		rIn.putEntrainmentRate(nodeId, 
-				new ArrayList<Object>(Arrays.asList(ratios[1],ratios[2],qSutCFS,qStmCFS,deltaQSut,stmProb)));
-		selectChannel(p, new Channel[]{channels[1],channels[4],channels[3]}, nodeId, stmProb);
+				new ArrayList<Object>(Arrays.asList(p.Id, ratios[1],ratios[2],qSutCFS,qStmCFS,deltaQSut,stmProb)));
+		selectChannel(p, new Channel[]{channels[1],channels[4],channels[3]}, nodeId, stmProb, 1);
 	}
 }

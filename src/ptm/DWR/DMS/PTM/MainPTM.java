@@ -245,6 +245,9 @@ public class MainPTM {
             Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
             Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();
             RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();
+            
+            //comment out next block if you don't want to write out entrainments and flux           
+            
             rIn.writeEntrainmentRates();
             rIn.writeFlux(particleArray);
             
@@ -258,6 +261,7 @@ public class MainPTM {
             
             // output flux calculations in dss format
             // flux calculation has some errors, disable for now
+            //TODO temp comment out for now to speed up the simulation, need to be uncommented later
            
             FluxInfo fluxFixedInfo = Environment.getFluxFixedInfo();
             GroupInfo groupFixedInfo = Environment.getGroupFixedInfo();
@@ -269,7 +273,9 @@ public class MainPTM {
             fluxCalculator.calculateFlux();
             fluxCalculator.writeOutput(); 
             
-            //System.out.println("done simulation, but no dss output");
+            //comment out for writing files and calculating flux end here 
+            
+            System.out.println("done simulation");
             
         }catch(Exception e){
             e.printStackTrace();
@@ -283,7 +289,7 @@ public class MainPTM {
     
     //public native static void display(int displayInterval);
     public static void display(int displayInterval) { 
-    	
+    
         if(previousDisplayTime == 0){ 
             previousDisplayTime = Globals.currentModelTime - displayInterval;
         }
@@ -296,6 +302,6 @@ public class MainPTM {
             previousDisplayTime = Globals.currentModelTime;
             
         }
-        
+       
     }
 }

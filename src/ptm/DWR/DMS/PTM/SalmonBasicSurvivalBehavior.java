@@ -23,7 +23,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	
 	//TODO may not be needed because survival rates are not calculated as accumulative
 	// Map<pid, survival probability>
-	private Map<Integer, Double> _pProb;
+	//private Map<Integer, Double> _pProb;
 
 	/**
 	 * 
@@ -39,7 +39,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		_pGroupUsed = new HashMap<Integer, HashSet<Integer>>();
 		_pStartSta = new HashMap<Integer, Integer>();
 		_pStartAge = new HashMap<Integer, Float>();
-		_pProb = new HashMap<Integer, Double>();
+		//_pProb = new HashMap<Integer, Double>();
 	}
 	/* (non-Javadoc)
 	 * @see DWR.DMS.PTM.SurvivalBehavior#isSurvived(DWR.DMS.PTM.Particle)
@@ -108,8 +108,8 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			 * 186(2), 196–211. doi:10.1016/j.ecolmodel.2005.01.014
 			 * Units of lambda are feet; units of omega are feet/sec. t in seconds and x in feet
 			 */
-			if (_pProb.get(pId) == null)
-				_pProb.put(pId, 1.0);
+			//if (_pProb.get(pId) == null)
+				//_pProb.put(pId, 1.0);
 			//TODO 
 			/*
 			 * according to Russ Perry, the survival rate should not be accumulative (i.e., calculated according to 
@@ -120,14 +120,14 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			double survival = (Math.exp((-1.0/lam)*Math.sqrt(X*X + om*om*t*t)));
 			double po = PTMUtil.getRandomNumber();
 			//TODO may not need the following line because the survival is not accumulative
-			_pProb.put(pId, survival);
+			//_pProb.put(pId, survival);
 			_survivalIn.addSurvivalRate(pId, groupId, survival);
 			if (survival < po){
 				p.setParticleDead();
 				_survivalIn.addLostToGroup(groupId);
 				if(DEBUG) 
 					System.err.println("pId:" + pId +" channel:"+PTMHydroInput.getExtFromIntChan(chanId)
-					+"  timeInterval:"+t+"  survival probability:"+ _pProb.get(pId)+"  p.isDead:"+p.isDead + "  rand:" + po+" isDead");	
+					+"  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead + "  rand:" + po+" isDead");	
 				return;
 			}
 			else
@@ -135,7 +135,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			if(DEBUG){
 				System.err.println("pId:" + pId +" node: "+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 							+"  channel:"+PTMHydroInput.getExtFromIntChan(chanId)
-						+ "  timeInterval:"+t+"  survival probability:"+ _pProb.get(pId)+"  p.isDead:"+p.isDead 
+						+ "  timeInterval:"+t+"  survival probability:"+ survival+"  p.isDead:"+p.isDead 
 						+ " rand:" + po +" X:" + X+"  isEnd");
 			}
 			_pStartSta.put(pId, null);
@@ -156,6 +156,10 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			//TODO really need a warning?
 			//else
 				//System.err.println("Warnning: the end channel:" +PTMHydroInput.getExtFromIntChan(chanId)+" is not a next start channel, could miss travel time.");
+			//only possible to come here if it is the last end station.  After the last station, pass the last station, the particle is taken out of the system 
+			else
+				p.setParticleDead();
+				
 			return;
 		} //isEnd
 		/*

@@ -268,6 +268,8 @@ public class Particle{
 	    // check survival if not survived isDead is set to true	
 	    _survivalHelper.helpSurvival(this);
 	    if(isDead == true) {
+	    	//TODO this line can be commented out because line 126 in SalmonBasicSurvialBehavior already sets p.setParticleDead()
+	    	//leave here in case other SurvivalBehavior not set the particle.
 	    	observer.observeDeath(this);
 	    	return false;
 	    }  

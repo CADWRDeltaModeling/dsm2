@@ -24,16 +24,16 @@ public class SwimInputs {
 			if (inText.size()<11)
 				PTMUtil.systemExit("information missing in Swim_Inputs section");
 			try{
-				_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT");
-				_sunrise = PTMUtil.getPairFromLine(inText.get(1), "SUNRISE");
-				_sunset = PTMUtil.getPairFromLine(inText.get(2), "SUNSET");
-				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(3), "STST_THRESHOLD");
-				_numTidalCycles = PTMUtil.getIntFromLine(inText.get(4), "TIDAL_CYCLES_TO_CALCULATE_CHANNEL_DIRECTION");
-				_constProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "CONSTANT_CONFUSION_PROBABILITY");
-				_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "MAXIMUM_CONFUSION_PROBABILITY");
-				_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(7), "CONFUSION_PROBABILITY_SLOPE");
-				_randomAccess = PTMUtil.getBooleanFromLine(inText.get(8), "RANDOM_ACCESS");
-				_accessProb = PTMUtil.getFloatFromLine(inText.get(9), "ACCESS_PROBABILITY"); 
+				//_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT"); //no longer used
+				_sunrise = PTMUtil.getPairFromLine(inText.get(0), "SUNRISE");
+				_sunset = PTMUtil.getPairFromLine(inText.get(1), "SUNSET");
+				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(2), "STST_THRESHOLD");
+				_numTidalCycles = PTMUtil.getIntFromLine(inText.get(3), "TIDAL_CYCLES_TO_CALCULATE_CHANNEL_DIRECTION");
+				_constProbConfusion = PTMUtil.getFloatFromLine(inText.get(4), "CONSTANT_CONFUSION_PROBABILITY");
+				_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "MAXIMUM_CONFUSION_PROBABILITY");
+				_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "CONFUSION_PROBABILITY_SLOPE");
+				_randomAccess = PTMUtil.getBooleanFromLine(inText.get(7), "RANDOM_ACCESS");
+				_accessProb = PTMUtil.getFloatFromLine(inText.get(8), "ACCESS_PROBABILITY"); 
 			}catch (NumberFormatException e){
 				e.printStackTrace();
 				PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
@@ -44,7 +44,7 @@ public class SwimInputs {
 		_fishType = fishType;
 	}
 
-	public float getDaytimeNotSwimPercent(){return _daytimeNotSwimPercent;}
+	//public float getDaytimeNotSwimPercent(){return _daytimeNotSwimPercent;} // used to be only one value, now one per channel group.  the values is in _swimVelParas
 	public float getFloodHoldingThreshold(){return _floodHoldVel;}
 	public float getConstProbConfusion(){return _constProbConfusion;}
 	public float getMaxProbConfusion(){return _maxProbConfusion;}
@@ -80,6 +80,19 @@ public class SwimInputs {
 	//TODO do nothing for now, should be included in behavior or helper?
 	public void setChannelInfo(Waterbody[] allWbs){}
 	public void setNodeInfo(Node[] allNodes, int nodeNum){}
+	/*
+	 * check if a particle gets stuck in or comes back to the same channel after a threshold time
+	 * currently the threshold time is 30 days  
+	 */
+	public boolean checkStuck(int pId, int chanId, float age){
+		if(_pStuck.get(pId) == null)
+			_pStuck.put(pId, new HashMap<Integer, Float>());
+		if(_pStuck.get(pId).get(chanId) == null)
+			_pStuck.get(pId).put(chanId, age);
+		if ((age - _pStuck.get(pId).get(chanId))> THRESHOLD_STUCK)
+			return true;
+		return false;			
+	}
 	
 	private void setChannelGroups(ArrayList<String> chanGroups){
 		if (chanGroups == null){
@@ -103,16 +116,17 @@ public class SwimInputs {
 			String [] items = line.trim().split("[,\\s\\t]+");
 			// put into the map: group name, survival rate
 			try{
-				if (items.length < 5)
+				if (items.length < 6)
 					throw new NumberFormatException();
 				String groupName = items[0].toUpperCase();
 				if(groupName.equals("ALL"))
 					includeAll = true;
-				// item[1], constant swimming velocity; item[2], std for particles; item[3] std for time steps for each particle
+				// item[1], constant swimming velocity; item[2], std for particles; item[3] std for time steps for each particle; item[4] rearing holding; item[5] day time not swim percent
 				_swimVelParas.put(groupName, new float[] {Float.parseFloat(items[1]),
 														 Float.parseFloat(items[2]),
 														 Float.parseFloat(items[3]),
-														 Float.parseFloat(items[4])*60.0f}); // converting from hours to minutes
+														 Float.parseFloat(items[4])*60.0f,
+														 Float.parseFloat(items[5])}); // converting from hours to minutes
 				_groupNames.add(groupName);
 				_particleMeanSwimVels.put(groupName, new HashMap<Integer, Float>());
 				_particleMeanRearingHoldings.put(groupName, new HashMap<Integer, Long>());
@@ -173,7 +187,7 @@ public class SwimInputs {
 	}
  
 	private String _fishType = null;
-	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle
+	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle; [3] rearing holding; [4] day time not swim percent
 	private Map<String, float[]> _swimVelParas=null;
 	// Map<ChanGroupName, Map<particleId, meanSwimmingVelocity>>
 	private Map<String, Map<Integer, Float>> _particleMeanSwimVels = null;
@@ -184,7 +198,7 @@ public class SwimInputs {
 	private ArrayList<String> _groupNames=null;
 	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;
-	private float _daytimeNotSwimPercent = 0.0f;
+	//private float _daytimeNotSwimPercent = 0.0f; // used to be only one value, now one per channel group.  the values is in _swimVelParas
 	private static Pair<Integer, Integer> _sunrise = null;
 	private static Pair<Integer, Integer> _sunset = null;
 	private float _floodHoldVel = -999999.0f;
@@ -193,4 +207,9 @@ public class SwimInputs {
 	private boolean _randomAccess;
 	private float _accessProb;
 	private SwimHelper _swimHelper = null;
+	//<pid,<channel,initial visit time>> // if previous channel and current channel equal for too long, take the particle out of the system
+	private Map<Integer, Map<Integer, Float>> _pStuck = new HashMap<Integer, Map<Integer, Float>>();
+	//threshold of a particle being stuck or back to the same channel
+	private final int THRESHOLD_STUCK = 30*24*60*60;
+	
 }

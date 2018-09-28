@@ -4,6 +4,7 @@
 package DWR.DMS.PTM;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -82,7 +83,7 @@ public class SalmonSutterJRouteBehavior extends SalmonUpSacRouteBehavior {
 		float pStm = ratios[2];
 		double piSut = pi(calcB(new float[]{qSut, pSut}), calcA(new float[]{qStm, deltaQSut, pStm}), 1, 1);
 		rIn.putEntrainmentRate(nodeId, 
-				new ArrayList<Object>(Arrays.asList(ratios[1], ratios[2],qSutCFS, qStmCFS, deltaQSut, piSut)));
-		selectChannel(p, new Channel[]{channels[0], channels[1], channels[2]}, nodeId, piSut);
+				new ArrayList<Object>(Arrays.asList(p.Id, ratios[1], ratios[2],qSutCFS, qStmCFS, deltaQSut, piSut)));
+		selectChannel(p, new Channel[]{channels[0], channels[1], channels[2]}, nodeId, piSut,  0);
 	}
 } 

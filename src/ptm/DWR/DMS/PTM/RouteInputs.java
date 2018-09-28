@@ -150,6 +150,8 @@ public class RouteInputs {
 	public int getChannelId(String channelName) {return _nameChanLookUp.get(channelName);}
 	public int getPercentToModify(int nodeId){return _specialBehaviorPercent.get(nodeId);}
 	public void putEntrainmentRate(int nodeId, List<Object> rates){
+		if (NOTWRITEENTRAINMENT)
+			return;
 		if ( _entrainmentRates.get(nodeId) == null)
 			_entrainmentRates.put(nodeId, new ArrayList<ArrayList<Object>>());
 		ArrayList<Object> elm = new ArrayList<Object>();
@@ -159,7 +161,7 @@ public class RouteInputs {
 	}
 	public Map<Integer, ArrayList<ArrayList<Object>>> getEntrainmentRates(){return _entrainmentRates;}
 	public void writeEntrainmentRates(){
-		if (_pathFileNameEntrainment == null)
+		if (NOTWRITEENTRAINMENT)
 				return;
 		try{
 			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileNameEntrainment);
@@ -168,13 +170,13 @@ public class RouteInputs {
 					if(getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonGSJRouteBehavior")){
 						srWriter.write("GS Junction");
 						srWriter.newLine();
-						srWriter.write("Node ID".concat(",").concat("Sac Up Flow (cfs)").concat(",")
+						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("Sac Up Flow (cfs)").concat(",")
 								.concat("Day Time (day/night = 0/1)").concat(",")
 								.concat("Barrier Operation (on/off = 1/0)").concat(",")
 								.concat("Inflow % to GS").concat(",")
 								.concat("Entrainment Probability"));
 						srWriter.newLine();
-						srWriter.write("Node ID".concat(",").concat("Sac Flow below GS (cfs)").concat(",")
+						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("Sac Flow below GS (cfs)").concat(",")
 								.concat("Sac Flow Change").concat(",")
 								.concat("GS Flow").concat(",")
 								.concat("DCC flow").concat(",")
@@ -191,18 +193,18 @@ public class RouteInputs {
 						else
 							srWriter.write("Steamboat Junction");
 						srWriter.newLine();
-						srWriter.write("Node ID".concat(",").concat("% flow into sut").concat(",")
+						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("% flow into sut").concat(",")
 								.concat("% flow into stm").concat(",")
 								.concat("sut flow (cfs)").concat(",")
 								.concat("stm flow (cfs)").concat(",")
-								.concat("delta sut flow (cfs)").concat(",")
+								.concat("delta sut flow (std)").concat(",")
 								.concat("Entrainment Probability"));
 						srWriter.newLine();
 					}
 					else if (getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonDCCRouteBehavior")){
 						srWriter.write("DCC Junction");
 						srWriter.newLine();
-						srWriter.write("Node ID".concat(",").concat("Sac flow (cfs)").concat(",")
+						srWriter.write("Node ID".concat(",").concat("pId").concat(",").concat("Sac flow (cfs)").concat(",")
 								.concat("dt Sacflow (cfs)").concat(",")
 								.concat("GS flow (cfs)").concat(",")
 								.concat("DCC flow (cfs)").concat(",")
@@ -219,7 +221,7 @@ public class RouteInputs {
 					srWriter.newLine();
 				}
 				else{
-					srWriter.write("Node Id".concat(",").concat("Entrainment Probability"));
+					srWriter.write("Node Id".concat(",").concat("pId").concat(",").concat("Entrainment Probability"));
 					srWriter.newLine();
 					for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){
 						srWriter.write(Integer.toString(PTMHydroInput.getExtFromIntNode(ndId)).concat(",").concat(elm.get(elm.size()-1).toString()));
@@ -235,7 +237,7 @@ public class RouteInputs {
 		}
 	}
 	public void writeFlux(Particle[] pArray){
-		if (_pathFileNameFlux == null)
+		if (NOTWRITEFLUX)
 				return;
 		if(pArray == null)
 			PTMUtil.systemExit("particle array empty when trying to write out flux, system exit");
@@ -260,6 +262,31 @@ public class RouteInputs {
 			System.err.println("error occured when writing out survival rates!");
 			e.printStackTrace();
 		}
+	}
+	int getUpSacJChan(int jId, int pId){
+		if(_upSacJChans.get(pId) == null)
+			return 0;
+		return _upSacJChans.get(pId)[jId];					
+	}
+	void setUpSacJChan(int jId, int pId, int chanId){
+		if(_upSacJChans.get(pId) == null)
+			_upSacJChans.put(new Integer(pId), new int[4]);
+		_upSacJChans.get(pId)[jId] = chanId;
+	}
+	int visited(int jId, int pId){
+		Map<Integer, Integer> jVis = _upSacJVisits.get(pId);
+		if(jVis == null){
+			_upSacJVisits.put(new Integer(pId), new HashMap<Integer, Integer>());
+			_upSacJVisits.get(pId).put(jId, 1);
+			return 0;
+		}
+		if(jVis.get(jId) == null){
+			jVis.put(jId, 1);
+			return 0;
+		}
+		int visits = jVis.get(jId);
+		jVis.put(jId, visits+1);
+		return visits;
 	}
 	private void setDicuFilterEfficiency(){
 		if (_dicuFilterEfficiency > 0){
@@ -311,14 +338,6 @@ public class RouteInputs {
 		_fluxChannelGroups = new ArrayList<Pair<ArrayList<Integer>, ArrayList<Integer>>>();
 		for (String line: inText.subList(1, inText.size()))
 			_fluxChannelGroups.add(PTMUtil.getGroupPair(line));
-		if(DEBUGRouteInputs){
-			for (Pair<ArrayList<Integer>, ArrayList<Integer>> p: _fluxChannelGroups){
-				for (int in: p.getFirst())
-					System.err.println(p.getName()+"  from: "+PTMHydroInput.getExtFromIntChan(in));
-				for (int out: p.getSecond())
-					System.err.println(p.getName()+"  to: "+PTMHydroInput.getExtFromIntChan(out));
-			}
-		}
 	}
 	private void setBarriers(ArrayList<String> inText){
 		// first line of inText is number_of_barriers: number
@@ -453,8 +472,18 @@ public class RouteInputs {
 	//Map<nodeId, <pid, entrainment rate>>
 	private Map<Integer, ArrayList<ArrayList<Object>>> _entrainmentRates;
 	private boolean DEBUGRouteInputs = true;
+	private boolean NOTWRITEENTRAINMENT = false;
+	private boolean NOTWRITEFLUX = false;
 	//Flux channel name look up: Map<Channel_Id, channel name>
 	private ArrayList<Pair<ArrayList<Integer>, ArrayList<Integer>>> _fluxChannelGroups = null;
+	/* The statistic route models used here only count for one event (not count for the particle coming back to the junction again and again)
+	   to be consistent with the statistical model, a particle remembers the very first choice of the channel and will not make the choince again
+	   when the particle comes back to the junction
+	*/
+	//<pId, [chanIds]> store the first selected channel for each particle at SUT[0], STM[1], DCC[2], GS[3] 
+	private HashMap<Integer, int[]> _upSacJChans = new HashMap<Integer, int[]>(); 
+	//<junction Id, <pId, <jId, visited>> store if a particle visited SUT, STM, DCC, GS 
+	private HashMap<Integer, HashMap<Integer, Integer>> _upSacJVisits = new HashMap<Integer, HashMap<Integer, Integer>>();
 
 }
 

@@ -19,6 +19,8 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	private float _floodHoldVel = -999999.0f;
 	private TravelTimeOutput _travelTimeOut;
 	private float MISSING = -9999999999.0f;
+	Integer _pOutId = null;
+	private SwimInputs _si;
 
 	/**
 	 * 
@@ -30,6 +32,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 		_hydroCalc = new BasicHydroCalculator();
 		_travelTimeOut = Globals.Environment.getBehaviorInputs().getTravelTimeOutput();
 		_floodHoldVel = si.getFloodHoldingThreshold();
+		_si = si;
 	}
 	public void updateCurrentInfo(Waterbody[] allWaterbody){ _confusionCalc.updateConfusionConstsChanDirs(allWaterbody);}
 	public int getConfusionFactor(int chanId){ return _confusionCalc.getConfusionFactor(chanId);}
@@ -100,6 +103,15 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	    }
 	}
 	public void updatePosition(Particle p, float delT){
+		/*
+		 * check if a particle is stuck in or comes back to the same channel after a threshold time
+		 * the threshold time = 30 days currently
+		 */
+		
+		 if (_si.checkStuck(p.Id, p.wb.getEnvIndex(),p.age)){
+			 p.setParticleDead();
+			 return;
+		 }
 		if ((p.wb.getPTMType() ==  Waterbody.CHANNEL) 
 				&& (_holdingTimeCalc.daytimeHolding(p.Id, ((Channel)p.wb).getEnvIndex()))) {
 			p.age += delT;
@@ -155,7 +167,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 // wait time is the time left for the time step.
 						 p.age += tmLeft;
 						 p.addTimeUsed(tmLeft);						 
-						 if (p.Id == 1 && DEBUG_SWIM)
+						 if (_pOutId != null && p.Id == _pOutId && DEBUG_SWIM)
 							 System.err.println("Warning: particle "+p.Id+" velocity < flood hold velocity, velocity:"
 							 + cInfo[3]*p.getConfusionFactor()+", will wait until next time step.");							 
 						 return;
@@ -177,21 +189,34 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 float xPos = p.x + deltaX;
 					 IntBuffer ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
 					 
+					 //TODO hold when advVel+swimV is very small
+					 
+					 if (Math.abs(advVel+swimV) < 0.00001f){
+						 // wait time is the time left for the time step.
+						 p.age += tmLeft;
+						 p.addTimeUsed(tmLeft);	
+						 if(DEBUG_SWIM)
+							 System.err.println("Warning: particle "+p.Id+" very small velocity, advection:"
+							 +advVel+", swimming velocity:"+swimV+", will wait until next time step.");							 
+						 return;
+					 } 
+					 
 					// this is to avoid swimming velocity to be reset immediately after exiting from a junction
 					// after a couple of sub-time step it is OK to reset
 					 p.swimVelSetInJunction(false);
-					 
-					 if (DEBUG_SWIM && p.Id == 1 && p.wb.getEnvIndex()<800){
-						  System.out.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
+					 //if( _pOutId == null && p.nd.getEnvIndex()==297){_pOutId = p.Id;}
+					 //if (_pOutId != null && p.Id == _pOutId){
+					 if (DEBUG_SWIM && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
+						  System.out.println("pId:"+p.Id+"  node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 								  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 								  + "  p.x:" +p.x +"  xPos:" +xPos +" p.age:" + p.age
 								  +"  advVel:" + advVel + "  swimV:" + swimV + "  tmToAdv:" + tmToAdv 
 								  + "  tmLeft:" +tmLeft +"  currTime:" + p.getCurrentParticleTimeExact()
 								  + "  confusion:" + p.getConfusionFactor());
 					  }
+					 //if (_pOutId != null &&p.Id == _pOutId){System.err.println("here"+p.isDead);}
 					 
-					 
-					 // isNodeReached now keeps the old node. the node will be changed to the new node just reached when getNewNode(...) is called	
+					 // isNodeReached now keeps the old node. the node will be changed to the new node just reached when getNewNode(...) is called
 					 if (isNodeReached((Channel) p.wb, xPos)){
 						 //tmToAdv could be less than tmToAdv passed on 
 						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, swimV, p.x, xPos); 						 
@@ -205,7 +230,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 //here node and channel hasn't been changed yet because the survival calc needs to do with current ones
 						 p.checkSurvival();
 						 if(p.isDead){
-							 if (DEBUG_SURVIVAL && p.Id == 1 && p.wb.getEnvIndex()<800){
+							 if (DEBUG_SURVIVAL && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
 								  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 										  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 										  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
@@ -220,7 +245,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 // now p.wb is the new water body just selected
 						 // and p.x is set either 0 or channel length if p.wb is a channel
 						 
-						 if (DEBUG_SWIM && p.Id == 1 && p.wb.getEnvIndex()<800){
+						 if (DEBUG_SWIM && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
 							  System.err.println("Reach Node, node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
@@ -228,7 +253,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 									  );
 						  }
 						 
-						 if (DEBUG_SURVIVAL && p.Id == 1 && p.wb.getEnvIndex()<800){
+						 if (DEBUG_SURVIVAL && _pOutId != null && p.Id == _pOutId && p.wb.getEnvIndex()<800){
 							  System.err.println("node:"+PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex()) 
 									  +"  wb:" + PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())
 									  + "  p.x:" +p.x +" p.age:" + p.age + "  tmToAdv:" + tmToAdv 
@@ -241,7 +266,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 if (p.particleWait){
 							 p.age += tmLeft;
 							 p.addTimeUsed(tmLeft);
-							 if (DEBUG_SWIM && p.Id == 1)
+							 if (DEBUG_SWIM && _pOutId != null && p.Id == _pOutId)
 								 System.err.println("Warning: the particle "+p.Id
 										 +" is set to wait by makeNodeDecision, will wait until next time step.");
 							 return;
@@ -273,7 +298,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 							 if (tmToAdv < Float.MIN_VALUE && p.nd.getEnvIndex() == ndWb.get(0) && p.wb.getEnvIndex() == ndWb.get(1)){
 								 timesLooped++;
 								 if (timesLooped > 20){
-									System.err.println("Warning: the particle "+p.Id+" looped more than 20 times at the same time step at the same node. It will continue on next time step.");
+									//System.err.println("Warning: the particle "+p.Id+" looped more than 20 times at the same time step at the same node. It will continue on next time step.");
 									p.age += tmLeft;
 									p.addTimeUsed(tmLeft);
 									return;

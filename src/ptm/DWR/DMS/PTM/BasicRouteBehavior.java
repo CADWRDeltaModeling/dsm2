@@ -44,15 +44,6 @@ public class BasicRouteBehavior {
 	    	+ PTMHydroInput.getExtFromIntChan(chan.getEnvIndex()) + " doesn't match! exit.");
 	    return -999999.0f;
 	}
-	//TODO clean up moved to survival module.
-	/*
-	protected int getDistSignForXT(Channel chan, Node nd){
-		return ((chan.getDownNodeId() == nd.getEnvIndex())? -1: 1);
-	}
-	protected float getDistOverheadForXT(Channel chan, Node nd){
-		return ((chan.getDownNodeId() == nd.getEnvIndex())? chan.getLength(): 0.0f);
-	}
-	*/
 	boolean prescreen(Particle p, float wbInflows) {
 	    // if the Node is at a Node with zero flow, for example at the
 	    // end of a slough, then move the Particle into the Channel a

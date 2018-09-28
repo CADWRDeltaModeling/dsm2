@@ -108,11 +108,9 @@ public class SurvivalInputs {
 		return !(x < dist);				
 	}
 	public void writeSurvivalRates(){
-		if (_pathFileName == null)
-				return;
 		try{
 			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileName);
-			if(DEBUGWRITEOUT){
+			if(COMPLETEWRITEOUT){
 				srWriter.write("Particles survived + lost at an end node are not necessary " 
 						+"equal to particle arrived at the beginning node because a particle can be lost at a boundary "
 						+"or wondering without reach an end node or an exchange node.  "
@@ -121,10 +119,11 @@ public class SurvivalInputs {
 				srWriter.write("Group ID".concat(",").concat("Station Name").concat(",")
 						.concat("# of Particle Arrived").concat(",").concat("# of Particle Lost")
 						.concat(",").concat(" # of Particle Survived").concat(",")
-						.concat("Survival Rate not count missing")
-						.concat(",").concat("Survival Rate missing as lost"));
+						.concat("Survival Rate not count missing"));
+						//.concat(",").concat("Survival Rate missing as lost"));
 				srWriter.newLine();
 				//_ttHolder will never be null and there is at least one element
+				// if no particle arrives to a group, this group will not appear in the write out file
 				for (int id: _groupArrivals.keySet()){						
 					Integer ar = _groupArrivals.get(id);
 					Integer lost = _groupLost.get(id);
@@ -139,11 +138,33 @@ public class SurvivalInputs {
 					//TODO 
 					//survival rate = sur/ar (not (1-lost/ar) ) is to be consistent with Russ' XT model. if fish is not detected at the end node, it assumes that it is lost.
 					// not every fish arrived is detected at the end node.
-					srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Integer.toString(ar)).concat(",").concat(Integer.toString(lost))
-							.concat(",").concat(Integer.toString(sur)).concat(",")
-							.concat(Float.toString(1.0f*sur/(sur+lost))).concat(",")
-							.concat(Float.toString(1.0f*sur/ar)));
-					srWriter.newLine();	
+					int tot = sur + lost;
+					if (tot != 0){
+						srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Integer.toString(ar)).concat(",").concat(Integer.toString(lost))
+								.concat(",").concat(Integer.toString(sur)).concat(",")
+								.concat(Float.toString(1.0f*sur/tot)));
+								//.concat(",").concat(Float.toString(1.0f*sur/ar)));
+						//TODO it is confusing to calculate the survival rate including those missing. so comment this part out.  
+						/*
+						 * Here is Adam's explanation why we calculate a survival rate only according to detected:
+						 * When we fit the travel time model, we only use the particles that arrive at the end of a reach 
+						 * and have a recorded travel time.  The particles that don't arrive (either because they take too 
+						 * long and don't arrive by the end of the simulation or enter a different channel) are ignored in 
+						 * fitting the travel time distribution.  The main reason for this is that the travel time data we have 
+						 * are all, of course, from fish that have survived and migrated the specified reach successfully 
+						 * (and whose tags have survived, meaning < 90 days).  However a byproduct of fitting this way is that 
+						 * the behavioral parameters we use are only valid in describing the migration of particles which remain 
+						 * in the channel and which complete the reach within 90 days.  Additionally, the survival parameters we 
+						 * are using should be interpreted as being the cause of all mortality within a reach.  Thus, particles 
+						 * which do not arrive at the end of a reach (and so do not have a travel time) should be removed from 
+						 * survival calculations, rather than treated as additional mortality. The upshot of all of this is 
+						 * that I believe we should be calculating survival as 
+						 * (number of particles surviving at the end of the reach) 
+						 * / (number of particles surviving at the end of the reach + number of particles arriving at the end of the reach but determined to have died).  
+						 * 
+						 * */
+						srWriter.newLine();	
+					}
 				}
 			}
 			else{
@@ -161,17 +182,23 @@ public class SurvivalInputs {
 						lost = 0;
 					if (sur == null)
 						sur = 0;
-					srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Float.toString(1.0f*sur/(sur+lost))));
-					srWriter.newLine();
+					int tot = sur + lost;
+					// if no particle reaches the end node, no survival rate should be considered.
+					if (tot != 0){
+						srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Float.toString(1.0f*sur/tot)));
+						srWriter.newLine();
+					}
 				}
 			}
-			srWriter.write("Particle ID".concat(",").concat("Group Id").concat(",").concat("Survival Rate"));
-			srWriter.newLine();
-			for (int parId: _pReachProb.keySet()){
-				for (int gId: _pReachProb.get(parId).keySet()){
-					srWriter.write(Integer.toString(parId).concat(",").concat(Integer.toString(gId)).concat(",")
+			if(DEBUGWRITEOUT){
+				srWriter.write("Particle ID".concat(",").concat("Group Id").concat(",").concat("Survival Rate"));
+				srWriter.newLine();
+				for (int parId: _pReachProb.keySet()){
+					for (int gId: _pReachProb.get(parId).keySet()){
+						srWriter.write(Integer.toString(parId).concat(",").concat(Integer.toString(gId)).concat(",")
 							.concat(Double.toString(_pReachProb.get(parId).get(gId))));
-					srWriter.newLine();
+						srWriter.newLine();
+					}
 				}
 			}
 			PTMUtil.closeBuffer(srWriter);
@@ -205,6 +232,8 @@ public class SurvivalInputs {
 	}
 	public Map<Integer, Map<Integer, Double>> getParticleSurvivalRates(){return _pReachProb;}
 	public void addSurvivalRate(int pId, int groupId, double rate){
+		if(!DEBUGWRITEOUT)
+			return;
 		Map<Integer, Double> reachSurvivals = _pReachProb.get(pId);
 		if(reachSurvivals == null){
 			reachSurvivals = new HashMap<Integer, Double>();
@@ -243,9 +272,13 @@ public class SurvivalInputs {
 			ArrayList<int[]> enStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(2), "END_STATION");
 			ArrayList<int[]> exStas = null;
 			//exchangeable start station often empty
+			//TODO clean up no need to give warning
+			/*
 			if (survivalStrs.get(3).split(":").length < 2)
 				System.err.println("Warning: EXCHANGEABLE_START_STATION line is empty!");
 			else
+			*/
+			if (survivalStrs.get(3).split(":").length >= 2)
 				exStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(3), "EXCHANGEABLE_START_STATION");
 			ArrayList<Integer> enStasInt = new ArrayList<Integer>();
 			ArrayList<Integer> exStasInt = new ArrayList<Integer>();
@@ -320,5 +353,6 @@ public class SurvivalInputs {
 	private SurvivalHelper _survivalHelper = null;
 	private String _fishType = null;
 	private boolean DEBUG = false;
-	private boolean DEBUGWRITEOUT = true;
+	private boolean DEBUGWRITEOUT = false;
+	private boolean COMPLETEWRITEOUT = true;
 }

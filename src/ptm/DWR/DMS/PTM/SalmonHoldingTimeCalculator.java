@@ -15,11 +15,11 @@ public class SalmonHoldingTimeCalculator {
 		else{
 			for (String key: _swimParameters.keySet()){
 				float[] paras = _swimParameters.get(key);
-				if (paras == null || paras.length < 4)
-					PTMUtil.systemExit("The parameter for rear holding is not properly set! Please check the behavior input file, system exit.");
+				if (paras == null || paras.length < 5)
+					PTMUtil.systemExit("The swimming parameters are not properly set, expect 5 but less than 5, system exit.");
 			}
 		}
-		_daytimeNotSwimPercent = si.getDaytimeNotSwimPercent();
+		//_daytimeNotSwimPercent = si.getDaytimeNotSwimPercent(); //used to be only one value, now one per channel group.  the values is in _swimParameters
 		_sunrise = si.getSunrise();
 		_sunset = si.getSunset();
 		if (_sunrise == null || _sunset == null)
@@ -33,11 +33,12 @@ public class SalmonHoldingTimeCalculator {
 
 	public boolean getDaytimeHolding(int pId, int chanId){
 		Map<Integer, Boolean> pidDaytimeHoldings =  _daytimeHoldings.get(getGroupName(chanId));
+		float daytimeNotSwimPercent = _swimParameters.get(getGroupName(chanId))[4];
 		if (DEBUG && pId == 1)
 			System.err.println(getGroupName(chanId) + "  channel:"+PTMHydroInput.getExtFromIntChan(chanId)
-					+"  daytime holding:" + pidDaytimeHoldings.get(pId));
+					+"  daytime holding:" + pidDaytimeHoldings.get(pId) + "  not swim pct:" + daytimeNotSwimPercent);
 		if (pidDaytimeHoldings.get(pId) == null){
-			boolean pDaytimeHolding = PTMUtil.getRandomNumber() < _daytimeNotSwimPercent;
+			boolean pDaytimeHolding = PTMUtil.getRandomNumber() < daytimeNotSwimPercent;
 			pidDaytimeHoldings.put(pId, pDaytimeHolding); 
 		}
 		if (DEBUG && pId == 1)
@@ -92,12 +93,12 @@ public class SalmonHoldingTimeCalculator {
 	}	
 	
 	//TODO be very careful, the class variables are visible to all particles!!!
-	private float _daytimeNotSwimPercent = 0.0f;
+	//private float _daytimeNotSwimPercent = 0.0f; //used to be only one value, now one per channel group.  the values is in _swimParameters
 	private Pair<Integer, Integer> _sunrise = null;
 	private Pair<Integer, Integer> _sunset = null;
 	// Map<ChanGroupName, Map<particleId, particleMeanRearingHoldingTime>>
 	private Map<String, Map<Integer, Long>> _swimmingTimes = null;
-	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle
+	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle; [3] rearing holding; [4] day time not swim percent
 	private Map<String, float[]> _swimParameters=null;
 	// Channel number (internal), chan group name
 	private Map<Integer, String> _channelGroups=null;

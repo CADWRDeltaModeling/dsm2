@@ -34,7 +34,8 @@ class ParticleObserver{
   public ParticleObserver(String traceFileName, int outputType,
                           int startTime, int endTime, int PTMTimeStep, 
                           int nParticles){
-    traceOn = true;
+	traceOn = true;
+	//traceOn = false;
     try{
       if (traceOn) output = new PTMTraceOutput(traceFileName, outputType,
                                                startTime, endTime, PTMTimeStep, 
