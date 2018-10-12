@@ -64,7 +64,9 @@ module advection
                       wet_p,                &
                       wet_p_prev,           &
                       constraint,           &
-                      name)  
+                      name,                 &
+                      LL,                   &
+                      sed_percent)  
    
         use gtm_precision
         use primitive_variable_conversion
@@ -74,15 +76,18 @@ module advection
         use boundary_concentration
         use gradient_adjust        
         use boundary_concentration
+        use common_variables, only: n_node, n_qext 
 
         implicit none
  
         !--- args
         integer, intent(in) :: ncell                         !< Number of cells
         integer, intent(in) :: nvar                          !< Number of variables
-
+        integer, intent(in) :: LL                 !< Time step
         real(gtm_real),intent(out) :: mass(ncell,nvar)       !< mass at new time
         real(gtm_real),intent(in)  :: mass_prev(ncell,nvar)  !< mass at old time
+        real(gtm_real),intent(out) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of 
+                                                                                 !external flows        !<TODO: make array dimensions effective
         real(gtm_real),intent(in)  :: flow(ncell)            !< cell-centered flow at new time
         real(gtm_real),intent(in)  :: flow_prev(ncell)       !< cell-centered flow, old time
         real(gtm_real),intent(in)  :: flow_lo(ncell)         !< flow on lo side of cells centered in time
@@ -127,14 +132,14 @@ module advection
         real(gtm_real) :: flux_lo(ncell,nvar)      !< flux on lo side of cell, time centered
         real(gtm_real) :: flux_hi(ncell,nvar)      !< flux on hi side of cell, time centered
         real(gtm_real) :: div_flux(ncell,nvar)     !< cell centered flux divergence, time centered
+!        real(gtm_real) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of 
+                                                                                 !external flows        !<TODO: make array dimensions effective
         logical        :: limit_slope              !< whether slope limiter is used
         real(gtm_real) :: old_time                 !< previous time
         real(gtm_real) :: half_time                !< half time
-        integer :: i, icell
-
+        integer :: i, icell, tstp  
         old_time = time - dt
         half_time = time - half*dt
-    
         if (present(use_limiter))then
             limit_slope = use_limiter
         else
@@ -201,15 +206,15 @@ module advection
                          time,                &
                          dt,                  &
                          dx)
-                         
+        tstp = LL                 
         ! Assign boundary concentration if it is given
         if (associated(boundary_conc)) then        
             call boundary_conc(conc_lo,              &
                                conc_hi,              & 
                                ncell,                &
-                               nvar)
+                               nvar,                 &
+                               tstp)
         end if  
-
         ! Compute upwind value of fluxes. This is a naive guess based on the extrapolated states
         ! It doesn't include any node-based sources or reservoirs or the like.
         call compute_flux(flux_lo,    &
@@ -232,7 +237,9 @@ module advection
                                          nvar,        &
                                          half_time,   &
                                          dt,          &
-                                         dx)        
+                                         dx,          &
+                                         tstp,        &
+                                         sed_percent)        
         else        
             advection_boundary_flux => bc_advection_flux
             call bc_advection_flux(flux_lo,     &
@@ -245,7 +252,9 @@ module advection
                                    nvar,        &
                                    half_time,   &
                                    dt,          &
-                                   dx)       
+                                   dx,          &
+                                   tstp,        &
+                                   sed_percent)       
         end if    
                            
         ! Combine the fluxes into a divergence term at the half time at cell edges.

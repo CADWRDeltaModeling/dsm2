@@ -84,18 +84,21 @@ program gtm
     real(gtm_real), allocatable :: init_r(:,:)     
     real(gtm_real) :: theta = half                           !< Crank-Nicolson implicitness coeficient
     real(gtm_real) :: constant_dispersion   
-    
+    real(gtm_real), allocatable :: sed_percent(:,:,:)!<percentages of compositions at boundaries  & 10 is the maximum number of 
+                                                                                 !external flows        !<TODO: make array dimensions effective
     ! local variables to obtain time series data from HDF5 file
     integer :: time_offset
     integer :: i, j, ibuffer, start_buffer, icell
     integer :: iblock, slice_in_block, t_index
     integer :: time_step_int = 0
+    integer :: LL
     real(gtm_real) :: t_in_slice
     real(gtm_real) :: time
     real(gtm_real) :: current_time
     real(gtm_real) :: new_current_time
     real(gtm_real) :: gtm_hdf_time_intvl
     real(gtm_real) :: time_in_slice
+    
     integer :: offset, num_blocks, jday
     integer, allocatable :: memlen(:)
     integer :: runtime_hydro_start, runtime_hydro_end
@@ -315,10 +318,12 @@ program gtm
     end_julmin = int(gtm_end_jmin)    
     call incr_intvl(next_output_flush, start_julmin, flush_intvl, TO_BOUNDARY)
     call gtm_init_store_outpaths(istat)
-    
+    LL = zero
+    allocate (sed_percent(n_node,n_qext,n_var))
+    sed_percent(:,:,:) =0.0d0
     ! start marching throught the time steps for simulation
     do current_time = gtm_start_jmin, gtm_end_jmin, gtm_time_interval
-        
+        LL = LL + 1
         time_step_int = int((current_time-gtm_start_jmin)/gtm_time_interval) + 1 
          
         !---print out processing date on screen
@@ -522,7 +527,9 @@ program gtm
                         wet_p,                        &                      
                         wet_p_prev,                   &
                         constraint,                   &
-                        constituents(:)%use_module)   
+                        constituents(:)%use_module,   &
+                        LL,                           &
+                        sed_percent)   
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)
 

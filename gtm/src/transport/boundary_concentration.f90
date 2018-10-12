@@ -28,12 +28,14 @@ module boundary_concentration
         subroutine boundary_concentration_if(conc_lo,    &
                                              conc_hi,    &
                                              ncell,      &
-                                             nvar)
+                                             nvar,       &
+                                             tstp)
             use gtm_precision
             implicit none
             !--- args          
             integer, intent(in)  :: ncell                            !< Number of cells
             integer, intent(in)  :: nvar                             !< Number of variables
+            integer,intent(in)  :: tstp
             real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
             real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face
                

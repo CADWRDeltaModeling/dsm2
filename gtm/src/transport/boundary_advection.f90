@@ -34,14 +34,20 @@ module boundary_advection
                                           nvar,       &
                                           time,       &
                                           dt,         &
-                                          dx)
+                                          dx,         &
+                                          tstp,       &
+                                          sed_percent)
         use gtm_precision
+        use common_variables, only: n_node, n_qext!, n_sediment_bc
         implicit none
         !--- args          
         integer,intent(in)  :: ncell                            !< Number of cells
         integer,intent(in)  :: nvar                             !< Number of variables
+        integer,intent(in)  :: tstp
         real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
         real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+        real(gtm_real),intent(out) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of 
+                                                                                 !external flows        !<TODO: make array dimensions effective
         real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
         real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
         real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
@@ -139,16 +145,22 @@ module boundary_advection
                                nvar,       &
                                time,       &
                                dt,         &
-                               dx)
+                               dx,         &
+                               tstp,        &
+                               sed_percent)
      
        use gtm_precision
        use error_handling
+       use common_variables, only: n_node, n_qext!, n_sediment_bc   
        implicit none
        !--- args          
        integer,intent(in)  :: ncell                            !< Number of cells
        integer,intent(in)  :: nvar                             !< Number of variables
+       integer,intent(in)  :: tstp
        real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
        real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+       real(gtm_real),intent(out) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of 
+                                                                                 !external flows        !<TODO: make array dimensions effective
        real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
        real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
        real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face

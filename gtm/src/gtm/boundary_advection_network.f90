@@ -22,9 +22,9 @@
 !> Use some back door information, such as dsm2_network, node_concentration
 !>@ingroup gtm_driver
 module boundary_advection_network
-
+   
     contains  
-
+    
     !> Calculate the divided lo, hi, and centered differences. 
     !> This has adjustments for non-sequential cells.
     subroutine difference_network(grad_lo,     & 
@@ -104,7 +104,7 @@ module boundary_advection_network
                                           use_limiter)
         use gtm_precision
         use gradient, only : limiter
-        use common_variables, only : n_node, dsm2_network
+        use common_variables, only : n_node, dsm2_network, n_qext
         implicit none
         !--- args
         real(gtm_real), intent(out) :: grad(ncell,nvar)          !< Cell centered difference adjusted for boundaries and hydraulic devices
@@ -176,7 +176,9 @@ module boundary_advection_network
                                          nvar,       &
                                          time,       &
                                          dt,         &
-                                         dx)
+                                         dx,         &
+                                         tstp,       &
+                                         sed_percent)
         use gtm_precision
         use error_handling
         use common_variables, only: n_node, dsm2_network, n_resv, resv_geom, no_flow, gate_close, constituents
@@ -187,8 +189,11 @@ module boundary_advection_network
         !--- args          
         integer,intent(in)  :: ncell                            !< Number of cells
         integer,intent(in)  :: nvar                             !< Number of variables
+        integer,intent(in)  :: tstp
         real(gtm_real),intent(inout) :: flux_lo(ncell,nvar)     !< Flux on lo side of cell, time centered
         real(gtm_real),intent(inout) :: flux_hi(ncell,nvar)     !< Flux on hi side of cell, time centered
+        real(gtm_real),intent(inout) :: sed_percent(n_node,n_qext,nvar)!<percentages of compositions at boundaries  & 10 is the maximum number of 
+                                                                                 !external flows        !<TODO: make array dimensions effective
         real(gtm_real),intent(in)    :: flow_lo(ncell)          !< Flow on lo side of cells centered in time
         real(gtm_real),intent(in)    :: flow_hi(ncell)          !< Flow on hi side of cells centered in time
         real(gtm_real),intent(in)    :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
@@ -208,7 +213,7 @@ module boundary_advection_network
         integer :: i, j, k, s, st, icell, inode, ivar
         integer :: reservoir_id, resv_conn_id   
         real(gtm_real) :: conc_ext(nvar)
-        logical :: dicu_flag=.true.  
+        logical :: boundary_composition_not_found =.true.  
         do ivar = 1, nvar
         if (constituents(ivar)%simulate) then
         ! recalculate concentration for reservoirs
@@ -216,7 +221,6 @@ module boundary_advection_network
             vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
             mass_resv(i,ivar) = vol(i) * conc_resv_prev(i,ivar)
         end do      
-        
         do i = 1, n_node
             ! adjust flux for boundaries
             if (dsm2_network(i)%boundary_no > 0) then       
@@ -287,27 +291,31 @@ module boundary_advection_network
                         else     ! seepage and diversion
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j)) 
                         end if                    
-
                         if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).ne.0)) then    !drain
                             conc_ext(ivar) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value
                             if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%variable).eq.'ssc') then
                                 do st = 1, n_sediment
-                                    !conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value / dble(n_sediment)
-                                    dicu_flag= .true.
+                                    boundary_composition_not_found= .true.
                                     do s = 1, n_sediment_bc
-                                        if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%name) .eq. trim(sediment_bc(s)%name)) &
-                                           .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
-                                           dicu_flag= .false.
-                                           conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sediment_bc(s)%percent * 0.01d0
+                                        if (tstp.eq.one) then   
+                                            if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%name) .eq. trim(sediment_bc(s)%name)) &
+                                                .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
+                                                sed_percent(i,j,nvar-n_sediment+st) = sediment_bc(s)%percent
+                                                boundary_composition_not_found= .false.
+                                                conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sediment_bc(s)%percent * 0.01d0
+                                            end if
+                                        else
+                                            boundary_composition_not_found= .false.
+                                            conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sed_percent(i,j,nvar-n_sediment+st) * 0.01d0
                                         end if
                                     end do 
-                                    if (dicu_flag) then
+                                    if (boundary_composition_not_found) then
                                         write(*,*) 'DICU input classes less than specified'
                                         stop
                                     end if
                                 end do
-                             end if
-                             mass_tmp(ivar) = mass_tmp(ivar) + conc_ext(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
+                            end if
+                            mass_tmp(ivar) = mass_tmp(ivar) + conc_ext(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                         elseif ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).eq.0)) then !drain but node concentration is absent
                             mass_tmp(ivar) = mass_tmp(ivar) + conc_tmp(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
                             !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
@@ -390,7 +398,8 @@ module boundary_advection_network
     subroutine assign_boundary_concentration(conc_lo,  &
                                              conc_hi,  &
                                              ncell,    &
-                                             nvar)
+                                             nvar,     &
+                                             tstp)
         use gtm_precision
         use error_handling
         use common_variables, only: n_node, dsm2_network, dsm2_network_extra, n_bfbs, bfbs, &
@@ -400,6 +409,7 @@ module boundary_advection_network
         implicit none
         integer, intent(in)  :: ncell                            !< Number of cells
         integer, intent(in)  :: nvar                             !< Number of variables
+        integer, intent(in)  :: tstp 
         real(gtm_real), intent(inout) :: conc_lo(ncell,nvar)     !< Concentration extrapolated to lo face
         real(gtm_real), intent(inout) :: conc_hi(ncell,nvar)     !< Concentration extrapolated to hi face        
         integer :: i, j, k, s, st, icell, inode
@@ -408,32 +418,32 @@ module boundary_advection_network
             inode = bfbs(i)%i_node
             do j = 1, n_node_ts
                 if (pathinput(j)%i_no .eq. inode .and. dsm2_network(inode)%boundary_no.ne.0) then
-                    if (trim(pathinput(j)%variable) .eq. 'ssc') then
-                        node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value 
-                        dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1                    
-                        do st = 1, n_sediment
-                            do s = 1, n_sediment_bc
-                                if ((trim(pathinput(j)%name) .eq. trim(sediment_bc(s)%name)) .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
-                                    node_conc(inode,nvar-n_sediment+st) = pathinput(j)%value * sediment_bc(s)%percent * 0.01d0
-                                    dsm2_network_extra(inode)%node_conc(nvar-n_sediment+st) = 1                                 
-                                end if
-                            end do    
-                        end do
-                    else
-                        node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value 
-                        dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1
-                    end if    
-                    do k = 1, dsm2_network(inode)%n_conn_cell
-                        icell = dsm2_network(inode)%cell_no(k)
                         if (trim(pathinput(j)%variable) .eq. 'ssc') then
-                            conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                            node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value 
+                            dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1                    
                             do st = 1, n_sediment
-                                conc_stip(icell,nvar-n_sediment+st) = node_conc(inode,nvar-n_sediment+st)   
-                            end do                                                        
+                                do s = 1, n_sediment_bc
+                                    if ((trim(pathinput(j)%name) .eq. trim(sediment_bc(s)%name)) .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
+                                        node_conc(inode,nvar-n_sediment+st) = pathinput(j)%value * sediment_bc(s)%percent * 0.01d0
+                                        dsm2_network_extra(inode)%node_conc(nvar-n_sediment+st) = 1                                 
+                                    end if
+                                end do    
+                            end do
                         else
-                            conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                            node_conc(inode,pathinput(j)%i_var) = pathinput(j)%value 
+                            dsm2_network_extra(inode)%node_conc(pathinput(j)%i_var) = 1
                         end if    
-                    end do
+                        do k = 1, dsm2_network(inode)%n_conn_cell
+                            icell = dsm2_network(inode)%cell_no(k)
+                            if (trim(pathinput(j)%variable) .eq. 'ssc') then
+                                conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                                do st = 1, n_sediment
+                                    conc_stip(icell,nvar-n_sediment+st) = node_conc(inode,nvar-n_sediment+st)   
+                                end do                                                        
+                            else
+                                conc_stip(icell,pathinput(j)%i_var) = node_conc(inode,pathinput(j)%i_var)
+                            end if    
+                        end do
                 end if    
             end do    
         end do   
