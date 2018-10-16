@@ -20,7 +20,11 @@ set(GTM_TOOLS ${GTM_SOURCE_DIR}/tools)
 set(GTM_TOOLS_DRIVER ${GTM_SOURCE_DIR}/tools_driver)
 #FIXME: change top directory to one-less. There should be a better way
 set(DSM2_TOP_DIR "../../")
-set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+if (DEFINED THIRD_PARTY_DIR)
+  set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
+else()
+  set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+endif()
 
 # make sure that the default is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
