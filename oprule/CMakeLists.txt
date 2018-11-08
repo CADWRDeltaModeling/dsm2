@@ -54,7 +54,10 @@ file(GLOB SOURCES lib/parser/*.cpp)
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/Parser-notyet.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/ModelTimeNodeFactory.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/ModelActionFactory.cpp")
+list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp")
+list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp")
 file(GLOB HEADERS lib/parser/*.h)
+list(APPEND HEADERS lib/parser/op_rule_tab.cpp)
 file(GLOB PARSER_HEADERS oprule/parser/*.h)
 list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/op_rule.tab.h")
 list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/ModelActionFactory.h")
@@ -64,11 +67,11 @@ list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/ptr_wrapper.h
 include_directories(src)
 add_library(OpRuleParser ${SOURCES} ${HEADERS} ${PARSER_HEADERS} "oprule/rule/ActionSet.h")
 # add pre build command
-add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/oop_rule.cpp" PRE_BUILD 
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp"  
     COMMAND flex -L -Pop_rule -oop_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
     COMMENT "Generating op_rule.cpp using flex")
-add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/oop_rule_tab.cpp" PRE_BUILD 
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp" PRE_BUILD 
     COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
     COMMAND move /Y op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
     COMMAND move /Y op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.h
