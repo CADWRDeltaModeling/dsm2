@@ -7,7 +7,11 @@ string(TIMESTAMP CONFIG_DATE "%Y-%m-%d")
 # Set the core names of all the libraries
 #-----------------------------------------------------------------------------
 set(DSM2_TOP_DIR "../")
-set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+if (DEFINED THIRD_PARTY_DIR)
+  set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
+else()
+  set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+endif()
 
 # make sure that the default is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
