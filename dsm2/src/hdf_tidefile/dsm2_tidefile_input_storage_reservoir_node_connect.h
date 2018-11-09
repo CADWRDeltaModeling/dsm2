@@ -35,7 +35,7 @@ class reservoir_node_connect
 public:
 
   /** Data type reservoir_node_connect, default constructor */  
-  typedef const tuple<const int&>  identifier_type;
+  typedef const boost::tuple<const int&>  identifier_type;
 
   reservoir_node_connect() :
     res_node_index(-901),

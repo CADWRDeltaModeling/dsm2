@@ -1,8 +1,0 @@
-Prerequisites:
-Boost: may be directly downloaded for Windows. The URL for boost is www.boost.org, docs are at
-http://www.boost.org/doc/libs/1_37_0/more/getting_started/windows.html and a Windows package installer is available at http://www.boostpro.com/products/free
-
-Bison/Flex (cygwin): The site cygwin.com has an installer. By default, bison and flex are not included. Flex and bison are in the "Devel" section of the cygwin package selector and you need to check them. You need to point executables.
-
-lib folder
-

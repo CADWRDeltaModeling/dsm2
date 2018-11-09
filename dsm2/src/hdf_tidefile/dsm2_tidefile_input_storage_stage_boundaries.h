@@ -35,7 +35,7 @@ class stage_boundaries
 public:
 
   /** Data type stage_boundaries, default constructor */  
-  typedef const tuple<const std::string>  identifier_type;
+  typedef const boost::tuple<const std::string>  identifier_type;
 
   stage_boundaries() :
     int_node_no(-901),

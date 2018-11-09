@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "oprule/parser/ParseSymbolManagement.h"
 #include "boost/checked_delete.hpp"
 #include "boost/shared_ptr.hpp"
@@ -96,11 +97,11 @@ OperatingRulePtr getOperatingRule(const string & name)
 
 template<class T1>
 bool add_to_collection(T1                         &collection, 
-                       const typename T1::key_type& key,
-                       typename T1::referent_type & item)
+                       const typename T1::template key_type & key,
+                       typename T1::template mapped_type & item)
 {
    typedef T1::iterator IterType;
-   typedef T1::referent_type ReferentType;
+   typedef T1::mapped_type ReferentType;
    typedef T1::key_type KeyType;
    if (key == EVAL_STR){
       collection[EVAL_STR]=item;
@@ -124,7 +125,7 @@ bool add_to_collection(T1                         &collection,
 
 bool add_symbol( const string & key, symbol& expression)
 {
-   return add_to_collection<express_map>( express, key, expression);
+	return add_to_collection<express_map>( express, key, expression);
 }
 
 

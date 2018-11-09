@@ -7,7 +7,11 @@ string(TIMESTAMP CONFIG_DATE "%Y-%m-%d")
 # Set the core names of all the libraries
 #-----------------------------------------------------------------------------
 set(DSM2_TOP_DIR "../")
-set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+if (DEFINED THIRD_PARTY_DIR)
+  set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
+else()
+  set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
+endif()
 
 # make sure that the default is a RELEASE
 if (NOT CMAKE_BUILD_TYPE)
@@ -15,43 +19,11 @@ if (NOT CMAKE_BUILD_TYPE)
       "Choose the type of build, options are: None Debug Release."
       FORCE)
 endif (NOT CMAKE_BUILD_TYPE)
-#####################
-### GENERAL FLAGS ###
-#####################
-#- To ensure static linking for C++ code
-set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
-#- To ensure static linking for C code
-set(CMAKE_C_FLAGS_RELEASE "/MT")
-set(CMAKE_C_FLAGS_DEBUG "/MTd")
+# include the common macros for compiler flags and third party libraries
+include(${DSM2_TOP_DIR}CmakeLibraryMacro.txt)
+set_compiler_flags()
 #---------------LIBRARIES-------------------------------------------------
-#------------------ DEPENDENCIES ---------------------
-#----------------- EXECUTABLES --------------------------------------------
-#----------------- FIND THE LIBRARIES -------------------
-include_directories("${DSM2_THIRD_PARTY_DIR}/hdf5_183_xp32_vs2008_ivf101/include" "${DSM2_THIRD_PARTY_DIR}/boost_1_39")
-#boost libraries
-find_library(BOOST_FILESYSTEM_DEBUG NAMES libboost_filesystem-vc90-mt-sgd-1_39 PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_FILESYSTEM_RELEASE NAMES libboost_filesystem-vc90-mt-s-1_39 PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_REGEX_DEBUG NAMES libboost_regex-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_REGEX_RELEASE NAMES libboost_regex-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_SYSTEM_DEBUG NAMES libboost_system-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_SYSTEM_RELEASE NAMES libboost_system-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_UNITTEST_DEBUG NAMES libboost_unit_test_framework-vc90-mt-sgd-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-find_library(BOOST_UNITTEST_RELEASE NAMES libboost_unit_test_framework-vc90-mt-s-1_39.lib PATHS ${DSM2_THIRD_PARTY_DIR}/boost_1_39/lib NO_DEFAULT_PATH)
-#hdf5.lib hdf5_hl_fortran.lib hdf5_fortran.lib hdf5_f90cstub.lib hdf5_hl.lib 
-set(HDF5_LIB_PATH "${DSM2_THIRD_PARTY_DIR}/hdf5_183_xp32_vs2008_ivf101/lib")
-find_library(HDF5 NAMES hdf5.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL_FORTRAN NAMES hdf5_hl_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_FORTRAN NAMES hdf5_fortran.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_F90CSTUB NAMES hdf5_f90cstub.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-find_library(HDF5_HL NAMES hdf5_hl.lib PATHS ${HDF5_LIB_PATH} NO_DEFAULT_PATH)
-#szlib.lib zlib.lib 
-find_library(SZLIB NAMES szlib.lib PATHS "${DSM2_THIRD_PARTY_DIR}/szip21_vs6_enc/lib" NO_DEFAULT_PATH)
-find_library(ZLIB NAMES zlib.lib PATHS "${DSM2_THIRD_PARTY_DIR}/zlib123_vs6/lib" NO_DEFAULT_PATH)
-#standard libraries. no need to specify path as they are linked from default library paths FIXME: find_package
-set (CMT_LIB_DEBUG "libcmtd.lib")
-set (CMT_LIB_RELEASE "libcmt.lib")
-set (MMT_LIB "libmmt.lib")
+find_libs()
 #-------------add linker flags and excluded and included libraries
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
@@ -74,7 +46,7 @@ target_link_libraries(OperatingRule
     ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 set(CMAKE_DEBUG_POSTFIX "d")
-set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_vs9_mt")
+set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_vs14_mt")
 set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
 add_custom_command(TARGET OperatingRule POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
@@ -82,14 +54,14 @@ add_custom_command(TARGET OperatingRule POST_BUILD
      "${CMAKE_SOURCE_DIR}/../lib/$<TARGET_FILE_NAME:OperatingRule>" 
   COMMENT "Copying OperatingRule lib to output directory")
 #--------------------- OPRULE PARSER LIB ------------------------------------
-# add pre build command
 file(GLOB SOURCES lib/parser/*.cpp)
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/Parser-notyet.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/ModelTimeNodeFactory.cpp")
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/ModelActionFactory.cpp")
+list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp")
+list(APPEND SOURCES "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp")
 file(GLOB HEADERS lib/parser/*.h)
-list(REMOVE_ITEM HEADERS "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.h")
-list(REMOVE_ITEM HEADERS "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.h")
+list(APPEND HEADERS lib/parser/op_rule_tab.cpp)
 file(GLOB PARSER_HEADERS oprule/parser/*.h)
 list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/op_rule.tab.h")
 list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/ModelActionFactory.h")
@@ -98,6 +70,17 @@ list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/Parser-notyet
 list(REMOVE_ITEM PARSER_HEADERS "${CMAKE_SOURCE_DIR}/oprule/parser/ptr_wrapper.h")
 include_directories(src)
 add_library(OpRuleParser ${SOURCES} ${HEADERS} ${PARSER_HEADERS} "oprule/rule/ActionSet.h")
+# add pre build command
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp"  
+    COMMAND flex -L -Pop_rule -oop_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
+    COMMENT "Generating op_rule.cpp using flex")
+add_custom_command(OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp" PRE_BUILD 
+    COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
+    COMMAND move /Y op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
+    COMMAND move /Y op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.h
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
+    COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
 target_link_libraries(OpRuleParser 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -107,18 +90,8 @@ target_link_libraries(OpRuleParser
     ${MMT_LIB} debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 set(CMAKE_DEBUG_POSTFIX "d")
-set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs9_mt")
+set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs14_mt")
 set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
-add_custom_command(TARGET OpRuleParser PRE_BUILD 
-    COMMAND flex -L -Pop_rule -oop_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
-    COMMENT "Generating op_rule.cpp using flex")
-add_custom_command(TARGET OpRuleParser PRE_BUILD 
-    COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
-    COMMAND move /Y op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
-    COMMAND move /Y op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.h
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
-    COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
 add_custom_command(TARGET OpRuleParser POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
      "$<TARGET_FILE:OpRuleParser>"

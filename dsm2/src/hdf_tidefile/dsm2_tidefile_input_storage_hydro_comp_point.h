@@ -35,7 +35,7 @@ class hydro_comp_point
 public:
 
   /** Data type hydro_comp_point, default constructor */  
-  typedef const tuple<const int&>  identifier_type;
+  typedef const boost::tuple<const int&>  identifier_type;
 
   hydro_comp_point() :
     comp_index(-901),

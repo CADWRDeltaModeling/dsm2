@@ -55,7 +55,7 @@ c**********contains routines for writing data to an HDF5 file
 	call h5pset_cache_f( fapl, nelmts, rddc_nelmts, rddc_nbytes, rdcc_w0,error)
 	call VerifyHDF5(error,"Cache set")
 
-	call h5fopen_f(hdf5_hydrofile,H5F_ACC_RDONLY_F, file_id, fapl, error)
+	call h5fopen_f(hdf5_hydrofile,H5F_ACC_RDONLY_F, file_id, error, fapl)
 	call VerifyHDF5(error,"File open")
 
 	call h5gopen_f(file_id, "hydro", hydro_id, error)
