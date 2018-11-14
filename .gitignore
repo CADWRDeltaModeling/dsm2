@@ -156,7 +156,6 @@ dsm2/src/input_storage/input_storage_xsect.cpp
 oprule/lib/parser/op_rule_tab.h
 lib/heclib_vs14_c2016.lib
 lib/heclib_vs14_c2014.lib
-lib/heclib_vs14.lib
 input_storage/test/xsect_input_storage.fi
 input_storage/test/userDefineLangTemplate.xml
 input_storage/test/text_parser.cpp
