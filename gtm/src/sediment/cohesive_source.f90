@@ -54,26 +54,22 @@ module cohesive_source
                                 critical_shear_stress,  &
                                 bottom_shear_stress,    &
                                 param_M,                &
-                                bed_frac)                
-        
-                
-                
-        
-                                
+                                bed_frac)
         implicit none
         real(gtm_real), intent(in) :: bottom_shear_stress
         real(gtm_real), intent(in) :: critical_shear_stress
         real(gtm_real), intent(in) :: param_M
         real(gtm_real), intent(out) :: erosion_rate
         real(gtm_real), intent(in) :: bed_frac
-        
-                
-        erosion_rate = param_M * (bottom_shear_stress/critical_shear_stress-one) * bed_frac
-         
-        if (bottom_shear_stress .le. critical_shear_stress) erosion_rate = zero 
-       
+    
+        if (bottom_shear_stress .le. critical_shear_stress) then
+            erosion_rate = zero
+        else
+            erosion_rate = param_M * (bottom_shear_stress / critical_shear_stress - one) * bed_frac
+        endif
         return
     end subroutine
+
 
     !> Bed shear stress
     subroutine bed_shear_stress(bed_shear,     &
