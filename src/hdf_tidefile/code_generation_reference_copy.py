@@ -9,7 +9,7 @@ files and prepend dsm2_tidefile_ to the names of the cpp and header files
 """
 
 import sys
-sys.path.append("d:/delta/models/test/input_storage/src")
+sys.path.append("../../../input_storage/src")
 from generate_input_storage import *
 LAST_FIELD=1
 DSM2_NAME_LEN=32

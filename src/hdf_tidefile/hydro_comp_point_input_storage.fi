@@ -34,12 +34,14 @@
        !> Query the number of records in hdf5 of type hydro_comp_point
        subroutine hydro_comp_point_number_rows_hdf5(file_id, nrecords,ierror)
          !DEC$ ATTRIBUTES ALIAS:'_hydro_comp_point_number_rows_hdf5_f' :: hydro_comp_point_number_rows_hdf5_f
-          use hdf5, only: HID_T
+          use hdf5, only: HID_T,HSIZE_T
           implicit none
           integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
           integer(HID_T),intent(in)::file_id
           integer, intent(out) :: ierror
-          call hydro_comp_point_number_rows_hdf5_f(file_id,nrecords,ierror)
+          call hydro_comp_point_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
           return
        end subroutine
 

@@ -1,0 +1,8 @@
+BUILD/
+src/common/version.fi
+src/input_storage/*.fi
+src/input_storage/*.cpp
+src/input_storage/*.h
+src/input_storage/input_storage_fortran.f90
+src/input_storage/component.py
+src/input_storage/userDefineLangTemplate.xml

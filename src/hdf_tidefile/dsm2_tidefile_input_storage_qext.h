@@ -35,7 +35,7 @@ class qext
 public:
 
   /** Data type qext, default constructor */  
-  typedef const tuple<const std::string>  identifier_type;
+  typedef const boost::tuple<const std::string>  identifier_type;
 
   qext() :
     attached_obj_type(-901),
