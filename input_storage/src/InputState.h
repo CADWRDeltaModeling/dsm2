@@ -131,7 +131,7 @@ virtual bool isBlockEnd(string & line);
 string strip(const string& line) const;
 
 /** Perform text/environment substitution */
-string InputState::substitute(const string& line) const;
+string substitute(const string& line) const;
 
 
 /** Determine if an item is active 

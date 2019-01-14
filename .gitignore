@@ -1,4 +1,6 @@
 **/BUILD
+**/BUILD_DBG
+lib/**
 dsm2/src/input_storage/xsect_layer_input_storage.fi
 dsm2/src/input_storage/xsect_input_storage.fi
 dsm2/src/input_storage/userDefineLangTemplate.xml

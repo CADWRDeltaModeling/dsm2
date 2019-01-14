@@ -1,6 +1,6 @@
 #ifndef oprule_expression_LAGGED_EXPRESSION_NODE_H__INCLUDED_
 #define oprule_expression_LAGGED_EXPRESSION_NODE_H__INCLUDED_
-
+#include <stdexcept>
 #include "oprule/expression/ExpressionNode.h"
 #include "oprule/expression/LaggedValueHolder.h"
 
@@ -18,7 +18,7 @@ class LaggedExpressionNode  : public ExpressionNode<T>,
   
   typedef LaggedExpressionNode<T> NodeType;
   typedef OE_NODE_PTR(NodeType) NodePtr;
-  typedef ExpressionNode<T>::NodePtr ExpressionNodePtr;
+  typedef typename ExpressionNode<T>::NodePtr ExpressionNodePtr;
 
  /** Create a lagged expression with the stipulated number of lags.
    * @param lags number of lags to store.
@@ -34,7 +34,8 @@ class LaggedExpressionNode  : public ExpressionNode<T>,
   }
 
   virtual ExpressionNodePtr copy(){
-	  return create(nlag);
+    throw new std::logic_error("NOT IMPLEMENTED!");
+    //	  return create(nlag);
   }
 
   virtual ~LaggedExpressionNode(){}
@@ -52,14 +53,19 @@ class LaggedExpressionNode  : public ExpressionNode<T>,
   */
   virtual void step(double dt){
 	  _val->step(dt);
-	  advanceStep();
+          throw new std::logic_error("NOT IMPLEMENTED!");
+	  // advanceStep();
   }
 
   /** Get current value*/
   virtual T newVal(){return _val->eval();}
 
   /** Get lagged value (maximum lag)*/
-  virtual T eval(){return getLaggedValue(maxLag());}
+  virtual T eval(){
+          throw new std::logic_error("NOT IMPLEMENTED!");
+	  return _val->eval();
+	  //return getLaggedValue(maxLag());
+  }
 
   virtual bool isTimeDependent() const{ return true; }
  

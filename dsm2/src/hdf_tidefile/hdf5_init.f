@@ -108,7 +108,7 @@ c**********contains routines for writing data to an HDF5 file
 
 	integer getHDF5IndexForTideTime
 	external getHDF5IndexForTideTime
-
+	external attach_hydro_dimscales
 
 	integer(SIZE_T) :: rddc_nelmts
 	integer(SIZE_T) :: rddc_nbytes

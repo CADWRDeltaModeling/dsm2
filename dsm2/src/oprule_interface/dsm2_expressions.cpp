@@ -2,7 +2,11 @@
 #include "oprule/expression/ExpressionNode.h"
 #include<vector>
 #include<algorithm>
+#ifdef _WIN32
 #define get_expression_data GET_EXPRESSION_DATA
+#else
+#define get_expression_data get_expression_data_
+#endif
 
 typedef std::vector<oprule::expression::DoubleNodePtr> data_expr_container;
 data_expr_container expr_used_as_data;

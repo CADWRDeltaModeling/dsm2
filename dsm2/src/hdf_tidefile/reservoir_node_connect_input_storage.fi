@@ -4,7 +4,7 @@
         
        !> Clear the buffer of all stored data of type reservoir_node_connect 
        subroutine reservoir_node_connect_clear_buffer()
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_clear_buffer_f' :: reservoir_node_connect_clear_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_clear_buffer_f' :: reservoir_node_connect_clear_buffer_f
          implicit none
          call reservoir_node_connect_clear_buffer_f()
          return
@@ -12,7 +12,7 @@
 
        !> Query the number of records in storage buffer of type reservoir_node_connect
        integer function reservoir_node_connect_buffer_size()
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_buffer_size_f' :: reservoir_node_connect_buffer_size_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_buffer_size_f' :: reservoir_node_connect_buffer_size_f
           implicit none
           integer, external :: reservoir_node_connect_buffer_size_f
           reservoir_node_connect_buffer_size = reservoir_node_connect_buffer_size_f()
@@ -21,7 +21,7 @@
        
        !> write reservoir_node_connect data to buffer
        subroutine reservoir_node_connect_append_to_buffer(res_node_index,res_name,res_index,connect_index,node_no,ext_node_no,connection_type,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_append_to_buffer_f' :: reservoir_node_connect_append_to_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_append_to_buffer_f' :: reservoir_node_connect_append_to_buffer_f
          implicit none
          integer, intent(out) :: ierror         
                integer, intent(in) :: res_node_index
@@ -37,7 +37,7 @@
        
        !> Query the number of records in hdf5 of type reservoir_node_connect
        subroutine reservoir_node_connect_number_rows_hdf5(file_id, nrecords,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_number_rows_hdf5_f' :: reservoir_node_connect_number_rows_hdf5_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_number_rows_hdf5_f' :: reservoir_node_connect_number_rows_hdf5_f
           use hdf5, only: HID_T
           implicit none
           integer :: nrecords
@@ -51,7 +51,7 @@
 
        !> Query row of data from buffer of type reservoir_node_connect
        subroutine reservoir_node_connect_query_from_buffer(row, res_node_index,res_name,res_index,connect_index,node_no,ext_node_no,connection_type,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_query_from_buffer_f' :: reservoir_node_connect_query_from_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_query_from_buffer_f' :: reservoir_node_connect_query_from_buffer_f
           implicit none
                 integer, intent(out) :: res_node_index
        character(len=32), intent(out) :: res_name
@@ -69,7 +69,7 @@
 
        !> Prioritize buffer by layers, delete unused items and sort
        subroutine reservoir_node_connect_prioritize_buffer(ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_prioritize_buffer_f' :: reservoir_node_connect_prioritize_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_prioritize_buffer_f' :: reservoir_node_connect_prioritize_buffer_f
 	      implicit none
           integer, intent(out) :: ierror          
           call reservoir_node_connect_prioritize_buffer_f(ierror)
@@ -78,7 +78,7 @@
        !> Write a buffer of reservoir_node_connect data to buffer 
        !! @param file_id handle to hdf5 file
        subroutine reservoir_node_connect_write_buffer_to_hdf5(file_id, ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_write_buffer_to_hdf5_f' :: reservoir_node_connect_write_buffer_to_hdf5_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_write_buffer_to_hdf5_f' :: reservoir_node_connect_write_buffer_to_hdf5_f
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -89,7 +89,7 @@
 
        !> Read a buffer of reservoir_node_connect data from hdf5 to buffer 
        subroutine reservoir_node_connect_read_buffer_from_hdf5(file_id,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_read_buffer_from_hdf5_f' :: reservoir_node_connect_read_buffer_from_hdf5_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_read_buffer_from_hdf5_f' :: reservoir_node_connect_read_buffer_from_hdf5_f
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -99,7 +99,7 @@
        end subroutine
 
        subroutine reservoir_node_connect_write_buffer_to_text(filename,append,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_reservoir_node_connect_write_buffer_to_text_f' :: reservoir_node_connect_write_buffer_to_text_f
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_write_buffer_to_text_f' :: reservoir_node_connect_write_buffer_to_text_f
          implicit none
          integer, intent(out) :: ierror
          character*(*) filename

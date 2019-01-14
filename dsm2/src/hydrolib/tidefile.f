@@ -338,11 +338,11 @@ contains
 
         !   Local Variables:
         integer i
-
+        integer index
         logical ok
         logical InitialCall
         !   Routines by module:
-
+        integer, external :: SetHDF5ToTime
         !**** Channel flow status:
 
         !   Programmed by: Parviz Nader
@@ -372,7 +372,7 @@ contains
 	         
             !This call needs to be before the assignment of prev_avg
             if (io_files(hydro,io_hdf5,io_write)%use) then
-                call SetHDF5ToTime(julmin)
+                index = SetHDF5ToTime(julmin)
                 call WriteQExtChangedToHDF5()
                 call WriteChannelFlowToHDF5()
                 call WriteReservoirFlowToHDF5()

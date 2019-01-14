@@ -53,9 +53,9 @@ c-----local variables
 	  ! flow values must be updated
 	  TideTime=SetHDF5ToTime(desired_time)
 	   call ReadDataFromHDF5(TideTime)
-
+         
          if (process_data) then
-            call process_tide(new_tidefile,
+            call process_tide(new_tidefile, tidefile,
      &           first_used_tidefile,current_tidefile,tide_block_no)
          endif
       endif

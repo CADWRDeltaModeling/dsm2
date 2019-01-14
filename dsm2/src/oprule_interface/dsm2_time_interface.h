@@ -14,12 +14,12 @@ public:                                                \
    typedef c_name NodeType;                            \
    typedef OE_NODE_PTR(NodeType) NodePtr;              \
    static NodePtr create(){ return NodePtr(new NodeType());} \
-   virtual public oprule::expression::DoubleNode::NodePtr copy(){ \
+   virtual oprule::expression::DoubleNode::NodePtr copy(){ \
       return NodePtr(new NodeType());\
    } \
    virtual double eval(){ return (double) c_getter(); }\
    virtual bool isTimeDependent() const{return true;}  \
-}
+}\
 
 TIMECLASS(DSM2HydroYearNode,get_model_year);
 TIMECLASS(DSM2HydroSeasonNode, get_model_minute_of_year); //???
@@ -44,7 +44,7 @@ public:
    static NodePtr create(const int mo, const int d,
                          const int hr, const int min){
       return NodePtr(new NodeType(mo,d,hr,min));} 
-   virtual public oprule::expression::DoubleNode::NodePtr copy(){ 
+   virtual oprule::expression::DoubleNode::NodePtr copy(){ 
       return NodePtr(new NodeType(_mon,_day,_hour,_min));
    } 
 

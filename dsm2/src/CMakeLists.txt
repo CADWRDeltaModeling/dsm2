@@ -57,13 +57,16 @@ if(MSVC)
       "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT hydro)
+else(MSVC)
+  set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
+  set(CMAKE_SHARED_LINKER_FLAGS "-nodefaultlibs")
 endif()
 include_directories("${DSM2_TOP_DIR}/input_storage/src")
 include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
 #------------------------- SUB PROJECTS --------------------------------
 add_subdirectory(${DSM2_COMMONS_DIR})
 # generate the files now
-execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
+# execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_FIXED_DIR})
 add_subdirectory(${DSM2_HDF_TIDEFILE})
@@ -82,10 +85,26 @@ add_dependencies(timevar common)
 add_dependencies(hdf_tidefile_fortran common timevar input_storage hdf_tidefile_cpp)
 add_dependencies(klu_fortran common sparse)
 add_executable(hydro hydro/fourpt.f)
+include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
 add_dependencies(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
+if (WIN32)
+else (WIN32)
+set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
+endif (WIN32)
 set_property(TARGET hydro PROPERTY LINKER_LANGUAGE Fortran)
+if (WIN32)
 target_link_libraries(hydro debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 target_link_libraries(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
+else (WIN32)
+# 3.13+ cmake required target_link_options(hydro "-mkl")
+set_target_properties(hydro PROPERTIES LINK_FLAGS "-mkl=sequential")
+#target_include_directories(hydro PUBLIC modules)
+#message("Value of CMAKE_Fortran_MODULE_DIRECTORY = ${CMAKE_Fortran_MODULE_DIRECTORY}")
+# 3.13+ target_link_options(hydro PUBLIC "-I ${CMAKE_Fortran_MODULE_DIRECTORY")
+target_include_directories(hydro PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
+target_link_libraries(hydro -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
+endif (WIN32)
+if (WIN32)
 target_link_libraries(hydro 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -99,11 +118,33 @@ target_link_libraries(hydro
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
+else (WIN32)
+target_link_libraries(hydro 
+    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} /opt/intel/parallel_studio_2019/compilers_and_libraries_2019.0.117/linux/mkl/lib/ia32_lin/libmkl_core.a -Wl,--end-group
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
+    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
+    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
+    )
+#debug /usr/lib/gcc/x86_64-redhat-linux/4.8.2/32/libgfortran.a # library is missing on this linux distro?
+target_link_libraries(hydro -lintlc -lifcore -lsvml -lifport -ldl -lstdc++ -lc -lm -lgcc_s)
+#-lpthread -lc -lm -lgcc -lgcc_s -lintlc -lifcore -lsvml -lifport)
+# -lmkl_core -lmkl_intel -lmkl_sequential)
+endif (WIN32)
 # QUAL EXE
 file(GLOB QUAL_SOURCES qual/*.f)
-set (CMAKE_Fortran_FLAGS "/extend_source:132")
+if (WIN32)
+   set (CMAKE_Fortran_FLAGS "/extend_source:132")
+else (WIN32)
+   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+endif (WIN32)
 add_executable(qual ${QUAL_SOURCES})
 set_property(TARGET qual PROPERTY LINKER_LANGUAGE Fortran)
+if (WIN32)
 target_link_libraries(qual debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 target_link_libraries(qual common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar)
 target_link_libraries(qual 
@@ -118,9 +159,29 @@ target_link_libraries(qual
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
+else (WIN32)
+set_target_properties(qual PROPERTIES LINK_FLAGS "-mkl=sequential")
+target_include_directories(qual PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
+target_link_libraries(qual -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
+target_link_libraries(qual 
+    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group 
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
+    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
+    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    )
+target_link_libraries(qual -lintlc -lifcore -lsvml -lifport -ldl -lstdc++ -lc -lm -lgcc_s)
+endif (WIN32)
 # PTM DLL
 file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f)
-set (CMAKE_Fortran_FLAGS "/extend_source:132")
+if (WIN32)
+   set (CMAKE_Fortran_FLAGS "/extend_source:132")
+else (WIN32)
+   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+endif (WIN32)
 add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(ptm_fortran common timevar fixed hydrolib)
 file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
@@ -130,6 +191,7 @@ target_include_directories(ptm_dll PUBLIC ${JNI_INCLUDE_DIRS})
 set (CMAKE_CXX_STANDARD_LIBRARIES "")
 target_link_libraries(ptm_dll ptm_fortran common fixed timevar hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
 add_dependencies(ptm_dll common fixed timevar hydrolib)
+if (WIN32)
 target_link_libraries(ptm_dll 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -142,3 +204,15 @@ target_link_libraries(ptm_dll
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
+else (WIN32)
+target_link_libraries(ptm_dll 
+    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group 
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
+    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
+    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    )
+endif (WIN32)

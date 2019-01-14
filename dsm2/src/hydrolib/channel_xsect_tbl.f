@@ -133,7 +133,7 @@ contains
         interface
             double precision function CBRT(Y)
                 double precision Y
-            !DEC$ ATTRIBUTES C, ALIAS:'_cbrt' :: CBRT
+            !DEC$ ATTRIBUTES C, ALIAS:'cbrt' :: CBRT
             end function CBRT
         end interface
         CBRTC = CBRT(%VAL(X))

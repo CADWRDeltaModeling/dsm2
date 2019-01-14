@@ -130,7 +130,7 @@ c     This must come after tidefile is loaded
          if (distance(:6) .eq. "length") then 
             idistance = chan_length
          else 
-            read(distance,'(i)',err=120) idistance
+            read(distance,*,err=120) idistance
          end if
          call process_output_channel(name,
      &                               channo,
@@ -161,7 +161,7 @@ c     This must come after tidefile is loaded
              node=miss_val_i
          else
              node=miss_val_i
-             read(node_str,'(i)',err=118)node
+             read(node_str,*,err=118)node
          end if
          call process_output_reservoir(name,
      &                                    reservoir,

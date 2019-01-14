@@ -11,20 +11,20 @@ namespace parser{
 class MissingIdentifier : public std::logic_error {
   public:
 	MissingIdentifier(const std::string& msg = "") :  std::logic_error(msg) {}
-	virtual ~MissingIdentifier(){}
+       virtual ~MissingIdentifier() throw(){}
 };
 
 
 class InvalidIdentifier : public std::logic_error {
 public:
     InvalidIdentifier(const std::string& msg = "") : std::logic_error(msg) {}
-	virtual ~InvalidIdentifier(){};
+    virtual ~InvalidIdentifier() throw(){};
 };
 
 class ModelNameNotFound : public std::logic_error {
 public:
     ModelNameNotFound(const std::string& msg = "") : std::logic_error(msg) {}
-	virtual ~ModelNameNotFound(){}
+    virtual ~ModelNameNotFound() throw() {}
 };
 
 }} //namespace

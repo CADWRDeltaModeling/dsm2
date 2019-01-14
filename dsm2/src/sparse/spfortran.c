@@ -133,55 +133,7 @@ static char RCSid[] =
 
 
 
-/*
- *  Routine Renaming. Put "UNIX" or "NT" on the next line !! <NT>
- */
-#define NT
-
-#ifdef UNIX
-#define sfCreate                 sfcreate_
-#define sfStripFills             sfstripfills_
-#define sfDestroy                sfdestroy_
-#define sfClear                  sfclear_
-#define sfGetElement             sfgetelement_
-#define sfGetAdmittance          sfgetadmittance_
-#define sfGetQuad                sfgetquad_
-#define sfGetOnes                sfgetones_
-#define sfAdd1Real               sfadd1real_
-#define sfAdd1Imag               sfadd1imag_
-#define sfAdd1Complex            sfadd1complex_
-#define sfAdd4Real               sfadd4real_
-#define sfAdd4Imag               sfadd4imag_
-#define sfAdd4Complex            sfadd4complex_
-#define sfOrderAndFactor         sforderandfactor_
-#define sfFactor                 sffactor_
-#define sfPartition              sfpartition_
-#define sfSolve                  sfsolve_
-#define sfSolveTransposed        sfsolvetransposed_
-#define sfPrint                  sfprint_
-#define sfFileMatrix             sffilematrix_
-#define sfFileVector             sffilevector_
-#define sfFileStats              sffilestats_
-#define sfMNA_Preorder           sfmna_preorder_
-#define sfScale                  sfscale_
-#define sfMultiply               sfmultiply_
-#define sfDeterminant            sfdeterminant_
-#define sfError                  sferror_
-#define sfWhereSingular          sfwheresingular_
-#define sfGetSize                sfgetsize_
-#define sfSetReal                sfsetreal_
-#define sfSetComplex             sfsetcomplex_
-#define sfFillinCount            sffillincount_
-#define sfElementCount           sfelementcount_
-#define sfDeleteRowAndCol        sfdeleterowandcol_
-#define sfPseudoCondition        sfpseudocondition_
-#define sfCondition              sfcondition_
-#define sfNorm                   sfnorm_
-#define sfLargestElement         sflargestelement_
-#define sfRoundoff               sfroundoff_
-#endif
-
-#ifdef NT
+#ifdef _WIN32
 #define STDCALL  
 #define sfCreate                STDCALL SFCREATE
 #define sfStripFills            STDCALL SFSTRIPFILLS
@@ -223,9 +175,48 @@ static char RCSid[] =
 #define sfNorm                  STDCALL SFNORM
 #define sfLargestElement        STDCALL SFLARGESTELEMENT
 #define sfRoundoff              STDCALL SFROUNDOFF
+#else
+#define sfCreate                 sfcreate_
+#define sfStripFills             sfstripfills_
+#define sfDestroy                sfdestroy_
+#define sfClear                  sfclear_
+#define sfGetElement             sfgetelement_
+#define sfGetAdmittance          sfgetadmittance_
+#define sfGetQuad                sfgetquad_
+#define sfGetOnes                sfgetones_
+#define sfAdd1Real               sfadd1real_
+#define sfAdd1Imag               sfadd1imag_
+#define sfAdd1Complex            sfadd1complex_
+#define sfAdd4Real               sfadd4real_
+#define sfAdd4Imag               sfadd4imag_
+#define sfAdd4Complex            sfadd4complex_
+#define sfOrderAndFactor         sforderandfactor_
+#define sfFactor                 sffactor_
+#define sfPartition              sfpartition_
+#define sfSolve                  sfsolve_
+#define sfSolveTransposed        sfsolvetransposed_
+#define sfPrint                  sfprint_
+#define sfFileMatrix             sffilematrix_
+#define sfFileVector             sffilevector_
+#define sfFileStats              sffilestats_
+#define sfMNA_Preorder           sfmna_preorder_
+#define sfScale                  sfscale_
+#define sfMultiply               sfmultiply_
+#define sfDeterminant            sfdeterminant_
+#define sfError                  sferror_
+#define sfWhereSingular          sfwheresingular_
+#define sfGetSize                sfgetsize_
+#define sfSetReal                sfsetreal_
+#define sfSetComplex             sfsetcomplex_
+#define sfFillinCount            sffillincount_
+#define sfElementCount           sfelementcount_
+#define sfDeleteRowAndCol        sfdeleterowandcol_
+#define sfPseudoCondition        sfpseudocondition_
+#define sfCondition              sfcondition_
+#define sfNorm                   sfnorm_
+#define sfLargestElement         sflargestelement_
+#define sfRoundoff               sfroundoff_
 #endif
-
-
 
 /*
  *  Example of a FORTRAN Program Calling Sparse

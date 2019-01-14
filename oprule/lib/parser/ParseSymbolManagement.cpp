@@ -97,12 +97,12 @@ OperatingRulePtr getOperatingRule(const string & name)
 
 template<class T1>
 bool add_to_collection(T1                         &collection, 
-                       const typename T1::template key_type & key,
-                       typename T1::template mapped_type & item)
+                       const typename T1::key_type & key,
+                       typename T1::mapped_type & item)
 {
-   typedef T1::iterator IterType;
-   typedef T1::mapped_type ReferentType;
-   typedef T1::key_type KeyType;
+   typedef typename T1::iterator IterType;
+   typedef typename T1::mapped_type ReferentType;
+   typedef typename T1::key_type KeyType;
    if (key == EVAL_STR){
       collection[EVAL_STR]=item;
 	  return true;

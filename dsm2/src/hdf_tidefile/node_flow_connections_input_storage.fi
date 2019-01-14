@@ -4,7 +4,7 @@
         
        !> Clear the buffer of all stored data of type node_flow_connections 
        subroutine node_flow_connections_clear_buffer()
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_clear_buffer_f' :: node_flow_connections_clear_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_clear_buffer_f' :: node_flow_connections_clear_buffer_f
          implicit none
          call node_flow_connections_clear_buffer_f()
          return
@@ -12,7 +12,7 @@
 
        !> Query the number of records in storage buffer of type node_flow_connections
        integer function node_flow_connections_buffer_size()
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_buffer_size_f' :: node_flow_connections_buffer_size_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_buffer_size_f' :: node_flow_connections_buffer_size_f
           implicit none
           integer, external :: node_flow_connections_buffer_size_f
           node_flow_connections_buffer_size = node_flow_connections_buffer_size_f()
@@ -21,7 +21,7 @@
        
        !> write node_flow_connections data to buffer
        subroutine node_flow_connections_append_to_buffer(connection_index,int_node_no,ext_node_no,node_flow_index,flow_index,flow_name,flow_type,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_append_to_buffer_f' :: node_flow_connections_append_to_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_append_to_buffer_f' :: node_flow_connections_append_to_buffer_f
          implicit none
          integer, intent(out) :: ierror         
                integer, intent(in) :: connection_index
@@ -37,7 +37,7 @@
        
        !> Query the number of records in hdf5 of type node_flow_connections
        subroutine node_flow_connections_number_rows_hdf5(file_id, nrecords,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_number_rows_hdf5_f' :: node_flow_connections_number_rows_hdf5_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_number_rows_hdf5_f' :: node_flow_connections_number_rows_hdf5_f
           use hdf5, only: HID_T,HSIZE_T
           implicit none
           integer :: nrecords
@@ -53,7 +53,7 @@
 
        !> Query row of data from buffer of type node_flow_connections
        subroutine node_flow_connections_query_from_buffer(row, connection_index,int_node_no,ext_node_no,node_flow_index,flow_index,flow_name,flow_type,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_query_from_buffer_f' :: node_flow_connections_query_from_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_query_from_buffer_f' :: node_flow_connections_query_from_buffer_f
           implicit none
                 integer, intent(out) :: connection_index
        integer, intent(out) :: int_node_no
@@ -71,7 +71,7 @@
 
        !> Prioritize buffer by layers, delete unused items and sort
        subroutine node_flow_connections_prioritize_buffer(ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_prioritize_buffer_f' :: node_flow_connections_prioritize_buffer_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_prioritize_buffer_f' :: node_flow_connections_prioritize_buffer_f
 	      implicit none
           integer, intent(out) :: ierror          
           call node_flow_connections_prioritize_buffer_f(ierror)
@@ -80,7 +80,7 @@
        !> Write a buffer of node_flow_connections data to buffer 
        !! @param file_id handle to hdf5 file
        subroutine node_flow_connections_write_buffer_to_hdf5(file_id, ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_write_buffer_to_hdf5_f' :: node_flow_connections_write_buffer_to_hdf5_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_write_buffer_to_hdf5_f' :: node_flow_connections_write_buffer_to_hdf5_f
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -91,7 +91,7 @@
 
        !> Read a buffer of node_flow_connections data from hdf5 to buffer 
        subroutine node_flow_connections_read_buffer_from_hdf5(file_id,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_read_buffer_from_hdf5_f' :: node_flow_connections_read_buffer_from_hdf5_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_read_buffer_from_hdf5_f' :: node_flow_connections_read_buffer_from_hdf5_f
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -101,7 +101,7 @@
        end subroutine
 
        subroutine node_flow_connections_write_buffer_to_text(filename,append,ierror)
-         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_write_buffer_to_text_f' :: node_flow_connections_write_buffer_to_text_f
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_write_buffer_to_text_f' :: node_flow_connections_write_buffer_to_text_f
          implicit none
          integer, intent(out) :: ierror
          character*(*) filename

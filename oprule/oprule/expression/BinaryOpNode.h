@@ -1,7 +1,7 @@
 #ifndef oprule_expression_BINARYOPNODE_H__INCLUDED_
 #define oprule_expression_BINARYOPNODE_H__INCLUDED_
 
-#include <boost\shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 #include "oprule/expression/ExpressionNode.h"
 #include "oprule/expression/ExpressionPtr.h"
 
