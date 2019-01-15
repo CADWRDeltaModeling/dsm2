@@ -50,8 +50,13 @@ target_link_libraries(OperatingRule
     ${MMT_LIB} ${CMT_LIB_RELEASE}
     )
 set(CMAKE_DEBUG_POSTFIX "d")
-set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_vs14_mt")
-set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
+if (WIN32)
+    set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_vs14_mt")
+    set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
+else (WIN32)
+    set_target_properties(OperatingRule PROPERTIES OUTPUT_NAME "oprule_intel")
+    set_target_properties(OperatingRule PROPERTIES DEBUG_POSTFIX "d")
+endif (WIN32)
 add_custom_command(TARGET OperatingRule POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
      "$<TARGET_FILE:OperatingRule>"
@@ -99,8 +104,13 @@ target_link_libraries(OpRuleParser
     ${MMT_LIB} ${CMT_LIB_RELEASE}
     )
 set(CMAKE_DEBUG_POSTFIX "d")
-set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs14_mt")
-set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
+if (WIN32)
+    set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_vs14_mt")
+    set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
+else (WIN32)
+    set_target_properties(OpRuleParser PROPERTIES OUTPUT_NAME "oprule_parser_intel")
+    set_target_properties(OpRuleParser PROPERTIES DEBUG_POSTFIX "d")
+endif (WIN32)
 add_custom_command(TARGET OpRuleParser POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
      "$<TARGET_FILE:OpRuleParser>"

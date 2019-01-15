@@ -52,8 +52,13 @@ target_link_libraries(input_storage
     ${CMT_LIB_RELEASE}
     )
 set(CMAKE_DEBUG_POSTFIX "d")
-set_target_properties(input_storage PROPERTIES OUTPUT_NAME "input_storage_vs14_mt")
-set_target_properties(input_storage PROPERTIES DEBUG_POSTFIX "d")
+if (WIN32)
+    set_target_properties(input_storage PROPERTIES OUTPUT_NAME "input_storage_vs14_mt")
+    set_target_properties(input_storage PROPERTIES DEBUG_POSTFIX "d")
+else (WIN32)
+    set_target_properties(input_storage PROPERTIES OUTPUT_NAME "input_storage_intel")
+    set_target_properties(input_storage PROPERTIES DEBUG_POSTFIX "d")
+endif (WIN32)
 #Post build command
 add_custom_command(TARGET input_storage POST_BUILD 
   COMMAND "${CMAKE_COMMAND}" -E copy 
