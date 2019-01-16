@@ -119,21 +119,21 @@ add_custom_command(TARGET OpRuleParser POST_BUILD
 
 #-------------------- TestOperatingRule exe -----------------
 # search by file pattern and include in library
-file(GLOB TEST_OPRULE_CXX_SOURCES test/rule/*.cpp)
-list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/ModelStateTestFixture.cpp")
-list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/TestStateAction.cpp")
-file(GLOB TEST_OPRULE_CXX_HEADERS test/rule/*.h)
-add_executable(TestOperatingRule ${TEST_OPRULE_CXX_SOURCES} ${TEST_OPRULE_CXX_HEADERS})
-set_property(TARGET TestOperatingRule PROPERTY LINKER_LANGUAGE CXX)
-target_link_libraries(TestOperatingRule
-    OperatingRule OpRuleParser
-    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
-    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
-    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
-    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
-    ${MMT_LIB} ${CMT_LIB_RELEASE}
-    )
+#file(GLOB TEST_OPRULE_CXX_SOURCES test/rule/*.cpp)
+#list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/ModelStateTestFixture.cpp")
+#list(REMOVE_ITEM TEST_OPRULE_CXX_SOURCES "${CMAKE_SOURCE_DIR}/test/rule/TestStateAction.cpp")
+#file(GLOB TEST_OPRULE_CXX_HEADERS test/rule/*.h)
+#add_executable(TestOperatingRule ${TEST_OPRULE_CXX_SOURCES} ${TEST_OPRULE_CXX_HEADERS})
+#set_property(TARGET TestOperatingRule PROPERTY LINKER_LANGUAGE CXX)
+#target_link_libraries(TestOperatingRule
+#    OperatingRule OpRuleParser
+#    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+#    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+#    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+#    debug ${BOOST_UNITTEST_DEBUG} optimized ${BOOST_UNITTEST_RELEASE}
+#    ${HDF5} ${HDF5_HL_FORTRAN} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${SZLIB} ${ZLIB}
+#    ${MMT_LIB} ${CMT_LIB_RELEASE}
+#    )
 #-------------------- TestParser exe -----------------
 # search by file pattern and include in library
 # file(GLOB TEST_PARSER_CXX_SOURCES test/parser/*.cpp)
