@@ -58,8 +58,8 @@ if(MSVC)
   set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT hydro)
 else(MSVC)
-  set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
-  set(CMAKE_SHARED_LINKER_FLAGS "-nodefaultlibs")
+  #set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
+  #set(CMAKE_SHARED_LINKER_FLAGS "-nodefaultlibs")
 endif()
 include_directories("${DSM2_TOP_DIR}/input_storage/src")
 include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
@@ -96,10 +96,9 @@ if (WIN32)
 target_link_libraries(hydro debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 target_link_libraries(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
 else (WIN32)
-# 3.13+ cmake required target_link_options(hydro "-mkl")
-set_target_properties(hydro PROPERTIES LINK_FLAGS "-mkl=sequential")
-#target_include_directories(hydro PUBLIC modules)
-#message("Value of CMAKE_Fortran_MODULE_DIRECTORY = ${CMAKE_Fortran_MODULE_DIRECTORY}")
+# link statically with intel libraries - avoids intel library redistribution
+# full static is not working on linux due to lack of standard .a libraries
+set_target_properties(hydro PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
 # 3.13+ target_link_options(hydro PUBLIC "-I ${CMAKE_Fortran_MODULE_DIRECTORY")
 target_include_directories(hydro PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
 target_link_libraries(hydro -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
@@ -130,10 +129,7 @@ target_link_libraries(hydro
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
     )
-#debug /usr/lib/gcc/x86_64-redhat-linux/4.8.2/32/libgfortran.a # library is missing on this linux distro?
-target_link_libraries(hydro -lintlc -lifcore -lsvml -lifport -ldl -lstdc++ -lc -lm -lgcc_s)
-#-lpthread -lc -lm -lgcc -lgcc_s -lintlc -lifcore -lsvml -lifport)
-# -lmkl_core -lmkl_intel -lmkl_sequential)
+target_link_libraries(hydro -lc -lintlc -lcilkrts -lstdc++ -lm -lgcc_s -ldl)
 endif (WIN32)
 # QUAL EXE
 file(GLOB QUAL_SOURCES qual/*.f)
@@ -160,7 +156,7 @@ target_link_libraries(qual
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 else (WIN32)
-set_target_properties(qual PROPERTIES LINK_FLAGS "-mkl=sequential")
+set_target_properties(qual PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
 target_include_directories(qual PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
 target_link_libraries(qual -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
 target_link_libraries(qual 
@@ -173,7 +169,7 @@ target_link_libraries(qual
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     )
-target_link_libraries(qual -lintlc -lifcore -lsvml -lifport -ldl -lstdc++ -lc -lm -lgcc_s)
+target_link_libraries(qual -lc -lintlc -lcilkrts -lstdc++ -lm -lgcc_s -ldl)
 endif (WIN32)
 # PTM DLL
 file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f)
