@@ -1,15 +1,5 @@
 #!/usr/bin/bash
-module load cmake
-module load intel/parallel_studio_2019/ia32
-export PATH=~/localbin:$PATH
-icc --version
-ifort --version
-FC=ifort
-CC=icc
-CXX=icpc
-export FC
-export CC
-export CXX
+source ../setup_linux_intelcompilers_32bit.sh
 cmake -E remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD

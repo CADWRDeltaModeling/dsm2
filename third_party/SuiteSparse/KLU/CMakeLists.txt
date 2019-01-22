@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8.6) 
 PROJECT (KLU C)
 
-SET(CMAKE_C_FLAGS "-O3 -m32")
+SET(CMAKE_C_FLAGS "-O3 -xHost -no-prec-div -fPIC -m32")
 SET(PROJECT_DEPENDENCIES AMD BTF COLAMD)
 SET(BASE_DEPENDENCY SuiteSparse_config)
 

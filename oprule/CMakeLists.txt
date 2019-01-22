@@ -12,13 +12,6 @@ if (DEFINED THIRD_PARTY_DIR)
 else()
   set(DSM2_THIRD_PARTY_DIR "${DSM2_TOP_DIR}/third_party")
 endif()
-
-# make sure that the default is a RELEASE
-if (NOT CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE Debug CACHE STRING
-      "Choose the type of build, options are: None Debug Release."
-      FORCE)
-endif (NOT CMAKE_BUILD_TYPE)
 # include the common macros for compiler flags and third party libraries
 include(${DSM2_TOP_DIR}CmakeLibraryMacro.txt)
 set_compiler_flags()

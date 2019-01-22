@@ -1,5 +1,6 @@
+#!/bin/bash
 module load cmake
-module load intel/parallel_studio_2019/ia32
+source /opt/intel/parallel_studio_2019/compilers_and_libraries/linux/bin/compilervars.sh ia32
 export PATH=~/localbin:$PATH
 icc --version
 ifort --version
