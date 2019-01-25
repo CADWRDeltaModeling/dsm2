@@ -164,6 +164,7 @@ macro (FIND_LIBS)
     set(MMT_SQ_LIB "${INTEL_LIB_PATH}/mkl_sequential.lib")
     set(MMT_CORE_LIB "${INTEL_LIB_PATH}/mkl_core.lib")
   else (WIN32)
+    set(INTEL_LIB_PATH "/opt/intel/parallel_studio_2019/compilers_and_libraries_2019.0.117/linux/compiler/lib/ia32_lin")
   endif (WIN32)
   
 endmacro(FIND_LIBS)

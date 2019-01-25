@@ -60,7 +60,7 @@ include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fi
 #------------------------- SUB PROJECTS --------------------------------
 add_subdirectory(${DSM2_COMMONS_DIR})
 # generate the files now
-execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
+#execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_FIXED_DIR})
 add_subdirectory(${DSM2_HDF_TIDEFILE})
@@ -78,6 +78,7 @@ add_dependencies(fixed hdf_tidefile_fortran common input_storage timevar)
 add_dependencies(timevar common)
 add_dependencies(hdf_tidefile_fortran common timevar input_storage hdf_tidefile_cpp)
 add_dependencies(klu_fortran common sparse)
+#--------------- HYDRO EXE -------------------------
 add_executable(hydro hydro/fourpt.f)
 include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
 add_dependencies(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
@@ -93,10 +94,10 @@ else (WIN32)
 # link statically with intel libraries - avoids intel library redistribution
 # full static is not working on linux due to lack of standard .a libraries
 set_target_properties(hydro PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
-# 3.13+ target_link_options(hydro PUBLIC "-I ${CMAKE_Fortran_MODULE_DIRECTORY")
 target_include_directories(hydro PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
 target_link_libraries(hydro -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
 endif (WIN32)
+
 if (WIN32)
 target_link_libraries(hydro 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
@@ -123,7 +124,7 @@ target_link_libraries(hydro
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
     )
-target_link_libraries(hydro -lc -lintlc -lcilkrts -lstdc++ -lm -lgcc_s -ldl)
+target_link_libraries(hydro -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
 endif (WIN32)
 # QUAL EXE
 file(GLOB QUAL_SOURCES qual/*.f)
@@ -163,7 +164,7 @@ target_link_libraries(qual
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     )
-target_link_libraries(qual -lc -lintlc -lcilkrts -lstdc++ -lm -lgcc_s -ldl)
+target_link_libraries(qual -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
 endif (WIN32)
 # PTM DLL
 file(GLOB PTM_FORTRAN_SOURCES ptm/native/*.f)
@@ -175,14 +176,12 @@ endif (WIN32)
 add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(ptm_fortran common timevar fixed hydrolib)
 file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
-add_library(ptm_dll STATIC ${PTM_JAVA_CPP_SOURCES})
+add_library(PTM SHARED ${PTM_JAVA_CPP_SOURCES})
 include(FindJNI)
-target_include_directories(ptm_dll PUBLIC ${JNI_INCLUDE_DIRS})
-set (CMAKE_CXX_STANDARD_LIBRARIES "")
-target_link_libraries(ptm_dll ptm_fortran common fixed timevar hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
-add_dependencies(ptm_dll common fixed timevar hydrolib)
+target_include_directories(PTM PUBLIC ${JNI_INCLUDE_DIRS})
 if (WIN32)
-target_link_libraries(ptm_dll 
+target_link_libraries(PTM  ptm_fortran common fixed timevar input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp hydrolib)
+target_link_libraries(PTM 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -195,7 +194,9 @@ target_link_libraries(ptm_dll
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
 else (WIN32)
-target_link_libraries(ptm_dll 
+set_target_properties(PTM PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel -static")
+target_link_libraries(PTM  ptm_fortran -Wl,--whole-archive common fixed timevar input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp -Wl,--no-whole-archive hydrolib)
+target_link_libraries(PTM 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
