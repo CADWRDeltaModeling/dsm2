@@ -1,0 +1,143 @@
+       !>@ingroup fortran
+       !>@defgroup stage_boundaries stage_boundaries
+       !>@{
+        
+       !> Clear the buffer of all stored data of type stage_boundaries 
+       subroutine stage_boundaries_clear_buffer()
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_clear_buffer_f' :: stage_boundaries_clear_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_clear_buffer_f' :: stage_boundaries_clear_buffer_f
+	 !DEC$ END IF
+         implicit none
+         call stage_boundaries_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type stage_boundaries
+       integer function stage_boundaries_buffer_size()
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_buffer_size_f' :: stage_boundaries_buffer_size_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_buffer_size_f' :: stage_boundaries_buffer_size_f
+	 !DEC$ END IF
+          implicit none
+          integer, external :: stage_boundaries_buffer_size_f
+          stage_boundaries_buffer_size = stage_boundaries_buffer_size_f()
+          return
+       end function
+       
+       !> write stage_boundaries data to buffer
+       subroutine stage_boundaries_append_to_buffer(name,int_node_no,ext_node_no,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_append_to_buffer_f' :: stage_boundaries_append_to_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_append_to_buffer_f' :: stage_boundaries_append_to_buffer_f
+	 !DEC$ END IF
+         implicit none
+         integer, intent(out) :: ierror         
+               character(len=32), intent(in) :: name
+       integer, intent(in) :: int_node_no
+       integer, intent(in) :: ext_node_no
+         call stage_boundaries_append_to_buffer_f(name,int_node_no,ext_node_no,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type stage_boundaries
+       subroutine stage_boundaries_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_number_rows_hdf5_f' :: stage_boundaries_number_rows_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_number_rows_hdf5_f' :: stage_boundaries_number_rows_hdf5_f
+	 !DEC$ END IF
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call stage_boundaries_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type stage_boundaries
+       subroutine stage_boundaries_query_from_buffer(row, name,int_node_no,ext_node_no,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_query_from_buffer_f' :: stage_boundaries_query_from_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_query_from_buffer_f' :: stage_boundaries_query_from_buffer_f
+	 !DEC$ END IF
+          implicit none
+                character(len=32), intent(out) :: name
+       integer, intent(out) :: int_node_no
+       integer, intent(out) :: ext_node_no
+          integer row
+          integer, intent(out) :: ierror
+          call stage_boundaries_query_from_buffer_f(row, &
+                    name,int_node_no,ext_node_no,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine stage_boundaries_prioritize_buffer(ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_prioritize_buffer_f' :: stage_boundaries_prioritize_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_prioritize_buffer_f' :: stage_boundaries_prioritize_buffer_f
+	 !DEC$ END IF
+	      implicit none
+          integer, intent(out) :: ierror          
+          call stage_boundaries_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of stage_boundaries data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine stage_boundaries_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_write_buffer_to_hdf5_f' :: stage_boundaries_write_buffer_to_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_write_buffer_to_hdf5_f' :: stage_boundaries_write_buffer_to_hdf5_f
+	 !DEC$ END IF
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call stage_boundaries_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of stage_boundaries data from hdf5 to buffer 
+       subroutine stage_boundaries_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_read_buffer_from_hdf5_f' :: stage_boundaries_read_buffer_from_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_read_buffer_from_hdf5_f' :: stage_boundaries_read_buffer_from_hdf5_f
+	 !DEC$ END IF
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call stage_boundaries_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine stage_boundaries_write_buffer_to_text(filename,append,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_stage_boundaries_write_buffer_to_text_f' :: stage_boundaries_write_buffer_to_text_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'stage_boundaries_write_buffer_to_text_f' :: stage_boundaries_write_buffer_to_text_f
+	 !DEC$ END IF
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call stage_boundaries_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

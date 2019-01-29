@@ -1,0 +1,151 @@
+       !>@ingroup fortran
+       !>@defgroup node_flow_connections node_flow_connections
+       !>@{
+
+       !> Clear the buffer of all stored data of type node_flow_connections 
+       subroutine node_flow_connections_clear_buffer()
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_clear_buffer_f' :: node_flow_connections_clear_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_clear_buffer_f' :: node_flow_connections_clear_buffer_f
+	 !DEC$ END IF
+         implicit none
+         call node_flow_connections_clear_buffer_f()
+         return
+       end subroutine
+
+       !> Query the number of records in storage buffer of type node_flow_connections
+       integer function node_flow_connections_buffer_size()
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_buffer_size_f' :: node_flow_connections_buffer_size_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_buffer_size_f' :: node_flow_connections_buffer_size_f
+	 !DEC$ END IF
+          implicit none
+          integer, external :: node_flow_connections_buffer_size_f
+          node_flow_connections_buffer_size = node_flow_connections_buffer_size_f()
+          return
+       end function
+       
+       !> write node_flow_connections data to buffer
+       subroutine node_flow_connections_append_to_buffer(connection_index,int_node_no,ext_node_no,node_flow_index,flow_index,flow_name,flow_type,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_append_to_buffer_f' :: node_flow_connections_append_to_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_append_to_buffer_f' :: node_flow_connections_append_to_buffer_f
+	 !DEC$ END IF
+         implicit none
+         integer, intent(out) :: ierror         
+               integer, intent(in) :: connection_index
+       integer, intent(in) :: int_node_no
+       integer, intent(in) :: ext_node_no
+       integer, intent(in) :: node_flow_index
+       integer, intent(in) :: flow_index
+       character(len=32), intent(in) :: flow_name
+       character(len=8), intent(in) :: flow_type
+         call node_flow_connections_append_to_buffer_f(connection_index,int_node_no,ext_node_no,node_flow_index,flow_index,flow_name,flow_type,ierror)
+         return
+       end subroutine
+       
+       !> Query the number of records in hdf5 of type node_flow_connections
+       subroutine node_flow_connections_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_number_rows_hdf5_f' :: node_flow_connections_number_rows_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_number_rows_hdf5_f' :: node_flow_connections_number_rows_hdf5_f
+	 !DEC$ END IF
+          use hdf5, only: HID_T,HSIZE_T
+          implicit none
+          integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
+          integer(HID_T),intent(in)::file_id
+          integer, intent(out) :: ierror
+          call node_flow_connections_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
+          return
+       end subroutine
+
+
+
+       !> Query row of data from buffer of type node_flow_connections
+       subroutine node_flow_connections_query_from_buffer(row, connection_index,int_node_no,ext_node_no,node_flow_index,flow_index,flow_name,flow_type,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_query_from_buffer_f' :: node_flow_connections_query_from_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_query_from_buffer_f' :: node_flow_connections_query_from_buffer_f
+	 !DEC$ END IF
+          implicit none
+                integer, intent(out) :: connection_index
+       integer, intent(out) :: int_node_no
+       integer, intent(out) :: ext_node_no
+       integer, intent(out) :: node_flow_index
+       integer, intent(out) :: flow_index
+       character(len=32), intent(out) :: flow_name
+       character(len=8), intent(out) :: flow_type
+          integer row
+          integer, intent(out) :: ierror
+          call node_flow_connections_query_from_buffer_f(row, &
+                    connection_index,int_node_no,ext_node_no,node_flow_index,flow_index,flow_name,flow_type,ierror)
+          return
+       end subroutine
+
+       !> Prioritize buffer by layers, delete unused items and sort
+       subroutine node_flow_connections_prioritize_buffer(ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_prioritize_buffer_f' :: node_flow_connections_prioritize_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_prioritize_buffer_f' :: node_flow_connections_prioritize_buffer_f
+	 !DEC$ END IF
+	      implicit none
+          integer, intent(out) :: ierror          
+          call node_flow_connections_prioritize_buffer_f(ierror)
+       end subroutine
+
+       !> Write a buffer of node_flow_connections data to buffer 
+       !! @param file_id handle to hdf5 file
+       subroutine node_flow_connections_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_write_buffer_to_hdf5_f' :: node_flow_connections_write_buffer_to_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_write_buffer_to_hdf5_f' :: node_flow_connections_write_buffer_to_hdf5_f
+	 !DEC$ END IF
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call node_flow_connections_write_buffer_to_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       !> Read a buffer of node_flow_connections data from hdf5 to buffer 
+       subroutine node_flow_connections_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_read_buffer_from_hdf5_f' :: node_flow_connections_read_buffer_from_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_read_buffer_from_hdf5_f' :: node_flow_connections_read_buffer_from_hdf5_f
+	 !DEC$ END IF
+         use hdf5, only: HID_T
+         implicit none
+         integer(HID_T), intent(in) :: file_id
+         integer, intent(out) :: ierror         
+         call node_flow_connections_read_buffer_from_hdf5_f(file_id,ierror)
+         return
+       end subroutine
+
+       subroutine node_flow_connections_write_buffer_to_text(filename,append,ierror)
+         !DEC$ IF DEFINED(_WIN32)
+         !DEC$ ATTRIBUTES ALIAS:'_node_flow_connections_write_buffer_to_text_f' :: node_flow_connections_write_buffer_to_text_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'node_flow_connections_write_buffer_to_text_f' :: node_flow_connections_write_buffer_to_text_f
+	 !DEC$ END IF
+         implicit none
+         integer, intent(out) :: ierror
+         character*(*) filename
+         logical append
+         call node_flow_connections_write_buffer_to_text_f(filename, append,ierror)
+         return
+       end subroutine     
+       !@}
+
+
+

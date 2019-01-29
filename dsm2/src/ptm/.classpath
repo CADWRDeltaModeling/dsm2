@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="Obsolete/|bin/|installer/|lib/|native/" including="DWR/" kind="src" path=""/>
+	<classpathentry kind="lib" path="lib/COM.jar"/>
+	<classpathentry kind="lib" path="lib/edu.jar"/>
+	<classpathentry kind="lib" path="lib/xml.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="javabin"/>
+</classpath>

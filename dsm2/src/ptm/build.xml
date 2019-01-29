@@ -1,0 +1,149 @@
+<!-- Copyright California Department of Water Resources
+     Aaron Miller, March 2001
+	 Revised: Yu Zhou, October 2010
+     This build file is for use with Ant, a highly portable build tool
+     for info, see http://jakarta.apache.org/ant/index.html
+-->
+
+<project name="ptm" default="all" basedir=".">
+
+    <target name="init">
+<!--    <property name="webstart" value="D:\jdk1.6.0_21/jre/javaws/javawspl.jar" />-->
+        <property name="sourceDir" value="./DWR/DMS/PTM" />
+<!--    <property name="dist" value="dist" />-->
+        <property name="build" value="classes" />
+        <property name="native" value="native" />
+        <property name="ptmdocDir" value="docs" />
+        <property name="debug" value="off" />
+<!--    <property name="ftpDir" value="ftp"/>-->
+        <!-- Users can override the above properties by creating-->
+        <!-- in a seperate file in the same directory as this one-->
+        <!-- called ant.properties-->
+    </target>
+
+    <target name="clean" depends="init">
+        <delete dir="${build}/" />
+<!--    <delete dir="${dist}/" />-->
+    </target>
+
+    <target name="prepare" depends="clean">
+        <tstamp/>
+        <mkdir dir="${build}" />
+    </target>
+
+    <target name="compile" depends="prepare">
+        <javac 
+            srcdir="${sourceDir}"
+
+            classpath="${build};
+	            lib/COM.jar;
+                lib/edu.jar;
+                lib/xml.jar;
+                tools/image/*.java"
+
+            includes= "*.java,
+                behave/*.java"
+		     
+    	    excludes="rArray.java,
+    	              gRand.java,
+    		          gRand48.java,
+    		          pump.java,
+    		          pumpFixedData.java,
+    		          diversionFixedData.java,
+    		          diversion.java"
+               
+            destdir="${build}"
+            debug="${debug}"
+            target="1.6"
+            source="1.6"
+        />
+		    <!--
+		    includes= "*.java,
+                       behave/*.java,
+	                   gui/*.java,
+	                   tools/image/*.java"
+            -->
+    </target>
+
+	
+	<!--
+    <target name="jni" depends="compile">
+        <javah
+            class="DWR.DMS.PTM.Globals,
+                   DWR.DMS.PTM.PTMFixedData,
+                   DWR.DMS.PTM.PTMFluxOutput,
+                   DWR.DMS.PTM.PTMHydroInput"
+            destdir="${native}"
+            classpath="${build}"
+        />
+    </target>
+	-->
+
+
+	<!--
+    <target name="installer" depends="init">
+        <delete dir="${dist}/bin/" />
+        <mkdir dir="${dist}/bin/"/>
+        <property name="classes" value="${sourceDir}/installer;${webstart}"/>
+        <javac
+	    classpath="${classes}"
+            srcdir="${sourceDir}"
+            includes="installer/*.java"
+            destdir="${sourceDir}/installer"
+        />
+        <java 
+	    classname="PTMBuilder"
+	    fork="yes"
+	    classpath="${classes}"
+            dir="${sourceDir}/installer"
+        /> 
+        <zip zipfile="${dist}/ptm-bin.zip"
+             includes="installer/ptm.class, 
+                       installer/install.bat,
+                       installer/install.sh"
+             basedir= "."
+        />
+	 <copy file="{$dist}/ptm-bin.zip
+              todir=${ftpDir}"
+        /> 
+    </target>
+	-->
+
+    <target name="jar" depends="compile">
+        <delete file="lib/ptm.jar" />
+        <jar jarfile="lib/ptm.jar">
+             <fileset dir="${build}" 
+             includes="**/*.class"
+             /> 
+        </jar>
+        <!--
+		<jar jarfile="lib/ptmgui.jar">
+            <fileset dir="${build}" includes="DWR/DMS/PTM/gui/*.class"/>
+        </jar>
+        <jar jarfile="lib/ptmbehave.jar">
+            <fileset dir="${build}" includes="DWR/DMS/PTM/behave/*.class"/>
+        </jar> 
+		-->
+    </target>
+
+    <target name="ptmdoc" depends="compile">
+        <mkdir dir="${ptmdocDir}" />
+        <javadoc sourcepath="./"
+                 destdir="${ptmdocDir}"
+                 packagenames="DWR.DMS.PTM,DWR.DMS.PTM.*"
+                 Public="Yes"                 
+                 Windowtitle="DSM2-PTM"
+                 bottom="&lt;a href='http://baydeltaoffice.water.ca.gov/modeling/deltamodeling/index.cfm'> DMS home&lt;/a>"
+        />
+    </target>
+
+    <target name="all" depends="jar,ptmdoc">
+    </target>
+</project>
+
+
+
+
+
+
+
