@@ -42,8 +42,8 @@ find_libs()
 #----------------- EXECUTABLES --------------------------------------------
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT gtm)
 endif()
 include_directories("${DSM2_TOP_DIR}/input_storage/src")
@@ -76,7 +76,7 @@ add_dependencies(sediment_bed gtm_core input_storage process_io)
 add_dependencies(sediment_bed_setup gtm_core process_io)
 add_dependencies(transport gtm_core)
 set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
-target_link_libraries(gtm debug libucrtd.lib optimized libucrt.lib libmmt.lib)
+#target_link_libraries(gtm debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 target_link_libraries(gtm gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_setup do_module mercury)
 target_link_libraries(gtm 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
