@@ -54,8 +54,8 @@ find_libs()
 #----------------- EXECUTABLES --------------------------------------------
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT hydro)
 endif()
 include_directories("${DSM2_TOP_DIR}/input_storage/src")
@@ -124,13 +124,13 @@ set (CMAKE_Fortran_FLAGS "/extend_source:132")
 add_library(ptm_fortran STATIC ${PTM_FORTRAN_SOURCES})
 add_dependencies(ptm_fortran common timevar fixed hydrolib)
 file(GLOB PTM_JAVA_CPP_SOURCES ptm/native/*.cpp)
-add_library(ptm_dll STATIC ${PTM_JAVA_CPP_SOURCES})
+add_library(PTM SHARED ${PTM_JAVA_CPP_SOURCES})
 include(FindJNI)
-target_include_directories(ptm_dll PUBLIC ${JNI_INCLUDE_DIRS})
+target_include_directories(PTM PUBLIC ${JNI_INCLUDE_DIRS})
 set (CMAKE_CXX_STANDARD_LIBRARIES "")
-target_link_libraries(ptm_dll ptm_fortran common fixed timevar hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
-add_dependencies(ptm_dll common fixed timevar hydrolib)
-target_link_libraries(ptm_dll 
+target_link_libraries(PTM ptm_fortran common fixed timevar hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
+add_dependencies(PTM common fixed timevar hydrolib)
+target_link_libraries(PTM
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
