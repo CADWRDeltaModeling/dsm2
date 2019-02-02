@@ -64,7 +64,11 @@ def prioritize(component):
     // Sort by identifier (lexicographical order) and
     // layer (decreasing order of priority)
     std::sort(buffer().begin(),buffer().end());
+<<<<<<< HEAD
     vector<input_storage::@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
+=======
+    vector<@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
+>>>>>>> oldmaster
     if ( dupl != buffer().end())
     {   
         string message = "Duplicate identifiers in the same input layer (or the same file has been included more than once):";
@@ -75,9 +79,15 @@ def prioritize(component):
     }
     // Eliminate duplicates. Because of prior ordering, 
     // this will eliminate lower layers
+<<<<<<< HEAD
     buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<input_storage::@TABLEOBJ>()),buffer().end());
     // Eliminate items that are not used. This must be done after lower layers have been removed
     buffer().erase(remove_if(buffer().begin(), buffer().end(),not1(entry_used<input_storage::@TABLEOBJ>())), buffer().end());
+=======
+    buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<@TABLEOBJ>()),buffer().end());
+    // Eliminate items that are not used. This must be done after lower layers have been removed
+    buffer().erase(remove_if(buffer().begin(), buffer().end(),not1(entry_used<@TABLEOBJ>())), buffer().end());
+>>>>>>> oldmaster
     """
     #
     else:
@@ -89,7 +99,11 @@ def prioritize(component):
     // remove if my version != parent version that is used
     buffer().erase(remove_if(buffer().begin(),
                            buffer().end(),
+<<<<<<< HEAD
                            not1(mem_fun_ref(&input_storage::@TABLEOBJ::parent_valid))),buffer().end());
+=======
+                           not1(mem_fun_ref(&@TABLEOBJ::parent_valid))),buffer().end());
+>>>>>>> oldmaster
     """
     priority = priority.replace("@TABLEOBJ",component.name)
     return priority
@@ -256,7 +270,11 @@ def prep_component(component,outdir):
     # add .h file to the master .h file that includes all user data types from this script
     do_append = True
     include_lines.append("#include \"input_storage_%s.h\"\n" % component.name)
+<<<<<<< HEAD
     input_map_lines.append(  "   InputStatePtr %sPtr(new ItemInputState<input_storage::%s>());\n    inputMap[\"%s\"] = %sPtr;\n" \
+=======
+    input_map_lines.append(  "   InputStatePtr %sPtr(new ItemInputState<%s>());\n    inputMap[\"%s\"] = %sPtr;\n" \
+>>>>>>> oldmaster
                              % (component.name,component.name,component.name.upper(),component.name))
 
     
@@ -272,8 +290,13 @@ def prep_component(component,outdir):
     txt = do_txt_replace(txt)
     outfile.write(txt)
     outfile.close()
+<<<<<<< HEAD
     clear_buffer_lines.append("HDFTableManager<input_storage::%s>::instance().buffer().clear();" % component.name)
     prioritize_buffer_lines.append("HDFTableManager<input_storage::%s>::instance().prioritize_buffer();\n     if(*ierror != 0) return;" % component.name)
+=======
+    clear_buffer_lines.append("HDFTableManager<%s>::instance().buffer().clear();" % component.name)
+    prioritize_buffer_lines.append("HDFTableManager<%s>::instance().prioritize_buffer();\n     if(*ierror != 0) return;" % component.name)
+>>>>>>> oldmaster
     write_buffer_line="%s_write_buffer_to_text_f(file,append,ierror,filelen);\n     if(*ierror != 0) return;" % (component.name)
     conditional_write_buffer_line=("if(buffer_name == \"%s\"){" % component.name) + write_buffer_line + "}"
     write_text_buffer_lines.append(write_buffer_line)
@@ -415,7 +438,3 @@ def finalize(outdir):
     
     shutil.copy(os.path.join(indir,"userDefineLangTemplate.xml"),os.path.join(outdir,"."))
     process_profiles()
-    
-    
-    
-

@@ -247,9 +247,3 @@ void @TABLEOBJ_write_buffer_to_text_f(const char* file,
   @TABLEOBJ_write_buffer_to_stream(out,*append); 
   ) // end of exception trap  
 }
-
-
-
-
-
-
