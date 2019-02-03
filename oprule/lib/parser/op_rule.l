@@ -1,4 +1,3 @@
-
 /* Lexer specification for operating rules*/
 
 %option never-interactive case-insensitive
@@ -9,9 +8,10 @@
 #pragma warning (disable:4786)   // identifier truncated to '255' characters
 #pragma warning (disable:4065)   // switch contains 'default'
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
+#define __MIN_PORTABLE(a,b)  ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
+//#define _CRTDBG_MAP_ALLOC
+//#include <stdlib.h>
+//#include <crtdbg.h>
 
 
 #include<iostream>
@@ -49,7 +49,7 @@ int month_to_int(const string& mstr);
 
 int yaccstring(char* buf, int max_size)
 {
-   int n=__min(max_size,inputlim-strinputptr);
+   int n=__MIN_PORTABLE(max_size,inputlim-strinputptr);
    if(n>0){
       memcpy(buf, strinputptr, n);
 	  strinputptr += n;

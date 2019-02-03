@@ -48,8 +48,8 @@ find_libs()
 #----------------- EXECUTABLES --------------------------------------------
 if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT hydro)
 else(MSVC)
   #set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
@@ -60,7 +60,7 @@ include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fi
 #------------------------- SUB PROJECTS --------------------------------
 add_subdirectory(${DSM2_COMMONS_DIR})
 # generate the files now
-#execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
+execute_process(COMMAND "python" "generate.py" WORKING_DIRECTORY ${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_INPUT_STORAGE})
 add_subdirectory(${DSM2_FIXED_DIR})
 add_subdirectory(${DSM2_HDF_TIDEFILE})
@@ -179,7 +179,9 @@ add_library(PTM SHARED ${PTM_JAVA_CPP_SOURCES})
 include(FindJNI)
 target_include_directories(PTM PUBLIC ${JNI_INCLUDE_DIRS})
 if (WIN32)
-target_link_libraries(PTM 
+target_link_libraries(PTM ptm_fortran common fixed timevar hydrolib input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp)
+add_dependencies(PTM common fixed timevar hydrolib)
+target_link_libraries(PTM
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
