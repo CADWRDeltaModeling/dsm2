@@ -144,7 +144,8 @@ line:
    | oprule ';' {
 		static int ruleno;
         char num[16];
-        _itoa_s(ruleno++,num,16,10);
+        //_itoa_s(ruleno++,num,16,10);  // -- windows only
+ 	snprintf(num,16,"%d",ruleno++); // -- linux equivalent FIXME: needs ifdef unix here
         OperatingRulePtr opPtr = get_temp_symbol($1).rule;
         string rulename = string("OpRule") + num;
         opPtr->setName(rulename);
