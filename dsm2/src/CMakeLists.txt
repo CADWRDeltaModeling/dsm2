@@ -95,7 +95,7 @@ else (WIN32)
 # full static is not working on linux due to lack of standard .a libraries
 set_target_properties(hydro PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
 target_include_directories(hydro PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(hydro -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
+target_link_libraries(hydro -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar -Wl,--end-group)
 endif (WIN32)
 if (WIN32)
 target_link_libraries(hydro 
@@ -152,7 +152,7 @@ target_link_libraries(qual
 else (WIN32)
 set_target_properties(qual PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
 target_include_directories(qual PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(qual -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
+target_link_libraries(qual -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse timevar -Wl,--end-group)
 target_link_libraries(qual 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -195,7 +195,7 @@ target_link_libraries(PTM
     )
 else (WIN32)
 set_target_properties(PTM PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
-target_link_libraries(PTM  ptm_fortran -Wl,--whole-archive common fixed timevar input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp -Wl,--no-whole-archive hydrolib)
+target_link_libraries(PTM ptm_fortran -Wl,-rpath='$ORIGIN/lib' -Wl,--whole-archive common fixed timevar input_storage input_storage_cpp hdf_tidefile_cpp hdf_tidefile_fortran pattern_match_cpp -Wl,--no-whole-archive hydrolib)
 target_link_libraries(PTM 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}

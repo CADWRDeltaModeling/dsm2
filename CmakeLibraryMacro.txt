@@ -1,5 +1,5 @@
 macro (SET_COMPILER_FLAGS)
-  set(OLD_LINUX "YES")
+  set(OLD_LINUX "NO")
   # make sure that the default is a RELEASE
   if( NOT CMAKE_BUILD_TYPE )
     set( CMAKE_BUILD_TYPE Release CACHE STRING
