@@ -34,6 +34,9 @@
 #define readMultTide read_mult_tide_
 #define setTideFileTime set_tide_file_time_
 #define getExtFromInt get_ext_from_int_
+#define getIntFromExtChan get_int_from_ext_chan_
+#define getExtFromIntNode get_ext_from_int_node_
+#define getIntFromExtNode get_int_from_ext_node_
 #define getUpNodeDepth get_up_node_depth_
 #define getDownNodeDepth get_down_node_depth_
 #define getUpNodeStage get_up_node_stage_

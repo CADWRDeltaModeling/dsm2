@@ -89,7 +89,6 @@
 #define getNumberOfGroupMembers GET_NUMBER_OF_GROUP_MEMBERS
 #define getGroupMemberType GET_GROUP_MEMBER_TYPE
 #define getGroupMemberIndex GET_GROUP_MEMBER_INDEX
-
 #define getModelStartTime GET_MODEL_START_TIME
 #define getModelEndTime GET_MODEL_END_TIME
 #define getModelPtmTimeStep GET_MODEL_PTM_TIME_STEP
@@ -194,6 +193,8 @@
 #define getFluxOutgoing get_flux_outgoing_
 #define getFluxIncomingType get_flux_incoming_type_
 #define getFluxOutgoingType get_flux_outgoing_type_
+#define getFluxIncomingAccountType get_flux_incoming_account_type_
+#define getFluxOutgoingAccountType get_flux_outgoing_account_type_
 #define getNumberOfFilters get_number_of_filters_
 #define getIndicesOfFilters get_indices_of_filters_
 #define getNameOfFilter get_name_of_filter_
@@ -229,7 +230,6 @@
 #define doesQualBinaryExist does_qual_binary_exist_
 #define getQualConstituentNames get_qual_constituent_names_
 #define getNumberConstituents get_number_constituents_
-#define STDCALL
 #endif
 
 
