@@ -3,17 +3,17 @@
 %option never-interactive case-insensitive
 
 %{
-
+#ifdef _WIN32
 // The following pragmas disable stupid warnings in MSVC
 #pragma warning (disable:4786)   // identifier truncated to '255' characters
 #pragma warning (disable:4065)   // switch contains 'default'
-
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#else
 #define __MIN_PORTABLE(a,b)  ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
-//#define _CRTDBG_MAP_ALLOC
-//#include <stdlib.h>
-//#include <crtdbg.h>
-
-
+#endif
+				
 #include<iostream>
 #include<string>
 #include<map>
@@ -49,7 +49,11 @@ int month_to_int(const string& mstr);
 
 int yaccstring(char* buf, int max_size)
 {
+#ifdef _WIN32
+   int n=__min(max_size,inputlim-strinputptr);
+#else
    int n=__MIN_PORTABLE(max_size,inputlim-strinputptr);
+#endif
    if(n>0){
       memcpy(buf, strinputptr, n);
 	  strinputptr += n;
