@@ -196,6 +196,8 @@
 #define getFluxOutgoing get_flux_outgoing_
 #define getFluxIncomingType get_flux_incoming_type_
 #define getFluxOutgoingType get_flux_outgoing_type_
+#define getFluxIncomingAccountType get_flux_incoming_account_type_
+#define getFluxOutgoingAccountType get_flux_outgoing_account_type_
 #define getNumberOfFilters get_number_of_filters_
 #define getIndicesOfFilters get_indices_of_filters_
 #define getNameOfFilter get_name_of_filter_

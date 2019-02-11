@@ -112,7 +112,6 @@ c-----local variables
 
       if (new_tide) then
          do k=1,max_reservoirs
-<<<<<<< HEAD
 !            reservoirVolume(k)=
 !     &           (eresv(k)-res_geom(k).botelv)*res_geom(k).toparea
             reser_elv = eresv(k)

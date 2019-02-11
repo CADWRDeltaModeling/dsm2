@@ -1,3 +1,4 @@
+**/*~
 **/BUILD
 **/BUILD_DBG
 lib/**
@@ -37,6 +38,7 @@ oprule/lib/parser/op_rule_tab.cpp.rule
 oprule/lib/parser/op_rule_tab.cpp
 oprule/lib/parser/op_rule.cpp.rule
 oprule/lib/parser/op_rule.cpp
+oprule/lib/parser/op_rule.output
 input_storage/example/input_storage_envvar.cpp
 input_storage/example/input_storage_channel.h
 input_storage/example/input_storage_channel.cpp

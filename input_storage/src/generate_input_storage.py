@@ -78,6 +78,7 @@ def prioritize(component):
     buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<input_storage::@TABLEOBJ>()),buffer().end());
     // Eliminate items that are not used. This must be done after lower layers have been removed
     buffer().erase(remove_if(buffer().begin(), buffer().end(),not1(entry_used<input_storage::@TABLEOBJ>())), buffer().end());
+
     """
     #
     else:
@@ -415,7 +416,3 @@ def finalize(outdir):
     
     shutil.copy(os.path.join(indir,"userDefineLangTemplate.xml"),os.path.join(outdir,"."))
     process_profiles()
-    
-    
-    
-
