@@ -139,11 +139,12 @@ public class BehavedParticle extends Particle{
   private float getZRangeMagnitude(){
     return getZUpperBound()-getZLowerBound();
   }
-
+//TODO commented out, need to rework later 10/29/2015
   /**
     *  Externally induced Random
     */
-    @Override
+    //@Override
+  /*
 	protected float calcZDisplacementExtRandom(float timeStep){
 		// get the random mixing component
 //  		behaviorData.setCurrentAgeId(age);
@@ -164,19 +165,22 @@ public class BehavedParticle extends Particle{
 		else return 0.0f;
   
 	}
-
+*/
   /**
     *  Externally induced Deterministic
     */
-    @Override
+    //@Override
+    /*
   protected  float calcZDisplacementExtDeterministic(float timeStep){
     return(-getFallVel()*timeStep);
   }
+  */
 
   /**
     *  Check to see if this Particle dies
     */
-    @Override
+    //@Override
+    /*
   protected void checkHealth(){
     float mortRate;
     mortRate = behaviorData.getMortality(age);
@@ -194,23 +198,27 @@ public class BehavedParticle extends Particle{
 				    mortRate+" and random "+_rand+" and deathDet = "+deathDeterminer);
     }
   }
-
+*/
   /**
     *  returns a particles fall velocity
     */
+    /*
   private float getFallVel(){
       return behaviorData.getFallVel(age);
   }
+  */
   /**
     *  returns a particles terminal velocity
     */
+    /*
   private float getTerminalVelocity(){
     return Math.max(getFallVel(),1.0e-10f);
   }
-
+*/
   /**
     *  returns the 24 hour model time
     */
+    
   private int getModelTime(){
     return (Globals.currentMilitaryTime);
   }

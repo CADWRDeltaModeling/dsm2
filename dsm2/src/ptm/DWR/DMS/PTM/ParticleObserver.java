@@ -34,7 +34,8 @@ class ParticleObserver{
   public ParticleObserver(String traceFileName, int outputType,
                           int startTime, int endTime, int PTMTimeStep, 
                           int nParticles){
-    traceOn = true;
+	traceOn = true;
+	//traceOn = false;
     try{
       if (traceOn) output = new PTMTraceOutput(traceFileName, outputType,
                                                startTime, endTime, PTMTimeStep, 
@@ -90,7 +91,7 @@ class ParticleObserver{
    */
   public void observeInsert(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
+      long time = observed.getCurrentParticleTime();
       int pId = (int) observed.getId();
       short nodeId = -1;
       short wbId = 0;
@@ -104,15 +105,17 @@ class ParticleObserver{
    */
   public void observeWaterbodyChange(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
-      int pId = (int) observed.getId();
-      short nodeId = -1;
+      long time = observed.getCurrentParticleTime();
+      int pId = observed.getId();
+      int nodeId = -1;
       if (observed.getRecentNode() != null) 
-        nodeId = (short) observed.getRecentNode().getEnvIndex();
+        nodeId =  observed.getRecentNode().getEnvIndex();
       else
         nodeId = -1;
-      short wbId = (short) observed.getCurrentWaterbody().getEnvIndex();
+      int wbId =  observed.getCurrentWaterbody().getEnvIndex();
       output.output(time,pId,nodeId,wbId);
+      long timeExact = observed.getCurrentParticleTimeExact();
+      observed.addParticleTrace(timeExact, wbId, nodeId);
     }
   }
 
@@ -134,7 +137,7 @@ class ParticleObserver{
    */
   public void observeDeath(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
+      long time = observed.getCurrentParticleTime();
       int pId = observed.getId();
       short nodeId = -1;
       short wbId = (short) observed.getCurrentWaterbody().getEnvIndex();

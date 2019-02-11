@@ -131,7 +131,16 @@ public final void setVariables(int nInjections,
     qualityBinary = qBinary;
     qualityNames = qNames;
   }
+<<<<<<< HEAD
 
+=======
+  /**
+   *  sets the particle type 
+   */
+  public final void setVariables(String particleType){
+	  _particleType = particleType;
+  }
+>>>>>>> ptm_development
   /**
    *  return random seed
    */
@@ -236,6 +245,12 @@ public final boolean doFluxPercentage(){
 public final boolean doGroupPercentage(){
   return doGroupPercentage;
 }
+<<<<<<< HEAD
+=======
+public final String getParticleType(){
+	return _particleType;
+}
+>>>>>>> ptm_development
   /**
    *  OK to use cumulative flux output
    */
@@ -433,6 +448,10 @@ protected boolean qualityBinary;
    *  array of quality constituent names
    */
 protected String[] qualityNames;
+<<<<<<< HEAD
+=======
+private String _particleType;
+>>>>>>> ptm_development
 
 }
 

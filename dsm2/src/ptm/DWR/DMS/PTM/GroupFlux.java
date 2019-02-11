@@ -158,12 +158,12 @@ public class GroupFlux extends Flux{
    *  using timestep which counts only repeated contributions to Flux
    *  from the same particle.
    */
-  protected int [] circleFlux;
+  private int [] circleFlux;
   
   /**
    *  # of particles contributing to circle Flux and storage
    */
-  protected int numberOfParticleCircleFlux;
+  private int numberOfParticleCircleFlux;
   
   /**
    * String representation

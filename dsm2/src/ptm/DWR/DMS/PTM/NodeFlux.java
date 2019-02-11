@@ -192,28 +192,28 @@ public final int getOutgoing(int index){
   /**
    *  
    */
-  protected boolean cumulativeFlux;
+  private boolean cumulativeFlux;
   /**
    *  Flux information is contained in info
    */
-  protected FluxFixedData info;
+  private FluxFixedData info;
   /**
    *  An array of Flux over time indexed from starttime to endtime
    *  using timestep which counts only repeated contributions to Flux
    *  from the same particle.
    */
-  protected int [] circleFlux;
+  private int [] circleFlux;
 
   /**
    *  # of particles contributing to circle Flux and storage
    */
-  protected int numberOfParticleCircleFlux;
+  private int numberOfParticleCircleFlux;
 
   /**
    *  Checks to see if the Waterbody Id matches any of the specified
    *  incoming groups.
    */
-  protected final boolean isIncoming(Waterbody wb){
+  private final boolean isIncoming(Waterbody wb){
     System.out.println("Testing outgoing: "+wb);
     return info.getInGroup().containsWaterbody(wb);
   }
@@ -222,7 +222,7 @@ public final int getOutgoing(int index){
    *  Checks to see if the Waterbody Id matches any of the specified
    *  outgoing groups.
    */
-  protected final boolean isOutgoing(Waterbody wb){
+  private final boolean isOutgoing(Waterbody wb){
     System.out.println("Testing outgoing: "+wb);
     return info.getOutGroup().containsWaterbody(wb);
   }

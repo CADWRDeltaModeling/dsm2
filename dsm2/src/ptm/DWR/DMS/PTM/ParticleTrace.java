@@ -30,6 +30,8 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 */
 package DWR.DMS.PTM;
 import java.util.Vector;
+import java.util.Map;
+import java.util.HashMap;
 public class ParticleTrace{
 
   /**
@@ -43,6 +45,7 @@ public ParticleTrace(){
   channelNumber.insertElementAt(new Integer(0), traceNumber);
   nodeNumber.insertElementAt(new Integer(0), traceNumber);
   entryTime.insertElementAt(new Integer(0), traceNumber);
+  _timeTraceNumber = new HashMap<Integer, Integer>();
 }
 
 
@@ -50,6 +53,7 @@ public ParticleTrace(){
    *  insert a new trace entry
    */
 public final void insert(int newChannelNumber, int newNodeNumber, int newEntryTime){
+	/* original code
   traceNumber++;
   channelNumber.ensureCapacity(traceNumber+1);
   nodeNumber.ensureCapacity(traceNumber+1);
@@ -57,6 +61,35 @@ public final void insert(int newChannelNumber, int newNodeNumber, int newEntryTi
   channelNumber.insertElementAt(new Integer(newChannelNumber), traceNumber);
   nodeNumber.insertElementAt(new Integer(newNodeNumber), traceNumber);
   entryTime.insertElementAt(new Integer(newEntryTime), traceNumber);
+  */
+	//TODO temporary fix, the code needs to be refactored
+	// by Xiao
+  	/*
+  	 * particleTrace includes all the Traces for a particle from start time to end time
+  	 * the problem here is that a particle can try different channels at a particular time. 
+  	 * under a certain hydrodynamic condition and swimming velocity, a particle could come back 
+  	 * to the same node again and again (loop in makeNodeDecision).
+  	 * to solve this, the last channel that the particle assigned at this time step
+  	 * is picked for the particleTrace.
+  	 */
+	if(_timeTraceNumber.get(newEntryTime)==null){
+		_timeTraceNumber.put(newEntryTime, traceNumber++);
+		channelNumber.ensureCapacity(traceNumber+1);
+		nodeNumber.ensureCapacity(traceNumber+1);
+		entryTime.ensureCapacity(traceNumber+1);
+		channelNumber.insertElementAt(new Integer(newChannelNumber), traceNumber);
+		nodeNumber.insertElementAt(new Integer(newNodeNumber), traceNumber);
+		entryTime.insertElementAt(new Integer(newEntryTime), traceNumber);
+	}
+	else{
+		//if the particle is already in a channel, replace with the latest one
+		//except for a boundary channel
+		int n = _timeTraceNumber.get(newEntryTime);
+		if(channelNumber.get(n) != 421){
+			channelNumber.set(n, newChannelNumber);
+			nodeNumber.set(n, newNodeNumber);
+		}
+	}
 }
 
 
@@ -114,32 +147,34 @@ public final void resetAll(){
   /**
    *  intial guess at number of traces
    */
-protected static int INITIAL_SIZE  = 300;
+private static int INITIAL_SIZE  = 300;
 
   /**
    *  guess at what resizing to be done in case initial guess is exceeded
    */
-protected static int RESIZE_STEP = 10;
+private static int RESIZE_STEP = 10;
 
   /**
    *  an dynamically extensible array containg waterbody numbers
    */
-protected Vector<Integer> channelNumber;
+private Vector<Integer> channelNumber;
 
   /**
    *  an array containg node numbers
    */
-protected Vector<Integer> nodeNumber;
+private Vector<Integer> nodeNumber;
 
   /**
    *  an array of time stamps
    */
-protected Vector<Integer> entryTime;
+private Vector<Integer> entryTime;
 
   /**
    *  an index to the current trace number
    */
-protected int traceNumber;
+private int traceNumber;
+// Map<time, traceNumber>
+private Map<Integer, Integer> _timeTraceNumber; 
 }
 
 

@@ -16,8 +16,8 @@ C!    GNU General Public !<license for more details.
 C!    You should have received a copy of the GNU General Public !<license
 C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
-
 package DWR.DMS.PTM;
+import java.util.TimeZone;
 /**
  * Provides access to variables that are global to all
  * call classes of this package.
@@ -60,6 +60,10 @@ public class Globals{
    * returns current model time as string
    */
   public static native String getModelTime(int currentModelTime);
+  /**
+   * model time zone
+   */
+  public static TimeZone TIME_ZONE;
   /**
    * returns time in julian minutes since base date using strings
    * of the model date and time in the format ddMMMyyyy, HHmm respectively

@@ -54,6 +54,9 @@ public class TypeFlux extends Flux {
       //System.out.println("Particle #: " + pNum);
       try {
         for (int index = 0; index < numberOfTimeSteps; index++) {
+        //TODO tried to return exact time (including sub time steps) when call getCurrentParticleTime()
+        //Flux calculation broke here.  put getCurrentParticleTime() back to return time at beginning of the time step
+        //if need exact time, call getCurrentParticleTimeExact()
     	  while (traceNum <= maxTraces
                  && traceArray[pNum].getTime(traceNum) 
                  == index* timeStep + startTime) {
@@ -111,5 +114,5 @@ public class TypeFlux extends Flux {
            && info.getOutGroup().containsWaterbody(wbOut);
   }
   
-  protected FluxFixedData info;
+  private FluxFixedData info;
 }

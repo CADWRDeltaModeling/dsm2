@@ -241,6 +241,14 @@ JNIEXPORT jobjectArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getQualConstituentN
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getWaterBodyName
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterBodyName
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getNumberOfWaterbodiesForNode
  * Signature: (I)I
  */
@@ -401,6 +409,14 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getConveyorNodeArray
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getConveyorName
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getConveyorName
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getXSectionWidths
  * Signature: (I)[F
  */
@@ -529,54 +545,6 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getFluxOutgoingType
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getNumberOfFilters
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNumberOfFilters
-  (JNIEnv *, jobject);
-
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getIndicesOfFilters
- * Signature: ()[I
- */
-JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getIndicesOfFilters
-  (JNIEnv *, jobject);
-
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getNamesOfFilters
- * Signature: ()[Ljava/lang/String;
- */
-JNIEXPORT jobjectArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNamesOfFilters
-  (JNIEnv *, jobject);
-
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getNodesOfFilters
- * Signature: ()[I
- */
-JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getNodesOfFilters
-  (JNIEnv *, jobject);
-
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getWaterbodiesOfFilters
- * Signature: ()[I
- */
-JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodiesOfFilters
-  (JNIEnv *, jobject);
-
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getWaterbodyTypesOfFilters
- * Signature: ()[I
- */
-JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterbodyTypesOfFilters
-  (JNIEnv *, jobject);
-
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getNumberOfGroupOutputs
  * Signature: ()I
  */
@@ -657,6 +625,14 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBehaviorFileName
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getBehaviorInfileName
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBehaviorInfileName
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getTraceFileName
  * Signature: ()Ljava/lang/String;
  */
@@ -694,7 +670,6 @@ JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getRestartOutputInterval
  */
 JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getRestartInputFileName
   (JNIEnv *, jobject);
-
 #ifdef __cplusplus
 }
 #endif
