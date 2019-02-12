@@ -349,7 +349,7 @@ subroutine check_fixed_hydro(istat)
                     intchan=node_geom(node)%upstream(i)
                     upboundarycode(intchan)=2
                     node_geom(node)%sumQChan = intchan
-                enddo              
+                enddo
             else if (node_geom(node)%boundary_type == stage_boundary) then ! specified-stage bc
                 do i=1,node_geom(node)%ndown
                     intchan=node_geom(node)%downstream(i)
@@ -381,7 +381,7 @@ subroutine check_fixed_hydro(istat)
                             i,pathinput(i))
                     endif
                 enddo
-            endif 
+            endif
         else
 
 

@@ -1036,7 +1036,7 @@ c     Compare two integers (e.g., as needed for qsort)
 c-----Convert an external node number to an internal one using
 c     binary search
       integer function ext2intnode(extnode)
-      use dflib
+      use ifport
       use grid_data
       implicit none
       integer extnode

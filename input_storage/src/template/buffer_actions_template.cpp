@@ -16,7 +16,7 @@
 FCALL void clear_all_buffers_f(int* ierror)
 {
 _TRAP_EXCEPT(*ierror,
-  //Clear all buffers
+//Clear all buffers
 // Clear all buffers DO NOT ALTER THIS LINE AT ALL
 LayerManager::instance().clearAllLayer(); //todo: make this separate?
 ) // end exception trap    

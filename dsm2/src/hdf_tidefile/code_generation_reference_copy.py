@@ -17,9 +17,9 @@ def generate_dsm2_processed_data():
     outdir = os.path.dirname(__file__)
     component = TableComponent("qext",         # name of the table
                            [CharField("name",DSM2_NAME_LEN,32),
-                           #IntField("source_type"),
-                           #IntField("source_index"),
-                           #DoubleField("source_value",16,8),
+                           IntField("source_type"),
+                           IntField("source_index"),
+                           DoubleField("source_value",16,8),
                            CharField("attach_obj_name",DSM2_NAME_LEN,32),
                            IntField("attached_obj_type"),
                            IntField("attached_obj_no")],["name"])

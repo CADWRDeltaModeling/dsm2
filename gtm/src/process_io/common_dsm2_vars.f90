@@ -73,7 +73,9 @@ module common_dsm2_vars
        integer, parameter :: qual = 2
        integer, parameter :: ptm = 3
        integer, parameter :: gtm = 4
-       character*16 :: dsm2_version = '8.1.1', svn_build = '2151:2203' 
+       !FIXME: should be derived from git just like version.fi from dsm2/src/common - N. Sandhu
+       !For now fixing by inserting values from 'git describe' command split at first '-' sign
+       character*16 :: dsm2_version = 'gtm_v0.9.0', git_build = '-2-g352d1516' 
 
        !-----type
        integer, parameter :: io_restart = 1

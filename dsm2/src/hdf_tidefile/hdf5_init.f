@@ -55,7 +55,7 @@ c**********contains routines for writing data to an HDF5 file
 	call h5pset_cache_f( fapl, nelmts, rddc_nelmts, rddc_nbytes, rdcc_w0,error)
 	call VerifyHDF5(error,"Cache set")
 
-	call h5fopen_f(hdf5_hydrofile,H5F_ACC_RDONLY_F, file_id, fapl, error)
+	call h5fopen_f(hdf5_hydrofile,H5F_ACC_RDONLY_F, file_id, error, fapl)
 	call VerifyHDF5(error,"File open")
 
 	call h5gopen_f(file_id, "hydro", hydro_id, error)
@@ -125,7 +125,7 @@ c**********contains routines for writing data to an HDF5 file
 
 	integer getHDF5IndexForTideTime
 	external getHDF5IndexForTideTime
-
+	external attach_hydro_dimscales
 
 	integer(SIZE_T) :: rddc_nelmts
 	integer(SIZE_T) :: rddc_nbytes
@@ -226,6 +226,7 @@ c-------Close the datasets corresponding to model states
 	if (error .ne. 0) then
 	   write(unit_error,*)"HDF5 error closing channel area data set: ",error
 	end if
+
 
 	call h5dclose_f(res_h_dset_id,error)
 	call h5dclose_f(res_q_dset_id,error)

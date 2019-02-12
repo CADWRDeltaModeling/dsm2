@@ -4,7 +4,11 @@
         
        !> Clear the buffer of all stored data of type reservoir_flow_connections 
        subroutine reservoir_flow_connections_clear_buffer()
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_clear_buffer_f' :: reservoir_flow_connections_clear_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_clear_buffer_f' :: reservoir_flow_connections_clear_buffer_f
+	 !DEC$ END IF
          implicit none
          call reservoir_flow_connections_clear_buffer_f()
          return
@@ -12,7 +16,11 @@
 
        !> Query the number of records in storage buffer of type reservoir_flow_connections
        integer function reservoir_flow_connections_buffer_size()
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_buffer_size_f' :: reservoir_flow_connections_buffer_size_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_buffer_size_f' :: reservoir_flow_connections_buffer_size_f
+	 !DEC$ END IF
           implicit none
           integer, external :: reservoir_flow_connections_buffer_size_f
           reservoir_flow_connections_buffer_size = reservoir_flow_connections_buffer_size_f()
@@ -21,7 +29,11 @@
        
        !> write reservoir_flow_connections data to buffer
        subroutine reservoir_flow_connections_append_to_buffer(connection_index,res_name,res_index,res_flow_index,flow_index,flow_name,flow_type,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_append_to_buffer_f' :: reservoir_flow_connections_append_to_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_append_to_buffer_f' :: reservoir_flow_connections_append_to_buffer_f
+	 !DEC$ END IF
          implicit none
          integer, intent(out) :: ierror         
                integer, intent(in) :: connection_index
@@ -37,7 +49,11 @@
        
        !> Query the number of records in hdf5 of type reservoir_flow_connections
        subroutine reservoir_flow_connections_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_number_rows_hdf5_f' :: reservoir_flow_connections_number_rows_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_number_rows_hdf5_f' :: reservoir_flow_connections_number_rows_hdf5_f
+	 !DEC$ END IF
           use hdf5, only: HID_T,HSIZE_T
           implicit none
           integer :: nrecords
@@ -53,7 +69,11 @@
 
        !> Query row of data from buffer of type reservoir_flow_connections
        subroutine reservoir_flow_connections_query_from_buffer(row, connection_index,res_name,res_index,res_flow_index,flow_index,flow_name,flow_type,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_query_from_buffer_f' :: reservoir_flow_connections_query_from_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_query_from_buffer_f' :: reservoir_flow_connections_query_from_buffer_f
+	 !DEC$ END IF
           implicit none
                 integer, intent(out) :: connection_index
        character(len=32), intent(out) :: res_name
@@ -71,7 +91,11 @@
 
        !> Prioritize buffer by layers, delete unused items and sort
        subroutine reservoir_flow_connections_prioritize_buffer(ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_prioritize_buffer_f' :: reservoir_flow_connections_prioritize_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_prioritize_buffer_f' :: reservoir_flow_connections_prioritize_buffer_f
+	 !DEC$ END IF
 	      implicit none
           integer, intent(out) :: ierror          
           call reservoir_flow_connections_prioritize_buffer_f(ierror)
@@ -80,7 +104,11 @@
        !> Write a buffer of reservoir_flow_connections data to buffer 
        !! @param file_id handle to hdf5 file
        subroutine reservoir_flow_connections_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_write_buffer_to_hdf5_f' :: reservoir_flow_connections_write_buffer_to_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_write_buffer_to_hdf5_f' :: reservoir_flow_connections_write_buffer_to_hdf5_f
+	 !DEC$ END IF
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -91,7 +119,11 @@
 
        !> Read a buffer of reservoir_flow_connections data from hdf5 to buffer 
        subroutine reservoir_flow_connections_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_read_buffer_from_hdf5_f' :: reservoir_flow_connections_read_buffer_from_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_read_buffer_from_hdf5_f' :: reservoir_flow_connections_read_buffer_from_hdf5_f
+	 !DEC$ END IF
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -101,7 +133,11 @@
        end subroutine
 
        subroutine reservoir_flow_connections_write_buffer_to_text(filename,append,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_reservoir_flow_connections_write_buffer_to_text_f' :: reservoir_flow_connections_write_buffer_to_text_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'reservoir_flow_connections_write_buffer_to_text_f' :: reservoir_flow_connections_write_buffer_to_text_f
+	 !DEC$ END IF
          implicit none
          integer, intent(out) :: ierror
          character*(*) filename

@@ -25,7 +25,7 @@ public:
         return NodePtr(t);
     }
     //todo: should be const
-    virtual ExpressionNode<T>::NodePtr copy(){
+    virtual typename ExpressionNode<T>::NodePtr copy(){
         return NodePtr(new NodeType(_val));
     }
 

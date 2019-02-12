@@ -38,7 +38,7 @@ public:
    virtual void set(double val);
    virtual bool isTimeDependent() const{ return true; }
    virtual void setDataExpression(oprule::expression::DoubleNodePtr express);
-   virtual bool ExternalFlowInterface::operator==( const ExternalFlowInterface& rhs);
+   virtual bool operator==( const ExternalFlowInterface& rhs);
 private:
    int ndx;
 };
@@ -62,7 +62,7 @@ public:
    virtual void set(double val);
    virtual bool isTimeDependent() const{ return true; }
    virtual void setDataExpression(oprule::expression::DoubleNodePtr express);
-   virtual bool TransferFlowInterface::operator==( const TransferFlowInterface& rhs);
+   virtual bool operator==( const TransferFlowInterface& rhs);
 private:
    int ndx;
 };

@@ -361,8 +361,7 @@ contains
             ,DownstreamConnect, DownstreamConnections &
             ,StreamEndNode
         use netcntrl
-        use netbnd &
-            , only: UpstreamBoundaryValue, DownstreamBoundaryValue
+        use netbnd, only: UpstreamBoundaryValue, DownstreamBoundaryValue
         implicit none
 
         !   Purpose:  Compute and store constraint-equation coefficients forcing

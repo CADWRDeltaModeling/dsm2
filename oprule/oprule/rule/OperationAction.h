@@ -4,6 +4,7 @@
 #include<deque>
 #include "assert.h"
 #include<iostream>
+#include<stdexcept>
 #include "boost/shared_ptr.hpp"
 #include "boost/weak_ptr.hpp"
 

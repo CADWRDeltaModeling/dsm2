@@ -51,7 +51,14 @@ public:
   };
 
   /** Construct a reservoir_node_connect with actual data values */
-  reservoir_node_connect(const int & a_res_node_index,const  char a_res_name[32],const int & a_res_index,const int & a_connect_index,const int & a_node_no,const int & a_ext_node_no,const  char a_connection_type[8], bool a_used=true, int a_layer = 0) :
+  reservoir_node_connect(const int & a_res_node_index,
+	                    const  char a_res_name[32],
+						const int & a_res_index,
+						const int & a_connect_index,
+						const int & a_node_no,
+						const int & a_ext_node_no,
+						const  char a_connection_type[8],
+						bool a_used=true, int a_layer = 0) :
     res_node_index(a_res_node_index),
     res_index(a_res_index),
     connect_index(a_connect_index),

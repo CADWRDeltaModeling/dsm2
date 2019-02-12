@@ -607,4 +607,4 @@ def generate_dsm2():
 if (__name__ == "__main__"):
     generate_dsm2()
 print("Done")
-os.system("pause")
+#os.system("pause")

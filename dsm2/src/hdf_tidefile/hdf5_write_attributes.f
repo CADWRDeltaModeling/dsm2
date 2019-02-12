@@ -97,8 +97,8 @@ c**********contains routines for writing data to an HDF5 file
 
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Git GUID",
-
      &           trim(git_uid)//char(0), error)
+
       call h5ltset_attribute_string_f(hydro_id,".", 
      &           "Start time string",
      &           tf_start_date, error)

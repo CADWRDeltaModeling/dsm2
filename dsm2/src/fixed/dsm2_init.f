@@ -23,7 +23,7 @@ C!</license>
 	use rate_coeff_assignment,only:initialize_rate_coefficient
       use IO_Units, only: unit_output
       use Gates, only: GATE_OPEN, GATE_FREE
-      use ifport              !! <INTEL>
+      use ifport, only: getpid,getenvqq, rand              !! <INTEL>
       use constants
       use logging
       use runtime_data
@@ -180,7 +180,7 @@ c-----prepend custom ID to run ID?
       ctemp1=''
       istat=getenvqq('CID', ctemp1) !! <NT>
       if (istat .gt. 0) then    ! custom ID
-         read(ctemp1,'(i1)') itmp1
+         read(ctemp1,'(i)') itmp1
          crid=trim(ctemp1) // '_' // trim(crid)
       endif
 c-----date of run

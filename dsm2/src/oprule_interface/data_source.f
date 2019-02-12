@@ -28,7 +28,7 @@ C!</license>
 c----- Fetch time varying data from a data source such as
 c      DSS, an expression or a constant value
       real*8 get_expression_data
-	external get_expression_data
+      external get_expression_data
       
 	type(datasource_t) ::  source
 

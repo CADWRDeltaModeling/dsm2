@@ -1,8 +1,8 @@
 #include "klu.h"
 #include "klu_version.h"
 
-#define NT
-#ifdef NT
+//#define NT
+#ifdef _WIN32
 #define STDCALL  
 #define klu_fortran_init             STDCALL KLU_FORTRAN_INIT
 #define klu_fortran_analyze          STDCALL KLU_FORTRAN_ANALYZE
@@ -11,9 +11,21 @@
 #define klu_fortran_solve            STDCALL KLU_FORTRAN_SOLVE
 #define klu_fortran_condest          STDCALL KLU_FORTRAN_CONDEST
 #define klu_fortran_rgrowth          STDCALL KLU_FORTRAN_RGROWTH
-#define klu_fortran_rcond			 STDCALL KLU_FORTRAN_RCOND
+#define klu_fortran_rcond            STDCALL KLU_FORTRAN_RCOND
 #define klu_fortran_free_numeric     STDCALL KLU_FORTRAN_FREE_NUMERIC
 #define klu_fortran_free             STDCALL KLU_FORTRAN_FREE
+#else
+#define stdcall
+#define klu_fortran_init             stdcall klu_fortran_init_
+#define klu_fortran_analyze          stdcall klu_fortran_analyze_
+#define klu_fortran_factor           stdcall klu_fortran_factor_
+#define klu_fortran_refactor         stdcall klu_fortran_refactor_
+#define klu_fortran_solve            stdcall klu_fortran_solve_
+#define klu_fortran_condest          stdcall klu_fortran_condest_
+#define klu_fortran_rgrowth          stdcall klu_fortran_rgrowth_
+#define klu_fortran_rcond            stdcall klu_fortran_rcond_
+#define klu_fortran_free_numeric     stdcall klu_fortran_free_numeric_
+#define klu_fortran_free             stdcall klu_fortran_free_
 #endif
 
 static klu_common Common;

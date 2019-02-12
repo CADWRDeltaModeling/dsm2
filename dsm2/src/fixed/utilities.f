@@ -311,7 +311,7 @@ c--------handle e.g. 'hour' (w/o number) correctly
          if (ilast .eq. 0) then
             number=1
          else
-            read(e_part_tmp(:ilast),'(i5)', err=600) number
+            read(e_part_tmp(:ilast),*,err=600) number
          endif
       endif
       interval=e_part_tmp(ilast+1:)
@@ -857,9 +857,8 @@ c-----local variables
      &         CLA(:2) .eq. "-V" .or.
      &         CLA(:2) .eq. "-h" .or.
      &         CLA(:2) .eq. "-H") then ! print version and subversion, usage, quit
-                  print *, 'DSM2-' // trim(dsm2_name) // ' ', trim(dsm2_version) 
+         print *, 'DSM2-' // trim(dsm2_name) // ' ', trim(dsm2_version) 
      &            // '  Git Version: ', trim(git_build) // ' Git GUI: ', trim(git_uid)
-
          print *, 'Usage: ' // trim(dsm2_name) // ' input-file '
          call exit(1)
       else                      ! command line arg

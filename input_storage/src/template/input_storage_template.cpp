@@ -38,7 +38,7 @@ using namespace std;
 using namespace boost;
 
 /** Write the table item to an output stream */
-ostream& operator<<(ostream & stream, const @TABLEOBJ & obj)
+ostream& operator<<(ostream & stream, const input_storage::@TABLEOBJ & obj)
 {  
   quote_if_spaces quote_spaces;
   stream.setf(ios_base::fixed,ios_base::floatfield);
@@ -46,7 +46,7 @@ ostream& operator<<(ostream & stream, const @TABLEOBJ & obj)
 }
 
 /** Read the table item from an input stream */
-istream& operator>> (istream& stream, @TABLEOBJ & obj)
+istream& operator>> (istream& stream, input_storage::@TABLEOBJ & obj)
 {
   string str;
   getline(stream,str);
@@ -68,21 +68,21 @@ istream& operator>> (istream& stream, @TABLEOBJ & obj)
 }
 
 template<>
-HDFTableManager<@TABLEOBJ>::HDFTableManager() :
+HDFTableManager<input_storage::@TABLEOBJ>::HDFTableManager() :
     description(@TABLEOBJ_table_description()),  
-    m_default_fill(@TABLEOBJ(@DEFAULT_MEMBER_DATA)){}
+    m_default_fill(input_storage::@TABLEOBJ(@DEFAULT_MEMBER_DATA)){}
 
 template<>
-void HDFTableManager<@TABLEOBJ>::prioritize_buffer()
+void HDFTableManager<input_storage::@TABLEOBJ>::prioritize_buffer()
 {
 @PRIORITIZE
 }
 
 TableDescription @TABLEOBJ_table_description(){
   const char* title = "@TABLEOBJ";
-  const size_t size = sizeof(@TABLEOBJ);
+  const size_t size = sizeof(input_storage::@TABLEOBJ);
   const size_t nfields = @NFIELDS;
-  @TABLEOBJ default_struct = @TABLEOBJ(@DEFAULT_MEMBER_DATA);
+  input_storage::@TABLEOBJ default_struct = input_storage::@TABLEOBJ(@DEFAULT_MEMBER_DATA);
   const char* fnames[] =  {@QUOTED_MEMBERS};
   const hid_t ftypes[] =  {
             @HDFTYPES
@@ -115,7 +115,7 @@ void @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE)
 {
  _TRAP_EXCEPT(*ierror,
    @TABLEOBJ_table::instance().buffer().push_back(
-                                      @TABLEOBJ(
+				      input_storage::@TABLEOBJ(
                                       @C_PASS_THROUGH_CALL
                                       ));
  ) // end of exception trap
@@ -124,10 +124,10 @@ void @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE)
 /** both makes the table and writes the contents of the buffer to it */
 void @TABLEOBJ_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror){
  _TRAP_EXCEPT(*ierror,
-  @TABLEOBJ_table & table = @TABLEOBJ_table::instance();
+    @TABLEOBJ_table & table = @TABLEOBJ_table::instance();
     *ierror = static_cast<int>( H5TBmake_table( @TABLEOBJ_table::instance().description.title.c_str(), 
                                               *file_id, 
-		                                      table.description.title.c_str(), 
+	                                      table.description.title.c_str(), 
                                               table.description.nfields, 
                                               table.buffer().size(), 
                                               table.description.struct_size, 
@@ -190,7 +190,7 @@ void @TABLEOBJ_query_from_buffer_f(size_t* row,
  _TRAP_EXCEPT(*ierror,
     //if (row > @TABLEOBJ_table::instance().buffer().size()) return -2; //todo: HDF_STORAGE_ERROR;
     size_t ndx = *row - 1;
-    @TABLEOBJ obj =@TABLEOBJ_table::instance().buffer()[ndx];
+    input_storage::@TABLEOBJ obj =@TABLEOBJ_table::instance().buffer()[ndx];
     @BUFFER_QUERY
     @STRLENASSIGN
  ) // end of exception trap
@@ -215,7 +215,7 @@ void @TABLEOBJ_write_buffer_to_stream(ostream & out, const bool& append)
    string keyword("@TABLEOBJ");
    boost::to_upper(keyword);
    out << keyword <<endl;
-   vector<@TABLEOBJ> & obs = @TABLEOBJ_table::instance().buffer();
+   vector<input_storage::@TABLEOBJ> & obs = @TABLEOBJ_table::instance().buffer();
    @TABLEOBJ_table& table = @TABLEOBJ_table::instance();
    for (size_t icount = 0; icount < table.description.nfields; ++ icount) 
    {
@@ -224,10 +224,10 @@ void @TABLEOBJ_write_buffer_to_stream(ostream & out, const bool& append)
      out <<  name << "  ";
    }
    out << endl;
-   for (vector<@TABLEOBJ>::const_iterator it = obs.begin();
+   for (vector<input_storage::@TABLEOBJ>::const_iterator it = obs.begin();
         it != obs.end(); ++it)
         {  
-           const @TABLEOBJ & outitem = *it;
+	  const input_storage::@TABLEOBJ & outitem = *it;
            out << outitem << endl;
         }
    out << "END\n" << endl;
@@ -247,9 +247,4 @@ void @TABLEOBJ_write_buffer_to_text_f(const char* file,
   @TABLEOBJ_write_buffer_to_stream(out,*append); 
   ) // end of exception trap  
 }
-
-
-
-
-
 
