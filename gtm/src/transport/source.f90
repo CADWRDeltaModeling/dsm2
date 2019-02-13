@@ -83,7 +83,7 @@ end interface
  
     subroutine set_source(source_term)
         implicit none
-        procedure(source_if), pointer :: source_term => null()  
+        procedure(source_if), pointer :: source_term !  => null()  
         compute_source => source_term
         return
     end subroutine
