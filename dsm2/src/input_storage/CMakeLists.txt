@@ -1,7 +1,9 @@
 cmake_minimum_required (VERSION 3.2.2)
 enable_language(CXX Fortran)
-# add pre build command
-#add_custom_command(OUTPUT version.fi PRE_BUILD COMMAND python version_generate.py WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_custom_command(OUTPUT input_storage_fortran.f90 
+  COMMAND python generate.py 
+  DEPENDS generate.py
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 # search by file pattern and include in library
 file(GLOB sources *.cpp)
 set(DSM2_TOP_DIR "../../../")
@@ -17,4 +19,4 @@ endif (WIN32)
 
 file(GLOB fortran_header_sources *.fi)
 include_directories("." "../${HDF5_DIR}/include/static")
-add_library(input_storage STATIC "input_storage_fortran.f90")
+add_library(input_storage STATIC ${CMAKE_CURRENT_SOURCE_DIR}/input_storage_fortran.f90)
