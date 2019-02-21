@@ -207,3 +207,31 @@ target_link_libraries(PTM
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     )
 endif (WIN32)
+#-------------- TEST -------------------#
+
+#-------------- INSTALL ----------------#
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
+install(TARGETS hydro qual PTM
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION bin)
+if (WIN32) 
+  message("Install does not have any dependencies on system dlls")
+else (WIN32)
+  message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
+  set(INTEL_DIR "/opt/intel/parallel_studio_2019/compilers_and_libraries_2019.0.117/linux/compiler/lib/ia32_lin")
+  set(RUNTIME_DEPENDENCIES 
+    ${INTEL_DIR}/libintlc.so.5 ${INTEL_DIR}/libcilkrts.so.5 ${INTEL_DIR}/libirng.so 
+    ${INTEL_DIR}/libifport.so.5 ${INTEL_DIR}/libifcoremt.so.5 ${INTEL_DIR}/libsvml.so)
+  install(FILES ${RUNTIME_DEPENDENCIES} DESTINATION bin/lib)
+endif (WIN32)
+#-------------- PACKAGE --------------------------#
+set(CPACK_PACKAGE_NAME "DSM2")
+set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
+set(CPACK_PACKAGE_VERSION_MAJOR "8")
+set(CPACK_PACKAGE_VERSION_MINOR "1")
+set(CPACK_PACKAGE_VERSION_PATCH "14-linux-port") # TODO: add git versioning here
+set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+set(CPACK_RESOURCE_FILE_LICENSE "${DSM2_TOP_DIR}/LICENSE.txt")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack")
+include(CPack)
