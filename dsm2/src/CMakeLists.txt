@@ -31,7 +31,7 @@ set (DSM2_SPARSE      ${DSM2_SOURCE_DIR}/sparse)
 set (DSM2_TIMEVAR      ${DSM2_SOURCE_DIR}/timevar)
 #
 #FIXME: change top directory to one-less. There should be a better way
-set(DSM2_TOP_DIR "../../")
+set(DSM2_TOP_DIR "../..")
 if (DEFINED THIRD_PARTY_DIR)
   set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
 else()
@@ -41,7 +41,7 @@ endif()
 # FFLAGS depend on the compiler
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 # include the common macros for compiler flags and third party libraries
-include(${DSM2_TOP_DIR}CmakeLibraryMacro.txt)
+include(${DSM2_TOP_DIR}/CmakeLibraryMacro.txt)
 set_compiler_flags()
 #---------------LIBRARIES-------------------------------------------------
 find_libs()
@@ -224,6 +224,10 @@ else (WIN32)
     ${INTEL_DIR}/libifport.so.5 ${INTEL_DIR}/libifcoremt.so.5 ${INTEL_DIR}/libsvml.so)
   install(FILES ${RUNTIME_DEPENDENCIES} DESTINATION bin/lib)
 endif (WIN32)
+#------------- PACKAGE WINDOWS -----------------$
+if (WIN32)
+  set(CPACK_GENERATOR "ZIP")
+endif (WIN32)
 #-------------- PACKAGE --------------------------#
 set(CPACK_PACKAGE_NAME "DSM2")
 set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
@@ -232,6 +236,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "8")
 set(CPACK_PACKAGE_VERSION_MINOR "1")
 set(CPACK_PACKAGE_VERSION_PATCH "14-linux-port") # TODO: add git versioning here
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-set(CPACK_RESOURCE_FILE_LICENSE "${DSM2_TOP_DIR}/LICENSE.txt")
+get_filename_component(LICENSE_FILE "${DSM2_TOP_DIR}/LICENSE.txt" ABSOLUTE) 
+set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack")
 include(CPack)
