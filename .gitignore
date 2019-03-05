@@ -1,3 +1,10 @@
 **/BUILD
 *.pyc
+*.bak
+*.fi
 third_party/
+gtm/src/input_storage/*.f90
+gtm/src/input_storage/*.cpp
+gtm/src/input_storage/*.h
+gtm/src/input_storage/component.py
+

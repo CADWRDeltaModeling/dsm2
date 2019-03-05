@@ -98,7 +98,6 @@ program gtm
     real(gtm_real) :: new_current_time
     real(gtm_real) :: gtm_hdf_time_intvl
     real(gtm_real) :: time_in_slice
-    
     integer :: offset, num_blocks, jday
     integer, allocatable :: memlen(:)
     integer :: runtime_hydro_start, runtime_hydro_end
@@ -189,6 +188,9 @@ program gtm
         dispersion_coef => adjust_dispersion_coef_with_velocity
     end if 
     
+    print *, "zero = ", zero
+    print *, "one = ", one
+    !pause
     !----- allocate array for interpolation -----         
     call allocate_state_hydro(n_comp, n_resv, n_resv_conn, n_qext, n_tran, n_cell)
     call allocate_hydro_ts 
@@ -271,10 +273,12 @@ program gtm
     turbidity_settle(:) = group_var_cell(ncc_turbidity,settle,:)
     !> for mercury module
     if (run_mercury) then
-        call check_group_channel(ncc_hgii,hg_coef_start)
-        k_wat(:)%biodemethyl =  group_var_cell(ncc_hgii, Hg_coef_start,:)
-        call check_group_channel(ncc_hgii,hg_coef_start+1)
-        k_wat(:)%methyl =  group_var_cell(ncc_hgii, Hg_coef_start+1,:)
+        if (hg_coef_start.gt.0) then
+            call check_group_channel(ncc_hgii,hg_coef_start)
+            k_wat(:)%biodemethyl =  group_var_cell(ncc_hgii, Hg_coef_start,:)
+            call check_group_channel(ncc_hgii,hg_coef_start+1)
+            k_wat(:)%methyl =  group_var_cell(ncc_hgii, Hg_coef_start+1,:)
+        end if
         call check_mercury_ts_input
         call constituent_name_to_ivar(ec_ivar, 'ec')  
         call constituent_name_to_ivar(doc_ivar, 'doc')  ! todo: change 'ec' to 'doc' when doc model setup is ready
@@ -527,9 +531,9 @@ program gtm
                         wet_p,                        &                      
                         wet_p_prev,                   &
                         constraint,                   &
-                        constituents(:)%use_module,   &
+                        constituents(:)%use_module,   & 
                         LL,                           &
-                        sed_percent)   
+                        sed_percent)  
             where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)
 

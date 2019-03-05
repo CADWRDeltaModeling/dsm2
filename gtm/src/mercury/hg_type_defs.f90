@@ -111,48 +111,7 @@ end type k_phyto_parms
 
 
 
-!> global hg reaction rate constants & parameters
-!****************************************************************************************************************************************
-    real (gtm_real) :: k_adsorp             !> rate constant for rate limited adsorption of HgII onto solids
-    real (gtm_real) :: k_desorp             !> rate constant for rate limited desorption of HgII from solids
-    real (gtm_real) :: k_PhotoDeg_UVA       !> MeHg photodegradation rate constant at waterbody surface per unit of UVA intensity (ng/m2/day)
-    real (gtm_real) :: k_PhotoDeg_UVB       !> MeHg photodegradation rate constant at waterbody surface per unit of UVB) intensity (ng/m2/day)
-    real (gtm_real) :: k_PhotoDeg_PAR       !> MeHg photodegradation rate constant at waterbody surface per unit of PAR intensity (ng/m2/day)
-    real (gtm_real) :: k_PhotoRed_UVA       !> Inorganic Hg(II) photoreduction  rate constant at waterbody surface per unit of UVA intensity (ng/m2/day)
-    real (gtm_real) :: k_PhotoRed_UVB       !> Inorganic Hg(II) photoreduction  rate constant at waterbody surface per unit of UVB intensity (ng/m2/day)
-    real (gtm_real) :: k_PhotoRed_PAR       !> Inorganic Hg(II) photoreduction  rate constant at waterbody surface per unit of PAR intensity (ng/m2/day
-    real (gtm_real) :: k_PhotoOxid_UVA      !> Elemental Hg photooxidation rate constant  at waterbody surface per unit of UVA intensity (ng/m2/day)
-    real (gtm_real) :: k_PhotoOxid_UVB      !> Elemental Hg photooxidation rate constant  at waterbody surface per unit of UVB intensity (ng/m2/day)
-    real (gtm_real) :: k_PhotoOxid_PAR      !> Elemental Hg photooxidation rate constant  at waterbody surface per unit of PAR intensity (ng/m2/day)
-    
-    real (gtm_real) :: k_oxid_1 = 0.0000219686d0 !> for oxidation switch = 2; dgm ratio = k1*DOC^k2*pH^k3 not implemented
-    real (gtm_real) :: k_oxid_2 = -0.431372d0
-    real (gtm_real) :: k_oxid_3 = 4.1308153d0
-    
-    real (gtm_real) :: ke_UVA_1             !> Coefficient used to estimate UVA light extinction in the following expression: Ke = keUVA1*DOC + keUVA2*SS + ke_UVA3)  
-    real (gtm_real) :: ke_UVA_2             !> Coefficient used to estimate UVA light extinction
-    real (gtm_real) :: ke_UVA_3             !> Coefficient used to estimate UVA light extinction
-    real (gtm_real) :: ke_UVB_1             !> Coefficient used to estimate UVB light extinction in the following expression: Ke = keUVB1*DOC + keUVB2*SS + ke_UVB3)
-    real (gtm_real) :: ke_UVB_2             !> Coefficient used to estimate UVB light extinction
-    real (gtm_real) :: ke_UVB_3             !> Coefficient used to estimate UVB light extinction
-    real (gtm_real) :: ke_PAR_1             !> Coefficient used to estimate PAR light extinction in the following expression: Ke = kePAR1*DOC + kePAR2*SS + ke_PAR3)
-    real (gtm_real) :: ke_PAR_2             !> Coefficient used to estimate PAR light extinction
-    real (gtm_real) :: ke_PAR_3             !> Coefficient used to estimate PAR light extinction
-    real (gtm_real) :: Henry_Hg0            !> Henry's Law constant for elemental Hg
-    real (gtm_real) :: MTC_Hg0Wat           !> Mass transfer coefficient (water side) for calculation of elemental Hg diffusion between water and air (m/d)
-    real (gtm_real) :: MTC_Hg0Air           !> Mass transfer coefficient (air side) for calculation of elemental Hg diffusion between water and air (m/d)
-    real (gtm_real) :: Henry_MeHg           !> Henry's Law constant for MeHg
-    real (gtm_real) :: MTC_MeHgWat          !> Mass transfer coefficient (water side) for MeHg diffusion across air/water interface (m/d)
-    real (gtm_real) :: MTC_MeHgAir          !> Mass transfer coefficient (air side) for MeHg diffusion across air/water interface (m/d)
-    real (gtm_real) :: v_rgm                !> Settling velocity of RGM (m/d)
-    real (gtm_real) :: Q10meth              !> Q10 temperature dependence parameter for methylation
-    real (gtm_real) :: Tbmeth               !> base temperature for dependence for methylation
-    real (gtm_real) :: Q10biodemeth         !> Q10 temperature dependence parameter for methylation
-    real (gtm_real) :: Tbbiodemeth          !> base temperature for dependence for bio-demethylation
-    real (gtm_real) :: kSO4                 !> Half saturation constant for SO4 effect on methylation (mg/L)
-    real (gtm_real) :: uSO4                 !> maximum effect that sulfate can have on the microbial methylation rate (dimensionless)
-    real (gtm_real) :: mtc_sed_sed          !> Mass transfer coefficient for Hg diffusion between sediment compartments (m/d)
-    real (gtm_real) :: mtc_sed_wat          !> Mass transfer coefficient for Hg diffusion between water and sediment compartments (m/d)
+
 !> compartment specific hg reaction rate constants, parameters
 !****************************************************************************************************************************************
 !    real (gtm_real) :: methyl               !> methylation rate constant

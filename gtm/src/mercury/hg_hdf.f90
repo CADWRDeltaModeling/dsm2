@@ -361,21 +361,21 @@ module hg_hdf
         integer             :: ii, izone
         real (gtm_real)     :: gtm_hdf_time_intvl
         integer             :: time_index_in_gtm_hdf
-        hg_conc_wat(:,3) = hg_conc_wat(:,1)  !todo: consider updating partitioning etc
+        hg_conc_wat(:,3) = hg_conc_wat(:,1)  !todo: consider updating partitioning etc  
         tss_total(:) = conc_tss(:,1)+conc_tss(:,2)+conc_tss(:,3) 
-        conc_wat_hdf(:,1) = hg_conc_wat(:,3)%hgii_ssX(1)*conc_tss(:,1)  + hg_conc_wat(:,3)%hgii_ssX(2)*conc_tss(:,2)   + hg_conc_wat(:,3)%hgii_ssX(3)*conc_tss(:,3) + hg_conc_wat(:,3)%hgii_diss &
-                            +hg_conc_wat(:,3)%HgII_inert(1)*conc_tss(:,1) + hg_conc_wat(:,3)%HgII_inert(2)*conc_tss(:,2) + hg_conc_wat(:,3)%HgII_inert(3)*conc_tss(:,3) 
+        !conc_wat_hdf(:,1) = hg_conc_wat(:,3)%hgii_ssX(1)*conc_tss(:,1)  + hg_conc_wat(:,3)%hgii_ssX(2)*conc_tss(:,2)   + hg_conc_wat(:,3)%hgii_ssX(3)*conc_tss(:,3) + hg_conc_wat(:,3)%hgii_diss &
+        !                    +hg_conc_wat(:,3)%HgII_inert(1)*conc_tss(:,1) + hg_conc_wat(:,3)%HgII_inert(2)*conc_tss(:,2) + hg_conc_wat(:,3)%HgII_inert(3)*conc_tss(:,3) 
                             
         
         conc_wat_hdf(:,2) = hg_conc_wat(:,3)%hgii_diss
          
         conc_wat_hdf(:,4) = zero              !hgii_kd
-        conc_wat_hdf(:,5) = hg_conc_wat(:,3)%mehg_ss(1)*conc_tss(:,1)   + hg_conc_wat(:,3)%mehg_ss(2)*conc_tss(:,2)   + hg_conc_wat(:,3)%mehg_ss(3)*conc_tss(:,3) + &
-                            hg_conc_wat(:,3)%mehg_diss
+        !conc_wat_hdf(:,5) = hg_conc_wat(:,3)%mehg_ss(1)*conc_tss(:,1)   + hg_conc_wat(:,3)%mehg_ss(2)*conc_tss(:,2)   + hg_conc_wat(:,3)%mehg_ss(3)*conc_tss(:,3) + &
+        !                    hg_conc_wat(:,3)%mehg_diss
         
         conc_wat_hdf(:,6) = hg_conc_wat(:,3)%mehg_diss
         
-       ! conc_wat_hdf(:,8) = zero             !hgii_kd
+        conc_wat_hdf(:,8) = zero             !mehg_kd
         
         
         do ii = 1, ncell
@@ -413,7 +413,7 @@ module hg_hdf
         call write_gtm_chan_hdf(gtm_wat_hg_hdf,        &
                                 flow_lo,               &
                                 flow_hi,               &
-                                conc,                  &
+                                conc_wat_hdf,          &
                                 nchan,                 &
                                 ncell,                 &
                                 wat_hg_count,          &
@@ -448,7 +448,7 @@ module hg_hdf
         call write_gtm_chan_hdf(gtm_wat_hg_hdf,        &
                                 flow_lo,               &
                                 flow_hi,               &
-                                conc,                  &
+                                conc_wat_flux_hdf,     &
                                 nchan,                 &
                                 ncell,                 &
                                 10,                    &

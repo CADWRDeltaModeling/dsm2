@@ -100,25 +100,32 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
     type (eq_vals) :: debugvals
                              !Chloride (mg/l) = 0.285 * EC (umhos/cm) – 50.    (this is the 'seawater' line)
                              !Chloride (mg/l) = 0.15 * EC (umhos/cm) – 12.      (this is the 'ag. drainage' line)   
-      
+    
+    converge = .true.
     local_order = jacob_order
+    if (icell.eq.0) then 
+        print *, "starting equilibrium initialization "
+    end if
     call set_complexes_to_zero(m)
    
     if ((vals%MeHg.le.zero).or.(total%mehg.le.1.0d-20))then
+        !print *, "((vals%MeHg.le.zero).or.(total%mehg.le.1.0d-20))"
+        !print *, vals%MeHg, total%mehg
         converge = .false.
     end if
     if ((vals%hgii.le.zero).or.(total%hgii.le.1.0d-20)) then
+        print *, "((vals%hgii.le.zero).or.(total%hgii.le.1.0d-20))", icell,izone
        converge = .false.
     end if
         
     if (total%xoh.lt.1.0d-20)then
+        print *, "total%xoh.lt.1.0d-20", icell, izone
         converge = .false.
     end if
     
-    if (converge.eq..false.) then
+    if (converge == .false.) then
         return
     end if
-    debugvals=vals
     
     m%Cl = Cl/molar_Cl_to_mg_l
     m%H = 10d0**(-pH)
@@ -130,12 +137,11 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
     m%HS   = vals%HS
     m%xROH = vals%xROH
     
+        
     if(total%RS.lt.zero) then
         print *, "doc warning  cell", icell
         print *, total%RS
-        !pause
-        total%RS = 1.0D-4
-        
+        total%RS = 1.0D-4   
     endif
    
     converge = .false.
@@ -143,8 +149,11 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
     error = zero
     delta_x = zero
     iter = 0
-    do while ((iter < iter_max).and.(.not. converge))
+       
+    do while ((iter.lt.iter_max).and.(.not. converge))
         iter = iter + 1
+        !if (izone.eq.0) iter = iter
+        !if ((izone.eq.0).and.(icell.eq.1)) print *, icell, izone, iter
         call mass_action(ks, porosity, phyto, phyto_jacob, jacob_order, m, sum, itype)
         test_HgII = abs((total%HgII-sum%HgII)/(total%HgII+sum%HgII))<eps_equil
         test_MeHg = abs((total%MeHg-sum%MeHg)/(total%MeHg+sum%MeHg))<eps_equil
@@ -177,8 +186,9 @@ subroutine equil_solver(vals,                   &       !> initial guess for unk
 					error(6) = sum%XROH - total%xROH
 				endif
             endif
-            
+            !if (izone.eq.0) print *, "calling jacobian"
             call jacobian(local_order, phyto_jacob, jacob,m, sum, porosity,itype)
+            !if (izone.eq.0)  print *, "calling matrix inverter"
             call matrix_invert(jacob, local_order, solved)
             
             if (.not. solved) then          !> todo: error trapping if inversion fails
@@ -642,12 +652,12 @@ subroutine phyto_calcs(m, phyto, phyto_jacob)
     real (gtm_real) :: dk1_dHS
     
     !> MeHg mass action
-    alpha1 = k_phyto%k_phytoMeHg/(one + k_phyto%H_phytoMeHg*m%H);
-    alpha2 = one/((k_phyto%u_phyto + k_phyto%kd_phytoMeHg)*k_phyto%mass_cell);
+    alpha1 = k_phyto%k_phytoMeHg/(1.0d0 + k_phyto%H_phytoMeHg*m%H);
+    alpha2 = 1.0d0/((k_phyto%u_phyto + k_phyto%kd_phytoMeHg)*k_phyto%mass_cell);
     kpass = k_phyto%kpassMeHg*(m%MeHgCl + 0.04d0*m%MeHgOH);
     if (phyto_uptakeMeHg == 1)	then                !>free ion uptake
 		MeHg_active= m%MeHg
-		dMeHg_act_dMeHg= one
+		dMeHg_act_dMeHg= 1.0d0
     else                                            !> total inorganic MeHg				
 		MeHg_active= m%MeHg + m%MeHgCl + m%MeHgOH + m%MeHgS + m%MeHg2S
         dMeHg_act_dMeHg= (m%MeHg + m%MeHgCl + m%MeHgOH + m%MeHgS + two* m%MeHg2S)/m%MeHg	

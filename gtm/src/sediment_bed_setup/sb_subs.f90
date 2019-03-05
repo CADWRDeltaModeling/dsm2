@@ -71,7 +71,6 @@ module sb_subs
         real(gtm_real) :: dy_elev
         real(gtm_real) :: elev
         integer        :: mrk
-        real(gtm_real) :: temp
         cell_count = 0
         !allocate (top_wet_p(n_cell))
        ! allocate (top_elev(n_cell))
@@ -118,22 +117,10 @@ module sb_subs
                 
                 dy_elev = ( sedcell(cell_no)%max_elev - sedcell(cell_no)%min_elev)/(n_zone - 1)
                    
-                if (cell_no.eq.1591) then
-                    cell_no=1591  
-                end if
-                
                 do kk = 1, n_zone
-                    sedcell(cell_no)%elev(kk) = sedcell(cell_no)%min_elev + (kk-1)*dy_elev                     
+                    sedcell(cell_no)%elev(kk) = sedcell(cell_no)%min_elev + (kk-1)*dy_elev
                     call CxInfo(area, sedcell(cell_no)%width(kk), sedcell(cell_no)%wet_p(kk), depth, X, sedcell(cell_no)%elev(kk), segm(ii)%chan_no)
-                    if (kk.gt.1) then
-                        if (sedcell(cell_no)%wet_p(kk)<= sedcell(cell_no)%wet_p(kk-1)) then
-                            write (*,'(A28,1x,I4,2x,A5,1x,I1)') 'cell wetted perimeter error:', cell_no,'zone:',kk
-                            temp = sedcell(cell_no)%wet_p(kk-1)
-                            sedcell(cell_no)%wet_p(kk-1) = sedcell(cell_no)%wet_p(kk)
-                            sedcell(cell_no)%wet_p(kk) = temp       !todo: discuss with En_Ching
-                        endif
-                    end if
-                    !sedcell(cell_no)%wet_p(kk) = area/sedcell(cell_no)%wet_p(kk)  !todo what was I trying to do here dhh hydraulic radius ????????
+                    sedcell(cell_no)%wet_p(kk) = area/sedcell(cell_no)%wet_p(kk)
                 end do
             end do
         end do

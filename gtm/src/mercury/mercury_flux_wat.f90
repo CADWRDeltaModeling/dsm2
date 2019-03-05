@@ -27,7 +27,7 @@
 
 module mercury_flux_wat
     
-    use gtm_precision
+    !use gtm_precision
     use equilibrium
     use mercury_state_variables
     use hg_internal_vars
@@ -136,7 +136,7 @@ subroutine hg_flux_wat(area,        &
     r%rgmdep_HgII = area*v_rgm*rgm_atm *1.0d-6    !todo: check units
     
     !>methylation/bio-demethylation at interface
-    r%methyl_int        = area * k%methyl_int * concs%HgII_methyl * (one + uSO4 * (SO4/ (SO4 + kSO4))) * (Q10Meth**((T-Tbmeth) / ten)) * rct_interface
+    r%methyl_int        = area * k%methyl_int * concs%HgII_methyl * (1.0d0 + uSO4 * (SO4/ (SO4 + kSO4))) * (Q10Meth**((T-Tbmeth) / ten)) * rct_interface
 	r%biodemethyl_int   = area * k%biodemethyl_int * concs%MeHg_biodemeth * (Q10biodemeth**((T-Tbbiodemeth) / ten))  * rct_interface
     !r%methyl            = k%methyl *rct_water* concs%HgII_methyl * Q10meth**((T-Tbmeth) / ten)*vol_frac   !> methylation fraction
 	!r%biodemethyl       = k%biodemethyl*rct_water* concs%MeHg_biodemeth* (Q10biodemeth**((T-Tbbiodemeth)/ten))
@@ -144,7 +144,7 @@ subroutine hg_flux_wat(area,        &
     !> rate limited adsorption/desorption HgII <-> HgII_inert
     do ii = 1, nosolids
         if (solid_in(ii)%frac_exchg < 1.0d0) then
-            delta_conc = (concs%HgII_ssX(ii) * (one-solid_in(ii)%frac_exchg)) /solid_in(ii)%frac_exchg - Hg_inert(ii)
+            delta_conc = (concs%HgII_ssX(ii) * (1.0d0-solid_in(ii)%frac_exchg)) /solid_in(ii)%frac_exchg - Hg_inert(ii)
             if (delta_conc >= zero) then
                 r%adsorption(ii) = k_adsorp * delta_conc * solids(ii) * area * depth  !> adsorption
             else
@@ -185,7 +185,7 @@ subroutine light_extinction_integration(ke1,        &           !> light extinct
     ke = ke1*DOC + ke2*solids + ke3
     if (ke > 0) then
         ke = ke1*DOC + ke2*solids + ke3
-        integral = (one-exp(-ke * depth))/ke
+        integral = (1.0d0-exp(-ke * depth))/ke
     else
         integral = depth
     endif
@@ -338,19 +338,24 @@ subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, ns
     total%XOH = total%XOH !/1.0d3                  !mg->g assuming solids are in units of mg/L
     total%hgii = conc_hgii/ (1.0e9*mole_hg)           !todo: check units
     total%mehg = conc_mehg/ (1.0e9*mole_hg)           !todo: check units
+   
     total%rs = doc*mole_rs
-    hh = 10.d0**(ph)
+    if (total%rs.LE.0) then
+        print *, " total%rs warning" , icell, doc, mole_rs
+        pause
+    endif
+    hh = 10.d0**(-ph)
     if (.not.eq_vals_wat(icell)%initialized) then
         
         !if (total%XOH.gt.zero) then
-            eq_vals_wat(icell)%hgii =  (total%hgii)/(one + k_eq_solids_wat%xohg*total%XOH/hh + k_eq%hgrs*total%rs )
-            eq_vals_wat(icell)%mehg = (total%mehg*hh)/(one + k_eq_solids_wat%xomehg*total%XOH + k_eq%mehgrs*total%rs)
+            eq_vals_wat(icell)%hgii =  (total%hgii)/(1.0d0 + k_eq_solids_wat%xohg*total%XOH/hh + k_eq%hgrs*total%rs )
+            eq_vals_wat(icell)%mehg = (total%mehg*hh)/(1.0d0 + k_eq_solids_wat%xomehg*total%XOH + k_eq%mehgrs*total%rs)
         !else
-        !    eq_vals_wat(icell)%hgii = total%hgii/(one + k_eq%hgrs*total%rs)
-        !    eq_vals_wat(icell)%hgii = total%mehg/(one + k_eq%mehgrs*total%rs)
+        !    eq_vals_wat(icell)%hgii = total%hgii/(1.0d0 + k_eq%hgrs*total%rs)
+        !    eq_vals_wat(icell)%hgii = total%mehg/(1.0d0 + k_eq%mehgrs*total%rs)
         !    order = 3
         !end if
-        eq_vals_wat(icell)%rs = total%rs / (one + k_eq%hgrs*eq_vals_wat(icell)%hgii + k_eq%mehgrs*eq_vals_wat(icell)%mehg)
+        eq_vals_wat(icell)%rs = total%rs / (1.0d0 + k_eq%hgrs*eq_vals_wat(icell)%hgii + k_eq%mehgrs*eq_vals_wat(icell)%mehg)
         eq_vals_wat(icell)%xoh = total%XOH-eq_vals_wat(icell)%hgii-eq_vals_wat(icell)%mehg 
         eq_vals_wat(icell)%initialized = .true.
     end if
@@ -367,7 +372,7 @@ subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, ns
                             cl,                                     &       !> Cl (mg/L)
                             ph,                                     & 
                             zero,                                   &       !> phytoplankton (mg/L)
-                            one,                                    &       !> bed(icell,izone,ilayer)%porosity 
+                            1.0d0,                                      &       !> bed(icell,izone,ilayer)%porosity 
                             total, order, 0,                        &       !> Molar concentration totals (known), number of unknowns,  itype = 0 known total HgII and MeHg (ng/L),itype = 1 known total sediment HgII and MeHg (ng/g)
                             k_eq_solids_wat,                        &       !> equilibrium constants for solids partitioning (compartment specific)
                             iter,                                   &       !> number of iterations to reach solution
@@ -377,10 +382,22 @@ subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, ns
     if (iter.gt.9) then
         print *, "equilibrium module  no of iterations (>9):", iter
         print *, "                                  cell no:", icell
+        pause
     end if
     if (.not.converge) then !todo:debug
-        print *, icell, conc_hgii, conc_mehg, solids(1), solids(2), solids(3), doc, ph
-        pause
+    !if (icell.lt.1) then !todo:debug
+        print *, "wat equilibrium did not converge"
+        print *, "cell, iterations: ",  icell, iter
+        print *, "rkstep: ", rkstep
+        print *, "conc_hgii, conc_mehg: ",conc_hgii, conc_mehg 
+        print *, "moles mehg", total%mehg
+        print *, "solids: ", solids(1), solids(2), solids(3)
+        print *, "doc, ph, cl: ", doc, ph, cl
+        print *, "moles rs", total%rs
+        print *, eq_vals_wat(icell)%hgii, eq_vals_wat(icell)%mehg
+        if (.not.converge) then
+            pause
+        endif
     end if
     if (converge) eq_vals_wat(icell)%initialized = .true.
     call Hg_reactant_concs(m, nosolids, solids, solid_parms_wat, hg_conc_wat(icell, rkstep) )  

@@ -1,8 +1,8 @@
 module sb_hdf_util
     !use gtm_precision
     use sb_common
-    use hdf_util , only: get_int_attribute_from_hdf5, n_chan, n_xsect, n_comp, hydro_ntideblocks,GET_HYDRO_ATTR, Read_Channel_tbl, find_non_sequential, &
-                         READ_COMP_TBL, ASSIGN_CHAN_COMPPT,ASSIGN_SEGMENT,READ_XSECT_TBL,GET_TS_FROM_HDF5,VERIFY_ERROR
+    use hdf_util , only: get_int_attribute_from_hdf5, n_chan, n_xsect, n_comp, hydro_ntideblocks,GET_HYDRO_ATTR, Read_Channel_tbl, find_non_sequential,READ_COMP_TBL, &
+        read_channel_bottom_tbl, ASSIGN_CHAN_COMPPT, ASSIGN_SEGMENT,READ_RESERVOIR_TBL,READ_QEXT_TBL,READ_TRAN_TBL,READ_XSECT_TBL,GET_TS_FROM_HDF5,VERIFY_ERROR
     use h5lt
     use common_xsect
 implicit none
@@ -13,7 +13,18 @@ implicit none
         call get_int_attribute_from_hdf5(n_chan, "Number of channels")
         call get_int_attribute_from_hdf5(n_xsect, "Number of virt xsects")
         call get_int_attribute_from_hdf5(n_comp, "Number of comp pts")
+!        call get_int_attribute_from_hdf5(n_resv, "Number of reservoirs")
+!        call get_int_attribute_from_hdf5(n_resv_conn, "Number of reservoir node connects")
+!        call get_int_attribute_from_hdf5(n_resv_flow, "Number of reservoir flow connects")
+!        call get_int_attribute_from_hdf5(n_qext, "Number of QExt")
+!        call get_int_attribute_from_hdf5(n_tran, "Number of flow transfers")
+!        call get_int_attribute_from_hdf5(n_gate, "Number of gates")
+!        call get_int_attribute_from_hdf5(n_flwbnd, "Number of flow boundaries")
+!        call get_int_attribute_from_hdf5(n_stgbnd, "Number of stage boundaries")
         call get_int_attribute_from_hdf5(hydro_ntideblocks, "Number of intervals")
+!        call get_int_attribute_from_hdf5(hydro_start_jmin, "Start time")
+!        call get_int_attribute_from_hdf5(hydro_time_interval, "Time interval")
+!        hydro_end_jmin = hydro_start_jmin + (hydro_ntideblocks-1)*hydro_time_interval
        return
     end subroutine 
     
@@ -24,18 +35,18 @@ implicit none
         call read_channel_tbl
         call find_non_sequential
         call read_comp_tbl
-        !call read_channel_bottom_tbl        
+        call read_channel_bottom_tbl        
         call assign_chan_comppt
         call assign_segment   
-        !call read_reservoir_tbl
-        !call read_qext_tbl
-        !call read_tran_tbl
+        call read_reservoir_tbl
+        call read_qext_tbl
+        call read_tran_tbl
         call read_xsect_tbl
         return
         !call read_gate_tbl
         !call read_source_flow_tbl
         !call read_boundary_tbl
-        !call get_dsm2_network_info
+        call get_dsm2_network_info
     end subroutine     
     
         

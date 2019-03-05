@@ -214,7 +214,7 @@ module sediment_bed_setup
         bed(:,:,:).mass_frac(2) = bed(:,:,:).mass_frac(2)/mass_total(:,:,:)
         bed(:,:,:).mass_frac(3) = bed(:,:,:).mass_frac(3)/mass_total(:,:,:)
     
-        mass_total(:,:,:) =  bed(:,:,:).wp_zone * bed(:,:,:).thickness * (one - bed(:,:,:).porosity) / (bed(:,:,:).mass_frac(1)/density(1)+bed(:,:,:).mass_frac(2)/density(2)+bed(:,:,:).mass_frac(3)/density(3))
+        mass_total(:,:,:) =  bed(:,:,:).wp_zone * bed(:,:,:).thickness * (1.0d0 - bed(:,:,:).porosity) / (bed(:,:,:).mass_frac(1)/density(1)+bed(:,:,:).mass_frac(2)/density(2)+bed(:,:,:).mass_frac(3)/density(3))
         
         do i=1,nzones
             do j = 1 , nlayers
@@ -237,16 +237,16 @@ module sediment_bed_setup
         integer, intent (in)            :: nzones
         !local
         integer             :: i, k
-        bed(:,:,:).inter_k = one
-        bed(:,:,:).inter_a1 = one
-        bed(:,:,:).inter_a2 = one
+        bed(:,:,:).inter_k = 1.0d0
+        bed(:,:,:).inter_a1 = 1.0d0
+        bed(:,:,:).inter_a2 = 1.0d0
         do i=1, ncells 
             do  k=1,nzones
                 if (bed(i,k,1).inter_frac_tb > zero) then
-                    bed(i,k,1).inter_k = bed(i,k,1).inter_frac_tb/(one - bed(i,k,1).inter_frac_tb)
+                    bed(i,k,1).inter_k = bed(i,k,1).inter_frac_tb/(1.0d0 - bed(i,k,1).inter_frac_tb)
                     bed(i,k,1).inter_a2 = bed(i,k,1).inter_k*bed(i,k,1).Q10_ct_inter**((-two*bed(i,k,1).Tb_ct_inter)/ten)
-                    bed(i,k,1).inter_a1 = (one + (ten/(log(bed(i,k,1).Q10_ct_inter)*bed(i,k,1).Tb_ct_inter)) * log(bed(i,k,1).inter_a2/bed(i,k,1).inter_k &
-                        + (one/bed(i,k,1).inter_k)* (bed(i,k,1).inter_frac_max/( bed(i,k,1).inter_frac_max - bed(i,k,1).inter_frac_tb)) - (one/bed(i,k,1).inter_k)))
+                    bed(i,k,1).inter_a1 = (1.0d0 + (ten/(log(bed(i,k,1).Q10_ct_inter)*bed(i,k,1).Tb_ct_inter)) * log(bed(i,k,1).inter_a2/bed(i,k,1).inter_k &
+                        + (1.0d0/bed(i,k,1).inter_k)* (bed(i,k,1).inter_frac_max/( bed(i,k,1).inter_frac_max - bed(i,k,1).inter_frac_tb)) - (1.0d0/bed(i,k,1).inter_k)))
                 else
                     bed(i,k,1).inter_frac_max = zero
                 end if
@@ -353,7 +353,10 @@ module sediment_bed_setup
             end do
         end do
         write (*,*) "number of sed input coefficients processed", n_sed_cells
+ 
+        return
         
+        !no input time series for sediment bed for now        
         if (run_mercury) then
             nitem_input_time_series = input_time_series_buffer_size() 
             n_input_ts = n_input_ts+nitem_input_time_series

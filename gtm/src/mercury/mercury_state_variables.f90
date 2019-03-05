@@ -46,10 +46,10 @@ module mercury_state_variables
     real(gtm_real), allocatable :: val_dry_mehg(:)    !< drydep_MeHg
     real(gtm_real), allocatable :: val_dgm_ratio(:)   !< dgm ratio  
     ! sediment bed pore water variables
-    real(gtm_real), allocatable :: conc_cl_pw(:)      !< EC
-    real(gtm_real), allocatable :: conc_doc_pw(:)     !< DOC
-    real(gtm_real), allocatable :: conc_ph_pw(:)      !< pH
-    real(gtm_real), allocatable :: conc_so4_pw(:)     !< SO4
+    !real(gtm_real), allocatable :: conc_cl_pw(:)      !< EC
+    !real(gtm_real), allocatable :: conc_doc_pw(:)     !< DOC
+    !real(gtm_real), allocatable :: conc_ph_pw(:)      !< pH
+    !real(gtm_real), allocatable :: conc_so4_pw(:)     !< SO4
     
     ! variables for mercury module
     integer :: ec_ivar, doc_ivar
@@ -79,10 +79,10 @@ module mercury_state_variables
         allocate(val_wet_mehg(ncell))
         allocate(val_dry_mehg(ncell))
         allocate(val_dgm_ratio(ncell))      
-        allocate(conc_cl_pw(ncell))
-        allocate(conc_doc_pw(ncell))
-        allocate(conc_ph_pw(ncell))
-        allocate(conc_so4_pw(ncell))
+        !allocate(conc_cl_pw(ncell))
+        !allocate(conc_doc_pw(ncell))
+        !allocate(conc_ph_pw(ncell))
+        !allocate(conc_so4_pw(ncell))
                
         call setup_hg_internals(ncell,n_zones,2,3,n_mercury)
         return
@@ -94,7 +94,7 @@ module mercury_state_variables
         deallocate(val_ipar, val_iuva, val_iuvb, val_rgm_air, val_hg0_air, val_mehg_air, val_precip)
         deallocate(val_wet_hgii, val_dry_hgii, val_wet_mehg, val_dry_mehg)
         deallocate(val_dgm_ratio)
-        deallocate(conc_cl_pw, conc_doc_pw, conc_ph_pw, conc_so4_pw)
+        !deallocate(conc_cl_pw, conc_doc_pw, conc_ph_pw, conc_so4_pw)
         
         !call deallocate_sed_internals()
         call close_gtm_hg_hdf()
@@ -125,12 +125,12 @@ module mercury_state_variables
         val_wet_hgii = input_timeseries(code_to_ts_id(ts_var_wet_hgii),:)
         val_dry_hgii = input_timeseries(code_to_ts_id(ts_var_dry_hgii),:)
         val_wet_mehg = input_timeseries(code_to_ts_id(ts_var_wet_mehg),:)
-        val_dry_mehg = run_mercury
+        val_dry_mehg = input_timeseries(code_to_ts_id(ts_var_dry_mehg),:)
         val_dgm_ratio = input_timeseries(code_to_ts_id(ts_var_dgm_ratio),:)         
-        conc_cl_pw = input_timeseries(code_to_ts_id(ts_var_cl_pw),:)
-        conc_doc_pw = input_timeseries(code_to_ts_id(ts_var_doc_pw),:)
-        conc_ph_pw = input_timeseries(code_to_ts_id(ts_var_ph_pw),:)
-        conc_so4_pw = input_timeseries(code_to_ts_id(ts_var_so4_pw),:)
+        !conc_cl_pw = input_timeseries(code_to_ts_id(ts_var_cl_pw),:)
+        !conc_doc_pw = input_timeseries(code_to_ts_id(ts_var_doc_pw),:)
+        !conc_ph_pw = input_timeseries(code_to_ts_id(ts_var_ph_pw),:)
+        !conc_so4_pw = input_timeseries(code_to_ts_id(ts_var_so4_pw),:)
         return
     end subroutine
  

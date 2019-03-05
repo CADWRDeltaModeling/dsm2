@@ -28,7 +28,6 @@
 module mercury_flux_bed
 
 use gtm_precision
-use sed_type_defs
 use sed_internal_vars
 use hg_internal_vars
 use equilibrium
@@ -160,10 +159,10 @@ subroutine sed_partitioning(icell,izone,ilayer,doc, ph, ec,rkstep)
         !total%rs = conc_doc_pw(icell)*mole_rs_sed(icell,izone,ilayer)
         total%rs = doc*mole_rs_sed(icell,izone,ilayer)
         if (.not.eq_vals_sed(icell,izone,ilayer)%initialized) then
-            hh = 10.d0**(-conc_pH_pw(icell))
+            hh = 10.d0**(-conc_pH(icell))
             eq_vals_sed(icell,izone,ilayer)%hgii =  (total%hgii*hh)/(k_eq_solids_sed(icell,izone,ilayer)%xohg*total%XOH)
             eq_vals_sed(icell,izone,ilayer)%mehg = (total%mehg*hh)/(k_eq_solids_sed(icell,izone,ilayer)%xomehg*total%XOH)                        
-            eq_vals_sed(icell,izone,ilayer)%rs = total%rs / (one + k_eq%hgrs*eq_vals_sed(icell,izone,ilayer)%hgii + k_eq%mehgrs*eq_vals_sed(icell,izone,ilayer)%mehg)
+            eq_vals_sed(icell,izone,ilayer)%rs = total%rs / (1.0d0 + k_eq%hgrs*eq_vals_sed(icell,izone,ilayer)%hgii + k_eq%mehgrs*eq_vals_sed(icell,izone,ilayer)%mehg)
             eq_vals_sed(icell,izone,ilayer)%xoh = total%XOH-eq_vals_sed(icell,izone,ilayer)%hgii-eq_vals_sed(icell,izone,ilayer)%mehg
             eq_vals_sed(icell,izone,ilayer)%initialized = .true.
         end if
@@ -212,7 +211,7 @@ subroutine sed_fluxes_hg(icell,izone,ilayer,f_wat,rkstep)
     type(hg_flux_def), intent(inout) :: f_wat
     integer, intent(in) :: rkstep
 
-    call hg_sed_methyl(icell,izone, ilayer, conc_temp(icell), conc_so4_pw(icell),rkstep)
+    call hg_sed_methyl(icell,izone, ilayer, conc_temp(icell), conc_so4(icell),rkstep)
     call hg_sed_inert(icell,izone,ilayer,rkstep)
     call hg_sed_diffusion(icell,izone,ilayer,rkstep) !diffusion
     call hg_sed_solids(icell,izone,ilayer,rkstep)    !burial and resuspension
@@ -230,7 +229,7 @@ subroutine hg_sed_methyl(icell,izone,ilayer,T,SO4, rkstep)
     Real (gtm_real)     :: turnover
     
     turnover = carbonturnover(icell,izone,ilayer,1,rkstep) + carbonturnover(icell,izone,ilayer,2,rkstep)
-    f_sed_methyl(icell,izone,ilayer,rkstep) = k_sed(icell,izone,ilayer)%methyl * hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_methyl * (one + uSO4 * (SO4/ (SO4 + kSO4))) * (Q10Meth**((T-Tbmeth) / ten)) &
+    f_sed_methyl(icell,izone,ilayer,rkstep) = k_sed(icell,izone,ilayer)%methyl * hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_methyl * (1.0d0 + uSO4 * (SO4/ (SO4 + kSO4))) * (Q10Meth**((T-Tbmeth) / ten)) &
                                             * turnover
 	f_sed_demethyl(icell,izone,ilayer,rkstep) = k_sed(icell,izone,ilayer)%biodemethyl * hg_conc_sed(icell,izone,ilayer,rkstep)%mehg_biodemeth * (Q10biodemeth**((T-Tbbiodemeth) / 10.0)) &
                                             * turnover

@@ -138,7 +138,7 @@ module gtm_source
                 call mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
                                     conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
                                     conc_sed,       &
-                                    conc(:,doc_ivar), &
+                                    !conc(:,doc_ivar), &
                                     conc(:,ec_ivar), &
                                     area,           & !< hydrodynamic data from Hydro
                                     width,          & !< hydrodynamic data from Hydro

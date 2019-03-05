@@ -22,12 +22,14 @@ program gtm_tools
 
     use create_restart
     use create_synth_tide
-    use mass_calculate
+    use select_cell_ts
     implicit none
     integer :: tool_no
     character(len=128) :: restart_file
     character(len=128) :: gtm_tidefile
     character(len=14) :: datetime
+    integer :: n_select_cell, ncell
+    integer, allocatable :: arr(:)
     
     write(*,'(//5x,a52)') "****************************************************"
     write(*,'(5x,a52)')   "*                                                  *"    
@@ -37,7 +39,8 @@ program gtm_tools
     write(*,*) ""
     write(*,*) "Please select the tools you want to use:"
     write(*,*) "(1) Create restart file from DSM2-GTM tidefile"
-    write(*,*) "(2) Mass calculate"
+    write(*,*) "(2) Create synthetic tidal time series for dummy tidefile"
+    write(*,*) "(3) Print selected cells into a text file"
     
     read(*,*) tool_no
     if (tool_no .eq. 1) then
@@ -49,22 +52,55 @@ program gtm_tools
         write(*,*) "Please type in time to output (format: DDMMMYYYY HHMM):"
         !read(*,'(a14)') datetime
         !call create_restart_file(trim(restart_file), trim(gtm_tidefile), trim(datetime))
-        !call create_restart_file("test.txt", "K:\Calibration_SSC\gtm_calib_03\test_a\test_a_gtm.h5", "01FEB2011 0900")
+        !call create_restart_file("test.txt", "channel_gtm.h5", "01FEB1998 0900")
         !todo:: not working, not sure why. It is working in unit test.
+        call test_create_restart
     elseif (tool_no .eq. 2) then
-        call calculate_mass("Mass_calculate_2011.txt","K:\Calibration_SSC\gtm_calib_03\test_a\test_a_gtm.h5","01OCT2010 0000","01OCT2011 0000", &
-                            "K:\Calibration_SSC\gtm_calib_03\test_a\exclude_budget.txt")
-        call calculate_mass("Mass_calculate_2012.txt","K:\Calibration_SSC\gtm_calib_03\test_a\test_a_gtm.h5","01OCT2011 0000","01OCT2012 0000", &
-                            "K:\Calibration_SSC\gtm_calib_03\test_a\exclude_budget.txt")
-        call calculate_mass("Mass_calculate_2013.txt","K:\Calibration_SSC\gtm_calib_03\test_a\test_a_gtm.h5","01OCT2012 0000","01OCT2013 0000", &
-                            "K:\Calibration_SSC\gtm_calib_03\test_a\exclude_budget.txt")
-        call calculate_mass("Mass_calculate_2014.txt","K:\Calibration_SSC\gtm_calib_03\test_a\test_a_gtm.h5","01OCT2013 0000","01OCT2014 0000", &
-                            "K:\Calibration_SSC\gtm_calib_03\test_a\exclude_budget.txt")
-        call calculate_mass("Mass_calculate_2015.txt","K:\Calibration_SSC\gtm_calib_03\test_a\test_a_gtm.h5","01OCT2014 0000","01OCT2015 0000", &
-                            "K:\Calibration_SSC\gtm_calib_03\test_a\exclude_budget.txt")
+        call print_tidal_to_file
+    elseif (tool_no .eq. 3) then
+        n_select_cell = 11
+        ncell = 1722 !2780 5560 !11120 !22240 
+        allocate(arr(n_select_cell))
+        arr = (/ 652,764,345,294,280,1319,1304,1285,176,245,84/)
+        call print_select_cell(n_select_cell,             &     
+                               arr,                       &     
+                               ncell,                     &  
+                               "cell concentration.txt",  &    
+                               "select_cell_conc.txt") 
+    elseif (tool_no .eq. 4) then
+    
+    
+    
     else
         write(*,*) "Please select a tool!"
     end if       
    
     stop
+
 end program
+ 
+    !> Routine to test creating restart text file
+    subroutine test_create_restart()
+        use gtm_precision
+        use create_restart
+        implicit none
+        integer :: file_unit
+        character(len=11) :: restart_filename
+        real(gtm_real) :: init(64,2)
+        integer :: ncell, nvar
+        integer :: i, j
+        
+        file_unit = 131
+        restart_filename = "restart.txt"
+        call create_restart_file(restart_filename, "channel_gtm.h5", "01FEB1998 0900")
+        open(file_unit, file = restart_filename)
+        read(file_unit,*)
+        read(file_unit,*)
+        read(file_unit,*) nvar
+        read(file_unit,*) ncell
+        do i = 1, ncell
+            read(file_unit,*) (init(i,j),j=1,nvar)
+        end do    
+        close(file_unit) 
+        return
+    end subroutine

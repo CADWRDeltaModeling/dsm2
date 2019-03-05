@@ -3,6 +3,7 @@ module mercury_initialize
 use gtm_precision
 use sed_type_defs
 use sed_internal_vars
+!use hg_type_defs
 use hg_internal_vars
 use equilibrium
 use sediment_bed_setup, only: sed_read_init_values
@@ -38,11 +39,11 @@ implicit none
         integer :: ii
         !real (gtm_real) :: wet_p(n_cells)
         real (gtm_real) :: hyd_radius(n_cells)  
-       
+        
         ! get Hg from qrf file
-        file_name_qrf_sedhg = io_files(gtm,io_hdf5, io_write).filename
+        file_name_qrf_sedhg = io_files(gtm,io_restart, io_read).filename
         ii = index(file_name_qrf_sedhg,".", .true.)
-        file_name_qrf_sedhg(ii:ii+9) = "_sedHg.qrf"
+        file_name_qrf_sedhg(ii:ii+10) = "_sed_Hg.qrf"
         inquire(file=file_name_qrf, exist=file_exists)
         if (file_exists==.false.) then 
             call gtm_fatal("sediment bed Hg module - "//trim(file_name_qrf_sedhg)//" does not exist!!")
@@ -76,6 +77,8 @@ implicit none
         !type (eq_vals)              :: vals
         type (eq_complexes)         :: m 
         real(gtm_real)              :: hh                       ![H++]
+        real(gtm_real)              :: doc
+        real(gtm_real)              :: cl
         real(gtm_real)              :: dissolvedHg 
         real (gtm_real) :: check
         allocate(mass_total(n_cells,n_zones,n_layers))
@@ -99,7 +102,10 @@ implicit none
         hg_conc_sed(:,:,:,3)%HgII_inert(2) = sed_s2_hgii_ic(:,:,:)
         hg_conc_sed(:,:,:,3)%HgII_inert(3) = sed_s3_hgii_ic(:,:,:)
         
+        
         do icell =1, n_cells
+            doc = conc(icell,doc_ivar)
+            cl = max(0.285d0*conc(icell,ec_ivar)-50.0,0.15d0*conc(icell,ec_ivar) -12.0d0)
             do izone = 1, n_zones
                 do ilayer = 1, n_layers
                     
@@ -107,11 +113,11 @@ implicit none
                                 sedsolids(icell,izone,ilayer,2,3)*solid_parms_sed(icell,izone,ilayer,2).mole_XOH * solid_parms_sed(icell,izone,ilayer,2).frac_exchg + &
                                 sedsolids(icell,izone,ilayer,3,3)*solid_parms_sed(icell,izone,ilayer,3).mole_XOH * solid_parms_sed(icell,izone,ilayer,3).frac_exchg
                     if(volume_pw(icell,izone,ilayer).gt.zero) then
-                        hh = 10.d0**(-conc_pH_pw(icell))
+                        hh = 10.d0**(-conc_pH(icell))
                         total%XOH = total%XOH /volume_pw(icell,izone,ilayer)                        
                         total%hgii = sed_hgii(icell,izone,ilayer,3)/ (1.0e9*mole_hg)/ volume_pw(icell,izone,ilayer) 
                         total%mehg = sed_mehg(icell,izone,ilayer,3)/ (1.0e9*mole_hg)/ volume_pw(icell,izone,ilayer) 
-                        total%rs = conc_doc_pw(icell)*mole_rs_sed(icell,izone,ilayer)
+                        total%rs = conc(icell, doc_ivar)*mole_rs_sed(icell,izone,ilayer)
                         
                         eq_vals_sed(icell,izone,ilayer)%hgii =  (total%hgii*hh)/(k_eq_solids_sed(icell,izone,ilayer)%xohg*total%XOH)
                         eq_vals_sed(icell,izone,ilayer)%mehg = (total%mehg*hh)/(k_eq_solids_sed(icell,izone,ilayer)%xomehg*total%XOH)                                                                    !ks%XOMeHg*m%XOH*m%MeHg/m%H
@@ -119,8 +125,8 @@ implicit none
                         eq_vals_sed(icell,izone,ilayer)%xoh = total%XOH-eq_vals_sed(icell,izone,ilayer)%hgii-eq_vals_sed(icell,izone,ilayer)%mehg
                         eq_vals_sed(icell,izone,ilayer)%initialized = .true.
                         call equil_solver(eq_vals_sed(icell,izone,ilayer),  &       !> initial guess for unknowns(in) - results (out)
-                            conc_cl_pw(icell),                      &       !> Cl (mg/L)
-                            conc_pH_pw(icell),                      & 
+                            cl,                      &       !> Cl (mg/L)
+                            conc_pH(icell),                      & 
                             zero,                                   &       !> phytoplankton (mg/L)
                             bed(icell,izone,ilayer)%porosity,       &       !> bed(icell,izone,ilayer)%porosity
                             total, 4, 1,                            &       !> Molar concentration totals (known), number of unknowns,  itype = 0 known total HgII and MeHg (ng/L),itype = 1 known total sediment HgII and MeHg (ng/g)

@@ -42,7 +42,7 @@ module mercury_fluxes
     subroutine mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
                               conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
                               conc_sed,       & !< suspended sediment (mg/L)
-                              conc_doc,       & !< suspended sediment (mg/L)
+                              !**conc_doc,       & !< suspended sediment (mg/L)
                               conc_ec,        & !< 
                               area,           & !< hydrodynamic data from Hydro
                               width,          & !< hydrodynamic data from Hydro
@@ -61,8 +61,8 @@ module mercury_fluxes
         integer, intent(in) :: nmercury                               !< Number of mercury
         real(gtm_real), intent(out) :: source_mercury(ncell,nmercury) !< cell source
         real(gtm_real), intent(inout) :: conc_mercury(ncell,nmercury)    !< cell conc
-        real(gtm_real), intent(inout) :: conc_sed(ncell,nsediment)
-        real(gtm_real), intent(in) :: conc_doc(ncell)
+        real(gtm_real), intent(in) :: conc_sed(ncell,nsediment)
+        !**real(gtm_real), intent(in) :: conc_doc(ncell)
         real(gtm_real), intent(in) :: conc_ec(ncell)                 
         real(gtm_real), intent(in) :: area(ncell)                     !< cell area (ft2) 
         real(gtm_real), intent(in) :: width(ncell)                    !< cell area (ft)
@@ -73,6 +73,8 @@ module mercury_fluxes
         real(gtm_real), intent(in) :: erosion(ncell,nsediment)
         integer , intent(in)       :: rkstep                          ! added dhh 20170804
         !--local
+        real(gtm_real) :: conc_doc(ncell)
+               
         integer :: icell
         integer :: isolid
         real(gtm_real) :: area_wet(ncell)
@@ -89,21 +91,27 @@ module mercury_fluxes
         real(gtm_real) :: debug_conc_settle(ncell)
         real(gtm_real) :: debug_erode(ncell)
         real(gtm_real) :: debug_settle(ncell)
-        where (conc_mercury.lt.1.0d-5) conc_mercury = 1.0d-5
-        where (conc_sed.lt.1.0d-5) conc_sed = 1.0d-5
+        where (conc_mercury.lt.1.0d-5) conc_mercury = 1.0d-4
         source_mercury = zero 
         area_wet = width*dx*L*L                         !m2 surface area
         !volume(:) = area(:)*dx(:)*L*L*L                !m3
         volume(:) = dx(:)*width(:)*depth(:)*L*L*L       !m3 
         day_to_sec = 8.64d04                            !convert rates from days to seconds
         call set_fluxes_to_zero(f_wat_hg,ncell)
+        conc_doc(:) = conc(:,doc_ivar)
+        
         do icell = 1, ncell
-            solids(:) = conc_sed(icell,:)             
-            if ((solids(1)+solids(2)+solids(3)).le.zero) then
-                print *, "debug solids", solids(1)+solids(2)+solids(3)
+            solids(:) = conc_sed(icell,:)   
+            where (solids.lt.1.0d-5) solids = 1.0d-4
+            if (conc_doc(icell).NE.conc(icell,doc_ivar)) then
+                print *, "weird DOC ", icell, rkstep, conc_doc(icell)-conc(icell,doc_ivar)
+                if (icell.GT.726) then
+                    pause
+                endif
             endif
-                
+            
             call wat_partitioning(icell, conc_mercury(icell,1), conc_mercury(icell,2), solids, conc_doc(icell), conc_ph(icell), conc_ec(icell), nsediment, rkstep)
+            hg_conc_wat(icell, rkstep)%Hg0 = conc_mercury(icell,6)
             do isolid = 1,nsediment
                 if(conc_sed(icell,isolid).gt.zero) then
                     hg_conc_wat(icell, rkstep)%HgII_inert(isolid) = conc_mercury(icell, 4+isolid-1)/conc_sed(icell,isolid)  !(ug/g)
@@ -139,18 +147,18 @@ module mercury_fluxes
                          solid_in,               &
                          hg_conc_wat(icell, rkstep),          & 
                          f_wat_hg(icell) )         ! not given yet
-            !call sum_fluxes(f_wat_hg(icell))  
+            call sum_fluxes(f_wat_hg(icell))  
         end do
-        
+
         call hg_flux_sed(ncell, dt, f_wat_hg, conc_doc, conc_ph, conc_ec, rkstep) 
         
                                                         !Todo: check units
         f_wat_hg(:)%hgii = f_wat_hg(:)%hgii/day_to_sec  + f_wat_hg(:)%erosion(mf_hgii) - f_wat_hg(:)%settle(mf_hgii)
         f_wat_hg(:)%mehg = f_wat_hg(:)%mehg/day_to_sec  + f_wat_hg(:)%erosion(mf_mehg) - f_wat_hg(:)%settle(mf_mehg)
         f_wat_hg(:)%hg0 = f_wat_hg(:)%hg0/day_to_sec
-        f_wat_hg(:)%hg_inert(1) = f_wat_hg(:)%hg_inert(1)/day_to_sec - f_wat_hg(:)%settle(mf_hgii_s1) + f_wat_hg(:)%erosion(mf_hgii_s1)
-        f_wat_hg(:)%hg_inert(2) = f_wat_hg(:)%hg_inert(2)/day_to_sec - f_wat_hg(:)%settle(mf_hgii_s2) + f_wat_hg(:)%erosion(mf_hgii_s2)
-        f_wat_hg(:)%hg_inert(3) = f_wat_hg(:)%hg_inert(3)/day_to_sec - f_wat_hg(:)%settle(mf_hgii_s3) + f_wat_hg(:)%erosion(mf_hgii_s3)
+        f_wat_hg(:)%hg_inert(1) = f_wat_hg(:)%hg_inert(1)/day_to_sec !- f_wat_hg(:)%settle(mf_hgii_s1) + f_wat_hg(:)%erosion(mf_hgii_s1)
+        f_wat_hg(:)%hg_inert(2) = f_wat_hg(:)%hg_inert(2)/day_to_sec !- f_wat_hg(:)%settle(mf_hgii_s2) + f_wat_hg(:)%erosion(mf_hgii_s2)
+        f_wat_hg(:)%hg_inert(3) = f_wat_hg(:)%hg_inert(3)/day_to_sec !- f_wat_hg(:)%settle(mf_hgii_s3) + f_wat_hg(:)%erosion(mf_hgii_s3)
                         
         source_mercury(:,1) = f_wat_hg(:)%hgii/(volume(:))   
         source_mercury(:,2) = f_wat_hg(:)%mehg/(volume(:)) 

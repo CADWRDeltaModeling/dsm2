@@ -104,7 +104,7 @@ subroutine sediment_bed_main(ncells,        &
     end do
     
     !turnover_inter(:,:,rkstep)= deposition(:,:, 2) * bed(:,:,2).inter_frac * bed(:,:,2).inter_frac*cfrac_labile
-    !settling(:,:,1, rkstep) = deposition(:, 1) * (one - bed(:,:,1).inter_frac)      !labile turnover at interface
+    !settling(:,:,1, rkstep) = deposition(:, 1) * (1.0d0 - bed(:,:,1).inter_frac)      !labile turnover at interface
     !carbonturnover_inter(:,rkstep)= deposition(:,:, 2) * bed(:,:,2).inter_frac * bed(:,:,2).inter_frac*cfrac_labile  !for mercury module
     
     !bed(:,:,:).inter_frac_base = zero !todo: this is here for debugging
@@ -230,8 +230,8 @@ subroutine sediment_bed_main(ncells,        &
         sedsolids(:,:,:,:,rkstep+1) = sedsolids(:,:,:,:,rkstep-1) + delta_t * (sedsolidsflux(:,:,:,:,rkstep-1) + sedsolidsflux(:,:,:,:,rkstep))/two
     end if
   
-    bed(:,:,1).thickness = ((sedsolids(:,:,1,1,rkstep+1)/density(1)) + (sedsolids(:,:,1,2,rkstep+1)/density(2)) + (sedsolids(:,:,1,3,rkstep+1)/density(3)))/((one - bed(:,:,1).porosity)*bed(:,:,1).wp_zone) !*ft_to_m)
-    bed(:,:,2).thickness = ((sedsolids(:,:,2,1,rkstep+1)/density(1)) + (sedsolids(:,:,2,2,rkstep+1)/density(2)) + (sedsolids(:,:,2,3,rkstep+1)/density(3)))/((one - bed(:,:,2).porosity)*bed(:,:,2).wp_zone) !*ft_to_m)
+    bed(:,:,1).thickness = ((sedsolids(:,:,1,1,rkstep+1)/density(1)) + (sedsolids(:,:,1,2,rkstep+1)/density(2)) + (sedsolids(:,:,1,3,rkstep+1)/density(3)))/((1.0d0 - bed(:,:,1).porosity)*bed(:,:,1).wp_zone) !*ft_to_m)
+    bed(:,:,2).thickness = ((sedsolids(:,:,2,1,rkstep+1)/density(1)) + (sedsolids(:,:,2,2,rkstep+1)/density(2)) + (sedsolids(:,:,2,3,rkstep+1)/density(3)))/((1.0d0 - bed(:,:,2).porosity)*bed(:,:,2).wp_zone) !*ft_to_m)
     
     bed(:,:,2).volume = bed(:,:,2).thickness*bed(:,:,2).wp_zone !todo: for debugging remove
     

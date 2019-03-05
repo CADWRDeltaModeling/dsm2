@@ -112,6 +112,7 @@ module process_gtm_scalar
          read(Val, '(f20.15)', err=810) ero_coeff
       elseif (Param .eq. 'calc_budget') then      
          read(Val, '(l2)', err=810) calc_budget
+         
       !--------------mercury and sediment bed related parameters  
       elseif (Param .eq. 'run_mercury') then
          read(Val, '(l2)', err=810) run_mercury
@@ -142,7 +143,7 @@ module process_gtm_scalar
       elseif (Param .eq. 'mole_RS_wat') then
          read(Val, '(f20.15)', err=810) mole_rs 
               
-      elseif (Param .eq. 'k_HgRS') then
+      elseif (Param .eq. 'k_HgRS') then             !equilibrium constant for DOC binding sites
          read(Val, '(f20.15)', err=810) k_eq.HgRS  
          k_eq.HgRS = 10**k_eq.HgRS
       elseif (Param .eq. 'k_HgRS_2') then
@@ -151,7 +152,7 @@ module process_gtm_scalar
       elseif (Param .eq. 'k_MeHgRS') then
          read(Val, '(f20.15)', err=810) k_eq.MeHgRS  
          k_eq.MeHgRS = 10**k_eq.MeHgRS
-         
+      
       elseif (Param .eq. 'cfrac_labile') then
          read(Val, '(f20.15)', err=810) cfrac_labile  
       elseif (Param .eq. 'cfrac_refract') then
@@ -159,8 +160,88 @@ module process_gtm_scalar
          
       elseif (Param .eq. 'r_methyl_int') then
       !   read(Val, '(f20.15)', err=810) r_methyl_int 
-    
-    
+      elseif (Param .eq. 'k_adsorp') then
+        read(Val, '(f20.15)', err=810) k_adsorp
+      elseif (Param .eq. 'k_desorp') then
+        read(Val, '(f20.15)', err=810) k_desorp
+      elseif (Param .eq. 'k_PhotoDeg_UVA') then
+        read(Val, '(f20.15)', err=810) k_PhotoDeg_UVA
+      elseif (Param .eq. 'k_PhotoDeg_UVB') then
+        read(Val, '(f20.15)', err=810) k_PhotoDeg_UVB
+      elseif (Param .eq. 'k_PhotoDeg_PAR') then
+        read(Val, '(f20.15)', err=810) k_PhotoDeg_PAR
+      elseif (Param .eq. 'k_PhotoRed_UVA') then
+        read(Val, '(f20.15)', err=810) k_PhotoRed_UVA
+      elseif (Param .eq. 'k_PhotoRed_UVB') then
+        read(Val, '(f20.15)', err=810) k_PhotoRed_UVB
+      elseif (Param .eq. 'k_PhotoRed_PAR') then
+        read(Val, '(f20.15)', err=810) k_PhotoRed_PAR
+      elseif (Param .eq. 'k_PhotoOxid_UVA') then
+        read(Val, '(f20.15)', err=810) k_PhotoOxid_UVA
+      elseif (Param .eq. 'k_PhotoOxid_UVB') then
+        read(Val, '(f20.15)', err=810) k_PhotoOxid_UVB
+      elseif (Param .eq. 'k_PhotoOxid_PAR') then
+        read(Val, '(f20.15)', err=810) k_PhotoOxid_PAR
+      elseif (Param .eq. '') then
+        read(Val, '(f20.15)', err=810) 
+      elseif (Param .eq. 'k_oxid_1') then
+        read(Val, '(f20.15)', err=810) k_oxid_1
+      elseif (Param .eq. 'k_oxid_2') then
+        read(Val, '(f20.15)', err=810) k_oxid_2
+      elseif (Param .eq. 'k_oxid_3') then
+        read(Val, '(f20.15)', err=810) k_oxid_3
+      elseif (Param .eq. '') then
+        read(Val, '(f20.15)', err=810) 
+      elseif (Param .eq. 'ke_UVA_1') then
+        read(Val, '(f20.15)', err=810) ke_UVA_1
+      elseif (Param .eq. 'ke_UVA_2') then
+        read(Val, '(f20.15)', err=810) ke_UVA_2
+      elseif (Param .eq. 'ke_UVA_3') then
+        read(Val, '(f20.15)', err=810) ke_UVA_3
+      elseif (Param .eq. 'ke_UVB_1') then
+        read(Val, '(f20.15)', err=810) ke_UVB_1
+      elseif (Param .eq. 'ke_UVB_2') then
+        read(Val, '(f20.15)', err=810) ke_UVB_2
+      elseif (Param .eq. 'ke_UVB_3') then
+        read(Val, '(f20.15)', err=810) ke_UVB_3
+      elseif (Param .eq. 'ke_PAR_1') then
+        read(Val, '(f20.15)', err=810) ke_PAR_1
+      elseif (Param .eq. 'ke_PAR_2') then
+        read(Val, '(f20.15)', err=810) ke_PAR_2
+      elseif (Param .eq. 'ke_PAR_3') then
+        read(Val, '(f20.15)', err=810) ke_PAR_3
+      elseif (Param .eq. 'Henry_Hg0') then
+        read(Val, '(f20.15)', err=810) Henry_Hg0
+      elseif (Param .eq. 'MTC_Hg0Wat') then
+        read(Val, '(f20.15)', err=810) MTC_Hg0Wat
+      elseif (Param .eq. 'MTC_Hg0Air') then
+        read(Val, '(f20.15)', err=810) MTC_Hg0Air
+      elseif (Param .eq. 'Henry_MeHg') then
+        read(Val, '(f20.15)', err=810) Henry_MeHg
+      elseif (Param .eq. 'MTC_MeHgWat') then
+        read(Val, '(f20.15)', err=810) MTC_MeHgWat
+      elseif (Param .eq. 'MTC_MeHgAir') then
+        read(Val, '(f20.15)', err=810) MTC_MeHgAir
+      elseif (Param .eq. 'v_rgm') then
+        read(Val, '(f20.15)', err=810) v_rgm
+      elseif (Param .eq. 'Q10meth') then
+        read(Val, '(f20.15)', err=810) Q10meth
+      elseif (Param .eq. 'Tbmeth') then
+        read(Val, '(f20.15)', err=810) Tbmeth
+      elseif (Param .eq. 'Q10biodemeth') then
+        read(Val, '(f20.15)', err=810) Q10biodemeth
+      elseif (Param .eq. 'Tbbiodemeth') then
+        read(Val, '(f20.15)', err=810) Tbbiodemeth
+      elseif (Param .eq. 'kSO4') then
+        read(Val, '(f20.15)', err=810) kSO4
+      elseif (Param .eq. 'uSO4') then
+        read(Val, '(f20.15)', err=810) uSO4
+      elseif (Param .eq. 'mtc_sed_sed') then
+        read(Val, '(f20.15)', err=810) mtc_sed_sed
+      elseif (Param .eq. 'mtc_sed_wat') then
+        read(Val, '(f20.15)', err=810) mtc_sed_wat
+      
+
       !--------global rates for non-conserative const.
       elseif (Param .eq. 'algaefract_n') then
          read(Val, '(f8.3)', err=810) algaefract_n
