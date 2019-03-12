@@ -180,7 +180,11 @@ public class SwimInputs {
 	private void setSwimHelper(){
 		if (_fishType.equalsIgnoreCase("SALMON")){
 			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(this));
-			System.out.println("Created Particle Salmon Swim Helper");
+			System.out.println("Created Salmon Swim Helper");
+		}
+		else if (_fishType.equalsIgnoreCase("PARTICLE")){
+			_swimHelper = new ParticleSwimHelper(new BasicSwimBehavior(this));
+			System.out.println("Created Particle Swim Helper");
 		}
 		else
 			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");

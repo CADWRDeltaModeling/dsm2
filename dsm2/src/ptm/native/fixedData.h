@@ -221,7 +221,7 @@
 #define getRestartOutputFilename get_restart_output_filename_
 #define getRestartOutputInterval get_restart_output_interval_
 #define getRestartInputFilename get_restart_input_filename_
-#define getConveyorName get_conveyorName_name_
+#define getConveyorName get_conveyor_name_
 #define getModelDate get_model_date_
 #define getModelTime get_model_time_
 #define cdt2jmin cdt2jmin_

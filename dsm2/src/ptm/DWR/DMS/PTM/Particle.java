@@ -397,7 +397,8 @@ public class Particle{
 		  //Get total volume of Reservoir and multiply by random number
 		  float totvol = ((Reservoir)wb).getTotalVolume(timeStep);
 		  //float rand = wb.getRandomNumber();
-		  totvol = totvol*((float)PTMUtil.getRandomNumber());	  
+		  //totvol = totvol*((float)PTMUtil.getRandomNumber());
+		  totvol = totvol*((float)wb.getRandomNumber());
 		  //Get flow volume out first Node
 		  int nodeId = -1;
 		  float flowvol = 0.0f;
@@ -509,4 +510,3 @@ public class Particle{
 	  
 	  
 }
-

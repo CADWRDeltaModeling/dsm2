@@ -318,6 +318,10 @@ public class SurvivalInputs {
 			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(this));
 			System.out.println("Created Particle Salmon Survival Helper");
 		}
+		else if (_fishType.equalsIgnoreCase("Particle")){
+			_survivalHelper = null;
+			System.out.println("Created a null Particle Survival Helper");
+		}
 		else
 			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");
 	}

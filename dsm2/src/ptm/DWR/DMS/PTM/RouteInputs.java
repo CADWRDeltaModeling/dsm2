@@ -141,6 +141,9 @@ public class RouteInputs {
 			}
 			System.out.println("Created Particle Salmon Route Helper");
 		}
+		else if(_fishType.equalsIgnoreCase("PARTICLE")){
+			_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior(this));
+		}
 		else
 			PTMUtil.systemExit("System Exit: only implemented for SALMON not for: "+_fishType);
 	}

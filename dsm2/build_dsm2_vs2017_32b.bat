@@ -1,5 +1,6 @@
 setlocal
-call "c:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\bin\compilervars.bat" ia32 vs2015
+call "C:\Program Files (x86)\IntelSWTools\compilers_and_libraries_2019\windows\bin\compilervars.bat" ia32 vs2017
+PATH="C:\Program Files (x86)\CMake\bin\";%PATH%
 cmake -E remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD

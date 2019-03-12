@@ -98,9 +98,8 @@ public class MainPTM {
             }
             */
             boolean behavior = false;
-            //add behaviors currently add salmon behaviors
+            //add behaviors
             Environment.addBehaviors();
-			//TODO currently this block should not be called, need to revisit
             try {
                 // set behavior file and return status
             	//TODO This behavior module is Aaron's original one and needs to be revisited, only works for delta smelt
@@ -118,7 +117,7 @@ public class MainPTM {
             particleArray = new Particle[numberOfParticles];
             if(DEBUG) System.out.println("restart particles " + numberOfRestartParticles);
             
-            //TODO need to be rewrite, currently behavior should be false 
+            //TODO need to be rewrite 
             if(behavior) {
                 for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
                     particleArray[pNum] = new BehavedParticle(Environment.getParticleFixedInfo());
@@ -135,7 +134,6 @@ public class MainPTM {
             if(DEBUG) System.out.println("Set insertion info");
             // set observer on each Particle
             String traceFileName = Environment.getTraceFileName();
-
             if ( traceFileName == null || traceFileName.length() == 0 ) 
                 PTMUtil.systemExit("Trace file needs to be specified, Exit from MainPTM line 132.");
             ParticleObserver observer = null;
@@ -143,20 +141,24 @@ public class MainPTM {
                                             Environment.getFileType(traceFileName),
                                             startTime, endTime, PTMTimeStep,
                                             numberOfParticles);
-
             RouteHelper routeHelper = Environment.getRouteHelper();
             SwimHelper swimHelper = Environment.getSwimHelper();
             SurvivalHelper survivalHelper = Environment.getSurvivalHelper();
+            if (survivalHelper == null)
+            	System.err.println("Warning: no survival helper defined");
             if(DEBUG) System.out.println("Set observer, helpers");
+            //in case of particle, no need for check survival
             for(int i=0; i<numberOfParticles; i++) {
-            	if (observer != null && routeHelper != null && swimHelper != null && survivalHelper != null){
+            	if (observer != null && routeHelper != null && swimHelper != null) {
             		observer.setObserverForParticle(particleArray[i]);
             		routeHelper.setRouteHelperForParticle(particleArray[i]);
-            		swimHelper.setSwimHelperForParticle(particleArray[i]);
-            		survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
+            		swimHelper.setSwimHelperForParticle(particleArray[i]);            		
             	}
             	else
-            		PTMUtil.systemExit("observer or helpers are not properly set, system exit");
+            		PTMUtil.systemExit("observer or swim and route helpers are not properly set, system exit");
+            	//only salmon needs survival calc
+            	if (survivalHelper != null)
+            		survivalHelper.setSurvivalHelperForParticle(particleArray[i]);
             }
             
             // initialize output restart file
@@ -191,7 +193,6 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-
             /* to print out internal external channels, nodes
             Node[] nodens = Environment.getNodeArray();
             Waterbody[] wbwbs = Environment.getWbArray();
@@ -210,6 +211,7 @@ public class MainPTM {
             // initialize current model time
             //   Globals.currentModelTime = startTime;
             //main loop for running Particle model
+            
             //currentModelTime, startTime, endTime, PTMTimeStep are in minutes
             // timeStep is in seconds, which is used to update positions
             for(Globals.currentModelTime  = startTime; 
@@ -244,16 +246,17 @@ public class MainPTM {
                 if ( outRestart != null ) outRestart.output();
       
             }
-
-            //print out travel times
-            Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
-            Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();
-            RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();
+            if(!Environment.getParticleType().equalsIgnoreCase("Particle")){
+            	//print out travel times
+            	Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
+            	Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();
+            	RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();
             
-            //comment out next block if you don't want to write out entrainments and flux           
+            	//comment out next block if you don't want to write out entrainments and flux           
             
-            rIn.writeEntrainmentRates();
-            rIn.writeFlux(particleArray);
+            	rIn.writeEntrainmentRates();
+            	rIn.writeFlux(particleArray);
+            }
             
             if ( animationOutput != null ) animationOutput.FlushAndClose();
             // write out restart file information
@@ -278,7 +281,7 @@ public class MainPTM {
             fluxCalculator.writeOutput(); 
             
             //comment out for writing files and calculating flux end here 
-            
+           
             System.out.println("done simulation");
             
         }catch(Exception e){
@@ -292,7 +295,6 @@ public class MainPTM {
     protected static int previousDisplayTime = 0;
     
     //public native static void display(int displayInterval);
-
     public static void display(int displayInterval) { 
     
         if(previousDisplayTime == 0){ 

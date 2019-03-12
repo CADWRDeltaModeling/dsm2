@@ -24,26 +24,6 @@ package DWR.DMS.PTM;
  *  in handling PTMFluxOutput object to write out the Flux output.
  */
 
-//TODO
-/*
- * this code needs to be refactored.  The main problems:
- * 1. too many protected variables. could be dangerous potentially.  
- *    I have changed some variables to private and tested.  it seems nothing is broken so far.  
- * 2. the flux calculation is calculated for each time step from the trace file. 
- *    But the trace file only records a trace whenever a particle changes channels (ParticleObserver.observeWaterbodyChange), 
- *    which could fall in the middle of a time step. Or within a time step there could be many channel switches 
- *    when swimming and flow velocities are high.  And Also, the time stamp the trace file uses are only at exact
- *    input time step (usually 15 minutes) (Particle.getCurrentParticleTime()).  There could be many line with the same 
- *    time stamp but different channels in the file, which causes confusion and error.  
- *    When calculating flux, the previous code loops through the time steps and picks a line in the file 
- *    that is the first occurrence of a trace at the time stamp, which causes errors.  
- *    I changed the code to pick the last occurrence of a trace at the time stamp, which could also cause errors.
- *    
- *    the correct way to calculate flux is that
- *    for each particle, loop through all time steps and find if the particle eventually passes the to-channel 
- *    (the particle could go back and forth).  if yes, count one otherwise count 0.   
- */
-
 public class FluxMonitor{
 
   public static final boolean DEBUG = false;
@@ -83,7 +63,7 @@ public class FluxMonitor{
    *  Calculate Flux
    */
   public final void calculateFlux() {
-
+  
     int startId = 0;
     int endId = 0;
     int[] startTime = new int[1], endTime = new int[1], timeStep = new int[1];
@@ -93,12 +73,10 @@ public class FluxMonitor{
     traceArray = null;
     
     //calculate traceArray with MAX_PARTICLES as size limit
-    //TODO why need this for loop?  confusing, need to be fixed later --Xiao
     for (startId = 1; endId < totalNumberOfParticles[0]; startId += MAX_PARTICLES) {
-    	
+
       endId = Math.min(startId + MAX_PARTICLES - 1, totalNumberOfParticles[0]);
       int nParticles = endId - startId + 1;
-      //totalNumberOfParticles will be reset in createTraceArray
       createTraceArray(startId, endId, startTime, endTime, timeStep, totalNumberOfParticles);
       
       for (int i = 0; i < fluxInfoPtr.getNumberOfFluxes(); i++) {
@@ -139,7 +117,6 @@ public class FluxMonitor{
     int [] totalNumberOfParticles = new int[1];
     
     try{
-      // the constructor PTMTraceInput(...)	only reads the trace file header
       PTMTraceInput traceInput = new PTMTraceInput(traceFileName,inputType,
                                                    startTime, endTime, timeStep,
                                                    totalNumberOfParticles);
@@ -190,15 +167,14 @@ public class FluxMonitor{
                                   int [] startTime, int [] endTime,
                                   int [] timeStep, int [] totalNumberOfParticles){
   
-    //TODO should check to see if start time , end time , time step and number of
+    // should check to see if start time , end time , time step and number of
     // particles match that from PTMEnv.
     try{
       PTMTraceInput traceInput;
       traceInput = new PTMTraceInput(traceFileName,inputType,
                                      startTime, endTime, timeStep,
                                      totalNumberOfParticles);
-      int nParticles = eId - sId + 1; 
-      // PTMTraceInput only takes arrays, so here defines one element arrays
+      int nParticles = eId - sId + 1;
       int[] tm=new int[1], pNum=new int[1], nd=new int[1], wb=new int[1];
       
       //renew traceArray
@@ -213,7 +189,6 @@ public class FluxMonitor{
       }
       
       //vars transfer from trace to traceArray
-      //tm, pNum, nd, wb are set in the input method (input read data from the trace files)
       while(tm[0] != -1){
         traceInput.input(tm, pNum, nd, wb);
         if (tm[0] != -1 && (pNum[0] >= sId && pNum[0] <= eId)) 

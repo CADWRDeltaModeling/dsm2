@@ -87,7 +87,7 @@ public class BasicRouteBehavior {
 			if(wb.isAgSeep() || (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled()))
 				wbFlows[wbId] = 0.0f;
 			else
-				wbFlows[wbId] = Math.max(0.0f, ((Channel) wb).getInflow(nodeId));	    		
+				wbFlows[wbId] = Math.max(0.0f, wb.getInflow(nodeId));	    		
 			totalWbInflows += wbFlows[wbId];
 			wbId++;
 		}
@@ -98,14 +98,17 @@ public class BasicRouteBehavior {
 		    return;
 		}
 		float totalAgDiversions = p.nd.getTotalAgDiversions();
+		// for the particle no behavior calculation no filter for flow into the ag diversion 
+		_dicuEfficiency = 1.0f;
+		//inflow to the waterbody is the same as Ag diversion (river flow is very small).
 		if (PTMUtil.floatNearlyEqual(totalWbInflows, totalAgDiversions))
 			totalWbInflows = totalAgDiversions*_dicuEfficiency;
 		// at this point, totalFlows is the sum of all inflows and the dicuEfficiency doesn't matter for the totalFlows 
 		// because leftover flows are added to other inflows and the total remains the same.
 		// except for the case above with that only inflows are ag diversions, in which the dicuEfficiency has to be counted for.
 		// 
-		float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
-		
+		//float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
+		float randTotalWbInflows = ((float)p.nd.getRandomNumber())*totalWbInflows;
 		// if total flow is 0 wait for a time step
 		if (Math.abs(randTotalWbInflows) < Float.MIN_VALUE){
 		      p.particleWait = true;

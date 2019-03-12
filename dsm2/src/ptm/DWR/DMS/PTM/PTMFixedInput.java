@@ -23,9 +23,9 @@ package DWR.DMS.PTM;
  *  is reading fixed input.
  *  <p>
  *  The Waterbody and Node relationship is defined by a network structure.
- *  Each Waterbody has a unique id and may be queried as to which nodes it is
- *  connected to. Each Node also has a unique id and can be queried as to which
- *  waterbodies it is connected to.
+ * Each Waterbody has a unique id and maybe queried as to which nodes it is
+ * connected to. Each Node also has a unique id and can be queried as to which
+ * waterbodies it is connected to.
  *  <p>
  *  Calls are made to fortran functions for reading fixed input files. These
  *  fortran functions read the data into common blocks. The information is then
@@ -179,6 +179,8 @@ public class PTMFixedInput{
     Waterbody [] wbArray = new Waterbody[PTMFixedData.getMaximumNumberOfWaterbodies()+1];
     for(int i=1; i < wbArray.length; i++){
       Waterbody wb = null;
+      if (DEBUG)
+    	  System.out.println("Waterbody ID: "+i +"  Waterbody Type: "+ _fixedData.getWaterbodyType(i));
       switch (_fixedData.getWaterbodyType(i)){
       case Waterbody.CHANNEL:
         wb = createChannel(i);
@@ -216,9 +218,9 @@ public class PTMFixedInput{
   		     xSectionIds, len,
   		     nodeArray, xSectDist);
       if (DEBUG){
-        System.out.println("Created channel: " + lId);
-        System.out.println("Created channel: " + nId);
-        System.out.println("Created channel: " + len);
+        System.out.println("Created channel local ID: " + lId);
+        System.out.println("Created channel waterbody ID: " + nId);
+        System.out.println("Created channel length: " + len);
       }
     }
     return wb;
@@ -337,7 +339,6 @@ public class PTMFixedInput{
     } 
     return xSArray;
   }
-  
   /**
    *  updates the class ParticleFixedInfo with fixed information
    *  from common block
@@ -428,7 +429,6 @@ public class PTMFixedInput{
     FluxInfo fI = new FluxInfo(fFD,pFD);
     return fI;
   }
-
 
   /**
    *  Creates GroupInfo

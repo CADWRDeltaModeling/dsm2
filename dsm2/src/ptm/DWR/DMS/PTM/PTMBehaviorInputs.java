@@ -169,7 +169,7 @@ public class PTMBehaviorInputs {
 		
 		ArrayList<String> releaseInputs = PTMUtil.getInputBlock(inputText, "FISH_RELEASE_INPUTS", "END_FISH_RELEASE_INPUTS");
 		if (releaseInputs==null || releaseInputs.size()==0)
-			System.err.println("No fish release timeseries found!");
+			System.err.println("No fish release timeseries found in the behavior input file, using specification in historical_ptm.inp instead!");
 		else
 			extractReleaseInputs(releaseInputs);
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
