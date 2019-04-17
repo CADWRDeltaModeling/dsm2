@@ -57,7 +57,7 @@ public class RouteInputs {
 				}catch (NumberFormatException e){
 					e.printStackTrace();
 					PTMUtil.systemExit("expect a float for dicu efficiency coefficient but get:" + dicuInText.get(0));	
-				}					
+				}
 				setDicuFilterEfficiency();
 			}
 			if( specialBehaviorInText == null || specialBehaviorInText.size() < 2)
@@ -292,7 +292,7 @@ public class RouteInputs {
 		return visits;
 	}
 	private void setDicuFilterEfficiency(){
-		if (_dicuFilterEfficiency > 0){
+		if (!(_dicuFilterEfficiency < 0)){
 			//TODO particle has basic route behavior as Salmon???
 			if(_fishType.equalsIgnoreCase("SALMON"))
 				SalmonBasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
@@ -303,6 +303,8 @@ public class RouteInputs {
 			else
 				PTMUtil.systemExit("don't know how to deal with this fish type:" + _fishType+", system exit");
 		}
+		else
+			PTMUtil.systemExit("DICU Fileter Efficiency cannot be less than 0, , system exit");
 	}
 	
 	private void setSpecialBehaviors(ArrayList<String> inText){
@@ -474,7 +476,7 @@ public class RouteInputs {
 	private boolean DEBUG = false;
 	//Map<nodeId, <pid, entrainment rate>>
 	private Map<Integer, ArrayList<ArrayList<Object>>> _entrainmentRates;
-	private boolean DEBUGRouteInputs = true;
+	private boolean DEBUGRouteInputs = false;
 	private boolean NOTWRITEENTRAINMENT = false;
 	private boolean NOTWRITEFLUX = false;
 	//Flux channel name look up: Map<Channel_Id, channel name>

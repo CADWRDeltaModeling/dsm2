@@ -85,7 +85,8 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 		// because leftover flows are added to other inflows and the total remains the same.
 		// except for the case above with that only inflows are ag diversions, in which the dicuEfficiency has to be counted for.
 		// 
-		float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
+		//float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
+		float randTotalWbInflows = ((float)p.nd.getRandomNumber())*totalWbInflows;
 		
 		// if total flow is 0 wait for a time step
 		if (Math.abs(randTotalWbInflows) < Float.MIN_VALUE){

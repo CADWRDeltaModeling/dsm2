@@ -10,7 +10,7 @@ package DWR.DMS.PTM;
  *
  */
 public class BasicRouteBehavior {
-	static float _dicuEfficiency = 0.0f;
+	static float _dicuEfficiency = 1.0f; //no restriction on particles going to ag diversion
 	private RouteInputs _rIn;
 
 	/**
@@ -84,6 +84,7 @@ public class BasicRouteBehavior {
 		for (Waterbody wb: wbs){
 			if (wb == null)
 				PTMUtil.systemExit("when trying to route the particle, one of the water bodies is null, system exit.");
+			//TODO next three lines added in ECO_PTM to block particles from entering seepage flows (not in PTM)
 			if(wb.isAgSeep() || (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled()))
 				wbFlows[wbId] = 0.0f;
 			else
@@ -99,7 +100,6 @@ public class BasicRouteBehavior {
 		}
 		float totalAgDiversions = p.nd.getTotalAgDiversions();
 		// for the particle no behavior calculation no filter for flow into the ag diversion 
-		_dicuEfficiency = 1.0f;
 		//inflow to the waterbody is the same as Ag diversion (river flow is very small).
 		if (PTMUtil.floatNearlyEqual(totalWbInflows, totalAgDiversions))
 			totalWbInflows = totalAgDiversions*_dicuEfficiency;
@@ -107,8 +107,14 @@ public class BasicRouteBehavior {
 		// because leftover flows are added to other inflows and the total remains the same.
 		// except for the case above with that only inflows are ag diversions, in which the dicuEfficiency has to be counted for.
 		// 
+		//TODO change the way the random numbers are called
 		//float randTotalWbInflows = ((float)PTMUtil.getRandomNumber())*totalWbInflows;
-		float randTotalWbInflows = ((float)p.nd.getRandomNumber())*totalWbInflows;
+		float rd = (float)p.nd.getRandomNumber(); 
+		float randTotalWbInflows = (rd)*totalWbInflows;
+		
+		//if(p.Id == 1 && p.nd.getEnvIndex()== 314)
+			 //System.err.println(p.getCurrentParticleTimeExact()+"  "+totalWbInflows+"  "+rd);
+		
 		// if total flow is 0 wait for a time step
 		if (Math.abs(randTotalWbInflows) < Float.MIN_VALUE){
 		      p.particleWait = true;
@@ -133,7 +139,8 @@ public class BasicRouteBehavior {
 	    	else
 		    	modFlow = wbFlows[wbId];
 	    	flow += modFlow;
-	    }while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
+	    //}while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
+		}while (flow < randTotalWbInflows && wbId < (p.nd.getNumberOfWaterbodies()-1));
 		p.wb = wbs[wbId];
 	    // send message to observer about change 
 	    if (p.observer != null) 

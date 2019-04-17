@@ -35,6 +35,8 @@ public class PTMUtil {
 	//TODO temporary still use this because java.util.random doesn't work
 	// this value will be reset in setRandomNumber()
 	private static RandomElement randomNumberGenerator= new Ranecu(32001);
+	//TODO changed the way the random numbers are called
+	private static boolean _useNewRandomSeed = false;
 
 	/**
 	 * 
@@ -438,7 +440,9 @@ public class PTMUtil {
 	public static boolean floatNearlyEqual(float f1, float f2){
 		return f1 == f2 ? true: Math.abs(f1-f2) < EPSILON*Math.min(Math.abs(f1),Math.abs(f2));
 	}
-	
+	public static boolean doubleNearlyEqual(double d1, double d2){
+		return d1 == d2 ? true: Math.abs(d1-d2) < EPSILON*Math.min(Math.abs(d1),Math.abs(d2));
+	}
 	public static double getRandomNumber(){
 		return randomNumberGenerator.uniform(0, 1);
 	}
@@ -457,5 +461,8 @@ public class PTMUtil {
 	*/
 	public static void setRandomNumber(){
 		randomNumberGenerator = new Ranecu(System.currentTimeMillis());
+		//TODO changed the way the random numbers are called
+		_useNewRandomSeed = true;
 	} 
+	public static boolean getUseNewRandomSeed(){return _useNewRandomSeed;}
 }

@@ -160,9 +160,9 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 _hydroCalc.updateDiffusion(p);	
 					 float [] cInfo = _hydroCalc.getChannelInfo(p.Id);
 					 
-					 // if an average cross section velocity (channelVave) is less than a user specified threshold, make the particle hold for one time step 
+					 // if an average cross section velocity (channelVave) is less than a user specified threshold, the particle holds for one time step 
 					 // because channelVave will not change in that time step.
-					 // confusion may be reset after makeNodeDecision, so use p.getConfusionFactor(), instead cf.  					  
+					 // confusion may be reset after makeNodeDecision, so use p.getConfusionFactor().  					  
 					 if (cInfo[3]*p.getConfusionFactor() < _floodHoldVel){
 						 // wait time is the time left for the time step.
 						 p.age += tmLeft;
@@ -190,7 +190,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 IntBuffer ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
 					 
 					 //TODO hold when advVel+swimV is very small
-					 
+					 				 
 					 if (Math.abs(advVel+swimV) < 0.00001f){
 						 // wait time is the time left for the time step.
 						 p.age += tmLeft;
@@ -200,6 +200,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 							 +advVel+", swimming velocity:"+swimV+", will wait until next time step.");							 
 						 return;
 					 } 
+					 
 					 
 					// this is to avoid swimming velocity to be reset immediately after exiting from a junction
 					// after a couple of sub-time step it is OK to reset
@@ -221,8 +222,13 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 //tmToAdv could be less than tmToAdv passed on 
 						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, swimV, p.x, xPos); 						 
 						 p.x += _hydroCalc.calcDistanceToNode((Channel)p.wb, p.x, xPos);
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv);
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv);
+						 //TODO change the way that the random numbers are calculated
+						 //Every particle carries its own random number generator to avoid the pseudo-random number caused dependency
+						 //The random number is called from its particle. 
+						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
+						 //p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, PTMUtil.getNextGaussian());
+						 //p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, PTMUtil.getNextGaussian());
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
 						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, deltaX);
@@ -312,8 +318,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						  * y, z are calculated according to current xsection info (channel parameters hasn't been updated yet)
 						  * they'll be mapped to new xsection at the beginning of the loop 
 						  */
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv);
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv);
+						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
+						 //p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, PTMUtil.getNextGaussian());
+						 //p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, PTMUtil.getNextGaussian());
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
 						 /*

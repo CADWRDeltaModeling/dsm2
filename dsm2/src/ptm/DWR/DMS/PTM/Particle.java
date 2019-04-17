@@ -19,6 +19,9 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 package DWR.DMS.PTM;
 import java.util.*;
 //import edu.cornell.RngPack.*;
+//TODO change the way random numbers are called
+import edu.cornell.RngPack.RandomElement;
+import edu.cornell.RngPack.Ranecu;
 
 /**
  * 
@@ -157,7 +160,25 @@ public class Particle{
 	  private float _swimmingVelocity = 0.0f;
 	  private boolean _swimVelSetInJunction = false;
 	  static final int MISSING = -99999;
-		
+	  //TODO change the way the random numbers are called
+	  private int _randomSeed = 32001;
+	  //private RandomElement _randomNumberGenerator = null;
+	  private Random _randomNumberGenerator = null;
+	  //private RandomElement getRandomGenerator(){
+	  int callNumber = 0;
+	  private Random getRandomGenerator(){
+		  callNumber++;
+		  if (_randomNumberGenerator == null){
+			  if(PTMUtil.getUseNewRandomSeed())
+				  _randomNumberGenerator = new Random(System.currentTimeMillis());
+			  else
+				  _randomNumberGenerator = new Random(_randomSeed);
+		  }
+		  return _randomNumberGenerator;
+	  }
+	  //public double getRandomNumber(){return getRandomGenerator().uniform(0, 1);}
+	  //public double getGaussian(){return getRandomGenerator().gaussian();}
+	  public double getGaussian(){return getRandomGenerator().nextGaussian();}
 	  /**
 	   *  Factor used in repositioning when a no outflow condition is encountered
 	   */
@@ -184,6 +205,7 @@ public class Particle{
 		  totalNumberOfParticles++; 
 		  Id = totalNumberOfParticles;
 		  if (DEBUG) System.out.println("Initializing particle " + Id);
+		  _randomSeed = pFI.getRandomSeed();
 		  first = true;
 		  inserted = false;//particle not in the system yet
 		  age = 0;

@@ -109,7 +109,9 @@ public class SurvivalInputs {
 	}
 	public void writeSurvivalRates(){
 		try{
-			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileName);
+			BufferedWriter srWriter = null;
+			if (_writeSurvival)
+				srWriter = PTMUtil.getOutputBuffer(_pathFileName);
 			if(COMPLETEWRITEOUT){
 				srWriter.write("Particles survived + lost at an end node are not necessary " 
 						+"equal to particle arrived at the beginning node because a particle can be lost at a boundary "
@@ -168,25 +170,27 @@ public class SurvivalInputs {
 				}
 			}
 			else{
-				srWriter.write("Group ID".concat(",").concat("Station Name").concat(",").concat("Survival Rate"));
-				srWriter.newLine();
-				//_ttHolder will never be null and there is at least one element
-				for (int id: _groupArrivals.keySet()){						
-					Integer ar = _groupArrivals.get(id);
-					Integer lost = _groupLost.get(id);
-					Integer sur = _groupSurvival.get(id);
-					if (ar == null){
-						PTMUtil.systemExit("error in writing survival output.  this particle has never arrived at the starting node of this channel group");;
-					}
-					if (lost == null)
-						lost = 0;
-					if (sur == null)
-						sur = 0;
-					int tot = sur + lost;
-					// if no particle reaches the end node, no survival rate should be considered.
-					if (tot != 0){
-						srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Float.toString(1.0f*sur/tot)));
-						srWriter.newLine();
+				if (_writeSurvival){
+					srWriter.write("Group ID".concat(",").concat("Station Name").concat(",").concat("Survival Rate"));
+					srWriter.newLine();
+					//_ttHolder will never be null and there is at least one element
+					for (int id: _groupArrivals.keySet()){						
+						Integer ar = _groupArrivals.get(id);
+						Integer lost = _groupLost.get(id);
+						Integer sur = _groupSurvival.get(id);
+						if (ar == null){
+							PTMUtil.systemExit("error in writing survival output.  this particle has never arrived at the starting node of this channel group");;
+						}
+						if (lost == null)
+							lost = 0;
+						if (sur == null)
+							sur = 0;
+						int tot = sur + lost;
+						// if no particle reaches the end node, no survival rate should be considered.
+						if (tot != 0){
+							srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Float.toString(1.0f*sur/tot)));
+							srWriter.newLine();
+						}
 					}
 				}
 			}
@@ -201,7 +205,8 @@ public class SurvivalInputs {
 					}
 				}
 			}
-			PTMUtil.closeBuffer(srWriter);
+			if(_writeSurvival)
+				PTMUtil.closeBuffer(srWriter);
 		}catch(IOException e){
 			System.err.println("error occured when writing out survival rates!");
 			e.printStackTrace();
@@ -359,4 +364,5 @@ public class SurvivalInputs {
 	private boolean DEBUG = false;
 	private boolean DEBUGWRITEOUT = false;
 	private boolean COMPLETEWRITEOUT = true;
+	private boolean _writeSurvival = true;
 }

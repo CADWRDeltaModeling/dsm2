@@ -384,14 +384,13 @@ public class Channel extends Waterbody{
     channelArea[0] = channelDepth[0]*channelWidth[0];
     
     float Vave = (alfx*flowAt[DOWNNODE] + nalfx*flowAt[UPNODE])/channelArea[0];    
-    if (Vave < 0.001f && Vave > -0.001f){
-      if (Math.abs(Vave) < Float.MIN_VALUE)
-    	  Vave = 0.001f; // if velocity is 0 return a positive 0.001
-      else
-    	  Vave = Vave/Math.abs(Vave)*0.001f;
-    }
+    if ((Vave > 0 && Vave < 0.001f) || Vave == 0)
+    		Vave = 0.001f;
+    if (Vave < 0 && Vave > -0.001f)
+    		Vave = -0.001f;
     channelVave[0] = Vave;
   }
+  
   
   /**
    *  calculate profile

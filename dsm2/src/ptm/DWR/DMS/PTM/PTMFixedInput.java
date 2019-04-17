@@ -298,7 +298,7 @@ public class PTMFixedInput{
       // check here for a null or anything.  The code needs to be rewritten. 
       String type = _fixedData.getBoundaryTypeForNode(nodeId);
       nodeArray[i] = new Node(nodeId, waterbodyIdArray, type);
-      if (DEBUG) System.out.println("Created node: " + nodeArray[i]);
+      if (DEBUG) System.out.println("Created node: "+ nodeArray[i]);
     }
     return nodeArray;
   }

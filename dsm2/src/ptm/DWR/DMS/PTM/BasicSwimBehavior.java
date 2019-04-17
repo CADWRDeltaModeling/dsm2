@@ -1,7 +1,7 @@
 package DWR.DMS.PTM;
 
 
-//TODO this is swimming module for particles without any behavior. need to do more work.
+//This is swimming module for particles without any behavior.  it will be instantiated when the simulation type = particle 
 public class BasicSwimBehavior implements SwimBehavior {
 	private SwimInputs _si;
 	protected float tmLeft;
@@ -49,8 +49,6 @@ public class BasicSwimBehavior implements SwimBehavior {
 	    p.inserted = true;
 	    // insert to a node
 	    if (p.wb == null){
-	    	//makeNodeDecision will set mean and instantaneous swimming velocities, confusion factor and swimming time
-	    	//swimming time is only set at insert() and makeNodeDecision()
 	    	p.makeNodeDecision();
 	    	setXYZLocationInChannel(p);
 	    }
@@ -61,6 +59,7 @@ public class BasicSwimBehavior implements SwimBehavior {
 	 	    	 _hydroCalc.setYZLocationInChannel(p);
 	    	 }
 	    	 else{ 
+	    		 //for other waterbodies (Reservoir, etc.) no position needed
 	    		 p.x=MISSING; p.y=MISSING; p.z=MISSING;
 	    	 }
 	    }
@@ -68,10 +67,10 @@ public class BasicSwimBehavior implements SwimBehavior {
 	/**
 	  *  updates the position and parameters of Particle.
 	  */
-	public final void updatePosition(Particle p, float delT){	
+	public final void updatePosition(Particle p, float delT){
+		//if(p.Id == 1 && p.wb.getEnvIndex()== 393)
+			//System.err.println("start new step");
 		float tmLeft = delT;
-		//if(p.Id == 1)
-			//System.err.println(p.wb.getEnvIndex());
 		while (tmLeft>0){
 			if (p.particleWait){
 				 p.age += tmLeft;
@@ -81,11 +80,14 @@ public class BasicSwimBehavior implements SwimBehavior {
 			// Channel	
 			if (p.wb.getPTMType() ==  Waterbody.CHANNEL) {
 				 if (p.isDead) return;		
-				 //y, z set up for particles which are just out of reservoir or conveyor or inserted
+				 //when a particle is just out of reservoir or conveyor or inserted, set up y and z
 				 //it is not necessary to set x because makeNodeDecision or setInsertInfo will be called and x will be set then
 				 if (PTMUtil.floatNearlyEqual(p.y, MISSING) || PTMUtil.floatNearlyEqual(p.z,MISSING)) 
 					 _hydroCalc.setYZLocationInChannel(p);
-				  
+				 //TODO this is the original ptm way of calculated sub timestep.  I commented out because 
+				 //I think it should be calculated at each sub timestep because channel depth and width change with x. Xiao
+				 //int numOfSubTimeSteps = _hydroCalc.getSubTimeSteps(tmLeft, p);
+				 //float tmstep = tmLeft/numOfSubTimeSteps;
 				 // update particle's x,y,z position every sub-time step
 				 while (tmLeft > 0 && !p.isDead){
 					 _hydroCalc.updateChannelParameters(p);
@@ -102,32 +104,51 @@ public class BasicSwimBehavior implements SwimBehavior {
 					 float advVel = _hydroCalc.calcXAdvectionVelocity(p.Id, p.x, p.y, p.z, (Channel)p.wb);
 					 float advDeltaX = _hydroCalc.calcXAdvection(advVel, tmToAdv);
 					 float deltaX = advDeltaX;
-					 float xPos = p.x + deltaX;				 
-					 
+					 float xPos = p.x + deltaX;	
+					 /*
 					 if (Math.abs(advVel) < 0.00001f){
-						 // wait time is the time left for the time step.
+						 // wait tie is the time left for the time step.
 						 p.age += tmLeft;
 						 p.addTimeUsed(tmLeft);						 
 						 return;
 					 } 
-					 					 
-					 // isNodeReached now keeps the old node. the node will be changed to the new node just reached when getNewNode(...) is called
+					 */
+					 //if(p.Id == 1 && p.wb.getEnvIndex()== 393)
+						 //System.err.println(p.getCurrentParticleTimeExact()+"  "+p.x + "  "+p.y+"  "+p.z+"  "+tmToAdv+"  "+advVel+"  "+tmLeft+"  "+p.isDead);					 
+					 // isNodeReached now keeps the old node. the node will be changed to the new node when getNewNode(...) is called
 					 if (isNodeReached((Channel) p.wb, xPos)){
 						 //tmToAdv could be less than tmToAdv passed on 
 						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, 0, p.x, xPos); 						 
 						 p.x += _hydroCalc.calcDistanceToNode((Channel)p.wb, p.x, xPos);
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv);
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv);
+						 //TODO for debug purpose
+						 /*
+						 double pre_y = p.getGaussian();
+						 double pre_z = p.getGaussian();
+						 float p_y = p.y;
+						 float p_z = p.z;
+						 float wi = _hydroCalc.getChannelInfo(p.Id)[1];
+						 float dp = _hydroCalc.getChannelInfo(p.Id)[2];
+						 float vel = _hydroCalc.getChannelInfo(p.Id)[3];
+						
+						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, pre_y);
+						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, pre_z);
+						 */
+						//TODO change the way the random numbers are called
+						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
 						 p.addTimeUsed(tmToAdv);
 						 p.nd = getNewNode((Channel) p.wb, xPos);
 						 //set new node so make node decision can calculate total node inflow and call a special behavior if necessary
 						 p.makeNodeDecision();
-						 // now p.wb is the new water body just selected
+						 //TODO for debug purpose
+						 //if(p.Id == 1 && (p.wb.getEnvIndex()== 393 || p.wb.getEnvIndex()== 394))
+							 //System.err.println(p.getCurrentParticleTimeExact()+"  "+p.x + "  "+p.y+"  "+p.z+"  "+p.wb.getEnvIndex()+"  "+tmToAdv+"  "+pre_y+"  "+pre_z+"  "+p_y+"  "+p_z+"  "+wi+"  "+dp+"  "+vel+"  "+_hydroCalc.getVerticalDiffusionCoeff(p.Id));
+						 // after above function call, p.wb is set to the new water body 
 						 // and p.x is set either 0 or channel length if p.wb is a channel
 						 
-						 // wait for a time step
+						 // if p.particleWait is set to true, wait for a time step
 						 if (p.particleWait){
 							 p.age += tmLeft;
 							 p.addTimeUsed(tmLeft);
@@ -137,6 +158,10 @@ public class BasicSwimBehavior implements SwimBehavior {
 						 // if NOT, exit the while loop and find a block that deal with the waterbody type
 						 if (p.wb.getPTMType() != Waterbody.CHANNEL)							 
 							 break;
+						 //TODO comment out because sub time step is calculated at the beginning of the loop.
+						 //they are needed when the sub time step calculation is not inside of the while loop						 
+						 //numOfSubTimeSteps = _hydroCalc.getSubTimeSteps(tmLeft, p);
+						 //tmstep = tmLeft/numOfSubTimeSteps;
 					 } //end if (isNodeReached(xPos) == true) 
 					 else{
 						 p.x = xPos;
@@ -144,16 +169,25 @@ public class BasicSwimBehavior implements SwimBehavior {
 						  * y, z are calculated according to current xsection info (channel parameters hasn't been updated yet)
 						  * they'll be mapped to new xsection at the beginning of the loop 
 						  */
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv);
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv);
+						 //TODO for debug purpose
+						 //double gau_y = p.getGaussian();
+						 //double gau_z = p.getGaussian();
+						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
+						 //if(p.Id == 1 && (p.wb.getEnvIndex()== 393 || p.wb.getEnvIndex()== 394))
+							 //System.err.println(p.getCurrentParticleTimeExact()+"  "+p.x + "  "+p.y+"  "+p.z+"  "+advVel+"  "+p.wb.getEnvIndex()+"  "+tmLeft);
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
 						 p.addTimeUsed(tmToAdv);
 					 }
+					 //TODO for debug
+					 //if(p.Id == 1 && (p.wb.getEnvIndex()== 113 || p.wb.getEnvIndex()== 111|| p.wb.getEnvIndex()== 110))
+						 //System.err.println(p.getCurrentParticleTimeExact()+"  "+p.x + "  "+p.y+"  "+p.z+"  "+advVel+"  "+p.wb.getEnvIndex()+"  "+tmToAdv+"  "+numOfSubTimeSteps+"  "+tmLeft);
 				 }// while (tmLeft > 0 && !p.isDead)
 			}// end if(CHANNEL)
 		     
-			else if (p.wb.getPTMType() ==  Waterbody.RESERVOIR){				 
+			else if (p.wb.getPTMType() ==  Waterbody.RESERVOIR){
+				
 			    p.nd = p.makeReservoirDecision(tmLeft);
 			  
 			    if (p.nd != null){
@@ -165,8 +199,19 @@ public class BasicSwimBehavior implements SwimBehavior {
 			    	p.first = true;
 			    	setXYZLocationInChannel(p);
 			    }
+			    //TODO use up the rest of the time step to cross the reservoir?
+			    //This is the way the original PTM used to use up the rest of the time step when makeNodeDecision.
+			    //I think it should be no delay to be consistent with the logic of junction makeNodeDecision
+			    //In PTM, it is assumed that reservoirs have instant mixing (please see the ptm manual), so commented next block out.
+			    //to add else block
+			    /*
+				p.age += tmLeft;
+		    	p.addTimeUsed(tmLeft);
+		    	tmLeft = 0.0f;
+			    */
 			    else{
 			    	// if no node found the particle will still in the reservoir until next time step
+			    	// otherwise get into the channel without delay
 			    	p.age += tmLeft;
 			    	p.addTimeUsed(tmLeft);
 			    	tmLeft = 0.0f;
