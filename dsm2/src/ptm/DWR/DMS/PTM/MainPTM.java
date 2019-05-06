@@ -255,7 +255,8 @@ public class MainPTM {
             	//comment out next block if you don't want to write out entrainments and flux           
             
             	rIn.writeEntrainmentRates();
-            	rIn.writeFlux(particleArray);
+            	if(Particle.ADD_TRACE)
+            		rIn.writeFlux(particleArray);
             }
             
             if ( animationOutput != null ) animationOutput.FlushAndClose();
@@ -269,17 +270,17 @@ public class MainPTM {
             // output flux calculations in dss format
             // flux calculation has some errors, disable for now
             //TODO temp comment out for now to speed up the simulation, need to be uncommented later
-           
-            FluxInfo fluxFixedInfo = Environment.getFluxFixedInfo();
-            GroupInfo groupFixedInfo = Environment.getGroupFixedInfo();
+            if(Particle.ADD_TRACE){
+            	FluxInfo fluxFixedInfo = Environment.getFluxFixedInfo();
+            	GroupInfo groupFixedInfo = Environment.getGroupFixedInfo();
 
-            FluxMonitor fluxCalculator = new FluxMonitor(traceFileName,
+            	FluxMonitor fluxCalculator = new FluxMonitor(traceFileName,
                                                          Environment.getFileType(traceFileName),
                                                          fluxFixedInfo,
                                                          groupFixedInfo);
-            fluxCalculator.calculateFlux();
-            fluxCalculator.writeOutput(); 
-            
+            	fluxCalculator.calculateFlux();
+            	fluxCalculator.writeOutput(); 
+            }
             //comment out for writing files and calculating flux end here 
            
             System.out.println("done simulation");

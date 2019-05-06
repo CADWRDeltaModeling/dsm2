@@ -21,9 +21,12 @@ public class SalmonSwimmingVelocityCalculator {
 	}
 	public float CalcXSwim(float swimSpeed, float timeStep){return swimSpeed*timeStep;}
 	//Careful, confusion factor is not included in this swimming velocity returned
-	public float getSwimmingVelocity(int pId, int chanId){
-		float [] paras = getSwimParameters(chanId);	  
-		return getMeanSwimmingVelocity(pId, chanId) + paras[2]*((float)PTMUtil.getNextGaussian());
+	//TODO change to calling random numbers from Particle
+	//public float getSwimmingVelocity(int pId, int chanId){
+	public float getSwimmingVelocity(Particle p, int chanId){
+		float [] paras = getSwimParameters(chanId);	 
+		//return getMeanSwimmingVelocity(pId, chanId) + paras[2]*((float)PTMUtil.getNextGaussian());
+		return getMeanSwimmingVelocity(p.Id, chanId) + paras[2]*((float) p.getGaussian());
 	}
 	void setMeanSwimmingVelocity(int pId, int chanId){
 		float [] paras = getSwimParameters(chanId); 		

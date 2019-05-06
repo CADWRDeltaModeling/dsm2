@@ -117,6 +117,7 @@ public class Particle{
 	    */
 	  public boolean inserted;
 	  public static boolean DEBUG = false;
+	  public static boolean ADD_TRACE = false;
   
 	  /**
 	   *  Total number of particles in the system.
@@ -523,9 +524,15 @@ public class Particle{
 	  //to be used in survival model
 	  private boolean _fromUpstream;
 	  private BasicParticleTrace _particleTrace;
-	  void addParticleTrace(long time, int wbId, int nodeId){_particleTrace.addTrack(time, wbId, nodeId);}
+	  void addParticleTrace(long time, int wbId, int nodeId){
+		  if(ADD_TRACE)
+			  _particleTrace.addTrack(time, wbId, nodeId);
+	  }
 	  int particlePassed(ArrayList<Integer> fromWbIds, ArrayList<Integer> toWbIds){
-		  return _particleTrace.particlePassed(fromWbIds, toWbIds);
+		  if(ADD_TRACE)
+			  return _particleTrace.particlePassed(fromWbIds, toWbIds);
+		  PTMUtil.systemExit("This function should never be called because the ADD_TRACE set to false, line 534 Particle.java");
+		  return -999999999;
 	  }
 	  void setFromUpstream(boolean fromUp){_fromUpstream = fromUp;}
 	  boolean getFromUpstream(){return _fromUpstream;}

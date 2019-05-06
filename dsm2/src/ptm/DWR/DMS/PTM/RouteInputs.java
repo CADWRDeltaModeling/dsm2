@@ -26,7 +26,13 @@ public class RouteInputs {
 			_fishScreens = new ArrayList<IntBuffer>();
 			//if pathname is not input, the entrainment file will not be written.
 			_pathFileNameEntrainment = PTMUtil.getPathFromLine(inText.get(0), ':');
+			if(_pathFileNameEntrainment.equalsIgnoreCase(""))
+				_pathFileNameEntrainment = null;
 			_pathFileNameFlux = PTMUtil.getPathFromLine(inText.get(1), ':');
+			if(_pathFileNameFlux.equalsIgnoreCase(""))
+				_pathFileNameFlux = null;
+			else
+				Particle.ADD_TRACE=true;
 			ArrayList<String> fluxInText = PTMUtil.getInputBlock(inText, "FLUX_CALCULATION", "END_FLUX_CALCULATION");
 			ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
 			ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
@@ -153,7 +159,7 @@ public class RouteInputs {
 	public int getChannelId(String channelName) {return _nameChanLookUp.get(channelName);}
 	public int getPercentToModify(int nodeId){return _specialBehaviorPercent.get(nodeId);}
 	public void putEntrainmentRate(int nodeId, List<Object> rates){
-		if (NOTWRITEENTRAINMENT)
+		if (_pathFileNameEntrainment == null)
 			return;
 		if ( _entrainmentRates.get(nodeId) == null)
 			_entrainmentRates.put(nodeId, new ArrayList<ArrayList<Object>>());
@@ -164,12 +170,12 @@ public class RouteInputs {
 	}
 	public Map<Integer, ArrayList<ArrayList<Object>>> getEntrainmentRates(){return _entrainmentRates;}
 	public void writeEntrainmentRates(){
-		if (NOTWRITEENTRAINMENT)
-				return;
+		if(_pathFileNameEntrainment==null)
+			return;
 		try{
 			BufferedWriter srWriter = PTMUtil.getOutputBuffer(_pathFileNameEntrainment);
 			for (int ndId: _entrainmentRates.keySet()){
-				if(DEBUGRouteInputs){
+				if(ENTRAINMENTALLWRITEOUT){
 					if(getSpecialBehaviorName(ndId).equalsIgnoreCase("SalmonGSJRouteBehavior")){
 						srWriter.write("GS Junction");
 						srWriter.newLine();
@@ -227,7 +233,8 @@ public class RouteInputs {
 					srWriter.write("Node Id".concat(",").concat("pId").concat(",").concat("Entrainment Probability"));
 					srWriter.newLine();
 					for(ArrayList<Object> elm: _entrainmentRates.get(ndId)){
-						srWriter.write(Integer.toString(PTMHydroInput.getExtFromIntNode(ndId)).concat(",").concat(elm.get(elm.size()-1).toString()));
+						srWriter.write(Integer.toString(PTMHydroInput.getExtFromIntNode(ndId)).concat(",").concat(elm.get(0).toString())
+								.concat(",").concat(elm.get(elm.size()-1).toString()));
 						srWriter.newLine();
 					}
 					srWriter.newLine();
@@ -240,7 +247,7 @@ public class RouteInputs {
 		}
 	}
 	public void writeFlux(Particle[] pArray){
-		if (NOTWRITEFLUX)
+		if (_pathFileNameFlux==null)
 				return;
 		if(pArray == null)
 			PTMUtil.systemExit("particle array empty when trying to write out flux, system exit");
@@ -476,9 +483,7 @@ public class RouteInputs {
 	private boolean DEBUG = false;
 	//Map<nodeId, <pid, entrainment rate>>
 	private Map<Integer, ArrayList<ArrayList<Object>>> _entrainmentRates;
-	private boolean DEBUGRouteInputs = false;
-	private boolean NOTWRITEENTRAINMENT = false;
-	private boolean NOTWRITEFLUX = false;
+	private boolean ENTRAINMENTALLWRITEOUT = false;
 	//Flux channel name look up: Map<Channel_Id, channel name>
 	private ArrayList<Pair<ArrayList<Integer>, ArrayList<Integer>>> _fluxChannelGroups = null;
 	/* The statistic route models used here only count for one event (not count for the particle coming back to the junction again and again)

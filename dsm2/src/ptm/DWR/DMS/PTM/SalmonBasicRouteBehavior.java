@@ -59,7 +59,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 					//Here is the only place to set a mean swimming velocity.
 					p.getSwimHelper().setMeanSwimmingVelocity(p.Id, cId);
 					//Swimming velocity here doesn't include confusion factor
-					swimmingVels[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, cId);
+					swimmingVels[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p, cId);
 					confusionFactors[wbId] = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(cId);
 					wbFlows[wbId] = Math.max(0.0f, c.getInflowWSV(nodeId, swimmingVels[wbId]*confusionFactors[wbId]));
 		    	}

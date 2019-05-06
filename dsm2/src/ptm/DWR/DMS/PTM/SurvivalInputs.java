@@ -110,9 +110,8 @@ public class SurvivalInputs {
 	public void writeSurvivalRates(){
 		try{
 			BufferedWriter srWriter = null;
-			if (_writeSurvival)
+			if(_pathFileName != null){
 				srWriter = PTMUtil.getOutputBuffer(_pathFileName);
-			if(COMPLETEWRITEOUT){
 				srWriter.write("Particles survived + lost at an end node are not necessary " 
 						+"equal to particle arrived at the beginning node because a particle can be lost at a boundary "
 						+"or wondering without reach an end node or an exchange node.  "
@@ -168,7 +167,8 @@ public class SurvivalInputs {
 						srWriter.newLine();	
 					}
 				}
-			}
+			//TODO clean up 
+			/*
 			else{
 				if (_writeSurvival){
 					srWriter.write("Group ID".concat(",").concat("Station Name").concat(",").concat("Survival Rate"));
@@ -192,21 +192,22 @@ public class SurvivalInputs {
 							srWriter.newLine();
 						}
 					}
-				}
+				}				
 			}
-			if(DEBUGWRITEOUT){
-				srWriter.write("Particle ID".concat(",").concat("Group Id").concat(",").concat("Survival Rate"));
-				srWriter.newLine();
-				for (int parId: _pReachProb.keySet()){
-					for (int gId: _pReachProb.get(parId).keySet()){
-						srWriter.write(Integer.toString(parId).concat(",").concat(Integer.toString(gId)).concat(",")
-							.concat(Double.toString(_pReachProb.get(parId).get(gId))));
-						srWriter.newLine();
+			*/
+				if(SURVIVALALLWRITEOUT){
+					srWriter.write("Particle ID".concat(",").concat("Group Id").concat(",").concat("Survival Rate"));
+					srWriter.newLine();
+					for (int parId: _pReachProb.keySet()){
+						for (int gId: _pReachProb.get(parId).keySet()){
+							srWriter.write(Integer.toString(parId).concat(",").concat(Integer.toString(gId)).concat(",")
+								.concat(Double.toString(_pReachProb.get(parId).get(gId))));
+							srWriter.newLine();
+						}
 					}
 				}
-			}
-			if(_writeSurvival)
 				PTMUtil.closeBuffer(srWriter);
+			}
 		}catch(IOException e){
 			System.err.println("error occured when writing out survival rates!");
 			e.printStackTrace();
@@ -237,7 +238,7 @@ public class SurvivalInputs {
 	}
 	public Map<Integer, Map<Integer, Double>> getParticleSurvivalRates(){return _pReachProb;}
 	public void addSurvivalRate(int pId, int groupId, double rate){
-		if(!DEBUGWRITEOUT)
+		if(_pathFileName == null)
 			return;
 		Map<Integer, Double> reachSurvivals = _pReachProb.get(pId);
 		if(reachSurvivals == null){
@@ -266,6 +267,8 @@ public class SurvivalInputs {
 			return;
 		}
 		_pathFileName = PTMUtil.getPathFromLine(survivalParasIn.get(0), ':');
+		if(_pathFileName.equalsIgnoreCase(""))
+			_pathFileName = null;
 		int num_groups = PTMUtil.getIntFromLine(survivalParasIn.get(1), "NUMBER_OF_SURVIVAL_CALCULATION_GROUP");
 		for (int i=1; i<num_groups+1; i++){
 			ArrayList<String> survivalStrs = PTMUtil.getInputBlock(survivalParasIn, "GROUP_"+i, "END_GROUP_"+i);
@@ -362,7 +365,5 @@ public class SurvivalInputs {
 	private SurvivalHelper _survivalHelper = null;
 	private String _fishType = null;
 	private boolean DEBUG = false;
-	private boolean DEBUGWRITEOUT = false;
-	private boolean COMPLETEWRITEOUT = true;
-	private boolean _writeSurvival = true;
+	private boolean SURVIVALALLWRITEOUT = false;
 }

@@ -41,8 +41,8 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	public void setSwimmingTime(Particle p, int chanId){_holdingTimeCalc.setSwimTime(p, chanId);} 
 	public long getSwimmingTime(int pId, int chanId){ return _holdingTimeCalc.getSwimTime(pId, chanId);}
 	// careful swimming velocity here does not include confusion factor
-	public float getSwimmingVelocity(int pId, int chanId){ 
-		return _swimCalc.getSwimmingVelocity(pId, chanId);
+	public float getSwimmingVelocity(Particle p, int chanId){ 
+		return _swimCalc.getSwimmingVelocity(p, chanId);
 	}
 
 	private final boolean isNodeReached(Channel ch, float xpos){
@@ -139,7 +139,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 				 // this check is to avoid swimming velocity to be reset immediately after exiting from a junction
 				 // update swimming related parameters
 				 if (!p.isSwimVelSetInJunction()){
-					 float sv = getSwimmingVelocity(p.Id, cId);
+					 float sv = getSwimmingVelocity(p, cId);
 					 int cf = getConfusionFactor(cId);
 					 p.setSwimmingVelocity(sv*cf);
 					 p.setConfusionFactor(cf);

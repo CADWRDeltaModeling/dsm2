@@ -74,11 +74,11 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	}
 
 	/* (non-Javadoc)
-	 * @see DWR.DMS.PTM.SwimHelper#getSwimmingVelocity(int, int)
+	 * @see DWR.DMS.PTM.SwimHelper#getSwimmingVelocity(Particle, int)
 	 */
 	@Override
-	public float getSwimmingVelocity(int pId, int chId) {
-		PTMUtil.systemExit("A particle simulation should never call getSwimmingVelocity(int pId, int chId), system exit.");
+	public float getSwimmingVelocity(Particle p, int chId) {
+		PTMUtil.systemExit("A particle simulation should never call getSwimmingVelocity(Particle p, int chId), system exit.");
 		return 0;
 	}
 

@@ -18,6 +18,7 @@ public class BasicParticleTrace {
 		_tracks = new ArrayList<Track>();
 	}
 	public void addTrack(long time, int wbId, int nodeId){_tracks.add(new Track(time, wbId, nodeId));}
+
 	/*
 	 * check if a particle passes a certain channel
 	 * return 1 if passes

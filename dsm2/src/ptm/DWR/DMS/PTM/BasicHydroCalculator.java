@@ -142,9 +142,11 @@ public class BasicHydroCalculator {
 	}
 	
 	float getMinTimeStep(float timeStep, Particle p){
-		updateChannelParameters(p);
-		updateDiffusion(p);				 
-		mapYZ(p);
+		//TODO calculated for each sub time step and everything will be updated before the function call (see line 87, 97 BasicSwimBehavior)
+		//don't need follow lines because getMinTimeStep is put back inside of the loop 
+		//updateChannelParameters(p);
+		//updateDiffusion(p);				 
+		//mapYZ(p);
 	    float terminalVelocity = getTerminalVelocity();
 	    float [] chanInfo = getChannelInfo(p.Id);
 	    Float Ev = _pVertD.get(p.Id);

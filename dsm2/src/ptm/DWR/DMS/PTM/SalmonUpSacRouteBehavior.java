@@ -146,9 +146,9 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, sacDownId);
 		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, bId);
 		//Swimming velocity here doesn't include confusion factor
-		float swVelSacUp = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, sacUpId);
-		float swVelSacDown = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, sacDownId);
-		float swVelBranch = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p.Id, bId);
+		float swVelSacUp = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p, sacUpId);
+		float swVelSacDown = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p, sacDownId);
+		float swVelBranch = ((SalmonSwimHelper) p.getSwimHelper()).getSwimmingVelocity(p, bId);
 		int confFacSacUp = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(sacUpId);
 		int confFacSacDown = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(sacDownId);
 		int confFacBranch = ((SalmonSwimHelper) p.getSwimHelper()).getConfusionFactor(bId);

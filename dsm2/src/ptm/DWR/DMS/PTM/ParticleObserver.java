@@ -35,8 +35,10 @@ class ParticleObserver{
                           int startTime, int endTime, int PTMTimeStep, 
                           int nParticles){
 	//TODO temp commented out for not writing the trace file
-	traceOn = true;
-	//traceOn = false;
+	if(Particle.ADD_TRACE)
+		traceOn = true;
+	else
+		traceOn = false;
     try{
       if (traceOn) output = new PTMTraceOutput(traceFileName, outputType,
                                                startTime, endTime, PTMTimeStep, 

@@ -27,6 +27,11 @@ public class TravelTimeOutput {
 			System.err.println("Warning: travel time output info is not defined in behavior input file!");
 		else{
 			_pathName = PTMUtil.getPathFromLine(outText.get(0), ':');
+			if(_pathName.equalsIgnoreCase("")){
+				_pathName = null;
+				System.err.println("not output travel times!");
+				return;
+			}
 			String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE", "STATION_NAME"};
 			PTMUtil.checkTitle(outText.get(1), shouldBe);
 			if (outText.size()<3 )
@@ -103,7 +108,7 @@ public class TravelTimeOutput {
 			return;
 		}
 		*/
-		if (NOTWRITETT)
+		if (_pathName == null)
 			return;
 		try{
 			//TODO clean up later
@@ -138,7 +143,7 @@ public class TravelTimeOutput {
 	}
 	public void recordTravelTime(int id, String inStation, long inTime, float ageInSec, IntBuffer ndWb, float velocity, float x, float deltaX){
 		//only record when need to output TravelTime
-		if (NOTWRITETT)
+		if (_pathName == null)
 			return;
 		// only record particles from upstream
 		if (deltaX >0){
@@ -184,7 +189,6 @@ public class TravelTimeOutput {
 	private Map<Integer, Boolean> _recorderTest;
 	private String _pathName;
 	private float _threshold = 0.000001f;
-	private boolean NOTWRITETT = false;
 	
 	//TODO assume that there is only one travel time per particle
 	private class TTEntry{
