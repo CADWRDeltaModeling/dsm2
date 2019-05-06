@@ -188,13 +188,23 @@ subroutine sediment_bed_main(ncells,        &
    
     burial(:,:,1,:, rkstep) = srt(:,:,:)
     
+    burial_total(:,:) = srt(:,:,1) + srt(:,:,2) + srt(:,:,3)
+    
     do i=1,ncells
         do j = 1, nzones
-            if ((burial(i,j,1,1, rkstep).lt.0).and.(burial(i,j,1,2, rkstep).lt.0))then  !erosion
-                total_burial = burial(i,j,1,1, rkstep)+ burial(i,j,1,2, rkstep)
-                burial(i,j,1,1, rkstep) = (sedsolids(i,j,2,1,rkstep)/ mass_total(i,j,2))*total_burial
-                burial(i,j,1,2, rkstep) = (sedsolids(i,j,2,2,rkstep)/ mass_total(i,j,2))*total_burial
+            
+            if (burial_total(i,j).lt.0) then    !erosion into layer 2 added 20190503
+                burial(i,j,1,1, rkstep) = bed(i,j,2).mass_frac(1)* burial_total(i,j)
+                burial(i,j,1,2, rkstep) = bed(i,j,2).mass_frac(2)* burial_total(i,j)
+                burial(i,j,1,3, rkstep) = bed(i,j,2).mass_frac(3)* burial_total(i,j)     
             end if
+            
+            
+            !if ((burial(i,j,1,1, rkstep).lt.0).and.(burial(i,j,1,2, rkstep).lt.0))then  !erosion
+            !    total_burial = burial(i,j,1,1, rkstep)+ burial(i,j,1,2, rkstep)
+            !   burial(i,j,1,1, rkstep) = (sedsolids(i,j,2,1,rkstep)/ mass_total(i,j,2))*total_burial
+            !    burial(i,j,1,2, rkstep) = (sedsolids(i,j,2,2,rkstep)/ mass_total(i,j,2))*total_burial
+            !end if
             !limit erosion if neccesary 
             if ((burial(i,j,1,1, rkstep).lt.0).and.(-burial(i,j,1,1, rkstep)*delta_t>=frac*sedsolids(i,j,2,1,rkstep))) then
                 burial(i,j,1,1, rkstep) = frac*sedsolids(i,j,2,1,rkstep)/delta_t
