@@ -58,7 +58,6 @@ add_subdirectory(${GTM_PROCESS_IO})
 add_subdirectory(${GTM_SEDIMENT})
 add_subdirectory(${GTM_SEDIMENT_BED_CORE})
 add_subdirectory(${GTM_SEDIMENT_BED})
-add_subdirectory(${GTM_SEDIMENT_BED_SETUP})
 add_subdirectory(${GTM_DO_MODULE})
 add_subdirectory(${GTM_MERCURY})
 add_subdirectory(${GTM_TOOLS})
@@ -71,17 +70,17 @@ set_property(TARGET gtm PROPERTY LINKER_LANGUAGE Fortran)
 add_dependencies(gtm gtm_core input_storage input_storage_cpp mercury process_io sediment sediment_bed_core sediment_bed transport)
 add_dependencies(do_module gtm_core process_io transport)
 add_dependencies(input_storage input_storage_cpp)
-add_dependencies(mercury gtm_core sediment_bed_core)
+add_dependencies(mercury gtm_core sediment_bed)
 add_dependencies(process_io gtm_core input_storage input_storage_cpp)
-add_dependencies(sediment gtm_core sediment_bed_core)
-add_dependencies(sediment_bed gtm_core sediment_bed_core input_storage process_io)
-add_dependencies(sediment_bed_setup gtm_core sediment_bed_core process_io)
+add_dependencies(sediment sediment_bed_core)
+add_dependencies(sediment_bed sediment_bed_core input_storage process_io)
+add_dependencies(sediment_bed_core gtm_core)
 add_dependencies(transport gtm_core)
 set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
 if(MSVC)
   target_link_libraries(gtm debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 endif()
-target_link_libraries(gtm gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed_core sediment_bed sediment_bed_setup do_module mercury)
+target_link_libraries(gtm gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed_core sediment_bed do_module mercury)
 target_link_libraries(gtm 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -93,6 +92,18 @@ target_link_libraries(gtm
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
+    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    debug ${CPMT_LIB_DEBUG} optimized ${CPMT_LIB_RELEASE}
+    )
+# Add sediment_bed_setup executable
+file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
+add_executable(sediment_bed_setup ${SEDIMENT_BED_SETUP_SOURCES})
+set_property(TARGET sediment_bed_setup PROPERTY LINKER_LANGUAGE Fortran)
+add_dependencies(sediment_bed_setup sediment_bed_core process_io)
+target_link_libraries(sediment_bed_setup gtm_core process_io  sediment_bed_core)
+target_link_libraries(sediment_bed_setup
+    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     debug ${CPMT_LIB_DEBUG} optimized ${CPMT_LIB_RELEASE}
     )
