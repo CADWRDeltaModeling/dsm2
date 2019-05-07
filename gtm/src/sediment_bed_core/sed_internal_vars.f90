@@ -11,6 +11,7 @@ logical :: use_sed_hdf
 character(len=130) :: file_name_qrf
 character(len=130) :: file_name_hdf_sed
 character(len=130) :: file_name_hdf_bed         !sed inputs for cell,layers zones
+character(len=130) :: file_name_inp_bed
 
 character(len=130) :: file_name_qrf_sedhg
 character(len=130) :: file_name_hdf_sedHg

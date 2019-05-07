@@ -87,7 +87,9 @@ module sediment_bed_setup
        
         io_file_inp = init_input_file
         ii = index(io_file_inp,".", .true.)
+        !file_name_inp_bed
         io_file_inp(ii:ii+8) = "_sed.inp"
+        file_name_inp_bed = io_file_inp
         inquire(file=io_file_inp, exist=file_exists)
         if (file_exists==.false.) then 
                 call gtm_fatal("sediment bed module - "//trim(io_file_inp)//" does not exist!!")
@@ -289,7 +291,8 @@ module sediment_bed_setup
         call init_file_reader(ierror)
         call set_initial_context_profile(dsm2_name)
         
-        init_input_file = "gtm_sed.inp"
+        !init_input_file = "gtm_sed.inp"
+        init_input_file = file_name_inp_bed
         
         call set_active_profile("envvar",ierror)
         call read_buffer_from_text(init_input_file,ierror)
