@@ -118,8 +118,12 @@ public class BasicSwimBehavior implements SwimBehavior {
 					 // isNodeReached now keeps the old node. the node will be changed to the new node when getNewNode(...) is called
 					 if (isNodeReached((Channel) p.wb, xPos)){
 						 //tmToAdv could be less than tmToAdv passed on 
-						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, 0, p.x, xPos); 						 
-						 p.x += _hydroCalc.calcDistanceToNode((Channel)p.wb, p.x, xPos);
+						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, 0, p.x, xPos);
+						 if (xPos>0)
+							 p.x = ((Channel)p.wb).getLength();
+						 else
+							 p.x = 0; 
+							 
 						 //TODO for debug purpose
 						 /*
 						 double pre_y = p.getGaussian();

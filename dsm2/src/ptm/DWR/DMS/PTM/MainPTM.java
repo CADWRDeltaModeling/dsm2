@@ -310,6 +310,6 @@ public class MainPTM {
             previousDisplayTime = Globals.currentModelTime;
             
         }
-       
     }
+    
 }

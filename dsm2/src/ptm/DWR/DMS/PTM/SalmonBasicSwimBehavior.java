@@ -220,8 +220,12 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 					 // isNodeReached now keeps the old node. the node will be changed to the new node just reached when getNewNode(...) is called
 					 if (isNodeReached((Channel) p.wb, xPos)){
 						 //tmToAdv could be less than tmToAdv passed on 
-						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, swimV, p.x, xPos); 						 
-						 p.x += _hydroCalc.calcDistanceToNode((Channel)p.wb, p.x, xPos);
+						 tmToAdv = _hydroCalc.calcTimeToNode((Channel)p.wb, advVel, swimV, p.x, xPos);
+						 if (xPos>0)
+							 p.x = ((Channel)p.wb).getLength();
+						 else
+							 p.x = 0;
+						 
 						 //TODO change the way that the random numbers are calculated
 						 //Every particle carries its own random number generator to avoid the pseudo-random number caused dependency
 						 //The random number is called from its particle. 
@@ -231,7 +235,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 //p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, PTMUtil.getNextGaussian());
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
-						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, deltaX);
+						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 						 p.addTimeUsed(tmToAdv);
 						 //here node and channel hasn't been changed yet because the survival calc needs to do with current ones
 						 p.checkSurvival();
@@ -245,6 +249,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 							 }
 							 return;
 						 }
+						 //_travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, deltaX);
 						 p.nd = getNewNode((Channel) p.wb, xPos);
 						 //set new node so make node decision can calculate total node inflow and call a special behavior if necessary
 						 p.makeNodeDecision();
@@ -283,6 +288,8 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 if (p.wb.getPTMType() != Waterbody.CHANNEL)							 
 							 break;
 						 else{
+							 ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
+							 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 							 //check survival when arrive a new channel
 							 p.checkSurvival();
 							 if(p.isDead)
@@ -331,9 +338,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						  * 
 						  * only calculate survival when a particle is in a channel
 						  */
+						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 						 p.checkSurvival();
 						 if (p.isDead) return;
-						 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, deltaX);
+						 //_travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
 						 p.addTimeUsed(tmToAdv);
 					 }
 				 }// end the while in Channel

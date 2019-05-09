@@ -141,12 +141,15 @@ public class TravelTimeOutput {
 			e.printStackTrace();
 		}
 	}
-	public void recordTravelTime(int id, String inStation, long inTime, float ageInSec, IntBuffer ndWb, float velocity, float x, float deltaX){
+	public void recordTravelTime(int id, String inStation, long inTime, float ageInSec, IntBuffer ndWb, float velocity, float x, boolean fromUpstream){
 		//only record when need to output TravelTime
 		if (_pathName == null)
 			return;
+		
+		//System.err.println(id + " " + ndWb.get()+"  "+x+"  "+velocity+"  " + fromUpstream );
+		
 		// only record particles from upstream
-		if (deltaX >0){
+		if (fromUpstream){
 			String staName = _stationNames.get(ndWb);
 			/*
 			 if staName == null, the particle is not at the recording location
@@ -166,7 +169,7 @@ public class TravelTimeOutput {
 						// p.x always > 0 and velocity > 0 because !(p.x<dist) and deltaX >0
 						if (velocity < 0.0001f)  
 							System.err.println("warning: particle# "+id+" has very low advection and swimming velocities:" 
-						+ velocity+", could cause an error at travel time calculation");
+							+ velocity+", could cause an error at travel time calculation");
 						tt -= (x-dist)/velocity;
 					}
 					_ttHolder.get(staName).put(id, new TTEntry(inStation, inTime, tt));
