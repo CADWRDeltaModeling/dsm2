@@ -129,6 +129,11 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			}
 			// Channel	
 			if (p.wb.getPTMType() ==  Waterbody.CHANNEL) {
+				//just exit from a reservoir or a conveyance, thus, p.x = 0 or length.
+				//there is no need to +/- time from p.age. So pass velocity = max_value so that 
+				//(p.x- the check station channel distance)/velocity = 0
+				 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, 
+						 IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()}), Float.MAX_VALUE, p.x, p.getFromUpstream());
 				 p.checkSurvival();
 				 if (p.isDead) return;
 				 int cId = ((Channel)p.wb).getEnvIndex();		
@@ -289,7 +294,10 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 							 break;
 						 else{
 							 ndWb = IntBuffer.wrap(new int[] {p.nd.getEnvIndex(), p.wb.getEnvIndex()});
-							 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, advVel+swimV, p.x, p.getFromUpstream());
+							 //just made node decision with a new node and channel, thus, p.x = 0 or length.
+							 //there is no need to +/- time from p.age. So pass velocity = max_value so that 
+							 //(p.x-the check station channel distance)/velocity = 0
+							 _travelTimeOut.recordTravelTime(p.Id, p.getInsertionStation(), p.getInsertionTime(), p.age, ndWb, Float.MAX_VALUE, p.x, p.getFromUpstream());
 							 //check survival when arrive a new channel
 							 p.checkSurvival();
 							 if(p.isDead)
