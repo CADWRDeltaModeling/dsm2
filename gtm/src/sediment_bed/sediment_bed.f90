@@ -113,7 +113,7 @@ subroutine sediment_bed_main(ncells,        &
     carbonturnover_inter = zero
     decomposition_inter = zero
     wat_decomposition_inter = zero
-    
+    carbonturnover(:,:,:,:,rkstep) = zero
     
     do i= 1, nzones                                                      !> allocate bed erosion and settling to zones  todo: check for divide by zero
         do j=1, nsolids
@@ -129,34 +129,34 @@ subroutine sediment_bed_main(ncells,        &
     wat_carbonturnover_inter =  wat_decomposition_inter*cfrac_labile                                !for interface methylation
     
                                                                         !erosion of cohesive seds proportional to amount in bed
-    erosion_total(:,:) =  erosion_sb(:,:,1, rkstep)
-    if (nsolids.gt.2)  erosion_total(:,:) =  erosion_total(:,:) + erosion_sb(:,:,2, rkstep) 
+    !erosion_total(:,:) =  erosion_sb(:,:,1, rkstep)
+    !if (nsolids.gt.2)  erosion_total(:,:) =  erosion_total(:,:) + erosion_sb(:,:,2, rkstep) 
     
-    mass_total(:,:,:) = sedsolids(:,:,:,1,rkstep)                       !total cohesive
-    if (nsolids.gt.2)  mass_total(:,:,:) =  mass_total(:,:,:) + sedsolids(:,:,:,2,rkstep)
+    !mass_total(:,:,:) = sedsolids(:,:,:,1,rkstep)                       !total cohesive
+    !if (nsolids.gt.2)  mass_total(:,:,:) =  mass_total(:,:,:) + sedsolids(:,:,:,2,rkstep)
     
-    do i=1,ncells
-        do j = 1, nzones  
-           erosion_type = 0 
-           if ((erosion_total(i,j)*delta_t).gt.(frac*(sedsolids(i,j,1,1,rkstep)+sedsolids(i,j,1,2,rkstep)))) then
-                delta_erosion = erosion_total(i,j) - frac*(sedsolids(i,j,1,1,rkstep)+sedsolids(i,j,1,2,rkstep))/delta_t
-                erosion_type = 1
-            endif
-            if (erosion_sb(i,j,3, rkstep)*delta_t > (sedsolids(i,j,1,3,rkstep))) then
-                delta_erosion = erosion_sb(i,j,3, rkstep) - sedsolids(i,j,1,3,rkstep)/delta_t
-                erosion_type = 2
-            endif
-            select case (erosion_type)
-            case (1)
-                erosion_sb(i,j,3, rkstep) = erosion_sb(i,j,3, rkstep)- delta_erosion
-            case (2)
-                erosion_total(i,j) = erosion_total(i,j) - delta_erosion
-            end select
-        enddo
-    enddo
+    !do i=1,ncells
+    !    do j = 1, nzones  
+    !       erosion_type = 0 
+    !       if ((erosion_total(i,j)*delta_t).gt.(frac*(sedsolids(i,j,1,1,rkstep)+sedsolids(i,j,1,2,rkstep)))) then
+    !            delta_erosion = erosion_total(i,j) - frac*(sedsolids(i,j,1,1,rkstep)+sedsolids(i,j,1,2,rkstep))/delta_t
+    !            erosion_type = 1
+    !        endif
+    !        if (erosion_sb(i,j,3, rkstep)*delta_t > (sedsolids(i,j,1,3,rkstep))) then
+    !            delta_erosion = erosion_sb(i,j,3, rkstep) - sedsolids(i,j,1,3,rkstep)/delta_t
+    !            erosion_type = 2
+    !        endif
+    !        select case (erosion_type)
+    !        case (1)
+    !            erosion_sb(i,j,3, rkstep) = erosion_sb(i,j,3, rkstep)- delta_erosion
+    !        case (2)
+    !            erosion_total(i,j) = erosion_total(i,j) - delta_erosion
+    !        end select
+    !    enddo
+    !enddo
     
-    erosion_sb(:,:,1, rkstep) = erosion_total(:,:)*sedsolids(:,:,1,1,rkstep)/ mass_total(:,:,1)
-    if (nsolids.gt.2) erosion_sb(:,:,2, rkstep) = erosion_total(:,:)*sedsolids(:,:,1,2,rkstep)/ mass_total(:,:,1)
+    !erosion_sb(:,:,1, rkstep) = erosion_total(:,:)*sedsolids(:,:,1,1,rkstep)/ mass_total(:,:,1)
+    !if (nsolids.gt.2) erosion_sb(:,:,2, rkstep) = erosion_total(:,:)*sedsolids(:,:,1,2,rkstep)/ mass_total(:,:,1)
       
     
    ! bed(:,:,:).r_ct_labile = zero  !todo:remove after debugging     
@@ -182,13 +182,30 @@ subroutine sediment_bed_main(ncells,        &
     
     !calculate max erosion for top layer only       
     
-    do i = 1, nsolids
+    do i = 1, nsolids       !srt is the total flux
         srt(:,:,i) = (settling(:,:,i, rkstep)-decomposition(:,:,1,i,rkstep) - erosion_sb(:,:,i, rkstep))
     end do
-   
-    burial(:,:,1,:, rkstep) = srt(:,:,:)
     
-    burial_total(:,:) = srt(:,:,1) + srt(:,:,2) + srt(:,:,3)
+    burial_total = zero
+    do i=1,ncells
+        do j=1,nzones
+           do k=1, nsolids 
+                if (srt(i,j,k) <= zero)  then     !erosion of particle type k
+                    if ((-srt(i,j,k)).gt.(frac* sedsolids(i,j,1,k,rkstep))) then
+                        srt(i,j,k)= - (frac* sedsolids(i,j,1,k,rkstep))    !limit change to some fraction of available solid of type k
+                        erosion_sb(i,j,k, rkstep) = settling(i,j,k,rkstep) - decomposition(i,j,1,k,rkstep) -  srt(i,j,k)
+                    end if
+                end if
+                burial(i,j,1,k, rkstep) = srt(i,j,k)
+                burial_total(i,j) = burial_total(i,j) + srt(i,j,k)  
+           end do 
+        end do
+    end do
+            
+   
+    !burial(:,:,1,:, rkstep) = srt(:,:,:)
+    
+    !burial_total(:,:) = srt(:,:,1) + srt(:,:,2) + srt(:,:,3)
     
     do i=1,ncells
         do j = 1, nzones
@@ -196,30 +213,35 @@ subroutine sediment_bed_main(ncells,        &
             if (burial_total(i,j).lt.0) then    !erosion into layer 2 added 20190503
                 burial(i,j,1,1, rkstep) = bed(i,j,2).mass_frac(1)* burial_total(i,j)
                 burial(i,j,1,2, rkstep) = bed(i,j,2).mass_frac(2)* burial_total(i,j)
-                burial(i,j,1,3, rkstep) = bed(i,j,2).mass_frac(3)* burial_total(i,j)     
+                burial(i,j,1,3, rkstep) = bed(i,j,2).mass_frac(3)* burial_total(i,j)
+            else
+                burial(i,j,1,1, rkstep) = bed(i,j,1).mass_frac(1)* burial_total(i,j)
+                burial(i,j,1,2, rkstep) = bed(i,j,1).mass_frac(2)* burial_total(i,j)
+                burial(i,j,1,3, rkstep) = bed(i,j,1).mass_frac(3)* burial_total(i,j)
             end if
-            
-            
+                       
             !if ((burial(i,j,1,1, rkstep).lt.0).and.(burial(i,j,1,2, rkstep).lt.0))then  !erosion
             !    total_burial = burial(i,j,1,1, rkstep)+ burial(i,j,1,2, rkstep)
             !   burial(i,j,1,1, rkstep) = (sedsolids(i,j,2,1,rkstep)/ mass_total(i,j,2))*total_burial
             !    burial(i,j,1,2, rkstep) = (sedsolids(i,j,2,2,rkstep)/ mass_total(i,j,2))*total_burial
             !end if
             !limit erosion if neccesary 
-            if ((burial(i,j,1,1, rkstep).lt.0).and.(-burial(i,j,1,1, rkstep)*delta_t>=frac*sedsolids(i,j,2,1,rkstep))) then
-                burial(i,j,1,1, rkstep) = frac*sedsolids(i,j,2,1,rkstep)/delta_t
-                erosion_sb(i,j,1, rkstep) = settling(i,j,1, rkstep)-decomposition(i,j,1,1,rkstep)-burial(i,j,1,1, rkstep)
-            end if
-            if ((burial(i,j,1,2, rkstep).lt.0).and.(-burial(i,j,1,2, rkstep)*delta_t>=half*sedsolids(i,j,2,2,rkstep))) then
-                burial(i,j,1,2, rkstep) = frac*sedsolids(i,j,2,2,rkstep)/delta_t
-                erosion_sb(i,j,2, rkstep) = settling(i,j,2, rkstep)-decomposition(i,j,1,2,rkstep)-burial(i,j,1,2, rkstep)
-            end if
-            if ((burial(i,j,1,3, rkstep).lt.0).and.(-burial(i,j,1,3, rkstep)*delta_t>=frac*sedsolids(i,j,2,3,rkstep))) then
-                burial(i,j,1,3, rkstep) = frac*sedsolids(i,j,2,3,rkstep)/delta_t
-                erosion_sb(i,j,3, rkstep) = settling(i,j,3, rkstep)-decomposition(i,j,1,3,rkstep)-burial(i,j,1,3, rkstep)
-            end if
-        end do       
+!            if ((burial(i,j,1,1, rkstep).lt.0).and.(-burial(i,j,1,1, rkstep)*delta_t>=frac*sedsolids(i,j,2,1,rkstep))) then
+!                burial(i,j,1,1, rkstep) = frac*sedsolids(i,j,2,1,rkstep)/delta_t
+!                erosion_sb(i,j,1, rkstep) = settling(i,j,1, rkstep)-decomposition(i,j,1,1,rkstep)-burial(i,j,1,1, rkstep)
+!            end if
+!            if ((burial(i,j,1,2, rkstep).lt.0).and.(-burial(i,j,1,2, rkstep)*delta_t>=half*sedsolids(i,j,2,2,rkstep))) then
+!                burial(i,j,1,2, rkstep) = frac*sedsolids(i,j,2,2,rkstep)/delta_t
+!                erosion_sb(i,j,2, rkstep) = settling(i,j,2, rkstep)-decomposition(i,j,1,2,rkstep)-burial(i,j,1,2, rkstep)
+!            end if
+!            if ((burial(i,j,1,3, rkstep).lt.0).and.(-burial(i,j,1,3, rkstep)*delta_t>=frac*sedsolids(i,j,2,3,rkstep))) then
+!                burial(i,j,1,3, rkstep) = frac*sedsolids(i,j,2,3,rkstep)/delta_t
+!                erosion_sb(i,j,3, rkstep) = settling(i,j,3, rkstep)-decomposition(i,j,1,3,rkstep)-burial(i,j,1,3, rkstep)
+!            end if
+        end do        
     end do
+    !print *,"2120", resuspension(2120,1),resuspension(2120,2),resuspension(2120,3)
+    !print *,"2121", resuspension(2121,1),resuspension(2121,2),resuspension(2121,3)
     resuspension(:, :) = zero
     do i=1, ncells
         vol = area_si(i)
@@ -227,6 +249,9 @@ subroutine sediment_bed_main(ncells,        &
             resuspension(i, :) =  resuspension(i, :) +  erosion_sb(i,j,:,rkstep)/(vol*kg_to_g) !pass erosion rates back to GTM
         end do
     end do
+    !print *,"2120", resuspension(2120,1),resuspension(2120,2),resuspension(2120,3)
+    !print *,"2121", resuspension(2121,1),resuspension(2121,2),resuspension(2121,3)
+    !print *,"-----------------------------------------------"
     do i=1,nsolids
       sedsolidsflux(:,:,1,i,rkstep) = settling(:,:,i, rkstep)-decomposition(:,:,1,i,rkstep) - erosion_sb(:,:,i, rkstep) - burial(:,:,1,i, rkstep)
       sedsolidsflux(:,:,2,i,rkstep) = -decomposition(:,:,2,i,rkstep) + burial(:,:,1,i, rkstep)
