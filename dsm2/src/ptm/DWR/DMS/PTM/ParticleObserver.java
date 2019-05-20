@@ -97,8 +97,13 @@ class ParticleObserver{
       long time = observed.getCurrentParticleTime();
       int pId = (int) observed.getId();
       short nodeId = -1;
-      short wbId = 0;
-      output.output(time,pId,nodeId,wbId);
+      //This is for when a particle is inserted at a known channel
+      //short wbId = 0;
+      int wbId = observed.wb.getEnvIndex();
+      if (wbId > 0)
+    	  output.output(time,pId,nodeId,wbId);
+      else
+    	  output.output(time,pId,nodeId,0);
       
       //TODO for debug purpose so I know the the channel/node numbers on the map
       //but this causes problems when fluxes are calculated because the trace file also is used for the flux calculation
