@@ -220,7 +220,45 @@ module boundary_advection_network
         do i = 1, n_resv
             vol(i) = resv_geom(i)%area * million * (prev_resv_height(i)-resv_geom(i)%bot_elev)
             mass_resv(i,ivar) = vol(i) * conc_resv_prev(i,ivar)
-        end do      
+        end do
+
+        ! If this is the first time step of the run,
+        ! build up a sediment fraction array at boundaries and external flows
+        ! TODO: Need to double-check if this works for the restart as well.
+        ! TODO: Hopefully we will modulize and move this out from the loop.
+        if (tstp .eq. one) then
+            do i = 1, n_node
+                ! Loop thourgh external flows at node i
+                do j = 1, dsm2_network_extra(i)%n_qext
+                    ! If there are associated data to this external flow
+                    if (dsm2_network_extra(i)%qext_path(j,ivar).ne.0) then
+                        ! If the associated data is SSC,
+                        if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%variable).eq.'ssc') then
+                            ! Loop through all the sediment classes
+                            do st = 1, n_sediment
+                                boundary_composition_not_found = .true.
+                                ! Loop through all sediment boundaries in the model
+                                do s = 1, n_sediment_bc
+                                    ! Find out matching boundary condition time series
+                                    if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%name) .eq. trim(sediment_bc(s)%name)) &
+                                        .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
+                                        ! Copy the sediment fraction
+                                        sed_percent(i,j,nvar-n_sediment+st) = sediment_bc(s)%percent
+                                        boundary_composition_not_found = .false.
+                                    end if
+                                end do
+                                ! If a corresponding data is not found, exit.
+                                if (boundary_composition_not_found) then
+                                    write(*,*) 'DICU input classes less than specified'
+                                    stop
+                                end if
+                            end do
+                        end if
+                    end if
+                end do
+            end do
+        end if
+
         do i = 1, n_node
             ! adjust flux for boundaries
             if (dsm2_network(i)%boundary_no > 0) then       
@@ -277,42 +315,30 @@ module boundary_advection_network
                 if (flow_tmp .lt. no_flow) then
                     !write(*,*) "WARNING: No flow flows into junction!!",icell               
                     conc_tmp(ivar) = conc_tmp0(ivar)
-                else     
+                else
                     conc_tmp(ivar) = mass_tmp(ivar)/flow_tmp
                 end if
                 ! add external flows
                 if ((dsm2_network(i)%boundary_no.eq.0).and.(dsm2_network_extra(i)%n_qext.gt.0)) then
+                    ! loop through external flows
                     do j = 1, dsm2_network_extra(i)%n_qext
                         if (qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0) then    !drain
                             flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
                         elseif (qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0) then !drain but node concentration is absent
-                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))                            
+                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
                             !write(*,*) "WARNING: No node concentration is given for DSM2 Node No. !!",dsm2_network(i)%dsm2_node_no
                         else     ! seepage and diversion
-                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j)) 
-                        end if                    
+                            flow_tmp = flow_tmp + qext_flow(dsm2_network_extra(i)%qext_no(j))
+                        end if
+                        ! If drain and if there are associated data to it
                         if ((qext_flow(dsm2_network_extra(i)%qext_no(j)).gt.0).and.(dsm2_network_extra(i)%qext_path(j,ivar).ne.0)) then    !drain
                             conc_ext(ivar) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value
+                            ! If the associated data is SSC,
                             if (trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%variable).eq.'ssc') then
+                                ! Loop through all the sediment classes
                                 do st = 1, n_sediment
-                                    boundary_composition_not_found= .true.
-                                    do s = 1, n_sediment_bc
-                                        if (tstp.eq.one) then   
-                                            if ((trim(pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%name) .eq. trim(sediment_bc(s)%name)) &
-                                                .and. (trim(sediment(st)%composition) .eq. trim(sediment_bc(s)%composition))) then
-                                                sed_percent(i,j,nvar-n_sediment+st) = sediment_bc(s)%percent
-                                                boundary_composition_not_found= .false.
-                                                conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sediment_bc(s)%percent * 0.01d0
-                                            end if
-                                        else
-                                            boundary_composition_not_found= .false.
-                                            conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value * sed_percent(i,j,nvar-n_sediment+st) * 0.01d0
-                                        end if
-                                    end do 
-                                    if (boundary_composition_not_found) then
-                                        write(*,*) 'DICU input classes less than specified'
-                                        stop
-                                    end if
+                                    conc_ext(nvar-n_sediment+st) = pathinput(dsm2_network_extra(i)%qext_path(j,ivar))%value &
+                                        * sed_percent(i,j,nvar-n_sediment+st) * 0.01d0
                                 end do
                             end if
                             mass_tmp(ivar) = mass_tmp(ivar) + conc_ext(ivar)*qext_flow(dsm2_network_extra(i)%qext_no(j))
