@@ -4,7 +4,6 @@
    converts the data type description into C++ code.
 """
 
-import string
 import os.path
 import shutil
 from table_component import *
@@ -119,66 +118,66 @@ def ensure_line_in_file(include_line,filename):
 #  The component must be defined by the calling code
 def prep_component(component,outdir):
     all_components.append(component)
-    c_signature = string.join([x.c_arg(False) for x in component.members],",")
-    stringlen_output_args = string.join([x.stringlen_arg(False) for x in component.members if x.stringlen_arg(False)],",")
-    fortran_c_output_signature=string.join([x.fc_arg(False) for x in component.members],",")
+    c_signature = ",".join([x.c_arg(False) for x in component.members])
+    stringlen_output_args = ",".join([x.stringlen_arg(False) for x in component.members if x.stringlen_arg(False)])
+    fortran_c_output_signature=",".join([x.fc_arg(False) for x in component.members])
     fortran_c_output_signature += ", int * ierror"
     if (len(stringlen_output_args) > 0):
         fortran_c_output_signature+=(", \n              %s"  % stringlen_output_args)
 
         
-    c_input_signature = string.join([x.c_arg(True) for x in component.members],",")
-    stringlen_input_args = string.join([x.stringlen_arg(True) for x in component.members if x.stringlen_arg(True)],",")
-    fortran_c_input_signature=string.join([x.fc_arg(True) for x in component.members],",")
+    c_input_signature = ",".join([x.c_arg(True) for x in component.members])
+    stringlen_input_args = ",".join([x.stringlen_arg(True) for x in component.members if x.stringlen_arg(True)])
+    fortran_c_input_signature=",".join([x.fc_arg(True) for x in component.members])
     fortran_c_input_signature += ", int * ierror"
 
     if (len(stringlen_input_args) > 0):
         fortran_c_input_signature+=(", \n              %s"  % stringlen_input_args)
 
 
-    c_call = string.join([x.name for x in component.members],",")
-    strlenassign = string.join(["%s" % x.stringlen_assign() for x in component.members if x.stringlen_assign()],"\n        ")
-    construct = string.join([x.constructor("arg") for x in component.members if x.constructor("arg")],"\n    ")
-    copyconstruct = string.join([x.constructor("copy") for x in component.members if x.constructor("copy")],"\n    ")
-    default_construct = string.join([x.constructor("default") for x in component.members if x.constructor("default")],"\n    ")
-    init = string.join([x.initializer("arg") for x in component.members if x.initializer("arg")],",\n    ").strip("\n, ")
+    c_call = ",".join([x.name for x in component.members])
+    strlenassign = "\n        ".join(["%s" % x.stringlen_assign() for x in component.members if x.stringlen_assign()])
+    construct = "\n    ".join([x.constructor("arg") for x in component.members if x.constructor("arg")])
+    copyconstruct = "\n    ".join([x.constructor("copy") for x in component.members if x.constructor("copy")])
+    default_construct = "\n    ".join([x.constructor("default") for x in component.members if x.constructor("default")])
+    init = ",\n    ".join([x.initializer("arg") for x in component.members if x.initializer("arg")]).strip("\n, ")
     if (init): init += ","
     
-    copyinit= string.join([x.initializer("copy") for x in component.members if x.initializer("copy")],",\n    ").strip("\n, ")
+    copyinit= ",\n    ".join([x.initializer("copy") for x in component.members if x.initializer("copy")]).strip("\n, ")
     if (copyinit): copyinit += ","
     
-    equalop= string.join([x.equaler() for x in component.members if x.equaler()],"\n    ")
-    members = string.join([x.member() for x in component.members if x.member()],"\n  ")
-    c_pass_through_call =  string.join([x.fortran_pointer()+"a_"+\
-                                        x.name for x in component.members],",")
-    buffer_query =  string.join([x.assign(x.fortran_pointer()+"a_","obj.") for x in component.members],"\n    ")+"\n    "
-    buffer_query += string.join([x.pad("a_"+x.name) for x in component.members if x.pad()],"\n    ")
-    #offsets = string.join(["HOFFSET( %s, %s)" % (component.name, x.name) for x in component.members],",\n            ")
-    offsets = string.join([" ((char*)&default_struct.%s - (char*)&default_struct)" \
-                          % x.name for x in component.members],",\n            ")
-    default_member_data = string.join( ["%s" % x.default() for x in component.members],",")
-    default_member_init = string.join( [x.initializer("default") for x in component.members if x.initializer("default")],",\n    ").strip("\n, ")
+    equalop= "\n    ".join([x.equaler() for x in component.members if x.equaler()])
+    members = "\n  ".join([x.member() for x in component.members if x.member()])
+    c_pass_through_call = ",".join([x.fortran_pointer()+"a_"+\
+                                        x.name for x in component.members])
+    buffer_query =  "\n    ".join([x.assign(x.fortran_pointer()+"a_","obj.") for x in component.members])+"\n    "
+    buffer_query += "\n    ".join([x.pad("a_"+x.name) for x in component.members if x.pad()])
+    #offsets = ",\n            ".join(["HOFFSET( %s, %s)" % (component.name, x.name) for x in component.members])
+    offsets =",\n            ".join([" ((char*)&default_struct.%s - (char*)&default_struct)" \
+                          % x.name for x in component.members])
+    default_member_data =",".join( ["%s" % x.default() for x in component.members])
+    default_member_init =",\n    ".join( [x.initializer("default") for x in component.members if x.initializer("default")]).strip("\n, ")
     if (default_member_init): default_member_init += ","
-    quoted_members = string.join(["\""+x.name+"\"" for x in component.members],",")
-    hdftypes = string.join([x.hdf_type() for x in component.members],",")
-    membersizes=string.join(["sizeof( default_struct.%s )" % x.name for x in component.members],",\n         ")
+    quoted_members = ",".join(["\""+x.name+"\"" for x in component.members])
+    hdftypes = ",".join([x.hdf_type() for x in component.members])
+    membersizes=",\n         ".join(["sizeof( default_struct.%s )" % x.name for x in component.members])
 
-    identifiers = string.join([component.get_member(x).name for x in component.identifiers],",")
-    identifiertypes = string.join([component.get_member(x).identifier_type() for x in component.identifiers],",")
-    identifier_assign = string.join([component.get_member(x).identifier_assign(i) \
-           for x,i in zip(component.identifiers, range(len(component.identifiers)))],"\n      ")
+    identifiers = ",".join([component.get_member(x).name for x in component.identifiers])
+    identifiertypes = ",".join([component.get_member(x).identifier_type() for x in component.identifiers])
+    identifier_assign ="\n      ".join([component.get_member(x).identifier_assign(i) \
+           for x,i in zip(component.identifiers, range(len(component.identifiers)))])
 
-    outstreamformat = string.join([x.output_format() for x in component.members],"<<")
-    instreamformat = string.join([x.input_code() for x in component.members], "\n")
+    outstreamformat = "<<".join([x.output_format() for x in component.members])
+    instreamformat =  "\n".join([x.input_code() for x in component.members])
 
 
-    fortran_signature = string.join([x.name for x in component.members], ",")
-    fortran_decl_in = "      "  + string.join([fortran_declaration(x,"in") for x in component.members], "\n       ")
-    fortran_decl_out = "      "  + string.join([fortran_declaration(x,"out") for x in component.members], "\n       ")
+    fortran_signature =  ",".join([x.name for x in component.members])
+    fortran_decl_in = "      "  +  "\n       ".join([fortran_declaration(x,"in") for x in component.members])
+    fortran_decl_out = "      "  +  "\n       ".join([fortran_declaration(x,"out") for x in component.members])
 
     if component.parent: 
         parent = component.parent
-        parentid = string.join(component.parent_id,",")
+        parentid =",".join(component.parent_id)
         headerparent = "#include \"input_storage_%s.h\"" % parent
     else:
         parent = component.name
@@ -315,7 +314,7 @@ def process_profiles():
     profile_code = ""
     for prof in profiles.keys():
         contentcode = ""
-        contentcode += string.join(["out.push_back(\"%s\");" % member.upper() for member in profiles[prof] ],"\n        ")
+        contentcode += "\n        ".join(["out.push_back(\"%s\");" % member.upper() for member in profiles[prof] ])
         p = \
     """
     if(name =="%s")
@@ -343,12 +342,12 @@ def process_include_defs():
 
 def finalize(outdir):
     f=open(os.path.join(outdir,"input_storage.h"),'w')
-    f.write(string.join(include_lines,"\n"))
+    f.write("\n".join(include_lines))
     f.close
     f=open(os.path.join(indir,"input_state_map_template.cpp"),"r")
     txt = f.read()
     f.close()
-    maplines = string.join(input_map_lines,"\n")
+    maplines = "\n".join(input_map_lines)
     txt=txt.replace("// Item readers DO NOT ALTER THIS LINE AT ALL",maplines)
     includedefs = process_include_defs()
     txt=txt.replace("// Include definitions DO NOT ALTER THIS LINE AT ALL",includedefs)
@@ -361,13 +360,13 @@ def finalize(outdir):
     f=open(os.path.join(indir,"buffer_actions_template.cpp"),"r")
     txt=f.read()
     f.close()
-    txt=txt.replace("// Clear all buffers DO NOT ALTER THIS LINE AT ALL",string.join(clear_buffer_lines,"\n"))
-    txt=txt.replace("// Prioritize all buffers DO NOT ALTER THIS LINE AT ALL",string.join(prioritize_buffer_lines,"\n"))
-    txt=txt.replace("// Write text all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_lines,"\n"))
-    txt=txt.replace("// Write text one buffer DO NOT ALTER THIS LINE AT ALL",string.join(write_text_buffer_cond_lines,"\n"))
-    txt=txt.replace("// Write hdf5 one buffer DO NOT ALTER THIS LINE AT ALL",string.join(write_hdf5_buffer_cond_lines,"\n")) 
-    txt=txt.replace("// Read hdf5 one buffer DO NOT ALTER THIS LINE AT ALL",string.join(read_hdf5_buffer_cond_lines,"\n"))    
-    txt=txt.replace("// Write hdf5 all buffers DO NOT ALTER THIS LINE AT ALL",string.join(write_hdf5_buffer_lines,"\n"))
+    txt=txt.replace("// Clear all buffers DO NOT ALTER THIS LINE AT ALL","\n".join(clear_buffer_lines))
+    txt=txt.replace("// Prioritize all buffers DO NOT ALTER THIS LINE AT ALL","\n".join(prioritize_buffer_lines))
+    txt=txt.replace("// Write text all buffers DO NOT ALTER THIS LINE AT ALL","\n".join(write_text_buffer_lines))
+    txt=txt.replace("// Write text one buffer DO NOT ALTER THIS LINE AT ALL","\n".join(write_text_buffer_cond_lines))
+    txt=txt.replace("// Write hdf5 one buffer DO NOT ALTER THIS LINE AT ALL","\n".join(write_hdf5_buffer_cond_lines)) 
+    txt=txt.replace("// Read hdf5 one buffer DO NOT ALTER THIS LINE AT ALL","\n".join(read_hdf5_buffer_cond_lines))    
+    txt=txt.replace("// Write hdf5 all buffers DO NOT ALTER THIS LINE AT ALL","\n".join(write_hdf5_buffer_lines))
 
     
     f=open(os.path.join(outdir,"buffer_actions.cpp"),"w")
@@ -377,7 +376,7 @@ def finalize(outdir):
     f=open(os.path.join(indir,"input_storage_fortran_template.f90"),"r")
     txt=f.read()
     f.close()
-    txt=txt.replace("// Fortran Include Files DO NOT ALTER THIS LINE AT ALL",string.join(fortran_include_lines,"\n       "))
+    txt=txt.replace("// Fortran Include Files DO NOT ALTER THIS LINE AT ALL","\n       ".join(fortran_include_lines))
     f=open(os.path.join(outdir,"input_storage_fortran.f90"),"w")
     f.write(txt)
     f.close()
@@ -390,19 +389,19 @@ def finalize(outdir):
     for c in all_components:
         memberline="\"%s\":[" % c.name
         members=["\""+m.name+"\"" for m in c.members]
-        memberline+=string.join(members,",")
+        memberline+=",".join(members)
         memberline+="]"
         memberlines.append(memberline)
         componentlines.append("\"%s\"" % c.name)
-    subtxt="def component_order():\n    return["+string.join(componentlines,",\\\n      ")+"]\n\n\n"
-    subtxt+="def component_members():\n    return {" + string.join(memberlines,",\\\n      ")+"}\n\n\n"
+    subtxt="def component_order():\n    return["+",\\\n      ".join(componentlines)+"]\n\n\n"
+    subtxt+="def component_members():\n    return {" + ",\\\n      ".join(memberlines)+"}\n\n\n"
     include_assign=[]
     for key in include_block_assign:
         include_assign.append("    \""+key+"\":\""+include_block_assign[key]+"\"")
-    subtxt+="def include_block():\n    return {\\\n" + string.join(include_assign,",\n")+"}\n\n"
+    subtxt+="def include_block():\n    return {\\\n" + ",\n".join(include_assign)+"}\n\n"
     include_block_order= ["\"%s\""%define[0] for define in include_defs]   # list of all include block names in order registered
     include_block_order_txt="def include_block_order():\n      return[\\\n      "\
-                             +string.join(include_block_order,",\\\n      ")\
+                             +",\\\n      ".join(include_block_order)\
                              +"]\n\n"
     subtxt+=include_block_order_txt
     
