@@ -116,8 +116,21 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		double pctPass = 1.0f;
 		int vis = _rIn.visited(jId, p.Id);
 		//Russ Perry suggested if a particle visited the junction more than twice (first: 0, second: 1), the particle cannot enter the branch anymore.
-		if(vis > 1)
+		//if(vis > 1)
+		//Russ Perry suggested if a particle have visited once and not entered the branch, the particle cannot enter the branch anymore when coming back
+		if(vis > 0)
 			pctPass = 0;
+		
+		//next code for experiment purpose
+		/*
+		if(vis > 0){
+			if(vis == 1)
+				pctPass = 0.5;
+			else
+				pctPass = 0;
+		}
+		*/
+		
 			//decided not to use
 			//pctPass = Math.pow(0.6, vis);
 		

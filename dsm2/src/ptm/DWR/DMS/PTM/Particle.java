@@ -117,6 +117,7 @@ public class Particle{
 	    */
 	  public boolean inserted;
 	  public static boolean DEBUG = false;
+	  //if flux needs to be calculated, ADD_TRACE will be set true in RouteInputs.java line 35
 	  public static boolean ADD_TRACE = false;
   
 	  /**
