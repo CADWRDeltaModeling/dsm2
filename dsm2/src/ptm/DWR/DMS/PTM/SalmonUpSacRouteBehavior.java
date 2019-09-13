@@ -189,10 +189,18 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		double probModified = 0.0d;
 		double modAmount = ((double)getRouteInputs().getPercentToModify(nodeId))/100.0d;
 		//jId: SUT = 0, STM = 1, DCC = 2, GEO = 3
+		// at the junction SUT or STM if a user input increase/reduce entrainment > 1, add modAmount - 1, otherwise multiply
+		if((modAmount > 1) && (jId == 1 || jId == 0))
+			probModified = Math.min((prob+(modAmount-1))*pctPass, 1.0d);
+		
+		//TODO original algorithm, not used anymore clean up
 		//At the junction SUT or STM, if user input increase/reduce entrainment < 1, add, otherwise multiply
+		/*
 		if((modAmount < 1) && (jId == 1 || jId == 0))
 			//add pct (user input) to the calculated route probability
 			probModified = Math.min((prob+modAmount)*pctPass, 1.0d);
+		*/
+		
 		else
 			//multiply pct to the calculated route probability
 			probModified = Math.min(prob*modAmount*pctPass, 1.0d);

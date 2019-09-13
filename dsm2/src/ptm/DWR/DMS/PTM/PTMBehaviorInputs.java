@@ -184,6 +184,19 @@ public class PTMBehaviorInputs {
 		if (routeInputText == null)
 			System.err.println("WARNING: no route behavior input found!");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
+		ArrayList<String> outputOpText = PTMUtil.getInputBlock(inputText, "OUTPUT_OPTIONS", "END_OUTPUT_OPTIONS");
+		if(outputOpText != null && !outputOpText.equals("")){
+			for(String writeOp: outputOpText){
+				if (writeOp.toUpperCase().contains("DISPLAY_SIMULATION_TIMESTEP"))
+					Globals.DisplaySimulationTimestep = PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "DISPLAY_SIMULATION_TIMESTEP_WRITE_ALL");
+				if (writeOp.toUpperCase().contains("ENTRAINMENT"))
+					_routeInputs.setWriteEntrainmentAll(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "ENTRAINMENT_WRITE_ALL"));
+				if (writeOp.toUpperCase().contains("SURVIVAL"))
+					_survivalInputs.setSurvivalAllWriteout(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "SURVIVAL_WRITE_ALL"));
+			}
+		}
+			
+		
 		PTMUtil.closeBuffer(inputTextBuff);
 		setNodeInfo(_nodeArray);
 		setWaterbodyInfo(_wbArray);

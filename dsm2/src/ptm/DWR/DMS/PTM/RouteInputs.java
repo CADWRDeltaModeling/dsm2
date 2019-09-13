@@ -273,6 +273,12 @@ public class RouteInputs {
 			e.printStackTrace();
 		}
 	}
+	public void setWriteEntrainmentAll(boolean wAll){
+		if(wAll)
+			ENTRAINMENTALLWRITEOUT = true;
+		else
+			ENTRAINMENTALLWRITEOUT = false;
+	}
 	int getUpSacJChan(int jId, int pId){
 		if(_upSacJChans.get(pId) == null)
 			return 0;

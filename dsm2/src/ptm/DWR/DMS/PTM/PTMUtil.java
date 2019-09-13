@@ -237,6 +237,8 @@ public class PTMUtil {
 	}
 	// get a path name from a line with format name: String
 	public static String getPathFromLine(String line, char divider){
+		if(!line.toUpperCase().contains("PATH"))
+			systemExit("Wrong path name: " + line);
 		return (line.substring(line.indexOf(divider)+1)).trim();
 		//fixed the problem that the path cannot have ":"
 		/*
@@ -245,6 +247,9 @@ public class PTMUtil {
 			PTMUtil.systemExit("the input line (" + line +") is not correct! system exit");
 		return items[1];
 		*/
+	}
+	public static String getNameFromLine(String line, char divider){
+		return (line.substring(line.indexOf(divider)+1)).trim();
 	}
 	public static Pair<Integer, Integer> getPairFromLine(String line, String lineName) throws NumberFormatException{
 		String[] items = line.split("[,:\\s\\t]+");

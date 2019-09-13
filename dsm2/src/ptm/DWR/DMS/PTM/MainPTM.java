@@ -219,7 +219,8 @@ public class MainPTM {
                 Globals.currentModelTime += PTMTimeStep){
 
                 // output runtime information to screen
-            	MainPTM.display(displayInterval);
+            	if(Globals.DisplaySimulationTimestep)
+            		MainPTM.display(displayInterval);
                 if (behavior)
                     Globals.currentMilitaryTime = Integer.parseInt(Globals.getModelTime(Globals.currentModelTime));
                 

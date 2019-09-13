@@ -69,4 +69,5 @@ public class Globals{
    * of the model date and time in the format ddMMMyyyy, HHmm respectively
    */
   public static native int getTimeInJulianMins(String modelDate, String modelTime);
+  public static boolean DisplaySimulationTimestep = true;
 }

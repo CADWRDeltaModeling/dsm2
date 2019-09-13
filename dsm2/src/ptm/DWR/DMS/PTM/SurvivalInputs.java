@@ -247,6 +247,12 @@ public class SurvivalInputs {
 		}
 		reachSurvivals.put(groupId, rate);
 	}
+	public void setSurvivalAllWriteout(boolean allWrite){
+		if (allWrite)
+			SURVIVALALLWRITEOUT = true;
+		else
+			SURVIVALALLWRITEOUT = false;
+	}
 	private void addToGroup(int groupNumber, Map<Integer, Integer> grp_arr_sur_lost){
 		Integer i = grp_arr_sur_lost.get(groupNumber);
 		if (i == null)
@@ -274,7 +280,7 @@ public class SurvivalInputs {
 			ArrayList<String> survivalStrs = PTMUtil.getInputBlock(survivalParasIn, "GROUP_"+i, "END_GROUP_"+i);
 			if(survivalStrs.size() != 6)
 				PTMUtil.systemExit("errors in the survival parameter input line group:"+i);
-			String name = PTMUtil.getPathFromLine(survivalStrs.get(0), ':');
+			String name = PTMUtil.getNameFromLine(survivalStrs.get(0), ':');
 			//stSta only has one pair, but enStas and exStas can have many pairs.
 			ArrayList<int[]> stStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(1), "START_STATION");
 			ArrayList<int[]> enStas = PTMUtil.getIntPairsFromLine(survivalStrs.get(2), "END_STATION");
