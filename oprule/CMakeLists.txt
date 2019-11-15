@@ -78,19 +78,18 @@ if (WIN32)
 else (WIN32)
  set (MOVE_CMD mv)
 endif (WIN32)
-#OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp"  
-add_custom_target(generate_lexer 
+add_custom_command(
+    OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule.cpp"
     COMMAND flex -L -Pop_rule -oop_rule.cpp ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.l
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
     COMMENT "Generating op_rule.cpp using flex")
-#OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp" PRE_BUILD 
-add_custom_target(generate_compiler 
+add_custom_command(
+    OUTPUT "${CMAKE_SOURCE_DIR}/lib/parser/op_rule_tab.cpp"
     COMMAND bison -l -v -p op_rule -d  ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule.y
     COMMAND ${MOVE_CMD} op_rule.tab.c ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.cpp
     COMMAND ${MOVE_CMD} op_rule.tab.h ${CMAKE_CURRENT_SOURCE_DIR}/lib/parser/op_rule_tab.h
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/lib/parser"
     COMMENT "Generating op_rule_tab.cpp and op_rule_tab.h using bison" VERBATIM)
-add_dependencies(OpRuleParser generate_lexer generate_compiler)
 target_link_libraries(OpRuleParser 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
