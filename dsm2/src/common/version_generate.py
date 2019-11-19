@@ -8,13 +8,13 @@ VersionFile_path    = os.path.join(VersionFile_path,"version.fi")
 VersionFile = open(VersionFile_path, "w")
 
 try:
-    p = subprocess.Popen("git describe", stdout=subprocess.PIPE, universal_newlines=True)
+    p = subprocess.Popen("git describe", shell=True, stdout=subprocess.PIPE, universal_newlines=True)
     GITVersion_Describe = p.communicate()[0].strip()
 
     p = subprocess.Popen("git log --oneline -- | wc -l", shell=True, stdout=subprocess.PIPE, universal_newlines=True)
     GITVersion_SourceCode = p.communicate()[0].strip()
 
-    p = subprocess.Popen("git show -s --pretty=format:%h", stdout=subprocess.PIPE, universal_newlines=True)
+    p = subprocess.Popen("git show -s --pretty=format:%h", shell=True, stdout=subprocess.PIPE, universal_newlines=True)
     GITGUID_SourceCode = p.communicate()[0].strip()
 
     print(' GIT description of dsm2:     '+ GITVersion_Describe)
