@@ -23,15 +23,6 @@ cmake -DTHIRD_PARTY_DIR=/usr/local/dsm2/third_party -G "Unix Makefiles" ../
 make -j4
 cd ../..
 
-cd lib
-files="libheclib_intel.a libklu_intel.a"
-for f in $files; do
-  if [ ! -f $f ]; then
-    ln -s /usr/local/dsm2/lib/$f
-  fi
-done
-cd ..
-
 cd dsm2
 files="src/common/version.fi"
 for f in $files; do
