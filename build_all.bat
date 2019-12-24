@@ -38,8 +38,6 @@ cmake --build . --target ALL_BUILD --config Release  || goto :ERROR
 cpack
 cd ../..
 
-
-
 :ERROR
 echo Failed with error #%ERRORLEVEL%.
-exit =b %ERRORLEVEL%
+REM exit =b %ERRORLEVEL%
