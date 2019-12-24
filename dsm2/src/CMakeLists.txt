@@ -31,7 +31,7 @@ set (DSM2_SPARSE      ${DSM2_SOURCE_DIR}/sparse)
 set (DSM2_TIMEVAR      ${DSM2_SOURCE_DIR}/timevar)
 #
 #FIXME: change top directory to one-less. There should be a better way
-set(DSM2_TOP_DIR "../../")
+set(DSM2_TOP_DIR "../..")
 if (DEFINED THIRD_PARTY_DIR)
   set(DSM2_THIRD_PARTY_DIR "${THIRD_PARTY_DIR}")
 else()
@@ -41,15 +41,20 @@ endif()
 # FFLAGS depend on the compiler
 get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 # include the common macros for compiler flags and third party libraries
-include(${DSM2_TOP_DIR}CmakeLibraryMacro.txt)
+include(${DSM2_TOP_DIR}/CmakeLibraryMacro.txt)
 set_compiler_flags()
 #---------------LIBRARIES-------------------------------------------------
 find_libs()
 #----------------- EXECUTABLES --------------------------------------------
 if(MSVC)
-  set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libmmd.lib /NODEFAULTLIB:libifcoremd.lib /MANIFEST:NO")
+  #set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libmmd.lib /NODEFAULTLIB:mscvcprt.lib /NODEFAULTLIB:libucrtd.lib /MANIFEST:NO")
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG
+      "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib  /MANIFEST:NO")
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE
+      "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib  /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT hydro)
 else(MSVC)
   #set(CMAKE_EXE_LINKER_FLAGS "-nodefaultlibs")
@@ -88,6 +93,8 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 endif (WIN32)
 set_property(TARGET hydro PROPERTY LINKER_LANGUAGE Fortran)
 if (WIN32)
+set_target_properties(hydro PROPERTIES COMPILE_FLAGS "/Qmkl:sequential") #linker in windows in plain vanilla and doesn't understand ifort flags
+#set_target_properties(hydro PROPERTIES LINK_FLAGS "/libs:static /threads")
 target_link_libraries(hydro debug libucrtd.lib optimized libucrt.lib libmmt.lib)
 target_link_libraries(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
 else (WIN32)
@@ -108,6 +115,7 @@ target_link_libraries(hydro
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
+	  ${IFCORE_LIB} 
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
@@ -146,6 +154,7 @@ target_link_libraries(qual
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+	  ${IFCORE_LIB} 
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
@@ -190,8 +199,11 @@ target_link_libraries(PTM
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+	  ${IFCORE_LIB} 
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+	  debug libcpmtd.lib optimized libcpmt.lib
+    debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
     )
 else (WIN32)
 set_target_properties(PTM PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
@@ -207,3 +219,36 @@ target_link_libraries(PTM
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     )
 endif (WIN32)
+#-------------- TEST -------------------#
+
+#-------------- INSTALL ----------------#
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
+install(TARGETS hydro qual PTM
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION bin)
+if (WIN32) 
+  message("Install does not have any dependencies on system dlls")
+else (WIN32)
+  message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
+  set(INTEL_DIR "/opt/intel/parallel_studio_2019/compilers_and_libraries_2019.0.117/linux/compiler/lib/ia32_lin")
+  set(RUNTIME_DEPENDENCIES 
+    ${INTEL_DIR}/libintlc.so.5 ${INTEL_DIR}/libcilkrts.so.5 ${INTEL_DIR}/libirng.so 
+    ${INTEL_DIR}/libifport.so.5 ${INTEL_DIR}/libifcoremt.so.5 ${INTEL_DIR}/libsvml.so)
+  install(FILES ${RUNTIME_DEPENDENCIES} DESTINATION bin/lib)
+endif (WIN32)
+#------------- PACKAGE WINDOWS -----------------$
+if (WIN32)
+  set(CPACK_GENERATOR "ZIP")
+endif (WIN32)
+#-------------- PACKAGE --------------------------#
+set(CPACK_PACKAGE_NAME "DSM2")
+set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
+set(CPACK_PACKAGE_VERSION_MAJOR "8")
+set(CPACK_PACKAGE_VERSION_MINOR "2")
+set(CPACK_PACKAGE_VERSION_PATCH "0") # TODO: add git versioning here
+set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+get_filename_component(LICENSE_FILE "${DSM2_TOP_DIR}/LICENSE.txt" ABSOLUTE) 
+set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack")
+include(CPack)
