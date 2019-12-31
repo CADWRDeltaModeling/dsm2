@@ -219,6 +219,22 @@ target_link_libraries(PTM
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     )
 endif (WIN32)
+#PTM java
+find_package(Java 1.8 REQUIRED)
+message(STATUS "Found Java version ${Java_VERSION}")
+get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
+set(Java_JRE_HOME "${Java_JAVA_BIN_DIR}/../jre")
+message(STATUS "Using Java executable ${Java_JAVA_EXECUTABLE} location to guess Java_JRE_HOME is ${Java_JRE_HOME}")
+include(useJava)
+file(GLOB_RECURSE PTM_JAVA_SOURCES ptm/DWR/*.java)
+file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
+set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
+add_jar(PTM_JAR 
+  SOURCES ${PTM_JAVA_SOURCES}
+  INCLUDE_JARS ${PTM_JAVA_DEP_JARS}
+  ENTRY_POINT "DWR/DMS/PTM/MainPTM"
+  OUTPUT_NAME PTM)
+install_jar(PTM_JAR ${CMAKE_BINARY_DIR})
 #-------------- TEST -------------------#
 
 #-------------- INSTALL ----------------#
@@ -226,9 +242,15 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this w
 install(TARGETS hydro qual PTM
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION bin)
+install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)
+message("Copy jar files over to bin/lib")
+install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
+install(DIRECTORY "${Java_JRE_HOME}" DESTINATION bin)
 if (WIN32) 
-  message("Install does not have any dependencies on system dlls")
+  message("Windows exes are static so Intel redistribution files are not needed.")
+  install(FILES ptm/bin/ptm.bat DESTINATION bin)
 else (WIN32)
+  install(FILES ptm/bin/ptm DESTINATION bin)
   message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
   set(INTEL_DIR "/opt/intel/parallel_studio_2019/compilers_and_libraries_2019.0.117/linux/compiler/lib/ia32_lin")
   set(RUNTIME_DEPENDENCIES 

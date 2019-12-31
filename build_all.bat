@@ -42,4 +42,4 @@ cd ../..
 
 :ERROR
 echo Failed with error #%ERRORLEVEL%.
-exit =b %ERRORLEVEL%
+rem exit =b %ERRORLEVEL%
