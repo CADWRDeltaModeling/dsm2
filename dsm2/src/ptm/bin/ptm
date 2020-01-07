@@ -1,0 +1,35 @@
+#!/usr/bin/bash
+###################################
+# Batch file for running PTM
+###################################
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+export PTM_HOME=$DIR
+#
+{
+if [ ! -f $PTM_HOME/PTM.jar ]; then
+    echo ############################################################
+    echo   Error: ptm files not found
+    echo   ___
+    echo   Installation instructions
+    echo   ___
+    echo   The value of the environment variable PTM_HOME in the 
+    echo   file ptm needs to match the location where
+    echo   ptm has been installed
+    echo ############################################################
+    exit 1
+fi
+}
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PTM_HOME/lib:$PTM_HOME
+
+###############
+# starting ptm
+###############
+
+"$PTM_HOME/jre/bin/java" -ss1m -mx64m  -cp "$PTM_HOME/lib/edu.jar:$PTM_HOME/lib/COM.jar:$PTM_HOME/lib/xml.jar"  -jar $PTM_HOME/PTM.jar
+
+:end
+endlocal 
+rem 
+
