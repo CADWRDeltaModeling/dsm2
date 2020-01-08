@@ -252,7 +252,9 @@ if (WIN32)
 else (WIN32)
   install(PROGRAMS ptm/bin/ptm DESTINATION bin)
   message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
-  set(INTEL_DIR "/opt/intel/parallel_studio_2019/compilers_and_libraries_2019.0.117/linux/compiler/lib/ia32_lin")
+  message("compiler path: ${CMAKE_C_COMPILER}")
+  get_filename_component(COMPILER_DIR CMAKE_C_COMPILER DIRECTORY)
+  set(INTEL_DIR "${COMPILER_DIR}/../compiler/lib/ia32")
   set(RUNTIME_DEPENDENCIES 
     ${INTEL_DIR}/libintlc.so.5 ${INTEL_DIR}/libcilkrts.so.5 ${INTEL_DIR}/libirng.so 
     ${INTEL_DIR}/libifport.so.5 ${INTEL_DIR}/libifcoremt.so.5 ${INTEL_DIR}/libsvml.so ${INTEL_DIR}/libimf.so)
