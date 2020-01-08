@@ -253,8 +253,8 @@ else (WIN32)
   install(PROGRAMS ptm/bin/ptm DESTINATION bin)
   message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
   message("compiler path: ${CMAKE_C_COMPILER}")
-  get_filename_component(COMPILER_DIR CMAKE_C_COMPILER DIRECTORY)
-  set(INTEL_DIR "${COMPILER_DIR}/../compiler/lib/ia32")
+  get_filename_component(COMPILER_DIR ${CMAKE_C_COMPILER} DIRECTORY)
+  set(INTEL_DIR "${COMPILER_DIR}/../../compiler/lib/ia32_lin")
   set(RUNTIME_DEPENDENCIES 
     ${INTEL_DIR}/libintlc.so.5 ${INTEL_DIR}/libcilkrts.so.5 ${INTEL_DIR}/libirng.so 
     ${INTEL_DIR}/libifport.so.5 ${INTEL_DIR}/libifcoremt.so.5 ${INTEL_DIR}/libsvml.so ${INTEL_DIR}/libimf.so)
