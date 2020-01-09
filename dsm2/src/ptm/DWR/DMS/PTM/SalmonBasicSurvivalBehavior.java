@@ -103,8 +103,9 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 			}
 			float t = p.age - _pStartAge.get(pId);
 			/*
-			 * From Aderson, J. J., Gurarie, E., & Zabel, R. W. (2005).  Mean free-path length theory of
-			 * predator–prey interactions: Application to juvenile salmon migration.  Ecological Modelling,
+			 * From Aderson, J. J., Gurarie, E., & Zabel, R. W. (2005).  Mean free path length theory of
+			 * predator prey interactions: Application to juvenile salmon migration.  Ecological Modelling,
+			 * 186(2), 196 211. doi:10.1016/j.ecolmodel.2005.01.014
 			 * Units of lambda are feet; units of omega are feet/sec. t in seconds and x in feet
 			 */
 			//if (_pProb.get(pId) == null)
