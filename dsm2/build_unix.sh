@@ -7,3 +7,4 @@ cmake -G "Unix Makefiles" ../src
 #cmake --build . --target ALL_BUILD --config Debug
 #cmake --build . --target ALL_BUILD --config Release
 cmake --build .
+#cpack

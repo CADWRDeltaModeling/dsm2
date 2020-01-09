@@ -1,29 +1,40 @@
-@echo off
-:: Batch file for running ptm client
-
-if "%ptm_home%"=="" goto noptm
-
-:: Set path to location of dll
-
-set path=%ptm_home%\lib;%path%
-
-:: Start client
-
-echo starting ptm
-echo.
-echo Trying to find libraries at: %ptm_home%
-echo.
-::echo Using 
-::java -version
-::java -ss1m -mx32m -cp "%ptm_home%\lib\ptm.jar;%ptm_home%\lib\edu.jar;%ptm_home%\lib\COM.jar" DWR.DMS.PTM.mainPTM
-jre -ss1m -mx32m -cp "%ptm_home%\lib\ptm.jar;%ptm_home%\lib\edu.jar;%ptm_home%\lib\COM.jar" DWR.DMS.PTM.mainPTM
-goto end
-
-:noptm
-
-echo.
-echo Please set ptm_home to directory where ptm is installed
-echo Example: set ptm_home=c:\ptm
-echo.	
-
-:end
+@echo off
+rem ###################################
+rem Batch file for running PTM
+rem ###################################
+setlocal
+set ptm_home=%~dp0
+rem echo %ptm_home%
+if exist "%ptm_home%/PTM.jar" goto :valid
+
+
+:notfound
+
+echo ############################################################
+echo   Error: ptm files not found
+echo   ___
+echo   Installation instructions
+echo   ___
+echo   The value of the environment variable ptm_home in the 
+echo   file ptm.bat needs to match the location where
+echo   ptm has been installed
+echo ############################################################
+PAUSE
+goto :end
+
+:valid
+rem ###############
+rem Set path to location of dll
+rem ###############
+set path=%ptm_home%;%ptm_home%\lib;%path%
+
+rem ###############
+rem starting ptm
+rem ###############
+::start %ptm_home%/jre/bin/
+"%ptm_home%jre/bin/java" -ss1m -mx64m  -cp "%ptm_home%lib\edu.jar;%ptm_home%lib\COM.jar;;%ptm_home%lib\xml.jar"  -jar %ptm_home%PTM.jar
+
+:end
+endlocal 
+rem 
+
