@@ -1,0 +1,1 @@
+docker run --env SCRIPT_LOC="s3://ca.dwr.dms.dsm2/test1/run_hydro.sh" --env DATA_LOC="s3://ca.dwr.dms.dsm2/test1/hist.zip" --env OUTPUT_DIR=studies/historical/output --env OUTPUT_LOC="s3://ca.dwr.dms.dsm2/test1/hist-output.zip" dsm2-aws
