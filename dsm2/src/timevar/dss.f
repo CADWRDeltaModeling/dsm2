@@ -45,7 +45,7 @@ module dss
           ,max_inp_hour = 100 &  ! maximum input paths for hour intervals &
           ,max_inp_day = 3000 &   ! maximum input paths for day intervals &
           ,max_inp_week = 5 &   ! maximum input paths for week intervals &
-          ,max_inp_month = 1000 &! maximum input paths for month intervals &
+          ,max_inp_month = 3000 &! maximum input paths for month intervals &
           ,max_inp_year = 3200 &! maximum input paths for year intervals !@todo was 10, changed because of constant &
           ,max_inp_irr = 250 &  ! maximum input paths for irregular intervals &
           ,max_out_min = 1000 &  ! maximum output paths for 15minute intervals &
