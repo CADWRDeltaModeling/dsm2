@@ -18,6 +18,23 @@ C!    You should have received a copy of the GNU General Public License
 C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
 
+      function reservoir_has_node(reservoir_id, node_internal_id)
+      use grid_data
+      implicit none
+      integer reservoir_id, node_internal_id
+      integer numnodes,j
+      logical reservoir_has_node
+      reservoir_has_node = .false.
+      numnodes = res_geom(reservoir_id).nnodes
+      do j=1,numnodes
+          reservoir_has_node=res_geom(reservoir_id).node_no(j) .eq. node_internal_id
+          if (reservoir_has_node) then 
+              exit
+          endif
+      enddo
+      return
+      end function
+      
       subroutine process_output_reservoir(Name,
      &                                    LocName,
      &                                    SubLoc,
@@ -49,7 +66,7 @@ C!</license>
      &     itmp
      &     ,SubLoc
 
-
+      integer reservoir_has_node
       integer, external :: name_to_objno
       integer, external :: ext2int, ext2intnode
       integer, external :: loccarr       
@@ -93,7 +110,14 @@ c-----------find object number given object ID
                return
             end if
             pathoutput(noutpaths).res_node_no = miss_val_i
-            if (SubLoc .NE. miss_val_i) then 
+            if (SubLoc .NE. miss_val_i) then
+               if ( .NOT. reservoir_has_node(pathoutput(noutpaths).obj_no,ext2intnode(SubLoc))) then
+                  write(unit_error,*) '** ERROR ** :: Output requested at node not ',
+     &                'connected to Reservoir'
+                  write(unit_error,*) 'Reservoir :', 
+     &                 pathoutput(noutpaths).obj_name, 'Node: ', SubLoc
+                  call exit(-4)
+               endif
                pathoutput(noutpaths).res_node_no = ext2intnode(SubLoc)
                if (pathoutput(noutpaths).res_node_no .eq. miss_val_i) then
                   write(unit_error,*)'Output TS: ',trim(name),
@@ -101,7 +125,6 @@ c-----------find object number given object ID
                   write(unit_error, *)'Reservoir: ', pathoutput(noutpaths).obj_name,
      &                'Node: ',SubLoc
                   call exit(-3)
-
                end if               
             else
                pathoutput(noutpaths).res_node_no = miss_val_i
