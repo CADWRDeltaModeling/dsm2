@@ -64,7 +64,7 @@
           ,jmin2cdt*14 &        ! convert julian minute to character date/time &
           ,e_part*10 &          ! DSS interval &
           ,ctype*8 &            ! DSS types, e.g. 'PER-AVER' &
-          ,ctemp*80            ! scratch
+          ,ctemp*392            ! scratch
 
  610  format('Writing data for ',a/a)
 

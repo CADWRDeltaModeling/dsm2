@@ -14,7 +14,7 @@ subroutine process_text_gate_input()
 
     ! output_channel
     character*16 variable
-    character*80 inpath
+    character*392 inpath
     character*8  fillin
     character*32 ::device
       
@@ -53,7 +53,7 @@ subroutine process_text_oprule_ts_input()
     character*(128) filename
     integer :: icount
     character*(32) name
-    character*80 inpath
+    character*392 inpath
     character*8  fillin
 
     integer :: ierror = 0
