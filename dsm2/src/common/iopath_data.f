@@ -44,7 +44,7 @@ module iopath_data
 
 
     ! max number of unique dss input files
-    integer,parameter :: max_dssinfiles = 20
+    integer,parameter :: max_dssinfiles = 100
     character(len=130), dimension(max_dssinfiles)::infilenames= ' ' ! unique dss input file names
     integer:: ifltab_in(600,max_dssinfiles)           ! DSS table for each input file
 
