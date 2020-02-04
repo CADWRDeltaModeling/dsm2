@@ -33,7 +33,7 @@ c-----process a character line into data arrays for particle group output
       character*32  name
       character*16  interval
       character*128 filename
-      character*80 ctmp
+      character*392 ctmp
       integer itmp
       integer, external :: loccarr       
       integer, external :: name_to_objno
@@ -143,7 +143,7 @@ c-----process a character line into data arrays for particle group output
       character*32  name
       character*16  interval
       character*128 filename
-      character*80 ctmp
+      character*392 ctmp
       integer itmp
       integer, external :: loccarr       
       integer, external :: name_to_objno
@@ -264,7 +264,7 @@ c-----process a character line into data arrays for particle filter (on nodes co
      &     ,at_wb*32
      &     ,fillin*8
      &     ,filename*128
-     &     ,inpath*80
+     &     ,inpath*392
       integer node
       
       character*32  objtmp
@@ -429,7 +429,7 @@ c-----process a character line into data arrays for particle filter (on source f
      &     ,at_wb*32
      &     ,fillin*8
      &     ,filename*128
-     &     ,inpath*80
+     &     ,inpath*392
       integer node
 
       character*32  objtmp

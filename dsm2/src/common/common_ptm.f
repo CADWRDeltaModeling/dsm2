@@ -114,7 +114,7 @@ module common_ptm
          real*8        op         ! efficiency of particle passing this filter (specified timestamp): 1-open; 0-block
          character*8   fillin     ! how to fill in between data (first, last, interp, data)
          character*128 filename   ! DSS filename
-         character*80  path       ! DSS pathname
+         character*392  path       ! DSS pathname
       end type
       type(part_filter_t) :: part_filter(max_filter)
 

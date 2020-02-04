@@ -33,7 +33,7 @@ C!</license>
 
 
       character
-     &     InPath*80
+     &     InPath*392
      &     ,FileName*128
      &     ,Name*32
      &     ,ca*32, cb*32, cc*32, cd*32, ce*32, cf*32

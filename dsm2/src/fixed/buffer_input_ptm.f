@@ -48,7 +48,7 @@ C!</license>
       character*32 resname
       character*32 at_wb
       character*8 fillin
-      character*80 inpath
+      character*392 inpath
       
       integer*4, external :: obj_type_code
       

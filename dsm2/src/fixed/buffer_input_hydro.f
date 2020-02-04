@@ -57,7 +57,7 @@ C!</license>
       
       ! output_reservoir
       character*32 reservoir
-      character*80 inpath
+      character*392 inpath
       character*8  fillin
       character*8  node_str
       integer      sign

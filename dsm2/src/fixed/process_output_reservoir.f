@@ -174,7 +174,7 @@ c-----------accumulate unique dss output filenames
      &           pathoutput(noutpaths).per_type=per_type_per_max
 
             if (print_level .ge. 3)
-     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths,
+     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a392)') noutpaths,
      &           trim(Name),trim(LocName),trim(Param),trim(Interval),
      &           trim(FileName)
      

@@ -61,8 +61,8 @@ c-----local variables
 
       
       character
-     &     cstring*80           ! string field
-     &     ,ctmp*80             ! temporary char variable
+     &     cstring*392           ! string field
+     &     ,ctmp*392             ! temporary char variable
 
       character
      &     input_line*250       ! raw input line
@@ -300,7 +300,7 @@ c-----local variables
      &     ,cstring2            ! string for type
      &     ,cstring3            ! string for io
      &     ,cstring4            ! string for interval
-      character*80
+      character*392
      &     cstring5             ! string for filename
 
       character
@@ -700,7 +700,7 @@ c-----local variables
 
       character
      &     cstring*40           ! string field
-     &     ,ctmp*80             ! temporary char variable
+     &     ,ctmp*392             ! temporary char variable
      &     ,objtmp*32
 
       character
@@ -885,7 +885,7 @@ c-----local variables
  
       character
      &     cstring*32           ! string field
-     &     ,ctmp*80             ! temporary char variable
+     &     ,ctmp*392            ! temporary char variable
  
       character
      &     input_line*250       ! raw input line
@@ -1015,7 +1015,7 @@ c-----local variables
      &     i                    ! index
 
       character
-     &     cstring*80           ! string field
+     &     cstring*392           ! string field
 
  
  610  format(/a)
@@ -1125,7 +1125,7 @@ c-----local variables
 	integer, external :: name_to_objno,obj_type_code
 
       character
-     &     cstring*80           ! string field
+     &     cstring*392          ! string field
      &    ,groupname*32         ! name of group
      &    ,pattern*100          !pattern for matching the identifier of objects
 
@@ -1226,7 +1226,7 @@ c-----channel coefficients
      &     value
 
       character
-     &     cstring*80           ! string field
+     &     cstring*392          ! string field
 
       character
      &     input_line*250       ! raw input line

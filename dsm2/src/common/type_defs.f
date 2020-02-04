@@ -148,7 +148,7 @@ module type_defs
         character*32 :: variable = ' '    ! DSS C part
         character*16 :: interval = ' '  ! e.g. MIN, DAY !eli was 15, changed for alignment
         character*32 :: obj_name  = ' ' !todo needed?
-        character*80 path               ! DSS pathname
+        character*392 path               ! DSS pathname
          
         real*8 :: constant_value  = miss_val_r  ! constant value (instead of reading from DSS filename)
         real*8 :: value = miss_val_r            ! value for this timestep
@@ -210,7 +210,7 @@ module type_defs
         character*130 :: filename = ' '     ! output filename
         character*6 :: dummy                ! for alignment
         character*32 :: name = ' '     !station name (b part) for path (optional)
-        character*80 :: path = ' '      ! DSS pathname
+        character*392 :: path = ' '      ! DSS pathname
         character*32 :: obj_name = ' '
         character*32 :: a_part = ' '    ! DSS A part
         character*32 :: b_part = ' '    ! DSS B part

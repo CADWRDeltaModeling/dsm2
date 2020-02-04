@@ -34,7 +34,7 @@ C!</license>
 
 
       character
-     &     InPath*80
+     &     InPath*392
      &     ,FileName*128
      &     ,Param*16
      &     ,LocName*32

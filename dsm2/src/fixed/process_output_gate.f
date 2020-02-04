@@ -186,7 +186,7 @@ c-----------if (SourceLocLen .gt. 0)
 c-----------&           pathoutput(noutpaths).source.loc_name = SourceLoc
 
             if (print_level .ge. 3)
-     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a80)') noutpaths, 
+     &           write(unit_screen, '(i10,a,1x,a,a30,1x,a8,1x,a392)') noutpaths, 
      &           trim(Name),trim(LocName),trim(Param),trim(Interval),
      &           trim(FileName)
 
