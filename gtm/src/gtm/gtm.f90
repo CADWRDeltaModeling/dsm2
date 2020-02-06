@@ -246,7 +246,7 @@ program gtm
     !> for sediment bed module ----- added:dhh setup sediment bed cells, read inputs, initial conditions etc.
     if (use_sediment_bed) then 
         if (run_mercury) then 
-            call allocate_mercury(n_sediment,n_cell)
+            call allocate_mercury(n_sediment,n_cell, n_resv)
         end if
         call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
                           int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
