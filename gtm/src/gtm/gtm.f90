@@ -66,7 +66,7 @@ program gtm
     use sediment_bed
     use sediment_bed_setup , only: set_up_sediment_bed, close_sediment_bed !<added:dhh
     use sed_bed_hdf, only: write_gtm_sed_hdf   !<added:dhh
-    use hg_hdf,      only: write_gtm_hg_hdf
+    use hg_hdf,      only: write_gtm_hg_hdf, print_last_stage_hg
     use sed_bed_utils !<added:dhh     
     use mercury_state_variables
     use mercury_fluxes
