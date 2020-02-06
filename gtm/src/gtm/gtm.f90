@@ -689,6 +689,9 @@ program gtm
     call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var)
     if (use_sediment_bed) then 
         call print_last_stage_sed(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !added:dhh
+        if (run_mercury) then 
+            call print_last_stage_Hg(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !added:dhh
+        endif		
     endif
     !----- deallocate memories and close file units -----
     if (n_dssfiles .ne. 0) then
