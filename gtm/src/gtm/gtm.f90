@@ -438,7 +438,7 @@ program gtm
                                         n_cell,                            &
                                         n_ts_var)
                 if (initialize_bed_mercury) then        !added dhh 20171114
-                    call hg_init_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
+                    call hg_init_sediment_bed(n_cell, n_chan, n_resv, init_input_file, int(gtm_start_jmin),  &
                           int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)
                     initialize_bed_mercury = .false.
                 endif
