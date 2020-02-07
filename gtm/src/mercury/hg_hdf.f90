@@ -29,6 +29,7 @@ module hg_hdf
         !args
         integer, intent(in) :: n_cells
         integer, intent(in) :: n_chans
+		integer, intent(in) :: n_res
         integer, intent(in) :: sim_start              
         integer, intent(in) :: sim_end
         character*16 :: hdf_interval_char
