@@ -172,7 +172,7 @@ module sed_bed_hdf
 	        chan_chunk_dims(3) = nchan
 	        chan_chunk_dims(4) = nconc
 	        chan_chunk_dims(5) = min(TIME_CHUNK,ntime)
-        case (3:)
+        case (3:4)
             allocate(chan_file_dims(4))
             allocate(chan_chunk_dims(4))
             chan_file_dims = 0
@@ -187,6 +187,20 @@ module sed_bed_hdf
 	        chan_chunk_dims(2) = nchan
 	        chan_chunk_dims(3) = nconc
 	        chan_chunk_dims(4) = min(TIME_CHUNK,ntime)
+        case (5)
+            allocate(chan_file_dims(4))
+            allocate(chan_chunk_dims(4))
+            chan_file_dims = 0
+            chan_chunk_dims = 0
+            chan_rank = 3
+           
+            chan_file_dims(1) = nchan
+	        chan_file_dims(2) = nconc
+	        chan_file_dims(3) = ntime
+      
+	        chan_chunk_dims(1) = nchan
+	        chan_chunk_dims(2) = nconc
+	        chan_chunk_dims(3) = min(TIME_CHUNK,ntime)
         end select
 	    cparms = 0
         
@@ -239,6 +253,14 @@ module sed_bed_hdf
                              hdf_file%wat_hg_flux_id,        &    
                              error,                         &     
                              cparms)  
+        case (5)        !dhh***
+            call h5dcreate_f(hdf_file%data_id,          &  
+                             trim(name),                    &    
+                             H5T_NATIVE_REAL,               &	   
+                             fspace_id,                     &
+                             hdf_file%res_hg_id,        &    
+                             error,                         &     
+                             cparms)
         end select
         deallocate(chan_file_dims)
         deallocate(chan_chunk_dims)
@@ -324,7 +346,7 @@ module sed_bed_hdf
                 allocate(character(strlen) :: arr(nstr))
                 arr(1) = "hgii settle (ug/m2/yr)"
                 arr(2) = "hgii resusp (ug/m2/yr)"
-                arr(3) = "hgii burial (ug/m2/yr)"
+                arr(3) = "hgii burial (l1->l2 )(ug/m2/yr)"
                 arr(4) = "hgii diffusion - out (ug/m2/yr)"
                 arr(5) = "mehg settle (ug/m2/yr)"
                 arr(6) = "mehg resusp (ug/m2/yr)"
