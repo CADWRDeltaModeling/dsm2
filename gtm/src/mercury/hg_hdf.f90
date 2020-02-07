@@ -304,6 +304,7 @@ module hg_hdf
                             
 	        call verify_error(error,"Sediment bed hg concs - hdf write")
             call h5sclose_f(fspace_id, error)
+			call h5sclose_f(memspace_id, error) 
           
             chan_flux = 0           
             do ichan = 1, nchan                         !bed hg fluxes
