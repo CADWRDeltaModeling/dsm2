@@ -129,9 +129,9 @@ module gtm_source
             do ivar = 1, nvar
                 if (trim(name(ivar)).eq."sediment") then
                     isediment = ivar - (nvar - n_sediment)          
-                    source(:,ivar) = (erosion(:,isediment)-deposition(:,isediment))/(depth(:)*0.3048d0)*si_to_english
-                    erosion(:,isediment) = erosion(:,isediment)*si_to_english !/(depth(:)*0.3048d0)
-                    deposition(:,isediment) = deposition(:,isediment)*si_to_english !/(depth(:)*0.3048d0)
+                    source(:,ivar) = (erosion(:,isediment)-deposition(:,isediment))/(depth(:)*0.3048d0)*si_to_english	!(mg/L/s)
+                    erosion(:,isediment) = erosion(:,isediment)*si_to_english !/(depth(:)*0.3048d0)	!to g/m2/s
+                    deposition(:,isediment) = deposition(:,isediment)*si_to_english !/(depth(:)*0.3048d0)	!to g/m2/s
                 end if
             end do
         end if 
