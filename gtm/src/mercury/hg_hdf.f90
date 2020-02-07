@@ -237,38 +237,38 @@ module hg_hdf
                     sed_mass(:) = sedsolids(imid,izone,:,1,3) + sedsolids(imid,izone,:,2,3) + sedsolids(imid,izone,:,3,3) 
                     volume_pw(:) = bed(imid,izone,:).wp_wet*bed(imid,izone,:).thickness*bed(imid,izone,:).porosity
                     hgii_mass(:) = sed_hgii(imid,izone,:,3) + sed_s1_hgii(imid,izone,:,3) + sed_s2_hgii(imid,izone,:,3) + sed_s3_hgii(imid,izone,:,3) &
-                                   - hg_conc_sed(imid,izone,:,3)%hgii_diss*volume_pw(:)
-                    mehg_mass(:) = sed_mehg(imid,izone,:,3) - hg_conc_sed(imid,izone,:,3)%mehg_diss*volume_pw(:)
+                                   - hg_conc_sed(imid,izone,:,2)%hgii_diss*volume_pw(:)     !filtered not updated after integration
+                    mehg_mass(:) = sed_mehg(imid,izone,:,3) - hg_conc_sed(imid,izone,:,2)%mehg_diss*volume_pw(:)
                     
                     
                     chan_conc(:,izone,ichan,1) = hgii_mass(:)/sed_mass(:)
-                    chan_conc(:,izone,ichan,2) = hg_conc_sed(imid,izone,:,3)%hgii_diss
+                    chan_conc(:,izone,ichan,2) = hg_conc_sed(imid,izone,:,2)%hgii_diss
                     
-                    if ((hg_conc_sed(imid,izone,1,3)%hgii_diss>zero).and.(chan_conc(1,izone,ichan,1).gt.zero)) then
-                        chan_conc(1,izone,ichan,3) = log10((chan_conc(1,izone,ichan,1)/hg_conc_sed(imid,izone,1,3)%hgii_diss)*1.0d6)
+                    if ((hg_conc_sed(imid,izone,1,2)%hgii_diss>zero).and.(chan_conc(1,izone,ichan,1).gt.zero)) then
+                        chan_conc(1,izone,ichan,3) = log10((chan_conc(1,izone,ichan,1)/hg_conc_sed(imid,izone,1,2)%hgii_diss)*1.0d6)
                     else
                         chan_conc(1,izone,ichan,3) = zero
                     endif
                     
-                    if ((hg_conc_sed(imid,izone,2,3)%hgii_diss>zero).and.(chan_conc(2,izone,ichan,1).gt.zero)) then
-                        chan_conc(2,izone,ichan,3) = log10((chan_conc(2,izone,ichan,1)/hg_conc_sed(imid,izone,2,3)%hgii_diss)*1.0d6)
+                    if ((hg_conc_sed(imid,izone,2,2)%hgii_diss>zero).and.(chan_conc(2,izone,ichan,1).gt.zero)) then
+                        chan_conc(2,izone,ichan,3) = log10((chan_conc(2,izone,ichan,1)/hg_conc_sed(imid,izone,2,2)%hgii_diss)*1.0d6)
                     else
                         chan_conc(2,izone,ichan,3) = zero
                     endif
                     
                     chan_conc(:,izone,ichan,4) = mehg_mass(:)/sed_mass(:)
                     
-                    chan_conc(:,izone,ichan,5) = hg_conc_sed(imid,izone,:,3)%mehg_diss
+                    chan_conc(:,izone,ichan,5) = hg_conc_sed(imid,izone,:,2)%mehg_diss
                                             
                     
                     
-                    if ((hg_conc_sed(imid,izone,1,3)%mehg_diss>zero).and.(chan_conc(1,izone,ichan,5).gt.zero)) then
-                        chan_conc(1,izone,ichan,6) = log10((chan_conc(1,izone,ichan,4)/hg_conc_sed(imid,izone,1,3)%mehg_diss)*1.0d6)
+                    if ((hg_conc_sed(imid,izone,1,2)%mehg_diss>zero).and.(chan_conc(1,izone,ichan,5).gt.zero)) then
+                        chan_conc(1,izone,ichan,6) = log10((chan_conc(1,izone,ichan,4)/hg_conc_sed(imid,izone,1,2)%mehg_diss)*1.0d6)
                     else
                         chan_conc(1,izone,ichan,6) = zero
                     endif
-                    if ((hg_conc_sed(imid,izone,2,3)%mehg_diss>zero).and.(chan_conc(2,izone,ichan,5).gt.zero)) then
-                        chan_conc(2,izone,ichan,6) = log10((chan_conc(2,izone,ichan,4)/hg_conc_sed(imid,izone,2,3)%mehg_diss)*1.0d6)
+                    if ((hg_conc_sed(imid,izone,2,2)%mehg_diss>zero).and.(chan_conc(2,izone,ichan,5).gt.zero)) then
+                        chan_conc(2,izone,ichan,6) = log10((chan_conc(2,izone,ichan,4)/hg_conc_sed(imid,izone,2,2)%mehg_diss)*1.0d6)
                     else
                         chan_conc(2,izone,ichan,6) = zero
                     endif
