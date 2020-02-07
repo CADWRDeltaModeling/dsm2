@@ -494,6 +494,54 @@ module hg_hdf
         return
     end subroutine write_gtm_chan_wat_hg_hdf
                                   
+	subroutine write_gtm_resv_wat_hg_hdf(hdf_file, &
+                                  n_res,        &
+                                  time_index)
+        implicit none
+        !args
+        type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
+        integer, intent(in) :: n_res                           !< number of reservoirs
+        integer, intent(in) :: time_index                      !< time index to write the data
+        !local
+        real (gtm_real)     :: tss_total(n_res)
+        integer             :: ii 
+        hg_conc_resv(:,3) = hg_conc_resv(:,1)  !rk step 1 ????
+        
+        tss_total(:) = conc_tss_resv(:,1)+conc_tss_resv(:,2)+conc_tss_resv(:,3)        
+        conc_resv_hdf(:,2) = hg_conc_resv(:,3)%hgii_diss
+        conc_resv_hdf(:,3) = zero              !solids
+        conc_resv_hdf(:,4) = zero              !hgii_kd        
+        conc_resv_hdf(:,6) = hg_conc_resv(:,3)%mehg_diss   
+        conc_resv_hdf(:,7) = zero
+        conc_resv_hdf(:,8) = zero             !mehg_kd
+        
+        !conc_resv_hdf(:,9) = hg_conc_resv(ii,3)%hg0  !0.3d0
+        
+        do ii = 1, n_res
+            if (tss_total(ii).gt.zero) then
+                conc_resv_hdf(ii,3) = (hg_conc_resv(ii,3)%hgii_ssX(1)*conc_tss_resv(ii,1)   + hg_conc_resv(ii,3)%hgii_ssX(2)*conc_tss_resv(ii,2)   + hg_conc_resv(ii,3)%hgii_ssX(3)*conc_tss_resv(ii,3) + &
+                                    hg_conc_resv(ii,3)%HgII_inert(1)*conc_tss_resv(ii,1) + hg_conc_resv(ii,3)%HgII_inert(2)*conc_tss_resv(ii,2) + hg_conc_resv(ii,3)%HgII_inert(3)*conc_tss_resv(ii,3)) &
+                                    /tss_total(ii)
+                conc_resv_hdf(ii,7) = (hg_conc_resv(ii,3)%mehg_ss(1)*conc_tss_resv(ii,1)   + hg_conc_resv(ii,3)%mehg_ss(2)*conc_tss_resv(ii,2)   + hg_conc_resv(ii,3)%mehg_ss(3)*conc_tss_resv(ii,3) ) &
+                                     /tss_total(ii)
+            endif
+            
+            if ((conc_resv_hdf(ii,2).gt.zero).and.(conc_resv_hdf(ii,3).gt.zero)) then   !kd Hgii
+                conc_resv_hdf(ii,4) = log10(conc_resv_hdf(ii,3)/(conc_resv_hdf(ii,2))*1.0d6)
+            end if
+            if ((conc_resv_hdf(ii,6).gt.zero).and.(conc_resv_hdf(ii,7).gt.zero)) then    !kd MeHg
+                 conc_resv_hdf(ii,8) = log10(conc_resv_hdf(ii,7)/(conc_resv_hdf(ii,6))*1.0d6)
+            end if
+        end do
+        
+        call  write_gtm_hdf_resv(hdf_file,       & 
+                                  conc_resv_hdf, &   !dhh***
+                                  n_res,         &
+                                  wat_hg_count,  &  
+                                  time_index)
+        return
+        
+    end subroutine write_gtm_resv_wat_hg_hdf
     subroutine close_gtm_hg_hdf()
         use hdf5
         use common_variables, only: unit_error,unit_screen, hdf_out
