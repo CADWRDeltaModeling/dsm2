@@ -20,7 +20,7 @@ module hg_hdf
     
     contains
     
-    subroutine init_sed_hg_hdf(n_cells, n_chans, sim_start, sim_end, hdf_interval_char, use_hdf)
+    subroutine init_sed_hg_hdf(n_cells, n_chans, n_res, sim_start, sim_end, hdf_interval_char, use_hdf)
         use hdf5
         use common_variables, only: unit_error,unit_screen
         use common_dsm2_vars, only: print_level
