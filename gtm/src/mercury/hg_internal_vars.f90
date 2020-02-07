@@ -65,7 +65,7 @@ type (hg_flux_def), allocatable, dimension(:)     :: f_wat_hg !todo:
 
 type (eq_vals), allocatable, dimension (:,:,:)      :: eq_vals_sed    !(ncells, nzones, nlayers)
 type (eq_vals), allocatable, dimension (:)          :: eq_vals_wat    !(ncells)
-
+type (eq_vals), allocatable, dimension (:)          :: eq_vals_resv    !(ncells)
         ! dimensions (ncells, nzones, nlayers)
 real (gtm_real), allocatable, dimension (:,:,:)     :: ic_hgII_sed    !sediment exchangeable HgII (ug/g)
 real (gtm_real), allocatable, dimension (:,:,:)     :: ic_mehg_sed    !sediment MeHgII (ug/g)
