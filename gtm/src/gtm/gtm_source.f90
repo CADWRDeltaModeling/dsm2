@@ -72,6 +72,8 @@ module gtm_source
         real(gtm_real) :: deposition(ncell,n_sediment)
         real(gtm_real) :: conc_mercury(ncell,n_mercury)
         real(gtm_real) :: conc_sed(ncell,n_sediment)
+        real(gtm_real) :: conc_mercury_resv(n_resv,n_mercury)
+        real(gtm_real) :: conc_sed_resv(n_resv,n_mercury)
         !real(gtm_real) :: conc_doc(ncell)
         !real(gtm_real) :: conc_ec(ncell)
         real(gtm_real) :: source_mercury(ncell,n_mercury)
