@@ -139,6 +139,7 @@ module gtm_source
         if (run_mercury) then
                 conc_mercury(:,1:n_mercury) = conc(:,mercury_ivar(1:n_mercury))
                 source_mercury(:,1:n_mercury) = source(:,mercury_ivar(1:n_mercury))
+				conc_mercury_resv(:,1:n_mercury) = conc_resv(:,mercury_ivar(1:n_mercury))
                 call mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
                                     conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
                                     conc_sed,       &
