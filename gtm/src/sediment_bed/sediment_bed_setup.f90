@@ -41,6 +41,12 @@ module sediment_bed_setup
     integer, parameter :: sb_mole_rs = 17
     integer, parameter :: sb_k_xohg = 18
     integer, parameter :: sb_k_xomehg = 19
+    
+    integer, parameter :: sb_methyl             = 20
+    integer, parameter :: sb_biodemethyl        = 21
+    integer, parameter :: sb_methyl_int         = 22
+    integer, parameter :: sb_biodemethyl_int    = 23
+    
     contains
     
     subroutine set_up_sediment_bed(n_cells, n_chans, init_input_file, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
@@ -58,7 +64,7 @@ module sediment_bed_setup
         allocate (length(n_cells))
         call init_bed_geom_hdf()
         call init_sed_hdf(n_cells, n_chans, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
-        call setup_sed_internals(n_cells, n_zones, 2,3)
+        call setup_sed_internals(n_cells, n_zones, 2, n_resv, 3)
        
         call sed_get_group_variables()
         !call set_up_interface_parms(n_cells, n_zones)
@@ -86,9 +92,8 @@ module sediment_bed_setup
         integer :: ii
        
         io_file_inp = init_input_file
-        ii = index(io_file_inp,".", .true.)
-        !file_name_inp_bed
-        io_file_inp(ii:ii+8) = "_sed.inp"
+        !ii = index(io_file_inp,".", .true.)
+        !io_file_inp(ii:ii+8) = "_sed.inp"
         file_name_inp_bed = io_file_inp
         inquire(file=io_file_inp, exist=file_exists)
         if (file_exists==.false.) then 
@@ -305,7 +310,7 @@ module sediment_bed_setup
             
         endif
         ierror = 0
-        call set_active_profile("all",ierror)
+        call set_active_profile(dsm2_name,ierror)
         call read_buffer_from_text(init_input_file,ierror)
         nitems = group_variable_sed_buffer_size()
         
@@ -471,6 +476,16 @@ module sediment_bed_setup
             sb_variable_id =  sb_k_xohg
         else if (variable == "k_xomehg_sed") then 
             sb_variable_id =  sb_k_xomehg
+            
+        else if (variable == "r_methyl") then
+            sb_variable_id = sb_methyl
+        else if (variable == "r_biodemethyl") then
+            sb_variable_id = sb_biodemethyl
+        else if (variable == "r_methyl_int") then
+            sb_variable_id = sb_methyl_int
+        else if (variable == "r_biodemeth_int") then 
+            sb_variable_id = sb_biodemethyl_int
+        
         end if
         return
     end subroutine
@@ -522,7 +537,15 @@ module sediment_bed_setup
             case (sb_k_xohg)
                 k_eq_solids_sed(cell_no,:,:)%xohg = 10**value
             case (sb_k_xomehg)
-                k_eq_solids_sed(cell_no,:,:)%xomehg = 10**value
+                k_eq_solids_sed(cell_no,:,:)%xomehg = 10**value           
+            case (sb_methyl)
+                k_sed(cell_no,:,:)%methyl = value
+            case (sb_biodemethyl)
+                k_sed(cell_no,:,:)%biodemethyl = value
+            case (sb_methyl_int)
+                k_sed(cell_no,:,:)%methyl_int = value
+            case (sb_biodemethyl_int)
+                k_sed(cell_no,:,:)%biodemethyl_int = value
             case default
                ! write(*,*) "variable_id not found",  sb_variable_id
             end select
@@ -567,6 +590,14 @@ module sediment_bed_setup
                 k_eq_solids_sed(cell_no,:,sed_layer)%xohg = 10**value
             case (sb_k_xomehg)
                 k_eq_solids_sed(cell_no,:,sed_layer)%xomehg = 10**value
+            case (sb_methyl)
+                k_sed(cell_no,:,sed_layer)%methyl = value
+            case (sb_biodemethyl)
+                k_sed(cell_no,:,sed_layer)%biodemethyl = value
+            case (sb_methyl_int)
+                k_sed(cell_no,:,sed_layer)%methyl_int = value
+            case (sb_biodemethyl_int)
+                k_sed(cell_no,:,sed_layer)%biodemethyl_int = value
             end select
         elseif (sed_layer == 0) then
             select case  (sb_variable_id)
@@ -608,6 +639,14 @@ module sediment_bed_setup
                 k_eq_solids_sed(cell_no,sed_zone,:)%xohg = 10**value
             case (sb_k_xomehg)
                 k_eq_solids_sed(cell_no,sed_zone,:)%xomehg = 10**value
+            case (sb_methyl)
+                k_sed(cell_no,sed_zone,:)%methyl = value
+            case (sb_biodemethyl)
+                k_sed(cell_no,sed_zone,:)%biodemethyl = value
+            case (sb_methyl_int)
+                k_sed(cell_no,sed_zone,:)%methyl_int = value
+            case (sb_biodemethyl_int)
+                k_sed(cell_no,sed_zone,:)%biodemethyl_int = value
             end select
         else
             select case  (sb_variable_id)
@@ -648,6 +687,14 @@ module sediment_bed_setup
                 k_eq_solids_sed(cell_no,sed_zone,sed_layer)%xohg = 10**value
             case (sb_k_xomehg)
                 k_eq_solids_sed(cell_no,sed_zone,sed_layer)%xomehg = 10**value
+            case (sb_methyl)
+                k_sed(cell_no,sed_zone,sed_layer)%methyl = value
+            case (sb_biodemethyl)
+                k_sed(cell_no,sed_zone,sed_layer)%biodemethyl = value
+            case (sb_methyl_int)
+                k_sed(cell_no,sed_zone,sed_layer)%methyl_int = value
+            case (sb_biodemethyl_int)
+                k_sed(cell_no,sed_zone,sed_layer)%biodemethyl_int = value
             end select
         end if
         return
