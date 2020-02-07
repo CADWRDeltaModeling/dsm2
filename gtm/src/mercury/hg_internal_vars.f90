@@ -25,7 +25,8 @@ type (hg_rate_parms_t), allocatable, dimension(:) :: k_wat                      
 !hg concentrations
 type (hg_concs), allocatable, dimension(:,:,:,:) :: hg_conc_sed                !dimensions include rk step
 type (hg_concs), allocatable, dimension(:,:)     :: hg_conc_wat
-
+type (hg_concs), allocatable, dimension(:,:)     :: hg_conc_resv
+real(gtm_real), allocatable, dimension(:,:)      :: conc_resv_hdf
 !sediment mercury fluxes
 
         ! dimensions (ncells,nzones,nlayers, RK/huens step)
