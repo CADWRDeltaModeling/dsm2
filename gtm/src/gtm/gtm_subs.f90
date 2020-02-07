@@ -575,7 +575,8 @@ module gtm_subs
                                     end do
                                 end if
                             end do
-                        elseif (group(i)%member_pattern_code(j) .eq. obj_reservoir) then
+                        elseif (group(input_ts(j)%group_id)%member_pattern_code(k) .eq. obj_reservoir) then !dhh***
+                            read(group(input_ts(j)%group_id)%member_name(k),'(i)',iostat=io) temp   !dhh***
                     
                         else
                             write(*,*) "this is neither channel nor reservoir"
