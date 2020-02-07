@@ -110,6 +110,7 @@ module hg_hdf
         call add_timeseries_attributes(gtm_sed_Hg_hdf%bed_out_flux_id,  gtm_sed_Hg_hdf%start_julmin,gtm_sed_Hg_hdf%write_interval)
         call add_timeseries_attributes(gtm_sed_Hg_hdf%wat_hg_id,  gtm_sed_Hg_hdf%start_julmin,gtm_sed_Hg_hdf%write_interval)
         call add_timeseries_attributes(gtm_sed_Hg_hdf%wat_hg_flux_id,  gtm_sed_Hg_hdf%start_julmin,gtm_sed_Hg_hdf%write_interval)
+		call add_timeseries_attributes(gtm_sed_Hg_hdf%res_hg_id,  gtm_sed_Hg_hdf%start_julmin,gtm_sed_Hg_hdf%write_interval)  !dhh*** 
         call write_channel_labels(gtm_sed_Hg_hdf.data_id, n_chans)
         
         gtm_wat_hg_hdf%file_name       = gtm_sed_hdf%file_name
