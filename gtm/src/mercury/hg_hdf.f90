@@ -570,6 +570,10 @@ module hg_hdf
             if (error .ne. 0) then
 	            write(unit_error,*)"HDF5 error closing chan conc data set: ",error
 	        end if 
+			call h5dclose_f(gtm_sed_Hg_hdf%res_hg_id,error)  !dhh***
+            if (error .ne. 0) then
+	            write(unit_error,*)"HDF5 error closing chan conc data set: ",error
+            end if  
 	    end if    
 
        ! if (hdf_file%resv_dim.gt.0) then
