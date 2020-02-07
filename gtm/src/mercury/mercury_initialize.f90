@@ -22,13 +22,14 @@ implicit none
     
     end subroutine
     
-    subroutine hg_init_sediment_bed(n_cells, n_chans, init_input_file, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
+    subroutine hg_init_sediment_bed(n_cells, n_chans, n_res, init_input_file, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
         use common_dsm2_vars, only: gtm, io_write, io_restart, io_hdf5, io_read, io_files,pathinput_t, n_dssfiles,ifltab_in,indssfiles,infilenames
         use error_handling
          
         !args
         integer, intent(in) :: n_cells
         integer, intent(in) :: n_chans
+        integer, intent(in) :: n_res
         character* (*) ,  intent(in)::  init_input_file
         integer, intent(in) :: sim_start
         integer, intent(in) :: sim_end
@@ -54,7 +55,7 @@ implicit none
         ii = index(file_name_hdf_sedHg,".", .true.)
         file_name_hdf_sedHg(ii:ii+9) = "_hg.h5"        
         
-        call init_sed_hg_hdf(n_cells, n_chans, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
+        call init_sed_hg_hdf(n_cells, n_chans, n_res, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
         
         hyd_radius = area/wet_p
         call get_sed_wet_p(n_cells, n_zones, area, width, wet_p)
