@@ -599,4 +599,74 @@ module hg_hdf
     
     end subroutine close_gtm_hg_hdf
                                   
+	subroutine print_last_stage_hg(cdtdate,        &
+                                intdate,        &
+                                out_conc_resv,  &
+                                ncell,          &
+                                nresv,          &
+                                nvar)                                
+        use common_variables, only : constituents, resv_geom    
+        use gtm_precision
+        use sed_type_defs
+        implicit none
+        character(len=14), intent(in) :: cdtdate
+        integer, intent(in) :: intdate
+        integer, intent(in) :: ncell
+        integer, intent(in) :: nresv
+        integer, intent(in) :: nvar
+        real(gtm_real) :: out_conc_resv(nresv,nvar)
+        real(gtm_real)  :: sed_mass(2)                           !nlayers
+        real(gtm_real)  :: hgii(2)
+        real(gtm_real)  :: hgii_s1(2)
+        real(gtm_real)  :: hgii_s2(2)
+        real(gtm_real)  :: hgii_s3(2)
+        real(gtm_real)  :: mehg(2)
+        real(gtm_real)  :: hg0(2)
+        real(gtm_real)  ::volume_pw(2)
+        integer :: ncol
+        integer :: a(nvar)
+        character*16 :: c(nvar)
+        integer :: i, j , k        
+        ncol = 12    !<nosolids
+               
+        open(801,file="init_sed_hg.txt")
+        write(801,*) cdtdate, "/time"
+        write(801,*) intdate, "/julmin"
+        write(801,*) ncol, "/n_column"
+        write(801,*) ncell, "/n_cell"
+        write(801,*) n_zones, "/n_zone"
+        write(801,'(a7,a,a7,a, <ncol>(a18,a))') "cell_no",achar(9),"zone",achar(9),"hg0_L1",achar(9),"hgII_L1",achar(9),"hg_s1_L1",achar(9),"hg_s2_L1",achar(9),"hg_s3_L1",achar(9),"meHg_L1",achar(9), &
+                                                                                   "hg0_L2",achar(9),"hgII_L2",achar(9),"hg_s1_L2",achar(9),"hg_s2_L2",achar(9),"hg_s3_L2",achar(9),"meHg_L2"
+        do i = 1, ncell
+            do j = 1, n_zones            
+                sed_mass(:) = sedsolids(i,j,:,1,3) + sedsolids(i,j,:,2,3) + sedsolids(i,j,:,3,3) 
+                
+                
+                hgii(:) = sed_hgii(i,j,:,3)/sed_mass(:)     !assume pw conc is zero     
+                hgii_s1(:) = sed_s1_hgii(i,j,:,3)/sedsolids(i,j,:,1,3)
+                hgii_s2(:) = sed_s2_hgii(i,j,:,3)/sedsolids(i,j,:,2,3)
+                hgii_s3(:) = sed_s3_hgii(i,j,:,3)/sedsolids(i,j,:,3,3)
+                mehg(:) = sed_mehg(i,j,:,3)/sed_mass(:)
+                if  (bed(i,j,1).wp_wet > 0) then
+                    volume_pw(:) = bed(i,j,:).wp_wet*bed(i,j,:).thickness*bed(i,j,:).porosity
+                    hg0(:) = sed_hg0(i,j,:,3)/volume_pw(:) 
+                else
+                    hg0(:) = zero
+                endif
+                
+                write(801,'(i5,a,i5,a,<ncol>(f18.15, a))') i, achar(9), j, achar(9), hg0(1), achar(9), hgii(1), achar(9), hgii_s1(1), achar(9), hgii_s2(1), achar(9), hgii_s3(1),achar(9), mehg(1), achar(9), &
+                                                                                     hg0(2), achar(9), hgii(2), achar(9), hgii_s1(2), achar(9), hgii_s2(2), achar(9), hgii_s3(2),achar(9), mehg(2)    
+                                                            
+            end do
+        end do
+        close(801)
+        return
+        write(801,*) nresv, "/n_resv"   !todo: add reservoirs
+        write(801,'(a32,<ncol>a32)') "reservoir_name", (c(j),j=1,ncol)
+        do i = 1, nresv
+            write(801,'(a32,<ncol>f32.16)') resv_geom(i)%name, (out_conc_resv(i,a(j)),j=1,ncol) 
+        end do
+        close(801)
+        return
+end subroutine    
 end module
