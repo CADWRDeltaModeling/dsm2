@@ -426,7 +426,7 @@ module hg_hdf
             else
                 conc_wat_hdf(ii,8) = zero
             end if
-            conc_wat_hdf(ii,9) = 0.3d0
+            conc_wat_hdf(ii,9) = hg_conc_wat(ii,3)%hg0  !0.3d0
         end do
         gtm_wat_hg_hdf%chan_conc_id = gtm_sed_hg_hdf%wat_hg_id !(redundant)
         
