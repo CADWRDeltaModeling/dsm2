@@ -86,6 +86,7 @@ module gtm_source
             if (trim(name(ivar)).eq."sediment") then
                 isediment = ivar - (nvar - n_sediment)
                 conc_sed(:,isediment) = conc(:,ivar)
+				conc_sed_resv(:,isediment) = conc_resv(:,ivar)
                 call suspended_sediment_source(source(:,ivar),          & 
                                                erosion(:,isediment),    &
                                                deposition(:,isediment), &
