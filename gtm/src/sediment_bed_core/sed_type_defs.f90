@@ -74,6 +74,7 @@ type gtm_sed_hdf_t
         integer(HID_T) :: bed_out_flux_id
         integer(HID_T) :: wat_hg_id
         integer(HID_T) :: wat_hg_flux_id
+		integer(HID_T) :: res_hg_id            !dhh***
        ! integer(HSIZE_T) :: conc_dim
        ! integer(HSIZE_T) :: cell_dim
        ! integer(HSIZE_T) :: chan_dim
