@@ -192,6 +192,7 @@ module hg_hdf
         type(bed_properties_t), intent(in) :: bed(ncell, nzone, 2) !< cell data from transport module
         integer, intent(in) :: time_index                          !< time index to write the data
         real(gtm_real) :: chan_conc(2,nzone, nchan, nconc)         !< channel data from transport module
+		integer :: nflux = 10
         real(gtm_real) :: chan_flux(2,nzone, nchan, 10)         !< channel data from transport module
         integer :: chan_rank
         integer(HID_T) :: fspace_id
