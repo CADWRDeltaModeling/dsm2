@@ -76,9 +76,10 @@ real (gtm_real), allocatable, dimension (:,:)       :: gtm_fluxes_hg
 
     contains
 
-subroutine setup_hg_internals(ncells,nzones,nlayers,nsolids,nmf)
+subroutine setup_hg_internals(ncells,nresv, nzones,nlayers,nsolids,nmf)
 !args
     integer, intent (in)            :: ncells
+	integer, intent (in)            :: nresv
     integer, intent (in)            :: nzones
     integer, intent (in)            :: nlayers
     integer, intent (in)            :: nsolids
