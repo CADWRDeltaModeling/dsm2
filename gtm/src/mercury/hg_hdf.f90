@@ -167,6 +167,7 @@ module hg_hdf
             call write_gtm_chan_sed_hg_hdf( gtm_sed_hg_hdf, bed, nchan, ncell, n_zones, sed_bed_Hg_count, time_index)
             !call write_gtm_chan_sed_flux_hdf(gtm_sed_hg_hdf, settling, erosion_sb, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
             call write_gtm_chan_wat_hg_hdf(gtm_wat_hg_hdf,nchan, ncell, time_index)
+			call write_gtm_resv_wat_hg_hdf(gtm_wat_hg_hdf, nresv, time_index)
         end if
         
         return
