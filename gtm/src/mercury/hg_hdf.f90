@@ -136,7 +136,7 @@ module hg_hdf
         return
     end subroutine init_sed_hg_hdf
    
-    subroutine write_gtm_hg_hdf(conc, nconc, nchan, ncell, time_index, name)
+    subroutine write_gtm_hg_hdf(conc, nconc, nchan, ncell, conc_resv, nresv, time_index, name)
         !args
         real (gtm_real), intent(in) :: conc(ncell, nconc)
         integer, intent(in) :: nconc
