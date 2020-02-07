@@ -46,7 +46,7 @@ module gtm_source
         use sed_type_defs, only: n_zones !added by dhh
         use sediment_bed, only: sediment_bed_main !added by dhh
         use turbidity
-        use mercury_fluxes, only: mercury_source
+        use mercury_fluxes, only: mercury_source, mercury_source_resv
         use mercury_state_variables, only: ec_ivar, doc_ivar
         implicit none
         !--- args  
