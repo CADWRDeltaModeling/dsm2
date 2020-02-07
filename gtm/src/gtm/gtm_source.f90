@@ -41,7 +41,7 @@ module gtm_source
                                      rkstep)
         use gtm_precision
         use common_variables, only: n_sediment, use_sediment_bed, n_layers, &
-                                    run_mercury, n_mercury, mercury_ivar
+                                    run_mercury, n_mercury, mercury_ivar,n_resv
         use suspended_sediment
         use sed_type_defs, only: n_zones !added by dhh
         use sediment_bed, only: sediment_bed_main !added by dhh
