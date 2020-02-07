@@ -160,6 +160,9 @@ module hg_hdf
         conc_wat_hdf(:,1) = conc(:,mercury_ivar(1))+ conc(:,mercury_ivar(4)) + conc(:,mercury_ivar(5)) + conc(:,mercury_ivar(6))     !unfiltered hgii
         conc_wat_hdf(:,5) = conc(:,mercury_ivar(2))       !unfiltered mehg
         
+		conc_resv_hdf(:,1) = conc_resv(:,mercury_ivar(1))+ conc_resv(:,mercury_ivar(4)) + conc_resv(:,mercury_ivar(5)) + conc_resv(:,mercury_ivar(6))   !hgii
+        conc_resv_hdf(:,5) = conc_resv(:,mercury_ivar(2))     !mehg
+        conc_resv_hdf(:,9) = conc_resv(:,mercury_ivar(3))     !hg0
         if (hdf_out .eq. 'channel') then
             call write_gtm_chan_sed_hg_hdf( gtm_sed_hg_hdf, bed, nchan, ncell, n_zones, sed_bed_Hg_count, time_index)
             !call write_gtm_chan_sed_flux_hdf(gtm_sed_hg_hdf, settling, erosion_sb, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
