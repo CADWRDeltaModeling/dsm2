@@ -155,6 +155,7 @@ module hg_hdf
             if (trim(name(ivar)).eq."sediment") then
                 isediment = ivar - (nconc - n_sediment)
                 conc_tss(:,isediment) = conc(:,ivar)
+				conc_tss_resv(:, isediment) = conc_resv(:,ivar)
             endif    
         end do
         conc_wat_hdf(:,1) = conc(:,mercury_ivar(1))+ conc(:,mercury_ivar(4)) + conc(:,mercury_ivar(5)) + conc(:,mercury_ivar(6))     !unfiltered hgii
