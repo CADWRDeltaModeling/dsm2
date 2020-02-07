@@ -4,7 +4,7 @@ module hg_hdf
     use common_variables, only:hdf_out
     use state_variables
     use sed_internal_vars
-    use  gtm_hdf_ts_write, only: gtm_hdf_t, add_timeseries_attributes,  close_gtm_hdf, write_gtm_chan_hdf
+    use  gtm_hdf_ts_write, only: gtm_hdf_t, add_timeseries_attributes,  close_gtm_hdf, write_gtm_chan_hdf , write_gtm_hdf_resv
     use dsm2_time_utils, only: incr_intvl
     use error_handling
     use gtm_precision
