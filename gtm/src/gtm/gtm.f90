@@ -648,7 +648,9 @@ program gtm
                     budget_prev_conc = conc     
                     if (use_sediment_bed) then   !<added:dhh
                         call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
-                        if (run_mercury)  call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, time_index_in_gtm_hdf,constituents(:)%use_module)
+                        if (run_mercury) then
+							call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, conc_resv, n_resv, time_index_in_gtm_hdf,constituents(:)%use_module)
+						end if	
                     end if                           
                 else
                     call write_gtm_hdf(gtm_hdf,                    &
