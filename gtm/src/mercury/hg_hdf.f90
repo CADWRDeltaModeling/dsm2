@@ -452,6 +452,12 @@ module hg_hdf
                                 .false.)      
         conc_wat_flux_hdf = zero
         wet_area(:) = bed(:,1,1)%area_wet + bed(:,2,1)%area_wet + bed(:,3,1)%area_wet
+		conc_wat_flux_hdf(:,1) = (f_wat_hg(:)%photodemethyl /wet_area(:))* day_to_sec   !photpdegredaton
+        conc_wat_flux_hdf(:,2) = (f_wat_hg(:)%photoreduction /wet_area(:))* day_to_sec  !reduction
+        conc_wat_flux_hdf(:,3) = (f_wat_hg(:)%oxidation/wet_area(:))* day_to_sec    !oxidation
+        conc_wat_flux_hdf(:,4) = (f_wat_hg(:)%evasion_Hg0/wet_area(:))* day_to_sec    !evasion
+        conc_wat_flux_hdf(:,5) = (f_wat_hg(:)%wetdep_HgII/wet_area(:))* day_to_sec    !wet dep
+        conc_wat_flux_hdf(:,6) = (f_wat_hg(:)%drydep_HgII/wet_area(:))* day_to_sec   !dry dep
             do izone=1,3  
                 conc_wat_flux_hdf(:,7) = conc_wat_flux_hdf(:,7) + f_settling_hg(:,izone,mf_hgii,1)
                 conc_wat_flux_hdf(:,8) = conc_wat_flux_hdf(:,8) + f_erosion_hg(:,izone,mf_hgii,1)        !hgii erosion
