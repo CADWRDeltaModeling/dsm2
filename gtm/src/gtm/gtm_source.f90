@@ -157,6 +157,10 @@ module gtm_source
                                     erosion,        &
                                     rkstep)           ! added dhh 20170804
              source(:,mercury_ivar(1:n_mercury)) = source_mercury(:,1:n_mercury)
+                !temporary subroutine to calculate partitioning in reservoirs - not presumably this should end up in boundary_advection_network
+                if (rkstep==1) then
+                    call mercury_source_resv(conc_mercury_resv,conc_sed_resv, conc_resv(:,doc_ivar), conc_resv(:,ec_ivar), n_mercury, n_sediment, n_resv,rkstep)
+                endif
         end if
         
         
