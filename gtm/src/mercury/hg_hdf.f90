@@ -102,6 +102,7 @@ module hg_hdf
             call init_chan_gtm_sed_hdf5(gtm_sed_hg_hdf, n_chans, sed_bed_hg_flux_count, ntime, "bed_hgflux", 2)
             call init_chan_gtm_sed_hdf5(gtm_sed_hg_hdf, n_chans, wat_hg_count, ntime, "wat_hg", 3)
             call init_chan_gtm_sed_hdf5(gtm_sed_hg_hdf, n_chans, wat_hg_flux_count, ntime, "wat_hgflux",4)
+			call init_chan_gtm_sed_hdf5(gtm_sed_hg_hdf, n_res, wat_hg_count, ntime, "resv_hg",5)              !dhh*** same number of outputs as channels
 	    else
 	        !call init_cell_gtm_sed_hdf5(gtm_sed_hdf, n_cell, 8, ntime)
         endif     
