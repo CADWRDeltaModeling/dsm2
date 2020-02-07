@@ -11,6 +11,7 @@ module hg_hdf
     use sed_type_defs
     use sed_bed_hdf
     use hg_internal_vars
+	use equilibrium
     
     implicit none
     
