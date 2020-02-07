@@ -129,6 +129,7 @@ subroutine setup_hg_internals(ncells,nresv, nzones,nlayers,nsolids,nmf)
     allocate (mole_rs_sed(ncells,nzones,nlayers))
     allocate (eq_vals_sed(ncells,nzones,nlayers))
     allocate (eq_vals_wat(ncells))
+    allocate (eq_vals_resv(n_resv))
     allocate (k_wat(ncells))
     
 !sed concentration
@@ -149,6 +150,8 @@ subroutine setup_hg_internals(ncells,nresv, nzones,nlayers,nsolids,nmf)
        
     allocate (hg_conc_sed(ncells,nzones,nlayers,steps)) 
     allocate (hg_conc_wat(ncells,steps))
+    allocate (hg_conc_resv(nresv,steps))
+    allocate (conc_resv_hdf(nresv,9))
     
     allocate (f_wat_hg(ncells))
     
