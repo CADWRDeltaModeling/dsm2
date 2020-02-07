@@ -142,6 +142,8 @@ module hg_hdf
         integer, intent(in) :: nconc
         integer, intent(in) :: nchan
         integer, intent(in) :: ncell
+        real (gtm_real), intent(in) :: conc_resv(nresv, nconc)
+        integer, intent(in) :: nresv
         integer, intent(in) :: time_index 
         character(len=32), intent(in) :: name(nconc) 
         !local
