@@ -48,6 +48,7 @@ module gtm_source
         use turbidity
         use mercury_fluxes, only: mercury_source, mercury_source_resv
         use mercury_state_variables, only: ec_ivar, doc_ivar
+		use state_variables_network, only: conc_resv
         implicit none
         !--- args  
         integer, intent(in) :: ncell                            !< Number of cells
