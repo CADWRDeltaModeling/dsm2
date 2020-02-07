@@ -317,16 +317,22 @@ module hg_hdf
                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
                         chan_flux(1,izone,ichan,3) = f_burial_hg(imid,izone,mf_hgii,1) &
                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(2,izone,ichan,3) = -chan_flux(1,izone,ichan,3)
-                        chan_flux(1,izone,ichan,4) = f_sed_diffusion_hg(imid,izone, mf_hgii,1) &
+                        chan_flux(2,izone,ichan,3) = chan_flux(1,izone,ichan,3)
+                        chan_flux(1,izone,ichan,4) = f_diffusion_hg(imid,izone, mf_hgii,1) &
+                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
+                        chan_flux(2,izone,ichan,4) = f_sed_diffusion_hg(imid,izone,mf_hgii,1) &           !L2->L1
                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
                         chan_flux(1,izone,ichan,5) = f_settling_hg(imid,izone,mf_mehg,1)  &
                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
                         chan_flux(1,izone,ichan,6) = f_erosion_hg(imid,izone,mf_mehg,1) &
                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(2,izone,ichan,7) = -chan_flux(1,izone,ichan,7)
+                        chan_flux(1,izone,ichan,7) = f_burial_hg(imid,izone,mf_mehg,1) &
+                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
+                        chan_flux(2,izone,ichan,7) = chan_flux(1,izone,ichan,7)
                                                    
-                        chan_flux(1,izone,ichan,8) = f_sed_diffusion_hg(imid,izone,mf_mehg,1) &
+                        chan_flux(1,izone,ichan,8) = f_diffusion_hg(imid,izone,mf_mehg,1) &
+                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
+                        chan_flux(2,izone,ichan,8) = f_sed_diffusion_hg(imid,izone,mf_mehg,1) &           !L2->L1
                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
                         chan_flux(:,izone,ichan,9) = f_sed_methyl(imid,izone,:,1) &
                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
