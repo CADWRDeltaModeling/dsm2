@@ -345,6 +345,10 @@ module hg_hdf
 			mdata_dims(4) = nflux
             subset_dims(4) = nflux
             
+			call H5Screate_simple_f(chan_rank,           &
+                                    mdata_dims,          &
+                                    memspace_id,         &
+                                    error);  
             call h5dget_space_f(hdf_file%bed_out_flux_id,   &  
                                 fspace_id,               &
                                 error)
