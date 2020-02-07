@@ -181,6 +181,7 @@ subroutine deallocate_hg_internals()
     deallocate (mole_rs_sed)
     deallocate (eq_vals_sed)
     deallocate (eq_vals_wat)
+	deallocate (eq_vals_resv)
     deallocate (k_wat)
     
     deallocate (sed_MeHg)
@@ -199,7 +200,8 @@ subroutine deallocate_hg_internals()
         
     deallocate (hg_conc_sed) 
     deallocate (hg_conc_wat)
-    
+    deallocate (hg_conc_resv)  
+    deallocate (conc_resv_hdf)  
     deallocate (f_wat_hg)
 end subroutine deallocate_hg_internals
 end module
