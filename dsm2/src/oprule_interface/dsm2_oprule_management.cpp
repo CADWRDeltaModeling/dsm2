@@ -25,13 +25,21 @@ extern void set_input_string(string &);
 extern void set_input_string(char*);
 extern int op_ruleparse();
 
+#ifdef _WIN32
 #define STDCALL 
 #define init_parser_f STDCALL INIT_PARSER_F
 #define advance_oprule_actions STDCALL ADVANCEOPRULEACTIONS
 #define step_oprule_expressions STDCALL STEPOPRULEEXPRESSIONS
 #define test_rule_activation STDCALL TESTOPRULEACTIVATION
 #define parse_rule PARSE_RULE
-
+#else
+#define STDCALL 
+#define init_parser_f STDCALL init_parser_f_
+#define advance_oprule_actions STDCALL advanceopruleactions_
+#define step_oprule_expressions STDCALL stepopruleexpressions_
+#define test_rule_activation STDCALL testopruleactivation_
+#define parse_rule parse_rule_ 
+#endif
 
 
 ModelInterfaceActionResolver<DSM2Resolver,

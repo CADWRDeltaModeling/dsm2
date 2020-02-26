@@ -15,8 +15,8 @@ class LinearExtrapolationNode : public ExpressionNode<T>{
 public:
   typedef LinearExtrapolationNode NodeType;
   typedef OE_NODE_PTR(LinearExtrapolationNode<T>) NodePtr;
-  typedef ExpressionNode<T> ExpressionNode;
-  typedef OE_NODE_PTR(ExpressionNode) ExpressionNodePtr;
+  //typedef ExpressionNode<T> ExpressionNode;
+  typedef OE_NODE_PTR(ExpressionNode<T>) ExpressionNodePtr;
 
    /** Create the node given the expression node it will extrapolate.
     *@param node node to extrapolate

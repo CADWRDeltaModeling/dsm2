@@ -5,6 +5,7 @@
 // Note that this file is vendor-specific. If we add/change compilers it
 // will almost certainly need to be changed.
 
+#ifdef _WIN32
 #define get_external_flow GET_EXTERNAL_FLOW
 #define set_external_flow SET_EXTERNAL_FLOW
 #define set_external_flow_datasource SET_EXTERNAL_FLOW_DATASOURCE
@@ -54,7 +55,53 @@
 #define direct_from_node DIRECT_FROM_NODE
 #define direct_to_from_node DIRECT_TO_FROM_NODE
 #define channel_length CHANNEL_LENGTH
+#else
 
+#define get_external_flow get_external_flow_
+#define set_external_flow set_external_flow_
+#define set_external_flow_datasource set_external_flow_datasource_
+#define get_transfer_flow get_transfer_flow_
+#define set_transfer_flow set_transfer_flow_
+#define set_transfer_flow_datasource set_transfer_flow_datasource_
+#define set_gate_install set_gate_install_
+#define set_gate_install_datasource set_gate_install_datasource_
+#define is_gate_install is_gate_install_
+#define set_device_op_coef set_device_op_coef_
+#define get_device_op_coef get_device_op_coef_
+#define set_device_op_datasource set_device_op_datasource_
+#define set_device_height set_device_height_
+#define get_device_height get_device_height_
+#define set_device_height_datasource set_device_height_datasource_
+#define set_device_width set_device_width_
+#define get_device_width get_device_width_
+#define set_device_width_datasource set_device_width_datasource_
+#define set_device_elev set_device_elev_
+#define get_device_elev get_device_elev_
+#define set_device_elev_datasource set_device_elev_datasource_
+#define set_device_nduplicate set_device_nduplicate_
+#define get_device_nduplicate get_device_nduplicate_
+#define set_device_flow_coef set_device_flow_coef_
+#define get_device_flow_coef get_device_flow_coef_
+#define get_surf_elev chstatus_mp_globalstreamsurfaceelevation_
+#define get_flow chstatus_mp_globalstreamflow_
+#define get_res_flow reservoirs_mp_get_res_flow_
+#define get_res_surf_elev reservoirs_mp_get_res_surf_elev_
+#define ext2int ext2int_
+#define reservoir_index resndx_
+#define reservoir_connect_index resconnectndx_
+#define ext2intnode ext2intnode_
+#define qext_index qext_index_
+#define transfer_index transfer_index_
+#define chan_comp_point chan_comp_point_
+#define gate_index gatendx_
+#define device_index devicendx_
+#define ts_index ts_index_
+#define get_chan_velocity tidefile_mp_channelvelocity_
+#define direct_to_node direct_to_node_
+#define direct_from_node direct_from_node_
+#define direct_to_from_node direct_to_from_node_
+#define channel_length channel_length_
+#endif
 
 // routines for retrieving indexes and converting external
 // numbers to internal ones

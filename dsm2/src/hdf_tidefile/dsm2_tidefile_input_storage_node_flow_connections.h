@@ -134,6 +134,7 @@ public:
 		                  (this->layer > other.layer && other.layer != 0);
      return layerOutranks;
 
+     return (this->identifier() < other.identifier()) || (this->identifier() == other.identifier() && this->layer > other.layer);
   }
 
   /** Less-than operator based on the identifier plus (for parent objects) layer number*/  

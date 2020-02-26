@@ -16,19 +16,16 @@
 #include "spDefs.h"
 
 /*
- *  Routine Renaming. Put "UNIX" or "NT" on the next line !! <NT>
+ *  Using predefined macros for OS
  */
-#define NT
 
-#ifdef UNIX
-#define sfAdd5Reservoir		 sfadd5reservoir_
-#define sfAdd4Equation		 sfadd4equation_
-#endif
-
-#ifdef NT
+#ifdef _WIN32
 #define STDCALL 
 #define sfAdd5Reservoir		STDCALL SFADD5RESERVOIR
 #define sfAdd4Equation		STDCALL SFADD4EQUATION
+#else
+#define sfAdd5Reservoir		 sfadd5reservoir_
+#define sfAdd4Equation		 sfadd4equation_
 #endif
 
 #if FORTRAN

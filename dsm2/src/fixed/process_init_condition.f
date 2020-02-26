@@ -55,7 +55,7 @@ c--------use only the last version of the initial condition
       if (dist .eq. "length") then
           distance=chan_geom(intchan).length
       else 
-          read(dist,'(i)')distance
+          read(dist,*)distance
       end if
       
       NUserInitLocations(intchan)=NUserInitLocations(intchan)+1

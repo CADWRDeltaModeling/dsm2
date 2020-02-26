@@ -161,6 +161,7 @@ contains
         use chstatus
         use netcntrl           
         use channel_xsect_tbl, only: cxarea
+        use netcntrl
         implicit none
 
         !   Purpose:  To calculate the average flow in the channels and

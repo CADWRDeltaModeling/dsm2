@@ -1,6 +1,6 @@
 #ifndef oprule_rule_MODELINTERFACE_H_INCLUDED_
 #define oprule_rule_MODELINTERFACE_H_INCLUDED_
-
+#include <stdexcept>
 #include "oprule/expression/ExpressionNode.h"
 #include "oprule/expression/ExpressionPtr.h"
 #include "oprule/expression/ValueNode.h"
@@ -63,7 +63,7 @@ public:
     * to be static, this implementation of this method may exploit the simplicity
     * of the expression.
     */
-    virtual void setDataExpression( ExpressionNode<StateType>::NodePtr val  ){
+    virtual void setDataExpression( typename ExpressionNode<StateType>::NodePtr val  ){
         throw new std::logic_error("Expression could not be set as permanent data source."); 
     }
 

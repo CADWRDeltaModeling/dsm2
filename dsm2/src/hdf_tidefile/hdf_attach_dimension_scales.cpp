@@ -3,10 +3,17 @@
 #include<time.h>
 #include <iostream>
 
+#ifdef _WIN32
 #define STDCALL 
 #define attach_hydro_scales STDCALL ATTACH_HYDRO_DIMSCALES
 #define attach_qual_scales STDCALL ATTACH_QUAL_DIMSCALES
 #define iso_time STDCALL ISO_TIME
+#else
+#define STDCALL 
+#define attach_hydro_scales STDCALL attach_hydro_dimscales_
+#define attach_qual_scales STDCALL attach_qual_dimscales_
+#define iso_time STDCALL iso_time_
+#endif
 
 #ifdef __cplusplus
 extern "C" {

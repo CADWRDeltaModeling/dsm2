@@ -9,18 +9,30 @@ module input_storage_fortran
        // Fortran Include Files DO NOT ALTER THIS LINE AT ALL
 
        subroutine clear_all_buffers(ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_clear_all_buffers_f' :: clear_all_buffers_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'clear_all_buffers_f' :: clear_all_buffers_f
+           !DEC$ END IF
          call clear_all_buffers_f(ierror)
        end subroutine
        
        subroutine prioritize_all_buffers(ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_prioritize_all_buffers_f' :: prioritize_all_buffers_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'prioritize_all_buffers_f' :: prioritize_all_buffers_f
+           !DEC$ END IF
           integer :: ierror
           call prioritize_all_buffers_f(ierror)
        end subroutine
 
        subroutine write_all_buffers_to_text(textfile,append,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_write_all_buffers_to_text_f' :: write_all_buffers_to_text_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'write_all_buffers_to_text_f' :: write_all_buffers_to_text_f
+           !DEC$ END IF
          character*(*) textfile
          logical append
          integer :: ierror
@@ -28,7 +40,11 @@ module input_storage_fortran
        end subroutine
 
        subroutine write_buffer_profile_to_text(profile,textfile,append,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_write_buffer_profile_to_text_f' :: write_buffer_profile_to_text_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'write_buffer_profile_to_text_f' :: write_buffer_profile_to_text_f
+           !DEC$ END IF
          character*(*) textfile,profile
          logical append
          integer :: ierror
@@ -36,7 +52,11 @@ module input_storage_fortran
        end subroutine
 
        subroutine write_buffer_profile_to_hdf5(profile,file_id,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_write_buffer_profile_to_hdf5_f' :: write_buffer_profile_to_hdf5_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'write_buffer_profile_to_hdf5_f' :: write_buffer_profile_to_hdf5_f
+           !DEC$ END IF
          use hdf5, only: HID_T
          implicit none
          character*(*) :: profile         
@@ -46,7 +66,11 @@ module input_storage_fortran
        end subroutine       
 
        subroutine read_buffer_profile_from_hdf5(profile,file_id,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_read_buffer_profile_from_hdf5_f' :: read_buffer_profile_from_hdf5_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'read_buffer_profile_from_hdf5_f' :: read_buffer_profile_from_hdf5_f
+           !DEC$ END IF
          use hdf5, only: HID_T
          implicit none
          character*(*) :: profile         
@@ -57,7 +81,11 @@ module input_storage_fortran
        
        
        subroutine write_all_buffers_to_hdf5(file_id,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_write_all_buffers_to_hdf5_f' :: write_all_buffers_to_hdf5_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'write_all_buffers_to_hdf5_f' :: write_all_buffers_to_hdf5_f
+           !DEC$ END IF
          use hdf5, only: HID_T
          implicit none
          integer :: ierror         
@@ -66,7 +94,11 @@ module input_storage_fortran
        end subroutine
        
        subroutine init_file_reader(ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_init_file_reader_f' :: init_file_reader_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'init_file_reader_f' :: init_file_reader_f
+           !DEC$ END IF
           integer :: ierror
           call init_file_reader_f(ierror)
        end subroutine       
@@ -74,40 +106,64 @@ module input_storage_fortran
        subroutine set_active_profile(profilename,ierror)
           character*(*) profilename
           integer :: ierror
+            !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_set_active_profile_f' :: set_active_profile_f
+            !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'set_active_profile_f' :: set_active_profile_f
+            !DEC$ END IF
           call set_active_profile_f(trim(profilename),ierror)
        end subroutine 
 
        subroutine set_initial_context_profile(profilename)
+           !DEC$ IF DEFINED(_WIN32)
             !DEC$ ATTRIBUTES ALIAS:'_set_initial_context_profile_f' :: set_initial_context_profile_f
+           !DEC$ ELSE
+            !DEC$ ATTRIBUTES ALIAS:'set_initial_context_profile_f' :: set_initial_context_profile_f
+           !DEC$ END IF
             character*(*) profilename
             integer :: ierror
             call set_initial_context_profile_f(trim(profilename),ierror)
        end subroutine
        
        subroutine set_user_substitution_enabled(enabled,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_set_user_substitution_enabled_f' :: set_user_substitution_enabled_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'set_user_substitution_enabled_f' :: set_user_substitution_enabled_f
+           !DEC$ END IF
           logical enabled
           integer :: ierror
           call set_user_substitution_enabled_f(enabled,ierror)
        end subroutine   
 
        subroutine set_os_env_substitution_enabled(enabled,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_set_os_env_substitution_enabled_f' :: set_os_env_substitution_enabled_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'set_os_env_substitution_enabled_f' :: set_os_env_substitution_enabled_f
+           !DEC$ END IF
           logical enabled
           integer :: ierror
           call set_os_env_substitution_enabled_f(enabled,ierror)
        end subroutine         
 
        subroutine set_substitution_not_found_is_error(is_error,ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_set_substitution_not_found_is_error_f' :: set_substitution_not_found_is_error_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'set_substitution_not_found_is_error_f' :: set_substitution_not_found_is_error_f
+           !DEC$ END IF
           logical is_error
           integer :: ierror
           call set_substitution_not_found_is_error_f(is_error,ierror)
        end subroutine
        
        subroutine process_text_substitution(ierror)
+           !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_process_text_substitution_f' :: process_text_substitution_f
+           !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'process_text_substitution_f' :: process_text_substitution_f
+           !DEC$ END IF
           integer :: ierror
           call process_text_substitution_f(ierror)
        end subroutine        
@@ -115,7 +171,11 @@ module input_storage_fortran
         subroutine read_buffer_from_text(startfilename,ierror)
           character*(*) startfilename
           integer :: ierror
+            !DEC$ IF DEFINED(_WIN32)
           !DEC$ ATTRIBUTES ALIAS:'_read_buffer_from_text_f' :: read_buffer_from_text_f
+            !DEC$ ELSE
+          !DEC$ ATTRIBUTES ALIAS:'read_buffer_from_text_f' :: read_buffer_from_text_f
+            !DEC$ END IF
           call read_buffer_from_text_f(startfilename,ierror)
        end subroutine        
 

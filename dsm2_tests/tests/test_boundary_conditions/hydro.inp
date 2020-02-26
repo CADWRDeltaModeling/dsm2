@@ -1,0 +1,89 @@
+# Input system for DSM2-HYDRO
+
+ENVVAR
+NAME          VALUE
+DSM2MODIFIER  BC_CASE${BC_CASE_NUMBER}
+DSM2OUTPUTDIR           ./${OUTPUTDIR}
+OUTPUTFILE              ${DSM2MODIFIER}_out.dss
+HYDROOUTDSSFILE         ${DSM2OUTPUTDIR}/${OUTPUTFILE}
+END
+
+SCALAR
+NAME          VALUE
+checkdata    FALSE
+cont_bad    FALSE
+cont_missing    TRUE
+cont_question    TRUE
+cont_unchecked    TRUE
+deltax    5000
+display_intvl    1day
+flush_output    15day
+gravity    32.2
+hydro_time_step    15min
+levee_slope    0.33
+maxiter    20
+printlevel    1
+theta    0.6
+toleranceq    0.001
+tolerancez    0.0008
+warn_missing    TRUE
+warn_question    TRUE
+warn_unchecked    FALSE
+title        "Transfer"
+run_start_date  01JAN1992
+run_end_date    18JAN1992
+run_start_time    0000
+run_end_time    0000
+temp_dir    z:/temp
+binary_output    FALSE
+dss_direct        TRUE
+END
+
+IO_FILE 
+MODEL    TYPE    IO   INTERVAL    FILE
+hydro    hdf5    out  1hour    ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.h5       # Flow data to be passed to qual and ptm
+#hydro    restart out  1mon     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.hrf      # Initial condition a restart is required
+#hydro    output  out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}.out      # Echoed input and run status
+#hydro    echo    out  none     ${DSM2OUTPUTDIR}/${DSM2MODIFIER}_hydro_echo.inp  #Echoed input  
+END
+
+GRID
+channel.inp
+END
+
+CHANNEL_IC
+CHAN_NO  DISTANCE  STAGE  FLOW  
+2        0       0.00    0.0         
+2        length  0.00    0.0                         
+3        0       0.00    0.0         
+3        length  0.00    0.0         
+4        0       0.00    0.0         
+4        length  0.00    0.0 
+5        0       0.00    0.0         
+5        length  0.00    0.0         
+END
+
+BOUNDARY_FLOW
+NAME      NODE      SIGN  FILLIN    FILE    PATH
+node2      2        1     last      constant  ${NODE2_BC}
+node6      6        1     last      constant  ${NODE6_BC}
+END
+
+OUTPUT_CHANNEL
+NAME CHAN_NO DISTANCE VARIABLE INTERVAL PERIOD_OP FILE
+chan2       2    0         flow    15min    inst    ${HYDROOUTDSSFILE}
+chan2       2    0         stage   15min    inst    ${HYDROOUTDSSFILE}
+chan3       3    0         flow    15min    inst    ${HYDROOUTDSSFILE}
+chan3       3    0         stage   15min    inst    ${HYDROOUTDSSFILE}
+chan4       4    0         flow    15min    inst    ${HYDROOUTDSSFILE}
+chan4       4    0         stage   15min    inst    ${HYDROOUTDSSFILE}
+chan4_len   4    length    flow    15min    inst    ${HYDROOUTDSSFILE}
+chan4_len   4    length    stage   15min    inst    ${HYDROOUTDSSFILE}
+chan5       5    0         flow    15min    inst    ${HYDROOUTDSSFILE}
+chan5       5    0         stage   15min    inst    ${HYDROOUTDSSFILE}
+chan5_len   5    length    flow    15min    inst    ${HYDROOUTDSSFILE}
+chan5_len   5    length    stage   15min    inst    ${HYDROOUTDSSFILE}
+END
+  
+
+

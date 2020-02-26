@@ -4,7 +4,11 @@
         
        !> Clear the buffer of all stored data of type virtual_xsect 
        subroutine virtual_xsect_clear_buffer()
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_clear_buffer_f' :: virtual_xsect_clear_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_clear_buffer_f' :: virtual_xsect_clear_buffer_f
+	 !DEC$ END IF
          implicit none
          call virtual_xsect_clear_buffer_f()
          return
@@ -12,7 +16,11 @@
 
        !> Query the number of records in storage buffer of type virtual_xsect
        integer function virtual_xsect_buffer_size()
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_buffer_size_f' :: virtual_xsect_buffer_size_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_buffer_size_f' :: virtual_xsect_buffer_size_f
+	 !DEC$ END IF
           implicit none
           integer, external :: virtual_xsect_buffer_size_f
           virtual_xsect_buffer_size = virtual_xsect_buffer_size_f()
@@ -21,7 +29,11 @@
        
        !> write virtual_xsect data to buffer
        subroutine virtual_xsect_append_to_buffer(chan_no,num_virt_sec,vsecno,num_elev,min_elev,elevation,area,wet_p,width,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_append_to_buffer_f' :: virtual_xsect_append_to_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_append_to_buffer_f' :: virtual_xsect_append_to_buffer_f
+	 !DEC$ END IF
          implicit none
          integer, intent(out) :: ierror         
                integer, intent(in) :: chan_no
@@ -39,7 +51,11 @@
        
        !> Query the number of records in hdf5 of type virtual_xsect
        subroutine virtual_xsect_number_rows_hdf5(file_id, nrecords,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_number_rows_hdf5_f' :: virtual_xsect_number_rows_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_number_rows_hdf5_f' :: virtual_xsect_number_rows_hdf5_f
+	 !DEC$ END IF
           use hdf5, only: HID_T,HSIZE_T
           implicit none
           integer :: nrecords
@@ -55,7 +71,11 @@
 
        !> Query row of data from buffer of type virtual_xsect
        subroutine virtual_xsect_query_from_buffer(row, chan_no,num_virt_sec,vsecno,num_elev,min_elev,elevation,area,wet_p,width,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_query_from_buffer_f' :: virtual_xsect_query_from_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_query_from_buffer_f' :: virtual_xsect_query_from_buffer_f
+	 !DEC$ END IF
           implicit none
                 integer, intent(out) :: chan_no
        integer, intent(out) :: num_virt_sec
@@ -75,7 +95,11 @@
 
        !> Prioritize buffer by layers, delete unused items and sort
        subroutine virtual_xsect_prioritize_buffer(ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_prioritize_buffer_f' :: virtual_xsect_prioritize_buffer_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_prioritize_buffer_f' :: virtual_xsect_prioritize_buffer_f
+	 !DEC$ END IF
 	      implicit none
           integer, intent(out) :: ierror          
           call virtual_xsect_prioritize_buffer_f(ierror)
@@ -84,7 +108,11 @@
        !> Write a buffer of virtual_xsect data to buffer 
        !! @param file_id handle to hdf5 file
        subroutine virtual_xsect_write_buffer_to_hdf5(file_id, ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_write_buffer_to_hdf5_f' :: virtual_xsect_write_buffer_to_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_write_buffer_to_hdf5_f' :: virtual_xsect_write_buffer_to_hdf5_f
+	 !DEC$ END IF
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -95,7 +123,11 @@
 
        !> Read a buffer of virtual_xsect data from hdf5 to buffer 
        subroutine virtual_xsect_read_buffer_from_hdf5(file_id,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_read_buffer_from_hdf5_f' :: virtual_xsect_read_buffer_from_hdf5_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_read_buffer_from_hdf5_f' :: virtual_xsect_read_buffer_from_hdf5_f
+	 !DEC$ END IF
          use hdf5, only: HID_T
          implicit none
          integer(HID_T), intent(in) :: file_id
@@ -105,7 +137,11 @@
        end subroutine
 
        subroutine virtual_xsect_write_buffer_to_text(filename,append,ierror)
+         !DEC$ IF DEFINED(_WIN32)
          !DEC$ ATTRIBUTES ALIAS:'_virtual_xsect_write_buffer_to_text_f' :: virtual_xsect_write_buffer_to_text_f
+	 !DEC$ ELSE
+         !DEC$ ATTRIBUTES ALIAS:'virtual_xsect_write_buffer_to_text_f' :: virtual_xsect_write_buffer_to_text_f
+	 !DEC$ END IF
          implicit none
          integer, intent(out) :: ierror
          character*(*) filename

@@ -133,7 +133,11 @@ contains
         interface
             double precision function CBRT(Y)
                 double precision Y
+         !DEC$ IF DEFINED(_WIN32)
             !DEC$ ATTRIBUTES C, ALIAS:'_cbrt' :: CBRT
+    	 !DEC$ ELSE
+            !DEC$ ATTRIBUTES C, ALIAS:'cbrt' :: CBRT
+	     !DEC$ END IF
             end function CBRT
         end interface
         CBRTC = CBRT(%VAL(X))

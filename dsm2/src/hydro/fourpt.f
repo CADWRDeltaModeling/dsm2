@@ -111,6 +111,7 @@ c-----include '../input/time-varying/writedss.inc'
 
       logical :: updated
       real*8 reser_area, reser_vol
+      integer fstat
 *   Programmed by: Lew DeLong
 *   Date:          February 1991
 *   Modified by:   Lew DeLong
@@ -124,11 +125,9 @@ c-----include '../input/time-varying/writedss.inc'
 *-----Implementation -------------------------------------------------
 
 
-
 c-----DSM2 module, name and version number
       dsm2_module =  hydro
       dsm2_name   = 'Hydro'
-
 
       open (
      &    unit_screen
@@ -147,7 +146,6 @@ c-----get optional starting input file from command line and
 c-----simulation name for Database read
 
       call get_command_args(init_input_file, model_name,echo_only)
-
 c-----dsm2 initialization
       call dsm2_init
 
@@ -276,7 +274,8 @@ C--special treatment to avoid averaging in the begining
 
          DO i=1,Nreser
             YResOld(i)=YRes(i)
-            call calculateReservoirGeometry(i, Yres(i), reser_area, reser_vol)
+            call calculateReservoirGeometry(i, Yres(i), 
+     &                             reser_area, reser_vol)
             VResOld(i)=reser_vol
             DO j=1,res_geom(i).nnodes
                QResOld(i,j)=QRes(i,j)

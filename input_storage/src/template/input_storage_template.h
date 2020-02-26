@@ -30,6 +30,7 @@ using namespace boost;
     a description of the object
     \ingroup userdata
 */
+namespace input_storage{
 class @TABLEOBJ
 {
 public:
@@ -140,15 +141,16 @@ public:
   /** layer (version number) of this entry */
   int layer;
 };
+};
 
-typedef HDFTableManager<@TABLEOBJ> @TABLEOBJ_table;
+typedef HDFTableManager<input_storage::@TABLEOBJ> @TABLEOBJ_table;
 
 hid_t string_type(size_t n);
 
 TableDescription @TABLEOBJ_table_description();
 
-istream& operator>> (istream& stream, @TABLEOBJ & obj);
-ostream& operator<<(ostream & stream, const @TABLEOBJ & obj);
+istream& operator>> (istream& stream, input_storage::@TABLEOBJ & obj);
+ostream& operator<<(ostream & stream, const input_storage::@TABLEOBJ & obj);
 
 
 
@@ -194,4 +196,3 @@ FCALL void @TABLEOBJ_write_buffer_to_text_f(const char* file, const bool* append
 
 
 #endif
-

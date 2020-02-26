@@ -84,7 +84,7 @@ FCALL void process_text_substitution_f(int* ierror)
 _TRAP_EXCEPT(*ierror,
     ApplicationTextReader & reader = ApplicationTextReader::instance();
     EnvSubstitution sub;
-    vector<envvar> &envvars = HDFTableManager<envvar>::instance().buffer();
+    vector<input_storage::envvar> &envvars = HDFTableManager<input_storage::envvar>::instance().buffer();
     for ( size_t i = 0 ; i < envvars.size();i++)
       {
 	sub.add(envvars[i].name, envvars[i].value);
@@ -120,6 +120,3 @@ _TRAP_EXCEPT(*ierror,
     reader.processInput(filename);
 ) // end exception trap
 }
-
-
-
