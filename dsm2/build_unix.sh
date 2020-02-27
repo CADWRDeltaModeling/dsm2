@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-source ../setup_linux_intelcompilers_32bit.sh
+source ../../setup_linux_intelcompilers_32bit.sh
 cmake remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD
