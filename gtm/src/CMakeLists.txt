@@ -77,7 +77,7 @@ add_dependencies(sediment_bed sediment_bed_core input_storage process_io)
 add_dependencies(sediment_bed_core gtm_core)
 add_dependencies(transport gtm_core)
 #target_link_libraries(gtm debug libucrtd.lib optimized libucrt.lib libmmt.lib)
-target_link_libraries(gtm gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_setup do_module mercury)
+target_link_libraries(gtm mercury gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
 if (WIN32)
 set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
 target_link_libraries(gtm 
@@ -97,7 +97,7 @@ else (WIN32)
 message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
 set_target_properties(gtm PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
 target_include_directories(gtm PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(gtm -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_setup do_module mercury -Wl,--end-group)
+target_link_libraries(gtm -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed do_module mercury -Wl,--end-group)
 target_link_libraries(gtm
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
