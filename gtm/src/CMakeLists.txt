@@ -42,9 +42,12 @@ set_compiler_flags()
 find_libs()
 #----------------- EXECUTABLES --------------------------------------------
 if(MSVC)
-  set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
-  set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcpmt.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG
+    "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib  /MANIFEST:NO")
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE
+    "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
+  set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libifcoremd.lib /NODEFAULTLIB:libc.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmtd.lib /NODEFAULTLIB:msvcrtd.lib  /NODEFAULTLIB:libmmd.lib /MANIFEST:NO")
   set (VS_STARTUP_PROJECT gtm)
 endif()
 include_directories("${DSM2_TOP_DIR}/input_storage/src")
@@ -52,7 +55,7 @@ include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fi
 #------------------------- SUB PROJECTS --------------------------------
 add_subdirectory(${GTM_CORE})
 # generate the files now
-execute_process(COMMAND "python" "generate_gtm.py" WORKING_DIRECTORY ${GTM_INPUT_STORAGE})
+#execute_process(COMMAND "python" "generate_gtm.py" WORKING_DIRECTORY ${GTM_INPUT_STORAGE})
 add_subdirectory(${GTM_INPUT_STORAGE})
 add_subdirectory(${GTM_PROCESS_IO})
 add_subdirectory(${GTM_SEDIMENT})
@@ -92,6 +95,8 @@ target_link_libraries(gtm
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    debug libcpmtd.lib optimized libcpmt.lib
+    debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
     )
 else (WIN32)
 message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
