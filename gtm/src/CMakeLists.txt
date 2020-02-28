@@ -55,7 +55,7 @@ include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fi
 #------------------------- SUB PROJECTS --------------------------------
 add_subdirectory(${GTM_CORE})
 # generate the files now
-#execute_process(COMMAND "python" "generate_gtm.py" WORKING_DIRECTORY ${GTM_INPUT_STORAGE})
+execute_process(COMMAND "python" "generate_gtm.py" WORKING_DIRECTORY ${GTM_INPUT_STORAGE})
 add_subdirectory(${GTM_INPUT_STORAGE})
 add_subdirectory(${GTM_PROCESS_IO})
 add_subdirectory(${GTM_SEDIMENT})
