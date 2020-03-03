@@ -59,10 +59,12 @@ module mercury_state_variables
 
     !> allocate mercury variables
     subroutine allocate_mercury(nsediment,  &
-                                ncell)
+                                ncell,      &
+                                nresv)
         implicit none
         integer, intent(in) :: nsediment         !< Number of sediment types
         integer, intent(in) :: ncell             !< Number of cells
+        integer, intent(in) :: nresv
         allocate(conc_do(ncell))
         allocate(conc_ph(ncell))
         allocate(conc_so4(ncell))
@@ -84,7 +86,7 @@ module mercury_state_variables
         !allocate(conc_ph_pw(ncell))
         !allocate(conc_so4_pw(ncell))
                
-        call setup_hg_internals(ncell,n_zones,2,3,n_mercury)
+        call setup_hg_internals(ncell, nresv, n_zones,2,3,n_mercury)
         return
     end subroutine    
     
@@ -96,7 +98,7 @@ module mercury_state_variables
         deallocate(val_dgm_ratio)
         !deallocate(conc_cl_pw, conc_doc_pw, conc_ph_pw, conc_so4_pw)
         
-        !call deallocate_sed_internals()
+        call deallocate_hg_internals()
         call close_gtm_hg_hdf()
         return 
     end subroutine        

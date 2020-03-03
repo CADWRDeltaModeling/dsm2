@@ -67,7 +67,7 @@ subroutine hg_flux_sed(n_cell, delta_t, f_wat, doc, ph, ec, rkstep)
         hg_conc_sed(:,:,:,1)%hgii_inert(2) = sed_s2_hgii(:,:,:,3)/sedsolids(:,:,:,2,3)
         hg_conc_sed(:,:,:,1)%hgii_inert(3) = sed_s3_hgii(:,:,:,3)/sedsolids(:,:,:,3,3)
     end if
-   call set_sed_fluxes_to_zero(rkstep)    
+    call set_sed_fluxes_to_zero(rkstep)    
     do icell =1, n_cell
         do izone = 1, n_zones
             
@@ -77,13 +77,17 @@ subroutine hg_flux_sed(n_cell, delta_t, f_wat, doc, ph, ec, rkstep)
                     ph(icell)=seven
                 end if
                 call sed_partitioning(icell,izone,ilayer,doc(icell), ph(icell), ec(icell),rkstep)
+                if (volume_pw.gt.zero) then
+                    hg_conc_sed(icell,izone,ilayer,rkstep)%hg0 = sed_hg0(icell,izone,ilayer,rkstep)/volume_pw
+                else
+                    hg_conc_sed(icell,izone,ilayer,rkstep)%hg0 = zero
+                end if               
             end do
            do ilayer = 1, n_layers
                 call sed_fluxes_hg(icell,izone,ilayer,f_wat(icell), rkstep)  
+                call sum_hg_sed_solids_flux(icell,izone,ilayer,f_wat(icell), rkstep)
             end do
-        end do   
-        
-
+        end do 
     end do
     
     !return !debug
@@ -215,7 +219,7 @@ subroutine sed_fluxes_hg(icell,izone,ilayer,f_wat,rkstep)
     call hg_sed_inert(icell,izone,ilayer,rkstep)
     call hg_sed_diffusion(icell,izone,ilayer,rkstep) !diffusion
     call hg_sed_solids(icell,izone,ilayer,rkstep)    !burial and resuspension
-    call sum_hg_sed_solids_flux(icell,izone,ilayer,f_wat, rkstep)
+    !call sum_hg_sed_solids_flux(icell,izone,ilayer,f_wat, rkstep)
 end subroutine sed_fluxes_hg
 
 subroutine hg_sed_methyl(icell,izone,ilayer,T,SO4, rkstep)
@@ -246,20 +250,20 @@ subroutine hg_sed_inert(icell,izone,ilayer,rkstep)
     if(icell.eq.1140) then
        adsorp = zero
     endif
-    adsorp = sedsolids(icell,izone,ilayer,1,rkstep)* hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(1) - sed_s1_hgii(icell,izone,ilayer,rkstep)
+    adsorp = sedsolids(icell,izone,ilayer,1,rkstep)* hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(1) * (one - solid_parms_sed(icell,izone,ilayer,1).frac_exchg) - sed_s1_hgii(icell,izone,ilayer,rkstep)
     if ( adsorp >= zero) then
         f_sed_adsorption_s1(icell,izone,ilayer,rkstep) = k_adsorp*adsorp 
     else
         f_sed_adsorption_s1(icell,izone,ilayer,rkstep) = k_desorp*adsorp 
     endif
-    adsorp = sedsolids(icell,izone,ilayer,2,rkstep)*hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(2) - sed_s2_hgii(icell,izone,ilayer,rkstep)
+    adsorp = sedsolids(icell,izone,ilayer,2,rkstep)*hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(2)* (one - solid_parms_sed(icell,izone,ilayer,2).frac_exchg) - sed_s2_hgii(icell,izone,ilayer,rkstep)
     if ( adsorp >= zero) then
         f_sed_adsorption_s2(icell,izone,ilayer,rkstep) = k_adsorp*adsorp
     else
         f_sed_adsorption_s2(icell,izone,ilayer,rkstep) = k_desorp*adsorp 
     end if
     
-    adsorp = sedsolids(icell,izone,ilayer,3,rkstep)*hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(3) - sed_s3_hgii(icell,izone,ilayer,rkstep)
+    adsorp = sedsolids(icell,izone,ilayer,3,rkstep)*hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_ssX(3)* (one - solid_parms_sed(icell,izone,ilayer,3).frac_exchg) - sed_s3_hgii(icell,izone,ilayer,rkstep)
     if ( adsorp >= zero) then
         f_sed_adsorption_s3(icell,izone,ilayer,rkstep) = k_adsorp*adsorp
     else
@@ -278,13 +282,13 @@ subroutine hg_sed_diffusion(icell,izone,ilayer,rkstep)
     integer, intent(in) :: rkstep
     !diffusion up is +ve
     if (ilayer.eq.1) then !difussion from sed to water
-        f_diffusion_hg(icell,izone,1,rkstep) =  mtc_sed_wat * (hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_diss - hg_conc_wat(icell,rkstep)%hgii_diss)*bed(icell,izone,ilayer).wp_wet*length(icell)*ft_to_m
-        f_diffusion_hg(icell,izone,2,rkstep) =  mtc_sed_wat * (hg_conc_sed(icell,izone,ilayer,rkstep)%mehg_diss - hg_conc_wat(icell,rkstep)%mehg_diss)*bed(icell,izone,ilayer).wp_wet*length(icell)*ft_to_m
-        f_diffusion_hg(icell,izone,3,rkstep) =  mtc_sed_wat * (hg_conc_sed(icell,izone,ilayer,rkstep)%hg0 - hg_conc_wat(icell,rkstep)%hg0)*bed(icell,izone,ilayer).wp_wet*length(icell)*ft_to_m
+        f_diffusion_hg(icell,izone,1,rkstep) =  mtc_sed_wat * (hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_diss - hg_conc_wat(icell,rkstep)%hgii_diss)*bed(icell,izone,ilayer).wp_wet*length(icell) !*ft_to_m
+        f_diffusion_hg(icell,izone,2,rkstep) =  mtc_sed_wat * (hg_conc_sed(icell,izone,ilayer,rkstep)%mehg_diss - hg_conc_wat(icell,rkstep)%mehg_diss)*bed(icell,izone,ilayer).wp_wet*length(icell) !*ft_to_m
+        f_diffusion_hg(icell,izone,3,rkstep) =  mtc_sed_wat * (hg_conc_sed(icell,izone,ilayer,rkstep)%hg0 - hg_conc_wat(icell,rkstep)%hg0)*bed(icell,izone,ilayer).wp_wet*length(icell) !*ft_to_m
     else  !difussion from sed layer 2 to sed layer 1
-        f_sed_diffusion_hg(icell,izone,1,rkstep) =  mtc_sed_sed * (hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_diss - hg_conc_sed(icell,izone,ilayer-1,rkstep)%hgii_diss)*bed(icell,izone,ilayer).wp_wet*length(icell)*ft_to_m
-        f_sed_diffusion_hg(icell,izone,2,rkstep) =  mtc_sed_sed * (hg_conc_sed(icell,izone,ilayer,rkstep)%mehg_diss - hg_conc_sed(icell,izone,ilayer-1,rkstep)%mehg_diss)*bed(icell,izone,ilayer).wp_wet*length(icell)*ft_to_m
-        f_sed_diffusion_hg(icell,izone,3,rkstep) =  mtc_sed_sed * (hg_conc_sed(icell,izone,ilayer,rkstep)%hg0 - hg_conc_sed(icell,izone,ilayer-1,rkstep)%hg0)*bed(icell,izone,ilayer).wp_wet*length(icell)*ft_to_m
+        f_sed_diffusion_hg(icell,izone,1,rkstep) =  mtc_sed_sed * (hg_conc_sed(icell,izone,ilayer,rkstep)%hgii_diss - hg_conc_sed(icell,izone,ilayer-1,rkstep)%hgii_diss)*bed(icell,izone,ilayer).wp_wet*length(icell) !*ft_to_m
+        f_sed_diffusion_hg(icell,izone,2,rkstep) =  mtc_sed_sed * (hg_conc_sed(icell,izone,ilayer,rkstep)%mehg_diss - hg_conc_sed(icell,izone,ilayer-1,rkstep)%mehg_diss)*bed(icell,izone,ilayer).wp_wet*length(icell) !*ft_to_m
+        f_sed_diffusion_hg(icell,izone,3,rkstep) =  mtc_sed_sed * (hg_conc_sed(icell,izone,ilayer,rkstep)%hg0 - hg_conc_sed(icell,izone,ilayer-1,rkstep)%hg0)*bed(icell,izone,ilayer).wp_wet*length(icell) !*ft_to_m
     end if
     
 end subroutine  hg_sed_diffusion
@@ -420,7 +424,7 @@ subroutine sum_hg_sed_solids_flux(icell,izone,ilayer, f_wat, rkstep)
             !f_settling_hg(icell,izone,mf,rkstep)          ! +ve wat -> sed layer 1
         f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep)    = f_sed_hg(icell,izone,ilayer,mf_hgii,rkstep)    - f_erosion_hg(icell,izone,mf_hgii,rkstep)    + f_settling_hg(icell,izone,mf_hgii,rkstep)
         f_wat%erosion(mf_hgii) =  f_wat%erosion(mf_hgii) + f_erosion_hg(icell,izone,mf_hgii,rkstep) !for debug
-       f_wat%settle(mf_hgii)  =  f_wat%settle(mf_hgii) + f_settling_hg(icell,izone,mf_hgii,rkstep) !for debug
+        f_wat%settle(mf_hgii)  =  f_wat%settle(mf_hgii) + f_settling_hg(icell,izone,mf_hgii,rkstep) !for debug
         
         f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep)    = f_sed_hg(icell,izone,ilayer,mf_mehg,rkstep)    - f_erosion_hg(icell,izone,mf_mehg,rkstep)    + f_settling_hg(icell,izone,mf_mehg,rkstep)
         f_wat%erosion(mf_mehg) =  f_wat%erosion(mf_mehg) + f_erosion_hg(icell,izone,mf_mehg,rkstep)  !for debug

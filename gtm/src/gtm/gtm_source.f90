@@ -41,13 +41,14 @@ module gtm_source
                                      rkstep)
         use gtm_precision
         use common_variables, only: n_sediment, use_sediment_bed, n_layers, &
-                                    run_mercury, n_mercury, mercury_ivar
+                                    run_mercury, n_mercury, mercury_ivar,n_resv
         use suspended_sediment
         use sed_type_defs, only: n_zones !added by dhh
         use sediment_bed, only: sediment_bed_main !added by dhh
         use turbidity
-        use mercury_fluxes, only: mercury_source
+        use mercury_fluxes, only: mercury_source, mercury_source_resv
         use mercury_state_variables, only: ec_ivar, doc_ivar
+		use state_variables_network, only: conc_resv
         implicit none
         !--- args  
         integer, intent(in) :: ncell                            !< Number of cells
@@ -71,6 +72,8 @@ module gtm_source
         real(gtm_real) :: deposition(ncell,n_sediment)
         real(gtm_real) :: conc_mercury(ncell,n_mercury)
         real(gtm_real) :: conc_sed(ncell,n_sediment)
+        real(gtm_real) :: conc_mercury_resv(n_resv,n_mercury)
+        real(gtm_real) :: conc_sed_resv(n_resv,n_mercury)
         !real(gtm_real) :: conc_doc(ncell)
         !real(gtm_real) :: conc_ec(ncell)
         real(gtm_real) :: source_mercury(ncell,n_mercury)
@@ -83,6 +86,7 @@ module gtm_source
             if (trim(name(ivar)).eq."sediment") then
                 isediment = ivar - (nvar - n_sediment)
                 conc_sed(:,isediment) = conc(:,ivar)
+				conc_sed_resv(:,isediment) = conc_resv(:,ivar)
                 call suspended_sediment_source(source(:,ivar),          & 
                                                erosion(:,isediment),    &
                                                deposition(:,isediment), &
@@ -125,9 +129,9 @@ module gtm_source
             do ivar = 1, nvar
                 if (trim(name(ivar)).eq."sediment") then
                     isediment = ivar - (nvar - n_sediment)          
-                    source(:,ivar) = (erosion(:,isediment)-deposition(:,isediment))/(depth(:)*0.3048d0)*si_to_english
-                    erosion(:,isediment) = erosion(:,isediment)*si_to_english !/(depth(:)*0.3048d0)
-                    deposition(:,isediment) = deposition(:,isediment)*si_to_english !/(depth(:)*0.3048d0)
+                    source(:,ivar) = (erosion(:,isediment)-deposition(:,isediment))/(depth(:)*0.3048d0)*si_to_english	!(mg/L/s)
+                    erosion(:,isediment) = erosion(:,isediment)*si_to_english !/(depth(:)*0.3048d0)	!to g/m2/s
+                    deposition(:,isediment) = deposition(:,isediment)*si_to_english !/(depth(:)*0.3048d0)	!to g/m2/s
                 end if
             end do
         end if 
@@ -135,6 +139,7 @@ module gtm_source
         if (run_mercury) then
                 conc_mercury(:,1:n_mercury) = conc(:,mercury_ivar(1:n_mercury))
                 source_mercury(:,1:n_mercury) = source(:,mercury_ivar(1:n_mercury))
+				conc_mercury_resv(:,1:n_mercury) = conc_resv(:,mercury_ivar(1:n_mercury))
                 call mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
                                     conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
                                     conc_sed,       &
@@ -152,6 +157,10 @@ module gtm_source
                                     erosion,        &
                                     rkstep)           ! added dhh 20170804
              source(:,mercury_ivar(1:n_mercury)) = source_mercury(:,1:n_mercury)
+                !temporary subroutine to calculate partitioning in reservoirs - not presumably this should end up in boundary_advection_network
+                if (rkstep==1) then
+                    call mercury_source_resv(conc_mercury_resv,conc_sed_resv, conc_resv(:,doc_ivar), conc_resv(:,ec_ivar), n_mercury, n_sediment, n_resv,rkstep)
+                endif
         end if
         
         

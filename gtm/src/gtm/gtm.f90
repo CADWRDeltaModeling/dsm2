@@ -66,7 +66,7 @@ program gtm
     use sediment_bed
     use sediment_bed_setup , only: set_up_sediment_bed, close_sediment_bed !<added:dhh
     use sed_bed_hdf, only: write_gtm_sed_hdf   !<added:dhh
-    use hg_hdf,      only: write_gtm_hg_hdf
+    use hg_hdf,      only: write_gtm_hg_hdf, print_last_stage_hg
     use sed_bed_utils !<added:dhh     
     use mercury_state_variables
     use mercury_fluxes
@@ -246,7 +246,7 @@ program gtm
     !> for sediment bed module ----- added:dhh setup sediment bed cells, read inputs, initial conditions etc.
     if (use_sediment_bed) then 
         if (run_mercury) then 
-            call allocate_mercury(n_sediment,n_cell)
+            call allocate_mercury(n_sediment,n_cell, n_resv)
         end if
         call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
                           int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
@@ -438,7 +438,7 @@ program gtm
                                         n_cell,                            &
                                         n_ts_var)
                 if (initialize_bed_mercury) then        !added dhh 20171114
-                    call hg_init_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
+                    call hg_init_sediment_bed(n_cell, n_chan, n_resv, init_input_file, int(gtm_start_jmin),  &
                           int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)
                     initialize_bed_mercury = .false.
                 endif
@@ -648,7 +648,9 @@ program gtm
                     budget_prev_conc = conc     
                     if (use_sediment_bed) then   !<added:dhh
                         call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
-                        if (run_mercury)  call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, time_index_in_gtm_hdf,constituents(:)%use_module)
+                        if (run_mercury) then
+							call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, conc_resv, n_resv, time_index_in_gtm_hdf,constituents(:)%use_module)
+						end if	
                     end if                           
                 else
                     call write_gtm_hdf(gtm_hdf,                    &
@@ -689,6 +691,9 @@ program gtm
     call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var)
     if (use_sediment_bed) then 
         call print_last_stage_sed(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !added:dhh
+        if (run_mercury) then 
+            call print_last_stage_Hg(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !added:dhh
+        endif		
     endif
     !----- deallocate memories and close file units -----
     if (n_dssfiles .ne. 0) then

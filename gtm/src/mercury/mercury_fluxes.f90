@@ -42,7 +42,7 @@ module mercury_fluxes
     subroutine mercury_source(source_mercury, & !< mercury source/sink term to interact with DSM2-GTM
                               conc_mercury,   & !< GTM results from previous step, 1:HgII, 2, MeHg, 3: Hg0, 4:HgII_s1, 5:HgII_s2, 6:HgII_s3
                               conc_sed,       & !< suspended sediment (mg/L)
-                              !**conc_doc,       & !< suspended sediment (mg/L)
+                              !conc_doc,       & !< suspended sediment (mg/L)
                               conc_ec,        & !< 
                               area,           & !< hydrodynamic data from Hydro
                               width,          & !< hydrodynamic data from Hydro
@@ -62,7 +62,7 @@ module mercury_fluxes
         real(gtm_real), intent(out) :: source_mercury(ncell,nmercury) !< cell source
         real(gtm_real), intent(inout) :: conc_mercury(ncell,nmercury)    !< cell conc
         real(gtm_real), intent(in) :: conc_sed(ncell,nsediment)
-        !**real(gtm_real), intent(in) :: conc_doc(ncell)
+        !real(gtm_real), intent(in) :: conc_doc(ncell)
         real(gtm_real), intent(in) :: conc_ec(ncell)                 
         real(gtm_real), intent(in) :: area(ncell)                     !< cell area (ft2) 
         real(gtm_real), intent(in) :: width(ncell)                    !< cell area (ft)
@@ -106,12 +106,23 @@ module mercury_fluxes
             if (conc_doc(icell).NE.conc(icell,doc_ivar)) then
                 print *, "weird DOC ", icell, rkstep, conc_doc(icell)-conc(icell,doc_ivar)
                 if (icell.GT.726) then
-                    pause
+                   read *
                 endif
             endif
             
-            call wat_partitioning(icell, conc_mercury(icell,1), conc_mercury(icell,2), solids, conc_doc(icell), conc_ph(icell), conc_ec(icell), nsediment, rkstep)
-            hg_conc_wat(icell, rkstep)%Hg0 = conc_mercury(icell,6)
+            call wat_partitioning(icell,                        &
+                                  conc_mercury(icell,1),        & 
+                                  conc_mercury(icell,2),        &
+                                  solids,                       &
+                                  conc_doc(icell),              &
+                                  conc_ph(icell),               &
+                                  conc_ec(icell),               &
+                                  nsediment,                    &                                  
+                                  eq_vals_wat(icell),           &
+                                  hg_conc_wat(icell, rkstep),   &
+                                  rkstep)
+                
+            hg_conc_wat(icell, rkstep)%Hg0 = conc_mercury(icell,3)
             do isolid = 1,nsediment
                 if(conc_sed(icell,isolid).gt.zero) then
                     hg_conc_wat(icell, rkstep)%HgII_inert(isolid) = conc_mercury(icell, 4+isolid-1)/conc_sed(icell,isolid)  !(ug/g)
@@ -183,7 +194,61 @@ module mercury_fluxes
     return
     end subroutine
 
-
-
+    subroutine mercury_source_resv(conc_mercury_resv,    &
+                                   conc_sed_resv,        &
+                                   doc_resv,             &
+                                   ec_resv,              &
+                                   nmercury,             &
+                                   nsediment,            &
+                                   nresv,                &
+                                   rkstep)
+    implicit none
+    !args
+    integer, intent(in) :: nresv                                  !< Number of cell
+    integer, intent(in) :: nsediment                              !< Number of sediment
+    integer, intent(in) :: nmercury   
+    integer, intent(in) :: rkstep
+    real(gtm_real), intent(inout) :: conc_mercury_resv(nresv,nmercury)    !< cell conc
+    real(gtm_real), intent(in)    :: conc_sed_resv(nresv,nsediment)
+    real(gtm_real), intent(in)    :: doc_resv(nresv)
+    real(gtm_real), intent(in)    :: ec_resv(nresv)
+    !local
+    real(gtm_real)                :: solids(nsediment)
+    real(gtm_real)                :: pH
+    integer                       :: ires
+    integer                       :: isolid
+    
+    do ires = 1, nresv
+            solids(:) = conc_sed_resv(ires,:)   
+            pH = 7.0d0           
+            !call wat_partitioning(ires, conc_mercury_resv(ires,1), conc_mercury_resv(ires,2), solids, doc_resv(ires), conc_ph(ires), ec_resv(ires), nsediment, rkstep)
+            
+            call wat_partitioning(ires,                        &
+                                  conc_mercury_resv(ires,1),   & 
+                                  conc_mercury_resv(ires,2),   &
+                                  solids,                      &
+                                  doc_resv(ires),              &
+                                  pH,               &
+                                  ec_resv(ires),               &
+                                  nsediment,                   &                                  
+                                  eq_vals_resv(ires),           &
+                                  hg_conc_resv(ires, rkstep),   &
+                                  rkstep)
+            
+            hg_conc_resv(ires, rkstep)%Hg0 = conc_mercury_resv(ires,3)
+            
+            do isolid = 1,nsediment
+                if(conc_sed_resv(ires,isolid).gt.zero) then
+                    hg_conc_resv(ires, rkstep)%HgII_inert(isolid) = conc_mercury_resv(ires, 4+isolid-1)/conc_sed_resv(ires,isolid)  !(ug/g)
+                else
+                    hg_conc_resv(ires, rkstep)%HgII_inert(isolid) = zero
+                end if
+            end do  
+    end do
+    
+    
+    
+    return
+    end  subroutine mercury_source_resv
     
 end module mercury_fluxes

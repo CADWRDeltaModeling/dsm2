@@ -470,7 +470,7 @@ module common_variables
      integer :: sediment_coef_start = 0
      integer :: hg_coef_start = 0          !added by dhh 20170817
      !> input time series codes
-     integer, parameter :: max_ts_var = 23 !19 updated by dhh 20170718
+     integer, parameter :: max_ts_var = 20 !19 updated by dhh 20170718
      integer :: code_to_ts_id(max_ts_var) = 0
      integer, parameter :: ts_var_temp = 1
      integer, parameter :: ts_var_ph = 2
@@ -487,12 +487,12 @@ module common_variables
      integer, parameter :: ts_var_wet_mehg  = 13
      integer, parameter :: ts_var_dry_mehg = 14
      integer, parameter :: ts_var_rgm_air = 15
-     integer, parameter :: ts_var_dgm_ratio = 19
+     integer, parameter :: ts_var_dgm_ratio = 16
      !>added by dhh -------------------------------
-     integer, parameter :: ts_var_ph_pw = 20
-     integer, parameter :: ts_var_cl_pw = 21
-     integer, parameter :: ts_var_so4_pw = 22
-     integer, parameter :: ts_var_doc_pw = 23
+     integer, parameter :: ts_var_ph_pw = 17
+     integer, parameter :: ts_var_cl_pw = 18
+     integer, parameter :: ts_var_so4_pw = 19
+     integer, parameter :: ts_var_doc_pw = 20
      !>--------------------------------------------
      !> Input time series 
      integer :: n_input_ts = 0                     !< number of input time series

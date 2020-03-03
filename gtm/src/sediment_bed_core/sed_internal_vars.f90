@@ -17,8 +17,10 @@ character(len=130) :: file_name_qrf_sedhg
 character(len=130) :: file_name_hdf_sedHg
 
 real(gtm_real), allocatable, dimension(:,:)          :: conc_tss
+real(gtm_real), allocatable, dimension(:,:)          :: conc_tss_resv
 real(gtm_real), allocatable, dimension(:,:)          :: conc_wat_hdf
 real(gtm_real), allocatable, dimension(:,:)          :: conc_wat_flux_hdf
+
         ! dimensions (ncells,nzones,nlayers, nosolids, RK/Huens step)
 real (gtm_real), allocatable, dimension (:,:,:,:,:)   :: decomposition
 real (gtm_real), allocatable, dimension (:,:,:,:,:)   :: carbonturnover
@@ -58,11 +60,12 @@ real (gtm_real), allocatable, dimension (:,:,:)       :: sed_s3_HgII_ic   !ug/g 
 real (gtm_real), allocatable, dimension (:,:,:)       :: sed_Hg0_ic       !ng/l porewater
     contains
 
-subroutine setup_sed_internals(ncells,nzones,layers,nosolids)
+subroutine setup_sed_internals(ncells,nzones,layers, nresv, nosolids)
 !args
     integer, intent (in)            :: ncells
     integer, intent (in)            :: nzones
     integer, intent (in)            :: layers
+    integer, intent (in)            :: nresv
     integer, intent (in)            :: nosolids
     
     
@@ -84,16 +87,20 @@ subroutine setup_sed_internals(ncells,nzones,layers,nosolids)
     
     allocate (r_ct_interface(ncells))
     allocate (k_sed(ncells, nzones, layers))
+    k_sed(:,:,:)%methyl = zero
+    k_sed(:,:,:)%biodemethyl = zero
     k_sed(:,:,:)%methyl_int = zero
     k_sed(:,:,:)%biodemethyl_int = zero
     
     allocate (conc_tss(ncells,3))
     allocate (conc_wat_hdf(ncells,9))
     allocate (conc_wat_flux_hdf(ncells,10))
+    allocate (conc_tss_resv(nresv,3))
+    
 end subroutine setup_sed_internals
 
 subroutine deallocate_sed_internals()
-
+   
     deallocate (decomposition)
     deallocate (carbonturnover)
     deallocate (burial)
@@ -116,6 +123,8 @@ subroutine deallocate_sed_internals()
     deallocate (conc_tss)
     deallocate (conc_wat_hdf)
     deallocate (conc_wat_flux_hdf)
+    deallocate (conc_tss_resv)
+    
     
 end subroutine deallocate_sed_internals
 

@@ -31,7 +31,7 @@ module mercury_flux_wat
     use equilibrium
     use mercury_state_variables
     use hg_internal_vars
-
+    use hg_type_defs
 contains
     
 !> water compartment fluxes for cell
@@ -111,8 +111,8 @@ subroutine hg_flux_wat(area,        &
     call light_extinction_integration(ke_PAR_1, ke_PAR_2, ke_PAR_3, doc, total_solids, depth, integralPAR)
     call light_extinction_integration(ke_UVA_1, ke_UVA_2, ke_UVA_3, doc, total_solids, depth, integralUVA)
     call light_extinction_integration(ke_UVB_1, ke_UVB_2, ke_UVB_3, doc, total_solids, depth, integralUVB)
-    r%photodemethyl  = area*(ipar*IntegralPAR*k_PhotoDeg_PAR  + iuva* IntegralUVA*k_PhotoDeg_UVA  + iuvb* IntegralUVB*k_PhotoDeg_UVB) *concs%MeHg_photo
-    r%photoreduction = area*(ipar*IntegralPAR*k_PhotoRed_PAR  + iuva* IntegralUVA*k_PhotoRed_UVA  + iuvb* IntegralUVB*k_PhotoRed_UVB) *concs%HgII_photo
+    r%photodemethyl  = area*(ipar*IntegralPAR*k_PhotoDeg_PAR  + iuva* IntegralUVA*k_PhotoDeg_UVA  + iuvb* IntegralUVB*k_PhotoDeg_UVB) *concs%MeHg_photo/day_to_sec
+    r%photoreduction = area*(ipar*IntegralPAR*k_PhotoRed_PAR  + iuva* IntegralUVA*k_PhotoRed_UVA  + iuvb* IntegralUVB*k_PhotoRed_UVB) *concs%HgII_photo/day_to_sec
     !r%oxidation      = area*(ipar*IntegralPAR*k_PhotoOxid_PAR + iuva* IntegralUVA*k_PhotoOxid_UVA + iuvb* IntegralUVB*k_PhotoOxid_UVB)*concs%Hg0
     dgmtoHgII = concs%Hg0/concs%HgII_diss
     !dgm_ratio = k_oxid_1*doc**k_oxid_2*pH**k_oxid_3   !>to calculate locally
@@ -123,17 +123,17 @@ subroutine hg_flux_wat(area,        &
     end if
                    
     !>evasion/volotilization
-    MTC_Hg0  =  1.0/ ((1.0/MTC_Hg0Wat) + (1.0/(MTC_Hg0Air*Henry_Hg0)))
-	MTC_MeHg =  1.0/ ((1.0/MTC_MeHgWat) + (1.0/(MTC_MeHgAir*Henry_MeHg)))
-    r%evasion_Hg0 = area*MTC_Hg0* (concs%Hg0 - (Hg0_atm/Henry_Hg0))
-    r%volatil_MeHg = area*MTC_MeHg*(concs%MeHg_Cl - (MeHg_atm/Henry_MeHg))
+    MTC_Hg0  =  1.0/ ((1.0/MTC_Hg0Wat) + (1.0/(MTC_Hg0Air*Henry_Hg0)))/day_to_sec
+	MTC_MeHg =  1.0/ ((1.0/MTC_MeHgWat) + (1.0/(MTC_MeHgAir*Henry_MeHg)))/day_to_sec
+    r%evasion_Hg0 = area*MTC_Hg0* (concs%Hg0 - (Hg0_atm/Henry_Hg0))/day_to_sec
+    r%volatil_MeHg = area*MTC_MeHg*(concs%MeHg_Cl - (MeHg_atm/Henry_MeHg))/day_to_sec
     
     !>deposition
-    r%drydep_MeHg = area*drydep_MeHg
-    r%wetdep_MeHg = area*precip*wetdep_MeHg
-    r%drydep_HgII = area*drydep_HgII
-    r%wetdep_HgII = area*precip*wetdep_HgII
-    r%rgmdep_HgII = area*v_rgm*rgm_atm *1.0d-6    !todo: check units
+    r%drydep_MeHg = area*drydep_MeHg/1000.0d0
+    r%wetdep_MeHg = area*precip*wetdep_MeHg/1000.0d0/day_to_sec
+    r%drydep_HgII = area*drydep_HgII/day_to_sec
+    r%wetdep_HgII = area*precip*wetdep_HgII/1000.0d0/day_to_sec
+    r%rgmdep_HgII = area*v_rgm*rgm_atm *1.0d-6/day_to_sec    !todo: check units
     
     !>methylation/bio-demethylation at interface
     r%methyl_int        = area * k%methyl_int * concs%HgII_methyl * (1.0d0 + uSO4 * (SO4/ (SO4 + kSO4))) * (Q10Meth**((T-Tbmeth) / ten)) * rct_interface
@@ -146,9 +146,9 @@ subroutine hg_flux_wat(area,        &
         if (solid_in(ii)%frac_exchg < 1.0d0) then
             delta_conc = (concs%HgII_ssX(ii) * (1.0d0-solid_in(ii)%frac_exchg)) /solid_in(ii)%frac_exchg - Hg_inert(ii)
             if (delta_conc >= zero) then
-                r%adsorption(ii) = k_adsorp * delta_conc * solids(ii) * area * depth  !> adsorption
+                r%adsorption(ii) = k_adsorp * delta_conc * solids(ii) * area * depth /day_to_sec !> adsorption
             else
-                r%adsorption(ii) = k_desorp * delta_conc * solids(ii) * area * depth  !> desorption
+                r%adsorption(ii) = k_desorp * delta_conc * solids(ii) * area * depth/day_to_sec  !> desorption
             end if
         end if
         r%decomposition(ii) = area * rct_interface * Hg_inert(2)/ cfrac_labile !> for watercolumn interface carbon turnover todo: this is wrong
@@ -303,16 +303,18 @@ subroutine set_fluxes_to_zero(r, ncells)
    
 end subroutine set_fluxes_to_zero 
     
-subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, nsolids, rkstep)
+subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, nsolids, eq_vals_w, hg_conc, rkstep)
     !args 
     integer, intent(in)             :: icell
     real (gtm_real), intent(in)     :: conc_hgii             !ng/L ????
     real (gtm_real), intent(in)     :: conc_mehg             !ng/L ????
     real (gtm_real), intent(in)     :: doc              
-    real (gtm_real), intent(inout)  :: ph              
+    real (gtm_real), intent(in)     :: ph              
     real (gtm_real), intent(in)     :: ec     
     integer, intent(in)             :: nsolids
     real (gtm_real), intent(in)     :: solids(nsolids) 
+    type (eq_vals), intent(inout)   :: eq_vals_w
+    type (hg_concs), intent(inout)  :: hg_conc
     integer, intent(in) :: rkstep
     !local
     integer                     :: iter
@@ -328,7 +330,7 @@ subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, ns
         !print *,"invalid ph for cell  :", icell
         !print *,"       ph            :", ph
         !print *,"       ph set to 7.0"
-        ph = seven
+       
     end if
     iter = 0
     order = 4
@@ -342,33 +344,33 @@ subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, ns
     total%rs = doc*mole_rs
     if (total%rs.LE.0) then
         print *, " total%rs warning" , icell, doc, mole_rs
-        pause
+        !read *
     endif
     hh = 10.d0**(-ph)
-    if (.not.eq_vals_wat(icell)%initialized) then
+    if (.not.eq_vals_w%initialized) then
         
         !if (total%XOH.gt.zero) then
-            eq_vals_wat(icell)%hgii =  (total%hgii)/(1.0d0 + k_eq_solids_wat%xohg*total%XOH/hh + k_eq%hgrs*total%rs )
-            eq_vals_wat(icell)%mehg = (total%mehg*hh)/(1.0d0 + k_eq_solids_wat%xomehg*total%XOH + k_eq%mehgrs*total%rs)
+            eq_vals_w%hgii =  (total%hgii)/(1.0d0 + k_eq_solids_wat%xohg*total%XOH/hh + k_eq%hgrs*total%rs )
+            eq_vals_w%mehg = (total%mehg*hh)/(1.0d0 + k_eq_solids_wat%xomehg*total%XOH + k_eq%mehgrs*total%rs)
         !else
         !    eq_vals_wat(icell)%hgii = total%hgii/(1.0d0 + k_eq%hgrs*total%rs)
         !    eq_vals_wat(icell)%hgii = total%mehg/(1.0d0 + k_eq%mehgrs*total%rs)
         !    order = 3
         !end if
-        eq_vals_wat(icell)%rs = total%rs / (1.0d0 + k_eq%hgrs*eq_vals_wat(icell)%hgii + k_eq%mehgrs*eq_vals_wat(icell)%mehg)
-        eq_vals_wat(icell)%xoh = total%XOH-eq_vals_wat(icell)%hgii-eq_vals_wat(icell)%mehg 
-        eq_vals_wat(icell)%initialized = .true.
+        eq_vals_w%rs = total%rs / (1.0d0 + k_eq%hgrs*eq_vals_w%hgii + k_eq%mehgrs*eq_vals_w%mehg)
+        eq_vals_w%xoh = total%XOH-eq_vals_w%hgii-eq_vals_w%mehg 
+        eq_vals_w%initialized = .true.
     end if
-    if (eq_vals_wat(icell)%xoh.le.zero) then
+    if (eq_vals_w%xoh.le.zero) then
         if (total%XOH.le.zero) then
             order = 3
         else
-            eq_vals_wat(icell)%xoh = total%XOH
+            eq_vals_w%xoh = total%XOH
         endif   
     end if
     cl = max(0.285d0*ec-50.0,0.15d0*ec-12.0d0)
     
-    call equil_solver(eq_vals_wat(icell),                           &       !> initial guess for unknowns(in) - results (out)
+    call equil_solver(eq_vals_w,                                    &       !> initial guess for unknowns(in) - results (out)
                             cl,                                     &       !> Cl (mg/L)
                             ph,                                     & 
                             zero,                                   &       !> phytoplankton (mg/L)
@@ -379,28 +381,29 @@ subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, ns
                             converge,                               &       !> true if solution converged
                             m,                                      &       !> solution (molar)
                             icell, 0)
-    if (iter.gt.9) then
-        print *, "equilibrium module  no of iterations (>9):", iter
-        print *, "                                  cell no:", icell
-        pause
-    end if
-    if (.not.converge) then !todo:debug
-    !if (icell.lt.1) then !todo:debug
-        print *, "wat equilibrium did not converge"
-        print *, "cell, iterations: ",  icell, iter
-        print *, "rkstep: ", rkstep
-        print *, "conc_hgii, conc_mehg: ",conc_hgii, conc_mehg 
-        print *, "moles mehg", total%mehg
-        print *, "solids: ", solids(1), solids(2), solids(3)
-        print *, "doc, ph, cl: ", doc, ph, cl
-        print *, "moles rs", total%rs
-        print *, eq_vals_wat(icell)%hgii, eq_vals_wat(icell)%mehg
-        if (.not.converge) then
-            pause
-        endif
-    end if
-    if (converge) eq_vals_wat(icell)%initialized = .true.
-    call Hg_reactant_concs(m, nosolids, solids, solid_parms_wat, hg_conc_wat(icell, rkstep) )  
+    !if (iter.gt.9) then
+    !    print *, "equilibrium module  no of iterations (>9):", iter
+    !    print *, "                                  cell no:", icell
+    !    print *, "                                     hgii:", conc_hgii
+    !    print *, "                                     mehg:", conc_mehg
+    !    read *
+    !end if
+    !if (.not.converge) then !todo:debug
+    !    print *, "wat equilibrium did not converge"
+    !    print *, "cell, iterations: ",  icell, iter
+    !    print *, "rkstep: ", rkstep
+    !    print *, "conc_hgii, conc_mehg: ",conc_hgii, conc_mehg 
+    !    print *, "moles mehg", total%mehg
+    !    print *, "solids: ", solids(1), solids(2), solids(3)
+    !    print *, "doc, ph, cl: ", doc, ph, cl
+    !    print *, "moles rs", total%rs
+    !    print *, eq_vals_w%hgii, eq_vals_w%mehg
+    !    if (.not.converge) then
+    !        read *
+    !    endif
+    !end if
+    if (converge) eq_vals_w%initialized = .true.
+    call Hg_reactant_concs(m, nosolids, solids, solid_parms_wat, hg_conc )  
     
 
 end subroutine wat_partitioning   

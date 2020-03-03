@@ -25,7 +25,8 @@ type (hg_rate_parms_t), allocatable, dimension(:) :: k_wat                      
 !hg concentrations
 type (hg_concs), allocatable, dimension(:,:,:,:) :: hg_conc_sed                !dimensions include rk step
 type (hg_concs), allocatable, dimension(:,:)     :: hg_conc_wat
-
+type (hg_concs), allocatable, dimension(:,:)     :: hg_conc_resv
+real(gtm_real), allocatable, dimension(:,:)      :: conc_resv_hdf
 !sediment mercury fluxes
 
         ! dimensions (ncells,nzones,nlayers, RK/huens step)
@@ -64,7 +65,7 @@ type (hg_flux_def), allocatable, dimension(:)     :: f_wat_hg !todo:
 
 type (eq_vals), allocatable, dimension (:,:,:)      :: eq_vals_sed    !(ncells, nzones, nlayers)
 type (eq_vals), allocatable, dimension (:)          :: eq_vals_wat    !(ncells)
-
+type (eq_vals), allocatable, dimension (:)          :: eq_vals_resv    !(ncells)
         ! dimensions (ncells, nzones, nlayers)
 real (gtm_real), allocatable, dimension (:,:,:)     :: ic_hgII_sed    !sediment exchangeable HgII (ug/g)
 real (gtm_real), allocatable, dimension (:,:,:)     :: ic_mehg_sed    !sediment MeHgII (ug/g)
@@ -75,9 +76,10 @@ real (gtm_real), allocatable, dimension (:,:)       :: gtm_fluxes_hg
 
     contains
 
-subroutine setup_hg_internals(ncells,nzones,nlayers,nsolids,nmf)
+subroutine setup_hg_internals(ncells,nresv, nzones,nlayers,nsolids,nmf)
 !args
     integer, intent (in)            :: ncells
+	integer, intent (in)            :: nresv
     integer, intent (in)            :: nzones
     integer, intent (in)            :: nlayers
     integer, intent (in)            :: nsolids
@@ -127,6 +129,7 @@ subroutine setup_hg_internals(ncells,nzones,nlayers,nsolids,nmf)
     allocate (mole_rs_sed(ncells,nzones,nlayers))
     allocate (eq_vals_sed(ncells,nzones,nlayers))
     allocate (eq_vals_wat(ncells))
+    allocate (eq_vals_resv(n_resv))
     allocate (k_wat(ncells))
     
 !sed concentration
@@ -147,6 +150,8 @@ subroutine setup_hg_internals(ncells,nzones,nlayers,nsolids,nmf)
        
     allocate (hg_conc_sed(ncells,nzones,nlayers,steps)) 
     allocate (hg_conc_wat(ncells,steps))
+    allocate (hg_conc_resv(nresv,steps))
+    allocate (conc_resv_hdf(nresv,9))
     
     allocate (f_wat_hg(ncells))
     
@@ -176,6 +181,7 @@ subroutine deallocate_hg_internals()
     deallocate (mole_rs_sed)
     deallocate (eq_vals_sed)
     deallocate (eq_vals_wat)
+	deallocate (eq_vals_resv)
     deallocate (k_wat)
     
     deallocate (sed_MeHg)
@@ -194,7 +200,8 @@ subroutine deallocate_hg_internals()
         
     deallocate (hg_conc_sed) 
     deallocate (hg_conc_wat)
-    
+    deallocate (hg_conc_resv)  
+    deallocate (conc_resv_hdf)  
     deallocate (f_wat_hg)
 end subroutine deallocate_hg_internals
 end module
