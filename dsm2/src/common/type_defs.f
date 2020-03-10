@@ -21,7 +21,7 @@
 !-----type definitions for DSM2
 module type_defs
     use constants, only: miss_val_c,miss_val_i,miss_val_r
-
+    use gtm_precision, only: gtm_real !@# From GTM; for definition of channel_t.
 
     !-----encapsulate a datasource
     type datasource_t    ! Encapsulates a source for time varying data
@@ -55,17 +55,33 @@ module type_defs
     type channel_t
         sequence
         integer*4 id           ! RDB ID number
-        integer*4 chan_no      ! external channel no. (map identifier)
+        !@# integer*4 chan_no      ! external channel no. (map identifier)	!@# repeated below
         logical*4 inUse        ! true to use this channel
         integer xsect(max_xsects) ! channel rectangular cross section numbers
         integer length         ! channel length in feet
-        real*4  manning        ! manning's N coefficient
+        !@# real*4  manning        ! manning's N coefficient	!@# repeated below
         real*4  disp           ! dispersion coefficient
         integer dist(max_xsects) ! Distance along the channel for X-Section
         real*4  BottomElev(2)  ! Bottom Elevation of each x-section defined
         integer nxsect         ! Number of rectangular X-Sections defined for this channel
         integer upnode         ! upstream node
         integer downnode       ! downstream node
+		!@# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+		!@# From GTM (common_variables.f90)
+		integer :: channel_num                       !< actual channel number in DSM2 grid
+		integer :: chan_no                           !< index channel number
+		integer :: channel_length                    !< channel length
+		integer :: up_node                           !< upstream DSM2 node
+		integer :: down_node                         !< downstream DSM2 node
+		integer :: up_comp                           !< upstream computational point
+		integer :: down_comp                         !< downstream computational point
+		integer :: start_cell                        !< starting cell
+		integer :: end_cell                          !< ending cell
+		real(gtm_real) :: dispersion                 !< dispersion coefficient
+		real(gtm_real) :: manning                    !< Manning's n
+		real(gtm_real) :: chan_btm_up                !< upstream channel bottom elevation
+		real(gtm_real) :: chan_btm_down              !< downstream channel bottom elevation
+		!@# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     end type
 
     !-----track internal and external flows at nodes and reservoirs

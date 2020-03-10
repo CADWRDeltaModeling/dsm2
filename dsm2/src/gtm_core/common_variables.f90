@@ -100,22 +100,22 @@ module common_variables
      integer, parameter :: unit_text = 13              !< temporary (scratch) text file output
        
      !> Define channel type to store channel related arrays
-     type channel_t                                    !< channel between hydro nodes
-          integer :: channel_num                       !< actual channel number in DSM2 grid
-          integer :: chan_no                           !< index channel number
-          integer :: channel_length                    !< channel length
-          integer :: up_node                           !< upstream DSM2 node
-          integer :: down_node                         !< downstream DSM2 node
-          integer :: up_comp                           !< upstream computational point
-          integer :: down_comp                         !< downstream computational point
-          integer :: start_cell                        !< starting cell
-          integer :: end_cell                          !< ending cell
-          real(gtm_real) :: dispersion                 !< dispersion coefficient
-          real(gtm_real) :: manning                    !< Manning's n
-          real(gtm_real) :: chan_btm_up                !< upstream channel bottom elevation
-          real(gtm_real) :: chan_btm_down              !< downstream channel bottom elevation
-     end type
-     !@# type(channel_t), allocatable :: chan_geom(:)   !@# chan_geom declared in module grid_data.
+     !@#type channel_t                                    !< channel between hydro nodes
+     !@#     integer :: channel_num                       !< actual channel number in DSM2 grid
+     !@#     integer :: chan_no                           !< index channel number
+     !@#     integer :: channel_length                    !< channel length
+     !@#     integer :: up_node                           !< upstream DSM2 node
+     !@#     integer :: down_node                         !< downstream DSM2 node
+     !@#     integer :: up_comp                           !< upstream computational point
+     !@#     integer :: down_comp                         !< downstream computational point
+     !@#     integer :: start_cell                        !< starting cell
+     !@#     integer :: end_cell                          !< ending cell
+     !@#     real(gtm_real) :: dispersion                 !< dispersion coefficient
+     !@#     real(gtm_real) :: manning                    !< Manning's n
+     !@#     real(gtm_real) :: chan_btm_up                !< upstream channel bottom elevation
+     !@#     real(gtm_real) :: chan_btm_down              !< downstream channel bottom elevation
+     !@#end type
+     !@#type(channel_t), allocatable :: chan_geom(:)    !@# chan_geom declared in module grid_data.
      
      !> Define non-sequential channels related arrays   
      type non_sequential_t                             !< computational points
