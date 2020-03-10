@@ -25,6 +25,7 @@ module common_variables
 
      use gtm_precision
      use gtm_logging
+     use grid_data, only: chan_geom !@# declaration of chan_geom moved to module grid_data.
      
      integer :: memory_buffer = 20                  !< time buffer use to store hdf5 time series
      integer :: n_comp = LARGEINT                   !< number of computational points
@@ -114,7 +115,7 @@ module common_variables
           real(gtm_real) :: chan_btm_up                !< upstream channel bottom elevation
           real(gtm_real) :: chan_btm_down              !< downstream channel bottom elevation
      end type
-     type(channel_t), allocatable :: chan_geom(:)
+     !@# type(channel_t), allocatable :: chan_geom(:)   !@# chan_geom declared in module grid_data.
      
      !> Define non-sequential channels related arrays   
      type non_sequential_t                             !< computational points

@@ -42,7 +42,8 @@ module grid_data
         ,max_stgbnd=5 &
         )
      
-    type(channel_t) :: chan_geom(0:max_channels)
+    !@#type(channel_t) :: chan_geom(0:max_channels)
+    type(channel_t), allocatable :: chan_geom(:)    !@# From GTM (module common_variables)
     type(node_t) :: node_geom(0:max_nodes)
     type(xsect_t) :: xsect_geom(0:max_xsects_tot)
       
