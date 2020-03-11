@@ -235,6 +235,92 @@ add_jar(PTM_JAR
   ENTRY_POINT "DWR/DMS/PTM/MainPTM"
   OUTPUT_NAME PTM)
 install_jar(PTM_JAR ${CMAKE_BINARY_DIR})
+#--------------- GTM EXE -------------------------
+#-----------------------------------------------------------------------------
+# Define some CMake variables for use later in the project
+#-----------------------------------------------------------------------------
+set(GTM_GTM       ${DSM2_SOURCE_DIR}/gtm)
+set(GTM_GTM_CORE    ${DSM2_SOURCE_DIR}/gtm_core)
+set(GTM_PROCESS_IO ${DSM2_SOURCE_DIR}/process_io)
+set(GTM_TRANSPORT ${DSM2_SOURCE_DIR}/transport)
+set(GTM_DO_MODULE ${DSM2_SOURCE_DIR}/do_module)
+set(GTM_SEDIMENT ${DSM2_SOURCE_DIR}/sediment)
+set(GTM_SEDIMENT_BED_CORE ${DSM2_SOURCE_DIR}/sediment_bed_core)
+set(GTM_SEDIMENT_BED ${DSM2_SOURCE_DIR}/sediment_bed)
+set(GTM_SEDIMENT_BED_SETUP ${DSM2_SOURCE_DIR}/sediment_bed_setup)
+set(GTM_MERCURY ${DSM2_SOURCE_DIR}/mercury)
+set(GTM_TOOLS ${DSM2_SOURCE_DIR}/tools)
+set(GTM_TOOLS_DRIVER ${DSM2_SOURCE_DIR}/tools_driver)
+#------------------------- SUB PROJECTS --------------------------------
+add_subdirectory(${GTM_GTM_CORE})
+add_subdirectory(${GTM_PROCESS_IO})
+add_subdirectory(${GTM_SEDIMENT})
+add_subdirectory(${GTM_SEDIMENT_BED_CORE})
+add_subdirectory(${GTM_SEDIMENT_BED})
+add_subdirectory(${GTM_DO_MODULE})
+add_subdirectory(${GTM_MERCURY})
+add_subdirectory(${GTM_TOOLS})
+add_subdirectory(${GTM_TRANSPORT})
+#------------------ DEPENDENCIES ---------------------
+add_dependencies(do_module gtm_core process_io transport)
+add_dependencies(input_storage input_storage_cpp)
+add_dependencies(mercury gtm_core sediment_bed)
+add_dependencies(process_io gtm_core input_storage input_storage_cpp)
+add_dependencies(sediment sediment_bed_core)
+add_dependencies(sediment_bed sediment_bed_core input_storage process_io)
+add_dependencies(sediment_bed_core gtm_core)
+add_dependencies(transport gtm_core)
+add_dependencies(fixed gtm_core)
+# Add gtm executable
+file(GLOB GTM_SOURCES ${GTM_GTM}/*.f90)
+add_executable(gtm ${GTM_SOURCES})
+add_dependencies(gtm gtm_core input_storage input_storage_cpp mercury process_io sediment sediment_bed_core sediment_bed transport)
+if (WIN32)
+   set (CMAKE_Fortran_FLAGS "/extend_source:132")
+else (WIN32)
+   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+endif (WIN32)
+
+set_property(TARGET gtm PROPERTY LINKER_LANGUAGE Fortran)
+
+
+target_link_libraries(gtm mercury gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
+set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
+if(MSVC)
+  target_link_libraries(gtm debug libucrtd.lib optimized libucrt.lib libmmt.lib)
+endif()
+target_link_libraries(gtm gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed_core sediment_bed do_module mercury)
+target_link_libraries(gtm 
+    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
+    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
+    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
+    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
+    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    debug ${CPMT_LIB_DEBUG} optimized ${CPMT_LIB_RELEASE}
+    )
+# Add sediment_bed_setup executable
+file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
+if (WIN32)
+   set (CMAKE_Fortran_FLAGS "/extend_source:132")
+else (WIN32)
+   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+endif (WIN32)
+add_executable(sediment_bed_setup ${SEDIMENT_BED_SETUP_SOURCES})
+set_property(TARGET sediment_bed_setup PROPERTY LINKER_LANGUAGE Fortran)
+add_dependencies(sediment_bed_setup sediment_bed_core process_io)
+target_link_libraries(sediment_bed_setup gtm_core process_io  sediment_bed_core)
+target_link_libraries(sediment_bed_setup
+    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    debug ${CPMT_LIB_DEBUG} optimized ${CPMT_LIB_RELEASE}
+    )
 #-------------- TEST -------------------#
 
 #-------------- INSTALL ----------------#
