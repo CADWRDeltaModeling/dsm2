@@ -261,6 +261,10 @@ add_subdirectory(${GTM_DO_MODULE})
 add_subdirectory(${GTM_MERCURY})
 add_subdirectory(${GTM_TOOLS})
 add_subdirectory(${GTM_TRANSPORT})
+# Add gtm executable
+file(GLOB GTM_SOURCES ${GTM_GTM}/*.f90)
+add_executable(gtm ${GTM_SOURCES})
+set_property(TARGET gtm PROPERTY LINKER_LANGUAGE Fortran)
 #------------------ DEPENDENCIES ---------------------
 add_dependencies(do_module gtm_core process_io transport)
 add_dependencies(input_storage input_storage_cpp)
@@ -271,25 +275,9 @@ add_dependencies(sediment_bed sediment_bed_core input_storage process_io)
 add_dependencies(sediment_bed_core gtm_core)
 add_dependencies(transport gtm_core)
 add_dependencies(fixed gtm_core)
-# Add gtm executable
-file(GLOB GTM_SOURCES ${GTM_GTM}/*.f90)
-add_executable(gtm ${GTM_SOURCES})
-add_dependencies(gtm gtm_core input_storage input_storage_cpp mercury process_io sediment sediment_bed_core sediment_bed transport)
-if (WIN32)
-   set (CMAKE_Fortran_FLAGS "/extend_source:132")
-else (WIN32)
-   set (CMAKE_Fortran_FLAGS "-extend_source 132")
-endif (WIN32)
-
-set_property(TARGET gtm PROPERTY LINKER_LANGUAGE Fortran)
-
-
 target_link_libraries(gtm mercury gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
+if (WIN32)
 set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
-if(MSVC)
-  target_link_libraries(gtm debug libucrtd.lib optimized libucrt.lib libmmt.lib)
-endif()
-target_link_libraries(gtm gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed_core sediment_bed do_module mercury)
 target_link_libraries(gtm 
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
@@ -302,8 +290,26 @@ target_link_libraries(gtm
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
-    debug ${CPMT_LIB_DEBUG} optimized ${CPMT_LIB_RELEASE}
+    debug libcpmtd.lib optimized libcpmt.lib
+    debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
     )
+else (WIN32)
+message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
+set_target_properties(gtm PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+target_include_directories(gtm PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
+target_link_libraries(gtm -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed do_module mercury -Wl,--end-group)
+target_link_libraries(gtm
+    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
+    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
+    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group 
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    )
+target_link_libraries(gtm -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
+endif (WIN32)
 # Add sediment_bed_setup executable
 file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
 if (WIN32)
@@ -311,16 +317,6 @@ if (WIN32)
 else (WIN32)
    set (CMAKE_Fortran_FLAGS "-extend_source 132")
 endif (WIN32)
-add_executable(sediment_bed_setup ${SEDIMENT_BED_SETUP_SOURCES})
-set_property(TARGET sediment_bed_setup PROPERTY LINKER_LANGUAGE Fortran)
-add_dependencies(sediment_bed_setup sediment_bed_core process_io)
-target_link_libraries(sediment_bed_setup gtm_core process_io  sediment_bed_core)
-target_link_libraries(sediment_bed_setup
-    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
-    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
-    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
-    debug ${CPMT_LIB_DEBUG} optimized ${CPMT_LIB_RELEASE}
-    )
 #-------------- TEST -------------------#
 
 #-------------- INSTALL ----------------#
