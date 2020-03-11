@@ -190,6 +190,18 @@ module common_xsect
         end if      
     end subroutine
     
+    !@# Allocate virtual xsect array for Hydro and Qual
+    subroutine allocate_virt_xsect_hq()
+        implicit none
+        integer :: i
+        allocate(chan_index(max_channels))
+        do i = 1,max_irr_xsects
+            allocate(irreg_geom(i).elevation(max_elevations))
+            allocate(irreg_geom(i).area(max_elevations))
+            allocate(irreg_geom(i).wet_p(max_elevations))
+            allocate(irreg_geom(i).width(max_elevations))
+        end do
+    end subroutine
     
     !> Deallocate virtual xsect array
     subroutine deallocate_virt_xsect()
