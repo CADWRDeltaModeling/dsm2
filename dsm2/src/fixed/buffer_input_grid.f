@@ -24,6 +24,8 @@ c====================================================================
       !use constants
       use hdf5, only: hid_t
       use gates, only: process_gate, process_gate_device
+      !@# For dynamic allocation
+      use common_variables, only: allocate_chan_geom_hq
       implicit none
       
       integer :: node  
@@ -80,6 +82,8 @@ c====================================================================
      &                                 ierror)
 
       nitem = channel_buffer_size()         
+      !@# Dynamic allocation for chan_geom
+      call allocate_chan_geom_hq
          call process_channel(idummy,0,chan_no,
      &                          length,
      &                          manning,

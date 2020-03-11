@@ -591,7 +591,15 @@ module common_variables
          end if
          return
      end subroutine
-
+     !@# Allocate chan_geom for Hydro and QUAL.
+     !@# Note that max_channels is used, while
+     !@#    GTM's approach uses n_chan.
+     subroutine allocate_chan_geom_hq()
+         use grid_data, only: max_channels
+         implicit none
+         if(not(allocated(chan_geom))) allocate(chan_geom(max_channels))
+         return
+     end subroutine
      !> Allocate comp_pt_t array
      subroutine allocate_comp_pt_property()
          use error_handling
