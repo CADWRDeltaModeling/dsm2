@@ -46,6 +46,17 @@ module common_xsect
         integer :: num_elev                    !< number of elevations in the sec
         integer :: num_virt_sec                !< number of virtual xsects in the channel
         integer :: prev_elevation_index        !< cache previous elevation index for performance only
+        
+        !@# vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+        !@# Below: from DSM2 (module common_xsect, in common_irreg_geom.f)
+        real*8 dist_ratio      ! dist from upstr end/centerline length
+        real*8 dist_actual     ! actual dist (ratio*act. chan length)
+        real*8 h_radius(max_elevations) ! all hydraulic radius values in the sec
+        real*8 x_centroid(max_elevations) ! all x centroid values in the sec
+        real*8 z_centroid(max_elevations) ! all z centroid values in the sec
+        integer secno          ! cross-section number
+        !@# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        
     end type
     
     type(cross_section_t), allocatable:: virt_xsect(:)
