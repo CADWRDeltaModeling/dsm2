@@ -147,7 +147,7 @@ contains
     !======================================================================
     subroutine calculateChannelGeometryAspects(X,Z,ChannelWidth, CxArea, Conv, dConveyance)
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => Small !@# Small declared below.
         use chnlcomp
         implicit none
         !   Arguments:
@@ -344,7 +344,7 @@ contains
 
     real*8 function CxArea(X, Z)
         use io_units
-        use common_xsect
+        use common_xsect, disabled => Small !@# Small declared below.
         implicit none
 
         !   Purpose:
@@ -429,7 +429,7 @@ contains
 
     real*8 function CxCentroid(X, H)
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => Small !@# Small declared below.
         implicit none
 
         !   Purpose:
@@ -531,7 +531,7 @@ contains
 
     real*8 function dCxCentroid(X, H)
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => Small !@# Small declared below.
         implicit none
 
         !   Purpose:
@@ -658,7 +658,7 @@ contains
 
     real*8 function dConveyance(X, Z)
         use IO_Units
-        use common_xsect
+        use common_xsect, only: chan_geom   !@# Without "only:", Small causes conflict.
         use channel_schematic, only: CurrentChannel
         implicit none
 

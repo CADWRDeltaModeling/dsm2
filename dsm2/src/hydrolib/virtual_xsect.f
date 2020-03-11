@@ -20,7 +20,7 @@
 
 module virt_xsect
     use network
-    use common_xsect
+    use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
     implicit none
     double precision, save :: x, x1, x2, y1, y2 & ! interpolation variables
         ,temp_all_elev(max_elevations) & ! all elevations in current channel incl duplicates
@@ -38,7 +38,8 @@ contains
         !-----Elevations are now heights of layers.  A layer consists of all cross-section
         !-----properties in a cross-section that have the same elevation (or height).
         !-----The height is the distance above the lowest point in the cross-section.
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
+        use constants, only: miss_val_r !@# Before merging, 'miss_val_r' came from DSM2's common_xsect.
         implicit none
 
         integer &
@@ -130,7 +131,7 @@ contains
         !-----then a top height defined by the user in common_irreg_geom.f is
         !-----added to the list.
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         use constants
         implicit none
 
@@ -232,7 +233,7 @@ contains
         !-----calculating a top width using the user-specified value levee_slope, which is
         !-----rise over run.
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
         integer &
@@ -316,7 +317,7 @@ contains
         !-----at each computational point.  Computational points are located at the ends of
         !-----the channel and at distances along the channel length defined by (deltax/2).
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
 
@@ -364,7 +365,7 @@ contains
         !-----could be outside channel (dist could be < 0 or > channel length).  If no xsect
         !-----upstream or downstream of virtual xsect, then use rectangular bottom elev.
         !-----upstream end
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
 
@@ -451,7 +452,7 @@ contains
     subroutine interp_xs_prop_horizontal(channo)
 
         !-----interpolate cross-section properties in the x direction
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         use IO_Units
         implicit none
 
@@ -560,7 +561,7 @@ contains
 
         !-----This subroutine interpolates or extrapolates width values in the vertical
         !-----direction.
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
         integer &
@@ -621,7 +622,7 @@ contains
 
         !-----This subroutine interpolates area values in the vertical direction.  This
         !-----subroutine is always called after interp_width.
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
 
@@ -644,7 +645,7 @@ contains
 
         !-----This subroutine interpolates or extrapolates wetted perimeter values in the
         !-----vertical direction.
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
         integer &
@@ -711,7 +712,7 @@ contains
     subroutine interp_z_centroid(rsecno,secno,channo,assgindex,virtelev,zc)
 
         !-----This subroutine interpolates z centroid values in the vertical direction.
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
 
@@ -791,7 +792,7 @@ contains
 
         !-----This subroutine calculates cross-section properties for rectangular sections.
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         use constants
         implicit none
 
@@ -865,7 +866,7 @@ contains
         !-----This subroutine prints a list of all cross-section properties for all layers
         !-----of all virtual cross-sections.
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
 
@@ -916,7 +917,7 @@ contains
         !-----channels.  If the ratio is > a user-specified area tolerance, an error
         !-----message is printed with the names of the cross-sections.
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
 
@@ -1019,7 +1020,7 @@ contains
 
     subroutine array_bounds_exceeded(channo)
         use IO_Units
-        use common_xsect
+        use common_xsect, disabled => virt_xsect    !@# variable name same as module name.
         implicit none
 
 

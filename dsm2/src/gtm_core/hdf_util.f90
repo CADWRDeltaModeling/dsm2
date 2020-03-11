@@ -140,7 +140,7 @@ module hdf_util
    
    !> Read virtual cross section table from hydro tidefile
    subroutine read_xsect_tbl()
-       use common_xsect
+       use common_xsect, disabled => num_virt_sec   !@# num_virt_sec declared below.
        implicit none   
        integer(HID_T) :: geom_id                            ! group identifier
        integer(HID_T) :: dset_id                            ! dataset identifier
@@ -922,7 +922,7 @@ module hdf_util
    !> Calculate max dimension for irreg_geom array
    !> Updated variables are n_irreg, chan_index, num_xsect_chan and num_elev_chan.
    subroutine calc_virt_xsect_dimension(chan_no, num_virt_sec, num_elev)
-       use common_xsect
+       use common_xsect, disabled => num_virt_sec   !@# num_virt_sec declared below.
        implicit none
        integer, dimension(n_xsect), intent(in) :: chan_no, num_virt_sec, num_elev
        integer :: chan_index_prev                ! to calculate chan_index

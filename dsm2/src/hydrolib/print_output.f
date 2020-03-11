@@ -23,7 +23,7 @@ subroutine print_output(istat)
     !-----print the output
     use IO_Units
     use Gates, only: gateArray, nGate, deviceTypeString, controlTypeString
-    use common_xsect
+    use common_xsect, disabled => virt_xsect    !@# virt_xsect is a module below.
     use grid_data
     use runtime_data
     use constants
