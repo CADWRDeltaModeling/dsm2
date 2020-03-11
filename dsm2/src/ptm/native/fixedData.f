@@ -2123,7 +2123,7 @@ c-----statement function to interpolate wrt two points
 *=======================================================================
 
       REAL*8 FUNCTION CxArea(X, Z)
-      use common_xsect
+      use common_xsect, disabled => CxArea  !@# CxArea is also a subroutine defined in module common_xsect.
       use network
       IMPLICIT NONE
 
