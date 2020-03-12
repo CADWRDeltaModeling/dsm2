@@ -226,7 +226,7 @@ get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
 set(Java_JRE_HOME "${Java_JAVA_BIN_DIR}/../jre")
 message(STATUS "Using Java executable ${Java_JAVA_EXECUTABLE} location to guess Java_JRE_HOME is ${Java_JRE_HOME}")
 include(UseJava)
-file(GLOB_RECURSE PTM_JAVA_SOURCES ptm/DWR/*.java)
+file(GLOB PTM_JAVA_SOURCES ptm/DWR/DMS/PTM/*.java ptm/DWR/DMS/PTM/behave/*.java)
 file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
 set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
 add_jar(PTM_JAR 
