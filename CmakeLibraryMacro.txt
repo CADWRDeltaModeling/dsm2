@@ -134,17 +134,14 @@ macro (FIND_LIBS)
     set(DEBUG_COMPILE "")
   endif (WIN32)
   set(COMPILE_INDICATOR ${STATIC_COMPILE})
-  #set(HECLIB_DIR "${DSM2_THIRD_PARTY_DIR}/heclib")
-  #set(HECLIB_LIB_PATH "${HECLIB_DIR}/lib")
-  #find_library(HECLIB_DEBUG NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
-  #if (WIN32) #-- heclib lockfile bug only shows up in optimized code - so using debug code till fixed or upgraded - remove for future versions of heclib!!
-  #  find_library(HECLIB_RELEASE NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
-  #else (WIN32)
-  #  find_library(HECLIB_RELEASE NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
-  #endif (WIN32)
-  ###FixME: Path for HECLIB specified above is inconsistent with directory structure.
-  find_library(HECLIB_DEBUG NAMES heclib_vs14_debug.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
-  find_library(HECLIB_RELEASE NAMES heclib_vs14.lib PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
+  set(HECLIB_DIR "${DSM2_THIRD_PARTY_DIR}/heclib")
+  set(HECLIB_LIB_PATH "${HECLIB_DIR}/lib")
+  find_library(HECLIB_DEBUG NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
+  if (WIN32) #-- heclib lockfile bug only shows up in optimized code - so using debug code till fixed or upgraded - remove for future versions of heclib!!
+    find_library(HECLIB_RELEASE NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
+  else (WIN32)
+    find_library(HECLIB_RELEASE NAMES ${LIB_PREFIX}heclib${TOOLSET}${COMPILE_INDICATOR}.${STATIC_LIB_SUFFIX} PATHS "${HECLIB_LIB_PATH}" NO_DEFAULT_PATH)
+  endif (WIN32)
   # oprule_vs14_mtd.lib oprule_parser_vs14_mtd.lib
   find_library(OPRULE_DEBUG NAMES_DEBUG ${LIB_PREFIX}oprule${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
   find_library(OPRULE_PARSER_DEBUG NAMES ${LIB_PREFIX}oprule_parser${TOOLSET}${COMPILE_INDICATOR}${DEBUG_COMPILE}.${STATIC_LIB_SUFFIX} PATHS "${DSM2_TOP_DIR}/lib" NO_DEFAULT_PATH)
@@ -171,7 +168,6 @@ macro (FIND_LIBS)
     set (CMT_LIB_RELEASE "libcmt.lib")
     #math library for Intel Composer 2013 
     set (MMT_LIB "libmmt.lib")
-    #set (IFCORE_LIB "libifcoremt.lib") ### Fixme: Including IFCORE_LIB causes an error for Hydro and Qual
     #math library for Intel VF 16  mkl_intel_c.lib mkl_sequential.lib mkl_core.lib
     set(INTEL_LIB_PATH "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl/lib/ia32")
     set(MMT_LIB "${INTEL_LIB_PATH}/mkl_intel_c.lib")
