@@ -77,9 +77,9 @@ c-----Write all buffers to text in the order they were defined
       if (io_files(dsm2_module,io_echo,io_write).use)then
       append_text=.false.
       call write_buffer_profile_to_text(trim(dsm2_name),
-     &                                  io_files(dsm2_module,
+     &                                  trim(io_files(dsm2_module,
      &                                          io_echo,
-     &                                          io_write).filename,
+     &                                          io_write).filename),
      &                                  append_text,ierror)
       call verify_error(ierror,"Error writing echoed text")
       print*, "text written"
