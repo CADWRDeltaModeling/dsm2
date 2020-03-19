@@ -16,6 +16,7 @@
 	module hdfvars
 				! Module that contains shared variables for HDF5 writing
 	use hdf5
+	use iopath_data, only : output_inst   ! switch to print out instantaneous values
 	integer		   :: hdf5point	! index representing time step
 	integer		   :: hdf5length ! time length of file
       integer(HID_T),save :: file_id ! HDF5 File ID
@@ -68,19 +69,31 @@
 	integer(HID_T) :: chan_a_fspace_id ! Dataspace identifier
 	integer(HID_T) :: chan_aa_dset_id ! Channel File Dataset identifier
 	integer(HID_T) :: chan_aa_fspace_id ! Dataspace identifier
+	integer(HID_T) :: cp_z_dset_id    ! Channel File Dataset identifier
+	integer(HID_T) :: cp_z_fspace_id  ! Dataspace identifier
+	integer(HID_T) :: cp_q_dset_id    ! Channel File Dataset identifier
+	integer(HID_T) :: cp_q_fspace_id  ! Dataspace identifier	
 
 	integer :: chan_aa_mdata_rank = 1 ! Single channel variable in memory for one time step
 	integer :: chan_a_mdata_rank = 2 ! Single channel variable in memory for one time step
 	integer :: chan_q_mdata_rank = 2 ! Single channel variable in memory for one time step
 	integer :: chan_z_mdata_rank = 2 ! Single channel variable in memory for one time step
+	integer :: cp_z_mdata_rank = 1   ! Single channel variable in memory for one time step
+	integer :: cp_q_mdata_rank = 1   ! Single channel variable in memory for one time step	
 	integer :: chan_aa_fdata_rank = 2 ! Channel dataset in file is [time x variable x chan]
 	integer :: chan_z_fdata_rank = 3 ! Channel dataset in file is [time x variable x chan]
 	integer :: chan_a_fdata_rank = 3 ! Channel dataset in file is [time x variable x chan]
 	integer :: chan_q_fdata_rank = 3 ! Channel dataset in file is [time x variable x chan]
+	integer :: cp_z_fdata_rank = 2   ! Channel dataset in file is [time x variable x chan]
+	integer :: cp_q_fdata_rank = 2   ! Channel dataset in file is [time x variable x chan]
+	
 	integer(HSIZE_T), dimension(1) :: chan_aa_mdata_dims  = 0  ! Chan data in memory
 	integer(HSIZE_T), dimension(2) :: chan_a_mdata_dims  = 0  ! Chan data in memory
 	integer(HSIZE_T), dimension(2) :: chan_z_mdata_dims  = 0  ! Chan data in memory
 	integer(HSIZE_T), dimension(2) :: chan_q_mdata_dims  = 0  ! Chan data in memory
+	integer(HSIZE_T), dimension(1) :: cp_z_mdata_dims  = 0      ! Chan data in memory
+	integer(HSIZE_T), dimension(1) :: cp_q_mdata_dims  = 0      ! Chan data in memory
+	
       integer(HSIZE_T), dimension(2) :: chan_aa_fdata_dims = 0  ! Chan data in file
       integer(HSIZE_T), dimension(2) :: chan_aa_fsubset_dims = 0  ! Chan data in file
       integer(HSIZE_T), dimension(3) :: chan_a_fdata_dims = 0  ! Chan data in file
@@ -89,11 +102,17 @@
       integer(HSIZE_T), dimension(3) :: chan_z_fsubset_dims = 0  ! Chan data in file
       integer(HSIZE_T), dimension(3) :: chan_q_fdata_dims = 0  ! Chan data in file
       integer(HSIZE_T), dimension(3) :: chan_q_fsubset_dims = 0  ! Chan data in file 
+      integer(HSIZE_T), dimension(2) :: cp_z_fdata_dims = 0       ! Chan data in file
+      integer(HSIZE_T), dimension(2) :: cp_z_fsubset_dims = 0     ! Chan data in file
+      integer(HSIZE_T), dimension(2) :: cp_q_fdata_dims = 0       ! Chan data in file
+      integer(HSIZE_T), dimension(2) :: cp_q_fsubset_dims = 0     ! Chan data in file       
+      
 	integer(HID_T) :: chan_aa_memspace ! Memspace identifier
 	integer(HID_T) :: chan_a_memspace ! Memspace identifier	   
 	integer(HID_T) :: chan_z_memspace ! Memspace identifier
 	integer(HID_T) :: chan_q_memspace ! Memspace identifier
-
+      integer(HID_T) :: cp_z_memspace   ! Memspace identifier
+      integer(HID_T) :: cp_q_memspace   ! Memspace identifier
 
 	integer(HID_T) :: res_h_dset_id = 0   ! Reservoir Dataset identifier
 	integer(HID_T) :: res_q_dset_id = 0   ! Reservoir Dataset identifier 
@@ -134,6 +153,38 @@
      &                   transfer_fsubset_dims = 0 
 	integer(HSIZE_T), dimension(transfer_mdata_rank) :: 
      &                   transfer_mdata_dims = 0
+
+
+	integer(HID_T) :: inst_res_q_dset_id = 0   ! Reservoir Dataset identifier 
+	integer(HID_T) :: inst_res_q_fspace_id = 0 ! Dataspace identifier	 
+	integer(HID_T) :: inst_res_q_memspace  = 0 ! memspace identifier for flow
+	integer,parameter :: inst_res_q_fdata_rank = 2 ! time by nres_connect
+	integer,parameter :: inst_res_q_mdata_rank = 1  ! values for one time step for flow (qres(i,j))
+	integer(HSIZE_T), dimension(inst_res_q_fdata_rank) :: inst_res_q_fdata_dims = (/0,0/) !fixme
+	integer(HSIZE_T), dimension(inst_res_q_fdata_rank) :: inst_res_q_fsubset_dims = (/0,0/) !fixme
+	integer(HSIZE_T), dimension(inst_res_q_mdata_rank) :: inst_res_q_mdata_dims = (/0/)
+
+	integer(HID_T) :: inst_qext_change_dset_id ! QExt change Dataset identifier 
+	integer(HID_T) :: inst_qext_fspace_id ! Dataspace identifier 
+	integer(HID_T) :: inst_qext_memspace ! memspace identifier for height
+	integer,parameter :: inst_qext_fdata_rank = 2   ! time by scalar (ave/diff of qext)
+	integer,parameter :: inst_qext_mdata_rank = 1 ! values for one time step
+	integer(HSIZE_T), dimension(inst_qext_fdata_rank) :: inst_qext_fdata_dims = 0
+	integer(HSIZE_T), dimension(inst_qext_fdata_rank) :: inst_qext_fsubset_dims = 0
+	integer(HSIZE_T), dimension(inst_qext_mdata_rank) :: inst_qext_mdata_dims = 0
+
+	integer(HID_T) :: inst_transfer_dset_id ! obj2obj changed Dataset identifier 
+	integer(HID_T) :: inst_transfer_fspace_id ! Dataspace identifier 
+	integer(HID_T) :: inst_transfer_memspace ! memspace identifier for height
+	integer,parameter :: inst_transfer_fdata_rank = 2    ! scalar by time
+	integer,parameter :: inst_transfer_mdata_rank = 1  ! values for one time step
+	integer(HSIZE_T), dimension(inst_transfer_fdata_rank) :: 
+     &                   inst_transfer_fdata_dims = 0 
+	integer(HSIZE_T), dimension(inst_transfer_fdata_rank) :: 
+     &                   inst_transfer_fsubset_dims = 0 
+	integer(HSIZE_T), dimension(inst_transfer_mdata_rank) :: 
+     &                   inst_transfer_mdata_dims = 0
+
 
 	end module hdfvars
 

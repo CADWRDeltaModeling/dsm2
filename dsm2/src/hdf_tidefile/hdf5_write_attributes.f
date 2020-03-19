@@ -39,6 +39,7 @@ c**********contains routines for writing data to an HDF5 file
       use IFPORT
       use dsm2_tidefile_input_storage_fortran
       use network
+      use gates, only: ngate
       implicit none
 
       integer(HID_T) :: aspace_id ! Attribute Dataspace identifier
@@ -127,6 +128,16 @@ c**********contains routines for writing data to an HDF5 file
       hdf5_dummy_integer =  nstgbnd
       call h5ltset_attribute_int_f(hydro_id,".", 
      &           "Number of stage boundaries",
+     &           hdf5_dummy_integer, hdf5_int_size, error)
+     
+      hdf5_dummy_integer =  nflwbnd
+      call h5ltset_attribute_int_f(hydro_id,".", 
+     &           "Number of flow boundaries",
+     &           hdf5_dummy_integer, hdf5_int_size, error)
+
+      hdf5_dummy_integer =  ngate
+      call h5ltset_attribute_int_f(hydro_id,".", 
+     &           "Number of gates",
      &           hdf5_dummy_integer, hdf5_int_size, error)
 
       hdf5_dummy_integer =  tf_start_julmin
@@ -233,6 +244,7 @@ c**********contains routines for writing data to an HDF5 file
       call WriteStageBoundariesHDF5
       call WriteReservoirNodeConnectionsHDF5
       call WriteComputationPointsHDF5
+      call WriteVirtualXsectsHDF5      
  7856 continue
       return
       end subroutine
@@ -309,6 +321,7 @@ c**********contains routines for writing data to an HDF5 file
       subroutine WriteComputationPointsHDF5
       use dsm2_tidefile_input_storage_fortran
       use hdfvars
+      use h5lt            
       use grid_data
       use network
       use chnlcomp
@@ -316,11 +329,15 @@ c**********contains routines for writing data to an HDF5 file
       integer ::   error        ! Error flag
       integer:: ichan, icomp
       integer :: up,down
+      integer:: scalar = 1
+      integer,dimension(1) :: hdf_dummy_integer
+      
       call hydro_comp_point_clear_buffer()
       do ichan = 1,nchans
          up=UpCompPointer(ichan)
          down=DownCompPointer(ichan)
          do icomp = up,down
+            ChannelNo(icomp)=ichan         
             call hydro_comp_point_append_to_buffer(
      &          icomp,ichan,CompLocation(icomp),error)
          end do
@@ -328,6 +345,12 @@ c**********contains routines for writing data to an HDF5 file
       call hydro_comp_point_write_buffer_to_hdf5(geom_id,error)
       call VerifyHDF5(error,"Computation point write")
       call hydro_comp_point_clear_buffer()
+
+      hdf_dummy_integer = DownCompPointer(nchans)
+      call h5ltset_attribute_int_f(hydro_id,".", 
+     &           "Number of comp pts",
+     &           hdf_dummy_integer, scalar, error)      
+      
       return
       end subroutine
 
@@ -510,9 +533,78 @@ c**********contains routines for writing data to an HDF5 file
       return 
       end subroutine
       
-      
 
+***********************************************************************
+***********************************************************************      
 
+      subroutine WriteVirtualXsectsHDF5
+    
+        use dsm2_tidefile_input_storage_fortran
+        use hdfvars
+        use h5lt
+        use network
+        use IO_Units
+        use common_xsect
+        implicit none 
+
+        integer channo              ! dsm channel number
+        integer vsecno              ! number of cross-section within channel
+        integer dindex              ! function: calculates index of data arrays
+        integer di                  ! stores value of dindex
+        integer virtelev            ! number of layer (within xsect)
+        integer eindex              ! function: calculates index of elevation array
+        integer ei                  ! stores value of eindex
+        integer mindex              ! function: calculates index of min. elev. array
+        integer mi                  ! stores value of mindex
+        integer ::  error           ! Error flag
+        integer:: scalar = 1
+        integer,dimension(1) :: hdf_dummy_integer
+                
+        !-----statement function to calculate indices of virtual data arrays
+        dindex(channo,vsecno,virtelev)=chan_index(channo) + (vsecno-1)*num_layers(channo) + virtelev-1
+        !-----statement function to calculate index of elevation array
+        eindex(channo,virtelev)=elev_index(channo)+virtelev-1
+        !-----statement function to calculate index of minimum elevation array
+        mindex(channo,vsecno)=minelev_index(channo)+vsecno-1
+        
+        call virtual_xsect_clear_buffer()
+        do channo=1,nchans
+            if ( (chan_geom(channo)%length > 0) .and.(xsect_assg(channo)%num_sec_assg > 0) ) then
+                do vsecno=1,num_virt_sec(channo)
+                    mi = mindex(channo,vsecno)
+                    do virtelev=1,num_layers(channo)
+                        di = dindex(channo,vsecno,virtelev)
+                        ei = eindex(channo,virtelev)
+                        call virtual_xsect_append_to_buffer(
+     &                       channo,num_virt_sec(channo),vsecno,num_layers(channo),
+     &                       virt_min_elev(mi), virt_elevation(ei),virt_area(di),
+     &                       virt_wet_p(di) ,virt_width(di),error)
+                    enddo
+                enddo
+            endif
+        enddo              
+        call virtual_xsect_write_buffer_to_hdf5(geom_id,error)
+        call VerifyHDF5(error,"Virtual Xsects write")
+        call virtual_xsect_clear_buffer()          
+
+        ! write total number of entries in virt xsect table
+        total_virt_xsect = 0
+        do channo=1,nchans
+            if ( (chan_geom(channo)%length > 0) .and.(xsect_assg(channo)%num_sec_assg > 0) ) then
+                do vsecno=1,num_virt_sec(channo)
+                    do virtelev=1,num_layers(channo)
+                        total_virt_xsect = total_virt_xsect + 1
+                    enddo
+                enddo
+            endif
+        enddo    
+      hdf_dummy_integer = total_virt_xsect  
+      call h5ltset_attribute_int_f(hydro_id,".", 
+     &           "Number of virt xsects",
+     &           hdf_dummy_integer, scalar, error)
+        
+        return
+      end subroutine
 
 
 

@@ -610,7 +610,7 @@ c-----This subroutine prints a list of all the irregular cross-sections and a li
 c-----of the cross-section assignments.
       use IO_Units
       use grid_data
-      use common_xsect
+      use common_xsect, disabled => xsect_index !@# xsect_index is declared as a character variable below.
       implicit none
 
 

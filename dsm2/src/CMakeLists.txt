@@ -115,7 +115,7 @@ target_link_libraries(hydro
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
     debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
-	  ${IFCORE_LIB} 
+	  ${IFCORE_LIB}
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
@@ -154,7 +154,7 @@ target_link_libraries(qual
     debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
     debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
     debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
-	  ${IFCORE_LIB} 
+	  ${IFCORE_LIB}
     ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
     debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
     )
@@ -223,10 +223,14 @@ endif (WIN32)
 find_package(Java 1.8 REQUIRED)
 message(STATUS "Found Java version ${Java_VERSION}")
 get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
-set(Java_JRE_HOME "${Java_JAVA_BIN_DIR}/../jre")
-message(STATUS "Using Java executable ${Java_JAVA_EXECUTABLE} location to guess Java_JRE_HOME is ${Java_JRE_HOME}")
+if (WIN32)
+  set(Java_JRE_HOME "${Java_JAVA_BIN_DIR}/../jre")
+  message(STATUS "Using Java executable ${Java_JAVA_EXECUTABLE} location to guess Java_JRE_HOME is ${Java_JRE_HOME}")
+else (WIN32)
+  message(STATUS "Not packaging JRE for Linux...")
+endif (WIN32)
 include(UseJava)
-file(GLOB_RECURSE PTM_JAVA_SOURCES ptm/DWR/*.java)
+file(GLOB PTM_JAVA_SOURCES ptm/DWR/DMS/PTM/*.java ptm/DWR/DMS/PTM/behave/*.java)
 file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
 set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
 add_jar(PTM_JAR 
@@ -235,6 +239,88 @@ add_jar(PTM_JAR
   ENTRY_POINT "DWR/DMS/PTM/MainPTM"
   OUTPUT_NAME PTM)
 install_jar(PTM_JAR ${CMAKE_BINARY_DIR})
+#--------------- GTM EXE -------------------------
+#-----------------------------------------------------------------------------
+# Define some CMake variables for use later in the project
+#-----------------------------------------------------------------------------
+set(GTM_GTM       ${DSM2_SOURCE_DIR}/gtm)
+set(GTM_GTM_CORE    ${DSM2_SOURCE_DIR}/gtm_core)
+set(GTM_PROCESS_IO ${DSM2_SOURCE_DIR}/process_io)
+set(GTM_TRANSPORT ${DSM2_SOURCE_DIR}/transport)
+set(GTM_DO_MODULE ${DSM2_SOURCE_DIR}/do_module)
+set(GTM_SEDIMENT ${DSM2_SOURCE_DIR}/sediment)
+set(GTM_SEDIMENT_BED_CORE ${DSM2_SOURCE_DIR}/sediment_bed_core)
+set(GTM_SEDIMENT_BED ${DSM2_SOURCE_DIR}/sediment_bed)
+set(GTM_SEDIMENT_BED_SETUP ${DSM2_SOURCE_DIR}/sediment_bed_setup)
+set(GTM_MERCURY ${DSM2_SOURCE_DIR}/mercury)
+set(GTM_TOOLS ${DSM2_SOURCE_DIR}/tools)
+set(GTM_TOOLS_DRIVER ${DSM2_SOURCE_DIR}/tools_driver)
+#------------------------- SUB PROJECTS --------------------------------
+add_subdirectory(${GTM_GTM_CORE})
+add_subdirectory(${GTM_PROCESS_IO})
+add_subdirectory(${GTM_SEDIMENT})
+add_subdirectory(${GTM_SEDIMENT_BED_CORE})
+add_subdirectory(${GTM_SEDIMENT_BED})
+add_subdirectory(${GTM_DO_MODULE})
+add_subdirectory(${GTM_MERCURY})
+add_subdirectory(${GTM_TOOLS})
+add_subdirectory(${GTM_TRANSPORT})
+# Add gtm executable
+file(GLOB GTM_SOURCES ${GTM_GTM}/*.f90)
+add_executable(gtm ${GTM_SOURCES})
+set_property(TARGET gtm PROPERTY LINKER_LANGUAGE Fortran)
+#------------------ DEPENDENCIES ---------------------
+add_dependencies(do_module gtm_core process_io transport)
+add_dependencies(input_storage input_storage_cpp)
+add_dependencies(mercury gtm_core sediment_bed)
+add_dependencies(process_io gtm_core input_storage input_storage_cpp)
+add_dependencies(sediment sediment_bed_core)
+add_dependencies(sediment_bed sediment_bed_core input_storage process_io)
+add_dependencies(sediment_bed_core gtm_core)
+add_dependencies(transport gtm_core)
+add_dependencies(fixed gtm_core)
+target_link_libraries(gtm mercury gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
+if (WIN32)
+set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
+target_link_libraries(gtm
+    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+    ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
+    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
+    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    debug ${KLULIB_DEBUG} optimized ${KLULIB_RELEASE}
+    ${MMT_LIB} ${MMT_SQ_LIB} ${MMT_CORE_LIB}
+    debug ${CMT_LIB_DEBUG} optimized ${CMT_LIB_RELEASE}
+    debug libcpmtd.lib optimized libcpmt.lib
+    debug libucrtd.lib optimized libucrt.lib # explicit linking required to avoid conflict with _powf function in libmmt.lib (Intel)
+    )
+else (WIN32)
+message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
+set_target_properties(gtm PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+target_include_directories(gtm PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
+target_link_libraries(gtm -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed do_module mercury -Wl,--end-group)
+target_link_libraries(gtm
+    debug ${OPRULE_DEBUG} optimized ${OPRULE_RELEASE}
+    debug ${OPRULE_PARSER_DEBUG} optimized ${OPRULE_PARSER_RELEASE}
+    debug ${INPUT_STORAGE_DEBUG} optimized ${INPUT_STORAGE_RELEASE}
+    debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
+    debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
+    debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
+    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
+    debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
+    )
+target_link_libraries(gtm -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
+endif (WIN32)
+# Add sediment_bed_setup executable
+file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
+if (WIN32)
+   set (CMAKE_Fortran_FLAGS "/extend_source:132")
+else (WIN32)
+   set (CMAKE_Fortran_FLAGS "-extend_source 132")
+endif (WIN32)
 #-------------- TEST -------------------#
 
 #-------------- INSTALL ----------------#
@@ -245,12 +331,12 @@ install(TARGETS hydro qual PTM
 install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)
 message("Copy jar files over to bin/lib")
 install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
-install(DIRECTORY "${Java_JRE_HOME}" DESTINATION bin USE_SOURCE_PERMISSIONS)
 if (WIN32) 
+  install(DIRECTORY "${Java_JRE_HOME}" DESTINATION bin USE_SOURCE_PERMISSIONS)
   message("Windows exes are static so Intel redistribution files are not needed.")
   install(PROGRAMS ptm/bin/ptm.bat DESTINATION bin)
 else (WIN32)
-  install(PROGRAMS ptm/bin/ptm DESTINATION bin)
+  # install(PROGRAMS ptm/bin/ptm DESTINATION bin)  # This file does not exist in the repository.
   message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
   message("compiler path: ${CMAKE_C_COMPILER}")
   get_filename_component(COMPILER_DIR ${CMAKE_C_COMPILER} DIRECTORY)

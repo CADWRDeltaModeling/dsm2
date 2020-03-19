@@ -54,12 +54,14 @@
 	 !DEC$ ELSE
          !DEC$ ATTRIBUTES ALIAS:'reservoir_node_connect_number_rows_hdf5_f' :: reservoir_node_connect_number_rows_hdf5_f
 	 !DEC$ END IF
-          use hdf5, only: HID_T
+          use hdf5, only: HID_T,HSIZE_T
           implicit none
           integer :: nrecords
+          integer(HSIZE_T) :: nrec = 0
           integer(HID_T),intent(in)::file_id
           integer, intent(out) :: ierror
-          call reservoir_node_connect_number_rows_hdf5_f(file_id,nrecords,ierror)
+          call reservoir_node_connect_number_rows_hdf5_f(file_id,nrec,ierror)
+          nrecords = nrec
           return
        end subroutine
 

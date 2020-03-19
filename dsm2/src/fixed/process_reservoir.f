@@ -69,8 +69,13 @@ C!</license>
          allocate(qresv(nres_connect))
          qresv = 0.
       end if
+      if (alloc .and. .not. allocated(inst_qresv))then
+         allocate(inst_qresv(nres_connect))
+         inst_qresv = 0.
+      end if      
       if (.not. alloc)then
          deallocate(qresv)
+         deallocate(inst_qresv)
       end if
       return
       end subroutine

@@ -28,6 +28,7 @@ module grid_data
     integer :: max_obj2obj           ! maximum number of object to object connections
     integer :: max_stgbnd            ! maximum number of stage boundaries
     integer :: nstgbnd               ! actual number of stage boundaries
+    integer :: nflwbnd               ! actual number of flow boundaries
     integer :: nobj2obj              ! actual number of object to object connections
     integer :: nchans                ! actual number of channels
     integer :: nintnodes             ! actual number of interior nodes (non-boundary nodes)
@@ -41,7 +42,8 @@ module grid_data
         ,max_stgbnd=5 &
         )
      
-    type(channel_t) :: chan_geom(0:max_channels)
+    !@#type(channel_t) :: chan_geom(0:max_channels)
+    type(channel_t), allocatable :: chan_geom(:)    !@# From GTM (module common_variables)
     type(node_t) :: node_geom(0:max_nodes)
     type(xsect_t) :: xsect_geom(0:max_xsects_tot)
       
@@ -81,8 +83,6 @@ module grid_data
     !-----stage boundary object
     type(stgbnd_t) :: stgbnd(max_stgbnd)
 
-
-
     !-----quad points
     integer:: nquadpts = 3           ! number of quadrature points
 
@@ -101,10 +101,11 @@ module grid_data
         )
 
     type(qext_t) :: qext(max_qext)
+    
     integer :: const_qext(max_qext,max_conqext)
     integer :: n_conqext(max_qext)   ! number of constituents at external flow
     common /com_conqext/ const_qext, n_conqext
-           
+               
 end module
 
    

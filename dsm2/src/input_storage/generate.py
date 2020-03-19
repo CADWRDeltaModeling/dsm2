@@ -185,7 +185,7 @@ def generate_dsm2():
     component = TableComponent("group_member",
                               [CharField("group_name",DSM2_NAME_LEN,16),
                                CharField("member_type",DSM2_OBJECT_TYPE_LEN,16),
-                               CharField("pattern",32,LAST_FIELD)],                              
+                               CharField("pattern",256,LAST_FIELD)],                              
                               ["group_name","pattern"],\
                               parent="group",\
                               parent_id=["group_name"])
@@ -243,6 +243,24 @@ def generate_dsm2():
     component.layered=True
     prep_component(component,outdir)
 
+    component = TableComponent("group_variable",
+                              [CharField("group_name",DSM2_NAME_LEN,16),
+                              CharField("constituent",16,16),
+                              CharField("variable",16,16),
+                              DoubleField("value",16,4)],
+                              ["group_name","constituent","variable"])
+    component.layered=True
+    prep_component(component,outdir)
+
+    component = TableComponent("group_variable_sed",
+                              [CharField("group_name",DSM2_NAME_LEN,16),
+                              IntField("sed_zone"),
+                              IntField("sed_layer"),
+                              CharField("variable",16,16),
+                              DoubleField("value",16,4)],
+                              ["group_name","sed_zone","sed_layer","variable"])
+    component.layered=True
+    prep_component(component,outdir)
    
     component = TableComponent("particle_insertion",
                              [IntField("node"),\
@@ -418,6 +436,17 @@ def generate_dsm2():
     prep_component(component,outdir)        
     
     
+    component = TableComponent("input_time_series",
+                             [CharField("group_name",DSM2_NAME_LEN,16),\
+                              CharField("variable",16,12),\
+                              CharField("fillin", 8,12),\
+                              CharField("file",DSS_FILE_LEN,32),\
+                              CharField("path",80,LAST_FIELD)
+                             ],
+                             ["group_name","variable"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)
+    
     
     component = TableComponent("output_channel",
                              [CharField("name",DSM2_NAME_LEN,16),
@@ -490,6 +519,24 @@ def generate_dsm2():
     prep_component(component,outdir)
 
 
+    component = TableComponent("suspended_sediment_type",
+                             [CharField("composition",16,16)
+                             ],
+                             ["composition"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)
+
+
+    component = TableComponent("suspended_sediment_boundary",
+                             [CharField("name",DSM2_NAME_LEN,16),\
+                              CharField("composition",16,16),\
+                              DoubleField("percent",16,6)
+                             ],
+                             ["name","composition"])   # identifier
+    component.layered=True
+    prep_component(component,outdir)
+    
+    
     envvar_keywords=["envvar"]
     scalar_keywords = ["scalar"]
     grid_keywords=["channel","xsect","xsect_layer","reservoir","reservoir_vol","reservoir_connection","gate",\
@@ -507,8 +554,15 @@ def generate_dsm2():
     
     qual_time_series_keywords = ["node_concentration",\
                          "reservoir_concentration",\
+                         "input_time_series",\
                          "input_climate"]
     qual_spatial_keywords = ["rate_coefficient"]
+    gtm_time_series_keywords = ["node_concentration",\
+                         "reservoir_concentration",\
+                         "input_time_series",\
+                         "input_climate"]    
+    gtm_spatial_keywords = ["group_variable","group_variable_sed"]
+    sediment_keywords = ["suspended_sediment_type","suspended_sediment_boundary","group_variable_sed"]    
     water_body_output_keywords   =   ["output_channel","output_reservoir"]
     source_group_output_keywords = ["output_channel_source_track","output_reservoir_source_track"]
     gate_output_keywords         = ["output_gate"]
@@ -528,6 +582,8 @@ def generate_dsm2():
     define_include_block("groups",groups_keywords)
     define_include_block("qual_time_series", qual_time_series_keywords)
     define_include_block("qual_spatial",qual_spatial_keywords)
+    define_include_block("gtm_time_series", gtm_time_series_keywords)
+    define_include_block("gtm_spatial",gtm_spatial_keywords)    
     define_include_block("output_time_series",water_body_output_keywords\
                                              +gate_output_keywords\
                                              +source_group_output_keywords)
@@ -543,6 +599,8 @@ def generate_dsm2():
     qual_includes=["configuration","parameter","qual_time_series",\
                    "groups","qual_spatial","output_time_series"]
     ptm_includes=["configuration","parameter","groups","particle"]
+    gtm_includes=["configuration","parameter","gtm_time_series",\
+                  "groups","gtm_spatial","output_time_series"]        
     grid_includes=["grid"]
     
     # These are profiles. They are lists of keywords and include sections that can
@@ -558,7 +616,9 @@ def generate_dsm2():
                          +source_group_output_keywords+qual_includes)
     define_profile("PTM",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords\
                          +groups_keywords+particle_keywords+ptm_includes)
-    
+    define_profile("GTM",envvar_keywords+scalar_keywords+io_file_keywords+tidefile_keywords+gtm_time_series_keywords\
+                         +groups_keywords+gtm_spatial_keywords+water_body_output_keywords\
+                         +source_group_output_keywords+sediment_keywords+gtm_includes)        
     finalize(outdir)
 
 

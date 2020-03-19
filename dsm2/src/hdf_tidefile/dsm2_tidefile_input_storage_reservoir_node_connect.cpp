@@ -211,7 +211,7 @@ void HDFTableManager<reservoir_node_connect>::prioritize_buffer()
     vector<reservoir_node_connect>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
     if ( dupl != buffer().end())
     {   
-        string message = "Duplicate identifiers in the same input layer:";
+        string message = "Duplicate identifiers in the same input layer (or the same file has been included more than once):";
         stringstream messagestrm;
         messagestrm << message << endl << *dupl << " (" << (*dupl).objectName() <<")" << endl;
         messagestrm << "Layer: " << LayerManager::instance().layerName((*dupl).layer);
@@ -273,7 +273,7 @@ void reservoir_node_connect_clear_buffer_f(){
 void reservoir_node_connect_append_to_buffer_f(const int * a_res_node_index,const  char a_res_name[32],const int * a_res_index,const int * a_connect_index,const int * a_node_no,const int * a_ext_node_no,const  char a_connection_type[8], int * ierror, 
               const int res_name_len,const int connection_type_len)
 {
-_TRAP_EXCEPT(*ierror,
+ _TRAP_EXCEPT(*ierror,
    reservoir_node_connect_table::instance().buffer().push_back(
                                       reservoir_node_connect(
                                       *a_res_node_index,a_res_name,*a_res_index,*a_connect_index,*a_node_no,*a_ext_node_no,a_connection_type

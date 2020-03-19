@@ -11,5 +11,6 @@ module dsm2_tidefile_input_storage_fortran
        include "node_flow_connections_input_storage.fi"
        include "reservoir_node_connect_input_storage.fi"
        include "stage_boundaries_input_storage.fi"
+       include "virtual_xsect_input_storage.fi"
 end module
 !@}

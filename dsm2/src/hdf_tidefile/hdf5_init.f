@@ -86,6 +86,23 @@ c**********contains routines for writing data to an HDF5 file
 	call h5dopen_f(data_id, "transfer flow", transfer_dset_id, error)
 	call VerifyHDF5(error,"Transfer flow dataset open")	
 
+      if (output_inst) then
+	   call h5dopen_f(data_id, "inst flow", cp_q_dset_id, error) 
+	   call VerifyHDF5(error,"Computation point flow dataset open")
+	   
+	   call h5dopen_f(data_id, "inst water surface", cp_z_dset_id, error) 
+	   call VerifyHDF5(error,"Computation point stage dataset open")
+
+	   call h5dopen_f(data_id, "inst reservoir flow", inst_res_q_dset_id, error)
+	   call VerifyHDF5(error,"Inst Reservoir flow dataset open")
+	   
+	   call h5dopen_f(data_id, "inst qext flow", inst_qext_change_dset_id, error)
+	   call VerifyHDF5(error,"Inst Qext dataset open")
+	   
+    	   call h5dopen_f(data_id, "inst transfer flow", inst_transfer_dset_id, error)
+ 	   call VerifyHDF5(error,"Inst Transfer flow dataset open")		   
+	end if
+	
 	return
 	end subroutine
 
@@ -227,6 +244,33 @@ c-------Close the datasets corresponding to model states
 	   write(unit_error,*)"HDF5 error closing transfer data set: ",error
 	end if
 
+	if (output_inst) then
+	
+		 call h5dclose_f(cp_q_dset_id,error)
+	   if (error .ne. 0) then
+	      write(unit_error,*)"HDF5 error closing computation point flow data set: ",error
+	   end if
+		 call h5dclose_f(cp_z_dset_id,error)
+	   if (error .ne. 0) then
+	      write(unit_error,*)"HDF5 error closing computation point stage data set: ",error
+	   end if	   	   
+	   
+	   call h5dclose_f(inst_res_q_dset_id,error)
+	   if (error .ne. 0) then
+	      write(unit_error,*)"HDF5 error closing inst reservoir data set: ",error
+	   end if
+
+	   call h5dclose_f(inst_qext_change_dset_id,error)
+	   if (error .ne. 0) then
+	      write(unit_error,*)"HDF5 error closing inst qext data set: ",error
+	   end if
+
+	   call h5dclose_f(inst_transfer_dset_id,error)
+  	   if (error .ne. 0) then
+	       write(unit_error,*)"HDF5 error closing inst transfer data set: ",error
+	   end if	   
+	end if
+
 c-------Close the groups in the dataset
   
       if (print_level .gt.2) write(unit_screen,*)"Closing HDF5 data groups"
@@ -277,6 +321,7 @@ c-------involved in reading/writing time-varying model data
 	use inclvars
 	use grid_data
 	use common_tide  ! todo: this is only to allocate qresv
+	use chnlcomp, only: TotalCompLocations   ! to obtain the value for TotalComputations	
 	implicit none
 	integer error
 	integer getHDF5NumberOfTimeIntervals
@@ -332,7 +377,6 @@ c-------Channel area
      &                        chan_a_mdata_dims,chan_a_memspace,error)
 
 
-
 c-------Channel avg area(io for channels is one variable at at time)
 	chan_aa_fdata_dims(1) = nchans
 	chan_aa_fdata_dims(2) = getHDF5NumberOfTimeIntervals() 
@@ -343,10 +387,6 @@ c-------Channel avg area(io for channels is one variable at at time)
 	chan_aa_mdata_dims(1) = nchans
 	call H5Screate_simple_f(chan_aa_mdata_rank,
      &                        chan_aa_mdata_dims,chan_aa_memspace,error); 
-
-
-
-
 
 c-------Reservoir
 
@@ -377,7 +417,6 @@ c-------Qext
 	qext_fdata_dims(2) = getHDF5NumberOfTimeIntervals() 
 	qext_fsubset_dims(1) = qext_fdata_dims(1)
 	qext_fsubset_dims(2) = 1
-	
 
 	qext_mdata_dims(1) = qext_fdata_dims(1)
 	call H5Screate_simple_f(qext_mdata_rank,qext_mdata_dims,qext_memspace,error); 
@@ -393,6 +432,67 @@ c-------Transfer (obj2obj)
 	call H5Screate_simple_f(transfer_mdata_rank,
      &                        transfer_mdata_dims,transfer_memspace,error);
       call VerifyHDF5(error,"transfer dataspace")
+
+
+      if (output_inst) then
+c-------Computation point water surface
+	   cp_z_fdata_dims(1) = TotalCompLocations
+	   cp_z_fdata_dims(2) = getHDF5NumberOfTimeIntervals() 
+
+	   cp_z_fsubset_dims(1) = cp_z_fdata_dims(1) ! Number of computation points
+	   cp_z_fsubset_dims(2) = 1 ! One step
+
+	   cp_z_mdata_dims(1) = TotalCompLocations
+	   call H5Screate_simple_f(cp_z_mdata_rank,
+     &                        cp_z_mdata_dims,cp_z_memspace,error); 
+
+c-------Computation point flow
+	   cp_q_fdata_dims(1) = TotalCompLocations
+	   cp_q_fdata_dims(2) = getHDF5NumberOfTimeIntervals() 
+
+	   cp_q_fsubset_dims(1) = cp_q_fdata_dims(1) ! Number of computation points
+	   cp_q_fsubset_dims(2) = 1 ! One step
+
+	   cp_q_mdata_dims(1) = TotalCompLocations
+	   call H5Screate_simple_f(cp_q_mdata_rank,
+     &                        cp_q_mdata_dims,cp_q_memspace,error); 
+
+c-------Instantaneous Reservoir
+
+         ! todo: gotta be a better place to do this
+	   inst_res_q_fdata_dims(1) = max(1,nres_connect)
+   	   inst_res_q_fdata_dims(2) = getHDF5NumberOfTimeIntervals()
+
+	   inst_res_q_fsubset_dims(1) = inst_res_q_fdata_dims(1)
+	   inst_res_q_fsubset_dims(2) = 1
+
+	   inst_res_q_mdata_dims(1) = max(1,nres_connect)
+	   call H5Screate_simple_f(inst_res_q_mdata_rank,inst_res_q_mdata_dims,inst_res_q_memspace,error);   
+         call VerifyHDF5(error,"inst reservoir dataspace")
+c-------Instantaneous Qext
+
+	   inst_qext_fdata_dims(1) = max(1,nqext)
+	   inst_qext_fdata_dims(2) = getHDF5NumberOfTimeIntervals() 
+	   inst_qext_fsubset_dims(1) = inst_qext_fdata_dims(1)
+	   inst_qext_fsubset_dims(2) = 1	
+
+	   inst_qext_mdata_dims(1) = inst_qext_fdata_dims(1)
+	   call H5Screate_simple_f(inst_qext_mdata_rank,inst_qext_mdata_dims,inst_qext_memspace,error); 
+         call VerifyHDF5(error,"inst qext dataspace")
+c-------Instantaneous Transfer (obj2obj)
+	   inst_transfer_fdata_dims(1) = max(1,nobj2obj) !nqext
+	   inst_transfer_fdata_dims(2) = getHDF5NumberOfTimeIntervals()
+
+	   inst_transfer_fsubset_dims(1) = inst_transfer_fdata_dims(1)
+	   inst_transfer_fsubset_dims(2) = 1
+
+	   inst_transfer_mdata_dims(1) = inst_transfer_fdata_dims(1)
+	   call H5Screate_simple_f(inst_transfer_mdata_rank,
+     &                           inst_transfer_mdata_dims,inst_transfer_memspace,error);
+         call VerifyHDF5(error,"inst transfer dataspace")
+     
+      end if
+
 	return
 	end subroutine
 
@@ -411,12 +511,19 @@ c-------involved in reading/writing time-varying model data
 	call H5Sclose_f(chan_z_memspace, error)
 	call H5Sclose_f(chan_q_memspace, error)
 	call H5Sclose_f(chan_aa_memspace, error)
-
 	call H5Sclose_f(res_h_memspace, error)
 	call H5Sclose_f(res_q_memspace, error)
 	call H5Sclose_f(qext_memspace, error)
 	call H5Sclose_f(transfer_memspace, error)
+      if (output_inst) then
+	   call H5Sclose_f(cp_q_memspace, error)
+	   call H5Sclose_f(cp_z_memspace, error)      
+	   call H5Sclose_f(inst_res_q_memspace, error)
+	   call H5Sclose_f(inst_qext_memspace, error)
+	   call H5Sclose_f(inst_transfer_memspace, error)	   
+      endif	
       call alloc_reservoir_connections(.false.)
+      
 	return
 	end subroutine
 
@@ -529,6 +636,8 @@ c-------involved in reading/writing time-varying model data
 	integer(HSIZE_T), dimension(3) :: chan_q_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(3) :: chan_a_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(2) :: chan_aa_chunk_dims = 0 ! Dataset dimensions
+	integer(HSIZE_T), dimension(3) :: cp_z_chunk_dims = 0   ! Dataset dimensions
+	integer(HSIZE_T), dimension(3) :: cp_q_chunk_dims = 0   ! Dataset dimensions
 	integer(HID_T) :: cparms !dataset creatation property identifier 
 	integer        :: error	! HDF5 Error flag
 
@@ -638,7 +747,49 @@ c-------involved in reading/writing time-varying model data
      &	    chan_aa_fspace_id, chan_aa_dset_id, error, cparms)
 	call VerifyHDF5(error,"Channel avg area dataset creation")
       call AddTimeSeriesAttributes(chan_aa_dset_id,tf_start_julmin,TideFileWriteInterval)
+      if (output_inst) then
+	 ! Create computation point stage data set
+	  cp_z_chunk_dims(1) = cp_z_fdata_dims(1)
+	  cp_z_chunk_dims(2) = min(TIME_CHUNK,cp_z_fdata_dims(2))
+	  cparms=0
+		  	  ! Add chunking and compression
+	  call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+        if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
+            call h5pset_chunk_f(cparms, cp_z_fdata_rank, 
+     &                          cp_z_chunk_dims, error)
+	      call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
+     &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
+	  end if
 
+	  call h5screate_simple_f(cp_z_fdata_rank, cp_z_fdata_dims,
+     &                          cp_z_fspace_id, error)
+	  call h5dcreate_f(data_id, "inst water surface", H5T_NATIVE_REAL,
+     &	      cp_z_fspace_id, cp_z_dset_id, error, cparms)
+	  call VerifyHDF5(error,"Computation point stage dataset creation")
+        call AddTimeSeriesAttributes(cp_z_dset_id,tf_start_julmin,TideFileWriteInterval)
+
+		! Create computation point flow data set
+	  cp_q_chunk_dims(1) = cp_q_fdata_dims(1)
+	  cp_q_chunk_dims(2) = min(TIME_CHUNK,cp_q_fdata_dims(2))
+	  cparms=0
+			  ! Add chunking and compression
+	  call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+        if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
+            call h5pset_chunk_f(cparms, cp_q_fdata_rank, 
+     &                          cp_q_chunk_dims, error)
+	      call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
+     &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
+	  end if
+
+	  call h5screate_simple_f(cp_q_fdata_rank, cp_q_fdata_dims,
+     &                          cp_q_fspace_id, error)
+	  call h5dcreate_f(data_id, "inst flow", H5T_NATIVE_REAL,
+     &	      cp_q_fspace_id, cp_q_dset_id, error, cparms)
+	  call VerifyHDF5(error,"Computation point flow dataset creation")
+        call AddTimeSeriesAttributes(cp_q_dset_id,tf_start_julmin,TideFileWriteInterval)
+    
+      end if
+      
 	return
 	end subroutine
 
@@ -657,6 +808,8 @@ c-------involved in reading/writing time-varying model data
      &	res_q_chunk_dims = 0 ! Dataset dimensions
 	integer(HSIZE_T), dimension(res_h_fdata_rank) :: 
      &    res_h_chunk_dims = 0 ! Dataset dimensions
+	integer(HSIZE_T), dimension(inst_res_q_fdata_rank) :: 
+     &	inst_res_q_chunk_dims = 0 ! Dataset dimensions     
 	integer getHDF5NumberOfTimeIntervals
 
 c-------Create the datasets
@@ -698,6 +851,26 @@ c-------Create the datasets
      &	    res_q_fspace_id, res_q_dset_id, error, cparms)
       call AddTimeSeriesAttributes(res_q_dset_id,tf_start_julmin,TideFileWriteInterval)
 
+
+      if (output_inst) then
+        ! instantaneous
+	  inst_res_q_chunk_dims(1) = inst_res_q_fdata_dims(1) 
+  	  inst_res_q_chunk_dims(2) = min(TIME_CHUNK,inst_res_q_fdata_dims(2))
+
+				! Add chunking and compression
+	  call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+	  if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
+	      call h5pset_chunk_f(cparms, inst_res_q_fdata_rank, inst_res_q_chunk_dims, error)
+	      call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
+     &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
+	  end if
+
+	  call h5screate_simple_f(inst_res_q_fdata_rank, inst_res_q_fdata_dims, inst_res_q_fspace_id, error)
+	  call h5dcreate_f(data_id, "inst reservoir flow", H5T_NATIVE_REAL,
+     &  	    inst_res_q_fspace_id, inst_res_q_dset_id, error, cparms)
+        call AddTimeSeriesAttributes(inst_res_q_dset_id,tf_start_julmin,TideFileWriteInterval)
+      end if
+
 	return
 	end subroutine
 
@@ -724,8 +897,9 @@ c-------Create the datasets
 	integer     ::   arank = 1 ! Attribure rank
 	integer(HSIZE_T), dimension(7) :: a_data_dims
 	integer(HSIZE_T), dimension(transfer_fdata_rank) :: 
-	1    transfer_chunk_dims = 0 ! Dataset dimensions
-
+     &    transfer_chunk_dims = 0 ! Dataset dimensions
+	integer(HSIZE_T), dimension(inst_transfer_fdata_rank) :: 
+     &    inst_transfer_chunk_dims = 0 ! Dataset dimensions
 	integer getHDF5NumberOfTimeIntervals
 
 	transfer_chunk_dims(1) = transfer_fdata_dims(1)
@@ -759,6 +933,30 @@ c-------Create the datasets
 	1    atype_id, aspace_id, attr_id, error)
 	call h5awrite_f(attr_id, atype_id, max_obj2obj, a_data_dims, error)
 	call h5aclose_f(attr_id,error)
+	
+	if (output_inst) then
+	  ! instantaneous
+	  inst_transfer_chunk_dims(1) = inst_transfer_fdata_dims(1)
+	  inst_transfer_chunk_dims(2) = min(TIME_CHUNK,inst_transfer_fdata_dims(2))
+	
+        cparms = 0
+				! Add chunking and compression
+	  call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+
+	  if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
+	     call h5pset_chunk_f(cparms, inst_transfer_fdata_rank, inst_transfer_chunk_dims, error)
+	     call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
+     &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
+        end if
+	
+	  call h5screate_simple_f(inst_transfer_fdata_rank, inst_transfer_fdata_dims, 
+     &       inst_transfer_fspace_id, error)
+        call VerifyHDF5(error,"inst transfer dataspace")
+	  call h5dcreate_f(data_id, "inst transfer flow", H5T_NATIVE_REAL,
+     &       inst_transfer_fspace_id, inst_transfer_dset_id, error, cparms)
+	  call VerifyHDF5(error,"Flow transfer dataset creation")
+        call AddTimeSeriesAttributes(inst_transfer_dset_id,tf_start_julmin,TideFileWriteInterval)
+      end if
 
 	return
 	end subroutine
@@ -788,8 +986,9 @@ c-------Create the datasets
 
 	integer getHDF5NumberOfTimeIntervals
 	integer(HSIZE_T), dimension(qext_fdata_rank) :: 
-	1    qext_chunk_dims = 0 ! Dataset dimensions
-
+     &    qext_chunk_dims = 0 ! Dataset dimensions
+	integer(HSIZE_T), dimension(inst_qext_fdata_rank) :: 
+     &    inst_qext_chunk_dims = 0 ! Dataset dimensions
 
 	qext_chunk_dims(1) = qext_fdata_dims(1)
 	qext_chunk_dims(2) = min(TIME_CHUNK,qext_fdata_dims(2))
@@ -816,9 +1015,27 @@ c-------Create the datasets
 	call h5acreate_f(hydro_id, "Max Number of QExt", 
 	1    atype_id, aspace_id, attr_id, error)
 	call h5awrite_f(attr_id, atype_id, max_qext, a_data_dims, error)
-
 	call h5aclose_f(attr_id,error)
+	
+	if (output_inst) then
+	  ! instantaneous
+	  inst_qext_chunk_dims(1) = inst_qext_fdata_dims(1)
+	  inst_qext_chunk_dims(2) = min(TIME_CHUNK,inst_qext_fdata_dims(2))
 
+				! Add chunking and compression
+	  call h5pcreate_f(H5P_DATASET_CREATE_F, cparms, error)
+	  if (getHDF5NumberOfTimeIntervals() .gt. MIN_STEPS_FOR_CHUNKING) then
+	     call h5pset_chunk_f(cparms, inst_qext_fdata_rank, inst_qext_chunk_dims, error)
+	     call H5Pset_szip_f (cparms, H5_SZIP_NN_OM_F,
+     &                    HDF_SZIP_PIXELS_PER_BLOCK, error);
+        end if
+
+	  call h5screate_simple_f(inst_qext_fdata_rank, inst_qext_fdata_dims, inst_qext_fspace_id, error)
+	  call h5dcreate_f(data_id, "inst qext flow", H5T_NATIVE_REAL,
+     &       inst_qext_fspace_id, inst_qext_change_dset_id, error, cparms)
+        call AddTimeSeriesAttributes(inst_qext_change_dset_id,tf_start_julmin,TideFileWriteInterval)	
+      end if 
+      
 	return
 	end subroutine
 

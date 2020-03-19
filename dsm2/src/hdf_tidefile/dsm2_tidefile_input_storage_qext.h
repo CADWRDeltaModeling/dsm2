@@ -115,7 +115,16 @@ public:
   /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
   bool operator< (const qext & other) const
   {
-     return (this->identifier() < other.identifier()) || (this->identifier() == other.identifier() && this->layer > other.layer);
+     
+     if(this->identifier() != other.identifier())
+	 {
+		 return this->identifier() < other.identifier();
+	 }
+	 // todo: make this a policy
+	 bool layerOutranks = (this->layer == 0 && other.layer != 0) ||
+		                  (this->layer > other.layer && other.layer != 0);
+     return layerOutranks;
+
   }
 
   /** Less-than operator based on the identifier plus (for parent objects) layer number*/  

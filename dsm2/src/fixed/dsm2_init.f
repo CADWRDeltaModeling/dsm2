@@ -37,6 +37,8 @@ C!</license>
       use dss
       use mod_readdss
       use mod_writedss
+      !@# For dynamic allocation
+      use common_xsect, only: allocate_virt_xsect_hq
 c-----initialize variables for DSM2
 
       implicit none
@@ -168,6 +170,8 @@ C-----Qual default values
       dispersion=.true.
 
 c-----irregular xsects preparation
+      !@# Dynamic allocation
+      call allocate_virt_xsect_hq
       call prep_irreg
 
 c-----set runtime ID; can be either the process ID

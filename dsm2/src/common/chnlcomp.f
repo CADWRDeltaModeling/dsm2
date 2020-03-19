@@ -28,6 +28,7 @@ module chnlcomp
         , UpCompPointer(MaxChannels) &
         , DownCompPointer(MaxChannels)
     real*8,save ::    CompLocation(MaxLocations) &
+        , ChannelNo(MaxLocations) &
         , DummyArray(MaxLocations) &
         , DummyArray2(MaxLocations) &
         , AreaChannelComp(MaxChannels, 30) ! Assume max of 10 compute points in any channel

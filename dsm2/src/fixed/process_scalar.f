@@ -310,7 +310,9 @@ c--------------heat and temperature related parameters
       elseif (Param .eq. 'repeating_tide') then
          write(unit_error,610)"repeating_tide is deprecated"         
       elseif (Param .eq. 'warmup_run') then
-         call exit(-2)         
+         call exit(-2)    
+      elseif (Param .eq. 'output_inst') then
+         read(Val, '(l2)', err=810) output_inst                    
       else
          write(unit_error,610), Param, Val
          call exit(-1)

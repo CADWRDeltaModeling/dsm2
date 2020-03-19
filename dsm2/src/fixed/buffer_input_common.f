@@ -71,7 +71,7 @@ C!</license>
 
       character*32 groupname
       character*16 member_type
-      character*32 pattern
+      character*256 pattern
       integer*4 obj_type
       integer*4, external :: obj_type_code
 
@@ -211,6 +211,4 @@ c     This must come after tidefile is loaded
 
       call exit(-3)
       end subroutine
-      
-      
-           
+

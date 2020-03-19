@@ -327,6 +327,7 @@ subroutine check_fixed_hydro(istat)
 
     !-----set condition codes (external boundaries, internal compatibility conditions)
     nstgbnd=0
+    nflwbnd=0
     !      nodeSumQChan = 0          ! Array initialization to zero
     do node=1,max_nodes
         if ((node_geom(node)%nup + node_geom(node)%ndown) == 0) then
@@ -429,6 +430,14 @@ subroutine check_fixed_hydro(istat)
                 call exit(2)
             endif
         endif
+        do i=1,ninpaths
+            if (pathinput(i)%useobj .and. &
+                pathinput(i)%data_type == obj_boundary_flow .and. &
+                pathinput(i)%obj_type == obj_node .and. &
+                pathinput(i)%obj_no == node) then
+                nflwbnd=nflwbnd+1
+            endif
+        enddo          
     enddo
 
     !-----fill FourPt connection arrays

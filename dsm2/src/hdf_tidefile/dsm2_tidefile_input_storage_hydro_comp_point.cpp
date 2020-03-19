@@ -130,7 +130,7 @@ void HDFTableManager<hydro_comp_point>::prioritize_buffer()
     vector<hydro_comp_point>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
     if ( dupl != buffer().end())
     {   
-        string message = "Duplicate identifiers in the same input layer:";
+        string message = "Duplicate identifiers in the same input layer (or the same file has been included more than once):";
         stringstream messagestrm;
         messagestrm << message << endl << *dupl << " (" << (*dupl).objectName() <<")" << endl;
         messagestrm << "Layer: " << LayerManager::instance().layerName((*dupl).layer);

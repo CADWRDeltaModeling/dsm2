@@ -159,6 +159,8 @@ contains
         use chnlcomp
         use chconnec
         use chstatus
+        use netcntrl           
+        use channel_xsect_tbl, only: cxarea
         use netcntrl
         implicit none
 
@@ -174,7 +176,7 @@ contains
 
 
         !   Local Variables:
-        integer i,j,Up, Down, iconnect
+        integer i,j,Up, Down, iconnect, icp
 
         !   Routines by module:
 
@@ -200,16 +202,24 @@ contains
                 do j=1,res_geom(i)%nnodes
                     iconnect = iconnect + 1
                     QResv(iconnect)=0.
+                    inst_QResv(iconnect)=0.
                 enddo
             enddo
 
             do i=1,max_qext
                 qext(i)%avg=0.
+                inst_qext(i)=0.
             enddo
 
             do i=1,nobj2obj
                 obj2obj(i)%flow_avg=0.
+                inst_obj2obj(i)=0.
             enddo
+            
+            do icp=1,TotalCompLocations
+                Qcp(icp)=0.
+            enddo            
+            
         endif
 
         do Branch=1,NumberofChannels()
@@ -222,24 +232,33 @@ contains
         enddo
 
         do i=1,nqext
-            qext(i)%avg=qext(i)%avg+theta*qext(i)%flow + &
+            qext(i)%avg=qext(i)%avg+theta*qext(i)%flow + &                     
                 (1.-theta)*qext(i)%prev_flow
+            inst_qext(i)=inst_qext(i)+qext(i)%flow
         enddo
 
         iconnect = 0
         do i=1,Nreser
             do j=1,res_geom(i)%nnodes
                 iconnect = iconnect + 1
-                QResv(iconnect)=QResv(iconnect)+ theta*Qres(i,j)+(1.-theta)* &
+                QResv(iconnect)=QResv(iconnect)+ theta*Qres(i,j)+(1.-theta)* &  
                     QresOld(i,j)
+                inst_QResv(iconnect)=inst_QResv(iconnect)+Qres(i,j)
             enddo
         enddo
 
         do i=1,nobj2obj
-            obj2obj(i)%flow_avg=obj2obj(i)%flow_avg + &
+            obj2obj(i)%flow_avg=obj2obj(i)%flow_avg + &                         
                 theta*obj2obj(i)%flow + (1.-theta)*obj2obj(i)%prev_flow
+            inst_obj2obj(i)=inst_obj2obj(i)+obj2obj(i)%flow
         enddo
-
+        
+        do icp=1,TotalCompLocations
+            Qcp(icp)=Q(icp)               !output instantaneous flow to computational point, not theta average
+            Zcp(icp)=WS(icp)              !was H(icp), using water surface instead
+            Branch=ChannelNo(icp)            
+        enddo
+        
         if (julmin >= next_hydro_interval) then
             do Branch=1,NumberofChannels()
                 Up=UpCompPointer(Branch)
@@ -248,17 +267,26 @@ contains
                 QChan(2,Branch)=QChan(2,Branch)/dble(NSample)
             enddo
 
+            do icp=1,TotalCompLocations
+                Qcp(icp)=Qcp(icp)/dble(NSample)
+                Zcp(icp)=WS(icp)                
+                Branch=ChannelNo(icp)
+            enddo
+            
             do i=1,nqext
                 qext(i)%avg=qext(i)%avg/dble(NSample)
+                inst_qext(i)=inst_qext(i)/dble(NSample)
             enddo
 
          
             do iconnect=1,nres_connect
                 QResv(iconnect)=QResv(iconnect)/dble(NSample)
+                inst_QResv(iconnect)=inst_QResv(iconnect)/dble(NSample)
             enddo
 
             do i=1,nobj2obj
                 obj2obj(i)%flow_avg=obj2obj(i)%flow_avg/dble(NSample)
+                inst_obj2obj(i)=inst_obj2obj(i)/dble(NSample)
             enddo
 
         endif
@@ -338,11 +366,11 @@ contains
 
         !   Local Variables:
         integer i
-        integer index
+
         logical ok
         logical InitialCall
         !   Routines by module:
-        integer, external :: SetHDF5ToTime
+
         !**** Channel flow status:
 
         !   Programmed by: Parviz Nader
@@ -372,13 +400,16 @@ contains
 	         
             !This call needs to be before the assignment of prev_avg
             if (io_files(hydro,io_hdf5,io_write)%use) then
-                index = SetHDF5ToTime(julmin)
+                call SetHDF5ToTime(julmin)
                 call WriteQExtChangedToHDF5()
                 call WriteChannelFlowToHDF5()
                 call WriteReservoirFlowToHDF5()
                 call WriteTransferFlowToHDF5()
                 call WriteChannelAreaToHDF5()
                 call WriteReservoirHeightToHDF5()
+                if (output_inst) then
+                    call WriteCompPointToHDF5()
+                end if                 
             end if
         end if
         WriteHydroToTidefile = .true.

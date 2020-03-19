@@ -9,7 +9,7 @@ files and prepend dsm2_tidefile_ to the names of the cpp and header files
 """
 
 import sys
-sys.path.append("d:/delta/models/test/input_storage/src")
+sys.path.append("../../../input_storage/src")
 from generate_input_storage import *
 LAST_FIELD=1
 DSM2_NAME_LEN=32
@@ -85,9 +85,23 @@ def generate_dsm2_processed_data():
     prep_component(component,outdir)               # Group reads/writes/clears are based on the
                                                    # the order in which they are "prepped"
 
+    component = TableComponent("virtual_xsect",         # name of the table
+                           [IntField("chan_no"),
+						   IntField("num_virt_sec"),
+                           IntField("vsecno"),
+						   IntField("num_elev"),
+						   DoubleField("min_elev",16,8),
+						   DoubleField("elevation",16,8),
+						   DoubleField("area",16,8),
+						   DoubleField("wet_p",16,8),
+						   DoubleField("width",16,8)],
+                           ["chan_no"])
+    component.layered=True                         # Component is part of the layering system
+    prep_component(component,outdir)               # Group reads/writes/clears are based on the
+                                                   # the order in which they are "prepped"
 
-                                                   
-    processed_data_keywords=["qext","hydro_comp_point","reservoir_node_connect","node__flow_connections","reservoir_flow_connections"]
+    processed_data_keywords=["qext","hydro_comp_point","reservoir_node_connect","node__flow_connections","reservoir_flow_connections","virtual_xsect"]
+
     define_text_sub("envvar",outdir)
     define_include_block("processed_data", processed_data_keywords)
         
