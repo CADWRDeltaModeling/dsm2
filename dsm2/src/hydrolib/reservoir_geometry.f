@@ -99,7 +99,7 @@ contains
         dV=0.5*(A1+A2)*(z2-z1)
         factor=(V2-V1)/dV
         A=A1+(A2-A1)/dz*(z-z1) 
-        reser_area= A*factor
+        reser_area= A
         reser_vol=V1+factor*0.5*(A1+A)*(z-z1)
         return
     end subroutine
