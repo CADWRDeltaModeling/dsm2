@@ -98,9 +98,17 @@ contains
         end if
         dV=0.5*(A1+A2)*(z2-z1)
         factor=(V2-V1)/dV
-        A=A1+(A2-A1)/dz*(z-z1) 
+        If (abs(factor-1). gt. 0.0001) Then
+            write(unit_error,1926) resno, Z, Z1, Z2, A1, A2, V1, V2, Factor
+1926        Format('resno, Z, Z1, Z2, A1, A2, V1, V2, Factor:',  i4, 8PE12.5,  ' Error was expecting Reservoir Factor=1')
+            call exit(2)
+        end if 
+        ! A=A1+(A2-A1)/dz*(z-z1)
+        F=(A2-A1)/(z2-z1)
+        A=A1+F*(z-z1)
         reser_area= A
-        reser_vol=V1+factor*0.5*(A1+A)*(z-z1)
+        ! reser_vol=V1+factor*0.5*(A1+A)*(z-z1)
+        reser_vol=0.5*F*(z-z1)**2+A1*(z-z1)+V1
         return
     end subroutine
 
