@@ -790,9 +790,6 @@ c-----The flags are set true if they are located on either end of the channel.
             CRES(I,CONS_NO) = (RESVOL(I) * CRES(I,CONS_NO) + 
      &           reschgmass(i,CONS_NO)) / (RESVOL(I) + reschgvol(i))
          ENDDO
-         
-         RESVOL(I)=RESVOL(I) + reschgvol(i)
-
         
          IF(RESVOL(I) .LT. 1.0D-03)THEN
             ERZ=RESVOL(I)/ARES(I)

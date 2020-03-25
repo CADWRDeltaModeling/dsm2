@@ -92,6 +92,7 @@ c--------update reservoir area, this area will be used to calulate depth.
          do i=1,nreser          
             reser_elv = eresv(i)
             call calculateReservoirGeometry(i, reser_elv, reser_area, reser_vol)
+            resvol(i) = reser_vol
             ares(i) = reser_area
          enddo
 
