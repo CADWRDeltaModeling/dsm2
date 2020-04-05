@@ -104,11 +104,9 @@ contains
                    2PE12.5,' V1', 2PE12.5,' V2', 2PE12.5)
             call exit(2)
         end if 
-        ! A=A1+(A2-A1)/dz*(z-z1)
         F=(A2-A1)/(z2-z1)
         A=A1+F*(z-z1)
         reser_area= A
-        ! reser_vol=V1+factor*0.5*(A1+A)*(z-z1)
         reser_vol=0.5*F*(z-z1)**2+A1*(z-z1)+V1
         return
     end subroutine
