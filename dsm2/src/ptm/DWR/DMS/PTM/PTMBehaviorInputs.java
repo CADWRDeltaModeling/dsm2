@@ -15,6 +15,7 @@ import java.util.TimeZone;
  */
 public class PTMBehaviorInputs {
 	private String _fishType = null;
+	private String _smeltFileName = null;
 	private SurvivalInputs _survivalInputs=null;
 	private SwimInputs _swimInputs=null;
 	private RouteInputs _routeInputs=null;
@@ -124,7 +125,7 @@ public class PTMBehaviorInputs {
 	 * 
 	 */
 	public PTMBehaviorInputs() {
-		PTMUtil.systemExit("should not be here, system exit.");
+		PTMUtil.systemExit("missing nodes, waterbodies and input file info, system exit.");
 	}
 	public PTMBehaviorInputs(String inputFileName, Node[] nodeArray, Waterbody[] wbArray) {
 		System.out.println("");
@@ -134,7 +135,8 @@ public class PTMBehaviorInputs {
 		_wbArray = wbArray;
 		
 		BufferedReader inputTextBuff = PTMUtil.getInputBuffer(inputFileName);
-
+		
+		// read in general info 
 		ArrayList<String> inputText = PTMUtil.getInputs(inputTextBuff);
 		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
 		if (fishTypeList==null || fishTypeList.size()==0) 
@@ -144,7 +146,7 @@ public class PTMBehaviorInputs {
 		ArrayList<String> tzList = PTMUtil.getInputBlock(inputText, "TIME_ZONE", "END_TIME_ZONE");
 		if (tzList==null || fishTypeList.size()==0){ 
 			_timeZone = TimeZone.getTimeZone("PST");
-			System.err.println("Set default time zone to PST");
+			System.out.println("Set default time zone to PST");
 		}
 		else{ 
 			String id = tzList.get(0).trim();
@@ -164,31 +166,35 @@ public class PTMBehaviorInputs {
 		
 		ArrayList<String> travelTimeOutputInfo = PTMUtil.getInputBlock(inputText, "TRAVEL_TIME_OUTPUT", "END_TRAVEL_TIME_OUTPUT");
 		if (travelTimeOutputInfo==null || travelTimeOutputInfo.size()==0) 
-			System.err.println("Warning: no travel time output info defined in behavior input file");
+			System.out.println("No travel time output info defined in behavior input file");
 		_travelTimeOutput = new TravelTimeOutput(travelTimeOutputInfo);	
 		
 		ArrayList<String> releaseInputs = PTMUtil.getInputBlock(inputText, "FISH_RELEASE_INPUTS", "END_FISH_RELEASE_INPUTS");
 		if (releaseInputs==null || releaseInputs.size()==0)
-			System.err.println("No fish release timeseries found in the behavior input file, using specification in historical_ptm.inp instead!");
+			System.out.println("No fish release timeseries found in the behavior input file, using specification in historical_ptm.inp instead!");
 		else
 			extractReleaseInputs(releaseInputs);
+		
 		ArrayList<String> survivalInputText = PTMUtil.getInputBlock(inputText, "SURVIVAL_INPUTS", "END_SURVIVAL_INPUTS");
 		if (survivalInputText == null)
-			System.err.println("WARNING: no survival behavior input found!");
+			System.out.println("No survival behavior inputs.");
 		_survivalInputs = new SurvivalInputs(survivalInputText, _fishType);
 		ArrayList<String> swimInputText = PTMUtil.getInputBlock(inputText, "SWIM_INPUTS", "END_SWIM_INPUTS");
 		if (swimInputText == null)
-			System.err.println("WARNING: no swim behavior input found!");
+			System.out.println("No swimming behehavior inputs");
 		_swimInputs = new SwimInputs(swimInputText,  _fishType);
 		ArrayList<String> routeInputText = PTMUtil.getInputBlock(inputText, "ROUTE_INPUTS", "END_ROUTE_INPUTS");
 		if (routeInputText == null)
-			System.err.println("WARNING: no route behavior input found!");
+			System.out.println("No routing behavior inputs");
 		_routeInputs = new RouteInputs(routeInputText, _fishType);
+	
 		ArrayList<String> outputOpText = PTMUtil.getInputBlock(inputText, "OUTPUT_OPTIONS", "END_OUTPUT_OPTIONS");
 		if(outputOpText != null && !outputOpText.equals("")){
 			for(String writeOp: outputOpText){
 				if (writeOp.toUpperCase().contains("DISPLAY_SIMULATION_TIMESTEP"))
 					Globals.DisplaySimulationTimestep = PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "DISPLAY_SIMULATION_TIMESTEP_WRITE_ALL");
+				if (writeOp.toUpperCase().contains("FLUX"))
+					Globals.CalculateWritePTMFlux = PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "FLUX_WRITE_ALL");
 				if (writeOp.toUpperCase().contains("ENTRAINMENT"))
 					_routeInputs.setWriteEntrainmentAll(PTMUtil.getBooleanFromLine(writeOp.toUpperCase(), "ENTRAINMENT_WRITE_ALL"));
 				if (writeOp.toUpperCase().contains("SURVIVAL"))
@@ -216,6 +222,7 @@ public class PTMBehaviorInputs {
 		}
 	}
 	public String getFishType(){return _fishType;}
+	public String getSmeltInputFileName() {return _smeltFileName;}
 	public TimeZone getTimeZone(){return _timeZone;}
 	public SwimInputs getSwimInputs(){ return _swimInputs;}
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}

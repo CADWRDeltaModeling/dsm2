@@ -6,28 +6,28 @@ package DWR.DMS.PTM;
 import java.util.Map;
 
 /**
- * used to calculated particle movement
  * @author xwang
  *
  */
-public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> implements SwimHelper {
-
+public class SmeltSwimHelper extends Helper<Integer, SmeltBasicSwimBehavior> implements SwimHelper {
+	
 	/**
 	 */
-	public ParticleSwimHelper(BasicSwimBehavior basic,
-			Map<Integer, BasicSwimBehavior> specialBehaviors) {
+	public SmeltSwimHelper(SmeltBasicSwimBehavior basic,
+			Map<Integer, SmeltBasicSwimBehavior> specialBehaviors) {
 		super(basic, specialBehaviors);
 	}
 
 	/**
 	 * 
 	 */
-	public ParticleSwimHelper(BasicSwimBehavior basic) {
+	public SmeltSwimHelper(SmeltBasicSwimBehavior basic) {
 		super(basic);
 	}
-	public ParticleSwimHelper() {
+	public SmeltSwimHelper() {
 		super();
 	}
+
 	/* (non-Javadoc)
 	 * @see DWR.DMS.PTM.SwimHelper#helpSwim(DWR.DMS.PTM.Particle, float)
 	 */
@@ -51,7 +51,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	 */
 	@Override
 	public void setSwimmingTime(Particle p, int chId) {
-		PTMUtil.systemExit("A particle simulation should never call setSwimmingTime(Particle p, int chId), system exit.");
+		PTMUtil.systemExit("A smelt simulation should never call setSwimmingTime(Particle p, int chId), system exit.");
 
 	}
 
@@ -60,7 +60,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	 */
 	@Override
 	public void setMeanSwimmingVelocity(int pId, int chId) {
-		PTMUtil.systemExit("A particle simulation should never call setMeanSwimmingVelocity(int pId, int chId), system exit.");
+		PTMUtil.systemExit("A smelt simulation should never call setMeanSwimmingVelocity(int pId, int chId), system exit.");
 
 	}
 
@@ -69,7 +69,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	 */
 	@Override
 	public long getSwimmingTime(int pId, int chId) {
-		PTMUtil.systemExit("A particle simulation should never call getSwimmingTime(int pId, int chId), system exit.");
+		PTMUtil.systemExit("A smelt simulation should never call getSwimmingTime(int pId, int chId), system exit.");
 		return 0;
 	}
 
@@ -78,7 +78,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	 */
 	@Override
 	public float getSwimmingVelocity(Particle p, int chId) {
-		PTMUtil.systemExit("A particle simulation should never call getSwimmingVelocity(Particle p, int chId), system exit.");
+		PTMUtil.systemExit("A smelt simulation should never call getSwimmingVelocity(Particle p, int chId), system exit.");
 		return 0;
 	}
 
@@ -87,7 +87,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	 */
 	@Override
 	public int getConfusionFactor(int chId) {
-		PTMUtil.systemExit("A particle simulation should never call getConfusionFactor(int chId), system exit.");
+		PTMUtil.systemExit("A smelt simulation should never call getConfusionFactor(int chId), system exit.");
 		return 0;
 	}
 
@@ -97,6 +97,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	@Override
 	public void setXYZLocationInChannel(Particle p) {
 		super.getBasicBehavior().setXYZLocationInChannel(p);
+
 	}
 
 	/* (non-Javadoc)
@@ -105,6 +106,7 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	@Override
 	public void insert(Particle p) {
 		super.getBasicBehavior().insert(p);
+
 	}
 
 	/* (non-Javadoc)
@@ -112,16 +114,17 @@ public class ParticleSwimHelper extends Helper<Integer, BasicSwimBehavior> imple
 	 */
 	@Override
 	public void updateCurrentInfo(Waterbody[] allWbs) {
-		//no need to update any swimming related info because this is a particle.
+		// no need to update any swim related info for smelt
 
 	}
-	/**
-	 * 
+
+	/* (non-Javadoc)
+	 * @see DWR.DMS.PTM.SwimHelper#getChannelInfo(int)
 	 */
-	public Integer getKey(Particle p) {
+	@Override
+	public float[] getChannelInfo(int particleId) {return super.getBasicBehavior().getChannelInfo(particleId);}
+	public Integer getKey(Particle p){
 		return p.wb.getEnvIndex();
-
 	}
-	public float[] getChannelInfo(int particleId){return super.getBasicBehavior().getChannelInfo(particleId);}
 
 }

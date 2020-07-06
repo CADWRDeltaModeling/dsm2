@@ -4,13 +4,13 @@
 package DWR.DMS.PTM;
 
 import java.util.concurrent.ConcurrentHashMap;
-import edu.cornell.RngPack.*;
+
 
 /**
  * @author xwang
  *
  */
-public class BasicHydroCalculator {
+public class BasicHydroCalculator implements HydroCalculator {
 
 	/**
 	 * 
@@ -35,11 +35,12 @@ public class BasicHydroCalculator {
 	    //Channel.constructProfile();
 	    
 	}
-	void updateDiffusion(Particle p){
+	public void updateDiffusion(Particle p){
 		float [] chanInfo = getChannelInfo(p.Id);
 		//diffusion coefficients are from Fisher Mixing in Inland and Coastal Waters p106 Eqs. (5.3) (5.6)
 		//shear velocity is assumed 1/10 of the channel average velocity (see Fisher p138 Example 5.5 assumptions)
 		// trans diffusion coefficient can be calculated using (EtConst/EvConst)*Ev= EtToEvSqrt*EtToEvSqrt*Ev
+		// Ev = EvConst*depth*0.1*average_velocity (eqs.5.3)
 		_pVertD.put(p.Id, Math.max(Math.abs(EvConst*chanInfo[2]*chanInfo[3]*0.1f),EMIN));
 		//TODO original PTM line, calculate the shear velocity wrong -
 		//_pVertD.put(p.Id, Math.max(Math.abs(EvConst*chanInfo[2]*chanInfo[3]),EMIN));
@@ -49,7 +50,7 @@ public class BasicHydroCalculator {
 	/*
 	 * update channel length, width, depth, velocity, area, previous width, depth info 
 	 */
-	void updateChannelParameters(Particle p){
+	public void updateChannelParameters(Particle p){
 		float [] cL = new float[1], cW = new float[1], cD = new float[1], cV = new float[1], cA = new float[1];
 	    ((Channel)p.wb).updateChannelParameters(p.x,cL,cW,cD,cV,cA);
 	    //_pChanInfo and _prePChanInfo will be initialized in the constructor no need to check null
@@ -89,7 +90,7 @@ public class BasicHydroCalculator {
 	/*
 	 * get channel length, width, depth, velocity, area info
 	 */
-	float[] getChannelInfo(int pId){
+	public float[] getChannelInfo(int pId){
 		float [] chanInfo = _pChanInfo.get(pId);
 		// this method should be call after call update Channel parameters
 		// therefore current info should not be null
@@ -102,7 +103,7 @@ public class BasicHydroCalculator {
 	/**
 	 *  map particle y, z position in previous cross section to current cross section
 	 */ 
-	void mapYZ(Particle p){
+	public void mapYZ(Particle p){
 		// 
 		float [] chanInfo = getChannelInfo(p.Id);
 		float [] preWD = _prePWidthDepth.get(p.Id);
@@ -125,7 +126,7 @@ public class BasicHydroCalculator {
 		p.z = rz*chanInfo[2];
 
 	}
-	int getSubTimeSteps(float timeStep, Particle p){
+	public int getSubTimeSteps(float timeStep, Particle p){
 	    float minTimeStep = timeStep;
 	    if ((_vertMove) || (_transMove))
 	    	minTimeStep = getMinTimeStep(timeStep, p);
@@ -141,7 +142,7 @@ public class BasicHydroCalculator {
 	      return numOfSubTimeSteps;
 	}
 	
-	float getMinTimeStep(float timeStep, Particle p){
+	public float getMinTimeStep(float timeStep, Particle p){
 		//TODO calculated for each sub time step and everything will be updated before the function call (see line 87, 97 BasicSwimBehavior)
 		//don't need follow lines because getMinTimeStep is put back inside of the loop 
 		//updateChannelParameters(p);
@@ -163,7 +164,7 @@ public class BasicHydroCalculator {
 	    PTMUtil.systemExit("lateral or vertical move was not set properly. One of them has to be true, but not, system exit.");
 	    return timeStep;
 	}
-	float calcXAdvectionVelocity(int id, float x, float y, float z, Channel c){
+	public float calcXAdvectionVelocity(int id, float x, float y, float z, Channel c){
 		float [] cInfo = getChannelInfo(id);
 		if(z>cInfo[2])
 			 System.err.println(c.getEnvIndex()+"  "+id+"  "+x + "  "+y+"  "+z+"  "+cInfo[3] + "  "+cInfo[1]+"  "+cInfo[2]+"  "+cInfo[0]+"  "+"  "+c.getDepth(0)+"  "+c.getWidth(0)+"  "+c.getFlow(0)+"  "+c.getVelocity(x, y, z, cInfo[3], cInfo[1], cInfo[2]));
@@ -171,29 +172,23 @@ public class BasicHydroCalculator {
 			 //System.err.println(c.getEnvIndex()+"  "+x + "  "+y+"  "+z+"  "+cInfo[3] + "  "+cInfo[1]+"  "+cInfo[2]+"  "+cInfo[0]+"  "+"  "+c.getDepth(0)+"  "+c.getWidth(0)+"  "+c.getFlow(0)+"  "+c.getVelocity(x, y, z, cInfo[3], cInfo[1], cInfo[2]));
 	    return c.getVelocity(x, y, z, cInfo[3], cInfo[1], cInfo[2]);
 	}
-	float calcXAdvection(float XAdvectionVelocity, float deltaT){
+	public float calcXAdvection(float XAdvectionVelocity, float deltaT){
 		return XAdvectionVelocity*deltaT;
-	}
-	//TODO changed the way random numbers are called
-	//private float calcDiffusionMove(int id, float timeStep, float ratio, boolean usingProfile){
-	private float calcDiffusionMove(int id, float timeStep, float ratio, boolean usingProfile, double gaussian){
-		//float dzy = (float) (PTMUtil.getNextGaussian()*ratio*(float) Math.sqrt(2.0f*_pVertD.get(id)*timeStep));
-		float dzy = (float) (gaussian*ratio*((float) Math.sqrt(2.0f*_pVertD.get(id)*timeStep)));
-		// return the random z movement if vertical mixing allowed
-		if (usingProfile) return (dzy);
-		else return 0.0f;
 	}
 	/**
 	  *  Z Position calculation for time step given
 	  */
 	//TODO changed the way random numbers are called
 	//float getZPosition(int id, float z, float timeStep){
-	float getZPosition(int id, float z, float timeStep, double gaussian){
+	public float getZPosition(Particle p, float z, float timeStep, double gaussian){
+		int id = p.Id;
 		// get current position
 		float zPos = z;
 		float depth = getChannelInfo(id)[2];
 		// calculate position after timeStep
 		if(_vertMove)
+			//vertical diffusion coefficient _pvertD.get(id) = EvConst*depth*average_velocity*0.1f
+			//dz = gaussian*sqrt(2*vertical_diffusion_coefficient*dt)
 			zPos += (float) (gaussian*((float) Math.sqrt(2.0f*_pVertD.get(id)*timeStep)));
 		
 		// reflections from bottom of Channel and water surface
@@ -213,7 +208,8 @@ public class BasicHydroCalculator {
 	 */
 	//TODO changed the way random numbers are called
 	//float getYPosition(int id, float y, float timeStep){
-	float getYPosition(int id, float y, float timeStep, double gaussian){
+	public float getYPosition(Particle p, float y, float timeStep, double gaussian){
+		int id = p.Id;
 	    // get current position
 		float yPos = y; 
 		float width = getChannelInfo(id)[1];
@@ -239,7 +235,7 @@ public class BasicHydroCalculator {
 	  *  y, z positioning for particle just out of reservoir/conveyor
 	  *  w random numbers generation 
 	  */
-	void setYZLocationInChannel(Particle p){
+	public void setYZLocationInChannel(Particle p){
 		// this method should be called only when a particle is in a channel
 		Channel c = (Channel) p.wb;
 		//TODO changed the way random numbers are called
@@ -252,7 +248,7 @@ public class BasicHydroCalculator {
 	    *  gets x location in Channel corresponding to upnode and
 	    *  downnode.
 	    */
-	float getXLocationInChannel(Particle p){
+	public float getXLocationInChannel(Particle p){
 	  Channel c = (Channel) p.wb;
       if (c.getUpNodeId() == p.nd.getEnvIndex())
     	  return 0.0f;
@@ -266,7 +262,7 @@ public class BasicHydroCalculator {
 	}
 
 	  
-	float calcTimeToNode(Channel c, float advVel, float swimVel, float x, float xPos){
+	public float calcTimeToNode(Channel c, float advVel, float swimVel, float x, float xPos){
 		float xAdvectionVelocity = advVel + swimVel;
 		if (Math.abs(xAdvectionVelocity) < 0.000001)
 			System.err.println("Warning: very small advection + swimming velocities:" + xAdvectionVelocity + ".  It'll take a long time to reach a node.");
@@ -282,7 +278,7 @@ public class BasicHydroCalculator {
 			
 	}
 	
-	float calcDistanceToNode(Channel c, float x, float xPos){
+	public float calcDistanceToNode(Channel c, float x, float xPos){
 		float l = c.getLength();
 		if (xPos < 0)
 			 return x; 
@@ -298,9 +294,15 @@ public class BasicHydroCalculator {
 	  *  factor used for calculating minimum time step
 	  *  set outside of method to allow overwriting to include fall velocity
 	  */  	
-	float getTerminalVelocity(){
+	public float getTerminalVelocity(){
 	    return 1.0e-10f;
 	}
+	ConcurrentHashMap<Integer, Float> getVerticalDiffCoef(){return _pVertD;}
+	ConcurrentHashMap<Integer, float[]> getPreWidthDepth(){return _prePWidthDepth;}
+	float getEtToEvSqrt() {return EtToEvSqrt;} 
+	float getEvConst() {return EvConst;}
+	boolean getTransMove(){return _transMove;}
+	boolean getVertMove(){ return _vertMove;}
 	// pid vs. channel info (0: length, 1: width, 2: depth, 3: velocity, 4: area)
 	private ConcurrentHashMap<Integer, float[]> _pChanInfo;
 	// pid vs. previous Width Depth (0: width, 1:depth)

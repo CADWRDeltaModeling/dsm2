@@ -153,6 +153,8 @@ public class PTMEnv{
 	    //TODO need to move this to somewhere else so the behavior helper can be independently set???
 	    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName(), nodeArray, wbArray);
 	    _particleType = _behaviorInputs.getFishType();
+	    if(_particleType.equalsIgnoreCase("SMELT"))
+	    	_smeltInputFileName = _behaviorInputs.getSmeltInputFileName();
 	    _routeHelper = _behaviorInputs.getRouteHelper();
 	    _swimHelper = _behaviorInputs.getSwimHelper();
 	    _survivalHelper = _behaviorInputs.getSurvivalHelper();
@@ -219,33 +221,35 @@ public class PTMEnv{
   /**
    * Set the current Particle behavior object
    */
-  //TODO this is Aaron's original code and needed to be changed
+  //TODO this is Aaron's original code for smelt behaviors.
+  // rewrite this part in PTMBehaviorInputs
+  /*
   public final boolean setParticleBehavior() throws IOException {
     // initialize behavior file
     boolean fileExists = false;
-    String behaviorFileName = getBehaviorFileName();
-    if (behaviorFileName.length() != 0 && behaviorFileName != null){
+    if (_smeltInputFileName.length() != 0 && _smeltInputFileName != null){
       fileExists = true;
-      if (checkFile(behaviorFileName)) {
-        behaviorIn = new ParticleBehavior(behaviorFileName);
+      if (checkFile(_smeltInputFileName)) {
+        behaviorIn = new ParticleBehavior(_smeltInputFileName);
         if (behaviorIn != null) {
           getParticleFixedInfo().setBehavior(behaviorIn);
-          System.out.println("Opened Behavior File "+behaviorFileName);
+          System.out.println("Opened Behavior File "+_smeltInputFileName);
           }
       }
       else {
-        System.out.println("Behavior File \""+behaviorFileName+"\" Does Not Exist \nExiting");
+        System.out.println("Behavior File \""+_smeltInputFileName+"\" Does Not Exist \nExiting");
         System.exit(0);
       }
     }
     return fileExists;
   }
-
+  
   private boolean checkFile(String filenm){
     File tmpfile = new File(filenm);
     return tmpfile.isFile();
   }
-
+  */
+ 
   /**
    * Get the Waterbody object for a given unique id
    * @param   wbId a unique id
@@ -616,12 +620,14 @@ public class PTMEnv{
     return fixedInput.getAnimationOutputInterval();
   }
   /**
-   *  behavior file name
+   *  behavior file name: Aaron's code, not used anymore
    */
+  /*
   public final String getBehaviorFileName(){
 	  System.out.println(fixedInput.getBehaviorFileName());
     return fixedInput.getBehaviorFileName();
   }
+  */
   /**
    *  trace file name
    */
@@ -724,6 +730,7 @@ public class PTMEnv{
   private int maxNumberOfXSections;
   private int numberOfGroups;
   private String _particleType;
+  private String _smeltInputFileName;
   private PTMBehaviorInputs _behaviorInputs;
   private static Map<String, Integer> _reservoirObj2objNameID = null; 
   private RouteHelper _routeHelper;

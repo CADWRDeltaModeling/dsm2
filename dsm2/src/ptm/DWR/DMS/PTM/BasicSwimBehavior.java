@@ -5,14 +5,17 @@ package DWR.DMS.PTM;
 public class BasicSwimBehavior implements SwimBehavior {
 	private SwimInputs _si;
 	protected float tmLeft;
-	private BasicHydroCalculator _hydroCalc;
+	private HydroCalculator _hydroCalc;
 	private float MISSING = -9999999999.0f;
 	
 	public BasicSwimBehavior(SwimInputs si) {
 		_si = si;	
-		_hydroCalc = new BasicHydroCalculator();
+		setHydroCalculator(new BasicHydroCalculator());
 	}
+	public void setHydroCalculator(HydroCalculator hydroCalc){_hydroCalc = hydroCalc;}
+	public HydroCalculator getHydroCalculator(){return _hydroCalc;}
 	public SwimInputs getSwimInputs(){return _si;}
+	public float[] getChannelInfo(int pId){return _hydroCalc.getChannelInfo(pId);}
 	final boolean isNodeReached(Channel ch, float xpos){
 	    if ((xpos < 0.0f) || (xpos > ch.getLength())) // crossed starting/ending Node of Channel 
 	    	return true;
@@ -67,7 +70,7 @@ public class BasicSwimBehavior implements SwimBehavior {
 	/**
 	  *  updates the position and parameters of Particle.
 	  */
-	public final void updatePosition(Particle p, float delT){
+	public void updatePosition(Particle p, float delT){
 		//if(p.Id == 1 && p.wb.getEnvIndex()== 393)
 			//System.err.println("start new step");
 		float tmLeft = delT;
@@ -138,8 +141,8 @@ public class BasicSwimBehavior implements SwimBehavior {
 						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, pre_z);
 						 */
 						//TODO change the way the random numbers are called
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
+						 p.y = _hydroCalc.getYPosition(p, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p, p.z,tmToAdv, p.getGaussian());
 						 p.age += tmToAdv;
 						 tmLeft -= tmToAdv;
 						 p.addTimeUsed(tmToAdv);
@@ -176,8 +179,8 @@ public class BasicSwimBehavior implements SwimBehavior {
 						 //TODO for debug purpose
 						 //double gau_y = p.getGaussian();
 						 //double gau_z = p.getGaussian();
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
+						 p.y = _hydroCalc.getYPosition(p, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p, p.z,tmToAdv, p.getGaussian());
 						 //if(p.Id == 1 && (p.wb.getEnvIndex()== 393 || p.wb.getEnvIndex()== 394))
 							 //System.err.println(p.getCurrentParticleTimeExact()+"  "+p.x + "  "+p.y+"  "+p.z+"  "+advVel+"  "+p.wb.getEnvIndex()+"  "+tmLeft);
 						 p.age += tmToAdv;

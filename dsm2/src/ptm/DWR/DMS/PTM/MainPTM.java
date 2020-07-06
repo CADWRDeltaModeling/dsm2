@@ -39,7 +39,6 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
  */
 package DWR.DMS.PTM;
 import java.io.IOException;
-import java.util.Calendar;
 /*
  * main function of PTM
  */
@@ -84,49 +83,18 @@ public class MainPTM {
              */
             if(isRestart)
             	PTMUtil.systemExit("restart functionality is disabled! exit.");
-            /*
-            if(DEBUG) System.out.println("Checking for restart run");
-            // if restart then inject those particles
-            if(isRestart){
-                String inRestartFilename = Environment.getInputRestartFileName();
-                PTMRestartInput restartInput = 
-                    new PTMRestartInput(inRestartFilename,
-                                        Environment.getFileType(inRestartFilename),
-                                        particleArray);
-                restartInput.input();
-                numberOfRestartParticles = particleArray.length;
-            }
-            */
-            boolean behavior = false;
-            //add behaviors
-            Environment.addBehaviors();
-            try {
-                // set behavior file and return status
-            	//TODO This behavior module is Aaron's original one and needs to be revisited, only works for delta smelt
-            	//getBehaviorFileName() somehow return the sameName as getBehaviorInfileName()
-            	if (Environment.getParticleType().equalsIgnoreCase("SMELT"))
-                	behavior = Environment.setParticleBehavior();
-                //      behavior = true;
-            } catch(IOException ioe) {}
 
-            // total number of particles
+            Environment.addBehaviors();
+
             numberOfParticles = numberOfRestartParticles
                               + Environment.getNumberOfParticlesInjected();
             if(DEBUG) System.out.println("total number of particles injected are " + numberOfParticles);
     
             particleArray = new Particle[numberOfParticles];
             if(DEBUG) System.out.println("restart particles " + numberOfRestartParticles);
-            
-            //TODO need to be rewrite 
-            if(behavior) {
-                for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
-                    particleArray[pNum] = new BehavedParticle(Environment.getParticleFixedInfo());
-                System.out.println("Behaved Particle");
-            }
-            else {
-                for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
+
+            for(int pNum = numberOfRestartParticles; pNum < numberOfParticles; pNum++)
                     particleArray[pNum] = new Particle(Environment.getParticleFixedInfo());
-            }
             if(DEBUG) System.out.println("particles initialized");
     
             // insert particles from fixed input information
@@ -135,7 +103,7 @@ public class MainPTM {
             // set observer on each Particle
             String traceFileName = Environment.getTraceFileName();
             if ( traceFileName == null || traceFileName.length() == 0 ) 
-                PTMUtil.systemExit("Trace file needs to be specified, Exit from MainPTM line 132.");
+                PTMUtil.systemExit("Trace file needs to be specified, Exit from MainPTM");
             ParticleObserver observer = null;
             observer = new ParticleObserver(traceFileName,
                                             Environment.getFileType(traceFileName),
@@ -144,8 +112,7 @@ public class MainPTM {
             RouteHelper routeHelper = Environment.getRouteHelper();
             SwimHelper swimHelper = Environment.getSwimHelper();
             SurvivalHelper survivalHelper = Environment.getSurvivalHelper();
-            if (survivalHelper == null)
-            	System.err.println("Warning: no survival helper defined");
+
             if(DEBUG) System.out.println("Set observer, helpers");
             //in case of particle, no need for check survival
             for(int i=0; i<numberOfParticles; i++) {
@@ -171,6 +138,7 @@ public class MainPTM {
                                                   particleArray);
             }catch(IOException ioe){
             	//no restart option exit, do nothing
+            	ioe.printStackTrace();
             }
             if(DEBUG) System.out.println("Set restart output");
     
@@ -185,6 +153,7 @@ public class MainPTM {
                                                          Environment.getNumberOfAnimatedParticles(),
                                                          particleArray);
             }catch(IOException ioe){
+            	ioe.printStackTrace();
             }
             if(DEBUG) System.out.println("Set anim output");
     
@@ -193,24 +162,6 @@ public class MainPTM {
             // time step (converted to seconds) and display interval
             int timeStep = PTMTimeStep*60;
             int displayInterval = Environment.getDisplayInterval();
-            /* to print out internal external channels, nodes
-            Node[] nodens = Environment.getNodeArray();
-            Waterbody[] wbwbs = Environment.getWbArray();
-            for (Waterbody w:wbwbs){
-            	if ((w != null)&& (w.getType() == Waterbody.CHANNEL))
-            		System.err.println(""+w.getEnvIndex()+" "+PTMHydroInput.getExtFromIntChan(w.getEnvIndex()));
-            }
-            System.err.println(" ");
-            System.err.println("node");
-            for (Node nn:nodens){
-            	if (nn != null && nn.getEnvIndex()<811)
-            			System.err.println(""+nn.getEnvIndex()+" "+PTMHydroInput.getExtFromIntNode(nn.getEnvIndex()));
-            }
-            */
-            //Environment.getHydroInfo(startTime-PTMTimeStep*4);//@todo: warning if < hydro start time 
-            // initialize current model time
-            //   Globals.currentModelTime = startTime;
-            //main loop for running Particle model
             
             //currentModelTime, startTime, endTime, PTMTimeStep are in minutes
             // timeStep is in seconds, which is used to update positions
@@ -221,7 +172,7 @@ public class MainPTM {
                 // output runtime information to screen
             	if(Globals.DisplaySimulationTimestep)
             		MainPTM.display(displayInterval);
-                if (behavior)
+                //if (smeltBehavior)
                     Globals.currentMilitaryTime = Integer.parseInt(Globals.getModelTime(Globals.currentModelTime));
                 
                 // get latest hydro information using Global/model time in minutes!!!!!!
@@ -238,6 +189,7 @@ public class MainPTM {
                 	if (DEBUG) System.out.println("Update particle " + i +" position");
             		particleArray[i].updatePosition(timeStep);
             		if (DEBUG) System.out.println("Updated particle "+i +" position");
+            		//set Particle._timeUsedInSecond = 0.0
             		particleArray[i].clear();
                 }
       
@@ -251,9 +203,7 @@ public class MainPTM {
             	//print out travel times
             	Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
             	Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();
-            	RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();
-            
-            	//comment out next block if you don't want to write out entrainments and flux           
+            	RouteInputs rIn = Environment.getBehaviorInputs().getRouteInputs();                     
             
             	rIn.writeEntrainmentRates();
             	if(Particle.ADD_TRACE)
@@ -269,9 +219,7 @@ public class MainPTM {
             particleArray = null;
             
             // output flux calculations in dss format
-            // flux calculation has some errors, disable for now
-            //TODO temp comment out for now to speed up the simulation, need to be uncommented later
-            if(Particle.ADD_TRACE){
+            if(Globals.CalculateWritePTMFlux){
             	FluxInfo fluxFixedInfo = Environment.getFluxFixedInfo();
             	GroupInfo groupFixedInfo = Environment.getGroupFixedInfo();
 
@@ -282,7 +230,6 @@ public class MainPTM {
             	fluxCalculator.calculateFlux();
             	fluxCalculator.writeOutput(); 
             }
-            //comment out for writing files and calculating flux end here 
            
             System.out.println("done simulation");
             
@@ -298,7 +245,6 @@ public class MainPTM {
     
     //public native static void display(int displayInterval);
     public static void display(int displayInterval) { 
-    
         if(previousDisplayTime == 0){ 
             previousDisplayTime = Globals.currentModelTime - displayInterval;
         }

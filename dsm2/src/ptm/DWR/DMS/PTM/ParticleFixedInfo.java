@@ -66,10 +66,13 @@ public  ParticleFixedInfo(){
   /**
    *  sets the logical variable values
    */
+//TODO clean up.  This is Aaron's original smelt code.  Move to SwimInputs
+/*
   public final void setBehavior(ParticleBehavior behave){
     useBehaviorFile = true;
     behavior = behave;
   }
+  */
   /**
    *  sets the logical variable values
    */
@@ -138,9 +141,12 @@ public final void setVariables(int nInjections,
   /**
    *  return random seed
    */
+  //TODO Aaron's original smelt behavior code, move to SwimInputs
+  /*
 public final ParticleBehavior getBehavior(){
   return behavior;
 }
+*/
 
   /**
    *  return the existance of a behavior file

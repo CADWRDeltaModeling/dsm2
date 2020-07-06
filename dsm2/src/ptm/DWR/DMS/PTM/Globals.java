@@ -70,4 +70,5 @@ public class Globals{
    */
   public static native int getTimeInJulianMins(String modelDate, String modelTime);
   public static boolean DisplaySimulationTimestep = true;
+  public static boolean CalculateWritePTMFlux = true;
 }

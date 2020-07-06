@@ -19,4 +19,5 @@ public interface SwimHelper {
 	public void setXYZLocationInChannel(Particle p);
 	public void insert(Particle p);
 	public void updateCurrentInfo(Waterbody[] allWbs);
+	public float[] getChannelInfo(int particleId);
 }

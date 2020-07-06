@@ -69,7 +69,6 @@ public class SurvivalInputs {
 		}
 		else{
 			_doSurvival = false;
-			System.err.println("No survival parameters are input, and survival rates will not be calculated.");
 		}
 	}
 	public int getGroupNumber(int startStation){return _startStaGroup.get(startStation);}
@@ -332,9 +331,9 @@ public class SurvivalInputs {
 			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(this));
 			System.out.println("Created Particle Salmon Survival Helper");
 		}
-		else if (_fishType.equalsIgnoreCase("Particle")){
+		else if (_fishType.equalsIgnoreCase("Particle")||_fishType.equalsIgnoreCase("SMELT")){
 			_survivalHelper = null;
-			System.out.println("Created a null Particle Survival Helper");
+			System.out.println("No Survival Helper created");
 		}
 		else
 			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");

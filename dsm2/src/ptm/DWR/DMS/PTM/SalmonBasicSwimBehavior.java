@@ -44,7 +44,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	public float getSwimmingVelocity(Particle p, int chanId){ 
 		return _swimCalc.getSwimmingVelocity(p, chanId);
 	}
-
+	public float[] getChannelInfo(int pId){return _hydroCalc.getChannelInfo(pId);}
 	private final boolean isNodeReached(Channel ch, float xpos){
 	    if ((xpos < 0.0f) || (xpos > ch.getLength())) // crossed starting/ending Node of Channel 
 	    	return true;
@@ -234,8 +234,8 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						 //TODO change the way that the random numbers are calculated
 						 //Every particle carries its own random number generator to avoid the pseudo-random number caused dependency
 						 //The random number is called from its particle. 
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
+						 p.y = _hydroCalc.getYPosition(p, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p, p.z,tmToAdv, p.getGaussian());
 						 //p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, PTMUtil.getNextGaussian());
 						 //p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, PTMUtil.getNextGaussian());
 						 p.age += tmToAdv;
@@ -333,8 +333,8 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 						  * y, z are calculated according to current xsection info (channel parameters hasn't been updated yet)
 						  * they'll be mapped to new xsection at the beginning of the loop 
 						  */
-						 p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, p.getGaussian());
-						 p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, p.getGaussian());
+						 p.y = _hydroCalc.getYPosition(p, p.y,tmToAdv, p.getGaussian());
+						 p.z = _hydroCalc.getZPosition(p, p.z,tmToAdv, p.getGaussian());
 						 //p.y = _hydroCalc.getYPosition(p.Id, p.y,tmToAdv, PTMUtil.getNextGaussian());
 						 //p.z = _hydroCalc.getZPosition(p.Id, p.z,tmToAdv, PTMUtil.getNextGaussian());
 						 p.age += tmToAdv;

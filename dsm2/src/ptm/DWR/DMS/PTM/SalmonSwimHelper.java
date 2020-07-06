@@ -59,4 +59,5 @@ public class SalmonSwimHelper extends Helper<Integer, SalmonSwimBehavior> implem
 	public void setXYZLocationInChannel(Particle p){super.getBasicBehavior().setXYZLocationInChannel(p);}
 	public void insert(Particle p){super.getBasicBehavior().insert(p);}
 	public void updateCurrentInfo(Waterbody[] allWbs){super.getBasicBehavior().updateCurrentInfo(allWbs);}
+	public float[] getChannelInfo(int particleId){return super.getBasicBehavior().getChannelInfo(particleId);}
 }

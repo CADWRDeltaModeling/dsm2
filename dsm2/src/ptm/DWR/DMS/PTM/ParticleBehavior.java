@@ -117,7 +117,7 @@ public class ParticleBehavior {
     return new String().valueOf(_id);
   }
 
-  public void setCurrentAgeId(float age){
+  public void setCurrentAgeId(double age){
     int i = 0;
     while (i <= ageId.length - 1 && ageId [i] <= age) i++;
     _currentAgeId = i;
@@ -175,19 +175,19 @@ public class ParticleBehavior {
 
 	}
 
-  public float getFallVel(float age){
+  public float getFallVel(double age){
     setCurrentAgeId(age);
     setPhase();
     return thisPhase.getFallVel();
   }
 
-  public float getMortality(float age){
+  public float getMortality(double age){
     setCurrentAgeId(age);
     setPhase();
     return thisPhase.getMortality();
   }
 
-  public float getDevelopTime(float age){
+  public float getDevelopTime(double age){
     setCurrentAgeId(age);
     setPhase();
     return thisPhase.getDevelopTime();
@@ -200,22 +200,22 @@ public class ParticleBehavior {
 
   }
 
-  public int getTimeZLowerLimit(float age, int time){
+  public int getTimeZLowerLimit(double age, int time){
     setCurrentAgeId(age);
     return extractTimeData(zTimePosData,this.LL,time,0);
   }
 
-  public int getTimeZUpperLimit(float age, int time){
+  public int getTimeZUpperLimit(double age, int time){
     setCurrentAgeId(age);
     return extractTimeData(zTimePosData,this.UL,time,100);
   }
 
-  public int getYLowerLimit(float age, int time){
+  public int getYLowerLimit(double age, int time){
     setCurrentAgeId(age);
     return extractTimeData(yTimePosData,this.LL,time,0);
   }
 
-  public int getYUpperLimit(float age, int time){
+  public int getYUpperLimit(double age, int time){
     setCurrentAgeId(age);
     return extractTimeData(yTimePosData,this.UL,time,50);
   }
@@ -243,12 +243,12 @@ public class ParticleBehavior {
 
   //**************** Stage Position Information ********************************************
 
-	public int getStageZLowerLimit(float age, int tidalPhase){
+	public int getStageZLowerLimit(double age, int tidalPhase){
 		setCurrentAgeId(age);
 		return extractStageData(zStagePosData,this.LL,tidalPhase,0);
 	}
 	
-	public int getStageZUpperLimit(float age, int tidalPhase){
+	public int getStageZUpperLimit(double age, int tidalPhase){
 		setCurrentAgeId(age);
 		return extractStageData(zStagePosData,this.UL,tidalPhase,100);
 	}

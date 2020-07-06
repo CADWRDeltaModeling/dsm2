@@ -35,7 +35,7 @@ class ParticleObserver{
                           int startTime, int endTime, int PTMTimeStep, 
                           int nParticles){
 	//TODO temp commented out for not writing the trace file
-	if(Particle.ADD_TRACE)
+	if(Particle.ADD_TRACE||Globals.CalculateWritePTMFlux)
 		traceOn = true;
 	else
 		traceOn = false;
@@ -97,9 +97,10 @@ class ParticleObserver{
       long time = observed.getCurrentParticleTime();
       int pId = (int) observed.getId();
       short nodeId = -1;
+      int wbId = 0;
       //This is for when a particle is inserted at a known channel
-      //short wbId = 0;
-      int wbId = observed.wb.getEnvIndex();
+      if (observed.wb != null)
+    	  wbId = observed.wb.getEnvIndex();
       if (wbId > 0)
     	  output.output(time,pId,nodeId,wbId);
       else

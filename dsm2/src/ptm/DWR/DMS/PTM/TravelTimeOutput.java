@@ -24,7 +24,7 @@ public class TravelTimeOutput {
 	 */
 	public TravelTimeOutput(ArrayList<String> outText) { // outText:  the line specify travel time output in the behavior input file
 		if (outText == null)
-			System.err.println("Warning: travel time output info is not defined in behavior input file!");
+			System.out.println("No travel time output info!");
 		else{
 			_pathName = PTMUtil.getPathFromLine(outText.get(0), ':');
 			if(_pathName.equalsIgnoreCase("")){
@@ -141,7 +141,7 @@ public class TravelTimeOutput {
 			e.printStackTrace();
 		}
 	}
-	public void recordTravelTime(int id, String inStation, long inTime, float ageInSec, IntBuffer ndWb, float velocity, float x, boolean fromUpstream){
+	public void recordTravelTime(int id, String inStation, long inTime, double ageInSec, IntBuffer ndWb, float velocity, float x, boolean fromUpstream){
 		//only record when need to output TravelTime
 		if (_pathName == null)
 			return;
@@ -164,7 +164,7 @@ public class TravelTimeOutput {
 				// p.x is always > = 0
 				// if p.x >= dist record the travel time
 				if ((!(x<dist)) || (distDiff <_threshold)){
-					float tt = ageInSec/60.0f;
+					double tt = ageInSec/60.0d;
 					if (distDiff>_threshold){
 						// p.x always > 0 and velocity > 0 because !(p.x<dist) and deltaX >0
 						if (velocity < 0.0001f)  
@@ -197,8 +197,8 @@ public class TravelTimeOutput {
 	private class TTEntry{
 		private String _inSta;
 		private long _inTime;
-		private float _travelTime;
-		public TTEntry(String inSta, long inTime, float travelTime){
+		private double _travelTime;
+		public TTEntry(String inSta, long inTime, double travelTime){
 			_inSta = inSta;
 			_inTime = inTime;
 			_travelTime = travelTime;
@@ -207,6 +207,6 @@ public class TravelTimeOutput {
 		public long getInsertTime(){
 			return _inTime;
 		}
-		public float getTravelTime() {return _travelTime;}
+		public double getTravelTime() {return _travelTime;}
 	}
 }

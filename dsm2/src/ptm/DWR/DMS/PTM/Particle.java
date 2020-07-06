@@ -107,7 +107,7 @@ public class Particle{
 	    *  age of Particle in seconds since insertion
 	    */
 	  //TODO change to double???
-	  public float age;
+	  public double age;
 	  /**
 	    *  keeps track of if Particle alive or dead
 	    */
@@ -179,6 +179,7 @@ public class Particle{
 		  return _randomNumberGenerator;
 	  }
 	  //public double getRandomNumber(){return getRandomGenerator().uniform(0, 1);}
+	  public float getRandomNumber(){return getRandomGenerator().nextFloat();}
 	  //public double getGaussian(){return getRandomGenerator().gaussian();}
 	  public double getGaussian(){return getRandomGenerator().nextGaussian();}
 	  /**
@@ -519,6 +520,8 @@ public class Particle{
 	  //will be overridden in Arron's behaved particle
 	  protected void updateOtherParameters(float delT){}
 	  protected float calcZDisplacementExtRandom(float timeStep){return 0.0f;}
+	  protected float[] getChannelInfo(int particleId){return _swimHelper.getChannelInfo(particleId);}
+	  //
 	  boolean isSwimVelSetInJunction(){return _swimVelSetInJunction;}
 	  void swimVelSetInJunction(boolean sVSet){_swimVelSetInJunction = sVSet;}
 	  

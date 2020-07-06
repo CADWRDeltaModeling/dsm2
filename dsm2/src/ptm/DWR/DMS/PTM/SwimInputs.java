@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author xwang
@@ -21,25 +23,41 @@ public class SwimInputs {
 	}
 	public SwimInputs(ArrayList<String> inText, String fishType) {
 		if (inText != null){
-			if (inText.size()<11)
-				PTMUtil.systemExit("information missing in Swim_Inputs section");
-			try{
-				//_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT"); //no longer used
-				_sunrise = PTMUtil.getPairFromLine(inText.get(0), "SUNRISE");
-				_sunset = PTMUtil.getPairFromLine(inText.get(1), "SUNSET");
-				_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(2), "STST_THRESHOLD");
-				_numTidalCycles = PTMUtil.getIntFromLine(inText.get(3), "TIDAL_CYCLES_TO_CALCULATE_CHANNEL_DIRECTION");
-				_constProbConfusion = PTMUtil.getFloatFromLine(inText.get(4), "CONSTANT_CONFUSION_PROBABILITY");
-				_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "MAXIMUM_CONFUSION_PROBABILITY");
-				_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "CONFUSION_PROBABILITY_SLOPE");
-				_randomAccess = PTMUtil.getBooleanFromLine(inText.get(7), "RANDOM_ACCESS");
-				_accessProb = PTMUtil.getFloatFromLine(inText.get(8), "ACCESS_PROBABILITY"); 
-			}catch (NumberFormatException e){
-				e.printStackTrace();
-				PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
+			if (fishType.equalsIgnoreCase("SMELT")){
+				ArrayList<String> fileNames = PTMUtil.getInputBlock(inText, "Input_Smelt_File_Name", "END_Input_Smelt_File_Name");
+				if (fileNames==null || fileNames.size()==0) 
+					PTMUtil.systemExit("No smelt input file name found, exit.");
+				String smeltInputFileName = fileNames.get(0).trim();
+				try{
+					setSmeltParticleBehavior(smeltInputFileName);
+				}catch (IOException e){
+					e.printStackTrace();
+					PTMUtil.systemExit("Error while reading the smelt input file: "+smeltInputFileName);
+				}
 			}
-			ArrayList<String> sVelInText = PTMUtil.getInputBlock(inText, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS");
-			setChannelGroups(sVelInText);
+			else if (fishType.equalsIgnoreCase("SALMON")){
+				if (inText.size()<11)
+					PTMUtil.systemExit("information missing in Swim_Inputs section");
+				try{
+					//_daytimeNotSwimPercent = PTMUtil.getFloatFromLine(inText.get(0), "DAY_TIME_NOT_SWIM_PERCENT"); //no longer used
+					_sunrise = PTMUtil.getPairFromLine(inText.get(0), "SUNRISE");
+					_sunset = PTMUtil.getPairFromLine(inText.get(1), "SUNSET");
+					_floodHoldVel = PTMUtil.getFloatFromLine(inText.get(2), "STST_THRESHOLD");
+					_numTidalCycles = PTMUtil.getIntFromLine(inText.get(3), "TIDAL_CYCLES_TO_CALCULATE_CHANNEL_DIRECTION");
+					_constProbConfusion = PTMUtil.getFloatFromLine(inText.get(4), "CONSTANT_CONFUSION_PROBABILITY");
+					_maxProbConfusion = PTMUtil.getFloatFromLine(inText.get(5), "MAXIMUM_CONFUSION_PROBABILITY");
+					_slopeProbConfusion = PTMUtil.getFloatFromLine(inText.get(6), "CONFUSION_PROBABILITY_SLOPE");
+					_randomAccess = PTMUtil.getBooleanFromLine(inText.get(7), "RANDOM_ACCESS");
+					_accessProb = PTMUtil.getFloatFromLine(inText.get(8), "ACCESS_PROBABILITY"); 
+				}catch (NumberFormatException e){
+					e.printStackTrace();
+					PTMUtil.systemExit("number format is wrong in one of first 7 swimming input lines");	
+				}
+				ArrayList<String> sVelInText = PTMUtil.getInputBlock(inText, "CHANNEL_GROUPS", "END_CHANNEL_GROUPS");
+				setChannelGroups(sVelInText);
+			}
+			else 
+				PTMUtil.systemExit("No swimming input is expected, but get this:"+inText.get(0)+" system exit.");
 		}
 		_fishType = fishType;
 	}
@@ -84,15 +102,18 @@ public class SwimInputs {
 	 * check if a particle gets stuck in or comes back to the same channel after a threshold time
 	 * currently the threshold time is 30 days  
 	 */
-	public boolean checkStuck(int pId, int chanId, float age){
+	public boolean checkStuck(int pId, int chanId, double age){
 		if(_pStuck.get(pId) == null)
-			_pStuck.put(pId, new HashMap<Integer, Float>());
+			_pStuck.put(pId, new HashMap<Integer, Double>());
 		if(_pStuck.get(pId).get(chanId) == null)
 			_pStuck.get(pId).put(chanId, age);
 		if ((age - _pStuck.get(pId).get(chanId))> THRESHOLD_STUCK)
 			return true;
 		return false;			
 	}
+	
+	public ParticleBehavior getSmeltBehavior(){return _smeltBehavior;}
+	
 	
 	private void setChannelGroups(ArrayList<String> chanGroups){
 		if (chanGroups == null){
@@ -182,6 +203,10 @@ public class SwimInputs {
 			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(this));
 			System.out.println("Created Salmon Swim Helper");
 		}
+		else if (_fishType.equalsIgnoreCase("SMELT")){
+			_swimHelper = new SmeltSwimHelper(new SmeltBasicSwimBehavior(this));
+			System.out.println("Created Smelt Swim Helper");
+		}
 		else if (_fishType.equalsIgnoreCase("PARTICLE")){
 			_swimHelper = new ParticleSwimHelper(new BasicSwimBehavior(this));
 			System.out.println("Created Particle Swim Helper");
@@ -190,6 +215,25 @@ public class SwimInputs {
 			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");
 	}
  
+	private void setSmeltParticleBehavior(String smeltInputFileName) throws IOException {
+		// initialize behavior file
+		if (smeltInputFileName.length() != 0 && smeltInputFileName != null){
+			if (checkFile(smeltInputFileName)) {
+				_smeltBehavior = new ParticleBehavior(smeltInputFileName);
+				if (_smeltBehavior == null) 
+					System.err.println("cannot add smelt behaviors from "+smeltInputFileName);
+			}
+			else {
+				System.err.println("Behavior File \""+smeltInputFileName+"\" Does Not Exist \nExiting");
+				System.exit(0);
+			}
+	    }
+	  }
+	  
+	private boolean checkFile(String filenm){
+		File tmpfile = new File(filenm);
+	    return tmpfile.isFile();
+	}
 	private String _fishType = null;
 	// group name, swimming velocity parameters[] [0] constSwimmingVelocity; [1]; STD for particles; [2] STD for time steps for an individual particle; [3] rearing holding; [4] day time not swim percent
 	private Map<String, float[]> _swimVelParas=null;
@@ -212,8 +256,10 @@ public class SwimInputs {
 	private float _accessProb;
 	private SwimHelper _swimHelper = null;
 	//<pid,<channel,initial visit time>> // if previous channel and current channel equal for too long, take the particle out of the system
-	private Map<Integer, Map<Integer, Float>> _pStuck = new HashMap<Integer, Map<Integer, Float>>();
+	private Map<Integer, Map<Integer, Double>> _pStuck = new HashMap<Integer, Map<Integer, Double>>();
 	//threshold of a particle being stuck or back to the same channel
 	private final int THRESHOLD_STUCK = 30*24*60*60;
+	
+	private ParticleBehavior _smeltBehavior = null;
 	
 }

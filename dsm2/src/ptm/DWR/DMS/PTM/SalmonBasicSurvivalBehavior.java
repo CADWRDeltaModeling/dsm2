@@ -17,7 +17,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 	// Map<pid, start station>
 	private Map<Integer, Integer> _pStartSta;
 	// Map<pid, start age>
-	private Map<Integer, Float> _pStartAge;
+	private Map<Integer, Double> _pStartAge;
 	// Map<pid, list of start stations already used>
 	private Map<Integer, HashSet<Integer>> _pGroupUsed;
 	
@@ -38,7 +38,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 		_survivalIn = survivalIn;
 		_pGroupUsed = new HashMap<Integer, HashSet<Integer>>();
 		_pStartSta = new HashMap<Integer, Integer>();
-		_pStartAge = new HashMap<Integer, Float>();
+		_pStartAge = new HashMap<Integer, Double>();
 		//_pProb = new HashMap<Integer, Double>();
 	}
 	/* (non-Javadoc)
@@ -101,7 +101,7 @@ public class SalmonBasicSurvivalBehavior implements SalmonSurvivalBehavior {
 				System.err.println(PTMHydroInput.getExtFromIntChan(chanId)+ ","+"pId:"+pId+" chan:"+chanExt+" p.x:"+p.x+" p.age:"+p.age+" p.StartAge:"+start+ "  Group:"+groupId+" Lamda:"
 						+lam+" omaga:"+om+" X:"+X+" isEnd");
 			}
-			float t = p.age - _pStartAge.get(pId);
+			double t = p.age - _pStartAge.get(pId);
 			/*
 			 * From Aderson, J. J., Gurarie, E., & Zabel, R. W. (2005).  Mean free path length theory of
 			 * predator prey interactions: Application to juvenile salmon migration.  Ecological Modelling,
