@@ -138,7 +138,7 @@ public class MainPTM {
                                                   particleArray);
             }catch(IOException ioe){
             	//no restart option exit, do nothing
-            	ioe.printStackTrace();
+            	System.out.println("No restart file output");
             }
             if(DEBUG) System.out.println("Set restart output");
     
@@ -153,7 +153,7 @@ public class MainPTM {
                                                          Environment.getNumberOfAnimatedParticles(),
                                                          particleArray);
             }catch(IOException ioe){
-            	ioe.printStackTrace();
+            	System.out.println("No animation file output");
             }
             if(DEBUG) System.out.println("Set anim output");
     

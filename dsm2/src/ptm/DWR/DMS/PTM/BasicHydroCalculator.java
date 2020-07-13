@@ -40,7 +40,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 		//diffusion coefficients are from Fisher Mixing in Inland and Coastal Waters p106 Eqs. (5.3) (5.6)
 		//shear velocity is assumed 1/10 of the channel average velocity (see Fisher p138 Example 5.5 assumptions)
 		// trans diffusion coefficient can be calculated using (EtConst/EvConst)*Ev= EtToEvSqrt*EtToEvSqrt*Ev
-		// Ev = EvConst*depth*0.1*average_velocity (eqs.5.3)
+		// Ev = EvConst*depth*0.1*average_velocity (see Fisher p138 eqs.5.3, EvConst=0.067 not 0.0067)
 		_pVertD.put(p.Id, Math.max(Math.abs(EvConst*chanInfo[2]*chanInfo[3]*0.1f),EMIN));
 		//TODO original PTM line, calculate the shear velocity wrong -
 		//_pVertD.put(p.Id, Math.max(Math.abs(EvConst*chanInfo[2]*chanInfo[3]),EMIN));
@@ -157,7 +157,7 @@ public class BasicHydroCalculator implements HydroCalculator {
 	    float dzmax = DFAC*chanInfo[2];
 	    float dtz = Math.min(dzmax/terminalVelocity,dzmax*dzmax/Ev);
 	    float dty =  (dymax*dymax)/(EtToEvSqrt*EtToEvSqrt*Ev);
-
+//System.err.println(p.age/60+"  "+dtz+"  "+dty+"  "+p.wb.getEnvIndex()+"  "+chanInfo[1]+"  "+chanInfo[2]+"  "+chanInfo[3]);
 	    if (_vertMove && _transMove) return Math.min(dty,dtz);
 	    else if (_vertMove && !_transMove) return dtz;
 	    else if (!_vertMove && _transMove) return dty;
