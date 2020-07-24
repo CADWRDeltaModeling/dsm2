@@ -18,7 +18,6 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 
 package DWR.DMS.PTM;
-import java.lang.*;
 /*
  * Reservoir is a Waterbody with a large volume. A Reservoir
  * is modeled as storage for water with no velocity fields within it.
@@ -42,7 +41,9 @@ public class Reservoir extends Waterbody{
    *  Return flow direction sign
    *  always opposite from H5 flow sign
    */
-  public int flowType(int nodeId){return INFLOW;}
+  public int flowType(int nodeId){return OUTFLOW;}
+  public boolean isAgSeep(){ return false;}
+  public boolean isAgDiv(){ return false;}
   /**
    *  Return the hydrodynamic type of Reservoir
    */
@@ -68,6 +69,11 @@ public class Reservoir extends Waterbody{
    */
   public final void setDepth(float[] depthArray){
     depthAt[0] = depthArray[0];
+  }
+  public final String getName(){return name;}
+  public float getInflowWSV(int nodeEnvId, float sv){
+	//TODO implement unique inflow with swimming velocity later
+	  return getInflow(nodeEnvId);
   }
   /**
    *  String containing the name

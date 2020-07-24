@@ -58,11 +58,17 @@ public class BehavedParticle extends Particle{
    */
 	public BehavedParticle(ParticleFixedInfo pFI){
 		super(pFI);
+	}
+	/*
+	 * Aaron's original code, no longer used
+	 */
+	/*
 		behaviorData = pFI.getBehavior();
 	}
 
     @Override
 	protected void updateOtherParameters(float delT){
+    	System.err.println("here in behavior");
 		updateStageInfo(delT);
 	}
 
@@ -86,10 +92,12 @@ public class BehavedParticle extends Particle{
 			_stageSet = true;
 		}
 	}
+	*/
 
   /**
     *  Returns the normalized upper bound of the allowable in Channel depth range
     */
+	/*
 	private float getZUpperBound(){
 		float upper = 100;
 		upper = behaviorData.getTimeZUpperLimit(age,getModelTime());
@@ -106,10 +114,11 @@ public class BehavedParticle extends Particle{
 		if(upper != 0) upper = upper/100f;
 		return upper;
   }
-
+*/
   /**
     *  Returns the normalized lower bound of the allowable in Channel depth range
     */
+	/*
 	private float getZLowerBound(){
 		float lower = 0;
 		//  	if(_ageId != behaviorData.getCurrentAgeId()){
@@ -132,18 +141,21 @@ public class BehavedParticle extends Particle{
 //  		lower = _lastLowerValue;
 		return lower;
 	}
+	*/
 
   /**
     *  Returns the normalized allowable in Channel depth range
     */
+	/*
   private float getZRangeMagnitude(){
     return getZUpperBound()-getZLowerBound();
   }
-
+*/
   /**
     *  Externally induced Random
     */
-    @Override
+    //@Override
+  /*
 	protected float calcZDisplacementExtRandom(float timeStep){
 		// get the random mixing component
 //  		behaviorData.setCurrentAgeId(age);
@@ -152,36 +164,40 @@ public class BehavedParticle extends Particle{
 		if (getZRangeMagnitude() != 1f){  // if there is positioning information available
 			if (z < getZLowerBound()*channelDepth || z > getZUpperBound()*channelDepth){  // if the Particle is outside the allowable range
 				if (z < getZLowerBound()*channelDepth) // if the Particle is below
-					dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude() + (getZLowerBound() * channelDepth - z));
+					dz = (float) (getGaussian()*Evdt*getZRangeMagnitude() + (getZLowerBound() * channelDepth - z));
 				else if (z > getZUpperBound()*channelDepth) // if the Particle is above
-					dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude() - (z - getZUpperBound() * channelDepth));
+					dz = (float) (getGaussian()*Evdt*getZRangeMagnitude() - (z - getZUpperBound() * channelDepth));
 			}
 			else dz = (float) (randomNumberGenerator.gaussian()*Evdt*getZRangeMagnitude()); // if the Particle is with in the allowable range
 		}
-		else dz = (float) (randomNumberGenerator.gaussian()*Evdt); // if the Particle is not restricted to a range
+		else dz = (float) (getGaussian()*Evdt); // if the Particle is not restricted to a range
 		if (DEBUG) System.out.println(" Id = "+Id+" dz = "+dz+" channelDepth = "+channelDepth+" z = "+z+" mag = "+getZRangeMagnitude());
 		if (vertMove) return(dz);
 		else return 0.0f;
-  
+ 
+		return 0;
 	}
-
+*/
   /**
     *  Externally induced Deterministic
     */
-    @Override
+    //@Override
+   /*
   protected  float calcZDisplacementExtDeterministic(float timeStep){
     return(-getFallVel()*timeStep);
   }
-
+ 
+*/
   /**
     *  Check to see if this Particle dies
     */
-    @Override
+    //@Override
+  /*
   protected void checkHealth(){
     float mortRate;
     mortRate = behaviorData.getMortality(age);
     if (mortRate != _prevMortRate) { 
-      _rand = (float) randomNumberGenerator.uniform(0.0, 1.0); // assign a random number to this Particle (Health of Particle)
+      _rand = getRandomNumber(); // assign a random number to this Particle (Health of Particle)
       _prevMortRate = mortRate;
       _baseAge = behaviorData.getPhaseAge();
       if (DEBUG) System.out.println("_baseAge"+_baseAge+" "+mortRate+" "+_prevMortRate);
@@ -194,53 +210,58 @@ public class BehavedParticle extends Particle{
 				    mortRate+" and random "+_rand+" and deathDet = "+deathDeterminer);
     }
   }
-
+*/
   /**
     *  returns a particles fall velocity
     */
+ /*
   private float getFallVel(){
       return behaviorData.getFallVel(age);
   }
+ */
   /**
     *  returns a particles terminal velocity
     */
+   /* 
   private float getTerminalVelocity(){
     return Math.max(getFallVel(),1.0e-10f);
   }
-
+*/
   /**
     *  returns the 24 hour model time
     */
+ /*   
   private int getModelTime(){
     return (Globals.currentMilitaryTime);
   }
-
+*/
 // knam: The parent class has DEBUG already
 //  boolean DEBUG = false;
 
   /**
     *  a pointer to ParticleBehavior containing behavior data
     */
-  protected ParticleBehavior behaviorData;
+  //protected ParticleBehavior behaviorData;
 
   /**
     *  a particles assigned random number.
     *  a large number increases chance of survival
     *  a small number reduces chance of survival
     */
-  protected float _rand;
+  //protected float _rand;
 
   /**
     *  holds the previous mortality rate
     *  particles are re-assigned a random number after a new mortality rate
     *  is assigned
     */
-  protected float _prevMortRate = -1;
+  //protected float _prevMortRate = -1;
 
   /**
     *  the age at which a particular phase begins
     *  used to calculate the age in a particular phase
     */
+	/*
   protected float _baseAge;
 	
 	protected float _lastStageValue;
@@ -260,10 +281,10 @@ public class BehavedParticle extends Particle{
 	public static int STAGE_TRANSITIONAL = 2;
 
 	public static float MIN_SLOPE = 0.0001f; // about 0.1 ft in 15 min or 900 sec
-
+*/
 	/**
 	 * True after one cycle when _lastStageValue has been set.
 	 */
-	protected boolean _stageSet = false;
+	//protected boolean _stageSet = false;
 }
 

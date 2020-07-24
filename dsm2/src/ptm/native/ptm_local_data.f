@@ -38,6 +38,7 @@ C!</license>
          integer node(max_nodes_per_wb) ! node indices mapping
          integer group        ! waterbody group number - zero for no group
          real flowToNode(max_nodes_per_wb) ! flow to node indexed by local node index
+         character*32 name ! channel name="channel", name="reservior" boundary name=qext.name
       end type
       
       type nodeData

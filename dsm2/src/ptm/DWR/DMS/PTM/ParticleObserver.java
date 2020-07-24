@@ -34,7 +34,11 @@ class ParticleObserver{
   public ParticleObserver(String traceFileName, int outputType,
                           int startTime, int endTime, int PTMTimeStep, 
                           int nParticles){
-    traceOn = true;
+	//TODO temp commented out for not writing the trace file
+	if(Particle.ADD_TRACE||Globals.CalculateWritePTMFlux)
+		traceOn = true;
+	else
+		traceOn = false;
     try{
       if (traceOn) output = new PTMTraceOutput(traceFileName, outputType,
                                                startTime, endTime, PTMTimeStep, 
@@ -90,11 +94,26 @@ class ParticleObserver{
    */
   public void observeInsert(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
+      long time = observed.getCurrentParticleTime();
       int pId = (int) observed.getId();
       short nodeId = -1;
-      short wbId = 0;
-      output.output(time,pId,nodeId,wbId);
+      int wbId = 0;
+      //This is for when a particle is inserted at a known channel
+      if (observed.wb != null)
+    	  wbId = observed.wb.getEnvIndex();
+      if (wbId > 0)
+    	  output.output(time,pId,nodeId,wbId);
+      else
+    	  output.output(time,pId,nodeId,0);
+      
+      //TODO for debug purpose so I know the the channel/node numbers on the map
+      //but this causes problems when fluxes are calculated because the trace file also is used for the flux calculation
+      /*
+      if(nodeId >0 && nodeId < 500 && wbId < 801)
+    	  output.output(time,pId,PTMHydroInput.getExtFromIntNode(nodeId),PTMHydroInput.getExtFromIntChan(wbId));
+      else
+    	  output.output(time,pId,nodeId,wbId);
+    	  */
     }
   }
 
@@ -104,15 +123,27 @@ class ParticleObserver{
    */
   public void observeWaterbodyChange(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
-      int pId = (int) observed.getId();
-      short nodeId = -1;
+      long time = observed.getCurrentParticleTime();
+      int pId = observed.getId();
+      int nodeId = -1;
       if (observed.getRecentNode() != null) 
-        nodeId = (short) observed.getRecentNode().getEnvIndex();
+        nodeId =  observed.getRecentNode().getEnvIndex();
       else
         nodeId = -1;
-      short wbId = (short) observed.getCurrentWaterbody().getEnvIndex();
+      int wbId =  observed.getCurrentWaterbody().getEnvIndex();
       output.output(time,pId,nodeId,wbId);
+      
+      //TODO
+      /*
+      if(nodeId > 0 && nodeId < 500 && wbId < 801)
+    	  output.output(time,pId,PTMHydroInput.getExtFromIntNode(nodeId),PTMHydroInput.getExtFromIntChan(wbId));
+      else
+    	  output.output(time,pId,nodeId,wbId);
+      */
+      
+      long timeExact = observed.getCurrentParticleTimeExact();
+      observed.addParticleTrace(timeExact, wbId, nodeId);
+      
     }
   }
 
@@ -134,7 +165,7 @@ class ParticleObserver{
    */
   public void observeDeath(Particle observed){
     if (traceOn) {
-      int time = observed.getCurrentParticleTime();
+      long time = observed.getCurrentParticleTime();
       int pId = observed.getId();
       short nodeId = -1;
       short wbId = (short) observed.getCurrentWaterbody().getEnvIndex();

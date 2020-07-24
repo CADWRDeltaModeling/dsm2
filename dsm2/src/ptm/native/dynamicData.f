@@ -103,7 +103,7 @@ c----- update conveyor info
          id = get_unique_id_for_conveyor(i)
 c-------- from - to node +Ve direction
          wb(id).flowToNode(1) = -obj2obj(i).flow_avg !from flow
-         wb(id).flowToNode(2) = obj2obj(i).flow_avg !to flow
+         wb(id).flowToNode(2) = obj2obj(i).flow_avg !to flow        
       enddo
 c----- update stage boundary info ( do this last )
       do i=1, get_maximum_number_of_stage_boundaries()

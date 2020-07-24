@@ -198,6 +198,7 @@ c----- update channel info
          wb(id).group = 0
          wb(id).node(1) = chan_geom(i).upnode
          wb(id).node(2) = chan_geom(i).downnode
+         wb(id).name = 'CHANNEL'
       enddo
 c----- update reservoir info
       do i=1, get_maximum_number_of_reservoirs()
@@ -207,6 +208,7 @@ c----- update reservoir info
          wb(id).globalIndex = id
          wb(id).numberOfNodes = res_geom(i).nnodes
          wb(id).group = 0
+         wb(id).name = 'RESERVIOR'
          do j=1, res_geom(i).nnodes
             wb(id).node(j) = res_geom(i).node_no(j)
          enddo
@@ -244,6 +246,7 @@ c----- update stage boundary info
          wb(id).numberOfNodes = 1
          wb(id).group = 0
          wb(id).node(1) = stageBoundary(i).attach_obj_no
+         wb(id).name = 'STAGE_BOUNDARY'
       enddo
 
 c----- update boundary info
@@ -257,8 +260,7 @@ c         wb(id).acctType = qext(i).group_ndx
          wb(id).globalIndex = id
          wb(id).numberOfNodes = 1
          wb(id).group = 0
-         
-        
+         wb(id).name = qext(i).name
          if ( qext(i).attach_obj_type .eq. obj_node ) then
             wb(id).node(1) = qext(i).attach_obj_no
          else if ( qext(i).attach_obj_type .eq. obj_reservoir ) then
@@ -284,6 +286,7 @@ c         wb(id).acctType = obj2obj(i).from.group_ndx
          wb(id).globalIndex = id
          wb(id).numberOfNodes = 2
          wb(id).group = 0
+         wb(id).name = 'CONVEYOR'
          if ( obj2obj(i).from_obj.obj_type .eq. obj_node ) then
             wb(id).node(1) = obj2obj(i).from_obj.obj_no
          else if ( obj2obj(i).from_obj.obj_type .eq. obj_reservoir ) then
@@ -448,6 +451,21 @@ c--------to object
       return 
       end
 c-----+++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_waterbody_name(wbId, wbName)
+      use ptm_local
+      use grid_data
+      implicit none
+
+      character*(*) wbName
+      integer wbId, lastNonBlank
+      integer lnblnk
+      wbName = wb(wbId).name
+      lastNonBlank = lnblnk(wb(wbId).name)
+      wbName = wbName(1:lastNonBlank) // char(0)
+      return 
+      end
+c-----+++++++++++++++++++++++++++++++++++++++++++++++++++      
+
       function get_number_of_waterbodies()
       use grid_data
       implicit none
@@ -551,7 +569,6 @@ c-----internal flows
       get_number_of_conveyors = nobj2obj
       return
       end
-
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_number_of_boundary_waterbodies()
       use grid_data
@@ -808,6 +825,19 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       name = res_geom(reservoirNumber).name
       lastNonBlank = lnblnk(res_geom(reservoirNumber).name)
       name = name(1:lastNonBlank) // char(0)
+      return 
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_conveyor_name(conveyorNumber, obj2objName)
+      use grid_data
+      implicit none
+
+      character*(*) obj2objName
+      integer conveyorNumber, lastNonBlank
+      integer lnblnk
+      obj2objName = obj2obj(conveyorNumber).name
+      lastNonBlank = lnblnk(obj2obj(conveyorNumber).name)
+      obj2objName = obj2objName(1:lastNonBlank) // char(0)
       return 
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1270,7 +1300,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer array(1000)
       integer i
       if (npartno .gt. 1000) 
-     &     write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno 
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno 
       do i=1,npartno
          array(i) = part_injection(i).node
       enddo
@@ -1283,7 +1313,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer array(1000)
       integer i
       if (npartno .gt. 1000) 
-     &     write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno 
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno 
       do i=1,npartno
          array(i) = part_injection(i).nparts
       enddo  
@@ -1296,7 +1326,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer array(1000)
       integer i
       if (npartno .gt. 1000) 
-     &     write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno  
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno  
       do i=1,npartno
          array(i) = part_injection(i).start_julmin
       enddo  
@@ -1309,7 +1339,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       integer array(1000)
       integer i
       if (npartno .gt. 1000) 
-     &     write(*,*) 'Array bound exceeded. System exit. # of insertions ', npartno  
+     &     write(*,*) 'Extend LEN1 in fixedData.h to ', npartno  
       do i=1,npartno
          array(i) = part_injection(i).length_julmin
       enddo  
@@ -1714,6 +1744,17 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       end
 c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       subroutine get_behavior_filename(array)
+      use iopath_data
+      implicit none
+
+      character*(*) array
+      integer lnblnk
+      array = io_files(ptm,io_behavior,io_read).filename
+      array = array(1:lnblnk(array)) // char(0)
+      return
+      end
+c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
+      subroutine get_behavior_infile_name(array)
       use iopath_data
       implicit none
 

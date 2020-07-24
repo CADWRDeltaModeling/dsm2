@@ -66,10 +66,13 @@ public  ParticleFixedInfo(){
   /**
    *  sets the logical variable values
    */
+//TODO clean up.  This is Aaron's original smelt code.  Move to SwimInputs
+/*
   public final void setBehavior(ParticleBehavior behave){
     useBehaviorFile = true;
     behavior = behave;
   }
+  */
   /**
    *  sets the logical variable values
    */
@@ -131,13 +134,19 @@ public final void setVariables(int nInjections,
     qualityBinary = qBinary;
     qualityNames = qNames;
   }
+  public final void setVariables(String particleType){
+	  _particleType = particleType;
+  }
 
   /**
    *  return random seed
    */
+  //TODO Aaron's original smelt behavior code, move to SwimInputs
+  /*
 public final ParticleBehavior getBehavior(){
   return behavior;
 }
+*/
 
   /**
    *  return the existance of a behavior file
@@ -318,7 +327,9 @@ public final int getInjectionStartJulmin(int injectionId){
 public final int getInjectionLengthJulmin(int injectionId){
   return particleInjectionLengthJulmin[injectionId-1];
 }
-
+public final String getParticleType(){
+	return _particleType;
+}
 public String toString(){
   String rep = "Particle Fixed Information "+ "\n" 
     + "useVerticalProfile "+ useVerticalProfile+ "\n" 
@@ -460,6 +471,7 @@ protected boolean qualityBinary;
    *  array of quality constituent names
    */
 protected String[] qualityNames;
+private String _particleType;
 
 }
 

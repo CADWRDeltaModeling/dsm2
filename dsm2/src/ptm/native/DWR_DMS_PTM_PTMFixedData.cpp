@@ -3,7 +3,6 @@
 #include "DWR_DMS_PTM_PTMFixedData.h"
 #include "fixedData.h"
 
-
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    initialize
@@ -452,6 +451,22 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getReservoirName
   static char name[LEN2];
   int reservoirNumber = (int) i;
   getReservoirName(&reservoirNumber, name, LEN2);
+  //  name[nameLength]='\0';
+  const char* exactName = name;
+  jstring nameJava = env->NewStringUTF(exactName);
+  return nameJava;
+}
+
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getConveyorName
+ * Signature: (I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getConveyorName
+  (JNIEnv * env, jobject thisOne, jint i){
+  static char name[LEN2];
+  int conveyorNumber = (int) i;
+  getConveyorName(&conveyorNumber, name, LEN2);
   //  name[nameLength]='\0';
   const char* exactName = name;
   jstring nameJava = env->NewStringUTF(exactName);
@@ -1120,9 +1135,8 @@ JNIEXPORT jint JNICALL Java_DWR_DMS_PTM_PTMFixedData_getAnimationOutputInterval
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getBehaviorFileName
- * Signature: ()Ljava/lang/String{
-}
-
+ * Signature: ()Ljava/lang/String{}
+ * TODO this method needs to be removed xiao
  */
 JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBehaviorFileName
 (JNIEnv *env,  jobject thisOne){
@@ -1134,6 +1148,22 @@ JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBehaviorFileName
   return nameJava; 
 }
 
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getBehaviorInfileName
+ * Signature: ()Ljava/lang/String{
+}
+
+ */
+JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getBehaviorInfileName
+(JNIEnv *env,  jobject thisOne){
+  static char name[LEN2];
+  getBehaviorInfileName(name, LEN2);
+  //  name[nameLength]='\0';
+  const char* exactName = name;
+  jstring nameJava = env->NewStringUTF(exactName);
+  return nameJava; 
+}
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
@@ -1266,6 +1296,21 @@ JNIEXPORT jobjectArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getQualConstituentN
     env->DeleteLocalRef(tmpstr);
   }
   return arrayJava;
+}
+/*
+ * Class:     DWR_DMS_PTM_PTMFixedData
+ * Method:    getWaterBodyName
+ * Signature: (I)[Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_DWR_DMS_PTM_PTMFixedData_getWaterBodyName
+(JNIEnv * env, jobject thisOne, jint i){
+  static char name[LEN2];
+  int wbId = (int) i;
+  getWaterBodyName(&wbId, name, LEN2);
+  //  name[nameLength]='\0';
+  const char* exactName = name;
+  jstring nameJava = env->NewStringUTF(exactName);
+  return nameJava;
 }
 
 
