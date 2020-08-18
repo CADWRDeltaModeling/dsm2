@@ -37,6 +37,7 @@ module read_init
         integer :: nvar_r, nresv_r, ncell_r
         integer :: i, j, k, found, ncol, ncolp, d(n_var)
         real(gtm_real) :: val(n_var)
+        character*32 :: val_str(n_var)
         character*32 :: name, a, b(n_var)
         logical :: file_exists
         
@@ -49,10 +50,11 @@ module read_init
             read(file_unit,*)
             read(file_unit,*) nvar_r
             read(file_unit,*) ncell_r
-            read(file_unit,*) a, (b(i),i=1,n_var)
+            read(file_unit,'(a32,<nvar_r>a32)') a, (b(i),i=1,n_var)
             ncol = 0
             do i = 1, n_var                
                 do j = 1, n_var
+                    b(i) = adjustl(b(i))
                     if(trim(b(i)).eq.trim(constituents(j)%name)) then
                         ncol = ncol + 1
                         d(ncol) = constituents(j)%conc_no
@@ -86,11 +88,13 @@ module read_init
             else
                 do i = 1, n_resv
                     found = 0
-                    read(file_unit,*) name, (val(d(j)),j=1,ncol)
+                    read(file_unit,'(a32,<ncol>a32)') name, (val_str(d(j)),j=1,ncol)
                     do k = 1, n_resv
-                        if (trim(name).eq.trim(resv_geom(k)%name)) then
+                        name = adjustl(name)                        
+                        if (trim(name).eq.trim(resv_geom(k)%name)) then                            
                             do j = 1, ncol
-                                init_r(resv_geom(k)%resv_no,d(j)) = val(d(j))
+                                read(val_str(d(j)),*) val(d(j))
+                                init_r(resv_geom(k)%resv_no,d(j)) = val(d(j))                                
                             end do
                             found = 1
                         end if
@@ -130,11 +134,12 @@ module read_init
             read(file_unit,*)
             read(file_unit,*) nvar_r
             read(file_unit,*) ncell_r
-            read(file_unit,*) a, (b(i),i=1,nvar_r)
+            read(file_unit,'(a32,<nvar_r>a32)') a, (b(i),i=1,nvar_r)
             ncol = 0
             name = ''
-            do i = 1, n_var          
-                do j = 1, nvar_r
+            do i = 1, n_var  
+                do j = 1, nvar_r     
+                    b(j) = adjustl(b(j))               
                     if (trim(b(j)).eq.trim(constituents_tmp(i)%name)) ncol = 1
                 end do
                 if (ncol.eq.0 .and. constituents_tmp(i)%simulate) &

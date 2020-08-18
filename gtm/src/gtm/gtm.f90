@@ -137,7 +137,7 @@ program gtm
     
     procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver    
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
-    character(len=:), allocatable :: restart_file_name  
+    character(len=:), allocatable :: restart_file_name, restart_outfn  ! restart_file_name: input hotstart file; restart_outfn: output restart file name ZZ  
     character(len=14) :: cdt
     character(len=9) :: prev_day
     integer :: ok
@@ -188,7 +188,7 @@ program gtm
         end if        
         dispersion_coef => adjust_dispersion_coef_with_velocity
     end if 
-    
+  
     !----- allocate array for interpolation -----         
     call allocate_state_hydro(n_comp, n_resv, n_resv_conn, n_qext, n_tran, n_cell)
     call allocate_hydro_ts 
@@ -592,8 +592,19 @@ program gtm
             prev_node_conc = node_conc
             prev_conc_stip = conc_stip            
             node_conc = LARGEREAL
-        
+       
         end do ! end of loop of sub time step
+            
+        ! ZZ: at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
+        if (current_time .eq. gtm_start_jmin) then         
+            conc = init_c
+            conc_prev = init_c
+            budget_prev_conc = init_c       
+            conc_resv = init_r 
+            conc_resv_prev = init_r 
+            !prev_conc_stip = zero
+            call prim2cons(mass_prev, conc, area, n_cell, n_var)
+        end if
 
         ! add all sediment to ssc
         if (ssc_index .ne. 0) then
@@ -615,7 +626,7 @@ program gtm
         call get_output_channel_vals(vals, conc, n_cell, conc_resv, n_resv, n_var)
         if (int(current_time) .ge. next_output_flush .or. current_time .eq. gtm_end_jmin) then
             call incr_intvl(next_output_flush, next_output_flush, flush_intvl, TO_BOUNDARY)
-            call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)
+            call gtm_store_outpaths(.true.,int(current_time),int(gtm_time_interval), vals)            
         else
             call gtm_store_outpaths(.false.,int(current_time),int(gtm_time_interval), vals)
         endif
@@ -682,7 +693,9 @@ program gtm
         
     end do  ! end of loop for gtm time step
     
-    call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var)
+    ! modify print_last_stage to write hotstart output file.  ZZ
+    restart_outfn = trim(gtm_io(1,2)%filename) 
+    call print_last_stage(jmin2cdt(int(gtm_end_jmin)),int(gtm_end_jmin),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn) !ZZ: replace current_time by gtm_end_jmin
     if (use_sediment_bed) then 
         call print_last_stage_sed(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !added:dhh
     endif

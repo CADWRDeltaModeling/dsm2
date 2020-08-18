@@ -324,7 +324,7 @@ module dsm2_time_utils
               number = 1
            else
               if (ilast2==0) then
-                  read(e_part_tmp(:ilast),'(i)', err=600) number
+                  read(e_part_tmp(:ilast),*, err=600) number
               else
                   read(e_part_tmp(:ilast),'(f)', err=600) number
               end if    

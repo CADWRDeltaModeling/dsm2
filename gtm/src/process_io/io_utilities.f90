@@ -164,7 +164,7 @@ module io_utilities
          if (ilast .eq. 0) then
             number=1
          else
-            read(e_part_tmp(:ilast),'(i5)', err=600) number
+            read(e_part_tmp(:ilast),*, err=600) number
          endif
       endif
       interval=e_part_tmp(ilast+1:)

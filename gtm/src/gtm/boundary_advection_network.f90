@@ -367,13 +367,13 @@ module boundary_advection_network
                     endif           
                 end do           
             end if
-        end do    
-             
+        end do 
+            
         do i = 1, n_resv        
             if (resv_geom(i)%n_qext > 0) then
                 do j = 1, resv_geom(i)%n_qext
                     vol(i) = vol(i) + qext_flow(resv_geom(i)%qext_no(j))*dt
-                    if (qext_flow(resv_geom(i)%qext_no(j)).gt.zero) then
+                    if (qext_flow(resv_geom(i)%qext_no(j)).gt.zero) then                             
                         mass_resv(i,ivar) = mass_resv(i,ivar) + dble(pathinput(resv_geom(i)%qext_path(j,ivar))%value)*qext_flow(resv_geom(i)%qext_no(j))*dt
                     else
                         mass_resv(i,ivar) = mass_resv(i,ivar) + conc_resv_prev(i,ivar)*qext_flow(resv_geom(i)%qext_no(j))*dt

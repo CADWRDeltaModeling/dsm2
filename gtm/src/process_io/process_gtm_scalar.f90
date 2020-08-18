@@ -61,6 +61,8 @@ module process_gtm_scalar
          read(Val, '(f20.5)') gtm_dx
       elseif (Param .eq. 'hdf_out') then
          hdf_out = Val(1:7)
+      elseif (Param .eq. 'dss_out') then
+         dss_out = Val(1:7)
       elseif (Param .eq. 'title') then
          ntitles=1
          title(ntitles)=' '

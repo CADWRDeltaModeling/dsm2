@@ -651,8 +651,8 @@ module hdf_util
                if (trim(from_obj)=='RESERVOIR') tran(i)%from_obj = 3
                if (trim(to_obj)=='NODE') tran(i)%from_obj = 2
                if (trim(to_obj)=='RESERVOIR') tran(i)%from_obj = 3
-               read(from_identifier,'(i)') from_i
-               read(to_identifier,'(i)') to_i
+               read(from_identifier,*) from_i
+               read(to_identifier,*) to_i
                tran(i)%from_identifier = from_i
                tran(i)%to_identifier = to_i               
            end do            
@@ -813,20 +813,20 @@ module hdf_util
        integer(HID_T) :: dset_id                        ! Dataset identifier
        integer(HID_T) :: dt_id, dt5_id                  ! Memory datatype identifier
        integer(HID_T) :: dt1_id, dt2_id                 ! Memory datatype identifier
+       integer(HID_T) :: dspace_id                      ! Dataset space identifier
        integer(SIZE_T):: offset                         ! Member's offset
        integer(HSIZE_T), dimension(1) :: data_dims      ! Datasets dimensions
+       integer(HSIZE_T), dimension(1) :: maxdims        ! Maximum dim output not needed
        integer(SIZE_T) :: typesize                      ! Size of the datatype
        integer(SIZE_T) :: type_size                     ! Size of the datatype
        integer :: error                                 ! Error flag
        integer :: i, from_i, to_i                       ! local variables
        character*32 :: from_obj, from_identifier        ! local variables
        character*32 :: to_obj, to_identifier            ! local variables
+
        
-       n_sflow = 779 !todo:need to read from hydro, modify hydro
        call allocate_source_flow_property()
-       call h5gopen_f(hydro_id, "input", input_id, error)  
-       
-       data_dims(1) = n_sflow         
+       call h5gopen_f(hydro_id, "input", input_id, error)          
        if ( n_sflow > 0) then
            call h5dopen_f(input_id, "source_flow", dset_id, error) 
            call h5tcopy_f(H5T_NATIVE_CHARACTER, dt_id, error)
@@ -836,7 +836,9 @@ module hdf_util
                       
            offset = 0
            call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
-           call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+           call h5tinsert_f(dt1_id, "name", offset, dt_id, error) 
+           call h5dget_space_f(dset_id,dspace_id, error)
+           call h5sget_simple_extent_dims_f(dspace_id, data_dims, maxdims, error) 
            call h5dread_f(dset_id, dt1_id, source_flow%name, data_dims, error) 
            
            type_size = 4
@@ -861,8 +863,10 @@ module hdf_util
        integer(HID_T) :: dset_id                    ! Dataset identifier
        integer(HID_T) :: dt_id                      ! Memory datatype identifier
        integer(HID_T) :: dt1_id, dt2_id             ! Memory datatype identifier
+       integer(HID_T) :: dspace_id                      ! Dataset space identifier
        integer(SIZE_T):: offset                     ! Member's offset
        integer(HSIZE_T), dimension(1) :: data_dims  ! Datasets dimensions
+       integer(HSIZE_T), dimension(1) :: maxdims    ! Maximum dim output not needed
        integer(SIZE_T) :: typesize                  ! Size of the datatype
        integer(SIZE_T) :: type_size                 ! Size of the datatype
        character*32, allocatable :: scalar_name(:)  ! scalar name
@@ -873,8 +877,8 @@ module hdf_util
        call h5gopen_f(hydro_id, "input", input_id, error)
        call h5dopen_f(input_id, "scalar", dset_id, error) 
        
-       n_hydro_scalar = 29 !todo:need to read from hydro, modify hydro
-       data_dims(1) = n_hydro_scalar
+       !n_hydro_scalar = 29 !todo:need to read from hydro, modify hydro
+       !data_dims(1) = n_hydro_scalar
        allocate(scalar_name(n_hydro_scalar))
        allocate(scalar_value(n_hydro_scalar))
   
@@ -885,7 +889,9 @@ module hdf_util
          
        offset = 0
        call h5tcreate_f(H5T_COMPOUND_F, type_size, dt1_id, error)
-       call h5tinsert_f(dt1_id, "name", offset, dt_id, error)    
+       call h5tinsert_f(dt1_id, "name", offset, dt_id, error) 
+       call h5dget_space_f(dset_id,dspace_id, error)
+       call h5sget_simple_extent_dims_f(dspace_id, data_dims, maxdims, error)    
        call h5dread_f(dset_id, dt1_id, scalar_name, data_dims, error) 
            
        call h5tcreate_f(H5T_COMPOUND_F, type_size, dt2_id, error)
