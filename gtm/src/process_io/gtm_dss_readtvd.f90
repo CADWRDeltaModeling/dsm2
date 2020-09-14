@@ -205,9 +205,15 @@ module gtm_dss_readtvd
                   write(unit_error,625) trim(current_date),trim(pathinput(ptr)%path)
                   call exit(2)
                else             ! simply use last data available
-                  ndx_next=block_dim ! readdss.f copies last value to end of buffer
+                  ndx_next=block_dim ! readdss.f copies last value to end of buffer               
                endif
             endif
+            ! ZZ 9/10/2020: debugging code to be removed. 
+            !if (pathinput(ptr)%name .eq. 'paradise_cut') then
+            !    do bi=1, ndx_next
+            !        write(*,*) 'current_date: ', current_date, ' jmin:',jmin, 'indata_julmin: ',indata(bi,i)%julmin," ", indata(bi,i)%data
+            !    enddo
+            !end if
             jul_next=indata(ndx_next,i)%julmin
 
             !----fixme: check this if statement
@@ -269,6 +275,9 @@ module gtm_dss_readtvd
                    float(timediff_val) / float(timediff_dat)
                pathinput(ptr)%value_flag=indata(ndx,i)%flag
             else                   ! don't interpolate
+               if (indata(ndx,i)%data == -901.0 .and. ndx>1) then ! ZZ 9/10/2020 when data for current time is not available 
+                   indata(ndx,i)%data = indata(ndx-1,i)%data    ! use previous value
+               endif
                pathinput(ptr)%value=indata(ndx,i)%data
                pathinput(ptr)%value_flag=indata(ndx,i)%flag
             endif
@@ -276,6 +285,11 @@ module gtm_dss_readtvd
             if (pathinput(ptr)%start_date /= generic_date) then ! kluge upon kluge
                indata(ndx,i)=indata_tmp
             endif
+      
+            ! ZZ 9/10/2020: debugging code to be removed. 
+            !if (pathinput(ptr)%name .eq. 'paradise_cut') then
+            !    write(*,*) "current source index is: ", ndx, " ndx_next= ", ndx_next, " invalue=", pathinput(ptr)%value
+            !endif
   
  100        continue
  
