@@ -40,13 +40,11 @@ rem cmake --build . --target ALL_BUILD --config Debug  || goto :ERROR
 cmake --build . --target ALL_BUILD --config Release  || goto :ERROR
 cpack || goto :ERROR
 cd ../..
-
 goto :END
 
-
 :ERROR
-echo Failed with error #%ERRORLEVEL%.
-exit /b %ERRORLEVEL%
+  echo "Failed with error #%ERRORLEVEL%."
+  exit /b %ERRORLEVEL%
 
 :END
-echo All done. Build successful
+  echo "Successful Build!"
