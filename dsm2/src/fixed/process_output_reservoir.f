@@ -66,7 +66,7 @@ C!</license>
      &     itmp
      &     ,SubLoc
 
-      integer reservoir_has_node
+      logical reservoir_has_node
       integer, external :: name_to_objno
       integer, external :: ext2int, ext2intnode
       integer, external :: loccarr       

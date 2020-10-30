@@ -366,6 +366,7 @@ contains
 
         !   Local Variables:
         integer i
+        integer dummy, SetHDF5ToTime
 
         logical ok
         logical InitialCall
@@ -400,7 +401,7 @@ contains
 	         
             !This call needs to be before the assignment of prev_avg
             if (io_files(hydro,io_hdf5,io_write)%use) then
-                call SetHDF5ToTime(julmin)
+                dummy=SetHDF5ToTime(julmin)
                 call WriteQExtChangedToHDF5()
                 call WriteChannelFlowToHDF5()
                 call WriteReservoirFlowToHDF5()

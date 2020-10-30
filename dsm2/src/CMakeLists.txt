@@ -342,7 +342,7 @@ endif (WIN32)
 
 #-------------- INSTALL ----------------#
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
-install(TARGETS hydro qual PTM
+install(TARGETS hydro qual gtm PTM
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION bin)
 install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)
