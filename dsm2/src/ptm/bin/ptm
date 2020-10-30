@@ -27,7 +27,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PTM_HOME/lib:$PTM_HOME
 # starting ptm
 ###############
 
-"$PTM_HOME/jre/bin/java" -ss1m -mx64m  -cp "$PTM_HOME/lib/edu.jar:$PTM_HOME/lib/COM.jar:$PTM_HOME/lib/xml.jar"  -jar $PTM_HOME/PTM.jar
+"$PTM_HOME/jre/bin/java" -ss1m -mx512m  -cp "$PTM_HOME/lib/edu.jar:$PTM_HOME/lib/COM.jar:$PTM_HOME/lib/xml.jar:$PTM_HOME/lib/commons-math3-3.6.1.jar" -jar $PTM_HOME/PTM.jar "$@"
 
 :end
 endlocal 

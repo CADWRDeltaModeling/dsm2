@@ -37,9 +37,11 @@ cmake -DTHIRD_PARTY_DIR=%DSM2_THIRD_PARTY_DIR% -G "Visual Studio 14 2015" ..\src
 cmake --build . --target ALL_BUILD --config Release  || goto :ERROR
 cpack
 cd ../..
-
-
+goto :END
 
 :ERROR
-echo Failed with error #%ERRORLEVEL%.
-rem exit =b %ERRORLEVEL%
+  echo "Failed with error #%ERRORLEVEL%."
+  exit /b %ERRORLEVEL%
+
+:END
+  echo "Successful Build!"
