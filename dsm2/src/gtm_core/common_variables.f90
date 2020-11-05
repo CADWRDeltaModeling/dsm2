@@ -585,7 +585,7 @@ module common_variables
          implicit none
          integer :: istat = 0
          character(len=128) :: message
-         allocate(chan_geom(n_chan), stat = istat)
+         allocate(chan_geom(0:n_chan), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if
@@ -597,7 +597,7 @@ module common_variables
      subroutine allocate_chan_geom_hq()
          use grid_data, only: max_channels
          implicit none
-         if(not(allocated(chan_geom))) allocate(chan_geom(max_channels))
+         if(not(allocated(chan_geom))) allocate(chan_geom(0:max_channels))
          return
      end subroutine
      !> Allocate comp_pt_t array
