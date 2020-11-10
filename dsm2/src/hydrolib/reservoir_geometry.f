@@ -41,7 +41,7 @@ contains
         !     Z      - Elevation based!
 
         !----local variables
-        real*8 z1,z2,A1,A2,V1,V2,dz,dV,A,factor
+        real*8 z1,z2,A1,A2,V1,V2,dz,dV,A,factor,F
         real*8 Small
         parameter (Small = 1.00e-6)
         integer nn
@@ -98,9 +98,16 @@ contains
         end if
         dV=0.5*(A1+A2)*(z2-z1)
         factor=(V2-V1)/dV
-        A=A1+(A2-A1)/dz*(z-z1) 
-        reser_area= A*factor
-        reser_vol=V1+factor*0.5*(A1+A)*(z-z1)
+        if (abs(factor-1) > 0.0001) then
+            WRITE(unit_error,1926)res_geom(resno).name,z,factor,V1,V2
+1926        FORMAT('resno ',a,'@Z', 2PE12.5,' Error was expecting Reservoir Factor (should be 1):',&
+                   2PE12.5,' V1', 2PE12.5,' V2', 2PE12.5)
+            call exit(2)
+        end if 
+        F=(A2-A1)/(z2-z1)
+        A=A1+F*(z-z1)
+        reser_area= A
+        reser_vol=0.5*F*(z-z1)**2+A1*(z-z1)+V1
         return
     end subroutine
 

@@ -82,8 +82,7 @@ C!</license>
       
       subroutine process_reservoir_vol(resname,
      &                                        reselev,
-     &                                        reser_area,     
-     &                                        reser_vol)
+     &                                        reser_area)
       use constants
       use grid_data
       use logging
@@ -95,9 +94,9 @@ C!</license>
       integer :: resno
       integer :: nn
       integer, external :: name_to_objno
-      real*8 :: reser_area,reser_vol      
+      real*8 :: reser_area
       real*8 :: reselev
-      real*8 :: prev_area,prev_vol,prev_elev
+      real*8 :: prev_area,prev_vol,prev_elev,current_area
       real*8 Small,dz
       parameter (Small = 1.00e-6)
       
@@ -113,15 +112,17 @@ C!</license>
       endif	                   
       nn=res_geom(resno).nelevs
       res_geom(resno).area(nn)=reser_area * 43560
-      res_geom(resno).vol(nn)=reser_vol * 43560
+      res_geom(resno).vol(nn)=0 !initial
       res_geom(resno).elev(nn)=reselev
 
 c-----------upper layer vol=lower layer vol + trapezoidal vol between them 
       if (nn .gt. 1) then
-	   prev_elev = res_geom(resno).elev(nn-1)
-	   prev_area = res_geom(resno).area(nn-1)
-	   prev_vol = res_geom(resno).vol(nn-1)
-	   dz=reselev - prev_elev
+         prev_elev = res_geom(resno).elev(nn-1)
+         prev_area = res_geom(resno).area(nn-1)
+         prev_vol = res_geom(resno).vol(nn-1)
+         dz = reselev - prev_elev
+         current_area = res_geom(resno).area(nn)
+         res_geom(resno).vol(nn) = prev_vol + 0.5*(prev_area+current_area)*dz
          if ( abs(dz) <= Small) then
             write(unit_error,*) 'Reservoir two layers having the same elevation.'
             WRITE(UNIT_ERROR,925)res_geom(resno).name,reselev
@@ -134,7 +135,7 @@ c-----------upper layer vol=lower layer vol + trapezoidal vol between them
             write(unit_error,'(a19,a,f13.3,a,f13.3,a,f13.3)')
      &         resname, " Elev: ",reselev,
      &         " Area: ",reser_area,
-     &         " Volume: ",reser_vol     
+     &         " Volume: ",current_area
 	         call exit(-3)
 	         return
 	   end if
@@ -143,8 +144,8 @@ c-----------upper layer vol=lower layer vol + trapezoidal vol between them
      &		   "Reservoir volume decreasing with elevation: "
             write(unit_error,'(a19,a,f13.3,a,f13.3,a,f13.3)')
      &         resname, " Elev: ",reselev,
-     &         " Area: ",reser_area,     
-     &         " Volume: ",reser_vol 
+     &         " Area: ",reser_area,
+     &         " Volume: ",current_area
 	         call exit(-3)
 	         return
 	   end if
