@@ -220,15 +220,15 @@ target_link_libraries(PTM
     )
 endif (WIN32)
 #PTM java
-find_package(Java 1.8 REQUIRED)
+find_package(Java 1.6 REQUIRED)
 message(STATUS "Found Java version ${Java_VERSION}")
 get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
-set(Java_JRE_HOME "${Java_JAVA_BIN_DIR}/../jre")
-message(STATUS "Using Java executable ${Java_JAVA_EXECUTABLE} location to guess Java_JRE_HOME is ${Java_JRE_HOME}")
+file(TO_CMAKE_PATH $ENV{JAVA_HOME}/jre JAVA_JRE_HOME)
+message(STATUS "Using Java env variable $ENV{JAVA_HOME} location to guess JAVA_JRE_HOME is -> ${JAVA_JRE_HOME}")
 include(UseJava)
 file(GLOB_RECURSE PTM_JAVA_SOURCES ptm/DWR/*.java)
 file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
-set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
+set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6")
 add_jar(PTM_JAR 
   SOURCES ${PTM_JAVA_SOURCES}
   INCLUDE_JARS ${PTM_JAVA_DEP_JARS}
@@ -245,7 +245,7 @@ install(TARGETS hydro qual PTM
 install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)
 message("Copy jar files over to bin/lib")
 install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
-install(DIRECTORY "${Java_JRE_HOME}" DESTINATION bin USE_SOURCE_PERMISSIONS)
+install(DIRECTORY ${JAVA_JRE_HOME} DESTINATION bin USE_SOURCE_PERMISSIONS)
 if (WIN32) 
   message("Windows exes are static so Intel redistribution files are not needed.")
   install(PROGRAMS ptm/bin/ptm.bat DESTINATION bin)
