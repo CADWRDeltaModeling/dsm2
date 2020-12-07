@@ -4,6 +4,12 @@
 ###################################
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+if [ $# -eq 0 ]
+  then
+    echo "No input file specified. Please specify input file for PTM"
+    exit 1
+fi
+
 export PTM_HOME=$DIR
 #
 {
@@ -17,7 +23,7 @@ if [ ! -f $PTM_HOME/PTM.jar ]; then
     echo   file ptm needs to match the location where
     echo   ptm has been installed
     echo ############################################################
-    exit 1
+    exit 2
 fi
 }
 
@@ -27,9 +33,5 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PTM_HOME/lib:$PTM_HOME
 # starting ptm
 ###############
 
-"$PTM_HOME/jre/bin/java" -ss1m -mx64m  -cp "$PTM_HOME/lib/edu.jar:$PTM_HOME/lib/COM.jar:$PTM_HOME/lib/xml.jar"  -jar $PTM_HOME/PTM.jar
-
-:end
-endlocal 
-rem 
+"$PTM_HOME/jre/bin/java" -ss1m -mx512m  -cp "$PTM_HOME/lib/edu.jar:$PTM_HOME/lib/COM.jar:$PTM_HOME/lib/xml.jar:$PTM_HOME/PTM.jar" DWR.DMS.PTM.MainPTM "$@"
 
