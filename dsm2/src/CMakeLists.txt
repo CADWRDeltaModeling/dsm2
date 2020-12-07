@@ -1,4 +1,21 @@
 cmake_minimum_required (VERSION 3.2.2)
+############ GIT information
+# in case Git is not available, we default to "unknown"
+set(GIT_HASH "unknown")
+
+# find Git and if available set GIT_HASH variable
+find_package(Git QUIET)
+if(GIT_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} log -1 --pretty=format:%h
+    OUTPUT_VARIABLE GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+    )
+endif()
+
+message(STATUS "Git hash is ${GIT_HASH}")
+#############
 PROJECT(DSM2)
 enable_language(C CXX Fortran)
 # 
@@ -272,7 +289,7 @@ set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
 set(CPACK_PACKAGE_VERSION_MAJOR "8")
 set(CPACK_PACKAGE_VERSION_MINOR "2")
-set(CPACK_PACKAGE_VERSION_PATCH "0") # TODO: add git versioning here
+set(CPACK_PACKAGE_VERSION_PATCH "${GIT_HASH}") 
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 get_filename_component(LICENSE_FILE "${DSM2_TOP_DIR}/LICENSE.txt" ABSOLUTE) 
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
