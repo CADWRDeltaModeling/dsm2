@@ -371,8 +371,8 @@ contains
         end if
         low = trim(adjustl(rangestr(7:(dash-1))))
         high = trim(adjustl(rangestr((dash+1):strlen)))
-        read(low,'(i)')rangebegin
-        read(high,'(i)')rangeend
+        read(low,*)rangebegin
+        read(high,*)rangeend
         if (rangebegin > rangeend) then
             write(unit_error,*)"Low part of range is greater than " // &
                 "high part. Range: ", rangestr
