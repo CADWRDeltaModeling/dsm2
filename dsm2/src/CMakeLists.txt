@@ -237,7 +237,7 @@ target_link_libraries(PTM
     )
 endif (WIN32)
 #PTM java
-find_package(Java 1.8 REQUIRED)
+find_package(Java 1.6 REQUIRED)
 message(STATUS "Found Java version ${Java_VERSION}")
 get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
 if (WIN32)
