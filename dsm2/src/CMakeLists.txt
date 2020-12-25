@@ -250,7 +250,7 @@ endif (WIN32)
 include(UseJava)
 file(GLOB PTM_JAVA_SOURCES ptm/DWR/DMS/PTM/*.java ptm/DWR/DMS/PTM/behave/*.java)
 file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
-set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
+set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6")
 add_jar(PTM_JAR 
   SOURCES ${PTM_JAVA_SOURCES}
   INCLUDE_JARS ${PTM_JAVA_DEP_JARS}
