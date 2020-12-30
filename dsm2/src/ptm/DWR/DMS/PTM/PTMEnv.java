@@ -112,6 +112,8 @@ public class PTMEnv{
 	  // when wbArray is setup, the channels are filled in first.
 	  //wbArray starts from 1. see PTMFixedInput.java line 180
 	  _reservoirObj2objNameID = new HashMap<String, Integer>();
+	  //TODO XSections are never initialized and used, clean up
+	  /*
 	  for(int i=1; i<= fixedInput.getNumberOfChannels(); i++) {
 		  if (wbArray[i] != null) {
 			  if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
@@ -123,6 +125,7 @@ public class PTMEnv{
 			  aChan.setXSectionArray(xSPtrArray);
 		  }  
 	  }
+	  */
 	  if (DEBUG) System.out.println("Done with initialzing xSections");
 	  //set nodes for wb (not only channels)
 	  for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
@@ -134,7 +137,7 @@ public class PTMEnv{
 			  for(int j=0; j< nNodes; j++){
 				  // the node id array has already been created in PTMFixedInput line 208, here to create a node array
 				  nodePtrArray[j] = nodeArray[wbArray[i].getNodeEnvIndex(j)];
-			  }//end for xsect
+			  }
 			  wbArray[i].setNodeArray(nodePtrArray);
 			  int wbType = wbArray[i].getType();
 			  if (wbType == Waterbody.RESERVOIR)

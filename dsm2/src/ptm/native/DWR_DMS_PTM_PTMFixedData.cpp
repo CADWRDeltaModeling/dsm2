@@ -386,6 +386,7 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelNodeArray
  * Method:    getChannelXSectionIds
  * Signature: (I)[I
  */
+/*
 JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelXSectionIds
 (JNIEnv * env, jobject thisOne, jint i){
   int array[LEN1];
@@ -398,12 +399,13 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelXSectionIds
 			 (jint*) array);
   return arrayJava;
 }
-
+*/
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getChannelXSectionDistances
  * Signature: (I)[I
  */
+/*
 JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelXSectionDistances
 (JNIEnv * env, jobject thisOne, jint i){
   float array[LEN1];
@@ -416,7 +418,7 @@ JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelXSectionDi
 			   (jfloat*) array);
   return arrayJava;
 }
-
+*/
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getReservoirArea
