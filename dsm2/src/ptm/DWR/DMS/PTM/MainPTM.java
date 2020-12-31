@@ -254,8 +254,7 @@ public class MainPTM {
             String modelTime = Globals.getModelTime(Globals.currentModelTime);
             String modelDate = Globals.getModelDate(Globals.currentModelTime);
             System.out.println("Model date: " + modelDate + " time: " + modelTime);
-            previousDisplayTime = Globals.currentModelTime;
-            
+            previousDisplayTime = Globals.currentModelTime;            
         }
     }
     

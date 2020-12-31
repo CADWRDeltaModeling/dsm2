@@ -764,36 +764,7 @@ c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       nodeArray(2) = chan_geom(i).downnode
       return
       end
-c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
-c      subroutine get_channel_xsection_ids(i, xSectionIds)
-c      use grid_data
-c      implicit none
 
-c      integer xSectionIds(50)
-c      integer get_channel_number_of_xsections
-c      integer i
-c      integer xid, nXs
-c      nXs = get_channel_number_of_xsections(i)
-c      do xid=1,nXs
-c         xSectionIds(xid) = chan_geom(i).xsect(xid)
-c      enddo
-c      return
-c      end
-c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
-c      subroutine get_channel_xsection_distances(i, xSectionDistances)
-c      use grid_data
-c      implicit none
-c
-c      real xSectionDistances(50)
-c      integer i, get_channel_number_of_xsections
-c      integer xid, nXs
-c      nXs = get_channel_number_of_xsections(i)
-c      do xid=1,nXs
-c         xSectionDistances(xid) = chan_geom(i).xsect(xid)
-c      enddo
-c      return
-c      end
-c-----++++++++++++++++++++++++++++++++++++++++++++++++++++
       function get_reservoir_area(reservoirNumber)
       use grid_data
       implicit none

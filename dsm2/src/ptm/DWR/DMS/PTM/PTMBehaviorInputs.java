@@ -15,7 +15,6 @@ import java.util.TimeZone;
  */
 public class PTMBehaviorInputs {
 	private String _fishType = null;
-	private String _smeltFileName = null;
 	private SurvivalInputs _survivalInputs=null;
 	private SwimInputs _swimInputs=null;
 	private RouteInputs _routeInputs=null;
@@ -222,7 +221,6 @@ public class PTMBehaviorInputs {
 		}
 	}
 	public String getFishType(){return _fishType;}
-	public String getSmeltInputFileName() {return _smeltFileName;}
 	public TimeZone getTimeZone(){return _timeZone;}
 	public SwimInputs getSwimInputs(){ return _swimInputs;}
 	public SurvivalInputs getSurvivalInputs(){ return _survivalInputs;}

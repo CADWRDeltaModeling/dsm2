@@ -212,15 +212,9 @@ public class PTMFixedInput{
     int lId = _fixedData.getLocalIdForWaterbody(nId);
     float len = _fixedData.getChannelLength(lId);
     if (len > 0) {
-      //XSections are never initialized and used, clean up
-      //int[] xSectionIds = _fixedData.getChannelXSectionIds(lId);
-      //float[] xSectDist = _fixedData.getChannelXSectionDistances(lId);
       int[] nodeArray = _fixedData.getNodeArrayForWaterbody(nId);
       wb = new Channel(lId, nId,
-    		 //TODO XSections are never initialized and used, clean up
-  		     //xSectionIds, len,
     		 len, nodeArray);
-  		     //nodeArray, xSectDist);
       if (DEBUG){
         System.out.println("Created channel local ID: " + lId);
         System.out.println("Created channel waterbody ID: " + nId);
