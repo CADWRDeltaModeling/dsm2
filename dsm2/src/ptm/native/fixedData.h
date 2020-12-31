@@ -40,8 +40,6 @@
 #define getChannelNumberOfNodes GET_CHANNEL_NUMBER_OF_NODES
 #define getChannelNodeArray GET_CHANNEL_NODE_ARRAY
 #define getChannelNumberOfXsections GET_CHANNEL_NUMBER_OF_XSECTIONS
-//#define getChannelXsectionIds GET_CHANNEL_XSECTION_IDS
-//#define getChannelXsectionDistances GET_CHANNEL_XSECTION_DISTANCES
 #define getReservoirArea GET_RESERVOIR_AREA
 #define getReservoirBottomElevation GET_RESERVOIR_BOTTOM_ELEVATION
 #define getReservoirName GET_RESERVOIR_NAME
@@ -159,8 +157,6 @@
 #define getChannelNumberOfNodes get_channel_number_of_nodes_
 #define getChannelNodeArray get_channel_node_array_
 #define getChannelNumberOfXsections get_channel_number_of_xsections_
-//#define getChannelXsectionIds get_channel_xsection_ids_
-//#define getChannelXsectionDistances get_channel_xsection_distances_
 #define getReservoirArea get_reservoir_area_
 #define getReservoirBottomElevation get_reservoir_bottom_elevation_
 #define getReservoirName get_reservoir_name_
@@ -303,8 +299,6 @@ extern "C" {
   int STDCALL getChannelNumberOfNodes(int* channelNumber);
   void STDCALL getChannelNodeArray(int* channelNumber, int * nodeArray);
   int STDCALL getChannelNumberOfXsections(int* channelNumber); 
-  //void STDCALL getChannelXsectionIds(int* channelNumber, int *xSectionIds);
-  //void STDCALL getChannelXsectionDistances(int* channelNumber, float *xSectionDistances);
   
   float STDCALL getReservoirArea(int* reservoirNumber);
   float STDCALL getReservoirBottomElevation(int* reservoirNumber);

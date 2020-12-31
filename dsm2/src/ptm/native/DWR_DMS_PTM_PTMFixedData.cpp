@@ -383,44 +383,6 @@ JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelNodeArray
 
 /*
  * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getChannelXSectionIds
- * Signature: (I)[I
- */
-/*
-JNIEXPORT jintArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelXSectionIds
-(JNIEnv * env, jobject thisOne, jint i){
-  int array[LEN1];
-  int channelNumber = (int) i;
-  int numberOfXSections = getChannelNumberOfXsections(&channelNumber);
-  jintArray arrayJava = env->NewIntArray((jsize) numberOfXSections);
-  getChannelXsectionIds(&channelNumber, array);
-  env->SetIntArrayRegion(arrayJava, 
-			 (jsize) 0, (jsize) numberOfXSections, 
-			 (jint*) array);
-  return arrayJava;
-}
-*/
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
- * Method:    getChannelXSectionDistances
- * Signature: (I)[I
- */
-/*
-JNIEXPORT jfloatArray JNICALL Java_DWR_DMS_PTM_PTMFixedData_getChannelXSectionDistances
-(JNIEnv * env, jobject thisOne, jint i){
-  float array[LEN1];
-  int channelNumber = (int) i;
-  int numberOfXSections = getChannelNumberOfXsections(&channelNumber);
-  jfloatArray arrayJava = env->NewFloatArray((jsize) numberOfXSections);
-  getChannelXsectionDistances(&channelNumber, array);
-  env->SetFloatArrayRegion(arrayJava, 
-			   (jsize) 0, (jsize) numberOfXSections, 
-			   (jfloat*) array);
-  return arrayJava;
-}
-*/
-/*
- * Class:     DWR_DMS_PTM_PTMFixedData
  * Method:    getReservoirArea
  * Signature: (I)F
  */

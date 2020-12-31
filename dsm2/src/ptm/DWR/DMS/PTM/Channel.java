@@ -64,15 +64,6 @@ public class Channel extends Waterbody{
    */
   private int[] xSectionIds;
   /**
-   *  Pointers to XSection objects contained in this Channel
-   */
-  //TODO these two variable are never initialized in the native code, clean up 
-  //private XSection[] xSArray;
-  /**
-   *  Array containing distance of cross sections from upstream end
-   */
-  //private float[] xSectionDistance;
-  /**
    *  Length of Channel
    */
   private float length;
@@ -91,19 +82,11 @@ public class Channel extends Waterbody{
    *  sets fixed information for Channel
    */
   public Channel(int nId, int gnId,
-		         //TODO clean up XSArray is not used anymore
-                 //int[] xSIds, float len,
                  float len,
-                 int[] nodeIds){//TODO not used anymore, float[] xSectDist){
+                 int[] nodeIds){
 
     super(Waterbody.CHANNEL, nId, nodeIds);
     length = len;
-    //set #of xSections and the idArray
-    //TODO clean up XSArray is not used anymore
-    //nXsects = xSIds.length;
-    //xSArray = new XSection[nXsects];
-    //xSectionIds = xSIds;
-    //xSectionDistance = xSectDist;
     
     widthAt = new float[getNumberOfNodes()];
     areaAt = new float[getNumberOfNodes()];
@@ -299,33 +282,7 @@ public class Channel extends Waterbody{
     return(xSectionIds[localIndex]);
   }
   
-  /**
-   *  Sets pointer information for XSection pointer array
-   */
-  //TODO XSections have never been initialized in the native code, clean up
-  /*
-  public final void setXSectionArray(XSection[] xSPtrArray){
-    for(int i=0; i<nXsects; i++){
-      xSArray[i] = xSPtrArray[i];
-      //fill up regular XSection with additional information
-      if (xSArray[i].isIrregular() == false){
-        xSArray[i].setDistance(xSectionDistance[i]);
-        xSArray[i].setChannelNumber(getEnvIndex());
-      }//end if
-    }//end for
-    // sort by ascending order of distance...
-    sortXSections();
-  }
-  */
-  /**
-   *  Returns a pointer to specified XSection
-   */
-  //TODO this function is never called, clean up
-  /*
-  public final XSection getXSection(int localIndex){
-    return(xSArray[localIndex]);
-  }
-  */
+
   /**
    *  Set depth information
    */
@@ -408,37 +365,4 @@ public class Channel extends Waterbody{
     for(int i=1; i<MAX_PROFILE; i++)
       vertProfile[i] = (float) (1.0f + (0.1f/VONKARMAN)*(1.0f + Math.log(((float)i)/MAX_PROFILE)));
   }
-  //TODO XSections have never been initialized in the native code, clean up
-  /*
-  private final void sortXSections(){
-    int i,j;
-    float currentSection;
-    XSection xSPtr;
-    boolean Inserted = false;
-    
-    for(j=1; j<nXsects; j++){
-      currentSection=xSArray[j].getDistance();
-      xSPtr=xSArray[j];
-      i=j-1;
-      Inserted = false;
-      
-      while(i>=0 && !Inserted){
-        if(xSArray[i].getDistance() <= currentSection) {
-          Inserted = true;
-          xSArray[i+1].setDistance(currentSection);
-          xSArray[i+1]=xSPtr;
-        }//end if
-        else {
-          xSArray[i+1].setDistance(xSArray[i].getDistance());
-          xSArray[i+1]=xSArray[i];
-        }//end else
-        i--;
-      }//end while
-      if (!Inserted) {
-        xSArray[0].setDistance(currentSection);
-        xSArray[0]=xSPtr;
-      }
-    }//end for
-  }
-  */
 }

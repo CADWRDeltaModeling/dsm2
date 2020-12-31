@@ -112,20 +112,6 @@ public class PTMEnv{
 	  // when wbArray is setup, the channels are filled in first.
 	  //wbArray starts from 1. see PTMFixedInput.java line 180
 	  _reservoirObj2objNameID = new HashMap<String, Integer>();
-	  //TODO XSections are never initialized and used, clean up
-	  /*
-	  for(int i=1; i<= fixedInput.getNumberOfChannels(); i++) {
-		  if (wbArray[i] != null) {
-			  if (DEBUG) System.out.println("Doing xsects for Waterbody # " + i);
-			  XSection[] xSPtrArray;
-			  xSPtrArray = new XSection[((Channel) wbArray[i]).getNumberOfXSections()];
-			  Channel aChan = (Channel) wbArray[i];
-			  for(int j=0; j< aChan.getNumberOfXSections(); j++) 
-				  xSPtrArray[j] = xSectionArray[aChan.getXSectionEnvIndex(j)];
-			  aChan.setXSectionArray(xSPtrArray);
-		  }  
-	  }
-	  */
 	  if (DEBUG) System.out.println("Done with initialzing xSections");
 	  //set nodes for wb (not only channels)
 	  for (int i=1; i<=fixedInput.getMaximumNumberOfWaterbodies(); i++){
@@ -156,55 +142,10 @@ public class PTMEnv{
 	    //TODO need to move this to somewhere else so the behavior helper can be independently set???
 	    _behaviorInputs = new PTMBehaviorInputs(fixedInput.getBehaviorInfileName(), nodeArray, wbArray);
 	    _particleType = _behaviorInputs.getFishType();
-	    if(_particleType.equalsIgnoreCase("SMELT"))
-	    	_smeltInputFileName = _behaviorInputs.getSmeltInputFileName();
 	    _routeHelper = _behaviorInputs.getRouteHelper();
 	    _swimHelper = _behaviorInputs.getSwimHelper();
 	    _survivalHelper = _behaviorInputs.getSurvivalHelper();
 	    	
-	    
-	    //TODO move the block to PTMBehaviorInputs
-	    /*
-		if ( _particleType.equalsIgnoreCase("PARTICLE")){
-			//TODO need to create a particle route helper later
-			//_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior());
-			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(_behaviorInputs.getRouteInputs()));
-			System.out.println("Created Particle Route Helper");
-			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(_behaviorInputs.getSwimInputs()));
-			System.out.println("Created Particle Swim Helper");
-			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_behaviorInputs.getSurvivalInputs()));
-			System.out.println("Created Particle Survival Helper");
-		}
-		else if(_particleType.equalsIgnoreCase("SALMON")){
-			_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(_behaviorInputs.getRouteInputs()));
-			System.out.println("Created Salmon Route Helper");
-			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(_behaviorInputs.getSwimInputs()));
-			System.out.println("Created Salmon Swim Helper");
-			_survivalHelper = new SalmonSurvivalHelper(new SalmonBasicSurvivalBehavior(_behaviorInputs.getSurvivalInputs()));
-			System.out.println("Created Salmon Survival Helper");
-		}
-		else if (_particleType.equalsIgnoreCase("SMELT"))
-			PTMUtil.systemExit("No smelt helper defined, system exit.");
-		else
-			PTMUtil.systemExit("No helper defined for this type of particle, system exit.");
-	    
-		*/
-	    
-	    
-		
-	    //TODO clean up move to PTMBehaviorInputs
-	    /*
-	    //TODO consider change:
-	    //setNodeInfo has to be done first, because in TravelTimeOutput, setOutputWbInfo depends on setOutputNodeInfo
-	    _behaviorInputs.setNodeInfo(nodeArray);
-	    _behaviorInputs.setWaterbodyInfo(wbArray);
-	    //TODO clean up no longer used
-	    //_travelTimeOutput = _behaviorInputs.getTravelTimeOutput();
-	    SwimInputs sIns = _behaviorInputs.getSwimInputs(); 
-	    //TODO this should be in SwimInputs
-	    PTMHydroInput.setConfusionParameters(sIns.getConstProbConfusion(), sIns.getMaxProbConfusion(), 
-	    		                             sIns.getSlopeProbConfusion(), sIns.getNumberTidalCycles());
-	   */
   }
 		  
   /**
@@ -221,37 +162,6 @@ public class PTMEnv{
     return (hydroInput);
   }
   
-  /**
-   * Set the current Particle behavior object
-   */
-  //TODO this is Aaron's original code for smelt behaviors.
-  // rewrite this part in PTMBehaviorInputs
-  /*
-  public final boolean setParticleBehavior() throws IOException {
-    // initialize behavior file
-    boolean fileExists = false;
-    if (_smeltInputFileName.length() != 0 && _smeltInputFileName != null){
-      fileExists = true;
-      if (checkFile(_smeltInputFileName)) {
-        behaviorIn = new ParticleBehavior(_smeltInputFileName);
-        if (behaviorIn != null) {
-          getParticleFixedInfo().setBehavior(behaviorIn);
-          System.out.println("Opened Behavior File "+_smeltInputFileName);
-          }
-      }
-      else {
-        System.out.println("Behavior File \""+_smeltInputFileName+"\" Does Not Exist \nExiting");
-        System.exit(0);
-      }
-    }
-    return fileExists;
-  }
-  
-  private boolean checkFile(String filenm){
-    File tmpfile = new File(filenm);
-    return tmpfile.isFile();
-  }
-  */
  
   /**
    * Get the Waterbody object for a given unique id
@@ -733,7 +643,6 @@ public class PTMEnv{
   private int maxNumberOfXSections;
   private int numberOfGroups;
   private String _particleType;
-  private String _smeltInputFileName;
   private PTMBehaviorInputs _behaviorInputs;
   private static Map<String, Integer> _reservoirObj2objNameID = null; 
   private RouteHelper _routeHelper;

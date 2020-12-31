@@ -223,8 +223,6 @@ public class PTMFixedData {
   //
   native int getChannelLength(int i);
   native int[] getChannelNodeArray(int i);
-  //native int[] getChannelXSectionIds(int i);
-  //native float[] getChannelXSectionDistances(int i);
   //
   native float getReservoirArea(int i);
   native float getReservoirBottomElevation(int i);
