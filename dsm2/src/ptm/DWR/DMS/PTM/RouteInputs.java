@@ -83,7 +83,7 @@ public class RouteInputs {
 	public void setFishScreenNodeInfo(Node[] allNodes){
 	    //nodeArray starts from 1 PTMFixedInput.java line 287
 		if (_fishScreens != null){
-			for (IntBuffer screen: _fishScreens)
+			for (IntBuffer screen: _fishScreens) 
 				allNodes[screen.get(0)].installFishScreen();
 		}
 	}
@@ -103,7 +103,7 @@ public class RouteInputs {
 		if (_fishScreens == null)
 			System.out.println("No fish screens");
 		else{
-			for (IntBuffer screen: _fishScreens)
+			for (IntBuffer screen: _fishScreens) 
 				allWbs[screen.get(1)].installFishScreen(screen.get(0));
 		}
 	}
@@ -416,7 +416,7 @@ public class RouteInputs {
 	}
 	private void setFishScreens(ArrayList<String> inText){	
 		// first line is the title
-		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME", "DISTANCE"};
+		String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME"};
 		PTMUtil.checkTitle(inText.get(0), shouldBe);
 		for (int i = 1; i<inText.size(); i++){
 			int[] ids = getEnvIds(inText.get(i).trim().split("[,\\s\\t]+")); 
