@@ -49,12 +49,12 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 					PTMUtil.systemExit("when trying to route the particle, one of the water bodies is null, system exit.");
 			swimmingVels[wbId] = 0.0f;
 			if (wb.isAgSeep()
-	        		|| (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled()))
-				wbFlows[wbId] = 0.0f;	
+	        		|| (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled())) 
+				wbFlows[wbId] = 0.0f;
 			else{
-				if(wb.getPTMType() == Waterbody.CHANNEL){ 
+				if(wb.getPTMType() == Waterbody.CHANNEL){
 					Channel c = (Channel) wb;
-					int cId = c.getEnvIndex();
+					int cId = c.getEnvIndex();				
 					//mean swimming velocity set once per particle per channel group.
 					//Here is the only place to set a mean swimming velocity.
 					p.getSwimHelper().setMeanSwimmingVelocity(p.Id, cId);
