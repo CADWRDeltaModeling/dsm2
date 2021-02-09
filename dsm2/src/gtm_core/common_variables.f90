@@ -585,7 +585,7 @@ module common_variables
          implicit none
          integer :: istat = 0
          character(len=128) :: message
-         allocate(chan_geom(0:n_chan), stat = istat)
+         allocate(chan_geom(n_chan), stat = istat)
          if (istat .ne. 0 )then
             call gtm_fatal(message)
          end if
