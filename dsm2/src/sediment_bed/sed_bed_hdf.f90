@@ -320,11 +320,11 @@ module sed_bed_hdf
                 strlen = 32
                 nstr = sed_bed_solids_flux_count
                 allocate(character(strlen) :: arr(nstr))
-                arr(1) = "deposition (g/m2/yr)"
-                arr(2) = "resuspension (g/m2/yr)"
-                arr(3) = "mass_turnover (g/m2/yr)"
-                arr(4) = "burial/erosion (g/m2/yr)"
-                arr(5) = "carbon_turnover (g/m2/yr)"
+                arr(1) = "deposition (g/m2/d)"
+                arr(2) = "resuspension (g/m2/d)"
+                arr(3) = "mass_turnover (g/m2/d)"
+                arr(4) = "burial/erosion (g/m2/d)"
+                arr(5) = "carbon_turnover (g/m2/d)"
             case (sed_bed_zone)
                 strlen = 20
                 nstr = n_zones
@@ -357,17 +357,17 @@ module sed_bed_hdf
                 strlen = 32
                 nstr = sed_bed_hg_flux_count
                 allocate(character(strlen) :: arr(nstr))
-                arr(1) = "hgii settle (ug/m2/yr)"
-                arr(2) = "hgii resusp (ug/m2/yr)"
-                arr(3) = "hgii burial (l1->l2 )(ug/m2/yr)"
-                arr(4) = "hgii diffusion - out (ug/m2/yr)"
-                arr(5) = "mehg settle (ug/m2/yr)"
-                arr(6) = "mehg resusp (ug/m2/yr)"
-                arr(7) = "mehg burial (ug/m2/yr)"
-                arr(8) = "mehg diffusion - out (ug/m2/yr)"
-                arr(9) = "methyl (ug/m2/yr)"
-                arr(10) = "demethyl (ug/m2/yr)"
-
+                arr(1) = "hgii settle (ug/d)"
+                arr(2) = "hgii resusp (ug/d)"
+                arr(3) = "hgii burial (l1->l2 )(ug/d)"
+                arr(4) = "hgii diffusion - out (ug/d)"
+                arr(5) = "mehg settle (ug/d)"
+                arr(6) = "mehg resusp (ug/d)"
+                arr(7) = "mehg burial (ug/d)"
+                arr(8) = "mehg diffusion - out (ug/d)"
+                arr(9) = "methyl (ug/d)"
+                arr(10) = "demethyl (ug/d)"
+                arr(11) = "wet area (m2)"              
 
             case (wat_hg)
                 strlen = 32
@@ -386,16 +386,19 @@ module sed_bed_hdf
                 strlen = 32
                 nstr = wat_hg_flux_count
                 allocate(character(strlen) :: arr(nstr))
-                arr(1) = "photodegradation (ug/m2/yr)"
-                arr(2) = "reduction (ug/m2/yr)"
-                arr(3) = "oxidation (ug/m2/yr)"
-                arr(4) = "evasion (ug/m2/yr)"
-                arr(5) = "hgii wet dep (ug/m2/yr)"
-                arr(6) = "hgii dry dep (ug/m2/yr)"
-                arr(7) = "hgii settle (ug/m2/yr)"
-                arr(8) = "hgii erosion (ug/m2/yr)"
-                arr(9) = "mehg settle (ug/m2/yr)"
-                arr(10) = "mehg erosion (ug/m2/yr)"
+                arr(1) = "photodegradation (ug/d)"
+                arr(2) = "reduction (ug/d)"
+                arr(3) = "oxidation (ug/d)"
+                arr(4) = "evasion (ug/d)"
+                arr(5) = "hgii wet dep (ug/d)"
+                arr(6) = "hgii dry dep (ug/d)"
+                arr(7) = "hgii settle (ug/d)"
+                arr(8) = "hgii erosion (ug/d)"
+                arr(9) = "mehg settle (ug/d)"
+                arr(10) = "mehg erosion (ug/d)"
+                arr(11) = "hgII diffuse (ug/d)"
+                arr(12) = "mehg diffuse (ug/d)"
+                arr(13) = "wet area (m2)"
         end select
 
 	    data_dims(1) = nstr
