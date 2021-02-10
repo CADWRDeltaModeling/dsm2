@@ -197,8 +197,8 @@ module hg_hdf
         type(bed_properties_t), intent(in) :: bed(ncell, nzone, 2) !< cell data from transport module
         integer, intent(in) :: time_index                          !< time index to write the data
         real(gtm_real) :: chan_conc(2,nzone, nchan, nconc)         !< channel data from transport module
-		integer :: nflux = 10
-        real(gtm_real) :: chan_flux(2,nzone, nchan, 10)         !< channel data from transport module
+        integer :: nflux = 11
+        real(gtm_real) :: chan_flux(2,nzone, nchan, 11)         !< channel data from transport module
         integer :: chan_rank
         integer(HID_T) :: fspace_id
         integer(HID_T) :: memspace_id
@@ -208,10 +208,14 @@ module hg_hdf
     	integer :: ichan, izone
         integer :: error                                        ! HDF5 Error flag
         integer :: imid
+        integer :: icell
         real(gtm_real)  :: sed_mass(2)                           !nlayers
         real(gtm_real)  :: hgii_mass(2)                           !nlayers
         real(gtm_real)  :: mehg_mass(2)                           !nlayers
-        real(gtm_real)  :: volume_pw(2)
+        real(gtm_real)  :: volume_pw_hdf(2)
+        real(gtm_real) :: area_chan(nchan, nzone) 
+        
+        
         if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
 
         if (nchan .ne. 0) then
@@ -240,10 +244,11 @@ module hg_hdf
                 do izone = 1, nzone
 
                     sed_mass(:) = sedsolids(imid,izone,:,1,3) + sedsolids(imid,izone,:,2,3) + sedsolids(imid,izone,:,3,3)
-                    volume_pw(:) = bed(imid,izone,:).wp_wet*bed(imid,izone,:).thickness*bed(imid,izone,:).porosity
+                    volume_pw_hdf(1) = volume_pw(imid,izone,1)
+                    volume_pw_hdf(2) = volume_pw(imid,izone,2)
                     hgii_mass(:) = sed_hgii(imid,izone,:,3) + sed_s1_hgii(imid,izone,:,3) + sed_s2_hgii(imid,izone,:,3) + sed_s3_hgii(imid,izone,:,3) &
-                                   - hg_conc_sed(imid,izone,:,2)%hgii_diss*volume_pw(:)     !filtered not updated after integration
-                    mehg_mass(:) = sed_mehg(imid,izone,:,3) - hg_conc_sed(imid,izone,:,2)%mehg_diss*volume_pw(:)
+                                   - hg_conc_sed(imid,izone,:,2)%hgii_diss*volume_pw_hdf(:)     !filtered not updated after integration
+                    mehg_mass(:) = sed_mehg(imid,izone,:,3) - hg_conc_sed(imid,izone,:,2)%mehg_diss*volume_pw_hdf(:)
 
 
                     chan_conc(:,izone,ichan,1) = hgii_mass(:)/sed_mass(:)
@@ -278,8 +283,8 @@ module hg_hdf
                         chan_conc(2,izone,ichan,6) = zero
                     endif
 
-                    if (volume_pw(1)>zero) then
-                        chan_conc(:,izone,ichan,7) = sed_hg0(imid,izone,:,3)/volume_pw(:)
+                    if (volume_pw_hdf(1)>zero) then
+                        chan_conc(:,izone,ichan,7) = sed_hg0(imid,izone,:,3)/volume_pw_hdf(:)
                     else
                         chan_conc(:,izone,ichan,7) = zero
                     endif
@@ -312,38 +317,32 @@ module hg_hdf
 			call h5sclose_f(memspace_id, error)
 
             chan_flux = 0
+            area_chan = 0
             do ichan = 1, nchan                         !bed hg fluxes
-                imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  !write for middle cell in channel
+                !imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  !write for middle cell in channel
+                do icell = chan_geom(ichan)%start_cell, chan_geom(ichan)%end_cell
                 do izone = 1, nzone
-                    if (bed(imid,izone,1).area_wet.gt.zero) then
-                        chan_flux(1,izone,ichan,1) = f_settling_hg(imid,izone,mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,2) = f_erosion_hg(imid,izone,mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,3) = f_burial_hg(imid,izone,mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
+                       if (bed(icell,izone,1).area_wet.gt.zero) then
+                            area_chan(ichan, izone) = area_chan(ichan, izone) + bed(icell,izone,1).area_wet
+                            chan_flux(1,izone,ichan,1) = chan_flux(1,izone,ichan,1) + f_settling_hg(icell,izone,mf_hgii,1)* day_to_sec
+                            chan_flux(1,izone,ichan,2) = chan_flux(1,izone,ichan,2) + f_erosion_hg(icell,izone,mf_hgii,1) * day_to_sec
+                            chan_flux(1,izone,ichan,3) = chan_flux(1,izone,ichan,3) + f_burial_hg(icell,izone,mf_hgii,1) * day_to_sec
                         chan_flux(2,izone,ichan,3) = chan_flux(1,izone,ichan,3)
-                        chan_flux(1,izone,ichan,4) = f_diffusion_hg(imid,izone, mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(2,izone,ichan,4) = f_sed_diffusion_hg(imid,izone,mf_hgii,1) &           !L2->L1
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,5) = f_settling_hg(imid,izone,mf_mehg,1)  &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,6) = f_erosion_hg(imid,izone,mf_mehg,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,7) = f_burial_hg(imid,izone,mf_mehg,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
+                            chan_flux(1,izone,ichan,4) = chan_flux(1,izone,ichan,4) + f_diffusion_hg(icell,izone, mf_hgii,1) * day_to_sec
+                            chan_flux(2,izone,ichan,4) = chan_flux(2,izone,ichan,4) + f_sed_diffusion_hg(icell,izone,mf_hgii,1) * day_to_sec    !L2->L1
+                            chan_flux(1,izone,ichan,5) = chan_flux(1,izone,ichan,5) + f_settling_hg(icell,izone,mf_mehg,1) * day_to_sec
+                            chan_flux(1,izone,ichan,6) = chan_flux(1,izone,ichan,6) + f_erosion_hg(icell,izone,mf_mehg,1) * day_to_sec
+                            chan_flux(1,izone,ichan,7) = chan_flux(1,izone,ichan,7) + f_burial_hg(icell,izone,mf_mehg,1) * day_to_sec
                         chan_flux(2,izone,ichan,7) = chan_flux(1,izone,ichan,7)
 
-                        chan_flux(1,izone,ichan,8) = f_diffusion_hg(imid,izone,mf_mehg,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(2,izone,ichan,8) = f_sed_diffusion_hg(imid,izone,mf_mehg,1) &           !L2->L1
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(:,izone,ichan,9) = f_sed_methyl(imid,izone,:,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(:,izone,ichan,10) = f_sed_demethyl(imid,izone,:,1) &
-                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec
+                            chan_flux(1,izone,ichan,8) = chan_flux(1,izone,ichan,8) + f_diffusion_hg(icell,izone,mf_mehg,1) * day_to_sec
+                            chan_flux(2,izone,ichan,8) = chan_flux(2,izone,ichan,8) + f_sed_diffusion_hg(icell,izone,mf_mehg,1) * day_to_sec   !L2->L1
+                            chan_flux(:,izone,ichan,9) = chan_flux(:,izone,ichan,9) + f_sed_methyl(icell,izone,:,1) * day_to_sec
+                            chan_flux(:,izone,ichan,10) = chan_flux(:,izone,ichan,10) + f_sed_demethyl(icell,izone,:,1) * day_to_sec 
                     endif
+                        chan_flux(1,izone,ichan,11) = area_chan(ichan, izone)
+                        chan_flux(2,izone,ichan,11) = chan_flux(1,izone,ichan,11)
+                    enddo
                 enddo
             enddo
 
