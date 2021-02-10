@@ -628,6 +628,84 @@ module hg_hdf
 
     end subroutine close_gtm_hg_hdf
 
+    subroutine write_gtm_chan_flux_hdf(hdf_file,     &
+                                      conc,          &
+                                      nchan,         &
+                                      ncell,         &
+                                      nconc,         &
+                                      time_index)
+                                     
+        use hdf5
+        use common_variables, only:chan_geom
+        implicit none
+        type(gtm_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
+        integer, intent(in) :: nchan                               !< number of channels
+        integer, intent(in) :: ncell                               !< number of cells
+        integer, intent(in) :: nconc                               !< number of constituents
+        real(gtm_real), intent(in) :: conc(nchan, nconc)
+        integer, intent(in) :: time_index                          !< time index to write the data
+        
+        !real(gtm_real) :: chan_conc(nchan, nconc)               !< channel data from transport module
+        integer :: chan_rank
+        integer :: chan_budget_rank
+        integer(HID_T) :: fspace_id
+        integer(HID_T) :: memspace_id
+     	integer(HSIZE_T), dimension(2) :: mdata_dims  = 0          ! Dims of data in memory
+      	integer(HSIZE_T), dimension(3) :: subset_dims  = 0         ! Dims of subset for time step
+    	integer(HSIZE_T), dimension(3) :: h_offset = (/0,0,0/)
+            	
+    	integer :: ichan
+        integer :: error                                           ! HDF5 Error flag
+        integer :: icell
+        
+        if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
+     
+        if (nchan .ne. 0) then 
+            !-----channel conc
+            h_offset(1) = 0
+            h_offset(2) = 0
+            h_offset(3) = time_index
+
+	        subset_dims(1) = nchan
+	        subset_dims(2) = nconc
+	        subset_dims(3) = 1
+
+	        mdata_dims(1) = nchan
+	        mdata_dims(2) = nconc
+            chan_rank = 2
+            !chan_conc = zero
+            
+            !do ichan = 1, nchan          
+            !   do icell = chan_geom(ichan)%start_cell, chan_geom(ichan)%end_cell
+            !        chan_conc(ichan,:) =  chan_conc(ichan,:) + conc(icell,:)
+            !    end do
+            !end do
+              
+            call H5Screate_simple_f(chan_rank,           &
+                                    mdata_dims,          &
+                                    memspace_id,         &
+                                    error)
+            call h5dget_space_f(hdf_file%chan_conc_id,   &  
+                                fspace_id,               &
+                                error)
+            call h5sselect_hyperslab_f(fspace_id,        &
+                                       H5S_SELECT_SET_F, &
+                                       h_offset,         & 
+                                       subset_dims,      &
+                                       error)
+            call h5dwrite_f(hdf_file%chan_conc_id,       &
+                            H5T_NATIVE_REAL,             & 
+                            real(conc),                  &
+                            mdata_dims,                  &
+                            error,                       &
+                            memspace_id,                 & 
+                            fspace_id)
+	        call verify_error(error,"Channel flux write")
+            call h5sclose_f(fspace_id, error)
+            call h5sclose_f(memspace_id, error)    
+        end if
+        return
+    end subroutine
 	subroutine print_last_stage_hg(cdtdate,        &
                                 intdate,        &
                                 out_conc_resv,  &
