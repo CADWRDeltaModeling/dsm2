@@ -729,7 +729,7 @@ module hg_hdf
         real(gtm_real)  :: hgii_s3(2)
         real(gtm_real)  :: mehg(2)
         real(gtm_real)  :: hg0(2)
-        real(gtm_real)  ::volume_pw(2)
+        real(gtm_real)  ::volume_pw_ls(2)
         integer :: ncol
         integer :: a(nvar)
         character*16 :: c(nvar)
@@ -755,8 +755,9 @@ module hg_hdf
                 hgii_s3(:) = sed_s3_hgii(i,j,:,3)/sedsolids(i,j,:,3,3)
                 mehg(:) = sed_mehg(i,j,:,3)/sed_mass(:)
                 if  (bed(i,j,1).wp_wet > 0) then
-                    volume_pw(:) = bed(i,j,:).wp_wet*bed(i,j,:).thickness*bed(i,j,:).porosity
-                    hg0(:) = sed_hg0(i,j,:,3)/volume_pw(:)
+                    volume_pw_ls(1) = volume_pw(i,j,1)
+                    volume_pw_ls(2) = volume_pw(i,j,2)
+                    hg0(:) = sed_hg0(i,j,:,3)/volume_pw_ls(:) 
                 else
                     hg0(:) = zero
                 endif
