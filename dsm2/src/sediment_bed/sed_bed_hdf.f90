@@ -595,17 +595,17 @@ module sed_bed_hdf
                 do izone =1, nzone
 
                     if (bed(imid,izone,1).area_wet > zero) then
-                        chan_flux(1,izone,ichan,1) =  chan_flux(1,izone,ichan,1) + (((settling(imid, izone, 1, 1) + settling(imid,izone, 2,1 ) + settling(imid,izone, 3, 1) + settling(imid,izone, 1, 2) + settling(imid,izone, 2, 2) + settling(imid,izone, 3, 2))/two) &
-                                             /(bed(imid,izone,1).area_wet )) * day_to_sec
-                        chan_flux(1,izone,ichan,2) = chan_flux(1,izone,ichan,2) + (((erosion(imid,izone, 1, 1) + erosion(imid,izone,2, 1) + erosion(imid,izone, 3, 1) + erosion(imid,izone, 1, 2) + erosion(imid,izone, 2, 2) + erosion(imid,izone, 3, 2))/two) &
-                                             /(bed(imid,izone,1).area_wet )) * day_to_sec
-                        chan_flux(1,izone,ichan,4) = chan_flux(1,izone,ichan,4) + (((burial(imid,izone,1,1,1) + burial(imid,izone,1,2,1) + burial(imid,izone,1,3,1) + burial(imid,izone,1,1,2) + burial(imid,izone,1,2, 2) + burial(imid,izone,1,3,2))/two) &
-                                             /(bed(imid,izone,1).area_wet )) * day_to_sec
-
-                        chan_flux(:,izone,ichan,3) = chan_flux(:,izone,ichan,3) + (((decomposition(imid,izone,:,1,1) + decomposition(imid,izone,:,2,1) + decomposition(imid,izone,:,3,1) + decomposition(imid,izone,:,1, 2) + decomposition(imid,izone,:,2, 2) + decomposition(imid,izone,:,3,2))/two) &
-                                             /(bed(imid,izone,:).area_wet )) * day_to_sec
-                        chan_flux(:,izone,ichan,5) = chan_flux(:,izone,ichan,5) + (((carbonturnover(imid,izone,:,1,1) + carbonturnover(imid,izone,:,2,1) + carbonturnover(imid,izone,:,3,1) + carbonturnover(imid,izone,:,1,2) + carbonturnover(imid,izone,:,2,2) + carbonturnover(imid,izone,:,3,2))/two) &
-                                             /(bed(imid,izone,:).area_wet )) * day_to_sec
+                        chan_flux(1,izone,ichan,1) = (((settling(imid, izone, 1, 1) + settling(imid,izone, 2,1 ) + settling(imid,izone, 3, 1) + settling(imid,izone, 1, 2) + settling(imid,izone, 2, 2) + settling(imid,izone, 3, 2))/two) &
+                                             /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,1)
+                        chan_flux(1,izone,ichan,2) = (((erosion(imid,izone, 1, 1) + erosion(imid,izone,2, 1) + erosion(imid,izone, 3, 1) + erosion(imid,izone, 1, 2) + erosion(imid,izone, 2, 2) + erosion(imid,izone, 3, 2))/two) &
+                                             /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,2)
+                        chan_flux(1,izone,ichan,4) = (((burial(imid,izone,1,1,1) + burial(imid,izone,1,2,1) + burial(imid,izone,1,3,1) + burial(imid,izone,1,1,2) + burial(imid,izone,1,2, 2) + burial(imid,izone,1,3,2))/two) &
+                                             /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,4)
+                    
+                        chan_flux(:,izone,ichan,3) = (((decomposition(imid,izone,:,1,1) + decomposition(imid,izone,:,2,1) + decomposition(imid,izone,:,3,1) + decomposition(imid,izone,:,1, 2) + decomposition(imid,izone,:,2, 2) + decomposition(imid,izone,:,3,2))/two) &
+                                             /(bed(imid,izone,:).area_wet )) * day_to_sec  ! + chan_flux(:,izone,ichan,3)
+                        chan_flux(:,izone,ichan,5) = (((carbonturnover(imid,izone,:,1,1) + carbonturnover(imid,izone,:,2,1) + carbonturnover(imid,izone,:,3,1) + carbonturnover(imid,izone,:,1,2) + carbonturnover(imid,izone,:,2,2) + carbonturnover(imid,izone,:,3,2))/two) &
+                                             /(bed(imid,izone,:).area_wet )) * day_to_sec  !chan_flux(:,izone,ichan,5)                                     
                     end if
                 end do
                 chan_flux(2,:,ichan,1) = chan_flux(1,:,ichan,4)   ! settling into layer 2 = burial from layer 1
