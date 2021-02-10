@@ -610,8 +610,8 @@ subroutine Hg_reactant_concs(m, nosolids, ss, sol_inp, conc)
     exchnge_ROH = zero
     !todo: add to sol_inp type-  xchangeXOH(ii) = sol_inp(ii)%XOH_exchange_frac * sol_inp(ii)%mole_XOH/1.0d3 and revise following code
     do ii=1, nosolids
-        exchnge_XOH = exchnge_XOH + sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH * ss(ii)       !> (moles/L)
-        exchnge_ROH = exchnge_ROH + sol_inp(ii)%mole_ROH * ss(ii)                                !> (moles/L)
+        exchnge_XOH = exchnge_XOH + sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH * ss(ii)/1.0d3       !> (moles/L)
+        exchnge_ROH = exchnge_ROH + sol_inp(ii)%mole_ROH * ss(ii)/1.0d3                               !> (moles/L)
     end do
     do ii=1, nosolids
         conc%HgII_ssX(ii) = (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH  * ss(ii))/exchnge_XOH) * m%XOHg)/ (ss(ii)/1.0d3) * mole_Hg *1.0d6    !> ug/g
@@ -622,6 +622,10 @@ subroutine Hg_reactant_concs(m, nosolids, ss, sol_inp, conc)
         conc%MeHg_ss(ii) =  (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH)  /exchnge_XOH) * m%XOMeHg) * mole_Hg *1.0d9   !> ug/g
         conc%HgII_ssR(ii) = (((sol_inp(ii)%mole_ROH )/exchnge_ROH) * (m%xRS_Hg + m%xRS_2_Hg)) * mole_Hg *1.0d9              !> ug/g
 
+        conc%HgII_ssX(ii) = ((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH )/exchnge_XOH ) * m%XOHg * mole_Hg *1.0d6 
+        conc%MeHg_ss(ii) =  ((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH )/exchnge_XOH ) * m%XOMeHg * mole_Hg *1.0d6
+        conc%HgII_ssR(ii) = ((sol_inp(ii)%mole_ROH )/exchnge_ROH ) * (m%xRS_Hg + m%xRS_2_Hg) * mole_Hg *1.0d6
+        
         ! conc%HgII_ssX(ii) = (((sol_inp(ii)%frac_exchg * sol_inp(ii)%mole_XOH * ss(ii))/exchnge_XOH) * mole_hg)/ ss(ii)
     end do
 
