@@ -136,7 +136,7 @@ module hg_hdf
         return
     end subroutine init_sed_hg_hdf
 
-    subroutine write_gtm_hg_hdf(conc, nconc, nchan, ncell, conc_resv, nresv, time_index, name)
+    subroutine write_gtm_hg_hdf(conc, nconc, nchan, ncell, conc_resv, nresv, time_index, dx, width, name)
         !args
         real (gtm_real), intent(in) :: conc(ncell, nconc)
         integer, intent(in) :: nconc
@@ -145,11 +145,17 @@ module hg_hdf
         real (gtm_real), intent(in) :: conc_resv(nresv, nconc)
         integer, intent(in) :: nresv
         integer, intent(in) :: time_index
+        real (gtm_real), intent(in) :: dx(ncell)           !length ft
+        real (gtm_real), intent(in) :: width(ncell)        !width ft
         character(len=32), intent(in) :: name(nconc)
         !local
+        real(gtm_real) :: area_wet(ncell)
         integer             ::ivar
         integer             ::isediment
+        real(gtm_real), parameter :: L = 0.3048d0
           ! source must be in primitive variable
+        area_wet = width*dx*L*L
+        
         do ivar = 1, nconc
             !conc(:,ivar) = zero
             if (trim(name(ivar)).eq."sediment") then
@@ -166,8 +172,7 @@ module hg_hdf
         conc_resv_hdf(:,9) = conc_resv(:,mercury_ivar(3))     !hg0
         if (hdf_out .eq. 'channel') then
             call write_gtm_chan_sed_hg_hdf( gtm_sed_hg_hdf, bed, nchan, ncell, n_zones, sed_bed_Hg_count, time_index)
-            !call write_gtm_chan_sed_flux_hdf(gtm_sed_hg_hdf, settling, erosion_sb, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
-            call write_gtm_chan_wat_hg_hdf(gtm_wat_hg_hdf,nchan, ncell, time_index)
+            call write_gtm_chan_wat_hg_hdf(gtm_wat_hg_hdf,nchan, ncell, time_index, area_wet)
 			call write_gtm_resv_wat_hg_hdf(gtm_wat_hg_hdf, nresv, time_index)
         end if
 
