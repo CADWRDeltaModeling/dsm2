@@ -201,8 +201,8 @@ module sed_bed_hdf
 	        chan_chunk_dims(2) = nconc
 	        chan_chunk_dims(3) = min(TIME_CHUNK,ntime)
         case (5)
-            allocate(chan_file_dims(4))
-            allocate(chan_chunk_dims(4))
+            allocate(chan_file_dims(3))
+            allocate(chan_chunk_dims(3))
             chan_file_dims = 0
             chan_chunk_dims = 0
             chan_rank = 3
