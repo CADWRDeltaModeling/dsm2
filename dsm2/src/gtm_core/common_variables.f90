@@ -385,7 +385,7 @@ module common_variables
      type (k_eq_parms_t)    :: k_eq                        !> global partitioning parameters
 
      type solids_inputs_t          !> for each solid type and each compartment
-        real (gtm_real) :: density              = 2.6       !> g/cm3  todo:this is redundant set in sed_type_defs
+        real (gtm_real) :: density              = 2.65       !> g/cm3  todo:this is redundant set in sed_type_defs
         real (gtm_real) :: mole_XOH             = 2.0d-08   !> moles of SS-XOH groups/ g solid
         real (gtm_real) :: mole_ROH             = 4.0d-10   !> moles of SS-ROH groups/ g solid
         real (gtm_real) :: frac_exchg           = 1.0d0     !> fraction of SS-XOH groups that are freely exchangeable
