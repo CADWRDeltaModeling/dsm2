@@ -28,9 +28,9 @@ module sed_bed_hdf
     integer, parameter :: sed_bed_solids_count = 4
     integer, parameter :: sed_bed_solids_flux_count = 5
     integer, parameter :: sed_bed_hg_count = 7          !hgii, mehg,hgii_pw,mehg_pw,hg0,kd_hgii,kd_mehg
-    integer, parameter :: sed_bed_hg_flux_count = 10    !todo: itemize mercury fluxes
+    integer, parameter :: sed_bed_hg_flux_count = 11    !todo: itemize mercury fluxes
     integer, parameter :: wat_hg_count = 9
-    integer, parameter :: wat_hg_flux_count = 10
+    integer, parameter :: wat_hg_flux_count = 13
     contains
 
     subroutine init_sed_hdf(n_cells, n_chans, sim_start, sim_end, hdf_interval_char, use_hdf)
