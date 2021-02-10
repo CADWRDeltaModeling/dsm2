@@ -73,7 +73,6 @@ implicit none
         integer                     :: iter
         logical                     :: converge
         real(gtm_real), allocatable :: mass_total(:,:,:)
-        real(gtm_real), allocatable :: volume_pw(:,:,:)
         type (molar_total)          :: total
         !type (eq_vals)              :: vals
         type (eq_complexes)         :: m
@@ -82,8 +81,9 @@ implicit none
         real(gtm_real)              :: cl
         real(gtm_real)              :: dissolvedHg
         real (gtm_real) :: check
+        integer                     :: ii
+        integer                     :: jj
         allocate(mass_total(n_cells,n_zones,n_layers))
-        allocate(volume_pw(n_cells,n_zones,n_layers))
 
         eq_vals_sed%hgii = zero
         eq_vals_sed%mehg = zero
@@ -93,16 +93,32 @@ implicit none
         mass_total(:,:,:) = sedsolids(:,:,:,1,3) + sedsolids(:,:,:,2,3) + sedsolids(:,:,:,3,3)
         volume_pw(:,:,:) = bed(:,:,:).wp_wet*bed(:,:,:).thickness*bed(:,:,:).porosity
 
+        do ii = 1, n_cells
+            do jj = 1, n_zones
+                volume_pw(ii,jj,1) = volume_pw(ii,jj,1)*length(ii)
+                volume_pw(ii,jj,2) = volume_pw(ii,jj,2)*length(ii)
+            end do
+        end do
+       
         sed_hg0(:,:,:,3) = sed_Hg0_ic(:,:,:)*volume_pw(:,:,:)
         sed_hgii(:,:,:,3) = sed_hgii_ic(:,:,:)*mass_total(:,:,:)
         sed_s1_hgii(:,:,:,3) = sed_s1_hgii_ic(:,:,:)*sedsolids(:,:,:,1,3)
         sed_s2_hgii(:,:,:,3) = sed_s2_hgii_ic(:,:,:)*sedsolids(:,:,:,2,3)
         sed_s3_hgii(:,:,:,3) = sed_s3_hgii_ic(:,:,:)*sedsolids(:,:,:,3,3)
         sed_mehg(:,:,:,3) = sed_mehg_ic(:,:,:)*mass_total(:,:,:)
-        hg_conc_sed(:,:,:,3)%HgII_inert(1) = sed_s1_hgii_ic(:,:,:)
-        hg_conc_sed(:,:,:,3)%HgII_inert(2) = sed_s2_hgii_ic(:,:,:)
-        hg_conc_sed(:,:,:,3)%HgII_inert(3) = sed_s3_hgii_ic(:,:,:)
-
+        hg_conc_sed(:,:,:,3)%HgII_inert(1) = sed_s1_hgii_ic(:,:,:)*sedsolids(:,:,:,1,3)
+        hg_conc_sed(:,:,:,3)%HgII_inert(2) = sed_s2_hgii_ic(:,:,:)*sedsolids(:,:,:,2,3)
+        hg_conc_sed(:,:,:,3)%HgII_inert(3) = sed_s3_hgii_ic(:,:,:)*sedsolids(:,:,:,3,3)
+        
+        sed_hg0(:,:,:,1) = sed_hg0(:,:,:,3)
+        sed_hgii(:,:,:,1) = sed_hgii(:,:,:,3)
+        sed_s1_hgii(:,:,:,1) = sed_s1_hgii(:,:,:,3)
+        sed_s2_hgii(:,:,:,1) = sed_s2_hgii(:,:,:,3)
+        sed_s3_hgii(:,:,:,1) = sed_s3_hgii(:,:,:,3)
+        sed_mehg(:,:,:,1) = sed_mehg(:,:,:,3)
+        hg_conc_sed(:,:,:,1)%HgII_inert(1) = hg_conc_sed(:,:,:,3)%HgII_inert(1)
+        hg_conc_sed(:,:,:,1)%HgII_inert(2) = hg_conc_sed(:,:,:,3)%HgII_inert(2)
+        hg_conc_sed(:,:,:,1)%HgII_inert(3) = hg_conc_sed(:,:,:,3)%HgII_inert(3)
 
         do icell =1, n_cells
             doc = conc(icell,doc_ivar)
@@ -162,7 +178,6 @@ implicit none
             end do
         end do
         deallocate(mass_total)
-        deallocate(volume_pw)
         !for debugging
         return
         sed_hg0(:,:,:,2) = sed_hg0(:,:,:,3)
