@@ -249,7 +249,7 @@ program gtm
             call allocate_mercury(n_sediment,n_cell, n_resv)
         end if
         call set_up_sediment_bed(n_cell, n_chan, init_input_file, int(gtm_start_jmin),  &
-                          int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
+                          int(gtm_end_jmin), gtm_io(3,2)%interval, use_gtm_hdf, dx_arr)  !todoDHH: dont forget to deallocate -> call deallocate_solids()
     end if
 
     call assign_group_static_variables
@@ -649,7 +649,7 @@ program gtm
                     if (use_sediment_bed) then   !<added:dhh
                         call write_gtm_sed_hdf(n_chan, n_cell, time_index_in_gtm_hdf)
                         if (run_mercury) then
-							call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, conc_resv, n_resv, time_index_in_gtm_hdf,constituents(:)%use_module)
+							call write_gtm_hg_hdf(conc, n_var, n_chan, n_cell, conc_resv, n_resv, time_index_in_gtm_hdf,dx_arr, width, constituents(:)%use_module)
 						end if
                     end if
                 else
