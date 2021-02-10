@@ -100,6 +100,7 @@ subroutine hg_flux_wat(area,        &
     real (gtm_real) :: delta_conc               !> driving force for rate limited adsorption
     real (gtm_real) :: dgmtoHgII
     real (gtm_real) :: day_to_sec
+    real (gtm_real) :: ratio
     integer         :: ii
 
     day_to_sec = 60d0*60d0*24d0
@@ -111,25 +112,28 @@ subroutine hg_flux_wat(area,        &
     call light_extinction_integration(ke_PAR_1, ke_PAR_2, ke_PAR_3, doc, total_solids, depth, integralPAR)
     call light_extinction_integration(ke_UVA_1, ke_UVA_2, ke_UVA_3, doc, total_solids, depth, integralUVA)
     call light_extinction_integration(ke_UVB_1, ke_UVB_2, ke_UVB_3, doc, total_solids, depth, integralUVB)
-    r%photodemethyl  = area*(ipar*IntegralPAR*k_PhotoDeg_PAR  + iuva* IntegralUVA*k_PhotoDeg_UVA  + iuvb* IntegralUVB*k_PhotoDeg_UVB) *concs%MeHg_photo/day_to_sec
-    r%photoreduction = area*(ipar*IntegralPAR*k_PhotoRed_PAR  + iuva* IntegralUVA*k_PhotoRed_UVA  + iuvb* IntegralUVB*k_PhotoRed_UVB) *concs%HgII_photo/day_to_sec
+    r%photodemethyl  = area*(ipar*IntegralPAR*k_PhotoDeg_PAR  + iuva* IntegralUVA*k_PhotoDeg_UVA  + iuvb* IntegralUVB*k_PhotoDeg_UVB) *concs%MeHg_photo/day_to_sec !/day_to_sec
+    r%photoreduction = area*(ipar*IntegralPAR*k_PhotoRed_PAR  + iuva* IntegralUVA*k_PhotoRed_UVA  + iuvb* IntegralUVB*k_PhotoRed_UVB) *concs%HgII_photo/day_to_sec !/day_to_sec
     !r%oxidation      = area*(ipar*IntegralPAR*k_PhotoOxid_PAR + iuva* IntegralUVA*k_PhotoOxid_UVA + iuvb* IntegralUVB*k_PhotoOxid_UVB)*concs%Hg0
     dgmtoHgII = concs%Hg0/concs%HgII_diss
-    !dgm_ratio = k_oxid_1*doc**k_oxid_2*pH**k_oxid_3   !>to calculate locally
-    if (((dgmtoHgII) > dgm_ratio)) then
-        r%oxidation = r%photoreduction * dgmtoHgII / dgm_ratio
-    else
-        r%oxidation = zero
-    end if
-
+    !dgm_ratio = k_oxid_1*d=oc**k_oxid_2*pH**k_oxid_3   !>to calculate locally
+    !if (((dgmtoHgII) > dgm_ratio)) then
+    ratio = dgmtoHgII / dgm_ratio
+    r%oxidation = r%photoreduction * ratio
+    IF (r%oxidation.lt.zero) r%oxidation = zero
+    !else
+       ! r%oxidation = zero
+    !end if
+    !r%oxidation = r%photoreduction * dgm_ratio       
     !>evasion/volotilization
-    MTC_Hg0  =  1.0/ ((1.0/MTC_Hg0Wat) + (1.0/(MTC_Hg0Air*Henry_Hg0)))/day_to_sec
-	MTC_MeHg =  1.0/ ((1.0/MTC_MeHgWat) + (1.0/(MTC_MeHgAir*Henry_MeHg)))/day_to_sec
+    MTC_Hg0  =  1.0/ ((1.0/MTC_Hg0Wat) + (1.0/(MTC_Hg0Air*Henry_Hg0)))  !/day_to_sec
+	MTC_MeHg =  1.0/ ((1.0/MTC_MeHgWat) + (1.0/(MTC_MeHgAir*Henry_MeHg)))  !/day_to_sec
     r%evasion_Hg0 = area*MTC_Hg0* (concs%Hg0 - (Hg0_atm/Henry_Hg0))/day_to_sec
+    if (r%evasion_Hg0.lt.zero) r%evasion_Hg0 = zero
     r%volatil_MeHg = area*MTC_MeHg*(concs%MeHg_Cl - (MeHg_atm/Henry_MeHg))/day_to_sec
 
     !>deposition
-    r%drydep_MeHg = area*drydep_MeHg/1000.0d0
+    r%drydep_MeHg = area*drydep_MeHg/1000.0d0/day_to_sec
     r%wetdep_MeHg = area*precip*wetdep_MeHg/1000.0d0/day_to_sec
     r%drydep_HgII = area*drydep_HgII/day_to_sec
     r%wetdep_HgII = area*precip*wetdep_HgII/1000.0d0/day_to_sec
@@ -146,12 +150,13 @@ subroutine hg_flux_wat(area,        &
         if (solid_in(ii)%frac_exchg < 1.0d0) then
             delta_conc = (concs%HgII_ssX(ii) * (1.0d0-solid_in(ii)%frac_exchg)) /solid_in(ii)%frac_exchg - Hg_inert(ii)
             if (delta_conc >= zero) then
-                r%adsorption(ii) = k_adsorp * delta_conc * solids(ii) * area * depth /day_to_sec !> adsorption
+                r%adsorption(ii) = k_adsorp * delta_conc * solids(ii) * volume /day_to_sec !> adsorption
             else
-                r%adsorption(ii) = k_desorp * delta_conc * solids(ii) * area * depth/day_to_sec  !> desorption
+                r%adsorption(ii) = k_desorp * delta_conc * solids(ii) * volume * depth/day_to_sec  !> desorption
             end if
         end if
-        r%decomposition(ii) = area * rct_interface * Hg_inert(2)/ cfrac_labile !> for watercolumn interface carbon turnover todo: this is wrong
+        !r%decomposition(ii) = area * rct_interface * Hg_inert(2)/ cfrac_labile !> for watercolumn interface carbon turnover todo: this is wrong
+        r%decomposition(ii) = 0.0d0
     end do
 
 
@@ -199,8 +204,9 @@ subroutine sum_fluxes(r)
     !local
     integer :: ii
     !todo:: order fluxes to minimize round off error
-    r%MeHg = r%methyl + r%methyl_int - r%photodemethyl - r%biodemethyl - r%biodemethyl_int + r%drydep_Mehg + r%wetdep_MeHg -r%volatil_MeHg
-    r%HgII = r%oxidation - r%photoreduction + r%wetdep_HgII + r%drydep_HgII + r%RGMdep_HgII &
+    
+    r%MeHg = r%MeHg + r%methyl + r%methyl_int - r%photodemethyl - r%biodemethyl - r%biodemethyl_int + r%drydep_Mehg + r%wetdep_MeHg -r%volatil_MeHg
+    r%HgII = r%HgII + r%oxidation - r%photoreduction + r%wetdep_HgII + r%drydep_HgII + r%RGMdep_HgII &
              + r%photodemethyl + r%biodemethyl + r%biodemethyl_int - r%methyl - r%methyl_int !&
              !- r%adsorption
     do ii=1,nosolids
@@ -214,7 +220,9 @@ subroutine sum_fluxes(r)
 
     !todo: add interface turnover to Hg_inert flux
     !r%Hg_inert = r%adsorption
-    r%Hg0  = r%photoreduction - r%oxidation - r%evasion_Hg0
+     
+    r%Hg0  = r%Hg0 + r%photoreduction - r%oxidation - r%evasion_Hg0
+   
 end subroutine sum_fluxes
 
 subroutine fluxes_to_hdfarray(time_index,           &
@@ -337,7 +345,8 @@ subroutine wat_partitioning(icell, conc_hgii, conc_mehg, solids, doc, ph, ec, ns
     total%XOH = solids(1)*solid_parms_wat(1).mole_XOH * solid_parms_wat(1).frac_exchg + &
                 solids(2)*solid_parms_wat(2).mole_XOH * solid_parms_wat(2).frac_exchg + &
                 solids(3)*solid_parms_wat(3).mole_XOH * solid_parms_wat(3).frac_exchg
-    total%XOH = total%XOH !/1.0d3                  !mg->g assuming solids are in units of mg/L
+    total%xROH = 0.0d0
+    total%XOH = total%XOH                  !mg->g assuming solids are in units of mg/L
     total%hgii = conc_hgii/ (1.0e9*mole_hg)           !todo: check units
     total%mehg = conc_mehg/ (1.0e9*mole_hg)           !todo: check units
 
