@@ -170,6 +170,8 @@ module hg_hdf
 		conc_resv_hdf(:,1) = conc_resv(:,mercury_ivar(1))+ conc_resv(:,mercury_ivar(4)) + conc_resv(:,mercury_ivar(5)) + conc_resv(:,mercury_ivar(6))   !hgii
         conc_resv_hdf(:,5) = conc_resv(:,mercury_ivar(2))     !mehg
         conc_resv_hdf(:,9) = conc_resv(:,mercury_ivar(3))     !hg0
+        
+        
         if (hdf_out .eq. 'channel') then
             call write_gtm_chan_sed_hg_hdf( gtm_sed_hg_hdf, bed, nchan, ncell, n_zones, sed_bed_Hg_count, time_index)
             call write_gtm_chan_wat_hg_hdf(gtm_wat_hg_hdf,nchan, ncell, time_index, area_wet)
@@ -304,6 +306,7 @@ module hg_hdf
                                        h_offset,         &
                                        subset_dims,      &
                                        error)
+            
             call h5dwrite_f(hdf_file%bed_out_id,       &
                             H5T_NATIVE_REAL,             &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
                             real(chan_conc),             &
@@ -379,19 +382,23 @@ module hg_hdf
     subroutine write_gtm_chan_wat_hg_hdf(hdf_file, &
                                   nchan,        &
                                   ncell,        &
-                                  time_index)
+                                  time_index,       &
+                                  area_wet)         
 
         implicit none
         type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
         integer, intent(in) :: nchan                               !< number of channels
         integer, intent(in) :: ncell                               !< number of cells
         integer, intent(in) :: time_index                          !< time index to write the data
+        real(gtm_real), intent(in) :: area_wet(ncell)
         !local
         real (gtm_real)     :: tss_total(ncell)
         real (gtm_real)     :: wet_area(ncell)
         integer             :: ii, izone
         real (gtm_real)     :: gtm_hdf_time_intvl
         integer             :: time_index_in_gtm_hdf
+        integer             :: icell
+        integer             :: ichan
         hg_conc_wat(:,3) = hg_conc_wat(:,1)  !todo: consider updating partitioning etc
         tss_total(:) = conc_tss(:,1)+conc_tss(:,2)+conc_tss(:,3)
         !conc_wat_hdf(:,1) = hg_conc_wat(:,3)%hgii_ssX(1)*conc_tss(:,1)  + hg_conc_wat(:,3)%hgii_ssX(2)*conc_tss(:,2)   + hg_conc_wat(:,3)%hgii_ssX(3)*conc_tss(:,3) + hg_conc_wat(:,3)%hgii_diss &
@@ -454,25 +461,34 @@ module hg_hdf
                                 budget_prev_conc,      &
                                 time_index,            &
                                 .false.)
+        
         conc_wat_flux_hdf = zero
-        wet_area(:) = bed(:,1,1)%area_wet + bed(:,2,1)%area_wet + bed(:,3,1)%area_wet
-		conc_wat_flux_hdf(:,1) = (f_wat_hg(:)%photodemethyl /wet_area(:))* day_to_sec   !photpdegredaton
-        conc_wat_flux_hdf(:,2) = (f_wat_hg(:)%photoreduction /wet_area(:))* day_to_sec  !reduction
-        conc_wat_flux_hdf(:,3) = (f_wat_hg(:)%oxidation/wet_area(:))* day_to_sec    !oxidation
-        conc_wat_flux_hdf(:,4) = (f_wat_hg(:)%evasion_Hg0/wet_area(:))* day_to_sec    !evasion
-        conc_wat_flux_hdf(:,5) = (f_wat_hg(:)%wetdep_HgII/wet_area(:))* day_to_sec    !wet dep
-        conc_wat_flux_hdf(:,6) = (f_wat_hg(:)%drydep_HgII/wet_area(:))* day_to_sec   !dry dep
+        do ichan = 1, nchan                         !bed hg fluxes
+            !imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  !write for middle cell in channel
+            do icell = chan_geom(ichan)%start_cell, chan_geom(ichan)%end_cell
+                        
+                conc_wat_flux_hdf(ichan,1) = conc_wat_flux_hdf(ichan,1) + f_wat_hg(icell)%photodemethyl * day_to_sec     !photpdegredaton
+                conc_wat_flux_hdf(ichan,2) = conc_wat_flux_hdf(ichan,2) + f_wat_hg(icell)%photoreduction * day_to_sec    !reduction
+                conc_wat_flux_hdf(ichan,3) = conc_wat_flux_hdf(ichan,3) + f_wat_hg(icell)%oxidation * day_to_sec         !oxidation
+                conc_wat_flux_hdf(ichan,4) = conc_wat_flux_hdf(ichan,4) + f_wat_hg(icell)%evasion_Hg0 * day_to_sec       !evasion
+                conc_wat_flux_hdf(ichan,5) = conc_wat_flux_hdf(ichan,5) + f_wat_hg(icell)%wetdep_HgII * day_to_sec       !wet dep
+                conc_wat_flux_hdf(ichan,6) = conc_wat_flux_hdf(ichan,6) + f_wat_hg(icell)%drydep_HgII * day_to_sec       !dry dep
+        
+        
             do izone=1,3
-                conc_wat_flux_hdf(:,7) = conc_wat_flux_hdf(:,7) + f_settling_hg(:,izone,mf_hgii,1)
-                conc_wat_flux_hdf(:,8) = conc_wat_flux_hdf(:,8) + f_erosion_hg(:,izone,mf_hgii,1)        !hgii erosion
-                conc_wat_flux_hdf(:,9) = conc_wat_flux_hdf(:,9) + f_settling_hg(:,izone,mf_mehg,1)
-                conc_wat_flux_hdf(:,10) = conc_wat_flux_hdf(:,10) + f_erosion_hg(:,izone,mf_mehg,1)     !mehgii erosion
+                    conc_wat_flux_hdf(ichan,7) = conc_wat_flux_hdf(ichan,7) + f_settling_hg(icell,izone,mf_hgii,1)  * day_to_sec
+                    conc_wat_flux_hdf(ichan,8) = conc_wat_flux_hdf(ichan,8) + f_erosion_hg(icell,izone,mf_hgii,1)   * day_to_sec    !hgii erosion
+                    conc_wat_flux_hdf(ichan,9) = conc_wat_flux_hdf(ichan,9) + f_settling_hg(icell,izone,mf_mehg,1)  * day_to_sec
+                    conc_wat_flux_hdf(ichan,10) = conc_wat_flux_hdf(ichan,10) + f_erosion_hg(icell,izone,mf_mehg,1) * day_to_sec    !mehgii erosion
+                    
+                    conc_wat_flux_hdf(ichan,11) = conc_wat_flux_hdf(ichan,11) + f_diffusion_hg(icell,izone, mf_hgii,1) * day_to_sec  !+ve => into water column
+                    conc_wat_flux_hdf(ichan,12) = conc_wat_flux_hdf(ichan,12) + f_diffusion_hg(icell,izone, mf_mehg,1) * day_to_sec
+                enddo
+        
+                conc_wat_flux_hdf(ichan,13) = conc_wat_flux_hdf(ichan,13) + area_wet(icell)
+            enddo
             enddo
 
-        conc_wat_flux_hdf(:,7) =  (conc_wat_flux_hdf(:,7)/wet_area(:))* day_to_sec
-        conc_wat_flux_hdf(:,8) =  (conc_wat_flux_hdf(:,8)/wet_area(:))* day_to_sec
-        conc_wat_flux_hdf(:,9) =  (conc_wat_flux_hdf(:,9)/wet_area(:))* day_to_sec
-        conc_wat_flux_hdf(:,10) = (conc_wat_flux_hdf(:,10)/wet_area(:))* day_to_sec
 
         gtm_wat_hg_hdf%chan_conc_id = gtm_sed_hg_hdf%wat_hg_flux_id
 
@@ -482,19 +498,28 @@ module hg_hdf
         !                   ncell,          &
         !                   10,              &
         !                   time_index)
-        call write_gtm_chan_hdf(gtm_wat_hg_hdf,        &
-                                flow_lo,               &
-                                flow_hi,               &
+        
+        
+        
+        call write_gtm_chan_flux_hdf(gtm_wat_hg_hdf,    &
                                 conc_wat_flux_hdf,     &
                                 nchan,                 &
                                 ncell,                 &
-                                10,                    &
-                                gtm_hdf_time_intvl,    &
-                                budget_prev_flow_lo,   &
-                                budget_prev_flow_hi,   &
-                                budget_prev_conc,      &
-                                time_index,            &
-                                .false.)
+                                     13,                &
+                                     time_index)
+       ! call write_gtm_chan_hdf(gtm_wat_hg_hdf,        &
+       !                         flow_lo,               &
+       !                         flow_hi,               &
+       !                         conc_wat_flux_hdf,     &
+       !                         nchan,                 &
+       !                         ncell,                 &
+       !                         11,                    &
+       !                         gtm_hdf_time_intvl,    &
+       !                         budget_prev_flow_lo,   &
+       !                         budget_prev_flow_hi,   &
+       !                         budget_prev_conc,      &
+       !                         time_index,            &
+       !                         .false.)     
         return
     end subroutine write_gtm_chan_wat_hg_hdf
 
