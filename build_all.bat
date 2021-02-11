@@ -16,7 +16,7 @@ cmake -E remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD
 cmake -DTHIRD_PARTY_DIR=%DSM2_THIRD_PARTY_DIR% -G "Visual Studio 14 2015" ..\ || goto :ERROR
-rem cmake --build . --target ALL_BUILD --config Debug || goto :ERROR
+cmake --build . --target ALL_BUILD --config Debug || goto :ERROR
 cmake --build . --target ALL_BUILD --config Release || goto :ERROR
 cd ../..
 
@@ -26,7 +26,7 @@ cmake -E remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD
 cmake -DTHIRD_PARTY_DIR=%DSM2_THIRD_PARTY_DIR% -G "Visual Studio 14 2015" ..\|| goto :ERROR
-rem cmake --build . --target ALL_BUILD --config Debug || goto :ERROR
+cmake --build . --target ALL_BUILD --config Debug || goto :ERROR
 cmake --build . --target ALL_BUILD --config Release || goto :ERROR
 cd ../..
 
