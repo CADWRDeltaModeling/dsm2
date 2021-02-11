@@ -105,7 +105,6 @@ public class PTMFluxOutput extends PTMOutput{
       return;
     
     float fluxOut;
-    //
     for (int cTime = genericFlux[0].getStartTime(); cTime < genericFlux[0]
       	 .getEndTime(); cTime += genericFlux[0].getPTMTimeStep()) {
          
@@ -129,7 +128,7 @@ public class PTMFluxOutput extends PTMOutput{
       	}
       	setGroup(i + 1, fluxOut);
       }
-      
+      //TODO doesn't work with Linux
       writeFluxOutput();
     }// end for(cTime)
   }
@@ -138,7 +137,8 @@ public class PTMFluxOutput extends PTMOutput{
    * 
    */
   public void closeFile(){
-    closeFluxOutput();
+	//TODO doesn't work with Linux
+	  closeFluxOutput();
   }
 
   protected native void initializeFluxOutput(int startTime);

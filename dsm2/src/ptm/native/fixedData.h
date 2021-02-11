@@ -45,6 +45,7 @@
 #define getReservoirArea GET_RESERVOIR_AREA
 #define getReservoirBottomElevation GET_RESERVOIR_BOTTOM_ELEVATION
 #define getReservoirName GET_RESERVOIR_NAME
+#define getConveyorName GET_CONVEYOR_NAME
 #define getReservoirNumberOfNodes GET_RESERVOIR_NUMBER_OF_NODES
 #define getReservoirNodeArray GET_RESERVOIR_NODE_ARRAY
 #define getDiversionNumberOfNodes GET_DIVERSION_NUMBER_OF_NODES
@@ -96,6 +97,7 @@
 #define getAnimationFilename GET_ANIMATION_FILENAME
 #define getModelAnimationOutputInterval GET_MODEL_ANIMATION_OUTPUT_INTERVAL
 #define getBehaviorFilename GET_BEHAVIOR_FILENAME
+#define getBehaviorInfileName GET_BEHAVIOR_INFILE_NAME
 #define getTraceFilename GET_TRACE_FILENAME
 #define getModelTraceOutputInterval GET_MODEL_TRACE_OUTPUT_INTERVAL
 #define getRestartOutputFilename GET_RESTART_OUTPUT_FILENAME
@@ -114,6 +116,7 @@
 #define doesQualBinaryExist DOES_QUAL_BINARY_EXIST
 #define getQualConstituentNames GET_QUAL_CONSTITUENT_NAMES
 #define getNumberConstituents GET_NUMBER_CONSTITUENTS
+#define getWaterBodyName GET_WATERBODY_NAME
 #else // Unix version
 #define STDCALL
 #define STRLEN_TYPE long int
@@ -212,11 +215,13 @@
 #define getAnimationFilename get_animation_filename_
 #define getModelAnimationOutputInterval get_model_animation_output_interval_
 #define getBehaviorFilename get_behavior_filename_
+#define getBehaviorInfileName get_behavior_infile_name_
 #define getTraceFilename get_trace_filename_
 #define getModelTraceOutputInterval get_model_trace_output_interval_
 #define getRestartOutputFilename get_restart_output_filename_
 #define getRestartOutputInterval get_restart_output_interval_
 #define getRestartInputFilename get_restart_input_filename_
+#define getConveyorName get_conveyor_name_
 #define getModelDate get_model_date_
 #define getModelTime get_model_time_
 #define cdt2jmin cdt2jmin_
@@ -230,6 +235,8 @@
 #define doesQualBinaryExist does_qual_binary_exist_
 #define getQualConstituentNames get_qual_constituent_names_
 #define getNumberConstituents get_number_constituents_
+#define getWaterBodyName get_waterbody_name_
+#define STDCALL
 #endif
 
 
@@ -243,9 +250,6 @@
 #define LEN4 20
 #define LEN5 2000
 #define LEN6 1000
-
-
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -312,7 +316,7 @@ extern "C" {
   int STDCALL getPumpNumberOfNodes(int* number);
   int STDCALL getBoundaryWaterbodyNumberOfNodes(int* number);
   int STDCALL getConveyorNumberOfNodes(int* number);
-  
+  void STDCALL getConveyorName(int* conveyorNumber, char * obj2objName, STRLEN_TYPE nameLength);  
   void STDCALL getDiversionNodeArray(int* diversionNumber, int *nodeArray);
   void STDCALL getPumpNodeArray(int* pumpNumber, int * nodeArray);
   void STDCALL getBoundaryWaterbodyNodeArray(int* boundaryNumber, int * nodeArray);
@@ -366,6 +370,7 @@ extern "C" {
   void STDCALL getAnimationFilename(char *array, STRLEN_TYPE arrayLength);
   int STDCALL getModelAnimationOutputInterval();
   void STDCALL getBehaviorFilename(char *array, STRLEN_TYPE arrayLength);
+  void STDCALL getBehaviorInfileName(char *array, STRLEN_TYPE arrayLength);
   void STDCALL getTraceFilename(char *array, STRLEN_TYPE arrayLength);
   int STDCALL getModelTraceOutputInterval();
   void STDCALL getRestartOutputFilename(char *array, STRLEN_TYPE arrayLength);
@@ -387,6 +392,7 @@ extern "C" {
   int STDCALL doesQualBinaryExist();
   void STDCALL getQualConstituentNames(int* conNum, char* array, STRLEN_TYPE arrayLength);
   int STDCALL getNumberConstituents();
+  void STDCALL getWaterBodyName(int* wbId, char * name, STRLEN_TYPE nameLength);
 #ifdef __cplusplus
 	   }
 #endif

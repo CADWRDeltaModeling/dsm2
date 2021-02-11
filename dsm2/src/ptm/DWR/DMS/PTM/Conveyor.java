@@ -56,14 +56,17 @@ class Conveyor extends Waterbody {
   /**
    *  Set fixed information for conveyors
    */
-  public Conveyor(int nId, int[] ndArray){
+  public Conveyor(int nId, String name, int[] ndArray){
     super(Waterbody.CONVEYOR, nId, ndArray);
+	_name = name;
   }
   /**
    *  Return flow direction sign
    *  always opposite from H5 flow sign
    */
-  public int flowType(int nodeId){return INFLOW;}
+  public int flowType(int nodeId){return OUTFLOW;}
+  public boolean isAgSeep(){ return false;}
+  public boolean isAgDiv(){ return false;}
   /**
    *  Get the type from particle's point of view
    */
@@ -73,4 +76,10 @@ class Conveyor extends Waterbody {
    *  Return the hydrodynamic type of Conveyor
    */
   public int getHydroType(){return FlowTypes.rim;}
+  public String getName(){return _name;}
+  public float getInflowWSV(int nodeEnvId, float sv){
+	  //TODO implement unique inflow with swimming velocity later
+	  return getInflow(nodeEnvId);
+  }
+  private String _name = null;
 }

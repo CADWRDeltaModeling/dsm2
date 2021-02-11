@@ -20,6 +20,11 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 //$Id: Waterbody.java,v 1.3.6.2 2006/01/27 19:52:24 eli2 Exp $
 package DWR.DMS.PTM;
 import edu.cornell.RngPack.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Waterbody is an abstract entity which is connected to other
  * waterbodies via nodes. Each Waterbody is identified by its unique
@@ -84,13 +89,22 @@ public abstract class Waterbody{
   public Waterbody(int wtype, int nId, int[] nodeIds) {
     type = wtype;
     EnvIndex = nId;
+    _barrierOpMap = new HashMap<Integer, Integer>();
+    _barrierNodeIdList = new ArrayList<Integer>();
+    _nodeIdArray = new ArrayList<Integer>();
+    _fishScreenNodeIdList = new ArrayList<Integer>();
     //numberId = nId;
     // set # of nodes and nodeArray
 	if (nodeIds != null){
       nNodes = nodeIds.length;
-      nodeIdArray = nodeIds;
+      for (int id: nodeIds)
+    	  _nodeIdArray.add(new Integer(id));
       nodeArray = new Node[nNodes];
       depthAt = new float[nNodes];
+      previousFlowAt = new float[nNodes];
+      deltaFlowAt = new float[nNodes];
+      _firstTimeSetFlows = new boolean[nNodes];
+      Arrays.fill(_firstTimeSetFlows, true);
       flowAt = new float[nNodes];
       velocityAt = new float[nNodes];
       qualityAt = new float[nNodes][getNumConstituents()];
@@ -107,20 +121,28 @@ public abstract class Waterbody{
    *  Inflows into Node - positive (no sign change)
    *  Outflows from Node - negative (sign change)
    */
-  public final float getFlowInto(int nodeId){
-    //float flow=0.0f;
-    if (flowType(nodeId) == OUTFLOW) 
-      return (flowAt[nodeId]);
-    else
-      return (-flowAt[nodeId]);
+  public float getInflow(int nodeEnvId){
+	  int nodeId = getNodeLocalIndex(nodeEnvId);
+		//at gate flow == 0
+		if (Math.abs(flowAt[nodeId]) < Float.MIN_VALUE)
+			return 0.0f;
+		if (flowType(nodeId) == OUTFLOW)
+		  return -1.0f*flowAt[nodeId];
+		return flowAt[nodeId];
   }
-  
+  // sv is a swimming velocity from a particle
+  public abstract float getInflowWSV(int nodeEnvId, float sv);
   /**
    *  Get flow direction sign
    *  OUTFLOW & INFLOW do not represent their physical meanings 
    *  i.e. intermediate var for particle decision making at junction node
    */
-  public abstract int flowType(int nodeId);
+  protected abstract int flowType(int nodeId);
+  /**
+   *  inform the boundary type
+   */
+  public abstract boolean isAgSeep();
+  public abstract boolean isAgDiv();
   /**
    *  Get the type from particle's point of view
    */
@@ -161,32 +183,17 @@ public abstract class Waterbody{
    * from the its global index
    */
   public final int getNodeLocalIndex(int nodeIdGlobal){
-    int nodeIdLocal = -1;
-    boolean notFound=true;
-    int id=0;
-    while (id < nNodes && notFound) {
-      if (nodeIdArray[id] == nodeIdGlobal) {
-        nodeIdLocal = id;
-        notFound = false;
-      }
-      id++;
-    }
-    //  if (notFound) 
-    // throw new nodeNotFoundException(" Exception in " + this.toString());
-    return nodeIdLocal;
+	  int nodeId = _nodeIdArray.indexOf(new Integer(nodeIdGlobal));
+	  if (nodeId == -1)
+		  PTMUtil.systemExit("No such node " + this.toString());
+	  return nodeId;
   }
-  
-  /**
-   *  Get the Node's global index by its local index
-   */
-//  public final int getNodeId(int nodeId){
-//    return(nodeIdArray[nodeId]);
-//  }
+
   /**
    *  the Node's EnvIndex from its local index
    */
   public final int getNodeEnvIndex(int localIndex){
-    return(nodeIdArray[localIndex]);
+    return(_nodeIdArray.get(localIndex));
   }
   
   /**
@@ -222,9 +229,19 @@ public abstract class Waterbody{
   /**
    *  Set flow information to given flow array.
    */
-  public final void setFlow(float[] flowArray){
-    for( int nodeId =0; nodeId<nNodes; nodeId++)
+  public void setFlow(float[] flowArray){
+    for( int nodeId =0; nodeId<nNodes; nodeId++){
+    	if (_firstTimeSetFlows[nodeId]){
+    		_firstTimeSetFlows[nodeId] = false;
+    		previousFlowAt[nodeId]= flowArray[nodeId];
+    		deltaFlowAt[nodeId] = 0;
+    	}
+    	else{
+    		previousFlowAt[nodeId] = flowAt[nodeId];
+    		deltaFlowAt[nodeId] = flowArray[nodeId] - flowAt[nodeId];
+    	}
       flowAt[nodeId] = flowArray[nodeId];
+    }
   }
   /**
    * sets the accounting name
@@ -250,19 +267,24 @@ public abstract class Waterbody{
   public int getObjectType(){
     return _oType;
   }
+  //TODO clean up not going to use
   /**
    * sets the group number
    */
+  /*
   public void setGroup(int group){
     _group = group;
     //    System.out.println(numberId+", group "+group);
   }
+  */
   /**
     * Returns the group number
     */
+  /*
   public int getGroup(){
     return _group;
   }
+  */
   /**
    *  returns upstream water quality for constituent
    */
@@ -300,15 +322,32 @@ public abstract class Waterbody{
     }
     return rep;
   }
-
+  public void installBarrier(int envNodeId){
+	  if (!_nodeIdArray.contains(new Integer(envNodeId)))
+		  PTMUtil.systemExit("SYTEM EXIT: defined a wrong barrier node in the route inputs");
+	  else{
+		  _isBarrierInstalled = true;
+		  _barrierNodeIdList.add(new Integer(envNodeId));
+	  }
+  }
+  public void installFishScreen(int envNodeId){
+	  if (!_nodeIdArray.contains(new Integer(envNodeId)))
+		  PTMUtil.systemExit("SYTEM EXIT: defined a wrong fish screen node in the route inputs");
+	  else{
+		  _fishScreenInstalled = true;
+		  _fishScreenNodeIdList.add(new Integer(envNodeId));
+	  }
+  }
+  public boolean isBarrierInstalled(){return _isBarrierInstalled;}
+  public boolean isFishScreenInstalled(){
+	  return _fishScreenInstalled;
+  }
+  public void setCurrentBarrierOp (int nodeId, int barrierOp){ _barrierOpMap.put(nodeId, barrierOp);}
+  public int getCurrentBarrierOp (int nodeId) {return _barrierOpMap.get(nodeId);}
   /**
    *  Index in PTMEnv Waterbody array
    */
   private int EnvIndex;
-  /**
-   *  Id of array in the DSM2 hydro grid
-   */
-  //private int numberId;
   /**
    *  Type of Waterbody channel/reservoir/boundary/conveyor
    */
@@ -320,7 +359,7 @@ public abstract class Waterbody{
   /**
    *  Indices array of Nodes connecting to this Waterbody
    */
-  private int[] nodeIdArray;
+  private List<Integer> _nodeIdArray;
   /**
    *  Node array connecting to this Waterbody
    */
@@ -329,7 +368,7 @@ public abstract class Waterbody{
   /**
    *  Flow, depth, velocity, width and area information read from tide file
    */
-  protected float[] flowAt, depthAt, velocityAt, widthAt;
+  protected float[] flowAt, previousFlowAt, deltaFlowAt, depthAt, velocityAt, widthAt;
   /**
    *  Water quality information read from Qual binary file
    */
@@ -346,6 +385,34 @@ public abstract class Waterbody{
   /**
    * The group number
    */
-  private int _group;
+  //private int _group;
+  private boolean _isBarrierInstalled = false;
+  private ArrayList<Integer> _barrierNodeIdList = null;
+  private ArrayList<Integer> _fishScreenNodeIdList = null;
+  // nodeId as key and operation (0,1) as value
+  private HashMap<Integer, Integer> _barrierOpMap = null;
+  private boolean _fishScreenInstalled = false;
+  private boolean [] _firstTimeSetFlows;
+  
 }
 
+//TODO clean up no longer used, moved to TravelTimeOutput
+/*
+public void setOutputWb() {_isOutputWb = true;}
+public boolean isOutputWb() { return _isOutputWb;}
+abstract public void setOutputDistance(int distance);
+abstract public int getOutputDistance();
+private boolean _isOutputWb = false;
+*/
+/**
+ *  Id of array in the DSM2 hydro grid
+ */
+//private int numberId;
+
+
+/**
+ *  Get the Node's global index by its local index
+ */
+//public final int getNodeId(int nodeId){
+//  return(nodeIdArray[nodeId]);
+//}

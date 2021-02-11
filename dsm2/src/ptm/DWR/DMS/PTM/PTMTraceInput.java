@@ -69,6 +69,7 @@ public class PTMTraceInput extends PTMInput{
       System.out.println("PTMTraceInput: constructor" +
   	                     "Error reading trace file: " + filename);
     }
+    //TODO bug?  why is trace instantiated here? --Xiao
     trace = new TraceData();
   }
 
