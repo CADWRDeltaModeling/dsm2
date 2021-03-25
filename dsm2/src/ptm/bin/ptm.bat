@@ -4,7 +4,6 @@ rem Batch file for running PTM
 rem ###################################
 setlocal
 set ptm_home=%~dp0
-@echo %ptm_home%
 if exist "%ptm_home%\PTM.jar" goto :valid
 
 :notfound
@@ -25,13 +24,13 @@ goto :end
 rem ###############
 rem Set path to location of dll
 rem ###############
-set path="%ptm_home%;%ptm_home%lib;%path%"
+set PATH=%ptm_home%;%ptm_home%lib;%PATH%
 
 rem ###############
 rem starting ptm
 rem ###############
 ::start %ptm_home%/jre/bin/
-%ptm_home%jre\bin\java -ss1m -mx512m -cp "%ptm_home%lib\edu.jar;%ptm_home%lib\COM.jar;%ptm_home%lib\xml.jar;%ptm_home%lib\commons-math3-3.6.1.jar" -jar %ptm_home%PTM.jar %*
+"%ptm_home%jre\bin\java" -ss1m -mx64m -cp "%ptm_home%lib\edu.jar;%ptm_home%lib\COM.jar;%ptm_home%lib\xml.jar;%ptm_home%lib\commons-math3-3.6.1.jar;%ptm_home%PTM.jar"  DWR.DMS.PTM.MainPTM  %*
 
 :end
 endlocal 
