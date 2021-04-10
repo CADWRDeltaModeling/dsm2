@@ -28,23 +28,27 @@ public class RouteInputs {
 			_pathFileNameEntrainment = PTMUtil.getPathFromLine(inText.get(0), ':');
 			if(_pathFileNameEntrainment.equalsIgnoreCase(""))
 				_pathFileNameEntrainment = null;
+            //TODO disabled the flux reading. The flux calculation needs more work for fish particles because they move back and forth many times.
+            /*
 			_pathFileNameFlux = PTMUtil.getPathFromLine(inText.get(1), ':');
 			if(_pathFileNameFlux.equalsIgnoreCase(""))
 				_pathFileNameFlux = null;
 			else
 				Particle.ADD_TRACE=true;
 			ArrayList<String> fluxInText = PTMUtil.getInputBlock(inText, "FLUX_CALCULATION", "END_FLUX_CALCULATION");
+            */
 			ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
 			ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
 			ArrayList<String> dicuInText = PTMUtil.getInputBlock(inText, "DICU_FILTER", "END_DICU_FILTER");
 			ArrayList<String> specialBehaviorInText = PTMUtil.getInputBlock(inText, "SPECIAL_BEHAVIORS", "END_SPECIAL_BEHAVIORS");
 			_entrainmentRates = new HashMap<Integer, ArrayList<ArrayList<Object>>>();
-			
+            
+			/*
 			if( fluxInText == null || fluxInText.size() < 2)
 				System.out.println("No flux calculation info found or the info is not properly defined in behavior inputs.");
 			else
 				setFluxInfo(fluxInText);
-			
+			*/
 			if( barriersInText == null || barriersInText.size() < 6)
 				System.out.println("No non-physical-barrier info found or the info is not properly defined in behavior inputs.");
 			else
