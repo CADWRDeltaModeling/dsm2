@@ -1,4 +1,21 @@
 cmake_minimum_required (VERSION 3.2.2)
+############ GIT information
+# in case Git is not available, we default to "unknown"
+set(GIT_HASH "unknown")
+
+# find Git and if available set GIT_HASH variable
+find_package(Git QUIET)
+if(GIT_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} log -1 --pretty=format:%h
+    OUTPUT_VARIABLE GIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+    )
+endif()
+
+message(STATUS "Git hash is ${GIT_HASH}")
+#############
 PROJECT(DSM2)
 enable_language(C CXX Fortran)
 # 
@@ -220,19 +237,15 @@ target_link_libraries(PTM
     )
 endif (WIN32)
 #PTM java
-find_package(Java 1.8 REQUIRED)
+find_package(Java 1.6 REQUIRED)
 message(STATUS "Found Java version ${Java_VERSION}")
 get_filename_component(Java_JAVA_BIN_DIR ${Java_JAVA_EXECUTABLE} DIRECTORY)
-if (WIN32)
-  set(Java_JRE_HOME "${Java_JAVA_BIN_DIR}/../jre")
-  message(STATUS "Using Java executable ${Java_JAVA_EXECUTABLE} location to guess Java_JRE_HOME is ${Java_JRE_HOME}")
-else (WIN32)
-  message(STATUS "Not packaging JRE for Linux...")
-endif (WIN32)
+file(TO_CMAKE_PATH $ENV{JAVA_HOME}/jre JAVA_JRE_HOME)
+message(STATUS "Using Java env variable $ENV{JAVA_HOME} location to guess JAVA_JRE_HOME is -> ${JAVA_JRE_HOME}")
 include(UseJava)
 file(GLOB PTM_JAVA_SOURCES ptm/DWR/DMS/PTM/*.java ptm/DWR/DMS/PTM/behave/*.java)
 file(GLOB PTM_JAVA_DEP_JARS ptm/lib/*.jar)
-set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
+set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.6" "-target" "1.6")
 add_jar(PTM_JAR 
   SOURCES ${PTM_JAVA_SOURCES}
   INCLUDE_JARS ${PTM_JAVA_DEP_JARS}
@@ -282,7 +295,7 @@ add_dependencies(fixed gtm_core)
 target_link_libraries(gtm mercury gtm_core transport input_storage input_storage_cpp process_io sediment sediment_bed sediment_bed_core do_module)
 if (WIN32)
 set_target_properties(gtm PROPERTIES LINK_FLAGS "/STACK:8000000")
-target_link_libraries(gtm 
+target_link_libraries(gtm
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
@@ -309,7 +322,7 @@ target_link_libraries(gtm
     debug ${BOOST_FILESYSTEM_DEBUG} optimized ${BOOST_FILESYSTEM_RELEASE}
     debug ${BOOST_REGEX_DEBUG} optimized ${BOOST_REGEX_RELEASE}
     debug ${BOOST_SYSTEM_DEBUG} optimized ${BOOST_SYSTEM_RELEASE}
-    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group 
+    -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
     debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     )
 target_link_libraries(gtm -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
@@ -325,18 +338,18 @@ endif (WIN32)
 
 #-------------- INSTALL ----------------#
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
-install(TARGETS hydro qual PTM
+install(TARGETS hydro qual gtm PTM
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION bin)
 install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)
 message("Copy jar files over to bin/lib")
 install(FILES ${PTM_JAVA_DEP_JARS} DESTINATION bin/lib)
+install(DIRECTORY ${JAVA_JRE_HOME} DESTINATION bin USE_SOURCE_PERMISSIONS)
 if (WIN32) 
-  install(DIRECTORY "${Java_JRE_HOME}" DESTINATION bin USE_SOURCE_PERMISSIONS)
-  message("Windows exes are static so Intel redistribution files are not needed.")
   install(PROGRAMS ptm/bin/ptm.bat DESTINATION bin)
+  message("Windows exes are static so Intel redistribution files are not needed.")
 else (WIN32)
-  # install(PROGRAMS ptm/bin/ptm DESTINATION bin)  # This file does not exist in the repository.
+  install(PROGRAMS ptm/bin/ptm DESTINATION bin)
   message("Copy .so dependencies over to install directory. Currently for only 32 bit linux libraries!!!")
   message("compiler path: ${CMAKE_C_COMPILER}")
   get_filename_component(COMPILER_DIR ${CMAKE_C_COMPILER} DIRECTORY)
@@ -358,7 +371,7 @@ set(CPACK_PACKAGE_VENDOR "Delta Modeling Section")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Delta Simulation Model 2")
 set(CPACK_PACKAGE_VERSION_MAJOR "8")
 set(CPACK_PACKAGE_VERSION_MINOR "2")
-set(CPACK_PACKAGE_VERSION_PATCH "0") # TODO: add git versioning here
+set(CPACK_PACKAGE_VERSION_PATCH "${GIT_HASH}")
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 get_filename_component(LICENSE_FILE "${DSM2_TOP_DIR}/LICENSE.txt" ABSOLUTE) 
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
