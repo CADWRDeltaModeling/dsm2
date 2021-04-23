@@ -135,8 +135,8 @@ module hg_hdf
         !gtm_wat_hdf%time_dim
         return
     end subroutine init_sed_hg_hdf
-   
-    subroutine write_gtm_hg_hdf(conc, nconc, nchan, ncell, conc_resv, nresv, time_index, name)
+
+    subroutine write_gtm_hg_hdf(conc, nconc, nchan, ncell, conc_resv, nresv, time_index, dx, width, name)
         !args
         real (gtm_real), intent(in) :: conc(ncell, nconc)
         integer, intent(in) :: nconc
@@ -144,12 +144,18 @@ module hg_hdf
         integer, intent(in) :: ncell
         real (gtm_real), intent(in) :: conc_resv(nresv, nconc)
         integer, intent(in) :: nresv
-        integer, intent(in) :: time_index 
-        character(len=32), intent(in) :: name(nconc) 
+        integer, intent(in) :: time_index
+        real (gtm_real), intent(in) :: dx(ncell)           !length ft
+        real (gtm_real), intent(in) :: width(ncell)        !width ft
+        character(len=32), intent(in) :: name(nconc)
         !local
+        real(gtm_real) :: area_wet(ncell)
         integer             ::ivar
         integer             ::isediment
-          ! source must be in primitive variable 
+        real(gtm_real), parameter :: L = 0.3048d0
+          ! source must be in primitive variable
+        area_wet = width*dx*L*L
+        
         do ivar = 1, nconc
             !conc(:,ivar) = zero
             if (trim(name(ivar)).eq."sediment") then
@@ -164,10 +170,11 @@ module hg_hdf
 		conc_resv_hdf(:,1) = conc_resv(:,mercury_ivar(1))+ conc_resv(:,mercury_ivar(4)) + conc_resv(:,mercury_ivar(5)) + conc_resv(:,mercury_ivar(6))   !hgii
         conc_resv_hdf(:,5) = conc_resv(:,mercury_ivar(2))     !mehg
         conc_resv_hdf(:,9) = conc_resv(:,mercury_ivar(3))     !hg0
+        
+        
         if (hdf_out .eq. 'channel') then
             call write_gtm_chan_sed_hg_hdf( gtm_sed_hg_hdf, bed, nchan, ncell, n_zones, sed_bed_Hg_count, time_index)
-            !call write_gtm_chan_sed_flux_hdf(gtm_sed_hg_hdf, settling, erosion_sb, decomposition, burial, carbonturnover, nchan,ncell, n_zones, sed_bed_solids_flux_count, 3, time_index)
-            call write_gtm_chan_wat_hg_hdf(gtm_wat_hg_hdf,nchan, ncell, time_index)
+            call write_gtm_chan_wat_hg_hdf(gtm_wat_hg_hdf,nchan, ncell, time_index, area_wet)
 			call write_gtm_resv_wat_hg_hdf(gtm_wat_hg_hdf, nresv, time_index)
         end if
         
@@ -192,8 +199,8 @@ module hg_hdf
         type(bed_properties_t), intent(in) :: bed(ncell, nzone, 2) !< cell data from transport module
         integer, intent(in) :: time_index                          !< time index to write the data
         real(gtm_real) :: chan_conc(2,nzone, nchan, nconc)         !< channel data from transport module
-		integer :: nflux = 10
-        real(gtm_real) :: chan_flux(2,nzone, nchan, 10)         !< channel data from transport module
+        integer :: nflux = 11
+        real(gtm_real) :: chan_flux(2,nzone, nchan, 11)         !< channel data from transport module
         integer :: chan_rank
         integer(HID_T) :: fspace_id
         integer(HID_T) :: memspace_id
@@ -203,10 +210,14 @@ module hg_hdf
     	integer :: ichan, izone
         integer :: error                                        ! HDF5 Error flag
         integer :: imid
+        integer :: icell
         real(gtm_real)  :: sed_mass(2)                           !nlayers
         real(gtm_real)  :: hgii_mass(2)                           !nlayers
         real(gtm_real)  :: mehg_mass(2)                           !nlayers
-        real(gtm_real)  :: volume_pw(2)
+        real(gtm_real)  :: volume_pw_hdf(2)
+        real(gtm_real) :: area_chan(nchan, nzone) 
+        
+        
         if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
      
         if (nchan .ne. 0) then 
@@ -233,14 +244,15 @@ module hg_hdf
             do ichan = 1, nchan
                 imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  !write for middle cell in channel
                 do izone = 1, nzone
-                                       
-                    sed_mass(:) = sedsolids(imid,izone,:,1,3) + sedsolids(imid,izone,:,2,3) + sedsolids(imid,izone,:,3,3) 
-                    volume_pw(:) = bed(imid,izone,:).wp_wet*bed(imid,izone,:).thickness*bed(imid,izone,:).porosity
+
+                    sed_mass(:) = sedsolids(imid,izone,:,1,3) + sedsolids(imid,izone,:,2,3) + sedsolids(imid,izone,:,3,3)
+                    volume_pw_hdf(1) = volume_pw(imid,izone,1)
+                    volume_pw_hdf(2) = volume_pw(imid,izone,2)
                     hgii_mass(:) = sed_hgii(imid,izone,:,3) + sed_s1_hgii(imid,izone,:,3) + sed_s2_hgii(imid,izone,:,3) + sed_s3_hgii(imid,izone,:,3) &
-                                   - hg_conc_sed(imid,izone,:,2)%hgii_diss*volume_pw(:)     !filtered not updated after integration
-                    mehg_mass(:) = sed_mehg(imid,izone,:,3) - hg_conc_sed(imid,izone,:,2)%mehg_diss*volume_pw(:)
-                    
-                    
+                                   - hg_conc_sed(imid,izone,:,2)%hgii_diss*volume_pw_hdf(:)     !filtered not updated after integration
+                    mehg_mass(:) = sed_mehg(imid,izone,:,3) - hg_conc_sed(imid,izone,:,2)%mehg_diss*volume_pw_hdf(:)
+
+
                     chan_conc(:,izone,ichan,1) = hgii_mass(:)/sed_mass(:)
                     chan_conc(:,izone,ichan,2) = hg_conc_sed(imid,izone,:,2)%hgii_diss
                     
@@ -272,9 +284,9 @@ module hg_hdf
                     else
                         chan_conc(2,izone,ichan,6) = zero
                     endif
-                    
-                    if (volume_pw(1)>zero) then
-                        chan_conc(:,izone,ichan,7) = sed_hg0(imid,izone,:,3)/volume_pw(:)
+
+                    if (volume_pw_hdf(1)>zero) then
+                        chan_conc(:,izone,ichan,7) = sed_hg0(imid,izone,:,3)/volume_pw_hdf(:)
                     else
                         chan_conc(:,izone,ichan,7) = zero
                     endif
@@ -294,6 +306,7 @@ module hg_hdf
                                        h_offset,         & 
                                        subset_dims,      &
                                        error)
+            
             call h5dwrite_f(hdf_file%bed_out_id,       &
                             H5T_NATIVE_REAL,             &   ! This was H5T_NATIVE_REAL in old DSM2-Qual. Leaving it as REAL will introduce errors.
                             real(chan_conc),             &
@@ -304,41 +317,35 @@ module hg_hdf
                             
 	        call verify_error(error,"Sediment bed hg concs - hdf write")
             call h5sclose_f(fspace_id, error)
-			call h5sclose_f(memspace_id, error) 
-          
-            chan_flux = 0           
+			call h5sclose_f(memspace_id, error)
+
+            chan_flux = 0
+            area_chan = 0
             do ichan = 1, nchan                         !bed hg fluxes
-                imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  !write for middle cell in channel
+                !imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  !write for middle cell in channel
+                do icell = chan_geom(ichan)%start_cell, chan_geom(ichan)%end_cell
                 do izone = 1, nzone
-                    if (bed(imid,izone,1).area_wet.gt.zero) then
-                        chan_flux(1,izone,ichan,1) = f_settling_hg(imid,izone,mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,2) = f_erosion_hg(imid,izone,mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,3) = f_burial_hg(imid,izone,mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
+                       if (bed(icell,izone,1).area_wet.gt.zero) then
+                            area_chan(ichan, izone) = area_chan(ichan, izone) + bed(icell,izone,1).area_wet
+                            chan_flux(1,izone,ichan,1) = chan_flux(1,izone,ichan,1) + f_settling_hg(icell,izone,mf_hgii,1)* day_to_sec
+                            chan_flux(1,izone,ichan,2) = chan_flux(1,izone,ichan,2) + f_erosion_hg(icell,izone,mf_hgii,1) * day_to_sec
+                            chan_flux(1,izone,ichan,3) = chan_flux(1,izone,ichan,3) + f_burial_hg(icell,izone,mf_hgii,1) * day_to_sec
                         chan_flux(2,izone,ichan,3) = chan_flux(1,izone,ichan,3)
-                        chan_flux(1,izone,ichan,4) = f_diffusion_hg(imid,izone, mf_hgii,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(2,izone,ichan,4) = f_sed_diffusion_hg(imid,izone,mf_hgii,1) &           !L2->L1
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,5) = f_settling_hg(imid,izone,mf_mehg,1)  &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,6) = f_erosion_hg(imid,izone,mf_mehg,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(1,izone,ichan,7) = f_burial_hg(imid,izone,mf_mehg,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
+                            chan_flux(1,izone,ichan,4) = chan_flux(1,izone,ichan,4) + f_diffusion_hg(icell,izone, mf_hgii,1) * day_to_sec
+                            chan_flux(2,izone,ichan,4) = chan_flux(2,izone,ichan,4) + f_sed_diffusion_hg(icell,izone,mf_hgii,1) * day_to_sec    !L2->L1
+                            chan_flux(1,izone,ichan,5) = chan_flux(1,izone,ichan,5) + f_settling_hg(icell,izone,mf_mehg,1) * day_to_sec
+                            chan_flux(1,izone,ichan,6) = chan_flux(1,izone,ichan,6) + f_erosion_hg(icell,izone,mf_mehg,1) * day_to_sec
+                            chan_flux(1,izone,ichan,7) = chan_flux(1,izone,ichan,7) + f_burial_hg(icell,izone,mf_mehg,1) * day_to_sec
                         chan_flux(2,izone,ichan,7) = chan_flux(1,izone,ichan,7)
-                                                   
-                        chan_flux(1,izone,ichan,8) = f_diffusion_hg(imid,izone,mf_mehg,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(2,izone,ichan,8) = f_sed_diffusion_hg(imid,izone,mf_mehg,1) &           !L2->L1
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(:,izone,ichan,9) = f_sed_methyl(imid,izone,:,1) &
-                                                        /(bed(imid,izone,1).area_wet ) * day_to_sec
-                        chan_flux(:,izone,ichan,10) = f_sed_demethyl(imid,izone,:,1) &
-                                                         /(bed(imid,izone,1).area_wet ) * day_to_sec                    
+
+                            chan_flux(1,izone,ichan,8) = chan_flux(1,izone,ichan,8) + f_diffusion_hg(icell,izone,mf_mehg,1) * day_to_sec
+                            chan_flux(2,izone,ichan,8) = chan_flux(2,izone,ichan,8) + f_sed_diffusion_hg(icell,izone,mf_mehg,1) * day_to_sec   !L2->L1
+                            chan_flux(:,izone,ichan,9) = chan_flux(:,izone,ichan,9) + f_sed_methyl(icell,izone,:,1) * day_to_sec
+                            chan_flux(:,izone,ichan,10) = chan_flux(:,izone,ichan,10) + f_sed_demethyl(icell,izone,:,1) * day_to_sec 
                     endif
+                        chan_flux(1,izone,ichan,11) = area_chan(ichan, izone)
+                        chan_flux(2,izone,ichan,11) = chan_flux(1,izone,ichan,11)
+                    enddo
                 enddo
             enddo
     
@@ -375,21 +382,25 @@ module hg_hdf
     subroutine write_gtm_chan_wat_hg_hdf(hdf_file, &
                                   nchan,        &
                                   ncell,        &
-                                  time_index)
-        
+                                  time_index,       &
+                                  area_wet)         
+
         implicit none
         type(gtm_hdf_t), intent(in) :: hdf_file                !< hdf file structure
         integer, intent(in) :: nchan                               !< number of channels
         integer, intent(in) :: ncell                               !< number of cells
         integer, intent(in) :: time_index                          !< time index to write the data
+        real(gtm_real), intent(in) :: area_wet(ncell)
         !local
         real (gtm_real)     :: tss_total(ncell)
         real (gtm_real)     :: wet_area(ncell)
         integer             :: ii, izone
         real (gtm_real)     :: gtm_hdf_time_intvl
         integer             :: time_index_in_gtm_hdf
-        hg_conc_wat(:,3) = hg_conc_wat(:,1)  !todo: consider updating partitioning etc  
-        tss_total(:) = conc_tss(:,1)+conc_tss(:,2)+conc_tss(:,3) 
+        integer             :: icell
+        integer             :: ichan
+        hg_conc_wat(:,3) = hg_conc_wat(:,1)  !todo: consider updating partitioning etc
+        tss_total(:) = conc_tss(:,1)+conc_tss(:,2)+conc_tss(:,3)
         !conc_wat_hdf(:,1) = hg_conc_wat(:,3)%hgii_ssX(1)*conc_tss(:,1)  + hg_conc_wat(:,3)%hgii_ssX(2)*conc_tss(:,2)   + hg_conc_wat(:,3)%hgii_ssX(3)*conc_tss(:,3) + hg_conc_wat(:,3)%hgii_diss &
         !                    +hg_conc_wat(:,3)%HgII_inert(1)*conc_tss(:,1) + hg_conc_wat(:,3)%HgII_inert(2)*conc_tss(:,2) + hg_conc_wat(:,3)%HgII_inert(3)*conc_tss(:,3) 
                             
@@ -449,27 +460,36 @@ module hg_hdf
                                 budget_prev_flow_hi,   &
                                 budget_prev_conc,      &
                                 time_index,            &
-                                .false.)      
+                                .false.)
+        
         conc_wat_flux_hdf = zero
-        wet_area(:) = bed(:,1,1)%area_wet + bed(:,2,1)%area_wet + bed(:,3,1)%area_wet
-		conc_wat_flux_hdf(:,1) = (f_wat_hg(:)%photodemethyl /wet_area(:))* day_to_sec   !photpdegredaton
-        conc_wat_flux_hdf(:,2) = (f_wat_hg(:)%photoreduction /wet_area(:))* day_to_sec  !reduction
-        conc_wat_flux_hdf(:,3) = (f_wat_hg(:)%oxidation/wet_area(:))* day_to_sec    !oxidation
-        conc_wat_flux_hdf(:,4) = (f_wat_hg(:)%evasion_Hg0/wet_area(:))* day_to_sec    !evasion
-        conc_wat_flux_hdf(:,5) = (f_wat_hg(:)%wetdep_HgII/wet_area(:))* day_to_sec    !wet dep
-        conc_wat_flux_hdf(:,6) = (f_wat_hg(:)%drydep_HgII/wet_area(:))* day_to_sec   !dry dep
-            do izone=1,3  
-                conc_wat_flux_hdf(:,7) = conc_wat_flux_hdf(:,7) + f_settling_hg(:,izone,mf_hgii,1)
-                conc_wat_flux_hdf(:,8) = conc_wat_flux_hdf(:,8) + f_erosion_hg(:,izone,mf_hgii,1)        !hgii erosion
-                conc_wat_flux_hdf(:,9) = conc_wat_flux_hdf(:,9) + f_settling_hg(:,izone,mf_mehg,1)
-                conc_wat_flux_hdf(:,10) = conc_wat_flux_hdf(:,10) + f_erosion_hg(:,izone,mf_mehg,1)     !mehgii erosion
+        do ichan = 1, nchan                         !bed hg fluxes
+            !imid = nint((chan_geom(ichan)%start_cell + chan_geom(ichan)%end_cell)/2.0)  !write for middle cell in channel
+            do icell = chan_geom(ichan)%start_cell, chan_geom(ichan)%end_cell
+                        
+                conc_wat_flux_hdf(ichan,1) = conc_wat_flux_hdf(ichan,1) + f_wat_hg(icell)%photodemethyl * day_to_sec     !photpdegredaton
+                conc_wat_flux_hdf(ichan,2) = conc_wat_flux_hdf(ichan,2) + f_wat_hg(icell)%photoreduction * day_to_sec    !reduction
+                conc_wat_flux_hdf(ichan,3) = conc_wat_flux_hdf(ichan,3) + f_wat_hg(icell)%oxidation * day_to_sec         !oxidation
+                conc_wat_flux_hdf(ichan,4) = conc_wat_flux_hdf(ichan,4) + f_wat_hg(icell)%evasion_Hg0 * day_to_sec       !evasion
+                conc_wat_flux_hdf(ichan,5) = conc_wat_flux_hdf(ichan,5) + f_wat_hg(icell)%wetdep_HgII * day_to_sec       !wet dep
+                conc_wat_flux_hdf(ichan,6) = conc_wat_flux_hdf(ichan,6) + f_wat_hg(icell)%drydep_HgII * day_to_sec       !dry dep
+        
+        
+            do izone=1,3
+                    conc_wat_flux_hdf(ichan,7) = conc_wat_flux_hdf(ichan,7) + f_settling_hg(icell,izone,mf_hgii,1)  * day_to_sec
+                    conc_wat_flux_hdf(ichan,8) = conc_wat_flux_hdf(ichan,8) + f_erosion_hg(icell,izone,mf_hgii,1)   * day_to_sec    !hgii erosion
+                    conc_wat_flux_hdf(ichan,9) = conc_wat_flux_hdf(ichan,9) + f_settling_hg(icell,izone,mf_mehg,1)  * day_to_sec
+                    conc_wat_flux_hdf(ichan,10) = conc_wat_flux_hdf(ichan,10) + f_erosion_hg(icell,izone,mf_mehg,1) * day_to_sec    !mehgii erosion
+                    
+                    conc_wat_flux_hdf(ichan,11) = conc_wat_flux_hdf(ichan,11) + f_diffusion_hg(icell,izone, mf_hgii,1) * day_to_sec  !+ve => into water column
+                    conc_wat_flux_hdf(ichan,12) = conc_wat_flux_hdf(ichan,12) + f_diffusion_hg(icell,izone, mf_mehg,1) * day_to_sec
+                enddo
+        
+                conc_wat_flux_hdf(ichan,13) = conc_wat_flux_hdf(ichan,13) + area_wet(icell)
             enddo
-        
-        conc_wat_flux_hdf(:,7) =  (conc_wat_flux_hdf(:,7)/wet_area(:))* day_to_sec
-        conc_wat_flux_hdf(:,8) =  (conc_wat_flux_hdf(:,8)/wet_area(:))* day_to_sec
-        conc_wat_flux_hdf(:,9) =  (conc_wat_flux_hdf(:,9)/wet_area(:))* day_to_sec
-        conc_wat_flux_hdf(:,10) = (conc_wat_flux_hdf(:,10)/wet_area(:))* day_to_sec
-        
+            enddo
+
+
         gtm_wat_hg_hdf%chan_conc_id = gtm_sed_hg_hdf%wat_hg_flux_id
         
         !call write_gtm_chan_hdf(gtm_wat_hg_hdf, &
@@ -478,19 +498,28 @@ module hg_hdf
         !                   ncell,          &
         !                   10,              &  
         !                   time_index)
-        call write_gtm_chan_hdf(gtm_wat_hg_hdf,        &
-                                flow_lo,               &
-                                flow_hi,               &
+        
+        
+        
+        call write_gtm_chan_flux_hdf(gtm_wat_hg_hdf,    &
                                 conc_wat_flux_hdf,     &
                                 nchan,                 &
                                 ncell,                 &
-                                10,                    &
-                                gtm_hdf_time_intvl,    &
-                                budget_prev_flow_lo,   &
-                                budget_prev_flow_hi,   &
-                                budget_prev_conc,      &
-                                time_index,            &
-                                .false.)     
+                                     13,                &
+                                     time_index)
+       ! call write_gtm_chan_hdf(gtm_wat_hg_hdf,        &
+       !                         flow_lo,               &
+       !                         flow_hi,               &
+       !                         conc_wat_flux_hdf,     &
+       !                         nchan,                 &
+       !                         ncell,                 &
+       !                         11,                    &
+       !                         gtm_hdf_time_intvl,    &
+       !                         budget_prev_flow_lo,   &
+       !                         budget_prev_flow_hi,   &
+       !                         budget_prev_conc,      &
+       !                         time_index,            &
+       !                         .false.)     
         return
     end subroutine write_gtm_chan_wat_hg_hdf
                                   
@@ -598,7 +627,85 @@ module hg_hdf
         end if
     
     end subroutine close_gtm_hg_hdf
-                                  
+
+    subroutine write_gtm_chan_flux_hdf(hdf_file,     &
+                                      conc,          &
+                                      nchan,         &
+                                      ncell,         &
+                                      nconc,         &
+                                      time_index)
+                                     
+        use hdf5
+        use common_variables, only:chan_geom
+        implicit none
+        type(gtm_hdf_t), intent(in) :: hdf_file                    !< hdf file structure
+        integer, intent(in) :: nchan                               !< number of channels
+        integer, intent(in) :: ncell                               !< number of cells
+        integer, intent(in) :: nconc                               !< number of constituents
+        real(gtm_real), intent(in) :: conc(nchan, nconc)
+        integer, intent(in) :: time_index                          !< time index to write the data
+        
+        !real(gtm_real) :: chan_conc(nchan, nconc)               !< channel data from transport module
+        integer :: chan_rank
+        integer :: chan_budget_rank
+        integer(HID_T) :: fspace_id
+        integer(HID_T) :: memspace_id
+     	integer(HSIZE_T), dimension(2) :: mdata_dims  = 0          ! Dims of data in memory
+      	integer(HSIZE_T), dimension(3) :: subset_dims  = 0         ! Dims of subset for time step
+    	integer(HSIZE_T), dimension(3) :: h_offset = (/0,0,0/)
+            	
+    	integer :: ichan
+        integer :: error                                           ! HDF5 Error flag
+        integer :: icell
+        
+        if (mod(time_index,24*10) .eq. 1) call h5garbage_collect_f(error)
+     
+        if (nchan .ne. 0) then 
+            !-----channel conc
+            h_offset(1) = 0
+            h_offset(2) = 0
+            h_offset(3) = time_index
+
+	        subset_dims(1) = nchan
+	        subset_dims(2) = nconc
+	        subset_dims(3) = 1
+
+	        mdata_dims(1) = nchan
+	        mdata_dims(2) = nconc
+            chan_rank = 2
+            !chan_conc = zero
+            
+            !do ichan = 1, nchan          
+            !   do icell = chan_geom(ichan)%start_cell, chan_geom(ichan)%end_cell
+            !        chan_conc(ichan,:) =  chan_conc(ichan,:) + conc(icell,:)
+            !    end do
+            !end do
+              
+            call H5Screate_simple_f(chan_rank,           &
+                                    mdata_dims,          &
+                                    memspace_id,         &
+                                    error)
+            call h5dget_space_f(hdf_file%chan_conc_id,   &  
+                                fspace_id,               &
+                                error)
+            call h5sselect_hyperslab_f(fspace_id,        &
+                                       H5S_SELECT_SET_F, &
+                                       h_offset,         & 
+                                       subset_dims,      &
+                                       error)
+            call h5dwrite_f(hdf_file%chan_conc_id,       &
+                            H5T_NATIVE_REAL,             & 
+                            real(conc),                  &
+                            mdata_dims,                  &
+                            error,                       &
+                            memspace_id,                 & 
+                            fspace_id)
+	        call verify_error(error,"Channel flux write")
+            call h5sclose_f(fspace_id, error)
+            call h5sclose_f(memspace_id, error)    
+        end if
+        return
+    end subroutine
 	subroutine print_last_stage_hg(cdtdate,        &
                                 intdate,        &
                                 out_conc_resv,  &
@@ -622,7 +729,7 @@ module hg_hdf
         real(gtm_real)  :: hgii_s3(2)
         real(gtm_real)  :: mehg(2)
         real(gtm_real)  :: hg0(2)
-        real(gtm_real)  ::volume_pw(2)
+        real(gtm_real)  ::volume_pw_ls(2)
         integer :: ncol
         integer :: a(nvar)
         character*16 :: c(nvar)
@@ -648,8 +755,9 @@ module hg_hdf
                 hgii_s3(:) = sed_s3_hgii(i,j,:,3)/sedsolids(i,j,:,3,3)
                 mehg(:) = sed_mehg(i,j,:,3)/sed_mass(:)
                 if  (bed(i,j,1).wp_wet > 0) then
-                    volume_pw(:) = bed(i,j,:).wp_wet*bed(i,j,:).thickness*bed(i,j,:).porosity
-                    hg0(:) = sed_hg0(i,j,:,3)/volume_pw(:) 
+                    volume_pw_ls(1) = volume_pw(i,j,1)
+                    volume_pw_ls(2) = volume_pw(i,j,2)
+                    hg0(:) = sed_hg0(i,j,:,3)/volume_pw_ls(:) 
                 else
                     hg0(:) = zero
                 endif

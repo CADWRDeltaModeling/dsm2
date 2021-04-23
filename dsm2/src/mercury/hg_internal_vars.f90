@@ -74,6 +74,7 @@ real (gtm_real), allocatable, dimension (:,:,:)     :: ic_mehg_sed    !sediment 
         ! dimensions (ncells, mercury form)
 real (gtm_real), allocatable, dimension (:,:)       :: gtm_fluxes_hg
 
+real (gtm_real), allocatable, dimension (:,:,:)       :: volume_pw      ! pore water volums
     contains
 
 subroutine setup_hg_internals(ncells,nresv, nzones,nlayers,nsolids,nmf)
@@ -154,7 +155,7 @@ subroutine setup_hg_internals(ncells,nresv, nzones,nlayers,nsolids,nmf)
     allocate (conc_resv_hdf(nresv,9))
     
     allocate (f_wat_hg(ncells))
-    
+	allocate (volume_pw(ncells,nzones,nlayers))
 end subroutine setup_hg_internals
 
 subroutine deallocate_hg_internals()
@@ -203,5 +204,6 @@ subroutine deallocate_hg_internals()
     deallocate (hg_conc_resv)  
     deallocate (conc_resv_hdf)  
     deallocate (f_wat_hg)
+    deallocate (volume_pw)
 end subroutine deallocate_hg_internals
 end module

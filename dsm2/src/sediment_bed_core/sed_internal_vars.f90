@@ -2,7 +2,7 @@ module sed_internal_vars
     
 use gtm_precision
 use sed_type_defs
-use common_variables, only: k_eq_solids_t, solids_inputs_t
+use common_variables, only: k_eq_solids_t, solids_inputs_t, n_chan
 
 implicit none
 !these variables contain sediment bed mass fluxes for the two Huens method steps
@@ -94,7 +94,7 @@ subroutine setup_sed_internals(ncells,nzones,layers, nresv, nosolids)
     
     allocate (conc_tss(ncells,3))
     allocate (conc_wat_hdf(ncells,9))
-    allocate (conc_wat_flux_hdf(ncells,10))
+    allocate (conc_wat_flux_hdf(n_chan,13))
     allocate (conc_tss_resv(nresv,3))
     
 end subroutine setup_sed_internals

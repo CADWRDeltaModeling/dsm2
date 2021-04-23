@@ -49,7 +49,7 @@ end type
 
 !particle properties
 !real (gtm_real), dimension (isolids)   :: diameter  = 0.0005       !< units (m)
-real (gtm_real), dimension (isolids)   :: density   = 2.6          !< density (g/m^3) or (g/cm3) and convert
+real (gtm_real), dimension (isolids)   :: density   = 2.65          !< density (g/m^3) or (g/cm3) and convert
 
 
 

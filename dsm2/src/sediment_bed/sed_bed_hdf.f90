@@ -28,9 +28,9 @@ module sed_bed_hdf
     integer, parameter :: sed_bed_solids_count = 4
     integer, parameter :: sed_bed_solids_flux_count = 5
     integer, parameter :: sed_bed_hg_count = 7          !hgii, mehg,hgii_pw,mehg_pw,hg0,kd_hgii,kd_mehg
-    integer, parameter :: sed_bed_hg_flux_count = 10    !todo: itemize mercury fluxes
+    integer, parameter :: sed_bed_hg_flux_count = 11    !todo: itemize mercury fluxes
     integer, parameter :: wat_hg_count = 9
-    integer, parameter :: wat_hg_flux_count = 10
+    integer, parameter :: wat_hg_flux_count = 13
     contains
     
     subroutine init_sed_hdf(n_cells, n_chans, sim_start, sim_end, hdf_interval_char, use_hdf)
@@ -172,7 +172,7 @@ module sed_bed_hdf
 	        chan_chunk_dims(3) = nchan
 	        chan_chunk_dims(4) = nconc
 	        chan_chunk_dims(5) = min(TIME_CHUNK,ntime)
-        case (3:4)
+        case (3)
             allocate(chan_file_dims(4))
             allocate(chan_chunk_dims(4))
             chan_file_dims = 0
@@ -187,9 +187,22 @@ module sed_bed_hdf
 	        chan_chunk_dims(2) = nchan
 	        chan_chunk_dims(3) = nconc
 	        chan_chunk_dims(4) = min(TIME_CHUNK,ntime)
+        case (4)
+            allocate(chan_file_dims(3))
+            allocate(chan_chunk_dims(3))
+            chan_file_dims = 0
+            chan_chunk_dims = 0
+            chan_rank = 3          
+            chan_file_dims(1) = nchan
+	        chan_file_dims(2) = nconc
+	        chan_file_dims(3) = ntime
+      
+	        chan_chunk_dims(1) = nchan
+	        chan_chunk_dims(2) = nconc
+	        chan_chunk_dims(3) = min(TIME_CHUNK,ntime)
         case (5)
-            allocate(chan_file_dims(4))
-            allocate(chan_chunk_dims(4))
+            allocate(chan_file_dims(3))
+            allocate(chan_chunk_dims(3))
             chan_file_dims = 0
             chan_chunk_dims = 0
             chan_rank = 3
@@ -307,11 +320,11 @@ module sed_bed_hdf
                 strlen = 32
                 nstr = sed_bed_solids_flux_count
                 allocate(character(strlen) :: arr(nstr))
-                arr(1) = "deposition (g/m2/yr)"
-                arr(2) = "resuspension (g/m2/yr)"
-                arr(3) = "mass_turnover (g/m2/yr)"
-                arr(4) = "burial/erosion (g/m2/yr)"
-                arr(5) = "carbon_turnover (g/m2/yr)"
+                arr(1) = "deposition (g/m2/d)"
+                arr(2) = "resuspension (g/m2/d)"
+                arr(3) = "mass_turnover (g/m2/d)"
+                arr(4) = "burial/erosion (g/m2/d)"
+                arr(5) = "carbon_turnover (g/m2/d)"
             case (sed_bed_zone)
                 strlen = 20
                 nstr = n_zones
@@ -344,18 +357,18 @@ module sed_bed_hdf
                 strlen = 32
                 nstr = sed_bed_hg_flux_count
                 allocate(character(strlen) :: arr(nstr))
-                arr(1) = "hgii settle (ug/m2/yr)"
-                arr(2) = "hgii resusp (ug/m2/yr)"
-                arr(3) = "hgii burial (l1->l2 )(ug/m2/yr)"
-                arr(4) = "hgii diffusion - out (ug/m2/yr)"
-                arr(5) = "mehg settle (ug/m2/yr)"
-                arr(6) = "mehg resusp (ug/m2/yr)"
-                arr(7) = "mehg burial (ug/m2/yr)"
-                arr(8) = "mehg diffusion - out (ug/m2/yr)"
-                arr(9) = "methyl (ug/m2/yr)"
-                arr(10) = "demethyl (ug/m2/yr)"
-               
-                
+                arr(1) = "hgii settle (ug/d)"
+                arr(2) = "hgii resusp (ug/d)"
+                arr(3) = "hgii burial (l1->l2 )(ug/d)"
+                arr(4) = "hgii diffusion - out (ug/d)"
+                arr(5) = "mehg settle (ug/d)"
+                arr(6) = "mehg resusp (ug/d)"
+                arr(7) = "mehg burial (ug/d)"
+                arr(8) = "mehg diffusion - out (ug/d)"
+                arr(9) = "methyl (ug/d)"
+                arr(10) = "demethyl (ug/d)"
+                arr(11) = "wet area (m2)"              
+
             case (wat_hg)
                 strlen = 32
                 nstr = wat_hg_count
@@ -373,16 +386,19 @@ module sed_bed_hdf
                 strlen = 32
                 nstr = wat_hg_flux_count
                 allocate(character(strlen) :: arr(nstr))
-                arr(1) = "photodegradation (ug/m2/yr)"
-                arr(2) = "reduction (ug/m2/yr)"
-                arr(3) = "oxidation (ug/m2/yr)"
-                arr(4) = "evasion (ug/m2/yr)"
-                arr(5) = "hgii wet dep (ug/m2/yr)"
-                arr(6) = "hgii dry dep (ug/m2/yr)"
-                arr(7) = "hgii settle (ug/m2/yr)"
-                arr(8) = "hgii erosion (ug/m2/yr)"
-                arr(9) = "mehg settle (ug/m2/yr)"
-                arr(10) = "mehg erosion (ug/m2/yr)"
+                arr(1) = "photodegradation (ug/d)"
+                arr(2) = "reduction (ug/d)"
+                arr(3) = "oxidation (ug/d)"
+                arr(4) = "evasion (ug/d)"
+                arr(5) = "hgii wet dep (ug/d)"
+                arr(6) = "hgii dry dep (ug/d)"
+                arr(7) = "hgii settle (ug/d)"
+                arr(8) = "hgii erosion (ug/d)"
+                arr(9) = "mehg settle (ug/d)"
+                arr(10) = "mehg erosion (ug/d)"
+                arr(11) = "hgII diffuse (ug/d)"
+                arr(12) = "mehg diffuse (ug/d)"
+                arr(13) = "wet area (m2)"
         end select
                
 	    data_dims(1) = nstr
@@ -579,17 +595,17 @@ module sed_bed_hdf
                 do izone =1, nzone
                 
                     if (bed(imid,izone,1).area_wet > zero) then
-                        chan_flux(1,izone,ichan,1) =  chan_flux(1,izone,ichan,1) + (((settling(imid, izone, 1, 1) + settling(imid,izone, 2,1 ) + settling(imid,izone, 3, 1) + settling(imid,izone, 1, 2) + settling(imid,izone, 2, 2) + settling(imid,izone, 3, 2))/two) &
-                                             /(bed(imid,izone,1).area_wet )) * day_to_sec
-                        chan_flux(1,izone,ichan,2) = chan_flux(1,izone,ichan,2) + (((erosion(imid,izone, 1, 1) + erosion(imid,izone,2, 1) + erosion(imid,izone, 3, 1) + erosion(imid,izone, 1, 2) + erosion(imid,izone, 2, 2) + erosion(imid,izone, 3, 2))/two) &
-                                             /(bed(imid,izone,1).area_wet )) * day_to_sec
-                        chan_flux(1,izone,ichan,4) = chan_flux(1,izone,ichan,4) + (((burial(imid,izone,1,1,1) + burial(imid,izone,1,2,1) + burial(imid,izone,1,3,1) + burial(imid,izone,1,1,2) + burial(imid,izone,1,2, 2) + burial(imid,izone,1,3,2))/two) &
-                                             /(bed(imid,izone,1).area_wet )) * day_to_sec
+                        chan_flux(1,izone,ichan,1) = (((settling(imid, izone, 1, 1) + settling(imid,izone, 2,1 ) + settling(imid,izone, 3, 1) + settling(imid,izone, 1, 2) + settling(imid,izone, 2, 2) + settling(imid,izone, 3, 2))/two) &
+                                             /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,1)
+                        chan_flux(1,izone,ichan,2) = (((erosion(imid,izone, 1, 1) + erosion(imid,izone,2, 1) + erosion(imid,izone, 3, 1) + erosion(imid,izone, 1, 2) + erosion(imid,izone, 2, 2) + erosion(imid,izone, 3, 2))/two) &
+                                             /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,2)
+                        chan_flux(1,izone,ichan,4) = (((burial(imid,izone,1,1,1) + burial(imid,izone,1,2,1) + burial(imid,izone,1,3,1) + burial(imid,izone,1,1,2) + burial(imid,izone,1,2, 2) + burial(imid,izone,1,3,2))/two) &
+                                             /(bed(imid,izone,1).area_wet )) * day_to_sec  ! + chan_flux(1,izone,ichan,4)
                     
-                        chan_flux(:,izone,ichan,3) = chan_flux(:,izone,ichan,3) + (((decomposition(imid,izone,:,1,1) + decomposition(imid,izone,:,2,1) + decomposition(imid,izone,:,3,1) + decomposition(imid,izone,:,1, 2) + decomposition(imid,izone,:,2, 2) + decomposition(imid,izone,:,3,2))/two) &
-                                             /(bed(imid,izone,:).area_wet )) * day_to_sec
-                        chan_flux(:,izone,ichan,5) = chan_flux(:,izone,ichan,5) + (((carbonturnover(imid,izone,:,1,1) + carbonturnover(imid,izone,:,2,1) + carbonturnover(imid,izone,:,3,1) + carbonturnover(imid,izone,:,1,2) + carbonturnover(imid,izone,:,2,2) + carbonturnover(imid,izone,:,3,2))/two) &
-                                             /(bed(imid,izone,:).area_wet )) * day_to_sec                                       
+                        chan_flux(:,izone,ichan,3) = (((decomposition(imid,izone,:,1,1) + decomposition(imid,izone,:,2,1) + decomposition(imid,izone,:,3,1) + decomposition(imid,izone,:,1, 2) + decomposition(imid,izone,:,2, 2) + decomposition(imid,izone,:,3,2))/two) &
+                                             /(bed(imid,izone,:).area_wet )) * day_to_sec  ! + chan_flux(:,izone,ichan,3)
+                        chan_flux(:,izone,ichan,5) = (((carbonturnover(imid,izone,:,1,1) + carbonturnover(imid,izone,:,2,1) + carbonturnover(imid,izone,:,3,1) + carbonturnover(imid,izone,:,1,2) + carbonturnover(imid,izone,:,2,2) + carbonturnover(imid,izone,:,3,2))/two) &
+                                             /(bed(imid,izone,:).area_wet )) * day_to_sec  !chan_flux(:,izone,ichan,5)                                     
                     end if
                 end do
                 chan_flux(2,:,ichan,1) = chan_flux(1,:,ichan,4)   ! settling into layer 2 = burial from layer 1

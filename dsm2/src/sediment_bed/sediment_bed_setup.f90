@@ -48,8 +48,8 @@ module sediment_bed_setup
     integer, parameter :: sb_biodemethyl_int    = 23
     
     contains
-    
-    subroutine set_up_sediment_bed(n_cells, n_chans, init_input_file, sim_start, sim_end, hdf_interval_char, use_gtm_hdf)
+
+    subroutine set_up_sediment_bed(n_cells, n_chans, init_input_file, sim_start, sim_end, hdf_interval_char, use_gtm_hdf, length_ft)
         !args
         integer, intent(in) :: n_cells
         integer, intent(in) :: n_chans
@@ -58,6 +58,7 @@ module sediment_bed_setup
         integer, intent(in) :: sim_end
         character*16 :: hdf_interval_char
         logical, intent(in):: use_gtm_hdf
+		real (gtm_real), intent (in) :: length_ft(n_cells)
         !local
         character(len=130) :: file_name_inp
         call get_sed_io_files( init_input_file, file_name_inp)
