@@ -55,9 +55,9 @@ implicit none
         elevation.max = zero
         elevation.min = 100.00
         max_elev_dx = zero
-        call get_ts_from_hdf5(elev,"inst water surface", n_comp, 0, hydro_ntideblocks)  !todo:this may need to be divided up if hydro_ntideblocks is too big???
-        do ii = 1,  hydro_ntideblocks 
-            !call get_ts_from_hdf5(elev,"inst water surface", n_comp, ii,1)
+        !call get_ts_from_hdf5(elev,"inst water surface", n_comp, 0, hydro_ntideblocks)  !todo:this may need to be divided up if hydro_ntideblocks is too big???
+        do ii = 0,  hydro_ntideblocks-1 
+            call get_ts_from_hdf5(elev,"inst water surface", n_comp, ii,1)
             do jj = 1, n_comp 
                 if (elev(jj) > elevation(jj).max) elevation(jj).max = elev(jj)
                 if (elev(jj) < elevation(jj).min) elevation(jj).min = elev(jj)
