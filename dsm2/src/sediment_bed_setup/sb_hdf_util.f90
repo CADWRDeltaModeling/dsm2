@@ -68,6 +68,7 @@ implicit none
                 end if
             end do
         end do
+        write(*,*) "done processing water surface elevations"
         deallocate (elev)
         return
     end subroutine
