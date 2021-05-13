@@ -49,9 +49,9 @@ implicit none
         integer :: ii
         integer :: jj
         !real(gtm_real) :: elev(n_comp)
-        real(gtm_real), allocatable, dimension(:,:) :: elev
+        real(gtm_real), allocatable, dimension(:) :: elev
         write(*,*) "processing water surface elevations"
-        allocate (elev(n_comp,hydro_ntideblocks))
+        allocate (elev(n_comp))
         elevation.max = zero
         elevation.min = 100.00
         max_elev_dx = zero
@@ -59,8 +59,8 @@ implicit none
         do ii = 1,  hydro_ntideblocks 
             !call get_ts_from_hdf5(elev,"inst water surface", n_comp, ii,1)
             do jj = 1, n_comp 
-                if (elev(jj,ii) > elevation(jj).max) elevation(jj).max = elev(jj,ii)
-                if (elev(jj,ii) < elevation(jj).min) elevation(jj).min = elev(jj,ii)
+                if (elev(jj) > elevation(jj).max) elevation(jj).max = elev(jj)
+                if (elev(jj) < elevation(jj).min) elevation(jj).min = elev(jj)
                 if ((elevation(jj).max - elevation(jj).min) >  max_elev_dx) then
                     min_elev = elevation(jj).min
                     max_elev = elevation(jj).max
