@@ -120,7 +120,15 @@ module sb_subs
                 do kk = 1, n_zone
                     sedcell(cell_no)%elev(kk) = sedcell(cell_no)%min_elev + (kk-1)*dy_elev
                     call CxInfo(area, sedcell(cell_no)%width(kk), sedcell(cell_no)%wet_p(kk), depth, X, sedcell(cell_no)%elev(kk), segm(ii)%chan_no)
-                    sedcell(cell_no)%wet_p(kk) = area/sedcell(cell_no)%wet_p(kk)
+                    if (kk.gt.1) then
+                        if (sedcell(cell_no)%wet_p(kk)<= sedcell(cell_no)%wet_p(kk-1)) then
+                            write (*,'(A29)') ' cell wetted perimeter error:'
+                            write (*,'(A13,1x,I4)') '  channel no:', sedcell(cell_no)%chan_no
+                            write (*,'(A10,5x,I4)') '  cell no:', cell_no
+                            write (*,'(A7,5x,I4)') '  zone:', kk
+                            sedcell(cell_no)%wet_p(kk) = sedcell(cell_no)%wet_p(kk-1)
+                        endif
+                    end if
                 end do
             end do
         end do
