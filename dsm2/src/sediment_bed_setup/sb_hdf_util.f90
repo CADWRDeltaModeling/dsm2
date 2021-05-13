@@ -24,18 +24,18 @@ implicit none
         call read_channel_tbl
         call find_non_sequential
         call read_comp_tbl
-        call read_channel_bottom_tbl        
+        !call read_channel_bottom_tbl        
         call assign_chan_comppt
         call assign_segment   
-        call read_reservoir_tbl
-        call read_qext_tbl
-        call read_tran_tbl
+        !call read_reservoir_tbl
+        !call read_qext_tbl
+        !call read_tran_tbl
         call read_xsect_tbl
         return
         !call read_gate_tbl
         !call read_source_flow_tbl
         !call read_boundary_tbl
-        call get_dsm2_network_info
+        !call get_dsm2_network_info
     end subroutine     
     
         
