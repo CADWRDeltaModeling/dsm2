@@ -2,7 +2,7 @@ module sb_hdf_util
     !use gtm_precision
     use sb_common
     use hdf_util , only: get_int_attribute_from_hdf5, n_chan, n_xsect, n_comp, hydro_ntideblocks,GET_HYDRO_ATTR, Read_Channel_tbl, find_non_sequential,READ_COMP_TBL, &
-        read_channel_bottom_tbl, ASSIGN_CHAN_COMPPT, ASSIGN_SEGMENT,READ_RESERVOIR_TBL,READ_QEXT_TBL,READ_TRAN_TBL,READ_XSECT_TBL,GET_TS_FROM_HDF5,VERIFY_ERROR
+        ASSIGN_CHAN_COMPPT, ASSIGN_SEGMENT,READ_XSECT_TBL,GET_TS_FROM_HDF5,VERIFY_ERROR
     use h5lt
     use common_xsect
 implicit none
