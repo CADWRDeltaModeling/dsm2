@@ -34,7 +34,7 @@ class ParticleObserver{
   public ParticleObserver(String traceFileName, int outputType,
                           int startTime, int endTime, int PTMTimeStep, 
                           int nParticles){
-	//TODO temp commented out for not writing the trace file
+	
 	if(Particle.ADD_TRACE||Globals.CalculateWritePTMFlux)
 		traceOn = true;
 	else
@@ -105,15 +105,6 @@ class ParticleObserver{
     	  output.output(time,pId,nodeId,wbId);
       else
     	  output.output(time,pId,nodeId,0);
-      
-      //TODO for debug purpose so I know the the channel/node numbers on the map
-      //but this causes problems when fluxes are calculated because the trace file also is used for the flux calculation
-      /*
-      if(nodeId >0 && nodeId < 500 && wbId < 801)
-    	  output.output(time,pId,PTMHydroInput.getExtFromIntNode(nodeId),PTMHydroInput.getExtFromIntChan(wbId));
-      else
-    	  output.output(time,pId,nodeId,wbId);
-    	  */
     }
   }
 
@@ -132,14 +123,6 @@ class ParticleObserver{
         nodeId = -1;
       int wbId =  observed.getCurrentWaterbody().getEnvIndex();
       output.output(time,pId,nodeId,wbId);
-      
-      //TODO
-      /*
-      if(nodeId > 0 && nodeId < 500 && wbId < 801)
-    	  output.output(time,pId,PTMHydroInput.getExtFromIntNode(nodeId),PTMHydroInput.getExtFromIntChan(wbId));
-      else
-    	  output.output(time,pId,nodeId,wbId);
-      */
       
       long timeExact = observed.getCurrentParticleTimeExact();
       observed.addParticleTrace(timeExact, wbId, nodeId);

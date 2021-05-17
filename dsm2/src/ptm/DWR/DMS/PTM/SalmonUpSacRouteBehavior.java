@@ -44,7 +44,7 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		try{
 			if (p.nd.getNumberOfChannels() != 3)
 				throw new ClassCastException("particle is in wrong a junction! channels != 3");
-			else if (!Globals.Environment.getParticleType().equalsIgnoreCase("SALMON"))
+			else if (!Globals.Environment.getParticleType().equalsIgnoreCase("SALMON_PARTICLE"))
 				throw new ClassCastException("particle is not SALMON!");
 		}
 		catch(ClassCastException cce){

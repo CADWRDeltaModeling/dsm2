@@ -8,5 +8,5 @@ package DWR.DMS.PTM;
  *
  */
 public interface SalmonRouteBehavior extends RouteBehavior{
-	static final String particleType = "SALMON";
+	static final String particleType = "SALMON_PARTICLE";
 }

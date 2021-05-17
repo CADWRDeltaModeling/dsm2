@@ -8,6 +8,6 @@ package DWR.DMS.PTM;
  *
  */
 public interface SmeltSwimBehavior extends SwimBehavior{
-	static final String particleType = "SMELT";
+	static final String particleType = "POSITION_ORIENTED_PARTICLE";
 
 }

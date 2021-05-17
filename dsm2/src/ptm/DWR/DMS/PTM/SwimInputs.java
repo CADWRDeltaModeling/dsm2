@@ -23,19 +23,19 @@ public class SwimInputs {
 	}
 	public SwimInputs(ArrayList<String> inText, String fishType) {
 		if (inText != null){
-			if (fishType.equalsIgnoreCase("SMELT")){
-				ArrayList<String> fileNames = PTMUtil.getInputBlock(inText, "Input_Smelt_File_Name", "END_Input_Smelt_File_Name");
+			if (fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")){
+				ArrayList<String> fileNames = PTMUtil.getInputBlock(inText, "Input_Position_Oriented_Particle_File_Name", "END_Input_Position_Oriented_Particle_File_Name");
 				if (fileNames==null || fileNames.size()==0) 
-					PTMUtil.systemExit("No smelt input file name found, exit.");
+					PTMUtil.systemExit("No position oriented particle input file name found, exit.");
 				String smeltInputFileName = fileNames.get(0).trim();
 				try{
 					setSmeltParticleBehavior(smeltInputFileName);
 				}catch (IOException e){
 					e.printStackTrace();
-					PTMUtil.systemExit("Error while reading the smelt input file: "+smeltInputFileName);
+					PTMUtil.systemExit("Error while reading the position oriented particle input file: "+smeltInputFileName);
 				}
 			}
-			else if (fishType.equalsIgnoreCase("SALMON")){
+			else if (fishType.equalsIgnoreCase("SALMON_PARTICLE")){
 				if (inText.size()<11)
 					PTMUtil.systemExit("information missing in Swim_Inputs section");
 				try{
@@ -58,6 +58,10 @@ public class SwimInputs {
 			}
 			else 
 				PTMUtil.systemExit("No swimming input is expected, but get this:"+inText.get(0)+" system exit.");
+		}
+		else {
+			if (fishType.equalsIgnoreCase("SALMON_PARTICLE") || fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE"))
+					PTMUtil.systemExit("For SALMON_PARTICLE or POSITION_ORIENTED_PARTICLE, the swimming input section is needed, but not found.");	
 		}
 		_fishType = fishType;
 	}
@@ -135,7 +139,7 @@ public class SwimInputs {
 		boolean includeAll = false;
 		for (String line: sVelStrs.subList(1, sVelStrs.size())){
 			String [] items = line.trim().split("[,\\s\\t]+");
-			// put into the map: group name, survival rate
+			
 			try{
 				if (items.length < 6)
 					throw new NumberFormatException();
@@ -199,17 +203,17 @@ public class SwimInputs {
 			PTMUtil.systemExit("SYSTEM EXIT: Expecting Group_Name Constant_Swimming_Velocity ... but get:"+ inTitle);
 	}
 	private void setSwimHelper(){
-		if (_fishType.equalsIgnoreCase("SALMON")){
+		if (_fishType.equalsIgnoreCase("SALMON_PARTICLE")){
 			_swimHelper = new SalmonSwimHelper(new SalmonBasicSwimBehavior(this));
-			System.out.println("Created Salmon Swim Helper");
+			System.out.println("Created Salmon Particle Swim Helper");
 		}
-		else if (_fishType.equalsIgnoreCase("SMELT")){
+		else if (_fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")){
 			_swimHelper = new SmeltSwimHelper(new SmeltBasicSwimBehavior(this));
-			System.out.println("Created Smelt Swim Helper");
+			System.out.println("Created Position Oriented Particle Swim Helper");
 		}
-		else if (_fishType.equalsIgnoreCase("PARTICLE")){
+		else if (_fishType.equalsIgnoreCase("NEUTRALLY_BUOYANT_PARTICLE")){
 			_swimHelper = new ParticleSwimHelper(new BasicSwimBehavior(this));
-			System.out.println("Created Particle Swim Helper");
+			System.out.println("Created Neutrally Buoyant Particle Swim Helper");
 		}
 		else
 			PTMUtil.systemExit("don't know how to deal the fish species: "+_fishType+", system exit.");
