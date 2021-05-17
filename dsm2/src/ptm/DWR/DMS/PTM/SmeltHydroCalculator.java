@@ -132,7 +132,7 @@ public class SmeltHydroCalculator extends BasicHydroCalculator {
 				if (z < getZLowerBound(p)*depth) // if the Particle is below
 					dz = (float) (gaussian*Evdt*getZRangeMagnitude(p) + (getZLowerBound(p) * depth - z));
 				else if (z > getZUpperBound(p)*depth){ // if the Particle is above
-					dz = (float) (-gaussian*Evdt*getZRangeMagnitude(p) - (z - getZUpperBound(p) * depth));
+					dz = (float) (gaussian*Evdt*getZRangeMagnitude(p) - (z - getZUpperBound(p) * depth));
 					if(DEBUG) System.err.println(gaussian+"  "+timeStep+"  "+getVerticalDiffCoef().get(p.Id)+"  "+dz+"  "+z+"  "+depth+"  "+getZUpperBound(p)+"  "+getZRangeMagnitude(p));
 				}
 			}
