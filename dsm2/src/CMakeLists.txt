@@ -285,8 +285,8 @@ set_property(TARGET gtm PROPERTY LINKER_LANGUAGE Fortran)
 
 # Add sediment_bed_setup executable
 file(GLOB SEDIMENT_BED_SETUP_SOURCES ${GTM_SEDIMENT_BED_SETUP}/*.f90)
-add_executable(sed_bed_setup ${SEDIMENT_BED_SETUP_SOURCES})
-set_property(TARGET sed_bed_setup PROPERTY LINKER_LANGUAGE Fortran)
+add_executable(sed_bed_init ${SEDIMENT_BED_SETUP_SOURCES})
+set_property(TARGET sed_bed_init PROPERTY LINKER_LANGUAGE Fortran)
 #------------------ DEPENDENCIES ---------------------
 add_dependencies(do_module gtm_core process_io transport)
 add_dependencies(input_storage input_storage_cpp)
@@ -338,9 +338,10 @@ else (WIN32)
    set (CMAKE_Fortran_FLAGS "-extend_source 132")
 endif (WIN32)
 
-target_link_libraries(sed_bed_setup gtm_core process_io)
+target_link_libraries(sed_bed_init gtm_core process_io)
+set_target_properties(sed_bed_init PROPERTIES LINK_FLAGS "/STACK:8000000")
 if (WIN32)
-target_link_libraries(sed_bed_setup
+target_link_libraries(sed_bed_init
     ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB}
     debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     debug libcpmtd.lib optimized libcpmt.lib
@@ -348,20 +349,20 @@ target_link_libraries(sed_bed_setup
     )
 else (WIN32)
 message("Building on Linux with no stack size directive. Use ulimit -s to specify stack size")
-set_target_properties(sed_bed_setup PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
-target_include_directories(sed_bed_setup PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
-target_link_libraries(sed_bed_setup -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core process_io -Wl,--end-group)
-target_link_libraries(sed_bed_setup
+set_target_properties(sed_bed_init PROPERTIES LINK_FLAGS "-mkl=sequential -static-intel")
+target_include_directories(sed_bed_init PUBLIC "${CMAKE_Fortran_MODULE_DIRECTORY}")
+target_link_libraries(sed_bed_init -Wl,-rpath='$ORIGIN/lib' -Wl,--start-group gtm_core process_io -Wl,--end-group)
+target_link_libraries(sed_bed_init
     -Wl,--start-group ${HDF5} ${HDF5_FORTRAN} ${HDF5_F90CSTUB} ${HDF5_HL} ${HDF5_HL_FORTRAN} ${HDF5_HL_F90CSTUB} ${SZLIB} ${ZLIB} -Wl,--end-group
     debug ${HECLIB_DEBUG} optimized ${HECLIB_RELEASE}
     )
-target_link_libraries(sed_bed_setup -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
+target_link_libraries(sed_bed_init -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
 endif (WIN32)
 #-------------- TEST -------------------#
 
 #-------------- INSTALL ----------------#
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install") # will setting it this way override command line directives?
-install(TARGETS hydro qual gtm PTM sed_bed_setup
+install(TARGETS hydro qual gtm PTM sed_bed_init
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION bin)
 install(FILES ${CMAKE_BINARY_DIR}/PTM.jar DESTINATION bin)
