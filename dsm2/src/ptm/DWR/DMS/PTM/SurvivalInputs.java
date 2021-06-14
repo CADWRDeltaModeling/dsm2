@@ -197,12 +197,14 @@ public class SurvivalInputs {
 							throw new NumberFormatException();
 						int up_group_num = PTMUtil.getIntFromString(items[1]);
 						int down_group_num = PTMUtil.getIntFromString(items[2]);
-						if (_groupArrivals.get(down_group_num)!=null && _groupSurvival.get(up_group_num)!=null) {
-							tl += "," + items[0].toUpperCase();
+						tl += "," + items[0].toUpperCase();
+						if (_groupArrivals.get(down_group_num)!=null && _groupSurvival.get(up_group_num)!=null) {							
 							float rio = 1.0f*_groupArrivals.get(down_group_num)/_groupSurvival.get(up_group_num);
 							suvl += "," + Float.toString(rio);
 							_groupSplitRatio.put(down_group_num, rio);
 						}
+						else
+							suvl += "," + " ";
 					}catch(NumberFormatException e){
 						PTMUtil.systemExit("expect to read 2 Integers in the Branch_Groups line, but read: "+line+", System exit.");
 					}
@@ -217,7 +219,7 @@ public class SurvivalInputs {
 						float pSuv=1.0f;
 						float pSuvT=1.0f;
 						for (int l: pList) {
-							if (_groupSplitRatio.get(l) != null) {
+							if (_groupSplitRatio.get(l) != null && _groupSurvival.get(l) != null && _groupLost.get(l) != null) {
 								pSuv = pSuv * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));
 								pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)))*_groupSplitRatio.get(l);
 							}
@@ -230,11 +232,13 @@ public class SurvivalInputs {
 								pSuv = 0.0f;
 							}
 						}
+						tl += "," + items[0].toUpperCase();
 						if (pSuv > 0.0f) {
-							tl += "," + items[0].toUpperCase();
 							suvl += "," + Float.toString(pSuv);
 							tSuv += pSuvT;
 						}
+						else 
+							suvl += "," + " ";
 					}catch(NumberFormatException e){
 						PTMUtil.systemExit("expect to read 2 Integers in the Branch_Groups line, but read: "+line+", System exit.");
 					}
