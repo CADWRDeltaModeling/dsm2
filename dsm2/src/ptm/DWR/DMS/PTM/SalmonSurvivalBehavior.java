@@ -1,5 +1,5 @@
 package DWR.DMS.PTM;
 
 public interface SalmonSurvivalBehavior extends SurvivalBehavior {
-	String particleType = "SALMON";
+	String particleType = "SALMON_PARTICLE";
 }

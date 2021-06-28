@@ -99,8 +99,7 @@ public class BasicRouteBehavior {
 		    return;
 		}
 		float totalAgDiversions = p.nd.getTotalAgDiversions();
-		// for the particle no behavior calculation no filter for flow into the ag diversion 
-		//inflow to the waterbody is the same as Ag diversion (river flow is very small).
+		//if only flow is the ag flow
 		if (PTMUtil.floatNearlyEqual(totalWbInflows, totalAgDiversions))
 			totalWbInflows = totalAgDiversions*_dicuEfficiency;
 		// at this point, totalFlows is the sum of all inflows and the dicuEfficiency doesn't matter for the totalFlows 
@@ -122,7 +121,8 @@ public class BasicRouteBehavior {
 			    	p.x = getXLocationInChannel((Channel)p.wb, p.nd);	
 		      return;
 		}
-		
+		// if _dicuEfficiency = 0, leftover is 100% no particle can go to ag water
+		// if _dicuEfficiency = 1, leftover is 0% particles can go to ag water according to the flow split
 		float diversionsLeftover = totalAgDiversions*(1-_dicuEfficiency);
 		float totalFlowsWOAg = totalWbInflows - totalAgDiversions;
 		
@@ -133,6 +133,8 @@ public class BasicRouteBehavior {
 		    wbId ++;
 	    	if (wbs[wbId].isAgDiv())
 	    		// the probability of this route reduce (1-_dicuEfficiency)
+	    		// if _dicuEfficiency = 0 the probability of entering the ag flow is reduce 100%
+	    		// No particle can get into the ag flow
 	    		modFlow = ((float) (wbFlows[wbId]*_dicuEfficiency)); 
 	    	else if (totalFlowsWOAg > 0.0f)
 	    		modFlow = wbFlows[wbId] + (wbFlows[wbId]/totalFlowsWOAg)*diversionsLeftover;

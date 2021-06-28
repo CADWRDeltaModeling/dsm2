@@ -28,23 +28,27 @@ public class RouteInputs {
 			_pathFileNameEntrainment = PTMUtil.getPathFromLine(inText.get(0), ':');
 			if(_pathFileNameEntrainment.equalsIgnoreCase(""))
 				_pathFileNameEntrainment = null;
+            //TODO disabled the flux reading. The flux calculation needs more work for fish particles because they move back and forth many times.
+            /*
 			_pathFileNameFlux = PTMUtil.getPathFromLine(inText.get(1), ':');
 			if(_pathFileNameFlux.equalsIgnoreCase(""))
 				_pathFileNameFlux = null;
 			else
 				Particle.ADD_TRACE=true;
 			ArrayList<String> fluxInText = PTMUtil.getInputBlock(inText, "FLUX_CALCULATION", "END_FLUX_CALCULATION");
+            */
 			ArrayList<String> barriersInText = PTMUtil.getInputBlock(inText, "BARRIERS", "END_BARRIERS");
 			ArrayList<String> screensInText = PTMUtil.getInputBlock(inText, "FISH_SCREENS", "END_FISH_SCREENS");
 			ArrayList<String> dicuInText = PTMUtil.getInputBlock(inText, "DICU_FILTER", "END_DICU_FILTER");
 			ArrayList<String> specialBehaviorInText = PTMUtil.getInputBlock(inText, "SPECIAL_BEHAVIORS", "END_SPECIAL_BEHAVIORS");
 			_entrainmentRates = new HashMap<Integer, ArrayList<ArrayList<Object>>>();
-			
+            
+			/*
 			if( fluxInText == null || fluxInText.size() < 2)
 				System.out.println("No flux calculation info found or the info is not properly defined in behavior inputs.");
 			else
 				setFluxInfo(fluxInText);
-			
+			*/
 			if( barriersInText == null || barriersInText.size() < 6)
 				System.out.println("No non-physical-barrier info found or the info is not properly defined in behavior inputs.");
 			else
@@ -123,7 +127,7 @@ public class RouteInputs {
 		return _routeHelper;
 	}
 	private void setRouteHelper(){
-		if(_fishType.equalsIgnoreCase("SALMON")){
+		if(_fishType.equalsIgnoreCase("SALMON_PARTICLE")){
 			if (_specialBehaviorNames == null)
 				_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(this));
 			else{
@@ -143,9 +147,9 @@ public class RouteInputs {
 				//create a route helper with special behaviors
 				_routeHelper = new SalmonRouteHelper(new SalmonBasicRouteBehavior(this), specialBehaviors);
 			}
-			System.out.println("Created Particle Salmon Route Helper");
+			System.out.println("Created Salmon Particle Route Helper");
 		}
-		else if(_fishType.equalsIgnoreCase("PARTICLE")||_fishType.equalsIgnoreCase("SMELT")){
+		else if(_fishType.equalsIgnoreCase("NEUTRALLY_BUOYANT_PARTICLE")||_fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE")){
 			_routeHelper = new ParticleRouteHelper(new BasicRouteBehavior(this));
 		}
 		else
@@ -305,12 +309,12 @@ public class RouteInputs {
 	private void setDicuFilterEfficiency(){
 		if (!(_dicuFilterEfficiency < 0)){
 			//TODO particle has basic route behavior as Salmon???
-			if(_fishType.equalsIgnoreCase("SALMON"))
+			if(_fishType.equalsIgnoreCase("SALMON_PARTICLE"))
 				SalmonBasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
-			else if(_fishType.equalsIgnoreCase("PARTICLE")||_fishType.equalsIgnoreCase("SMELT"))
+			else if(_fishType.equalsIgnoreCase("NEUTRALLY_BUOYANT_PARTICLE")||_fishType.equalsIgnoreCase("POSITION_ORIENTED_PARTICLE"))
 				BasicRouteBehavior.setDicuFilterEfficiency(_dicuFilterEfficiency);
 			else
-				PTMUtil.systemExit("don't know how to deal with this fish type:" + _fishType+", system exit");
+				PTMUtil.systemExit("don't know how to deal with this particle type:" + _fishType+", system exit");
 		}
 		else
 			PTMUtil.systemExit("DICU Fileter Efficiency cannot be less than 0, , system exit");

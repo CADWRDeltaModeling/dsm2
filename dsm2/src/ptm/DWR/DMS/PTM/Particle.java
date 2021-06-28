@@ -116,6 +116,7 @@ public class Particle{
 	    *  inserted or not inserted
 	    */
 	  public boolean inserted;
+	    
 	  public static boolean DEBUG = false;
 	  //if flux needs to be calculated, ADD_TRACE will be set true in RouteInputs.java line 35
 	  public static boolean ADD_TRACE = false;
@@ -161,6 +162,8 @@ public class Particle{
 	  private int _confusionFactor = 1;
 	  private float _swimmingVelocity = 0.0f;
 	  private boolean _swimVelSetInJunction = false;
+	  // when there is no flow out of a node, a particle cannot be inserted into the node. it'll wait and reinsert
+	  public boolean _reInsert = false; 
 	  static final int MISSING = -99999;
 	  //TODO change the way the random numbers are called
 	  private int _randomSeed = 32001;
@@ -315,12 +318,14 @@ public class Particle{
 		  // if a insertion time is earlier than the model start time, simulation exits because a particle needs hydro info when inserted.
 		  _timeUsedInSecond = 0;
 		  long currPTime = getCurrentParticleTimeExact();
-		  if(!inserted && currPTime >= insertionTime){ //when current time reach insertion time
+		  if((!inserted && currPTime >= insertionTime)||_reInsert){ //when current time reach insertion time
 			  _swimHelper.insert(this);
+			  if (_reInsert) 
+				  age += delT;			 
 			  if (DEBUG) System.out.println("Inserted particle No. " + Id); 
 		  }
 	
-		  if (inserted){
+		  if (inserted && (!_reInsert)){
 			  // move when 1) it is a neutrally buoyant particle (swimming time never be set and no holding)
 			  // or 2) fish passes holding time
 			  if(_swimmingTime == 0 || currPTime >= _swimmingTime)
@@ -540,6 +545,8 @@ public class Particle{
 	  }
 	  void setFromUpstream(boolean fromUp){_fromUpstream = fromUp;}
 	  boolean getFromUpstream(){return _fromUpstream;}
+	  boolean getReInsert() {return _reInsert;}
+	  void setReInsert(boolean reI) {_reInsert = reI; }
 	  
 	  
 }

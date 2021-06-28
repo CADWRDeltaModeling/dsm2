@@ -84,6 +84,16 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 	    	//makeNodeDecision will set mean and instantaneous swimming velocities, confusion factor and swimming time
 	    	//swimming time is only set at insert() and makeNodeDecision()
 	    	p.makeNodeDecision();
+	    	
+	    	// when for some reason, e.g., all flows from connecting channel flow into the insertion node, 
+	    	// the particle cannot go anywhere, p.wb == null.  In such a case, re-insert
+	    	if (p.wb==null) {
+	    		p.setReInsert(true);
+	    		return;
+	    	}
+	    	else if (p.getReInsert()) 
+	    		p.setReInsert(false);
+	    	
 	    	setXYZLocationInChannel(p);
 	    }
 	    // insert to a channel (and distance known), p.x already set

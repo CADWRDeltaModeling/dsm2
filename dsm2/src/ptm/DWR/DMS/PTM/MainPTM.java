@@ -199,7 +199,7 @@ public class MainPTM {
                 if ( outRestart != null ) outRestart.output();
       
             }
-            if(!Environment.getParticleType().equalsIgnoreCase("Particle")){
+            if(Environment.getParticleType().equalsIgnoreCase("Salmon_Particle")){
             	//print out travel times
             	Environment.getBehaviorInputs().getTravelTimeOutput().travelTimeOutput();
             	Environment.getBehaviorInputs().getSurvivalInputs().writeSurvivalRates();

@@ -1,7 +1,7 @@
 package DWR.DMS.PTM;
 
 public interface SalmonSwimBehavior extends SwimBehavior {
-	String particleType = "SALMON";
+	String particleType = "SALMON_PARTICLE";
 	// swimming velocity here doesn't include the confusion factor.
 	public float getSwimmingVelocity(Particle p, int chanId);
 	public void setMeanSwimmingVelocity(int pId, int chanId);

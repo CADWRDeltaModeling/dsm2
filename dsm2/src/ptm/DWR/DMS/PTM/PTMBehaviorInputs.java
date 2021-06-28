@@ -137,10 +137,12 @@ public class PTMBehaviorInputs {
 		
 		// read in general info 
 		ArrayList<String> inputText = PTMUtil.getInputs(inputTextBuff);
-		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "FISH_TYPE_INPUTS", "END_FISH_TYPE_INPUTS");
+		ArrayList<String> fishTypeList = PTMUtil.getInputBlock(inputText, "PARTICLE_TYPE_INPUTS", "END_PARTICLE_TYPE_INPUTS");
 		if (fishTypeList==null || fishTypeList.size()==0) 
-			PTMUtil.systemExit("No Fish Type found, exit.");
+			PTMUtil.systemExit("No Particle Type found, exit.");
 		_fishType = fishTypeList.get(0).trim();	
+		if (_fishType.equalsIgnoreCase("Salmon_Particle"))
+			Globals.CalculateWritePTMFlux = false;
 		
 		ArrayList<String> tzList = PTMUtil.getInputBlock(inputText, "TIME_ZONE", "END_TIME_ZONE");
 		if (tzList==null || fishTypeList.size()==0){ 

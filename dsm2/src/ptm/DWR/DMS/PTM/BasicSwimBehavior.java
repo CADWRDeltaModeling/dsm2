@@ -48,11 +48,23 @@ public class BasicSwimBehavior implements SwimBehavior {
 	  *  insert particle in the system
 	  */
 	public void insert(Particle p){
-	    p.observer.observeChange(ParticleObserver.INSERT,p);
-	    p.inserted = true;
+		if(!p.inserted) {
+			p.observer.observeChange(ParticleObserver.INSERT,p);
+			p.inserted = true;
+		}
 	    // insert to a node
 	    if (p.wb == null){
 	    	p.makeNodeDecision();
+	    	
+	    	// when for some reason, e.g., all flows from connecting channel flow into the insertion node, 
+	    	// the particle cannot go anywhere, p.wb == null, re-insert
+	    	if (p.wb==null) {
+	    		p.setReInsert(true);
+	    		return;
+	    	}
+	    	else if (p.getReInsert()) 
+	    		p.setReInsert(false);
+	    	
 	    	setXYZLocationInChannel(p);
 	    }
 	    // insert to a channel (and distance known), p.x already set
