@@ -9,6 +9,8 @@ program sed_setup
 
 implicit none
     integer :: ierror
+    real(gtm_real) :: start, finish
+    call cpu_time(start)    
     call h5open_f(ierror)
     call get_command_args_sb(hydro_hdf5)
     call hdf5_init(hydro_hdf5)
@@ -23,5 +25,7 @@ implicit none
     call write_hdf_sb(hydro_hdf5)
     call deallocate_all
     call hdf5_close
+    call cpu_time(finish)
+    write(*,*) "Total CPU Time = ",finish - start," seconds."
 
 end program

@@ -473,8 +473,8 @@ module hg_hdf
                 conc_wat_flux_hdf(ichan,4) = conc_wat_flux_hdf(ichan,4) + f_wat_hg(icell)%evasion_Hg0 * day_to_sec       !evasion
                 conc_wat_flux_hdf(ichan,5) = conc_wat_flux_hdf(ichan,5) + f_wat_hg(icell)%wetdep_HgII * day_to_sec       !wet dep
                 conc_wat_flux_hdf(ichan,6) = conc_wat_flux_hdf(ichan,6) + f_wat_hg(icell)%drydep_HgII * day_to_sec       !dry dep
-        
-        
+
+
             do izone=1,3
                     conc_wat_flux_hdf(ichan,7) = conc_wat_flux_hdf(ichan,7) + f_settling_hg(icell,izone,mf_hgii,1)  * day_to_sec
                     conc_wat_flux_hdf(ichan,8) = conc_wat_flux_hdf(ichan,8) + f_erosion_hg(icell,izone,mf_hgii,1)   * day_to_sec    !hgii erosion
@@ -484,6 +484,8 @@ module hg_hdf
                     conc_wat_flux_hdf(ichan,11) = conc_wat_flux_hdf(ichan,11) + f_diffusion_hg(icell,izone, mf_hgii,1) * day_to_sec  !+ve => into water column
                     conc_wat_flux_hdf(ichan,12) = conc_wat_flux_hdf(ichan,12) + f_diffusion_hg(icell,izone, mf_mehg,1) * day_to_sec
                 enddo
+
+        gtm_wat_hg_hdf%chan_conc_id = gtm_sed_hg_hdf%wat_hg_flux_id
         
                 conc_wat_flux_hdf(ichan,13) = conc_wat_flux_hdf(ichan,13) + area_wet(icell)
             enddo
