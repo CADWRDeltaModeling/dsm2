@@ -365,8 +365,8 @@ module boundary_diffusion_network
         !--- args
         integer,intent(in)  :: ncell                                 !< Number of cells
         integer,intent(in)  :: nvar                                  !< Number of variables
-        real(gtm_real),intent(out) :: diffusive_flux_lo(ncell,nvar)  !< lo face diffusive flux at old time
-        real(gtm_real),intent(out) :: diffusive_flux_hi(ncell,nvar)  !< hi face diffusive flux at old time
+        real(gtm_real),intent(inout) :: diffusive_flux_lo(ncell,nvar)  !< lo face diffusive flux at old time
+        real(gtm_real),intent(inout) :: diffusive_flux_hi(ncell,nvar)  !< hi face diffusive flux at old time
         real(gtm_real),intent(in) :: conc(ncell,nvar)                !< cell centered conc at old time
         real(gtm_real),intent(in) :: area_lo(ncell)                  !< low face area at old time
         real(gtm_real),intent(in) :: area_hi(ncell)                  !< high face area at old time

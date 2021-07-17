@@ -54,7 +54,7 @@ module gtm_source
         integer, intent(in) :: ncell                            !< Number of cells
         integer, intent(in) :: nvar                             !< Number of variables
         integer, intent(in) :: rkstep                           !< reaction step in Huen's method
-        real(gtm_real), intent(out) :: source(ncell,nvar)       !< cell centered source
+        real(gtm_real), intent(inout) :: source(ncell,nvar)       !< cell centered source
         real(gtm_real), intent(in)  :: conc(ncell,nvar)         !< Concentration
         real(gtm_real), intent(in)  :: flow(ncell)              !< flow at source location
         real(gtm_real), intent(in)  :: area(ncell)              !< Cell centered area at source
@@ -64,7 +64,7 @@ module gtm_source
         real(gtm_real), intent(in)  :: dx(ncell)                !< dx
         real(gtm_real), intent(in)  :: dt                       !< dt
         real(gtm_real), intent(in)  :: time                     !< time
-        real(gtm_real), intent(inout) :: constraint(ncell,nvar) !< Constraint
+        real(gtm_real), intent(in) :: constraint(ncell,nvar) !< Constraint
         character(len=32), intent(in) :: name(nvar)             !< Constituent name
         !--- local
         integer :: ivar, isediment
