@@ -530,7 +530,7 @@ program gtm
                         constituents(:)%use_module,   &
                         LL,                           &
                         sed_percent)   
-            where (mass.lt.zero) mass = zero                               
+            !where (mass.lt.zero) mass = zero                               
             call cons2prim(conc, mass, area, n_cell, n_var)
 
             !--------- Diffusion ----------

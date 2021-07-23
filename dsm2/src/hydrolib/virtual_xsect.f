@@ -23,6 +23,7 @@ module virt_xsect
     use common_xsect
     implicit none
     double precision, save :: x, x1, x2, y1, y2 & ! interpolation variables
+!    real*8 x, x1, x2, y1, y2 & ! interpolation variables
         ,temp_all_elev(max_elevations) & ! all elevations in current channel incl duplicates
         ,temparea(max_assg_sec,max_elevations) & ! all areas in current section in current channel
         ,tempwet_p(max_assg_sec,max_elevations) & ! all wet_p in current section in current channel
@@ -83,6 +84,7 @@ contains
                 enddo
             enddo
             !--------indices must be cumulative:  add current indices to indices for next chan
+
             if ( chan_geom(channo)%length <= 0 .or. &
                 xsect_assg(channo)%num_sec_assg <= 0 ) then
                 elev_index(channo+1)=elev_index(channo+1)+elev_index(channo)
@@ -102,8 +104,10 @@ contains
                 if (channo+1 <= max_channels) then
                     elev_index(channo+1) = elev_index(channo) + num_layers(channo)
                 endif
+
                 call first_interpolation(channo)
                 call second_interpolation(channo)
+
             endif
         enddo
 
@@ -319,11 +323,9 @@ contains
         use common_xsect
         implicit none
 
-
         integer  channo               ! dsm channel number
 
         real*8  dx_r                ! stores value of deltax_requested
-
 
         !-----find the virtual deltax (requested value divided by 2)
         if (deltax_requested == 0) then
@@ -339,9 +341,6 @@ contains
             num_virt_sec(channo) = 2* int( float(chan_geom(channo)%length) /dx_r) +1
         endif
 
-        if (num_virt_sec(channo) < 3) then
-            write (unit_error,*) 'Error:  num_virt_sec(channo) < 3.'
-        endif
         virt_deltax(channo) = dfloat(chan_geom(channo)%length) / (num_virt_sec(channo)-1)
 
         !-----if the current channel is not the last channel number, calculate indices
@@ -393,6 +392,7 @@ contains
         x=float(chan_geom(channo)%length)
         num_sec=xsect_assg(channo)%num_sec_assg
         vsecno=num_virt_sec(channo)
+
         if (xsect_assg(channo)%rect(xsect_assg(channo)%num_sec_assg)) then
             xs=chan_geom(channo)%xsect(2)
             virt_min_elev(minelev_index(channo)+vsecno-1) = xsect_geom(xs)%botelv
@@ -484,17 +484,19 @@ contains
             =chan_index(channo) + (vsecno-1)*num_layers(channo) + virtelev-1
 
         do vsecno=1, num_virt_sec(channo)
+
             do virtelev=1,num_layers(channo)
                 !-----------find upindex, downindex,x1,x2,y1-8
                 x = (dfloat(vsecno)-1)*(virt_deltax(channo))
                 num_sec=xsect_assg(channo)%num_sec_assg
+
                 upindex=0
                 downindex=0
                 do i=1,num_sec
                     if (xsect_assg(channo)%dist(i) <= x) upindex=i
                 enddo
                 do i=num_sec,1,-1
-                    if (xsect_assg(channo)%dist(i) >= x) downindex=i
+                    if (real(xsect_assg(channo)%dist(i)) >= real(x)) downindex=i
                 enddo
                 !-----------print error if upstream or downstream xsect not found
                 if (upindex <= 0) then
@@ -504,15 +506,15 @@ contains
                     call exit(2)
                 elseif (downindex <= 0) then
                     write(unit_error,*) 'Error in second xsect property interpolation:  &
-                  & channel,vsecno,virtelev,downindex=' &
-                        ,channo,vsecno,virtelev,downindex
+                  & channel,vsecno,virtelev,downindex' &
+                        ,channo,vsecno,virtelev,downindex, real(xsect_assg(channo)%dist), real(x),float(chan_geom(channo)%length),virt_deltax(channo)
                     call exit(2)
                 endif
 
                 x1=xsect_assg(channo)%dist(upindex)
                 x2=xsect_assg(channo)%dist(downindex)
 
-                if ( (x < 0) .or. (x > float(chan_geom(channo)%length)) ) then
+                if ( (x < 0) .or. (real(x) > float(chan_geom(channo)%length)) ) then
                     write(unit_error,*) &
                         'Desired cross-section is outside channel ',&
                         chan_geom(channo)%chan_no
@@ -529,7 +531,14 @@ contains
                 y8=tempz_centroid(downindex,virtelev)
                 !-----------calculate xsect property array index for current layer
                 di = dindex(channo,vsecno,virtelev)
-                if (x <= x2) then
+
+                if (di > max_layers) then
+                    write(unit_error,*) '***error'
+                    write(unit_error,*) 'Maximum number of max_layers exceeded.'
+                    write(unit_error,*) 'Returning...'
+                endif
+
+                if (real(x) <= real(x2)) then
                     if ( (x1 == x2) .and. (upindex > 0) .and. &
                         (downindex > 0) ) then
                         virt_width(di)=y1
@@ -537,12 +546,12 @@ contains
                         virt_wet_p(di)=y5
                         virt_z_centroid(di)=y7
                     else
-                        virt_width(di)=interp(x1,x2,y1,y2,x)
-                        virt_area(di)=interp(x1,x2,y3,y4,x)
-                        virt_wet_p(di)=interp(x1,x2,y5,y6,x)
+                        virt_width(di)=interp(x1,x2,y1,y2,real(x))
+                        virt_area(di)=interp(x1,x2,y3,y4,real(x))
+                        virt_wet_p(di)=interp(x1,x2,y5,y6,real(x))
                         virt_z_centroid(di)=interp(x1,x2,y7,y8,x)
                     endif
-                elseif (x > x2) then
+                elseif (real(x) > real(x2)) then
                     write(unit_error,*) &
                         'Should not be extrapolating in the X direction!'
                     virt_width(di)=extrap(x1,x2,y1,y2,x)
@@ -550,6 +559,7 @@ contains
                     virt_wet_p(di)=extrap(x1,x2,y5,y6,x)
                     virt_z_centroid(di)=extrap(x1,x2,y7,y8,x)
                 endif
+
             enddo
         enddo
 

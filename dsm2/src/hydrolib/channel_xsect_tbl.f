@@ -26,7 +26,7 @@ module channel_xsect_tbl
     use network
     implicit none
     
-    integer, parameter ::     MaxTables=5000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
+    integer, parameter ::     MaxTables=25000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
     integer, save:: FirstTable(MaxChannels), LastTable(MaxChannels)
     integer, save:: Lines(MaxChannels), Offset(MaxTables)
     real*8, save::  XDistance(MaxTables)

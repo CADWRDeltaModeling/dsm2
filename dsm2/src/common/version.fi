@@ -1,1 +1,1 @@
-      character*16 :: dsm2_version = 'gtm_v0.9.0-96-g506c1431', git_build = '1497', git_uid = '506c1431'
+      character*16 :: dsm2_version = 'gtm_v0.9.0-99-gcc323667', git_build = '1500', git_uid = 'cc323667'

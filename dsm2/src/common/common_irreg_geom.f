@@ -38,11 +38,11 @@ module common_xsect
         ,max_assg_sec=22 &
         ,max_assg_virtsec=15 &
         ,max_irr_xsects=2000 &
-        ,max_layers=100000 &
+        ,max_layers=1000000 &
         ,max_total_elevations=20000 &
         ,max_layer_height=100.0 &
         ,min_layer_elev=-100.0 &
-        ,max_virt_xsects=5000 &
+        ,max_virt_xsects=25000 &
         ,max_dist_ratio=0.05 &
         )
 
@@ -104,4 +104,5 @@ module common_xsect
     real*8:: virt_min_elev(max_virt_xsects)
     real*8:: virt_deltax(max_channels)
 
+    save
 end module common_xsect

@@ -38,7 +38,7 @@ module network
 	                            ! (many routines assume this has been set to the channel
 							    ! to be worked on
 
-    integer, parameter :: MaxLocations=5000   ! Max # compute locations in model
+    integer, parameter :: MaxLocations=25000   ! Max # compute locations in model
     integer, parameter :: MaxQuadPts=3        ! Max # of quadrature points
 	                                            ! for integrating over reaches
 
