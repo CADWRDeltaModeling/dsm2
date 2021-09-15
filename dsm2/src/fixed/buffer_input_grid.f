@@ -91,8 +91,7 @@ c====================================================================
      &                          up_node,
      &                          down_node)
        end do
-       print *,"Number of channels: ", nitem
-       
+       print *,"Number of channels: ", nitem              
        if (.not. order_nodes()) then
          write(unit_error,'(a)')'Error reordering nodes.'
          call exit(-3)

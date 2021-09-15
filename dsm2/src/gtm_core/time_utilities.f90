@@ -191,7 +191,7 @@ module time_utilities
         time_intvl_tmp = time_intvl_str(1:ilast)
         idot = scan(time_intvl_tmp,".")
         if (idot==0) then
-            read(time_intvl_tmp,'(i)', err=610) readint
+            read(time_intvl_tmp,*, err=610) readint
             time_intvl = real(readint)
         else
             read(time_intvl_tmp,'(f)', err=610) time_intvl

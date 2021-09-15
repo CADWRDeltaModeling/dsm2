@@ -113,8 +113,8 @@ module process_gtm_groups
                 ! detect if there is "-"
                 pos2 = index(v(i), "-")
                 if (pos2.ne.0) then
-                    read(buffer(1:pos2-1),'(i)',iostat=io) before
-                    read(buffer(pos2+1:),'(i)',iostat=io) after
+                    read(buffer(1:pos2-1),*,iostat=io) before
+                    read(buffer(pos2+1:),*,iostat=io) after
                     count_member = count_member + after - before + 1
                 else
                     count_member = count_member + 1
@@ -127,8 +127,8 @@ module process_gtm_groups
                     ! detect if there is "-"
                     pos2 = index(v(i+1), "-")
                     if (pos2.ne.0) then
-                        read(buffer(1:pos2-1),'(i)',iostat=io) before
-                        read(buffer(pos2+1:),'(i)',iostat=io) after
+                        read(buffer(1:pos2-1),*,iostat=io) before
+                        read(buffer(pos2+1:),*,iostat=io) after
                         count_member = count_member + after - before + 1
                     else
                         count_member = count_member + 1
@@ -166,8 +166,8 @@ module process_gtm_groups
                 ! detect if there is "-"
                 pos2 = index(v(i), "-")
                 if (pos2.ne.0) then
-                    read(buffer(1:pos2-1),'(i)',iostat=io) before
-                    read(buffer(pos2+1:),'(i)',iostat=io) after
+                    read(buffer(1:pos2-1),*,iostat=io) before
+                    read(buffer(pos2+1:),*,iostat=io) after
                     do j = before, after
                         count = count + 1
                         group(group_id)%member_pattern_code(count) = obj_code
@@ -187,8 +187,8 @@ module process_gtm_groups
                     ! detect if there is "-"
                     pos2 = index(v(i+1), "-")
                     if (pos2.ne.0) then
-                        read(buffer(1:pos2-1),'(i)',iostat=io) before
-                        read(buffer(pos2+1:),'(i)',iostat=io) after
+                        read(buffer(1:pos2-1),*,iostat=io) before
+                        read(buffer(pos2+1:),*,iostat=io) after
                         do j = before, after
                             count = count + 1
                             group(group_id)%member_pattern_code(count) = obj_code

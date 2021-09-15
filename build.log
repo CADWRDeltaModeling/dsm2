@@ -1,0 +1,525 @@
+icc (ICC) 19.0.1.144 20181018
+Copyright (C) 1985-2018 Intel Corporation.  All rights reserved.
+
+ifort (IFORT) 19.0.1.144 20181018
+Copyright (C) 1985-2018 Intel Corporation.  All rights reserved.
+
+-- The C compiler identification is Intel 19.0.0.20181018
+-- The CXX compiler identification is Intel 19.0.0.20181018
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/icc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/icpc - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- The Fortran compiler identification is Intel 19.0.0.20181018
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort - skipped
+-- Checking whether /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort supports Fortran 90
+-- Checking whether /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort supports Fortran 90 - yes
+-- Fortran Compiler Name: ifort
+-- Matched Intel Fortran Compiler on Linux
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/zzhang/scratch/src/dsm2/oprule/BUILD
+[ 11%] Building CXX object CMakeFiles/OpRuleParser.dir/lib/parser/NamedValueLookup.cpp.o
+[ 16%] Building CXX object CMakeFiles/OpRuleParser.dir/lib/parser/ParseSymbolManagement.cpp.o
+[ 16%] Building CXX object CMakeFiles/OpRuleParser.dir/lib/parser/op_rule.cpp.o
+[ 22%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/ActionChain.cpp.o
+[ 27%] Building CXX object CMakeFiles/OpRuleParser.dir/lib/parser/op_rule_tab.cpp.o
+[ 33%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/ActionSet.cpp.o
+[ 38%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/ExpressionTrigger.cpp.o
+[ 44%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/ModelAction.cpp.o
+[ 50%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/ModelInterface.cpp.o
+[ 55%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/ModelTimer.cpp.o
+[ 61%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/OperatingRule.cpp.o
+[ 66%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/OperationAction.cpp.o
+[ 72%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/OperationManager.cpp.o
+[ 77%] Building CXX object CMakeFiles/OperatingRule.dir/lib/rule/Trigger.cpp.o
+[ 83%] Linking CXX static library liboprule_intel.a
+Copying OperatingRule lib to output directory
+[ 83%] Built target OperatingRule
+[ 88%] Linking CXX static library liboprule_parser_intel.a
+Copying OperatingRule parser lib to output directory
+[100%] Built target OpRuleParser
+-- The C compiler identification is Intel 19.0.0.20181018
+-- The CXX compiler identification is Intel 19.0.0.20181018
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/icc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/icpc - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- The Fortran compiler identification is Intel 19.0.0.20181018
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort - skipped
+-- Checking whether /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort supports Fortran 90
+-- Checking whether /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort supports Fortran 90 - yes
+-- Fortran Compiler Name: ifort
+-- Matched Intel Fortran Compiler on Linux
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/zzhang/scratch/src/dsm2/input_storage/BUILD
+[  9%] Building CXX object CMakeFiles/input_storage.dir/src/ApplicationTextReader.cpp.o
+[ 36%] Building CXX object CMakeFiles/input_storage.dir/src/FileInputState.cpp.o
+[ 36%] Building CXX object CMakeFiles/input_storage.dir/src/EndOfFileState.cpp.o
+[ 36%] Building CXX object CMakeFiles/input_storage.dir/src/EnvSubstitution.cpp.o
+[ 45%] Building CXX object CMakeFiles/input_storage.dir/src/IncludeFileState.cpp.o
+[ 54%] Building CXX object CMakeFiles/input_storage.dir/src/InputState.cpp.o
+[ 63%] Building CXX object CMakeFiles/input_storage.dir/src/InsertFileState.cpp.o
+[ 72%] Building CXX object CMakeFiles/input_storage.dir/src/LayerManager.cpp.o
+[ 81%] Building CXX object CMakeFiles/input_storage.dir/src/exception_trapping.cpp.o
+[ 90%] Building CXX object CMakeFiles/input_storage.dir/src/hdf_storage.cpp.o
+[100%] Linking CXX static library libinput_storage_intel.a
+Copying to output directory
+[100%] Built target input_storage
+-- Git hash is e8b6fd25
+-- The C compiler identification is Intel 19.0.0.20181018
+-- The CXX compiler identification is Intel 19.0.0.20181018
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/icc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/icpc - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- The Fortran compiler identification is Intel 19.0.0.20181018
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort - skipped
+-- Checking whether /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort supports Fortran 90
+-- Checking whether /opt/intel/parallel_studio_xe_2019_update1/compilers_and_libraries_2019.1.144/linux/bin/intel64/ifort supports Fortran 90 - yes
+-- Fortran Compiler Name: ifort
+-- Matched Intel Fortran Compiler on Linux
+-- Found JNI: /usr/lib/jvm/java/jre/lib/amd64/libjawt.so  
+-- Found Java: /usr/bin/java (found suitable version "1.8.0_191", minimum required is "1.6") 
+-- Found Java version 1.8.0.191
+-- Using Java env variable /usr/bin/java location to guess JAVA_JRE_HOME is -> /usr/bin/java/jre
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/zzhang/scratch/src/dsm2/dsm2/BUILD
+Scanning dependencies of target gtm_core
+[  0%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/buffer_actions.cpp.o
+[  1%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/__/common/constants.f.o
+[  1%] Building Java objects for PTM_JAR.jar
+ GIT description of dsm2:     v8.2.1-366-ge8b6fd25
+ GIT version of dsm2:     1831
+ GIT guid of dsm2:        e8b6fd25
+[  1%] Built target generate_version
+[  1%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/gtm_precision.f90.o
+[  1%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_state_map.cpp.o
+[  2%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/__/common/type_defs.f.o
+[  3%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/gtm_logging.f90.o
+[  3%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/hydro_data.f90.o
+[  3%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/hydro_data_network.f90.o
+[  3%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/utils.f90.o
+[  3%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/__/common/grid_data.f.o
+[  3%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/error_handling.f90.o
+[  3%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/common_variables.f90.o
+[  3%] Generating CMakeFiles/PTM_JAR.dir/java_class_filelist
+[  3%] Creating Java archive PTM.jar
+[  3%] Built target PTM_JAR
+[  4%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_boundary_flow.cpp.o
+[  4%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/common_xsect.f90.o
+[  4%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/time_utilities.f90.o
+[  5%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/interpolation.f90.o
+[  6%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/hdf_util.f90.o
+[  6%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_boundary_stage.cpp.o
+[  6%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_channel.cpp.o
+[  6%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/hydro_data_tidefile.f90.o
+[  6%] Building Fortran object gtm_core/CMakeFiles/gtm_core.dir/gtm_network.f90.o
+[  7%] Linking Fortran static library libgtm_core.a
+[  7%] Built target gtm_core
+[  7%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_channel_ic.cpp.o
+[  8%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_envvar.cpp.o
+[  8%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_gate.cpp.o
+[  8%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_gate_pipe_device.cpp.o
+[  9%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_gate_weir_device.cpp.o
+[  9%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_group.cpp.o
+[  9%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_group_member.cpp.o
+[  9%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_group_variable.cpp.o
+[ 10%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_group_variable_sed.cpp.o
+[ 10%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_input_climate.cpp.o
+[ 10%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_input_gate.cpp.o
+[ 11%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_input_time_series.cpp.o
+[ 11%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_input_transfer_flow.cpp.o
+[ 11%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_io_file.cpp.o
+[ 11%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_node_concentration.cpp.o
+[ 12%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_operating_rule.cpp.o
+[ 12%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_oprule_expression.cpp.o
+[ 12%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_oprule_time_series.cpp.o
+[ 12%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_output_channel.cpp.o
+[ 12%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/dsm2_tidefile_input_storage_hydro_comp_point.cpp.o
+[ 13%] Building C object sparse/CMakeFiles/sparse.dir/dsm2_spfortran.c.o
+[ 13%] Building C object sparse/CMakeFiles/sparse.dir/spallocate.c.o
+[ 13%] Building C object sparse/CMakeFiles/sparse.dir/spbuild.c.o
+[ 13%] Building C object sparse/CMakeFiles/sparse.dir/spfactor.c.o
+[ 14%] Building C object sparse/CMakeFiles/sparse.dir/spfortran.c.o
+[ 14%] Building C object sparse/CMakeFiles/sparse.dir/spoutput.c.o
+[ 14%] Building C object sparse/CMakeFiles/sparse.dir/spsolve.c.o
+[ 15%] Building C object sparse/CMakeFiles/sparse.dir/sputils.c.o
+[ 15%] Linking C static library libsparse.a
+[ 15%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/dsm2_tidefile_input_storage_node_flow_connections.cpp.o
+[ 15%] Built target sparse
+[ 15%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/dsm2_tidefile_input_storage_qext.cpp.o
+[ 16%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_output_channel_source_track.cpp.o
+[ 16%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_output_gate.cpp.o
+[ 17%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/dsm2_tidefile_input_storage_reservoir_flow_connections.cpp.o
+[ 17%] Building CXX object pattern_match/CMakeFiles/pattern_match_cpp.dir/pattern_match.cpp.o
+[ 17%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/dsm2_tidefile_input_storage_reservoir_node_connect.cpp.o
+[ 17%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/dsm2_tidefile_input_storage_stage_boundaries.cpp.o
+[ 17%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_output_reservoir.cpp.o
+[ 18%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/dsm2_tidefile_input_storage_virtual_xsect.cpp.o
+[ 18%] Linking CXX static library libpattern_match_cpp.a
+[ 18%] Built target pattern_match_cpp
+[ 19%] Building CXX object oprule_interface/CMakeFiles/oprule_interface_cpp.dir/dsm2_expressions.cpp.o
+[ 19%] Building CXX object oprule_interface/CMakeFiles/oprule_interface_cpp.dir/dsm2_hydro_named_value_lookup.cpp.o
+[ 20%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_output_reservoir_source_track.cpp.o
+[ 20%] Building CXX object oprule_interface/CMakeFiles/oprule_interface_cpp.dir/dsm2_model_interface.cpp.o
+[ 20%] Building CXX object oprule_interface/CMakeFiles/oprule_interface_cpp.dir/dsm2_model_interface_gate.cpp.o
+[ 21%] Building CXX object oprule_interface/CMakeFiles/oprule_interface_cpp.dir/dsm2_named_value_factories.cpp.o
+[ 21%] Building CXX object hdf_tidefile/CMakeFiles/hdf_tidefile_cpp.dir/hdf_attach_dimension_scales.cpp.o
+[ 21%] Linking CXX static library libhdf_tidefile_cpp.a
+[ 21%] Building CXX object oprule_interface/CMakeFiles/oprule_interface_cpp.dir/dsm2_oprule_management.cpp.o
+[ 21%] Built target hdf_tidefile_cpp
+[ 21%] Building CXX object oprule_interface/CMakeFiles/oprule_interface_cpp.dir/dsm2_time_interface.cpp.o
+Scanning dependencies of target transport
+[ 21%] Building Fortran object transport/CMakeFiles/transport.dir/boundary_advection.f90.o
+[ 21%] Building Fortran object transport/CMakeFiles/transport.dir/boundary_concentration.f90.o
+[ 22%] Building Fortran object transport/CMakeFiles/transport.dir/gradient.f90.o
+[ 22%] Building Fortran object transport/CMakeFiles/transport.dir/primitive_variable_conversion.f90.o
+[ 22%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_particle_filter.cpp.o
+[ 22%] Building Fortran object transport/CMakeFiles/transport.dir/source.f90.o
+[ 23%] Building Fortran object transport/CMakeFiles/transport.dir/boundary_diffusion.f90.o
+[ 24%] Linking CXX static library liboprule_interface_cpp.a
+[ 24%] Built target oprule_interface_cpp
+[ 24%] Building Fortran object transport/CMakeFiles/transport.dir/matrix_solver.f90.o
+[ 24%] Building Fortran object transport/CMakeFiles/transport.dir/dispersion_coefficient.f90.o
+[ 24%] Building Fortran object transport/CMakeFiles/transport.dir/state_variables.f90.o
+[ 24%] Building Fortran object transport/CMakeFiles/transport.dir/boundary_data_if.f90.o
+[ 24%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_particle_flux_output.cpp.o
+[ 24%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_particle_group_output.cpp.o
+[ 25%] Building Fortran object transport/CMakeFiles/transport.dir/reaction.f90.o
+[ 25%] Building Fortran object transport/CMakeFiles/transport.dir/gradient_adjust.f90.o
+[ 25%] Building Fortran object transport/CMakeFiles/transport.dir/diffusion.f90.o
+[ 26%] Building Fortran object transport/CMakeFiles/transport.dir/advection.f90.o
+[ 27%] Linking Fortran static library libtransport.a
+[ 27%] Built target transport
+Scanning dependencies of target sediment_bed_core
+[ 27%] Building Fortran object sediment_bed_core/CMakeFiles/sediment_bed_core.dir/sed_type_defs.f90.o
+[ 28%] Building Fortran object sediment_bed_core/CMakeFiles/sediment_bed_core.dir/sed_internal_vars.f90.o
+[ 28%] Linking Fortran static library libsediment_bed_core.a
+[ 28%] Built target sediment_bed_core
+Scanning dependencies of target tools
+[ 28%] Building Fortran object tools/CMakeFiles/tools.dir/create_restart.f90.o
+[ 28%] Building Fortran object tools/CMakeFiles/tools.dir/create_synth_tide.f90.o
+[ 28%] Building Fortran object tools/CMakeFiles/tools.dir/mass_calculate.f90.o
+[ 29%] Building Fortran object tools/CMakeFiles/tools.dir/read_unit_test.f90.o
+[ 29%] Building Fortran object tools/CMakeFiles/tools.dir/select_cell_ts.f90.o
+[ 29%] Linking Fortran static library libtools.a
+[ 30%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_particle_insertion.cpp.o
+[ 30%] Built target tools
+[ 30%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_particle_res_filter.cpp.o
+[ 30%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_rate_coefficient.cpp.o
+[ 31%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_reservoir.cpp.o
+[ 31%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_reservoir_concentration.cpp.o
+[ 31%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_reservoir_connection.cpp.o
+[ 31%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_reservoir_ic.cpp.o
+[ 32%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_reservoir_vol.cpp.o
+[ 32%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_scalar.cpp.o
+[ 32%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_source_flow.cpp.o
+[ 32%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_source_flow_reservoir.cpp.o
+Scanning dependencies of target common
+[ 32%] Building Fortran object common/CMakeFiles/common.dir/network.f.o
+[ 32%] Building Fortran object common/CMakeFiles/common.dir/common_ptm.f.o
+[ 33%] Building Fortran object common/CMakeFiles/common.dir/constants.f.o
+[ 33%] Building Fortran object common/CMakeFiles/common.dir/constants_ptm.f.o
+[ 33%] Building Fortran object common/CMakeFiles/common.dir/io_units.f.o
+[ 33%] Building Fortran object common/CMakeFiles/common.dir/logging.f.o
+[ 33%] Building Fortran object common/CMakeFiles/common.dir/netcntrl_common.f.o
+[ 34%] Building Fortran object common/CMakeFiles/common.dir/physical_constants.f.o
+[ 34%] Building Fortran object common/CMakeFiles/common.dir/chconnec.f.o
+[ 34%] Building Fortran object common/CMakeFiles/common.dir/chinitcd.f.o
+[ 35%] Building Fortran object common/CMakeFiles/common.dir/chnlcomp.f.o
+[ 36%] Building Fortran object common/CMakeFiles/common.dir/type_defs.f.o
+[ 36%] Building Fortran object common/CMakeFiles/common.dir/runtime_data.f.o
+[ 36%] Building Fortran object common/CMakeFiles/common.dir/grid_data.f.o
+[ 37%] Building Fortran object common/CMakeFiles/common.dir/iopath_data.f.o
+[ 38%] Building Fortran object common/CMakeFiles/common.dir/gates.f.o
+[ 38%] Building Fortran object common/CMakeFiles/common.dir/common_qual.f.o
+[ 38%] Building Fortran object common/CMakeFiles/common.dir/common_tide.f.o
+[ 38%] Building Fortran object common/CMakeFiles/common.dir/envvar.f.o
+[ 38%] Building Fortran object common/CMakeFiles/common.dir/groups.f.o
+[ 38%] Building Fortran object common/CMakeFiles/common.dir/rate_coeff_assignment.f.o
+[ 38%] Linking Fortran static library libcommon.a
+[ 39%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_suspended_sediment_boundary.cpp.o
+[ 39%] Built target common
+Scanning dependencies of target sediment
+[ 40%] Building Fortran object sediment/CMakeFiles/sediment.dir/sediment_variables.f90.o
+[ 40%] Building Fortran object sediment/CMakeFiles/sediment.dir/suspended_utility.f90.o
+[ 41%] Building Fortran object sediment/CMakeFiles/sediment.dir/turbidity.f90.o
+[ 41%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_suspended_sediment_type.cpp.o
+[ 41%] Building Fortran object sediment/CMakeFiles/sediment.dir/cohesive_source.f90.o
+[ 41%] Building Fortran object sediment/CMakeFiles/sediment.dir/non_cohesive_source.f90.o
+[ 41%] Building Fortran object sediment/CMakeFiles/sediment.dir/suspended_sediment.f90.o
+[ 41%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_tidefile.cpp.o
+[ 41%] Linking Fortran static library libsediment.a
+[ 41%] Built target sediment
+Scanning dependencies of target timevar
+[ 41%] Building Fortran object timevar/CMakeFiles/timevar.dir/dss.f.o
+[ 42%] Building Fortran object timevar/CMakeFiles/timevar.dir/intervals.f.o
+[ 42%] Building Fortran object timevar/CMakeFiles/timevar.dir/readdss.f.o
+[ 42%] Building Fortran object timevar/CMakeFiles/timevar.dir/writedss.f.o
+[ 42%] Building Fortran object timevar/CMakeFiles/timevar.dir/update_intervals.f.o
+[ 42%] Building Fortran object timevar/CMakeFiles/timevar.dir/readtvd.f.o
+[ 42%] Building Fortran object timevar/CMakeFiles/timevar.dir/init_store_outpaths.f.o
+[ 43%] Building Fortran object timevar/CMakeFiles/timevar.dir/store_outpaths.f.o
+[ 43%] Building Fortran object timevar/CMakeFiles/timevar.dir/wrt_outpaths.f.o
+[ 44%] Linking Fortran static library libtimevar.a
+[ 44%] Built target timevar
+[ 44%] Building C object klu_fortran/CMakeFiles/klu_fortran.dir/klu_fortran.c.o
+[ 44%] Linking C static library libklu_fortran.a
+[ 44%] Built target klu_fortran
+[ 45%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_transfer.cpp.o
+[ 45%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_xsect.cpp.o
+[ 45%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/input_storage_xsect_layer.cpp.o
+[ 45%] Building CXX object input_storage/CMakeFiles/input_storage_cpp.dir/text_parser.cpp.o
+[ 46%] Linking CXX static library libinput_storage_cpp.a
+[ 46%] Built target input_storage_cpp
+Scanning dependencies of target input_storage
+[ 46%] Building Fortran object input_storage/CMakeFiles/input_storage.dir/input_storage_fortran.f90.o
+[ 47%] Linking Fortran static library libinput_storage.a
+[ 47%] Built target input_storage
+Scanning dependencies of target hdf_tidefile_fortran
+Scanning dependencies of target process_io
+[ 47%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/common_qual_bin.f.o
+[ 47%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/dsm2_tidefile_input_storage_fortran.f90.o
+[ 47%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/hdf5_modules.f.o
+[ 48%] Building Fortran object process_io/CMakeFiles/process_io.dir/common_dsm2_vars.f90.o
+[ 49%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_groups.f90.o
+[ 49%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/read_mult_tide.f.o
+[ 50%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_tidefile.f90.o
+[ 50%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_group_variable.f90.o
+[ 50%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_hdf_write.f90.o
+[ 50%] Building Fortran object process_io/CMakeFiles/process_io.dir/read_init.f90.o
+[ 51%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/get_tidefile_dates.f.o
+[ 51%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/hdf5_diagnostic.f.o
+[ 51%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/hdf5_init.f.o
+[ 51%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/hdf5_write.f.o
+[ 51%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/read_tide_flow.f.o
+[ 52%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_io_file.f90.o
+[ 52%] Building Fortran object process_io/CMakeFiles/process_io.dir/io_utilities.f90.o
+[ 52%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/read_tide_head.f.o
+[ 53%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/tide_time.f.o
+[ 53%] Building Fortran object process_io/CMakeFiles/process_io.dir/common_dsm2_qual.f90.o
+[ 53%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_dss.f90.o
+[ 54%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/hdf5_read.f.o
+[ 54%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/hdf5_read_attributes.f.o
+[ 54%] Building Fortran object process_io/CMakeFiles/process_io.dir/dsm2_time_utils.f90.o
+[ 55%] Building Fortran object hdf_tidefile/CMakeFiles/hdf_tidefile_fortran.dir/hdf5_write_attributes.f.o
+[ 55%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_input_climate.f90.o
+[ 55%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_input_time_series.f90.o
+[ 55%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_node_conc.f90.o
+[ 55%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_reservoir_conc.f90.o
+[ 55%] Building Fortran object process_io/CMakeFiles/process_io.dir/codes_conv_nonconservative.f90.o
+[ 56%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_dss_read.f90.o
+[ 56%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_dss_write.f90.o
+[ 57%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_hdf_ts_write.f90.o
+[ 57%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_rate_coeff_assignment.f90.o
+[ 57%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_output_channel.f90.o
+[ 58%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_output_reservoir.f90.o
+[ 58%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_scalar.f90.o
+[ 58%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_suspended_sediment.f90.o
+[ 58%] Linking Fortran static library libhdf_tidefile_fortran.a
+[ 58%] Built target hdf_tidefile_fortran
+Scanning dependencies of target fixed
+[ 59%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_store_outpaths.f90.o
+[ 59%] Building Fortran object fixed/CMakeFiles/fixed.dir/assign_output_units.f.o
+[ 59%] Building Fortran object fixed/CMakeFiles/fixed.dir/buffer_input_common.f.o
+[ 60%] Building Fortran object fixed/CMakeFiles/fixed.dir/buffer_input_grid.f.o
+[ 60%] Building Fortran object fixed/CMakeFiles/fixed.dir/buffer_input_hydro.f.o
+[ 60%] Building Fortran object fixed/CMakeFiles/fixed.dir/buffer_input_ptm.f.o
+[ 61%] Building Fortran object fixed/CMakeFiles/fixed.dir/buffer_input_qual.f.o
+[ 61%] Building Fortran object fixed/CMakeFiles/fixed.dir/buffer_input_tidefile.f.o
+[ 61%] Building Fortran object fixed/CMakeFiles/fixed.dir/check_fixed.f.o
+[ 61%] Building Fortran object fixed/CMakeFiles/fixed.dir/check_fixed_ptm.f.o
+[ 62%] Building Fortran object fixed/CMakeFiles/fixed.dir/check_fixed_qual.f.o
+[ 62%] Building Fortran object fixed/CMakeFiles/fixed.dir/dsm2_init.f.o
+[ 62%] Building Fortran object process_io/CMakeFiles/process_io.dir/buffer_gtm_input_qual.f90.o
+[ 62%] Building Fortran object fixed/CMakeFiles/fixed.dir/input_channels.f.o
+[ 62%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_dss_readtvd.f90.o
+[ 62%] Building Fortran object fixed/CMakeFiles/fixed.dir/input_storage.f.o
+[ 63%] Building Fortran object fixed/CMakeFiles/fixed.dir/name_to_objno.f.o
+[ 63%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_init_store_outpaths.f90.o
+[ 63%] Building Fortran object fixed/CMakeFiles/fixed.dir/nonconservative_codes.f.o
+[ 63%] Building Fortran object fixed/CMakeFiles/fixed.dir/prep_irreg.f.o
+[ 64%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_channel.f.o
+[ 64%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_fixed.f.o
+[ 64%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_gate.f.o
+[ 64%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_group.f.o
+[ 65%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_init_condition.f.o
+[ 65%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_input_climate.f.o
+[ 65%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_input_gate.f.o
+[ 66%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_input_node.f.o
+[ 66%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_input_oprule.f.o
+[ 66%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_input_reservoir.f.o
+[ 66%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_input_transfer.f.o
+[ 67%] Building Fortran object process_io/CMakeFiles/process_io.dir/buffer_gtm_input_common.f90.o
+[ 68%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_io_file.f.o
+[ 68%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_irreg.f.o
+[ 68%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_oprule.f.o
+[ 68%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_output_channel.f.o
+[ 69%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_output_gate.f.o
+[ 69%] Building Fortran object process_io/CMakeFiles/process_io.dir/gtm_dss_main.f90.o
+[ 69%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_output_node.f.o
+[ 69%] Building Fortran object process_io/CMakeFiles/process_io.dir/process_gtm_input.f90.o
+[ 69%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_output_reservoir.f.o
+[ 70%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_ptm.f.o
+[ 70%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_rate_coef.f.o
+[ 70%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_reservoir.f.o
+[ 70%] Linking Fortran static library libprocess_io.a
+[ 70%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_scalar.f.o
+[ 70%] Built target process_io
+[ 71%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_tidefile.f.o
+[ 71%] Building Fortran object fixed/CMakeFiles/fixed.dir/process_transfer.f.o
+[ 71%] Building Fortran object fixed/CMakeFiles/fixed.dir/read_grid_from_tidefile.f.o
+[ 72%] Building Fortran object fixed/CMakeFiles/fixed.dir/utilities.f.o
+Scanning dependencies of target sed_bed_init
+[ 73%] Building Fortran object CMakeFiles/sed_bed_init.dir/sediment_bed_setup/sb_common.f90.o
+Scanning dependencies of target sediment_bed
+[ 73%] Building Fortran object sediment_bed/CMakeFiles/sediment_bed.dir/process_input_time_series_sed.f90.o
+Scanning dependencies of target do_module
+[ 73%] Building Fortran object do_module/CMakeFiles/do_module.dir/do_basic.f90.o
+[ 74%] Building Fortran object do_module/CMakeFiles/do_module.dir/do_parameter.f90.o
+[ 74%] Building Fortran object CMakeFiles/sed_bed_init.dir/sediment_bed_setup/sb_hdf_util.f90.o
+[ 74%] Building Fortran object sediment_bed/CMakeFiles/sediment_bed.dir/sed_bed_hdf.f90.o
+[ 74%] Linking Fortran static library libfixed.a
+[ 74%] Built target fixed
+[ 75%] Building Fortran object sediment_bed/CMakeFiles/sediment_bed.dir/sed_bed_utils.f90.o
+[ 75%] Building Fortran object sediment_bed/CMakeFiles/sediment_bed.dir/sediment_bed.f90.o
+[ 76%] Building Fortran object do_module/CMakeFiles/do_module.dir/do_state_variables.f90.o
+[ 76%] Building Fortran object do_module/CMakeFiles/do_module.dir/do_rkf45.f90.o
+[ 76%] Building Fortran object CMakeFiles/sed_bed_init.dir/sediment_bed_setup/sb_subs.f90.o
+[ 77%] Building Fortran object CMakeFiles/sed_bed_init.dir/sediment_bed_setup/sed_setup.f90.o
+[ 77%] Building Fortran object do_module/CMakeFiles/do_module.dir/do_heat.f90.o
+[ 77%] Linking Fortran executable sed_bed_init
+[ 77%] Building Fortran object do_module/CMakeFiles/do_module.dir/do_source.f90.o
+[ 77%] Linking Fortran static library libdo_module.a
+[ 77%] Built target do_module
+Scanning dependencies of target hydrolib
+[ 77%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/netcntrl.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/chnluser.f.o
+[ 78%] Built target sed_bed_init
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/linear.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/fileutil.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/klu.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/strmcnst.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/reservoir_geometry.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/virtual_xsect.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/process_text_hydro_input.f.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/process_tide.f.o
+[ 78%] Building Fortran object sediment_bed/CMakeFiles/sediment_bed.dir/sediment_bed_setup.f90.o
+[ 78%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/boundary.f.o
+[ 79%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/channel_schematic.f.o
+[ 80%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/print_output.f.o
+[ 80%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/channel_xsect_tbl.f.o
+[ 80%] Linking Fortran static library libsediment_bed.a
+[ 80%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/check_fixed_hydro.f.o
+[ 80%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/channel_status.f.o
+[ 80%] Built target sediment_bed
+Scanning dependencies of target mercury
+[ 80%] Building Fortran object mercury/CMakeFiles/mercury.dir/hg_type_defs.f90.o
+[ 81%] Building Fortran object mercury/CMakeFiles/mercury.dir/math_utils.f90.o
+[ 81%] Building Fortran object mercury/CMakeFiles/mercury.dir/hg_internal_vars.f90.o
+[ 81%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/solver.f.o
+[ 82%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/netblnce.f.o
+[ 82%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/netdense.f.o
+[ 82%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/tidefile.f.o
+[ 82%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/solvealloc.f.o
+[ 83%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/solver_diagnostics.f.o
+[ 83%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/solveutil.f.o
+[ 84%] Building Fortran object mercury/CMakeFiles/mercury.dir/equilibrium.f90.o
+[ 85%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/reservoirs.f.o
+[ 85%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/channel_constraints.f.o
+[ 85%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/floweq1d.f.o
+[ 86%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/gate_calc.f.o
+[ 86%] Building Fortran object mercury/CMakeFiles/mercury.dir/hg_hdf.f90.o
+[ 86%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/get_output.f.o
+[ 87%] Building Fortran object hydrolib/CMakeFiles/hydrolib.dir/update_network.f.o
+[ 87%] Linking Fortran static library libhydrolib.a
+[ 87%] Built target hydrolib
+Scanning dependencies of target oprule_interface_fortran
+Scanning dependencies of target ptm_fortran
+[ 87%] Building Fortran object oprule_interface/CMakeFiles/oprule_interface_fortran.dir/oprule_management.f.o
+[ 87%] Building Fortran object oprule_interface/CMakeFiles/oprule_interface_fortran.dir/data_source.f.o
+[ 88%] Building Fortran object CMakeFiles/ptm_fortran.dir/ptm/native/ptm_local_data.f.o
+[ 88%] Building Fortran object oprule_interface/CMakeFiles/oprule_interface_fortran.dir/model_interface.f.o
+[ 88%] Building Fortran object CMakeFiles/ptm_fortran.dir/ptm/native/miscData.f.o
+[ 88%] Building Fortran object CMakeFiles/ptm_fortran.dir/ptm/native/dynamicData.f.o
+[ 89%] Building Fortran object CMakeFiles/ptm_fortran.dir/ptm/native/fixedData.f.o
+[ 90%] Linking Fortran static library liboprule_interface_fortran.a
+[ 90%] Built target oprule_interface_fortran
+Scanning dependencies of target hydro
+[ 90%] Building Fortran object CMakeFiles/ptm_fortran.dir/ptm/native/ptmLocal.f.o
+[ 91%] Building Fortran object CMakeFiles/hydro.dir/hydro/fourpt.f.o
+[ 91%] Linking Fortran executable hydro
+Scanning dependencies of target qual
+[ 91%] Building Fortran object CMakeFiles/qual.dir/qual/qual_hdf_output.f.o
+[ 91%] Linking Fortran static library libptm_fortran.a
+[ 91%] Building Fortran object mercury/CMakeFiles/mercury.dir/mercury_state_variables.f90.o
+[ 91%] Built target ptm_fortran
+[ 91%] Building Fortran object CMakeFiles/qual.dir/qual/balanceflo.f.o
+[ 91%] Building Fortran object CMakeFiles/qual.dir/qual/bltminit.f.o
+[ 91%] Building Fortran object mercury/CMakeFiles/mercury.dir/mercury_flux_bed.f90.o
+[ 91%] Building Fortran object mercury/CMakeFiles/mercury.dir/mercury_flux_wat.f90.o
+[ 92%] Building Fortran object CMakeFiles/qual.dir/qual/boundary.f.o
+[ 92%] Building Fortran object CMakeFiles/qual.dir/qual/calscsk.f.o
+[ 92%] Building Fortran object CMakeFiles/qual.dir/qual/checkerror.f.o
+[ 92%] Building CXX object CMakeFiles/PTM.dir/ptm/native/DWR_DMS_PTM_Globals.cpp.o
+[ 92%] Building CXX object CMakeFiles/PTM.dir/ptm/native/DWR_DMS_PTM_PTMFixedData.cpp.o
+[ 93%] Building Fortran object CMakeFiles/qual.dir/qual/get_output.f.o
+[ 93%] Built target hydro
+[ 93%] Building CXX object CMakeFiles/PTM.dir/ptm/native/DWR_DMS_PTM_PTMFluxOutput.cpp.o
+[ 94%] Building CXX object CMakeFiles/PTM.dir/ptm/native/DWR_DMS_PTM_PTMHydroInput.cpp.o
+[ 94%] Building Fortran object CMakeFiles/qual.dir/qual/heat.f.o
+[ 94%] Building Fortran object CMakeFiles/qual.dir/qual/interpx.f.o
+[ 94%] Building Fortran object CMakeFiles/qual.dir/qual/kinetic.f.o
+[ 94%] Linking CXX shared library libPTM.so
+[ 95%] Building Fortran object CMakeFiles/qual.dir/qual/masstrack.f.o
+[ 95%] Building Fortran object mercury/CMakeFiles/mercury.dir/mercury_initialize.f90.o
+[ 95%] Building Fortran object CMakeFiles/qual.dir/qual/node_rate.f.o
+[ 95%] Building Fortran object CMakeFiles/qual.dir/qual/print_outqual.f.o
+[ 96%] Building Fortran object CMakeFiles/qual.dir/qual/process_tide.f.o
+[ 96%] Building Fortran object CMakeFiles/qual.dir/qual/rate_chanres.f.o
+[ 97%] Building Fortran object CMakeFiles/qual.dir/qual/res_rate.f.o
+[ 97%] Built target PTM
+[ 98%] Building Fortran object mercury/CMakeFiles/mercury.dir/mercury_fluxes.f90.o
+[ 98%] Building Fortran object CMakeFiles/qual.dir/qual/restart_file.f.o
+[ 98%] Building Fortran object CMakeFiles/qual.dir/qual/route.f.o
+[ 98%] Building Fortran object CMakeFiles/qual.dir/qual/qual.f.o
+[ 98%] Linking Fortran static library libmercury.a
+[ 98%] Built target mercury
+Scanning dependencies of target gtm
+[ 99%] Building Fortran object CMakeFiles/gtm.dir/gtm/state_variables_network.f90.o
+[ 99%] Building Fortran object CMakeFiles/gtm.dir/gtm/gtm_subs.f90.o
+[ 99%] Building Fortran object CMakeFiles/gtm.dir/gtm/boundary_advection_network.f90.o
+[ 99%] Building Fortran object CMakeFiles/gtm.dir/gtm/boundary_diffusion_network.f90.o
+[ 99%] Building Fortran object CMakeFiles/gtm.dir/gtm/gtm_source.f90.o
+[ 99%] Linking Fortran executable qual
+[ 99%] Built target qual
+[100%] Building Fortran object CMakeFiles/gtm.dir/gtm/gtm.f90.o
+[100%] Linking Fortran executable gtm
+[100%] Built target gtm

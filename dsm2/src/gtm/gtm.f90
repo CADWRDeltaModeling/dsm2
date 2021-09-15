@@ -136,7 +136,7 @@ program gtm
 
     procedure(hydro_data_if), pointer :: fill_hydro => null() ! Hydrodynamic pointer to be filled by the driver
     character(len=130) :: init_input_file                     ! initial input file on command line [optional]
-    character(len=:), allocatable :: restart_file_name
+    character(len=:), allocatable :: restart_file_name, restart_outfn
     character(len=14) :: cdt
     character(len=9) :: prev_day
     integer :: ok
@@ -534,7 +534,9 @@ program gtm
                         constituents(:)%use_module,   &
                         LL,                           &
                         sed_percent)
-            where (mass.lt.zero) mass = zero
+            if (nonnegative) then
+                where (mass.lt.zero) mass = zero
+            end if
             call cons2prim(conc, mass, area, n_cell, n_var)
 
             !--------- Diffusion ----------
@@ -596,8 +598,19 @@ program gtm
             prev_node_conc = node_conc
             prev_conc_stip = conc_stip
             node_conc = LARGEREAL
-
         end do ! end of loop of sub time step
+        ! at time step 1, do the above calculation to get old time and half time variables, but still keep the initial concentrations
+        if (run_pdaf) then       
+            if (current_time .eq. gtm_start_jmin) then         
+                conc = init_c
+                conc_prev = init_c
+                budget_prev_conc = init_c       
+                conc_resv = init_r 
+                conc_resv_prev = init_r 
+                !prev_conc_stip = zero
+                call prim2cons(mass_prev, conc, area, n_cell, n_var)
+            end if
+        end if
 
         ! add all sediment to ssc
         if (ssc_index .ne. 0) then
@@ -688,7 +701,14 @@ program gtm
 
     end do  ! end of loop for gtm time step
 
-    call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var)
+    ! modify print_last_stage to write hotstart output file.
+    restart_outfn = trim(gtm_io(1,2)%filename)
+    if (run_pdaf) then
+        call print_last_stage(jmin2cdt(int(gtm_end_jmin)),int(gtm_end_jmin),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn) !replace current_time by gtm_end_jmin
+    else
+        call print_last_stage(jmin2cdt(int(current_time)),int(current_time),conc,conc_resv,n_cell,n_resv,n_var,restart_outfn) 
+    end if
+
     if (use_sediment_bed) then
         call print_last_stage_sed(jmin2cdt(int(current_time)),int(current_time),conc_resv,n_cell, n_resv,n_var) !added:dhh
         if (run_mercury) then

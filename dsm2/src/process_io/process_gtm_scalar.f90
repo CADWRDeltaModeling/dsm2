@@ -61,6 +61,10 @@ module process_gtm_scalar
          read(Val, '(f20.5)') gtm_dx
       elseif (Param .eq. 'hdf_out') then
          hdf_out = Val(1:7)
+      elseif (Param .eq. 'dss_out') then
+         dss_out = Val(1:7)
+      elseif (Param .eq. 'nonnegative') then
+         read(Val, '(l2)', err=810) nonnegative 
       elseif (Param .eq. 'title') then
          ntitles=1
          title(ntitles)=' '
@@ -112,10 +116,14 @@ module process_gtm_scalar
          read(Val, '(f20.15)', err=810) ero_coeff
       elseif (Param .eq. 'calc_budget') then
          read(Val, '(l2)', err=810) calc_budget
-
+      elseif (Param .eq. 'run_pdaf') then
+         read(Val, '(l2)', err=810) run_pdaf
+      elseif (Param .eq. 'gtm_500') then
+         read(Val, '(l2)', err=810) gtm_500
       !--------------mercury and sediment bed related parameters
       elseif (Param .eq. 'run_mercury') then
          read(Val, '(l2)', err=810) run_mercury
+
       elseif (Param .eq. 'use_mercury_ic') then
          read(Val, '(l2)', err=810) use_mercury_ic
       elseif (Param .eq. 'use_sediment_bed') then

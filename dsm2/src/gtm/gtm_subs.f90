@@ -58,7 +58,8 @@ module gtm_subs
                                 out_conc_resv,  &
                                 ncell,          &
                                 nresv,          &
-                                nvar)
+                                nvar,           &
+                                restart_outfn)
         use common_variables, only : constituents, resv_geom
         implicit none
         character(len=14), intent(in) :: cdtdate
@@ -71,6 +72,7 @@ module gtm_subs
         integer :: ncol
         integer :: a(nvar)
         character*16 :: c(nvar)
+        character(len=:), allocatable :: restart_outfn
         integer :: i, j
         ncol = 0
         a = 0
@@ -82,7 +84,8 @@ module gtm_subs
                 c(ncol) = constituents(i)%name
             end if
         end do
-        open(801,file="init.txt")
+        !open(801,file="init.txt")
+        open(801,file=restart_outfn)
         write(801,*) cdtdate, "/time"
         write(801,*) intdate, "/julmin"
         write(801,*) ncol, "/n_column"
@@ -366,7 +369,7 @@ module gtm_subs
                                        nresv,          &
                                        nvar)
 
-        use common_variables, only: cell
+        use common_variables, only: cell, dss_out
         use common_dsm2_vars, only: noutpaths, pathoutput
         implicit none
         integer, intent(in) :: nvar                            !< number of constituents
@@ -381,18 +384,22 @@ module gtm_subs
             vals(i) = zero
             if (pathoutput(i)%obj_type.eq.1) then   !channel
                 icell = pathoutput(i)%out_chan_cell
-                if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
-                    down_cell = cell(icell)%down_cell
-                    vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
-                             (conc(down_cell,pathoutput(i)%i_var)-conc(icell,pathoutput(i)%i_var))*  &
-                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
-                elseif (pathoutput(i)%calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
-                    up_cell = cell(icell)%up_cell
-                    vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
-                             (conc(icell,pathoutput(i)%i_var)-conc(up_cell,pathoutput(i)%i_var))*    &
-                             (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
-                else
+                if (trim(dss_out).eq.'cell') then     ! ZZ 8/17/2020
                     vals(i) = conc(icell,pathoutput(i)%i_var)
+                else                
+                    if (pathoutput(i)%calc_option.eq.1) then           ! calculate the slope by icell and downstream cell
+                        down_cell = cell(icell)%down_cell
+                        vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
+                                 (conc(down_cell,pathoutput(i)%i_var)-conc(icell,pathoutput(i)%i_var))*  &
+                                 (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
+                    elseif (pathoutput(i)%calc_option.eq.2) then       ! calculate the slope by icell and upstream cell
+                        up_cell = cell(icell)%up_cell
+                        vals(i) = conc(icell,pathoutput(i)%i_var)+                                       &
+                                 (conc(icell,pathoutput(i)%i_var)-conc(up_cell,pathoutput(i)%i_var))*    &
+                                 (pathoutput(i)%x_from_lo_face-half*cell(icell)%dx)/cell(icell)%dx
+                    else
+                        vals(i) = conc(icell,pathoutput(i)%i_var)
+                    end if
                 end if
                 if (vals(i) .le. zero) vals(i) = conc(icell,pathoutput(i)%i_var) ! to avoid extrapolation unstability
             elseif (pathoutput(i)%obj_type.eq.2) then !reservoir
@@ -401,7 +408,6 @@ module gtm_subs
         end do
         return
     end subroutine
-
 
     !> Write concentration for output cells to a text file
     subroutine print_out_cell_conc(file_id,   &
@@ -566,7 +572,7 @@ module gtm_subs
                 if (ts_code(i) .eq. input_ts(j)%ts_var_code) then
                     do k = 1, group(input_ts(j)%group_id)%n_members
                         if (group(input_ts(j)%group_id)%member_pattern_code(k) .eq. obj_channel) then
-                            read(group(input_ts(j)%group_id)%member_name(k),'(i)',iostat=io) temp
+                            read(group(input_ts(j)%group_id)%member_name(k),*,iostat=io) temp
                             do m = 1, n_chan
                                 if (temp.eq. chan_geom(m)%channel_num) then
                                     chan_chk(m) = 1
@@ -576,7 +582,7 @@ module gtm_subs
                                 end if
                             end do
                         elseif (group(input_ts(j)%group_id)%member_pattern_code(k) .eq. obj_reservoir) then !dhh***
-                            read(group(input_ts(j)%group_id)%member_name(k),'(i)',iostat=io) temp   !dhh***
+                            read(group(input_ts(j)%group_id)%member_name(k),*,iostat=io) temp   !dhh***
 
                         else
                             write(*,*) "this is neither channel nor reservoir"

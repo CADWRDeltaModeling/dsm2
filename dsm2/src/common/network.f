@@ -37,8 +37,11 @@ module network
     integer,save :: Branch		! internal chan number of currently selected channel
 	                            ! (many routines assume this has been set to the channel
 							    ! to be worked on
-
+#if defined(hydro_1000)      
+    integer, parameter :: MaxLocations=25000   ! Max # compute locations in model
+#else
     integer, parameter :: MaxLocations=5000   ! Max # compute locations in model
+#endif
     integer, parameter :: MaxQuadPts=3        ! Max # of quadrature points
 	                                            ! for integrating over reaches
 

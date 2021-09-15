@@ -58,7 +58,6 @@ C!</license>
       call locase(sourcegroup)
       call locase(perop)
       call locase(interval)
-      
       noutpaths=noutpaths+1
       if (noutpaths .gt. max_outputpaths) then
          write(unit_error,630)

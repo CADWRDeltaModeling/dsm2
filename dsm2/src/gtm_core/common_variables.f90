@@ -82,9 +82,13 @@ module common_variables
      logical :: calc_budget = .false.                  !< calculate budget if true
      logical :: run_sediment = .false.                 !< run sediment module if true
      logical :: run_mercury = .false.                  !< run mercury module if true
+     logical :: run_pdaf = .false.                     !< run mercury module if true
+     logical :: gtm_500 = .false.                   !< run gtm at higher resolution (500ft)
      integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
 
      character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
+     character*14 :: dss_out = 'cell'                  !< dss output resolution ('cell' or 'exact')
+     logical :: nonnegative = .true.                   !< imposing nonnagative constraint on variables
 
      type gtm_io_files_t
           character(len=130) :: filename               !< filename
@@ -1331,7 +1335,7 @@ module common_variables
 
              do j = 1, n_qext
                  if (qext(j)%attach_obj_type==2) then  !node
-                     read(qext(j)%attach_obj_name,'(i)') tmp
+                     read(qext(j)%attach_obj_name,*) tmp
                      if (tmp==unique_num(i)) then
                          qext(j)%attach_obj_no = i
                          dsm2_network_extra(i)%n_qext = dsm2_network_extra(i)%n_qext + 1
@@ -1345,7 +1349,7 @@ module common_variables
              k = 0
              do j = 1, n_qext
                  if (qext(j)%attach_obj_type==2) then !node
-                     read(qext(j)%attach_obj_name,'(i)') tmp
+                     read(qext(j)%attach_obj_name,*) tmp
                      if (tmp==unique_num(i)) then
                          k = k + 1
                          dsm2_network_extra(i)%qext_no(k) = qext(j)%qext_no
@@ -1383,7 +1387,7 @@ module common_variables
 
          do j = 1, n_gate
              if (gate(j)%from_obj_int .eq. 1) then
-                 read(gate(j)%from_identifier,'(i)') gate(j)%from_identifier_int
+                 read(gate(j)%from_identifier,*) gate(j)%from_identifier_int
                  do i = 1, n_node
                      do k = 1, dsm2_network(i)%n_conn_cell
                          if (gate(j)%from_identifier_int.eq.dsm2_network(i)%chan_num(k) .and. &
@@ -1554,7 +1558,7 @@ module common_variables
                          do j = 1, group(i)%n_members
                              if (group(i)%member_pattern_code(j) .eq. obj_channel) then
                                  do k = 1, n_chan
-                                     read(group(i)%member_name(j),'(i)',iostat=io) temp
+                                     read(group(i)%member_name(j),*,iostat=io) temp
                                      if (temp.eq. chan_geom(k)%channel_num) then
                                          group(i)%member_int_id(j) = chan_geom(k)%chan_no
                                          group_var_chan(m,n,chan_geom(k)%chan_no) = group_var(m,n,group(i)%id)

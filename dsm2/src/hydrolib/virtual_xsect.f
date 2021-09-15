@@ -495,7 +495,7 @@ contains
                     if (xsect_assg(channo)%dist(i) <= x) upindex=i
                 enddo
                 do i=num_sec,1,-1
-                    if (xsect_assg(channo)%dist(i) >= x) downindex=i
+                    if (real(xsect_assg(channo)%dist(i)) >= real(x)) downindex=i
                 enddo
                 !-----------print error if upstream or downstream xsect not found
                 if (upindex <= 0) then
@@ -513,7 +513,7 @@ contains
                 x1=xsect_assg(channo)%dist(upindex)
                 x2=xsect_assg(channo)%dist(downindex)
 
-                if ( (x < 0) .or. (x > float(chan_geom(channo)%length)) ) then
+                if ( (x < 0) .or. (real(x) > float(chan_geom(channo)%length)) ) then
                     write(unit_error,*) &
                         'Desired cross-section is outside channel ',&
                         chan_geom(channo)%chan_no
@@ -530,7 +530,14 @@ contains
                 y8=tempz_centroid(downindex,virtelev)
                 !-----------calculate xsect property array index for current layer
                 di = dindex(channo,vsecno,virtelev)
-                if (x <= x2) then
+                
+                if (di > max_layers) then
+                    write(unit_error,*) '***error'
+                    write(unit_error,*) 'Maximum number of max_layers exceeded.'
+                    write(unit_error,*) 'Returning...'
+                endif
+
+                if (real(x) <= real(x2)) then
                     if ( (x1 == x2) .and. (upindex > 0) .and. &
                         (downindex > 0) ) then
                         virt_width(di)=y1
@@ -538,12 +545,12 @@ contains
                         virt_wet_p(di)=y5
                         virt_z_centroid(di)=y7
                     else
-                        virt_width(di)=interp(x1,x2,y1,y2,x)
-                        virt_area(di)=interp(x1,x2,y3,y4,x)
-                        virt_wet_p(di)=interp(x1,x2,y5,y6,x)
+                        virt_width(di)=interp(x1,x2,y1,y2,real(x))
+                        virt_area(di)=interp(x1,x2,y3,y4,real(x))
+                        virt_wet_p(di)=interp(x1,x2,y5,y6,real(x))
                         virt_z_centroid(di)=interp(x1,x2,y7,y8,x)
                     endif
-                elseif (x > x2) then
+                elseif (real(x) > real(x2)) then
                     write(unit_error,*) &
                         'Should not be extrapolating in the X direction!'
                     virt_width(di)=extrap(x1,x2,y1,y2,x)
