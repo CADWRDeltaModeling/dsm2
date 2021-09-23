@@ -86,6 +86,9 @@ contains
             !--------indices must be cumulative:  add current indices to indices for next chan
             if ( chan_geom(channo)%length <= 0 .or. &
                 xsect_assg(channo)%num_sec_assg <= 0 ) then
+                write(*,*) &
+                        'the channel length or num_sec_assg is le. zero: ', chan_geom(channo)%length, &
+                         xsect_assg(channo)%num_sec_assg
                 elev_index(channo+1)=elev_index(channo+1)+elev_index(channo)
                 chan_index(channo+1)=chan_index(channo+1)+chan_index(channo)
                 minelev_index(channo+1)=minelev_index(channo+1)+minelev_index(channo)
@@ -537,7 +540,7 @@ contains
                     write(unit_error,*) 'Returning...'
                 endif
 
-                if (real(x) <= real(x2)) then
+                if (x <= x2) then
                     if ( (x1 == x2) .and. (upindex > 0) .and. &
                         (downindex > 0) ) then
                         virt_width(di)=y1
@@ -545,13 +548,13 @@ contains
                         virt_wet_p(di)=y5
                         virt_z_centroid(di)=y7
                     else
-                        virt_width(di)=interp(x1,x2,y1,y2,real(x))
-                        virt_area(di)=interp(x1,x2,y3,y4,real(x))
-                        virt_wet_p(di)=interp(x1,x2,y5,y6,real(x))
+                        virt_width(di)=interp(x1,x2,y1,y2,x)
+                        virt_area(di)=interp(x1,x2,y3,y4,x)
+                        virt_wet_p(di)=interp(x1,x2,y5,y6,x)
                         virt_z_centroid(di)=interp(x1,x2,y7,y8,x)
                     endif
-                elseif (real(x) > real(x2)) then
-                    write(unit_error,*) &
+                elseif (x > x2) then
+                    write(unit_screen,*) &
                         'Should not be extrapolating in the X direction!'
                     virt_width(di)=extrap(x1,x2,y1,y2,x)
                     virt_area(di)=extrap(x1,x2,y3,y4,x)

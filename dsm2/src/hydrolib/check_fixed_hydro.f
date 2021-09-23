@@ -803,6 +803,7 @@ do pth=1,ninpaths
 
     enddo
 
+
     call print_output(istat)  ! echo fixed output
 
     return

@@ -118,8 +118,6 @@ module process_gtm_scalar
          read(Val, '(l2)', err=810) calc_budget
       elseif (Param .eq. 'run_pdaf') then
          read(Val, '(l2)', err=810) run_pdaf
-      elseif (Param .eq. 'gtm_500') then
-         read(Val, '(l2)', err=810) gtm_500
       !--------------mercury and sediment bed related parameters
       elseif (Param .eq. 'run_mercury') then
          read(Val, '(l2)', err=810) run_mercury

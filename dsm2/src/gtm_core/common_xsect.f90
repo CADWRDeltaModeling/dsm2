@@ -25,7 +25,6 @@ module common_xsect
 
     !@# use common_variables, only: n_chan, chan_geom	@!# This is the original line, replaced by the next:
 	use common_variables, only: n_chan !@# chan_geom is declared in module grid_data.
-        use common_variables, only: gtm_500
 
     !@# use gtm_precision	!@# This is the original line, replaced by the next:
 	use gtm_precision, only: gtm_real, LARGEREAL, Small, half, two	!@# some variables in gtm_precision will cause conflict with DSM2's variables.

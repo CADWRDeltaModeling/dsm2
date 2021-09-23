@@ -83,7 +83,6 @@ module common_variables
      logical :: run_sediment = .false.                 !< run sediment module if true
      logical :: run_mercury = .false.                  !< run mercury module if true
      logical :: run_pdaf = .false.                     !< run mercury module if true
-     logical :: gtm_500 = .false.                   !< run gtm at higher resolution (500ft)
      integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
 
      character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
