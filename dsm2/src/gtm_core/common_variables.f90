@@ -86,7 +86,7 @@ module common_variables
      integer :: mercury_start_ivar = 0                 !< starting ivar index for mercury constituents
 
      character*14 :: hdf_out                            ! hdf output resolution ('channel' or 'cell')
-     character*14 :: dss_out = 'cell'                  !< dss output resolution ('cell' or 'exact')
+     character*14 :: dss_out = 'exact'                  !< dss output type ('cell' or 'exact')
      logical :: nonnegative = .true.                   !< imposing nonnagative constraint on variables
 
      type gtm_io_files_t
