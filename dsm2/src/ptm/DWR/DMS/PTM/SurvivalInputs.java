@@ -210,6 +210,7 @@ public class SurvivalInputs {
 					}
 				}
 				float tSuv = 0;
+				// write survival rate for each route
 				for (String line: _pathList.subList(1, _pathList.size())){
 					String [] items = line.trim().split("[\\s\\t]+");
 					try{
@@ -218,22 +219,33 @@ public class SurvivalInputs {
 						ArrayList<Integer> pList = PTMUtil.getInts(items[1].substring(1, items[1].length()-1));
 						float pSuv=1.0f;
 						float pSuvT=1.0f;
+						// combine all survival reaches in the route
 						for (int l: pList) {
-							if (_groupSplitRatio.get(l) != null && _groupSurvival.get(l) != null && _groupLost.get(l) != null) {
+							if ( _groupSurvival.get(l) != null && _groupLost.get(l) != null) {
 								pSuv = pSuv * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));
-								pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)))*_groupSplitRatio.get(l);
+								if (_groupSplitRatio.get(l) != null) 									
+									pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)))*_groupSplitRatio.get(l);
+								else 
+									pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));								
 							}
-							else if (_groupSurvival.get(l) != null && _groupLost.get(l) != null) {
-								pSuvT = pSuvT * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));
-								pSuv = pSuv * (1.0f*_groupSurvival.get(l)/(_groupSurvival.get(l)+_groupLost.get(l)));
+							else if (_groupSurvival.get(l) != null) {
+								pSuv = pSuv * 1.0f;
+								if (_groupSplitRatio.get(l) != null)
+									pSuvT = pSuvT * 1.0f*_groupSplitRatio.get(l);
+								else
+									pSuvT = pSuvT * 1.0f;
 							}
+							// in case _groupSurvival.get(l) == null, or both _groupSurvival.get(l) and _groupLost.get(l) == null
 							else {
 								pSuvT = 0.0f;
-								pSuv = 0.0f;
+								if (_groupSplitRatio.get(l) != null)								
+									pSuv = 0.0f;
+								else
+									pSuv = -99.0f;
 							}
 						}
 						tl += "," + items[0].toUpperCase();
-						if (pSuv > 0.0f) {
+						if (pSuv > -0.1f) {
 							suvl += "," + Float.toString(pSuv);
 							tSuv += pSuvT;
 						}
@@ -244,7 +256,7 @@ public class SurvivalInputs {
 					}
 					
 				}
-				tl += "," + "Totol_suv";
+				tl += "," + "Combined_suv";
 				//tl.concat(",").concat("Totol_suv");
 				suvl +="," + Float.toString(tSuv);
 				//suvl.concat(",").concat(Float.toString(tSuv));

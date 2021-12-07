@@ -151,8 +151,17 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 			return;
 		}
 		*/
-		
 		int sacUpId = chans[0].getEnvIndex(), sacDownId = chans[1].getEnvIndex(), bId = chans[2].getEnvIndex();
+		
+		float sacup_flow = Math.max(0.0f, chans[0].flowAt[1]);
+		float sacdown_flow = Math.max(0.0f, chans[1].flowAt[0]);
+		float branch_flow = Math.max(0.0f, chans[2].flowAt[0]);
+		float flow_3 = sacup_flow + sacdown_flow + branch_flow;
+		if (!prescreen(p, flow_3)){
+			p.particleWait = true;
+		    return;
+		}
+		
 		//mean swimming velocity set once per particle per channel group.
 		//Here is the only place to set a mean swimming velocity.
 		p.getSwimHelper().setMeanSwimmingVelocity(p.Id, sacUpId);
@@ -172,7 +181,8 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		float totalSac = wbFlowSacUp + wbFlowSacDown;
 		float total = totalSac + wbFlowBranch;
 		
-		if (total < Float.MIN_VALUE){
+		if (total < Float.MIN_VALUE || flow_3 < Float.MIN_VALUE){ 
+		//if (total < Float.MIN_VALUE){
 			p.particleWait = true;
 		    return;
 		}
@@ -218,7 +228,8 @@ public abstract class SalmonUpSacRouteBehavior extends SalmonBasicRouteBehavior 
 		}
 		*/
 		
-		if((wbFlowBranch < Float.MIN_VALUE) || (probModified < ram)){
+		if((wbFlowBranch < Float.MIN_VALUE) || branch_flow < Float.MIN_VALUE || (probModified < ram)){ 
+		//if((wbFlowBranch < Float.MIN_VALUE) || (probModified < ram)){
 			/*
 			System.err.println(PTMHydroInput.getExtFromIntNode(p.nd.getEnvIndex())
 							+"  "+PTMHydroInput.getExtFromIntChan(p.wb.getEnvIndex())

@@ -49,7 +49,7 @@ public class SalmonBasicRouteBehavior extends BasicRouteBehavior implements Salm
 					PTMUtil.systemExit("when trying to route the particle, one of the water bodies is null, system exit.");
 			swimmingVels[wbId] = 0.0f;
 			if (wb.isAgSeep()
-	        		|| (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled())) 
+	        		|| (p.nd.isFishScreenInstalled() && wb.isFishScreenInstalled())||(wb.getInflow(nodeId)==0.0f))  // gate or barrier
 				wbFlows[wbId] = 0.0f;
 			else{
 				if(wb.getPTMType() == Waterbody.CHANNEL){

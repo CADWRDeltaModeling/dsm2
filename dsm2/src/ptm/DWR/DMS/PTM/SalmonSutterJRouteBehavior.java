@@ -81,7 +81,13 @@ public class SalmonSutterJRouteBehavior extends SalmonUpSacRouteBehavior {
 		//float pStm = (ratios[2]-pStmMean)/pStmSD;
 		float pSut = ratios[1];
 		float pStm = ratios[2];
-		double piSut = pi(calcB(new float[]{qSut, pSut}), calcA(new float[]{qStm, deltaQSut, pStm}), 1, 1);
+		int sutGate = 1;
+		int stmGate = 1;
+		if ((Math.abs(qSutCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && sut.isFishScreenInstalled()))
+			sutGate = 0;
+		if ((Math.abs(qStmCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && stm.isFishScreenInstalled()))
+			stmGate = 0;
+		double piSut = pi(calcB(new float[]{qSut, pSut}), calcA(new float[]{qStm, deltaQSut, pStm}), sutGate, stmGate);
 		rIn.putEntrainmentRate(nodeId, 
 				new ArrayList<Object>(Arrays.asList(p.Id, ratios[1], ratios[2],qSutCFS, qStmCFS, deltaQSut, piSut)));
 		selectChannel(p, new Channel[]{channels[0], channels[1], channels[2]}, nodeId, piSut,  0);
