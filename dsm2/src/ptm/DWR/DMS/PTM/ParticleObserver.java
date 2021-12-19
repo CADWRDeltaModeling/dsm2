@@ -18,6 +18,10 @@ C!    along with DSM2.  If not, see <http://www.gnu.org/!<licenses/>.
 </license>*/
 package DWR.DMS.PTM;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.nio.IntBuffer;
+import java.util.HashMap;
 /**
  *  Records particles critical events, e.g. insertion, change of waterbody, 
  *  change of node, time interval change, death
@@ -114,19 +118,18 @@ class ParticleObserver{
    */
   public void observeWaterbodyChange(Particle observed){
     if (traceOn) {
-      long time = observed.getCurrentParticleTime();
       int pId = observed.getId();
       int nodeId = -1;
+      int wbId = -1;
       if (observed.getRecentNode() != null) 
         nodeId =  observed.getRecentNode().getEnvIndex();
-      else
-        nodeId = -1;
-      int wbId =  observed.getCurrentWaterbody().getEnvIndex();
+      if (observed.getCurrentWaterbody() != null)
+        wbId =  observed.getCurrentWaterbody().getEnvIndex();
+      long time = observed.getCurrentParticleTime();
       output.output(time,pId,nodeId,wbId);
       
       long timeExact = observed.getCurrentParticleTimeExact();
       observed.addParticleTrace(timeExact, wbId, nodeId);
-      
     }
   }
 
