@@ -1,5 +1,0 @@
-1. Complete lagged expressions
-2. Convert to Spirit Parser if not too disruptive
-3. Check for memory leaks in expressions
-4. Streamline setup and exit.
-
