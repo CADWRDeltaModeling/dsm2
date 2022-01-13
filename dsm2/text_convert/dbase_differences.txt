@@ -1,4 +1,0 @@
-Jones tract changed from boundary to source
-Old River @ head default to 6 pipes plus new oprule to change it to 2 before 2000, changed sign from == to >= in original oprule.
-Separated weir and pipe
-added from all in historical qual volumetric finger printing.
