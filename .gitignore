@@ -3,6 +3,7 @@
 **/#*#
 **/BUILD
 **/BUILD_DBG
+build/*
 lib/**
 third_party/**
 *.pyc
@@ -84,3 +85,7 @@ input_storage/example/xsect_input_storage.fi
 # Build temp files
 build.log
 build.out
+
+# VS Code
+*.code-workspace
+.vscode/
