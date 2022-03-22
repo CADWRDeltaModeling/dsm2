@@ -246,10 +246,10 @@ contains
             dConveyance = 0.0
         end if
 
-        if (print_level >= 4) then
+        if( dConveyance < 0.0 ) then
+            dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)!-- couldn't fix it right away Nicky Sandhu -> FIXME:
             if( dConveyance < 0.0 ) then
-                dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)!-- couldn't fix it right away Nicky Sandhu -> FIXME:
-                if( dConveyance < 0.0 ) then
+                if (print_level >= 4) then
                     write(unit_error,610) chan_geom(Branch)%chan_no,X,Z, &
                         ChannelWidth,CxArea,Conv, &
                         EffectiveN,dEffectiveN, &
@@ -717,14 +717,14 @@ contains
             dConveyance = 0.0
         endif
 
-        if (print_level >= 4) then
+        if( dConveyance < 0.0 ) then
+            !         IF( H .GT. 0.5 ) THEN
+            !            dConveyance = Conveyance(X,H+.5) - Conveyance(X,H-.5)
+            !         ELSE
+            dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)
+            !         END IF
             if( dConveyance < 0.0 ) then
-                !         IF( H .GT. 0.5 ) THEN
-                !            dConveyance = Conveyance(X,H+.5) - Conveyance(X,H-.5)
-                !         ELSE
-                dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)
-                !         END IF
-                if( dConveyance < 0.0 ) then
+                if (print_level >= 4) then
                     write(unit_error,610) chan_geom(Branch)%chan_no,X,Z, &
                         ChannelWidth(X,Z),CxArea(X,Z),Conveyance(X,Z), &
                         EffectiveN(X,Z),dEffectiveN(X,Z), &
