@@ -20,7 +20,7 @@
 
 %}
 
-%error-verbose
+%define parse.error verbose
 %union {
    int intval;
    double dval;

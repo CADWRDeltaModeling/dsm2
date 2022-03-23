@@ -20,7 +20,7 @@
 #include<vector>
 
 #include "oprule/parser/ParseSymbolManagement.h"
-#include "op_rule_tab.h"
+#include "op_rule.tab.h"
 
 
 using namespace std;
