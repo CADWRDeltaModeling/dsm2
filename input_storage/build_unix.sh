@@ -1,5 +1,7 @@
 #!/usr/bin/bash
-source ../setup_linux_intelcompilers_32bit.sh
+# Script to build input storage on Linux
+# It requires Intel Compilers are loaded already.
+
 cmake -E remove_directory BUILD
 cmake -E make_directory BUILD
 cd BUILD

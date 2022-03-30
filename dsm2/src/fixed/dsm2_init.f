@@ -23,7 +23,7 @@ C!</license>
 	use rate_coeff_assignment,only:initialize_rate_coefficient
       use IO_Units, only: unit_output
       use Gates, only: GATE_OPEN, GATE_FREE
-      use ifport, only: getpid,getenvqq, rand              !! <INTEL>
+      use ifport !, only: getpid,getenvqq, rand              !! <INTEL>
       use constants
       use logging
       use runtime_data
@@ -179,7 +179,7 @@ c-----(multi-tasking OS) or random number (other OS)
       crid=' '
       irid=abs(getpid())        ! Sun Unix and NT
 C!OTHER  irid=int(rand(0)*1000000)  ! others
-      write(crid,'(i6.6)') irid
+      write(crid,*) irid
 c-----prepend custom ID to run ID?
       ctemp1=''
       istat=getenvqq('CID', ctemp1) !! <NT>

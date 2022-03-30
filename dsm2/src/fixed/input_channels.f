@@ -33,7 +33,7 @@ c-----local variables
      &     ,counter
 
 !     todo: get rid of real*4. Time to get past the 1990s
-      real*4
+      real*8
      &     chan_manning
      &     ,chan_dispersion
 
@@ -112,8 +112,7 @@ c-----char-to-value conversion errors
 
       return
       end
-      
 
-      
-      
-  
+
+
+
