@@ -536,11 +536,11 @@ contains
                 
                 if (di > max_layers) then
                     write(unit_error,*) '***error'
-                    write(unit_error,*) 'Maximum number of max_layers exceeded.'
+                    write(unit_error,*) 'Maximum number of max_layers exceeded,di=', di, '>', max_layers
                     write(unit_error,*) 'Returning...'
                 endif
 
-                if (x <= x2) then
+                if (x <= x2 + 1.0E-10) then
                     if ( (x1 == x2) .and. (upindex > 0) .and. &
                         (downindex > 0) ) then
                         virt_width(di)=y1
@@ -553,9 +553,9 @@ contains
                         virt_wet_p(di)=interp(x1,x2,y5,y6,x)
                         virt_z_centroid(di)=interp(x1,x2,y7,y8,x)
                     endif
-                elseif (x > x2) then
+                elseif (x > x2 + 1.0E-10) then
                     write(unit_screen,*) &
-                        'Should not be extrapolating in the X direction!'
+                        'Should not be extrapolating in the X direction! x-x2=',x-x2
                     virt_width(di)=extrap(x1,x2,y1,y2,x)
                     virt_area(di)=extrap(x1,x2,y3,y4,x)
                     virt_wet_p(di)=extrap(x1,x2,y5,y6,x)
