@@ -104,7 +104,7 @@ add_dependencies(timevar common)
 add_dependencies(hdf_tidefile_fortran common timevar input_storage hdf_tidefile_cpp)
 add_dependencies(klu_fortran common sparse)
 #--------------- HYDRO EXE -------------------------
-add_executable(hydro hydro/fourpt.f)
+add_executable(hydro hydro/fourpt.f90)
 include_directories("${CMAKE_Fortran_MODULE_DIRECTORY}" "../hdf_tidefile" "../fixed")
 add_dependencies(hydro common fixed hydrolib hdf_tidefile_cpp hdf_tidefile_fortran input_storage input_storage_cpp oprule_interface_cpp oprule_interface_fortran pattern_match_cpp sparse klu_fortran timevar)
 if (WIN32)
