@@ -123,7 +123,7 @@ public class SalmonBasicSwimBehavior implements SalmonSwimBehavior {
 			 return;
 		 }
 		if ((p.wb.getPTMType() ==  Waterbody.CHANNEL) 
-				&& (_holdingTimeCalc.daytimeHolding(p.Id, ((Channel)p.wb).getEnvIndex()))) {
+				&& (_holdingTimeCalc.daytimeHolding(p, ((Channel)p.wb).getEnvIndex()))) {
 			p.age += delT;
 			p.addTimeUsed(delT);
 			return;

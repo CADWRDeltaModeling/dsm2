@@ -52,7 +52,6 @@ public class PTMBehaviorInputs {
 					
 					if (oneRelease.length<4)
 						PTMUtil.systemExit("Errors in Fish_Release_Inputs Group_"+i+": " +rline+" system exit.");
-					
 					Calendar releaseTime = PTMUtil.getDateTime(oneRelease[0], oneRelease[1], _timeZone);
 					int particleNumber = Integer.parseInt(oneRelease[2].trim());
 					
