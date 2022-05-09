@@ -25,8 +25,12 @@
 module channel_xsect_tbl
     use network
     implicit none
-    
+
+#if defined(hydro_1000)
+    integer, parameter ::     MaxTables=25000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
+#else
     integer, parameter ::     MaxTables=5000, MaxLinesPerTable=21, MaxLines=MaxLinesPerTable*MaxTables
+#endif
     integer, save:: FirstTable(MaxChannels), LastTable(MaxChannels)
     integer, save:: Lines(MaxChannels), Offset(MaxTables)
     real*8, save::  XDistance(MaxTables)
@@ -147,6 +151,7 @@ contains
     !======================================================================
     subroutine calculateChannelGeometryAspects(X,Z,ChannelWidth, CxArea, Conv, dConveyance)
         use IO_Units
+        use logging
         use common_xsect, disabled => Small !@# Small declared below.
         use chnlcomp
         implicit none
@@ -244,17 +249,19 @@ contains
         if( dConveyance < 0.0 ) then
             dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)!-- couldn't fix it right away Nicky Sandhu -> FIXME:
             if( dConveyance < 0.0 ) then
-                write(unit_error,610) chan_geom(Branch)%chan_no,X,Z, &
-                    ChannelWidth,CxArea,Conv, &
-                    EffectiveN,dEffectiveN, &
-                    WetPerimeter, dWetPerimeter
-610             format(/'Warning in dConveyance; negative gradient with depth,' &
-                    /' consider reworking adjacent cross section(s).' &
-                    /' Channel...',i3 &
-                    /' X, Z...',2f10.2,1p &
-                    /' Width, Area, Conveyance...',3g10.3, &
-                    /' one over effective n, 1/(dn/dZ)...',2g10.3 &
-                    /' P, dP/dZ...',2g10.3)
+                if (print_level >= 4) then
+                    write(unit_error,610) chan_geom(Branch)%chan_no,X,Z, &
+                        ChannelWidth,CxArea,Conv, &
+                        EffectiveN,dEffectiveN, &
+                        WetPerimeter, dWetPerimeter
+610                 format(/'Warning in dConveyance; negative gradient with depth,' &
+                        /' consider reworking adjacent cross section(s).' &
+                        /' Channel...',i3 &
+                        /' X, Z...',2f10.2,1p &
+                        /' Width, Area, Conveyance...',3g10.3, &
+                        /' one over effective n, 1/(dn/dZ)...',2g10.3 &
+                        /' P, dP/dZ...',2g10.3)
+                end if
             end if
         end if
 
@@ -312,7 +319,6 @@ contains
             =chan_index(Branch) + (vsecno-1)*num_layers(Branch) + virtelev-1
         !----statement function to interpolate wrt two points
         interp(x1,x2,y1,y2,Z) =-((y2-y1)/(x2-x1))*(x2-Z) + y2
-
 
         call find_layer_index( &
             X &
@@ -658,6 +664,7 @@ contains
 
     real*8 function dConveyance(X, Z)
         use IO_Units
+        use logging
         use common_xsect, only: chan_geom   !@# Without "only:", Small causes conflict.
         use channel_schematic, only: CurrentChannel
         implicit none
@@ -717,18 +724,20 @@ contains
             dConveyance = Conveyance(X,Z+1.) - Conveyance(X,Z)
             !         END IF
             if( dConveyance < 0.0 ) then
-                write(unit_error,610) chan_geom(Branch)%chan_no,X,Z, &
-                    ChannelWidth(X,Z),CxArea(X,Z),Conveyance(X,Z), &
-                    EffectiveN(X,Z),dEffectiveN(X,Z), &
-                    WetPerimeter(X,Z), dWetPerimeter(X,Z)
-610             format(/'Warning in dConveyance; negative gradient with depth,' &
-                    /' consider reworking adjacent cross section(s).' &
-                    /' Channel...',i3 &
-                    /' X, Z...',2f10.2,1p &
-                    /' Width, Area, Conveyance...',3g10.3, &
-                    /' one over effective n, 1/(dn/dZ)...',2g10.3 &
-                    /' P, dP/dZ...',2g10.3)
-            !            call exit(2)
+                if (print_level >= 4) then
+                    write(unit_error,610) chan_geom(Branch)%chan_no,X,Z, &
+                        ChannelWidth(X,Z),CxArea(X,Z),Conveyance(X,Z), &
+                        EffectiveN(X,Z),dEffectiveN(X,Z), &
+                        WetPerimeter(X,Z), dWetPerimeter(X,Z)
+610                 format(/'Warning in dConveyance; negative gradient with depth,' &
+                        /' consider reworking adjacent cross section(s).' &
+                        /' Channel...',i3 &
+                        /' X, Z...',2f10.2,1p &
+                        /' Width, Area, Conveyance...',3g10.3, &
+                        /' one over effective n, 1/(dn/dZ)...',2g10.3 &
+                        /' P, dP/dZ...',2g10.3)
+                !            call exit(2)
+                end if
             end if
         end if
 

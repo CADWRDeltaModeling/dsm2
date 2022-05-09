@@ -55,7 +55,21 @@ module common_xsect
     real*8:: min_layer_elev      ! max allowable dist. for moving xsect to chan end
     real*8:: max_dist_ratio      ! max allowable dist. for moving xsect to chan end
 
-	parameter ( &
+#ifdef hydro_1000
+    parameter ( &
+        max_elevations=300 &
+        ,max_assg_sec=22 &
+        ,max_assg_virtsec=15 &
+        ,max_irr_xsects=2000 &
+        ,max_layers=1000000 &
+        ,max_total_elevations=20000 &
+        ,max_layer_height=100.0 &
+        ,min_layer_elev=-100.0 &
+        ,max_virt_xsects=25000 &
+        ,max_dist_ratio=0.05 &
+        )
+#else
+    parameter ( &
         max_elevations=300 &
         ,max_assg_sec=22 &
         ,max_assg_virtsec=15 &
@@ -67,6 +81,7 @@ module common_xsect
         ,max_virt_xsects=5000 &
         ,max_dist_ratio=0.05 &
         )
+#endif
 
     logical:: repl              ! if true, then readirreg will replace a
                               ! cross-section with adj sec if adj node has 2 chan

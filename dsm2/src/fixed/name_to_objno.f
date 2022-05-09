@@ -62,10 +62,10 @@ c-----local variables
             end if
          end do
       else if (ObjType .eq. obj_channel) then
-         read(name,'(i)') i
+         read(name,*) i
          name_to_objno = ext2int(i)
       else if (ObjType .eq. obj_node) then
-         read(name,'(i)') i
+         read(name,*) i
          name_to_objno = ext2intnode(i)
       else if (ObjType .eq. obj_obj2obj) then !fixme: number convention
          do i= 1,nobj2obj

@@ -80,3 +80,7 @@ input_storage/example/input_storage_fortran.f90
 input_storage/example/input_storage_envvar.h
 lib/oprule_parser_vs9_mtd.lib
 input_storage/example/xsect_input_storage.fi
+
+# Build temp files
+build.log
+build.out

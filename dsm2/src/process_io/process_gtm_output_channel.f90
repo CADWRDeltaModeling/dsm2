@@ -48,9 +48,7 @@ module process_gtm_output_channel
         call locase(sourcegroup)
         call locase(perop)
         call locase(interval)
-
         noutpaths = noutpaths + 1
-
         pathoutput(noutpaths).a_part = ' '
         pathoutput(noutpaths).b_part = Name
         pathoutput(noutpaths).c_part = Param
@@ -64,6 +62,7 @@ module process_gtm_output_channel
             call exit(-1)
             return
         endif
+
         pathoutput(noutpaths).f_part = ' '
         pathoutput(noutpaths).filename = FileName
         pathoutput(noutpaths).distance = distance

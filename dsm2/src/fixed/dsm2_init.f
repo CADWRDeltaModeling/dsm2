@@ -184,7 +184,7 @@ c-----prepend custom ID to run ID?
       ctemp1=''
       istat=getenvqq('CID', ctemp1) !! <NT>
       if (istat .gt. 0) then    ! custom ID
-         read(ctemp1,'(i)') itmp1
+         read(ctemp1,*) itmp1
          crid=trim(ctemp1) // '_' // trim(crid)
       endif
 c-----date of run

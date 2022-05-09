@@ -86,6 +86,9 @@ contains
             !--------indices must be cumulative:  add current indices to indices for next chan
             if ( chan_geom(channo)%length <= 0 .or. &
                 xsect_assg(channo)%num_sec_assg <= 0 ) then
+                write(*,*) &
+                        'the channel length or num_sec_assg is le. zero: ', chan_geom(channo)%length, &
+                         xsect_assg(channo)%num_sec_assg
                 elev_index(channo+1)=elev_index(channo+1)+elev_index(channo)
                 chan_index(channo+1)=chan_index(channo+1)+chan_index(channo)
                 minelev_index(channo+1)=minelev_index(channo+1)+minelev_index(channo)
@@ -495,7 +498,7 @@ contains
                     if (xsect_assg(channo)%dist(i) <= x) upindex=i
                 enddo
                 do i=num_sec,1,-1
-                    if (xsect_assg(channo)%dist(i) >= x) downindex=i
+                    if (real(xsect_assg(channo)%dist(i)) >= real(x)) downindex=i
                 enddo
                 !-----------print error if upstream or downstream xsect not found
                 if (upindex <= 0) then
@@ -513,7 +516,7 @@ contains
                 x1=xsect_assg(channo)%dist(upindex)
                 x2=xsect_assg(channo)%dist(downindex)
 
-                if ( (x < 0) .or. (x > float(chan_geom(channo)%length)) ) then
+                if ( (x < 0) .or. (real(x) > float(chan_geom(channo)%length)) ) then
                     write(unit_error,*) &
                         'Desired cross-section is outside channel ',&
                         chan_geom(channo)%chan_no
@@ -530,7 +533,14 @@ contains
                 y8=tempz_centroid(downindex,virtelev)
                 !-----------calculate xsect property array index for current layer
                 di = dindex(channo,vsecno,virtelev)
-                if (x <= x2) then
+                
+                if (di > max_layers) then
+                    write(unit_error,*) '***error'
+                    write(unit_error,*) 'Maximum number of max_layers exceeded,di=', di, '>', max_layers
+                    write(unit_error,*) 'Returning...'
+                endif
+
+                if (x <= x2 + 1.0E-10) then
                     if ( (x1 == x2) .and. (upindex > 0) .and. &
                         (downindex > 0) ) then
                         virt_width(di)=y1
@@ -543,9 +553,9 @@ contains
                         virt_wet_p(di)=interp(x1,x2,y5,y6,x)
                         virt_z_centroid(di)=interp(x1,x2,y7,y8,x)
                     endif
-                elseif (x > x2) then
-                    write(unit_error,*) &
-                        'Should not be extrapolating in the X direction!'
+                elseif (x > x2 + 1.0E-10) then
+                    write(unit_screen,*) &
+                        'Should not be extrapolating in the X direction! x-x2=',x-x2
                     virt_width(di)=extrap(x1,x2,y1,y2,x)
                     virt_area(di)=extrap(x1,x2,y3,y4,x)
                     virt_wet_p(di)=extrap(x1,x2,y5,y6,x)

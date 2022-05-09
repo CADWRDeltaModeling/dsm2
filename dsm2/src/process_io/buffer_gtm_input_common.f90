@@ -162,7 +162,7 @@ module buffer_gtm_input_common
           if (distance(:6) .eq. "length") then
              idistance = LARGEINT
           else
-             read(distance,'(i)') idistance
+             read(distance,'(i6)') idistance
           end if
           call process_output_channel(name, channo, idistance, variable, interval, &
                                       perop, sourcegroup, filename)

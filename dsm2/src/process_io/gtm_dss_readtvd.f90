@@ -44,7 +44,7 @@ module gtm_dss_readtvd
                                     per_type_inst_cum,per_type_null, n_inputpaths, pathinput, &
                                     fill_interp, fill_bydata, generic_date, current_date,     &
                                     start_julmin
-        use common_variables, only : unit_error
+        use common_variables, only : unit_error, run_pdaf
         use time_utilities
 
         implicit none
@@ -269,6 +269,11 @@ module gtm_dss_readtvd
                    float(timediff_val) / float(timediff_dat)
                pathinput(ptr)%value_flag=indata(ndx,i)%flag
             else                   ! don't interpolate
+               if (run_pdaf) then
+                   if (indata(ndx,i)%data == -901.0 .and. ndx>1) then ! when data for current time is not available 
+                       indata(ndx,i)%data = indata(ndx-1,i)%data      ! use previous value
+                   endif
+               endif
                pathinput(ptr)%value=indata(ndx,i)%data
                pathinput(ptr)%value_flag=indata(ndx,i)%flag
             endif

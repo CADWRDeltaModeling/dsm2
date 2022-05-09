@@ -1,4 +1,7 @@
 cmake_minimum_required (VERSION 3.2.2)
+############ options
+option(hydro_1000 "Enable running hydro at 1000 ft resolution: Default OFF" OFF)
+#add_compile_options(-fpp)
 ############ GIT information
 # in case Git is not available, we default to "unknown"
 set(GIT_HASH "unknown")
@@ -150,6 +153,15 @@ target_link_libraries(hydro
     )
 target_link_libraries(hydro -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
 endif (WIN32)
+set_target_properties(common PROPERTIES Fortran_PREPROCESS on)
+set_target_properties(hydrolib PROPERTIES Fortran_PREPROCESS on)
+if (hydro_1000)
+    message("hydro_1000 is on: ${hydro_1000} --> hydro will run at 1000 ft spatial resolution")
+    target_compile_definitions(common PRIVATE hydro_1000=1)
+    target_compile_definitions(hydrolib PRIVATE hydro_1000=1)      
+else (hydro_1000)
+    message("hydro_1000 is on: ${hydro_1000} --> hydro will run at 2000 ft spatial resolution")
+endif (hydro_1000)
 # QUAL EXE
 file(GLOB QUAL_SOURCES qual/*.f)
 if (WIN32)
@@ -358,6 +370,13 @@ target_link_libraries(sed_bed_init
     )
 target_link_libraries(sed_bed_init -lc -lintlc -lstdc++ -lm -lgcc_s -ldl -lcilkrts)
 endif (WIN32)
+set_target_properties(gtm_core PROPERTIES Fortran_PREPROCESS on)
+if (hydro_1000)
+    message("hydro_1000 is on: ${hydro_1000} --> hydro will run at 1000 ft spatial resolution")
+    target_compile_definitions(gtm_core PRIVATE hydro_1000=1)    
+else (hydro_1000)
+    message("hydro_1000 is on: ${hydro_1000} --> hydro will run at 2000 ft spatial resolution")
+endif (hydro_1000)
 #-------------- TEST -------------------#
 
 #-------------- INSTALL ----------------#
@@ -401,3 +420,14 @@ get_filename_component(LICENSE_FILE "${DSM2_TOP_DIR}/LICENSE.txt" ABSOLUTE)
 set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack")
 include(CPack)
+
+
+
+
+#if(CMAKE_Fortran_COMPILER MATCHES ifort)
+    #add_compile_options(-fpp)
+#    target_compile_options(DSM2 PUBLIC -fpp)
+#    target_compile_options(DSM2 PUBLIC -fpp)
+#endif()
+#set_source_files_properties(
+#    PROPERTIES Fortran_PREPROCESS ON)
