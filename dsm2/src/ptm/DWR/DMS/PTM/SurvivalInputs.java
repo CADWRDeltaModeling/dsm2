@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 /**
  * @author xwang
- *
+ * 
  */
 public class SurvivalInputs {
 	/**
