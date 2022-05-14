@@ -2,6 +2,7 @@
 **/*~
 **/#*#
 **/BUILD
+**/build
 **/BUILD_DBG
 build/*
 lib/**
