@@ -72,9 +72,12 @@ public class SalmonDCCRouteBehavior extends SalmonUpSacRouteBehavior {
 		if(qSacDDCFS < 0)
 			dir = 1;
 		int dccGate = 1;
-		if ((Math.abs(qDCCFS) < GATECLOSEDFLOW))
+		int gsGate = 1;
+		if ((Math.abs(qGsCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && channels[3].isFishScreenInstalled()))
+			gsGate = 0;
+		if ((Math.abs(qDCCFS) < GATECLOSEDFLOW) || (p.nd.isFishScreenInstalled() && channels[2].isFishScreenInstalled()))
 			dccGate = 0;		
-		double piDcc = pi(calcB(new float[]{qSacDD, dtQSac}), calcA(new float[]{qSacDD, qGs, dir}), dccGate, 1);
+		double piDcc = pi(calcB(new float[]{qSacDD, dtQSac}), calcA(new float[]{qSacDD, qGs, dir}), dccGate, gsGate);
 		selectChannel(p, new Channel[] {channels[0], channels[1], channels[2]}, nodeId, piDcc,2);
 		rIn.putEntrainmentRate(nodeId, 
 				new ArrayList<Object>(Arrays.asList(p.Id, qSacDDCFS,dtSacDDCFS, qGsCFS, qDCCFS, piDcc)));

@@ -4,6 +4,7 @@
 package DWR.DMS.PTM;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -110,8 +111,27 @@ public class SurvivalInputs {
 		x = sign*x;
 		return !(x < dist);				
 	}
-	public void writeSurvivalRates(){
+	public void writeSurvivalRates(Map<Integer, IntBuffer> lastTraces){
 		try{
+			if (lastTraces !=null && _groupBarriers != null) { 
+				for (int gid: _groupBarriers.keySet()){
+					IntBuffer nc = _groupBarriers.get(gid);
+					int stuck = 0;
+					for (Integer pid: lastTraces.keySet()) {
+						if(lastTraces.get(pid)!= null && lastTraces.get(pid).equals(nc)) 
+							stuck++;
+					}
+					//System.err.println(_groupLost.get(gid));
+					if (stuck > 0) {
+						if (_groupLost.get(gid)==null)
+							_groupLost.put(gid, stuck);
+						else
+							_groupLost.put(gid, (_groupLost.get(gid)+stuck));
+					}
+					//System.err.println(Integer.toString(gid)+"  "+Integer.toString(PTMHydroInput.getExtFromIntNode(nc.get(0)))
+					 //+"  "+Integer.toString(PTMHydroInput.getExtFromIntChan(nc.get(1)))+ "  "+stuck+ "  "+_groupLost.get(gid));
+				}
+			}
 			BufferedWriter srWriter = null;
 			BufferedWriter srPathWriter = null;
 			if(_pathFileName != null){
@@ -134,6 +154,7 @@ public class SurvivalInputs {
 						Integer ar = _groupArrivals.get(id);
 						Integer lost = _groupLost.get(id);
 						Integer sur = _groupSurvival.get(id);
+						
 						if (ar == null){
 							PTMUtil.systemExit("error in writing survival output.  this particle has never arrived at the starting node of this channel group");;
 						}
@@ -170,6 +191,17 @@ public class SurvivalInputs {
 							 * 
 							 * */
 							srWriter.newLine();	
+						}
+						else {
+							/*
+							 * Russ and Adam decided that for a survival reach, if particles are detected at the start station 
+							 * but never detected at the end stations in case a barrier and a gate, we assume the particles do not survival
+							 * and set the survival rate = 0 
+							 * */
+							srWriter.write(Integer.toString(id).concat(",").concat(_groupName.get(id)).concat(",").concat(Integer.toString(ar)).concat(",").concat(Integer.toString(0))
+									.concat(",").concat(Integer.toString(0)).concat(",")
+									.concat(Float.toString(0.0f)));
+							srWriter.newLine();
 						}
 					} // for (int id: _groupArrivals.keySet())
 				
@@ -235,7 +267,8 @@ public class SurvivalInputs {
 								else
 									pSuvT = pSuvT * 1.0f;
 							}
-							// in case _groupSurvival.get(l) == null, or both _groupSurvival.get(l) and _groupLost.get(l)
+
+							// in case _groupSurvival.get(l) == null, or both _groupSurvival.get(l) and _groupLost.get(l) == null
 							else {
 								pSuvT = 0.0f;
 								if (_groupSplitRatio.get(l) != null)								
@@ -351,7 +384,7 @@ public class SurvivalInputs {
 		int num_groups = PTMUtil.getIntFromLine(survivalParasIn.get(1), "NUMBER_OF_SURVIVAL_CALCULATION_GROUP");
 		for (int i=1; i<num_groups+1; i++){
 			ArrayList<String> survivalStrs = PTMUtil.getInputBlock(survivalParasIn, "GROUP_"+i, "END_GROUP_"+i);
-			if(survivalStrs.size() != 6)
+			if(survivalStrs.size() < 6)
 				PTMUtil.systemExit("errors in the survival parameter input line group:"+i);
 			String name = PTMUtil.getNameFromLine(survivalStrs.get(0), ':');
 			//stSta only has one pair, but enStas and exStas can have many pairs.
@@ -397,7 +430,16 @@ public class SurvivalInputs {
 			if(!PTMUtil.check(survivalStrs.get(4).split("[,:\\s\\t]+"), paraTitle))
 				PTMUtil.systemExit("wrong survival input line:"+survivalStrs.get(4));
 			ArrayList<Double> paras = PTMUtil.getDoubles(survivalStrs.get(5));
-			_groupParas.put(i, paras);						
+			_groupParas.put(i, paras);
+			ArrayList<String> barrierStrs = PTMUtil.getInputBlock(survivalStrs, "BARRIER", "END_BARRIER");
+			if( barrierStrs != null && barrierStrs.size() == 2) {
+				String shouldBe[] = {"NODEID", "CHANNELID/RESERVOIRNAME/OBJ2OBJNAME"};
+				PTMUtil.checkTitle(barrierStrs.get(0), shouldBe);
+				int[] ids = PTMUtil.getEnvNodeChanIds(barrierStrs.get(1).trim().split("[,\\s\\t]+"));
+				if (_groupBarriers == null)
+					_groupBarriers = new HashMap<Integer, IntBuffer>();
+				_groupBarriers.put(i, IntBuffer.wrap(ids));
+			}
 		}
 	}
 	private void setSurvivalHelper(){
@@ -463,4 +505,5 @@ public class SurvivalInputs {
 	private boolean SURVIVALALLWRITEOUT = false;
 	private String _start_date = null;
 	private String _scenario = null;
+	private Map<Integer, IntBuffer> _groupBarriers = null;
 }
