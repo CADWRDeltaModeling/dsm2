@@ -343,8 +343,8 @@ void node_flow_connections_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nre
 
     
 /** get one row worth of information from the buffer */
-void node_flow_connections_query_from_buffer_f(size_t* row, 
-                        int * a_connection_index,int * a_int_node_no,int * a_ext_node_no,int * a_node_flow_index,int * a_flow_index, char a_flow_name[32], char a_flow_type[8], int * ierror, 
+void node_flow_connections_query_from_buffer_f(int32_t* row,
+                        int * a_connection_index,int * a_int_node_no,int * a_ext_node_no,int * a_node_flow_index,int * a_flow_index, char a_flow_name[32], char a_flow_type[8], int * ierror,
               int flow_name_len,int flow_type_len
                         )
 {

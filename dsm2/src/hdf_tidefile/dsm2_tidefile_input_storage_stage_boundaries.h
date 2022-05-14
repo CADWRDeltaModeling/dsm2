@@ -197,7 +197,7 @@ FCALL void stage_boundaries_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nr
 
 
 /** get one row worth of information from the buffer */
-FCALL void stage_boundaries_query_from_buffer_f(size_t* row, 
+FCALL void stage_boundaries_query_from_buffer_f(int32_t* row, 
                          char a_name[32],int * a_int_node_no,int * a_ext_node_no, int * ierror, 
               int name_len);
 /**

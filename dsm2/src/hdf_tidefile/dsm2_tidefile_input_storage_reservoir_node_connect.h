@@ -224,7 +224,7 @@ FCALL void reservoir_node_connect_number_rows_hdf5_f(const hid_t* file_id, hsize
 
 
 /** get one row worth of information from the buffer */
-FCALL void reservoir_node_connect_query_from_buffer_f(size_t* row, 
+FCALL void reservoir_node_connect_query_from_buffer_f(int32_t* row, 
                         int * a_res_node_index, char a_res_name[32],int * a_res_index,int * a_connect_index,int * a_node_no,int * a_ext_node_no, char a_connection_type[8], int * ierror, 
               int res_name_len,int connection_type_len);
 /**

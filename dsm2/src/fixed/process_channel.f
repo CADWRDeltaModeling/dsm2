@@ -3,7 +3,7 @@ C!    Copyright (C) 1996, 1997, 1998, 2001, 2007, 2009 State of California,
 C!    Department of Water Resources.
 C!    This file is part of DSM2.
 
-C!    The Delta Simulation Model 2 (DSM2) is free software: 
+C!    The Delta Simulation Model 2 (DSM2) is free software:
 C!    you can redistribute it and/or modify
 C!    it under the terms of the GNU General Public License as published by
 C!    the Free Software Foundation, either version 3 of the License, or
@@ -17,20 +17,20 @@ C!    GNU General Public License for more details.
 C!    You should have received a copy of the GNU General Public License
 C!    along with DSM2.  If not, see <http://www.gnu.org/licenses>.
 C!</license>
-      
+
       subroutine process_channel(
      &                           extcounter,
-     &                           id,     
+     &                           id,
      &                           channo,
      &                           chan_len,
      &                           chan_manning,
      &                           chan_dispersion,
      &                           chan_upnode,
      &                           chan_downnode)
-     
-     
+
+
       use logging
-      use grid_data     
+      use grid_data
       implicit none
       integer
      &     id
@@ -46,7 +46,7 @@ C!</license>
       real*8
      &     chan_manning
      &     ,chan_dispersion
-     
+
       counter = nchans
       counter=counter+1
       chan_geom(counter).id=id
@@ -62,11 +62,11 @@ C!</license>
       int2ext(counter)=channo
       nchans = counter
       extcounter = counter
-      return 
+      return
       end subroutine
-      
-c=======================================      
-      
+
+c=======================================
+
       subroutine process_xsect(channo,chan_fdist,xsectid,xsectno)
       use grid_data
       use common_xsect
@@ -88,7 +88,7 @@ c=======================================
         chan_fdist = 1.0d0
       endif
       intchan=ext2int(channo)
-      
+
       ! nirg has not been incremented yet it is the previous one
       if (irreg_geom(nirg).chan_no .eq. intchan) then
 c-----------------search for similar xsect distance
@@ -107,12 +107,12 @@ c-----------------search for similar xsect distance
       if (print_level .ge. 3)
      &    write(unit_screen,'(a,i10,i10,i10,f10.8)')
      &      'Add xsect ',nirg, xsectid, channo, chan_fdist
-      
+
       return
       end subroutine
-      
-      
-      
+
+
+
       subroutine process_xsect_layer_full(chan_no,dist,elev,area,width,wetperim)
       implicit none
       integer :: chan_no
@@ -124,7 +124,7 @@ c-----------------search for similar xsect distance
       call process_xsect_layer(xsectno,elev,area,width,wetperim)
       return
       end subroutine
-      
+
       subroutine process_xsect_layer(xsectno,elev,area,width,wetperim)
       use grid_data
       use logging
@@ -137,11 +137,11 @@ c-----------------search for similar xsect distance
       real*8 :: prev_area,prev_width,prev_elev,calc_area
       real*8,parameter :: VERT_RESOLUTION = 0.001
       real*8,parameter :: AREA_PRECISION = 0.0001
-       
+
 	!@todo: if CSDP gets fixed, make below 0.2
-      real*8,parameter :: AREA_READ_PRECISION = 10000.        
-      
-      
+      real*8,parameter :: AREA_READ_PRECISION = 10000.
+
+
 c-----------no duplicate or deleted layers are allowed; create a new
 c-----------cross section instead
       irreg_geom(xsectno).num_elev=irreg_geom(xsectno).num_elev+1
@@ -152,7 +152,7 @@ c-----------cross section instead
      &       irreg_geom(xsectno).min_elev)
       irreg_geom(xsectno).width(nl)=width
 c-----------adjust area to make sure:
-c-----------upper layer area=lower layer area+trapezoidal area between them 
+c-----------upper layer area=lower layer area+trapezoidal area between them
       if (nl .gt. 1) then
 	   prev_area = irreg_geom(xsectno).area(nl-1)
 	   prev_width = irreg_geom(xsectno).width(nl-1)
@@ -161,7 +161,7 @@ c-----------upper layer area=lower layer area+trapezoidal area between them
             write(unit_error,'(a,i5)')
      &		  "Channel areas decreasing with elevation in channel ",
      &         chan_geom(irreg_geom(xsectno).chan_no).chan_no, " Elev: ",elev,
-     &         " Area: ",area 
+     &         " Area: ",area
 	         call exit(-3)
 	         return
 	   end if
@@ -173,7 +173,7 @@ c-----------upper layer area=lower layer area+trapezoidal area between them
 	      return
 	   end if
 
-	   calc_area=prev_area + 
+	   calc_area=prev_area +
      &    (elev-prev_elev)*0.5*(width+prev_width)
 	   if ( abs(area - calc_area ) .gt. AREA_PRECISION) then
 	      if ( abs(area - calc_area ) .gt. AREA_READ_PRECISION) then
@@ -193,23 +193,24 @@ c-----------upper layer area=lower layer area+trapezoidal area between them
 	  irreg_geom(xsectno).h_radius(nl)=0.0d0
 	 endif
 ! todo: log for high print level?
-      
+
       return
       end subroutine
-      
 
 
 
 
-c/////////////////////////////////////////////////////////////      
+
+c/////////////////////////////////////////////////////////////
 c-----Order nodes in node_geom in a way that is compatible
-c-----with hydro and qual. The function also changes 
+c-----with hydro and qual. The function also changes
 c-----chan_geom.upnode and chan_geom.downnode from external to internal
       logical function order_nodes()
       use grid_data
       use io_units
       implicit none
-      integer nn,n,node
+      integer(8) nn
+      integer n,node
       integer intchan
       integer ext2intnode
       integer compareInt
@@ -228,8 +229,8 @@ c     compile list of all nodes and sort them in numerical order
          end if
       end do
       ! now sort
-      call qsort (nodelist(1), nn, int4(4), compareInt) 
-      
+      call qsort (nodelist(1), nn, int8(4), compareInt)
+
       node=nn
 c     add internal nodes to node_geom, in order
       n=0
@@ -253,11 +254,11 @@ c     add external nodes to node_geom, in order
             n=n+1
             node_geom(n).node_ID=nodelist(nn)
          end if
-      end do      
+      end do
       nnodes=n
 
 c-----now repair nodelist to reflect new order
-      nodelist=miss_val_i      
+      nodelist=miss_val_i
       do n=1,nnodes
          nodelist(n)=node_geom(n).node_ID
       end do
@@ -291,18 +292,18 @@ c--------downstream node
       enddo
 
       return
-      end function      
-      
-      
-      
-      
+      end function
+
+
+
+
       subroutine process_xsect_csdp(channo, fdist, filename)
 c-----Transfer buffer contents from xsect to xsect layer. This routine does not
 c     actually do any data processing. There are two requirements:
 c     i.  it must be called after prioritize_buffers(), otherwise the items
 c         added to the xsect_layer buffer here will disappear -- they have no layer number
 c     ii. it must be called before process_xsect_layer gets done. Otherwise the items
-c          added to the xsect_layer buffer will never be processed 
+c          added to the xsect_layer buffer will never be processed
       use grid_data
       use input_storage_fortran
       use common_xsect
@@ -316,7 +317,7 @@ c-----a rectangular or irregular cross-section.
 c-----args
       integer :: channo              ! DSM channel number
       real*8  :: fdist
-      character*128 :: filename 
+      character*128 :: filename
       integer :: ierror = 0
 c----- buffer
       type(cross_section_t) buffer
@@ -339,7 +340,7 @@ c-----local variables
      &     ,k
      &     ,m
      &     ,lnblnk              ! last nonblank intrinsic function
- 
+
       character
      &     one_line*90          ! used to separate each line into fields
      &     ,cerr_msg*10         ! error message
@@ -350,7 +351,7 @@ c-----sorting variables
      &     first
      &     ,last
      &     ,ptr
-     
+
       real*8
      &     hold
 c-----arguments for DSS function FINDLM
@@ -382,7 +383,7 @@ c--------go down past the headers
       do while(is_it_done .ne. '=====')
           read(
      &       unit_input,
-     &        '(a5)') 
+     &        '(a5)')
      &       is_it_done
       enddo
 
@@ -435,7 +436,7 @@ c-----------Changed by Ganesh Pandey 04/03/00
      &       ,'(f12.0)',err=900) buffer.z_centroid(m)
          read(unit_input,'(a)',end=850) one_line
       enddo
-      buffer.num_elev = m      
+      buffer.num_elev = m
       ! they were read in decreasing elevation, append in increasing
       do m=buffer.num_elev,1,-1
 c-----------find minimum elevation
@@ -468,5 +469,4 @@ c-----------find minimum elevation
       call exit(2)
 
       end subroutine
-      
-  
+

@@ -201,7 +201,7 @@ contains
 
         !-----sort list of elevations in the channel:
         !-----ascending order with zeros at end (see function compar)
-        call qsort(temp_all_elev,max_elevations,REAL_PRECISION,compar)
+        call qsort(temp_all_elev,int8(max_elevations),int8(REAL_PRECISION),compar)
 
         !-----copy unique values onto virt_elevation()
         !      virt_elevation(elev_index(channo))=0.0
@@ -533,7 +533,7 @@ contains
                 y8=tempz_centroid(downindex,virtelev)
                 !-----------calculate xsect property array index for current layer
                 di = dindex(channo,vsecno,virtelev)
-                
+
                 if (di > max_layers) then
                     write(unit_error,*) '***error'
                     write(unit_error,*) 'Maximum number of max_layers exceeded.'

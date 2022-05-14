@@ -253,7 +253,7 @@ void hydro_comp_point_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecords
 
     
 /** get one row worth of information from the buffer */
-void hydro_comp_point_query_from_buffer_f(size_t* row, 
+void hydro_comp_point_query_from_buffer_f(int32_t* row, 
                         int * a_comp_index,int * a_channel,double * a_distance, int * ierror
                         )
 {

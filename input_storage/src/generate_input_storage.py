@@ -22,7 +22,7 @@ all_components=[]
 write_hdf5_buffer_lines=[]
 profiles={}
 include_block_assign={}
-    
+
 def referencify(typename, const=False):
     """ Creates a C++ reference out of a C++ type """
     if ("char" in typename):
@@ -65,14 +65,14 @@ def prioritize(component):
     std::sort(buffer().begin(),buffer().end());
     vector<input_storage::@TABLEOBJ>::const_iterator dupl = adjacent_find(buffer().begin(),buffer().end());
     if ( dupl != buffer().end())
-    {   
+    {
         string message = "Duplicate identifiers in the same input layer (or the same file has been included more than once):";
         stringstream messagestrm;
         messagestrm << message << endl << *dupl << " (" << (*dupl).objectName() <<")" << endl;
         messagestrm << "Layer: " << LayerManager::instance().layerName((*dupl).layer);
         throw runtime_error(messagestrm.str());
     }
-    // Eliminate duplicates. Because of prior ordering, 
+    // Eliminate duplicates. Because of prior ordering,
     // this will eliminate lower layers
     buffer().erase(unique(buffer().begin(),buffer().end(),identifier_equal<input_storage::@TABLEOBJ>()),buffer().end());
     // Eliminate items that are not used. This must be done after lower layers have been removed
@@ -82,7 +82,7 @@ def prioritize(component):
     #
     else:
         priority = \
-    """ 
+    """
     // Sort by identifier (lexicographical order) and
     // layer (decreasing order of priority)
     std::sort(buffer().begin(),buffer().end());
@@ -105,7 +105,7 @@ def ensure_line_in_file(include_line,filename):
         infile.close()
     except:
         pass  # file does not exist (probably)
-    
+
     if do_append:
         outfile=open(filename,"a")
         outfile.write(include_line)
@@ -122,15 +122,15 @@ def prep_component(component,outdir):
     c_signature = ",".join([x.c_arg(False) for x in component.members])
     stringlen_output_args = ",".join([x.stringlen_arg(False) for x in component.members if x.stringlen_arg(False)])
     fortran_c_output_signature=",".join([x.fc_arg(False) for x in component.members])
-    fortran_c_output_signature += ", int * ierror"
+    fortran_c_output_signature += ", int32_t * ierror"
     if (len(stringlen_output_args) > 0):
         fortran_c_output_signature+=(", \n              %s"  % stringlen_output_args)
 
-        
+
     c_input_signature = ",".join([x.c_arg(True) for x in component.members])
     stringlen_input_args = ",".join([x.stringlen_arg(True) for x in component.members if x.stringlen_arg(True)])
     fortran_c_input_signature=",".join([x.fc_arg(True) for x in component.members])
-    fortran_c_input_signature += ", int * ierror"
+    fortran_c_input_signature += ", int32_t * ierror"
 
     if (len(stringlen_input_args) > 0):
         fortran_c_input_signature+=(", \n              %s"  % stringlen_input_args)
@@ -143,10 +143,10 @@ def prep_component(component,outdir):
     default_construct = "\n    ".join([x.constructor("default") for x in component.members if x.constructor("default")])
     init = ",\n    ".join([x.initializer("arg") for x in component.members if x.initializer("arg")]).strip("\n, ")
     if (init): init += ","
-    
+
     copyinit= ",\n    ".join([x.initializer("copy") for x in component.members if x.initializer("copy")]).strip("\n, ")
     if (copyinit): copyinit += ","
-    
+
     equalop= "\n    ".join([x.equaler() for x in component.members if x.equaler()])
     members = "\n  ".join([x.member() for x in component.members if x.member()])
     c_pass_through_call = ",".join([x.fortran_pointer()+"a_"+\
@@ -176,7 +176,7 @@ def prep_component(component,outdir):
     fortran_decl_in = "      "  +  "\n       ".join([fortran_declaration(x,"in") for x in component.members])
     fortran_decl_out = "      "  +  "\n       ".join([fortran_declaration(x,"out") for x in component.members])
 
-    if component.parent: 
+    if component.parent:
         parent = component.parent
         parentid =",".join(component.parent_id)
         headerparent = "#include \"input_storage_%s.h\"" % parent
@@ -185,11 +185,11 @@ def prep_component(component,outdir):
         parentid = identifiers
         headerparent = ""
 
-    
+
     compareitems = compare_items(component)
     prioritizecode = prioritize(component)
 
-    
+
     def do_txt_replace(txt):
         txt = txt.replace("@TABLEOBJ",component.name)
         txt = txt.replace("@NFIELDS","%s" % len(component.members))
@@ -216,12 +216,12 @@ def prep_component(component,outdir):
         txt = txt.replace("@QUOTED_MEMBERS",quoted_members)
         txt = txt.replace("@HDFTYPES",hdftypes)
         txt = txt.replace("@SIZES",membersizes)
-        txt = txt.replace("@FORTRAN_C_INPUT_SIGNATURE",fortran_c_input_signature) 
+        txt = txt.replace("@FORTRAN_C_INPUT_SIGNATURE",fortran_c_input_signature)
         txt = txt.replace("@FORTRAN_C_OUTPUT_SIGNATURE",fortran_c_output_signature)
         txt = txt.replace("@FORTRAN_SIGNATURE",fortran_signature)
         txt = txt.replace("@FORTRAN_DECL_IN",fortran_decl_in)
         txt = txt.replace("@FORTRAN_DECL_OUT",fortran_decl_out)
-        
+
         txt = txt.replace("@IDENTIFIERTYPES",identifiertypes)
         txt = txt.replace("@IDENTIFIERS",identifiers)
         txt = txt.replace("@IDENTIFIERASSIGN",identifier_assign)
@@ -244,7 +244,7 @@ def prep_component(component,outdir):
     outfile.write(txt)
     infile.close()
     outfile.close()
-    # perform object-specific replacements to create C++ .h file    
+    # perform object-specific replacements to create C++ .h file
     infile=open(os.path.join(indir,"input_storage_template.h"),"r")
     outfile=open(os.path.join(outdir,"input_storage_%s.h" % component.name),"w")
     txt = infile.read()
@@ -259,11 +259,11 @@ def prep_component(component,outdir):
     input_map_lines.append(  "   InputStatePtr %sPtr(new ItemInputState<input_storage::%s>());\n    inputMap[\"%s\"] = %sPtr;\n" \
                              % (component.name,component.name,component.name.upper(),component.name))
 
-    
+
     infilename = os.path.join(outdir,"input_storage.h")
     #ensure_line_in_file(include_line,infilename)
 
-    # perform object-specific replacements to create FORTRAN .f90 file for this object   
+    # perform object-specific replacements to create FORTRAN .f90 file for this object
     infile = open(os.path.join(indir,"fortran_binding_template.f90"),"r")
     txt = infile.read()
     infile.close()
@@ -279,7 +279,7 @@ def prep_component(component,outdir):
     write_text_buffer_lines.append(write_buffer_line)
     write_text_buffer_cond_lines.append(conditional_write_buffer_line)
     write_buffer_hdf5_line = "%s_write_buffer_to_hdf5_f(file_id,ierror);\n     if(*ierror != 0) return;" % component.name
-    conditional_write_hdf5_buffer_line=("if(buffer_name == \"%s\"){" % component.name) + write_buffer_hdf5_line + "}"    
+    conditional_write_hdf5_buffer_line=("if(buffer_name == \"%s\"){" % component.name) + write_buffer_hdf5_line + "}"
     write_hdf5_buffer_lines.append(write_buffer_hdf5_line)
     write_hdf5_buffer_cond_lines.append(conditional_write_hdf5_buffer_line)
 
@@ -288,7 +288,7 @@ def prep_component(component,outdir):
     read_hdf5_buffer_cond_lines.append(conditional_read_hdf5_buffer_line)
 
     fortran_include_lines.append("include \"%s\"" % fortfile)
- 
+
     # add the FORTRAN .f90 file for this object as an include to the main module
 
 
@@ -306,11 +306,11 @@ def define_text_sub(name,outdir):
     f=open(os.path.join(outdir,"text_parser.cpp"),'w')
     f.write(txt)
 
-    
+
 def define_profile(profile,contents):
     profiles[profile]=contents
 
-    
+
 def process_profiles():
     profile_code = ""
     for prof in profiles.keys():
@@ -325,10 +325,10 @@ def process_profiles():
     """ % (prof,contentcode)
         profile_code += p
     return profile_code
-    
+
 
 def process_include_defs():
-    include_code = "" 
+    include_code = ""
     for block in include_defs:
         blockName = block[0]
         contextName = "%sContextItems" % blockName
@@ -338,8 +338,8 @@ def process_include_defs():
         include_code += "    InputStatePtr %sPtr(new IncludeFileState(%s));\n" % (blockName, contextName)
         include_code += "    inputMap[\"%s\"] = %sPtr;\n" % (blockName.upper(), blockName)
     return include_code
-    
-    
+
+
 
 def finalize(outdir):
     f=open(os.path.join(outdir,"input_storage.h"),'w')
@@ -369,7 +369,7 @@ def finalize(outdir):
     txt=txt.replace("// Read hdf5 one buffer DO NOT ALTER THIS LINE AT ALL","\n".join(read_hdf5_buffer_cond_lines))
     txt=txt.replace("// Write hdf5 all buffers DO NOT ALTER THIS LINE AT ALL","\n".join(write_hdf5_buffer_lines))
 
-    
+
     f=open(os.path.join(outdir,"buffer_actions.cpp"),"w")
     f.write(txt)
     f.close()
@@ -381,7 +381,7 @@ def finalize(outdir):
     f=open(os.path.join(outdir,"input_storage_fortran.f90"),"w")
     f.write(txt)
     f.close()
-    
+
     f=open(os.path.join(indir,"component_template.py"),"r")
     txt=f.read()
     f.close()
@@ -405,13 +405,13 @@ def finalize(outdir):
                              +",\\\n      ".join(include_block_order)\
                              +"]\n\n"
     subtxt+=include_block_order_txt
-    
+
     txt=txt.replace("@COMPONENTSCRIPT",subtxt)
     f=open(os.path.join(outdir,"component.py"),"w")
     f.write(txt)
     f.close()
-        
-    
-    
+
+
+
     shutil.copy(os.path.join(indir,"userDefineLangTemplate.xml"),os.path.join(outdir,"."))
     process_profiles()

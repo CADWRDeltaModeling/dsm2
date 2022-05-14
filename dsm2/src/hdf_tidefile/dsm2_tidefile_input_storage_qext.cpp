@@ -283,7 +283,7 @@ void qext_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecords, int* ierro
 
     
 /** get one row worth of information from the buffer */
-void qext_query_from_buffer_f(size_t* row, 
+void qext_query_from_buffer_f(int32_t* row, 
                          char a_name[32], char a_attach_obj_name[32],int * a_attached_obj_type,int * a_attached_obj_no, int * ierror, 
               int name_len,int attach_obj_name_len
                         )

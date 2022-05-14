@@ -199,7 +199,7 @@ FCALL void hydro_comp_point_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nr
 
 
 /** get one row worth of information from the buffer */
-FCALL void hydro_comp_point_query_from_buffer_f(size_t* row, 
+FCALL void hydro_comp_point_query_from_buffer_f(int32_t* row, 
                         int * a_comp_index,int * a_channel,double * a_distance, int * ierror);
 /**
   prioritize buffer by layers, delete unused items and sort

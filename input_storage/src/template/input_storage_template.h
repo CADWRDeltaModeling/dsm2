@@ -1,11 +1,11 @@
 #ifndef @TABLEOBJ_STORAGE_H__
 #define @TABLEOBJ_STORAGE_H__
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 #define _CRT_SECURE_NO_DEPRECATE  // viz studio deprecation warnings
 #include "hdf5.h"
 #include "hdf5_hl.h"
@@ -35,7 +35,7 @@ class @TABLEOBJ
 {
 public:
 
-  /** Data type @TABLEOBJ, default constructor */  
+  /** Data type @TABLEOBJ, default constructor */
   typedef const boost::tuple<@IDENTIFIERTYPES>  identifier_type;
 
   @TABLEOBJ() :
@@ -52,30 +52,30 @@ public:
     used(a_used),
     layer(a_layer)
   {
-    @CONSTRUCT  
+    @CONSTRUCT
   }
-  
-  /**Copy constructor) 
+
+  /**Copy constructor)
    */
   @TABLEOBJ (const @TABLEOBJ & other) :
     @COPYINIT
     used(other.used),
     layer(other.layer)
   {
-    @COPYCONSTRUCT  
+    @COPYCONSTRUCT
   }
-  
+
   /** Identifier that distinguishes whether two entries are distinct */
   identifier_type identifier()  const
-  {  
+  {
      return identifier_type( @IDENTIFIERS );
   }
-  
+
   void set_identifier(identifier_type identifier)
   {
      @IDENTIFIERASSIGN
   }
-  
+
   /** Parent object class name.
       If this is a child item belonging to a parent, returns
       the name of the parent class. Otherwise returns the name
@@ -86,7 +86,7 @@ public:
      return @PARENT::identifier_type( @ZPARENTIDENTIFIERS );
   }
 
-  /** Return the version/layer number of the parent object */ 
+  /** Return the version/layer number of the parent object */
   int parent_version()  const
   {
     vector<@PARENT>& pbuf = HDFTableManager<@PARENT>::instance().buffer();
@@ -96,7 +96,7 @@ public:
                                                 pbuf.end(),
                                                 parent,
                                                 identifier_compare<@PARENT>());
-    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();    
+    bool found = (loc!=pbuf.end()) && loc->identifier() == parent.identifier();
     if (found && loc->used){ return loc->layer; }
     else{ return -1; }
   }
@@ -107,18 +107,18 @@ public:
     return this->layer == parent_version();
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator< (const @TABLEOBJ & other) const
   {
      @COMPARETABLEITEM
   }
 
-  /** Less-than operator based on the identifier plus (for parent objects) layer number*/  
+  /** Less-than operator based on the identifier plus (for parent objects) layer number*/
   bool operator== (const @TABLEOBJ & other) const
   {
      return ((*this < other ) || (other < *this)) ? false : true;
   }
-  
+
   /** Assignment that includes all the data plus the used and layer fields */
   @TABLEOBJ& operator=(const @TABLEOBJ& rhs)
   {
@@ -130,14 +130,14 @@ public:
 
   /** Return the class name of this object (@TABLEOBJ) */
   string objectName() const
-  { 
-    return "@TABLEOBJ"; 
+  {
+    return "@TABLEOBJ";
   }
 
-  
+
   @MEMBERS
   /** indicator that the entry is used (true if not marked deleted by user)*/
-  bool used;  
+  bool used;
   /** layer (version number) of this entry */
   int layer;
 };
@@ -160,7 +160,7 @@ ostream& operator<<(ostream & stream, const input_storage::@TABLEOBJ & obj);
 
 /**
   Clear the buffer, compatible with fortran
-*/  
+*/
 FCALL void @TABLEOBJ_clear_buffer_f();
 
 /** query number of records being stored in buffer */
@@ -169,7 +169,7 @@ FCALL int @TABLEOBJ_buffer_size_f();
 
 /** append to buffer, compatible with fortran, returns new size*/
 FCALL void @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE);
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 FCALL void @TABLEOBJ_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror);
 
@@ -182,7 +182,7 @@ FCALL void @TABLEOBJ_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nrecords,
 
 
 /** get one row worth of information from the buffer */
-FCALL void @TABLEOBJ_query_from_buffer_f(size_t* row, 
+FCALL void @TABLEOBJ_query_from_buffer_f(int32_t* row,
                         @FORTRAN_C_OUTPUT_SIGNATURE);
 /**
   prioritize buffer by layers, delete unused items and sort

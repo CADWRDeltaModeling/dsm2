@@ -217,7 +217,7 @@ FCALL void reservoir_flow_connections_number_rows_hdf5_f(const hid_t* file_id, h
 
 
 /** get one row worth of information from the buffer */
-FCALL void reservoir_flow_connections_query_from_buffer_f(size_t* row, 
+FCALL void reservoir_flow_connections_query_from_buffer_f(int32_t* row, 
                         int * a_connection_index, char a_res_name[32],int * a_res_index,int * a_res_flow_index,int * a_flow_index, char a_flow_name[32], char a_flow_type[8], int * ierror, 
               int res_name_len,int flow_name_len,int flow_type_len);
 /**

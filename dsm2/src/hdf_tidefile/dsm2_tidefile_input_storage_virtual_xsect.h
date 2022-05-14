@@ -229,7 +229,7 @@ FCALL void virtual_xsect_number_rows_hdf5_f(const hid_t* file_id, hsize_t* nreco
 
 
 /** get one row worth of information from the buffer */
-FCALL void virtual_xsect_query_from_buffer_f(size_t* row, 
+FCALL void virtual_xsect_query_from_buffer_f(int32_t* row, 
                         int * a_chan_no,int * a_num_virt_sec,int * a_vsecno,int * a_num_elev,double * a_min_elev,double * a_elevation,double * a_area,double * a_wet_p,double * a_width, int * ierror);
 /**
   prioritize buffer by layers, delete unused items and sort

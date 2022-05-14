@@ -1,9 +1,9 @@
 /**
-WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE  
-DO NOT CHANGE THE CODE HERE. 
+WARNING: THIS FILE WAS AUTOMATICALLY GENERATED USING A SCRIPT AND A TEMPLATE
+DO NOT CHANGE THE CODE HERE.
 IF THE CODE IS INCORRECT, FIX THE TEMPLATE OR SCRIPT
 IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRESH
-*/ 
+*/
 
 /**
   READ case:
@@ -11,7 +11,7 @@ IF YOU WANT TO ADD NEW ITEMS, ADD THEM TO THE SCRIPT INPUT FILE AND RUN IT AFRES
   2. Append items to the buffer one at a time from fortran.
   3. Write the buffer to file.
   4. Clear the buffer.
-  
+
   WRITE case:
   1. Clear the buffer.
   2. Read table from file.
@@ -39,7 +39,7 @@ using namespace boost;
 
 /** Write the table item to an output stream */
 ostream& operator<<(ostream & stream, const input_storage::@TABLEOBJ & obj)
-{  
+{
   quote_if_spaces quote_spaces;
   stream.setf(ios_base::fixed,ios_base::floatfield);
   return stream << @OUTSTREAMFMT;
@@ -62,14 +62,14 @@ istream& operator>> (istream& stream, input_storage::@TABLEOBJ & obj)
   FilterIter end(predicate, xtok.end());
   istringstream tokenstrm;
   string tempstr;
-   
+
   @INSTREAMFMT;
   return stream;
 }
 
 template<>
 HDFTableManager<input_storage::@TABLEOBJ>::HDFTableManager() :
-    description(@TABLEOBJ_table_description()),  
+    description(@TABLEOBJ_table_description()),
     m_default_fill(input_storage::@TABLEOBJ(@DEFAULT_MEMBER_DATA)){}
 
 template<>
@@ -104,7 +104,7 @@ TableDescription @TABLEOBJ_table_description(){
 
 /**
   Clear the storage buffer for objects of type @TABLEOBJ
-*/  
+*/
 void @TABLEOBJ_clear_buffer_f(){
   //@TABLEOBJ_table::instance().buffer().destroy();
   @TABLEOBJ_table::instance().buffer().clear();
@@ -120,23 +120,23 @@ void @TABLEOBJ_append_to_buffer_f(@FORTRAN_C_INPUT_SIGNATURE)
                                       ));
  ) // end of exception trap
 }
-  
+
 /** both makes the table and writes the contents of the buffer to it */
 void @TABLEOBJ_write_buffer_to_hdf5_f(const hid_t* file_id, int* ierror){
  _TRAP_EXCEPT(*ierror,
     @TABLEOBJ_table & table = @TABLEOBJ_table::instance();
-    *ierror = static_cast<int>( H5TBmake_table( @TABLEOBJ_table::instance().description.title.c_str(), 
-                                              *file_id, 
-	                                      table.description.title.c_str(), 
-                                              table.description.nfields, 
-                                              table.buffer().size(), 
-                                              table.description.struct_size, 
-                                              table.description.field_names, 
-                                              table.description.field_offsets, 
-                                              table.description.field_types, 
-                                              table.description.chunk_size, 
-		                                     &table.default_fill(), //fill data 
-		                                       1,                     //@TABLEOBJ_table::instance().description.compress, 
+    *ierror = static_cast<int>( H5TBmake_table( @TABLEOBJ_table::instance().description.title.c_str(),
+                                              *file_id,
+	                                      table.description.title.c_str(),
+                                              table.description.nfields,
+                                              table.buffer().size(),
+                                              table.description.struct_size,
+                                              table.description.field_names,
+                                              table.description.field_offsets,
+                                              table.description.field_types,
+                                              table.description.chunk_size,
+		                                     &table.default_fill(), //fill data
+		                                       1,                     //@TABLEOBJ_table::instance().description.compress,
 		                                      table.buffer().size() > 0 ? &table.buffer()[0] : NULL));
   ) // end of exception trap
 }
@@ -147,49 +147,49 @@ void @TABLEOBJ_read_buffer_from_hdf5_f(const hid_t* file_id, int* ierror){
     hsize_t nfields;
     hsize_t nrecords;
     @TABLEOBJ_table & table = @TABLEOBJ_table::instance();
-    *ierror = static_cast<int>(  H5TBget_table_info (*file_id, 
-                               table.description.title.c_str(), 
-                               &nfields, 
-			                   &nrecords )); 
-    if ( *ierror < 0) return; 
- 
+    *ierror = static_cast<int>(  H5TBget_table_info (*file_id,
+                               table.description.title.c_str(),
+                               &nfields,
+			                   &nrecords ));
+    if ( *ierror < 0) return;
+
     if (nfields != table.description.nfields){ *ierror = LOGIC_ERROR; return;}
 
-    table.buffer().resize(static_cast<int>(nrecords)); 
+    table.buffer().resize(static_cast<int>(nrecords));
 
-	if (nrecords > 0) 
+	if (nrecords > 0)
 	{
-		*ierror = static_cast<int>( H5TBread_table(*file_id, 
-			                        table.description.title.c_str(), 
-			                        table.description.struct_size, 
-			                        table.description.field_offsets, 
+		*ierror = static_cast<int>( H5TBread_table(*file_id,
+			                        table.description.title.c_str(),
+			                        table.description.struct_size,
+			                        table.description.field_offsets,
 			                        table.description.field_sizes,
 			                        &(table.buffer()[0])));
 	}
- ) // end of exception trap                                   
+ ) // end of exception trap
 }
 
 /** query size information about the table */
 void @TABLEOBJ_number_rows_hdf5_f(const hid_t *file_id, hsize_t* nrecords, int* ierror){
  _TRAP_EXCEPT(*ierror,
     hsize_t nfields = 0;
-    *ierror = static_cast<int>(  H5TBget_table_info (*file_id, 
-				     @TABLEOBJ_table::instance().description.title.c_str(), 
-				     &nfields, 
+    *ierror = static_cast<int>(  H5TBget_table_info (*file_id,
+				     @TABLEOBJ_table::instance().description.title.c_str(),
+				     &nfields,
 				     nrecords));
  ) // end of exception trap
 }
 
 
-    
+
 /** get one row worth of information from the buffer */
-void @TABLEOBJ_query_from_buffer_f(size_t* row, 
+void @TABLEOBJ_query_from_buffer_f(int32_t* row,
                         @FORTRAN_C_OUTPUT_SIGNATURE
                         )
 {
  _TRAP_EXCEPT(*ierror,
     //if (row > @TABLEOBJ_table::instance().buffer().size()) return -2; //todo: HDF_STORAGE_ERROR;
-    size_t ndx = *row - 1;
+    int32_t ndx = *row - 1;
     input_storage::@TABLEOBJ obj =@TABLEOBJ_table::instance().buffer()[ndx];
     @BUFFER_QUERY
     @STRLENASSIGN
@@ -198,7 +198,7 @@ void @TABLEOBJ_query_from_buffer_f(size_t* row,
 
 /** Prioritize buffer by layers, delete unused items and sort */
 void @TABLEOBJ_prioritize_buffer_f(int* ierror)
-{  
+{
  _TRAP_EXCEPT(*ierror,
   @TABLEOBJ_table::instance().prioritize_buffer();
    ) // end of exception trap
@@ -206,7 +206,7 @@ void @TABLEOBJ_prioritize_buffer_f(int* ierror)
 
 /** Query the size of the storage buffer for objects of type @TABLEOBJ */
 int @TABLEOBJ_buffer_size_f()
-{ 
+{
   return (int) @TABLEOBJ_table::instance().buffer().size();
 }
 
@@ -217,7 +217,7 @@ void @TABLEOBJ_write_buffer_to_stream(ostream & out, const bool& append)
    out << keyword <<endl;
    vector<input_storage::@TABLEOBJ> & obs = @TABLEOBJ_table::instance().buffer();
    @TABLEOBJ_table& table = @TABLEOBJ_table::instance();
-   for (size_t icount = 0; icount < table.description.nfields; ++ icount) 
+   for (size_t icount = 0; icount < table.description.nfields; ++ icount)
    {
      string name = table.description.field_names[icount];
      boost::to_upper(name);
@@ -226,16 +226,16 @@ void @TABLEOBJ_write_buffer_to_stream(ostream & out, const bool& append)
    out << endl;
    for (vector<input_storage::@TABLEOBJ>::const_iterator it = obs.begin();
         it != obs.end(); ++it)
-        {  
+        {
 	  const input_storage::@TABLEOBJ & outitem = *it;
            out << outitem << endl;
         }
    out << "END\n" << endl;
 }
 
-void @TABLEOBJ_write_buffer_to_text_f(const char* file, 
-                                      const bool* append, 
-                                      int* ierror, 
+void @TABLEOBJ_write_buffer_to_text_f(const char* file,
+                                      const bool* append,
+                                      int* ierror,
                                       int filelen)
 {
  _TRAP_EXCEPT(*ierror,
@@ -243,7 +243,7 @@ void @TABLEOBJ_write_buffer_to_text_f(const char* file,
   boost::filesystem::path p(filename);
   ios_base::openmode mode = *append ? (ios::out | ios::ate | ios::app) : (ios::out | ios::trunc );
   ofstream out(filename.c_str(),mode);
-  
-  @TABLEOBJ_write_buffer_to_stream(out,*append); 
-  ) // end of exception trap  
+
+  @TABLEOBJ_write_buffer_to_stream(out,*append);
+  ) // end of exception trap
 }
