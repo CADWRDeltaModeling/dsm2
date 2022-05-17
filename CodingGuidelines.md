@@ -15,6 +15,7 @@ For all languages we use, follow coding styles below.
 - Keep the line length limited to a certain column. We recommend the maximum in between 80 to 132 letter per line.
 - Use a space between a operator and operands. Use a space after a comma. (Some exceptions can be used such as operators in function arguments or array indices to make them look more compact.)
 - Use ample amount of comments to explain codes. Document functions/subroutines/classes well with documents including arguments and return variables. Use automatic documentation tools if they are available, for example, Javadocs and Python documentation.
+- Remove tailing whitespaces.
 
 ## Coding Recommendations
 The following coding principles are well-known programming recommendations. We encourage to follow these.
@@ -29,20 +30,36 @@ The following coding principles are well-known programming recommendations. We e
 - Test your codes as much as possible before your codes are shared. Write tests if they are not available.
 
 ## Tools to Help Code Formatting
-You can use any tools or editors that you like for coding, but there are some tools that can help you to format your codes. We often recommends VS Code because it has various choices of plugins that can help us in coding.
+You can use any tools or editors that you like for coding, but there are some tools that can help you to format your codes. We recommend
+ VS Code because it has various choices of extensions that can help us in coding and styling and because it has great community supports. Thus, this guideline explains a few tips and tools with VS Code.
+
+## General Formatting
+### Line Ending
+At the line ends of a text file, there are invisible special characters that indicate line changes. Unfortunately, depending on operating systems, these special characters can be different. (See [Newline - Wikipedia](https://en.wikipedia.org/wiki/Newline) to find out more about it.) They make no differences to our eyes and compilers, but changes in the line endings are recognized as differences and changes by version control programs such as git. Thus, it is good to keep one line ending styles, especially codes are developed over multiple operating systems. Our standard of the line ending is Unix style, `LF` only. So, please __use LF or Linux line ending style with your editor__.
+
+To mitigate this conveniently, git can convert the line endings automatically when files are added. On Windows, set a git global option as below:
+
+    $ git config --global core.autocrlf true
+
+When one file uses mixture of line ending characters, the git option may not work as you wanted. If that is the case, please convert the line endings manually to make them consistent. In VS Code, you can click CRLF or LF in the right end of the bottom status bar, and choose LF, or select `Change end of line sequence` in the command palette to do so.
+
+Please `git diff` when you add and commit your changes. It will show any unwanted changes such as line endings.
+
+### Tailing whitespaces
+When tailing whitespaces at the end of lines are left in codes, they can be recognized as changes by version control systems (VCSs) even though they are not visible in an editor. So, it is a good idea to remove tailing whitespaces. VS Code has extensions for this, and one of them is `Trailing Spaces`. It will highlight trailing whitespaces, and you can remove them with extensions.
 
 ## For Fortran
-Currently, we do not have a strict coding style for Fortran codes because Fortran in DSM2 suite is mixture of Fortran 77, Fortran 90 and later over a long history. We, however strongly recommends using Fortran 90 for future development. Here are some coding guidelines:
+Currently, we do not have strict coding styles for Fortran codes because Fortran in DSM2 suite is a mixture of Fortran 77, Fortran 90 and later over a long history of development. We, however, recommend using Fortran 90 for future development. Here are some coding guidelines:
 
 - Use free from of Fortran 90 and later.
 - Limit the line length if you can. The length of 132 is a good choice.
 - Use `intent` keywords for subroutine/function arguments.
 - Avoid `goto`s.
 
-For VS Code, we recommends `Modern Fortran`. You may need to use `WSL` and `gfortran` with `Python` if Windows is your platform. See the documentation of `Modern Fortran` to find out how to set up the extension and a language server.
+For VS Code, we recommend `Modern Fortran` extension and `fpretty`. See the documentation of `Modern Fortran` to find out how to set up the extension and tools for it such as a language server.
 
 ## For Java
-We do not have a strict coding style for Java. For the future Java development, it is recommended to follow a style suggested in [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) or [Oracle Java Code Conventions](https://www.oracle.com/technetwork/java/codeconventions-150003.pdf). If Ecilpse is your Java IDE, try its auto-formatter.
+We do not have a strict coding style for Java. For the future Java development, it is recommended to follow a style suggested in [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) or [Oracle Java Code Conventions](https://www.oracle.com/technetwork/java/codeconventions-150003.pdf). If Eclipse is your Java IDE, try its auto-formatter.
 
 # Git Standards
 We use git for version-controlling, and there are a few important guidelines regarding git usage.
